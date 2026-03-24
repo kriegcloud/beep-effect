@@ -1,8 +1,8 @@
 /**
  * Agent-related command suite.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -20,8 +20,8 @@ const $I = $RepoCliId.create("commands/Agents");
 /**
  * `agents check` resolved options.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class AgentsCheckOptions extends S.Class<AgentsCheckOptions>($I`AgentsCheckOptions`)(
   {
@@ -35,8 +35,8 @@ class AgentsCheckOptions extends S.Class<AgentsCheckOptions>($I`AgentsCheckOptio
 /**
  * Managed file manifest entry.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class ManagedFile extends S.Class<ManagedFile>($I`ManagedFile`)(
   {
@@ -50,8 +50,8 @@ class ManagedFile extends S.Class<ManagedFile>($I`ManagedFile`)(
 /**
  * Managed file manifest payload.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class ManagedFilesManifest extends S.Class<ManagedFilesManifest>($I`ManagedFilesManifest`)(
   {
@@ -68,8 +68,8 @@ class ManagedFilesManifest extends S.Class<ManagedFilesManifest>($I`ManagedFiles
 /**
  * Pathless configuration violation.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class PathlessViolation extends S.Class<PathlessViolation>($I`PathlessViolation`)(
   {
@@ -124,8 +124,8 @@ const findSlashColumn = (line: string): O.Option<number> => {
 /**
  * CLI command for validating AGENTS manifest coverage.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const agentsCheckCommand = Command.make(
   "check",
@@ -197,8 +197,8 @@ const agentsCheckCommand = Command.make(
 /**
  * CLI command for validating pathless agent instruction surfaces.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const agentsPathlessCheckCommand = Command.make(
   "pathless-check",
@@ -273,8 +273,8 @@ const agentsPathlessCheckCommand = Command.make(
 /**
  * Agent command group.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const agentsCommand = Command.make(
   "agents",

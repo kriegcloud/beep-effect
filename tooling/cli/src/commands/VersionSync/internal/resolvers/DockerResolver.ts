@@ -4,8 +4,8 @@
  * Parses `docker-compose.yml` for `image:` fields and optionally resolves
  * latest tags from Docker Hub.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -43,8 +43,8 @@ const STABLE_DOCKER_TAG_PATTERN = /^(?!latest$)(?!.*(?:rc|beta|alpha|nightly|dev
 // ── Docker Hub API ──────────────────────────────────────────────────────────
 
 /**
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 class DockerTagResult extends S.Class<DockerTagResult>($I`DockerTagResult`)(
   {
@@ -56,8 +56,8 @@ class DockerTagResult extends S.Class<DockerTagResult>($I`DockerTagResult`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 class DockerTagsResponse extends S.Class<DockerTagsResponse>($I`DockerTagsResponse`)(
   {
@@ -73,8 +73,8 @@ class DockerTagsResponse extends S.Class<DockerTagsResponse>($I`DockerTagsRespon
 /**
  * A Docker image reference parsed from docker-compose.yml.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class DockerImageRef extends S.Class<DockerImageRef>($I`DockerImageRef`)(
   {
@@ -122,8 +122,8 @@ class DockerComposeDocument extends S.Class<DockerComposeDocument>($I`DockerComp
 /**
  * Resolved Docker image state.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DockerImageState extends S.Class<DockerImageState>($I`DockerImageState`)(
   {
@@ -318,8 +318,8 @@ const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
 /**
  * Resolve Docker image state from docker-compose.yml.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const resolveDockerImages: (
   repoRoot: string,
@@ -385,8 +385,8 @@ export const resolveDockerImages: (
 /**
  * Fetch the latest appropriate tag for a Docker image from Docker Hub.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 const fetchLatestDockerTag: (
   ref: DockerImageRef
@@ -435,10 +435,10 @@ const fetchLatestDockerTag: (
 /**
  * Build the Docker category report from resolved state.
  *
- * @since 0.0.0
- * @category Utility
  * @param state - The resolved Docker image state.
  * @returns The version category report for Docker images.
+ * @category Utility
+ * @since 0.0.0
  */
 export const buildDockerReport: (state: DockerImageState) => VersionCategoryReport = (state) => {
   let items = A.empty<VersionDriftItem>();

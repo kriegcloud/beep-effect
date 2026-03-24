@@ -4,7 +4,7 @@
  * @module @beep/utils/Number
  * @since 0.0.0
  */
-import * as Num from "effect/Number";
+import { Number as Num } from "effect";
 
 /**
  * Determines if the given input is a number and is positive (greater than or equal to 0).
@@ -15,7 +15,7 @@ import * as Num from "effect/Number";
  *
  * @example
  * ```typescript
- * import { isPositive } from "effect"; // Assuming this function is exported from a module
+ * import { isPositive } from "@beep/utils/Number";
  * import * as A from "effect/Array";
  *
  * const values = [3, -1, 0, 42, -7];
@@ -35,22 +35,15 @@ import * as Num from "effect/Number";
  *
  * @example
  * ```typescript
- * import { Effect, Console } from "effect";
+ * import { Console } from "effect";
+ * import { isPositive } from "@beep/utils/Number";
  *
  * const processNumber = (n: unknown) =>
- *   Effect.gen(function* () {
- *     if (isPositive(n)) {
- *       yield* Console.log(`${n} is valid and positive.`);
- *     } else {
- *       throw new Error(`Invalid input. Expected positive number, got: ${n}`);
- *     }
- *   });
+ *   isPositive(n)
+ *     ? Console.log(`${n} is valid and positive.`)
+ *     : Console.log(`Invalid input. Expected positive number, got: ${String(n)}`);
  *
- * const program = processNumber(10).pipe(
- *   Effect.catchAll((error) =>
- *     Console.log(`Error occurred: ${error.message}`)
- *   )
- * );
+ * void processNumber(10);
  * ```
  *
  * @since 0.0.0
@@ -69,5 +62,11 @@ export const isPositive: (u: unknown) => u is number = (u: unknown): u is number
  */
 export * from "effect/Number";
 
+/**
+ * Checks whether a value is an integer.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
 export const isInteger: (u: unknown) => u is number = (u: unknown): u is number =>
   Num.isNumber(u) && Number.isInteger(u);

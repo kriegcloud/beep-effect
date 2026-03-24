@@ -48,12 +48,48 @@ export const isCurrencyCode = S.is(CurrencyCode);
  * @since 0.0.0
  */
 export const USD: CurrencyCode = CurrencyCode.makeUnsafe("USD");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const EUR: CurrencyCode = CurrencyCode.makeUnsafe("EUR");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const GBP: CurrencyCode = CurrencyCode.makeUnsafe("GBP");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const JPY: CurrencyCode = CurrencyCode.makeUnsafe("JPY");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const CHF: CurrencyCode = CurrencyCode.makeUnsafe("CHF");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const CAD: CurrencyCode = CurrencyCode.makeUnsafe("CAD");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const AUD: CurrencyCode = CurrencyCode.makeUnsafe("AUD");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const CNY: CurrencyCode = CurrencyCode.makeUnsafe("CNY");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const HKD: CurrencyCode = CurrencyCode.makeUnsafe("HKD");
+/**
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const SGD: CurrencyCode = CurrencyCode.makeUnsafe("SGD");

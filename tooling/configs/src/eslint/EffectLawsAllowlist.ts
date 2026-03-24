@@ -37,8 +37,8 @@ const decodedAllowlistSnapshot = pipe(
  * Snapshot-backed runtime has no mutable cache, so this is a compatibility no-op.
  *
  * @returns `undefined` because snapshot-backed runtime has no mutable cache.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const resetAllowlistCache = (): void => undefined;
 
@@ -46,8 +46,8 @@ export const resetAllowlistCache = (): void => undefined;
  * Retrieve allowlist decode diagnostics.
  *
  * @returns Read-only diagnostic messages produced while loading/decoding the allowlist document.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllowlistSnapshot.diagnostics;
 
@@ -56,8 +56,8 @@ export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllow
  *
  * @param input - Candidate violation identity payload.
  * @returns `true` when an allowlist entry exactly matches the normalized lookup key.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const isViolationAllowlisted = (input: unknown): boolean =>
   pipe(

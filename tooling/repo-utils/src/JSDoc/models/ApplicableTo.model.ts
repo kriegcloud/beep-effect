@@ -6,8 +6,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ApplicableTo.model");
 /**
  * AST-level attachment surface for a documentation tag.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const ApplicableTo = LiteralKit([
   "function",

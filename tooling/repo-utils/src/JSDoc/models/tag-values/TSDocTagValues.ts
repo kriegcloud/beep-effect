@@ -1,8 +1,8 @@
 /**
  * TSDoc-specific tag occurrence shapes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -11,8 +11,8 @@ import { empty, nameField, optionalDesc } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TSDocTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class AlphaValue extends S.TaggedClass<AlphaValue>($I`AlphaValue`)(
   "alpha",
@@ -23,8 +23,8 @@ export class AlphaValue extends S.TaggedClass<AlphaValue>($I`AlphaValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class BetaValue extends S.TaggedClass<BetaValue>($I`BetaValue`)(
   "beta",
@@ -35,8 +35,8 @@ export class BetaValue extends S.TaggedClass<BetaValue>($I`BetaValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ExperimentalValue extends S.TaggedClass<ExperimentalValue>($I`ExperimentalValue`)(
   "experimental",
@@ -47,8 +47,8 @@ export class ExperimentalValue extends S.TaggedClass<ExperimentalValue>($I`Exper
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class InternalValue extends S.TaggedClass<InternalValue>($I`InternalValue`)(
   "internal",
@@ -59,8 +59,8 @@ export class InternalValue extends S.TaggedClass<InternalValue>($I`InternalValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SealedValue extends S.TaggedClass<SealedValue>($I`SealedValue`)(
   "sealed",
@@ -71,8 +71,8 @@ export class SealedValue extends S.TaggedClass<SealedValue>($I`SealedValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class VirtualValue extends S.TaggedClass<VirtualValue>($I`VirtualValue`)(
   "virtual",
@@ -83,8 +83,8 @@ export class VirtualValue extends S.TaggedClass<VirtualValue>($I`VirtualValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PrivateRemarksValue extends S.TaggedClass<PrivateRemarksValue>($I`PrivateRemarksValue`)(
   "privateRemarks",
@@ -95,8 +95,8 @@ export class PrivateRemarksValue extends S.TaggedClass<PrivateRemarksValue>($I`P
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PackageDocumentationValue extends S.TaggedClass<PackageDocumentationValue>($I`PackageDocumentationValue`)(
   "packageDocumentation",
@@ -107,8 +107,8 @@ export class PackageDocumentationValue extends S.TaggedClass<PackageDocumentatio
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class LabelValue extends S.TaggedClass<LabelValue>($I`LabelValue`)(
   "label",
@@ -119,8 +119,8 @@ export class LabelValue extends S.TaggedClass<LabelValue>($I`LabelValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DecoratorValue extends S.TaggedClass<DecoratorValue>($I`DecoratorValue`)(
   "decorator",
@@ -131,8 +131,8 @@ export class DecoratorValue extends S.TaggedClass<DecoratorValue>($I`DecoratorVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class EventPropertyValue extends S.TaggedClass<EventPropertyValue>($I`EventPropertyValue`)(
   "eventProperty",

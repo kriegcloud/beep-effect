@@ -1,8 +1,8 @@
 /**
  * Event and dependency tag occurrence shapes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -11,8 +11,8 @@ import { nameField, optionalDesc, optionalName } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/EventDependencyTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class FiresValue extends S.TaggedClass<FiresValue>($I`FiresValue`)(
   "fires",
@@ -23,8 +23,8 @@ export class FiresValue extends S.TaggedClass<FiresValue>($I`FiresValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ListensValue extends S.TaggedClass<ListensValue>($I`ListensValue`)(
   "listens",
@@ -35,8 +35,8 @@ export class ListensValue extends S.TaggedClass<ListensValue>($I`ListensValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class EventValue extends S.TaggedClass<EventValue>($I`EventValue`)(
   "event",
@@ -47,8 +47,8 @@ export class EventValue extends S.TaggedClass<EventValue>($I`EventValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class RequiresValue extends S.TaggedClass<RequiresValue>($I`RequiresValue`)(
   "requires",

@@ -13,8 +13,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/DependencyProfile.model");
 /**
  * Fan-in / fan-out intensity classification.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const FanValue = LiteralKit(["low", "medium", "high"]).annotate(
   $I.annote("FanValue", {
@@ -25,8 +25,8 @@ export const FanValue = LiteralKit(["low", "medium", "high"]).annotate(
 /**
  * Inferred type for {@link FanValue}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type FanValue = typeof FanValue.Type;
 
@@ -35,8 +35,8 @@ export type FanValue = typeof FanValue.Type;
  * if something classified as domain logic has high fan-out, that is a
  * misclassification signal.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DependencyProfile extends S.Class<DependencyProfile>($I`DependencyProfile`)(
   {

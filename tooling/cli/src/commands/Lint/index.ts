@@ -1,8 +1,8 @@
 /**
  * Lint policy command suite.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -58,8 +58,8 @@ const REQUIRED_TAGGED_UNIONS = [
 /**
  * Lint violation report row.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
   {
@@ -125,8 +125,8 @@ const isContainedLintPath = (path: Path.Path, root: string, candidate: string): 
  *
  * @param root - Root directory to scan for TypeScript sources.
  * @returns Sorted list of TypeScript source files under the lint root.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function* (
   root: string
@@ -509,7 +509,7 @@ const runLintCircular = Effect.fn(function* () {
 
   for (const dir of dirs) {
     if (!(yield* fs.exists(dir))) {
-      yield* Console.warn(`Skipping missing directory: ${dir}`);
+      yield* Console.log(`Skipping missing directory: ${dir}`);
       continue;
     }
 
@@ -551,8 +551,8 @@ const runLintCircular = Effect.fn(function* () {
 /**
  * Lint command for circular dependency checks.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const lintCircularCommand = Command.make("circular", {}, runLintCircular).pipe(
   Command.withDescription("Detect circular dependencies in tooling source directories")
@@ -561,8 +561,8 @@ const lintCircularCommand = Command.make("circular", {}, runLintCircular).pipe(
 /**
  * Lint command for enforcing tagged error usage.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const lintToolingTaggedErrorsCommand = Command.make("tooling-tagged-errors", {}, runLintToolingTaggedErrors).pipe(
   Command.withDescription("Check tooling source for native Error usage")
@@ -571,8 +571,8 @@ const lintToolingTaggedErrorsCommand = Command.make("tooling-tagged-errors", {},
 /**
  * Lint command for schema-first CLI conventions.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const lintToolingSchemaFirstCommand = Command.make("tooling-schema-first", {}, runLintToolingSchemaFirst).pipe(
   Command.withDescription("Check tooling/cli source for schema-first conventions")
@@ -581,8 +581,8 @@ const lintToolingSchemaFirstCommand = Command.make("tooling-schema-first", {}, r
 /**
  * Lint command group.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const lintCommand = Command.make(
   "lint",

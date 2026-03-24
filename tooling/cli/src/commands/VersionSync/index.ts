@@ -7,11 +7,11 @@ import type { VersionSyncMode } from "./internal/Models.js";
 /**
  * Resolve command mode from flags.
  *
- * @since 0.0.0
- * @category Utility
  * @param write - Whether `--write` was passed.
  * @param dryRun - Whether `--dry-run` was passed.
  * @returns The resolved command execution mode.
+ * @category Utility
+ * @since 0.0.0
  */
 const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode => {
   return Bool.match(write, {
@@ -27,8 +27,8 @@ const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode => {
 /**
  * CLI command for synchronizing version pins across the monorepo.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const versionSyncCommand = Command.make(
   "version-sync",

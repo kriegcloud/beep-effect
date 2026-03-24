@@ -9,8 +9,8 @@ import { LiteralKit } from "@beep/schema";
 /**
  * Canonical TypeScript SyntaxKind name entries.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const TSSyntaxKindEntries = [
   ["Unknown", 0],
@@ -427,8 +427,8 @@ const TSSyntaxKindNames = toNameOptions(TSSyntaxKindEntries);
 /**
  * Lookup table from canonical SyntaxKind names to their numeric codes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TSSyntaxKindCode = Object.freeze(Object.fromEntries(TSSyntaxKindEntries)) as {
   readonly [K in TSSyntaxKindEntries[number][0]]: Extract<TSSyntaxKindEntries[number], readonly [K, number]>[1];
@@ -442,8 +442,8 @@ const TSSyntaxKindBase = LiteralKit(TSSyntaxKindNames);
  * `From` is kept as a compatibility alias for callers that previously reached
  * for the literal-name side of the old mapped model.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TSSyntaxKind = Object.assign(TSSyntaxKindBase, {
   From: TSSyntaxKindBase,
@@ -453,22 +453,22 @@ export const TSSyntaxKind = Object.assign(TSSyntaxKindBase, {
 /**
  * Companion namespace for {@link TSSyntaxKind}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export declare namespace TSSyntaxKind {
   /**
    * Decoded representation of a TSSyntaxKind value.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   export type Type = typeof TSSyntaxKind.Type;
   /**
    * Encoded representation of a TSSyntaxKind value.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   export type Encoded = typeof TSSyntaxKind.Encoded;
 }
@@ -476,15 +476,15 @@ export declare namespace TSSyntaxKind {
 /**
  * Literal union of all canonical TypeScript SyntaxKind string names.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TSSyntaxKindLiteral = TSSyntaxKind.From;
 
 /**
  * Inferred type for {@link TSSyntaxKindLiteral}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TSSyntaxKindLiteral = typeof TSSyntaxKindLiteral.Type;

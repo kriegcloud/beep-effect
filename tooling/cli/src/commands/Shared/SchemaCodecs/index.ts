@@ -1,8 +1,8 @@
 /**
  * Shared schema codec public exports.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { Effect, Layer } from "effect";
@@ -26,26 +26,26 @@ import {
 /**
  * Service contract type for JSONC parsing.
  *
- * @since 0.0.0
  * @description Service interface for JSONC parsing and schema decoding.
  * @category DomainModel
+ * @since 0.0.0
  */
 export type JsoncCodecServiceShape = JsoncCodecServiceShape_;
 
 /**
  * Service contract type for YAML parsing.
  *
- * @since 0.0.0
  * @description Service interface for YAML parsing and schema decoding.
  * @category DomainModel
+ * @since 0.0.0
  */
 export type YamlCodecServiceShape = YamlCodecServiceShape_;
 
 /**
  * Decode JSONC text into a target schema using the shared JSONC codec.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const decodeJsoncTextAs = decodeJsoncTextAs_;
 
@@ -54,8 +54,8 @@ export const decodeJsoncTextAs = decodeJsoncTextAs_;
  *
  * @param schema - Target schema used to decode JSONC input.
  * @returns Effectful decoder wired with the live JSONC codec layer.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const decodeJsoncTextAsLive = <Schema extends S.Top>(schema: Schema) => {
   const decode = decodeJsoncTextAs(schema);
@@ -70,40 +70,40 @@ export const decodeJsoncTextAsLive = <Schema extends S.Top>(schema: Schema) => {
 /**
  * Service tag for JSONC parsing.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export const JsoncCodecService = JsoncCodecService_;
 
 /**
  * Live JSONC codec service layer.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const JsoncCodecServiceLive = JsoncCodecServiceLive_;
 
 /**
  * JSONC parse diagnostic payload.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const JsoncParseDiagnostic = JsoncParseDiagnostic_;
 
 /**
  * Effectful JSONC text-to-unknown schema transformation.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const JsoncTextToUnknown = JsoncTextToUnknown_;
 
 /**
  * Decode YAML text into a target schema using the shared YAML codec.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const decodeYamlTextAs = decodeYamlTextAs_;
 
@@ -112,8 +112,8 @@ export const decodeYamlTextAs = decodeYamlTextAs_;
  *
  * @param schema - Target schema used to decode YAML input.
  * @returns Effectful decoder wired with the live YAML codec layer.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const decodeYamlTextAsLive = <Schema extends S.Top>(schema: Schema) => {
   const decode = decodeYamlTextAs(schema);
@@ -126,23 +126,23 @@ export const decodeYamlTextAsLive = <Schema extends S.Top>(schema: Schema) => {
 /**
  * Service tag for YAML parsing.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export const YamlCodecService = YamlCodecService_;
 
 /**
  * Live YAML codec service layer.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const YamlCodecServiceLive = YamlCodecServiceLive_;
 
 /**
  * Effectful YAML text-to-unknown schema transformation.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const YamlTextToUnknown = YamlTextToUnknown_;

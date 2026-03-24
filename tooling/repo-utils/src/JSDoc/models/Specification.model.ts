@@ -6,8 +6,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/Specification.model");
 /**
  * Enumerates canonical standards that define a documentation tag.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const Specification = LiteralKit([
   // JSDoc 3.x standard (jsdoc.app)

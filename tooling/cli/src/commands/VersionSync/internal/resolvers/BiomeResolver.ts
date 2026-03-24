@@ -4,8 +4,8 @@
  * Compares the `$schema` URL version in `biome.jsonc` against the installed
  * `@biomejs/biome` version from the root `package.json` catalog.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -31,14 +31,14 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BiomeResol
 // ── Constants ───────────────────────────────────────────────────────────────
 
 /**
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const BIOME_SCHEMA_PREFIX = "https://biomejs.dev/schemas/";
 
 /**
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const BIOME_SCHEMA_SUFFIX = "/schema.json";
 const BIOME_SCHEMA_URL_PATTERN = /^https:\/\/biomejs\.dev\/schemas\/[^/]+\/schema\.json$/;
@@ -57,10 +57,10 @@ const BiomeSchemaUrl = S.String.check(S.isPattern(BIOME_SCHEMA_URL_PATTERN)).pip
 /**
  * Extract the version from a Biome schema URL.
  *
- * @since 0.0.0
- * @category Utility
  * @param schemaUrl - The `$schema` URL from `biome.jsonc`.
  * @returns The extracted version, or `None` if the URL format is unrecognized.
+ * @category Utility
+ * @since 0.0.0
  */
 const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(
   S.decodeTo(
@@ -80,10 +80,10 @@ const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(
 /**
  * Extract exact version from a catalog version specifier (strip `^`, `~`, etc.).
  *
- * @since 0.0.0
- * @category Utility
  * @param version - The version specifier (e.g. `^2.4.4`).
  * @returns The bare version string without range prefix.
+ * @category Utility
+ * @since 0.0.0
  */
 const VersionSpecifierToExactVersion = S.String.pipe(
   S.decodeTo(
@@ -103,10 +103,10 @@ const VersionSpecifierToExactVersion = S.String.pipe(
 /**
  * Build a schema URL from a version string.
  *
- * @since 0.0.0
- * @category Utility
  * @param version - The Biome version (e.g. `2.4.4`).
  * @returns The full `$schema` URL for `biome.jsonc`.
+ * @category Utility
+ * @since 0.0.0
  */
 const buildSchemaUrl = (version: string): string => `${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`;
 const decodeSchemaVersion = S.decodeUnknownOption(BiomeSchemaUrlToVersion);
@@ -145,8 +145,8 @@ class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPa
 /**
  * Resolved Biome schema state.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class BiomeSchemaState extends S.Class<BiomeSchemaState>($I`BiomeSchemaState`)(
   {
@@ -168,8 +168,8 @@ export class BiomeSchemaState extends S.Class<BiomeSchemaState>($I`BiomeSchemaSt
 /**
  * Resolve current Biome schema version from `biome.jsonc` and installed version from `package.json` catalog.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const resolveBiomeSchema: (
   repoRoot: string
@@ -239,10 +239,10 @@ export const resolveBiomeSchema: (
 /**
  * Build the Biome schema category report from resolved state.
  *
- * @since 0.0.0
- * @category Utility
  * @param state - The resolved Biome schema state.
  * @returns The version category report for the Biome schema.
+ * @category Utility
+ * @since 0.0.0
  */
 export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryReport = (state) => {
   let items = A.empty<VersionDriftItem>();
@@ -286,8 +286,8 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
 /**
  * Update the `$schema` field in `biome.jsonc` to match the installed version.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateBiomeSchema: (
   filePath: string,

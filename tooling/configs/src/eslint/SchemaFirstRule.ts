@@ -100,8 +100,8 @@ const getSourceText = (context: Rule.RuleContext, node: unknown): string =>
  * literals with obvious non-schema signals such as function members, Effect,
  * Layer, AbortSignal, and external runtime handle types.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const schemaFirstRule: Rule.RuleModule = {
   meta: {

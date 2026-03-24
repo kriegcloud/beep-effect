@@ -4,8 +4,8 @@
  * Restores the old subtree command surface in current repo style while
  * intentionally excluding AI or agent capabilities.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
@@ -446,8 +446,8 @@ const printDocgenIndex = Effect.fn(function* () {
 /**
  * Human-first docgen command suite.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
   Command.withDescription("Documentation generation utilities without AI or agent workflows"),

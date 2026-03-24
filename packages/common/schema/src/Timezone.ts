@@ -10,6 +10,12 @@ import { LiteralKit } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("Timezone");
 
+/**
+ * IANA timezone identifier schema.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const Timezone = LiteralKit([
   "Africa/Abidjan",
   "Africa/Accra",
@@ -462,4 +468,10 @@ export const Timezone = LiteralKit([
   })
 );
 
+/**
+ * Runtime type for {@link Timezone}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export type Timezone = typeof Timezone.Type;

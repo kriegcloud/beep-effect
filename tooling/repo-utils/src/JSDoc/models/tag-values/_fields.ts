@@ -1,8 +1,8 @@
 /**
  * Reusable field building blocks for per-tag occurrence schemas.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import * as S from "effect/Schema";
 

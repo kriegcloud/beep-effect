@@ -6,8 +6,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagParameters.model");
 /**
  * Structured description of what arguments a tag accepts.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TagParameters extends S.Class<TagParameters>($I`TagParameters`)(
   {

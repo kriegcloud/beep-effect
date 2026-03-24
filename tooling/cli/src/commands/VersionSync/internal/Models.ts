@@ -1,8 +1,8 @@
 /**
  * Data types and tagged errors for the version-sync command.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -20,8 +20,8 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/Models");
 /**
  * Operational error during version sync (file read/write, parse failures).
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export class VersionSyncError extends TaggedErrorClass<VersionSyncError>($I`VersionSyncError`)(
   "VersionSyncError",
@@ -35,8 +35,8 @@ export class VersionSyncError extends TaggedErrorClass<VersionSyncError>($I`Vers
 /**
  * Network unavailable during upstream version resolution.
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export class NetworkUnavailableError extends TaggedErrorClass<NetworkUnavailableError>($I`NetworkUnavailableError`)(
   "NetworkUnavailableError",
@@ -50,8 +50,8 @@ export class NetworkUnavailableError extends TaggedErrorClass<NetworkUnavailable
 /**
  * Drift detected in check mode (non-zero exit).
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export class VersionSyncDriftError extends TaggedErrorClass<VersionSyncDriftError>($I`VersionSyncDriftError`)(
   "VersionSyncDriftError",
@@ -67,8 +67,8 @@ export class VersionSyncDriftError extends TaggedErrorClass<VersionSyncDriftErro
 /**
  * A single version pin location with its current and expected values.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class VersionDriftItem extends S.Class<VersionDriftItem>($I`VersionDriftItem`)(
   {
@@ -86,15 +86,15 @@ export class VersionDriftItem extends S.Class<VersionDriftItem>($I`VersionDriftI
 /**
  * Version category for grouping drift items.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const VersionCategoryKit = LiteralKit(["bun", "node", "docker", "biome", "effect"]);
 /**
  * Version category for grouping drift items.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionCategory = VersionCategoryKit.annotate(
   $I.annote("VersionCategory", {
@@ -104,29 +104,29 @@ export const VersionCategory = VersionCategoryKit.annotate(
 /**
  * Literal option tuple for version categories.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionCategoryOptions = VersionCategoryKit.Options;
 /**
  * Version category for grouping drift items.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type VersionCategory = typeof VersionCategory.Type;
 /**
  * Status of a version category.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const VersionCategoryStatusKit = LiteralKit(["ok", "drift", "unpinned", "error"]);
 /**
  * Status of a version category.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionCategoryStatus = VersionCategoryStatusKit.annotate(
   $I.annote("VersionCategoryStatus", {
@@ -136,29 +136,29 @@ export const VersionCategoryStatus = VersionCategoryStatusKit.annotate(
 /**
  * Pattern-matching helper for version category status literals.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionCategoryStatusMatch = VersionCategoryStatusKit.$match;
 /**
  * Enum mapping for version category status literals.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionCategoryStatusEnum = VersionCategoryStatusKit.Enum;
 /**
  * Thunk helpers for version category status literals.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionCategoryStatusThunk = VersionCategoryStatusKit.thunk;
 /**
  * Status of a version category.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type VersionCategoryStatus = typeof VersionCategoryStatus.Type;
 
@@ -246,8 +246,8 @@ class VersionCategoryReportEffect extends S.Class<VersionCategoryReportEffect>($
  * Report for a single version category (bun, node, docker, biome, or effect).
  *
  * @returns Tagged union schema keyed by `category`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionCategoryReport = VersionCategory.mapMembers(
   Tuple.evolve([
@@ -267,16 +267,16 @@ export const VersionCategoryReport = VersionCategory.mapMembers(
 /**
  * Report for a single version category (bun, node, docker, or biome).
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type VersionCategoryReport = typeof VersionCategoryReport.Type;
 
 /**
  * Full version sync report across all categories.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class VersionSyncReport extends S.Class<VersionSyncReport>($I`VersionSyncReport`)(
   {
@@ -291,15 +291,15 @@ export class VersionSyncReport extends S.Class<VersionSyncReport>($I`VersionSync
 /**
  * Command execution mode.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const VersionSyncModeKit = LiteralKit(["check", "write", "dry-run"]);
 /**
  * Command execution mode.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionSyncMode = VersionSyncModeKit.annotate(
   $I.annote("VersionSyncMode", {
@@ -309,16 +309,16 @@ export const VersionSyncMode = VersionSyncModeKit.annotate(
 /**
  * Pattern-matching helper for version-sync mode literals.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionSyncModeMatch = VersionSyncModeKit.$match;
 
 /**
  * Command execution mode.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type VersionSyncMode = typeof VersionSyncMode.Type;
 
@@ -376,8 +376,8 @@ class VersionSyncOptionsDryRun extends S.Class<VersionSyncOptionsDryRun>($I`Vers
  * Resolved command options after flag parsing.
  *
  * @returns Tagged union schema keyed by `mode`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const VersionSyncOptions = VersionSyncMode.mapMembers(
   Tuple.evolve([() => VersionSyncOptionsCheck, () => VersionSyncOptionsWrite, () => VersionSyncOptionsDryRun])
@@ -392,16 +392,16 @@ export const VersionSyncOptions = VersionSyncMode.mapMembers(
 /**
  * Resolved command options after flag parsing.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type VersionSyncOptions = typeof VersionSyncOptions.Type;
 
 /**
  * YAML location to update in write mode.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class VersionSyncUpdateLocation extends S.Class<VersionSyncUpdateLocation>($I`VersionSyncUpdateLocation`)(
   {
@@ -416,8 +416,8 @@ export class VersionSyncUpdateLocation extends S.Class<VersionSyncUpdateLocation
 /**
  * Resolver output consumed by reporting and write-mode services.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class VersionSyncResolution extends S.Class<VersionSyncResolution>($I`VersionSyncResolution`)(
   {

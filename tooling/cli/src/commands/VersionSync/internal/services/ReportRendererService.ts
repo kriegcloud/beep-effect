@@ -1,8 +1,8 @@
 /**
  * Report rendering service for version-sync output.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -28,8 +28,8 @@ const stringEquivalence = S.toEquivalence(S.String);
 /**
  * Service contract for rendering a version-sync report to console.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type ReportRendererServiceShape = {
   readonly renderCategoryReport: (report: VersionCategoryReportValue) => Effect.Effect<void>;
@@ -39,8 +39,8 @@ export type ReportRendererServiceShape = {
 /**
  * Service tag for report rendering.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class ReportRendererService extends ServiceMap.Service<ReportRendererService, ReportRendererServiceShape>()(
   $I`ReportRendererService`
@@ -125,8 +125,8 @@ const renderReport: ReportRendererServiceShape["renderReport"] = Effect.fn(funct
 /**
  * Live layer for report rendering.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const ReportRendererServiceLive = Layer.succeed(
   ReportRendererService,

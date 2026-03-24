@@ -1,8 +1,8 @@
 /**
  * Comment-preserving `package.json` `packageManager` updater via `jsonc-parser`.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { Effect, FileSystem, Inspectable } from "effect";
@@ -13,8 +13,8 @@ import { VersionSyncError } from "../Models.js";
 /**
  * Formatting options matching the project standard.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   tabSize: 2,
@@ -27,8 +27,8 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
  * Comment-preserving: uses `modify()` + `applyEdits()` pattern.
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updatePackageManagerField: (
   filePath: string,
@@ -80,8 +80,8 @@ export const updatePackageManagerField: (
  *
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateCatalogEntry: (
   filePath: string,

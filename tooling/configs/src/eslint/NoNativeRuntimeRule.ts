@@ -344,8 +344,8 @@ const resolveTypeofComparisonViolation = (observation: TypeofComparisonObservati
  * Custom ESLint rule that disallows selected native runtime APIs in domain code
  * and applies additional stricter checks to designated hotspot runtime files.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const noNativeRuntimeRule: Rule.RuleModule = {
   meta: {

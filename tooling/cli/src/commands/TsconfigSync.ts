@@ -1,8 +1,8 @@
 /**
  * tsconfig-sync command - synchronize workspace tsconfig references and root aliases.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -47,15 +47,15 @@ export {
   /**
    * Build canonical tsconfig alias targets from a package root export.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   buildCanonicalAliasTargets,
   /**
    * Resolve the canonical root export target from a package `exports` field.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   resolveRootExportTarget,
 } from "./Shared/TsconfigAliasTargets.js";
@@ -63,8 +63,8 @@ export {
 /**
  * Formatting options used for jsonc edits.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   tabSize: 2,
@@ -75,8 +75,8 @@ const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
 /**
  * Synthetic root key in repo-utils dependency maps.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const ROOT_DEP_INDEX_KEY = "@beep/root" as const;
 const $I = $RepoCliId.create("commands/TsconfigSync");
@@ -93,8 +93,8 @@ const RootDepIndexKey = S.Literal(ROOT_DEP_INDEX_KEY).annotate(
  * - `@beep/<name>`
  * - `@beep/<name>/*`
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
 
@@ -138,8 +138,8 @@ const isArrayEmpty = <T>(values: ReadonlyArray<T>): boolean =>
 /**
  * Drift error raised in check mode when changes are required.
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftError>($I`TsconfigSyncDriftError`)(
   "TsconfigSyncDriftError",
@@ -156,8 +156,8 @@ export class TsconfigSyncDriftError extends TaggedErrorClass<TsconfigSyncDriftEr
 /**
  * Cycle error raised when workspace dependency cycles are detected.
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleError>($I`TsconfigSyncCycleError`)(
   "TsconfigSyncCycleError",
@@ -174,8 +174,8 @@ export class TsconfigSyncCycleError extends TaggedErrorClass<TsconfigSyncCycleEr
 /**
  * Filter error raised when `--filter` does not match any workspace package.
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export class TsconfigSyncFilterError extends TaggedErrorClass<TsconfigSyncFilterError>($I`TsconfigSyncFilterError`)(
   "TsconfigSyncFilterError",
@@ -192,15 +192,15 @@ export class TsconfigSyncFilterError extends TaggedErrorClass<TsconfigSyncFilter
 /**
  * Command execution mode.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const TsconfigSyncModeKit = LiteralKit(["sync", "check", "dry-run"]);
 /**
  * Command execution mode.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TsconfigSyncMode = TsconfigSyncModeKit.annotate(
   $I.annote("TsconfigSyncMode", {
@@ -249,8 +249,8 @@ class TsconfigSyncRunOptionsDryRun extends S.Class<TsconfigSyncRunOptionsDryRun>
  * Runtime options for executing tsconfig sync at a repo root.
  *
  * @returns Tagged union schema keyed by `mode`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TsconfigSyncRunOptions = TsconfigSyncMode.mapMembers(
   Tuple.evolve([
@@ -268,16 +268,16 @@ export const TsconfigSyncRunOptions = TsconfigSyncMode.mapMembers(
 /**
  * Runtime options for executing tsconfig sync at a repo root.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TsconfigSyncRunOptions = typeof TsconfigSyncRunOptions.Type;
 
 /**
  * Sync change section categories.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TsconfigSyncSection = LiteralKit([
   "root-references",
@@ -296,8 +296,8 @@ export const TsconfigSyncSection = LiteralKit([
 /**
  * Sync change section categories.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TsconfigSyncSection = typeof TsconfigSyncSection.Type;
 
@@ -382,8 +382,8 @@ class PackageDocgenChange extends S.Class<PackageDocgenChange>($I`PackageDocgenC
  * A single planned file change.
  *
  * @returns Tagged union schema keyed by `section`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
   Tuple.evolve([
@@ -406,8 +406,8 @@ export const TsconfigSyncChange = TsconfigSyncSection.mapMembers(
 /**
  * A single planned file change.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TsconfigSyncChange = typeof TsconfigSyncChange.Type;
 
@@ -507,8 +507,8 @@ class PackageDocgenPlannedFileChange extends S.Class<PackageDocgenPlannedFileCha
  * A planned file change with transformed file content.
  *
  * @returns Tagged union schema keyed by `section`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const PlannedFileChange = TsconfigSyncSection.mapMembers(
   Tuple.evolve([
@@ -531,8 +531,8 @@ export const PlannedFileChange = TsconfigSyncSection.mapMembers(
 /**
  * A planned file change with transformed file content.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type PlannedFileChange = typeof PlannedFileChange.Type;
 
@@ -573,8 +573,8 @@ class TsconfigSyncResultDryRun extends S.Class<TsconfigSyncResultDryRun>($I`Tsco
  * Result emitted after a sync run.
  *
  * @returns Tagged union schema keyed by `mode`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TsconfigSyncResult = TsconfigSyncMode.mapMembers(
   Tuple.evolve([() => TsconfigSyncResultSync, () => TsconfigSyncResultCheck, () => TsconfigSyncResultDryRun])
@@ -589,8 +589,8 @@ export const TsconfigSyncResult = TsconfigSyncMode.mapMembers(
 /**
  * Result emitted after a sync run.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TsconfigSyncResult = typeof TsconfigSyncResult.Type;
 
@@ -605,8 +605,8 @@ type TsconfigSyncError =
 /**
  * Workspace package descriptor with metadata for tsconfig synchronization.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`WorkspaceDescriptor`)(
   {
@@ -654,8 +654,8 @@ class TsconfigCompilerOptionsPaths extends S.Class<TsconfigCompilerOptionsPaths>
 /**
  * Minimal tsconfig shape containing optional `references`.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`TsconfigWithReferences`)(
   {
@@ -669,8 +669,8 @@ export class TsconfigWithReferences extends S.Class<TsconfigWithReferences>($I`T
 /**
  * Minimal tsconfig shape containing optional `compilerOptions.paths`.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsconfigWithPaths extends S.Class<TsconfigWithPaths>($I`TsconfigWithPaths`)(
   {
@@ -1598,8 +1598,8 @@ const renderChanges = Effect.fn(function* (
  * @param rootDir - Absolute repository root directory.
  * @param options - Mode and logging options.
  * @returns Summary of planned/applied changes.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const syncTsconfigAtRoot: (
   rootDir: string,
@@ -1715,8 +1715,8 @@ const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
 /**
  * CLI command for synchronizing root and workspace tsconfig state.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const tsconfigSyncCommand = Command.make(
   "tsconfig-sync",

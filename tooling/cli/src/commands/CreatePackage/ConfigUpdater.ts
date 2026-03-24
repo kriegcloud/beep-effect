@@ -5,8 +5,8 @@
  * to `tsconfig.json` (JSONC-safe via `jsonc-parser`). All operations are
  * idempotent — existing entries are silently skipped.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -32,8 +32,8 @@ const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
  * Each boolean field is `true` when the corresponding file was actually written
  * (or, in the case of {@link checkConfigNeedsUpdate}, would need updating).
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpdateResult`)(
   {
@@ -49,8 +49,8 @@ export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpd
 /**
  * Config update target for a package that should be registered in root tsconfig files.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpdateTarget`)(
   {
@@ -67,8 +67,8 @@ export class ConfigUpdateTarget extends S.Class<ConfigUpdateTarget>($I`ConfigUpd
 /**
  * Per-target config update summary.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ConfigUpdateTargetResult extends S.Class<ConfigUpdateTargetResult>($I`ConfigUpdateTargetResult`)(
   {
@@ -93,8 +93,8 @@ const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pip
  * `tsconfigPackages` and `tsconfigPaths` are aggregate booleans indicating whether
  * at least one target changed (or needs a change, in check mode) for the file.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ConfigUpdateBatchResult extends S.Class<ConfigUpdateBatchResult>($I`ConfigUpdateBatchResult`)(
   {
@@ -256,8 +256,8 @@ const modifyFileString: (
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
  * @returns `true` when the file was modified, `false` when the entry already existed.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateTsconfigPackages: (
   repoRoot: string,
@@ -300,8 +300,8 @@ export const updateTsconfigPackages: (
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
  * @returns `true` when the file was modified, `false` when the aliases already existed.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateTsconfigPaths: (
   repoRoot: string,
@@ -356,8 +356,8 @@ export const updateTsconfigPaths: (
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"packages/common/data"`).
  * @returns `true` when the file was modified, `false` when the entry already existed or was covered.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateTstycheConfig: (
   repoRoot: string,
@@ -451,8 +451,8 @@ const checkConfigNeedsUpdateForTarget: (
  * @param targets - Package targets to register in root tsconfig files.
  * @returns Per-target results and aggregate booleans indicating whether each file changed for at least one target.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateRootConfigsForTargets: (
   repoRoot: string,
@@ -483,8 +483,8 @@ export const updateRootConfigsForTargets: (
  * @param targets - Package targets to check in root tsconfig files.
  * @returns Per-target results and aggregate booleans indicating whether each file needs updates for at least one target.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const checkConfigNeedsUpdateForTargets: (
   repoRoot: string,
@@ -518,8 +518,8 @@ export const checkConfigNeedsUpdateForTargets: (
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
  * @returns A {@link ConfigUpdateResult} indicating which config files were modified.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateRootConfigs: (
   repoRoot: string,
@@ -547,8 +547,8 @@ export const updateRootConfigs: (
  * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
  * @returns A {@link ConfigUpdateResult} where `true` means the file still needs updating.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const checkConfigNeedsUpdate: (
   repoRoot: string,

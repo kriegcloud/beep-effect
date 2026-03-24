@@ -1,8 +1,8 @@
 /**
  * Version-sync handler orchestration.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
@@ -73,8 +73,8 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
  *
  * @param options - Parsed version-sync options.
  * @returns Effect that resolves or fails with typed version-sync errors.
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const handleVersionSync: (
   options: VersionSyncOptions

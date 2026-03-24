@@ -3,9 +3,9 @@
 /**
  * CLI entry point - assembles runtime layers and executes the root command.
  *
- * @since 0.0.0
- * @internal
  * @module
+ * @internal
+ * @since 0.0.0
  */
 
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
@@ -21,9 +21,9 @@ import { rootCommand } from "./commands/Root.js";
  * These three services are leaf dependencies required by virtually every CLI
  * command and are combined here so they can be shared by all derived layers.
  *
- * @since 0.0.0
- * @category Configuration
  * @internal
+ * @category Configuration
+ * @since 0.0.0
  */
 const BaseLayers = Layer.mergeAll(NodeServices.layer);
 
@@ -34,9 +34,9 @@ const BaseLayers = Layer.mergeAll(NodeServices.layer);
  * This layer satisfies all `Command.Environment` requirements plus
  * the repo-utils `FsUtils` service used by commands like `codegen`.
  *
- * @since 0.0.0
- * @category Configuration
  * @internal
+ * @category Configuration
+ * @since 0.0.0
  */
 const DerivedLayers = Layer.mergeAll(
   NodeChildProcessSpawner.layer,
@@ -51,9 +51,9 @@ const DerivedLayers = Layer.mergeAll(
  *
  * This is the value handed to `Effect.runPromise` to execute the CLI.
  *
- * @since 0.0.0
- * @category UseCase
  * @internal
+ * @category UseCase
+ * @since 0.0.0
  */
 const program = Effect.scoped(
   Layer.build(DerivedLayers).pipe(

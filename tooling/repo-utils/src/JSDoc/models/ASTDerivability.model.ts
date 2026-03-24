@@ -12,8 +12,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTDerivability.model");
  *   - "partial" → Layer 2 (certainty=0.85-0.95): Structurally derivable but may need human context
  *   - "none"    → Layer 3 (certainty=0.6-0.85): Requires human authoring or LLM inference
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const ASTDerivability = LiteralKit(["full", "partial", "none"]).annotate(
   $I.annote("ASTDerivability", {

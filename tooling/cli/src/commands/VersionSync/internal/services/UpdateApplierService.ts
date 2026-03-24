@@ -1,8 +1,8 @@
 /**
  * Write-mode update application service for version-sync.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -31,8 +31,8 @@ type UpdateApplierEnvironment = FileSystem.FileSystem | Path.Path;
 /**
  * Service contract for applying report-driven file updates.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type UpdateApplierServiceShape = {
   readonly apply: (
@@ -44,8 +44,8 @@ export type UpdateApplierServiceShape = {
 /**
  * Service tag for write-mode update application.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class UpdateApplierService extends ServiceMap.Service<UpdateApplierService, UpdateApplierServiceShape>()(
   $I`UpdateApplierService`
@@ -233,8 +233,8 @@ const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot,
 /**
  * Live layer for update application.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const UpdateApplierServiceLive = Layer.succeed(
   UpdateApplierService,

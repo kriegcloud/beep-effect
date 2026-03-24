@@ -1,8 +1,8 @@
 /**
  * Template rendering service for package generation.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -18,8 +18,8 @@ const $I = $RepoCliId.create("commands/CreatePackage/TemplateService");
 /**
  * Mapping between template source file and output file path.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
   {
@@ -34,8 +34,8 @@ export class TemplateSpec extends S.Class<TemplateSpec>($I`TemplateSpec`)(
 /**
  * Rendered template output.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTemplate`)(
   {
@@ -50,8 +50,8 @@ export class RenderedTemplate extends S.Class<RenderedTemplate>($I`RenderedTempl
 /**
  * Request payload for template rendering.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`TemplateRenderRequest`)(
   {
@@ -70,8 +70,8 @@ export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`Tem
 /**
  * Service contract for template rendering.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TemplateServiceShape = {
   readonly renderTemplates: (
@@ -82,8 +82,8 @@ export type TemplateServiceShape = {
 /**
  * Service tag for template rendering.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class TemplateService extends ServiceMap.Service<TemplateService, TemplateServiceShape>()($I`TemplateService`) {}
 
@@ -124,8 +124,8 @@ const createHandlebarsEnvironment = () => {
  * Construct the default template service implementation.
  *
  * @returns Template renderer backed by Handlebars.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const createTemplateService = (): TemplateServiceShape => {
   const hbs = createHandlebarsEnvironment();

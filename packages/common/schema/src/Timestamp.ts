@@ -19,6 +19,9 @@ const $I = $SchemaId.create("Timestamp");
 
 const stripMilliseconds = (value: string): string => pipe(value, Str.replace(/\.\d{3}Z$/, "Z"));
 
+const normalizeIsoString = (input: string | number): string =>
+  pipe(DateTime.makeUnsafe(input), DateTime.formatIso, stripMilliseconds);
+
 /**
  * @see {@link @beep/schema/Number#NonEmptyTrimmedStr | NonEmptyTrimmedStr}
  * Branded ISO 8601 datetime string
@@ -35,7 +38,7 @@ const stripMilliseconds = (value: string): string => pipe(value, Str.replace(/\.
  * @category DomainModel
  * @type {@link S.brand<S.brand<S.Trim, "NonEmptyTrimmedStr">, "ISOStr">}
  */
-export const ISOStr = NonEmptyTrimmedStr.check(S.makeFilter((i) => S.is(S.DateValid)(new Date(i)))).pipe(
+export const ISOStr = NonEmptyTrimmedStr.check(S.makeFilter((i) => O.isSome(DateTime.make(i)))).pipe(
   S.brand("ISOStr"),
   $I.annoteSchema("ISOStr", {
     description: "ISO 8601 datetime string",
@@ -62,7 +65,7 @@ export type ISOStr = typeof ISOStr.Type;
  *
  * const JanuaryFirst1970 = new Date("1970-01-01T00:00:00.000Z").getTime()
  * const program = Effect.gen(function* () {
- *   const decoded = yield* S.decodeEffect(EpochMillis)(EpochMillis.makeUnsafe(JanuarFirst1970));
+ *   const decoded = yield* S.decodeEffect(EpochMillis)(EpochMillis.makeUnsafe(JanuaryFirst1970));
  *   const encoded = yield* S.encodeEffect(EpochMillis)(decoded);
  * })
  *
@@ -110,14 +113,13 @@ export const ToIsoStr = S.Union([ISOStr, S.Number]).pipe(
   S.decodeTo(
     ISOStr,
     SchemaTransformation.transform({
-      decode: (input) => pipe(new Date(input).toISOString(), stripMilliseconds),
-      encode: (isoStr) => pipe(new Date(isoStr).toISOString(), stripMilliseconds, ISOStr.makeUnsafe),
+      decode: (input) => pipe(DateTime.makeUnsafe(input), DateTime.formatIso, stripMilliseconds),
+      encode: (isoStr) => pipe(DateTime.makeUnsafe(isoStr), DateTime.formatIso, stripMilliseconds, ISOStr.makeUnsafe),
     })
   ),
   $I.annoteSchema("ToIsoStr", {
     description: "Schema transformer converting timestamps (numbers or ISO strings) into normalized ISO strings.",
-    documentation:
-      'Always emits ISO strings without fractional seconds to keep storage consistent.\n\n@example\nimport * as S from "effect/Schema";\nimport { ToIsoString } from "@beep/schema/primitives/temporal/dates/timestamp";\n\nconst iso = S.decodeSync(ToIsoString)("2024-01-01T00:00:00.123Z");',
+    documentation: "Always emits ISO strings without fractional seconds to keep storage consistent.",
   })
 );
 
@@ -127,11 +129,10 @@ export const ToIsoStr = S.Union([ISOStr, S.Number]).pipe(
  * @category DomainModel
  * @since 0.0.0
  * @example
- * import { ToIsoStr } from "@beep/schema/Timestamp";
+ * import { type ToIsoString } from "@beep/schema/Timestamp";
  *
- * const val: ToIsoStr = "2024-01-01T00:00:00.123Z" as {@link effect/Brand#Brand | string & Brand<"NonEmptyTrimmedStr"> & Brand<"ISOStr">};
- *
- * const
+ * const value = "2024-01-01T00:00:00.123Z" as ToIsoString;
+ * console.log(value);
  */
 export type ToIsoString = typeof ToIsoStr.Type;
 
@@ -147,19 +148,14 @@ export type ToIsoString = typeof ToIsoStr.Type;
  *
  * @example
  * ```typescript
- * import { ToIsoStr } from "effect";
+ * import { type ToIsoStr } from "@beep/schema/Timestamp";
  *
  * // Access Encoded Type
  * type EncodedIsoString = ToIsoStr.Encoded;
  *
- * // Example use case: enforcing encoded type in a function
- * const processEncodedString = (value: EncodedIsoString) => {
- *   console.log(`Processing encoded string: ${value}`);
- * };
- *
- * // Example usage: encoding a value
- * const valueEpochMillis: EncodedIsoString = 1730419200000; // Nov 1, 2024
  * const valueIsoString: EncodedIsoString = "2024-11-01T00:00:00.000Z";
+ *
+ * console.log(valueIsoString);
  * ```
  *
  * @since 0.0.0
@@ -214,7 +210,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    * @category Utility
    * @returns {Date}
    */
-  readonly toDate: () => Date = (): Date => new Date(this.epochMillis);
+  readonly toDate: () => Date = (): Date => DateTime.toDateUtc(this.toDateTime());
 
   /**
    * Converts a timestamp or date object to its ISO 8601 string representation.
@@ -244,7 +240,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
   readonly toISOStr: () => Brand.Branded<Brand.Branded<string, "NonEmptyTrimmedStr">, "ISOStr"> = (): Brand.Branded<
     Brand.Branded<string, "NonEmptyTrimmedStr">,
     "ISOStr"
-  > => ISOStr.makeUnsafe(this.toDate().toISOString());
+  > => ISOStr.makeUnsafe(normalizeIsoString(this.epochMillis));
 
   /**
    * Convert to string representation
@@ -263,50 +259,70 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    * @returns {LocalDate}
    */
   readonly toLocalDate: () => LocalDate = (): LocalDate => {
-    const date = this.toDate();
+    const date = DateTime.toPartsUtc(this.toDateTime());
     return LocalDate.makeUnsafe({
-      year: date.getUTCFullYear(),
-      month: date.getUTCMonth() + 1,
-      day: date.getUTCDate(),
+      year: date.year,
+      month: date.month,
+      day: date.day,
     });
   };
 }
 
 /**
  * Type guard for Timestamp using Schema.is
+ *
+ * @since 0.0.0
+ * @category Validation
  */
 export const isTimestamp = Schema.is(Timestamp);
 
 /**
  * Create a Timestamp from a DateTime.Utc
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
 export const fromDateTime = (dateTime: DateTime.Utc): Timestamp =>
   Timestamp.makeUnsafe({ epochMillis: dateTime.epochMilliseconds });
 
 /**
  * Create a Timestamp from a JavaScript Date
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
 export const fromDate = (date: Date): Timestamp => Timestamp.makeUnsafe({ epochMillis: date.getTime() });
 
 /**
  * Create a Timestamp from an ISO 8601 string
  * Returns an Effect that may fail with ParseError
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
 export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaIssue.InvalidValue> => {
-  const date = new Date(dateString);
-  if (Number.isNaN(date.getTime())) {
-    return Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString)));
-  }
-  return Effect.succeed(Timestamp.makeUnsafe({ epochMillis: date.getTime() }));
+  return pipe(
+    DateTime.make(dateString),
+    O.match({
+      onNone: () => Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString))),
+      onSome: (dateTime) => Effect.succeed(Timestamp.makeUnsafe({ epochMillis: DateTime.toEpochMillis(dateTime) })),
+    })
+  );
 };
 
 /**
  * Get the current timestamp (now)
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
 export const now = (): Timestamp => Timestamp.makeUnsafe({ epochMillis: Date.now() });
 
 /**
  * Get the current timestamp as an Effect using the Clock service
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
 export const nowEffect: Effect.Effect<Timestamp> = Effect.map(
   Effect.clockWith((clock) => clock.currentTimeMillis),
@@ -315,6 +331,9 @@ export const nowEffect: Effect.Effect<Timestamp> = Effect.map(
 
 /**
  * Order for Timestamp - compares chronologically
+ *
+ * @since 0.0.0
+ * @category Ordering
  */
 export const Order: Order_.Order<Timestamp> = Order_.make((a, b) => {
   if (a.epochMillis < b.epochMillis) return -1;
@@ -324,6 +343,9 @@ export const Order: Order_.Order<Timestamp> = Order_.make((a, b) => {
 
 /**
  * Check if the first timestamp is before the second
+ *
+ * @since 0.0.0
+ * @category Validation
  */
 export const isBefore: {
   (that: Timestamp): (self: Timestamp) => boolean;
@@ -332,6 +354,9 @@ export const isBefore: {
 
 /**
  * Check if the first timestamp is after the second
+ *
+ * @since 0.0.0
+ * @category Validation
  */
 export const isAfter: {
   (that: Timestamp): (self: Timestamp) => boolean;

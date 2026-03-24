@@ -1,8 +1,8 @@
 /**
  * Canonical source metadata model exports.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 /* cspell:ignore Derivability */
 

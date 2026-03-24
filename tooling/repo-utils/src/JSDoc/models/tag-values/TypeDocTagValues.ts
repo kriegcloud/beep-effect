@@ -1,8 +1,8 @@
 /**
  * TypeDoc-specific tag occurrence shapes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -12,8 +12,8 @@ import { empty, nameField } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeDocTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CategoryValue extends S.TaggedClass<CategoryValue>($I`CategoryValue`)(
   "category",
@@ -24,8 +24,8 @@ export class CategoryValue extends S.TaggedClass<CategoryValue>($I`CategoryValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DocumentValue extends S.TaggedClass<DocumentValue>($I`DocumentValue`)(
   "document",
@@ -36,8 +36,8 @@ export class DocumentValue extends S.TaggedClass<DocumentValue>($I`DocumentValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class GroupValue extends S.TaggedClass<GroupValue>($I`GroupValue`)(
   "group",
@@ -48,8 +48,8 @@ export class GroupValue extends S.TaggedClass<GroupValue>($I`GroupValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class HiddenValue extends S.TaggedClass<HiddenValue>($I`HiddenValue`)(
   "hidden",
@@ -60,8 +60,8 @@ export class HiddenValue extends S.TaggedClass<HiddenValue>($I`HiddenValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ExpandValue extends S.TaggedClass<ExpandValue>($I`ExpandValue`)(
   "expand",
@@ -72,8 +72,8 @@ export class ExpandValue extends S.TaggedClass<ExpandValue>($I`ExpandValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class InlineValue extends S.TaggedClass<InlineValue>($I`InlineValue`)(
   "inline",
@@ -84,8 +84,8 @@ export class InlineValue extends S.TaggedClass<InlineValue>($I`InlineValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class MergeModuleWithValue extends S.TaggedClass<MergeModuleWithValue>($I`MergeModuleWithValue`)(
   "mergeModuleWith",
@@ -96,8 +96,8 @@ export class MergeModuleWithValue extends S.TaggedClass<MergeModuleWithValue>($I
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PrimaryExportValue extends S.TaggedClass<PrimaryExportValue>($I`PrimaryExportValue`)(
   "primaryExport",
@@ -108,8 +108,8 @@ export class PrimaryExportValue extends S.TaggedClass<PrimaryExportValue>($I`Pri
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SortStrategyValue extends S.TaggedClass<SortStrategyValue>($I`SortStrategyValue`)(
   "sortStrategy",
@@ -120,8 +120,8 @@ export class SortStrategyValue extends S.TaggedClass<SortStrategyValue>($I`SortS
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class UseDeclaredTypeValue extends S.TaggedClass<UseDeclaredTypeValue>($I`UseDeclaredTypeValue`)(
   "useDeclaredType",

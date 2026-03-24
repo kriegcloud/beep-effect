@@ -24,8 +24,8 @@ import { symbolCategoryFromKind } from "./TSMorph.model.js";
 /**
  * Supported declaration nodes for normalized TSMorph symbol extraction.
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export type OutlineDeclaration =
   | ClassDeclaration
@@ -48,8 +48,8 @@ const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
 /**
  * Deterministic symbol ordering used by normalized TSMorph symbol collections.
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const byTsMorphSymbolAscending: Order.Order<TsMorphSymbol> = Order.combine(
   bySymbolNameAscending,
@@ -72,8 +72,8 @@ const byDiagnosticCodeAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput
 /**
  * Deterministic ordering for normalized diagnostics.
  *
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const byNormalizedDiagnosticAscending: Order.Order<TsMorphDiagnostic> = Order.combine(
   byDiagnosticStartLineAscending,
@@ -93,8 +93,8 @@ const firstSignatureLine = (text: string): string =>
  *
  * @param node - Declaration node that may carry JSDoc metadata.
  * @returns Normalized declaration description text when present.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
   if (!Node.isJSDocable(node)) {
@@ -116,8 +116,8 @@ export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
  *
  * @param node - Declaration node that may carry decorators.
  * @returns Normalized decorator source text in declaration order.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> =>
   Node.isDecoratable(node)
@@ -129,8 +129,8 @@ export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> 
  *
  * @param node - Declaration node to read.
  * @returns First non-empty line from the declaration source text.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const readSignature = (node: OutlineDeclaration): string => {
   const signatureSourceText = pipe(
@@ -148,8 +148,8 @@ export const readSignature = (node: OutlineDeclaration): string => {
  *
  * @param docstring - Optional normalized JSDoc description text.
  * @returns Stable summary text used by the public symbol model.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const makeSummary = (docstring: O.Option<string>): O.Option<string> => docstring;
 
@@ -160,8 +160,8 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * @param qualifiedName - Fully qualified symbol path.
  * @param kind - Public symbol kind literal.
  * @returns Stable keyword set used by the public symbol model.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const makeKeywords = (name: string, qualifiedName: string, kind: SymbolKind): ReadonlyArray<string> =>
   A.make(name, qualifiedName, kind, symbolCategoryFromKind(kind));
@@ -172,8 +172,8 @@ export const makeKeywords = (name: string, qualifiedName: string, kind: SymbolKi
  * @param symbol - Public normalized symbol metadata.
  * @param sourceText - Extracted declaration source text.
  * @returns Lowercased search corpus for symbol lookup and filtering.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const makeScopeSymbolSearchText = (symbol: TsMorphSymbol, sourceText: SourceText): string =>
   pipe(
@@ -211,8 +211,8 @@ const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessag
  *
  * @param message - Diagnostic string or nested TypeScript message chain.
  * @returns Normalized multi-line diagnostic text.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const flattenDiagnosticMessageText = (message: string | DiagnosticMessageChain): string =>
   flattenDiagnosticMessageTextMatcher(message);
@@ -234,8 +234,8 @@ const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>().pipe
  *
  * @param category - Raw TypeScript diagnostic category.
  * @returns Public service diagnostic category literal.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMorphDiagnostic["category"] =>
   normalizeDiagnosticCategoryMatcher(category);
@@ -245,8 +245,8 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  *
  * @param declaration - Supported declaration node to inspect.
  * @returns Normalized declaration name and public kind when available.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const getDeclarationName = (
   declaration: OutlineDeclaration
@@ -316,8 +316,8 @@ export const getDeclarationName = (
  * @param parentSymbol - Parent symbol, when the declaration is nested.
  * @param name - Child declaration name segment.
  * @returns Qualified symbol name anchored to the nearest parent symbol.
- * @since 0.0.0
  * @category CrossCutting
+ * @since 0.0.0
  */
 export const pipeQualifiedName = (parentSymbol: O.Option<TsMorphSymbol>, name: string): string =>
   O.isSome(parentSymbol) ? `${parentSymbol.value.qualifiedName}.${name}` : name;

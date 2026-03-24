@@ -8,8 +8,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/HasJSDocApplicableToMapEntry.model"
  * One mapping row from a TypeScript `HasJSDoc` member name to an
  * `ApplicableTo` classification.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const fields = { member: S.String } as const;
 /**

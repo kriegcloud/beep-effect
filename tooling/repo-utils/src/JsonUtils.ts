@@ -4,8 +4,8 @@
  * Provides effectful JSON serialization through the Schema ecosystem,
  * avoiding direct `JSON.parse` / `JSON.stringify` calls.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { thunkEmptyStr } from "@beep/utils";
@@ -22,8 +22,8 @@ const compactGetter = SchemaGetter.stringifyJson();
  * using `SchemaGetter.stringifyJson`. Returns an Effect with `DomainError`
  * on serialization failure.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(function* (value) {
   const result = yield* prettyGetter
@@ -37,8 +37,8 @@ export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, Doma
  * using `SchemaGetter.stringifyJson`. Returns an Effect with `DomainError`
  * on serialization failure.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(
   function* (value) {
@@ -53,8 +53,8 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
  * Parse a JSON string into an unknown value using `SchemaGetter.parseJson`.
  * For typed parsing, prefer `Schema.decodeUnknown(Schema.fromJsonString(MySchema))`.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const jsonParse: (input: string) => Effect.Effect<unknown, DomainError> = Effect.fn(function* (input) {
   return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(input).pipe(

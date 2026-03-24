@@ -1,8 +1,8 @@
 /**
  * Resolver orchestration service for version-sync.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -36,8 +36,8 @@ type ResolverEnvironment = FileSystem.FileSystem | Path.Path | HttpClient.HttpCl
 /**
  * Service contract for resolving version drift state.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type ResolverServiceShape = {
   readonly resolve: (
@@ -49,8 +49,8 @@ export type ResolverServiceShape = {
 /**
  * Service tag for resolver orchestration.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class ResolverService extends ServiceMap.Service<ResolverService, ResolverServiceShape>()($I`ResolverService`) {}
 
@@ -147,8 +147,8 @@ const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, 
 /**
  * Live layer for resolver orchestration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const ResolverServiceLive = Layer.succeed(
   ResolverService,

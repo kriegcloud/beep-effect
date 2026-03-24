@@ -14,8 +14,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ArchitecturalLayer.model");
  * Enables cross-framework queries such as "show me all code in the
  * domain core that depends on infrastructure".
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const ArchitecturalLayer = LiteralKit([
   "DomainEntity",
@@ -36,7 +36,7 @@ export const ArchitecturalLayer = LiteralKit([
 /**
  * Inferred type for {@link ArchitecturalLayer}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type ArchitecturalLayer = typeof ArchitecturalLayer.Type;

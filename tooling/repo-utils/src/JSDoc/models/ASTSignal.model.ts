@@ -13,8 +13,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTSignal.model");
  * Deterministic heuristic for auto-classifying code elements
  * from the AST without LLM inference.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ASTSignal extends S.Class<ASTSignal>($I`ASTSignal`)(
   {

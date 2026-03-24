@@ -1,8 +1,8 @@
 /**
  * Organizational tag occurrence shapes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -11,8 +11,8 @@ import { nameField, optionalDesc, optionalName, optionalType } from "./_fields.j
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/OrganizationalTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ModuleValue extends S.TaggedClass<ModuleValue>($I`ModuleValue`)(
   "module",
@@ -23,8 +23,8 @@ export class ModuleValue extends S.TaggedClass<ModuleValue>($I`ModuleValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NamespaceValue extends S.TaggedClass<NamespaceValue>($I`NamespaceValue`)(
   "namespace",
@@ -35,8 +35,8 @@ export class NamespaceValue extends S.TaggedClass<NamespaceValue>($I`NamespaceVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class MemberofValue extends S.TaggedClass<MemberofValue>($I`MemberofValue`)(
   "memberof",
@@ -47,8 +47,8 @@ export class MemberofValue extends S.TaggedClass<MemberofValue>($I`MemberofValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class MemberValue extends S.TaggedClass<MemberValue>($I`MemberValue`)(
   "member",
@@ -59,8 +59,8 @@ export class MemberValue extends S.TaggedClass<MemberValue>($I`MemberValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PropertyValue extends S.TaggedClass<PropertyValue>($I`PropertyValue`)(
   "property",
@@ -71,8 +71,8 @@ export class PropertyValue extends S.TaggedClass<PropertyValue>($I`PropertyValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class InterfaceValue extends S.TaggedClass<InterfaceValue>($I`InterfaceValue`)(
   "interface",
@@ -83,8 +83,8 @@ export class InterfaceValue extends S.TaggedClass<InterfaceValue>($I`InterfaceVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class FunctionValue extends S.TaggedClass<FunctionValue>($I`FunctionValue`)(
   "function",

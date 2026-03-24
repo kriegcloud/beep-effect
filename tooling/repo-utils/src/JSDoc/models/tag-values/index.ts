@@ -2,8 +2,8 @@
  * Tag value occurrence shapes — individual `S.TaggedClass` members composed
  * into `TagValue` (tagged union) and `TagName` (LiteralKit).
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
@@ -337,8 +337,8 @@ const TypeScriptEnc = S.Union([S.toEncoded(OverloadValue)]);
  *
  * Provides `.cases`, `.match`, `.guards`, and `.isAnyOf` out of the box.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TagValue = S.Union([
   StructuralEnc,
@@ -355,8 +355,8 @@ export const TagValue = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"));
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TagValue = typeof TagValue.Type;
 
@@ -498,13 +498,13 @@ const tagNames = [
  * Provides `.Enum`, `.is`, `.$match`, `S.decodeSync(TagName)`, and
  * `TagName.Type` (`"param" | "returns" | ... | "overload"`).
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TagName = LiteralKit(tagNames);
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TagName = typeof TagName.Type;

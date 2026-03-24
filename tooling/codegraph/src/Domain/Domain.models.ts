@@ -1,8 +1,8 @@
 /**
  * Placeholder domain model module for upcoming codegraph domain schemas.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 void 0;

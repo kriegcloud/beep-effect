@@ -4,8 +4,8 @@
  * Reads `.nvmrc` as the source of truth and scans GitHub workflow YAML files
  * for `node-version:` fields that should match.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -27,8 +27,8 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/NodeResolv
 /**
  * A workflow file location with a `node-version` field.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVersionLocation`)(
   {
@@ -46,8 +46,8 @@ export class NodeVersionLocation extends S.Class<NodeVersionLocation>($I`NodeVer
 /**
  * Resolved Node version state.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NodeVersionState extends S.Class<NodeVersionState>($I`NodeVersionState`)(
   {
@@ -125,8 +125,8 @@ const stringEquivalence = S.toEquivalence(S.String);
 /**
  * Resolve Node.js version state from `.nvmrc` and workflow files.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const resolveNodeVersions: (
   repoRoot: string
@@ -182,11 +182,11 @@ export const resolveNodeVersions: (
 /**
  * Find `node-version:` field locations in a workflow YAML document.
  *
- * @since 0.0.0
- * @category Utility
  * @param content - The raw YAML content of the workflow file.
  * @param relativeFile - The relative path to the workflow file.
  * @returns An array of locations where `node-version` is declared.
+ * @category Utility
+ * @since 0.0.0
  */
 const findNodeVersionLocations: (
   content: string,
@@ -238,10 +238,10 @@ const findNodeVersionLocations: (
 /**
  * Build the Node category report from resolved state.
  *
- * @since 0.0.0
- * @category Utility
  * @param state - The resolved Node version state.
  * @returns The version category report for Node.js.
+ * @category Utility
+ * @since 0.0.0
  */
 export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport = (state) => {
   let items = A.empty<VersionDriftItem>();

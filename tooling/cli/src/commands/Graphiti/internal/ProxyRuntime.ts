@@ -1,8 +1,8 @@
 /**
  * Graphiti proxy runtime.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
@@ -32,8 +32,8 @@ const toHealthStatus = (snapshot: DependencyHealthSnapshot): "ok" | "degraded" =
 /**
  * Run the graphiti queue proxy runtime with graceful shutdown.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const runGraphitiProxy = Effect.scoped(
   Effect.gen(function* () {

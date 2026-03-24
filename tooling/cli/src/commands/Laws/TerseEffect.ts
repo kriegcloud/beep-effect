@@ -1,8 +1,8 @@
 /**
  * Terse Effect style migration and check logic.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -20,8 +20,8 @@ const $I = $RepoCliId.create("commands/Laws/TerseEffect");
 /**
  * Runtime options for terse Effect style migration checks.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I`TerseEffectRulesOptions`)(
   {
@@ -40,8 +40,8 @@ export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I
 /**
  * Summary of terse Effect style migration results.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I`TerseEffectRulesSummary`)(
   {
@@ -171,8 +171,8 @@ const getArrowReplacement = (arrowFunction: ArrowFunction): O.Option<string> => 
 /**
  * Run terse Effect style migration/check logic.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRulesOptions) {
   const path = yield* Path.Path;

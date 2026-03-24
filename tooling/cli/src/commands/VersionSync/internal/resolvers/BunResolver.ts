@@ -4,8 +4,8 @@
  * Reads current Bun version from `.bun-version` and `package.json` `packageManager`,
  * and optionally fetches the latest stable release from GitHub.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -30,8 +30,8 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BunResolve
 // ── GitHub API schema ───────────────────────────────────────────────────────
 
 /**
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 
 class BunRelease extends S.Class<BunRelease>($I`BunRelease`)(
@@ -60,28 +60,28 @@ class BunPackageJsonDocument extends S.Class<BunPackageJsonDocument>($I`BunPacka
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
 /**
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const BUN_RELEASE_URL = "https://api.github.com/repos/oven-sh/bun/releases/latest";
 
 /**
  * Strip the `bun-v` prefix from a GitHub release tag name.
  *
- * @since 0.0.0
- * @category Utility
  * @param tagName - The GitHub release tag (e.g. `bun-v1.3.9`).
  * @returns The bare version string.
+ * @category Utility
+ * @since 0.0.0
  */
 const extractBunVersion = Str.replace(/^bun-v/, "");
 
 /**
  * Strip the `bun@` prefix from a `packageManager` field value.
  *
- * @since 0.0.0
- * @category Utility
  * @param value - The packageManager field value (e.g. `bun@1.3.9`).
  * @returns The bare version string.
+ * @category Utility
+ * @since 0.0.0
  */
 const extractPackageManagerVersion = Str.replace(/^bun@/, "");
 const BUN_SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
@@ -235,8 +235,8 @@ const selectLatestLocalBunVersion = (state: BunVersionState): string => {
 /**
  * Resolved Bun version state.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState`)(
   {
@@ -258,8 +258,8 @@ export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState
 /**
  * Resolve current Bun versions from local files and optionally fetch latest from GitHub.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const resolveBunVersions: (
   repoRoot: string,
@@ -316,8 +316,8 @@ export const resolveBunVersions: (
 /**
  * Fetch the latest stable Bun release version from GitHub.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError, HttpClient.HttpClient> = Effect.fn(
   function* () {
@@ -345,10 +345,10 @@ const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError
 /**
  * Build the Bun category report from resolved state.
  *
- * @since 0.0.0
- * @category Utility
  * @param state - The resolved Bun version state.
  * @returns The version category report for Bun.
+ * @category Utility
+ * @since 0.0.0
  */
 export const buildBunReport: (state: BunVersionState) => VersionCategoryReport = (state) => {
   let items = A.empty<VersionDriftItem>();

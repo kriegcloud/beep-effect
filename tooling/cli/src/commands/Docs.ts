@@ -1,8 +1,8 @@
 /**
  * Docs discovery command suite for command-first policy lookup.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -68,8 +68,8 @@ class DocsSectionPolicies extends S.Class<DocsSectionPolicies>($I`DocsSectionPol
  * Documentation section model.
  *
  * @returns Tagged union schema keyed by `name`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const DocsSection = DocsSectionName.mapMembers(
   Tuple.evolve([() => DocsSectionLaws, () => DocsSectionSkills, () => DocsSectionPolicies])
@@ -83,8 +83,8 @@ export const DocsSection = DocsSectionName.mapMembers(
 /**
  * Documentation section model.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type DocsSection = typeof DocsSection.Type;
 
@@ -233,8 +233,8 @@ const docsFindCommand = Command.make(
 /**
  * Command-first docs discovery entrypoint used by agent config surfaces.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const docsCommand = Command.make("docs", {}, printDocsIndex).pipe(
   Command.withDescription("Discover laws, skills, and policies without path references"),

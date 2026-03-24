@@ -4,8 +4,8 @@
  * Builds a complete mapping of every workspace package (plus the root)
  * to its classified dependencies (workspace vs NPM).
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { thunkEffectSucceedNull } from "@beep/utils";
@@ -21,8 +21,8 @@ import { resolveWorkspaceDirs } from "./Workspaces.js";
 /**
  * The root package identifier used in the returned HashMap.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const ROOT_KEY = "@beep/root";
 
@@ -49,8 +49,8 @@ const ROOT_KEY = "@beep/root";
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const buildRepoDependencyIndex: (
   rootDir: string

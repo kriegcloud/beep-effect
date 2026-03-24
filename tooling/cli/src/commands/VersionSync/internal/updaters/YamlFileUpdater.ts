@@ -1,8 +1,8 @@
 /**
  * Comment-preserving YAML file updater via eemeli/yaml Document API.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -39,8 +39,8 @@ const stringEquivalence = S.toEquivalence(S.String);
  * Uses eemeli/yaml `parseDocument()` + `doc.setIn()` + `doc.toString()`.
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updateYamlValue: (
   filePath: string,
@@ -93,8 +93,8 @@ export const updateYamlValue: (
  * Uses eemeli/yaml Document API for comment-preserving edits.
  * Returns `true` when the file was modified, `false` when no changes needed.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const replaceNodeVersionWithFile: (
   filePath: string,

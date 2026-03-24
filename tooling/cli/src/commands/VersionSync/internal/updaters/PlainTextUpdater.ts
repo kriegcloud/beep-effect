@@ -1,8 +1,8 @@
 /**
  * Plain text file updater for `.bun-version` and similar single-value files.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { Effect, FileSystem, Inspectable } from "effect";
@@ -14,8 +14,8 @@ import { VersionSyncError } from "../Models.js";
  *
  * Returns `true` when the file was modified, `false` when already correct.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const updatePlainTextFile: (
   filePath: string,

@@ -4,8 +4,8 @@ import type { JSDocTagDefinition } from "./JSDocTagDefinition.model.js";
 /**
  * The payload type stored in the `jsDocTagMetadata` annotation key.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type JSDocTagAnnotationPayload = JSDocTagDefinition;
 
@@ -22,8 +22,8 @@ declare module "effect/Schema" {
  *
  * @param schema - Any Effect schema.
  * @returns The JSDocTagDefinition metadata or `undefined`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const getJSDocTagMetadata = (schema: S.Top): JSDocTagAnnotationPayload | undefined =>
   S.resolveInto(schema)?.jsDocTagMetadata;

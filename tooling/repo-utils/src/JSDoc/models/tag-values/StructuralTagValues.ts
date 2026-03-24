@@ -1,8 +1,8 @@
 /**
  * Structural tag occurrence shapes (AST-derivable).
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -11,8 +11,8 @@ import { empty, nameField, optionalDesc, optionalName, optionalType, typeField }
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/StructuralTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ParamValue extends S.TaggedClass<ParamValue>($I`ParamValue`)(
   "param",
@@ -23,8 +23,8 @@ export class ParamValue extends S.TaggedClass<ParamValue>($I`ParamValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ReturnsValue extends S.TaggedClass<ReturnsValue>($I`ReturnsValue`)(
   "returns",
@@ -35,8 +35,8 @@ export class ReturnsValue extends S.TaggedClass<ReturnsValue>($I`ReturnsValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ThrowsValue extends S.TaggedClass<ThrowsValue>($I`ThrowsValue`)(
   "throws",
@@ -47,8 +47,8 @@ export class ThrowsValue extends S.TaggedClass<ThrowsValue>($I`ThrowsValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TemplateValue extends S.TaggedClass<TemplateValue>($I`TemplateValue`)(
   "template",
@@ -59,8 +59,8 @@ export class TemplateValue extends S.TaggedClass<TemplateValue>($I`TemplateValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TypeParamValue extends S.TaggedClass<TypeParamValue>($I`TypeParamValue`)(
   "typeParam",
@@ -71,8 +71,8 @@ export class TypeParamValue extends S.TaggedClass<TypeParamValue>($I`TypeParamVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TypeValue extends S.TaggedClass<TypeValue>($I`TypeValue`)(
   "type",
@@ -83,8 +83,8 @@ export class TypeValue extends S.TaggedClass<TypeValue>($I`TypeValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TypedefValue extends S.TaggedClass<TypedefValue>($I`TypedefValue`)(
   "typedef",
@@ -95,8 +95,8 @@ export class TypedefValue extends S.TaggedClass<TypedefValue>($I`TypedefValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CallbackValue extends S.TaggedClass<CallbackValue>($I`CallbackValue`)(
   "callback",
@@ -107,8 +107,8 @@ export class CallbackValue extends S.TaggedClass<CallbackValue>($I`CallbackValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class AugmentsValue extends S.TaggedClass<AugmentsValue>($I`AugmentsValue`)(
   "augments",
@@ -119,8 +119,8 @@ export class AugmentsValue extends S.TaggedClass<AugmentsValue>($I`AugmentsValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ImplementsValue extends S.TaggedClass<ImplementsValue>($I`ImplementsValue`)(
   "implements",
@@ -131,8 +131,8 @@ export class ImplementsValue extends S.TaggedClass<ImplementsValue>($I`Implement
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ClassValue extends S.TaggedClass<ClassValue>($I`ClassValue`)(
   "class",
@@ -143,8 +143,8 @@ export class ClassValue extends S.TaggedClass<ClassValue>($I`ClassValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class EnumValue extends S.TaggedClass<EnumValue>($I`EnumValue`)(
   "enum",
@@ -155,8 +155,8 @@ export class EnumValue extends S.TaggedClass<EnumValue>($I`EnumValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class AsyncValue extends S.TaggedClass<AsyncValue>($I`AsyncValue`)(
   "async",
@@ -167,8 +167,8 @@ export class AsyncValue extends S.TaggedClass<AsyncValue>($I`AsyncValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class GeneratorValue extends S.TaggedClass<GeneratorValue>($I`GeneratorValue`)(
   "generator",
@@ -179,8 +179,8 @@ export class GeneratorValue extends S.TaggedClass<GeneratorValue>($I`GeneratorVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class YieldsValue extends S.TaggedClass<YieldsValue>($I`YieldsValue`)(
   "yields",

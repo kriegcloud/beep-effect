@@ -4,8 +4,8 @@
  * Provides effectful wrappers around glob matching, JSON file I/O,
  * path existence checks, and file/directory type queries.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
@@ -21,8 +21,8 @@ const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
 /**
  * Options for glob matching operations.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
   {
@@ -39,8 +39,8 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
 /**
  * Shape of the FsUtils service.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export interface FsUtilsShape {
   /**
@@ -129,8 +129,8 @@ export interface FsUtilsShape {
 /**
  * Service tag for `FsUtils`.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`FsUtils`) {}
 
@@ -138,8 +138,8 @@ export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`FsUt
  * Live layer for `FsUtils` that uses the platform `FileSystem` and `Path`
  * services.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
   FsUtils,
