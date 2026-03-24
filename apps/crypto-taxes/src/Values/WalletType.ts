@@ -4,17 +4,10 @@ import type * as S from "effect/Schema";
 
 const $I = $CryptoTaxesId.create("Values/WalletType");
 
-export const WalletType = LiteralKit(
-  [
-    "exchange",
-    "blockchain",
-    "wallet",
-    "other"
-  ]
-).pipe(
+export const WalletType = LiteralKit(["exchange", "blockchain", "wallet", "other"]).pipe(
   $I.annoteSchema("WalletType", {
-    description: "Represents the type of wallet in the crypto-taxes application."
+    description: "Represents the type of wallet in the crypto-taxes application.",
   })
-)
+);
 
 export type WalletType = S.Schema.Type<typeof WalletType>;

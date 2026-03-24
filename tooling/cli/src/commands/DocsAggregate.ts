@@ -27,11 +27,7 @@ const cleanFlag = Flag.boolean("clean").pipe(Flag.withDescription("Remove the ro
 
 const resolveAggregateSelector = (packageSelector: O.Option<string>, filterSelector: O.Option<string>) =>
   Effect.gen(function* () {
-    if (
-      O.isSome(packageSelector) &&
-      O.isSome(filterSelector) &&
-      packageSelector.value !== filterSelector.value
-    ) {
+    if (O.isSome(packageSelector) && O.isSome(filterSelector) && packageSelector.value !== filterSelector.value) {
       return yield* new DomainError({
         message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
       });

@@ -7,8 +7,8 @@
  * @module currency/CurrencyCode
  */
 
-import * as S from "effect/Schema";
 import { $CryptoTaxesId } from "@beep/identity";
+import * as S from "effect/Schema";
 
 const $I = $CryptoTaxesId.create("Values/CurrencyCode");
 
@@ -16,14 +16,13 @@ const $I = $CryptoTaxesId.create("Values/CurrencyCode");
  * Schema for a valid ISO 4217 currency code.
  * Must be exactly 3 uppercase ASCII letters.
  */
-export const CurrencyCode = S.String.check(S.isPattern(/^[A-Z]{3}$/)).pipe(
-  S.brand("CurrencyCode")
-).pipe(
-  $I.annoteSchema("CurrencyCode", {
-    description: "ISO 4217 currency code (3 uppercase letters)"
-  })
-);
-
+export const CurrencyCode = S.String.check(S.isPattern(/^[A-Z]{3}$/))
+  .pipe(S.brand("CurrencyCode"))
+  .pipe(
+    $I.annoteSchema("CurrencyCode", {
+      description: "ISO 4217 currency code (3 uppercase letters)",
+    })
+  );
 
 /**
  * The branded CurrencyCode type
@@ -33,8 +32,7 @@ export type CurrencyCode = typeof CurrencyCode.Type;
 /**
  * Type guard for CurrencyCode using Schema.is
  */
-export const isCurrencyCode = S.is(CurrencyCode)
-
+export const isCurrencyCode = S.is(CurrencyCode);
 
 /**
  * Common ISO 4217 currency codes

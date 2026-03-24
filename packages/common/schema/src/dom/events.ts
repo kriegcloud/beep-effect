@@ -4,7 +4,7 @@
  * @since	0.0.0
  * @module @beep/schema/dom/events
  */
-import { $SchemaId} from "@beep/identity";
+import { $SchemaId } from "@beep/identity";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("dom/events");
@@ -12,19 +12,20 @@ const $I = $SchemaId.create("dom/events");
 /**
  * Type guard for Event
  *
+ * @since 0.0.0
  * @category Validation
  * @param u
  * @returns {u is Event}
- * @since 0.0.0
  */
 export const isEvent = (u: unknown): u is Event => u instanceof Event;
+
 /**
  * Type guard for MouseEvent
  *
+ * @since 0.0.0
  * @category Validation
  * @param u
  * @returns {u is MouseEvent}
- * @since 0.0.0
  */
 export const isMouseEvent = (u: unknown): u is MouseEvent => u instanceof MouseEvent;
 
@@ -35,10 +36,10 @@ export const isMouseEvent = (u: unknown): u is MouseEvent => u instanceof MouseE
  * @since 0.0.0
  */
 export const DOMEvent = S.declare(isEvent).pipe(
-	$I.annoteSchema("DOMEvent", {
-		description: "A DOM event",
-	})
-)
+  $I.annoteSchema("DOMEvent", {
+    description: "A DOM event",
+  })
+);
 
 /**
  * type of {@link DOMEvent} {@inheritDoc DOMEvent}
@@ -55,12 +56,15 @@ export type DOMEvent = typeof DOMEvent.Type;
  * @since 0.0.0
  */
 export const DOMMouseEvent = S.declare(isMouseEvent).pipe(
-	$I.annoteSchema("DOMMouseEvent", {
-			description: "A DOM mouse event",
-		})
-)
+  $I.annoteSchema("DOMMouseEvent", {
+    description: "A DOM mouse event",
+  })
+);
 
 /**
  * type of {@link DOMMouseEvent} {@inheritDoc DOMMouseEvent}
+ *
+ * @category DomainModel
+ * @since 0.0.0
  */
 export type DOMMouseEvent = typeof DOMMouseEvent.Type;

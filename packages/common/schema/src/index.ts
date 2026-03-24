@@ -120,6 +120,11 @@ export * from "./Duration.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./dom/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Fn.ts";
 /**
  * @since 0.0.0
@@ -181,9 +186,3 @@ export * from "./Transformations.ts";
  * @category Validation
  */
 export * as VariantSchema from "./VariantSchema.ts";
-
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./dom/index.ts";

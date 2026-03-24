@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-03-21",
+  "generatedOn": "2026-03-24",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -889,6 +889,86 @@
       "status": "exception",
       "owner": "@beep/semantic-web",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "DragOverEvent",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@1026",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@1057",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@1090",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@432",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@437",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@452",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@459",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@768",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
+      "symbol": "anonymous@803",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
     },
     {
       "file": "packages/common/utils/src/Glob.ts",
