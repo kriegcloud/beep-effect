@@ -1,0 +1,50 @@
+type: object
+description: |
+  Triples query request - query knowledge graph by subject/predicate/object pattern.
+properties:
+  s:
+    $ref: '../../common/RdfValue.yaml'
+    description: Subject filter (optional)
+  p:
+    $ref: '../../common/RdfValue.yaml'
+    description: Predicate filter (optional)
+  o:
+    $ref: '../../common/RdfValue.yaml'
+    description: Object filter (optional)
+  limit:
+    type: integer
+    description: Maximum number of triples to return
+    default: 10000
+    minimum: 1
+    maximum: 100000
+    example: 100
+  user:
+    type: string
+    description: User identifier
+    default: trustgraph
+    example: alice
+  collection:
+    type: string
+    description: Collection to query
+    default: default
+    example: research
+  g:
+    type: string
+    description: |
+      Named graph filter (optional).
+      - Omitted/null: all graphs
+      - Empty string: default graph only
+      - URI string: specific named graph (e.g., urn:graph:source, urn:graph:retrieval)
+    example: urn:graph:source
+  streaming:
+    type: boolean
+    description: Enable streaming response delivery
+    default: false
+    example: true
+  batch-size:
+    type: integer
+    description: Number of triples per streaming batch
+    default: 20
+    minimum: 1
+    maximum: 1000
+    example: 50
