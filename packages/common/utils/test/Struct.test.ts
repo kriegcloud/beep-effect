@@ -252,6 +252,29 @@ describe("@beep/utils Struct.entries", () => {
   });
 });
 
+describe("@beep/utils Struct.entriesNonEmpty", () => {
+  it("returns non-empty key-value pairs for string keys", () => {
+    const source = { a: "foo", b: 1 };
+    const result = Struct.entriesNonEmpty(source);
+    expect(result).toEqual([
+      ["a", "foo"],
+      ["b", 1],
+    ]);
+  });
+
+  it("excludes symbol keys", () => {
+    const sym = Symbol("sym");
+    const source = { a: "foo", [sym]: true };
+    const result = Struct.entriesNonEmpty(source);
+    expect(result).toEqual([["a", "foo"]]);
+  });
+
+  it("throws EmptyStructError when runtime data is empty", () => {
+    const runtimeEmpty = {} as { a: string };
+    expect(() => Struct.entriesNonEmpty(runtimeEmpty)).toThrowError(Struct.EmptyStructError);
+  });
+});
+
 describe("@beep/utils Struct.keys", () => {
   it("returns string keys of an object", () => {
     const source = { a: "foo", b: 1, c: true };

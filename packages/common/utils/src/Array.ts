@@ -19,9 +19,9 @@ export const matchToBoolean = flow(
 const NonEmptyReadonlyArraySchema = S.NonEmptyArray(S.Any);
 const NonEmptyArraySchema = NonEmptyReadonlyArraySchema.pipe(S.mutable);
 
-const assertNonEmptyArray: (input: unknown) => asserts input is A.NonEmptyArray<TUnsafe.Any> =
+export const assertNonEmptyArray: (input: unknown) => asserts input is A.NonEmptyArray<TUnsafe.Any> =
   S.asserts(NonEmptyArraySchema);
-const assertNonEmptyReadonlyArray: (input: unknown) => asserts input is A.NonEmptyReadonlyArray<TUnsafe.Any> =
+export const assertNonEmptyReadonlyArray: (input: unknown) => asserts input is A.NonEmptyReadonlyArray<TUnsafe.Any> =
   S.asserts(NonEmptyReadonlyArraySchema);
 
 /**

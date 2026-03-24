@@ -14,8 +14,6 @@ type MimeTypeProperty = {
   };
 };
 
-type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][number];
-
 type MimeTypeKinds = {
   readonly Application: LiteralKitSchema<
     A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.application, string>>
@@ -30,24 +28,6 @@ type MimeTypeKinds = {
 type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typeof MimeTypesData.mimes, string>>> & {
   readonly kinds: MimeTypeKinds;
 };
-
-/**
- * Extracts all file extensions from a mime-type dictionary.
- *
- * @since 0.0.0
- * @category Utility
- */
-export const extractMimeExtensions = <const T extends MimeTypeProperty>(
-  mime: T
-): A.NonEmptyReadonlyArray<MimeTypeExtension<T>> =>
-  Fn.cast<Array<MimeTypeExtension<T>>, A.NonEmptyReadonlyArray<MimeTypeExtension<T>>>(
-    pipe(
-      mime,
-      Struct.entries,
-      A.flatMap(([_, { extensions }]) => extensions),
-      A.dedupe
-    )
-  );
 
 /**
  * Extracts all mime-type keys from a mime-type dictionary.

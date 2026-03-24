@@ -186,6 +186,28 @@ describe("entries", () => {
   });
 });
 
+describe("entriesNonEmpty", () => {
+  it("returns non-empty correlated entry types", () => {
+    const source = { a: "foo", b: 1 } as const;
+    const result = Struct.entriesNonEmpty(source);
+    expect(result).type.toBe<A.NonEmptyReadonlyArray<readonly ["a" | "b", "foo" | 1]>>();
+  });
+
+  it("excludes symbol keys", () => {
+    const sym = Symbol("sym");
+    const source = { a: "foo", [sym]: true } as const;
+    const result = Struct.entriesNonEmpty(source);
+    expect(result).type.toBe<A.NonEmptyReadonlyArray<readonly ["a", "foo"]>>();
+  });
+
+  it("rejects empty string-key structs", () => {
+    const source = {} as const;
+
+    // @ts-expect-error not assignable to parameter of type
+    Struct.entriesNonEmpty(source);
+  });
+});
+
 describe("keys", () => {
   it("returns string keys", () => {
     const source = { a: "foo", b: 1 } as const;

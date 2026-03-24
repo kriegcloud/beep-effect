@@ -49,6 +49,20 @@ function assertStructHasStringKeys<T extends string>(
   }
 }
 
+function assertStructHasStringEntries<T>(
+  input: ReadonlyArray<T>,
+  source: object
+): asserts input is A.NonEmptyReadonlyArray<T> {
+  try {
+    A.assertNonEmptyReadonlyArray(input);
+  } catch (cause) {
+    throw new EmptyStructError({
+      input: source,
+      cause: S.decodeUnknownOption(S.DefectWithStack)(cause),
+    });
+  }
+}
+
 /**
  * Result of a runtime struct path lookup.
  *
@@ -329,6 +343,23 @@ export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
       A.map((key): readonly [keyof R & string, R[keyof R & string]] => [key, obj[key]])
     )
   );
+
+/**
+ * Returns the string-key entries of a non-empty object in a type-safe manner.
+ *
+ * Empty struct types are rejected at compile time. A runtime empty value still
+ * fails fast with {@link EmptyStructError} to protect the invariant.
+ *
+ * @since 0.2.0
+ * @category Utility
+ */
+export const entriesNonEmpty = <const R extends object>(
+  obj: R & NonEmptyStringKeyStruct<R>
+): A.NonEmptyReadonlyArray<readonly [keyof R & string, R[keyof R & string]]> => {
+  const result: Array<readonly [keyof R & string, R[keyof R & string]]> = Fn.cast(entries(obj));
+  assertStructHasStringEntries(result, obj);
+  return result;
+};
 
 /**
  * Returns the string keys of an object in a type-safe manner.
