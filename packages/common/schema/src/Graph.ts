@@ -756,8 +756,8 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
     readonly edge: Edge;
   },
   expectedType?: GraphKindValue
-) => {
-  return S.declareConstructor<
+) =>
+  S.declareConstructor<
     Graph_.Graph<Node["Type"], Edge["Type"], GraphKindValue>,
     Graph_.Graph<Node["Encoded"], Edge["Encoded"], GraphKindValue>,
     GraphIso<Node, Edge>
@@ -800,7 +800,6 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
           formatGraph(graph, node, edge),
     }
   );
-};
 
 const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
   name: "MutableGraphFromSelf" | "MutableDirectedGraphFromSelf" | "MutableUndirectedGraphFromSelf",
@@ -809,8 +808,8 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
     readonly edge: Edge;
   },
   expectedType?: GraphKindValue
-) => {
-  return S.declareConstructor<
+) =>
+  S.declareConstructor<
     Graph_.MutableGraph<Node["Type"], Edge["Type"], GraphKindValue>,
     Graph_.MutableGraph<Node["Encoded"], Edge["Encoded"], GraphKindValue>,
     GraphIso<Node, Edge>
@@ -853,7 +852,6 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
           formatGraph(graph, node, edge),
     }
   );
-};
 
 /**
  * Schema for validating existing immutable Effect graphs.
