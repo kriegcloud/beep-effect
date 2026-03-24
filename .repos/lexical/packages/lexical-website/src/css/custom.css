@@ -1,0 +1,43 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ */
+
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+:root {
+  --ifm-color-primary: #76b6ff;
+  --ifm-color-primary-dark: #51a2ff;
+  --ifm-color-primary-darker: #3e98ff;
+  --ifm-color-primary-darkest: #067aff;
+  --ifm-color-primary-light: #9bcaff;
+  --ifm-color-primary-lighter: #aed4ff;
+  --ifm-color-primary-lightest: #e6f2ff;
+  --ifm-code-font-size: 95%;
+  --ifm-footer-padding-vertical: 4rem;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 0, 0.3);
+}
+
+[data-theme='dark'] {
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 0, 0.3);
+}
+
+.footer__links {
+  margin-bottom: 3rem;
+}
+
+html[data-theme='dark'] .button--outline:hover {
+  color: white;
+}
+
+html[data-theme='dark'] .button--text:hover {
+  color: rgba(0, 0, 0, 0.5);
+}

@@ -8,11 +8,14 @@ import { CodexTextGenerationLive } from "./CodexTextGeneration.ts";
 import { TextGenerationError } from "../Errors.ts";
 import { TextGeneration } from "../Services/TextGeneration.ts";
 
-const makeCodexTextGenerationTestLayer = (stateDir: string) =>
-  CodexTextGenerationLive.pipe(
-    Layer.provideMerge(ServerConfig.layerTest(process.cwd(), stateDir)),
-    Layer.provideMerge(NodeServices.layer),
-  );
+const CodexTextGenerationTestLayer = CodexTextGenerationLive.pipe(
+  Layer.provideMerge(
+    ServerConfig.layerTest(process.cwd(), {
+      prefix: "t3code-codex-text-generation-test-",
+    }),
+  ),
+  Layer.provideMerge(NodeServices.layer),
+);
 
 function makeFakeCodexBinary(dir: string) {
   return Effect.gen(function* () {
@@ -186,8 +189,6 @@ function withFakeCodexEnv<A, E, R>(
   );
 }
 
-const CodexTextGenerationTestLayer = makeCodexTextGenerationTestLayer(process.cwd());
-
 it.layer(CodexTextGenerationTestLayer)("CodexTextGenerationLive", (it) => {
   it.effect("generates and sanitizes commit messages without branch by default", () =>
     withFakeCodexEnv(
@@ -325,9 +326,10 @@ it.layer(CodexTextGenerationTestLayer)("CodexTextGenerationLive", (it) => {
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
+        const { attachmentsDir } = yield* ServerConfig;
         const attachmentId = `thread-branch-image-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-        const attachmentPath = path.join(process.cwd(), "attachments", `${attachmentId}.png`);
-        yield* fs.makeDirectory(path.join(process.cwd(), "attachments"), { recursive: true });
+        const attachmentPath = path.join(attachmentsDir, `${attachmentId}.png`);
+        yield* fs.makeDirectory(attachmentsDir, { recursive: true });
         yield* fs.writeFile(attachmentPath, Buffer.from("hello"));
 
         const textGeneration = yield* TextGeneration;
@@ -363,10 +365,10 @@ it.layer(CodexTextGenerationTestLayer)("CodexTextGenerationLive", (it) => {
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
-        const attachmentId =
-          `thread-1-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-        const imagePath = path.join(process.cwd(), "attachments", `${attachmentId}.png`);
-        yield* fs.makeDirectory(path.join(process.cwd(), "attachments"), { recursive: true });
+        const { attachmentsDir } = yield* ServerConfig;
+        const attachmentId = `thread-1-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        const imagePath = path.join(attachmentsDir, `${attachmentId}.png`);
+        yield* fs.makeDirectory(attachmentsDir, { recursive: true });
         yield* fs.writeFile(imagePath, Buffer.from("hello"));
 
         const textGeneration = yield* TextGeneration;
@@ -392,9 +394,7 @@ it.layer(CodexTextGenerationTestLayer)("CodexTextGenerationLive", (it) => {
                 }),
               ),
             ),
-            Effect.ensuring(
-              fs.remove(imagePath).pipe(Effect.catch(() => Effect.void)),
-            ),
+            Effect.ensuring(fs.remove(imagePath).pipe(Effect.catch(() => Effect.void))),
           );
 
         expect(generated.branch).toBe("fix/ui-regression");
@@ -413,8 +413,9 @@ it.layer(CodexTextGenerationTestLayer)("CodexTextGenerationLive", (it) => {
       Effect.gen(function* () {
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
+        const { attachmentsDir } = yield* ServerConfig;
         const missingAttachmentId = `thread-missing-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
-        const missingPath = path.join(process.cwd(), "attachments", `${missingAttachmentId}.png`);
+        const missingPath = path.join(attachmentsDir, `${missingAttachmentId}.png`);
         yield* fs.remove(missingPath).pipe(Effect.catch(() => Effect.void));
 
         const textGeneration = yield* TextGeneration;

@@ -1,10 +1,9 @@
+import { $AiSdkId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import { type Duration, Effect, Layer } from "effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
-import { $AiSdkId } from "@beep/identity";
 import * as RateLimiter from "effect/unstable/persistence/RateLimiter";
-
-import { LiteralKit } from "@beep/schema";
 
 const $I = $AiSdkId.create("core/experimental/RateLimiter");
 
@@ -17,7 +16,7 @@ export * from "effect/unstable/persistence/RateLimiter";
  * In-memory rate limiter layer for local development and tests.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const program = Effect.gen(function*() {
  *   return yield* Effect.succeed("ready")
  * }).pipe(Effect.provide(layerMemory))
@@ -65,32 +64,20 @@ export const keyForEndpoint = (endpoint: string) => `endpoint:${endpoint}`;
  */
 export const keyForSessionTool = (sessionId: string, toolName: string) => `${keyForSession(sessionId)}:${toolName}`;
 
-const RateLimitWindowConfigAlgo = LiteralKit([
-  "fixed-window",
-  "token-bucket"
-]).pipe(
-  $I.annoteSchema(
-    "RateLimitWindowConfigAlgo",
-    {
-      description: "Rate limiting algorithm to use"
-    }
-  )
+const RateLimitWindowConfigAlgo = LiteralKit(["fixed-window", "token-bucket"]).pipe(
+  $I.annoteSchema("RateLimitWindowConfigAlgo", {
+    description: "Rate limiting algorithm to use",
+  })
 );
 
-type RateLimitWindowConfigAlgo = typeof RateLimitWindowConfigAlgo.Type
+type RateLimitWindowConfigAlgo = typeof RateLimitWindowConfigAlgo.Type;
 
-const RateLimitWindowConfigExceededReason = LiteralKit([
-  "delay",
-  "fail"
-]).pipe(
-  $I.annoteSchema(
-    "RateLimitWindowConfigExceededReason",
-    {
-      description: "Action to take when rate limit is exceeded"
-    }
-  )
-)
-type RateLimitWindowConfigExceededReason = typeof RateLimitWindowConfigExceededReason.Type
+const RateLimitWindowConfigExceededReason = LiteralKit(["delay", "fail"]).pipe(
+  $I.annoteSchema("RateLimitWindowConfigExceededReason", {
+    description: "Action to take when rate limit is exceeded",
+  })
+);
+type RateLimitWindowConfigExceededReason = typeof RateLimitWindowConfigExceededReason.Type;
 /**
  * Configuration for a shared rate limiting window.
  */
@@ -127,7 +114,7 @@ export type RateLimitHandlerConfig<A> = Omit<RateLimitWindowConfig, "tokens"> & 
  * Apply a rate limit to a single Effect.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const guarded = withRateLimit({
  *   key: "query",
  *   window: "1 minute",
@@ -160,7 +147,7 @@ export const withRateLimit =
  * Wrap a handler function with rate limiting.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const handler = rateLimitHandler(
  *   (input: { sessionId: string }) => Effect.succeed(input.sessionId),
  *   {
@@ -195,7 +182,7 @@ type HandlerLike = (input: unknown) => Effect.Effect<unknown, unknown, unknown>;
  * Apply rate limiting to a map of handlers using a shared window config.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const handlers = rateLimitHandlers(
  *   {
  *     send: (input: string) => Effect.succeed(input),

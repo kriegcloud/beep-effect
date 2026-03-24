@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "esModuleInterop": true,
+    "strict": false
+  },
+  "include": ["./libdefs", "./packages"],
+  "exclude": [
+    "./libdefs/*.js",
+    "**/dist/**",
+    "**/npm/**",
+    "**/node_modules/**",
+    "./packages/lexical-devtools/**"
+  ],
+  "extends": "./tsconfig.json"
+}

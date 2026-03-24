@@ -24,6 +24,7 @@
     "effect": "catalog:",
     "eslint": "catalog:",
     "eslint-plugin-jsdoc": "catalog:",
+    "eslint-plugin-tsdoc": "catalog:",
     "jsonc-parser": "catalog:"
   },
   "devDependencies": {

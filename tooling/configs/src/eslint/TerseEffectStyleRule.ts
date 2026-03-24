@@ -1,3 +1,4 @@
+import { thunkUndefined } from "@beep/utils";
 import { HashMap, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -203,15 +204,14 @@ export const terseEffectStyleRule: Rule.RuleModule = {
     });
     let thunkHelperAliases = HashMap.empty<string, string>();
 
-    const reportIfPresent = (node: Rule.Node, violation: O.Option<RuleViolation>): void => {
+    const reportIfPresent = (node: Rule.Node, violation: O.Option<RuleViolation>): void =>
       pipe(
         violation,
         O.match({
-          onNone: () => undefined,
+          onNone: thunkUndefined,
           onSome: reportViolationIfNeeded(node),
         })
       );
-    };
 
     return {
       Program() {
@@ -222,7 +222,7 @@ export const terseEffectStyleRule: Rule.RuleModule = {
           decodeImportDeclarationNode(node),
           O.filter((importDeclaration) => importDeclaration.source.value === "@beep/utils"),
           O.match({
-            onNone: () => undefined,
+            onNone: thunkUndefined,
             onSome: (importDeclaration) => {
               for (const specifier of importDeclaration.specifiers) {
                 const importKind = resolveImportSpecifierImportKind(specifier, importDeclaration.importKind);
@@ -255,7 +255,7 @@ export const terseEffectStyleRule: Rule.RuleModule = {
         reportIfPresent(node, detectHelperReferenceViolation(parameterName, node.body));
         reportIfPresent(node, detectFlowViolation(parameterName, node.body));
 
-        if (node.params.length === 0) {
+        if (A.isReadonlyArrayEmpty(node.params)) {
           reportIfPresent(node, detectThunkHelperViolation(thunkHelperAliases, node.body));
         }
       },

@@ -1,0 +1,34 @@
+{
+	"typescript": {
+		"useTabs": true,
+		"quoteStyle": "preferSingle",
+		"quoteProps": "asNeeded",
+		"arrowFunction.useParentheses": "force",
+		"jsx.quoteStyle": "preferSingle"
+	},
+	"json": {
+		"useTabs": true
+	},
+	"markdown": {},
+	"includes": ["**/*.{ts,tsx,js,jsx,cjs,mjs,json}"],
+	"excludes": [
+		"**/node_modules",
+		"dist",
+		"dist-dts",
+		"dist.new",
+		"**/drizzle/**/meta",
+		"**/drizzle2/**/meta",
+		"**/*snapshot.json",
+		"**/_journal.json",
+		"**/tsup.config*.mjs",
+		"**/.sst",
+		"rollup.config-*.mjs",
+		"integration-tests/tests/prisma/*/client",
+		"integration-tests/tests/prisma/*/drizzle"
+	],
+	"plugins": [
+		"https://unpkg.com/@dprint/typescript@0.91.1/plugin.wasm",
+		"https://unpkg.com/@dprint/json@0.19.3/plugin.wasm",
+		"https://unpkg.com/@dprint/markdown@0.17.1/plugin.wasm"
+	]
+}

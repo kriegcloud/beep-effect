@@ -5,7 +5,7 @@
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { ArrayOfStrings, LiteralKit } from "@beep/schema";
+import { ArrayOfStrings, LiteralKit, SchemaUtils } from "@beep/schema";
 import { Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -36,8 +36,8 @@ const TS_CATEGORY_TAG_VALUES = [
 /**
  * Internal base literal schema for all supported TypeDoc `@category` values.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const TSCategoryTagBase = LiteralKit(TS_CATEGORY_TAG_VALUES).annotate(
   $I.annote("TSCategoryTag", {
@@ -48,16 +48,16 @@ const TSCategoryTagBase = LiteralKit(TS_CATEGORY_TAG_VALUES).annotate(
 /**
  * Inferred type for {@link TSCategoryTagBase}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 type TSCategoryTagBase = typeof TSCategoryTagBase.Type;
 
 /**
  * Purity classification for a TSCategory taxonomy member.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const CategoryPurity = LiteralKit(["pure", "effectful", "mixed"]).annotate(
   $I.annote("CategoryPurity", {
@@ -70,8 +70,8 @@ export const CategoryPurity = LiteralKit(["pure", "effectful", "mixed"]).annotat
 /**
  * Inferred type for {@link CategoryPurity}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type CategoryPurity = typeof CategoryPurity.Type;
 
@@ -79,8 +79,8 @@ export type CategoryPurity = typeof CategoryPurity.Type;
  * A single member of the closed taxonomy used to classify
  * TypeScript code elements in the knowledge graph.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCategoryDefinition`)(
   {
@@ -177,16 +177,16 @@ export class TSCategoryDefinition extends S.Class<TSCategoryDefinition>($I`TSCat
 /**
  * Runtime encoded shape for TS category metadata.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TSCategory = typeof TSCategoryDefinition.Encoded;
 
 /**
  * The payload type stored in the `tsCategoryMetadata` annotation key.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TSCategoryAnnotationPayload = TSCategoryDefinition;
 
@@ -203,8 +203,8 @@ declare module "effect/Schema" {
  *
  * @param schema - Any Effect schema.
  * @returns The TSCategoryDefinition metadata or `undefined`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const getTSCategoryMetadata = (schema: S.Top): TSCategoryAnnotationPayload | undefined =>
   S.resolveInto(schema)?.tsCategoryMetadata;
@@ -218,8 +218,8 @@ export const getTSCategoryMetadata = (schema: S.Top): TSCategoryAnnotationPayloa
  * @param _tag - Canonical TS category discriminator.
  * @param meta - Category metadata payload without the discriminator.
  * @returns Literal category schema annotated with validated metadata.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const make = <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<TSCategory, "_tag">) => {
   const definition = S.decodeSync(TSCategoryDefinition)({ _tag, ...meta });
@@ -229,16 +229,16 @@ export const make = <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<
 /**
  * Confidence threshold where deterministic classification can skip LLM inference.
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const DETERMINISTIC_CLASSIFICATION_THRESHOLD = 0.85;
 
 /**
  * Guardrail threshold used to route low-confidence matches to `Uncategorized`.
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
 
@@ -248,8 +248,8 @@ export const UNCATEGORIZED_GUARDRAIL_THRESHOLD = 0.45;
  * or route them to a dedicated test-handling path before applying
  * the main taxonomy.
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const TESTING_FILE_PATTERNS = [
   "**/*.test.ts",
@@ -271,8 +271,8 @@ export const TESTING_FILE_PATTERNS = [
  * Used as a secondary signal when file paths are ambiguous
  * (e.g., test utilities not in a conventional test directory).
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const TESTING_IMPORT_PATTERNS = [
   "vitest*",
@@ -291,8 +291,8 @@ export const TESTING_IMPORT_PATTERNS = [
 /**
  * Per-category literal schema members built through the TS category fibration `make` helper.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 const DomainModel = make("DomainModel", {
   definition: "Core business concepts and stable type-level contracts that represent domain state and invariants.",
@@ -882,8 +882,8 @@ type Uncategorized = typeof Uncategorized.Type;
 /**
  * Strict literal union for all supported TypeDoc `@category` values.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const TSCategoryTag = S.Union([
   DomainModel,
@@ -907,8 +907,8 @@ export const TSCategoryTag = S.Union([
 /**
  * Inferred type for {@link TSCategoryTag}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TSCategoryTag = typeof TSCategoryTag.Type;
 
@@ -930,8 +930,8 @@ const CATEGORY_TAG_SCHEMAS = [
 /**
  * Closed category taxonomy used by `@category` tags.
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const CATEGORY_TAXONOMY: ReadonlyArray<TSCategory> = pipe(
   CATEGORY_TAG_SCHEMAS,
@@ -949,8 +949,8 @@ export const CATEGORY_TAXONOMY: ReadonlyArray<TSCategory> = pipe(
 /**
  * All valid category tag values.
  *
- * @since 2026-03-01
  * @category DomainModel
+ * @since 0.0.0
  */
 export type CategoryTag = TSCategoryTag;
 
@@ -973,8 +973,8 @@ const UNCATEGORIZED_CATEGORY_TAG: CategoryTag = "Uncategorized";
  * This policy is intentionally separate from `getCandidateCategories`,
  * which preserves canonical sorting by confidence and `_tag`.
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
   "Validation",
@@ -995,8 +995,8 @@ export const CATEGORY_PRECEDENCE: ReadonlyArray<CategoryTag> = [
  * Explicit fallback policy for non-declaration nodes where direct classification
  * is ambiguous without structural context.
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const CONTEXT_FALLBACK_POLICY = {
   appliesTo: ["statement", "expression", "signature"],
@@ -1013,8 +1013,8 @@ export const CONTEXT_FALLBACK_POLICY = {
  * Complete routing table from `ApplicableTo` node intent to candidate categories.
  * This makes taxonomy completeness auditable against HasJSDoc surfaces.
  *
- * @since 2026-03-01
  * @category Configuration
+ * @since 0.0.0
  */
 export const APPLICABLE_TO_CATEGORY_ROUTING: Readonly<Record<ApplicableTo, ReadonlyArray<CategoryTag>>> = {
   function: ["UseCase", "DomainLogic", "Validation", "Presentation", "Utility"],
@@ -1063,8 +1063,8 @@ const clampConfidence = (confidence: number): number =>
  *
  * @param confidences - Individual signal confidence scores to combine.
  * @returns Combined confidence score clamped to the inclusive range [0, 1].
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
   pipe(
@@ -1080,8 +1080,8 @@ const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
  *
  * @param tag - Category tag to rank by conflict precedence.
  * @returns Zero-based precedence index, or the list length when absent.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function getCategoryPrecedence(tag: CategoryTag): number {
   return pipe(
@@ -1096,8 +1096,8 @@ export function getCategoryPrecedence(tag: CategoryTag): number {
  *
  * @param tag - Category tag identifier to resolve.
  * @returns Matching category definition, when present.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function getCategory(tag: string): TSCategory | undefined {
   return pipe(
@@ -1112,8 +1112,8 @@ export function getCategory(tag: string): TSCategory | undefined {
  *
  * @param purity - Purity value used to filter the taxonomy.
  * @returns Categories whose `purity` matches the requested value.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function getCategoriesByPurity(purity: TSCategory["purity"]): ReadonlyArray<TSCategory> {
   return pipe(
@@ -1127,8 +1127,8 @@ export function getCategoriesByPurity(purity: TSCategory["purity"]): ReadonlyArr
  *
  * @param layer - Architectural layer used to filter taxonomy members.
  * @returns Categories mapped to the provided architectural layer.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function getCategoriesByArchLayer(layer: ArchitecturalLayerValue): ReadonlyArray<TSCategory> {
   return pipe(
@@ -1147,8 +1147,8 @@ export function getCategoriesByArchLayer(layer: ArchitecturalLayerValue): Readon
  *
  * @param analog - Effect/monad analog label to match.
  * @returns Categories whose `effectAnalog` equals the provided label.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function getCategoriesByEffectAnalog(analog: string): ReadonlyArray<TSCategory> {
   return pipe(
@@ -1162,8 +1162,8 @@ export function getCategoriesByEffectAnalog(analog: string): ReadonlyArray<TSCat
  *
  * @param applicableTo - Node intent routed to taxonomy candidates.
  * @returns Categories in routing-table order, excluding unknown tags.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function getCategoriesForApplicableTo(applicableTo: ApplicableTo): ReadonlyArray<TSCategory> {
   return pipe(
@@ -1178,8 +1178,8 @@ export function getCategoriesForApplicableTo(applicableTo: ApplicableTo): Readon
 /**
  * Scored category candidate shape produced by candidate resolution.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type ScoredCategoryCandidate = Readonly<{
   readonly category: TSCategory;
@@ -1214,8 +1214,8 @@ const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, 
  *
  * @param signals - Category signal tuples with confidence values.
  * @returns Candidate categories sorted by confidence and tag.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function getCandidateCategories(
   signals: ReadonlyArray<{ category: string; confidence: number }>
@@ -1269,8 +1269,8 @@ export function getCandidateCategories(
  * @param ancestorCategory - Nearest ancestor category, if available.
  * @param sourceFileDominantCategory - Dominant category inferred from the source file.
  * @returns Resolved category tag using fallback precedence and guardrail policy.
- * @since 2026-03-01
  * @category Utility
+ * @since 0.0.0
  */
 export function resolveContextFallback(
   scoredCandidates: ReadonlyArray<ScoredCategoryCandidate>,
@@ -1305,3 +1305,26 @@ export function resolveContextFallback(
     O.getOrElse(() => UNCATEGORIZED_CATEGORY_TAG)
   );
 }
+
+/**
+ * The TypeScript Category Tag
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export const Category = S.Union(CATEGORY_TAG_SCHEMAS).pipe(
+  SchemaUtils.withStatics((self) => ({
+    decodeUnknown: S.decodeUnknownEffect(self),
+  })),
+  $I.annoteSchema("Category", {
+    description: "A TypeScript category tag, representing a categorization of TypeScript constructs.",
+  })
+);
+
+/**
+ * Type for {@link Category}.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export type Category = typeof Category.Type;

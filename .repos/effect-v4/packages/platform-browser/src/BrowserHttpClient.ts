@@ -6,7 +6,10 @@ import * as Effect from "effect/Effect"
 import type { LazyArg } from "effect/Function"
 import * as Inspectable from "effect/Inspectable"
 import type * as Layer from "effect/Layer"
+import * as Option from "effect/Option"
+import { type Pipeable, pipeArguments } from "effect/Pipeable"
 import * as Queue from "effect/Queue"
+import type * as Schema from "effect/Schema"
 import * as ServiceMap from "effect/ServiceMap"
 import * as Stream from "effect/Stream"
 import * as Cookies from "effect/unstable/http/Cookies"
@@ -213,7 +216,7 @@ abstract class IncomingMessageImpl<E> extends Inspectable.Class implements HttpI
   }
 
   get remoteAddress() {
-    return undefined
+    return Option.none()
   }
 
   _textEffect: Effect.Effect<string, E> | undefined
@@ -247,10 +250,10 @@ abstract class IncomingMessageImpl<E> extends Inspectable.Class implements HttpI
     )
   }
 
-  get json(): Effect.Effect<unknown, E> {
+  get json(): Effect.Effect<Schema.Json, E> {
     return Effect.flatMap(this.text, (text) =>
       Effect.try({
-        try: () => text === "" ? null : JSON.parse(text) as unknown,
+        try: () => text === "" ? null : JSON.parse(text),
         catch: this.onError
       }))
   }
@@ -334,7 +337,7 @@ abstract class IncomingMessageImpl<E> extends Inspectable.Class implements HttpI
 }
 
 class ClientResponseImpl extends IncomingMessageImpl<HttpClientError.HttpClientError>
-  implements HttpClientResponse.HttpClientResponse
+  implements HttpClientResponse.HttpClientResponse, Pipeable
 {
   readonly [HttpClientResponse.TypeId]: typeof HttpClientResponse.TypeId
   readonly request: HttpClientRequest.HttpClientRequest
@@ -373,6 +376,10 @@ class ClientResponseImpl extends IncomingMessageImpl<HttpClientError.HttpClientE
       request: this.request.toJSON(),
       status: this.status
     })
+  }
+
+  pipe() {
+    return pipeArguments(this, arguments)
   }
 }
 

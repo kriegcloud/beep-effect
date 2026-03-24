@@ -1,0 +1,43 @@
+{
+  "name": "@lexical/code",
+  "description": "This package contains the functionality for the code blocks and code highlighting for Lexical.",
+  "keywords": [
+    "lexical",
+    "editor",
+    "rich-text",
+    "code"
+  ],
+  "license": "MIT",
+  "version": "0.42.0",
+  "main": "LexicalCode.js",
+  "types": "index.d.ts",
+  "dependencies": {
+    "@lexical/code-core": "workspace:*",
+    "@lexical/code-prism": "workspace:*",
+    "lexical": "workspace:*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/facebook/lexical.git",
+    "directory": "packages/lexical-code"
+  },
+  "module": "LexicalCode.mjs",
+  "sideEffects": true,
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./index.d.ts",
+        "development": "./LexicalCode.dev.mjs",
+        "production": "./LexicalCode.prod.mjs",
+        "node": "./LexicalCode.node.mjs",
+        "default": "./LexicalCode.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "development": "./LexicalCode.dev.js",
+        "production": "./LexicalCode.prod.js",
+        "default": "./LexicalCode.js"
+      }
+    }
+  }
+}

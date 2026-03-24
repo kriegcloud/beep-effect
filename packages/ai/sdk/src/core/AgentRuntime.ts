@@ -83,14 +83,14 @@ const applyRetry = <A, E, R>(effect: Effect.Effect<A, E, R>, settings: AgentRunt
  * @since 0.0.0
  * @category Configuration
  */
-export type PersistenceLayers = {
+export type PersistenceLayers = Readonly<{
   readonly runtime?: PersistenceLayer<AgentRuntime>;
   readonly chatHistory?: PersistenceLayer<ChatHistoryStore>;
   readonly artifacts?: PersistenceLayer<ArtifactStore>;
   readonly auditLog?: PersistenceLayer<AuditEventStore>;
   readonly sessionIndex?: PersistenceLayer<SessionIndexStore>;
   readonly storageConfig?: PersistenceLayer<StorageConfig>;
-};
+}>;
 
 /**
  * @since 0.0.0

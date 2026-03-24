@@ -19,6 +19,8 @@
   "dependencies": {
     "@beep/data": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/messages": "workspace:^",
+    "@beep/utils": "workspace:^",
     "effect": "catalog:",
     "uuid": "catalog:"
   },

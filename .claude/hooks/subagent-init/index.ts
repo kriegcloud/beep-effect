@@ -9,7 +9,7 @@
  * Uses HTML-like syntax for all context enhancements.
  *
  * @module SubAgentInit
- * @since 1.0.0
+ * @since 0.0.0
  */
 
 import { $ClaudeId } from "@beep/identity/packages";

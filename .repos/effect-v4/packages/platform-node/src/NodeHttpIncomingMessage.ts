@@ -3,6 +3,8 @@
  */
 import * as Effect from "effect/Effect"
 import * as Inspectable from "effect/Inspectable"
+import * as Option from "effect/Option"
+import type * as Schema from "effect/Schema"
 import type * as Stream from "effect/Stream"
 import * as Headers from "effect/unstable/http/Headers"
 import * as IncomingMessage from "effect/unstable/http/HttpIncomingMessage"
@@ -23,12 +25,12 @@ export abstract class NodeHttpIncomingMessage<E> extends Inspectable.Class
   readonly [IncomingMessage.TypeId]: typeof IncomingMessage.TypeId
   readonly source: Http.IncomingMessage
   readonly onError: (error: unknown) => E
-  readonly remoteAddressOverride?: string | undefined
+  readonly remoteAddressOverride?: Option.Option<string> | undefined
 
   constructor(
     source: Http.IncomingMessage,
     onError: (error: unknown) => E,
-    remoteAddressOverride?: string
+    remoteAddressOverride?: Option.Option<string>
   ) {
     super()
     this[IncomingMessage.TypeId] = IncomingMessage.TypeId
@@ -42,7 +44,7 @@ export abstract class NodeHttpIncomingMessage<E> extends Inspectable.Class
   }
 
   get remoteAddress() {
-    return this.remoteAddressOverride ?? this.source.socket.remoteAddress
+    return this.remoteAddressOverride ?? Option.fromNullishOr(this.source.socket.remoteAddress)
   }
 
   private textEffect: Effect.Effect<string, E> | undefined
@@ -67,15 +69,15 @@ export abstract class NodeHttpIncomingMessage<E> extends Inspectable.Class
     return Effect.runSync(this.text)
   }
 
-  get json(): Effect.Effect<unknown, E> {
+  get json(): Effect.Effect<Schema.Json, E> {
     return Effect.flatMap(this.text, (text) =>
       Effect.try({
-        try: () => text === "" ? null : JSON.parse(text) as unknown,
+        try: () => text === "" ? null : JSON.parse(text),
         catch: this.onError
       }))
   }
 
-  get jsonUnsafe(): unknown {
+  get jsonUnsafe(): Schema.Json {
     return Effect.runSync(this.json)
   }
 

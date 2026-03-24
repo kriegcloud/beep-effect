@@ -29,7 +29,8 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { type FormEvent, startTransition, useEffect, useMemo, useRef, useState } from "react";
+import type * as React from "react";
+import { startTransition, useEffect, useMemo, useRef, useState } from "react";
 import {
   getManagedSidecarState,
   isNativeDesktop,
@@ -200,7 +201,7 @@ const eventLabel = (event: RunStreamEvent): string => {
 };
 
 const errorToMessage = (error: unknown): string => {
-  if (error instanceof RepoMemoryClientError || error instanceof Error) {
+  if (P.or(S.is(RepoMemoryClientError), S.is(S.instanceOf(Error)))(error)) {
     return error.message;
   }
 
@@ -216,7 +217,7 @@ const errorToMessage = (error: unknown): string => {
 };
 
 const toClientError = (error: unknown): RepoMemoryClientError =>
-  error instanceof RepoMemoryClientError
+  S.is(RepoMemoryClientError)(error)
     ? error
     : new RepoMemoryClientError({
         message: errorToMessage(error),
@@ -359,7 +360,7 @@ export function RepoMemoryDesktop() {
   const [questionInput, setQuestionInput] = useState("describe symbol `RunId`");
   const [eventsByRunId, setEventsByRunId] = useState<Record<string, ReadonlyArray<RunStreamEvent>>>({});
   const [activeStreamRunId, setActiveStreamRunId] = useState<string | null>(null);
-  const streamFiberRef = useRef<Fiber.Fiber<void, never> | null>(null);
+  const streamFiberRef = useRef<Fiber.Fiber<void> | null>(null);
   const connectAbortRef = useRef<AbortController | null>(null);
 
   const selectedRepo = useMemo(() => findRepoById(repos, selectedRepoId), [repos, selectedRepoId]);
@@ -562,7 +563,9 @@ export function RepoMemoryDesktop() {
     setActionState("refreshing");
     setErrorMessage(null);
     setStatusMessage(
-      options?.restart ? "Restarting the managed local sidecar." : "Launching the managed local sidecar."
+      P.isNotNullish(options) && P.isNotNullish(options.restart) && options.restart
+        ? "Restarting the managed" + " local" + " sidecar."
+        : "Launching" + " the managed local sidecar."
     );
 
     try {
@@ -808,7 +811,7 @@ export function RepoMemoryDesktop() {
     );
   };
 
-  const registerRepo = async (event: FormEvent<HTMLFormElement>) => {
+  const registerRepo = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (client === null || repoPathInput.trim() === "") {
@@ -874,7 +877,7 @@ export function RepoMemoryDesktop() {
     }
   };
 
-  const startQueryRun = async (event: FormEvent<HTMLFormElement>) => {
+  const startQueryRun = async (event: React.SubmitEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (client === null || selectedRepo === null || questionInput.trim() === "") {

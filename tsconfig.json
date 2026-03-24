@@ -12,6 +12,11 @@
     "./packages/**/test/**/*.json",
     "./packages/**/dtslint/**/*.ts",
     "./packages/**/dtslint/**/*.tsx",
+    "./packages/editor/test/**/*.ts",
+    "./packages/editor/test/**/*.tsx",
+    "./packages/editor/test/**/*.json",
+    "./packages/editor/dtslint/**/*.ts",
+    "./packages/editor/dtslint/**/*.tsx",
     "./tooling/**/test/**/*.ts",
     "./tooling/**/test/**/*.tsx",
     "./tooling/**/test/**/*.json",
@@ -104,21 +109,13 @@
       "@beep/codegraph": ["./tooling/codegraph/src/index.ts"],
       "@beep/codegraph/*": ["./tooling/codegraph/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
-      "@beep/db-admin/*": [
-        "./packages/_internal/db-admin/src/*"
-      ],
-      "@beep/semantic-web": [
-        "./packages/common/semantic-web/src/index.ts"
-      ],
-      "@beep/semantic-web/*": [
-        "./packages/common/semantic-web/src/*"
-      ],
-      "@beep/nlp": [
-        "./apps/nlp/src/index.ts"
-      ],
-      "@beep/nlp/*": [
-        "./apps/nlp/src/*"
-      ]
+      "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
+      "@beep/semantic-web": ["./packages/common/semantic-web/src/index.ts"],
+      "@beep/semantic-web/*": ["./packages/common/semantic-web/src/*"],
+      "@beep/nlp": ["./packages/common/nlp/src/index.ts"],
+      "@beep/nlp/*": ["./packages/common/nlp/src/*"],
+      "@beep/editor": ["./packages/editor/src/index.ts"],
+      "@beep/editor/*": ["./packages/editor/src/*"]
     },
     "plugins": [
       {

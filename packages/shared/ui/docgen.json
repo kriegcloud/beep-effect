@@ -12,8 +12,31 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
     "paths": {
-      "@beep/shared-ui": ["../../../packages/shared/ui/src/index.ts"]
+      "@beep/shared-ui": ["../../../packages/shared/ui/src/index.ts"],
+      "@beep/shared-ui/*": ["../../../packages/shared/ui/src/*.ts"],
+      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
     }
   }
 }

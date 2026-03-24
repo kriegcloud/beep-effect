@@ -45,7 +45,7 @@ export const variants = (input: string): ReadonlyArray<string> => {
       Str.pascalCase(spaced),
       Str.snakeCase(spaced),
       Str.kebabCase(spaced),
-      A.isReadonlyArrayNonEmpty(tokenized) ? A.join(tokenized, "") : ""
+      A.isReadonlyArrayNonEmpty(tokenized) ? A.join(tokenized, Str.empty) : Str.empty
     )
   );
 };

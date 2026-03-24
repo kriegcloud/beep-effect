@@ -3,17 +3,19 @@
  */
 
 import type { TUnsafe } from "@beep/types";
+import {
+  Effect,
+  Function as Fn,
+  SchemaGetter as Getter,
+  Pipeable,
+  Struct as Struct_,
+  SchemaTransformation as Transformation,
+} from "effect";
 import type { Brand } from "effect/Brand";
-import * as Effect from "effect/Effect";
-import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import { type Pipeable, pipeArguments } from "effect/Pipeable";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
-import * as Getter from "effect/SchemaGetter";
-import * as Transformation from "effect/SchemaTransformation";
-import * as Struct_ from "effect/Struct";
 /**
  * @since 0.0.0
  * @category Type IDs
@@ -26,7 +28,7 @@ const cacheSymbol = Symbol.for(`${TypeId}/cache`);
  * @since 0.0.0
  * @category models
  */
-export interface Struct<in out A extends Field.Fields> extends Pipeable {
+export interface Struct<in out A extends Field.Fields> extends Pipeable.Pipeable {
   readonly [TypeId]: A;
   /** @internal */
   [cacheSymbol]?: Record<string, S.Top>;
@@ -47,15 +49,15 @@ export declare namespace Struct {
    * @since 0.0.0
    * @category models
    */
-  export type Any = { readonly [TypeId]: TUnsafe.Any };
+  export type Any = Readonly<{ readonly [TypeId]: TUnsafe.Any }>;
 
   /**
    * @since 0.0.0
    * @category models
    */
-  export type Fields = {
+  export type Fields = Readonly<{
     readonly [key: string]: S.Top | Field<TUnsafe.Any> | Struct<TUnsafe.Any> | undefined;
-  };
+  }>;
 
   /**
    * @since 0.0.0
@@ -78,7 +80,7 @@ const FieldTypeId = "~effect/schema/VariantSchema/Field";
  * @since 0.0.0
  * @category models
  */
-export interface Field<in out A extends Field.Config> extends Pipeable {
+export interface Field<in out A extends Field.Config> extends Pipeable.Pipeable {
   readonly schemas: A;
   readonly [FieldTypeId]: typeof FieldTypeId;
 }
@@ -98,15 +100,15 @@ export declare namespace Field {
    * @since 0.0.0
    * @category models
    */
-  export type Any = { readonly [FieldTypeId]: typeof FieldTypeId };
+  export type Any = Readonly<{ readonly [FieldTypeId]: typeof FieldTypeId }>;
 
   /**
    * @since 0.0.0
    * @category models
    */
-  export type Config = {
+  export type Config = Readonly<{
     readonly [key: string]: S.Top | undefined;
-  };
+  }>;
 
   /**
    * @since 0.0.0
@@ -120,9 +122,9 @@ export declare namespace Field {
    * @since 0.0.0
    * @category models
    */
-  export type Fields = {
+  export type Fields = Readonly<{
     readonly [key: string]: S.Top | Field<TUnsafe.Any> | Struct<TUnsafe.Any> | undefined;
-  };
+  }>;
 }
 
 /**
@@ -173,7 +175,7 @@ const extract: {
       readonly isDefault?: IsDefault | undefined;
     }
   ): Extract<V, A, IsDefault>;
-} = dual(
+} = Fn.dual(
   (args) => isStruct(args[0]),
   <V extends string, A extends Struct<TUnsafe.Any>>(
     self: A,
@@ -464,7 +466,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
   function UnionVariants(members: ReadonlyArray<Struct<TUnsafe.Any>>) {
     return Union(members, options.variants);
   }
-  const fieldEvolve = dual(
+  const fieldEvolve = Fn.dual(
     2,
     (self: Field<TUnsafe.Any> | S.Top, f: Record<string, (schema: S.Top) => S.Top>): Field<TUnsafe.Any> => {
       const field = isField(self)
@@ -473,7 +475,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
       return Field(Struct_.evolve(field.schemas, f));
     }
   );
-  const extractVariants = dual(
+  const extractVariants = Fn.dual(
     2,
     (self: Struct<TUnsafe.Any>, variant: string): TUnsafe.Any =>
       extract(self, variant, {
@@ -550,7 +552,7 @@ export const Overridable = <S extends S.Top & S.WithoutConstructorDefault>(
 
 const StructProto = {
   pipe() {
-    return pipeArguments(this, arguments);
+    return Pipeable.pipeArguments(this, arguments);
   },
 };
 
@@ -563,7 +565,7 @@ const Struct = <const A extends Field.Fields>(fields: A): Struct<A> => {
 const FieldProto = {
   [FieldTypeId]: FieldTypeId,
   pipe() {
-    return pipeArguments(this, arguments);
+    return Pipeable.pipeArguments(this, arguments);
   },
 };
 

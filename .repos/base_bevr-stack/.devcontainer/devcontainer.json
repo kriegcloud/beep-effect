@@ -1,0 +1,53 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+  "name": "BEVR Stack",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "image": "mcr.microsoft.com/devcontainers/typescript-node",
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/lloydrichards/devcontainer-features/oh-my-posh-theme:1": {},
+    "ghcr.io/shyim/devcontainers-features/bun:0": {},
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      "moby": false
+    },
+    "ghcr.io/stu-bell/devcontainer-features/open-code:0": {},
+    "ghcr.io/schlich/devcontainer-features/playwright:0": {}
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [3000, 9009],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "bun install",
+
+  // Configure tool-specific properties.
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnSave": true,
+        "editor.defaultFormatter": "biomejs.biome"
+      },
+      "extensions": [
+        "biomejs.biome",
+        "oven.bun-vscode",
+        "effectful-tech.effect-vscode",
+        "YoavBls.pretty-ts-errors",
+        "humao.rest-client",
+        "bradlc.vscode-tailwindcss",
+        "Orta.vscode-twoslash-queries",
+        "sst-dev.opencode",
+        "dsznajder.es7-react-js-snippets"
+      ]
+    }
+  },
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  // "remoteUser": "root"
+
+  "mounts": [
+    "source=${localEnv:HOME}/.config/opencode,target=/home/node/.config/opencode,type=bind,readonly",
+    "source=${localEnv:HOME}/.local/share/opencode,target=/home/node/.local/share/opencode,type=bind"
+  ]
+}

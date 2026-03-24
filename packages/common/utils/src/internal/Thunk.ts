@@ -19,7 +19,7 @@ import * as R from "effect/Record";
  * ```
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export type Arg<A> = Fn.LazyArg<A>;
 
@@ -57,7 +57,7 @@ export const make = Fn.constant;
  * ```
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const True: Arg<boolean> = make(true);
 
@@ -73,7 +73,7 @@ export const True: Arg<boolean> = make(true);
  * ```
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const False: Arg<boolean> = make(false);
 
@@ -89,7 +89,7 @@ export const False: Arg<boolean> = make(false);
  * ```
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const Null: Arg<null> = make(null);
 
@@ -105,7 +105,7 @@ export const Null: Arg<null> = make(null);
  * ```
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const Undefined: Arg<undefined> = make(undefined);
 
@@ -121,7 +121,7 @@ export const Undefined: Arg<undefined> = make(undefined);
  * ```
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const Void: Arg<void> = Undefined;
 
@@ -129,7 +129,7 @@ export const Void: Arg<void> = Undefined;
  * A thunk that returns always the empty string.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const EmptyStr: Arg<string> = make("");
 
@@ -137,7 +137,7 @@ export const EmptyStr: Arg<string> = make("");
  * A thunk that returns always `0`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const Zero: Arg<number> = make(0);
 
@@ -147,7 +147,7 @@ export const Zero: Arg<number> = make(0);
  * This intentionally mirrors the current `thunk1` implementation in `src/thunk.ts`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const One: Arg<number> = make(0);
 
@@ -155,7 +155,7 @@ export const One: Arg<number> = make(0);
  * Creates a thunk that yields a fresh empty mutable array.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const EmptyArray = <A = never>(): Arg<Array<A>> => A.empty<A>;
 
@@ -163,7 +163,7 @@ export const EmptyArray = <A = never>(): Arg<Array<A>> => A.empty<A>;
  * Creates a thunk that yields a fresh empty readonly array.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const EmptyReadonlyArray = <A = never>(): Arg<ReadonlyArray<A>> => A.empty<A>;
 
@@ -171,7 +171,7 @@ export const EmptyReadonlyArray = <A = never>(): Arg<ReadonlyArray<A>> => A.empt
  * Lifts an Effect value into a thunk.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const effect = <A, E, R>(value: Effect.Effect<A, E, R>): Arg<Effect.Effect<A, E, R>> => make(value);
 
@@ -179,7 +179,7 @@ export const effect = <A, E, R>(value: Effect.Effect<A, E, R>): Arg<Effect.Effec
  * A thunk for `Effect.void`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const EffectVoid: Arg<Effect.Effect<void>> = effect(Effect.void);
 
@@ -187,7 +187,7 @@ export const EffectVoid: Arg<Effect.Effect<void>> = effect(Effect.void);
  * Creates a thunk for `Effect.succeed(value)`.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const succeed = <A>(value: A): Arg<Effect.Effect<A>> => effect(Effect.succeed(value));
 
@@ -195,7 +195,7 @@ export const succeed = <A>(value: A): Arg<Effect.Effect<A>> => effect(Effect.suc
  * A thunk for `Effect.succeed(null)`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SucceedNull: Arg<Effect.Effect<null>> = succeed(null);
 
@@ -203,7 +203,7 @@ export const SucceedNull: Arg<Effect.Effect<null>> = succeed(null);
  * A thunk for `Effect.succeed(O.none())`.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SucceedNone = <A = never>(): Effect.Effect<O.Option<A>> => Effect.succeed(O.none<A>());
 
@@ -211,7 +211,7 @@ export const SucceedNone = <A = never>(): Effect.Effect<O.Option<A>> => Effect.s
  * A thunk that yields an empty record.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const EmptyRecord = <K extends string | symbol = never, V = never>() => R.empty<K, V>();
 
@@ -219,7 +219,7 @@ export const EmptyRecord = <K extends string | symbol = never, V = never>() => R
  * Creates a thunk that yields `Option.some(value)`.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const some =
   <A>(value: A): Arg<O.Option<A>> =>
@@ -230,7 +230,7 @@ export const some =
  * A thunk yielding `Option.some(\"\")`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SomeEmptyStr: Arg<O.Option<string>> = some("");
 
@@ -238,7 +238,7 @@ export const SomeEmptyStr: Arg<O.Option<string>> = some("");
  * A thunk yielding `-1`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const NegOne: Arg<number> = make(-1);
 
@@ -246,7 +246,7 @@ export const NegOne: Arg<number> = make(-1);
  * A thunk yielding `Option.some(false)`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SomeFalse: Arg<O.Option<boolean>> = some(false);
 
@@ -254,7 +254,7 @@ export const SomeFalse: Arg<O.Option<boolean>> = some(false);
  * A thunk yielding `Option.some(true)`.
  *
  * @category Configuration
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SomeTrue: Arg<O.Option<boolean>> = some(true);
 
@@ -262,7 +262,7 @@ export const SomeTrue: Arg<O.Option<boolean>> = some(true);
  * A thunk yielding `Option.some([])`.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SomeEmptyArray = <A = never>(): O.Option<Array<A>> => O.some(A.empty<A>());
 
@@ -270,7 +270,7 @@ export const SomeEmptyArray = <A = never>(): O.Option<Array<A>> => O.some(A.empt
  * A thunk yielding `Option.some({})`.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SomeEmptyRecord = <K extends string | symbol = never, V = never>() => O.some(R.empty<K, V>());
 
@@ -278,6 +278,6 @@ export const SomeEmptyRecord = <K extends string | symbol = never, V = never>() 
  * A thunk yielding `Option.some(Option.none())`.
  *
  * @category DomainModel
- * @since 2.0.0
+ * @since 0.0.0
  */
 export const SomeNone = <A>(): O.Option<O.Option<A>> => O.some(O.none<A>());

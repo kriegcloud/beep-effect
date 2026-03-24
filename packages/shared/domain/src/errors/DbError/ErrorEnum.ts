@@ -77,14 +77,10 @@ export const PostgresErrorEnum = {
   CARDINALITY_VIOLATION: "21000",
   /** Class 22 - Data Exception: [E] data_exception */
   DATA_EXCEPTION: "22000",
-  /** Class 22 - Data Exception: [E]  */
-  ARRAY_ELEMENT_ERROR: "2202E",
   /** Class 22 - Data Exception: [E] array_subscript_error */
   ARRAY_SUBSCRIPT_ERROR: "2202E",
   /** Class 22 - Data Exception: [E] character_not_in_repertoire */
   CHARACTER_NOT_IN_REPERTOIRE: "22021",
-  /** Class 22 - Data Exception: [E] datetime_field_overflow */
-  DATETIME_FIELD_OVERFLOW: "22008",
   /** Class 22 - Data Exception: [E]  */
   DATETIME_VALUE_OUT_OF_RANGE: "22008",
   /** Class 22 - Data Exception: [E] division_by_zero */
@@ -255,8 +251,6 @@ export const PostgresErrorEnum = {
   IN_FAILED_SQL_TRANSACTION: "25P02",
   /** Class 25 - Invalid Transaction State: [E] idle_in_transaction_session_timeout */
   IDLE_IN_TRANSACTION_SESSION_TIMEOUT: "25P03",
-  /** Class 26 - Invalid SQL Statement Name: [E] invalid_sql_statement_name */
-  INVALID_SQL_STATEMENT_NAME: "26000",
   /** Class 27 - Triggered Data Change Violation: [E] triggered_data_change_violation */
   TRIGGERED_DATA_CHANGE_VIOLATION: "27000",
   /** Class 28 - Invalid Authorization Specification: [E] invalid_authorization_specification */
@@ -279,8 +273,6 @@ export const PostgresErrorEnum = {
   S_R_E_PROHIBITED_SQL_STATEMENT_ATTEMPTED: "2F003",
   /** Class 2F - SQL Routine Exception: [E] reading_sql_data_not_permitted */
   S_R_E_READING_SQL_DATA_NOT_PERMITTED: "2F004",
-  /** Class 34 - Invalid Cursor Name: [E] invalid_cursor_name */
-  INVALID_CURSOR_NAME: "34000",
   /** Class 38 - External Routine Exception: [E] external_routine_exception */
   EXTERNAL_ROUTINE_EXCEPTION: "38000",
   /** Class 38 - External Routine Exception: [E] containing_sql_not_permitted */
@@ -307,10 +299,6 @@ export const PostgresErrorEnum = {
   SAVEPOINT_EXCEPTION: "3B000",
   /** Class 3B - Savepoint Exception: [E] invalid_savepoint_specification */
   S_E_INVALID_SPECIFICATION: "3B001",
-  /** Class 3D - Invalid Catalog Name: [E] invalid_catalog_name */
-  INVALID_CATALOG_NAME: "3D000",
-  /** Class 3F - Invalid Schema Name: [E] invalid_schema_name */
-  INVALID_SCHEMA_NAME: "3F000",
   /** Class 40 - Transaction Rollback: [E] transaction_rollback */
   TRANSACTION_ROLLBACK: "40000",
   /** Class 40 - Transaction Rollback: [E] transaction_integrity_constraint_violation */

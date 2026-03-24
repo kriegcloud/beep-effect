@@ -53,7 +53,7 @@ const classifyRecord = (
  * @param workspaceNames - A HashSet of all workspace package names in the monorepo.
  * @returns A `WorkspaceDeps` object with classified dependencies.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { HashSet } from "effect"
  * import * as O from "effect/Option"
  * import { extractWorkspaceDependencies } from "@beep/repo-utils/Dependencies"
@@ -64,6 +64,7 @@ const classifyRecord = (
  *   dependencies: O.some({ "@my/other": "workspace:*", "lodash": "^4.0.0" }),
  * })
  * const deps = extractWorkspaceDependencies(pkg, HashSet.make("@my/other", "@my/another"))
+ * void deps
  * // deps.workspace.dependencies -> { "@my/other": "workspace:*" }
  * // deps.npm.dependencies -> { "lodash": "^4.0.0" }
  * ```

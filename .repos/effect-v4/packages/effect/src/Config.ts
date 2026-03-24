@@ -469,6 +469,11 @@ export const option = <A>(self: Config<A>): Config<Option.Option<A>> =>
   self.pipe(map(Option.some), withDefault(Option.none()))
 
 /**
+ * @since 3.0.0
+ */
+export type Success<T> = [T] extends [Config<infer A>] ? A : never
+
+/**
  * Utility type that recursively replaces primitives with `Config` in a nested
  * structure.
  *
@@ -738,7 +743,10 @@ export const Boolean = Schema.Literals([...TrueValues.literals, ...FalseValues.l
 export const Duration = Schema.String.pipe(Schema.decodeTo(Schema.Duration, {
   decode: Getter.transformOrFail((s) => {
     const d = Duration_.fromInput(s as any)
-    return d ? Effect.succeed(d) : Effect.fail(new Issue.InvalidValue(Option.some(s)))
+    return Option.match(d, {
+      onNone: () => Effect.fail(new Issue.InvalidValue(Option.some(s))),
+      onSome: Effect.succeed
+    })
   }),
   encode: Getter.forbidden(() => "Encoding Duration is not supported")
 }))

@@ -27,14 +27,6 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/ai/sdk/src/core/AgentRuntime.ts",
-      "symbol": "PersistenceLayers",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/ai-sdk",
-      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
       "file": "packages/ai/sdk/src/core/AgentSdk.ts",
       "symbol": "AgentSdkShape",
       "kind": "exported-interface",
@@ -443,6 +435,150 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/common/schema/src/Fn.ts",
+      "symbol": "FnSchemaNoArg",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Fn.ts",
+      "symbol": "FnSchemaUnary",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "DirectedGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "DirectedGraphFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "Edge",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "EdgeEncodedSchema",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "EdgeFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "EdgeTransform",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "GraphEncodedSchema",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "GraphFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "MutableDirectedGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "MutableDirectedGraphFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "MutableGraphFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "MutableUndirectedGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "MutableUndirectedGraphFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "UndirectedGraph",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "UndirectedGraphFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Graph.ts",
+      "symbol": "schema",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/schema",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
       "file": "packages/common/schema/src/LiteralKit.ts",
       "symbol": "union",
       "kind": "object-struct-schema",
@@ -571,6 +707,38 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/common/schema/src/MutableHashMap.ts",
+      "symbol": "MutableHashMap",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/MutableHashMap.ts",
+      "symbol": "MutableHashMapFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/MutableHashSet.ts",
+      "symbol": "MutableHashSet",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/MutableHashSet.ts",
+      "symbol": "MutableHashSetFromSelf",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/common/schema/src/Sql/Sql.ts",
       "symbol": "ColumnTypeData",
       "kind": "exported-interface",
@@ -651,6 +819,14 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
+      "file": "packages/common/schema/src/http/headers/Csp.ts",
+      "symbol": "CspDirectives",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
       "file": "packages/common/semantic-web/src/services/canonicalization.ts",
       "symbol": "CanonicalizationServiceShape",
       "kind": "exported-interface",
@@ -721,6 +897,54 @@
       "status": "exception",
       "owner": "@beep/utils",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "symbol": "DetailTypeToDetail",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/editor",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "symbol": "ElementFormatToType",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/editor",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
+      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "symbol": "ElementTypeToFormat",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/editor",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "symbol": "TextModeToType",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/editor",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "symbol": "TextTypeToFormat",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/editor",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "symbol": "TextTypeToMode",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/editor",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
       "file": "packages/repo-memory/client/src/index.ts",

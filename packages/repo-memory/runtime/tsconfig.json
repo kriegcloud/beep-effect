@@ -12,10 +12,19 @@
       "path": "../../common/identity/tsconfig.json"
     },
     {
+      "path": "../../common/nlp/tsconfig.json"
+    },
+    {
       "path": "../../common/schema/tsconfig.json"
     },
     {
+      "path": "../../common/semantic-web/tsconfig.json"
+    },
+    {
       "path": "../../common/types/tsconfig.json"
+    },
+    {
+      "path": "../../common/utils/tsconfig.json"
     },
     {
       "path": "../model/tsconfig.json"

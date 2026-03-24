@@ -2,7 +2,7 @@
  * @module HasJSDocToApplicableToMap
  * @description Authoritative mapping from TypeScript compiler `HasJSDoc` members
  * to audit `ApplicableTo` categories.
- * @since 2026-03-01
+ * @since 0.0.0
  */
 
 import type { ApplicableTo } from "./jsdoc-tags-database";
@@ -11,7 +11,7 @@ import type { ApplicableTo } from "./jsdoc-tags-database";
  * One mapping row from a TypeScript `HasJSDoc` member name to an
  * `ApplicableTo` classification.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface HasJSDocApplicableToMapEntry {
@@ -22,7 +22,7 @@ export interface HasJSDocApplicableToMapEntry {
 /**
  * Complete ordered set of supported `ApplicableTo` values.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const APPLICABLE_TO_VALUES: ReadonlyArray<ApplicableTo> = [
@@ -59,7 +59,7 @@ export const APPLICABLE_TO_VALUES: ReadonlyArray<ApplicableTo> = [
 /**
  * Exhaustive `HasJSDoc` to `ApplicableTo` mapping used by the validator.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const HAS_JSDOC_TO_APPLICABLE_TO_MAP: ReadonlyArray<HasJSDocApplicableToMapEntry> = [

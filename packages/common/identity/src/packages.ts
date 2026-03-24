@@ -7,6 +7,8 @@
  *
  * const serviceId = $SchemaId`TenantService`
  * const customId = $I.create("custom").make("CustomService")
+ * void serviceId
+ * void customId
  * ```
  *
  * @since 0.0.0
@@ -65,7 +67,10 @@ const composers = $I.compose(
   "iam-tables",
   "iam-client",
   "iam-server",
-  "iam-ui"
+  "iam-ui",
+
+  // editor
+  "editor"
 );
 
 // --- common ---
@@ -325,3 +330,10 @@ export const $SemanticWebId: Identity.IdentityComposer<"@beep/semantic-web"> = c
  * @type {Identity.IdentityComposer<"@beep/nlp">}
  */
 export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/editor">}
+ */
+export const $EditorId: Identity.IdentityComposer<"@beep/editor"> = composers.$EditorId;

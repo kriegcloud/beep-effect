@@ -61,7 +61,10 @@ export class JsoncCodecService extends ServiceMap.Service<JsoncCodecService, Jso
 
 const parseUnknown: JsoncCodecServiceShape["parseUnknown"] = Effect.fn(function* (content: string) {
   const parseErrors = A.empty<jsonc.ParseError>();
-  const parsed = jsonc.parse(content, parseErrors);
+  const parsed = jsonc.parse(content, parseErrors, {
+    allowTrailingComma: true,
+    disallowComments: false,
+  });
 
   return yield* A.match(parseErrors, {
     onEmpty: thunkEffectSucceed(parsed),

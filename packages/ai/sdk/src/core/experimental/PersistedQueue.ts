@@ -1,4 +1,6 @@
+import { $AiSdkId } from "@beep/identity";
 import { Effect, Layer, Stream } from "effect";
+import * as S from "effect/Schema";
 import * as PersistedQueue from "effect/unstable/persistence/PersistedQueue";
 import { AgentSdk } from "../AgentSdk.js";
 import type { AgentSdkError } from "../Errors.js";
@@ -6,8 +8,6 @@ import { TransportError } from "../Errors.js";
 import type { QueryHandle } from "../Query.js";
 import { SDKUserMessage } from "../Schema/Message.js";
 import type { Options } from "../Schema/Options.js";
-import * as S from "effect/Schema";
-import { $AiSdkId } from "@beep/identity";
 
 const $I = $AiSdkId.create("core/experimental/PersistedQueue");
 
@@ -26,13 +26,13 @@ export * from "effect/unstable/persistence/PersistedQueue";
 export const layerMemory = PersistedQueue.layer.pipe(Layer.provide(PersistedQueue.layerStoreMemory));
 
 class MakeUserMessageQueueParams extends S.Class<MakeUserMessageQueueParams>($I`MakeUserMessageQueueParams`)({
-  name: S.String.pipe(S.optionalKey)
+  name: S.String.pipe(S.optionalKey),
 }) {}
 /**
  * Create a persisted queue for SDK user messages.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const program = Effect.gen(function*() {
  *   const queue = yield* makeUserMessageQueue()
  *   return queue
@@ -65,7 +65,7 @@ export type PersistedInputAdapter = {
 
 const toTransportError = (message: string, cause: unknown) => TransportError.make(message, cause);
 class MakeInputAdapterOptions extends S.Class<MakeInputAdapterOptions>($I`MakeInputAdapterOptions`)({
-  maxAttempts: S.Number.pipe(S.optionalKey)
+  maxAttempts: S.Number.pipe(S.optionalKey),
 }) {}
 /**
  * Build an input adapter from a persisted queue.
@@ -121,7 +121,7 @@ export const withPersistedInputQueue = (handle: QueryHandle, adapter: PersistedI
  * Create a query wired to a persisted queue for streaming input.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const program = Effect.scoped(
  *   Effect.gen(function*() {
  *     const queue = yield* makeUserMessageQueue()

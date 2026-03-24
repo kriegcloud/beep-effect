@@ -14,7 +14,7 @@ import * as MutableList from "./MutableList.ts"
 import * as Option from "./Option.ts"
 import { hasProperty } from "./Predicate.ts"
 import * as Pull from "./Pull.ts"
-import type { Scheduler } from "./Scheduler.ts"
+import type { SchedulerDispatcher } from "./Scheduler.ts"
 import type * as Types from "./Types.ts"
 
 const TypeId = "~effect/Queue"
@@ -96,7 +96,7 @@ export const asDequeue: <A, E>(self: Queue<A, E>) => Dequeue<A, E> = identity
 export interface Enqueue<in A, in E = never> extends Inspectable {
   readonly [EnqueueTypeId]: Enqueue.Variance<A, E>
   readonly strategy: "suspend" | "dropping" | "sliding"
-  readonly scheduler: Scheduler
+  readonly dispatcher: SchedulerDispatcher
   capacity: number
   messages: MutableList.MutableList<any>
   state: Queue.State<any, any>
@@ -151,7 +151,7 @@ export declare namespace Enqueue {
 export interface Dequeue<out A, out E = never> extends Inspectable {
   readonly [DequeueTypeId]: Dequeue.Variance<A, E>
   readonly strategy: "suspend" | "dropping" | "sliding"
-  readonly scheduler: Scheduler
+  readonly dispatcher: SchedulerDispatcher
   capacity: number
   messages: MutableList.MutableList<any>
   state: Queue.State<any, any>
@@ -341,7 +341,7 @@ export const make = <A, E = never>(
 ): Effect<Queue<A, E>> =>
   core.withFiber((fiber) => {
     const self = Object.create(QueueProto)
-    self.scheduler = fiber.currentScheduler
+    self.dispatcher = fiber.currentDispatcher
     self.capacity = options?.capacity ?? Number.POSITIVE_INFINITY
     self.strategy = options?.strategy ?? "suspend"
     self.messages = MutableList.make()
@@ -710,7 +710,7 @@ export const offerAllUnsafe = <A, E>(self: Enqueue<A, E>, messages: Iterable<A>)
  * @category Completion
  * @since 4.0.0
  */
-export const fail = <A, E>(self: Queue<A, E>, error: E) => failCause(self, core.causeFail(error))
+export const fail = <A, E>(self: Enqueue<A, E>, error: E) => failCause(self, core.causeFail(error))
 
 /**
  * Fail the queue with a cause. If the queue is already done, `false` is
@@ -1563,7 +1563,7 @@ const scheduleReleaseTaker = <A, E>(self: Enqueue<A, E>) => {
     return
   }
   self.scheduleRunning = true
-  self.scheduler.scheduleTask(() => releaseTakers(self), 0)
+  self.dispatcher.scheduleTask(() => releaseTakers(self), 0)
 }
 
 const takeBetweenUnsafe = <A, E>(

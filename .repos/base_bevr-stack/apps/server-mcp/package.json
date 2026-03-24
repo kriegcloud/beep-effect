@@ -1,0 +1,28 @@
+{
+  "name": "server-mcp",
+  "version": "0.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "bun build src/index.ts --outdir=dist --target=bun --minify",
+    "build:types": "tsc --emitDeclarationOnly",
+    "dev": "bun --watch run src/index.ts",
+    "inspector": "bun run dev & sleep 2 && npx @mcpjam/inspector@latest; kill %1",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit",
+    "clean": "git clean -xdf .cache .turbo dist node_modules"
+  },
+  "dependencies": {
+    "@effect/platform-bun": "4.0.0-beta.36",
+    "@repo/domain": "workspace:*",
+    "@repo/observability": "workspace:*",
+    "effect": "4.0.0-beta.36"
+  },
+  "devDependencies": {
+    "@effect/language-service": "^0.81.0",
+    "@effect/vitest": "4.0.0-beta.36",
+    "@repo/config-typescript": "workspace:*",
+    "@types/bun": "1.3.11",
+    "vitest": "^4.1.0"
+  }
+}

@@ -226,9 +226,7 @@ export const fileParse = (
  *   host: Schema.String
  * })
  *
- * const JsonConfigSchema = Schema.fromJsonString(ConfigSchema)
- *
- * const config = Argument.fileSchema("config", JsonConfigSchema)
+ * const config = Argument.fileSchema("config", ConfigSchema)
  * ```
  *
  * @since 4.0.0
@@ -236,7 +234,7 @@ export const fileParse = (
  */
 export const fileSchema = <A>(
   name: string,
-  schema: Schema.Codec<A, string>,
+  schema: Schema.Decoder<A>,
   options?: Primitive.FileSchemaOptions | undefined
 ): Argument<A> => Param.fileSchema(Param.argumentKind, name, schema, options)
 

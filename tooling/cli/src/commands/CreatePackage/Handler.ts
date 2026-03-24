@@ -4,7 +4,7 @@
  * Generates package files via reusable services:
  * - TemplateService for template rendering
  * - FileGenerationPlanService for deterministic plan/execute
- * - Config updater orchestration for root tsconfig updates
+ * - Shared repo config synchronization after scaffolding
  *
  * @since 0.0.0
  * @module
@@ -12,25 +12,25 @@
 
 import { fileURLToPath } from "node:url";
 import { $RepoCliId } from "@beep/identity/packages";
-import { DomainError, encodePackageJsonCanonicalPrettyEffect, findRepoRoot } from "@beep/repo-utils";
+import {
+  DomainError,
+  decodePackageJsonEffect,
+  encodePackageJsonCanonicalPrettyEffect,
+  findRepoRoot,
+  TSMorphService,
+} from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, identity, Path, Struct } from "effect";
+import { Console, DateTime, Effect, FileSystem, identity, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Argument, Command, Flag } from "effect/unstable/cli";
-import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
-import {
-  ConfigUpdateBatchResult,
-  ConfigUpdateResult,
-  ConfigUpdateTarget,
-  ConfigUpdateTargetResult,
-  checkConfigNeedsUpdateForTargets,
-  updateRootConfigsForTargets,
-} from "./ConfigUpdater.js";
+import * as jsonc from "jsonc-parser";
+import { SyntaxKind } from "ts-morph";
+import { syncTsconfigAtRoot } from "../TsconfigSync.js";
 import {
   createFileGenerationPlanService,
   FileGenerationPlanInput,
@@ -182,6 +182,11 @@ const PACKAGE_DIRECTORIES = ["src", "test", "dtslint", "docs"] as const;
 
 const templateService = createTemplateService();
 const fileGenerationPlanService = createFileGenerationPlanService();
+const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
+  tabSize: 2,
+  insertSpaces: true,
+};
+const IDENTITY_PACKAGES_FILE_PATH = "packages/common/identity/src/packages.ts" as const;
 
 // ── Template context ──────────────────────────────────────────────────────────
 
@@ -230,19 +235,204 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
  */
 const toRootRelative = (packagePath: string): string => CommonStr.repeat("../", A.length(Str.split(packagePath, "/")));
 
-const singleTargetFallback = (target: ConfigUpdateTarget, result: ConfigUpdateResult) =>
-  new ConfigUpdateBatchResult({
-    targets: [new ConfigUpdateTargetResult({ target, result })],
-    tsconfigPackages: result.tsconfigPackages,
-    tsconfigPaths: result.tsconfigPaths,
-    tstycheConfig: result.tstycheConfig,
+const parseJsonDocument = Effect.fn(function* (content: string, filePath: string) {
+  return yield* Effect.try({
+    try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(content),
+    catch: (cause) =>
+      new DomainError({
+        message: `Failed to parse JSON in "${filePath}"`,
+        cause,
+      }),
   });
+});
+
+const readRootPackageJsonDocument = Effect.fn(function* (repoRoot: string) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  const filePath = path.join(repoRoot, "package.json");
+  const content = yield* fs
+    .readFileString(filePath)
+    .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
+  const parsed = yield* parseJsonDocument(content, filePath);
+  const packageJson = yield* decodePackageJsonEffect(parsed).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Failed to decode package.json at "${filePath}"`,
+          cause,
+        })
+    )
+  );
+
+  return {
+    filePath,
+    content,
+    packageJson,
+  } as const;
+});
+
+const workspacePatternsFromPackageJson = (
+  workspaces: O.Option<ReadonlyArray<string> | { readonly packages?: ReadonlyArray<string> }>
+): ReadonlyArray<string> => {
+  if (O.isNone(workspaces)) {
+    return A.empty();
+  }
+
+  const value: unknown = workspaces.value;
+  if (A.isArray(value) && A.every(value, P.isString)) {
+    return value;
+  }
+
+  if (
+    P.isObject(value) &&
+    P.hasProperty(value, "packages") &&
+    A.isArray(value.packages) &&
+    A.every(value.packages, P.isString)
+  ) {
+    return value.packages;
+  }
+
+  return A.empty();
+};
+
+const pathSegments = (value: string): ReadonlyArray<string> => pipe(value, Str.split("/"), A.filter(Str.isNonEmpty));
+
+const matchesWorkspacePattern = (pattern: string, targetPath: string): boolean => {
+  const patternSegments = pathSegments(pattern);
+  const targetSegments = pathSegments(targetPath);
+
+  if (A.length(patternSegments) !== A.length(targetSegments)) {
+    return false;
+  }
+
+  return A.every(
+    A.zip(patternSegments, targetSegments),
+    ([patternSegment, targetSegment]) => patternSegment === "*" || patternSegment === targetSegment
+  );
+};
+
+const isPathCoveredByWorkspacePatterns = (patterns: ReadonlyArray<string>, targetPath: string): boolean =>
+  A.some(patterns, (pattern) => matchesWorkspacePattern(pattern, targetPath));
+
+const applyJsoncModification = (
+  content: string,
+  path: jsonc.JSONPath,
+  value: unknown,
+  options?: jsonc.ModificationOptions
+): string =>
+  jsonc.applyEdits(
+    content,
+    jsonc.modify(content, path, value, {
+      formattingOptions: FORMATTING_OPTIONS,
+      ...options,
+    })
+  );
+
+const ensureRootWorkspaceEntry = Effect.fn(function* (repoRoot: string, packagePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const { content, filePath, packageJson } = yield* readRootPackageJsonDocument(repoRoot);
+  const workspacePatterns = workspacePatternsFromPackageJson(packageJson.workspaces);
+
+  if (isPathCoveredByWorkspacePatterns(workspacePatterns, packagePath)) {
+    return false;
+  }
+
+  const currentWorkspaces: unknown = O.getOrUndefined(packageJson.workspaces);
+
+  const nextContent =
+    currentWorkspaces === undefined
+      ? applyJsoncModification(content, ["workspaces"], [packagePath])
+      : A.isArray(currentWorkspaces) && A.every(currentWorkspaces, P.isString)
+        ? applyJsoncModification(content, ["workspaces", currentWorkspaces.length], packagePath, {
+            isArrayInsertion: true,
+          })
+        : P.isObject(currentWorkspaces) &&
+            P.hasProperty(currentWorkspaces, "packages") &&
+            A.isArray(currentWorkspaces.packages) &&
+            A.every(currentWorkspaces.packages, P.isString)
+          ? applyJsoncModification(
+              content,
+              ["workspaces", "packages", currentWorkspaces.packages.length],
+              packagePath,
+              {
+                isArrayInsertion: true,
+              }
+            )
+          : P.isObject(currentWorkspaces)
+            ? applyJsoncModification(content, ["workspaces", "packages"], [packagePath])
+            : applyJsoncModification(content, ["workspaces"], [packagePath]);
+
+  if (nextContent === content) {
+    return false;
+  }
+
+  yield* fs
+    .writeFileString(filePath, nextContent)
+    .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to write "${filePath}"`, cause })));
+  return true;
+});
+
+const rootWorkspaceEntryNeeded = Effect.fn(function* (repoRoot: string, packagePath: string) {
+  const { packageJson } = yield* readRootPackageJsonDocument(repoRoot);
+  return !isPathCoveredByWorkspacePatterns(workspacePatternsFromPackageJson(packageJson.workspaces), packagePath);
+});
+
+const toIdentityAccessorName = (packageName: string): string => `$${CommonStr.pascalCase(packageName)}Id`;
+
+const typedIdentityExportBlock = (packageName: string): string => {
+  const accessorName = toIdentityAccessorName(packageName);
+  return Text.joinLines([
+    "",
+    "/**",
+    " * @since 0.0.0",
+    " * @category Configuration",
+    ` * @type {Identity.IdentityComposer<"@beep/${packageName}">}`,
+    " */",
+    `export const ${accessorName}: Identity.IdentityComposer<"@beep/${packageName}"> = composers.${accessorName};`,
+  ]);
+};
+
+const ensureIdentityPackageRegistration = Effect.fn(function* (packageName: string) {
+  const tsMorphService = yield* TSMorphService;
+  return yield* tsMorphService.updateSourceFile(IDENTITY_PACKAGES_FILE_PATH, (sourceFile) => {
+    const composersDeclaration = sourceFile.getVariableDeclarationOrThrow("composers");
+    const composersCall = composersDeclaration.getInitializerIfKindOrThrow(SyntaxKind.CallExpression);
+    const existingSegments = A.empty<string>();
+    for (const argument of composersCall.getArguments()) {
+      const literal = argument.asKind(SyntaxKind.StringLiteral);
+      if (literal !== undefined) {
+        existingSegments.push(literal.getLiteralText());
+      }
+    }
+
+    if (!A.some(existingSegments, (segment) => segment === packageName)) {
+      composersCall.addArgument(`"${packageName}"`);
+    }
+
+    const accessorName = toIdentityAccessorName(packageName);
+    if (sourceFile.getVariableDeclaration(accessorName) === undefined) {
+      sourceFile.addStatements(typedIdentityExportBlock(packageName));
+    }
+  });
+});
+
+const identityPackageRegistrationNeeded = Effect.fn(function* (repoRoot: string, packageName: string) {
+  const path = yield* Path.Path;
+  const fs = yield* FileSystem.FileSystem;
+  const filePath = path.join(repoRoot, IDENTITY_PACKAGES_FILE_PATH);
+  const content = yield* fs
+    .readFileString(filePath)
+    .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
+
+  const accessorName = toIdentityAccessorName(packageName);
+  return !Str.includes(`"${packageName}"`)(content) || !Str.includes(`export const ${accessorName}`)(content);
+});
 
 // ── Command ───────────────────────────────────────────────────────────────────
 
 /**
  * CLI command that scaffolds a new package with templates, a Schema-validated
- * `package.json`, and automatic root tsconfig updates (project references + path aliases).
+ * `package.json`, root workspace registration, identity registration, and shared repo config synchronization.
  *
  * @since 0.0.0
  * @category UseCase
@@ -324,14 +514,11 @@ export const createPackageCommand = Command.make(
       }
     }
 
-    const configTarget = new ConfigUpdateTarget({
-      packageName: name,
-      packagePath,
-      ...buildCanonicalAliasTargets(packagePath, "./src/index.ts"),
-    });
-
-    // ── Dry-run: preview output and root config updates ────────────────
+    // ── Dry-run: preview output and bootstrap repo mutations ───────────
     if (dryRun) {
+      const workspaceEntryNeeded = yield* rootWorkspaceEntryNeeded(repoRoot, packagePath);
+      const identityRegistrationMissing = yield* identityPackageRegistrationNeeded(repoRoot, name);
+
       yield* Console.log(`[dry-run] Would create package @beep/${name} (type: ${type})`);
       if (dirName !== name) {
         yield* Console.log(`[dry-run] Directory name: ${dirName} (overridden from package name "${name}")`);
@@ -341,29 +528,15 @@ export const createPackageCommand = Command.make(
       for (const file of ALL_FILES) {
         yield* Console.log(`  - ${file}`);
       }
-
-      const configNeedsBatch = yield* checkConfigNeedsUpdateForTargets(repoRoot, [configTarget]).pipe(
-        Effect.orElseSucceed(() =>
-          singleTargetFallback(
-            configTarget,
-            new ConfigUpdateResult({ tsconfigPackages: true, tsconfigPaths: true, tstycheConfig: true })
-          )
-        )
-      );
-      const configNeeds = O.getOrElse(
-        O.map(A.get(configNeedsBatch.targets, 0), Struct.get("result")),
-        () => new ConfigUpdateResult({ tsconfigPackages: true, tsconfigPaths: true, tstycheConfig: true })
-      );
-
-      yield* Console.log(`[dry-run] Root config updates:`);
+      yield* Console.log(`[dry-run] Root bootstrap updates:`);
       yield* Console.log(
-        `  - tsconfig.packages.json: ${configNeeds.tsconfigPackages ? `Add reference { "path": "${packagePath}" }` : "SKIP (already exists)"}`
+        `  - package.json workspaces: ${workspaceEntryNeeded ? `Add "${packagePath}"` : "SKIP (already covered by an existing workspace entry)"}`
       );
       yield* Console.log(
-        `  - tsconfig.json: ${configNeeds.tsconfigPaths ? `Add path aliases @beep/${name} -> ${configTarget.rootAliasTarget}, @beep/${name}/* -> ${configTarget.wildcardAliasTarget}` : "SKIP (already exists)"}`
+        `  - ${IDENTITY_PACKAGES_FILE_PATH}: ${identityRegistrationMissing ? `Register "${name}" and export ${toIdentityAccessorName(name)}` : "SKIP (already registered)"}`
       );
       yield* Console.log(
-        `  - tstyche.config.json: ${configNeeds.tstycheConfig ? `Add test file match "${packagePath}/dtslint/**/*.tst.*"` : "SKIP (already covered)"}`
+        `[dry-run] Derived repo configs: shared sync runs after scaffolding to update tsconfig references, aliases, tstyche, syncpack, and docgen`
       );
       return;
     }
@@ -415,16 +588,16 @@ export const createPackageCommand = Command.make(
       })
     );
 
-    // ── Execute plan and config updates ────────────────────────────────
+    // ── Execute plan and repo mutations ────────────────────────────────
     yield* fileGenerationPlanService.executePlan(plan);
 
-    const configBatch = yield* updateRootConfigsForTargets(repoRoot, [configTarget]).pipe(
-      Effect.orElseSucceed(() => singleTargetFallback(configTarget, new ConfigUpdateResult({})))
-    );
-    const configResults = O.getOrElse(
-      O.map(A.get(configBatch.targets, 0), (targetResult) => targetResult.result),
-      () => new ConfigUpdateResult({})
-    );
+    const workspaceUpdated = yield* ensureRootWorkspaceEntry(repoRoot, packagePath);
+    const identityUpdated = yield* ensureIdentityPackageRegistration(name);
+    const syncResult = yield* syncTsconfigAtRoot(repoRoot, {
+      mode: "sync",
+      filter: undefined,
+      verbose: false,
+    });
 
     // ── Print summary ──────────────────────────────────────────────────
     yield* Console.log(`Created package @beep/${name} at ${outputDir}`);
@@ -432,18 +605,18 @@ export const createPackageCommand = Command.make(
     for (const file of ALL_FILES) {
       yield* Console.log(`  - ${file}`);
     }
-    if (configResults.tsconfigPackages || configResults.tsconfigPaths || configResults.tstycheConfig) {
-      yield* Console.log(`\nRoot configs updated:`);
-      if (configResults.tsconfigPackages) {
-        yield* Console.log(`  - tsconfig.packages.json: Added reference "${packagePath}"`);
+    if (workspaceUpdated || identityUpdated || syncResult.changedFiles > 0) {
+      yield* Console.log(`\nRepo registration and config sync:`);
+      if (workspaceUpdated) {
+        yield* Console.log(`  - package.json: added workspace "${packagePath}"`);
       }
-      if (configResults.tsconfigPaths) {
+      if (identityUpdated) {
         yield* Console.log(
-          `  - tsconfig.json: Added path aliases @beep/${name} -> ${configTarget.rootAliasTarget}, @beep/${name}/* -> ${configTarget.wildcardAliasTarget}`
+          `  - ${IDENTITY_PACKAGES_FILE_PATH}: registered "${name}" as ${toIdentityAccessorName(name)}`
         );
       }
-      if (configResults.tstycheConfig) {
-        yield* Console.log(`  - tstyche.config.json: Added test file match "${packagePath}/dtslint/**/*.tst.*"`);
+      for (const change of syncResult.changes) {
+        yield* Console.log(`  - ${path.relative(repoRoot, change.filePath)} [${change.section}] ${change.summary}`);
       }
     }
     yield* Console.log(`\nNext steps:`);

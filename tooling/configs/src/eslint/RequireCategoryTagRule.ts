@@ -1,3 +1,4 @@
+import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { flow, HashSet, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -28,7 +29,7 @@ const isExportedNode = (node: Rule.Node): boolean =>
   pipe(
     toParentNode(node),
     O.match({
-      onNone: () => false,
+      onNone: thunkFalse,
       onSome: flow(
         O.liftPredicate(
           P.or(
@@ -128,14 +129,13 @@ export const requireCategoryTagRule: Rule.RuleModule = {
       pipe(
         missingCategorySymbol,
         O.match({
-          onNone: () => undefined,
-          onSome: (name) => {
+          onNone: thunkUndefined,
+          onSome: (name) =>
             context.report({
               node,
               messageId: "missingCategory",
               data: { name },
-            });
-          },
+            }),
         })
       );
     };

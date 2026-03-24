@@ -1558,7 +1558,7 @@ export * as Inspectable from "./Inspectable.ts"
  *
  * @example
  * ```ts
- * import { Iterable } from "effect"
+ * import { Iterable, Option } from "effect"
  *
  * // Create iterables
  * const numbers = Iterable.range(1, 5)
@@ -1568,7 +1568,7 @@ export * as Inspectable from "./Inspectable.ts"
  * console.log(Array.from(filtered)) // [6, 8, 10]
  *
  * // Infinite iterables
- * const fibonacci = Iterable.unfold([0, 1], ([a, b]) => [a, [b, a + b]])
+ * const fibonacci = Iterable.unfold([0, 1], ([a, b]) => Option.some([a, [b, a + b]]))
  * const first10 = Iterable.take(fibonacci, 10)
  * console.log(Array.from(first10)) // [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]
  * ```
@@ -2514,37 +2514,6 @@ export * as Newtype from "./Newtype.ts"
 export * as NonEmptyIterable from "./NonEmptyIterable.ts"
 
 /**
- * This module provides small, allocation-free utilities for working with values of type
- * `A | null`, where `null` means "no value".
- *
- * Why not `Option<A>`?
- * In TypeScript, `Option<A>` is often unnecessary. If `null` already models absence
- * in your domain, using `A | null` keeps types simple, avoids extra wrappers, and
- * reduces overhead. The key is that `A` itself must not include `null`; in this
- * module `null` is reserved to mean "no value".
- *
- * When to use `A | null`:
- * - Absence can be represented by `null` in your domain model.
- * - You do not need to distinguish between "no value" and "value is null".
- * - You want straightforward ergonomics and zero extra allocations.
- *
- * When to prefer `Option<A>`:
- * - You must distinguish `None` from `Some(null)` (that is, `null` is a valid
- *   payload and carries meaning on its own).
- * - You need a tagged representation for serialization or pattern matching across
- *   boundaries where `null` would be ambiguous.
- * - You want the richer `Option` API and are comfortable with the extra wrapper.
- *
- * Lawfulness note:
- * All helpers treat `null` as absence. Do not use these utilities with payloads
- * where `A` can itself be `null`, or you will lose information. If you need to
- * carry `null` as a valid payload, use `Option<A>` instead.
- *
- * @since 4.0.0
- */
-export * as NullOr from "./NullOr.ts"
-
-/**
  * This module provides utility functions and type class instances for working with the `number` type in TypeScript.
  * It includes functions for basic arithmetic operations.
  *
@@ -2807,6 +2776,11 @@ export * as Order from "./Order.ts"
  * @category utilities
  */
 export * as Ordering from "./Ordering.ts"
+
+/**
+ * @since 4.0.0
+ */
+export * as PartitionedSemaphore from "./PartitionedSemaphore.ts"
 
 /**
  * @since 4.0.0
@@ -3273,6 +3247,88 @@ export * as Schedule from "./Schedule.ts"
 export * as Scheduler from "./Scheduler.ts"
 
 /**
+ * Define data shapes, validate unknown input, and transform values between formats.
+ *
+ * ## Mental model
+ *
+ * - **Schema** — a description of a data shape. Every schema carries a decoded
+ *   *Type* (the value you work with) and an *Encoded* representation (the
+ *   serialized form, e.g. JSON).
+ * - **Decoding** — turning unknown external data (API responses, form
+ *   submissions, config files) into typed, validated values.
+ * - **Encoding** — turning typed values back into a serializable format.
+ * - **Codec** — a schema that tracks both Type and Encoded, so it can decode
+ *   *and* encode. Most concrete schemas are Codecs.
+ * - **Check / Filter** — a constraint attached to a schema (e.g. `isMinLength`,
+ *   `isGreaterThan`). Attach them with `.check(...)`.
+ * - **Transformation** — a pair of functions (decode + encode) that convert
+ *   values between two schemas. Created with {@link decodeTo} / {@link encodeTo}.
+ * - **Annotation** — metadata attached to a schema (title, description, custom
+ *   keys). Attach with `.annotate(...)`.
+ *
+ * ## Common tasks
+ *
+ * - Define a struct: {@link Struct}
+ * - Define a union: {@link Union}, {@link TaggedUnion}, {@link Literals}
+ * - Define an array: {@link Array}, {@link NonEmptyArray}
+ * - Define a record: {@link Record}
+ * - Define a tuple: {@link Tuple}, {@link TupleWithRest}
+ * - Validate unknown data synchronously: {@link decodeUnknownSync}
+ * - Validate unknown data (Effect): {@link decodeUnknownEffect}
+ * - Encode a value: {@link encodeUnknownSync}, {@link encodeUnknownEffect}
+ * - Type guard: {@link is}
+ * - Assertion: {@link asserts}
+ * - Add constraints: `.check(...)` with filters like {@link isMinLength},
+ *   {@link isGreaterThan}, {@link isPattern}, {@link isUUID}
+ * - Transform between schemas: {@link decodeTo}, {@link encodeTo}
+ * - Add a default for missing keys: {@link withDecodingDefault}, {@link withDecodingDefaultKey}
+ * - Create branded types: {@link brand}
+ * - Define classes with validation: {@link Class}, {@link TaggedClass}
+ * - Define error classes: {@link ErrorClass}, {@link TaggedErrorClass}
+ * - Generate JSON Schema: {@link toJsonSchemaDocument}
+ * - Generate test data: {@link toArbitrary}
+ * - Derive equivalence: {@link toEquivalence}
+ *
+ * ## Gotchas
+ *
+ * - `Schema.optional` creates `T | undefined` (key can be missing *or*
+ *   `undefined`). Use `Schema.optionalKey` for exact optional properties.
+ * - `decodeTo` is curried: use `from.pipe(Schema.decodeTo(to, ...))`.
+ * - `decodeUnknownSync` throws on failure. Use `decodeUnknownExit` or
+ *   `decodeUnknownOption` for non-throwing alternatives.
+ * - Filters do not change the TypeScript type. Use {@link refine} or
+ *   {@link brand} to narrow the type.
+ * - Recursive schemas require {@link suspend} to avoid infinite loops.
+ *
+ * ## Quickstart
+ *
+ * **Example** (Validate a user object)
+ *
+ * ```ts
+ * import { Schema } from "effect"
+ *
+ * const User = Schema.Struct({
+ *   name: Schema.String.check(Schema.isMinLength(1)),
+ *   age: Schema.Number.check(Schema.isGreaterThanOrEqualTo(0)),
+ *   email: Schema.optionalKey(Schema.String)
+ * })
+ *
+ * // Decode unknown input — throws on failure
+ * const user = Schema.decodeUnknownSync(User)({
+ *   name: "Alice",
+ *   age: 30
+ * })
+ *
+ * console.log(user)
+ * // { name: "Alice", age: 30 }
+ * ```
+ *
+ * @see {@link Schema} — type-level view tracking only the decoded Type
+ * @see {@link Codec} — type-level view tracking both Type and Encoded
+ * @see {@link Struct} — define object shapes
+ * @see {@link decodeUnknownSync} — synchronous validation
+ * @see {@link decodeTo} — schema transformations
+ *
  * @since 4.0.0
  */
 export * as Schema from "./Schema.ts"
@@ -4167,6 +4223,62 @@ export * as UndefinedOr from "./UndefinedOr.ts"
 export * as Unify from "./Unify.ts"
 
 /**
+ * Internal utilities for the Effect ecosystem's generator-based syntax and
+ * higher-kinded type machinery.
+ *
+ * ## Mental model
+ *
+ * - **SingleShotGen** — an `IterableIterator` wrapper that yields its value
+ *   exactly once. Used internally by `[Symbol.iterator]()` on Effect, Option,
+ *   Result, and other yieldable types so they work inside generator functions.
+ * - **Gen** — a type-level signature for generator-based monadic composition
+ *   (`gen` functions). Parametric over any `TypeLambda` so each module
+ *   (Effect, Option, Result, ...) can expose its own `gen` with correct types.
+ * - **Variance** — a type-level marker that encodes the variance (covariant,
+ *   contravariant, invariant) of a `TypeLambda`'s type parameters.
+ *   Used by {@link Gen} for type inference.
+ *
+ * ## Common tasks
+ *
+ * - Make a type yieldable in generators -> implement `[Symbol.iterator]()` returning a {@link SingleShotGen}
+ * - Define a generator-based API for a new TypeLambda -> type it as {@link Gen}`<MyTypeLambda>`
+ * - Encode variance for a higher-kinded type -> use {@link Variance}
+ *
+ * ## Gotchas
+ *
+ * - {@link SingleShotGen} yields its value only on the first `.next()` call.
+ *   Calling `.next()` again returns `{ done: true }`. Iterating the same
+ *   instance twice will skip the value on the second pass; call
+ *   `[Symbol.iterator]()` to get a fresh iterator.
+ * - {@link Gen} and {@link Variance} are pure type-level constructs — they
+ *   have no runtime representation.
+ *
+ * ## Quickstart
+ *
+ * **Example** (Using SingleShotGen to make a type yieldable)
+ *
+ * ```ts
+ * import { Utils } from "effect"
+ *
+ * class MyWrapper<A> {
+ *   constructor(readonly value: A) {}
+ *   [Symbol.iterator]() {
+ *     return new Utils.SingleShotGen<MyWrapper<A>, A>(this)
+ *   }
+ * }
+ *
+ * const w = new MyWrapper(42)
+ * const iter = w[Symbol.iterator]()
+ * console.log(iter.next(undefined as any))
+ * // { value: MyWrapper { value: 42 }, done: false }
+ * console.log(iter.next(42))
+ * // { value: 42, done: true }
+ * ```
+ *
+ * @see {@link SingleShotGen}
+ * @see {@link Gen}
+ * @see {@link Variance}
+ *
  * @since 2.0.0
  */
 export * as Utils from "./Utils.ts"

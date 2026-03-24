@@ -1,3 +1,4 @@
+import { LiteralKitKeyCollisionError } from "@beep/schema/LiteralKit";
 import { MappedLiteralDuplicateError, MappedLiteralKit } from "@beep/schema/MappedLiteralKit";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
@@ -31,6 +32,26 @@ describe("MappedLiteralKit", () => {
     expect(SqlState.Options).toEqual(["SUCCESSFUL_COMPLETION", "WARNING"]);
     expect(SqlState.is.SUCCESSFUL_COMPLETION("SUCCESSFUL_COMPLETION")).toBe(true);
     expect(SqlState.is.SUCCESSFUL_COMPLETION("WARNING")).toBe(false);
+  });
+
+  it("preserves the top-level From alias after annotation", () => {
+    const annotated = SqlState.annotate({
+      title: "Annotated SQL state",
+    });
+    const reannotated = annotated.annotate({
+      description: "Re-annotated SQL state",
+    });
+
+    expect(annotated).not.toBe(SqlState);
+    expect(annotated.From).toBe(annotated);
+    expect(annotated.From).not.toBe(SqlState);
+    expect(annotated.To).toBe(SqlState.To);
+    expect(annotated.Enum.SUCCESSFUL_COMPLETION).toBe("00000");
+    expect(S.decodeSync(annotated)("WARNING")).toBe("01000");
+
+    expect(reannotated.From).toBe(reannotated);
+    expect(reannotated.To).toBe(SqlState.To);
+    expect(S.encodeSync(reannotated)("00000")).toBe("SUCCESSFUL_COMPLETION");
   });
 
   it("defines helper properties as readonly and non-configurable", () => {
@@ -88,5 +109,51 @@ describe("MappedLiteralKit", () => {
         ["B", "00000"],
       ] as const)
     ).toThrow(MappedLiteralDuplicateError);
+  });
+
+  it("rejects from-side helper key collisions", () => {
+    expect(() =>
+      MappedLiteralKit([
+        [true, "00000"],
+        ["true", "01000"],
+      ] as const)
+    ).toThrow(LiteralKitKeyCollisionError);
+
+    expect(() =>
+      MappedLiteralKit([
+        [1, "00000"],
+        ["number1", "01000"],
+      ] as const)
+    ).toThrow(LiteralKitKeyCollisionError);
+
+    expect(() =>
+      MappedLiteralKit([
+        [1n, "00000"],
+        ["bigint1n", "01000"],
+      ] as const)
+    ).toThrow(LiteralKitKeyCollisionError);
+  });
+
+  it("rejects to-side helper key collisions", () => {
+    expect(() =>
+      MappedLiteralKit([
+        ["A", true],
+        ["B", "true"],
+      ] as const)
+    ).toThrow(LiteralKitKeyCollisionError);
+
+    expect(() =>
+      MappedLiteralKit([
+        ["A", 1],
+        ["B", "number1"],
+      ] as const)
+    ).toThrow(LiteralKitKeyCollisionError);
+
+    expect(() =>
+      MappedLiteralKit([
+        ["A", 1n],
+        ["B", "bigint1n"],
+      ] as const)
+    ).toThrow(LiteralKitKeyCollisionError);
   });
 });

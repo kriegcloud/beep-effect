@@ -264,6 +264,10 @@ export type TSMorphServiceShape = {
   readonly getDiagnostics: (
     request: TsMorphDiagnosticsRequest
   ) => Effect.Effect<TsMorphDiagnosticsResult, TSMorphServiceError>;
+  readonly updateSourceFile: (
+    filePath: string,
+    update: (sourceFile: SourceFile, project: Project) => void
+  ) => Effect.Effect<boolean, TSMorphServiceError>;
 };
 
 /**
@@ -1090,6 +1094,51 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
       });
     });
 
+    const updateSourceFile: TSMorphServiceShape["updateSourceFile"] = (filePath, update) =>
+      Effect.gen(function* () {
+        const safeFilePath = TypeScriptImplementationFilePath.makeUnsafe(filePath);
+        const scope = yield* resolveScopeFromEntrypoint(
+          {
+            _tag: "file",
+            filePath: safeFilePath,
+          },
+          O.none(),
+          DEFAULT_SCOPE_MODE,
+          DEFAULT_REFERENCE_POLICY
+        );
+        const loadedSourceFile = yield* loadSourceFile(scope, safeFilePath);
+        const project = yield* projectPool.getOrCreate(scope);
+        const before = loadedSourceFile.sourceFile.getFullText();
+
+        yield* Effect.try({
+          try: () => update(loadedSourceFile.sourceFile, project),
+          catch: (cause) =>
+            new TsMorphSourceFileError({
+              scopeId: O.some(scope.scopeId),
+              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+              message: `Failed to update source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
+            }),
+        });
+
+        const after = loadedSourceFile.sourceFile.getFullText();
+        if (before === after) {
+          return false;
+        }
+
+        yield* Effect.tryPromise({
+          try: () => loadedSourceFile.sourceFile.save(),
+          catch: (cause) =>
+            new TsMorphSourceFileError({
+              scopeId: O.some(scope.scopeId),
+              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+              message: `Failed to save source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
+            }),
+        });
+
+        MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+        return true;
+      });
+
     return {
       resolveProjectScope,
       getFileOutline,
@@ -1098,6 +1147,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
       readSourceText,
       readSymbolSource,
       getDiagnostics,
+      updateSourceFile,
     };
   });
 

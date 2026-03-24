@@ -1,6 +1,7 @@
 import tsParser from "@typescript-eslint/parser";
 import type { Linter } from "eslint";
 import jsdoc from "eslint-plugin-jsdoc";
+import tsdoc from "eslint-plugin-tsdoc";
 import effectImportStyleRule from "./EffectImportStyleRule.ts";
 import noNativeRuntimeRule from "./NoNativeRuntimeRule.ts";
 import requireCategoryTagRule from "./RequireCategoryTagRule.ts";
@@ -82,6 +83,7 @@ export const ESLintConfig: ESLintConfigShape = [
     ],
     plugins: {
       "beep-laws": beepLaws,
+      "eslint-plugin-tsdoc": tsdoc,
     },
     languageOptions: {
       parser: tsParser,
@@ -173,10 +175,22 @@ export const ESLintConfig: ESLintConfigShape = [
           augments: "extends",
         },
         structuredTags: {
-          domain: { name: "text", type: false },
-          provides: { name: "text", type: false },
-          depends: { name: "text", type: false },
-          errors: { name: "text", type: false },
+          domain: {
+            name: "text",
+            type: false,
+          },
+          provides: {
+            name: "text",
+            type: false,
+          },
+          depends: {
+            name: "text",
+            type: false,
+          },
+          errors: {
+            name: "text",
+            type: false,
+          },
         },
       },
     },
@@ -215,7 +229,6 @@ export const ESLintConfig: ESLintConfigShape = [
       "jsdoc/require-returns": "warn",
       "jsdoc/require-returns-description": "warn",
       "jsdoc/informative-docs": "error",
-      "jsdoc/no-types": "error",
       "jsdoc/no-blank-block-descriptions": "error",
       "jsdoc/check-tag-names": [
         "error",
@@ -251,7 +264,7 @@ export const ESLintConfig: ESLintConfigShape = [
           },
         },
       ],
-      "jsdoc/sort-tags": "off",
+      "jsdoc/sort-tags": "warn",
       "jsdoc/multiline-blocks": "warn",
       "jsdoc/tag-lines": ["warn", "never", { startLines: 1 }],
     },

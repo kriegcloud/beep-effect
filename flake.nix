@@ -30,6 +30,8 @@
           shellHook = ''
             echo "beep-effect2 dev shell loaded"
             export BUN_INSTALL="$HOME/.bun"
+            export BUN_INSTALL_CACHE_DIR="/tmp/$USER-beep-effect3-bun-install-cache"
+            mkdir -p "$BUN_INSTALL_CACHE_DIR"
             export PATH="$BUN_INSTALL/bin:$PATH"
           '';
         };

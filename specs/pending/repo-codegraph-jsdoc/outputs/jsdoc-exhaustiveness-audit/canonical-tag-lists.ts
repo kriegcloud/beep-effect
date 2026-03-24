@@ -2,13 +2,13 @@
  * @module CanonicalTagLists
  * @description Canonical source metadata and tag sets used by the JSDoc
  * exhaustiveness validator baseline.
- * @since 2026-03-01
+ * @since 0.0.0
  */
 
 /**
  * Canonical metadata envelope for one tag source authority.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface CanonicalSourceMetadata {
@@ -20,7 +20,7 @@ export interface CanonicalSourceMetadata {
 /**
  * JSDoc official source metadata.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const JSDOC3_SOURCE: CanonicalSourceMetadata = {
@@ -32,7 +32,7 @@ export const JSDOC3_SOURCE: CanonicalSourceMetadata = {
 /**
  * TSDoc standard tag source metadata.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TSDOC_SOURCE: CanonicalSourceMetadata = {
@@ -44,7 +44,7 @@ export const TSDOC_SOURCE: CanonicalSourceMetadata = {
 /**
  * Primary TypeScript JSDoc reference metadata.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TYPESCRIPT_JSDOC_SOURCE: CanonicalSourceMetadata = {
@@ -57,7 +57,7 @@ export const TYPESCRIPT_JSDOC_SOURCE: CanonicalSourceMetadata = {
  * Supplemental TypeScript release-note sources used to capture tags introduced
  * outside the main reference page.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TYPESCRIPT_JSDOC_ADDENDA_SOURCES = [
@@ -73,7 +73,7 @@ export const TYPESCRIPT_JSDOC_ADDENDA_SOURCES = [
  * Alias normalization table used to map non-canonical spellings to canonical
  * tag names before comparison.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export const TYPESCRIPT_ALIAS_NORMALIZATION = {
@@ -85,7 +85,7 @@ export const TYPESCRIPT_ALIAS_NORMALIZATION = {
 /**
  * Google Closure annotation source metadata.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CLOSURE_SOURCE: CanonicalSourceMetadata = {
@@ -97,7 +97,7 @@ export const CLOSURE_SOURCE: CanonicalSourceMetadata = {
 /**
  * TypeDoc tag source metadata.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TYPEDOC_SOURCE: CanonicalSourceMetadata = {
@@ -109,7 +109,7 @@ export const TYPEDOC_SOURCE: CanonicalSourceMetadata = {
 /**
  * Canonical JSDoc 3 tag set.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const JSDOC3_TAGS = [
@@ -185,7 +185,7 @@ export const JSDOC3_TAGS = [
 /**
  * Canonical TSDoc standard tag set.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TSDOC_STANDARD_TAGS = [
@@ -219,7 +219,7 @@ export const TSDOC_STANDARD_TAGS = [
 /**
  * Canonical TypeScript-supported JSDoc tag set.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TYPESCRIPT_JSDOC_TAGS = [
@@ -253,7 +253,7 @@ export const TYPESCRIPT_JSDOC_TAGS = [
 /**
  * Canonical Closure annotation set used by the audit baseline.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const CLOSURE_TAGS = [
@@ -301,7 +301,7 @@ export const CLOSURE_TAGS = [
 /**
  * Canonical TypeDoc tag set used by the audit baseline.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const TYPEDOC_TAGS = [

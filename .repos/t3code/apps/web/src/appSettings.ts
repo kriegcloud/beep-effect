@@ -1,50 +1,61 @@
-import { useCallback, useSyncExternalStore } from "react";
+import { useCallback } from "react";
 import { Option, Schema } from "effect";
-import { type ProviderKind, type ProviderServiceTier } from "@t3tools/contracts";
-import { getDefaultModel, getModelOptions, normalizeModelSlug } from "@t3tools/shared/model";
+import { TrimmedNonEmptyString, type ProviderKind } from "@t3tools/contracts";
+import {
+  getDefaultModel,
+  getModelOptions,
+  normalizeModelSlug,
+  resolveSelectableModel,
+} from "@t3tools/shared/model";
+import { useLocalStorage } from "./hooks/useLocalStorage";
+import { EnvMode } from "./components/BranchToolbar.logic";
 
 const APP_SETTINGS_STORAGE_KEY = "t3code:app-settings:v1";
 const MAX_CUSTOM_MODEL_COUNT = 32;
 export const MAX_CUSTOM_MODEL_LENGTH = 256;
-export const APP_SERVICE_TIER_OPTIONS = [
-  {
-    value: "auto",
-    label: "Automatic",
-    description: "Use Codex defaults without forcing a service tier.",
-  },
-  {
-    value: "fast",
-    label: "Fast",
-    description: "Request the fast service tier when the model supports it.",
-  },
-  {
-    value: "flex",
-    label: "Flex",
-    description: "Request the flex service tier when the model supports it.",
-  },
-] as const;
-export type AppServiceTier = (typeof APP_SERVICE_TIER_OPTIONS)[number]["value"];
-const AppServiceTierSchema = Schema.Literals(["auto", "fast", "flex"]);
-const MODELS_WITH_FAST_SUPPORT = new Set(["gpt-5.4"]);
-const BUILT_IN_MODEL_SLUGS_BY_PROVIDER: Record<ProviderKind, ReadonlySet<string>> = {
-  codex: new Set(getModelOptions("codex").map((option) => option.slug)),
+
+export const TimestampFormat = Schema.Literals(["locale", "12-hour", "24-hour"]);
+export type TimestampFormat = typeof TimestampFormat.Type;
+export const DEFAULT_TIMESTAMP_FORMAT: TimestampFormat = "locale";
+type CustomModelSettingsKey = "customCodexModels" | "customClaudeModels";
+export type ProviderCustomModelConfig = {
+  provider: ProviderKind;
+  settingsKey: CustomModelSettingsKey;
+  defaultSettingsKey: CustomModelSettingsKey;
+  title: string;
+  description: string;
+  placeholder: string;
+  example: string;
 };
 
-const AppSettingsSchema = Schema.Struct({
-  codexBinaryPath: Schema.String.check(Schema.isMaxLength(4096)).pipe(
-    Schema.withConstructorDefault(() => Option.some("")),
-  ),
-  codexHomePath: Schema.String.check(Schema.isMaxLength(4096)).pipe(
-    Schema.withConstructorDefault(() => Option.some("")),
-  ),
-  confirmThreadDelete: Schema.Boolean.pipe(Schema.withConstructorDefault(() => Option.some(true))),
-  enableAssistantStreaming: Schema.Boolean.pipe(
-    Schema.withConstructorDefault(() => Option.some(false)),
-  ),
-  codexServiceTier: AppServiceTierSchema.pipe(Schema.withConstructorDefault(() => Option.some("auto"))),
-  customCodexModels: Schema.Array(Schema.String).pipe(
-    Schema.withConstructorDefault(() => Option.some([])),
-  ),
+const BUILT_IN_MODEL_SLUGS_BY_PROVIDER: Record<ProviderKind, ReadonlySet<string>> = {
+  codex: new Set(getModelOptions("codex").map((option) => option.slug)),
+  claudeAgent: new Set(getModelOptions("claudeAgent").map((option) => option.slug)),
+};
+
+const withDefaults =
+  <
+    S extends Schema.Top & Schema.WithoutConstructorDefault,
+    D extends S["~type.make.in"] & S["Encoded"],
+  >(
+    fallback: () => D,
+  ) =>
+  (schema: S) =>
+    schema.pipe(
+      Schema.withConstructorDefault(() => Option.some(fallback())),
+      Schema.withDecodingDefault(() => fallback()),
+    );
+
+export const AppSettingsSchema = Schema.Struct({
+  codexBinaryPath: Schema.String.check(Schema.isMaxLength(4096)).pipe(withDefaults(() => "")),
+  codexHomePath: Schema.String.check(Schema.isMaxLength(4096)).pipe(withDefaults(() => "")),
+  defaultThreadEnvMode: EnvMode.pipe(withDefaults(() => "local" as const satisfies EnvMode)),
+  confirmThreadDelete: Schema.Boolean.pipe(withDefaults(() => true)),
+  enableAssistantStreaming: Schema.Boolean.pipe(withDefaults(() => false)),
+  timestampFormat: TimestampFormat.pipe(withDefaults(() => DEFAULT_TIMESTAMP_FORMAT)),
+  customCodexModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
+  customClaudeModels: Schema.Array(Schema.String).pipe(withDefaults(() => [])),
+  textGenerationModel: Schema.optional(TrimmedNonEmptyString),
 });
 export type AppSettings = typeof AppSettingsSchema.Type;
 export interface AppModelOption {
@@ -53,27 +64,28 @@ export interface AppModelOption {
   isCustom: boolean;
 }
 
-export function resolveAppServiceTier(serviceTier: AppServiceTier): ProviderServiceTier | null {
-  return serviceTier === "auto" ? null : serviceTier;
-}
-
-export function shouldShowFastTierIcon(
-  model: string | null | undefined,
-  serviceTier: AppServiceTier,
-): boolean {
-  const normalizedModel = normalizeModelSlug(model);
-  return (
-    resolveAppServiceTier(serviceTier) === "fast" &&
-    normalizedModel !== null &&
-    MODELS_WITH_FAST_SUPPORT.has(normalizedModel)
-  );
-}
-
 const DEFAULT_APP_SETTINGS = AppSettingsSchema.makeUnsafe({});
-
-let listeners: Array<() => void> = [];
-let cachedRawSettings: string | null | undefined;
-let cachedSnapshot: AppSettings = DEFAULT_APP_SETTINGS;
+const PROVIDER_CUSTOM_MODEL_CONFIG: Record<ProviderKind, ProviderCustomModelConfig> = {
+  codex: {
+    provider: "codex",
+    settingsKey: "customCodexModels",
+    defaultSettingsKey: "customCodexModels",
+    title: "Codex",
+    description: "Save additional Codex model slugs for the picker and `/model` command.",
+    placeholder: "your-codex-model-slug",
+    example: "gpt-6.7-codex-ultra-preview",
+  },
+  claudeAgent: {
+    provider: "claudeAgent",
+    settingsKey: "customClaudeModels",
+    defaultSettingsKey: "customClaudeModels",
+    title: "Claude",
+    description: "Save additional Claude model slugs for the picker and `/model` command.",
+    placeholder: "your-claude-model-slug",
+    example: "claude-sonnet-5-0",
+  },
+};
+export const MODEL_PROVIDER_SETTINGS = Object.values(PROVIDER_CUSTOM_MODEL_CONFIG);
 
 export function normalizeCustomModelSlugs(
   models: Iterable<string | null | undefined>,
@@ -108,6 +120,39 @@ function normalizeAppSettings(settings: AppSettings): AppSettings {
   return {
     ...settings,
     customCodexModels: normalizeCustomModelSlugs(settings.customCodexModels, "codex"),
+    customClaudeModels: normalizeCustomModelSlugs(settings.customClaudeModels, "claudeAgent"),
+  };
+}
+
+export function getCustomModelsForProvider(
+  settings: Pick<AppSettings, CustomModelSettingsKey>,
+  provider: ProviderKind,
+): readonly string[] {
+  return settings[PROVIDER_CUSTOM_MODEL_CONFIG[provider].settingsKey];
+}
+
+export function getDefaultCustomModelsForProvider(
+  defaults: Pick<AppSettings, CustomModelSettingsKey>,
+  provider: ProviderKind,
+): readonly string[] {
+  return defaults[PROVIDER_CUSTOM_MODEL_CONFIG[provider].defaultSettingsKey];
+}
+
+export function patchCustomModels(
+  provider: ProviderKind,
+  models: string[],
+): Partial<Pick<AppSettings, CustomModelSettingsKey>> {
+  return {
+    [PROVIDER_CUSTOM_MODEL_CONFIG[provider].settingsKey]: models,
+  };
+}
+
+export function getCustomModelsByProvider(
+  settings: Pick<AppSettings, CustomModelSettingsKey>,
+): Record<ProviderKind, readonly string[]> {
+  return {
+    codex: getCustomModelsForProvider(settings, "codex"),
+    claudeAgent: getCustomModelsForProvider(settings, "claudeAgent"),
   };
 }
 
@@ -122,6 +167,7 @@ export function getAppModelOptions(
     isCustom: false,
   }));
   const seen = new Set(options.map((option) => option.slug));
+  const trimmedSelectedModel = selectedModel?.trim().toLowerCase();
 
   for (const slug of normalizeCustomModelSlugs(customModels, provider)) {
     if (seen.has(slug)) {
@@ -137,7 +183,14 @@ export function getAppModelOptions(
   }
 
   const normalizedSelectedModel = normalizeModelSlug(selectedModel, provider);
-  if (normalizedSelectedModel && !seen.has(normalizedSelectedModel)) {
+  const selectedModelMatchesExistingName =
+    typeof trimmedSelectedModel === "string" &&
+    options.some((option) => option.name.toLowerCase() === trimmedSelectedModel);
+  if (
+    normalizedSelectedModel &&
+    !seen.has(normalizedSelectedModel) &&
+    !selectedModelMatchesExistingName
+  ) {
     options.push({
       slug: normalizedSelectedModel,
       name: normalizedSelectedModel,
@@ -150,142 +203,41 @@ export function getAppModelOptions(
 
 export function resolveAppModelSelection(
   provider: ProviderKind,
-  customModels: readonly string[],
+  customModels: Record<ProviderKind, readonly string[]>,
   selectedModel: string | null | undefined,
 ): string {
-  const options = getAppModelOptions(provider, customModels, selectedModel);
-  const trimmedSelectedModel = selectedModel?.trim();
-  if (trimmedSelectedModel) {
-    const direct = options.find((option) => option.slug === trimmedSelectedModel);
-    if (direct) {
-      return direct.slug;
-    }
-
-    const byName = options.find(
-      (option) => option.name.toLowerCase() === trimmedSelectedModel.toLowerCase(),
-    );
-    if (byName) {
-      return byName.slug;
-    }
-  }
-
-  const normalizedSelectedModel = normalizeModelSlug(selectedModel, provider);
-  if (!normalizedSelectedModel) {
-    return getDefaultModel(provider);
-  }
-
-  return (
-    options.find((option) => option.slug === normalizedSelectedModel)?.slug ??
-    getDefaultModel(provider)
-  );
+  const customModelsForProvider = customModels[provider];
+  const options = getAppModelOptions(provider, customModelsForProvider, selectedModel);
+  return resolveSelectableModel(provider, selectedModel, options) ?? getDefaultModel(provider);
 }
 
-export function getSlashModelOptions(
-  provider: ProviderKind,
-  customModels: readonly string[],
-  query: string,
-  selectedModel?: string | null,
-): AppModelOption[] {
-  const normalizedQuery = query.trim().toLowerCase();
-  const options = getAppModelOptions(provider, customModels, selectedModel);
-  if (!normalizedQuery) {
-    return options;
-  }
-
-  return options.filter((option) => {
-    const searchSlug = option.slug.toLowerCase();
-    const searchName = option.name.toLowerCase();
-    return searchSlug.includes(normalizedQuery) || searchName.includes(normalizedQuery);
-  });
-}
-
-function emitChange(): void {
-  for (const listener of listeners) {
-    listener();
-  }
-}
-
-function parsePersistedSettings(value: string | null): AppSettings {
-  if (!value) {
-    return DEFAULT_APP_SETTINGS;
-  }
-
-  try {
-    return normalizeAppSettings(Schema.decodeSync(Schema.fromJsonString(AppSettingsSchema))(value));
-  } catch {
-    return DEFAULT_APP_SETTINGS;
-  }
-}
-
-export function getAppSettingsSnapshot(): AppSettings {
-  if (typeof window === "undefined") {
-    return DEFAULT_APP_SETTINGS;
-  }
-
-  const raw = window.localStorage.getItem(APP_SETTINGS_STORAGE_KEY);
-  if (raw === cachedRawSettings) {
-    return cachedSnapshot;
-  }
-
-  cachedRawSettings = raw;
-  cachedSnapshot = parsePersistedSettings(raw);
-  return cachedSnapshot;
-}
-
-function persistSettings(next: AppSettings): void {
-  if (typeof window === "undefined") return;
-
-  const raw = JSON.stringify(next);
-  try {
-    if (raw !== cachedRawSettings) {
-      window.localStorage.setItem(APP_SETTINGS_STORAGE_KEY, raw);
-    }
-  } catch {
-    // Best-effort persistence only.
-  }
-
-  cachedRawSettings = raw;
-  cachedSnapshot = next;
-}
-
-function subscribe(listener: () => void): () => void {
-  listeners.push(listener);
-
-  const onStorage = (event: StorageEvent) => {
-    if (event.key === APP_SETTINGS_STORAGE_KEY) {
-      emitChange();
-    }
-  };
-
-  window.addEventListener("storage", onStorage);
-  return () => {
-    listeners = listeners.filter((entry) => entry !== listener);
-    window.removeEventListener("storage", onStorage);
+export function getCustomModelOptionsByProvider(
+  settings: Pick<AppSettings, CustomModelSettingsKey>,
+): Record<ProviderKind, ReadonlyArray<{ slug: string; name: string }>> {
+  const customModelsByProvider = getCustomModelsByProvider(settings);
+  return {
+    codex: getAppModelOptions("codex", customModelsByProvider.codex),
+    claudeAgent: getAppModelOptions("claudeAgent", customModelsByProvider.claudeAgent),
   };
 }
 
 export function useAppSettings() {
-  const settings = useSyncExternalStore(
-    subscribe,
-    getAppSettingsSnapshot,
-    () => DEFAULT_APP_SETTINGS,
+  const [settings, setSettings] = useLocalStorage(
+    APP_SETTINGS_STORAGE_KEY,
+    DEFAULT_APP_SETTINGS,
+    AppSettingsSchema,
   );
 
-  const updateSettings = useCallback((patch: Partial<AppSettings>) => {
-    const next = normalizeAppSettings(
-      Schema.decodeSync(AppSettingsSchema)({
-        ...getAppSettingsSnapshot(),
-        ...patch,
-      }),
-    );
-    persistSettings(next);
-    emitChange();
-  }, []);
+  const updateSettings = useCallback(
+    (patch: Partial<AppSettings>) => {
+      setSettings((prev) => normalizeAppSettings({ ...prev, ...patch }));
+    },
+    [setSettings],
+  );
 
   const resetSettings = useCallback(() => {
-    persistSettings(DEFAULT_APP_SETTINGS);
-    emitChange();
-  }, []);
+    setSettings(DEFAULT_APP_SETTINGS);
+  }, [setSettings]);
 
   return {
     settings,

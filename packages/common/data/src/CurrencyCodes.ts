@@ -23,7 +23,7 @@ import * as internal from "./internal/data/currency-codes.ts";
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import type { CurrencyCodeData } from "@beep/data/CurrencyCodes"
  *
  * const entry: CurrencyCodeData = {
@@ -33,6 +33,7 @@ import * as internal from "./internal/data/currency-codes.ts";
  *   currency: "UAE Dirham",
  *   countries: ["United Arab Emirates (The)"]
  * }
+ * void entry
  * ```
  */
 export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
@@ -43,11 +44,13 @@ export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import type { CurrencyCode } from "@beep/data/CurrencyCodes"
  *
  * const usd: CurrencyCode = "USD"
  * const eur: CurrencyCode = "EUR"
+ * void usd
+ * void eur
  * ```
  */
 export type CurrencyCode = CurrencyCodeData["code"];
@@ -68,7 +71,7 @@ export type CurrencyCode = CurrencyCodeData["code"];
  * @since 0.0.0
  * @category Configuration
  * @example
- * ```ts-morph
+ * ```typescript
  * import { CurrencyCodeDataValues } from "@beep/data/CurrencyCodes"
  *
  * CurrencyCodeDataValues[0].code // "AED"

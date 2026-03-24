@@ -11,7 +11,7 @@ The T3 Code CLI accepts the following configuration options, available either as
 | `--mode <web\|desktop>` | `T3CODE_MODE`         | Runtime mode.                      |
 | `--port <number>`       | `T3CODE_PORT`         | HTTP/WebSocket port.               |
 | `--host <address>`      | `T3CODE_HOST`         | Bind interface/address.            |
-| `--state-dir <path>`    | `T3CODE_STATE_DIR`    | State directory.                   |
+| `--base-dir <path>`     | `T3CODE_HOME`         | Base directory.                    |
 | `--dev-url <url>`       | `VITE_DEV_SERVER_URL` | Dev web URL redirect/proxy target. |
 | `--no-browser`          | `T3CODE_NO_BROWSER`   | Disable auto-open browser.         |
 | `--auth-token <token>`  | `T3CODE_AUTH_TOKEN`   | WebSocket auth token.              |

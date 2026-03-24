@@ -9,6 +9,10 @@ const CodexAuthJsonSchema = Schema.Struct({
   }),
 });
 
+const ClaudeJsonSchema = Schema.Struct({
+  userID: Schema.String,
+});
+
 class IdentifyUserError extends Schema.TaggedErrorClass<IdentifyUserError>()("IdentifyUserError", {
   message: Schema.String,
   cause: Schema.optional(Schema.Defect),
@@ -37,12 +41,23 @@ const getCodexAccountId = Effect.gen(function* () {
   return authJson.tokens.account_id;
 });
 
-const upsertAnonymousId = Effect.gen(function* () {
+const getClaudeUserId = Effect.gen(function* () {
   const fileSystem = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  const serverConfig = yield* ServerConfig;
 
-  const anonymousIdPath = path.join(serverConfig.stateDir, "anonymous-id");
+  const claudeJsonPath = path.join(homedir(), ".claude.json");
+  const claudeJson = yield* Effect.flatMap(
+    fileSystem.readFileString(claudeJsonPath),
+    Schema.decodeEffect(Schema.fromJsonString(ClaudeJsonSchema)),
+  );
+
+  return claudeJson.userID;
+});
+
+const upsertAnonymousId = Effect.gen(function* () {
+  const fileSystem = yield* FileSystem.FileSystem;
+  const { anonymousIdPath } = yield* ServerConfig;
+
   const anonymousId = yield* fileSystem.readFileString(anonymousIdPath).pipe(
     Effect.catch(() =>
       Effect.gen(function* () {
@@ -59,12 +74,18 @@ const upsertAnonymousId = Effect.gen(function* () {
 /**
  * getTelemetryIdentifier - Users are "identified" by finding the first match of the following, then hashing the value.
  * 1. ~/.codex/auth.json tokens.account_id
- * 2. ~/.t3/telemetry/anonymous-id
+ * 2. ~/.claude.json userID
+ * 3. ~/.t3/telemetry/anonymous-id
  */
 export const getTelemetryIdentifier = Effect.gen(function* () {
   const codexAccountId = yield* Effect.result(getCodexAccountId);
   if (codexAccountId._tag === "Success") {
     return yield* hash(codexAccountId.success);
+  }
+
+  const claudeUserId = yield* Effect.result(getClaudeUserId);
+  if (claudeUserId._tag === "Success") {
+    return yield* hash(claudeUserId.success);
   }
 
   const anonymousId = yield* Effect.result(upsertAnonymousId);

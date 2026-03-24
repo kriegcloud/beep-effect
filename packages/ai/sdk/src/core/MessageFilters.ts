@@ -170,7 +170,7 @@ export const filterToolProgress = <E, R>(stream: Stream.Stream<SDKMessage, E, R>
  * building custom exhaustive or partial matchers.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { MessageFilters } from "effect-claude-agent-sdk"
  * import * as Match from "effect/Match"
  *

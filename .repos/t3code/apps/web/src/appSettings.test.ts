@@ -1,11 +1,17 @@
+import { Schema } from "effect";
 import { describe, expect, it } from "vitest";
 
 import {
+  AppSettingsSchema,
+  DEFAULT_TIMESTAMP_FORMAT,
   getAppModelOptions,
-  getSlashModelOptions,
+  getCustomModelOptionsByProvider,
+  getCustomModelsByProvider,
+  getCustomModelsForProvider,
+  getDefaultCustomModelsForProvider,
+  MODEL_PROVIDER_SETTINGS,
   normalizeCustomModelSlugs,
-  resolveAppServiceTier,
-  shouldShowFastTierIcon,
+  patchCustomModels,
   resolveAppModelSelection,
 } from "./appSettings";
 
@@ -22,6 +28,13 @@ describe("normalizeCustomModelSlugs", () => {
       ]),
     ).toEqual(["custom/internal-model"]);
   });
+
+  it("normalizes provider-specific aliases for claude", () => {
+    expect(normalizeCustomModelSlugs(["sonnet"], "claudeAgent")).toEqual([]);
+    expect(normalizeCustomModelSlugs(["claude/custom-sonnet"], "claudeAgent")).toEqual([
+      "claude/custom-sonnet",
+    ]);
+  });
 });
 
 describe("getAppModelOptions", () => {
@@ -30,6 +43,7 @@ describe("getAppModelOptions", () => {
 
     expect(options.map((option) => option.slug)).toEqual([
       "gpt-5.4",
+      "gpt-5.4-mini",
       "gpt-5.3-codex",
       "gpt-5.3-codex-spark",
       "gpt-5.2-codex",
@@ -47,59 +61,162 @@ describe("getAppModelOptions", () => {
       isCustom: true,
     });
   });
+  it("keeps a saved custom provider model available as an exact slug option", () => {
+    const options = getAppModelOptions("claudeAgent", ["claude/custom-opus"], "claude/custom-opus");
+
+    expect(options.some((option) => option.slug === "claude/custom-opus" && option.isCustom)).toBe(
+      true,
+    );
+  });
 });
 
 describe("resolveAppModelSelection", () => {
   it("preserves saved custom model slugs instead of falling back to the default", () => {
-    expect(resolveAppModelSelection("codex", ["galapagos-alpha"], "galapagos-alpha")).toBe(
-      "galapagos-alpha",
-    );
+    expect(
+      resolveAppModelSelection(
+        "codex",
+        { codex: ["galapagos-alpha"], claudeAgent: [] },
+        "galapagos-alpha",
+      ),
+    ).toBe("galapagos-alpha");
   });
 
   it("falls back to the provider default when no model is selected", () => {
-    expect(resolveAppModelSelection("codex", [], "")).toBe("gpt-5.4");
+    expect(resolveAppModelSelection("codex", { codex: [], claudeAgent: [] }, "")).toBe("gpt-5.4");
   });
-});
 
-describe("getSlashModelOptions", () => {
-  it("includes saved custom model slugs for /model command suggestions", () => {
-    const options = getSlashModelOptions(
-      "codex",
-      ["custom/internal-model"],
-      "",
+  it("resolves display names through the shared resolver", () => {
+    expect(resolveAppModelSelection("codex", { codex: [], claudeAgent: [] }, "GPT-5.3 Codex")).toBe(
       "gpt-5.3-codex",
     );
-
-    expect(options.some((option) => option.slug === "custom/internal-model")).toBe(true);
   });
 
-  it("filters slash-model suggestions across built-in and custom model names", () => {
-    const options = getSlashModelOptions(
-      "codex",
-      ["openai/gpt-oss-120b"],
-      "oss",
-      "gpt-5.3-codex",
+  it("resolves aliases through the shared resolver", () => {
+    expect(resolveAppModelSelection("claudeAgent", { codex: [], claudeAgent: [] }, "sonnet")).toBe(
+      "claude-sonnet-4-6",
     );
+  });
 
-    expect(options.map((option) => option.slug)).toEqual(["openai/gpt-oss-120b"]);
+  it("resolves transient selected custom models included in app model options", () => {
+    expect(
+      resolveAppModelSelection("codex", { codex: [], claudeAgent: [] }, "custom/selected-model"),
+    ).toBe("custom/selected-model");
   });
 });
 
-describe("resolveAppServiceTier", () => {
-  it("maps automatic to no override", () => {
-    expect(resolveAppServiceTier("auto")).toBeNull();
-  });
-
-  it("preserves explicit service tier overrides", () => {
-    expect(resolveAppServiceTier("fast")).toBe("fast");
-    expect(resolveAppServiceTier("flex")).toBe("flex");
+describe("timestamp format defaults", () => {
+  it("defaults timestamp format to locale", () => {
+    expect(DEFAULT_TIMESTAMP_FORMAT).toBe("locale");
   });
 });
 
-describe("shouldShowFastTierIcon", () => {
-  it("shows the fast-tier icon only for gpt-5.4 on fast tier", () => {
-    expect(shouldShowFastTierIcon("gpt-5.4", "fast")).toBe(true);
-    expect(shouldShowFastTierIcon("gpt-5.4", "auto")).toBe(false);
-    expect(shouldShowFastTierIcon("gpt-5.3-codex", "fast")).toBe(false);
+describe("provider-specific custom models", () => {
+  it("includes provider-specific custom slugs in non-codex model lists", () => {
+    const claudeOptions = getAppModelOptions("claudeAgent", ["claude/custom-opus"]);
+
+    expect(claudeOptions.some((option) => option.slug === "claude/custom-opus")).toBe(true);
+  });
+});
+
+describe("provider-indexed custom model settings", () => {
+  const settings = {
+    customCodexModels: ["custom/codex-model"],
+    customClaudeModels: ["claude/custom-opus"],
+  } as const;
+
+  it("exports one provider config per provider", () => {
+    expect(MODEL_PROVIDER_SETTINGS.map((config) => config.provider)).toEqual([
+      "codex",
+      "claudeAgent",
+    ]);
+  });
+
+  it("reads custom models for each provider", () => {
+    expect(getCustomModelsForProvider(settings, "codex")).toEqual(["custom/codex-model"]);
+    expect(getCustomModelsForProvider(settings, "claudeAgent")).toEqual(["claude/custom-opus"]);
+  });
+
+  it("reads default custom models for each provider", () => {
+    const defaults = {
+      customCodexModels: ["default/codex-model"],
+      customClaudeModels: ["claude/default-opus"],
+    } as const;
+
+    expect(getDefaultCustomModelsForProvider(defaults, "codex")).toEqual(["default/codex-model"]);
+    expect(getDefaultCustomModelsForProvider(defaults, "claudeAgent")).toEqual([
+      "claude/default-opus",
+    ]);
+  });
+
+  it("patches custom models for codex", () => {
+    expect(patchCustomModels("codex", ["custom/codex-model"])).toEqual({
+      customCodexModels: ["custom/codex-model"],
+    });
+  });
+
+  it("patches custom models for claude", () => {
+    expect(patchCustomModels("claudeAgent", ["claude/custom-opus"])).toEqual({
+      customClaudeModels: ["claude/custom-opus"],
+    });
+  });
+
+  it("builds a complete provider-indexed custom model record", () => {
+    expect(getCustomModelsByProvider(settings)).toEqual({
+      codex: ["custom/codex-model"],
+      claudeAgent: ["claude/custom-opus"],
+    });
+  });
+
+  it("builds provider-indexed model options including custom models", () => {
+    const modelOptionsByProvider = getCustomModelOptionsByProvider(settings);
+
+    expect(
+      modelOptionsByProvider.codex.some((option) => option.slug === "custom/codex-model"),
+    ).toBe(true);
+    expect(
+      modelOptionsByProvider.claudeAgent.some((option) => option.slug === "claude/custom-opus"),
+    ).toBe(true);
+  });
+
+  it("normalizes and deduplicates custom model options per provider", () => {
+    const modelOptionsByProvider = getCustomModelOptionsByProvider({
+      customCodexModels: ["  custom/codex-model ", "gpt-5.4", "custom/codex-model"],
+      customClaudeModels: [" sonnet ", "claude/custom-opus", "claude/custom-opus"],
+    });
+
+    expect(
+      modelOptionsByProvider.codex.filter((option) => option.slug === "custom/codex-model"),
+    ).toHaveLength(1);
+    expect(modelOptionsByProvider.codex.some((option) => option.slug === "gpt-5.4")).toBe(true);
+    expect(
+      modelOptionsByProvider.claudeAgent.filter((option) => option.slug === "claude/custom-opus"),
+    ).toHaveLength(1);
+    expect(
+      modelOptionsByProvider.claudeAgent.some((option) => option.slug === "claude-sonnet-4-6"),
+    ).toBe(true);
+  });
+});
+
+describe("AppSettingsSchema", () => {
+  it("fills decoding defaults for persisted settings that predate newer keys", () => {
+    const decode = Schema.decodeSync(Schema.fromJsonString(AppSettingsSchema));
+
+    expect(
+      decode(
+        JSON.stringify({
+          codexBinaryPath: "/usr/local/bin/codex",
+          confirmThreadDelete: false,
+        }),
+      ),
+    ).toMatchObject({
+      codexBinaryPath: "/usr/local/bin/codex",
+      codexHomePath: "",
+      defaultThreadEnvMode: "local",
+      confirmThreadDelete: false,
+      enableAssistantStreaming: false,
+      timestampFormat: DEFAULT_TIMESTAMP_FORMAT,
+      customCodexModels: [],
+      customClaudeModels: [],
+    });
   });
 });

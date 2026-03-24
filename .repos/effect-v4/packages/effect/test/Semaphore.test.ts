@@ -1,12 +1,12 @@
 import { assert, describe, it } from "@effect/vitest"
-import { Duration, Effect, Fiber, Option, Semaphore } from "effect"
+import { Duration, Effect, Fiber, Option, PartitionedSemaphore, Semaphore } from "effect"
 import * as Scheduler from "effect/Scheduler"
 import { TestClock } from "effect/testing"
 
 describe("Semaphore", () => {
   it.effect("basic single partition operation", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 4 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 4 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -32,7 +32,7 @@ describe("Semaphore", () => {
 
   it.effect("multiple partitions share total permits", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 4 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 4 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -67,7 +67,7 @@ describe("Semaphore", () => {
 
   it.effect("round-robin fairness across partitions", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 2 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 2 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -114,7 +114,7 @@ describe("Semaphore", () => {
 
   it.effect("requesting more permits than total returns never", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 4 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 4 })
 
       const fiber = yield* Effect.forkChild(
         sem.withPermits("partition-1", 5)(Effect.succeed(42))
@@ -127,7 +127,7 @@ describe("Semaphore", () => {
 
   it.effect("single permit operations", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 1 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 1 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -156,7 +156,7 @@ describe("Semaphore", () => {
 
   it.effect("different permit sizes on same partition", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 5 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 5 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -188,7 +188,7 @@ describe("Semaphore", () => {
 
   it.effect("interruption releases permits", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 2 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 2 })
       const messages: Array<string> = []
 
       const fiber = yield* Effect.forkChild(
@@ -213,7 +213,7 @@ describe("Semaphore", () => {
 
   it.effect("interruption with partial permit acquisition releases all taken permits", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 3 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 3 })
       const messages: Array<string> = []
 
       const fiber1 = yield* Effect.forkChild(
@@ -260,8 +260,14 @@ describe("Semaphore", () => {
       let shouldYield = false
       const scheduler: Scheduler.Scheduler = {
         executionMode: "async",
-        scheduleTask: (task) => {
-          tasks.push(task)
+        makeDispatcher() {
+          return {
+            scheduleTask(task, _priority) {
+              tasks.push(task)
+            },
+            flush() {
+            }
+          }
         },
         shouldYield: () => {
           if (shouldYield) {
@@ -299,9 +305,43 @@ describe("Semaphore", () => {
       assert.isTrue(Option.isSome(result))
     }))
 
+  it.effect("module-level combinators delegate to the instance api", () =>
+    Effect.gen(function*() {
+      const sem = yield* Semaphore.make(1)
+
+      const taken = yield* Semaphore.take(sem, 1)
+      assert.strictEqual(taken, 1)
+
+      const released = yield* Semaphore.release(sem, 1)
+      assert.strictEqual(released, 1)
+
+      yield* Semaphore.resize(sem, 2)
+
+      const value = yield* Semaphore.withPermit(sem, Effect.succeed(1))
+      assert.strictEqual(value, 1)
+
+      const value2 = yield* Semaphore.withPermits(sem, 2, Effect.succeed(2))
+      assert.strictEqual(value2, 2)
+
+      const available = yield* Semaphore.withPermitsIfAvailable(sem, 1, Effect.succeed("ok"))
+      assert.deepStrictEqual(available, Option.some("ok"))
+
+      const piped = yield* Effect.succeed(3).pipe(Semaphore.withPermit(sem))
+      assert.strictEqual(piped, 3)
+
+      const piped2 = yield* Effect.succeed(4).pipe(Semaphore.withPermits(sem, 1))
+      assert.strictEqual(piped2, 4)
+
+      const pipedAvailable = yield* Effect.succeed("pipe").pipe(Semaphore.withPermitsIfAvailable(sem, 1))
+      assert.deepStrictEqual(pipedAvailable, Option.some("pipe"))
+
+      const releasedAll = yield* Semaphore.releaseAll(sem)
+      assert.strictEqual(releasedAll, 2)
+    }))
+
   it.effect("exact permit match", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 4 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 4 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -331,7 +371,7 @@ describe("Semaphore", () => {
 
   it.effect("many partitions", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 3 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 3 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -362,7 +402,7 @@ describe("Semaphore", () => {
 
   it.effect("partial permit allocation", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 3 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 3 })
       const messages: Array<string> = []
 
       yield* Effect.forkChild(
@@ -395,7 +435,7 @@ describe("Semaphore", () => {
 
   it.effect("zero permits requested", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 2 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 2 })
       let executed = false
 
       yield* sem.withPermits("partition-1", 0)(
@@ -409,7 +449,7 @@ describe("Semaphore", () => {
 
   it.effect("sequential tasks in same partition", () =>
     Effect.gen(function*() {
-      const sem = yield* Semaphore.makePartitioned({ permits: 2 })
+      const sem = yield* PartitionedSemaphore.make({ permits: 2 })
       const messages: Array<string> = []
 
       yield* sem.withPermits("partition-1", 2)(

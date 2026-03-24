@@ -10,6 +10,7 @@ import * as Fiber from "../../Fiber.ts"
 import { constant, constFalse, constTrue, dual, flow, identity } from "../../Function.ts"
 import * as Inspectable from "../../Inspectable.ts"
 import * as Layer from "../../Layer.ts"
+import * as Option from "../../Option.ts"
 import { type Pipeable, pipeArguments } from "../../Pipeable.ts"
 import * as Predicate from "../../Predicate.ts"
 import * as Ref from "../../Ref.ts"
@@ -553,7 +554,7 @@ export const make = (
       Effect.withFiber((fiber) => {
         const scopedController = scopedRequests.get(request)
         const controller = scopedController ?? new AbortController()
-        const urlResult = UrlParams.makeUrl(request.url, request.urlParams, request.hash)
+        const urlResult = UrlParams.makeUrl(request.url, request.urlParams, Option.getOrUndefined(request.hash))
         if (Result.isFailure(urlResult)) {
           return Effect.fail(
             new Error.HttpClientError({
@@ -1397,7 +1398,7 @@ const responseRegistry = (() => {
 
 const scopedRequests = new WeakMap<HttpClientRequest.HttpClientRequest, AbortController>()
 
-class InterruptibleResponse implements HttpClientResponse.HttpClientResponse {
+class InterruptibleResponse implements HttpClientResponse.HttpClientResponse, Pipeable {
   readonly original: HttpClientResponse.HttpClientResponse
   readonly controller: AbortController
 
@@ -1483,6 +1484,10 @@ class InterruptibleResponse implements HttpClientResponse.HttpClientResponse {
 
   [Inspectable.NodeInspectSymbol]() {
     return this.original[Inspectable.NodeInspectSymbol]()
+  }
+
+  pipe() {
+    return pipeArguments(this, arguments)
   }
 }
 

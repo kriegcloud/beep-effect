@@ -12,7 +12,6 @@ import {
   type FsUtils,
   findRepoRoot,
   type NoSuchFileError,
-  type PackageJson,
   resolveWorkspaceDirs,
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
@@ -20,14 +19,19 @@ import { DateTime, Effect, FileSystem, HashMap, MutableHashSet, Order, Path, pip
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
 import { type ExportDeclaration, type JSDoc, Node, Project, type SourceFile, SyntaxKind } from "ts-morph";
-import { buildCanonicalAliasTargets, resolveRootExportTarget } from "../../Shared/TsconfigAliasTargets.js";
+import {
+  buildDocgenAliasSource,
+  CanonicalDocgenConfigInput,
+  collectDocgenWorkspaceDependencyNames,
+  createCanonicalDocgenConfig,
+  toCanonicalDocgenConfigJson,
+} from "../../Shared/DocgenConfig.js";
 
 const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 
@@ -276,26 +280,7 @@ export class DocgenAggregateResult extends S.Class<DocgenAggregateResult>($I`Doc
     description: "Per-package aggregated docs result.",
   })
 ) {}
-
-class RootTsconfigCompilerOptions extends S.Class<RootTsconfigCompilerOptions>($I`RootTsconfigCompilerOptions`)(
-  {
-    paths: S.optionalKey(S.Record(S.String, S.Array(S.String))),
-  },
-  $I.annote("RootTsconfigCompilerOptions", {
-    description: "Minimal compiler options shape containing tsconfig path aliases.",
-  })
-) {}
-
-class RootTsconfigPathsDocument extends S.Class<RootTsconfigPathsDocument>($I`RootTsconfigPathsDocument`)(
-  {
-    compilerOptions: S.optionalKey(RootTsconfigCompilerOptions),
-  },
-  $I.annote("RootTsconfigPathsDocument", {
-    description: "Minimal root tsconfig shape containing compilerOptions.paths.",
-  })
-) {}
 const decodeDocgenConfigDocument = S.decodeUnknownEffect(DocgenConfigDocument);
-const decodeRootTsconfigPathsDocument = S.decodeUnknownEffect(RootTsconfigPathsDocument);
 
 const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);
 
@@ -309,11 +294,15 @@ const stringFromUnknown = (value: unknown): string => {
   return `${value}`;
 };
 
-const recordOrEmpty = (value: O.Option<Readonly<Record<string, string>>>): Readonly<Record<string, string>> =>
-  O.getOrElse(value, () => ({}) as Record<string, string>);
-
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-const jsonText = (value: unknown): string => `${encodeJson(value)}\n`;
+const jsonText = (value: unknown): string => {
+  const encoded = encodeJson(value);
+  const edits = jsonc.format(encoded, undefined, {
+    tabSize: 2,
+    insertSpaces: true,
+  });
+  return `${jsonc.applyEdits(encoded, edits)}\n`;
+};
 
 const readUnknownJsonFile = (filePath: string) =>
   Effect.gen(function* () {
@@ -328,24 +317,6 @@ const readUnknownJsonFile = (filePath: string) =>
     return parsed;
   });
 
-const readUnknownJsoncFile = (filePath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const content = yield* fs
-      .readFileString(filePath)
-      .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
-    const errors: Array<jsonc.ParseError> = [];
-    const parsed = jsonc.parse(content, errors);
-
-    if (errors.length > 0) {
-      return yield* new DomainError({
-        message: `Invalid JSONC in "${filePath}": ${errors.map((error) => jsonc.printParseErrorCode(error.error)).join(", ")}`,
-      });
-    }
-
-    return parsed;
-  });
-
 const readPackageJson = (absolutePackagePath: string) =>
   Effect.gen(function* () {
     const path = yield* Path.Path;
@@ -356,90 +327,20 @@ const readPackageJson = (absolutePackagePath: string) =>
     );
   });
 
-const readRootTsconfigPaths = (rootDir: string) =>
+const loadWorkspaceDocgenAliasSources = (rootDir: string) =>
   Effect.gen(function* () {
     const path = yield* Path.Path;
-    const tsconfigPath = path.join(rootDir, "tsconfig.json");
-    const parsed = yield* readUnknownJsoncFile(tsconfigPath);
-    const decoded = yield* decodeRootTsconfigPathsDocument(parsed).pipe(
-      Effect.mapError(
-        (cause) => new DomainError({ message: `Invalid JSONC shape in "${tsconfigPath}": ${cause.message}`, cause })
-      )
-    );
-    return decoded.compilerOptions?.paths ?? {};
-  });
+    const workspaceDirs = yield* resolveWorkspaceDirs(rootDir);
+    const aliasSources = A.empty<ReturnType<typeof buildDocgenAliasSource>>();
 
-const collectWorkspaceDependencyNames = (packageJson: PackageJson.Type): ReadonlyArray<string> =>
-  pipe(
-    [
-      ...Object.keys(recordOrEmpty(packageJson.dependencies)),
-      ...Object.keys(recordOrEmpty(packageJson.devDependencies)),
-      ...Object.keys(recordOrEmpty(packageJson.peerDependencies)),
-      ...Object.keys(recordOrEmpty(packageJson.optionalDependencies)),
-    ],
-    A.filter((name) => Str.startsWith("@beep/")(name)),
-    MutableHashSet.fromIterable,
-    A.fromIterable,
-    A.sort(Order.String)
-  );
-
-const withRootRelativePrefix = (rootRelativePrefix: string, targetPath: string): string =>
-  `${rootRelativePrefix}${Str.replace(/^\.\//, "")(targetPath)}`;
-
-const buildOwnPathMappings = (
-  packageName: string,
-  packageRelativePath: string,
-  packageJson: PackageJson.Type,
-  rootRelativePrefix: string
-): Readonly<Record<string, ReadonlyArray<string>>> => {
-  const exportsField = O.isSome(packageJson.exports) ? packageJson.exports.value : undefined;
-  const rootExportTarget = pipe(
-    exportsField,
-    resolveRootExportTarget,
-    O.getOrElse(() => "./src/index.ts")
-  );
-  const aliasTargets = buildCanonicalAliasTargets(packageRelativePath, rootExportTarget);
-
-  return {
-    [packageName]: [withRootRelativePrefix(rootRelativePrefix, aliasTargets.rootAliasTarget)],
-    [`${packageName}/*`]: [withRootRelativePrefix(rootRelativePrefix, aliasTargets.wildcardAliasTarget)],
-  };
-};
-
-const buildExamplesPaths = (
-  rootDir: string,
-  packageDir: string,
-  packageName: string,
-  packageRelativePath: string,
-  rootPaths: Readonly<Record<string, ReadonlyArray<string>>>,
-  packageJson: PackageJson.Type
-) =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const rootRelative = normalizeSlashes(path.relative(packageDir, rootDir));
-    const rootRelativePrefix = rootRelative.length === 0 ? "./" : `${rootRelative}/`;
-    let mappings: Record<string, ReadonlyArray<string>> = {
-      effect: [withRootRelativePrefix(rootRelativePrefix, "./packages/effect/src/index.ts")],
-      ...buildOwnPathMappings(packageName, packageRelativePath, packageJson, rootRelativePrefix),
-    };
-
-    const workspaceDependencies = collectWorkspaceDependencyNames(packageJson);
-
-    for (const dependencyName of workspaceDependencies) {
-      const matchingEntries = pipe(
-        R.toEntries(rootPaths),
-        A.filter(([key]) => key === dependencyName || Str.startsWith(`${dependencyName}/`)(key))
+    for (const [packageName, absolutePath] of workspaceDirs) {
+      const packageJson = yield* readPackageJson(absolutePath);
+      aliasSources.push(
+        buildDocgenAliasSource(packageName, normalizeSlashes(path.relative(rootDir, absolutePath)), packageJson)
       );
-
-      for (const [key, values] of matchingEntries) {
-        mappings = {
-          ...mappings,
-          [key]: A.map(values, (value) => withRootRelativePrefix(rootRelativePrefix, value)),
-        };
-      }
     }
 
-    return mappings;
+    return aliasSources;
   });
 
 const packageHasDocgenConfig = (absolutePackagePath: string) =>
@@ -824,40 +725,29 @@ export const loadDocgenConfigDocument: (
 export const createDocgenConfigDocument: (
   targetPackage: DocgenWorkspacePackage,
   rootDir: string
-) => Effect.Effect<DocgenConfigDocument, DomainError, FileSystem.FileSystem | Path.Path> = (targetPackage, rootDir) =>
+) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> = (
+  targetPackage,
+  rootDir
+) =>
   Effect.gen(function* () {
     const packageJson = yield* readPackageJson(targetPackage.absolutePath);
-    const rootPaths = yield* readRootTsconfigPaths(rootDir);
-    const examplesPaths = yield* buildExamplesPaths(
-      rootDir,
-      targetPackage.absolutePath,
-      targetPackage.name,
-      targetPackage.relativePath,
-      rootPaths,
-      packageJson
+    const workspaceAliasSources = yield* loadWorkspaceDocgenAliasSources(rootDir);
+    const canonicalConfig = yield* createCanonicalDocgenConfig(
+      new CanonicalDocgenConfigInput({
+        rootDir,
+        packageAbsolutePath: targetPackage.absolutePath,
+        packageRelativePath: targetPackage.relativePath,
+        packageName: targetPackage.name,
+        directWorkspaceDependencies: [...collectDocgenWorkspaceDependencyNames(packageJson)],
+        workspaceAliasSources,
+      })
     );
-    const path = yield* Path.Path;
-    const rootRelative = normalizeSlashes(path.relative(targetPackage.absolutePath, rootDir));
-    const rootRelativePrefix = rootRelative.length === 0 ? "./" : `${rootRelative}/`;
+    const canonicalConfigJson = toCanonicalDocgenConfigJson(canonicalConfig);
 
     return new DocgenConfigDocument({
-      $schema: `${rootRelativePrefix}node_modules/@effect/docgen/schema.json`,
       srcDir: "src",
       outDir: "docs",
-      exclude: ["src/internal/**/*.ts"],
-      srcLink: `https://github.com/kriegcloud/beep-effect/tree/main/${targetPackage.relativePath}/src/`,
-      examplesCompilerOptions: {
-        noEmit: true,
-        strict: true,
-        skipLibCheck: true,
-        moduleResolution: "Bundler",
-        module: "ES2022",
-        target: "ES2022",
-        lib: ["ESNext", "DOM", "DOM.Iterable"],
-        rewriteRelativeImportExtensions: true,
-        allowImportingTsExtensions: true,
-        paths: examplesPaths,
-      },
+      ...canonicalConfigJson,
     });
   });
 

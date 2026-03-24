@@ -24,6 +24,17 @@ describe("MappedLiteralKit", () => {
     expect(SqlState.$match).type.toBe<typeof SqlState.From.$match>();
   });
 
+  it("preserves helper types after annotation", () => {
+    const AnnotatedSqlState = SqlState.annotate({
+      title: "Annotated SQL state",
+    });
+
+    expect(AnnotatedSqlState.Enum.SUCCESSFUL_COMPLETION).type.toBe<"00000">();
+    expect<typeof AnnotatedSqlState.Options>().type.toBe<readonly ["SUCCESSFUL_COMPLETION", "WARNING"]>();
+    expect(AnnotatedSqlState.$match).type.toBe<typeof SqlState.$match>();
+    expect(AnnotatedSqlState.To.Enum["00000"]).type.toBe<"SUCCESSFUL_COMPLETION">();
+  });
+
   it("preserves directional options and guards", () => {
     expect<typeof SqlState.From.Options>().type.toBe<readonly ["SUCCESSFUL_COMPLETION", "WARNING"]>();
     expect<typeof SqlState.To.Options>().type.toBe<readonly ["00000", "01000"]>();

@@ -1,5 +1,5 @@
 import { Struct, thunkSome, thunkSomeNone, thunkUndefined } from "@beep/utils";
-import { Effect, SchemaGetter as G, HashMap, pipe, SchemaIssue } from "effect";
+import { Effect, SchemaGetter as G, HashMap, HashSet, pipe, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -47,9 +47,14 @@ const effectImportAliasMap = HashMap.fromIterable(
   )
 );
 
+const FUNCTION_MODULE_NAME = "effect/Function";
+
+const ROOT_EFFECT_FUNCTION_EXPORTS = HashSet.fromIterable(["absurd", "cast", "flow", "hole", "identity", "pipe"]);
+
 class EffectImportObservation extends S.Class<EffectImportObservation>("EffectImportObservation")({
   moduleName: S.String,
   namespaceAlias: S.Option(S.String).pipe(S.withConstructorDefault(thunkSomeNone<string>)),
+  namedValueImports: S.Array(S.String),
   hasOnlyNamespaceSpecifier: S.Boolean,
   isTypeOnly: S.Boolean,
 }) {}
@@ -64,10 +69,23 @@ const decodeImportObservation = (node: unknown): O.Option<EffectImportObservatio
         A.getSomes
       );
       const namespaceAlias = pipe(namespaceSpecifiers, A.head, O.map(Struct.dotGet("local.name")));
+      const namedValueImports = pipe(
+        importDeclaration.specifiers,
+        A.map((specifier) => {
+          const importKind = resolveImportSpecifierImportKind(specifier, importDeclaration.importKind);
+          return pipe(
+            decodeImportSpecifierNode(specifier),
+            O.filter(() => importKind !== "type"),
+            O.map((importSpecifier) => importSpecifier.imported.name)
+          );
+        }),
+        A.getSomes
+      );
 
       return new EffectImportObservation({
         moduleName: importDeclaration.source.value,
         namespaceAlias,
+        namedValueImports,
         hasOnlyNamespaceSpecifier: A.length(namespaceSpecifiers) === 1 && A.length(importDeclaration.specifiers) === 1,
         isTypeOnly: importDeclaration.importKind === "type",
       });
@@ -96,20 +114,29 @@ const toPreferRootImportViolation = (moduleName: string): RuleViolationPayload =
     moduleName,
   });
 
-const EffectImportViolationPayloadOption = S.Option(RuleViolationPayload);
-const EffectImportAliasMapAndObservation = S.Tuple([S.HashMap(S.String, S.String), EffectImportObservation]);
+const shouldAllowFunctionSubmoduleNamedImport = (observation: EffectImportObservation): boolean =>
+  observation.moduleName === FUNCTION_MODULE_NAME &&
+  A.some(observation.namedValueImports, (importName) => !HashSet.has(ROOT_EFFECT_FUNCTION_EXPORTS, importName));
 
-type EffectImportAliasMapAndObservation = (typeof EffectImportAliasMapAndObservation)["Type"];
-type EffectImportViolationPayloadOption = (typeof EffectImportViolationPayloadOption)["Type"];
+const resolvePreferRootImportViolation = (observation: EffectImportObservation): O.Option<RuleViolationPayload> =>
+  shouldAllowFunctionSubmoduleNamedImport(observation)
+    ? O.none()
+    : O.some(toPreferRootImportViolation(observation.moduleName));
 
-const EffectImportAliasMapAndObservationToViolation = EffectImportAliasMapAndObservation.pipe(
-  S.decodeTo(EffectImportViolationPayloadOption, {
-    decode: G.transformOrFail(([aliasMap, observation]: EffectImportAliasMapAndObservation) =>
+const ImportViolationPayloadOption = S.Option(RuleViolationPayload);
+const ImportAliasMapAndObservation = S.Tuple([S.HashMap(S.String, S.String), EffectImportObservation]);
+
+type ImportAliasMapAndObservation = typeof ImportAliasMapAndObservation.Type;
+type ImportViolationPayloadOption = typeof ImportViolationPayloadOption.Type;
+
+const ImportAliasMapAndObservationToViolation = ImportAliasMapAndObservation.pipe(
+  S.decodeTo(ImportViolationPayloadOption, {
+    decode: G.transformOrFail(([aliasMap, observation]: ImportAliasMapAndObservation) =>
       Effect.succeed(
         pipe(
           HashMap.get(aliasMap, observation.moduleName),
           O.match({
-            onNone: thunkSome(toPreferRootImportViolation(observation.moduleName)),
+            onNone: () => resolvePreferRootImportViolation(observation),
             onSome: (expectedAlias) =>
               pipe(
                 observation.namespaceAlias,
@@ -132,17 +159,17 @@ const EffectImportAliasMapAndObservationToViolation = EffectImportAliasMapAndObs
         )
       )
     ),
-    encode: G.transformOrFail((value: EffectImportViolationPayloadOption) =>
+    encode: G.transformOrFail((value: ImportViolationPayloadOption) =>
       Effect.fail(
         new SchemaIssue.InvalidValue(O.some(value), {
-          message: "Encoding unknown values is not supported by EffectImportAliasMapAndObservationToViolation.",
+          message: "Encoding unknown values is not supported by ImportAliasMapAndObservationToViolation.",
         })
       )
     ),
   })
 );
 
-const decodeAliasObservationViolation = S.decodeUnknownOption(EffectImportAliasMapAndObservationToViolation);
+const decodeAliasObservationViolation = S.decodeUnknownOption(ImportAliasMapAndObservationToViolation);
 
 const resolveViolation = (observation: EffectImportObservation): O.Option<RuleViolation> =>
   pipe(decodeAliasObservationViolation([effectImportAliasMap, observation]), O.flatten, O.map(toRuleViolation));
@@ -183,8 +210,8 @@ const resolveRootImportAliasViolations = (node: unknown): ReadonlyArray<RuleViol
  * - canonical aliases for A/O/P/R/S and helper namespace submodule imports
  * - root `effect` imports for stable modules outside the alias map
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const effectImportStyleRule: Rule.RuleModule = {
   meta: {

@@ -11,7 +11,7 @@
  *   - Google Closure Compiler annotations
  *   - API Extractor / AEDoc extensions
  *
- * @since 2025-02-28
+ * @since 0.0.0
  */
 
 // ============================================================================
@@ -21,7 +21,7 @@
 /**
  * Which specification(s) define this tag.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type Specification =
@@ -38,7 +38,7 @@ export type Specification =
 /**
  * The syntactic form of a documentation tag.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type TagKind =
@@ -49,7 +49,7 @@ export type TagKind =
 /**
  * AST-level attachment surface for a documentation tag.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type ApplicableTo =
@@ -90,7 +90,7 @@ export type ApplicableTo =
  *   - "partial" → Layer 2 (certainty=0.85-0.95): Structurally derivable but may need human context
  *   - "none"    → Layer 3 (certainty=0.6-0.85): Requires human authoring or LLM inference
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type ASTDerivability =
@@ -101,7 +101,7 @@ export type ASTDerivability =
 /**
  * Structured description of what arguments a tag accepts.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface TagParameters {
@@ -121,7 +121,7 @@ export interface TagParameters {
  * Complete metadata for a single JSDoc/TSDoc tag.
  * Designed as a discriminated union member via `_tag`.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface JSDocTagDefinition {
@@ -172,7 +172,7 @@ export interface JSDocTagDefinition {
 /**
  * Authoritative catalog of JSDoc/TSDoc tags and metadata.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
@@ -784,7 +784,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
     parameters: { syntax: "@since version", acceptsType: false, acceptsName: false, acceptsDescription: true },
     relatedTags: ["version", "deprecated"],
     isDeprecated: false,
-    example: `/** @since 2.0.0 */`
+    example: `/** @since 0.0.0 */`
   },
 
   {
@@ -1923,7 +1923,7 @@ export const JSDOC_TAG_DATABASE: ReadonlyArray<JSDocTagDefinition> = [
 /**
  * All valid canonical tag names.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type JSDocTagName = typeof JSDOC_TAG_DATABASE[number]["_tag"];
@@ -1931,7 +1931,7 @@ export type JSDocTagName = typeof JSDOC_TAG_DATABASE[number]["_tag"];
 /**
  * All valid synonym names (flattened).
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export type JSDocSynonym = typeof JSDOC_TAG_DATABASE[number]["synonyms"][number];
@@ -1939,7 +1939,7 @@ export type JSDocSynonym = typeof JSDOC_TAG_DATABASE[number]["synonyms"][number]
 /**
  * Lookup a tag definition by canonical name or synonym.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getTagDefinition(tag: string): JSDocTagDefinition | undefined {
@@ -1952,7 +1952,7 @@ export function getTagDefinition(tag: string): JSDocTagDefinition | undefined {
 /**
  * Get all tags that are fully derivable from the AST (Layer 1).
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getASTDerivableTags(): ReadonlyArray<JSDocTagDefinition> {
@@ -1962,7 +1962,7 @@ export function getASTDerivableTags(): ReadonlyArray<JSDocTagDefinition> {
 /**
  * Get all tags that require human or LLM authoring (Layer 3).
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getHumanAuthoredTags(): ReadonlyArray<JSDocTagDefinition> {
@@ -1972,7 +1972,7 @@ export function getHumanAuthoredTags(): ReadonlyArray<JSDocTagDefinition> {
 /**
  * Get all tags from a specific specification.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Utility
  */
 export function getTagsBySpec(spec: Specification): ReadonlyArray<JSDocTagDefinition> {

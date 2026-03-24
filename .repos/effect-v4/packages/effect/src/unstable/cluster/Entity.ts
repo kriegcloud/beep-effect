@@ -12,13 +12,13 @@ import { identity } from "../../Function.ts"
 import * as Hash from "../../Hash.ts"
 import type * as Latch from "../../Latch.ts"
 import * as Layer from "../../Layer.ts"
+import * as Option from "../../Option.ts"
 import * as Predicate from "../../Predicate.ts"
 import * as Queue from "../../Queue.ts"
 import type * as Schedule from "../../Schedule.ts"
 import { Scope } from "../../Scope.ts"
 import * as ServiceMap from "../../ServiceMap.ts"
 import type * as Stream from "../../Stream.ts"
-import * as UndefinedOr from "../../UndefinedOr.ts"
 import * as Headers from "../http/Headers.ts"
 import * as Rpc from "../rpc/Rpc.ts"
 import * as RpcClient from "../rpc/RpcClient.ts"
@@ -459,24 +459,24 @@ export declare namespace Replier {
  */
 export class Request<Rpc extends Rpc.Any> extends Data.Class<
   Envelope.Request<Rpc> & {
-    readonly lastSentChunk: Reply.Chunk<Rpc> | undefined
+    readonly lastSentChunk: Option.Option<Reply.Chunk<Rpc>>
   }
 > {
   /**
    * @since 4.0.0
    */
-  get lastSentChunkValue(): Rpc.SuccessChunk<Rpc> | undefined {
-    return UndefinedOr.map(this.lastSentChunk, (chunk) => Arr.lastNonEmpty(chunk.values))
+  get lastSentChunkValue(): Option.Option<Rpc.SuccessChunk<Rpc>> {
+    return Option.map(this.lastSentChunk, (chunk) => Arr.lastNonEmpty(chunk.values))
   }
 
   /**
    * @since 4.0.0
    */
   get nextSequence(): number {
-    if (this.lastSentChunk === undefined) {
+    if (Option.isNone(this.lastSentChunk)) {
       return 0
     }
-    return this.lastSentChunk.sequence + 1
+    return this.lastSentChunk.value.sequence + 1
   }
 }
 
@@ -524,10 +524,11 @@ export const makeTestClient: <Type extends string, Rpcs extends Rpc.Any, LA, LE,
           services: services as any,
           concurrency: options?.concurrency ?? 1,
           build: entity.protocol.toHandlers(handlers as any).pipe(
-            Effect.provideServices(services.pipe(
-              ServiceMap.add(CurrentRunnerAddress, runnerAddress),
-              ServiceMap.omit(Scope)
-            ))
+            Effect.provideServices(ServiceMap.mutate(services, (services) =>
+              services.pipe(
+                ServiceMap.add(CurrentRunnerAddress, runnerAddress),
+                ServiceMap.omit(Scope)
+              )))
           ) as any
         })
         return Effect.void
@@ -570,7 +571,7 @@ export const makeTestClient: <Type extends string, Rpcs extends Rpc.Any, LA, LE,
               [Envelope.TypeId]: Envelope.TypeId,
               address,
               requestId: Snowflake.Snowflake(message.id),
-              lastSentChunk: undefined
+              lastSentChunk: Option.none()
             }) as any
           })
         }
@@ -619,7 +620,7 @@ export const keepAlive: (
         spanId: span.spanId,
         sampled: span.sampled
       }),
-      lastReceivedReply: undefined,
+      lastReceivedReply: Option.none(),
       respond: () => Effect.void
     }),
     true

@@ -52,6 +52,8 @@ export const decodeJsoncTextAs = decodeJsoncTextAs_;
 /**
  * Decode JSONC text using the shared live codec implementation.
  *
+ * @param schema - Target schema used to decode JSONC input.
+ * @returns Effectful decoder wired with the live JSONC codec layer.
  * @since 0.0.0
  * @category Utility
  */
@@ -108,6 +110,8 @@ export const decodeYamlTextAs = decodeYamlTextAs_;
 /**
  * Decode YAML text using the shared live codec implementation.
  *
+ * @param schema - Target schema used to decode YAML input.
+ * @returns Effectful decoder wired with the live YAML codec layer.
  * @since 0.0.0
  * @category Utility
  */

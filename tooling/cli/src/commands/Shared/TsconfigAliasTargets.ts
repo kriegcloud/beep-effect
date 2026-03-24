@@ -91,6 +91,37 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
 };
 
 /**
+ * Resolve a specific subpath export target from a package `exports` field.
+ *
+ * @param exportsField - Raw `exports` field value from `package.json`.
+ * @param subpath - Package subpath key such as `"./*"`.
+ * @returns The first relative `./...` target for the requested subpath when one exists.
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const resolveSubpathExportTarget = (exportsField: unknown, subpath: string): O.Option<string> => {
+  if (P.isObject(exportsField) && !A.isArray(exportsField)) {
+    const exportsRecord = exportsField as Record<string, unknown>;
+    if (subpath in exportsRecord) {
+      return firstRelativeDotPath(exportsRecord[subpath]);
+    }
+  }
+
+  return O.none();
+};
+
+/**
+ * Resolve the wildcard export target from a package `exports` field.
+ *
+ * @param exportsField - Raw `exports` field value from `package.json`.
+ * @returns The first relative `./...` target for the `"./*"` subpath when one exists.
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<string> =>
+  resolveSubpathExportTarget(exportsField, "./*");
+
+/**
  * Build root and wildcard alias targets for a package export target.
  *
  * @param packagePath - Workspace-relative package path used in tsconfig alias targets.
@@ -107,5 +138,47 @@ export const buildCanonicalAliasTargets = (packagePath: string, rootExportTarget
   return new CanonicalAliasTargets({
     rootAliasTarget,
     wildcardAliasTarget: lastSlash < 0 ? `./${packagePath}/*` : `${rootAliasTarget.slice(0, lastSlash)}/*`,
+  });
+};
+
+const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
+  const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
+  const lastSlash = normalizedRootExportTarget.lastIndexOf("/");
+
+  if (lastSlash < 0) {
+    return normalizedRootExportTarget.endsWith(".ts") ? "*.ts" : "*";
+  }
+
+  const parentDir = normalizedRootExportTarget.slice(0, lastSlash);
+  return normalizedRootExportTarget.endsWith(".ts") ? `${parentDir}/*.ts` : `${parentDir}/*`;
+};
+
+/**
+ * Build source-root and source-wildcard alias targets for docgen example resolution.
+ *
+ * Unlike root tsconfig aliases, docgen aliases should mirror source exports directly
+ * so example imports resolve to concrete `*.ts` files.
+ *
+ * @param packagePath - Workspace-relative package path used in alias targets.
+ * @param rootExportTarget - Canonical root export target resolved from package `exports`.
+ * @param wildcardExportTarget - Optional explicit wildcard export target from package `exports`.
+ * @returns Source alias targets suitable for docgen `examplesCompilerOptions.paths`.
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const buildDocgenAliasTargets = (
+  packagePath: string,
+  rootExportTarget: string,
+  wildcardExportTarget?: string
+): CanonicalAliasTargets => {
+  const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
+  const normalizedWildcardExportTarget = Str.replace(
+    /^\.\//,
+    ""
+  )(wildcardExportTarget ?? deriveDocgenWildcardTarget(rootExportTarget));
+
+  return new CanonicalAliasTargets({
+    rootAliasTarget: `./${packagePath}/${normalizedRootExportTarget}`,
+    wildcardAliasTarget: `./${packagePath}/${normalizedWildcardExportTarget}`,
   });
 };

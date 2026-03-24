@@ -17,7 +17,7 @@
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { misc } from "@beep/data/mime-types/misc"
  *
  * misc["font/woff2"]

@@ -176,6 +176,35 @@ describe("eslint rule migration", () => {
     expect(messages.some((message) => message.ruleId === "beep-laws/effect-import-style")).toBe(false);
   });
 
+  it("accepts Function helpers that are not root effect exports", () => {
+    const messages = verify(
+      [
+        'import { dual } from "effect/Function";',
+        "export const value = dual(2, (self: string, suffix: string) => self + suffix);",
+      ].join("\n"),
+      effectImportStyleConfig,
+      "tooling/configs/src/FunctionDualImport.ts"
+    );
+
+    expect(messages.some((message) => message.ruleId === "beep-laws/effect-import-style")).toBe(false);
+  });
+
+  it("flags Function helpers that should come from root effect exports", () => {
+    const messages = verify(
+      ['import { pipe } from "effect/Function";', 'export const value = pipe("a", (value) => value);'].join("\n"),
+      effectImportStyleConfig,
+      "tooling/configs/src/FunctionPipeImport.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) =>
+          message.ruleId === "beep-laws/effect-import-style" &&
+          message.message.includes('Prefer root imports from "effect"')
+      )
+    ).toBe(true);
+  });
+
   it("flags canonical alias imports from root effect that should use namespaces", () => {
     const messages = verify(
       ['import { pipe, String as Str } from "effect";', "export const value = pipe('a', Str.toUpperCase);"].join("\n"),

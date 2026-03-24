@@ -226,7 +226,7 @@ const validateLiteralKeys = <L extends Literals>(literals: L): void => {
     A.reduce(HashMap.empty<string, SchemaAST.LiteralValue>(), (seen, literal): SeenLiteralKeys => {
       const key = matchLiteral(literal);
       const existing = HashMap.get(seen, key);
-      if (O.isSome(existing) && existing.value !== literal) {
+      if (O.isSome(existing) && !Object.is(existing.value, literal)) {
         throw new LiteralKitKeyCollisionError({
           key,
           existing: existing.value,
@@ -290,6 +290,26 @@ function buildMatch<L extends Literals>(_: L) {
   return $match;
 }
 
+const attachHelperDescriptors = <T extends object>(schema: T, descriptors: PropertyDescriptorMap): T => {
+  const originalAnnotate = Reflect.get(schema, "annotate");
+
+  return Object.defineProperties(schema, {
+    ...descriptors,
+    ...(typeof originalAnnotate === "function"
+      ? {
+          annotate: {
+            value(annotation: unknown) {
+              return attachHelperDescriptors(originalAnnotate.call(schema, annotation), descriptors);
+            },
+            enumerable: false,
+            writable: false,
+            configurable: true,
+          },
+        }
+      : {}),
+  }) as T;
+};
+
 /**
  * Runtime literal kit that augments `Schema.Literals` with convenience helpers.
  *
@@ -316,7 +336,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  * Builds a literal schema kit from a non-empty tuple of mixed literals.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { LiteralKit } from "@beep/schema";
  * import * as S from "effect/Schema";
  *
@@ -335,6 +355,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  *   false: (v) => `got ${v}`,
  *   hello: (v) => `got ${v}`,
  * });
+ * void result;
  *
  * const EventKind = LiteralKit(["created", "deleted"] as const);
  *
@@ -346,6 +367,7 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  *     value: S.Literal(2),
  *   },
  * });
+ * void Event;
  * ```
  *
  * @category DomainModel
@@ -388,7 +410,7 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
     configurable: false,
   });
 
-  return Object.defineProperties(base, {
+  return attachHelperDescriptors(base, {
     Options: readonlyProperty(literals),
     is: readonlyProperty(is),
     Enum: readonlyProperty(Enum),

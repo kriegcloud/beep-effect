@@ -1,0 +1,31 @@
+{
+  "name": "base_bevr-stack",
+  "private": true,
+  "scripts": {
+    "build": "turbo run build",
+    "clean": "turbo run clean && git clean -xdf node_modules .cache .turbo dist tsconfig.tsbuildinfo playwright-report test-results",
+    "dev": "turbo run dev",
+    "lint": "biome lint .",
+    "format": "biome check --write .",
+    "format:check": "biome check .",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "type-check": "turbo run type-check"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.8",
+    "@playwright/test": "^1.58.2",
+    "@types/bun": "^1.3.11",
+    "turbo": "^2.8.20",
+    "typescript": "5.9.3",
+    "vitest": "^4.1.0"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "bun@1.2.21",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
+}

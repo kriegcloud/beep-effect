@@ -1,10 +1,12 @@
 /**
  * @since 2.0.0
  */
-import * as Effect from "./Effect.ts"
+import type * as Effect from "./Effect.ts"
+import type { Fiber } from "./Fiber.ts"
+import { dual } from "./Function.ts"
+import * as core from "./internal/core.ts"
 import * as internal from "./internal/effect.ts"
-import * as MutableHashMap from "./MutableHashMap.ts"
-import * as Option from "./Option.ts"
+import type * as Option from "./Option.ts"
 
 /**
  * @category models
@@ -27,7 +29,7 @@ export interface Semaphore {
   /**
    * Adjusts the number of permits available in the semaphore.
    */
-  resize(permits: number): Effect.Effect<void>
+  resize(this: Semaphore, permits: number): Effect.Effect<void>
 
   /**
    * Runs an effect with the given number of permits and releases the permits
@@ -40,7 +42,7 @@ export interface Semaphore {
    * If insufficient permits are available, the function will wait until they
    * are released by other tasks.
    */
-  withPermits(permits: number): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
+  withPermits(this: Semaphore, permits: number): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
 
   /**
    * Runs an effect with the given number of permits and releases the permits
@@ -53,7 +55,7 @@ export interface Semaphore {
    * If insufficient permits are available, the function will wait until they
    * are released by other tasks.
    */
-  withPermit<A, E, R>(self: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>
+  withPermit<A, E, R>(this: Semaphore, self: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>
 
   /**
    * Runs an effect only if the specified number of permits are immediately
@@ -67,6 +69,7 @@ export interface Semaphore {
    * the result is `Option.none`.
    */
   withPermitsIfAvailable(
+    this: Semaphore,
     permits: number
   ): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<Option.Option<A>, E, R>
 
@@ -75,18 +78,18 @@ export interface Semaphore {
    * available permits, suspending the task if they are not yet available.
    * Concurrent pending `take` calls are processed in a first-in, first-out manner.
    */
-  take(permits: number): Effect.Effect<number>
+  take(this: Semaphore, permits: number): Effect.Effect<number>
 
   /**
    * Releases the specified number of permits and returns the resulting
    * available permits.
    */
-  release(permits: number): Effect.Effect<number>
+  release(this: Semaphore, permits: number): Effect.Effect<number>
 
   /**
    * Releases all permits held by this semaphore and returns the resulting available permits.
    */
-  releaseAll: Effect.Effect<number>
+  readonly releaseAll: Effect.Effect<number>
 }
 
 /**
@@ -126,7 +129,113 @@ export interface Semaphore {
  * @since 2.0.0
  * @category constructors
  */
-export const makeUnsafe: (permits: number) => Semaphore = internal.makeSemaphoreUnsafe
+export const makeUnsafe = (permits: number): Semaphore => new SemaphoreImpl(permits)
+
+class SemaphoreImpl implements Semaphore {
+  public waiters = new Set<() => void>()
+  public taken = 0
+  public permits: number
+
+  constructor(permits: number) {
+    this.permits = permits
+  }
+
+  get free() {
+    return this.permits - this.taken
+  }
+
+  take(n: number): Effect.Effect<number> {
+    const take: Effect.Effect<number> = internal.suspend(() => {
+      if (this.free < n) {
+        return internal.callback((resume) => {
+          if (this.free >= n) return resume(take)
+          const observer = () => {
+            if (this.free < n) return
+            this.waiters.delete(observer)
+            resume(take)
+          }
+          this.waiters.add(observer)
+          return internal.sync(() => {
+            this.waiters.delete(observer)
+          })
+        })
+      }
+      this.taken += n
+      return internal.succeed(n)
+    })
+    return take
+  }
+
+  updateTakenUnsafe(fiber: Fiber<any, any>, f: (n: number) => number): number {
+    this.taken = f(this.taken)
+    if (this.waiters.size > 0) {
+      fiber.currentDispatcher.scheduleTask(() => {
+        const iter = this.waiters.values()
+        let item = iter.next()
+        while (item.done === false && this.free > 0) {
+          item.value()
+          item = iter.next()
+        }
+      }, 0)
+    }
+    return this.free
+  }
+
+  updateTaken(f: (n: number) => number): Effect.Effect<number> {
+    return core.withFiber((fiber) => internal.succeed(this.updateTakenUnsafe(fiber, f)))
+  }
+
+  resize(permits: number) {
+    return core.withFiber((fiber) => {
+      this.permits = permits
+      if (this.free < 0) return internal.void
+      this.updateTakenUnsafe(fiber, (taken) => taken)
+      return internal.void
+    })
+  }
+
+  release(n: number): Effect.Effect<number> {
+    return this.updateTaken((taken) => taken - n)
+  }
+
+  get releaseAll(): Effect.Effect<number> {
+    return this.updateTaken((_) => 0)
+  }
+
+  withPermits(n: number) {
+    return <A, E, R>(self: Effect.Effect<A, E, R>) =>
+      internal.uninterruptibleMask((restore) =>
+        internal.flatMap(
+          restore(this.take(n)),
+          (permits) =>
+            internal.onExitPrimitive(
+              restore(self),
+              () => {
+                this.updateTakenUnsafe(internal.getCurrentFiber()!, (taken) => taken - permits)
+                return undefined
+              },
+              true
+            )
+        )
+      )
+  }
+
+  get withPermit(): <A, E, R>(self: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R> {
+    return this.withPermits(1)
+  }
+
+  withPermitsIfAvailable(n: number) {
+    return <A, E, R>(self: Effect.Effect<A, E, R>) =>
+      internal.uninterruptibleMask((restore) => {
+        if (this.free < n) return internal.succeedNone
+        this.taken += n
+        return internal.onExitPrimitive(restore(internal.asSome(self)), () => {
+          this.updateTakenUnsafe(internal.getCurrentFiber()!, (taken) => taken - n)
+          return undefined
+        }, true)
+      })
+  }
+}
 
 /**
  * Creates a new Semaphore.
@@ -161,196 +270,97 @@ export const makeUnsafe: (permits: number) => Semaphore = internal.makeSemaphore
  * @since 2.0.0
  * @category constructors
  */
-export const make: (permits: number) => Effect.Effect<Semaphore> = internal.makeSemaphore
-
-// -----------------------------------------------------------------------------
-// Partitioned
-// -----------------------------------------------------------------------------
+export const make = (permits: number): Effect.Effect<Semaphore> => internal.sync(() => new SemaphoreImpl(permits))
 
 /**
- * @since 3.19.4
- * @category models
+ * Adjusts the number of permits available in the semaphore.
+ *
+ * @since 4.0.0
+ * @category combinators
  */
-export const PartitionedTypeId: PartitionedTypeId = "~effect/PartitionedSemaphore"
+export const resize: {
+  (permits: number): (self: Semaphore) => Effect.Effect<void>
+  (self: Semaphore, permits: number): Effect.Effect<void>
+} = dual(2, (self: Semaphore, permits: number) => self.resize(permits))
 
 /**
- * @since 3.19.4
- * @category models
+ * Runs an effect with the given number of permits and releases the permits when
+ * the effect completes.
+ *
+ * @since 4.0.0
+ * @category combinators
  */
-export type PartitionedTypeId = "~effect/PartitionedSemaphore"
+export const withPermits: {
+  (self: Semaphore, permits: number): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
+  <A, E, R>(self: Semaphore, permits: number, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>
+} = ((self: Semaphore, permits: number, effect?: Effect.Effect<any, any, any>) => {
+  const withPermits = self.withPermits(permits)
+  return effect ? withPermits(effect) : withPermits
+}) as any
 
 /**
- * A `Partitioned` semaphore controls access to a shared permit pool while
- * tracking waiters by partition key.
+ * Runs an effect with a single permit and releases the permit when the effect
+ * completes.
  *
- * Waiting permits are distributed across partitions in round-robin order.
- *
- * **Previously Known As**
- *
- * This API replaces the following from Effect 3.x:
- *
- * - `PartitionedSemaphore.PartitionedSemaphore`
- *
- * @since 3.19.4
- * @category models
+ * @since 4.0.0
+ * @category combinators
  */
-export interface Partitioned<in K> {
-  readonly [PartitionedTypeId]: PartitionedTypeId
-  readonly withPermits: (
-    key: K,
-    permits: number
-  ) => <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
-}
+export const withPermit: {
+  (self: Semaphore): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>
+  <A, E, R>(self: Semaphore, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>
+} = ((self: Semaphore, effect?: Effect.Effect<any, any, any>) => {
+  if (!effect) return self.withPermit
+  return self.withPermit(effect)
+}) as any
 
 /**
- * Creates a `Partitioned` semaphore unsafely.
+ * Runs an effect only if the specified number of permits are immediately
+ * available.
  *
- * **Previously Known As**
- *
- * This API replaces the following from Effect 3.x:
- *
- * - `PartitionedSemaphore.makeUnsafe`
- *
- * @since 3.19.4
- * @category constructors
+ * @since 4.0.0
+ * @category combinators
  */
-export const makePartitionedUnsafe = <K = unknown>(options: {
-  readonly permits: number
-}): Partitioned<K> => {
-  const maxPermits = Math.max(0, options.permits)
-
-  if (!Number.isFinite(maxPermits)) {
-    return {
-      [PartitionedTypeId]: PartitionedTypeId,
-      withPermits: () => (effect) => effect
-    }
-  }
-
-  let totalPermits = maxPermits
-  let waitingPermits = 0
-
-  type Waiter = {
-    permits: number
-    readonly resume: () => void
-  }
-  const partitions = MutableHashMap.empty<K, Set<Waiter>>()
-
-  const take = (key: K, permits: number) =>
-    Effect.callback<void>((resume) => {
-      if (maxPermits < permits) {
-        resume(Effect.never)
-        return
-      }
-
-      if (totalPermits >= permits) {
-        totalPermits -= permits
-        resume(Effect.void)
-        return
-      }
-
-      const needed = permits - totalPermits
-      const taken = permits - needed
-      if (totalPermits > 0) {
-        totalPermits = 0
-      }
-      waitingPermits += needed
-
-      const waiters = Option.getOrElse(
-        MutableHashMap.get(partitions, key),
-        () => {
-          const set = new Set<Waiter>()
-          MutableHashMap.set(partitions, key, set)
-          return set
-        }
-      )
-
-      const entry: Waiter = {
-        permits: needed,
-        resume: () => {
-          cleanup()
-          resume(Effect.void)
-        }
-      }
-
-      const cleanup = () => {
-        waiters.delete(entry)
-        if (waiters.size === 0) {
-          MutableHashMap.remove(partitions, key)
-        }
-      }
-
-      waiters.add(entry)
-
-      return Effect.sync(() => {
-        cleanup()
-        waitingPermits -= entry.permits
-        if (taken > 0) {
-          releaseUnsafe(taken)
-        }
-      })
-    })
-
-  let iterator = partitions[Symbol.iterator]()
-
-  const releaseUnsafe = (permits: number): void => {
-    while (permits > 0) {
-      if (waitingPermits === 0) {
-        totalPermits += permits
-        return
-      }
-
-      let state = iterator.next()
-      if (state.done) {
-        iterator = partitions[Symbol.iterator]()
-        state = iterator.next()
-        if (state.done) {
-          return
-        }
-      }
-
-      const waiter = state.value[1].values().next().value
-      if (waiter === undefined) {
-        continue
-      }
-
-      waiter.permits -= 1
-      waitingPermits -= 1
-
-      if (waiter.permits === 0) {
-        waiter.resume()
-      }
-
-      permits -= 1
-    }
-  }
-
-  return {
-    [PartitionedTypeId]: PartitionedTypeId,
-    withPermits: (key, permits) => {
-      const takePermits = take(key, permits)
-      return (effect) =>
-        Effect.uninterruptibleMask((restore) =>
-          Effect.flatMap(
-            restore(takePermits),
-            () => Effect.ensuring(restore(effect), Effect.sync(() => releaseUnsafe(permits)))
-          )
-        )
-    }
-  }
-}
+export const withPermitsIfAvailable: {
+  (self: Semaphore, permits: number): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<Option.Option<A>, E, R>
+  <A, E, R>(
+    self: Semaphore,
+    permits: number,
+    effect: Effect.Effect<A, E, R>
+  ): Effect.Effect<Option.Option<A>, E, R>
+} = ((self: Semaphore, permits: number, effect?: Effect.Effect<any, any, any>) => {
+  const withPermits = self.withPermitsIfAvailable(permits)
+  return effect ? withPermits(effect) : withPermits
+}) as any
 
 /**
- * Creates a `Partitioned` semaphore.
+ * Acquires the specified number of permits and returns the resulting available
+ * permits, suspending the task if they are not yet available.
  *
- * **Previously Known As**
- *
- * This API replaces the following from Effect 3.x:
- *
- * - `PartitionedSemaphore.make`
- *
- * @since 3.19.4
- * @category constructors
+ * @since 4.0.0
+ * @category combinators
  */
-export const makePartitioned = <K = unknown>(options: {
-  readonly permits: number
-}): Effect.Effect<Partitioned<K>> => Effect.sync(() => makePartitionedUnsafe<K>(options))
+export const take: {
+  (permits: number): (self: Semaphore) => Effect.Effect<number>
+  (self: Semaphore, permits: number): Effect.Effect<number>
+} = dual(2, (self: Semaphore, permits: number) => self.take(permits))
+
+/**
+ * Releases the specified number of permits and returns the resulting available
+ * permits.
+ *
+ * @since 4.0.0
+ * @category combinators
+ */
+export const release: {
+  (permits: number): (self: Semaphore) => Effect.Effect<number>
+  (self: Semaphore, permits: number): Effect.Effect<number>
+} = dual(2, (self: Semaphore, permits: number) => self.release(permits))
+
+/**
+ * Releases all permits held by this semaphore and returns the resulting
+ * available permits.
+ *
+ * @since 4.0.0
+ * @category combinators
+ */
+export const releaseAll = (self: Semaphore): Effect.Effect<number> => self.releaseAll

@@ -6,7 +6,7 @@
  * Crawls the codebase to find all ai-context.md files and outputs a structured index.
  *
  * @category UseCase
- * @since 1.0.0
+ * @since 0.0.0
  */
 
 import { thunkEmptyStr } from "@beep/utils";

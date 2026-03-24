@@ -1,7 +1,7 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/ui/ui/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/ui/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -12,8 +12,25 @@
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
     "paths": {
-      "@beep/ui": ["../../../packages/ui/ui/src/index.ts"]
+      "@beep/ui": ["../../../packages/common/ui/src/index.ts"],
+      "@beep/ui/*": ["../../../packages/common/ui/src/*.ts"]
     }
   }
 }

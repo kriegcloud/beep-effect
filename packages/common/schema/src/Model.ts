@@ -3,14 +3,11 @@
  */
 
 import type { TUnsafe } from "@beep/types";
+import { DateTime, Effect, SchemaGetter as Getter, SchemaTransformation as Transformation } from "effect";
 import type { Brand } from "effect/Brand";
-import * as DateTime from "effect/DateTime";
-import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Getter from "effect/SchemaGetter";
-import * as Transformation from "effect/SchemaTransformation";
 import * as Uuid from "uuid";
 import * as VariantSchema from "./VariantSchema.ts";
 
@@ -86,6 +83,7 @@ export {
    *     return this.name?.toUpperCase() ?? ""
    *   }
    * }
+   * void GroupJson
    * ```
    */
   Class,

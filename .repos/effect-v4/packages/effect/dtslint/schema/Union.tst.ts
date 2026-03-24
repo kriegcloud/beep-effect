@@ -1,4 +1,4 @@
-import { Schema, Tuple } from "effect"
+import { Effect, Schema, Tuple } from "effect"
 import type { Array as Arr } from "effect"
 import { describe, expect, it } from "tstyche"
 
@@ -124,6 +124,25 @@ describe("Union", () => {
         expect(A).type.toBe<Schema.TaggedStruct<"A", { readonly a: Schema.String }>>()
         expect(B).type.toBe<Schema.TaggedStruct<"B", { readonly b: Schema.FiniteFromString }>>()
         expect(C).type.toBe<Schema.TaggedStruct<"C", { readonly c: Schema.Boolean }>>()
+      })
+    })
+
+    describe("match", () => {
+      it("should allow distinct Effect branch outputs", () => {
+        const schema = Schema.Union([
+          Schema.TaggedStruct("A", { a: Schema.String }),
+          Schema.TaggedStruct("B", { b: Schema.Number })
+        ]).pipe(Schema.toTaggedUnion("_tag"))
+        const handler = schema.match({
+          A: () => Effect.succeed("ok" as const),
+          B: () => Effect.fail("nope" as const)
+        })
+
+        expect(handler).type.toBeCallableWith({ _tag: "A", a: "a" })
+        expect(handler).type.toBeCallableWith({ _tag: "B", b: 1 })
+        expect(handler).type.toBeAssignableTo<
+          (value: Schema.Schema.Type<typeof schema>) => Effect.Effect<"ok", "nope", never>
+        >()
       })
     })
 

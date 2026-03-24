@@ -10,10 +10,7 @@ import {
 } from "@t3tools/contracts";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { assert, it } from "@effect/vitest";
-import { Effect, Layer, ManagedRuntime } from "effect";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
+import { Effect, FileSystem, Layer, Path } from "effect";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
 import { OrchestrationCommandReceiptRepositoryLive } from "../../persistence/Layers/OrchestrationCommandReceipts.ts";
@@ -32,33 +29,24 @@ import { OrchestrationEngineService } from "../Services/OrchestrationEngine.ts";
 import { OrchestrationProjectionPipeline } from "../Services/ProjectionPipeline.ts";
 import { ServerConfig } from "../../config.ts";
 
-const makeProjectionPipelineTestLayer = (stateDir: string) =>
+const makeProjectionPipelinePrefixedTestLayer = (prefix: string) =>
   OrchestrationProjectionPipelineLive.pipe(
     Layer.provideMerge(OrchestrationEventStoreLive),
-    Layer.provideMerge(ServerConfig.layerTest(process.cwd(), stateDir)),
+    Layer.provideMerge(ServerConfig.layerTest(process.cwd(), { prefix })),
     Layer.provideMerge(SqlitePersistenceMemory),
     Layer.provideMerge(NodeServices.layer),
   );
 
-const runWithProjectionPipelineLayer = <A, E>(
-  stateDir: string,
-  effect: Effect.Effect<
-    A,
-    E,
-    OrchestrationProjectionPipeline | OrchestrationEventStore | SqlClient.SqlClient
-  >,
-) =>
-  Effect.acquireUseRelease(
-    Effect.sync(() => ManagedRuntime.make(makeProjectionPipelineTestLayer(stateDir))),
-    (runtime) => Effect.promise(() => runtime.runPromise(effect)),
-    (runtime) => Effect.promise(() => runtime.dispose()),
-  );
+const exists = (filePath: string) =>
+  Effect.gen(function* () {
+    const fileSystem = yield* FileSystem.FileSystem;
+    const fileInfo = yield* Effect.result(fileSystem.stat(filePath));
+    return fileInfo._tag === "Success";
+  });
 
-const projectionLayer = it.layer(
-  makeProjectionPipelineTestLayer(process.cwd()),
-);
+const BaseTestLayer = makeProjectionPipelinePrefixedTestLayer("t3-projection-pipeline-test-");
 
-projectionLayer("OrchestrationProjectionPipeline", (it) => {
+it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
   it.effect("bootstraps all projection states and writes projection rows", () =>
     Effect.gen(function* () {
       const projectionPipeline = yield* OrchestrationProjectionPipeline;
@@ -176,157 +164,155 @@ projectionLayer("OrchestrationProjectionPipeline", (it) => {
       }
     }),
   );
+});
 
-  it.effect("stores message attachment references without mutating payloads", () =>
-    Effect.sync(() => fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-attachments-"))).pipe(
-      Effect.flatMap((stateDir) =>
-        Effect.gen(function* () {
-          const projectionPipeline = yield* OrchestrationProjectionPipeline;
-          const eventStore = yield* OrchestrationEventStore;
-          const sql = yield* SqlClient.SqlClient;
-          const now = new Date().toISOString();
+it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-base-")))(
+  "OrchestrationProjectionPipeline",
+  (it) => {
+    it.effect("stores message attachment references without mutating payloads", () =>
+      Effect.gen(function* () {
+        const projectionPipeline = yield* OrchestrationProjectionPipeline;
+        const eventStore = yield* OrchestrationEventStore;
+        const sql = yield* SqlClient.SqlClient;
+        const now = new Date().toISOString();
 
-          yield* eventStore.append({
-            type: "thread.message-sent",
-            eventId: EventId.makeUnsafe("evt-attachments"),
-            aggregateKind: "thread",
-            aggregateId: ThreadId.makeUnsafe("thread-attachments"),
-            occurredAt: now,
-            commandId: CommandId.makeUnsafe("cmd-attachments"),
-            causationEventId: null,
-            correlationId: CommandId.makeUnsafe("cmd-attachments"),
-            metadata: {},
-            payload: {
-              threadId: ThreadId.makeUnsafe("thread-attachments"),
-              messageId: MessageId.makeUnsafe("message-attachments"),
-              role: "user",
-              text: "Inspect this",
-              attachments: [
-                {
-                  type: "image",
-                  id: "thread-attachments-att-1",
-                  name: "example.png",
-                  mimeType: "image/png",
-                  sizeBytes: 5,
-                },
-              ],
-              turnId: null,
-              streaming: false,
-              createdAt: now,
-              updatedAt: now,
-            },
-          });
+        yield* eventStore.append({
+          type: "thread.message-sent",
+          eventId: EventId.makeUnsafe("evt-attachments"),
+          aggregateKind: "thread",
+          aggregateId: ThreadId.makeUnsafe("thread-attachments"),
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-attachments"),
+          causationEventId: null,
+          correlationId: CommandId.makeUnsafe("cmd-attachments"),
+          metadata: {},
+          payload: {
+            threadId: ThreadId.makeUnsafe("thread-attachments"),
+            messageId: MessageId.makeUnsafe("message-attachments"),
+            role: "user",
+            text: "Inspect this",
+            attachments: [
+              {
+                type: "image",
+                id: "thread-attachments-att-1",
+                name: "example.png",
+                mimeType: "image/png",
+                sizeBytes: 5,
+              },
+            ],
+            turnId: null,
+            streaming: false,
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
 
-          yield* projectionPipeline.bootstrap;
+        yield* projectionPipeline.bootstrap;
 
-          const rows = yield* sql<{
-            readonly attachmentsJson: string | null;
-          }>`
+        const rows = yield* sql<{
+          readonly attachmentsJson: string | null;
+        }>`
             SELECT
               attachments_json AS "attachmentsJson"
             FROM projection_thread_messages
             WHERE message_id = 'message-attachments'
           `;
-          assert.equal(rows.length, 1);
-          assert.deepEqual(JSON.parse(rows[0]?.attachmentsJson ?? "null"), [
-            {
-              type: "image",
-              id: "thread-attachments-att-1",
-              name: "example.png",
-              mimeType: "image/png",
-              sizeBytes: 5,
-            },
-          ]);
-        }).pipe(
-          (effect) => runWithProjectionPipelineLayer(stateDir, effect),
-          Effect.ensuring(Effect.sync(() => fs.rmSync(stateDir, { recursive: true, force: true }))),
-        ),
-      ),
-    ),
-  );
+        assert.equal(rows.length, 1);
+        assert.deepEqual(JSON.parse(rows[0]?.attachmentsJson ?? "null"), [
+          {
+            type: "image",
+            id: "thread-attachments-att-1",
+            name: "example.png",
+            mimeType: "image/png",
+            sizeBytes: 5,
+          },
+        ]);
+      }),
+    );
+  },
+);
 
-  it.effect("preserves mixed image attachment metadata as-is", () =>
-    Effect.sync(() => fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-attachments-"))).pipe(
-      Effect.flatMap((stateDir) =>
-        Effect.gen(function* () {
-          const projectionPipeline = yield* OrchestrationProjectionPipeline;
-          const eventStore = yield* OrchestrationEventStore;
-          const sql = yield* SqlClient.SqlClient;
-          const now = new Date().toISOString();
+it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-attachments-safe-")))(
+  "OrchestrationProjectionPipeline",
+  (it) => {
+    it.effect("preserves mixed image attachment metadata as-is", () =>
+      Effect.gen(function* () {
+        const projectionPipeline = yield* OrchestrationProjectionPipeline;
+        const eventStore = yield* OrchestrationEventStore;
+        const sql = yield* SqlClient.SqlClient;
+        const now = new Date().toISOString();
 
-          yield* eventStore.append({
-            type: "thread.message-sent",
-            eventId: EventId.makeUnsafe("evt-attachments-safe"),
-            aggregateKind: "thread",
-            aggregateId: ThreadId.makeUnsafe("thread-attachments-safe"),
-            occurredAt: now,
-            commandId: CommandId.makeUnsafe("cmd-attachments-safe"),
-            causationEventId: null,
-            correlationId: CommandId.makeUnsafe("cmd-attachments-safe"),
-            metadata: {},
-            payload: {
-              threadId: ThreadId.makeUnsafe("thread-attachments-safe"),
-              messageId: MessageId.makeUnsafe("message-attachments-safe"),
-              role: "user",
-              text: "Inspect this",
-              attachments: [
-                {
-                  type: "image",
-                  id: "thread-attachments-safe-att-1",
-                  name: "untrusted.exe",
-                  mimeType: "image/x-unknown",
-                  sizeBytes: 5,
-                },
-                {
-                  type: "image",
-                  id: "thread-attachments-safe-att-2",
-                  name: "not-image.png",
-                  mimeType: "image/png",
-                  sizeBytes: 5,
-                },
-              ],
-              turnId: null,
-              streaming: false,
-              createdAt: now,
-              updatedAt: now,
-            },
-          });
+        yield* eventStore.append({
+          type: "thread.message-sent",
+          eventId: EventId.makeUnsafe("evt-attachments-safe"),
+          aggregateKind: "thread",
+          aggregateId: ThreadId.makeUnsafe("thread-attachments-safe"),
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-attachments-safe"),
+          causationEventId: null,
+          correlationId: CommandId.makeUnsafe("cmd-attachments-safe"),
+          metadata: {},
+          payload: {
+            threadId: ThreadId.makeUnsafe("thread-attachments-safe"),
+            messageId: MessageId.makeUnsafe("message-attachments-safe"),
+            role: "user",
+            text: "Inspect this",
+            attachments: [
+              {
+                type: "image",
+                id: "thread-attachments-safe-att-1",
+                name: "untrusted.exe",
+                mimeType: "image/x-unknown",
+                sizeBytes: 5,
+              },
+              {
+                type: "image",
+                id: "thread-attachments-safe-att-2",
+                name: "not-image.png",
+                mimeType: "image/png",
+                sizeBytes: 5,
+              },
+            ],
+            turnId: null,
+            streaming: false,
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
 
-          yield* projectionPipeline.bootstrap;
+        yield* projectionPipeline.bootstrap;
 
-          const rows = yield* sql<{
-            readonly attachmentsJson: string | null;
-          }>`
+        const rows = yield* sql<{
+          readonly attachmentsJson: string | null;
+        }>`
             SELECT
               attachments_json AS "attachmentsJson"
             FROM projection_thread_messages
             WHERE message_id = 'message-attachments-safe'
           `;
-          assert.equal(rows.length, 1);
-          assert.deepEqual(JSON.parse(rows[0]?.attachmentsJson ?? "null"), [
-            {
-              type: "image",
-              id: "thread-attachments-safe-att-1",
-              name: "untrusted.exe",
-              mimeType: "image/x-unknown",
-              sizeBytes: 5,
-            },
-            {
-              type: "image",
-              id: "thread-attachments-safe-att-2",
-              name: "not-image.png",
-              mimeType: "image/png",
-              sizeBytes: 5,
-            },
-          ]);
-        }).pipe(
-          (effect) => runWithProjectionPipelineLayer(stateDir, effect),
-          Effect.ensuring(Effect.sync(() => fs.rmSync(stateDir, { recursive: true, force: true }))),
-        ),
-      ),
-    ),
-  );
+        assert.equal(rows.length, 1);
+        assert.deepEqual(JSON.parse(rows[0]?.attachmentsJson ?? "null"), [
+          {
+            type: "image",
+            id: "thread-attachments-safe-att-1",
+            name: "untrusted.exe",
+            mimeType: "image/x-unknown",
+            sizeBytes: 5,
+          },
+          {
+            type: "image",
+            id: "thread-attachments-safe-att-2",
+            name: "not-image.png",
+            mimeType: "image/png",
+            sizeBytes: 5,
+          },
+        ]);
+      }),
+    );
+  },
+);
 
+it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
   it.effect(
     "passes explicit empty attachment arrays through the projection pipeline to clear attachments",
     () =>
@@ -449,217 +435,209 @@ projectionLayer("OrchestrationProjectionPipeline", (it) => {
         assert.deepEqual(JSON.parse(rows[0]?.attachmentsJson ?? "null"), []);
       }),
   );
+});
 
-  it.effect(
-    "overwrites stored attachment references when a message updates attachments",
-    () =>
-      Effect.sync(() =>
-        fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-attachments-overwrite-")),
-      ).pipe(
-          Effect.flatMap((stateDir) =>
-            Effect.gen(function* () {
-              const projectionPipeline = yield* OrchestrationProjectionPipeline;
-              const eventStore = yield* OrchestrationEventStore;
-              const sql = yield* SqlClient.SqlClient;
-              const now = new Date().toISOString();
-              const later = new Date(Date.now() + 1_000).toISOString();
+it.layer(
+  Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-attachments-overwrite-")),
+)("OrchestrationProjectionPipeline", (it) => {
+  it.effect("overwrites stored attachment references when a message updates attachments", () =>
+    Effect.gen(function* () {
+      const projectionPipeline = yield* OrchestrationProjectionPipeline;
+      const eventStore = yield* OrchestrationEventStore;
+      const sql = yield* SqlClient.SqlClient;
+      const now = new Date().toISOString();
+      const later = new Date(Date.now() + 1_000).toISOString();
 
-            yield* eventStore.append({
-          type: "project.created",
-          eventId: EventId.makeUnsafe("evt-overwrite-1"),
-          aggregateKind: "project",
-          aggregateId: ProjectId.makeUnsafe("project-overwrite"),
-          occurredAt: now,
-          commandId: CommandId.makeUnsafe("cmd-overwrite-1"),
-          causationEventId: null,
-          correlationId: CommandId.makeUnsafe("cmd-overwrite-1"),
-          metadata: {},
-          payload: {
-            projectId: ProjectId.makeUnsafe("project-overwrite"),
-            title: "Project Overwrite",
-            workspaceRoot: "/tmp/project-overwrite",
-            defaultModel: null,
-            scripts: [],
-            createdAt: now,
-            updatedAt: now,
-          },
-        });
+      yield* eventStore.append({
+        type: "project.created",
+        eventId: EventId.makeUnsafe("evt-overwrite-1"),
+        aggregateKind: "project",
+        aggregateId: ProjectId.makeUnsafe("project-overwrite"),
+        occurredAt: now,
+        commandId: CommandId.makeUnsafe("cmd-overwrite-1"),
+        causationEventId: null,
+        correlationId: CommandId.makeUnsafe("cmd-overwrite-1"),
+        metadata: {},
+        payload: {
+          projectId: ProjectId.makeUnsafe("project-overwrite"),
+          title: "Project Overwrite",
+          workspaceRoot: "/tmp/project-overwrite",
+          defaultModel: null,
+          scripts: [],
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
 
-        yield* eventStore.append({
-          type: "thread.created",
-          eventId: EventId.makeUnsafe("evt-overwrite-2"),
-          aggregateKind: "thread",
-          aggregateId: ThreadId.makeUnsafe("thread-overwrite"),
-          occurredAt: now,
-          commandId: CommandId.makeUnsafe("cmd-overwrite-2"),
-          causationEventId: null,
-          correlationId: CommandId.makeUnsafe("cmd-overwrite-2"),
-          metadata: {},
-          payload: {
-            threadId: ThreadId.makeUnsafe("thread-overwrite"),
-            projectId: ProjectId.makeUnsafe("project-overwrite"),
-            title: "Thread Overwrite",
-            model: "gpt-5-codex",
-            runtimeMode: "full-access",
-            branch: null,
-            worktreePath: null,
-            createdAt: now,
-            updatedAt: now,
-          },
-        });
+      yield* eventStore.append({
+        type: "thread.created",
+        eventId: EventId.makeUnsafe("evt-overwrite-2"),
+        aggregateKind: "thread",
+        aggregateId: ThreadId.makeUnsafe("thread-overwrite"),
+        occurredAt: now,
+        commandId: CommandId.makeUnsafe("cmd-overwrite-2"),
+        causationEventId: null,
+        correlationId: CommandId.makeUnsafe("cmd-overwrite-2"),
+        metadata: {},
+        payload: {
+          threadId: ThreadId.makeUnsafe("thread-overwrite"),
+          projectId: ProjectId.makeUnsafe("project-overwrite"),
+          title: "Thread Overwrite",
+          model: "gpt-5-codex",
+          runtimeMode: "full-access",
+          branch: null,
+          worktreePath: null,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
 
-        yield* eventStore.append({
-          type: "thread.message-sent",
-          eventId: EventId.makeUnsafe("evt-overwrite-3"),
-          aggregateKind: "thread",
-          aggregateId: ThreadId.makeUnsafe("thread-overwrite"),
-          occurredAt: now,
-          commandId: CommandId.makeUnsafe("cmd-overwrite-3"),
-          causationEventId: null,
-          correlationId: CommandId.makeUnsafe("cmd-overwrite-3"),
-          metadata: {},
-          payload: {
-            threadId: ThreadId.makeUnsafe("thread-overwrite"),
-            messageId: MessageId.makeUnsafe("message-overwrite"),
-            role: "user",
-            text: "first image",
-            attachments: [
-              {
-                type: "image",
-                id: "thread-overwrite-att-1",
-                name: "file.png",
-                mimeType: "image/png",
-                sizeBytes: 5,
-              },
-            ],
-            turnId: null,
-            streaming: false,
-            createdAt: now,
-            updatedAt: now,
-          },
-        });
+      yield* eventStore.append({
+        type: "thread.message-sent",
+        eventId: EventId.makeUnsafe("evt-overwrite-3"),
+        aggregateKind: "thread",
+        aggregateId: ThreadId.makeUnsafe("thread-overwrite"),
+        occurredAt: now,
+        commandId: CommandId.makeUnsafe("cmd-overwrite-3"),
+        causationEventId: null,
+        correlationId: CommandId.makeUnsafe("cmd-overwrite-3"),
+        metadata: {},
+        payload: {
+          threadId: ThreadId.makeUnsafe("thread-overwrite"),
+          messageId: MessageId.makeUnsafe("message-overwrite"),
+          role: "user",
+          text: "first image",
+          attachments: [
+            {
+              type: "image",
+              id: "thread-overwrite-att-1",
+              name: "file.png",
+              mimeType: "image/png",
+              sizeBytes: 5,
+            },
+          ],
+          turnId: null,
+          streaming: false,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
 
-        yield* eventStore.append({
-          type: "thread.message-sent",
-          eventId: EventId.makeUnsafe("evt-overwrite-4"),
-          aggregateKind: "thread",
-          aggregateId: ThreadId.makeUnsafe("thread-overwrite"),
-          occurredAt: later,
-          commandId: CommandId.makeUnsafe("cmd-overwrite-4"),
-          causationEventId: null,
-          correlationId: CommandId.makeUnsafe("cmd-overwrite-4"),
-          metadata: {},
-          payload: {
-            threadId: ThreadId.makeUnsafe("thread-overwrite"),
-            messageId: MessageId.makeUnsafe("message-overwrite"),
-            role: "user",
-            text: "",
-            attachments: [
-              {
-                type: "image",
-                id: "thread-overwrite-att-2",
-                name: "file.png",
-                mimeType: "image/png",
-                sizeBytes: 5,
-              },
-            ],
-            turnId: null,
-            streaming: false,
-            createdAt: now,
-            updatedAt: later,
-          },
-        });
+      yield* eventStore.append({
+        type: "thread.message-sent",
+        eventId: EventId.makeUnsafe("evt-overwrite-4"),
+        aggregateKind: "thread",
+        aggregateId: ThreadId.makeUnsafe("thread-overwrite"),
+        occurredAt: later,
+        commandId: CommandId.makeUnsafe("cmd-overwrite-4"),
+        causationEventId: null,
+        correlationId: CommandId.makeUnsafe("cmd-overwrite-4"),
+        metadata: {},
+        payload: {
+          threadId: ThreadId.makeUnsafe("thread-overwrite"),
+          messageId: MessageId.makeUnsafe("message-overwrite"),
+          role: "user",
+          text: "",
+          attachments: [
+            {
+              type: "image",
+              id: "thread-overwrite-att-2",
+              name: "file.png",
+              mimeType: "image/png",
+              sizeBytes: 5,
+            },
+          ],
+          turnId: null,
+          streaming: false,
+          createdAt: now,
+          updatedAt: later,
+        },
+      });
 
-            yield* projectionPipeline.bootstrap;
+      yield* projectionPipeline.bootstrap;
 
-            const rows = yield* sql<{
-              readonly attachmentsJson: string | null;
-            }>`
+      const rows = yield* sql<{
+        readonly attachmentsJson: string | null;
+      }>`
               SELECT attachments_json AS "attachmentsJson"
               FROM projection_thread_messages
               WHERE message_id = 'message-overwrite'
             `;
-            assert.equal(rows.length, 1);
-            assert.deepEqual(JSON.parse(rows[0]?.attachmentsJson ?? "null"), [
-              {
-                type: "image",
-                id: "thread-overwrite-att-2",
-                name: "file.png",
-                mimeType: "image/png",
-                sizeBytes: 5,
-              },
-            ]);
-          }).pipe(
-            (effect) => runWithProjectionPipelineLayer(stateDir, effect),
-            Effect.ensuring(
-              Effect.sync(() => fs.rmSync(stateDir, { recursive: true, force: true })),
-            ),
-          ),
-        ),
-      ),
+      assert.equal(rows.length, 1);
+      assert.deepEqual(JSON.parse(rows[0]?.attachmentsJson ?? "null"), [
+        {
+          type: "image",
+          id: "thread-overwrite-att-2",
+          name: "file.png",
+          mimeType: "image/png",
+          sizeBytes: 5,
+        },
+      ]);
+    }),
   );
+});
 
+it.layer(
+  Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-attachments-rollback-")),
+)("OrchestrationProjectionPipeline", (it) => {
   it.effect("does not persist attachment files when projector transaction rolls back", () =>
-    Effect.sync(() =>
-      fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-attachments-rollback-")),
-    ).pipe(
-      Effect.flatMap((stateDir) =>
-        Effect.gen(function* () {
-          const projectionPipeline = yield* OrchestrationProjectionPipeline;
-          const eventStore = yield* OrchestrationEventStore;
-          const sql = yield* SqlClient.SqlClient;
-          const now = new Date().toISOString();
+    Effect.gen(function* () {
+      const projectionPipeline = yield* OrchestrationProjectionPipeline;
+      const eventStore = yield* OrchestrationEventStore;
+      const path = yield* Path.Path;
+      const sql = yield* SqlClient.SqlClient;
+      const now = new Date().toISOString();
 
-          const appendAndProject = (event: Parameters<typeof eventStore.append>[0]) =>
-            eventStore
-              .append(event)
-              .pipe(Effect.flatMap((savedEvent) => projectionPipeline.projectEvent(savedEvent)));
+      const appendAndProject = (event: Parameters<typeof eventStore.append>[0]) =>
+        eventStore
+          .append(event)
+          .pipe(Effect.flatMap((savedEvent) => projectionPipeline.projectEvent(savedEvent)));
 
-          yield* appendAndProject({
-            type: "project.created",
-            eventId: EventId.makeUnsafe("evt-rollback-1"),
-            aggregateKind: "project",
-            aggregateId: ProjectId.makeUnsafe("project-rollback"),
-            occurredAt: now,
-            commandId: CommandId.makeUnsafe("cmd-rollback-1"),
-            causationEventId: null,
-            correlationId: CorrelationId.makeUnsafe("cmd-rollback-1"),
-            metadata: {},
-            payload: {
-              projectId: ProjectId.makeUnsafe("project-rollback"),
-              title: "Project Rollback",
-              workspaceRoot: "/tmp/project-rollback",
-              defaultModel: null,
-              scripts: [],
-              createdAt: now,
-              updatedAt: now,
-            },
-          });
+      yield* appendAndProject({
+        type: "project.created",
+        eventId: EventId.makeUnsafe("evt-rollback-1"),
+        aggregateKind: "project",
+        aggregateId: ProjectId.makeUnsafe("project-rollback"),
+        occurredAt: now,
+        commandId: CommandId.makeUnsafe("cmd-rollback-1"),
+        causationEventId: null,
+        correlationId: CorrelationId.makeUnsafe("cmd-rollback-1"),
+        metadata: {},
+        payload: {
+          projectId: ProjectId.makeUnsafe("project-rollback"),
+          title: "Project Rollback",
+          workspaceRoot: "/tmp/project-rollback",
+          defaultModel: null,
+          scripts: [],
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
 
-          yield* appendAndProject({
-            type: "thread.created",
-            eventId: EventId.makeUnsafe("evt-rollback-2"),
-            aggregateKind: "thread",
-            aggregateId: ThreadId.makeUnsafe("thread-rollback"),
-            occurredAt: now,
-            commandId: CommandId.makeUnsafe("cmd-rollback-2"),
-            causationEventId: null,
-            correlationId: CorrelationId.makeUnsafe("cmd-rollback-2"),
-            metadata: {},
-            payload: {
-              threadId: ThreadId.makeUnsafe("thread-rollback"),
-              projectId: ProjectId.makeUnsafe("project-rollback"),
-              title: "Thread Rollback",
-              model: "gpt-5-codex",
-              runtimeMode: "full-access",
-              branch: null,
-              worktreePath: null,
-              createdAt: now,
-              updatedAt: now,
-            },
-          });
+      yield* appendAndProject({
+        type: "thread.created",
+        eventId: EventId.makeUnsafe("evt-rollback-2"),
+        aggregateKind: "thread",
+        aggregateId: ThreadId.makeUnsafe("thread-rollback"),
+        occurredAt: now,
+        commandId: CommandId.makeUnsafe("cmd-rollback-2"),
+        causationEventId: null,
+        correlationId: CorrelationId.makeUnsafe("cmd-rollback-2"),
+        metadata: {},
+        payload: {
+          threadId: ThreadId.makeUnsafe("thread-rollback"),
+          projectId: ProjectId.makeUnsafe("project-rollback"),
+          title: "Thread Rollback",
+          model: "gpt-5-codex",
+          runtimeMode: "full-access",
+          branch: null,
+          worktreePath: null,
+          createdAt: now,
+          updatedAt: now,
+        },
+      });
 
-          yield* sql`
+      yield* sql`
         CREATE TRIGGER fail_thread_messages_projection_state_update
         BEFORE UPDATE ON projection_state
         WHEN NEW.projector = 'projection.thread-messages'
@@ -668,85 +646,80 @@ projectionLayer("OrchestrationProjectionPipeline", (it) => {
         END;
       `;
 
-          const result = yield* Effect.result(
-            appendAndProject({
-              type: "thread.message-sent",
-              eventId: EventId.makeUnsafe("evt-rollback-3"),
-              aggregateKind: "thread",
-              aggregateId: ThreadId.makeUnsafe("thread-rollback"),
-              occurredAt: now,
-              commandId: CommandId.makeUnsafe("cmd-rollback-3"),
-              causationEventId: null,
-              correlationId: CorrelationId.makeUnsafe("cmd-rollback-3"),
-              metadata: {},
-              payload: {
-                threadId: ThreadId.makeUnsafe("thread-rollback"),
-                messageId: MessageId.makeUnsafe("message-rollback"),
-                role: "user",
-                text: "Rollback me",
-                attachments: [
-                  {
-                    type: "image",
-                    id: "thread-rollback-att-1",
-                    name: "rollback.png",
-                    mimeType: "image/png",
-                    sizeBytes: 5,
-                  },
-                ],
-                turnId: null,
-                streaming: false,
-                createdAt: now,
-                updatedAt: now,
+      const result = yield* Effect.result(
+        appendAndProject({
+          type: "thread.message-sent",
+          eventId: EventId.makeUnsafe("evt-rollback-3"),
+          aggregateKind: "thread",
+          aggregateId: ThreadId.makeUnsafe("thread-rollback"),
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-rollback-3"),
+          causationEventId: null,
+          correlationId: CorrelationId.makeUnsafe("cmd-rollback-3"),
+          metadata: {},
+          payload: {
+            threadId: ThreadId.makeUnsafe("thread-rollback"),
+            messageId: MessageId.makeUnsafe("message-rollback"),
+            role: "user",
+            text: "Rollback me",
+            attachments: [
+              {
+                type: "image",
+                id: "thread-rollback-att-1",
+                name: "rollback.png",
+                mimeType: "image/png",
+                sizeBytes: 5,
               },
-            }),
-          );
-          assert.equal(result._tag, "Failure");
+            ],
+            turnId: null,
+            streaming: false,
+            createdAt: now,
+            updatedAt: now,
+          },
+        }),
+      );
+      assert.equal(result._tag, "Failure");
 
-          const rows = yield* sql<{
-            readonly count: number;
-          }>`
+      const rows = yield* sql<{
+        readonly count: number;
+      }>`
         SELECT COUNT(*) AS "count"
         FROM projection_thread_messages
         WHERE message_id = 'message-rollback'
       `;
-          assert.equal(rows[0]?.count ?? 0, 0);
+      assert.equal(rows[0]?.count ?? 0, 0);
 
-          const attachmentPath = path.join(
-            stateDir,
-            "attachments",
-            "thread-rollback-att-1.png",
-          );
-          assert.equal(fs.existsSync(attachmentPath), false);
-          yield* sql`DROP TRIGGER IF EXISTS fail_thread_messages_projection_state_update`;
-        }).pipe(
-          (effect) => runWithProjectionPipelineLayer(stateDir, effect),
-          Effect.ensuring(Effect.sync(() => fs.rmSync(stateDir, { recursive: true, force: true }))),
-        ),
-      ),
-    ),
+      const { attachmentsDir } = yield* ServerConfig;
+      const attachmentPath = path.join(attachmentsDir, "thread-rollback-att-1.png");
+      assert.isFalse(yield* exists(attachmentPath));
+      yield* sql`DROP TRIGGER IF EXISTS fail_thread_messages_projection_state_update`;
+    }),
   );
+});
 
+it.layer(
+  Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-attachments-overwrite-")),
+)("OrchestrationProjectionPipeline", (it) => {
   it.effect("removes unreferenced attachment files when a thread is reverted", () =>
-    Effect.sync(() =>
-      fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-attachments-revert-")),
-    ).pipe(
-      Effect.flatMap((stateDir) =>
-        Effect.gen(function* () {
-          const projectionPipeline = yield* OrchestrationProjectionPipeline;
-          const eventStore = yield* OrchestrationEventStore;
-          const now = new Date().toISOString();
-          const threadId = ThreadId.makeUnsafe("Thread Revert.Files");
-          const keepAttachmentId = "thread-revert-files-00000000-0000-4000-8000-000000000001";
-          const removeAttachmentId = "thread-revert-files-00000000-0000-4000-8000-000000000002";
-          const otherThreadAttachmentId =
-            "thread-revert-files-extra-00000000-0000-4000-8000-000000000003";
+    Effect.gen(function* () {
+      const fileSystem = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+      const projectionPipeline = yield* OrchestrationProjectionPipeline;
+      const eventStore = yield* OrchestrationEventStore;
+      const { attachmentsDir } = yield* ServerConfig;
+      const now = new Date().toISOString();
+      const threadId = ThreadId.makeUnsafe("Thread Revert.Files");
+      const keepAttachmentId = "thread-revert-files-00000000-0000-4000-8000-000000000001";
+      const removeAttachmentId = "thread-revert-files-00000000-0000-4000-8000-000000000002";
+      const otherThreadAttachmentId =
+        "thread-revert-files-extra-00000000-0000-4000-8000-000000000003";
 
-          const appendAndProject = (event: Parameters<typeof eventStore.append>[0]) =>
-            eventStore
-              .append(event)
-              .pipe(Effect.flatMap((savedEvent) => projectionPipeline.projectEvent(savedEvent)));
+      const appendAndProject = (event: Parameters<typeof eventStore.append>[0]) =>
+        eventStore
+          .append(event)
+          .pipe(Effect.flatMap((savedEvent) => projectionPipeline.projectEvent(savedEvent)));
 
-          yield* appendAndProject({
+      yield* appendAndProject({
         type: "project.created",
         eventId: EventId.makeUnsafe("evt-revert-files-1"),
         aggregateKind: "project",
@@ -896,24 +869,16 @@ projectionLayer("OrchestrationProjectionPipeline", (it) => {
         },
       });
 
-      const keepPath = path.join(
-        stateDir,
-        "attachments",
-        `${keepAttachmentId}.png`,
-      );
-      const removePath = path.join(
-        stateDir,
-        "attachments",
-        `${removeAttachmentId}.png`,
-      );
-      fs.mkdirSync(path.join(stateDir, "attachments"), { recursive: true });
-      fs.writeFileSync(keepPath, Buffer.from("keep"));
-      fs.writeFileSync(removePath, Buffer.from("remove"));
-      const otherThreadPath = path.join(stateDir, "attachments", `${otherThreadAttachmentId}.png`);
-      fs.writeFileSync(otherThreadPath, Buffer.from("other"));
-      assert.equal(fs.existsSync(keepPath), true);
-      assert.equal(fs.existsSync(removePath), true);
-      assert.equal(fs.existsSync(otherThreadPath), true);
+      const keepPath = path.join(attachmentsDir, `${keepAttachmentId}.png`);
+      const removePath = path.join(attachmentsDir, `${removeAttachmentId}.png`);
+      yield* fileSystem.makeDirectory(attachmentsDir, { recursive: true });
+      yield* fileSystem.writeFileString(keepPath, "keep");
+      yield* fileSystem.writeFileString(removePath, "remove");
+      const otherThreadPath = path.join(attachmentsDir, `${otherThreadAttachmentId}.png`);
+      yield* fileSystem.writeFileString(otherThreadPath, "other");
+      assert.isTrue(yield* exists(keepPath));
+      assert.isTrue(yield* exists(removePath));
+      assert.isTrue(yield* exists(otherThreadPath));
 
       yield* appendAndProject({
         type: "thread.reverted",
@@ -931,192 +896,187 @@ projectionLayer("OrchestrationProjectionPipeline", (it) => {
         },
       });
 
-          assert.equal(fs.existsSync(keepPath), true);
-          assert.equal(fs.existsSync(removePath), false);
-          assert.equal(fs.existsSync(otherThreadPath), true);
-        }).pipe(
-          (effect) => runWithProjectionPipelineLayer(stateDir, effect),
-          Effect.ensuring(Effect.sync(() => fs.rmSync(stateDir, { recursive: true, force: true }))),
-        ),
-      ),
-    ),
+      assert.isTrue(yield* exists(keepPath));
+      assert.isFalse(yield* exists(removePath));
+      assert.isTrue(yield* exists(otherThreadPath));
+    }),
   );
+});
 
-  it.effect("removes thread attachment directory when thread is deleted", () =>
-    Effect.sync(() =>
-      fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-attachments-delete-")),
-    ).pipe(
-      Effect.flatMap((stateDir) =>
-        Effect.gen(function* () {
-          const projectionPipeline = yield* OrchestrationProjectionPipeline;
-          const eventStore = yield* OrchestrationEventStore;
-          const now = new Date().toISOString();
-          const threadId = ThreadId.makeUnsafe("Thread Delete.Files");
-          const attachmentId = "thread-delete-files-00000000-0000-4000-8000-000000000001";
-          const otherThreadAttachmentId =
-            "thread-delete-files-extra-00000000-0000-4000-8000-000000000002";
+it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-attachments-revert-")))(
+  "OrchestrationProjectionPipeline",
+  (it) => {
+    it.effect("removes thread attachment directory when thread is deleted", () =>
+      Effect.gen(function* () {
+        const fileSystem = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const projectionPipeline = yield* OrchestrationProjectionPipeline;
+        const eventStore = yield* OrchestrationEventStore;
+        const { attachmentsDir } = yield* ServerConfig;
+        const now = new Date().toISOString();
+        const threadId = ThreadId.makeUnsafe("Thread Delete.Files");
+        const attachmentId = "thread-delete-files-00000000-0000-4000-8000-000000000001";
+        const otherThreadAttachmentId =
+          "thread-delete-files-extra-00000000-0000-4000-8000-000000000002";
 
-          const appendAndProject = (event: Parameters<typeof eventStore.append>[0]) =>
-            eventStore
-              .append(event)
-              .pipe(Effect.flatMap((savedEvent) => projectionPipeline.projectEvent(savedEvent)));
+        const appendAndProject = (event: Parameters<typeof eventStore.append>[0]) =>
+          eventStore
+            .append(event)
+            .pipe(Effect.flatMap((savedEvent) => projectionPipeline.projectEvent(savedEvent)));
 
-          yield* appendAndProject({
-        type: "project.created",
-        eventId: EventId.makeUnsafe("evt-delete-files-1"),
-        aggregateKind: "project",
-        aggregateId: ProjectId.makeUnsafe("project-delete-files"),
-        occurredAt: now,
-        commandId: CommandId.makeUnsafe("cmd-delete-files-1"),
-        causationEventId: null,
-        correlationId: CorrelationId.makeUnsafe("cmd-delete-files-1"),
-        metadata: {},
-        payload: {
-          projectId: ProjectId.makeUnsafe("project-delete-files"),
-          title: "Project Delete Files",
-          workspaceRoot: "/tmp/project-delete-files",
-          defaultModel: null,
-          scripts: [],
-          createdAt: now,
-          updatedAt: now,
-        },
-      });
+        yield* appendAndProject({
+          type: "project.created",
+          eventId: EventId.makeUnsafe("evt-delete-files-1"),
+          aggregateKind: "project",
+          aggregateId: ProjectId.makeUnsafe("project-delete-files"),
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-delete-files-1"),
+          causationEventId: null,
+          correlationId: CorrelationId.makeUnsafe("cmd-delete-files-1"),
+          metadata: {},
+          payload: {
+            projectId: ProjectId.makeUnsafe("project-delete-files"),
+            title: "Project Delete Files",
+            workspaceRoot: "/tmp/project-delete-files",
+            defaultModel: null,
+            scripts: [],
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
 
-      yield* appendAndProject({
-        type: "thread.created",
-        eventId: EventId.makeUnsafe("evt-delete-files-2"),
-        aggregateKind: "thread",
-        aggregateId: threadId,
-        occurredAt: now,
-        commandId: CommandId.makeUnsafe("cmd-delete-files-2"),
-        causationEventId: null,
-        correlationId: CorrelationId.makeUnsafe("cmd-delete-files-2"),
-        metadata: {},
-        payload: {
-          threadId,
-          projectId: ProjectId.makeUnsafe("project-delete-files"),
-          title: "Thread Delete Files",
-          model: "gpt-5-codex",
-          runtimeMode: "full-access",
-          branch: null,
-          worktreePath: null,
-          createdAt: now,
-          updatedAt: now,
-        },
-      });
+        yield* appendAndProject({
+          type: "thread.created",
+          eventId: EventId.makeUnsafe("evt-delete-files-2"),
+          aggregateKind: "thread",
+          aggregateId: threadId,
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-delete-files-2"),
+          causationEventId: null,
+          correlationId: CorrelationId.makeUnsafe("cmd-delete-files-2"),
+          metadata: {},
+          payload: {
+            threadId,
+            projectId: ProjectId.makeUnsafe("project-delete-files"),
+            title: "Thread Delete Files",
+            model: "gpt-5-codex",
+            runtimeMode: "full-access",
+            branch: null,
+            worktreePath: null,
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
 
-      yield* appendAndProject({
-        type: "thread.message-sent",
-        eventId: EventId.makeUnsafe("evt-delete-files-3"),
-        aggregateKind: "thread",
-        aggregateId: threadId,
-        occurredAt: now,
-        commandId: CommandId.makeUnsafe("cmd-delete-files-3"),
-        causationEventId: null,
-        correlationId: CorrelationId.makeUnsafe("cmd-delete-files-3"),
-        metadata: {},
-        payload: {
-          threadId,
-          messageId: MessageId.makeUnsafe("message-delete-files"),
-          role: "user",
-          text: "Delete",
-          attachments: [
-            {
-              type: "image",
-              id: attachmentId,
-              name: "delete.png",
-              mimeType: "image/png",
-              sizeBytes: 5,
-            },
-          ],
-          turnId: null,
-          streaming: false,
-          createdAt: now,
-          updatedAt: now,
-        },
-      });
+        yield* appendAndProject({
+          type: "thread.message-sent",
+          eventId: EventId.makeUnsafe("evt-delete-files-3"),
+          aggregateKind: "thread",
+          aggregateId: threadId,
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-delete-files-3"),
+          causationEventId: null,
+          correlationId: CorrelationId.makeUnsafe("cmd-delete-files-3"),
+          metadata: {},
+          payload: {
+            threadId,
+            messageId: MessageId.makeUnsafe("message-delete-files"),
+            role: "user",
+            text: "Delete",
+            attachments: [
+              {
+                type: "image",
+                id: attachmentId,
+                name: "delete.png",
+                mimeType: "image/png",
+                sizeBytes: 5,
+              },
+            ],
+            turnId: null,
+            streaming: false,
+            createdAt: now,
+            updatedAt: now,
+          },
+        });
 
-      const threadAttachmentPath = path.join(stateDir, "attachments", `${attachmentId}.png`);
-      const otherThreadAttachmentPath = path.join(
-        stateDir,
-        "attachments",
-        `${otherThreadAttachmentId}.png`,
-      );
-      fs.mkdirSync(path.join(stateDir, "attachments"), { recursive: true });
-      fs.writeFileSync(threadAttachmentPath, Buffer.from("delete"));
-      fs.writeFileSync(otherThreadAttachmentPath, Buffer.from("other-thread"));
-      assert.equal(fs.existsSync(threadAttachmentPath), true);
-      assert.equal(fs.existsSync(otherThreadAttachmentPath), true);
+        const threadAttachmentPath = path.join(attachmentsDir, `${attachmentId}.png`);
+        const otherThreadAttachmentPath = path.join(
+          attachmentsDir,
+          `${otherThreadAttachmentId}.png`,
+        );
+        yield* fileSystem.makeDirectory(attachmentsDir, { recursive: true });
+        yield* fileSystem.writeFileString(threadAttachmentPath, "delete");
+        yield* fileSystem.writeFileString(otherThreadAttachmentPath, "other-thread");
+        assert.isTrue(yield* exists(threadAttachmentPath));
+        assert.isTrue(yield* exists(otherThreadAttachmentPath));
 
-      yield* appendAndProject({
-        type: "thread.deleted",
-        eventId: EventId.makeUnsafe("evt-delete-files-4"),
-        aggregateKind: "thread",
-        aggregateId: threadId,
-        occurredAt: now,
-        commandId: CommandId.makeUnsafe("cmd-delete-files-4"),
-        causationEventId: null,
-        correlationId: CorrelationId.makeUnsafe("cmd-delete-files-4"),
-        metadata: {},
-        payload: {
-          threadId,
-          deletedAt: now,
-        },
-      });
+        yield* appendAndProject({
+          type: "thread.deleted",
+          eventId: EventId.makeUnsafe("evt-delete-files-4"),
+          aggregateKind: "thread",
+          aggregateId: threadId,
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-delete-files-4"),
+          causationEventId: null,
+          correlationId: CorrelationId.makeUnsafe("cmd-delete-files-4"),
+          metadata: {},
+          payload: {
+            threadId,
+            deletedAt: now,
+          },
+        });
 
-          assert.equal(fs.existsSync(threadAttachmentPath), false);
-          assert.equal(fs.existsSync(otherThreadAttachmentPath), true);
-        }).pipe(
-          (effect) => runWithProjectionPipelineLayer(stateDir, effect),
-          Effect.ensuring(Effect.sync(() => fs.rmSync(stateDir, { recursive: true, force: true }))),
-        ),
-      ),
-    ),
-  );
+        assert.isFalse(yield* exists(threadAttachmentPath));
+        assert.isTrue(yield* exists(otherThreadAttachmentPath));
+      }),
+    );
+  },
+);
 
-  it.effect("ignores unsafe thread ids for attachment cleanup paths", () =>
-    Effect.sync(() => fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-attachments-unsafe-"))).pipe(
-      Effect.flatMap((stateDir) =>
-        Effect.gen(function* () {
-          const projectionPipeline = yield* OrchestrationProjectionPipeline;
-          const eventStore = yield* OrchestrationEventStore;
-          const now = new Date().toISOString();
-          const attachmentsRootDir = path.join(stateDir, "attachments");
-          const attachmentsSentinelPath = path.join(attachmentsRootDir, "sentinel.txt");
-          const stateDirSentinelPath = path.join(stateDir, "state-sentinel.txt");
-          fs.mkdirSync(attachmentsRootDir, { recursive: true });
-          fs.writeFileSync(attachmentsSentinelPath, "keep-attachments-root", "utf8");
-          fs.writeFileSync(stateDirSentinelPath, "keep-state-dir", "utf8");
+it.layer(Layer.fresh(makeProjectionPipelinePrefixedTestLayer("t3-projection-attachments-delete-")))(
+  "OrchestrationProjectionPipeline",
+  (it) => {
+    it.effect("ignores unsafe thread ids for attachment cleanup paths", () =>
+      Effect.gen(function* () {
+        const fileSystem = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const projectionPipeline = yield* OrchestrationProjectionPipeline;
+        const eventStore = yield* OrchestrationEventStore;
+        const now = new Date().toISOString();
+        const { attachmentsDir: attachmentsRootDir, stateDir } = yield* ServerConfig;
+        const attachmentsSentinelPath = path.join(attachmentsRootDir, "sentinel.txt");
+        const stateDirSentinelPath = path.join(stateDir, "state-sentinel.txt");
+        yield* fileSystem.makeDirectory(attachmentsRootDir, { recursive: true });
+        yield* fileSystem.writeFileString(attachmentsSentinelPath, "keep-attachments-root");
+        yield* fileSystem.writeFileString(stateDirSentinelPath, "keep-state-dir");
 
-          yield* eventStore.append({
-            type: "thread.deleted",
-            eventId: EventId.makeUnsafe("evt-unsafe-thread-delete"),
-            aggregateKind: "thread",
-            aggregateId: ThreadId.makeUnsafe(".."),
-            occurredAt: now,
-            commandId: CommandId.makeUnsafe("cmd-unsafe-thread-delete"),
-            causationEventId: null,
-            correlationId: CorrelationId.makeUnsafe("cmd-unsafe-thread-delete"),
-            metadata: {},
-            payload: {
-              threadId: ThreadId.makeUnsafe(".."),
-              deletedAt: now,
-            },
-          });
+        yield* eventStore.append({
+          type: "thread.deleted",
+          eventId: EventId.makeUnsafe("evt-unsafe-thread-delete"),
+          aggregateKind: "thread",
+          aggregateId: ThreadId.makeUnsafe(".."),
+          occurredAt: now,
+          commandId: CommandId.makeUnsafe("cmd-unsafe-thread-delete"),
+          causationEventId: null,
+          correlationId: CorrelationId.makeUnsafe("cmd-unsafe-thread-delete"),
+          metadata: {},
+          payload: {
+            threadId: ThreadId.makeUnsafe(".."),
+            deletedAt: now,
+          },
+        });
 
-          yield* projectionPipeline.bootstrap;
+        yield* projectionPipeline.bootstrap;
 
-          assert.equal(fs.existsSync(attachmentsRootDir), true);
-          assert.equal(fs.existsSync(attachmentsSentinelPath), true);
-          assert.equal(fs.existsSync(stateDirSentinelPath), true);
-        }).pipe(
-          (effect) => runWithProjectionPipelineLayer(stateDir, effect),
-          Effect.ensuring(Effect.sync(() => fs.rmSync(stateDir, { recursive: true, force: true }))),
-        ),
-      ),
-    ),
-  );
+        assert.isTrue(yield* exists(attachmentsRootDir));
+        assert.isTrue(yield* exists(attachmentsSentinelPath));
+        assert.isTrue(yield* exists(stateDirSentinelPath));
+      }),
+    );
+  },
+);
 
+it.layer(BaseTestLayer)("OrchestrationProjectionPipeline", (it) => {
   it.effect("resumes from projector last_applied_sequence without replaying older events", () =>
     Effect.gen(function* () {
       const projectionPipeline = yield* OrchestrationProjectionPipeline;
@@ -1722,8 +1682,7 @@ projectionLayer("OrchestrationProjectionPipeline", (it) => {
 
 it.effect("restores pending turn-start metadata across projection pipeline restart", () =>
   Effect.gen(function* () {
-    const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "t3-projection-pipeline-restart-"));
-    const dbPath = path.join(tempDir, "orchestration.sqlite");
+    const { dbPath } = yield* ServerConfig;
     const persistenceLayer = makeSqlitePersistenceLive(dbPath);
     const firstProjectionLayer = OrchestrationProjectionPipelineLive.pipe(
       Layer.provideMerge(OrchestrationEventStoreLive),
@@ -1737,6 +1696,8 @@ it.effect("restores pending turn-start metadata across projection pipeline resta
     const threadId = ThreadId.makeUnsafe("thread-restart");
     const turnId = TurnId.makeUnsafe("turn-restart");
     const messageId = MessageId.makeUnsafe("message-restart");
+    const sourcePlanThreadId = ThreadId.makeUnsafe("thread-plan-source");
+    const sourcePlanId = "plan-source";
     const turnStartedAt = "2026-02-26T14:00:00.000Z";
     const sessionSetAt = "2026-02-26T14:00:05.000Z";
 
@@ -1757,6 +1718,10 @@ it.effect("restores pending turn-start metadata across projection pipeline resta
         payload: {
           threadId,
           messageId,
+          sourceProposedPlan: {
+            threadId: sourcePlanThreadId,
+            planId: sourcePlanId,
+          },
           runtimeMode: "approval-required",
           createdAt: turnStartedAt,
         },
@@ -1808,11 +1773,15 @@ it.effect("restores pending turn-start metadata across projection pipeline resta
       return yield* sql<{
         readonly turnId: string;
         readonly userMessageId: string | null;
+        readonly sourceProposedPlanThreadId: string | null;
+        readonly sourceProposedPlanId: string | null;
         readonly startedAt: string;
       }>`
         SELECT
           turn_id AS "turnId",
           pending_message_id AS "userMessageId",
+          source_proposed_plan_thread_id AS "sourceProposedPlanThreadId",
+          source_proposed_plan_id AS "sourceProposedPlanId",
           started_at AS "startedAt"
         FROM projection_turns
         WHERE turn_id = ${turnId}
@@ -1823,14 +1792,19 @@ it.effect("restores pending turn-start metadata across projection pipeline resta
       {
         turnId: "turn-restart",
         userMessageId: "message-restart",
+        sourceProposedPlanThreadId: "thread-plan-source",
+        sourceProposedPlanId: "plan-source",
         startedAt: turnStartedAt,
       },
     ]);
-
-    fs.rmSync(tempDir, { recursive: true, force: true });
   }).pipe(
     Effect.provide(
-      Layer.provideMerge(ServerConfig.layerTest(process.cwd(), process.cwd()), NodeServices.layer),
+      Layer.provideMerge(
+        ServerConfig.layerTest(process.cwd(), {
+          prefix: "t3-projection-pipeline-restart-",
+        }),
+        NodeServices.layer,
+      ),
     ),
   ),
 );
@@ -1841,7 +1815,11 @@ const engineLayer = it.layer(
     Layer.provide(OrchestrationEventStoreLive),
     Layer.provide(OrchestrationCommandReceiptRepositoryLive),
     Layer.provideMerge(SqlitePersistenceMemory),
-    Layer.provideMerge(ServerConfig.layerTest(process.cwd(), process.cwd())),
+    Layer.provideMerge(
+      ServerConfig.layerTest(process.cwd(), {
+        prefix: "t3-projection-pipeline-engine-dispatch-",
+      }),
+    ),
     Layer.provideMerge(NodeServices.layer),
   ),
 );

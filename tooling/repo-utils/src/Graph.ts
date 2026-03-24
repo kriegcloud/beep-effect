@@ -21,7 +21,7 @@ import { CyclicDependencyError } from "./errors/index.js";
 /**
  * Convert a `HashMap<string, HashSet<string>>` adjacency list into an
  * `G.DirectedGraph<string, void>` and a bidirectional lookup
- * between package names and node indices.
+ * between package names and node indices.export * from "./Graph.ts";
  *
  * @param adjacencyList Package dependency adjacency list.
  * @internal
@@ -84,7 +84,7 @@ const fromAdjacencyList = (
  * Fails with {@link CyclicDependencyError} when the graph contains cycles.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, HashMap, HashSet } from "effect"
  * import { topologicalSort } from "@beep/repo-utils/Graph"
  *
@@ -96,8 +96,10 @@ const fromAdjacencyList = (
  *
  * const program = Effect.gen(function*() {
  *   const order = yield* topologicalSort(adj)
+ *   void order
  *   console.log(order) // ["C", "B", "A"]
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category DomainLogic
@@ -141,7 +143,7 @@ export const topologicalSort: (
  * @param adjacencyList Package dependency adjacency list.
  * @returns Effect producing all detected cycle paths.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, HashMap, HashSet } from "effect"
  * import { detectCycles } from "@beep/repo-utils/Graph"
  *
@@ -153,8 +155,10 @@ export const topologicalSort: (
  *
  * const program = Effect.gen(function*() {
  *   const cycles = yield* detectCycles(adj)
+ *   void cycles
  *   // cycles contains [["A", "B", "C", "A"]] (or similar rotation)
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category DomainLogic
@@ -295,7 +299,7 @@ const buildCyclePath = (
  * @param pkg Package name whose dependency closure should be computed.
  * @returns Effect producing all transitively reachable dependencies.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, HashMap, HashSet } from "effect"
  * import { computeTransitiveClosure } from "@beep/repo-utils/Graph"
  *
@@ -307,8 +311,10 @@ const buildCyclePath = (
  *
  * const program = Effect.gen(function*() {
  *   const deps = yield* computeTransitiveClosure(adj, "A")
+ *   void deps
  *   // deps = HashSet("B", "C")
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category DomainLogic

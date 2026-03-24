@@ -1,6 +1,6 @@
 # T3 Code
 
-T3 Code is a minimal web GUI for coding agents. Currently Codex-first, with Claude Code support coming soon.
+T3 Code is a minimal web GUI for coding agents (currently Codex and Claude, more coming soon).
 
 ## How to use
 
@@ -20,5 +20,9 @@ Install the [desktop app from the Releases page](https://github.com/pingdotgg/t3
 We are very very early in this project. Expect bugs.
 
 We are not accepting contributions yet.
+
+## If you REALLY want to contribute still.... read this first
+
+Read [CONTRIBUTING.md](./CONTRIBUTING.md) before opening an issue or PR.
 
 Need support? Join the [Discord](https://discord.gg/jn4EGJjrvv).

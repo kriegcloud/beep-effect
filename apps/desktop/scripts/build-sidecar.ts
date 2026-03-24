@@ -3,7 +3,7 @@ import { $I } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { BunRuntime } from "@effect/platform-bun";
 import * as BunServices from "@effect/platform-bun/BunServices";
-import { Config, Effect, Fiber, FileSystem, Path, Runtime, Stream } from "effect";
+import { Config, Effect, Fiber, FileSystem, Layer, Path, Runtime, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import type * as PlatformError from "effect/PlatformError";
@@ -236,6 +236,12 @@ const buildSidecar = Effect.fn("DesktopBuild.buildSidecar")(function* () {
   }
 });
 
-BunRuntime.runMain(
-  buildSidecar().pipe(Effect.withSpan("DesktopBuild.buildSidecar"), Effect.provide(BunServices.layer))
+const main = Effect.scoped(
+  Layer.build(BunServices.layer).pipe(
+    Effect.flatMap((context) =>
+      buildSidecar().pipe(Effect.withSpan("DesktopBuild.buildSidecar"), Effect.provide(context))
+    )
+  )
 );
+
+BunRuntime.runMain(main);

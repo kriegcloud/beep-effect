@@ -1,0 +1,22 @@
+{
+  "name": "@repo/presence",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "scripts": {
+    "type-check": "tsc --noEmit",
+    "clean": "git clean -xdf .cache .turbo dist node_modules tsconfig.tsbuildinfo"
+  },
+  "dependencies": {
+    "@repo/domain": "workspace:*",
+    "effect": "4.0.0-beta.36"
+  },
+  "devDependencies": {
+    "@repo/config-typescript": "workspace:*"
+  }
+}

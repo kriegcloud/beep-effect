@@ -461,7 +461,7 @@ export const AuditEventLog = EventLogModule.schema(AuditEventGroup);
  * Default no-op handlers for audit events.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * const program = Effect.gen(function*() {
  *   const log = yield* EventLog
  *   yield* log.write({

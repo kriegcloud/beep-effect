@@ -477,7 +477,7 @@ const internal = {
  * Creates a new instance with the given configuration.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { ModuleName } from "effect"
  *
  * const instance = ModuleName.create({ value: 42 })
@@ -493,7 +493,7 @@ export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never,
  * Transforms an instance using the provided function.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { ModuleName, Effect } from "effect"
  *
  * const program = Effect.gen(function*() {

@@ -1135,7 +1135,7 @@ export class JSDocSince extends S.Opaque<JSDocSince>()(
     },
     relatedTags: ["version", "deprecated"],
     isDeprecated: false,
-    example: "/** @since 2.0.0 */",
+    example: "/** @since 0.0.0 */",
   })
 ) {}
 

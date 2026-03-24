@@ -323,9 +323,12 @@ const runDevWithPortless = Effect.fn("DesktopDev.runWithPortless")(function* () 
   yield* Deferred.await(exitDeferred);
 });
 
-BunRuntime.runMain(
-  Effect.scoped(runDevWithPortless()).pipe(
-    Effect.withSpan("DesktopDev.runWithPortless"),
-    Effect.provide(Layer.mergeAll(BunServices.layer, BunHttpClient.layer))
+const main = Effect.scoped(
+  Layer.build(Layer.mergeAll(BunServices.layer, BunHttpClient.layer)).pipe(
+    Effect.flatMap((context) =>
+      Effect.scoped(runDevWithPortless()).pipe(Effect.withSpan("DesktopDev.runWithPortless"), Effect.provide(context))
+    )
   )
 );
+
+BunRuntime.runMain(main);

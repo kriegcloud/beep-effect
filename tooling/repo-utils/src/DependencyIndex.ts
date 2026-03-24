@@ -38,14 +38,16 @@ const ROOT_KEY = "@beep/root";
  * @param rootDir - Absolute path to the monorepo root directory.
  * @returns A HashMap mapping package names to their classified dependencies.
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  * import { buildRepoDependencyIndex } from "@beep/repo-utils/DependencyIndex"
  *
  * const program = Effect.gen(function*() {
  *   const index = yield* buildRepoDependencyIndex("/path/to/repo")
+ *   void index
  *   // HashMap<string, WorkspaceDeps>
  * })
+ * void program
  * ```
  * @since 0.0.0
  * @category Utility

@@ -1,12 +1,12 @@
 # JSDoc Documentation Patterns - Effect Library
 
-## 🎯 OVERVIEW
+##  OVERVIEW
 
 Comprehensive JSDoc documentation patterns used throughout the beep-effect repository, ensuring consistent, practical,
 and
 compilable examples for all APIs.
 
-## 🚨 CRITICAL REQUIREMENTS
+##  CRITICAL REQUIREMENTS
 
 ### Documentation Standards
 
@@ -14,9 +14,13 @@ compilable examples for all APIs.
 - **ZERO TOLERANCE**: Even pre-existing docgen errors must be fixed
 - **FORBIDDEN**: Removing examples to fix compilation - always fix type issues properly
 - **MANDATORY**: Use proper Effect patterns in all examples
+- **MANDATORY**: Function and method docs must use repo-standard TSDoc tags with one `@param name {Type} - description.` line per declared parameter
+- **MANDATORY**: Document every function return contract with `@returns {Type} - description.`, including `void` and assertion signatures
+- **MANDATORY**: Add `@throws {ErrorType} - description.` when a function can actually throw, including assertion helpers and explicit re-throws
+- **FORBIDDEN**: Using `@throws` to document `Effect<A, E, R>` error channels - describe those in prose and in the `@returns` type instead
 - **FORBIDDEN**: `any` types, type assertions, or unsafe patterns in examples
 
-## 📝 STANDARD JSDOC STRUCTURE
+##  STANDARD JSDOC STRUCTURE
 
 ### Complete Function Documentation Template
 
@@ -30,7 +34,7 @@ compilable examples for all APIs.
  * - Common use cases
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { ModuleName, Effect } from "effect"
  *
  * // Clear description of what this example demonstrates
@@ -45,7 +49,7 @@ compilable examples for all APIs.
  * ```
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { ModuleName } from "effect"
  *
  * // Different use case or advanced usage
@@ -55,11 +59,68 @@ compilable examples for all APIs.
  * )
  * ```
  *
- * @since 2.0.0
  * @category Utility
+ * @param input {A} - The primary input value.
+ * @param options {Options} - Additional configuration for the operation.
+ * @returns {ModuleName<B>} - The resulting value produced by the function.
+ * @throws {ModuleNameError} - Throws a ModuleNameError when the input cannot be processed.
+ * @since 0.0.0
  */
-export const functionName = <A>(param: A): ModuleName<A> => { /* implementation */ }
+export const functionName = <A, B>(input: A, options: Options): ModuleName<B> => { /* implementation */ }
 ````
+
+Include the `@throws` line in the template above only when the function can actually throw.
+
+### Required Function Tag Block
+
+- Use the repo-standard function tag syntax exactly: `@param name {Type} - description.`
+- Order function tags as `@param`, then `@returns`, then `@throws` when applicable
+- Add one `@param` line for every declared parameter
+- Add `@returns {Type} - description.` for every documented function, including `void` and assertion signatures
+- Add `@throws {ErrorType} - description.` only when the function can actually throw
+- Do not use `@throws` for `Effect<A, E, R>` error channels; describe those failures in prose and in the `@returns` type instead
+
+````typescript
+/**
+ * Parses an input payload into a typed domain value.
+ *
+ * @param input {unknown} - The raw payload to decode.
+ * @param options {ParseOptions} - Decoder configuration for this parse.
+ * @returns {Effect.Effect<User, ParseError>} - An Effect that resolves with a User or fails with ParseError.
+ */
+````
+
+````typescript
+/**
+ * Asserts that the input is a string.
+ *
+ * @param u {unknown} - The input value to validate.
+ * @returns {asserts u is string} - An assertion that the input is a string.
+ * @throws {NotMySchemaError} - Throws a NotMySchemaError if the input is not a string.
+ */
+````
+
+#### Tag Syntax
+
+Correct:
+
+```typescript
+/**
+ * @param input {Input} - The value to validate.
+ * @returns {Output} - The validated output.
+ * @throws {ValidationError} - Throws a ValidationError when the value is invalid.
+ */
+```
+
+Avoid:
+
+```typescript
+/**
+ * @param {Input} input The value to validate.
+ * @returns {Output} The validated output.
+ * @throws {ValidationError} When the value is invalid.
+ */
+```
 
 ### Module-Level Documentation
 
@@ -78,7 +139,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * - **Performance optimized**: Efficient implementations for common operations
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect";
  * import * as A from "effect/Array";
  *
@@ -95,18 +156,19 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ) // 20
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
+ * @module @beep/package-name/relative/path/to/module
  **/
 ````
 
-## 🔧 IMPORT PATTERN STANDARDS
+##  IMPORT PATTERN STANDARDS
 
 ### Core Effect Library Imports
 
 ````typescript
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, Console } from "effect"
  * import * as A from "effect/Array"
  *
@@ -124,7 +186,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
 ````typescript
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * // ✅ CORRECT - Import Schema from main "effect" package
  * import { Effect } from "effect"
  * import * as S from "effect/Schema";
@@ -149,7 +211,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
 ````typescript
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  * import { NodeHttpServer } from "@effect/platform-node";
  * import * as S from "effect/Schema";
@@ -164,7 +226,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  */
 ````
 
-## 🏗️ EXAMPLE CONTENT PATTERNS
+## ️ EXAMPLE CONTENT PATTERNS
 
 ### Utility Examples (Constructor Style)
 
@@ -173,7 +235,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Creates a new Array from the provided elements.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as A from "effect"
  *
  * // Creating arrays with different types
@@ -185,7 +247,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as A from "effect/Array";
  * import { HashSet } from "effect";
  *
@@ -194,7 +256,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * const fromIterable = A.fromIterable(HashSet.fromIterable([1, 2, 3])) // [1, 2, 3]
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
  * @category Utility
  */
 ````
@@ -206,7 +268,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Transforms each element of the array using the provided function.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as A from "effect/Array"
  *
  * // Data-first usage
@@ -216,7 +278,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * ```
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as A from "effect/Array"
  * import { pipe } from "effect"
  *
@@ -230,7 +292,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * console.log(result) // 6
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
  * @category Utility
  */
 ````
@@ -242,7 +304,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Performs an effectful operation on each element of the array.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, Console } from "effect"
  * import * as A from "effect/Array"
  * const logEachItem = (items: ReadonlyArray<string>) =>
@@ -257,7 +319,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * })
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
  * @category Utility
  */
 ````
@@ -269,7 +331,7 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * Validates array elements and fails fast on first error.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, Data } from "effect";
  * import * as A from "effect/Array";
  * import * as S from "effect/Schema";
@@ -311,12 +373,12 @@ export const functionName = <A>(param: A): ModuleName<A> => { /* implementation 
  * // This will fail with ValidationError for -3
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
  * @category Validation
  */
 ````
 
-## 🏷️ CATEGORY ANNOTATION PATTERNS
+## ️ CATEGORY ANNOTATION PATTERNS
 
 ### Category Naming Convention
 
@@ -373,7 +435,7 @@ export interface Array<A> ...
 export const PaymentGatewayClient = ...
 ```
 
-## 🧪 ADVANCED EXAMPLE PATTERNS
+##  ADVANCED EXAMPLE PATTERNS
 
 ### Type-Level Function Examples
 
@@ -382,7 +444,7 @@ export const PaymentGatewayClient = ...
  * Type-level utility for extracting the success type from an Effect.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  *
  * // Demonstrate type extraction using conditional types
@@ -398,7 +460,7 @@ export const PaymentGatewayClient = ...
  * }
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
  * @category Utility
  */
 ````
@@ -410,7 +472,7 @@ export const PaymentGatewayClient = ...
  * Advanced function for performance-critical scenarios.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import * as A from "effect/Array"
  * import {Order} from "effect"
  * // Note: This is an advanced function for specific performance use cases
@@ -428,7 +490,7 @@ export const PaymentGatewayClient = ...
  * )
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
  * @category Utility
  */
 ````
@@ -440,7 +502,7 @@ export const PaymentGatewayClient = ...
  * Integrates with multiple Effect modules for complex workflows.
  *
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, Schedule, Layer, Console } from "effect"
  * import { HttpClient } from "@effect/platform"
  * import * as S from "effect/Schema";
@@ -477,12 +539,12 @@ export const PaymentGatewayClient = ...
  * )
  * ```
  *
- * @since 2.0.0
+ * @since 0.0.0
  * @category Integration
  */
 ````
 
-## 🔍 COMMON DOCUMENTATION ISSUES TO AVOID
+##  COMMON DOCUMENTATION ISSUES TO AVOID
 
 ### ❌ Problematic Patterns
 
@@ -490,7 +552,7 @@ export const PaymentGatewayClient = ...
 // ⚠️ Mixed import examples (wrong + canonical)
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Schema } from "@effect/schema"      // Wrong package (deprecated)
  * import * as S from "effect/Schema"           // Canonical namespace alias
  * import { Schema } from "effect/schema"       // Wrong - use "effect" instead
@@ -500,7 +562,7 @@ export const PaymentGatewayClient = ...
 // ❌ WRONG - Using any types
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * const data: any = someValue // Never use any in examples
  * ```
  */
@@ -508,7 +570,7 @@ export const PaymentGatewayClient = ...
 // ❌ WRONG - Type assertions
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * const value = something as unknown as SomeType // Avoid assertions
  * ```
  */
@@ -516,7 +578,7 @@ export const PaymentGatewayClient = ...
 // ❌ WRONG - Declare patterns
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * declare const Service: any // Don't use declare in examples
  * ```
  */
@@ -528,7 +590,7 @@ export const PaymentGatewayClient = ...
 // ✅ CORRECT - Proper imports and types
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  *
@@ -550,7 +612,7 @@ export const PaymentGatewayClient = ...
 // ✅ CORRECT - Real service usage
 /**
  * @example
- * ```ts-morph
+ * ```typescript
  * import { Effect, Layer } from "effect"
  * import { Console } from "effect/logging"
  *
@@ -564,7 +626,7 @@ export const PaymentGatewayClient = ...
  */
 ````
 
-## 🎯 SUCCESS CRITERIA
+##  SUCCESS CRITERIA
 
 ### Quality JSDoc Checklist
 
@@ -574,6 +636,9 @@ export const PaymentGatewayClient = ...
 - [ ] Examples compile with `bun run docgen`
 - [ ] No `any` types or type assertions
 - [ ] Appropriate @category annotation
+- [ ] Each declared parameter has a `@param name {Type} - description.` tag
+- [ ] Every documented function has `@returns {Type} - description.`
+- [ ] Functions that can throw have `@throws {ErrorType} - description.` and non-throwing or `Effect`-returning functions omit it
 - [ ] @since version annotation
 - [ ] Multiple examples for complex functions
 - [ ] Integration examples for advanced use cases

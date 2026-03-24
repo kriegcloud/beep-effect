@@ -2,7 +2,7 @@
  * @module SyntaxKindJSDocTagMap
  * @description Mapping from TypeScript JSDoc `SyntaxKind` nodes to canonical
  * and synonym JSDoc tag names.
- * @since 2026-03-01
+ * @since 0.0.0
  *
  * Mapping of TypeScript JSDoc tag SyntaxKind nodes (328-352)
  * to canonical/synonym JSDoc tag names.
@@ -11,7 +11,7 @@
 /**
  * Mapping entry for one JSDoc tag-bearing syntax kind.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category DomainModel
  */
 export interface SyntaxKindJSDocTagMapEntry {
@@ -24,7 +24,7 @@ export interface SyntaxKindJSDocTagMapEntry {
 /**
  * Exhaustive mapping table for TypeScript JSDoc tag syntax kinds.
  *
- * @since 2026-03-01
+ * @since 0.0.0
  * @category Configuration
  */
 export const SYNTAXKIND_JSDOC_TAG_MAP: ReadonlyArray<SyntaxKindJSDocTagMapEntry> = [

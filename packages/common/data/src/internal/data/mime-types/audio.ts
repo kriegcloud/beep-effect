@@ -15,7 +15,7 @@
  * @since 0.0.0
  * @category DomainModel
  * @example
- * ```ts-morph
+ * ```typescript
  * import { audio } from "@beep/data/mime-types/audio"
  *
  * audio["audio/mpeg"]

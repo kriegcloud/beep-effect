@@ -10,7 +10,7 @@
  * Uses HTML-like syntax for all context enhancements.
  *
  * @category Utility
- * @since 1.0.0
+ * @since 0.0.0
  */
 
 import { createHash } from "node:crypto";
