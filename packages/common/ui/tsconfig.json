@@ -2,14 +2,65 @@
   "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
+  "exclude": [
+    "src/components/ai-elements/**/*",
+    "src/components/audio-player.tsx",
+    "src/components/bar-visualizer.tsx",
+    "src/components/billingsdk/**/*",
+    "src/components/calendar.tsx",
+    "src/components/carousel.tsx",
+    "src/components/chart.tsx",
+    "src/components/command.tsx",
+    "src/components/conversation-bar.tsx",
+    "src/components/drawer.tsx",
+    "src/components/field.tsx",
+    "src/components/input-otp.tsx",
+    "src/components/mic-selector.tsx",
+    "src/components/orb.tsx",
+    "src/components/resizable.tsx",
+    "src/components/scrub-bar.tsx",
+    "src/components/sonner.tsx",
+    "src/components/speech-input.tsx",
+    "src/components/toaster.tsx",
+    "src/components/tour.tsx",
+    "src/components/transcript-viewer.tsx",
+    "src/components/waveform.tsx"
+  ],
   "compilerOptions": {
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src",
     "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "transform": "@effect/language-service/transform",
+        "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"],
+        "ignoreEffectSuggestionsInTscExitCode": false,
+        "ignoreEffectWarningsInTscExitCode": false,
+        "ignoreEffectErrorsInTscExitCode": false,
+        "includeSuggestionsInTsc": true,
+        "skipDisabledOptimization": false,
+        "importAliases": {
+          "Array": "A",
+          "Option": "O",
+          "Predicate": "P",
+          "Record": "R",
+          "Schema": "S",
+          "Equal": "Eq"
+        },
+        "diagnosticSeverity": {
+          "strictBooleanExpressions": "off"
+        }
+      }
+    ],
     "paths": {
       "@beep/ui": ["./src/index.ts"],
-      "@beep/ui/*": ["./src/*"]
+      "@beep/ui/*": ["./src/*"],
+      "@beep/ui/lib": ["./src/lib/index.ts"],
+      "@beep/ui/lib/*": ["./src/lib/*"]
     }
   }
 }
