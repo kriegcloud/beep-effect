@@ -29,8 +29,19 @@
     "clsx": "catalog:",
     "cytoscape": "catalog:",
     "lexical": "catalog:",
-    "lucide-react": "^1.0.1",
-    "tailwind-merge": "catalog:"
+    "tailwind-merge": "catalog:",
+    "@emotion/cache": "catalog:",
+    "@emotion/react": "catalog:",
+    "@emotion/styled": "catalog:",
+    "@mui/material": "catalog:",
+    "@mui/x-charts": "catalog:",
+    "@mui/x-data-grid": "catalog:",
+    "@mui/x-date-pickers": "catalog:",
+    "tw-animate-css":  "catalog:",
+    "@mui/x-tree-view": "catalog:",
+    "@mui/x-date-pickers-pro": "catalog:",
+    "@tailwindcss/typography": "catalog:",
+    "tailwindcss-jun-layout": "catalog:"
   },
   "devDependencies": {
     "@storybook/addon-a11y": "catalog:",
