@@ -6,9 +6,8 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import { Effect, Option, pipe, SchemaGetter, SchemaIssue } from "effect";
+import { Duration as D, Effect, Option, pipe, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
-import * as D from "effect/Duration";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { LiteralKit } from "./LiteralKit.ts";

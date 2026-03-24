@@ -891,6 +891,38 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/common/ui/src/components/calendar-event-card.tsx",
+      "symbol": "CalendarEventCardProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/ui/src/components/calendar-event-card.tsx",
+      "symbol": "EventLocationProps",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/ui/src/components/calendar-event-card.tsx",
+      "symbol": "EventTimeProps",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/ui/src/components/calendar-event-card.tsx",
+      "symbol": "EventTitleProps",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
       "file": "packages/common/ui/src/components/grid-layout/core/Model.ts",
       "symbol": "DragOverEvent",
       "kind": "exported-interface",
@@ -969,6 +1001,110 @@
       "status": "exception",
       "owner": "@beep/ui",
       "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/ui/src/components/knowledge-graph.tsx",
+      "symbol": "GraphLink",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/common/ui/src/components/knowledge-graph.tsx",
+      "symbol": "GraphNode",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/common/ui/src/components/knowledge-graph.tsx",
+      "symbol": "KnowledgeGraphHandle",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/ui/src/components/knowledge-graph.tsx",
+      "symbol": "KnowledgeGraphProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/ui/src/components/notification-card.tsx",
+      "symbol": "NotificationCardProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/ui/src/components/notification-card.tsx",
+      "symbol": "make",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/common/ui/src/components/toast.tsx",
+      "symbol": "ToastData",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/ui/src/components/todo-item.tsx",
+      "symbol": "TodoItemProps",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/ui",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/ui/src/components/todo-item.tsx",
+      "symbol": "TodoLabel",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/ui/src/components/todo-item.tsx",
+      "symbol": "TodoProject",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/ui/src/components/todo-item.tsx",
+      "symbol": "TodoSubtask",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/ui/src/components/tour.tsx",
+      "symbol": "Step",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/ui/src/components/tour.tsx",
+      "symbol": "Tour",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
       "file": "packages/common/utils/src/Glob.ts",

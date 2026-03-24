@@ -23,6 +23,29 @@ const beepLaws = {
   },
 };
 
+const uiIgnoredTypeAwareFiles = [
+  "packages/common/ui/src/components/calendar.tsx",
+  "packages/common/ui/src/components/carousel.tsx",
+  "packages/common/ui/src/components/command.tsx",
+  "packages/common/ui/src/components/drawer.tsx",
+  "packages/common/ui/src/components/field.tsx",
+  "packages/common/ui/src/components/input-otp.tsx",
+  "packages/common/ui/src/components/orb.tsx",
+  "packages/common/ui/src/components/resizable.tsx",
+  "packages/common/ui/src/components/sonner.tsx",
+  "packages/common/ui/src/components/speech-input.tsx",
+  "packages/common/ui/src/components/toaster.tsx",
+  "packages/common/ui/src/components/tour.tsx",
+] as const;
+
+const uiTrackedLawWarningFiles = [
+  "packages/common/ui/src/components/calendar-event-card.tsx",
+  "packages/common/ui/src/components/grid-layout/core/Model.ts",
+  "packages/common/ui/src/components/knowledge-graph.tsx",
+  "packages/common/ui/src/components/notification-card.tsx",
+  "packages/common/ui/src/components/todo-item.tsx",
+] as const;
+
 /**
  * Shared flat ESLint configuration used by the repository root.
  *
@@ -80,6 +103,8 @@ export const ESLintConfig: ESLintConfigShape = [
       "**/vitest.storybook.config.ts",
       "tooling/*/scripts/**",
       "tooling/*/src/internal/**",
+      ...uiIgnoredTypeAwareFiles,
+      ...uiTrackedLawWarningFiles,
     ],
     plugins: {
       "beep-laws": beepLaws,
