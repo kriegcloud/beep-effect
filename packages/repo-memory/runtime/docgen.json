@@ -19,7 +19,11 @@
     "moduleResolution": "Bundler",
     "module": "ES2022",
     "target": "ES2022",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -45,10 +49,18 @@
       "@beep/repo-memory-runtime/*": [
         "../../../packages/repo-memory/runtime/src/*.ts"
       ],
-      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-      "@beep/nlp": ["../../../packages/common/nlp/src/index.ts"],
-      "@beep/nlp/*": ["../../../packages/common/nlp/src/*.ts"],
+      "@beep/identity": [
+        "../../../packages/common/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/common/identity/src/*.ts"
+      ],
+      "@beep/nlp": [
+        "../../../packages/common/nlp/src/index.ts"
+      ],
+      "@beep/nlp/*": [
+        "../../../packages/common/nlp/src/*.ts"
+      ],
       "@beep/repo-memory-model": [
         "../../../packages/repo-memory/model/src/index.ts"
       ],
@@ -67,20 +79,36 @@
       "@beep/repo-memory-store/*": [
         "../../../packages/repo-memory/store/src/*.ts"
       ],
-      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/schema": [
+        "../../../packages/common/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/common/schema/src/*.ts"
+      ],
       "@beep/semantic-web": [
         "../../../packages/common/semantic-web/src/index.ts"
       ],
       "@beep/semantic-web/*": [
         "../../../packages/common/semantic-web/src/*.ts"
       ],
-      "@beep/test-utils": ["../../../tooling/test-utils/src/index.ts"],
-      "@beep/test-utils/*": ["../../../tooling/test-utils/src/*.ts"],
-      "@beep/types": ["../../../packages/common/types/src/index.ts"],
-      "@beep/types/*": ["../../../packages/common/types/src/*.ts"],
-      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
+      "@beep/test-utils": [
+        "../../../tooling/test-utils/src/index.ts"
+      ],
+      "@beep/test-utils/*": [
+        "../../../tooling/test-utils/src/*.ts"
+      ],
+      "@beep/types": [
+        "../../../packages/common/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../packages/common/types/src/*.ts"
+      ],
+      "@beep/utils": [
+        "../../../packages/common/utils/src/index.ts"
+      ],
+      "@beep/utils/*": [
+        "../../../packages/common/utils/src/*.ts"
+      ]
     }
   }
 }

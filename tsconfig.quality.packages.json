@@ -7,6 +7,9 @@
       "path": ".claude"
     },
     {
+      "path": "apps/crypto-taxes"
+    },
+    {
       "path": "apps/desktop"
     },
     {

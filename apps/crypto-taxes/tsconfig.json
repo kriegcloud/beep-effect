@@ -23,13 +23,27 @@
     "types": ["node"]
   },
   "references": [
-    { "path": "../../packages/common/data/tsconfig.json" },
-    { "path": "../../packages/common/identity/tsconfig.json" },
-    { "path": "../../packages/common/messages/tsconfig.json" },
-    { "path": "../../packages/common/schema/tsconfig.json" },
-    { "path": "../../packages/common/types/tsconfig.json" },
-    { "path": "../../packages/common/ui/tsconfig.json" },
-    { "path": "../../packages/common/utils/tsconfig.json" }
+    {
+      "path": "../../packages/common/data/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/messages/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/schema/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/types/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/ui/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.json"
+    }
   ],
   "exclude": ["node_modules"]
 }
