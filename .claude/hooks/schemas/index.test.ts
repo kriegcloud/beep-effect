@@ -3,14 +3,14 @@ import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
 const decode =
-  <SchemaType extends S.Top & { readonly DecodingServices: never }>(schema: SchemaType) =>
+  <SchemaType extends S.Top>(schema: SchemaType) =>
   (input: unknown): SchemaType["Type"] =>
-    S.decodeUnknownSync(schema)(input);
+    S.decodeUnknownSync(schema as unknown as S.Decoder<SchemaType["Type"], never>)(input);
 
 const encode =
-  <SchemaType extends S.Top & { readonly EncodingServices: never }>(schema: SchemaType) =>
+  <SchemaType extends S.Top>(schema: SchemaType) =>
   (value: SchemaType["Type"]): SchemaType["Encoded"] =>
-    S.encodeSync(schema)(value);
+    S.encodeUnknownSync(schema as unknown as S.Encoder<SchemaType["Encoded"], never>)(value);
 
 describe("schemas", () => {
   describe("HookInputBase", () => {

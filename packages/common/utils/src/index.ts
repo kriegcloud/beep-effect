@@ -29,6 +29,11 @@ export * as Thunk from "./internal/Thunk.ts";
  * @since 0.0.0
  * @category Utility
  */
+export * as Num from "./Number.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export * as O from "./Option.ts";
 /**
  * @since 0.0.0

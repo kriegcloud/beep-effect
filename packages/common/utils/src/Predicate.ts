@@ -14,12 +14,29 @@ export * from "effect/Predicate";
 
 /**
  * Returns a predicate that succeeds when an unknown value is an object with all
- * of the requested own or inherited properties.
+ *	the requested own or inherited properties.
  *
  * Supports both data-last and data-first invocation styles.
  *
  * @since 0.0.0
  * @category Utility
+ * @example
+ * ```ts
+ * // Data-last style
+ * const hasFooBar = hasProperties("foo", "bar");
+ * hasFooBar({ foo: 1, bar: 2 }); // true
+ *
+ * // Data-first style
+ * hasProperties({ foo: 1, bar: 2 }, ["foo", "bar"]); // true
+ * ```
+ *
+ * @param properties - The property keys to check for (data-last style)
+ * @returns A predicate function that checks if the value has all properties (data-last style)
+ *
+ * @template Properties - The type of property keys to check for
+ * @param self {unknown} - The value to check (data-first style)
+ * @param properties {Properties} - The property keys to check for (data-first style)
+ * @returns A type predicate indicating if the value has all properties (data-first style)
  */
 export const hasProperties: {
   <Properties extends A.NonEmptyReadonlyArray<PropertyKey>>(

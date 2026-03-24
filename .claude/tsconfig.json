@@ -8,7 +8,6 @@
     "test/**/*.ts"
   ],
   "compilerOptions": {
-    "baseUrl": ".",
     "rootDir": ".",
     "outDir": "dist-types",
     "types": ["node", "bun"],
