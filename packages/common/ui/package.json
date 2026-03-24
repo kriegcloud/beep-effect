@@ -22,13 +22,13 @@
   "dependencies": {
     "@base-ui/react": "catalog:",
     "@effect/atom-react": "catalog:",
-    "@lexical/react": "^0.42.0",
-    "@lexical/rich-text": "^0.42.0",
+    "@lexical/react": "catalog:",
+    "@lexical/rich-text": "catalog:",
     "@phosphor-icons/react": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "cytoscape": "catalog:",
-    "lexical": "^0.42.0",
+    "lexical": "catalog:",
     "lucide-react": "^1.0.1",
     "tailwind-merge": "catalog:"
   },
