@@ -1,8 +1,6 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": [
-    "src/internal/**/*.ts"
-  ],
+  "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/_internal/db-admin/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
@@ -11,11 +9,7 @@
     "moduleResolution": "Bundler",
     "module": "ES2022",
     "target": "ES2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,12 +29,8 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/db-admin": [
-        "../../../packages/_internal/db-admin/src/index.ts"
-      ],
-      "@beep/db-admin/*": [
-        "../../../packages/_internal/db-admin/src/*.ts"
-      ]
+      "@beep/db-admin": ["../../../packages/_internal/db-admin/src/index.ts"],
+      "@beep/db-admin/*": ["../../../packages/_internal/db-admin/src/*.ts"]
     }
   }
 }

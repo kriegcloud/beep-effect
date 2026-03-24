@@ -17,6 +17,9 @@ import { VERSION } from "@beep/ui"
 ## Development
 
 ```bash
+# Add a shared shadcn component to the UI package
+bun run ui-add button
+
 # Build
 bun run build
 
@@ -29,6 +32,10 @@ bun run test
 # Lint
 bun run lint:fix
 ```
+
+`ui-add` is intentionally scoped to `packages/common/ui`. It is meant for shared primitives, hooks, libs, and styles that should live in `@beep/ui`.
+
+It does not currently implement the full app-aware shadcn monorepo flow for app-local blocks.
 
 ## License
 

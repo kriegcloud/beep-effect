@@ -45,5 +45,5 @@
       "path": "../../packages/common/utils/tsconfig.json"
     }
   ],
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "vitest.config.ts"]
 }

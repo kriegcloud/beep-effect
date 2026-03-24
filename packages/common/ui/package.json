@@ -22,10 +22,14 @@
   "dependencies": {
     "@base-ui/react": "catalog:",
     "@effect/atom-react": "catalog:",
+    "@lexical/react": "^0.42.0",
+    "@lexical/rich-text": "^0.42.0",
     "@phosphor-icons/react": "catalog:",
     "class-variance-authority": "catalog:",
     "clsx": "catalog:",
     "cytoscape": "catalog:",
+    "lexical": "^0.42.0",
+    "lucide-react": "^1.0.1",
     "tailwind-merge": "catalog:"
   },
   "devDependencies": {
@@ -54,6 +58,9 @@
     "./styles/globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./components/*": "./src/components/*.tsx",
+    "./components/blocks/editor-00/editor": "./src/components/blocks/editor-00/editor.tsx",
+    "./components/editor/editor-ui/content-editable": "./src/components/editor/editor-ui/content-editable.tsx",
+    "./components/editor/themes/editor-theme": "./src/components/editor/themes/editor-theme.ts",
     "./components/ui/*": "./src/components/ui/*.tsx",
     "./hooks/*": "./src/hooks/*.ts",
     "./lib/*": "./src/lib/*.ts"

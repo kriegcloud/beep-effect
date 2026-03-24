@@ -75,6 +75,7 @@
     "test:storybook": "bunx turbo run test:storybook --filter=@beep/ui",
     "test:visual": "bunx turbo run test:visual --filter=@beep/ui",
     "docgen": "bunx turbo run docgen && bun run beep docs aggregate",
+    "ui-add": "bunx --bun shadcn@latest add --cwd packages/common/ui",
     "fix:effect-imports": "bun run beep laws effect-imports --write",
     "check:effect-imports": "bun run beep laws effect-imports --check",
     "fix:terse-effect": "bun run beep laws terse-effect --write",

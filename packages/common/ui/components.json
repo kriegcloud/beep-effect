@@ -17,5 +17,8 @@
     "ui": "@beep/ui/components/ui",
     "lib": "@beep/ui/lib",
     "hooks": "@beep/ui/hooks"
+  },
+  "registries": {
+    "@shadcn-editor": "https://shadcn-editor.vercel.app/r/{name}.json"
   }
 }

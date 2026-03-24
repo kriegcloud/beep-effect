@@ -6,6 +6,10 @@
     "types": ["node"],
     "outDir": "dist",
     "rootDir": "src",
-    "jsx": "react-jsx"
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/ui": ["./src/index.ts"],
+      "@beep/ui/*": ["./src/*"]
+    }
   }
 }
