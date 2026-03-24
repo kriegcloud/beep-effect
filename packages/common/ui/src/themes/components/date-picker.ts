@@ -1,12 +1,11 @@
 import type {} from "@mui/x-date-pickers/themeAugmentation";
 import type {} from "@mui/x-date-pickers-pro/themeAugmentation";
-import {
-  CONTROL_HEIGHTS,
-  CONTROL_TOUCH_HEIGHTS,
-  TOUCH_MEDIA_QUERY,
-} from "../scales.ts";
+import { CONTROL_HEIGHTS, CONTROL_TOUCH_HEIGHTS, TOUCH_MEDIA_QUERY } from "../scales.ts";
 import type { ThemeComponents } from "../types.ts";
 
+/**
+ * @since 0.0.0
+ */
 export const datePickerTheme: ThemeComponents = {
   MuiPickersTextField: {
     defaultProps: {
@@ -18,17 +17,16 @@ export const datePickerTheme: ThemeComponents = {
           {
             props: { variant: "outlined" },
             style: {
-              "& .MuiFormLabel-root, & .MuiInputLabel-root.MuiInputLabel-shrink":
-                {
-                  position: "static",
-                  transform: "none",
-                  pointerEvents: "auto",
-                  marginBottom: "0.25rem",
-                  maxWidth: "unset",
-                  fontWeight: 500,
-                  lineHeight: 1.5,
-                  color: (theme.vars || theme).palette.text.primary,
-                },
+              "& .MuiFormLabel-root, & .MuiInputLabel-root.MuiInputLabel-shrink": {
+                position: "static",
+                transform: "none",
+                pointerEvents: "auto",
+                marginBottom: "0.25rem",
+                maxWidth: "unset",
+                fontWeight: 500,
+                lineHeight: 1.5,
+                color: (theme.vars || theme).palette.text.primary,
+              },
               "& .MuiPickersSectionList-root": {
                 paddingBlock: CONTROL_HEIGHTS.md / 2 - 10.5,
                 ...(CONTROL_HEIGHTS.md !== CONTROL_TOUCH_HEIGHTS.md && {

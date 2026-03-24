@@ -18,18 +18,12 @@
  * @module @beep/schema/FileExtension
  * @since 0.0.0
  */
+
+import { application, audio, image, misc, text, video } from "@beep/data/MimeTypes";
 import { $SchemaId } from "@beep/identity";
 import { A, Struct } from "@beep/utils";
 import { pipe } from "effect";
 import { cast } from "effect/Function";
-import {
-  application,
-  audio,
-  image,
-  misc,
-  text,
-  video,
-} from "@beep/data/MimeTypes";
 import { LiteralKit } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("FileExtension");
@@ -98,12 +92,9 @@ export const ApplicationFileExtension = pipe(
   application,
   extractMimeExtensions,
   LiteralKit,
-  $I.annoteSchema(
-    "ApplicationExtension",
-    {
-      description: "A file extension for a mime type that is an application.",
-    }
-  )
+  $I.annoteSchema("ApplicationExtension", {
+    description: "A file extension for a mime type that is an application.",
+  })
 );
 
 /**
@@ -124,12 +115,9 @@ export const VideoFileExtension = pipe(
   video,
   extractMimeExtensions,
   LiteralKit,
-  $I.annoteSchema(
-    "VideoExtension",
-    {
-      description: "A file extension for a mime type that is a video.",
-    }
-  )
+  $I.annoteSchema("VideoExtension", {
+    description: "A file extension for a mime type that is a video.",
+  })
 );
 
 /**
@@ -150,12 +138,9 @@ export const TextFileExtension = pipe(
   text,
   extractMimeExtensions,
   LiteralKit,
-  $I.annoteSchema(
-    "TextExtension",
-    {
-      description: "A file extension for a mime type that is text.",
-    }
-  )
+  $I.annoteSchema("TextExtension", {
+    description: "A file extension for a mime type that is text.",
+  })
 );
 
 /**
@@ -176,12 +161,9 @@ export const ImageFileExtension = pipe(
   image,
   extractMimeExtensions,
   LiteralKit,
-  $I.annoteSchema(
-    "ImageExtension",
-    {
-      description: "A file extension for a mime type that is an image.",
-    }
-  )
+  $I.annoteSchema("ImageExtension", {
+    description: "A file extension for a mime type that is an image.",
+  })
 );
 
 /**
@@ -202,12 +184,9 @@ export const AudioFileExtension = pipe(
   audio,
   extractMimeExtensions,
   LiteralKit,
-  $I.annoteSchema(
-    "AudioExtension",
-    {
-      description: "A file extension for a mime type that is an audio file.",
-    }
-  )
+  $I.annoteSchema("AudioExtension", {
+    description: "A file extension for a mime type that is an audio file.",
+  })
 );
 
 /**
@@ -228,12 +207,9 @@ export const MiscFileExtension = pipe(
   misc,
   extractMimeExtensions,
   LiteralKit,
-  $I.annoteSchema(
-    "MiscExtension",
-    {
-      description: "A file extension for a mime type that is miscellaneous.",
-    }
-  )
+  $I.annoteSchema("MiscExtension", {
+    description: "A file extension for a mime type that is miscellaneous.",
+  })
 );
 
 /**
@@ -261,12 +237,9 @@ export const FileExtension = LiteralKit([
   ...AudioFileExtension.Options,
   ...MiscFileExtension.Options,
 ]).pipe(
-  $I.annoteSchema(
-    "FileExtension",
-    {
-      description: "A file extension for a mime type.",
-    }
-  )
+  $I.annoteSchema("FileExtension", {
+    description: "A file extension for a mime type.",
+  })
 );
 
 /**

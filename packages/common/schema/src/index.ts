@@ -54,6 +54,11 @@ export * from "./Email.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./FileExtension.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./FilePath.ts";
 /**
  * @since 0.0.0

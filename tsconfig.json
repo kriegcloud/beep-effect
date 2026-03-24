@@ -70,7 +70,7 @@
       "@beep/shared-env": ["./packages/shared/env/src/index.ts"],
       "@beep/shared-env/*": ["./packages/shared/env/src/*"],
       "@beep/ui": ["./packages/common/ui/src/index.ts"],
-      "@beep/ui/*": ["./packages/common/ui/src/*.js"],
+      "@beep/ui/*": ["./packages/common/ui/src/*"],
       "@beep/shared-ui": ["./packages/shared/ui/src/index.ts"],
       "@beep/shared-ui/*": ["./packages/shared/ui/src/*"],
       "@beep/shared-tables": ["./packages/shared/tables/src/index.ts"],

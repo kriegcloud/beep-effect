@@ -7,12 +7,11 @@ import { LiteralKit } from "@beep/schema";
 
 const $I = $EditorId.create("Domain/Command");
 
-export const CommandTag = LiteralKit(
-	[
-		"INSERT_DATETIME_COMMAND",
-	]
-).pipe(
-	$I.annoteSchema("CommandTag", {
-		description: "A command tag."
-	})
-)
+/**
+ * @since 0.0.0
+ */
+export const CommandTag = LiteralKit(["INSERT_DATETIME_COMMAND"]).pipe(
+  $I.annoteSchema("CommandTag", {
+    description: "A command tag.",
+  })
+);
