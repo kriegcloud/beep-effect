@@ -6,8 +6,8 @@
  * package dependency data) and the indexed `Graph.DirectedGraph` structure
  * that the Effect algorithms operate on.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { Effect, Graph as G, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";
 import * as A from "effect/Array";
@@ -23,8 +23,8 @@ import { CyclicDependencyError } from "./errors/index.js";
  * `G.DirectedGraph<string, void>` and a bidirectional lookup
  * between package names and node indices.export * from "./Graph.ts";
  *
- * @param adjacencyList Package dependency adjacency list.
  * @internal
+ * @param adjacencyList Package dependency adjacency list.
  * @returns Graph plus lookup maps for package names and node indices.
  */
 const fromAdjacencyList = (
@@ -101,8 +101,8 @@ const fromAdjacencyList = (
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category DomainLogic
+ * @since 0.0.0
  */
 export const topologicalSort: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
@@ -160,8 +160,8 @@ export const topologicalSort: (
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category DomainLogic
+ * @since 0.0.0
  */
 export const detectCycles: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>
@@ -229,11 +229,11 @@ export const detectCycles: (
  * Build an explicit cycle path through an SCC by DFS, returning a path of
  * the form `[start, ..., start]`.
  *
+ * @internal
  * @param graph Directed dependency graph.
  * @param startIdx Starting node index for cycle reconstruction.
  * @param memberSet Node-index membership set for the SCC.
  * @param indexToName Lookup map from node index to package name.
- * @internal
  * @returns Cycle path as package names when found, otherwise an empty array.
  */
 const buildCyclePath = (
@@ -316,8 +316,8 @@ const buildCyclePath = (
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category DomainLogic
+ * @since 0.0.0
  */
 export const computeTransitiveClosure: (
   adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,

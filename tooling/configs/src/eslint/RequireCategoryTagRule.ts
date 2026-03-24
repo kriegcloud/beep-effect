@@ -100,8 +100,8 @@ const getCandidateComments = (sourceCode: SourceCode, node: Rule.Node): Readonly
 /**
  * Custom ESLint rule that requires exported symbols to include an `@category` tag.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const requireCategoryTagRule: Rule.RuleModule = {
   meta: {

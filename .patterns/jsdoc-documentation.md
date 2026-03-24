@@ -1,12 +1,12 @@
 # JSDoc Documentation Patterns - Effect Library
 
-##  OVERVIEW
+## OVERVIEW
 
 Comprehensive JSDoc documentation patterns used throughout the beep-effect repository, ensuring consistent, practical,
 and
 compilable examples for all APIs.
 
-##  CRITICAL REQUIREMENTS
+## CRITICAL REQUIREMENTS
 
 ### Documentation Standards
 
@@ -20,7 +20,7 @@ compilable examples for all APIs.
 - **FORBIDDEN**: Using `@throws` to document `Effect<A, E, R>` error channels - describe those in prose and in the `@returns` type instead
 - **FORBIDDEN**: `any` types, type assertions, or unsafe patterns in examples
 
-##  STANDARD JSDOC STRUCTURE
+## STANDARD JSDOC STRUCTURE
 
 ### Complete Function Documentation Template
 
@@ -161,7 +161,7 @@ Avoid:
  **/
 ````
 
-##  IMPORT PATTERN STANDARDS
+## IMPORT PATTERN STANDARDS
 
 ### Core Effect Library Imports
 
@@ -435,7 +435,7 @@ export interface Array<A> ...
 export const PaymentGatewayClient = ...
 ```
 
-##  ADVANCED EXAMPLE PATTERNS
+## ADVANCED EXAMPLE PATTERNS
 
 ### Type-Level Function Examples
 
@@ -544,7 +544,7 @@ export const PaymentGatewayClient = ...
  */
 ````
 
-##  COMMON DOCUMENTATION ISSUES TO AVOID
+## COMMON DOCUMENTATION ISSUES TO AVOID
 
 ### ❌ Problematic Patterns
 
@@ -626,7 +626,7 @@ export const PaymentGatewayClient = ...
  */
 ````
 
-##  SUCCESS CRITERIA
+## SUCCESS CRITERIA
 
 ### Quality JSDoc Checklist
 

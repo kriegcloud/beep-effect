@@ -1,8 +1,8 @@
 /**
  * Effect law command suite.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -19,8 +19,8 @@ const $I = $RepoCliId.create("commands/Laws");
 /**
  * CLI options for effect import law command.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($I`EffectImportsCommandOptions`)(
   {
@@ -36,8 +36,8 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
 /**
  * CLI options for terse Effect style command.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`TerseEffectCommandOptions`)(
   {
@@ -56,8 +56,8 @@ const parseExcludePaths = (excludeValue: string): ReadonlyArray<string> =>
 /**
  * CLI command for effect import style migration/check.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const lawsEffectImportsCommand = Command.make(
   "effect-imports",
@@ -102,8 +102,8 @@ const lawsEffectImportsCommand = Command.make(
 /**
  * CLI command for terse Effect style migration/check.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const lawsTerseEffectCommand = Command.make(
   "terse-effect",
@@ -147,8 +147,8 @@ const lawsTerseEffectCommand = Command.make(
 /**
  * CLI command for validating effect laws allowlist integrity.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const lawsAllowlistCheckCommand = Command.make(
   "allowlist-check",
@@ -171,8 +171,8 @@ const lawsAllowlistCheckCommand = Command.make(
 /**
  * Laws command group.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const lawsCommand = Command.make(
   "laws",

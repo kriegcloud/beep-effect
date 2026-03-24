@@ -1,8 +1,8 @@
 /**
  * Service-backed YAML schema codecs.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -25,8 +25,8 @@ const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Is
 /**
  * Service contract for YAML parsing.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type YamlCodecServiceShape = {
   readonly parseUnknown: (content: string) => Effect.Effect<unknown, SchemaIssue.Issue>;
@@ -35,8 +35,8 @@ export type YamlCodecServiceShape = {
 /**
  * Service tag for YAML parsing.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class YamlCodecService extends ServiceMap.Service<YamlCodecService, YamlCodecServiceShape>()(
   $I`YamlCodecService`
@@ -64,8 +64,8 @@ const parseUnknown: YamlCodecServiceShape["parseUnknown"] = Effect.fn(function* 
 /**
  * Live YAML codec service layer.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const YamlCodecServiceLive = Layer.succeed(
   YamlCodecService,
@@ -77,8 +77,8 @@ export const YamlCodecServiceLive = Layer.succeed(
 /**
  * Effectful schema transformation from YAML text to unknown document values.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const YamlTextToUnknown = S.String.pipe(
   S.decodeTo(
@@ -100,8 +100,8 @@ export const YamlTextToUnknown = S.String.pipe(
  *
  * @param schema - Target schema to decode parsed YAML document into.
  * @returns Decoder function from YAML text to the target schema type.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const decodeYamlTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeYamlUnknown = S.decodeUnknownEffect(YamlTextToUnknown);

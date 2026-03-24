@@ -20,8 +20,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
 
-const decodeUnknownSync = <Schema extends S.Top>(schema: Schema) =>
-  S.decodeUnknownSync(schema as Schema & { readonly DecodingServices: never });
+const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 
 const dataset = makeDataset([
   makeQuad(

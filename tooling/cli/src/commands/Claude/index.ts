@@ -1,8 +1,8 @@
 /**
  * Claude helper command suite.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { Console, Effect } from "effect";
@@ -11,8 +11,8 @@ import { Command } from "effect/unstable/cli";
 /**
  * Keep stop-hook behavior no-op and non-blocking.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 const claudeHookStopCommand = Command.make(
   "hook-stop",
@@ -38,8 +38,8 @@ const claudeHookStopCommand = Command.make(
 /**
  * Claude command group.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const claudeCommand = Command.make(
   "claude",

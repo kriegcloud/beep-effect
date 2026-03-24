@@ -1,8 +1,8 @@
 /**
  * Graphiti proxy services.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -44,8 +44,8 @@ const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyServices");
 /**
  * Container health literal union.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const ContainerHealthState = LiteralKit(["unknown", "healthy", "unhealthy", "starting"]).annotate(
   $I.annote("ContainerHealthState", {
@@ -56,8 +56,8 @@ export const ContainerHealthState = LiteralKit(["unknown", "healthy", "unhealthy
 /**
  * Dependency health literal union.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const DependencyHealthState = LiteralKit(["unknown", "ok", "degraded"]).annotate(
   $I.annote("DependencyHealthState", {
@@ -90,8 +90,8 @@ class DependencyHealthDetails extends S.Class<DependencyHealthDetails>($I`Depend
 /**
  * Cached dependency health snapshot payload.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DependencyHealthSnapshot extends S.Class<DependencyHealthSnapshot>($I`DependencyHealthSnapshot`)(
   {
@@ -106,8 +106,8 @@ export class DependencyHealthSnapshot extends S.Class<DependencyHealthSnapshot>(
 /**
  * Queue and processing counters for proxy introspection.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ProxyQueueStats extends S.Class<ProxyQueueStats>($I`ProxyQueueStats`)(
   {
@@ -129,8 +129,8 @@ export class ProxyQueueStats extends S.Class<ProxyQueueStats>($I`ProxyQueueStats
 /**
  * Structured JSON payload for health endpoints.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ProxyHealthPayload extends S.Class<ProxyHealthPayload>($I`ProxyHealthPayload`)(
   {
@@ -216,8 +216,8 @@ const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): H
  * @param status - HTTP response status code.
  * @param headers - Optional response headers.
  * @returns Http server response with JSON error body.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const proxyErrorResponse = (
   error: S.Schema.Type<typeof ProxyErrorKind>,
@@ -242,8 +242,8 @@ export const proxyErrorResponse = (
  * @param payload - Structured proxy health payload.
  * @param status - HTTP response status code.
  * @returns Http server response with JSON health body.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const proxyHealthResponse = (
   payload: ProxyHealthPayload,
@@ -272,8 +272,8 @@ type GraphitiProxyQueueServiceShape = {
 /**
  * Service tag for dependency health snapshots.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class GraphitiDependencyHealthService extends ServiceMap.Service<
   GraphitiDependencyHealthService,
@@ -283,8 +283,8 @@ export class GraphitiDependencyHealthService extends ServiceMap.Service<
 /**
  * Service tag for forwarding requests to upstream graphiti.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class GraphitiProxyForwarderService extends ServiceMap.Service<
   GraphitiProxyForwarderService,
@@ -294,8 +294,8 @@ export class GraphitiProxyForwarderService extends ServiceMap.Service<
 /**
  * Service tag for queueing and draining proxy traffic.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class GraphitiProxyQueueService extends ServiceMap.Service<
   GraphitiProxyQueueService,
@@ -347,8 +347,8 @@ const readContainerHealth = (
  *
  * @param config - Runtime graphiti proxy config.
  * @returns Effect producing dependency health service.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const makeGraphitiDependencyHealthService = (
   config: GraphitiProxyConfig
@@ -399,8 +399,8 @@ export const makeGraphitiDependencyHealthService = (
  *
  * @param config - Runtime graphiti proxy config.
  * @returns Forwarder service implementation.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const makeGraphitiProxyForwarderService = (
   config: GraphitiProxyConfig
@@ -500,8 +500,8 @@ export const makeGraphitiProxyForwarderService = (
  * @param config - Runtime graphiti proxy config.
  * @param forwarderService - Forwarder service implementation.
  * @returns Effect producing queue service implementation.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const makeGraphitiProxyQueueService = (
   config: GraphitiProxyConfig,

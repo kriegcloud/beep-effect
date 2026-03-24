@@ -1,8 +1,8 @@
 /**
  * Schema-first inventory and enforcement command.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -445,8 +445,8 @@ const mergeInventory = (
 /**
  * Run schema-first inventory verification against the committed baseline.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintOptions) {
   const liveDocument = yield* scanSchemaFirstInventory();
@@ -534,8 +534,8 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
 /**
  * Repo-wide schema-first lint command.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const lintSchemaFirstCommand = Command.make(
   "schema-first",

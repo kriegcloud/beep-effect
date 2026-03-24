@@ -1,8 +1,8 @@
 /**
  * Google Closure-specific tag occurrence shapes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -11,8 +11,8 @@ import { empty, optionalDesc, optionalType } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/ClosureTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DefineValue extends S.TaggedClass<DefineValue>($I`DefineValue`)(
   "define",
@@ -23,8 +23,8 @@ export class DefineValue extends S.TaggedClass<DefineValue>($I`DefineValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DictValue extends S.TaggedClass<DictValue>($I`DictValue`)(
   "dict",
@@ -35,8 +35,8 @@ export class DictValue extends S.TaggedClass<DictValue>($I`DictValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ImplicitCastValue extends S.TaggedClass<ImplicitCastValue>($I`ImplicitCastValue`)(
   "implicitCast",
@@ -47,8 +47,8 @@ export class ImplicitCastValue extends S.TaggedClass<ImplicitCastValue>($I`Impli
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class StructValue extends S.TaggedClass<StructValue>($I`StructValue`)(
   "struct",
@@ -59,8 +59,8 @@ export class StructValue extends S.TaggedClass<StructValue>($I`StructValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class UnrestrictedValue extends S.TaggedClass<UnrestrictedValue>($I`UnrestrictedValue`)(
   "unrestricted",
@@ -71,8 +71,8 @@ export class UnrestrictedValue extends S.TaggedClass<UnrestrictedValue>($I`Unres
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SuppressValue extends S.TaggedClass<SuppressValue>($I`SuppressValue`)(
   "suppress",
@@ -83,8 +83,8 @@ export class SuppressValue extends S.TaggedClass<SuppressValue>($I`SuppressValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ExternsValue extends S.TaggedClass<ExternsValue>($I`ExternsValue`)(
   "externs",
@@ -95,8 +95,8 @@ export class ExternsValue extends S.TaggedClass<ExternsValue>($I`ExternsValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NoaliasValue extends S.TaggedClass<NoaliasValue>($I`NoaliasValue`)(
   "noalias",
@@ -107,8 +107,8 @@ export class NoaliasValue extends S.TaggedClass<NoaliasValue>($I`NoaliasValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NocompileValue extends S.TaggedClass<NocompileValue>($I`NocompileValue`)(
   "nocompile",
@@ -119,8 +119,8 @@ export class NocompileValue extends S.TaggedClass<NocompileValue>($I`NocompileVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NosideeffectsValue extends S.TaggedClass<NosideeffectsValue>($I`NosideeffectsValue`)(
   "nosideeffects",
@@ -131,8 +131,8 @@ export class NosideeffectsValue extends S.TaggedClass<NosideeffectsValue>($I`Nos
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PolymerValue extends S.TaggedClass<PolymerValue>($I`PolymerValue`)(
   "polymer",
@@ -143,8 +143,8 @@ export class PolymerValue extends S.TaggedClass<PolymerValue>($I`PolymerValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PolymerBehaviorValue extends S.TaggedClass<PolymerBehaviorValue>($I`PolymerBehaviorValue`)(
   "polymerBehavior",
@@ -155,8 +155,8 @@ export class PolymerBehaviorValue extends S.TaggedClass<PolymerBehaviorValue>($I
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class RecordValue extends S.TaggedClass<RecordValue>($I`RecordValue`)(
   "record",
@@ -167,8 +167,8 @@ export class RecordValue extends S.TaggedClass<RecordValue>($I`RecordValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NocollapseValue extends S.TaggedClass<NocollapseValue>($I`NocollapseValue`)(
   "nocollapse",
@@ -179,8 +179,8 @@ export class NocollapseValue extends S.TaggedClass<NocollapseValue>($I`Nocollaps
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NoinlineValue extends S.TaggedClass<NoinlineValue>($I`NoinlineValue`)(
   "noinline",

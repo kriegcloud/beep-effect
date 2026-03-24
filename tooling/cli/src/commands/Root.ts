@@ -1,9 +1,9 @@
 /**
  * Root CLI command definition.
  *
- * @since 0.0.0
- * @internal
  * @module
+ * @internal
+ * @since 0.0.0
  */
 
 import { Command } from "effect/unstable/cli";
@@ -26,9 +26,9 @@ import { versionSyncCommand } from "./VersionSync/index.js";
  *
  * This is the command tree root consumed by `Command.run` in the bin entry point.
  *
- * @since 0.0.0
- * @category UseCase
  * @internal
+ * @category UseCase
+ * @since 0.0.0
  */
 export const rootCommand = Command.make("beep-cli").pipe(
   Command.withDescription("CLI tool for managing beep-effect monorepo packages"),

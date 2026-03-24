@@ -1,8 +1,8 @@
 /**
  * Service-backed JSONC schema codecs.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -18,8 +18,8 @@ const $I = $RepoCliId.create("commands/Shared/SchemaCodecs/JsoncCodecs");
 /**
  * JSONC parse diagnostics.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class JsoncParseDiagnostic extends S.Class<JsoncParseDiagnostic>($I`JsoncParseDiagnostic`)(
   {
@@ -42,8 +42,8 @@ const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Is
 /**
  * Service contract for JSONC parsing.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type JsoncCodecServiceShape = {
   readonly parseUnknown: (content: string) => Effect.Effect<unknown, SchemaIssue.Issue>;
@@ -52,8 +52,8 @@ export type JsoncCodecServiceShape = {
 /**
  * Service tag for JSONC parsing.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class JsoncCodecService extends ServiceMap.Service<JsoncCodecService, JsoncCodecServiceShape>()(
   $I`JsoncCodecService`
@@ -85,8 +85,8 @@ const parseUnknown: JsoncCodecServiceShape["parseUnknown"] = Effect.fn(function*
 /**
  * Live JSONC codec service layer.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const JsoncCodecServiceLive = Layer.succeed(
   JsoncCodecService,
@@ -98,8 +98,8 @@ export const JsoncCodecServiceLive = Layer.succeed(
 /**
  * Effectful schema transformation from JSONC text to unknown document values.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const JsoncTextToUnknown = S.String.pipe(
   S.decodeTo(
@@ -121,8 +121,8 @@ export const JsoncTextToUnknown = S.String.pipe(
  *
  * @param schema - Target schema to decode parsed JSONC document into.
  * @returns Decoder function from JSONC text to the target schema type.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const decodeJsoncTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeJsoncUnknown = S.decodeUnknownEffect(JsoncTextToUnknown);

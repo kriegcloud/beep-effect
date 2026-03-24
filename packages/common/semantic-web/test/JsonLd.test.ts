@@ -31,8 +31,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const decodeUnknownSync = <Schema extends S.Top>(schema: Schema) =>
-  S.decodeUnknownSync(schema as Schema & { readonly DecodingServices: never });
+const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 
 const isJsonLdLiteralValue = S.is(JsonLdLiteralValue);
 

@@ -22,12 +22,14 @@ export * from "effect/Predicate";
  * @category Utility
  * @example
  * ```ts
+ * import { hasProperties } from "@beep/utils/Predicate";
+ *
  * // Data-last style
  * const hasFooBar = hasProperties("foo", "bar");
  * hasFooBar({ foo: 1, bar: 2 }); // true
  *
  * // Data-first style
- * hasProperties({ foo: 1, bar: 2 }, ["foo", "bar"]); // true
+ * hasProperties({ foo: 1, bar: 2 }, ["foo", "bar"] as const); // true
  * ```
  *
  * @param properties - The property keys to check for (data-last style)

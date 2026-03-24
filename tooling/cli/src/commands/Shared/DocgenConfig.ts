@@ -36,16 +36,16 @@ const withRootRelativePrefix: {
 /**
  * Default docgen exclude globs for repo packages.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const DEFAULT_DOCGEN_EXCLUDE = ["src/internal/**/*.ts"] as const;
 
 /**
  * Workspace alias metadata used to build docgen example path mappings.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DocgenAliasSource extends S.Class<DocgenAliasSource>($I`DocgenAliasSource`)(
   {
@@ -61,8 +61,8 @@ export class DocgenAliasSource extends S.Class<DocgenAliasSource>($I`DocgenAlias
 /**
  * Input used to build the canonical repo docgen config for a package.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInput>($I`CanonicalDocgenConfigInput`)(
   {
@@ -81,8 +81,8 @@ export class CanonicalDocgenConfigInput extends S.Class<CanonicalDocgenConfigInp
 /**
  * Managed TypeScript compiler options used for docgen examples.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDocgenExamplesCompilerOptions>(
   $I`CanonicalDocgenExamplesCompilerOptions`
@@ -123,8 +123,8 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
 /**
  * Canonical repo docgen config payload.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CanonicalDocgenConfig extends S.Class<CanonicalDocgenConfig>($I`CanonicalDocgenConfig`)(
   {
@@ -148,8 +148,8 @@ const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<strin
  *
  * @param options - Canonical compiler options model.
  * @returns Plain JSON-compatible compiler options payload.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const toDocgenExamplesCompilerOptionsJson = (
   options: CanonicalDocgenExamplesCompilerOptions
@@ -190,8 +190,8 @@ export const toDocgenExamplesCompilerOptionsJson = (
  *
  * @param config - Canonical docgen config model.
  * @returns Plain JSON-compatible docgen config payload.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const toCanonicalDocgenConfigJson = (
   config: CanonicalDocgenConfig
@@ -212,8 +212,8 @@ export const toCanonicalDocgenConfigJson = (
  *
  * @param packageJson - Parsed package manifest.
  * @returns Sorted unique `@beep/*` dependency names across all dependency sections.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const collectDocgenWorkspaceDependencyNames = (packageJson: PackageJson.Type): ReadonlyArray<string> =>
   pipe(
@@ -234,8 +234,8 @@ export const collectDocgenWorkspaceDependencyNames = (packageJson: PackageJson.T
  * @param packageRelativePath - Workspace-relative package path.
  * @param packageJson - Parsed package manifest.
  * @returns Alias metadata used by docgen example path mappings.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const buildDocgenAliasSource = (
   packageName: string,
@@ -299,8 +299,8 @@ const buildDocgenExamplesPaths = (
  *
  * @param input - Package metadata plus workspace alias sources.
  * @returns Canonical docgen config payload used by init and sync workflows.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const createCanonicalDocgenConfig: (
   input: CanonicalDocgenConfigInput
@@ -360,8 +360,8 @@ export const createCanonicalDocgenConfig: (
  * @param existing - Parsed existing `docgen.json` document.
  * @param canonical - Canonical managed docgen config payload.
  * @returns Next `docgen.json` object with managed fields synchronized.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const mergeManagedDocgenConfig = (
   existing: Readonly<Record<string, unknown>>,

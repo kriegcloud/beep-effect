@@ -100,7 +100,7 @@ const toDevToolsSpanStatus = Match.type<Tracer.SpanStatus>().pipe(
   Match.withReturnType<DevToolsSchema.SpanStatus>(),
   Match.tagsExhaustive({
     Started: ({ startTime }) => ({ _tag: "Started", startTime }),
-    Ended: ({ startTime, endTime }) => ({ _tag: "Ended", startTime, endTime }),
+    Ended: ({ startTime, endTime, exit }) => ({ _tag: "Ended", startTime, endTime, exit }),
   })
 );
 

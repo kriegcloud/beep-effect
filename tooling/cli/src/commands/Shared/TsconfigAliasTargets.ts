@@ -10,8 +10,8 @@ const $I = $RepoCliId.create("commands/Shared/TsconfigAliasTargets");
 /**
  * Canonical alias targets derived for a package root export.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CanonicalAliasTargets extends S.Class<CanonicalAliasTargets>($I`CanonicalAliasTargets`)(
   {
@@ -73,8 +73,8 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
  *
  * @param exportsField - Raw `exports` field value from `package.json`.
  * @returns The first relative `./...` target for the root export when one exists.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const resolveRootExportTarget = (exportsField: unknown): O.Option<string> => {
   if (P.isObject(exportsField) && !A.isArray(exportsField)) {
@@ -96,8 +96,8 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
  * @param exportsField - Raw `exports` field value from `package.json`.
  * @param subpath - Package subpath key such as `"./*"`.
  * @returns The first relative `./...` target for the requested subpath when one exists.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const resolveSubpathExportTarget = (exportsField: unknown, subpath: string): O.Option<string> => {
   if (P.isObject(exportsField) && !A.isArray(exportsField)) {
@@ -115,8 +115,8 @@ export const resolveSubpathExportTarget = (exportsField: unknown, subpath: strin
  *
  * @param exportsField - Raw `exports` field value from `package.json`.
  * @returns The first relative `./...` target for the `"./*"` subpath when one exists.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<string> =>
   resolveSubpathExportTarget(exportsField, "./*");
@@ -127,8 +127,8 @@ export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<str
  * @param packagePath - Workspace-relative package path used in tsconfig alias targets.
  * @param rootExportTarget - Canonical root export target resolved from the package `exports` field.
  * @returns Canonical root and wildcard alias targets for tsconfig path mapping.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const buildCanonicalAliasTargets = (packagePath: string, rootExportTarget: string): CanonicalAliasTargets => {
   const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
@@ -163,8 +163,8 @@ const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
  * @param rootExportTarget - Canonical root export target resolved from package `exports`.
  * @param wildcardExportTarget - Optional explicit wildcard export target from package `exports`.
  * @returns Source alias targets suitable for docgen `examplesCompilerOptions.paths`.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const buildDocgenAliasTargets = (
   packagePath: string,

@@ -1,8 +1,8 @@
 /**
  * Effect laws allowlist integrity checks.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -19,8 +19,8 @@ const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
 /**
  * Relative path to the effect laws allowlist.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
 
@@ -73,8 +73,8 @@ const decodeEffectLawsAllowlist = S.decodeUnknownEffect(EffectLawsAllowlistDocum
 /**
  * Runtime options for allowlist integrity checks.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`AllowlistCheckOptions`)(
   {
@@ -88,8 +88,8 @@ export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`All
 /**
  * Result of an allowlist integrity check.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class AllowlistCheckSummary extends S.Class<AllowlistCheckSummary>($I`AllowlistCheckSummary`)(
   {
@@ -165,8 +165,8 @@ const validateEntryFiles = Effect.fn(function* (cwd: string, entries: ReadonlyAr
 /**
  * Run the effect laws allowlist integrity check.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOptions) {
   const fs = yield* FileSystem.FileSystem;
@@ -215,8 +215,8 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
 /**
  * Print allowlist integrity diagnostics to the console.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const reportAllowlistCheckSummary = Effect.fn(function* (summary: AllowlistCheckSummary) {
   if (summary.ok) {

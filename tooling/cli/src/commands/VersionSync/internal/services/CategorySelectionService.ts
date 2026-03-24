@@ -1,8 +1,8 @@
 /**
  * Category-selection service for version-sync.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -21,8 +21,8 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/services/CategorySel
 /**
  * Service contract for selecting categories to resolve and update.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type CategorySelectionServiceShape = {
   readonly shouldCheck: (options: VersionSyncOptions, category: VersionCategoryValue) => boolean;
@@ -32,8 +32,8 @@ export type CategorySelectionServiceShape = {
 /**
  * Service tag for category-selection logic.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class CategorySelectionService extends ServiceMap.Service<
   CategorySelectionService,
@@ -65,8 +65,8 @@ const selectedCategories: CategorySelectionServiceShape["selectedCategories"] = 
 /**
  * Live layer for category-selection logic.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const CategorySelectionServiceLive = Layer.succeed(
   CategorySelectionService,

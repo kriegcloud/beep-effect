@@ -1,8 +1,8 @@
 /**
  * Purge command - remove root and workspace build artifacts.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -20,8 +20,8 @@ const $I = $RepoCliId.create("purge");
  *
  * Matches legacy purge intent from `@beep/repo-scripts`.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const WORKSPACE_ARTIFACTS = [
   ".tsbuildinfo",
@@ -39,16 +39,16 @@ const WORKSPACE_ARTIFACTS = [
 /**
  * Root-level artifacts always purged.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const ROOT_ARTIFACTS = ["node_modules", ".turbo", "dist", "docs"] as const;
 
 /**
  * Optional root lock artifact purged with `--lock` / `-l`.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const ROOT_LOCK_ARTIFACT = "bun.lock" as const;
 
@@ -103,8 +103,8 @@ const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target:
 /**
  * Summary statistics returned after a purge run.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PurgeSummary extends S.Class<PurgeSummary>($I`PurgeSummary`)(
   {
@@ -120,12 +120,12 @@ export class PurgeSummary extends S.Class<PurgeSummary>($I`PurgeSummary`)(
 /**
  * Build absolute purge targets from root + workspace artifact rules.
  *
+ * @internal
  * @param rootDir - Absolute repo root directory.
  * @param removeLock - Whether to include root `bun.lock`.
  * @returns Deduplicated absolute paths to purge and workspace count.
- * @since 0.0.0
  * @category Utility
- * @internal
+ * @since 0.0.0
  */
 const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: boolean) {
   const path = yield* Path.Path;
@@ -160,8 +160,8 @@ const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: bool
  * @param rootDir - Absolute repo root directory.
  * @param removeLock - Whether to include root `bun.lock`.
  * @returns Purge summary with targeted and existing-removed counts.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boolean) {
   const fs = yield* FileSystem.FileSystem;
@@ -209,8 +209,8 @@ export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boo
 /**
  * CLI command to purge workspace/root build artifacts.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const purgeCommand = Command.make(
   "purge",

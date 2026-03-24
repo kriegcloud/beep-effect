@@ -5,8 +5,8 @@
  * a workspace-internal dependency (the package name exists in the monorepo)
  * or an external NPM dependency.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { HashSet } from "effect";
 import * as O from "effect/Option";
@@ -68,8 +68,8 @@ const classifyRecord = (
  * // deps.workspace.dependencies -> { "@my/other": "workspace:*" }
  * // deps.npm.dependencies -> { "lodash": "^4.0.0" }
  * ```
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const extractWorkspaceDependencies = (
   packageJson: PackageJson,

@@ -1,8 +1,8 @@
 /**
  * Placeholder barrel for the codegraph domain surface.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 void 0;

@@ -6,8 +6,8 @@
  * - FileGenerationPlanService for deterministic plan/execute
  * - Shared repo config synchronization after scaffolding
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { fileURLToPath } from "node:url";
@@ -49,8 +49,8 @@ const $I = $RepoCliId.create("commands/CreatePackage/Handler");
  * @param baseDir - Directory of the currently executing command module.
  * @param path - Path service used to compose normalized candidate paths.
  * @returns Candidate directories in preferred lookup order.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 
 const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<string> => {
@@ -68,8 +68,8 @@ const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<
  *
  * @param baseDir - Optional command module directory override (defaults to current module directory).
  * @returns Resolved template directory path.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const resolveCreatePackageTemplateDir = Effect.fn(function* (
   baseDir: string = fileURLToPath(new URL(".", import.meta.url))
@@ -95,8 +95,8 @@ export const resolveCreatePackageTemplateDir = Effect.fn(function* (
 /**
  * Valid package types.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const VALID_TYPES = ["library", "tool", "app"] as const;
 const PACKAGE_NAME_PATTERN = /^[a-z_][a-z0-9._-]*$/;
@@ -135,8 +135,8 @@ const isPackageName = S.is(PackageName);
 /**
  * Mapping from template source to output path.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
   new TemplateSpec({ templateName: "tsconfig.json.hbs", outputPath: "tsconfig.json" }),
@@ -153,8 +153,8 @@ const TEMPLATE_SPECS: ReadonlyArray<TemplateSpec> = [
 /**
  * Ordered list of all generated files for dry-run and summary output.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const ALL_FILES = [
   "package.json",
@@ -175,8 +175,8 @@ const ALL_FILES = [
 /**
  * Root-relative directories created for each package.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const PACKAGE_DIRECTORIES = ["src", "test", "dtslint", "docs"] as const;
 
@@ -193,8 +193,8 @@ const IDENTITY_PACKAGES_FILE_PATH = "packages/common/identity/src/packages.ts" a
 /**
  * Variables passed into every template during package scaffolding.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext`)(
   {
@@ -434,8 +434,8 @@ const identityPackageRegistrationNeeded = Effect.fn(function* (repoRoot: string,
  * CLI command that scaffolds a new package with templates, a Schema-validated
  * `package.json`, root workspace registration, identity registration, and shared repo config synchronization.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const createPackageCommand = Command.make(
   "create-package",
@@ -639,8 +639,8 @@ export const createPackageCommand = Command.make(
  * @param description - Human-readable package description for the `"description"` field.
  * @param packagePath - Package path relative to repo root (e.g. `"tooling/my-utils"`).
  * @returns A JSON string (with trailing newline) ready to be written to disk.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 const generatePackageJson: (
   name: string,

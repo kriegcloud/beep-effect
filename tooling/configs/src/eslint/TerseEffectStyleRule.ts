@@ -176,8 +176,8 @@ const detectThunkHelperViolation = (
 /**
  * Custom ESLint rule that enforces terse Effect helper style for safe callback shapes.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const terseEffectStyleRule: Rule.RuleModule = {
   meta: {

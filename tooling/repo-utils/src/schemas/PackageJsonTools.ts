@@ -1,8 +1,8 @@
 /**
  * Canonicalization, artifact export, diff/patch, and diagnostics helpers for package.json schemas.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -221,8 +221,8 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
 /**
  * Structured package.json validation issue.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIssue>($I`PackageJsonValidationIssue`)(
   {
@@ -238,24 +238,24 @@ export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIss
 /**
  * Draft 2020-12 JSON Schema document for the repo-aware package.json schema.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const packageJsonJsonSchema = S.toJsonSchemaDocument(PackageJson);
 
 /**
  * Draft 2020-12 JSON Schema document for the npm-only package.json schema.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
 
 /**
  * Normalize an unknown package.json value into a canonical encoded object.
  *
- * @since 0.0.0
  * @category DomainLogic
+ * @since 0.0.0
  */
 export const normalizePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Encoded, S.SchemaError> =
   Effect.fn("RepoUtils.PackageJsonTools.normalizePackageJson")(function* (input) {
@@ -266,8 +266,8 @@ export const normalizePackageJsonEffect: (input: unknown) => Effect.Effect<Packa
 /**
  * Encode an unknown package.json value to a canonical pretty JSON string.
  *
- * @since 0.0.0
  * @category DomainLogic
+ * @since 0.0.0
  */
 export const encodePackageJsonCanonicalPrettyEffect: (
   input: unknown
@@ -281,8 +281,8 @@ export const encodePackageJsonCanonicalPrettyEffect: (
 /**
  * Compute a typed JSON Patch diff between two package.json values.
  *
- * @since 0.0.0
  * @category DomainLogic
+ * @since 0.0.0
  */
 export const diffPackageJsonEffect: (
   before: unknown,
@@ -298,8 +298,8 @@ export const diffPackageJsonEffect: (
 /**
  * Apply a typed JSON Patch document to a package.json value.
  *
- * @since 0.0.0
  * @category DomainLogic
+ * @since 0.0.0
  */
 export const applyPackageJsonPatchEffect: (
   base: unknown,
@@ -323,8 +323,8 @@ export const applyPackageJsonPatchEffect: (
  *
  * @param error - Schema decoding or encoding error to render as structured validation issues.
  * @returns Structured validation issues derived from the schema error.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const getPackageJsonSchemaIssues = (error: S.SchemaError): ReadonlyArray<PackageJsonValidationIssue> =>
   pipe(

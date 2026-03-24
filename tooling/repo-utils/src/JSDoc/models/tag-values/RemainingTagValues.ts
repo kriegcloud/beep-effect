@@ -1,8 +1,8 @@
 /**
  * Remaining JSDoc tag occurrence shapes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -11,8 +11,8 @@ import { empty, nameField, optionalDesc, optionalName } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/RemainingTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class AliasValue extends S.TaggedClass<AliasValue>($I`AliasValue`)(
   "alias",
@@ -23,8 +23,8 @@ export class AliasValue extends S.TaggedClass<AliasValue>($I`AliasValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class BorrowsValue extends S.TaggedClass<BorrowsValue>($I`BorrowsValue`)(
   "borrows",
@@ -35,8 +35,8 @@ export class BorrowsValue extends S.TaggedClass<BorrowsValue>($I`BorrowsValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ClassdescValue extends S.TaggedClass<ClassdescValue>($I`ClassdescValue`)(
   "classdesc",
@@ -47,8 +47,8 @@ export class ClassdescValue extends S.TaggedClass<ClassdescValue>($I`ClassdescVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ConstructsValue extends S.TaggedClass<ConstructsValue>($I`ConstructsValue`)(
   "constructs",
@@ -59,8 +59,8 @@ export class ConstructsValue extends S.TaggedClass<ConstructsValue>($I`Construct
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CopyrightValue extends S.TaggedClass<CopyrightValue>($I`CopyrightValue`)(
   "copyright",
@@ -71,8 +71,8 @@ export class CopyrightValue extends S.TaggedClass<CopyrightValue>($I`CopyrightVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class LicenseValue extends S.TaggedClass<LicenseValue>($I`LicenseValue`)(
   "license",
@@ -83,8 +83,8 @@ export class LicenseValue extends S.TaggedClass<LicenseValue>($I`LicenseValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ExternalValue extends S.TaggedClass<ExternalValue>($I`ExternalValue`)(
   "external",
@@ -95,8 +95,8 @@ export class ExternalValue extends S.TaggedClass<ExternalValue>($I`ExternalValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class FileValue extends S.TaggedClass<FileValue>($I`FileValue`)(
   "file",
@@ -107,8 +107,8 @@ export class FileValue extends S.TaggedClass<FileValue>($I`FileValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class GlobalValue extends S.TaggedClass<GlobalValue>($I`GlobalValue`)(
   "global",
@@ -119,8 +119,8 @@ export class GlobalValue extends S.TaggedClass<GlobalValue>($I`GlobalValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class HideconstructorValue extends S.TaggedClass<HideconstructorValue>($I`HideconstructorValue`)(
   "hideconstructor",
@@ -131,8 +131,8 @@ export class HideconstructorValue extends S.TaggedClass<HideconstructorValue>($I
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class IgnoreValue extends S.TaggedClass<IgnoreValue>($I`IgnoreValue`)(
   "ignore",
@@ -143,8 +143,8 @@ export class IgnoreValue extends S.TaggedClass<IgnoreValue>($I`IgnoreValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class InnerValue extends S.TaggedClass<InnerValue>($I`InnerValue`)(
   "inner",
@@ -155,8 +155,8 @@ export class InnerValue extends S.TaggedClass<InnerValue>($I`InnerValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class InstanceValue extends S.TaggedClass<InstanceValue>($I`InstanceValue`)(
   "instance",
@@ -167,8 +167,8 @@ export class InstanceValue extends S.TaggedClass<InstanceValue>($I`InstanceValue
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class KindValue extends S.TaggedClass<KindValue>($I`KindValue`)(
   "kind",
@@ -193,8 +193,8 @@ export class KindValue extends S.TaggedClass<KindValue>($I`KindValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class LendsValue extends S.TaggedClass<LendsValue>($I`LendsValue`)(
   "lends",
@@ -205,8 +205,8 @@ export class LendsValue extends S.TaggedClass<LendsValue>($I`LendsValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class MixinValue extends S.TaggedClass<MixinValue>($I`MixinValue`)(
   "mixin",
@@ -217,8 +217,8 @@ export class MixinValue extends S.TaggedClass<MixinValue>($I`MixinValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class MixesValue extends S.TaggedClass<MixesValue>($I`MixesValue`)(
   "mixes",
@@ -229,8 +229,8 @@ export class MixesValue extends S.TaggedClass<MixesValue>($I`MixesValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class NameValue extends S.TaggedClass<NameValue>($I`NameValue`)(
   "name",
@@ -241,8 +241,8 @@ export class NameValue extends S.TaggedClass<NameValue>($I`NameValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class VariationValue extends S.TaggedClass<VariationValue>($I`VariationValue`)(
   "variation",
@@ -253,8 +253,8 @@ export class VariationValue extends S.TaggedClass<VariationValue>($I`VariationVa
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TutorialValue extends S.TaggedClass<TutorialValue>($I`TutorialValue`)(
   "tutorial",

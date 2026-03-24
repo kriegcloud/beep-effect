@@ -4,8 +4,8 @@
  * Walks upward from a starting directory looking for repository markers
  * (`.git` directory or `bun.lock` file) to locate the monorepo root.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, pipe } from "effect";
@@ -17,8 +17,8 @@ import { NoSuchFileError } from "./errors/index.js";
 /**
  * Markers that indicate a repository root directory.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
 
@@ -42,8 +42,8 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const findRepoRoot: (
   startFrom?: undefined | string

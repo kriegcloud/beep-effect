@@ -25,8 +25,8 @@ const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
 /**
  * Runtime metadata for an ephemeral integration-test database instance.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`TestDatabaseInfoShape`)(
   {
@@ -41,8 +41,8 @@ export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`Tes
 /**
  * Runtime metadata for an ephemeral integration-test database instance.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class TestDatabaseInfo extends ServiceMap.Service<TestDatabaseInfo, TestDatabaseInfoShape>()(
   $I`TestDatabaseInfo`
@@ -51,8 +51,8 @@ export class TestDatabaseInfo extends ServiceMap.Service<TestDatabaseInfo, TestD
 /**
  * Typed harness error surfaced while provisioning or preparing a test database.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($I`SqlTestHarnessError`)(
   "SqlTestHarnessError",
@@ -70,8 +70,8 @@ export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($
 /**
  * Optional database setup hooks executed after the driver layer has been built.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export interface SqlTestHooks<MigrateError = never, SeedError = never> {
   readonly migrate?: undefined | Effect.Effect<void, MigrateError, SqlClient.SqlClient>;
@@ -81,8 +81,8 @@ export interface SqlTestHooks<MigrateError = never, SeedError = never> {
 /**
  * Driver contract for reusable SQL integration-test layers.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export interface SqlTestDriver<Config, Services, SqlService extends Services> {
   readonly makeLayer: (config: Config) => Layer.Layer<Services, SqlTestHarnessError>;
@@ -132,8 +132,8 @@ const runHook = <Services, SqlService extends Services, HookError>(
  * @param options.driver Driver contract used to provision services and the SQL client.
  * @param options.hooks Optional migrate and seed hooks executed after provisioning.
  * @returns A fresh scoped layer that provisions the driver and runs migrate/seed hooks.
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const makeSqlTestLayer = <
   Config,
@@ -213,8 +213,8 @@ const buildBunSqliteLayer = Effect.gen(function* () {
 /**
  * Fresh Bun SQLite integration-test driver backed by a scoped temp directory.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const BunSqliteTestDriver: SqlTestDriver<
   void,
@@ -261,8 +261,8 @@ const buildNodeSqliteLayer = Effect.gen(function* () {
 /**
  * Fresh Node SQLite integration-test driver backed by a scoped temp directory.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const NodeSqliteTestDriver: SqlTestDriver<
   void,

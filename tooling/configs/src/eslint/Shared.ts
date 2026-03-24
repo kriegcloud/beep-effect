@@ -3,16 +3,16 @@ import { normalizePath as normalizeSchemaPath, PosixPath as PosixPathSchema } fr
 /**
  * POSIX-normalized path string schema re-exported for tooling config consumers.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const PosixPath = PosixPathSchema;
 
 /**
  * Type for {@link PosixPath}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type PosixPath = typeof PosixPath.Type;
 
@@ -21,7 +21,7 @@ export type PosixPath = typeof PosixPath.Type;
  *
  * @param value - Input path string that may contain native separators.
  * @returns Path string normalized to POSIX separators.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const normalizePath = (value: string): PosixPath => normalizeSchemaPath(value);

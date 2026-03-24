@@ -105,8 +105,8 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
 /**
  * Typed error retained for compatibility with older placeholder service wiring.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServiceUnavailableError>(
   $I`TsMorphServiceUnavailableError`
@@ -125,8 +125,8 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
 /**
  * Typed error returned when a scope or repository path cannot be resolved.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeResolutionError>(
   $I`TsMorphScopeResolutionError`
@@ -145,8 +145,8 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
 /**
  * Typed error returned when a scoped ts-morph project cannot be constructed.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoadError>($I`TsMorphProjectLoadError`)(
   "TsMorphProjectLoadError",
@@ -163,8 +163,8 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
 /**
  * Typed error returned when a TypeScript file cannot be loaded from a resolved scope.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileError>($I`TsMorphSourceFileError`)(
   "TsMorphSourceFileError",
@@ -182,8 +182,8 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
 /**
  * Typed error returned when a symbol id cannot be resolved within a scope.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNotFoundError>(
   $I`TsMorphSymbolNotFoundError`
@@ -205,8 +205,8 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
 /**
  * Typed error returned when a request targets a currently unsupported TypeScript source boundary.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsupportedFileError>(
   $I`TsMorphUnsupportedFileError`
@@ -225,8 +225,8 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
 /**
  * Tagged union of all recoverable service errors emitted by `TSMorphService`.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TSMorphServiceError =
   | TsMorphProjectLoadError
@@ -239,8 +239,8 @@ export type TSMorphServiceError =
 /**
  * Read-only v1 service contract for ts-morph-backed scope, symbol, source, and diagnostic operations.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TSMorphServiceShape = {
   readonly resolveProjectScope: (
@@ -273,8 +273,8 @@ export type TSMorphServiceShape = {
 /**
  * Service tag for the read-only v1 ts-morph contract.
  *
- * @since 0.0.0
  * @category PortContract
+ * @since 0.0.0
  */
 export class TSMorphService extends ServiceMap.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
 
@@ -545,8 +545,8 @@ const collectOutlineEntries = (
  * Construct the current live implementation for the v1 TSMorphService contract.
  *
  * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
@@ -1154,8 +1154,8 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
 /**
  * Default live layer for the current TSMorphService contract.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const TSMorphServiceLive: Layer.Layer<TSMorphService, never, FileSystem.FileSystem | Path.Path> = Layer.effect(
   TSMorphService,

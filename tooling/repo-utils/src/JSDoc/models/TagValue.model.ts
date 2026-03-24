@@ -4,7 +4,7 @@
  * This module re-exports from `./tag-values/index.js` where individual
  * `S.TaggedClass` members are defined and composed.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export * from "./tag-values/index.js";

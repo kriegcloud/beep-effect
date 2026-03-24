@@ -1,8 +1,8 @@
 /**
  * Documentation content tag occurrence shapes.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -11,8 +11,8 @@ import { optionalDesc } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/DocumentationTagValues");
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DescriptionValue extends S.TaggedClass<DescriptionValue>($I`DescriptionValue`)(
   "description",
@@ -23,8 +23,8 @@ export class DescriptionValue extends S.TaggedClass<DescriptionValue>($I`Descrip
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SummaryValue extends S.TaggedClass<SummaryValue>($I`SummaryValue`)(
   "summary",
@@ -35,8 +35,8 @@ export class SummaryValue extends S.TaggedClass<SummaryValue>($I`SummaryValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class RemarksValue extends S.TaggedClass<RemarksValue>($I`RemarksValue`)(
   "remarks",
@@ -47,8 +47,8 @@ export class RemarksValue extends S.TaggedClass<RemarksValue>($I`RemarksValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ExampleValue extends S.TaggedClass<ExampleValue>($I`ExampleValue`)(
   "example",
@@ -59,8 +59,8 @@ export class ExampleValue extends S.TaggedClass<ExampleValue>($I`ExampleValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DeprecatedValue extends S.TaggedClass<DeprecatedValue>($I`DeprecatedValue`)(
   "deprecated",
@@ -71,8 +71,8 @@ export class DeprecatedValue extends S.TaggedClass<DeprecatedValue>($I`Deprecate
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SeeValue extends S.TaggedClass<SeeValue>($I`SeeValue`)(
   "see",
@@ -83,8 +83,8 @@ export class SeeValue extends S.TaggedClass<SeeValue>($I`SeeValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SinceValue extends S.TaggedClass<SinceValue>($I`SinceValue`)(
   "since",
@@ -95,8 +95,8 @@ export class SinceValue extends S.TaggedClass<SinceValue>($I`SinceValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class VersionValue extends S.TaggedClass<VersionValue>($I`VersionValue`)(
   "version",
@@ -107,8 +107,8 @@ export class VersionValue extends S.TaggedClass<VersionValue>($I`VersionValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class AuthorValue extends S.TaggedClass<AuthorValue>($I`AuthorValue`)(
   "author",
@@ -119,8 +119,8 @@ export class AuthorValue extends S.TaggedClass<AuthorValue>($I`AuthorValue`)(
 ) {}
 
 /**
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TodoValue extends S.TaggedClass<TodoValue>($I`TodoValue`)(
   "todo",

@@ -1,8 +1,8 @@
 /**
  * Graphiti proxy runtime configuration.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -105,8 +105,8 @@ class GraphitiProxyConfigInput extends S.Class<GraphitiProxyConfigInput>($I`Grap
 /**
  * Runtime configuration schema for graphiti proxy.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`GraphitiProxyConfig`)(
   {
@@ -175,8 +175,8 @@ export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`Graphit
 /**
  * Raised when graphiti proxy configuration cannot be loaded.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxyConfigLoadError>(
   $I`GraphitiProxyConfigLoadError`
@@ -196,8 +196,8 @@ const decodeGraphitiProxyConfig = S.decodeUnknownSync(GraphitiProxyConfig);
 /**
  * Load graphiti proxy config from Effect Config environment values.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const loadGraphitiProxyConfig = Effect.gen(function* () {
   const listenHost = yield* Config.option(Config.string("GRAPHITI_PROXY_HOST"));

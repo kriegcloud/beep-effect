@@ -5,8 +5,8 @@
  * intentionally support from SchemaStore and npm docs. `PackageJson` extends it
  * with repo-local top-level fields used in this monorepo.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -182,8 +182,8 @@ class FundingEntry extends S.Class<FundingEntry>($I`FundingEntry`)(
 /**
  * A person involved with the package, represented as a string or structured object.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Person = S.Union([S.String, PersonObject]).annotate(
   $I.annote("Person", {
@@ -196,8 +196,8 @@ export const Person = S.Union([S.String, PersonObject]).annotate(
 /**
  * The package author field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Author = Person.annotate(
   $I.annote("Author", {
@@ -209,8 +209,8 @@ export const Author = Person.annotate(
 /**
  * The package contributors field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Contributors = S.Array(Person).annotate(
   $I.annote("Contributors", {
@@ -222,8 +222,8 @@ export const Contributors = S.Array(Person).annotate(
 /**
  * The package maintainers field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Maintainers = S.Array(Person).annotate(
   $I.annote("Maintainers", {
@@ -235,8 +235,8 @@ export const Maintainers = S.Array(Person).annotate(
 /**
  * Schema for the `repository` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Repository = S.Union([S.String, RepositoryObject]).annotate(
   $I.annote("Repository", {
@@ -249,8 +249,8 @@ export const Repository = S.Union([S.String, RepositoryObject]).annotate(
 /**
  * Schema for the `bugs` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Bugs = S.Union([S.String, BugsObject]).annotate(
   $I.annote("Bugs", {
@@ -263,8 +263,8 @@ export const Bugs = S.Union([S.String, BugsObject]).annotate(
 /**
  * Schema for the `funding` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union([S.String, FundingEntry]))]).annotate(
   $I.annote("Funding", {
@@ -277,8 +277,8 @@ export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union(
 /**
  * Schema for the `bin` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Bin = S.Union([S.String, StringRecord]).annotate(
   $I.annote("Bin", {
@@ -290,8 +290,8 @@ export const Bin = S.Union([S.String, StringRecord]).annotate(
 /**
  * Schema for the `browser` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)]).annotate(
   $I.annote("Browser", {
@@ -304,8 +304,8 @@ export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)
 /**
  * Schema for the `directories` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 class DirectoriesShape extends S.Class<DirectoriesShape>($I`Directories`)(
   {
@@ -325,8 +325,8 @@ class DirectoriesShape extends S.Class<DirectoriesShape>($I`Directories`)(
 /**
  * Schema for the `directories` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Directories = DirectoriesShape;
 
@@ -344,8 +344,8 @@ const PeerDependencyMetaEntry = S.Struct(peerDependencyMetaEntryFields).annotate
 /**
  * Schema for the `man` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Man = S.Union([S.String, StringArray]).annotate(
   $I.annote("Man", {
@@ -357,8 +357,8 @@ export const Man = S.Union([S.String, StringArray]).annotate(
 /**
  * Schema for the `sideEffects` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const SideEffects = S.Union([S.Boolean, StringArray]).annotate(
   $I.annote("SideEffects", {
@@ -370,8 +370,8 @@ export const SideEffects = S.Union([S.Boolean, StringArray]).annotate(
 /**
  * Schema for the `bundleDependencies` / `bundledDependencies` fields.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const BundleDependencies = S.Union([S.Boolean, StringArray]).annotate(
   $I.annote("BundleDependencies", {
@@ -383,8 +383,8 @@ export const BundleDependencies = S.Union([S.Boolean, StringArray]).annotate(
 /**
  * Schema for the `peerDependenciesMeta` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const PeerDependenciesMeta = S.Record(
   S.String,
@@ -399,8 +399,8 @@ export const PeerDependenciesMeta = S.Record(
 /**
  * Schema for the `typesVersions` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray)).annotate(
   $I.annote("TypesVersions", {
@@ -412,8 +412,8 @@ export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray))
 /**
  * Schema for a development environment requirement entry.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 class DevEngineDependencyShape extends S.Class<DevEngineDependencyShape>($I`DevEngineDependency`)(
   {
@@ -431,8 +431,8 @@ class DevEngineDependencyShape extends S.Class<DevEngineDependencyShape>($I`DevE
 /**
  * Schema for a development environment requirement entry.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const DevEngineDependency = DevEngineDependencyShape;
 
@@ -447,8 +447,8 @@ const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDepe
 /**
  * Schema for the `devEngines` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 class DevEnginesShape extends S.Class<DevEnginesShape>($I`DevEngines`)(
   {
@@ -467,8 +467,8 @@ class DevEnginesShape extends S.Class<DevEnginesShape>($I`DevEngines`)(
 /**
  * Schema for the `devEngines` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const DevEngines = DevEnginesShape;
 
@@ -529,8 +529,8 @@ const PackageExportsSubpathMap = S.Record(ExportTopLevelKey, PackageExportsEntry
 /**
  * Schema for the `exports` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const PackageExports = S.Union([
   PackageExportsEntryPath,
@@ -595,8 +595,8 @@ const PackageImportsEntryOrFallback: S.Codec<PackageImportsEntryOrFallback, Pack
 /**
  * Schema for the `imports` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const PackageImports = S.Record(ImportSpecifierKey, PackageImportsEntryOrFallback).annotate(
   $I.annote("PackageImports", {
@@ -647,8 +647,8 @@ const PublishConfigBase = S.Struct(publishConfigBaseFields).annotate(
 /**
  * Schema for the `workspaces` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
   $I.annote("Workspaces", {
@@ -661,8 +661,8 @@ export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
 /**
  * Schema for the `publishConfig` field.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const PublishConfig = S.StructWithRest(PublishConfigBase, [S.Record(S.String, Json)]).annotate(
   $I.annote("PublishConfig", {
@@ -739,8 +739,8 @@ const PackageJsonShape = S.Struct(packageJsonFields);
  *
  * Unexpected keys are rejected by the exported decode helpers.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export class NpmPackageJson extends S.Class<NpmPackageJson>($I`NpmPackageJson`)(
   NpmPackageJsonShape,
@@ -755,8 +755,8 @@ export class NpmPackageJson extends S.Class<NpmPackageJson>($I`NpmPackageJson`)(
  *
  * Extends the npm surface with repo-local metadata fields used by the monorepo.
  *
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
   PackageJsonShape,
@@ -775,15 +775,15 @@ export declare namespace NpmPackageJson {
   /**
    * Decoded runtime type for {@link NpmPackageJson}.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   export type Type = S.Schema.Type<typeof NpmPackageJson>;
   /**
    * Encoded representation for {@link NpmPackageJson}.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   export type Encoded = S.Codec.Encoded<typeof NpmPackageJson>;
 }
@@ -797,15 +797,15 @@ export declare namespace PackageJson {
   /**
    * Decoded runtime type for {@link PackageJson}.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   export type Type = S.Schema.Type<typeof PackageJson>;
   /**
    * Encoded representation for {@link PackageJson}.
    *
-   * @since 0.0.0
    * @category DomainModel
+   * @since 0.0.0
    */
   export type Encoded = S.Codec.Encoded<typeof PackageJson>;
 }
@@ -813,148 +813,148 @@ export declare namespace PackageJson {
 /**
  * Runtime type for {@link Person}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Person = (typeof Person)["Type"];
 /**
  * Runtime type for {@link Author}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Author = (typeof Author)["Type"];
 /**
  * Runtime type for {@link Contributors}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Contributors = (typeof Contributors)["Type"];
 /**
  * Runtime type for {@link Maintainers}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Maintainers = (typeof Maintainers)["Type"];
 /**
  * Runtime type for {@link Repository}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Repository = (typeof Repository)["Type"];
 /**
  * Runtime type for {@link Bugs}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Bugs = (typeof Bugs)["Type"];
 /**
  * Runtime type for {@link Funding}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Funding = (typeof Funding)["Type"];
 /**
  * Runtime type for {@link Bin}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Bin = (typeof Bin)["Type"];
 /**
  * Runtime type for {@link Browser}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Browser = (typeof Browser)["Type"];
 /**
  * Runtime type for {@link Directories}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Directories = (typeof Directories)["Type"];
 /**
  * Runtime type for {@link Man}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Man = (typeof Man)["Type"];
 /**
  * Runtime type for {@link SideEffects}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type SideEffects = (typeof SideEffects)["Type"];
 /**
  * Runtime type for {@link BundleDependencies}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type BundleDependencies = (typeof BundleDependencies)["Type"];
 /**
  * Runtime type for {@link PeerDependenciesMeta}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type PeerDependenciesMeta = (typeof PeerDependenciesMeta)["Type"];
 /**
  * Runtime type for {@link TypesVersions}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TypesVersions = (typeof TypesVersions)["Type"];
 /**
  * Runtime type for {@link DevEngineDependency}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type DevEngineDependency = (typeof DevEngineDependency)["Type"];
 /**
  * Runtime type for {@link DevEngines}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type DevEngines = (typeof DevEngines)["Type"];
 /**
  * Runtime type for {@link PackageExports}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type PackageExports = (typeof PackageExports)["Type"];
 /**
  * Runtime type for {@link PackageImports}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type PackageImports = (typeof PackageImports)["Type"];
 /**
  * Runtime type for {@link Workspaces}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type Workspaces = (typeof Workspaces)["Type"];
 /**
  * Runtime type for {@link PublishConfig}.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type PublishConfig = (typeof PublishConfig)["Type"];
 
@@ -970,8 +970,8 @@ const encodePackageJsonJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString
  *
  * @param input - Unknown package.json-shaped value to validate and decode.
  * @returns Decoded strict `PackageJson` value.
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const decodePackageJson = (input: unknown): PackageJson.Type =>
   decodePackageJsonUnknownSync(input, strictDecodeOptions);
@@ -982,8 +982,8 @@ export const decodePackageJson = (input: unknown): PackageJson.Type =>
  *
  * @param input - Unknown package.json-shaped value to validate and decode.
  * @returns Exit describing either the decoded package.json or the schema failure.
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Type, S.SchemaError> = (input) =>
   decodePackageJsonUnknownExit(input, strictDecodeOptions);
@@ -993,8 +993,8 @@ export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Ty
  *
  * @param input - Unknown package.json-shaped value to validate and decode.
  * @returns Effect that yields a decoded strict package.json value.
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Type, S.SchemaError> = (input) =>
   decodePackageJsonUnknownEffect(input, strictDecodeOptions);
@@ -1007,8 +1007,8 @@ export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  *
  * @param input - Unknown package.json-shaped value to validate before encoding.
  * @returns Effect that yields the encoded package.json representation.
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Encoded, S.SchemaError> = Effect.fn(
   function* (input) {
@@ -1022,8 +1022,8 @@ export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  *
  * @param input - Unknown package.json-shaped value to validate before encoding.
  * @returns Effect that yields a compact JSON string.
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<string, S.SchemaError> = Effect.fn(
   function* (input) {
@@ -1037,8 +1037,8 @@ export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<st
  *
  * @param input - Unknown package.json-shaped value to validate before encoding.
  * @returns Effect that yields a formatted JSON string or a domain formatting error.
- * @since 0.0.0
  * @category Validation
+ * @since 0.0.0
  */
 export const encodePackageJsonPrettyEffect: (input: unknown) => Effect.Effect<string, S.SchemaError | DomainError> =
   Effect.fn(function* (input) {

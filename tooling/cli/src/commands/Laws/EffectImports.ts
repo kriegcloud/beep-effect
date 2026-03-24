@@ -1,8 +1,8 @@
 /**
  * Effect import style migration and check logic.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -21,8 +21,8 @@ const $I = $RepoCliId.create("commands/Laws/EffectImports");
 /**
  * Runtime options for effect import law migration checks.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>($I`EffectImportRulesOptions`)(
   {
@@ -41,8 +41,8 @@ export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>(
 /**
  * Summary of effect import law migration results.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>($I`EffectImportRulesSummary`)(
   {
@@ -97,8 +97,8 @@ const isStableSubmodule = (moduleName: string): boolean =>
 /**
  * Run effect import style migration/check logic.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const runEffectImportRules = Effect.fn(function* (options: EffectImportRulesOptions) {
   const path = yield* Path.Path;

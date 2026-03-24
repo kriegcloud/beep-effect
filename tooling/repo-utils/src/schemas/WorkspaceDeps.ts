@@ -4,8 +4,8 @@
  * Dependencies are split into workspace-internal dependencies (packages
  * that live within the monorepo) and external NPM dependencies.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
@@ -15,8 +15,8 @@ const $I = $RepoUtilsId.create("schemas/WorkspaceDeps");
 /**
  * A record mapping package names to version specifiers.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const DependencyRecord = S.Record(S.String, S.String).annotate(
   $I.annote("DependencyRecord", {
@@ -27,8 +27,8 @@ export const DependencyRecord = S.Record(S.String, S.String).annotate(
 /**
  * A record mapping package names to version specifiers.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type DependencyRecord = typeof DependencyRecord.Type;
 
@@ -51,8 +51,8 @@ class WorkspaceDependencyBuckets extends S.Class<WorkspaceDependencyBuckets>($I`
  * categories, each further divided by dependency type (runtime, dev, peer,
  * optional).
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
   {
@@ -71,8 +71,8 @@ export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
  *
  * @param packageName Package name to initialize.
  * @returns Empty dependency structure for the package.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const emptyWorkspaceDeps = (packageName: string): WorkspaceDeps =>
   new WorkspaceDeps({

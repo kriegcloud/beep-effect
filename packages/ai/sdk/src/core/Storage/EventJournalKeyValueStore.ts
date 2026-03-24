@@ -141,15 +141,12 @@ export const make = (options?: { readonly key?: string }) =>
         return Effect.gen(function* () {
           const entry = yield* Effect.sync(
             () =>
-              new EventJournal.Entry(
-                {
-                  id: EventJournal.makeEntryIdUnsafe(),
-                  event,
-                  primaryKey,
-                  payload,
-                },
-                { disableValidation: true }
-              )
+              new EventJournal.Entry({
+                id: EventJournal.makeEntryIdUnsafe(),
+                event,
+                primaryKey,
+                payload,
+              })
           );
           const value = yield* effect(entry);
           yield* withLock(

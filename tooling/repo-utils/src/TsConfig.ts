@@ -4,8 +4,8 @@
  * Scans each workspace (and the root) for `tsconfig*.json` files and
  * returns a mapping of package names to their tsconfig file paths.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { Effect, HashMap } from "effect";
 import type { DomainError, NoSuchFileError } from "./errors/index.js";
@@ -15,8 +15,8 @@ import { resolveWorkspaceDirs } from "./Workspaces.js";
 /**
  * The root package identifier used in the returned HashMap.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const ROOT_KEY = "@beep/root";
 
@@ -43,8 +43,8 @@ const ROOT_KEY = "@beep/root";
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const collectTsConfigPaths: (
   rootDir: string

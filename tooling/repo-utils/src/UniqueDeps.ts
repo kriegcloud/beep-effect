@@ -5,8 +5,8 @@
  * package and the root, deduplicates them, and returns sorted arrays of
  * unique dependency names.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { Effect, MutableHashSet, Order, pipe, Struct } from "effect";
@@ -21,8 +21,8 @@ const $I = $RepoUtilsId.create("UniqueDeps");
 /**
  * Result of collecting unique NPM dependencies across the monorepo.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
   {
@@ -61,8 +61,8 @@ export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const collectUniqueNpmDependencies: (
   rootDir: string

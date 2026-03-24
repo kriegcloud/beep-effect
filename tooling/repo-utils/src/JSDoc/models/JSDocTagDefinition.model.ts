@@ -18,8 +18,8 @@ const $I = $RepoUtilsId.create("JSDoc/models/JSDocTagDefinition.model");
  * Complete metadata for a single JSDoc/TSDoc tag.
  * Designed as a discriminated union member via `_tag`.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagDefinition`)(
   {

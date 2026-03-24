@@ -5,8 +5,8 @@
  * an `index.ts` barrel file with `export *` re-exports, each annotated
  * with `@since 0.0.0` JSDoc tags as required by `@effect/docgen`.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -29,8 +29,8 @@ const $I = $RepoCliId.create("commands/Codegen");
 /**
  * File extensions recognised as TypeScript source modules during barrel generation.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const TS_EXTENSIONS = [".ts", ".tsx"] as const;
 
@@ -115,8 +115,8 @@ const decodeJSImportPath = S.decodeUnknownSync(TypeScriptSourceToJSImportPath);
  *
  * @param name - The TypeScript filename (may include a sub-path prefix).
  * @returns A relative import specifier with a `.js` extension.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 const toImportPath = (name: string): string => {
   if (!isTypeScriptSourceFileName(name)) {
@@ -129,8 +129,8 @@ const toImportPath = (name: string): string => {
  * Alphabetical `Order` instance used to sort discovered module paths deterministically
  * before emitting barrel re-exports.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const alphabetical: Order.Order<string> = Order.String;
 
@@ -147,8 +147,8 @@ const alphabetical: Order.Order<string> = Order.String;
  * @param srcDir - Absolute path to the `src/` directory to scan.
  * @returns An unsorted array of relative file paths suitable for barrel re-export.
  * @depends FileSystem, Path
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 const discoverModules = Effect.fn(function* (srcDir: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -202,8 +202,8 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
  * @param packageName - Used in the module description header comment.
  * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
  * @returns The full content of the generated `index.ts` barrel file.
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
   const header = pipe(
@@ -227,8 +227,8 @@ const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>)
  * CLI command that scans a package's `src/` directory and generates (or previews)
  * an `index.ts` barrel file with `export *` re-exports for every discovered module.
  *
- * @since 0.0.0
  * @category UseCase
+ * @since 0.0.0
  */
 export const codegenCommand = Command.make(
   "codegen",

@@ -80,8 +80,8 @@ class ParserExtractorsConfig extends S.Class<ParserExtractorsConfig>($I`ParserEx
 /**
  * Supported graph database drivers.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const GraphDriver = LiteralKit(["neo4j", "falkordb"]).annotate(
   $I.annote("GraphDriver", {
@@ -92,16 +92,16 @@ export const GraphDriver = LiteralKit(["neo4j", "falkordb"]).annotate(
 /**
  * Supported graph database drivers.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type GraphDriver = typeof GraphDriver.Type;
 
 /**
  * Supported parser languages.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const Language = LiteralKit(["typescript"]).annotate(
   $I.annote("Language", {
@@ -112,16 +112,16 @@ export const Language = LiteralKit(["typescript"]).annotate(
 /**
  * Supported parser languages.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type Language = typeof Language.Type;
 
 /**
  * Supported watch strategies.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const WatchStrategy = LiteralKit(["full", "incremental"]).annotate(
   $I.annote("WatchStrategy", {
@@ -132,16 +132,16 @@ export const WatchStrategy = LiteralKit(["full", "incremental"]).annotate(
 /**
  * Supported watch strategies.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type WatchStrategy = typeof WatchStrategy.Type;
 
 /**
  * Supported MCP transports.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const McpTransport = LiteralKit(["stdio", "sse", "http"]).annotate(
   $I.annote("McpTransport", {
@@ -152,16 +152,16 @@ export const McpTransport = LiteralKit(["stdio", "sse", "http"]).annotate(
 /**
  * Supported MCP transports.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type McpTransport = typeof McpTransport.Type;
 
 /**
  * Supported visualization themes.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const VizTheme = LiteralKit(["light", "dark"]).annotate(
   $I.annote("VizTheme", {
@@ -172,16 +172,16 @@ export const VizTheme = LiteralKit(["light", "dark"]).annotate(
 /**
  * Supported visualization themes.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type VizTheme = typeof VizTheme.Type;
 
 /**
  * Supported log levels.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const LogLevel = LiteralKit(["trace", "debug", "info", "warn", "error", "fatal"]).annotate(
   $I.annote("LogLevel", {
@@ -192,8 +192,8 @@ export const LogLevel = LiteralKit(["trace", "debug", "info", "warn", "error", "
 /**
  * Supported log levels.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type LogLevel = typeof LogLevel.Type;
 
@@ -234,8 +234,8 @@ class GraphConfigFalkordb extends GraphConfigBase.extend<GraphConfigFalkordb>($I
  * Graph database configuration.
  *
  * @returns Tagged schema for graph driver configuration variants.
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const GraphConfig = GraphDriver.mapMembers(Tuple.evolve([() => GraphConfigNeo4j, () => GraphConfigFalkordb]))
   .annotate(
@@ -248,16 +248,16 @@ export const GraphConfig = GraphDriver.mapMembers(Tuple.evolve([() => GraphConfi
 /**
  * Graph database configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type GraphConfig = typeof GraphConfig.Type;
 
 /**
  * Repository scan target configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export class TargetConfig extends S.Class<TargetConfig>($I`TargetConfig`)(
   {
@@ -273,8 +273,8 @@ export class TargetConfig extends S.Class<TargetConfig>($I`TargetConfig`)(
 /**
  * Parser configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export class ParserConfig extends S.Class<ParserConfig>($I`ParserConfig`)(
   {
@@ -324,8 +324,8 @@ class WatcherConfigFull extends WatcherConfigBase.extend<WatcherConfigFull>($I`W
  * File watcher configuration.
  *
  * @returns Tagged schema for filesystem watcher strategy variants.
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const WatcherConfig = WatchStrategy.mapMembers(
   Tuple.evolve([() => WatcherConfigFull, () => WatcherConfigIncremental])
@@ -340,8 +340,8 @@ export const WatcherConfig = WatchStrategy.mapMembers(
 /**
  * File watcher configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type WatcherConfig = typeof WatcherConfig.Type;
 
@@ -385,8 +385,8 @@ class McpConfigHttp extends McpConfigBase.extend<McpConfigHttp>($I`McpConfigHttp
  * MCP server configuration.
  *
  * @returns Tagged schema for MCP transport configuration variants.
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const McpConfig = McpTransport.mapMembers(
   Tuple.evolve([() => McpConfigStdio, () => McpConfigSse, () => McpConfigHttp])
@@ -401,8 +401,8 @@ export const McpConfig = McpTransport.mapMembers(
 /**
  * MCP server configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type McpConfig = typeof McpConfig.Type;
 
@@ -437,8 +437,8 @@ class VizConfigDark extends VizConfigBase.extend<VizConfigDark>($I`VizConfigDark
  * Visualization configuration.
  *
  * @returns Tagged schema for visualization theme configuration variants.
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const VizConfig = VizTheme.mapMembers(Tuple.evolve([() => VizConfigLight, () => VizConfigDark]))
   .annotate(
@@ -451,8 +451,8 @@ export const VizConfig = VizTheme.mapMembers(Tuple.evolve([() => VizConfigLight,
 /**
  * Visualization configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type VizConfig = typeof VizConfig.Type;
 
@@ -524,8 +524,8 @@ class LogConfigFatal extends LogConfigBase.extend<LogConfigFatal>($I`LogConfigFa
  * Logging configuration.
  *
  * @returns Tagged schema for runtime logging level configuration variants.
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const LogConfig = LogLevel.mapMembers(
   Tuple.evolve([
@@ -547,16 +547,16 @@ export const LogConfig = LogLevel.mapMembers(
 /**
  * Logging configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type LogConfig = typeof LogConfig.Type;
 
 /**
  * Top-level codegraph configuration.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export class CodegraphConfig extends S.Class<CodegraphConfig>($I`CodegraphConfig`)(
   {
@@ -594,7 +594,7 @@ export class CodegraphConfig extends S.Class<CodegraphConfig>($I`CodegraphConfig
 /**
  * Encoded input accepted by {@link CodegraphConfig}.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type CodegraphConfigInput = typeof CodegraphConfig.Encoded;

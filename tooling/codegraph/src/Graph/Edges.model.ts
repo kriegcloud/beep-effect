@@ -38,8 +38,8 @@ class GraphEdgeBase extends S.Class<GraphEdgeBase>($I`GraphEdgeBase`)(
 /**
  * Supported graph edge kinds.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const EdgeType = LiteralKit([
   "CONTAINS",
@@ -74,16 +74,16 @@ export const EdgeType = LiteralKit([
 /**
  * Supported graph edge kinds.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type EdgeType = typeof EdgeType.Type;
 
 /**
  * Supported call-resolution strategies.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const CallResolution = LiteralKit(["same-file", "file-context", "import-resolved", "global-filtered"]).annotate(
   $I.annote("CallResolution", {
@@ -94,16 +94,16 @@ export const CallResolution = LiteralKit(["same-file", "file-context", "import-r
 /**
  * Supported call-resolution strategies.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type CallResolution = typeof CallResolution.Type;
 
 /**
  * Common graph edge shape.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class BaseEdge extends S.Class<BaseEdge>($I`BaseEdge`)(
   {
@@ -121,8 +121,8 @@ export class BaseEdge extends S.Class<BaseEdge>($I`BaseEdge`)(
 /**
  * Contains relationship edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ContainsEdge extends GraphEdgeBase.extend<ContainsEdge>($I`ContainsEdge`)(
   {
@@ -136,8 +136,8 @@ export class ContainsEdge extends GraphEdgeBase.extend<ContainsEdge>($I`Contains
 /**
  * Import relationship edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ImportsEdge extends GraphEdgeBase.extend<ImportsEdge>($I`ImportsEdge`)(
   {
@@ -154,8 +154,8 @@ export class ImportsEdge extends GraphEdgeBase.extend<ImportsEdge>($I`ImportsEdg
 /**
  * Export relationship edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ExportsEdge extends GraphEdgeBase.extend<ExportsEdge>($I`ExportsEdge`)(
   {
@@ -171,8 +171,8 @@ export class ExportsEdge extends GraphEdgeBase.extend<ExportsEdge>($I`ExportsEdg
 /**
  * Extends relationship edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ExtendsEdge extends GraphEdgeBase.extend<ExtendsEdge>($I`ExtendsEdge`)(
   {
@@ -186,8 +186,8 @@ export class ExtendsEdge extends GraphEdgeBase.extend<ExtendsEdge>($I`ExtendsEdg
 /**
  * Implements relationship edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ImplementsEdge extends GraphEdgeBase.extend<ImplementsEdge>($I`ImplementsEdge`)(
   {
@@ -201,8 +201,8 @@ export class ImplementsEdge extends GraphEdgeBase.extend<ImplementsEdge>($I`Impl
 /**
  * Function or method call edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CallsEdge extends GraphEdgeBase.extend<CallsEdge>($I`CallsEdge`)(
   {
@@ -219,8 +219,8 @@ export class CallsEdge extends GraphEdgeBase.extend<CallsEdge>($I`CallsEdge`)(
 /**
  * Dependency relationship edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class DependsOnEdge extends GraphEdgeBase.extend<DependsOnEdge>($I`DependsOnEdge`)(
   {
@@ -235,8 +235,8 @@ export class DependsOnEdge extends GraphEdgeBase.extend<DependsOnEdge>($I`Depend
 /**
  * Route or event handler edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class HandlesEdge extends GraphEdgeBase.extend<HandlesEdge>($I`HandlesEdge`)(
   {
@@ -251,8 +251,8 @@ export class HandlesEdge extends GraphEdgeBase.extend<HandlesEdge>($I`HandlesEdg
 /**
  * Database read edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ReadsFromEdge extends GraphEdgeBase.extend<ReadsFromEdge>($I`ReadsFromEdge`)(
   {
@@ -267,8 +267,8 @@ export class ReadsFromEdge extends GraphEdgeBase.extend<ReadsFromEdge>($I`ReadsF
 /**
  * Database write edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class WritesToEdge extends GraphEdgeBase.extend<WritesToEdge>($I`WritesToEdge`)(
   {
@@ -283,8 +283,8 @@ export class WritesToEdge extends GraphEdgeBase.extend<WritesToEdge>($I`WritesTo
 /**
  * External call edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class CallsExternalEdge extends GraphEdgeBase.extend<CallsExternalEdge>($I`CallsExternalEdge`)(
   {
@@ -300,8 +300,8 @@ export class CallsExternalEdge extends GraphEdgeBase.extend<CallsExternalEdge>($
 /**
  * Trigger relationship edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class TriggersEdge extends GraphEdgeBase.extend<TriggersEdge>($I`TriggersEdge`)(
   {
@@ -316,8 +316,8 @@ export class TriggersEdge extends GraphEdgeBase.extend<TriggersEdge>($I`Triggers
 /**
  * Event emission edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class EmitsEdge extends GraphEdgeBase.extend<EmitsEdge>($I`EmitsEdge`)(
   {
@@ -332,8 +332,8 @@ export class EmitsEdge extends GraphEdgeBase.extend<EmitsEdge>($I`EmitsEdge`)(
 /**
  * Event listener edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ListensToEdge extends GraphEdgeBase.extend<ListensToEdge>($I`ListensToEdge`)(
   {
@@ -348,8 +348,8 @@ export class ListensToEdge extends GraphEdgeBase.extend<ListensToEdge>($I`Listen
 /**
  * Environment variable usage edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class UsesEnvEdge extends GraphEdgeBase.extend<UsesEnvEdge>($I`UsesEnvEdge`)(
   {
@@ -363,8 +363,8 @@ export class UsesEnvEdge extends GraphEdgeBase.extend<UsesEnvEdge>($I`UsesEnvEdg
 /**
  * Queue producer edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ProducesJobEdge extends GraphEdgeBase.extend<ProducesJobEdge>($I`ProducesJobEdge`)(
   {
@@ -379,8 +379,8 @@ export class ProducesJobEdge extends GraphEdgeBase.extend<ProducesJobEdge>($I`Pr
 /**
  * Queue consumer edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ConsumesJobEdge extends GraphEdgeBase.extend<ConsumesJobEdge>($I`ConsumesJobEdge`)(
   {
@@ -395,8 +395,8 @@ export class ConsumesJobEdge extends GraphEdgeBase.extend<ConsumesJobEdge>($I`Co
 /**
  * Metric usage edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class UsesMetricEdge extends GraphEdgeBase.extend<UsesMetricEdge>($I`UsesMetricEdge`)(
   {
@@ -411,8 +411,8 @@ export class UsesMetricEdge extends GraphEdgeBase.extend<UsesMetricEdge>($I`Uses
 /**
  * Span start edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class StartsSpanEdge extends GraphEdgeBase.extend<StartsSpanEdge>($I`StartsSpanEdge`)(
   {
@@ -427,8 +427,8 @@ export class StartsSpanEdge extends GraphEdgeBase.extend<StartsSpanEdge>($I`Star
 /**
  * Message producer edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ProducesMessageEdge extends GraphEdgeBase.extend<ProducesMessageEdge>($I`ProducesMessageEdge`)(
   {
@@ -443,8 +443,8 @@ export class ProducesMessageEdge extends GraphEdgeBase.extend<ProducesMessageEdg
 /**
  * Message consumer edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class ConsumesMessageEdge extends GraphEdgeBase.extend<ConsumesMessageEdge>($I`ConsumesMessageEdge`)(
   {
@@ -459,8 +459,8 @@ export class ConsumesMessageEdge extends GraphEdgeBase.extend<ConsumesMessageEdg
 /**
  * Security issue association edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class HasSecurityIssueEdge extends GraphEdgeBase.extend<HasSecurityIssueEdge>($I`HasSecurityIssueEdge`)(
   {
@@ -474,8 +474,8 @@ export class HasSecurityIssueEdge extends GraphEdgeBase.extend<HasSecurityIssueE
 /**
  * Scheduled execution edge.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class SchedulesEdge extends GraphEdgeBase.extend<SchedulesEdge>($I`SchedulesEdge`)(
   {
@@ -491,8 +491,8 @@ export class SchedulesEdge extends GraphEdgeBase.extend<SchedulesEdge>($I`Schedu
  * Graph edge union keyed by `type`.
  *
  * @returns Tagged schema covering every supported graph edge relationship.
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export const GraphEdge = EdgeType.mapMembers(
   Tuple.evolve([
@@ -531,7 +531,7 @@ export const GraphEdge = EdgeType.mapMembers(
 /**
  * Graph edge union keyed by `type`.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export type GraphEdge = typeof GraphEdge.Type;

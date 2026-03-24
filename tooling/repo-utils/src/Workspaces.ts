@@ -4,8 +4,8 @@
  * Expands glob patterns from the root `package.json` `workspaces` field
  * into a mapping of package names to their absolute directory paths.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 import { normalizePath } from "@beep/schema";
 import { Effect, HashMap, pipe } from "effect";
@@ -25,8 +25,8 @@ import {
 /**
  * Directories to exclude when scanning workspace globs.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
 const absoluteWorkspacePattern = /^(?:[A-Za-z]:\/|\/\/|\/)/;
@@ -81,8 +81,8 @@ const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolea
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const resolveWorkspaceDirs: (
   rootDir: string
@@ -211,8 +211,8 @@ export const resolveWorkspaceDirs: (
  * })
  * void program
  * ```
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const getWorkspaceDir: (
   rootDir: string,

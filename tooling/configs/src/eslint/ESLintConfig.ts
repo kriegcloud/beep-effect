@@ -26,16 +26,16 @@ const beepLaws = {
 /**
  * Shared flat ESLint configuration used by the repository root.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export type ESLintConfigShape = ReadonlyArray<Linter.Config>;
 
 /**
  * Shared flat ESLint configuration used by the repository root.
  *
- * @since 0.0.0
  * @category Configuration
+ * @since 0.0.0
  */
 export const ESLintConfig: ESLintConfigShape = [
   {
@@ -89,6 +89,7 @@ export const ESLintConfig: ESLintConfigShape = [
       parser: tsParser,
       parserOptions: {
         projectService: true,
+        warnOnUnsupportedTypeScriptVersion: false,
       },
     },
     rules: {
@@ -116,6 +117,7 @@ export const ESLintConfig: ESLintConfigShape = [
       parser: tsParser,
       parserOptions: {
         projectService: true,
+        warnOnUnsupportedTypeScriptVersion: false,
       },
     },
     rules: {
@@ -148,6 +150,7 @@ export const ESLintConfig: ESLintConfigShape = [
       parser: tsParser,
       parserOptions: {
         projectService: true,
+        warnOnUnsupportedTypeScriptVersion: false,
       },
     },
     rules: {
@@ -165,6 +168,7 @@ export const ESLintConfig: ESLintConfigShape = [
       parser: tsParser,
       parserOptions: {
         projectService: true,
+        warnOnUnsupportedTypeScriptVersion: false,
       },
     },
     settings: {

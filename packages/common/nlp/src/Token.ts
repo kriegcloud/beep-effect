@@ -44,38 +44,21 @@ export type TokenIndex = Brand.Branded<NonNegativeInt, "TokenIndex">;
  *
  * @example
  * ```typescript
- * import { isTokenIndex } from "effect/Token";
- * import { Effect } from "effect";
+ * import { isTokenIndex } from "@beep/nlp/Token";
  *
- * // Example usage
- * const value1 = 5;
- * const value2 = -3;
- * const value3 = 3.5;
- *
- * console.log(isTokenIndex(value1)); // true
- * console.log(isTokenIndex(value2)); // false
- * console.log(isTokenIndex(value3)); // false
+ * console.log(isTokenIndex(5)); // true
+ * console.log(isTokenIndex(-3)); // false
+ * console.log(isTokenIndex(3.5)); // false
  * ```
  *
  * @example
  * ```typescript
- * import { isTokenIndex } from "effect/Token";
- * import { Effect } from "effect";
+ * import { isTokenIndex } from "@beep/nlp/Token";
  *
- * // Use with Effect
- * const checkIndex = (value: unknown) =>
- *   Effect.gen(function* () {
- *     if (isTokenIndex(value)) {
- *       yield* Effect.log(`Value ${value} is a valid TokenIndex.`);
- *       return value;
- *     } else {
- *       throw new Error(`Invalid TokenIndex: ${value}`);
- *     }
- *   });
+ * const values = [0, 1, -1, 2.5] as const;
+ * const validValues = values.filter(isTokenIndex);
  *
- * const program = checkIndex(42).pipe(
- *   Effect.provideLayer(Effect.defaultRuntime)
- * );
+ * console.log(validValues); // [0, 1]
  * ```
  *
  * @param u - The value to be tested.
@@ -101,25 +84,10 @@ export const isTokenIndex = (u: unknown): u is TokenIndex => S.is(NonNegativeInt
  *
  * @example
  * ```typescript
- * import { Brand } from "effect/Brand";
- * import * as S from "effect/Schema";
+ * import { tokenIndex } from "@beep/nlp/Token";
  *
- * // Define a schema and a validation function for TokenIndex
- * const isTokenIndex = (value: unknown): value is TokenIndex =>
- *   typeof value === "number" && value >= 0;
- *
- * type TokenIndex = Brand.Brand<number, "TokenIndex">;
- *
- * const tokenIndex: Brand.Constructor<TokenIndex> = Brand.check<TokenIndex>(
- *   S.makeFilter(isTokenIndex)
- * );
- *
- * // Safe usage
- * const index: TokenIndex = tokenIndex(5); // Valid index
+ * const index = tokenIndex(5);
  * console.log(index); // Outputs: 5
- *
- * // Invalid usage
- * const invalidIndex: TokenIndex = tokenIndex(-1); // Fails filter
  * ```
  *
  * @since 0.1.0
@@ -148,10 +116,10 @@ export type CharPosition = Brand.Branded<NonNegativeInt, "CharPosition">;
 /**
  * Checks whether the provided value is a valid `CharPosition`.
  *
- * @category Validation
- * @param u
- * @returns {u is CharPosition}
  * @since 0.0.0
+ * @category Validation
+ * @param u - The value to check.
+ * @returns Whether the value is a valid `CharPosition`.
  */
 export const isCharPosition = (u: unknown): u is CharPosition => S.is(NonNegativeInt)(u);
 
@@ -190,15 +158,28 @@ export const CharPosition = NonNegativeInt.pipe(S.fromBrand("CharPosition", char
  *
  * @example
  * ```typescript
- * import { Token } from "effect/Token";
- * import * as O from "effect/Option";
+ * import { Token, charPosition, tokenIndex } from "@beep/nlp/Token";
+ * import { O } from "@beep/utils";
  *
- * const token = new Token({
+ * const token = Token.makeUnsafe({
  *   text: "example",
- *   index: 0,
- *   start: 0,
- *   end: 7,
+ *   index: tokenIndex(0),
+ *   start: charPosition(0),
+ *   end: charPosition(7),
  *   pos: O.some("noun"),
+ *   lemma: O.none(),
+ *   stem: O.none(),
+ *   normal: O.none(),
+ *   shape: O.none(),
+ *   prefix: O.none(),
+ *   suffix: O.none(),
+ *   case: O.none(),
+ *   uniqueId: O.none(),
+ *   abbrevFlag: O.none(),
+ *   contractionFlag: O.none(),
+ *   stopWordFlag: O.none(),
+ *   negationFlag: O.none(),
+ *   precedingSpaces: O.none(),
  *   tags: ["keyword", "highlight"],
  * });
  *

@@ -4,8 +4,8 @@
  * Keeps the lockstep Effect v4 package family in the root `package.json`
  * `catalog` aligned with the canonical `effect` entry.
  *
- * @since 0.0.0
  * @module
+ * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
@@ -55,8 +55,8 @@ class EffectCatalogPackage extends S.Class<EffectCatalogPackage>($I`EffectCatalo
 /**
  * Resolved Effect catalog state derived from the root `package.json` catalog entries.
  *
- * @since 0.0.0
  * @category DomainModel
+ * @since 0.0.0
  */
 export class EffectCatalogState extends S.Class<EffectCatalogState>($I`EffectCatalogState`)(
   {
@@ -114,8 +114,8 @@ const isLockstepEffectPackage = (packageName: string, versionSpecifier: string, 
 /**
  * Resolve the root package.json Effect catalog state.
  *
- * @since 0.0.0
  * @category Utility
+ * @since 0.0.0
  */
 export const resolveEffectCatalog: (
   repoRoot: string
@@ -170,10 +170,10 @@ export const resolveEffectCatalog: (
 /**
  * Build the Effect catalog category report from resolved state.
  *
- * @since 0.0.0
- * @category Utility
  * @param state - Resolved Effect catalog dependency state.
  * @returns The Effect-specific version drift report derived from the catalog state.
+ * @category Utility
+ * @since 0.0.0
  */
 export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryReport = (state) => {
   if (Str.isEmpty(state.canonicalSpecifier)) {

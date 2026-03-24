@@ -7,8 +7,8 @@
  * - **Code generation** - Generate barrel files and exports
  * - **Topological sort** - Output packages in dependency order
  *
- * @since 0.0.0
  * @packageDocumentation
+ * @since 0.0.0
  */
 
 /**
