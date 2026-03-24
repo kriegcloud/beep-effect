@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
 import type * as React from "react";
 import { Group, Panel, Separator } from "react-resizable-panels";
+import { cn } from "../lib/index.ts";
 
 function ResizablePanelGroup({ className, ...props }: React.ComponentProps<typeof Group>) {
   return <Group data-slot="resizable-panel-group" className={cn("flex h-full w-full", className)} {...props} />;

@@ -1,5 +1,5 @@
-import { cn } from "@beep/ui/lib";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (

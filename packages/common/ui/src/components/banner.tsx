@@ -1,7 +1,7 @@
-import { cn } from "@beep/ui/lib";
-import { CheckCircle, Info, SpinnerGap, WarningCircle, X } from "@phosphor-icons/react";
+import { CheckCircleIcon, InfoIcon, SpinnerGapIcon, WarningCircleIcon, XIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 
 const bannerVariants = cva("relative flex items-center gap-3 rounded-lg border px-4 py-3 text-sm", {
   variants: {
@@ -22,12 +22,12 @@ const bannerVariants = cva("relative flex items-center gap-3 rounded-lg border p
 type BannerVariant = NonNullable<VariantProps<typeof bannerVariants>["variant"]>;
 
 const variantIcons: Record<BannerVariant, React.ReactNode> = {
-  default: <Info className="size-4 shrink-0" />,
-  info: <Info className="size-4 shrink-0" />,
-  success: <CheckCircle className="size-4 shrink-0" />,
-  warning: <WarningCircle className="size-4 shrink-0" />,
-  destructive: <WarningCircle className="size-4 shrink-0" />,
-  loading: <SpinnerGap className="size-4 shrink-0 animate-spin" />,
+  default: <InfoIcon className="size-4 shrink-0" />,
+  info: <InfoIcon className="size-4 shrink-0" />,
+  success: <CheckCircleIcon className="size-4 shrink-0" />,
+  warning: <WarningCircleIcon className="size-4 shrink-0" />,
+  destructive: <WarningCircleIcon className="size-4 shrink-0" />,
+  loading: <SpinnerGapIcon className="size-4 shrink-0 animate-spin" />,
 };
 
 type BannerRootProps = React.ComponentProps<"div"> &
@@ -46,42 +46,40 @@ const BannerRoot = ({ className, variant = "default", icon, children, ...props }
   );
 };
 
-const BannerContent = ({ className, ...props }: React.ComponentProps<"div">) => {
-  return <div data-slot="banner-content" className={cn("flex-1", className)} {...props} />;
-};
+const BannerContent = ({ className, ...props }: React.ComponentProps<"div">) => (
+  <div data-slot="banner-content" className={cn("flex-1", className)} {...props} />
+);
 
-const BannerTitle = ({ className, ...props }: React.ComponentProps<"p">) => {
-  return <p data-slot="banner-title" className={cn("font-medium leading-none", className)} {...props} />;
-};
+const BannerTitle = ({ className, ...props }: React.ComponentProps<"p">) => (
+  <p data-slot="banner-title" className={cn("font-medium leading-none", className)} {...props} />
+);
 
-const BannerDescription = ({ className, ...props }: React.ComponentProps<"p">) => {
-  return <p data-slot="banner-description" className={cn("text-sm opacity-90", className)} {...props} />;
-};
+const BannerDescription = ({ className, ...props }: React.ComponentProps<"p">) => (
+  <p data-slot="banner-description" className={cn("text-sm opacity-90", className)} {...props} />
+);
 
 type BannerDismissProps = React.ComponentProps<"button"> & {
   onDismiss?: undefined | (() => void);
 };
 
-const BannerDismiss = ({ className, onDismiss, onClick, ...props }: BannerDismissProps) => {
-  return (
-    <button
-      type="button"
-      data-slot="banner-dismiss"
-      className={cn(
-        "inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md opacity-70 transition-all hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-95",
-        className
-      )}
-      onClick={(e) => {
-        onDismiss?.();
-        onClick?.(e);
-      }}
-      {...props}
-    >
-      <X className="size-4" />
-      <span className="sr-only">Dismiss</span>
-    </button>
-  );
-};
+const BannerDismiss = ({ className, onDismiss, onClick, ...props }: BannerDismissProps) => (
+  <button
+    type="button"
+    data-slot="banner-dismiss"
+    className={cn(
+      "inline-flex size-6 shrink-0 cursor-pointer items-center justify-center rounded-md opacity-70 transition-all hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 active:scale-95",
+      className
+    )}
+    onClick={(e) => {
+      onDismiss?.();
+      onClick?.(e);
+    }}
+    {...props}
+  >
+    <XIcon className="size-4" />
+    <span className="sr-only">Dismiss</span>
+  </button>
+);
 
 export const Banner = Object.assign(BannerRoot, {
   Content: BannerContent,

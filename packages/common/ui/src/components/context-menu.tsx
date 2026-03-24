@@ -1,9 +1,9 @@
 "use client";
 
 import { ContextMenu as ContextMenuPrimitive } from "@base-ui/react/context-menu";
-import { cn } from "@beep/ui/lib";
-import { CaretRight, Check } from "@phosphor-icons/react";
+import { CaretRight, CheckIcon } from "@phosphor-icons/react";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 
 function ContextMenu({ ...props }: ContextMenuPrimitive.Root.Props) {
   return <ContextMenuPrimitive.Root data-slot="context-menu" {...props} />;
@@ -143,7 +143,7 @@ function ContextMenuCheckboxItem({ className, children, checked, ...props }: Con
     >
       <span className="absolute right-2 pointer-events-none">
         <ContextMenuPrimitive.CheckboxItemIndicator>
-          <Check />
+          <CheckIcon />
         </ContextMenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}
@@ -167,7 +167,7 @@ function ContextMenuRadioItem({ className, children, ...props }: ContextMenuPrim
     >
       <span className="absolute right-2 pointer-events-none">
         <ContextMenuPrimitive.RadioItemIndicator>
-          <Check />
+          <CheckIcon />
         </ContextMenuPrimitive.RadioItemIndicator>
       </span>
       {children}

@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
 import * as A from "effect/Array";
 import { type HTMLAttributes, useEffect, useRef } from "react";
+import { cn } from "../lib/index.ts";
 
 export type LiveWaveformProps = HTMLAttributes<HTMLDivElement> & {
   readonly active?: undefined | boolean;

@@ -1,9 +1,9 @@
 "use client";
 
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
-import { cn } from "@beep/ui/lib";
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 import { Button } from "./button";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
@@ -61,7 +61,7 @@ function DialogContent({
               data-slot="dialog-close"
               render={<Button variant="ghost" className="absolute top-2 right-2" size="icon-sm" />}
             >
-              <X />
+              <XIcon />
               <span className="sr-only">Close</span>
             </DialogPrimitive.Close>
           )}

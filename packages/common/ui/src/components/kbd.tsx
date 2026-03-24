@@ -1,4 +1,5 @@
-import { cn } from "@beep/ui/lib";
+import type React from "react";
+import { cn } from "../lib/index.ts";
 
 function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
   return (

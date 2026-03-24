@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
 import type * as React from "react";
 import { Drawer as DrawerPrimitive } from "vaul";
+import { cn } from "../lib/index.ts";
 
 function Drawer({ ...props }: React.ComponentProps<typeof DrawerPrimitive.Root>) {
   return <DrawerPrimitive.Root data-slot="drawer" {...props} />;

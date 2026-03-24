@@ -1,4 +1,4 @@
-import { cn } from "@beep/ui/lib";
+import { cn } from "../lib/index.ts";
 
 function AspectRatio({ ratio, className, ...props }: React.ComponentProps<"div"> & { readonly ratio: number }) {
   return (

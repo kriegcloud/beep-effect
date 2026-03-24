@@ -1,9 +1,9 @@
 "use client";
 
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
-import { cn } from "@beep/ui/lib";
-import { CaretRight, Check } from "@phosphor-icons/react";
+import { CaretRight, CheckIcon } from "@phosphor-icons/react";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 import { Kbd } from "./kbd";
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
@@ -160,7 +160,7 @@ function DropdownMenuCheckboxItem({ className, children, checked, ...props }: Me
         data-slot="dropdown-menu-checkbox-item-indicator"
       >
         <MenuPrimitive.CheckboxItemIndicator>
-          <Check />
+          <CheckIcon />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}
@@ -187,7 +187,7 @@ function DropdownMenuRadioItem({ className, children, ...props }: MenuPrimitive.
         data-slot="dropdown-menu-radio-item-indicator"
       >
         <MenuPrimitive.RadioItemIndicator>
-          <Check />
+          <CheckIcon />
         </MenuPrimitive.RadioItemIndicator>
       </span>
       {children}

@@ -1,10 +1,10 @@
 "use client";
 
 import { Button, buttonVariants } from "@beep/ui/components/button";
-import { cn } from "@beep/ui/lib";
-import { CaretDown, CaretLeft, CaretRight } from "@phosphor-icons/react";
+import { CaretDownIcon, CaretLeftIcon, CaretRightIcon } from "@phosphor-icons/react";
 import * as React from "react";
 import { type DayButton, DayPicker, getDefaultClassNames } from "react-day-picker";
+import { cn } from "../lib/index.ts";
 
 function Calendar({
   className,
@@ -104,28 +104,26 @@ function Calendar({
         ...classNames,
       }}
       components={{
-        Root: ({ className, rootRef, ...props }) => {
-          return <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />;
-        },
+        Root: ({ className, rootRef, ...props }) => (
+          <div data-slot="calendar" ref={rootRef} className={cn(className)} {...props} />
+        ),
         Chevron: ({ className, orientation, ...props }) => {
           if (orientation === "left") {
-            return <CaretLeft className={cn("size-4", className)} {...props} />;
+            return <CaretLeftIcon className={cn("size-4", className)} {...props} />;
           }
 
           if (orientation === "right") {
-            return <CaretRight className={cn("size-4", className)} {...props} />;
+            return <CaretRightIcon className={cn("size-4", className)} {...props} />;
           }
 
-          return <CaretDown className={cn("size-4", className)} {...props} />;
+          return <CaretDownIcon className={cn("size-4", className)} {...props} />;
         },
         DayButton: CalendarDayButton,
-        WeekNumber: ({ children, ...props }) => {
-          return (
-            <td {...props}>
-              <div className="flex size-(--cell-size) items-center justify-center text-center">{children}</div>
-            </td>
-          );
-        },
+        WeekNumber: ({ children, ...props }) => (
+          <td {...props}>
+            <div className="flex size-(--cell-size) items-center justify-center text-center">{children}</div>
+          </td>
+        ),
         ...components,
       }}
       {...props}

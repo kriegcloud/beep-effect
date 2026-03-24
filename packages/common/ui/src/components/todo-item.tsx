@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
-import { ArrowRight, Calendar, Check, Info, WarningCircle } from "@phosphor-icons/react";
+import { ArrowRightIcon, CalendarIcon, CheckIcon, InfoIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { cn } from "../lib/index.ts";
 
 type TodoPriority = "high" | "medium" | "low" | "none";
 
@@ -146,7 +146,7 @@ export function TodoItem({
           )}
           aria-label={completed ? "Mark as incomplete" : "Mark as complete"}
         >
-          {completed && <Check size={12} className="text-white" weight="bold" />}
+          {completed && <CheckIcon size={12} className="text-white" weight="bold" />}
         </button>
 
         <div className="min-w-0 flex-1">
@@ -175,7 +175,7 @@ export function TodoItem({
                         : "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
                   )}
                 >
-                  <Calendar size={12} />
+                  <CalendarIcon size={12} />
                   {formatDate(dueDate)}
                 </span>
               )}
@@ -185,7 +185,7 @@ export function TodoItem({
                   className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
                   style={project.color ? { color: project.color } : undefined}
                 >
-                  <Info size={12} />
+                  <InfoIcon size={12} />
                   {project.name}
                 </span>
               )}
@@ -196,7 +196,7 @@ export function TodoItem({
                   className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
                   style={label.color ? { color: label.color } : undefined}
                 >
-                  <Info size={12} />
+                  <InfoIcon size={12} />
                   {label.name}
                 </span>
               ))}
@@ -209,14 +209,14 @@ export function TodoItem({
                     priorityStyle.textColor
                   )}
                 >
-                  <WarningCircle size={12} />
+                  <WarningCircleIcon size={12} />
                   {priority.charAt(0).toUpperCase() + priority.slice(1)}
                 </span>
               )}
 
               {subtasks.length > 0 && (
                 <span className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
-                  <Check size={12} />
+                  <CheckIcon size={12} />
                   {completedSubtasks}/{subtasks.length} subtasks
                 </span>
               )}
@@ -224,7 +224,7 @@ export function TodoItem({
           )}
         </div>
 
-        <ArrowRight size={16} />
+        <ArrowRightIcon size={16} />
       </div>
     </div>
   );

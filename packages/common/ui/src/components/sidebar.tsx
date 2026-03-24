@@ -1,12 +1,12 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
-import { List } from "@phosphor-icons/react";
+import { ListIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import * as React from "react";
+import { cn } from "../lib/index.ts";
 import { Button } from "./button";
 import { Input } from "./input";
 import { Separator } from "./separator";
@@ -102,9 +102,10 @@ function SidebarProvider({
     [setOpenProp, open]
   );
 
-  const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
-  }, [isMobile, setOpen, setOpenMobile]);
+  const toggleSidebar = React.useCallback(
+    () => (isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open)),
+    [isMobile, setOpen, setOpenMobile]
+  );
 
   React.useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -322,7 +323,7 @@ function SidebarTrigger({ className, onClick, ...props }: React.ComponentPropsWi
       }}
       {...props}
     >
-      <List className="size-4" />
+      <ListIcon className="size-4" />
       <span className="sr-only">Toggle Sidebar</span>
     </Button>
   );

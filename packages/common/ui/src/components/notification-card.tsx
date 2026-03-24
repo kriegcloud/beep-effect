@@ -1,20 +1,56 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
-import { ArrowRight, Check, Clock, SpinnerGap, WarningCircle } from "@phosphor-icons/react";
-import type { ReactNode } from "react";
+import { $UiId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
+import { ArrowRightIcon, CheckIcon, ClockIcon, SpinnerGapIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { pipe, Tuple } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { cn } from "../lib/index.ts";
 
-export type NotificationStatus = "unread" | "read" | "archived";
-export type ActionType = "redirect" | "api_call" | "workflow" | "modal";
-export type ActionStyle = "primary" | "danger" | "default";
+const $I = $UiId.create("components/notification-card");
 
-export interface NotificationAction {
-  readonly executed?: undefined | boolean;
-  readonly id: string;
-  readonly label: string;
-  readonly style?: undefined | ActionStyle;
-  readonly type: ActionType;
-}
+const NotificationStatus = LiteralKit(["unread", "read", "archived"]).pipe(
+  $I.annoteSchema("NotificationStatus", {
+    description: "The status of a notification",
+  })
+);
+
+export type NotificationStatus = typeof NotificationStatus.Type;
+
+export const ActionType = LiteralKit(["redirect", "api_call", "workflow", "modal"]).pipe(
+  $I.annoteSchema("ActionType", {
+    description: "The type of action to perform",
+  })
+);
+
+export type ActionType = typeof ActionType.Type;
+
+export const ActionStyle = LiteralKit(["primary", "danger", "default"]).pipe(
+  $I.annoteSchema("ActionStyle", {
+    description: "The style of the action button",
+  })
+);
+export type ActionStyle = typeof ActionStyle.Type;
+
+export const NotificationAction = ActionType.mapMembers((members) => {
+  const make = <T extends ActionType>(literal: S.Literal<T>) =>
+    S.Struct({
+      type: S.tag(literal.literal),
+      executed: S.OptionFromOptionalKey(S.Boolean),
+      id: S.String,
+      label: S.String,
+      style: S.OptionFromOptionalKey(ActionStyle),
+    });
+  return pipe(members, Tuple.evolve([make, make, make, make]));
+}).pipe(
+  S.toTaggedUnion("type"),
+  $I.annoteSchema("NotificationAction", {
+    description: "An action to perform on a notification",
+  })
+);
+
+export type NotificationAction = typeof NotificationAction.Type;
 
 export interface NotificationCardProps {
   readonly actions?: undefined | NotificationAction[];
@@ -46,21 +82,6 @@ const formatDate = (date: Date | string): string => {
     month: "short",
     day: "numeric",
   });
-};
-
-const getActionIcon = (actionType: ActionType): ReactNode => {
-  switch (actionType) {
-    case "redirect":
-      return <ArrowRight size={12} weight="bold" />;
-    case "api_call":
-      return <Check size={12} weight="bold" />;
-    case "workflow":
-      return <Clock size={12} weight="bold" />;
-    case "modal":
-      return <WarningCircle size={12} weight="bold" />;
-    default:
-      return null;
-  }
 };
 
 export function NotificationCard({
@@ -121,7 +142,7 @@ export function NotificationCard({
               )}
               aria-label="Mark as read"
             >
-              <Check size={16} weight="bold" />
+              <CheckIcon size={16} weight="bold" />
             </button>
           )}
         </div>
@@ -138,25 +159,39 @@ export function NotificationCard({
                   <button
                     key={action.id}
                     type="button"
-                    disabled={isLoading || isExecuted}
+                    disabled={isLoading || isExecuted.pipe(O.getOrElse(() => false))}
                     onClick={() => onAction?.(id, action.id, action.type)}
                     className={cn(
                       "flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-normal transition",
-                      action.style === "primary"
-                        ? "bg-sky-500/10 text-blue-600 hover:bg-sky-500/20 dark:text-blue-400 dark:hover:bg-sky-500/20"
-                        : action.style === "danger"
-                          ? "bg-red-500/10 text-red-600 hover:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/20"
-                          : "bg-zinc-200/50 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300",
+                      O.match(action.style, {
+                        onNone: () =>
+                          "bg-zinc-200/50 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300",
+                        onSome: (style) =>
+                          style === "primary"
+                            ? "bg-sky-500/10 text-blue-600 hover:bg-sky-500/20 dark:text-blue-400 dark:hover:bg-sky-500/20"
+                            : style === "danger"
+                              ? "bg-red-500/10 text-red-600 hover:bg-red-500/20 dark:text-red-400 dark:hover:bg-red-500/20"
+                              : "bg-zinc-200/50 text-zinc-600 hover:bg-zinc-200 hover:text-zinc-700 dark:bg-zinc-800/50 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-300",
+                      }),
                       showLoading && "opacity-50",
                       isExecuted && "cursor-not-allowed opacity-60"
                     )}
                   >
                     {showLoading ? (
-                      <SpinnerGap size={12} className="animate-spin" />
+                      <SpinnerGapIcon size={12} className="animate-spin" />
                     ) : (
                       <>
                         <span>{action.label}</span>
-                        {isExecuted ? <Check size={12} weight="bold" /> : getActionIcon(action.type)}
+                        {isExecuted ? (
+                          <CheckIcon size={12} weight="bold" />
+                        ) : (
+                          NotificationAction.match(action, {
+                            redirect: () => <ArrowRightIcon size={12} weight="bold" />,
+                            api_call: () => <CheckIcon size={12} weight="bold" />,
+                            workflow: () => <ClockIcon size={12} weight="bold" />,
+                            modal: () => <WarningCircleIcon size={12} weight="bold" />,
+                          })
+                        )}
                       </>
                     )}
                   </button>

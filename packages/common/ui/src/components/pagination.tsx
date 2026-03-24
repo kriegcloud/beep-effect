@@ -1,8 +1,7 @@
 import { Button } from "@beep/ui/components/button";
-
-import { cn } from "@beep/ui/lib";
-import { CaretLeft, CaretRight, DotsThree } from "@phosphor-icons/react";
+import { CaretLeftIcon, CaretRightIcon, DotsThreeIcon } from "@phosphor-icons/react";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 
 function Pagination({ className, ...props }: React.ComponentProps<"nav">) {
   return (
@@ -45,7 +44,7 @@ function PaginationLink({ className, isActive, size = "icon", ...props }: Pagina
 function PaginationPrevious({ className, ...props }: React.ComponentProps<typeof PaginationLink>) {
   return (
     <PaginationLink aria-label="Go to previous page" size="default" className={cn("pl-1.5!", className)} {...props}>
-      <CaretLeft data-icon="inline-start" />
+      <CaretLeftIcon data-icon="inline-start" />
       <span className="hidden sm:block">Previous</span>
     </PaginationLink>
   );
@@ -55,7 +54,7 @@ function PaginationNext({ className, ...props }: React.ComponentProps<typeof Pag
   return (
     <PaginationLink aria-label="Go to next page" size="default" className={cn("pr-1.5!", className)} {...props}>
       <span className="hidden sm:block">Next</span>
-      <CaretRight data-icon="inline-end" />
+      <CaretRightIcon data-icon="inline-end" />
     </PaginationLink>
   );
 }
@@ -71,7 +70,7 @@ function PaginationEllipsis({ className, ...props }: React.ComponentProps<"span"
       )}
       {...props}
     >
-      <DotsThree />
+      <DotsThreeIcon />
       <span className="sr-only">More pages</span>
     </span>
   );

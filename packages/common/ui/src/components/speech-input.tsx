@@ -2,8 +2,7 @@
 
 import { Button } from "@beep/ui/components/button";
 import { type AudioFormat, type CommitStrategy, useScribe } from "@beep/ui/hooks/use-scribe";
-import { cn } from "@beep/ui/lib";
-import { Microphone, Square, X } from "@phosphor-icons/react";
+import { MicrophoneIcon, SquareIcon, XIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
@@ -18,6 +17,7 @@ import {
   useEffect,
   useRef,
 } from "react";
+import { cn } from "../lib/index.ts";
 
 const buttonVariants = cva("!px-0", {
   variants: {
@@ -127,13 +127,11 @@ const buildEvent = ({
 }: {
   readonly partialTranscript: string;
   readonly committedTranscripts: string[];
-}): SpeechInputEvent => {
-  return {
-    partialTranscript,
-    committedTranscripts,
-    transcript: buildTranscript({ partialTranscript, committedTranscripts }),
-  };
-};
+}): SpeechInputEvent => ({
+  partialTranscript,
+  committedTranscripts,
+  transcript: buildTranscript({ partialTranscript, committedTranscripts }),
+});
 
 const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function SpeechInput(
   {
@@ -226,7 +224,6 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
     } catch {
       // Error is handled by onError callback
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getToken, scribe, onStart, microphone]);
 
   const stop = () => {
@@ -261,12 +258,13 @@ const SpeechInput = forwardRef<HTMLDivElement, SpeechInputProps>(function Speech
     }),
   };
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       startRequestIdRef.current += 1;
       scribe.disconnect();
-    };
-  }, A.make(scribe.disconnect));
+    },
+    A.make(scribe.disconnect)
+  );
 
   return (
     <SpeechInputContext.Provider value={contextValue}>
@@ -318,13 +316,13 @@ const SpeechInputRecordButton = forwardRef<HTMLButtonElement, SpeechInputRecordB
             speechInput.isConnecting ? "scale-90 opacity-100" : "scale-[60%] opacity-0"
           )}
         />
-        <Square
+        <SquareIcon
           className={cn(
             "text-destructive absolute h-4 w-4 fill-current transition-all duration-200",
             !speechInput.isConnecting && speechInput.isConnected ? "scale-100 opacity-100" : "scale-[60%] opacity-0"
           )}
         />
-        <Microphone
+        <MicrophoneIcon
           className={cn(
             "absolute h-4 w-4 transition-all duration-200",
             !speechInput.isConnecting && !speechInput.isConnected ? "scale-100 opacity-100" : "scale-[60%] opacity-0"
@@ -403,7 +401,7 @@ const SpeechInputCancelButton = forwardRef<HTMLButtonElement, SpeechInputCancelB
         aria-label="Cancel recording"
         {...props}
       >
-        <X className="h-3 w-3" />
+        <XIcon className="h-3 w-3" />
       </Button>
     );
   }

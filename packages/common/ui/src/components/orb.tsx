@@ -6,6 +6,7 @@ import * as A from "effect/Array";
 import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import type React from "react";
 import { useEffect, useMemo, useRef } from "react";
 import * as THREE from "three";
 
@@ -160,7 +161,7 @@ function Scene({
     const live = colorsRef?.current;
     const liveOpt = F.pipe(
       live,
-      O.fromNullable,
+      O.fromNullishOr,
       O.flatMap((live) =>
         O.all({
           targetColor1: A.head(live),
@@ -177,11 +178,11 @@ function Scene({
 
     const u = mat.uniforms;
 
-    if (P.isNotNullable(u.uTime)) {
+    if (P.isNotNullish(u.uTime)) {
       u.uTime.value += delta * 0.5;
     }
 
-    if (P.isNotNullable(u.uOpacity) && u.uOpacity.value < 1) {
+    if (P.isNotNullish(u.uOpacity) && u.uOpacity.value < 1) {
       u.uOpacity.value = Math.min(1, u.uOpacity.value + delta * 2);
     }
 
@@ -192,7 +193,7 @@ function Scene({
       targetOut = clamp01(manualOutput ?? outputVolumeRef?.current ?? getOutputVolume?.() ?? 0);
     } else {
       const uTime = u.uTime;
-      if (P.isNotNullable(uTime)) {
+      if (P.isNotNullish(uTime)) {
         const t = uTime.value * 2;
         if (agentRef.current === null) {
           targetIn = 0;
@@ -218,19 +219,19 @@ function Scene({
     const targetSpeed = 0.1 + (1 - (curOutRef.current - 1) ** 2) * 0.9;
     animSpeedRef.current += (targetSpeed - animSpeedRef.current) * 0.12;
 
-    if (P.isNotNullable(u.uAnimation)) {
+    if (P.isNotNullish(u.uAnimation)) {
       u.uAnimation.value += delta * animSpeedRef.current;
     }
-    if (P.isNotNullable(u.uInputVolume)) {
+    if (P.isNotNullish(u.uInputVolume)) {
       u.uInputVolume.value = curInRef.current;
     }
-    if (P.isNotNullable(u.uOutputVolume)) {
+    if (P.isNotNullish(u.uOutputVolume)) {
       u.uOutputVolume.value = curOutRef.current;
     }
-    if (P.isNotNullable(u.uColor1)) {
+    if (P.isNotNullish(u.uColor1)) {
       u.uColor1.value.lerp(targetColor1Ref.current, 0.08);
     }
-    if (P.isNotNullable(u.uColor2)) {
+    if (P.isNotNullish(u.uColor2)) {
       u.uColor2.value.lerp(targetColor2Ref.current, 0.08);
     }
   });
@@ -239,9 +240,7 @@ function Scene({
     const canvas = gl.domElement;
     const onContextLost = (event: Event) => {
       event.preventDefault();
-      setTimeout(() => {
-        gl.forceContextRestore();
-      }, 1);
+      setTimeout(() => void gl.forceContextRestore(), 1);
     };
     canvas.addEventListener("webglcontextlost", onContextLost, false);
     return () => canvas.removeEventListener("webglcontextlost", onContextLost, false);
@@ -284,9 +283,9 @@ function splitmix32(a: number) {
     a = (a + 0x9e3779b9) | 0;
     let _t = a ^ (a >>> 16);
     _t = Math.imul(_t, 0x21f0aaad);
-    _t = _t ^ (_t >>> 15);
+    _t ^= _t >>> 15;
     _t = Math.imul(_t, 0x735a2d97);
-    return ((_t = _t ^ (_t >>> 15)) >>> 0) / 4294967296;
+    return ((_t ^= _t >>> 15) >>> 0) / 4294967296;
   };
 }
 

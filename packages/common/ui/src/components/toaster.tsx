@@ -10,8 +10,8 @@ import {
   ToastTitle,
   ToastViewport,
 } from "@beep/ui/components/toast";
-import { cn } from "@beep/ui/lib";
 import { globalToastManager } from "@beep/ui/services/toaster.service";
+import { cn } from "../lib/index.ts";
 
 export function Toaster() {
   const { toasts } = ToastPrimitive.useToastManager();

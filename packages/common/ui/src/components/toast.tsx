@@ -1,11 +1,11 @@
 "use client";
 
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
-import { cn } from "@beep/ui/lib";
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
 import * as React from "react";
+import { cn } from "../lib/index.ts";
 
 const ToastProvider = ToastPrimitive.Provider;
 
@@ -83,7 +83,7 @@ const ToastClose = React.forwardRef<HTMLButtonElement, ToastPrimitive.Close.Prop
       )}
       {...props}
     >
-      <X className={"h-4 w-4"} />
+      <XIcon className={"h-4 w-4"} />
     </ToastPrimitive.Close>
   )
 );

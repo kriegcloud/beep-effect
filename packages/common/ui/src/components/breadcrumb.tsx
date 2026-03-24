@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
 import { CaretRight, DotsThree } from "@phosphor-icons/react";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 
 function Breadcrumb({ ...props }: React.ComponentPropsWithoutRef<"nav">) {
   return <nav aria-label="breadcrumb" data-slot="breadcrumb" {...props} />;

@@ -17,10 +17,9 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@beep/ui/components/dropdown-menu";
-
-import { cn } from "@beep/ui/lib";
-import { Check } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import type * as React from "react";
+import { cn } from "../lib/index.ts";
 
 function Menubar({ className, ...props }: MenubarPrimitive.Props) {
   return (
@@ -112,7 +111,7 @@ function MenubarCheckboxItem({ className, children, checked, ...props }: MenuPri
     >
       <span className="left-1.5 size-4 [&_svg:not([class*='size-'])]:size-4 pointer-events-none absolute flex items-center justify-center">
         <MenuPrimitive.CheckboxItemIndicator>
-          <Check />
+          <CheckIcon />
         </MenuPrimitive.CheckboxItemIndicator>
       </span>
       {children}
@@ -136,7 +135,7 @@ function MenubarRadioItem({ className, children, ...props }: MenuPrimitive.Radio
     >
       <span className="left-1.5 size-4 [&_svg:not([class*='size-'])]:size-4 pointer-events-none absolute flex items-center justify-center">
         <MenuPrimitive.RadioItemIndicator>
-          <Check />
+          <CheckIcon />
         </MenuPrimitive.RadioItemIndicator>
       </span>
       {children}

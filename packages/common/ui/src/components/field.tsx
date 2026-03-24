@@ -2,12 +2,13 @@
 
 import { Label } from "@beep/ui/components/label";
 import { Separator } from "@beep/ui/components/separator";
-import { cn } from "@beep/ui/lib";
 import { cva, type VariantProps } from "class-variance-authority";
 import * as A from "effect/Array";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
+import type React from "react";
 import { useMemo } from "react";
+import { cn } from "../lib/index.ts";
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -173,7 +174,7 @@ function FieldError({
       return children;
     }
 
-    const errorsOption = O.fromNullable(errors);
+    const errorsOption = O.fromNullishOr(errors);
     if (O.isNone(errorsOption) || A.isEmptyArray(errorsOption.value)) {
       return null;
     }
@@ -187,7 +188,7 @@ function FieldError({
     if (A.length(uniqueErrors) === 1) {
       return pipe(
         A.head(uniqueErrors),
-        O.flatMap((error) => O.fromNullable(error.message)),
+        O.flatMap((error) => O.fromNullishOr(error.message)),
         O.getOrNull
       );
     }
@@ -198,7 +199,7 @@ function FieldError({
           uniqueErrors,
           A.filterMap((error) =>
             pipe(
-              O.fromNullable(error.message),
+              O.fromNullishOr(error.message),
               O.map((message) => message)
             )
           ),

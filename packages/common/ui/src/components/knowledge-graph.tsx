@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
 import * as d3 from "d3";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { cn } from "../lib/index.ts";
 
 // ============================================================================
 // Types
@@ -276,9 +276,10 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       const zoom = d3
         .zoom<SVGSVGElement, unknown>()
         .scaleExtent([0.1, 4])
-        .on("zoom", (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => {
-          g.attr("transform", event.transform.toString());
-        });
+        .on(
+          "zoom",
+          (event: d3.D3ZoomEvent<SVGSVGElement, unknown>) => void g.attr("transform", event.transform.toString())
+        );
 
       zoomRef.current = zoom;
       svg.call(zoom);
@@ -357,9 +358,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
       // Add event handlers
       nodeGroup
-        .on("click", (_event: MouseEvent, d: GraphNode) => {
-          onNodeClick?.(d);
-        })
+        .on("click", (_event: MouseEvent, d: GraphNode) => void onNodeClick?.(d))
         .on("mouseover", (event: MouseEvent, d: GraphNode) => {
           const [x, y] = d3.pointer(event, container);
           setTooltip({
@@ -393,9 +392,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       });
 
       // Cleanup
-      return () => {
-        simulation.stop();
-      };
+      return () => void simulation.stop();
     }, [nodes, links, onNodeClick, onNodeHover, showLinkLabels, centerNodeId]);
 
     return (

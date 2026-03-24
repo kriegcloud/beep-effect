@@ -1,9 +1,9 @@
 "use client";
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
-import { cn } from "@beep/ui/lib";
-import { ArrowSquareOut, Info } from "@phosphor-icons/react";
+import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
+import { cn } from "../lib/index.ts";
 
 interface UrlMetadata {
   readonly description: null | string;
@@ -147,9 +147,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
     void run();
 
-    return () => {
-      controller.abort();
-    };
+    return () => void controller.abort();
   }, [fetchedMetadata, href, isInView, shouldFetch]);
 
   useEffect(() => {
@@ -173,16 +171,14 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
     observer.observe(element);
 
-    return () => {
-      observer.unobserve(element);
-    };
+    return () => void observer.unobserve(element);
   }, [href]);
 
   const resolvedMetadata = useMemo(() => {
     const base = fetchedMetadata ?? getFallbackMetadata(href);
     return {
       ...base,
-      ...(metadata ?? {}),
+      ...metadata,
     };
   }, [fetchedMetadata, href, metadata]);
 
@@ -214,7 +210,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
           </div>
         ) : error || !isValidUrl ? (
           <div className="flex items-center gap-2 p-3 text-red-400">
-            <Info size={16} weight="fill" />
+            <InfoIcon size={16} weight="fill" />
             <span className="text-sm">{!isValidUrl ? "Invalid URL" : (error ?? "Failed to load preview")}</span>
           </div>
         ) : (
@@ -242,7 +238,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
                     onError={() => setValidFavicon(false)}
                   />
                 ) : (
-                  <ArrowSquareOut size={18} className="text-zinc-400" />
+                  <ArrowSquareOutIcon size={18} className="text-zinc-400" />
                 )}
 
                 {resolvedMetadata.websiteName && (

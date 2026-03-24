@@ -1,7 +1,7 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
 import * as React from "react";
+import { cn } from "../lib/index.ts";
 
 interface AvatarProps extends React.ComponentPropsWithoutRef<"span"> {
   readonly children?: undefined | React.ReactNode;

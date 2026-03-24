@@ -11,13 +11,13 @@ import {
   CardTitle,
 } from "@beep/ui/components/card";
 import { Popover, PopoverContent } from "@beep/ui/components/popover";
-import { cn } from "@beep/ui/lib";
-import { X } from "@phosphor-icons/react";
+import { XIcon } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import Link from "next/link";
 import * as React from "react";
 import { createPortal } from "react-dom";
+import { cn } from "../lib/index.ts";
 
 const TourContext = React.createContext<{
   readonly start: (tourId: string) => void;
@@ -251,21 +251,19 @@ function TourOverlay({
           </mask>
         </defs>
         <rect width="100%" height="100%" mask="url(#tour-mask)" className="fill-black opacity-20" />
-        {targets.map((target, i) => {
-          return (
-            <rect
-              key={i}
-              x={target.rect.left}
-              y={target.rect.top}
-              width={target.rect.width}
-              height={target.rect.height}
-              rx={target.radius}
-              className="stroke-primary fill-none stroke-2"
-            />
-          );
-        })}
+        {A.map(targets, (target, i) => (
+          <rect
+            key={i}
+            x={target.rect.left}
+            y={target.rect.top}
+            width={target.rect.width}
+            height={target.rect.height}
+            rx={target.radius}
+            className="stroke-primary fill-none stroke-2"
+          />
+        ))}
       </svg>
-      {targets.length > 0 && (
+      {A.isArrayNonEmpty(targets) && (
         <Popover key={step.id} open={true}>
           <PopoverContent
             className={cn("px-0", step.className)}
@@ -298,14 +296,14 @@ function TourOverlay({
               </CardDescription>
               <CardAction>
                 <Button variant="ghost" size="icon" onClick={onClose}>
-                  <X />
+                  <XIcon />
                 </Button>
               </CardAction>
             </CardHeader>
             <CardContent>{step.content}</CardContent>
             <CardFooter className="justify-between">
               {currentStepIndex > 0 &&
-                O.fromNullable(step.previousRoute).pipe(
+                O.fromNullishOr(step.previousRoute).pipe(
                   O.match({
                     onNone: () => (
                       <Button variant="outline" onClick={onPrevious}>
@@ -321,7 +319,7 @@ function TourOverlay({
                     ),
                   })
                 )}
-              {O.fromNullable(step.nextRoute).pipe(
+              {O.fromNullishOr(step.nextRoute).pipe(
                 O.match({
                   onSome: (nextRoute) => (
                     <Button

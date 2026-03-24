@@ -1,8 +1,8 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
-import { Check, SpinnerGap } from "@phosphor-icons/react";
+import { CheckIcon, SpinnerGap } from "@phosphor-icons/react";
 import type { ReactNode } from "react";
+import { cn } from "../lib/index.ts";
 
 export type EventStatus = "idle" | "loading" | "completed";
 export type EventVariant = "display" | "action";
@@ -97,7 +97,7 @@ export function CalendarEventCard({
             </>
           ) : status === "completed" ? (
             <>
-              <Check size={16} />
+              <CheckIcon size={16} />
               {completedLabel}
             </>
           ) : (

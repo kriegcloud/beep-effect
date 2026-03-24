@@ -1,10 +1,10 @@
 "use client";
 
-import { cn } from "@beep/ui/lib";
 import { ArrowDown } from "@phosphor-icons/react";
 import type { ComponentProps } from "react";
 import { useCallback } from "react";
 import { StickToBottom, useStickToBottomContext } from "use-stick-to-bottom";
+import { cn } from "../lib/index.ts";
 import { Button } from "./button";
 
 export type ConversationProps = ComponentProps<typeof StickToBottom>;
@@ -60,9 +60,7 @@ export type ConversationScrollButtonProps = ComponentProps<typeof Button>;
 export const ConversationScrollButton = ({ className, ...props }: ConversationScrollButtonProps) => {
   const { isAtBottom, scrollToBottom } = useStickToBottomContext();
 
-  const handleScrollToBottom = useCallback(() => {
-    scrollToBottom();
-  }, [scrollToBottom]);
+  const handleScrollToBottom = useCallback(() => void scrollToBottom(), [scrollToBottom]);
 
   return (
     !isAtBottom && (

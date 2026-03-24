@@ -6,11 +6,11 @@ import { Toolbar as ToolbarPrimitive } from "@base-ui/react/toolbar";
 import { DropdownMenuLabel, DropdownMenuRadioGroup, DropdownMenuSeparator } from "@beep/ui/components/dropdown-menu";
 import { Separator } from "@beep/ui/components/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
-import { cn } from "@beep/ui/lib";
-import { CaretDown } from "@phosphor-icons/react";
+import { CaretDownIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
 import type { ComponentProps, ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
+import { cn } from "../lib/index.ts";
 
 export function Toolbar({ className, ...props }: ToolbarPrimitive.Root.Props) {
   return <ToolbarPrimitive.Root className={cn("relative flex select-none items-center", className)} {...props} />;
@@ -136,7 +136,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
           <>
             <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
             <div>
-              <CaretDown className="size-3.5 text-muted-foreground" data-icon />
+              <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
             </div>
           </>
         ) : (
@@ -212,7 +212,7 @@ export function ToolbarSplitButtonSecondary({
       role="button"
       {...props}
     >
-      <CaretDown className="size-3.5 text-muted-foreground" data-icon />
+      <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
     </span>
   );
 }
@@ -255,9 +255,7 @@ function withTooltip<T extends ElementType>(Component: T) {
   }: TooltipProps<T>) {
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-      setMounted(true);
-    }, []);
+    useEffect(() => void setMounted(true), []);
 
     const component = <Component {...(props as ComponentProps<T>)} />;
 

@@ -1,10 +1,10 @@
 "use client";
 
 import { Slider as SliderPrimitive } from "@base-ui/react/slider";
-import { cn } from "@beep/ui/lib";
 import { thunk } from "@beep/utils";
 import * as A from "effect/Array";
 import * as React from "react";
+import { cn } from "../lib/index.ts";
 
 function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...props }: SliderPrimitive.Root.Props) {
   const _values = React.useMemo(

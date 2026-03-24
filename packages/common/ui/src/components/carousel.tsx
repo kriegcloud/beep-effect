@@ -1,11 +1,11 @@
 "use client";
 
 import { Button } from "@beep/ui/components/button";
-import { cn } from "@beep/ui/lib";
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
 import * as A from "effect/Array";
 import useEmblaCarousel, { type UseEmblaCarouselType } from "embla-carousel-react";
 import * as React from "react";
+import { cn } from "../lib/index.ts";
 
 type CarouselApi = UseEmblaCarouselType[1];
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
