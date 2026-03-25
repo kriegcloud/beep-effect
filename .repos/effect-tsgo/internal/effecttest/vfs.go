@@ -70,13 +70,8 @@ func EnsurePackageInstalled(version EffectVersion, packageName string) error {
 var programSemaphore = make(chan struct{}, maxConcurrentPrograms())
 
 func maxConcurrentPrograms() int {
-	n := runtime.GOMAXPROCS(0) / 3
-	if n < 1 {
-		n = 1
-	}
-	if n > 3 {
-		n = 3
-	}
+	n := runtime.GOMAXPROCS(0)
+	n = max(n, 1)
 	return n
 }
 

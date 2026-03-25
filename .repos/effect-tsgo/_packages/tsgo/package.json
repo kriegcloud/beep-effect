@@ -1,6 +1,6 @@
 {
   "name": "@effect/tsgo",
-  "version": "0.0.16",
+  "version": "0.0.17",
   "description": "Effect Language Service for TypeScript-Go — Effect-specific diagnostics and hover features.",
   "license": "MIT",
   "repository": {
@@ -14,19 +14,20 @@
     "access": "public",
     "provenance": true,
     "bin": {
-      "effect-tsgo": "./bin/effect-tsgo.js"
+      "effect-tsgo": "./dist/effect-tsgo.js"
     }
   },
   "scripts": {
-    "build": "tsdown --config tsdown.config.mjs",
-    "check": "tsc --noEmit -p tsconfig.json",
+    "build": "tsdown --config tsdown.config.ts",
+    "check": "tsc -b tsconfig.json",
     "test": "vitest run"
   },
   "bin": {
     "effect-tsgo": "./src/cli.ts"
   },
   "files": [
-    "bin/"
+    "dist/",
+    "README.md"
   ],
   "optionalDependencies": {
     "@effect/tsgo-win32-x64": "workspace:*",
@@ -38,12 +39,12 @@
     "@effect/tsgo-darwin-arm64": "workspace:*"
   },
   "devDependencies": {
-    "@effect/platform-node": "4.0.0-beta.11",
-    "@effect/platform-node-shared": "4.0.0-beta.11",
+    "@effect/platform-node": "^4.0.0-beta.40",
+    "@effect/platform-node-shared": "^4.0.0-beta.40",
     "@types/node": "^24.3.0",
     "tsdown": "^0.20.1",
     "typescript": "^5.9.2",
-    "effect": "4.0.0-beta.11",
+    "effect": "^4.0.0-beta.40",
     "vitest": "^3.2.1"
   }
 }

@@ -69,7 +69,7 @@ func AnalyzeReturnEffectInGen(c *checker.Checker, sf *ast.SourceFile) []ReturnEf
 
 // checkReturnEffectInGenScope checks if a return statement inside an Effect generator
 // is returning an Effect-able type (which would cause nested Effect<Effect<...>>).
-func checkReturnEffectInGenScope(c *checker.Checker, sf *ast.SourceFile, n *ast.Node) bool {
+func checkReturnEffectInGenScope(c *checker.Checker, _ *ast.SourceFile, n *ast.Node) bool {
 	returnStmt := n.AsReturnStatement()
 	if returnStmt == nil || returnStmt.Expression == nil {
 		return false
@@ -80,19 +80,7 @@ func checkReturnEffectInGenScope(c *checker.Checker, sf *ast.SourceFile, n *ast.
 		return false
 	}
 
-	scopes := typeparser.FindEnclosingScopes(c, n)
-	if scopes.ScopeKind != typeparser.ScopeKindEffectGen && scopes.ScopeKind != typeparser.ScopeKindEffectFn {
-		return false
-	}
-
-	genFn := scopes.EffectGeneratorFunction()
-	if genFn == nil {
-		return false
-	}
-
-	// The nearest function scope must be the generator itself,
-	// not a nested callback, arrow function, or getter.
-	if scopes.ScopeNode != genFn.AsNode() {
+	if typeparser.GetEffectContextFlags(c, n)&typeparser.EffectContextFlagCanYieldEffect == 0 {
 		return false
 	}
 

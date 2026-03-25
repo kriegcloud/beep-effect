@@ -7,6 +7,20 @@ This project targets **Effect V4** (codename: "smol") primarily and also Effect 
 The TypeScript-Go version of the Effect LSP should be considered in Alpha. Expect breaking changes between releases and some missing features compared to previous version.
 Some of them are currently on hold due to not yet complete pipeline on the upstream TypeScript repository.
 
+## Installation
+
+The setup of the TSGO version of the LSP can be performed via the command line interface:
+
+```bash
+npx @effect/tsgo setup
+```
+
+This will guide you through the installation process, which includes:
+1. Adding the `@effect/tsgo` dependency to your project.
+2. Configuring your `tsconfig.json` to use the Effect Language Service plugin.
+3. Adjusting plugin options to your preference.
+4. Hinting at any additional editor configuration needed to ensure the LSP is active.
+
 ## Diagnostic Status
 
 Some diagnostics are off by default or have a default severity of suggestion, but you can always enable them or change their default severity in the plugin options.
@@ -19,8 +33,9 @@ Some diagnostics are off by default or have a default severity of suggestion, bu
   <tbody>
     <tr><td colspan="6"><strong>Correctness</strong> <em>Wrong, unsafe, or structurally invalid code patterns.</em></td></tr>
     <tr><td><code>anyUnknownInErrorContext</code></td><td>➖</td><td></td><td>Detects &#39;any&#39; or &#39;unknown&#39; types in Effect error or requirements channels</td><td>✓</td><td>✓</td></tr>
-    <tr><td><code>classSelfMismatch</code></td><td>❌</td><td>🔧</td><td>Ensures Self type parameter matches the class name in Service/Tag/Schema classes</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>classSelfMismatch</code></td><td>❌</td><td>🔧</td><td>Ensures Self type parameter matches the class name in ServiceMap/Service/Tag/Schema classes</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>duplicatePackage</code></td><td>⚠️</td><td></td><td>Warns when multiple versions of an Effect-related package are detected in the program</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>effectFnImplicitAny</code></td><td>❌</td><td></td><td>Mirrors noImplicitAny for unannotated Effect.fn, Effect.fnUntraced, and Effect.fnUntracedEager callback parameters when no outer contextual function type exists. Requires TS&#39;s noImplicitAny: true</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>floatingEffect</code></td><td>❌</td><td></td><td>Detects Effect values that are neither yielded nor assigned</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>genericEffectServices</code></td><td>⚠️</td><td></td><td>Prevents services with type parameters that cannot be discriminated at runtime</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>missingEffectContext</code></td><td>❌</td><td></td><td>Detects Effect values with unhandled context requirements</td><td>✓</td><td>✓</td></tr>
@@ -153,27 +168,71 @@ Each release of `effect-tsgo` is built against a specific upstream `tsgo` commit
 
 ## Plugin Options
 
-These options are configured in `tsconfig.json` under `compilerOptions.plugins` for the `@effect/language-service` plugin entry.
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `diagnosticSeverity` | `Record<string, Severity>` | (all defaults) | Maps rule names to severity levels. Set to `{}` to enable diagnostics with defaults. |
-| `ignoreEffectSuggestionsInTscExitCode` | `boolean` | `true` | When true, Effect suggestion/message-category diagnostics do not affect the tsc exit code. |
-| `ignoreEffectWarningsInTscExitCode` | `boolean` | `false` | When true, Effect warning-category diagnostics do not affect the tsc exit code. |
-| `ignoreEffectErrorsInTscExitCode` | `boolean` | `false` | When true, Effect error-category diagnostics do not affect the tsc exit code. |
-| `includeSuggestionsInTsc` | `boolean` | `true` | When false, suggestion-level Effect diagnostics are omitted from tsc CLI output. LSP and other flows are unaffected. |
-| `skipDisabledOptimization` | `boolean` | `false` | When true, disabled diagnostics are still processed so per-line or per-section directive overrides can enable them. |
-| `keyPatterns` | `KeyPattern[]` | (see defaults) | Configures key pattern formulas for the `deterministicKeys` rule. |
-| `extendedKeyDetection` | `boolean` | `false` | Enables matching constructors with `@effect-identifier` annotations. |
-| `pipeableMinArgCount` | `number` | `2` | Minimum number of contiguous pipeable transformations to trigger `missedPipeableOpportunity`. |
-| `mermaidProvider` | `string` | `"mermaid.live"` | Mermaid rendering service for Layer hover links. Accepted values: `"mermaid.live"`, `"mermaid.com"`, or a custom URL. |
-| `noExternal` | `boolean` | `false` | When true, suppresses external links (Mermaid diagram URLs) in hover output. |
-| `inlays` | `boolean` | `false` | When true, suppresses redundant return-type inlay hints on `Effect.gen`, `Effect.fn`, and `Effect.fnUntraced` generator functions. |
-| `allowedDuplicatedPackages` | `string[]` | `[]` | Package names allowed to have multiple versions without triggering the `duplicatePackage` diagnostic. |
-| `layerGraphFollowDepth` | `number` | `0` | How many levels deep the layer graph extraction follows symbol references. |
-| `namespaceImportPackages` | `string[]` | `[]` | Package names that should prefer namespace imports. Package matching is case-insensitive. |
-| `barrelImportPackages` | `string[]` | `[]` | Package names that should prefer barrel named imports. Package matching is case-insensitive. |
-| `importAliases` | `Record<string, string>` | `{}` | Package-level import aliases keyed by package name. Alias keys are case-insensitive package matches. |
-| `topLevelNamedReexports` | `"ignore" \| "follow"` | `"ignore"` | Controls whether named reexports are followed at package top-level. Accepted values are case-insensitive; invalid values fall back to `"ignore"`. |
-
-For the four auto-import style options above (`namespaceImportPackages`, `barrelImportPackages`, `importAliases`, `topLevelNamedReexports`), package-name matching is case-insensitive, and invalid option types/values fall back to defaults.
+<!-- example-config:start -->
+```jsonc
+{
+  "compilerOptions": {
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        // Maps rule names to severity levels. Use {} to enable diagnostics with rule defaults. (default: {})
+        "diagnosticSeverity": {},
+        // When false, suggestion-level Effect diagnostics are omitted from tsc CLI output. (default: true)
+        "includeSuggestionsInTsc": true,
+        // When true, suggestion diagnostics do not affect the tsc exit code. (default: true)
+        "ignoreEffectSuggestionsInTscExitCode": true,
+        // When true, warning diagnostics do not affect the tsc exit code. (default: false)
+        "ignoreEffectWarningsInTscExitCode": false,
+        // When true, error diagnostics do not affect the tsc exit code. (default: false)
+        "ignoreEffectErrorsInTscExitCode": false,
+        // When true, disabled diagnostics are still processed so directives can re-enable them. (default: false)
+        "skipDisabledOptimization": false,
+        // Configures key pattern formulas for the deterministicKeys rule. (default: [{"target":"service","pattern":"default","skipLeadingPath":["src/"]},{"target":"custom","pattern":"default","skipLeadingPath":["src/"]}])
+        "keyPatterns": [
+          {
+            "target": "service",
+            "pattern": "default",
+            "skipLeadingPath": [
+              "src/"
+            ]
+          },
+          {
+            "target": "custom",
+            "pattern": "default",
+            "skipLeadingPath": [
+              "src/"
+            ]
+          }
+        ],
+        // Enables matching constructors with @effect-identifier annotations. (default: false)
+        "extendedKeyDetection": false,
+        // Minimum number of contiguous pipeable transformations to trigger missedPipeableOpportunity. (default: 2)
+        "pipeableMinArgCount": 2,
+        // Mermaid rendering service for layer graph links. Accepts mermaid.live, mermaid.com, or a custom URL. (default: "mermaid.live")
+        "mermaidProvider": "mermaid.live",
+        // When true, suppresses external Mermaid links in hover output. (default: false)
+        "noExternal": false,
+        // How many levels deep the layer graph extraction follows symbol references. (default: 0)
+        "layerGraphFollowDepth": 0,
+        // Controls which effectFnOpportunity quickfix variants are offered. (default: ["span"])
+        "effectFn": [
+          "span"
+        ],
+        // When true, suppresses redundant return-type inlay hints on supported Effect generator functions. (default: false)
+        "inlays": false,
+        // Package names allowed to have multiple versions without triggering duplicatePackage. (default: [])
+        "allowedDuplicatedPackages": [],
+        // Package names that should prefer namespace imports. (default: [])
+        "namespaceImportPackages": [],
+        // Package names that should prefer barrel named imports. (default: [])
+        "barrelImportPackages": [],
+        // Package-level import aliases keyed by package name. (default: {})
+        "importAliases": {},
+        // Controls whether named reexports are followed at package top-level. (default: "ignore")
+        "topLevelNamedReexports": "ignore"
+      }
+    ]
+  }
+}
+```
+<!-- example-config:end -->
