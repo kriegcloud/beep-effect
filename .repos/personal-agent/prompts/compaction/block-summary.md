@@ -1,2 +1,0 @@
-### Compaction Summary
-{{summary}}
