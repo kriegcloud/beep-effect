@@ -15,7 +15,7 @@ import { Text } from "@beep/utils";
 import * as NodeHttpClient from "@effect/platform-node/NodeHttpClient";
 import * as NodeServices from "@effect/platform-node/NodeServices";
 import { describe, expect, it } from "@effect/vitest";
-import { Duration, Effect, Layer, pipe, Ref, Schedule, Stream } from "effect";
+import { Duration, Effect, Layer, pipe, Ref, Schedule, type Scope, Stream } from "effect";
 import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
 import * as O from "effect/Option";
@@ -281,7 +281,7 @@ const spawnSidecar = (options: {
   readonly otlpEnabled?: boolean;
   readonly devtoolsEnabled?: boolean;
   readonly devtoolsUrl?: string;
-}) =>
+}): Effect.Effect<SpawnedSidecar, SidecarRuntimeTestError, Scope.Scope> =>
   Effect.acquireRelease(
     Effect.gen(function* () {
       const stdout = yield* Ref.make("");
@@ -317,7 +317,7 @@ const spawnSidecar = (options: {
         void Effect.runFork(appendOutput(stderr, chunk));
       });
 
-      const shutdown = Effect.gen(function* () {
+      const shutdown: Effect.Effect<void, SidecarRuntimeTestError> = Effect.gen(function* () {
         if (child.exitCode !== null || child.signalCode !== null) {
           return;
         }
@@ -326,8 +326,7 @@ const spawnSidecar = (options: {
         yield* waitForExit(child, "spawned sidecar").pipe(
           Effect.timeoutOrElse({
             duration: Duration.seconds(10),
-            onTimeout: () =>
-              Effect.fail(toTestError("Timed out waiting for the spawned sidecar to exit after SIGINT.")),
+            orElse: () => Effect.fail(toTestError("Timed out waiting for the spawned sidecar to exit after SIGINT.")),
           })
         );
       });
@@ -357,7 +356,7 @@ const waitForHealthyBootstrap = (sidecar: SpawnedSidecar) =>
     Effect.flatMap(({ body, status }) =>
       status === 200 ? Effect.succeed(body) : Effect.fail(toTestError(`Unexpected health status ${status}.`))
     ),
-    Effect.retry(Schedule.spaced(Duration.millis(100)).pipe(Schedule.compose(Schedule.recurs(80)))),
+    Effect.retry(Schedule.spaced(Duration.millis(100)).pipe(Schedule.both(Schedule.recurs(80)))),
     Effect.catch((error) =>
       renderChildOutput(sidecar).pipe(
         Effect.flatMap((output) =>

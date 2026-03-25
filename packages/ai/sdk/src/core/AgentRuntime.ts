@@ -72,9 +72,7 @@ const applyRetry = <A, E, R>(effect: Effect.Effect<A, E, R>, settings: AgentRunt
   settings.retryMaxRetries > 0
     ? effect.pipe(
         Effect.retry(
-          Schedule.exponential(settings.retryBaseDelay).pipe(
-            Schedule.compose(Schedule.recurs(settings.retryMaxRetries))
-          )
+          Schedule.exponential(settings.retryBaseDelay).pipe(Schedule.both(Schedule.recurs(settings.retryMaxRetries)))
         )
       )
     : effect;

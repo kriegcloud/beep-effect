@@ -14,7 +14,7 @@ const storageError = (method: string, description: string, cause?: unknown) =>
     ...(cause !== undefined ? { cause } : {}),
   });
 
-const r2RetrySchedule = Schedule.exponential("100 millis").pipe(Schedule.compose(Schedule.recurs(3)));
+const r2RetrySchedule = Schedule.exponential("100 millis").pipe(Schedule.both(Schedule.recurs(3)));
 
 const tryR2 = <A>(method: string, description: string, run: () => Promise<A>) =>
   Effect.tryPromise({

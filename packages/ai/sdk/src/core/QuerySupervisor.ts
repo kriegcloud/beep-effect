@@ -585,7 +585,7 @@ const makeQuerySupervisor = Effect.gen(function* () {
       return yield* awaitHandle.pipe(
         Effect.timeoutOrElse({
           duration: settings.maxPendingTime,
-          onTimeout: () =>
+          orElse: () =>
             Deferred.fail(deferred, timeoutError).pipe(Effect.ignore, Effect.andThen(Effect.fail(timeoutError))),
         })
       );

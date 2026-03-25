@@ -42,7 +42,7 @@ export const getFilePath = (input: Record<string, unknown>): O.Option<string> =>
 
 const parseYaml = (content: string): Record<string, unknown> => {
   const matched = O.getOrNull(Str.match(/^---\n([\s\S]*?)\n---/)(content));
-  if (!matched || !matched[1]) return {};
+  if (!matched?.[1]) return {};
   return pipe(
     Str.split("\n")(matched[1]),
     A.map((line: string) => {

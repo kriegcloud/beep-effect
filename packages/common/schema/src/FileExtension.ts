@@ -22,8 +22,7 @@
 import { application, audio, image, misc, text, video } from "@beep/data/MimeTypes";
 import { $SchemaId } from "@beep/identity";
 import { A, Struct } from "@beep/utils";
-import { pipe } from "effect";
-import { cast } from "effect/Function";
+import { cast, pipe } from "effect";
 import { LiteralKit } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("FileExtension");

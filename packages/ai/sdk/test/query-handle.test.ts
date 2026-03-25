@@ -57,6 +57,7 @@ const makeSdkQuery = (
     mcpServerStatus: async () => [],
     accountInfo: async () => ({}),
     rewindFiles: async (_userMessageId: string, _options?: { dryRun?: boolean }) => ({ canRewind: false }),
+    seedReadState: async (_path: string, _mtime: number) => {},
     reconnectMcpServer: async (_serverName: string) => {},
     toggleMcpServer: async (_serverName: string, _enabled: boolean) => {},
     setMcpServers: async (_servers: Record<string, McpServerConfig>): Promise<McpSetServersResult> => ({
