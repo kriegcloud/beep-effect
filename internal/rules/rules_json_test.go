@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"maps"
+	"errors"
 	"fmt"
 	"html"
+	"maps"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"runtime"
 	"slices"
@@ -37,6 +39,7 @@ import (
 )
 
 func TestUpdateReadme(t *testing.T) {
+	t.Parallel()
 	if os.Getenv("UPDATE_README") == "" {
 		t.Skip("set UPDATE_README=1 to regenerate README.md")
 	}
@@ -57,6 +60,7 @@ func TestUpdateReadme(t *testing.T) {
 }
 
 func TestReadmeTable(t *testing.T) {
+	t.Parallel()
 	root := repoRoot(t)
 	localPath := filepath.Join(root, "testdata", "baselines", "local", "README.md")
 	referencePath := filepath.Join(root, "README.md")
@@ -84,6 +88,7 @@ func TestReadmeTable(t *testing.T) {
 }
 
 func TestMetadataJSON(t *testing.T) {
+	t.Parallel()
 	root := repoRoot(t)
 	localPath := filepath.Join(root, "testdata", "baselines", "local", "metadata.json")
 	referencePath := filepath.Join(root, "_packages", "tsgo", "src", "metadata.json")
@@ -109,6 +114,23 @@ func TestMetadataJSON(t *testing.T) {
 	}
 }
 
+func TestUpdateMetadataJSON(t *testing.T) {
+	t.Parallel()
+	if os.Getenv("UPDATE_METADATA_JSON") == "" {
+		t.Skip("set UPDATE_METADATA_JSON=1 to regenerate metadata.json")
+	}
+	root := repoRoot(t)
+	metadataPath := filepath.Join(root, "_packages", "tsgo", "src", "metadata.json")
+	generated, err := marshalMetadataJSON(t)
+	if err != nil {
+		t.Fatalf("marshal metadata.json: %v", err)
+	}
+	if err := os.WriteFile(metadataPath, generated, 0o644); err != nil {
+		t.Fatalf("write metadata.json: %v", err)
+	}
+	t.Logf("metadata.json updated")
+}
+
 func repoRoot(t *testing.T) string {
 	t.Helper()
 	_, file, _, ok := runtime.Caller(0)
@@ -118,15 +140,9 @@ func repoRoot(t *testing.T) string {
 	return filepath.Clean(filepath.Join(filepath.Dir(file), "..", ".."))
 }
 
-type metadataGroup struct {
-	ID          string `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-}
-
 type previewDiagnostic struct {
-	Start int `json:"start"`
-	End   int `json:"end"`
+	Start int    `json:"start"`
+	End   int    `json:"end"`
 	Text  string `json:"text"`
 }
 
@@ -147,8 +163,9 @@ type exportedRule struct {
 }
 
 type metadataDocument struct {
-	Groups []metadataGroup `json:"groups"`
-	Rules  []exportedRule  `json:"rules"`
+	Groups  []rule.MetadataGroup  `json:"groups"`
+	Presets []rule.MetadataPreset `json:"presets"`
+	Rules   []exportedRule        `json:"rules"`
 }
 
 // buildFixableCodes returns a set of diagnostic codes that have non-disable fixables.
@@ -188,7 +205,7 @@ func trimLeadingDirectives(sourceText string) (trimmed string, removedChars int)
 		}
 		removedChars += len(lines[index])
 		if index < len(lines)-1 {
-			removedChars += 1 // newline character
+			removedChars++ // newline character
 		}
 		index++
 	}
@@ -240,7 +257,10 @@ func buildTsConfigWithTestConfig(testConfig map[string]any) string {
 			"plugins": []any{plugin},
 		},
 	}
-	data, _ := json.Marshal(tsConfig)
+	data, err := json.Marshal(tsConfig)
+	if err != nil {
+		panic(err)
+	}
 	return string(data)
 }
 
@@ -397,8 +417,8 @@ func evaluatePreview(t *testing.T, version effecttest.EffectVersion, sourceText 
 	// Build preview diagnostics with adjusted offsets
 	prevDiags := make([]previewDiagnostic, 0, len(ruleDiags))
 	for _, d := range ruleDiags {
-		start := int(d.Loc().Pos()) - removedChars
-		end := int(d.Loc().End()) - removedChars
+		start := d.Loc().Pos() - removedChars
+		end := d.Loc().End() - removedChars
 		if start < 0 {
 			start = 0
 		}
@@ -487,12 +507,8 @@ type previewUnit struct {
 func marshalMetadataJSON(t *testing.T) ([]byte, error) {
 	root := repoRoot(t)
 
-	groups := []metadataGroup{
-		{ID: "correctness", Name: "Correctness", Description: "Wrong, unsafe, or structurally invalid code patterns."},
-		{ID: "antipattern", Name: "Anti-pattern", Description: "Discouraged patterns that often lead to bugs or confusing behavior."},
-		{ID: "effectNative", Name: "Effect-native", Description: "Prefer Effect-native APIs and abstractions when available."},
-		{ID: "style", Name: "Style", Description: "Cleanup, consistency, and idiomatic Effect code."},
-	}
+	groups := rules.MetadataGroups()
+	presets := rules.MetadataPresets()
 
 	fixableCodes := buildFixableCodes()
 
@@ -506,13 +522,10 @@ func marshalMetadataJSON(t *testing.T) ([]byte, error) {
 		// Find and evaluate preview file
 		version, _, sourceText, err := findPreviewFile(root, current.Name)
 		if err != nil {
-			t.Logf("warning: %v", err)
+			t.Fatalf("%v", err)
 		}
 
-		var preview *previewPayload
-		if err == nil {
-			preview = evaluatePreview(t, version, sourceText, current)
-		}
+		preview := evaluatePreview(t, version, sourceText, current)
 
 		exported = append(exported, exportedRule{
 			Name:            current.Name,
@@ -537,8 +550,9 @@ func marshalMetadataJSON(t *testing.T) ([]byte, error) {
 	})
 
 	doc := metadataDocument{
-		Groups: groups,
-		Rules:  exported,
+		Groups:  groups,
+		Presets: presets,
+		Rules:   exported,
 	}
 
 	data, err := json.MarshalIndent(doc, "", "  ")
@@ -566,21 +580,11 @@ func severityIcon(s etscore.Severity) string {
 }
 
 func containsEffect(supported []string, version string) bool {
-	for _, s := range supported {
-		if s == version {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(supported, version)
 }
 
 func generateReadmeTable() string {
-	groups := []metadataGroup{
-		{ID: "correctness", Name: "Correctness", Description: "Wrong, unsafe, or structurally invalid code patterns."},
-		{ID: "antipattern", Name: "Anti-pattern", Description: "Discouraged patterns that often lead to bugs or confusing behavior."},
-		{ID: "effectNative", Name: "Effect-native", Description: "Prefer Effect-native APIs and abstractions when available."},
-		{ID: "style", Name: "Style", Description: "Cleanup, consistency, and idiomatic Effect code."},
-	}
+	groups := rules.MetadataGroups()
 
 	fixableCodes := buildFixableCodes()
 
@@ -666,26 +670,162 @@ func generateReadmeTable() string {
 	return strings.Join(lines, "\n")
 }
 
+func generateReadmeExampleConfig() string {
+	typ := reflect.TypeFor[etscore.EffectPluginOptions]()
+	type readmeEntry struct {
+		name        string
+		description string
+		value       any
+	}
+	fields := reflect.VisibleFields(typ)
+	entries := make([]readmeEntry, 0, len(fields))
+	for _, field := range fields {
+		name := jsonFieldName(field)
+		if name == "" {
+			continue
+		}
+		defaultValue := readmeDefaultValue(field)
+		if defaultValue == nil {
+			continue
+		}
+		entries = append(entries, readmeEntry{
+			name:        name,
+			description: field.Tag.Get("schema_description"),
+			value:       defaultValue,
+		})
+	}
+
+	var lines []string
+	lines = append(lines, "```jsonc")
+	lines = append(lines, "{")
+	lines = append(lines, `  "compilerOptions": {`)
+	lines = append(lines, `    "plugins": [`)
+	lines = append(lines, `      {`)
+	lines = append(lines, `        "name": "@effect/language-service",`)
+	for i, entry := range entries {
+		defaultText := compactJSON(entry.value)
+		if entry.description != "" {
+			lines = append(lines, fmt.Sprintf("        // %s (default: %s)", entry.description, defaultText))
+		}
+		encoded := indentedJSON(entry.value, "        ")
+		comma := ","
+		if i == len(entries)-1 {
+			comma = ""
+		}
+		lines = append(lines, fmt.Sprintf(`        %q: %s%s`, entry.name, encoded, comma))
+	}
+	lines = append(lines, `      }`)
+	lines = append(lines, `    ]`)
+	lines = append(lines, `  }`)
+	lines = append(lines, `}`)
+	lines = append(lines, "```")
+
+	return strings.Join(lines, "\n")
+}
+
+func readmeDefaultValue(field reflect.StructField) any {
+	if defaultValue := decodeStructTagJSON(field, "schema_default"); defaultValue != nil {
+		return defaultValue
+	}
+	switch field.Name {
+	case "DiagnosticSeverity":
+		return map[string]any{}
+	case "KeyPatterns":
+		return etscore.DefaultKeyPatterns
+	default:
+		return nil
+	}
+}
+
+func decodeStructTagJSON(field reflect.StructField, key string) any {
+	value := field.Tag.Get(key)
+	if value == "" {
+		return nil
+	}
+	var decoded any
+	if err := json.Unmarshal([]byte(value), &decoded); err != nil {
+		panic(err)
+	}
+	return decoded
+}
+
+func jsonFieldName(field reflect.StructField) string {
+	tag := field.Tag.Get("json")
+	if tag == "" {
+		return ""
+	}
+	name := strings.Split(tag, ",")[0]
+	if name == "-" {
+		return ""
+	}
+	return name
+}
+
+func compactJSON(value any) string {
+	data, err := json.Marshal(value)
+	if err != nil {
+		panic(err)
+	}
+	return string(data)
+}
+
+func indentedJSON(value any, prefix string) string {
+	data, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		panic(err)
+	}
+	parts := strings.Split(string(data), "\n")
+	if len(parts) == 1 {
+		return parts[0]
+	}
+	for i := 1; i < len(parts); i++ {
+		parts[i] = prefix + parts[i]
+	}
+	return strings.Join(parts, "\n")
+}
+
 const readmeStartMarker = "<!-- diagnostics-table:start -->"
 const readmeEndMarker = "<!-- diagnostics-table:end -->"
+const readmeExampleStartMarker = "<!-- example-config:start -->"
+const readmeExampleEndMarker = "<!-- example-config:end -->"
 
 func generateReadme(committedReadme []byte) ([]byte, error) {
 	content := string(committedReadme)
-	startIdx := strings.Index(content, readmeStartMarker)
-	endIdx := strings.Index(content, readmeEndMarker)
-	if startIdx < 0 || endIdx < 0 || endIdx <= startIdx {
-		return nil, fmt.Errorf("README.md missing diagnostics table markers")
+	diagnosticsStartIdx := strings.Index(content, readmeStartMarker)
+	diagnosticsEndIdx := strings.Index(content, readmeEndMarker)
+	if diagnosticsStartIdx < 0 || diagnosticsEndIdx < 0 || diagnosticsEndIdx <= diagnosticsStartIdx {
+		return nil, errors.New("README.md missing diagnostics table markers")
+	}
+	exampleStartIdx := strings.Index(content, readmeExampleStartMarker)
+	exampleEndIdx := strings.Index(content, readmeExampleEndMarker)
+	if exampleStartIdx < 0 || exampleEndIdx < 0 || exampleEndIdx <= exampleStartIdx {
+		return nil, errors.New("README.md missing example config markers")
 	}
 
 	table := generateReadmeTable()
-	var buf strings.Builder
-	buf.WriteString(content[:startIdx])
-	buf.WriteString(readmeStartMarker)
-	buf.WriteString("\n")
-	buf.WriteString(table)
-	buf.WriteString("\n")
-	buf.WriteString(readmeEndMarker)
-	buf.WriteString(content[endIdx+len(readmeEndMarker):])
+	example := generateReadmeExampleConfig()
+	content = replaceReadmeSection(content, readmeStartMarker, readmeEndMarker, table)
+	content = replaceReadmeSection(content, readmeExampleStartMarker, readmeExampleEndMarker, example)
 
-	return []byte(buf.String()), nil
+	return []byte(content), nil
+}
+
+func replaceReadmeSection(content string, startMarker string, endMarker string, body string) string {
+	before, afterStart, ok := strings.Cut(content, startMarker)
+	if !ok {
+		panic("missing start marker: " + startMarker)
+	}
+	_, afterEnd, ok := strings.Cut(afterStart, endMarker)
+	if !ok {
+		panic("missing end marker: " + endMarker)
+	}
+	var buf strings.Builder
+	buf.WriteString(before)
+	buf.WriteString(startMarker)
+	buf.WriteString("\n")
+	buf.WriteString(body)
+	buf.WriteString("\n")
+	buf.WriteString(endMarker)
+	buf.WriteString(afterEnd)
+	return buf.String()
 }
