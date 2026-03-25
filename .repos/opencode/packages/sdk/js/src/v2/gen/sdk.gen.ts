@@ -4,11 +4,11 @@ import { client } from "./client.gen.js"
 import { buildClientParams, type Client, type Options as Options2, type TDataShape } from "./client/index.js"
 import type {
   AgentPartInput,
-  ApiAuth,
   AppAgentsResponses,
   AppLogErrors,
   AppLogResponses,
   AppSkillsResponses,
+  Auth as Auth3,
   AuthRemoveErrors,
   AuthRemoveResponses,
   AuthSetErrors,
@@ -46,6 +46,9 @@ import type {
   GlobalDisposeResponses,
   GlobalEventResponses,
   GlobalHealthResponses,
+  GlobalSyncEventSubscribeResponses,
+  GlobalUpgradeErrors,
+  GlobalUpgradeResponses,
   InstanceDisposeResponses,
   LspStatusResponses,
   McpAddErrors,
@@ -63,7 +66,6 @@ import type {
   McpLocalConfig,
   McpRemoteConfig,
   McpStatusResponses,
-  OAuth,
   OutputFormat,
   Part as Part2,
   PartDeleteErrors,
@@ -173,8 +175,8 @@ import type {
   TuiSelectSessionResponses,
   TuiShowToastResponses,
   TuiSubmitPromptResponses,
+  VcsDiffResponses,
   VcsGetResponses,
-  WellKnownAuth,
   WorktreeCreateErrors,
   WorktreeCreateInput,
   WorktreeCreateResponses,
@@ -227,6 +229,20 @@ class HeyApiRegistry<T> {
 
   set(value: T, key?: string): void {
     this.instances.set(key ?? this.defaultKey, value)
+  }
+}
+
+export class SyncEvent extends HeyApiClient {
+  /**
+   * Subscribe to global sync events
+   *
+   * Get global sync events
+   */
+  public subscribe<ThrowOnError extends boolean = false>(options?: Options<never, ThrowOnError>) {
+    return (options?.client ?? this.client).sse.get<GlobalSyncEventSubscribeResponses, unknown, ThrowOnError>({
+      url: "/global/sync-event",
+      ...options,
+    })
   }
 }
 
@@ -305,6 +321,35 @@ export class Global extends HeyApiClient {
     })
   }
 
+  /**
+   * Upgrade opencode
+   *
+   * Upgrade opencode to the specified version or latest if not specified.
+   */
+  public upgrade<ThrowOnError extends boolean = false>(
+    parameters?: {
+      target?: string
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams([parameters], [{ args: [{ in: "body", key: "target" }] }])
+    return (options?.client ?? this.client).post<GlobalUpgradeResponses, GlobalUpgradeErrors, ThrowOnError>({
+      url: "/global/upgrade",
+      ...options,
+      ...params,
+      headers: {
+        "Content-Type": "application/json",
+        ...options?.headers,
+        ...params.headers,
+      },
+    })
+  }
+
+  private _syncEvent?: SyncEvent
+  get syncEvent(): SyncEvent {
+    return (this._syncEvent ??= new SyncEvent({ client: this.client }))
+  }
+
   private _config?: Config
   get config(): Config {
     return (this._config ??= new Config({ client: this.client }))
@@ -339,7 +384,7 @@ export class Auth extends HeyApiClient {
   public set<ThrowOnError extends boolean = false>(
     parameters: {
       providerID: string
-      body?: OAuth | ApiAuth | WellKnownAuth
+      auth?: Auth3
     },
     options?: Options<never, ThrowOnError>,
   ) {
@@ -349,7 +394,7 @@ export class Auth extends HeyApiClient {
         {
           args: [
             { in: "path", key: "providerID" },
-            { key: "body", map: "body" },
+            { key: "auth", map: "body" },
           ],
         },
       ],
@@ -3691,6 +3736,38 @@ export class Vcs extends HeyApiClient {
     )
     return (options?.client ?? this.client).get<VcsGetResponses, unknown, ThrowOnError>({
       url: "/vcs",
+      ...options,
+      ...params,
+    })
+  }
+
+  /**
+   * Get VCS diff
+   *
+   * Retrieve the current git diff for the working tree or against the default branch.
+   */
+  public diff<ThrowOnError extends boolean = false>(
+    parameters: {
+      directory?: string
+      workspace?: string
+      mode: "git" | "branch"
+    },
+    options?: Options<never, ThrowOnError>,
+  ) {
+    const params = buildClientParams(
+      [parameters],
+      [
+        {
+          args: [
+            { in: "query", key: "directory" },
+            { in: "query", key: "workspace" },
+            { in: "query", key: "mode" },
+          ],
+        },
+      ],
+    )
+    return (options?.client ?? this.client).get<VcsDiffResponses, unknown, ThrowOnError>({
+      url: "/vcs/diff",
       ...options,
       ...params,
     })
