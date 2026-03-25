@@ -11,6 +11,7 @@ import {
   type CanonicalRequestType,
   type ProviderEvent,
   type ProviderRuntimeEvent,
+  type ThreadTokenUsageSnapshot,
   type ProviderUserInputAnswers,
   RuntimeItemId,
   RuntimeRequestId,
@@ -107,6 +108,48 @@ function asArray(value: unknown): unknown[] | undefined {
 
 function asNumber(value: unknown): number | undefined {
   return typeof value === "number" && Number.isFinite(value) ? value : undefined;
+}
+
+function normalizeCodexTokenUsage(value: unknown): ThreadTokenUsageSnapshot | undefined {
+  const usage = asObject(value);
+  const totalUsage = asObject(usage?.total_token_usage ?? usage?.total);
+  const lastUsage = asObject(usage?.last_token_usage ?? usage?.last);
+
+  const totalProcessedTokens =
+    asNumber(totalUsage?.total_tokens) ?? asNumber(totalUsage?.totalTokens);
+  const usedTokens =
+    asNumber(lastUsage?.total_tokens) ?? asNumber(lastUsage?.totalTokens) ?? totalProcessedTokens;
+  if (usedTokens === undefined || usedTokens <= 0) {
+    return undefined;
+  }
+
+  const maxTokens = asNumber(usage?.model_context_window) ?? asNumber(usage?.modelContextWindow);
+  const inputTokens = asNumber(lastUsage?.input_tokens) ?? asNumber(lastUsage?.inputTokens);
+  const cachedInputTokens =
+    asNumber(lastUsage?.cached_input_tokens) ?? asNumber(lastUsage?.cachedInputTokens);
+  const outputTokens = asNumber(lastUsage?.output_tokens) ?? asNumber(lastUsage?.outputTokens);
+  const reasoningOutputTokens =
+    asNumber(lastUsage?.reasoning_output_tokens) ?? asNumber(lastUsage?.reasoningOutputTokens);
+
+  return {
+    usedTokens,
+    ...(totalProcessedTokens !== undefined && totalProcessedTokens > usedTokens
+      ? { totalProcessedTokens }
+      : {}),
+    ...(maxTokens !== undefined ? { maxTokens } : {}),
+    ...(inputTokens !== undefined ? { inputTokens } : {}),
+    ...(cachedInputTokens !== undefined ? { cachedInputTokens } : {}),
+    ...(outputTokens !== undefined ? { outputTokens } : {}),
+    ...(reasoningOutputTokens !== undefined ? { reasoningOutputTokens } : {}),
+    ...(usedTokens !== undefined ? { lastUsedTokens: usedTokens } : {}),
+    ...(inputTokens !== undefined ? { lastInputTokens: inputTokens } : {}),
+    ...(cachedInputTokens !== undefined ? { lastCachedInputTokens: cachedInputTokens } : {}),
+    ...(outputTokens !== undefined ? { lastOutputTokens: outputTokens } : {}),
+    ...(reasoningOutputTokens !== undefined
+      ? { lastReasoningOutputTokens: reasoningOutputTokens }
+      : {}),
+    compactsAutomatically: true,
+  };
 }
 
 function toTurnId(value: string | undefined): TurnId | undefined {
@@ -708,12 +751,17 @@ function mapToRuntimeEvents(
   }
 
   if (event.method === "thread/tokenUsage/updated") {
+    const tokenUsage = asObject(payload?.tokenUsage);
+    const normalizedUsage = normalizeCodexTokenUsage(tokenUsage ?? event.payload);
+    if (!normalizedUsage) {
+      return [];
+    }
     return [
       {
         type: "thread.token-usage.updated",
         ...runtimeEventBase(event, canonicalThreadId),
         payload: {
-          usage: event.payload ?? {},
+          usage: normalizedUsage,
         },
       },
     ];
@@ -1313,8 +1361,12 @@ const makeCodexAdapter = (options?: CodexAdapterLiveOptions) =>
         ...(input.resumeCursor !== undefined ? { resumeCursor: input.resumeCursor } : {}),
         ...(input.providerOptions !== undefined ? { providerOptions: input.providerOptions } : {}),
         runtimeMode: input.runtimeMode,
-        ...(input.model !== undefined ? { model: input.model } : {}),
-        ...(input.modelOptions?.codex?.fastMode ? { serviceTier: "fast" } : {}),
+        ...(input.modelSelection?.provider === "codex"
+          ? { model: input.modelSelection.model }
+          : {}),
+        ...(input.modelSelection?.provider === "codex" && input.modelSelection.options?.fastMode
+          ? { serviceTier: "fast" }
+          : {}),
       };
 
       return Effect.tryPromise({
@@ -1370,11 +1422,17 @@ const makeCodexAdapter = (options?: CodexAdapterLiveOptions) =>
             const managerInput = {
               threadId: input.threadId,
               ...(input.input !== undefined ? { input: input.input } : {}),
-              ...(input.model !== undefined ? { model: input.model } : {}),
-              ...(input.modelOptions?.codex?.reasoningEffort !== undefined
-                ? { effort: input.modelOptions.codex.reasoningEffort }
+              ...(input.modelSelection?.provider === "codex"
+                ? { model: input.modelSelection.model }
                 : {}),
-              ...(input.modelOptions?.codex?.fastMode ? { serviceTier: "fast" } : {}),
+              ...(input.modelSelection?.provider === "codex" &&
+              input.modelSelection.options?.reasoningEffort !== undefined
+                ? { effort: input.modelSelection.options.reasoningEffort }
+                : {}),
+              ...(input.modelSelection?.provider === "codex" &&
+              input.modelSelection.options?.fastMode
+                ? { serviceTier: "fast" }
+                : {}),
               ...(input.interactionMode !== undefined
                 ? { interactionMode: input.interactionMode }
                 : {}),

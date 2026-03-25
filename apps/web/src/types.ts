@@ -1,4 +1,5 @@
 import type {
+  ModelSelection,
   OrchestrationLatestTurn,
   OrchestrationProposedPlanId,
   OrchestrationSessionStatus,
@@ -8,8 +9,8 @@ import type {
   ProjectId,
   TurnId,
   MessageId,
-  CheckpointRef,
   ProviderKind,
+  CheckpointRef,
   ProviderInteractionMode,
   RuntimeMode,
 } from "@t3tools/contracts";
@@ -80,8 +81,10 @@ export interface Project {
   id: ProjectId;
   name: string;
   cwd: string;
-  model: string;
+  defaultModelSelection: ModelSelection | null;
   expanded: boolean;
+  createdAt?: string | undefined;
+  updatedAt?: string | undefined;
   scripts: ProjectScript[];
 }
 
@@ -90,7 +93,7 @@ export interface Thread {
   codexThreadId: string | null;
   projectId: ProjectId;
   title: string;
-  model: string;
+  modelSelection: ModelSelection;
   runtimeMode: RuntimeMode;
   interactionMode: ProviderInteractionMode;
   session: ThreadSession | null;
@@ -98,6 +101,7 @@ export interface Thread {
   proposedPlans: ProposedPlan[];
   error: string | null;
   createdAt: string;
+  updatedAt?: string | undefined;
   latestTurn: OrchestrationLatestTurn | null;
   lastVisitedAt?: string | undefined;
   branch: string | null;

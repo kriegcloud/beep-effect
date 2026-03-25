@@ -633,8 +633,10 @@ routing.layer("ProviderServiceLive routing", (it) => {
         provider: "claudeAgent",
         threadId: asThreadId("thread-claude-send-turn"),
         cwd: "/tmp/project-claude-send-turn",
-        modelOptions: {
-          claudeAgent: {
+        modelSelection: {
+          provider: "claudeAgent",
+          model: "claude-opus-4-6",
+          options: {
             effort: "max",
           },
         },
@@ -658,14 +660,16 @@ routing.layer("ProviderServiceLive routing", (it) => {
         const startPayload = resumedStartInput as {
           provider?: string;
           cwd?: string;
-          modelOptions?: unknown;
+          modelSelection?: unknown;
           resumeCursor?: unknown;
           threadId?: string;
         };
         assert.equal(startPayload.provider, "claudeAgent");
         assert.equal(startPayload.cwd, "/tmp/project-claude-send-turn");
-        assert.deepEqual(startPayload.modelOptions, {
-          claudeAgent: {
+        assert.deepEqual(startPayload.modelSelection, {
+          provider: "claudeAgent",
+          model: "claude-opus-4-6",
+          options: {
             effort: "max",
           },
         });
