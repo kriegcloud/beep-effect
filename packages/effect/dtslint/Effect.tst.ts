@@ -1,5 +1,20 @@
 /** @effect-diagnostics floatingEffect:skip-file */
-import { type Cause, Data, Effect, Fiber, type Option, pipe, Result, type Scope, ServiceMap, type Types } from "effect"
+import {
+  type Cause,
+  type Channel,
+  Data,
+  Effect,
+  Fiber,
+  type Option,
+  pipe,
+  Result,
+  type Scope,
+  ServiceMap,
+  type Sink,
+  type Stream,
+  type Types,
+  Unify
+} from "effect"
 import { describe, expect, it } from "tstyche"
 
 // Fixtures
@@ -35,6 +50,17 @@ declare const onlyNoSuch: Effect.Effect<number, Cause.NoSuchElementError>
 
 declare const string: Effect.Effect<string, "err-1", "dep-1">
 declare const number: Effect.Effect<number, "err-2", "dep-2">
+declare const stringOrNumber: Effect.Effect<string, "err-1", "dep-1"> | Effect.Effect<number, "err-2", "dep-2">
+declare const streamStringOrNumber: Stream.Stream<string, "err-1", "dep-1"> | Stream.Stream<number, "err-2", "dep-2">
+declare const sinkStringOrNumber:
+  | Sink.Sink<string, string, "left-1", "err-1", "dep-1">
+  | Sink.Sink<number, string, "left-2", "err-2", "dep-2">
+declare const channelStringOrNumber:
+  | Channel.Channel<string, "out-err-1", "out-done-1", string, "in-err", "in-done", "dep-1">
+  | Channel.Channel<number, "out-err-2", "out-done-2", string, "in-err", "in-done", "dep-2">
+declare const optionStringOrNumber: Option.Option<string> | Option.Option<number>
+declare const resultStringOrNumber: Result.Result<string, "err-1"> | Result.Result<number, "err-2">
+declare const fiberStringOrNumber: Fiber.Fiber<string, "err-1"> | Fiber.Fiber<number, "err-2">
 declare const stringArray: Array<Effect.Effect<string, "err-3", "dep-3">>
 declare const numberRecord: Record<string, Effect.Effect<number, "err-4", "dep-4">>
 
@@ -539,6 +565,55 @@ describe("Effect.findFirstFilter", () => {
       Effect.findFirstFilter((n, i) => Effect.succeed(i > 0 ? Result.succeed(n.toString()) : Result.failVoid))
     )
     expect(result).type.toBe<Effect.Effect<Option.Option<string>, never, never>>()
+  })
+})
+
+describe("Unify.unify", () => {
+  it("unifies effect unions", () => {
+    const result = Unify.unify(stringOrNumber)
+    expect(result).type.toBe<Effect.Effect<string | number, "err-1" | "err-2", "dep-1" | "dep-2">>()
+  })
+
+  it("unifies stream unions", () => {
+    const result = Unify.unify(streamStringOrNumber)
+    expect(result).type.toBe<Stream.Stream<string | number, "err-1" | "err-2", "dep-1" | "dep-2">>()
+  })
+
+  it("unifies sink unions", () => {
+    const result = Unify.unify(sinkStringOrNumber)
+    expect(result).type.toBe<
+      Sink.Sink<string | number, string, "left-1" | "left-2", "err-1" | "err-2", "dep-1" | "dep-2">
+    >()
+  })
+
+  it("unifies channel unions", () => {
+    const result = Unify.unify(channelStringOrNumber)
+    expect(result).type.toBe<
+      Channel.Channel<
+        string | number,
+        "out-err-1" | "out-err-2",
+        "out-done-1" | "out-done-2",
+        string,
+        "in-err",
+        "in-done",
+        "dep-1" | "dep-2"
+      >
+    >()
+  })
+
+  it("unifies option unions", () => {
+    const result = Unify.unify(optionStringOrNumber)
+    expect(result).type.toBe<Option.Option<string | number>>()
+  })
+
+  it("unifies result unions", () => {
+    const result = Unify.unify(resultStringOrNumber)
+    expect(result).type.toBe<Result.Result<string | number, "err-1" | "err-2">>()
+  })
+
+  it("preserves fiber unions", () => {
+    const result = Unify.unify(fiberStringOrNumber)
+    expect(result).type.toBe<Fiber.Fiber<string, "err-1"> | Fiber.Fiber<number, "err-2">>()
   })
 })
 

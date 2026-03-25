@@ -37,6 +37,9 @@ importers:
       '@effect/ai-docgen':
         specifier: workspace:^
         version: link:packages/tools/ai-docgen
+      '@effect/bundle':
+        specifier: workspace:^
+        version: link:packages/tools/bundle
       '@effect/docgen':
         specifier: https://pkg.pr.new/Effect-TS/docgen/@effect/docgen@e57e5f5
         version: https://pkg.pr.new/Effect-TS/docgen/@effect/docgen@e57e5f5(tsx@4.21.0)(typescript@5.9.3)
