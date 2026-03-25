@@ -2187,11 +2187,14 @@ const processSelection = Effect.fnUntraced(function*(state: FileState, options: 
 
 const handleFileProcess = (options: FileOptionsReq) => {
   return Effect.fnUntraced(function*(input: Terminal.UserInput, state: FileState) {
-    if (input.key.ctrl && input.key.name === "u") {
-      if (showConfirmation(state.confirm)) {
-        return Action.Beep()
+    if (input.key.ctrl) {
+      if (input.key.name === "u") {
+        if (showConfirmation(state.confirm)) {
+          return Action.Beep()
+        }
+        return yield* processFileClear(state)
       }
-      return yield* processFileClear(state)
+      return Action.Beep()
     }
     switch (input.key.name) {
       case "k":
@@ -2347,7 +2350,9 @@ const renderMultiSelectChoices = <A>(
       const annotatedCheckbox = isHighlighted && renderOptions?.plain !== true
         ? Ansi.annotate(checkbox, Ansi.cyanBright)
         : checkbox
-      const title = choice.title
+      const title = isHighlighted && renderOptions?.plain !== true
+        ? Ansi.annotate(choice.title, Ansi.cyanBright)
+        : choice.title
       const description = renderChoiceDescription(choice as SelectChoice<A>, isHighlighted, renderOptions)
       documents.push(prefix + " " + annotatedCheckbox + " " + title + " " + description)
     }
@@ -3154,8 +3159,11 @@ const handleSelectProcess = <A>(options: SelectOptionsReq<A>) => {
 
 const handleAutoCompleteProcess = <A>(options: AutoCompleteOptionsReq<A>) => {
   return (input: Terminal.UserInput, state: AutoCompleteState) => {
-    if (input.key.ctrl && input.key.name === "u") {
-      return processAutoCompleteClear(state, options)
+    if (input.key.ctrl) {
+      if (input.key.name === "u") {
+        return processAutoCompleteClear(state, options)
+      }
+      return Effect.succeed(Action.Beep())
     }
     switch (input.key.name) {
       case "k":
@@ -3416,6 +3424,9 @@ const handleTextProcess = (options: TextOptionsReq) => {
         }
         case "e": {
           return processTextCursorEnd(state)
+        }
+        default: {
+          return Effect.succeed(Action.Beep())
         }
       }
     }

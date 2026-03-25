@@ -1,3 +1,4 @@
+/** @effect-diagnostics missingEffectContext:skip-file */
 import { Effect, Schema } from "effect"
 import { FetchHttpClient, HttpClient, type HttpClientError, type HttpClientResponse } from "effect/unstable/http"
 import {
@@ -11,6 +12,8 @@ import {
 } from "effect/unstable/httpapi"
 import { describe, expect, it } from "tstyche"
 
+type ResponseMode = HttpApiEndpoint.ClientResponseMode
+
 describe("HttpApiClient", () => {
   describe("path option", () => {
     it("should accept a record of fields", () => {
@@ -20,7 +23,7 @@ describe("HttpApiClient", () => {
             .add(
               HttpApiEndpoint.get("a", "/a", {
                 params: {
-                  id: Schema.FiniteFromString
+                  id: Schema.Finite
                 }
               })
             )
@@ -30,7 +33,7 @@ describe("HttpApiClient", () => {
       )
       const f = client.group.a
       expect<Parameters<typeof f>[0]>().type.toBe<
-        { readonly params: { readonly id: number }; readonly withResponse?: boolean }
+        { readonly params: { readonly id: number }; readonly responseMode?: ResponseMode }
       >()
     })
   })
@@ -43,7 +46,7 @@ describe("HttpApiClient", () => {
             .add(
               HttpApiEndpoint.get("a", "/a", {
                 query: {
-                  id: Schema.FiniteFromString
+                  id: Schema.Finite
                 }
               })
             )
@@ -53,18 +56,19 @@ describe("HttpApiClient", () => {
       )
       const f = client.group.a
       expect<Parameters<typeof f>[0]>().type.toBe<
-        { readonly query: { readonly id: number }; readonly withResponse?: boolean }
+        { readonly query: { readonly id: number }; readonly responseMode?: ResponseMode }
       >()
     })
   })
 
   describe("urlBuilder", () => {
-    it("should use method/path keys with encoded params and query", () => {
+    it("should mirror client shape and use schema input types", () => {
       const Api = HttpApi.make("Api")
         .add(
           HttpApiGroup.make("users")
             .add(
               HttpApiEndpoint.get("getUser", "/users/:id", {
+                disableCodecs: true,
                 params: {
                   id: Schema.FiniteFromString
                 },
@@ -72,59 +76,76 @@ describe("HttpApiClient", () => {
                   page: Schema.FiniteFromString
                 }
               }),
-              HttpApiEndpoint.get("health", "/health")
+              HttpApiEndpoint.get("health", "/health", {
+                disableCodecs: true
+              })
             )
         )
 
-      const builder = HttpApiClient.urlBuilder<typeof Api>({
+      const builder = HttpApiClient.urlBuilder(Api, {
         baseUrl: "https://api.example.com"
       })
 
-      const getUserUrl = builder("users", "GET /users/:id", {
-        params: { id: "123" },
-        query: { page: "1" }
+      const getUserUrl = builder.users.getUser({
+        params: { id: 123 },
+        query: { page: 1 }
       })
 
       expect<typeof getUserUrl>().type.toBe<string>()
 
-      const healthUrl = builder("users", "GET /health")
+      const healthUrl = builder.users.health()
 
       expect<typeof healthUrl>().type.toBe<string>()
 
       // @ts-expect-error!
-      builder("users", "GET /users/:id", { params: { id: 123 }, query: { page: "1" } })
+      builder.users.getUser({ params: { id: "123" }, query: { page: 1 } })
 
       // @ts-expect-error!
-      builder("users", "GET /users/:id", { params: { id: "123" }, query: { page: 1 } })
+      builder.users.getUser({ params: { id: 123 }, query: { page: "1" } })
 
       // @ts-expect-error!
-      builder("users", "POST /users/:id", { params: { id: "123" }, query: { page: "1" } })
+      builder.users.missing()
     })
 
-    it("should reflect api-level prefix in endpoint keys", () => {
+    it("should support prefixes and top-level endpoints", () => {
       const Api = HttpApi.make("Api")
         .add(
           HttpApiGroup.make("users")
             .add(
               HttpApiEndpoint.get("getUser", "/users/:id", {
+                disableCodecs: true,
                 params: {
                   id: Schema.FiniteFromString
                 }
-              })
+              }),
+              HttpApiEndpoint.get("health", "/health")
+            )
+        )
+        .add(
+          HttpApiGroup.make("top", { topLevel: true })
+            .add(
+              HttpApiEndpoint.get("topHealth", "/top-health")
             )
         )
         .prefix("/v1")
 
-      const builder = HttpApiClient.urlBuilder<typeof Api>()
+      const builder = HttpApiClient.urlBuilder(Api)
 
-      const prefixedUrl = builder("users", "GET /v1/users/:id", {
-        params: { id: "123" }
+      const prefixedUrl = builder.users.getUser({
+        params: { id: 123 }
       })
 
       expect<typeof prefixedUrl>().type.toBe<string>()
 
+      const topLevelUrl = builder.topHealth()
+
+      expect<typeof topLevelUrl>().type.toBe<string>()
+
       // @ts-expect-error!
-      builder("users", "GET /users/:id", { params: { id: "123" } })
+      builder.users.getUser({ params: { id: "123" } })
+
+      // @ts-expect-error!
+      builder.top.topHealth()
     })
   })
 
@@ -146,7 +167,7 @@ describe("HttpApiClient", () => {
       )
       const f = client.group.a
       expect<Parameters<typeof f>[0]>().type.toBe<
-        { readonly headers: { readonly id: number }; readonly withResponse?: boolean }
+        { readonly headers: { readonly id: number }; readonly responseMode?: ResponseMode }
       >()
     })
   })
@@ -164,7 +185,7 @@ describe("HttpApiClient", () => {
         HttpApiClient.make(Api).pipe(Effect.provide(FetchHttpClient.layer))
       )
       const f = client.group.a
-      expect<Parameters<typeof f>[0]>().type.toBe<void | { readonly withResponse?: boolean } | undefined>()
+      expect<Parameters<typeof f>[0]>().type.toBe<void | { readonly responseMode?: ResponseMode } | undefined>()
     })
 
     it("should accept a record of fields", () => {
@@ -184,7 +205,7 @@ describe("HttpApiClient", () => {
       )
       const f = client.group.a
       expect<Parameters<typeof f>[0]>().type.toBe<
-        { readonly payload: { readonly id: number }; readonly withResponse?: boolean }
+        { readonly payload: { readonly id: number }; readonly responseMode?: ResponseMode }
       >()
     })
 
@@ -203,7 +224,7 @@ describe("HttpApiClient", () => {
       )
       const f = client.group.a
       expect<Parameters<typeof f>[0]>().type.toBe<
-        { readonly payload: FormData; readonly withResponse?: boolean }
+        { readonly payload: FormData; readonly responseMode?: ResponseMode }
       >()
     })
 
@@ -222,7 +243,7 @@ describe("HttpApiClient", () => {
       )
       const f = client.group.a
       expect<Parameters<typeof f>[0]>().type.toBe<
-        { readonly payload: FormData; readonly withResponse?: boolean }
+        { readonly payload: FormData; readonly responseMode?: ResponseMode }
       >()
     })
   })
@@ -244,7 +265,7 @@ describe("HttpApiClient", () => {
       const f = client.group.a
       expect<ReturnType<typeof f>>().type.toBe<
         Effect.Effect<
-          { readonly a: number } | [{ readonly a: number }, HttpClientResponse.HttpClientResponse],
+          { readonly a: number },
           HttpApiError.BadRequest | HttpClientError.HttpClientError | Schema.SchemaError
         >
       >()
@@ -257,7 +278,7 @@ describe("HttpApiClient", () => {
             .add(
               HttpApiEndpoint.get("a", "/a", {
                 success: [
-                  Schema.Struct({ a: Schema.FiniteFromString }), // application/json
+                  Schema.Struct({ a: Schema.Finite }), // application/json
                   Schema.String.pipe(HttpApiSchema.asText()), // text/plain
                   Schema.Uint8Array.pipe(HttpApiSchema.asUint8Array()) // application/octet-stream
                 ]
@@ -270,12 +291,48 @@ describe("HttpApiClient", () => {
       const f = client.group.a
       expect<ReturnType<typeof f>>().type.toBe<
         Effect.Effect<
-          string | { readonly a: number } | Uint8Array<ArrayBufferLike> | [
-            string | { readonly a: number } | Uint8Array<ArrayBufferLike>,
-            HttpClientResponse.HttpClientResponse
-          ],
+          | string
+          | { readonly a: number }
+          | Uint8Array<ArrayBufferLike>,
           HttpApiError.BadRequest | HttpClientError.HttpClientError | Schema.SchemaError
         >
+      >()
+    })
+
+    it("should infer return type from responseMode", () => {
+      const Api = HttpApi.make("Api")
+        .add(
+          HttpApiGroup.make("group")
+            .add(
+              HttpApiEndpoint.get("a", "/a", {
+                success: Schema.Struct({ a: Schema.FiniteFromString })
+              })
+            )
+        )
+      const client = Effect.runSync(
+        HttpApiClient.make(Api).pipe(Effect.provide(FetchHttpClient.layer))
+      )
+      const f = client.group.a
+
+      const decodedOnly = f({ responseMode: "decoded-only" })
+      expect<typeof decodedOnly>().type.toBe<
+        Effect.Effect<
+          { readonly a: number },
+          HttpApiError.BadRequest | HttpClientError.HttpClientError | Schema.SchemaError
+        >
+      >()
+
+      const decodedAndResponse = f({ responseMode: "decoded-and-response" })
+      expect<typeof decodedAndResponse>().type.toBe<
+        Effect.Effect<
+          [{ readonly a: number }, HttpClientResponse.HttpClientResponse],
+          HttpApiError.BadRequest | HttpClientError.HttpClientError | Schema.SchemaError
+        >
+      >()
+
+      const responseOnly = f({ responseMode: "response-only" })
+      expect<typeof responseOnly>().type.toBe<
+        Effect.Effect<HttpClientResponse.HttpClientResponse, HttpApiError.BadRequest | HttpClientError.HttpClientError>
       >()
     })
   })
@@ -295,7 +352,7 @@ describe("HttpApiClient", () => {
       const f = client.group.a
       expect<ReturnType<typeof f>>().type.toBe<
         Effect.Effect<
-          void | [void, HttpClientResponse.HttpClientResponse],
+          void,
           | HttpApiError.BadRequest
           | HttpClientError.HttpClientError
           | Schema.SchemaError
@@ -319,7 +376,7 @@ describe("HttpApiClient", () => {
       const f = client.group.a
       expect<ReturnType<typeof f>>().type.toBe<
         Effect.Effect<
-          void | [void, HttpClientResponse.HttpClientResponse],
+          void,
           | { readonly a: number }
           | HttpApiError.BadRequest
           | HttpClientError.HttpClientError
@@ -375,7 +432,7 @@ describe("HttpApiClient", () => {
       const f = client.group.a
       expect<ReturnType<typeof f>>().type.toBe<
         Effect.Effect<
-          string | [string, HttpClientResponse.HttpClientResponse],
+          string,
           | RequiredClientError
           | HttpApiError.BadRequest
           | HttpClientError.HttpClientError
@@ -444,7 +501,7 @@ describe("HttpApiClient", () => {
 
       expect<ReturnType<typeof fromClient>>().type.toBe<
         Effect.Effect<
-          string | [string, HttpClientResponse.HttpClientResponse],
+          string,
           | RequiredClientError
           | HttpApiError.BadRequest
           | HttpClientError.HttpClientError
@@ -454,7 +511,7 @@ describe("HttpApiClient", () => {
 
       expect<ReturnType<typeof fromGroup>>().type.toBe<
         Effect.Effect<
-          string | [string, HttpClientResponse.HttpClientResponse],
+          string,
           | RequiredClientError
           | HttpApiError.BadRequest
           | HttpClientError.HttpClientError
@@ -464,7 +521,7 @@ describe("HttpApiClient", () => {
 
       expect<ReturnType<typeof fromEndpoint>>().type.toBe<
         Effect.Effect<
-          string | [string, HttpClientResponse.HttpClientResponse],
+          string,
           | RequiredClientError
           | HttpApiError.BadRequest
           | HttpClientError.HttpClientError

@@ -173,7 +173,7 @@ export interface Effect<out A, out E = never, out R = never> extends Pipeable, Y
   readonly [TypeId]: Variance<A, E, R>
   [Unify.typeSymbol]?: unknown
   [Unify.unifySymbol]?: EffectUnify<this>
-  [Unify.ignoreSymbol]?: EffectUnifyIgnore
+  [Unify.ignoreSymbol]?: {}
 }
 
 /**
@@ -242,21 +242,6 @@ export interface EffectUnify<A extends { [Unify.typeSymbol]?: any }> {
     : never
 }
 
-/**
- * @category Models
- * @since 2.0.0
- * @example
- * ```ts
- * import type { Effect } from "effect"
- *
- * // EffectUnifyIgnore is used internally to control type unification
- * // It prevents certain types from being unified with Effect types
- * declare const ignored: Effect.EffectUnifyIgnore
- * ```
- */
-export interface EffectUnifyIgnore {
-  Effect?: true
-}
 /**
  * @category Type Lambdas
  * @since 2.0.0
@@ -4500,7 +4485,7 @@ export const timeoutOption: {
  * // Use cached data as fallback when timeout is reached
  * const program = Effect.timeoutOrElse(slowQuery, {
  *   duration: "2 seconds",
- *   onTimeout: () =>
+ *   orElse: () =>
  *     Effect.gen(function*() {
  *       yield* Console.log("Query timed out, using cached data")
  *       return "Cached result"
@@ -4520,13 +4505,13 @@ export const timeoutOption: {
 export const timeoutOrElse: {
   <A2, E2, R2>(options: {
     readonly duration: Duration.Input
-    readonly onTimeout: LazyArg<Effect<A2, E2, R2>>
+    readonly orElse: LazyArg<Effect<A2, E2, R2>>
   }): <A, E, R>(self: Effect<A, E, R>) => Effect<A | A2, E | E2, R | R2>
   <A, E, R, A2, E2, R2>(
     self: Effect<A, E, R>,
     options: {
       readonly duration: Duration.Input
-      readonly onTimeout: LazyArg<Effect<A2, E2, R2>>
+      readonly orElse: LazyArg<Effect<A2, E2, R2>>
     }
   ): Effect<A | A2, E | E2, R | R2>
 } = internal.timeoutOrElse
@@ -8278,6 +8263,7 @@ export interface RunOptions {
   readonly signal?: AbortSignal | undefined
   readonly scheduler?: Scheduler | undefined
   readonly uninterruptible?: boolean | undefined
+  readonly onFiberStart?: ((fiber: Fiber<unknown, unknown>) => void) | undefined
 }
 
 /**
