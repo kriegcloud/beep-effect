@@ -5,17 +5,16 @@ import {
   type ThreadId,
 } from "@t3tools/contracts";
 import {
-  getDefaultReasoningEffort,
-  getReasoningEffortOptions,
+  getModelCapabilities,
   isClaudeUltrathinkPrompt,
   normalizeClaudeModelOptions,
   normalizeCodexModelOptions,
-  resolveReasoningEffortForProvider,
-  supportsClaudeUltrathinkKeyword,
+  trimOrNull,
+  getDefaultEffort,
+  hasEffortLevel,
 } from "@t3tools/shared/model";
 import type { ReactNode } from "react";
-import { ClaudeTraitsMenuContent, ClaudeTraitsPicker } from "./ClaudeTraitsPicker";
-import { CodexTraitsMenuContent, CodexTraitsPicker } from "./CodexTraitsPicker";
+import { TraitsMenuContent, TraitsPicker } from "./TraitsPicker";
 
 export type ComposerProviderStateInput = {
   provider: ProviderKind;
@@ -27,7 +26,7 @@ export type ComposerProviderStateInput = {
 export type ComposerProviderState = {
   provider: ProviderKind;
   promptEffort: string | null;
-  modelOptionsForDispatch: ProviderModelOptions | undefined;
+  modelOptionsForDispatch: ProviderModelOptions[ProviderKind] | undefined;
   composerFrameClassName?: string;
   composerSurfaceClassName?: string;
   modelPickerIconClassName?: string;
@@ -38,70 +37,114 @@ type ProviderRegistryEntry = {
   renderTraitsMenuContent: (input: {
     threadId: ThreadId;
     model: ModelSlug;
+    modelOptions: ProviderModelOptions[ProviderKind] | undefined;
+    prompt: string;
     onPromptChange: (prompt: string) => void;
   }) => ReactNode;
   renderTraitsPicker: (input: {
     threadId: ThreadId;
     model: ModelSlug;
+    modelOptions: ProviderModelOptions[ProviderKind] | undefined;
+    prompt: string;
     onPromptChange: (prompt: string) => void;
   }) => ReactNode;
 };
 
+function getProviderStateFromCapabilities(
+  input: ComposerProviderStateInput,
+): ComposerProviderState {
+  const { provider, model, prompt, modelOptions } = input;
+  const caps = getModelCapabilities(provider, model);
+  const providerOptions = modelOptions?.[provider];
+
+  // Resolve effort
+  const rawEffort = providerOptions
+    ? "effort" in providerOptions
+      ? providerOptions.effort
+      : "reasoningEffort" in providerOptions
+        ? providerOptions.reasoningEffort
+        : null
+    : null;
+
+  const draftEffort = trimOrNull(rawEffort);
+  const defaultEffort = getDefaultEffort(caps);
+  const isPromptInjected = draftEffort
+    ? caps.promptInjectedEffortLevels.includes(draftEffort)
+    : false;
+  const promptEffort =
+    draftEffort && !isPromptInjected && hasEffortLevel(caps, draftEffort)
+      ? draftEffort
+      : defaultEffort && hasEffortLevel(caps, defaultEffort)
+        ? defaultEffort
+        : null;
+
+  // Normalize options for dispatch
+  const normalizedOptions =
+    provider === "codex"
+      ? normalizeCodexModelOptions(model, providerOptions)
+      : normalizeClaudeModelOptions(model, providerOptions);
+
+  // Ultrathink styling (driven by capabilities data, not provider identity)
+  const ultrathinkActive =
+    caps.promptInjectedEffortLevels.length > 0 && isClaudeUltrathinkPrompt(prompt);
+
+  return {
+    provider,
+    promptEffort,
+    modelOptionsForDispatch: normalizedOptions,
+    ...(ultrathinkActive ? { composerFrameClassName: "ultrathink-frame" } : {}),
+    ...(ultrathinkActive
+      ? { composerSurfaceClassName: "shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]" }
+      : {}),
+    ...(ultrathinkActive ? { modelPickerIconClassName: "ultrathink-chroma" } : {}),
+  };
+}
+
 const composerProviderRegistry: Record<ProviderKind, ProviderRegistryEntry> = {
   codex: {
-    getState: ({ modelOptions }) => {
-      const promptEffort =
-        resolveReasoningEffortForProvider("codex", modelOptions?.codex?.reasoningEffort) ??
-        getDefaultReasoningEffort("codex");
-      const normalizedCodexOptions = normalizeCodexModelOptions(modelOptions?.codex);
-
-      return {
-        provider: "codex",
-        promptEffort,
-        modelOptionsForDispatch: normalizedCodexOptions
-          ? { codex: normalizedCodexOptions }
-          : undefined,
-      };
-    },
-    renderTraitsMenuContent: ({ threadId }) => <CodexTraitsMenuContent threadId={threadId} />,
-    renderTraitsPicker: ({ threadId }) => <CodexTraitsPicker threadId={threadId} />,
+    getState: (input) => getProviderStateFromCapabilities(input),
+    renderTraitsMenuContent: ({ threadId, model, modelOptions, prompt, onPromptChange }) => (
+      <TraitsMenuContent
+        provider="codex"
+        threadId={threadId}
+        model={model}
+        modelOptions={modelOptions}
+        prompt={prompt}
+        onPromptChange={onPromptChange}
+      />
+    ),
+    renderTraitsPicker: ({ threadId, model, modelOptions, prompt, onPromptChange }) => (
+      <TraitsPicker
+        provider="codex"
+        threadId={threadId}
+        model={model}
+        modelOptions={modelOptions}
+        prompt={prompt}
+        onPromptChange={onPromptChange}
+      />
+    ),
   },
   claudeAgent: {
-    getState: ({ model, prompt, modelOptions }) => {
-      const reasoningOptions = getReasoningEffortOptions("claudeAgent", model);
-      const draftEffort = resolveReasoningEffortForProvider(
-        "claudeAgent",
-        modelOptions?.claudeAgent?.effort,
-      );
-      const defaultEffort = getDefaultReasoningEffort("claudeAgent");
-      const promptEffort =
-        draftEffort && draftEffort !== "ultrathink" && reasoningOptions.includes(draftEffort)
-          ? draftEffort
-          : reasoningOptions.includes(defaultEffort)
-            ? defaultEffort
-            : null;
-      const normalizedClaudeOptions = normalizeClaudeModelOptions(model, modelOptions?.claudeAgent);
-      const ultrathinkActive =
-        supportsClaudeUltrathinkKeyword(model) && isClaudeUltrathinkPrompt(prompt);
-
-      return {
-        provider: "claudeAgent",
-        promptEffort,
-        modelOptionsForDispatch: normalizedClaudeOptions
-          ? { claudeAgent: normalizedClaudeOptions }
-          : undefined,
-        ...(ultrathinkActive ? { composerFrameClassName: "ultrathink-frame" } : {}),
-        ...(ultrathinkActive
-          ? { composerSurfaceClassName: "shadow-[0_0_0_1px_rgba(255,255,255,0.04)_inset]" }
-          : {}),
-        ...(ultrathinkActive ? { modelPickerIconClassName: "ultrathink-chroma" } : {}),
-      };
-    },
-    renderTraitsMenuContent: ({ threadId, model, onPromptChange }) => (
-      <ClaudeTraitsMenuContent threadId={threadId} model={model} onPromptChange={onPromptChange} />
+    getState: (input) => getProviderStateFromCapabilities(input),
+    renderTraitsMenuContent: ({ threadId, model, modelOptions, prompt, onPromptChange }) => (
+      <TraitsMenuContent
+        provider="claudeAgent"
+        threadId={threadId}
+        model={model}
+        modelOptions={modelOptions}
+        prompt={prompt}
+        onPromptChange={onPromptChange}
+      />
     ),
-    renderTraitsPicker: ({ threadId, model, onPromptChange }) => (
-      <ClaudeTraitsPicker threadId={threadId} model={model} onPromptChange={onPromptChange} />
+    renderTraitsPicker: ({ threadId, model, modelOptions, prompt, onPromptChange }) => (
+      <TraitsPicker
+        provider="claudeAgent"
+        threadId={threadId}
+        model={model}
+        modelOptions={modelOptions}
+        prompt={prompt}
+        onPromptChange={onPromptChange}
+      />
     ),
   },
 };
@@ -114,11 +157,15 @@ export function renderProviderTraitsMenuContent(input: {
   provider: ProviderKind;
   threadId: ThreadId;
   model: ModelSlug;
+  modelOptions: ProviderModelOptions[ProviderKind] | undefined;
+  prompt: string;
   onPromptChange: (prompt: string) => void;
 }): ReactNode {
   return composerProviderRegistry[input.provider].renderTraitsMenuContent({
     threadId: input.threadId,
     model: input.model,
+    modelOptions: input.modelOptions,
+    prompt: input.prompt,
     onPromptChange: input.onPromptChange,
   });
 }
@@ -127,11 +174,15 @@ export function renderProviderTraitsPicker(input: {
   provider: ProviderKind;
   threadId: ThreadId;
   model: ModelSlug;
+  modelOptions: ProviderModelOptions[ProviderKind] | undefined;
+  prompt: string;
   onPromptChange: (prompt: string) => void;
 }): ReactNode {
   return composerProviderRegistry[input.provider].renderTraitsPicker({
     threadId: input.threadId,
     model: input.model,
+    modelOptions: input.modelOptions,
+    prompt: input.prompt,
     onPromptChange: input.onPromptChange,
   });
 }

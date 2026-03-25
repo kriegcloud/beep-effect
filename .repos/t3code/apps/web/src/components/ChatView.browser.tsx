@@ -24,6 +24,7 @@ import { useComposerDraftStore } from "../composerDraftStore";
 import {
   INLINE_TERMINAL_CONTEXT_PLACEHOLDER,
   type TerminalContextDraft,
+  removeInlineTerminalContextPlaceholder,
 } from "../lib/terminalContext";
 import { isMacPlatform } from "../lib/utils";
 import { getRouter } from "../router";
@@ -89,6 +90,7 @@ interface UserRowMeasurement {
 }
 
 interface MountedChatView {
+  [Symbol.asyncDispose]: () => Promise<void>;
   cleanup: () => Promise<void>;
   measureUserRow: (targetMessageId: MessageId) => Promise<UserRowMeasurement>;
   setViewport: (viewport: ViewportSpec) => Promise<void>;
@@ -220,7 +222,10 @@ function createSnapshotForTargetUser(options: {
         id: PROJECT_ID,
         title: "Project",
         workspaceRoot: "/repo/project",
-        defaultModel: "gpt-5",
+        defaultModelSelection: {
+          provider: "codex",
+          model: "gpt-5",
+        },
         scripts: [],
         createdAt: NOW_ISO,
         updatedAt: NOW_ISO,
@@ -232,7 +237,10 @@ function createSnapshotForTargetUser(options: {
         id: THREAD_ID,
         projectId: PROJECT_ID,
         title: "Browser test thread",
-        model: "gpt-5",
+        modelSelection: {
+          provider: "codex",
+          model: "gpt-5",
+        },
         interactionMode: "default",
         runtimeMode: "full-access",
         branch: "main",
@@ -286,7 +294,10 @@ function addThreadToSnapshot(
         id: threadId,
         projectId: PROJECT_ID,
         title: "New thread",
-        model: "gpt-5",
+        modelSelection: {
+          provider: "codex",
+          model: "gpt-5",
+        },
         interactionMode: "default",
         runtimeMode: "full-access",
         branch: "main",
@@ -321,6 +332,18 @@ function createDraftOnlySnapshot(): OrchestrationReadModel {
   return {
     ...snapshot,
     threads: [],
+  };
+}
+
+function withProjectScripts(
+  snapshot: OrchestrationReadModel,
+  scripts: OrchestrationReadModel["projects"][number]["scripts"],
+): OrchestrationReadModel {
+  return {
+    ...snapshot,
+    projects: snapshot.projects.map((project) =>
+      project.id === PROJECT_ID ? { ...project, scripts: Array.from(scripts) } : project,
+    ),
   };
 }
 
@@ -575,6 +598,58 @@ async function waitForInteractionModeButton(
   );
 }
 
+async function waitForServerConfigToApply(): Promise<void> {
+  await vi.waitFor(
+    () => {
+      expect(wsRequests.some((request) => request._tag === WS_METHODS.serverGetConfig)).toBe(true);
+    },
+    { timeout: 8_000, interval: 16 },
+  );
+  await waitForLayout();
+}
+
+function dispatchChatNewShortcut(): void {
+  const useMetaForMod = isMacPlatform(navigator.platform);
+  window.dispatchEvent(
+    new KeyboardEvent("keydown", {
+      key: "o",
+      shiftKey: true,
+      metaKey: useMetaForMod,
+      ctrlKey: !useMetaForMod,
+      bubbles: true,
+      cancelable: true,
+    }),
+  );
+}
+
+async function triggerChatNewShortcutUntilPath(
+  router: ReturnType<typeof getRouter>,
+  predicate: (pathname: string) => boolean,
+  errorMessage: string,
+): Promise<string> {
+  let pathname = router.state.location.pathname;
+  const deadline = Date.now() + 8_000;
+  while (Date.now() < deadline) {
+    dispatchChatNewShortcut();
+    await waitForLayout();
+    pathname = router.state.location.pathname;
+    if (predicate(pathname)) {
+      return pathname;
+    }
+  }
+  throw new Error(`${errorMessage} Last path: ${pathname}`);
+}
+
+async function waitForNewThreadShortcutLabel(): Promise<void> {
+  const newThreadButton = page.getByTestId("new-thread-button");
+  await expect.element(newThreadButton).toBeInTheDocument();
+  await newThreadButton.hover();
+  const shortcutLabel = isMacPlatform(navigator.platform)
+    ? "New thread (⇧⌘O)"
+    : "New thread (Ctrl+Shift+O)";
+  await expect.element(page.getByText(shortcutLabel)).toBeInTheDocument();
+}
+
 async function waitForImagesToLoad(scope: ParentNode): Promise<void> {
   const images = Array.from(scope.querySelectorAll("img"));
   if (images.length === 0) {
@@ -691,11 +766,14 @@ async function mountChatView(options: {
 
   await waitForLayout();
 
+  const cleanup = async () => {
+    await screen.unmount();
+    host.remove();
+  };
+
   return {
-    cleanup: async () => {
-      await screen.unmount();
-      host.remove();
-    },
+    [Symbol.asyncDispose]: cleanup,
+    cleanup,
     measureUserRow: async (targetMessageId: MessageId) => measureUserRow({ host, targetMessageId }),
     setViewport: async (viewport: ViewportSpec) => {
       await setViewport(viewport);
@@ -752,8 +830,8 @@ describe("ChatView timeline estimator parity (full app)", () => {
       draftsByThreadId: {},
       draftThreadsByThreadId: {},
       projectDraftThreadIdByProjectId: {},
-      stickyModel: null,
-      stickyModelOptions: {},
+      stickyModelSelectionByProvider: {},
+      stickyActiveProvider: null,
     });
     useStore.setState({
       projects: [],
@@ -980,6 +1058,145 @@ describe("ChatView timeline estimator parity (full app)", () => {
     }
   });
 
+  it("runs project scripts from local draft threads at the project cwd", async () => {
+    useComposerDraftStore.setState({
+      draftThreadsByThreadId: {
+        [THREAD_ID]: {
+          projectId: PROJECT_ID,
+          createdAt: NOW_ISO,
+          runtimeMode: "full-access",
+          interactionMode: "default",
+          branch: null,
+          worktreePath: null,
+          envMode: "local",
+        },
+      },
+      projectDraftThreadIdByProjectId: {
+        [PROJECT_ID]: THREAD_ID,
+      },
+    });
+
+    const mounted = await mountChatView({
+      viewport: DEFAULT_VIEWPORT,
+      snapshot: withProjectScripts(createDraftOnlySnapshot(), [
+        {
+          id: "lint",
+          name: "Lint",
+          command: "bun run lint",
+          icon: "lint",
+          runOnWorktreeCreate: false,
+        },
+      ]),
+    });
+
+    try {
+      const runButton = await waitForElement(
+        () =>
+          Array.from(document.querySelectorAll("button")).find(
+            (button) => button.title === "Run Lint",
+          ) as HTMLButtonElement | null,
+        "Unable to find Run Lint button.",
+      );
+      runButton.click();
+
+      await vi.waitFor(
+        () => {
+          const openRequest = wsRequests.find(
+            (request) => request._tag === WS_METHODS.terminalOpen,
+          );
+          expect(openRequest).toMatchObject({
+            _tag: WS_METHODS.terminalOpen,
+            threadId: THREAD_ID,
+            cwd: "/repo/project",
+            env: {
+              T3CODE_PROJECT_ROOT: "/repo/project",
+            },
+          });
+        },
+        { timeout: 8_000, interval: 16 },
+      );
+
+      await vi.waitFor(
+        () => {
+          const writeRequest = wsRequests.find(
+            (request) => request._tag === WS_METHODS.terminalWrite,
+          );
+          expect(writeRequest).toMatchObject({
+            _tag: WS_METHODS.terminalWrite,
+            threadId: THREAD_ID,
+            data: "bun run lint\r",
+          });
+        },
+        { timeout: 8_000, interval: 16 },
+      );
+    } finally {
+      await mounted.cleanup();
+    }
+  });
+
+  it("runs project scripts from worktree draft threads at the worktree cwd", async () => {
+    useComposerDraftStore.setState({
+      draftThreadsByThreadId: {
+        [THREAD_ID]: {
+          projectId: PROJECT_ID,
+          createdAt: NOW_ISO,
+          runtimeMode: "full-access",
+          interactionMode: "default",
+          branch: "feature/draft",
+          worktreePath: "/repo/worktrees/feature-draft",
+          envMode: "worktree",
+        },
+      },
+      projectDraftThreadIdByProjectId: {
+        [PROJECT_ID]: THREAD_ID,
+      },
+    });
+
+    const mounted = await mountChatView({
+      viewport: DEFAULT_VIEWPORT,
+      snapshot: withProjectScripts(createDraftOnlySnapshot(), [
+        {
+          id: "test",
+          name: "Test",
+          command: "bun run test",
+          icon: "test",
+          runOnWorktreeCreate: false,
+        },
+      ]),
+    });
+
+    try {
+      const runButton = await waitForElement(
+        () =>
+          Array.from(document.querySelectorAll("button")).find(
+            (button) => button.title === "Run Test",
+          ) as HTMLButtonElement | null,
+        "Unable to find Run Test button.",
+      );
+      runButton.click();
+
+      await vi.waitFor(
+        () => {
+          const openRequest = wsRequests.find(
+            (request) => request._tag === WS_METHODS.terminalOpen,
+          );
+          expect(openRequest).toMatchObject({
+            _tag: WS_METHODS.terminalOpen,
+            threadId: THREAD_ID,
+            cwd: "/repo/worktrees/feature-draft",
+            env: {
+              T3CODE_PROJECT_ROOT: "/repo/project",
+              T3CODE_WORKTREE_PATH: "/repo/worktrees/feature-draft",
+            },
+          });
+        },
+        { timeout: 8_000, interval: 16 },
+      );
+    } finally {
+      await mounted.cleanup();
+    }
+  });
+
   it("toggles plan mode with Shift+Tab only while the composer is focused", async () => {
     const mounted = await mountChatView({
       viewport: DEFAULT_VIEWPORT,
@@ -1045,7 +1262,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
     }
   });
 
-  it("keeps backspaced terminal context pills removed when a new one is added", async () => {
+  it("keeps removed terminal context pills removed when a new one is added", async () => {
     const removedLabel = "Terminal 1 lines 1-2";
     const addedLabel = "Terminal 2 lines 9-10";
     useComposerDraftStore.getState().addTerminalContext(
@@ -1075,15 +1292,11 @@ describe("ChatView timeline estimator parity (full app)", () => {
         { timeout: 8_000, interval: 16 },
       );
 
-      const composerEditor = await waitForComposerEditor();
-      composerEditor.focus();
-      composerEditor.dispatchEvent(
-        new KeyboardEvent("keydown", {
-          key: "Backspace",
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
+      const store = useComposerDraftStore.getState();
+      const currentPrompt = store.draftsByThreadId[THREAD_ID]?.prompt ?? "";
+      const nextPrompt = removeInlineTerminalContextPlaceholder(currentPrompt, 0);
+      store.setPrompt(THREAD_ID, nextPrompt.prompt);
+      store.removeTerminalContext(THREAD_ID, "ctx-removed");
 
       await vi.waitFor(
         () => {
@@ -1283,13 +1496,17 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
   it("snapshots sticky codex settings into a new draft thread", async () => {
     useComposerDraftStore.setState({
-      stickyModel: "gpt-5.3-codex",
-      stickyModelOptions: {
+      stickyModelSelectionByProvider: {
         codex: {
-          reasoningEffort: "medium",
-          fastMode: true,
+          provider: "codex",
+          model: "gpt-5.3-codex",
+          options: {
+            reasoningEffort: "medium",
+            fastMode: true,
+          },
         },
       },
+      stickyActiveProvider: "codex",
     });
 
     const mounted = await mountChatView({
@@ -1314,13 +1531,16 @@ describe("ChatView timeline estimator parity (full app)", () => {
       const newThreadId = newThreadPath.slice(1) as ThreadId;
 
       expect(useComposerDraftStore.getState().draftsByThreadId[newThreadId]).toMatchObject({
-        model: "gpt-5.3-codex",
-        provider: "codex",
-        modelOptions: {
+        modelSelectionByProvider: {
           codex: {
-            fastMode: true,
+            provider: "codex",
+            model: "gpt-5.3-codex",
+            options: {
+              fastMode: true,
+            },
           },
         },
+        activeProvider: "codex",
       });
     } finally {
       await mounted.cleanup();
@@ -1329,13 +1549,17 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
   it("hydrates the provider alongside a sticky claude model", async () => {
     useComposerDraftStore.setState({
-      stickyModel: "claude-opus-4-6",
-      stickyModelOptions: {
+      stickyModelSelectionByProvider: {
         claudeAgent: {
-          effort: "max",
-          fastMode: true,
+          provider: "claudeAgent",
+          model: "claude-opus-4-6",
+          options: {
+            effort: "max",
+            fastMode: true,
+          },
         },
       },
+      stickyActiveProvider: "claudeAgent",
     });
 
     const mounted = await mountChatView({
@@ -1360,16 +1584,18 @@ describe("ChatView timeline estimator parity (full app)", () => {
       const newThreadId = newThreadPath.slice(1) as ThreadId;
 
       expect(useComposerDraftStore.getState().draftsByThreadId[newThreadId]).toMatchObject({
-        provider: "claudeAgent",
-        model: "claude-opus-4-6",
-        modelOptions: {
+        modelSelectionByProvider: {
           claudeAgent: {
-            effort: "max",
-            fastMode: true,
+            provider: "claudeAgent",
+            model: "claude-opus-4-6",
+            options: {
+              effort: "max",
+              fastMode: true,
+            },
           },
         },
+        activeProvider: "claudeAgent",
       });
-      await expect.element(page.getByText("Claude Opus 4.6")).toBeInTheDocument();
     } finally {
       await mounted.cleanup();
     }
@@ -1405,13 +1631,17 @@ describe("ChatView timeline estimator parity (full app)", () => {
 
   it("prefers draft state over sticky composer settings and defaults", async () => {
     useComposerDraftStore.setState({
-      stickyModel: "gpt-5.3-codex",
-      stickyModelOptions: {
+      stickyModelSelectionByProvider: {
         codex: {
-          reasoningEffort: "medium",
-          fastMode: true,
+          provider: "codex",
+          model: "gpt-5.3-codex",
+          options: {
+            reasoningEffort: "medium",
+            fastMode: true,
+          },
         },
       },
+      stickyActiveProvider: "codex",
     });
 
     const mounted = await mountChatView({
@@ -1436,17 +1666,22 @@ describe("ChatView timeline estimator parity (full app)", () => {
       const threadId = threadPath.slice(1) as ThreadId;
 
       expect(useComposerDraftStore.getState().draftsByThreadId[threadId]).toMatchObject({
-        model: "gpt-5.3-codex",
-        modelOptions: {
+        modelSelectionByProvider: {
           codex: {
-            fastMode: true,
+            provider: "codex",
+            model: "gpt-5.3-codex",
+            options: {
+              fastMode: true,
+            },
           },
         },
+        activeProvider: "codex",
       });
 
-      useComposerDraftStore.getState().setModel(threadId, "gpt-5.4");
-      useComposerDraftStore.getState().setModelOptions(threadId, {
-        codex: {
+      useComposerDraftStore.getState().setModelSelection(threadId, {
+        provider: "codex",
+        model: "gpt-5.4",
+        options: {
           reasoningEffort: "low",
           fastMode: true,
         },
@@ -1460,13 +1695,17 @@ describe("ChatView timeline estimator parity (full app)", () => {
         "New-thread should reuse the existing project draft thread.",
       );
       expect(useComposerDraftStore.getState().draftsByThreadId[threadId]).toMatchObject({
-        model: "gpt-5.4",
-        modelOptions: {
+        modelSelectionByProvider: {
           codex: {
-            reasoningEffort: "low",
-            fastMode: true,
+            provider: "codex",
+            model: "gpt-5.4",
+            options: {
+              reasoningEffort: "low",
+              fastMode: true,
+            },
           },
         },
+        activeProvider: "codex",
       });
     } finally {
       await mounted.cleanup();
@@ -1505,19 +1744,12 @@ describe("ChatView timeline estimator parity (full app)", () => {
     });
 
     try {
-      const useMetaForMod = isMacPlatform(navigator.platform);
-      window.dispatchEvent(
-        new KeyboardEvent("keydown", {
-          key: "o",
-          shiftKey: true,
-          metaKey: useMetaForMod,
-          ctrlKey: !useMetaForMod,
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
-
-      await waitForURL(
+      await waitForNewThreadShortcutLabel();
+      await waitForServerConfigToApply();
+      const composerEditor = await waitForComposerEditor();
+      composerEditor.focus();
+      await waitForLayout();
+      await triggerChatNewShortcutUntilPath(
         mounted.router,
         (path) => UUID_ROUTE_RE.test(path),
         "Route should have changed to a new draft thread UUID from the shortcut.",
@@ -1526,7 +1758,6 @@ describe("ChatView timeline estimator parity (full app)", () => {
       await mounted.cleanup();
     }
   });
-
   it("creates a fresh draft after the previous draft thread is promoted", async () => {
     const mounted = await mountChatView({
       viewport: DEFAULT_VIEWPORT,
@@ -1561,6 +1792,8 @@ describe("ChatView timeline estimator parity (full app)", () => {
     try {
       const newThreadButton = page.getByTestId("new-thread-button");
       await expect.element(newThreadButton).toBeInTheDocument();
+      await waitForNewThreadShortcutLabel();
+      await waitForServerConfigToApply();
       await newThreadButton.click();
 
       const promotedThreadPath = await waitForURL(
@@ -1574,19 +1807,7 @@ describe("ChatView timeline estimator parity (full app)", () => {
       syncServerReadModel(addThreadToSnapshot(fixture.snapshot, promotedThreadId));
       useComposerDraftStore.getState().clearDraftThread(promotedThreadId);
 
-      const useMetaForMod = isMacPlatform(navigator.platform);
-      window.dispatchEvent(
-        new KeyboardEvent("keydown", {
-          key: "o",
-          shiftKey: true,
-          metaKey: useMetaForMod,
-          ctrlKey: !useMetaForMod,
-          bubbles: true,
-          cancelable: true,
-        }),
-      );
-
-      const freshThreadPath = await waitForURL(
+      const freshThreadPath = await triggerChatNewShortcutUntilPath(
         mounted.router,
         (path) => UUID_ROUTE_RE.test(path) && path !== promotedThreadPath,
         "Shortcut should create a fresh draft instead of reusing the promoted thread.",

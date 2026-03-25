@@ -4,6 +4,7 @@ import { Schema } from "effect";
 import {
   GitCreateWorktreeInput,
   GitPreparePullRequestThreadInput,
+  GitRunStackedActionInput,
   GitResolvePullRequestResult,
 } from "./git";
 
@@ -11,6 +12,7 @@ const decodeCreateWorktreeInput = Schema.decodeUnknownSync(GitCreateWorktreeInpu
 const decodePreparePullRequestThreadInput = Schema.decodeUnknownSync(
   GitPreparePullRequestThreadInput,
 );
+const decodeRunStackedActionInput = Schema.decodeUnknownSync(GitRunStackedActionInput);
 const decodeResolvePullRequestResult = Schema.decodeUnknownSync(GitResolvePullRequestResult);
 
 describe("GitCreateWorktreeInput", () => {
@@ -54,5 +56,37 @@ describe("GitResolvePullRequestResult", () => {
 
     expect(parsed.pullRequest.number).toBe(42);
     expect(parsed.pullRequest.headBranch).toBe("feature/pr-threads");
+  });
+});
+
+describe("GitRunStackedActionInput", () => {
+  it("requires a client-provided actionId for progress correlation", () => {
+    const parsed = decodeRunStackedActionInput({
+      actionId: "action-1",
+      cwd: "/repo",
+      action: "commit",
+      modelSelection: {
+        provider: "codex",
+        model: "gpt-5.4-mini",
+      },
+    });
+
+    expect(parsed.actionId).toBe("action-1");
+    expect(parsed.action).toBe("commit");
+  });
+
+  it("accepts git text generation as a modelSelection", () => {
+    const parsed = decodeRunStackedActionInput({
+      actionId: "action-1",
+      cwd: "/repo",
+      action: "commit_push_pr",
+      modelSelection: {
+        provider: "claudeAgent",
+        model: "claude-haiku-4-5",
+      },
+    });
+
+    expect(parsed.modelSelection?.provider).toBe("claudeAgent");
+    expect(parsed.modelSelection?.model).toBe("claude-haiku-4-5");
   });
 });

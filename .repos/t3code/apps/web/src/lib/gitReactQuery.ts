@@ -1,4 +1,4 @@
-import type { GitStackedAction } from "@t3tools/contracts";
+import { type GitStackedAction, type ModelSelection } from "@t3tools/contracts";
 import { mutationOptions, queryOptions, type QueryClient } from "@tanstack/react-query";
 import { ensureNativeApi } from "../nativeApi";
 
@@ -112,16 +112,18 @@ export function gitCheckoutMutationOptions(input: {
 export function gitRunStackedActionMutationOptions(input: {
   cwd: string | null;
   queryClient: QueryClient;
-  model?: string | null;
+  modelSelection: ModelSelection;
 }) {
   return mutationOptions({
     mutationKey: gitMutationKeys.runStackedAction(input.cwd),
     mutationFn: async ({
+      actionId,
       action,
       commitMessage,
       featureBranch,
       filePaths,
     }: {
+      actionId: string;
       action: GitStackedAction;
       commitMessage?: string;
       featureBranch?: boolean;
@@ -130,12 +132,13 @@ export function gitRunStackedActionMutationOptions(input: {
       const api = ensureNativeApi();
       if (!input.cwd) throw new Error("Git action is unavailable.");
       return api.git.runStackedAction({
+        actionId,
         cwd: input.cwd,
+        modelSelection: input.modelSelection,
         action,
         ...(commitMessage ? { commitMessage } : {}),
         ...(featureBranch ? { featureBranch } : {}),
         ...(filePaths ? { filePaths } : {}),
-        ...(input.model ? { model: input.model } : {}),
       });
     },
     onSettled: async () => {
