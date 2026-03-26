@@ -62,6 +62,7 @@ export const SemanticVersion = S.TemplateLiteral([
  * import type { SemanticVersion } from "@beep/schema/SemanticVersion";
  *
  * const currentVersion: SemanticVersion = "2.3.4";
+ * console.log(currentVersion);
  * ```
  *
  * @category Validation
