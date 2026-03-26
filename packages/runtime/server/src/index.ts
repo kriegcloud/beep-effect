@@ -841,7 +841,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       return HttpRouter.serve(routesLayer, {
         disableListenLog: true,
         disableLogger: true,
-      }).pipe(Layer.provideMerge(httpServerLayer), Layer.provide(repoRunServiceLayer));
+      }).pipe(Layer.provideMerge(httpServerLayer), Layer.provideMerge(repoRunServiceLayer));
     })
   );
 
