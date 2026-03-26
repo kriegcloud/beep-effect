@@ -20,6 +20,7 @@
     "@anthropic-ai/claude-agent-sdk": "catalog:",
     "@beep/data": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/observability": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@cloudflare/sandbox": "catalog:",

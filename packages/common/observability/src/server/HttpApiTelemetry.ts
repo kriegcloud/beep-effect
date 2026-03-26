@@ -1,0 +1,342 @@
+import { $ObservabilityId } from "@beep/identity/packages";
+import { NonNegativeInt } from "@beep/schema";
+import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, SchemaAST } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import type * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import { type HttpApiEndpoint, type HttpApiGroup, HttpApiMiddleware, HttpApiSchema } from "effect/unstable/httpapi";
+import { observeHttpRequest, statusClass } from "../Metric.ts";
+
+const $I = $ObservabilityId.create("server/HttpApiTelemetry");
+const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const resolveHttpApiStatus = SchemaAST.resolveAt<number>("httpApiStatus");
+
+class HttpApiStatusField extends S.Class<HttpApiStatusField>($I`HttpApiStatusField`)(
+  { status: NonNegativeInt },
+  $I.annote("HttpApiStatusField", {
+    description: "Internal helper schema for decoding runtime HTTP status fields.",
+  })
+) {}
+
+const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
+
+/**
+ * Shared HTTP API telemetry descriptor.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class HttpApiTelemetryDescriptor extends S.Class<HttpApiTelemetryDescriptor>($I`HttpApiTelemetryDescriptor`)(
+  {
+    apiName: S.String,
+    groupName: S.String,
+    endpointName: S.String,
+    method: S.String,
+    route: S.String,
+    successStatus: NonNegativeInt,
+  },
+  $I.annote("HttpApiTelemetryDescriptor", {
+    description: "Shared HTTP API telemetry descriptor.",
+  })
+) {}
+
+/**
+ * Shared metric bundle for HTTP API request observation.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+interface HttpApiMetricSet {
+  readonly requestDuration: Metric.Metric<import("effect/Duration").Duration, unknown>;
+  readonly requestsTotal: Metric.Counter<number>;
+}
+
+/**
+ * Options for the shared HTTP API telemetry middleware layer.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+interface HttpApiTelemetryMiddlewareOptions {
+  readonly apiName: string;
+  readonly metrics: HttpApiMetricSet;
+}
+
+/**
+ * Resolve the declared success status from an HttpApiSchema value.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const httpApiSuccessStatus = (schema: S.Top, fallback = 200): NonNegativeInt =>
+  decodeNonNegativeInt(resolveHttpApiStatus(schema.ast) ?? fallback);
+
+const httpApiErrorStatus = (schema: S.Top, fallback = 500): NonNegativeInt =>
+  decodeNonNegativeInt(resolveHttpApiStatus(schema.ast) ?? fallback);
+
+const endpointSuccessSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): ReadonlyArray<S.Top> => {
+  const schemas = Array.from(endpoint.success);
+  return schemas.length > 0 ? schemas : [HttpApiSchema.NoContent];
+};
+
+const endpointErrorSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): ReadonlyArray<S.Top> => {
+  let schemas = Array.from(endpoint.error);
+  const containsSchema = A.containsWith<S.Top>((left, right) => left === right);
+
+  for (const middleware of endpoint.middlewares) {
+    const service = middleware as unknown as HttpApiMiddleware.AnyService;
+
+    for (const schema of service.error) {
+      if (!containsSchema(schemas, schema)) {
+        schemas = A.append(schemas, schema);
+      }
+    }
+  }
+
+  return schemas;
+};
+
+/**
+ * Create a reusable HTTP API metric set for one metric prefix.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const makeHttpApiMetrics = (prefix: string, descriptionPrefix = "HTTP API request"): HttpApiMetricSet => ({
+  requestsTotal: Metric.counter(`${prefix}_requests_total`, {
+    description: `${descriptionPrefix} count.`,
+    incremental: true,
+  }),
+  requestDuration: Metric.timer(`${prefix}_request_duration_ms`, {
+    description: `${descriptionPrefix} duration.`,
+  }),
+});
+
+const descriptorAnnotations = (descriptor: HttpApiTelemetryDescriptor) => ({
+  http_api: descriptor.apiName,
+  http_group: descriptor.groupName,
+  http_endpoint: descriptor.endpointName,
+  http_method: descriptor.method,
+  http_route: descriptor.route,
+});
+
+const telemetryAttributes = (descriptor: HttpApiTelemetryDescriptor, statusLabel: string): Record<string, string> => ({
+  method: descriptor.method,
+  route: descriptor.route,
+  status_class: statusLabel,
+});
+
+const updateHttpApiMetrics = (
+  descriptor: HttpApiTelemetryDescriptor,
+  metrics: HttpApiMetricSet,
+  statusLabel: string,
+  durationMs: number
+): Effect.Effect<void> => {
+  const attributes = telemetryAttributes(descriptor, statusLabel);
+  return Metric.update(Metric.withAttributes(metrics.requestsTotal, attributes), 1).pipe(
+    Effect.andThen(
+      Metric.update(Metric.withAttributes(metrics.requestDuration, attributes), Duration.millis(durationMs))
+    )
+  );
+};
+
+const annotateHttpApiOutcome = (
+  descriptor: HttpApiTelemetryDescriptor,
+  options: {
+    readonly durationMs: number;
+    readonly failureKind?: "failure" | "defect" | "interrupted" | undefined;
+    readonly status?: number | undefined;
+  }
+): Effect.Effect<void> => {
+  const statusLabel = options.status === undefined ? "unknown" : statusClass(options.status);
+  return Effect.annotateCurrentSpan({
+    ...descriptorAnnotations(descriptor),
+    ...(options.failureKind === undefined ? {} : { http_failure_kind: options.failureKind }),
+    ...(options.status === undefined
+      ? {
+          http_status_class: statusLabel,
+        }
+      : {
+          http_status: options.status,
+          http_status_class: statusLabel,
+        }),
+    http_request_duration_ms: options.durationMs,
+  });
+};
+
+/**
+ * Create a telemetry descriptor directly from Effect HttpApi metadata.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const makeHttpApiTelemetryDescriptor = (
+  apiName: string,
+  group: HttpApiGroup.AnyWithProps,
+  endpoint: HttpApiEndpoint.AnyWithProps
+): HttpApiTelemetryDescriptor =>
+  new HttpApiTelemetryDescriptor({
+    apiName,
+    groupName: group.identifier,
+    endpointName: endpoint.name,
+    method: endpoint.method,
+    route: endpoint.path,
+    successStatus: httpApiSuccessStatus(endpointSuccessSchemas(endpoint)[0]),
+  });
+
+/**
+ * Resolve the concrete status of a failed HTTP API effect from the runtime
+ * error first, then from matching endpoint error schemas.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const httpApiFailureStatus = (endpoint: HttpApiEndpoint.AnyWithProps, error: unknown): number | undefined =>
+  O.getOrUndefined(
+    decodeStatusField(error).pipe(
+      O.map(({ status }) => status),
+      O.orElse(() => (S.isSchemaError(error) ? O.some(400) : O.none())),
+      O.orElse(() => {
+        for (const schema of endpointErrorSchemas(endpoint)) {
+          if (S.is(schema)(error)) {
+            const status = schema.pipe(httpApiErrorStatus);
+            return O.some(status);
+          }
+        }
+
+        return O.none();
+      })
+    )
+  );
+
+/**
+ * Observe one encoded HTTP API effect where the success value is an
+ * `HttpServerResponse`.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const observeHttpApiEffect = <E, R>(
+  descriptor: HttpApiTelemetryDescriptor,
+  endpoint: HttpApiEndpoint.AnyWithProps,
+  metrics: HttpApiMetricSet,
+  effect: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>
+): Effect.Effect<HttpServerResponse.HttpServerResponse, E, R> =>
+  Clock.currentTimeMillis.pipe(
+    Effect.flatMap((startedAt) =>
+      Effect.annotateCurrentSpan({
+        ...descriptorAnnotations(descriptor),
+        http_success_status: decodeNonNegativeInt(descriptor.successStatus),
+      }).pipe(
+        Effect.andThen(effect.pipe(Effect.annotateLogs(descriptorAnnotations(descriptor)))),
+        Effect.exit,
+        Effect.flatMap((exit) =>
+          Clock.currentTimeMillis.pipe(
+            Effect.flatMap((endedAt) => {
+              const durationMs = Math.max(0, endedAt - startedAt);
+
+              if (Exit.isSuccess(exit)) {
+                return annotateHttpApiOutcome(descriptor, {
+                  durationMs,
+                  status: exit.value.status,
+                }).pipe(
+                  Effect.andThen(updateHttpApiMetrics(descriptor, metrics, statusClass(exit.value.status), durationMs)),
+                  Effect.as(exit.value)
+                );
+              }
+
+              const failure = Cause.findErrorOption(exit.cause);
+              const status = O.isSome(failure) ? httpApiFailureStatus(endpoint, failure.value) : undefined;
+              const failureKind = Cause.hasInterruptsOnly(exit.cause)
+                ? "interrupted"
+                : O.isSome(failure)
+                  ? "failure"
+                  : "defect";
+              const statusLabel = status === undefined ? "unknown" : statusClass(status);
+
+              return annotateHttpApiOutcome(descriptor, {
+                durationMs,
+                failureKind,
+                status,
+              }).pipe(
+                Effect.andThen(updateHttpApiMetrics(descriptor, metrics, statusLabel, durationMs)),
+                Effect.andThen(Effect.failCause(exit.cause))
+              );
+            })
+          )
+        )
+      )
+    )
+  );
+
+/**
+ * Shared server-side HttpApi middleware service for request metrics, span
+ * annotations, and log correlation.
+ *
+ * @since 0.0.0
+ * @category Services
+ */
+export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpApiTelemetryMiddleware>()(
+  $I`HttpApiTelemetryMiddleware`
+) {}
+
+/**
+ * Build a layer that instruments all endpoints where the middleware is
+ * applied.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const layerHttpApiTelemetryMiddleware = (
+  options: HttpApiTelemetryMiddlewareOptions
+): Layer.Layer<HttpApiTelemetryMiddleware> =>
+  Layer.succeed(HttpApiTelemetryMiddleware, (httpEffect, middlewareOptions) =>
+    observeHttpApiEffect(
+      makeHttpApiTelemetryDescriptor(options.apiName, middlewareOptions.group, middlewareOptions.endpoint),
+      middlewareOptions.endpoint,
+      options.metrics,
+      httpEffect
+    )
+  );
+
+/**
+ * Observe one HTTP API handler with shared span/log annotations.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const observeHttpApiHandler = <A, E extends { readonly status: number }, R>(
+  descriptor: HttpApiTelemetryDescriptor,
+  metrics: HttpApiMetricSet,
+  effect: Effect.Effect<A, E, R>
+): Effect.Effect<A, E, R> =>
+  observeHttpRequest(
+    {
+      method: descriptor.method,
+      route: descriptor.route,
+      successStatus: descriptor.successStatus,
+      requestsTotal: metrics.requestsTotal,
+      requestDuration: metrics.requestDuration,
+    },
+    Effect.annotateCurrentSpan({
+      http_api: descriptor.apiName,
+      http_group: descriptor.groupName,
+      http_endpoint: descriptor.endpointName,
+      http_method: descriptor.method,
+      http_route: descriptor.route,
+      http_success_status: decodeNonNegativeInt(descriptor.successStatus),
+    }).pipe(
+      Effect.andThen(
+        effect.pipe(
+          Effect.annotateLogs({
+            http_api: descriptor.apiName,
+            http_group: descriptor.groupName,
+            http_endpoint: descriptor.endpointName,
+            http_method: descriptor.method,
+            http_route: descriptor.route,
+          })
+        )
+      )
+    )
+  );

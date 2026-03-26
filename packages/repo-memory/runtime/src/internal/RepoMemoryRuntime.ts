@@ -91,7 +91,7 @@ import {
   RepoSemanticEnrichmentRequest,
   RepoSemanticEnrichmentService as RepoSemanticEnrichmentServiceInternal,
 } from "../semantic/RepoSemanticEnrichmentService.js";
-import { recordRunFinished, recordRunStarted } from "../telemetry/RepoMemoryTelemetry.js";
+import { profileRunPhase, recordRunFinished, recordRunStarted } from "../telemetry/RepoMemoryTelemetry.js";
 
 const $I = $RepoMemoryRuntimeId.create("internal/RepoMemoryRuntime");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
@@ -807,15 +807,19 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         );
         yield* suspendIfRunInterrupted(runId);
 
-        const indexedArtifacts = yield* typeScriptIndex
-          .indexRepo(
-            new TypeScriptIndexRequest({
-              repoId: payload.repoId,
-              repoPath: repo.repoPath,
-              runId,
-            })
-          )
-          .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
+        const indexedArtifacts = yield* profileRunPhase(
+          "index",
+          "indexing",
+          typeScriptIndex
+            .indexRepo(
+              new TypeScriptIndexRequest({
+                repoId: payload.repoId,
+                repoPath: repo.repoPath,
+                runId,
+              })
+            )
+            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+        );
 
         const completedAt = yield* DateTime.now;
         const artifact = new RepoIndexArtifact({
@@ -943,9 +947,13 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         );
         yield* suspendIfRunInterrupted(runId);
 
-        const groundedQuery = yield* groundedRetrieval
-          .resolve(payload)
-          .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
+        const groundedQuery = yield* profileRunPhase(
+          "query",
+          "retrieve",
+          groundedRetrieval
+            .resolve(payload)
+            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+        );
 
         runningRun = yield* ensureProjectedQueryRun(
           yield* appendProjectedEvent(

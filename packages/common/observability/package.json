@@ -1,0 +1,72 @@
+{
+  "name": "@beep/observability",
+  "version": "0.0.0",
+  "description": "A library containing utilities & modules for observability.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/observability",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/observability"
+  },
+  "scripts": {
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "check": "tsc -b tsconfig.json",
+    "check:examples": "tsc --noEmit -p tsconfig.examples.json",
+    "codegen": "echo 'no codegen needed'",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "vitest"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./experimental/server": "./src/experimental/server/index.ts",
+    "./server": "./src/server/index.ts",
+    "./web": "./src/web/index.ts",
+    "./internal/*": null,
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.js",
+      "./experimental/server": "./dist/experimental/server/index.js",
+      "./server": "./dist/server/index.js",
+      "./web": "./dist/web/index.js",
+      "./internal/*": null,
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@effect/opentelemetry": "catalog:",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.211.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "0.211.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.211.0",
+    "@opentelemetry/sdk-logs": "^0.211.0",
+    "@opentelemetry/sdk-metrics": "^2.5.0",
+    "@opentelemetry/sdk-trace-base": "^2.5.0",
+    "@opentelemetry/sdk-trace-node": "^2.2.0",
+    "effect": "catalog:",
+    "picocolors": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

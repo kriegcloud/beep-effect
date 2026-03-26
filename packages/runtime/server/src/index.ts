@@ -1,4 +1,5 @@
 import { $RuntimeServerId } from "@beep/identity/packages";
+import { renderObservedCause, summarizeCause } from "@beep/observability";
 import { RunId, RunStreamFailure } from "@beep/repo-memory-model";
 import {
   GroundedRetrievalService,
@@ -356,9 +357,12 @@ const logRuntimeBoundaryFailure = Effect.fn("SidecarRuntime.logBoundaryFailure")
   cause: Cause.Cause<unknown>
 ) {
   const interrupted = Cause.hasInterruptsOnly(cause);
-  const renderedCause = Cause.pretty(cause);
+  const summary = summarizeCause(cause);
+  const renderedCause = renderObservedCause(cause);
   const primaryError = firstPrettyError(cause);
   const annotations = {
+    cause_classification: summary.classification,
+    cause_fingerprint: summary.fingerprint.value,
     session_id: sessionId,
     http_method: method,
     http_route: route,
@@ -373,6 +377,7 @@ const logRuntimeBoundaryFailure = Effect.fn("SidecarRuntime.logBoundaryFailure")
       message: "sidecar request interrupted",
       error: primaryError,
       cause: renderedCause,
+      causeFingerprint: summary.fingerprint.value,
     }).pipe(Effect.annotateLogs(annotations));
   }
 
@@ -381,6 +386,7 @@ const logRuntimeBoundaryFailure = Effect.fn("SidecarRuntime.logBoundaryFailure")
       message: "sidecar request failed",
       error: primaryError,
       cause: renderedCause,
+      causeFingerprint: summary.fingerprint.value,
     }).pipe(Effect.annotateLogs(annotations));
   }
 
@@ -388,6 +394,7 @@ const logRuntimeBoundaryFailure = Effect.fn("SidecarRuntime.logBoundaryFailure")
     message: "sidecar request failed",
     error: primaryError,
     cause: renderedCause,
+    causeFingerprint: summary.fingerprint.value,
   }).pipe(Effect.annotateLogs(annotations));
 });
 

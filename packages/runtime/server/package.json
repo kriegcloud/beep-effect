@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/observability": "workspace:^",
     "@beep/repo-memory-model": "workspace:^",
     "@beep/repo-memory-runtime": "workspace:^",
     "@beep/repo-memory-sqlite": "workspace:^",

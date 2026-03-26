@@ -1,6 +1,7 @@
 import { $RepoMemoryRuntimeId } from "@beep/identity";
+import { measureElapsedMillis as measureElapsedMillisShared, profilePhase } from "@beep/observability";
 import { LiteralKit } from "@beep/schema";
-import { DateTime, Duration, Effect, Metric } from "effect";
+import { Duration, Effect, Metric } from "effect";
 
 const $I = $RepoMemoryRuntimeId.create("telemetry/RepoMemoryTelemetry");
 /**
@@ -132,8 +133,25 @@ const queryResultsTotal = Metric.counter("beep_repo_memory_query_results_total",
 const indexedFileCount = Metric.gauge("beep_repo_memory_indexed_file_count", {
   description: "Latest indexed file count produced by the TypeScript indexer.",
 });
-
-const currentTimeMillis = DateTime.now.pipe(Effect.map(DateTime.toEpochMillis));
+const phasesStartedTotal = Metric.counter("beep_repo_memory_phase_started_total", {
+  description: "Total repo-memory phases that started execution.",
+  incremental: true,
+});
+const phasesCompletedTotal = Metric.counter("beep_repo_memory_phase_completed_total", {
+  description: "Total repo-memory phases that completed successfully.",
+  incremental: true,
+});
+const phasesFailedTotal = Metric.counter("beep_repo_memory_phase_failed_total", {
+  description: "Total repo-memory phases that failed.",
+  incremental: true,
+});
+const phasesInterruptedTotal = Metric.counter("beep_repo_memory_phase_interrupted_total", {
+  description: "Total repo-memory phases that were interrupted.",
+  incremental: true,
+});
+const phaseDuration = Metric.timer("beep_repo_memory_phase_duration_ms", {
+  description: "Duration for named repo-memory phases.",
+});
 
 const metricAttributes = (attributes: Record<string, string>) => attributes;
 
@@ -283,13 +301,30 @@ export const recordIndexedFileCount = Effect.fn("RepoMemoryMetrics.recordIndexed
  */
 export const measureElapsedMillis = <A, E, R>(
   effect: Effect.Effect<A, E, R>
-): Effect.Effect<readonly [A, number], E, R> =>
-  currentTimeMillis.pipe(
-    Effect.flatMap((startedAt) =>
-      effect.pipe(
-        Effect.flatMap((value) =>
-          currentTimeMillis.pipe(Effect.map((endedAt) => [value, Math.max(0, endedAt - startedAt)] as const))
-        )
-      )
-    )
+): Effect.Effect<readonly [A, number], E, R> => measureElapsedMillisShared(effect);
+
+/**
+ * Profile one repo-memory phase with shared phase metrics.
+ *
+ * @since 0.0.0
+ * @category CrossCutting
+ */
+export const profileRunPhase = <A, E, R>(
+  runKind: RepoRunKindMetric,
+  phase: string,
+  effect: Effect.Effect<A, E, R>
+): Effect.Effect<A, E, R> =>
+  profilePhase(
+    {
+      phase,
+      attributes: metricAttributes({
+        run_kind: runKind,
+      }),
+      started: phasesStartedTotal,
+      completed: phasesCompletedTotal,
+      failed: phasesFailedTotal,
+      interrupted: phasesInterruptedTotal,
+      duration: phaseDuration,
+    },
+    effect
   );

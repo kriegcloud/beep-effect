@@ -12,6 +12,9 @@
       "path": "../../common/identity/tsconfig.json"
     },
     {
+      "path": "../../common/observability/tsconfig.json"
+    },
+    {
       "path": "../../common/schema/tsconfig.json"
     },
     {

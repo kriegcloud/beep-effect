@@ -18,6 +18,7 @@
   "dependencies": {
     "@beep/identity": "workspace:^",
     "@beep/nlp": "workspace:^",
+    "@beep/observability": "workspace:^",
     "@beep/repo-memory-model": "workspace:^",
     "@beep/repo-memory-store": "workspace:^",
     "@beep/schema": "workspace:^",

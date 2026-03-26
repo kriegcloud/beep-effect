@@ -115,7 +115,9 @@
       "@beep/nlp": ["./packages/common/nlp/src/index.ts"],
       "@beep/nlp/*": ["./packages/common/nlp/src/*"],
       "@beep/editor": ["./packages/editor/src/index.ts"],
-      "@beep/editor/*": ["./packages/editor/src/*"]
+      "@beep/editor/*": ["./packages/editor/src/*"],
+      "@beep/observability": ["./packages/common/observability/src/index.ts"],
+      "@beep/observability/*": ["./packages/common/observability/src/*"]
     },
     "plugins": [
       {

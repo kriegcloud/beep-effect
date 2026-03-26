@@ -71,7 +71,8 @@ const composers = $I.compose(
   "iam-ui",
 
   // editor
-  "editor"
+  "editor",
+  "observability"
 );
 
 // --- common ---
@@ -345,3 +346,10 @@ export const $EditorId: Identity.IdentityComposer<"@beep/editor"> = composers.$E
  * @type {Identity.IdentityComposer<"@beep/scratch">}
  */
 export const $ScratchId: Identity.IdentityComposer<"@beep/scratch"> = composers.$ScratchId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/observability">}
+ */
+export const $ObservabilityId: Identity.IdentityComposer<"@beep/observability"> = composers.$ObservabilityId;

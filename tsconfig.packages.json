@@ -34,6 +34,9 @@
       "path": "packages/common/nlp"
     },
     {
+      "path": "packages/common/observability"
+    },
+    {
       "path": "packages/common/schema"
     },
     {

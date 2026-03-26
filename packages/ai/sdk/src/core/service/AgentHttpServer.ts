@@ -2,8 +2,8 @@ import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import { Layer } from "effect";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
-import { AgentHttpApi } from "./AgentHttpApi.js";
 import { layer as AgentHttpHandlers } from "./AgentHttpHandlers.js";
+import { layer as AgentHttpTelemetry, AgentObservedHttpApi } from "./AgentHttpTelemetry.js";
 import { AgentServerAccess, type AgentServerAccessOptions, makeAgentServerAccess } from "./AgentServerAccess.js";
 
 /**
@@ -29,8 +29,9 @@ export const layer = (options: AgentHttpServerOptions = {}) => {
       ...(options.authToken === undefined ? {} : { authToken: options.authToken }),
     })
   );
-  const apiLayer = HttpApiBuilder.layer(AgentHttpApi).pipe(
+  const apiLayer = HttpApiBuilder.layer(AgentObservedHttpApi).pipe(
     Layer.provide(AgentHttpHandlers),
+    Layer.provide(AgentHttpTelemetry),
     Layer.provide(accessLayer)
   );
 

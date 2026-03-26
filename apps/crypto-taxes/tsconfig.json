@@ -12,6 +12,7 @@
   "compilerOptions": {
     "rootDir": ".",
     "allowJs": true,
+    "composite": false,
     "esModuleInterop": true,
     "isolatedModules": true,
     "lib": ["dom", "dom.iterable", "esnext"],

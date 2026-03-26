@@ -20,6 +20,14 @@ import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("HttpStatus");
 
+declare module "effect/Schema" {
+  namespace Annotations {
+    interface Augment {
+      readonly emoji?: undefined | string;
+    }
+  }
+}
+
 /**
  * HttpStatusCategory - HTTP status code category
  *
@@ -71,6 +79,7 @@ export const Continue = S.Literal(100).pipe(
   $I.annoteSchema("Continue", {
     description:
       "100 “Continue” – The server has received the headers of the request.\nIt now tells your browser to proceed with sending the body of the request.",
+    emoji: "🏁",
   })
 );
 
@@ -93,6 +102,7 @@ export const SwitchingProtocols = S.Literal(101).pipe(
   $I.annoteSchema("SwitchingProtocols", {
     description:
       "101 “Switching Protocols” – The requesting client (browser) asked the server\nto change the protocols, and the server fulfilled the request.",
+    emoji: "🔌",
   })
 );
 
@@ -116,6 +126,7 @@ export const Processing = S.Literal(102).pipe(
   $I.annoteSchema("Processing", {
     description:
       "102 “Processing” – This is a response mainly associated with WebDAV\nrequests, which may take a longer time to be completed. It indicates that\nthe server has received the request and is currently processing it.",
+    emoji: "⚙️",
   })
 );
 
@@ -138,6 +149,7 @@ export const EarlyHints = S.Literal(103).pipe(
   $I.annoteSchema("EarlyHints", {
     description:
       "103 “Early Hints” – The server returns some response headers before the\nfinal HTTP response is sent.",
+    emoji: "💡",
   })
 );
 
@@ -207,6 +219,7 @@ export const Ok = S.Literal(200).pipe(
   $I.annoteSchema("Ok", {
     description:
       "200 “OK” – The response for a successful HTTP request. The result will depend on the type of request.",
+    emoji: "✅",
   })
 );
 
@@ -227,6 +240,7 @@ export type Ok = typeof Ok.Type;
 export const Created = S.Literal(201).pipe(
   $I.annoteSchema("Created", {
     description: "201 “Created” – The request was fulfilled, and the server created a new resource.",
+    emoji: "📝",
   })
 );
 
@@ -250,6 +264,7 @@ export const Accepted = S.Literal(202).pipe(
   $I.annoteSchema("Accepted", {
     description:
       "202 “Accepted” – The server accepted the request but has not yet finished\nprocessing it. The request might be fulfilled or rejected, but the outcome\nis still undetermined.",
+    emoji: "🔄",
   })
 );
 
@@ -274,6 +289,7 @@ export const NonAuthoritativeInformation = S.Literal(203).pipe(
   $I.annoteSchema("NonAuthoritativeInformation", {
     description:
       "203 “Non-Authoritative Information” – A code that usually appears when a\nproxy service is used. The proxy server received a 200 “OK” status code\nfrom the origin server and returns a modified version of the origin’s\nresponse.",
+    emoji: "📋",
   })
 );
 
@@ -295,6 +311,7 @@ export type NonAuthoritativeInformation = typeof NonAuthoritativeInformation.Typ
 export const NoContent = S.Literal(204).pipe(
   $I.annoteSchema("NoContent", {
     description: "204 “No Content” – The server fulfilled the request but won’t return any content.",
+    emoji: "💭",
   })
 );
 
@@ -317,6 +334,7 @@ export const ResetContent = S.Literal(205).pipe(
   $I.annoteSchema("ResetContent", {
     description:
       "205 “Reset Content” – The server fulfilled the request, and it won’t return\nany content but asks the client (browser) to reset the document view.",
+    emoji: "♻️",
   })
 );
 
@@ -341,6 +359,7 @@ export const PartialContent = S.Literal(206).pipe(
   $I.annoteSchema("PartialContent", {
     description:
       "206 “Partial Content” – The server returns only a portion of the requested\nresources because your browser uses “range headers”. These headers allow\nbrowsers to resume downloads or split downloads into multiple simultaneous\nstreams.",
+    emoji: "✂️",
   })
 );
 
@@ -364,6 +383,7 @@ export const MultiStatus = S.Literal(207).pipe(
   $I.annoteSchema("MultiStatus", {
     description:
       "207 “Multi-Status” – A code associated with WebDav when a compound request\nis made. The server returns a message containing an array of response codes\nfor all sub-requests.",
+    emoji: "🗂️",
   })
 );
 
@@ -387,6 +407,7 @@ export const AlreadyReported = S.Literal(208).pipe(
   $I.annoteSchema("AlreadyReported", {
     description:
       "208 “Already Reported” (WebDav) – This code indicates that the internal\nmembers of a DAV binding were already enumerated in a previous part of the\nresponse and will not be enumerated again.",
+    emoji: "☑️",
   })
 );
 
@@ -410,6 +431,7 @@ export const ImUsed = S.Literal(226).pipe(
   $I.annoteSchema("ImUsed", {
     description:
       "226 “IM Used” – The server fulfilled the request, and the response is a\nrepresentation of the result of one or more instance manipulations applied\nto the current instance.",
+    emoji: "🪄",
   })
 );
 
@@ -491,6 +513,7 @@ export const MultipleChoices = S.Literal(300).pipe(
       "you use\nyour browser to download files and you are given a choice of " +
       "file extension,\nor when you are presented with options for word-sense " +
       "disambiguation.",
+    emoji: "🔀",
   })
 );
 
@@ -513,6 +536,7 @@ export const MovedPermanently = S.Literal(301).pipe(
   $I.annoteSchema("MovedPermanently", {
     description:
       "301 “Moved Permanently” – This is the code for a permanent redirect. It means that the URL of the requested resource is permanently replaced with a new address, and search engines should update the URL in their databases.\nYou learn more about it from our article on 301 redirects.",
+    emoji: "🚚",
   })
 );
 
@@ -538,6 +562,7 @@ export const Found = S.Literal(302).pipe(
   $I.annoteSchema("Found", {
     description:
       "302 “Found” – Previously, this code was known as “Moved temporarily”. It\ninstructs browsers that the requested resource is moved temporarily to a new\nURL, but the new address may be changed again in the future. Thus, the\noriginal URL should still be used by the client. The code is used for\ntemporary redirects.",
+    emoji: "🔎",
   })
 );
 
@@ -560,6 +585,7 @@ export const SeeOther = S.Literal(303).pipe(
   $I.annoteSchema("SeeOther", {
     description:
       "303 “See Other” – The server instructs the client that it found the\nresource, but it has to be retrieved on another URL with a GET request.",
+    emoji: "📨",
   })
 );
 
@@ -584,6 +610,7 @@ export const NotModified = S.Literal(304).pipe(
   $I.annoteSchema("NotModified", {
     description:
       "304 “Not Modified” – The server informs your browser that the resource\nhasn’t been altered since the last time you requested it. Your browser can\nkeep using the cached version it already stores locally. Clearing the\nbrowser cache usually solves this error.",
+    emoji: "💠",
   })
 );
 
@@ -606,6 +633,7 @@ export const UseProxy = S.Literal(305).pipe(
   $I.annoteSchema("UseProxy", {
     description:
       "305 “Use Proxy” – The requested resource is available only through a proxy.\nThis code is now deprecated and browsers disregard it.",
+    emoji: "🔁",
   })
 );
 
@@ -628,6 +656,7 @@ export const SwitchProxy = S.Literal(306).pipe(
   $I.annoteSchema("SwitchProxy", {
     description:
       "306 “Switch Proxy” – This code is no longer in use. It means that the\nfollowing requests should use the specified proxy.",
+    emoji: "🔃",
   })
 );
 
@@ -653,6 +682,7 @@ export const TemporaryRedirect = S.Literal(307).pipe(
   $I.annoteSchema("TemporaryRedirect", {
     description:
       "307 “Temporary redirect” – This is the new code for temporary redirects that\nreplaced the HTTP 302 code. It specifies that the requested resource has\nmoved to another URL. Unlike the HTTP 302 code, the HTTP 307 code doesn’t\nallow the HTTP method to be changed. For example, if the first request was\nGET, the second request should be GET as well.",
+    emoji: "ℹ️",
   })
 );
 
@@ -677,6 +707,7 @@ export const PermanentRedirect = S.Literal(308).pipe(
   $I.annoteSchema("PermanentRedirect", {
     description:
       "308 “Permanent Redirect” – The requested resource is permanently moved to\nanother URL and all future requests must be redirected to the new address.\nThe code is similar to the HTTP 302 code, the only difference being that it\ndoesn’t allow browsers to change the type of HTTP request.",
+    emoji: "🆕",
   })
 );
 
@@ -754,6 +785,7 @@ export const BadRequest = S.Literal(400).pipe(
   $I.annoteSchema("BadRequest", {
     description:
       "400 “Bad Request” – The server can’t return a valid response due to an error\nfrom the client’s side. Common causes are URLs with invalid syntax, deceptive\nrequest routing, large file size, etc.",
+    emoji: "🚫",
   })
 );
 
@@ -788,6 +820,7 @@ export const Unauthorized = S.Literal(401).pipe(
       " check this guide " +
       "for\n{@link https://www.siteground.com/kb/error-401/\n| " +
       "troubleshooting the HTTP 401 error.}",
+    emoji: "🔐",
   })
 );
 
@@ -811,6 +844,7 @@ export const PaymentRequired = S.Literal(402).pipe(
   $I.annoteSchema("PaymentRequired", {
     description:
       "402 “Payment Required” – This is not a standard code however it is reserved\nto be used in the future by payment systems. The purpose of the code is to\nindicate that the content is not available due to a failed payment.",
+    emoji: "💰",
   })
 );
 
@@ -839,6 +873,7 @@ export const Forbidden = S.Literal(403).pipe(
   $I.annoteSchema("Forbidden", {
     description:
       "403 “Forbidden” – The error indicates that the server denies access to the\nuser agent that doesn’t have permission to access the resources. This error\nis similar to HTTP code 401, but the difference is that in this case, the\nidentity of the user agent is known.\nTypical causes of this error are restrictive rules from the website’s\nserver, insufficient permissions for the website’s files and folders, etc.\nFor more information, read this article about the HTTP 403 error and how to\nfix it.",
+    emoji: "⛔",
   })
 );
 
@@ -864,6 +899,7 @@ export const NotFound = S.Literal(404).pipe(
   $I.annoteSchema("NotFound", {
     description:
       "404 “Not found” – This is the most frequent error users see online. It means\nthat the server can’t find the requested resource. Usually, the cause is\nthat the URL you’re trying to access doesn’t exist.\nThe error could also be caused by a website misconfiguration. Read the\nfollowing guide for troubleshooting the HTTP error 404.",
+    emoji: "❓",
   })
 );
 
@@ -886,6 +922,7 @@ export const MethodNotAllowed = S.Literal(405).pipe(
   $I.annoteSchema("MethodNotAllowed", {
     description:
       "405 “Method Not Allowed” – The server understands the requested method, but\nthe target resource doesn’t support it.",
+    emoji: "❗",
   })
 );
 
@@ -908,6 +945,7 @@ export const NotAcceptable = S.Literal(406).pipe(
   $I.annoteSchema("NotAcceptable", {
     description:
       "406 “Not Acceptable” – The requested resource generated content that doesn’t\nmeet the criteria of the user-agent who requested it.",
+    emoji: "🛡",
   })
 );
 
@@ -931,6 +969,7 @@ export const ProxyAuthenticationRequired = S.Literal(407).pipe(
   $I.annoteSchema("ProxyAuthenticationRequired", {
     description:
       "407 “Proxy Authentication Required” – There is a proxy server used in the\ncommunication between the browser and the server and it requires\nauthentication.",
+    emoji: "🔩",
   })
 );
 
@@ -957,6 +996,7 @@ export const RequestTimeout = S.Literal(408).pipe(
   $I.annoteSchema("RequestTimeout", {
     description:
       "408 “Request Timeout” – The server closed due to a time-out while waiting\nfor a request from your browser. In some cases, servers may send this\nmessage on an idle connection even without any previous request from the\nclient.\nIt should be noted that servers may close the connection without sending a\nmessage.",
+    emoji: "⌛️",
   })
 );
 
@@ -981,6 +1021,7 @@ export const Conflict = S.Literal(409).pipe(
   $I.annoteSchema("Conflict", {
     description:
       "409 “Conflict” – This error occurs when a request can not be processed due\nto a conflict in the current state of the resource on the server. An example\nof this error is when multiple edits of the same file are submitted to the\nserver and the edits conflict with each other.",
+    emoji: "💥",
   })
 );
 
@@ -1006,6 +1047,7 @@ export const Gone = S.Literal(410).pipe(
   $I.annoteSchema("Gone", {
     description:
       "410 “Gone” – The requested resource is not available and will not be\navailable in the future. It is not replaced with a new resource on a new\naddress so clients are expected to remove any links and cache related to the\nresource. For example, search engines should remove the resource’s\ninformation from their databases.",
+    emoji: "💨",
   })
 );
 
@@ -1028,6 +1070,7 @@ export const LengthRequired = S.Literal(411).pipe(
   $I.annoteSchema("LengthRequired", {
     description:
       "411 “Length Required” – The length of the request’s content is not specified\nand the resource on the server requires it.",
+    emoji: "📏",
   })
 );
 
@@ -1050,6 +1093,7 @@ export const PreconditionFailed = S.Literal(412).pipe(
   $I.annoteSchema("PreconditionFailed", {
     description:
       "412 “Precondition failed” – The headers of the request specify certain\npreconditions that the server fails to meet.",
+    emoji: "🛑",
   })
 );
 
@@ -1076,6 +1120,7 @@ export const PayloadTooLarge = S.Literal(413).pipe(
   $I.annoteSchema("PayloadTooLarge", {
     description:
       "413 “Payload too large” – The request is larger than the limits specified on\nthe server, thus the server can not process the request.\nYou may see this error on your WordPress site when you try to upload a file\nand its size exceeds the upload limit of your website. If you encounter this\nproblem, read this guide about the “413 Entity Too Large” Error in\nWordPress.",
+    emoji: "🗃",
   })
 );
 
@@ -1099,6 +1144,7 @@ export const UriTooLong = S.Literal(414).pipe(
   $I.annoteSchema("UriTooLong", {
     description:
       "414 “URI Too Long” – The length of the URI is too long and the server can’t\nprocess it. Usually, this is the result of a GET request containing too much\ndata and therefore must be changed to a POST request.",
+    emoji: "🆖",
   })
 );
 
@@ -1122,6 +1168,7 @@ export const UnsupportedMediaType = S.Literal(415).pipe(
   $I.annoteSchema("UnsupportedMediaType", {
     description:
       "415 “Unsupported Media Type” – The request contains a media type that the\nserver doesn’t support. For instance, you try to upload an image file in\n.jpg format, but the server doesn’t support it.",
+    emoji: "📼",
   })
 );
 
@@ -1145,6 +1192,7 @@ export const RangeNotSatisfiable = S.Literal(416).pipe(
   $I.annoteSchema("RangeNotSatisfiable", {
     description:
       "416 “Range Not Satisfiable” – The request asked for a portion of the\nresource that the server can’t provide. This error can occur when your\nbrowser asks for a portion of a file that is outside of the end of the file.",
+    emoji: "📐",
   })
 );
 
@@ -1167,6 +1215,7 @@ export const ExpectationFailed = S.Literal(417).pipe(
   $I.annoteSchema("ExpectationFailed", {
     description:
       "417 “Expectation Failed” – The server fails to meet the requirements set in\nthe request’s expected header field.",
+    emoji: "🤔",
   })
 );
 
@@ -1189,6 +1238,7 @@ export const ImATeapot = S.Literal(418).pipe(
   $I.annoteSchema("ImATeapot", {
     description:
       "418 “I’m a teapot.” – This error is returned by teapots requested to brew\ncoffee. It is an April’s Fool joke dating back to 1998.",
+    emoji: "🍵",
   })
 );
 
@@ -1210,6 +1260,7 @@ export type ImATeapot = typeof ImATeapot.Type;
 export const MisdirectedRequest = S.Literal(421).pipe(
   $I.annoteSchema("MisdirectedRequest", {
     description: "421 “Misdirected Request” – The request was directed to a server unable to\nproduce a response.",
+    emoji: "🔂",
   })
 );
 
@@ -1234,6 +1285,7 @@ export const UnprocessableEntity = S.Literal(422).pipe(
   $I.annoteSchema("UnprocessableEntity", {
     description:
       "422 “Unprocessable Entity” – The request from the client is well-formed but\nit contains semantic errors that prevent the server from processing a\nresponse. If you stumble upon this error, check out our article about the\n422 Error Code.",
+    emoji: "💩",
   })
 );
 
@@ -1254,6 +1306,7 @@ export type UnprocessableEntity = typeof UnprocessableEntity.Type;
 export const Locked = S.Literal(423).pipe(
   $I.annoteSchema("Locked", {
     description: "423 “Locked” – The resource that is being accessed is locked.",
+    emoji: "🔒",
   })
 );
 
@@ -1276,6 +1329,7 @@ export const FailedDependency = S.Literal(424).pipe(
   $I.annoteSchema("FailedDependency", {
     description:
       "424 “Failed Dependency” – The request failed because it depended on another\nrequest that failed as well.",
+    emoji: "🧶",
   })
 );
 
@@ -1298,6 +1352,7 @@ export const TooEarly = S.Literal(425).pipe(
   $I.annoteSchema("TooEarly", {
     description:
       "425 “Too Early” – This error indicates that the server is unwilling to risk\nprocessing a request that might be replayed.",
+    emoji: "⏱",
   })
 );
 
@@ -1321,6 +1376,7 @@ export const UpgradeRequired = S.Literal(426).pipe(
   $I.annoteSchema("UpgradeRequired", {
     description:
       "426 “Upgrade Required” – The server refuses the request using the current\nprotocols as indicated by the upgrade header sent in response. It is willing\nto accept the request if the client upgrades to another protocol.",
+    emoji: "📤",
   })
 );
 
@@ -1346,6 +1402,7 @@ export const PreconditionRequired = S.Literal(428).pipe(
   $I.annoteSchema("PreconditionRequired", {
     description:
       "428 “Precondition Required” – The server requires the request to be\nconditional. In most cases, this response is used to prevent conflicts when\na client uses the GET method to request a resource, modifies it, and then\nuses PUT to upload the new version while another party may have also altered\nthe same resource.",
+    emoji: "⛓",
   })
 );
 
@@ -1377,6 +1434,7 @@ export const TooManyRequests = S.Literal(429).pipe(
   $I.annoteSchema("TooManyRequests", {
     description:
       "429 “Too many requests” – The server responds with this code when the user\nagent has sent too many requests in the given time and has exceeded the rate\nlimit.\nYou may see this error on your WordPress website if bad bots or scripts\nattempt to access the dashboard. In that case, changing the login URL is\nrecommended which can be easily done from the Login Security settings of the\nSecurity Optimizer plugin.\nYou may also see this error when you try to install a Let’s Encrypt SSL, but\nyou’ve accumulated too many failed requests. For more information, read this\nguide: Let’s Encrypt errors “429 Too Many Requests”, “No Domains\nAuthorized,” and “Certificate is not for the chosen domain.”",
+    emoji: "🌋",
   })
 );
 
@@ -1400,6 +1458,7 @@ export const RequestHeaderFieldsTooLarge = S.Literal(431).pipe(
   $I.annoteSchema("RequestHeaderFieldsTooLarge", {
     description:
       "431 “Request Header Fields Too Large” – The server can’t process the request\nbecause its individual header fields or all combined header fields are too\nlarge. The client may submit a new request if the size is reduced.",
+    emoji: "🤮",
   })
 );
 
@@ -1423,6 +1482,7 @@ export const UnavailableForLegalReasons = S.Literal(451).pipe(
   $I.annoteSchema("UnavailableForLegalReasons", {
     description:
       "451 “Unavailable for Legal Reasons” – The client requests a resource for\nwhich the server is legally bound to deny access, such as a web page\ncensored by the government.",
+    emoji: "⚖️",
   })
 );
 
@@ -1528,6 +1588,7 @@ export const InternalServerError = S.Literal(500).pipe(
   $I.annoteSchema("InternalServerError", {
     description:
       "500 “Internal Server Error” – This is a generic error that indicates the\nserver encountered an unexpected condition and can’t fulfill the request.\nThe server tells you there is something wrong, but it is not sure what the\nproblem is. Usually, the issue stems from the website configuration on\nthe client’s side. Read this tutorial on {@link https://www.siteground.com/kb/internal_server_error_500/ | what an “HTTP Error 500 –\nInternal Server Error” is and how to fix it} for more information.",
+    emoji: "💣",
   })
 );
 
@@ -1550,6 +1611,7 @@ export const NotImplemented = S.Literal(501).pipe(
   $I.annoteSchema("NotImplemented", {
     description:
       "501 “Not Implemented” – The server doesn’t support the request method or doesn’t have the ability to fulfill the request.",
+    emoji: "📭",
   })
 );
 
@@ -1574,6 +1636,7 @@ export const BadGateway = S.Literal(502).pipe(
   $I.annoteSchema("BadGateway", {
     description:
       "502 “Bad Gateway” – This error indicates that the server acted as a gateway\nor a proxy and received an invalid response from the upstream server. This\nis the official description, but various factors can cause this error. Find\nout more about the HTTP 502 “Bad Gateway” error and how to fix it here.",
+    emoji: "🚧",
   })
 );
 
@@ -1598,6 +1661,7 @@ export const ServiceUnavailable = S.Literal(503).pipe(
   $I.annoteSchema("ServiceUnavailable", {
     description:
       "503 “Service Unavailable” – The server can’t handle the request. This is\nusually a temporary condition caused by overload or ongoing maintenance on\nthe server. Read this guide on what the HTTP 503 “Service Unavailable” error\nis and how to fix it.",
+    emoji: "🚨",
   })
 );
 
@@ -1624,6 +1688,7 @@ export const GatewayTimeout = S.Literal(504).pipe(
   $I.annoteSchema("GatewayTimeout", {
     description:
       "504 “Gateway Timeout” – The server acted as a gateway and did not receive a\ntimely response from the upstream server. In most cases, this error is\ncaused by PHP scripts that don’t finish in time and exceed the server’s\nmax_execution_time PHP variable timeout limit, hence the server terminates\nthe connection. See more details in this article about the HTTP 504\n“Gateway Timeout” and how to fix it.",
+    emoji: "⏲",
   })
 );
 
@@ -1646,6 +1711,7 @@ export const HttpVersionNotSupported = S.Literal(505).pipe(
   $I.annoteSchema("HttpVersionNotSupported", {
     description:
       "505 “HTTP Version Not Supported” – The server doesn’t support the HTTP\nprotocol version used in the request.",
+    emoji: "🕯",
   })
 );
 
@@ -1671,6 +1737,7 @@ export const VariantAlsoNegotiates = S.Literal(506).pipe(
   $I.annoteSchema("VariantAlsoNegotiates", {
     description:
       "506 “Variant Also Negotiates” – This error occurs when the client and the\nserver enter into Transparent Content Negotiation, which allows the client\nto retrieve the best variant of a resource when the server supports multiple\nversions. However, there is a misconfiguration, and the chosen resource also\nprompts content negotiation that causes a closed loop.",
+    emoji: "☢️",
   })
 );
 
@@ -1693,6 +1760,7 @@ export const InsufficientStorage = S.Literal(507).pipe(
   $I.annoteSchema("InsufficientStorage", {
     description:
       "507 “Insufficient Storage” (WebDAV) – The server is unable to store the\nrepresentation required to complete the request.",
+    emoji: "💯",
   })
 );
 
@@ -1714,6 +1782,7 @@ export type InsufficientStorage = typeof InsufficientStorage.Type;
 export const LoopDetected = S.Literal(508).pipe(
   $I.annoteSchema("LoopDetected", {
     description: "508 “Loop Detected” (WebDAV) – The server detected an infinite loop while\nprocessing the request.",
+    emoji: "➰",
   })
 );
 
@@ -1736,6 +1805,7 @@ export const NotExtended = S.Literal(510).pipe(
   $I.annoteSchema("NotExtended", {
     description:
       "510 “Not Extended” – Further extensions to the request are required for the\nserver to fulfill it. This code is now deprecated.",
+    emoji: "🏗",
   })
 );
 
@@ -1760,6 +1830,7 @@ export const NetworkAuthenticationRequired = S.Literal(511).pipe(
   $I.annoteSchema("NetworkAuthenticationRequired", {
     description:
       "511 “Network Authentication Required” – This response is sent when you need\nto be authenticated so the network can send your request to a server. Most\ncommonly, it is seen when trying to use a Wi-Fi network, and you need to\nagree to its Terms of Agreement.",
+    emoji: "🔑",
   })
 );
 
@@ -1838,6 +1909,7 @@ export const RequestHeaderFieldsTooLargeShopify = S.Literal(430).pipe(
   $I.annoteSchema("RequestHeaderFieldsTooLargeShopify", {
     description:
       "430 “Request Header Fields Too Large” – This code is used by Shopify when\ntoo many URLs are requested at the same time. It is similar to the HTTP code\n429 “Too many requests”.",
+    emoji: "🧱",
   })
 );
 
@@ -1861,6 +1933,7 @@ export const LoginTimeout = S.Literal(440).pipe(
   $I.annoteSchema("LoginTimeout", {
     description:
       "440 “Login Time-out” – This code is used by Microsoft’s ISS (Internet\nInformation Services). The client’s login session has expired and they must\nlog in again.",
+    emoji: "🪫",
   })
 );
 
@@ -1883,6 +1956,7 @@ export const RequestHeaderTooLarge = S.Literal(494).pipe(
   $I.annoteSchema("RequestHeaderTooLarge", {
     description:
       "494 “Request header too large” – used by NGINX. The client has sent too\nlarge of a request or too long of a header line.",
+    emoji: "🧾",
   })
 );
 
@@ -1905,6 +1979,7 @@ export const SslCertificateError = S.Literal(495).pipe(
   $I.annoteSchema("SslCertificateError", {
     description:
       "495 “SSL Certificate Error” – This is also a status code used by NGINX\nsignaling that the client has provided an invalid SSL certificate.",
+    emoji: "🏅",
   })
 );
 
@@ -1927,6 +2002,7 @@ export const SslCertificateRequired = S.Literal(496).pipe(
   $I.annoteSchema("SslCertificateRequired", {
     description:
       "496 “SSL Certificate Required” – used by NGINX. A client certificate is\nrequired but is not provided.",
+    emoji: "🏷",
   })
 );
 
@@ -1949,6 +2025,7 @@ export const ClientClosedRequest = S.Literal(499).pipe(
   $I.annoteSchema("ClientClosedRequest", {
     description:
       "499 “Client Closed Request” – The client terminated the request before the\nserver could send a response. Another code used by NGINX.",
+    emoji: "🚶🏽",
   })
 );
 
@@ -1972,6 +2049,7 @@ export const WebServerReturnedAnUnknownError = S.Literal(520).pipe(
   $I.annoteSchema("WebServerReturnedAnUnknownError", {
     description:
       "520 “Web Server Returned an Unknown Error” – This is a code used by\nCloudflare. It specifies that the origin server returned an unexpected or\nunknown response to Cloudflare.",
+    emoji: "👻",
   })
 );
 
@@ -1995,6 +2073,7 @@ export const WebServerIsDown = S.Literal(521).pipe(
   $I.annoteSchema("WebServerIsDown", {
     description:
       "521 “Web Server is Down” – Another Cloudflare-specific error code. The\norigin server refused the connection to Cloudflare. This error could be\ncaused by the origin’s firewall blocking Cloudflare’s IPs.",
+    emoji: "📉",
   })
 );
 
@@ -2017,6 +2096,7 @@ export const SslHandshakeFailed = S.Literal(525).pipe(
   $I.annoteSchema("SslHandshakeFailed", {
     description:
       "525 “SSL Handshake Failed” – Used by Cloudflare. Cloudflare is unable to\nestablish an SSL/TLS handshake with the origin server.",
+    emoji: "🤝",
   })
 );
 
@@ -2041,6 +2121,7 @@ export const InvalidSslCertificate = S.Literal(526).pipe(
   $I.annoteSchema("InvalidSslCertificate", {
     description:
       "526 “Invalid SSL Certificate” – Another code mostly used by Cloudflare.\nCloudflare could not validate the SSL installed on the origin server.\nUsually, caused by invalid or missing SSL on the origin server. Read this\nguide on how to install Let’s Encrypt for your SiteGround-hosted website.",
+    emoji: "📛",
   })
 );
 

@@ -5,6 +5,11 @@ import {
 } from "./AgentHttpClient.js";
 import { layer as agentHttpHandlersLayer_ } from "./AgentHttpHandlers.js";
 import { layer as agentHttpServerLayer_ } from "./AgentHttpServer.js";
+import {
+  AgentObservedHttpApi as AgentObservedHttpApi_,
+  agentHttpMetrics as agentHttpMetrics_,
+  layer as agentHttpTelemetryLayer_,
+} from "./AgentHttpTelemetry.js";
 import type {
   AgentRpcClient as AgentRpcClient_,
   AgentRpcClientOptions as AgentRpcClientOptions_,
@@ -40,7 +45,19 @@ export const agentHttpHandlersLayer = agentHttpHandlersLayer_;
 /**
  * @since 0.0.0
  */
+export const AgentObservedHttpApi = AgentObservedHttpApi_;
+/**
+ * @since 0.0.0
+ */
+export const agentHttpMetrics = agentHttpMetrics_;
+/**
+ * @since 0.0.0
+ */
 export const agentHttpServerLayer = agentHttpServerLayer_;
+/**
+ * @since 0.0.0
+ */
+export const agentHttpTelemetryLayer = agentHttpTelemetryLayer_;
 /**
  * @since 0.0.0
  */

@@ -1,7 +1,9 @@
 import { AgentRuntime, SessionPool } from "@beep/ai-sdk";
 import { AgentHttpApi } from "@beep/ai-sdk/service/AgentHttpApi";
 import { layer as AgentHttpHandlers } from "@beep/ai-sdk/service/AgentHttpHandlers";
+import { layer as AgentHttpTelemetry, AgentObservedHttpApi } from "@beep/ai-sdk/service/AgentHttpTelemetry";
 import { AgentServerAccess, makeAgentServerAccess } from "@beep/ai-sdk/service/AgentServerAccess";
+import { HttpApiTelemetryMiddleware } from "@beep/observability/server";
 import { NodeHttpPlatform, NodeServices } from "@effect/platform-node";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -199,6 +201,34 @@ test("AgentHttpHandlers requires caller tenant header before honoring a tenant-s
         sessionId: "session-http",
       });
       expect(captured).toEqual(["team-a"]);
+    })
+  );
+
+  await runEffect(program);
+});
+
+test("AgentHttpTelemetry records observed requests on the server path", async () => {
+  const accessLayer = makeAccessLayer();
+  const handlersLayer = AgentHttpHandlers.pipe(Layer.provide(runtimeLayer), Layer.provide(accessLayer));
+  const apiLayer = HttpApiBuilder.layer(AgentObservedHttpApi).pipe(
+    Layer.provide(handlersLayer),
+    Layer.provide(AgentHttpTelemetry),
+    Layer.provide(accessLayer)
+  );
+  const serverLayer = Layer.provide(apiLayer, httpTestPlatformLayer);
+
+  const program = Effect.scoped(
+    Effect.gen(function* () {
+      expect(AgentObservedHttpApi.groups.agent.endpoints.stats.middlewares.has(HttpApiTelemetryMiddleware)).toBe(true);
+      const access = yield* makeAgentServerAccess();
+      const requestContext = ServiceMap.make(AgentServerAccess, access);
+      const { handler } = yield* Effect.acquireRelease(
+        Effect.sync(() => HttpRouter.toWebHandler(serverLayer)),
+        ({ dispose }) => Effect.promise(dispose)
+      );
+
+      const response = yield* Effect.promise(() => handler(new Request("http://localhost/stats"), requestContext));
+      expect(response.status).toBe(200);
     })
   );
 
