@@ -135,6 +135,11 @@ export * from "./Fn.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./http/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./LocalDate.ts";
 /**
  * @since 0.0.0

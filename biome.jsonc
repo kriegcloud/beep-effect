@@ -25,7 +25,9 @@
       "!**/*.gen.*",
       "!**/.cache",
       "!**/bun.lock",
-      "!**/dist"
+      "!**/dist",
+      "!scratchpad",
+      "!scratchpad"
     ]
   },
   "css": {

@@ -25,6 +25,7 @@ import * as Identity from "./Id.ts";
 export const $I = Identity.make("beep").$BeepId;
 
 const composers = $I.compose(
+  "scratch",
   "data",
   "identity",
   "messages",
@@ -337,3 +338,10 @@ export const $NlpId: Identity.IdentityComposer<"@beep/nlp"> = composers.$NlpId;
  * @type {Identity.IdentityComposer<"@beep/editor">}
  */
 export const $EditorId: Identity.IdentityComposer<"@beep/editor"> = composers.$EditorId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/scratch">}
+ */
+export const $ScratchId: Identity.IdentityComposer<"@beep/scratch"> = composers.$ScratchId;

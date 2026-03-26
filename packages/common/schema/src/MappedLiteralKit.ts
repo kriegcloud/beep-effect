@@ -111,8 +111,8 @@ const makeReverseEnum = <M extends MappedPairs>(mappings: M): ReverseEnumMap<M> 
     }))
   );
 
-const validateMappings = <M extends MappedPairs>(mappings: M): void => {
-  pipe(
+const validateMappings = <M extends MappedPairs>(mappings: M): void =>
+  void pipe(
     mappings,
     A.reduce(
       {
@@ -147,10 +147,9 @@ const validateMappings = <M extends MappedPairs>(mappings: M): void => {
       }
     )
   );
-};
 
-const validateHelperKeys = <L extends Literals>(literals: L): void => {
-  pipe(
+const validateHelperKeys = <L extends Literals>(literals: L): void =>
+  void pipe(
     literals,
     A.reduce(HashMap.empty<string, LiteralValue>(), (seen, literal): SeenLiteralKeys => {
       const key = matchLiteral(literal);
@@ -167,7 +166,6 @@ const validateHelperKeys = <L extends Literals>(literals: L): void => {
       return HashMap.set(seen, key, literal);
     })
   );
-};
 
 const splitMappings = <M extends MappedPairs>(
   mappings: M
@@ -278,6 +276,7 @@ type ReverseDirectionalKit<M extends MappedPairs> = DirectionalKit<ToLiterals<M>
 export type MappedLiteralKit<M extends MappedPairs> = ForwardDirectionalKit<M> & {
   readonly From: ForwardDirectionalKit<M>;
   readonly To: ReverseDirectionalKit<M>;
+  readonly Pairs: M;
 };
 
 /**
@@ -318,5 +317,6 @@ export function MappedLiteralKit<const M extends MappedPairs>(mappings: M): Mapp
     $match: readonlyProperty(From.$match),
     From: readonlyProperty(schema),
     To: readonlyProperty(To),
+    Pairs: readonlyProperty(mappings),
   })) as MappedLiteralKit<M>;
 }

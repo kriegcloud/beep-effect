@@ -201,48 +201,6 @@ const recordHttpRequestMetrics = Effect.fn("SidecarObservability.recordHttpReque
  * @since 0.0.0
  * @category CrossCutting
  */
-export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
-  options: {
-    readonly method: string;
-    readonly route: string;
-    readonly successStatus: number;
-  },
-  effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> =>
-  currentTimeMillis.pipe(
-    Effect.flatMap((startedAt) =>
-      effect.pipe(
-        Effect.matchEffect({
-          onFailure: (error) =>
-            currentTimeMillis.pipe(
-              Effect.flatMap((endedAt) =>
-                recordHttpRequestMetrics(options.method, options.route, error.status, endedAt - startedAt).pipe(
-                  Effect.andThen(Effect.fail(error))
-                )
-              )
-            ),
-          onSuccess: (value) =>
-            currentTimeMillis.pipe(
-              Effect.flatMap((endedAt) =>
-                recordHttpRequestMetrics(
-                  options.method,
-                  options.route,
-                  options.successStatus,
-                  endedAt - startedAt
-                ).pipe(Effect.as(value))
-              )
-            ),
-        })
-      )
-    )
-  );
-
-/**
- * Observe one HTTP request with success and failure metrics.
- *
- * @since 0.0.0
- * @category CrossCutting
- */
 export const provideSidecarObservability = <A, E, R>(
   config: SidecarObservabilityConfig,
   effect: Effect.Effect<A, E, R>

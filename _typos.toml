@@ -45,6 +45,7 @@ extend-exclude = [
   ".next/**",
   "**/storybook-static/**",
   ".beep/**",
+  "scratchpad/**",
   "outputs/agent-reliability/**",
   "specs/**",
   "THOUGHTS.md",
