@@ -4,10 +4,6 @@
   "workspaces": {
     "": {
       "name": "@beep/root",
-      "dependencies": {
-        "happy-dom": "^20.8.9",
-        "path-to-regexp": "^8.4.0",
-      },
       "devDependencies": {
         "@1password/sdk": "catalog:",
         "@arethetypeswrong/cli": "catalog:",
@@ -56,9 +52,11 @@
         "eslint-plugin-tsdoc": "catalog:",
         "fast-check": "catalog:",
         "glob": "catalog:",
+        "happy-dom": "catalog:",
         "lefthook": "catalog:",
         "madge": "catalog:",
         "markdownlint-cli2": "catalog:",
+        "path-to-regexp": "catalog:",
         "publint": "catalog:",
         "sst": "catalog:",
         "syncpack": "catalog:",
@@ -930,6 +928,7 @@
     "fast-check": "^4.6.0",
     "glob": "^13.0.6",
     "handlebars": "^4.7.9",
+    "happy-dom": "^20.8.9",
     "i18next": "^25.10.10",
     "jscodeshift": "^17.3.0",
     "jsdoc-type-pratt-parser": "^7.1.1",
@@ -943,6 +942,7 @@
     "madge": "^8.0.0",
     "markdownlint-cli2": "^0.22.0",
     "next": "16.2.1-canary.11",
+    "path-to-regexp": "^8.4.0",
     "pg-connection-string": "^2.12.0",
     "pg-protocol": "^1.13.0",
     "picocolors": "^1.1.1",
