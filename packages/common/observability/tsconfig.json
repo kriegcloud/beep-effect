@@ -5,5 +5,13 @@
   "compilerOptions": {
     "outDir": "dist",
     "rootDir": "src"
-  }
+  },
+  "references": [
+    {
+      "path": "../identity/tsconfig.json"
+    },
+    {
+      "path": "../schema/tsconfig.json"
+    }
+  ]
 }

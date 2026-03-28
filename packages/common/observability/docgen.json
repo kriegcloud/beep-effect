@@ -34,7 +34,11 @@
       ],
       "@beep/observability/*": [
         "../../../packages/common/observability/src/*.ts"
-      ]
+      ],
+      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
     }
   }
 }

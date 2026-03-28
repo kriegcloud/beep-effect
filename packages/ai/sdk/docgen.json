@@ -35,6 +35,12 @@
       "@beep/data/*": ["../../../packages/common/data/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/observability": [
+        "../../../packages/common/observability/src/index.ts"
+      ],
+      "@beep/observability/*": [
+        "../../../packages/common/observability/src/*.ts"
+      ],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
       "@beep/types": ["../../../packages/common/types/src/index.ts"],
