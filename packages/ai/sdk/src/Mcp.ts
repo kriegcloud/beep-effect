@@ -5,8 +5,8 @@
  * cspell:ignore modelcontextprotocol pollable
  * @since 0.0.0
  */
-import { $AiSdkId } from "@beep/identity/packages";
-import { LiteralKit, MappedLiteralKit } from "@beep/schema";
+import {$AiSdkId} from "@beep/identity/packages";
+import { JsonObject, LiteralKit, MappedLiteralKit } from "@beep/schema";
 import { destructiveTransform } from "@beep/schema/Transformations";
 import { Effect, SchemaAST, SchemaTransformation, Struct } from "effect";
 import * as A from "effect/Array";
@@ -306,48 +306,6 @@ export type ProtocolErrorCode = typeof ProtocolErrorCode.Type;
  * @category DomainModel
  */
 export const JSONValue = S.Json.pipe(annoteSchema("JSONValue", "Any JSON value accepted by MCP payloads."));
-
-/**
- * Type of {@link JSONValue}.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type JSONValue = typeof JSONValue.Type;
-
-/**
- * JSON object accepted by MCP payloads.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export const JSONObject = S.Record(S.String, S.Json).pipe(
-  annoteSchema("JSONObject", "A JSON object accepted by MCP payloads.")
-);
-
-/**
- * Type of {@link JSONObject}.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type JSONObject = typeof JSONObject.Type;
-
-/**
- * JSON array accepted by MCP payloads.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export const JSONArray = S.Array(S.Json).pipe(annoteSchema("JSONArray", "A JSON array accepted by MCP payloads."));
-
-/**
- * Type of {@link JSONArray}.
- *
- * @since 0.0.0
- * @category DomainModel
- */
-export type JSONArray = typeof JSONArray.Type;
 
 /**
  * A progress token, used to associate progress notifications with the original request.
@@ -911,7 +869,7 @@ const ElicitationCapabilityBase = LooseJsonObject({
   form: S.OptionFromOptionalKey(FormElicitationCapability).annotateKey(
     annotateKey("Capabilities for form-based elicitation.")
   ),
-  url: S.OptionFromOptionalKey(JSONObject).annotateKey(annotateKey("Capabilities for URL-based elicitation.")),
+  url: S.OptionFromOptionalKey(JsonObject).annotateKey(annotateKey("Capabilities for URL-based elicitation.")),
 });
 
 /**
@@ -941,13 +899,13 @@ export const ElicitationCapability = destructiveTransform(ElicitationCapabilityB
 export type ElicitationCapability = typeof ElicitationCapability.Type;
 
 const ClientSamplingTaskCapability = LooseUnknownObject({
-  createMessage: S.OptionFromOptionalKey(JSONObject).annotateKey(
+  createMessage: S.OptionFromOptionalKey(JsonObject).annotateKey(
     annotateKey("Task support for sampling `createMessage` requests.")
   ),
 });
 
 const ClientElicitationTaskCapability = LooseUnknownObject({
-  create: S.OptionFromOptionalKey(JSONObject).annotateKey(
+  create: S.OptionFromOptionalKey(JsonObject).annotateKey(
     annotateKey("Task support for elicitation `create` requests.")
   ),
 });
@@ -968,8 +926,8 @@ const ClientTaskRequestsCapability = LooseUnknownObject({
  * @category DomainModel
  */
 export const ClientTasksCapability = LooseUnknownObject({
-  list: S.OptionFromOptionalKey(JSONObject).annotateKey(annotateKey("Present if the client supports listing tasks.")),
-  cancel: S.OptionFromOptionalKey(JSONObject).annotateKey(
+  list: S.OptionFromOptionalKey(JsonObject).annotateKey(annotateKey("Present if the client supports listing tasks.")),
+  cancel: S.OptionFromOptionalKey(JsonObject).annotateKey(
     annotateKey("Present if the client supports cancelling tasks.")
   ),
   requests: S.OptionFromOptionalKey(ClientTaskRequestsCapability).annotateKey(
@@ -991,7 +949,7 @@ export const ClientTasksCapability = LooseUnknownObject({
 export type ClientTasksCapability = typeof ClientTasksCapability.Type;
 
 const ServerToolTaskCapability = LooseUnknownObject({
-  call: S.OptionFromOptionalKey(JSONObject).annotateKey(annotateKey("Task support for tool `call` requests.")),
+  call: S.OptionFromOptionalKey(JsonObject).annotateKey(annotateKey("Task support for tool `call` requests.")),
 });
 
 const ServerTaskRequestsCapability = LooseUnknownObject({
@@ -1005,8 +963,8 @@ const ServerTaskRequestsCapability = LooseUnknownObject({
  * @category DomainModel
  */
 export const ServerTasksCapability = LooseUnknownObject({
-  list: S.OptionFromOptionalKey(JSONObject).annotateKey(annotateKey("Present if the server supports listing tasks.")),
-  cancel: S.OptionFromOptionalKey(JSONObject).annotateKey(
+  list: S.OptionFromOptionalKey(JsonObject).annotateKey(annotateKey("Present if the server supports listing tasks.")),
+  cancel: S.OptionFromOptionalKey(JsonObject).annotateKey(
     annotateKey("Present if the server supports cancelling tasks.")
   ),
   requests: S.OptionFromOptionalKey(ServerTaskRequestsCapability).annotateKey(
@@ -1029,10 +987,10 @@ export type ServerTasksCapability = typeof ServerTasksCapability.Type;
 
 class ClientSamplingCapability extends S.Class<ClientSamplingCapability>($I`ClientSamplingCapability`)(
   {
-    context: S.OptionFromOptionalKey(JSONObject).annotateKey(
+    context: S.OptionFromOptionalKey(JsonObject).annotateKey(
       annotateKey("Present if the client supports context inclusion via `includeContext`.")
     ),
-    tools: S.OptionFromOptionalKey(JSONObject).annotateKey(
+    tools: S.OptionFromOptionalKey(JsonObject).annotateKey(
       annotateKey("Present if the client supports tool use via `tools` and `toolChoice`.")
     ),
   },
@@ -1056,7 +1014,7 @@ class ClientRootsCapability extends S.Class<ClientRootsCapability>($I`ClientRoot
  */
 export class ClientCapabilities extends S.Class<ClientCapabilities>($I`ClientCapabilities`)(
   {
-    experimental: S.OptionFromOptionalKey(S.Record(S.String, JSONObject)).annotateKey(
+    experimental: S.OptionFromOptionalKey(S.Record(S.String, JsonObject)).annotateKey(
       annotateKey("Experimental, non-standard capabilities that the client supports.")
     ),
     sampling: S.OptionFromOptionalKey(ClientSamplingCapability).annotateKey(
@@ -1071,7 +1029,7 @@ export class ClientCapabilities extends S.Class<ClientCapabilities>($I`ClientCap
     tasks: S.OptionFromOptionalKey(ClientTasksCapability).annotateKey(
       annotateKey("Present if the client supports task creation.")
     ),
-    extensions: S.OptionFromOptionalKey(S.Record(S.String, JSONObject)).annotateKey(
+    extensions: S.OptionFromOptionalKey(S.Record(S.String, JsonObject)).annotateKey(
       annotateKey("Extensions that the client supports.")
     ),
   },
@@ -1151,13 +1109,13 @@ class ServerToolsCapability extends S.Class<ServerToolsCapability>($I`ServerTool
  */
 export class ServerCapabilities extends S.Class<ServerCapabilities>($I`ServerCapabilities`)(
   {
-    experimental: S.OptionFromOptionalKey(S.Record(S.String, JSONObject)).annotateKey(
+    experimental: S.OptionFromOptionalKey(S.Record(S.String, JsonObject)).annotateKey(
       annotateKey("Experimental, non-standard capabilities that the server supports.")
     ),
-    logging: S.OptionFromOptionalKey(JSONObject).annotateKey(
+    logging: S.OptionFromOptionalKey(JsonObject).annotateKey(
       annotateKey("Present if the server supports sending log messages to the client.")
     ),
-    completions: S.OptionFromOptionalKey(JSONObject).annotateKey(
+    completions: S.OptionFromOptionalKey(JsonObject).annotateKey(
       annotateKey("Present if the server supports sending completions to the client.")
     ),
     prompts: S.OptionFromOptionalKey(ServerPromptsCapability).annotateKey(
@@ -1172,7 +1130,7 @@ export class ServerCapabilities extends S.Class<ServerCapabilities>($I`ServerCap
     tasks: S.OptionFromOptionalKey(ServerTasksCapability).annotateKey(
       annotateKey("Present if the server supports task creation.")
     ),
-    extensions: S.OptionFromOptionalKey(S.Record(S.String, JSONObject)).annotateKey(
+    extensions: S.OptionFromOptionalKey(S.Record(S.String, JsonObject)).annotateKey(
       annotateKey("Extensions that the server supports.")
     ),
   },
@@ -2954,7 +2912,7 @@ export class CreateMessageRequestParams extends S.Class<CreateMessageRequestPara
     temperature: S.OptionFromOptionalKey(S.Number).annotateKey(annotateKey("The requested sampling temperature.")),
     maxTokens: S.Int.annotateKey(annotateKey("The requested maximum number of tokens to sample.")),
     stopSequences: S.String.pipe(S.Array, S.OptionFromOptionalKey).annotateKey(annotateKey("Optional stop sequences.")),
-    metadata: S.OptionFromOptionalKey(JSONObject).annotateKey(
+    metadata: S.OptionFromOptionalKey(JsonObject).annotateKey(
       annotateKey("Optional metadata to pass through to the LLM provider.")
     ),
     tools: Tool.pipe(S.Array, S.OptionFromOptionalKey).annotateKey(

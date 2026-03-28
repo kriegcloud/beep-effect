@@ -1,0 +1,44 @@
+import { RegExpFromStr, RegExpStr } from "@beep/schema";
+import { describe, expect, it } from "@effect/vitest";
+import * as S from "effect/Schema";
+
+describe("RegExpStr", () => {
+  const decode = S.decodeUnknownSync(RegExpStr);
+
+  it("accepts valid pattern strings without transforming them", () => {
+    expect(decode("abc")).toBe("abc");
+    expect(decode("^foo(bar)?$")).toBe("^foo(bar)?$");
+    expect(decode("")).toBe("");
+  });
+
+  it("rejects invalid pattern strings", () => {
+    expect(() => decode("(")).toThrow("Expected a valid regular expression pattern string");
+    expect(() => decode("[")).toThrow("Expected a valid regular expression pattern string");
+  });
+});
+
+describe("RegExpFromStr", () => {
+  const decode = S.decodeUnknownSync(RegExpFromStr);
+  const encode = S.encodeSync(RegExpFromStr);
+
+  it("decodes RegExpStr values into RegExp instances", () => {
+    const decoded = decode("^foo(bar)?$");
+
+    expect(decoded).toBeInstanceOf(RegExp);
+    expect(S.is(S.RegExp)(decoded)).toBe(true);
+    expect(decoded.source).toBe("^foo(bar)?$");
+    expect(decoded.flags).toBe("");
+  });
+
+  it("preserves source schema validation failures", () => {
+    expect(() => decode("(")).toThrow("Expected a valid regular expression pattern string");
+  });
+
+  it("rejects non-string unknown input with the source schema error", () => {
+    expect(() => decode(1)).toThrow("Expected RegExpStr, got 1");
+  });
+
+  it("forbids encoding RegExp values back to the original pattern string", () => {
+    expect(() => encode(/abc/)).toThrow("Encoding RegExpFromStr back to the original pattern string is not supported");
+  });
+});

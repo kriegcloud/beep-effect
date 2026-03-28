@@ -4,8 +4,6 @@
     "packages/*/dtslint/**/*.tst.*",
     "tooling/*/dtslint/**/*.tst.*",
     "apps/*/dtslint/**/*.tst.*",
-    ".claude/dtslint/**/*.tst.*",
-    ".codex/dtslint/**/*.tst.*",
     "packages/_internal/db-admin/dtslint/**/*.tst.*",
     "packages/ai/sdk/dtslint/**/*.tst.*",
     "packages/common/data/dtslint/**/*.tst.*",

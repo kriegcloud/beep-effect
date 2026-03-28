@@ -165,6 +165,11 @@ export * from "./Primitive.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./RegExp.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./person/index.ts";
 /**
  * @since 0.0.0
@@ -226,3 +231,21 @@ export * from "./Transformations.ts";
  * @category Validation
  */
 export * as VariantSchema from "./VariantSchema.ts";
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Json.ts";
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./URL.ts";
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./BufferEncoding.ts";

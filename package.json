@@ -274,7 +274,7 @@
     "@types/node": "^25.5.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tanstack/react-router": "^1.168.7",
+    "@tanstack/react-router": "^1.168.8",
     "ast-types": "^0.16.1",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-loader": "^10.1.1",
