@@ -29,7 +29,9 @@ The examples below assume a wrapper that expects the string form. If your wrappe
 | `Repo-codegraph as proving ground for expert memory` | Preserve the core thesis | `expert memory`, `proving ground`, `deterministic-first`, `code as first domain` | `repo-codegraph` |
 | `Expert-memory kernel centers on claims evidence provenance and time` | Preserve the semantic-kernel vocabulary | `claim`, `evidence`, `provenance`, `temporal lifecycle`, `retrieval packet`, `semantic kernel` | `—` |
 | `Old knowledge slice proved need for control plane and grounded answers` | Preserve the v3 knowledge-slice lesson | `control plane`, `epistemic runtime`, `citation validation`, `reasoning traces`, `grounded answers` | `knowledge slice` |
-| `ClaimRecord is the likely durable abstraction above raw edges` | Preserve claim-first modeling guidance | `ClaimRecord`, `mention record`, `relation evidence`, `supersession`, `conflict`, `evidence-of-record` | `—` |
+| `Repo v0 proves the kernel at artifact to packet before full ClaimRecord` | Preserve the narrower repo proof shape | `artifact-to-packet`, `retrieval packet`, `grounding`, `retrieval`, `packet`, `answer` | `packet-only answer rendering` |
+| `ClaimRecord is the likely broader abstraction beyond repo v0` | Preserve claim-first modeling guidance without over-claiming current v0 scope | `ClaimRecord`, `mention record`, `relation evidence`, `supersession`, `conflict`, `evidence-of-record` | `—` |
+| `Extraction provenance and query-time explainability should stay separate` | Preserve the explainability split | `extraction provenance`, `query-time explainability`, `retrieval packet`, `run-scoped explainability` | `—` |
 | `Time and contradiction are central not polish` | Preserve temporal/conflict modeling stance | `bitemporal`, `assertedAt`, `derivedAt`, `effectiveAt`, `supersededAt`, `what did we know when` | `—` |
 | `TSMorphService should use scoped project pools not one global Project` | Preserve ts-morph lifecycle guidance | `TSMorphService`, `ts-morph`, `Project lifecycle`, `memory footprint`, `project references`, `workspace scope` | `LRU`, `TTL` |
 | `Nomik uses tree-sitter because it is polyglot and extraction-first` | Preserve why Nomik chose tree-sitter | `Nomik`, `tree-sitter`, `polyglot`, `extraction-oriented`, `Neo4j`, `ts-morph` | `different problem` |
@@ -41,7 +43,7 @@ The examples below assume a wrapper that expects the string form. If your wrappe
 ### Core expert-memory cluster
 ```json
 mcp__graphiti-memory__search_memory_facts({
-  "query": "expert memory big picture knowledge slice claim evidence control plane epistemic runtime grounded answer verification",
+  "query": "expert memory big picture artifact-to-packet claim evidence control plane epistemic runtime grounded answer verification",
   "group_ids": "[\"beep-dev\"]",
   "max_facts": 10
 })
@@ -87,6 +89,15 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "expert memory domain transfer law wealth compliance claim evidence contradiction temporal lifecycle",
+  "group_ids": "[\"beep-dev\"]",
+  "max_facts": 10
+})
+```
+
+### Query-stage and packet cluster
+```json
+mcp__graphiti-memory__search_memory_facts({
+  "query": "repo expert memory query stages grounding retrieval packet answer extraction provenance explainability retrieval packet payload issue",
   "group_ids": "[\"beep-dev\"]",
   "max_facts": 10
 })

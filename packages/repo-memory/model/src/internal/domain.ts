@@ -460,6 +460,730 @@ export class RepoSymbolDocumentation extends S.Class<RepoSymbolDocumentation>($I
 ) {}
 
 /**
+ * Canonical deterministic query kinds supported by repo-memory grounded retrieval.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalQueryKind = LiteralKit([
+  "countFiles",
+  "countSymbols",
+  "locateSymbol",
+  "describeSymbol",
+  "symbolParams",
+  "symbolReturns",
+  "symbolThrows",
+  "symbolDeprecation",
+  "listFileExports",
+  "listFileImports",
+  "listFileImporters",
+  "listSymbolImporters",
+  "listFileDependencies",
+  "listFileDependents",
+  "keywordSearch",
+  "unsupported",
+]).annotate(
+  $I.annote("RetrievalQueryKind", {
+    description: "Canonical deterministic query kinds supported by repo-memory grounded retrieval.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalQueryKind = typeof RetrievalQueryKind.Type;
+
+/**
+ * Packet-level retrieval outcome for one grounded query run.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalOutcome = LiteralKit(["resolved", "none", "ambiguous", "unsupported"]).annotate(
+  $I.annote("RetrievalOutcome", {
+    description: "Packet-level retrieval outcome for one grounded query run.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalOutcome = typeof RetrievalOutcome.Type;
+
+/**
+ * Match posture recorded for ambiguous or relaxed packet candidates.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalMatchKind = LiteralKit(["exact", "normalized", "fuzzy"]).annotate(
+  $I.annote("RetrievalMatchKind", {
+    description: "Match posture recorded for ambiguous or relaxed packet candidates.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalMatchKind = typeof RetrievalMatchKind.Type;
+
+/**
+ * Query target requested before grounding resolves it to a concrete subject.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalFileRequestedTarget extends S.Class<RetrievalFileRequestedTarget>(
+  $I`RetrievalFileRequestedTarget`
+)(
+  {
+    kind: S.tag("file-query"),
+    value: S.String,
+  },
+  $I.annote("RetrievalFileRequestedTarget", {
+    description: "Requested file-oriented query target before grounding resolves it to one concrete file.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalSymbolRequestedTarget extends S.Class<RetrievalSymbolRequestedTarget>(
+  $I`RetrievalSymbolRequestedTarget`
+)(
+  {
+    kind: S.tag("symbol-query"),
+    value: S.String,
+  },
+  $I.annote("RetrievalSymbolRequestedTarget", {
+    description: "Requested symbol-oriented query target before grounding resolves it to one concrete symbol.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalModuleRequestedTarget extends S.Class<RetrievalModuleRequestedTarget>(
+  $I`RetrievalModuleRequestedTarget`
+)(
+  {
+    kind: S.tag("module-query"),
+    value: S.String,
+  },
+  $I.annote("RetrievalModuleRequestedTarget", {
+    description:
+      "Requested module-oriented query target before grounding resolves it to one module or file-like specifier.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalKeywordRequestedTarget extends S.Class<RetrievalKeywordRequestedTarget>(
+  $I`RetrievalKeywordRequestedTarget`
+)(
+  {
+    kind: S.tag("keyword-query"),
+    value: S.String,
+  },
+  $I.annote("RetrievalKeywordRequestedTarget", {
+    description: "Requested keyword-search target before retrieval resolves it to matching grounded items.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalQuestionRequestedTarget extends S.Class<RetrievalQuestionRequestedTarget>(
+  $I`RetrievalQuestionRequestedTarget`
+)(
+  {
+    kind: S.tag("question"),
+    value: S.String,
+  },
+  $I.annote("RetrievalQuestionRequestedTarget", {
+    description: "Original question string preserved for unsupported deterministic query shapes.",
+  })
+) {}
+
+/**
+ * Requested retrieval target preserved before grounding resolves it to a concrete subject.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalRequestedTarget = S.Union([
+  RetrievalFileRequestedTarget,
+  RetrievalSymbolRequestedTarget,
+  RetrievalModuleRequestedTarget,
+  RetrievalKeywordRequestedTarget,
+  RetrievalQuestionRequestedTarget,
+]).pipe(
+  S.toTaggedUnion("kind"),
+  S.annotate(
+    $I.annote("RetrievalRequestedTarget", {
+      description: "Requested retrieval target preserved before grounding resolves it to a concrete subject.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalRequestedTarget = typeof RetrievalRequestedTarget.Type;
+
+/**
+ * Grounded file subject carried by a retrieval packet.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalFileSubject extends S.Class<RetrievalFileSubject>($I`RetrievalFileSubject`)(
+  {
+    kind: S.tag("file"),
+    label: S.String,
+    filePath: FilePath,
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalFileSubject", {
+    description: "Grounded file subject carried by a retrieval packet.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalSymbolSubject extends S.Class<RetrievalSymbolSubject>($I`RetrievalSymbolSubject`)(
+  {
+    kind: S.tag("symbol"),
+    label: S.String,
+    symbolId: S.String,
+    symbolName: S.String,
+    qualifiedName: S.String,
+    symbolKind: S.suspend(() => RepoSymbolKind),
+    filePath: FilePath,
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalSymbolSubject", {
+    description: "Grounded symbol subject carried by a retrieval packet.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalModuleSubject extends S.Class<RetrievalModuleSubject>($I`RetrievalModuleSubject`)(
+  {
+    kind: S.tag("module"),
+    label: S.String,
+    moduleSpecifier: S.String,
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalModuleSubject", {
+    description: "Grounded module subject carried by a retrieval packet.",
+  })
+) {}
+
+/**
+ * Grounded subject carried by a retrieval packet.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalSubject = S.Union([RetrievalFileSubject, RetrievalSymbolSubject, RetrievalModuleSubject]).pipe(
+  S.toTaggedUnion("kind"),
+  S.annotate(
+    $I.annote("RetrievalSubject", {
+      description: "Grounded subject carried by a retrieval packet.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalSubject = typeof RetrievalSubject.Type;
+
+/**
+ * Candidate subject surfaced when retrieval cannot safely resolve to one grounded subject.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalCandidate extends S.Class<RetrievalCandidate>($I`RetrievalCandidate`)(
+  {
+    subject: RetrievalSubject,
+    matchKind: RetrievalMatchKind,
+    note: S.OptionFromOptionalKey(S.String),
+  },
+  $I.annote("RetrievalCandidate", {
+    description: "Candidate subject surfaced when retrieval cannot safely resolve to one grounded subject.",
+  })
+) {}
+
+/**
+ * Parameter item carried inside retrieval facets and payloads.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalParameterItem extends S.Class<RetrievalParameterItem>($I`RetrievalParameterItem`)(
+  {
+    kind: S.tag("parameter"),
+    name: S.String,
+    type: S.OptionFromOptionalKey(S.String),
+    description: S.OptionFromOptionalKey(S.String),
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalParameterItem", {
+    description: "Parameter item carried inside retrieval facets and payloads.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalReturnItem extends S.Class<RetrievalReturnItem>($I`RetrievalReturnItem`)(
+  {
+    kind: S.tag("return"),
+    type: S.OptionFromOptionalKey(S.String),
+    description: S.OptionFromOptionalKey(S.String),
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalReturnItem", {
+    description: "Return item carried inside retrieval facets and payloads.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalThrowItem extends S.Class<RetrievalThrowItem>($I`RetrievalThrowItem`)(
+  {
+    kind: S.tag("throw"),
+    type: S.OptionFromOptionalKey(S.String),
+    description: S.OptionFromOptionalKey(S.String),
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalThrowItem", {
+    description: "Throw item carried inside retrieval facets and payloads.",
+  })
+) {}
+
+/**
+ * Display-ready retrieval item shown inside packet payloads.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalItem = S.Union([
+  RetrievalFileSubject,
+  RetrievalSymbolSubject,
+  RetrievalModuleSubject,
+  RetrievalParameterItem,
+  RetrievalReturnItem,
+  RetrievalThrowItem,
+]).pipe(
+  S.toTaggedUnion("kind"),
+  S.annotate(
+    $I.annote("RetrievalItem", {
+      description: "Display-ready retrieval item shown inside packet payloads.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalItem = typeof RetrievalItem.Type;
+
+/**
+ * Subject detail aspect requested by a deterministic subject-detail query.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalSubjectDetailAspect = LiteralKit([
+  "location",
+  "description",
+  "params",
+  "returns",
+  "throws",
+  "deprecation",
+]).annotate(
+  $I.annote("RetrievalSubjectDetailAspect", {
+    description: "Subject detail aspect requested by a deterministic subject-detail query.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalSubjectDetailAspect = typeof RetrievalSubjectDetailAspect.Type;
+
+/**
+ * Location facet attached to one grounded subject.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalLocationFacet extends S.Class<RetrievalLocationFacet>($I`RetrievalLocationFacet`)(
+  {
+    kind: S.tag("location"),
+    filePath: FilePath,
+    startLine: PosInt,
+    endLine: PosInt,
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalLocationFacet", {
+    description: "Location facet attached to one grounded subject.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalDeclarationFacet extends S.Class<RetrievalDeclarationFacet>($I`RetrievalDeclarationFacet`)(
+  {
+    kind: S.tag("declaration"),
+    signature: S.String,
+    exported: S.OptionFromOptionalKey(S.Boolean),
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalDeclarationFacet", {
+    description: "Declaration facet attached to one grounded subject.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalDocumentationFacet extends S.Class<RetrievalDocumentationFacet>($I`RetrievalDocumentationFacet`)(
+  {
+    kind: S.tag("documentation"),
+    summary: S.OptionFromOptionalKey(S.String),
+    description: S.OptionFromOptionalKey(S.String),
+    remarks: S.OptionFromOptionalKey(S.String),
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalDocumentationFacet", {
+    description: "Documentation facet attached to one grounded subject.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalParametersFacet extends S.Class<RetrievalParametersFacet>($I`RetrievalParametersFacet`)(
+  {
+    kind: S.tag("parameters"),
+    items: S.Array(RetrievalParameterItem),
+  },
+  $I.annote("RetrievalParametersFacet", {
+    description: "Parameter facet attached to one grounded subject.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalReturnsFacet extends S.Class<RetrievalReturnsFacet>($I`RetrievalReturnsFacet`)(
+  {
+    kind: S.tag("returns"),
+    item: S.OptionFromOptionalKey(RetrievalReturnItem),
+  },
+  $I.annote("RetrievalReturnsFacet", {
+    description: "Return facet attached to one grounded subject.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalThrowsFacet extends S.Class<RetrievalThrowsFacet>($I`RetrievalThrowsFacet`)(
+  {
+    kind: S.tag("throws"),
+    items: S.Array(RetrievalThrowItem),
+  },
+  $I.annote("RetrievalThrowsFacet", {
+    description: "Throws facet attached to one grounded subject.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalDeprecationFacet extends S.Class<RetrievalDeprecationFacet>($I`RetrievalDeprecationFacet`)(
+  {
+    kind: S.tag("deprecation"),
+    isDeprecated: S.Boolean,
+    note: S.OptionFromOptionalKey(S.String),
+    citationIds: ArrayOfStrings,
+  },
+  $I.annote("RetrievalDeprecationFacet", {
+    description: "Deprecation facet attached to one grounded subject.",
+  })
+) {}
+
+/**
+ * Grounded subject facet carried by a retrieval packet.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalFacet = S.Union([
+  RetrievalLocationFacet,
+  RetrievalDeclarationFacet,
+  RetrievalDocumentationFacet,
+  RetrievalParametersFacet,
+  RetrievalReturnsFacet,
+  RetrievalThrowsFacet,
+  RetrievalDeprecationFacet,
+]).pipe(
+  S.toTaggedUnion("kind"),
+  S.annotate(
+    $I.annote("RetrievalFacet", {
+      description: "Grounded subject facet carried by a retrieval packet.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalFacet = typeof RetrievalFacet.Type;
+
+/**
+ * Relation family carried by relation-list retrieval payloads.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalRelation = LiteralKit([
+  "exports",
+  "imports",
+  "imported-by",
+  "depends-on",
+  "depended-on-by",
+]).annotate(
+  $I.annote("RetrievalRelation", {
+    description: "Relation family carried by relation-list retrieval payloads.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalRelation = typeof RetrievalRelation.Type;
+
+/**
+ * Count target family carried by count retrieval payloads.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalCountTarget = LiteralKit(["files", "symbols"]).annotate(
+  $I.annote("RetrievalCountTarget", {
+    description: "Count target family carried by count retrieval payloads.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalCountTarget = typeof RetrievalCountTarget.Type;
+
+/**
+ * Resolved count payload carried by a retrieval packet.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalCountPayload extends S.Class<RetrievalCountPayload>($I`RetrievalCountPayload`)(
+  {
+    family: S.tag("count"),
+    target: RetrievalCountTarget,
+    count: NonNegativeInt,
+  },
+  $I.annote("RetrievalCountPayload", {
+    description: "Resolved count payload carried by a retrieval packet.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalSubjectDetailPayload extends S.Class<RetrievalSubjectDetailPayload>(
+  $I`RetrievalSubjectDetailPayload`
+)(
+  {
+    family: S.tag("subject-detail"),
+    aspect: RetrievalSubjectDetailAspect,
+    subject: RetrievalSubject,
+    facets: S.Array(RetrievalFacet),
+  },
+  $I.annote("RetrievalSubjectDetailPayload", {
+    description: "Resolved subject-detail payload carried by a retrieval packet.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalRelationListPayload extends S.Class<RetrievalRelationListPayload>(
+  $I`RetrievalRelationListPayload`
+)(
+  {
+    family: S.tag("relation-list"),
+    relation: RetrievalRelation,
+    subject: RetrievalSubject,
+    items: S.Array(RetrievalItem),
+  },
+  $I.annote("RetrievalRelationListPayload", {
+    description: "Resolved relation-list payload carried by a retrieval packet.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalSearchResultsPayload extends S.Class<RetrievalSearchResultsPayload>(
+  $I`RetrievalSearchResultsPayload`
+)(
+  {
+    family: S.tag("search-results"),
+    query: S.String,
+    items: S.Array(RetrievalItem),
+  },
+  $I.annote("RetrievalSearchResultsPayload", {
+    description: "Resolved search-results payload carried by a retrieval packet.",
+  })
+) {}
+
+/**
+ * Resolved payload carried by a retrieval packet.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalPayload = S.Union([
+  RetrievalCountPayload,
+  RetrievalSubjectDetailPayload,
+  RetrievalRelationListPayload,
+  RetrievalSearchResultsPayload,
+]).pipe(
+  S.toTaggedUnion("family"),
+  S.annotate(
+    $I.annote("RetrievalPayload", {
+      description: "Resolved payload carried by a retrieval packet.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalPayload = typeof RetrievalPayload.Type;
+
+/**
+ * No-match issue carried by a retrieval packet when no grounded subject or item can be resolved.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalNoMatchIssue extends S.Class<RetrievalNoMatchIssue>($I`RetrievalNoMatchIssue`)(
+  {
+    kind: S.tag("no-match"),
+    requested: RetrievalRequestedTarget,
+    note: S.String,
+  },
+  $I.annote("RetrievalNoMatchIssue", {
+    description: "No-match issue carried by a retrieval packet when no grounded subject or item can be resolved.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalAmbiguousIssue extends S.Class<RetrievalAmbiguousIssue>($I`RetrievalAmbiguousIssue`)(
+  {
+    kind: S.tag("ambiguous"),
+    requested: RetrievalRequestedTarget,
+    candidates: S.Array(RetrievalCandidate),
+  },
+  $I.annote("RetrievalAmbiguousIssue", {
+    description:
+      "Ambiguous issue carried by a retrieval packet when retrieval finds multiple viable grounded candidates.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalUnsupportedIssue extends S.Class<RetrievalUnsupportedIssue>($I`RetrievalUnsupportedIssue`)(
+  {
+    kind: S.tag("unsupported"),
+    requested: RetrievalRequestedTarget,
+    reason: S.String,
+  },
+  $I.annote("RetrievalUnsupportedIssue", {
+    description:
+      "Unsupported issue carried by a retrieval packet when the question does not match a supported deterministic query shape.",
+  })
+) {}
+
+/**
+ * Non-resolved issue carried by a retrieval packet.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const RetrievalIssue = S.Union([RetrievalNoMatchIssue, RetrievalAmbiguousIssue, RetrievalUnsupportedIssue]).pipe(
+  S.toTaggedUnion("kind"),
+  S.annotate(
+    $I.annote("RetrievalIssue", {
+      description: "Non-resolved issue carried by a retrieval packet.",
+    })
+  )
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type RetrievalIssue = typeof RetrievalIssue.Type;
+
+/**
  * Bounded evidence packet returned alongside a grounded answer.
  *
  * @since 0.0.0
@@ -470,13 +1194,19 @@ export class RetrievalPacket extends S.Class<RetrievalPacket>($I`RetrievalPacket
     repoId: RepoId,
     sourceSnapshotId: S.OptionFromOptionalKey(SourceSnapshotId),
     query: S.String,
+    normalizedQuery: S.String,
+    queryKind: RetrievalQueryKind,
     retrievedAt: S.DateTimeUtcFromMillis,
+    outcome: RetrievalOutcome,
     summary: S.String,
     citations: S.Array(Citation),
     notes: ArrayOfStrings,
+    issue: S.OptionFromOptionalKey(RetrievalIssue),
+    payload: S.OptionFromOptionalKey(RetrievalPayload),
   },
   $I.annote("RetrievalPacket", {
-    description: "Bounded answer context returned by the sidecar so grounded answers stay inspectable.",
+    description:
+      "Bounded answer context returned by the sidecar so grounded answers stay inspectable and derivable from packet state alone.",
   })
 ) {}
 

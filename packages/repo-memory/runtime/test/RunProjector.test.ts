@@ -3,6 +3,7 @@ import {
   Citation,
   CitationSpan,
   RepoId,
+  RetrievalCountPayload,
   RetrievalPacket,
   RetrievalPacketMaterializedEvent,
   RunAcceptedEvent,
@@ -51,10 +52,20 @@ const makePacket = (retrievedAt: DateTime.Utc) =>
     repoId,
     sourceSnapshotId: O.none(),
     query: "describe symbol `answer`",
+    normalizedQuery: "describe symbol `answer`",
+    queryKind: "countSymbols",
     retrievedAt,
+    outcome: "resolved",
     summary: "Projector packet summary.",
     citations: [makeCitation()],
     notes: ["projector-note"],
+    payload: O.some(
+      new RetrievalCountPayload({
+        target: "symbols",
+        count: decodeNonNegativeInt(1),
+      })
+    ),
+    issue: O.none(),
   });
 
 describe("repo-memory run projector", () => {
@@ -72,7 +83,7 @@ describe("repo-memory run projector", () => {
         runId: queryRunId,
         sequence: decodeRunEventSequence(2),
         emittedAt: makeUtc(1_706_300_001_000),
-        phase: "retrieve",
+        phase: "retrieval",
         message: "Retrieving grounded evidence.",
         percent: O.some(decodeNonNegativeInt(60)),
       });

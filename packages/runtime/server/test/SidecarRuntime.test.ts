@@ -565,13 +565,23 @@ describe("spawned Bun sidecar lifecycle", () => {
               queryEvents,
               A.map((event) => event.kind)
             )
-          ).toEqual(["accepted", "started", "progress", "progress", "retrieval-packet", "answer", "completed"]);
+          ).toEqual([
+            "accepted",
+            "started",
+            "progress",
+            "progress",
+            "progress",
+            "progress",
+            "retrieval-packet",
+            "answer",
+            "completed",
+          ]);
 
           const metricsResponse = yield* requestText(`${sidecar.rootUrl}/metrics`);
           expect(metricsResponse.status).toBe(200);
           expect(metricsResponse.body).toContain("beep_repo_memory_http_requests_total");
           expect(metricsResponse.body).toContain("beep_repo_memory_runs_started_total");
-          expect(metricsResponse.body).toContain("beep_repo_memory_query_results_total");
+          expect(metricsResponse.body).toContain("beep_repo_memory_query_interpretations_total");
           expect(metricsResponse.body).toContain("beep_repo_memory_driver_operation_duration_ms");
           expect(metricsResponse.body).toContain("child_fibers_started");
         })
@@ -644,7 +654,17 @@ describe("spawned Bun sidecar lifecycle", () => {
               queryEvents,
               A.map((event) => event.kind)
             )
-          ).toEqual(["accepted", "started", "progress", "progress", "retrieval-packet", "answer", "completed"]);
+          ).toEqual([
+            "accepted",
+            "started",
+            "progress",
+            "progress",
+            "progress",
+            "progress",
+            "retrieval-packet",
+            "answer",
+            "completed",
+          ]);
 
           const replayCursorValue = pipe(
             queryEvents,
@@ -677,7 +697,7 @@ describe("spawned Bun sidecar lifecycle", () => {
           expect(restoredQueryRunResponse.status).toBe(200);
           const restoredQueryRun = expectQueryRun(restoredQueryRunResponse.body);
           expect(restoredQueryRun.status).toBe("completed");
-          expect(O.getOrThrow(restoredQueryRun.answer)).toContain('Symbol "answer" is a const.');
+          expect(O.getOrThrow(restoredQueryRun.answer)).toContain("Signature: answer = helper(41).");
           expect(O.getOrThrow(restoredQueryRun.retrievalPacket).summary).toContain('Described symbol "answer"');
 
           const secondRpcClient = yield* makeRepoRunRpcClient(secondSidecar.baseUrl);
@@ -692,13 +712,19 @@ describe("spawned Bun sidecar lifecycle", () => {
               replayedEvents,
               A.map((event) => event.kind)
             )
-          ).toEqual(["retrieval-packet", "answer", "completed"]);
+          ).toEqual(["progress", "progress", "retrieval-packet", "answer", "completed"]);
           expect(
             pipe(
               replayedEvents,
               A.map((event) => event.sequence)
             )
-          ).toEqual([decodeRunEventSequence(5), decodeRunEventSequence(6), decodeRunEventSequence(7)]);
+          ).toEqual([
+            decodeRunEventSequence(5),
+            decodeRunEventSequence(6),
+            decodeRunEventSequence(7),
+            decodeRunEventSequence(8),
+            decodeRunEventSequence(9),
+          ]);
 
           const postRestartAccepted = yield* secondRpcClient.StartQueryRepoRun({
             repoId,
@@ -716,7 +742,17 @@ describe("spawned Bun sidecar lifecycle", () => {
               postRestartEvents,
               A.map((event) => event.kind)
             )
-          ).toEqual(["accepted", "started", "progress", "progress", "retrieval-packet", "answer", "completed"]);
+          ).toEqual([
+            "accepted",
+            "started",
+            "progress",
+            "progress",
+            "progress",
+            "progress",
+            "retrieval-packet",
+            "answer",
+            "completed",
+          ]);
 
           const restoredRuns = yield* requestJson(S.Array(RepoRun), `${secondSidecar.baseUrl}/runs`);
           expect(restoredRuns.status).toBe(200);

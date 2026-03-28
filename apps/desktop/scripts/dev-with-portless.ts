@@ -209,7 +209,7 @@ const awaitSidecarHealth = Effect.fn("DesktopDev.awaitSidecarHealth")(function* 
     return yield* new DevWithPortlessError({ message: timeoutMessage });
   }).pipe(
     Effect.retry(
-      Schedule.spaced(sidecarStartupPollInterval).pipe(Schedule.compose(Schedule.recurs(sidecarStartupRetries)))
+      Schedule.spaced(sidecarStartupPollInterval).pipe(Schedule.both(Schedule.recurs(sidecarStartupRetries)))
     )
   );
 });

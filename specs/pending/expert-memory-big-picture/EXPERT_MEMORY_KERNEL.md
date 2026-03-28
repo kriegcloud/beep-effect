@@ -3,6 +3,18 @@
 ## Thesis
 The reusable asset behind the repo-codegraph exploration is an `expert-memory kernel`: a layered architecture that turns raw source material into bounded, evidence-bearing, temporally aware retrieval packets. The kernel matters more than any single parser, database, or domain ontology, but the kernel is only half the story. A serious expert-memory system also needs a control plane that keeps that kernel trustworthy in execution.
 
+Repo-memory `v0` proves that kernel at a narrower layer than the full long-term claim system.
+The concrete proof in this repo is:
+- deterministic artifacts
+- bounded source-grounded retrieval
+- extraction provenance
+- query-time explainability
+- retrieval packet freezing
+- answer rendering from packet only
+
+That does not replace `ClaimRecord` as the likely broader cross-domain destination.
+It means repo `v0` is allowed to prove the kernel earlier at `artifact-to-packet`.
+
 ## Current Repo Reality
 The current repo already points at most of the kernel shape:
 - deterministic extraction and certainty tiers in [Repo Codegraph Overview](../repo-codegraph-jsdoc/OVERVIEW.md)
@@ -19,6 +31,10 @@ The older `knowledge` slice adds the missing operational lesson:
 - [ReasoningTraceFormatter.ts](../../../.repos/beep-effect/packages/knowledge/server/src/GraphRAG/ReasoningTraceFormatter.ts)
 
 What is not yet fully unified is the language for describing these pieces as one portable system rather than separate experiments.
+The missing simplification is now clearer:
+- keep `claim + evidence` as the likely broader destination
+- let repo-memory `v0` prove the kernel one step earlier through `artifact-to-packet`
+- keep extraction provenance distinct from query-time explainability
 
 ## Strongly Supported Pattern
 A useful expert-memory system is best understood as two interacting layers:
@@ -36,6 +52,14 @@ A useful expert-memory system is best understood as two interacting layers:
 | `Provenance layer` | Preserve lineage and causal traceability | activity, input, derivation, actor, dependency chain |
 | `Temporal lifecycle layer` | Model what changed and when | asserted time, observed time, effective time, superseded time |
 | `Retrieval packet layer` | Prepare bounded context for use by agents or humans | small, evidence-bearing, query-shaped packets |
+
+For repo-memory `v0`, the currently proved path is intentionally smaller:
+- `grounding`
+- `retrieval`
+- `packet`
+- `answer`
+
+That is still a real kernel proof because it validates evidence discipline, packet freezing, and render-only answer assembly under a real control plane.
 
 ### Operational Control Plane
 | Component | Purpose | Output |
@@ -171,6 +195,10 @@ This is essential for AI-facing systems because the system must be able to expla
 - which inputs were used
 - which prior claims a derived claim depends on
 
+In repo-memory `v0`, keep two explainability surfaces separate:
+- extraction provenance: how deterministic artifacts and overlays were produced
+- query-time explainability: how one run grounded, selected, and packaged evidence for one answer
+
 ### 7. Temporal Lifecycle Layer
 The system should not act as though there is one timeless graph.
 
@@ -189,6 +217,9 @@ The main deliverable for AI systems is usually not a raw graph query result. It 
 - the right evidence attached
 - the right token budget
 - the right temporal scope
+
+For repo-memory `v0`, that packet is the public proof artifact.
+The answer stage should not add new support beyond what the packet already contains.
 
 ### 9. Why The Control Plane Belongs In The Architecture
 The older `knowledge` slice is useful because it shows that semantic quality alone is not enough. The system also needed:
