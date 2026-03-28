@@ -23,6 +23,8 @@ For the concrete repo expert-memory `v0`, the runtime shape is now also locked:
 - `@effect/vitest` for supporting tests and spawned Bun subprocess tests for real lifecycle proof
 - schema JSON codecs are required even in tests and fixtures; avoid native `JSON.parse` / `JSON.stringify`
 - keep `FileSystem`, `Path`, and `SqlClient` inside layers/services rather than leaking them into public helper signatures
+- repo-memory `v0` proves the kernel at `artifact-to-packet` before a full `ClaimRecord` implementation
+- extraction provenance and query-time explainability should stay explicit and separable
 
 ## Non-Negotiables
 Unless new evidence materially overturns them, keep these defaults:
@@ -45,12 +47,13 @@ Unless new evidence materially overturns them, keep these defaults:
 5. [DATABASE_AND_RUNTIME_CHOICES.md](./DATABASE_AND_RUNTIME_CHOICES.md)
 6. [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md)
 7. [README.md](../repo-expert-memory-local-first-v0/README.md)
-8. [CLUSTER_FIRST_SUBSTRATE_DECISION.md](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md)
-9. [HTTPAPI_RPC_PIVOT.md](../repo-expert-memory-local-first-v0/HTTPAPI_RPC_PIVOT.md)
-10. [CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md)
-11. [OVERVIEW.md](../repo-codegraph-jsdoc/OVERVIEW.md)
-12. [OVERVIEW_SEMANTIC_KG_INTEGRATION_EXPLAINED.md](../repo-codegraph-jsdoc/OVERVIEW_SEMANTIC_KG_INTEGRATION_EXPLAINED.md)
-13. [README.md](../ip-law-knowledge-graph/README.md)
+8. [QUERY_STAGES_AND_RETRIEVAL_PACKET.md](../repo-expert-memory-local-first-v0/QUERY_STAGES_AND_RETRIEVAL_PACKET.md)
+9. [CLUSTER_FIRST_SUBSTRATE_DECISION.md](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md)
+10. [HTTPAPI_RPC_PIVOT.md](../repo-expert-memory-local-first-v0/HTTPAPI_RPC_PIVOT.md)
+11. [CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_REPO_EXPERT_MEMORY_PLAN.md)
+12. [OVERVIEW.md](../repo-codegraph-jsdoc/OVERVIEW.md)
+13. [OVERVIEW_SEMANTIC_KG_INTEGRATION_EXPLAINED.md](../repo-codegraph-jsdoc/OVERVIEW_SEMANTIC_KG_INTEGRATION_EXPLAINED.md)
+14. [README.md](../ip-law-knowledge-graph/README.md)
 
 ## Working Vocabulary
 Keep these stable:
@@ -152,7 +155,7 @@ Default payload:
 ## Practical Orientation
 The fastest correct mental model is:
 - think `expert memory`, not `repo graph`
-- think `claim + evidence + provenance + time`, not edge soup
+- think `artifact -> packet` as the current repo proof and `claim + evidence + provenance + time` as the broader destination, not edge soup
 - think `control plane / epistemic runtime`, not graph romanticism
 - think `grounded answer substrate`, not generic RAG
 - think `local-first sidecar`, not browser-first SaaS

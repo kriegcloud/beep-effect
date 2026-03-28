@@ -63,8 +63,9 @@ It currently defines:
 - `QueryRepoRun`
 - projection-building logic for run summaries and final answers
 - product-level run events
+- explicit query-stage responsibilities for `grounding`, `retrieval`, `packet`, and `answer`
 - retrieval packet materialization
-- citation-facing answer assembly boundaries
+- citation-facing answer assembly boundaries with packet-only answer rendering
 
 It should not own:
 - HTTP route registration
@@ -94,7 +95,7 @@ Current debt to keep explicit:
 - `packages/repo-memory/store` defines repo-memory storage contracts only
 - `packages/repo-memory/sqlite` stays below semantic/runtime layers and only knows local persistence concerns
 - `packages/repo-memory/runtime` depends on model/store contracts and owns repo-specific execution semantics
-- `packages/repo-memory/runtime` may compose shared helpers from `packages/common/nlp`, but it still owns repo-specific interpretation, grounding, and acceptance behavior
+- `packages/repo-memory/runtime` may compose shared helpers from `packages/common/nlp`, but it still owns repo-specific grounding, retrieval, packet assembly, answer rendering, and acceptance behavior
 - `packages/repo-memory/client` depends on protocol/model contracts, not runtime internals
 
 ### Common packages

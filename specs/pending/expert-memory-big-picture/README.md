@@ -3,6 +3,15 @@
 ## Thesis
 The repo-codegraph work in this repository is best understood as a proving ground for a broader `expert-memory` architecture. Code is the easiest domain to start with because it offers syntax, references, and feedback loops, but the more durable asset is the trust stack behind the graph: deterministic extraction, claims, evidence, ontology, validation, provenance, temporal lifecycle, bounded retrieval, and the control plane that keeps the whole system reliable.
 
+The important refinement is that repo-memory `v0` proves that architecture earlier than a full cross-domain `ClaimRecord` system.
+Its concrete proof is the `artifact-to-packet` path:
+- deterministic artifacts
+- evidence-bearing retrieval
+- extraction provenance
+- query-time explainability
+- bounded retrieval packets
+- packet-only answer rendering
+
 This folder is a reading set, not a phased implementation spec. Its purpose is to make the larger shape legible before any new package or domain commitment is made.
 When repo-specific `v0` runtime, protocol, package, or deliverable details are needed, [Repo Expert-Memory Local-First V0](../repo-expert-memory-local-first-v0/README.md) is the downstream authority and this folder should be treated as rationale only.
 
@@ -25,6 +34,12 @@ Taken together, those materials already establish several important ideas:
 - time and contradiction handling are architecture concerns, not polish
 - execution control, idempotency, progress, and LLM budgets are part of the product, not implementation noise
 
+The current repo-specific `v0` proves a smaller but still meaningful kernel:
+- extraction provenance stays explicit
+- query-time explainability stays run-scoped
+- the final public truth surface is a bounded retrieval packet
+- broader `ClaimRecord` modeling remains the likely next cross-domain generalization rather than the immediate `v0` requirement
+
 ## Strongly Supported Pattern
 A useful expert-memory system has six durable properties:
 - it separates mechanically grounded facts from interpreted claims
@@ -33,6 +48,9 @@ A useful expert-memory system has six durable properties:
 - it uses a bounded semantic overlay instead of ontology maximalism
 - it produces retrieval packets for AI and expert use rather than exposing raw graph state as the main interface
 - it has an operational control plane that keeps extraction, enrichment, and retrieval trustworthy under retries, failures, and budgets
+
+For repo-memory `v0`, one additional split now matters:
+- extraction provenance and query-time explainability are related, but they are not the same artifact and should stay separable
 
 ## Exploratory Direction
 The likely long-term platform is not `a repo graph` or `a legal graph`. It is a domain-adaptable expert-memory system with three major parts:
@@ -74,8 +92,8 @@ Read the diagram from left to right:
 - `Control Plane`: the execution and trust systems that keep the pipeline sane in production
 
 ## Reading Order
-1. [EXPERT_MEMORY_KERNEL.md](./EXPERT_MEMORY_KERNEL.md) for the core reusable architecture
-2. [CLAIMS_AND_EVIDENCE.md](./CLAIMS_AND_EVIDENCE.md) for the likely central abstraction
+1. [EXPERT_MEMORY_KERNEL.md](./EXPERT_MEMORY_KERNEL.md) for the core reusable architecture and the current `artifact-to-packet` proof posture
+2. [CLAIMS_AND_EVIDENCE.md](./CLAIMS_AND_EVIDENCE.md) for the likely broader durable abstraction beyond repo `v0`
 3. [EXPERT_MEMORY_CONTROL_PLANE.md](./EXPERT_MEMORY_CONTROL_PLANE.md) for the execution and trust runtime
 4. [REPRESENTATION_LAYERS.md](./REPRESENTATION_LAYERS.md) for the graph boundaries
 5. [TRUST_TIME_AND_CONFLICT.md](./TRUST_TIME_AND_CONFLICT.md) for the hardest modeling problem
@@ -89,7 +107,7 @@ Read the diagram from left to right:
 | Document | Purpose |
 |---|---|
 | [EXPERT_MEMORY_KERNEL.md](./EXPERT_MEMORY_KERNEL.md) | Defines the reusable expert-memory kernel and its boundaries |
-| [CLAIMS_AND_EVIDENCE.md](./CLAIMS_AND_EVIDENCE.md) | Explains why claim and evidence records are likely the central durable abstraction |
+| [CLAIMS_AND_EVIDENCE.md](./CLAIMS_AND_EVIDENCE.md) | Explains why claim and evidence records remain the likely broader durable abstraction beyond the repo `artifact-to-packet` proof |
 | [EXPERT_MEMORY_CONTROL_PLANE.md](./EXPERT_MEMORY_CONTROL_PLANE.md) | Frames idempotency, workflow state, progress, budgets, and audit as part of the architecture |
 | [DOMAIN_TRANSFER_MAP.md](./DOMAIN_TRANSFER_MAP.md) | Shows what transfers from repo intelligence into law, wealth, and compliance |
 | [REPRESENTATION_LAYERS.md](./REPRESENTATION_LAYERS.md) | Separates deterministic, semantic, claim, and provenance layers |

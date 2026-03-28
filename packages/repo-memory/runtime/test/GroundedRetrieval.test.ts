@@ -650,7 +650,7 @@ describe("repo-memory runtime grounded retrieval", () => {
         expect(exportsForIndex.run.citations.length).toBeGreaterThan(0);
         assertCitationAlignment({ events: exportsForIndex.events, run: exportsForIndex.run });
 
-        expect(O.getOrThrow(keyword.run.answer)).toContain("helper in");
+        expect(O.getOrThrow(keyword.run.answer)).toContain("helper (const) in");
         expect(O.getOrThrow(keyword.run.answer)).toContain("src/util.ts");
         expect(keyword.run.citations.length).toBeGreaterThan(0);
         assertCitationAlignment({ events: keyword.events, run: keyword.run });

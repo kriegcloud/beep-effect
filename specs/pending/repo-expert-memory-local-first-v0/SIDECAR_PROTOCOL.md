@@ -151,6 +151,12 @@ Those do not replace the explicit desktop-facing run-control contract.
 - stream durable delta events, not embedded full `RepoRun` snapshots
 - remain sufficient for clients to rebuild local run state through the shared run projector
 
+For query runs, `RunProgressUpdated.phase` should use exactly:
+- `grounding`
+- `retrieval`
+- `packet`
+- `answer`
+
 ## Run Lifecycle Identity
 - `runId === executionId`
 - workflow execution IDs are deterministic from normalized payload + version stamp
@@ -186,6 +192,8 @@ Lifecycle event payload rules:
 - `RunAccepted` carries the minimum facts needed to bootstrap projection such as `runKind`, `repoId`, and query-specific fields like `question` when applicable
 - `RunCompleted` carries terminal deltas such as `indexedFileCount` for index runs, not a fully materialized run snapshot
 - `RetrievalPacketMaterialized` and `AnswerDrafted` remain bounded result deltas
+- `RetrievalPacketMaterialized` freezes the evidence product before `AnswerDrafted`
+- `AnswerDrafted` must be renderable from that packet alone
 - `GET /runs` and `GET /runs/:runId` remain the durable projected read surface; `StreamRunEvents` is the event history used to rebuild that state locally
 
 ## Retired Routes
@@ -210,7 +218,9 @@ Rules:
 - it should be durable enough to inspect after the run completes
 - it should be visible from both `GET /runs/:runId` and streamed execution output
 - it should remain smaller and more inspectable than a raw unbounded subgraph dump
+- it should freeze `normalizedQuery`, `queryKind`, `outcome`, packet-level citations, concise notes, and either a structured `payload` or a structured `issue`
 - if retrieval-side NLP materially affects normalization or result selection, the packet may expose concise inspectable notes rather than inventing a new public event family
+- the final answer may not add support or selection beyond what the packet already contains
 
 Retrieval-side NLP enrichment remains an internal runtime concern in `v0`.
 It may improve query preparation, ranking, and grounded summarization, but it does not add new public `HttpApi` routes, `Rpc` methods, or run-event kinds, and it must preserve deterministic fallback behavior.

@@ -925,11 +925,18 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
               runId,
               sequence: nextSequenceForRun(runningRun),
               emittedAt: yield* DateTime.now,
-              phase: "interpret",
+              phase: "grounding",
               message: "Normalizing the question into one supported deterministic query shape.",
               percent: O.some(decodeNonNegativeInt(25)),
             })
           )
+        );
+        const grounding = yield* profileRunPhase(
+          "query",
+          "grounding",
+          groundedRetrieval
+            .ground(payload)
+            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
         );
 
         runningRun = yield* ensureProjectedQueryRun(
@@ -939,7 +946,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
               runId,
               sequence: nextSequenceForRun(runningRun),
               emittedAt: yield* DateTime.now,
-              phase: "retrieve",
+              phase: "retrieval",
               message: "Retrieving bounded source-grounded artifacts from the latest persisted snapshot.",
               percent: O.some(decodeNonNegativeInt(60)),
             })
@@ -947,11 +954,57 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         );
         yield* suspendIfRunInterrupted(runId);
 
-        const groundedQuery = yield* profileRunPhase(
+        const retrievedEvidence = yield* profileRunPhase(
           "query",
-          "retrieve",
+          "retrieval",
           groundedRetrieval
-            .resolve(payload)
+            .retrieve(grounding)
+            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+        );
+
+        runningRun = yield* ensureProjectedQueryRun(
+          yield* appendProjectedEvent(
+            runningRun,
+            new RunProgressUpdatedEvent({
+              runId,
+              sequence: nextSequenceForRun(runningRun),
+              emittedAt: yield* DateTime.now,
+              phase: "packet",
+              message: "Freezing the bounded retrieval packet for durable inspection and replay.",
+              percent: O.some(decodeNonNegativeInt(80)),
+            })
+          )
+        );
+        yield* suspendIfRunInterrupted(runId);
+
+        const retrievalPacket = yield* profileRunPhase(
+          "query",
+          "packet",
+          groundedRetrieval
+            .materializePacket(retrievedEvidence)
+            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+        );
+
+        runningRun = yield* ensureProjectedQueryRun(
+          yield* appendProjectedEvent(
+            runningRun,
+            new RunProgressUpdatedEvent({
+              runId,
+              sequence: nextSequenceForRun(runningRun),
+              emittedAt: yield* DateTime.now,
+              phase: "answer",
+              message: "Rendering the final answer from the frozen retrieval packet only.",
+              percent: O.some(decodeNonNegativeInt(95)),
+            })
+          )
+        );
+        yield* suspendIfRunInterrupted(runId);
+
+        const groundedAnswer = yield* profileRunPhase(
+          "query",
+          "answer",
+          groundedRetrieval
+            .draftAnswer(retrievalPacket)
             .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
         );
 
@@ -962,7 +1015,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
               runId,
               sequence: nextSequenceForRun(runningRun),
               emittedAt: yield* DateTime.now,
-              packet: groundedQuery.packet,
+              packet: retrievalPacket,
             })
           )
         );
@@ -974,15 +1027,15 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
               runId,
               sequence: nextSequenceForRun(runningRun),
               emittedAt: yield* DateTime.now,
-              answer: groundedQuery.answer,
-              citations: groundedQuery.citations,
+              answer: groundedAnswer,
+              citations: retrievalPacket.citations,
             })
           )
         );
 
         const completedAt = yield* DateTime.now;
         const completedRun = yield* mapStateMachineError(
-          completeQueryRun(runningRun, completedAt, groundedQuery.answer, groundedQuery.citations, groundedQuery.packet)
+          completeQueryRun(runningRun, completedAt, groundedAnswer, retrievalPacket.citations, retrievalPacket)
         );
 
         yield* appendRunEvent(

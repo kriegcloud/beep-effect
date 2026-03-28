@@ -16,7 +16,7 @@ The point of this breakdown is to sequence the work so lifecycle, transport, and
 - Grounded retrieval: landed with bounded deterministic query interpretation, durable citations/retrieval packets, and repo-local resolved file dependency/dependent retrieval over persisted import-edge targets.
 - Retrieval-side NLP enrichment: not yet landed; it is the next bounded phase over the existing query-to-retrieval path and must preserve deterministic fallback plus citation-first grounding.
 - Test split and lifecycle proof: landed with `@effect/vitest` supporting tests and spawned Bun subprocess lifecycle tests.
-- Remaining `v0` closure: land retrieval-side NLP enrichment, then finish the broader projection bootstrap/cursor pipeline and decider-style runtime split without regressing the already-landed lifecycle behavior.
+- Remaining `v0` closure: finish the explicit `grounding -> retrieval -> packet -> answer` split, extend the packet into a structured durable evidence product, then finish the broader projection bootstrap/cursor pipeline and decider-style runtime split without regressing the already-landed lifecycle behavior.
 
 ## Workstream 1: Contracts
 Lock the public contracts first.
@@ -29,6 +29,14 @@ Define and keep stable:
 - `RunCursor`
 - `Citation`
 - `RetrievalPacket`
+- `RetrievalOutcome`
+- `RetrievalPayload`
+- `RetrievalIssue`
+- `RetrievalRequestedTarget`
+- `RetrievalSubject`
+- `RetrievalCandidate`
+- `RetrievalItem`
+- `RetrievalFacet`
 - workflow payloads for `IndexRepoRun` and `QueryRepoRun`
 
 ### `packages/repo-memory/store`
@@ -105,6 +113,7 @@ Use journal events to build run summaries and final answer detail views.
 Current reality:
 - lifecycle events are delta-shaped, not embedded full-run snapshots
 - the shared `RunProjector` in `packages/repo-memory/model` is already the canonical projection function for runtime and desktop consumers
+- `RetrievalPacketMaterialized` now conceptually freezes the packet before `AnswerDrafted`
 - the remaining architecture gap is not projector existence but durable projection bootstrap/cursor ownership and the broader decider split around `RepoRunService`
 
 ## Workstream 6: Shared router assembly
@@ -145,8 +154,9 @@ Also remove doc language that still treats those as the target design.
 The current next slice is no longer hypothetical. It is:
 - deterministic TypeScript extraction at index time
 - persisted source snapshots, source files, symbol records, and import edges in SQLite
-- bounded deterministic query interpretation
+- bounded deterministic grounding
 - source-grounded retrieval packets and citations for supported query classes
+- packet-only answer rendering from a frozen evidence product
 
 Current supported query classes:
 - `countFiles`
@@ -172,6 +182,19 @@ Current non-goals:
 This workstream establishes the accepted typed boundary for repo questions.
 Any later NLP work must sit on top of this path as bounded enrichment rather than replacing the source-grounded contract.
 
+The normative query-stage contract is now:
+- `grounding`
+- `retrieval`
+- `packet`
+- `answer`
+
+The packet contract is now:
+- bounded durable evidence product
+- packet-level citations
+- structured `payload` for resolved outcomes
+- structured `issue` for unresolved outcomes
+- answer derivable from packet only
+
 ## Workstream 10: Retrieval-side NLP enrichment
 The next `v0` phase should improve query ergonomics and recall without changing the truth boundary.
 
@@ -193,6 +216,7 @@ Rules:
 - `RetrievalPacket` remains the bounded evidence-bearing output.
 - deterministic fallback behavior must remain available for critical retrieval flows.
 - materially important normalization or ranking decisions should stay inspectable through retrieval-packet notes, structured logs, spans, and metrics.
+- NLP enrichment must not bypass packet freezing or cause the answer stage to add unstated support.
 
 Non-goals:
 - freeform semantic repo chat
@@ -210,6 +234,9 @@ Supporting tests:
 - use `sqlite-node` for local SQL integration in supporting tests
 - keep `FileSystem`, `Path`, and `SqlClient` requirements inside layers and shared harnesses rather than leaking them through helper method signatures
 - use schema JSON codecs in tests and fixtures; do not reintroduce native `JSON.parse` / `JSON.stringify`
+- prove that packet payload, citations, and final answer stay aligned
+- prove that replay rebuilds the same packet and the same final answer
+- prove that query-run progress phases use `grounding`, `retrieval`, `packet`, and `answer`
 - when workstream 10 lands, prove that paraphrase, identifier-split, and relaxed file/module phrasings either collapse to the same grounded result or fail safe as unsupported
 - when workstream 10 lands, prove that disabling enrichment preserves the current deterministic interpreter behavior
 
