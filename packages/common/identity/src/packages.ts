@@ -45,6 +45,7 @@ const composers = $I.compose(
   "repo-utils",
   "test-utils",
   "claude",
+  "codex",
   "ai-sdk",
   "nlp",
   // Shared Slice
@@ -361,3 +362,11 @@ export const $ObservabilityId: Identity.IdentityComposer<"@beep/observability"> 
  * @type {Identity.IdentityComposer<"@beep/shared-providers">}
  */
 export const $SharedProvidersId: Identity.IdentityComposer<"@beep/shared-providers"> = composers.$SharedProvidersId;
+
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/codex">}
+ */
+export const $CodexId: Identity.IdentityComposer<"@beep/codex"> = composers.$CodexId;

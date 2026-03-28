@@ -190,6 +190,11 @@ export * from "./Sha256.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Slug.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./StatusCauseError.ts";
 /**
  * @since 0.0.0
