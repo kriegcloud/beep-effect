@@ -4,10 +4,11 @@ import {
   IndexRepoRunInput,
   QueryRepoRunInput,
   RepoId,
+  RetrievalCountPayload,
   RetrievalPacket,
   RunId,
 } from "@beep/repo-memory-model";
-import { FilePath, PosInt } from "@beep/schema";
+import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime, Effect } from "effect";
 import * as O from "effect/Option";
@@ -22,6 +23,7 @@ import {
 } from "../src/run/RunStateMachine.ts";
 
 const decodeFilePath = S.decodeUnknownSync(FilePath);
+const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 const decodePosInt = S.decodeUnknownSync(PosInt);
 const decodeRepoId = S.decodeUnknownSync(RepoId);
 const decodeRunId = S.decodeUnknownSync(RunId);
@@ -53,10 +55,20 @@ const makePacket = (retrievedAt: DateTime.Utc) =>
     repoId,
     sourceSnapshotId: O.none(),
     query: "describe symbol `answer`",
+    normalizedQuery: "describe symbol `answer`",
+    queryKind: "countSymbols",
     retrievedAt,
+    outcome: "resolved",
     summary: "Grounded retrieval summary.",
     citations: [makeCitation()],
     notes: ["packet-note"],
+    payload: O.some(
+      new RetrievalCountPayload({
+        target: "symbols",
+        count: decodeNonNegativeInt(1),
+      })
+    ),
+    issue: O.none(),
   });
 
 describe("repo-memory run state machine", () => {

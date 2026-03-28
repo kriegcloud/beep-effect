@@ -13,6 +13,7 @@ import {
   RepoSourceSnapshot,
   RepoSymbolDocumentation,
   RepoSymbolRecord,
+  RetrievalCountPayload,
   RetrievalPacket,
   RunId,
   SourceSnapshotId,
@@ -221,7 +222,10 @@ const makePacket = (options: {
     repoId: decodeRepoId(options.registrationId),
     sourceSnapshotId: O.some(decodeSourceSnapshotId(options.snapshotId)),
     query: "How many files?",
+    normalizedQuery: "how many files?",
+    queryKind: "countFiles",
     retrievedAt: DateTime.makeUnsafe(1_706_000_000_000),
+    outcome: "resolved",
     summary: "A deterministic retrieval packet.",
     citations: [
       new Citation({
@@ -240,6 +244,13 @@ const makePacket = (options: {
       }),
     ],
     notes: A.make(options.note),
+    payload: O.some(
+      new RetrievalCountPayload({
+        target: "files",
+        count: decodeNonNegativeInt(3),
+      })
+    ),
+    issue: O.none(),
   });
 
 const makeSemanticArtifacts = (options: { readonly registrationId: string; readonly snapshotId: string }) =>
@@ -411,10 +422,20 @@ describe("RepoMemorySqlLive", () => {
           repoId: registration.id,
           sourceSnapshotId: O.some(decodeSourceSnapshotId("snapshot:test-packet")),
           query: "How many files?",
+          normalizedQuery: "how many files?",
+          queryKind: "countFiles",
           retrievedAt: DateTime.makeUnsafe(1_706_000_000_000),
+          outcome: "resolved",
           summary: "A deterministic retrieval packet.",
           citations: A.empty(),
           notes: A.make("local-driver test note"),
+          payload: O.some(
+            new RetrievalCountPayload({
+              target: "files",
+              count: decodeNonNegativeInt(0),
+            })
+          ),
+          issue: O.none(),
         });
 
         yield* run.saveRetrievalPacket(runId, packet);

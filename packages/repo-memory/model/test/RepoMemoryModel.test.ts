@@ -3,11 +3,15 @@ import {
   RepoId,
   RepoRun,
   ResumeRepoRunRequest,
+  RetrievalCountPayload,
+  RetrievalPacket,
   RunCommandAck,
   RunCursor,
   RunId,
+  renderRetrievalPacketAnswer,
   StreamRunEventsRequest,
 } from "@beep/repo-memory-model";
+import { NonNegativeInt } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
 import { PrimaryKey } from "effect";
 import * as O from "effect/Option";
@@ -16,6 +20,8 @@ import * as S from "effect/Schema";
 const decodeRepoId = S.decodeUnknownSync(RepoId);
 const decodeRunCursor = S.decodeUnknownSync(RunCursor);
 const decodeRunId = S.decodeUnknownSync(RunId);
+const decodeRetrievalPacket = S.decodeUnknownSync(RetrievalPacket);
+const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 
 describe("repo-memory model", () => {
   it("builds stable primary keys for replayable run-event subscriptions", () => {
@@ -78,5 +84,27 @@ describe("repo-memory model", () => {
     expect(interruptRequest.runId).toBe("run:interrupt:model");
     expect(resumeRequest.runId).toBe("run:resume:model");
     expect(ack.command).toBe("interrupt");
+  });
+
+  it("decodes structured retrieval packets and renders an answer from packet state alone", () => {
+    const packet = decodeRetrievalPacket({
+      repoId: decodeRepoId("repo:model:packet"),
+      sourceSnapshotId: "snapshot:model:packet",
+      query: "How many files?",
+      normalizedQuery: "how many files?",
+      queryKind: "countFiles",
+      retrievedAt: Date.parse("2026-03-10T10:00:00.000Z"),
+      outcome: "resolved",
+      summary: "Counted indexed TypeScript source files.",
+      citations: [],
+      notes: ["countFiles=7"],
+      payload: new RetrievalCountPayload({
+        target: "files",
+        count: decodeNonNegativeInt(7),
+      }),
+    });
+
+    expect(packet.queryKind).toBe("countFiles");
+    expect(renderRetrievalPacketAnswer(packet)).toContain("7 TypeScript source files");
   });
 });

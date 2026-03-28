@@ -49,6 +49,7 @@ At minimum, include questions like:
 ### 3. Query workflow lifecycle
 - start a query workflow and receive a deterministic `runId`
 - stream progress through `StreamRunEvents`
+- verify query progress uses `grounding`, `retrieval`, `packet`, and `answer`
 - verify disconnect does not kill the underlying run
 - reconnect from cursor and receive missing events cleanly
 - verify final run detail remains inspectable after completion
@@ -58,16 +59,19 @@ At minimum, include questions like:
 - final answer must correspond to the repo question
 - citations must point to real file spans or symbol-backed spans
 - retrieval packet must be visible and bounded
+- retrieval packet must expose normalized query, query kind, outcome, and structured payload or structured issue
 - unsupported confidence should not be presented as certainty
 - supported query classes must be source-grounded
 - unsupported query classes must fail safe instead of inventing answers
 - paraphrase, identifier-split, and relaxed file/module phrasings for supported queries should either collapse to the same grounded result or fail safe as unsupported
 - deterministic fallback behavior must remain available for the current exact-match query path
 - if retrieval-side NLP materially changes result selection, the explanation must remain inspectable through retrieval-packet notes and observability
+- the final answer must be derivable from packet payload plus packet citations alone
 
 ### 5. Projection integrity
 - `GET /runs` and `GET /runs/:runId` must reflect durable run state
 - final retrieval packet and final answer must match the run event history
+- packet payload, packet citations, and final answer must agree exactly
 - replay after restart must rebuild the same projection state
 - stream consumers must be able to rebuild equivalent run state from journal replay plus live events without relying on embedded run snapshots
 
@@ -94,6 +98,7 @@ At minimum, include questions like:
 - the spec set must not still recommend the superseded `HTTP + SSE` run model
 - the spec set must not still recommend a custom local workflow engine
 - the spec set must keep NLP scoped to retrieval-side enrichment and must not imply freeform semantic repo chat or NLP-derived canonical state
+- the spec set must keep the packet as the frozen evidence product and the answer stage as render-only
 
 ## Prototype-Grade, Not SLA-Grade
 This is still a research prototype.

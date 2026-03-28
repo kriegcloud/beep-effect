@@ -3,6 +3,16 @@
 ## Thesis
 If the expert-memory vision needs one central durable abstraction, it is probably not the raw node, edge, or embedding. It is the `claim` plus its `evidence`. That pair is what allows the system to preserve disagreement, explain answers, survive temporal change, and stay useful outside code.
 
+Repo-memory `v0` does not need to fully materialize that abstraction to prove the Memory Kernel.
+Its current proof is earlier and narrower:
+- deterministic artifacts
+- evidence-bearing retrieval
+- extraction provenance
+- query-time explainability
+- bounded retrieval packets
+
+`ClaimRecord` remains the likely broader cross-domain destination, not the immediate `v0` deliverable.
+
 ## Current Repo Reality
 The current repo-codegraph documents already lean toward claim-oriented architecture in the semantic integration work. The older `knowledge` slice makes this much more concrete:
 - [MentionRecord.model.ts](../../../.repos/beep-effect/packages/knowledge/domain/src/entities/MentionRecord/MentionRecord.model.ts)
@@ -38,6 +48,11 @@ That would let the system represent:
 - answer-time validations
 
 without pretending they all have the same epistemic status.
+
+The repo `v0` implication is:
+- prove `artifact-to-packet` first
+- keep extraction provenance and query-time explainability explicit
+- move to fuller `ClaimRecord` modeling when a second domain or real conflict-heavy workflow makes it necessary
 
 ## Why Raw Edges Are Not Enough
 A plain edge says:
@@ -102,6 +117,10 @@ That is exactly the kind of evidence pinning expert systems need.
 
 ### Citation validation as answer-time claim checking
 The older GraphRAG path did not stop at retrieval. It attempted to validate citations and reasoning before presenting an answer. That is a much stronger direction than typical RAG patterns.
+
+That same lesson also supports the current repo `v0` split:
+- extraction provenance belongs to the durable knowledge side
+- query-time explainability belongs to the run and packet side
 
 ### Reasoning traces as evidence of reasoning
 The older slice also treated reasoning traces as structured output rather than debug text.

@@ -20,6 +20,7 @@ import {
   RunCursor,
   RunId,
   type RunStreamEvent,
+  renderRetrievalPacketAnswer,
   type SidecarBootstrap,
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
@@ -273,9 +274,125 @@ const findLatestPacketEvent = (
     A.last
   );
 
+const formatPacketEntity = (
+  value:
+    | { readonly kind: "file"; readonly filePath: string }
+    | { readonly kind: "module"; readonly moduleSpecifier: string }
+    | { readonly kind: "symbol"; readonly symbolName: string; readonly symbolKind: string; readonly filePath: string }
+    | {
+        readonly kind: "parameter";
+        readonly name: string;
+        readonly type: O.Option<string>;
+        readonly description: O.Option<string>;
+      }
+    | { readonly kind: "return" | "throw"; readonly type: O.Option<string>; readonly description: O.Option<string> }
+): string => {
+  if (value.kind === "file") {
+    return value.filePath;
+  }
+
+  if (value.kind === "module") {
+    return value.moduleSpecifier;
+  }
+
+  if (value.kind === "symbol") {
+    return `${value.symbolName} (${value.symbolKind}) in ${value.filePath}`;
+  }
+
+  const header =
+    value.kind === "parameter"
+      ? pipe(
+          value.type,
+          O.match({
+            onNone: () => value.name,
+            onSome: (type) => `${value.name}: ${type}`,
+          })
+        )
+      : pipe(
+          value.type,
+          O.getOrElse(() => "unspecified")
+        );
+
+  return pipe(
+    value.description,
+    O.match({
+      onNone: () => header,
+      onSome: (description) => `${header} - ${description}`,
+    })
+  );
+};
+
+const packetPayloadLines = (packet: RetrievalPacket): ReadonlyArray<string> =>
+  pipe(
+    packet.payload,
+    O.match({
+      onNone: () => [],
+      onSome: (payload) => {
+        if (payload.family === "count") {
+          return [`target: ${payload.target}`, `count: ${payload.count}`];
+        }
+
+        if (payload.family === "subject-detail") {
+          return [
+            `subject: ${formatPacketEntity(payload.subject)}`,
+            `aspect: ${payload.aspect}`,
+            `facets: ${
+              pipe(
+                payload.facets,
+                A.map((facet) => facet.kind),
+                A.join(", ")
+              ) || "none"
+            }`,
+          ];
+        }
+
+        if (payload.family === "relation-list") {
+          return [
+            `relation: ${payload.relation}`,
+            `subject: ${formatPacketEntity(payload.subject)}`,
+            `items: ${pipe(payload.items, A.map(formatPacketEntity), A.join("; ")) || "none"}`,
+          ];
+        }
+
+        return [
+          `query: ${payload.query}`,
+          `items: ${pipe(payload.items, A.map(formatPacketEntity), A.join("; ")) || "none"}`,
+        ];
+      },
+    })
+  );
+
+const packetIssueLines = (packet: RetrievalPacket): ReadonlyArray<string> =>
+  pipe(
+    packet.issue,
+    O.match({
+      onNone: () => [],
+      onSome: (issue) => {
+        if (issue.kind === "no-match") {
+          return [`requested: ${issue.requested.value}`, `note: ${issue.note}`];
+        }
+
+        if (issue.kind === "ambiguous") {
+          return [
+            `requested: ${issue.requested.value}`,
+            `candidates: ${pipe(
+              issue.candidates,
+              A.map((candidate) => formatPacketEntity(candidate.subject)),
+              A.join("; ")
+            )}`,
+          ];
+        }
+
+        return [`requested: ${issue.requested.value}`, `reason: ${issue.reason}`];
+      },
+    })
+  );
+
 const answerFromRun = (run: QueryRun, events: ReadonlyArray<RunStreamEvent>): string =>
   pipe(
-    run.answer,
+    retrievalPacketFromRun(run, events),
+    O.map(renderRetrievalPacketAnswer),
+    O.orElse(() => run.answer),
     O.orElse(() =>
       pipe(
         findLatestAnswerEvent(events),
@@ -1505,6 +1622,18 @@ export function RepoMemoryDesktop() {
                                 <dd>{packet.query}</dd>
                               </div>
                               <div>
+                                <dt>Normalized</dt>
+                                <dd>{packet.normalizedQuery}</dd>
+                              </div>
+                              <div>
+                                <dt>Query kind</dt>
+                                <dd>{packet.queryKind}</dd>
+                              </div>
+                              <div>
+                                <dt>Outcome</dt>
+                                <dd>{packet.outcome}</dd>
+                              </div>
+                              <div>
                                 <dt>Retrieved</dt>
                                 <dd>{formatDateTime(packet.retrievedAt)}</dd>
                               </div>
@@ -1522,6 +1651,26 @@ export function RepoMemoryDesktop() {
                                 <dd>{packet.citations.length}</dd>
                               </div>
                             </dl>
+                            {packetPayloadLines(packet).length === 0 ? null : (
+                              <>
+                                <h4>Payload</h4>
+                                <ul className="note-list">
+                                  {packetPayloadLines(packet).map((line) => (
+                                    <li key={line}>{line}</li>
+                                  ))}
+                                </ul>
+                              </>
+                            )}
+                            {packetIssueLines(packet).length === 0 ? null : (
+                              <>
+                                <h4>Issue</h4>
+                                <ul className="note-list">
+                                  {packetIssueLines(packet).map((line) => (
+                                    <li key={line}>{line}</li>
+                                  ))}
+                                </ul>
+                              </>
+                            )}
                             {packet.notes.length === 0 ? null : (
                               <ul className="note-list">
                                 {packet.notes.map((note) => (

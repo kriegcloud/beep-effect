@@ -27,6 +27,7 @@ The first runnable slice is:
 - The sidecar already persists repo-memory artifacts and run projections in SQLite, and it already replays journaled run events after reconnect or restart.
 - Spawned Bun lifecycle tests already prove bootstrap discovery, same-port restart, replay, public-path interrupt/resume for durable index runs, and local-origin CORS/security headers against the real sidecar entrypoint.
 - The current query path already compiles natural-language repo questions into bounded deterministic query interpretations; the next retrieval-side NLP phase should enrich that path rather than replace it.
+- The current authority contract now treats the query path as `grounding -> retrieval -> packet -> answer`, with `RetrievalPacket` as the frozen evidence product and the final answer rendered from that packet only.
 
 ## Scope In
 Lock these in for `v0`:
@@ -83,11 +84,21 @@ The UI triggers `StartQueryRepoRun` and subscribes to `StreamRunEvents`.
 The front door may accept looser natural phrasing, but the runtime must still compile that phrasing into the existing bounded query classes or fail safe as unsupported.
 Retrieval-side NLP belongs here only as enrichment over query preparation and retrieval, not as a replacement for typed grounded plans.
 
+The progress story for query runs should be explicit:
+- `grounding`
+- `retrieval`
+- `packet`
+- `answer`
+
 ### 5. Inspect grounded result
 The final query view must show:
 - final answer
 - citations
 - retrieval packet
+- normalized query
+- query kind
+- retrieval outcome
+- structured packet payload or structured packet issue
 - any concise notes needed to explain materially important normalization or ranking behavior
 - run metadata
 - enough history to understand what happened
@@ -104,6 +115,9 @@ Supported query classes in the current grounded slice:
 - `listFileExports`
 - `listFileImports`
 - `listFileImporters`
+- `listSymbolImporters`
+- `listFileDependencies`
+- `listFileDependents`
 - `keywordSearch`
 
 Out of scope for this slice:
@@ -119,7 +133,7 @@ Testing posture for this slice:
 
 ## Remaining Slice Gaps
 - `RunProjector` and `RunStateMachine` still need to become real runtime seams instead of staying embedded in `RepoRunService`.
-- Retrieval-side NLP enrichment still needs to land as a bounded layer over query interpretation and packet assembly.
+- The runtime still needs to make the new stage split and structured packet contract explicit in code, replay, and UI rendering.
 
 ## Minimal Data Shown In The UI
 The first UI does not need to be broad, but it does need to be inspectable.

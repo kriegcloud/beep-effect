@@ -30,6 +30,13 @@ This folder turns that thesis into a concrete, implementable `v0` for one narrow
 - the user asks questions about that repo
 - the app returns grounded answers with visible citations and retrieval context
 
+The current kernel proof for this slice is narrower than a full cross-domain claim system:
+- deterministic repo artifacts
+- bounded retrieval over those artifacts
+- a frozen `RetrievalPacket`
+- an answer rendered from that packet only
+- extraction provenance and query-time explainability kept explicit and inspectable
+
 This v0 is intentionally a `research prototype`, not a product-complete application.
 
 ## Current Architectural Authority
@@ -38,8 +45,9 @@ Use these documents as the normative current-state set:
 2. [TOPOLOGY.md](./TOPOLOGY.md)
 3. [SIDECAR_PROTOCOL.md](./SIDECAR_PROTOCOL.md)
 4. [VERTICAL_SLICE.md](./VERTICAL_SLICE.md)
-5. [EVALUATION_AND_ACCEPTANCE.md](./EVALUATION_AND_ACCEPTANCE.md)
-6. [IMPLEMENTATION_BREAKDOWN.md](./IMPLEMENTATION_BREAKDOWN.md)
+5. [QUERY_STAGES_AND_RETRIEVAL_PACKET.md](./QUERY_STAGES_AND_RETRIEVAL_PACKET.md)
+6. [EVALUATION_AND_ACCEPTANCE.md](./EVALUATION_AND_ACCEPTANCE.md)
+7. [IMPLEMENTATION_BREAKDOWN.md](./IMPLEMENTATION_BREAKDOWN.md)
 
 Historical and supporting context:
 - [HTTPAPI_RPC_PIVOT.md](./HTTPAPI_RPC_PIVOT.md) is transport evidence and guardrail, not the implementation checklist
@@ -66,6 +74,7 @@ Important reading posture:
 - `packages/runtime/protocol` now exposes `ControlPlaneApi`, `SidecarBootstrap`, `RepoRunRpcGroup`, `StartIndexRepoRun`, `StartQueryRepoRun`, `InterruptRepoRun`, `ResumeRepoRun`, and `StreamRunEvents` as the public sidecar boundary.
 - `packages/runtime/server` already mounts `"/__cluster"`, `"/api/v0"`, and `"/api/v0/rpc"` on one Bun server, emits a machine-readable bootstrap line on stdout, persists runtime state through `@effect/sql-sqlite-bun`, and serves local-origin CORS plus basic browser security headers.
 - `packages/repo-memory/runtime` already owns deterministic TypeScript indexing, workflow-backed run acceptance/execution, journal-backed stream replay, SQLite-backed run projections, and bounded grounded retrieval for the current supported query classes.
+- the current downstream contract now makes repo-memory `v0` the proving ground for the memory kernel at the `artifact-to-packet` stage rather than requiring a full `ClaimRecord` implementation inside this slice.
 - `packages/repo-memory/model` now defines a shared pure `RunProjector`, and lifecycle `RunStreamEvent` payloads are now durable deltas rather than embedded full `RepoRun` snapshots.
 - `packages/repo-memory/runtime` and `apps/desktop` now both project live run state from the same event stream instead of treating streamed lifecycle events as pre-materialized run snapshots.
 - grounded retrieval now includes repo-local resolved file dependency and dependent queries backed by persisted `resolvedTargetFilePath` import-edge state.
@@ -85,7 +94,8 @@ Important reading posture:
 
 ## Known Remaining P0 Gaps
 - `RunProjector` and `RunStateMachine` now exist as explicit seams, but the broader projection bootstrap/cursor pipeline and decider-style service split still live mostly inside `RepoRunService`.
-- Retrieval-side NLP enrichment is not yet integrated. It should land only as a bounded layer over query normalization, typed intent hints, ranking/query expansion, and grounded summarization after citations are fixed.
+- The concrete query-run contract now expects the canonical `grounding -> retrieval -> packet -> answer` stage split, structured retrieval-packet payloads/issues, and packet-only answer rendering; code should keep converging on that shape.
+- Extraction provenance and query-time explainability are now intentionally separated in the docs, but the runtime still needs to finish making that split obvious in its internal artifacts and UI rendering.
 - Grounded query expansion should continue only through deterministic source-backed additions, not freeform semantic repo chat.
 
 ## Relationship To Upstream Context
