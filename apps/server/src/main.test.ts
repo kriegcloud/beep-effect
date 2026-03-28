@@ -17,6 +17,7 @@ import { Open, type OpenShape } from "./open";
 import { ProjectionSnapshotQuery } from "./orchestration/Services/ProjectionSnapshotQuery";
 import { AnalyticsService } from "./telemetry/Services/AnalyticsService";
 import { Server, type ServerShape } from "./wsServer";
+import { ServerSettingsService } from "./serverSettings";
 
 const start = vi.fn(() => undefined);
 const stop = vi.fn(() => undefined);
@@ -52,6 +53,7 @@ const testLayer = Layer.mergeAll(
     openBrowser: (_target: string) => Effect.void,
     openInEditor: () => Effect.void,
   } satisfies OpenShape),
+  ServerSettingsService.layerTest(),
   AnalyticsService.layerTest,
   FetchHttpClient.layer,
   NodeServices.layer,
@@ -366,7 +368,7 @@ it.layer(testLayer)("server CLI command", (it) => {
 
   it.effect("does not start server for invalid --mode values", () =>
     Effect.gen(function* () {
-      yield* runCli(["--mode", "invalid"]);
+      yield* runCli(["--mode", "invalid"]).pipe(Effect.catch(() => Effect.void));
 
       assert.equal(start.mock.calls.length, 0);
       assert.equal(stop.mock.calls.length, 0);
@@ -384,7 +386,7 @@ it.layer(testLayer)("server CLI command", (it) => {
 
   it.effect("does not start server for out-of-range --port values", () =>
     Effect.gen(function* () {
-      yield* runCli(["--port", "70000"]);
+      yield* runCli(["--port", "70000"]).pipe(Effect.catch(() => Effect.void));
 
       // effect/unstable/cli renders help/errors for parse failures and returns success.
       assert.equal(start.mock.calls.length, 0);

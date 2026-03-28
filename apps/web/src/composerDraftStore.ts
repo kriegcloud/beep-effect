@@ -2,23 +2,20 @@ import {
   CODEX_REASONING_EFFORT_OPTIONS,
   type ClaudeCodeEffort,
   type CodexReasoningEffort,
-  type ModelSlug,
+  DEFAULT_MODEL_BY_PROVIDER,
   ModelSelection,
   ProjectId,
   ProviderInteractionMode,
   ProviderKind,
   ProviderModelOptions,
   RuntimeMode,
+  type ServerProvider,
   ThreadId,
 } from "@t3tools/contracts";
 import * as Schema from "effect/Schema";
 import * as Equal from "effect/Equal";
 import { DeepMutable } from "effect/Types";
-import {
-  getDefaultModel,
-  normalizeModelSlug,
-  resolveModelSlugForProvider,
-} from "@t3tools/shared/model";
+import { normalizeModelSlug } from "@t3tools/shared/model";
 import { useMemo } from "react";
 import { getLocalStorageItem } from "./hooks/useLocalStorage";
 import { resolveAppModelSelection } from "./modelSelection";
@@ -31,6 +28,8 @@ import {
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { createDebouncedStorage, createMemoryStorage } from "./lib/storage";
+import { getDefaultServerModel } from "./providerModels";
+import { UnifiedSettings } from "@t3tools/contracts/settings";
 
 export const COMPOSER_DRAFT_STORAGE_KEY = "t3code:composer-drafts:v1";
 const COMPOSER_DRAFT_STORAGE_VERSION = 3;
@@ -264,7 +263,7 @@ interface ComposerDraftStoreState {
 }
 
 export interface EffectiveComposerModelState {
-  selectedModel: ModelSlug;
+  selectedModel: string;
   modelOptions: ProviderModelOptions | null;
 }
 
@@ -476,12 +475,20 @@ function normalizeProviderModelOptions(
       : claudeCandidate?.fastMode === false
         ? false
         : undefined;
+  const claudeContextWindow =
+    typeof claudeCandidate?.contextWindow === "string" && claudeCandidate.contextWindow.length > 0
+      ? claudeCandidate.contextWindow
+      : undefined;
   const claude =
-    claudeThinking !== undefined || claudeEffort !== undefined || claudeFastMode !== undefined
+    claudeThinking !== undefined ||
+    claudeEffort !== undefined ||
+    claudeFastMode !== undefined ||
+    claudeContextWindow !== undefined
       ? {
           ...(claudeThinking !== undefined ? { thinking: claudeThinking } : {}),
           ...(claudeEffort !== undefined ? { effort: claudeEffort } : {}),
           ...(claudeFastMode !== undefined ? { fastMode: claudeFastMode } : {}),
+          ...(claudeContextWindow !== undefined ? { contextWindow: claudeContextWindow } : {}),
         }
       : undefined;
 
@@ -595,7 +602,7 @@ function legacyToModelSelectionByProvider(
           model:
             modelSelection?.provider === provider
               ? modelSelection.model
-              : getDefaultModel(provider),
+              : DEFAULT_MODEL_BY_PROVIDER[provider],
           options,
         };
       }
@@ -613,22 +620,23 @@ export function deriveEffectiveComposerModelState(input: {
     | Pick<ComposerThreadDraftState, "modelSelectionByProvider" | "activeProvider">
     | null
     | undefined;
+  providers: ReadonlyArray<ServerProvider>;
   selectedProvider: ProviderKind;
   threadModelSelection: ModelSelection | null | undefined;
   projectModelSelection: ModelSelection | null | undefined;
-  customModelsByProvider: Record<ProviderKind, readonly string[]>;
+  settings: UnifiedSettings;
 }): EffectiveComposerModelState {
-  const baseModel = resolveModelSlugForProvider(
-    input.selectedProvider,
-    input.threadModelSelection?.model ??
-      input.projectModelSelection?.model ??
-      getDefaultModel(input.selectedProvider),
-  );
+  const baseModel =
+    normalizeModelSlug(
+      input.threadModelSelection?.model ?? input.projectModelSelection?.model,
+      input.selectedProvider,
+    ) ?? getDefaultServerModel(input.providers, input.selectedProvider);
   const activeSelection = input.draft?.modelSelectionByProvider?.[input.selectedProvider];
   const selectedModel = activeSelection?.model
     ? resolveAppModelSelection(
         input.selectedProvider,
-        input.customModelsByProvider,
+        input.settings,
+        input.providers,
         activeSelection.model,
       )
     : baseModel;
@@ -1676,7 +1684,7 @@ export const useComposerDraftStore = create<ComposerDraftStoreState>()(
             if (opts) {
               nextMap[provider] = {
                 provider,
-                model: current?.model ?? getDefaultModel(provider),
+                model: current?.model ?? DEFAULT_MODEL_BY_PROVIDER[provider],
                 options: opts,
               };
             } else if (current?.options) {
@@ -1726,7 +1734,7 @@ export const useComposerDraftStore = create<ComposerDraftStoreState>()(
           if (providerOpts) {
             nextMap[normalizedProvider] = {
               provider: normalizedProvider,
-              model: currentForProvider?.model ?? getDefaultModel(normalizedProvider),
+              model: currentForProvider?.model ?? DEFAULT_MODEL_BY_PROVIDER[normalizedProvider],
               options: providerOpts,
             };
           } else if (currentForProvider?.options) {
@@ -1744,7 +1752,7 @@ export const useComposerDraftStore = create<ComposerDraftStoreState>()(
               base.modelSelectionByProvider[normalizedProvider] ??
               ({
                 provider: normalizedProvider,
-                model: getDefaultModel(normalizedProvider),
+                model: DEFAULT_MODEL_BY_PROVIDER[normalizedProvider],
               } as ModelSelection);
             if (providerOpts) {
               nextStickyMap[normalizedProvider] = {
@@ -2157,10 +2165,11 @@ export function useComposerThreadDraft(threadId: ThreadId): ComposerThreadDraftS
 
 export function useEffectiveComposerModelState(input: {
   threadId: ThreadId;
+  providers: ReadonlyArray<ServerProvider>;
   selectedProvider: ProviderKind;
   threadModelSelection: ModelSelection | null | undefined;
   projectModelSelection: ModelSelection | null | undefined;
-  customModelsByProvider: Record<ProviderKind, readonly string[]>;
+  settings: UnifiedSettings;
 }): EffectiveComposerModelState {
   const draft = useComposerThreadDraft(input.threadId);
 
@@ -2168,14 +2177,16 @@ export function useEffectiveComposerModelState(input: {
     () =>
       deriveEffectiveComposerModelState({
         draft,
+        providers: input.providers,
         selectedProvider: input.selectedProvider,
         threadModelSelection: input.threadModelSelection,
         projectModelSelection: input.projectModelSelection,
-        customModelsByProvider: input.customModelsByProvider,
+        settings: input.settings,
       }),
     [
       draft,
-      input.customModelsByProvider,
+      input.providers,
+      input.settings,
       input.projectModelSelection,
       input.selectedProvider,
       input.threadModelSelection,

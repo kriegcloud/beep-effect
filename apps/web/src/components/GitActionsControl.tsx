@@ -20,7 +20,6 @@ import {
   resolveQuickAction,
   summarizeGitResult,
 } from "./GitActionsControl.logic";
-import { useAppSettings } from "~/appSettings";
 import { Button } from "~/components/ui/button";
 import { Checkbox } from "~/components/ui/checkbox";
 import {
@@ -205,7 +204,6 @@ function GitQuickActionIcon({ quickAction }: { quickAction: GitQuickAction }) {
 }
 
 export default function GitActionsControl({ gitCwd, activeThreadId }: GitActionsControlProps) {
-  const { settings } = useAppSettings();
   const threadToastData = useMemo(
     () => (activeThreadId ? { threadId: activeThreadId } : undefined),
     [activeThreadId],
@@ -261,7 +259,6 @@ export default function GitActionsControl({ gitCwd, activeThreadId }: GitActions
     gitRunStackedActionMutationOptions({
       cwd: gitCwd,
       queryClient,
-      modelSelection: settings.textGenerationModelSelection,
     }),
   );
   const pullMutation = useMutation(gitPullMutationOptions({ cwd: gitCwd, queryClient }));
@@ -753,7 +750,7 @@ export default function GitActionsControl({ gitCwd, activeThreadId }: GitActions
           {initMutation.isPending ? "Initializing..." : "Initialize Git"}
         </Button>
       ) : (
-        <Group aria-label="Git actions">
+        <Group aria-label="Git actions" className="shrink-0">
           {quickActionDisabledReason ? (
             <Popover>
               <PopoverTrigger
@@ -768,7 +765,7 @@ export default function GitActionsControl({ gitCwd, activeThreadId }: GitActions
                 }
               >
                 <GitQuickActionIcon quickAction={quickAction} />
-                <span className="sr-only @sm/header-actions:not-sr-only @sm/header-actions:ml-0.5">
+                <span className="sr-only @3xl/header-actions:not-sr-only @3xl/header-actions:ml-0.5">
                   {quickAction.label}
                 </span>
               </PopoverTrigger>
@@ -784,12 +781,12 @@ export default function GitActionsControl({ gitCwd, activeThreadId }: GitActions
               onClick={runQuickAction}
             >
               <GitQuickActionIcon quickAction={quickAction} />
-              <span className="sr-only @sm/header-actions:not-sr-only @sm/header-actions:ml-0.5">
+              <span className="sr-only @3xl/header-actions:not-sr-only @3xl/header-actions:ml-0.5">
                 {quickAction.label}
               </span>
             </Button>
           )}
-          <GroupSeparator className="hidden @sm/header-actions:block" />
+          <GroupSeparator className="hidden @3xl/header-actions:block" />
           <Menu
             onOpenChange={(open) => {
               if (open) void invalidateGitQueries(queryClient);
