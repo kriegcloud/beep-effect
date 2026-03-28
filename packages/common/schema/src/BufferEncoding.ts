@@ -4,8 +4,8 @@
  * @module @beep/schema/BufferEncoding
  * @since 0.0.0
  */
-import {$SchemaId} from "@beep/identity";
-import {LiteralKit} from "./LiteralKit.ts";
+import { $SchemaId } from "@beep/identity";
+import { LiteralKit } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("BufferEncoding");
 
@@ -15,30 +15,24 @@ const $I = $SchemaId.create("BufferEncoding");
  * @category Validation
  * @since 0.0.0
  */
-export const BuffEncoding = LiteralKit(
-  [
-    "ascii",
-    "utf8",
-    "utf-8",
-    "utf16le",
-    "utf-16le",
-    "ucs2",
-    "ucs-2",
-    "base64",
-    "base64url",
-    "latin1",
-    "binary",
-    "hex",
-  ]
-)
-  .pipe(
-    $I.annoteSchema(
-      "BuffEncoding",
-      {
-        description: "A BufferEncoding string literal",
-      }
-    )
-  )
+export const BuffEncoding = LiteralKit([
+  "ascii",
+  "utf8",
+  "utf-8",
+  "utf16le",
+  "utf-16le",
+  "ucs2",
+  "ucs-2",
+  "base64",
+  "base64url",
+  "latin1",
+  "binary",
+  "hex",
+]).pipe(
+  $I.annoteSchema("BuffEncoding", {
+    description: "A BufferEncoding string literal",
+  })
+);
 
 /**
  * Type of {@link BuffEncoding} {@inheritDoc BuffEncoding}

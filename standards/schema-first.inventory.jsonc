@@ -835,6 +835,38 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
+      "file": "packages/common/schema/src/csv/parse/types.ts",
+      "symbol": "RowValidateCallback",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
+      "file": "packages/common/schema/src/csv/parse/types.ts",
+      "symbol": "RowValidationResult",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/csv/parse/types.ts",
+      "symbol": "RowValidationResult",
+      "kind": "object-struct-schema",
+      "status": "candidate",
+      "owner": "@beep/schema",
+      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/common/schema/src/csv/parse/types.ts",
+      "symbol": "f",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
+    },
+    {
       "file": "packages/common/schema/src/http/headers/Csp.ts",
       "symbol": "CspDirectives",
       "kind": "object-struct-schema",

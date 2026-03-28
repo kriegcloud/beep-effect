@@ -363,7 +363,6 @@ export const $ObservabilityId: Identity.IdentityComposer<"@beep/observability"> 
  */
 export const $SharedProvidersId: Identity.IdentityComposer<"@beep/shared-providers"> = composers.$SharedProvidersId;
 
-
 /**
  * @since 0.0.0
  * @category Configuration

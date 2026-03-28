@@ -5,7 +5,7 @@
  * cspell:ignore modelcontextprotocol pollable
  * @since 0.0.0
  */
-import {$AiSdkId} from "@beep/identity/packages";
+import { $AiSdkId } from "@beep/identity/packages";
 import { JsonObject, LiteralKit, MappedLiteralKit } from "@beep/schema";
 import { destructiveTransform } from "@beep/schema/Transformations";
 import { Effect, SchemaAST, SchemaTransformation, Struct } from "effect";
