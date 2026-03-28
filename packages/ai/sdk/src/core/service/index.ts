@@ -49,7 +49,11 @@ export const AgentObservedHttpApi = AgentObservedHttpApi_;
 /**
  * @since 0.0.0
  */
-export const agentHttpMetrics = agentHttpMetrics_;
+export type { AgentHttpMetrics } from "./AgentHttpTelemetry.js";
+/**
+ * @since 0.0.0
+ */
+export { agentHttpMetrics_ as agentHttpMetrics };
 /**
  * @since 0.0.0
  */

@@ -28,7 +28,7 @@ test("AgentInput rejects unknown fields", () => {
 test("SDKUserMessage preserves unknown fields", () => {
   const input = {
     type: "user",
-    message: { content: "hi" },
+    message: { role: "user", content: "hi" },
     parent_tool_use_id: null,
     session_id: "session-1",
     extra_field: 123,

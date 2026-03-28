@@ -895,11 +895,13 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
         }).pipe(Effect.annotateLogs(runtimeAnnotations));
         yield* Deferred.succeed(shutdownDeferred, void 0).pipe(Effect.ignore);
       });
+      const services = yield* Effect.services<never>();
+      const runRequestShutdown = Effect.runForkWith(services);
 
       yield* Effect.acquireRelease(
         Effect.sync(() => {
           const handleSignal = () => {
-            Effect.runFork(requestShutdown());
+            void runRequestShutdown(requestShutdown());
           };
 
           process.on("SIGINT", handleSignal);

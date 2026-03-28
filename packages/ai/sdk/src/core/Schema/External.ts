@@ -1,4 +1,6 @@
+import type { SDKUserMessage as AnthropicSDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
 import { $AiSdkId } from "@beep/identity/packages";
+import { Function } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $AiSdkId.create("core/Schema/External");
@@ -22,7 +24,7 @@ export type BetaUsage = unknown;
  * @since 0.0.0
  * @category Validation
  */
-export type MessageParam = unknown;
+export type MessageParam = AnthropicSDKUserMessage["message"];
 /**
  * @since 0.0.0
  * @category Validation
@@ -77,14 +79,18 @@ export const BetaUsage = S.Json.pipe(
  * @since 0.0.0
  * @category Validation
  */
-export const MessageParam = S.Json.pipe(
-  S.annotate(
-    $I.annote("MessageParam", {
-      description: "JSON-shaped upstream message parameter payload accepted by external clients.",
-      jsonSchema: {},
-    })
-  )
-);
+class MessageParamData extends S.Class<MessageParamData>($I`MessageParam`)(
+  {
+    content: S.Union([S.String, S.Array(S.Record(S.String, S.Unknown))]),
+    role: S.Union([S.Literal("user"), S.Literal("assistant")]),
+  },
+  $I.annote("MessageParam", {
+    description: "Anthropic SDK message parameter payload accepted by external clients.",
+    jsonSchema: {},
+  })
+) {}
+
+export const MessageParam: S.Codec<MessageParam, MessageParam> = Function.cast(MessageParamData);
 
 /**
  * @since 0.0.0

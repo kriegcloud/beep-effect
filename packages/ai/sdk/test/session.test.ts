@@ -1,4 +1,5 @@
-import type { SDKMessage, SDKSession, SDKUserMessage } from "@anthropic-ai/claude-agent-sdk";
+import type { SDKUserMessage as ClaudeSDKUserMessage, SDKMessage, SDKSession } from "@anthropic-ai/claude-agent-sdk";
+import type { SDKUserMessage as AgentSDKUserMessage } from "@beep/ai-sdk/Schema/Message";
 import { fromSdkSession } from "@beep/ai-sdk/Session";
 import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
@@ -72,7 +73,7 @@ const createSdkSession = (options: {
       }
       return sessionIdValue;
     },
-    send: async (_message: string | SDKUserMessage) => {
+    send: async (_message: string | ClaudeSDKUserMessage) => {
       if (closed) {
         throw new Error("Session closed");
       }
@@ -140,7 +141,7 @@ test("Session.send serializes concurrent sends", async () => {
     get sessionId() {
       return "session-1";
     },
-    send: async (message: string | SDKUserMessage) => {
+    send: async (message: string | ClaudeSDKUserMessage) => {
       if (message === "first") {
         firstStarted.open();
         await releaseFirst.promise;
@@ -176,13 +177,13 @@ test("Session.send serializes concurrent sends", async () => {
 });
 
 test("Session.send strips undefined optional user-message fields", async () => {
-  let sentMessage: string | SDKUserMessage | undefined;
+  let sentMessage: string | ClaudeSDKUserMessage | undefined;
 
   const sdkSession: SDKSession = {
     get sessionId() {
       return "session-1";
     },
-    send: async (message: string | SDKUserMessage) => {
+    send: async (message: string | ClaudeSDKUserMessage) => {
       sentMessage = message;
     },
     stream: async function* () {},
@@ -192,7 +193,7 @@ test("Session.send strips undefined optional user-message fields", async () => {
 
   const program = Effect.gen(function* () {
     const handle = yield* fromSdkSession(sdkSession);
-    const message: SDKUserMessage = {
+    const message: AgentSDKUserMessage = {
       type: "user",
       message: { role: "user", content: "hello" },
       parent_tool_use_id: null,

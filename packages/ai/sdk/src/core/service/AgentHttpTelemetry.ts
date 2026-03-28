@@ -14,7 +14,15 @@ const descriptionPrefix = "Agent SDK HTTP API request";
  * @since 0.0.0
  * @category Observability
  */
-export const agentHttpMetrics = makeHttpApiMetrics(metricPrefix, descriptionPrefix);
+export type AgentHttpMetrics = ReturnType<typeof makeHttpApiMetrics>;
+
+/**
+ * Shared metric bundle for the agent HTTP API server surface.
+ *
+ * @since 0.0.0
+ * @category Observability
+ */
+export const agentHttpMetrics: AgentHttpMetrics = makeHttpApiMetrics(metricPrefix, descriptionPrefix);
 
 const AgentObservedHttpApiValue = AgentHttpApi.middleware(HttpApiTelemetryMiddleware);
 

@@ -309,12 +309,14 @@ const spawnSidecar = (options: {
           }),
         catch: (cause) => toTestError("Failed to spawn the Bun sidecar process.", cause),
       });
+      const services = yield* Effect.services<never>();
+      const runAppendOutput = Effect.runForkWith(services);
 
       child.stdout.on("data", (chunk) => {
-        void Effect.runFork(appendOutput(stdout, chunk));
+        void runAppendOutput(appendOutput(stdout, chunk));
       });
       child.stderr.on("data", (chunk) => {
-        void Effect.runFork(appendOutput(stderr, chunk));
+        void runAppendOutput(appendOutput(stderr, chunk));
       });
 
       const shutdown: Effect.Effect<void, SidecarRuntimeTestError> = Effect.gen(function* () {
