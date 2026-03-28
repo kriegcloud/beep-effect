@@ -17,6 +17,8 @@ import * as S from "effect/Schema";
 const $I = $SchemaId.create("LiteralKit");
 
 type Literals = A.NonEmptyReadonlyArray<SchemaAST.LiteralValue>;
+type EnumMappingEntry<Literal extends SchemaAST.LiteralValue = SchemaAST.LiteralValue> = readonly [Literal, string];
+type EnumMappings<L extends Literals = Literals> = A.NonEmptyReadonlyArray<EnumMappingEntry<L[number]>>;
 
 /**
  * Convert a literal value to a valid object key (string representation).
@@ -41,9 +43,18 @@ export type LiteralToKey<L extends SchemaAST.LiteralValue> = L extends boolean
       ? `number${L}`
       : L & string;
 
-type EnumType<L extends Literals> = {
+type DefaultEnumType<L extends Literals> = {
   readonly [K in L[number] as LiteralToKey<K>]: K;
 };
+
+type EnumMappingPair<M extends EnumMappings> = M[number];
+
+type MappedEnumType<M extends EnumMappings> = {
+  readonly [Pair in EnumMappingPair<M> as Pair[1]]: Pair[0];
+};
+
+type EnumType<L extends Literals, M extends EnumMappings<L> | undefined = undefined> =
+  M extends EnumMappings<L> ? MappedEnumType<M> : DefaultEnumType<L>;
 
 type IsGuards<L extends Literals> = {
   readonly [K in L[number] as LiteralToKey<K>]: (i: unknown) => i is K;
@@ -56,6 +67,42 @@ type MatchCases<L extends Literals> = {
 type Thunks<L extends Literals> = {
   readonly [K in L[number] as LiteralToKey<K>]: () => K;
 };
+
+type HasFixedLength<T extends ReadonlyArray<unknown>> = number extends T["length"] ? false : true;
+
+type HasDuplicateMappedLiterals<M extends ReadonlyArray<EnumMappingEntry>> = M extends readonly [
+  infer Head extends EnumMappingEntry,
+  ...infer Rest extends ReadonlyArray<EnumMappingEntry>,
+]
+  ? Head[0] extends Rest[number][0]
+    ? true
+    : HasDuplicateMappedLiterals<Rest>
+  : false;
+
+type HasDuplicateMappedKeys<M extends ReadonlyArray<EnumMappingEntry>> = M extends readonly [
+  infer Head extends EnumMappingEntry,
+  ...infer Rest extends ReadonlyArray<EnumMappingEntry>,
+]
+  ? Head[1] extends Rest[number][1]
+    ? true
+    : HasDuplicateMappedKeys<Rest>
+  : false;
+
+type AllLiteralsMapped<L extends Literals, M extends ReadonlyArray<EnumMappingEntry<L[number]>>> =
+  Exclude<L[number], M[number][0]> extends never ? true : false;
+
+type ValidEnumMapping<L extends Literals, M extends EnumMappings<L>> =
+  HasFixedLength<M> extends true
+    ? HasDuplicateMappedLiterals<M> extends true
+      ? never
+      : HasDuplicateMappedKeys<M> extends true
+        ? never
+        : AllLiteralsMapped<L, M> extends true
+          ? M
+          : never
+    : AllLiteralsMapped<L, M> extends true
+      ? M
+      : never;
 
 /**
  * Valid keys for a MatchCases object derived from the literal set.
@@ -150,12 +197,21 @@ export const matchLiteral = <L extends SchemaAST.LiteralValue>(literal: L): Lite
     Match.orElseAbsurd
   ) as LiteralToKey<L>;
 
-const makeEnum = <L extends Literals>(literals: L): EnumType<L> =>
+const makeDefaultEnum = <L extends Literals>(literals: L): DefaultEnumType<L> =>
   pipe(
     literals,
-    A.reduce({} as EnumType<L>, (acc, literal) => ({
+    A.reduce({} as DefaultEnumType<L>, (acc, literal) => ({
       ...acc,
       [matchLiteral(literal)]: literal,
+    }))
+  );
+
+const makeMappedEnum = <M extends EnumMappings>(mapping: M): MappedEnumType<M> =>
+  pipe(
+    mapping,
+    A.reduce({} as MappedEnumType<M>, (acc, [literal, mappedKey]) => ({
+      ...acc,
+      [mappedKey]: literal,
     }))
   );
 
@@ -220,8 +276,51 @@ export class LiteralKitKeyCollisionError extends TaggedErrorClass<LiteralKitKeyC
 
 type SeenLiteralKeys = HashMap.HashMap<string, SchemaAST.LiteralValue>;
 
-const validateLiteralKeys = <L extends Literals>(literals: L): void => {
-  pipe(
+/**
+ * Error thrown when the same source literal appears more than once in a manual enum mapping.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class LiteralKitEnumMappingDuplicateLiteralError extends TaggedErrorClass<LiteralKitEnumMappingDuplicateLiteralError>(
+  $I`LiteralKitEnumMappingDuplicateLiteralError`
+)(
+  "LiteralKitEnumMappingDuplicateLiteralError",
+  {
+    literal: LiteralValueSchema,
+    firstIndex: S.Number,
+    secondIndex: S.Number,
+  },
+  $I.annote("LiteralKitEnumMappingDuplicateLiteralError", {
+    title: "LiteralKit Enum Mapping Duplicate Literal Error",
+    description: "The same source literal appeared more than once in a manual LiteralKit enum mapping.",
+  })
+) {}
+
+/**
+ * Error thrown when a manual enum mapping does not exactly cover the provided literals.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class LiteralKitEnumMappingCoverageError extends TaggedErrorClass<LiteralKitEnumMappingCoverageError>(
+  $I`LiteralKitEnumMappingCoverageError`
+)(
+  "LiteralKitEnumMappingCoverageError",
+  {
+    literals: S.Array(LiteralValueSchema),
+    mappingLiterals: S.Array(LiteralValueSchema),
+    missing: S.Array(LiteralValueSchema),
+    unexpected: S.Array(LiteralValueSchema),
+  },
+  $I.annote("LiteralKitEnumMappingCoverageError", {
+    title: "LiteralKit Enum Mapping Coverage Error",
+    description: "A manual LiteralKit enum mapping did not exactly match the provided literal set.",
+  })
+) {}
+
+const validateLiteralKeys = <L extends Literals>(literals: L): void =>
+  void pipe(
     literals,
     A.reduce(HashMap.empty<string, SchemaAST.LiteralValue>(), (seen, literal): SeenLiteralKeys => {
       const key = matchLiteral(literal);
@@ -236,6 +335,85 @@ const validateLiteralKeys = <L extends Literals>(literals: L): void => {
       return HashMap.set(seen, key, literal);
     })
   );
+
+const hasSameLiteral = (left: SchemaAST.LiteralValue, right: SchemaAST.LiteralValue): boolean => Object.is(left, right);
+
+const hasLiteral = (values: ReadonlyArray<SchemaAST.LiteralValue>, literal: SchemaAST.LiteralValue): boolean =>
+  pipe(
+    values,
+    A.some((value) => hasSameLiteral(value, literal))
+  );
+
+const validateEnumMapping = <L extends Literals>(
+  literals: L,
+  enumMapping: ReadonlyArray<EnumMappingEntry<L[number]>>
+): EnumMappings<L> => {
+  if (!A.isReadonlyArrayNonEmpty(enumMapping)) {
+    throw new LiteralKitEnumMappingCoverageError({
+      literals,
+      mappingLiterals: [],
+      missing: literals,
+      unexpected: [],
+    });
+  }
+
+  pipe(
+    enumMapping,
+    A.reduce(
+      {
+        keys: HashMap.empty<string, SchemaAST.LiteralValue>(),
+        literals: HashMap.empty<SchemaAST.LiteralValue, number>(),
+      } as const,
+      (state, [literal, mappedKey], index) => {
+        const seenLiteral = HashMap.get(state.literals, literal);
+        if (O.isSome(seenLiteral)) {
+          throw new LiteralKitEnumMappingDuplicateLiteralError({
+            literal,
+            firstIndex: seenLiteral.value,
+            secondIndex: index,
+          });
+        }
+
+        const existingKey = HashMap.get(state.keys, mappedKey);
+        if (O.isSome(existingKey) && !Object.is(existingKey.value, literal)) {
+          throw new LiteralKitKeyCollisionError({
+            key: mappedKey,
+            existing: existingKey.value,
+            incoming: literal,
+          });
+        }
+
+        return {
+          keys: HashMap.set(state.keys, mappedKey, literal),
+          literals: HashMap.set(state.literals, literal, index),
+        } as const;
+      }
+    )
+  );
+
+  const mappingLiterals = pipe(
+    enumMapping,
+    A.map(([literal]) => literal)
+  );
+  const missing = pipe(
+    literals,
+    A.filter((literal) => !hasLiteral(mappingLiterals, literal))
+  );
+  const unexpected = pipe(
+    mappingLiterals,
+    A.filter((literal) => !hasLiteral(literals, literal))
+  );
+
+  if (A.isReadonlyArrayNonEmpty(missing) || A.isReadonlyArrayNonEmpty(unexpected)) {
+    throw new LiteralKitEnumMappingCoverageError({
+      literals,
+      mappingLiterals,
+      missing,
+      unexpected,
+    });
+  }
+
+  return enumMapping;
 };
 
 const makeOptionsFns = <L extends Literals>(
@@ -319,10 +497,10 @@ const attachHelperDescriptors = <T extends object>(schema: T, descriptors: Prope
  * @category DomainModel
  * @since 0.0.0
  */
-export type LiteralKit<L extends Literals> = S.Literals<L> & {
+export type LiteralKit<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = S.Literals<L> & {
   readonly Options: L;
   readonly is: IsGuards<L>;
-  readonly Enum: EnumType<L>;
+  readonly Enum: EnumType<L, M>;
   readonly pickOptions: <LSubset extends A.NonEmptyReadonlyArray<L[number]>>(subset: LSubset) => LSubset;
   readonly omitOptions: <LSubset extends A.NonEmptyReadonlyArray<L[number]>>(
     subset: LSubset
@@ -368,19 +546,33 @@ export type LiteralKit<L extends Literals> = S.Literals<L> & {
  *   },
  * });
  * void Event;
+ *
+ * const StatusKeys = LiteralKit(
+ *   ["one", "two"] as const,
+ *   [
+ *     ["one", "ONE"],
+ *     ["two", "TWO"],
+ *   ] as const
+ * );
+ *
+ * StatusKeys.Enum.ONE; // "one"
  * ```
  *
  * @category DomainModel
  * @since 0.0.0
  */
-export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L> {
+export function LiteralKit<const L extends Literals, const M extends EnumMappings<L> | undefined = undefined>(
+  literals: L,
+  enumMapping?: M extends EnumMappings<L> ? ValidEnumMapping<L, M> : never
+): LiteralKit<L, M> {
   validateLiteralKeys(literals);
+  const validatedEnumMapping = enumMapping === undefined ? undefined : validateEnumMapping(literals, enumMapping);
   const base = S.Literals(literals);
 
   const is = makeGuards(literals);
   const { pickOptions, omitOptions } = makeOptionsFns(literals);
   const $match = buildMatch(literals);
-  const Enum = makeEnum(literals);
+  const Enum = validatedEnumMapping === undefined ? makeDefaultEnum(literals) : makeMappedEnum(validatedEnumMapping);
   const thunk = makeThunks(literals);
   const toTaggedUnion =
     <const Tag extends string>(tag: Tag) =>
@@ -419,5 +611,5 @@ export function LiteralKit<const L extends Literals>(literals: L): LiteralKit<L>
     $match: readonlyProperty($match),
     thunk: readonlyProperty(thunk),
     toTaggedUnion: readonlyProperty(toTaggedUnion),
-  }) as LiteralKit<L>;
+  }) as LiteralKit<L, M>;
 }

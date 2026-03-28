@@ -155,6 +155,11 @@ export * as SchemaUtils from "./SchemaUtils/index.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./SemanticVersion.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./SeverityLevel.ts";
 /**
  * @since 0.0.0

@@ -85,6 +85,9 @@
       "path": "packages/shared/env"
     },
     {
+      "path": "packages/shared/providers"
+    },
+    {
       "path": "packages/shared/server"
     },
     {

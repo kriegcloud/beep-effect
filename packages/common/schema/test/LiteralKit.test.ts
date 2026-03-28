@@ -1,6 +1,17 @@
-import { LiteralKit, LiteralKitKeyCollisionError, LiteralNotInSetError } from "@beep/schema/LiteralKit";
+import {
+  LiteralKit,
+  LiteralKitEnumMappingCoverageError,
+  LiteralKitEnumMappingDuplicateLiteralError,
+  LiteralKitKeyCollisionError,
+  LiteralNotInSetError,
+} from "@beep/schema/LiteralKit";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
+
+const createRuntimeLiteralKit = (
+  literals: ReadonlyArray<unknown>,
+  enumMapping: ReadonlyArray<readonly [unknown, string]>
+): unknown => Function.prototype.apply.call(LiteralKit, undefined, [literals, enumMapping]);
 
 describe("LiteralKit", () => {
   const Status = LiteralKit([1, 20n, true, false, "hello"] as const);
@@ -167,6 +178,109 @@ describe("LiteralKit (string-only)", () => {
         }
       )
     ).toBe("deleted");
+  });
+});
+
+describe("LiteralKit (manual Enum mapping)", () => {
+  const Status = LiteralKit(
+    ["one", "two"] as const,
+    [
+      ["one", "ONE"],
+      ["two", "TWO"],
+    ] as const
+  );
+
+  it("maps Enum keys from the provided manual names", () => {
+    expect(Status.Enum.ONE).toBe("one");
+    expect(Status.Enum.TWO).toBe("two");
+  });
+
+  it("keeps is, thunk, and $match on the default LiteralToKey keys", () => {
+    expect(Status.is.one("one")).toBe(true);
+    expect(Status.thunk.two()).toBe("two");
+    expect(
+      Status.$match("one", {
+        one: () => "first",
+        two: () => "second",
+      })
+    ).toBe("first");
+  });
+
+  it("keeps toTaggedUnion case keys on the original literal keys", () => {
+    const Event = Status.toTaggedUnion("kind")({
+      one: {
+        value: S.Literal(1),
+      },
+      two: {
+        value: S.Literal(2),
+      },
+    });
+
+    expect(Event.guards.one({ kind: "one", value: 1 })).toBe(true);
+    expect(Event.guards.two({ kind: "one", value: 1 })).toBe(false);
+  });
+
+  it("preserves mapped Enum keys after annotate", () => {
+    const Annotated = Status.annotate({
+      title: "Annotated status",
+    });
+
+    expect(Annotated.Enum.ONE).toBe("one");
+    expect(Annotated.Enum.TWO).toBe("two");
+  });
+
+  it("supports mixed source literal types", () => {
+    const Mixed = LiteralKit(
+      [1, true, "two"] as const,
+      [
+        [1, "ONE"],
+        [true, "TRUE"],
+        ["two", "TWO"],
+      ] as const
+    );
+
+    expect(Mixed.Enum.ONE).toBe(1);
+    expect(Mixed.Enum.TRUE).toBe(true);
+    expect(Mixed.Enum.TWO).toBe("two");
+    expect(Mixed.is.number1(1)).toBe(true);
+    expect(Mixed.is.true(true)).toBe(true);
+    expect(Mixed.is.two("two")).toBe(true);
+  });
+
+  it("throws LiteralKitEnumMappingDuplicateLiteralError for duplicate source literals at runtime", () => {
+    expect(() =>
+      createRuntimeLiteralKit(
+        ["one", "two"],
+        [
+          ["one", "ONE"],
+          ["one", "UNO"],
+        ]
+      )
+    ).toThrow(LiteralKitEnumMappingDuplicateLiteralError);
+  });
+
+  it("throws LiteralKitKeyCollisionError for duplicate mapped Enum keys at runtime", () => {
+    expect(() =>
+      createRuntimeLiteralKit(
+        ["one", "two"],
+        [
+          ["one", "SAME"],
+          ["two", "SAME"],
+        ]
+      )
+    ).toThrow(LiteralKitKeyCollisionError);
+  });
+
+  it("throws LiteralKitEnumMappingCoverageError when the mapping does not exactly cover the literals", () => {
+    expect(() =>
+      createRuntimeLiteralKit(
+        ["one", "two"],
+        [
+          ["one", "ONE"],
+          ["three", "THREE"],
+        ]
+      )
+    ).toThrow(LiteralKitEnumMappingCoverageError);
   });
 });
 

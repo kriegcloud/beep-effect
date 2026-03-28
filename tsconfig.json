@@ -117,7 +117,9 @@
       "@beep/editor": ["./packages/editor/src/index.ts"],
       "@beep/editor/*": ["./packages/editor/src/*"],
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
-      "@beep/observability/*": ["./packages/common/observability/src/*"]
+      "@beep/observability/*": ["./packages/common/observability/src/*"],
+      "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
+      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"]
     },
     "plugins": [
       {
