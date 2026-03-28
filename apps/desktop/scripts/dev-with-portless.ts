@@ -9,20 +9,11 @@ import * as O from "effect/Option";
 import type * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { FetchHttpClient, HttpClient, HttpClientRequest } from "effect/unstable/http";
+import { HttpClient, HttpClientRequest } from "effect/unstable/http";
 import { ChildProcess } from "effect/unstable/process";
 import type { ChildProcessHandle } from "effect/unstable/process/ChildProcessSpawner";
 
 const $DesktopDevId = $I.create("apps/desktop/scripts/dev-with-portless");
-
-interface BunTlsRequestInit extends RequestInit {
-  readonly tls?:
-    | {
-        readonly rejectUnauthorized?: boolean | undefined;
-        readonly serverName?: string | undefined;
-      }
-    | undefined;
-}
 
 class DevWithPortlessError extends TaggedErrorClass<DevWithPortlessError>($DesktopDevId`DevWithPortlessError`)(
   "DevWithPortlessError",
@@ -67,26 +58,6 @@ const makeManagedChildExitError = (child: string, message: string, exitCode: num
     exitCode
   );
 
-const makeProbeFetch = (host: string): typeof globalThis.fetch =>
-  Object.assign(
-    (input: RequestInfo | URL, init?: RequestInit) => {
-      const currentInit = init as BunTlsRequestInit | undefined;
-      const requestInit: BunTlsRequestInit = {
-        ...currentInit,
-        tls: {
-          ...currentInit?.tls,
-          rejectUnauthorized: false,
-          serverName: host,
-        },
-      };
-
-      return globalThis.fetch(input, requestInit as RequestInit);
-    },
-    {
-      preconnect: globalThis.fetch.preconnect.bind(globalThis.fetch),
-    }
-  ) as typeof globalThis.fetch;
-
 const mapManagedChildPlatformError = (child: string, error: PlatformError.PlatformError) =>
   makeManagedChildExitError(
     child,
@@ -120,15 +91,8 @@ const routeStatus = Effect.fn("DesktopDev.routeStatus")(function* (
   targetPath: string,
   method: "GET" | "HEAD"
 ) {
-  const request = HttpClientRequest.make(method)(`https://127.0.0.1:${portlessProxyPort}${targetPath}`, {
-    headers: {
-      host,
-    },
-  });
-  const responseOption = yield* HttpClient.execute(request).pipe(
-    Effect.provideService(FetchHttpClient.Fetch, makeProbeFetch(host)),
-    Effect.option
-  );
+  const request = HttpClientRequest.make(method)(`https://${host}:${portlessProxyPort}${targetPath}`);
+  const responseOption = yield* HttpClient.execute(request).pipe(Effect.option);
 
   if (O.isNone(responseOption)) {
     return O.none<number>();
