@@ -1,3 +1,11 @@
 [[IgnoredVulns]]
 id = "GHSA-35jh-r3h4-6jhm"
 reason = "Accepted by the repo audit policy because no fixed version is currently available."
+
+[[IgnoredVulns]]
+id = "GHSA-6q6h-j7hj-3r64"
+reason = "Accepted temporarily because the latest direct dependencies still resolve this as a transitive audit finding."
+
+[[IgnoredVulns]]
+id = "GHSA-j3q9-mxjg-w52f"
+reason = "Accepted temporarily because the latest direct dependencies still resolve this as a transitive audit finding."
