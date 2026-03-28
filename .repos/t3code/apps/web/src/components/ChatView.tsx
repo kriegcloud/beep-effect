@@ -5,7 +5,6 @@ import {
   type MessageId,
   type ModelSelection,
   type ProjectScript,
-  type ModelSlug,
   type ProviderKind,
   type ProjectEntry,
   type ProjectId,
@@ -13,7 +12,7 @@ import {
   PROVIDER_SEND_TURN_MAX_ATTACHMENTS,
   PROVIDER_SEND_TURN_MAX_IMAGE_BYTES,
   type ResolvedKeybindingsConfig,
-  type ServerProviderStatus,
+  type ServerProvider,
   type ThreadId,
   type TurnId,
   type EditorId,
@@ -22,11 +21,7 @@ import {
   ProviderInteractionMode,
   RuntimeMode,
 } from "@t3tools/contracts";
-import {
-  applyClaudePromptEffortPrefix,
-  getModelCapabilities,
-  normalizeModelSlug,
-} from "@t3tools/shared/model";
+import { applyClaudePromptEffortPrefix, normalizeModelSlug } from "@t3tools/shared/model";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useDebouncedValue } from "@tanstack/react-pacer";
@@ -120,12 +115,13 @@ import {
 import { SidebarTrigger } from "./ui/sidebar";
 import { newCommandId, newMessageId, newThreadId } from "~/lib/utils";
 import { readNativeApi } from "~/nativeApi";
-import { getProviderStartOptions, useAppSettings } from "../appSettings";
 import {
-  getCustomModelOptionsByProvider,
-  getCustomModelsByProvider,
-  resolveAppModelSelection,
-} from "../modelSelection";
+  getProviderModelCapabilities,
+  getProviderModels,
+  resolveSelectableProvider,
+} from "../providerModels";
+import { useSettings } from "../hooks/useSettings";
+import { resolveAppModelSelection } from "../modelSelection";
 import { isTerminalFocused } from "../lib/terminalFocus";
 import {
   type ComposerImageAttachment,
@@ -164,7 +160,7 @@ import {
   renderProviderTraitsMenuContent,
   renderProviderTraitsPicker,
 } from "./chat/composerProviderRegistry";
-import { ProviderHealthBanner } from "./chat/ProviderHealthBanner";
+import { ProviderStatusBanner } from "./chat/ProviderStatusBanner";
 import { ThreadErrorBanner } from "./chat/ThreadErrorBanner";
 import {
   buildExpiredTerminalContextToastCopy,
@@ -191,16 +187,17 @@ const EMPTY_ACTIVITIES: OrchestrationThreadActivity[] = [];
 const EMPTY_KEYBINDINGS: ResolvedKeybindingsConfig = [];
 const EMPTY_PROJECT_ENTRIES: ProjectEntry[] = [];
 const EMPTY_AVAILABLE_EDITORS: EditorId[] = [];
-const EMPTY_PROVIDER_STATUSES: ServerProviderStatus[] = [];
+const EMPTY_PROVIDERS: ServerProvider[] = [];
 const EMPTY_PENDING_USER_INPUT_ANSWERS: Record<string, PendingUserInputDraftAnswer> = {};
 
 function formatOutgoingPrompt(params: {
   provider: ProviderKind;
   model: string | null;
+  models: ReadonlyArray<ServerProvider["models"][number]>;
   effort: string | null;
   text: string;
 }): string {
-  const caps = getModelCapabilities(params.provider, params.model);
+  const caps = getProviderModelCapabilities(params.models, params.model, params.provider);
   if (params.effort && caps.promptInjectedEffortLevels.includes(params.effort)) {
     return applyClaudePromptEffortPrefix(params.text, params.effort as ClaudeCodeEffort | null);
   }
@@ -242,6 +239,12 @@ interface ChatViewProps {
   threadId: ThreadId;
 }
 
+interface PendingPullRequestSetupRequest {
+  threadId: ThreadId;
+  worktreePath: string;
+  scriptId: string;
+}
+
 export default function ChatView({ threadId }: ChatViewProps) {
   const threads = useStore((store) => store.threads);
   const projects = useStore((store) => store.projects);
@@ -249,7 +252,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const syncServerReadModel = useStore((store) => store.syncServerReadModel);
   const setStoreThreadError = useStore((store) => store.setError);
   const setStoreThreadBranch = useStore((store) => store.setThreadBranch);
-  const { settings } = useAppSettings();
+  const settings = useSettings();
   const setStickyComposerModelSelection = useComposerDraftStore(
     (store) => store.setStickyModelSelection,
   );
@@ -353,6 +356,8 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const [composerHighlightedItemId, setComposerHighlightedItemId] = useState<string | null>(null);
   const [pullRequestDialogState, setPullRequestDialogState] =
     useState<PullRequestDialogState | null>(null);
+  const [pendingPullRequestSetupRequest, setPendingPullRequestSetupRequest] =
+    useState<PendingPullRequestSetupRequest | null>(null);
   const [attachmentPreviewHandoffByMessageId, setAttachmentPreviewHandoffByMessageId] = useState<
     Record<string, string[]>
   >({});
@@ -530,14 +535,14 @@ export default function ChatView({ threadId }: ChatViewProps) {
             params: { threadId: storedDraftThread.threadId },
           });
         }
-        return;
+        return storedDraftThread.threadId;
       }
 
       const activeDraftThread = getDraftThread(threadId);
       if (!isServerThread && activeDraftThread?.projectId === activeProject.id) {
         setDraftThreadContext(threadId, input);
         setProjectDraftThreadId(activeProject.id, threadId, input);
-        return;
+        return threadId;
       }
 
       clearProjectDraftThreadId(activeProject.id);
@@ -552,6 +557,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
         to: "/$threadId",
         params: { threadId: nextThreadId },
       });
+      return nextThreadId;
     },
     [
       activeProject,
@@ -568,13 +574,24 @@ export default function ChatView({ threadId }: ChatViewProps) {
 
   const handlePreparedPullRequestThread = useCallback(
     async (input: { branch: string; worktreePath: string | null }) => {
-      await openOrReuseProjectDraftThread({
+      const targetThreadId = await openOrReuseProjectDraftThread({
         branch: input.branch,
         worktreePath: input.worktreePath,
         envMode: input.worktreePath ? "worktree" : "local",
       });
+      const setupScript =
+        input.worktreePath && activeProject ? setupProjectScript(activeProject.scripts) : null;
+      if (targetThreadId && input.worktreePath && setupScript) {
+        setPendingPullRequestSetupRequest({
+          threadId: targetThreadId,
+          worktreePath: input.worktreePath,
+          scriptId: setupScript.id,
+        });
+      } else {
+        setPendingPullRequestSetupRequest(null);
+      }
     },
-    [openOrReuseProjectDraftThread],
+    [activeProject, openOrReuseProjectDraftThread],
   );
 
   useEffect(() => {
@@ -608,25 +625,32 @@ export default function ChatView({ threadId }: ChatViewProps) {
   const lockedProvider: ProviderKind | null = hasThreadStarted
     ? (sessionProvider ?? threadProvider ?? selectedProviderByThreadId ?? null)
     : null;
-  const selectedProvider: ProviderKind =
-    lockedProvider ?? selectedProviderByThreadId ?? threadProvider ?? "codex";
-  const customModelsByProvider = useMemo(() => getCustomModelsByProvider(settings), [settings]);
+  const serverConfigQuery = useQuery(serverConfigQueryOptions());
+  const providerStatuses = serverConfigQuery.data?.providers ?? EMPTY_PROVIDERS;
+  const unlockedSelectedProvider = resolveSelectableProvider(
+    providerStatuses,
+    selectedProviderByThreadId ?? threadProvider ?? "codex",
+  );
+  const selectedProvider: ProviderKind = lockedProvider ?? unlockedSelectedProvider;
   const { modelOptions: composerModelOptions, selectedModel } = useEffectiveComposerModelState({
     threadId,
+    providers: providerStatuses,
     selectedProvider,
     threadModelSelection: activeThread?.modelSelection,
     projectModelSelection: activeProject?.defaultModelSelection,
-    customModelsByProvider,
+    settings,
   });
+  const selectedProviderModels = getProviderModels(providerStatuses, selectedProvider);
   const composerProviderState = useMemo(
     () =>
       getComposerProviderState({
         provider: selectedProvider,
         model: selectedModel,
+        models: selectedProviderModels,
         prompt,
         modelOptions: composerModelOptions,
       }),
-    [composerModelOptions, prompt, selectedModel, selectedProvider],
+    [composerModelOptions, prompt, selectedModel, selectedProvider, selectedProviderModels],
   );
   const selectedPromptEffort = composerProviderState.promptEffort;
   const selectedModelOptionsForDispatch = composerProviderState.modelOptionsForDispatch;
@@ -638,35 +662,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
     }),
     [selectedModel, selectedModelOptionsForDispatch, selectedProvider],
   );
-  const providerOptionsForDispatch = useMemo(() => getProviderStartOptions(settings), [settings]);
   const selectedModelForPicker = selectedModel;
-  const modelOptionsByProvider = useMemo(
-    () => getCustomModelOptionsByProvider(settings, selectedProvider, selectedModel),
-    [settings, selectedProvider, selectedModel],
-  );
-  const selectedModelForPickerWithCustomFallback = useMemo(() => {
-    const currentOptions = modelOptionsByProvider[selectedProvider];
-    return currentOptions.some((option) => option.slug === selectedModelForPicker)
-      ? selectedModelForPicker
-      : (normalizeModelSlug(selectedModelForPicker, selectedProvider) ?? selectedModelForPicker);
-  }, [modelOptionsByProvider, selectedModelForPicker, selectedProvider]);
-  const searchableModelOptions = useMemo(
-    () =>
-      AVAILABLE_PROVIDER_OPTIONS.filter(
-        (option) => lockedProvider === null || option.value === lockedProvider,
-      ).flatMap((option) =>
-        modelOptionsByProvider[option.value].map(({ slug, name }) => ({
-          provider: option.value,
-          providerLabel: option.label,
-          slug,
-          name,
-          searchSlug: slug.toLowerCase(),
-          searchName: name.toLowerCase(),
-          searchProvider: option.label.toLowerCase(),
-        })),
-      ),
-    [lockedProvider, modelOptionsByProvider],
-  );
   const phase = derivePhase(activeThread?.session ?? null);
   const isSendBusy = sendPhase !== "idle";
   const isPreparingWorktree = sendPhase === "preparing-worktree";
@@ -1029,7 +1025,39 @@ export default function ChatView({ threadId }: ChatViewProps) {
   );
   const effectivePathQuery = pathTriggerQuery.length > 0 ? debouncedPathQuery : "";
   const branchesQuery = useQuery(gitBranchesQueryOptions(gitCwd));
-  const serverConfigQuery = useQuery(serverConfigQueryOptions());
+  const keybindings = serverConfigQuery.data?.keybindings ?? EMPTY_KEYBINDINGS;
+  const availableEditors = serverConfigQuery.data?.availableEditors ?? EMPTY_AVAILABLE_EDITORS;
+  const modelOptionsByProvider = useMemo(
+    () => ({
+      codex: providerStatuses.find((provider) => provider.provider === "codex")?.models ?? [],
+      claudeAgent:
+        providerStatuses.find((provider) => provider.provider === "claudeAgent")?.models ?? [],
+    }),
+    [providerStatuses],
+  );
+  const selectedModelForPickerWithCustomFallback = useMemo(() => {
+    const currentOptions = modelOptionsByProvider[selectedProvider];
+    return currentOptions.some((option) => option.slug === selectedModelForPicker)
+      ? selectedModelForPicker
+      : (normalizeModelSlug(selectedModelForPicker, selectedProvider) ?? selectedModelForPicker);
+  }, [modelOptionsByProvider, selectedModelForPicker, selectedProvider]);
+  const searchableModelOptions = useMemo(
+    () =>
+      AVAILABLE_PROVIDER_OPTIONS.filter(
+        (option) => lockedProvider === null || option.value === lockedProvider,
+      ).flatMap((option) =>
+        modelOptionsByProvider[option.value].map(({ slug, name }) => ({
+          provider: option.value,
+          providerLabel: option.label,
+          slug,
+          name,
+          searchSlug: slug.toLowerCase(),
+          searchName: name.toLowerCase(),
+          searchProvider: option.label.toLowerCase(),
+        })),
+      ),
+    [lockedProvider, modelOptionsByProvider],
+  );
   const workspaceEntriesQuery = useQuery(
     projectSearchEntriesQueryOptions({
       cwd: gitCwd,
@@ -1117,9 +1145,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
     () => new Set(nonPersistedComposerImageIds),
     [nonPersistedComposerImageIds],
   );
-  const keybindings = serverConfigQuery.data?.keybindings ?? EMPTY_KEYBINDINGS;
-  const availableEditors = serverConfigQuery.data?.availableEditors ?? EMPTY_AVAILABLE_EDITORS;
-  const providerStatuses = serverConfigQuery.data?.providers ?? EMPTY_PROVIDER_STATUSES;
   const activeProviderStatus = useMemo(
     () => providerStatuses.find((status) => status.provider === selectedProvider) ?? null,
     [selectedProvider, providerStatuses],
@@ -1413,6 +1438,45 @@ export default function ChatView({ threadId }: ChatViewProps) {
       terminalState.terminalIds,
     ],
   );
+
+  useEffect(() => {
+    if (!pendingPullRequestSetupRequest || !activeProject || !activeThreadId || !activeThread) {
+      return;
+    }
+    if (pendingPullRequestSetupRequest.threadId !== activeThreadId) {
+      return;
+    }
+    if (activeThread.worktreePath !== pendingPullRequestSetupRequest.worktreePath) {
+      return;
+    }
+
+    const setupScript =
+      activeProject.scripts.find(
+        (script) => script.id === pendingPullRequestSetupRequest.scriptId,
+      ) ?? null;
+    setPendingPullRequestSetupRequest(null);
+    if (!setupScript) {
+      return;
+    }
+
+    void runProjectScript(setupScript, {
+      cwd: pendingPullRequestSetupRequest.worktreePath,
+      worktreePath: pendingPullRequestSetupRequest.worktreePath,
+      rememberAsLastInvoked: false,
+    }).catch((error) => {
+      toastManager.add({
+        type: "error",
+        title: "Failed to run setup script.",
+        description: error instanceof Error ? error.message : "An error occurred.",
+      });
+    });
+  }, [
+    activeProject,
+    activeThread,
+    activeThreadId,
+    pendingPullRequestSetupRequest,
+    runProjectScript,
+  ]);
   const persistProjectScripts = useCallback(
     async (input: {
       projectId: ProjectId;
@@ -2460,6 +2524,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
     const outgoingMessageText = formatOutgoingPrompt({
       provider: selectedProvider,
       model: selectedModel,
+      models: selectedProviderModels,
       effort: selectedPromptEffort,
       text: messageTextForSend || IMAGE_ONLY_BOOTSTRAP_PROMPT,
     });
@@ -2645,8 +2710,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
           attachments: turnAttachments,
         },
         modelSelection: selectedModelSelection,
-        ...(providerOptionsForDispatch ? { providerOptions: providerOptionsForDispatch } : {}),
-        assistantDeliveryMode: settings.enableAssistantStreaming ? "streaming" : "buffered",
         runtimeMode,
         interactionMode,
         createdAt: messageCreatedAt,
@@ -2883,6 +2946,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
       const outgoingMessageText = formatOutgoingPrompt({
         provider: selectedProvider,
         model: selectedModel,
+        models: selectedProviderModels,
         effort: selectedPromptEffort,
         text: trimmed,
       });
@@ -2927,8 +2991,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
             attachments: [],
           },
           modelSelection: selectedModelSelection,
-          ...(providerOptionsForDispatch ? { providerOptions: providerOptionsForDispatch } : {}),
-          assistantDeliveryMode: settings.enableAssistantStreaming ? "streaming" : "buffered",
           runtimeMode,
           interactionMode: nextInteractionMode,
           ...(nextInteractionMode === "default" && activeProposedPlan
@@ -2974,11 +3036,10 @@ export default function ChatView({ threadId }: ChatViewProps) {
       runtimeMode,
       selectedPromptEffort,
       selectedModelSelection,
-      providerOptionsForDispatch,
       selectedProvider,
+      selectedProviderModels,
       setComposerDraftInteractionMode,
       setThreadError,
-      settings.enableAssistantStreaming,
       selectedModel,
     ],
   );
@@ -3005,6 +3066,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
     const outgoingImplementationPrompt = formatOutgoingPrompt({
       provider: selectedProvider,
       model: selectedModel,
+      models: selectedProviderModels,
       effort: selectedPromptEffort,
       text: implementationPrompt,
     });
@@ -3044,8 +3106,6 @@ export default function ChatView({ threadId }: ChatViewProps) {
             attachments: [],
           },
           modelSelection: selectedModelSelection,
-          ...(providerOptionsForDispatch ? { providerOptions: providerOptionsForDispatch } : {}),
-          assistantDeliveryMode: settings.enableAssistantStreaming ? "streaming" : "buffered",
           runtimeMode,
           interactionMode: "default",
           createdAt,
@@ -3096,23 +3156,28 @@ export default function ChatView({ threadId }: ChatViewProps) {
     runtimeMode,
     selectedPromptEffort,
     selectedModelSelection,
-    providerOptionsForDispatch,
     selectedProvider,
-    settings.enableAssistantStreaming,
+    selectedProviderModels,
     syncServerReadModel,
     selectedModel,
   ]);
 
   const onProviderModelSelect = useCallback(
-    (provider: ProviderKind, model: ModelSlug) => {
+    (provider: ProviderKind, model: string) => {
       if (!activeThread) return;
       if (lockedProvider !== null && provider !== lockedProvider) {
         scheduleComposerFocus();
         return;
       }
-      const resolvedModel = resolveAppModelSelection(provider, customModelsByProvider, model);
+      const resolvedProvider = resolveSelectableProvider(providerStatuses, provider);
+      const resolvedModel = resolveAppModelSelection(
+        resolvedProvider,
+        settings,
+        providerStatuses,
+        model,
+      );
       const nextModelSelection: ModelSelection = {
-        provider,
+        provider: resolvedProvider,
         model: resolvedModel,
       };
       setComposerDraftModelSelection(activeThread.id, nextModelSelection);
@@ -3125,7 +3190,8 @@ export default function ChatView({ threadId }: ChatViewProps) {
       scheduleComposerFocus,
       setComposerDraftModelSelection,
       setStickyComposerModelSelection,
-      customModelsByProvider,
+      providerStatuses,
+      settings,
     ],
   );
   const setPromptFromTraits = useCallback(
@@ -3148,6 +3214,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
     provider: selectedProvider,
     threadId,
     model: selectedModel,
+    models: selectedProviderModels,
     modelOptions: composerModelOptions?.[selectedProvider],
     prompt,
     onPromptChange: setPromptFromTraits,
@@ -3156,6 +3223,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
     provider: selectedProvider,
     threadId,
     model: selectedModel,
+    models: selectedProviderModels,
     modelOptions: composerModelOptions?.[selectedProvider],
     prompt,
     onPromptChange: setPromptFromTraits,
@@ -3519,7 +3587,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
       </header>
 
       {/* Error banner */}
-      <ProviderHealthBanner status={activeProviderStatus} />
+      <ProviderStatusBanner status={activeProviderStatus} />
       <ThreadErrorBanner
         error={activeThread.error}
         onDismiss={() => setThreadError(activeThread.id, null)}
@@ -3606,7 +3674,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
               >
                 <div
                   className={cn(
-                    "rounded-[20px] border bg-card transition-colors duration-200 focus-within:border-ring/45",
+                    "rounded-[20px] border bg-card transition-colors duration-200 has-focus-visible:border-ring/45",
                     isDragOverComposer ? "border-primary/70 bg-accent/30" : "border-border",
                     composerProviderState.composerSurfaceClassName,
                   )}
@@ -3796,6 +3864,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
                           provider={selectedProvider}
                           model={selectedModelForPickerWithCustomFallback}
                           lockedProvider={lockedProvider}
+                          providers={providerStatuses}
                           modelOptionsByProvider={modelOptionsByProvider}
                           {...(composerProviderState.modelPickerIconClassName
                             ? {
@@ -4023,7 +4092,7 @@ export default function ChatView({ threadId }: ChatViewProps) {
                           ) : (
                             <button
                               type="submit"
-                              className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/90 text-primary-foreground transition-all duration-150 hover:bg-primary hover:scale-105 disabled:opacity-30 disabled:hover:scale-100 sm:h-8 sm:w-8"
+                              className="flex h-9 w-9 enabled:cursor-pointer items-center justify-center rounded-full bg-primary/90 text-primary-foreground transition-all duration-150 hover:bg-primary hover:scale-105 disabled:pointer-events-none disabled:opacity-30 disabled:hover:scale-100 sm:h-8 sm:w-8"
                               disabled={
                                 isSendBusy || isConnecting || !composerSendState.hasSendableContent
                               }

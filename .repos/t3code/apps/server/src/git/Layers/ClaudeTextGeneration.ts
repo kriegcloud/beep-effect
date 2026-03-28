@@ -11,7 +11,7 @@ import { Effect, Layer, Option, Schema, Stream } from "effect";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
 
 import { ClaudeModelSelection } from "@t3tools/contracts";
-import { normalizeClaudeModelOptions } from "@t3tools/shared/model";
+import { resolveApiModelId } from "@t3tools/shared/model";
 import { sanitizeBranchFragment, sanitizeFeatureBranchName } from "@t3tools/shared/git";
 
 import { TextGenerationError } from "../Errors.ts";
@@ -27,6 +27,8 @@ import {
   sanitizePrTitle,
   toJsonSchemaObject,
 } from "../Utils.ts";
+import { normalizeClaudeModelOptions } from "../../provider/Layers/ClaudeProvider.ts";
+import { ServerSettingsService } from "../../serverSettings.ts";
 
 const CLAUDE_TIMEOUT_MS = 180_000;
 
@@ -40,6 +42,7 @@ const ClaudeOutputEnvelope = Schema.Struct({
 
 const makeClaudeTextGeneration = Effect.gen(function* () {
   const commandSpawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  const serverSettingsService = yield* Effect.service(ServerSettingsService);
 
   const readStreamAsString = <E>(
     operation: string,
@@ -86,9 +89,14 @@ const makeClaudeTextGeneration = Effect.gen(function* () {
         ...(normalizedOptions?.fastMode ? { fastMode: true } : {}),
       };
 
+      const claudeSettings = yield* Effect.map(
+        serverSettingsService.getSettings,
+        (settings) => settings.providers.claudeAgent,
+      ).pipe(Effect.catch(() => Effect.undefined));
+
       const runClaudeCommand = Effect.gen(function* () {
         const command = ChildProcess.make(
-          "claude",
+          claudeSettings?.binaryPath || "claude",
           [
             "-p",
             "--output-format",
@@ -96,7 +104,7 @@ const makeClaudeTextGeneration = Effect.gen(function* () {
             "--json-schema",
             jsonSchemaStr,
             "--model",
-            modelSelection.model,
+            resolveApiModelId(modelSelection),
             ...(normalizedOptions?.effort ? ["--effort", normalizedOptions.effort] : []),
             ...(Object.keys(settings).length > 0 ? ["--settings", JSON.stringify(settings)] : []),
             "--dangerously-skip-permissions",
