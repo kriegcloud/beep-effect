@@ -62,9 +62,12 @@ test("PersistedCache metadata wrapper reuses cached commands", async () => {
         )
       );
 
-      const cached = yield* PersistedCache.makeCachedQueryHandle(handle, {
-        timeToLive: "1 minute",
-      });
+      const cached = yield* PersistedCache.makeCachedQueryHandle(
+        handle,
+        new PersistedCache.QueryMetadataCacheOptions({
+          timeToLive: "1 minute",
+        })
+      );
 
       yield* cached.supportedCommands;
       yield* cached.supportedCommands;

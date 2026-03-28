@@ -1,4 +1,8 @@
-import { type Duration, Effect, HashSet } from "effect";
+import { $AiSdkId } from "@beep/identity";
+import { DurationInput } from "@beep/schema";
+import { Effect, HashSet } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Persistable from "effect/unstable/persistence/Persistable";
@@ -7,6 +11,8 @@ import { AgentSdkError, TransportError } from "../Errors.js";
 import { normalizeAccountInfo, normalizeModelInfoList, normalizeSlashCommandList } from "../internal/normalize.js";
 import type { QueryHandle } from "../Query.js";
 import { AccountInfo, ModelInfo, SlashCommand } from "../Schema/Common.js";
+
+const $I = $AiSdkId.create("claude/experimental/PersistedCache");
 
 /**
  * @since 0.0.0
@@ -83,12 +89,24 @@ export type QueryMetadataCache = Readonly<{
  * @since 0.0.0
  * @category Configuration
  */
-export type QueryMetadataCacheOptions = Readonly<{
-  readonly storeIdPrefix?: string;
-  readonly timeToLive?: Duration.Input;
-  readonly inMemoryCapacity?: number;
-  readonly inMemoryTTL?: Duration.Input;
-}>;
+export class QueryMetadataCacheOptions extends S.Class<QueryMetadataCacheOptions>($I`QueryMetadataCacheOptions`)({
+  storeIdPrefix: S.String.pipe(
+    S.withConstructorDefault(() => O.some("claude-agent-sdk")),
+    S.withDecodingDefaultKey(() => "claude-agent-sdk")
+  ),
+  timeToLive: DurationInput.pipe(
+    S.withDecodingDefaultKey(() => "1 minute"),
+    S.withConstructorDefault(() => O.some("1 minute" as const))
+  ),
+  inMemoryCapacity: S.Number.pipe(
+    S.withConstructorDefault(() => O.some(64)),
+    S.withDecodingDefaultKey(() => 64)
+  ),
+  inMemoryTTL: DurationInput.pipe(
+    S.withDecodingDefaultKey(() => "30 seconds"),
+    S.withConstructorDefault(() => O.some("30 seconds" as const))
+  ),
+}) {}
 
 const cacheErrorTags = HashSet.fromIterable(["ConfigError", "DecodeError", "TransportError", "HookError", "McpError"]);
 
@@ -98,12 +116,15 @@ const isAgentSdkError = (cause: unknown): cause is AgentSdkError =>
   P.isString(cause._tag) &&
   HashSet.has(cacheErrorTags, cause._tag);
 
-const toCacheError = (message: string, cause: unknown): AgentSdkError => {
+const toCacheError: {
+  (message: string, cause: unknown): AgentSdkError;
+  (cause: AgentSdkError): (cause: unknown) => AgentSdkError;
+} = dual(2, (message: string, cause: unknown): AgentSdkError => {
   if (isAgentSdkError(cause)) {
     return cause;
   }
   return TransportError.make(message, cause);
-};
+});
 
 /**
  * Build metadata caches for a query handle.
@@ -114,34 +135,33 @@ const toCacheError = (message: string, cause: unknown): AgentSdkError => {
  */
 export const makeQueryMetadataCache = Effect.fn("PersistedCache.makeQueryMetadataCache")(function* (
   handle: QueryHandle,
-  options?: QueryMetadataCacheOptions
+  options: QueryMetadataCacheOptions = new QueryMetadataCacheOptions()
 ) {
-  const storeIdPrefix = options?.storeIdPrefix ?? "claude-agent-sdk";
-  const timeToLive = options?.timeToLive ?? "1 minute";
-  const inMemoryCapacity = options?.inMemoryCapacity ?? 64;
-  const inMemoryTTL = options?.inMemoryTTL ?? "30 seconds";
+  const { storeIdPrefix, inMemoryCapacity } = options;
+  const inMemoryTTL = () => options.inMemoryTTL;
+  const timeToLive = () => options.timeToLive;
 
   const supportedCommands = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-supported-commands`,
     lookup: (_key: SupportedCommandsRequest) =>
       handle.supportedCommands.pipe(Effect.flatMap(normalizeSlashCommandList)),
-    timeToLive: () => timeToLive,
+    timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL === undefined ? {} : { inMemoryTTL: () => inMemoryTTL }),
+    inMemoryTTL,
   });
   const supportedModels = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-supported-models`,
     lookup: (_key: SupportedModelsRequest) => handle.supportedModels.pipe(Effect.flatMap(normalizeModelInfoList)),
-    timeToLive: () => timeToLive,
+    timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL === undefined ? {} : { inMemoryTTL: () => inMemoryTTL }),
+    inMemoryTTL,
   });
   const accountInfo = yield* PersistedCache.make({
     storeId: `${storeIdPrefix}-account-info`,
     lookup: (_key: AccountInfoRequest) => handle.accountInfo.pipe(Effect.flatMap(normalizeAccountInfo)),
-    timeToLive: () => timeToLive,
+    timeToLive,
     inMemoryCapacity,
-    ...(inMemoryTTL === undefined ? {} : { inMemoryTTL: () => inMemoryTTL }),
+    inMemoryTTL,
   });
 
   return {

@@ -130,9 +130,9 @@ export const ESLintConfig: ESLintConfigShape = [
       "tooling/repo-utils/src/FsUtils.ts",
       "tooling/repo-utils/src/UniqueDeps.ts",
       "tooling/repo-utils/src/schemas/WorkspaceDeps.ts",
-      "packages/ai/sdk/src/core/Schema/Session.ts",
-      "packages/ai/sdk/src/core/Storage/SessionIndexStore.ts",
-      "packages/ai/sdk/src/core/Storage/StorageConfig.ts",
+      "packages/ai/sdk/src/claude/Schema/Session.ts",
+      "packages/ai/sdk/src/claude/Storage/SessionIndexStore.ts",
+      "packages/ai/sdk/src/claude/Storage/StorageConfig.ts",
     ],
     ignores: ["**/*.d.ts"],
     plugins: {
@@ -151,10 +151,10 @@ export const ESLintConfig: ESLintConfigShape = [
   },
   {
     files: [
-      "packages/ai/sdk/src/core/AgentSdkConfig.ts",
-      "packages/ai/sdk/src/core/SessionConfig.ts",
-      "packages/ai/sdk/src/core/Diagnose.ts",
-      "packages/ai/sdk/src/core/Storage/SessionIndexStore.ts",
+      "packages/ai/sdk/src/claude/AgentSdkConfig.ts",
+      "packages/ai/sdk/src/claude/SessionConfig.ts",
+      "packages/ai/sdk/src/claude/Diagnose.ts",
+      "packages/ai/sdk/src/claude/Storage/SessionIndexStore.ts",
       "tooling/cli/src/commands/DocsAggregate.ts",
       "tooling/cli/src/commands/Lint/index.ts",
       "tooling/cli/src/commands/Laws/index.ts",

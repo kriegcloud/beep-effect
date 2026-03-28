@@ -26,7 +26,7 @@ export type NdjsonDecodeErrorDetails = Readonly<{
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { decodeNdjson } from "../../src/core/internal/ndjson.ts"
+ * import { decodeNdjson } from "../../src/claude/internal/ndjson.ts"
  *
  * const decodeStrings = decodeNdjson(S.String, (details) => details)
  *
