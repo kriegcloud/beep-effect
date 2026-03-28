@@ -90,6 +90,10 @@ class MessageParamData extends S.Class<MessageParamData>($I`MessageParam`)(
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export const MessageParam: S.Codec<MessageParam, MessageParam> = Function.cast(MessageParamData);
 
 /**

@@ -6,6 +6,7 @@ import {
 import { layer as agentHttpHandlersLayer_ } from "./AgentHttpHandlers.js";
 import { layer as agentHttpServerLayer_ } from "./AgentHttpServer.js";
 import {
+  type AgentHttpMetrics as AgentHttpMetrics_,
   AgentObservedHttpApi as AgentObservedHttpApi_,
   agentHttpMetrics as agentHttpMetrics_,
   layer as agentHttpTelemetryLayer_,
@@ -49,11 +50,11 @@ export const AgentObservedHttpApi = AgentObservedHttpApi_;
 /**
  * @since 0.0.0
  */
-export type { AgentHttpMetrics } from "./AgentHttpTelemetry.js";
+export type AgentHttpMetrics = AgentHttpMetrics_;
 /**
  * @since 0.0.0
  */
-export { agentHttpMetrics_ as agentHttpMetrics };
+export const agentHttpMetrics: AgentHttpMetrics = agentHttpMetrics_;
 /**
  * @since 0.0.0
  */
