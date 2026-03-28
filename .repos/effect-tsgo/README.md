@@ -1,6 +1,6 @@
 # Effect Language Service (TypeScript-Go)
 
-A wrapper around [TypeScript-Go](https://github.com/nicolo-ribaudo/TypeScript-Go) that builds the Effect Language Service, providing Effect-TS diagnostics and quick fixes. 
+A wrapper around [TypeScript-Go](https://github.com/nicolo-ribaudo/TypeScript-Go) that builds the Effect Language Service, providing Effect-TS diagnostics and quick fixes.
 This project targets **Effect V4** (codename: "smol") primarily and also Effect V3.
 
 ## Currently in Alpha
@@ -20,6 +20,9 @@ This will guide you through the installation process, which includes:
 2. Configuring your `tsconfig.json` to use the Effect Language Service plugin.
 3. Adjusting plugin options to your preference.
 4. Hinting at any additional editor configuration needed to ensure the LSP is active.
+
+> [!NOTE]
+> At the moment, you still need the standard native TypeScript install (`@typescript/native-preview`) alongside `@effect/tsgo`.
 
 ## Diagnostic Status
 
@@ -58,7 +61,7 @@ Some diagnostics are off by default or have a default severity of suggestion, bu
     <tr><td><code>leakingRequirements</code></td><td>💡</td><td></td><td>Detects implementation services leaked in service methods</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>multipleEffectProvide</code></td><td>⚠️</td><td>🔧</td><td>Warns against chaining Effect.provide calls which can cause service lifecycle issues</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>returnEffectInGen</code></td><td>💡</td><td>🔧</td><td>Warns when returning an Effect in a generator causes nested Effect&lt;Effect&lt;...&gt;&gt;</td><td>✓</td><td>✓</td></tr>
-    <tr><td><code>runEffectInsideEffect</code></td><td>💡</td><td>🔧</td><td>Suggests using Runtime methods instead of Effect.run* inside Effect contexts</td><td>✓</td><td></td></tr>
+    <tr><td><code>runEffectInsideEffect</code></td><td>💡</td><td>🔧</td><td>Suggests using Runtime or Effect.run*With methods instead of Effect.run* inside Effect contexts</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>schemaSyncInEffect</code></td><td>💡</td><td></td><td>Suggests using Effect-based Schema methods instead of sync methods inside Effect generators</td><td>✓</td><td></td></tr>
     <tr><td><code>scopeInLayerEffect</code></td><td>⚠️</td><td>🔧</td><td>Suggests using Layer.scoped instead of Layer.effect when Scope is in requirements</td><td>✓</td><td></td></tr>
     <tr><td><code>strictEffectProvide</code></td><td>➖</td><td></td><td>Warns when using Effect.provide with layers outside of application entry points</td><td>✓</td><td>✓</td></tr>
@@ -66,7 +69,16 @@ Some diagnostics are off by default or have a default severity of suggestion, bu
     <tr><td><code>unknownInEffectCatch</code></td><td>⚠️</td><td></td><td>Warns when catch callbacks return unknown instead of typed errors</td><td>✓</td><td>✓</td></tr>
     <tr><td colspan="6"><strong>Effect-native</strong> <em>Prefer Effect-native APIs and abstractions when available.</em></td></tr>
     <tr><td><code>extendsNativeError</code></td><td>➖</td><td></td><td>Warns when a class directly extends the native Error class</td><td>✓</td><td>✓</td></tr>
-    <tr><td><code>globalFetch</code></td><td>➖</td><td></td><td>Warns when using the global fetch function instead of the Effect HTTP client</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalConsole</code></td><td>➖</td><td></td><td>Warns when using console methods outside Effect generators instead of Effect.log/Logger</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalConsoleInEffect</code></td><td>➖</td><td></td><td>Warns when using console methods inside Effect generators instead of Effect.log/Logger</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalDate</code></td><td>➖</td><td></td><td>Warns when using Date.now() or new Date() outside Effect generators instead of Clock/DateTime</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalDateInEffect</code></td><td>➖</td><td></td><td>Warns when using Date.now() or new Date() inside Effect generators instead of Clock/DateTime</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalFetch</code></td><td>➖</td><td></td><td>Warns when using the global fetch function outside Effect generators instead of the Effect HTTP client</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalFetchInEffect</code></td><td>➖</td><td></td><td>Warns when using the global fetch function inside Effect generators instead of the Effect HTTP client</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalRandom</code></td><td>➖</td><td></td><td>Warns when using Math.random() outside Effect generators instead of the Random service</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalRandomInEffect</code></td><td>➖</td><td></td><td>Warns when using Math.random() inside Effect generators instead of the Random service</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalTimers</code></td><td>➖</td><td></td><td>Warns when using setTimeout/setInterval outside Effect generators instead of Effect.sleep/Schedule</td><td>✓</td><td>✓</td></tr>
+    <tr><td><code>globalTimersInEffect</code></td><td>➖</td><td></td><td>Warns when using setTimeout/setInterval inside Effect generators instead of Effect.sleep/Schedule</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>instanceOfSchema</code></td><td>➖</td><td>🔧</td><td>Suggests using Schema.is instead of instanceof for Effect Schema types</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>nodeBuiltinImport</code></td><td>➖</td><td></td><td>Warns when importing Node.js built-in modules that have Effect-native counterparts</td><td>✓</td><td>✓</td></tr>
     <tr><td><code>preferSchemaOverJson</code></td><td>💡</td><td></td><td>Suggests using Effect Schema for JSON operations instead of JSON.parse/JSON.stringify</td><td>✓</td><td>✓</td></tr>
@@ -175,10 +187,22 @@ Each release of `effect-tsgo` is built against a specific upstream `tsgo` commit
     "plugins": [
       {
         "name": "@effect/language-service",
+        // Controls Effect refactors. (default: true)
+        "refactors": true,
+        // Controls Effect diagnostics. (default: true)
+        "diagnostics": true,
         // Maps rule names to severity levels. Use {} to enable diagnostics with rule defaults. (default: {})
         "diagnosticSeverity": {},
         // When false, suggestion-level Effect diagnostics are omitted from tsc CLI output. (default: true)
         "includeSuggestionsInTsc": true,
+        // Controls Effect quickinfo. (default: true)
+        "quickinfo": true,
+        // Controls Effect completions. (default: true)
+        "completions": true,
+        // Controls Effect goto references support. (default: true)
+        "goto": true,
+        // Controls Effect rename helpers. (default: true)
+        "renames": true,
         // When true, suggestion diagnostics do not affect the tsc exit code. (default: true)
         "ignoreEffectSuggestionsInTscExitCode": true,
         // When true, warning diagnostics do not affect the tsc exit code. (default: false)

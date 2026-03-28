@@ -34,7 +34,8 @@ class DebuggerError extends Data.TaggedError("DebuggerError")<{
   cause: unknown
 }> {}
 
-export const program = Effect.gen(function*() {const effectRuntime = yield* Effect.runtime<never>();
+export const program = Effect.gen(function*() {
+const effectRuntime = yield* Effect.runtime<never>();
 
   const response = yield* Effect.tryPromise({
     try: () => fetch("http://localhost:9229"),

@@ -5,8 +5,8 @@ import (
 
 	"github.com/microsoft/typescript-go/shim/fourslash"
 
-	_ "github.com/effect-ts/effect-typescript-go/etslshooks"
-	_ "github.com/effect-ts/effect-typescript-go/etstesthooks"
+	_ "github.com/effect-ts/tsgo/etslshooks"
+	_ "github.com/effect-ts/tsgo/etstesthooks"
 )
 
 func TestEffectHoverYieldStar(t *testing.T) {
@@ -228,6 +228,37 @@ const app2 = /*2*/app`
 	// only the standard quickInfo type signature without providers/requirers or Mermaid links.
 	f.VerifyQuickInfoAt(t, "2",
 		"const app: Layer.Layer<Cache, never, never>",
+		"",
+	)
+}
+
+func TestEffectHoverDisabled(t *testing.T) {
+	t.Parallel()
+
+	const content = `// @Filename: /tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ESNext",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "plugins": [
+      {
+        "name": "@effect/language-service",
+        "quickinfo": false
+      }
+    ]
+  }
+}
+// @Filename: /test.ts
+import { Effect } from "effect"
+declare const /*1*/myEffect: Effect.Effect<string, Error, never>`
+
+	f, done := fourslash.NewFourslash(t, nil /*capabilities*/, content)
+	defer done()
+
+	f.VerifyQuickInfoAt(t, "1",
+		"const myEffect: Effect.Effect<string, Error, never>",
 		"",
 	)
 }

@@ -83,58 +83,43 @@ func GetPropertyOfTypeByName(c *checker.Checker, t *checker.Type, name string) *
 	return nil
 }
 
-func moduleSymbolFromSourceFile(c *checker.Checker, sf *ast.SourceFile) *ast.Symbol {
-	if c == nil || sf == nil {
-		return nil
-	}
-	sym := sf.AsNode().Symbol()
-	if sym == nil {
-		return nil
-	}
-	return c.GetMergedSymbol(sym)
-}
-
 func resolveAliasedSymbol(c *checker.Checker, sym *ast.Symbol) *ast.Symbol {
+	if c == nil {
+		return sym
+	}
 	for sym != nil && sym.Flags&ast.SymbolFlagsAlias != 0 {
 		sym = c.GetAliasedSymbol(sym)
 	}
 	return sym
 }
 
-func symbolsMatch(c *checker.Checker, a *ast.Symbol, b *ast.Symbol) bool {
-	if a == nil || b == nil {
-		return false
+// ResolveToGlobalSymbol follows aliases and up to two simple variable indirections
+// so rules can recognize references to the original global symbol.
+func ResolveToGlobalSymbol(c *checker.Checker, sym *ast.Symbol) *ast.Symbol {
+	if c == nil || sym == nil {
+		return nil
 	}
-	if a == b {
-		return true
-	}
-	if c != nil {
-		if ea := c.GetExportSymbolOfSymbol(a); ea != nil {
-			if eb := c.GetExportSymbolOfSymbol(b); eb != nil && ea == eb {
-				return true
-			}
+
+	sym = resolveAliasedSymbol(c, sym)
+	depth := 0
+	for depth < 2 && sym != nil && sym.ValueDeclaration != nil && sym.ValueDeclaration.Kind == ast.KindVariableDeclaration {
+		decl := sym.ValueDeclaration.AsVariableDeclaration()
+		if decl == nil || decl.Initializer == nil {
+			break
 		}
-	}
-	ma := c.GetMergedSymbol(a)
-	mb := c.GetMergedSymbol(b)
-	if ma == mb {
-		return true
-	}
-	if len(a.Declarations) == 0 || len(b.Declarations) == 0 {
-		return false
-	}
-	decls := make(map[*ast.Node]struct{}, len(a.Declarations))
-	for _, d := range a.Declarations {
-		if d != nil {
-			decls[d] = struct{}{}
+
+		next := c.GetSymbolAtLocation(decl.Initializer)
+		if next == nil {
+			break
 		}
-	}
-	for _, d := range b.Declarations {
-		if d != nil {
-			if _, ok := decls[d]; ok {
-				return true
-			}
+		next = resolveAliasedSymbol(c, next)
+		if next == sym {
+			break
 		}
+
+		sym = next
+		depth++
 	}
-	return false
+
+	return sym
 }

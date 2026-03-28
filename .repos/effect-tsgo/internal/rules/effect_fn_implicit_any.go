@@ -1,9 +1,9 @@
 package rules
 
 import (
-	"github.com/effect-ts/effect-typescript-go/etscore"
-	"github.com/effect-ts/effect-typescript-go/internal/rule"
-	"github.com/effect-ts/effect-typescript-go/internal/typeparser"
+	"github.com/effect-ts/tsgo/etscore"
+	"github.com/effect-ts/tsgo/internal/rule"
+	"github.com/effect-ts/tsgo/internal/typeparser"
 	"github.com/microsoft/typescript-go/shim/ast"
 	"github.com/microsoft/typescript-go/shim/checker"
 	tsdiag "github.com/microsoft/typescript-go/shim/diagnostics"
@@ -121,5 +121,11 @@ func hasOuterContextualFunctionType(c *checker.Checker, node *ast.Node) bool {
 		return false
 	}
 
-	return len(c.GetSignaturesOfType(contextualType, checker.SignatureKindCall)) > 0
+	for _, member := range typeparser.UnrollUnionMembers(contextualType) {
+		if len(c.GetSignaturesOfType(member, checker.SignatureKindCall)) > 0 {
+			return true
+		}
+	}
+
+	return false
 }

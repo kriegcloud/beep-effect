@@ -2,7 +2,7 @@
 package rules
 
 import (
-	"github.com/effect-ts/effect-typescript-go/internal/rule"
+	"github.com/effect-ts/tsgo/internal/rule"
 )
 
 // All is the list of all diagnostic rules.
@@ -30,6 +30,15 @@ var All = []rule.Rule{
 	GlobalErrorInEffectCatch,
 	GlobalErrorInEffectFailure,
 	GlobalFetch,
+	GlobalFetchInEffect,
+	GlobalConsole,
+	GlobalConsoleInEffect,
+	GlobalDate,
+	GlobalDateInEffect,
+	GlobalRandom,
+	GlobalRandomInEffect,
+	GlobalTimers,
+	GlobalTimersInEffect,
 	RunEffectInsideEffect,
 	PreferSchemaOverJson,
 	EffectGenUsesAdapter,
