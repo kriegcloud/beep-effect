@@ -58,9 +58,9 @@ The new architectural direction is that long-lived runs should not be formalized
 
 ### 4. The repo already has a local `HttpApi` pattern
 The repo contains an internal example of the local `HttpApi` style in:
-- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](../../../packages/ai/sdk/src/core/service/AgentHttpApi.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](../../../packages/ai/sdk/src/core/service/AgentHttpHandlers.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](../../../packages/ai/sdk/src/core/service/AgentHttpServer.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](../../../packages/ai/sdk/src/claude/service/AgentHttpApi.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](../../../packages/ai/sdk/src/claude/service/AgentHttpHandlers.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](../../../packages/ai/sdk/src/claude/service/AgentHttpServer.ts)
 
 That pattern is useful evidence for future control-plane design:
 - shared `*HttpApi` contract
@@ -143,9 +143,9 @@ If more salvage work is needed before the redesign, keep it read-only and focus 
 Primary source files explored for this note:
 - [packages/runtime/server/src/index.ts](../../../packages/runtime/server/src/index.ts)
 - [packages/repo-memory/runtime/src/index.ts](../../../packages/repo-memory/runtime/src/index.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](../../../packages/ai/sdk/src/core/service/AgentHttpApi.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](../../../packages/ai/sdk/src/core/service/AgentHttpHandlers.ts)
-- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](../../../packages/ai/sdk/src/core/service/AgentHttpServer.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpApi.ts](../../../packages/ai/sdk/src/claude/service/AgentHttpApi.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpHandlers.ts](../../../packages/ai/sdk/src/claude/service/AgentHttpHandlers.ts)
+- [packages/ai/sdk/src/core/service/AgentHttpServer.ts](../../../packages/ai/sdk/src/claude/service/AgentHttpServer.ts)
 - [HttpApiBuilder.ts](../../../.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiBuilder.ts)
 - [HttpApiSchema.ts](../../../.repos/effect-v4/packages/effect/src/unstable/httpapi/HttpApiSchema.ts)
 
