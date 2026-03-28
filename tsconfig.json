@@ -30,6 +30,9 @@
     "**/node_modules/**",
     "**/dist/**",
     "**/coverage/**",
+    "**/tmp/**",
+    "./packages/**/tmp/**",
+    "./packages/ai/sdk/tmp/**",
     "**/test/fixtures/**",
     "./tooling/repo-utils/test/fixtures/**"
   ],
@@ -64,7 +67,7 @@
       "@beep/messages/*": ["./packages/common/messages/src/*"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
       "@beep/data/*": ["./packages/common/data/src/*"],
-      "@beep/ai-sdk/internal/*": ["./packages/ai/sdk/src/core/internal/*.ts"],
+      "@beep/ai-sdk/internal/*": ["./packages/ai/sdk/src/claude/internal/*.ts"],
       "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
       "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
       "@beep/shared-env": ["./packages/shared/env/src/index.ts"],
@@ -104,8 +107,8 @@
       "@beep/repo-configs/internal/*": ["./tooling/configs/src/internal/*"],
       "@beep/test-utils": ["./tooling/test-utils/src/index.ts"],
       "@beep/test-utils/*": ["./tooling/test-utils/src/*"],
-      "@beep/ai-sdk": ["./packages/ai/sdk/src/core/index.ts"],
-      "@beep/ai-sdk/*": ["./packages/ai/sdk/src/core/*"],
+      "@beep/ai-sdk": ["./packages/ai/sdk/src/claude/index.ts"],
+      "@beep/ai-sdk/*": ["./packages/ai/sdk/src/claude/*"],
       "@beep/codegraph": ["./tooling/codegraph/src/index.ts"],
       "@beep/codegraph/*": ["./tooling/codegraph/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
@@ -119,7 +122,9 @@
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
       "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
-      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"]
+      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"],
+      "@beep/claude/*": ["./.claude/*"],
+      "@beep/codex/*": ["./.codex/*"]
     },
     "plugins": [
       {

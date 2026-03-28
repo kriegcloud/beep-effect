@@ -37,9 +37,9 @@
   },
   "exports": {
     "./package.json": "./package.json",
-    ".": "./src/core/index.ts",
-    "./*": "./src/core/*.ts",
-    "./internal/*": null
+    ".": "./src/claude/index.ts",
+    "./*": "./src/claude/*.ts",
+    "./internal/*": "./src/claude/internal/*.ts"
   },
   "files": [
     "src/**/*.ts",
@@ -60,8 +60,8 @@
     "provenance": true,
     "exports": {
       "./package.json": "./package.json",
-      ".": "./dist/core/index.js",
-      "./*": "./dist/core/*.js",
+      ".": "./dist/claude/index.js",
+      "./*": "./dist/claude/*.js",
       "./internal/*": null
     }
   }

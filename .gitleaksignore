@@ -10,3 +10,11 @@
 
 # Documentation examples
 # docs/**
+
+# False positives from imported upstream test fixtures in local subtree commits.
+4f6b06621704b4f5b7f578f57914e6d9e7f4d376:packages/client/test/client/crossAppAccess.test.ts:generic-api-key:13
+4f6b06621704b4f5b7f578f57914e6d9e7f4d376:packages/client/test/client/crossAppAccess.test.ts:generic-api-key:24
+4f6b06621704b4f5b7f578f57914e6d9e7f4d376:packages/client/test/client/crossAppAccess.test.ts:generic-api-key:306
+5a0d07a871d0eb345572b3784c4174da6c6542f5:codex-rs/app-server/tests/suite/v2/connection_handling_websocket.rs:generic-api-key:188
+5a0d07a871d0eb345572b3784c4174da6c6542f5:codex-rs/cli/src/login.rs:generic-api-key:399
+5a0d07a871d0eb345572b3784c4174da6c6542f5:codex-rs/cli/src/login.rs:generic-api-key:405

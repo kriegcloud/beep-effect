@@ -40,7 +40,7 @@ const LATE_FILE_TSCONFIG_PATH = "tooling/repo-utils/test/fixtures/tsmorph-late-f
 const LATE_FILE_INCLUDED_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-late-file/src/included.ts";
 const LATE_FILE_EXTRA_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-late-file/src/extra.ts";
 const OUTLINE_ORDER_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-outline-order/source.ts";
-const OUTSIDE_WORKSPACE_FILE_PATH = "packages/ai/sdk/src/core/types/cloudflare-sandbox.d.ts";
+const OUTSIDE_WORKSPACE_FILE_PATH = "packages/ai/sdk/src/claude/types/cloudflare-sandbox.d.ts";
 
 const decodeDiagnosticsRequest = S.decodeUnknownSync(TsMorphDiagnosticsRequest);
 const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);

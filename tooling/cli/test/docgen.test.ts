@@ -259,7 +259,7 @@ describe("Docgen operations", () => {
           );
 
           const sdkDir = path.join(tmpDir, "packages", "ai", "sdk");
-          yield* fs.makeDirectory(path.join(sdkDir, "src", "core"), { recursive: true });
+          yield* fs.makeDirectory(path.join(sdkDir, "src", "claude"), { recursive: true });
           yield* fs.writeFileString(
             path.join(sdkDir, "package.json"),
             encodeJson({
@@ -269,8 +269,8 @@ describe("Docgen operations", () => {
                 "@beep/schema": "workspace:*",
               },
               exports: {
-                ".": "./src/core/index.ts",
-                "./*": "./src/core/*.ts",
+                ".": "./src/claude/index.ts",
+                "./*": "./src/claude/*.ts",
               },
             })
           );
@@ -284,8 +284,8 @@ describe("Docgen operations", () => {
 
           expect(config.examplesCompilerOptions).toMatchObject({
             paths: {
-              "@beep/ai-sdk": ["../../../packages/ai/sdk/src/core/index.ts"],
-              "@beep/ai-sdk/*": ["../../../packages/ai/sdk/src/core/*.ts"],
+              "@beep/ai-sdk": ["../../../packages/ai/sdk/src/claude/index.ts"],
+              "@beep/ai-sdk/*": ["../../../packages/ai/sdk/src/claude/*.ts"],
               "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
               "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
             },

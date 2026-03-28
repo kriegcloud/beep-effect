@@ -120,6 +120,11 @@ export const isPositive = isPositiveInternal;
  * @since 0.0.0
  * @category Validation
  */
+export * from "./AbortSignal.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Duration.ts";
 /**
  * @since 0.0.0
@@ -151,6 +156,11 @@ export * from "./location/index.ts";
  * @category Validation
  */
 export * as Model from "./Model.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Primitive.ts";
 /**
  * @since 0.0.0
  * @category Validation

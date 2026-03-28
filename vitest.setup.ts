@@ -1,8 +1,7 @@
-import { addEqualityTesters } from "@effect/vitest";
 import { Buffer } from "node:buffer";
 import { spawnSync as spawnSyncNode } from "node:child_process";
-import { rm } from "node:fs/promises";
-import { readFile, writeFile } from "node:fs/promises";
+import { readFile, rm, writeFile } from "node:fs/promises";
+import { addEqualityTesters } from "@effect/vitest";
 
 addEqualityTesters();
 

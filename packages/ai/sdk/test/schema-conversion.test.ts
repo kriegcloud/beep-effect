@@ -1,8 +1,9 @@
-import { schemaToZod } from "@beep/ai-sdk/internal/schemaToZod";
-import * as Tool from "@beep/ai-sdk/Tools/Tool";
 import { expect, test } from "@effect/vitest";
 import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
+import { schemaToZod } from "../src/claude/internal/schemaToZod.ts";
+import * as Tool from "../src/claude/Tools/Tool.ts";
+import * as Mcp from "../src/Mcp.ts";
 import { runEffect } from "./effect-test.js";
 
 test("getJsonSchemaFromSchemaAst preserves record additionalProperties", () => {
@@ -73,6 +74,19 @@ test("schemaToZod handles discriminated unions", async () => {
   expect(zod.safeParse({ kind: "alpha", value: "ok" }).success).toBe(true);
   expect(zod.safeParse({ kind: "beta", value: 2 }).success).toBe(true);
   expect(zod.safeParse({ kind: "beta", value: "nope" }).success).toBe(false);
+});
+
+test("schemaToZod accepts MCP method-tagged union members", async () => {
+  const zod = await runEffect(schemaToZod(Mcp.ClientRequest));
+
+  expect(
+    zod.safeParse({
+      method: "tasks/get",
+      params: {
+        taskId: "task-1",
+      },
+    }).success
+  ).toBe(true);
 });
 
 test("schemaToZod handles tuples and non-empty arrays", async () => {

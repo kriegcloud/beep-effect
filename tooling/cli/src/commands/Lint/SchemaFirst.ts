@@ -33,9 +33,9 @@ const ENFORCED_ROOTS = [
   "tooling/repo-utils/src/FsUtils.ts",
   "tooling/repo-utils/src/UniqueDeps.ts",
   "tooling/repo-utils/src/schemas/WorkspaceDeps.ts",
-  "packages/ai/sdk/src/core/Schema/Session.ts",
-  "packages/ai/sdk/src/core/Storage/SessionIndexStore.ts",
-  "packages/ai/sdk/src/core/Storage/StorageConfig.ts",
+  "packages/ai/sdk/src/claude/Schema/Session.ts",
+  "packages/ai/sdk/src/claude/Storage/SessionIndexStore.ts",
+  "packages/ai/sdk/src/claude/Storage/StorageConfig.ts",
 ] as const;
 const IDENTIFIER_PROPERTY_PATTERN = /^[A-Za-z_$][A-Za-z0-9_$]*$/;
 const FUNCTION_LIKE_TEXT_PATTERN = /=>|\bEffect\.Effect</;

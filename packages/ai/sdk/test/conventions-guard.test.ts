@@ -2,7 +2,7 @@ import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { expect, test } from "@effect/vitest";
 
-const coreDir = new URL("../src/core", import.meta.url);
+const claudeDir = new URL("../src/claude", import.meta.url);
 const testDir = new URL(".", import.meta.url);
 
 type SourceFile = {
@@ -52,7 +52,7 @@ const directRunPromiseAllowlist = [
 ] as const;
 
 test("core schema and identity conventions disallow legacy patterns", async () => {
-  const files = await collectSourceFiles(coreDir.pathname);
+  const files = await collectSourceFiles(claudeDir.pathname);
 
   const withIdentifierHits = findPatternHits(files, "withIdentifier(");
   const literalsHits = findPatternHits(files, "S.Literals(");
@@ -89,7 +89,7 @@ test("discriminator-heavy schema modules include tagged-union modeling", async (
 
   await Promise.all(
     taggedUnionTargets.map(async (relativePath) => {
-      const content = await readFile(new URL(`../src/core/${relativePath}`, import.meta.url), "utf8");
+      const content = await readFile(new URL(`../src/claude/${relativePath}`, import.meta.url), "utf8");
       expect(content.includes("S.toTaggedUnion(")).toBe(true);
     })
   );

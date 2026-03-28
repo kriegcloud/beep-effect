@@ -4,6 +4,7 @@ const config = {
   source: [
     "package.json",
     ".claude/package.json",
+    ".codex/package.json",
     "apps/*/package.json",
     "scratchpad/package.json",
     "packages/_internal/*/package.json",

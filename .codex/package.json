@@ -1,0 +1,36 @@
+{
+  "name": "@beep/codex",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "description": "Codex hooks, patterns, and scripts for beep-effect monorepo",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": ".codex"
+  },
+  "scripts": {
+    "build": "tsc -b tsconfig.json",
+    "check": "tsc -b tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "effect": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "picomatch": "catalog:"
+  },
+  "devDependencies": {
+    "@types/picomatch": "catalog:",
+    "@types/node": "catalog:",
+    "@types/bun": "catalog:",
+    "@effect/vitest": "catalog:",
+    "typescript": "catalog:"
+  }
+}

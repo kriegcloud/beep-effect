@@ -148,6 +148,12 @@ run_sast_scan() {
   )
 
   for file in "${tracked_files[@]}"; do
+    case "$file" in
+      .repos/*)
+        continue
+        ;;
+    esac
+
     if [ -f "$file" ] && [ ! -L "$file" ]; then
       semgrep_files+=("$file")
     fi
