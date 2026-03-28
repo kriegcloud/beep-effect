@@ -13,8 +13,6 @@ import (
 	"sync"
 	"testing/fstest"
 
-	"github.com/effect-ts/effect-typescript-go/internal/rules"
-	"github.com/effect-ts/effect-typescript-go/internal/typeparser"
 	"github.com/microsoft/typescript-go/shim/ast"
 	"github.com/microsoft/typescript-go/shim/bundled"
 	"github.com/microsoft/typescript-go/shim/compiler"
@@ -30,7 +28,7 @@ const (
 	EffectV4 EffectVersion = "effect-v4"
 )
 
-// EffectTsGoRootPath returns the path to the effect-typescript-go repo root.
+// EffectTsGoRootPath returns the path to the @effect/tsgo repo root.
 // This is determined relative to this source file's location.
 func EffectTsGoRootPath() string {
 	_, filename, _, ok := runtime.Caller(0)
@@ -81,8 +79,6 @@ func AcquireProgram() { programSemaphore <- struct{}{} }
 // ReleaseProgram releases a slot back to the program semaphore, clears
 // per-program caches to allow GC of the program, and triggers GC.
 func ReleaseProgram() {
-	typeparser.ClearDiscoverPackagesCache()
-	rules.ClearDuplicatePackageCache()
 	<-programSemaphore
 	runtime.GC()
 }
@@ -219,5 +215,12 @@ func MountEffect(version EffectVersion, testfs map[string]any) error {
 	maps.Copy(testfs, packageFSCache(version, "@standard-schema/spec")())
 	maps.Copy(testfs, packageFSCache(version, "fast-check")())
 	maps.Copy(testfs, packageFSCache(version, "@types/node")())
+
+	packageJSONPath := filepath.Join(EffectTsGoRootPath(), "testdata", "tests", string(version), "package.json")
+	packageJSON, err := os.ReadFile(packageJSONPath)
+	if err != nil {
+		return err
+	}
+	testfs["/.src/package.json"] = &fstest.MapFile{Data: packageJSON}
 	return nil
 }

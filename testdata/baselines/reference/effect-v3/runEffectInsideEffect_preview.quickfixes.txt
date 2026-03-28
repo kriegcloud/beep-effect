@@ -1,5 +1,31 @@
 === Quick Fix Inventory ===
-(no diagnostics)
+
+[D1] (7:21-7:35) TS377025: Using Effect.runSync inside an Effect is not recommended. The same runtime should generally be used instead to run child effects.
+Consider extracting the Runtime by using for example Effect.runtime and then use Runtime.runSync with the extracted runtime instead. effect(runEffectInsideEffect)
+  Fix 0: "Disable runEffectInsideEffect for this line"
+  Fix 1: "Disable runEffectInsideEffect for entire file"
+  Fix 2: "Use a runtime to run the Effect"
 
 === Quick Fix Application Results ===
-(no quick fixes to apply)
+
+=== [D1] Fix 0: "Disable runEffectInsideEffect for this line" ===
+skipped by default
+
+=== [D1] Fix 1: "Disable runEffectInsideEffect for entire file" ===
+skipped by default
+
+=== [D1] Fix 2: "Use a runtime to run the Effect" ===
+
+--- file:///.src/runEffectInsideEffect_preview.ts ---
+// @effect-v3
+// @effect-diagnostics *:off
+// @effect-diagnostics runEffectInsideEffect:warning
+import { Effect } from "effect"
+
+export const preview = Effect.gen(function*() {
+const effectRuntime = yield* Effect.runtime<never>();
+
+  const run = () => Runtime.runSync(effectRuntime, Effect.succeed(1))
+  return run()
+})
+

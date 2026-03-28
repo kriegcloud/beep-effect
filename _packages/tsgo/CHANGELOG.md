@@ -1,5 +1,41 @@
 # @effect/tsgo
 
+## 0.1.0
+
+### Minor Changes
+
+- 4477bfb: Add Effect v4 support for the `runEffectInsideEffect` diagnostic and quick fix.
+
+  Nested `Effect.run*` calls inside generators now suggest and apply `Effect.run*With` fixes using extracted services.
+
+### Patch Changes
+
+- 5642de7: Fix `effectFnImplicitAny` so contextual union types suppress the diagnostic when any union member provides a callable contextual type.
+
+  This aligns nested `Effect.fnUntraced` callbacks in union-typed APIs with TypeScript's `noImplicitAny` behavior.
+
+## 0.0.20
+
+### Patch Changes
+
+- 46d9376: Add boolean plugin flags for Effect diagnostics, refactors, quickinfo, and completions, and honor them in the Go language-service hooks.
+- 51d09a9: Update [`typescript-go`](https://github.com/microsoft/typescript-go/commit/025d5aa3913ad54c5eae6be37677d3b85f783fd9) to commit `025d5aa3913ad54c5eae6be37677d3b85f783fd9`.
+
+## 0.0.19
+
+### Patch Changes
+
+- cd9663a: Fix `tsgo` CLI suggestion filtering so `includeSuggestionsInTsc: false` is respected during command-line runs.
+
+## 0.0.18
+
+### Patch Changes
+
+- d2ff6d8: Generate the README plugin configuration example from code metadata so the documented JSONC defaults stay aligned with the implementation and schema updates.
+- 7a38643: Fix `@effect-diagnostics *:off` handling so only `skip-file` disables an entire file, allowing later rule-specific preview directives to re-enable diagnostics as in the upstream Effect language service.
+- b851e0a: Align the Go editor setup with the repository lint configuration and expand Go lint coverage with additional correctness, modernization, and test-focused checks.
+- af7a319: Update [`typescript-go`](https://github.com/microsoft/typescript-go/commit/46ed96437ee4714316aa142176959f37905e91d6) to commit `46ed96437ee4714316aa142176959f37905e91d6`.
+
 ## 0.0.17
 
 ### Patch Changes
