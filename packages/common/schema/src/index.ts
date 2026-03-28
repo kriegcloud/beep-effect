@@ -145,7 +145,17 @@ export * from "./LocalDate.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./location/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * as Model from "./Model.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./person/index.ts";
 /**
  * @since 0.0.0
  * @category Utility
