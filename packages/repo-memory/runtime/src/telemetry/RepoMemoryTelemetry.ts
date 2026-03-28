@@ -41,6 +41,7 @@ export const QueryKindMetric = LiteralKit([
   "listFileExports",
   "listFileImports",
   "listFileImporters",
+  "listSymbolImporters",
   "listFileDependencies",
   "listFileDependents",
   "keywordSearch",

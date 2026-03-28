@@ -157,6 +157,18 @@ class ListFileImportersInterpretation extends S.Class<ListFileImportersInterpret
   })
 ) {}
 
+class ListSymbolImportersInterpretation extends S.Class<ListSymbolImportersInterpretation>(
+  $I`ListSymbolImportersInterpretation`
+)(
+  {
+    kind: S.tag("listSymbolImporters"),
+    symbolName: S.String,
+  },
+  $I.annote("ListSymbolImportersInterpretation", {
+    description: "Deterministic query interpretation that lists files importing one concrete symbol.",
+  })
+) {}
+
 class ListFileDependenciesInterpretation extends S.Class<ListFileDependenciesInterpretation>(
   $I`ListFileDependenciesInterpretation`
 )(
@@ -221,6 +233,7 @@ export const QueryInterpretation = S.Union([
   ListFileExportsInterpretation,
   ListFileImportsInterpretation,
   ListFileImportersInterpretation,
+  ListSymbolImportersInterpretation,
   ListFileDependenciesInterpretation,
   ListFileDependentsInterpretation,
   KeywordSearchInterpretation,
@@ -343,6 +356,13 @@ const moduleQueryPatterns = A.make(
   /(?:who|what)\s+imports?\s+([A-Za-z0-9_./@-]+)/i,
   /(?:importers of)\s+([A-Za-z0-9_./@-]+)/i
 );
+const symbolImporterQueryPatterns = A.make(
+  /(?:who|which\s+files?)\s+(?:use|uses)\s+(?:the\s+)?(?:symbol\s+)?(.+)$/i,
+  /(?:where is|where's)\s+(?:the\s+)?(?:symbol\s+)?(.+)\s+used[!?.,;:]*$/i,
+  /(?:usage of|usages of)\s+(?:the\s+)?(?:symbol\s+)?(.+)$/i,
+  /(?:who|which\s+files?)\s+imports?\s+(?:the\s+)?symbol\s+(.+)$/i,
+  /(?:symbol importers of)\s+(?:the\s+)?(?:symbol\s+)?(.+)$/i
+);
 
 const extractNormalizedPathQuery = (question: string, patterns: ReadonlyArray<RegExp>): O.Option<string> =>
   pipe(
@@ -366,20 +386,25 @@ const extractDependentFileQuery = (question: string): O.Option<string> =>
 
 const extractBacktickValue = QueryText.extractBacktickValue;
 
-const extractSymbolName = (question: string): O.Option<string> =>
+const normalizeSymbolQuery = (query: string): O.Option<string> =>
   pipe(
-    extractBacktickValue(question),
-    O.orElse(() => {
-      return firstCapture(
-        /(?:locate|find|where is|where's|describe|what is|docs for|documentation for|params of|parameters of|returns of|throws of|deprecated)\s+(?:the\s+)?(?:symbol\s+)?(.+)$/i,
-        question
-      );
-    }),
-    O.map(QueryText.normalizePhrase),
+    O.some(QueryText.normalizePhrase(query)),
     O.filter((phrase) => {
       const tokenized = IdentifierText.tokens(phrase);
       return A.isReadonlyArrayNonEmpty(tokenized) && tokenized.length <= 6 && !/[/.\\]/.test(phrase);
     })
+  );
+
+const extractSymbolName = (question: string): O.Option<string> =>
+  pipe(
+    extractBacktickValue(question),
+    O.orElse(() =>
+      firstCapture(
+        /(?:locate|find|where is|where's|describe|what is|docs for|documentation for|params of|parameters of|returns of|throws of|deprecated)\s+(?:the\s+)?(?:symbol\s+)?(.+)$/i,
+        question
+      )
+    ),
+    O.flatMap(normalizeSymbolQuery)
   );
 
 const extractModuleQuery = (question: string): O.Option<string> =>
@@ -388,6 +413,13 @@ const extractModuleQuery = (question: string): O.Option<string> =>
     O.orElse(() => firstCaptureFrom(moduleQueryPatterns, question)),
     O.map(PathText.normalizePathPhrase),
     O.filter(PathText.isPathLike)
+  );
+
+const extractSymbolImporterQuery = (question: string): O.Option<string> =>
+  pipe(
+    extractBacktickValue(question),
+    O.orElse(() => firstCaptureFrom(symbolImporterQueryPatterns, question)),
+    O.flatMap(normalizeSymbolQuery)
   );
 
 const interpretQuery = (question: string): QueryInterpretation => {
@@ -428,6 +460,29 @@ const interpretQuery = (question: string): QueryInterpretation => {
               "Dependency queries currently require one concrete TypeScript file path, preferably enclosed in backticks.",
           }),
         onSome: (fileQuery) => new ListFileDependenciesInterpretation({ fileQuery }),
+      })
+    );
+  }
+
+  if (
+    contains("who uses") ||
+    contains("which file uses") ||
+    contains("which files use") ||
+    (contains("where is") && contains(" used")) ||
+    contains("usage of") ||
+    contains("usages of") ||
+    contains("imports symbol") ||
+    contains("symbol importers")
+  ) {
+    return pipe(
+      extractSymbolImporterQuery(normalized),
+      O.match({
+        onNone: () =>
+          new UnsupportedQueryInterpretation({
+            reason:
+              "Symbol-usage queries currently require one concrete symbol name, preferably enclosed in backticks.",
+          }),
+        onSome: (symbolName) => new ListSymbolImportersInterpretation({ symbolName }),
       })
     );
   }
@@ -563,7 +618,7 @@ const interpretQuery = (question: string): QueryInterpretation => {
 
   return new UnsupportedQueryInterpretation({
     reason:
-      "This v0 deterministic query path currently supports countFiles, countSymbols, locateSymbol, describeSymbol, symbolParams, symbolReturns, symbolThrows, symbolDeprecation, listFileExports, listFileImports, listFileImporters, listFileDependencies, listFileDependents, and keywordSearch only.",
+      "This v0 deterministic query path currently supports countFiles, countSymbols, locateSymbol, describeSymbol, symbolParams, symbolReturns, symbolThrows, symbolDeprecation, listFileExports, listFileImports, listFileImporters, listSymbolImporters, listFileDependencies, listFileDependents, and keywordSearch only.",
   });
 };
 
@@ -1950,6 +2005,66 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
           const answer = !A.isReadonlyArrayNonEmpty(importerFiles)
             ? `No indexed files import "${value.moduleQuery}" in snapshot ${sourceSnapshotId}.`
             : `Files importing "${value.moduleQuery}": ${A.join(importerFiles, ", ")}.`;
+
+          return new GroundedQueryResult({
+            answer,
+            citations,
+            packet,
+          });
+        }),
+      listSymbolImporters: (value) =>
+        Effect.gen(function* () {
+          const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+          if (selection.kind === "none") {
+            return yield* noSymbolMatchResult(value.symbolName, "listSymbolImporters=no-match", selection.nlpNotes);
+          }
+
+          if (selection.kind === "ambiguous") {
+            return yield* ambiguousSymbolMatchResult(value.symbolName, selection.matches, selection.nlpNotes);
+          }
+
+          const symbol = selection.match;
+          const importEdges = yield* mapStoreError(
+            store.listImportEdgesForResolvedTargetFile(payload.repoId, sourceSnapshotId, symbol.filePath)
+          );
+          const matchingEdges = pipe(
+            importEdges,
+            A.filter((edge) => O.isSome(edge.importedName) && edge.importedName.value === symbol.symbolName)
+          );
+          const importerFiles = pipe(
+            matchingEdges,
+            A.map((edge) => edge.importerFilePath),
+            A.sort(Order.String),
+            A.dedupe
+          );
+          const typeOnlyImporterCount = pipe(
+            matchingEdges,
+            A.filter((edge) => edge.typeOnly),
+            A.map((edge) => edge.importerFilePath),
+            A.dedupe,
+            A.length
+          );
+          const citations = normalizeCitations(
+            A.appendAll(A.make(symbolCitation(symbol)), pipe(matchingEdges, A.map(importEdgeCitation)))
+          );
+          const packet = yield* makeQueryPacket({
+            summary: `Listed files importing symbol "${symbol.symbolName}" from ${symbol.filePath}.`,
+            citations,
+            notes: A.appendAll(
+              A.make(
+                `symbolName=${symbol.symbolName}`,
+                `symbolFilePath=${symbol.filePath}`,
+                `importerCount=${A.length(importerFiles)}`,
+                `typeOnlyImporterCount=${typeOnlyImporterCount}`
+              ),
+              selection.nlpNotes
+            ),
+          });
+
+          const answer = !A.isReadonlyArrayNonEmpty(importerFiles)
+            ? `No indexed files import symbol "${symbol.symbolName}" from ${symbol.filePath} in snapshot ${sourceSnapshotId}.`
+            : `Files importing symbol "${symbol.symbolName}" from ${symbol.filePath}: ${A.join(importerFiles, ", ")}.`;
 
           return new GroundedQueryResult({
             answer,

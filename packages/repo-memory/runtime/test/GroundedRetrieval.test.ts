@@ -88,7 +88,7 @@ const createFixtureRepo = Effect.gen(function* () {
   yield* fs.writeFileString(
     path.join(sourceDir, "index.ts"),
     [
-      'import { helper } from "./util";',
+      'import { helper, repoMemoryAnswerHelper } from "./util";',
       'import type { Thing } from "./types";',
       "",
       "export const answer = helper(41);",
@@ -391,6 +391,57 @@ describe("repo-memory runtime grounded retrieval", () => {
         expect(countSymbols.run.citations).toEqual([]);
         expect(countPacket.summary).toContain("Counted indexed TypeScript symbols");
         expect(countPacket.notes).toContain("countSymbols=5");
+      })
+    )
+  );
+
+  it.effect("answers symbol importer queries with grounded import-edge citations", () =>
+    withRuntime(
+      Effect.gen(function* () {
+        const { registration } = yield* indexFixtureRepo;
+        const exact = yield* runQuery({
+          repoId: registration.id,
+          question: "who uses `helper`?",
+          runLabel: "symbol-importers-helper",
+        });
+        const relaxed = yield* runQuery({
+          repoId: registration.id,
+          question: "where is repo memory answer helper used?",
+          runLabel: "symbol-importers-relaxed-helper",
+        });
+
+        if (exact.run.kind !== "query" || relaxed.run.kind !== "query") {
+          return yield* Effect.die("Expected query run projections.");
+        }
+
+        const exactPacket = O.getOrThrow(exact.run.retrievalPacket);
+        expect(O.getOrThrow(exact.run.answer)).toContain('Files importing symbol "helper"');
+        expect(O.getOrThrow(exact.run.answer)).toContain("src/util.ts");
+        expect(O.getOrThrow(exact.run.answer)).toContain("src/index.ts");
+        expect(exact.run.citations.length).toBeGreaterThan(1);
+        expect(exactPacket.summary).toContain('Listed files importing symbol "helper"');
+        expect(exactPacket.notes).toContain("symbolName=helper");
+        expect(
+          A.some(exactPacket.notes, (note) => note === "symbolFilePath=src/util.ts" || note.endsWith("/src/util.ts"))
+        ).toBe(true);
+        expect(exactPacket.notes).toContain("importerCount=1");
+        expect(exactPacket.notes).toContain("typeOnlyImporterCount=0");
+        expect(packetNlpNotes(exact.run)).toEqual([]);
+        assertCitationAlignment({ events: exact.events, run: exact.run });
+
+        const relaxedPacket = O.getOrThrow(relaxed.run.retrievalPacket);
+        expect(O.getOrThrow(relaxed.run.answer)).toContain('Files importing symbol "repoMemoryAnswerHelper"');
+        expect(O.getOrThrow(relaxed.run.answer)).toContain("src/util.ts");
+        expect(O.getOrThrow(relaxed.run.answer)).toContain("src/index.ts");
+        expect(relaxedPacket.notes).toContain("symbolName=repoMemoryAnswerHelper");
+        expect(
+          A.some(relaxedPacket.notes, (note) => note === "symbolFilePath=src/util.ts" || note.endsWith("/src/util.ts"))
+        ).toBe(true);
+        expect(relaxedPacket.notes).toContain("importerCount=1");
+        expect(relaxedPacket.notes).toContain("typeOnlyImporterCount=0");
+        expect(packetNlpNotes(relaxed.run)).toContain("nlp:match-strategy=symbol-exact-variant");
+        expect(packetNlpNotes(relaxed.run)).toContain("nlp:matched-variant=repoMemoryAnswerHelper");
+        assertCitationAlignment({ events: relaxed.events, run: relaxed.run });
       })
     )
   );
