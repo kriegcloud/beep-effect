@@ -107,6 +107,116 @@ describe("LiteralKit", () => {
   });
 });
 
+describe("LiteralKit with manual Enum mapping", () => {
+  const Status = LiteralKit(
+    ["one", "two"] as const,
+    [
+      ["one", "ONE"],
+      ["two", "TWO"],
+    ] as const
+  );
+
+  it("maps Enum members to the provided manual keys", () => {
+    expect(Status.Enum.ONE).type.toBe<"one">();
+    expect(Status.Enum.TWO).type.toBe<"two">();
+  });
+
+  it("keeps the other helpers on the original LiteralToKey keys", () => {
+    expect(Status.is.one).type.toBe<(i: unknown) => i is "one">();
+    expect(Status.thunk.two).type.toBe<() => "two">();
+    expect(
+      Status.$match("one", {
+        one: () => "first" as const,
+        two: () => "second" as const,
+      })
+    ).type.toBe<"first" | "second">();
+
+    const Event = Status.toTaggedUnion("kind")({
+      one: {
+        value: S.Literal(1),
+      },
+      two: {
+        value: S.Literal(2),
+      },
+    });
+
+    expect(Event.guards.one).type.toBe<(u: unknown) => u is { readonly kind: "one"; readonly value: 1 }>();
+
+    const wrongMatchCases = {
+      ONE: () => "first" as const,
+      TWO: () => "second" as const,
+    } as const;
+
+    // @ts-expect-error!
+    Status.$match("one", wrongMatchCases);
+
+    const wrongTaggedCases = {
+      ONE: {
+        value: S.Literal(1),
+      },
+      TWO: {
+        value: S.Literal(2),
+      },
+    } as const;
+
+    // @ts-expect-error!
+    Status.toTaggedUnion("kind")(wrongTaggedCases);
+  });
+
+  it("supports mixed source literal types", () => {
+    const Mixed = LiteralKit(
+      [1, true, "two"] as const,
+      [
+        [1, "ONE"],
+        [true, "TRUE"],
+        ["two", "TWO"],
+      ] as const
+    );
+
+    expect(Mixed.Enum.ONE).type.toBe<1>();
+    expect(Mixed.Enum.TRUE).type.toBe<true>();
+    expect(Mixed.Enum.TWO).type.toBe<"two">();
+    expect(Mixed.is.number1).type.toBe<(i: unknown) => i is 1>();
+    expect(Mixed.is.true).type.toBe<(i: unknown) => i is true>();
+    expect(Mixed.is.two).type.toBe<(i: unknown) => i is "two">();
+  });
+
+  it("preserves exact Enum inference from non-fixed pair arrays", () => {
+    type Pair = readonly ["one", "ONE"] | readonly ["two", "TWO"];
+
+    const pairs: readonly [Pair, ...ReadonlyArray<Pair>] = [
+      ["one", "ONE"],
+      ["two", "TWO"],
+    ];
+
+    const StatusFromPairs = LiteralKit(["one", "two"] as const, pairs);
+
+    expect(StatusFromPairs.Enum.ONE).type.toBe<"one">();
+    expect(StatusFromPairs.Enum.TWO).type.toBe<"two">();
+  });
+
+  it("rejects invalid mappings at compile time", () => {
+    // @ts-expect-error!
+    LiteralKit(["one", "two"] as const, [["one", "ONE"]] as const);
+
+    const duplicateSourceMapping = [
+      ["one", "ONE"],
+      ["one", "UNO"],
+    ] as const;
+
+    // @ts-expect-error!
+    LiteralKit(["one", "two"] as const, duplicateSourceMapping);
+
+    const duplicateKeyMapping = [
+      ["one", "SAME"],
+      ["two", "SAME"],
+    ] as const;
+
+    // @ts-expect-error!
+    LiteralKit(["one", "two"] as const, duplicateKeyMapping);
+  });
+});
+
 describe("LiteralKit (string-only)", () => {
   const Dir = LiteralKit(["up", "down"] as const);
   const EventKind = LiteralKit(["created", "deleted"] as const);

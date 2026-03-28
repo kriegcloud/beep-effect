@@ -72,7 +72,8 @@ const composers = $I.compose(
 
   // editor
   "editor",
-  "observability"
+  "observability",
+  "shared-providers"
 );
 
 // --- common ---
@@ -353,3 +354,10 @@ export const $ScratchId: Identity.IdentityComposer<"@beep/scratch"> = composers.
  * @type {Identity.IdentityComposer<"@beep/observability">}
  */
 export const $ObservabilityId: Identity.IdentityComposer<"@beep/observability"> = composers.$ObservabilityId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/shared-providers">}
+ */
+export const $SharedProvidersId: Identity.IdentityComposer<"@beep/shared-providers"> = composers.$SharedProvidersId;

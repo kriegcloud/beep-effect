@@ -93,6 +93,7 @@
       "name": "@beep/crypto-taxes",
       "version": "0.0.0",
       "dependencies": {
+        "@1password/sdk": "catalog:",
         "@beep/data": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/messages": "workspace:^",
@@ -593,6 +594,14 @@
     "packages/shared/providers": {
       "name": "@beep/shared-providers",
       "version": "0.0.0",
+      "dependencies": {
+        "@1password/sdk": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
     },
     "packages/shared/server": {
       "name": "@beep/shared-server",

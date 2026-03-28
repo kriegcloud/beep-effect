@@ -15,6 +15,7 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "@1password/sdk": "catalog:",
     "@beep/data": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/messages": "workspace:^",

@@ -150,9 +150,11 @@
     "eslint-plugin-tsdoc": "catalog:",
     "fast-check": "catalog:",
     "glob": "catalog:",
+    "happy-dom": "catalog:",
     "lefthook": "catalog:",
     "madge": "catalog:",
     "markdownlint-cli2": "catalog:",
+    "path-to-regexp": "catalog:",
     "publint": "catalog:",
     "sst": "catalog:",
     "syncpack": "catalog:",
@@ -297,7 +299,9 @@
     "jscodeshift": "^17.3.0",
     "lefthook": "^2.1.4",
     "madge": "^8.0.0",
+    "happy-dom": "^20.8.9",
     "next": "16.2.1-canary.11",
+    "path-to-regexp": "^8.4.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-force-graph-2d": "^1.29.1",
@@ -356,9 +360,5 @@
     "@lexical/selection": "^0.42.0",
     "@lexical/table": "^0.42.0",
     "@lexical/headless": "^0.42.0"
-  },
-  "dependencies": {
-    "happy-dom": "^20.8.9",
-    "path-to-regexp": "^8.4.0"
   }
 }
