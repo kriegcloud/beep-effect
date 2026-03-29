@@ -1,4 +1,7 @@
 ---
+"@beep/desktop": patch
+"@beep/repo-memory-model": patch
+"@beep/repo-memory-runtime": patch
 ---
 
-Record the repo-memory query stage trace refinement, publish-unblock test hardening, and spec alignment without forcing package release bumps from this branch.
+Project query stage traces from existing repo-memory events, surface them in the desktop app, and harden repo-root integration assertions for worktree-based quality runs.
