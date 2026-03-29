@@ -9,8 +9,25 @@
  * @since 0.0.0
  */
 
+/**
+ * Published date reported by the official ISO 4217 List One feed.
+ *
+ * @since 0.0.0
+ */
 export const CurrencyCodeDataPublished = "2026-01-01" as const;
+
+/**
+ * Official source URL for the ISO 4217 List One feed.
+ *
+ * @since 0.0.0
+ */
 export const CurrencyCodeDataSourceUrl = "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml" as const;
+
+/**
+ * Normalized ISO 4217 currency entries emitted from the official feed.
+ *
+ * @since 0.0.0
+ */
 export const CurrencyCodeDataValues = [
   {
     code: "AED",

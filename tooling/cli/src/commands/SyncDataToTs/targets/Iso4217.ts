@@ -157,8 +157,25 @@ const renderIso4217Module = (published: string, values: ReadonlyArray<Iso4217Cur
  * @since 0.0.0
  */
 
+/**
+ * Published date reported by the official ISO 4217 List One feed.
+ *
+ * @since 0.0.0
+ */
 export const CurrencyCodeDataPublished = ${formatTsLiteral(published)} as const;
+
+/**
+ * Official source URL for the ISO 4217 List One feed.
+ *
+ * @since 0.0.0
+ */
 export const CurrencyCodeDataSourceUrl = ${formatTsLiteral(ISO4217_SOURCE_URL)} as const;
+
+/**
+ * Normalized ISO 4217 currency entries emitted from the official feed.
+ *
+ * @since 0.0.0
+ */
 export const CurrencyCodeDataValues = ${renderedValues} as const;
 `;
 };
