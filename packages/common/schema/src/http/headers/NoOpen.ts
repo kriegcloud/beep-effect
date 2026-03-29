@@ -71,7 +71,7 @@ type NoOpenResponseHeaderEncoded = typeof NoOpenResponseHeader.Encoded;
 /**
  * @since 0.0.0
  */
-export const NoOpenHeader = S.Union([NoOpenOption, S.Undefined]).pipe(
+export const NoOpenHeader = S.UndefinedOr(NoOpenOption).pipe(
   S.decodeTo(
     NoOpenResponseHeader,
     SchemaTransformation.transformOrFail({

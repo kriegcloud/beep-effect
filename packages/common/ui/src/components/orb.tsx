@@ -2,8 +2,8 @@
 
 import { useTexture } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Function as F } from "effect";
 import * as A from "effect/Array";
-import * as F from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import type React from "react";

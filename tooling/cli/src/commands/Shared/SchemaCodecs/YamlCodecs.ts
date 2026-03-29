@@ -9,9 +9,10 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { thunkEffectSucceed } from "@beep/utils";
 import { Effect, flow, Layer, pipe, SchemaIssue, SchemaTransformation, ServiceMap, Struct } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { parseDocument } from "yaml";
+import { parseDocument, type YAMLError } from "yaml";
 
 const $I = $RepoCliId.create("commands/Shared/SchemaCodecs/YamlCodecs");
 
@@ -42,22 +43,28 @@ export class YamlCodecService extends ServiceMap.Service<YamlCodecService, YamlC
   $I`YamlCodecService`
 ) {}
 
+const failInvalidValue: {
+  (errors: readonly [YAMLError, ...YAMLError[]], content: string): Effect.Effect<never, SchemaIssue.InvalidValue>;
+  (content: string): (errors: readonly [YAMLError, ...YAMLError[]]) => Effect.Effect<never, SchemaIssue.InvalidValue>;
+} = dual(2, (errors: readonly [YAMLError, ...YAMLError[]], content: string) =>
+  Effect.fail(
+    new SchemaIssue.InvalidValue(O.some(content), {
+      message: pipe(
+        errors,
+        A.map(Struct.get("message")),
+        A.join("; "),
+        (details) => `Invalid YAML input (${details}).`
+      ),
+    })
+  )
+);
+
 const parseUnknown: YamlCodecServiceShape["parseUnknown"] = Effect.fn(function* (content: string) {
   const document = parseDocument(content);
 
   return yield* A.match(document.errors, {
     onEmpty: thunkEffectSucceed(document.toJSON()),
-    onNonEmpty: (errors) =>
-      Effect.fail(
-        new SchemaIssue.InvalidValue(O.some(content), {
-          message: pipe(
-            errors,
-            A.map(Struct.get("message")),
-            A.join("; "),
-            (details) => `Invalid YAML input (${details}).`
-          ),
-        })
-      ),
+    onNonEmpty: failInvalidValue(content),
   });
 });
 

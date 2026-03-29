@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-03-28",
+  "generatedOn": "2026-03-29",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -1317,6 +1317,14 @@
     {
       "file": "tooling/cli/src/commands/Shared/SchemaCodecs/JsoncCodecs.ts",
       "symbol": "JsoncCodecServiceShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "tooling/cli/src/commands/Shared/SchemaCodecs/XmlCodecs.ts",
+      "symbol": "XmlCodecServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/repo-cli",

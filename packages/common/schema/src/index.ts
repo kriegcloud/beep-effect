@@ -49,6 +49,11 @@ export * from "./color/index.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./csv.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Email.ts";
 /**
  * @since 0.0.0
@@ -125,6 +130,16 @@ export * from "./AbortSignal.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./BufferEncoding.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./blockchain/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Duration.ts";
 /**
  * @since 0.0.0
@@ -141,6 +156,11 @@ export * from "./Fn.ts";
  * @category Validation
  */
 export * from "./http/index.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Json.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -168,6 +188,11 @@ export * from "./Primitive.ts";
 export * from "./person/index.ts";
 /**
  * @since 0.0.0
+ * @category Validation
+ */
+export * from "./RegExp.ts";
+/**
+ * @since 0.0.0
  * @category Utility
  */
 export * as SchemaUtils from "./SchemaUtils/index.ts";
@@ -186,6 +211,11 @@ export * from "./SeverityLevel.ts";
  * @category Validation
  */
 export * from "./Sha256.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Slug.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -216,6 +246,12 @@ export * from "./Timezone.ts";
  * @category Validation
  */
 export * from "./Transformations.ts";
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./URL.ts";
 /**
  * @since 0.0.0
  * @category Validation

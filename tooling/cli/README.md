@@ -34,6 +34,16 @@ Generate barrel file exports for a package.
 bunx @beep/repo-cli codegen [package-dir]
 ```
 
+### `sync-data-to-ts`
+
+Sync checked-in generated TypeScript data modules from official upstream sources.
+
+```bash
+bunx @beep/repo-cli sync-data-to-ts --target iso4217
+bunx @beep/repo-cli sync-data-to-ts --all
+bunx @beep/repo-cli sync-data-to-ts --all --check
+```
+
 ### `docs`
 
 Discover repository laws, skills, and policy gates through command-first output.

@@ -9,7 +9,7 @@
  * @since 0.0.0
  */
 
-import * as internal from "./internal/data/currency-codes.ts";
+import * as internal from "./generated/iso4217.ts";
 
 // -------------------------------------------------------------------------------------
 // types

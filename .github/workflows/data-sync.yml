@@ -1,0 +1,65 @@
+name: Official Data Sync
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 15 1 *"
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync-data:
+    name: Sync Official Data
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Sync official datasets
+        run: bun run beep sync-data-to-ts --all
+
+      - name: Typecheck repo CLI
+        run: bunx tsc -p tooling/cli/tsconfig.json --noEmit
+
+      - name: Test sync-data-to-ts
+        run: bunx vitest run tooling/cli/test/sync-data-to-ts.test.ts
+
+      - name: Typecheck @beep/data
+        run: bunx tsc -p packages/common/data/tsconfig.json --noEmit
+
+      - name: Test @beep/data currency exports
+        run: bunx vitest run packages/common/data/test/currency-codes.test.ts
+
+      - name: Create or update pull request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          token: ${{ secrets.BEEP_DATA_SYNC_TOKEN != '' && secrets.BEEP_DATA_SYNC_TOKEN || github.token }}
+          branch: automation/data-sync
+          delete-branch: true
+          commit-message: "chore(data): sync official datasets"
+          title: "chore(data): sync official datasets"
+          body: |
+            ## Summary
+
+            - refresh official generated datasets with `bun run beep sync-data-to-ts --all`
+            - re-run the focused CLI and `@beep/data` verification steps
+
+            This PR was opened automatically by `.github/workflows/data-sync.yml`.

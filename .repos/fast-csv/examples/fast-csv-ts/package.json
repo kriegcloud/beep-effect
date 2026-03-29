@@ -1,0 +1,19 @@
+{
+    "name": "fast-csv-ts-examples",
+    "version": "5.0.5",
+    "private": true,
+    "description": "fast-csv examples",
+    "scripts": {
+        "list": "run-examples --dir=build list",
+        "all-examples": "run-examples --dir=build  all",
+        "example": "run-examples --dir=build run",
+        "build": "npm run clean && npm run compile",
+        "clean": "rm -rf ./build && rm -rf tsconfig.tsbuildinfo",
+        "compile": "tsc"
+    },
+    "dependencies": {
+        "example-runner": "5.0.5",
+        "fast-csv": "5.0.5",
+        "typescript": "5.9.3"
+    }
+}

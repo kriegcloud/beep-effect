@@ -21,6 +21,8 @@
     "@beep/identity": "workspace:^",
     "@beep/messages": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@noble/hashes": "catalog:",
+    "@scure/base": "catalog:",
     "effect": "catalog:",
     "uuid": "catalog:"
   },
