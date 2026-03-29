@@ -2,6 +2,7 @@ import {
   AnswerDraftedEvent,
   Citation,
   CitationSpan,
+  type QueryRun,
   RepoId,
   RetrievalCountPayload,
   RetrievalPacket,
@@ -9,7 +10,9 @@ import {
   RunAcceptedEvent,
   RunEventSequence,
   RunId,
+  RunInterruptedEvent,
   RunProgressUpdatedEvent,
+  RunResumedEvent,
 } from "@beep/repo-memory-model";
 import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
@@ -68,8 +71,25 @@ const makePacket = (retrievedAt: DateTime.Utc) =>
     issue: O.none(),
   });
 
+const expectQueryStageStatuses = (
+  run: QueryRun,
+  expected: {
+    readonly grounding: "pending" | "running" | "completed";
+    readonly retrieval: "pending" | "running" | "completed";
+    readonly packet: "pending" | "running" | "completed";
+    readonly answer: "pending" | "running" | "completed";
+  }
+) => {
+  const queryStages = O.getOrThrow(run.queryStages);
+
+  expect(queryStages.grounding.status).toBe(expected.grounding);
+  expect(queryStages.retrieval.status).toBe(expected.retrieval);
+  expect(queryStages.packet.status).toBe(expected.packet);
+  expect(queryStages.answer.status).toBe(expected.answer);
+};
+
 describe("repo-memory run projector", () => {
-  it.effect("projects accepted progress packet and answer events onto a query run", () =>
+  it.effect("projects fixed query stages from accepted progress packet and answer events", () =>
     Effect.gen(function* () {
       const acceptedEvent = new RunAcceptedEvent({
         runId: queryRunId,
@@ -79,52 +99,222 @@ describe("repo-memory run projector", () => {
         repoId,
         question: O.some("describe symbol `answer`"),
       });
-      const progress = new RunProgressUpdatedEvent({
+      const groundingProgress = new RunProgressUpdatedEvent({
         runId: queryRunId,
         sequence: decodeRunEventSequence(2),
         emittedAt: makeUtc(1_706_300_001_000),
+        phase: "grounding",
+        message: "Normalizing the question.",
+        percent: O.some(decodeNonNegativeInt(25)),
+      });
+      const retrievalProgress = new RunProgressUpdatedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(3),
+        emittedAt: makeUtc(1_706_300_002_000),
         phase: "retrieval",
         message: "Retrieving grounded evidence.",
         percent: O.some(decodeNonNegativeInt(60)),
       });
-      const retrievalPacket = new RetrievalPacketMaterializedEvent({
-        runId: queryRunId,
-        sequence: decodeRunEventSequence(3),
-        emittedAt: makeUtc(1_706_300_002_000),
-        packet: makePacket(makeUtc(1_706_300_002_000)),
-      });
-      const answer = new AnswerDraftedEvent({
+      const packetProgress = new RunProgressUpdatedEvent({
         runId: queryRunId,
         sequence: decodeRunEventSequence(4),
         emittedAt: makeUtc(1_706_300_003_000),
+        phase: "packet",
+        message: "Freezing the retrieval packet.",
+        percent: O.some(decodeNonNegativeInt(80)),
+      });
+      const retrievalPacket = new RetrievalPacketMaterializedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(5),
+        emittedAt: makeUtc(1_706_300_004_000),
+        packet: makePacket(makeUtc(1_706_300_004_000)),
+      });
+      const answerProgress = new RunProgressUpdatedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(6),
+        emittedAt: makeUtc(1_706_300_005_000),
+        phase: "answer",
+        message: "Rendering the answer from packet state.",
+        percent: O.some(decodeNonNegativeInt(95)),
+      });
+      const answer = new AnswerDraftedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(7),
+        emittedAt: makeUtc(1_706_300_006_000),
         answer: "Symbol `answer` is exported from src/index.ts.",
         citations: [makeCitation()],
       });
 
       const accepted = yield* projectRunEvent(O.none(), acceptedEvent);
-      const running = yield* projectRunEvent(O.some(accepted), progress);
-      const withPacket = yield* projectRunEvent(O.some(running), retrievalPacket);
-      const withAnswer = yield* projectRunEvent(O.some(withPacket), answer);
+      const grounded = yield* projectRunEvent(O.some(accepted), groundingProgress);
+      const retrieved = yield* projectRunEvent(O.some(grounded), retrievalProgress);
+      const packeting = yield* projectRunEvent(O.some(retrieved), packetProgress);
+      const withPacket = yield* projectRunEvent(O.some(packeting), retrievalPacket);
+      const answering = yield* projectRunEvent(O.some(withPacket), answerProgress);
+      const withAnswer = yield* projectRunEvent(O.some(answering), answer);
 
       expect(accepted.kind).toBe("query");
-      expect(accepted.status).toBe("accepted");
-      expect(accepted.lastEventSequence).toBe(1);
-      expect(running.status).toBe("running");
-      expect(running.lastEventSequence).toBe(2);
-      expect(withPacket.kind).toBe("query");
-      expect(withPacket.lastEventSequence).toBe(3);
-      if (withPacket.kind !== "query") {
-        return yield* Effect.die("Expected projected query run after retrieval packet.");
+      if (accepted.kind !== "query") {
+        return yield* Effect.die("Expected projected query run after acceptance.");
       }
+      expectQueryStageStatuses(accepted, {
+        grounding: "pending",
+        retrieval: "pending",
+        packet: "pending",
+        answer: "pending",
+      });
+
+      if (grounded.kind !== "query" || retrieved.kind !== "query" || packeting.kind !== "query") {
+        return yield* Effect.die("Expected query runs while projecting stage progress.");
+      }
+
+      expectQueryStageStatuses(grounded, {
+        grounding: "running",
+        retrieval: "pending",
+        packet: "pending",
+        answer: "pending",
+      });
+      expectQueryStageStatuses(retrieved, {
+        grounding: "completed",
+        retrieval: "running",
+        packet: "pending",
+        answer: "pending",
+      });
+      expectQueryStageStatuses(packeting, {
+        grounding: "completed",
+        retrieval: "completed",
+        packet: "running",
+        answer: "pending",
+      });
+
+      if (withPacket.kind !== "query" || withAnswer.kind !== "query" || answering.kind !== "query") {
+        return yield* Effect.die("Expected projected query run after packet and answer artifacts.");
+      }
+
+      expectQueryStageStatuses(withPacket, {
+        grounding: "completed",
+        retrieval: "completed",
+        packet: "completed",
+        answer: "pending",
+      });
+      expect(O.getOrThrow(O.getOrThrow(withPacket.queryStages).packet.artifactAvailable)).toBe(true);
       expect(O.getOrThrow(withPacket.retrievalPacket).summary).toContain("Projector packet");
 
-      expect(withAnswer.kind).toBe("query");
-      expect(withAnswer.lastEventSequence).toBe(4);
-      if (withAnswer.kind !== "query") {
-        return yield* Effect.die("Expected projected query run after answer.");
-      }
+      expectQueryStageStatuses(answering, {
+        grounding: "completed",
+        retrieval: "completed",
+        packet: "completed",
+        answer: "running",
+      });
+
+      expectQueryStageStatuses(withAnswer, {
+        grounding: "completed",
+        retrieval: "completed",
+        packet: "completed",
+        answer: "completed",
+      });
+      expect(O.getOrThrow(O.getOrThrow(withAnswer.queryStages).answer.artifactAvailable)).toBe(true);
       expect(O.getOrThrow(withAnswer.answer)).toContain("src/index.ts");
       expect(withAnswer.citations.length).toBe(1);
+    })
+  );
+
+  it.effect("preserves projected query stage progress across interruption and resume", () =>
+    Effect.gen(function* () {
+      const accepted = yield* projectRunEvent(
+        O.none(),
+        new RunAcceptedEvent({
+          runId: queryRunId,
+          sequence: decodeRunEventSequence(1),
+          emittedAt: makeUtc(1_706_310_000_000),
+          runKind: "query",
+          repoId,
+          question: O.some("describe symbol `answer`"),
+        })
+      );
+      const grounding = yield* projectRunEvent(
+        O.some(accepted),
+        new RunProgressUpdatedEvent({
+          runId: queryRunId,
+          sequence: decodeRunEventSequence(2),
+          emittedAt: makeUtc(1_706_310_001_000),
+          phase: "grounding",
+          message: "Normalizing the question.",
+          percent: O.some(decodeNonNegativeInt(25)),
+        })
+      );
+      const retrieval = yield* projectRunEvent(
+        O.some(grounding),
+        new RunProgressUpdatedEvent({
+          runId: queryRunId,
+          sequence: decodeRunEventSequence(3),
+          emittedAt: makeUtc(1_706_310_002_000),
+          phase: "retrieval",
+          message: "Retrieving grounded evidence.",
+          percent: O.some(decodeNonNegativeInt(60)),
+        })
+      );
+      const interrupted = yield* projectRunEvent(
+        O.some(retrieval),
+        new RunInterruptedEvent({
+          runId: queryRunId,
+          sequence: decodeRunEventSequence(4),
+          emittedAt: makeUtc(1_706_310_003_000),
+        })
+      );
+      const resumed = yield* projectRunEvent(
+        O.some(interrupted),
+        new RunResumedEvent({
+          runId: queryRunId,
+          sequence: decodeRunEventSequence(5),
+          emittedAt: makeUtc(1_706_310_004_000),
+        })
+      );
+      const packeting = yield* projectRunEvent(
+        O.some(resumed),
+        new RunProgressUpdatedEvent({
+          runId: queryRunId,
+          sequence: decodeRunEventSequence(6),
+          emittedAt: makeUtc(1_706_310_005_000),
+          phase: "packet",
+          message: "Freezing the retrieval packet.",
+          percent: O.some(decodeNonNegativeInt(80)),
+        })
+      );
+
+      if (
+        retrieval.kind !== "query" ||
+        interrupted.kind !== "query" ||
+        resumed.kind !== "query" ||
+        packeting.kind !== "query"
+      ) {
+        return yield* Effect.die("Expected query runs while testing interruption and resume.");
+      }
+
+      expectQueryStageStatuses(retrieval, {
+        grounding: "completed",
+        retrieval: "running",
+        packet: "pending",
+        answer: "pending",
+      });
+      expectQueryStageStatuses(interrupted, {
+        grounding: "completed",
+        retrieval: "running",
+        packet: "pending",
+        answer: "pending",
+      });
+      expectQueryStageStatuses(resumed, {
+        grounding: "completed",
+        retrieval: "running",
+        packet: "pending",
+        answer: "pending",
+      });
+      expectQueryStageStatuses(packeting, {
+        grounding: "completed",
+        retrieval: "completed",
+        packet: "running",
+        answer: "pending",
+      });
     })
   );
 

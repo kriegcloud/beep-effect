@@ -94,8 +94,8 @@ Important reading posture:
 
 ## Known Remaining P0 Gaps
 - `RunProjector` and `RunStateMachine` now exist as explicit seams, but the broader projection bootstrap/cursor pipeline and decider-style service split still live mostly inside `RepoRunService`.
-- The concrete query-run contract now expects the canonical `grounding -> retrieval -> packet -> answer` stage split, structured retrieval-packet payloads/issues, and packet-only answer rendering; code should keep converging on that shape.
-- Extraction provenance and query-time explainability are now intentionally separated in the docs, but the runtime still needs to finish making that split obvious in its internal artifacts and UI rendering.
+- The concrete query-run contract is now implemented around the canonical `grounding -> retrieval -> packet -> answer` stage split, structured retrieval-packet payloads/issues, packet-only answer rendering, and a light `QueryRun.queryStages` projection derived from existing progress/packet/answer events without adding new durable event kinds.
+- Extraction provenance and query-time explainability are now intentionally separated in both the docs and the repo-memory `v0` read model; the next closure work is broader projection bootstrap/cursor ownership and the decider-style runtime split rather than new query artifact kinds.
 - Grounded query expansion should continue only through deterministic source-backed additions, not freeform semantic repo chat.
 
 ## Relationship To Upstream Context

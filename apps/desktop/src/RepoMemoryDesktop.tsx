@@ -12,6 +12,7 @@ import {
   InterruptRepoRunRequest,
   QueryRepoRunInput,
   type QueryRun,
+  type QueryStageTrace,
   type RepoRegistration,
   RepoRegistrationInput,
   type RepoRun,
@@ -40,6 +41,12 @@ import {
   startManagedSidecar,
   stopManagedSidecar,
 } from "./native.ts";
+import {
+  formatOptionalPercent,
+  formatQueryStageLabel,
+  formatQueryStageStatusTone,
+  queryStageEntries,
+} from "./queryStages.ts";
 
 const defaultBaseUrl = "http://127.0.0.1:8788";
 const desktopSessionId = "desktop-shell";
@@ -488,6 +495,7 @@ export function RepoMemoryDesktop() {
   const visibleCitations = queryRun === null ? [] : citationsFromRun(queryRun, selectedRunEvents);
   const visiblePacket =
     queryRun === null ? O.none<RetrievalPacket>() : retrievalPacketFromRun(queryRun, selectedRunEvents);
+  const visibleQueryStages = queryRun === null ? O.none<QueryStageTrace>() : queryRun.queryStages;
 
   useEffect(() => {
     persistSidecarBaseUrl(baseUrlInput);
@@ -1605,6 +1613,65 @@ export function RepoMemoryDesktop() {
                   <section className="detail-card">
                     <h3>Grounded answer</h3>
                     <p className="answer-copy">{visibleAnswer}</p>
+                  </section>
+
+                  <section className="detail-card">
+                    <h3>Query stages</h3>
+                    {pipe(
+                      visibleQueryStages,
+                      O.match({
+                        onNone: () => <p className="empty-state">No projected query stages are available yet.</p>,
+                        onSome: (queryStages) => (
+                          <div className="query-stage-grid">
+                            {queryStageEntries(queryStages).map((stage) => (
+                              <article key={stage.phase} className="query-stage-card">
+                                <div className="query-stage-top">
+                                  <strong>{formatQueryStageLabel(stage.phase)}</strong>
+                                  <span className={`metric-chip ${formatQueryStageStatusTone(stage.status)}`}>
+                                    {stage.status}
+                                  </span>
+                                </div>
+                                <p className="field-note">
+                                  {pipe(
+                                    stage.latestMessage,
+                                    O.getOrElse(() => "No stage message has been projected yet.")
+                                  )}
+                                </p>
+                                <dl className="meta-grid query-stage-meta">
+                                  <div>
+                                    <dt>Started</dt>
+                                    <dd>{formatOptionalDateTime(stage.startedAt)}</dd>
+                                  </div>
+                                  <div>
+                                    <dt>Completed</dt>
+                                    <dd>{formatOptionalDateTime(stage.completedAt)}</dd>
+                                  </div>
+                                  <div>
+                                    <dt>Percent</dt>
+                                    <dd>{formatOptionalPercent(stage.percent)}</dd>
+                                  </div>
+                                  {stage.phase === "packet" || stage.phase === "answer" ? (
+                                    <div>
+                                      <dt>Artifact</dt>
+                                      <dd>
+                                        {pipe(
+                                          stage.artifactAvailable,
+                                          O.match({
+                                            onNone: () => "Not yet",
+                                            onSome: (artifactAvailable) =>
+                                              artifactAvailable ? "Available" : "Not yet",
+                                          })
+                                        )}
+                                      </dd>
+                                    </div>
+                                  ) : null}
+                                </dl>
+                              </article>
+                            ))}
+                          </div>
+                        ),
+                      })
+                    )}
                   </section>
 
                   <section className="detail-card">

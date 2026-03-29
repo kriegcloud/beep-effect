@@ -368,6 +368,32 @@ code {
   gap: 14px;
 }
 
+.query-stage-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.query-stage-card {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(245, 241, 230, 0.08);
+  border-radius: 16px;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.query-stage-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.query-stage-meta {
+  margin: 0;
+}
+
 .field {
   display: grid;
   gap: 0.48rem;
@@ -610,7 +636,9 @@ code {
 .workspace-grid > *,
 .stack > *,
 .detail-stack > *,
-.packet-shell > * {
+.packet-shell > *,
+.query-stage-grid > *,
+.query-stage-card > * {
   min-width: 0;
 }
 
@@ -631,6 +659,7 @@ code {
 .list-item p,
 .answer-copy,
 .packet-summary,
+.query-stage-card p,
 .notice,
 .status-line,
 .field-note,

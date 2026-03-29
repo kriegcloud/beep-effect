@@ -118,6 +118,153 @@ export class IndexRun extends S.Class<IndexRun>($I`IndexRun`)(
 ) {}
 
 /**
+ * Canonical query stage phases projected for deterministic repo-memory runs.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const QueryStagePhase = LiteralKit(["grounding", "retrieval", "packet", "answer"]).annotate(
+  $I.annote("QueryStagePhase", {
+    description: "Canonical query stage phases projected for deterministic repo-memory runs.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type QueryStagePhase = typeof QueryStagePhase.Type;
+
+/**
+ * Lifecycle status projected for one query stage.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const QueryStageStatus = LiteralKit(["pending", "running", "completed"]).annotate(
+  $I.annote("QueryStageStatus", {
+    description: "Lifecycle status projected for one query stage.",
+  })
+);
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type QueryStageStatus = typeof QueryStageStatus.Type;
+
+const QueryStageStateFields = {
+  status: QueryStageStatus,
+  startedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromMillis),
+  completedAt: S.OptionFromOptionalKey(S.DateTimeUtcFromMillis),
+  latestMessage: S.OptionFromOptionalKey(S.String),
+  percent: S.OptionFromOptionalKey(NonNegativeInt),
+  artifactAvailable: S.OptionFromOptionalKey(S.Boolean),
+} as const;
+
+/**
+ * Projected state for the grounding stage.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class GroundingQueryStage extends S.Class<GroundingQueryStage>($I`GroundingQueryStage`)(
+  {
+    phase: S.tag("grounding"),
+    ...QueryStageStateFields,
+  },
+  $I.annote("GroundingQueryStage", {
+    description: "Projected state for the grounding stage.",
+  })
+) {}
+
+/**
+ * Projected state for the retrieval stage.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class RetrievalQueryStage extends S.Class<RetrievalQueryStage>($I`RetrievalQueryStage`)(
+  {
+    phase: S.tag("retrieval"),
+    ...QueryStageStateFields,
+  },
+  $I.annote("RetrievalQueryStage", {
+    description: "Projected state for the retrieval stage.",
+  })
+) {}
+
+/**
+ * Projected state for the packet stage.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class PacketQueryStage extends S.Class<PacketQueryStage>($I`PacketQueryStage`)(
+  {
+    phase: S.tag("packet"),
+    ...QueryStageStateFields,
+  },
+  $I.annote("PacketQueryStage", {
+    description: "Projected state for the packet stage.",
+  })
+) {}
+
+/**
+ * Projected state for the answer stage.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class AnswerQueryStage extends S.Class<AnswerQueryStage>($I`AnswerQueryStage`)(
+  {
+    phase: S.tag("answer"),
+    ...QueryStageStateFields,
+  },
+  $I.annote("AnswerQueryStage", {
+    description: "Projected state for the answer stage.",
+  })
+) {}
+
+/**
+ * Projected state union for one query stage.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export const QueryStage = S.Union([GroundingQueryStage, RetrievalQueryStage, PacketQueryStage, AnswerQueryStage])
+  .annotate(
+    $I.annote("QueryStage", {
+      description: "Projected state union for one query stage.",
+    })
+  )
+  .pipe(S.toTaggedUnion("phase"));
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type QueryStage = typeof QueryStage.Type;
+
+/**
+ * Fixed four-stage trace projected for one query run.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class QueryStageTrace extends S.Class<QueryStageTrace>($I`QueryStageTrace`)(
+  {
+    grounding: GroundingQueryStage,
+    retrieval: RetrievalQueryStage,
+    packet: PacketQueryStage,
+    answer: AnswerQueryStage,
+  },
+  $I.annote("QueryStageTrace", {
+    description: "Fixed four-stage trace projected for one query run.",
+  })
+) {}
+
+/**
  * Projection shape for repository query runs.
  *
  * @since 0.0.0
@@ -137,6 +284,7 @@ export class QueryRun extends S.Class<QueryRun>($I`QueryRun`)(
     answer: S.OptionFromOptionalKey(S.String),
     citations: S.Array(Citation),
     retrievalPacket: S.OptionFromOptionalKey(RetrievalPacket),
+    queryStages: S.OptionFromOptionalKey(QueryStageTrace),
     errorMessage: S.OptionFromOptionalKey(S.String),
   },
   $I.annote("QueryRun", {

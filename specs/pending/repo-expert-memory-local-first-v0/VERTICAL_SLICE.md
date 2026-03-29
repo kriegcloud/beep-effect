@@ -92,6 +92,7 @@ The progress story for query runs should be explicit:
 
 ### 5. Inspect grounded result
 The final query view must show:
+- query stage trace
 - final answer
 - citations
 - retrieval packet
@@ -133,7 +134,7 @@ Testing posture for this slice:
 
 ## Remaining Slice Gaps
 - `RunProjector` and `RunStateMachine` still need to become real runtime seams instead of staying embedded in `RepoRunService`.
-- The runtime still needs to make the new stage split and structured packet contract explicit in code, replay, and UI rendering.
+- The broader projection bootstrap/cursor pipeline and decider-style runtime split still need to move out of `RepoRunService` without regressing the now-landed query stage trace, structured packet contract, and packet-driven answer rendering.
 
 ## Minimal Data Shown In The UI
 The first UI does not need to be broad, but it does need to be inspectable.
