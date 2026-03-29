@@ -16,7 +16,7 @@ import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Effect, HashMap, HashSet, Layer } from "effect";
+import { Effect, FileSystem, HashMap, HashSet, Layer } from "effect";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
@@ -25,12 +25,19 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
   // ── findRepoRoot ─────────────────────────────────────────────────────
   describe("findRepoRoot", () => {
     it.effect(
-      "should find the beep-effect root directory",
+      "should find the monorepo root directory",
       Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
         const root = yield* findRepoRoot();
-        expect(root).toMatch(/beep-effect\d*$/);
-        // The root must contain the monorepo's root package.json
+        const hasPackageJson = yield* fs.exists(`${root}/package.json`);
+        const hasTurboJson = yield* fs.exists(`${root}/turbo.json`);
+        const hasBunLock = yield* fs.exists(`${root}/bun.lock`);
+
+        expect(root.startsWith("/")).toBe(true);
         expect(root.endsWith("/")).toBe(false);
+        expect(hasPackageJson).toBe(true);
+        expect(hasTurboJson).toBe(true);
+        expect(hasBunLock).toBe(true);
       })
     );
   });
