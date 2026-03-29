@@ -23,12 +23,27 @@ export * as Calendar from "./Calendar.ts";
  * @since 0.0.0
  * @category Constants
  */
+export * from "./Continents.ts";
+/**
+ * @since 0.0.0
+ * @category Constants
+ */
 export * as CurrencyCodes from "./CurrencyCodes.ts";
 /**
  * @since 0.0.0
  * @category Constants
  */
+export * from "./KeyboardShortcuts.ts";
+/**
+ * @since 0.0.0
+ * @category Constants
+ */
 export * as MimeTypesData from "./MimeTypes.ts";
+/**
+ * @since 0.0.0
+ * @category Constants
+ */
+export * from "./ProgrammingLanguages.ts";
 /**
  * @since 0.0.0
  * @category Constants
@@ -39,58 +54,40 @@ export * as Timezones from "./Timezones.ts";
  * @since 0.0.0
  * @category Constants
  */
-export * from "./Continents.ts"
+export * from "./UnitsOfMeasurement.ts";
 
 /**
  * @since 0.0.0
  * @category Constants
  */
-export * from "./KeyboardShortcuts.ts"
+export * from "./USCapitals.ts";
 
 /**
  * @since 0.0.0
  * @category Constants
  */
-export * from "./ProgrammingLanguages.ts"
+export * from "./USStates.ts";
 
 /**
  * @since 0.0.0
  * @category Constants
  */
-export * from "./UnitsOfMeasurement.ts"
+export * from "./WorldCountries.ts";
 
 /**
  * @since 0.0.0
  * @category Constants
  */
-export * from "./USCapitals.ts"
+export * from "./WorldCurrencies.ts";
 
 /**
  * @since 0.0.0
  * @category Constants
  */
-export * from "./USStates.ts"
+export * from "./WorldLanguages.ts";
 
 /**
  * @since 0.0.0
  * @category Constants
  */
-export * from "./WorldCountries.ts"
-
-/**
- * @since 0.0.0
- * @category Constants
- */
-export * from "./WorldCurrencies.ts"
-
-/**
- * @since 0.0.0
- * @category Constants
- */
-export * from "./WorldLanguages.ts"
-
-/**
- * @since 0.0.0
- * @category Constants
- */
-export * from "./WorldTimezones.ts"
+export * from "./WorldTimezones.ts";

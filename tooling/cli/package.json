@@ -63,7 +63,9 @@
     "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/platform-node": "catalog:",
+    "d3-dsv": "catalog:",
     "effect": "catalog:",
+    "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
     "jsonc-parser": "catalog:",
     "yaml": "catalog:"

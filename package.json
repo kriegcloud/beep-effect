@@ -175,7 +175,9 @@
   "catalog": {
     "@noble/hashes": "^2.0.1",
     "@scure/base": "^2.0.0",
+    "d3-dsv": "^3.0.1",
     "eslint-plugin-tsdoc": "^0.5.2",
+    "fast-xml-parser": "^5.3.0",
     "zod": "^4.3.6",
     "@neondatabase/serverless": "^1.0.2",
     "drizzle-orm": "^1.0.0-beta.9-e89174b",

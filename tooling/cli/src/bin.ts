@@ -14,6 +14,7 @@ import { Effect, Layer } from "effect";
 import { Command } from "effect/unstable/cli";
 import { FetchHttpClient } from "effect/unstable/http";
 import { rootCommand } from "./commands/Root.js";
+import { XmlCodecServiceLive } from "./commands/Shared/SchemaCodecs/index.js";
 
 /**
  * Foundation layer providing Node.js implementations of FileSystem, Path, and Terminal.
@@ -42,7 +43,8 @@ const DerivedLayers = Layer.mergeAll(
   NodeChildProcessSpawner.layer,
   FetchHttpClient.layer,
   FsUtilsLive,
-  TSMorphServiceLive
+  TSMorphServiceLive,
+  XmlCodecServiceLive
 ).pipe(Layer.provideMerge(BaseLayers));
 
 /**

@@ -7,617 +7,358 @@
  * @module @beep/data/USStates
  * @since 0.0.0
  */
+/**
+ * @since 0.0.0
+ */
 export const USStates = [
   {
-    "name": "Alabama",
-    "abbreviation": "AL",
-    "capital": "Montgomery",
-    "founded": "1819-12-14",
-    "borders": [
-      "Florida",
-      "Georgia",
-      "Mississippi",
-      "Tennessee"
-    ]
+    name: "Alabama",
+    abbreviation: "AL",
+    capital: "Montgomery",
+    founded: "1819-12-14",
+    borders: ["Florida", "Georgia", "Mississippi", "Tennessee"],
   },
   {
-    "name": "Alaska",
-    "abbreviation": "AK",
-    "capital": "Juneau",
-    "founded": "1959-01-03",
-    "borders": []
+    name: "Alaska",
+    abbreviation: "AK",
+    capital: "Juneau",
+    founded: "1959-01-03",
+    borders: [],
   },
   {
-    "name": "Arizona",
-    "abbreviation": "AZ",
-    "capital": "Phoenix",
-    "founded": "1912-02-14",
-    "borders": [
-      "California",
-      "Colorado",
-      "Nevada",
-      "New Mexico",
-      "Utah"
-    ]
+    name: "Arizona",
+    abbreviation: "AZ",
+    capital: "Phoenix",
+    founded: "1912-02-14",
+    borders: ["California", "Colorado", "Nevada", "New Mexico", "Utah"],
   },
   {
-    "name": "Arkansas",
-    "abbreviation": "AR",
-    "capital": "Little Rock",
-    "founded": "1836-06-15",
-    "borders": [
-      "Louisiana",
-      "Mississippi",
-      "Missouri",
-      "Oklahoma",
-      "Tennessee",
-      "Texas"
-    ]
+    name: "Arkansas",
+    abbreviation: "AR",
+    capital: "Little Rock",
+    founded: "1836-06-15",
+    borders: ["Louisiana", "Mississippi", "Missouri", "Oklahoma", "Tennessee", "Texas"],
   },
   {
-    "name": "California",
-    "abbreviation": "CA",
-    "capital": "Sacramento",
-    "founded": "1850-09-09",
-    "borders": [
-      "Arizona",
-      "Nevada",
-      "Oregon"
-    ]
+    name: "California",
+    abbreviation: "CA",
+    capital: "Sacramento",
+    founded: "1850-09-09",
+    borders: ["Arizona", "Nevada", "Oregon"],
   },
   {
-    "name": "Colorado",
-    "abbreviation": "CO",
-    "capital": "Denver",
-    "founded": "1876-08-01",
-    "borders": [
-      "Arizona",
-      "Kansas",
-      "Nebraska",
-      "New Mexico",
-      "Oklahoma",
-      "Utah",
-      "Wyoming"
-    ]
+    name: "Colorado",
+    abbreviation: "CO",
+    capital: "Denver",
+    founded: "1876-08-01",
+    borders: ["Arizona", "Kansas", "Nebraska", "New Mexico", "Oklahoma", "Utah", "Wyoming"],
   },
   {
-    "name": "Connecticut",
-    "abbreviation": "CT",
-    "capital": "Hartford",
-    "founded": "1788-01-09",
-    "borders": [
-      "Massachusetts",
-      "New York",
-      "Rhode Island"
-    ]
+    name: "Connecticut",
+    abbreviation: "CT",
+    capital: "Hartford",
+    founded: "1788-01-09",
+    borders: ["Massachusetts", "New York", "Rhode Island"],
   },
   {
-    "name": "Delaware",
-    "abbreviation": "DE",
-    "capital": "Dover",
-    "founded": "1787-12-07",
-    "borders": [
-      "Maryland",
-      "New Jersey",
-      "Pennsylvania"
-    ]
+    name: "Delaware",
+    abbreviation: "DE",
+    capital: "Dover",
+    founded: "1787-12-07",
+    borders: ["Maryland", "New Jersey", "Pennsylvania"],
   },
   {
-    "name": "Florida",
-    "abbreviation": "FL",
-    "capital": "Tallahassee",
-    "founded": "1845-03-03",
-    "borders": [
-      "Alabama",
-      "Georgia"
-    ]
+    name: "Florida",
+    abbreviation: "FL",
+    capital: "Tallahassee",
+    founded: "1845-03-03",
+    borders: ["Alabama", "Georgia"],
   },
   {
-    "name": "Georgia",
-    "abbreviation": "GA",
-    "capital": "Atlanta",
-    "founded": "1788-01-02",
-    "borders": [
-      "Alabama",
-      "Florida",
-      "North Carolina",
-      "South Carolina",
-      "Tennessee"
-    ]
+    name: "Georgia",
+    abbreviation: "GA",
+    capital: "Atlanta",
+    founded: "1788-01-02",
+    borders: ["Alabama", "Florida", "North Carolina", "South Carolina", "Tennessee"],
   },
   {
-    "name": "Hawaii",
-    "abbreviation": "HI",
-    "capital": "Honolulu",
-    "founded": "1959-08-21",
-    "borders": []
+    name: "Hawaii",
+    abbreviation: "HI",
+    capital: "Honolulu",
+    founded: "1959-08-21",
+    borders: [],
   },
   {
-    "name": "Idaho",
-    "abbreviation": "ID",
-    "capital": "Boise",
-    "founded": "1890-07-03",
-    "borders": [
-      "Montana",
-      "Nevada",
-      "Oregon",
-      "Utah",
-      "Washington",
-      "Wyoming"
-    ]
+    name: "Idaho",
+    abbreviation: "ID",
+    capital: "Boise",
+    founded: "1890-07-03",
+    borders: ["Montana", "Nevada", "Oregon", "Utah", "Washington", "Wyoming"],
   },
   {
-    "name": "Illinois",
-    "abbreviation": "IL",
-    "capital": "Springfield",
-    "founded": "1818-12-03",
-    "borders": [
-      "Indiana",
-      "Iowa",
-      "Kentucky",
-      "Missouri",
-      "Wisconsin"
-    ]
+    name: "Illinois",
+    abbreviation: "IL",
+    capital: "Springfield",
+    founded: "1818-12-03",
+    borders: ["Indiana", "Iowa", "Kentucky", "Missouri", "Wisconsin"],
   },
   {
-    "name": "Indiana",
-    "abbreviation": "IN",
-    "capital": "Indianapolis",
-    "founded": "1816-12-11",
-    "borders": [
-      "Illinois",
-      "Kentucky",
-      "Michigan",
-      "Ohio"
-    ]
+    name: "Indiana",
+    abbreviation: "IN",
+    capital: "Indianapolis",
+    founded: "1816-12-11",
+    borders: ["Illinois", "Kentucky", "Michigan", "Ohio"],
   },
   {
-    "name": "Iowa",
-    "abbreviation": "IA",
-    "capital": "Des Moines",
-    "founded": "1846-12-28",
-    "borders": [
-      "Illinois",
-      "Minnesota",
-      "Missouri",
-      "Nebraska",
-      "South Dakota",
-      "Wisconsin"
-    ]
+    name: "Iowa",
+    abbreviation: "IA",
+    capital: "Des Moines",
+    founded: "1846-12-28",
+    borders: ["Illinois", "Minnesota", "Missouri", "Nebraska", "South Dakota", "Wisconsin"],
   },
   {
-    "name": "Kansas",
-    "abbreviation": "KS",
-    "capital": "Topeka",
-    "founded": "1861-01-29",
-    "borders": [
-      "Colorado",
-      "Missouri",
-      "Nebraska",
-      "Oklahoma"
-    ]
+    name: "Kansas",
+    abbreviation: "KS",
+    capital: "Topeka",
+    founded: "1861-01-29",
+    borders: ["Colorado", "Missouri", "Nebraska", "Oklahoma"],
   },
   {
-    "name": "Kentucky",
-    "abbreviation": "KY",
-    "capital": "Frankfort",
-    "founded": "1792-06-01",
-    "borders": [
-      "Illinois",
-      "Indiana",
-      "Missouri",
-      "Ohio",
-      "Tennessee",
-      "Virginia",
-      "West Virginia"
-    ]
+    name: "Kentucky",
+    abbreviation: "KY",
+    capital: "Frankfort",
+    founded: "1792-06-01",
+    borders: ["Illinois", "Indiana", "Missouri", "Ohio", "Tennessee", "Virginia", "West Virginia"],
   },
   {
-    "name": "Louisiana",
-    "abbreviation": "LA",
-    "capital": "Baton Rouge",
-    "founded": "1812-04-30",
-    "borders": [
-      "Arkansas",
-      "Mississippi",
-      "Texas"
-    ]
+    name: "Louisiana",
+    abbreviation: "LA",
+    capital: "Baton Rouge",
+    founded: "1812-04-30",
+    borders: ["Arkansas", "Mississippi", "Texas"],
   },
   {
-    "name": "Maine",
-    "abbreviation": "ME",
-    "capital": "Augusta",
-    "founded": "1820-03-15",
-    "borders": [
-      "New Hampshire"
-    ]
+    name: "Maine",
+    abbreviation: "ME",
+    capital: "Augusta",
+    founded: "1820-03-15",
+    borders: ["New Hampshire"],
   },
   {
-    "name": "Maryland",
-    "abbreviation": "MD",
-    "capital": "Annapolis",
-    "founded": "1788-04-28",
-    "borders": [
-      "Delaware",
-      "Pennsylvania",
-      "Virginia",
-      "West Virginia"
-    ]
+    name: "Maryland",
+    abbreviation: "MD",
+    capital: "Annapolis",
+    founded: "1788-04-28",
+    borders: ["Delaware", "Pennsylvania", "Virginia", "West Virginia"],
   },
   {
-    "name": "Massachusetts",
-    "abbreviation": "MA",
-    "capital": "Boston",
-    "founded": "1788-02-06",
-    "borders": [
-      "Connecticut",
-      "New Hampshire",
-      "New York",
-      "Rhode Island",
-      "Vermont"
-    ]
+    name: "Massachusetts",
+    abbreviation: "MA",
+    capital: "Boston",
+    founded: "1788-02-06",
+    borders: ["Connecticut", "New Hampshire", "New York", "Rhode Island", "Vermont"],
   },
   {
-    "name": "Michigan",
-    "abbreviation": "MI",
-    "capital": "Lansing",
-    "founded": "1837-01-26",
-    "borders": [
-      "Indiana",
-      "Ohio",
-      "Wisconsin"
-    ]
+    name: "Michigan",
+    abbreviation: "MI",
+    capital: "Lansing",
+    founded: "1837-01-26",
+    borders: ["Indiana", "Ohio", "Wisconsin"],
   },
   {
-    "name": "Minnesota",
-    "abbreviation": "MN",
-    "capital": "Saint Paul",
-    "founded": "1858-05-11",
-    "borders": [
-      "Iowa",
-      "North Dakota",
-      "South Dakota",
-      "Wisconsin"
-    ]
+    name: "Minnesota",
+    abbreviation: "MN",
+    capital: "Saint Paul",
+    founded: "1858-05-11",
+    borders: ["Iowa", "North Dakota", "South Dakota", "Wisconsin"],
   },
   {
-    "name": "Mississippi",
-    "abbreviation": "MS",
-    "capital": "Jackson",
-    "founded": "1817-12-10",
-    "borders": [
-      "Alabama",
-      "Arkansas",
-      "Louisiana",
-      "Tennessee"
-    ]
+    name: "Mississippi",
+    abbreviation: "MS",
+    capital: "Jackson",
+    founded: "1817-12-10",
+    borders: ["Alabama", "Arkansas", "Louisiana", "Tennessee"],
   },
   {
-    "name": "Missouri",
-    "abbreviation": "MO",
-    "capital": "Jefferson City",
-    "founded": "1821-08-10",
-    "borders": [
-      "Arkansas",
-      "Illinois",
-      "Iowa",
-      "Kansas",
-      "Kentucky",
-      "Nebraska",
-      "Oklahoma",
-      "Tennessee"
-    ]
+    name: "Missouri",
+    abbreviation: "MO",
+    capital: "Jefferson City",
+    founded: "1821-08-10",
+    borders: ["Arkansas", "Illinois", "Iowa", "Kansas", "Kentucky", "Nebraska", "Oklahoma", "Tennessee"],
   },
   {
-    "name": "Montana",
-    "abbreviation": "MT",
-    "capital": "Helena",
-    "founded": "1889-11-08",
-    "borders": [
-      "Idaho",
-      "North Dakota",
-      "South Dakota",
-      "Wyoming"
-    ]
+    name: "Montana",
+    abbreviation: "MT",
+    capital: "Helena",
+    founded: "1889-11-08",
+    borders: ["Idaho", "North Dakota", "South Dakota", "Wyoming"],
   },
   {
-    "name": "Nebraska",
-    "abbreviation": "NE",
-    "capital": "Lincoln",
-    "founded": "1867-03-01",
-    "borders": [
-      "Colorado",
-      "Iowa",
-      "Kansas",
-      "Missouri",
-      "South Dakota",
-      "Wyoming"
-    ]
+    name: "Nebraska",
+    abbreviation: "NE",
+    capital: "Lincoln",
+    founded: "1867-03-01",
+    borders: ["Colorado", "Iowa", "Kansas", "Missouri", "South Dakota", "Wyoming"],
   },
   {
-    "name": "Nevada",
-    "abbreviation": "NV",
-    "capital": "Carson City",
-    "founded": "1864-10-31",
-    "borders": [
-      "Arizona",
-      "California",
-      "Idaho",
-      "Oregon",
-      "Utah"
-    ]
+    name: "Nevada",
+    abbreviation: "NV",
+    capital: "Carson City",
+    founded: "1864-10-31",
+    borders: ["Arizona", "California", "Idaho", "Oregon", "Utah"],
   },
   {
-    "name": "New Hampshire",
-    "abbreviation": "NH",
-    "capital": "Concord",
-    "founded": "1788-06-21",
-    "borders": [
-      "Maine",
-      "Massachusetts",
-      "Vermont"
-    ]
+    name: "New Hampshire",
+    abbreviation: "NH",
+    capital: "Concord",
+    founded: "1788-06-21",
+    borders: ["Maine", "Massachusetts", "Vermont"],
   },
   {
-    "name": "New Jersey",
-    "abbreviation": "NJ",
-    "capital": "Trenton",
-    "founded": "1787-12-18",
-    "borders": [
-      "Delaware",
-      "New York",
-      "Pennsylvania"
-    ]
+    name: "New Jersey",
+    abbreviation: "NJ",
+    capital: "Trenton",
+    founded: "1787-12-18",
+    borders: ["Delaware", "New York", "Pennsylvania"],
   },
   {
-    "name": "New Mexico",
-    "abbreviation": "NM",
-    "capital": "Santa Fe",
-    "founded": "1912-01-06",
-    "borders": [
-      "Arizona",
-      "Colorado",
-      "Oklahoma",
-      "Texas",
-      "Utah"
-    ]
+    name: "New Mexico",
+    abbreviation: "NM",
+    capital: "Santa Fe",
+    founded: "1912-01-06",
+    borders: ["Arizona", "Colorado", "Oklahoma", "Texas", "Utah"],
   },
   {
-    "name": "New York",
-    "abbreviation": "NY",
-    "capital": "Albany",
-    "founded": "1788-07-26",
-    "borders": [
-      "Connecticut",
-      "Massachusetts",
-      "New Jersey",
-      "Pennsylvania",
-      "Vermont"
-    ]
+    name: "New York",
+    abbreviation: "NY",
+    capital: "Albany",
+    founded: "1788-07-26",
+    borders: ["Connecticut", "Massachusetts", "New Jersey", "Pennsylvania", "Vermont"],
   },
   {
-    "name": "North Carolina",
-    "abbreviation": "NC",
-    "capital": "Raleigh",
-    "founded": "1789-11-21",
-    "borders": [
-      "Georgia",
-      "South Carolina",
-      "Tennessee",
-      "Virginia"
-    ]
+    name: "North Carolina",
+    abbreviation: "NC",
+    capital: "Raleigh",
+    founded: "1789-11-21",
+    borders: ["Georgia", "South Carolina", "Tennessee", "Virginia"],
   },
   {
-    "name": "North Dakota",
-    "abbreviation": "ND",
-    "capital": "Bismarck",
-    "founded": "1889-11-02",
-    "borders": [
-      "Minnesota",
-      "Montana",
-      "South Dakota"
-    ]
+    name: "North Dakota",
+    abbreviation: "ND",
+    capital: "Bismarck",
+    founded: "1889-11-02",
+    borders: ["Minnesota", "Montana", "South Dakota"],
   },
   {
-    "name": "Ohio",
-    "abbreviation": "OH",
-    "capital": "Columbus",
-    "founded": "1803-03-01",
-    "borders": [
-      "Indiana",
-      "Kentucky",
-      "Michigan",
-      "Pennsylvania",
-      "West Virginia"
-    ]
+    name: "Ohio",
+    abbreviation: "OH",
+    capital: "Columbus",
+    founded: "1803-03-01",
+    borders: ["Indiana", "Kentucky", "Michigan", "Pennsylvania", "West Virginia"],
   },
   {
-    "name": "Oklahoma",
-    "abbreviation": "OK",
-    "capital": "Oklahoma City",
-    "founded": "1907-11-16",
-    "borders": [
-      "Arkansas",
-      "Colorado",
-      "Kansas",
-      "Missouri",
-      "New Mexico",
-      "Texas"
-    ]
+    name: "Oklahoma",
+    abbreviation: "OK",
+    capital: "Oklahoma City",
+    founded: "1907-11-16",
+    borders: ["Arkansas", "Colorado", "Kansas", "Missouri", "New Mexico", "Texas"],
   },
   {
-    "name": "Oregon",
-    "abbreviation": "OR",
-    "capital": "Salem",
-    "founded": "1859-02-14",
-    "borders": [
-      "California",
-      "Idaho",
-      "Nevada",
-      "Washington"
-    ]
+    name: "Oregon",
+    abbreviation: "OR",
+    capital: "Salem",
+    founded: "1859-02-14",
+    borders: ["California", "Idaho", "Nevada", "Washington"],
   },
   {
-    "name": "Pennsylvania",
-    "abbreviation": "PA",
-    "capital": "Harrisburg",
-    "founded": "1787-12-12",
-    "borders": [
-      "Delaware",
-      "Maryland",
-      "New Jersey",
-      "New York",
-      "Ohio",
-      "West Virginia"
-    ]
+    name: "Pennsylvania",
+    abbreviation: "PA",
+    capital: "Harrisburg",
+    founded: "1787-12-12",
+    borders: ["Delaware", "Maryland", "New Jersey", "New York", "Ohio", "West Virginia"],
   },
   {
-    "name": "Rhode Island",
-    "abbreviation": "RI",
-    "capital": "Providence",
-    "founded": "1790-05-29",
-    "borders": [
-      "Connecticut",
-      "Massachusetts"
-    ]
+    name: "Rhode Island",
+    abbreviation: "RI",
+    capital: "Providence",
+    founded: "1790-05-29",
+    borders: ["Connecticut", "Massachusetts"],
   },
   {
-    "name": "South Carolina",
-    "abbreviation": "SC",
-    "capital": "Columbia",
-    "founded": "1788-05-23",
-    "borders": [
-      "Georgia",
-      "North Carolina"
-    ]
+    name: "South Carolina",
+    abbreviation: "SC",
+    capital: "Columbia",
+    founded: "1788-05-23",
+    borders: ["Georgia", "North Carolina"],
   },
   {
-    "name": "South Dakota",
-    "abbreviation": "SD",
-    "capital": "Pierre",
-    "founded": "1889-11-02",
-    "borders": [
-      "Iowa",
-      "Minnesota",
-      "Montana",
-      "Nebraska",
-      "North Dakota",
-      "Wyoming"
-    ]
+    name: "South Dakota",
+    abbreviation: "SD",
+    capital: "Pierre",
+    founded: "1889-11-02",
+    borders: ["Iowa", "Minnesota", "Montana", "Nebraska", "North Dakota", "Wyoming"],
   },
   {
-    "name": "Tennessee",
-    "abbreviation": "TN",
-    "capital": "Nashville",
-    "founded": "1796-06-01",
-    "borders": [
-      "Alabama",
-      "Arkansas",
-      "Georgia",
-      "Kentucky",
-      "Mississippi",
-      "Missouri",
-      "North Carolina",
-      "Virginia"
-    ]
+    name: "Tennessee",
+    abbreviation: "TN",
+    capital: "Nashville",
+    founded: "1796-06-01",
+    borders: ["Alabama", "Arkansas", "Georgia", "Kentucky", "Mississippi", "Missouri", "North Carolina", "Virginia"],
   },
   {
-    "name": "Texas",
-    "abbreviation": "TX",
-    "capital": "Austin",
-    "founded": "1845-12-29",
-    "borders": [
-      "Arkansas",
-      "Louisiana",
-      "New Mexico",
-      "Oklahoma"
-    ]
+    name: "Texas",
+    abbreviation: "TX",
+    capital: "Austin",
+    founded: "1845-12-29",
+    borders: ["Arkansas", "Louisiana", "New Mexico", "Oklahoma"],
   },
   {
-    "name": "Utah",
-    "abbreviation": "UT",
-    "capital": "Salt Lake City",
-    "founded": "1896-01-04",
-    "borders": [
-      "Arizona",
-      "Colorado",
-      "Idaho",
-      "Nevada",
-      "New Mexico",
-      "Wyoming"
-    ]
+    name: "Utah",
+    abbreviation: "UT",
+    capital: "Salt Lake City",
+    founded: "1896-01-04",
+    borders: ["Arizona", "Colorado", "Idaho", "Nevada", "New Mexico", "Wyoming"],
   },
   {
-    "name": "Vermont",
-    "abbreviation": "VT",
-    "capital": "Montpelier",
-    "founded": "1791-03-04",
-    "borders": [
-      "Massachusetts",
-      "New Hampshire",
-      "New York"
-    ]
+    name: "Vermont",
+    abbreviation: "VT",
+    capital: "Montpelier",
+    founded: "1791-03-04",
+    borders: ["Massachusetts", "New Hampshire", "New York"],
   },
   {
-    "name": "Virginia",
-    "abbreviation": "VA",
-    "capital": "Richmond",
-    "founded": "1788-06-25",
-    "borders": [
-      "Kentucky",
-      "Maryland",
-      "North Carolina",
-      "Tennessee",
-      "West Virginia"
-    ]
+    name: "Virginia",
+    abbreviation: "VA",
+    capital: "Richmond",
+    founded: "1788-06-25",
+    borders: ["Kentucky", "Maryland", "North Carolina", "Tennessee", "West Virginia"],
   },
   {
-    "name": "Washington",
-    "abbreviation": "WA",
-    "capital": "Olympia",
-    "founded": "1889-11-11",
-    "borders": [
-      "Idaho",
-      "Oregon"
-    ]
+    name: "Washington",
+    abbreviation: "WA",
+    capital: "Olympia",
+    founded: "1889-11-11",
+    borders: ["Idaho", "Oregon"],
   },
   {
-    "name": "West Virginia",
-    "abbreviation": "WV",
-    "capital": "Charleston",
-    "founded": "1863-06-20",
-    "borders": [
-      "Kentucky",
-      "Maryland",
-      "Ohio",
-      "Pennsylvania",
-      "Virginia"
-    ]
+    name: "West Virginia",
+    abbreviation: "WV",
+    capital: "Charleston",
+    founded: "1863-06-20",
+    borders: ["Kentucky", "Maryland", "Ohio", "Pennsylvania", "Virginia"],
   },
   {
-    "name": "Wisconsin",
-    "abbreviation": "WI",
-    "capital": "Madison",
-    "founded": "1848-05-29",
-    "borders": [
-      "Illinois",
-      "Iowa",
-      "Michigan",
-      "Minnesota"
-    ]
+    name: "Wisconsin",
+    abbreviation: "WI",
+    capital: "Madison",
+    founded: "1848-05-29",
+    borders: ["Illinois", "Iowa", "Michigan", "Minnesota"],
   },
   {
-    "name": "Wyoming",
-    "abbreviation": "WY",
-    "capital": "Cheyenne",
-    "founded": "1890-07-10",
-    "borders": [
-      "Colorado",
-      "Idaho",
-      "Montana",
-      "Nebraska",
-      "South Dakota",
-      "Utah"
-    ]
-  }
-] as const
+    name: "Wyoming",
+    abbreviation: "WY",
+    capital: "Cheyenne",
+    founded: "1890-07-10",
+    borders: ["Colorado", "Idaho", "Montana", "Nebraska", "South Dakota", "Utah"],
+  },
+] as const;

@@ -156,6 +156,19 @@ export {
   rootCommand,
 } from "./commands/Root.js";
 /**
+ * Official data sync command for checked-in generated TypeScript modules.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Official data sync command for checked-in generated TypeScript modules.
+   *
+   * @since 0.0.0
+   */
+  syncDataToTsCommand,
+} from "./commands/SyncDataToTs/index.js";
+/**
  * Dependency topological sort command.
  *
  * @since 0.0.0

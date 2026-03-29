@@ -17,6 +17,7 @@ import { graphitiCommand } from "./Graphiti/index.js";
 import { lawsCommand } from "./Laws/index.js";
 import { lintCommand } from "./Lint/index.js";
 import { purgeCommand } from "./Purge.js";
+import { syncDataToTsCommand } from "./SyncDataToTs/index.js";
 import { topoSortCommand } from "./TopoSort.js";
 import { tsconfigSyncCommand } from "./TsconfigSync.js";
 import { versionSyncCommand } from "./VersionSync/index.js";
@@ -44,6 +45,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
     createPackageCommand,
     codegenCommand,
     purgeCommand,
+    syncDataToTsCommand,
     tsconfigSyncCommand,
     versionSyncCommand,
   ])
