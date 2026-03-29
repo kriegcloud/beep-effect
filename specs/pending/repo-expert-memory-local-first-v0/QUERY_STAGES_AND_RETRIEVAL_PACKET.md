@@ -304,12 +304,16 @@ The contract changes are:
 - `RunProgressUpdated.phase` uses the canonical four-stage vocabulary
 - `RetrievalPacketMaterialized` carries the frozen packet
 - `AnswerDrafted` must be renderable from that packet alone
+- `QueryRun.queryStages` may project a fixed light stage trace from existing events without introducing new durable event kinds
 - replay plus projection must rebuild the same final packet and answer state
 
 ## UI And Read-Model Implications
-The run detail view should treat the packet as a first-class inspection surface.
+The run detail view should treat the packet as a first-class inspection surface and should project query stages from the run model rather than manually inferring them from the raw event feed.
 
 At minimum, query-run detail should show:
+- fixed `grounding`, `retrieval`, `packet`, and `answer` stage rows
+- stage status, timestamps, percent, and latest message
+- packet or answer artifact availability for the later two stages
 - normalized query
 - query kind
 - retrieval outcome

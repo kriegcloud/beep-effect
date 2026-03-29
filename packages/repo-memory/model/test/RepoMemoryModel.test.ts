@@ -62,10 +62,50 @@ describe("repo-memory model", () => {
       lastEventSequence: 3,
       answer: "Symbol located.",
       citations: [],
+      queryStages: {
+        grounding: {
+          phase: "grounding",
+          status: "completed",
+          startedAt: Date.parse("2026-03-06T17:00:01.000Z"),
+          completedAt: Date.parse("2026-03-06T17:00:02.000Z"),
+          latestMessage: "Normalized the question.",
+          percent: 100,
+        },
+        retrieval: {
+          phase: "retrieval",
+          status: "completed",
+          startedAt: Date.parse("2026-03-06T17:00:02.000Z"),
+          completedAt: Date.parse("2026-03-06T17:00:03.000Z"),
+          latestMessage: "Retrieved grounded evidence.",
+          percent: 100,
+        },
+        packet: {
+          phase: "packet",
+          status: "completed",
+          startedAt: Date.parse("2026-03-06T17:00:03.000Z"),
+          completedAt: Date.parse("2026-03-06T17:00:04.000Z"),
+          latestMessage: "Retrieval packet materialized.",
+          percent: 100,
+          artifactAvailable: true,
+        },
+        answer: {
+          phase: "answer",
+          status: "completed",
+          startedAt: Date.parse("2026-03-06T17:00:04.000Z"),
+          completedAt: Date.parse("2026-03-06T17:00:05.000Z"),
+          latestMessage: "Grounded answer drafted.",
+          percent: 100,
+          artifactAvailable: true,
+        },
+      },
     });
 
     expect(indexRun.kind).toBe("index");
     expect(queryRun.kind).toBe("query");
+    if (queryRun.kind === "query") {
+      expect(O.getOrThrow(queryRun.queryStages).packet.status).toBe("completed");
+      expect(O.getOrThrow(O.getOrThrow(queryRun.queryStages).answer.artifactAvailable)).toBe(true);
+    }
   });
 
   it("decodes interrupt and resume command payloads plus their shared ack", () => {

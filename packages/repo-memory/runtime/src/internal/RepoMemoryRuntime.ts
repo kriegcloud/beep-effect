@@ -6,6 +6,7 @@ import {
   type InterruptRepoRunRequest,
   QueryRepoRunInput,
   QueryRun,
+  type QueryStagePhase,
   RepoIndexArtifact,
   type RepoRegistration,
   type RepoRegistrationInput,
@@ -497,6 +498,29 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     return yield* mapProjectorError(projectRunEvent(O.some(currentRun), event));
   });
 
+  const appendQueryStageProgress = Effect.fn("RepoRunService.appendQueryStageProgress")(function* (
+    currentRun: QueryRun,
+    progress: {
+      readonly message: string;
+      readonly percent: number;
+      readonly phase: QueryStagePhase;
+    }
+  ): Effect.fn.Return<QueryRun, RepoRunServiceError> {
+    return yield* ensureProjectedQueryRun(
+      yield* appendProjectedEvent(
+        currentRun,
+        new RunProgressUpdatedEvent({
+          runId: currentRun.id,
+          sequence: nextSequenceForRun(currentRun),
+          emittedAt: yield* DateTime.now,
+          phase: progress.phase,
+          message: progress.message,
+          percent: O.some(decodeNonNegativeInt(progress.percent)),
+        })
+      )
+    );
+  });
+
   const suspendIfRunInterrupted = Effect.fn("RepoRunService.suspendIfRunInterrupted")(function* (
     runId: RunId
   ): Effect.fn.Return<void, RepoRunServiceError> {
@@ -918,19 +942,11 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           yield* recordRunStarted("query");
         }
 
-        runningRun = yield* ensureProjectedQueryRun(
-          yield* appendProjectedEvent(
-            runningRun,
-            new RunProgressUpdatedEvent({
-              runId,
-              sequence: nextSequenceForRun(runningRun),
-              emittedAt: yield* DateTime.now,
-              phase: "grounding",
-              message: "Normalizing the question into one supported deterministic query shape.",
-              percent: O.some(decodeNonNegativeInt(25)),
-            })
-          )
-        );
+        runningRun = yield* appendQueryStageProgress(runningRun, {
+          phase: "grounding",
+          message: "Normalizing the question into one supported deterministic query shape.",
+          percent: 25,
+        });
         const grounding = yield* profileRunPhase(
           "query",
           "grounding",
@@ -939,19 +955,11 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
         );
 
-        runningRun = yield* ensureProjectedQueryRun(
-          yield* appendProjectedEvent(
-            runningRun,
-            new RunProgressUpdatedEvent({
-              runId,
-              sequence: nextSequenceForRun(runningRun),
-              emittedAt: yield* DateTime.now,
-              phase: "retrieval",
-              message: "Retrieving bounded source-grounded artifacts from the latest persisted snapshot.",
-              percent: O.some(decodeNonNegativeInt(60)),
-            })
-          )
-        );
+        runningRun = yield* appendQueryStageProgress(runningRun, {
+          phase: "retrieval",
+          message: "Retrieving bounded source-grounded artifacts from the latest persisted snapshot.",
+          percent: 60,
+        });
         yield* suspendIfRunInterrupted(runId);
 
         const retrievedEvidence = yield* profileRunPhase(
@@ -962,19 +970,11 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
         );
 
-        runningRun = yield* ensureProjectedQueryRun(
-          yield* appendProjectedEvent(
-            runningRun,
-            new RunProgressUpdatedEvent({
-              runId,
-              sequence: nextSequenceForRun(runningRun),
-              emittedAt: yield* DateTime.now,
-              phase: "packet",
-              message: "Freezing the bounded retrieval packet for durable inspection and replay.",
-              percent: O.some(decodeNonNegativeInt(80)),
-            })
-          )
-        );
+        runningRun = yield* appendQueryStageProgress(runningRun, {
+          phase: "packet",
+          message: "Freezing the bounded retrieval packet for durable inspection and replay.",
+          percent: 80,
+        });
         yield* suspendIfRunInterrupted(runId);
 
         const retrievalPacket = yield* profileRunPhase(
@@ -985,19 +985,11 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
         );
 
-        runningRun = yield* ensureProjectedQueryRun(
-          yield* appendProjectedEvent(
-            runningRun,
-            new RunProgressUpdatedEvent({
-              runId,
-              sequence: nextSequenceForRun(runningRun),
-              emittedAt: yield* DateTime.now,
-              phase: "answer",
-              message: "Rendering the final answer from the frozen retrieval packet only.",
-              percent: O.some(decodeNonNegativeInt(95)),
-            })
-          )
-        );
+        runningRun = yield* appendQueryStageProgress(runningRun, {
+          phase: "answer",
+          message: "Rendering the final answer from the frozen retrieval packet only.",
+          percent: 95,
+        });
         yield* suspendIfRunInterrupted(runId);
 
         const groundedAnswer = yield* profileRunPhase(

@@ -1,12 +1,17 @@
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
+  AnswerQueryStage,
+  GroundingQueryStage,
   type IndexRepoRunInput,
   IndexRun,
+  PacketQueryStage,
   type QueryRepoRunInput,
   QueryRun,
+  QueryStageTrace,
   type RepoRun,
   type RepoRunStatus,
   type RetrievalPacket,
+  RetrievalQueryStage,
   RunEventSequence,
   type RunId,
 } from "@beep/repo-memory-model";
@@ -22,6 +27,42 @@ const decodeRunEventSequence = S.decodeUnknownSync(RunEventSequence);
 const nextRunEventSequence = (run: RepoRun) => decodeRunEventSequence(run.lastEventSequence + 1);
 
 const noErrorMessage = O.none<string>();
+
+const makePendingQueryStageTrace = () =>
+  new QueryStageTrace({
+    grounding: new GroundingQueryStage({
+      status: "pending",
+      startedAt: O.none(),
+      completedAt: O.none(),
+      latestMessage: O.none(),
+      percent: O.none(),
+      artifactAvailable: O.none(),
+    }),
+    retrieval: new RetrievalQueryStage({
+      status: "pending",
+      startedAt: O.none(),
+      completedAt: O.none(),
+      latestMessage: O.none(),
+      percent: O.none(),
+      artifactAvailable: O.none(),
+    }),
+    packet: new PacketQueryStage({
+      status: "pending",
+      startedAt: O.none(),
+      completedAt: O.none(),
+      latestMessage: O.none(),
+      percent: O.none(),
+      artifactAvailable: O.none(),
+    }),
+    answer: new AnswerQueryStage({
+      status: "pending",
+      startedAt: O.none(),
+      completedAt: O.none(),
+      latestMessage: O.none(),
+      percent: O.none(),
+      artifactAvailable: O.none(),
+    }),
+  });
 
 const updateRunStatus = (
   run: RepoRun,
@@ -155,6 +196,7 @@ export const acceptedQueryRun = (options: {
     answer: O.none(),
     citations: [],
     retrievalPacket: O.none(),
+    queryStages: O.some(makePendingQueryStageTrace()),
     errorMessage: O.none(),
   });
 

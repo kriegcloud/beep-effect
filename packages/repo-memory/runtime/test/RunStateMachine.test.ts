@@ -117,12 +117,14 @@ describe("repo-memory run state machine", () => {
       expect(resumed.run.status).toBe("running");
       expect(resumed.run.lastEventSequence).toBe(4);
       expect(DateTime.toEpochMillis(O.getOrThrow(resumed.run.startedAt))).toBe(DateTime.toEpochMillis(startedAt));
+      expect(O.isSome(resumed.run.queryStages)).toBe(true);
 
       expect(completed.status).toBe("completed");
       expect(completed.lastEventSequence).toBe(5);
       expect(DateTime.toEpochMillis(O.getOrThrow(completed.completedAt))).toBe(DateTime.toEpochMillis(completedAt));
       expect(O.getOrThrow(completed.answer)).toContain("Symbol `answer`");
       expect(O.isSome(completed.retrievalPacket)).toBe(true);
+      expect(O.isSome(completed.queryStages)).toBe(true);
     })
   );
 

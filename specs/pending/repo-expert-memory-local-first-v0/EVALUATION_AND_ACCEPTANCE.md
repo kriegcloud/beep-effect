@@ -32,6 +32,7 @@ At minimum, include questions like:
 - Spawned Bun sidecar tests already prove public-path interrupt/resume for durable index runs, including resume after sidecar restart.
 - Grounded retrieval tests already prove source-backed answers, citation alignment, and retrieval-packet persistence for the current deterministic query classes.
 - The current query interpreter already proves the stable typed boundary that retrieval-side NLP must preserve rather than replace.
+- Query-run projection tests now prove that accepted query runs start with fixed pending `grounding`, `retrieval`, `packet`, and `answer` stages and that existing progress/packet/answer events rebuild the same final stage trace through replay.
 - The native Tauri wrapper already owns managed startup/shutdown and folder picking while the React shell stays thin over the public protocol.
 
 ## Acceptance Checks
@@ -50,6 +51,7 @@ At minimum, include questions like:
 - start a query workflow and receive a deterministic `runId`
 - stream progress through `StreamRunEvents`
 - verify query progress uses `grounding`, `retrieval`, `packet`, and `answer`
+- verify `GET /runs/:runId` exposes the projected fixed query stage trace with stage status, timestamps, percent, and latest message
 - verify disconnect does not kill the underlying run
 - reconnect from cursor and receive missing events cleanly
 - verify final run detail remains inspectable after completion
@@ -71,6 +73,7 @@ At minimum, include questions like:
 ### 5. Projection integrity
 - `GET /runs` and `GET /runs/:runId` must reflect durable run state
 - final retrieval packet and final answer must match the run event history
+- projected query stages must match the run event history and replay back into the same stage trace
 - packet payload, packet citations, and final answer must agree exactly
 - replay after restart must rebuild the same projection state
 - stream consumers must be able to rebuild equivalent run state from journal replay plus live events without relying on embedded run snapshots
