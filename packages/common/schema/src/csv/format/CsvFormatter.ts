@@ -15,7 +15,7 @@ import { type CsvError, csvError } from "../CsvError.ts";
 
 const rowDelimiter = "\n";
 
-const stripNullBytes = Str.replace(/\0/g, "");
+const stripNullBytes = Str.replaceAll("\0", "");
 
 const getEscapedQuote = (options: CsvCodecOptions): O.Option<string> =>
   pipe(

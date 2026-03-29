@@ -6,10 +6,13 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, MutableHashMap, Order, pipe } from "effect";
+import { Effect, flow, MutableHashMap, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
 import type { SyncDataTarget, SyncDataTargetProjection } from "../internal/Models.js";
 import { SyncDataToTsError } from "../internal/Models.js";
@@ -110,18 +113,17 @@ const formatTsLiteral = (value: unknown): string => {
     tabSize: 2,
     insertSpaces: true,
   });
-  return jsonc.applyEdits(encoded, edits).replaceAll(/"([A-Za-z_$][A-Za-z0-9_$]*)":/g, "$1:");
+  return pipe(jsonc.applyEdits(encoded, edits), Str.replaceAll(/"([A-Za-z_$][A-Za-z0-9_$]*)":/g, "$1:"));
 };
 
-const normalizeWhitespace = (value: string): string => value.replaceAll(/\s+/gu, " ").trim();
+const normalizeWhitespace = flow(Str.replaceAll(/\s+/gu, " "), Str.trim);
 
-const normalizeCountryName = (value: string): string =>
-  normalizeWhitespace(value)
-    .toLocaleLowerCase("en-US")
-    .replaceAll(
-      /(^|[\s()/_',.-])([\p{L}\p{N}])/gu,
-      (_wholeMatch, prefix: string, segment: string) => `${prefix}${segment.toLocaleUpperCase("en-US")}`
-    );
+const normalizeCountryName = flow(normalizeWhitespace, Str.toLocaleLowerCase("en-US"), (str) =>
+  str.replaceAll(
+    /(^|[\s()/_',.-])([\p{L}\p{N}])/gu,
+    (_wholeMatch, prefix: string, segment: string) => `${prefix}${segment.toLocaleUpperCase("en-US")}`
+  )
+);
 
 const extractCurrencyName = (value: typeof Iso4217CurrencyName.Type): string =>
   isIso4217CurrencyNameWithMetadata(value) ? value.text : value;
@@ -164,12 +166,11 @@ export const CurrencyCodeDataValues = ${renderedValues} as const;
 const projectIso4217Document: SyncDataTarget["project"] = (document) =>
   Effect.gen(function* () {
     const decoded = yield* S.decodeUnknownEffect(Iso4217Document)(document).pipe(
-      Effect.mapError(
-        (cause) =>
-          new SyncDataToTsError({
-            message: `Failed to decode the official ISO 4217 XML payload: ${cause.message}`,
-            targetId: "iso4217",
-          })
+      Effect.mapError((cause) =>
+        SyncDataToTsError.new({
+          message: `Failed to decode the official ISO 4217 XML payload: ${cause.message}`,
+          targetId: "iso4217",
+        })
       )
     );
 
@@ -177,7 +178,7 @@ const projectIso4217Document: SyncDataTarget["project"] = (document) =>
     const grouped = MutableHashMap.empty<string, Iso4217CurrencyEntryType>();
 
     for (const row of decoded.ISO_4217.CcyTbl.CcyNtry) {
-      if (row.Ccy === undefined || row.CcyNbr === undefined || row.CcyMnrUnts === undefined) {
+      if (P.isUndefined(row.Ccy) || P.isUndefined(row.CcyNbr) || P.isUndefined(row.CcyMnrUnts)) {
         if (extractCurrencyName(row.CcyNm) === "No universal currency") {
           continue;
         }
@@ -219,7 +220,7 @@ const projectIso4217Document: SyncDataTarget["project"] = (document) =>
         });
       }
 
-      const countries = A.some(existing.value.countries, (value) => value === country)
+      const countries = A.some(existing.value.countries, Eq.equals(country))
         ? existing.value.countries
         : A.append(existing.value.countries, country);
 
@@ -242,7 +243,7 @@ const projectIso4217Document: SyncDataTarget["project"] = (document) =>
             countries: A.sort(entry.countries, Order.String),
           })
       ),
-      A.sort(Order.mapInput(Order.String, (entry: Iso4217CurrencyEntryType) => entry.code))
+      A.sort(Order.mapInput(Order.String, ({ code }: Iso4217CurrencyEntryType) => code))
     );
 
     const projection: SyncDataTargetProjection = {

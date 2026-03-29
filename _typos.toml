@@ -31,6 +31,12 @@ tstyche = "tstyche"
 docgen = "docgen"
 dtslint = "dtslint"
 tsbuildinfo = "tsbuildinfo"
+Compensacion = "Compensacion"
+IST = "IST"
+JOD = "JOD"
+Nam = "Nam"
+ND = "ND"
+Som = "Som"
 
 [files]
 extend-exclude = [

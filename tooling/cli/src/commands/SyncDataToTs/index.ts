@@ -6,6 +6,7 @@
  */
 
 import { findRepoRoot } from "@beep/repo-utils";
+import { thunkTrue, thunkUndefined } from "@beep/utils";
 import { csvParse } from "d3-dsv";
 import { Console, Effect, FileSystem, Match, Path, pipe } from "effect";
 import * as A from "effect/Array";
@@ -258,7 +259,7 @@ const syncTarget = (
     const changed = pipe(
       existing,
       O.match({
-        onNone: () => true,
+        onNone: thunkTrue,
         onSome: (current) => current !== projection.content,
       })
     );
@@ -405,14 +406,14 @@ export const syncDataToTsCommand = Command.make(
             pipe(
               O.fromNullishOr(error.targetId),
               O.match({
-                onNone: () => undefined,
+                onNone: thunkUndefined,
                 onSome: (value) => `target=${value}`,
               })
             ),
             pipe(
               O.fromNullishOr(error.file),
               O.match({
-                onNone: () => undefined,
+                onNone: thunkUndefined,
                 onSome: (value) => `file=${value}`,
               })
             )

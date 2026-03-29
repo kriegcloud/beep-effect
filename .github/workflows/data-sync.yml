@@ -54,8 +54,8 @@ jobs:
           token: ${{ secrets.BEEP_DATA_SYNC_TOKEN != '' && secrets.BEEP_DATA_SYNC_TOKEN || github.token }}
           branch: automation/data-sync
           delete-branch: true
-          commit-message: chore(data): sync official datasets
-          title: chore(data): sync official datasets
+          commit-message: "chore(data): sync official datasets"
+          title: "chore(data): sync official datasets"
           body: |
             ## Summary
 

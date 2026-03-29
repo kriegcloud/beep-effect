@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-03-28",
+  "generatedOn": "2026-03-29",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -835,38 +835,6 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/csv/parse/types.ts",
-      "symbol": "RowValidateCallback",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
-      "file": "packages/common/schema/src/csv/parse/types.ts",
-      "symbol": "RowValidationResult",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/common/schema/src/csv/parse/types.ts",
-      "symbol": "RowValidationResult",
-      "kind": "object-struct-schema",
-      "status": "candidate",
-      "owner": "@beep/schema",
-      "reason": "Object schema should prefer an annotated S.Class over S.Struct."
-    },
-    {
-      "file": "packages/common/schema/src/csv/parse/types.ts",
-      "symbol": "f",
-      "kind": "object-struct-schema",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Inline nested S.Struct boundary shapes stay tracked until a dedicated class extraction pass."
-    },
-    {
       "file": "packages/common/schema/src/http/headers/Csp.ts",
       "symbol": "CspDirectives",
       "kind": "object-struct-schema",
@@ -1349,6 +1317,14 @@
     {
       "file": "tooling/cli/src/commands/Shared/SchemaCodecs/JsoncCodecs.ts",
       "symbol": "JsoncCodecServiceShape",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "tooling/cli/src/commands/Shared/SchemaCodecs/XmlCodecs.ts",
+      "symbol": "XmlCodecServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
       "owner": "@beep/repo-cli",

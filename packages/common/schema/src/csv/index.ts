@@ -6,11 +6,9 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import { Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, HashSet, Order, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
-import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";

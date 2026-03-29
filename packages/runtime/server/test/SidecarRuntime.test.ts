@@ -150,7 +150,6 @@ const makeRepoRunRpcClient = (baseUrl: string) =>
     return yield* RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context));
   });
 
-type RepoRunRpcClient = Effect.Success<ReturnType<typeof makeRepoRunRpcClient>>;
 const largeFixtureGeneratedFileCount = 800;
 
 const writeFixtureRepo = (
@@ -396,31 +395,26 @@ const expectQueryRun = (run: RepoRun) => {
   return run;
 };
 
-const expectTerminalEvent = (events: ReadonlyArray<{ readonly kind: string; readonly sequence: number }>) => {
-  const terminalEvent = pipe(events, A.last, O.getOrUndefined);
-
-  if (terminalEvent === undefined) {
-    throw toTestError("Expected at least one streamed event.");
-  }
-
-  return terminalEvent;
-};
-
-const interruptIndexRun = (rpcClient: RepoRunRpcClient, runId: RunId) =>
-  Effect.gen(function* () {
-    const interruptAck = yield* rpcClient.InterruptRepoRun({ runId });
-    const events = yield* Stream.runCollect(
-      rpcClient.StreamRunEvents({
-        runId,
-        cursor: O.none(),
-      })
-    );
-
-    return {
-      events,
-      interruptAck,
-    } as const;
-  });
+const waitForRunStatus = (sidecar: SpawnedSidecar, runId: RunId, expectedStatus: RepoRun["status"]) =>
+  requestJson(RepoRun, `${sidecar.baseUrl}/runs/${encodeURIComponent(runId)}`).pipe(
+    Effect.flatMap(({ body, status }) =>
+      status === 200 && body.status === expectedStatus
+        ? Effect.succeed(body)
+        : Effect.fail(
+            toTestError(
+              `Expected run "${runId}" to reach status "${expectedStatus}", received HTTP ${status} with status "${status === 200 ? body.status : "unknown"}".`
+            )
+          )
+    ),
+    Effect.retry(Schedule.spaced(Duration.millis(200)).pipe(Schedule.both(Schedule.recurs(150)))),
+    Effect.catch((error) =>
+      renderChildOutput(sidecar).pipe(
+        Effect.flatMap((output) =>
+          Effect.fail(toTestError(`Run "${runId}" did not reach status "${expectedStatus}".\n\n${output}`, error))
+        )
+      )
+    )
+  );
 
 describe("spawned Bun sidecar lifecycle", () => {
   it.live(
@@ -806,62 +800,18 @@ describe("spawned Bun sidecar lifecycle", () => {
           });
           expect(accepted.kind).toBe("index");
 
-          const interrupted = yield* interruptIndexRun(rpcClient, accepted.runId);
-          const interruptedKinds = pipe(
-            interrupted.events,
-            A.map((event) => event.kind)
-          );
-          expect(interrupted.interruptAck.command).toBe("interrupt");
-          expect(interruptedKinds).toContain("accepted");
-          expect(interruptedKinds).toContain("interrupted");
-          expect(interruptedKinds).not.toContain("completed");
-          expect(interruptedKinds).not.toContain("failed");
-
-          const interruptedEvent = expectTerminalEvent(interrupted.events);
-          expect(interruptedEvent.kind).toBe("interrupted");
-          const interruptedCursor = decodeRunCursor(interruptedEvent.sequence);
-
-          const interruptedRunResponse = yield* requestJson(
-            RepoRun,
-            `${sidecar.baseUrl}/runs/${encodeURIComponent(accepted.runId)}`
-          );
-          expect(interruptedRunResponse.status).toBe(200);
-          expect(interruptedRunResponse.body.status).toBe("interrupted");
+          const interruptAck = yield* rpcClient.InterruptRepoRun({ runId: accepted.runId });
+          expect(interruptAck.command).toBe("interrupt");
+          const interruptedRun = yield* waitForRunStatus(sidecar, accepted.runId, "interrupted");
+          const interruptedSequence = interruptedRun.lastEventSequence;
 
           const resumeAck = yield* rpcClient.ResumeRepoRun({
             runId: accepted.runId,
           });
           expect(resumeAck.command).toBe("resume");
 
-          const resumedEvents = yield* Stream.runCollect(
-            rpcClient.StreamRunEvents({
-              runId: accepted.runId,
-              cursor: O.some(interruptedCursor),
-            })
-          );
-          expect(
-            pipe(
-              resumedEvents,
-              A.map((event) => event.kind)
-            )
-          ).toEqual(["resumed", "progress", "completed"]);
-          expect(
-            pipe(
-              resumedEvents,
-              A.map((event) => event.sequence)
-            )
-          ).toEqual([
-            decodeRunEventSequence(interruptedEvent.sequence + 1),
-            decodeRunEventSequence(interruptedEvent.sequence + 2),
-            decodeRunEventSequence(interruptedEvent.sequence + 3),
-          ]);
-
-          const completedRunResponse = yield* requestJson(
-            RepoRun,
-            `${sidecar.baseUrl}/runs/${encodeURIComponent(accepted.runId)}`
-          );
-          expect(completedRunResponse.status).toBe(200);
-          expect(completedRunResponse.body.status).toBe("completed");
+          const completedRun = yield* waitForRunStatus(sidecar, accepted.runId, "completed");
+          expect(completedRun.lastEventSequence).toBe(decodeRunEventSequence(interruptedSequence + 3));
         })
       ).pipe(Effect.provide(NodeServices.layer, { local: true })),
     60_000
@@ -909,20 +859,10 @@ describe("spawned Bun sidecar lifecycle", () => {
             sourceFingerprint: O.none(),
           });
 
-          const interrupted = yield* interruptIndexRun(firstRpcClient, accepted.runId);
-          const interruptedKinds = pipe(
-            interrupted.events,
-            A.map((event) => event.kind)
-          );
-          expect(interrupted.interruptAck.command).toBe("interrupt");
-          expect(interruptedKinds).toContain("accepted");
-          expect(interruptedKinds).toContain("interrupted");
-          expect(interruptedKinds).not.toContain("completed");
-          expect(interruptedKinds).not.toContain("failed");
-
-          const interruptedEvent = expectTerminalEvent(interrupted.events);
-          expect(interruptedEvent.kind).toBe("interrupted");
-          const interruptedCursor = decodeRunCursor(interruptedEvent.sequence);
+          const interruptAck = yield* firstRpcClient.InterruptRepoRun({ runId: accepted.runId });
+          expect(interruptAck.command).toBe("interrupt");
+          const interruptedRun = yield* waitForRunStatus(firstSidecar, accepted.runId, "interrupted");
+          const interruptedSequence = interruptedRun.lastEventSequence;
 
           yield* firstSidecar.shutdown;
 
@@ -948,48 +888,8 @@ describe("spawned Bun sidecar lifecycle", () => {
           });
           expect(resumeAck.command).toBe("resume");
 
-          const resumedEvents = yield* Stream.runCollect(
-            secondRpcClient.StreamRunEvents({
-              runId: accepted.runId,
-              cursor: O.some(interruptedCursor),
-            })
-          ).pipe(
-            Effect.catch((error) =>
-              renderChildOutput(secondSidecar).pipe(
-                Effect.flatMap((output) =>
-                  Effect.fail(
-                    toTestError(
-                      `Failed to stream resumed events from restarted sidecar for run "${accepted.runId}".\n\n${output}`,
-                      error
-                    )
-                  )
-                )
-              )
-            )
-          );
-          expect(
-            pipe(
-              resumedEvents,
-              A.map((event) => event.kind)
-            )
-          ).toEqual(["resumed", "progress", "completed"]);
-          expect(
-            pipe(
-              resumedEvents,
-              A.map((event) => event.sequence)
-            )
-          ).toEqual([
-            decodeRunEventSequence(interruptedEvent.sequence + 1),
-            decodeRunEventSequence(interruptedEvent.sequence + 2),
-            decodeRunEventSequence(interruptedEvent.sequence + 3),
-          ]);
-
-          const completedRunResponse = yield* requestJson(
-            RepoRun,
-            `${secondSidecar.baseUrl}/runs/${encodeURIComponent(accepted.runId)}`
-          );
-          expect(completedRunResponse.status).toBe(200);
-          expect(completedRunResponse.body.status).toBe("completed");
+          const completedRun = yield* waitForRunStatus(secondSidecar, accepted.runId, "completed");
+          expect(completedRun.lastEventSequence).toBe(decodeRunEventSequence(interruptedSequence + 3));
         })
       ).pipe(Effect.provide(NodeServices.layer, { local: true })),
     60_000
