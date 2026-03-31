@@ -29,7 +29,6 @@ Indexadas
 Indo
 Italiano
 Japonic
-keccak
 Kiswahili
 Kitts
 Kolkata

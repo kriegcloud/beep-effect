@@ -153,3 +153,4 @@ wordprocessingml
 worktree
 worktrees
 xhigh
+keccak
