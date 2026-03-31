@@ -16,4 +16,5 @@
  *
  * @since 0.0.0
  */
-export { Colors, createColors, default, Formatter, isColorSupported, supportsColor } from "./Colors.ts";
+export * from "./Colors.ts";
+export { default } from "./Colors.ts";
