@@ -18,7 +18,7 @@ export const TtsProvider = S.String.pipe(S.brand("TtsProvider"), $I.annoteSchema
  * @category Validation
  * @since 0.0.0
  */
-export type TtsProvider = typeof TtsProvider;
+export type TtsProvider = typeof TtsProvider.Type;
 
 /**
  * TtsMode -
