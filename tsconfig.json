@@ -126,7 +126,15 @@
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
       "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
-      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"]
+      "@beep/shared-providers/*": [
+        "./packages/shared/providers/src/*"
+      ],
+      "@beep/clawhole": [
+        "./apps/clawhole/src/index.ts"
+      ],
+      "@beep/clawhole/*": [
+        "./apps/clawhole/src/*"
+      ]
     },
     "plugins": [
       {

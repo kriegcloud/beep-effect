@@ -1,9 +1,9 @@
 {
-  "$schema": "../../../node_modules/@effect/docgen/schema.json",
+  "$schema": "../../node_modules/@effect/docgen/schema.json",
   "exclude": [
     "src/internal/**/*.ts"
   ],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/tables/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/apps/clawhole/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -35,29 +35,11 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/shared-tables": [
-        "../../../packages/shared/tables/src/index.ts"
+      "@beep/clawhole": [
+        "../../apps/clawhole/src/index.ts"
       ],
-      "@beep/shared-tables/*": [
-        "../../../packages/shared/tables/src/*.ts"
-      ],
-      "@beep/identity": [
-        "../../../packages/common/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../../packages/common/identity/src/*.ts"
-      ],
-      "@beep/schema": [
-        "../../../packages/common/schema/src/index.ts"
-      ],
-      "@beep/schema/*": [
-        "../../../packages/common/schema/src/*.ts"
-      ],
-      "@beep/utils": [
-        "../../../packages/common/utils/src/index.ts"
-      ],
-      "@beep/utils/*": [
-        "../../../packages/common/utils/src/*.ts"
+      "@beep/clawhole/*": [
+        "../../apps/clawhole/src/*.ts"
       ]
     }
   }

@@ -10,6 +10,9 @@
       "path": ".codex"
     },
     {
+      "path": "apps/clawhole"
+    },
+    {
       "path": "apps/crypto-taxes"
     },
     {
