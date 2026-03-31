@@ -192,6 +192,7 @@
     "pg-protocol": "^1.13.0",
     "@commitlint/config-conventional": "^20.5.0",
     "cspell": "^9.7.0",
+    "cytoscape": "^3.33.1",
     "sql-formatter": "^15.7.3",
     "markdownlint-cli2": "^0.22.0",
     "@effect/ai-anthropic": "^4.0.0-beta.43",

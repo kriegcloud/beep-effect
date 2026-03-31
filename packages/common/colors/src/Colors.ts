@@ -29,10 +29,13 @@
  */
 
 import { $ColorsId } from "@beep/identity";
-import { Fn } from "@beep/schema";
-import { identity } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import {
+  ColorsFields,
+  Formatter as FormatterSchema,
+  type Formatter as FormatterType,
+} from "./internal/ColorsSchema.ts";
 
 const $I = $ColorsId.create("Domain");
 
@@ -47,15 +50,8 @@ class ProcessLike extends S.Class<ProcessLike>($I`ProcessLike`)({
   stdout: S.optionalKey(ProcessLikeStdout),
 }) {}
 
-const FormatterInput = S.Union([S.String, S.Number]).pipe(
-  S.UndefinedOr,
-  $I.annoteSchema("FormatterInput", {
-    description: "Input accepted by a color formatter.",
-  })
-);
-
 const runtimeProcessLike: ProcessLike = typeof process === "undefined" ? {} : process;
-const stringIdentity = identity(String);
+const stringIdentity: FormatterType = String;
 
 const hasNoColorFlag = (argv: ReadonlyArray<string>): boolean => A.contains(argv, "--no-color");
 
@@ -94,25 +90,18 @@ const replaceClose = (text: string, close: string, replace: string, index: numbe
  * console.log(rendered) // "\u001b[36m42\u001b[39m"
  * ```
  *
- * @category Schema
+ * @category DomainModel
  * @since 0.0.0
  */
-export const Formatter = Fn({
-  input: FormatterInput,
-  output: S.String,
-}).pipe(
-  $I.annoteSchema("Formatter", {
-    description: "A unary formatter that wraps string output with ANSI escape sequences.",
-  })
-);
+export const Formatter = FormatterSchema;
 
 /**
  * Runtime type for {@link Formatter}.
  *
- * @category Schema
+ * @category DomainModel
  * @since 0.0.0
  */
-export type Formatter = typeof Formatter.Type;
+export type Formatter = FormatterType;
 
 const formatter =
   (open: string, close: string, replace = open): Formatter =>
@@ -141,7 +130,7 @@ const formatter =
  * console.log(enabled) // true
  * ```
  *
- * @category Detection
+ * @category Utility
  * @param processLike {ProcessLike} - The process-like runtime metadata used for color capability detection.
  * @returns {boolean} - `true` when ANSI escape sequences should be emitted.
  * @since 0.0.0
@@ -175,7 +164,7 @@ export const supportsColor = (processLike: ProcessLike = runtimeProcessLike): bo
  * console.log(typeof isColorSupported) // "boolean"
  * ```
  *
- * @category Detection
+ * @category Utility
  * @since 0.0.0
  */
 export const isColorSupported = supportsColor();
@@ -196,59 +185,11 @@ export const isColorSupported = supportsColor();
  * console.log(isColorsInstance) // true
  * ```
  *
- * @category Model
+ * @category DomainModel
  * @since 0.0.0
  */
 export class Colors extends S.Class<Colors>($I`Colors`)(
-  {
-    isColorSupported: S.Boolean,
-
-    reset: Formatter,
-    bold: Formatter,
-    dim: Formatter,
-    italic: Formatter,
-    underline: Formatter,
-    inverse: Formatter,
-    hidden: Formatter,
-    strikethrough: Formatter,
-
-    black: Formatter,
-    red: Formatter,
-    green: Formatter,
-    yellow: Formatter,
-    blue: Formatter,
-    magenta: Formatter,
-    cyan: Formatter,
-    white: Formatter,
-    gray: Formatter,
-
-    bgBlack: Formatter,
-    bgRed: Formatter,
-    bgGreen: Formatter,
-    bgYellow: Formatter,
-    bgBlue: Formatter,
-    bgMagenta: Formatter,
-    bgCyan: Formatter,
-    bgWhite: Formatter,
-
-    blackBright: Formatter,
-    redBright: Formatter,
-    greenBright: Formatter,
-    yellowBright: Formatter,
-    blueBright: Formatter,
-    magentaBright: Formatter,
-    cyanBright: Formatter,
-    whiteBright: Formatter,
-
-    bgBlackBright: Formatter,
-    bgRedBright: Formatter,
-    bgGreenBright: Formatter,
-    bgYellowBright: Formatter,
-    bgBlueBright: Formatter,
-    bgMagentaBright: Formatter,
-    bgCyanBright: Formatter,
-    bgWhiteBright: Formatter,
-  },
+  ColorsFields,
   $I.annote("Colors", {
     description: "The Colors configuration object.",
   })
@@ -272,7 +213,7 @@ export class Colors extends S.Class<Colors>($I`Colors`)(
  * console.log(rendered) // "offline"
  * ```
  *
- * @category Constructors
+ * @category Utility
  * @param enabled {boolean} - Whether the returned formatter set should emit ANSI escapes.
  * @returns {Colors} - A configured immutable formatter set.
  * @since 0.0.0
@@ -340,7 +281,7 @@ export const createColors = (enabled = isColorSupported): Colors => {
  * const rendered = colors.cyan("beep")
  * ```
  *
- * @category Constructors
+ * @category Utility
  * @since 0.0.0
  */
 const colors = createColors();

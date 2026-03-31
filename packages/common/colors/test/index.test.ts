@@ -131,5 +131,7 @@ describe("@beep/colors browser entry", () => {
     expect(browserSupportsColor()).toBe(false);
     expect(browserColors.red("warning")).toBe("warning");
     expect(createBrowserColors().bold("beep")).toBe("beep");
+    expect(createBrowserColors(true).bold("beep")).toBe("beep");
+    expect(browserColors.createColors(true).red("warning")).toBe("warning");
   });
 });

@@ -8,14 +8,39 @@
  * @module @beep/colors/Colors.browser
  */
 
-import { Colors, Formatter, type Formatter as FormatterType } from "./Colors.ts";
+import { $ColorsId } from "@beep/identity";
+import * as S from "effect/Schema";
+import {
+  ColorsFields,
+  Formatter as FormatterSchema,
+  type Formatter as FormatterType,
+} from "./internal/ColorsSchema.ts";
 
-const identity: FormatterType = (input) => String(input);
+const $I = $ColorsId.create("Domain");
+const identity: FormatterType = String;
+
+/**
+ * Browser-safe formatter model.
+ *
+ * Browser builds keep the same API shape as the Node entrypoint, but never emit ANSI
+ * escape sequences and keep `createColors` bound to the browser implementation.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class Colors extends S.Class<Colors>($I`Colors`)(
+  ColorsFields,
+  $I.annote("Colors", {
+    description: "The browser-safe Colors configuration object.",
+  })
+) {
+  readonly createColors = createColors;
+}
 
 /**
  * Browser builds never emit ANSI escape sequences.
  *
- * @category Detection
+ * @category Utility
  * @since 0.0.0
  */
 export const isColorSupported = false;
@@ -23,7 +48,7 @@ export const isColorSupported = false;
 /**
  * Browser builds always disable ANSI escape sequences.
  *
- * @category Detection
+ * @category Utility
  * @returns {boolean} - Always `false` in browser-safe builds.
  * @since 0.0.0
  */
@@ -32,11 +57,14 @@ export const supportsColor = (): boolean => false;
 /**
  * Create a browser-safe formatter set that never emits ANSI escape sequences.
  *
- * @category Constructors
+ * The optional flag is accepted for API parity with the Node entrypoint, but ignored.
+ *
+ * @category Utility
+ * @param _enabled {boolean | undefined} - Ignored in browser-safe builds.
  * @returns {Colors} - A formatter set whose members coerce input with `String(...)`.
  * @since 0.0.0
  */
-export const createColors = (): Colors =>
+export const createColors = (_enabled?: boolean): Colors =>
   new Colors({
     isColorSupported: false,
     reset: identity,
@@ -85,10 +113,10 @@ export const createColors = (): Colors =>
 /**
  * Default browser-safe formatter set.
  *
- * @category Constructors
+ * @category Utility
  * @since 0.0.0
  */
 const colors = createColors();
 
-export { Colors, Formatter };
+export const Formatter = FormatterSchema;
 export default colors;
