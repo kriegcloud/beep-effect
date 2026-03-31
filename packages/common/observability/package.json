@@ -52,6 +52,7 @@
     }
   },
   "dependencies": {
+    "@beep/colors": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/opentelemetry": "catalog:",
@@ -62,8 +63,7 @@
     "@opentelemetry/sdk-metrics": "^2.5.0",
     "@opentelemetry/sdk-trace-base": "^2.5.0",
     "@opentelemetry/sdk-trace-node": "^2.2.0",
-    "effect": "catalog:",
-    "@beep/colors": "workspace:^"
+    "effect": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
