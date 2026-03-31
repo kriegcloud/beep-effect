@@ -1,8 +1,8 @@
+import bc from "@beep/colors";
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, LogLevel } from "@beep/schema";
 import { Cause, Inspectable, Layer, Logger, Match, References } from "effect";
 import * as S from "effect/Schema";
-import pc from "picocolors";
 
 const $I = $ObservabilityId.create("Logging");
 
@@ -117,44 +117,44 @@ const defaultPrettyLoggerConfig = new PrettyLoggerConfig({
 const themePalette = (theme: PrettyLogTheme): PrettyPalette =>
   Match.value(theme).pipe(
     Match.when("forest", () => ({
-      accent: pc.green,
-      dim: pc.dim,
-      trace: pc.gray,
-      debug: pc.cyan,
-      info: pc.green,
-      warn: pc.yellow,
-      error: pc.red,
-      fatal: (value: string) => pc.bgRed(pc.white(value)),
+      accent: bc.green,
+      dim: bc.dim,
+      trace: bc.gray,
+      debug: bc.cyan,
+      info: bc.green,
+      warn: bc.yellow,
+      error: bc.red,
+      fatal: (value: string) => bc.bgRed(bc.white(value)),
     })),
     Match.when("sunrise", () => ({
-      accent: pc.yellow,
-      dim: pc.dim,
-      trace: pc.gray,
-      debug: pc.magenta,
-      info: pc.blue,
-      warn: pc.yellow,
-      error: pc.red,
-      fatal: (value: string) => pc.bgRed(pc.white(value)),
+      accent: bc.yellow,
+      dim: bc.dim,
+      trace: bc.gray,
+      debug: bc.magenta,
+      info: bc.blue,
+      warn: bc.yellow,
+      error: bc.red,
+      fatal: (value: string) => bc.bgRed(bc.white(value)),
     })),
     Match.when("mono", () => ({
-      accent: pc.white,
-      dim: pc.dim,
-      trace: pc.dim,
-      debug: pc.white,
-      info: pc.white,
-      warn: pc.white,
-      error: pc.white,
-      fatal: pc.white,
+      accent: bc.white,
+      dim: bc.dim,
+      trace: bc.dim,
+      debug: bc.white,
+      info: bc.white,
+      warn: bc.white,
+      error: bc.white,
+      fatal: bc.white,
     })),
     Match.when("ocean", () => ({
-      accent: pc.cyan,
-      dim: pc.dim,
-      trace: pc.gray,
-      debug: pc.blue,
-      info: pc.cyan,
-      warn: pc.yellow,
-      error: pc.red,
-      fatal: (value: string) => pc.bgRed(pc.white(value)),
+      accent: bc.cyan,
+      dim: bc.dim,
+      trace: bc.gray,
+      debug: bc.blue,
+      info: bc.cyan,
+      warn: bc.yellow,
+      error: bc.red,
+      fatal: (value: string) => bc.bgRed(bc.white(value)),
     })),
     Match.exhaustive
   );

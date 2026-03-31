@@ -8,6 +8,9 @@
   },
   "references": [
     {
+      "path": "../colors/tsconfig.json"
+    },
+    {
       "path": "../identity/tsconfig.json"
     },
     {

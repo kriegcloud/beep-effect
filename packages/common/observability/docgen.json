@@ -35,6 +35,8 @@
       "@beep/observability/*": [
         "../../../packages/common/observability/src/*.ts"
       ],
+      "@beep/colors": ["../../../packages/common/colors/src/index.ts"],
+      "@beep/colors/*": ["../../../packages/common/colors/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],

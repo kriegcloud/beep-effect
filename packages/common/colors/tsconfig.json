@@ -9,19 +9,13 @@
   },
   "references": [
     {
-      "path": "../../common/colors/tsconfig.json"
+      "path": "../identity/tsconfig.json"
     },
     {
-      "path": "../../common/identity/tsconfig.json"
+      "path": "../schema/tsconfig.json"
     },
     {
-      "path": "../../common/schema/tsconfig.json"
-    },
-    {
-      "path": "../../common/types/tsconfig.json"
-    },
-    {
-      "path": "../../common/utils/tsconfig.json"
+      "path": "../types/tsconfig.json"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": ["src/internal/**/*.ts", "src/services/authorization/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/domain/src/",
+  "exclude": ["src/internal/**/*.ts", "src/Colors.browser.ts", "src/index.ts"],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/colors/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -26,11 +26,9 @@
     "noFallthroughCasesInSwitch": true,
     "stripInternal": false,
     "noErrorTruncation": true,
-    "types": [],
+    "types": ["node"],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
-      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
       "@beep/colors": ["../../../packages/common/colors/src/index.ts"],
       "@beep/colors/*": ["../../../packages/common/colors/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
@@ -38,9 +36,7 @@
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
       "@beep/types": ["../../../packages/common/types/src/index.ts"],
-      "@beep/types/*": ["../../../packages/common/types/src/*.ts"],
-      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
+      "@beep/types/*": ["../../../packages/common/types/src/*.ts"]
     }
   }
 }
