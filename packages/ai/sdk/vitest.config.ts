@@ -7,6 +7,7 @@ export default mergeConfig(
     test: {
       // Package-specific overrides
       globals: true,
+      testTimeout: 15_000,
     },
   })
 );

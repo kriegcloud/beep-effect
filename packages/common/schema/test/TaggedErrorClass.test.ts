@@ -1,4 +1,4 @@
-import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
+import { TaggedErrorClass, type TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
@@ -57,7 +57,7 @@ describe("TaggedErrorClass", () => {
   it("defers schema validation in newThunk until thunk execution", () => {
     const invalid: unknown = { beep: "boop", count: "wrong" };
 
-    const thunk = StructuredBeepError.newThunk(invalid);
+    const thunk = StructuredBeepError.newThunk(invalid as TaggedErrorNewInput<typeof StructuredBeepError>);
 
     expect(() => thunk()).toThrow();
   });

@@ -15,7 +15,8 @@
     "build:sidecar": "bun run scripts/build-sidecar.ts",
     "check": "tsc -b tsconfig.json && tsc -p tsconfig.test.json --noEmit",
     "lint": "biome check src/",
-    "lint:fix": "biome check src/ --write"
+    "lint:fix": "biome check src/ --write",
+    "test": "vitest run"
   },
   "dependencies": {
     "@beep/repo-memory-client": "workspace:^",

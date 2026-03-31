@@ -1,5 +1,6 @@
 import type { TUnsafe } from "@beep/types";
-import { type Cause, Function as Fn, Predicate as P, type Struct } from "effect";
+import { type Cause, Function as Fn, type Struct } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 type TaggedErrorFields = S.Struct.Fields;
@@ -126,17 +127,17 @@ export interface TaggedErrorClassFactory<Self, Brand = {}> {
  * @category DomainModel
  */
 export type TaggedErrorClassConstructor = <Self, Brand = {}>(
-  identifier?: string
+  identifier?: undefined | string
 ) => TaggedErrorClassFactory<Self, Brand>;
 
 type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsafe.Any>;
 
 type RuntimeContextLike = {
-  readonly isOptional?: boolean;
+  readonly isOptional?: undefined | boolean;
 };
 
 type RuntimePropertyTypeLike = {
-  readonly context?: RuntimeContextLike;
+  readonly context?: undefined | RuntimeContextLike;
 };
 
 type RuntimePropertySignatureLike = {
@@ -201,7 +202,7 @@ function toCausePayload(cause: unknown, rest: unknown): Record<string, unknown> 
  * @category Validation
  * @since 0.0.0
  */
-export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: string) => {
+export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undefined | string) => {
   return ((
     tagValue: string,
     schema: TaggedErrorFields | TaggedErrorStruct,

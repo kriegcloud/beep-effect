@@ -293,8 +293,8 @@ describe("Secrets schemas", () => {
     expect(O.isSome(config.resolution)).toBe(true);
 
     if (O.isSome(config.providers) && O.isSome(config.defaults) && O.isSome(config.resolution)) {
-      expect(config.providers.value.default).toBeInstanceOf(EnvSecretProviderConfig);
-      expect(config.providers.value.vault).toBeInstanceOf(ExecSecretProviderConfig);
+      expect(Reflect.get(config.providers.value, "default")).toBeInstanceOf(EnvSecretProviderConfig);
+      expect(Reflect.get(config.providers.value, "vault")).toBeInstanceOf(ExecSecretProviderConfig);
       expect(config.defaults.value.env).toEqual(O.some("default"));
       expect(config.defaults.value.exec).toEqual(O.some("vault"));
       expect(config.resolution.value.maxProviderConcurrency).toEqual(O.some(0));

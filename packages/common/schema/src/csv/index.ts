@@ -224,18 +224,8 @@ export const CSV = <RowSchema extends RowSchemaWithFields>(rowSchema: RowSchema,
     S.decodeTo(
       rowsSchema,
       SchemaTransformation.transformOrFail({
-        decode: (input) =>
-          pipe(
-            input,
-            decodeRows,
-            Effect.mapError((error) => toSchemaIssue(input, error))
-          ),
-        encode: (rows) =>
-          pipe(
-            rows,
-            encodeRows,
-            Effect.mapError((error) => toSchemaIssue(rows, error))
-          ),
+        decode: (input) => decodeRows(input).pipe(Effect.mapError((error) => toSchemaIssue(input, error))),
+        encode: (rows) => encodeRows(rows).pipe(Effect.mapError((error) => toSchemaIssue(rows, error))),
       })
     ),
     S.annotate(

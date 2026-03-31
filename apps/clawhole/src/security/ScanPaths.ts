@@ -141,7 +141,7 @@ const serviceEffect = Effect.gen(function* () {
   } = dual(
     2,
     (basePath: string, candidatePath: string): Effect.Effect<boolean> =>
-      Effect.gen(function* () {
+      Effect.sync(() => {
         const base = path.resolve(basePath);
         const candidate = path.resolve(candidatePath);
         const rel = path.relative(base, candidate);

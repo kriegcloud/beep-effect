@@ -5,7 +5,7 @@
  * @since 0.0.0
  * @module @beep/utils/isBlockedObjectKey
  */
-import * as HashSet from "effect/HashSet";
+import { HashSet } from "effect";
 
 const BlockedObjectKeys = HashSet.make("__proto__", "prototype", "constructor");
 

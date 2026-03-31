@@ -183,11 +183,9 @@ const readNumericFile = Effect.fn("DesktopDev.readNumericFile")(function* (fileP
     return O.none<number>();
   }
 
-  return yield* fs.readFileString(filePath).pipe(
-    Effect.map(Str.trim),
-    Effect.flatMap(decodeNumberFromString),
-    Effect.option
-  );
+  return yield* fs
+    .readFileString(filePath)
+    .pipe(Effect.map(Str.trim), Effect.flatMap(decodeNumberFromString), Effect.option);
 });
 
 const loadPortlessRoutes = Effect.fn("DesktopDev.loadPortlessRoutes")(function* (portlessStateDirectory: string) {
@@ -200,10 +198,9 @@ const loadPortlessRoutes = Effect.fn("DesktopDev.loadPortlessRoutes")(function* 
     return A.empty<PortlessRoute>();
   }
 
-  return yield* fs.readFileString(routesPath).pipe(
-    Effect.flatMap(decodePortlessRoutes),
-    Effect.orElseSucceed(() => A.empty<PortlessRoute>())
-  );
+  return yield* fs
+    .readFileString(routesPath)
+    .pipe(Effect.flatMap(decodePortlessRoutes), Effect.orElseSucceed(A.empty<PortlessRoute>));
 });
 
 const findPortlessRoute = Effect.fn("DesktopDev.findPortlessRoute")(function* (
