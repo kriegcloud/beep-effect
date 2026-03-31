@@ -26,7 +26,6 @@
       "!**/.cache",
       "!**/bun.lock",
       "!**/dist",
-      "!scratchpad",
       "!scratchpad"
     ]
   },

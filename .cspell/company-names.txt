@@ -1,0 +1,17 @@
+BCEAO
+BEAC
+falkor
+Falkor
+falkordb
+grafana
+huggingface
+kriegcloud
+lancedb
+neondatabase
+nomic
+onepassword
+pulumi
+pulumiverse
+singlestore
+Solana
+zepai
