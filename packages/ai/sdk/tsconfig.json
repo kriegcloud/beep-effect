@@ -2,7 +2,6 @@
   "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
-  "exclude": ["src/compat"],
   "compilerOptions": {
     "types": ["node"],
     "outDir": "dist",

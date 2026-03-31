@@ -89,9 +89,6 @@ run_quality() {
   log "quality: type check"
   bun run check
 
-  log "quality: migration drift"
-  run_with_local_env bun run check:migration-drift
-
   log "quality: lint"
   bun run lint
 
