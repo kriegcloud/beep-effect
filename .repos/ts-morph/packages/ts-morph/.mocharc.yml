@@ -1,5 +1,0 @@
-recursive: true
-reporter: progress
-timeout: 10000
-spec: src/tests/**/*.ts
-ignore: src/tests/performance/**/*.ts
