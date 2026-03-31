@@ -1,5 +1,5 @@
+import bc from "@beep/colors";
 import { ErrorReporter, Match } from "effect";
-import pc from "picocolors";
 import { renderObservedCause, summarizeCause } from "../CauseDiagnostics.ts";
 
 /**
@@ -14,12 +14,12 @@ export const makeConsoleErrorReporter = (options?: {
   ErrorReporter.make(({ cause, error, severity, attributes }) => {
     const summary = summarizeCause(cause);
     const severityColor = Match.value(severity).pipe(
-      Match.when("Fatal", () => pc.bgRed(pc.white(` ${severity} `))),
-      Match.when("Error", () => pc.red(severity)),
-      Match.when("Warn", () => pc.yellow(severity)),
-      Match.when("Info", () => pc.cyan(severity)),
-      Match.when("Debug", () => pc.gray(severity)),
-      Match.when("Trace", () => pc.dim(severity)),
+      Match.when("Fatal", () => bc.bgRed(bc.white(` ${severity} `))),
+      Match.when("Error", () => bc.red(severity)),
+      Match.when("Warn", () => bc.yellow(severity)),
+      Match.when("Info", () => bc.cyan(severity)),
+      Match.when("Debug", () => bc.gray(severity)),
+      Match.when("Trace", () => bc.dim(severity)),
       Match.exhaustive
     );
 

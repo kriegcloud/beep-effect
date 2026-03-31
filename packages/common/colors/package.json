@@ -1,0 +1,56 @@
+{
+  "name": "@beep/colors",
+  "version": "0.0.0",
+  "description": "terminal output formatting with ANSI colors.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/colors",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/colors"
+  },
+  "scripts": {
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "check": "tsc -b tsconfig.json",
+    "codegen": "echo 'no codegen needed'",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "vitest"
+  },
+  "main": "./dist/Colors.js",
+  "types": "./dist/Colors.d.ts",
+  "browser": {
+    "./dist/Colors.js": "./dist/Colors.browser.js"
+  },
+  "files": [
+    "dist/Colors.*"
+  ],
+  "keywords": [
+    "terminal",
+    "colors",
+    "formatting",
+    "cli",
+    "console"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  },
+  "dependencies": {
+    "effect": "catalog:",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

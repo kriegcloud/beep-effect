@@ -3,7 +3,7 @@
   "exclude": [
     "src/internal/**/*.ts"
   ],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/tables/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/colors/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -35,11 +35,11 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/shared-tables": [
-        "../../../packages/shared/tables/src/index.ts"
+      "@beep/colors": [
+        "../../../packages/common/colors/src/index.ts"
       ],
-      "@beep/shared-tables/*": [
-        "../../../packages/shared/tables/src/*.ts"
+      "@beep/colors/*": [
+        "../../../packages/common/colors/src/*.ts"
       ],
       "@beep/identity": [
         "../../../packages/common/identity/src/index.ts"
@@ -52,6 +52,12 @@
       ],
       "@beep/schema/*": [
         "../../../packages/common/schema/src/*.ts"
+      ],
+      "@beep/types": [
+        "../../../packages/common/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../packages/common/types/src/*.ts"
       ],
       "@beep/utils": [
         "../../../packages/common/utils/src/index.ts"

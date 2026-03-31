@@ -28,6 +28,9 @@
       "path": "packages/ai/sdk"
     },
     {
+      "path": "packages/common/colors"
+    },
+    {
       "path": "packages/common/data"
     },
     {

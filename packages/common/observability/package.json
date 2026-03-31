@@ -63,7 +63,7 @@
     "@opentelemetry/sdk-trace-base": "^2.5.0",
     "@opentelemetry/sdk-trace-node": "^2.2.0",
     "effect": "catalog:",
-    "picocolors": "catalog:"
+    "@beep/colors": "workspace:^"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

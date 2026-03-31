@@ -8,7 +8,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SqlError } from "effect/unstable/sql";
 import { DatabaseError as PgDatabaseError } from "pg-protocol";
-import pc from "picocolors";
+import bc from "@beep/colors";
 import { format } from "sql-formatter";
 import { ErrorCodeFromKey } from "./ErrorEnum.js";
 
@@ -191,21 +191,21 @@ export const getQueryType = (query: string) => pipe(query, Str.trim, Str.toLower
  * @category DomainLogic
  */
 export const getQueryTypeStyle = QueryType.$match({
-  SELECT: (t) => ({ badge: pc.bgBlue(pc.white(pc.bold(` ${t} `))), color: pc.blue }),
-  INSERT: (t) => ({ badge: pc.bgGreen(pc.white(pc.bold(` ${t} `))), color: pc.green }),
-  UPDATE: (t) => ({ badge: pc.bgYellow(pc.black(pc.bold(` ${t} `))), color: pc.yellow }),
-  DELETE: (t) => ({ badge: pc.bgRed(pc.white(pc.bold(` ${t} `))), color: pc.red }),
-  BEGIN: (t) => ({ badge: pc.bgMagenta(pc.white(pc.bold(` ${t} `))), color: pc.magenta }),
-  COMMIT: (t) => ({ badge: pc.bgCyan(pc.white(pc.bold(` ${t} `))), color: pc.cyan }),
-  ROLLBACK: (t) => ({ badge: pc.bgRed(pc.white(pc.bold(` ${t} `))), color: pc.red }),
-  OTHER: (t) => ({ badge: pc.bgWhite(pc.black(pc.bold(` ${t} `))), color: pc.white }),
+  SELECT: (t) => ({ badge: bc.bgBlue(bc.white(bc.bold(` ${t} `))), color: bc.blue }),
+  INSERT: (t) => ({ badge: bc.bgGreen(bc.white(bc.bold(` ${t} `))), color: bc.green }),
+  UPDATE: (t) => ({ badge: bc.bgYellow(bc.black(bc.bold(` ${t} `))), color: bc.yellow }),
+  DELETE: (t) => ({ badge: bc.bgRed(bc.white(bc.bold(` ${t} `))), color: bc.red }),
+  BEGIN: (t) => ({ badge: bc.bgMagenta(bc.white(bc.bold(` ${t} `))), color: bc.magenta }),
+  COMMIT: (t) => ({ badge: bc.bgCyan(bc.white(bc.bold(` ${t} `))), color: bc.cyan }),
+  ROLLBACK: (t) => ({ badge: bc.bgRed(bc.white(bc.bold(` ${t} `))), color: bc.red }),
+  OTHER: (t) => ({ badge: bc.bgWhite(bc.black(bc.bold(` ${t} `))), color: bc.white }),
 });
 
 const processLineHighlight = (line: string) => {
   // 1. Protect and highlight strings first (highest priority, don't touch contents)
   const afterStrings = pipe({ result: line, strings: A.empty<string>(), quotedIds: A.empty<string>() }, (state) => {
     const matches = pipe(state.result, Str.match(/'[^']*'/g), O.getOrElse(A.empty<string>));
-    const highlighted = pipe(matches, A.map(pc.green));
+    const highlighted = pipe(matches, A.map(bc.green));
     const replaced = pipe(
       highlighted,
       A.reduce({ result: state.result, index: 0 }, (acc, _, i) => ({
@@ -219,7 +219,7 @@ const processLineHighlight = (line: string) => {
   // 2. Protect and highlight quoted identifiers
   const afterQuotedIds = pipe(afterStrings, (state) => {
     const matches = pipe(state.result, Str.match(/"[^"]+"/g), O.getOrElse(A.empty<string>));
-    const highlighted = pipe(matches, A.map(pc.white));
+    const highlighted = pipe(matches, A.map(bc.white));
     const replaced = pipe(
       highlighted,
       A.reduce({ result: state.result, index: 0 }, (acc, _, i) => ({
@@ -232,7 +232,7 @@ const processLineHighlight = (line: string) => {
 
   // 3. Highlight placeholders ($1, $2, etc.)
   const afterPlaceholders = pipe(afterQuotedIds.result, (s) =>
-    s.replace(/\$\d+/g, (match) => pc.yellow(pc.bold(match)))
+    s.replace(/\$\d+/g, (match) => bc.yellow(bc.bold(match)))
   );
 
   // 4. Highlight keywords and functions (word boundary based)
@@ -242,15 +242,15 @@ const processLineHighlight = (line: string) => {
       return pipe(
         lower,
         Match.value,
-        Match.when(isSqlKeyword, () => pc.magenta(pc.bold(match))),
-        Match.when(isSqlFunction, () => pc.blue(match)),
+        Match.when(isSqlKeyword, () => bc.magenta(bc.bold(match))),
+        Match.when(isSqlFunction, () => bc.blue(match)),
         Match.orElse(() => match)
       );
     })
   );
 
   // 5. Highlight operators
-  const afterOperators = pipe(afterKeywords, (s) => s.replace(/([=<>!]+|::|->|@>|<@|\?\||\?&)/g, pc.cyan));
+  const afterOperators = pipe(afterKeywords, (s) => s.replace(/([=<>!]+|::|->|@>|<@|\?\||\?&)/g, bc.cyan));
 
   // 6. Restore protected strings and quoted identifiers
   return pipe(
@@ -300,20 +300,20 @@ export const highlightSql = (sql: string): string => {
  * @category Utility
  */
 export const formatParam = (value: unknown, index: number): string => {
-  const paramLabel = pc.yellow(pc.bold(`$${index + 1}`));
-  const sep = pc.dim("=");
+  const paramLabel = bc.yellow(bc.bold(`$${index + 1}`));
+  const sep = bc.dim("=");
   return pipe(
     value,
     Match.value,
-    Match.when(P.isNull, () => `${paramLabel}${sep}${pc.dim("null")}`),
-    Match.when(P.isUndefined, () => `${paramLabel}${sep}${pc.dim("undefined")}`),
+    Match.when(P.isNull, () => `${paramLabel}${sep}${bc.dim("null")}`),
+    Match.when(P.isUndefined, () => `${paramLabel}${sep}${bc.dim("undefined")}`),
     Match.when(
       P.isString,
-      (stringValue) => `${paramLabel}${sep}${pc.green(`"${truncateForPreview(stringValue, 40)}"`)}`
+      (stringValue) => `${paramLabel}${sep}${bc.green(`"${truncateForPreview(stringValue, 40)}"`)}`
     ),
-    Match.when(P.isNumber, (numberValue) => `${paramLabel}${sep}${pc.cyan(String(numberValue))}`),
-    Match.when(P.isBoolean, (booleanValue) => `${paramLabel}${sep}${pc.blue(String(booleanValue))}`),
-    Match.when(S.is(RawDate), (dateValue) => `${paramLabel}${sep}${pc.magenta(dateValue.toISOString())}`),
+    Match.when(P.isNumber, (numberValue) => `${paramLabel}${sep}${bc.cyan(String(numberValue))}`),
+    Match.when(P.isBoolean, (booleanValue) => `${paramLabel}${sep}${bc.blue(String(booleanValue))}`),
+    Match.when(S.is(RawDate), (dateValue) => `${paramLabel}${sep}${bc.magenta(dateValue.toISOString())}`),
     Match.when(A.isArray, (arrayValue) => {
       const preview = pipe(
         A.length(arrayValue) > 3 ? A.take(arrayValue, 3) : arrayValue,
@@ -321,17 +321,17 @@ export const formatParam = (value: unknown, index: number): string => {
         O.map((encoded) => (A.length(arrayValue) > 3 ? `${encoded} ...` : encoded)),
         O.getOrElse(() => "[Array]")
       );
-      return `${paramLabel}${sep}${pc.cyan(preview)}`;
+      return `${paramLabel}${sep}${bc.cyan(preview)}`;
     }),
     Match.when(P.isObject, (objectValue) =>
       pipe(
         encodeJson(objectValue),
         O.map((encoded) => truncateForPreview(encoded, 50)),
-        O.map((encoded) => `${paramLabel}${sep}${pc.gray(encoded)}`),
-        O.getOrElse(() => `${paramLabel}${sep}${pc.gray("[Object]")}`)
+        O.map((encoded) => `${paramLabel}${sep}${bc.gray(encoded)}`),
+        O.getOrElse(() => `${paramLabel}${sep}${bc.gray("[Object]")}`)
       )
     ),
-    Match.orElse((unknownValue) => `${paramLabel}${sep}${pc.gray(String(unknownValue))}`)
+    Match.orElse((unknownValue) => `${paramLabel}${sep}${bc.gray(String(unknownValue))}`)
   );
 };
 
@@ -385,7 +385,7 @@ export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: 
     Match.when(0, thunkEmptyStr),
     Match.when(
       (count) => count <= 3,
-      () => `${prefix} ${pc.dim("params")} ${pipe(formattedParams, A.join(pc.dim("  ")))}`
+      () => `${prefix} ${bc.dim("params")} ${pipe(formattedParams, A.join(bc.dim("  ")))}`
     ),
     Match.orElse(() => {
       // Calculate max width for each column using reduce.
@@ -413,8 +413,8 @@ export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: 
             chunk,
             A.map((item, col) => padEnd(item, pipe(colWidths, A.get(col), O.getOrElse(thunk0))))
           );
-          const linePrefix = rowIndex === 0 ? `${prefix} ${pc.dim("params")} ` : `${boxColor(BOX.vertical)}        `;
-          return `${linePrefix}${pipe(rowItems, A.join(pc.dim("  ")))}`;
+          const linePrefix = rowIndex === 0 ? `${prefix} ${bc.dim("params")} ` : `${boxColor(BOX.vertical)}        `;
+          return `${linePrefix}${pipe(rowItems, A.join(bc.dim("  ")))}`;
         })
       );
 
@@ -593,7 +593,7 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
     lines = pipe(lines, A.appendAll(nextLines));
   };
 
-  const boxColor = pc.red;
+  const boxColor = bc.red;
 
   // Extract the underlying pg error if wrapped by Drizzle.
   const pgError = extractPgError(error);
@@ -621,14 +621,14 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
   // Header with clickable source location.
   appendLine(
     sourceLocation === null
-      ? `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))}`
-      : `${boxColor(BOX.topLeft + BOX.horizontal)} ${pc.bgRed(pc.white(pc.bold(" DATABASE ERROR ")))} ${pc.dim("at")} ${pc.underline(pc.cyan(sourceLocation))}`
+      ? `${boxColor(BOX.topLeft + BOX.horizontal)} ${bc.bgRed(bc.white(bc.bold(" DATABASE ERROR ")))}`
+      : `${boxColor(BOX.topLeft + BOX.horizontal)} ${bc.bgRed(bc.white(bc.bold(" DATABASE ERROR ")))} ${bc.dim("at")} ${bc.underline(bc.cyan(sourceLocation))}`
   );
 
   // Error type and message.
   if (S.is(RawError)(displayError)) {
     appendLine(`${boxColor(BOX.vertical)}`);
-    appendLine(`${boxColor(BOX.vertical)} ${pc.red(pc.bold(displayError.name))}: ${pc.white(displayError.message)}`);
+    appendLine(`${boxColor(BOX.vertical)} ${bc.red(bc.bold(displayError.name))}: ${bc.white(displayError.message)}`);
 
     const code = readStringProperty(displayError, "code");
     const detail = readStringProperty(displayError, "detail");
@@ -645,44 +645,44 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
     }
     if (P.isString(severity)) {
       appendLine(
-        `${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${pc.dim("severity")}   ${pc.red(pc.bold(severity))}`
+        `${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${bc.dim("severity")}   ${bc.red(bc.bold(severity))}`
       );
     }
     if (P.isString(code) && S.is(ErrorCodeFromKey)(code)) {
       const codeLabel = ErrorCodeFromKey.To.Enum[code];
       appendLine(
-        `${boxColor(BOX.vertical)}  ${pc.dim("code")}       ${pc.yellow(code)}${codeLabel === undefined ? "" : pc.dim(` (${codeLabel})`)}`
+        `${boxColor(BOX.vertical)}  ${bc.dim("code")}       ${bc.yellow(code)}${codeLabel === undefined ? "" : bc.dim(` (${codeLabel})`)}`
       );
     }
     if (P.isString(schema)) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("schema")}     ${pc.cyan(schema)}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("schema")}     ${bc.cyan(schema)}`);
     }
     if (P.isString(table)) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("table")}      ${pc.cyan(table)}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("table")}      ${bc.cyan(table)}`);
     }
     if (P.isString(column)) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("column")}     ${pc.cyan(column)}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("column")}     ${bc.cyan(column)}`);
     }
     if (P.isString(constraint)) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("constraint")}  ${pc.magenta(constraint)}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("constraint")}  ${bc.magenta(constraint)}`);
     }
     if (P.isString(detail)) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("detail")}     ${pc.white(detail)}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("detail")}     ${bc.white(detail)}`);
     }
     if (P.isString(hint)) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("hint")}       ${pc.green(hint)}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("hint")}       ${bc.green(hint)}`);
     }
     if (P.isString(where)) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("where")}      ${pc.gray(where)}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("where")}      ${bc.gray(where)}`);
     }
   } else {
-    appendLine(`${boxColor(BOX.vertical)} ${pc.white(String(displayError))}`);
+    appendLine(`${boxColor(BOX.vertical)} ${bc.white(String(displayError))}`);
   }
 
   // Show the query that caused the error.
   if (P.isString(displayQuery)) {
     appendLine(`${boxColor(BOX.vertical)}`);
-    appendLine(`${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${pc.dim("query")}`);
+    appendLine(`${boxColor(BOX.teeRight)}${boxColor(BOX.horizontal)} ${bc.dim("query")}`);
 
     const queryType = getQueryType(displayQuery);
     const { badge } = getQueryTypeStyle(queryType);
@@ -706,7 +706,7 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
     );
 
     if (pipe(formattedQuery, Str.split("\n"), A.length) > 15) {
-      appendLine(`${boxColor(BOX.vertical)}  ${pc.dim("… (truncated)")}`);
+      appendLine(`${boxColor(BOX.vertical)}  ${bc.dim("… (truncated)")}`);
     }
   }
 

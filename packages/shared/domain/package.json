@@ -22,8 +22,8 @@
     "@beep/utils": "workspace:^",
     "effect": "catalog:",
     "pg-protocol": "catalog:",
-    "picocolors": "catalog:",
-    "sql-formatter": "catalog:"
+    "sql-formatter": "catalog:",
+    "@beep/colors": "workspace:^"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

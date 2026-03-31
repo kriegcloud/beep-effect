@@ -1,6 +1,9 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": ["src/internal/**/*.ts", "src/models/**/*.ts"],
+  "exclude": [
+    "src/internal/**/*.ts",
+    "src/models/**/*.ts"
+  ],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/observability/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
@@ -9,7 +12,11 @@
     "moduleResolution": "Bundler",
     "module": "ES2022",
     "target": "ES2022",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,10 +42,24 @@
       "@beep/observability/*": [
         "../../../packages/common/observability/src/*.ts"
       ],
-      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
+      "@beep/colors": [
+        "../../../packages/common/colors/src/index.ts"
+      ],
+      "@beep/colors/*": [
+        "../../../packages/common/colors/src/*.ts"
+      ],
+      "@beep/identity": [
+        "../../../packages/common/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/common/identity/src/*.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/common/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/common/schema/src/*.ts"
+      ]
     }
   }
 }
