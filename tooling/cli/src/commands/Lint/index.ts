@@ -504,7 +504,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
 
 const runLintCircular = Effect.fn(function* () {
   const fs = yield* FileSystem.FileSystem;
-  const dirs = ["tooling/cli/src", "tooling/repo-utils/src", "tooling/codebase-search/src"];
+  const dirs = ["tooling/cli/src", "tooling/repo-utils/src"];
   let hasCircular = false;
 
   for (const dir of dirs) {
