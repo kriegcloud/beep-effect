@@ -902,7 +902,7 @@
     "@mui/material-pigment-css": "^9.0.0-beta.0",
     "@mui/x-charts": "^9.0.0-beta.0",
     "@mui/x-data-grid": "^9.0.0-beta.0",
-    "@mui/x-date-pickers": "9.0.0-alpha.4",
+    "@mui/x-date-pickers": "^9.0.0-alpha.4",
     "@mui/x-date-pickers-pro": "^9.0.0-beta.0",
     "@mui/x-tree-view": "^9.0.0-alpha.4",
     "@neondatabase/serverless": "^1.0.2",
