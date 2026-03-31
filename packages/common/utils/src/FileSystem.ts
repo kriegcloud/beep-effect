@@ -35,6 +35,8 @@ import type * as O from "effect/Option";
  *
  *   return yield* waitForFile("/tmp", "done.txt")
  * })
+ *
+ * void program
  * ```
  */
 export const makeWaitForFile = Effect.gen(function* () {
