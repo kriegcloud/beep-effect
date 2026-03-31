@@ -532,4 +532,33 @@ export const RepoRunWorkflowsLayer = Layer.mergeAll(
   )
 );
 
-export { IndexRepoRunWorkflow, QueryRepoRunWorkflow, RepoRunServiceError, RepoRunWorkflows };
+export {
+  /**
+   * Internal workflow tag for index repo runs.
+   *
+   * @since 0.0.0
+   * @category PortContract
+   */
+  IndexRepoRunWorkflow,
+  /**
+   * Internal workflow tag for query repo runs.
+   *
+   * @since 0.0.0
+   * @category PortContract
+   */
+  QueryRepoRunWorkflow,
+  /**
+   * Typed orchestration error emitted by the repo run service.
+   *
+   * @since 0.0.0
+   * @category DomainModel
+   */
+  RepoRunServiceError,
+  /**
+   * Internal workflow registration set for repository runs.
+   *
+   * @since 0.0.0
+   * @category PortContract
+   */
+  RepoRunWorkflows,
+};
