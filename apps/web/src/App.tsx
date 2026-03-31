@@ -9,7 +9,6 @@ import Stack from "@mui/material-pigment-css/Stack";
 
 const Title = styled("div")(({ theme }) => ({
   color: theme.vars.palette.text.primary,
-  font: theme.vars.font.body1,
   fontSize: "1.125rem",
   lineHeight: 1.7,
 }));

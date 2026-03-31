@@ -327,7 +327,7 @@
     "hoist-non-react-statics": "^3.3.2",
     "@mui/x-charts": "^9.0.0-beta.0",
     "@mui/x-data-grid": "^9.0.0-beta.0",
-    "@mui/x-date-pickers": "9.0.0-alpha.4",
+    "@mui/x-date-pickers": "^9.0.0-alpha.4",
     "@mui/x-tree-view": "^9.0.0-alpha.4",
     "@pigment-css/react": "^0.0.30",
     "@mui/material-pigment-css": "^9.0.0-beta.0",
