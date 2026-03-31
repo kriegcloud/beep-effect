@@ -41,11 +41,10 @@ const toSchemaIssue = (input: unknown, error: CsvError | S.SchemaError): SchemaI
 
 const getSchemaColumns = <RowSchema extends RowSchemaWithFields>(rowSchema: RowSchema): ReadonlyArray<string> =>
   R.keys(rowSchema.fields);
-
-const validateHeaderRow = (
+const validateHeaderRow = Effect.fn("validateHeaderRow")(function* (
   headerRow: ReadonlyArray<string>,
   schemaColumns: ReadonlyArray<string>
-): Effect.Effect<void, CsvError> => {
+) {
   let seen = HashSet.empty<string>();
   let duplicates = HashSet.empty<string>();
 
@@ -60,7 +59,7 @@ const validateHeaderRow = (
   const duplicateHeadersSorted = pipe(A.fromIterable(duplicates), A.sort(Order.String));
 
   if (A.isReadonlyArrayNonEmpty(duplicateHeadersSorted)) {
-    return Effect.fail(csvError(`Duplicate headers found [${A.join(duplicateHeadersSorted, ", ")}]`));
+    return yield* csvError(`Duplicate headers found [${A.join(duplicateHeadersSorted, ", ")}]`);
   }
 
   const headerSet = HashSet.fromIterable(headerRow);
@@ -86,11 +85,11 @@ const validateHeaderRow = (
       A.join("; ")
     );
 
-    return Effect.fail(csvError(`CSV header mismatch (${details}).`));
+    return yield* csvError(`CSV header mismatch (${details}).`);
   }
 
-  return Effect.void;
-};
+  return yield* Effect.void;
+});
 
 const mapRowToHeaderRecord = (
   headerRow: ReadonlyArray<string>,

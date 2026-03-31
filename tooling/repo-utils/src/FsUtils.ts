@@ -166,11 +166,7 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
           }
           return globNpm(pattern as string | string[], globOpts) as Promise<string[]>;
         },
-        catch: (error) =>
-          new DomainError({
-            message: `Glob failed for pattern "${String(pattern)}"`,
-            cause: error,
-          }),
+        catch: (error) => DomainError.new(error, { message: `Glob failed for pattern "${String(pattern)}"` }),
       });
     });
 
@@ -180,80 +176,57 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
 
     const readJson: FsUtilsShape["readJson"] = Effect.fn(function* (filePath) {
       return yield* fs.readFileString(filePath).pipe(
-        Effect.mapError(
-          (e) =>
-            new NoSuchFileError({
-              path: filePath,
-              message: `Failed to read file: ${e.message}`,
-            })
-        ),
+        Effect.mapError((e) => NoSuchFileError.new({ path: filePath, message: `Failed to read file: ${e.message}` })),
         Effect.map(decodeJsonString)
       );
     });
 
     const writeJson: FsUtilsShape["writeJson"] = Effect.fn(function* (filePath, json) {
       const content = yield* jsonStringifyPretty(json);
-      yield* fs.writeFileString(filePath, `${content}\n`).pipe(
-        Effect.mapError(
-          (e) =>
-            new DomainError({
-              message: `Failed to write JSON to "${filePath}"`,
-              cause: e,
-            })
-        )
-      );
+      yield* fs
+        .writeFileString(filePath, `${content}\n`)
+        .pipe(Effect.mapError((e) => DomainError.new(e, { message: `Failed to write JSON to "${filePath}"` })));
     });
 
     const modifyFile: FsUtilsShape["modifyFile"] = Effect.fn(function* (filePath, transform) {
-      const original = yield* fs.readFileString(filePath).pipe(
-        Effect.mapError(
-          (e) =>
-            new NoSuchFileError({
-              path: filePath,
-              message: `Failed to read file for modification: ${e.message}`,
-            })
-        )
-      );
+      const original = yield* fs
+        .readFileString(filePath)
+        .pipe(
+          Effect.mapError((e) =>
+            NoSuchFileError.new({ path: filePath, message: `Failed to read file for modification: ${e.message}` })
+          )
+        );
       const transformed = transform(original);
       if (transformed === original) {
         return false;
       }
-      yield* fs.writeFileString(filePath, transformed).pipe(
-        Effect.mapError(
-          (e) =>
-            new DomainError({
-              message: `Failed to write modified file "${filePath}"`,
-              cause: e,
-            })
-        )
-      );
+      yield* fs
+        .writeFileString(filePath, transformed)
+        .pipe(Effect.mapError((e) => DomainError.new(e, { message: `Failed to write modified file "${filePath}"` })));
       return true;
     });
 
     const realPath: FsUtilsShape["realPath"] = Effect.fn(function* (filePath) {
       return yield* fs.realPath(filePath).pipe(
-        Effect.mapError(
-          (e) =>
-            new NoSuchFileError({
-              path: filePath,
-              message: `Failed to resolve canonical path for "${filePath}": ${e.message}`,
-            })
+        Effect.mapError((e) =>
+          NoSuchFileError.new({
+            path: filePath,
+            message: `Failed to resolve canonical path for "${filePath}": ${e.message}`,
+          })
         )
       );
     });
 
     const existsOrThrow: FsUtilsShape["existsOrThrow"] = Effect.fn(function* (filePath) {
-      const exists = yield* fs.exists(filePath).pipe(
-        Effect.mapError(
-          () =>
-            new NoSuchFileError({
-              path: filePath,
-              message: `Unable to check existence of "${filePath}"`,
-            })
-        )
-      );
+      const exists = yield* fs
+        .exists(filePath)
+        .pipe(
+          Effect.mapError(() =>
+            NoSuchFileError.new({ path: filePath, message: `Unable to check existence of "${filePath}"` })
+          )
+        );
       if (!exists) {
-        return yield* new NoSuchFileError({
+        return yield* NoSuchFileError.new({
           path: filePath,
           message: `Path does not exist: "${filePath}"`,
         });
@@ -262,15 +235,11 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
 
     const statOrFail: (filePath: string) => Effect.Effect<FileSystem.File.Info, NoSuchFileError> = Effect.fnUntraced(
       function* (filePath) {
-        return yield* fs.stat(filePath).pipe(
-          Effect.mapError(
-            () =>
-              new NoSuchFileError({
-                path: filePath,
-                message: `Failed to stat "${filePath}"`,
-              })
-          )
-        );
+        return yield* fs
+          .stat(filePath)
+          .pipe(
+            Effect.mapError(() => NoSuchFileError.new({ path: filePath, message: `Failed to stat "${filePath}"` }))
+          );
       }
     );
 

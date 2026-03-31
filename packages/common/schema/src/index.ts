@@ -130,6 +130,11 @@ export * from "./AbortSignal.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./BigDecimal.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./BufferEncoding.ts";
 /**
  * @since 0.0.0

@@ -12,6 +12,7 @@ import {
   RunProgressUpdatedEvent,
   StreamRunEventsRequest,
 } from "@beep/repo-memory-model";
+import { RepoRunEventLog } from "@beep/repo-memory-runtime/internal/RepoRunEventLog";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
 import { RepoRunStore } from "@beep/repo-memory-store";
 import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
@@ -24,7 +25,6 @@ import * as Path from "effect/Path";
 import * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
-import { RepoRunEventLog } from "../src/internal/RepoRunEventLog.ts";
 
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);

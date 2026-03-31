@@ -1,7 +1,7 @@
+import { layerJson, layerProtobuf, OtlpPacketLab } from "@beep/observability/experimental/server";
 import { Effect } from "effect";
 import { OtlpSerialization } from "effect/unstable/observability/OtlpSerialization";
 import { describe, expect, it } from "vitest";
-import { layerJson, layerProtobuf, OtlpPacketLab } from "../src/experimental/server/index.ts";
 
 describe("OtlpPacketLab", () => {
   it("captures JSON OTLP packets", async () => {

@@ -7,9 +7,21 @@
 
 /**
  * @since 0.0.0
+ * @category Utility
+ */
+export * from "./withEncodeDefault.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
+export * from "./withKeyDefaults.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
  */
 export * from "./withLiteralKitStatics.ts";
 /**
  * @since 0.0.0
+ * @category Utility
  */
 export * from "./withStatics.ts";

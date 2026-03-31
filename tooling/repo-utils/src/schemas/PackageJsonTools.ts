@@ -310,11 +310,7 @@ export const applyPackageJsonPatchEffect: (
   const decodedBase = yield* decodePackageJsonEffect(base);
   return yield* Effect.try({
     try: () => packageJsonDiffer.patch(decodedBase, patch),
-    catch: (cause) =>
-      new DomainError({
-        message: "Failed to apply package.json JSON Patch",
-        cause,
-      }),
+    catch: (cause) => DomainError.new(cause, { message: "Failed to apply package.json JSON Patch" }),
   });
 });
 

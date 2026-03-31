@@ -1,8 +1,8 @@
+import { layerNodeSdkServer, ServerObservabilityConfig } from "@beep/observability/server";
 import * as OtelTracer from "@effect/opentelemetry/Tracer";
 import { InMemorySpanExporter, SimpleSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { layerNodeSdkServer, ServerObservabilityConfig } from "../src/server/index.ts";
 
 const serverConfig = new ServerObservabilityConfig({
   serviceName: "beep-server",

@@ -19,6 +19,14 @@
   ],
   "entries": [
     {
+      "file": "apps/clawhole/src/security/ScanPaths.ts",
+      "symbol": "ScanPathsServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/clawhole",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/ai/sdk/src/Mcp.ts",
       "symbol": "strict",
       "kind": "object-struct-schema",
