@@ -42,6 +42,7 @@
     "purge": "bun run beep purge",
     "clean": "node scripts/clean.mjs",
     "dev": "bunx turbo run dev",
+    "dev:desktop": "bunx turbo run dev:desktop --filter=@beep/desktop",
     "build": "bun run op turbo run build",
     "build:ci": "bunx turbo run build",
     "check:github": "bash scripts/run-github-checks.sh pre-push",

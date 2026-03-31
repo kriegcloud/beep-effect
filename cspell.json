@@ -27,6 +27,7 @@
     "gitleaks",
     "semgrep",
     "publint",
+    "prefs",
     "attw",
     "aiassistant",
     "codegen",

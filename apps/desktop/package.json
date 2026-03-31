@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run scripts/dev-with-portless.ts",
+    "dev:desktop": "PORTLESS_HTTPS=1 portless desktop vite",
     "dev:raw": "vite",
     "dev:native": "tauri dev",
     "build": "vite build",

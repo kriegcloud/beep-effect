@@ -7,6 +7,7 @@
   "type": "module",
   "scripts": {
     "dev": "bun run src/main.ts",
+    "dev:desktop": "PORTLESS_HTTPS=1 BEEP_REPO_MEMORY_DEVTOOLS_ENABLED=false BEEP_REPO_MEMORY_HOST=127.0.0.1 BEEP_REPO_MEMORY_OTLP_ENABLED=false portless repo-memory-sidecar bun run src/main.ts",
     "codegen": "echo 'no codegen needed'",
     "build": "tsc -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
