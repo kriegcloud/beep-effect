@@ -13,7 +13,10 @@ import sys
 import tempfile
 from typing import MutableMapping, Sequence
 
-STRICT_LINT = "uncommented-anonymous-literal-argument"
+STRICT_LINTS = [
+    "argument-comment-mismatch",
+    "uncommented-anonymous-literal-argument",
+]
 NOISE_LINT = "unknown_lints"
 TOOLCHAIN_CHANNEL = "nightly-2025-09-18"
 
@@ -107,7 +110,7 @@ def build_final_args(parsed: ParsedWrapperArgs, manifest_path: Path) -> list[str
 
     if not parsed.has_manifest_path:
         final_args.extend(["--manifest-path", str(manifest_path)])
-    if not parsed.has_package_selection:
+    if not parsed.has_package_selection and not parsed.has_manifest_path:
         final_args.append("--workspace")
     if not parsed.has_no_deps:
         final_args.append("--no-deps")
@@ -129,7 +132,8 @@ def append_env_flag(env: MutableMapping[str, str], key: str, flag: str) -> None:
 
 
 def set_default_lint_env(env: MutableMapping[str, str]) -> None:
-    append_env_flag(env, "DYLINT_RUSTFLAGS", f"-D {STRICT_LINT}")
+    for strict_lint in STRICT_LINTS:
+        append_env_flag(env, "DYLINT_RUSTFLAGS", f"-D {strict_lint}")
     append_env_flag(env, "DYLINT_RUSTFLAGS", f"-A {NOISE_LINT}")
     if not env.get("CARGO_INCREMENTAL"):
         env["CARGO_INCREMENTAL"] = "0"
@@ -205,6 +209,9 @@ def ensure_source_prerequisites(env: MutableMapping[str, str]) -> None:
 
 
 def prefer_rustup_shims(env: MutableMapping[str, str]) -> None:
+    if env.get("CODEX_ARGUMENT_COMMENT_LINT_SKIP_RUSTUP_SHIMS") == "1":
+        return
+
     rustup = shutil.which("rustup", path=env.get("PATH"))
     if rustup is None:
         return

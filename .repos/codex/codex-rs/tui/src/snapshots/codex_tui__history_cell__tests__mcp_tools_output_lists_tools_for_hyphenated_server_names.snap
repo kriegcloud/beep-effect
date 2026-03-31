@@ -1,6 +1,6 @@
 ---
 source: tui/src/history_cell.rs
-assertion_line: 3080
+assertion_line: 3310
 expression: rendered
 ---
 /mcp

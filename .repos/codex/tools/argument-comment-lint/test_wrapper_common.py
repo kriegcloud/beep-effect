@@ -83,6 +83,39 @@ class WrapperCommonTest(unittest.TestCase):
             ],
         )
 
+    def test_explicit_package_manifest_does_not_force_workspace(self) -> None:
+        parsed = wrapper_common.parse_wrapper_args(
+            [
+                "--manifest-path",
+                "/tmp/custom/Cargo.toml",
+            ]
+        )
+        final_args = wrapper_common.build_final_args(parsed, Path("/repo/codex-rs/Cargo.toml"))
+
+        self.assertEqual(
+            final_args,
+            [
+                "--no-deps",
+                "--manifest-path",
+                "/tmp/custom/Cargo.toml",
+                "--",
+                "--all-targets",
+            ],
+        )
+
+    def test_default_lint_env_promotes_both_strict_lints(self) -> None:
+        env: dict[str, str] = {}
+
+        wrapper_common.set_default_lint_env(env)
+
+        self.assertEqual(
+            env["DYLINT_RUSTFLAGS"],
+            "-D argument-comment-mismatch "
+            "-D uncommented-anonymous-literal-argument "
+            "-A unknown_lints",
+        )
+        self.assertEqual(env["CARGO_INCREMENTAL"], "0")
+
 
 if __name__ == "__main__":
     unittest.main()
