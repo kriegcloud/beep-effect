@@ -470,10 +470,10 @@ In both cases, the provided value must be of the **encoded** type, and it is use
 **Example** (Providing a default for a missing or undefined value)
 
 ```ts
-import { Schema } from "effect"
+import { Effect, Schema } from "effect"
 
 const schema = Schema.Struct({
-  a: Schema.FiniteFromString.pipe(Schema.withDecodingDefault(() => "1"))
+  a: Schema.FiniteFromString.pipe(Schema.withDecodingDefault(Effect.succeed("1")))
 })
 
 //     ┌─── { readonly a?: string | undefined; }
@@ -501,12 +501,12 @@ You can also apply decoding defaults within nested structures.
 **Example** (Nested struct with defaults for missing or undefined fields)
 
 ```ts
-import { Schema } from "effect"
+import { Effect, Schema } from "effect"
 
 const schema = Schema.Struct({
   a: Schema.Struct({
-    b: Schema.FiniteFromString.pipe(Schema.withDecodingDefault(() => "1"))
-  }).pipe(Schema.withDecodingDefault(() => ({})))
+    b: Schema.FiniteFromString.pipe(Schema.withDecodingDefault(Effect.succeed("1")))
+  }).pipe(Schema.withDecodingDefault(Effect.succeed({})))
 })
 
 /*
@@ -2738,15 +2738,15 @@ schema.makeUnsafe
 
 ## Default Values in Constructors
 
-You can define a default value for a field using `Schema.withConstructorDefault`. If no value is provided at runtime, the constructor uses this default.
+You can define a default value for a field using `Schema.withConstructorDefault`. If no value is provided at runtime (either the key is missing or the value is `undefined`), the constructor uses this default.
 
 **Example** (Providing a default number)
 
 ```ts
-import { Option, Schema } from "effect"
+import { Effect, Schema } from "effect"
 
 const schema = Schema.Struct({
-  a: Schema.Number.pipe(Schema.withConstructorDefault(() => Option.some(-1)))
+  a: Schema.Number.pipe(Schema.withConstructorDefault(Effect.succeed(-1)))
 })
 
 console.log(schema.makeUnsafe({ a: 5 }))
@@ -2756,65 +2756,24 @@ console.log(schema.makeUnsafe({}))
 // { a: -1 }
 ```
 
-The function passed to `withConstructorDefault` will be executed each time a default value is needed.
+The Effect passed to `withConstructorDefault` will be executed each time a default value is needed.
 
 **Example** (Re-executing the default function)
 
 ```ts
-import { Option, Schema } from "effect"
-
-const schema = Schema.Struct({
-  a: Schema.Date.pipe(Schema.withConstructorDefault(() => Option.some(new Date())))
-})
-
-console.log(schema.makeUnsafe({}))
-// { a: 2025-05-19T16:46:10.912Z }
-
-console.log(schema.makeUnsafe({}))
-// { a: 2025-05-19T16:46:10.913Z }
-```
-
-If the default function returns `Option.none()`, it means no default value was provided, and the field is considered missing.
-
-**Example** (Returning `None` to skip a default)
-
-```ts
-import { Option, Schema } from "effect"
+import { Effect, Schema } from "effect"
 
 let counter = 0
 
 const schema = Schema.Struct({
-  a: Schema.Date.pipe(
-    Schema.withConstructorDefault(() => {
-      counter++
-      const d = new Date()
-      if (counter % 2 === 0) {
-        // Provide a default value
-        return Option.some(d)
-      }
-      // Skip the default
-      return Option.none()
-    })
-  )
+  a: Schema.Date.pipe(Schema.withConstructorDefault(Effect.sync(() => new Date(counter++))))
 })
 
-try {
-  console.log(schema.makeUnsafe({}))
-} catch (error: any) {
-  console.error(error.message)
-}
-/*
-Error: Missing key
-  at ["a"]
-*/
+console.log(schema.makeUnsafe({}))
+// { a: 1970-01-01T00:00:00.000Z }
 
-try {
-  console.log(schema.makeUnsafe({}))
-  // { a: 2025-05-19T16:46:10.913Z }
-} catch (error: any) {
-  console.error(error.message)
-}
-// { a: 2025-05-19T16:48:41.948Z }
+console.log(schema.makeUnsafe({}))
+// { a: 1970-01-01T00:00:00.001Z }
 ```
 
 ### Nested Constructor Default Values
@@ -2824,12 +2783,12 @@ Default values can be nested inside composed schemas. In this case, inner defaul
 **Example** (Nested default values)
 
 ```ts
-import { Option, Schema } from "effect"
+import { Effect, Schema } from "effect"
 
 const schema = Schema.Struct({
   a: Schema.Struct({
-    b: Schema.Number.pipe(Schema.withConstructorDefault(() => Option.some(-1)))
-  }).pipe(Schema.withConstructorDefault(() => Option.some({})))
+    b: Schema.Number.pipe(Schema.withConstructorDefault(Effect.succeed(-1)))
+  }).pipe(Schema.withConstructorDefault(Effect.succeed({})))
 })
 
 console.log(schema.makeUnsafe({}))
@@ -2840,19 +2799,19 @@ console.log(schema.makeUnsafe({ a: {} }))
 
 ## Effectful Defaults
 
-Default values can also come from an `Effect` — for example, reading from a configuration service or performing an asynchronous operation. The environment must be `never` (no required services).
+Default values can also come from an `Effect`, for example, reading from a configuration service or performing an asynchronous operation. The environment must be `never` (no required services).
 
 **Example** (Using an effect to provide a default)
 
 ```ts
-import { Effect, Option, Schema, SchemaParser } from "effect"
+import { Effect, Schema, SchemaParser } from "effect"
 
 const schema = Schema.Struct({
   a: Schema.Number.pipe(
-    Schema.withConstructorDefault(() =>
+    Schema.withConstructorDefault(
       Effect.gen(function*() {
         yield* Effect.sleep(100)
-        return Option.some(-1)
+        return -1
       })
     )
   )
@@ -2864,7 +2823,7 @@ SchemaParser.makeEffect(schema)({}).pipe(Effect.runPromise).then(console.log)
 
 **Example** (Providing a default from an optional service)
 
-````ts
+```ts
 import { Effect, Option, Schema, SchemaParser, ServiceMap } from "effect"
 
 // Define a service that may provide a default value
@@ -2874,14 +2833,14 @@ class ConstructorService extends ServiceMap.Service<ConstructorService, { defaul
 
 const schema = Schema.Struct({
   a: Schema.Number.pipe(
-    Schema.withConstructorDefault(() =>
+    Schema.withConstructorDefault(
       Effect.gen(function*() {
         yield* Effect.sleep(100)
         const oservice = yield* Effect.serviceOption(ConstructorService)
         if (Option.isNone(oservice)) {
-          return Option.none()
+          return -1
         }
-        return Option.some(yield* oservice.value.defaultValue)
+        return yield* oservice.value.defaultValue
       })
     )
   )
@@ -2889,11 +2848,12 @@ const schema = Schema.Struct({
 
 SchemaParser.makeEffect(schema)({})
   .pipe(
-    Effect.provideService(ConstructorService, ConstructorService.of({ defaultValue: Effect.succeed(-1) })),
+    Effect.provideService(ConstructorService, ConstructorService.of({ defaultValue: Effect.succeed(0) })),
     Effect.runPromise
   )
   .then(console.log, console.error)
-// { a: -1 }
+// { a: 0 }
+```
 
 # Transformations
 
@@ -2915,7 +2875,7 @@ const Trim = transform(
     encode: identity
   }
 ) {}
-````
+```
 
 This style made it difficult to reuse logic across different schemas.
 
@@ -3289,13 +3249,13 @@ For this to work, the encoded side must be marked as optional with `Schema.optio
 **Example** (Field present when decoded, omitted when encoded)
 
 ```ts
-import { Schema, SchemaGetter } from "effect"
+import { Effect, Schema, SchemaGetter } from "effect"
 
 const schema = Schema.Struct({
   a: Schema.FiniteFromString,
   b: Schema.String.pipe(
     Schema.encodeTo(Schema.optionalKey(Schema.String), {
-      decode: SchemaGetter.withDefault(() => "default_value"),
+      decode: SchemaGetter.withDefault(Effect.succeed("default_value")),
       encode: SchemaGetter.omit()
     })
   )
@@ -3717,6 +3677,61 @@ g(B.makeUnsafe({ a: "a" })) // ok
 
 f(B.makeUnsafe({ a: "a" })) // error: Argument of type 'B' is not assignable to parameter of type 'A'.
 g(A.makeUnsafe({ a: "a" })) // error: Argument of type 'A' is not assignable to parameter of type 'B'.
+```
+
+## Schema as a Class
+
+`Schema.asClass` turns any schema into a class that can be extended with `extends`. The resulting class inherits the full schema API (e.g. `annotate`) and supports static methods that reference `this`.
+
+Unlike `Schema.Opaque`, it does **not** make the decoded type nominally distinct, and unlike `Schema.Class`, it does **not** add `Equal` or prototype-based features. It is a lightweight way to attach custom static helpers to a schema.
+
+### Wrapping a Primitive Schema
+
+```ts
+import { Schema } from "effect"
+
+class MyString extends Schema.asClass(Schema.String) {
+  static readonly decodeUnknownSync = Schema.decodeUnknownSync(this)
+}
+
+console.log(MyString.decodeUnknownSync("a"))
+// "a"
+```
+
+### Wrapping a Struct Schema
+
+```ts
+import { Schema } from "effect"
+
+class MyStruct extends Schema.asClass(
+  Schema.Struct({ name: Schema.String })
+) {
+  static readonly decodeUnknownSync = Schema.decodeUnknownSync(this)
+}
+
+console.log(MyStruct.decodeUnknownSync({ name: "a" }))
+// { name: "a" }
+```
+
+### Subclassing
+
+You can extend an `asClass` class to layer on more static helpers:
+
+```ts
+import { Schema } from "effect"
+
+class MyString extends Schema.asClass(Schema.FiniteFromString) {
+  static readonly decodeUnknownSync = Schema.decodeUnknownSync(this)
+}
+
+class MyString2 extends MyString {
+  static readonly encodeSync = Schema.encodeSync(this)
+}
+
+console.log(MyString2.decodeUnknownSync("1"))
+// 1
+console.log(MyString2.encodeSync(1))
+// "1"
 ```
 
 ## Classes
@@ -5004,6 +5019,64 @@ console.log(JSON.stringify(document, null, 2))
         ]
       }
     ]
+  },
+  "definitions": {}
+}
+*/
+```
+
+#### Annotating the Encoded Side of a Transformation
+
+When a schema includes a transformation (e.g. `Schema.Trim`), the generated JSON Schema corresponds to the encoded side. Calling `.annotate(...)` on a transformation annotates the decoded side, so the annotations won't appear in the JSON Schema output.
+
+To annotate the encoded side, use `Schema.flip` twice: flip to expose the encoded side, annotate it, then flip back.
+
+**Example** (Annotating the encoded side of `Trim`)
+
+```ts
+import { Schema } from "effect"
+
+const schema = Schema.Trim.pipe(
+  Schema.flip,
+  Schema.annotate({
+    description: "my description",
+    title: "my title"
+  }),
+  Schema.flip
+)
+
+console.log(JSON.stringify(Schema.toJsonSchemaDocument(schema), null, 2))
+/*
+{
+  "dialect": "draft-2020-12",
+  "schema": {
+    "type": "string",
+    "title": "my title",
+    "description": "my description"
+  },
+  "definitions": {}
+}
+*/
+```
+
+Alternatively, build a custom transformation using `Schema.decodeTo`:
+
+```ts
+import { Schema, SchemaTransformation } from "effect"
+
+const schema = Schema.String.annotate({
+  description: "my description",
+  title: "my title"
+}).pipe(Schema.decodeTo(Schema.Trimmed, SchemaTransformation.trim()))
+
+console.log(JSON.stringify(Schema.toJsonSchemaDocument(schema), null, 2))
+/*
+{
+  "dialect": "draft-2020-12",
+  "schema": {
+    "type": "string",
+    "title": "my title",
+    "description": "my description"
   },
   "definitions": {}
 }
