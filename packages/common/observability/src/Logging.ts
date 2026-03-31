@@ -1,8 +1,8 @@
+import bc from "@beep/colors";
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, LogLevel } from "@beep/schema";
 import { Cause, Inspectable, Layer, Logger, Match, References } from "effect";
 import * as S from "effect/Schema";
-import bc from "@beep/colors";
 
 const $I = $ObservabilityId.create("Logging");
 

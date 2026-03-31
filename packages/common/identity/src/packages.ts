@@ -74,7 +74,8 @@ const composers = $I.compose(
   // editor
   "editor",
   "observability",
-  "shared-providers", "colors"
+  "shared-providers",
+  "colors"
 );
 
 // --- common ---

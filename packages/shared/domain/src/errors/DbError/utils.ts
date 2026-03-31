@@ -1,3 +1,4 @@
+import bc from "@beep/colors";
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
 import { flow, Match, pipe } from "effect";
@@ -8,7 +9,6 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SqlError } from "effect/unstable/sql";
 import { DatabaseError as PgDatabaseError } from "pg-protocol";
-import bc from "@beep/colors";
 import { format } from "sql-formatter";
 import { ErrorCodeFromKey } from "./ErrorEnum.js";
 
