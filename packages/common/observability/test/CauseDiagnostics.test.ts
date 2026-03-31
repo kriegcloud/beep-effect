@@ -1,8 +1,14 @@
+import {
+  classifyCause,
+  fingerprintCause,
+  renderObservedCause,
+  summarizeCause,
+  summarizeExit,
+} from "@beep/observability";
 import { TaggedErrorClass } from "@beep/schema";
 import { Cause, Exit } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
-import { classifyCause, fingerprintCause, renderObservedCause, summarizeCause, summarizeExit } from "../src/index.ts";
 
 class TestCauseError extends TaggedErrorClass<TestCauseError>()("TestCauseError", {
   message: S.String,

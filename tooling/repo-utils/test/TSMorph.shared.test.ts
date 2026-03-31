@@ -1,6 +1,6 @@
+import { readSignature } from "@beep/repo-utils/TSMorph/TSMorph.shared";
 import { describe, expect, it } from "@effect/vitest";
 import { Project } from "ts-morph";
-import { readSignature } from "../src/TSMorph/TSMorph.shared.js";
 
 describe("TSMorph.shared", () => {
   describe("readSignature", () => {

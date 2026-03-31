@@ -1,6 +1,6 @@
+import { measureElapsedMillis, observeHttpRequest, observeWorkflow, statusClass } from "@beep/observability";
 import { Effect, Metric } from "effect";
 import { describe, expect, it } from "vitest";
-import { measureElapsedMillis, observeHttpRequest, observeWorkflow, statusClass } from "../src/index.ts";
 
 describe("Metric", () => {
   it("normalizes status codes to their class labels", () => {

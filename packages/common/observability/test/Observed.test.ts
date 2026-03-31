@@ -1,8 +1,8 @@
+import { ObservedCause, ObservedExit } from "@beep/observability";
 import { TaggedErrorClass } from "@beep/schema";
 import { Cause, Exit } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
-import { ObservedCause, ObservedExit } from "../src/index.ts";
 
 class TestObservedError extends TaggedErrorClass<TestObservedError>()("TestObservedError", {
   message: S.String,

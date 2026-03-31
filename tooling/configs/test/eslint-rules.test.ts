@@ -4,11 +4,11 @@ import { resetAllowlistCache } from "@beep/repo-configs/eslint/EffectLawsAllowli
 import { ESLintConfig } from "@beep/repo-configs/eslint/ESLintConfig";
 import noNativeRuntimeRule from "@beep/repo-configs/eslint/NoNativeRuntimeRule";
 import requireCategoryTagRule from "@beep/repo-configs/eslint/RequireCategoryTagRule";
+import schemaFirstRule from "@beep/repo-configs/eslint/SchemaFirstRule";
 import terseEffectStyleRule from "@beep/repo-configs/eslint/TerseEffectStyleRule";
 import tsParser from "@typescript-eslint/parser";
 import { Linter, type Linter as LinterTypes } from "eslint";
 import { beforeEach, describe, expect, it } from "vitest";
-import schemaFirstRule from "../src/eslint/SchemaFirstRule.ts";
 
 const verify = (source: string, config: LinterTypes.Config | Array<LinterTypes.Config>, filename: string) =>
   new Linter({ configType: "flat" }).verify(source, config, filename);

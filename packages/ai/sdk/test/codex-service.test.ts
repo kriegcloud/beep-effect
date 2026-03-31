@@ -92,7 +92,7 @@ vi.mock("@openai/codex-sdk", () => ({
 }));
 
 test("CodexService normalizes completed turns and streamed thread events", async () => {
-  const { make } = await import("../src/codex/Service.js");
+  const { make } = await import("@beep/ai-sdk/codex/Service");
 
   const program = Effect.gen(function* () {
     const service = yield* make();

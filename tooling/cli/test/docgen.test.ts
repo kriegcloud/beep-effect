@@ -1,13 +1,4 @@
-import { FsUtilsLive } from "@beep/repo-utils";
-import { NodeServices } from "@effect/platform-node";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, Exit, FileSystem, Layer, Path } from "effect";
-import * as S from "effect/Schema";
-import * as TestConsole from "effect/testing/TestConsole";
-import { Command } from "effect/unstable/cli";
-import { describe, expect, it } from "vitest";
-import { docgenCommand } from "../src/commands/Docgen/index.js";
+import { docgenCommand } from "@beep/repo-cli/commands/Docgen/index";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
@@ -18,7 +9,16 @@ import {
   discoverDocgenWorkspacePackages,
   generateAnalysisReport,
   loadDocgenConfigDocument,
-} from "../src/commands/Docgen/internal/Operations.js";
+} from "@beep/repo-cli/commands/Docgen/internal/Operations";
+import { FsUtilsLive } from "@beep/repo-utils";
+import { NodeServices } from "@effect/platform-node";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { Effect, Exit, FileSystem, Layer, Path } from "effect";
+import * as S from "effect/Schema";
+import * as TestConsole from "effect/testing/TestConsole";
+import { Command } from "effect/unstable/cli";
+import { describe, expect, it } from "vitest";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(PlatformLayer, FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)));

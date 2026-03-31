@@ -1,12 +1,12 @@
+import { XmlCodecServiceLive } from "@beep/repo-cli/commands/Shared/SchemaCodecs/index";
+import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs/index";
+import { ISO4217_SOURCE_URL } from "@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
 import { HttpClient, HttpClientError, HttpClientResponse } from "effect/unstable/http";
 import { describe, expect, it } from "vitest";
-import { XmlCodecServiceLive } from "../src/commands/Shared/SchemaCodecs/index.js";
-import { syncDataToTsCommand } from "../src/commands/SyncDataToTs/index.js";
-import { ISO4217_SOURCE_URL } from "../src/commands/SyncDataToTs/targets/Iso4217.js";
 
 const runSyncDataToTsCommand = Command.runWith(syncDataToTsCommand, { version: "0.0.0" });
 const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer, XmlCodecServiceLive);

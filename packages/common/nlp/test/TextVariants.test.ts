@@ -1,9 +1,9 @@
+import * as IdentifierText from "@beep/nlp/IdentifierText";
+import * as PathText from "@beep/nlp/PathText";
+import * as QueryText from "@beep/nlp/QueryText";
+import * as VariantText from "@beep/nlp/VariantText";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
-import * as IdentifierText from "../src/IdentifierText.ts";
-import * as PathText from "../src/PathText.ts";
-import * as QueryText from "../src/QueryText.ts";
-import * as VariantText from "../src/VariantText.ts";
 
 describe("@beep/nlp deterministic helpers", () => {
   it("normalizes question and phrase text deterministically", () => {

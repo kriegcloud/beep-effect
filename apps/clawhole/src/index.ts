@@ -1,11 +1,7 @@
 /**
- * @beep/clawhole
+ * `@beep/clawhole` an experimental playground for an agentic harness
  *
  * @since 0.0.0
+ * @module @beep/clawhole
  */
 
-/**
- * @since 0.0.0
- * @category Configuration
- */
-export const VERSION = "0.0.0" as const
