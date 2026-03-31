@@ -342,6 +342,53 @@ describe("Docgen operations", () => {
     );
   });
 
+  it("supports clean aggregation when stale docs paths conflict with nested package docs", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "repo-memory", "store");
+          const docsModulesDir = path.join(packageDir, "docs", "modules");
+          yield* fs.makeDirectory(docsModulesDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/repo-memory-store",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(docsModulesDir, "Store.md"),
+            `---\nparent: Modules\ntitle: Store\n---\n\ncontent\n`
+          );
+
+          yield* fs.makeDirectory(path.join(tmpDir, "docs"), { recursive: true });
+          yield* fs.writeFileString(path.join(tmpDir, "docs", "repo-memory"), "stale-path-conflict");
+
+          const results = yield* aggregateGeneratedDocs({ clean: true });
+          const aggregatedPath = path.join(tmpDir, "docs", "repo-memory", "store", "Store.md");
+          const aggregated = yield* fs.readFileString(aggregatedPath);
+
+          expect(results).toHaveLength(1);
+          expect(results[0]?.docsOutputPath).toBe("repo-memory/store");
+          expect(aggregated).toContain('parent: "@beep/repo-memory-store"');
+        })
+      )
+    );
+  });
+
   it("renders human-first report content without agent instructions", () => {
     const analysis = new DocgenPackageAnalysis({
       packageName: "@beep/schema",

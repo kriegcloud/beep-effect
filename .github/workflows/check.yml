@@ -371,7 +371,7 @@ jobs:
       - name: Run docgen
         run: |
           bunx turbo run docgen $TURBO_ARGS
-          bun run beep docs aggregate
+          bun run beep docs aggregate --clean
 
   full-check:
     name: Full Type Check
