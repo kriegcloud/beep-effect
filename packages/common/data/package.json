@@ -2,7 +2,7 @@
   "name": "@beep/data",
   "version": "0.0.0",
   "description": "A library containing data values & utilities",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

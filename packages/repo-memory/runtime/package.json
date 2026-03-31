@@ -2,7 +2,7 @@
   "name": "@beep/repo-memory-runtime",
   "version": "0.0.0",
   "description": "Repo-memory execution semantics for grounded local answers",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

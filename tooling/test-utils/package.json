@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "An library for re-usable vitest & @effect/vitest testing utilities",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/test-utils",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "files": [
     "src/**/*.ts",
     "dist/**/*.js",

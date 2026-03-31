@@ -1,29 +1,30 @@
 "use client";
 
 import { ArrowRightIcon, CalendarIcon, CheckIcon, InfoIcon, WarningCircleIcon } from "@phosphor-icons/react";
+import { DateTime, pipe } from "effect";
 import { cn } from "../lib/index.ts";
 
 type TodoPriority = "high" | "medium" | "low" | "none";
 
-export interface TodoLabel {
+interface TodoLabel {
   readonly color?: undefined | string;
   readonly id: string;
   readonly name: string;
 }
 
-export interface TodoSubtask {
+interface TodoSubtask {
   readonly completed: boolean;
   readonly id: string;
   readonly title: string;
 }
 
-export interface TodoProject {
+interface TodoProject {
   readonly color?: undefined | string;
   readonly id: string;
   readonly name: string;
 }
 
-export interface TodoItemProps {
+interface TodoItemProps {
   readonly className?: undefined | string;
   readonly completed: boolean;
   readonly description?: undefined | string;
@@ -62,10 +63,17 @@ const priorityConfig = {
   },
 } as const;
 
+const shortDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+});
+
+const toUtcDateTime = (value: Date | string): DateTime.Utc => pipe(DateTime.makeUnsafe(value), DateTime.toUtc);
+
 const formatDate = (date: Date | string): string => {
-  const parsed = new Date(date);
-  const now = new Date();
-  const diff = parsed.getTime() - now.getTime();
+  const parsed = toUtcDateTime(date);
+  const now = DateTime.nowUnsafe();
+  const diff = DateTime.toEpochMillis(parsed) - DateTime.toEpochMillis(now);
   const days = Math.floor(diff / (1000 * 60 * 60 * 24));
 
   if (days === 0) return "Today";
@@ -74,10 +82,7 @@ const formatDate = (date: Date | string): string => {
   if (days < 0) return `${Math.abs(days)} days ago`;
   if (days < 7) return `In ${days} days`;
 
-  return parsed.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  return shortDateFormatter.format(DateTime.toEpochMillis(parsed));
 };
 
 export function TodoItem({
@@ -96,19 +101,19 @@ export function TodoItem({
   className,
 }: TodoItemProps) {
   const priorityStyle = priorityConfig[priority];
+  const dueDateTime = dueDate ? toUtcDateTime(dueDate) : undefined;
+  const now = DateTime.nowUnsafe();
 
-  const isOverdue = dueDate && new Date(dueDate) < new Date() && !completed;
+  const isOverdue = dueDateTime
+    ? DateTime.toEpochMillis(dueDateTime) < DateTime.toEpochMillis(now) && !completed
+    : false;
   const isToday =
-    dueDate &&
+    dueDateTime &&
     !completed &&
     (() => {
-      const parsed = new Date(dueDate);
-      const now = new Date();
-      return (
-        parsed.getFullYear() === now.getFullYear() &&
-        parsed.getMonth() === now.getMonth() &&
-        parsed.getDate() === now.getDate()
-      );
+      const parsed = DateTime.toPartsUtc(dueDateTime);
+      const nowParts = DateTime.toPartsUtc(now);
+      return parsed.year === nowParts.year && parsed.month === nowParts.month && parsed.day === nowParts.day;
     })();
 
   const completedSubtasks = subtasks.filter((subtask) => subtask.completed).length;

@@ -2,7 +2,7 @@
   "name": "@beep/shared-domain",
   "version": "0.0.0",
   "description": "The shared kernel for cross cutting domain dependencies",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

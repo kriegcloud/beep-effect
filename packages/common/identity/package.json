@@ -2,7 +2,7 @@
   "name": "@beep/identity",
   "version": "0.0.0",
   "description": "Effect v4 identity package",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

@@ -2,7 +2,7 @@
   "name": "@beep/runtime-protocol",
   "version": "0.0.0",
   "description": "Shared protocol contracts for the local-first sidecar and desktop shell",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

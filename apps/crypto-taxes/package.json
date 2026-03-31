@@ -2,7 +2,7 @@
   "name": "@beep/crypto-taxes",
   "version": "0.0.0",
   "description": "Next.js app for the crypto tax workflow",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

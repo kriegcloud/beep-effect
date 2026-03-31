@@ -2,7 +2,7 @@
   "name": "@beep/db-admin",
   "version": "0.0.0",
   "description": "The internal db-admin for migrations",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

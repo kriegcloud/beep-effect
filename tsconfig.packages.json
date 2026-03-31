@@ -19,6 +19,9 @@
       "path": "apps/desktop"
     },
     {
+      "path": "apps/web"
+    },
+    {
       "path": "packages/_internal/db-admin"
     },
     {

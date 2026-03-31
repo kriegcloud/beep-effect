@@ -2,7 +2,7 @@
   "name": "@beep/shared-tables",
   "version": "0.0.0",
   "description": "The tables package for the shared slice",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {
