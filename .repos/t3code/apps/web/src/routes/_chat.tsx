@@ -1,9 +1,8 @@
 import { type ResolvedKeybindingsConfig } from "@t3tools/contracts";
 import { useQuery } from "@tanstack/react-query";
-import { Outlet, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Outlet, createFileRoute } from "@tanstack/react-router";
 import { useEffect } from "react";
 
-import ThreadSidebar from "../components/Sidebar";
 import { useHandleNewThread } from "../hooks/useHandleNewThread";
 import { isTerminalFocused } from "../lib/terminalFocus";
 import { serverConfigQueryOptions } from "../lib/serverReactQuery";
@@ -12,17 +11,13 @@ import { selectThreadTerminalState, useTerminalStateStore } from "../terminalSta
 import { useThreadSelectionStore } from "../threadSelectionStore";
 import { resolveSidebarNewThreadEnvMode } from "~/components/Sidebar.logic";
 import { useSettings } from "~/hooks/useSettings";
-import { Sidebar, SidebarProvider, SidebarRail } from "~/components/ui/sidebar";
 
 const EMPTY_KEYBINDINGS: ResolvedKeybindingsConfig = [];
-const THREAD_SIDEBAR_WIDTH_STORAGE_KEY = "chat_thread_sidebar_width";
-const THREAD_SIDEBAR_MIN_WIDTH = 13 * 16;
-const THREAD_MAIN_CONTENT_MIN_WIDTH = 40 * 16;
 
 function ChatRouteGlobalShortcuts() {
   const clearSelection = useThreadSelectionStore((state) => state.clearSelection);
   const selectedThreadIdsSize = useThreadSelectionStore((state) => state.selectedThreadIds.size);
-  const { activeDraftThread, activeThread, handleNewThread, projects, routeThreadId } =
+  const { activeDraftThread, activeThread, defaultProjectId, handleNewThread, routeThreadId } =
     useHandleNewThread();
   const serverConfigQuery = useQuery(serverConfigQueryOptions());
   const keybindings = serverConfigQuery.data?.keybindings ?? EMPTY_KEYBINDINGS;
@@ -43,7 +38,7 @@ function ChatRouteGlobalShortcuts() {
         return;
       }
 
-      const projectId = activeThread?.projectId ?? activeDraftThread?.projectId ?? projects[0]?.id;
+      const projectId = activeThread?.projectId ?? activeDraftThread?.projectId ?? defaultProjectId;
       if (!projectId) return;
 
       const command = resolveShortcutCommand(event, keybindings, {
@@ -64,14 +59,17 @@ function ChatRouteGlobalShortcuts() {
         return;
       }
 
-      if (command !== "chat.new") return;
-      event.preventDefault();
-      event.stopPropagation();
-      void handleNewThread(projectId, {
-        branch: activeThread?.branch ?? activeDraftThread?.branch ?? null,
-        worktreePath: activeThread?.worktreePath ?? activeDraftThread?.worktreePath ?? null,
-        envMode: activeDraftThread?.envMode ?? (activeThread?.worktreePath ? "worktree" : "local"),
-      });
+      if (command === "chat.new") {
+        event.preventDefault();
+        event.stopPropagation();
+        void handleNewThread(projectId, {
+          branch: activeThread?.branch ?? activeDraftThread?.branch ?? null,
+          worktreePath: activeThread?.worktreePath ?? activeDraftThread?.worktreePath ?? null,
+          envMode:
+            activeDraftThread?.envMode ?? (activeThread?.worktreePath ? "worktree" : "local"),
+        });
+        return;
+      }
     };
 
     window.addEventListener("keydown", onWindowKeyDown);
@@ -84,7 +82,7 @@ function ChatRouteGlobalShortcuts() {
     clearSelection,
     handleNewThread,
     keybindings,
-    projects,
+    defaultProjectId,
     selectedThreadIdsSize,
     terminalOpen,
     appSettings.defaultThreadEnvMode,
@@ -94,43 +92,11 @@ function ChatRouteGlobalShortcuts() {
 }
 
 function ChatRouteLayout() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const onMenuAction = window.desktopBridge?.onMenuAction;
-    if (typeof onMenuAction !== "function") {
-      return;
-    }
-
-    const unsubscribe = onMenuAction((action) => {
-      if (action !== "open-settings") return;
-      void navigate({ to: "/settings" });
-    });
-
-    return () => {
-      unsubscribe?.();
-    };
-  }, [navigate]);
-
   return (
-    <SidebarProvider defaultOpen>
+    <>
       <ChatRouteGlobalShortcuts />
-      <Sidebar
-        side="left"
-        collapsible="offcanvas"
-        className="border-r border-border bg-card text-foreground"
-        resizable={{
-          minWidth: THREAD_SIDEBAR_MIN_WIDTH,
-          shouldAcceptWidth: ({ nextWidth, wrapper }) =>
-            wrapper.clientWidth - nextWidth >= THREAD_MAIN_CONTENT_MIN_WIDTH,
-          storageKey: THREAD_SIDEBAR_WIDTH_STORAGE_KEY,
-        }}
-      >
-        <ThreadSidebar />
-        <SidebarRail />
-      </Sidebar>
       <Outlet />
-    </SidebarProvider>
+    </>
   );
 }
 
