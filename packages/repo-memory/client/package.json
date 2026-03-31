@@ -2,7 +2,7 @@
   "name": "@beep/repo-memory-client",
   "version": "0.0.0",
   "description": "Thin client-side boundary for talking to the local repo-memory sidecar",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

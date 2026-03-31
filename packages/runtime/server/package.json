@@ -2,7 +2,7 @@
   "name": "@beep/runtime-server",
   "version": "0.0.0",
   "description": "Effect-first sidecar runtime boundaries for the local repo-memory prototype",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

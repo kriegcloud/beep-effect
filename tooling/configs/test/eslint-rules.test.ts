@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import effectImportStyleRule from "@beep/repo-configs/eslint/EffectImportStyleRule";
 import { resetAllowlistCache } from "@beep/repo-configs/eslint/EffectLawsAllowlist";
 import { ESLintConfig } from "@beep/repo-configs/eslint/ESLintConfig";
@@ -384,5 +385,31 @@ describe("eslint rule migration", () => {
   it("exports a root ESLintConfig array with beep-laws plugin registration", () => {
     expect(ESLintConfig.length).toBeGreaterThan(0);
     expect(ESLintConfig.some((entry) => entry.plugins !== undefined && "beep-laws" in entry.plugins)).toBe(true);
+  });
+
+  it("keeps root type-aware UI ignores aligned with the UI tsconfig excludes", () => {
+    const uiTsconfig = JSON.parse(
+      readFileSync(new URL("../../../packages/common/ui/tsconfig.json", import.meta.url), "utf8")
+    ) as {
+      readonly exclude?: ReadonlyArray<string>;
+    };
+
+    const rootTypeAwareConfig = ESLintConfig.find((entry) => entry.files?.includes("packages/**/*.{ts,tsx}"));
+
+    expect(rootTypeAwareConfig).toBeDefined();
+
+    const actualUiIgnores = (rootTypeAwareConfig?.ignores ?? [])
+      .filter(
+        (ignore): ignore is string =>
+          typeof ignore === "string" && ignore.startsWith("packages/common/ui/src/components/")
+      )
+      .sort();
+
+    const expectedUiIgnores = (uiTsconfig.exclude ?? [])
+      .filter((exclude) => exclude.endsWith(".ts") || exclude.endsWith(".tsx") || exclude.endsWith("/**/*"))
+      .map((exclude) => `packages/common/ui/${exclude}`)
+      .sort();
+
+    expect(actualUiIgnores).toEqual(expectedUiIgnores);
   });
 });

@@ -1,7 +1,7 @@
 @layer theme, base, mui, components, utilities;
 @import "tailwindcss";
 @import "tw-animate-css";
-
+@import "@pigment-css/react/styles.css";
 @plugin "@tailwindcss/typography";
 @plugin "tailwindcss-jun-layout";
 

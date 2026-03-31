@@ -3,7 +3,7 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { ArrowRightIcon, CheckIcon, ClockIcon, SpinnerGapIcon, WarningCircleIcon } from "@phosphor-icons/react";
-import { pipe, Tuple } from "effect";
+import { DateTime, pipe, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { cn } from "../lib/index.ts";
@@ -52,7 +52,7 @@ export const NotificationAction = ActionType.mapMembers((members) => {
 
 export type NotificationAction = typeof NotificationAction.Type;
 
-export interface NotificationCardProps {
+interface NotificationCardProps {
   readonly actions?: undefined | NotificationAction[];
   readonly body: string;
   readonly className?: undefined | string;
@@ -65,10 +65,17 @@ export interface NotificationCardProps {
   readonly title: string;
 }
 
+const shortDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "numeric",
+});
+
+const toUtcDateTime = (value: Date | string): DateTime.Utc => pipe(DateTime.makeUnsafe(value), DateTime.toUtc);
+
 const formatDate = (date: Date | string): string => {
-  const parsed = new Date(date);
-  const now = new Date();
-  const diffMs = now.getTime() - parsed.getTime();
+  const parsed = toUtcDateTime(date);
+  const now = DateTime.nowUnsafe();
+  const diffMs = DateTime.toEpochMillis(now) - DateTime.toEpochMillis(parsed);
   const diffMins = Math.floor(diffMs / (1000 * 60));
   const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
@@ -78,10 +85,7 @@ const formatDate = (date: Date | string): string => {
   if (diffHours < 24) return `${diffHours}h ago`;
   if (diffDays < 7) return `${diffDays}d ago`;
 
-  return parsed.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
+  return shortDateFormatter.format(DateTime.toEpochMillis(parsed));
 };
 
 export function NotificationCard({

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "description": "An library for generating knowledge graphs for typescript repos",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/codegraph",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "files": [
     "src/**/*.ts",
     "dist/**/*.js",

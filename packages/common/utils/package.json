@@ -2,7 +2,7 @@
   "name": "@beep/utils",
   "version": "0.0.0",
   "description": "Shared runtime utilities for beep",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/utils",
   "repository": {
     "type": "git",

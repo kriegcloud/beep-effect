@@ -1,6 +1,32 @@
 {
   "name": "@beep/web",
+  "version": "0.0.0",
   "private": true,
+  "description": "Beep Web",
+  "license": "Apache-2.0",
   "type": "module",
-  "version": "0.0.0"
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "check": "tsc -b",
+    "lint": "biome check src/",
+    "lint:fix": "biome check src/ --write",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@mui/material": "catalog:",
+    "@mui/material-pigment-css": "catalog:",
+    "@pigment-css/react": "catalog:",
+    "hoist-non-react-statics": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "react-is": "catalog:"
+  },
+  "devDependencies": {
+    "@pigment-css/vite-plugin": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "vite": "catalog:"
+  }
 }

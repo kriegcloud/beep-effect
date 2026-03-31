@@ -2,7 +2,7 @@
   "name": "@beep/semantic-web",
   "version": "0.0.0",
   "description": "A library containing utilities, schemas, and services for working with the semantic web",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/semantic-web",

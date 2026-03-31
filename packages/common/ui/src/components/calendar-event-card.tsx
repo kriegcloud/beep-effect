@@ -7,7 +7,7 @@ import { cn } from "../lib/index.ts";
 export type EventStatus = "idle" | "loading" | "completed";
 export type EventVariant = "display" | "action";
 
-export interface CalendarEventCardProps {
+interface CalendarEventCardProps {
   readonly buttonColor?: undefined | "primary" | "danger";
   readonly children: ReactNode;
   readonly className?: undefined | string;
@@ -109,7 +109,7 @@ export function CalendarEventCard({
   );
 }
 
-export interface EventTitleProps {
+interface EventTitleProps {
   readonly children: ReactNode;
   readonly className?: undefined | string;
 }
@@ -118,7 +118,7 @@ export function EventTitle({ children, className }: EventTitleProps) {
   return <h3 className={cn("font-medium text-zinc-900 dark:text-zinc-100", className)}>{children}</h3>;
 }
 
-export interface EventTimeProps {
+interface EventTimeProps {
   readonly className?: undefined | string;
   readonly endTime?: undefined | string;
   readonly startTime: string;
@@ -133,7 +133,7 @@ export function EventTime({ startTime, endTime, className }: EventTimeProps) {
   );
 }
 
-export interface EventLocationProps {
+interface EventLocationProps {
   readonly children: ReactNode;
   readonly className?: undefined | string;
 }

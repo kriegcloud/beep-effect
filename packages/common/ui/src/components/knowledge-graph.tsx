@@ -1,6 +1,8 @@
 "use client";
 
 import * as d3 from "d3";
+import { HashSet, Order, pipe } from "effect";
+import * as A from "effect/Array";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from "react";
 import { cn } from "../lib/index.ts";
 
@@ -34,7 +36,7 @@ export interface GraphLink extends d3.SimulationLinkDatum<GraphNode> {
   readonly target: string | GraphNode;
 }
 
-export interface KnowledgeGraphProps {
+interface KnowledgeGraphProps {
   /** Center node ID (will be positioned in center) */
   readonly centerNodeId?: undefined | string;
   /** Additional CSS classes */
@@ -224,7 +226,13 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       const height = container.clientHeight;
 
       // Get unique node types for coloring
-      const nodeTypes = [...new Set(nodes.map((n) => n.type))].sort();
+      const nodeTypes = pipe(
+        nodes,
+        A.map((node) => node.type),
+        HashSet.fromIterable,
+        A.fromIterable,
+        A.sort(Order.String)
+      );
       const colorMapping: Record<string, string> = {};
       for (const type of nodeTypes) {
         colorMapping[type] = stringToColor(type);

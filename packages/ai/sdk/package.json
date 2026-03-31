@@ -2,7 +2,7 @@
   "name": "@beep/ai-sdk",
   "version": "0.0.0",
   "description": "The shared agent sdk library for coding harness abstractions",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

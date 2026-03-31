@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "type": "module",
   "private": true,
-  "license": "MIT",
+  "license": "Apache-2.0",
   "description": "CLI tool for creating and managing packages in the beep-effect monorepo following Effect v4 standards",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/cli",
   "repository": {

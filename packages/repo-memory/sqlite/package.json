@@ -2,7 +2,7 @@
   "name": "@beep/repo-memory-sqlite",
   "version": "0.0.0",
   "description": "SQLite-backed repo-memory persistence implementation",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

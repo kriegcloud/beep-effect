@@ -2,7 +2,7 @@
   "name": "@beep/nlp",
   "version": "0.0.0",
   "description": "An library containing utilities, schemas & services for natural language processing",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/nlp",

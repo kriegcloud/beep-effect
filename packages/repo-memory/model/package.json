@@ -2,7 +2,7 @@
   "name": "@beep/repo-memory-model",
   "version": "0.0.0",
   "description": "Schema-first repo-memory product models for grounded local answers",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "scripts": {

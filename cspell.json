@@ -63,6 +63,7 @@
 
     "oklch",
     "shadcn",
+    "billingsdk",
     "tailwindcss",
     "postcss",
     "storybook",

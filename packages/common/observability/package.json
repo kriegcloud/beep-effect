@@ -2,7 +2,7 @@
   "name": "@beep/observability",
   "version": "0.0.0",
   "description": "A library containing utilities & modules for observability.",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "private": true,
   "type": "module",
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/observability",
