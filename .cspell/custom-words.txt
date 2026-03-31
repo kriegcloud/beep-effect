@@ -6,6 +6,7 @@ codegraph
 Docable
 graphiti
 osdk
+prefs
 Uncheckbox
 Unradio
 Unsandboxed

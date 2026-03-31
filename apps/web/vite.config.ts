@@ -14,6 +14,13 @@ const pigmentConfig = {
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [pigment(pigmentConfig), react()],
+  build: {
+    rolldownOptions: {
+      checks: {
+        pluginTimings: false,
+      },
+    },
+  },
   optimizeDeps: {
     include: ["prop-types", "react-is", "hoist-non-react-statics"],
   },

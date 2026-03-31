@@ -75,7 +75,8 @@ const composers = $I.compose(
   "editor",
   "observability",
   "shared-providers",
-  "colors"
+  "colors",
+  "clawhole"
 );
 
 // --- common ---
@@ -377,3 +378,10 @@ export const $CodexId: Identity.IdentityComposer<"@beep/codex"> = composers.$Cod
  * @type {Identity.IdentityComposer<"@beep/colors">}
  */
 export const $ColorsId: Identity.IdentityComposer<"@beep/colors"> = composers.$ColorsId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/clawhole">}
+ */
+export const $ClawholeId: Identity.IdentityComposer<"@beep/clawhole"> = composers.$ClawholeId;

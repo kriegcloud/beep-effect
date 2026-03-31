@@ -24,7 +24,22 @@ export * as DateTime from "./DateTime.ts";
  * @since 0.0.0
  * @category Utility
  */
+export * as FileSystem from "./FileSystem.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
+export * as Html from "./Html.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export * as Thunk from "./internal/Thunk.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
+export * from "./isBlockedObjectKey.ts";
 /**
  * @since 0.0.0
  * @category Utility
@@ -45,6 +60,11 @@ export * as P from "./Predicate.ts";
  * @category Utility
  */
 export * as Str from "./Str.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
+export * as Stream from "./Stream.ts";
 /**
  * @since 0.0.0
  * @category Utility

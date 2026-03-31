@@ -39,7 +39,7 @@ const toAliasEntry = (find: string, replacement: string): AliasEntry => {
 
   if (!find.includes("*")) {
     return {
-      find,
+      find: new RegExp(`^${escapeRegExp(find)}$`),
       replacement: absoluteReplacement,
     };
   }

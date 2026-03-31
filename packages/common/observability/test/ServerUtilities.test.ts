@@ -1,5 +1,5 @@
+import { sanitizePrometheusMetrics } from "@beep/observability/server";
 import { describe, expect, it } from "vitest";
-import { sanitizePrometheusMetrics } from "../src/server/index.ts";
 
 describe("ServerUtilities", () => {
   it("removes duplicate Infinity histogram buckets from Prometheus output", () => {

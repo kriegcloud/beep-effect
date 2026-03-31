@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P4.md` and the repo verification surfaces. Define the law-to-command and law-to-auditor coverage model and write or refine `outputs/p4-enforcement-and-verification-contract.md`. Close uncovered law families before claiming completion.

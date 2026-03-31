@@ -8,11 +8,6 @@ import {
   RetrievalPacket,
   RunId,
 } from "@beep/repo-memory-model";
-import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
-import { describe, expect, it } from "@effect/vitest";
-import { DateTime, Effect } from "effect";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import {
   acceptedIndexRun,
   acceptedQueryRun,
@@ -20,7 +15,12 @@ import {
   completeIndexRun,
   completeQueryRun,
   interruptRun,
-} from "../src/run/RunStateMachine.ts";
+} from "@beep/repo-memory-runtime/run/RunStateMachine";
+import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
+import { describe, expect, it } from "@effect/vitest";
+import { DateTime, Effect } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);

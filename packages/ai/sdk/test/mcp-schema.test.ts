@@ -1,10 +1,10 @@
+import * as Mcp from "@beep/ai-sdk/Mcp";
 import { expect, test } from "@effect/vitest";
 import * as Duration from "effect/Duration";
 import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as Result from "effect/Result";
 import * as S from "effect/Schema";
-import * as Mcp from "../src/Mcp.ts";
 import { runEffect } from "./effect-test.js";
 
 test("ElicitationCapability normalizes empty objects to form support", async () => {

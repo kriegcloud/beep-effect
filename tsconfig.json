@@ -63,6 +63,8 @@
       "@beep/messages/*": ["./packages/common/messages/src/*"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
       "@beep/data/*": ["./packages/common/data/src/*"],
+      "@beep/ai-sdk/Mcp": ["./packages/ai/sdk/src/Mcp.ts"],
+      "@beep/ai-sdk/codex/*": ["./packages/ai/sdk/src/codex/*.ts"],
       "@beep/ai-sdk/internal/*": ["./packages/ai/sdk/src/claude/internal/*.ts"],
       "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
       "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
@@ -81,11 +83,17 @@
       "@beep/runtime-protocol": ["./packages/runtime/protocol/src/index.ts"],
       "@beep/runtime-protocol/*": ["./packages/runtime/protocol/src/*"],
       "@beep/runtime-server": ["./packages/runtime/server/src/index.ts"],
+      "@beep/runtime-server/internal/*": [
+        "./packages/runtime/server/src/internal/*.ts"
+      ],
       "@beep/runtime-server/*": ["./packages/runtime/server/src/*"],
       "@beep/repo-memory-model": ["./packages/repo-memory/model/src/index.ts"],
       "@beep/repo-memory-model/*": ["./packages/repo-memory/model/src/*"],
       "@beep/repo-memory-runtime": [
         "./packages/repo-memory/runtime/src/index.ts"
+      ],
+      "@beep/repo-memory-runtime/internal/*": [
+        "./packages/repo-memory/runtime/src/internal/*.ts"
       ],
       "@beep/repo-memory-runtime/*": ["./packages/repo-memory/runtime/src/*"],
       "@beep/repo-memory-client": [
@@ -118,7 +126,9 @@
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
       "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
-      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"]
+      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"],
+      "@beep/clawhole": ["./apps/clawhole/src/index.ts"],
+      "@beep/clawhole/*": ["./apps/clawhole/src/*"]
     },
     "plugins": [
       {

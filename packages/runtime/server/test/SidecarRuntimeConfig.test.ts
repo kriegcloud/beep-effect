@@ -1,5 +1,6 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { loadSidecarOtlpConfig, resolveSidecarAppDataDir } from "@beep/runtime-server/internal/SidecarRuntimeConfig";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { expect, test } from "@effect/vitest";
@@ -7,7 +8,6 @@ import * as ConfigProvider from "effect/ConfigProvider";
 import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import * as O from "effect/Option";
-import { loadSidecarOtlpConfig, resolveSidecarAppDataDir } from "../src/internal/SidecarRuntimeConfig.js";
 
 const configLayer = (entries: Record<string, string>) => ConfigProvider.layerAdd(ConfigProvider.fromUnknown(entries));
 const platformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
