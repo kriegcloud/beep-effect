@@ -82,7 +82,6 @@
     "packages/common/schema/src/Timezone.ts",
     "**/internal/data/**",
     "**/dtslint/**",
-    "THOUGHTS.md",
     "**/test/**"
   ]
 }
