@@ -1,13 +1,19 @@
 /**
- * @beep/colors
+ * Public entrypoint for `@beep/colors`.
+ *
+ * The default export is a shared `Colors` instance configured from the current runtime,
+ * while named exports expose the schema, constructor, and detection helpers for advanced use.
+ *
+ * @example
+ * ```typescript
+ * import colors, { createColors, isColorSupported } from "@beep/colors"
+ *
+ * const forcedPlain = createColors(false)
+ * const status = isColorSupported ? colors.green("ok") : forcedPlain.green("ok")
+ *
+ * console.log(status)
+ * ```
  *
  * @since 0.0.0
  */
-
-/**
- * @since 0.0.0
- * @category Configuration
- */
-import { Colors } from "./Colors.ts";
-
-export default Colors;
+export { Colors, createColors, default, Formatter, isColorSupported, supportsColor } from "./Colors.ts";

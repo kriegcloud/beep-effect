@@ -22,13 +22,24 @@
     "lint:fix": "biome check . --write",
     "test": "vitest"
   },
-  "main": "./dist/Colors.js",
-  "types": "./dist/Colors.d.ts",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
   "browser": {
+    "./src/index.ts": "./src/Colors.browser.ts",
+    "./src/Colors.ts": "./src/Colors.browser.ts",
+    "./dist/index.js": "./dist/Colors.browser.js",
     "./dist/Colors.js": "./dist/Colors.browser.js"
   },
   "files": [
-    "dist/Colors.*"
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
   ],
   "keywords": [
     "terminal",
@@ -40,7 +51,13 @@
   "sideEffects": [],
   "publishConfig": {
     "access": "public",
-    "provenance": true
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
   },
   "dependencies": {
     "effect": "catalog:",

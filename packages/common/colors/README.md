@@ -11,7 +11,12 @@ bun add @beep/colors
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/colors"
+import colors, { createColors, isColorSupported } from "@beep/colors"
+
+const forcedPlain = createColors(false)
+const status = isColorSupported ? colors.green("ok") : forcedPlain.green("ok")
+
+console.log(status)
 ```
 
 ## Development
