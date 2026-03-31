@@ -166,9 +166,11 @@
   },
   "overrides": {
     "@hono/node-server": "^1.19.11",
+    "autolinker": "^3.11.0",
     "undici": "^7.24.4",
     "express-rate-limit": "^8.3.0",
     "flatted": "^3.4.1",
+    "happy-dom": "^20.8.9",
     "hono": "^4.12.7",
     "minimatch": "^10.2.3",
     "smol-toml": "1.6.1"
