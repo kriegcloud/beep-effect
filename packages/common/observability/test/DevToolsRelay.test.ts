@@ -1,8 +1,8 @@
+import { DevToolsRelayService, makeDevToolsRelayService } from "@beep/observability/experimental/server";
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as SocketServer from "effect/unstable/socket/SocketServer";
 import { describe, expect, it } from "vitest";
-import { DevToolsRelayService, makeDevToolsRelayService } from "../src/experimental/server/index.ts";
 
 const fakeSocketServer = SocketServer.SocketServer.of({
   address: {

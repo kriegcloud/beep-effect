@@ -1,8 +1,8 @@
+import { profilePhase } from "@beep/observability";
 import { TaggedErrorClass } from "@beep/schema";
 import { Effect, Metric } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
-import { profilePhase } from "../src/index.ts";
 
 class TestPhaseError extends TaggedErrorClass<TestPhaseError>()("TestPhaseError", {
   message: S.String,

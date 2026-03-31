@@ -1,13 +1,4 @@
-import { FsUtilsLive } from "@beep/repo-utils";
-import { NodeServices } from "@effect/platform-node";
-import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
-import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, Exit, FileSystem, Layer, Path } from "effect";
-import * as S from "effect/Schema";
-import * as TestConsole from "effect/testing/TestConsole";
-import { Command } from "effect/unstable/cli";
-import { describe, expect, it } from "vitest";
-import { docgenCommand } from "../src/commands/Docgen/index.js";
+import { docgenCommand } from "@beep/repo-cli/commands/Docgen/index";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
@@ -18,7 +9,16 @@ import {
   discoverDocgenWorkspacePackages,
   generateAnalysisReport,
   loadDocgenConfigDocument,
-} from "../src/commands/Docgen/internal/Operations.js";
+} from "@beep/repo-cli/commands/Docgen/internal/Operations";
+import { FsUtilsLive } from "@beep/repo-utils";
+import { NodeServices } from "@effect/platform-node";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { Effect, Exit, FileSystem, Layer, Path } from "effect";
+import * as S from "effect/Schema";
+import * as TestConsole from "effect/testing/TestConsole";
+import { Command } from "effect/unstable/cli";
+import { describe, expect, it } from "vitest";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(PlatformLayer, FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)));
@@ -337,6 +337,53 @@ describe("Docgen operations", () => {
           expect(results[0]?.docsOutputPath).toBe("common/schema");
           expect(aggregated).toContain('parent: "@beep/schema"');
           expect(aggregatedIndex).toContain("permalink: /docs/common/schema");
+        })
+      )
+    );
+  });
+
+  it("supports clean aggregation when stale docs paths conflict with nested package docs", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "repo-memory", "store");
+          const docsModulesDir = path.join(packageDir, "docs", "modules");
+          yield* fs.makeDirectory(docsModulesDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/repo-memory-store",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(docsModulesDir, "Store.md"),
+            `---\nparent: Modules\ntitle: Store\n---\n\ncontent\n`
+          );
+
+          yield* fs.makeDirectory(path.join(tmpDir, "docs"), { recursive: true });
+          yield* fs.writeFileString(path.join(tmpDir, "docs", "repo-memory"), "stale-path-conflict");
+
+          const results = yield* aggregateGeneratedDocs({ clean: true });
+          const aggregatedPath = path.join(tmpDir, "docs", "repo-memory", "store", "Store.md");
+          const aggregated = yield* fs.readFileString(aggregatedPath);
+
+          expect(results).toHaveLength(1);
+          expect(results[0]?.docsOutputPath).toBe("repo-memory/store");
+          expect(aggregated).toContain('parent: "@beep/repo-memory-store"');
         })
       )
     );

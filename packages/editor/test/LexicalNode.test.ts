@@ -1,7 +1,7 @@
+import * as LN from "@beep/editor/Domain/LexicalNode";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 import { $createTextNode, createEditor } from "lexical";
-import * as LN from "../src/Domain/LexicalNode.ts";
 
 describe("LexicalNode", () => {
   it("accepts runtime lexical nodes created inside an editor update", () => {

@@ -1,3 +1,4 @@
+import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive } from "@beep/repo-utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
@@ -6,7 +7,6 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
-import { syncTsconfigAtRoot } from "../src/commands/TsconfigSync.js";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(PlatformLayer, FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)));

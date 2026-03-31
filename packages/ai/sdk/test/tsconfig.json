@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../../tsconfig.json",
+  "include": ["./**/*.ts"],
+  "exclude": [],
+  "compilerOptions": {
+    "composite": false,
+    "incremental": false,
+    "noEmit": true,
+    "paths": {
+      "@beep/ai-sdk": ["../src/claude/index.ts"],
+      "@beep/ai-sdk/*": ["../src/claude/*.ts"],
+      "@beep/ai-sdk/Mcp": ["../src/Mcp.ts"],
+      "@beep/ai-sdk/codex/*": ["../src/codex/*.ts"],
+      "@beep/ai-sdk/internal/*": ["../src/claude/internal/*.ts"]
+    },
+    "rootDir": "../../../../"
+  }
+}

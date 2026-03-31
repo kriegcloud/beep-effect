@@ -14,12 +14,12 @@ import {
   RunProgressUpdatedEvent,
   RunResumedEvent,
 } from "@beep/repo-memory-model";
+import { projectRunEvent } from "@beep/repo-memory-runtime/run/RunProjector";
 import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime, Effect } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { projectRunEvent } from "../src/run/RunProjector.ts";
 
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);

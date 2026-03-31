@@ -1,6 +1,6 @@
+import * as LC from "@beep/editor/Domain/LexicalConstants";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
-import * as LC from "../src/Domain/LexicalConstants.ts";
 
 const rtlValue = "\u0591-\u07FF\uFB1D-\uFDFD\uFE70-\uFEFC";
 const ltrValue =

@@ -1,8 +1,3 @@
-import { Effect, Metric } from "effect";
-import * as S from "effect/Schema";
-import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
-import { HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
-import { describe, expect, it } from "vitest";
 import {
   HttpApiTelemetryDescriptor,
   httpApiFailureStatus,
@@ -10,7 +5,12 @@ import {
   makeHttpApiTelemetryDescriptor,
   observeHttpApiEffect,
   observeHttpApiHandler,
-} from "../src/server/index.ts";
+} from "@beep/observability/server";
+import { Effect, Metric } from "effect";
+import * as S from "effect/Schema";
+import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse";
+import { HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
+import { describe, expect, it } from "vitest";
 
 describe("HttpApiTelemetry", () => {
   it("reads explicit HttpApiSchema statuses", () => {

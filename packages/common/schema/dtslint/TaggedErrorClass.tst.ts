@@ -20,6 +20,16 @@ class StructuredBeepError extends TaggedErrorClass<StructuredBeepError>("Structu
   BeepPayload
 ) {}
 
+class RequiredCauseError extends TaggedErrorClass<RequiredCauseError>("RequiredCauseError")("RequiredCauseError", {
+  cause: S.DefectWithStack,
+  message: S.String,
+}) {}
+
+class OptionalCauseError extends TaggedErrorClass<OptionalCauseError>("OptionalCauseError")("OptionalCauseError", {
+  cause: S.optional(S.DefectWithStack),
+  message: S.String,
+}) {}
+
 describe("TaggedErrorClass", () => {
   it("infers new input from schema fields (without _tag)", () => {
     expect<TaggedErrorNewInput<typeof BeepError>>().type.toBe<{ readonly beep: string }>();
@@ -62,5 +72,27 @@ describe("TaggedErrorClass", () => {
 
     // @ts-expect-error!
     StructuredBeepError.new({ beep: "beep", count: "1" });
+  });
+
+  it("supports cause-first overloads for cause-bearing errors", () => {
+    expect(RequiredCauseError.new(new Error("boom"), { message: "beep" })).type.toBe<RequiredCauseError>();
+    expect(OptionalCauseError.new(new Error("boom"), { message: "beep" })).type.toBe<OptionalCauseError>();
+
+    expect(RequiredCauseError.newThunk(new Error("boom"), { message: "beep" })()).type.toBe<RequiredCauseError>();
+    expect(OptionalCauseError.newThunk(new Error("boom"), { message: "beep" })()).type.toBe<OptionalCauseError>();
+  });
+
+  it("supports required-cause data-last overloads only", () => {
+    expect(RequiredCauseError.new({ message: "beep" })(new Error("boom"))).type.toBe<RequiredCauseError>();
+    expect(RequiredCauseError.newThunk({ message: "beep" })(new Error("boom"))()).type.toBe<RequiredCauseError>();
+
+    expect(OptionalCauseError.new({ message: "beep" })).type.toBe<OptionalCauseError>();
+    expect(OptionalCauseError.newThunk({ message: "beep" })()).type.toBe<OptionalCauseError>();
+
+    // @ts-expect-error!
+    OptionalCauseError.new({ message: "beep" })(new Error("boom"));
+
+    // @ts-expect-error!
+    OptionalCauseError.newThunk({ message: "beep" })(new Error("boom"));
   });
 });

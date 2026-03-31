@@ -1,3 +1,4 @@
+import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage/index";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
@@ -6,7 +7,6 @@ import * as S from "effect/Schema";
 import { Command } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
-import { createPackageCommand } from "../src/commands/CreatePackage/index.js";
 
 const CommandPlatformLayer = Layer.mergeAll(NodeServices.layer);
 const CommandTestLayer = Layer.mergeAll(

@@ -71,17 +71,13 @@ export const buildRepoDependencyIndex: (
     const rootPkgPath = `${rootDir}/package.json`;
     const rawRootPkg = yield* fsUtils.readJson(rootPkgPath);
     if (O.isNone(rawRootPkg)) {
-      return yield* new DomainError({
+      return yield* DomainError.new({
         message: `Failed to parse JSON at "${rootPkgPath}"`,
       });
     }
     const rootPkg = yield* decodePackageJsonEffect(rawRootPkg.value).pipe(
-      Effect.mapError(
-        (error) =>
-          new DomainError({
-            message: `Failed to decode root package.json at "${rootPkgPath}"`,
-            cause: error,
-          })
+      Effect.mapError((error) =>
+        DomainError.new(error, { message: `Failed to decode root package.json at "${rootPkgPath}"` })
       )
     );
     const rootDeps = extractWorkspaceDependencies(rootPkg, workspaceNames);
@@ -95,18 +91,12 @@ export const buildRepoDependencyIndex: (
         continue;
       }
       if (O.isNone(rawPkg)) {
-        return yield* new DomainError({
+        return yield* DomainError.new({
           message: `Failed to parse JSON at "${pkgPath}"`,
         });
       }
       const pkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
-        Effect.mapError(
-          (error) =>
-            new DomainError({
-              message: `Failed to decode package.json at "${pkgPath}"`,
-              cause: error,
-            })
-        )
+        Effect.mapError((error) => DomainError.new(error, { message: `Failed to decode package.json at "${pkgPath}"` }))
       );
       const deps = extractWorkspaceDependencies(pkg, workspaceNames);
       result = HashMap.set(result, name, deps);

@@ -1,4 +1,14 @@
 import {
+  makeRepoMemoryClient,
+  makeRepoMemoryHttpClientDefault,
+  makeRepoMemoryRpcClient,
+  makeRepoMemoryRpcUrl,
+  normalizeSidecarBaseUrl,
+  RepoMemoryClient,
+  RepoMemoryClientConfig,
+  RepoMemoryClientError,
+} from "@beep/repo-memory-client";
+import {
   type InterruptRepoRunRequest,
   type QueryRepoRunInput,
   type RepoRegistrationInput,
@@ -11,16 +21,6 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {
-  makeRepoMemoryClient,
-  makeRepoMemoryHttpClientDefault,
-  makeRepoMemoryRpcClient,
-  makeRepoMemoryRpcUrl,
-  normalizeSidecarBaseUrl,
-  RepoMemoryClient,
-  RepoMemoryClientConfig,
-  RepoMemoryClientError,
-} from "../src/index.ts";
 
 const clientError = () =>
   new RepoMemoryClientError({

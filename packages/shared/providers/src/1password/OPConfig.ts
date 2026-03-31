@@ -76,7 +76,7 @@ const serviceEffect = Effect.gen(function* () {
   const config = new OPServiceShape(yield* OPConfig);
 
   return OPConfigService.of(config);
-}).pipe(Effect.mapError((cause) => OPConfigError.new({ cause })));
+}).pipe(Effect.mapError(OPConfigError.new({})));
 
 /**
  * OPConfig Layer
