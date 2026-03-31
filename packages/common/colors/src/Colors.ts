@@ -36,15 +36,15 @@ import * as S from "effect/Schema";
 
 const $I = $ColorsId.create("Domain");
 
+class ProcessLikeStdout extends S.Class<ProcessLikeStdout>($I`ProcessLikeStdout`)({
+  isTTY: S.optionalKey(S.Boolean),
+}) {}
+
 class ProcessLike extends S.Class<ProcessLike>($I`ProcessLike`)({
   argv: S.String.pipe(S.Array, S.optionalKey),
   env: S.Record(S.String, S.UndefinedOr(S.String)).pipe(S.optionalKey),
   platform: S.optionalKey(S.String),
-  stdout: S.optionalKey(
-    S.Struct({
-      isTTY: S.optionalKey(S.Boolean),
-    })
-  ),
+  stdout: S.optionalKey(ProcessLikeStdout),
 }) {}
 
 const FormatterInput = S.Union([S.String, S.Number]).pipe(
