@@ -29,9 +29,7 @@
     "packages/shared/providers/dtslint/**/*.tst.*",
     "packages/shared/server/dtslint/**/*.tst.*",
     "packages/shared/tables/dtslint/**/*.tst.*",
-    "packages/shared/ui/dtslint/**/*.tst.*",
-    ".claude/dtslint/**/*.tst.*",
-    ".codex/dtslint/**/*.tst.*"
+    "packages/shared/ui/dtslint/**/*.tst.*"
   ],
   "tsconfig": "ignore"
 }
