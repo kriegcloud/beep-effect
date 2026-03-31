@@ -32,6 +32,7 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 ## Allowlist Contract
 
 Boundary exceptions are allowed only through [effect-laws.allowlist.jsonc](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-laws.allowlist.jsonc).
+It is the sole supported exception registry for Effect-law and runtime-boundary exceptions, and `bun run beep laws allowlist-check` is the required integrity check that `bun run lint` runs in normal quality flows.
 
 Required fields per entry:
 

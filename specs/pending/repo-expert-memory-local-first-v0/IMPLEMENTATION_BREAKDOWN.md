@@ -17,6 +17,7 @@ The point of this breakdown is to sequence the work so lifecycle, transport, and
 - Query stage trace projection: landed as a light fixed `QueryRun.queryStages` surface derived from existing `RunProgressUpdated`, `RetrievalPacketMaterialized`, and `AnswerDrafted` events without adding new durable event kinds.
 - Retrieval-side NLP enrichment: not yet landed; it is the next bounded phase over the existing query-to-retrieval path and must preserve deterministic fallback plus citation-first grounding.
 - Test split and lifecycle proof: landed with `@effect/vitest` supporting tests and spawned Bun subprocess lifecycle tests.
+- Internal runtime split: landed with a dedicated run event-log boundary for journal append/decode/materialization/replay and a separate lifecycle controller for acceptance, interrupt/resume, and accepted-run timeout reaping.
 - Remaining `v0` closure: keep the explicit `grounding -> retrieval -> packet -> answer` split and fixed light query-stage trace stable, then finish the broader projection bootstrap/cursor pipeline and decider-style runtime split without regressing the already-landed lifecycle behavior.
 
 ## Workstream 1: Contracts
@@ -116,7 +117,7 @@ Current reality:
 - the shared `RunProjector` in `packages/repo-memory/model` is already the canonical projection function for runtime and desktop consumers
 - `RetrievalPacketMaterialized` now conceptually freezes the packet before `AnswerDrafted`
 - `QueryRun.queryStages` can now be projected as a fixed light stage trace from existing progress/packet/answer events
-- the remaining architecture gap is not projector existence but durable projection bootstrap/cursor ownership and the broader decider split around `RepoRunService`
+- the projection/bootstrap and decider seams now live behind dedicated internal runtime services rather than inside one monolithic `RepoRunService` implementation
 
 ## Workstream 6: Shared router assembly
 Host one shared router with:

@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "./tsconfig.json",
+  "include": ["src", "test", "vitest.config.ts", "../../vitest.shared.ts"],
+  "exclude": ["node_modules", "dist", "coverage"],
+  "compilerOptions": {
+    "rootDir": "../..",
+    "tsBuildInfoFile": "./dist/tsconfig.test.tsbuildinfo"
+  }
+}

@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import ts from "typescript";
 import type { ViteUserConfig } from "vitest/config";
 
@@ -8,13 +6,18 @@ type AliasEntry = {
   readonly replacement: string;
 };
 
-const rootTsconfigPath = path.join(__dirname, "tsconfig.json");
+const projectRootDirectory = new URL("./", import.meta.url);
+const rootTsconfigPath = new URL("./tsconfig.json", import.meta.url).pathname;
 
-const escapeRegExp = (value: string): string =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 const readRootTsconfigPaths = (): Readonly<Record<string, readonly string[]>> => {
-  const fileText = fs.readFileSync(rootTsconfigPath, "utf8");
+  const fileText = ts.sys.readFile(rootTsconfigPath);
+
+  if (fileText === undefined) {
+    return {};
+  }
+
   const parsed = ts.parseConfigFileTextToJson(rootTsconfigPath, fileText);
 
   if (
@@ -32,7 +35,7 @@ const readRootTsconfigPaths = (): Readonly<Record<string, readonly string[]>> =>
 };
 
 const toAliasEntry = (find: string, replacement: string): AliasEntry => {
-  const absoluteReplacement = path.resolve(__dirname, replacement);
+  const absoluteReplacement = new URL(replacement, projectRootDirectory).pathname;
 
   if (!find.includes("*")) {
     return {
@@ -49,9 +52,7 @@ const toAliasEntry = (find: string, replacement: string): AliasEntry => {
 
 const rootTsconfigAliases = Object.entries(readRootTsconfigPaths())
   .sort(([left], [right]) => right.length - left.length)
-  .flatMap(([find, replacements]) =>
-    replacements.map((replacement) => toAliasEntry(find, replacement))
-  );
+  .flatMap(([find, replacements]) => replacements.map((replacement) => toAliasEntry(find, replacement)));
 
 const config: ViteUserConfig = {
   oxc: {
@@ -71,7 +72,7 @@ const config: ViteUserConfig = {
   },
   test: {
     exclude: ["**/.context/**", "**/node_modules/**"],
-    setupFiles: [path.join(__dirname, "vitest.setup.ts")],
+    setupFiles: [new URL("./vitest.setup.ts", import.meta.url).pathname],
     fakeTimers: {
       toFake: undefined,
     },

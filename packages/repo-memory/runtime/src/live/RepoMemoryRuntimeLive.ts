@@ -1,5 +1,6 @@
 import { Layer } from "effect";
-import { RepoRunService, RepoRunWorkflowsLayer, TypeScriptIndexService } from "../internal/RepoMemoryRuntime.js";
+import { TypeScriptIndexService } from "../indexing/TypeScriptIndexer.js";
+import { RepoRunService, RepoRunWorkflowsLayer } from "../internal/RepoMemoryRuntime.js";
 import { GroundedRetrievalService } from "../retrieval/GroundedRetrieval.js";
 import { RepoSemanticEnrichmentService } from "../semantic/RepoSemanticEnrichmentService.js";
 

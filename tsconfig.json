@@ -34,7 +34,11 @@
     "./packages/**/tmp/**",
     "./packages/ai/sdk/tmp/**",
     "**/test/fixtures/**",
-    "./tooling/repo-utils/test/fixtures/**"
+    "./tooling/repo-utils/test/fixtures/**",
+    // Desktop owns its own test/vitest typecheck through apps/desktop/tsconfig.test.json.
+    "./apps/desktop/test/**/*.ts",
+    "./apps/desktop/test/**/*.tsx",
+    "./apps/desktop/test/**/*.json"
   ],
   "compilerOptions": {
     "tsBuildInfoFile": "./dist/tsconfig.root.tsbuildinfo",
@@ -122,9 +126,7 @@
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
       "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
-      "@beep/shared-providers/*": [
-        "./packages/shared/providers/src/*"
-      ]
+      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"]
     },
     "plugins": [
       {
