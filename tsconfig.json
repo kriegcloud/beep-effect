@@ -128,7 +128,9 @@
       "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
       "@beep/shared-providers/*": ["./packages/shared/providers/src/*"],
       "@beep/clawhole": ["./apps/clawhole/src/index.ts"],
-      "@beep/clawhole/*": ["./apps/clawhole/src/*"]
+      "@beep/clawhole/*": ["./apps/clawhole/src/*"],
+      "@beep/colors": ["./packages/common/colors/src/index.ts"],
+      "@beep/colors/*": ["./packages/common/colors/src/*"]
     },
     "plugins": [
       {
