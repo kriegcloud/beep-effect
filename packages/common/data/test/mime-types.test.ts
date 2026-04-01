@@ -155,5 +155,31 @@ describe("lookup", () => {
     expect(lookup("tar")).toBe("application/x-tar");
     expect(lookup("7z")).toBe("application/x-7z-compressed");
   });
+
+  it("handles additional binary and design extensions from the repo allowlist", () => {
+    expect(lookup("z")).toBe("application/x-compress");
+    expect(lookup("tgz")).toBe("application/x-compressed-tar");
+    expect(lookup("a")).toBe("application/x-archive");
+    expect(lookup("o")).toBe("application/x-object");
+    expect(lookup("lib")).toBe("application/vnd.microsoft.portable-executable");
+    expect(lookup("pyc")).toBe("application/x-python-bytecode");
+    expect(lookup("pyo")).toBe("application/x-python-bytecode");
+    expect(lookup("sqlite")).toBe("application/vnd.sqlite3");
+    expect(lookup("sqlite3")).toBe("application/vnd.sqlite3");
+    expect(lookup("blend")).toBe("application/x-blender");
+    expect(lookup("fla")).toBe("application/vnd.dtg.local.flash");
+    expect(lookup("dylib")).toBe("application/octet-stream");
+    expect(lookup("app")).toBe("application/octet-stream");
+    expect(lookup("node")).toBe("application/octet-stream");
+    expect(lookup("rlib")).toBe("application/octet-stream");
+    expect(lookup("db")).toBe("application/octet-stream");
+    expect(lookup("idx")).toBe("application/octet-stream");
+    expect(lookup("sketch")).toBe("application/octet-stream");
+    expect(lookup("xd")).toBe("application/octet-stream");
+    expect(lookup("max")).toBe("application/octet-stream");
+    expect(lookup("lockb")).toBe("application/octet-stream");
+    expect(lookup("dat")).toBe("application/octet-stream");
+    expect(lookup("data")).toBe("application/octet-stream");
+  });
 });
 // bench

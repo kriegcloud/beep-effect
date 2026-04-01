@@ -6,6 +6,7 @@
  */
 
 import { findRepoRoot } from "@beep/repo-utils";
+import { XmlTextToUnknown } from "@beep/schema/Xml";
 import { thunkTrue, thunkUndefined } from "@beep/utils";
 import { csvParse } from "d3-dsv";
 import { Console, Effect, FileSystem, Match, Path, pipe } from "effect";
@@ -14,8 +15,6 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import { XmlTextToUnknown } from "../Shared/SchemaCodecs/index.js";
-import type { XmlCodecService as XmlCodecServiceType } from "../Shared/SchemaCodecs/XmlCodecs.js";
 import {
   type SyncDataRunMode as SyncDataRunModeType,
   type SyncDataTarget,
@@ -144,10 +143,7 @@ const parseCsvText = (content: string, target: SyncDataTarget): Effect.Effect<un
       }),
   });
 
-const parseSourceText = (
-  content: string,
-  target: SyncDataTarget
-): Effect.Effect<unknown, SyncDataToTsError, XmlCodecServiceType> =>
+const parseSourceText = (content: string, target: SyncDataTarget): Effect.Effect<unknown, SyncDataToTsError> =>
   Match.value(target.format).pipe(
     Match.when("json", () =>
       decodeJsonText(content).pipe(
@@ -244,11 +240,7 @@ const syncTarget = (
   repoRoot: string,
   mode: SyncDataRunModeType,
   target: SyncDataTarget
-): Effect.Effect<
-  SyncDataTargetResult,
-  SyncDataToTsError,
-  FileSystem.FileSystem | HttpClient.HttpClient | Path.Path | XmlCodecServiceType
-> =>
+): Effect.Effect<SyncDataTargetResult, SyncDataToTsError, FileSystem.FileSystem | HttpClient.HttpClient | Path.Path> =>
   Effect.gen(function* () {
     const path = yield* Path.Path;
     const sourceText = yield* fetchSourceText(target);

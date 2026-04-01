@@ -300,6 +300,7 @@
         "@scure/base": "catalog:",
         "effect": "catalog:",
         "uuid": "catalog:",
+        "yaml": "catalog:",
       },
       "devDependencies": {
         "@beep/types": "workspace:^",

@@ -1,4 +1,3 @@
-import { XmlCodecServiceLive } from "@beep/repo-cli/commands/Shared/SchemaCodecs/index";
 import { syncDataToTsCommand } from "@beep/repo-cli/commands/SyncDataToTs/index";
 import { ISO4217_SOURCE_URL } from "@beep/repo-cli/commands/SyncDataToTs/targets/Iso4217";
 import { NodeServices } from "@effect/platform-node";
@@ -9,7 +8,7 @@ import { HttpClient, HttpClientError, HttpClientResponse } from "effect/unstable
 import { describe, expect, it } from "vitest";
 
 const runSyncDataToTsCommand = Command.runWith(syncDataToTsCommand, { version: "0.0.0" });
-const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer, XmlCodecServiceLive);
+const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const generatedOutputPath = "packages/common/data/src/generated/iso4217.ts" as const;
 
 const iso4217XmlFixture = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>

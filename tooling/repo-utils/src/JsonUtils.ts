@@ -28,7 +28,9 @@ const compactGetter = SchemaGetter.stringifyJson();
 export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(function* (value) {
   const result = yield* prettyGetter
     .run(O.some(value), {})
-    .pipe(Effect.mapError((issue) => DomainError.new({ message: `JSON serialization failed: ${issue}` })));
+    .pipe(
+      Effect.mapError((issue) => DomainError.new({ message: `JSON serialization failed: ${issue}`, cause: issue }))
+    );
   return O.getOrElse(result, thunkEmptyStr);
 });
 
@@ -58,7 +60,7 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
  */
 export const jsonParse: (input: string) => Effect.Effect<unknown, DomainError> = Effect.fn(function* (input) {
   return yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(input).pipe(
-    Effect.mapError((e) => DomainError.new({ message: `JSON parse failed: ${e.message}` }))
+    Effect.mapError((e) => DomainError.new({ message: `JSON parse failed: ${e.message}`, cause: e }))
   );
 });
 // bench

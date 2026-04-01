@@ -24,6 +24,9 @@
     "@noble/hashes": "catalog:",
     "@scure/base": "catalog:",
     "effect": "catalog:",
+    "fast-xml-parser": "catalog:",
+    "jsonc-parser": "catalog:",
+    "yaml": "catalog:",
     "uuid": "catalog:"
   },
   "devDependencies": {
