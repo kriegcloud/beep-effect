@@ -3,24 +3,23 @@
  *
  * @since 0.0.0
  */
-
-import { createRequire } from "node:module";
 import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as YamlPackage from "yaml";
 
-export type BunYamlRuntime = {
+type BunYamlRuntime = {
   readonly YAML: {
     readonly parse: (input: string) => unknown;
   };
 };
 
-export type YamlRuntime = {
+type YamlRuntime = {
   readonly Bun?: BunYamlRuntime;
 };
 
-export type YamlModule = typeof import("yaml");
+type YamlModule = typeof YamlPackage;
 
 export type YamlParseResult =
   | {
@@ -32,11 +31,9 @@ export type YamlParseResult =
       readonly messages: ReadonlyArray<string>;
     };
 
-export type YamlModuleLoader = () => YamlModule;
+type YamlModuleLoader = () => YamlModule;
 
-const requireFromYamlModule = createRequire(import.meta.url);
-
-export const loadYamlModule = (): YamlModule => requireFromYamlModule("yaml");
+export const loadYamlModule = (): YamlModule => YamlPackage;
 
 const getBunRuntime = (runtime: YamlRuntime): O.Option<BunYamlRuntime> => O.fromNullishOr(runtime.Bun);
 

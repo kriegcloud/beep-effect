@@ -86,7 +86,7 @@ describe("Gateway schemas", () => {
       retries: 3,
     });
 
-    expect(O.getOrUndefined(decoded.voiceId)).toBe("nova");
+    expect(decoded.voiceId).toBe("nova");
     expect(decoded).toMatchObject({
       latency: "low",
       retries: 3,
@@ -98,8 +98,6 @@ describe("Gateway schemas", () => {
       provider: "elevenlabs",
       providers: {
         elevenlabs: {
-          voiceId: "nova",
-          outputFormat: "pcm_44100",
           region: "us-east-1",
         },
       },
@@ -107,8 +105,6 @@ describe("Gateway schemas", () => {
       resolved: {
         provider: "elevenlabs",
         config: {
-          voiceId: "nova",
-          outputFormat: "pcm_44100",
           region: "us-east-1",
         },
       },

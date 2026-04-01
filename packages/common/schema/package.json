@@ -26,8 +26,8 @@
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "jsonc-parser": "catalog:",
-    "yaml": "catalog:",
-    "uuid": "catalog:"
+    "uuid": "catalog:",
+    "yaml": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

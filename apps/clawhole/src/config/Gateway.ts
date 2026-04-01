@@ -8,14 +8,7 @@
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
-import {
-  ArrayOfStrings,
-  FilePath,
-  LiteralKit,
-  NonNegativeInt,
-  PosInt,
-  SchemaUtils,
-} from "@beep/schema";
+import { ArrayOfStrings, FilePath, LiteralKit, NonNegativeInt, PosInt, SchemaUtils } from "@beep/schema";
 import { flow, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -92,8 +85,7 @@ const TalkConfigFields = {
 
 const StrictTransportSecurityValue = S.Union([S.String, S.Literal(false)]).pipe(
   $I.annoteSchema("StrictTransportSecurityValue", {
-    description:
-      "A Strict-Transport-Security header value string, or `false` to disable the header explicitly.",
+    description: "A Strict-Transport-Security header value string, or `false` to disable the header explicitly.",
   })
 );
 
@@ -142,7 +134,10 @@ const gatewayChannelHealthThresholdIsValid = (value: {
     O.match({
       onNone: () => true,
       onSome: (staleThreshold) => {
-        const effectiveHealthCheckMinutes = pipe(value.channelHealthCheckMinutes, O.getOrElse(() => 5));
+        const effectiveHealthCheckMinutes = pipe(
+          value.channelHealthCheckMinutes,
+          O.getOrElse(() => 5)
+        );
         return effectiveHealthCheckMinutes === 0 || staleThreshold >= effectiveHealthCheckMinutes;
       },
     })
@@ -224,7 +219,9 @@ export type MdnsDiscoveryMode = typeof MdnsDiscoveryMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const TalkProviderConfig = S.StructWithRest(S.Struct(TalkProviderConfigFields), [S.Record(S.String, S.Unknown)]).pipe(
+export const TalkProviderConfig = S.StructWithRest(S.Struct(TalkProviderConfigFields), [
+  S.Record(S.String, S.Unknown),
+]).pipe(
   $I.annoteSchema("TalkProviderConfig", {
     description:
       "Talk provider configuration with canonical Talk fields plus arbitrary provider-specific extension values.",
@@ -265,11 +262,14 @@ export class ResolvedTalkConfig extends S.Class<ResolvedTalkConfig>($I`ResolvedT
  * @category Configuration
  * @since 0.0.0
  */
-export const TalkConfig = S.Struct(TalkConfigFields).check(TalkConfigConsistencyCheck).pipe(
-  $I.annoteSchema("TalkConfig", {
-    description: "Top-level Talk configuration including provider selection, provider map, and legacy compatibility fields.",
-  })
-);
+export const TalkConfig = S.Struct(TalkConfigFields)
+  .check(TalkConfigConsistencyCheck)
+  .pipe(
+    $I.annoteSchema("TalkConfig", {
+      description:
+        "Top-level Talk configuration including provider selection, provider map, and legacy compatibility fields.",
+    })
+  );
 
 /**
  * Type of {@link TalkConfig}.
@@ -788,7 +788,9 @@ export class GatewayHttpChatCompletionsConfig extends S.Class<GatewayHttpChatCom
  * @category Configuration
  * @since 0.0.0
  */
-export class GatewayHttpResponsesPdfConfig extends S.Class<GatewayHttpResponsesPdfConfig>($I`GatewayHttpResponsesPdfConfig`)(
+export class GatewayHttpResponsesPdfConfig extends S.Class<GatewayHttpResponsesPdfConfig>(
+  $I`GatewayHttpResponsesPdfConfig`
+)(
   {
     maxPages: S.OptionFromOptionalKey(PosInt).annotateKey({
       description: "Maximum pages parsed or rendered from a PDF input.",
@@ -811,7 +813,9 @@ export class GatewayHttpResponsesPdfConfig extends S.Class<GatewayHttpResponsesP
  * @category Configuration
  * @since 0.0.0
  */
-export class GatewayHttpResponsesFilesConfig extends S.Class<GatewayHttpResponsesFilesConfig>($I`GatewayHttpResponsesFilesConfig`)(
+export class GatewayHttpResponsesFilesConfig extends S.Class<GatewayHttpResponsesFilesConfig>(
+  $I`GatewayHttpResponsesFilesConfig`
+)(
   {
     ...gatewayUrlFetchFields("Whether URL fetches are allowed for `input_file` parts."),
     maxChars: S.OptionFromOptionalKey(PosInt).annotateKey({
@@ -1112,11 +1116,14 @@ const GatewayConfigFields = {
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayConfig = S.Struct(GatewayConfigFields).check(GatewayChannelHealthThresholdCheck).pipe(
-  $I.annoteSchema("GatewayConfig", {
-    description: "Top-level Gateway configuration spanning bind policy, auth, HTTP exposure, TLS, push, node routing, and health monitoring.",
-  })
-);
+export const GatewayConfig = S.Struct(GatewayConfigFields)
+  .check(GatewayChannelHealthThresholdCheck)
+  .pipe(
+    $I.annoteSchema("GatewayConfig", {
+      description:
+        "Top-level Gateway configuration spanning bind policy, auth, HTTP exposure, TLS, push, node routing, and health monitoring.",
+    })
+  );
 
 /**
  * Type of {@link GatewayConfig}.

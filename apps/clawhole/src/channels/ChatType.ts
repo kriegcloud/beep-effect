@@ -50,12 +50,14 @@ export const ChatType = ChatTypeBase.pipe(
  */
 export type ChatType = typeof ChatType.Type;
 
+const noChatType = O.none<ChatType>;
+
 const normalizeChatTypeOption = Match.type<string>().pipe(
   Match.when("direct", () => O.some<ChatType>("direct")),
   Match.when("dm", () => O.some<ChatType>("direct")),
   Match.when("group", () => O.some<ChatType>("group")),
   Match.when("channel", () => O.some<ChatType>("channel")),
-  Match.orElse(() => O.none<ChatType>())
+  Match.orElse(noChatType)
 );
 
 const invalidChatTypeIssue = (value: string) =>
@@ -63,22 +65,26 @@ const invalidChatTypeIssue = (value: string) =>
     message: "Chat type must be one of direct, dm, group, or channel.",
   });
 
+const decodeChatTypeValue = (value: string): Effect.Effect<ChatType, SchemaIssue.InvalidValue> =>
+  pipe(
+    value,
+    normalizeChatTypeOption,
+    O.match({
+      onNone: () => Effect.fail(invalidChatTypeIssue(value)),
+      onSome: Effect.succeed,
+    })
+  );
+
+const encodeChatTypeValue = (value: ChatType): Effect.Effect<string> => Effect.succeed(value);
+
 const ChatTypeFromInput = S.String.pipe(
   S.decode(SchemaTransformation.trim()),
   S.decode(SchemaTransformation.toLowerCase()),
   S.decodeTo(
     ChatType,
     SchemaTransformation.transformOrFail({
-      decode: (value) =>
-        pipe(
-          value,
-          normalizeChatTypeOption,
-          O.match({
-            onNone: () => Effect.fail(invalidChatTypeIssue(value)),
-            onSome: Effect.succeed,
-          })
-        ),
-      encode: Effect.succeed,
+      decode: decodeChatTypeValue,
+      encode: encodeChatTypeValue,
     })
   ),
   $I.annoteSchema("ChatTypeFromInput", {

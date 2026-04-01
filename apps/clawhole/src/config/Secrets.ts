@@ -16,6 +16,7 @@ import {
   NonNegativeInt,
   TaggedErrorClass,
 } from "@beep/schema";
+import { thunkNull } from "@beep/utils";
 import { Effect, pipe, Tuple } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -603,7 +604,7 @@ export const parseEnvTemplateSecretRef = (
         O.map((id) => makeEnvSecretRef(normalizeSecretProviderAliasInput(provider), id))
       )
     ),
-    O.getOrElse(() => null)
+    O.getOrElse(thunkNull)
   );
 };
 

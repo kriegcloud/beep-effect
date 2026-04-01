@@ -115,9 +115,7 @@ const serviceEffect = Effect.gen(function* () {
       return yield* pipe(
         Result.all([baseReal, candidateReal]),
         Result.match({
-          onFailure: () => {
-            return Effect.succeed(opts?.requireRealpath !== true);
-          },
+          onFailure: () => Effect.succeed(opts?.requireRealpath !== true),
           onSuccess: ([baseReal, candidateReal]) => isPathInside(baseReal, candidateReal),
         })
       );

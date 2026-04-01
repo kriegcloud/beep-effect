@@ -23,10 +23,9 @@
  */
 import { $SchemaId } from "@beep/identity/packages";
 import { Str, thunkEmptyStr, thunkFalse, thunkTrue } from "@beep/utils";
-import { pipe } from "effect";
+import { HashSet, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
-import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { LiteralKit } from "./LiteralKit.ts";
@@ -45,7 +44,7 @@ const BINARY_FILE_EXTENSION_MEMBERS = [
   "psd",
   "ai",
   "eps",
-  "scetch",
+  "sketch",
   "fig",
   "xd",
   "blend",
