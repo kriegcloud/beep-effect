@@ -145,7 +145,7 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
 ) {
 }
 
-export class ConfigurationService extends ServiceMap.Service<ConfigurationService, ConfigurationShape>()(
+export class Configuration extends ServiceMap.Service<Configuration, ConfigurationShape>()(
   $I`Configuration`
 ) {
 }

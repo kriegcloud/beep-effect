@@ -1,0 +1,64 @@
+{
+  "name": "@beep/chalk",
+  "version": "0.0.0",
+  "description": "🖍 Terminal string styling done right",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/chalk",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/chalk"
+  },
+  "scripts": {
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "check": "tsc -b tsconfig.json",
+    "codegen": "echo 'no codegen needed'",
+    "coverage": "vitest --coverage",
+    "docgen": "bunx @effect/docgen",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "vitest"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "browser": {
+    "./src/index.ts": "./src/Chalk.browser.ts",
+    "./src/Chalk.ts": "./src/Chalk.browser.ts",
+    "./dist/index.js": "./dist/Chalk.browser.js",
+    "./dist/Chalk.js": "./dist/Chalk.browser.js"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

@@ -5,17 +5,16 @@
  * @since 0.0.0
  */
 
-import {$RepoCliId} from "@beep/identity/packages";
-import {Category as CategorySchema, type Category} from "@beep/repo-utils/JSDoc/models/index";
-import {FilePath, SemanticVersion, SchemaUtils} from "@beep/schema";
+import { $RepoCliId } from "@beep/identity/packages";
+import { type Category, Category as CategorySchema } from "@beep/repo-utils/JSDoc/models/index";
+import { FilePath, SchemaUtils, SemanticVersion } from "@beep/schema";
+import { A, Struct } from "@beep/utils";
+import { flow, Order } from "effect";
+import type * as O from "effect/Option";
 import * as S from "effect/Schema";
-import * as O from "effect/Option";
 import * as Str from "effect/String";
-import {Order, flow} from "effect";
-import {Struct, A} from "@beep/utils";
 
 const $I = $RepoCliId.create("commands/DocgenV2/Domain");
-
 
 /**
  * ExampleFence - A JSDoc `@example` fence
@@ -29,14 +28,10 @@ export class ExampleFence extends S.Class<ExampleFence>($I`ExampleFence`)(
     start: S.String,
     end: S.String,
   },
-  $I.annote(
-    "ExampleFence",
-    {
-      description: "ExampleFence - A JSDoc `@example` fence",
-    }
-  )
-) {
-}
+  $I.annote("ExampleFence", {
+    description: "ExampleFence - A JSDoc `@example` fence",
+  })
+) {}
 
 /**
  * Example - A JSDoc typescript example
@@ -48,17 +43,12 @@ export class ExampleFence extends S.Class<ExampleFence>($I`ExampleFence`)(
 export class Example extends S.Class<Example>($I`Example`)(
   {
     body: S.String,
-    fences: S.OptionFromOptionalKey(ExampleFence)
+    fences: S.OptionFromOptionalKey(ExampleFence),
   },
-  $I.annote(
-    "Example",
-    {
-      description: "Example - A JSDoc typescript example",
-    }
-  )
-) {
-}
-
+  $I.annote("Example", {
+    description: "Example - A JSDoc typescript example",
+  })
+) {}
 
 /**
  * Doc - A JSDoc string
@@ -71,22 +61,14 @@ export class Doc extends S.Class<Doc>($I`Doc`)(
   {
     description: S.Option(S.String),
     since: S.Option(SemanticVersion),
-    deprecated: SchemaUtils.withKeyDefaults(
-      S.Boolean,
-      false
-    ),
+    deprecated: SchemaUtils.withKeyDefaults(S.Boolean, false),
     examples: Example.pipe(S.Array),
-    category: CategorySchema.pipe(S.Option)
+    category: CategorySchema.pipe(S.Option),
   },
-  $I.annote(
-    "Doc",
-    {
-      description: "Doc - A JSDoc string",
-    }
-  )
-) {
-}
-
+  $I.annote("Doc", {
+    description: "Doc - A JSDoc string",
+  })
+) {}
 
 /**
  * NamedDoc -
@@ -99,15 +81,10 @@ export class NamedDoc extends Doc.extend<NamedDoc>($I`NamedDoc`)(
   {
     name: S.String,
   },
-  $I.annote(
-    "NamedDoc",
-    {
-      description: "NamedDoc -",
-    }
-  )
-) {
-}
-
+  $I.annote("NamedDoc", {
+    description: "NamedDoc -",
+  })
+) {}
 
 /**
  * Method -
@@ -118,16 +95,12 @@ export class NamedDoc extends Doc.extend<NamedDoc>($I`NamedDoc`)(
  */
 export class Method extends NamedDoc.extend<Method>($I`Method`)(
   {
-    signatures: S.Array(S.String)
+    signatures: S.Array(S.String),
   },
-  $I.annote(
-    "Method",
-    {
-      description: "Method - ",
-    }
-  )
-) {
-}
+  $I.annote("Method", {
+    description: "Method - ",
+  })
+) {}
 
 /**
  * Property -
@@ -138,16 +111,12 @@ export class Method extends NamedDoc.extend<Method>($I`Method`)(
  */
 export class Property extends NamedDoc.extend<Property>($I`Property`)(
   {
-    signature: S.String
+    signature: S.String,
   },
-  $I.annote(
-    "Property",
-    {
-      description: "Property - ",
-    }
-  )
-) {
-}
+  $I.annote("Property", {
+    description: "Property - ",
+  })
+) {}
 
 /**
  * Interface -
@@ -161,14 +130,10 @@ export class Interface extends NamedDoc.extend<Interface>($I`Interface`)(
     _tag: S.tag("Interface"),
     signature: S.String,
   },
-  $I.annote(
-    "Interface",
-    {
-      description: "Interface - ",
-    }
-  )
-) {
-}
+  $I.annote("Interface", {
+    description: "Interface - ",
+  })
+) {}
 
 /**
  * Function -
@@ -180,17 +145,12 @@ export class Interface extends NamedDoc.extend<Interface>($I`Interface`)(
 export class Function extends NamedDoc.extend<Function>($I`Function`)(
   {
     _tag: S.tag("Function"),
-    signatures: S.Array(S.String)
+    signatures: S.Array(S.String),
   },
-  $I.annote(
-    "Function",
-    {
-      description: "Function - ",
-    }
-  )
-) {
-}
-
+  $I.annote("Function", {
+    description: "Function - ",
+  })
+) {}
 
 /**
  * TypeAlias -
@@ -204,14 +164,10 @@ export class TypeAlias extends NamedDoc.extend<TypeAlias>($I`TypeAlias`)(
     _tag: S.tag("TypeAlias"),
     signature: S.String,
   },
-  $I.annote(
-    "TypeAlias",
-    {
-      description: "TypeAlias - ",
-    }
-  )
-) {
-}
+  $I.annote("TypeAlias", {
+    description: "TypeAlias - ",
+  })
+) {}
 
 /**
  * Constant -
@@ -225,14 +181,10 @@ export class Constant extends NamedDoc.extend<Constant>($I`Constant`)(
     _tag: S.tag("Constant"),
     signature: S.String,
   },
-  $I.annote(
-    "Constant",
-    {
-      description: "Constant - ",
-    }
-  )
-) {
-}
+  $I.annote("Constant", {
+    description: "Constant - ",
+  })
+) {}
 
 /**
  * Export -
@@ -253,15 +205,10 @@ export class Export extends NamedDoc.extend<Export>($I`Export`)(
     _tag: S.tag("Export"),
     signature: S.String,
   },
-  $I.annote(
-    "Export",
-    {
-      description: "Export - "
-    }
-  )
-) {
-}
-
+  $I.annote("Export", {
+    description: "Export - ",
+  })
+) {}
 
 /**
  * Namespace -
@@ -275,22 +222,23 @@ export class Namespace extends NamedDoc.extend<Namespace>($I`Namespace`)(
     _tag: S.tag("Namespace"),
     interfaces: S.Array(Interface),
     typeAliases: S.Array(TypeAlias),
-    namespaces: S.Array(S.suspend((): S.Schema<NamedDoc & {
-      readonly _tag: "Namespace",
-      readonly interfaces: ReadonlyArray<Interface>
-      readonly typeAliases: ReadonlyArray<TypeAlias>
-      readonly namespaces: ReadonlyArray<Namespace>
-    }> => Namespace)),
+    namespaces: S.Array(
+      S.suspend(
+        (): S.Schema<
+          NamedDoc & {
+            readonly _tag: "Namespace";
+            readonly interfaces: ReadonlyArray<Interface>;
+            readonly typeAliases: ReadonlyArray<TypeAlias>;
+            readonly namespaces: ReadonlyArray<Namespace>;
+          }
+        > => Namespace
+      )
+    ),
   },
-  $I.annote(
-    "Namespace",
-    {
-      description: "Namespace - ",
-    }
-  )
-) {
-}
-
+  $I.annote("Namespace", {
+    description: "Namespace - ",
+  })
+) {}
 
 /**
  * Class -
@@ -305,17 +253,12 @@ export class Class extends NamedDoc.extend<Class>($I`Class`)(
     signature: S.String,
     methods: S.Array(Method),
     staticMethods: S.Array(Method),
-    properties: S.Array(Property)
+    properties: S.Array(Property),
   },
-  $I.annote(
-    "Class",
-    {
-      description: "Class - ",
-    }
-  )
-) {
-}
-
+  $I.annote("Class", {
+    description: "Class - ",
+  })
+) {}
 
 // -------------------------------------------------------------------------------------
 // constructors
@@ -332,13 +275,14 @@ export const createDoc = (
   deprecated: boolean,
   examples: ReadonlyArray<Example>,
   category: O.Option<Category>
-): Doc => new Doc({
-  description,
-  since,
-  deprecated,
-  examples,
-  category
-});
+): Doc =>
+  new Doc({
+    description,
+    since,
+    deprecated,
+    examples,
+    category,
+  });
 
 /**
  *
@@ -352,14 +296,15 @@ export const createNamedDoc = (
   deprecated: boolean,
   examples: ReadonlyArray<Example>,
   category: O.Option<Category>
-): NamedDoc => new NamedDoc({
-  name,
-  description,
-  since,
-  deprecated,
-  examples,
-  category
-});
+): NamedDoc =>
+  new NamedDoc({
+    name,
+    description,
+    since,
+    deprecated,
+    examples,
+    category,
+  });
 
 /**
  * Module - A typescript module.
@@ -377,16 +322,12 @@ export class Module extends NamedDoc.extend<Module>($I`Module`)(
     typeAliases: S.Array(TypeAlias),
     constants: S.Array(Constant),
     exports: S.Array(Export),
-    namespaces: S.Array(Namespace)
+    namespaces: S.Array(Namespace),
   },
-  $I.annote(
-    "Module",
-    {
-      description: "Module - A typescript module.",
-    }
-  )
-) {
-}
+  $I.annote("Module", {
+    description: "Module - A typescript module.",
+  })
+) {}
 
 /**
  *
@@ -403,18 +344,18 @@ export const createModule = (
   constants: ReadonlyArray<Constant>,
   exports: ReadonlyArray<Export>,
   namespaces: ReadonlyArray<Namespace>
-): Module => new Module({
-  ...doc,
-  path,
-  classes,
-  interfaces,
-  functions,
-  typeAliases,
-  constants,
-  exports,
-  namespaces
-})
-
+): Module =>
+  new Module({
+    ...doc,
+    path,
+    classes,
+    interfaces,
+    functions,
+    typeAliases,
+    constants,
+    exports,
+    namespaces,
+  });
 
 export const createClass = (
   doc: NamedDoc,
@@ -422,85 +363,69 @@ export const createClass = (
   methods: ReadonlyArray<Method>,
   staticMethods: ReadonlyArray<Method>,
   properties: ReadonlyArray<Property>
-): Class => new Class({
-  ...doc,
-  signature,
-  methods,
-  staticMethods,
-  properties
-});
+): Class =>
+  new Class({
+    ...doc,
+    signature,
+    methods,
+    staticMethods,
+    properties,
+  });
 
+export const createConstant = (doc: NamedDoc, signature: string): Constant =>
+  new Constant({
+    ...doc,
+    signature,
+  });
 
-export const createConstant = (
-  doc: NamedDoc,
-  signature: string,
-): Constant => new Constant({
-  ...doc,
-  signature
-})
+export const createMethod = (doc: NamedDoc, signatures: ReadonlyArray<string>): Method =>
+  new Method({
+    ...doc,
+    signatures,
+  });
 
-export const createMethod = (
-  doc: NamedDoc,
-  signatures: ReadonlyArray<string>,
-): Method => new Method({
-  ...doc,
-  signatures,
-})
+export const createProperty = (doc: NamedDoc, signature: string): Property =>
+  new Property({
+    ...doc,
+    signature,
+  });
 
-export const createProperty = (
-  doc: NamedDoc,
-  signature: string,
-): Property => new Property({
-  ...doc,
-  signature,
-})
+export const createInterface = (doc: NamedDoc, signature: string): Interface =>
+  new Interface({
+    ...doc,
+    signature,
+  });
 
+export const createFunction = (doc: NamedDoc, signatures: ReadonlyArray<string>): Function =>
+  new Function({
+    ...doc,
+    signatures,
+  });
 
-export const createInterface = (
-  doc: NamedDoc,
-  signature: string,
-): Interface => new Interface({
-  ...doc,
-  signature,
-})
+export const createTypeAlias = (doc: NamedDoc, signature: string): TypeAlias =>
+  new TypeAlias({
+    ...doc,
+    signature,
+  });
 
-export const createFunction = (
-  doc: NamedDoc,
-  signatures: ReadonlyArray<string>,
-): Function => new Function({
-  ...doc,
-  signatures,
-})
-
-export const createTypeAlias = (
-  doc: NamedDoc,
-  signature: string,
-): TypeAlias => new TypeAlias({
-  ...doc,
-  signature,
-})
-
-
-export const createExport = (
-  doc: NamedDoc,
-  signature: string,
-): Export => new Export({
-  ...doc,
-  signature,
-})
-
+export const createExport = (doc: NamedDoc, signature: string): Export =>
+  new Export({
+    ...doc,
+    signature,
+  });
 
 export const createNamespace = (
   doc: NamedDoc,
   interfaces: ReadonlyArray<Interface>,
   typeAliases: ReadonlyArray<TypeAlias>,
   namespaces: ReadonlyArray<Namespace>
-): Namespace => new Namespace({
-  ...doc,
-  interfaces,
-  typeAliases,
-  namespaces
-})
+): Namespace =>
+  new Namespace({
+    ...doc,
+    interfaces,
+    typeAliases,
+    namespaces,
+  });
 
 /**
  * A comparator function for sorting `Module` objects by their file path, represented as a string.
@@ -511,9 +436,5 @@ export const createNamespace = (
  */
 export const ByPath: Order.Order<Module> = Order.mapInput(
   Str.Order,
-  flow(
-    Struct.get("path"),
-    A.join("/"),
-    Str.toLowerCase
-  )
-)
+  flow(Struct.get("path"), A.join("/"), Str.toLowerCase)
+);

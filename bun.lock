@@ -215,6 +215,17 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/common/chalk": {
+      "name": "@beep/chalk",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/common/colors": {
       "name": "@beep/colors",
       "version": "0.0.0",
@@ -315,6 +326,7 @@
         "effect": "catalog:",
         "fast-xml-parser": "catalog:",
         "jsonc-parser": "catalog:",
+        "minimatch": "catalog:",
         "uuid": "catalog:",
         "yaml": "catalog:",
       },
@@ -768,6 +780,7 @@
         "@effect/markdown-toc": "catalog:",
         "@effect/platform-node": "catalog:",
         "d3-dsv": "catalog:",
+        "doctrine": "catalog:",
         "effect": "catalog:",
         "fast-xml-parser": "catalog:",
         "handlebars": "catalog:",
@@ -776,6 +789,7 @@
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
+        "@types/doctrine": "catalog:",
         "@types/node": "catalog:",
       },
     },
@@ -943,6 +957,7 @@
     "@tauri-apps/cli": "^2.10.1",
     "@types/bun": "^1.3.11",
     "@types/d3": "^7.4.3",
+    "@types/doctrine": "^0.0.9",
     "@types/estree": "^1.0.8",
     "@types/node": "^25.5.0",
     "@types/picomatch": "^4.0.2",
@@ -964,6 +979,7 @@
     "cytoscape": "^3.33.1",
     "d3": "^7.9.0",
     "d3-dsv": "^3.0.1",
+    "doctrine": "^3.0.0",
     "drizzle-kit": "^1.0.0-beta.9-e89174b",
     "drizzle-orm": "^1.0.0-beta.9-e89174b",
     "effect": "^4.0.0-beta.43",
@@ -1107,6 +1123,8 @@
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
     "@beep/ai-sdk": ["@beep/ai-sdk@workspace:packages/ai/sdk"],
+
+    "@beep/chalk": ["@beep/chalk@workspace:packages/common/chalk"],
 
     "@beep/claude": ["@beep/claude@workspace:.claude"],
 

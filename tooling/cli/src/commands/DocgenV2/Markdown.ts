@@ -6,8 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
 import { TSCategoryTag } from "@beep/repo-utils/JSDoc/models/index";
+import { TaggedErrorClass } from "@beep/schema";
 import { Effect, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -149,14 +149,20 @@ const printStaticMethods = (methods: ReadonlyArray<Domain.Method>): string =>
   ).join("");
 
 const printMethods = (methods: ReadonlyArray<Domain.Method>): string =>
-  A.map(methods, (method) => `${printMethod(method)}
+  A.map(
+    methods,
+    (method) => `${printMethod(method)}
 
-`).join("");
+`
+  ).join("");
 
 const printProperties = (properties: ReadonlyArray<Domain.Property>): string =>
-  A.map(properties, (property) => `${printProperty(property)}
+  A.map(
+    properties,
+    (property) => `${printProperty(property)}
 
-`).join("");
+`
+  ).join("");
 
 const printModuleDescription = (module: Domain.Module): string =>
   MarkdownPrinter.paragraph(
@@ -264,24 +270,24 @@ export const printNamespace = (ns: Domain.Namespace, indentation: number): strin
       printExamples(ns.examples),
       printSince(ns.since)
     ),
-    A.map(ns.interfaces, (i) => `${printInterface(
-      i,
-      indentation + 1
-    )}
+    A.map(
+      ns.interfaces,
+      (i) => `${printInterface(i, indentation + 1)}
 
-`).join(""),
-    A.map(ns.typeAliases, (typeAlias) => `${printTypeAlias(
-      typeAlias,
-      indentation + 1
-    )}
+`
+    ).join(""),
+    A.map(
+      ns.typeAliases,
+      (typeAlias) => `${printTypeAlias(typeAlias, indentation + 1)}
 
-`).join(""),
-    A.map(ns.namespaces, (namespace) => `${printNamespace(
-      namespace,
-      indentation + 1
-    )}
+`
+    ).join(""),
+    A.map(
+      ns.namespaces,
+      (namespace) => `${printNamespace(namespace, indentation + 1)}
 
-`).join("")
+`
+    ).join("")
   );
 
 /** @internal */
@@ -319,24 +325,25 @@ const DEFAULT_CATEGORY = TSCategoryTag.Enum.Uncategorized;
 
 type CategoryEntry = readonly [string, ReadonlyArray<Printable>];
 
-const byCategory: Order.Order<CategoryEntry> = Order.mapInput(
-  Str.Order,
-  ([category]: CategoryEntry) => category
-);
+const byCategory: Order.Order<CategoryEntry> = Order.mapInput(Str.Order, ([category]: CategoryEntry) => category);
 
-const getPrintableCategory = ({ category }: Printable): string =>
-  O.getOrElse(category, () => DEFAULT_CATEGORY);
+const getPrintableCategory = ({ category }: Printable): string => O.getOrElse(category, () => DEFAULT_CATEGORY);
 
-const toCategoryEntry = (category: string, printables: ReadonlyArray<Printable>): CategoryEntry => [category, printables];
+const toCategoryEntry = (category: string, printables: ReadonlyArray<Printable>): CategoryEntry => [
+  category,
+  printables,
+];
 
 const byPrintableName: Order.Order<Printable> = Order.mapInput(Str.Order, (printable: Printable) => printable.name);
 
-const toMarkdownError = (operation: string, message: string) => (cause: unknown): DocgenMarkdownError =>
-  new DocgenMarkdownError({
-    operation,
-    message,
-    cause,
-  });
+const toMarkdownError =
+  (operation: string, message: string) =>
+  (cause: unknown): DocgenMarkdownError =>
+    new DocgenMarkdownError({
+      operation,
+      message,
+      cause,
+    });
 
 /**
  * @example
@@ -363,19 +370,13 @@ export const printModule = (module: Domain.Module, order: number) =>
       R.collect(toCategoryEntry),
       A.sort(byCategory),
       A.map(([category, printables]) =>
-        [
-          MarkdownPrinter.h1(category),
-          ...pipe(
-            printables,
-            A.sort(byPrintableName),
-            A.map(print)
-          ),
-        ].join("\n")
+        [MarkdownPrinter.h1(category), ...pipe(printables, A.sort(byPrintableName), A.map(print))].join("\n")
       )
     ).join("\n");
 
     const toc = yield* Effect.tryPromise({
       try: () => {
+        // @ts-expect-error - not typed.
         return import("@effect/markdown-toc").then((m) => m.default);
       },
       catch: toMarkdownError("loadMarkdownToc", "Failed to load @effect/markdown-toc"),
