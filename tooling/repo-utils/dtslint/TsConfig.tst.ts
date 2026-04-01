@@ -1,10 +1,10 @@
 import {
   collectTsConfigPaths,
+  type DomainError,
   decodeTSConfig,
   decodeTSConfigEffect,
   decodeTSConfigExit,
   decodeTSConfigFromJsoncTextEffect,
-  type DomainError,
   encodeTSConfigEffect,
   encodeTSConfigPrettyEffect,
   encodeTSConfigToJsonEffect,
@@ -108,9 +108,7 @@ describe("TsConfig", () => {
     });
 
     it("encodeTSConfigPrettyEffect returns Effect<string, SchemaError | DomainError>", () => {
-      expect(encodeTSConfigPrettyEffect({})).type.toBe<
-        Effect.Effect<string, Schema.SchemaError | DomainError>
-      >();
+      expect(encodeTSConfigPrettyEffect({})).type.toBe<Effect.Effect<string, Schema.SchemaError | DomainError>>();
     });
   });
 });

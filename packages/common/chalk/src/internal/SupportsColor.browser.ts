@@ -9,13 +9,18 @@ type BrowserNavigator = Navigator & {
   };
 };
 
+const hasUserAgentData = (browserNavigator: Navigator): browserNavigator is BrowserNavigator =>
+  "userAgentData" in browserNavigator;
+
 const browserColorSupport = (): ColorInfo => {
   if (!("navigator" in globalThis)) {
     return false;
   }
 
-  const browserNavigator = globalThis.navigator as BrowserNavigator;
-  const chromium = browserNavigator.userAgentData?.brands.find(({ brand }) => brand === "Chromium");
+  const browserNavigator = globalThis.navigator;
+  const chromium = hasUserAgentData(browserNavigator)
+    ? browserNavigator.userAgentData?.brands.find(({ brand }) => brand === "Chromium")
+    : undefined;
 
   if (chromium !== undefined && Number.parseInt(chromium.version, 10) > 93) {
     return new ColorSupport({

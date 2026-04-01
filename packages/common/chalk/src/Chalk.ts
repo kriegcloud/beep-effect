@@ -23,6 +23,17 @@ import {
 import { detectedSupportsColor } from "./internal/SupportsColor.ts";
 
 const createChalk = makeCreateChalk(detectedSupportsColor.stdout);
+const createChalkStderr = makeCreateChalk(detectedSupportsColor.stderr);
+
+const makeChalkConstructor = <Instance, Base extends abstract new (options?: ChalkOptions) => Instance>(
+  ConstructorBase: Base,
+  create: (options?: ChalkOptions) => object
+): Base =>
+  new Proxy(ConstructorBase, {
+    construct(_target, [options]: ReadonlyArray<ChalkOptions | undefined>) {
+      return create(options);
+    },
+  });
 
 /**
  * Recursive callable Chalk builder surface.
@@ -87,7 +98,17 @@ export interface ChalkInstance {
   (...text: ReadonlyArray<unknown>): string;
 }
 
-type ChalkConstructor = new (options?: ChalkOptions) => Chalk;
+/**
+ * Runtime type for isolated Chalk instances created by {@link Chalk}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+class ChalkValue {
+  constructor(_options?: ChalkOptions) {}
+}
+
+interface ChalkValue extends ChalkInstance {}
 
 /**
  * Runtime type for isolated Chalk instances created by {@link Chalk}.
@@ -95,7 +116,7 @@ type ChalkConstructor = new (options?: ChalkOptions) => Chalk;
  * @since 0.0.0
  * @category DomainModel
  */
-export interface Chalk extends ChalkInstance {}
+export type Chalk = ChalkValue;
 
 /**
  * Constructor for creating isolated Chalk instances.
@@ -103,9 +124,7 @@ export interface Chalk extends ChalkInstance {}
  * @since 0.0.0
  * @category Constructors
  */
-export const Chalk: ChalkConstructor = function Chalk(options?: ChalkOptions) {
-  return createChalk(options) as Chalk;
-} as unknown as ChalkConstructor;
+export const Chalk = makeChalkConstructor(ChalkValue, createChalk);
 
 /**
  * Schema describing supported Chalk background color names.
@@ -315,13 +334,21 @@ export const supportsColor = detectedSupportsColor.stdout;
  */
 export const supportsColorStderr = detectedSupportsColor.stderr;
 
+class ChalkStderrValue {
+  constructor(_options?: ChalkOptions) {}
+}
+
+interface ChalkStderrValue extends ChalkInstance {}
+
+const ChalkStderr = makeChalkConstructor(ChalkStderrValue, createChalkStderr);
+
 /**
  * Shared Chalk instance configured from stderr support detection.
  *
  * @since 0.0.0
  * @category Utility
  */
-export const chalkStderr: ChalkInstance = makeCreateChalk(detectedSupportsColor.stderr)() as ChalkInstance;
+export const chalkStderr: ChalkInstance = new ChalkStderr();
 
 /**
  * Shared Chalk instance configured from stdout support detection.
@@ -329,6 +356,6 @@ export const chalkStderr: ChalkInstance = makeCreateChalk(detectedSupportsColor.
  * @since 0.0.0
  * @category Utility
  */
-const chalk: ChalkInstance = createChalk() as ChalkInstance;
+const chalk: ChalkInstance = new Chalk();
 
 export default chalk;

@@ -19,6 +19,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { thunkFalse } from "@beep/utils";
 import { Result } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -32,7 +33,7 @@ const canConstructMatcher = (value: string): boolean =>
   Result.isSuccess(
     Result.try({
       try: () => new Minimatch(value),
-      catch: () => false,
+      catch: thunkFalse,
     })
   );
 

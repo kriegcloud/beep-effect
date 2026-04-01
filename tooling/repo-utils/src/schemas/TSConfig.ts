@@ -12,12 +12,14 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, Model } from "@beep/schema";
 import { JsoncTextToUnknown } from "@beep/schema/Jsonc";
-import { Cause, Effect, Exit, pipe, SchemaAST, SchemaIssue, SchemaTransformation } from "effect";
+import { Cause, Effect, Exit, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
 import type { DomainError } from "../errors/index.js";
 import { jsonStringifyPretty } from "../JsonUtils.js";
 
@@ -43,14 +45,7 @@ const MODULE_VALUES = [
   "preserve",
 ] as const;
 
-const MODULE_RESOLUTION_VALUES = [
-  "classic",
-  "node",
-  "node10",
-  "node16",
-  "nodenext",
-  "bundler",
-] as const;
+const MODULE_RESOLUTION_VALUES = ["classic", "node", "node10", "node16", "nodenext", "bundler"] as const;
 
 const TARGET_VALUES = [
   "es3",
@@ -211,18 +206,27 @@ const JsonRecord = S.Record(S.String, S.Json).annotate(
   })
 );
 
+interface ToTypeSchemaField extends Struct.Lambda {
+  readonly "~lambda.out": this["~lambda.in"] extends S.Top ? S.toType<this["~lambda.in"]> : never;
+  <Schema extends S.Top>(schema: Schema): S.toType<Schema>;
+}
+
+interface ToEncodedSchemaField extends Struct.Lambda {
+  readonly "~lambda.out": this["~lambda.in"] extends S.Top ? S.toEncoded<this["~lambda.in"]> : never;
+  <Schema extends S.Top>(schema: Schema): S.toEncoded<Schema>;
+}
+
+const toTypeSchemaField = Struct.lambda<ToTypeSchemaField>(S.toType);
+const toEncodedSchemaField = Struct.lambda<ToEncodedSchemaField>(S.toEncoded);
+
 const isLooseJsonRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  value !== null && typeof value === "object" && !Array.isArray(value);
+  P.isObject(value) ? !Array.isArray(value) : false;
 
-const encodedObjectSchema = <Schema extends S.Top>(schema: Schema) => {
-  const encodedAst = S.toEncoded(schema).ast;
+const makeTypeStruct = <Fields extends S.Struct.Fields>(fields: Fields) =>
+  S.Struct(Struct.map(fields, toTypeSchemaField));
 
-  if (SchemaAST.isObjects(encodedAst)) {
-    return S.make<S.toEncoded<Schema> & { readonly ast: typeof encodedAst }>(encodedAst);
-  }
-
-  throw new Error("Expected encoded TSConfig extension schema to have an object AST.");
-};
+const makeEncodedStruct = <Fields extends S.Struct.Fields>(fields: Fields) =>
+  S.Struct(Struct.map(fields, toEncodedSchemaField));
 
 const makeLooseJsonObject = <Fields extends S.Struct.Fields>(fields: Fields, name: string, description: string) => {
   const strict = S.Struct(fields);
@@ -232,13 +236,13 @@ const makeLooseJsonObject = <Fields extends S.Struct.Fields>(fields: Fields, nam
       Readonly<Record<string, unknown>> & S.Schema.Type<typeof strict>,
       Readonly<Record<string, unknown>> & S.Schema.Type<typeof strict>
     >
-  >(S.StructWithRest(S.toType(strict), [JsonRecord]).ast);
+  >(S.StructWithRest(makeTypeStruct(fields), [JsonRecord]).ast);
   const encoded = S.make<
     S.Codec<
       Readonly<Record<string, unknown>> & S.Codec.Encoded<typeof strict>,
       Readonly<Record<string, unknown>> & S.Codec.Encoded<typeof strict>
     >
-  >(S.StructWithRest(encodedObjectSchema(strict), [JsonRecord]).ast);
+  >(S.StructWithRest(makeEncodedStruct(fields), [JsonRecord]).ast);
   const decodeStrict = S.decodeUnknownEffect(strict);
   const encodeStrict = S.encodeEffect(strict);
   const decodeRest = S.decodeUnknownEffect(JsonRecord);
@@ -324,8 +328,7 @@ const makeUniqueArraySchema = <Item extends S.Top>(item: Item, name: string, des
   return S.Array(item)
     .check(
       S.makeFilter(
-        (values: ReadonlyArray<Item["Type"]>) =>
-          A.length(A.dedupeWith(equivalence)(values)) === A.length(values),
+        (values: ReadonlyArray<Item["Type"]>) => A.length(A.dedupeWith(equivalence)(values)) === A.length(values),
         {
           identifier: $I.make(`${name}UniqueItemsCheck`),
           title: `${name} Unique Items`,
@@ -708,11 +711,7 @@ const tsConfigCompilerOptionsFields = {
     "CompilerOptionsNewLine",
     "Set the newline character used when emitting files."
   ),
-  noEmit: nullableOptionalField(
-    S.Boolean,
-    "CompilerOptionsNoEmit",
-    "Disable emitting files from a compilation."
-  ),
+  noEmit: nullableOptionalField(S.Boolean, "CompilerOptionsNoEmit", "Disable emitting files from a compilation."),
   noEmitHelpers: nullableOptionalField(
     S.Boolean,
     "CompilerOptionsNoEmitHelpers",
@@ -774,11 +773,7 @@ const tsConfigCompilerOptionsFields = {
     "CompilerOptionsOutFile",
     "Specify a file that bundles all outputs into one JavaScript file and optionally bundled declaration output."
   ),
-  outDir: nullableOptionalField(
-    S.String,
-    "CompilerOptionsOutDir",
-    "Specify an output folder for all emitted files."
-  ),
+  outDir: nullableOptionalField(S.String, "CompilerOptionsOutDir", "Specify an output folder for all emitted files."),
   preserveConstEnums: nullableOptionalField(
     S.Boolean,
     "CompilerOptionsPreserveConstEnums",
@@ -804,11 +799,7 @@ const tsConfigCompilerOptionsFields = {
     "CompilerOptionsPretty",
     "Enable color and formatting in TypeScript output to make compiler errors easier to read."
   ),
-  removeComments: nullableOptionalField(
-    S.Boolean,
-    "CompilerOptionsRemoveComments",
-    "Disable emitting comments."
-  ),
+  removeComments: nullableOptionalField(S.Boolean, "CompilerOptionsRemoveComments", "Disable emitting comments."),
   rewriteRelativeImportExtensions: nullableOptionalField(
     S.Boolean,
     "CompilerOptionsRewriteRelativeImportExtensions",
@@ -995,11 +986,7 @@ const tsConfigCompilerOptionsFields = {
     "CompilerOptionsLib",
     "Specify a set of bundled library declaration files that describe the target runtime environment."
   ),
-  libReplacement: nullableOptionalField(
-    S.Boolean,
-    "CompilerOptionsLibReplacement",
-    "Enable lib replacement."
-  ),
+  libReplacement: nullableOptionalField(S.Boolean, "CompilerOptionsLibReplacement", "Enable lib replacement."),
   moduleDetection: optionalField(
     TSConfigModuleDetection,
     "CompilerOptionsModuleDetection",
@@ -1030,11 +1017,7 @@ const tsConfigCompilerOptionsFields = {
     "CompilerOptionsAlwaysStrict",
     "Ensure `use strict` is always emitted."
   ),
-  strict: nullableOptionalField(
-    S.Boolean,
-    "CompilerOptionsStrict",
-    "Enable all strict type checking options."
-  ),
+  strict: nullableOptionalField(S.Boolean, "CompilerOptionsStrict", "Enable all strict type checking options."),
   strictBindCallApply: nullableOptionalField(
     S.Boolean,
     "CompilerOptionsStrictBindCallApply",
@@ -1405,16 +1388,8 @@ const tsNodeFields = {
     "TsNodeExperimentalSpecifierResolution",
     "Set ts-node experimental specifier resolution behavior."
   ),
-  files: nullableOptionalField(
-    S.Boolean,
-    "TsNodeFiles",
-    "Load `files` and `include` from tsconfig on startup."
-  ),
-  ignore: nullableOptionalField(
-    S.Array(S.String),
-    "TsNodeIgnore",
-    "Paths which should not be compiled by ts-node."
-  ),
+  files: nullableOptionalField(S.Boolean, "TsNodeFiles", "Load `files` and `include` from tsconfig on startup."),
+  ignore: nullableOptionalField(S.Array(S.String), "TsNodeIgnore", "Paths which should not be compiled by ts-node."),
   ignoreDiagnostics: nullableOptionalField(
     TSNodeIgnoreDiagnostics,
     "TsNodeIgnoreDiagnostics",
@@ -1436,11 +1411,7 @@ const tsNodeFields = {
     "Re-order file extensions so that TypeScript imports are preferred."
   ),
   pretty: nullableOptionalField(S.Boolean, "TsNodePretty", "Use ts-node pretty diagnostic formatting."),
-  require: nullableOptionalField(
-    TSNodeRequire,
-    "TsNodeRequire",
-    "Modules to require before ts-node execution."
-  ),
+  require: nullableOptionalField(TSNodeRequire, "TsNodeRequire", "Modules to require before ts-node execution."),
   scope: nullableOptionalField(S.Boolean, "TsNodeScope", "Scope compilation to files within `scopeDir`."),
   scopeDir: nullableOptionalField(
     S.String,
@@ -1457,11 +1428,7 @@ const tsNodeFields = {
     "TsNodeSwc",
     "Transpile with swc instead of the TypeScript compiler and skip type checking."
   ),
-  transpileOnly: nullableOptionalField(
-    S.Boolean,
-    "TsNodeTranspileOnly",
-    "Use TypeScript's faster `transpileModule`."
-  ),
+  transpileOnly: nullableOptionalField(S.Boolean, "TsNodeTranspileOnly", "Use TypeScript's faster `transpileModule`."),
   transpiler: nullableOptionalField(
     TSNodeTranspiler,
     "TsNodeTranspiler",
@@ -1491,7 +1458,11 @@ export class TSNodeConfig extends S.Class<TSNodeConfig>($I`TSNodeConfig`)(
 ) {}
 
 const tsConfigFields = {
-  $schema: optionalField(S.String, "TSConfigSchemaUri", "Optional schema URI declared at the top of the tsconfig file."),
+  $schema: optionalField(
+    S.String,
+    "TSConfigSchemaUri",
+    "Optional schema URI declared at the top of the tsconfig file."
+  ),
   extends: optionalField(
     TSConfigExtends,
     "TSConfigExtendsField",
@@ -1517,26 +1488,14 @@ const tsConfigFields = {
     "TSConfigReferencesField",
     "Referenced TypeScript projects for project references mode."
   ),
-  compileOnSave: nullableOptionalField(
-    S.Boolean,
-    "TSConfigCompileOnSave",
-    "Enable compile-on-save for this project."
-  ),
+  compileOnSave: nullableOptionalField(S.Boolean, "TSConfigCompileOnSave", "Enable compile-on-save for this project."),
   compilerOptions: nullableOptionalField(
     TSConfigCompilerOptions,
     "TSConfigCompilerOptionsField",
     compilerOptionsDescription
   ),
-  watchOptions: nullableOptionalField(
-    TSConfigWatchOptions,
-    "TSConfigWatchOptionsField",
-    watchOptionsDescription
-  ),
-  buildOptions: optionalField(
-    TSConfigBuildOptions,
-    "TSConfigBuildOptionsField",
-    buildOptionsDescription
-  ),
+  watchOptions: nullableOptionalField(TSConfigWatchOptions, "TSConfigWatchOptionsField", watchOptionsDescription),
+  buildOptions: optionalField(TSConfigBuildOptions, "TSConfigBuildOptionsField", buildOptionsDescription),
   typeAcquisition: nullableOptionalField(
     TSConfigTypeAcquisition,
     "TSConfigTypeAcquisitionField",

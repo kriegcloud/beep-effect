@@ -76,7 +76,8 @@ const composers = $I.compose(
   "observability",
   "shared-providers",
   "colors",
-  "clawhole", "chalk"
+  "clawhole",
+  "chalk"
 );
 
 // --- common ---

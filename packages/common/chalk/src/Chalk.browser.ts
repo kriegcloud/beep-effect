@@ -16,6 +16,17 @@ import {
 import { detectedSupportsColorBrowser } from "./internal/SupportsColor.browser.ts";
 
 const createChalk = makeCreateChalk(detectedSupportsColorBrowser.stdout);
+const createChalkStderr = makeCreateChalk(detectedSupportsColorBrowser.stderr);
+
+const makeChalkConstructor = <Instance, Base extends abstract new (options?: ChalkOptions) => Instance>(
+  ConstructorBase: Base,
+  create: (options?: ChalkOptions) => object
+): Base =>
+  new Proxy(ConstructorBase, {
+    construct(_target, [options]: ReadonlyArray<ChalkOptions | undefined>) {
+      return create(options);
+    },
+  });
 
 export interface ChalkInstance {
   ansi256(index: number): this;
@@ -74,13 +85,15 @@ export interface ChalkInstance {
   (...text: ReadonlyArray<unknown>): string;
 }
 
-type ChalkConstructor = new (options?: ChalkOptions) => Chalk;
+class ChalkValue {
+  constructor(_options?: ChalkOptions) {}
+}
 
-export interface Chalk extends ChalkInstance {}
+interface ChalkValue extends ChalkInstance {}
 
-export const Chalk: ChalkConstructor = function Chalk(options?: ChalkOptions) {
-  return createChalk(options) as Chalk;
-} as unknown as ChalkConstructor;
+export type Chalk = ChalkValue;
+
+export const Chalk = makeChalkConstructor(ChalkValue, createChalk);
 
 export const BackgroundColorName = BackgroundColorNameSchema;
 export type BackgroundColorName = typeof BackgroundColorNameSchema.Type;
@@ -116,8 +129,16 @@ export const backgroundColors = backgroundColorNames;
 export const colors = colorNames;
 export const supportsColor = detectedSupportsColorBrowser.stdout;
 export const supportsColorStderr = detectedSupportsColorBrowser.stderr;
-export const chalkStderr: ChalkInstance = makeCreateChalk(detectedSupportsColorBrowser.stderr)() as ChalkInstance;
+class ChalkStderrValue {
+  constructor(_options?: ChalkOptions) {}
+}
 
-const chalk: ChalkInstance = createChalk() as ChalkInstance;
+interface ChalkStderrValue extends ChalkInstance {}
+
+const ChalkStderr = makeChalkConstructor(ChalkStderrValue, createChalkStderr);
+
+export const chalkStderr: ChalkInstance = new ChalkStderr();
+
+const chalk: ChalkInstance = new Chalk();
 
 export default chalk;

@@ -5,11 +5,10 @@
  * @since 0.0.0
  */
 
-import {$RepoCliId} from "@beep/identity/packages";
-import {FilePath} from "@beep/schema";
+import { $RepoCliId } from "@beep/identity/packages";
+import { FilePath } from "@beep/schema";
 
 import * as S from "effect/Schema";
-
 
 const $I = $RepoCliId.create("commands/DocgenV2/File");
 
@@ -25,14 +24,10 @@ export class File extends S.Class<File>($I`File`)(
     content: S.String,
     isOverwriteable: S.Boolean,
   },
-  $I.annote(
-    "File",
-    {
-      description: "Represents a file which can be optionally overwriteable."
-    }
-  )
-) {
-}
+  $I.annote("File", {
+    description: "Represents a file which can be optionally overwriteable.",
+  })
+) {}
 
 /**
  * By default files are readonly (`isOverwriteable = false`).
@@ -40,13 +35,9 @@ export class File extends S.Class<File>($I`File`)(
  * @category constructors
  * @since 1.0.0
  */
-export const createFile = (
-  path: FilePath,
-  content: string,
-  isOverwriteable = false
-): File =>
+export const createFile = (path: FilePath, content: string, isOverwriteable = false): File =>
   new File({
     path,
     content,
-    isOverwriteable
-  })
+    isOverwriteable,
+  });

@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { type Category, Category as CategorySchema } from "@beep/repo-utils/JSDoc/models/index";
-import { FilePath, SchemaUtils, SemanticVersion } from "@beep/schema";
+import { SchemaUtils, SemanticVersion } from "@beep/schema";
 import { A, Struct } from "@beep/utils";
 import { flow, Order } from "effect";
 import type * as O from "effect/Option";
@@ -315,7 +315,7 @@ export const createNamedDoc = (
  */
 export class Module extends NamedDoc.extend<Module>($I`Module`)(
   {
-    path: FilePath.pipe(S.Array),
+    path: S.Array(S.String),
     classes: S.Array(Class),
     interfaces: S.Array(Interface),
     functions: S.Array(Function),
@@ -336,7 +336,7 @@ export class Module extends NamedDoc.extend<Module>($I`Module`)(
  */
 export const createModule = (
   doc: NamedDoc,
-  path: ReadonlyArray<FilePath>,
+  path: ReadonlyArray<string>,
   classes: ReadonlyArray<Class>,
   interfaces: ReadonlyArray<Interface>,
   functions: ReadonlyArray<Function>,

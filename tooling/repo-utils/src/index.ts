@@ -149,6 +149,43 @@ export {
   /**
    * @since 0.0.0
    */
+  applyPackageJsonPatchEffect,
+  /**
+   * @since 0.0.0
+   */
+  diffPackageJsonEffect,
+  /**
+   * @since 0.0.0
+   */
+  encodePackageJsonCanonicalPrettyEffect,
+  /**
+   * @since 0.0.0
+   */
+  getPackageJsonSchemaIssues,
+  /**
+   * @since 0.0.0
+   */
+  normalizePackageJsonEffect,
+  /**
+   * @since 0.0.0
+   */
+  npmPackageJsonJsonSchema,
+  /**
+   * @since 0.0.0
+   */
+  PackageJsonValidationIssue,
+  /**
+   * @since 0.0.0
+   */
+  packageJsonJsonSchema,
+} from "./schemas/PackageJsonTools.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
   decodeTSConfig,
   /**
    * @since 0.0.0
@@ -203,43 +240,6 @@ export {
    */
   TSNodeConfig,
 } from "./schemas/TSConfig.js";
-/**
- * @since 0.0.0
- */
-export {
-  /**
-   * @since 0.0.0
-   */
-  applyPackageJsonPatchEffect,
-  /**
-   * @since 0.0.0
-   */
-  diffPackageJsonEffect,
-  /**
-   * @since 0.0.0
-   */
-  encodePackageJsonCanonicalPrettyEffect,
-  /**
-   * @since 0.0.0
-   */
-  getPackageJsonSchemaIssues,
-  /**
-   * @since 0.0.0
-   */
-  normalizePackageJsonEffect,
-  /**
-   * @since 0.0.0
-   */
-  npmPackageJsonJsonSchema,
-  /**
-   * @since 0.0.0
-   */
-  PackageJsonValidationIssue,
-  /**
-   * @since 0.0.0
-   */
-  packageJsonJsonSchema,
-} from "./schemas/PackageJsonTools.js";
 /**
  * @since 0.0.0
  */

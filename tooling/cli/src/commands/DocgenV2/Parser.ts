@@ -4,12 +4,14 @@
  * @module @beep/repo-cli/commands/DocgenV2/Parser
  * @since 0.0.0
  */
+
 import chalk from "@beep/chalk";
 import { $RepoCliId } from "@beep/identity/packages";
 import { Category as CategorySchema, type Category as CategoryValue } from "@beep/repo-utils/JSDoc/models/index";
-import { FilePath, SemanticVersion } from "@beep/schema";
+import { SemanticVersion } from "@beep/schema";
+import { Struct, thunkEmptyStr } from "@beep/utils";
 import * as doctrine from "doctrine";
-import { Effect, flow, Order, pipe, ServiceMap } from "effect";
+import { Effect, flow, Order, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -20,6 +22,8 @@ import * as Str from "effect/String";
 import * as ast from "ts-morph";
 import * as Configuration from "./Configuration.ts";
 import * as Domain from "./Domain.ts";
+import type * as File from "./File.ts";
+import * as Process from "./Process.ts";
 
 const $I = $RepoCliId.create("commands/DocgenV2/Parser");
 
@@ -27,7 +31,7 @@ const SourceFile = S.declare((u: unknown): u is ast.SourceFile => u instanceof a
 
 /** @internal */
 export class SourceShape extends S.Class<SourceShape>($I`SourceShape`)({
-  path: S.NonEmptyArray(FilePath),
+  path: S.Array(S.String),
   sourceFile: SourceFile,
 }) {}
 
@@ -57,13 +61,15 @@ const sortByName: <
   )
 );
 
+const sortModulesByPath: <const T extends Domain.Module>(self: Iterable<T>) => Array<T> = A.sort(Domain.ByPath);
+
 /**
  * @internal
  */
 export const stripImportTypes = flow(Str.replace(/import\("((?!").)*"\)./g, ""));
 
 const getJSDocText: (jsdocs: ReadonlyArray<ast.JSDoc>) => string = A.matchRight({
-  onEmpty: () => "",
+  onEmpty: thunkEmptyStr,
   onNonEmpty: (_, last) => last.getText(),
 });
 
@@ -75,6 +81,14 @@ const hasTag: {
 const hasInternalTag = hasTag("internal");
 
 const hasIgnoreTag = hasTag("ignore");
+
+const getVariableStatement = (vd: ast.VariableDeclaration): O.Option<ast.VariableStatement> =>
+  pipe(
+    O.fromNullishOr(vd.getParent()),
+    O.filter(ast.Node.isVariableDeclarationList),
+    O.flatMap((declarationList) => O.fromNullishOr(declarationList.getParent())),
+    O.filter(ast.Node.isVariableStatement)
+  );
 
 /**
  * @internal
@@ -270,19 +284,530 @@ const parseFunctionDeclaration = Effect.fn(function* (fd: ast.FunctionDeclaratio
   );
 });
 
-const parseFunctionDeclarations = (functions: ReadonlyArray<ast.FunctionDeclaration>) => {
-  const exportedFunctions = A.filter(
-    functions,
+const parseFunctionVariableDeclaration = Effect.fn(function* (vd: ast.VariableDeclaration) {
+  const variableStatement = yield* Effect.fromOption(getVariableStatement(vd)).pipe(Effect.orDie);
+  const name = vd.getName();
+  const text = getJSDocText(variableStatement.getJsDocs());
+  const doc = yield* getDoc(name, text);
+  const signature = `export declare const ${name}: ${stripImportTypes(vd.getType().getText(vd))}`;
+  return Domain.createFunction(
+    Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category),
+    [signature]
+  );
+});
+
+const isDocumentedExportedVariableStatement = (vd: ast.VariableDeclaration): boolean =>
+  pipe(
+    getVariableStatement(vd),
+    O.filter((statement) => statement.isExported() && shouldNotIgnore(statement.getJsDocs())),
+    O.isSome
+  );
+
+const hasFunctionLikeInitializer = (vd: ast.VariableDeclaration): boolean =>
+  pipe(O.fromNullishOr(vd.getInitializer()), O.filter(ast.Node.isFunctionLikeDeclaration), O.isSome);
+
+const hasNonFunctionLikeInitializer = (vd: ast.VariableDeclaration): boolean =>
+  pipe(
+    O.fromNullishOr(vd.getInitializer()),
+    O.filter((initializer) => !ast.Node.isFunctionLikeDeclaration(initializer)),
+    O.isSome
+  );
+
+const getFunctionDeclarations = Effect.gen(function* () {
+  const source = yield* Source;
+  const functions = A.filter(
+    source.sourceFile.getFunctions(),
     (fd) => fd.isExported() && shouldNotIgnore(getFunctionDeclarationJSDocs(fd))
   );
-  return Effect.validate(exportedFunctions, parseFunctionDeclaration).pipe(Effect.map(sortByName));
-};
+  const arrows = A.filter(
+    source.sourceFile.getVariableDeclarations(),
+    (vd) => isDocumentedExportedVariableStatement(vd) && hasFunctionLikeInitializer(vd)
+  );
+  return {
+    arrows,
+    functions,
+  };
+});
+
+const parseFunctionDeclarations = (functions: ReadonlyArray<ast.FunctionDeclaration>) =>
+  Effect.validate(functions, parseFunctionDeclaration).pipe(Effect.map(sortByName));
 
 /**
  * @category parsers
  * @since 1.0.0
  */
 export const parseFunctions = Effect.gen(function* () {
-  const source = yield* Source;
-  return yield* parseFunctionDeclarations(source.sourceFile.getFunctions());
+  const { arrows, functions } = yield* getFunctionDeclarations;
+  const functionDeclarations = yield* parseFunctionDeclarations(functions);
+  const functionVariableDeclarations = yield* Effect.validate(arrows, parseFunctionVariableDeclaration);
+  return pipe([...functionDeclarations, ...functionVariableDeclarations], sortByName);
 });
+
+const parseTypeAliasDeclaration = Effect.fn(function* (typeAlias: ast.TypeAliasDeclaration) {
+  const name = typeAlias.getName();
+  const text = getJSDocText(typeAlias.getJsDocs());
+  const doc = yield* getDoc(name, text);
+  return Domain.createTypeAlias(
+    Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category),
+    typeAlias.getText()
+  );
+});
+
+const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDeclaration>) => {
+  const exportedTypeAliases = A.filter(
+    typeAliases,
+    (typeAlias) => typeAlias.isExported() && shouldNotIgnore(typeAlias.getJsDocs())
+  );
+  return Effect.validate(exportedTypeAliases, parseTypeAliasDeclaration).pipe(Effect.map(sortByName));
+};
+
+/**
+ * @category parsers
+ * @since 1.0.0
+ */
+export const parseTypeAliases = Effect.gen(function* () {
+  const source = yield* Source;
+  return yield* parseTypeAliasDeclarations(source.sourceFile.getTypeAliases());
+});
+
+const parseConstantVariableDeclaration = Effect.fn(function* (vd: ast.VariableDeclaration) {
+  const variableStatement = yield* Effect.fromOption(getVariableStatement(vd)).pipe(Effect.orDie);
+  const name = vd.getName();
+  const text = getJSDocText(variableStatement.getJsDocs());
+  const doc = yield* getDoc(name, text);
+  const type = stripImportTypes(vd.getType().getText(vd));
+  return Domain.createConstant(
+    Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category),
+    `export declare const ${name}: ${type}`
+  );
+});
+
+/**
+ * @category parsers
+ * @since 1.0.0
+ */
+export const parseConstants = Effect.gen(function* () {
+  const source = yield* Source;
+  const variableDeclarations = A.filter(
+    source.sourceFile.getVariableDeclarations(),
+    (vd) => isDocumentedExportedVariableStatement(vd) && hasNonFunctionLikeInitializer(vd)
+  );
+  return yield* Effect.validate(variableDeclarations, parseConstantVariableDeclaration);
+});
+
+const parseExportSpecifier = Effect.fn(function* (specifier: ast.ExportSpecifier) {
+  const source = yield* Source;
+  const name = specifier.getName();
+  const type = stripImportTypes(specifier.getType().getText(specifier));
+  const maybeCommentRange = A.head(specifier.getLeadingCommentRanges());
+  if (O.isNone(maybeCommentRange)) {
+    return yield* Effect.fail(`Missing ${chalk.bold(name)} documentation in ${chalk.bold(source.path.join("/"))}`);
+  }
+  const doc = yield* getDoc(name, maybeCommentRange.value.getText());
+  return Domain.createExport(
+    Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category),
+    `export declare const ${name}: ${type}`
+  );
+});
+
+const parseExportStar = Effect.fn(function* (exportDeclaration: ast.ExportDeclaration) {
+  const source = yield* Source;
+  const moduleSpecifier = yield* Effect.fromOption(O.fromNullishOr(exportDeclaration.getModuleSpecifier())).pipe(
+    Effect.mapError(
+      () => `Missing ${chalk.bold("module specifier")} for re-export in ${chalk.bold(source.path.join("/"))}`
+    )
+  );
+  const name = moduleSpecifier.getText();
+  const namespace = pipe(
+    exportDeclaration.getNamespaceExport(),
+    O.fromNullishOr,
+    O.map((value) => value.getName())
+  );
+  const signature = `export *${O.match(namespace, {
+    onNone: () => "",
+    onSome: (value) => ` as ${value}`,
+  })} from ${name}`;
+  const maybeCommentRange = A.head(exportDeclaration.getLeadingCommentRanges());
+  if (O.isNone(maybeCommentRange)) {
+    return yield* Effect.fail(`Missing ${chalk.bold(signature)} documentation in ${chalk.bold(source.path.join("/"))}`);
+  }
+  const doc = yield* getDoc(name, maybeCommentRange.value.getText());
+  return Domain.createExport(
+    Domain.createNamedDoc(
+      `From ${name}`,
+      pipe(
+        doc.description,
+        O.orElse(() =>
+          O.some(
+            `Re-exports all named exports from the ${name} module${O.match(namespace, {
+              onNone: () => ".",
+              onSome: (value) => ` as \`${value}\`.`,
+            })}`
+          )
+        )
+      ),
+      doc.since,
+      doc.deprecated,
+      doc.examples,
+      doc.category
+    ),
+    signature
+  );
+});
+
+const parseNamedExports = (exportDeclaration: ast.ExportDeclaration) =>
+  pipe(
+    exportDeclaration.getNamedExports(),
+    A.matchLeft({
+      onEmpty: () =>
+        parseExportStar(exportDeclaration).pipe(
+          Effect.mapBoth({
+            onFailure: A.of,
+            onSuccess: A.of,
+          })
+        ),
+      onNonEmpty: () => Effect.validate(exportDeclaration.getNamedExports(), parseExportSpecifier),
+    })
+  );
+
+/**
+ * @category parsers
+ * @since 1.0.0
+ */
+export const parseExports = Effect.gen(function* () {
+  const source = yield* Source;
+  return yield* Effect.validate(source.sourceFile.getExportDeclarations(), parseNamedExports).pipe(
+    Effect.mapBoth({
+      onFailure: (errors) => A.flatten(errors),
+      onSuccess: (exports) => A.flatten(exports),
+    })
+  );
+});
+
+const parseModuleDeclaration: (
+  moduleDeclaration: ast.ModuleDeclaration
+) => Effect.Effect<Domain.Namespace, ReadonlyArray<string>, Source | Configuration.Configuration> = Effect.fn(
+  function* (moduleDeclaration: ast.ModuleDeclaration) {
+    const name = moduleDeclaration.getName();
+    const info = yield* getDoc(name, getJSDocText(moduleDeclaration.getJsDocs())).pipe(Effect.mapError(A.of));
+    const interfaces = yield* parseInterfaceDeclarations(moduleDeclaration.getInterfaces());
+    const typeAliases = yield* parseTypeAliasDeclarations(moduleDeclaration.getTypeAliases());
+    const namespaces = yield* parseModuleDeclarations(moduleDeclaration.getModules());
+    return Domain.createNamespace(
+      Domain.createNamedDoc(name, info.description, info.since, info.deprecated, info.examples, info.category),
+      interfaces,
+      typeAliases,
+      namespaces
+    );
+  }
+);
+
+const parseModuleDeclarations = (
+  namespaces: ReadonlyArray<ast.ModuleDeclaration>
+): Effect.Effect<Array<Domain.Namespace>, ReadonlyArray<string>, Source | Configuration.Configuration> => {
+  const exportedNamespaces = A.filter(
+    namespaces,
+    (namespace) => namespace.isExported() && shouldNotIgnore(namespace.getJsDocs())
+  );
+  return Effect.validate(exportedNamespaces, parseModuleDeclaration).pipe(
+    Effect.mapBoth({
+      onFailure: (errors) => A.flatten(errors),
+      onSuccess: (values) => sortByName(values),
+    })
+  );
+};
+
+/**
+ * @category parsers
+ * @since 1.0.0
+ */
+export const parseNamespaces = Effect.gen(function* () {
+  const source = yield* Source;
+  return yield* parseModuleDeclarations(source.sourceFile.getModules());
+});
+
+const getTypeParameters = (typeParameters: ReadonlyArray<ast.TypeParameterDeclaration>): string =>
+  pipe(
+    typeParameters,
+    A.matchLeft({
+      onEmpty: () => "",
+      onNonEmpty: () =>
+        `<${pipe(
+          typeParameters,
+          A.map((parameter) => parameter.getName()),
+          A.join(", ")
+        )}>`,
+    })
+  );
+
+const getMethodSignature = (method: ast.MethodDeclaration): string =>
+  pipe(
+    O.fromNullishOr(method.compilerNode.body),
+    O.match({
+      onNone: () => method.getText(),
+      onSome: (body) => method.getText().substring(0, body.getStart() - method.getStart() - 1),
+    })
+  );
+
+const parseMethod = Effect.fn(function* (method: ast.MethodDeclaration) {
+  const overloads = method.getOverloads();
+  const jsdocs = pipe(
+    overloads,
+    A.matchLeft({
+      onEmpty: () => method.getJsDocs(),
+      onNonEmpty: (firstOverload) => firstOverload.getJsDocs(),
+    })
+  );
+  if (!shouldNotIgnore(jsdocs)) {
+    return O.none<Domain.Method>();
+  }
+  const name = method.getName();
+  const doc = yield* getDoc(name, getJSDocText(jsdocs));
+  const signatures = pipe(
+    overloads,
+    A.matchRight({
+      onEmpty: () => [getMethodSignature(method)],
+      onNonEmpty: (init, last) =>
+        pipe(
+          init.map((overload) => overload.getText()),
+          A.append(getMethodSignature(last))
+        ),
+    })
+  );
+  return O.some(
+    Domain.createMethod(
+      Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category),
+      signatures
+    )
+  );
+});
+
+const parseProperty = (className: string) =>
+  Effect.fn(function* (property: ast.PropertyDeclaration) {
+    const name = property.getName();
+    const doc = yield* getDoc(`${className}#${name}`, getJSDocText(property.getJsDocs()));
+    const readonly = pipe(
+      O.fromNullishOr(property.getFirstModifierByKind(ast.ts.SyntaxKind.ReadonlyKeyword)),
+      O.match({
+        onNone: thunkEmptyStr,
+        onSome: () => "readonly ",
+      })
+    );
+    return Domain.createProperty(
+      Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category),
+      `${readonly}${name}: ${stripImportTypes(property.getType().getText(property))}`
+    );
+  });
+
+const parseProperties = (name: string, classDeclaration: ast.ClassDeclaration) => {
+  const properties = A.filter(
+    classDeclaration.getProperties(),
+    (property) =>
+      !property.isStatic() &&
+      shouldNotIgnore(property.getJsDocs()) &&
+      pipe(O.fromNullishOr(property.getFirstModifierByKind(ast.ts.SyntaxKind.PrivateKeyword)), O.isNone)
+  );
+  return Effect.validate(properties, parseProperty(name));
+};
+
+/**
+ * @internal
+ */
+export const getConstructorDeclarationSignature = (constructor: ast.ConstructorDeclaration): string =>
+  pipe(
+    O.fromNullishOr(constructor.compilerNode.body),
+    O.match({
+      onNone: () => constructor.getText(),
+      onSome: (body) => constructor.getText().substring(0, body.getStart() - constructor.getStart() - 1),
+    })
+  );
+
+const getClassName = (classDeclaration: ast.ClassDeclaration) =>
+  Effect.gen(function* () {
+    const source = yield* Source;
+    return yield* Effect.fromOption(O.fromNullishOr(classDeclaration.getName())).pipe(
+      Effect.mapError(() => [`Missing ${chalk.bold("class name")} in module ${chalk.bold(source.path.join("/"))}`])
+    );
+  });
+
+const getClassDoc = (name: string, classDeclaration: ast.ClassDeclaration) =>
+  getDoc(name, getJSDocText(classDeclaration.getJsDocs())).pipe(Effect.mapError(A.of));
+
+const getClassDeclarationSignature = (name: string, classDeclaration: ast.ClassDeclaration): string =>
+  pipe(
+    classDeclaration.getConstructors(),
+    A.matchLeft({
+      onEmpty: () => `export declare class ${name}${getTypeParameters(classDeclaration.getTypeParameters())}`,
+      onNonEmpty: (constructor) =>
+        `export declare class ${name}${getTypeParameters(classDeclaration.getTypeParameters())} { ${getConstructorDeclarationSignature(constructor)} }`,
+    })
+  );
+
+const parseClass = Effect.fn(function* (classDeclaration: ast.ClassDeclaration) {
+  const name = yield* getClassName(classDeclaration);
+  const doc = yield* getClassDoc(name, classDeclaration);
+  const methods = yield* pipe(
+    classDeclaration.getInstanceMethods(),
+    Effect.validate(parseMethod),
+    Effect.map(A.getSomes)
+  );
+  const staticMethods = yield* pipe(
+    classDeclaration.getStaticMethods(),
+    Effect.validate(parseMethod),
+    Effect.map(A.getSomes)
+  );
+  const properties = yield* parseProperties(name, classDeclaration);
+  return Domain.createClass(
+    Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category),
+    getClassDeclarationSignature(name, classDeclaration),
+    methods,
+    staticMethods,
+    properties
+  );
+});
+
+/**
+ * @category parsers
+ * @since 1.0.0
+ */
+export const parseClasses = Effect.gen(function* () {
+  const source = yield* Source;
+  const exportedClasses = A.filter(
+    source.sourceFile.getClasses(),
+    (classDeclaration) => classDeclaration.isExported() && shouldNotIgnore(classDeclaration.getJsDocs())
+  );
+  return yield* Effect.validate(exportedClasses, parseClass).pipe(
+    Effect.mapBoth({
+      onFailure: A.flatten,
+      onSuccess: sortByName,
+    })
+  );
+});
+
+/**
+ * @internal
+ */
+export const parseModuleDocumentation = Effect.gen(function* () {
+  const config = yield* Configuration.Configuration;
+  const source = yield* Source;
+  const path = yield* Path.Path;
+  const name = pipe(
+    A.last(source.path),
+    O.match({
+      onNone: () => path.parse(source.sourceFile.getFilePath()).name,
+      onSome: flow(path.parse, Struct.get("name")),
+    })
+  );
+  const isDocumentationRequired = config.enforceDescriptions === true || config.enforceVersion === true;
+  const firstStatement = pipe(source.sourceFile.getStatements(), A.head);
+  if (O.isNone(firstStatement)) {
+    if (isDocumentationRequired) {
+      return yield* Effect.fail([`Empty ${chalk.bold(source.path.join("/"))} module`]);
+    }
+  } else {
+    const maybeCommentRange = A.head(firstStatement.value.getLeadingCommentRanges());
+    if (O.isNone(maybeCommentRange)) {
+      if (isDocumentationRequired) {
+        return yield* Effect.fail([
+          `Missing ${chalk.bold("documentation")} in ${chalk.bold(source.path.join("/"))} module`,
+        ]);
+      }
+    } else {
+      const doc = yield* getDoc("<module fileoverview>", maybeCommentRange.value.getText(), true).pipe(
+        Effect.mapError(A.of)
+      );
+      return Domain.createNamedDoc(name, doc.description, doc.since, doc.deprecated, doc.examples, doc.category);
+    }
+  }
+  return Domain.createNamedDoc(name, O.none(), O.none(), false, [], O.none());
+});
+
+/**
+ * @category parsers
+ * @since 1.0.0
+ */
+export const parseModule = Effect.gen(function* () {
+  const source = yield* Source;
+  const doc = yield* parseModuleDocumentation;
+  const interfaces = yield* parseInterfaces;
+  const functions = yield* parseFunctions;
+  const typeAliases = yield* parseTypeAliases;
+  const classes = yield* parseClasses;
+  const constants = yield* parseConstants;
+  const exports = yield* parseExports;
+  const namespaces = yield* parseNamespaces;
+  return Domain.createModule(
+    doc,
+    source.path,
+    classes,
+    interfaces,
+    functions,
+    typeAliases,
+    constants,
+    exports,
+    namespaces
+  );
+});
+
+/**
+ * @internal
+ */
+export const parseFile = (project: ast.Project) =>
+  Effect.fn(function* (file: File.File) {
+    const path = yield* Path.Path;
+    const sourceFile = project.getSourceFile(file.path);
+    if (P.isNullish(sourceFile)) {
+      return yield* Effect.fail([`Unable to locate file: ${file.path}`]);
+    }
+    return yield* parseModule.pipe(
+      Effect.provideService(
+        Source,
+        Source.of({
+          path: Str.split(path.sep)(file.path),
+          sourceFile,
+        })
+      )
+    );
+  });
+
+const getParseCompilerOptions = (value: Configuration.CompilerOptions) => (P.isString(value) ? {} : value);
+
+const createProject = (files: ReadonlyArray<File.File>) =>
+  Effect.gen(function* () {
+    const config = yield* Configuration.Configuration;
+    const process = yield* Process.Process;
+    const cwd = yield* process.cwd;
+    const parsed = ast.ts.parseJsonConfigFileContent(
+      {
+        compilerOptions: {
+          strict: true,
+          moduleResolution: "node",
+          ...getParseCompilerOptions(config.parseCompilerOptions),
+        },
+      },
+      ast.ts.sys,
+      cwd
+    );
+    const project = new ast.Project({
+      compilerOptions: parsed.options,
+    });
+    for (const file of files) {
+      project.addSourceFileAtPath(file.path);
+    }
+    return project;
+  });
+
+/**
+ * @category parsers
+ * @since 1.0.0
+ */
+export const parseFiles = (files: ReadonlyArray<File.File>) =>
+  createProject(files).pipe(
+    Effect.flatMap((project) =>
+      pipe(
+        files,
+        Effect.validate(parseFile(project)),
+        Effect.map(flow(A.filter(P.not(Struct.get("deprecated"))), sortModulesByPath))
+      )
+    )
+  );

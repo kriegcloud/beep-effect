@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import {$RepoCliId} from "@beep/identity/packages";
-import {Effect, Layer, ServiceMap} from "effect";
+import { $RepoCliId } from "@beep/identity/packages";
+import { Effect, Layer, ServiceMap } from "effect";
 
 const $I = $RepoCliId.create("commands/DocgenV2/Domain");
 
@@ -22,9 +22,7 @@ export interface ProcessShape {
   readonly platform: Effect.Effect<string>;
 }
 
-export class Process extends ServiceMap.Service<Process, ProcessShape>()($I`Process`) {
-}
-
+export class Process extends ServiceMap.Service<Process, ProcessShape>()($I`Process`) {}
 
 /**
  * @category UseCase
@@ -35,7 +33,6 @@ export const layer = Layer.succeed(
   Process.of({
     cwd: Effect.sync(() => process.cwd()),
     platform: Effect.sync(() => process.platform),
-    argv: Effect.sync(() => process.argv)
+    argv: Effect.sync(() => process.argv),
   })
-)
-
+);

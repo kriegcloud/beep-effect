@@ -10,7 +10,7 @@ import {
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import type * as S from "effect/Schema";
 
 const renderSchemaFailure = (exit: Exit.Exit<unknown, S.SchemaError>): string =>
   Exit.isFailure(exit) ? Cause.pretty(exit.cause) : "";
@@ -226,10 +226,10 @@ describe("TSConfig schema", () => {
 
       expect(Exit.isFailure(topLevel)).toBe(true);
       expect(renderSchemaFailure(topLevel)).toContain("Unexpected key");
-      expect(renderSchemaFailure(topLevel)).toContain("[\"unexpected\"]");
+      expect(renderSchemaFailure(topLevel)).toContain('["unexpected"]');
       expect(Exit.isFailure(nested)).toBe(true);
       expect(renderSchemaFailure(nested)).toContain("Unexpected key");
-      expect(renderSchemaFailure(nested)).toContain("[\"compilerOptions\"][\"unexpected\"]");
+      expect(renderSchemaFailure(nested)).toContain('["compilerOptions"]["unexpected"]');
     });
 
     it("rejects duplicate uniqueItems arrays", () => {
@@ -323,8 +323,54 @@ describe("TSConfig schema", () => {
           },
         });
         expect(JSON.parse(compact)).toEqual(encoded);
-        expect(pretty).toContain("\n  \"compilerOptions\"");
-        expect(pretty).toContain("\"module\": \"nodenext\"");
+        expect(pretty).toContain('\n  "compilerOptions"');
+        expect(pretty).toContain('"module": "nodenext"');
+      })
+    );
+
+    it.effect("preserves open JSON extras inside plugin and ts-node compiler option sections", () =>
+      Effect.gen(function* () {
+        const encoded = yield* encodeTSConfigEffect({
+          compilerOptions: {
+            plugins: [
+              {
+                name: "typescript-styled-plugin",
+                customSetting: {
+                  namespace: "styled",
+                },
+              },
+            ],
+          },
+          "ts-node": {
+            compilerOptions: {
+              module: "NodeNext",
+              customOption: {
+                jsxRuntime: "automatic",
+              },
+            },
+          },
+        });
+
+        expect(encoded).toEqual({
+          compilerOptions: {
+            plugins: [
+              {
+                name: "typescript-styled-plugin",
+                customSetting: {
+                  namespace: "styled",
+                },
+              },
+            ],
+          },
+          "ts-node": {
+            compilerOptions: {
+              module: "nodenext",
+              customOption: {
+                jsxRuntime: "automatic",
+              },
+            },
+          },
+        });
       })
     );
   });

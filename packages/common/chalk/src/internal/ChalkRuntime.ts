@@ -32,12 +32,16 @@ type BuilderMeta = {
 };
 
 type ChalkFunction = (...arguments_: ReadonlyArray<unknown>) => string;
-type ChalkPrototype = ChalkFunction & { level: S.Schema.Type<typeof ColorSupportLevel> };
+type ChalkPrototype = object;
 
 const builderMetaMap = new WeakMap<ChalkFunction, BuilderMeta>();
 
 const levelMapping = ["ansi", "ansi", "ansi256", "ansi16m"] as const;
-const styleNameValues = [...modifierNameValues, ...foregroundColorNameValues, ...backgroundColorNameValues] as const;
+const styleNameValues: ReadonlyArray<StyleName> = [
+  ...modifierNameValues,
+  ...foregroundColorNameValues,
+  ...backgroundColorNameValues,
+];
 
 const ColorSupportLevelInput = S.Number.check(
   S.makeFilter((level: number) => Number.isInteger(level) && level >= 0 && level <= 3, {
@@ -136,7 +140,7 @@ const applyStyle = (builder: ChalkFunction, text: string): string => {
 };
 
 const createPrototype = (): ChalkPrototype => {
-  const prototype: ChalkPrototype = Object.defineProperties(() => "", {
+  const prototype = Object.defineProperties(() => "", {
     level: {
       enumerable: true,
       get(this: ChalkFunction) {
@@ -158,13 +162,13 @@ const createPrototype = (): ChalkPrototype => {
         return builder;
       },
     },
-  }) as ChalkPrototype;
+  });
 
   for (const styleName of styleNameValues) {
     Object.defineProperty(prototype, styleName, {
       get(this: ChalkFunction) {
         const { isEmpty, state, styler } = getBuilderMeta(this);
-        const style = getStyleEntry(styleName as StyleName);
+        const style = getStyleEntry(styleName);
         const builder = createBuilder(state, createStyler(style.open, style.close, styler), isEmpty, prototype);
 
         Object.defineProperty(this, styleName, {
