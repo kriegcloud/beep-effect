@@ -66,6 +66,7 @@
     "d3-dsv": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
+    "@effect/markdown-toc": "catalog:",
     "handlebars": "catalog:",
     "jsonc-parser": "catalog:",
     "yaml": "catalog:"

@@ -26,6 +26,7 @@
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "jsonc-parser": "catalog:",
+    "minimatch": "catalog:",
     "uuid": "catalog:",
     "yaml": "catalog:"
   },

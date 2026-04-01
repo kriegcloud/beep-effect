@@ -6,7 +6,7 @@
  */
 
 import {$RepoCliId} from "@beep/identity/packages";
-import {JSDocCategory} from "@beep/repo-utils/JSDoc/JSDoc";
+import {Category as CategorySchema, type Category} from "@beep/repo-utils/JSDoc/models/index";
 import {FilePath, SemanticVersion, SchemaUtils} from "@beep/schema";
 import * as S from "effect/Schema";
 import * as O from "effect/Option";
@@ -76,7 +76,7 @@ export class Doc extends S.Class<Doc>($I`Doc`)(
       false
     ),
     examples: Example.pipe(S.Array),
-    category: JSDocCategory.pipe(S.Option)
+    category: CategorySchema.pipe(S.Option)
   },
   $I.annote(
     "Doc",
@@ -331,7 +331,7 @@ export const createDoc = (
   since: O.Option<SemanticVersion>,
   deprecated: boolean,
   examples: ReadonlyArray<Example>,
-  category: O.Option<JSDocCategory>
+  category: O.Option<Category>
 ): Doc => new Doc({
   description,
   since,
@@ -351,7 +351,7 @@ export const createNamedDoc = (
   since: O.Option<SemanticVersion>,
   deprecated: boolean,
   examples: ReadonlyArray<Example>,
-  category: O.Option<JSDocCategory>
+  category: O.Option<Category>
 ): NamedDoc => new NamedDoc({
   name,
   description,

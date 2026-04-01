@@ -76,3 +76,7 @@ sst-env.d.ts
 .lsmcp/cache
 .beep
 **/.beep
+
+
+subtrees
+.repos/chalk

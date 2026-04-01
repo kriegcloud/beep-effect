@@ -885,19 +885,19 @@ type Uncategorized = typeof Uncategorized.Type;
  * @category DomainModel
  * @since 0.0.0
  */
-export const TSCategoryTag = S.Union([
-  DomainModel,
-  DomainLogic,
-  PortContract,
-  Validation,
-  Utility,
-  UseCase,
-  Presentation,
-  DataAccess,
-  Integration,
-  Configuration,
-  CrossCutting,
-  Uncategorized,
+export const TSCategoryTag = LiteralKit([
+  DomainModel.literal,
+  DomainLogic.literal,
+  PortContract.literal,
+  Validation.literal,
+  Utility.literal,
+  UseCase.literal,
+  Presentation.literal,
+  DataAccess.literal,
+  Integration.literal,
+  Configuration.literal,
+  CrossCutting.literal,
+  Uncategorized.literal,
 ]).annotate(
   $I.annote("TSCategoryTag", {
     description: "Strict literal union for all supported TypeDoc @category values.",
@@ -1099,7 +1099,7 @@ export function getCategoryPrecedence(tag: CategoryTag): number {
  * @category Utility
  * @since 0.0.0
  */
-export function getCategory(tag: string): TSCategory | undefined {
+export function getCategory(tag: TSCategoryTag): TSCategory | undefined {
   return pipe(
     CATEGORY_TAXONOMY_RUNTIME,
     A.findFirst((category) => category._tag === tag),
@@ -1218,7 +1218,7 @@ const scoredCategoryCandidateOrder = Order.make<ScoredCategoryCandidate>((left, 
  * @since 0.0.0
  */
 export function getCandidateCategories(
-  signals: ReadonlyArray<{ category: string; confidence: number }>
+  signals: ReadonlyArray<{ category: TSCategoryTag; confidence: number }>
 ): ReadonlyArray<ScoredCategoryCandidate> {
   const grouped = pipe(
     signals,
@@ -1228,7 +1228,7 @@ export function getCandidateCategories(
   return pipe(
     grouped,
     R.collect((categoryName, categorySignals) => {
-      const category = getCategory(categoryName);
+      const category = getCategory(categoryName as TSCategoryTag);
       return {
         category,
         combinedConfidence: combineSignalConfidences(
