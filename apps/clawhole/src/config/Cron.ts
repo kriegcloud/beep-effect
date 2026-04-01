@@ -28,8 +28,8 @@
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
-import { DurationFromInput, FilePath, LiteralKit, NonEmptyTrimmedStr, SchemaUtils } from "@beep/schema";
-import { Duration, pipe, Result } from "effect";
+import { FilePath, LiteralKit, NonEmptyTrimmedStr, SchemaUtils } from "@beep/schema";
+import { Duration, Effect, pipe, Result, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -74,6 +74,8 @@ const defaultSessionRetentionEncoded = { hours: 24 };
 const httpProtocols = A.make("http:", "https:");
 
 const BYTE_SIZE_PATTERN = /^(\d+(?:\.\d+)?)([a-z]+)?$/;
+const SINGLE_DURATION_PATTERN = /^(\d+(?:\.\d+)?)(ms|s|m|h|d)?$/;
+const COMPOSITE_DURATION_PATTERN = /(\d+(?:\.\d+)?)(ms|s|m|h|d)/g;
 
 const byteSizeMultipliers = {
   b: 1,
@@ -85,6 +87,14 @@ const byteSizeMultipliers = {
   g: 1024 ** 3,
   tb: 1024 ** 4,
   t: 1024 ** 4,
+} as const;
+
+const durationMultipliers = {
+  ms: 1,
+  s: 1000,
+  m: 60_000,
+  h: 3_600_000,
+  d: 86_400_000,
 } as const;
 
 const isHttpProtocol = (value: string): boolean =>
@@ -124,6 +134,71 @@ const parseByteSizeString = (value: string): O.Option<number> =>
     })
   );
 
+const invalidDurationInputIssue = (input: string) =>
+  new SchemaIssue.InvalidValue(O.some(input), {
+    message: "Expected a valid duration input."
+  });
+
+const parseCronDurationString = (raw: string): O.Option<Duration.Duration> => {
+  const trimmed = pipe(raw, Str.trim, Str.toLowerCase);
+
+  if (Str.isEmpty(trimmed)) {
+    return O.none();
+  }
+
+  const single = SINGLE_DURATION_PATTERN.exec(trimmed);
+
+  if (!P.isNull(single)) {
+    const value = Number(single[1]);
+    if (!Number.isFinite(value) || value < 0) {
+      return O.none();
+    }
+
+    const unit = (single[2] ?? "h") as keyof typeof durationMultipliers;
+    const milliseconds = Math.round(value * durationMultipliers[unit]);
+    return Number.isFinite(milliseconds) ? O.some(Duration.millis(milliseconds)) : O.none();
+  }
+
+  let totalMilliseconds = 0;
+  let consumed = 0;
+
+  for (const match of trimmed.matchAll(COMPOSITE_DURATION_PATTERN)) {
+    const [full, valueRaw, unitRaw] = match;
+    const index = match.index ?? -1;
+
+    if (!full || !valueRaw || !unitRaw || index < 0 || index !== consumed) {
+      return O.none();
+    }
+
+    const value = Number(valueRaw);
+    const unit = unitRaw as keyof typeof durationMultipliers;
+    const multiplier = durationMultipliers[unit];
+
+    if (!Number.isFinite(value) || value < 0 || P.isUndefined(multiplier)) {
+      return O.none();
+    }
+
+    totalMilliseconds += value * multiplier;
+    consumed += full.length;
+  }
+
+  if (consumed !== trimmed.length || consumed === 0) {
+    return O.none();
+  }
+
+  const milliseconds = Math.round(totalMilliseconds);
+  return Number.isFinite(milliseconds) ? O.some(Duration.millis(milliseconds)) : O.none();
+};
+
+const decodeCronDurationString = (input: string): Effect.Effect<Duration.Duration, SchemaIssue.Issue> =>
+  pipe(
+    parseCronDurationString(input),
+    O.match({
+      onNone: () => Effect.fail(invalidDurationInputIssue(input)),
+      onSome: Effect.succeed
+    })
+  );
+
 const HttpUrlString = NonEmptyTrimmedStr.check(
   S.makeFilter(isHttpUrlString, {
     identifier: $I`HttpUrlStringCheck`,
@@ -152,6 +227,18 @@ const ByteSizeString = NonEmptyTrimmedStr.check(
   })
 );
 
+const CronDurationFromString = NonEmptyTrimmedStr.pipe(
+  S.decodeTo(S.Duration, {
+    decode: SchemaGetter.transformOrFail(decodeCronDurationString),
+    encode: SchemaGetter.forbidden(
+      () => "Encoding CronDurationFromString results back to the original duration string is not supported"
+    )
+  }),
+  $I.annoteSchema("CronDurationFromString", {
+    description: "A one-way schema that decodes compact OpenClaw duration strings such as 24h or 1h30m."
+  })
+);
+
 const CronRetryBackoff = S.Array(S.DurationFromMillis)
   .check(S.makeFilterGroup([S.isMinLength(1), S.isMaxLength(10)]))
   .pipe(
@@ -162,7 +249,7 @@ const CronRetryBackoff = S.Array(S.DurationFromMillis)
     })
   );
 
-const CronSessionRetention = S.Union([S.Literal(false), DurationFromInput]).pipe(
+const CronSessionRetention = S.Union([S.Literal(false), CronDurationFromString]).pipe(
   S.withConstructorDefault(() => O.some(defaultSessionRetention)),
   S.withDecodingDefaultKey(() => defaultSessionRetentionEncoded),
   $I.annoteSchema("CronSessionRetention", {
