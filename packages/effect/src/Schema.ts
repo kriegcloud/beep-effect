@@ -102,7 +102,7 @@ import * as Equal from "./Equal.ts"
 import * as Equivalence from "./Equivalence.ts"
 import * as Exit_ from "./Exit.ts"
 import type { Formatter } from "./Formatter.ts"
-import { format, formatDate, formatPropertyKey } from "./Formatter.ts"
+import { format, formatPropertyKey } from "./Formatter.ts"
 import { identity } from "./Function.ts"
 import * as HashMap_ from "./HashMap.ts"
 import * as HashSet_ from "./HashSet.ts"
@@ -8357,6 +8357,8 @@ export const RegExp: RegExp = instanceOf(
  */
 export interface URL extends instanceOf<globalThis.URL> {}
 
+const URLString = String.annotate({ expected: "a string that will be decoded as a URL" })
+
 /**
  * A schema for JavaScript `URL` objects.
  *
@@ -8380,7 +8382,7 @@ export const URL: URL = instanceOf(
     expected: "URL",
     toCodecJson: () =>
       link<globalThis.URL>()(
-        String.annotate({ expected: "a string that will be decoded as a URL" }),
+        URLString,
         Transformation.urlFromString
       ),
     toArbitrary: () => (fc) => fc.webUrl().map((s) => new globalThis.URL(s)),
@@ -8408,8 +8410,7 @@ export interface URLFromString extends decodeTo<URL, String> {}
  * @category URL
  * @since 4.0.0
  */
-export const URLFromString: URLFromString = String.annotate({ expected: "a string that will be decoded as a URL" })
-  .pipe(decodeTo(URL, Transformation.urlFromString)) // TODO: remove duplication with URL schema
+export const URLFromString: URLFromString = URLString.pipe(decodeTo(URL, Transformation.urlFromString))
 
 /**
  * Schema type for {@link Date}.
@@ -8418,6 +8419,8 @@ export const URLFromString: URLFromString = String.annotate({ expected: "a strin
  * @since 4.0.0
  */
 export interface Date extends instanceOf<globalThis.Date> {}
+
+const DateString = String.annotate({ expected: "a string in ISO 8601 format that will be decoded as a Date" })
 
 /**
  * A schema for JavaScript `Date` objects.
@@ -8451,15 +8454,33 @@ export const Date: Date = instanceOf(
     expected: "Date",
     toCodecJson: () =>
       link<globalThis.Date>()(
-        String.annotate({ expected: "a string in ISO 8601 format that will be decoded as a Date" }),
-        Transformation.transform({
-          decode: (s) => new globalThis.Date(s),
-          encode: formatDate
-        })
+        DateString,
+        Transformation.dateFromString
       ),
     toArbitrary: () => (fc, ctx) => fc.date(ctx?.constraints?.date)
   }
 )
+
+/**
+ * Schema type for {@link DateFromString}.
+ *
+ * @category Schemas
+ * @since 4.0.0
+ */
+export interface DateFromString extends decodeTo<Date, String> {}
+
+/**
+ * A transformation schema that parses an ISO 8601 string into a `Date`.
+ *
+ * Decoding:
+ * - A `string` is decoded as a `Date`.
+ *
+ * Encoding:
+ * - A `Date` is encoded as a `string`.
+ *
+ * @since 4.0.0
+ */
+export const DateFromString: DateFromString = DateString.pipe(decodeTo(Date, Transformation.dateFromString))
 
 /**
  * Schema type for {@link DateValid}.
@@ -8627,6 +8648,8 @@ export const DurationFromMillis: DurationFromMillis = Number.check(isGreaterThan
  */
 export interface BigDecimal extends declare<BigDecimal_.BigDecimal> {}
 
+const BigDecimalString = String.annotate({ expected: "a string that will be decoded as a BigDecimal" })
+
 /**
  * A schema for `BigDecimal` values.
  *
@@ -8650,7 +8673,7 @@ export const BigDecimal: BigDecimal = declare(
     expected: "BigDecimal",
     toCodecJson: () =>
       link<BigDecimal_.BigDecimal>()(
-        String.annotate({ expected: "a string that will be decoded as a BigDecimal" }),
+        BigDecimalString,
         Transformation.bigDecimalFromString
       ),
     toArbitrary: () => (fc) =>
@@ -8659,6 +8682,29 @@ export const BigDecimal: BigDecimal = declare(
     toFormatter: () => (bd) => BigDecimal_.format(bd),
     toEquivalence: () => BigDecimal_.Equivalence
   }
+)
+
+/**
+ * Schema type for {@link BigDecimalFromString}.
+ *
+ * @category Schemas
+ * @since 4.0.0
+ */
+export interface BigDecimalFromString extends decodeTo<BigDecimal, String> {}
+
+/**
+ * A transformation schema that parses a string into a `BigDecimal`.
+ *
+ * Decoding:
+ * - A `string` is decoded as a `BigDecimal`.
+ *
+ * Encoding:
+ * - A `BigDecimal` is encoded as a `string`.
+ *
+ * @since 4.0.0
+ */
+export const BigDecimalFromString: BigDecimalFromString = BigDecimalString.pipe(
+  decodeTo(BigDecimal, Transformation.bigDecimalFromString)
 )
 
 /**
@@ -9196,6 +9242,29 @@ export const FiniteFromString: FiniteFromString = String.annotate({
 }).pipe(decodeTo(Finite, Transformation.numberFromString))
 
 /**
+ * Schema type for {@link BigIntFromString}.
+ *
+ * @category Schemas
+ * @since 4.0.0
+ */
+export interface BigIntFromString extends decodeTo<BigInt, String> {}
+
+/**
+ * A transformation schema that parses a string into a `bigint`.
+ *
+ * Decoding:
+ * - A `string` is decoded as a `bigint`.
+ *
+ * Encoding:
+ * - A `bigint` is encoded as a `string`.
+ *
+ * @since 4.0.0
+ */
+export const BigIntFromString: BigIntFromString = make<String>(AST.bigIntString).pipe(
+  decodeTo(BigInt, Transformation.bigintFromString)
+)
+
+/**
  * Schema type for {@link Trimmed}.
  *
  * @category Schemas
@@ -9578,6 +9647,8 @@ export const TimeZoneOffset: TimeZoneOffset = declare(
  */
 export interface TimeZoneNamed extends declare<DateTime.TimeZone.Named> {}
 
+const TimeZoneNamedString = String.annotate({ expected: "an IANA time zone identifier" })
+
 /**
  * A schema for `DateTime.TimeZone.Named` values.
  *
@@ -9602,7 +9673,7 @@ export const TimeZoneNamed: TimeZoneNamed = declare(
     expected: "DateTime.TimeZone.Named",
     toCodecJson: () =>
       link<DateTime.TimeZone.Named>()(
-        String.annotate({ expected: "an IANA time zone identifier" }),
+        TimeZoneNamedString,
         Transformation.timeZoneNamedFromString
       ),
     toArbitrary: () => (fc) =>
@@ -9617,12 +9688,40 @@ export const TimeZoneNamed: TimeZoneNamed = declare(
 )
 
 /**
+ * Schema type for {@link TimeZoneNamedFromString}.
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export interface TimeZoneNamedFromString extends decodeTo<TimeZoneNamed, String> {}
+
+/**
+ * A transformation schema that parses an IANA time zone identifier string into a `DateTime.TimeZone.Named`.
+ *
+ * Decoding:
+ * - A `string` is decoded as a `DateTime.TimeZone.Named`.
+ *
+ * Encoding:
+ * - A `DateTime.TimeZone.Named` is encoded as a `string`.
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export const TimeZoneNamedFromString: TimeZoneNamedFromString = TimeZoneNamedString.pipe(
+  decodeTo(TimeZoneNamed, Transformation.timeZoneNamedFromString)
+)
+
+/**
  * Schema type for {@link TimeZone}.
  *
  * @category DateTime
  * @since 4.0.0
  */
 export interface TimeZone extends declare<DateTime.TimeZone> {}
+
+const TimeZoneString = String.annotate({
+  expected: "a time zone string (IANA identifier or offset like +03:00)"
+})
 
 /**
  * A schema for `DateTime.TimeZone` values.
@@ -9649,7 +9748,7 @@ export const TimeZone: TimeZone = declare(
     expected: "DateTime.TimeZone",
     toCodecJson: () =>
       link<DateTime.TimeZone>()(
-        String.annotate({ expected: "a time zone string (IANA identifier or offset like +03:00)" }),
+        TimeZoneString,
         Transformation.timeZoneFromString
       ),
     toArbitrary: () => (fc) =>
@@ -9667,12 +9766,40 @@ export const TimeZone: TimeZone = declare(
 )
 
 /**
+ * Schema type for {@link TimeZoneFromString}.
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export interface TimeZoneFromString extends decodeTo<TimeZone, String> {}
+
+/**
+ * A transformation schema that parses a time zone string into a `DateTime.TimeZone`.
+ *
+ * Decoding:
+ * - A `string` (IANA identifier or offset like `+03:00`) is decoded as a `DateTime.TimeZone`.
+ *
+ * Encoding:
+ * - A `DateTime.TimeZone` is encoded as a `string`.
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export const TimeZoneFromString: TimeZoneFromString = TimeZoneString.pipe(
+  decodeTo(TimeZone, Transformation.timeZoneFromString)
+)
+
+/**
  * Schema type for {@link DateTimeZoned}.
  *
  * @category DateTime
  * @since 4.0.0
  */
 export interface DateTimeZoned extends declare<DateTime.Zoned> {}
+
+const DateTimeZonedString = String.annotate({
+  expected: "a zoned DateTime string (e.g. 2024-01-01T00:00:00.000+00:00[Europe/London])"
+})
 
 /**
  * A schema for `DateTime.Zoned` values.
@@ -9699,7 +9826,7 @@ export const DateTimeZoned: DateTimeZoned = declare(
     expected: "DateTime.Zoned",
     toCodecJson: () =>
       link<DateTime.Zoned>()(
-        String.annotate({ expected: "a zoned DateTime string (e.g. 2024-01-01T00:00:00.000+00:00[Europe/London])" }),
+        DateTimeZonedString,
         Transformation.dateTimeZonedFromString
       ),
     toArbitrary: () => (fc, ctx) =>
@@ -9715,6 +9842,30 @@ export const DateTimeZoned: DateTimeZoned = declare(
     toFormatter: () => (zoned) => DateTime.formatIsoZoned(zoned),
     toEquivalence: () => DateTime.Equivalence
   }
+)
+
+/**
+ * Schema type for {@link DateTimeZonedFromString}.
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export interface DateTimeZonedFromString extends decodeTo<DateTimeZoned, String> {}
+
+/**
+ * A transformation schema that parses a zoned DateTime string into a `DateTime.Zoned`.
+ *
+ * Decoding:
+ * - A `string` (e.g. `2024-01-01T00:00:00.000+00:00[Europe/London]`) is decoded as a `DateTime.Zoned`.
+ *
+ * Encoding:
+ * - A `DateTime.Zoned` is encoded as a `string`.
+ *
+ * @category DateTime
+ * @since 4.0.0
+ */
+export const DateTimeZonedFromString: DateTimeZonedFromString = DateTimeZonedString.pipe(
+  decodeTo(DateTimeZoned, Transformation.dateTimeZonedFromString)
 )
 
 // -----------------------------------------------------------------------------
@@ -9812,20 +9963,17 @@ function makeClass<
   Inherited: Inherited,
   identifier: string,
   struct: S,
-  annotations?: Annotations.Declaration<Self, readonly [S]>
+  annotations: Annotations.Declaration<Self, readonly [S]> | undefined,
+  proto: ((identifier: string) => object) | undefined
 ): any {
   const getClassSchema = getClassSchemaFactory(struct, identifier, annotations)
   const ClassTypeId = getClassTypeId(identifier) // HMR support
 
-  return class extends Inherited {
+  const out = class extends Inherited {
     constructor(...[input, options]: ReadonlyArray<any>) {
       const props = input ?? {}
       const validated = struct.makeUnsafe(props, options)
       super({ ...props, ...validated }, { ...options, disableChecks: true })
-    }
-
-    toString() {
-      return `${identifier}(${format({ ...this })})`
     }
 
     static readonly [TypeId] = TypeId
@@ -9899,7 +10047,8 @@ function makeClass<
           this,
           identifier,
           makeStruct(AST.struct(fields, struct.ast.checks, { identifier }), fields),
-          annotations
+          annotations,
+          proto
         )
       }
     }
@@ -9912,6 +10061,12 @@ function makeClass<
       return struct.mapFields(f, options)
     }
   }
+
+  if (proto !== undefined) {
+    Object.assign(out.prototype, proto(identifier))
+  }
+
+  return out
 }
 
 function getClassTransformation(self: new(...args: ReadonlyArray<any>) => any) {
@@ -10028,7 +10183,17 @@ export const Class: {
   annotations?: Annotations.Declaration<Self, readonly [Struct<Struct.Fields>]>
 ): ExtendableClass<Self, Struct<Struct.Fields>, Brand> => {
   const struct = isStruct(schema) ? schema : Struct(schema)
-  return makeClass(Data.Class, identifier, struct, annotations)
+  return makeClass(
+    Data.Class,
+    identifier,
+    struct,
+    annotations,
+    (identifier) => ({
+      toString() {
+        return `${identifier}(${format({ ...this })})`
+      }
+    })
+  )
 }
 
 /**
@@ -10140,8 +10305,15 @@ export const ErrorClass: {
   annotations?: Annotations.Declaration<Self, readonly [Struct<Struct.Fields>]>
 ): ErrorClass<Self, Struct<Struct.Fields>, Cause_.YieldableError & Brand> => {
   const struct = isStruct(schema) ? schema : Struct(schema)
-  const self = makeClass(core.Error, identifier, struct, annotations)
-  ;(self.prototype as any).name = identifier
+  const self = makeClass(
+    core.Error,
+    identifier,
+    struct,
+    annotations,
+    (identifier) => ({
+      name: identifier
+    })
+  )
   return self
 }
 
