@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
@@ -17,7 +18,6 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
-import { decodeJsoncTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
   VersionCategoryReport,
   VersionCategoryStatusEnum,
@@ -190,7 +190,7 @@ export const resolveBiomeSchema: (
       )
     );
 
-    const biomeJson = yield* decodeJsoncTextAsLive(BiomeJsoncDocument)(biomeContent).pipe(
+    const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({
@@ -215,7 +215,7 @@ export const resolveBiomeSchema: (
       )
     );
 
-    const pkgJson = yield* decodeJsoncTextAsLive(RootPackageJsonDocument)(pkgJsonContent).pipe(
+    const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({

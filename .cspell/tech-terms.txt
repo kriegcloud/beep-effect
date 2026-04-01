@@ -59,6 +59,8 @@ logql
 lostpixel
 ltrim
 macaddr
+mdns
+Mdns
 maxclients
 metas
 milli
@@ -101,6 +103,7 @@ rdfs
 RDFS
 redeployments
 replayable
+rlib
 roundrectangle
 rrggbb
 rtrim

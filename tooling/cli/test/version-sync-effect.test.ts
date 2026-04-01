@@ -3,6 +3,10 @@ import {
   buildEffectReport,
   resolveEffectCatalog,
 } from "@beep/repo-cli/commands/VersionSync/internal/resolvers/EffectResolver";
+import {
+  buildNodeReport,
+  resolveNodeVersions,
+} from "@beep/repo-cli/commands/VersionSync/internal/resolvers/NodeResolver";
 import { updateCatalogEntry } from "@beep/repo-cli/commands/VersionSync/internal/updaters/PackageJsonUpdater";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
@@ -55,6 +59,38 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
         yield* fs.remove(tmpDir, { recursive: true });
       })
     );
+
+    it.effect(
+      "parses package.json JSONC with comments and trailing commas through the shared schema module",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectory();
+        const packageJsonPath = path.join(tmpDir, "package.json");
+
+        yield* fs.writeFileString(
+          packageJsonPath,
+          `{
+            // root catalog comment
+            "name": "@beep/test-root",
+            "catalog": {
+              "effect": "^4.0.0-beta.28",
+              "@effect/opentelemetry": "^4.0.0-beta.27",
+            },
+          }\n`
+        );
+
+        const state = yield* resolveEffectCatalog(tmpDir);
+        const report = buildEffectReport(state);
+
+        expect(report.status).toBe("drift");
+        expect(report.items).toHaveLength(1);
+        expect(report.items[0]?.field).toBe("catalog.@effect/opentelemetry");
+        expect(report.items[0]?.expected).toBe("^4.0.0-beta.28");
+
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+    );
   });
 
   describe("updateCatalogEntry", () => {
@@ -86,6 +122,46 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
         expect(changed).toBe(true);
         expect(decodedUpdated.catalog["@effect/opentelemetry"]).toBe("^4.0.0-beta.28");
         expect(decodedUpdated.catalog.effect).toBe("^4.0.0-beta.28");
+
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+    );
+  });
+
+  describe("resolveNodeVersions", () => {
+    it.effect(
+      "parses GitHub workflow YAML through the shared schema codec after extraction to @beep/schema",
+      Effect.fn(function* () {
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const tmpDir = yield* fs.makeTempDirectory();
+        const workflowDir = path.join(tmpDir, ".github", "workflows");
+
+        yield* fs.makeDirectory(workflowDir, { recursive: true });
+        yield* fs.writeFileString(path.join(tmpDir, ".nvmrc"), "20.11.1\n");
+        yield* fs.writeFileString(
+          path.join(workflowDir, "ci.yml"),
+          [
+            "jobs:",
+            "  test:",
+            "    steps:",
+            "      - uses: actions/setup-node@v4",
+            "        with:",
+            "          node-version: 18.19.0",
+          ].join("\n")
+        );
+
+        const state = yield* resolveNodeVersions(tmpDir);
+        const report = buildNodeReport(state);
+
+        expect(state.nvmrc).toBe("20.11.1");
+        expect(state.workflowLocations).toHaveLength(1);
+        expect(state.workflowLocations[0]?.file).toBe(".github/workflows/ci.yml");
+        expect(state.workflowLocations[0]?.currentValue).toBe("18.19.0");
+        expect(state.workflowLocations[0]?.yamlPath).toEqual(["jobs", "test", "steps", 0, "with", "node-version"]);
+        expect(report.status).toBe("drift");
+        expect(report.items).toHaveLength(1);
+        expect(report.items[0]?.expected).toBe("20.11.1");
 
         yield* fs.remove(tmpDir, { recursive: true });
       })

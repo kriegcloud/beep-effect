@@ -2,6 +2,7 @@ AGENTSDK
 aiassistant
 aicontext
 beep
+clawd
 codegraph
 Docable
 graphiti

@@ -1,5 +1,5 @@
 import type { TUnsafe } from "@beep/types";
-import { Function } from "effect";
+import { Function, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { thunkFalse, thunkTrue } from "./thunk.ts";
@@ -127,3 +127,23 @@ export * from "effect/Array";
  * @category Utility
  */
 export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => (A.isArray(a) ? a : A.of(a));
+
+/**
+ * Convert an iterable into a non-empty readonly array, asserting that at least
+ * one element is present.
+ *
+ * @since 0.0.0
+ * @category Utility
+ */
+export const fromIterableNonEmpty = <const TArray>(collection: Iterable<TArray>): A.NonEmptyReadonlyArray<TArray> => {
+  if (A.isArray(collection)) {
+    assertNonEmptyArray(collection);
+    return collection;
+  }
+
+  return pipe(collection, Array.from, (arr) => {
+    assertNonEmptyArray(arr);
+
+    return arr;
+  });
+};

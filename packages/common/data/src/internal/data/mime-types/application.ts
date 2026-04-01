@@ -355,6 +355,18 @@ export const application = {
       "msp",
       "msm",
       "buffer",
+      "app",
+      "data",
+      "dat",
+      "db",
+      "dylib",
+      "idx",
+      "lockb",
+      "max",
+      "node",
+      "rlib",
+      "sketch",
+      "xd",
     ],
   },
   "application/oda": {
@@ -925,6 +937,10 @@ export const application = {
     source: "iana",
     extensions: ["dfac"],
   },
+  "application/vnd.dtg.local.flash": {
+    source: "iana",
+    extensions: ["fla"],
+  },
   "application/vnd.ds-keypoint": {
     source: "apache",
     extensions: ["kpxx"],
@@ -1368,6 +1384,10 @@ export const application = {
   "application/vnd.mediastation.cdkey": {
     source: "iana",
     extensions: ["cdkey"],
+  },
+  "application/vnd.microsoft.portable-executable": {
+    source: "iana",
+    extensions: ["lib"],
   },
   "application/vnd.mfer": {
     source: "iana",
@@ -1869,6 +1889,10 @@ export const application = {
     source: "iana",
     extensions: ["teacher"],
   },
+  "application/vnd.sqlite3": {
+    source: "iana",
+    extensions: ["sqlite", "sqlite3"],
+  },
   "application/vnd.software602.filler.form+xml": {
     source: "iana",
     extensions: ["fo"],
@@ -2174,6 +2198,10 @@ export const application = {
     source: "apache",
     extensions: ["ace"],
   },
+  "application/x-archive": {
+    source: "apache",
+    extensions: ["a"],
+  },
   "application/x-apple-diskimage": {
     source: "apache",
     extensions: ["dmg"],
@@ -2197,6 +2225,10 @@ export const application = {
   "application/x-bittorrent": {
     source: "apache",
     extensions: ["torrent"],
+  },
+  "application/x-blender": {
+    source: "apache",
+    extensions: ["blend"],
   },
   "application/x-blorb": {
     source: "apache",
@@ -2233,6 +2265,14 @@ export const application = {
   "application/x-cocoa": {
     source: "nginx",
     extensions: ["cco"],
+  },
+  "application/x-compress": {
+    source: "apache",
+    extensions: ["z"],
+  },
+  "application/x-compressed-tar": {
+    source: "apache",
+    extensions: ["tgz"],
   },
   "application/x-conference": {
     source: "apache",
@@ -2454,6 +2494,10 @@ export const application = {
     source: "apache",
     extensions: ["nzb"],
   },
+  "application/x-object": {
+    source: "apache",
+    extensions: ["o"],
+  },
   "application/x-perl": {
     source: "nginx",
     extensions: ["pl", "pm"],
@@ -2473,6 +2517,10 @@ export const application = {
   "application/x-pkcs7-certreqresp": {
     source: "apache",
     extensions: ["p7r"],
+  },
+  "application/x-python-bytecode": {
+    source: "apache",
+    extensions: ["pyc", "pyo"],
   },
   "application/x-rar-compressed": {
     source: "apache",

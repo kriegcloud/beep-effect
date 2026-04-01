@@ -10,6 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
+import { decodeYamlTextAs } from "@beep/schema/Yaml";
 import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
 import { Effect, FileSystem, identity, Path, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
@@ -18,7 +19,6 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { decodeYamlTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import { VersionCategoryReport, VersionCategoryStatusThunk, VersionDriftItem, VersionSyncError } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/NodeResolver");
@@ -194,7 +194,7 @@ const findNodeVersionLocations: (
 ) => Effect.Effect<Array<NodeVersionLocation>, VersionSyncError> = Effect.fn(function* (content, relativeFile) {
   let locations = A.empty<NodeVersionLocation>();
 
-  const workflow = yield* decodeYamlTextAsLive(WorkflowDocument)(content).pipe(
+  const workflow = yield* decodeYamlTextAs(WorkflowDocument)(content).pipe(
     Effect.mapError(
       (e) =>
         new VersionSyncError({
