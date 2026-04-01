@@ -1,3 +1,0 @@
-"""
-Row embeddings storage modules.
-"""

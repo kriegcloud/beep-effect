@@ -1,4 +1,0 @@
-packages:
-  - 'packages/*'
-  - '!examples/**/*'
-  - '!scripts/__tests__/integration/fixtures/**/*'

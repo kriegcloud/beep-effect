@@ -1,8 +1,0 @@
-{
-  "ExtraMethods": {
-    "Checker": ["isTypeAssignableTo", "isArrayType", "isReadonlyArrayType", "getIndexInfosOfType", "getTypeArguments", "getLiteralTypeFromProperty", "getSymbolIfSameReference", "getSymbolOfDeclaration"]
-  },
-  "ExtraFields": {
-    "IndexInfo": ["keyType", "valueType"]
-  }
-}
