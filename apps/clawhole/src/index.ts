@@ -14,7 +14,7 @@ export * from "./config/Secrets.ts";
  * @since 0.0.0
  * @category Re-exports
  */
-export * from "./config/Tts.ts";
+export * from "./config/TextToSpeech.ts";
 
 /**
  * @since 0.0.0
