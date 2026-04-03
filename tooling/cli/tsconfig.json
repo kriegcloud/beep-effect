@@ -9,6 +9,9 @@
   },
   "references": [
     {
+      "path": "../../packages/common/chalk/tsconfig.json"
+    },
+    {
       "path": "../../packages/common/identity/tsconfig.json"
     },
     {
