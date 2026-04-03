@@ -1,7 +1,0 @@
-export * from "./file.table";
-export * from "./folder.table";
-export * from "./organization.table";
-export * from "./session.table";
-export * from "./team.table";
-export * from "./upload-session.table";
-export * from "./user.table";

@@ -1,4 +1,0 @@
-[mcp_servers.next-devtools]
-command = "bunx"
-args = ['--bun', '-y', 'next-devtools-mcp@latest']
-
