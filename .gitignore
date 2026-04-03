@@ -77,6 +77,5 @@ sst-env.d.ts
 .beep
 **/.beep
 
-
-subtrees
-.repos/chalk
+# subtrees
+.repos

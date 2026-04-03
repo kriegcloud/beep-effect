@@ -1,1 +1,0 @@
-export * from "./DocumentFile.model";

@@ -1,1 +1,0 @@
-export * from "./KnowledgeAgent.repo";
