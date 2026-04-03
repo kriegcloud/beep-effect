@@ -138,6 +138,12 @@
       ],
       "@beep/chalk/*": [
         "./packages/common/chalk/src/*"
+      ],
+      "@beep/docgen": [
+        "./tooling/docgen/docgen/src/index.ts"
+      ],
+      "@beep/docgen/*": [
+        "./tooling/docgen/docgen/src/*"
       ]
     },
     "plugins": [

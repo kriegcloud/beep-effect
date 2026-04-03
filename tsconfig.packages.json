@@ -124,6 +124,9 @@
       "path": "tooling/configs"
     },
     {
+      "path": "tooling/docgen/docgen"
+    },
+    {
       "path": "tooling/repo-utils"
     },
     {

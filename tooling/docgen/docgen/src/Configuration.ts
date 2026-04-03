@@ -6,17 +6,36 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { TSConfigCompilerOptions } from "@beep/repo-utils";
 
 import { SchemaUtils } from "@beep/schema";
 import { A } from "@beep/utils";
-import { ServiceMap } from "effect";
+import { Effect, SchemaTransformation, ServiceMap } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/DocgenV2/Configuration");
 
-const CompilerOptions = S.Union([S.String, S.Record(S.String, S.Unknown)]).pipe(
+const strictDecodeOptions = { onExcessProperty: "error" as const };
+const EncodedTSConfigCompilerOptions = S.toEncoded(TSConfigCompilerOptions);
+const decodeEncodedTSConfigCompilerOptions = S.decodeUnknownEffect(EncodedTSConfigCompilerOptions);
+
+const CompilerOptionsObject = S.Unknown.pipe(
+  S.decodeTo(
+    EncodedTSConfigCompilerOptions,
+    SchemaTransformation.transformOrFail({
+      decode: (input) =>
+        decodeEncodedTSConfigCompilerOptions(input, strictDecodeOptions).pipe(Effect.mapError((error) => error.issue)),
+      encode: Effect.succeed,
+    })
+  ),
+  $I.annoteSchema("CompilerOptionsObject", {
+    description: "Strict encoded TSConfig compiler options validated via @beep/repo-utils.",
+  })
+);
+
+const CompilerOptions = S.Union([S.String, CompilerOptionsObject]).pipe(
   SchemaUtils.withStatics((schema) => {
-    const defaultValue = schema.makeUnsafe({
+    const defaultValue = S.decodeUnknownSync(CompilerOptionsObject)({
       noEmit: true,
       strict: true,
       skipLibCheck: true,
@@ -24,6 +43,7 @@ const CompilerOptions = S.Union([S.String, S.Record(S.String, S.Unknown)]).pipe(
       target: "ES2022",
       lib: ["ES2022", "DOM"],
     });
+
     return {
       defaultValue,
       withKeyDefaults: (description: string) =>
@@ -85,9 +105,7 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
       default: [],
     }),
     parseCompilerOptions: CompilerOptions.withKeyDefaults("tsconfig for parsing options (or path to a tsconfig)"),
-    examplesCompilerOptions: CompilerOptions.withKeyDefaults(
-      "tsconfig for the examples options (or path to a tsconfig)"
-    ),
+    examplesCompilerOptions: CompilerOptions.withKeyDefaults("tsconfig for the examples options (or path to a tsconfig)"),
   },
   $I.annote("ConfigurationShape", {
     description: "Configuration schema for @beep/repo-cli docgen",

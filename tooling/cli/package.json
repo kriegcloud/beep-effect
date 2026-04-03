@@ -62,19 +62,21 @@
     "@beep/identity": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@beep/chalk": "workspace:^",
+    "@babel/code-frame": "catalog:",
+    "doctrine": "catalog:",
+    "@effect/markdown-toc": "catalog:",
+    "jsonc-parser": "catalog:",
     "@effect/platform-node": "catalog:",
     "d3-dsv": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
-    "@beep/chalk": "workspace:^",
-    "doctrine": "catalog:",
-    "@effect/markdown-toc": "catalog:",
     "handlebars": "catalog:",
-    "jsonc-parser": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
     "@types/doctrine": "catalog:",
+    "@types/babel__code-frame": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   }

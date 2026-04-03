@@ -3,7 +3,7 @@
   "exclude": [
     "src/internal/**/*.ts"
   ],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/tables/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/docgen/docgen/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -35,11 +35,17 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/shared-tables": [
-        "../../../packages/shared/tables/src/index.ts"
+      "@beep/docgen": [
+        "../../../tooling/docgen/docgen/src/index.ts"
       ],
-      "@beep/shared-tables/*": [
-        "../../../packages/shared/tables/src/*.ts"
+      "@beep/docgen/*": [
+        "../../../tooling/docgen/docgen/src/*.ts"
+      ],
+      "@beep/chalk": [
+        "../../../packages/common/chalk/src/index.ts"
+      ],
+      "@beep/chalk/*": [
+        "../../../packages/common/chalk/src/*.ts"
       ],
       "@beep/identity": [
         "../../../packages/common/identity/src/index.ts"
@@ -47,11 +53,23 @@
       "@beep/identity/*": [
         "../../../packages/common/identity/src/*.ts"
       ],
+      "@beep/repo-utils": [
+        "../../../tooling/repo-utils/src/index.ts"
+      ],
+      "@beep/repo-utils/*": [
+        "../../../tooling/repo-utils/src/*.ts"
+      ],
       "@beep/schema": [
         "../../../packages/common/schema/src/index.ts"
       ],
       "@beep/schema/*": [
         "../../../packages/common/schema/src/*.ts"
+      ],
+      "@beep/types": [
+        "../../../packages/common/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../packages/common/types/src/*.ts"
       ],
       "@beep/utils": [
         "../../../packages/common/utils/src/index.ts"
