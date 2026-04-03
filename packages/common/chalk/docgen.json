@@ -1,10 +1,6 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": [
-    "src/internal/**/*.ts",
-    "src/Chalk.browser.ts",
-    "src/index.ts"
-  ],
+  "exclude": ["src/internal/**/*.ts", "src/Chalk.browser.ts", "src/index.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/chalk/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
@@ -13,11 +9,7 @@
     "moduleResolution": "Bundler",
     "module": "ES2022",
     "target": "ES2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -34,29 +26,15 @@
     "noFallthroughCasesInSwitch": true,
     "stripInternal": false,
     "noErrorTruncation": true,
-    "types": [
-      "node"
-    ],
+    "types": ["node"],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/chalk": [
-        "../../../packages/common/chalk/src/index.ts"
-      ],
-      "@beep/chalk/*": [
-        "../../../packages/common/chalk/src/*.ts"
-      ],
-      "@beep/identity": [
-        "../../../packages/common/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../../packages/common/identity/src/*.ts"
-      ],
-      "@beep/schema": [
-        "../../../packages/common/schema/src/index.ts"
-      ],
-      "@beep/schema/*": [
-        "../../../packages/common/schema/src/*.ts"
-      ]
+      "@beep/chalk": ["../../../packages/common/chalk/src/index.ts"],
+      "@beep/chalk/*": ["../../../packages/common/chalk/src/*.ts"],
+      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
     }
   }
 }
