@@ -33,5 +33,5 @@
     "packages/shared/tables/dtslint/**/*.tst.*",
     "packages/shared/ui/dtslint/**/*.tst.*"
   ],
-  "tsconfig": "ignore"
+  "tsconfig": "findup"
 }

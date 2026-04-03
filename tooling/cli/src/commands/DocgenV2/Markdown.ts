@@ -1,7 +1,5 @@
 /**
- *
- *
- * @module @beep/repo-cli/commands/DocgenV2/Domain
+ * @module @beep/repo-cli/commands/DocgenV2/Markdown
  * @since 0.0.0
  */
 
@@ -17,7 +15,7 @@ import * as Str from "effect/String";
 import Prettier from "prettier";
 import * as Domain from "./Domain.ts";
 
-const $I = $RepoCliId.create("commands/DocgenV2/Domain");
+const $I = $RepoCliId.create("commands/DocgenV2/Markdown");
 
 class DocgenMarkdownError extends TaggedErrorClass<DocgenMarkdownError>($I`DocgenMarkdownError`)(
   "DocgenMarkdownError",
@@ -31,6 +29,12 @@ class DocgenMarkdownError extends TaggedErrorClass<DocgenMarkdownError>($I`Docge
   })
 ) {}
 
+/**
+ * Schema for the domain nodes that can be rendered as markdown sections.
+ *
+ * @category Schemas
+ * @since 0.0.0
+ */
 export const Printable = S.Union([
   Domain.Class,
   Domain.Constant,
@@ -41,10 +45,16 @@ export const Printable = S.Union([
   Domain.Namespace,
 ]).pipe(
   $I.annoteSchema("Printable", {
-    description: "",
+    description: "Schema for the domain nodes that can be rendered as markdown sections.",
   })
 );
 
+/**
+ * Runtime type for the domain nodes that can be rendered as markdown sections.
+ *
+ * @category Types
+ * @since 0.0.0
+ */
 export type Printable = typeof Printable.Type;
 
 const createHeaderPrinter =
@@ -185,7 +195,15 @@ const printMeta = (title: string, order: number): string =>
     "---"
   );
 
-/** @internal */
+/**
+ * Renders a documented class section.
+ *
+ * @internal
+ * @param model The class model to render.
+ * @returns Markdown for the class section.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const printClass = (model: Domain.Class): string =>
   MarkdownPrinter.paragraph(
     MarkdownPrinter.paragraph(
@@ -200,7 +218,15 @@ export const printClass = (model: Domain.Class): string =>
     printProperties(model.properties)
   );
 
-/** @internal */
+/**
+ * Renders a documented constant section.
+ *
+ * @internal
+ * @param model The constant model to render.
+ * @returns Markdown for the constant section.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const printConstant = (model: Domain.Constant): string =>
   MarkdownPrinter.paragraph(
     MarkdownPrinter.h2(printTitle(model.name, model.deprecated)),
@@ -210,7 +236,15 @@ export const printConstant = (model: Domain.Constant): string =>
     printSince(model.since)
   );
 
-/** @internal */
+/**
+ * Renders a documented re-export section.
+ *
+ * @internal
+ * @param model The re-export model to render.
+ * @returns Markdown for the re-export section.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const printExport = (model: Domain.Export): string =>
   MarkdownPrinter.paragraph(
     MarkdownPrinter.h2(printTitle(model.name, model.deprecated)),
@@ -220,7 +254,15 @@ export const printExport = (model: Domain.Export): string =>
     printSince(model.since)
   );
 
-/** @internal */
+/**
+ * Renders a documented function section.
+ *
+ * @internal
+ * @param model The function model to render.
+ * @returns Markdown for the function section.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const printFunction = (model: Domain.Function): string =>
   MarkdownPrinter.paragraph(
     MarkdownPrinter.h2(printTitle(model.name, model.deprecated)),
@@ -230,7 +272,16 @@ export const printFunction = (model: Domain.Function): string =>
     printSince(model.since)
   );
 
-/** @internal */
+/**
+ * Renders a documented interface section.
+ *
+ * @internal
+ * @param model The interface model to render.
+ * @param indentation The current heading indentation level.
+ * @returns Markdown for the interface section.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const printInterface = (model: Domain.Interface, indentation: number): string =>
   MarkdownPrinter.paragraph(
     getHeaderByIndentation(indentation)(printTitle(model.name, model.deprecated, "(interface)")),
@@ -240,7 +291,16 @@ export const printInterface = (model: Domain.Interface, indentation: number): st
     printSince(model.since)
   );
 
-/** @internal */
+/**
+ * Renders a documented type alias section.
+ *
+ * @internal
+ * @param model The type alias model to render.
+ * @param indentation The current heading indentation level.
+ * @returns Markdown for the type alias section.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const printTypeAlias = (model: Domain.TypeAlias, indentation: number): string =>
   MarkdownPrinter.paragraph(
     getHeaderByIndentation(indentation)(printTitle(model.name, model.deprecated, "(type alias)")),
@@ -261,7 +321,16 @@ const getHeaderByIndentation = (indentation: number) => {
   }
 };
 
-/** @internal */
+/**
+ * Renders a documented namespace section and its nested members.
+ *
+ * @internal
+ * @param ns The namespace model to render.
+ * @param indentation The current heading indentation level.
+ * @returns Markdown for the namespace section.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const printNamespace = (ns: Domain.Namespace, indentation: number): string =>
   MarkdownPrinter.paragraph(
     MarkdownPrinter.paragraph(
@@ -290,7 +359,15 @@ export const printNamespace = (ns: Domain.Namespace, indentation: number): strin
     ).join("")
   );
 
-/** @internal */
+/**
+ * Renders a printable domain node into markdown.
+ *
+ * @internal
+ * @param p The printable value to render.
+ * @returns Markdown for the provided domain node.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const print = (p: Printable): string => {
   switch (p._tag) {
     case "Class":
@@ -346,15 +423,18 @@ const toMarkdownError =
     });
 
 /**
+ * Renders a full module page, including metadata, table of contents, and grouped export sections.
+ *
+ * @param module The parsed module model to render.
+ * @param order The navigation order for the generated page.
+ * @returns An effect that yields formatted markdown for the module page.
  * @example
  * import * as Markdown from "@effect/docgen/Markdown"
  * import * as Domain from "@effect/docgen/Domain"
  * import { Option } from "effect"
- *
  * const doc = Domain.createNamedDoc("tests", O.none(), O.some("1.0.0"), false, [], O.none())
  * const m = Domain.createModule(doc, ["src", "tests.ts"], [], [], [], [], [], [], [])
  * console.log(Markdown.printModule(m, 0))
- *
  * @category printers
  * @since 1.0.0
  */
@@ -400,7 +480,15 @@ const defaultPrettierOptions: Prettier.Options = {
   trailingComma: "none",
 };
 
-/** @internal */
+/**
+ * Formats generated markdown with Prettier before it is written to disk.
+ *
+ * @internal
+ * @param s The markdown string to format.
+ * @returns An effect that yields formatted markdown.
+ * @category Printers
+ * @since 1.0.0
+ */
 export const prettify = (s: string) =>
   Effect.tryPromise({
     try: () => Prettier.format(s, defaultPrettierOptions),

@@ -1,6 +1,4 @@
 /**
- *
- *
  * @module @beep/repo-cli/commands/DocgenV2/Parser
  * @since 0.0.0
  */
@@ -29,22 +27,40 @@ const $I = $RepoCliId.create("commands/DocgenV2/Parser");
 
 const SourceFile = S.declare((u: unknown): u is ast.SourceFile => u instanceof ast.SourceFile);
 
-/** @internal */
+/**
+ * Carries the active source file and its path segments while parser effects run.
+ *
+ * @internal
+ * @category Context
+ * @since 0.0.0
+ */
 export class SourceShape extends S.Class<SourceShape>($I`SourceShape`)({
   path: S.Array(S.String),
   sourceFile: SourceFile,
 }) {}
 
-/** @internal */
+/**
+ * Supplies the active source file context to parser effects.
+ *
+ * @internal
+ * @category Services
+ * @since 0.0.0
+ */
 export class Source extends ServiceMap.Service<Source, SourceShape>()($I`Source`) {}
 
+/**
+ * Represents the parsed description and tag map extracted from a JSDoc block.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
 export class Comment extends S.Class<Comment>($I`Comment`)(
   {
     description: S.Option(S.String),
     tags: S.Record(S.String, S.String.pipe(S.Option, S.NonEmptyArray)),
   },
   $I.annote("Comment", {
-    description: "",
+    description: "Represents the parsed description and tag map extracted from a JSDoc block.",
   })
 ) {}
 
@@ -64,7 +80,12 @@ const sortByName: <
 const sortModulesByPath: <const T extends Domain.Module>(self: Iterable<T>) => Array<T> = A.sort(Domain.ByPath);
 
 /**
+ * Removes `import("...").` prefixes from rendered type text.
+ *
  * @internal
+ * @returns A helper that strips inline import type syntax from declaration text.
+ * @category Utilities
+ * @since 0.0.0
  */
 export const stripImportTypes = flow(Str.replace(/import\("((?!").)*"\)./g, ""));
 
@@ -91,8 +112,13 @@ const getVariableStatement = (vd: ast.VariableDeclaration): O.Option<ast.Variabl
   );
 
 /**
- * @internal
+ * Parses raw JSDoc text into normalized description and tag collections.
  *
+ * @internal
+ * @param text The raw JSDoc text to parse.
+ * @returns A normalized `Comment` model.
+ * @category Parsers
+ * @since 0.0.0
  */
 export const parseComment = (text: string): Comment => {
   const annotation: doctrine.Annotation = doctrine.parse(text, {
@@ -192,7 +218,15 @@ const getExamplesTag = Effect.fn(function* (name: string, comment: Comment, isMo
 });
 
 /**
+ * Builds validated documentation metadata from raw JSDoc text.
+ *
  * @internal
+ * @param name The symbol name used in validation errors.
+ * @param text The raw JSDoc text to parse.
+ * @param isModule Whether module-level example enforcement should be skipped.
+ * @returns An effect that yields the parsed `Doc` metadata.
+ * @category Parsers
+ * @since 0.0.0
  */
 export const getDoc = Effect.fn(function* (name: string, text: string, isModule = false) {
   const comment = parseComment(text);
@@ -232,6 +266,8 @@ const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDecla
 };
 
 /**
+ * Parses exported interfaces from the active source file.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -333,6 +369,8 @@ const parseFunctionDeclarations = (functions: ReadonlyArray<ast.FunctionDeclarat
   Effect.validate(functions, parseFunctionDeclaration).pipe(Effect.map(sortByName));
 
 /**
+ * Parses exported functions and function-like variable declarations from the active source file.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -362,6 +400,8 @@ const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDecl
 };
 
 /**
+ * Parses exported type aliases from the active source file.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -383,6 +423,8 @@ const parseConstantVariableDeclaration = Effect.fn(function* (vd: ast.VariableDe
 });
 
 /**
+ * Parses exported constant declarations from the active source file.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -424,7 +466,7 @@ const parseExportStar = Effect.fn(function* (exportDeclaration: ast.ExportDeclar
     O.map((value) => value.getName())
   );
   const signature = `export *${O.match(namespace, {
-    onNone: () => "",
+    onNone: thunkEmptyStr,
     onSome: (value) => ` as ${value}`,
   })} from ${name}`;
   const maybeCommentRange = A.head(exportDeclaration.getLeadingCommentRanges());
@@ -471,6 +513,8 @@ const parseNamedExports = (exportDeclaration: ast.ExportDeclaration) =>
   );
 
 /**
+ * Parses documented re-exports from the active source file.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -518,6 +562,8 @@ const parseModuleDeclarations = (
 };
 
 /**
+ * Parses exported namespace declarations from the active source file.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -530,7 +576,7 @@ const getTypeParameters = (typeParameters: ReadonlyArray<ast.TypeParameterDeclar
   pipe(
     typeParameters,
     A.matchLeft({
-      onEmpty: () => "",
+      onEmpty: thunkEmptyStr,
       onNonEmpty: () =>
         `<${pipe(
           typeParameters,
@@ -611,7 +657,13 @@ const parseProperties = (name: string, classDeclaration: ast.ClassDeclaration) =
 };
 
 /**
+ * Extracts the declaration signature for a class constructor.
+ *
  * @internal
+ * @param constructor The constructor declaration to render.
+ * @returns The constructor signature without its implementation body.
+ * @category Parsers
+ * @since 0.0.0
  */
 export const getConstructorDeclarationSignature = (constructor: ast.ConstructorDeclaration): string =>
   pipe(
@@ -667,6 +719,8 @@ const parseClass = Effect.fn(function* (classDeclaration: ast.ClassDeclaration) 
 });
 
 /**
+ * Parses exported classes from the active source file.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -685,7 +739,12 @@ export const parseClasses = Effect.gen(function* () {
 });
 
 /**
+ * Parses the leading file comment into module-level documentation metadata.
+ *
  * @internal
+ * @returns An effect that yields the module-level `NamedDoc` metadata.
+ * @category Parsers
+ * @since 0.0.0
  */
 export const parseModuleDocumentation = Effect.gen(function* () {
   const config = yield* Configuration.Configuration;
@@ -723,6 +782,8 @@ export const parseModuleDocumentation = Effect.gen(function* () {
 });
 
 /**
+ * Parses every documented export in the active source file into a module model.
+ *
  * @category parsers
  * @since 1.0.0
  */
@@ -750,7 +811,13 @@ export const parseModule = Effect.gen(function* () {
 });
 
 /**
+ * Creates a single-file parser bound to a prepared ts-morph project.
+ *
  * @internal
+ * @param project The project that already contains the files being parsed.
+ * @returns A parser function for one file entry.
+ * @category Parsers
+ * @since 1.0.0
  */
 export const parseFile = (project: ast.Project) =>
   Effect.fn(function* (file: File.File) {
@@ -798,6 +865,10 @@ const createProject = (files: ReadonlyArray<File.File>) =>
   });
 
 /**
+ * Parses a collection of files into sorted module documentation models.
+ *
+ * @param files The files to parse.
+ * @returns An effect that yields the parsed module models.
  * @category parsers
  * @since 1.0.0
  */

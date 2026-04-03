@@ -71,11 +71,15 @@ describe("Browser schemas", () => {
 
     expect(O.isSome(config.profiles)).toBe(true);
     if (O.isSome(config.profiles)) {
-      expect(config.profiles.value.chrome).toMatchObject({
-        cdpPort: O.some(9222),
+      expect(config.profiles.value).toMatchObject({
+        chrome: {
+          cdpPort: O.some(9222),
+          color: "#abcdef",
+        },
+        user: {
+          color: "#00aa00",
+        },
       });
-      expect(config.profiles.value.chrome.color).toBe("#abcdef");
-      expect(config.profiles.value.user.color).toBe("#00aa00");
     }
   });
 

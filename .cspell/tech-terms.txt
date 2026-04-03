@@ -47,6 +47,8 @@ hotspot
 httpapi
 inlines
 jsonc
+jsdocs
+jsxdev
 lede
 lerp
 lgtm
@@ -103,6 +105,7 @@ rdfs
 RDFS
 redeployments
 replayable
+recompiles
 rlib
 roundrectangle
 rrggbb

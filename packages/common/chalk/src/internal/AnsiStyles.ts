@@ -1,17 +1,25 @@
+import { $ChalkId } from "@beep/identity/packages";
 import { Match } from "effect";
+import * as S from "effect/Schema";
 import type { backgroundColorNameValues, foregroundColorNameValues, modifierNameValues } from "./ChalkSchema.ts";
 
 type AnsiCodePair = readonly [open: number, close: number];
+const $I = $ChalkId.create("Domain");
 
 export type ModifierStyleName = (typeof modifierNameValues)[number];
 export type ForegroundStyleName = (typeof foregroundColorNameValues)[number];
 export type BackgroundStyleName = (typeof backgroundColorNameValues)[number];
 export type StyleName = ModifierStyleName | ForegroundStyleName | BackgroundStyleName;
 
-export type StylerEntry = {
-  readonly open: string;
-  readonly close: string;
-};
+export class StylerEntry extends S.Class<StylerEntry>($I`StylerEntry`)(
+  {
+    open: S.String,
+    close: S.String,
+  },
+  $I.annote("StylerEntry", {
+    description: "Open and close ANSI escape sequences for a single chalk style.",
+  })
+) {}
 
 const ANSI_BACKGROUND_OFFSET = 10;
 
@@ -84,10 +92,11 @@ const backgroundCodes: Record<BackgroundStyleName, AnsiCodePair> = {
   bgWhiteBright: [107, 49],
 };
 
-const toStyleEntry = ([open, close]: AnsiCodePair): StylerEntry => ({
-  open: `\u001B[${open}m`,
-  close: `\u001B[${close}m`,
-});
+const toStyleEntry = ([open, close]: AnsiCodePair): StylerEntry =>
+  new StylerEntry({
+    open: `\u001B[${open}m`,
+    close: `\u001B[${close}m`,
+  });
 
 const modifierStyles: Record<string, StylerEntry> = Object.fromEntries(
   Object.entries(modifierCodes).map(([styleName, pair]) => [styleName, toStyleEntry(pair)])

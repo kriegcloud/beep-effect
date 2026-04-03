@@ -1219,7 +1219,7 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
 
 const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: ReadonlyArray<WorkspaceDescriptor>) {
   const path = yield* Path.Path;
-  const filePath = path.join(rootDir, "tstyche.config.json");
+  const filePath = path.join(rootDir, "tstyche.json");
 
   const original = yield* readFileString(filePath);
   const parsed = yield* parseJsonObject(original, filePath);

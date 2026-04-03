@@ -1,6 +1,4 @@
 /**
- *
- *
  * @module @beep/repo-cli/commands/DocgenV2/Configuration
  * @since 0.0.0
  */
@@ -38,9 +36,17 @@ const CompilerOptions = S.Union([S.String, S.Record(S.String, S.Unknown)]).pipe(
   })
 );
 
+/**
+ * Supported compiler option input shapes for DocgenV2 parsing and example checks.
+ *
+ * @category Types
+ * @since 0.0.0
+ */
 export type CompilerOptions = typeof CompilerOptions.Type;
 
 /**
+ * Declares the configuration schema consumed by the DocgenV2 command.
+ *
  * @category Configuration
  * @since 0.0.0
  */
@@ -94,4 +100,10 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
   })
 ) {}
 
+/**
+ * Provides resolved DocgenV2 configuration to effectful command services.
+ *
+ * @category Services
+ * @since 0.0.0
+ */
 export class Configuration extends ServiceMap.Service<Configuration, ConfigurationShape>()($I`Configuration`) {}

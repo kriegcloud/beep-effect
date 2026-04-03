@@ -347,7 +347,7 @@ export const updateTsconfigPaths: (
 });
 
 /**
- * Add a test file match entry to `tstyche.config.json`.
+ * Add a test file match entry to `tstyche.json`.
  *
  * Idempotent: if the entry already exists or is covered by a parent wildcard
  * glob, the file is left untouched.
@@ -365,7 +365,7 @@ export const updateTstycheConfig: (
 ) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
   function* (repoRoot, packagePath) {
     const path = yield* Path.Path;
-    const filePath = path.join(repoRoot, "tstyche.config.json");
+    const filePath = path.join(repoRoot, "tstyche.json");
 
     return yield* modifyFileString(
       filePath,
@@ -434,9 +434,9 @@ const checkConfigNeedsUpdateForTarget: (
     );
 
     const tstycheContent = yield* fs
-      .readFileString(path.join(repoRoot, "tstyche.config.json"))
-      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tstyche.config.json: ${e}` })));
-    const tstycheParsed = yield* parseJsoncObject(tstycheContent, "tstyche.config.json");
+      .readFileString(path.join(repoRoot, "tstyche.json"))
+      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tstyche.json: ${e}` })));
+    const tstycheParsed = yield* parseJsoncObject(tstycheContent, "tstyche.json");
     const testFileMatch = readTestFileMatch(tstycheParsed);
     const tstycheConfig = !isTstycheEntryCovered(testFileMatch, target.packagePath);
 

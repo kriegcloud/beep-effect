@@ -12,6 +12,8 @@ drei
 Embla
 excalidraw
 geist
+ghostty
+gitea
 gitleaks
 kysely
 lefthook
@@ -39,3 +41,5 @@ tstyche
 turborepo
 vaul
 vitest
+wezterm
+rxvt

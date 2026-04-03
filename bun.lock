@@ -872,7 +872,8 @@
     "flatted": "^3.4.1",
     "happy-dom": "^20.8.9",
     "hono": "^4.12.7",
-    "minimatch": "^10.2.3",
+    "lodash": "catalog:",
+    "minimatch": "catalog:",
     "smol-toml": "1.6.1",
     "undici": "^7.24.4",
   },
@@ -1000,9 +1001,11 @@
     "jsonld-streaming-serializer": "^4.0.0",
     "lefthook": "^2.1.4",
     "lexical": "^0.42.0",
+    "lodash": "^4.18.1",
     "lost-pixel": "^3.8.3-beta.1",
     "madge": "^8.0.0",
     "markdownlint-cli2": "^0.22.0",
+    "minimatch": "^10.2.4",
     "next": "16.2.1-canary.18",
     "pg-protocol": "^1.13.0",
     "picomatch": "^4.0.4",
@@ -3773,7 +3776,7 @@
 
     "locate-path": ["locate-path@6.0.0", "", { "dependencies": { "p-locate": "^5.0.0" } }, "sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw=="],
 
-    "lodash": ["lodash@4.17.23", "", {}, "sha512-LgVTMpQtIopCi79SJeDiP0TfWi5CNEc/L/aRdTh3yIvmZXTnheWpKjSZhnvMl8iXbC1tFg9gdHHDMLoV7CnG+w=="],
+    "lodash": ["lodash@4.18.1", "", {}, "sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q=="],
 
     "lodash.camelcase": ["lodash.camelcase@4.3.0", "", {}, "sha512-TwuEnCnxbc3rAvhf/LbG7tJUDzhqXyFnv3dtzLOPgCG/hODL7WFnsbwktkD7yUV0RrreP/l1PALq/YSg6VvjlA=="],
 
