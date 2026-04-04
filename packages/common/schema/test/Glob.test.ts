@@ -5,12 +5,13 @@ import * as S from "effect/Schema";
 describe("Glob", () => {
   const decode = S.decodeUnknownSync(Glob);
 
-  it("accepts portable glob patterns supported by the matcher stack", () => {
+  it("accepts portable glob patterns supported by the Bun parser", () => {
     expect(decode("src/**/*.ts")).toBe("src/**/*.ts");
     expect(decode("{src,test}/**/*.ts")).toBe("{src,test}/**/*.ts");
     expect(decode("foo/bar")).toBe("foo/bar");
     expect(decode("foo/[bar")).toBe("foo/[bar");
     expect(decode("foo/{bar")).toBe("foo/{bar");
+    expect(decode("!index.ts")).toBe("!index.ts");
   });
 
   it("rejects empty input", () => {

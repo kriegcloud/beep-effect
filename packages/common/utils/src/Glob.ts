@@ -1,7 +1,11 @@
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
-import { Effect, Function as Fn, Layer, ServiceMap } from "effect";
+import { Effect, Layer, pipe, ServiceMap } from "effect";
+import * as A from "effect/Array";
+import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as GlobLib from "glob";
+import * as Str from "effect/String";
 import * as Thunk from "./internal/Thunk.ts";
 
 const $I = $UtilsId.create("Glob");
@@ -17,6 +21,18 @@ export const Pattern = S.Union([S.String, S.Array(S.String)]);
  * @category Validation
  */
 export type Pattern = typeof Pattern.Type;
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export interface GlobOptions {
+  readonly absolute?: undefined | boolean;
+  readonly cwd?: undefined | string;
+  readonly dot?: undefined | boolean;
+  readonly ignore?: undefined | Pattern;
+  readonly nodir?: undefined | boolean;
+}
 
 /**
  * @since 0.0.0
@@ -55,10 +71,7 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
  * @category PortContract
  */
 export interface Glob {
-  readonly glob: (
-    pattern: string | ReadonlyArray<string>,
-    options?: GlobLib.GlobOptions
-  ) => Effect.Effect<Array<string>, GlobError>;
+  readonly glob: (pattern: Pattern, options?: undefined | GlobOptions) => Effect.Effect<Array<string>, GlobError>;
 }
 
 /**
@@ -67,14 +80,92 @@ export interface Glob {
  */
 export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");
 
+type BunGlobConstructor = typeof Bun.Glob;
+type BunGlobInstance = InstanceType<BunGlobConstructor>;
+type BunGlobScanRoot = Parameters<BunGlobInstance["scanSync"]>[0];
+
+const absolutePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
+
+const ensureTrailingSeparator = (value: string): string =>
+  Str.endsWith("/")(value) || Str.endsWith("\\")(value) ? value : `${value}/`;
+
+const normalizePathSeparators = Str.replaceAll("\\", "/");
+
+const toPatterns = (pattern: Pattern): ReadonlyArray<string> => (P.isString(pattern) ? [pattern] : pattern);
+
+const toIgnorePatterns = (ignore: undefined | Pattern): ReadonlyArray<string> =>
+  ignore === undefined ? [] : toPatterns(ignore);
+
+const toDirectoryUrl = (cwd: string): URL => {
+  const normalizedCwd = ensureTrailingSeparator(cwd);
+
+  if (absolutePathPattern.test(normalizedCwd)) {
+    return pathToFileURL(normalizedCwd);
+  }
+
+  return new URL(normalizedCwd, pathToFileURL(ensureTrailingSeparator(process.cwd())));
+};
+
+const toAbsolutePath =
+  (cwdUrl: URL) =>
+  (relativePath: string): string =>
+    fileURLToPath(new URL(normalizePathSeparators(relativePath), cwdUrl));
+
+const getBunGlobConstructor = (): BunGlobConstructor => {
+  const BunGlob = globalThis.Bun?.Glob;
+
+  if (BunGlob === undefined) {
+    throw new Error("Bun.Glob is unavailable in the current runtime");
+  }
+
+  return BunGlob;
+};
+
+const compileGlobs = (BunGlob: BunGlobConstructor, patterns: ReadonlyArray<string>): ReadonlyArray<BunGlobInstance> =>
+  A.map(patterns, (pattern) => new BunGlob(pattern));
+
+const matchesAny = (globs: ReadonlyArray<BunGlobInstance>, relativePath: string): boolean =>
+  pipe(
+    globs,
+    A.some((glob) => glob.match(relativePath))
+  );
+
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
   glob: (pattern, options) =>
-    Effect.tryPromise({
-      try: (): Promise<string[]> => Fn.cast(GlobLib.glob(pattern as string | Array<string>, options ?? {})),
-      catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.ErrorWithStack)(cause) }),
+    Effect.try({
+      try: (): Array<string> => {
+        const BunGlob = getBunGlobConstructor();
+        const scanOptions: BunGlobScanRoot = {
+          dot: options?.dot ?? false,
+          onlyFiles: options?.nodir ?? false,
+        };
+
+        if (options?.cwd !== undefined) {
+          scanOptions.cwd = options.cwd;
+        }
+
+        const ignoreGlobs = compileGlobs(BunGlob, toIgnorePatterns(options?.ignore));
+        const relativePaths = pipe(
+          toPatterns(pattern),
+          (patterns) => compileGlobs(BunGlob, patterns),
+          A.flatMap((glob) => A.fromIterable(glob.scanSync(scanOptions))),
+          A.map(normalizePathSeparators),
+          A.filter((candidate) => !matchesAny(ignoreGlobs, candidate)),
+          A.dedupe,
+          A.sort(Order.String)
+        );
+
+        if (options?.absolute !== true) {
+          return [...relativePaths];
+        }
+
+        const toAbsolute = toAbsolutePath(toDirectoryUrl(options?.cwd ?? "."));
+        return pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths]);
+      },
+      catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
     }),
 });

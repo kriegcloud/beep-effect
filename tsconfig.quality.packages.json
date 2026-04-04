@@ -112,9 +112,6 @@
       "path": "tooling/cli"
     },
     {
-      "path": "tooling/codegraph"
-    },
-    {
       "path": "tooling/configs"
     },
     {

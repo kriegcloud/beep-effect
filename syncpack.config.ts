@@ -18,7 +18,6 @@ const config = {
     "packages/runtime/*/package.json",
     "packages/shared/*/package.json",
     "tooling/cli/package.json",
-    "tooling/codegraph/package.json",
     "tooling/configs/package.json",
     "packages/editor/package.json",
     "tooling/repo-utils/package.json",

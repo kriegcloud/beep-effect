@@ -4,6 +4,7 @@
  * @since 0.0.0
  */
 
+import { FsUtilsLive } from "@beep/repo-utils";
 import { BunRuntime } from "@effect/platform-bun";
 import * as BunServices from "@effect/platform-bun/BunServices";
 import { NodeChildProcessSpawner } from "@effect/platform-node";
@@ -15,7 +16,7 @@ import * as InternalVersion from "./internal/version.js";
 
 const BaseLayers = Layer.mergeAll(BunServices.layer, Domain.Process.layer);
 
-const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer).pipe(Layer.provideMerge(BaseLayers));
+const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FsUtilsLive).pipe(Layer.provideMerge(BaseLayers));
 
 const program = Effect.scoped(
   Layer.build(DerivedLayers).pipe(

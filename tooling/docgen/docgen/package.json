@@ -62,7 +62,6 @@
     "@effect/platform-node": "catalog:",
     "doctrine": "catalog:",
     "effect": "catalog:",
-    "glob": "catalog:",
     "jsonc-parser": "catalog:",
     "ts-morph": "catalog:"
   },

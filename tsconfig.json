@@ -113,8 +113,6 @@
       "@beep/test-utils/*": ["./tooling/test-utils/src/*"],
       "@beep/ai-sdk": ["./packages/ai/sdk/src/claude/index.ts"],
       "@beep/ai-sdk/*": ["./packages/ai/sdk/src/claude/*"],
-      "@beep/codegraph": ["./tooling/codegraph/src/index.ts"],
-      "@beep/codegraph/*": ["./tooling/codegraph/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
       "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
       "@beep/semantic-web": ["./packages/common/semantic-web/src/index.ts"],

@@ -3,38 +3,37 @@
  */
 
 import chalk from "@beep/chalk";
-import { encodeTSConfigPrettyEffect } from "@beep/repo-utils";
+import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
 import markdownToc from "@effect/markdown-toc";
 import { Effect, FileSystem, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
-import * as Glob from "glob";
 import * as Checker from "./Checker.js";
 import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
 import * as Printer from "./Printer.js";
 
-const glob = (pattern: string, exclude: ReadonlyArray<string> = []) =>
-  Effect.tryPromise({
-    try: () =>
-      Glob.glob(pattern, {
-        ignore: A.fromIterable(exclude),
-        withFileTypes: false,
-      }),
-    catch: () =>
-      new Domain.DocgenError({
-        message: `[Core.glob] Unable to execute glob pattern '${pattern}' excluding files matching '${exclude}'`,
-      }),
-  });
+const globFiles = (pattern: string, exclude: ReadonlyArray<string> = []) =>
+  Effect.gen(function* () {
+    const fsUtils = yield* FsUtils;
+    return yield* fsUtils.globFiles(pattern, exclude.length === 0 ? undefined : { ignore: A.fromIterable(exclude) });
+  }).pipe(
+    Effect.mapError(
+      () =>
+        new Domain.DocgenError({
+          message: `[Core.globFiles] Unable to execute glob pattern '${pattern}' excluding files matching '${exclude}'`,
+        })
+    )
+  );
 
 const readSourceFiles = Effect.gen(function* () {
   const config = yield* Configuration.Configuration;
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const pattern = path.normalize(path.join(config.srcDir, "**", "*.ts"));
-  const paths = yield* glob(pattern, config.exclude);
+  const paths = yield* globFiles(pattern, config.exclude);
   yield* Effect.logInfo(chalk.bold(`${paths.length} module(s) found`));
 
   return yield* Effect.forEach(
@@ -551,7 +550,7 @@ const writeMarkdown = (files: ReadonlyArray<Domain.File>) =>
     const fileSystem = yield* FileSystem.FileSystem;
     const pattern = path.normalize(path.join(config.outDir, "**/*.ts.md"));
     yield* Effect.logDebug(`Deleting ${chalk.black(pattern)}...`);
-    const paths = yield* glob(pattern);
+    const paths = yield* globFiles(pattern);
     yield* Effect.forEach(
       paths,
       (filePath) =>

@@ -8,10 +8,10 @@
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
+import { Glob as SharedGlob, layer as SharedGlobLayer } from "@beep/utils/Glob";
 import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { glob as globNpm } from "glob";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
 import { jsonStringifyPretty } from "./JsonUtils.js";
 
@@ -145,29 +145,26 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
   FsUtils,
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
+    const globUtils = yield* SharedGlob;
     const path = yield* Path.Path;
 
     const runGlob: (
       pattern: string | ReadonlyArray<string>,
       options?: undefined | (GlobOptions & { readonly nodir?: undefined | boolean })
     ) => Effect.Effect<ReadonlyArray<string>, DomainError> = Effect.fnUntraced(function* (pattern, options) {
-      return yield* Effect.tryPromise({
-        try: () => {
-          const globOpts: Record<string, unknown> = {
-            dot: options?.dot ?? false,
-            absolute: options?.absolute ?? false,
-            nodir: options?.nodir ?? false,
-          };
-          if (options?.cwd !== undefined) {
-            globOpts.cwd = options.cwd;
-          }
-          if (options?.ignore !== undefined) {
-            globOpts.ignore = options.ignore;
-          }
-          return globNpm(pattern as string | string[], globOpts) as Promise<string[]>;
-        },
-        catch: (error) => DomainError.new(error, { message: `Glob failed for pattern "${String(pattern)}"` }),
-      });
+      return yield* globUtils
+        .glob(pattern, {
+          absolute: options?.absolute,
+          cwd: options?.cwd,
+          dot: options?.dot,
+          ignore: options?.ignore,
+          nodir: options?.nodir,
+        })
+        .pipe(
+          Effect.mapError((error) =>
+            DomainError.new(error, { message: `Glob failed for pattern "${String(pattern)}"` })
+          )
+        );
     });
 
     const globFiles: FsUtilsShape["globFiles"] = Effect.fnUntraced(function* (pattern, options) {
@@ -271,5 +268,5 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       getParentDirectory,
     });
   })
-);
+).pipe(Layer.provideMerge(SharedGlobLayer));
 // bench

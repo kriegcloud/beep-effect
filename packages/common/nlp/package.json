@@ -24,6 +24,13 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./Core": "./src/Core/index.ts",
+    "./Core/*": "./src/Core/*.ts",
+    "./Layers": "./src/Layers/index.ts",
+    "./Tools": "./src/Tools/index.ts",
+    "./Tools/*": "./src/Tools/*.ts",
+    "./Wink": "./src/Wink/index.ts",
+    "./Wink/*": "./src/Wink/*.ts",
     "./*": "./src/*.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
@@ -41,6 +48,13 @@
     "provenance": true,
     "exports": {
       ".": "./dist/index.ts",
+      "./Core": "./dist/Core/index.js",
+      "./Core/*": "./dist/Core/*.js",
+      "./Layers": "./dist/Layers/index.js",
+      "./Tools": "./dist/Tools/index.js",
+      "./Tools/*": "./dist/Tools/*.js",
+      "./Wink": "./dist/Wink/index.js",
+      "./Wink/*": "./dist/Wink/*.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
@@ -50,7 +64,10 @@
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "wink-eng-lite-web-model": "catalog:",
+    "wink-nlp": "catalog:",
+    "wink-nlp-utils": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

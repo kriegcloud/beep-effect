@@ -1,9 +1,9 @@
 /**
- * Branded schema for portable glob pattern strings accepted by the current
- * `glob` matcher stack.
+ * Branded schema for portable glob pattern strings accepted by Bun's current
+ * glob parser.
  *
- * This schema keeps the `glob`/`minimatch` parser's current acceptance rules
- * while enforcing the library's forward-slash convention for portable patterns.
+ * This schema keeps Bun's parser acceptance rules while enforcing the repo's
+ * forward-slash convention for portable patterns.
  *
  * @example
  * ```typescript
@@ -24,15 +24,27 @@ import { Result } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Minimatch } from "minimatch";
 
 const $I = $SchemaId.create("Glob");
 const MAX_GLOB_PATTERN_LENGTH = 1024 * 64;
 
+const getBunGlobConstructor = (): typeof Bun.Glob => {
+  const BunGlob = globalThis.Bun?.Glob;
+
+  if (BunGlob === undefined) {
+    throw new Error("Bun.Glob is unavailable in the current runtime");
+  }
+
+  return BunGlob;
+};
+
 const canConstructMatcher = (value: string): boolean =>
   Result.isSuccess(
     Result.try({
-      try: () => new Minimatch(value),
+      try: () => {
+        const BunGlob = getBunGlobConstructor();
+        return new BunGlob(value);
+      },
       catch: thunkFalse,
     })
   );
@@ -54,29 +66,29 @@ const GlobChecks = S.makeFilterGroup(
     S.isMaxLength(MAX_GLOB_PATTERN_LENGTH, {
       identifier: $I`GlobMaxLengthCheck`,
       title: "Glob Max Length",
-      description: "A glob pattern string that does not exceed the current minimatch length limit.",
+      description: "A glob pattern string that does not exceed the repo's current portability limit.",
       message: `Glob pattern must not exceed ${MAX_GLOB_PATTERN_LENGTH} characters`,
     }),
     S.makeFilter(canConstructMatcher, {
       identifier: $I`GlobMatcherCompatibilityCheck`,
       title: "Glob Matcher Compatibility",
-      description: "A glob pattern string accepted by the current minimatch constructor.",
-      message: "Glob pattern must be accepted by the current minimatch parser",
+      description: "A glob pattern string accepted by the current Bun glob constructor.",
+      message: "Glob pattern must be accepted by the current Bun glob parser",
     }),
   ],
   {
     identifier: $I`GlobChecks`,
     title: "Glob",
-    description: "Checks for portable glob pattern strings accepted by the current glob matcher stack.",
+    description: "Checks for portable glob pattern strings accepted by the current Bun glob parser.",
   }
 );
 
 /**
  * Branded schema for portable non-empty glob pattern strings.
  *
- * The runtime validation mirrors the current matcher stack's hard parser limits
- * while rejecting backslash separators so patterns remain portable across
- * environments.
+ * The runtime validation mirrors the current Bun parser acceptance rules while
+ * rejecting backslash separators so patterns remain portable across
+ * environments and keeping the repo's defensive max-length limit.
  *
  * @since 0.0.0
  * @category Validation
@@ -85,7 +97,7 @@ export const Glob = S.String.check(GlobChecks).pipe(
   S.brand("Glob"),
   S.annotate(
     $I.annote("Glob", {
-      description: "A portable non-empty glob pattern string accepted by the current glob matcher stack.",
+      description: "A portable non-empty glob pattern string accepted by the current Bun glob parser.",
     })
   )
 );
