@@ -17,7 +17,7 @@ import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
 import { Node, Project, SyntaxKind } from "ts-morph";
-import { isExcludedTypeScriptSourcePath, toPosixPath } from "../shared/TypeScriptSourceExclusions.ts";
+import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
 const INVENTORY_PATH = "standards/schema-first.inventory.jsonc";

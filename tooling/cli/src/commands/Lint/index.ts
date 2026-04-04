@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
-import { isExcludedTypeScriptSourcePath } from "../shared/TypeScriptSourceExclusions.ts";
+import { isExcludedTypeScriptSourcePath } from "../Shared/TypeScriptSourceExclusions.ts";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 
 const $I = $RepoCliId.create("commands/Lint");
