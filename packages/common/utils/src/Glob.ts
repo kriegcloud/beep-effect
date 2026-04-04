@@ -84,16 +84,25 @@ export interface Glob {
  */
 export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");
 
-type BunGlobConstructor = typeof Bun.Glob;
-type BunGlobInstance = InstanceType<BunGlobConstructor>;
-type BunGlobScanRoot = Parameters<BunGlobInstance["scanSync"]>[0];
+type BunGlobScanRoot = {
+  cwd?: string | undefined;
+  dot?: boolean | undefined;
+  onlyFiles?: boolean | undefined;
+};
+
+type BunGlobInstance = {
+  readonly match: (relativePath: string) => boolean;
+  readonly scanSync: (options?: BunGlobScanRoot) => Iterable<string>;
+};
+
+type BunGlobConstructor = new (pattern: string) => BunGlobInstance;
 
 const absolutePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
 
 const ensureTrailingSeparator = (value: string): string =>
   Str.endsWith("/")(value) || Str.endsWith("\\")(value) ? value : `${value}/`;
 
-const normalizePathSeparators = Str.replaceAll("\\", "/");
+const normalizePathSeparators = (value: string): string => Str.replaceAll("\\", "/")(value);
 
 const toPatterns = (pattern: Pattern): ReadonlyArray<string> => (P.isString(pattern) ? [pattern] : pattern);
 
@@ -116,7 +125,13 @@ const toAbsolutePath =
     fileURLToPath(new URL(normalizePathSeparators(relativePath), cwdUrl));
 
 const getBunGlobConstructor = (): BunGlobConstructor => {
-  const BunGlob = globalThis.Bun?.Glob;
+  const BunGlob = (
+    globalThis as typeof globalThis & {
+      readonly Bun?: {
+        readonly Glob?: BunGlobConstructor;
+      };
+    }
+  ).Bun?.Glob;
 
   if (BunGlob === undefined) {
     throw new Error("Bun.Glob is unavailable in the current runtime");
