@@ -97,12 +97,26 @@ type BunGlobInstance = {
 
 type BunGlobConstructor = new (pattern: string) => BunGlobInstance;
 
+type NodeGlobScanRoot = {
+  cwd?: string | URL | undefined;
+  exclude?: ReadonlyArray<string> | undefined;
+  withFileTypes?: false | undefined;
+};
+
 const absolutePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
 
 const ensureTrailingSeparator = (value: string): string =>
   Str.endsWith("/")(value) || Str.endsWith("\\")(value) ? value : `${value}/`;
 
 const normalizePathSeparators = (value: string): string => Str.replaceAll("\\", "/")(value);
+
+const hasDotSegment = (value: string): boolean =>
+  pipe(
+    value,
+    normalizePathSeparators,
+    Str.split("/"),
+    A.some((segment) => segment.length > 1 && Str.startsWith(".")(segment))
+  );
 
 const toPatterns = (pattern: Pattern): ReadonlyArray<string> => (P.isString(pattern) ? [pattern] : pattern);
 
@@ -124,7 +138,7 @@ const toAbsolutePath =
   (relativePath: string): string =>
     fileURLToPath(new URL(normalizePathSeparators(relativePath), cwdUrl));
 
-const getBunGlobConstructor = (): BunGlobConstructor => {
+const getBunGlobConstructor = (): undefined | BunGlobConstructor => {
   const BunGlob = (
     globalThis as typeof globalThis & {
       readonly Bun?: {
@@ -132,10 +146,6 @@ const getBunGlobConstructor = (): BunGlobConstructor => {
       };
     }
   ).Bun?.Glob;
-
-  if (BunGlob === undefined) {
-    throw new Error("Bun.Glob is unavailable in the current runtime");
-  }
 
   return BunGlob;
 };
@@ -149,15 +159,61 @@ const matchesAny = (globs: ReadonlyArray<BunGlobInstance>, relativePath: string)
     A.some((glob) => glob.match(relativePath))
   );
 
+const scanWithNodeGlob = async (
+  pattern: Pattern,
+  options: undefined | GlobOptions,
+  cwdUrl: URL,
+  toAbsolute: (relativePath: string) => string
+): Promise<Array<string>> => {
+  const fs = await import("node:fs");
+  const scanOptions: NodeGlobScanRoot = {
+    cwd: options?.cwd,
+    exclude: toIgnorePatterns(options?.ignore),
+    withFileTypes: false,
+  };
+
+  const relativePaths = pipe(
+    fs.globSync(toPatterns(pattern), scanOptions),
+    A.fromIterable,
+    A.map(normalizePathSeparators),
+    A.filter((candidate) => options?.dot === true || !hasDotSegment(candidate)),
+    A.filter((candidate) => {
+      if (options?.nodir !== true) {
+        return true;
+      }
+
+      return fs.statSync(new URL(normalizePathSeparators(candidate), cwdUrl)).isFile();
+    }),
+    A.dedupe,
+    A.sort(Order.String)
+  );
+
+  if (options?.absolute === true) {
+    return pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths]);
+  }
+
+  return [...relativePaths];
+};
+
 /**
  * @since 0.0.0
  * @category Configuration
  */
 export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
-  glob: (pattern, options) =>
-    Effect.try({
+  glob: (pattern, options) => {
+    const cwdUrl = toDirectoryUrl(options?.cwd ?? ".");
+    const toAbsolute = toAbsolutePath(cwdUrl);
+    const BunGlob = getBunGlobConstructor();
+
+    if (BunGlob === undefined) {
+      return Effect.tryPromise({
+        try: () => scanWithNodeGlob(pattern, options, cwdUrl, toAbsolute),
+        catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
+      });
+    }
+
+    return Effect.try({
       try: (): Array<string> => {
-        const BunGlob = getBunGlobConstructor();
         const scanOptions: BunGlobScanRoot = {
           dot: options?.dot ?? false,
           onlyFiles: options?.nodir ?? false,
@@ -178,13 +234,13 @@ export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
           A.sort(Order.String)
         );
 
-        if (options?.absolute !== true) {
-          return [...relativePaths];
+        if (options?.absolute === true) {
+          return pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths]);
         }
 
-        const toAbsolute = toAbsolutePath(toDirectoryUrl(options?.cwd ?? "."));
-        return pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths]);
+        return [...relativePaths];
       },
       catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
-    }),
+    });
+  },
 });

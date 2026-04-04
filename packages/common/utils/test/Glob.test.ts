@@ -27,6 +27,23 @@ const runGlob = (pattern: Pattern, options?: undefined | GlobOptions) =>
     return yield* glob.glob(pattern, options);
   }).pipe(Effect.provide(GlobLayer), Effect.runPromise);
 
+const withBunGlobDisabled = async <A>(run: () => Promise<A>): Promise<A> => {
+  const BunRef = globalThis.Bun;
+
+  if (BunRef === undefined) {
+    return run();
+  }
+
+  const originalGlob = BunRef.Glob;
+  Reflect.set(BunRef, "Glob", undefined);
+
+  try {
+    return await run();
+  } finally {
+    Reflect.set(BunRef, "Glob", originalGlob);
+  }
+};
+
 afterEach(async () => {
   await Promise.all(tempDirs.map((dir) => rm(dir, { recursive: true, force: true })));
   tempDirs.length = 0;
@@ -67,5 +84,20 @@ describe("@beep/utils Glob", () => {
     });
 
     expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
+  });
+
+  it("falls back to Node globbing when Bun.Glob is unavailable", async () => {
+    const dir = await makeFixture();
+
+    const results = await withBunGlobDisabled(() =>
+      runGlob("src/**", {
+        absolute: true,
+        cwd: dir,
+        ignore: ["**/errors/**"],
+        nodir: true,
+      })
+    );
+
+    expect(results).toEqual([resolve(dir, "src", "index.ts"), resolve(dir, "src", "nested", "deep.ts")]);
   });
 });
