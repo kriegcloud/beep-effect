@@ -190,12 +190,12 @@ const hasCuratedSyncStateDocuments = (state: CuratedSyncStateLike): boolean => O
 /**
  * Normalize persisted sync state to the active TrustGraph collection without treating an empty state file as drift.
  *
+ * @internal
  * @param state - Previously stored curated sync state metadata.
  * @param collection - Active TrustGraph collection for the current CLI invocation.
  * @returns Collection-aware sync state metadata for the current run.
  * @category CrossCutting
  * @since 0.0.0
- * @internal
  */
 export const normalizeCuratedSyncStateForCollection = (
   state: CuratedSyncStateLike,
@@ -233,13 +233,13 @@ export const normalizeCuratedSyncStateForCollection = (
 /**
  * Decide whether a managed document must be reloaded before its processing job is queued.
  *
+ * @internal
  * @param document - Curated document candidate for the current sync.
  * @param state - Previously stored curated sync state metadata.
  * @param managedDocumentIds - Managed document identifiers currently present in the TrustGraph library.
  * @returns Whether the current document should be removed and reloaded before re-queueing processing.
  * @category CrossCutting
  * @since 0.0.0
- * @internal
  */
 export const shouldReloadManagedDocument = (
   document: CuratedDocumentSyncCandidate,
