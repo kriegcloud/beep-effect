@@ -160,6 +160,17 @@ const resolveAccessor = (its: unknown, name: string, corpusId: string): Effect.E
     ? Effect.succeed(its[name])
     : Effect.fail(CorpusManagerError.fromMessage(`wink accessor its.${name} is unavailable`, corpusId));
 
+const makeCorpusSessionState = (corpusId: string, config: BM25Config, nowMs: number): CorpusSessionState => ({
+  compiled: O.none(),
+  config,
+  corpusId,
+  createdAtMs: nowMs,
+  documents: [],
+  totalTokenCount: 0,
+  updatedAtMs: nowMs,
+  vocabulary: HashSet.empty<string>(),
+});
+
 const decodeStringArray = (
   value: unknown,
   context: string,
@@ -363,12 +374,6 @@ const makeWinkCorpusManager = Effect.gen(function* () {
     createCorpus: Effect.fn("Nlp.Wink.WinkCorpusManager.createCorpus")(function* (request?: CreateCorpusParams) {
       const requestedId = request?.corpusId;
       const corpusId = requestedId ?? (yield* makeGeneratedId);
-      const sessions = yield* Ref.get(sessionsRef);
-
-      if (HashMap.has(sessions, corpusId)) {
-        return yield* CorpusManagerError.fromMessage(`Corpus "${corpusId}" already exists`, corpusId);
-      }
-
       const nowMs = yield* Clock.currentTimeMillis;
       const config = BM25Config.makeUnsafe({
         b: request?.bm25Config?.b ?? DefaultBM25Config.b,
@@ -376,19 +381,15 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         k1: request?.bm25Config?.k1 ?? DefaultBM25Config.k1,
         norm: request?.bm25Config?.norm ?? DefaultBM25Config.norm,
       });
-
-      yield* Ref.update(sessionsRef, (current) =>
-        HashMap.set(current, corpusId, {
-          compiled: O.none(),
-          config,
-          corpusId,
-          createdAtMs: nowMs,
-          documents: [],
-          totalTokenCount: 0,
-          updatedAtMs: nowMs,
-          vocabulary: HashSet.empty<string>(),
-        })
+      const inserted = yield* Ref.modify(sessionsRef, (current) =>
+        HashMap.has(current, corpusId)
+          ? ([false, current] as const)
+          : ([true, HashMap.set(current, corpusId, makeCorpusSessionState(corpusId, config, nowMs))] as const)
       );
+
+      if (!inserted) {
+        return yield* CorpusManagerError.fromMessage(`Corpus "${corpusId}" already exists`, corpusId);
+      }
 
       return {
         config,

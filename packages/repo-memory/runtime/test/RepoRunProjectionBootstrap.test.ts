@@ -16,11 +16,13 @@ import {
 } from "@beep/repo-memory-model";
 import { RepoRunEventLog } from "@beep/repo-memory-runtime/internal/RepoRunEventLog";
 import { RepoRunProjectionBootstrap } from "@beep/repo-memory-runtime/internal/RepoRunProjectionBootstrap";
+import { projectRunEvent } from "@beep/repo-memory-runtime/run/RunProjector";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
+import { RepoRunStore } from "@beep/repo-memory-store";
 import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
 import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
-import { DateTime, Effect, Layer, pipe, Stream } from "effect";
+import { DateTime, Effect, Layer, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -120,6 +122,8 @@ const makePacket = (retrievedAt: DateTime.Utc) =>
     ),
     issue: O.none(),
   });
+
+const unexpectedEffect = <A>(message: string): Effect.Effect<A> => Effect.dieMessage(message);
 
 describe("repo run projection bootstrap", () => {
   it.effect("hydrates persisted runs through the snapshot-primary read path", () =>
@@ -343,5 +347,85 @@ describe("repo run projection bootstrap", () => {
         expect(error.message).toContain("Decoded journal tail");
       })
     )
+  );
+
+  it.effect("refreshes stale active snapshots without failing replay bootstrap", () =>
+    Effect.gen(function* () {
+      const acceptedEvent = new RunAcceptedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(1),
+        emittedAt: makeUtc(1_706_500_000_000),
+        runKind: "query",
+        repoId,
+        question: O.some("describe symbol `answer`"),
+      });
+      const progressEvent = new RunProgressUpdatedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(2),
+        emittedAt: makeUtc(1_706_500_001_000),
+        phase: "grounding",
+        message: "Normalizing the question.",
+        percent: O.some(decodeNonNegativeInt(25)),
+      });
+      const acceptedRun = yield* projectRunEvent(O.none(), acceptedEvent);
+      const progressedRun = yield* projectRunEvent(O.some(acceptedRun), progressEvent);
+      const getRunCalls = yield* Ref.make(0);
+
+      const storeLayer = Layer.succeed(
+        RepoRunStore,
+        RepoRunStore.of({
+          getRetrievalPacket: () => Effect.succeed(O.none()),
+          getRun: () =>
+            Ref.modify(getRunCalls, (count) => [O.some(count === 0 ? acceptedRun : progressedRun), count + 1] as const),
+          listRuns: Effect.succeed([progressedRun]),
+          saveRetrievalPacket: () => unexpectedEffect("saveRetrievalPacket should not run during stream bootstrap"),
+          saveRun: () => unexpectedEffect("saveRun should not run during stream bootstrap"),
+        })
+      );
+      const eventLogLayer = Layer.succeed(
+        RepoRunEventLog,
+        RepoRunEventLog.of({
+          appendExecutionTransitionEvent: () =>
+            unexpectedEffect("appendExecutionTransitionEvent should not run during stream bootstrap"),
+          appendProjectedEvent: () => unexpectedEffect("appendProjectedEvent should not run during stream bootstrap"),
+          appendQueryStageProgress: () =>
+            unexpectedEffect("appendQueryStageProgress should not run during stream bootstrap"),
+          appendRunEvent: () => unexpectedEffect("appendRunEvent should not run during stream bootstrap"),
+          ensureProjectedIndexRun: () =>
+            unexpectedEffect("ensureProjectedIndexRun should not run during stream bootstrap"),
+          ensureProjectedQueryRun: () =>
+            unexpectedEffect("ensureProjectedQueryRun should not run during stream bootstrap"),
+          nextSequenceForRun: () => {
+            throw new Error("nextSequenceForRun should not run during stream bootstrap");
+          },
+          openLiveRunEventsAfter: () => Effect.succeed(Stream.empty),
+          readRunEvents: () => Effect.succeed([acceptedEvent, progressEvent]),
+        })
+      );
+      const bootstrapLayer = RepoRunProjectionBootstrap.layer.pipe(
+        Layer.provide(storeLayer),
+        Layer.provide(eventLogLayer)
+      );
+      const replayed = yield* Effect.gen(function* () {
+        const bootstrap = yield* RepoRunProjectionBootstrap;
+
+        return yield* Stream.runCollect(
+          bootstrap.streamRunEvents(
+            new StreamRunEventsRequest({
+              runId: queryRunId,
+              cursor: O.some(decodeRunCursor(1)),
+            })
+          )
+        );
+      }).pipe(Effect.provide(bootstrapLayer, { local: true }));
+
+      expect(yield* Ref.get(getRunCalls)).toBe(2);
+      expect(
+        pipe(
+          replayed,
+          A.map((event) => event.sequence)
+        )
+      ).toEqual([decodeRunEventSequence(2)]);
+    })
   );
 });

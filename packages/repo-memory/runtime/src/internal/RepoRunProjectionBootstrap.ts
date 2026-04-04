@@ -25,6 +25,7 @@ import {
 
 const $I = $RepoMemoryRuntimeId.create("internal/RepoRunProjectionBootstrap");
 const decodeRunCursor = S.decodeUnknownSync(RunCursor);
+const staleSnapshotRefreshLimit = 4;
 
 /**
  * Internal read-plane handoff describing the persisted run snapshot plus
@@ -160,6 +161,40 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
     }
   );
 
+  const loadConsistentRunEvents = Effect.fn("RepoRunProjectionBootstrap.loadConsistentRunEvents")(function* (
+    request: StreamRunEventsRequest,
+    initialRun: RepoRun
+  ) {
+    let refreshCount = 0;
+    let run = initialRun;
+
+    while (true) {
+      yield* ensureCursorWithinSnapshot(run, request.cursor);
+
+      const decodedEvents = yield* repoRunEventLog.readRunEvents(request.runId);
+      yield* ensureStrictlyIncreasingEvents(request.runId, decodedEvents);
+
+      const lastEvent = pipe(decodedEvents, A.last);
+      if (
+        O.isSome(lastEvent) &&
+        lastEvent.value.sequence !== run.lastEventSequence &&
+        refreshCount < staleSnapshotRefreshLimit
+      ) {
+        const refreshedRun = yield* requireRun(request.runId);
+
+        if (refreshedRun.lastEventSequence !== run.lastEventSequence) {
+          refreshCount += 1;
+          run = refreshedRun;
+          continue;
+        }
+      }
+
+      yield* ensureSnapshotTailMatchesJournal(run, decodedEvents);
+
+      return { decodedEvents, refreshCount, run };
+    }
+  });
+
   const ensureReplayStaysAfterCursor = Effect.fn("RepoRunProjectionBootstrap.ensureReplayStaysAfterCursor")(function* (
     run: RepoRun,
     cursor: O.Option<RunCursor>,
@@ -193,14 +228,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
     request: StreamRunEventsRequest,
     run: RepoRun
   ) {
-    yield* ensureCursorWithinSnapshot(run, request.cursor);
-
-    const decodedEvents = yield* repoRunEventLog.readRunEvents(request.runId);
-    yield* ensureStrictlyIncreasingEvents(request.runId, decodedEvents);
-    yield* ensureSnapshotTailMatchesJournal(run, decodedEvents);
-
+    const { decodedEvents, refreshCount, run: consistentRun } = yield* loadConsistentRunEvents(request, run);
     const replayEvents = pipe(decodedEvents, A.filter(isSequenceAfterCursor(request.cursor)));
-    yield* ensureReplayStaysAfterCursor(run, request.cursor, replayEvents);
+    yield* ensureReplayStaysAfterCursor(consistentRun, request.cursor, replayEvents);
 
     const effectiveCursor = pipe(
       replayEvents,
@@ -208,17 +238,19 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       O.map((event) => decodeRunCursor(event.sequence)),
       O.orElse(() => request.cursor)
     );
-    const terminalAfterReplay = pipe(replayEvents, A.last, O.exists(isTerminalRunEvent)) || isTerminalRun(run);
+    const terminalAfterReplay =
+      pipe(replayEvents, A.last, O.exists(isTerminalRunEvent)) || isTerminalRun(consistentRun);
 
     yield* Effect.annotateCurrentSpan({
       run_id: request.runId,
       cursor_present: O.isSome(request.cursor),
+      stale_snapshot_refresh_count: refreshCount,
       replay_event_count: replayEvents.length,
       terminal_after_replay: terminalAfterReplay,
     });
 
     return new RunStreamBootstrap({
-      run,
+      run: consistentRun,
       replayEvents,
       effectiveCursor,
       terminalAfterReplay,
