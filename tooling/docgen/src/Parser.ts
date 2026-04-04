@@ -32,6 +32,13 @@ export class SourceShape {
     this.sourceFile = sourceFile;
   }
 
+  /**
+   * Creates source metadata for a parsed module.
+   *
+   * @param path - Path segments describing the module.
+   * @param sourceFile - Backing ts-morph source file.
+   * @returns Source metadata instance.
+   */
   static new(path: ReadonlyArray<string>, sourceFile: ast.SourceFile): SourceShape {
     return new SourceShape(path, sourceFile);
   }
@@ -41,6 +48,12 @@ export class SourceShape {
  * @internal
  */
 export class Source extends ServiceMap.Service<Source, SourceShape>()($I`Source`) {
+  /**
+   * Creates a layer that provides the current parser source context.
+   *
+   * @param source - Source metadata to provide.
+   * @returns Layer providing the {@link Source} service.
+   */
   static layer(source: SourceShape) {
     return Layer.succeed(Source, Source.of(source));
   }

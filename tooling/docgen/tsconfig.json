@@ -1,9 +1,9 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
   "extends": "../../tsconfig.base.json",
-  "include": ["src", "madge.d.ts"],
+  "include": ["src"],
   "compilerOptions": {
-    "types": ["node", "bun"],
+    "types": ["node"],
     "outDir": "dist",
     "rootDir": "src"
   },
@@ -18,7 +18,10 @@
       "path": "../../packages/common/schema/tsconfig.json"
     },
     {
-      "path": "../docgen/tsconfig.json"
+      "path": "../../packages/common/types/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.json"
     },
     {
       "path": "../repo-utils/tsconfig.json"

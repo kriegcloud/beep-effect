@@ -15,6 +15,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as jsonc from "jsonc-parser";
+import { renderBiomeJson } from "../Shared/BiomeJson.js";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
@@ -175,7 +176,7 @@ const docgenInitCommand = Command.make(
       }
 
       const config = yield* createDocgenConfigDocument(target, repoRoot);
-      const content = renderJson(config);
+      const content = yield* renderBiomeJson(configPath, config);
 
       if (dryRun) {
         yield* Console.log(`--- ${configPath} ---`);

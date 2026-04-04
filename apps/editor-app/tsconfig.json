@@ -10,6 +10,9 @@
   },
   "references": [
     {
+      "path": "../../packages/common/schema/tsconfig.json"
+    },
+    {
       "path": "../../packages/editor/client/tsconfig.json"
     },
     {
@@ -17,9 +20,6 @@
     },
     {
       "path": "../../packages/editor/protocol/tsconfig.json"
-    },
-    {
-      "path": "../../packages/common/schema/tsconfig.json"
     }
   ]
 }

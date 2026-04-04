@@ -64,12 +64,10 @@ const makeTestLayer = (config?: unknown) =>
   Layer.mergeAll(Path.layer, Domain.Process.layer, makeDocgenJsonLayer(config));
 
 const expectConfig = (actual: Configuration.ConfigurationShape, expected: Configuration.ConfigurationShape) =>
-  Effect.sync(() => {
-    expect(actual).toEqual(expected);
-  });
+  Effect.sync(() => expect(actual).toEqual(expected));
 
 describe("Configuration", () => {
-  layer(makeTestLayer())((it) => {
+  layer(makeTestLayer())((it) =>
     it.effect("uses defaults when no docgen.json is present", () =>
       Configuration.load(makeLoadArgs()).pipe(
         Effect.flatMap((config) =>
@@ -92,8 +90,8 @@ describe("Configuration", () => {
           })
         )
       )
-    );
-  });
+    )
+  );
 
   layer(
     makeTestLayer({
@@ -109,7 +107,7 @@ describe("Configuration", () => {
         lib: ["ES2022", "DOM"],
       },
     })
-  )((it) => {
+  )((it) =>
     it.effect("uses configuration from docgen.json when present", () =>
       Configuration.load(makeLoadArgs()).pipe(
         Effect.flatMap((config) =>
@@ -140,10 +138,10 @@ describe("Configuration", () => {
           })
         )
       )
-    );
-  });
+    )
+  );
 
-  layer(makeTestLayer({ projectHomepage: 1 }))((it) => {
+  layer(makeTestLayer({ projectHomepage: 1 }))((it) =>
     it.effect("raises a typed error when docgen.json is invalid", () =>
       Effect.gen(function* () {
         const error = yield* Configuration.load(makeLoadArgs()).pipe(Effect.flip);
@@ -151,6 +149,6 @@ describe("Configuration", () => {
         expect(Str.includes("[Configuration.readJsoncFile] Failed to decode")(error.message)).toBe(true);
         expect(Str.includes("projectHomepage")(error.message)).toBe(true);
       })
-    );
-  });
+    )
+  );
 });

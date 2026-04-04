@@ -1,5 +1,5 @@
 {
-  "$schema": "../../tooling/docgen/docgen/schema.json",
+  "$schema": "../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/apps/editor-app/src/",
   "examplesCompilerOptions": {
@@ -30,7 +30,15 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/editor-app": ["../../apps/editor-app/src/index.ts"],
-      "@beep/editor-app/*": ["../../apps/editor-app/src/*.ts"]
+      "@beep/editor-app/*": ["../../apps/editor-app/src/*.ts"],
+      "@beep/editor-client": ["../../packages/editor/client/src/index.ts"],
+      "@beep/editor-client/*": ["../../packages/editor/client/src/*.ts"],
+      "@beep/editor-lexical": ["../../packages/editor/lexical/src/index.ts"],
+      "@beep/editor-lexical/*": ["../../packages/editor/lexical/src/*.ts"],
+      "@beep/editor-protocol": ["../../packages/editor/protocol/src/index.ts"],
+      "@beep/editor-protocol/*": ["../../packages/editor/protocol/src/*.ts"],
+      "@beep/schema": ["../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../packages/common/schema/src/*.ts"]
     }
   }
 }

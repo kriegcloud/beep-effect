@@ -24,6 +24,13 @@ export class Position extends S.Class<Position>($I`Position`)({
   column: S.Number,
   line: S.Number,
 }) {
+  /**
+   * Creates a source position from line and column coordinates.
+   *
+   * @param line - One-based line number.
+   * @param column - One-based column number.
+   * @returns Position instance for the provided coordinates.
+   */
   static new(line: number, column: number): Position {
     return new Position({ column, line });
   }
@@ -43,6 +50,19 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
   sees: StringArray,
   tags: S.Record(S.String, OptionalStringArray),
 }) {
+  /**
+   * Creates a normalized documentation record.
+   *
+   * @param description - Main description text when present.
+   * @param since - `@since` tag values.
+   * @param deprecated - `@deprecated` tag values.
+   * @param examples - `@example` tag values.
+   * @param category - `@category` tag values.
+   * @param throws - `@throws` tag values.
+   * @param sees - `@see` tag values.
+   * @param tags - Raw grouped tag values.
+   * @returns Doc model with array fields normalized.
+   */
   static new(
     description: string | undefined,
     since: ReadonlyArray<string>,
@@ -65,6 +85,12 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
     });
   }
 
+  /**
+   * Returns a copy of the doc with a different description.
+   *
+   * @param description - Replacement description text.
+   * @returns Doc instance with the updated description.
+   */
   modifyDescription(description: string | undefined): Doc {
     return Doc.new(
       description,
@@ -89,6 +115,15 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
   signature: S.String,
   position: Position,
 }) {
+  /**
+   * Creates a documented entry for a named API member.
+   *
+   * @param name - Exported member name.
+   * @param doc - Parsed documentation metadata.
+   * @param signature - Printable signature for the member.
+   * @param position - Source position for the member.
+   * @returns Doc entry instance.
+   */
   static new(name: string, doc: Doc, signature: string, position: Position): DocEntry {
     return new DocEntry({ name, doc, signature, position });
   }
@@ -108,6 +143,18 @@ export class Class extends S.Class<Class>($I`Class`)({
   staticMethods: S.Array(DocEntry),
   properties: S.Array(DocEntry),
 }) {
+  /**
+   * Creates a documented class model.
+   *
+   * @param name - Identifier shown in generated docs for the class.
+   * @param doc - Parsed class documentation.
+   * @param signature - Printable class signature.
+   * @param position - Source position for the class.
+   * @param methods - Instance methods.
+   * @param staticMethods - Static members collected from the class declaration.
+   * @param properties - Documented properties.
+   * @returns Class model instance.
+   */
   static new(
     name: string,
     doc: Doc,
@@ -141,6 +188,15 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
   signature: S.String,
   position: Position,
 }) {
+  /**
+   * Creates a documented interface model.
+   *
+   * @param name - Identifier shown in generated docs for the interface.
+   * @param doc - Parsed interface documentation.
+   * @param signature - Printable interface signature.
+   * @param position - Source position for the interface.
+   * @returns Interface model instance.
+   */
   static new(name: string, doc: Doc, signature: string, position: Position): Interface {
     return new Interface({ _tag: "Interface", name, doc, signature, position });
   }
@@ -157,6 +213,15 @@ export class Function extends S.Class<Function>($I`Function`)({
   signature: S.String,
   position: Position,
 }) {
+  /**
+   * Creates a documented function model.
+   *
+   * @param name - Identifier shown in generated docs for the function.
+   * @param doc - Parsed function documentation.
+   * @param signature - Printable function signature.
+   * @param position - Source position for the function.
+   * @returns Function model instance.
+   */
   static new(name: string, doc: Doc, signature: string, position: Position): Function {
     return new Function({ _tag: "Function", name, doc, signature, position });
   }
@@ -173,6 +238,15 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
   signature: S.String,
   position: Position,
 }) {
+  /**
+   * Creates a documented type alias model.
+   *
+   * @param name - Identifier shown in generated docs for the type alias.
+   * @param doc - Parsed type alias documentation.
+   * @param signature - Printable type alias signature.
+   * @param position - Source position for the type alias.
+   * @returns Type alias model instance.
+   */
   static new(name: string, doc: Doc, signature: string, position: Position): TypeAlias {
     return new TypeAlias({ _tag: "TypeAlias", name, doc, signature, position });
   }
@@ -189,6 +263,15 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
   signature: S.String,
   position: Position,
 }) {
+  /**
+   * Creates a documented constant model.
+   *
+   * @param name - Identifier shown in generated docs for the constant.
+   * @param doc - Parsed constant documentation.
+   * @param signature - Printable constant signature.
+   * @param position - Source position for the constant.
+   * @returns Constant model instance.
+   */
   static new(name: string, doc: Doc, signature: string, position: Position): Constant {
     return new Constant({ _tag: "Constant", name, doc, signature, position });
   }
@@ -216,6 +299,16 @@ export class Export extends S.Class<Export>($I`Export`)({
   position: Position,
   isNamespaceExport: S.Boolean,
 }) {
+  /**
+   * Creates a documented manual export model.
+   *
+   * @param name - Exported name.
+   * @param doc - Parsed export documentation.
+   * @param signature - Printable export signature.
+   * @param position - Source position for the export.
+   * @param isNamespaceExport - Whether the export re-exports a namespace.
+   * @returns Export model instance.
+   */
   static new(name: string, doc: Doc, signature: string, position: Position, isNamespaceExport: boolean): Export {
     return new Export({ _tag: "Export", name, doc, signature, position, isNamespaceExport });
   }
@@ -236,6 +329,17 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
 }) {
   declare readonly namespaces: ReadonlyArray<Namespace>;
 
+  /**
+   * Creates a documented namespace model.
+   *
+   * @param name - Identifier shown in generated docs for the namespace.
+   * @param doc - Parsed namespace documentation.
+   * @param position - Source position for the namespace.
+   * @param interfaces - Nested interfaces.
+   * @param typeAliases - Nested type aliases.
+   * @param namespaces - Nested namespaces.
+   * @returns Namespace model instance.
+   */
   static new(
     name: string,
     doc: Doc,
@@ -275,6 +379,22 @@ export class Module extends S.Class<Module>($I`Module`)({
 }) {
   declare readonly source: Parser.SourceShape;
 
+  /**
+   * Creates a documented module model.
+   *
+   * @param source - Parsed source metadata.
+   * @param name - Module display name.
+   * @param doc - Parsed module documentation.
+   * @param path - Path segments for the module.
+   * @param classes - Documented classes.
+   * @param interfaces - Documented interfaces.
+   * @param functions - Documented functions.
+   * @param typeAliases - Documented type aliases.
+   * @param constants - Documented constants.
+   * @param exports - Documented manual exports.
+   * @param namespaces - Documented namespaces.
+   * @returns Module model instance.
+   */
   static new(
     source: Parser.SourceShape,
     name: string,
@@ -326,6 +446,14 @@ export class File extends S.Class<File>($I`File`)({
   content: S.String,
   isOverwritable: S.Boolean,
 }) {
+  /**
+   * Creates an output file descriptor.
+   *
+   * @param path - Output file path.
+   * @param content - Output file content.
+   * @param isOverwritable - Whether existing content may be replaced.
+   * @returns File descriptor instance.
+   */
   static new(path: string, content: string, isOverwritable = false): File {
     return new File({ path, content, isOverwritable });
   }

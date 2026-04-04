@@ -75,7 +75,19 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
   tscExecutable: S.String,
 }) {}
 
+/**
+ * Runtime configuration service for docgen command execution.
+ *
+ * @category service
+ * @since 0.0.0
+ */
 export class Configuration extends ServiceMap.Service<Configuration, ConfigurationShape>()($I`Configuration`) {
+  /**
+   * Creates a layer that provides the current docgen configuration.
+   *
+   * @param config - Resolved configuration values to expose.
+   * @returns Layer providing the {@link Configuration} service.
+   */
   static layer(config: ConfigurationShape) {
     return Layer.succeed(Configuration, Configuration.of(config));
   }

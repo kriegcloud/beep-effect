@@ -867,7 +867,7 @@
         "@types/node": "catalog:",
       },
     },
-    "tooling/docgen/docgen": {
+    "tooling/docgen": {
       "name": "@beep/docgen",
       "version": "0.0.0",
       "bin": {
@@ -1217,7 +1217,7 @@
 
     "@beep/desktop": ["@beep/desktop@workspace:apps/desktop"],
 
-    "@beep/docgen": ["@beep/docgen@workspace:tooling/docgen/docgen"],
+    "@beep/docgen": ["@beep/docgen@workspace:tooling/docgen"],
 
     "@beep/editor": ["@beep/editor@workspace:packages/editor/core"],
 

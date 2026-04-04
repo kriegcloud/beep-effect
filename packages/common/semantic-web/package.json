@@ -17,7 +17,7 @@
     "check": "tsc -b tsconfig.json",
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
-    "docgen": "bun run ../../../tooling/docgen/docgen/src/bin.ts",
+    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "vitest"

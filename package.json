@@ -23,7 +23,7 @@
     "packages/editor/core",
     "tooling/repo-utils",
     "tooling/test-utils",
-    "tooling/docgen/docgen",
+    "tooling/docgen",
     "packages/editor/lexical",
     "packages/editor/protocol",
     "packages/editor/client",

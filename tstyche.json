@@ -36,8 +36,7 @@
     "packages/shared/providers/dtslint/**/*.tst.*",
     "packages/shared/server/dtslint/**/*.tst.*",
     "packages/shared/tables/dtslint/**/*.tst.*",
-    "packages/shared/ui/dtslint/**/*.tst.*",
-    "tooling/docgen/docgen/dtslint/**/*.tst.*"
+    "packages/shared/ui/dtslint/**/*.tst.*"
   ],
   "tsconfig": "findup"
 }

@@ -14,7 +14,7 @@
     "lint:fix": "biome check . --write",
     "test": "vitest run",
     "coverage": "vitest --coverage",
-    "docgen": "bun run ../../../tooling/docgen/docgen/src/bin.ts"
+    "docgen": "bun run ../../../tooling/docgen/src/bin.ts"
   },
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "catalog:",

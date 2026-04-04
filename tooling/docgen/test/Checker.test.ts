@@ -50,10 +50,7 @@ const makeTestLayer = (source: string | ast.SourceFile, config: Partial<Configur
     })
   );
 
-const expectEqual = <A>(actual: A, expected: A) =>
-  Effect.sync(() => {
-    expect(actual).toEqual(expected);
-  });
+const expectEqual = <A>(actual: A, expected: A) => Effect.sync(() => expect(actual).toEqual(expected));
 
 const failureTest = <A>(
   name: string,
@@ -63,17 +60,17 @@ const failureTest = <A>(
   checker: (value: A) => Effect.Effect<Array<string>, never, Configuration.Configuration | Parser.Source>,
   failure: ReadonlyArray<string>
 ) =>
-  layer(makeTestLayer(sourceText, config))((it) => {
+  layer(makeTestLayer(sourceText, config))((it) =>
     it.effect(name, () =>
       parser.pipe(
         Effect.flatMap(checker),
         Effect.flatMap((actual) => expectEqual(actual, failure))
       )
-    );
-  });
+    )
+  );
 
 describe("Checker", () => {
-  describe("checkFunctions", () => {
+  describe("checkFunctions", () =>
     failureTest(
       "should raise an error if `@since` tag is missing",
       {},
@@ -95,10 +92,9 @@ export function b() {}
           "    | ^\n" +
           "  7 |         ",
       ]
-    );
-  });
+    ));
 
-  describe("checkExports", () => {
+  describe("checkExports", () =>
     failureTest(
       "should raise an error if `@since` tag is missing",
       {},
@@ -106,8 +102,7 @@ export function b() {}
       Parser.parseExports,
       Checker.checkExports,
       ["Missing `@since` tag in file /test.ts:\n" + "\n" + "> 1 | export { a }\n" + "    |          ^"]
-    );
-  });
+    ));
 
   describe("checkNamespaces", () => {
     failureTest(
@@ -195,7 +190,7 @@ export function b() {}
     );
   });
 
-  describe("checkClasses", () => {
+  describe("checkClasses", () =>
     failureTest(
       "should raise an error if `@since` tag is missing",
       {},
@@ -203,6 +198,5 @@ export function b() {}
       Parser.parseClasses,
       Checker.checkClasses,
       ["Missing `@since` tag in file /test.ts:\n" + "\n" + "> 1 | export class MyClass {}\n" + "    | ^"]
-    );
-  });
+    ));
 });

@@ -50,16 +50,14 @@ const makeSource = (source: string | ast.SourceFile) => {
   return Parser.SourceShape.new([sourceFile.getBaseName()], sourceFile);
 };
 
-const print = (printables: ReadonlyArray<Printer.Printable>) => {
-  return Effect.gen(function* () {
+const print = (printables: ReadonlyArray<Printer.Printable>) =>
+  Effect.gen(function* () {
     const strings = yield* Effect.forEach(printables, (printable) => Printer.print(printable));
     return A.join("\n")(strings);
   });
-};
 
-const isModule = (printableOr: ReadonlyArray<Printer.Printable> | Domain.Module): printableOr is Domain.Module => {
-  return !A.isArray(printableOr);
-};
+const isModule = (printableOr: ReadonlyArray<Printer.Printable> | Domain.Module): printableOr is Domain.Module =>
+  !A.isArray(printableOr);
 
 const makeParserTestLayer = (source: string | ast.SourceFile, config?: Partial<Configuration.ConfigurationShape>) =>
   Layer.mergeAll(
@@ -107,7 +105,7 @@ const expectMarkdown = async <E>(
 
 describe("Parser", () => {
   describe("parseModule", () => {
-    it("should not require an example for modules when `enforceExamples` is set to true", async () => {
+    it("should not require an example for modules when `enforceExamples` is set to true", async () =>
       await expectMarkdown(
         Parser.parseModule,
         `/**
@@ -160,10 +158,9 @@ declare const foo: "foo"
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L19)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should ignore non-JSDoc comments above JSDoc comments", async () => {
+    it("should ignore non-JSDoc comments above JSDoc comments", async () =>
       await expectMarkdown(
         Parser.parseModule,
         `/**
@@ -218,12 +215,11 @@ declare const foo: "foo"
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L21)
 
 Since v1.0.0`
-      );
-    });
+      ));
   });
 
   describe("parseFunctions", () => {
-    it(`should remove all metadata from typedcript code blocks when the theme is ${Configuration.DEFAULT_THEME}`, async () => {
+    it(`should remove all metadata from typedcript code blocks when the theme is ${Configuration.DEFAULT_THEME}`, async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -249,9 +245,8 @@ declare const myfunc: <A>() => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L8)
 
 Since v1.0.0`
-      );
-    });
-    it("generics", async () => {
+      ));
+    it("generics", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -273,10 +268,9 @@ declare const myfunc: <A>() => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
 
 Since v1.2.0`
-      );
-    });
+      ));
 
-    it("description", async () => {
+    it("description", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -298,10 +292,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
 
 Since v1.2.0`
-      );
-    });
+      ));
 
-    it("throws", async () => {
+    it("throws", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -329,10 +322,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L7)
 
 Since v1.2.0`
-      );
-    });
+      ));
 
-    it("sees", async () => {
+    it("sees", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -362,10 +354,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L8)
 
 Since v1.2.0`
-      );
-    });
+      ));
 
-    it("example without fence", async () => {
+    it("example without fence", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -394,10 +385,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L7)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("example with backtick fence", async () => {
+    it("example with backtick fence", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -428,10 +418,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("2 examples", async () => {
+    it("2 examples", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -472,10 +461,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L13)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("example with metas", async () => {
+    it("example with metas", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -506,10 +494,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("example with titde fence", async () => {
+    it("example with titde fence", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -540,10 +527,9 @@ declare const myfunc: () => void
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should not return private function declarations", async () => {
+    it("should not return private function declarations", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -551,10 +537,9 @@ Since v1.0.0`
          */
         function myfunc() {}`,
         ""
-      );
-    });
+      ));
 
-    it("should not return ignored function declarations", async () => {
+    it("should not return ignored function declarations", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -562,10 +547,9 @@ Since v1.0.0`
          */
         export function myfunc() {}`,
         ""
-      );
-    });
+      ));
 
-    it("should not return ignored function declarations with overloads", async () => {
+    it("should not return ignored function declarations with overloads", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -574,10 +558,9 @@ Since v1.0.0`
           export function sum(a: number, b: number)
           export function sum(a: number, b: number): number { return a + b }`,
         ""
-      );
-    });
+      ));
 
-    it("should not return internal function declarations", async () => {
+    it("should not return internal function declarations", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -585,10 +568,9 @@ Since v1.0.0`
           */
           export function sum(a: number, b: number): number { return a + b }`,
         ""
-      );
-    });
+      ));
 
-    it("should not return internal function declarations even with overloads", async () => {
+    it("should not return internal function declarations even with overloads", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -597,14 +579,12 @@ Since v1.0.0`
           export function sum(a: number, b: number)
           export function sum(a: number, b: number): number { return a + b }`,
         ""
-      );
-    });
+      ));
 
-    it("should not return private const function declarations", async () => {
-      await expectMarkdown(Parser.parseFunctions, `const sum = (a: number, b: number): number => a + b `, "");
-    });
+    it("should not return private const function declarations", async () =>
+      await expectMarkdown(Parser.parseFunctions, `const sum = (a: number, b: number): number => a + b `, ""));
 
-    it("should not return internal const function declarations", async () => {
+    it("should not return internal const function declarations", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -612,10 +592,9 @@ Since v1.0.0`
           */
           export const sum = (a: number, b: number): number => a + b `,
         ""
-      );
-    });
+      ));
 
-    it("should account for nullable polymorphic return types", async () => {
+    it("should account for nullable polymorphic return types", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -633,10 +612,9 @@ declare const toNullable: <A>(ma: A | null) => A | null
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should handle a const function declaration", async () => {
+    it("should handle a const function declaration", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -674,10 +652,9 @@ declare const f: (a: number, b: number) => { [key: string]: number; }
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L10)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should handle a function declaration", async () => {
+    it("should handle a function declaration", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -695,10 +672,9 @@ declare const f: (a: number, b: number) => { [key: string]: number; }
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should handle overloadings", async () => {
+    it("should handle overloadings", async () =>
       await expectMarkdown(
         Parser.parseFunctions,
         `/**
@@ -722,12 +698,11 @@ declare const f: { (a: Int, b: Int): { [key: string]: number; }; (a: number, b: 
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L8)
 
 Since v1.0.0`
-      );
-    });
+      ));
   });
 
   describe("parseConstants", () => {
-    it("should handle a constant value", async () => {
+    it("should handle a constant value", async () =>
       await expectMarkdown(
         Parser.parseConstants,
         `/**
@@ -749,10 +724,9 @@ declare const s: string
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should support constants with default type parameters", async () => {
+    it("should support constants with default type parameters", async () =>
       await expectMarkdown(
         Parser.parseConstants,
         `/**
@@ -770,10 +744,9 @@ declare const left: <E = never, A = never>(l: E) => string
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should support untyped constants", async () => {
+    it("should support untyped constants", async () =>
       await expectMarkdown(
         Parser.parseConstants,
         `
@@ -793,10 +766,9 @@ declare const empty: A
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should handle constants with typeof annotations", async () => {
+    it("should handle constants with typeof annotations", async () =>
       await expectMarkdown(
         Parser.parseConstants,
         ` const task: { a: number } = {
@@ -820,10 +792,9 @@ declare const taskSeq: { a: number; }
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L7)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should not include variables declared in for loops", async () => {
+    it("should not include variables declared in for loops", async () =>
       await expectMarkdown(
         Parser.parseConstants,
         ` const object = { a: 1, b: 2, c: 3 };
@@ -832,12 +803,11 @@ Since v1.0.0`
         console.log(property);
       }`,
         ""
-      );
-    });
+      ));
   });
 
-  describe("parseTypeAliases", () => {
-    it("should return a type alias", async () => {
+  describe("parseTypeAliases", () =>
+    it("should return a type alias", async () =>
       await expectMarkdown(
         Parser.parseTypeAliases,
         `
@@ -862,16 +832,12 @@ type Option<A> = None<A> | Some<A>
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
 
 Since v1.0.0`
-      );
-    });
-  });
+      )));
 
   describe("parseExports", () => {
-    it("should return no exports if the file is empty", async () => {
-      await expectMarkdown(Parser.parseExports, "", "");
-    });
+    it("should return no exports if the file is empty", async () => await expectMarkdown(Parser.parseExports, "", ""));
 
-    it("should return an `Export`", async () => {
+    it("should return an `Export`", async () =>
       await expectMarkdown(
         Parser.parseExports,
         `
@@ -922,10 +888,9 @@ declare const b: 2
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L18)
 
 Since v2.0.0`
-      );
-    });
+      ));
 
-    it("should handle renamimg", async () => {
+    it("should handle renamimg", async () =>
       await expectMarkdown(
         Parser.parseExports,
         `const a = 1;
@@ -946,8 +911,7 @@ declare const b: 1
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
     it("should handle a single re-export", () => {
       project.createSourceFile("a.ts", `export const a = 1`);
@@ -1052,15 +1016,13 @@ Since v1.0.0`
   });
 
   describe("parseInterfaces", () => {
-    it("should return no interfaces if the file is empty", async () => {
-      await expectMarkdown(Parser.parseInterfaces, "", "");
-    });
+    it("should return no interfaces if the file is empty", async () =>
+      await expectMarkdown(Parser.parseInterfaces, "", ""));
 
-    it("should return no interfaces if there are no exported interfaces", async () => {
-      await expectMarkdown(Parser.parseInterfaces, "interface A {}", "");
-    });
+    it("should return no interfaces if there are no exported interfaces", async () =>
+      await expectMarkdown(Parser.parseInterfaces, "interface A {}", ""));
 
-    it("should return an interface", async () => {
+    it("should return an interface", async () =>
       await expectMarkdown(
         Parser.parseInterfaces,
         `/**
@@ -1082,20 +1044,17 @@ export interface A {}
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L6)
 
 Since v1.0.0`
-      );
-    });
+      ));
   });
 
   describe("parseNamespaces", () => {
-    it("should return no namespaces if the file is empty", async () => {
-      await expectMarkdown(Parser.parseNamespaces, "", "");
-    });
+    it("should return no namespaces if the file is empty", async () =>
+      await expectMarkdown(Parser.parseNamespaces, "", ""));
 
-    it("should return no namespaces if there are no exported namespaces", async () => {
-      await expectMarkdown(Parser.parseNamespaces, "namespace A {}", "");
-    });
+    it("should return no namespaces if there are no exported namespaces", async () =>
+      await expectMarkdown(Parser.parseNamespaces, "namespace A {}", ""));
 
-    it("should parse an empty Namespace", async () => {
+    it("should parse an empty Namespace", async () =>
       await expectMarkdown(
         Parser.parseNamespaces,
         `
@@ -1109,11 +1068,10 @@ Since v1.0.0`
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
     describe("namespace > interfaces", () => {
-      it("should ignore not exported interfaces", async () => {
+      it("should ignore not exported interfaces", async () =>
         await expectMarkdown(
           Parser.parseNamespaces,
           `
@@ -1129,10 +1087,9 @@ Since v1.0.0`
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
 
 Since v1.0.0`
-        );
-      });
+        ));
 
-      it("should parse an interface", async () => {
+      it("should parse an interface", async () =>
         await expectMarkdown(
           Parser.parseNamespaces,
           `
@@ -1167,12 +1124,11 @@ export interface B {
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
 
 Since v1.0.1`
-        );
-      });
+        ));
     });
 
     describe("namespace > type aliases", () => {
-      it("should ignore not exported type aliases", async () => {
+      it("should ignore not exported type aliases", async () =>
         await expectMarkdown(
           Parser.parseNamespaces,
           `
@@ -1188,10 +1144,9 @@ Since v1.0.1`
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
 
 Since v1.0.0`
-        );
-      });
+        ));
 
-      it("should parse a type alias", async () => {
+      it("should parse a type alias", async () =>
         await expectMarkdown(
           Parser.parseNamespaces,
           `
@@ -1222,12 +1177,11 @@ type B = string
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
 
 Since v1.0.1`
-        );
-      });
+        ));
     });
 
     describe("namespace > nested namespaces", () => {
-      it("should ignore not exported namespaces", async () => {
+      it("should ignore not exported namespaces", async () =>
         await expectMarkdown(
           Parser.parseNamespaces,
           `
@@ -1243,10 +1197,9 @@ Since v1.0.1`
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
 
 Since v1.0.0`
-        );
-      });
+        ));
 
-      it("should parse a namespace", async () => {
+      it("should parse a namespace", async () =>
         await expectMarkdown(
           Parser.parseNamespaces,
           `
@@ -1288,17 +1241,15 @@ type C = string
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L13)
 
 Since v1.0.2`
-        );
-      });
+        ));
     });
   });
 
   describe("parseClasses", () => {
-    it("should ignore `@internal` classes", async () => {
-      await expectMarkdown(Parser.parseClasses, `/** @internal */export class MyClass {}`, "");
-    });
+    it("should ignore `@internal` classes", async () =>
+      await expectMarkdown(Parser.parseClasses, `/** @internal */export class MyClass {}`, ""));
 
-    it("should ignore `@ignore` classes", async () => {
+    it("should ignore `@ignore` classes", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `
@@ -1306,20 +1257,18 @@ Since v1.0.2`
         export class MyClass {}
         `,
         ""
-      );
-    });
+      ));
 
-    it("should ignore not exported classes", async () => {
+    it("should ignore not exported classes", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `
         class MyClass {}
         `,
         ""
-      );
-    });
+      ));
 
-    it("should skip ignored properties", async () => {
+    it("should skip ignored properties", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `/**
@@ -1342,10 +1291,9 @@ declare class MyClass<A>
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L4)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should skip the constructor body", async () => {
+    it("should skip the constructor body", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `/**
@@ -1366,8 +1314,7 @@ declare class C { constructor() }
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
     it("should get a constructor declaration signature", () => {
       const sourceFile = project.createSourceFile(
@@ -1387,7 +1334,7 @@ Since v1.0.0`
       expect(Parser.getConstructorDeclarationSignature(constructorDeclaration)).toEqual("constructor()");
     });
 
-    it("should handle non-readonly properties", async () => {
+    it("should handle non-readonly properties", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `/**
@@ -1425,10 +1372,9 @@ a: string
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L9)
 
 Since v1.0.0`
-      );
-    });
+      ));
 
-    it("should return a `Class`", async () => {
+    it("should return a `Class`", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `/**
@@ -1515,10 +1461,9 @@ readonly a: string
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L12)
 
 Since v1.1.0`
-      );
-    });
+      ));
 
-    it("should handle method overloadings", async () => {
+    it("should handle method overloadings", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `/**
@@ -1588,10 +1533,9 @@ declare const map: { (f: (a: number) => number): Test; (f: (a: string) => string
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L23)
 
 Since v1.1.0`
-      );
-    });
+      ));
 
-    it("should ignore internal/ignored methods (#42)", async () => {
+    it("should ignore internal/ignored methods (#42)", async () =>
       await expectMarkdown(
         Parser.parseClasses,
         `/**
@@ -1623,21 +1567,19 @@ declare class Test<A>
 [Source](https://github.com/effect-ts/docgen/blob/main/src/test.ts#L5)
 
 Since v1.0.0`
-      );
-    });
+      ));
   });
 
-  describe("parseFile", () => {
+  describe("parseFile", () =>
     it("should not parse a non-existent file", async () => {
       const file = Domain.File.new("non-existent.ts", "");
       const project = new ast.Project({ useInMemoryFileSystem: true });
 
       const error = runSyncInLayer(Path.layer, Parser.parseFile(project)(file).pipe(Effect.flip));
       expect(error).toEqual(["Unable to locate file: non-existent.ts"]);
-    });
-  });
+    }));
 
-  describe("utils", () => {
+  describe("utils", () =>
     it("parseComment", () => {
       expect(Parser.parseComment("")).toEqual({
         description: undefined,
@@ -1669,6 +1611,5 @@ Since v1.0.0`
           category: ["instance"],
         },
       });
-    });
-  });
+    }));
 });
