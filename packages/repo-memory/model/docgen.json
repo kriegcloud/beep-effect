@@ -1,6 +1,9 @@
 {
   "$schema": "../../../tooling/docgen/docgen/schema.json",
-  "exclude": ["src/index.ts", "src/internal/**/*.ts"],
+  "exclude": [
+    "src/index.ts",
+    "src/internal/**/*.ts"
+  ],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/model/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
@@ -9,7 +12,11 @@
     "moduleResolution": "bundler",
     "module": "es2022",
     "target": "es2022",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,18 +42,30 @@
       "@beep/repo-memory-model/*": [
         "../../../packages/repo-memory/model/src/*.ts"
       ],
-      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/identity": [
+        "../../../packages/common/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../../packages/common/identity/src/*.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/common/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/common/schema/src/*.ts"
+      ],
       "@beep/semantic-web": [
         "../../../packages/common/semantic-web/src/index.ts"
       ],
       "@beep/semantic-web/*": [
         "../../../packages/common/semantic-web/src/*.ts"
       ],
-      "@beep/types": ["../../../packages/common/types/src/index.ts"],
-      "@beep/types/*": ["../../../packages/common/types/src/*.ts"]
+      "@beep/types": [
+        "../../../packages/common/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../../packages/common/types/src/*.ts"
+      ]
     }
   }
 }

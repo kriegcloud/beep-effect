@@ -17,8 +17,12 @@ const config = {
     "packages/repo-memory/store/package.json",
     "packages/runtime/*/package.json",
     "packages/shared/*/package.json",
-    "tooling/*/package.json",
+    "tooling/cli/package.json",
+    "tooling/codegraph/package.json",
+    "tooling/configs/package.json",
     "packages/editor/package.json",
+    "tooling/repo-utils/package.json",
+    "tooling/test-utils/package.json",
     "tooling/docgen/docgen/package.json",
   ],
   customTypes: {
