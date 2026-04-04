@@ -5,7 +5,7 @@
  * repo-native Effect schemas while preserving the documented wire shape and
  * optional-field semantics.
  *
- * @module @beep/clawhole/domain/TextToSpeech
+ * @module @beep/clawhole/domain/Tts
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

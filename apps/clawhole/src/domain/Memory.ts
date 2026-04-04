@@ -23,7 +23,7 @@
  * })
  *
  * console.log(memory.backend) // { _id: "Option", _tag: "Some", value: "qmd" }
- * console.log(pipe(memory.qmd, O.flatMap((qmd) => qmd.searchTool))) // { _id: "Option", _tag: "Some", value: "search_memory" }
+ * console.log(pipe(memory.qmd, O.flatMap((qmd) => qmd.searchTool), O.getOrUndefined)) // "search_memory"
  * ```
  *
  * @module @beep/clawhole/domain/Memory

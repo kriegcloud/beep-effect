@@ -4,6 +4,10 @@
       "type": "http",
       "url": "http://localhost:8000/mcp"
     },
+    "trustgraph": {
+      "type": "http",
+      "url": "https://dankserver.tailc7c348.ts.net:8444/mcp"
+    },
     "greptile": {
       "type": "http",
       "url": "https://api.greptile.com/mcp",
