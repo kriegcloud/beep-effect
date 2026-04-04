@@ -147,7 +147,6 @@ export function EditorWorkspaceApp() {
       startTransition(() => {
         setWorkspaceName(workspace.workspace.name);
         setPages(workspace.pages);
-        setVisiblePages(searchQuery === "" ? workspace.pages : visiblePages);
       });
 
       if (resolvedSlug !== null) {
@@ -368,7 +367,7 @@ export function EditorWorkspaceApp() {
             className="button ghost"
             type="button"
             onClick={() => void handleExport("markdown")}
-            disabled={draftPage === null}
+            disabled={busyState !== "idle" || draftPage === null}
           >
             Export .md
           </button>
@@ -376,7 +375,7 @@ export function EditorWorkspaceApp() {
             className="button ghost"
             type="button"
             onClick={() => void handleExport("json")}
-            disabled={draftPage === null}
+            disabled={busyState !== "idle" || draftPage === null}
           >
             Export .json
           </button>

@@ -330,7 +330,6 @@ export class PageExport extends S.Class<PageExport>($I`PageExport`)(
   })
 ) {}
 
-const pageLinkPattern = /\[\[([a-z0-9-]+)]]/g;
 const untitledSlug = S.decodeUnknownSync(Slug)("untitled");
 type TextBlock = {
   readonly text: string;
@@ -372,6 +371,7 @@ const extractLinksFromBlock = (block: DocumentBlock): ReadonlyArray<PageLinkRef>
   });
 
 const extractBlockLinks = (text: string): ReadonlyArray<PageLinkRef> => {
+  const pageLinkPattern = /\[\[([a-z0-9-]+)]]/g;
   let links = A.empty<PageLinkRef>();
   let match = pageLinkPattern.exec(text);
 
@@ -389,7 +389,6 @@ const extractBlockLinks = (text: string): ReadonlyArray<PageLinkRef> => {
     match = pageLinkPattern.exec(text);
   }
 
-  pageLinkPattern.lastIndex = 0;
   return links;
 };
 
