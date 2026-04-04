@@ -50,7 +50,7 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
     ({ fs, previousCwd, previousExitCode, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode;
+        process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(Effect.provide(TestLayer));
@@ -74,7 +74,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
     ({ fs, previousCwd, previousExitCode, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode;
+        process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(Effect.provide(CommandTestLayer));
@@ -108,7 +108,7 @@ describe("Docgen operations", () => {
           yield* fs.writeFileString(
             path.join(packageDir, "docgen.json"),
             encodeJson({
-              $schema: "../../../node_modules/@effect/docgen/schema.json",
+              $schema: "../../../tooling/docgen/docgen/schema.json",
               enforceDescriptions: true,
               enforceExamples: true,
               enforceVersion: true,
@@ -185,7 +185,7 @@ describe("Docgen operations", () => {
           const config = yield* createDocgenConfigDocument(target!, tmpDir);
           const paths = config.examplesCompilerOptions;
 
-          expect(config.$schema).toBe("../../../node_modules/@effect/docgen/schema.json");
+          expect(config.$schema).toBe("../../../tooling/docgen/docgen/schema.json");
           expect(config.exclude).toEqual(["src/internal/**/*.ts"]);
           expect(config.srcLink).toBe(
             "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/"
@@ -194,9 +194,9 @@ describe("Docgen operations", () => {
             noEmit: true,
             strict: true,
             skipLibCheck: true,
-            moduleResolution: "Bundler",
-            module: "ES2022",
-            target: "ES2022",
+            moduleResolution: "bundler",
+            module: "es2022",
+            target: "es2022",
             lib: ["ESNext", "DOM", "DOM.Iterable"],
             rewriteRelativeImportExtensions: true,
             allowImportingTsExtensions: true,
@@ -290,6 +290,53 @@ describe("Docgen operations", () => {
               "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
             },
           });
+        })
+      )
+    );
+  });
+
+  it("ignores vendored docgen trees that are outside workspace patterns", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const workspacePackageDir = path.join(tmpDir, "packages", "common", "schema");
+          yield* fs.makeDirectory(path.join(workspacePackageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(workspacePackageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(workspacePackageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+
+          const vendoredPackageDir = path.join(tmpDir, ".repos", "effect-v4", "packages", "effect");
+          yield* fs.makeDirectory(path.join(vendoredPackageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(vendoredPackageDir, "package.json"),
+            encodeJson({
+              name: "effect",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(vendoredPackageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+
+          const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
+
+          expect(packages.map((pkg) => pkg.relativePath)).toEqual(["packages/common/schema"]);
+          expect(packages.map((pkg) => pkg.name)).toEqual(["@beep/schema"]);
         })
       )
     );

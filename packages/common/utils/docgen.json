@@ -1,21 +1,15 @@
 {
-  "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": [
-    "src/internal/**/*.ts"
-  ],
+  "$schema": "../../../tooling/docgen/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/utils/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
-    "moduleResolution": "Bundler",
-    "module": "ES2022",
-    "target": "ES2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,18 +29,10 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/utils": [
-        "../../../packages/common/utils/src/index.ts"
-      ],
-      "@beep/utils/*": [
-        "../../../packages/common/utils/src/*.ts"
-      ],
-      "@beep/types": [
-        "../../../packages/common/types/src/index.ts"
-      ],
-      "@beep/types/*": [
-        "../../../packages/common/types/src/*.ts"
-      ]
+      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"],
+      "@beep/types": ["../../../packages/common/types/src/index.ts"],
+      "@beep/types/*": ["../../../packages/common/types/src/*.ts"]
     }
   }
 }

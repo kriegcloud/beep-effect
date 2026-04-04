@@ -17,15 +17,19 @@
     "check": "tsc -b tsconfig.json",
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
-    "docgen": "bunx @effect/docgen",
+    "docgen": "bun run src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "vitest"
+  },
+  "bin": {
+    "docgen": "./src/bin.ts"
   },
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
     "./internal/*": null,
+    "./schema.json": "./schema.json",
     "./package.json": "./package.json"
   },
   "files": [
@@ -47,23 +51,26 @@
     }
   },
   "dependencies": {
-    "effect": "catalog:",
-    "@beep/repo-utils": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/chalk": "workspace:^",
     "@babel/code-frame": "catalog:",
-    "doctrine": "catalog:",
+    "@beep/chalk": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/repo-utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@effect/markdown-toc": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "doctrine": "catalog:",
+    "effect": "catalog:",
+    "glob": "catalog:",
     "jsonc-parser": "catalog:",
-    "@effect/platform-node": "catalog:"
+    "ts-morph": "catalog:"
   },
   "devDependencies": {
-    "@effect/vitest": "catalog:",
-    "@types/node": "catalog:",
     "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/babel__code-frame": "catalog:",
     "@types/doctrine": "catalog:",
-    "@types/babel__code-frame": "catalog:"
+    "@types/node": "catalog:"
   }
 }

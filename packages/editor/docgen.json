@@ -1,21 +1,15 @@
 {
-  "$schema": "../../node_modules/@effect/docgen/schema.json",
-  "exclude": [
-    "src/internal/**/*.ts"
-  ],
+  "$schema": "../../tooling/docgen/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/editor/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
-    "moduleResolution": "Bundler",
-    "module": "ES2022",
-    "target": "ES2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,54 +29,22 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/editor": [
-        "../../packages/editor/src/index.ts"
-      ],
-      "@beep/editor/*": [
-        "../../packages/editor/src/*.ts"
-      ],
-      "@beep/data": [
-        "../../packages/common/data/src/index.ts"
-      ],
-      "@beep/data/*": [
-        "../../packages/common/data/src/*.ts"
-      ],
-      "@beep/identity": [
-        "../../packages/common/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../packages/common/identity/src/*.ts"
-      ],
-      "@beep/messages": [
-        "../../packages/common/messages/src/index.ts"
-      ],
-      "@beep/messages/*": [
-        "../../packages/common/messages/src/*.ts"
-      ],
-      "@beep/schema": [
-        "../../packages/common/schema/src/index.ts"
-      ],
-      "@beep/schema/*": [
-        "../../packages/common/schema/src/*.ts"
-      ],
-      "@beep/types": [
-        "../../packages/common/types/src/index.ts"
-      ],
-      "@beep/types/*": [
-        "../../packages/common/types/src/*.ts"
-      ],
-      "@beep/ui": [
-        "../../packages/common/ui/src/index.ts"
-      ],
-      "@beep/ui/*": [
-        "../../packages/common/ui/src/*.ts"
-      ],
-      "@beep/utils": [
-        "../../packages/common/utils/src/index.ts"
-      ],
-      "@beep/utils/*": [
-        "../../packages/common/utils/src/*.ts"
-      ]
+      "@beep/editor": ["../../packages/editor/src/index.ts"],
+      "@beep/editor/*": ["../../packages/editor/src/*.ts"],
+      "@beep/data": ["../../packages/common/data/src/index.ts"],
+      "@beep/data/*": ["../../packages/common/data/src/*.ts"],
+      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/messages": ["../../packages/common/messages/src/index.ts"],
+      "@beep/messages/*": ["../../packages/common/messages/src/*.ts"],
+      "@beep/schema": ["../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../packages/common/schema/src/*.ts"],
+      "@beep/types": ["../../packages/common/types/src/index.ts"],
+      "@beep/types/*": ["../../packages/common/types/src/*.ts"],
+      "@beep/ui": ["../../packages/common/ui/src/index.ts"],
+      "@beep/ui/*": ["../../packages/common/ui/src/*.ts"],
+      "@beep/utils": ["../../packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["../../packages/common/utils/src/*.ts"]
     }
   }
 }

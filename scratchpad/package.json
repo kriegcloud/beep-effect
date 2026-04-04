@@ -9,7 +9,6 @@
     "@effect/ai-openai-compat": "catalog:",
     "@effect/ai-openrouter": "catalog:",
     "@effect/atom-react": "catalog:",
-    "@effect/docgen": "catalog:",
     "@effect/language-service": "catalog:",
     "@effect/opentelemetry": "catalog:",
     "@effect/platform-browser": "catalog:",

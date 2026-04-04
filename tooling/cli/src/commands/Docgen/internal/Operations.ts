@@ -1119,26 +1119,25 @@ export const aggregateGeneratedDocs = (options?: {
   });
 
 /**
- * Run `@effect/docgen` for a single workspace package.
+ * Run the repo-local `@beep/docgen` implementation for a single workspace package.
  *
  * @param targetPackage - Target workspace package.
- * @param validateExamples - Whether to pass `--validate-examples`.
  * @returns Generation result including output and module count.
  * @category DomainModel
  * @since 0.0.0
  */
 export const runDocgenForPackage: (
-  targetPackage: DocgenWorkspacePackage,
-  validateExamples: boolean
+  targetPackage: DocgenWorkspacePackage
 ) => Effect.Effect<DocgenGenerationResult, never, FileSystem.FileSystem | Path.Path | ChildProcessSpawner> = (
-  targetPackage,
-  validateExamples
-) =>
-  Effect.gen(function* () {
+  targetPackage
+) => {
+  return Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const args = validateExamples ? ["@effect/docgen", "--validate-examples"] : ["@effect/docgen"];
-    const command = ChildProcess.make("bunx", args, {
+    const repoRoot = yield* findRepoRoot(targetPackage.absolutePath);
+    const docgenEntrypoint = path.join(repoRoot, "tooling", "docgen", "docgen", "src", "bin.ts");
+    const args = ["run", docgenEntrypoint] as const;
+    const command = ChildProcess.make("bun", [...args], {
       cwd: targetPackage.absolutePath,
       stdout: "pipe",
       stderr: "pipe",
@@ -1195,4 +1194,17 @@ export const runDocgenForPackage: (
       moduleCount,
       ...(result.output.length === 0 ? {} : { output: result.output }),
     });
-  });
+  }).pipe(
+    Effect.catch((cause) =>
+      Effect.succeed(
+        new DocgenGenerationResult({
+          packageName: targetPackage.name,
+          packagePath: targetPackage.relativePath,
+          success: false,
+          error: "docgen execution failed before completion",
+          output: pipe(cause, stringFromUnknown, Str.trim),
+        })
+      )
+    )
+  );
+};

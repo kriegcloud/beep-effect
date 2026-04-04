@@ -1,21 +1,15 @@
 {
-  "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": [
-    "src/internal/**/*.ts"
-  ],
+  "$schema": "../../../tooling/docgen/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/shared/client/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
-    "moduleResolution": "Bundler",
-    "module": "ES2022",
-    "target": "ES2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,30 +29,14 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/shared-client": [
-        "../../../packages/shared/client/src/index.ts"
-      ],
-      "@beep/shared-client/*": [
-        "../../../packages/shared/client/src/*.ts"
-      ],
-      "@beep/identity": [
-        "../../../packages/common/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../../packages/common/identity/src/*.ts"
-      ],
-      "@beep/schema": [
-        "../../../packages/common/schema/src/index.ts"
-      ],
-      "@beep/schema/*": [
-        "../../../packages/common/schema/src/*.ts"
-      ],
-      "@beep/utils": [
-        "../../../packages/common/utils/src/index.ts"
-      ],
-      "@beep/utils/*": [
-        "../../../packages/common/utils/src/*.ts"
-      ]
+      "@beep/shared-client": ["../../../packages/shared/client/src/index.ts"],
+      "@beep/shared-client/*": ["../../../packages/shared/client/src/*.ts"],
+      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
     }
   }
 }

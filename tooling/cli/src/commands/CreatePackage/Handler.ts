@@ -648,6 +648,7 @@ const generatePackageJson: (
   description: string,
   packagePath: string
 ) => Effect.Effect<string, DomainError | S.SchemaError> = Effect.fn(function* (name, type, description, packagePath) {
+  const rootRelative = toRootRelative(packagePath);
   const dependencies: Record<string, string> = {
     effect: "catalog:",
   };
@@ -696,7 +697,7 @@ const generatePackageJson: (
       "lint:fix": "biome check . --write",
       test: "vitest",
       coverage: "vitest --coverage",
-      docgen: "bunx @effect/docgen",
+      docgen: `bun run ${rootRelative}tooling/docgen/docgen/src/bin.ts`,
     },
     dependencies,
     devDependencies: {

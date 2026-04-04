@@ -3,7 +3,7 @@
  *
  * Scans a package's `src/` directory for TypeScript modules and generates
  * an `index.ts` barrel file with `export *` re-exports, each annotated
- * with `@since 0.0.0` JSDoc tags as required by `@effect/docgen`.
+ * with `@since 0.0.0` JSDoc tags as required by `@beep/docgen`.
  *
  * @module
  * @since 0.0.0
@@ -197,7 +197,7 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
  * Build the barrel file content from a sorted list of module relative paths.
  *
  * Produces a string containing a JSDoc header and one `export * from ...` statement
- * per module, each annotated with `@since 0.0.0` as required by `@effect/docgen`.
+ * per module, each annotated with `@since 0.0.0` as required by `@beep/docgen`.
  *
  * @param packageName - Used in the module description header comment.
  * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).

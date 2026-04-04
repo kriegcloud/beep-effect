@@ -1,129 +1,316 @@
 /**
- * @module @beep/repo-cli/commands/DocgenV2/Configuration
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
-import { TSConfigCompilerOptions } from "@beep/repo-utils";
-
-import { SchemaUtils } from "@beep/schema";
-import { A } from "@beep/utils";
-import { Effect, SchemaTransformation, ServiceMap } from "effect";
+import { $DocgenId } from "@beep/identity/packages";
+import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@beep/repo-utils";
+import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as jsonc from "jsonc-parser";
+import * as Domain from "./Domain.js";
 
-const $I = $RepoCliId.create("commands/DocgenV2/Configuration");
+const $I = $DocgenId.create("Configuration");
 
-const strictDecodeOptions = { onExcessProperty: "error" as const };
-const EncodedTSConfigCompilerOptions = S.toEncoded(TSConfigCompilerOptions);
-const decodeEncodedTSConfigCompilerOptions = S.decodeUnknownEffect(EncodedTSConfigCompilerOptions);
+/**
+ * @since 0.0.0
+ */
+// cspell:ignore mikearnaldi
+export const DEFAULT_THEME = "mikearnaldi/just-the-docs";
 
-const CompilerOptionsObject = S.Unknown.pipe(
-  S.decodeTo(
-    EncodedTSConfigCompilerOptions,
-    SchemaTransformation.transformOrFail({
-      decode: (input) =>
-        decodeEncodedTSConfigCompilerOptions(input, strictDecodeOptions).pipe(Effect.mapError((error) => error.issue)),
-      encode: Effect.succeed,
-    })
-  ),
-  $I.annoteSchema("CompilerOptionsObject", {
-    description: "Strict encoded TSConfig compiler options validated via @beep/repo-utils.",
-  })
-);
+const PACKAGE_JSON_FILE_NAME = "package.json";
+const CONFIG_FILE_NAME = "docgen.json";
 
-const CompilerOptions = S.Union([S.String, CompilerOptionsObject]).pipe(
-  SchemaUtils.withStatics((schema) => {
-    const defaultValue = S.decodeUnknownSync(CompilerOptionsObject)({
-      noEmit: true,
-      strict: true,
-      skipLibCheck: true,
-      moduleResolution: "Bundler",
-      target: "ES2022",
-      lib: ["ES2022", "DOM"],
+const CompilerOptionsShape = S.toEncoded(TSConfigCompilerOptions);
+const CompilerOptionsSchema = S.Union([S.String, CompilerOptionsShape]);
+const encodeCompilerOptions = S.encodeSync(TSConfigCompilerOptions);
+
+/**
+ * @category service
+ * @since 0.0.0
+ */
+export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`ConfigurationSchema`)({
+  $schema: S.optionalKey(S.String),
+  projectHomepage: S.optionalKey(S.String),
+  srcLink: S.optionalKey(S.String),
+  srcDir: S.optionalKey(S.String),
+  outDir: S.optionalKey(S.String),
+  theme: S.optionalKey(S.String),
+  enableSearch: S.optionalKey(S.Boolean),
+  enforceDescriptions: S.optionalKey(S.Boolean),
+  enforceExamples: S.optionalKey(S.Boolean),
+  enforceVersion: S.optionalKey(S.Boolean),
+  tscExecutable: S.optionalKey(S.String),
+  runExamples: S.optionalKey(S.Boolean),
+  exclude: S.Array(S.String).pipe(S.optionalKey),
+  parseCompilerOptions: S.optionalKey(CompilerOptionsSchema),
+  examplesCompilerOptions: S.optionalKey(CompilerOptionsSchema),
+}) {}
+
+/**
+ * @category service
+ * @since 0.0.0
+ */
+export type ConfigurationDocument = typeof ConfigurationSchema.Type;
+
+/**
+ * @category service
+ * @since 0.0.0
+ */
+export class ConfigurationShape extends S.Class<ConfigurationShape>($I`ConfigurationShape`)({
+  enableSearch: S.Boolean,
+  enforceDescriptions: S.Boolean,
+  enforceExamples: S.Boolean,
+  enforceVersion: S.Boolean,
+  examplesCompilerOptions: CompilerOptionsShape,
+  exclude: S.Array(S.String),
+  outDir: S.String,
+  parseCompilerOptions: CompilerOptionsShape,
+  projectHomepage: S.String,
+  projectName: S.String,
+  runExamples: S.Boolean,
+  srcDir: S.String,
+  srcLink: S.String,
+  theme: S.String,
+  tscExecutable: S.String,
+}) {}
+
+export class Configuration extends ServiceMap.Service<Configuration, ConfigurationShape>()($I`Configuration`) {
+  static layer(config: ConfigurationShape) {
+    return Layer.succeed(Configuration, Configuration.of(config));
+  }
+}
+
+/**
+ * @category service
+ * @since 0.0.0
+ */
+export type CompilerOptionsInput = string | S.Schema.Type<typeof CompilerOptionsShape>;
+
+/**
+ * @internal
+ */
+type LoadArgs = {
+  readonly enableSearch: O.Option<boolean>;
+  readonly enforceDescriptions: O.Option<boolean>;
+  readonly enforceExamples: O.Option<boolean>;
+  readonly enforceVersion: O.Option<boolean>;
+  readonly examplesCompilerOptions: O.Option<CompilerOptionsInput>;
+  readonly exclude: O.Option<ReadonlyArray<string>>;
+  readonly outDir: O.Option<string>;
+  readonly parseCompilerOptions: O.Option<CompilerOptionsInput>;
+  readonly projectHomepage: O.Option<string>;
+  readonly runExamples: O.Option<boolean>;
+  readonly srcDir: O.Option<string>;
+  readonly srcLink: O.Option<string>;
+  readonly theme: O.Option<string>;
+  readonly tscExecutable: O.Option<string>;
+};
+
+/** @internal */
+export const defaultCompilerOptions = {
+  noEmit: true,
+  strict: true,
+  skipLibCheck: true,
+  moduleResolution: "bundler",
+  target: "es2022",
+  lib: ["ES2022", "DOM"],
+} as const satisfies S.Schema.Type<typeof CompilerOptionsShape>;
+
+class PackageJsonSchema extends S.Class<PackageJsonSchema>($I`PackageJsonSchema`)({
+  name: S.String,
+  homepage: S.String,
+}) {}
+
+const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
+  filePath: string,
+  schema: Schema
+): Effect.Effect<S.Schema.Type<Schema>, Domain.DocgenError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const content = yield* fs.readFileString(filePath).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Domain.DocgenError({
+            message: `[Configuration.readJsoncFile] Failed to read '${filePath}'\n${String(cause)}`,
+          })
+      )
+    );
+
+    const parsed = yield* Effect.try({
+      try: () => jsonc.parse(content),
+      catch: (cause) =>
+        new Domain.DocgenError({
+          message: `[Configuration.readJsoncFile] Failed to parse '${filePath}'\n${String(cause)}`,
+        }),
     });
 
-    return {
-      defaultValue,
-      withKeyDefaults: (description: string) =>
-        schema.pipe(SchemaUtils.withKeyDefaults(defaultValue)).annotateKey({
-          description,
-          default: defaultValue,
+    return yield* Effect.try({
+      try: () => S.decodeUnknownSync(schema)(parsed),
+      catch: (cause) =>
+        new Domain.DocgenError({
+          message: `[Configuration.readJsoncFile] Failed to decode '${filePath}'\n${String(cause)}`,
         }),
-    };
-  }),
-  $I.annoteSchema("CompilerOptions", {
-    description: "TSConfig compiler options",
-  })
-);
+    });
+  }) as Effect.Effect<S.Schema.Type<Schema>, Domain.DocgenError, FileSystem.FileSystem>;
+
+const readPackageJson = (filePath: string) => readJsoncFile(filePath, PackageJsonSchema);
+
+const readDocgenConfig = (
+  filePath: string
+): Effect.Effect<O.Option<ConfigurationDocument>, Domain.DocgenError, FileSystem.FileSystem> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const exists = yield* fs.exists(filePath).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Domain.DocgenError({
+            message: `[Configuration.readDocgenConfig] Failed to check '${filePath}'\n${String(cause)}`,
+          })
+      )
+    );
+
+    if (!exists) {
+      return O.none();
+    }
+
+    const config = yield* readJsoncFile(filePath, ConfigurationSchema);
+    return O.some(config);
+  });
+
+const readTSConfig = (
+  fileName: string
+): Effect.Effect<
+  S.Schema.Type<typeof CompilerOptionsShape>,
+  Domain.DocgenError,
+  FileSystem.FileSystem | Path.Path | Domain.Process
+> =>
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const process = yield* Domain.Process;
+    const cwd = yield* process.cwd;
+    const resolved = path.resolve(cwd, fileName);
+    const content = yield* fs.readFileString(resolved).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Domain.DocgenError({
+            message: `[Configuration.readTSConfig] Failed to read TSConfig file '${resolved}'\n${String(cause)}`,
+          })
+      )
+    );
+    const tsconfig = yield* decodeTSConfigFromJsoncTextEffect(content).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Domain.DocgenError({
+            message: `[Configuration.readTSConfig] Failed to decode TSConfig file '${resolved}'\n${cause.message}`,
+          })
+      )
+    );
+    return O.match(tsconfig.compilerOptions, {
+      onNone: () => defaultCompilerOptions,
+      onSome: encodeCompilerOptions,
+    });
+  });
+
+const resolveCompilerOptions = (
+  fromCLI: O.Option<CompilerOptionsInput>,
+  fromDocgenJson: O.Option<CompilerOptionsInput>
+): Effect.Effect<
+  S.Schema.Type<typeof CompilerOptionsShape>,
+  Domain.DocgenError,
+  FileSystem.FileSystem | Path.Path | Domain.Process
+> => {
+  const resolved = O.orElse(fromCLI, () => fromDocgenJson);
+
+  if (O.isNone(resolved)) {
+    return Effect.succeed(defaultCompilerOptions);
+  }
+
+  return typeof resolved.value === "string" ? readTSConfig(resolved.value) : Effect.succeed(resolved.value);
+};
+
+const resolveString = (fromCLI: O.Option<string>, fromDocgenJson: O.Option<string>, fallback: string): string =>
+  O.getOrElse(
+    O.orElse(fromCLI, () => fromDocgenJson),
+    () => fallback
+  );
+
+const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boolean>, fallback: boolean): boolean =>
+  O.getOrElse(
+    O.orElse(fromCLI, () => fromDocgenJson),
+    () => fallback
+  );
 
 /**
- * Supported compiler option input shapes for DocgenV2 parsing and example checks.
- *
- * @category Types
- * @since 0.0.0
+ * @internal
  */
-export type CompilerOptions = typeof CompilerOptions.Type;
+export const load = (args: LoadArgs) =>
+  Effect.gen(function* () {
+    const process = yield* Domain.Process;
+    const cwd = yield* process.cwd;
+    const path = yield* Path.Path;
+
+    const packageJson = yield* readPackageJson(path.join(cwd, PACKAGE_JSON_FILE_NAME));
+    const maybeConfig = yield* readDocgenConfig(path.join(cwd, CONFIG_FILE_NAME));
+    const docgenConfig = O.getOrUndefined(maybeConfig);
+
+    const projectName = packageJson.name;
+    const projectHomepage = resolveString(
+      args.projectHomepage,
+      O.fromNullishOr(docgenConfig?.projectHomepage),
+      packageJson.homepage
+    );
+    const srcLink = resolveString(
+      args.srcLink,
+      O.fromNullishOr(docgenConfig?.srcLink),
+      `${projectHomepage}/blob/main/src/`
+    );
+    const srcDir = resolveString(args.srcDir, O.fromNullishOr(docgenConfig?.srcDir), "src");
+    const outDir = resolveString(args.outDir, O.fromNullishOr(docgenConfig?.outDir), "docs");
+    const theme = resolveString(args.theme, O.fromNullishOr(docgenConfig?.theme), DEFAULT_THEME);
+    const enableSearch = resolveBoolean(args.enableSearch, O.fromNullishOr(docgenConfig?.enableSearch), true);
+    const enforceDescriptions = resolveBoolean(
+      args.enforceDescriptions,
+      O.fromNullishOr(docgenConfig?.enforceDescriptions),
+      false
+    );
+    const enforceExamples = resolveBoolean(args.enforceExamples, O.fromNullishOr(docgenConfig?.enforceExamples), false);
+    const enforceVersion = resolveBoolean(args.enforceVersion, O.fromNullishOr(docgenConfig?.enforceVersion), true);
+    const tscExecutable = resolveString(args.tscExecutable, O.fromNullishOr(docgenConfig?.tscExecutable), "tsc");
+    const runExamples = resolveBoolean(args.runExamples, O.fromNullishOr(docgenConfig?.runExamples), false);
+    const exclude = O.getOrElse(args.exclude, () => docgenConfig?.exclude ?? []);
+    const parseCompilerOptions = yield* resolveCompilerOptions(
+      args.parseCompilerOptions,
+      O.fromNullishOr(docgenConfig?.parseCompilerOptions)
+    );
+    const examplesCompilerOptions = yield* resolveCompilerOptions(
+      args.examplesCompilerOptions,
+      O.fromNullishOr(docgenConfig?.examplesCompilerOptions)
+    );
+
+    return Configuration.of({
+      projectName,
+      projectHomepage,
+      srcLink,
+      srcDir,
+      outDir,
+      theme,
+      enableSearch,
+      enforceDescriptions,
+      enforceExamples,
+      enforceVersion,
+      tscExecutable,
+      runExamples,
+      exclude,
+      parseCompilerOptions,
+      examplesCompilerOptions,
+    });
+  });
 
 /**
- * Declares the configuration schema consumed by the DocgenV2 command.
+ * Present for upstream parity; the CLI merges configuration directly in `load`.
  *
- * @category Configuration
- * @since 0.0.0
+ * @internal
  */
-export class ConfigurationShape extends S.Class<ConfigurationShape>($I`ConfigurationShape`)(
-  {
-    $schema: S.OptionFromOptionalKey(S.String),
-    projectHomepage: S.OptionFromOptionalKey(S.String).annotateKey({
-      description: "Will link to the project homepage from the Auxiliary Links of the generated documentation.",
-    }),
-    srcDir: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("src")).annotateKey({
-      description: "The directory in which docgen will search for TypeScript" + " files to parse.",
-      default: "src",
-    }),
-    outDir: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("docs")).annotateKey({
-      description: "The directory to which docgen will generate its output markdown documents.",
-      default: "docs",
-    }),
-    theme: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("kriegcloud/just-the-docs")).annotateKey({
-      description:
-        "The theme that docgen will specify should be used for GitHub Docs in the generated _config.yml file.",
-      default: "kriegcloud/just-the-docs",
-    }),
-    enableSearch: S.Boolean.pipe(S.optionalKey, SchemaUtils.withKeyDefaults(true)).annotateKey({
-      description: "Whether or not search should be enabled for GitHub Docs in the generated _config.yml file.",
-      default: true,
-    }),
-    enforceDescriptions: S.Boolean.pipe(S.optionalKey, SchemaUtils.withKeyDefaults(false)).annotateKey({
-      description: "Whether or not descriptions for each module export should be required.",
-      default: false,
-    }),
-    enforceExamples: S.Boolean.pipe(S.optionalKey, SchemaUtils.withKeyDefaults(false)).annotateKey({
-      description:
-        "Whether or not @example tags for each module export should be required. (Note: examples will not be enforced in module documentation)",
-      default: false,
-    }),
-    enforceVersion: S.Boolean.pipe(S.optionalKey, SchemaUtils.withKeyDefaults(true)).annotateKey({
-      description: "Whether or not @since tags for each module export should be required.",
-      default: true,
-    }),
-    exclude: S.String.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults(A.empty<string>())).annotateKey({
-      description: "An array of glob strings specifying files that should be excluded from the documentation.",
-      default: [],
-    }),
-    parseCompilerOptions: CompilerOptions.withKeyDefaults("tsconfig for parsing options (or path to a tsconfig)"),
-    examplesCompilerOptions: CompilerOptions.withKeyDefaults(
-      "tsconfig for the examples options (or path to a tsconfig)"
-    ),
-  },
-  $I.annote("ConfigurationShape", {
-    description: "Configuration schema for @beep/repo-cli docgen",
-  })
-) {}
-
-/**
- * Provides resolved DocgenV2 configuration to effectful command services.
- *
- * @category Services
- * @since 0.0.0
- */
-export class Configuration extends ServiceMap.Service<Configuration, ConfigurationShape>()($I`Configuration`) {}
+export const configProviderLayer = Layer.empty;

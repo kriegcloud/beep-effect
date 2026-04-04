@@ -59,7 +59,7 @@ const fixModeFlag = Flag.boolean("fix-mode").pipe(
   Flag.withDescription("Render the markdown analysis as a checklist rather than a findings report")
 );
 const validateExamplesFlag = Flag.boolean("validate-examples").pipe(
-  Flag.withDescription("Pass --validate-examples through to @effect/docgen")
+  Flag.withDescription("Compatibility flag; the repo-local docgen implementation always validates extracted examples")
 );
 const parallelFlag = Flag.integer("parallel").pipe(
   Flag.withAlias("j"),
@@ -285,6 +285,7 @@ const docgenGenerateCommand = Command.make(
   },
   ({ package: selector, validateExamples, parallel, json }) =>
     Effect.gen(function* () {
+      void validateExamples;
       const targets = yield* resolveGenerateTargets(selector);
 
       if (targets.length === 0) {
@@ -292,7 +293,7 @@ const docgenGenerateCommand = Command.make(
         return;
       }
 
-      const results = yield* Effect.forEach(targets, (target) => runDocgenForPackage(target, validateExamples), {
+      const results = yield* Effect.forEach(targets, (target) => runDocgenForPackage(target), {
         concurrency: Math.max(1, parallel),
       });
 
@@ -321,7 +322,9 @@ const docgenGenerateCommand = Command.make(
         })
       )
     )
-).pipe(Command.withDescription("Run @effect/docgen for one package or every configured package"));
+).pipe(
+  Command.withDescription("Run the repo-local @beep/docgen implementation for one package or every configured package")
+);
 
 const docgenAggregateCommand = Command.make(
   "aggregate",
