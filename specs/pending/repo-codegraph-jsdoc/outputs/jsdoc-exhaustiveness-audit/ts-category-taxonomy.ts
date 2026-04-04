@@ -13,6 +13,7 @@
  */
 
 import type { ApplicableTo } from "./jsdoc-tags-database";
+import type {TSCategoryTag} from "@beep/repo-utils/JSDoc/models";
 
 /**
  * Deterministic heuristic for auto-classifying code elements
@@ -983,7 +984,7 @@ export function getCategoriesForApplicableTo(
  * @category Utility
  */
 export function getCandidateCategories(
-  signals: ReadonlyArray<{ category: string; confidence: number }>
+  signals: ReadonlyArray<{ category: TSCategoryTag; confidence: number }>
 ): ReadonlyArray<{ category: TSCategory; combinedConfidence: number }> {
   const grouped = new Map<string, Array<number>>();
 

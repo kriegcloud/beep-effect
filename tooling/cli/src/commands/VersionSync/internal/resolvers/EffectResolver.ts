@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, Number as N, Order, Path } from "effect";
 import * as A from "effect/Array";
@@ -16,7 +17,6 @@ import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { decodeJsoncTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
   VersionCategoryReport,
   VersionCategoryStatusEnum,
@@ -135,7 +135,7 @@ export const resolveEffectCatalog: (
       )
     );
 
-    const pkgJson = yield* decodeJsoncTextAsLive(RootPackageJsonDocument)(pkgJsonContent).pipe(
+    const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({

@@ -1,1 +1,0 @@
-export const USER_UPLOAD_LIMIT = 100000000;

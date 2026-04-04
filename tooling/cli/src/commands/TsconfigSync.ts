@@ -21,6 +21,7 @@ import {
   type WorkspaceDeps,
 } from "@beep/repo-utils";
 import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
+import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
@@ -40,7 +41,6 @@ import {
   DocgenAliasSource,
   mergeManagedDocgenConfig,
 } from "./Shared/DocgenConfig.js";
-import { decodeJsoncTextAsLive } from "./Shared/SchemaCodecs/index.js";
 import { buildCanonicalAliasTargets, resolveRootExportTarget } from "./Shared/TsconfigAliasTargets.js";
 
 export {
@@ -716,7 +716,7 @@ const dependencyNamesFromWorkspaceDeps = (workspaceDeps: WorkspaceDeps): Readonl
   ]);
 
 const parseJsonc = Effect.fn(function* <Schema extends S.Top>(content: string, filePath: string, schema: Schema) {
-  return yield* decodeJsoncTextAsLive(schema)(content).pipe(
+  return yield* decodeJsoncTextAs(schema)(content).pipe(
     Effect.mapError(
       (cause) =>
         new DomainError({
@@ -1219,7 +1219,7 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
 
 const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: ReadonlyArray<WorkspaceDescriptor>) {
   const path = yield* Path.Path;
-  const filePath = path.join(rootDir, "tstyche.config.json");
+  const filePath = path.join(rootDir, "tstyche.json");
 
   const original = yield* readFileString(filePath);
   const parsed = yield* parseJsonObject(original, filePath);

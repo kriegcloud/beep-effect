@@ -186,6 +186,67 @@ export {
   /**
    * @since 0.0.0
    */
+  decodeTSConfig,
+  /**
+   * @since 0.0.0
+   */
+  decodeTSConfigEffect,
+  /**
+   * @since 0.0.0
+   */
+  decodeTSConfigExit,
+  /**
+   * @since 0.0.0
+   */
+  decodeTSConfigFromJsoncTextEffect,
+  /**
+   * @since 0.0.0
+   */
+  encodeTSConfigEffect,
+  /**
+   * @since 0.0.0
+   */
+  encodeTSConfigPrettyEffect,
+  /**
+   * @since 0.0.0
+   */
+  encodeTSConfigToJsonEffect,
+  /**
+   * @since 0.0.0
+   */
+  TSConfig,
+  /**
+   * @since 0.0.0
+   */
+  TSConfigBuildOptions,
+  /**
+   * @since 0.0.0
+   */
+  TSConfigCompilerOptions,
+  /**
+   * @since 0.0.0
+   */
+  TSConfigReference,
+  /**
+   * @since 0.0.0
+   */
+  TSConfigTypeAcquisition,
+  /**
+   * @since 0.0.0
+   */
+  TSConfigWatchOptions,
+  /**
+   * @since 0.0.0
+   */
+  TSNodeConfig,
+} from "./schemas/TSConfig.js";
+/**
+ * @since 0.0.0
+ */
+export {
+  /**
+   * @since 0.0.0
+   */
   type DependencyRecord,
   /**
    * @since 0.0.0

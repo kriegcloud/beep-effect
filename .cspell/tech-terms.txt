@@ -47,6 +47,8 @@ hotspot
 httpapi
 inlines
 jsonc
+jsdocs
+jsxdev
 lede
 lerp
 lgtm
@@ -59,6 +61,8 @@ logql
 lostpixel
 ltrim
 macaddr
+mdns
+Mdns
 maxclients
 metas
 milli
@@ -101,6 +105,8 @@ rdfs
 RDFS
 redeployments
 replayable
+recompiles
+rlib
 roundrectangle
 rrggbb
 rtrim

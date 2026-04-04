@@ -6,8 +6,10 @@ import {
   toAgentModelListLike,
 } from "../config/model-input.js";
 import { createSubsystemLogger } from "../logging/subsystem.js";
-import { normalizeGoogleModelId } from "../plugin-sdk/google.js";
-import { normalizeXaiModelId } from "../plugin-sdk/xai.js";
+import {
+  normalizeGooglePreviewModelId,
+  normalizeNativeXaiModelId,
+} from "../plugin-sdk/provider-model-shared.js";
 import { sanitizeForLog } from "../terminal/ansi.js";
 import {
   resolveAgentConfig,
@@ -142,7 +144,7 @@ function normalizeProviderModelId(provider: string, model: string): string {
     return normalizeAnthropicModelId(model);
   }
   if (provider === "google" || provider === "google-vertex") {
-    return normalizeGoogleModelId(model);
+    return normalizeGooglePreviewModelId(model);
   }
   if (provider === "openai") {
     return model;
@@ -151,7 +153,7 @@ function normalizeProviderModelId(provider: string, model: string): string {
     return model.includes("/") ? model : `openrouter/${model}`;
   }
   if (provider === "xai") {
-    return normalizeXaiModelId(model);
+    return normalizeNativeXaiModelId(model);
   }
   if (provider === "vercel-ai-gateway" && !model.includes("/")) {
     // Allow Vercel-specific Claude refs without an upstream prefix.
@@ -211,6 +213,42 @@ export function parseModelRef(
   return normalizeModelRef(providerRaw, model, options);
 }
 
+export function resolvePersistedModelRef(params: {
+  defaultProvider: string;
+  runtimeProvider?: string;
+  runtimeModel?: string;
+  overrideProvider?: string;
+  overrideModel?: string;
+}): ModelRef | null {
+  const defaultProvider = params.defaultProvider.trim();
+  const runtimeProvider = params.runtimeProvider?.trim();
+  const runtimeModel = params.runtimeModel?.trim();
+  if (runtimeModel) {
+    if (runtimeProvider) {
+      return { provider: runtimeProvider, model: runtimeModel };
+    }
+    return (
+      parseModelRef(runtimeModel, defaultProvider) ?? {
+        provider: defaultProvider,
+        model: runtimeModel,
+      }
+    );
+  }
+
+  const overrideProvider = params.overrideProvider?.trim();
+  const overrideModel = params.overrideModel?.trim();
+  if (!overrideModel) {
+    return null;
+  }
+  const encodedOverride = overrideProvider ? `${overrideProvider}/${overrideModel}` : overrideModel;
+  return (
+    parseModelRef(encodedOverride, defaultProvider) ?? {
+      provider: overrideProvider || defaultProvider,
+      model: overrideModel,
+    }
+  );
+}
+
 export function inferUniqueProviderFromConfiguredModels(params: {
   cfg: OpenClawConfig;
   model: string;
@@ -219,25 +257,52 @@ export function inferUniqueProviderFromConfiguredModels(params: {
   if (!model) {
     return undefined;
   }
-  const configuredModels = params.cfg.agents?.defaults?.models;
-  if (!configuredModels) {
-    return undefined;
-  }
   const normalized = model.toLowerCase();
   const providers = new Set<string>();
-  for (const key of Object.keys(configuredModels)) {
-    const ref = key.trim();
-    if (!ref || !ref.includes("/")) {
-      continue;
+  const addProvider = (provider: string) => {
+    const normalizedProvider = normalizeProviderId(provider);
+    if (!normalizedProvider) {
+      return;
     }
-    const parsed = parseModelRef(ref, DEFAULT_PROVIDER, {
-      allowPluginNormalization: false,
-    });
-    if (!parsed) {
-      continue;
+    providers.add(normalizedProvider);
+  };
+  const configuredModels = params.cfg.agents?.defaults?.models;
+  if (configuredModels) {
+    for (const key of Object.keys(configuredModels)) {
+      const ref = key.trim();
+      if (!ref || !ref.includes("/")) {
+        continue;
+      }
+      const parsed = parseModelRef(ref, DEFAULT_PROVIDER, {
+        allowPluginNormalization: false,
+      });
+      if (!parsed) {
+        continue;
+      }
+      if (parsed.model === model || parsed.model.toLowerCase() === normalized) {
+        addProvider(parsed.provider);
+        if (providers.size > 1) {
+          return undefined;
+        }
+      }
     }
-    if (parsed.model === model || parsed.model.toLowerCase() === normalized) {
-      providers.add(parsed.provider);
+  }
+  const configuredProviders = params.cfg.models?.providers;
+  if (configuredProviders) {
+    for (const [providerId, providerConfig] of Object.entries(configuredProviders)) {
+      const models = providerConfig?.models;
+      if (!Array.isArray(models)) {
+        continue;
+      }
+      for (const entry of models) {
+        const modelId = entry?.id?.trim();
+        if (!modelId) {
+          continue;
+        }
+        if (modelId === model || modelId.toLowerCase() === normalized) {
+          addProvider(providerId);
+        }
+      }
       if (providers.size > 1) {
         return undefined;
       }

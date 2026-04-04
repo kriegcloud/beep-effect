@@ -10,6 +10,7 @@ import {
   normalizeProviderId,
   normalizeProviderIdForAuth,
   modelKey,
+  resolvePersistedModelRef,
   resolveAllowedModelRef,
   resolveConfiguredModelRef,
   resolveSubagentConfiguredModelSelection,
@@ -274,6 +275,46 @@ describe("model-selection", () => {
     });
   });
 
+  describe("resolvePersistedModelRef", () => {
+    it("splits legacy combined refs when provider is not stored separately", () => {
+      expect(
+        resolvePersistedModelRef({
+          defaultProvider: "anthropic",
+          overrideModel: "ollama-beelink2/qwen2.5-coder:7b",
+        }),
+      ).toEqual({
+        provider: "ollama-beelink2",
+        model: "qwen2.5-coder:7b",
+      });
+    });
+
+    it("preserves explicit runtime provider for vendor-prefixed model ids", () => {
+      expect(
+        resolvePersistedModelRef({
+          defaultProvider: "anthropic",
+          runtimeProvider: "openrouter",
+          runtimeModel: "anthropic/claude-haiku-4.5",
+        }),
+      ).toEqual({
+        provider: "openrouter",
+        model: "anthropic/claude-haiku-4.5",
+      });
+    });
+
+    it("normalizes explicit override providers without reparsing runtime semantics", () => {
+      expect(
+        resolvePersistedModelRef({
+          defaultProvider: "anthropic",
+          overrideProvider: "kimi-coding",
+          overrideModel: "kimi-code",
+        }),
+      ).toEqual({
+        provider: "kimi",
+        model: "kimi-code",
+      });
+    });
+  });
+
   describe("inferUniqueProviderFromConfiguredModels", () => {
     it("infers provider when configured model match is unique", () => {
       const cfg = {
@@ -284,7 +325,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as unknown as OpenClawConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -304,7 +345,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as unknown as OpenClawConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -323,7 +364,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as unknown as OpenClawConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -342,7 +383,7 @@ describe("model-selection", () => {
             },
           },
         },
-      } as OpenClawConfig;
+      } as unknown as OpenClawConfig;
 
       expect(
         inferUniqueProviderFromConfiguredModels({
@@ -350,6 +391,47 @@ describe("model-selection", () => {
           model: "anthropic/claude-sonnet-4-6",
         }),
       ).toBe("vercel-ai-gateway");
+    });
+
+    it("infers provider from configured provider catalogs when allowlist is absent", () => {
+      const cfg = {
+        models: {
+          providers: {
+            "qwen-dashscope": {
+              models: [{ id: "qwen-max" }],
+            },
+          },
+        },
+      } as unknown as OpenClawConfig;
+
+      expect(
+        inferUniqueProviderFromConfiguredModels({
+          cfg,
+          model: "qwen-max",
+        }),
+      ).toBe("qwen-dashscope");
+    });
+
+    it("returns undefined when provider catalog matches are ambiguous", () => {
+      const cfg = {
+        models: {
+          providers: {
+            "qwen-dashscope": {
+              models: [{ id: "qwen-max" }],
+            },
+            modelstudio: {
+              models: [{ id: "qwen-max" }],
+            },
+          },
+        },
+      } as unknown as OpenClawConfig;
+
+      expect(
+        inferUniqueProviderFromConfiguredModels({
+          cfg,
+          model: "qwen-max",
+        }),
+      ).toBeUndefined();
     });
   });
 

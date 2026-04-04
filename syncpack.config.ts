@@ -19,6 +19,7 @@ const config = {
     "packages/shared/*/package.json",
     "tooling/*/package.json",
     "packages/editor/package.json",
+    "tooling/docgen/docgen/package.json",
   ],
   customTypes: {
     catalog: {

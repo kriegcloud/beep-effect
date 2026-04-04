@@ -31,6 +31,9 @@
       "path": "packages/ai/sdk"
     },
     {
+      "path": "packages/common/chalk"
+    },
+    {
       "path": "packages/common/colors"
     },
     {
@@ -119,6 +122,9 @@
     },
     {
       "path": "tooling/configs"
+    },
+    {
+      "path": "tooling/docgen/docgen"
     },
     {
       "path": "tooling/repo-utils"

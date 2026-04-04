@@ -61,7 +61,7 @@ export const video = {
   },
   "video/mp2t": {
     source: "iana",
-    extensions: ["ts-morph"],
+    extensions: ["ts"],
   },
   "video/mp4": {
     source: "iana",

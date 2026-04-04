@@ -3,6 +3,15 @@
 
 export const ALLOWLIST_SNAPSHOT = {
   "path": "standards/effect-laws.allowlist.jsonc",
-  "entries": [],
+  "entries": [
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/chalk/src/internal/ChalkRuntime.ts",
+      "kind": "new-map-set",
+      "reason": "Chalk memoizes builder metadata by function identity and needs weak-key semantics to avoid retaining builders.",
+      "owner": "@beep/chalk",
+      "issue": "CHALK-WEAKMAP-MEMOIZATION"
+    }
+  ],
   "diagnostics": []
 } as const;

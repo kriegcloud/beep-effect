@@ -1,2 +1,0 @@
-
-Hey RJ this is Ben,  I really like what you've done with Confect and I've been working on similar ideas but for a more generic use case. I've watched the office hours you've been on (you might recognize me from there) and You're work in that library has inspired some really thought provoking ideas.  

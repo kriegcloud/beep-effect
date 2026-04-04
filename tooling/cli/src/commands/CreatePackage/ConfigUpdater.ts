@@ -11,6 +11,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
+import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkFalse, thunkNegative1, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
@@ -19,7 +20,6 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
-import { decodeJsoncTextAsLive } from "../Shared/SchemaCodecs/index.js";
 import { buildCanonicalAliasTargets } from "../Shared/TsconfigAliasTargets.js";
 
 const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
@@ -163,7 +163,7 @@ const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
 
 const parseJsoncObject: (content: string, filePath: string) => Effect.Effect<Record<string, unknown>, DomainError> =
   Effect.fn(function* (content, filePath) {
-    return yield* decodeJsoncTextAsLive(JsoncUnknownObject)(content).pipe(
+    return yield* decodeJsoncTextAs(JsoncUnknownObject)(content).pipe(
       Effect.mapError((cause) => new DomainError({ message: `Invalid JSONC in ${filePath}: ${cause.message}`, cause }))
     );
   });
@@ -347,7 +347,7 @@ export const updateTsconfigPaths: (
 });
 
 /**
- * Add a test file match entry to `tstyche.config.json`.
+ * Add a test file match entry to `tstyche.json`.
  *
  * Idempotent: if the entry already exists or is covered by a parent wildcard
  * glob, the file is left untouched.
@@ -365,7 +365,7 @@ export const updateTstycheConfig: (
 ) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
   function* (repoRoot, packagePath) {
     const path = yield* Path.Path;
-    const filePath = path.join(repoRoot, "tstyche.config.json");
+    const filePath = path.join(repoRoot, "tstyche.json");
 
     return yield* modifyFileString(
       filePath,
@@ -434,9 +434,9 @@ const checkConfigNeedsUpdateForTarget: (
     );
 
     const tstycheContent = yield* fs
-      .readFileString(path.join(repoRoot, "tstyche.config.json"))
-      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tstyche.config.json: ${e}` })));
-    const tstycheParsed = yield* parseJsoncObject(tstycheContent, "tstyche.config.json");
+      .readFileString(path.join(repoRoot, "tstyche.json"))
+      .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read tstyche.json: ${e}` })));
+    const tstycheParsed = yield* parseJsoncObject(tstycheContent, "tstyche.json");
     const testFileMatch = readTestFileMatch(tstycheParsed);
     const tstycheConfig = !isTstycheEntryCovered(testFileMatch, target.packagePath);
 

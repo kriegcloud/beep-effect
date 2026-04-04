@@ -9,6 +9,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { decodeYamlTextAs } from "@beep/schema/Yaml";
 import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
 import {
   Effect,
@@ -28,7 +29,6 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
-import { decodeYamlTextAsLive } from "../../../Shared/SchemaCodecs/index.js";
 import {
   NetworkUnavailableError,
   VersionCategoryReport,
@@ -346,7 +346,7 @@ export const resolveDockerImages: (
       )
     );
 
-    const composeDocument = yield* decodeYamlTextAsLive(DockerComposeDocument)(content).pipe(
+    const composeDocument = yield* decodeYamlTextAs(DockerComposeDocument)(content).pipe(
       Effect.mapError(
         (e) =>
           new VersionSyncError({

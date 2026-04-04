@@ -69,12 +69,22 @@ export * from "./FilePath.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Glob.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Graph.ts";
 /**
  * @since 0.0.0
  * @category Validation
  */
 export * from "./Int.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Jsonc.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -251,7 +261,6 @@ export * from "./Timezone.ts";
  * @category Validation
  */
 export * from "./Transformations.ts";
-
 /**
  * @since 0.0.0
  * @category Validation
@@ -262,3 +271,13 @@ export * from "./URL.ts";
  * @category Validation
  */
 export * as VariantSchema from "./VariantSchema.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Xml.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./Yaml.ts";

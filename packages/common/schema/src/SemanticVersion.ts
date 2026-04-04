@@ -16,6 +16,7 @@
  */
 import { $SchemaId } from "@beep/identity";
 import * as S from "effect/Schema";
+import * as SchemaUtils from "./SchemaUtils/index.ts";
 
 const $I = $SchemaId.create("SemanticVersion");
 const semanticVersionSegmentPattern = /^(?:0|[1-9]\d*)$/;
@@ -49,6 +50,9 @@ export const SemanticVersion = S.TemplateLiteral([
   ".",
   SemanticVersionSegment,
 ]).pipe(
+  SchemaUtils.withStatics((schema) => ({
+    decodeUnknownOption: (u: unknown) => S.decodeUnknownOption(schema)(u),
+  })),
   $I.annoteSchema("SemanticVersion", {
     description: "A semantic version string in the format x.y.z",
   })

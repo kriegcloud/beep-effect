@@ -10,7 +10,7 @@
     "tsconfig.base.json",
     "tsconfig.packages.json",
     "package.json",
-    "tstyche.config.json",
+    "tstyche.json",
     "vitest.shared.ts"
   ],
   "globalEnv": ["TURBO_TOKEN", "TURBO_TEAM"],

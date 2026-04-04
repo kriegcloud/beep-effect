@@ -9,11 +9,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { ClientOptions } from "ws";
 import type {
   ClientEvent,
+  ErrorEvent,
   OpenAIWebSocketEvent,
   ResponseCompletedEvent,
   ResponseCreateEvent,
 } from "./openai-ws-connection.js";
-import { OpenAIWebSocketManager } from "./openai-ws-connection.js";
+import { getOpenAIWebSocketErrorDetails, OpenAIWebSocketManager } from "./openai-ws-connection.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Mock WebSocket (hoisted so vi.mock factory can reference it)
@@ -249,6 +250,41 @@ describe("OpenAIWebSocketManager", () => {
 
       sock.simulateOpen();
       await connectPromise;
+    });
+
+    it("does not add hidden attribution headers on custom websocket endpoints", async () => {
+      const manager = buildManager({
+        url: "wss://proxy.example.com/v1/responses",
+      });
+      const connectPromise = manager.connect("sk-test-key");
+
+      const sock = lastSocket();
+      expect(sock.options).toMatchObject({
+        headers: expect.objectContaining({
+          Authorization: "Bearer sk-test-key",
+          "OpenAI-Beta": "responses-websocket=v1",
+        }),
+      });
+      const headers = sock.options?.headers as Record<string, string>;
+      expect(headers.originator).toBeUndefined();
+      expect(headers.version).toBeUndefined();
+      expect(headers["User-Agent"]).toBeUndefined();
+
+      sock.simulateOpen();
+      await connectPromise;
+    });
+
+    it("rejects insecure websocket TLS overrides", async () => {
+      const manager = buildManager({
+        request: {
+          tls: {
+            insecureSkipVerify: true,
+          },
+        },
+      });
+
+      await expect(manager.connect("sk-test-key")).rejects.toThrow(/insecureskipverify/i);
+      expect(MockWebSocket.lastInstance).toBeNull();
     });
 
     it("resolves when the connection opens", async () => {
@@ -626,6 +662,27 @@ describe("OpenAIWebSocketManager", () => {
   // ─── Error handling ─────────────────────────────────────────────────────────
 
   describe("error handling", () => {
+    it("normalizes nested websocket error payloads", () => {
+      const details = getOpenAIWebSocketErrorDetails({
+        type: "error",
+        status: 400,
+        error: {
+          type: "invalid_request_error",
+          code: "previous_response_not_found",
+          message: "Previous response with id 'resp_abc' not found.",
+          param: "previous_response_id",
+        },
+      } satisfies ErrorEvent);
+
+      expect(details).toEqual({
+        status: 400,
+        type: "invalid_request_error",
+        code: "previous_response_not_found",
+        message: "Previous response with id 'resp_abc' not found.",
+        param: "previous_response_id",
+      });
+    });
+
     it("emits error event on malformed JSON message", async () => {
       const manager = buildManager();
       const sock = await connectManagerAndGetSocket(manager);

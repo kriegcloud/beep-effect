@@ -59,19 +59,24 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "@beep/chalk": "workspace:^",
+    "@beep/docgen": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
+    "@effect/markdown-toc": "catalog:",
     "@effect/platform-node": "catalog:",
     "d3-dsv": "catalog:",
+    "doctrine": "catalog:",
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
-    "jsonc-parser": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",
+    "@types/babel__code-frame": "catalog:",
+    "@types/doctrine": "catalog:",
     "@types/node": "catalog:"
   }
 }

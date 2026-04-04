@@ -15,7 +15,11 @@
 
 import { EventEmitter } from "node:events";
 import WebSocket, { type ClientOptions } from "ws";
-import { resolveProviderAttributionHeaders } from "./provider-attribution.js";
+import {
+  buildProviderRequestTlsClientOptions,
+  resolveProviderRequestPolicyConfig,
+  type ProviderRequestTransportOverrides,
+} from "./provider-request-config.js";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // WebSocket Event Types (Server → Client)
@@ -30,6 +34,7 @@ export interface ResponseObject {
   output: OutputItem[];
   usage?: UsageInfo;
   error?: { code: string; message: string };
+  incomplete_details?: { reason?: string };
 }
 
 export interface UsageInfo {
@@ -156,9 +161,16 @@ export interface RateLimitUpdatedEvent {
 
 export interface ErrorEvent {
   type: "error";
-  code: string;
-  message: string;
+  status?: number;
+  code?: string;
+  message?: string;
   param?: string;
+  error?: {
+    type?: string;
+    code?: string;
+    message?: string;
+    param?: string;
+  };
 }
 
 export type OpenAIWebSocketEvent =
@@ -259,14 +271,6 @@ const MAX_RETRIES = 5;
 /** Backoff delays in ms: 1s, 2s, 4s, 8s, 16s */
 const BACKOFF_DELAYS_MS = [1000, 2000, 4000, 8000, 16000] as const;
 
-function isOpenAIPublicWebSocketUrl(url: string): boolean {
-  try {
-    return new URL(url).hostname.toLowerCase() === "api.openai.com";
-  } catch {
-    return url.toLowerCase().includes("api.openai.com");
-  }
-}
-
 export interface OpenAIWebSocketManagerOptions {
   /** Override the default WebSocket URL (useful for testing) */
   url?: string;
@@ -276,6 +280,8 @@ export interface OpenAIWebSocketManagerOptions {
   backoffDelaysMs?: readonly number[];
   /** Custom socket factory for tests. */
   socketFactory?: (url: string, options: ClientOptions) => WebSocket;
+  /** Optional transport overrides for provider-owned auth or TLS wiring. */
+  request?: ProviderRequestTransportOverrides;
 }
 
 type InternalEvents = {
@@ -316,6 +322,7 @@ export class OpenAIWebSocketManager extends EventEmitter<InternalEvents> {
   private readonly maxRetries: number;
   private readonly backoffDelaysMs: readonly number[];
   private readonly socketFactory: (url: string, options: ClientOptions) => WebSocket;
+  private readonly request?: ProviderRequestTransportOverrides;
 
   constructor(options: OpenAIWebSocketManagerOptions = {}) {
     super();
@@ -324,6 +331,7 @@ export class OpenAIWebSocketManager extends EventEmitter<InternalEvents> {
     this.backoffDelaysMs = options.backoffDelaysMs ?? BACKOFF_DELAYS_MS;
     this.socketFactory =
       options.socketFactory ?? ((url, socketOptions) => new WebSocket(url, socketOptions));
+    this.request = options.request;
   }
 
   // ─── Public API ────────────────────────────────────────────────────────────
@@ -410,14 +418,22 @@ export class OpenAIWebSocketManager extends EventEmitter<InternalEvents> {
         return;
       }
 
-      const socket = this.socketFactory(this.wsUrl, {
-        headers: {
+      const requestConfig = resolveProviderRequestPolicyConfig({
+        provider: "openai",
+        api: "openai-responses",
+        baseUrl: this.wsUrl,
+        capability: "llm",
+        transport: "websocket",
+        providerHeaders: {
           Authorization: `Bearer ${this.apiKey}`,
           "OpenAI-Beta": "responses-websocket=v1",
-          ...(isOpenAIPublicWebSocketUrl(this.wsUrl)
-            ? resolveProviderAttributionHeaders("openai")
-            : undefined),
         },
+        precedence: "defaults-win",
+        request: this.request,
+      });
+      const socket = this.socketFactory(this.wsUrl, {
+        headers: requestConfig.headers,
+        ...buildProviderRequestTlsClientOptions(requestConfig),
       });
 
       this.ws = socket;
@@ -559,4 +575,20 @@ export class OpenAIWebSocketManager extends EventEmitter<InternalEvents> {
     };
     this.send(event);
   }
+}
+
+export function getOpenAIWebSocketErrorDetails(event: ErrorEvent): {
+  status?: number;
+  type?: string;
+  code?: string;
+  message?: string;
+  param?: string;
+} {
+  return {
+    status: typeof event.status === "number" ? event.status : undefined,
+    type: event.error?.type,
+    code: event.error?.code ?? event.code,
+    message: event.error?.message ?? event.message,
+    param: event.error?.param ?? event.param,
+  };
 }
