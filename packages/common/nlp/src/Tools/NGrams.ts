@@ -1,40 +1,68 @@
 /**
- * NGrams tool - extracts character n-grams for text fingerprinting and analysis.
- * @since 3.1.0
+ * NGrams tool definition.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/NGrams
  */
 
-import { Tool } from "@effect/ai";
-import { Schema } from "effect";
-import { AiNGramSchema } from "./_schemas.ts";
+import { $NlpId } from "@beep/identity";
+import { LiteralKit, PosInt, SchemaUtils } from "@beep/schema";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
+import { AiNGram } from "./_schemas.ts";
 
-export const NGrams = Tool.make("NGrams", {
-  description: "Extract character n-grams from text using bag, edge, or set mode with deterministic ranking",
-  parameters: {
-    text: Schema.String.annotations({
+const $I = $NlpId.create("Tools/NGrams");
+const NGramModeKit = LiteralKit(["bag", "edge", "set"] as const);
+const NGramMode = NGramModeKit.pipe(
+  $I.annoteSchema("NGramMode", {
+    description: "Character n-gram generation mode.",
+  }),
+  SchemaUtils.withLiteralKitStatics(NGramModeKit)
+);
+
+class NGramsParameters extends S.Class<NGramsParameters>($I`NGramsParameters`)(
+  {
+    mode: S.optionalKey(NGramMode).annotateKey({
+      description: "Generation mode: bag counts all n-grams, edge uses edge n-grams, set keeps unique n-grams.",
+    }),
+    size: PosInt.annotateKey({
+      description: "N-gram size such as 2 for bigrams or 3 for trigrams",
+      examples: [PosInt.makeUnsafe(3)],
+    }),
+    text: S.String.annotateKey({
       description: "Input text used to generate n-grams",
       examples: ["internationalization"],
     }),
-    size: Schema.Int.pipe(Schema.greaterThanOrEqualTo(1)).annotations({
-      description: "N-gram size (e.g. 2 for bigrams, 3 for trigrams)",
-      examples: [3],
+    topN: S.optionalKey(PosInt).annotateKey({
+      description: "Maximum n-gram entries to return after sorting by count descending then value ascending.",
     }),
-    mode: Schema.optional(
-      Schema.Literal("bag", "edge", "set").annotations({
-        description:
-          "Generation mode: bag counts all n-grams, edge uses edge n-grams, set keeps unique n-grams (default: bag)",
-      })
-    ),
-    topN: Schema.optional(
-      Schema.Int.pipe(Schema.greaterThanOrEqualTo(1)).annotations({
-        description: "Maximum n-gram entries to return after sorting by count desc then value asc",
-      })
-    ),
   },
-  success: Schema.Struct({
-    mode: Schema.Literal("bag", "edge", "set"),
-    size: Schema.Number,
-    ngrams: Schema.Array(AiNGramSchema),
-    totalNGrams: Schema.Number,
-    uniqueNGrams: Schema.Number,
-  }),
+  $I.annote("NGramsParameters", {
+    description: "Inputs required to extract deterministic character n-grams from text.",
+  })
+) {}
+
+class NGramsSuccess extends S.Class<NGramsSuccess>($I`NGramsSuccess`)(
+  {
+    mode: NGramMode,
+    ngrams: S.Array(AiNGram),
+    size: S.Number,
+    totalNGrams: S.Number,
+    uniqueNGrams: S.Number,
+  },
+  $I.annote("NGramsSuccess", {
+    description: "Extracted n-gram entries and summary counts for the selected mode.",
+  })
+) {}
+
+/**
+ * Tool for extracting character n-grams.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const NGrams = Tool.make("NGrams", {
+  description: "Extract character n-grams from text using bag, edge, or set mode with deterministic ranking.",
+  parameters: NGramsParameters,
+  success: NGramsSuccess,
 });

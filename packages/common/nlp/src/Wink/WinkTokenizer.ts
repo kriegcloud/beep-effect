@@ -1,113 +1,129 @@
-import { Chunk, Effect, Layer, Option } from "effect";
-import type { ItemToken } from "wink-nlp";
+/**
+ * Wink-backed tokenization layer.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/WinkTokenizer
+ */
+
+import { Chunk, Clock, Effect, Layer } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import type { ItemSentence, ItemToken, ItsHelpers, Document as WinkDocument } from "wink-nlp";
 import { Document, DocumentId } from "../Core/Document.ts";
 import { Sentence, SentenceIndex } from "../Core/Sentence.ts";
 import { CharPosition, Token, TokenIndex } from "../Core/Token.ts";
 import { Tokenization, TokenizationError } from "../Core/Tokenization.ts";
-import { WinkEngine } from "./WinkEngine.ts";
-import { WinkEngineRefLive } from "./WinkEngineRef.ts";
-import type { WinkError } from "./WinkErrors.ts";
+import { WinkEngine, WinkEngineLive } from "./WinkEngine.ts";
+import type { WinkEngineError, WinkTokenizationError } from "./WinkErrors.ts";
 
 const makeTokenizationError =
   (operation: string) =>
-  (cause: WinkError): TokenizationError =>
-    new TokenizationError({ operation, cause });
+  (cause: WinkEngineError | WinkTokenizationError): TokenizationError =>
+    new TokenizationError({ cause, operation });
 
-const getSpan = (value: unknown): readonly [number, number] | undefined => {
-  if (Array.isArray(value) && value.length >= 2 && typeof value[0] === "number" && typeof value[1] === "number") {
-    return [value[0], value[1]];
-  }
-  return undefined;
+const isSpan = (value: unknown): value is readonly [number, number] =>
+  A.isArray(value) && value.length >= 2 && P.isNumber(value[0]) && P.isNumber(value[1]);
+
+const getSentenceSpan = (sentence: ItemSentence, its: ItsHelpers): readonly [number, number] | undefined => {
+  const span = sentence.out(its.span);
+  return isSpan(span) ? [span[0], span[1]] : undefined;
 };
 
-const safeOut = <T>(winkToken: ItemToken, accessor: any): T | undefined => {
+const tryOut = (token: ItemToken, itsFunction: unknown): unknown => {
   try {
-    return winkToken.out(accessor) as T;
+    return token.out(itsFunction as never);
   } catch {
     return undefined;
   }
 };
 
-const optString = (value: unknown): Option.Option<string | undefined> =>
-  value !== undefined && value !== null ? Option.some(String(value)) : Option.none();
+const optionFromTokenString = (token: ItemToken, itsFunction: unknown): O.Option<string> => {
+  const value = tryOut(token, itsFunction);
+  return value === undefined || !P.isString(value) ? O.none() : O.some(value);
+};
 
-const optValue = <T>(value: T | undefined | null): Option.Option<T | undefined> =>
-  value !== undefined && value !== null ? Option.some(value) : Option.none();
+const optionFromTokenBoolean = (token: ItemToken, itsFunction: unknown): O.Option<boolean> => {
+  const value = tryOut(token, itsFunction);
+  return value === undefined || !P.isBoolean(value) ? O.none() : O.some(value);
+};
 
-const makeToken = (winkToken: ItemToken, index: number, its: any, previousEnd: number): readonly [Token, number] => {
-  const text = String(winkToken.out() ?? "");
-  const preceding = String(winkToken.out(its.precedingSpaces) ?? "");
-  const start = previousEnd + preceding.length;
+const optionFromTokenNumber = (token: ItemToken, itsFunction: unknown): O.Option<number> => {
+  const value = tryOut(token, itsFunction);
+  return value === undefined || !P.isNumber(value) ? O.none() : O.some(value);
+};
+
+const readPrecedingSpaces = (token: ItemToken, its: ItsHelpers): string =>
+  O.getOrElse(optionFromTokenString(token, its.precedingSpaces), () => "");
+
+const makeToken = (token: ItemToken, index: number, its: ItsHelpers, previousEnd: number): readonly [Token, number] => {
+  const text = token.out();
+  const precedingSpaces = readPrecedingSpaces(token, its);
+  const start = previousEnd + precedingSpaces.length;
   const end = start + text.length;
 
-  const token = Token.make({
-    text,
-    index: TokenIndex.make(index),
-    start: CharPosition.make(start),
-    end: CharPosition.make(end),
-    pos: optString(safeOut(winkToken, its.pos)),
-    lemma: optString(safeOut(winkToken, its.lemma)),
-    stem: optString(safeOut(winkToken, its.stem)),
-    normal: optString(safeOut(winkToken, its.normal)),
-    shape: optString(safeOut(winkToken, its.shape)),
-    prefix: optString(safeOut(winkToken, its.prefix)),
-    suffix: optString(safeOut(winkToken, its.suffix)),
-    case: optString(safeOut(winkToken, its.case)),
-    uniqueId: optValue(safeOut<number>(winkToken, its.uniqueId)),
-    abbrevFlag: optValue(safeOut<boolean>(winkToken, its.abbrevFlag)),
-    contractionFlag: optValue(safeOut<boolean>(winkToken, its.contractionFlag)),
-    stopWordFlag: optValue(safeOut<boolean>(winkToken, its.stopWordFlag)),
-    negationFlag: optValue(safeOut<boolean>(winkToken, its.negationFlag)),
-    precedingSpaces: preceding.length > 0 ? Option.some(preceding) : Option.none(),
-    tags: [],
-  });
-
-  return [token, end] as const;
+  return [
+    Token.makeUnsafe({
+      abbrevFlag: optionFromTokenBoolean(token, its.abbrevFlag),
+      case: optionFromTokenString(token, its.case),
+      contractionFlag: optionFromTokenBoolean(token, its.contractionFlag),
+      end: CharPosition.makeUnsafe(end),
+      index: TokenIndex.makeUnsafe(index),
+      lemma: optionFromTokenString(token, its.lemma),
+      negationFlag: optionFromTokenBoolean(token, its.negationFlag),
+      normal: optionFromTokenString(token, its.normal),
+      pos: optionFromTokenString(token, its.pos),
+      prefix: optionFromTokenString(token, its.prefix),
+      precedingSpaces: precedingSpaces.length === 0 ? O.none() : O.some(precedingSpaces),
+      shape: optionFromTokenString(token, its.shape),
+      start: CharPosition.makeUnsafe(start),
+      stem: optionFromTokenString(token, its.stem),
+      stopWordFlag: optionFromTokenBoolean(token, its.stopWordFlag),
+      suffix: optionFromTokenString(token, its.suffix),
+      tags: [],
+      text,
+      uniqueId: optionFromTokenNumber(token, its.uniqueId),
+    }),
+    end,
+  ] as const;
 };
 
-const collectTokens = (doc: any, its: any): Chunk.Chunk<Token> => {
-  const tokensCursor = doc.tokens();
-  const buffer: Array<Token> = [];
-  let offset = 0;
+const collectTokens = (doc: WinkDocument, its: ItsHelpers): Chunk.Chunk<Token> => {
+  const tokens: Array<Token> = [];
+  let previousEnd = 0;
 
-  tokensCursor.each((winkToken: ItemToken, index: number) => {
-    const [token, nextOffset] = makeToken(winkToken, index, its, offset);
-    buffer.push(token);
-    offset = nextOffset;
+  doc.tokens().each((token, index) => {
+    const [mappedToken, nextEnd] = makeToken(token, index, its, previousEnd);
+    tokens.push(mappedToken);
+    previousEnd = nextEnd;
   });
 
-  return Chunk.fromIterable(buffer);
+  return Chunk.fromIterable(tokens);
 };
 
-const collectSentences = (doc: any, tokens: Chunk.Chunk<Token>, its: any): Chunk.Chunk<Sentence> => {
-  const sentencesCursor = doc.sentences();
+const collectSentences = (doc: WinkDocument, tokens: Chunk.Chunk<Token>, its: ItsHelpers): Chunk.Chunk<Sentence> => {
   const tokenArray = Chunk.toReadonlyArray(tokens);
   const sentences: Array<Sentence> = [];
 
-  sentencesCursor.each((winkSentence: any, index: number) => {
-    const text = String(winkSentence.out() ?? "");
-    const span = getSpan(winkSentence.out(its.span));
-    const [startTokenIndex, endTokenIndex] = span ?? [0, tokenArray.length];
-
-    const safeStart = Math.max(0, Math.min(startTokenIndex, tokenArray.length));
-    const safeEnd = Math.max(safeStart, Math.min(endTokenIndex, tokenArray.length));
-    const sentenceTokens = tokenArray.slice(safeStart, safeEnd);
-
-    const sentenceChunk = Chunk.fromIterable(sentenceTokens);
+  doc.sentences().each((sentence, index) => {
+    const [rawStart, rawEnd] = getSentenceSpan(sentence, its) ?? [0, Math.max(tokenArray.length - 1, 0)];
+    const safeStart = Math.max(0, Math.min(rawStart, tokenArray.length === 0 ? 0 : tokenArray.length - 1));
+    const safeEnd = Math.max(safeStart, Math.min(rawEnd, tokenArray.length === 0 ? 0 : tokenArray.length - 1));
+    const sentenceTokens = tokenArray.slice(safeStart, safeEnd + 1);
     const firstToken = sentenceTokens[0];
     const lastToken = sentenceTokens[sentenceTokens.length - 1];
 
     sentences.push(
-      Sentence.make({
-        text,
-        index: SentenceIndex.make(index),
-        tokens: sentenceChunk,
-        start: firstToken !== undefined ? firstToken.index : TokenIndex.make(0),
-        end: lastToken !== undefined ? lastToken.index : TokenIndex.make(0),
-        sentiment: Option.none(),
-        importance: Option.none(),
-        negationFlag: Option.none(),
-        markedUpText: Option.none(),
+      Sentence.makeUnsafe({
+        end: lastToken?.index ?? TokenIndex.makeUnsafe(0),
+        importance: O.none(),
+        index: SentenceIndex.makeUnsafe(index),
+        markedUpText: O.none(),
+        negationFlag: O.none(),
+        sentiment: O.none(),
+        start: firstToken?.index ?? TokenIndex.makeUnsafe(0),
+        text: sentence.out(),
+        tokens: Chunk.fromIterable(sentenceTokens),
       })
     );
   });
@@ -117,68 +133,65 @@ const collectSentences = (doc: any, tokens: Chunk.Chunk<Token>, its: any): Chunk
 
 const buildDocument = (
   text: string,
-  id: DocumentId | string | undefined,
+  documentId: DocumentId,
   tokens: Chunk.Chunk<Token>,
   sentences: Chunk.Chunk<Sentence>,
-  doc: any,
-  its: any
+  doc: WinkDocument,
+  its: ItsHelpers
 ): Document => {
   const sentiment = doc.out(its.sentiment);
-  const documentId = typeof id === "string" ? DocumentId.make(id) : (id ?? DocumentId.make(`doc-${Date.now()}`));
 
   return Document.make({
     id: documentId,
+    sentiment: P.isNumber(sentiment) ? O.some(sentiment) : O.none(),
+    sentences,
     text,
     tokens,
-    sentences,
-    sentiment: typeof sentiment === "number" ? Option.some(sentiment) : Option.none(),
   });
 };
 
-const baseLayer = Layer.effect(
-  Tokenization,
-  Effect.gen(function* () {
-    const engine = yield* WinkEngine;
+const makeWinkTokenization = Effect.gen(function* () {
+  const engine = yield* WinkEngine;
 
-    const tokenize = (text: string) =>
-      Effect.gen(function* () {
-        const doc = yield* engine.getWinkDoc(text);
-        const its = yield* engine.its;
-        return collectTokens(doc, its);
-      }).pipe(Effect.mapError(makeTokenizationError("tokenize")));
+  return Tokenization.of({
+    document: Effect.fn("Nlp.Wink.WinkTokenizer.document")(function* (text: string, id?: DocumentId | string) {
+      const doc = yield* engine.getWinkDoc(text).pipe(Effect.mapError(makeTokenizationError("document")));
+      const its = yield* engine.its.pipe(Effect.mapError(makeTokenizationError("document")));
+      const timestamp = yield* Clock.currentTimeMillis;
+      const tokens = collectTokens(doc, its);
+      const sentences = collectSentences(doc, tokens, its);
+      const documentId = id === undefined ? DocumentId.makeUnsafe(`doc-${timestamp}`) : DocumentId.makeUnsafe(id);
+      return buildDocument(text, documentId, tokens, sentences, doc, its);
+    }),
+    sentences: Effect.fn("Nlp.Wink.WinkTokenizer.sentences")(function* (text: string) {
+      const doc = yield* engine.getWinkDoc(text).pipe(Effect.mapError(makeTokenizationError("sentences")));
+      const its = yield* engine.its.pipe(Effect.mapError(makeTokenizationError("sentences")));
+      const tokens = collectTokens(doc, its);
+      return Chunk.toReadonlyArray(collectSentences(doc, tokens, its));
+    }),
+    tokenCount: Effect.fn("Nlp.Wink.WinkTokenizer.tokenCount")(function* (text: string) {
+      return yield* engine.getWinkTokenCount(text).pipe(Effect.mapError(makeTokenizationError("tokenCount")));
+    }),
+    tokenize: Effect.fn("Nlp.Wink.WinkTokenizer.tokenize")(function* (text: string) {
+      const doc = yield* engine.getWinkDoc(text).pipe(Effect.mapError(makeTokenizationError("tokenize")));
+      const its = yield* engine.its.pipe(Effect.mapError(makeTokenizationError("tokenize")));
+      return Chunk.toReadonlyArray(collectTokens(doc, its));
+    }),
+  });
+}).pipe(Effect.withSpan("Nlp.Wink.WinkTokenizer.make"));
 
-    const sentences = (text: string) =>
-      Effect.gen(function* () {
-        const doc = yield* engine.getWinkDoc(text);
-        const its = yield* engine.its;
-        const tokensChunk = collectTokens(doc, its);
-        return collectSentences(doc, tokensChunk, its);
-      }).pipe(Effect.mapError(makeTokenizationError("sentences")));
+/**
+ * Wink-backed tokenization layer.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const WinkTokenization = Layer.effect(Tokenization, makeWinkTokenization);
 
-    const document = (text: string, id?: DocumentId | string) =>
-      Effect.gen(function* () {
-        const doc = yield* engine.getWinkDoc(text);
-        const its = yield* engine.its;
-        const tokensChunk = collectTokens(doc, its);
-        const sentencesChunk = collectSentences(doc, tokensChunk, its);
-        return buildDocument(text, id, tokensChunk, sentencesChunk, doc, its);
-      }).pipe(Effect.mapError(makeTokenizationError("document")));
-
-    const tokenCount = (text: string) =>
-      Effect.gen(function* () {
-        const doc = yield* engine.getWinkDoc(text);
-        return doc.tokens().length();
-      }).pipe(Effect.mapError(makeTokenizationError("tokenCount")));
-
-    return {
-      tokenize,
-      sentences,
-      document,
-      tokenCount,
-    };
-  })
-);
-
-export const WinkTokenization = baseLayer;
-
-export const WinkTokenizationLive = baseLayer.pipe(Layer.provide(WinkEngine.Default), Layer.provide(WinkEngineRefLive));
+/**
+ * Wink-backed tokenization layer with the live engine provided.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const WinkTokenizationLive = WinkTokenization.pipe(Layer.provide(WinkEngineLive));

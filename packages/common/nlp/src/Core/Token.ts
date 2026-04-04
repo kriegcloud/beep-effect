@@ -1,185 +1,186 @@
 /**
- * Core Token Model
- * Effect-native data type with unique symbol typeId and formal dual API + pipeable interface
- * @since 3.0.0
+ * Core token model for NLP runtime services.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Core/Token
  */
 
-import { type Brand, Data, Function, Option, Schema } from "effect";
+import { $NlpId } from "@beep/identity";
+import { NonNegativeInt } from "@beep/schema";
+import { Brand } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const $I = $NlpId.create("Core/Token");
 
 /**
- * Branded token index for type safety
+ * Branded number type for token indices.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export type TokenIndex = number & Brand.Brand<"TokenIndex">;
-export const TokenIndex = Schema.Number.pipe(Schema.brand("TokenIndex"));
+export type TokenIndex = Brand.Branded<NonNegativeInt, "TokenIndex">;
 
 /**
- * Branded character position for type safety
+ * Predicate for {@link TokenIndex}.
+ *
+ * @since 0.0.0
+ * @category Validation
  */
-export type CharPosition = number & Brand.Brand<"CharPosition">;
-export const CharPosition = Schema.Number.pipe(Schema.brand("CharPosition"));
+export const isTokenIndex = (u: unknown): u is TokenIndex => S.is(NonNegativeInt)(u);
 
 /**
- * Token type with unique symbol typeId and pipeable interface
+ * Constructor for {@link TokenIndex}.
+ *
+ * @since 0.0.0
+ * @category Validation
  */
-export interface Token {
-  readonly abbrevFlag: Option.Option<boolean | undefined>;
-  readonly case: Option.Option<string | undefined>;
-  readonly contractionFlag: Option.Option<boolean | undefined>;
-  readonly end: CharPosition;
-  readonly index: TokenIndex;
-  readonly lemma: Option.Option<string | undefined>;
-  readonly negationFlag: Option.Option<boolean | undefined>;
-  readonly normal: Option.Option<string | undefined>;
-  readonly pos: Option.Option<string | undefined>;
-  readonly precedingSpaces: Option.Option<string | undefined>;
-  readonly prefix: Option.Option<string | undefined>;
-  readonly shape: Option.Option<string | undefined>;
-  readonly start: CharPosition;
-  readonly stem: Option.Option<string | undefined>;
-  readonly stopWordFlag: Option.Option<boolean | undefined>;
-  readonly suffix: Option.Option<string | undefined>;
-  readonly tags: ReadonlyArray<string>;
-  readonly text: string;
-  readonly uniqueId: Option.Option<number | undefined>;
-}
+export const tokenIndex: Brand.Constructor<TokenIndex> = Brand.check<TokenIndex>(S.makeFilter(S.is(NonNegativeInt)));
 
 /**
- * Token namespace with typeId, constructor, and dual API functions
+ * Schema for {@link TokenIndex}.
+ *
+ * @since 0.0.0
+ * @category Validation
  */
-export namespace Token {
-  /**
-   * Token constructor using Data.case for simple, pipeable API
-   */
-  export const make = Data.case<Token>();
+export const TokenIndex = NonNegativeInt.pipe(S.fromBrand("TokenIndex", tokenIndex));
 
-  /**
-   * Token schema for validation and serialization
-   */
-  export const schema = Schema.Struct({
-    text: Schema.String,
+/**
+ * Branded number type for character positions.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type CharPosition = Brand.Branded<NonNegativeInt, "CharPosition">;
+
+/**
+ * Predicate for {@link CharPosition}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const isCharPosition = (u: unknown): u is CharPosition => S.is(NonNegativeInt)(u);
+
+/**
+ * Constructor for {@link CharPosition}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const charPosition: Brand.Constructor<CharPosition> = Brand.check<CharPosition>(
+  S.makeFilter(S.is(NonNegativeInt))
+);
+
+/**
+ * Schema for {@link CharPosition}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const CharPosition = NonNegativeInt.pipe(S.fromBrand("CharPosition", charPosition));
+
+/**
+ * Immutable NLP token model with lexical and positional metadata.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class Token extends S.Class<Token>($I`Token`)(
+  {
+    text: S.String,
     index: TokenIndex,
     start: CharPosition,
     end: CharPosition,
-    pos: Schema.Option(Schema.String),
-    lemma: Schema.Option(Schema.String),
-    stem: Schema.Option(Schema.String),
-    normal: Schema.Option(Schema.String),
-    shape: Schema.Option(Schema.String),
-    prefix: Schema.Option(Schema.String),
-    suffix: Schema.Option(Schema.String),
-    case: Schema.Option(Schema.String),
-    uniqueId: Schema.Option(Schema.Number),
-    abbrevFlag: Schema.Option(Schema.Boolean),
-    contractionFlag: Schema.Option(Schema.Boolean),
-    stopWordFlag: Schema.Option(Schema.Boolean),
-    negationFlag: Schema.Option(Schema.Boolean),
-    precedingSpaces: Schema.Option(Schema.String),
-    tags: Schema.Array(Schema.String),
-  });
+    pos: S.OptionFromOptionalKey(S.String),
+    lemma: S.OptionFromOptionalKey(S.String),
+    stem: S.OptionFromOptionalKey(S.String),
+    normal: S.OptionFromOptionalKey(S.String),
+    shape: S.OptionFromOptionalKey(S.String),
+    prefix: S.OptionFromOptionalKey(S.String),
+    suffix: S.OptionFromOptionalKey(S.String),
+    case: S.OptionFromOptionalKey(S.String),
+    uniqueId: S.OptionFromOptionalKey(S.Number),
+    abbrevFlag: S.OptionFromOptionalKey(S.Boolean),
+    contractionFlag: S.OptionFromOptionalKey(S.Boolean),
+    stopWordFlag: S.OptionFromOptionalKey(S.Boolean),
+    negationFlag: S.OptionFromOptionalKey(S.Boolean),
+    precedingSpaces: S.OptionFromOptionalKey(S.String),
+    tags: S.Array(S.String),
+  },
+  $I.annote("Token", {
+    description: "Immutable NLP token with lexical annotations, offsets, and optional wink metadata.",
+  })
+) {
+  /**
+   * Number of characters spanned by the token.
+   */
+  get length(): number {
+    return this.end - this.start;
+  }
 
   /**
-   * Get token length - dual API (data-first and data-last)
+   * Backwards-compatible unsafe constructor alias.
    */
-  export const length = (token: Token): number => token.end - token.start;
+  static readonly make = Token.makeUnsafe;
 
   /**
-   * Check if token contains position - dual API (data-first and data-last)
+   * Whether a character position falls inside the token range.
    */
-  export const containsPosition = Function.dual<
-    (pos: number) => (self: Token) => boolean,
-    (self: Token, pos: number) => boolean
-  >(2, (token: Token, pos: number): boolean => pos >= token.start && pos < token.end);
-
-  /**
-   * Check if token is punctuation (based on shape) - dual API (data-first and data-last)
-   */
-  export const isPunctuation = (token: Token): boolean =>
-    Option.match(token.shape, {
-      onNone: () => false,
-      onSome: (shape) => !/[Xxd]/.test(shape as string),
-    });
-
-  /**
-   * Check if token is word (has letters) - dual API (data-first and data-last)
-   */
-  export const isWord = (token: Token): boolean =>
-    Option.match(token.shape, {
-      onNone: () => true,
-      onSome: (shape) => /[Xx]/.test(shape as string),
-    });
-
-  /**
-   * Check if token is stop word - dual API (data-first and data-last)
-   */
-  export const isStopWord = (token: Token): boolean =>
-    Option.match(token.stopWordFlag, {
-      onNone: () => false,
-      onSome: (isStop) => isStop as boolean,
-    });
-
-  /**
-   * Get token text - dual API (data-first and data-last)
-   */
-  export const text = (token: Token): string => token.text;
-
-  /**
-   * Get token POS tag - dual API (data-first and data-last)
-   */
-  export const pos = (token: Token): Option.Option<string | undefined> => token.pos;
-
-  /**
-   * Get token lemma - dual API (data-first and data-last)
-   */
-  export const lemma = (token: Token): Option.Option<string | undefined> => token.lemma;
-
-  /**
-   * Update token text - dual API (data-first and data-last)
-   */
-  export const withText = Function.dual<(text: string) => (self: Token) => Token, (self: Token, text: string) => Token>(
+  static readonly containsPosition = dual(
     2,
-    (token: Token, text: string): Token => make({ ...token, text })
+    (token: Token, pos: number): boolean => pos >= token.start && pos < token.end
   );
 
   /**
-   * Update token POS - dual API (data-first and data-last)
+   * Whether the token represents punctuation.
    */
-  export const withPos = Function.dual<
-    (pos: Option.Option<string>) => (self: Token) => Token,
-    (self: Token, pos: Option.Option<string>) => Token
-  >(2, (token: Token, pos: Option.Option<string>): Token => make({ ...token, pos }));
+  static readonly isPunctuation = (token: Token): boolean =>
+    O.match(token.shape, {
+      onNone: () => false,
+      onSome: (shape) => !/[Xxd]/.test(shape),
+    });
 
   /**
-   * Update token lemma - dual API (data-first and data-last)
+   * Whether the token is word-like.
    */
-  export const withLemma = Function.dual<
-    (lemma: Option.Option<string>) => (self: Token) => Token,
-    (self: Token, lemma: Option.Option<string>) => Token
-  >(2, (token: Token, lemma: Option.Option<string>): Token => make({ ...token, lemma }));
+  static readonly isWord = (token: Token): boolean =>
+    O.match(token.shape, {
+      onNone: () => true,
+      onSome: (shape) => /[Xx]/.test(shape),
+    });
 
   /**
-   * Update token stop word flag - dual API (data-first and data-last)
+   * Whether the token is marked as a stop word.
    */
-  export const withStopWordFlag = Function.dual<
-    (stopWordFlag: Option.Option<boolean>) => (self: Token) => Token,
-    (self: Token, stopWordFlag: Option.Option<boolean>) => Token
-  >(2, (token: Token, stopWordFlag: Option.Option<boolean>): Token => make({ ...token, stopWordFlag }));
+  static readonly isStopWord = (token: Token): boolean => O.getOrElse(token.stopWordFlag, () => false);
+
+  /**
+   * Return a copy of the token with new text.
+   */
+  static readonly withText = dual(2, (token: Token, text: string): Token => Token.makeUnsafe({ ...token, text }));
+
+  /**
+   * Return a copy of the token with a new part-of-speech tag.
+   */
+  static readonly withPos = dual(
+    2,
+    (token: Token, pos: string): Token => Token.makeUnsafe({ ...token, pos: O.some(pos) })
+  );
+
+  /**
+   * Return a copy of the token with a new lemma.
+   */
+  static readonly withLemma = dual(
+    2,
+    (token: Token, lemma: string): Token => Token.makeUnsafe({ ...token, lemma: O.some(lemma) })
+  );
+
+  /**
+   * Return a copy of the token with an updated stop-word flag.
+   */
+  static readonly withStopWordFlag = dual(
+    2,
+    (token: Token, flag: boolean): Token => Token.makeUnsafe({ ...token, stopWordFlag: O.some(flag) })
+  );
 }
-
-/**
- * Token helpers - kept for backward compatibility
- * @deprecated Use Token namespace functions instead
- */
-export const TokenHelpers = {
-  length: Token.length,
-  containsPosition: (token: Token, pos: number) => Token.containsPosition(pos)(token),
-  isPunctuation: Token.isPunctuation,
-  isWord: Token.isWord,
-  isStopWord: Token.isStopWord,
-  text: Token.text,
-  pos: Token.pos,
-  lemma: Token.lemma,
-  withText: (token: Token, text: string) => Token.withText(text)(token),
-  withPos: (token: Token, pos: Option.Option<string>) => Token.withPos(pos)(token),
-  withLemma: (token: Token, lemma: Option.Option<string>) => Token.withLemma(lemma)(token),
-  withStopWordFlag: (token: Token, stopWordFlag: Option.Option<boolean>) => Token.withStopWordFlag(stopWordFlag)(token),
-};

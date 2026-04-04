@@ -1,30 +1,52 @@
 /**
- * CreateCorpus tool - creates a stateful BM25 corpus session.
- * @since 3.1.0
+ * CreateCorpus tool definition.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/CreateCorpus
  */
 
-import { Tool } from "@effect/ai";
-import { Schema } from "effect";
-import { AiCorpusSummarySchema } from "./_schemas.ts";
+import { $NlpId } from "@beep/identity";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
+import { BM25Norm } from "../Wink/WinkVectorizer.ts";
+import { AiCorpusSummary } from "./_schemas.ts";
 
-export const CreateCorpus = Tool.make("CreateCorpus", {
-  description: "Create a stateful BM25 corpus session that can be learned incrementally across tool calls",
-  parameters: {
-    corpusId: Schema.optional(
-      Schema.String.pipe(Schema.minLength(1)).annotations({
-        description: "Optional stable corpus identifier. If omitted, a generated id is returned.",
-      })
-    ),
-    bm25Config: Schema.optional(
-      Schema.Struct({
-        k1: Schema.optional(Schema.Number),
-        b: Schema.optional(Schema.Number),
-        k: Schema.optional(Schema.Number),
-        norm: Schema.optional(Schema.Literal("none", "l1", "l2")),
-      }).annotations({
-        description: "Optional BM25 overrides. Omitted fields use defaults.",
-      })
-    ),
+const $I = $NlpId.create("Tools/CreateCorpus");
+
+class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCorpusBM25Config`)(
+  {
+    b: S.optionalKey(S.Number),
+    k: S.optionalKey(S.Number),
+    k1: S.optionalKey(S.Number),
+    norm: S.optionalKey(BM25Norm),
   },
-  success: AiCorpusSummarySchema,
+  $I.annote("CreateCorpusBM25Config", {
+    description: "Optional BM25 overrides for a new corpus session.",
+  })
+) {}
+
+class CreateCorpusParameters extends S.Class<CreateCorpusParameters>($I`CreateCorpusParameters`)(
+  {
+    bm25Config: S.optionalKey(CreateCorpusBM25Config).annotateKey({
+      description: "Optional BM25 overrides. Omitted fields use defaults.",
+    }),
+    corpusId: S.optionalKey(S.String.check(S.isMinLength(1))).annotateKey({
+      description: "Optional stable corpus identifier. If omitted, a generated id is returned.",
+    }),
+  },
+  $I.annote("CreateCorpusParameters", {
+    description: "Inputs required to create a new stateful BM25-style corpus session.",
+  })
+) {}
+
+/**
+ * Tool for creating a stateful corpus session.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const CreateCorpus = Tool.make("CreateCorpus", {
+  description: "Create a stateful BM25-style corpus session that can be learned incrementally across tool calls.",
+  parameters: CreateCorpusParameters,
+  success: AiCorpusSummary,
 });

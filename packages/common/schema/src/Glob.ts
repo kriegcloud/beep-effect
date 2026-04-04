@@ -21,33 +21,34 @@
 import { $SchemaId } from "@beep/identity/packages";
 import { thunkFalse } from "@beep/utils";
 import { Result } from "effect";
+import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $SchemaId.create("Glob");
 const MAX_GLOB_PATTERN_LENGTH = 1024 * 64;
+type BunGlobConstructor = new (pattern: string) => object;
 
-const getBunGlobConstructor = (): typeof Bun.Glob => {
-  const BunGlob = globalThis.Bun?.Glob;
+const isBunGlobConstructor = (input: unknown): input is BunGlobConstructor => P.isFunction(input);
 
-  if (BunGlob === undefined) {
-    throw new Error("Bun.Glob is unavailable in the current runtime");
-  }
-
-  return BunGlob;
+const getBunGlobConstructor = (): O.Option<BunGlobConstructor> => {
+  const bunRuntime = Reflect.get(globalThis, "Bun");
+  const bunGlob = P.isObject(bunRuntime) ? Reflect.get(bunRuntime, "Glob") : undefined;
+  return isBunGlobConstructor(bunGlob) ? O.some(bunGlob) : O.none();
 };
 
 const canConstructMatcher = (value: string): boolean =>
-  Result.isSuccess(
-    Result.try({
-      try: () => {
-        const BunGlob = getBunGlobConstructor();
-        return new BunGlob(value);
-      },
-      catch: thunkFalse,
-    })
-  );
+  O.match(getBunGlobConstructor(), {
+    onNone: thunkFalse,
+    onSome: (BunGlob) =>
+      Result.isSuccess(
+        Result.try({
+          try: () => new BunGlob(value),
+          catch: thunkFalse,
+        })
+      ),
+  });
 
 const GlobChecks = S.makeFilterGroup(
   [

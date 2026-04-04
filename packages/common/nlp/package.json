@@ -26,12 +26,16 @@
     ".": "./src/index.ts",
     "./Core": "./src/Core/index.ts",
     "./Core/*": "./src/Core/*.ts",
+    "./IdentifierText": "./src/IdentifierText.ts",
     "./Layers": "./src/Layers/index.ts",
+    "./Layers/*": "./src/Layers/*.ts",
+    "./PathText": "./src/PathText.ts",
+    "./QueryText": "./src/QueryText.ts",
     "./Tools": "./src/Tools/index.ts",
     "./Tools/*": "./src/Tools/*.ts",
+    "./VariantText": "./src/VariantText.ts",
     "./Wink": "./src/Wink/index.ts",
     "./Wink/*": "./src/Wink/*.ts",
-    "./*": "./src/*.ts",
     "./internal/*": null,
     "./package.json": "./package.json"
   },
@@ -50,12 +54,16 @@
       ".": "./dist/index.ts",
       "./Core": "./dist/Core/index.js",
       "./Core/*": "./dist/Core/*.js",
+      "./IdentifierText": "./dist/IdentifierText.js",
       "./Layers": "./dist/Layers/index.js",
+      "./Layers/*": "./dist/Layers/*.js",
+      "./PathText": "./dist/PathText.js",
+      "./QueryText": "./dist/QueryText.js",
       "./Tools": "./dist/Tools/index.js",
       "./Tools/*": "./dist/Tools/*.js",
+      "./VariantText": "./dist/VariantText.js",
       "./Wink": "./dist/Wink/index.js",
       "./Wink/*": "./dist/Wink/*.js",
-      "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"
     }
@@ -71,6 +79,7 @@
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
+    "@types/bun": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   }

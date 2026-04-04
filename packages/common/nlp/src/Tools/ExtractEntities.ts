@@ -1,41 +1,62 @@
 /**
- * ExtractEntities tool - extracts named entities from text with offsets.
- * @since 3.0.0
+ * ExtractEntities tool definition.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/ExtractEntities
  */
 
-import { Tool } from "@effect/ai";
-import { Schema } from "effect";
-import { AiEntitySchema } from "./_schemas.ts";
+import { $NlpId } from "@beep/identity";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
+import { AiEntity } from "./_schemas.ts";
 
-export const ExtractEntities = Tool.make("ExtractEntities", {
-  description: "Extract named entities (e.g. DATE, MONEY, PERSON, EMAIL, URL) from text using wink-nlp",
-  parameters: {
-    text: Schema.String.annotations({
+const $I = $NlpId.create("Tools/ExtractEntities");
+
+class ExtractEntitiesParameters extends S.Class<ExtractEntitiesParameters>($I`ExtractEntitiesParameters`)(
+  {
+    includeCustom: S.optionalKey(S.Boolean).annotateKey({
+      description: "Include custom entities learned via LearnCustomEntities (default: true)",
+    }),
+    text: S.String.annotateKey({
       description: "The text to analyze for entities",
       examples: ["Email john@example.com by 2026-01-15. Budget is $1200 for New York."],
     }),
-    includeCustom: Schema.optional(
-      Schema.Boolean.annotations({
-        description: "Include custom entities learned via LearnCustomEntities (default: true)",
-      })
-    ),
   },
-  success: Schema.Struct({
-    entities: Schema.Array(AiEntitySchema).annotations({
-      description: "Built-in wink entity matches",
+  $I.annote("ExtractEntitiesParameters", {
+    description: "Inputs required to extract built-in and optional custom entities from text.",
+  })
+) {}
+
+class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractEntitiesSuccess`)(
+  {
+    allEntities: S.Array(AiEntity).annotateKey({
+      description: "Combined built-in and custom entity matches",
     }),
-    entityCount: Schema.Number,
-    entityTypes: Schema.Array(Schema.String),
-    customEntities: Schema.Array(AiEntitySchema).annotations({
+    allEntityCount: S.Number,
+    customEntities: S.Array(AiEntity).annotateKey({
       description: "Custom learned entity matches",
     }),
-    customEntityCount: Schema.Number,
-    customEntityTypes: Schema.Array(Schema.String),
-    allEntities: Schema.Array(AiEntitySchema).annotations({
-      description: "Combined built-in and custom entities",
+    customEntityCount: S.Number,
+    customEntityTypes: S.Array(S.String),
+    entities: S.Array(AiEntity).annotateKey({
+      description: "Built-in entity matches",
     }),
-    allEntityCount: Schema.Number,
-  }).annotations({
-    description: "Entity extraction result including built-in entities and optional learned custom entities",
-  }),
+    entityCount: S.Number,
+    entityTypes: S.Array(S.String),
+  },
+  $I.annote("ExtractEntitiesSuccess", {
+    description: "Entity extraction result including built-in entities and optional learned custom entities.",
+  })
+) {}
+
+/**
+ * Tool for extracting built-in and custom entities from text.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const ExtractEntities = Tool.make("ExtractEntities", {
+  description: "Extract named entities from text, including optional learned custom entities.",
+  parameters: ExtractEntitiesParameters,
+  success: ExtractEntitiesSuccess,
 });

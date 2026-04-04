@@ -1,45 +1,80 @@
 /**
- * LearnCustomEntities tool - teaches custom pattern-based entities to wink-nlp.
- * @since 3.1.0
+ * LearnCustomEntities tool definition.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/LearnCustomEntities
  */
 
-import { Tool } from "@effect/ai";
-import { Schema } from "effect";
+import { $NlpId } from "@beep/identity";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
+import { MarkRange } from "../Core/Pattern.ts";
 
-export const LearnCustomEntities = Tool.make("LearnCustomEntities", {
-  description: "Learn custom entity patterns using bracket-string elements (e.g. [PROPN], [CARDINAL], [$])",
-  parameters: {
-    groupName: Schema.optional(
-      Schema.String.pipe(Schema.minLength(1)).annotations({
-        description: "Logical group name for this custom entity set. Defaults to custom-entities.",
-      })
-    ),
-    mode: Schema.optional(
-      Schema.Literal("append", "replace").annotations({
-        description: "append merges with existing learned entities, replace overwrites existing learned entities",
-      })
-    ),
-    entities: Schema.NonEmptyArray(
-      Schema.Struct({
-        name: Schema.String.pipe(Schema.minLength(1)).annotations({
-          description: "Custom entity type label (e.g. PERSON_NAME, MONEY_AMOUNT)",
-        }),
-        patterns: Schema.NonEmptyArray(Schema.String).annotations({
-          description: "Ordered bracket-string pattern elements (e.g. [PROPN], [PROPN])",
-        }),
-        mark: Schema.optional(Schema.Tuple(Schema.Int, Schema.Int)).annotations({
-          description: "Optional [start, end] mark range over matched pattern tokens",
-        }),
-      })
-    ).annotations({
-      description: "One or more custom entity definitions to learn",
+const $I = $NlpId.create("Tools/LearnCustomEntities");
+const LearnCustomEntitiesModeKit = LiteralKit(["append", "replace"] as const);
+const LearnCustomEntitiesMode = LearnCustomEntitiesModeKit.pipe(
+  $I.annoteSchema("LearnCustomEntitiesMode", {
+    description: "How learned custom entities are merged into the current engine state.",
+  }),
+  SchemaUtils.withLiteralKitStatics(LearnCustomEntitiesModeKit)
+);
+
+class LearnCustomEntityDefinition extends S.Class<LearnCustomEntityDefinition>($I`LearnCustomEntityDefinition`)(
+  {
+    mark: S.optionalKey(MarkRange).annotateKey({
+      description: "Optional [start, end] mark range over matched pattern tokens",
+    }),
+    name: S.String.check(S.isMinLength(1)).annotateKey({
+      description: "Custom entity type label such as PERSON_NAME or MONEY_AMOUNT",
+    }),
+    patterns: S.NonEmptyArray(S.String).annotateKey({
+      description: "Ordered bracket-string pattern elements such as [PROPN], [PROPN]",
     }),
   },
-  success: Schema.Struct({
-    groupName: Schema.String,
-    mode: Schema.Literal("append", "replace"),
-    learnedEntityCount: Schema.Number,
-    totalEntityCount: Schema.Number,
-    entityNames: Schema.Array(Schema.String),
-  }),
+  $I.annote("LearnCustomEntityDefinition", {
+    description: "One custom entity definition consisting of a name and bracket-string patterns.",
+  })
+) {}
+
+class LearnCustomEntitiesParameters extends S.Class<LearnCustomEntitiesParameters>($I`LearnCustomEntitiesParameters`)(
+  {
+    entities: S.NonEmptyArray(LearnCustomEntityDefinition).annotateKey({
+      description: "One or more custom entity definitions to learn",
+    }),
+    groupName: S.optionalKey(S.String.check(S.isMinLength(1))).annotateKey({
+      description: "Logical group name for this custom entity set. Defaults to custom-entities.",
+    }),
+    mode: S.optionalKey(LearnCustomEntitiesMode).annotateKey({
+      description: "append merges with existing learned entities; replace overwrites them.",
+    }),
+  },
+  $I.annote("LearnCustomEntitiesParameters", {
+    description: "Inputs required to learn custom bracket-string entity patterns into the wink engine.",
+  })
+) {}
+
+class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`LearnCustomEntitiesSuccess`)(
+  {
+    entityNames: S.Array(S.String),
+    groupName: S.String,
+    learnedEntityCount: S.Number,
+    mode: LearnCustomEntitiesMode,
+    totalEntityCount: S.Number,
+  },
+  $I.annote("LearnCustomEntitiesSuccess", {
+    description: "Learning result summary for custom entity definitions.",
+  })
+) {}
+
+/**
+ * Tool for teaching custom pattern-based entities.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const LearnCustomEntities = Tool.make("LearnCustomEntities", {
+  description: "Learn custom entity patterns using bracket-string elements such as [PROPN], [CARDINAL], or [$].",
+  parameters: LearnCustomEntitiesParameters,
+  success: LearnCustomEntitiesSuccess,
 });

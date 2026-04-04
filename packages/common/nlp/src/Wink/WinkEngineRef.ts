@@ -1,111 +1,55 @@
 /**
- * WinkEngineRef Service - Manages shared wink-nlp state using Effect Ref
- * @since 3.0.0
+ * Compatibility service exposing the shared live wink runtime ref.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/WinkEngineRef
  */
 
-import { Effect, Hash, Ref, Schema } from "effect";
-import model from "wink-eng-lite-web-model";
-import type { WinkMethods } from "wink-nlp";
-import winkNLP from "wink-nlp";
-import { WinkEntityError, type WinkError, WinkMemoryError } from "./WinkErrors.ts";
-import { WinkEngineCustomEntities } from "./WinkPattern.ts";
+import { $NlpId } from "@beep/identity";
+import { Effect, Layer, Ref, ServiceMap } from "effect";
+import { WinkEngine, type WinkEngineRuntimeState } from "./WinkEngine.ts";
+import type { WinkEntityError } from "./WinkErrors.ts";
+import type { WinkEngineCustomEntities } from "./WinkPattern.ts";
 
-export type InstanceId = Schema.Schema.Type<typeof InstanceId>;
-export const InstanceId = Schema.String.pipe(Schema.brand("InstanceId"));
+const $I = $NlpId.create("Wink/WinkEngineRef");
 
-export class WinkEngineState extends Schema.Class<WinkEngineState>("WinkEngineState")({
-  customEntities: Schema.optional(WinkEngineCustomEntities),
-  instanceId: InstanceId,
-}) {}
-
-type WinkEngineRefState = WinkEngineState & { nlp: WinkMethods };
-
-/**
- * Generate engine hash from custom entities
- */
-const makeInstanceId = (customEntities?: WinkEngineCustomEntities): InstanceId => {
-  const hash = customEntities ? Hash.hash(customEntities) : Hash.hash("base");
-  const id = `wink-engine-${hash}-${Date.now()}`;
-  return InstanceId.make(id);
+type WinkEngineRefShape = {
+  readonly getRef: () => Ref.Ref<WinkEngineRuntimeState>;
+  readonly updateWithCustomEntities: (
+    customEntities: WinkEngineCustomEntities
+  ) => Effect.Effect<WinkEngineRuntimeState, WinkEntityError>;
 };
 
-/**
- * WinkEngineRef Service - Single shared ref for wink-nlp state
- */
-export class WinkEngineRef extends Effect.Service<WinkEngineRef>()("effect-nlp/WinkEngineRef", {
-  effect: Effect.gen(function* () {
-    const nlp = yield* Effect.try({
-      try: () => winkNLP(model),
-      catch: (error) => {
-        // Check if this is the memory limit error during initial creation
-        if (WinkMemoryError.isMemoryLimitError(error)) {
-          return WinkMemoryError.fromCause(error, 1); // First instance
-        }
-        // For other initialization errors, treat as entity error
-        return WinkEntityError.fromCause(error, "initialization", "initialize");
-      },
-    });
+const makeWinkEngineRef = Effect.gen(function* () {
+  const engine = yield* WinkEngine;
+  const stateRef = yield* engine.getRef;
 
-    const instanceId = makeInstanceId();
-
-    const initialState: WinkEngineRefState = {
-      customEntities: undefined,
-      instanceId,
-      nlp,
-    };
-
-    const stateRef = yield* Ref.make(initialState);
-
-    return {
-      /**
-       * Get the current state ref
-       */
-      getRef: () => stateRef,
-
-      /**
-       * Update the ref with new custom entities (reuses existing nlp instance)
-       */
-      updateWithCustomEntities: (
-        customEntities: WinkEngineCustomEntities
-      ): Effect.Effect<WinkEngineRefState, WinkError> =>
-        Effect.gen(function* () {
-          const currentState = yield* Ref.get(stateRef);
-          const existingNlp = currentState.nlp;
-          const winkFormatEntities = customEntities.toWinkFormat();
-
-          yield* Effect.try({
-            try: () =>
-              existingNlp.learnCustomEntities(winkFormatEntities as Array<any>, {
-                matchValue: false,
-                usePOS: true,
-                useEntity: true,
-              }),
-            catch: (error) => {
-              // Check if this is the memory limit error
-              if (WinkMemoryError.isMemoryLimitError(error)) {
-                return WinkMemoryError.fromCause(error);
-              }
-              // Otherwise, it's an entity learning error
-              return WinkEntityError.fromCause(error, customEntities.name, "learn");
-            },
-          });
-
-          const newInstanceId = makeInstanceId(customEntities);
-          const newState: WinkEngineRefState = {
-            customEntities,
-            instanceId: newInstanceId,
-            nlp: existingNlp, // Reuse the same nlp instance
-          };
-
-          yield* Ref.set(stateRef, newState);
-          return newState;
-        }),
-    };
-  }),
-  dependencies: [],
-}) {}
+  return WinkEngineRef.of({
+    getRef: () => stateRef,
+    updateWithCustomEntities: Effect.fn("Nlp.Wink.WinkEngineRef.updateWithCustomEntities")(function* (
+      customEntities: WinkEngineCustomEntities
+    ) {
+      yield* engine.learnCustomEntities(customEntities);
+      return yield* Ref.get(stateRef);
+    }),
+  });
+}).pipe(Effect.withSpan("Nlp.Wink.WinkEngineRef.make"));
 
 /**
- * Live layer for WinkEngineRef
+ * Compatibility service for inspecting and updating the shared wink runtime state ref.
+ *
+ * @since 0.0.0
+ * @category Services
  */
-export const WinkEngineRefLive = WinkEngineRef.Default;
+export class WinkEngineRef extends ServiceMap.Service<WinkEngineRef, WinkEngineRefShape>()($I`WinkEngineRef`) {}
+
+/**
+ * Live layer for {@link WinkEngineRef}.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
+
+export type { WinkEngineRuntimeState } from "./WinkEngine.ts";
+export { InstanceId, WinkEngineState } from "./WinkEngine.ts";

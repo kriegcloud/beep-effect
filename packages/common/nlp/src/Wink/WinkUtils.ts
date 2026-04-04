@@ -1,878 +1,231 @@
 /**
- * Pure Wink NLP Utils Service
- * Clean Effect-based wrappers around wink-nlp-utils with data-first, pipeable API
- * Based on https://winkjs.org/wink-nlp-utils/
- * @since 3.0.0
+ * Wink utility wrappers for string, token, and n-gram helpers.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/WinkUtils
  */
 
-import { Chunk, Context, Data, Effect, Layer, Option } from "effect";
-import { createRequire } from "module";
-import type { Document } from "../Core/Document.ts";
-import type { Token } from "../Core/Token.ts";
+import { createRequire } from "node:module";
+import { $NlpId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import { Effect, Layer, ServiceMap } from "effect";
+import * as A from "effect/Array";
+import * as Inspectable from "effect/Inspectable";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
 
-// Import wink-nlp-utils using createRequire for ES modules
+const $I = $NlpId.create("Wink/WinkUtils");
 const require = createRequire(import.meta.url);
-let nlpUtilsCache: ReturnType<typeof require> | undefined;
 
-const getNlpUtils = (): ReturnType<typeof require> => {
-  if (nlpUtilsCache === undefined) {
-    nlpUtilsCache = require("wink-nlp-utils");
+type StringUtilities = {
+  readonly bagOfNGrams: (text: string, size: number) => Record<string, number>;
+  readonly edgeNGrams: (text: string, size: number) => ReadonlyArray<string>;
+  readonly lowerCase: (text: string) => string;
+  readonly removeElisions: (text: string) => string;
+  readonly removeExtraSpaces: (text: string) => string;
+  readonly removeHTMLTags: (text: string) => string;
+  readonly removePunctuations: (text: string) => string;
+  readonly removeSplChars: (text: string) => string;
+  readonly retainAlphaNums: (text: string) => string;
+  readonly sentences: (text: string) => ReadonlyArray<string>;
+  readonly setOfNGrams: (text: string, size: number) => ReadonlySet<string>;
+  readonly trim: (text: string) => string;
+  readonly upperCase: (text: string) => string;
+};
+
+type TokenUtilities = {
+  readonly phonetize: (tokens: Array<string>) => ReadonlyArray<string>;
+  readonly soundex: (tokens: Array<string>) => ReadonlyArray<string>;
+};
+
+type NGramResult = {
+  readonly ngrams: Record<string, number>;
+  readonly totalNGrams: number;
+  readonly uniqueNGrams: number;
+};
+
+const isNGramRecord = (value: unknown): value is Record<string, number> => P.isObject(value);
+const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
+  A.isArray(value) && A.every(value, P.isString);
+
+type WinkUtilsShape = {
+  readonly bagOfNGrams: (text: string, size: number) => Effect.Effect<NGramResult, WinkUtilsError>;
+  readonly edgeNGrams: (text: string, size: number) => Effect.Effect<NGramResult, WinkUtilsError>;
+  readonly lowerCase: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly phonetize: (tokens: ReadonlyArray<string>) => Effect.Effect<ReadonlyArray<string>, WinkUtilsError>;
+  readonly removeElisions: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removeExtraSpaces: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removeHTMLTags: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removePunctuations: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removeSplChars: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly retainAlphaNums: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly sentences: (text: string) => Effect.Effect<ReadonlyArray<string>, WinkUtilsError>;
+  readonly setOfNGrams: (text: string, size: number) => Effect.Effect<NGramResult, WinkUtilsError>;
+  readonly soundex: (tokens: ReadonlyArray<string>) => Effect.Effect<ReadonlyArray<string>, WinkUtilsError>;
+  readonly trim: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly upperCase: (text: string) => Effect.Effect<string, WinkUtilsError>;
+};
+
+const loadWinkUtils = (): { readonly string: StringUtilities; readonly tokens: TokenUtilities } =>
+  require("wink-nlp-utils");
+
+const renderCause = (cause: unknown): string => Inspectable.toStringUnknown(cause);
+
+const sanitizeNGramResult = (
+  value: Record<string, number> | ReadonlyArray<string> | ReadonlySet<string>
+): NGramResult => {
+  if (isStringArray(value)) {
+    const ngrams = R.fromEntries(A.map(value, (entry) => [entry, 1] as const));
+    return { ngrams, totalNGrams: value.length, uniqueNGrams: value.length };
   }
-  return nlpUtilsCache;
+
+  if (value instanceof Set) {
+    const entries = A.fromIterable(value);
+    const ngrams = R.fromEntries(A.map(entries, (entry) => [entry, 1] as const));
+    return { ngrams, totalNGrams: entries.length, uniqueNGrams: entries.length };
+  }
+
+  if (!isNGramRecord(value)) {
+    return { ngrams: {}, totalNGrams: 0, uniqueNGrams: 0 };
+  }
+
+  const ngrams = R.fromEntries(
+    A.map(R.toEntries(value), ([key, count]) => [key, P.isNumber(count) ? count : 0] as const)
+  );
+  const totalNGrams = A.reduce(R.values(ngrams), 0, (sum, count) => sum + count);
+
+  return {
+    ngrams,
+    totalNGrams,
+    uniqueNGrams: R.keys(ngrams).length,
+  };
 };
 
 /**
- * Text transformation input
+ * Error raised while calling wink utility helpers.
+ *
+ * @since 0.0.0
+ * @category Errors
  */
-export const TextInput = Data.case<{
-  readonly text: string;
-}>();
-export type TextInput = ReturnType<typeof TextInput>;
-
-/**
- * Token array input
- */
-export const TokensInput = Data.case<{
-  readonly tokens: Chunk.Chunk<string>;
-}>();
-export type TokensInput = ReturnType<typeof TokensInput>;
-
-/**
- * Text transformation result
- */
-export const TextResult = Data.case<{
-  readonly text: string;
-  readonly originalLength: number;
-  readonly transformedLength: number;
-}>();
-export type TextResult = ReturnType<typeof TextResult>;
-
-/**
- * Token transformation result
- */
-export const TokensResult = Data.case<{
-  readonly tokens: Chunk.Chunk<string>;
-  readonly originalCount: number;
-  readonly transformedCount: number;
-}>();
-export type TokensResult = ReturnType<typeof TokensResult>;
-
-/**
- * Detailed tokenization result
- */
-export const DetailedToken = Data.case<{
-  readonly value: string;
-  readonly tag: "word" | "punctuation" | "email" | "hashtag" | "mention" | "url" | "number" | "currency";
-}>();
-export type DetailedToken = ReturnType<typeof DetailedToken>;
-
-export const DetailedTokensResult = Data.case<{
-  readonly tokens: Chunk.Chunk<DetailedToken>;
-  readonly wordCount: number;
-  readonly punctuationCount: number;
-  readonly totalCount: number;
-}>();
-export type DetailedTokensResult = ReturnType<typeof DetailedTokensResult>;
-
-/**
- * N-gram configuration
- */
-export const NGramConfig = Data.case<{
-  readonly size: number;
-}>();
-export type NGramConfig = ReturnType<typeof NGramConfig>;
-
-/**
- * N-gram result - wink-nlp-utils returns objects with null prototype
- */
-export const NGramResult = Data.case<{
-  readonly ngrams: { readonly [key: string]: number };
-  readonly totalNGrams: number;
-  readonly uniqueNGrams: number;
-}>();
-export type NGramResult = ReturnType<typeof NGramResult>;
-
-/**
- * Sentence detection result
- */
-export const SentencesResult = Data.case<{
-  readonly sentences: Chunk.Chunk<string>;
-  readonly count: number;
-}>();
-export type SentencesResult = ReturnType<typeof SentencesResult>;
-
-/**
- * Corpus composition input
- */
-export const CorpusTemplate = Data.case<{
-  readonly template: string;
-}>();
-export type CorpusTemplate = ReturnType<typeof CorpusTemplate>;
-
-/**
- * Corpus composition result
- */
-export const CorpusResult = Data.case<{
-  readonly sentences: Chunk.Chunk<string>;
-  readonly combinations: number;
-}>();
-export type CorpusResult = ReturnType<typeof CorpusResult>;
-
-/**
- * Stop words configuration
- */
-export const StopWordsConfig = Data.case<{
-  readonly customStopWords: Option.Option<Chunk.Chunk<string>>;
-}>();
-export type StopWordsConfig = ReturnType<typeof StopWordsConfig>;
-
-export const NGramComparison = Data.case<{
-  readonly beforeFiltering: NGramResult;
-  readonly afterFiltering: NGramResult;
-  readonly removedNGrams: Chunk.Chunk<string>;
-  readonly removalRate: number;
-}>();
-export type NGramComparison = ReturnType<typeof NGramComparison>;
-
-/**
- * Wink utils transformation error
- */
-export class WinkUtilsError extends Data.TaggedError("WinkUtilsError")<{
-  message: string;
-  cause?: unknown;
-}> {}
-
-/**
- * Wink NLP Utils Service - Pure wrappers around wink-nlp-utils functions
- */
-export class WinkUtils extends Context.Tag("effect-nlp/WinkUtils")<
-  WinkUtils,
+export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtilsError`)(
+  "WinkUtilsError",
   {
-    // String transformations
-    readonly amplifyNotElision: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly removeElisions: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly removeExtraSpaces: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly removeHTMLTags: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly removePunctuations: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly removeSplChars: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly retainAlphaNums: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly lowerCase: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly upperCase: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly trim: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly extractPersonsName: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    readonly extractRunOfCapitalWords: (input: TextInput) => Effect.Effect<TextResult, WinkUtilsError>;
-
-    // Tokenization
-    readonly tokenize: (input: TextInput) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    readonly tokenizeDetailed: (input: TextInput) => Effect.Effect<DetailedTokensResult, WinkUtilsError>;
-
-    readonly tokenize0: (input: TextInput) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    // Sentence detection
-    readonly sentences: (input: TextInput) => Effect.Effect<SentencesResult, WinkUtilsError>;
-
-    // N-grams
-    readonly bagOfNGrams: (input: TextInput, config: NGramConfig) => Effect.Effect<NGramResult, WinkUtilsError>;
-
-    readonly edgeNGrams: (input: TextInput, config: NGramConfig) => Effect.Effect<NGramResult, WinkUtilsError>;
-
-    readonly setOfNGrams: (input: TextInput, config: NGramConfig) => Effect.Effect<NGramResult, WinkUtilsError>;
-
-    // Corpus composition
-    readonly composeCorpus: (input: CorpusTemplate) => Effect.Effect<CorpusResult, WinkUtilsError>;
-
-    // Token operations
-    readonly removeWords: (input: TokensInput, config: StopWordsConfig) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    readonly stem: (input: TokensInput) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    readonly phonetize: (input: TokensInput) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    readonly soundex: (input: TokensInput) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    readonly bagOfWords: (input: TokensInput) => Effect.Effect<NGramResult, WinkUtilsError>;
-
-    readonly setOfWords: (input: TokensInput) => Effect.Effect<NGramResult, WinkUtilsError>;
-
-    readonly bigrams: (input: TokensInput) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    readonly appendBigrams: (input: TokensInput) => Effect.Effect<TokensResult, WinkUtilsError>;
-
-    readonly propagateNegations: (input: TokensInput) => Effect.Effect<TokensResult, WinkUtilsError>;
+    cause: S.Unknown,
+    message: S.String,
+    operation: S.String,
+  },
+  $I.annote("WinkUtilsError", {
+    description: "Failure raised while calling wink-nlp-utils helpers.",
+  })
+) {
+  /**
+   * Convert an unknown cause into a typed wink-utils error.
+   *
+   * @param cause {unknown} - The underlying failure or defect.
+   * @param operation {string} - The wink utility operation that failed.
+   * @returns {WinkUtilsError} - A typed wink-utils error value.
+   */
+  static fromCause(cause: unknown, operation: string): WinkUtilsError {
+    return new WinkUtilsError({
+      cause,
+      message: `Wink utility ${operation} failed: ${renderCause(cause)}`,
+      operation,
+    });
   }
->() {}
+}
 
-/**
- * Create WinkUtils implementation
- */
-const createWinkUtilsImpl = () => {
-  // Input validation helper
-  const validateTextInput = (text: string): string => {
-    if (typeof text !== "string") {
-      throw new Error("Input must be a string");
-    }
-    return text;
-  };
+const makeWinkUtils = Effect.gen(function* () {
+  const utils = yield* Effect.try({
+    try: loadWinkUtils,
+    catch: (cause) => WinkUtilsError.fromCause(cause, "initialize"),
+  });
 
-  const createTextResult = (original: string, transformed: string): TextResult =>
-    TextResult({
-      text: transformed || "", // Ensure transformed is never undefined
-      originalLength: original.length,
-      transformedLength: (transformed || "").length,
+  const runString = (operation: string, f: (helpers: StringUtilities) => string) =>
+    Effect.try({
+      try: () => f(utils.string),
+      catch: (cause) => WinkUtilsError.fromCause(cause, operation),
     });
 
-  const createTokensResult = (
-    originalTokens: Chunk.Chunk<string>,
-    transformedTokens: Chunk.Chunk<string>
-  ): TokensResult =>
-    TokensResult({
-      tokens: transformedTokens,
-      originalCount: Chunk.size(originalTokens),
-      transformedCount: Chunk.size(transformedTokens),
+  const runTokens = (operation: string, f: (helpers: TokenUtilities) => ReadonlyArray<string>) =>
+    Effect.try({
+      try: () => f(utils.tokens),
+      catch: (cause) => WinkUtilsError.fromCause(cause, operation),
+    });
+
+  const runNGrams = (
+    operation: string,
+    f: (helpers: StringUtilities) => Record<string, number> | ReadonlyArray<string> | ReadonlySet<string>
+  ) =>
+    Effect.try({
+      try: () => sanitizeNGramResult(f(utils.string)),
+      catch: (cause) => WinkUtilsError.fromCause(cause, operation),
     });
 
   return WinkUtils.of({
-    // String transformations
-    amplifyNotElision: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const validatedText = validateTextInput(input.text);
-          const result = getNlpUtils().string.amplifyNotElision(validatedText);
-          return createTextResult(validatedText, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to amplify not elision",
-            cause: error,
-          }),
-      }),
-
-    removeElisions: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.removeElisions(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to remove elisions",
-            cause: error,
-          }),
-      }),
-
-    removeExtraSpaces: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.removeExtraSpaces(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to remove extra spaces",
-            cause: error,
-          }),
-      }),
-
-    removeHTMLTags: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.removeHTMLTags(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to remove HTML tags",
-            cause: error,
-          }),
-      }),
-
-    removePunctuations: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.removePunctuations(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to remove punctuations",
-            cause: error,
-          }),
-      }),
-
-    removeSplChars: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.removeSplChars(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to remove special characters",
-            cause: error,
-          }),
-      }),
-
-    retainAlphaNums: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.retainAlphaNums(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to retain alphanumeric characters",
-            cause: error,
-          }),
-      }),
-
-    lowerCase: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.lowerCase(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to convert to lowercase",
-            cause: error,
-          }),
-      }),
-
-    upperCase: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.upperCase(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to convert to uppercase",
-            cause: error,
-          }),
-      }),
-
-    trim: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.trim(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to trim string",
-            cause: error,
-          }),
-      }),
-
-    extractPersonsName: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.extractPersonsName(input.text);
-          return createTextResult(input.text, result);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to extract person's name",
-            cause: error,
-          }),
-      }),
-
-    extractRunOfCapitalWords: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.extractRunOfCapitalWords(input.text);
-          // extractRunOfCapitalWords returns an array, join it to a string
-          const resultText = Array.isArray(result) ? result.join(", ") : String(result);
-          return createTextResult(input.text, resultText);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to extract run of capital words",
-            cause: error,
-          }),
-      }),
-
-    // Tokenization
-    tokenize: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.tokenize(input.text, false);
-          // Filter out any null/undefined values and ensure strings
-          const cleanResult = result.filter((token: any) => token != null).map(String);
-          const tokens = Chunk.fromIterable(cleanResult);
-          return createTokensResult(Chunk.empty(), tokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to tokenize text",
-            cause: error,
-          }),
-      }),
-
-    tokenizeDetailed: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result: Array<{ value: string; tag: string }> = getNlpUtils().string.tokenize(input.text, true);
-          const detailedTokens = Chunk.fromIterable(
-            result.map((token) => {
-              // Validate tag type
-              const validTags = [
-                "word",
-                "punctuation",
-                "email",
-                "hashtag",
-                "mention",
-                "url",
-                "number",
-                "currency",
-              ] as const;
-              const tag = validTags.includes(token.tag as any) ? (token.tag as DetailedToken["tag"]) : "word"; // fallback to word for unknown tags
-
-              return DetailedToken({
-                value: token.value || "", // Ensure value is never undefined
-                tag,
-              });
-            })
-          );
-
-          const wordCount = Chunk.size(Chunk.filter(detailedTokens, (token) => token.tag === "word"));
-          const punctuationCount = Chunk.size(Chunk.filter(detailedTokens, (token) => token.tag === "punctuation"));
-
-          return DetailedTokensResult({
-            tokens: detailedTokens,
-            wordCount,
-            punctuationCount,
-            totalCount: Chunk.size(detailedTokens),
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to tokenize text with details",
-            cause: error,
-          }),
-      }),
-
-    tokenize0: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.tokenize0(input.text);
-          // Filter out any null/undefined values and ensure strings
-          const cleanResult = result.filter((token: any) => token != null).map(String);
-          const tokens = Chunk.fromIterable(cleanResult);
-          return createTokensResult(Chunk.empty(), tokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to tokenize text (tokenize0)",
-            cause: error,
-          }),
-      }),
-
-    // Sentence detection
-    sentences: (input: TextInput) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.sentences(input.text);
-          const sentences = Chunk.fromIterable(result);
-          return SentencesResult({
-            sentences: sentences as Chunk.Chunk<string>,
-            count: Chunk.size(sentences),
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to detect sentences",
-            cause: error,
-          }),
-      }),
-
-    // N-grams
-    bagOfNGrams: (input: TextInput, config: NGramConfig) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.bagOfNGrams(input.text, config.size);
-          const totalNGrams = Object.values(result).reduce((a, b) => {
-            return (a as number) + (b as number);
-          }, 0);
-          return NGramResult({
-            ngrams: result,
-            totalNGrams: totalNGrams as unknown as number,
-            uniqueNGrams: Object.keys(result).length,
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to generate bag of n-grams",
-            cause: error,
-          }),
-      }),
-
-    edgeNGrams: (input: TextInput, config: NGramConfig) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.edgeNGrams(input.text, config.size);
-          // edgeNGrams returns an array, convert to object with counts
-          const ngrams: { [key: string]: number } = {};
-          if (Array.isArray(result)) {
-            result.forEach((ngram: string) => {
-              ngrams[ngram] = (ngrams[ngram] || 0) + 1;
-            });
-          }
-          return NGramResult({
-            ngrams,
-            totalNGrams: result.length,
-            uniqueNGrams: Object.keys(ngrams).length,
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to generate edge n-grams",
-            cause: error,
-          }),
-      }),
-
-    setOfNGrams: (input: TextInput, config: NGramConfig) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.setOfNGrams(input.text, config.size);
-          // setOfNGrams returns a Set, convert to object with counts
-          const ngrams: { [key: string]: number } = {};
-          if (result instanceof Set) {
-            result.forEach((ngram: string) => {
-              ngrams[ngram] = 1; // Sets have unique items, so count is 1
-            });
-          }
-          return NGramResult({
-            ngrams,
-            totalNGrams: result.size,
-            uniqueNGrams: result.size,
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to generate set of n-grams",
-            cause: error,
-          }),
-      }),
-
-    // Corpus composition
-    composeCorpus: (input: CorpusTemplate) =>
-      Effect.try({
-        try: () => {
-          const result = getNlpUtils().string.composeCorpus(input.template);
-          const sentences = Chunk.fromIterable(result);
-          return CorpusResult({
-            sentences: sentences as Chunk.Chunk<string>,
-            combinations: Chunk.size(sentences),
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to compose corpus",
-            cause: error,
-          }),
-      }),
-
-    // Token operations
-    removeWords: (input: TokensInput, config: StopWordsConfig) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          // When customStopWords is None, pass undefined to use wink-nlp-utils default stop words
-          const customStopWords = Option.match(config.customStopWords, {
-            onNone: () => undefined, // Use default stop words from wink-nlp-utils
-            onSome: (words) => getNlpUtils().helper.returnWordsFilter(Chunk.toReadonlyArray(words)),
-          });
-
-          const result = getNlpUtils().tokens.removeWords(tokensArray, customStopWords);
-          const filteredTokens = Chunk.fromIterable(result);
-          return createTokensResult(input.tokens, filteredTokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to remove stop words",
-            cause: error,
-          }),
-      }),
-
-    stem: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.stem(tokensArray);
-          const stemmedTokens = Chunk.fromIterable(result);
-          return createTokensResult(input.tokens, stemmedTokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to stem tokens",
-            cause: error,
-          }),
-      }),
-
-    phonetize: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.phonetize(tokensArray);
-          const phoneticTokens = Chunk.fromIterable(result);
-          return createTokensResult(input.tokens, phoneticTokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to phonetize tokens",
-            cause: error,
-          }),
-      }),
-
-    soundex: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.soundex(tokensArray);
-          const soundexTokens = Chunk.fromIterable(result);
-          return createTokensResult(input.tokens, soundexTokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to generate soundex codes",
-            cause: error,
-          }),
-      }),
-
-    bagOfWords: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.bagOfWords(tokensArray);
-          const totalWords = Object.values(result).reduce((a, b) => {
-            return (a as number) + (b as number);
-          }, 0);
-          return NGramResult({
-            ngrams: result,
-            totalNGrams: totalWords as unknown as number,
-            uniqueNGrams: Object.keys(result).length,
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to generate bag of words",
-            cause: error,
-          }),
-      }),
-
-    setOfWords: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.setOfWords(tokensArray);
-          // setOfWords returns a Set, convert to object with counts
-          const ngrams: { [key: string]: number } = {};
-          if (result instanceof Set) {
-            result.forEach((word: string) => {
-              ngrams[word] = 1; // Sets have unique items, so count is 1
-            });
-          }
-          return NGramResult({
-            ngrams,
-            totalNGrams: result.size,
-            uniqueNGrams: result.size,
-          });
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to generate set of words",
-            cause: error,
-          }),
-      }),
-
-    bigrams: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.bigrams(tokensArray);
-          // bigrams returns array of arrays, we need to handle this properly
-          const bigramTokens = Chunk.fromIterable(result);
-          return createTokensResult(input.tokens, bigramTokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to generate bigrams",
-            cause: error,
-          }),
-      }),
-
-    appendBigrams: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.appendBigrams(tokensArray);
-          const appendedTokens = Chunk.fromIterable(result);
-          return createTokensResult(input.tokens, appendedTokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to append bigrams",
-            cause: error,
-          }),
-      }),
-
-    propagateNegations: (input: TokensInput) =>
-      Effect.try({
-        try: () => {
-          const tokensArray = Chunk.toReadonlyArray(input.tokens);
-          const result = getNlpUtils().tokens.propagateNegations(tokensArray);
-          const negatedTokens = Chunk.fromIterable(result);
-          return createTokensResult(input.tokens, negatedTokens as Chunk.Chunk<string>);
-        },
-        catch: (error) =>
-          new WinkUtilsError({
-            message: "Failed to propagate negations",
-            cause: error,
-          }),
-      }),
+    bagOfNGrams: Effect.fn("Nlp.Wink.WinkUtils.bagOfNGrams")(function* (text: string, size: number) {
+      return yield* runNGrams("bagOfNGrams", (helpers) => helpers.bagOfNGrams(text, size));
+    }),
+    edgeNGrams: Effect.fn("Nlp.Wink.WinkUtils.edgeNGrams")(function* (text: string, size: number) {
+      return yield* runNGrams("edgeNGrams", (helpers) => helpers.edgeNGrams(text, size));
+    }),
+    lowerCase: Effect.fn("Nlp.Wink.WinkUtils.lowerCase")(function* (text: string) {
+      return yield* runString("lowerCase", (helpers) => helpers.lowerCase(text));
+    }),
+    phonetize: Effect.fn("Nlp.Wink.WinkUtils.phonetize")(function* (tokens: ReadonlyArray<string>) {
+      return yield* runTokens("phonetize", (helpers) => helpers.phonetize(A.fromIterable(tokens)));
+    }),
+    removeElisions: Effect.fn("Nlp.Wink.WinkUtils.removeElisions")(function* (text: string) {
+      return yield* runString("removeElisions", (helpers) => helpers.removeElisions(text));
+    }),
+    removeExtraSpaces: Effect.fn("Nlp.Wink.WinkUtils.removeExtraSpaces")(function* (text: string) {
+      return yield* runString("removeExtraSpaces", (helpers) => helpers.removeExtraSpaces(text));
+    }),
+    removeHTMLTags: Effect.fn("Nlp.Wink.WinkUtils.removeHTMLTags")(function* (text: string) {
+      return yield* runString("removeHTMLTags", (helpers) => helpers.removeHTMLTags(text));
+    }),
+    removePunctuations: Effect.fn("Nlp.Wink.WinkUtils.removePunctuations")(function* (text: string) {
+      return yield* runString("removePunctuations", (helpers) => helpers.removePunctuations(text));
+    }),
+    removeSplChars: Effect.fn("Nlp.Wink.WinkUtils.removeSplChars")(function* (text: string) {
+      return yield* runString("removeSplChars", (helpers) => helpers.removeSplChars(text));
+    }),
+    retainAlphaNums: Effect.fn("Nlp.Wink.WinkUtils.retainAlphaNums")(function* (text: string) {
+      return yield* runString("retainAlphaNums", (helpers) => helpers.retainAlphaNums(text));
+    }),
+    sentences: Effect.fn("Nlp.Wink.WinkUtils.sentences")(function* (text: string) {
+      return yield* Effect.try({
+        try: () => utils.string.sentences(text),
+        catch: (cause) => WinkUtilsError.fromCause(cause, "sentences"),
+      });
+    }),
+    setOfNGrams: Effect.fn("Nlp.Wink.WinkUtils.setOfNGrams")(function* (text: string, size: number) {
+      return yield* runNGrams("setOfNGrams", (helpers) => helpers.setOfNGrams(text, size));
+    }),
+    soundex: Effect.fn("Nlp.Wink.WinkUtils.soundex")(function* (tokens: ReadonlyArray<string>) {
+      return yield* runTokens("soundex", (helpers) => helpers.soundex(A.fromIterable(tokens)));
+    }),
+    trim: Effect.fn("Nlp.Wink.WinkUtils.trim")(function* (text: string) {
+      return yield* runString("trim", (helpers) => helpers.trim(text));
+    }),
+    upperCase: Effect.fn("Nlp.Wink.WinkUtils.upperCase")(function* (text: string) {
+      return yield* runString("upperCase", (helpers) => helpers.upperCase(text));
+    }),
   });
-};
+}).pipe(Effect.withSpan("Nlp.Wink.WinkUtils.make"));
 
 /**
- * Live implementation of WinkUtils
+ * Wink utility service.
+ *
+ * @since 0.0.0
+ * @category Services
  */
-export const WinkUtilsLive = Layer.succeed(WinkUtils, createWinkUtilsImpl());
+export class WinkUtils extends ServiceMap.Service<WinkUtils, WinkUtilsShape>()($I`WinkUtils`) {}
 
 /**
- * Data-first convenience functions for pipeable transformations
+ * Live wink utility layer.
+ *
+ * @since 0.0.0
+ * @category Layers
  */
-
-// String transformations
-export const amplifyNotElision = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.amplifyNotElision(input));
-
-export const removeElisions = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.removeElisions(input));
-
-export const removeExtraSpaces = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.removeExtraSpaces(input));
-
-export const removeHTMLTags = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.removeHTMLTags(input));
-
-export const removePunctuations = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.removePunctuations(input));
-
-export const removeSplChars = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.removeSplChars(input));
-
-export const retainAlphaNums = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.retainAlphaNums(input));
-
-export const lowerCase = (input: TextInput) => Effect.flatMap(WinkUtils, (service) => service.lowerCase(input));
-
-export const upperCase = (input: TextInput) => Effect.flatMap(WinkUtils, (service) => service.upperCase(input));
-
-export const trim = (input: TextInput) => Effect.flatMap(WinkUtils, (service) => service.trim(input));
-
-export const extractPersonsName = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.extractPersonsName(input));
-
-export const extractRunOfCapitalWords = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.extractRunOfCapitalWords(input));
-
-// Tokenization (with utils prefix to avoid conflicts)
-export const utilsTokenize = (input: TextInput) => Effect.flatMap(WinkUtils, (service) => service.tokenize(input));
-
-export const utilsTokenizeDetailed = (input: TextInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.tokenizeDetailed(input));
-
-export const utilsTokenize0 = (input: TextInput) => Effect.flatMap(WinkUtils, (service) => service.tokenize0(input));
-
-// Sentence detection
-export const sentences = (input: TextInput) => Effect.flatMap(WinkUtils, (service) => service.sentences(input));
-
-// N-grams
-export const bagOfNGrams = (input: TextInput, config: NGramConfig) =>
-  Effect.flatMap(WinkUtils, (service) => service.bagOfNGrams(input, config));
-
-export const edgeNGrams = (input: TextInput, config: NGramConfig) =>
-  Effect.flatMap(WinkUtils, (service) => service.edgeNGrams(input, config));
-
-export const setOfNGrams = (input: TextInput, config: NGramConfig) =>
-  Effect.flatMap(WinkUtils, (service) => service.setOfNGrams(input, config));
-
-// Corpus composition
-export const composeCorpus = (input: CorpusTemplate) =>
-  Effect.flatMap(WinkUtils, (service) => service.composeCorpus(input));
-
-// Token operations
-export const removeWords = (input: TokensInput, config: StopWordsConfig) =>
-  Effect.flatMap(WinkUtils, (service) => service.removeWords(input, config));
-
-export const stem = (input: TokensInput) => Effect.flatMap(WinkUtils, (service) => service.stem(input));
-
-export const phonetize = (input: TokensInput) => Effect.flatMap(WinkUtils, (service) => service.phonetize(input));
-
-export const soundex = (input: TokensInput) => Effect.flatMap(WinkUtils, (service) => service.soundex(input));
-
-export const bagOfWords = (input: TokensInput) => Effect.flatMap(WinkUtils, (service) => service.bagOfWords(input));
-
-export const setOfWords = (input: TokensInput) => Effect.flatMap(WinkUtils, (service) => service.setOfWords(input));
-
-export const bigrams = (input: TokensInput) => Effect.flatMap(WinkUtils, (service) => service.bigrams(input));
-
-export const appendBigrams = (input: TokensInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.appendBigrams(input));
-
-export const propagateNegations = (input: TokensInput) =>
-  Effect.flatMap(WinkUtils, (service) => service.propagateNegations(input));
-
-/**
- * Core Type Integration Helpers
- * Functions to bridge between Core types and WinkUtils primitive types
- */
-
-/**
- * Convert Core Token array to TokensInput for WinkUtils
- */
-export const tokensToTokensInput = (tokens: Chunk.Chunk<Token>): TokensInput =>
-  TokensInput({
-    tokens: Chunk.map(tokens, (token) =>
-      Option.match(token.normal, {
-        onNone: () => token.text,
-        onSome: (normal) => normal ?? token.text,
-      })
-    ),
-  });
-
-/**
- * Convert Document to TextInput for WinkUtils text operations
- */
-export const documentToTextInput = (document: Document): TextInput => TextInput({ text: document.text });
-
-/**
- * Extract normalized tokens from Document as TokensInput
- */
-export const documentToTokensInput = (document: Document): TokensInput => tokensToTokensInput(document.tokens);
-
-/**
- * Process Document tokens with WinkUtils and return updated tokens as strings
- */
-export const processDocumentTokens = (
-  document: Document,
-  processor: (input: TokensInput) => Effect.Effect<TokensResult, WinkUtilsError>
-): Effect.Effect<Chunk.Chunk<string>, WinkUtilsError> =>
-  Effect.gen(function* () {
-    const tokensInput = documentToTokensInput(document);
-    const result = yield* processor(tokensInput);
-    return result.tokens;
-  });
+export const WinkUtilsLive = Layer.effect(WinkUtils, makeWinkUtils);

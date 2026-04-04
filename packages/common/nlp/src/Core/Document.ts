@@ -1,183 +1,177 @@
 /**
- * Core Document Model
- * Effect-native data type with unique symbol typeId and formal dual API + pipeable interface
- * @since 3.0.0
+ * Core document model for NLP runtime services.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Core/Document
  */
 
-import { type Brand, Chunk, Data, Function, type Option, pipe, Schema } from "effect";
-import type { SentenceIndex } from "./Sentence.ts";
-import { Sentence } from "./Sentence.ts";
-import type { TokenIndex } from "./Token.ts";
-import { Token } from "./Token.ts";
+import { $NlpId } from "@beep/identity";
+import { NonNegativeInt } from "@beep/schema";
+import { Brand, Chunk } from "effect";
+import { dual } from "effect/Function";
+import type * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { Sentence, type SentenceIndex } from "./Sentence.ts";
+import { Token, type TokenIndex } from "./Token.ts";
+
+const $I = $NlpId.create("Core/Document");
 
 /**
- * Branded document ID
+ * Branded identifier for NLP documents.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export type DocumentId = string & Brand.Brand<"DocumentId">;
-export const DocumentId = Schema.String.pipe(Schema.brand("DocumentId"));
+export const DocumentId = S.NonEmptyString.pipe(
+  S.brand("DocumentId"),
+  S.annotate(
+    $I.annote("DocumentId", {
+      description: "Stable identifier for an NLP document.",
+    })
+  )
+);
 
 /**
- * Document type with unique symbol typeId and pipeable interface
+ * Runtime type for {@link DocumentId}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export interface Document {
-  readonly id: DocumentId;
-  readonly sentences: Chunk.Chunk<Sentence>;
-  readonly sentiment: Option.Option<number>;
-  readonly text: Schema.Schema.Type<typeof Schema.String>;
-  readonly tokens: Chunk.Chunk<Token>;
-  readonly [Document.TypeId]?: Document.TypeId;
-}
+export type DocumentId = typeof DocumentId.Type;
 
 /**
- * Document namespace with typeId, constructor, and dual API functions
+ * Branded index for documents in ordered collections.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export namespace Document {
-  export declare const TypeId: unique symbol;
-  export type TypeId = typeof TypeId;
+export type DocumentIndex = Brand.Branded<NonNegativeInt, "DocumentIndex">;
 
-  /**
-   * Document constructor using Data.case for simple, pipeable API
-   */
-  export const make = Data.case<Document>();
+/**
+ * Constructor for {@link DocumentIndex}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const documentIndex: Brand.Constructor<DocumentIndex> = Brand.check<DocumentIndex>(
+  S.makeFilter(S.is(NonNegativeInt))
+);
 
-  /**
-   * Document schema for validation and serialization
-   */
-  export const schema = Schema.Struct({
+/**
+ * Schema for {@link DocumentIndex}.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const DocumentIndex = NonNegativeInt.pipe(S.fromBrand("DocumentIndex", documentIndex));
+
+/**
+ * Immutable NLP document model.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class Document extends S.Class<Document>($I`Document`)(
+  {
     id: DocumentId,
-    text: Schema.String,
-    tokens: Schema.Chunk(Token.schema), // Now properly typed with Token schema
-    sentences: Schema.Chunk(Sentence.schema), // Now properly typed with Sentence schema
-    sentiment: Schema.Option(Schema.Number),
-  });
+    text: S.String,
+    tokens: S.Chunk(Token),
+    sentences: S.Chunk(Sentence),
+    sentiment: S.OptionFromOptionalKey(S.Number),
+  },
+  $I.annote("Document", {
+    description: "Immutable NLP document with token and sentence structure.",
+  })
+) {
+  /**
+   * Number of tokens in the document.
+   */
+  get tokenCount(): number {
+    return Chunk.size(this.tokens);
+  }
 
   /**
-   * Get token count - dual API (data-first and data-last)
+   * Number of sentences in the document.
    */
-  export const tokenCount = (doc: Document): number => Chunk.size(doc.tokens);
+  get sentenceCount(): number {
+    return Chunk.size(this.sentences);
+  }
 
   /**
-   * Get sentence count - dual API (data-first and data-last)
+   * Number of characters in the source text.
    */
-  export const sentenceCount = (doc: Document): number => Chunk.size(doc.sentences);
+  get characterCount(): number {
+    return Str.length(this.text);
+  }
 
   /**
-   * Get character count - dual API (data-first and data-last)
+   * Backwards-compatible unsafe constructor alias.
    */
-  export const characterCount = (doc: Document): number => doc.text.length;
+  static readonly make = Document.makeUnsafe;
 
   /**
-   * Get tokens by character range - dual API (data-first and data-last)
+   * Get tokens overlapping a character range.
    */
-  export const getTokensInRange = Function.dual<
-    (start: number, end: number) => (self: Document) => Chunk.Chunk<Token>,
-    (self: Document, start: number, end: number) => Chunk.Chunk<Token>
-  >(
+  static readonly getTokensInRange = dual(
     3,
-    (doc: Document, start: number, end: number): Chunk.Chunk<Token> =>
-      pipe(
-        doc.tokens,
-        Chunk.filter((token) => token.start >= start && token.end <= end)
-      )
+    (document: Document, start: number, end: number): Chunk.Chunk<Token> =>
+      Chunk.filter(document.tokens, (token) => token.start >= start && token.end <= end)
   );
 
   /**
-   * Get token by index (safe) - dual API (data-first and data-last)
+   * Safely get a token by zero-based index.
    */
-  export const getToken = Function.dual<
-    (index: number) => (self: Document) => Option.Option<Token>,
-    (self: Document, index: number) => Option.Option<Token>
-  >(2, (doc: Document, index: number): Option.Option<Token> => Chunk.get(doc.tokens, index));
-
-  /**
-   * Get token by branded index - dual API (data-first and data-last)
-   */
-  export const getTokenByIndex = Function.dual<
-    (index: TokenIndex) => (self: Document) => Option.Option<Token>,
-    (self: Document, index: TokenIndex) => Option.Option<Token>
-  >(2, (doc: Document, index: TokenIndex): Option.Option<Token> => Chunk.get(doc.tokens, index));
-
-  /**
-   * Get sentence by index (safe) - dual API (data-first and data-last)
-   */
-  export const getSentence = Function.dual<
-    (index: number) => (self: Document) => Option.Option<Sentence>,
-    (self: Document, index: number) => Option.Option<Sentence>
-  >(2, (doc: Document, index: number): Option.Option<Sentence> => Chunk.get(doc.sentences, index));
-
-  /**
-   * Get sentence by branded index - dual API (data-first and data-last)
-   */
-  export const getSentenceByIndex = Function.dual<
-    (index: SentenceIndex) => (self: Document) => Option.Option<Sentence>,
-    (self: Document, index: SentenceIndex) => Option.Option<Sentence>
-  >(2, (doc: Document, index: SentenceIndex): Option.Option<Sentence> => Chunk.get(doc.sentences, index));
-
-  /**
-   * Update tokens (returns new document) - dual API (data-first and data-last)
-   */
-  export const withTokens = Function.dual<
-    (tokens: Chunk.Chunk<Token>) => (self: Document) => Document,
-    (self: Document, tokens: Chunk.Chunk<Token>) => Document
-  >(2, (doc: Document, tokens: Chunk.Chunk<Token>): Document => make({ ...doc, tokens }));
-
-  /**
-   * Update sentences (returns new document) - dual API (data-first and data-last)
-   */
-  export const withSentences = Function.dual<
-    (sentences: Chunk.Chunk<Sentence>) => (self: Document) => Document,
-    (self: Document, sentences: Chunk.Chunk<Sentence>) => Document
-  >(2, (doc: Document, sentences: Chunk.Chunk<Sentence>): Document => make({ ...doc, sentences }));
-
-  /**
-   * Update sentiment (returns new document) - dual API (data-first and data-last)
-   */
-  export const withSentiment = Function.dual<
-    (sentiment: Option.Option<number>) => (self: Document) => Document,
-    (self: Document, sentiment: Option.Option<number>) => Document
-  >(2, (doc: Document, sentiment: Option.Option<number>): Document => make({ ...doc, sentiment }));
-
-  /**
-   * Filter tokens by predicate - dual API (data-first and data-last)
-   */
-  export const filterTokens = Function.dual<
-    (predicate: (token: Token) => boolean) => (self: Document) => Document,
-    (self: Document, predicate: (token: Token) => boolean) => Document
-  >(
+  static readonly getToken = dual(
     2,
-    (doc: Document, predicate: (token: Token) => boolean): Document =>
-      make({
-        ...doc,
-        tokens: Chunk.filter(doc.tokens, predicate),
+    (document: Document, index: number): O.Option<Token> => Chunk.get(document.tokens, index)
+  );
+
+  /**
+   * Safely get a token by branded token index.
+   */
+  static readonly getTokenByIndex = dual(
+    2,
+    (document: Document, index: TokenIndex): O.Option<Token> => Chunk.get(document.tokens, index)
+  );
+
+  /**
+   * Safely get a sentence by zero-based index.
+   */
+  static readonly getSentence = dual(
+    2,
+    (document: Document, index: number): O.Option<Sentence> => Chunk.get(document.sentences, index)
+  );
+
+  /**
+   * Safely get a sentence by branded sentence index.
+   */
+  static readonly getSentenceByIndex = dual(
+    2,
+    (document: Document, index: SentenceIndex): O.Option<Sentence> => Chunk.get(document.sentences, index)
+  );
+
+  /**
+   * Filter the token collection.
+   */
+  static readonly filterTokens = dual(
+    2,
+    (document: Document, predicate: (token: Token) => boolean): Document =>
+      new Document({
+        ...document,
+        tokens: Chunk.filter(document.tokens, predicate),
       })
   );
 
   /**
-   * Get all token texts - dual API (data-first and data-last)
+   * Extract token texts in order.
    */
-  export const tokenTexts = (doc: Document): Chunk.Chunk<string> => Chunk.map(doc.tokens, (token) => token.text);
+  static readonly tokenTexts = (document: Document): Chunk.Chunk<string> =>
+    Chunk.map(document.tokens, (token) => token.text);
 
   /**
-   * Get all sentence texts - dual API (data-first and data-last)
+   * Extract sentence texts in order.
    */
-  export const sentenceTexts = (doc: Document): Chunk.Chunk<string> =>
-    Chunk.map(doc.sentences, (sentence) => sentence.text);
+  static readonly sentenceTexts = (document: Document): Chunk.Chunk<string> =>
+    Chunk.map(document.sentences, (sentence) => sentence.text);
 }
-
-/**
- * Document helpers - kept for backward compatibility
- * @deprecated Use Document namespace functions instead
- */
-export const DocumentHelpers = {
-  tokenCount: Document.tokenCount,
-  sentenceCount: Document.sentenceCount,
-  characterCount: Document.characterCount,
-  getTokensInRange: (doc: Document, start: number, end: number) => Document.getTokensInRange(start, end)(doc),
-  getToken: (doc: Document, index: number) => Document.getToken(index)(doc),
-  getTokenByIndex: (doc: Document, index: TokenIndex) => Document.getTokenByIndex(index)(doc),
-  getSentence: (doc: Document, index: number) => Document.getSentence(index)(doc),
-  getSentenceByIndex: (doc: Document, index: SentenceIndex) => Document.getSentenceByIndex(index)(doc),
-  withTokens: (doc: Document, tokens: Chunk.Chunk<Token>) => Document.withTokens(tokens)(doc),
-  withSentences: (doc: Document, sentences: Chunk.Chunk<Sentence>) => Document.withSentences(sentences)(doc),
-  withSentiment: (doc: Document, sentiment: Option.Option<number>) => Document.withSentiment(sentiment)(doc),
-};

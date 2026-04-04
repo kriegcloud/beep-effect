@@ -1,206 +1,109 @@
 /**
- * Core Sentence Model
- * Effect-native data type with unique symbol typeId and formal dual API + pipeable interface
- * @since 3.0.0
+ * Core sentence model for NLP runtime services.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Core/Sentence
  */
 
-import { type Brand, Chunk, Data, Function, Option, Schema } from "effect";
-import type { Token } from "./Token.ts";
-import { TokenIndex } from "./Token.ts";
+import { $NlpId } from "@beep/identity";
+import { NonNegativeInt } from "@beep/schema";
+import { Brand, Chunk } from "effect";
+import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { Token, TokenIndex } from "./Token.ts";
+
+const $I = $NlpId.create("Core/Sentence");
 
 /**
- * Branded sentence index
+ * Branded index for sentences in ordered collections.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export type SentenceIndex = number & Brand.Brand<"SentenceIndex">;
-export const SentenceIndex = Schema.Number.pipe(Schema.brand("SentenceIndex"));
+export type SentenceIndex = Brand.Branded<NonNegativeInt, "SentenceIndex">;
 
 /**
- * Sentence type with unique symbol typeId and pipeable interface
+ * Constructor for {@link SentenceIndex}.
+ *
+ * @since 0.0.0
+ * @category Validation
  */
-export interface Sentence {
-  readonly end: TokenIndex;
-  readonly importance: Option.Option<number>;
-  readonly index: SentenceIndex;
-  readonly markedUpText: Option.Option<string>;
-  readonly negationFlag: Option.Option<boolean>;
-  readonly sentiment: Option.Option<number>;
-  readonly start: TokenIndex;
-  readonly text: string;
-  readonly tokens: Chunk.Chunk<Token>;
-  readonly [Sentence.TypeId]?: Sentence.TypeId;
-}
+export const sentenceIndex: Brand.Constructor<SentenceIndex> = Brand.check<SentenceIndex>(
+  S.makeFilter(S.is(NonNegativeInt))
+);
 
 /**
- * Sentence namespace with typeId, constructor, and dual API functions
+ * Schema for {@link SentenceIndex}.
+ *
+ * @since 0.0.0
+ * @category Validation
  */
-export namespace Sentence {
-  export declare const TypeId: unique symbol;
-  export type TypeId = typeof TypeId;
+export const SentenceIndex = NonNegativeInt.pipe(S.fromBrand("SentenceIndex", sentenceIndex));
 
-  /**
-   * Sentence constructor using Data.case for simple, pipeable API
-   */
-  export const make = Data.case<Sentence>();
-
-  /**
-   * Sentence schema for validation and serialization
-   */
-  export const schema = Schema.Struct({
-    text: Schema.String,
+/**
+ * Immutable NLP sentence model.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class Sentence extends S.Class<Sentence>($I`Sentence`)(
+  {
+    text: S.String,
     index: SentenceIndex,
-    tokens: Schema.Chunk(Schema.Unknown), // Will be properly typed when Token uses Schema.Class
+    tokens: S.Chunk(Token),
     start: TokenIndex,
     end: TokenIndex,
-    sentiment: Schema.Option(Schema.Number),
-    importance: Schema.Option(Schema.Number),
-    negationFlag: Schema.Option(Schema.Boolean),
-    markedUpText: Schema.Option(Schema.String),
-  });
+    sentiment: S.OptionFromOptionalKey(S.Number),
+    importance: S.OptionFromOptionalKey(S.Number),
+    negationFlag: S.OptionFromOptionalKey(S.Boolean),
+    markedUpText: S.OptionFromOptionalKey(S.String),
+  },
+  $I.annote("Sentence", {
+    description: "Immutable NLP sentence with token offsets and optional scoring metadata.",
+  })
+) {
+  /**
+   * Number of characters in the sentence text.
+   */
+  get characterCount(): number {
+    return Str.length(this.text);
+  }
 
   /**
-   * Get sentence length in tokens - dual API (data-first and data-last)
+   * Number of tokens in the sentence.
    */
-  export const tokenCount = (sentence: Sentence): number => Chunk.size(sentence.tokens);
+  get tokenCount(): number {
+    return Chunk.size(this.tokens);
+  }
 
   /**
-   * Get sentence length in characters - dual API (data-first and data-last)
+   * Whether the sentence has sentiment metadata.
    */
-  export const characterCount = (sentence: Sentence): number => sentence.text.length;
+  get hasSentiment(): boolean {
+    return O.isSome(this.sentiment);
+  }
 
   /**
-   * Get tokens in range - dual API (data-first and data-last)
+   * Backwards-compatible unsafe constructor alias.
    */
-  export const getTokensInRange = Function.dual<
-    (startIdx: number, endIdx: number) => (self: Sentence) => Chunk.Chunk<Token>,
-    (self: Sentence, startIdx: number, endIdx: number) => Chunk.Chunk<Token>
-  >(
+  static readonly make = Sentence.makeUnsafe;
+
+  /**
+   * Get tokens between two token offsets.
+   */
+  static readonly getTokensInRange = dual(
     3,
     (sentence: Sentence, startIdx: number, endIdx: number): Chunk.Chunk<Token> =>
       Chunk.take(Chunk.drop(sentence.tokens, startIdx), endIdx - startIdx)
   );
 
   /**
-   * Get sentence text - dual API (data-first and data-last)
+   * Safely get a token by zero-based index.
    */
-  export const text = (sentence: Sentence): string => sentence.text;
-
-  /**
-   * Get sentence sentiment - dual API (data-first and data-last)
-   */
-  export const sentiment = (sentence: Sentence): Option.Option<number> => sentence.sentiment;
-
-  /**
-   * Get sentence importance - dual API (data-first and data-last)
-   */
-  export const importance = (sentence: Sentence): Option.Option<number> => sentence.importance;
-
-  /**
-   * Check if sentence has sentiment - dual API (data-first and data-last)
-   */
-  export const hasSentiment = (sentence: Sentence): boolean => Option.isSome(sentence.sentiment);
-
-  /**
-   * Check if sentence has negation flag - dual API (data-first and data-last)
-   */
-  export const hasNegation = (sentence: Sentence): boolean =>
-    Option.match(sentence.negationFlag, {
-      onNone: () => false,
-      onSome: (hasNegation) => hasNegation,
-    });
-
-  /**
-   * Get token by index - dual API (data-first and data-last)
-   */
-  export const getToken = Function.dual<
-    (index: number) => (self: Sentence) => Option.Option<Token>,
-    (self: Sentence, index: number) => Option.Option<Token>
-  >(2, (sentence: Sentence, index: number): Option.Option<Token> => Chunk.get(sentence.tokens, index));
-
-  /**
-   * Get all token texts - dual API (data-first and data-last)
-   */
-  export const tokenTexts = (sentence: Sentence): Chunk.Chunk<string> =>
-    Chunk.map(sentence.tokens, (token) => token.text);
-
-  /**
-   * Update sentence text - dual API (data-first and data-last)
-   */
-  export const withText = Function.dual<
-    (text: string) => (self: Sentence) => Sentence,
-    (self: Sentence, text: string) => Sentence
-  >(2, (sentence: Sentence, text: string): Sentence => make({ ...sentence, text }));
-
-  /**
-   * Update sentence tokens - dual API (data-first and data-last)
-   */
-  export const withTokens = Function.dual<
-    (tokens: Chunk.Chunk<Token>) => (self: Sentence) => Sentence,
-    (self: Sentence, tokens: Chunk.Chunk<Token>) => Sentence
-  >(2, (sentence: Sentence, tokens: Chunk.Chunk<Token>): Sentence => make({ ...sentence, tokens }));
-
-  /**
-   * Update sentence sentiment - dual API (data-first and data-last)
-   */
-  export const withSentiment = Function.dual<
-    (sentiment: Option.Option<number>) => (self: Sentence) => Sentence,
-    (self: Sentence, sentiment: Option.Option<number>) => Sentence
-  >(2, (sentence: Sentence, sentiment: Option.Option<number>): Sentence => make({ ...sentence, sentiment }));
-
-  /**
-   * Update sentence importance - dual API (data-first and data-last)
-   */
-  export const withImportance = Function.dual<
-    (importance: Option.Option<number>) => (self: Sentence) => Sentence,
-    (self: Sentence, importance: Option.Option<number>) => Sentence
-  >(2, (sentence: Sentence, importance: Option.Option<number>): Sentence => make({ ...sentence, importance }));
-
-  /**
-   * Update sentence negation flag - dual API (data-first and data-last)
-   */
-  export const withNegationFlag = Function.dual<
-    (negationFlag: Option.Option<boolean>) => (self: Sentence) => Sentence,
-    (self: Sentence, negationFlag: Option.Option<boolean>) => Sentence
-  >(2, (sentence: Sentence, negationFlag: Option.Option<boolean>): Sentence => make({ ...sentence, negationFlag }));
-
-  /**
-   * Filter tokens by predicate - dual API (data-first and data-last)
-   */
-  export const filterTokens = Function.dual<
-    (predicate: (token: Token) => boolean) => (self: Sentence) => Sentence,
-    (self: Sentence, predicate: (token: Token) => boolean) => Sentence
-  >(
+  static readonly getToken = dual(
     2,
-    (sentence: Sentence, predicate: (token: Token) => boolean): Sentence =>
-      make({
-        ...sentence,
-        tokens: Chunk.filter(sentence.tokens, predicate),
-      })
+    (sentence: Sentence, index: number): O.Option<Token> => Chunk.get(sentence.tokens, index)
   );
 }
-
-/**
- * Sentence helpers - kept for backward compatibility
- * @deprecated Use Sentence namespace functions instead
- */
-export const SentenceHelpers = {
-  tokenCount: Sentence.tokenCount,
-  characterCount: Sentence.characterCount,
-  getTokensInRange: (sentence: Sentence, startIdx: number, endIdx: number) =>
-    Sentence.getTokensInRange(startIdx, endIdx)(sentence),
-  text: Sentence.text,
-  sentiment: Sentence.sentiment,
-  importance: Sentence.importance,
-  hasSentiment: Sentence.hasSentiment,
-  hasNegation: Sentence.hasNegation,
-  getToken: (sentence: Sentence, index: number) => Sentence.getToken(index)(sentence),
-  tokenTexts: Sentence.tokenTexts,
-  withText: (sentence: Sentence, text: string) => Sentence.withText(text)(sentence),
-  withTokens: (sentence: Sentence, tokens: Chunk.Chunk<Token>) => Sentence.withTokens(tokens)(sentence),
-  withSentiment: (sentence: Sentence, sentiment: Option.Option<number>) => Sentence.withSentiment(sentiment)(sentence),
-  withImportance: (sentence: Sentence, importance: Option.Option<number>) =>
-    Sentence.withImportance(importance)(sentence),
-  withNegationFlag: (sentence: Sentence, negationFlag: Option.Option<boolean>) =>
-    Sentence.withNegationFlag(negationFlag)(sentence),
-  filterTokens: (sentence: Sentence, predicate: (token: Token) => boolean) =>
-    Sentence.filterTokens(predicate)(sentence),
-};

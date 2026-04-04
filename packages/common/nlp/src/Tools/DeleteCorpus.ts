@@ -1,20 +1,45 @@
 /**
- * DeleteCorpus tool - deletes a stateful BM25 corpus session.
- * @since 3.1.0
+ * DeleteCorpus tool definition.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/DeleteCorpus
  */
 
-import { Tool } from "@effect/ai";
-import { Schema } from "effect";
+import { $NlpId } from "@beep/identity";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
 
-export const DeleteCorpus = Tool.make("DeleteCorpus", {
-  description: "Delete a corpus session and release its in-memory index state",
-  parameters: {
-    corpusId: Schema.String.pipe(Schema.minLength(1)).annotations({
+const $I = $NlpId.create("Tools/DeleteCorpus");
+
+class DeleteCorpusParameters extends S.Class<DeleteCorpusParameters>($I`DeleteCorpusParameters`)(
+  {
+    corpusId: S.String.check(S.isMinLength(1)).annotateKey({
       description: "Corpus identifier returned by CreateCorpus",
     }),
   },
-  success: Schema.Struct({
-    corpusId: Schema.String,
-    deleted: Schema.Boolean,
-  }),
+  $I.annote("DeleteCorpusParameters", {
+    description: "Inputs required to delete a previously created corpus session.",
+  })
+) {}
+
+class DeleteCorpusSuccess extends S.Class<DeleteCorpusSuccess>($I`DeleteCorpusSuccess`)(
+  {
+    corpusId: S.String,
+    deleted: S.Boolean,
+  },
+  $I.annote("DeleteCorpusSuccess", {
+    description: "Deletion outcome for a corpus session.",
+  })
+) {}
+
+/**
+ * Tool for deleting a corpus session.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const DeleteCorpus = Tool.make("DeleteCorpus", {
+  description: "Delete a corpus session and release its in-memory index state.",
+  parameters: DeleteCorpusParameters,
+  success: DeleteCorpusSuccess,
 });

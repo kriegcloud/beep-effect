@@ -1,199 +1,232 @@
 /**
- * Pure Wink Similarity Service
- * Clean wrapper around wink-nlp's similarity utilities with Effect patterns
- * Only wraps existing wink-nlp functionality without domain assumptions
- * @since 3.0.0
+ * Wink similarity services and domain models.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/WinkSimilarity
  */
 
-import { Chunk, Context, Data, Effect, Layer, Option } from "effect";
-import { createRequire } from "module";
-import type { DocumentId } from "../Core/Document.ts";
+import { createRequire } from "node:module";
+import { $NlpId } from "@beep/identity";
+import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
+import { Effect, Layer, ServiceMap } from "effect";
+import * as Inspectable from "effect/Inspectable";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { DocumentId } from "../Core/Document.ts";
 import type { BagOfWords, DocumentVector } from "./WinkVectorizer.ts";
 
-// Import similarity utilities using createRequire for ES modules
+const $I = $NlpId.create("Wink/WinkSimilarity");
 const require = createRequire(import.meta.url);
-const similarity = require("wink-nlp/utilities/similarity");
 
-/**
- * Tversky similarity parameters
- */
-export const TverskyParams = Data.case<{
-  readonly alpha: number; // Weight for features in first set
-  readonly beta: number; // Weight for features in second set
-}>();
-export type TverskyParams = ReturnType<typeof TverskyParams>;
-
-/**
- * Cosine similarity computation request
- */
-export const CosineSimilarityRequest = Data.case<{
-  readonly vector1: DocumentVector;
-  readonly vector2: DocumentVector;
-}>();
-export type CosineSimilarityRequest = ReturnType<typeof CosineSimilarityRequest>;
-
-/**
- * Document term set for Tversky similarity
- */
-export const DocumentTermSet = Data.case<{
-  readonly documentId: DocumentId;
-  readonly terms: Chunk.Chunk<string>;
-}>();
-export type DocumentTermSet = ReturnType<typeof DocumentTermSet>;
-
-/**
- * Tversky similarity computation request (requires sets of terms)
- */
-export const TverskySimilarityRequest = Data.case<{
-  readonly set1: DocumentTermSet;
-  readonly set2: DocumentTermSet;
-  readonly params: TverskyParams;
-}>();
-export type TverskySimilarityRequest = ReturnType<typeof TverskySimilarityRequest>;
-
-/**
- * BOW cosine similarity computation request
- */
-export const BOWCosineSimilarityRequest = Data.case<{
-  readonly bow1: BagOfWords;
-  readonly bow2: BagOfWords;
-}>();
-export type BOWCosineSimilarityRequest = ReturnType<typeof BOWCosineSimilarityRequest>;
-
-/**
- * Similarity score result
- */
-export const SimilarityScore = Data.case<{
-  readonly document1Id: DocumentId;
-  readonly document2Id: DocumentId;
-  readonly score: number;
-  readonly method: "vector.cosine" | "set.tversky" | "bow.cosine";
-  readonly parameters: Option.Option<Record<string, unknown>>;
-}>();
-export type SimilarityScore = ReturnType<typeof SimilarityScore>;
-
-/**
- * Similarity computation error
- */
-export class SimilarityError extends Data.TaggedError("SimilarityError")<{
-  message: string;
-  cause?: unknown;
-}> {}
-
-/**
- * Wink Similarity Service - Pure wrappers around wink-nlp similarity functions
- */
-export class WinkSimilarity extends Context.Tag("effect-nlp/WinkSimilarity")<
-  WinkSimilarity,
-  {
-    /**
-     * Compute vector cosine similarity (wraps similarity.vector.cosine)
-     */
-    readonly vectorCosine: (request: CosineSimilarityRequest) => Effect.Effect<SimilarityScore, SimilarityError>;
-
-    /**
-     * Compute set Tversky similarity (wraps similarity.set.tversky)
-     */
-    readonly setTversky: (request: TverskySimilarityRequest) => Effect.Effect<SimilarityScore, SimilarityError>;
-
-    /**
-     * Compute BOW cosine similarity (wraps similarity.bow.cosine)
-     */
-    readonly bowCosine: (request: BOWCosineSimilarityRequest) => Effect.Effect<SimilarityScore, SimilarityError>;
-  }
->() {}
-
-/**
- * Create WinkSimilarity implementation
- */
-const createWinkSimilarityImpl = () => {
-  return WinkSimilarity.of({
-    vectorCosine: (request: CosineSimilarityRequest) =>
-      Effect.try({
-        try: () => {
-          const v1Array = Chunk.toReadonlyArray(request.vector1.vector);
-          const v2Array = Chunk.toReadonlyArray(request.vector2.vector);
-
-          const score = similarity.vector.cosine(v1Array as Array<number>, v2Array as Array<number>);
-
-          return SimilarityScore({
-            document1Id: request.vector1.documentId,
-            document2Id: request.vector2.documentId,
-            score: isNaN(score) || !isFinite(score) ? 0 : score,
-            method: "vector.cosine",
-            parameters: Option.none(),
-          });
-        },
-        catch: (error) =>
-          new SimilarityError({
-            message: `Failed to compute vector cosine similarity between ${request.vector1.documentId} and ${request.vector2.documentId}`,
-            cause: error,
-          }),
-      }),
-
-    setTversky: (request: TverskySimilarityRequest) =>
-      Effect.try({
-        try: () => {
-          // Convert Chunks to JavaScript Sets for wink-nlp
-          const set1 = new Set(Chunk.toReadonlyArray(request.set1.terms));
-          const set2 = new Set(Chunk.toReadonlyArray(request.set2.terms));
-
-          const score = similarity.set.tversky(set1, set2, request.params.alpha, request.params.beta);
-
-          return SimilarityScore({
-            document1Id: request.set1.documentId,
-            document2Id: request.set2.documentId,
-            score: isNaN(score) || !isFinite(score) ? 0 : score,
-            method: "set.tversky",
-            parameters: Option.some({
-              alpha: request.params.alpha,
-              beta: request.params.beta,
-            }),
-          });
-        },
-        catch: (error) =>
-          new SimilarityError({
-            message: `Failed to compute set Tversky similarity between ${request.set1.documentId} and ${request.set2.documentId}`,
-            cause: error,
-          }),
-      }),
-
-    bowCosine: (request: BOWCosineSimilarityRequest) =>
-      Effect.try({
-        try: () => {
-          const score = similarity.bow.cosine(request.bow1.bow, request.bow2.bow);
-
-          return SimilarityScore({
-            document1Id: request.bow1.documentId,
-            document2Id: request.bow2.documentId,
-            score: isNaN(score) || !isFinite(score) ? 0 : score,
-            method: "bow.cosine",
-            parameters: Option.none(),
-          });
-        },
-        catch: (error) =>
-          new SimilarityError({
-            message: `Failed to compute BOW cosine similarity between ${request.bow1.documentId} and ${request.bow2.documentId}`,
-            cause: error,
-          }),
-      }),
-  });
+type SimilarityRuntime = {
+  readonly bow: {
+    readonly cosine: (left: Record<string, number>, right: Record<string, number>) => number;
+  };
+  readonly set: {
+    readonly tversky: (left: Set<string>, right: Set<string>, alpha: number, beta: number) => number;
+  };
+  readonly vector: {
+    readonly cosine: (left: ReadonlyArray<number>, right: ReadonlyArray<number>) => number;
+  };
 };
 
-/**
- * Live implementation of WinkSimilarity
- */
-export const WinkSimilarityLive = Layer.succeed(WinkSimilarity, createWinkSimilarityImpl());
+type WinkSimilarityShape = {
+  readonly bowCosine: (left: BagOfWords, right: BagOfWords) => Effect.Effect<SimilarityScore, SimilarityError>;
+  readonly setTversky: (
+    left: DocumentTermSet,
+    right: DocumentTermSet,
+    params: TverskyParams
+  ) => Effect.Effect<SimilarityScore, SimilarityError>;
+  readonly vectorCosine: (
+    left: DocumentVector,
+    right: DocumentVector
+  ) => Effect.Effect<SimilarityScore, SimilarityError>;
+};
+
+const SimilarityMethodKit = LiteralKit(["vector.cosine", "set.tversky", "bow.cosine"] as const);
+const SimilarityMethod = SimilarityMethodKit.pipe(
+  $I.annoteSchema("SimilarityMethod", {
+    description: "Similarity methods exposed by wink-backed NLP services.",
+  }),
+  SchemaUtils.withLiteralKitStatics(SimilarityMethodKit)
+);
+
+const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utilities/similarity");
 
 /**
- * Data-first convenience functions
+ * Parameters controlling the asymmetric Tversky index.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
+export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
+  {
+    alpha: S.Number.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)),
+    beta: S.Number.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)),
+  },
+  $I.annote("TverskyParams", {
+    description: "Weights used when computing the asymmetric Tversky set similarity.",
+  })
+) {
+  /**
+   * Backwards-compatible unsafe constructor alias.
+   */
+  static readonly make = TverskyParams.makeUnsafe;
+}
 
-export const vectorCosine = (request: CosineSimilarityRequest) =>
-  Effect.flatMap(WinkSimilarity, (service) => service.vectorCosine(request));
+/**
+ * Set of normalized document terms used for set-based similarity.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet`)(
+  {
+    documentId: DocumentId,
+    terms: S.Array(S.String),
+  },
+  $I.annote("DocumentTermSet", {
+    description: "Normalized term set extracted from a document for set-based similarity.",
+  })
+) {
+  /**
+   * Backwards-compatible unsafe constructor alias.
+   */
+  static readonly make = DocumentTermSet.makeUnsafe;
+}
 
-export const setTversky = (request: TverskySimilarityRequest) =>
-  Effect.flatMap(WinkSimilarity, (service) => service.setTversky(request));
+/**
+ * Similarity score returned from a wink-backed comparison.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore`)(
+  {
+    document1Id: DocumentId,
+    document2Id: DocumentId,
+    method: SimilarityMethod,
+    parameters: S.OptionFromOptionalKey(S.Record(S.String, S.Unknown)),
+    score: S.Number,
+  },
+  $I.annote("SimilarityScore", {
+    description: "Similarity score comparing two document-like inputs.",
+  })
+) {
+  /**
+   * Backwards-compatible unsafe constructor alias.
+   */
+  static readonly make = SimilarityScore.makeUnsafe;
+}
 
-export const bowCosine = (request: BOWCosineSimilarityRequest) =>
-  Effect.flatMap(WinkSimilarity, (service) => service.bowCosine(request));
+/**
+ * Error raised while computing wink-backed similarity.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
+export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`SimilarityError`)(
+  "SimilarityError",
+  {
+    cause: S.Unknown,
+    message: S.String,
+    operation: S.String,
+  },
+  $I.annote("SimilarityError", {
+    description: "Failure raised while computing wink-backed similarity scores.",
+  })
+) {
+  /**
+   * Convert an unknown cause into a typed similarity error.
+   *
+   * @param cause {unknown} - The underlying failure or defect.
+   * @param operation {string} - The similarity operation that failed.
+   * @returns {SimilarityError} - A typed similarity error value.
+   */
+  static fromCause(cause: unknown, operation: string): SimilarityError {
+    return new SimilarityError({
+      cause,
+      message: `Wink similarity ${operation} failed: ${Inspectable.toStringUnknown(cause)}`,
+      operation,
+    });
+  }
+}
+
+const sanitizeScore = (score: number): number => (Number.isFinite(score) ? score : 0);
+
+const makeWinkSimilarity = Effect.gen(function* () {
+  const similarity = yield* Effect.try({
+    try: loadSimilarityRuntime,
+    catch: (cause) => SimilarityError.fromCause(cause, "initialize"),
+  });
+
+  return WinkSimilarity.of({
+    bowCosine: Effect.fn("Nlp.Wink.WinkSimilarity.bowCosine")(function* (left: BagOfWords, right: BagOfWords) {
+      return yield* Effect.try({
+        try: () =>
+          SimilarityScore.makeUnsafe({
+            document1Id: left.documentId,
+            document2Id: right.documentId,
+            method: "bow.cosine",
+            parameters: O.none(),
+            score: sanitizeScore(similarity.bow.cosine(left.bow, right.bow)),
+          }),
+        catch: (cause) => SimilarityError.fromCause(cause, "bowCosine"),
+      });
+    }),
+    setTversky: Effect.fn("Nlp.Wink.WinkSimilarity.setTversky")(function* (
+      left: DocumentTermSet,
+      right: DocumentTermSet,
+      params: TverskyParams
+    ) {
+      return yield* Effect.try({
+        try: () =>
+          SimilarityScore.makeUnsafe({
+            document1Id: left.documentId,
+            document2Id: right.documentId,
+            method: "set.tversky",
+            parameters: O.some({
+              alpha: params.alpha,
+              beta: params.beta,
+            }),
+            score: sanitizeScore(
+              similarity.set.tversky(new Set(left.terms), new Set(right.terms), params.alpha, params.beta)
+            ),
+          }),
+        catch: (cause) => SimilarityError.fromCause(cause, "setTversky"),
+      });
+    }),
+    vectorCosine: Effect.fn("Nlp.Wink.WinkSimilarity.vectorCosine")(function* (
+      left: DocumentVector,
+      right: DocumentVector
+    ) {
+      return yield* Effect.try({
+        try: () =>
+          SimilarityScore.makeUnsafe({
+            document1Id: left.documentId,
+            document2Id: right.documentId,
+            method: "vector.cosine",
+            parameters: O.none(),
+            score: sanitizeScore(similarity.vector.cosine(left.vector, right.vector)),
+          }),
+        catch: (cause) => SimilarityError.fromCause(cause, "vectorCosine"),
+      });
+    }),
+  });
+}).pipe(Effect.withSpan("Nlp.Wink.WinkSimilarity.make"));
+
+/**
+ * Wink similarity service.
+ *
+ * @since 0.0.0
+ * @category Services
+ */
+export class WinkSimilarity extends ServiceMap.Service<WinkSimilarity, WinkSimilarityShape>()($I`WinkSimilarity`) {}
+
+/**
+ * Live wink similarity layer.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const WinkSimilarityLive = Layer.effect(WinkSimilarity, makeWinkSimilarity);

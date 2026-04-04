@@ -1,27 +1,32 @@
 /**
- * NLP Toolkit - bundles all NLP tools with handler implementations.
- * Provides a composed layer backed by existing NLP services.
- * @since 3.0.0
+ * Live NLP toolkit composed from wink-backed services and tool definitions.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/NlpToolkit
  */
 
-import { Toolkit } from "@effect/ai";
-import { Chunk, Data, Effect, HashSet, Layer, Option, Schema } from "effect";
+import { Chunk, Clock, Effect, Layer, Match, pipe } from "effect";
+import * as A from "effect/Array";
+import * as Inspectable from "effect/Inspectable";
+import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { Toolkit } from "effect/unstable/ai";
+import { DocumentId } from "../Core/Document.ts";
+import { BracketStringToPatternElement } from "../Core/PatternParsers.ts";
 import type { Token } from "../Core/Token.ts";
 import { Tokenization } from "../Core/Tokenization.ts";
-import { WinkLayerLive } from "../Wink/Layer.ts";
+import { ascendingNumber, ascendingString, descendingNumber } from "../internal/order.ts";
+import { WinkLayerAllLive } from "../Wink/Layer.ts";
 import { WinkCorpusManager } from "../Wink/WinkCorpusManager.ts";
 import { WinkEngine } from "../Wink/WinkEngine.ts";
 import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "../Wink/WinkPattern.ts";
-import {
-  BOWCosineSimilarityRequest,
-  CosineSimilarityRequest,
-  DocumentTermSet,
-  TverskyParams,
-  TverskySimilarityRequest,
-  WinkSimilarity,
-} from "../Wink/WinkSimilarity.ts";
-import { NGramConfig, TextInput, TokensInput, WinkUtils, WinkUtilsLive } from "../Wink/WinkUtils.ts";
-import { BagOfWords, type TermFrequency, WinkVectorizer } from "../Wink/WinkVectorizer.ts";
+import { DocumentTermSet, TverskyParams, WinkSimilarity } from "../Wink/WinkSimilarity.ts";
+import { WinkUtils, type WinkUtilsError } from "../Wink/WinkUtils.ts";
+import { BagOfWords, WinkVectorizer } from "../Wink/WinkVectorizer.ts";
 import { BowCosineSimilarity } from "./BowCosineSimilarity.ts";
 import { ChunkBySentences } from "./ChunkBySentences.ts";
 import { CorpusStats } from "./CorpusStats.ts";
@@ -42,7 +47,175 @@ import { Tokenize } from "./Tokenize.ts";
 import { TransformText } from "./TransformText.ts";
 import { TverskySimilarity } from "./TverskySimilarity.ts";
 
-export const NlpToolkit = Toolkit.make(
+const normalizeTerm = (token: Token): string => Str.trim(normalizedTokenText(token));
+const emptyTermBag: Record<string, number> = {};
+
+const unwrapOptionString = (value: O.Option<string>): string =>
+  O.match(value, {
+    onNone: () => "",
+    onSome: (text) => text,
+  });
+
+const isPunctuationToken = (token: Token): boolean =>
+  O.match(token.shape, {
+    onNone: () => false,
+    onSome: (shape) => !/[Xxd]/.test(shape),
+  });
+
+const isWordLikeToken = (token: Token): boolean => !isPunctuationToken(token) && /[\p{L}\p{N}]/u.test(token.text);
+
+const normalizedTokenText = (token: Token): string =>
+  O.match(token.normal, {
+    onNone: () => token.text,
+    onSome: (normal) => normal ?? token.text,
+  });
+
+const tokenBagOfWords = (tokens: ReadonlyArray<Token>): Record<string, number> => {
+  return A.reduce(tokens, emptyTermBag, (bag, token) => {
+    const term = normalizeTerm(token);
+    return Str.isEmpty(term) ? bag : { ...bag, [term]: (bag[term] ?? 0) + 1 };
+  });
+};
+
+const tokenToAi = (token: Token) => ({
+  end: token.end,
+  isPunctuation: isPunctuationToken(token),
+  isStopWord: O.getOrElse(token.stopWordFlag, () => false),
+  lemma: unwrapOptionString(token.lemma),
+  pos: unwrapOptionString(token.pos),
+  start: token.start,
+  stem: unwrapOptionString(token.stem),
+  text: token.text,
+});
+
+const uniqueNormalizedTerms = (tokens: ReadonlyArray<Token>): ReadonlyArray<string> =>
+  pipe(tokens, A.map(normalizeTerm), A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
+
+const sortStrings = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
+  pipe(values, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
+
+const setJaccard = (leftValues: ReadonlyArray<string>, rightValues: ReadonlyArray<string>): number => {
+  const left = pipe(leftValues, A.dedupe);
+  const right = pipe(rightValues, A.dedupe);
+  const combined = pipe(left, A.union(right));
+
+  if (A.isArrayEmpty(combined)) {
+    return 0;
+  }
+
+  return pipe(left, A.intersection(right), A.length) / A.length(combined);
+};
+
+type EntityOutputDetail = {
+  readonly type?: unknown;
+  readonly value?: unknown;
+};
+
+const decodeEntityOutputDetails = (value: unknown): ReadonlyArray<EntityOutputDetail> =>
+  A.isArray(value) ? A.map(value, (detail) => (P.isObject(detail) ? detail : {})) : [];
+
+const decodeEntityOutputSpans = (value: unknown): ReadonlyArray<ReadonlyArray<number>> =>
+  A.isArray(value) ? A.map(value, (span) => (A.isArray(span) && A.every(span, P.isNumber) ? span : [])) : [];
+
+const mapEntityOutput = (
+  details: ReadonlyArray<EntityOutputDetail>,
+  spans: ReadonlyArray<ReadonlyArray<number>>,
+  tokens: ReadonlyArray<Token>,
+  source: "builtin" | "custom"
+) =>
+  A.map(details, (detail, index) => {
+    const rawSpan = spans[index];
+    const startTokenIndex =
+      A.isArray(rawSpan) && A.length(rawSpan) >= 2 && P.isNumber(rawSpan[0])
+        ? Math.max(0, Math.min(A.length(tokens) - 1, Math.floor(rawSpan[0])))
+        : 0;
+    const endTokenIndex =
+      A.isArray(rawSpan) && A.length(rawSpan) >= 2 && P.isNumber(rawSpan[1])
+        ? Math.max(startTokenIndex, Math.min(A.length(tokens) - 1, Math.floor(rawSpan[1])))
+        : startTokenIndex;
+    const startToken = tokens[startTokenIndex];
+    const endToken = tokens[endTokenIndex];
+    const value = P.isString(detail.value) ? detail.value : Inspectable.toStringUnknown(detail.value ?? "");
+
+    return {
+      end: endToken?.end ?? startToken?.end ?? Str.length(value),
+      endTokenIndex,
+      source,
+      start: startToken?.start ?? 0,
+      startTokenIndex,
+      type: P.isString(detail.type) ? detail.type : Inspectable.toStringUnknown(detail.type ?? ""),
+      value,
+    };
+  });
+
+type TransformOperation =
+  | "lowercase"
+  | "uppercase"
+  | "trim"
+  | "removeHtml"
+  | "removePunctuation"
+  | "removeExtraSpaces"
+  | "removeSpecialChars"
+  | "retainAlphaNums"
+  | "removeElisions";
+
+type TransformUtils = {
+  readonly lowerCase: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly upperCase: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly trim: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removeHTMLTags: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removePunctuations: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removeExtraSpaces: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removeSplChars: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly retainAlphaNums: (text: string) => Effect.Effect<string, WinkUtilsError>;
+  readonly removeElisions: (text: string) => Effect.Effect<string, WinkUtilsError>;
+};
+
+const applyTransformOperation = (utils: TransformUtils, operation: TransformOperation, text: string) =>
+  Match.type<TransformOperation>().pipe(
+    Match.when("lowercase", () => utils.lowerCase(text)),
+    Match.when("uppercase", () => utils.upperCase(text)),
+    Match.when("trim", () => utils.trim(text)),
+    Match.when("removeHtml", () => utils.removeHTMLTags(text)),
+    Match.when("removePunctuation", () => utils.removePunctuations(text)),
+    Match.when("removeExtraSpaces", () => utils.removeExtraSpaces(text)),
+    Match.when("removeSpecialChars", () => utils.removeSplChars(text)),
+    Match.when("retainAlphaNums", () => utils.retainAlphaNums(text)),
+    Match.when("removeElisions", () => utils.removeElisions(text)),
+    Match.exhaustive
+  )(operation);
+
+type NlpToolList = readonly [
+  typeof BowCosineSimilarity,
+  typeof ChunkBySentences,
+  typeof CorpusStats,
+  typeof CreateCorpus,
+  typeof DeleteCorpus,
+  typeof DocumentStats,
+  typeof ExtractEntities,
+  typeof ExtractKeywords,
+  typeof LearnCorpus,
+  typeof LearnCustomEntities,
+  typeof NGrams,
+  typeof PhoneticMatch,
+  typeof QueryCorpus,
+  typeof RankByRelevance,
+  typeof Sentences,
+  typeof TextSimilarity,
+  typeof Tokenize,
+  typeof TransformText,
+  typeof TverskySimilarity,
+];
+
+type NlpToolkitTools = Toolkit.ToolsByName<NlpToolList>;
+
+/**
+ * Canonical ordered NLP tool list used to build the toolkit and export adapters.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const NlpTools: NlpToolList = [
   BowCosineSimilarity,
   ChunkBySentences,
   CorpusStats,
@@ -59,624 +232,423 @@ export const NlpToolkit = Toolkit.make(
   RankByRelevance,
   Sentences,
   TextSimilarity,
-  TverskySimilarity,
   Tokenize,
-  TransformText
-);
+  TransformText,
+  TverskySimilarity,
+] as const;
 
-const unwrapOptionString = (opt: Option.Option<string | undefined>): string =>
-  Option.match(opt, {
-    onNone: () => "",
-    onSome: (v) => v ?? "",
-  });
+/**
+ * NLP toolkit definition containing the full tool surface.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const NlpToolkit: Toolkit.Toolkit<NlpToolkitTools> = Toolkit.make(...NlpTools);
 
-const tokenToAi = (token: Token) => ({
-  text: token.text,
-  pos: unwrapOptionString(token.pos),
-  lemma: unwrapOptionString(token.lemma),
-  stem: unwrapOptionString(token.stem),
-  isStopWord: Option.match(token.stopWordFlag, {
-    onNone: () => false,
-    onSome: (v) => v ?? false,
-  }),
-  isPunctuation: Option.match(token.shape, {
-    onNone: () => false,
-    onSome: (shape) => !/[Xxd]/.test(shape as string),
-  }),
-  start: token.start as number,
-  end: token.end as number,
-});
-
-const isPunctuationToken = (token: Token): boolean =>
-  Option.match(token.shape, {
-    onNone: () => false,
-    onSome: (shape) => !/[Xxd]/.test(shape as string),
-  });
-
-const isWordLikeToken = (token: Token): boolean => !isPunctuationToken(token) && /[\p{L}\p{N}]/u.test(token.text);
-
-const normalizedTokenText = (token: Token): string =>
-  Option.match(token.normal, {
-    onNone: () => token.text,
-    onSome: (normal) => normal ?? token.text,
-  });
-
-const uniqueNormalizedTerms = (tokens: Chunk.Chunk<Token>): Chunk.Chunk<string> =>
-  Chunk.fromIterable([
-    ...new Set(
-      Chunk.toReadonlyArray(tokens)
-        .map((token) => normalizedTokenText(token).trim())
-        .filter((term) => term.length > 0)
-    ),
-  ]);
-
-const tokenBagOfWords = (tokens: Chunk.Chunk<Token>): Record<string, number> => {
-  const bag: Record<string, number> = {};
-  for (const token of Chunk.toReadonlyArray(tokens)) {
-    const term = normalizedTokenText(token).trim();
-    if (term.length === 0) continue;
-    bag[term] = (bag[term] ?? 0) + 1;
-  }
-  return bag;
-};
-
-type NGramMode = "bag" | "edge" | "set";
-
-type PhoneticAlgorithm = "soundex" | "phonetize";
-
-const ngramResultToEntries = (
-  ngrams: Record<string, number>,
-  topN: number
-): ReadonlyArray<{
-  readonly value: string;
-  readonly count: number;
-}> =>
-  Object.entries(ngrams)
-    .map(([value, count]) => ({
-      value,
-      count: Number.isFinite(count) ? count : 0,
-    }))
-    .sort((a, b) => b.count - a.count || a.value.localeCompare(b.value))
-    .slice(0, topN);
-
-const uniqueSortedStrings = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
-  [...new Set(values)].sort((a, b) => a.localeCompare(b));
-
-const setJaccard = (leftValues: ReadonlyArray<string>, rightValues: ReadonlyArray<string>): number => {
-  const leftSet = new Set(leftValues);
-  const rightSet = new Set(rightValues);
-
-  if (leftSet.size === 0 && rightSet.size === 0) return 0;
-
-  let intersectionSize = 0;
-  for (const value of leftSet) {
-    if (rightSet.has(value)) intersectionSize++;
-  }
-
-  const unionSize = new Set([...leftSet, ...rightSet]).size;
-  if (unionSize === 0) return 0;
-  return intersectionSize / unionSize;
-};
-
-const toPositiveInteger = (value: number, fallback: number): number => {
-  if (!Number.isFinite(value)) return fallback;
-  const rounded = Math.floor(value);
-  return rounded >= 1 ? rounded : fallback;
-};
-
-const BracketPatternElement = Schema.String.pipe(Schema.minLength(3), Schema.pattern(/^\[[^\]]+\]$/));
-
-interface SentenceSpan {
-  readonly index: number;
-  readonly text: string;
-}
-
-interface RawEntityDetail {
-  readonly type?: unknown;
-  readonly value?: unknown;
-}
-
-interface AiEntity {
-  readonly end: number;
-  readonly endTokenIndex: number;
-  readonly source: "builtin" | "custom";
-  readonly start: number;
-  readonly startTokenIndex: number;
-  readonly type: string;
-  readonly value: string;
-}
-
-const mapWinkEntityOutput = (
-  details: ReadonlyArray<RawEntityDetail>,
-  spans: ReadonlyArray<ReadonlyArray<number>>,
-  tokenArray: ReadonlyArray<Token>,
-  source: "builtin" | "custom"
-): ReadonlyArray<AiEntity> =>
-  details.map((detail, index) => {
-    const rawSpan = spans[index];
-    const value = typeof detail.value === "string" ? detail.value : String(detail.value ?? "");
-    const type = typeof detail.type === "string" ? detail.type : String(detail.type ?? "");
-
-    let startTokenIndex = 0;
-    let endTokenIndex = 0;
-
-    if (
-      tokenArray.length > 0 &&
-      Array.isArray(rawSpan) &&
-      rawSpan.length >= 2 &&
-      typeof rawSpan[0] === "number" &&
-      typeof rawSpan[1] === "number"
-    ) {
-      const maxTokenIndex = tokenArray.length - 1;
-      const a = Math.floor(rawSpan[0]);
-      const b = Math.floor(rawSpan[1]);
-      startTokenIndex = Math.max(0, Math.min(maxTokenIndex, Math.min(a, b)));
-      endTokenIndex = Math.max(startTokenIndex, Math.min(maxTokenIndex, Math.max(a, b)));
-    }
-
-    const startToken = tokenArray[startTokenIndex];
-    const endToken = tokenArray[endTokenIndex];
-    const start = startToken !== undefined ? (startToken.start as number) : 0;
-    const end = endToken !== undefined ? (endToken.end as number) : start + value.length;
-
-    return {
-      value,
-      type,
-      start,
-      end: Math.max(start, end),
-      startTokenIndex,
-      endTokenIndex,
-      source,
-    };
-  });
-
-type OperationName =
-  | "lowercase"
-  | "uppercase"
-  | "trim"
-  | "removeHtml"
-  | "removePunctuation"
-  | "removeExtraSpaces"
-  | "removeSpecialChars"
-  | "retainAlphaNums"
-  | "removeElisions";
-
-const applyOperation = (utils: WinkUtils["Type"], op: OperationName, text: string) => {
-  const input = TextInput({ text });
-  switch (op) {
-    case "lowercase":
-      return utils.lowerCase(input);
-    case "uppercase":
-      return utils.upperCase(input);
-    case "trim":
-      return utils.trim(input);
-    case "removeHtml":
-      return utils.removeHTMLTags(input);
-    case "removePunctuation":
-      return utils.removePunctuations(input);
-    case "removeExtraSpaces":
-      return utils.removeExtraSpaces(input);
-    case "removeSpecialChars":
-      return utils.removeSplChars(input);
-    case "retainAlphaNums":
-      return utils.retainAlphaNums(input);
-    case "removeElisions":
-      return utils.removeElisions(input);
-  }
-};
-
-export const NlpToolkitLive = NlpToolkit.toLayer(
+/**
+ * Live toolkit handlers backed by the wink runtime layers.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const NlpToolkitLive: ReturnType<typeof NlpToolkit.toLayer> = NlpToolkit.toLayer(
   Effect.gen(function* () {
     const corpusManager = yield* WinkCorpusManager;
     const engine = yield* WinkEngine;
+    const similarity = yield* WinkSimilarity;
     const tokenization = yield* Tokenization;
-    const vectorizer = yield* WinkVectorizer;
-    const sim = yield* WinkSimilarity;
     const utils = yield* WinkUtils;
+    const vectorizer = yield* WinkVectorizer;
 
     return {
       BowCosineSimilarity: ({ text1, text2 }) =>
         Effect.gen(function* () {
-          const doc1 = yield* tokenization.document(text1, "bow-text1");
-          const doc2 = yield* tokenization.document(text2, "bow-text2");
-          const bow1 = BagOfWords({
-            documentId: doc1.id,
-            bow: tokenBagOfWords(doc1.tokens),
-          });
-          const bow2 = BagOfWords({
-            documentId: doc2.id,
-            bow: tokenBagOfWords(doc2.tokens),
-          });
-          const result = yield* sim.bowCosine(BOWCosineSimilarityRequest({ bow1, bow2 }));
+          const [doc1, doc2] = yield* Effect.all([
+            tokenization.document(text1, "bow-text-1"),
+            tokenization.document(text2, "bow-text-2"),
+          ]);
+
+          const score = yield* similarity.bowCosine(
+            BagOfWords.makeUnsafe({
+              bow: tokenBagOfWords(Chunk.toReadonlyArray(doc1.tokens)),
+              documentId: doc1.id,
+            }),
+            BagOfWords.makeUnsafe({
+              bow: tokenBagOfWords(Chunk.toReadonlyArray(doc2.tokens)),
+              documentId: doc2.id,
+            })
+          );
+
           return {
-            score: Number.isFinite(result.score) ? result.score : 0,
             method: "bow.cosine" as const,
+            score: score.score,
           };
         }).pipe(Effect.orDie),
 
       ChunkBySentences: ({ maxChunkChars, text }) =>
         Effect.gen(function* () {
-          const doc = yield* tokenization.document(text, "chunks-doc");
-          const sentenceArray = Chunk.toReadonlyArray(doc.sentences).map((s) => ({
-            index: s.index as number,
-            text: s.text.trim(),
-          }));
+          const document = yield* tokenization.document(text, "sentence-chunks");
+          const sentences = pipe(
+            Chunk.toReadonlyArray(document.sentences),
+            A.map((sentence) => ({
+              index: sentence.index,
+              text: Str.trim(sentence.text),
+            })),
+            A.filter((sentence) => Str.isNonEmpty(sentence.text))
+          );
 
-          const sentences = sentenceArray.filter((sentence): sentence is SentenceSpan => sentence.text.length > 0);
-
-          if (sentences.length === 0) {
-            return {
-              chunks: [],
-              chunkCount: 0,
-              originalSentenceCount: sentenceArray.length,
-            };
+          if (A.isArrayEmpty(sentences)) {
+            return { chunkCount: 0, chunks: [], originalSentenceCount: 0 };
           }
 
-          const targetSize = toPositiveInteger(maxChunkChars, 1);
+          const maxChars = maxChunkChars;
           const chunks: Array<{
-            readonly text: string;
-            readonly sentenceCount: number;
             readonly charCount: number;
-            readonly startSentenceIndex: number;
             readonly endSentenceIndex: number;
+            readonly sentenceCount: number;
+            readonly startSentenceIndex: number;
+            readonly text: string;
           }> = [];
 
           let currentText = "";
-          let currentStartSentence = -1;
-          let currentEndSentence = -1;
+          let startSentenceIndex = -1;
+          let endSentenceIndex = -1;
 
-          const flushCurrent = () => {
-            if (currentStartSentence < 0 || currentText.length === 0) return;
+          const flush = () => {
+            if (startSentenceIndex < 0 || Str.isEmpty(currentText)) {
+              return;
+            }
             chunks.push({
+              charCount: Str.length(currentText),
+              endSentenceIndex,
+              sentenceCount: endSentenceIndex - startSentenceIndex + 1,
+              startSentenceIndex,
               text: currentText,
-              sentenceCount: currentEndSentence - currentStartSentence + 1,
-              charCount: currentText.length,
-              startSentenceIndex: currentStartSentence,
-              endSentenceIndex: currentEndSentence,
             });
           };
 
           for (const sentence of sentences) {
-            if (currentStartSentence < 0) {
+            if (startSentenceIndex < 0) {
               currentText = sentence.text;
-              currentStartSentence = sentence.index;
-              currentEndSentence = sentence.index;
+              startSentenceIndex = sentence.index;
+              endSentenceIndex = sentence.index;
               continue;
             }
 
-            const candidateText = `${currentText} ${sentence.text}`;
-            const candidateLength = candidateText.length;
-
-            if (candidateLength <= targetSize) {
-              currentText = candidateText;
-              currentEndSentence = sentence.index;
+            const candidate = `${currentText} ${sentence.text}`;
+            if (Str.length(candidate) <= maxChars) {
+              currentText = candidate;
+              endSentenceIndex = sentence.index;
               continue;
             }
 
-            flushCurrent();
+            flush();
             currentText = sentence.text;
-            currentStartSentence = sentence.index;
-            currentEndSentence = sentence.index;
+            startSentenceIndex = sentence.index;
+            endSentenceIndex = sentence.index;
           }
 
-          flushCurrent();
+          flush();
 
           return {
+            chunkCount: A.length(chunks),
             chunks,
-            chunkCount: chunks.length,
-            originalSentenceCount: sentenceArray.length,
+            originalSentenceCount: A.length(sentences),
           };
         }).pipe(Effect.orDie),
 
-      CorpusStats: ({ corpusId, includeIdf, includeMatrix, topIdfTerms }) =>
+      CorpusStats: (params) => corpusManager.getStats(params).pipe(Effect.orDie),
+
+      CreateCorpus: (params) =>
         corpusManager
-          .getStats({
-            corpusId,
-            ...(includeIdf === undefined ? {} : { includeIdf }),
-            ...(includeMatrix === undefined ? {} : { includeMatrix }),
-            ...(topIdfTerms === undefined ? {} : { topIdfTerms }),
+          .createCorpus({
+            ...(params.corpusId === undefined ? {} : { corpusId: params.corpusId }),
+            ...(params.bm25Config === undefined
+              ? {}
+              : {
+                  bm25Config: {
+                    ...(params.bm25Config.b === undefined ? {} : { b: params.bm25Config.b }),
+                    ...(params.bm25Config.k === undefined ? {} : { k: params.bm25Config.k }),
+                    ...(params.bm25Config.k1 === undefined ? {} : { k1: params.bm25Config.k1 }),
+                    ...(params.bm25Config.norm === undefined ? {} : { norm: params.bm25Config.norm }),
+                  },
+                }),
           })
           .pipe(Effect.orDie),
-
-      CreateCorpus: ({ bm25Config, corpusId }) =>
-        Effect.gen(function* () {
-          const normalizedConfig =
-            bm25Config === undefined
-              ? undefined
-              : {
-                  ...(bm25Config.k1 === undefined ? {} : { k1: bm25Config.k1 }),
-                  ...(bm25Config.b === undefined ? {} : { b: bm25Config.b }),
-                  ...(bm25Config.k === undefined ? {} : { k: bm25Config.k }),
-                  ...(bm25Config.norm === undefined ? {} : { norm: bm25Config.norm }),
-                };
-
-          return yield* corpusManager.createCorpus(
-            normalizedConfig === undefined && corpusId === undefined
-              ? undefined
-              : {
-                  ...(corpusId === undefined ? {} : { corpusId }),
-                  ...(normalizedConfig === undefined ? {} : { bm25Config: normalizedConfig }),
-                }
-          );
-        }).pipe(Effect.orDie),
 
       DeleteCorpus: ({ corpusId }) =>
         Effect.gen(function* () {
           const deleted = yield* corpusManager.deleteCorpus(corpusId);
-          return {
-            corpusId,
-            deleted,
-          };
+          return { corpusId, deleted };
         }).pipe(Effect.orDie),
 
       DocumentStats: ({ text }) =>
         Effect.gen(function* () {
-          const doc = yield* tokenization.document(text, "stats-doc");
-          const tokenArray = Chunk.toReadonlyArray(doc.tokens);
-          const sentenceArray = Chunk.toReadonlyArray(doc.sentences);
-          const wordCount = tokenArray.filter((token) => isWordLikeToken(token)).length;
-          const sentenceCount = sentenceArray.length;
+          const document = yield* tokenization.document(text, "document-stats");
+          const tokens = Chunk.toReadonlyArray(document.tokens);
+          const wordCount = pipe(tokens, A.filter(isWordLikeToken), A.length);
+
           return {
+            avgSentenceLength: document.sentenceCount === 0 ? 0 : wordCount / document.sentenceCount,
+            charCount: Str.length(text),
+            sentenceCount: document.sentenceCount,
             wordCount,
-            sentenceCount,
-            avgSentenceLength: sentenceCount > 0 ? wordCount / sentenceCount : 0,
-            charCount: text.length,
           };
         }).pipe(Effect.orDie),
 
       ExtractEntities: ({ includeCustom, text }) =>
         Effect.gen(function* () {
-          const winkDoc = yield* engine.getWinkDoc(text);
-          const its = yield* engine.its;
-          const doc = yield* tokenization.document(text, "entities-doc");
-          const tokenArray = Chunk.toReadonlyArray(doc.tokens);
-
-          const builtinDetails = winkDoc.entities().out(its.detail) as ReadonlyArray<RawEntityDetail>;
-          const builtinSpans = winkDoc.entities().out(its.span) as ReadonlyArray<ReadonlyArray<number>>;
-
-          const entities = mapWinkEntityOutput(builtinDetails, builtinSpans, tokenArray, "builtin");
-          const entityTypes = [...new Set(entities.map((entity) => entity.type))].sort((a, b) => a.localeCompare(b));
-
-          const shouldIncludeCustom = includeCustom ?? true;
-
-          const customEntities = shouldIncludeCustom
-            ? mapWinkEntityOutput(
-                winkDoc.customEntities().out(its.detail) as ReadonlyArray<RawEntityDetail>,
-                winkDoc.customEntities().out(its.span) as ReadonlyArray<ReadonlyArray<number>>,
-                tokenArray,
-                "custom"
-              )
-            : [];
-
-          const customEntityTypes = [...new Set(customEntities.map((entity) => entity.type))].sort((a, b) =>
-            a.localeCompare(b)
+          const [document, its, winkDoc] = yield* Effect.all([
+            tokenization.document(text, "entities"),
+            engine.its,
+            engine.getWinkDoc(text),
+          ]);
+          const tokens = Chunk.toReadonlyArray(document.tokens);
+          const builtinEntities = mapEntityOutput(
+            decodeEntityOutputDetails(winkDoc.entities().out(its.detail)),
+            decodeEntityOutputSpans(winkDoc.entities().out(its.span)),
+            tokens,
+            "builtin"
           );
-
-          const allEntities = [...entities, ...customEntities].sort(
-            (a, b) => a.start - b.start || a.end - b.end || a.startTokenIndex - b.startTokenIndex
+          const customEntities =
+            (includeCustom ?? true)
+              ? mapEntityOutput(
+                  decodeEntityOutputDetails(winkDoc.customEntities().out(its.detail)),
+                  decodeEntityOutputSpans(winkDoc.customEntities().out(its.span)),
+                  tokens,
+                  "custom"
+                )
+              : [];
+          const allEntities = pipe(
+            builtinEntities,
+            A.appendAll(customEntities),
+            A.sortBy(
+              ascendingNumber((entity) => entity.start),
+              ascendingNumber((entity) => entity.end),
+              ascendingNumber((entity) => entity.startTokenIndex)
+            )
           );
 
           return {
-            entities,
-            entityCount: entities.length,
-            entityTypes,
-            customEntities,
-            customEntityCount: customEntities.length,
-            customEntityTypes,
             allEntities,
-            allEntityCount: allEntities.length,
+            allEntityCount: A.length(allEntities),
+            customEntities,
+            customEntityCount: A.length(customEntities),
+            customEntityTypes: sortStrings(
+              pipe(
+                customEntities,
+                A.map((entity) => entity.type)
+              )
+            ),
+            entities: builtinEntities,
+            entityCount: A.length(builtinEntities),
+            entityTypes: sortStrings(
+              pipe(
+                builtinEntities,
+                A.map((entity) => entity.type)
+              )
+            ),
           };
         }).pipe(Effect.orDie),
 
       ExtractKeywords: ({ text, topN }) =>
         vectorizer
-          .withFreshInstance((vec) =>
+          .withFreshInstance((isolated) =>
             Effect.gen(function* () {
-              const doc = yield* tokenization.document(text, "keywords-doc");
-              yield* vec.learnDocument(doc);
-              const tfs = yield* vec.getDocumentTermFrequencies(0);
-              const tfArray = Chunk.toReadonlyArray(tfs) as ReadonlyArray<TermFrequency>;
-              const sorted = [...tfArray]
-                .sort((a, b) => b.frequency - a.frequency)
-                .slice(0, topN ?? 10)
-                .map((tf) => ({ term: tf.term, score: tf.frequency }));
-              return { keywords: sorted };
+              const document = yield* tokenization.document(text, "keywords");
+              yield* isolated.learnDocument(document);
+              const frequencies = yield* isolated.getDocumentTermFrequencies(0);
+              const limit = topN ?? 10;
+
+              return {
+                keywords: pipe(
+                  frequencies,
+                  A.sortBy(
+                    descendingNumber((frequency) => frequency.frequency),
+                    ascendingString((frequency) => frequency.term)
+                  ),
+                  A.take(limit),
+                  A.map((frequency) => ({
+                    score: frequency.frequency,
+                    term: frequency.term,
+                  }))
+                ),
+              };
             })
           )
           .pipe(Effect.orDie),
 
       LearnCorpus: ({ corpusId, dedupeById, documents }) =>
         Effect.gen(function* () {
-          const timestamp = Date.now();
-          const docs = yield* Effect.forEach(documents, (document, index) =>
-            tokenization.document(document.text, document.id ?? `${corpusId}-doc-${timestamp}-${index}`)
+          const nowMs = yield* Clock.currentTimeMillis;
+          const resolvedDocuments = yield* Effect.forEach(documents, (document, index) =>
+            tokenization.document(document.text, document.id ?? `${corpusId}-doc-${nowMs}-${index}`)
           );
-
           return yield* corpusManager.learnDocuments({
             corpusId,
-            documents: Chunk.fromIterable(docs),
-            ...(dedupeById === undefined ? {} : { dedupeById }),
+            dedupeById,
+            documents: resolvedDocuments,
           });
         }).pipe(Effect.orDie),
 
       LearnCustomEntities: ({ entities, groupName, mode }) =>
         Effect.gen(function* () {
-          yield* Effect.forEach(
-            entities,
-            (entity) => Schema.decodeUnknown(Schema.NonEmptyArray(BracketPatternElement))(entity.patterns),
-            { discard: true }
+          yield* S.decodeUnknownEffect(S.NonEmptyArray(BracketStringToPatternElement))(
+            pipe(
+              entities,
+              A.flatMap((entity) => entity.patterns)
+            )
           );
 
-          const requestedMode = mode ?? "append";
           const incoming = new WinkEngineCustomEntities({
-            name: EntityGroupName.make(groupName ?? "custom-entities"),
-            patterns: HashSet.fromIterable(
-              entities.map(
+            name: EntityGroupName.makeUnsafe(groupName ?? "custom-entities"),
+            patterns: pipe(
+              entities,
+              A.map(
                 (entity) =>
                   new CustomEntityExample({
+                    mark: entity.mark === undefined ? O.none() : O.some(entity.mark),
                     name: entity.name,
-                    patterns: Data.array(entity.patterns),
-                    ...(entity.mark === undefined ? {} : { mark: entity.mark }),
+                    patterns: entity.patterns,
                   })
               )
             ),
           });
 
+          const resolvedMode = mode ?? "append";
           const nextEntities =
-            requestedMode === "append"
-              ? yield* engine.getCurrentCustomEntities().pipe(
-                  Effect.map((current) =>
-                    Option.match(current, {
-                      onNone: () => incoming,
-                      onSome: (existing) => existing.merge(incoming, incoming.name),
-                    })
-                  )
-                )
+            resolvedMode === "append"
+              ? O.match(yield* engine.getCurrentCustomEntities, {
+                  onNone: () => incoming,
+                  onSome: (existing) => existing.merge(incoming, incoming.name),
+                })
               : incoming;
 
           yield* engine.learnCustomEntities(nextEntities);
 
-          const entityNames = nextEntities
-            .toArray()
-            .map((entity) => entity.name)
-            .sort((a, b) => a.localeCompare(b));
-
           return {
+            entityNames: sortStrings(
+              pipe(
+                nextEntities.toArray(),
+                A.map((entity) => entity.name)
+              )
+            ),
             groupName: nextEntities.name,
-            mode: requestedMode,
             learnedEntityCount: incoming.size(),
+            mode: resolvedMode,
             totalEntityCount: nextEntities.size(),
-            entityNames,
           };
         }).pipe(Effect.orDie),
 
       NGrams: ({ mode, size, text, topN }) =>
         Effect.gen(function* () {
-          const resolvedMode: NGramMode = mode ?? "bag";
-          const resolvedSize = toPositiveInteger(size, 1);
-          const ngramConfig = NGramConfig({ size: resolvedSize });
-          const ngramInput = TextInput({ text });
+          const resolvedMode = mode ?? "bag";
+          const resolvedSize = size;
+          const result =
+            resolvedMode === "bag"
+              ? yield* utils.bagOfNGrams(text, resolvedSize)
+              : resolvedMode === "edge"
+                ? yield* utils.edgeNGrams(text, resolvedSize)
+                : yield* utils.setOfNGrams(text, resolvedSize);
 
-          const ngramResult = yield* resolvedMode === "bag"
-            ? utils.bagOfNGrams(ngramInput, ngramConfig)
-            : resolvedMode === "edge"
-              ? utils.edgeNGrams(ngramInput, ngramConfig)
-              : utils.setOfNGrams(ngramInput, ngramConfig);
-
-          const limit =
-            topN === undefined ? ngramResult.uniqueNGrams : toPositiveInteger(topN, ngramResult.uniqueNGrams);
-          const ngrams = ngramResultToEntries(ngramResult.ngrams, Math.max(0, limit));
+          const limit = topN ?? result.uniqueNGrams;
+          const ngrams = pipe(
+            result.ngrams,
+            R.toEntries,
+            A.map(([value, count]) => ({ count, value })),
+            A.sortBy(
+              descendingNumber((entry) => entry.count),
+              ascendingString((entry) => entry.value)
+            ),
+            A.take(limit)
+          );
 
           return {
             mode: resolvedMode,
-            size: resolvedSize,
             ngrams,
-            totalNGrams: ngramResult.totalNGrams,
-            uniqueNGrams: ngramResult.uniqueNGrams,
+            size: resolvedSize,
+            totalNGrams: result.totalNGrams,
+            uniqueNGrams: result.uniqueNGrams,
           };
         }).pipe(Effect.orDie),
 
       PhoneticMatch: ({ algorithm, minTokenLength, text1, text2 }) =>
         Effect.gen(function* () {
-          const resolvedAlgorithm: PhoneticAlgorithm = algorithm ?? "soundex";
-          const resolvedMinTokenLength = minTokenLength ?? 2;
-
-          const toCandidateTokens = (tokens: Chunk.Chunk<Token>): Chunk.Chunk<string> =>
-            Chunk.fromIterable(
-              Chunk.toReadonlyArray(tokens)
-                .filter(isWordLikeToken)
-                .map((token) => normalizedTokenText(token).trim().toLowerCase())
-                .filter((token) => token.length >= resolvedMinTokenLength)
+          const resolvedAlgorithm = algorithm ?? "soundex";
+          const minimumLength = minTokenLength ?? 2;
+          const encode = (tokens: ReadonlyArray<string>) =>
+            resolvedAlgorithm === "soundex" ? utils.soundex(tokens) : utils.phonetize(tokens);
+          const toCandidateTokens = (tokens: ReadonlyArray<Token>) =>
+            pipe(
+              tokens,
+              A.filter(isWordLikeToken),
+              A.map((token) => pipe(normalizedTokenText(token), Str.trim, Str.toLowerCase)),
+              A.filter((token) => Str.length(token) >= minimumLength)
             );
 
-          const encodeTokens = (tokens: Chunk.Chunk<string>) => {
-            const input = TokensInput({ tokens });
-            return resolvedAlgorithm === "soundex" ? utils.soundex(input) : utils.phonetize(input);
-          };
-
-          const leftTokens = toCandidateTokens(yield* tokenization.tokenize(text1));
-          const rightTokens = toCandidateTokens(yield* tokenization.tokenize(text2));
-
-          const leftCodesRaw = Chunk.toReadonlyArray((yield* encodeTokens(leftTokens)).tokens);
-          const rightCodesRaw = Chunk.toReadonlyArray((yield* encodeTokens(rightTokens)).tokens);
-
-          const leftCodes = uniqueSortedStrings(
-            leftCodesRaw.map((code) => code.trim()).filter((code) => code.length > 0)
-          );
-          const rightCodes = uniqueSortedStrings(
-            rightCodesRaw.map((code) => code.trim()).filter((code) => code.length > 0)
-          );
-          const sharedCodes = leftCodes.filter((code) => rightCodes.includes(code));
+          const [leftTokens, rightTokens] = yield* Effect.all([
+            tokenization.tokenize(text1),
+            tokenization.tokenize(text2),
+          ]);
+          const [leftCodes, rightCodes] = yield* Effect.all([
+            encode(toCandidateTokens(leftTokens)),
+            encode(toCandidateTokens(rightTokens)),
+          ]);
+          const sortedLeft = sortStrings(pipe(leftCodes, A.map(Str.trim), A.filter(Str.isNonEmpty)));
+          const sortedRight = sortStrings(pipe(rightCodes, A.map(Str.trim), A.filter(Str.isNonEmpty)));
 
           return {
             algorithm: resolvedAlgorithm,
-            score: setJaccard(leftCodes, rightCodes),
-            sharedCodes,
-            leftCodes,
-            rightCodes,
+            leftCodes: sortedLeft,
+            rightCodes: sortedRight,
+            score: setJaccard(sortedLeft, sortedRight),
+            sharedCodes: pipe(sortedLeft, A.intersection(sortedRight)),
           };
         }).pipe(Effect.orDie),
 
-      QueryCorpus: ({ corpusId, includeText, query, topN }) =>
-        corpusManager
-          .query({
-            corpusId,
-            query,
-            ...(topN === undefined ? {} : { topN }),
-            ...(includeText === undefined ? {} : { includeText }),
-          })
-          .pipe(Effect.orDie),
+      QueryCorpus: (params) => corpusManager.query(params).pipe(Effect.orDie),
 
       RankByRelevance: ({ query, texts, topN }) =>
         vectorizer
-          .withFreshInstance((vec) =>
+          .withFreshInstance((isolated) =>
             Effect.gen(function* () {
-              if (texts.length === 0) {
+              if (A.isReadonlyArrayEmpty(texts)) {
                 return {
                   ranked: [],
-                  totalTexts: 0,
                   returned: 0,
+                  totalTexts: 0,
                 };
               }
 
-              const limit = Math.min(
-                texts.length,
-                topN === undefined ? texts.length : toPositiveInteger(topN, texts.length)
+              const documents = yield* Effect.forEach(texts, (text, index) =>
+                tokenization.document(text, `rank-${index}`)
               );
+              yield* Effect.forEach(documents, (document) => isolated.learnDocument(document), { discard: true });
 
-              const docs = yield* Effect.forEach(texts, (text, index) =>
-                tokenization.document(text, `rank-doc-${index}`)
-              );
-
-              yield* Effect.forEach(docs, (doc) => vec.learnDocument(doc), {
-                discard: true,
-              });
-
-              const queryDoc = yield* tokenization.document(query, "rank-query");
-              const queryVector = yield* vec.vectorizeDocument(queryDoc);
-
-              const scored = yield* Effect.forEach(docs, (doc, index) =>
+              const queryDocument = yield* tokenization.document(query, "rank-query");
+              const queryVector = yield* isolated.vectorizeDocument(queryDocument);
+              const scores = yield* Effect.forEach(documents, (document, index) =>
                 Effect.gen(function* () {
-                  const candidateVector = yield* vec.vectorizeDocument(doc);
-                  const result = yield* sim.vectorCosine(
-                    CosineSimilarityRequest({
-                      vector1: queryVector,
-                      vector2: candidateVector,
-                    })
-                  );
-                  return {
-                    index,
-                    score: Number.isFinite(result.score) ? result.score : 0,
-                  };
+                  const candidateVector = yield* isolated.vectorizeDocument(document);
+                  const score = yield* similarity.vectorCosine(queryVector, candidateVector);
+                  return { index, score: score.score };
                 })
               );
 
-              const ranked = [...scored].sort((a, b) => b.score - a.score || a.index - b.index).slice(0, limit);
+              const limit = topN ?? A.length(texts);
+              const ranked = pipe(
+                scores,
+                A.sortBy(
+                  descendingNumber((score) => score.score),
+                  ascendingNumber((score) => score.index)
+                ),
+                A.take(limit)
+              );
 
               return {
                 ranked,
-                totalTexts: texts.length,
-                returned: ranked.length,
+                returned: A.length(ranked),
+                totalTexts: A.length(texts),
               };
             })
           )
@@ -684,88 +656,108 @@ export const NlpToolkitLive = NlpToolkit.toLayer(
 
       Sentences: ({ text }) =>
         Effect.gen(function* () {
-          const doc = yield* tokenization.document(text);
-          const sArr = Chunk.toReadonlyArray(doc.sentences).map((s) => {
-            const tokens = Chunk.toReadonlyArray(s.tokens);
-            const firstToken = tokens[0];
-            const lastToken = tokens[tokens.length - 1];
-            return {
-              text: s.text,
-              tokenCount: tokens.length,
-              index: s.index as number,
-              start: firstToken !== undefined ? (firstToken.start as number) : 0,
-              end: lastToken !== undefined ? (lastToken.end as number) : 0,
-            };
-          });
-          return { sentences: sArr, sentenceCount: sArr.length };
+          const document = yield* tokenization.document(text, "sentences");
+          const sentences = pipe(
+            Chunk.toReadonlyArray(document.sentences),
+            A.map((sentence) => {
+              const tokens = Chunk.toReadonlyArray(sentence.tokens);
+              const first = tokens[0];
+              const last = tokens[tokens.length - 1];
+
+              return {
+                end: last?.end ?? 0,
+                index: sentence.index,
+                start: first?.start ?? 0,
+                text: sentence.text,
+                tokenCount: A.length(tokens),
+              };
+            })
+          );
+
+          return {
+            sentenceCount: A.length(sentences),
+            sentences,
+          };
         }).pipe(Effect.orDie),
 
       TextSimilarity: ({ text1, text2 }) =>
         vectorizer
-          .withFreshInstance((vec) =>
+          .withFreshInstance((isolated) =>
             Effect.gen(function* () {
-              const doc1 = yield* tokenization.document(text1, "text1");
-              const doc2 = yield* tokenization.document(text2, "text2");
-              yield* vec.learnDocument(doc1);
-              yield* vec.learnDocument(doc2);
-              const vec1 = yield* vec.vectorizeDocument(doc1);
-              const vec2 = yield* vec.vectorizeDocument(doc2);
-              const result = yield* sim.vectorCosine(CosineSimilarityRequest({ vector1: vec1, vector2: vec2 }));
-              return { score: result.score, method: result.method };
+              const [doc1, doc2] = yield* Effect.all([
+                tokenization.document(text1, "text-similarity-1"),
+                tokenization.document(text2, "text-similarity-2"),
+              ]);
+
+              yield* Effect.forEach([doc1, doc2], (document) => isolated.learnDocument(document), { discard: true });
+              const [leftVector, rightVector] = yield* Effect.all([
+                isolated.vectorizeDocument(doc1),
+                isolated.vectorizeDocument(doc2),
+              ]);
+              const score = yield* similarity.vectorCosine(leftVector, rightVector);
+
+              return {
+                method: "vector.cosine" as const,
+                score: score.score,
+              };
             })
           )
           .pipe(Effect.orDie),
 
-      TverskySimilarity: ({ alpha, beta, text1, text2 }) =>
-        Effect.gen(function* () {
-          const resolvedAlpha = alpha ?? 0.5;
-          const resolvedBeta = beta ?? 0.5;
-          const doc1 = yield* tokenization.document(text1, "tversky-text1");
-          const doc2 = yield* tokenization.document(text2, "tversky-text2");
-          const set1 = DocumentTermSet({
-            documentId: doc1.id,
-            terms: uniqueNormalizedTerms(doc1.tokens),
-          });
-          const set2 = DocumentTermSet({
-            documentId: doc2.id,
-            terms: uniqueNormalizedTerms(doc2.tokens),
-          });
-          const result = yield* sim.setTversky(
-            TverskySimilarityRequest({
-              set1,
-              set2,
-              params: TverskyParams({
-                alpha: resolvedAlpha,
-                beta: resolvedBeta,
-              }),
-            })
-          );
-          return {
-            score: Number.isFinite(result.score) ? result.score : 0,
-            method: "set.tversky" as const,
-            alpha: resolvedAlpha,
-            beta: resolvedBeta,
-          };
-        }).pipe(Effect.orDie),
-
       Tokenize: ({ text }) =>
         Effect.gen(function* () {
           const tokens = yield* tokenization.tokenize(text);
-          const arr = Chunk.toReadonlyArray(tokens).map(tokenToAi);
-          return { tokens: arr as Array<(typeof arr)[number]>, tokenCount: arr.length };
+          return {
+            tokenCount: A.length(tokens),
+            tokens: pipe(tokens, A.map(tokenToAi)),
+          };
         }).pipe(Effect.orDie),
 
       TransformText: ({ operations, text }) =>
         Effect.gen(function* () {
           let current = text;
-          const applied: Array<string> = [];
-          for (const op of operations) {
-            const result = yield* applyOperation(utils, op as OperationName, current);
-            current = result.text;
-            applied.push(op);
+          const operationsApplied: Array<string> = [];
+
+          for (const operation of operations) {
+            current = yield* applyTransformOperation(utils, operation, current);
+            operationsApplied.push(operation);
           }
-          return { result: current, operationsApplied: applied };
+
+          return {
+            operationsApplied,
+            result: current,
+          };
+        }).pipe(Effect.orDie),
+
+      TverskySimilarity: ({ alpha, beta, text1, text2 }) =>
+        Effect.gen(function* () {
+          const [leftTokens, rightTokens] = yield* Effect.all([
+            tokenization.tokenize(text1),
+            tokenization.tokenize(text2),
+          ]);
+          const params = TverskyParams.makeUnsafe({
+            alpha: alpha ?? 0.5,
+            beta: beta ?? 0.5,
+          });
+          const score = yield* similarity.setTversky(
+            DocumentTermSet.makeUnsafe({
+              documentId: DocumentId.makeUnsafe("tversky-left"),
+              terms: uniqueNormalizedTerms(leftTokens),
+            }),
+            DocumentTermSet.makeUnsafe({
+              documentId: DocumentId.makeUnsafe("tversky-right"),
+              terms: uniqueNormalizedTerms(rightTokens),
+            }),
+            params
+          );
+
+          return {
+            alpha: params.alpha,
+            beta: params.beta,
+            method: "set.tversky" as const,
+            score: score.score,
+          };
         }).pipe(Effect.orDie),
     };
   })
-).pipe(Layer.provide(WinkLayerLive), Layer.provide(WinkUtilsLive));
+).pipe(Layer.provide(WinkLayerAllLive));

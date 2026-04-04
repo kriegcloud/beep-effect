@@ -1,432 +1,232 @@
-import { Chunk, Data, Equal, Equivalence, Hash, HashSet, Match, Option, type Pipeable, Schema } from "effect";
-import { MarkRange, Pattern } from "../Core/Pattern.ts";
-
-// ============================================================================
-// Branded Types
-// ============================================================================
-
 /**
- * Branded type for entity group names
+ * Wink custom-entity pattern models.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/WinkPattern
  */
-export type EntityGroupName = Schema.Schema.Type<typeof EntityGroupName>;
-export const EntityGroupName = Schema.NonEmptyString.pipe(
-  Schema.brand("EntityGroupName"),
-  Schema.annotations({
-    identifier: "effect-nlp/WinkPattern/EntityGroupName",
-    title: "Entity Group Name",
-    description: "A branded string representing a unique entity group name",
+
+import { $NlpId } from "@beep/identity";
+import { Chunk, Match, pipe } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Result from "effect/Result";
+import * as S from "effect/Schema";
+import { MarkRange, type Pattern, type PatternElement } from "../Core/Pattern.ts";
+
+const $I = $NlpId.create("Wink/WinkPattern");
+
+const customEntityKey = (example: CustomEntityExample): string =>
+  pipe(
+    [
+      example.name,
+      pipe(
+        example.mark,
+        O.match({
+          onNone: () => "none",
+          onSome: ([start, end]) => `${start}:${end}`,
+        })
+      ),
+      A.join(example.patterns, "|"),
+    ],
+    A.join("#")
+  );
+
+const renderPatternElement = Match.type<PatternElement>().pipe(
+  Match.tagsExhaustive({
+    EntityPatternElement: ({ value }) => A.join(value, "|"),
+    LiteralPatternElement: ({ value }) => A.join(value, "|"),
+    POSPatternElement: ({ value }) => A.join(value, "|"),
   })
 );
 
-// ============================================================================
-// Pattern Element Matcher
-// ============================================================================
+const patternElementToBracketString = (pattern: Pattern): ReadonlyArray<string> =>
+  pipe(
+    Chunk.toReadonlyArray(pattern.elements),
+    A.map(renderPatternElement),
+    A.map((content) => `[${content}]`)
+  );
 
 /**
- * Simple matcher type for PatternElement to string conversion
+ * Branded identifier for a wink custom-entity group.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export interface PatternElementMatcher {
-  readonly convertToString: (element: Pattern.Element.Type) => string;
+export const EntityGroupName = S.NonEmptyString.pipe(
+  S.brand("EntityGroupName"),
+  S.annotate(
+    $I.annote("EntityGroupName", {
+      description: "Stable identifier for a learned wink custom-entity group.",
+    })
+  )
+);
+
+/**
+ * Runtime type for {@link EntityGroupName}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type EntityGroupName = typeof EntityGroupName.Type;
+
+/**
+ * One custom-entity example expressed as ordered bracket-pattern elements.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomEntityExample`)(
+  {
+    mark: S.OptionFromOptionalKey(MarkRange),
+    name: S.NonEmptyString,
+    patterns: S.NonEmptyArray(S.NonEmptyString),
+  },
+  $I.annote("CustomEntityExample", {
+    description: "Bracket-pattern example used to teach wink a custom entity type.",
+  })
+) {
+  /**
+   * Backwards-compatible unsafe constructor alias.
+   */
+  static readonly make = CustomEntityExample.makeUnsafe;
+
+  /**
+   * Convert the example into the object shape accepted by `wink-nlp.learnCustomEntities`.
+   *
+   * @returns {{ readonly mark?: readonly [number, number] | undefined; readonly name: string; readonly patterns: ReadonlyArray<string> }} - The wink-compatible custom entity example payload.
+   */
+  toWinkExample(): {
+    readonly mark?: readonly [number, number] | undefined;
+    readonly name: string;
+    readonly patterns: ReadonlyArray<string>;
+  } {
+    return {
+      ...(O.isSome(this.mark) ? { mark: this.mark.value } : {}),
+      name: this.name,
+      patterns: [A.join(this.patterns, " ")],
+    };
+  }
 }
 
 /**
- * Pattern matching implementation for converting PatternElement to bracket string
- * Using correct _tag values based on the TaggedClass first argument
+ * Collection of learned custom-entity examples tracked as one logical group.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-const patternElementToBracketString = Match.type<Pattern.Element.Type>().pipe(
-  Match.tag("POSPatternElement", (element) => Pattern.POS.toBracketString(element.value)),
-  Match.tag("EntityPatternElement", (element) => Pattern.Entity.toBracketString(element.value)),
-  Match.tag("LiteralPatternElement", (element) => Pattern.Literal.toBracketString(element.value)),
-  Match.exhaustive
-);
-
-export class CustomEntityExample extends Schema.Class<CustomEntityExample>("CustomEntityExample")({
-  name: Schema.String,
-  patterns: Schema.Data(Schema.Array(Schema.String)).pipe(
-    Schema.annotations({
-      jsonSchema: {
-        type: "array",
-        items: { type: "string" },
-        description: "Ordered array of pattern strings for sequential matching",
-      },
-    })
-  ),
-  mark: Schema.optional(MarkRange),
-}) {}
-
-export class WinkEngineCustomEntities
-  extends Schema.Class<WinkEngineCustomEntities>("WinkEngineCustomEntities")({
+export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>($I`WinkEngineCustomEntities`)(
+  {
     name: EntityGroupName,
-    patterns: Schema.HashSetFromSelf(CustomEntityExample).pipe(
-      Schema.annotations({
-        jsonSchema: {
-          type: "array",
-          items: true,
-          uniqueItems: true,
-          description: "Set of custom entity examples",
-        },
-      })
-    ),
+    patterns: S.Array(CustomEntityExample),
+  },
+  $I.annote("WinkEngineCustomEntities", {
+    description: "Collection of custom entity examples that can be learned by the wink engine.",
   })
-  implements Pipeable.Pipeable
-{
+) {
+  /**
+   * Backwards-compatible unsafe constructor alias.
+   */
+  static readonly make = WinkEngineCustomEntities.makeUnsafe;
+
+  /**
+   * Build a wink custom-entity collection from existing core patterns.
+   *
+   * Patterns without any serialized elements are ignored instead of throwing so
+   * callers can safely combine partially-built pattern sets before learning.
+   *
+   * @param name {EntityGroupName | string} - The logical entity-group name.
+   * @param patterns {ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>} - Core patterns to convert into wink custom entity examples.
+   * @returns {WinkEngineCustomEntities} - The converted custom entity collection.
+   */
   static fromPatterns(
     name: EntityGroupName | string,
-    patterns: ReadonlyArray<Pattern.Type> | Chunk.Chunk<Pattern.Type>
-  ) {
-    const groupName = Schema.is(EntityGroupName)(name) ? name : EntityGroupName.make(name);
-    const patternChunk = Chunk.isChunk(patterns) ? patterns : Chunk.fromIterable(patterns);
-
-    const serialized = Chunk.map(patternChunk, (pattern) => {
-      const name = pattern.id;
-      const patterns = patternElementChunksToBracketString(pattern);
-      return new CustomEntityExample({
-        name,
-        patterns: Data.array(patterns),
-      });
-    });
+    patterns: ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>
+  ): WinkEngineCustomEntities {
+    const groupName = P.isString(name) ? EntityGroupName.makeUnsafe(name) : name;
+    const entries = Chunk.isChunk(patterns) ? Chunk.toReadonlyArray(patterns) : patterns;
 
     return new WinkEngineCustomEntities({
       name: groupName,
-      patterns: HashSet.fromIterable(Chunk.toArray(serialized)),
-    });
-  }
-
-  // ============================================================================
-  // Pipeable Implementation
-  // ============================================================================
-
-  pipe(): WinkEngineCustomEntities;
-  pipe<A>(ab: (input: WinkEngineCustomEntities) => A): A;
-  pipe<A, B>(ab: (input: WinkEngineCustomEntities) => A, bc: (input: A) => B): B;
-  pipe<A, B, C>(ab: (input: WinkEngineCustomEntities) => A, bc: (input: A) => B, cd: (input: B) => C): C;
-  pipe<A, B, C, D>(
-    ab: (input: WinkEngineCustomEntities) => A,
-    bc: (input: A) => B,
-    cd: (input: B) => C,
-    de: (input: C) => D
-  ): D;
-  pipe<A, B, C, D, E>(
-    ab: (input: WinkEngineCustomEntities) => A,
-    bc: (input: A) => B,
-    cd: (input: B) => C,
-    de: (input: C) => D,
-    ef: (input: D) => E
-  ): E;
-  pipe<A, B, C, D, E, F>(
-    ab: (input: WinkEngineCustomEntities) => A,
-    bc: (input: A) => B,
-    cd: (input: B) => C,
-    de: (input: C) => D,
-    ef: (input: D) => E,
-    fg: (input: E) => F
-  ): F;
-  pipe<A, B, C, D, E, F, G>(
-    ab: (input: WinkEngineCustomEntities) => A,
-    bc: (input: A) => B,
-    cd: (input: B) => C,
-    de: (input: C) => D,
-    ef: (input: D) => E,
-    fg: (input: E) => F,
-    gh: (input: F) => G
-  ): G;
-  pipe<A, B, C, D, E, F, G, H>(
-    ab: (input: WinkEngineCustomEntities) => A,
-    bc: (input: A) => B,
-    cd: (input: B) => C,
-    de: (input: C) => D,
-    ef: (input: D) => E,
-    fg: (input: E) => F,
-    gh: (input: F) => G,
-    hi: (input: G) => H
-  ): H;
-  pipe<A, B, C, D, E, F, G, H, I>(
-    ab: (input: WinkEngineCustomEntities) => A,
-    bc: (input: A) => B,
-    cd: (input: B) => C,
-    de: (input: C) => D,
-    ef: (input: D) => E,
-    fg: (input: E) => F,
-    gh: (input: F) => G,
-    hi: (input: G) => H,
-    ij: (input: H) => I
-  ): I;
-  pipe(...args: ReadonlyArray<(input: any) => any>): any {
-    switch (args.length) {
-      case 0:
-        return this;
-      case 1:
-        return args[0]!(this);
-      default:
-        return args.reduce((acc, fn) => fn(acc), this);
-    }
-  }
-
-  // ============================================================================
-  // Hash and Equivalence Utilities
-  // ============================================================================
-
-  /**
-   * Get hash of this WinkEngineCustomEntities instance
-   * Uses Effect's built-in Hash implementation from Schema.Class
-   */
-  getHash(): number {
-    return Hash.hash(this);
-  }
-
-  /**
-   * Check equality with another WinkEngineCustomEntities instance
-   * Uses Effect's built-in Equal implementation from Schema.Class
-   */
-  equals(other: WinkEngineCustomEntities): boolean {
-    return Equal.equals(this, other);
-  }
-
-  /**
-   * Get equivalence instance for WinkEngineCustomEntities
-   * Useful for creating custom collections or comparisons
-   */
-  static getEquivalence(): Equivalence.Equivalence<WinkEngineCustomEntities> {
-    return Equivalence.make((self, that) => Equal.equals(self, that));
-  }
-
-  /**
-   * Merge with another WinkEngineCustomEntities instance
-   * Returns new instance with union of patterns (deduplicates automatically)
-   * Requires explicit name specification for the merged result
-   */
-  merge(other: WinkEngineCustomEntities, newName: EntityGroupName | string): WinkEngineCustomEntities {
-    const mergedPatterns = HashSet.union(this.patterns, other.patterns);
-    const resultName = typeof newName === "string" ? EntityGroupName.make(newName) : newName;
-
-    return new WinkEngineCustomEntities({
-      name: resultName,
-      patterns: mergedPatterns,
+      patterns: pipe(
+        entries,
+        A.filterMap((pattern) => {
+          const serialized = patternElementToBracketString(pattern);
+          const [head, ...tail] = serialized;
+          return head === undefined
+            ? Result.failVoid
+            : Result.succeed(
+                new CustomEntityExample({
+                  mark: pattern.mark,
+                  name: pattern.id,
+                  patterns: [head, ...tail],
+                })
+              );
+        })
+      ),
     });
   }
 
   /**
-   * Rename this entity group
-   */
-  rename(newName: EntityGroupName | string): WinkEngineCustomEntities {
-    const name = Schema.is(EntityGroupName)(newName) ? newName : EntityGroupName.make(newName);
-    return new WinkEngineCustomEntities({
-      name,
-      patterns: this.patterns,
-    });
-  }
-
-  /**
-   * Add a single pattern to this entities collection
-   * Returns new instance with the pattern added (deduplicates automatically)
-   */
-  addPattern(pattern: Pattern.Type): WinkEngineCustomEntities {
-    const entity = Schema.decodeSync(PatternToWinkCustomEntityExample)(Pattern.encode(pattern));
-    const updatedPatterns = HashSet.add(this.patterns, entity);
-    return new WinkEngineCustomEntities({
-      name: this.name,
-      patterns: updatedPatterns,
-    });
-  }
-
-  /**
-   * Remove a pattern by name
-   * Returns new instance with the named pattern removed
-   */
-  removePattern(name: EntityGroupName | string): WinkEngineCustomEntities {
-    const nameToRemove = Schema.is(EntityGroupName)(name) ? name : EntityGroupName.make(name);
-    const filteredPatterns = HashSet.filter(
-      this.patterns,
-      (entity: CustomEntityExample) => entity.name !== nameToRemove
-    );
-    return new WinkEngineCustomEntities({
-      name: this.name,
-      patterns: filteredPatterns,
-    });
-  }
-
-  /**
-   * Get pattern by name
-   * Returns the CustomEntityExample if found, otherwise undefined
-   */
-  getPattern(name: EntityGroupName | string): CustomEntityExample | undefined {
-    const nameToGet = Schema.is(EntityGroupName)(name) ? name : EntityGroupName.make(name);
-    const values = HashSet.toValues(this.patterns);
-    return values.find((entity) => entity.name === nameToGet);
-  }
-
-  /**
-   * Check if a pattern with the given name exists
-   */
-  hasPattern(name: EntityGroupName | string): boolean {
-    const nameToCheck = Schema.is(EntityGroupName)(name) ? name : EntityGroupName.make(name);
-    return HashSet.some(this.patterns, (entity: CustomEntityExample) => Equal.equals(entity.name, nameToCheck));
-  }
-
-  /**
-   * Get the number of unique patterns
+   * Number of custom entity examples in the group.
+   *
+   * @returns {number} - The number of examples in this group.
    */
   size(): number {
-    return HashSet.size(this.patterns);
+    return A.length(this.patterns);
   }
 
   /**
-   * Check if the entities collection is empty
+   * Whether the collection contains no examples.
+   *
+   * @returns {boolean} - `true` when the group has no examples.
    */
   isEmpty(): boolean {
-    return HashSet.size(this.patterns) === 0;
+    return A.isReadonlyArrayEmpty(this.patterns);
   }
 
   /**
-   * Convert to array for iteration or external APIs
+   * Convert to a readonly array for iteration.
+   *
+   * @returns {ReadonlyArray<CustomEntityExample>} - The examples in this group.
    */
   toArray(): ReadonlyArray<CustomEntityExample> {
-    return HashSet.toValues(this.patterns);
+    return this.patterns;
   }
 
   /**
-   * Convert to wink-nlp compatible format
-   * Returns array of objects with name and patterns for wink-nlp.learnCustomEntities()
+   * Merge two custom-entity collections, preserving unique examples by content.
+   *
+   * @param other {WinkEngineCustomEntities} - The additional examples to merge in.
+   * @param newName {EntityGroupName | string} - The group name to use for the merged collection.
+   * @returns {WinkEngineCustomEntities} - A merged collection with duplicate examples removed.
+   */
+  merge(other: WinkEngineCustomEntities, newName: EntityGroupName | string = this.name): WinkEngineCustomEntities {
+    return new WinkEngineCustomEntities({
+      name: P.isString(newName) ? EntityGroupName.makeUnsafe(newName) : newName,
+      patterns: pipe(
+        this.patterns,
+        A.appendAll(other.patterns),
+        A.map((example) => [customEntityKey(example), example] as const),
+        A.dedupeWith(([left], [right]) => left === right),
+        A.map(([, example]) => example)
+      ),
+    });
+  }
+
+  /**
+   * Convert to the array-of-example format accepted by `wink-nlp.learnCustomEntities`.
+   *
+   * @returns {ReadonlyArray<{ readonly mark?: readonly [number, number] | undefined; readonly name: string; readonly patterns: ReadonlyArray<string> }>} - Wink-compatible custom entity payloads.
    */
   toWinkFormat(): ReadonlyArray<{
-    name: string;
-    patterns: ReadonlyArray<string>;
-    mark?: [number, number];
+    readonly mark?: readonly [number, number] | undefined;
+    readonly name: string;
+    readonly patterns: ReadonlyArray<string>;
   }> {
-    return HashSet.toValues(this.patterns).map(
-      (entity: CustomEntityExample) => Schema.decodeSync(CustomEntityExampleToWinkFormat)(entity) as any
+    return pipe(
+      this.patterns,
+      A.map((pattern) => pattern.toWinkExample())
     );
   }
-
-  /**
-   * Create a debug string representation
-   */
-  toDebugString(): string {
-    const entities = this.toArray();
-    return `WinkEngineCustomEntities("${this.name}", ${entities.length} entities): ${entities
-      .map((e) => `${e.name}[${e.patterns.length}]`)
-      .join(", ")}`;
-  }
-
-  // ============================================================================
-  // Static Data-First Utility Functions (for pipe operations)
-  // ============================================================================
-
-  /**
-   * Data-first merge operation
-   * Usage: pipe(entities1, WinkEngineCustomEntities.mergeWith(entities2, "new-name"))
-   */
-  static mergeWith =
-    (other: WinkEngineCustomEntities, newName: EntityGroupName | string) => (self: WinkEngineCustomEntities) =>
-      self.merge(other, newName);
-
-  /**
-   * Data-first rename operation
-   * Usage: pipe(entities, WinkEngineCustomEntities.renameTo("new-name"))
-   */
-  static renameTo = (newName: EntityGroupName | string) => (self: WinkEngineCustomEntities) => self.rename(newName);
-
-  /**
-   * Data-first add pattern operation
-   * Usage: pipe(entities, WinkEngineCustomEntities.addingPattern(pattern))
-   */
-  static addingPattern = (pattern: Pattern.Type) => (self: WinkEngineCustomEntities) => self.addPattern(pattern);
-
-  /**
-   * Data-first remove pattern operation
-   * Usage: pipe(entities, WinkEngineCustomEntities.removingPattern("pattern-name"))
-   */
-  static removingPattern = (name: EntityGroupName | string) => (self: WinkEngineCustomEntities) =>
-    self.removePattern(name);
-
-  /**
-   * Data-first filter operation
-   * Usage: pipe(entities, WinkEngineCustomEntities.filteringBy(predicate))
-   */
-  static filteringBy = (predicate: (entity: CustomEntityExample) => boolean) => (self: WinkEngineCustomEntities) => {
-    const filteredPatterns = HashSet.filter(self.patterns, predicate);
-    return new WinkEngineCustomEntities({
-      name: self.name,
-      patterns: filteredPatterns,
-    });
-  };
-
-  /**
-   * Add a pattern with mark functionality
-   * Returns new instance with the pattern added with specified mark range
-   */
-  addPatternWithMark(pattern: Pattern.Type, mark: MarkRange): WinkEngineCustomEntities {
-    const markedPattern = new Pattern({
-      ...pattern,
-      mark: Option.some(mark),
-    });
-    return this.addPattern(markedPattern);
-  }
-
-  /**
-   * Data-first add pattern with mark operation
-   * Usage: pipe(entities, WinkEngineCustomEntities.addingPatternWithMark(pattern, mark))
-   */
-  static addingPatternWithMark = (pattern: Pattern.Type, mark: MarkRange) => (self: WinkEngineCustomEntities) =>
-    self.addPatternWithMark(pattern, mark);
 }
-
-export const PatternToWinkCustomEntityExample = Schema.transform(Pattern, CustomEntityExample, {
-  strict: true,
-  decode: (pattern) => {
-    const name = pattern.id;
-    const patterns = patternElementChunksToBracketString(pattern);
-    const mark = Option.getOrNull(pattern.mark);
-    return new CustomEntityExample({
-      name,
-      patterns: Data.array(patterns),
-      mark: mark === null ? undefined : mark,
-    });
-  },
-  encode: (customEntityExample) => {
-    const id = Pattern.Id(customEntityExample.name);
-    // Parse bracket strings back to pattern elements (simplified for now)
-    // This would need a proper parser to convert bracket strings back to elements
-    const elements = Chunk.empty<Pattern.Element.Type>();
-    const mark = customEntityExample.mark;
-    return new Pattern({
-      id,
-      elements,
-      mark: mark ? Option.some(mark) : Option.none(),
-    });
-  },
-});
-
-/**
- * Schema for encoding CustomEntityExample to wink-nlp format
- */
-export const CustomEntityExampleToWinkFormat = Schema.transform(
-  CustomEntityExample,
-  Schema.Struct({
-    name: Schema.String,
-    patterns: Schema.Array(Schema.String),
-    mark: Schema.optional(Schema.Tuple(Schema.Int, Schema.Int)),
-  }),
-  {
-    strict: false,
-    decode: (entity) => ({
-      name: entity.name,
-      // Join the bracket patterns with spaces for wink-nlp
-      patterns: [entity.patterns.join(" ")],
-      mark: entity.mark as [number, number] | undefined,
-    }),
-    encode: (winkFormat) => {
-      // Split the pattern string back into bracket components
-      const patterns =
-        winkFormat.patterns.length > 0 ? winkFormat.patterns[0]!.split(" ").filter((s) => s.length > 0) : [];
-      return new CustomEntityExample({
-        name: winkFormat.name,
-        patterns: Data.array(patterns),
-        mark: winkFormat.mark,
-      });
-    },
-  }
-);
-
-export const patternElementChunksToBracketString = (pattern: Pattern.Type) =>
-  Chunk.toArray(Chunk.map(pattern.elements, patternElementToBracketString));

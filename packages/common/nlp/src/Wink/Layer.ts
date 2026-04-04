@@ -1,58 +1,51 @@
 /**
- * Wink layer composition utilities.
+ * Wink layer composition helpers.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/Layer
  */
 
 import { Layer } from "effect";
-import { WinkCorpusManager, WinkCorpusManagerLive as WinkCorpusManagerLayerLive } from "./WinkCorpusManager.ts";
-import { WinkEngine } from "./WinkEngine.ts";
+import { WinkCorpusManagerLive } from "./WinkCorpusManager.ts";
+import { WinkEngine, WinkEngineLive } from "./WinkEngine.ts";
 import { WinkEngineRefLive } from "./WinkEngineRef.ts";
-import { WinkSimilarity, WinkSimilarityLive as WinkSimilarityLayerLive } from "./WinkSimilarity.ts";
-import { WinkTokenization, WinkTokenizationLive as WinkTokenizationLayerLive } from "./WinkTokenizer.ts";
-import { WinkVectorizer, WinkVectorizerLive as WinkVectorizerLayerLive } from "./WinkVectorizer.ts";
+import { WinkSimilarityLive } from "./WinkSimilarity.ts";
+import { WinkTokenization, WinkTokenizationLive } from "./WinkTokenizer.ts";
+import { WinkUtilsLive } from "./WinkUtils.ts";
+import { WinkVectorizerLive } from "./WinkVectorizer.ts";
 
-const EngineWithRefLive = WinkEngine.Default.pipe(Layer.provide(WinkEngineRefLive));
+/**
+ * Live wink layer bundle for the currently ported runtime surface.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const WinkLayerLive = WinkTokenization.pipe(Layer.provideMerge(WinkEngineLive));
 
-export const WinkEngineLive = EngineWithRefLive;
-
-export const WinkTokenizationLive = Layer.provide(WinkTokenization, EngineWithRefLive);
-
-export const WinkVectorizerLive = Layer.provide(WinkVectorizerLayerLive, EngineWithRefLive);
-
-export const WinkSimilarityLive = Layer.provide(WinkSimilarityLayerLive, EngineWithRefLive);
-
-export const WinkCorpusManagerLive = WinkCorpusManagerLayerLive;
-
-export const WinkVectorizationLive = Layer.mergeAll(
-  WinkEngineLive,
-  WinkVectorizerLive,
-  WinkSimilarityLive,
-  WinkCorpusManagerLive
+const WinkEngineBackedLive = Layer.mergeAll(WinkTokenization, WinkVectorizerLive).pipe(
+  Layer.provideMerge(WinkEngineLive)
 );
 
-export const WinkBaseLive = WinkEngineLive;
+const WinkLayerCoreLive = Layer.mergeAll(WinkEngineBackedLive, WinkSimilarityLive, WinkUtilsLive);
 
-export const WinkLayerLive = Layer.mergeAll(
-  WinkEngineLive,
-  WinkTokenizationLive,
-  WinkVectorizerLive,
-  WinkSimilarityLive,
-  WinkCorpusManagerLive
-);
+const WinkLayerSharedLive = WinkEngineRefLive.pipe(Layer.provideMerge(WinkLayerCoreLive));
 
-export const WinkLayerTest = WinkTokenizationLive;
-
-export const WinkNLPLive = WinkLayerLive;
+/**
+ * Full live wink layer bundle including corpus management.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const WinkLayerAllLive = WinkCorpusManagerLive.pipe(Layer.provideMerge(WinkLayerSharedLive));
 
 export {
-  WinkCorpusManager,
-  WinkCorpusManagerLayerLive,
+  WinkCorpusManagerLive,
   WinkEngine,
-  WinkSimilarity,
-  WinkSimilarityLayerLive,
+  WinkEngineLive,
+  WinkEngineRefLive,
+  WinkSimilarityLive,
   WinkTokenization,
-  WinkTokenizationLayerLive,
-  WinkVectorizer,
-  WinkVectorizerLayerLive,
+  WinkTokenizationLive,
+  WinkUtilsLive,
+  WinkVectorizerLive,
 };
-
-export default WinkLayerLive;

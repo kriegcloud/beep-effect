@@ -1,99 +1,129 @@
 /**
- * Wink Domain Errors
- * @since 3.0.0
+ * Wink runtime errors.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/WinkErrors
  */
 
-import { Data, Exit } from "effect";
+import { $NlpId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import * as Inspectable from "effect/Inspectable";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const $I = $NlpId.create("Wink/WinkErrors");
+
+const renderCause = (cause: unknown): string => Inspectable.toStringUnknown(cause);
 
 /**
- * Memory limit error when wink-nlp hits instance creation limits
- * @since 3.0.0
+ * Failure raised while creating or accessing the wink runtime.
+ *
+ * @since 0.0.0
+ * @category Errors
  */
-export class WinkMemoryError extends Data.TaggedError("WinkMemoryError")<{
-  message: string;
-  cause: unknown;
-  instanceCount: number;
-  exit?: Exit.Exit<unknown, unknown>;
-}> {
-  static fromCause(cause: unknown, instanceCount?: number): WinkMemoryError {
-    const exit = Exit.fail(cause);
-    return new WinkMemoryError({
-      message: `Wink-NLP memory limit exceeded. Cannot create more than ~20 instances per process. ${
-        instanceCount ? `Current count: ${instanceCount}` : ""
-      }`,
+export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEngineError`)(
+  "WinkEngineError",
+  {
+    cause: S.Unknown,
+    message: S.String,
+    operation: S.String,
+  },
+  $I.annote("WinkEngineError", {
+    description: "Failure raised while creating or accessing the wink-nlp runtime.",
+  })
+) {
+  /**
+   * Create a runtime error from an unknown cause.
+   *
+   * @param cause {unknown} - The underlying failure or defect.
+   * @param operation {string} - The wink runtime operation that failed.
+   * @returns {WinkEngineError} - A typed wink runtime error value.
+   */
+  static fromCause(cause: unknown, operation: string): WinkEngineError {
+    return new WinkEngineError({
       cause,
-      instanceCount: instanceCount ?? 0,
-      exit,
+      message: `Wink runtime ${operation} failed: ${renderCause(cause)}`,
+      operation,
     });
-  }
-
-  static isMemoryLimitError(error: unknown): boolean {
-    return Boolean(
-      error instanceof RangeError &&
-        error.message === "Invalid string length" &&
-        error.stack?.includes("wink-eng-lite-web-model")
-    );
   }
 }
 
 /**
- * Entity learning error for custom entity processing failures
- * @since 3.0.0
+ * Failure raised while reading or tokenizing text through wink.
+ *
+ * @since 0.0.0
+ * @category Errors
  */
-export class WinkEntityError extends Data.TaggedError("WinkEntityError")<{
-  message: string;
-  cause: unknown;
-  entityName?: string;
-  exit?: Exit.Exit<unknown, unknown>;
-}> {
-  static fromCause(cause: unknown, entityName: string, context?: string): WinkEntityError {
-    const exit = Exit.fail(cause);
+export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationError>($I`WinkTokenizationError`)(
+  "WinkTokenizationError",
+  {
+    cause: S.Unknown,
+    message: S.String,
+    operation: S.String,
+    text: S.OptionFromOptionalKey(S.String),
+  },
+  $I.annote("WinkTokenizationError", {
+    description: "Failure raised while tokenizing text with wink-nlp.",
+  })
+) {
+  /**
+   * Create a tokenization error from an unknown cause.
+   *
+   * @param cause {unknown} - The underlying failure or defect.
+   * @param operation {string} - The wink tokenization operation that failed.
+   * @param text {string | undefined} - The source text involved in the failure, when available.
+   * @returns {WinkTokenizationError} - A typed wink tokenization error value.
+   */
+  static fromCause(cause: unknown, operation: string, text?: string): WinkTokenizationError {
+    return new WinkTokenizationError({
+      cause,
+      message: `Wink tokenization ${operation} failed: ${renderCause(cause)}`,
+      operation,
+      text: text === undefined ? O.none() : O.some(text),
+    });
+  }
+}
+
+/**
+ * Failure raised while learning or managing custom entity patterns.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
+export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEntityError`)(
+  "WinkEntityError",
+  {
+    cause: S.Unknown,
+    entityName: S.OptionFromOptionalKey(S.String),
+    message: S.String,
+    operation: S.String,
+  },
+  $I.annote("WinkEntityError", {
+    description: "Failure raised while learning or managing wink custom entities.",
+  })
+) {
+  /**
+   * Create an entity-learning error from an unknown cause.
+   *
+   * @param cause {unknown} - The underlying failure or defect.
+   * @param operation {string} - The wink entity operation that failed.
+   * @param entityName {string | undefined} - The entity or group name involved in the failure, when available.
+   * @returns {WinkEntityError} - A typed wink entity error value.
+   */
+  static fromCause(cause: unknown, operation: string, entityName?: string): WinkEntityError {
     return new WinkEntityError({
-      message: `Failed to ${context || "process"} custom entities${
-        entityName ? ` for "${entityName}"` : ""
-      }: ${cause instanceof Error ? cause.message : String(cause)}`,
       cause,
-      entityName: entityName ?? "",
-      exit: exit ?? Exit.succeed(undefined),
+      entityName: entityName === undefined ? O.none() : O.some(entityName),
+      message: `Wink entity ${operation} failed: ${renderCause(cause)}`,
+      operation,
     });
   }
 }
 
 /**
- * Tokenization error for text processing failures
- * @since 3.0.0
+ * Union of wink runtime errors.
+ *
+ * @since 0.0.0
+ * @category Errors
  */
-export class WinkTokenizationError extends Data.TaggedError("WinkTokenizationError")<{
-  message: string;
-  cause: unknown;
-  text?: string;
-  exit?: Exit.Exit<unknown, unknown>;
-}> {
-  static fromCause(cause: unknown, text?: string): WinkTokenizationError {
-    const exit = Exit.fail(cause);
-    const constructorArgs: {
-      message: string;
-      cause: unknown;
-      exit: Exit.Exit<unknown, unknown>;
-      text?: string;
-    } = {
-      message: `Failed to tokenize text${
-        text ? ` "${text.slice(0, 50)}${text.length > 50 ? "..." : ""}"` : ""
-      }: ${cause instanceof Error ? cause.message : String(cause)}`,
-      cause,
-      exit,
-    };
-
-    if (text !== undefined) {
-      constructorArgs.text = text;
-    }
-
-    return new WinkTokenizationError(constructorArgs);
-  }
-}
-
-/**
- * Union type for all Wink errors
- * @since 3.0.0
- */
-export type WinkError = WinkMemoryError | WinkEntityError | WinkTokenizationError;
+export type WinkError = WinkEngineError | WinkEntityError | WinkTokenizationError;

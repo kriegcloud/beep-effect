@@ -1,37 +1,60 @@
 /**
- * RankByRelevance tool - ranks texts against a query using BM25 vectors + cosine similarity.
- * @since 3.0.0
+ * RankByRelevance tool definition.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/RankByRelevance
  */
 
-import { Tool } from "@effect/ai";
-import { Schema } from "effect";
-import { AiRankedTextSchema } from "./_schemas.ts";
+import { $NlpId } from "@beep/identity";
+import { PosInt } from "@beep/schema";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
+import { AiRankedText } from "./_schemas.ts";
 
-export const RankByRelevance = Tool.make("RankByRelevance", {
-  description: "Rank an array of texts by relevance to a query using BM25-based vectorization and cosine similarity",
-  parameters: {
-    texts: Schema.Array(
-      Schema.String.annotations({
-        description: "Candidate text to rank",
-      })
-    ).annotations({
-      description: "Candidate texts",
-      examples: [["Cats are playful", "Quantum computing advances"]],
-    }),
-    query: Schema.String.annotations({
+const $I = $NlpId.create("Tools/RankByRelevance");
+const CandidateText = S.String.annotate({
+  description: "Candidate text to rank",
+});
+
+class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`RankByRelevanceParameters`)(
+  {
+    query: S.String.annotateKey({
       description: "Query to rank texts against",
       examples: ["cats and kittens"],
     }),
-    topN: Schema.optional(
-      Schema.Number.annotations({
-        description: "Maximum number of ranked results to return (default: all texts)",
-        examples: [3, 5, 10],
-      })
-    ),
+    texts: S.Array(CandidateText).annotateKey({
+      description: "Candidate texts",
+      examples: [["Cats are playful", "Quantum computing advances"]],
+    }),
+    topN: S.optionalKey(PosInt).annotateKey({
+      description: "Maximum number of ranked results to return (default: all texts)",
+      examples: [PosInt.makeUnsafe(3), PosInt.makeUnsafe(5), PosInt.makeUnsafe(10)],
+    }),
   },
-  success: Schema.Struct({
-    ranked: Schema.Array(AiRankedTextSchema),
-    totalTexts: Schema.Number,
-    returned: Schema.Number,
-  }),
+  $I.annote("RankByRelevanceParameters", {
+    description: "Inputs required to rank multiple candidate texts against a query.",
+  })
+) {}
+
+class RankByRelevanceSuccess extends S.Class<RankByRelevanceSuccess>($I`RankByRelevanceSuccess`)(
+  {
+    ranked: S.Array(AiRankedText),
+    returned: S.Number,
+    totalTexts: S.Number,
+  },
+  $I.annote("RankByRelevanceSuccess", {
+    description: "Ranked relevance results and source-text count metadata.",
+  })
+) {}
+
+/**
+ * Tool for ranking texts against a query.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const RankByRelevance = Tool.make("RankByRelevance", {
+  description: "Rank an array of texts by relevance to a query using vectorized similarity.",
+  parameters: RankByRelevanceParameters,
+  success: RankByRelevanceSuccess,
 });

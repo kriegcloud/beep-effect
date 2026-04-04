@@ -1,42 +1,45 @@
 /**
- * NLP AI Tools
- * Effect AI tool definitions for NLP capabilities.
- * @since 3.0.0
+ * NLP AI tools.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools
  */
 
 export {
-  AiCorpusIdfSchema,
-  AiCorpusRankedDocumentSchema,
-  AiCorpusStatsSchema,
-  AiCorpusSummarySchema,
-  AiDocumentStatsSchema,
-  AiEntitySchema,
-  AiKeywordSchema,
-  AiNGramSchema,
-  AiPhoneticMatchSchema,
-  AiRankedTextSchema,
-  AiSentenceChunkSchema,
-  AiSentenceSchema,
-  AiTokenSchema,
+  AiCorpusConfig,
+  AiCorpusIdf,
+  AiCorpusMatrixShape,
+  AiCorpusRankedDocument,
+  AiCorpusStats,
+  AiCorpusSummary,
+  AiDocumentStats,
+  AiEntity,
+  AiKeyword,
+  AiNGram,
+  AiPhoneticMatch,
+  AiRankedText,
+  AiSentence,
+  AiSentenceChunk,
+  AiToken,
 } from "./_schemas.ts";
-export { BowCosineSimilarity } from "./BowCosineSimilarity.ts";
-export { ChunkBySentences } from "./ChunkBySentences.ts";
-export { CorpusStats } from "./CorpusStats.ts";
-export { CreateCorpus } from "./CreateCorpus.ts";
-export { DeleteCorpus } from "./DeleteCorpus.ts";
-export { DocumentStats } from "./DocumentStats.ts";
-export { ExtractEntities } from "./ExtractEntities.ts";
-export { ExtractKeywords } from "./ExtractKeywords.ts";
-export { LearnCorpus } from "./LearnCorpus.ts";
-export { LearnCustomEntities } from "./LearnCustomEntities.ts";
-export { NGrams } from "./NGrams.ts";
-export { NlpToolkit, NlpToolkitLive } from "./NlpToolkit.ts";
-export { PhoneticMatch } from "./PhoneticMatch.ts";
-export { QueryCorpus } from "./QueryCorpus.ts";
-export { RankByRelevance } from "./RankByRelevance.ts";
-export { Sentences } from "./Sentences.ts";
-export { TextSimilarity } from "./TextSimilarity.ts";
-export { Tokenize } from "./Tokenize.ts";
-export { type ExportedTool, ExportedToolError, exportTools } from "./ToolExport.ts";
-export { TransformText } from "./TransformText.ts";
-export { TverskySimilarity } from "./TverskySimilarity.ts";
+export * from "./BowCosineSimilarity.ts";
+export * from "./ChunkBySentences.ts";
+export * from "./CorpusStats.ts";
+export * from "./CreateCorpus.ts";
+export * from "./DeleteCorpus.ts";
+export * from "./DocumentStats.ts";
+export * from "./ExtractEntities.ts";
+export * from "./ExtractKeywords.ts";
+export * from "./LearnCorpus.ts";
+export * from "./LearnCustomEntities.ts";
+export * from "./NGrams.ts";
+export * from "./NlpToolkit.ts";
+export * from "./PhoneticMatch.ts";
+export * from "./QueryCorpus.ts";
+export * from "./RankByRelevance.ts";
+export * from "./Sentences.ts";
+export * from "./TextSimilarity.ts";
+export * from "./Tokenize.ts";
+export * from "./ToolExport.ts";
+export * from "./TransformText.ts";
+export * from "./TverskySimilarity.ts";

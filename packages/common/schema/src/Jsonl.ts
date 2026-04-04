@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, flow, pipe, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, flow, pipe, SchemaGetter, SchemaIssue } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -15,6 +15,17 @@ import * as Str from "effect/String";
 const $I = $SchemaId.create("Jsonl");
 const JsonlValues = S.Array(S.Unknown).pipe(S.toType);
 const decodeJsonlValues = S.decodeUnknownEffect(JsonlValues);
+class JsonlChunkParseError extends S.Class<JsonlChunkParseError>($I`JsonlChunkParseError`)({
+  message: S.String,
+}) {}
+class JsonlChunkParseResult extends S.Class<JsonlChunkParseResult>($I`JsonlChunkParseResult`)({
+  done: S.Boolean,
+  error: S.NullOr(JsonlChunkParseError),
+  read: S.Number,
+  values: S.Unknown,
+}) {}
+const decodeJsonlChunkParseResult = S.decodeUnknownEffect(JsonlChunkParseResult);
+type JsonlParseChunk = (content: string) => unknown;
 
 const encodeUnsupported = (value: typeof JsonlValues.Type): Effect.Effect<string, SchemaIssue.Issue> =>
   Effect.fail(
@@ -28,26 +39,45 @@ const invalidJsonlInput = (content: string, message: string): SchemaIssue.Invali
     message,
   });
 
+const getJsonlParseChunk = (): O.Option<JsonlParseChunk> => {
+  const bunRuntime = Reflect.get(globalThis, "Bun");
+  const jsonl = P.isObject(bunRuntime) ? Reflect.get(bunRuntime, "JSONL") : undefined;
+  const parseChunk = P.isObject(jsonl) ? Reflect.get(jsonl, "parseChunk") : undefined;
+  if (P.isFunction(parseChunk)) {
+    const parseJsonlChunk: JsonlParseChunk = (content) => parseChunk(content);
+    return O.some(parseJsonlChunk);
+  }
+  return O.none();
+};
+
 const decodeJsonlUnknown = Effect.fn("Jsonl.decodeJsonlUnknown")(function* (content: string) {
+  const parseChunk = yield* O.match(getJsonlParseChunk(), {
+    onNone: () =>
+      Effect.fail(invalidJsonlInput(content, "Bun.JSONL.parseChunk is unavailable in the current runtime.")),
+    onSome: Effect.succeed,
+  });
   const parsed = yield* Effect.try({
-    try: () => Bun.JSONL.parseChunk(content),
+    try: () => parseChunk(content),
     catch: (cause) =>
       invalidJsonlInput(content, P.isError(cause) ? `Invalid JSONL input (${cause.message}).` : "Invalid JSONL input."),
   });
+  const chunk = yield* decodeJsonlChunkParseResult(parsed).pipe(
+    Effect.mapError(() => invalidJsonlInput(content, "Invalid JSONL input (Unexpected parser response shape)."))
+  );
 
-  if (parsed.error !== null) {
-    return yield* Effect.fail(invalidJsonlInput(content, `Invalid JSONL input (${parsed.error.message}).`));
+  if (chunk.error !== null) {
+    return yield* Effect.fail(invalidJsonlInput(content, `Invalid JSONL input (${chunk.error.message}).`));
   }
 
-  const trailingRemainder = pipe(content, Str.substring(parsed.read), Str.trim);
+  const trailingRemainder = pipe(content, Str.substring(chunk.read), Str.trim);
 
-  if (!parsed.done || !Str.isEmpty(trailingRemainder)) {
+  if (!chunk.done || !Str.isEmpty(trailingRemainder)) {
     return yield* Effect.fail(
-      invalidJsonlInput(content, `Invalid JSONL input (Incomplete JSONL input after ${parsed.read} characters).`)
+      invalidJsonlInput(content, `Invalid JSONL input (Incomplete JSONL input after ${chunk.read} characters).`)
     );
   }
 
-  return yield* decodeJsonlValues(parsed.values).pipe(
+  return yield* decodeJsonlValues(chunk.values).pipe(
     Effect.mapError(() => invalidJsonlInput(content, "Invalid JSONL input (Expected JSONL value array output)."))
   );
 });
@@ -59,13 +89,10 @@ const decodeJsonlUnknown = Effect.fn("Jsonl.decodeJsonlUnknown")(function* (cont
  * @since 0.0.0
  */
 export const JsonlTextToUnknown = S.String.pipe(
-  S.decodeTo(
-    JsonlValues,
-    SchemaTransformation.transformOrFail({
-      decode: decodeJsonlUnknown,
-      encode: encodeUnsupported,
-    })
-  ),
+  S.decodeTo(JsonlValues, {
+    decode: SchemaGetter.transformOrFail(decodeJsonlUnknown),
+    encode: SchemaGetter.transformOrFail(encodeUnsupported),
+  }),
   S.annotate(
     $I.annote("JsonlTextToUnknown", {
       description: "Schema transformation that parses strict JSONL text into unknown values.",

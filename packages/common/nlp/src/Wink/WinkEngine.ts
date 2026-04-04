@@ -1,103 +1,198 @@
 /**
- * WinkEngine Service using WinkEngineRef for state management
- * @since 3.0.0
+ * Wink runtime engine service.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Wink/WinkEngine
  */
 
-import { Effect, Option, Ref } from "effect";
-import type { Document, ItemToken } from "wink-nlp";
-import { WinkEngineRef } from "./WinkEngineRef.ts";
-import { WinkEntityError, type WinkError, WinkTokenizationError } from "./WinkErrors.ts";
-import type { WinkEngineCustomEntities } from "./WinkPattern.ts";
+import { createRequire } from "node:module";
+import { $NlpId } from "@beep/identity";
+import { Clock, Effect, Layer, pipe, Ref, ServiceMap } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import type { AsHelpers, ItemToken, ItsHelpers, Model, Document as WinkDocument, WinkMethods } from "wink-nlp";
+import { WinkEngineError, WinkEntityError, WinkTokenizationError } from "./WinkErrors.ts";
+import { WinkEngineCustomEntities } from "./WinkPattern.ts";
+
+const $I = $NlpId.create("Wink/WinkEngine");
+const require = createRequire(import.meta.url);
+
+type WinkEngineShape = {
+  readonly as: Effect.Effect<AsHelpers, WinkEngineError>;
+  readonly getRef: Effect.Effect<Ref.Ref<WinkEngineRuntimeState>>;
+  readonly getWinkTokens: (text: string) => Effect.Effect<ReadonlyArray<ItemToken>, WinkTokenizationError>;
+  readonly getWinkDoc: (text: string) => Effect.Effect<WinkDocument, WinkTokenizationError>;
+  readonly getWinkTokenCount: (text: string) => Effect.Effect<number, WinkTokenizationError>;
+  readonly getCurrentCustomEntities: Effect.Effect<O.Option<WinkEngineCustomEntities>>;
+  readonly its: Effect.Effect<ItsHelpers, WinkEngineError>;
+  readonly learnCustomEntities: (customEntities: WinkEngineCustomEntities) => Effect.Effect<void, WinkEntityError>;
+};
 
 /**
- * WinkEngine Service using WinkEngineRef for state management
+ * Branded runtime identifier for one live wink engine instance.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export class WinkEngine extends Effect.Service<WinkEngine>()("effect-nlp/WinkEngine", {
-  effect: Effect.gen(function* () {
-    const winkEngineRef = yield* WinkEngineRef;
-    const stateRef = winkEngineRef.getRef();
-
-    return {
-      /**
-       * Get the its helper for token/document properties
-       */
-      its: Ref.get(stateRef).pipe(Effect.map((state) => state.nlp.its)),
-
-      /**
-       * Get the as helper for collection reducers
-       */
-      as: Ref.get(stateRef).pipe(Effect.map((state) => state.nlp.as)),
-
-      /**
-       * Get wink document as Effect for safe access
-       */
-      getWinkDoc: (text: string): Effect.Effect<Document, WinkError> =>
-        Effect.gen(function* () {
-          const state = yield* Ref.get(stateRef);
-          return yield* Effect.try({
-            try: () => state.nlp.readDoc(text),
-            catch: (error) => WinkTokenizationError.fromCause(error, text),
-          });
-        }),
-
-      /**
-       * Get raw tokens from wink
-       */
-      getWinkTokens: (text: string): Effect.Effect<ReadonlyArray<ItemToken>, WinkError> =>
-        Effect.gen(function* () {
-          const state = yield* Ref.get(stateRef);
-          return yield* Effect.try({
-            try: () => {
-              const doc = state.nlp.readDoc(text);
-              const tokens: Array<ItemToken> = [];
-              doc.tokens().each((token: ItemToken) => {
-                tokens.push(token);
-              });
-              return tokens as ReadonlyArray<ItemToken>;
-            },
-            catch: (error) => WinkTokenizationError.fromCause(error),
-          });
-        }),
-
-      /**
-       * Get token count
-       */
-      getWinkTokenCount: (text: string): Effect.Effect<number, WinkError> =>
-        Effect.gen(function* () {
-          const state = yield* Ref.get(stateRef);
-          return yield* Effect.try({
-            try: () => state.nlp.readDoc(text).tokens().length(),
-            catch: (error) => WinkTokenizationError.fromCause(error),
-          });
-        }),
-
-      /**
-       * Learn custom entities into the nlp instance
-       */
-      learnCustomEntities: (customEntities: WinkEngineCustomEntities): Effect.Effect<void, WinkError> =>
-        Effect.gen(function* () {
-          yield* winkEngineRef
-            .updateWithCustomEntities(customEntities)
-            .pipe(Effect.mapError((error) => WinkEntityError.fromCause(error, customEntities.name, "learn")));
-
-          yield* Effect.logInfo(`Learned ${customEntities.size()} custom entities`);
-        }),
-
-      /**
-       * Get currently learned custom entities, if any
-       */
-      getCurrentCustomEntities: (): Effect.Effect<Option.Option<WinkEngineCustomEntities>> =>
-        Ref.get(stateRef).pipe(
-          Effect.map((state) =>
-            state.customEntities === undefined ? Option.none() : Option.some(state.customEntities)
-          )
-        ),
-    };
-  }),
-  dependencies: [WinkEngineRef.Default],
-}) {}
+export const InstanceId = S.NonEmptyString.pipe(
+  S.brand("InstanceId"),
+  S.annotate(
+    $I.annote("InstanceId", {
+      description: "Stable identifier for one live wink engine instance.",
+    })
+  )
+);
 
 /**
- * Live layer for WinkEngine
+ * Runtime type for {@link InstanceId}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
  */
-export const WinkEngineLive = WinkEngine.Default;
+export type InstanceId = typeof InstanceId.Type;
+
+/**
+ * Serializable wink engine state metadata.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState`)(
+  {
+    customEntities: S.OptionFromOptionalKey(WinkEngineCustomEntities),
+    instanceId: InstanceId,
+  },
+  $I.annote("WinkEngineState", {
+    description: "Serializable metadata describing one live wink engine instance.",
+  })
+) {}
+
+/**
+ * In-memory wink engine runtime state including the live wink runtime.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type WinkEngineRuntimeState = {
+  readonly customEntities: O.Option<WinkEngineCustomEntities>;
+  readonly instanceId: InstanceId;
+  readonly nlp: WinkMethods;
+};
+
+const loadWinkRuntime = (): WinkMethods => {
+  const winkNlp: typeof import("wink-nlp").default = require("wink-nlp");
+  const model: Model = require("wink-eng-lite-web-model");
+  return winkNlp(model);
+};
+
+const nextInstanceId = (nowMs: number, counter: number): InstanceId =>
+  InstanceId.makeUnsafe(`wink-engine-${nowMs}-${counter}`);
+
+const copyCustomEntities = (
+  customEntities: WinkEngineCustomEntities
+): Array<{
+  readonly mark?: [number, number] | undefined;
+  readonly name: string;
+  readonly patterns: Array<string>;
+}> =>
+  pipe(
+    customEntities.toWinkFormat(),
+    A.map((entry) => {
+      const mark: [number, number] | undefined = entry.mark === undefined ? undefined : [entry.mark[0], entry.mark[1]];
+
+      return {
+        ...(mark === undefined ? {} : { mark }),
+        name: entry.name,
+        patterns: A.fromIterable(entry.patterns),
+      };
+    })
+  );
+
+const makeWinkEngine = Effect.gen(function* () {
+  const nlp = yield* Effect.try({
+    try: loadWinkRuntime,
+    catch: (cause) => WinkEngineError.fromCause(cause, "initialize"),
+  });
+  const instanceCounterRef = yield* Ref.make(0);
+  const initialTimeMs = yield* Clock.currentTimeMillis;
+  const stateRef = yield* Ref.make<WinkEngineRuntimeState>({
+    customEntities: O.none(),
+    instanceId: nextInstanceId(initialTimeMs, 0),
+    nlp,
+  });
+
+  const allocateInstanceId = Ref.updateAndGet(instanceCounterRef, (current) => current + 1).pipe(
+    Effect.flatMap((counter) => Clock.currentTimeMillis.pipe(Effect.map((nowMs) => nextInstanceId(nowMs, counter))))
+  );
+
+  return WinkEngine.of({
+    as: Ref.get(stateRef).pipe(Effect.map((state) => state.nlp.as)),
+    getRef: Effect.succeed(stateRef),
+    getWinkDoc: Effect.fn("Nlp.Wink.WinkEngine.getWinkDoc")(function* (text: string) {
+      const state = yield* Ref.get(stateRef);
+      return yield* Effect.try({
+        try: () => state.nlp.readDoc(text),
+        catch: (cause) => WinkTokenizationError.fromCause(cause, "readDoc", text),
+      });
+    }),
+    getWinkTokens: Effect.fn("Nlp.Wink.WinkEngine.getWinkTokens")(function* (text: string) {
+      const state = yield* Ref.get(stateRef);
+      return yield* Effect.try({
+        try: () => {
+          const tokens: Array<ItemToken> = [];
+          state.nlp
+            .readDoc(text)
+            .tokens()
+            .each((token: ItemToken) => {
+              tokens.push(token);
+            });
+          return tokens;
+        },
+        catch: (cause) => WinkTokenizationError.fromCause(cause, "tokens", text),
+      });
+    }),
+    getWinkTokenCount: Effect.fn("Nlp.Wink.WinkEngine.getWinkTokenCount")(function* (text: string) {
+      const state = yield* Ref.get(stateRef);
+      return yield* Effect.try({
+        try: () => state.nlp.readDoc(text).tokens().length(),
+        catch: (cause) => WinkTokenizationError.fromCause(cause, "tokenCount", text),
+      });
+    }),
+    getCurrentCustomEntities: Ref.get(stateRef).pipe(Effect.map((state) => state.customEntities)),
+    its: Ref.get(stateRef).pipe(Effect.map((state) => state.nlp.its)),
+    learnCustomEntities: Effect.fn("Nlp.Wink.WinkEngine.learnCustomEntities")(function* (
+      customEntities: WinkEngineCustomEntities
+    ) {
+      const currentState = yield* Ref.get(stateRef);
+      yield* Effect.try({
+        try: () => {
+          currentState.nlp.learnCustomEntities(copyCustomEntities(customEntities));
+        },
+        catch: (cause) => WinkEntityError.fromCause(cause, "learnCustomEntities", customEntities.name),
+      });
+      const instanceId = yield* allocateInstanceId;
+      yield* Ref.set(stateRef, {
+        customEntities: O.some(customEntities),
+        instanceId,
+        nlp: currentState.nlp,
+      });
+    }),
+  });
+}).pipe(Effect.withSpan("Nlp.Wink.WinkEngine.make"));
+
+/**
+ * Wink engine service tag.
+ *
+ * @since 0.0.0
+ * @category Services
+ */
+export class WinkEngine extends ServiceMap.Service<WinkEngine, WinkEngineShape>()($I`WinkEngine`) {}
+
+/**
+ * Live wink engine layer.
+ *
+ * @since 0.0.0
+ * @category Layers
+ */
+export const WinkEngineLive = Layer.effect(WinkEngine, makeWinkEngine);

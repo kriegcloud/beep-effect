@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, flow, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, flow, SchemaGetter, SchemaIssue } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -27,12 +27,29 @@ const invalidTomlInput = (content: string, message: string): SchemaIssue.Invalid
     message,
   });
 
+type TomlParse = (content: string) => unknown;
+
 const hasMessage = (input: unknown): input is { readonly message: string } =>
   P.isObject(input) && P.hasProperty(input, "message") && P.isString(input.message);
 
+const getTomlParse = (): O.Option<TomlParse> => {
+  const bunRuntime = Reflect.get(globalThis, "Bun");
+  const toml = P.isObject(bunRuntime) ? Reflect.get(bunRuntime, "TOML") : undefined;
+  const parse = P.isObject(toml) ? Reflect.get(toml, "parse") : undefined;
+  if (P.isFunction(parse)) {
+    const parseToml: TomlParse = (content) => parse(content);
+    return O.some(parseToml);
+  }
+  return O.none();
+};
+
 const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content: string) {
+  const parseToml = yield* O.match(getTomlParse(), {
+    onNone: () => Effect.fail(invalidTomlInput(content, "Bun.TOML.parse is unavailable in the current runtime.")),
+    onSome: Effect.succeed,
+  });
   const parsed = yield* Effect.try({
-    try: () => Bun.TOML.parse(content),
+    try: () => parseToml(content),
     catch: (cause) =>
       invalidTomlInput(content, hasMessage(cause) ? `Invalid TOML input (${cause.message}).` : "Invalid TOML input."),
   });
@@ -49,13 +66,10 @@ const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content
  * @since 0.0.0
  */
 export const TomlTextToUnknown = S.String.pipe(
-  S.decodeTo(
-    UnknownTomlDocument,
-    SchemaTransformation.transformOrFail({
-      decode: decodeTomlUnknown,
-      encode: encodeUnsupported,
-    })
-  ),
+  S.decodeTo(UnknownTomlDocument, {
+    decode: SchemaGetter.transformOrFail(decodeTomlUnknown),
+    encode: SchemaGetter.transformOrFail(encodeUnsupported),
+  }),
   S.annotate(
     $I.annote("TomlTextToUnknown", {
       description: "Schema transformation that parses TOML text into unknown values.",

@@ -1,509 +1,487 @@
-import { Chunk, Data, Differ, Option } from "effect";
+/**
+ * Pattern builders and patch helpers.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Core/PatternBuilders
+ */
+
+import { Chunk } from "effect";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import {
   EntityPatternElement,
-  type EntityPatternOption,
   LiteralPatternElement,
   type MarkRange,
   Pattern,
+  type PatternElement,
   POSPatternElement,
-  type POSPatternOption,
   type WinkEntityType,
   type WinkPOSTag,
 } from "./Pattern.ts";
 
-// ============================================================================
-// PRIMITIVE ELEMENT BUILDERS (Data-First & Data-Last Dual APIs)
-// ============================================================================
+type NonEmptyChoices<A> = readonly [A, ...A[]];
+type LiteralReplacer = (values: ReadonlyArray<string>, index: number) => PatternElement;
 
-/**
- * Create a POS pattern element from POS tags (data-first)
- */
-export const pos: {
-  (...tags: ReadonlyArray<WinkPOSTag | "">): Pattern.POS.Type;
-  (tags: ReadonlyArray<WinkPOSTag | "">): Pattern.POS.Type;
-} = (...args: ReadonlyArray<WinkPOSTag | ""> | [ReadonlyArray<WinkPOSTag | "">]): Pattern.POS.Type => {
-  const tags = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
-  return POSPatternElement.make({
-    value: Data.array(tags) as POSPatternOption,
+const ensureNonEmpty = <A>(values: ReadonlyArray<A>, fallback: A): NonEmptyChoices<A> => {
+  const [head, ...tail] = values;
+  return head === undefined ? [fallback] : [head, ...tail];
+};
+
+const normalizeLiteralValues = (values: ReadonlyArray<string>): NonEmptyChoices<string> => {
+  const filtered = A.filter(values, Str.isNonEmpty);
+  return ensureNonEmpty(filtered, "");
+};
+
+const prependEmptyChoice = <A>(values: ReadonlyArray<A>): readonly [A | "", ...(A | "")[]] => ["", ...values];
+const isPosChoiceArray = (
+  value: (WinkPOSTag | "") | ReadonlyArray<WinkPOSTag | "">
+): value is ReadonlyArray<WinkPOSTag | ""> => A.isArray(value);
+const isEntityChoiceArray = (
+  value: (WinkEntityType | "") | ReadonlyArray<WinkEntityType | "">
+): value is ReadonlyArray<WinkEntityType | ""> => A.isArray(value);
+const isLiteralValueArray = (value: string | ReadonlyArray<string>): value is ReadonlyArray<string> => A.isArray(value);
+const isRequiredPosChoiceArray = (value: WinkPOSTag | ReadonlyArray<WinkPOSTag>): value is ReadonlyArray<WinkPOSTag> =>
+  A.isArray(value);
+const isRequiredEntityChoiceArray = (
+  value: WinkEntityType | ReadonlyArray<WinkEntityType>
+): value is ReadonlyArray<WinkEntityType> => A.isArray(value);
+
+const toElements = (pattern: Pattern): ReadonlyArray<PatternElement> => Chunk.toReadonlyArray(pattern.elements);
+
+const makePattern = (
+  id: string,
+  elements: ReadonlyArray<PatternElement>,
+  mark: O.Option<MarkRange> = O.none()
+): Pattern =>
+  new Pattern({
+    elements: Chunk.fromIterable(elements),
+    id: Pattern.Id(id),
+    mark,
   });
-};
 
-/**
- * Create an entity pattern element from entity types (data-first)
- */
-export const entity: {
-  (...types: ReadonlyArray<WinkEntityType | "">): Pattern.Entity.Type;
-  (types: ReadonlyArray<WinkEntityType | "">): Pattern.Entity.Type;
-} = (...args: ReadonlyArray<WinkEntityType | ""> | [ReadonlyArray<WinkEntityType | "">]): Pattern.Entity.Type => {
-  const types = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
-  return EntityPatternElement.make({
-    value: Data.array(types) as EntityPatternOption,
+const rebuildPattern = (pattern: Pattern, changes: Partial<Pick<Pattern, "elements" | "id" | "mark">>): Pattern =>
+  new Pattern({
+    elements: changes.elements ?? pattern.elements,
+    id: changes.id ?? pattern.id,
+    mark: changes.mark ?? pattern.mark,
   });
-};
+
+const isLiteralElement = (element: PatternElement): element is LiteralPatternElement =>
+  P.isTagged(element, "LiteralPatternElement");
 
 /**
- * Create a literal pattern element from literal strings (data-first)
+ * Create a POS pattern element.
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
-export const literal: {
-  (...values: ReadonlyArray<string>): Pattern.Literal.Type;
-  (values: ReadonlyArray<string>): Pattern.Literal.Type;
-} = (...args: ReadonlyArray<string> | [ReadonlyArray<string>]): Pattern.Literal.Type => {
-  const values = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
-  const validValues = values.filter((v): v is string => typeof v === "string" && v.length > 0);
-  const finalValues = validValues.length > 0 ? validValues : [""];
-  return LiteralPatternElement.make({
-    value: Data.array(finalValues) as any,
+export function pos(first: WinkPOSTag | "", ...rest: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
+export function pos(tags: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
+export function pos(
+  firstOrTags: (WinkPOSTag | "") | ReadonlyArray<WinkPOSTag | "">,
+  ...rest: ReadonlyArray<WinkPOSTag | "">
+): POSPatternElement {
+  const tags = isPosChoiceArray(firstOrTags) ? firstOrTags : [firstOrTags, ...rest];
+  return new POSPatternElement({
+    value: ensureNonEmpty(tags, ""),
   });
-};
+}
 
 /**
- * Create an optional POS pattern element (includes empty string option) (data-first)
+ * Create an entity pattern element.
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
-export const optionalPos: {
-  (...tags: ReadonlyArray<WinkPOSTag>): Pattern.POS.Type;
-  (tags: ReadonlyArray<WinkPOSTag>): Pattern.POS.Type;
-} = (...args: ReadonlyArray<WinkPOSTag> | [ReadonlyArray<WinkPOSTag>]): Pattern.POS.Type => {
-  const tags = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
-  const allTags = ["", ...tags] as ReadonlyArray<WinkPOSTag | "">;
-  return POSPatternElement.make({
-    value: Data.array(allTags) as POSPatternOption,
+export function entity(first: WinkEntityType | "", ...rest: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
+export function entity(types: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
+export function entity(
+  firstOrTypes: (WinkEntityType | "") | ReadonlyArray<WinkEntityType | "">,
+  ...rest: ReadonlyArray<WinkEntityType | "">
+): EntityPatternElement {
+  const types = isEntityChoiceArray(firstOrTypes) ? firstOrTypes : [firstOrTypes, ...rest];
+  return new EntityPatternElement({
+    value: ensureNonEmpty(types, ""),
   });
-};
+}
 
 /**
- * Create an optional entity pattern element (includes empty string option) (data-first)
+ * Create a literal pattern element.
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
-export const optionalEntity: {
-  (...types: ReadonlyArray<WinkEntityType>): Pattern.Entity.Type;
-  (types: ReadonlyArray<WinkEntityType>): Pattern.Entity.Type;
-} = (...args: ReadonlyArray<WinkEntityType> | [ReadonlyArray<WinkEntityType>]): Pattern.Entity.Type => {
-  const types = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
-  const allTypes = ["", ...types] as ReadonlyArray<WinkEntityType | "">;
-  return EntityPatternElement.make({
-    value: Data.array(allTypes) as EntityPatternOption,
+export function literal(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
+export function literal(values: ReadonlyArray<string>): LiteralPatternElement;
+export function literal(
+  firstOrValues: string | ReadonlyArray<string>,
+  ...rest: ReadonlyArray<string>
+): LiteralPatternElement {
+  const values = isLiteralValueArray(firstOrValues) ? firstOrValues : [firstOrValues, ...rest];
+  return new LiteralPatternElement({
+    value: normalizeLiteralValues(values),
   });
-};
+}
 
 /**
- * Create an optional literal pattern element (includes empty string option) (data-first)
+ * Create an optional POS pattern element.
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
-export const optionalLiteral: {
-  (...values: ReadonlyArray<string>): Pattern.Literal.Type;
-  (values: ReadonlyArray<string>): Pattern.Literal.Type;
-} = (...args: ReadonlyArray<string> | [ReadonlyArray<string>]): Pattern.Literal.Type => {
-  const values = args.length === 1 && Array.isArray(args[0]) ? args[0] : args;
-  const validValues = values.filter((v) => v.length > 0);
-  const allValues = ["", ...validValues];
-  return LiteralPatternElement.make({
-    value: Data.array(allValues) as any,
+export function optionalPos(first: WinkPOSTag, ...rest: ReadonlyArray<WinkPOSTag>): POSPatternElement;
+export function optionalPos(tags: ReadonlyArray<WinkPOSTag>): POSPatternElement;
+export function optionalPos(
+  firstOrTags: WinkPOSTag | ReadonlyArray<WinkPOSTag>,
+  ...rest: ReadonlyArray<WinkPOSTag>
+): POSPatternElement {
+  const tags = isRequiredPosChoiceArray(firstOrTags) ? firstOrTags : [firstOrTags, ...rest];
+  return new POSPatternElement({
+    value: prependEmptyChoice(tags),
   });
-};
-
-// ============================================================================
-// PATTERN CONSTRUCTION (Dual APIs)
-// ============================================================================
+}
 
 /**
- * Create a Pattern (dual API)
+ * Create an optional entity pattern element.
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
-export const make: {
-  (id: string, elements: ReadonlyArray<Pattern.Element.Type>): Pattern;
-  (id: string): (elements: ReadonlyArray<Pattern.Element.Type>) => Pattern;
-} = (id: string, elements?: ReadonlyArray<Pattern.Element.Type>): any => {
-  if (elements !== undefined) {
-    // Data-first
-    return new Pattern({
-      id: Pattern.Id(id),
-      elements: Chunk.fromIterable(elements),
-      mark: Option.none(),
-    });
-  }
-  // Data-last
-  return (elements: ReadonlyArray<Pattern.Element.Type>) =>
-    new Pattern({
-      id: Pattern.Id(id),
-      elements: Chunk.fromIterable(elements),
-      mark: Option.none(),
-    });
-};
+export function optionalEntity(first: WinkEntityType, ...rest: ReadonlyArray<WinkEntityType>): EntityPatternElement;
+export function optionalEntity(types: ReadonlyArray<WinkEntityType>): EntityPatternElement;
+export function optionalEntity(
+  firstOrTypes: WinkEntityType | ReadonlyArray<WinkEntityType>,
+  ...rest: ReadonlyArray<WinkEntityType>
+): EntityPatternElement {
+  const types = isRequiredEntityChoiceArray(firstOrTypes) ? firstOrTypes : [firstOrTypes, ...rest];
+  return new EntityPatternElement({
+    value: prependEmptyChoice(types),
+  });
+}
 
 /**
- * Add a mark range to a pattern (dual API)
+ * Create an optional literal pattern element.
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
-export const withMark: {
-  (mark: MarkRange): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, mark: MarkRange): Pattern;
-} = dual(
-  2,
-  (pattern: Pattern, mark: MarkRange): Pattern =>
-    new Pattern({
-      ...pattern,
-      mark: Option.some(mark),
-    })
-);
-
-// =============================================================================
-// PATCHING DSL (Differ-based, Data-First & Dual APIs)
-// =============================================================================
-
-/**
- * A patch for `Pattern` is an endomorphism function `(p) => p'`.
- * We use Differ.update to gain compositional patching semantics.
- */
-export type PatternPatch = (pattern: Pattern) => Pattern;
-
-/** Differ that composes `PatternPatch` functions left-to-right. */
-export const PatternDiffer = Differ.update<Pattern>();
-
-/** Apply a single patch to a pattern. */
-export const applyPatch: {
-  (pattern: Pattern, patch: PatternPatch): Pattern;
-  (patch: PatternPatch): (pattern: Pattern) => Pattern;
-} = dual(2, (pattern: Pattern, patch: PatternPatch): Pattern => Differ.patch(PatternDiffer, patch, pattern));
-
-/** Compose multiple patches into one. */
-export const composePatches = (...patches: ReadonlyArray<PatternPatch>): PatternPatch => {
-  if (patches.length === 0) return (p) => p;
-  return patches.reduce<PatternPatch>(
-    (acc, nxt) => (p) => nxt(acc(p)),
-    (p) => p
+export function optionalLiteral(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
+export function optionalLiteral(values: ReadonlyArray<string>): LiteralPatternElement;
+export function optionalLiteral(
+  firstOrValues: string | ReadonlyArray<string>,
+  ...rest: ReadonlyArray<string>
+): LiteralPatternElement {
+  const values = A.filter(
+    isLiteralValueArray(firstOrValues) ? firstOrValues : [firstOrValues, ...rest],
+    Str.isNonEmpty
   );
-};
+  return new LiteralPatternElement({
+    value: prependEmptyChoice(values),
+  });
+}
 
 /**
- * Map over only literal elements.
+ * Construct a pattern from an id and ordered elements.
+ *
+ * @since 0.0.0
+ * @category Constructors
  */
-export const mapLiterals: {
-  (f: (values: ReadonlyArray<string>, index: number) => Pattern.Element.Type): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, f: (values: ReadonlyArray<string>, index: number) => Pattern.Element.Type): Pattern;
-} = dual(
+export function make(id: string, elements: ReadonlyArray<PatternElement>): Pattern;
+export function make(id: string): (elements: ReadonlyArray<PatternElement>) => Pattern;
+export function make(id: string, elements?: ReadonlyArray<PatternElement>) {
+  return elements === undefined
+    ? (nextElements: ReadonlyArray<PatternElement>) => makePattern(id, nextElements)
+    : makePattern(id, elements);
+}
+
+/**
+ * Add a mark range to a pattern.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export const withMark = dual(
   2,
-  (pattern: Pattern, f: (values: ReadonlyArray<string>, index: number) => Pattern.Element.Type): Pattern =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.map(pattern.elements, (el, i) => {
-        if (el._tag === "LiteralPatternElement") {
-          return f(el.value as unknown as ReadonlyArray<string>, i);
-        }
-        return el;
-      }),
-    })
+  (pattern: Pattern, mark: MarkRange): Pattern => rebuildPattern(pattern, { mark: O.some(mark) })
 );
 
-/** Replace a literal element at a specific index using a replacer. */
-export const patchReplaceLiteralAt =
-  (index: number, replacer: (values: ReadonlyArray<string>) => Pattern.Element.Type): PatternPatch =>
-  (pattern) =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.map(pattern.elements, (el, i) => {
-        if (i === index && el._tag === "LiteralPatternElement") {
-          return replacer(el.value as unknown as ReadonlyArray<string>);
-        }
-        return el;
-      }),
-    });
-
-/** Replace all literal elements using a single replacer. */
-export const patchReplaceAllLiterals =
-  (replacer: (values: ReadonlyArray<string>, index: number) => Pattern.Element.Type): PatternPatch =>
-  (pattern) =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.map(pattern.elements, (el, i) =>
-        el._tag === "LiteralPatternElement" ? replacer(el.value as unknown as ReadonlyArray<string>, i) : el
-      ),
-    });
+/**
+ * Remove a mark range from a pattern.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export function withoutMark(): (pattern: Pattern) => Pattern;
+export function withoutMark(pattern: Pattern): Pattern;
+export function withoutMark(pattern?: Pattern) {
+  return pattern === undefined
+    ? (nextPattern: Pattern) => rebuildPattern(nextPattern, { mark: O.none() })
+    : rebuildPattern(pattern, { mark: O.none() });
+}
 
 /**
- * Generalize literals by converting them into a provided element.
- * Overloads allow passing a constant element, or a function from literal values.
+ * Append elements to a pattern.
+ *
+ * @since 0.0.0
+ * @category Combinators
  */
-export const generalizeLiterals: {
-  (to: Pattern.Element.Type): (pattern: Pattern) => Pattern;
-  (f: (values: ReadonlyArray<string>, index: number) => Pattern.Element.Type): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, to: Pattern.Element.Type): Pattern;
-  (pattern: Pattern, f: (values: ReadonlyArray<string>, index: number) => Pattern.Element.Type): Pattern;
-} = (arg1: any, arg2?: any): any => {
-  if (arg2 === undefined) {
-    // data-last
-    const toOrF = arg1 as
-      | Pattern.Element.Type
-      | ((values: ReadonlyArray<string>, index: number) => Pattern.Element.Type);
-    return (pattern: Pattern) =>
-      typeof toOrF === "function"
-        ? patchReplaceAllLiterals(toOrF)(pattern)
-        : patchReplaceAllLiterals(() => toOrF)(pattern);
-  }
-  // data-first
-  const pattern = arg1 as Pattern;
-  const toOrF = arg2 as Pattern.Element.Type | ((values: ReadonlyArray<string>, index: number) => Pattern.Element.Type);
-  return typeof toOrF === "function"
-    ? patchReplaceAllLiterals(toOrF)(pattern)
-    : patchReplaceAllLiterals(() => toOrF)(pattern);
-};
-
-/**
- * Remove mark range from a pattern (dual API)
- */
-export const withoutMark: {
-  (pattern: Pattern): Pattern;
-  (): (pattern: Pattern) => Pattern;
-} = (pattern?: Pattern): any => {
-  if (pattern !== undefined) {
-    // Data-first
-    return new Pattern({
-      ...pattern,
-      mark: Option.none(),
-    });
-  }
-  // Data-last
-  return (pattern: Pattern) =>
-    new Pattern({
-      ...pattern,
-      mark: Option.none(),
-    });
-};
-
-/**
- * Add elements to a pattern (dual API)
- */
-export const addElements: {
-  (elements: ReadonlyArray<Pattern.Element.Type>): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, elements: ReadonlyArray<Pattern.Element.Type>): Pattern;
-} = dual(
+export const addElements = dual(
   2,
-  (pattern: Pattern, elements: ReadonlyArray<Pattern.Element.Type>): Pattern =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.appendAll(pattern.elements, Chunk.fromIterable(elements)),
+  (pattern: Pattern, extraElements: ReadonlyArray<PatternElement>): Pattern =>
+    rebuildPattern(pattern, {
+      elements: Chunk.appendAll(pattern.elements, Chunk.fromIterable(extraElements)),
     })
 );
 
 /**
- * Prepend elements to a pattern (dual API)
+ * Prepend elements to a pattern.
+ *
+ * @since 0.0.0
+ * @category Combinators
  */
-export const prependElements: {
-  (elements: ReadonlyArray<Pattern.Element.Type>): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, elements: ReadonlyArray<Pattern.Element.Type>): Pattern;
-} = dual(
+export const prependElements = dual(
   2,
-  (pattern: Pattern, elements: ReadonlyArray<Pattern.Element.Type>): Pattern =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.prependAll(pattern.elements, Chunk.fromIterable(elements)),
+  (pattern: Pattern, leadingElements: ReadonlyArray<PatternElement>): Pattern =>
+    rebuildPattern(pattern, {
+      elements: Chunk.appendAll(Chunk.fromIterable(leadingElements), pattern.elements),
     })
 );
 
 /**
- * Update pattern ID (dual API)
+ * Replace the pattern id.
+ *
+ * @since 0.0.0
+ * @category Combinators
  */
-export const withId: {
-  (id: string): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, id: string): Pattern;
-} = dual(
+export const withId = dual(
   2,
-  (pattern: Pattern, id: string): Pattern =>
-    new Pattern({
-      ...pattern,
-      id: Pattern.Id(id),
-    })
+  (pattern: Pattern, id: string): Pattern => rebuildPattern(pattern, { id: Pattern.Id(id) })
 );
 
-// ============================================================================
-// PATTERN INSPECTION (Data-First)
-// ============================================================================
-
 /**
- * Check if a pattern has a mark range
+ * Test whether a pattern has a mark.
+ *
+ * @since 0.0.0
+ * @category Predicates
  */
-export const hasMark = (pattern: Pattern): boolean => Option.isSome(pattern.mark);
+export const hasMark = (pattern: Pattern): boolean => O.isSome(pattern.mark);
 
 /**
- * Get the mark range from a pattern if it exists
+ * Get a pattern's mark if present.
+ *
+ * @since 0.0.0
+ * @category Accessors
  */
-export const getMark = (pattern: Pattern): MarkRange | undefined => Option.getOrUndefined(pattern.mark);
+export const getMark = (pattern: Pattern): MarkRange | undefined =>
+  O.isSome(pattern.mark) ? pattern.mark.value : undefined;
 
 /**
- * Get the number of elements in a pattern
+ * Count pattern elements.
+ *
+ * @since 0.0.0
+ * @category Accessors
  */
 export const length = (pattern: Pattern): number => Chunk.size(pattern.elements);
 
 /**
- * Get all elements from a pattern as an array
+ * Materialize pattern elements as a readonly array.
+ *
+ * @since 0.0.0
+ * @category Accessors
  */
-export const elements = (pattern: Pattern): ReadonlyArray<Pattern.Element.Type> =>
-  Chunk.toReadonlyArray(pattern.elements);
+export const elements = (pattern: Pattern): ReadonlyArray<PatternElement> => toElements(pattern);
 
 /**
- * Get a specific element from a pattern by index
+ * Get an element by index.
+ *
+ * @since 0.0.0
+ * @category Accessors
  */
-export const elementAt = (pattern: Pattern, index: number): Pattern.Element.Type | undefined => {
-  const elements = Chunk.toReadonlyArray(pattern.elements);
-  return elements[index];
+export const elementAt = (pattern: Pattern, index: number): PatternElement | undefined => {
+  const element = Chunk.get(pattern.elements, index);
+  return O.isSome(element) ? element.value : undefined;
 };
 
 /**
- * Check if pattern is empty (has no elements)
+ * Test whether a pattern is empty.
+ *
+ * @since 0.0.0
+ * @category Predicates
  */
 export const isEmpty = (pattern: Pattern): boolean => Chunk.isEmpty(pattern.elements);
 
 /**
- * Get the first element of a pattern
+ * Get the first pattern element.
+ *
+ * @since 0.0.0
+ * @category Accessors
  */
-export const head = (pattern: Pattern): Pattern.Element.Type | undefined =>
-  Option.getOrUndefined(Chunk.head(pattern.elements));
+export const head = (pattern: Pattern): PatternElement | undefined => elementAt(pattern, 0);
 
 /**
- * Get the last element of a pattern
+ * Get the last pattern element.
+ *
+ * @since 0.0.0
+ * @category Accessors
  */
-export const last = (pattern: Pattern): Pattern.Element.Type | undefined =>
-  Option.getOrUndefined(Chunk.last(pattern.elements));
-
-// ============================================================================
-// PATTERN TRANSFORMATION (Dual APIs)
-// ============================================================================
+export const last = (pattern: Pattern): PatternElement | undefined => elementAt(pattern, length(pattern) - 1);
 
 /**
- * Map over pattern elements (dual API)
+ * Map pattern elements.
+ *
+ * @since 0.0.0
+ * @category Combinators
  */
-export const mapElements: {
-  (f: (element: Pattern.Element.Type, index: number) => Pattern.Element.Type): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, f: (element: Pattern.Element.Type, index: number) => Pattern.Element.Type): Pattern;
-} = dual(
+export const mapElements = dual(
   2,
-  (pattern: Pattern, f: (element: Pattern.Element.Type, index: number) => Pattern.Element.Type): Pattern =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.map(pattern.elements, f),
+  (pattern: Pattern, f: (element: PatternElement, index: number) => PatternElement): Pattern =>
+    rebuildPattern(pattern, {
+      elements: Chunk.fromIterable(A.map(toElements(pattern), f)),
     })
 );
 
 /**
- * Filter pattern elements (dual API)
+ * Filter pattern elements.
+ *
+ * @since 0.0.0
+ * @category Combinators
  */
-export const filterElements: {
-  (predicate: (element: Pattern.Element.Type, index: number) => boolean): (pattern: Pattern) => Pattern;
-  (pattern: Pattern, predicate: (element: Pattern.Element.Type, index: number) => boolean): Pattern;
-} = dual(2, (pattern: Pattern, predicate: (element: Pattern.Element.Type, index: number) => boolean): Pattern => {
-  // Use Chunk.filterMap with Option to filter with index
-  const filteredElements = Chunk.filterMap(pattern.elements, (element, index) =>
-    predicate(element, index) ? Option.some(element) : Option.none()
+export const filterElements = dual(
+  2,
+  (pattern: Pattern, predicate: (element: PatternElement, index: number) => boolean): Pattern =>
+    rebuildPattern(pattern, {
+      elements: Chunk.fromIterable(A.filter(toElements(pattern), predicate)),
+    })
+);
+
+/**
+ * Take the first `count` elements.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export const take = dual(
+  2,
+  (pattern: Pattern, count: number): Pattern =>
+    rebuildPattern(pattern, {
+      elements: Chunk.take(pattern.elements, count),
+    })
+);
+
+/**
+ * Drop the first `count` elements.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export const drop = dual(
+  2,
+  (pattern: Pattern, count: number): Pattern =>
+    rebuildPattern(pattern, {
+      elements: Chunk.drop(pattern.elements, count),
+    })
+);
+
+/**
+ * Combine two patterns into a new one.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export function combine(left: Pattern, right: Pattern, id: string): Pattern;
+export function combine(right: Pattern, id: string): (left: Pattern) => Pattern;
+export function combine(leftOrRight: Pattern, rightOrId: Pattern | string, maybeId?: string) {
+  if (P.isString(rightOrId)) {
+    return (left: Pattern) => makePattern(rightOrId, [...toElements(left), ...toElements(leftOrRight)]);
+  }
+
+  return makePattern(maybeId ?? `${leftOrRight.id}-${rightOrId.id}`, [
+    ...toElements(leftOrRight),
+    ...toElements(rightOrId),
+  ]);
+}
+
+/**
+ * Functional patch over a pattern.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type PatternPatch = (pattern: Pattern) => Pattern;
+
+/**
+ * Apply a patch to a pattern.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export const applyPatch = dual(2, (pattern: Pattern, patch: PatternPatch): Pattern => patch(pattern));
+
+/**
+ * Compose multiple patches from left to right.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export const composePatches = (...patches: ReadonlyArray<PatternPatch>): PatternPatch =>
+  A.reduce(
+    patches,
+    ((pattern: Pattern) => pattern) satisfies PatternPatch,
+    (acc, patch) => (pattern) => patch(acc(pattern))
   );
-  return new Pattern({
-    ...pattern,
-    elements: filteredElements,
-  });
-});
 
 /**
- * Take first n elements from pattern (dual API)
+ * Replace a literal element at a given index.
+ *
+ * @since 0.0.0
+ * @category Combinators
  */
-export const take: {
-  (pattern: Pattern, n: number): Pattern;
-  (n: number): (pattern: Pattern) => Pattern;
-} = (patternOrN: Pattern | number, n?: number): any => {
-  if (n !== undefined) {
-    // Data-first
-    const pattern = patternOrN as Pattern;
-    return new Pattern({
-      ...pattern,
-      elements: Chunk.take(pattern.elements, n),
-    });
+export const patchReplaceLiteralAt =
+  (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement): PatternPatch =>
+  (pattern) =>
+    mapElements(pattern, (element: PatternElement, elementIndex: number) =>
+      elementIndex === index && isLiteralElement(element) ? replacer(element.value) : element
+    );
+
+/**
+ * Replace all literal elements.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export const patchReplaceAllLiterals =
+  (replacer: LiteralReplacer): PatternPatch =>
+  (pattern) =>
+    mapElements(pattern, (element: PatternElement, index: number) =>
+      isLiteralElement(element) ? replacer(element.value, index) : element
+    );
+
+/**
+ * Generalize literal elements into other element kinds.
+ *
+ * @since 0.0.0
+ * @category Combinators
+ */
+export function generalizeLiterals(to: PatternElement): (pattern: Pattern) => Pattern;
+export function generalizeLiterals(f: LiteralReplacer): (pattern: Pattern) => Pattern;
+export function generalizeLiterals(pattern: Pattern, to: PatternElement): Pattern;
+export function generalizeLiterals(pattern: Pattern, f: LiteralReplacer): Pattern;
+export function generalizeLiterals(
+  arg1: Pattern | PatternElement | LiteralReplacer,
+  arg2?: PatternElement | LiteralReplacer
+) {
+  if (Pattern.is(arg1)) {
+    if (arg2 === undefined) {
+      return arg1;
+    }
+
+    const replacer: LiteralReplacer = P.isFunction(arg2) ? arg2 : () => arg2;
+    return patchReplaceAllLiterals(replacer)(arg1);
   }
-  // Data-last
-  return (pattern: Pattern) =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.take(pattern.elements, patternOrN as number),
-    });
-};
 
-/**
- * Drop first n elements from pattern (dual API)
- */
-export const drop: {
-  (pattern: Pattern, n: number): Pattern;
-  (n: number): (pattern: Pattern) => Pattern;
-} = (patternOrN: Pattern | number, n?: number): any => {
-  if (n !== undefined) {
-    // Data-first
-    const pattern = patternOrN as Pattern;
-    return new Pattern({
-      ...pattern,
-      elements: Chunk.drop(pattern.elements, n),
-    });
-  }
-  // Data-last
-  return (pattern: Pattern) =>
-    new Pattern({
-      ...pattern,
-      elements: Chunk.drop(pattern.elements, patternOrN as number),
-    });
-};
-
-// ============================================================================
-// PATTERN PARSING (Effect-based, Data-First)
-// ============================================================================
-
-// ============================================================================
-// PATTERN COMBINATION (Dual APIs)
-// ============================================================================
-
-/**
- * Combine two patterns into one (dual API)
- */
-export const combine: {
-  (pattern2: Pattern, newId: string): (pattern1: Pattern) => Pattern;
-  (pattern1: Pattern, pattern2: Pattern, newId: string): Pattern;
-} = dual(
-  3,
-  (pattern1: Pattern, pattern2: Pattern, newId: string): Pattern =>
-    new Pattern({
-      id: Pattern.Id(newId),
-      elements: Chunk.appendAll(pattern1.elements, pattern2.elements),
-      mark: Option.none(),
-    })
-);
-
-// ============================================================================
-// PATTERN BUILDERS NAMESPACE (Organized API)
-// ============================================================================
-
-export const PatternBuilders = {
-  // Element builders
-  pos,
-  entity,
-  literal,
-  optionalPos,
-  optionalEntity,
-  optionalLiteral,
-
-  // Pattern construction
-  make,
-  withMark,
-  withoutMark,
-  addElements,
-  prependElements,
-  withId,
-
-  // Pattern inspection
-  hasMark,
-  getMark,
-  length,
-  elements,
-  elementAt,
-  isEmpty,
-  head,
-  last,
-
-  // Pattern transformation
-  mapElements,
-  filterElements,
-  take,
-  drop,
-
-  // Pattern combination
-  combine,
-} as const;
+  const replacer: LiteralReplacer = P.isFunction(arg1) ? arg1 : () => arg1;
+  return (pattern: Pattern) => patchReplaceAllLiterals(replacer)(pattern);
+}

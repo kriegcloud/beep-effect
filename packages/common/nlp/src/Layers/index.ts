@@ -1,7 +1,8 @@
 /**
- * NLP Layer Architecture
- * Hierarchical composition of NLP services following Effect patterns
- * @since 3.0.0
+ * Compatibility layer composition helpers for the ported NLP package.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Layers
  */
 
 import { Layer } from "effect";
@@ -9,20 +10,27 @@ import { WinkEngine, WinkEngineLive } from "../Wink/WinkEngine.ts";
 import { WinkTokenization } from "../Wink/WinkTokenizer.ts";
 
 /**
- * Base infrastructure layer - core engines and utilities
- * This layer provides the fundamental NLP engine
+ * Base runtime layer exposing the shared wink engine service.
+ *
+ * @since 0.0.0
+ * @category Layers
  */
 export const NLPBaseLive = WinkEngineLive;
 
 /**
- * Tokenization module layer
- * Depends on the base engine layer
+ * Tokenization module layer exposing both the wink engine and tokenization service.
+ *
+ * @since 0.0.0
+ * @category Layers
  */
-export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provide(WinkEngineLive));
-
-export const NLPAppLive = Layer.mergeAll(NLPBaseLive, TokenizationModuleLive);
+export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(WinkEngineLive));
 
 /**
- * Convenience exports for direct service access
+ * Compatibility application layer matching the legacy tokenization-focused bundle.
+ *
+ * @since 0.0.0
+ * @category Layers
  */
+export const NLPAppLive = TokenizationModuleLive;
+
 export { WinkEngine, WinkEngineLive };

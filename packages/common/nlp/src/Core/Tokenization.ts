@@ -1,28 +1,95 @@
-import type { Chunk } from "effect";
-import { Context, Data, Effect } from "effect";
+/**
+ * Tokenization service contract.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Core/Tokenization
+ */
+
+import { $NlpId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import { Effect, ServiceMap } from "effect";
+import * as S from "effect/Schema";
 import type { Document, DocumentId } from "./Document.ts";
 import type { Sentence } from "./Sentence.ts";
 import type { Token } from "./Token.ts";
 
-export class TokenizationError extends Data.TaggedError("TokenizationError")<{
-  readonly operation: string;
-  readonly cause: unknown;
-}> {}
+const $I = $NlpId.create("Core/Tokenization");
 
-export interface Tokenization {
+type TokenizationShape = {
+  readonly tokenize: (text: string) => Effect.Effect<ReadonlyArray<Token>, TokenizationError>;
+  readonly sentences: (text: string) => Effect.Effect<ReadonlyArray<Sentence>, TokenizationError>;
   readonly document: (text: string, id?: DocumentId | string) => Effect.Effect<Document, TokenizationError>;
-  readonly sentences: (text: string) => Effect.Effect<Chunk.Chunk<Sentence>, TokenizationError>;
   readonly tokenCount: (text: string) => Effect.Effect<number, TokenizationError>;
-  readonly tokenize: (text: string) => Effect.Effect<Chunk.Chunk<Token>, TokenizationError>;
-}
+};
 
-export const Tokenization = Context.GenericTag<Tokenization>("effect-nlp/Tokenization");
+/**
+ * Tokenization error.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
+export class TokenizationError extends TaggedErrorClass<TokenizationError>($I`TokenizationError`)(
+  "TokenizationError",
+  {
+    cause: S.Unknown,
+    operation: S.String,
+  },
+  $I.annote("TokenizationError", {
+    description: "Failure raised by an NLP tokenization service.",
+  })
+) {}
 
-export const tokenize = (text: string) => Effect.flatMap(Tokenization, (service) => service.tokenize(text));
+/**
+ * Tokenization service.
+ *
+ * @since 0.0.0
+ * @category Services
+ */
+export class Tokenization extends ServiceMap.Service<Tokenization, TokenizationShape>()($I`Tokenization`) {}
 
-export const sentences = (text: string) => Effect.flatMap(Tokenization, (service) => service.sentences(text));
+/**
+ * Tokenize text into tokens using the configured service.
+ *
+ * @since 0.0.0
+ * @category Accessors
+ */
+export const tokenize = Effect.fn("Nlp.Core.Tokenization.tokenize")(function* (text: string) {
+  const tokenization = yield* Tokenization;
+  return yield* tokenization.tokenize(text);
+});
 
-export const tokenizeToDocument = (text: string, id?: DocumentId | string) =>
-  Effect.flatMap(Tokenization, (service) => service.document(text, id));
+/**
+ * Split text into sentences using the configured service.
+ *
+ * @since 0.0.0
+ * @category Accessors
+ */
+export const sentences = Effect.fn("Nlp.Core.Tokenization.sentences")(function* (text: string) {
+  const tokenization = yield* Tokenization;
+  return yield* tokenization.sentences(text);
+});
 
-export const tokenCount = (text: string) => Effect.flatMap(Tokenization, (service) => service.tokenCount(text));
+/**
+ * Build a document using the configured service.
+ *
+ * @since 0.0.0
+ * @category Accessors
+ */
+export const tokenizeToDocument = Effect.fn("Nlp.Core.Tokenization.tokenizeToDocument")(function* (
+  text: string,
+  id?: DocumentId | string
+) {
+  const tokenization = yield* Tokenization;
+  return yield* tokenization.document(text, id);
+});
+
+/**
+ * Count tokens using the configured service.
+ *
+ * @since 0.0.0
+ * @category Accessors
+ */
+export const tokenCount = Effect.fn("Nlp.Core.Tokenization.tokenCount")(function* (text: string) {
+  const tokenization = yield* Tokenization;
+  return yield* tokenization.tokenCount(text);
+});

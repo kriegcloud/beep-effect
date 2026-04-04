@@ -1,18 +1,117 @@
 /**
- * Tool export adapter — converts Effect AI Tool definitions into
- * REPL-compatible tool objects with positional-arg handlers and JSON Schema.
- * @since 3.0.0
+ * Positional export adapter for NLP tools.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/ToolExport
  */
 
-import { Tool } from "@effect/ai";
-import { Cause, Data, Effect, JSONSchema, pipe, Schema } from "effect";
-import { NlpToolkit, NlpToolkitLive } from "./NlpToolkit.ts";
+import { $NlpId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import { Cause, Effect, Stream } from "effect";
+import * as A from "effect/Array";
+import * as Inspectable from "effect/Inspectable";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import { Tool, type Toolkit } from "effect/unstable/ai";
+import { NlpToolkit, NlpTools } from "./NlpToolkit.ts";
 
-export class ExportedToolError extends Data.TaggedError("ExportedToolError")<{
-  readonly message: string;
-  readonly toolName: string;
-}> {}
+const $I = $NlpId.create("Tools/ToolExport");
 
+const TOOL_PARAMETER_NAMES: Partial<Record<string, ReadonlyArray<string>>> = {
+  ChunkBySentences: ["text", "maxChunkChars"],
+  CorpusStats: ["corpusId", "includeIdf", "includeMatrix", "topIdfTerms"],
+  CreateCorpus: ["corpusId", "bm25Config"],
+  LearnCorpus: ["corpusId", "documents", "dedupeById"],
+  LearnCustomEntities: ["groupName", "mode", "entities"],
+  NGrams: ["text", "size", "mode", "topN"],
+  PhoneticMatch: ["text1", "text2", "algorithm", "minTokenLength"],
+  QueryCorpus: ["corpusId", "query", "topN", "includeText"],
+  RankByRelevance: ["texts", "query", "topN"],
+  TransformText: ["text", "operations"],
+  TverskySimilarity: ["text1", "text2", "alpha", "beta"],
+};
+
+const USAGE_EXAMPLES: Partial<Record<string, ReadonlyArray<string>>> = {
+  ChunkBySentences: ['const { chunks } = await ChunkBySentences("One. Two. Three.", 1200)'],
+  CorpusStats: ["const stats = await CorpusStats(corpusId, true, false, 20)"],
+  CreateCorpus: ['const { corpusId } = await CreateCorpus("product-docs")'],
+  LearnCorpus: ["await LearnCorpus(corpusId, [{ id: 'doc-1', text: 'Refund policy details' }], true)"],
+  LearnCustomEntities: [
+    "await LearnCustomEntities('custom-entities', 'append', [{ name: 'PERSON_NAME', patterns: ['[PROPN]', '[PROPN]'] }])",
+  ],
+  NGrams: ['const result = await NGrams("internationalization", 3, "bag", 10)'],
+  PhoneticMatch: ['const result = await PhoneticMatch("Stephen Hawking", "Steven Hocking", "soundex", 2)'],
+  QueryCorpus: ['const result = await QueryCorpus(corpusId, "refund policy", 5, true)'],
+  RankByRelevance: ['const result = await RankByRelevance(["Cats are playful"], "cats", 1)'],
+};
+
+const DEFAULT_TIMEOUT_MS = 30_000;
+type NlpTool = (typeof NlpTools)[number];
+type NlpToolkitWithHandler = Toolkit.WithHandler<typeof NlpToolkit.tools>;
+
+const renderError = (error: unknown): string => {
+  if (P.isString(error)) {
+    return error;
+  }
+  return Inspectable.toStringUnknown(error);
+};
+
+const hasStructFields = (schema: unknown): schema is { readonly fields: Record<string, unknown> } =>
+  P.hasProperty(schema, "fields") && P.isObject(schema.fields);
+
+const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
+  const overridden = TOOL_PARAMETER_NAMES[tool.name];
+  if (overridden !== undefined) {
+    return overridden;
+  }
+
+  // Schema reflection exposes a plain object field map here; `Object.keys` stays
+  // isolated to this adapter boundary so runtime parameter ordering matches the
+  // encoded tool schema without widening the inferred union of field records.
+  return hasStructFields(tool.parametersSchema) ? Object.keys(tool.parametersSchema.fields) : [];
+};
+
+/**
+ * Error raised while exporting or executing positional NLP tools.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
+export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`ExportedToolError`)(
+  "ExportedToolError",
+  {
+    cause: S.Unknown,
+    message: S.String,
+    toolName: S.String,
+  },
+  $I.annote("ExportedToolError", {
+    description: "Failure raised while exporting or executing a positional NLP tool.",
+  })
+) {
+  /**
+   * Convert an unknown cause into a typed export-adapter error.
+   *
+   * @param cause {unknown} - The underlying failure or defect.
+   * @param toolName {string} - The tool name associated with the failure.
+   * @param message {string} - The rendered error message for the caller.
+   * @returns {ExportedToolError} - A typed export-adapter error value.
+   */
+  static fromCause(cause: unknown, toolName: string, message: string): ExportedToolError {
+    return new ExportedToolError({
+      cause,
+      message,
+      toolName,
+    });
+  }
+}
+
+/**
+ * Runtime descriptor for an exported positional tool.
+ *
+ * @since 0.0.0
+ * @category Models
+ */
 export interface ExportedTool {
   readonly description: string;
   readonly handle: (args: ReadonlyArray<unknown>) => Effect.Effect<unknown, ExportedToolError>;
@@ -24,162 +123,92 @@ export interface ExportedTool {
   readonly usageExamples: ReadonlyArray<string>;
 }
 
-const USAGE_EXAMPLES: Record<string, ReadonlyArray<string>> = {
-  BowCosineSimilarity: ['const { score } = await BowCosineSimilarity("cats are great", "cats are wonderful")'],
-  ChunkBySentences: [
-    "const { chunks } = await ChunkBySentences(text, 1500)",
-    "const { chunkCount } = await ChunkBySentences(longDocument, 1200)",
-  ],
-  CorpusStats: [
-    "const stats = await CorpusStats(corpusId, true, false, 20)",
-    "const { vocabularySize, idfValues } = await CorpusStats(corpusId, true)",
-  ],
-  CreateCorpus: ["const { corpusId } = await CreateCorpus()", 'const corpus = await CreateCorpus("product-docs")'],
-  DeleteCorpus: ["const { deleted } = await DeleteCorpus(corpusId)"],
-  DocumentStats: [
-    'const stats = await DocumentStats("Hello world. This is a test.")',
-    "const { wordCount, sentenceCount } = await DocumentStats(text)",
-  ],
-  ExtractEntities: ['const { entities } = await ExtractEntities("Email john@example.com by Friday")'],
-  Tokenize: [
-    'const result = await Tokenize("The quick brown fox.")',
-    "const { tokens, tokenCount } = await Tokenize(text)",
-  ],
-  Sentences: [
-    'const result = await Sentences("Hello world. How are you?")',
-    "const { sentences, sentenceCount } = await Sentences(text)",
-  ],
-  TextSimilarity: ['const { score } = await TextSimilarity("cats are great", "felines are wonderful")'],
-  TverskySimilarity: ['const { score } = await TverskySimilarity("alpha beta gamma", "alpha beta", 0.8, 0.2)'],
-  TransformText: ['const { result } = await TransformText("<b>Hello</b> WORLD", ["removeHtml", "lowercase", "trim"])'],
-  ExtractKeywords: ['const { keywords } = await ExtractKeywords("Machine learning processes data.", 5)'],
-  LearnCorpus: [
-    "await LearnCorpus(corpusId, [{ id: 'doc-1', text: 'Refund policy details' }])",
-    "await LearnCorpus(corpusId, docs, true)",
-  ],
-  LearnCustomEntities: [
-    "await LearnCustomEntities('custom-entities', 'append', [{ name: 'PERSON_NAME', patterns: ['[PROPN]', '[PROPN]'] }])",
-  ],
-  NGrams: ['const result = await NGrams("internationalization", 3, "bag", 10)'],
-  PhoneticMatch: ['const result = await PhoneticMatch("Stephen Hawking", "Steven Hocking", "soundex", 2)'],
-  QueryCorpus: ['const { ranked } = await QueryCorpus(corpusId, "refund policy", 5, true)'],
-  RankByRelevance: ['const { ranked } = await RankByRelevance(texts, "key policy changes", 5)'],
+const buildArgsObject = (
+  parameterNames: ReadonlyArray<string>,
+  args: ReadonlyArray<unknown>
+): Record<string, unknown> => {
+  const emptyOutput: Record<string, unknown> = {};
+
+  return A.reduce(parameterNames, emptyOutput, (output, name, index) => {
+    const value = args[index];
+    return value === undefined ? output : { ...output, [name]: value };
+  });
 };
 
-const DEFAULT_TIMEOUT_MS = 30_000;
+const handleTool = (toolkit: NlpToolkitWithHandler, tool: NlpTool, params: unknown) =>
+  // `Toolkit.handle` is keyed by a literal tool-name map. At this adapter boundary
+  // we validate `params` against the selected tool schema immediately beforehand,
+  // so the runtime pairing of tool name and decoded parameters is sound.
+  toolkit.handle(tool.name as never, params as never);
 
-const renderErrorMessage = (error: unknown): string => {
-  if (error instanceof Error) {
-    return error.message;
-  }
-  if (typeof error === "string") {
-    return error;
-  }
-  try {
-    return JSON.stringify(error);
-  } catch {
-    return String(error);
-  }
-};
-
-const decodeParams = (
-  fields: Schema.Struct.Fields,
-  obj: Record<string, unknown>
-): Effect.Effect<unknown, ExportedToolError> =>
-  Schema.decodeUnknown(Schema.Struct(fields))(obj).pipe(
-    Effect.mapError(
-      (err) =>
-        new ExportedToolError({
-          toolName: "",
-          message: err instanceof Error ? err.message : String(err),
-        })
-    )
-  ) as Effect.Effect<unknown, ExportedToolError>;
-
-const buildExportedTool = (
-  tool: Tool.Any,
-  toolkit: {
-    readonly handle: (
-      name: string,
-      params: unknown
-    ) => Effect.Effect<
-      {
-        readonly isFailure: boolean;
-        readonly result: unknown;
-        readonly encodedResult: unknown;
-      },
-      unknown
-    >;
-  }
-): ExportedTool => {
-  const name = tool.name;
-  const parameterNames = Object.keys(tool.parametersSchema.fields);
-  const fields = tool.parametersSchema.fields as Schema.Struct.Fields;
+const buildExportedTool = <T extends NlpTool>(tool: T, toolkit: NlpToolkitWithHandler): ExportedTool => {
+  const parameterNames = parameterNamesForTool(tool);
 
   return {
-    name,
-    description: Tool.getDescription(tool as never) ?? "",
-    parameterNames,
-    parametersJsonSchema: Tool.getJsonSchema(tool as never),
-    returnsJsonSchema: JSONSchema.make(tool.successSchema),
-    usageExamples: USAGE_EXAMPLES[name] ?? [],
-    timeoutMs: DEFAULT_TIMEOUT_MS,
-    handle: (args) => {
-      const obj: Record<string, unknown> = {};
-      for (let i = 0; i < parameterNames.length; i++) {
-        if (i < args.length && args[i] !== undefined) {
-          obj[parameterNames[i]!] = args[i];
-        }
-      }
-      return pipe(
-        decodeParams(fields, obj),
-        Effect.mapError(
-          (err) =>
-            new ExportedToolError({
-              toolName: name,
-              message: err instanceof Error ? err.message : String(err),
-            })
-        ),
-        Effect.flatMap((decoded) =>
-          toolkit.handle(name, decoded).pipe(
-            Effect.flatMap((handled) =>
-              handled.isFailure
-                ? Effect.fail(
-                    new ExportedToolError({
-                      toolName: name,
-                      message: `Tool ${name} failed: ${renderErrorMessage(handled.result)}`,
-                    })
-                  )
-                : Effect.succeed(handled.encodedResult)
-            ),
-            Effect.catchAllCause((cause) =>
-              Effect.fail(
-                new ExportedToolError({
-                  toolName: name,
-                  message: `Tool ${name} failed: ${Cause.pretty(cause)}`,
-                })
-              )
-            )
+    description: Tool.getDescription(tool) ?? "",
+    handle: (args) =>
+      Effect.gen(function* () {
+        const params = yield* S.decodeUnknownEffect(tool.parametersSchema)(buildArgsObject(parameterNames, args)).pipe(
+          Effect.mapError((cause) =>
+            ExportedToolError.fromCause(cause, tool.name, `Invalid parameters for ${tool.name}: ${renderError(cause)}`)
           )
+        );
+        const stream = yield* handleTool(toolkit, tool, params).pipe(
+          Effect.mapError((cause) =>
+            ExportedToolError.fromCause(cause, tool.name, `Failed to start ${tool.name}: ${renderError(cause)}`)
+          )
+        );
+        const last = yield* Stream.runLast(stream).pipe(
+          Effect.mapError((cause) =>
+            ExportedToolError.fromCause(cause, tool.name, `Tool ${tool.name} failed: ${renderError(cause)}`)
+          )
+        );
+
+        return yield* O.match(last, {
+          onNone: () =>
+            Effect.fail(ExportedToolError.fromCause(undefined, tool.name, `Tool ${tool.name} returned no result`)),
+          onSome: (result) =>
+            result.isFailure
+              ? Effect.fail(
+                  ExportedToolError.fromCause(
+                    result.result,
+                    tool.name,
+                    `Tool ${tool.name} failed: ${renderError(result.result)}`
+                  )
+                )
+              : Effect.succeed(result.encodedResult),
+        });
+      }).pipe(
+        Effect.catchCause((cause) =>
+          Effect.fail(ExportedToolError.fromCause(cause, tool.name, `Tool ${tool.name} failed: ${Cause.pretty(cause)}`))
         )
-      );
-    },
+      ),
+    name: tool.name,
+    parameterNames,
+    parametersJsonSchema: Tool.getJsonSchema(tool),
+    returnsJsonSchema: Tool.getJsonSchemaFromSchema(tool.successSchema),
+    timeoutMs: DEFAULT_TIMEOUT_MS,
+    usageExamples: USAGE_EXAMPLES[tool.name] ?? [],
   };
 };
 
-export const exportTools: Effect.Effect<ReadonlyArray<ExportedTool>, ExportedToolError, never> = Effect.gen(
-  function* () {
-    const toolkit = yield* NlpToolkit;
-    const tools = Object.values(NlpToolkit.tools) as ReadonlyArray<Tool.Any>;
-    return tools.map((tool) => buildExportedTool(tool, toolkit as never));
-  }
-).pipe(
-  Effect.provide(NlpToolkitLive),
-  Effect.mapError(
-    (error) =>
-      new ExportedToolError({
-        toolName: "__init__",
-        message: renderErrorMessage(error),
-      })
+/**
+ * Export the NLP toolkit as positional tools suitable for REPL-style invocation.
+ *
+ * @returns {Effect.Effect<ReadonlyArray<ExportedTool>, ExportedToolError, Tool.HandlersFor<typeof NlpToolkit.tools>>} - An Effect that resolves with the exported positional tools once the toolkit handlers are available.
+ *
+ * @since 0.0.0
+ * @category Adapters
+ */
+export const exportTools: Effect.Effect<
+  ReadonlyArray<ExportedTool>,
+  ExportedToolError,
+  Tool.HandlersFor<typeof NlpToolkit.tools>
+> = Effect.gen(function* () {
+  const toolkit = yield* NlpToolkit;
+  return A.map(NlpTools, (tool) => buildExportedTool(tool, toolkit));
+}).pipe(
+  Effect.mapError((cause) =>
+    ExportedToolError.fromCause(cause, "__init__", `Failed to export NLP tools: ${renderError(cause)}`)
   )
 );

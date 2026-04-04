@@ -1,37 +1,65 @@
 /**
- * LearnCorpus tool - incrementally learns documents into a corpus session.
- * @since 3.1.0
+ * LearnCorpus tool definition.
+ *
+ * @since 0.0.0
+ * @module @beep/nlp/Tools/LearnCorpus
  */
 
-import { Tool } from "@effect/ai";
-import { Schema } from "effect";
+import { $NlpId } from "@beep/identity";
+import * as S from "effect/Schema";
+import { Tool } from "effect/unstable/ai";
 
-export const LearnCorpus = Tool.make("LearnCorpus", {
-  description: "Learn one or more documents into an existing corpus session for incremental BM25 indexing",
-  parameters: {
-    corpusId: Schema.String.pipe(Schema.minLength(1)).annotations({
+const $I = $NlpId.create("Tools/LearnCorpus");
+
+class LearnCorpusDocument extends S.Class<LearnCorpusDocument>($I`LearnCorpusDocument`)(
+  {
+    id: S.optionalKey(S.String.check(S.isMinLength(1))),
+    text: S.String,
+  },
+  $I.annote("LearnCorpusDocument", {
+    description: "One document to learn into a corpus session.",
+  })
+) {}
+
+class LearnCorpusParameters extends S.Class<LearnCorpusParameters>($I`LearnCorpusParameters`)(
+  {
+    corpusId: S.String.check(S.isMinLength(1)).annotateKey({
       description: "Corpus identifier returned by CreateCorpus",
     }),
-    documents: Schema.NonEmptyArray(
-      Schema.Struct({
-        id: Schema.optional(Schema.String.pipe(Schema.minLength(1))),
-        text: Schema.String,
-      })
-    ).annotations({
+    dedupeById: S.optionalKey(S.Boolean).annotateKey({
+      description: "If true, skip incoming documents whose ids already exist in the corpus.",
+    }),
+    documents: S.NonEmptyArray(LearnCorpusDocument).annotateKey({
       description: "Documents to learn into the corpus",
     }),
-    dedupeById: Schema.optional(
-      Schema.Boolean.annotations({
-        description: "If true (default), skip incoming documents whose ids already exist in the corpus",
-      })
-    ),
   },
-  success: Schema.Struct({
-    corpusId: Schema.String,
-    learnedCount: Schema.Number,
-    skippedCount: Schema.Number,
-    totalDocuments: Schema.Number,
-    vocabularySize: Schema.Number,
-    reindexRequired: Schema.Boolean,
-  }),
+  $I.annote("LearnCorpusParameters", {
+    description: "Inputs required to incrementally learn documents into an existing corpus session.",
+  })
+) {}
+
+class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSuccess`)(
+  {
+    corpusId: S.String,
+    learnedCount: S.Number,
+    reindexRequired: S.Boolean,
+    skippedCount: S.Number,
+    totalDocuments: S.Number,
+    vocabularySize: S.Number,
+  },
+  $I.annote("LearnCorpusSuccess", {
+    description: "Learning result summary for an incremental corpus update.",
+  })
+) {}
+
+/**
+ * Tool for incrementally learning documents into a corpus.
+ *
+ * @since 0.0.0
+ * @category Tools
+ */
+export const LearnCorpus = Tool.make("LearnCorpus", {
+  description: "Learn one or more documents into an existing corpus session for incremental indexing.",
+  parameters: LearnCorpusParameters,
+  success: LearnCorpusSuccess,
 });
