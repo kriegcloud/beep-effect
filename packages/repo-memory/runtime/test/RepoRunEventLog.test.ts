@@ -10,7 +10,6 @@ import {
   RunEventSequence,
   RunId,
   RunProgressUpdatedEvent,
-  StreamRunEventsRequest,
 } from "@beep/repo-memory-model";
 import { RepoRunEventLog } from "@beep/repo-memory-runtime/internal/RepoRunEventLog";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
@@ -18,7 +17,7 @@ import { RepoRunStore } from "@beep/repo-memory-store";
 import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
 import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
-import { DateTime, Effect, Layer, pipe } from "effect";
+import { DateTime, Effect, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Path from "effect/Path";
@@ -106,7 +105,7 @@ const makePacket = (retrievedAt: DateTime.Utc) =>
   });
 
 describe("repo run event log", () => {
-  it.effect("replays only events after the requested cursor and persists retrieval packets", () =>
+  it.effect("loads decoded events for one run and persists retrieval packets", () =>
     withRuntime(
       Effect.gen(function* () {
         const repoRunEventLog = yield* RepoRunEventLog;
@@ -154,49 +153,82 @@ describe("repo run event log", () => {
           )
         ).toBe("Event-log packet summary.");
 
-        const replayed = yield* repoRunEventLog.replayEventsForRun(
-          new StreamRunEventsRequest({
-            runId: queryRunId,
-            cursor: O.some(decodeRunCursor(1)),
-          })
-        );
+        const events = yield* repoRunEventLog.readRunEvents(queryRunId);
 
         expect(
           pipe(
-            replayed,
+            events,
             A.map((event) => event.sequence)
           )
-        ).toEqual([decodeRunEventSequence(2), decodeRunEventSequence(3)]);
+        ).toEqual([decodeRunEventSequence(1), decodeRunEventSequence(2), decodeRunEventSequence(3)]);
         expect(
           pipe(
-            replayed,
+            events,
             A.map((event) => event.kind)
           )
-        ).toEqual(["progress", "retrieval-packet"]);
+        ).toEqual(["accepted", "progress", "retrieval-packet"]);
       })
     )
   );
 
-  it.effect("returns a typed 404 when replay is requested for a missing run", () =>
+  it.effect("opens a live decoded tail after the requested cursor", () =>
     withRuntime(
-      Effect.gen(function* () {
-        const repoRunEventLog = yield* RepoRunEventLog;
-        const error = yield* Effect.flip(
-          repoRunEventLog.replayEventsForRun(
-            new StreamRunEventsRequest({
-              runId: decodeRunId("run:query:event-log:missing"),
-              cursor: O.none(),
-            })
-          )
-        );
+      Effect.scoped(
+        Effect.gen(function* () {
+          const repoRunEventLog = yield* RepoRunEventLog;
 
-        expect(error._tag).toBe("RepoRunServiceError");
-        expect(error.status).toBe(404);
-      })
+          yield* repoRunEventLog.appendRunEvent(
+            new RunAcceptedEvent({
+              runId: queryRunId,
+              sequence: decodeRunEventSequence(1),
+              emittedAt: makeUtc(1_706_400_000_000),
+              runKind: "query",
+              repoId,
+              question: O.some("describe symbol `answer`"),
+            })
+          );
+
+          const liveStream = yield* repoRunEventLog.openLiveRunEventsAfter(queryRunId, O.some(decodeRunCursor(1)));
+          yield* repoRunEventLog.appendRunEvent(
+            new RunProgressUpdatedEvent({
+              runId: queryRunId,
+              sequence: decodeRunEventSequence(2),
+              emittedAt: makeUtc(1_706_400_001_000),
+              phase: "grounding",
+              message: "Normalizing the question.",
+              percent: O.some(decodeNonNegativeInt(25)),
+            })
+          );
+          const packet = makePacket(makeUtc(1_706_400_003_000));
+          yield* repoRunEventLog.appendRunEvent(
+            new RetrievalPacketMaterializedEvent({
+              runId: queryRunId,
+              sequence: decodeRunEventSequence(3),
+              emittedAt: makeUtc(1_706_400_003_000),
+              packet,
+            })
+          );
+
+          const liveEvents = yield* Stream.runCollect(liveStream.pipe(Stream.take(2)));
+
+          expect(
+            pipe(
+              liveEvents,
+              A.map((event) => event.sequence)
+            )
+          ).toEqual([decodeRunEventSequence(2), decodeRunEventSequence(3)]);
+          expect(
+            pipe(
+              liveEvents,
+              A.map((event) => event.kind)
+            )
+          ).toEqual(["progress", "retrieval-packet"]);
+        })
+      )
     )
   );
 
-  it.effect("fails replay when a stored journal payload cannot be decoded", () =>
+  it.effect("fails decoded reads when a stored journal payload cannot be decoded", () =>
     withRuntime(
       Effect.gen(function* () {
         const journal = yield* EventJournal.EventJournal;
@@ -209,14 +241,7 @@ describe("repo run event log", () => {
           effect: () => Effect.void,
         });
 
-        const error = yield* Effect.flip(
-          repoRunEventLog.replayEventsForRun(
-            new StreamRunEventsRequest({
-              runId: queryRunId,
-              cursor: O.none(),
-            })
-          )
-        );
+        const error = yield* Effect.flip(repoRunEventLog.readRunEvents(queryRunId));
 
         expect(error._tag).toBe("RepoRunServiceError");
         expect(error.status).toBe(500);

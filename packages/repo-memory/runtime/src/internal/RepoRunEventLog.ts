@@ -5,41 +5,43 @@ import {
   type QueryRun,
   type QueryStagePhase,
   type RepoRun,
-  RunCursor,
+  type RunCursor,
   RunEventSequence,
   type RunId,
   RunProgressUpdatedEvent,
   RunResumedEvent,
   RunStartedEvent,
   RunStreamEvent,
-  RunStreamFailure,
-  type StreamRunEventsRequest,
+  type RunStreamFailure,
 } from "@beep/repo-memory-model";
 import { RepoRunStore } from "@beep/repo-memory-store";
 import { NonNegativeInt } from "@beep/schema";
-import { thunkTrue } from "@beep/utils";
 import { DateTime, Effect, flow, Layer, Match, pipe, Schedule, ServiceMap, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import type * as Scope from "effect/Scope";
 import * as Msgpack from "effect/unstable/encoding/Msgpack";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import { projectRunEvent } from "../run/RunProjector.js";
 import type { RunExecutionTransition } from "../run/RunStateMachine.js";
-import { mapStatusCauseError, type RepoRunServiceError, toRunServiceError } from "./RepoRunServiceShared.js";
+import {
+  isSequenceAfterCursor,
+  isTerminalRunEvent,
+  mapStatusCauseError,
+  type RepoRunServiceError,
+  toRunServiceError,
+  toRunStreamFailure,
+} from "./RepoRunServiceShared.js";
 
 const $I = $RepoMemoryRuntimeId.create("internal/RepoRunEventLog");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-const decodeRunCursor = S.decodeUnknownSync(RunCursor);
 const decodeRunEventPayload = S.decodeUnknownEffect(Msgpack.schema(RunStreamEvent));
 const decodeRunEventSequence = S.decodeUnknownSync(RunEventSequence);
 const encodeRunEventPayload = S.encodeUnknownEffect(Msgpack.schema(RunStreamEvent));
 
 type ProjectedRunEvent = Extract<RunStreamEvent, { readonly kind: "answer" | "progress" | "retrieval-packet" }>;
-
-const isTerminalEvent = (event: RunStreamEvent): boolean =>
-  event.kind === "completed" || event.kind === "failed" || event.kind === "interrupted";
 
 /**
  * Internal event-log projection and replay boundary for repo runs.
@@ -69,14 +71,16 @@ type RepoRunEventLogShape = {
   readonly ensureProjectedIndexRun: (run: RepoRun) => Effect.Effect<IndexRun, RepoRunServiceError>;
   readonly ensureProjectedQueryRun: (run: RepoRun) => Effect.Effect<QueryRun, RepoRunServiceError>;
   readonly nextSequenceForRun: (run: RepoRun) => RunEventSequence;
-  readonly replayEventsForRun: (
-    request: StreamRunEventsRequest
-  ) => Effect.Effect<ReadonlyArray<RunStreamEvent>, RepoRunServiceError>;
-  readonly streamRunEvents: (request: StreamRunEventsRequest) => Stream.Stream<RunStreamEvent, RunStreamFailure>;
+  readonly openLiveRunEventsAfter: (
+    runId: RunId,
+    cursor: O.Option<RunCursor>
+  ) => Effect.Effect<Stream.Stream<RunStreamEvent, RunStreamFailure>, never, Scope.Scope>;
+  readonly readRunEvents: (runId: RunId) => Effect.Effect<ReadonlyArray<RunStreamEvent>, RepoRunServiceError>;
 };
 
 /**
- * Service tag for run-event append, projection, replay, and streaming.
+ * Service tag for run-event append, projection materialization, decoded reads,
+ * and live tail subscription.
  *
  * @since 0.0.0
  * @category PortContract
@@ -201,40 +205,18 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
     );
   });
 
-  const replayEventsForRun: RepoRunEventLogShape["replayEventsForRun"] = Effect.fn(
-    "RepoRunEventLog.replayEventsForRun"
-  )(function* (request) {
-    const entries = yield* mapJournalError(`load journal entries for run "${request.runId}"`, journal.entries);
-    const decoded = yield* Effect.forEach(entries, (entry) =>
-      entry.primaryKey === request.runId ? decodeJournalEvent(entry).pipe(Effect.map(O.some)) : Effect.succeed(O.none())
-    );
-    const replayEvents = pipe(
-      decoded,
-      A.reduce(A.empty<RunStreamEvent>(), (events, maybeEvent) =>
-        O.isSome(maybeEvent) ? pipe(events, A.append(maybeEvent.value)) : events
-      ),
-      A.filter((event) =>
-        pipe(
-          request.cursor,
-          O.match({
-            onNone: thunkTrue,
-            onSome: (cursor) => event.sequence > cursor,
-          })
-        )
-      )
-    );
+  const readRunEvents: RepoRunEventLogShape["readRunEvents"] = Effect.fn("RepoRunEventLog.readRunEvents")(
+    function* (runId) {
+      yield* Effect.annotateCurrentSpan({ run_id: runId });
+      const entries = yield* mapJournalError(`load journal entries for run "${runId}"`, journal.entries);
+      const runEntries = pipe(
+        entries,
+        A.filter((entry) => entry.primaryKey === runId)
+      );
 
-    if (A.isReadonlyArrayNonEmpty(replayEvents)) {
-      return replayEvents;
+      return yield* Effect.forEach(runEntries, decodeJournalEvent);
     }
-
-    const maybeRun = yield* mapStatusCauseError(repoRunStore.getRun(request.runId));
-
-    return yield* O.match(maybeRun, {
-      onNone: () => toRunServiceError(`Run not found: "${request.runId}".`, 404),
-      onSome: () => Effect.succeed(replayEvents),
-    });
-  });
+  );
 
   const nextSequenceForRun: RepoRunEventLogShape["nextSequenceForRun"] = (run) =>
     decodeRunEventSequence(run.lastEventSequence + 1);
@@ -292,59 +274,22 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
     );
   });
 
-  const streamRunEvents: RepoRunEventLogShape["streamRunEvents"] = (request) =>
-    Stream.scoped(
-      Stream.unwrap(
-        Effect.gen(function* () {
-          yield* Effect.annotateCurrentSpan({
-            run_id: request.runId,
-            cursor_present: O.isSome(request.cursor),
-          });
-          const subscription = yield* journal.changes;
-          const replayEvents = yield* replayEventsForRun(request).pipe(
-            Effect.mapError((error) => new RunStreamFailure({ message: error.message, status: error.status }))
-          );
-          const lastReplayCursor = pipe(
-            replayEvents,
-            A.last,
-            O.map((event) => decodeRunCursor(event.sequence)),
-            O.orElse(() => request.cursor)
-          );
-          const replayStream = Stream.fromIterable(replayEvents);
+  const openLiveRunEventsAfter: RepoRunEventLogShape["openLiveRunEventsAfter"] = Effect.fn(
+    "RepoRunEventLog.openLiveRunEventsAfter"
+  )(function* (runId, cursor): Effect.fn.Return<Stream.Stream<RunStreamEvent, RunStreamFailure>, never, Scope.Scope> {
+    yield* Effect.annotateCurrentSpan({
+      run_id: runId,
+      cursor_present: O.isSome(cursor),
+    });
+    const subscription = yield* journal.changes;
 
-          yield* Effect.annotateCurrentSpan({
-            replay_event_count: replayEvents.length,
-            replay_is_terminal: pipe(replayEvents, A.last, O.exists(isTerminalEvent)),
-          });
-
-          if (pipe(replayEvents, A.last, O.exists(isTerminalEvent))) {
-            return replayStream;
-          }
-
-          const liveStream = Stream.fromSubscription(subscription).pipe(
-            Stream.filter((entry) => entry.primaryKey === request.runId),
-            Stream.mapEffect(
-              flow(
-                decodeJournalEvent,
-                Effect.mapError((error) => new RunStreamFailure({ message: error.message, status: error.status }))
-              )
-            ),
-            Stream.filter((event) =>
-              pipe(
-                lastReplayCursor,
-                O.match({
-                  onNone: thunkTrue,
-                  onSome: (cursor) => event.sequence > cursor,
-                })
-              )
-            ),
-            Stream.takeUntil(isTerminalEvent)
-          );
-
-          return Stream.concat(replayStream, liveStream);
-        }).pipe(Effect.withSpan("RepoRunEventLog.streamRunEvents"))
-      )
+    return Stream.fromSubscription(subscription).pipe(
+      Stream.filter((entry) => entry.primaryKey === runId),
+      Stream.mapEffect(flow(decodeJournalEvent, Effect.mapError(toRunStreamFailure))),
+      Stream.filter(isSequenceAfterCursor(cursor)),
+      Stream.takeUntil(isTerminalRunEvent)
     );
+  });
 
   return RepoRunEventLog.of({
     appendExecutionTransitionEvent,
@@ -354,7 +299,7 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
     ensureProjectedIndexRun,
     ensureProjectedQueryRun,
     nextSequenceForRun,
-    replayEventsForRun,
-    streamRunEvents,
+    openLiveRunEventsAfter,
+    readRunEvents,
   });
 });

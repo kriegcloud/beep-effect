@@ -17,7 +17,7 @@ import {
   RunId,
   RunProgressUpdatedEvent,
   type RunStreamEvent,
-  RunStreamFailure,
+  type RunStreamFailure,
   type StreamRunEventsRequest,
 } from "@beep/repo-memory-model";
 import {
@@ -49,11 +49,13 @@ import {
 import { profileRunPhase, recordRunFinished, recordRunStarted } from "../telemetry/RepoMemoryTelemetry.js";
 import { RepoRunEventLog } from "./RepoRunEventLog.js";
 import { RepoRunLifecycleController, type RunAcceptanceDecision } from "./RepoRunLifecycleController.js";
+import { RepoRunProjectionBootstrap } from "./RepoRunProjectionBootstrap.js";
 import {
   mapStatusCauseError,
   RepoRunServiceError,
   type RepoRuntimeStoreShape,
   toRunServiceError,
+  toRunStreamFailure,
 } from "./RepoRunServiceShared.js";
 import {
   IndexRepoRunWorkflow,
@@ -113,6 +115,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
   const groundedRetrieval = yield* GroundedRetrievalServiceInternal;
   const repoRunEventLog = yield* RepoRunEventLog;
   const repoRunLifecycleController = yield* RepoRunLifecycleController;
+  const repoRunProjectionBootstrap = yield* RepoRunProjectionBootstrap;
   const reactivity = yield* Reactivity.Reactivity;
 
   const sessionId = yield* Config.string("BEEP_REPO_MEMORY_SESSION_ID").pipe(Config.withDefault("default"));
@@ -435,19 +438,14 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     }
   );
 
-  const getRun: RepoRunServiceShape["getRun"] = Effect.fn("RepoRunService.getRun")(function* (runId) {
-    return yield* repoRunLifecycleController.requireRun(runId);
-  });
+  const getRun: RepoRunServiceShape["getRun"] = repoRunProjectionBootstrap.requireRun;
 
   const listRepos: RepoRunServiceShape["listRepos"] = mapStatusCauseError(driver.listRepos).pipe(
     Effect.withSpan("RepoRunService.listRepos"),
     Effect.annotateLogs({ component: "repo-memory-runtime" })
   );
 
-  const listRuns: RepoRunServiceShape["listRuns"] = mapStatusCauseError(driver.listRuns).pipe(
-    Effect.withSpan("RepoRunService.listRuns"),
-    Effect.annotateLogs({ component: "repo-memory-runtime" })
-  );
+  const listRuns: RepoRunServiceShape["listRuns"] = repoRunProjectionBootstrap.listRuns;
 
   const registerRepo: RepoRunServiceShape["registerRepo"] = Effect.fn("RepoRunService.registerRepo")(function* (input) {
     const registration = yield* mapStatusCauseError(driver.registerRepo(input));
@@ -466,7 +464,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
     listRuns,
     registerRepo,
     resumeRun: repoRunLifecycleController.resumeRun,
-    streamRunEvents: repoRunEventLog.streamRunEvents,
+    streamRunEvents: repoRunProjectionBootstrap.streamRunEvents,
   } satisfies RepoRunServiceShape;
 });
 
@@ -498,14 +496,12 @@ export class RepoRunService extends ServiceMap.Service<RepoRunService, RepoRunSe
       Effect.annotateLogs({ component: "repo-memory-runtime" }),
       Effect.orDie
     )
-  ).pipe(Layer.provide(RepoRunLifecycleController.layer), Layer.provide(RepoRunEventLog.layer));
+  ).pipe(
+    Layer.provide(RepoRunProjectionBootstrap.layer),
+    Layer.provide(RepoRunLifecycleController.layer),
+    Layer.provide(RepoRunEventLog.layer)
+  );
 }
-
-const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure =>
-  new RunStreamFailure({
-    message: error.message,
-    status: error.status,
-  });
 
 /**
  * Live workflow layers for repository index and query runs.

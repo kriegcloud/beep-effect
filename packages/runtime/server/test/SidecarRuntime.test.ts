@@ -671,6 +671,13 @@ describe("spawned Bun sidecar lifecycle", () => {
             return yield* Effect.die("Missing replay cursor from completed query events.");
           }
 
+          const firstCompletedQueryRunResponse = yield* requestJson(
+            RepoRun,
+            `${firstSidecar.baseUrl}/runs/${encodeURIComponent(queryAccepted.runId)}`
+          );
+          expect(firstCompletedQueryRunResponse.status).toBe(200);
+          const firstCompletedQueryRun = expectQueryRun(firstCompletedQueryRunResponse.body);
+
           yield* firstSidecar.shutdown;
 
           const secondSidecar = yield* spawnSidecar({
@@ -690,9 +697,11 @@ describe("spawned Bun sidecar lifecycle", () => {
           );
           expect(restoredQueryRunResponse.status).toBe(200);
           const restoredQueryRun = expectQueryRun(restoredQueryRunResponse.body);
-          expect(restoredQueryRun.status).toBe("completed");
-          expect(O.getOrThrow(restoredQueryRun.answer)).toContain("Signature: answer = helper(41).");
-          expect(O.getOrThrow(restoredQueryRun.retrievalPacket).summary).toContain('Described symbol "answer"');
+          expect(restoredQueryRun.status).toBe(firstCompletedQueryRun.status);
+          expect(restoredQueryRun.queryStages).toEqual(firstCompletedQueryRun.queryStages);
+          expect(restoredQueryRun.retrievalPacket).toEqual(firstCompletedQueryRun.retrievalPacket);
+          expect(restoredQueryRun.answer).toEqual(firstCompletedQueryRun.answer);
+          expect(restoredQueryRun.lastEventSequence).toBe(firstCompletedQueryRun.lastEventSequence);
 
           const secondRpcClient = yield* makeRepoRunRpcClient(secondSidecar.baseUrl);
           const replayedEvents = yield* Stream.runCollect(
@@ -701,24 +710,33 @@ describe("spawned Bun sidecar lifecycle", () => {
               cursor: O.some(decodeRunCursor(replayCursorValue)),
             })
           );
+          const expectedTail = pipe(
+            queryEvents,
+            A.filter((event) => event.sequence > replayCursorValue)
+          );
           expect(
             pipe(
               replayedEvents,
               A.map((event) => event.kind)
             )
-          ).toEqual(["progress", "progress", "retrieval-packet", "answer", "completed"]);
+          ).toEqual(
+            pipe(
+              expectedTail,
+              A.map((event) => event.kind)
+            )
+          );
           expect(
             pipe(
               replayedEvents,
               A.map((event) => event.sequence)
             )
-          ).toEqual([
-            decodeRunEventSequence(5),
-            decodeRunEventSequence(6),
-            decodeRunEventSequence(7),
-            decodeRunEventSequence(8),
-            decodeRunEventSequence(9),
-          ]);
+          ).toEqual(
+            pipe(
+              expectedTail,
+              A.map((event) => event.sequence)
+            )
+          );
+          expect(replayedEvents).toEqual(expectedTail);
 
           const postRestartAccepted = yield* secondRpcClient.StartQueryRepoRun({
             repoId,
