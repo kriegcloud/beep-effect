@@ -3,6 +3,7 @@ import { EditorSurface } from "@beep/editor-lexical";
 import {
   createPageDocument,
   type EditorPageResource,
+  exportPageMimeType,
   makeParagraphBlock,
   PageDocument,
   type PageSummary,
@@ -303,7 +304,7 @@ export function EditorWorkspaceApp() {
 
     try {
       const exported = await Effect.runPromise(client.exportPage(draftPage.slug, format));
-      downloadExport(exported.fileName, exported.content, format === "json" ? "application/json" : "text/markdown");
+      downloadExport(exported.fileName, exported.content, exportPageMimeType(format));
       startTransition(() => setErrorMessage(null));
     } catch (error) {
       startTransition(() => setErrorMessage(errorMessageFromUnknown(error)));

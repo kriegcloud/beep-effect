@@ -3,7 +3,7 @@ import { Duration } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { CronConfig } from "../../src/config/Cron.ts";
+import { CronConfig } from "../../src/domain/Cron.ts";
 
 const strictParseOptions = { onExcessProperty: "error" } as const;
 const decodeCronConfig = S.decodeUnknownSync(CronConfig);

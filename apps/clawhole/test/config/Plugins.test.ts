@@ -11,7 +11,7 @@ import {
   PluginSubagentConfig,
   PluginsConfig,
   PluginsLoadConfig,
-} from "../../src/config/Plugins.ts";
+} from "../../src/domain/Plugins.ts";
 
 const strictParseOptions = { onExcessProperty: "error" } as const;
 

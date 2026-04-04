@@ -144,11 +144,16 @@ export const makeEditorHttpClient = (options: EditorHttpClientOptions) =>
     ...(options.transformResponse === undefined ? {} : { transformResponse: options.transformResponse }),
   });
 
-const EditorHttpClientServiceLive = (options: EditorHttpClientOptions): Layer.Layer<EditorHttpClientService> =>
+const EditorHttpClientServiceLayer = (
+  options: EditorHttpClientOptions
+): Layer.Layer<EditorHttpClientService, never, HttpClient.HttpClient> =>
   Layer.effect(
     EditorHttpClientService,
     makeEditorHttpClient(options).pipe(Effect.map((client) => EditorHttpClientService.of({ client })))
-  ).pipe(Layer.provide(FetchHttpClient.layer));
+  );
+
+const EditorHttpClientDefaultLayer = (options: EditorHttpClientOptions): Layer.Layer<EditorHttpClientService> =>
+  EditorHttpClientServiceLayer(options).pipe(Layer.provide(FetchHttpClient.layer));
 
 /**
  * Construct the editor control-plane HTTP client with the default fetch implementation.
@@ -163,7 +168,7 @@ export const makeEditorHttpClientDefault = (
   options: EditorHttpClientOptions
 ): Effect.Effect<EditorControlPlaneClient> =>
   Effect.scoped(
-    Layer.build(EditorHttpClientServiceLive(options)).pipe(
+    Layer.build(EditorHttpClientDefaultLayer(options)).pipe(
       Effect.map((context) => ServiceMap.get(context, EditorHttpClientService).client)
     )
   );

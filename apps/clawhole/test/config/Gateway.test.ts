@@ -12,7 +12,7 @@ import {
   TalkConfig,
   TalkConfigResponse,
   TalkProviderConfig,
-} from "../../src/config/Gateway.ts";
+} from "../../src/domain/Gateway.ts";
 
 const decodeCanvasHostConfig = S.decodeUnknownSync(CanvasHostConfig);
 const decodeDiscoveryConfig = S.decodeUnknownSync(DiscoveryConfig);

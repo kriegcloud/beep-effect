@@ -2,7 +2,6 @@ import {
   createPageDocument,
   createWorkspaceManifest,
   type ExportFormat,
-  extractPageLinks,
   makePageSummary,
   makeParagraphBlock,
   makeRevisionRecord,
@@ -311,7 +310,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     return yield* readPageFile(filePath);
   });
 
-  const backlinkCountForPages = (pages: ReadonlyArray<PageDocument>, slug: string): number =>
+  const pagesLinkingToSlug = (pages: ReadonlyArray<PageDocument>, slug: string): ReadonlyArray<PageDocument> =>
     pipe(
       pages,
       A.filter((page) =>
@@ -319,9 +318,11 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
           page.outboundLinks,
           A.some((link) => link.targetSlug === slug)
         )
-      ),
-      A.length
+      )
     );
+
+  const backlinkCountForPages = (pages: ReadonlyArray<PageDocument>, slug: string): number =>
+    pipe(pagesLinkingToSlug(pages, slug), A.length);
 
   const summaryForPage = (pages: ReadonlyArray<PageDocument>, page: PageDocument): PageSummary =>
     makePageSummary(page, backlinkCountForPages(pages, page.slug));
@@ -338,13 +339,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     const pages = yield* listAllPages();
 
     return pipe(
-      pages,
-      A.filter((page) =>
-        pipe(
-          page.outboundLinks,
-          A.some((link) => link.targetSlug === slug)
-        )
-      ),
+      pagesLinkingToSlug(pages, slug),
       A.map((page) => summaryForPage(pages, page))
     );
   });
@@ -382,10 +377,11 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
         const now = yield* DateTime.now;
         const nextPage = O.match(existingPage, {
           onNone: () =>
-            new PageDocument({
-              ...page,
-              outboundLinks: A.fromIterable(extractPageLinks(page)),
-              updatedAt: now,
+            refreshPageDocument(page, {
+              title: page.title,
+              slug: page.slug,
+              blocks: page.blocks,
+              now,
             }),
           onSome: (current) =>
             refreshPageDocument(current, {
@@ -398,7 +394,10 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
         const manifest = yield* readManifest();
         const nextManifest = new WorkspaceManifest({
           ...manifest,
-          rootPageSlug: O.isSome(manifest.rootPageSlug) ? manifest.rootPageSlug : O.some(nextPage.slug),
+          rootPageSlug: pipe(
+            manifest.rootPageSlug,
+            O.orElse(() => O.some(nextPage.slug))
+          ),
           updatedAt: now,
         });
 

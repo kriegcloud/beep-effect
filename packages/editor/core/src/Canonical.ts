@@ -1,6 +1,6 @@
 import { $EditorId } from "@beep/identity/packages";
 import { LiteralKit, NonEmptyTrimmedStr, NonNegativeInt, Slug, UUID } from "@beep/schema";
-import { type DateTime, flow, pipe } from "effect";
+import { type DateTime, flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -203,13 +203,24 @@ export class QuoteBlock extends S.Class<QuoteBlock>($I`QuoteBlock`)(
  * @since 0.0.0
  * @category DomainModel
  */
-export const DocumentBlock = S.Union([ParagraphBlock, HeadingBlock, QuoteBlock])
+const DocumentBlockSchema = S.Union([ParagraphBlock, HeadingBlock, QuoteBlock])
   .pipe(S.toTaggedUnion("kind"))
   .annotate(
     $I.annote("DocumentBlock", {
       description: "Supported block variants in the canonical editor document model.",
     })
   );
+type DocumentBlockValue = typeof DocumentBlockSchema.Type;
+type DocumentBlockCases<A> = {
+  readonly paragraph: (block: ParagraphBlock) => A;
+  readonly heading: (block: HeadingBlock) => A;
+  readonly quote: (block: QuoteBlock) => A;
+};
+const matchDocumentBlock = <A>(block: DocumentBlockValue, cases: DocumentBlockCases<A>) =>
+  Match.value(block).pipe(Match.discriminatorsExhaustive("kind")(cases));
+export const DocumentBlock = Object.assign(DocumentBlockSchema, {
+  match: matchDocumentBlock,
+});
 /**
  * @since 0.0.0
  * @category DomainModel
@@ -321,6 +332,9 @@ export class PageExport extends S.Class<PageExport>($I`PageExport`)(
 
 const pageLinkPattern = /\[\[([a-z0-9-]+)]]/g;
 const untitledSlug = S.decodeUnknownSync(Slug)("untitled");
+type TextBlock = {
+  readonly text: string;
+};
 
 const blockText = (block: DocumentBlock): string =>
   DocumentBlock.match(block, {
@@ -333,6 +347,28 @@ const markdownBlockText = (block: DocumentBlock): string =>
     paragraph: ({ text }) => text,
     heading: ({ level, text }) => `${"#".repeat(level)} ${text}`,
     quote: ({ text }) => `> ${text}`,
+  });
+const exportFormatExtension = (format: ExportFormat): "json" | "md" =>
+  ExportFormat.$match(format, {
+    json: (): "json" => "json",
+    markdown: (): "md" => "md",
+  });
+const exportFormatContent = (page: PageDocument, format: ExportFormat): string =>
+  ExportFormat.$match(format, {
+    json: () => encodePageDocumentJson(page),
+    markdown: () => pageToMarkdown(page),
+  });
+const withDerivedOutboundLinks = (page: PageDocument): PageDocument =>
+  new PageDocument({
+    ...page,
+    outboundLinks: A.fromIterable(extractPageLinks(page)),
+  });
+const extractLinksFromTextBlock = ({ text }: TextBlock): ReadonlyArray<PageLinkRef> => extractBlockLinks(text);
+const extractLinksFromBlock = (block: DocumentBlock): ReadonlyArray<PageLinkRef> =>
+  DocumentBlock.match(block, {
+    paragraph: extractLinksFromTextBlock,
+    heading: extractLinksFromTextBlock,
+    quote: extractLinksFromTextBlock,
   });
 
 const extractBlockLinks = (text: string): ReadonlyArray<PageLinkRef> => {
@@ -438,7 +474,7 @@ export const makeQuoteBlock = (text: string): QuoteBlock =>
  * @category Helpers
  */
 export const extractPageLinks = (page: PageDocument): ReadonlyArray<PageLinkRef> =>
-  pipe(page.blocks, A.flatMap(flow(blockText, extractBlockLinks)));
+  pipe(page.blocks, A.flatMap(extractLinksFromBlock));
 
 /**
  * Render a canonical page to plain text for search and previews.
@@ -464,6 +500,32 @@ export const pageToMarkdown = (page: PageDocument): string =>
   pipe(page.blocks, A.map(markdownBlockText), A.join("\n\n"));
 
 /**
+ * Resolve the persisted file extension for an export format.
+ *
+ * @param format {ExportFormat} - The canonical export format.
+ * @returns {"json" | "md"} - The file extension for the exported artifact.
+ *
+ * @since 0.0.0
+ * @category Helpers
+ */
+export const exportPageExtension = (format: ExportFormat): "json" | "md" => exportFormatExtension(format);
+
+/**
+ * Resolve the MIME type for an export format.
+ *
+ * @param format {ExportFormat} - The canonical export format.
+ * @returns {"application/json" | "text/markdown"} - The MIME type for the exported artifact.
+ *
+ * @since 0.0.0
+ * @category Helpers
+ */
+export const exportPageMimeType = (format: ExportFormat): "application/json" | "text/markdown" =>
+  ExportFormat.$match(format, {
+    json: (): "application/json" => "application/json",
+    markdown: (): "text/markdown" => "text/markdown",
+  });
+
+/**
  * Materialize an export payload from a canonical page document.
  *
  * @param page {PageDocument} - The page document to export.
@@ -478,8 +540,8 @@ export const pageToExport = (page: PageDocument, format: ExportFormat): PageExpo
     pageId: page.id,
     slug: page.slug,
     format,
-    fileName: `${page.slug}.${format === "json" ? "json" : "md"}`,
-    content: format === "json" ? encodePageDocumentJson(page) : pageToMarkdown(page),
+    fileName: `${page.slug}.${exportFormatExtension(format)}`,
+    content: exportFormatContent(page, format),
   });
 
 /**
@@ -496,22 +558,18 @@ export const createPageDocument = (input: {
   readonly slug?: Slug | undefined;
   readonly blocks: ReadonlyArray<DocumentBlock>;
   readonly now: DateTime.Utc;
-}): PageDocument => {
-  const page = new PageDocument({
-    id: decodePageId(crypto.randomUUID()),
-    slug: input.slug ?? normalizePageSlug(input.title),
-    title: input.title,
-    blocks: A.fromIterable(input.blocks),
-    outboundLinks: A.empty<PageLinkRef>(),
-    createdAt: input.now,
-    updatedAt: input.now,
-  });
-
-  return new PageDocument({
-    ...page,
-    outboundLinks: A.fromIterable(extractPageLinks(page)),
-  });
-};
+}): PageDocument =>
+  withDerivedOutboundLinks(
+    new PageDocument({
+      id: decodePageId(crypto.randomUUID()),
+      slug: input.slug ?? normalizePageSlug(input.title),
+      title: input.title,
+      blocks: A.fromIterable(input.blocks),
+      outboundLinks: A.empty<PageLinkRef>(),
+      createdAt: input.now,
+      updatedAt: input.now,
+    })
+  );
 
 /**
  * Produce a lightweight page summary.
@@ -552,22 +610,18 @@ export const refreshPageDocument = (
     readonly blocks: ReadonlyArray<DocumentBlock>;
     readonly now: DateTime.Utc;
   }
-): PageDocument => {
-  const nextPage = new PageDocument({
-    id: page.id,
-    slug: input.slug,
-    title: input.title,
-    blocks: A.fromIterable(input.blocks),
-    outboundLinks: A.empty<PageLinkRef>(),
-    createdAt: page.createdAt,
-    updatedAt: input.now,
-  });
-
-  return new PageDocument({
-    ...nextPage,
-    outboundLinks: A.fromIterable(extractPageLinks(nextPage)),
-  });
-};
+): PageDocument =>
+  withDerivedOutboundLinks(
+    new PageDocument({
+      id: page.id,
+      slug: input.slug,
+      title: input.title,
+      blocks: A.fromIterable(input.blocks),
+      outboundLinks: A.empty<PageLinkRef>(),
+      createdAt: page.createdAt,
+      updatedAt: input.now,
+    })
+  );
 
 /**
  * Create an immutable revision record from a page save.

@@ -16,17 +16,7 @@ export * from "@beep/editor";
  * @since 0.0.0
  * @category Re-exports
  */
-export {
-  SidecarBadRequest,
-  SidecarBadRequestPayload,
-  SidecarBootstrap,
-  SidecarBootstrapStdoutEvent,
-  SidecarHealthStatus,
-  SidecarInternalError,
-  SidecarInternalErrorPayload,
-  SidecarNotFound,
-  SidecarNotFoundPayload,
-} from "@beep/runtime-protocol";
+export * from "@beep/runtime-protocol";
 /**
  * Union of deterministic sidecar control-plane payload errors.
  *
@@ -59,6 +49,11 @@ export const EditorControlPlaneResourceError = S.Union([
   RuntimeProtocol.SidecarNotFound,
   RuntimeProtocol.SidecarInternalError,
 ]);
+/**
+ * @since 0.0.0
+ * @category Integration
+ */
+export type EditorControlPlaneResourceError = typeof EditorControlPlaneResourceError.Type;
 
 /**
  * Workspace summary projection returned by the editor control plane.
