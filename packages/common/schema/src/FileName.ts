@@ -73,14 +73,6 @@ const KnownFileExtensionText = S.String.check(
   })
 );
 
-const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
-  $I.annoteSchema("FileName", {
-    description: "A portable file name in the format basename.ext.",
-    documentation:
-      "Requires a non-empty basename before the final dot, allows additional dots in the basename, and validates the final extension against FileExtension.",
-  })
-);
-
 /**
  * Schema for portable file names with a non-empty basename and known file extension.
  *
@@ -101,9 +93,13 @@ const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).p
  * @since 0.0.0
  * @category Validation
  */
-export const FileName = FileNameSchema as unknown as S.TemplateLiteral<
-  readonly [typeof FileNameStemWithDot, typeof KnownFileExtensionText]
->;
+export const FileName = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
+  $I.annoteSchema("FileName", {
+    description: "A portable file name in the format basename.ext.",
+    documentation:
+      "Requires a non-empty basename before the final dot, allows additional dots in the basename, and validates the final extension against FileExtension.",
+  })
+);
 
 /**
  * Type for {@link FileName}.
