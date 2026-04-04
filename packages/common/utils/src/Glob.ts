@@ -115,7 +115,7 @@ const hasDotSegment = (value: string): boolean =>
     value,
     normalizePathSeparators,
     Str.split("/"),
-    A.some((segment) => segment.length > 1 && Str.startsWith(".")(segment))
+    A.some((segment) => segment.length > 1 && segment !== ".." && Str.startsWith(".")(segment))
   );
 
 const toPatterns = (pattern: Pattern): ReadonlyArray<string> => (P.isString(pattern) ? [pattern] : pattern);
@@ -189,7 +189,7 @@ const scanWithNodeGlob = async (
   );
 
   if (options?.absolute === true) {
-    return pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths]);
+    return A.map(relativePaths, toAbsolute);
   }
 
   return [...relativePaths];
@@ -235,7 +235,7 @@ export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
         );
 
         if (options?.absolute === true) {
-          return pipe(relativePaths, A.map(toAbsolute), (paths) => [...paths]);
+          return A.map(relativePaths, toAbsolute);
         }
 
         return [...relativePaths];
