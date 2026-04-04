@@ -5,11 +5,9 @@
  * @module @beep/nlp/Tools/NlpToolkit
  */
 
-import { Chunk, Clock, Effect, Layer, Match, pipe } from "effect";
+import { Chunk, Clock, Effect, Inspectable, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Inspectable from "effect/Inspectable";
 import * as O from "effect/Option";
-import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";

@@ -64,6 +64,11 @@ export * from "./FileExtension.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./FileName.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./FilePath.ts";
 /**
  * @since 0.0.0

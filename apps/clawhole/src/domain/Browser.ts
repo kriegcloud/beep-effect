@@ -132,7 +132,7 @@ const usesExistingSessionDriver = (value: O.Option<BrowserProfileDriver>): boole
  * @category Configuration
  * @since 0.0.0
  */
-export const BrowserProfileDriver = LiteralKit(["openclaw", "clawd", "existing-session"] as const).pipe(
+export const BrowserProfileDriver = LiteralKit(["openclaw", "clawd", "existing-session"]).pipe(
   $I.annoteSchema("BrowserProfileDriver", {
     description: "Supported browser profile drivers.",
   })
@@ -152,7 +152,7 @@ export type BrowserProfileDriver = typeof BrowserProfileDriver.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const BrowserSnapshotMode = LiteralKit(["efficient"] as const).pipe(
+export const BrowserSnapshotMode = LiteralKit(["efficient"]).pipe(
   $I.annoteSchema("BrowserSnapshotMode", {
     description: "Supported default browser snapshot modes.",
   })

@@ -717,7 +717,7 @@ export class SessionSendPolicyConfig extends S.Class<SessionSendPolicyConfig>($I
     default: S.OptionFromOptionalKey(SessionSendPolicyAction).annotateKey({
       description: "Fallback action applied when no explicit session send-policy rule matches.",
     }),
-    rules: S.OptionFromOptionalKey(S.Array(SessionSendPolicyRule)).annotateKey({
+    rules: SessionSendPolicyRule.pipe(S.Array, S.OptionFromOptionalKey).annotateKey({
       description: "Ordered allow-or-deny rules evaluated before the fallback action.",
     }),
   },

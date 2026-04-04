@@ -61,7 +61,7 @@ export const QueueMode = LiteralKit([
   "steer+backlog",
   "queue",
   "interrupt",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("QueueMode", {
     description:
       "Supported inbound queue behavior modes controlling whether new messages steer, follow up, collect, backlog, queue, or interrupt existing work.",
@@ -91,7 +91,7 @@ export type QueueMode = typeof QueueMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const QueueDropPolicy = LiteralKit(["old", "new", "summarize"] as const).pipe(
+export const QueueDropPolicy = LiteralKit(["old", "new", "summarize"]).pipe(
   $I.annoteSchema("QueueDropPolicy", {
     description:
       "Supported drop strategies when an inbound queue exceeds its cap: discard the oldest item, reject the newest item, or summarize overflow.",

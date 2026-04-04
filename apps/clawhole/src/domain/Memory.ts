@@ -100,7 +100,7 @@ const MemoryQmdEmbedInterval = S.String.pipe(
  * @category Configuration
  * @since 0.0.0
  */
-export const MemoryBackend = LiteralKit(["builtin", "qmd"] as const).pipe(
+export const MemoryBackend = LiteralKit(["builtin", "qmd"]).pipe(
   $I.annoteSchema("MemoryBackend", {
     description: "Memory backend implementations supported by the config surface.",
   })
@@ -120,7 +120,7 @@ export type MemoryBackend = typeof MemoryBackend.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const MemoryCitationsMode = LiteralKit(["auto", "on", "off"] as const).pipe(
+export const MemoryCitationsMode = LiteralKit(["auto", "on", "off"]).pipe(
   $I.annoteSchema("MemoryCitationsMode", {
     description: "Memory citation modes supported by prompt assembly.",
   })
@@ -140,7 +140,7 @@ export type MemoryCitationsMode = typeof MemoryCitationsMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const MemoryQmdSearchMode = LiteralKit(["query", "search", "vsearch"] as const).pipe(
+export const MemoryQmdSearchMode = LiteralKit(["query", "search", "vsearch"]).pipe(
   $I.annoteSchema("MemoryQmdSearchMode", {
     description: "Search modes supported by the qmd memory backend.",
   })

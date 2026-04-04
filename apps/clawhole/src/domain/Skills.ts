@@ -146,7 +146,7 @@ export class SkillsLoadConfig extends S.Class<SkillsLoadConfig>($I`SkillsLoadCon
  * @category Configuration
  * @since 0.0.0
  */
-export const SkillsNodeManager = LiteralKit(["npm", "pnpm", "yarn", "bun"] as const).pipe(
+export const SkillsNodeManager = LiteralKit(["npm", "pnpm", "yarn", "bun"]).pipe(
   $I.annoteSchema("SkillsNodeManager", {
     description: "Supported package managers used for skills installation workflows.",
   })
