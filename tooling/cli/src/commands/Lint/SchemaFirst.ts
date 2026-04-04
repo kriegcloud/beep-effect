@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
-import { thunkEmptyStr, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
+import { thunkEmptyStr, thunkFalse, thunkSome, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { parse } from "jsonc-parser";
-import { Node, Project, SyntaxKind } from "ts-morph";
+import { Node, Project, SyntaxKind, type TypeElementTypes } from "ts-morph";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Lint/SchemaFirst");
@@ -48,13 +48,13 @@ const SchemaFirstEntryKind = LiteralKit([
   "exported-interface",
   "exported-type-literal",
   "object-struct-schema",
-] as const).annotate(
+]).annotate(
   $I.annote("SchemaFirstEntryKind", {
     description: "Kinds of schema-first inventory findings.",
   })
 );
 
-const SchemaFirstEntryStatus = LiteralKit(["candidate", "exception"] as const).annotate(
+const SchemaFirstEntryStatus = LiteralKit(["candidate", "exception"]).annotate(
   $I.annote("SchemaFirstEntryStatus", {
     description: "Tracked status for a schema-first inventory finding.",
   })
@@ -79,11 +79,11 @@ class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDocument>
     version: S.Literal(1),
     generatedOn: S.String,
     scope: S.Array(S.String).pipe(
-      S.withConstructorDefault(() => O.some(A.fromIterable(INCLUDED_GLOBS))),
+      S.withConstructorDefault(thunkSome(A.fromIterable(INCLUDED_GLOBS))),
       S.withDecodingDefault(() => A.fromIterable(INCLUDED_GLOBS))
     ),
     enforcedRoots: S.Array(S.String).pipe(
-      S.withConstructorDefault(() => O.some(A.fromIterable(ENFORCED_ROOTS))),
+      S.withConstructorDefault(thunkSome(A.fromIterable(ENFORCED_ROOTS))),
       S.withDecodingDefault(() => A.fromIterable(ENFORCED_ROOTS))
     ),
     entries: S.Array(SchemaFirstInventoryEntry).pipe(
@@ -258,7 +258,7 @@ const detectTypeAliasReason = (node: import("ts-morph").TypeAliasDeclaration): O
   if (typeNode === undefined || typeNode.getKind() !== SyntaxKind.TypeLiteral) {
     return O.some("Non-literal type alias is out of scope for automatic schema-first enforcement.");
   }
-  const members = Node.isTypeLiteral(typeNode) ? typeNode.getMembers() : [];
+  const members = Node.isTypeLiteral(typeNode) ? typeNode.getMembers() : A.empty<TypeElementTypes>();
   if (typeLiteralMembersUnsafe(members)) {
     return O.some("Type alias contains non-schema signals such as function members or runtime handles.");
   }
@@ -320,8 +320,8 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     status: typeof SchemaFirstEntryStatus.Type,
     reason: string,
     owner: string
-  ) => {
-    entries.push(
+  ) =>
+    void entries.push(
       new SchemaFirstInventoryEntry({
         file,
         symbol,
@@ -331,7 +331,6 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
         owner,
       })
     );
-  };
 
   for (const sourceFile of project.getSourceFiles()) {
     const filePath = toPosixPath(path.relative(process.cwd(), sourceFile.getFilePath()));
@@ -405,12 +404,7 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     generatedOn: todayYmd(),
     scope: A.fromIterable(INCLUDED_GLOBS),
     enforcedRoots: A.fromIterable(ENFORCED_ROOTS),
-    entries: sortEntries(
-      pipe(
-        entries,
-        A.dedupeWith((left, right) => makeEntryKey(left) === makeEntryKey(right))
-      )
-    ),
+    entries: sortEntries(A.dedupeWith(entries, (left, right) => makeEntryKey(left) === makeEntryKey(right))),
   });
 });
 
@@ -422,7 +416,7 @@ const mergeInventory = (
     existingDocument,
     O.map((document) =>
       HashMap.fromIterable(
-        document.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+        A.map(document.entries, (entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
       )
     ),
     O.getOrElse(() => HashMap.empty<string, SchemaFirstInventoryEntry>())
