@@ -38,7 +38,7 @@ import { $ClawholeId } from "@beep/identity";
 import { ArrayOfStrings, LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $ClawholeId.create("config/Approvals");
+const $I = $ClawholeId.create("domain/Approvals");
 
 const strictParseOptions = {
   exact: true as const,

@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../tooling/docgen/docgen/schema.json",
+  "$schema": "../../../tooling/docgen/schema.json",
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/runtime/protocol/src/",
   "examplesCompilerOptions": {
     "noEmit": true,

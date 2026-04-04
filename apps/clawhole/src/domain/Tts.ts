@@ -12,7 +12,7 @@ import { $ClawholeId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $ClawholeId.create("config/TextToSpeech");
+const $I = $ClawholeId.create("domain/TextToSpeech");
 
 /**
  * Branded identifier for a configured TextToSpeech provider.

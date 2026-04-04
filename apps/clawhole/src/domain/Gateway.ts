@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/Gateway");
+const $I = $ClawholeId.create("domain/Gateway");
 
 const normalizeTalkProvider = flow(Str.trim, Str.toLowerCase);
 

@@ -10,10 +10,10 @@
  * import * as S from "effect/Schema";
  * import { FileName } from "@beep/schema/FileName";
  *
- * const readme = S.decodeUnknownSync(FileName)("readme.txt");
- * const archive = S.decodeUnknownSync(FileName)("archive.tar.gz");
+ * const decodeFileName = S.decodeUnknownSync(FileName);
  *
- * console.log([readme, archive]);
+ * decodeFileName("readme.txt");
+ * decodeFileName("archive.tar.gz");
  * ```
  *
  * @module @beep/schema/FileName
@@ -21,11 +21,8 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { pipe } from "effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import * as Str from "effect/String";
 import { FileExtension } from "./FileExtension.ts";
 import { HasNullByte, UsesPosixSeparator, UsesWindowsSeparator } from "./FilePath.ts";
 
@@ -34,102 +31,37 @@ const $I = $SchemaId.create("FileName");
 const isHasNullByte = S.is(HasNullByte);
 const isUsesPosixSeparator = S.is(UsesPosixSeparator);
 const isUsesWindowsSeparator = S.is(UsesWindowsSeparator);
-const isFileExtension = S.is(FileExtension);
 
-const lastExtensionSeparatorIndex = (value: string) => Str.lastIndexOf(".")(value);
-
-const fileNameStemSegment = (value: string) =>
-  pipe(
-    lastExtensionSeparatorIndex(value),
-    O.filter((index) => index > 0),
-    O.map((index) => Str.takeLeft(index)(value))
-  );
-
-const fileNameExtensionSegment = (value: string) =>
-  pipe(
-    lastExtensionSeparatorIndex(value),
-    O.filter((index) => index < Str.length(value) - 1),
-    O.map((index) => Str.takeRight(Str.length(value) - index - 1)(value))
-  );
-
-const FileNameChecks = S.makeFilterGroup(
+const FileNameStemChecks = S.makeFilterGroup(
   [
-    S.makeFilter(
-      (value: `${string}.${string}`): value is `${string}.${string}` => pipe(fileNameStemSegment(value), O.isSome),
-      {
-        identifier: $I`FileNameNonEmptyBasenameCheck`,
-        title: "File Name Non-Empty Basename",
-        description: "A file name with a non-empty basename before the final extension separator.",
-        message: "File names must have a non-empty basename before the final extension",
-      }
-    ),
-    S.makeFilter(
-      (value: `${string}.${string}`): value is `${string}.${string}` =>
-        pipe(
-          fileNameStemSegment(value),
-          O.match({
-            onNone: () => true,
-            onSome: P.not(isHasNullByte),
-          })
-        ),
-      {
-        identifier: $I`FileNameNoNullByteCheck`,
-        title: "File Name No Null Byte",
-        description: "A file name whose basename before the final extension separator contains no embedded NUL bytes.",
-        message: "File name stems must not contain embedded NUL bytes",
-      }
-    ),
-    S.makeFilter(
-      (value: `${string}.${string}`): value is `${string}.${string}` =>
-        pipe(
-          fileNameStemSegment(value),
-          O.match({
-            onNone: () => true,
-            onSome: P.not(isUsesPosixSeparator),
-          })
-        ),
-      {
-        identifier: $I`FileNameNoPosixSeparatorCheck`,
-        title: "File Name No Posix Separator",
-        description:
-          "A file name whose basename before the final extension separator does not contain the POSIX path separator /.",
-        message: "File name stems must not contain /",
-      }
-    ),
-    S.makeFilter(
-      (value: `${string}.${string}`): value is `${string}.${string}` =>
-        pipe(
-          fileNameStemSegment(value),
-          O.match({
-            onNone: () => true,
-            onSome: P.not(isUsesWindowsSeparator),
-          })
-        ),
-      {
-        identifier: $I`FileNameNoWindowsSeparatorCheck`,
-        title: "File Name No Windows Separator",
-        description:
-          "A file name whose basename before the final extension separator does not contain the Windows path separator \\.",
-        message: "File name stems must not contain \\",
-      }
-    ),
-    S.makeFilter(
-      (value: `${string}.${string}`): value is `${string}.${string}` =>
-        pipe(fileNameExtensionSegment(value), O.exists(isFileExtension)),
-      {
-        identifier: $I`FileNameKnownExtensionCheck`,
-        title: "File Name Known Extension",
-        description: "A file name whose final extension segment is accepted by the shared FileExtension schema.",
-        message: "File names must end with a known file extension",
-      }
-    ),
+    S.makeFilter(P.not(isHasNullByte), {
+      identifier: $I`FileNameStemNoNullByteCheck`,
+      title: "File Name Stem No Null Byte",
+      description: "A file-name stem without embedded NUL bytes.",
+      message: "File name stems must not contain embedded NUL bytes",
+    }),
+    S.makeFilter(P.not(isUsesPosixSeparator), {
+      identifier: $I`FileNameStemNoPosixSeparatorCheck`,
+      title: "File Name Stem No Posix Separator",
+      description: "A file-name stem that does not contain the POSIX path separator /.",
+      message: "File name stems must not contain /",
+    }),
+    S.makeFilter(P.not(isUsesWindowsSeparator), {
+      identifier: $I`FileNameStemNoWindowsSeparatorCheck`,
+      title: "File Name Stem No Windows Separator",
+      description: "A file-name stem that does not contain the Windows path separator \\.",
+      message: "File name stems must not contain \\",
+    }),
   ],
   {
-    identifier: $I`FileNameChecks`,
-    title: "File Name",
-    description: "Checks for portable file names with a non-empty basename and known final extension segment.",
+    identifier: $I`FileNameStemChecks`,
+    title: "File Name Stem",
+    description: "Checks for a non-empty file-name stem that can include additional dots but not path separators.",
   }
 );
+
+const FileNameStem = S.NonEmptyString.check(FileNameStemChecks);
+const FileNameStemWithDot = S.TemplateLiteral([FileNameStem, "."]);
 
 /**
  * Schema for portable file names with a non-empty basename and known file extension.
@@ -144,22 +76,22 @@ const FileNameChecks = S.makeFilterGroup(
  * import * as S from "effect/Schema";
  * import { FileName } from "@beep/schema/FileName";
  *
- * S.decodeUnknownSync(FileName)("photo.png");
- * S.decodeUnknownSync(FileName)(".cache.png");
+ * const decodeFileName = S.decodeUnknownSync(FileName);
+ *
+ * decodeFileName("photo.png");
+ * decodeFileName(".cache.png");
  * ```
  *
  * @since 0.0.0
  * @category Validation
  */
-export const FileName = S.TemplateLiteral([S.String, ".", S.String])
-  .check(FileNameChecks)
-  .pipe(
-    $I.annoteSchema("FileName", {
-      description: "A portable file name in the format basename.ext.",
-      documentation:
-        "Requires a non-empty basename before the final dot, allows additional dots in the basename, and validates the final extension against FileExtension.",
-    })
-  );
+export const FileName = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
+  $I.annoteSchema("FileName", {
+    description: "A portable file name in the format basename.ext.",
+    documentation:
+      "Requires a non-empty basename before the final dot, allows additional dots in the basename, and validates the final extension against FileExtension.",
+  })
+);
 
 /**
  * Type for {@link FileName}.

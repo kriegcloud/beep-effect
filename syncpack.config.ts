@@ -19,10 +19,14 @@ const config = {
     "packages/shared/*/package.json",
     "tooling/cli/package.json",
     "tooling/configs/package.json",
-    "packages/editor/package.json",
+    "packages/editor/core/package.json",
     "tooling/repo-utils/package.json",
     "tooling/test-utils/package.json",
-    "tooling/docgen/docgen/package.json",
+    "tooling/docgen/package.json",
+    "packages/editor/lexical/package.json",
+    "packages/editor/protocol/package.json",
+    "packages/editor/client/package.json",
+    "packages/editor/runtime/package.json",
   ],
   customTypes: {
     catalog: {

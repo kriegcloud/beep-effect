@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../tooling/docgen/docgen/schema.json",
+  "$schema": "../../../tooling/docgen/schema.json",
   "exclude": [
     "src/index.ts",
     "src/indexing/IndexedTypeScriptArtifacts.ts",

@@ -32,7 +32,9 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
+import type { ChildProcessSpawner } from "effect/unstable/process/ChildProcessSpawner";
 import * as jsonc from "jsonc-parser";
+import { renderBiomeJson } from "./Shared/BiomeJson.js";
 import {
   buildDocgenAliasSource,
   CanonicalDocgenConfigInput,
@@ -1523,7 +1525,7 @@ const planPackageDocgenSync = Effect.fn(function* (
       })
     );
     const nextDocument = mergeManagedDocgenConfig(parsed, canonicalConfig);
-    const nextContent = renderJson(nextDocument);
+    const nextContent = yield* renderBiomeJson(filePath, nextDocument);
 
     if (stringEquivalence(nextContent, original)) {
       continue;
@@ -1604,102 +1606,104 @@ const renderChanges = Effect.fn(function* (
 export const syncTsconfigAtRoot: (
   rootDir: string,
   options: TsconfigSyncRunOptions
-) => Effect.Effect<TsconfigSyncResult, TsconfigSyncError, FileSystem.FileSystem | Path.Path | FsUtils> = Effect.fn(
-  function* (rootDir: string, options: TsconfigSyncRunOptions) {
-    const workspaces = yield* buildWorkspaceDescriptors(rootDir);
-    const depIndex = yield* buildRepoDependencyIndex(rootDir);
+) => Effect.Effect<
+  TsconfigSyncResult,
+  TsconfigSyncError,
+  FileSystem.FileSystem | Path.Path | FsUtils | ChildProcessSpawner
+> = Effect.fn(function* (rootDir: string, options: TsconfigSyncRunOptions) {
+  const workspaces = yield* buildWorkspaceDescriptors(rootDir);
+  const depIndex = yield* buildRepoDependencyIndex(rootDir);
 
-    const adjacency = buildAdjacency(depIndex);
-    const cycles = yield* detectCycles(adjacency);
+  const adjacency = buildAdjacency(depIndex);
+  const cycles = yield* detectCycles(adjacency);
 
-    if (!isArrayEmpty(cycles)) {
-      return yield* new TsconfigSyncCycleError({
-        cycles: A.map(cycles, (cycle) => [...cycle]),
-        message: `Detected ${cycles.length} workspace dependency cycle(s)`,
-      });
-    }
-
-    const plannedChanges = A.empty<PlannedFileChange>();
-
-    const rootReferenceChange = yield* planRootReferenceSync(rootDir, workspaces);
-    if (O.isSome(rootReferenceChange)) {
-      plannedChanges.push(rootReferenceChange.value);
-    }
-
-    const rootQualityReferenceChange = yield* planRootQualityReferenceSync(rootDir, workspaces);
-    if (O.isSome(rootQualityReferenceChange)) {
-      plannedChanges.push(rootQualityReferenceChange.value);
-    }
-
-    const rootAliasChange = yield* planRootAliasSync(rootDir, workspaces);
-    if (O.isSome(rootAliasChange)) {
-      plannedChanges.push(rootAliasChange.value);
-    }
-
-    const rootTstycheChange = yield* planRootTstycheSync(rootDir, workspaces);
-    if (O.isSome(rootTstycheChange)) {
-      plannedChanges.push(rootTstycheChange.value);
-    }
-
-    const rootSyncpackChange = yield* planRootSyncpackSync(rootDir);
-    if (O.isSome(rootSyncpackChange)) {
-      plannedChanges.push(rootSyncpackChange.value);
-    }
-
-    const packageChanges = yield* planPackageReferenceSync(
-      rootDir,
-      workspaces,
-      depIndex,
-      adjacency,
-      options.filter,
-      options.verbose
-    );
-    plannedChanges.push(...packageChanges);
-
-    const docgenChanges = yield* planPackageDocgenSync(rootDir, workspaces, options.filter);
-    plannedChanges.push(...docgenChanges);
-
-    const sortedPlannedChanges = sortChanges(plannedChanges);
-
-    if (tsconfigSyncModeEquivalence(options.mode, "sync")) {
-      yield* Effect.forEach(sortedPlannedChanges, (change) => writeFileString(change.filePath, change.content), {
-        discard: true,
-      });
-    }
-
-    const reportedChanges = A.map(sortedPlannedChanges, toReportedChange);
-    yield* renderChanges(rootDir, options.mode, reportedChanges);
-
-    if (tsconfigSyncModeEquivalence(options.mode, "check") && !isArrayEmpty(reportedChanges)) {
-      return yield* new TsconfigSyncDriftError({
-        fileCount: reportedChanges.length,
-        summary: `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`,
-      });
-    }
-
-    const result: TsconfigSyncResult = TsconfigSyncModeMatch(options.mode, {
-      sync: () =>
-        TsconfigSyncResult.cases.sync.makeUnsafe({
-          mode: "sync",
-          changedFiles: A.length(reportedChanges),
-          changes: reportedChanges,
-        }),
-      check: () =>
-        TsconfigSyncResult.cases.check.makeUnsafe({
-          mode: "check",
-          changedFiles: A.length(reportedChanges),
-          changes: reportedChanges,
-        }),
-      "dry-run": () =>
-        TsconfigSyncResult.cases["dry-run"].makeUnsafe({
-          mode: "dry-run",
-          changedFiles: A.length(reportedChanges),
-          changes: reportedChanges,
-        }),
+  if (!isArrayEmpty(cycles)) {
+    return yield* new TsconfigSyncCycleError({
+      cycles: A.map(cycles, (cycle) => [...cycle]),
+      message: `Detected ${cycles.length} workspace dependency cycle(s)`,
     });
-    return result;
   }
-);
+
+  const plannedChanges = A.empty<PlannedFileChange>();
+
+  const rootReferenceChange = yield* planRootReferenceSync(rootDir, workspaces);
+  if (O.isSome(rootReferenceChange)) {
+    plannedChanges.push(rootReferenceChange.value);
+  }
+
+  const rootQualityReferenceChange = yield* planRootQualityReferenceSync(rootDir, workspaces);
+  if (O.isSome(rootQualityReferenceChange)) {
+    plannedChanges.push(rootQualityReferenceChange.value);
+  }
+
+  const rootAliasChange = yield* planRootAliasSync(rootDir, workspaces);
+  if (O.isSome(rootAliasChange)) {
+    plannedChanges.push(rootAliasChange.value);
+  }
+
+  const rootTstycheChange = yield* planRootTstycheSync(rootDir, workspaces);
+  if (O.isSome(rootTstycheChange)) {
+    plannedChanges.push(rootTstycheChange.value);
+  }
+
+  const rootSyncpackChange = yield* planRootSyncpackSync(rootDir);
+  if (O.isSome(rootSyncpackChange)) {
+    plannedChanges.push(rootSyncpackChange.value);
+  }
+
+  const packageChanges = yield* planPackageReferenceSync(
+    rootDir,
+    workspaces,
+    depIndex,
+    adjacency,
+    options.filter,
+    options.verbose
+  );
+  plannedChanges.push(...packageChanges);
+
+  const docgenChanges = yield* planPackageDocgenSync(rootDir, workspaces, options.filter);
+  plannedChanges.push(...docgenChanges);
+
+  const sortedPlannedChanges = sortChanges(plannedChanges);
+
+  if (tsconfigSyncModeEquivalence(options.mode, "sync")) {
+    yield* Effect.forEach(sortedPlannedChanges, (change) => writeFileString(change.filePath, change.content), {
+      discard: true,
+    });
+  }
+
+  const reportedChanges = A.map(sortedPlannedChanges, toReportedChange);
+  yield* renderChanges(rootDir, options.mode, reportedChanges);
+
+  if (tsconfigSyncModeEquivalence(options.mode, "check") && !isArrayEmpty(reportedChanges)) {
+    return yield* new TsconfigSyncDriftError({
+      fileCount: reportedChanges.length,
+      summary: `Run "beep tsconfig-sync" to apply ${reportedChanges.length} change(s).`,
+    });
+  }
+
+  const result: TsconfigSyncResult = TsconfigSyncModeMatch(options.mode, {
+    sync: () =>
+      TsconfigSyncResult.cases.sync.makeUnsafe({
+        mode: "sync",
+        changedFiles: A.length(reportedChanges),
+        changes: reportedChanges,
+      }),
+    check: () =>
+      TsconfigSyncResult.cases.check.makeUnsafe({
+        mode: "check",
+        changedFiles: A.length(reportedChanges),
+        changes: reportedChanges,
+      }),
+    "dry-run": () =>
+      TsconfigSyncResult.cases["dry-run"].makeUnsafe({
+        mode: "dry-run",
+        changedFiles: A.length(reportedChanges),
+        changes: reportedChanges,
+      }),
+  });
+  return result;
+});
 
 const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
   return Bool.match(check, {

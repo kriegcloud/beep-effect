@@ -18,7 +18,7 @@
       "path": "../../packages/common/schema/tsconfig.json"
     },
     {
-      "path": "../docgen/docgen/tsconfig.json"
+      "path": "../docgen/tsconfig.json"
     },
     {
       "path": "../repo-utils/tsconfig.json"

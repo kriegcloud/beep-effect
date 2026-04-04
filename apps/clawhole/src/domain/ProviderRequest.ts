@@ -38,7 +38,7 @@ import { Tuple } from "effect";
 import * as S from "effect/Schema";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/ProviderRequest");
+const $I = $ClawholeId.create("domain/ProviderRequest");
 
 const ConfiguredProviderRequestAuthMode = LiteralKit(["provider-default", "authorization-bearer", "header"]).pipe(
   $I.annoteSchema("ConfiguredProviderRequestAuthMode", {

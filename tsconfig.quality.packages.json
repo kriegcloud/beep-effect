@@ -19,6 +19,9 @@
       "path": "apps/desktop"
     },
     {
+      "path": "apps/editor-app"
+    },
+    {
       "path": "apps/web"
     },
     {
@@ -64,7 +67,19 @@
       "path": "packages/common/utils"
     },
     {
-      "path": "packages/editor"
+      "path": "packages/editor/client"
+    },
+    {
+      "path": "packages/editor/core"
+    },
+    {
+      "path": "packages/editor/lexical"
+    },
+    {
+      "path": "packages/editor/protocol"
+    },
+    {
+      "path": "packages/editor/runtime"
     },
     {
       "path": "packages/repo-memory/client"
@@ -115,7 +130,7 @@
       "path": "tooling/configs"
     },
     {
-      "path": "tooling/docgen/docgen"
+      "path": "tooling/docgen"
     },
     {
       "path": "tooling/repo-utils"

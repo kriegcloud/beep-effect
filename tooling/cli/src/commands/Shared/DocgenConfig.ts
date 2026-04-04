@@ -317,7 +317,7 @@ export const createCanonicalDocgenConfig: (
   );
 
   return new CanonicalDocgenConfig({
-    $schema: `${rootRelativePrefix}tooling/docgen/docgen/schema.json`,
+    $schema: `${rootRelativePrefix}tooling/docgen/schema.json`,
     exclude: [...DEFAULT_DOCGEN_EXCLUDE],
     srcLink: `https://github.com/kriegcloud/beep-effect/tree/main/${input.packageRelativePath}/src/`,
     examplesCompilerOptions: new CanonicalDocgenExamplesCompilerOptions({

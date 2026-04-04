@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [
+    {
+      "path": "../../packages/common/chalk/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/schema/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/types/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.json"
+    },
+    {
+      "path": "../repo-utils/tsconfig.json"
+    }
+  ]
+}

@@ -40,7 +40,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/Cron");
+const $I = $ClawholeId.create("domain/Cron");
 
 /**
  * Transient error kinds that can trigger retries for one-shot cron jobs.

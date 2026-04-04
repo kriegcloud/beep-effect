@@ -11,7 +11,7 @@ import {
   loadDocgenConfigDocument,
 } from "@beep/repo-cli/commands/Docgen/internal/Operations";
 import { FsUtilsLive } from "@beep/repo-utils";
-import { NodeServices } from "@effect/platform-node";
+import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Effect, Exit, FileSystem, Layer, Path } from "effect";
@@ -25,6 +25,7 @@ const TestLayer = Layer.mergeAll(PlatformLayer, FsUtilsLive.pipe(Layer.provideMe
 const CommandPlatformLayer = Layer.mergeAll(NodeServices.layer);
 const CommandTestLayer = Layer.mergeAll(
   CommandPlatformLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(CommandPlatformLayer)),
   FsUtilsLive.pipe(Layer.provideMerge(CommandPlatformLayer)),
   TestConsole.layer
 );
@@ -108,7 +109,7 @@ describe("Docgen operations", () => {
           yield* fs.writeFileString(
             path.join(packageDir, "docgen.json"),
             encodeJson({
-              $schema: "../../../tooling/docgen/docgen/schema.json",
+              $schema: "../../../tooling/docgen/schema.json",
               enforceDescriptions: true,
               enforceExamples: true,
               enforceVersion: true,
@@ -185,7 +186,7 @@ describe("Docgen operations", () => {
           const config = yield* createDocgenConfigDocument(target!, tmpDir);
           const paths = config.examplesCompilerOptions;
 
-          expect(config.$schema).toBe("../../../tooling/docgen/docgen/schema.json");
+          expect(config.$schema).toBe("../../../tooling/docgen/schema.json");
           expect(config.exclude).toEqual(["src/internal/**/*.ts"]);
           expect(config.srcLink).toBe(
             "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/"
@@ -548,6 +549,52 @@ describe("Docgen operations", () => {
             'docgen: packages/common/schema is missing docgen.json. Run "bun run beep docgen init -p packages/common/schema" first.',
           ]);
           expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("writes lint-clean docgen.json during init", async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const docgenPath = path.join(packageDir, "docgen.json");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+              exports: {
+                ".": "./src/index.ts",
+                "./*": "./src/*.ts",
+              },
+            })
+          );
+
+          yield* runDocgenCommand(["init", "-p", "packages/common/schema"]);
+
+          const docgenText = yield* fs.readFileString(docgenPath);
+
+          expect(docgenText).toContain('"exclude": ["src/internal/**/*.ts"],');
+          expect(docgenText).toContain('"lib": ["ESNext", "DOM", "DOM.Iterable"],');
+          expect(docgenText).toContain('"@beep/schema": ["../../../packages/common/schema/src/index.ts"],');
+          expect(docgenText).toContain('"@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]');
+          expect(process.exitCode ?? 0).toBe(0);
         })
       )
     );

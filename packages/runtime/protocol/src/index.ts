@@ -69,7 +69,7 @@ export class SidecarBootstrap extends S.Class<SidecarBootstrap>($I`SidecarBootst
  */
 export class SidecarBootstrapStdoutEvent extends S.Class<SidecarBootstrapStdoutEvent>($I`SidecarBootstrapStdoutEvent`)(
   {
-    type: S.Literal("bootstrap"),
+    type: S.tag("bootstrap"),
     sessionId: S.String,
     host: S.String,
     port: NonNegativeInt,

@@ -697,7 +697,7 @@ const generatePackageJson: (
       "lint:fix": "biome check . --write",
       test: "vitest",
       coverage: "vitest --coverage",
-      docgen: `bun run ${rootRelative}tooling/docgen/docgen/src/bin.ts`,
+      docgen: `bun run ${rootRelative}tooling/docgen/src/bin.ts`,
     },
     dependencies,
     devDependencies: {

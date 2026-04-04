@@ -16,7 +16,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $ClawholeId.create("config/Base");
+const $I = $ClawholeId.create("domain/Base");
 
 const baseParseOptions = {
   exact: true as const,

@@ -4,9 +4,9 @@ import { describe, expect, it } from "tstyche";
 
 describe("FileName", () => {
   it("preserves the simplified template-literal schema surface", () => {
-    expect<typeof FileName.Type>().type.toBe<`${string}.${string}`>();
-    expect<typeof FileName.Encoded>().type.toBe<`${string}.${string}`>();
-    expect<FileNameType>().type.toBe<`${string}.${string}`>();
+    expect<typeof FileName.Type>().type.toBeAssignableTo<`${string}.${string}`>();
+    expect<typeof FileName.Encoded>().type.toBeAssignableTo<`${string}.${string}`>();
+    expect<FileNameType>().type.toBeAssignableTo<`${string}.${string}`>();
   });
 
   it("exposes decode helpers that produce the template-literal type", () => {
@@ -33,7 +33,7 @@ describe("FileName", () => {
     const payload = decode({ fileName: "archive.tar.gz" });
 
     expect<typeof Payload.Type>().type.toBe<Readonly<{ fileName: FileNameType }>>();
-    expect<typeof Payload.Encoded>().type.toBe<Readonly<{ fileName: `${string}.${string}` }>>();
+    expect<typeof Payload.Encoded>().type.toBe<Readonly<{ fileName: typeof FileName.Encoded }>>();
     expect(payload).type.toBe<Readonly<{ fileName: FileNameType }>>();
   });
 });

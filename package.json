@@ -20,10 +20,14 @@
     "packages/shared/*",
     "tooling/cli",
     "tooling/configs",
-    "packages/editor",
+    "packages/editor/core",
     "tooling/repo-utils",
     "tooling/test-utils",
-    "tooling/docgen/docgen"
+    "tooling/docgen",
+    "packages/editor/lexical",
+    "packages/editor/protocol",
+    "packages/editor/client",
+    "packages/editor/runtime"
   ],
   "repository": {
     "type": "git",

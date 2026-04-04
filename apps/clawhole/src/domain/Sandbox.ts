@@ -41,7 +41,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/Sandbox");
+const $I = $ClawholeId.create("domain/Sandbox");
 
 const strictParseOptions = {
   exact: true as const,

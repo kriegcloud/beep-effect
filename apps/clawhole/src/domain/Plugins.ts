@@ -33,7 +33,7 @@ import { $ClawholeId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $ClawholeId.create("config/Plugins");
+const $I = $ClawholeId.create("domain/Plugins");
 
 const PluginIdList = S.Array(S.String).pipe(
   $I.annoteSchema("PluginIdList", {

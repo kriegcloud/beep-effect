@@ -23,7 +23,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $ClawholeId.create("config/Secrets");
+const $I = $ClawholeId.create("domain/Secrets");
 
 const strictParseOptions = { onExcessProperty: "error" } as const;
 

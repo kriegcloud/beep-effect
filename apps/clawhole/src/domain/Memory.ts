@@ -7,7 +7,7 @@
  *
  * @example
  * ```typescript
- * import { pipe } from "effect/Function"
+ * import { pipe } from "effect"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  * import { MemoryConfig } from "@beep/clawhole/domain/Memory"
@@ -34,7 +34,7 @@ import { LiteralKit, NonEmptyTrimmedStr, NonNegativeInt, PosInt } from "@beep/sc
 import * as S from "effect/Schema";
 import { SessionSendPolicyConfig } from "./Base.ts";
 
-const $I = $ClawholeId.create("config/Memory");
+const $I = $ClawholeId.create("domain/Memory");
 
 const memoryParseOptions = {
   exact: true as const,

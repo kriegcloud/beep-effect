@@ -41,7 +41,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
-const $I = $ClawholeId.create("config/Browser");
+const $I = $ClawholeId.create("domain/Browser");
 
 const browserParseOptions = {
   exact: true as const,

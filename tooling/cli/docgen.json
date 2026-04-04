@@ -1,5 +1,5 @@
 {
-  "$schema": "../../tooling/docgen/docgen/schema.json",
+  "$schema": "../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts", "src/**/*.test.ts", "src/**/*.spec.ts"],
   "enforceDescriptions": true,
   "enforceVersion": true,
@@ -35,8 +35,8 @@
       "@beep/repo-cli/*": ["../../tooling/cli/src/*.ts"],
       "@beep/chalk": ["../../packages/common/chalk/src/index.ts"],
       "@beep/chalk/*": ["../../packages/common/chalk/src/*.ts"],
-      "@beep/docgen": ["../../tooling/docgen/docgen/src/index.ts"],
-      "@beep/docgen/*": ["../../tooling/docgen/docgen/src/*.ts"],
+      "@beep/docgen": ["../../tooling/docgen/src/index.ts"],
+      "@beep/docgen/*": ["../../tooling/docgen/src/*.ts"],
       "@beep/identity": ["../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],

@@ -1,5 +1,5 @@
 {
-  "$schema": "../../../tooling/docgen/docgen/schema.json",
+  "$schema": "../../../tooling/docgen/schema.json",
   "exclude": ["src/index.ts", "src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/repo-memory/model/src/",
   "examplesCompilerOptions": {

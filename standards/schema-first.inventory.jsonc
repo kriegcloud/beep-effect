@@ -1051,7 +1051,23 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/client/src/index.ts",
+      "symbol": "EditorClientShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/editor-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/editor/client/src/index.ts",
+      "symbol": "EditorHttpClientOptions",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/editor-client",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
       "symbol": "DetailTypeToDetail",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -1059,7 +1075,7 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
       "symbol": "ElementFormatToType",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1067,7 +1083,7 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
       "symbol": "ElementTypeToFormat",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -1075,7 +1091,7 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
       "symbol": "TextModeToType",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -1083,7 +1099,7 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
       "symbol": "TextTypeToFormat",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -1091,7 +1107,7 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
       "symbol": "TextTypeToMode",
       "kind": "object-struct-schema",
       "status": "exception",

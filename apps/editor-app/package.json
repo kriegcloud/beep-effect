@@ -1,0 +1,52 @@
+{
+  "name": "@beep/editor-app",
+  "version": "0.0.0",
+  "description": "Local-first desktop editor workspace shell",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/apps/editor-app",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "apps/editor-app"
+  },
+  "scripts": {
+    "dev": "bun run scripts/dev-with-portless.ts",
+    "dev:desktop": "PORTLESS_HTTPS=1 portless editor vite",
+    "dev:raw": "vite",
+    "dev:native": "tauri dev",
+    "build": "vite build",
+    "build:native": "tauri build",
+    "build:sidecar": "bun run scripts/build-sidecar.ts",
+    "check": "tsc -b tsconfig.json",
+    "codegen": "echo 'no codegen needed'",
+    "coverage": "vitest --coverage",
+    "docgen": "bun run ../../tooling/docgen/src/bin.ts",
+    "lint": "biome check src/ scripts/",
+    "lint:fix": "biome check src/ scripts/ --write",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@beep/editor-client": "workspace:^",
+    "@beep/editor-lexical": "workspace:^",
+    "@beep/editor-protocol": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@effect/platform-bun": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tauri-apps/api": "catalog:",
+    "effect": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@tauri-apps/cli": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

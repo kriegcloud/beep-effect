@@ -1,0 +1,75 @@
+{
+  "name": "@beep/docgen",
+  "version": "0.0.0",
+  "description": "An opinionated documentation generator for beep-effect",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/docgen",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "tooling/docgen"
+  },
+  "scripts": {
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "check": "tsc -b tsconfig.json",
+    "codegen": "echo 'no codegen needed'",
+    "coverage": "vitest --coverage",
+    "docgen": "bun run src/bin.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "vitest"
+  },
+  "bin": {
+    "docgen": "./src/bin.ts"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null,
+    "./schema.json": "./schema.json",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.ts",
+      "./*": "./dist/*.js",
+      "./internal/*": null,
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@babel/code-frame": "catalog:",
+    "@beep/chalk": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/repo-utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@effect/markdown-toc": "catalog:",
+    "@effect/platform-bun": "catalog:",
+    "@effect/platform-node": "catalog:",
+    "doctrine": "catalog:",
+    "effect": "catalog:",
+    "jsonc-parser": "catalog:",
+    "ts-morph": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/babel__code-frame": "catalog:",
+    "@types/doctrine": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

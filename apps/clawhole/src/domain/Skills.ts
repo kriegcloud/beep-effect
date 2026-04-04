@@ -13,7 +13,7 @@ import { ArrayOfStrings, LiteralKit, NonNegativeInt, PosInt } from "@beep/schema
 import * as S from "effect/Schema";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/Skills");
+const $I = $ClawholeId.create("domain/Skills");
 
 const strictParseOptions = {
   exact: true as const,

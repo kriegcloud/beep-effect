@@ -1,5 +1,6 @@
 import { syncTsconfigAtRoot } from "@beep/repo-cli/commands/TsconfigSync";
 import { FsUtilsLive } from "@beep/repo-utils";
+import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { Effect, FileSystem, Layer, Path } from "effect";
@@ -9,7 +10,11 @@ import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
-const TestLayer = Layer.mergeAll(PlatformLayer, FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)));
+const TestLayer = Layer.mergeAll(
+  PlatformLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(PlatformLayer)),
+  FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer))
+);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
 
@@ -289,7 +294,7 @@ describe("tsconfig-sync", () => {
             relativeDir: "packages/common/schema",
             packageName: "@beep/schema",
             docgenConfig: {
-              $schema: "../../../tooling/docgen/docgen/schema.json",
+              $schema: "../../../tooling/docgen/schema.json",
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
             },
           });
@@ -301,7 +306,7 @@ describe("tsconfig-sync", () => {
             },
             references: ["../schema/tsconfig.json"],
             docgenConfig: {
-              $schema: "../../../tooling/docgen/docgen/schema.json",
+              $schema: "../../../tooling/docgen/schema.json",
               exclude: ["src/**/*.spec.ts"],
               enforceDescriptions: true,
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/",
@@ -395,7 +400,7 @@ describe("tsconfig-sync", () => {
             relativeDir: "packages/common/schema",
             packageName: "@beep/schema",
             docgenConfig: {
-              $schema: "../../../tooling/docgen/docgen/schema.json",
+              $schema: "../../../tooling/docgen/schema.json",
               exclude: ["src/internal/**/*.ts"],
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
               examplesCompilerOptions: {
@@ -439,7 +444,7 @@ describe("tsconfig-sync", () => {
             },
             references: ["../../common/schema/tsconfig.json"],
             docgenConfig: {
-              $schema: "../../../tooling/docgen/docgen/schema.json",
+              $schema: "../../../tooling/docgen/schema.json",
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/runtime/protocol/src/",
             },
           });
@@ -500,6 +505,115 @@ describe("tsconfig-sync", () => {
               },
             },
           });
+        })
+      )
+    );
+  });
+
+  it("treats lint-only docgen formatting drift as sync drift", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rootDir = process.cwd();
+
+          yield* bootstrapRootConfig(rootDir, {
+            workspaces: ["packages/common/*"],
+            references: ["packages/common/messages"],
+            paths: {
+              "@beep/messages": ["./packages/common/messages/src/index.ts"],
+              "@beep/messages/*": ["./packages/common/messages/src/*"],
+            },
+            testFileMatch: ["packages/*/dtslint/**/*.tst.*", "packages/common/messages/dtslint/**/*.tst.*"],
+            syncpackSources: ["package.json", "packages/common/*/package.json"],
+          });
+
+          yield* bootstrapWorkspace(rootDir, {
+            relativeDir: "packages/common/messages",
+            packageName: "@beep/messages",
+          });
+
+          const docgenPath = path.join(rootDir, "packages", "common", "messages", "docgen.json");
+          yield* writeTextFile(
+            docgenPath,
+            `{
+  "$schema": "../../../tooling/docgen/schema.json",
+  "exclude": [
+    "src/internal/**/*.ts"
+  ],
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/messages/src/",
+  "examplesCompilerOptions": {
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "types": [],
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/messages": [
+        "../../../packages/common/messages/src/index.ts"
+      ],
+      "@beep/messages/*": [
+        "../../../packages/common/messages/src/*.ts"
+      ]
+    }
+  }
+}
+`
+          );
+
+          const drift = yield* syncTsconfigAtRoot(rootDir, {
+            mode: "check",
+            filter: "@beep/messages",
+            verbose: false,
+          }).pipe(
+            Effect.match({
+              onFailure: (error) => error,
+              onSuccess: () => undefined,
+            })
+          );
+
+          expect(drift?._tag).toBe("TsconfigSyncDriftError");
+
+          const syncResult = yield* syncTsconfigAtRoot(rootDir, {
+            mode: "sync",
+            filter: "@beep/messages",
+            verbose: false,
+          });
+
+          expect(syncResult.changes).toHaveLength(1);
+          expect(syncResult.changes[0]?.section).toBe("package-docgen");
+
+          const syncedText = yield* fs.readFileString(docgenPath);
+
+          expect(syncedText).toContain('"exclude": ["src/internal/**/*.ts"],');
+          expect(syncedText).toContain('"lib": ["ESNext", "DOM", "DOM.Iterable"],');
+          expect(syncedText).toContain('"@beep/messages": ["../../../packages/common/messages/src/index.ts"],');
+          expect(syncedText).toContain('"@beep/messages/*": ["../../../packages/common/messages/src/*.ts"]');
         })
       )
     );
