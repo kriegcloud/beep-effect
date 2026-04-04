@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../../tsconfig.base.json",
+  "include": ["src"],
+  "compilerOptions": {
+    "types": ["node"],
+    "outDir": "dist",
+    "rootDir": "src"
+  },
+  "references": [
+    {
+      "path": "../../common/schema/tsconfig.json"
+    },
+    {
+      "path": "../protocol/tsconfig.json"
+    },
+    {
+      "path": "../../common/identity/tsconfig.json"
+    }
+  ]
+}
