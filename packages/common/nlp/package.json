@@ -79,8 +79,8 @@
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
-    "@types/bun": "catalog:",
     "@effect/vitest": "catalog:",
+    "@types/bun": "catalog:",
     "@types/node": "catalog:"
   }
 }
