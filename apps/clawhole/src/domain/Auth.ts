@@ -9,21 +9,21 @@
  * schema decoding because upstream OpenClaw applies those fallbacks in auth
  * profile runtime logic rather than in config parsing.
  *
- * @module @beep/clawhole/config/Auth
+ * @module @beep/clawhole/domain/Auth
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $ClawholeId.create("config/Auth");
+const $I = $ClawholeId.create("domain/Auth");
 
 /**
  * Supported credential modes for configured auth profiles.
  *
  * @example
  * ```typescript
- * import { AuthProfileMode } from "@beep/clawhole/config/Auth"
+ * import { AuthProfileMode } from "@beep/clawhole/domain/Auth"
  *
  * const mode = AuthProfileMode.Enum.oauth
  *
@@ -200,7 +200,7 @@ export class AuthCooldownsConfig extends S.Class<AuthCooldownsConfig>($I`AuthCoo
  * ```typescript
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
- * import { AuthConfig } from "@beep/clawhole/config/Auth"
+ * import { AuthConfig } from "@beep/clawhole/domain/Auth"
  *
  * const config = S.decodeUnknownSync(AuthConfig)({
  *   profiles: {

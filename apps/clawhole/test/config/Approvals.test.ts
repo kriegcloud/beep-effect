@@ -7,7 +7,7 @@ import {
   ExecApprovalForwardingMode,
   ExecApprovalForwardTarget,
   NativeExecApprovalEnableMode,
-} from "../../src/config/Approvals.ts";
+} from "../../src/domain/Approvals.ts";
 
 const strictParseOptions = { onExcessProperty: "error" } as const;
 

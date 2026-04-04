@@ -1,0 +1,26 @@
+[package]
+name = "beep-editor-app"
+version = "0.0.0"
+description = "Native Tauri wrapper for the local-first editor workspace shell"
+authors = ["beep"]
+license = "MIT"
+repository = "git@github.com:kriegcloud/beep-effect.git"
+edition = "2021"
+rust-version = "1.77.2"
+
+[lib]
+name = "beep_editor_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2.5.6", features = [] }
+
+[dependencies]
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+tauri = { version = "2.10.3", features = [] }
+tauri-plugin-dialog = "2"
+tauri-plugin-shell = "2"
+tokio = { version = "1", features = ["sync", "time"] }
+uuid = { version = "1", features = ["serde", "v4"] }

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { AuthConfig, AuthCooldownsConfig, AuthProfileConfig } from "../../src/config/Auth.ts";
+import { AuthConfig, AuthCooldownsConfig, AuthProfileConfig } from "../../src/domain/Auth.ts";
 
 const strictParseOptions = { onExcessProperty: "error" } as const;
 

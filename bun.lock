@@ -159,6 +159,28 @@
         "vite": "catalog:",
       },
     },
+    "apps/editor-app": {
+      "name": "@beep/editor-app",
+      "version": "0.0.0",
+      "dependencies": {
+        "@effect/platform-bun": "catalog:",
+        "@tanstack/react-router": "catalog:",
+        "@tauri-apps/api": "catalog:",
+        "effect": "catalog:",
+        "react": "catalog:",
+        "react-dom": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@tauri-apps/cli": "catalog:",
+        "@types/node": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@vitejs/plugin-react": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+    },
     "apps/web": {
       "name": "@beep/web",
       "version": "0.0.0",
@@ -439,59 +461,83 @@
         "type-fest": "catalog:",
       },
     },
-    "packages/editor": {
+    "packages/editor/client": {
+      "name": "@beep/editor-client",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/editor-protocol": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/editor/core": {
       "name": "@beep/editor",
       "version": "0.0.0",
       "dependencies": {
-        "@base-ui/react": "catalog:",
-        "@beep/data": "workspace:^",
         "@beep/identity": "workspace:^",
-        "@beep/messages": "workspace:^",
         "@beep/schema": "workspace:^",
-        "@beep/ui": "workspace:^",
         "@beep/utils": "workspace:^",
-        "@effect/atom-react": "catalog:",
-        "@lexical/code": "catalog:",
-        "@lexical/headless": "catalog:",
-        "@lexical/link": "catalog:",
-        "@lexical/list": "catalog:",
-        "@lexical/markdown": "catalog:",
-        "@lexical/overflow": "catalog:",
+        "effect": "catalog:",
+        "lexical": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/editor/lexical": {
+      "name": "@beep/editor-lexical",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/editor": "workspace:^",
         "@lexical/react": "catalog:",
         "@lexical/rich-text": "catalog:",
         "@lexical/selection": "catalog:",
-        "@lexical/table": "catalog:",
-        "@lexical/utils": "catalog:",
-        "@phosphor-icons/react": "catalog:",
-        "class-variance-authority": "catalog:",
-        "clsx": "catalog:",
-        "cytoscape": "catalog:",
         "effect": "catalog:",
         "lexical": "catalog:",
-        "tailwind-merge": "catalog:",
       },
       "devDependencies": {
-        "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
-        "@storybook/addon-a11y": "catalog:",
-        "@storybook/addon-docs": "catalog:",
-        "@storybook/addon-themes": "catalog:",
-        "@storybook/addon-vitest": "catalog:",
-        "@storybook/react-vite": "catalog:",
-        "@tailwindcss/postcss": "catalog:",
         "@types/node": "catalog:",
         "@types/react": "catalog:",
         "@types/react-dom": "catalog:",
-        "@vitest/browser": "catalog:",
-        "@vitest/browser-playwright": "catalog:",
-        "shadcn": "catalog:",
-        "storybook": "catalog:",
-        "tailwindcss": "catalog:",
-        "tw-animate-css": "catalog:",
       },
       "peerDependencies": {
         "react": "^19",
         "react-dom": "^19",
+      },
+    },
+    "packages/editor/protocol": {
+      "name": "@beep/editor-protocol",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/editor": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/editor/runtime": {
+      "name": "@beep/editor-runtime",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/editor": "workspace:^",
+        "@beep/editor-protocol": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/platform-bun": "catalog:",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
       },
     },
     "packages/repo-memory/client": {
@@ -1169,7 +1215,17 @@
 
     "@beep/docgen": ["@beep/docgen@workspace:tooling/docgen/docgen"],
 
-    "@beep/editor": ["@beep/editor@workspace:packages/editor"],
+    "@beep/editor": ["@beep/editor@workspace:packages/editor/core"],
+
+    "@beep/editor-app": ["@beep/editor-app@workspace:apps/editor-app"],
+
+    "@beep/editor-client": ["@beep/editor-client@workspace:packages/editor/client"],
+
+    "@beep/editor-lexical": ["@beep/editor-lexical@workspace:packages/editor/lexical"],
+
+    "@beep/editor-protocol": ["@beep/editor-protocol@workspace:packages/editor/protocol"],
+
+    "@beep/editor-runtime": ["@beep/editor-runtime@workspace:packages/editor/runtime"],
 
     "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
 
@@ -2211,11 +2267,7 @@
 
     "@lexical/clipboard": ["@lexical/clipboard@0.42.0", "", { "dependencies": { "@lexical/html": "0.42.0", "@lexical/list": "0.42.0", "@lexical/selection": "0.42.0", "@lexical/utils": "0.42.0", "lexical": "0.42.0" } }, "sha512-D3K2ID0zew/+CKpwxnUTTh/N46yU4IK8bFWV9Htz+g1vFhgUF9UnDOQCmqpJbdP7z+9U1F8rk3fzf9OmP2Fm2w=="],
 
-    "@lexical/code": ["@lexical/code@0.42.0", "", { "dependencies": { "@lexical/code-core": "0.42.0", "@lexical/code-prism": "0.42.0", "lexical": "0.42.0" } }, "sha512-KMu1nWae9pHvA9nl6dlJacbt3QBBNemgalmLJcZ5QhdGEQA1cVIU4gBPJ5TJqgY9XF7WZgj5JvDIPxjrZmf+XQ=="],
-
     "@lexical/code-core": ["@lexical/code-core@0.42.0", "", { "dependencies": { "lexical": "0.42.0" } }, "sha512-vrZTUPWDJkHjAAvuV2+Qte4vYE80s7hIO7wxipiJmWojGx6lcmQjO+UqJ8AIrqI4Wjy8kXrK74kisApWmwxuCw=="],
-
-    "@lexical/code-prism": ["@lexical/code-prism@0.42.0", "", { "dependencies": { "@lexical/code-core": "0.42.0", "lexical": "0.42.0", "prismjs": "^1.30.0" } }, "sha512-KgngkUtgcgC8ocBnfGyN71CC3EnP5PMFAmH1KcGp/+jSgl11nRpCjwYYIoUHm6AB7jKJ8dLbd/UUmShARjUnGA=="],
 
     "@lexical/devtools-core": ["@lexical/devtools-core@0.42.0", "", { "dependencies": { "@lexical/html": "0.42.0", "@lexical/link": "0.42.0", "@lexical/mark": "0.42.0", "@lexical/table": "0.42.0", "@lexical/utils": "0.42.0", "lexical": "0.42.0" }, "peerDependencies": { "react": ">=17.x", "react-dom": ">=17.x" } }, "sha512-8nP8eE9i8JImgSrvInkWFfMCmXVKp3w3VaOvbJysdlK/Zal6xd8EWJEi6elj0mUW5T/oycfipPs2Sfl7Z+n14A=="],
 
@@ -2224,8 +2276,6 @@
     "@lexical/extension": ["@lexical/extension@0.42.0", "", { "dependencies": { "@lexical/utils": "0.42.0", "@preact/signals-core": "^1.11.0", "lexical": "0.42.0" } }, "sha512-rkZq/h8d1BenKRqU4t/zQUVfY/RinMX1Tz7t+Ee3ss0sk+kzP4W+URXNAxpn7r39Vn6wrFBqmCziah3dLAIqPw=="],
 
     "@lexical/hashtag": ["@lexical/hashtag@0.42.0", "", { "dependencies": { "@lexical/text": "0.42.0", "@lexical/utils": "0.42.0", "lexical": "0.42.0" } }, "sha512-WOg5nFOfhabNBXzEIutdWDj+TUHtJEezj6w8jyYDGqZ31gu0cgrXSeV8UIynz/1oj+rpzEeEB7P6ODnwgjt7qA=="],
-
-    "@lexical/headless": ["@lexical/headless@0.42.0", "", { "dependencies": { "happy-dom": "^20.0.0", "lexical": "0.42.0" } }, "sha512-/bfeYhRn82IWfZZkn9XW37cfEOVjKZyjVrKfXNgI14gBvdMuX9aN5CSmr4yEusIJJ4svLzKV0STuMWEopn6Iag=="],
 
     "@lexical/history": ["@lexical/history@0.42.0", "", { "dependencies": { "@lexical/extension": "0.42.0", "@lexical/utils": "0.42.0", "lexical": "0.42.0" } }, "sha512-YfCZ1ICUt6BCg2ncJWFMuS4yftnB7FEHFRf3qqTSTf6oGZ4IZfzabMNEy47xybUuf7FXBbdaCKJrc/zOM+wGxw=="],
 
@@ -3128,8 +3178,6 @@
     "cssjanus": ["cssjanus@2.3.0", "", {}, "sha512-ZZXXn51SnxRxAZ6fdY7mBDPmA4OZd83q/J9Gdqz3YmE9TUq+9tZl+tdOnCi7PpNygI6PEkehj9rgifv5+W8a5A=="],
 
     "csstype": ["csstype@3.2.3", "", {}, "sha512-z1HGKcYy2xA8AGQfwrn0PAy+PB7X/GSj3UVJW9qKyn43xWa+gl5nXmU4qqLMRzWVLFC8KusUX8T/0kCiOYpAIQ=="],
-
-    "cytoscape": ["cytoscape@3.33.1", "", {}, "sha512-iJc4TwyANnOGR1OmWhsS9ayRS3s+XQ185FmuHObThD+5AeJCakAAbWv8KimMTt08xCCLNgneQwFp+JRJOr9qGQ=="],
 
     "d3": ["d3@7.9.0", "", { "dependencies": { "d3-array": "3", "d3-axis": "3", "d3-brush": "3", "d3-chord": "3", "d3-color": "3", "d3-contour": "4", "d3-delaunay": "6", "d3-dispatch": "3", "d3-drag": "3", "d3-dsv": "3", "d3-ease": "3", "d3-fetch": "3", "d3-force": "3", "d3-format": "3", "d3-geo": "3", "d3-hierarchy": "3", "d3-interpolate": "3", "d3-path": "3", "d3-polygon": "3", "d3-quadtree": "3", "d3-random": "3", "d3-scale": "4", "d3-scale-chromatic": "3", "d3-selection": "3", "d3-shape": "3", "d3-time": "3", "d3-time-format": "4", "d3-timer": "3", "d3-transition": "3", "d3-zoom": "3" } }, "sha512-e1U46jVP+w7Iut8Jt8ri1YsPOvFpg46k+K8TpCb0P+zjCkjkPnV7WzfDJzMHy1LnA+wj5pLT1wjO901gLXeEhA=="],
 
@@ -4152,8 +4200,6 @@
     "pretty-format": ["pretty-format@27.5.1", "", { "dependencies": { "ansi-regex": "^5.0.1", "ansi-styles": "^5.0.0", "react-is": "^17.0.1" } }, "sha512-Qb1gy5OrP5+zDf2Bvnzdl3jsTf1qXVMazbvCoKhtKqVs4/YK4ozX4gKQJJVyNe+cajNPn0KoC0MC3FUmaHWEmQ=="],
 
     "pretty-ms": ["pretty-ms@7.0.1", "", { "dependencies": { "parse-ms": "^2.1.0" } }, "sha512-973driJZvxiGOQ5ONsFhOF/DtzPMOMtgC11kCpUrPGMTgqp2q/1gwzCquocrN33is0VZ5GFHXZYMM9l6h67v2Q=="],
-
-    "prismjs": ["prismjs@1.30.0", "", {}, "sha512-DEvV2ZF2r2/63V+tK8hQvrR2ZGn10srHbXviTlcv7Kpzw8jWiNTqbVgjO3IY8RxrrOUF8VPMQQFysYYYv0YZxw=="],
 
     "process": ["process@0.11.10", "", {}, "sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A=="],
 

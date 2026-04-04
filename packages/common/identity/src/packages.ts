@@ -78,7 +78,12 @@ const composers = $I.compose(
   "colors",
   "clawhole",
   "chalk",
-  "docgen"
+  "docgen",
+  "editor-app",
+  "editor-lexical",
+  "editor-protocol",
+  "editor-client",
+  "editor-runtime"
 );
 
 // --- common ---
@@ -401,3 +406,38 @@ export const $ChalkId: Identity.IdentityComposer<"@beep/chalk"> = composers.$Cha
  * @type {Identity.IdentityComposer<"@beep/docgen">}
  */
 export const $DocgenId: Identity.IdentityComposer<"@beep/docgen"> = composers.$DocgenId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/editor-app">}
+ */
+export const $EditorAppId: Identity.IdentityComposer<"@beep/editor-app"> = composers.$EditorAppId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/editor-lexical">}
+ */
+export const $EditorLexicalId: Identity.IdentityComposer<"@beep/editor-lexical"> = composers.$EditorLexicalId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/editor-protocol">}
+ */
+export const $EditorProtocolId: Identity.IdentityComposer<"@beep/editor-protocol"> = composers.$EditorProtocolId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/editor-client">}
+ */
+export const $EditorClientId: Identity.IdentityComposer<"@beep/editor-client"> = composers.$EditorClientId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/editor-runtime">}
+ */
+export const $EditorRuntimeId: Identity.IdentityComposer<"@beep/editor-runtime"> = composers.$EditorRuntimeId;

@@ -119,8 +119,8 @@
       "@beep/semantic-web/*": ["./packages/common/semantic-web/src/*"],
       "@beep/nlp": ["./packages/common/nlp/src/index.ts"],
       "@beep/nlp/*": ["./packages/common/nlp/src/*"],
-      "@beep/editor": ["./packages/editor/src/index.ts"],
-      "@beep/editor/*": ["./packages/editor/src/*"],
+      "@beep/editor": ["./packages/editor/core/src/index.ts"],
+      "@beep/editor/*": ["./packages/editor/core/src/*"],
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
       "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
@@ -128,21 +128,19 @@
       "@beep/clawhole": ["./apps/clawhole/src/index.ts"],
       "@beep/clawhole/*": ["./apps/clawhole/src/*"],
       "@beep/colors": ["./packages/common/colors/src/index.ts"],
-      "@beep/colors/*": [
-        "./packages/common/colors/src/*"
-      ],
-      "@beep/chalk": [
-        "./packages/common/chalk/src/index.ts"
-      ],
-      "@beep/chalk/*": [
-        "./packages/common/chalk/src/*"
-      ],
-      "@beep/docgen": [
-        "./tooling/docgen/docgen/src/index.ts"
-      ],
-      "@beep/docgen/*": [
-        "./tooling/docgen/docgen/src/*"
-      ]
+      "@beep/colors/*": ["./packages/common/colors/src/*"],
+      "@beep/chalk": ["./packages/common/chalk/src/index.ts"],
+      "@beep/chalk/*": ["./packages/common/chalk/src/*"],
+      "@beep/docgen": ["./tooling/docgen/docgen/src/index.ts"],
+      "@beep/docgen/*": ["./tooling/docgen/docgen/src/*"],
+      "@beep/editor-lexical": ["./packages/editor/lexical/src/index.ts"],
+      "@beep/editor-lexical/*": ["./packages/editor/lexical/src/*"],
+      "@beep/editor-protocol": ["./packages/editor/protocol/src/index.ts"],
+      "@beep/editor-protocol/*": ["./packages/editor/protocol/src/*"],
+      "@beep/editor-client": ["./packages/editor/client/src/index.ts"],
+      "@beep/editor-client/*": ["./packages/editor/client/src/*"],
+      "@beep/editor-runtime": ["./packages/editor/runtime/src/index.ts"],
+      "@beep/editor-runtime/*": ["./packages/editor/runtime/src/*"]
     },
     "plugins": [
       {

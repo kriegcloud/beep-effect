@@ -9,7 +9,7 @@
  * ```typescript
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
- * import { PluginsConfig } from "@beep/clawhole/config/Plugins";
+ * import { PluginsConfig } from "@beep/clawhole/domain/Plugins";
  *
  * const decodePluginsConfig = S.decodeUnknownSync(PluginsConfig);
  *
@@ -26,14 +26,14 @@
  * console.log(O.isSome(plugins.entries)); // true
  * ```
  *
- * @module @beep/clawhole/config/Plugins
+ * @module @beep/clawhole/domain/Plugins
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $ClawholeId.create("config/Plugins");
+const $I = $ClawholeId.create("domain/Plugins");
 
 const PluginIdList = S.Array(S.String).pipe(
   $I.annoteSchema("PluginIdList", {

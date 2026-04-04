@@ -4,7 +4,7 @@
  * This module ports the OpenClaw gateway config surface to the repository's
  * schema-first conventions while preserving the original encoded payload shape.
  *
- * @module @beep/clawhole/config/Gateway
+ * @module @beep/clawhole/domain/Gateway
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/Gateway");
+const $I = $ClawholeId.create("domain/Gateway");
 
 const normalizeTalkProvider = flow(Str.trim, Str.toLowerCase);
 

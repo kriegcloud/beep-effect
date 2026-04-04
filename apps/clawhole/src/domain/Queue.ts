@@ -24,14 +24,14 @@
  * console.log(O.isNone(queueModes.googlechat)) // true
  * ```
  *
- * @module @beep/clawhole/config/Queue
+ * @module @beep/clawhole/domain/Queue
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $ClawholeId.create("config/Queue");
+const $I = $ClawholeId.create("domain/Queue");
 
 const strictParseOptions = {
   exact: true as const,

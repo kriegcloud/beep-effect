@@ -5,14 +5,14 @@
  * repo-native Effect schemas while preserving the documented wire shape and
  * optional-field semantics.
  *
- * @module @beep/clawhole/config/TextToSpeech
+ * @module @beep/clawhole/domain/TextToSpeech
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import * as S from "effect/Schema";
 
-const $I = $ClawholeId.create("config/TextToSpeech");
+const $I = $ClawholeId.create("domain/TextToSpeech");
 
 /**
  * Branded identifier for a configured TextToSpeech provider.

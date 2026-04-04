@@ -5,7 +5,7 @@
  * repository's schema-first conventions while preserving the original optional
  * field semantics and upstream validation bounds.
  *
- * @module @beep/clawhole/config/Skills
+ * @module @beep/clawhole/domain/Skills
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
@@ -13,7 +13,7 @@ import { ArrayOfStrings, LiteralKit, NonNegativeInt, PosInt } from "@beep/schema
 import * as S from "effect/Schema";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/Skills");
+const $I = $ClawholeId.create("domain/Skills");
 
 const strictParseOptions = {
   exact: true as const,
@@ -220,7 +220,7 @@ export class SkillsLimitsConfig extends S.Class<SkillsLimitsConfig>($I`SkillsLim
  * ```typescript
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
- * import { SkillsConfig } from "@beep/clawhole/config/Skills"
+ * import { SkillsConfig } from "@beep/clawhole/domain/Skills"
  *
  * const skills = S.decodeUnknownSync(SkillsConfig)({
  *   load: {

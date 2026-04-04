@@ -10,10 +10,10 @@
  * import * as S from "effect/Schema";
  * import { FileName } from "@beep/schema/FileName";
  *
- * const readme = S.decodeUnknownSync(FileName)("readme.txt");
- * const archive = S.decodeUnknownSync(FileName)("archive.tar.gz");
+ * const decodeFileName = S.decodeUnknownSync(FileName);
  *
- * console.log([readme, archive]);
+ * decodeFileName("readme.txt");
+ * decodeFileName("archive.tar.gz");
  * ```
  *
  * @module @beep/schema/FileName
@@ -31,7 +31,6 @@ const $I = $SchemaId.create("FileName");
 const isHasNullByte = S.is(HasNullByte);
 const isUsesPosixSeparator = S.is(UsesPosixSeparator);
 const isUsesWindowsSeparator = S.is(UsesWindowsSeparator);
-const isFileExtension = S.is(FileExtension);
 
 const FileNameStemChecks = S.makeFilterGroup(
   [
@@ -64,15 +63,6 @@ const FileNameStemChecks = S.makeFilterGroup(
 const FileNameStem = S.NonEmptyString.check(FileNameStemChecks);
 const FileNameStemWithDot = S.TemplateLiteral([FileNameStem, "."]);
 
-const KnownFileExtensionText = S.String.check(
-  S.makeFilter((value: string): value is string => isFileExtension(value), {
-    identifier: $I`KnownFileExtensionTextCheck`,
-    title: "Known File Extension Text",
-    description: "A file extension segment accepted by the shared FileExtension schema.",
-    message: "File names must end with a known file extension",
-  })
-);
-
 /**
  * Schema for portable file names with a non-empty basename and known file extension.
  *
@@ -86,8 +76,10 @@ const KnownFileExtensionText = S.String.check(
  * import * as S from "effect/Schema";
  * import { FileName } from "@beep/schema/FileName";
  *
- * S.decodeUnknownSync(FileName)("photo.png");
- * S.decodeUnknownSync(FileName)(".cache.png");
+ * const decodeFileName = S.decodeUnknownSync(FileName);
+ *
+ * decodeFileName("photo.png");
+ * decodeFileName(".cache.png");
  * ```
  *
  * @since 0.0.0

@@ -17,7 +17,7 @@
  * ```typescript
  * import * as O from "effect/Option";
  * import * as S from "effect/Schema";
- * import { SandboxDockerSettings } from "@beep/clawhole/config/Sandbox";
+ * import { SandboxDockerSettings } from "@beep/clawhole/domain/Sandbox";
  *
  * const docker = S.decodeUnknownSync(SandboxDockerSettings)({
  *   image: "ghcr.io/openclaw/sandbox:latest",
@@ -30,7 +30,7 @@
  * console.log(O.isSome(docker.workdir)); // true
  * ```
  *
- * @module @beep/clawhole/config/Sandbox
+ * @module @beep/clawhole/domain/Sandbox
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
@@ -41,7 +41,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { SecretInput } from "./Secrets.ts";
 
-const $I = $ClawholeId.create("config/Sandbox");
+const $I = $ClawholeId.create("domain/Sandbox");
 
 const strictParseOptions = {
   exact: true as const,

@@ -9,7 +9,7 @@ import {
   MemoryQmdMcporterConfig,
   MemoryQmdSessionConfig,
   MemoryQmdUpdateConfig,
-} from "../../src/config/Memory.ts";
+} from "../../src/domain/Memory.ts";
 
 const decodeMemoryConfig = S.decodeUnknownSync(MemoryConfig);
 const strictParseOptions = { onExcessProperty: "error" } as const;
