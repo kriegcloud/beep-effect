@@ -1,4 +1,4 @@
-import * as Order from "effect/Order";
+import { Order } from "effect";
 
 export const descendingNumber = <A>(f: (value: A) => number): Order.Order<A> =>
   Order.mapInput(Order.Number, (value: A) => -f(value));

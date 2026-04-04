@@ -7,9 +7,8 @@
 
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { Cause, Effect, Stream } from "effect";
+import { Cause, Effect, Inspectable, Stream } from "effect";
 import * as A from "effect/Array";
-import * as Inspectable from "effect/Inspectable";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

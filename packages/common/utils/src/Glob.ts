@@ -1,8 +1,7 @@
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
-import { Effect, Layer, pipe, ServiceMap } from "effect";
+import { Effect, Layer, Order, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
-import * as Order from "effect/Order";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -26,13 +25,18 @@ export type Pattern = typeof Pattern.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export interface GlobOptions {
-  readonly absolute?: undefined | boolean;
-  readonly cwd?: undefined | string;
-  readonly dot?: undefined | boolean;
-  readonly ignore?: undefined | Pattern;
-  readonly nodir?: undefined | boolean;
-}
+export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
+  {
+    absolute: S.optionalKey(S.Boolean),
+    cwd: S.optionalKey(S.String),
+    dot: S.optionalKey(S.Boolean),
+    ignore: S.optionalKey(Pattern),
+    nodir: S.optionalKey(S.Boolean),
+  },
+  $I.annote("GlobOptions", {
+    description: "Optional runtime flags for Bun.Glob scans.",
+  })
+) {}
 
 /**
  * @since 0.0.0
