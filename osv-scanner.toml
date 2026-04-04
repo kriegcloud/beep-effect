@@ -1,3 +1,11 @@
 [[IgnoredVulns]]
 id = "GHSA-35jh-r3h4-6jhm"
 reason = "Accepted by the repo audit policy because no fixed version is currently available."
+
+[[IgnoredVulns]]
+id = "GHSA-5f7q-jpqc-wp7h"
+reason = "Accepted temporarily because the repo is pinned to Next 16.2.1-canary.19 and no fixed version is currently available for this advisory."
+
+[[IgnoredVulns]]
+id = "GHSA-5474-4w2j-mq4c"
+reason = "Accepted temporarily because the vulnerable @anthropic-ai/sdk version is pulled transitively via @anthropic-ai/claude-agent-sdk and is not part of this docgen branch scope."
