@@ -161,6 +161,15 @@ type WorkspacePackageMetadata = {
   readonly relativePath: string;
 };
 
+type CuratedSyncStateDocumentLike = Pick<CuratedSyncStateDocument, "hash">;
+
+type CuratedSyncStateLike = {
+  readonly collection: string;
+  readonly documents: Readonly<Record<string, CuratedSyncStateDocumentLike | undefined>>;
+};
+
+type CuratedDocumentSyncCandidate = Pick<CuratedDocument, "documentId" | "hash">;
+
 const isRecord = (value: unknown): value is Record<string, unknown> => P.isObject(value) && !Array.isArray(value);
 
 const asString = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
@@ -175,6 +184,54 @@ const mkEmptyCuratedSyncState = (collection: string): CuratedSyncState =>
     transport: curatedSyncTransport,
     version: curatedSyncStateVersion,
   });
+
+const hasCuratedSyncStateDocuments = (state: CuratedSyncStateLike): boolean => Object.keys(state.documents).length > 0;
+
+/** @internal */
+export const normalizeCuratedSyncStateForCollection = (
+  state: CuratedSyncStateLike,
+  collection: string
+): {
+  readonly collectionChanged: boolean;
+  readonly previousCollection: string;
+  readonly state: CuratedSyncStateLike;
+} => {
+  const previousCollection = state.collection;
+
+  if (!hasCuratedSyncStateDocuments(state)) {
+    return {
+      collectionChanged: false,
+      previousCollection,
+      state: mkEmptyCuratedSyncState(collection),
+    } as const;
+  }
+
+  if (previousCollection === collection) {
+    return {
+      collectionChanged: false,
+      previousCollection,
+      state,
+    } as const;
+  }
+
+  return {
+    collectionChanged: true,
+    previousCollection,
+    state: mkEmptyCuratedSyncState(collection),
+  } as const;
+};
+
+/** @internal */
+export const shouldReloadManagedDocument = (
+  document: CuratedDocumentSyncCandidate,
+  state: CuratedSyncStateLike,
+  managedDocumentIds: HashSet.HashSet<string>
+): boolean => {
+  const previous = state.documents[document.documentId];
+  return (
+    previous === undefined || previous.hash !== document.hash || !HashSet.has(managedDocumentIds, document.documentId)
+  );
+};
 
 const parseJsonObject = (label: string, text: string): Effect.Effect<Record<string, unknown>, DomainError> =>
   jsonParse(text).pipe(
@@ -1003,9 +1060,7 @@ const readWorkspacePackages = (
     const path = yield* Path.Path;
     const fsUtils = yield* FsUtils;
 
-    const workspacePackageJsonPatterns = rootPackage.workspaces.map((workspace) =>
-      workspace.includes("*") ? `${workspace}/package.json` : `${workspace}/package.json`
-    );
+    const workspacePackageJsonPatterns = rootPackage.workspaces.map((workspace) => `${workspace}/package.json`);
 
     const packageJsonPaths = yield* fsUtils.globFiles(
       workspacePackageJsonPatterns,
@@ -1321,10 +1376,10 @@ const trustGraphTriplesSmoke = (
 
 const summarizeSyncDiff = (
   documents: ReadonlyArray<CuratedDocument>,
-  state: CuratedSyncState,
+  state: CuratedSyncStateLike,
   remoteDocumentIds?: HashSet.HashSet<string>
 ) => {
-  const stateDocuments = state.documents as Readonly<Record<string, CuratedSyncStateDocument | undefined>>;
+  const stateDocuments = state.documents;
   const desiredDocumentIds = pipe(
     documents,
     A.map((document) => document.documentId),
@@ -1452,7 +1507,9 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
   Effect.gen(function* () {
     const repoRoot = yield* findRepoRoot();
     const path = yield* Path.Path;
-    const state = yield* readCuratedSyncState(path.join(repoRoot, curatedSyncStateRelativePath));
+    const storedState = yield* readCuratedSyncState(path.join(repoRoot, curatedSyncStateRelativePath));
+    const stateResolution = normalizeCuratedSyncStateForCollection(storedState, session.config.collection);
+    const state = stateResolution.state;
     const localDocuments = yield* collectCuratedDocuments(repoRoot, session.config);
     const flows = yield* getTrustGraphFlows(session);
     const libraryDocuments = filterManagedDocuments(yield* getTrustGraphDocuments(session));
@@ -1491,7 +1548,11 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
       );
     }
 
-    if (Object.keys(state.documents).length === 0) {
+    if (stateResolution.collectionChanged) {
+      yield* Console.log(
+        `[trustgraph:status] local sync state belongs to "${stateResolution.previousCollection}" but the current collection is "${session.config.collection}". The next sync will reseed local state and re-queue processing for the new collection.`
+      );
+    } else if (Object.keys(state.documents).length === 0) {
       yield* Console.log(
         `[trustgraph:status] no curated sync state exists yet. Run "bun run trustgraph:sync-curated" to seed the collection.`
       );
@@ -1500,6 +1561,12 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
     if (diff.staleDocumentIds.length > 0) {
       yield* Console.log(
         `[trustgraph:status] stale local sync state entries were found. The next sync will try to remove the matching managed documents from TrustGraph before reseeding.`
+      );
+    }
+
+    if (stateResolution.collectionChanged) {
+      failures.push(
+        `local sync state belongs to "${stateResolution.previousCollection}" but current TRUSTGRAPH_COLLECTION is "${session.config.collection}".`
       );
     }
 
@@ -1630,9 +1697,11 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
         : HashSet.fromIterable(existingManagedDocuments.map((document) => document.id));
       const existingManagedProcessing = filterManagedProcessingEntries(remoteProcessingEntries, session.config);
       const existingProbeProcessing = filterRepoProbeProcessingEntries(remoteProcessingEntries);
-      const previousState = options.reset
+      const storedState = options.reset
         ? mkEmptyCuratedSyncState(session.config.collection)
         : yield* readCuratedSyncState(absoluteStatePath);
+      const stateResolution = normalizeCuratedSyncStateForCollection(storedState, session.config.collection);
+      const previousState = stateResolution.state;
 
       if (options.reset) {
         yield* resetManagedRepositoryState(
@@ -1643,6 +1712,12 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
           existingProbeProcessing
         );
         yield* writeCuratedSyncState(absoluteStatePath, mkEmptyCuratedSyncState(session.config.collection));
+      }
+
+      if (!options.reset && stateResolution.collectionChanged) {
+        yield* Console.log(
+          `[trustgraph:sync-curated] detected collection change from "${stateResolution.previousCollection}" to "${session.config.collection}". Re-queueing processing for the new collection while preserving unchanged remote documents where possible.`
+        );
       }
 
       const diff = summarizeSyncDiff(localDocuments, previousState, existingManagedDocumentIds);
@@ -1663,12 +1738,20 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
       }
 
       for (const document of diff.uploadCandidates) {
-        if (HashSet.has(existingManagedDocumentIds, document.documentId)) {
+        const reloadManagedDocument = shouldReloadManagedDocument(document, storedState, existingManagedDocumentIds);
+
+        if (reloadManagedDocument && HashSet.has(existingManagedDocumentIds, document.documentId)) {
           yield* trustGraphRemoveDocument(session, document.documentId);
+          existingManagedDocumentIds = HashSet.remove(existingManagedDocumentIds, document.documentId);
         }
-        yield* trustGraphLoadDocument(session, document);
+        if (reloadManagedDocument) {
+          yield* trustGraphLoadDocument(session, document);
+          existingManagedDocumentIds = HashSet.add(existingManagedDocumentIds, document.documentId);
+        }
         yield* trustGraphQueueDocumentProcessing(session, document);
-        yield* Console.log(`[trustgraph:sync-curated] queued ${document.relativePath}`);
+        yield* Console.log(
+          `[trustgraph:sync-curated] ${reloadManagedDocument ? "queued" : "re-queued processing for"} ${document.relativePath}`
+        );
       }
 
       const syncedAt = yield* DateTime.now.pipe(
