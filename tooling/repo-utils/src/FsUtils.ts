@@ -152,14 +152,16 @@ export const FsUtilsLive: Layer.Layer<FsUtils, never, FileSystem.FileSystem | Pa
       pattern: string | ReadonlyArray<string>,
       options?: undefined | (GlobOptions & { readonly nodir?: undefined | boolean })
     ) => Effect.Effect<ReadonlyArray<string>, DomainError> = Effect.fnUntraced(function* (pattern, options) {
+      const sharedGlobOptions = {
+        ...(options?.absolute === undefined ? {} : { absolute: options.absolute }),
+        ...(options?.cwd === undefined ? {} : { cwd: options.cwd }),
+        ...(options?.dot === undefined ? {} : { dot: options.dot }),
+        ...(options?.ignore === undefined ? {} : { ignore: options.ignore }),
+        ...(options?.nodir === undefined ? {} : { nodir: options.nodir }),
+      };
+
       return yield* globUtils
-        .glob(pattern, {
-          absolute: options?.absolute,
-          cwd: options?.cwd,
-          dot: options?.dot,
-          ignore: options?.ignore,
-          nodir: options?.nodir,
-        })
+        .glob(pattern, sharedGlobOptions)
         .pipe(
           Effect.mapError((error) =>
             DomainError.new(error, { message: `Glob failed for pattern "${String(pattern)}"` })
