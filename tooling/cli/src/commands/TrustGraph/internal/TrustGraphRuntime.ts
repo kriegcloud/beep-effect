@@ -5,14 +5,27 @@
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema";
-import { DomainError, findRepoRoot, FsUtils, GlobOptions, jsonParse, jsonStringifyCompact } from "@beep/repo-utils";
-import { createHash } from "node:crypto";
-import { Console, Effect, FileSystem, Inspectable, Path } from "effect";
+import {createHash} from "node:crypto";
+import {$RepoCliId} from "@beep/identity/packages";
+import {
+  DomainError,
+  FsUtils,
+  findRepoRoot,
+  GlobOptions,
+  jsonParse,
+  jsonStringifyCompact
+} from "@beep/repo-utils";
+import {TaggedErrorClass} from "@beep/schema";
+import {Console, Effect, FileSystem, Inspectable, Path} from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { Headers, HttpBody, HttpClient, HttpClientRequest, HttpClientResponse } from "effect/unstable/http";
+import {
+  Headers,
+  HttpBody,
+  HttpClient,
+  HttpClientRequest,
+  HttpClientResponse
+} from "effect/unstable/http";
 
 const $I = $RepoCliId.create("commands/TrustGraph/internal/TrustGraphRuntime");
 
@@ -23,6 +36,8 @@ const defaultTrustGraphUser = "trustgraph" as const;
 const managedDocumentIdPrefix = "urn:beep-effect:doc:" as const;
 const generatedOverviewRelativePath = "generated/repo-overview.md" as const;
 const curatedSyncStateRelativePath = ".beep/trustgraph/curated-sync-state.json" as const;
+const curatedSyncStateVersion = 2 as const;
+const curatedSyncTransport = "flow-text-load" as const;
 const initializeProtocolVersion = "2024-11-05" as const;
 const repoCliCommandGroups = [
   "agents",
@@ -54,12 +69,16 @@ class TrustGraphCliError extends TaggedErrorClass<TrustGraphCliError>($I`TrustGr
   "TrustGraphCliError",
   {
     message: S.String,
-    cause: S.optionalKey(S.Unknown),
+    cause: S.optionalKey(S.DefectWithStack),
   },
-  $I.annote("TrustGraphCliError", {
-    description: "Structured runtime error for TrustGraph CLI integration failures.",
-  })
-) {}
+  $I.annote(
+    "TrustGraphCliError",
+    {
+      description: "Structured runtime error for TrustGraph CLI integration failures.",
+    }
+  )
+) {
+}
 
 class CuratedSyncStateDocument extends S.Class<CuratedSyncStateDocument>($I`CuratedSyncStateDocument`)(
   {
@@ -68,21 +87,33 @@ class CuratedSyncStateDocument extends S.Class<CuratedSyncStateDocument>($I`Cura
     title: S.String,
     syncedAt: S.String,
   },
-  $I.annote("CuratedSyncStateDocument", {
-    description: "Persisted sync metadata for one curated TrustGraph document.",
-  })
-) {}
+  $I.annote(
+    "CuratedSyncStateDocument",
+    {
+      description: "Persisted sync metadata for one curated TrustGraph document.",
+    }
+  )
+) {
+}
 
 class CuratedSyncState extends S.Class<CuratedSyncState>($I`CuratedSyncState`)(
   {
     version: S.Number,
+    transport: S.String,
     collection: S.String,
-    documents: S.Record(S.String, CuratedSyncStateDocument),
+    documents: S.Record(
+      S.String,
+      CuratedSyncStateDocument
+    ),
   },
-  $I.annote("CuratedSyncState", {
-    description: "Local sync state used to avoid redundant TrustGraph uploads.",
-  })
-) {}
+  $I.annote(
+    "CuratedSyncState",
+    {
+      description: "Local sync state used to avoid redundant TrustGraph uploads.",
+    }
+  )
+) {
+}
 
 const decodeCuratedSyncState = S.decodeUnknownSync(CuratedSyncState);
 
@@ -141,54 +172,91 @@ type WorkspacePackageMetadata = {
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
-const asString = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
+const asString = (value: unknown): string | undefined => (typeof value === "string"
+  ? value
+  : undefined);
 
 const asStringArray = (value: unknown): ReadonlyArray<string> =>
-  Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : [];
+  Array.isArray(value)
+    ? value.filter((entry): entry is string => typeof entry === "string")
+    : [];
 
-const parseJsonObject = (label: string, text: string): Effect.Effect<Record<string, unknown>, DomainError> =>
-  jsonParse(text).pipe(
-    Effect.flatMap((parsed) =>
-      isRecord(parsed)
-        ? Effect.succeed(parsed)
-        : Effect.fail(new DomainError({ message: `${label} must decode to a JSON object.` }))
-    )
-  );
+const mkEmptyCuratedSyncState = (collection: string): CuratedSyncState =>
+  new CuratedSyncState({
+    collection,
+    documents: {},
+    transport: curatedSyncTransport,
+    version: curatedSyncStateVersion,
+  });
 
-const stringifyCliJson = (label: string, value: unknown): Effect.Effect<string, TrustGraphCliError> =>
-  jsonStringifyCompact(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        new TrustGraphCliError({
-          message: `Failed to serialize ${label} as JSON.`,
-          cause,
-        })
-    )
-  );
+const parseJsonObject = (
+  label: string,
+  text: string
+): Effect.Effect<Record<string, unknown>, DomainError> =>
+  jsonParse(text)
+    .pipe(
+      Effect.flatMap((parsed) =>
+        isRecord(parsed)
+          ? Effect.succeed(parsed)
+          : Effect.fail(new DomainError({message: `${label} must decode to a JSON object.`}))
+      )
+    );
 
-const stringifyDomainJson = (label: string, value: unknown): Effect.Effect<string, DomainError> =>
-  jsonStringifyCompact(value).pipe(
-    Effect.mapError(
-      (cause) =>
-        new DomainError({
-          message: `Failed to serialize ${label} as JSON.`,
-          cause,
-        })
-    )
-  );
+const stringifyCliJson = (
+  label: string,
+  value: unknown
+): Effect.Effect<string, TrustGraphCliError> =>
+  jsonStringifyCompact(value)
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new TrustGraphCliError({
+            message: `Failed to serialize ${label} as JSON.`,
+            cause,
+          })
+      )
+    );
+
+const stringifyDomainJson = (
+  label: string,
+  value: unknown
+): Effect.Effect<string, DomainError> =>
+  jsonStringifyCompact(value)
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to serialize ${label} as JSON.`,
+            cause,
+          })
+      )
+    );
 
 const messageFromUnknown = (error: unknown): string => {
-  const message = isRecord(error) ? asString(error.message) : undefined;
-  return message ?? Inspectable.toStringUnknown(error, 0);
+  const message = isRecord(error)
+    ? asString(error.message)
+    : undefined;
+  return message ?? Inspectable.toStringUnknown(
+    error,
+    0
+  );
 };
 
 const causeFromUnknown = (error: unknown): unknown | undefined =>
-  isRecord(error) && "cause" in error ? error.cause : undefined;
+  isRecord(error) && "cause" in error
+    ? error.cause
+    : undefined;
 
-const sha256 = (content: string): string => createHash("sha256").update(content).digest("hex");
+const sha256 = (content: string): string => createHash("sha256")
+  .update(content)
+  .digest("hex");
 
 const normalizeTrustGraphMcpUrl = (value: string): string => {
-  const trimmed = value.trim().replace(/\/+$/, "");
+  const trimmed = value.trim()
+    .replace(
+      /\/+$/,
+      ""
+    );
   if (trimmed.endsWith("/mcp")) {
     return trimmed;
   }
@@ -204,19 +272,36 @@ const mkTrustGraphConfig = (): TrustGraphConfig => ({
 });
 
 const managedDocumentIdFromRelativePath = (relativePath: string): string =>
-  `${managedDocumentIdPrefix}${relativePath.replace(/^\.?\//, "")}`;
+  `${managedDocumentIdPrefix}${relativePath.replace(
+    /^\.?\//,
+    ""
+  )}`;
 
-const managedComments = (relativePath: string, isGenerated: boolean): string =>
-  isGenerated
-    ? `Generated repository overview for the beep-effect TrustGraph knowledge base (${relativePath}).`
-    : `Curated repository knowledge synced from ${relativePath} for the beep-effect TrustGraph knowledge base.`;
+const trustGraphRestBaseUrl = (mcpUrl: string): string => mcpUrl.replace(
+  /\/mcp$/,
+  "/api/v1"
+);
 
-const buildMcpHeaders = (config: TrustGraphConfig, sessionId?: string): Headers.Headers =>
+const buildMcpHeaders = (
+  config: TrustGraphConfig,
+  sessionId?: string
+): Headers.Headers =>
   Headers.fromInput({
     Accept: "application/json, text/event-stream",
-    Authorization: config.authToken === undefined ? undefined : `Bearer ${config.authToken}`,
+    Authorization: config.authToken === undefined
+      ? undefined
+      : `Bearer ${config.authToken}`,
     "Content-Type": "application/json",
     "mcp-session-id": sessionId,
+  });
+
+const buildRestHeaders = (config: TrustGraphConfig): Headers.Headers =>
+  Headers.fromInput({
+    Accept: "application/json",
+    Authorization: config.authToken === undefined
+      ? undefined
+      : `Bearer ${config.authToken}`,
+    "Content-Type": "application/json",
   });
 
 const readResponseText = (
@@ -275,7 +360,8 @@ const parseSseJsonMessages = (
         }
 
         if (line.startsWith("data:")) {
-          dataLines.push(line.slice("data:".length).trimStart());
+          dataLines.push(line.slice("data:".length)
+            .trimStart());
           continue;
         }
 
@@ -310,7 +396,8 @@ const extractJsonRpcResult = (
     }
   }
 
-  const resultMessage = [...messages].reverse().find((message) => isRecord(message.result));
+  const resultMessage = [...messages].reverse()
+    .find((message) => isRecord(message.result));
 
   if (resultMessage === undefined) {
     return Effect.fail(
@@ -325,82 +412,125 @@ const extractJsonRpcResult = (
 };
 
 const initializeTrustGraphSession = Effect.fn(function* (config: TrustGraphConfig) {
-  const initializeBody = yield* stringifyCliJson("TrustGraph initialize payload", {
-    jsonrpc: "2.0",
-    id: "trustgraph-init",
-    method: "initialize",
-    params: {
-      protocolVersion: initializeProtocolVersion,
-      capabilities: {},
-      clientInfo: {
-        name: "beep-effect-trustgraph-cli",
-        version: "0.0.0",
+  const initializeBody = yield* stringifyCliJson(
+    "TrustGraph initialize payload",
+    {
+      jsonrpc: "2.0",
+      id: "trustgraph-init",
+      method: "initialize",
+      params: {
+        protocolVersion: initializeProtocolVersion,
+        capabilities: {},
+        clientInfo: {
+          name: "beep-effect-trustgraph-cli",
+          version: "0.0.0",
+        },
       },
-    },
-  });
-
-  const request = HttpClientRequest.post(config.mcpUrl, {
-    headers: buildMcpHeaders(config),
-  }).pipe(HttpClientRequest.setBody(HttpBody.text(initializeBody, "application/json")));
-
-  const response = yield* HttpClient.execute(request).pipe(
-    Effect.mapError(
-      (cause) =>
-        new TrustGraphCliError({
-          message: `Failed to initialize a TrustGraph MCP session at ${config.mcpUrl}.`,
-          cause,
-        })
-    ),
-    Effect.flatMap(HttpClientResponse.filterStatusOk),
-    Effect.mapError(
-      (cause) =>
-        new TrustGraphCliError({
-          message: `TrustGraph MCP initialization returned a non-2xx response.`,
-          cause,
-        })
-    )
+    }
   );
 
-  const sessionIdOption = Headers.get(response.headers, "mcp-session-id");
+  const request = HttpClientRequest.post(
+    config.mcpUrl,
+    {
+      headers: buildMcpHeaders(config),
+    }
+  )
+    .pipe(HttpClientRequest.setBody(HttpBody.text(
+      initializeBody,
+      "application/json"
+    )));
+
+  const response = yield* HttpClient.execute(request)
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new TrustGraphCliError({
+            message: `Failed to initialize a TrustGraph MCP session at ${config.mcpUrl}.`,
+            cause,
+          })
+      ),
+      Effect.flatMap(HttpClientResponse.filterStatusOk),
+      Effect.mapError(
+        (cause) =>
+          new TrustGraphCliError({
+            message: `TrustGraph MCP initialization returned a non-2xx response.`,
+            cause,
+          })
+      )
+    );
+
+  const sessionIdOption = Headers.get(
+    response.headers,
+    "mcp-session-id"
+  );
   if (O.isNone(sessionIdOption)) {
     return yield* new TrustGraphCliError({
       message: "TrustGraph MCP initialization succeeded but no mcp-session-id header was returned.",
     });
   }
 
-  const initializePayload = yield* readResponseText(response, "initialize");
-  const initializeMessages = yield* parseSseJsonMessages(initializePayload, "initialize");
-  yield* extractJsonRpcResult(initializeMessages, "initialize");
-
-  const initializedNotification = yield* stringifyCliJson("TrustGraph initialized notification", {
-    jsonrpc: "2.0",
-    method: "notifications/initialized",
-  });
-
-  const initializedRequest = HttpClientRequest.post(config.mcpUrl, {
-    headers: buildMcpHeaders(config, sessionIdOption.value),
-  }).pipe(HttpClientRequest.setBody(HttpBody.text(initializedNotification, "application/json")));
-
-  yield* HttpClient.execute(initializedRequest).pipe(
-    Effect.mapError(
-      (cause) =>
-        new TrustGraphCliError({
-          message: "Failed to acknowledge TrustGraph MCP initialization.",
-          cause,
-        })
-    ),
-    Effect.flatMap(HttpClientResponse.filterStatusOk),
-    Effect.mapError(
-      (cause) =>
-        new TrustGraphCliError({
-          message: "TrustGraph MCP initialized notification returned a non-2xx response.",
-          cause,
-        })
-    ),
-    Effect.flatMap((ackResponse) => readResponseText(ackResponse, "initialized notification")),
-    Effect.flatMap((ackPayload) => parseSseJsonMessages(ackPayload, "initialized notification")),
-    Effect.asVoid
+  const initializePayload = yield* readResponseText(
+    response,
+    "initialize"
   );
+  const initializeMessages = yield* parseSseJsonMessages(
+    initializePayload,
+    "initialize"
+  );
+  yield* extractJsonRpcResult(
+    initializeMessages,
+    "initialize"
+  );
+
+  const initializedNotification = yield* stringifyCliJson(
+    "TrustGraph initialized notification",
+    {
+      jsonrpc: "2.0",
+      method: "notifications/initialized",
+    }
+  );
+
+  const initializedRequest = HttpClientRequest.post(
+    config.mcpUrl,
+    {
+      headers: buildMcpHeaders(
+        config,
+        sessionIdOption.value
+      ),
+    }
+  )
+    .pipe(HttpClientRequest.setBody(HttpBody.text(
+      initializedNotification,
+      "application/json"
+    )));
+
+  yield* HttpClient.execute(initializedRequest)
+    .pipe(
+      Effect.mapError(
+        (cause) =>
+          new TrustGraphCliError({
+            message: "Failed to acknowledge TrustGraph MCP initialization.",
+            cause,
+          })
+      ),
+      Effect.flatMap(HttpClientResponse.filterStatusOk),
+      Effect.mapError(
+        (cause) =>
+          new TrustGraphCliError({
+            message: "TrustGraph MCP initialized notification returned a non-2xx response.",
+            cause,
+          })
+      ),
+      Effect.flatMap((ackResponse) => readResponseText(
+        ackResponse,
+        "initialized notification"
+      )),
+      Effect.flatMap((ackPayload) => parseSseJsonMessages(
+        ackPayload,
+        "initialized notification"
+      )),
+      Effect.asVoid
+    );
 
   return {
     config,
@@ -422,41 +552,64 @@ const callTrustGraphTool = (
   arguments_: Record<string, unknown>
 ): Effect.Effect<Record<string, unknown>, TrustGraphCliError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
-    const toolBody = yield* stringifyCliJson(`TrustGraph tool ${name} request`, {
-      jsonrpc: "2.0",
-      id: `trustgraph-${name}`,
-      method: "tools/call",
-      params: {
-        name,
-        arguments: arguments_,
-      },
-    });
-
-    const request = HttpClientRequest.post(session.config.mcpUrl, {
-      headers: buildMcpHeaders(session.config, session.sessionId),
-    }).pipe(HttpClientRequest.setBody(HttpBody.text(toolBody, "application/json")));
-
-    const response = yield* HttpClient.execute(request).pipe(
-      Effect.mapError(
-        (cause) =>
-          new TrustGraphCliError({
-            message: `TrustGraph tool ${name} could not be reached.`,
-            cause,
-          })
-      ),
-      Effect.flatMap(HttpClientResponse.filterStatusOk),
-      Effect.mapError(
-        (cause) =>
-          new TrustGraphCliError({
-            message: `TrustGraph tool ${name} returned a non-2xx response.`,
-            cause,
-          })
-      )
+    const toolBody = yield* stringifyCliJson(
+      `TrustGraph tool ${name} request`,
+      {
+        jsonrpc: "2.0",
+        id: `trustgraph-${name}`,
+        method: "tools/call",
+        params: {
+          name,
+          arguments: arguments_,
+        },
+      }
     );
 
-    const payload = yield* readResponseText(response, `tool ${name}`);
-    const messages = yield* parseSseJsonMessages(payload, `tool ${name}`);
-    const result = yield* extractJsonRpcResult(messages, `tool ${name}`);
+    const request = HttpClientRequest.post(
+      session.config.mcpUrl,
+      {
+        headers: buildMcpHeaders(
+          session.config,
+          session.sessionId
+        ),
+      }
+    )
+      .pipe(HttpClientRequest.setBody(HttpBody.text(
+        toolBody,
+        "application/json"
+      )));
+
+    const response = yield* HttpClient.execute(request)
+      .pipe(
+        Effect.mapError(
+          (cause) =>
+            new TrustGraphCliError({
+              message: `TrustGraph tool ${name} could not be reached.`,
+              cause,
+            })
+        ),
+        Effect.flatMap(HttpClientResponse.filterStatusOk),
+        Effect.mapError(
+          (cause) =>
+            new TrustGraphCliError({
+              message: `TrustGraph tool ${name} returned a non-2xx response.`,
+              cause,
+            })
+        )
+      );
+
+    const payload = yield* readResponseText(
+      response,
+      `tool ${name}`
+    );
+    const messages = yield* parseSseJsonMessages(
+      payload,
+      `tool ${name}`
+    );
+    const result = yield* extractJsonRpcResult(
+      messages,
+      `tool ${name}`
+    );
 
     if (result.isError === true) {
       return yield* new TrustGraphCliError({
@@ -466,6 +619,71 @@ const callTrustGraphTool = (
     }
 
     return result;
+  });
+
+const callTrustGraphRestJson = (
+  session: TrustGraphSession,
+  path: string,
+  payload: Record<string, unknown>,
+  description: string
+): Effect.Effect<Record<string, unknown>, TrustGraphCliError, HttpClient.HttpClient> =>
+  Effect.gen(function* () {
+    const body = yield* stringifyCliJson(
+      `TrustGraph REST ${description} payload`,
+      payload
+    );
+    const request = HttpClientRequest.post(
+      `${trustGraphRestBaseUrl(session.config.mcpUrl)}${path}`,
+      {
+        headers: buildRestHeaders(session.config),
+      }
+    )
+      .pipe(HttpClientRequest.setBody(HttpBody.text(
+        body,
+        "application/json"
+      )));
+
+    const response = yield* HttpClient.execute(request)
+      .pipe(
+        Effect.mapError(
+          (cause) =>
+            new TrustGraphCliError({
+              message: `TrustGraph REST ${description} could not be reached.`,
+              cause,
+            })
+        ),
+        Effect.flatMap(HttpClientResponse.filterStatusOk),
+        Effect.mapError(
+          (cause) =>
+            new TrustGraphCliError({
+              message: `TrustGraph REST ${description} returned a non-2xx response.`,
+              cause,
+            })
+        )
+      );
+
+    const responseText = yield* readResponseText(
+      response,
+      `REST ${description}`
+    );
+    if (responseText.trim().length === 0) {
+      return {};
+    }
+
+    return yield* Effect.try({
+      try: () => {
+        const parsed = JSON.parse(responseText);
+        if (!isRecord(parsed)) {
+          throw new Error(`REST ${description} response was not a JSON object.`);
+        }
+        return parsed;
+      },
+      catch: (cause) =>
+        new TrustGraphCliError({
+          message: `TrustGraph REST ${description} returned invalid JSON.`,
+          cause,
+        }),
+    });
   });
 
 const extractStructuredContent = (
@@ -488,8 +706,15 @@ const getTrustGraphDocuments = (
   session: TrustGraphSession
 ): Effect.Effect<ReadonlyArray<TrustGraphDocumentMetadata>, TrustGraphCliError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
-    const result = yield* callTrustGraphTool(session, "get_documents", { user: session.config.user });
-    const structuredContent = yield* extractStructuredContent(result, "get_documents");
+    const result = yield* callTrustGraphTool(
+      session,
+      "get_documents",
+      {user: session.config.user}
+    );
+    const structuredContent = yield* extractStructuredContent(
+      result,
+      "get_documents"
+    );
     const documentMetadatas = Array.isArray(structuredContent.document_metadatas)
       ? structuredContent.document_metadatas
       : [];
@@ -520,8 +745,15 @@ const getTrustGraphProcessingEntries = (
   session: TrustGraphSession
 ): Effect.Effect<ReadonlyArray<TrustGraphProcessingMetadata>, TrustGraphCliError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
-    const result = yield* callTrustGraphTool(session, "get_processing", { user: session.config.user });
-    const structuredContent = yield* extractStructuredContent(result, "get_processing");
+    const result = yield* callTrustGraphTool(
+      session,
+      "get_processing",
+      {user: session.config.user}
+    );
+    const structuredContent = yield* extractStructuredContent(
+      result,
+      "get_processing"
+    );
     const processingMetadatas = Array.isArray(structuredContent.processing_metadatas)
       ? structuredContent.processing_metadatas
       : [];
@@ -553,64 +785,63 @@ const getTrustGraphFlows = (
   session: TrustGraphSession
 ): Effect.Effect<ReadonlyArray<string>, TrustGraphCliError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
-    const result = yield* callTrustGraphTool(session, "get_flows", {});
-    const structuredContent = yield* extractStructuredContent(result, "get_flows");
+    const result = yield* callTrustGraphTool(
+      session,
+      "get_flows",
+      {}
+    );
+    const structuredContent = yield* extractStructuredContent(
+      result,
+      "get_flows"
+    );
     return asStringArray(structuredContent.flow_ids);
   });
 
-const trustGraphLoadDocument = (
+const trustGraphTextLoadDocument = (
   session: TrustGraphSession,
   document: CuratedDocument
 ): Effect.Effect<void, TrustGraphCliError, HttpClient.HttpClient> =>
-  callTrustGraphTool(session, "load_document", {
-    comments: managedComments(document.relativePath, document.isGenerated),
-    document: document.content,
-    document_id: document.documentId,
-    mime_type: "text/markdown",
-    tags: document.tags,
-    title: document.title,
-    user: session.config.user,
-  }).pipe(Effect.asVoid);
-
-const trustGraphRemoveDocument = (
-  session: TrustGraphSession,
-  documentId: string
-): Effect.Effect<void, TrustGraphCliError, HttpClient.HttpClient> =>
-  callTrustGraphTool(session, "remove_document", {
-    document_id: documentId,
-    user: session.config.user,
-  }).pipe(Effect.asVoid);
-
-const trustGraphQueueProcessing = (
-  session: TrustGraphSession,
-  document: CuratedDocument
-): Effect.Effect<void, TrustGraphCliError, HttpClient.HttpClient> =>
-  callTrustGraphTool(session, "add_processing", {
-    collection: session.config.collection,
-    document_id: document.documentId,
-    flow: session.config.flow,
-    processing_id: `${document.documentId}:${document.hash.slice(0, 12)}`,
-    tags: document.tags,
-    user: session.config.user,
-  }).pipe(Effect.asVoid);
+  callTrustGraphRestJson(
+    session,
+    `/flow/${encodeURIComponent(session.config.flow)}/service/text-load`,
+    {
+      collection: session.config.collection,
+      id: document.documentId,
+      text: Buffer.from(
+        document.content,
+        "utf8"
+      )
+        .toString("base64"),
+      user: session.config.user,
+    },
+    `${session.config.flow} text-load`
+  )
+    .pipe(Effect.asVoid);
 
 const trustGraphGraphRag = (
   session: TrustGraphSession,
   question: string
 ): Effect.Effect<string, TrustGraphCliError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
-    const result = yield* callTrustGraphTool(session, "graph_rag", {
-      collection: session.config.collection,
-      entity_limit: "8",
-      flow_id: session.config.flow,
-      max_path_length: "2",
-      max_subgraph_size: "24",
-      question,
-      triple_limit: "16",
-      user: session.config.user,
-    });
+    const result = yield* callTrustGraphTool(
+      session,
+      "graph_rag",
+      {
+        collection: session.config.collection,
+        entity_limit: "8",
+        flow_id: session.config.flow,
+        max_path_length: "2",
+        max_subgraph_size: "24",
+        question,
+        triple_limit: "16",
+        user: session.config.user,
+      }
+    );
 
-    const structuredContent = yield* extractStructuredContent(result, "graph_rag");
+    const structuredContent = yield* extractStructuredContent(
+      result,
+      "graph_rag"
+    );
     return asString(structuredContent.response) ?? "";
   });
 
@@ -619,22 +850,39 @@ const readCuratedSyncState = (
 ): Effect.Effect<CuratedSyncState, DomainError, FileSystem.FileSystem> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    const exists = yield* fs.exists(absoluteStatePath).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Failed to check ${absoluteStatePath}`, cause }))
-    );
+    const exists = yield* fs
+      .exists(absoluteStatePath)
+      .pipe(Effect.mapError((cause) => new DomainError({
+        message: `Failed to check ${absoluteStatePath}`,
+        cause
+      })));
 
     if (!exists) {
-      return new CuratedSyncState({
-        collection: defaultTrustGraphCollection,
-        documents: {},
-        version: 1,
-      });
+      return mkEmptyCuratedSyncState(defaultTrustGraphCollection);
     }
 
-    const text = yield* fs.readFileString(absoluteStatePath).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Failed to read ${absoluteStatePath}`, cause }))
-    );
+    const text = yield* fs
+      .readFileString(absoluteStatePath)
+      .pipe(Effect.mapError((cause) => new DomainError({
+        message: `Failed to read ${absoluteStatePath}`,
+        cause
+      })));
     const parsed = yield* jsonParse(text);
+
+    if (!isRecord(parsed)) {
+      return yield* new DomainError({
+        message: `Invalid TrustGraph sync state: ${absoluteStatePath} did not contain a JSON object.`,
+      })
+    }
+
+    const parsedVersion = typeof parsed.version === "number"
+      ? parsed.version
+      : 0;
+    const parsedTransport = asString(parsed.transport);
+    if (parsedVersion !== curatedSyncStateVersion || parsedTransport !== curatedSyncTransport) {
+      return mkEmptyCuratedSyncState(asString(parsed.collection) ?? defaultTrustGraphCollection);
+    }
+
     return yield* Effect.try({
       try: () => decodeCuratedSyncState(parsed),
       catch: (cause) =>
@@ -652,26 +900,54 @@ const writeCuratedSyncState = (
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    yield* fs.makeDirectory(path.dirname(absoluteStatePath), { recursive: true }).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Failed to create ${absoluteStatePath} parent directory`, cause }))
+    yield* fs
+      .makeDirectory(
+        path.dirname(absoluteStatePath),
+        {recursive: true}
+      )
+      .pipe(
+        Effect.mapError(
+          (cause) => new DomainError({
+            message: `Failed to create ${absoluteStatePath} parent directory`,
+            cause
+          })
+        )
+      );
+    const serialized = yield* stringifyDomainJson(
+      "TrustGraph sync state",
+      state
     );
-    const serialized = yield* stringifyDomainJson("TrustGraph sync state", state);
-    yield* fs.writeFileString(absoluteStatePath, `${serialized}\n`).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Failed to write ${absoluteStatePath}`, cause }))
-    );
+    yield* fs
+      .writeFileString(
+        absoluteStatePath,
+        `${serialized}\n`
+      )
+      .pipe(Effect.mapError((cause) => new DomainError({
+        message: `Failed to write ${absoluteStatePath}`,
+        cause
+      })));
   });
 
-const deriveMarkdownTitle = (relativePath: string, content: string): string => {
-  const heading = content
-    .split(/\r?\n/)
+const deriveMarkdownTitle = (
+  relativePath: string,
+  content: string
+): string => {
+  const heading = content.split(/\r?\n/)
     .find((line) => line.startsWith("# "));
 
   if (heading !== undefined) {
-    return heading.replace(/^#\s+/, "").trim();
+    return heading.replace(
+      /^#\s+/,
+      ""
+    )
+      .trim();
   }
 
   const segments = relativePath.split("/");
-  return segments[segments.length - 1]?.replace(/\.md$/i, "") ?? relativePath;
+  return segments[segments.length - 1]?.replace(
+    /\.md$/i,
+    ""
+  ) ?? relativePath;
 };
 
 const readRootPackageMetadata = (
@@ -680,15 +956,38 @@ const readRootPackageMetadata = (
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const packageJsonText = yield* fs.readFileString(path.join(repoRoot, "package.json")).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Failed to read root package.json in ${repoRoot}`, cause }))
+    const packageJsonText = yield* fs
+      .readFileString(path.join(
+        repoRoot,
+        "package.json"
+      ))
+      .pipe(
+        Effect.mapError(
+          (cause) => new DomainError({
+            message: `Failed to read root package.json in ${repoRoot}`,
+            cause
+          })
+        )
+      );
+    const parsed = yield* parseJsonObject(
+      "Root package.json",
+      packageJsonText
     );
-    const parsed = yield* parseJsonObject("Root package.json", packageJsonText);
     const workspaces = Array.isArray(parsed.workspaces)
       ? parsed.workspaces.filter((entry): entry is string => typeof entry === "string")
       : [];
     const scripts = isRecord(parsed.scripts)
-      ? Object.fromEntries(Object.entries(parsed.scripts).flatMap(([key, value]) => (typeof value === "string" ? [[key, value]] : [])))
+      ? Object.fromEntries(
+        Object.entries(parsed.scripts)
+          .flatMap(([key, value]) => (typeof value === "string"
+            ? [
+              [
+                key,
+                value
+              ]
+            ]
+            : []))
+      )
       : {};
 
     return {
@@ -709,35 +1008,62 @@ const readWorkspacePackages = (
     const fsUtils = yield* FsUtils;
 
     const workspacePackageJsonPatterns = rootPackage.workspaces.map((workspace) =>
-      workspace.includes("*") ? `${workspace}/package.json` : `${workspace}/package.json`
+      workspace.includes("*")
+        ? `${workspace}/package.json`
+        : `${workspace}/package.json`
     );
 
-    const packageJsonPaths = yield* fsUtils.globFiles(workspacePackageJsonPatterns, new GlobOptions({ cwd: repoRoot, dot: true }));
+    const packageJsonPaths = yield* fsUtils.globFiles(
+      workspacePackageJsonPatterns,
+      new GlobOptions({
+        cwd: repoRoot,
+        dot: true
+      })
+    );
 
     const packages = yield* Effect.forEach(
       packageJsonPaths,
       Effect.fn(function* (relativePackageJsonPath) {
-        const absolutePackageJsonPath = path.join(repoRoot, relativePackageJsonPath);
-        const text = yield* fs.readFileString(absolutePackageJsonPath).pipe(
-          Effect.mapError((cause) => new DomainError({ message: `Failed to read ${absolutePackageJsonPath}`, cause }))
+        const absolutePackageJsonPath = path.join(
+          repoRoot,
+          relativePackageJsonPath
         );
-        const parsed = yield* parseJsonObject(relativePackageJsonPath, text);
+        const text = yield* fs
+          .readFileString(absolutePackageJsonPath)
+          .pipe(
+            Effect.mapError((cause) => new DomainError({
+              message: `Failed to read ${absolutePackageJsonPath}`,
+              cause
+            }))
+          );
+        const parsed = yield* parseJsonObject(
+          relativePackageJsonPath,
+          text
+        );
         const packageName = asString(parsed.name);
         if (packageName === undefined) {
           return O.none<WorkspacePackageMetadata>();
         }
-        const relativePath = relativePackageJsonPath.replace(/\/package\.json$/, "");
+        const relativePath = relativePackageJsonPath.replace(
+          /\/package\.json$/,
+          ""
+        );
         return O.some({
           name: packageName,
           relativePath,
         } satisfies WorkspacePackageMetadata);
       }),
-      { concurrency: "unbounded" }
+      {concurrency: "unbounded"}
     );
 
     return packages
-      .flatMap((entry) => (O.isSome(entry) ? [entry.value] : []))
-      .sort((left, right) => left.relativePath.localeCompare(right.relativePath));
+      .flatMap((entry) => (O.isSome(entry)
+        ? [entry.value]
+        : []))
+      .sort((
+        left,
+        right
+      ) => left.relativePath.localeCompare(right.relativePath));
   });
 
 const buildGeneratedRepoOverview = (
@@ -746,13 +1072,25 @@ const buildGeneratedRepoOverview = (
   config: TrustGraphConfig
 ): string => {
   const trustGraphScripts = Object.keys(rootPackage.scripts)
-    .filter((scriptName) => scriptName === "beep" || scriptName.startsWith("trustgraph:") || scriptName.startsWith("codex:hook:"))
-    .sort((left, right) => left.localeCompare(right));
+    .filter(
+      (scriptName) =>
+        scriptName === "beep" || scriptName.startsWith("trustgraph:") || scriptName.startsWith("codex:hook:")
+    )
+    .sort((
+      left,
+      right
+    ) => left.localeCompare(right));
 
-  const workspaceLines = workspacePackages.map((workspace) => `- \`${workspace.relativePath}\` -> \`${workspace.name}\``).join("\n");
-  const workspacePatternLines = rootPackage.workspaces.map((workspace) => `- \`${workspace}\``).join("\n");
-  const scriptLines = trustGraphScripts.map((scriptName) => `- \`${scriptName}\` -> \`${rootPackage.scripts[scriptName]}\``).join("\n");
-  const commandLines = repoCliCommandGroups.map((command) => `- \`${command}\``).join("\n");
+  const workspaceLines = workspacePackages
+    .map((workspace) => `- \`${workspace.relativePath}\` -> \`${workspace.name}\``)
+    .join("\n");
+  const workspacePatternLines = rootPackage.workspaces.map((workspace) => `- \`${workspace}\``)
+    .join("\n");
+  const scriptLines = trustGraphScripts
+    .map((scriptName) => `- \`${scriptName}\` -> \`${rootPackage.scripts[scriptName]}\``)
+    .join("\n");
+  const commandLines = repoCliCommandGroups.map((command) => `- \`${command}\``)
+    .join("\n");
 
   return [
     "# beep-effect Repository Overview",
@@ -799,43 +1137,83 @@ const collectCuratedDocuments = (
     const path = yield* Path.Path;
     const fsUtils = yield* FsUtils;
 
-    const relativePaths = yield* fsUtils.globFiles(curatedSourcePatterns, new GlobOptions({ cwd: repoRoot, dot: true }));
-    const sortedRelativePaths = [...relativePaths].sort((left, right) => left.localeCompare(right));
+    const relativePaths = yield* fsUtils.globFiles(
+      curatedSourcePatterns,
+      new GlobOptions({
+        cwd: repoRoot,
+        dot: true
+      })
+    );
+    const sortedRelativePaths = [...relativePaths].sort((
+      left,
+      right
+    ) => left.localeCompare(right));
 
     const curatedFiles = yield* Effect.forEach(
       sortedRelativePaths,
       Effect.fn(function* (relativePath) {
-        const absolutePath = path.join(repoRoot, relativePath);
-        const content = yield* fs.readFileString(absolutePath).pipe(
-          Effect.mapError((cause) => new DomainError({ message: `Failed to read curated TrustGraph source ${absolutePath}`, cause }))
+        const absolutePath = path.join(
+          repoRoot,
+          relativePath
         );
+        const content = yield* fs
+          .readFileString(absolutePath)
+          .pipe(
+            Effect.mapError(
+              (cause) => new DomainError({
+                message: `Failed to read curated TrustGraph source ${absolutePath}`,
+                cause
+              })
+            )
+          );
         return {
           content,
           documentId: managedDocumentIdFromRelativePath(relativePath),
           hash: sha256(content),
           isGenerated: false,
           relativePath,
-          tags: ["beep-effect", "curated-doc", "trustgraph"],
-          title: deriveMarkdownTitle(relativePath, content),
+          tags: [
+            "beep-effect",
+            "curated-doc",
+            "trustgraph"
+          ],
+          title: deriveMarkdownTitle(
+            relativePath,
+            content
+          ),
         } satisfies CuratedDocument;
       }),
-      { concurrency: "unbounded" }
+      {concurrency: "unbounded"}
     );
 
     const rootPackage = yield* readRootPackageMetadata(repoRoot);
-    const workspacePackages = yield* readWorkspacePackages(repoRoot, rootPackage);
-    const generatedOverviewContent = buildGeneratedRepoOverview(rootPackage, workspacePackages, config);
+    const workspacePackages = yield* readWorkspacePackages(
+      repoRoot,
+      rootPackage
+    );
+    const generatedOverviewContent = buildGeneratedRepoOverview(
+      rootPackage,
+      workspacePackages,
+      config
+    );
     const generatedOverview = {
       content: generatedOverviewContent,
       documentId: managedDocumentIdFromRelativePath(generatedOverviewRelativePath),
       hash: sha256(generatedOverviewContent),
       isGenerated: true,
       relativePath: generatedOverviewRelativePath,
-      tags: ["beep-effect", "generated", "trustgraph"],
+      tags: [
+        "beep-effect",
+        "generated",
+        "trustgraph"
+      ],
       title: "beep-effect Repository Overview",
     } satisfies CuratedDocument;
 
-    return [...curatedFiles, generatedOverview] as const;
+    return [
+      ...curatedFiles,
+      generatedOverview
+    ] as const;
   });
 
 const managedStateFromDocuments = (
@@ -855,7 +1233,8 @@ const managedStateFromDocuments = (
         }),
       ])
     ),
-    version: 1,
+    transport: curatedSyncTransport,
+    version: curatedSyncStateVersion,
   });
 
 const filterManagedDocuments = (
@@ -869,24 +1248,30 @@ const filterManagedProcessingEntries = (
 ): ReadonlyArray<TrustGraphProcessingMetadata> =>
   processing.filter(
     (entry) =>
-      entry.documentId !== undefined &&
-      entry.documentId.startsWith(managedDocumentIdPrefix) &&
+      entry.documentId?.startsWith(managedDocumentIdPrefix) &&
       entry.collection === config.collection
   );
 
 const summarizeSyncDiff = (
   documents: ReadonlyArray<CuratedDocument>,
   state: CuratedSyncState,
-  remoteDocumentIds: ReadonlySet<string>
+  remoteDocumentIds?: ReadonlySet<string>
 ) => {
   const stateDocuments = state.documents as Readonly<Record<string, CuratedSyncStateDocument | undefined>>;
   const desiredDocumentIds = new Set(documents.map((document) => document.documentId));
-  const staleDocumentIds = Object.keys(stateDocuments).filter((documentId) => !desiredDocumentIds.has(documentId));
+  const staleDocumentIds = Object.keys(stateDocuments)
+    .filter((documentId) => !desiredDocumentIds.has(documentId));
   const uploadCandidates = documents.filter((document) => {
     const previous = stateDocuments[document.documentId];
-    return previous === undefined || previous.hash !== document.hash || !remoteDocumentIds.has(document.documentId);
+    return (
+      previous === undefined ||
+      previous.hash !== document.hash ||
+      (remoteDocumentIds !== undefined && !remoteDocumentIds.has(document.documentId))
+    );
   });
-  const unchanged = documents.filter((document) => !uploadCandidates.some((candidate) => candidate.documentId === document.documentId));
+  const unchanged = documents.filter(
+    (document) => !uploadCandidates.some((candidate) => candidate.documentId === document.documentId)
+  );
 
   return {
     desiredDocumentIds,
@@ -904,14 +1289,26 @@ const readHookInput = (): Effect.Effect<Record<string, unknown> | undefined, Dom
 
     const stdinText = yield* Effect.tryPromise({
       try: () =>
-        new Promise<string>((resolve, reject) => {
+        new Promise<string>((
+          resolve,
+          reject
+        ) => {
           let buffer = "";
           process.stdin.setEncoding("utf8");
-          process.stdin.on("data", (chunk) => {
-            buffer += chunk;
-          });
-          process.stdin.on("end", () => resolve(buffer));
-          process.stdin.on("error", reject);
+          process.stdin.on(
+            "data",
+            (chunk) => {
+              buffer += chunk;
+            }
+          );
+          process.stdin.on(
+            "end",
+            () => resolve(buffer)
+          );
+          process.stdin.on(
+            "error",
+            reject
+          );
         }),
       catch: (cause) =>
         new DomainError({
@@ -925,49 +1322,68 @@ const readHookInput = (): Effect.Effect<Record<string, unknown> | undefined, Dom
       return undefined;
     }
 
-    return yield* parseJsonObject("Codex SessionStart hook input", trimmed);
+    return yield* parseJsonObject(
+      "Codex SessionStart hook input",
+      trimmed
+    );
   });
 
-const buildSessionStartQuestion = (source: string, cwd: string | undefined): string =>
+const buildSessionStartQuestion = (
+  source: string,
+  cwd: string | undefined
+): string =>
   [
     "Provide a concise startup briefing for a coding agent entering the beep-effect repository.",
     `The session source is "${source}".`,
-    cwd === undefined ? undefined : `The current working directory is "${cwd}".`,
+    cwd === undefined
+      ? undefined
+      : `The current working directory is "${cwd}".`,
     "Focus on repository purpose, TrustGraph/Graphiti memory conventions, high-signal command surfaces, and architectural context likely to matter early in a session.",
     "Keep the answer under 220 words.",
   ]
     .filter((entry): entry is string => entry !== undefined)
     .join(" ");
 
-const buildSessionStartHookOutput = (
-  additionalContext: string
-): Effect.Effect<string, TrustGraphCliError> =>
-  stringifyCliJson("Codex SessionStart hook output", {
-    continue: true,
-    hookSpecificOutput: {
-      additionalContext,
-      hookEventName: "SessionStart",
-    },
-  });
+const buildSessionStartHookOutput = (additionalContext: string): Effect.Effect<string, TrustGraphCliError> =>
+  stringifyCliJson(
+    "Codex SessionStart hook output",
+    {
+      continue: true,
+      hookSpecificOutput: {
+        additionalContext,
+        hookEventName: "SessionStart",
+      },
+    }
+  );
 
 export const runTrustGraphStatus = withTrustGraphSession((session) =>
   Effect.gen(function* () {
     const repoRoot = yield* findRepoRoot();
     const path = yield* Path.Path;
-    const state = yield* readCuratedSyncState(path.join(repoRoot, curatedSyncStateRelativePath));
-    const localDocuments = yield* collectCuratedDocuments(repoRoot, session.config);
-    const remoteDocuments = yield* getTrustGraphDocuments(session);
-    const managedRemoteDocuments = filterManagedDocuments(remoteDocuments);
+    const state = yield* readCuratedSyncState(path.join(
+      repoRoot,
+      curatedSyncStateRelativePath
+    ));
+    const localDocuments = yield* collectCuratedDocuments(
+      repoRoot,
+      session.config
+    );
     const flows = yield* getTrustGraphFlows(session);
-    const processing = filterManagedProcessingEntries(yield* getTrustGraphProcessingEntries(session), session.config);
-    const remoteDocumentIds = new Set(managedRemoteDocuments.map((document) => document.id));
-    const diff = summarizeSyncDiff(localDocuments, state, remoteDocumentIds);
+    const libraryDocuments = filterManagedDocuments(yield* getTrustGraphDocuments(session));
+    const libraryProcessing = filterManagedProcessingEntries(
+      yield* getTrustGraphProcessingEntries(session),
+      session.config
+    );
+    const diff = summarizeSyncDiff(
+      localDocuments,
+      state
+    );
 
     yield* Console.log(
       `[trustgraph:status] endpoint=${session.config.mcpUrl} collection=${session.config.collection} user=${session.config.user} flow=${session.config.flow}`
     );
     yield* Console.log(
-      `[trustgraph:status] flows=${flows.length} remoteDocs=${managedRemoteDocuments.length} localDocs=${localDocuments.length} processingEntries=${processing.length}`
+      `[trustgraph:status] flows=${flows.length} localDocs=${localDocuments.length} syncedStateEntries=${Object.keys(state.documents).length} libraryDocs=${libraryDocuments.length} libraryProcessingEntries=${libraryProcessing.length}`
     );
     yield* Console.log(
       `[trustgraph:status] uploadCandidates=${diff.uploadCandidates.length} staleStateEntries=${diff.staleDocumentIds.length} unchanged=${diff.unchanged.length}`
@@ -981,84 +1397,108 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
       return;
     }
 
-    if (managedRemoteDocuments.length === 0) {
+    if (Object.keys(state.documents).length === 0) {
       yield* Console.log(
-        `[trustgraph:status] no managed beep-effect documents are stored yet. Run "bun run trustgraph:sync-curated" to seed the collection.`
+        `[trustgraph:status] no curated sync state exists yet. Run "bun run trustgraph:sync-curated" to seed the collection.`
       );
     }
-  }).pipe(
-    Effect.catch((error) =>
-      Effect.gen(function* () {
-        yield* Console.error(`[trustgraph:status] ${messageFromUnknown(error)}`);
-        process.exitCode = 1;
-      })
+
+    yield* Console.log(
+      `[trustgraph:status] curated sync uses the flow text-loader directly; library counts above are informational and may stay at zero.`
+    );
+
+    if (diff.staleDocumentIds.length > 0) {
+      yield* Console.log(
+        `[trustgraph:status] stale local sync state entries were found. They will be dropped on the next sync, but the current flow-loader path cannot delete historical remote knowledge automatically.`
+      );
+    }
+  })
+    .pipe(
+      Effect.catch((error) =>
+        Effect.gen(function* () {
+          yield* Console.error(`[trustgraph:status] ${messageFromUnknown(error)}`);
+          process.exitCode = 1;
+        })
+      )
     )
-  )
 );
 
 export const runTrustGraphSyncCurated = withTrustGraphSession((session) =>
   Effect.gen(function* () {
     const repoRoot = yield* findRepoRoot();
     const path = yield* Path.Path;
-    const absoluteStatePath = path.join(repoRoot, curatedSyncStateRelativePath);
-    const localDocuments = yield* collectCuratedDocuments(repoRoot, session.config);
+    const absoluteStatePath = path.join(
+      repoRoot,
+      curatedSyncStateRelativePath
+    );
+    const localDocuments = yield* collectCuratedDocuments(
+      repoRoot,
+      session.config
+    );
     const previousState = yield* readCuratedSyncState(absoluteStatePath);
-    const remoteDocuments = yield* getTrustGraphDocuments(session);
-    const managedRemoteDocuments = filterManagedDocuments(remoteDocuments);
-    const remoteDocumentIds = new Set(managedRemoteDocuments.map((document) => document.id));
-    const desiredDocumentIds = new Set(localDocuments.map((document) => document.documentId));
-    const staleRemoteDocumentIds = managedRemoteDocuments
-      .map((document) => document.id)
-      .filter((documentId) => !desiredDocumentIds.has(documentId));
-    const diff = summarizeSyncDiff(localDocuments, previousState, remoteDocumentIds);
+    const diff = summarizeSyncDiff(
+      localDocuments,
+      previousState
+    );
 
     yield* Console.log(
       `[trustgraph:sync-curated] discovered ${localDocuments.length} curated document(s) for collection ${session.config.collection}`
     );
 
-    for (const documentId of staleRemoteDocumentIds) {
-      yield* trustGraphRemoveDocument(session, documentId);
-      yield* Console.log(`[trustgraph:sync-curated] removed stale remote document ${documentId}`);
-    }
-
-    for (const documentId of diff.staleDocumentIds.filter((candidate) => !staleRemoteDocumentIds.includes(candidate))) {
+    for (const documentId of diff.staleDocumentIds) {
       yield* Console.log(`[trustgraph:sync-curated] dropped stale local state entry ${documentId}`);
     }
 
     for (const document of diff.uploadCandidates) {
-      if (remoteDocumentIds.has(document.documentId)) {
-        yield* trustGraphRemoveDocument(session, document.documentId);
-      }
-
-      yield* trustGraphLoadDocument(session, document);
-      yield* trustGraphQueueProcessing(session, document);
-      yield* Console.log(`[trustgraph:sync-curated] queued ${document.relativePath}`);
+      yield* trustGraphTextLoadDocument(
+        session,
+        document
+      );
+      yield* Console.log(`[trustgraph:sync-curated] loaded ${document.relativePath}`);
     }
 
-    const nextState = managedStateFromDocuments(localDocuments, session.config.collection);
-    yield* writeCuratedSyncState(absoluteStatePath, nextState);
+    const nextState = managedStateFromDocuments(
+      localDocuments,
+      session.config.collection
+    );
+    yield* writeCuratedSyncState(
+      absoluteStatePath,
+      nextState
+    );
 
     yield* Console.log(
-      `[trustgraph:sync-curated] synced ${diff.uploadCandidates.length} document(s), skipped ${diff.unchanged.length}, removed ${staleRemoteDocumentIds.length} stale remote document(s)`
+      `[trustgraph:sync-curated] synced ${diff.uploadCandidates.length} document(s), skipped ${diff.unchanged.length}, dropped ${diff.staleDocumentIds.length} stale local state entr${diff.staleDocumentIds.length === 1
+        ? "y"
+        : "ies"}`
     );
-  }).pipe(
-    Effect.catch((error) =>
-      Effect.gen(function* () {
-        yield* Console.error(`[trustgraph:sync-curated] ${messageFromUnknown(error)}`);
-        const cause = causeFromUnknown(error);
-        if (cause !== undefined) {
-          yield* Console.error(`[trustgraph:sync-curated] cause=${Inspectable.toStringUnknown(cause, 0)}`);
-        }
-        process.exitCode = 1;
-      })
+    yield* Console.log(
+      `[trustgraph:sync-curated] note: the current flow text-loader path does not expose remote document deletion, so removing a curated file locally does not automatically purge previously loaded knowledge from TrustGraph.`
+    );
+  })
+    .pipe(
+      Effect.catch((error) =>
+        Effect.gen(function* () {
+          yield* Console.error(`[trustgraph:sync-curated] ${messageFromUnknown(error)}`);
+          const cause = causeFromUnknown(error);
+          if (cause !== undefined) {
+            yield* Console.error(`[trustgraph:sync-curated] cause=${Inspectable.toStringUnknown(
+              cause,
+              0
+            )}`);
+          }
+          process.exitCode = 1;
+        })
+      )
     )
-  )
 );
 
 export const runTrustGraphContext = (prompt: string) =>
   withTrustGraphSession((session) =>
     Effect.gen(function* () {
-      const response = yield* trustGraphGraphRag(session, prompt);
+      const response = yield* trustGraphGraphRag(
+        session,
+        prompt
+      );
       if (response.trim().length === 0) {
         yield* Console.log(
           `TrustGraph returned no context for this prompt in collection "${session.config.collection}". Run "bun run trustgraph:sync-curated" if the collection is still empty.`
@@ -1067,14 +1507,15 @@ export const runTrustGraphContext = (prompt: string) =>
       }
 
       yield* Console.log(response.trim());
-    }).pipe(
-      Effect.catch((error) =>
-        Effect.gen(function* () {
-          yield* Console.error(`[trustgraph:context] ${messageFromUnknown(error)}`);
-          process.exitCode = 1;
-        })
+    })
+      .pipe(
+        Effect.catch((error) =>
+          Effect.gen(function* () {
+            yield* Console.error(`[trustgraph:context] ${messageFromUnknown(error)}`);
+            process.exitCode = 1;
+          })
+        )
       )
-    )
   );
 
 export const runCodexSessionStartHook = withTrustGraphSession((session) =>
@@ -1082,15 +1523,22 @@ export const runCodexSessionStartHook = withTrustGraphSession((session) =>
     const hookInput = yield* readHookInput();
     const source = asString(hookInput?.source) ?? "startup";
     const cwd = asString(hookInput?.cwd);
-    const prompt = buildSessionStartQuestion(source, cwd);
-
-    const response = yield* trustGraphGraphRag(session, prompt).pipe(
-      Effect.catch((error) =>
-        Effect.succeed(
-          `TrustGraph startup context unavailable for collection "${session.config.collection}": ${messageFromUnknown(error)}`
-        )
-      )
+    const prompt = buildSessionStartQuestion(
+      source,
+      cwd
     );
+
+    const response = yield* trustGraphGraphRag(
+      session,
+      prompt
+    )
+      .pipe(
+        Effect.catch((error) =>
+          Effect.succeed(
+            `TrustGraph startup context unavailable for collection "${session.config.collection}": ${messageFromUnknown(error)}`
+          )
+        )
+      );
 
     const additionalContext =
       response.trim().length > 0
@@ -1099,14 +1547,15 @@ export const runCodexSessionStartHook = withTrustGraphSession((session) =>
 
     const output = yield* buildSessionStartHookOutput(additionalContext);
     yield* Console.log(output);
-  }).pipe(
-    Effect.catch((error) =>
-      Effect.gen(function* () {
-        const fallbackOutput = yield* buildSessionStartHookOutput(
-          `TrustGraph startup context failed softly: ${messageFromUnknown(error)}`
-        );
-        yield* Console.log(fallbackOutput);
-      })
+  })
+    .pipe(
+      Effect.catch((error) =>
+        Effect.gen(function* () {
+          const fallbackOutput = yield* buildSessionStartHookOutput(
+            `TrustGraph startup context failed softly: ${messageFromUnknown(error)}`
+          );
+          yield* Console.log(fallbackOutput);
+        })
+      )
     )
-  )
 );
