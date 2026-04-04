@@ -98,16 +98,29 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
     Effect.annotateLogs({ component: "repo-run-projection-bootstrap" })
   );
 
-  const ensureCursorWithinSnapshot = Effect.fn("RepoRunProjectionBootstrap.ensureCursorWithinSnapshot")(function* (
+  const refreshRunWhenCursorExceedsSnapshot = Effect.fn(
+    "RepoRunProjectionBootstrap.refreshRunWhenCursorExceedsSnapshot"
+  )(function* (
+    request: StreamRunEventsRequest,
     run: RepoRun,
-    cursor: O.Option<RunCursor>
-  ): Effect.fn.Return<void, RepoRunServiceError> {
-    if (O.isSome(cursor) && cursor.value > run.lastEventSequence) {
-      return yield* toRunServiceError(
-        `Replay cursor "${cursor.value}" exceeds the last stored sequence "${run.lastEventSequence}" for "${run.id}".`,
-        409
-      );
+    refreshCount: number
+  ): Effect.fn.Return<O.Option<RepoRun>, RepoRunServiceError> {
+    if (O.isNone(request.cursor) || request.cursor.value <= run.lastEventSequence) {
+      return O.none();
     }
+
+    if (refreshCount < staleSnapshotRefreshLimit) {
+      const refreshedRun = yield* requireRun(request.runId);
+
+      if (refreshedRun.lastEventSequence > run.lastEventSequence) {
+        return O.some(refreshedRun);
+      }
+    }
+
+    return yield* toRunServiceError(
+      `Replay cursor "${request.cursor.value}" exceeds the last stored sequence "${run.lastEventSequence}" for "${run.id}".`,
+      409
+    );
   });
 
   const ensureStrictlyIncreasingEvents = Effect.fn("RepoRunProjectionBootstrap.ensureStrictlyIncreasingEvents")(
@@ -169,7 +182,13 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
     let run = initialRun;
 
     while (true) {
-      yield* ensureCursorWithinSnapshot(run, request.cursor);
+      const refreshedRunForCursor = yield* refreshRunWhenCursorExceedsSnapshot(request, run, refreshCount);
+
+      if (O.isSome(refreshedRunForCursor)) {
+        refreshCount += 1;
+        run = refreshedRunForCursor.value;
+        continue;
+      }
 
       const decodedEvents = yield* repoRunEventLog.readRunEvents(request.runId);
       yield* ensureStrictlyIncreasingEvents(request.runId, decodedEvents);

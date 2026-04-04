@@ -428,4 +428,78 @@ describe("repo run projection bootstrap", () => {
       ).toEqual([decodeRunEventSequence(2)]);
     })
   );
+
+  it.effect("refreshes stale snapshots before rejecting a replay cursor", () =>
+    Effect.gen(function* () {
+      const acceptedEvent = new RunAcceptedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(1),
+        emittedAt: makeUtc(1_706_500_000_000),
+        runKind: "query",
+        repoId,
+        question: O.some("describe symbol `answer`"),
+      });
+      const progressEvent = new RunProgressUpdatedEvent({
+        runId: queryRunId,
+        sequence: decodeRunEventSequence(2),
+        emittedAt: makeUtc(1_706_500_001_000),
+        phase: "grounding",
+        message: "Normalizing the question.",
+        percent: O.some(decodeNonNegativeInt(25)),
+      });
+      const acceptedRun = yield* projectRunEvent(O.none(), acceptedEvent);
+      const progressedRun = yield* projectRunEvent(O.some(acceptedRun), progressEvent);
+      const getRunCalls = yield* Ref.make(0);
+
+      const storeLayer = Layer.succeed(
+        RepoRunStore,
+        RepoRunStore.of({
+          getRetrievalPacket: () => Effect.succeed(O.none()),
+          getRun: () =>
+            Ref.modify(getRunCalls, (count) => [O.some(count === 0 ? acceptedRun : progressedRun), count + 1] as const),
+          listRuns: Effect.succeed([progressedRun]),
+          saveRetrievalPacket: () => unexpectedEffect("saveRetrievalPacket should not run during stream bootstrap"),
+          saveRun: () => unexpectedEffect("saveRun should not run during stream bootstrap"),
+        })
+      );
+      const eventLogLayer = Layer.succeed(
+        RepoRunEventLog,
+        RepoRunEventLog.of({
+          appendExecutionTransitionEvent: () =>
+            unexpectedEffect("appendExecutionTransitionEvent should not run during stream bootstrap"),
+          appendProjectedEvent: () => unexpectedEffect("appendProjectedEvent should not run during stream bootstrap"),
+          appendQueryStageProgress: () =>
+            unexpectedEffect("appendQueryStageProgress should not run during stream bootstrap"),
+          appendRunEvent: () => unexpectedEffect("appendRunEvent should not run during stream bootstrap"),
+          ensureProjectedIndexRun: () =>
+            unexpectedEffect("ensureProjectedIndexRun should not run during stream bootstrap"),
+          ensureProjectedQueryRun: () =>
+            unexpectedEffect("ensureProjectedQueryRun should not run during stream bootstrap"),
+          nextSequenceForRun: () => {
+            throw new Error("nextSequenceForRun should not run during stream bootstrap");
+          },
+          openLiveRunEventsAfter: () => Effect.succeed(Stream.empty),
+          readRunEvents: () => Effect.succeed([acceptedEvent, progressEvent]),
+        })
+      );
+      const bootstrapLayer = RepoRunProjectionBootstrap.layer.pipe(
+        Layer.provide(storeLayer),
+        Layer.provide(eventLogLayer)
+      );
+      const bootstrap = yield* Effect.gen(function* () {
+        const projectionBootstrap = yield* RepoRunProjectionBootstrap;
+
+        return yield* projectionBootstrap.prepareStream(
+          new StreamRunEventsRequest({
+            runId: queryRunId,
+            cursor: O.some(decodeRunCursor(2)),
+          })
+        );
+      }).pipe(Effect.provide(bootstrapLayer, { local: true }));
+
+      expect(yield* Ref.get(getRunCalls)).toBe(2);
+      expect(bootstrap.replayEvents).toEqual([]);
+      expect(bootstrap.effectiveCursor).toEqual(O.some(decodeRunCursor(2)));
+    })
+  );
 });

@@ -12,7 +12,7 @@ import {
   searchKeywordMatches,
   selectImporterEdges,
   selectSingleMatch,
-} from "@beep/repo-memory-runtime/retrieval/QueryPreparation";
+} from "@beep/repo-memory-runtime/internal/QueryPreparation";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
 import { RepoSnapshotStore, RepoSymbolStore } from "@beep/repo-memory-store";
 import { FilePath } from "@beep/schema";

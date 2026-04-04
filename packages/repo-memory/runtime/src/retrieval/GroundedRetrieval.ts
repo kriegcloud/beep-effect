@@ -67,7 +67,6 @@ import { DateTime, Effect, HashSet, Layer, Order, pipe, ServiceMap } from "effec
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { recordQueryInterpretation, recordQueryResult } from "../telemetry/RepoMemoryTelemetry.js";
 import {
   findSymbolMatches,
   type GroundedQuestionPreparation,
@@ -77,7 +76,8 @@ import {
   searchKeywordMatches,
   selectImporterEdges,
   selectSingleMatch,
-} from "./QueryPreparation.js";
+} from "../internal/QueryPreparation.js";
+import { recordQueryInterpretation, recordQueryResult } from "../telemetry/RepoMemoryTelemetry.js";
 
 const $I = $RepoMemoryRuntimeId.create("retrieval/GroundedRetrieval");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
