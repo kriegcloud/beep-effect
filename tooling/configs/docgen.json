@@ -1,6 +1,8 @@
 {
   "$schema": "../../tooling/docgen/docgen/schema.json",
-  "exclude": ["src/internal/**/*.ts"],
+  "exclude": [
+    "src/internal/**/*.ts"
+  ],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/configs/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
@@ -9,7 +11,11 @@
     "moduleResolution": "bundler",
     "module": "es2022",
     "target": "es2022",
-    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "DOM.Iterable"
+    ],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -29,14 +35,30 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/repo-configs": ["../../tooling/configs/src/index.ts"],
-      "@beep/repo-configs/*": ["../../tooling/configs/src/*.ts"],
-      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
-      "@beep/types": ["../../packages/common/types/src/index.ts"],
-      "@beep/types/*": ["../../packages/common/types/src/*.ts"],
-      "@beep/utils": ["../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*.ts"]
+      "@beep/repo-configs": [
+        "../../tooling/configs/src/index.ts"
+      ],
+      "@beep/repo-configs/*": [
+        "../../tooling/configs/src/*.ts"
+      ],
+      "@beep/identity": [
+        "../../packages/common/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/common/identity/src/*.ts"
+      ],
+      "@beep/types": [
+        "../../packages/common/types/src/index.ts"
+      ],
+      "@beep/types/*": [
+        "../../packages/common/types/src/*.ts"
+      ],
+      "@beep/utils": [
+        "../../packages/common/utils/src/index.ts"
+      ],
+      "@beep/utils/*": [
+        "../../packages/common/utils/src/*.ts"
+      ]
     }
   }
 }
