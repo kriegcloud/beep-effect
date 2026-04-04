@@ -6,11 +6,10 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { Chunk, Match, pipe } from "effect";
+import { Chunk, Match, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import { MarkRange, type Pattern, type PatternElement } from "../Core/Pattern.ts";
 

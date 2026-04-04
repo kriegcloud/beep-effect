@@ -16,7 +16,7 @@ const describe = <Schema extends S.Top>(
   schema: Schema,
   description: string,
   extras?: Record<string, unknown>
-): Schema["~rebuild.out"] => schema.annotateKey({ description, ...(extras ?? {}) });
+): Schema["~rebuild.out"] => schema.annotateKey(extras === undefined ? { description } : { description, ...extras });
 
 const AiEntitySourceKit = LiteralKit(["builtin", "custom"] as const);
 const AiPhoneticAlgorithmKit = LiteralKit(["soundex", "phonetize"] as const);

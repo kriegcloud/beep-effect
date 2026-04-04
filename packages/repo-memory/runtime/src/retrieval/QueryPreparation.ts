@@ -244,7 +244,7 @@ export class GroundedQuestionPreparation extends S.Class<GroundedQuestionPrepara
  * @since 0.0.0
  * @category DomainModel
  */
-export type MatchSelection<A> = {
+type MatchSelection<A> = {
   readonly matches: ReadonlyArray<A>;
   readonly nlpNotes: ReadonlyArray<string>;
 };
@@ -255,7 +255,7 @@ export type MatchSelection<A> = {
  * @since 0.0.0
  * @category DomainModel
  */
-export type SingleMatchSelection<A> =
+type SingleMatchSelection<A> =
   | {
       readonly kind: "none";
       readonly nlpNotes: ReadonlyArray<string>;
@@ -300,6 +300,11 @@ type RankedImporterHit = {
   readonly variant: string;
   readonly variantIndex: number;
 };
+
+const emptyMatchSelection = <A>(): MatchSelection<A> => ({
+  matches: A.empty(),
+  nlpNotes: A.empty(),
+});
 
 const normalizeQuestion = QueryText.normalizeQuestion;
 
@@ -838,10 +843,7 @@ export const findSymbolMatches = (
     );
 
     if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
-      return {
-        matches: A.empty(),
-        nlpNotes: A.empty(),
-      };
+      return emptyMatchSelection();
     }
 
     const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);
@@ -905,10 +907,7 @@ export const resolveFileCandidates = (store: QueryPreparationStoreShape) =>
     );
 
     if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
-      return {
-        matches: A.empty(),
-        nlpNotes: A.empty(),
-      };
+      return emptyMatchSelection();
     }
 
     const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);
@@ -977,10 +976,7 @@ export const selectImporterEdges = (
   );
 
   if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
-    return {
-      matches: A.empty(),
-      nlpNotes: A.empty(),
-    };
+    return emptyMatchSelection();
   }
 
   const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);
@@ -1047,10 +1043,7 @@ export const searchKeywordMatches = (
     );
 
     if (!A.isReadonlyArrayNonEmpty(rankedMatches)) {
-      return {
-        matches: A.empty(),
-        nlpNotes: A.empty(),
-      };
+      return emptyMatchSelection();
     }
 
     const bestMatch = pipe(rankedMatches, A.head, O.getOrThrow);

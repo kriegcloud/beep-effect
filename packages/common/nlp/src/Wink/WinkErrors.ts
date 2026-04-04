@@ -7,7 +7,7 @@
 
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import * as Inspectable from "effect/Inspectable";
+import { Inspectable } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 

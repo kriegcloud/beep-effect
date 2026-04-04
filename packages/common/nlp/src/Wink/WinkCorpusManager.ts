@@ -8,7 +8,7 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { Chunk, Clock, Effect, Layer, pipe, Ref, ServiceMap } from "effect";
+import { Chunk, Clock, Effect, HashMap, HashSet, Layer, pipe, Ref, ServiceMap } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -133,7 +133,7 @@ type CorpusSessionState = {
   readonly documents: ReadonlyArray<Document>;
   readonly totalTokenCount: number;
   readonly updatedAtMs: number;
-  readonly vocabulary: ReadonlySet<string>;
+  readonly vocabulary: HashSet.HashSet<string>;
 };
 
 type WinkCorpusManagerShape = {
@@ -246,7 +246,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
     try: loadBM25Vectorizer,
     catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to initialize BM25 vectorizer"),
   });
-  const sessionsRef = yield* Ref.make(new Map<string, CorpusSessionState>());
+  const sessionsRef = yield* Ref.make(HashMap.empty<string, CorpusSessionState>());
   const idCounterRef = yield* Ref.make(0);
 
   const makeGeneratedId = Ref.updateAndGet(idCounterRef, (current) => current + 1).pipe(
@@ -255,20 +255,19 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
   const getState = (corpusId: string): Effect.Effect<CorpusSessionState, CorpusManagerError> =>
     Ref.get(sessionsRef).pipe(
-      Effect.flatMap((sessions) => {
-        const state = sessions.get(corpusId);
-        return state === undefined
-          ? Effect.fail(CorpusManagerError.fromMessage(`Corpus "${corpusId}" does not exist`, corpusId))
-          : Effect.succeed(state);
-      })
+      Effect.flatMap((sessions) =>
+        pipe(
+          HashMap.get(sessions, corpusId),
+          O.match({
+            onNone: () => Effect.fail(CorpusManagerError.fromMessage(`Corpus "${corpusId}" does not exist`, corpusId)),
+            onSome: Effect.succeed,
+          })
+        )
+      )
     );
 
   const setState = (state: CorpusSessionState): Effect.Effect<void> =>
-    Ref.update(sessionsRef, (sessions) => {
-      const next = new Map(sessions);
-      next.set(state.corpusId, state);
-      return next;
-    });
+    Ref.update(sessionsRef, (sessions) => HashMap.set(sessions, state.corpusId, state));
 
   const readNormalizedTokens = (
     document: Document,
@@ -366,7 +365,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       const corpusId = requestedId ?? (yield* makeGeneratedId);
       const sessions = yield* Ref.get(sessionsRef);
 
-      if (sessions.has(corpusId)) {
+      if (HashMap.has(sessions, corpusId)) {
         return yield* CorpusManagerError.fromMessage(`Corpus "${corpusId}" already exists`, corpusId);
       }
 
@@ -378,9 +377,8 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         norm: request?.bm25Config?.norm ?? DefaultBM25Config.norm,
       });
 
-      yield* Ref.update(sessionsRef, (current) => {
-        const next = new Map(current);
-        next.set(corpusId, {
+      yield* Ref.update(sessionsRef, (current) =>
+        HashMap.set(current, corpusId, {
           compiled: O.none(),
           config,
           corpusId,
@@ -388,10 +386,9 @@ const makeWinkCorpusManager = Effect.gen(function* () {
           documents: [],
           totalTokenCount: 0,
           updatedAtMs: nowMs,
-          vocabulary: new Set<string>(),
-        });
-        return next;
-      });
+          vocabulary: HashSet.empty<string>(),
+        })
+      );
 
       return {
         config,
@@ -404,10 +401,8 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
     deleteCorpus: Effect.fn("Nlp.Wink.WinkCorpusManager.deleteCorpus")(function* (corpusId: string) {
       return yield* Ref.modify(sessionsRef, (sessions) => {
-        const exists = sessions.has(corpusId);
-        const next = new Map(sessions);
-        next.delete(corpusId);
-        return [exists, next] as const;
+        const exists = HashMap.has(sessions, corpusId);
+        return [exists, HashMap.remove(sessions, corpusId)] as const;
       });
     }),
 
@@ -491,35 +486,35 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         },
         terms: compiled.terms,
         totalDocuments: compiledState.documents.length,
-        vocabularySize: compiledState.vocabulary.size,
+        vocabularySize: HashSet.size(compiledState.vocabulary),
       };
     }),
 
     learnDocuments: Effect.fn("Nlp.Wink.WinkCorpusManager.learnDocuments")(function* (request: LearnCorpusParams) {
       const state = yield* getState(request.corpusId);
       const dedupeById = request.dedupeById ?? true;
-      const existingIds = new Set(
+      let existingIds = HashSet.fromIterable(
         pipe(
           state.documents,
           A.map((document) => document.id)
         )
       );
-      const vocabulary = new Set(state.vocabulary);
+      let vocabulary = state.vocabulary;
       const learnedDocuments: Array<Document> = [];
       let skippedCount = 0;
       let totalTokenCount = state.totalTokenCount;
 
       for (const document of request.documents) {
-        if (dedupeById && existingIds.has(document.id)) {
+        if (dedupeById && HashSet.has(existingIds, document.id)) {
           skippedCount += 1;
           continue;
         }
 
         const tokens = yield* readNormalizedTokens(document, request.corpusId);
         for (const token of tokens) {
-          vocabulary.add(token);
+          vocabulary = HashSet.add(vocabulary, token);
         }
-        existingIds.add(document.id);
+        existingIds = HashSet.add(existingIds, document.id);
         learnedDocuments.push(document);
         totalTokenCount += A.length(tokens);
       }
@@ -541,7 +536,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         reindexRequired: true,
         skippedCount,
         totalDocuments: updatedState.documents.length,
-        vocabularySize: updatedState.vocabulary.size,
+        vocabularySize: HashSet.size(updatedState.vocabulary),
       };
     }),
 
