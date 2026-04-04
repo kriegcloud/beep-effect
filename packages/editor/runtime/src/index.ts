@@ -344,6 +344,15 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     );
   });
 
+  const readExistingPage = Effect.fn("EditorRuntime.readExistingPage")(function* (slug: string) {
+    return yield* readPageBySlug(slug).pipe(
+      Effect.map(O.some),
+      Effect.catchTag("EditorRuntimeError", (error) =>
+        error.status === 404 ? Effect.succeed(O.none()) : Effect.fail(error)
+      )
+    );
+  });
+
   return {
     bootstrap: Effect.succeed(makeBootstrap(config, startedAt, "healthy")),
     getWorkspace: Effect.gen(function* () {
@@ -373,7 +382,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
           return yield* toRuntimeError(`Route slug "${slug}" does not match payload slug "${page.slug}".`, 400);
         }
 
-        const existingPage = yield* readPageBySlug(slug).pipe(Effect.option);
+        const existingPage = yield* readExistingPage(slug);
         const now = yield* DateTime.now;
         const nextPage = O.match(existingPage, {
           onNone: () =>

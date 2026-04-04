@@ -23,7 +23,7 @@ import { HttpApiClient } from "effect/unstable/httpapi";
 
 const $I = $EditorClientId.create("index");
 const controlPlanePrefix = "/api/v0";
-const decodeSlug = S.decodeUnknownSync(Slug);
+const decodeSlugOption = S.decodeUnknownOption(Slug);
 
 /**
  * Configuration for connecting to the local editor sidecar.
@@ -194,6 +194,22 @@ const toClientError = (fallback: string, cause: unknown): EditorClientError =>
 const mapClientError = <A, E>(fallback: string, effect: Effect.Effect<A, E>) =>
   effect.pipe(Effect.catchCause((cause) => Effect.fail(toClientError(fallback, Cause.squash(cause)))));
 
+const decodeSlugEffect = (slug: string): Effect.Effect<Slug, EditorClientError> =>
+  pipe(
+    decodeSlugOption(slug),
+    O.match({
+      onNone: () =>
+        Effect.fail(
+          new EditorClientError({
+            message: `Invalid page slug "${slug}".`,
+            status: 400,
+            cause: O.none(),
+          })
+        ),
+      onSome: Effect.succeed,
+    })
+  );
+
 /**
  * Create the full editor client boundary over the public sidecar protocol.
  *
@@ -219,12 +235,17 @@ export const makeEditorClient = Effect.fn("EditorClient.make")((config: EditorCl
         getWorkspace: withControlPlane("Failed to load workspace snapshot.", (client) => client.getWorkspace()),
         listPages: withControlPlane("Failed to list pages.", (client) => client.listPages()),
         getPage: (slug) =>
-          withControlPlane(`Failed to load page "${slug}".`, (client) =>
-            client.getPage({
-              params: {
-                slug: decodeSlug(slug),
-              },
-            })
+          pipe(
+            decodeSlugEffect(slug),
+            Effect.flatMap((decodedSlug) =>
+              withControlPlane(`Failed to load page "${slug}".`, (client) =>
+                client.getPage({
+                  params: {
+                    slug: decodedSlug,
+                  },
+                })
+              )
+            )
           ),
         savePage: (page) =>
           withControlPlane(`Failed to save page "${page.slug}".`, (client) =>
@@ -236,13 +257,18 @@ export const makeEditorClient = Effect.fn("EditorClient.make")((config: EditorCl
             })
           ),
         exportPage: (slug, format) =>
-          withControlPlane(`Failed to export page "${slug}" as "${format}".`, (client) =>
-            client.exportPage({
-              params: {
-                slug: decodeSlug(slug),
-                format,
-              },
-            })
+          pipe(
+            decodeSlugEffect(slug),
+            Effect.flatMap((decodedSlug) =>
+              withControlPlane(`Failed to export page "${slug}" as "${format}".`, (client) =>
+                client.exportPage({
+                  params: {
+                    slug: decodedSlug,
+                    format,
+                  },
+                })
+              )
+            )
           ),
         searchPages: (query) =>
           withControlPlane(`Failed to search pages for "${query}".`, (client) =>
