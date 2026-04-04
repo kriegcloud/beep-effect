@@ -1,3 +1,3 @@
 [[IgnoredVulns]]
-id = "GHSA-35jh-r3h4-6jhm"
-reason = "Accepted by the repo audit policy because no fixed version is currently available."
+id = "GHSA-5f7q-jpqc-wp7h"
+reason = "apps/crypto-taxes does not enable PPR, cacheComponents, or NEXT_PRIVATE_MINIMAL_MODE, so the advisory preconditions are not met in this repo."
