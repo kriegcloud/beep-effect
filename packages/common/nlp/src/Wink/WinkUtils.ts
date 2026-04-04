@@ -8,9 +8,8 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, Layer, ServiceMap } from "effect";
+import { Effect, Inspectable, Layer, ServiceMap } from "effect";
 import * as A from "effect/Array";
-import * as Inspectable from "effect/Inspectable";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";

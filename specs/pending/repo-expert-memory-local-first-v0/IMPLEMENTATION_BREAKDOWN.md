@@ -15,10 +15,10 @@ The point of this breakdown is to sequence the work so lifecycle, transport, and
 - Compatibility cleanup: landed; the old HTTP run-mutation and SSE routes are no longer the active integration target.
 - Grounded retrieval: landed with bounded deterministic query interpretation, durable citations/retrieval packets, and repo-local resolved file dependency/dependent retrieval over persisted import-edge targets.
 - Query stage trace projection: landed as a light fixed `QueryRun.queryStages` surface derived from existing `RunProgressUpdated`, `RetrievalPacketMaterialized`, and `AnswerDrafted` events without adding new durable event kinds.
-- Retrieval-side NLP enrichment: not yet landed; it is the next bounded phase over the existing query-to-retrieval path and must preserve deterministic fallback plus citation-first grounding.
+- Retrieval-side NLP enrichment: landed as an explicit bounded query-preparation layer over the existing query-to-retrieval path; it normalizes phrasing into `QueryInterpretation`, performs deterministic symbol/file/module variant expansion and ranking, and surfaces inspectable notes without changing the citation-first truth boundary.
 - Test split and lifecycle proof: landed with `@effect/vitest` supporting tests and spawned Bun subprocess lifecycle tests.
 - Internal runtime split: landed with a dedicated run event-log boundary for journal append/decode/materialization/replay and a separate lifecycle controller for acceptance, interrupt/resume, and accepted-run timeout reaping.
-- Remaining `v0` closure: keep the explicit `grounding -> retrieval -> packet -> answer` split and fixed light query-stage trace stable, then finish the broader projection bootstrap/cursor pipeline and decider-style runtime split without regressing the already-landed lifecycle behavior.
+- Remaining `v0` closure: keep the explicit `grounding -> retrieval -> packet -> answer` split, extracted query-preparation layer, and fixed light query-stage trace stable, then finish any still-missing projection bootstrap/cursor/replay cleanup without regressing the already-landed lifecycle behavior.
 
 ## Workstream 1: Contracts
 Lock the public contracts first.
@@ -198,10 +198,8 @@ The packet contract is now:
 - structured `issue` for unresolved outcomes
 - answer derivable from packet only
 
-## Workstream 10: Retrieval-side NLP enrichment
-The next `v0` phase should improve query ergonomics and recall without changing the truth boundary.
-
-This work belongs between raw user question text and the existing `QueryInterpretation` plus `RetrievalPacket` path.
+## Workstream 10: Retrieval-side NLP query preparation
+This workstream is now the explicit bounded layer between raw user question text and the existing `QueryInterpretation` plus `RetrievalPacket` path.
 
 Use `packages/common/nlp` for shared helpers such as:
 - query cleanup and normalization
@@ -210,8 +208,9 @@ Use `packages/common/nlp` for shared helpers such as:
 - optional versioned heuristic or provider adapters when the runtime truly needs them
 
 Use `packages/repo-memory/runtime` to compose those helpers into:
-- bounded intent hints for the existing deterministic query kinds
+- normalization and parsing into the existing deterministic query kinds
 - bounded ranking and query expansion over already-indexed source-backed artifacts
+- inspectable notes for materially important normalization or selection decisions
 - grounded summarization only after citations and retrieval packet contents are fixed
 
 Rules:
@@ -240,8 +239,8 @@ Supporting tests:
 - prove that packet payload, citations, and final answer stay aligned
 - prove that replay rebuilds the same packet and the same final answer
 - prove that query-run progress phases use `grounding`, `retrieval`, `packet`, and `answer`
-- when workstream 10 lands, prove that paraphrase, identifier-split, and relaxed file/module phrasings either collapse to the same grounded result or fail safe as unsupported
-- when workstream 10 lands, prove that disabling enrichment preserves the current deterministic interpreter behavior
+- prove that paraphrase, identifier-split, and relaxed file/module phrasings either collapse to the same grounded result or fail safe as unsupported
+- keep the query-preparation suite table-driven and narrow enough that future heuristic changes remain inspectable
 
 Authoritative lifecycle test:
 - spawn the real Bun sidecar through `packages/runtime/server/src/main.ts`

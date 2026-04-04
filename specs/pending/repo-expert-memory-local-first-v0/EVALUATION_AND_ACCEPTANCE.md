@@ -90,8 +90,9 @@ At minimum, include questions like:
 - supporting tests may use Node-backed harnesses, but those tests do not stand in for Bun lifecycle behavior
 
 ## Remaining P0 Closure Items
-- Land retrieval-side NLP enrichment only through the query-to-retrieval path; do not introduce durable NLP candidate state in repo `v0`.
-- Land the broader projection bootstrap/cursor pipeline and decider-style runtime split without changing the public protocol boundary.
+- Keep retrieval-side NLP formalized as explicit query preparation only through the query-to-retrieval path; do not introduce durable NLP candidate state in repo `v0`, and do not let the answer stage add support beyond the frozen packet.
+- Harden the query-preparation acceptance surface with table-driven symbol/file/module/keyword cases plus explicit unsupported fallbacks.
+- Land any still-missing projection bootstrap/cursor/replay cleanup without changing the public protocol boundary.
 - Expand the canonical question set only when new query classes stay deterministic and source-grounded.
 
 ### 7. Type and spec discipline

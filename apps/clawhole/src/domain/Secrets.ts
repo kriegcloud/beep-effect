@@ -86,7 +86,7 @@ const SecretInputString = NonEmptyTrimmedStr.pipe(
  * @category Configuration
  * @since 0.0.0
  */
-export const SecretRefSource = LiteralKit(["env", "file", "exec"] as const).pipe(
+export const SecretRefSource = LiteralKit(["env", "file", "exec"]).pipe(
   $I.annoteSchema("SecretRefSource", {
     description: "Supported sources used to resolve secret references.",
   })
@@ -350,7 +350,7 @@ export class EnvSecretProviderConfig extends S.Class<EnvSecretProviderConfig>($I
  * @category Configuration
  * @since 0.0.0
  */
-export const FileSecretProviderMode = LiteralKit(["singleValue", "json"] as const).pipe(
+export const FileSecretProviderMode = LiteralKit(["singleValue", "json"]).pipe(
   $I.annoteSchema("FileSecretProviderMode", {
     description: "Supported file-backed secret provider read modes.",
   })

@@ -82,7 +82,7 @@ Progress is streamed through `Rpc`, not modeled as the long-term SSE contract.
 The user asks a question about the repo.
 The UI triggers `StartQueryRepoRun` and subscribes to `StreamRunEvents`.
 The front door may accept looser natural phrasing, but the runtime must still compile that phrasing into the existing bounded query classes or fail safe as unsupported.
-Retrieval-side NLP belongs here only as enrichment over query preparation and retrieval, not as a replacement for typed grounded plans.
+Retrieval-side NLP already lives here as explicit bounded query preparation and retrieval enrichment, not as a replacement for typed grounded plans.
 
 The progress story for query runs should be explicit:
 - `grounding`
@@ -133,8 +133,8 @@ Testing posture for this slice:
 - lifecycle tests should continue to prove machine-readable bootstrap, same-port restart, and replay of only missing events against the real sidecar entrypoint
 
 ## Remaining Slice Gaps
-- `RunProjector` and `RunStateMachine` still need to become real runtime seams instead of staying embedded in `RepoRunService`.
-- The broader projection bootstrap/cursor pipeline and decider-style runtime split still need to move out of `RepoRunService` without regressing the now-landed query stage trace, structured packet contract, and packet-driven answer rendering.
+- `RunProjector`, `RunStateMachine`, the run event-log boundary, and the lifecycle controller are now real runtime seams; the remaining question is how much more projection-bootstrap ownership is worth extracting for `v0`.
+- The broader projection bootstrap/cursor pipeline still needs to stay honest under restart and replay without regressing the now-landed query stage trace, structured packet contract, and packet-driven answer rendering.
 
 ## Minimal Data Shown In The UI
 The first UI does not need to be broad, but it does need to be inspectable.

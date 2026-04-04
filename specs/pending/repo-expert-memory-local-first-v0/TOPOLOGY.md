@@ -74,8 +74,9 @@ It should not own:
 - shell concerns
 
 Current debt to keep explicit:
-- `RunProjector.ts` and `RunStateMachine.ts` exist as named seams in the package, but projection and transition logic still lives inside `RepoRunService`.
+- `RunProjector.ts`, `RunStateMachine.ts`, the run event-log boundary, and the lifecycle controller now exist as named seams in the package; the remaining debt is deciding how much more projection-bootstrap and cursor ownership should move out of `RepoRunService` for `v0`.
 - Public interruption/resume behavior now exists through the runtime, typed client, desktop UI, and spawned sidecar tests; any remaining question is about how much broader coverage is worth keeping in `v0`, not whether the basic path exists.
+- Bounded query preparation is now an explicit runtime layer ahead of retrieval; keep it candidate-side and packet-explainable rather than turning it into durable NLP state.
 
 ## Dependency Rules
 ### UI and shell
@@ -116,8 +117,8 @@ They are valid future directions, but they are not implementation obligations fo
 The transport split in this topology is already the live code path.
 
 The old compatibility HTTP run routes are retired.
-The remaining work is about finishing runtime seams and lifecycle honesty, not preserving transitional transport code.
+The remaining work is about lifecycle honesty, projection bootstrap/replay cleanup, and query-preparation hardening, not preserving transitional transport code.
 
 ## Questions Worth Keeping Open
-- When should `RepoRunService` hand projection materialization and transition rules to real `RunProjector` and `RunStateMachine` modules?
+- How much more projection-bootstrap and cursor ownership should move out of `RepoRunService` now that `RunProjector`, `RunStateMachine`, the event log, and the lifecycle controller already exist as separate seams?
 - How much interruption/resume coverage should stay in `v0` beyond the currently proved durable index-run path?
