@@ -1,0 +1,13 @@
+---
+description: "Use Effect.all to execute a collection of independent effects concurrently."
+globs:
+alwaysApply: false
+---
+
+- Title: Run Independent Effects in Parallel with Effect.all
+- Id: run-effects-in-parallel-with-all
+- Skill Level: intermediate
+- Use Cases: Concurrency
+- Tags: concurrency, parallel, performance, all, effect
+
+@content/published/run-effects-in-parallel-with-all.mdx

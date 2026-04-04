@@ -1,0 +1,68 @@
+{
+  "name": "effect-nlp",
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/NLP/index.ts"
+  },
+  "license": "MIT",
+  "description": "Effect-based NLP service combining wink-nlp and compromise.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/effect-nlp"
+  },
+  "scripts": {
+    "clean": "rm -rf build/ dist/ coverage/ tmp/ .tsbuildinfo && echo 'Build files cleaned successfully!'",
+    "build": "tsc -b tsconfig.build.json",
+    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "check:deps": "node -e \"const pkg=require('./package.json');const deps={...pkg.dependencies,...pkg.devDependencies};const latest=Object.entries(deps).filter(([,version])=>version==='latest');if(latest.length>0){console.error('Found non-reproducible latest dependencies:',latest.map(([name])=>name).join(', '));process.exit(1)}\"",
+    "docgen": "echo 'docgen is not configured in effect-nlp yet'",
+    "typecheck": "tsc -b tsconfig.json",
+    "lint": "eslint \"**/{src,test}/**/*.{ts,mjs}\"",
+    "lint:fix": "eslint \"**/{src,test}/**/*.{ts,mjs}\" --fix",
+    "test": "vitest run",
+    "test:unit": "vitest run test/unit",
+    "test:watch": "vitest --watch",
+    "coverage": "vitest --coverage",
+    "start": "bun src/Program.ts",
+    "dev": "bun --watch src/Program.ts",
+    "prepare": "effect-language-service patch"
+  },
+  "dependencies": {
+    "@effect/ai": "0.33.2",
+    "@effect/platform": "0.94.3",
+    "@effect/printer": "^0.45.0",
+    "compromise": "^14.14.4",
+    "compromise-dates": "^3.7.1",
+    "effect": "3.19.16",
+    "wink-eng-lite-web-model": "^1.8.1",
+    "wink-lemmatizer": "^3.0.4",
+    "wink-naive-bayes-text-classifier": "^2.2.1",
+    "wink-nlp": "^2.4.0",
+    "wink-nlp-utils": "^2.0.0",
+    "wink-regression-tree": "^2.0.0"
+  },
+  "devDependencies": {
+    "@effect/eslint-plugin": "^0.3.2",
+    "@effect/language-service": "0.73.0",
+    "@effect/vitest": "0.27.0",
+    "@eslint/compat": "^1.1.1",
+    "@eslint/eslintrc": "^3.1.0",
+    "@eslint/js": "^9.10.0",
+    "@types/bun": "1.3.8",
+    "@types/node": "^22.17.1",
+    "@typescript-eslint/eslint-plugin": "^8.39.1",
+    "@typescript-eslint/parser": "^8.39.1",
+    "eslint": "^9.33.0",
+    "eslint-import-resolver-typescript": "^3.10.1",
+    "eslint-plugin-codegen": "^0.28.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "eslint-plugin-sort-destructure-keys": "^2.0.0",
+    "typescript": "^5.9.2",
+    "vitest": "^3.2.4"
+  },
+  "trustedDependencies": [
+    "unrs-resolver"
+  ]
+}

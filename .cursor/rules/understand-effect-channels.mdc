@@ -1,0 +1,13 @@
+---
+description: "Understand that an Effect&lt;A, E, R&gt; describes a computation with a success type (A), an error type (E), and a requirements type (R)."
+globs:
+alwaysApply: false
+---
+
+- Title: Understand the Three Effect Channels (A, E, R)
+- Id: understand-effect-channels
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: effect, type-parameters, success, error, context, requirements, A, E, R, core-concept
+
+@content/published/understand-effect-channels.mdx

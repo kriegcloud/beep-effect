@@ -1,0 +1,13 @@
+---
+description: "Define a type-safe configuration schema."
+globs:
+alwaysApply: false
+---
+
+- Title: Define a Type-Safe Configuration Schema
+- Id: define-config-schema
+- Skill Level: intermediate
+- Use Cases: Application Configuration
+- Tags: configuration, config, schema, type-safety
+
+@content/published/define-config-schema.mdx

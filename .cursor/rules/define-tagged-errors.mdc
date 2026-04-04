@@ -1,0 +1,13 @@
+---
+description: "Define type-safe errors with Data.TaggedError."
+globs:
+alwaysApply: false
+---
+
+- Title: Define Type-Safe Errors with Data.TaggedError
+- Id: define-tagged-errors
+- Skill Level: intermediate
+- Use Cases: Error Management, Domain Modeling
+- Tags: error-handling, tagged-error, type-safety, Data.TaggedError, errors
+
+@content/published/define-tagged-errors.mdx

@@ -1,0 +1,13 @@
+---
+description: "Use Http.server.serve with a platform-specific layer to run an HTTP application."
+globs:
+alwaysApply: false
+---
+
+- Title: Create a Basic HTTP Server
+- Id: launch-http-server
+- Skill Level: beginner
+- Use Cases: Building APIs
+- Tags: http, server, platform, node
+
+@content/published/launch-http-server.mdx

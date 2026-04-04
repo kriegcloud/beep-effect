@@ -1,0 +1,13 @@
+---
+description: "Execute asynchronous effects with Effect.runPromise."
+globs:
+alwaysApply: false
+---
+
+- Title: Execute Asynchronous Effects with Effect.runPromise
+- Id: execute-with-runpromise
+- Skill Level: beginner
+- Use Cases: Project Setup & Execution
+- Tags: execution, runtime, promise, async, end-of-world
+
+@content/published/execute-with-runpromise.mdx

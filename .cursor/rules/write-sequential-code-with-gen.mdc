@@ -1,0 +1,13 @@
+---
+description: "Write sequential code with Effect.gen."
+globs:
+alwaysApply: false
+---
+
+- Title: Write Sequential Code with Effect.gen
+- Id: write-sequential-code-with-gen
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: generators, gen, sequential, async-await, readability
+
+@content/published/write-sequential-code-with-gen.mdx

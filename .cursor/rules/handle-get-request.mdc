@@ -1,0 +1,13 @@
+---
+description: "Use Http.router.get to associate a URL path with a specific response Effect."
+globs:
+alwaysApply: false
+---
+
+- Title: Handle a GET Request
+- Id: handle-get-request
+- Skill Level: beginner
+- Use Cases: Building APIs
+- Tags: http, server, routing, get
+
+@content/published/handle-get-request.mdx

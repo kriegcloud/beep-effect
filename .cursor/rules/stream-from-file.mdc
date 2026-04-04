@@ -1,0 +1,13 @@
+---
+description: "Use Stream.fromReadable with a Node.js Readable stream to process files efficiently."
+globs:
+alwaysApply: false
+---
+
+- Title: Process a Large File with Constant Memory
+- Id: stream-from-file
+- Skill Level: intermediate
+- Use Cases: Building Data Pipelines
+- Tags: stream, file, memory, performance, node
+
+@content/published/stream-from-file.mdx

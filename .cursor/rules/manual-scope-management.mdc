@@ -1,0 +1,13 @@
+---
+description: "Use `Effect.scope` and `Scope.addFinalizer` for fine-grained control over resource cleanup."
+globs:
+alwaysApply: false
+---
+
+- Title: Manually Manage Lifecycles with `Scope`
+- Id: manual-scope-management
+- Skill Level: advanced
+- Use Cases: Resource Management, Advanced Dependency Injection, Custom Layers
+- Tags: resource, scope, finalizer, layer, advanced, lifecycle
+
+@content/published/manual-scope-management.mdx

@@ -1,0 +1,13 @@
+---
+description: "Set up a new Effect project."
+globs:
+alwaysApply: false
+---
+
+- Title: Set Up a New Effect Project
+- Id: setup-new-project
+- Skill Level: beginner
+- Use Cases: Project Setup & Execution
+- Tags: project-setup, getting-started, typescript, tsconfig, npm, pnpm, bun
+
+@content/published/setup-new-project.mdx

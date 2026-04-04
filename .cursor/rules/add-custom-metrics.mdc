@@ -1,0 +1,13 @@
+---
+description: "Use Metric.counter, Metric.gauge, and Metric.histogram to instrument code for monitoring."
+globs:
+alwaysApply: false
+---
+
+- Title: Add Custom Metrics to Your Application
+- Id: add-custom-metrics
+- Skill Level: intermediate
+- Use Cases: Observability, Making HTTP Requests
+- Tags: metrics, observability, monitoring, counter, gauge, histogram
+
+@content/published/add-custom-metrics.mdx

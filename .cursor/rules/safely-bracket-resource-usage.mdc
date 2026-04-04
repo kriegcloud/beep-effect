@@ -1,0 +1,13 @@
+---
+description: "Bracket the use of a resource between an `acquire` and a `release` effect."
+globs:
+alwaysApply: false
+---
+
+- Title: Safely Bracket Resource Usage with `acquireRelease`
+- Id: safely-bracket-resource-usage
+- Skill Level: beginner
+- Use Cases: Resource Management, File Handling, Database Connections, Network Requests
+- Tags: resource, scope, acquire, release, bracket, finalizer, try-finally, interruption
+
+@content/published/safely-bracket-resource-usage.mdx

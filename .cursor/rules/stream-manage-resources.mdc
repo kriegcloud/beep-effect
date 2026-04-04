@@ -1,0 +1,13 @@
+---
+description: "Use Stream.acquireRelease to safely manage the lifecycle of a resource within a pipeline."
+globs:
+alwaysApply: false
+---
+
+- Title: Manage Resources Safely in a Pipeline
+- Id: stream-manage-resources
+- Skill Level: advanced
+- Use Cases: Building Data Pipelines
+- Tags: stream, resource, scope, acquireRelease, bracket, safety, file
+
+@content/published/stream-manage-resources.mdx

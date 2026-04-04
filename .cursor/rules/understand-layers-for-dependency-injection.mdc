@@ -1,0 +1,13 @@
+---
+description: "Understand that a Layer is a blueprint describing how to construct a service and its dependencies."
+globs:
+alwaysApply: false
+---
+
+- Title: Understand Layers for Dependency Injection
+- Id: understand-layers-for-dependency-injection
+- Skill Level: intermediate
+- Use Cases: Core Concepts
+- Tags: layer, dependency-injection, architecture, service, di
+
+@content/published/understand-layers-for-dependency-injection.mdx

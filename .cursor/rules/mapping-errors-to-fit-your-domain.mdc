@@ -1,0 +1,13 @@
+---
+description: "Use Effect.mapError to transform errors and create clean architectural boundaries between layers."
+globs:
+alwaysApply: false
+---
+
+- Title: Mapping Errors to Fit Your Domain
+- Id: mapping-errors-to-fit-your-domain
+- Skill Level: intermediate
+- Use Cases: Error Management
+- Tags: error-handling, mapError, architecture, domain-modeling, errors
+
+@content/published/mapping-errors-to-fit-your-domain.mdx

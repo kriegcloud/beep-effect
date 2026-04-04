@@ -1,0 +1,13 @@
+---
+description: "Use Scope for fine-grained, manual control over resource lifecycles and cleanup guarantees."
+globs:
+alwaysApply: false
+---
+
+- Title: Manage Resource Lifecycles with Scope
+- Id: manage-resource-lifecycles-with-scope
+- Skill Level: advanced
+- Use Cases: Resource Management, Concurrency
+- Tags: scope, resource-management, finalizer, acquire-release, memory-safety
+
+@content/published/manage-resource-lifecycles-with-scope.mdx

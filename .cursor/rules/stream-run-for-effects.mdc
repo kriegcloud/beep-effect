@@ -1,0 +1,13 @@
+---
+description: "Use Stream.runDrain to execute a stream for its side effects when you don't need the final values."
+globs:
+alwaysApply: false
+---
+
+- Title: Run a Pipeline for its Side Effects
+- Id: stream-run-for-effects
+- Skill Level: beginner
+- Use Cases: Building Data Pipelines
+- Tags: stream, run, drain, sink, effects, performance, memory
+
+@content/published/stream-run-for-effects.mdx

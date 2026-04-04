@@ -1,0 +1,13 @@
+---
+description: "Provide mock service implementations via a test-specific Layer to isolate the unit under test."
+globs:
+alwaysApply: false
+---
+
+- Title: Mocking Dependencies in Tests
+- Id: mocking-dependencies-in-tests
+- Skill Level: intermediate
+- Use Cases: Testing
+- Tags: testing, mocking, dependency-injection, layer, service, unit-test
+
+@content/published/mocking-dependencies-in-tests.mdx

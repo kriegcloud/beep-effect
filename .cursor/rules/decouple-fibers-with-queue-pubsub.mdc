@@ -1,0 +1,13 @@
+---
+description: "Use Queue for point-to-point work distribution and PubSub for broadcast messaging between fibers."
+globs:
+alwaysApply: false
+---
+
+- Title: Decouple Fibers with Queues and PubSub
+- Id: decouple-fibers-with-queue-pubsub
+- Skill Level: advanced
+- Use Cases: Concurrency
+- Tags: queue, pubsub, concurrency, decoupling, architecture, messaging, event-driven
+
+@content/published/decouple-fibers-with-queue-pubsub.mdx

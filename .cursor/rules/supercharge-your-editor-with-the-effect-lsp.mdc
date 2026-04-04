@@ -1,0 +1,13 @@
+---
+description: "Install and use the Effect LSP extension for enhanced type information and error checking in your editor."
+globs:
+alwaysApply: false
+---
+
+- Title: Supercharge Your Editor with the Effect LSP
+- Id: supercharge-your-editor-with-the-effect-lsp
+- Skill Level: intermediate
+- Use Cases: Tooling and Debugging
+- Tags: lsp, editor-setup, tooling, vscode, developer-experience
+
+@content/published/supercharge-your-editor-with-the-effect-lsp.mdx

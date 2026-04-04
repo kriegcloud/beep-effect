@@ -1,0 +1,13 @@
+---
+description: "Model application errors as typed classes and use Http.server.serveOptions to map them to specific HTTP responses."
+globs:
+alwaysApply: false
+---
+
+- Title: Handle API Errors
+- Id: handle-api-errors
+- Skill Level: intermediate
+- Use Cases: Building APIs
+- Tags: http, server, error-handling, api, data
+
+@content/published/handle-api-errors.mdx

@@ -1,0 +1,13 @@
+---
+description: "Use Effect.retry and Effect.timeout to build resilience against slow or intermittently failing effects."
+globs:
+alwaysApply: false
+---
+
+- Title: Handle Flaky Operations with Retries and Timeouts
+- Id: handle-flaky-operations-with-retry-timeout
+- Skill Level: intermediate
+- Use Cases: Error Management
+- Tags: retry, timeout, resilience, error-handling, schedule, policy
+
+@content/published/handle-flaky-operations-with-retry-timeout.mdx

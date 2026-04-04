@@ -1,0 +1,13 @@
+---
+description: "Use Effect.runFork to launch a long-running application as a manageable, detached fiber."
+globs:
+alwaysApply: false
+---
+
+- Title: Execute Long-Running Apps with Effect.runFork
+- Id: execute-long-running-apps-with-runfork
+- Skill Level: advanced
+- Use Cases: Project Setup & Execution, Concurrency
+- Tags: runFork, execution, runtime, fiber, concurrency, graceful-shutdown, daemon
+
+@content/published/execute-long-running-apps-with-runfork.mdx

@@ -1,0 +1,13 @@
+---
+description: "Compose a Stream with the .retry(Schedule) operator to automatically recover from transient failures."
+globs:
+alwaysApply: false
+---
+
+- Title: Automatically Retry Failed Operations
+- Id: stream-retry-on-failure
+- Skill Level: intermediate
+- Use Cases: Building Data Pipelines
+- Tags: stream, retry, resilience, error-handling, schedule
+
+@content/published/stream-retry-on-failure.mdx

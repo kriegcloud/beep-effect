@@ -1,0 +1,13 @@
+---
+description: "Create a managed runtime for scoped resources."
+globs:
+alwaysApply: false
+---
+
+- Title: Create a Managed Runtime for Scoped Resources
+- Id: create-managed-runtime-for-scoped-resources
+- Skill Level: advanced
+- Use Cases: Project Setup & Execution, Making HTTP Requests, Resource Management
+- Tags: runtime, scope, resource-management, layers, scoped, finalizer, launch
+
+@content/published/create-managed-runtime-for-scoped-resources.mdx

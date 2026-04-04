@@ -1,0 +1,13 @@
+---
+description: "Provide configuration to your app via a Layer."
+globs:
+alwaysApply: false
+---
+
+- Title: Provide Configuration to Your App via a Layer
+- Id: provide-config-layer
+- Skill Level: intermediate
+- Use Cases: Application Configuration
+- Tags: configuration, config, layers, dependency-injection
+
+@content/published/provide-config-layer.mdx
