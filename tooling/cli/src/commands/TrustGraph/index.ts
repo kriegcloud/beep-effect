@@ -7,14 +7,13 @@
 
 import { Console, Effect } from "effect";
 import { Command, Flag } from "effect/unstable/cli";
-import {
-  runTrustGraphContext,
-  runTrustGraphStatus,
-  runTrustGraphSyncCurated,
-} from "./internal/TrustGraphRuntime.js";
+import { runTrustGraphContext, runTrustGraphStatus, runTrustGraphSyncCurated } from "./internal/TrustGraphRuntime.js";
 
 const trustGraphContextPromptFlag = Flag.string("prompt").pipe(
   Flag.withDescription("Prompt to answer using TrustGraph graph RAG over the beep-effect collection")
+);
+const trustGraphResetFlag = Flag.boolean("reset").pipe(
+  Flag.withDescription("Delete and reseed repo-managed TrustGraph data for the beep-effect collection before syncing")
 );
 
 const trustGraphStatusCommand = Command.make(
@@ -27,9 +26,11 @@ const trustGraphStatusCommand = Command.make(
 
 const trustGraphSyncCuratedCommand = Command.make(
   "sync-curated",
-  {},
-  Effect.fn(function* () {
-    yield* runTrustGraphSyncCurated;
+  {
+    reset: trustGraphResetFlag,
+  },
+  Effect.fn(function* ({ reset }) {
+    yield* runTrustGraphSyncCurated({ reset });
   })
 ).pipe(Command.withDescription("Sync the curated beep-effect documentation corpus into TrustGraph"));
 
@@ -43,6 +44,12 @@ const trustGraphContextCommand = Command.make(
   })
 ).pipe(Command.withDescription("Query TrustGraph for beep-effect repository context"));
 
+/**
+ * TrustGraph command group.
+ *
+ * @category UseCase
+ * @since 0.0.0
+ */
 export const trustgraphCommand = Command.make(
   "trustgraph",
   {},
@@ -51,9 +58,9 @@ export const trustgraphCommand = Command.make(
     yield* Console.log("- bun run beep trustgraph status");
     yield* Console.log('- bun run beep trustgraph context --prompt "<text>"');
     yield* Console.log("- bun run beep trustgraph sync-curated");
+    yield* Console.log("- bun run beep trustgraph sync-curated --reset");
   })
 ).pipe(
   Command.withDescription("TrustGraph knowledge-base commands for beep-effect"),
   Command.withSubcommands([trustGraphStatusCommand, trustGraphContextCommand, trustGraphSyncCuratedCommand])
 );
-

@@ -38,19 +38,6 @@ export {
   claudeCommand,
 } from "./commands/Claude/index.js";
 /**
- * Codex helper command group.
- *
- * @since 0.0.0
- */
-export {
-  /**
-   * Codex helper command group.
-   *
-   * @since 0.0.0
-   */
-  codexCommand,
-} from "./commands/Codex/index.js";
-/**
  * Code generation command for workspace barrels and exports.
  *
  * @since 0.0.0
@@ -63,6 +50,19 @@ export {
    */
   codegenCommand,
 } from "./commands/Codegen.js";
+/**
+ * Codex helper command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Codex helper command group.
+   *
+   * @since 0.0.0
+   */
+  codexCommand,
+} from "./commands/Codex/index.js";
 /**
  * Package scaffolding command for creating new workspace packages.
  *
@@ -116,19 +116,6 @@ export {
   graphitiCommand,
 } from "./commands/Graphiti/index.js";
 /**
- * TrustGraph operational command group.
- *
- * @since 0.0.0
- */
-export {
-  /**
-   * TrustGraph operational command group.
-   *
-   * @since 0.0.0
-   */
-  trustgraphCommand,
-} from "./commands/TrustGraph/index.js";
-/**
  * Effect laws command group.
  *
  * @since 0.0.0
@@ -154,7 +141,6 @@ export {
    */
   lintCommand,
 } from "./commands/Lint/index.js";
-
 /**
  * Purge command for removing root/workspace build artifacts.
  *
@@ -207,6 +193,19 @@ export {
    */
   topoSortCommand,
 } from "./commands/TopoSort.js";
+/**
+ * TrustGraph operational command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * TrustGraph operational command group.
+   *
+   * @since 0.0.0
+   */
+  trustgraphCommand,
+} from "./commands/TrustGraph/index.js";
 /**
  * Tsconfig sync command for workspace tsconfig references and root aliases.
  *
