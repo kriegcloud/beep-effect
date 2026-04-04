@@ -12,14 +12,13 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, Model } from "@beep/schema";
 import { JsoncTextToUnknown } from "@beep/schema/Jsonc";
-import { Cause, Effect, Exit, pipe, SchemaIssue, SchemaTransformation } from "effect";
+import { Cause, Effect, Exit, pipe, SchemaIssue, SchemaTransformation, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import * as Struct from "effect/Struct";
 import type { DomainError } from "../errors/index.js";
 import { jsonStringifyPretty } from "../JsonUtils.js";
 

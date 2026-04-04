@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-04-01",
+  "generatedOn": "2026-04-03",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -480,6 +480,22 @@
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/ai-sdk",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/chalk/src/Chalk.browser.ts",
+      "symbol": "ChalkInstance",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/chalk",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/chalk/src/Chalk.ts",
+      "symbol": "ChalkInstance",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/chalk",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
@@ -1195,6 +1211,14 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "tooling/cli/src/commands/DocgenV2/Process.ts",
+      "symbol": "ProcessShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "tooling/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",
       "symbol": "CategorySelectionServiceShape",
       "kind": "exported-type-literal",
@@ -1269,6 +1293,86 @@
     {
       "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "PublishConfigBase",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSConfigBuildOptionsShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSConfigCompilerOptionsShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSConfigSemantic",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSConfigShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSConfigTypeAcquisitionShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSConfigWatchOptionsShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "TSNodeConfigShape",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "makeEncodedStruct",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "makeTypeStruct",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-utils",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "symbol": "strict",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/repo-utils",

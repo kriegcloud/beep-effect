@@ -34,5 +34,5 @@
     "packages/shared/ui/dtslint/**/*.tst.*",
     "tooling/docgen/docgen/dtslint/**/*.tst.*"
   ],
-  "tsconfig": "ignore"
+  "tsconfig": "findup"
 }

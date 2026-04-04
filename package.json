@@ -167,7 +167,8 @@
     "flatted": "^3.4.1",
     "happy-dom": "^20.8.9",
     "hono": "^4.12.7",
-    "minimatch": "^10.2.3",
+    "lodash": "catalog:",
+    "minimatch": "catalog:",
     "smol-toml": "1.6.1"
   },
   "catalog": {
@@ -274,8 +275,10 @@
     "jsonld-streaming-parser": "^5.0.1",
     "jsonld-streaming-serializer": "^4.0.0",
     "lefthook": "^2.1.4",
+    "lodash": "^4.18.1",
     "madge": "^8.0.0",
     "next": "16.2.1-canary.18",
+    "minimatch": "^10.2.4",
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "shadcn": "^4.1.2",

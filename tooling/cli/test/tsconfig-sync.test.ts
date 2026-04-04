@@ -130,9 +130,9 @@ const bootstrapRootConfig = Effect.fn(function* (
       paths: options.paths,
     },
   });
-  yield* writeJsonFile(path.join(rootDir, "tstyche.config.json"), {
+  yield* writeJsonFile(path.join(rootDir, "tstyche.json"), {
     testFileMatch: options.testFileMatch,
-    tsconfig: "ignore",
+    tsconfig: "findup",
   });
   yield* writeSyncpackConfig(path.join(rootDir, "syncpack.config.ts"), options.syncpackSources);
 });
@@ -248,7 +248,7 @@ describe("tsconfig-sync", () => {
             "@beep/editor/*": ["./packages/editor/src/*"],
           });
 
-          const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.config.json")));
+          const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
           expect(tstycheConfig.testFileMatch).toEqual([
             "packages/*/dtslint/**/*.tst.*",
             "packages/common/identity/dtslint/**/*.tst.*",

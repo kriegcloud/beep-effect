@@ -22,6 +22,8 @@ import {
 } from "./internal/ChalkSchema.ts";
 import { detectedSupportsColor } from "./internal/SupportsColor.ts";
 
+// oxlint-disable typescript-eslint/no-unsafe-declaration-merging
+
 const createChalk = makeCreateChalk(detectedSupportsColor.stdout);
 const createChalkStderr = makeCreateChalk(detectedSupportsColor.stderr);
 

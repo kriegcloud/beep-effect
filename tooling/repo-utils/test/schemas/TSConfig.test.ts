@@ -5,6 +5,7 @@ import {
   encodeTSConfigEffect,
   encodeTSConfigPrettyEffect,
   encodeTSConfigToJsonEffect,
+  jsonParse,
   TSConfig,
 } from "@beep/repo-utils";
 import { describe, expect, it } from "@effect/vitest";
@@ -312,6 +313,7 @@ describe("TSConfig schema", () => {
         const encoded = yield* encodeTSConfigEffect(input);
         const compact = yield* encodeTSConfigToJsonEffect(input);
         const pretty = yield* encodeTSConfigPrettyEffect(input);
+        const decodedCompact = yield* jsonParse(compact);
 
         expect(encoded).toEqual({
           extends: "./tsconfig.base.json",
@@ -322,7 +324,7 @@ describe("TSConfig schema", () => {
             noEmit: true,
           },
         });
-        expect(JSON.parse(compact)).toEqual(encoded);
+        expect(decodedCompact).toEqual(encoded);
         expect(pretty).toContain('\n  "compilerOptions"');
         expect(pretty).toContain('"module": "nodenext"');
       })

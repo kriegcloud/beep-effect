@@ -172,9 +172,9 @@ const bootstrapRootConfig = Effect.fn(function* (
   yield* writeJsonFile(path.join(rootDir, "tsconfig.quality.packages.json"), {
     references: A.map(options.references, (referencePath) => ({ path: referencePath })),
   });
-  yield* writeJsonFile(path.join(rootDir, "tstyche.config.json"), {
+  yield* writeJsonFile(path.join(rootDir, "tstyche.json"), {
     testFileMatch: options.testFileMatch,
-    tsconfig: "ignore",
+    tsconfig: "findup",
   });
   yield* writeSyncpackConfig(path.join(rootDir, "syncpack.config.ts"), options.syncpackSources);
 });
@@ -229,7 +229,7 @@ describe("create-package", () => {
             "packages/editor",
           ]);
 
-          const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.config.json")));
+          const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
           expect(tstycheConfig.testFileMatch).toEqual([
             "packages/*/dtslint/**/*.tst.*",
             "packages/common/identity/dtslint/**/*.tst.*",
@@ -288,7 +288,7 @@ describe("create-package", () => {
             "packages/common/telemetry",
           ]);
 
-          const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.config.json")));
+          const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
           expect(tstycheConfig.testFileMatch).toContain("packages/common/telemetry/dtslint/**/*.tst.*");
 
           const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
