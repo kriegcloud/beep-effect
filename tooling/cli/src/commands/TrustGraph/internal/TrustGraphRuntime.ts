@@ -323,9 +323,6 @@ const messageFromUnknown = (error: unknown): string => {
   return message ?? Inspectable.toStringUnknown(error, 0);
 };
 
-const causeFromUnknown = (error: unknown): unknown | undefined =>
-  isRecord(error) && "cause" in error ? error.cause : undefined;
-
 const sha256 = (content: string): string => createHash("sha256").update(content).digest("hex");
 
 const nextTrustGraphRpcId = (prefix: string): string => `${prefix}-${randomUUID()}`;
@@ -1873,10 +1870,6 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
       Effect.catch((error) =>
         Effect.gen(function* () {
           yield* Console.error(`[trustgraph:sync-curated] ${messageFromUnknown(error)}`);
-          const cause = causeFromUnknown(error);
-          if (cause !== undefined) {
-            yield* Console.error(`[trustgraph:sync-curated] cause=${Inspectable.toStringUnknown(cause, 0)}`);
-          }
           process.exitCode = 1;
         })
       )
