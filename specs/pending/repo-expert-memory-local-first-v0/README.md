@@ -78,7 +78,7 @@ Important reading posture:
 - `packages/repo-memory/model` now defines a shared pure `RunProjector`, and lifecycle `RunStreamEvent` payloads are now durable deltas rather than embedded full `RepoRun` snapshots.
 - `packages/repo-memory/runtime` and `apps/desktop` now both project live run state from the same event stream instead of treating streamed lifecycle events as pre-materialized run snapshots.
 - grounded retrieval now includes repo-local resolved file dependency and dependent queries backed by persisted `resolvedTargetFilePath` import-edge state.
-- `packages/common/nlp` already exists as the intended shared home for retrieval-side query-hygiene and ranking helpers; repo `v0` still keeps those helpers on the candidate side of the boundary rather than writing durable claim or entity state.
+- `packages/common/nlp` already exists as the shared home for retrieval-side query-hygiene and ranking helpers, and `packages/repo-memory/runtime` now composes those helpers through an explicit bounded query-preparation layer that normalizes phrasing into `QueryInterpretation`, performs deterministic symbol/file/module variant expansion, and surfaces inspectable selection notes in retrieval packets.
 - `packages/repo-memory/client` is a real typed client, and `apps/desktop` is now a real Tauri v2 wrapper with Rust-managed sidecar lifecycle, native repo-directory picking, auto-connect on startup, same-origin `portless` desktop dev over HTTPS, and a manual base-URL debug override.
 - Testing already follows the intended split: `@effect/vitest` supporting tests plus spawned Bun subprocess tests for real sidecar lifecycle proof, including durable index-run interrupt/resume through the public RPC path.
 
@@ -93,10 +93,10 @@ Important reading posture:
 - resuming the paused `HttpApi` rewrite as a standalone branch of work
 
 ## Known Remaining P0 Gaps
-- `RunProjector` and `RunStateMachine` now exist as explicit seams, but the broader projection bootstrap/cursor pipeline and decider-style service split still live mostly inside `RepoRunService`.
+- `RunProjector`, `RunStateMachine`, the run event-log boundary, and the lifecycle controller now exist as explicit runtime seams; the remaining closure work is mostly about keeping projection bootstrap/cursor ownership and replay behavior honest rather than proving those seams from scratch.
 - The concrete query-run contract is now implemented around the canonical `grounding -> retrieval -> packet -> answer` stage split, structured retrieval-packet payloads/issues, packet-only answer rendering, and a light `QueryRun.queryStages` projection derived from existing progress/packet/answer events without adding new durable event kinds.
-- Extraction provenance and query-time explainability are now intentionally separated in both the docs and the repo-memory `v0` read model; the next closure work is broader projection bootstrap/cursor ownership and the decider-style runtime split rather than new query artifact kinds.
-- Grounded query expansion should continue only through deterministic source-backed additions, not freeform semantic repo chat.
+- Extraction provenance and query-time explainability are now intentionally separated in both the docs and the repo-memory `v0` read model; the next closure work is hardening the explicit query-preparation layer plus any still-missing projection bootstrap/replay cleanup rather than introducing new query artifact kinds.
+- Grounded query expansion should continue only through deterministic source-backed additions, with NLP kept on the candidate side of the boundary rather than becoming freeform semantic repo chat or durable canonical state.
 
 ## Relationship To Upstream Context
 This spec is downstream of the big-picture reading set, not a replacement for it.

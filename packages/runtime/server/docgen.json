@@ -8,11 +8,7 @@
     "moduleResolution": "bundler",
     "module": "es2022",
     "target": "es2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -32,18 +28,10 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/runtime-server": [
-        "../../../packages/runtime/server/src/index.ts"
-      ],
-      "@beep/runtime-server/*": [
-        "../../../packages/runtime/server/src/*.ts"
-      ],
-      "@beep/identity": [
-        "../../../packages/common/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../../packages/common/identity/src/*.ts"
-      ],
+      "@beep/runtime-server": ["../../../packages/runtime/server/src/index.ts"],
+      "@beep/runtime-server/*": ["../../../packages/runtime/server/src/*.ts"],
+      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
       "@beep/observability": [
         "../../../packages/common/observability/src/index.ts"
       ],
@@ -74,21 +62,11 @@
       "@beep/runtime-protocol/*": [
         "../../../packages/runtime/protocol/src/*.ts"
       ],
-      "@beep/schema": [
-        "../../../packages/common/schema/src/index.ts"
-      ],
-      "@beep/schema/*": [
-        "../../../packages/common/schema/src/*.ts"
-      ],
-      "@beep/types": [
-        "../../../packages/common/types/src/index.ts"
-      ],
-      "@beep/types/*": [
-        "../../../packages/common/types/src/*.ts"
-      ]
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/types": ["../../../packages/common/types/src/index.ts"],
+      "@beep/types/*": ["../../../packages/common/types/src/*.ts"]
     }
   },
-  "exclude": [
-    "src/internal/**/*.ts"
-  ]
+  "exclude": ["src/internal/**/*.ts"]
 }

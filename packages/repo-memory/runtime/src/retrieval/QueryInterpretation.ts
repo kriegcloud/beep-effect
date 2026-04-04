@@ -6,4 +6,4 @@ export {
    * @category DomainModel
    */
   QueryInterpretation,
-} from "./GroundedRetrieval.js";
+} from "../internal/QueryPreparation.js";

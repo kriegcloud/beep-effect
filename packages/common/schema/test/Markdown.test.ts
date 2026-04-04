@@ -1,10 +1,7 @@
-import { $ScratchId } from "@beep/identity";
 import { decodeMarkdownTextAs, MarkdownTextToHtml } from "@beep/schema/Markdown";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
-
-const $I = $ScratchId.create("markdown_test");
 
 describe("Markdown", () => {
   it.effect("renders Markdown text to HTML with Bun defaults", () =>

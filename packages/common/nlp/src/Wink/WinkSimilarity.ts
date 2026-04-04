@@ -8,8 +8,7 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
-import { Effect, Layer, ServiceMap } from "effect";
-import * as Inspectable from "effect/Inspectable";
+import { Effect, Inspectable, Layer, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { DocumentId } from "../Core/Document.ts";
@@ -53,6 +52,11 @@ const SimilarityMethod = SimilarityMethodKit.pipe(
 );
 
 const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utilities/similarity");
+
+const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => {
+  // eslint-disable-next-line beep-laws/no-native-runtime -- wink similarity expects native Set instances at this adapter boundary.
+  return new Set(terms);
+};
 
 /**
  * Parameters controlling the asymmetric Tversky index.
@@ -205,7 +209,12 @@ const makeWinkSimilarity = Effect.gen(function* () {
               beta: params.beta,
             }),
             score: sanitizeScore(
-              similarity.set.tversky(new Set(left.terms), new Set(right.terms), params.alpha, params.beta)
+              similarity.set.tversky(
+                toNativeTermSet(left.terms),
+                toNativeTermSet(right.terms),
+                params.alpha,
+                params.beta
+              )
             ),
           }),
         catch: (cause) => SimilarityError.fromCause(cause, "setTversky"),
