@@ -1,8 +1,6 @@
 {
   "$schema": "../../tooling/docgen/docgen/schema.json",
-  "exclude": [
-    "src/internal/**/*.ts"
-  ],
+  "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/test-utils/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
@@ -11,11 +9,7 @@
     "moduleResolution": "bundler",
     "module": "es2022",
     "target": "es2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,24 +29,12 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/test-utils": [
-        "../../tooling/test-utils/src/index.ts"
-      ],
-      "@beep/test-utils/*": [
-        "../../tooling/test-utils/src/*.ts"
-      ],
-      "@beep/identity": [
-        "../../packages/common/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../packages/common/identity/src/*.ts"
-      ],
-      "@beep/schema": [
-        "../../packages/common/schema/src/index.ts"
-      ],
-      "@beep/schema/*": [
-        "../../packages/common/schema/src/*.ts"
-      ]
+      "@beep/test-utils": ["../../tooling/test-utils/src/index.ts"],
+      "@beep/test-utils/*": ["../../tooling/test-utils/src/*.ts"],
+      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/schema": ["../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../packages/common/schema/src/*.ts"]
     }
   }
 }

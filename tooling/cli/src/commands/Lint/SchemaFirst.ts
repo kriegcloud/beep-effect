@@ -278,7 +278,7 @@ const detectStructReason = (callExpression: import("ts-morph").CallExpression): 
     if (nameNode === undefined) {
       return true;
     }
-    const propertyName = nameNode.getText().replace(/^["']|["']$/g, "");
+    const propertyName = Str.replace(/^["']|["']$/g, "")(nameNode.getText());
     return !IDENTIFIER_PROPERTY_PATTERN.test(propertyName);
   });
   if (invalidKeys) {
@@ -307,6 +307,8 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
     tsConfigFilePath: path.join(process.cwd(), "tsconfig.json"),
     skipAddingFilesFromTsConfig: true,
   });
+  const thunkCandidate = () => "candidate" as const;
+  const thunkException = () => "exception" as const;
 
   for (const pattern of INCLUDED_GLOBS) {
     project.addSourceFilesAtPaths(pattern);
@@ -350,8 +352,8 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
         declaration.getName(),
         "exported-interface",
         O.match(reasonOption, {
-          onNone: () => "candidate",
-          onSome: () => "exception",
+          onNone: thunkCandidate,
+          onSome: thunkException,
         }),
         O.getOrElse(reasonOption, () => "Exported pure-data interface should be modeled as an annotated schema."),
         owner
@@ -372,8 +374,8 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
         declaration.getName(),
         "exported-type-literal",
         O.match(reasonOption, {
-          onNone: () => "candidate",
-          onSome: () => "exception",
+          onNone: thunkCandidate,
+          onSome: thunkException,
         }),
         O.getOrElse(reasonOption, () => "Exported pure-data type alias should be modeled as an annotated schema."),
         owner
@@ -390,8 +392,8 @@ const scanSchemaFirstInventory = Effect.fn(function* () {
         inferStructSymbol(callExpression),
         "object-struct-schema",
         O.match(reasonOption, {
-          onNone: () => "candidate",
-          onSome: () => "exception",
+          onNone: thunkCandidate,
+          onSome: thunkException,
         }),
         O.getOrElse(reasonOption, () => "Object schema should prefer an annotated S.Class over S.Struct."),
         owner
@@ -419,7 +421,7 @@ const mergeInventory = (
         A.map(document.entries, (entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
       )
     ),
-    O.getOrElse(() => HashMap.empty<string, SchemaFirstInventoryEntry>())
+    O.getOrElse(HashMap.empty<string, SchemaFirstInventoryEntry>)
   );
 
   const mergedEntries = pipe(
@@ -454,7 +456,7 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     existingDocument,
     O.map((document) =>
       HashMap.fromIterable(
-        document.entries.map((entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
+        A.map(document.entries, (entry): readonly [string, SchemaFirstInventoryEntry] => [makeEntryKey(entry), entry])
       )
     ),
     O.getOrElse(HashMap.empty<string, SchemaFirstInventoryEntry>)
@@ -465,13 +467,14 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
     A.filter((entry) => !HashMap.has(trackedByKey, makeEntryKey(entry)))
   );
   const staleEntries = pipe(
-    existingDocument,
-    O.map((document) => A.filter(document.entries, (entry) => !HashMap.has(liveByKey, makeEntryKey(entry)))),
+    O.map(existingDocument, (document) =>
+      A.filter(document.entries, (entry) => !HashMap.has(liveByKey, makeEntryKey(entry)))
+    ),
     O.getOrElse(A.empty<SchemaFirstInventoryEntry>)
   );
-  const enforcedCandidates = pipe(
+  const enforcedCandidates = A.filter(
     mergedDocument.entries,
-    A.filter((entry) => entry.status === "candidate" && isEnforcedFile(entry.file))
+    (entry) => entry.status === "candidate" && isEnforcedFile(entry.file)
   );
 
   if (options.write) {

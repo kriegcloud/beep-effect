@@ -11,6 +11,7 @@ import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFals
 import { Effect, Inspectable, MutableHashSet, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Project } from "ts-morph";
@@ -90,9 +91,8 @@ const INCLUDED_GLOBS = [
   "infra/**/*.ts",
   ".claude/hooks/**/*.ts",
 ] as const;
-const toStableName = (moduleName: string): string => Str.slice("effect/".length)(moduleName);
-const isStableSubmodule = (moduleName: string): boolean =>
-  Str.startsWith("effect/")(moduleName) && !Str.startsWith("effect/unstable/")(moduleName);
+const toStableName = Str.slice("effect/".length);
+const isStableSubmodule = P.and(Str.startsWith("effect/"), Str.startsWith("effect/unstable/"));
 
 /**
  * Run effect import style migration/check logic.
@@ -154,13 +154,11 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
             importDeclaration.getModuleSpecifierValue() === moduleName && !importDeclaration.isTypeOnly()
         ),
         O.match({
-          onNone: () => {
-            sourceFile.addImportDeclaration({ moduleSpecifier: moduleName, namespaceImport: alias });
-          },
+          onNone: () => void sourceFile.addImportDeclaration({ moduleSpecifier: moduleName, namespaceImport: alias }),
           onSome: (importDeclaration) => {
             const namespaceImport = importDeclaration.getNamespaceImport();
 
-            if (namespaceImport === undefined) {
+            if (P.isUndefined(namespaceImport)) {
               if (importDeclaration.getNamedImports().length === 0) {
                 importDeclaration.setNamespaceImport(alias);
               } else {
@@ -204,9 +202,9 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
         }
 
         if (
-          importDeclaration.getNamedImports().length === 0 &&
-          importDeclaration.getDefaultImport() === undefined &&
-          importDeclaration.getNamespaceImport() === undefined
+          A.isReadonlyArrayEmpty(importDeclaration.getNamedImports()) &&
+          P.isUndefined(importDeclaration.getDefaultImport()) &&
+          P.isUndefined(importDeclaration.getNamespaceImport())
         ) {
           importDeclaration.remove();
           fileTouched = true;
@@ -221,12 +219,12 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
 
       const expectedAlias = ALIAS_RULES[moduleName];
 
-      if (expectedAlias !== undefined) {
+      if (P.isNotUndefined(expectedAlias)) {
         const namespaceImport = importDeclaration.getNamespaceImport();
         const hasOnlyNamespaceImport =
-          namespaceImport !== undefined && importDeclaration.getNamedImports().length === 0;
+          P.isNotUndefined(namespaceImport) && A.isReadonlyArrayEmpty(importDeclaration.getNamedImports());
 
-        if (!hasOnlyNamespaceImport || namespaceImport === undefined) {
+        if (!hasOnlyNamespaceImport || P.isUndefined(namespaceImport)) {
           continue;
         }
 
@@ -241,7 +239,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
       }
 
       const stableName = toStableName(moduleName);
-      if (Str.isEmpty(stableName) || Str.includes("/")(stableName)) {
+      if (P.or(Str.isEmpty, Str.includes("/"))(stableName)) {
         continue;
       }
 
@@ -250,9 +248,10 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
       }
 
       const namespaceImport = importDeclaration.getNamespaceImport();
-      const hasOnlyNamespaceImport = namespaceImport !== undefined && importDeclaration.getNamedImports().length === 0;
+      const hasOnlyNamespaceImport =
+        P.isNotUndefined(namespaceImport) && A.isReadonlyArrayEmpty(importDeclaration.getNamedImports());
 
-      if (!hasOnlyNamespaceImport || namespaceImport === undefined) {
+      if (!hasOnlyNamespaceImport || P.isUndefined(namespaceImport)) {
         continue;
       }
 
@@ -266,7 +265,7 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
       });
 
       if (!hasNamedImport) {
-        if (targetAlias === undefined) {
+        if (P.isUndefined(targetAlias)) {
           rootImport.addNamedImport(stableName);
         } else {
           rootImport.addNamedImport({ name: stableName, alias: targetAlias });

@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
+import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -93,10 +93,7 @@ export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`All
  */
 export class AllowlistCheckSummary extends S.Class<AllowlistCheckSummary>($I`AllowlistCheckSummary`)(
   {
-    ok: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefault(thunkFalse)
-    ),
+    ok: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
     diagnostics: S.Array(S.String).pipe(
       S.withConstructorDefault(thunkSomeEmptyArray<string>),
       S.withDecodingDefault(thunkEmptyReadonlyArray<string>())
@@ -114,11 +111,7 @@ const formatSchemaDiagnostics = (issue: SchemaIssue.Issue): ReadonlyArray<string
       const pathLabel =
         diagnostic.path === undefined || diagnostic.path.length === 0
           ? "<root>"
-          : pipe(
-              diagnostic.path,
-              A.map((segment) => String(segment)),
-              A.join(".")
-            );
+          : pipe(diagnostic.path, A.map(String), A.join("."));
 
       return `${pathLabel}: ${diagnostic.message}`;
     })
