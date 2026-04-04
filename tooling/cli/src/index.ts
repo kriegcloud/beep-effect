@@ -38,6 +38,19 @@ export {
   claudeCommand,
 } from "./commands/Claude/index.js";
 /**
+ * Codex helper command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Codex helper command group.
+   *
+   * @since 0.0.0
+   */
+  codexCommand,
+} from "./commands/Codex/index.js";
+/**
  * Code generation command for workspace barrels and exports.
  *
  * @since 0.0.0
@@ -102,6 +115,19 @@ export {
    */
   graphitiCommand,
 } from "./commands/Graphiti/index.js";
+/**
+ * TrustGraph operational command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * TrustGraph operational command group.
+   *
+   * @since 0.0.0
+   */
+  trustgraphCommand,
+} from "./commands/TrustGraph/index.js";
 /**
  * Effect laws command group.
  *
