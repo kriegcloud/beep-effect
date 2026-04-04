@@ -121,7 +121,7 @@ const SandboxUnconfinedSecurityProfile = S.Literal("unconfined").pipe(
 
 const isSandboxUnconfinedSecurityProfile = S.is(SandboxUnconfinedSecurityProfile);
 
-const SandboxBlockedNetworkModeReason = LiteralKit(["host", "container_namespace_join"] as const).pipe(
+const SandboxBlockedNetworkModeReason = LiteralKit(["host", "container_namespace_join"]).pipe(
   $I.annoteSchema("SandboxBlockedNetworkModeReason", {
     description: "Reasons a sandbox network mode is blocked by the local sandbox security policy.",
   })

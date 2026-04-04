@@ -179,7 +179,7 @@ const gatewayUrlFetchFields = (allowUrlDescription: string) => ({
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayBindMode = LiteralKit(["auto", "lan", "loopback", "custom", "tailnet"] as const).pipe(
+export const GatewayBindMode = LiteralKit(["auto", "lan", "loopback", "custom", "tailnet"]).pipe(
   $I.annoteSchema("GatewayBindMode", {
     description: "Gateway bind-address policy values used to control listener interface exposure.",
   })
@@ -199,7 +199,7 @@ export type GatewayBindMode = typeof GatewayBindMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const MdnsDiscoveryMode = LiteralKit(["off", "minimal", "full"] as const).pipe(
+export const MdnsDiscoveryMode = LiteralKit(["off", "minimal", "full"]).pipe(
   $I.annoteSchema("MdnsDiscoveryMode", {
     description: "mDNS / Bonjour discovery broadcast modes for the discovery subsystem.",
   })
@@ -312,7 +312,7 @@ export type TalkConfigResponse = typeof TalkConfigResponse.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayAuthMode = LiteralKit(["none", "token", "password", "trusted-proxy"] as const).pipe(
+export const GatewayAuthMode = LiteralKit(["none", "token", "password", "trusted-proxy"]).pipe(
   $I.annoteSchema("GatewayAuthMode", {
     description: "Authentication modes supported by the Gateway HTTP and WebSocket surfaces.",
   })
@@ -332,7 +332,7 @@ export type GatewayAuthMode = typeof GatewayAuthMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayTailscaleMode = LiteralKit(["off", "serve", "funnel"] as const).pipe(
+export const GatewayTailscaleMode = LiteralKit(["off", "serve", "funnel"]).pipe(
   $I.annoteSchema("GatewayTailscaleMode", {
     description: "Tailscale publish modes used to expose the Gateway control UI.",
   })
@@ -352,7 +352,7 @@ export type GatewayTailscaleMode = typeof GatewayTailscaleMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayReloadMode = LiteralKit(["off", "restart", "hot", "hybrid"] as const).pipe(
+export const GatewayReloadMode = LiteralKit(["off", "restart", "hot", "hybrid"]).pipe(
   $I.annoteSchema("GatewayReloadMode", {
     description: "Config reload strategies supported by the Gateway runtime.",
   })
@@ -372,7 +372,7 @@ export type GatewayReloadMode = typeof GatewayReloadMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayMode = LiteralKit(["local", "remote"] as const).pipe(
+export const GatewayMode = LiteralKit(["local", "remote"]).pipe(
   $I.annoteSchema("GatewayMode", {
     description: "Gateway runtime modes controlling whether the local runtime starts or proxies to a remote gateway.",
   })
@@ -392,7 +392,7 @@ export type GatewayMode = typeof GatewayMode.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayRemoteTransport = LiteralKit(["ssh", "direct"] as const).pipe(
+export const GatewayRemoteTransport = LiteralKit(["ssh", "direct"]).pipe(
   $I.annoteSchema("GatewayRemoteTransport", {
     description: "Transport modes supported for remote Gateway connections.",
   })
@@ -412,7 +412,7 @@ export type GatewayRemoteTransport = typeof GatewayRemoteTransport.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const GatewayNodeBrowserMode = LiteralKit(["auto", "manual", "off"] as const).pipe(
+export const GatewayNodeBrowserMode = LiteralKit(["auto", "manual", "off"]).pipe(
   $I.annoteSchema("GatewayNodeBrowserMode", {
     description: "Browser routing modes for node-hosted browser proxies exposed through the Gateway.",
   })

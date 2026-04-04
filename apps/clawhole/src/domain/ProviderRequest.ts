@@ -40,18 +40,14 @@ import { SecretInput } from "./Secrets.ts";
 
 const $I = $ClawholeId.create("config/ProviderRequest");
 
-const ConfiguredProviderRequestAuthMode = LiteralKit([
-  "provider-default",
-  "authorization-bearer",
-  "header",
-] as const).pipe(
+const ConfiguredProviderRequestAuthMode = LiteralKit(["provider-default", "authorization-bearer", "header"]).pipe(
   $I.annoteSchema("ConfiguredProviderRequestAuthMode", {
     description:
       "Supported request-auth override modes: provider-default passthrough, bearer token auth, or custom header auth.",
   })
 );
 
-const ConfiguredProviderRequestProxyMode = LiteralKit(["env-proxy", "explicit-proxy"] as const).pipe(
+const ConfiguredProviderRequestProxyMode = LiteralKit(["env-proxy", "explicit-proxy"]).pipe(
   $I.annoteSchema("ConfiguredProviderRequestProxyMode", {
     description: "Supported provider-request proxy modes: environment proxy routing or an explicit proxy URL.",
   })

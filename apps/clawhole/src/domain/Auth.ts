@@ -33,7 +33,7 @@ const $I = $ClawholeId.create("config/Auth");
  * @category Configuration
  * @since 0.0.0
  */
-export const AuthProfileMode = LiteralKit(["api_key", "oauth", "token"] as const).pipe(
+export const AuthProfileMode = LiteralKit(["api_key", "oauth", "token"]).pipe(
   $I.annoteSchema("AuthProfileMode", {
     description:
       "Supported credential modes for auth profiles: static API keys, refreshable OAuth credentials, or static bearer-style tokens.",

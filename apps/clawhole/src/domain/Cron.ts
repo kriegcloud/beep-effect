@@ -31,7 +31,8 @@
  */
 import { $ClawholeId } from "@beep/identity";
 import { FilePath, LiteralKit, NonEmptyTrimmedStr, SchemaUtils } from "@beep/schema";
-import { Duration, Effect, pipe, Result, SchemaGetter, SchemaIssue } from "effect";
+import { thunkEmptyRecord, thunkFalse, thunkSome } from "@beep/utils";
+import { Duration, Effect, flow, pipe, Result, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -61,11 +62,11 @@ export const CronRetryOn = LiteralKit(["rate_limit", "overloaded", "network", "t
  */
 export type CronRetryOn = typeof CronRetryOn.Type;
 
-const defaultRetryBackoffMsEncoded = A.make(30_000, 60_000, 300_000);
+const defaultRetryBackoffMsEncoded = () => A.make(30_000, 60_000, 300_000);
 const defaultRetryBackoffMs = A.make(Duration.seconds(30), Duration.minutes(1), Duration.minutes(5));
 const defaultRetryOn: ReadonlyArray<CronRetryOn> = ["rate_limit", "overloaded", "network", "timeout", "server_error"];
 const defaultSessionRetention = Duration.hours(24);
-const defaultSessionRetentionEncoded = "24h";
+const defaultSessionRetentionEncoded = () => "24h";
 
 const httpProtocols = A.make("http:", "https:");
 
@@ -99,7 +100,7 @@ const isHttpUrlString = (value: string): boolean =>
   pipe(
     Result.try(() => new URL(value)),
     Result.map((url) => isHttpProtocol(url.protocol)),
-    Result.getOrElse(() => false)
+    Result.getOrElse(thunkFalse)
   );
 
 const parseByteSizeString = (value: string): O.Option<number> =>
@@ -206,7 +207,7 @@ const HttpUrlString = NonEmptyTrimmedStr.check(
 );
 
 const ByteSizeString = NonEmptyTrimmedStr.check(
-  S.makeFilter((value: string) => O.isSome(parseByteSizeString(value)), {
+  S.makeFilter(flow(parseByteSizeString, O.isSome), {
     identifier: $I`ByteSizeStringCheck`,
     title: "Byte Size String",
     description: "A non-empty trimmed byte-size string such as 2mb or 512kb.",
@@ -234,16 +235,16 @@ const CronDurationFromString = NonEmptyTrimmedStr.pipe(
 const CronRetryBackoff = S.Array(S.DurationFromMillis)
   .check(S.makeFilterGroup([S.isMinLength(1), S.isMaxLength(10)]))
   .pipe(
-    S.withConstructorDefault(() => O.some(defaultRetryBackoffMs)),
-    S.withDecodingDefaultKey(() => defaultRetryBackoffMsEncoded),
+    S.withConstructorDefault(thunkSome(defaultRetryBackoffMs)),
+    S.withDecodingDefaultKey(defaultRetryBackoffMsEncoded),
     $I.annoteSchema("CronRetryBackoff", {
       description: "Retry backoff delays decoded from millisecond inputs into Effect Duration values.",
     })
   );
 
 const CronSessionRetention = S.Union([S.Literal(false), CronDurationFromString]).pipe(
-  S.withConstructorDefault(() => O.some(defaultSessionRetention)),
-  S.withDecodingDefaultKey(() => defaultSessionRetentionEncoded),
+  S.withConstructorDefault(thunkSome(defaultSessionRetention)),
+  S.withDecodingDefaultKey(defaultSessionRetentionEncoded),
   $I.annoteSchema("CronSessionRetention", {
     description:
       "How long completed cron run sessions are retained, decoded from duration input or disabled with false.",
@@ -405,8 +406,8 @@ export class CronConfig extends S.Class<CronConfig>($I`CronConfig`)(
       description: "Maximum number of cron jobs that may run at the same time.",
     }),
     retry: CronRetryConfig.pipe(
-      S.withConstructorDefault(() => O.some(defaultRetryConfig())),
-      S.withDecodingDefaultKey(() => ({}))
+      S.withConstructorDefault(thunkSome(defaultRetryConfig())),
+      S.withDecodingDefaultKey(thunkEmptyRecord)
     ).annotateKey({
       description: "Retry policy overrides for one-shot cron jobs.",
       default: {
@@ -428,7 +429,7 @@ export class CronConfig extends S.Class<CronConfig>($I`CronConfig`)(
     }),
     runLog: CronRunLogConfig.pipe(
       S.withConstructorDefault(() => O.some(defaultRunLogConfig())),
-      S.withDecodingDefaultKey(() => ({}))
+      S.withDecodingDefaultKey(thunkEmptyRecord)
     ).annotateKey({
       description: "Pruning controls for per-job cron run-log files.",
       default: {

@@ -66,7 +66,7 @@ const PluginConfigRecord = S.Record(S.String, S.Unknown).pipe(
  * @category Configuration
  * @since 0.0.0
  */
-export const PluginInstallSource = LiteralKit(["npm", "archive", "path", "clawhub", "marketplace"] as const).pipe(
+export const PluginInstallSource = LiteralKit(["npm", "archive", "path", "clawhub", "marketplace"]).pipe(
   $I.annoteSchema("PluginInstallSource", {
     description:
       "Supported plugin install source identifiers, including CLI-managed npm/archive/path/clawhub installs and marketplace-backed installs.",
@@ -87,7 +87,7 @@ export type PluginInstallSource = typeof PluginInstallSource.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const PluginInstallClawhubFamily = LiteralKit(["code-plugin", "bundle-plugin"] as const).pipe(
+export const PluginInstallClawhubFamily = LiteralKit(["code-plugin", "bundle-plugin"]).pipe(
   $I.annoteSchema("PluginInstallClawhubFamily", {
     description: "Supported ClawHub package family values recorded on plugin install metadata.",
   })
@@ -107,7 +107,7 @@ export type PluginInstallClawhubFamily = typeof PluginInstallClawhubFamily.Type;
  * @category Configuration
  * @since 0.0.0
  */
-export const PluginInstallClawhubChannel = LiteralKit(["official", "community", "private"] as const).pipe(
+export const PluginInstallClawhubChannel = LiteralKit(["official", "community", "private"]).pipe(
   $I.annoteSchema("PluginInstallClawhubChannel", {
     description: "Supported ClawHub package channel values recorded on plugin install metadata.",
   })

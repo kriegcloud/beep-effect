@@ -101,7 +101,7 @@ export type NativeExecApprovalEnableMode = typeof NativeExecApprovalEnableMode.T
  * @category Configuration
  * @since 0.0.0
  */
-export const ExecApprovalForwardingMode = LiteralKit(["session", "targets", "both"] as const).pipe(
+export const ExecApprovalForwardingMode = LiteralKit(["session", "targets", "both"]).pipe(
   $I.annoteSchema("ExecApprovalForwardingMode", {
     description:
       "Forwarding modes for approval prompts: origin session only, configured targets only, or both delivery paths.",
