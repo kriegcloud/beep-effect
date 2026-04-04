@@ -38,7 +38,7 @@ const defaultTrustGraphUser = "trustgraph" as const;
 const managedDocumentIdPrefix = "urn:beep-effect:doc:" as const;
 const generatedOverviewRelativePath = "generated/repo-overview.md" as const;
 const curatedSyncStateRelativePath = ".beep/trustgraph/curated-sync-state.json" as const;
-const curatedSyncStateVersion = 3 as const;
+const curatedSyncStateVersion = 4 as const;
 const curatedSyncTransport = "librarian-processing" as const;
 const initializeProtocolVersion = "2024-11-05" as const;
 const trustGraphStatusDocumentRagQuestion =
@@ -99,6 +99,7 @@ class CuratedSyncState extends S.Class<CuratedSyncState>($I`CuratedSyncState`)(
     version: S.Number,
     transport: S.String,
     collection: S.String,
+    flow: S.String,
     documents: S.Record(S.String, CuratedSyncStateDocument),
   },
   $I.annote("CuratedSyncState", {
@@ -165,6 +166,7 @@ type CuratedSyncStateDocumentLike = Pick<CuratedSyncStateDocument, "hash">;
 
 type CuratedSyncStateLike = {
   readonly collection: string;
+  readonly flow: string;
   readonly documents: Readonly<Record<string, CuratedSyncStateDocumentLike | undefined>>;
 };
 
@@ -177,10 +179,11 @@ const asString = (value: unknown): string | undefined => (typeof value === "stri
 const asStringArray = (value: unknown): ReadonlyArray<string> =>
   Array.isArray(value) ? A.filter(value, P.isString) : A.empty();
 
-const mkEmptyCuratedSyncState = (collection: string): CuratedSyncState =>
+const mkEmptyCuratedSyncState = (collection: string, flow: string): CuratedSyncState =>
   new CuratedSyncState({
     collection,
     documents: {},
+    flow,
     transport: curatedSyncTransport,
     version: curatedSyncStateVersion,
   });
@@ -188,45 +191,52 @@ const mkEmptyCuratedSyncState = (collection: string): CuratedSyncState =>
 const hasCuratedSyncStateDocuments = (state: CuratedSyncStateLike): boolean => Object.keys(state.documents).length > 0;
 
 /**
- * Normalize persisted sync state to the active TrustGraph collection without treating an empty state file as drift.
+ * Normalize persisted sync state to the active TrustGraph collection and flow without treating an empty state file as drift.
  *
  * @internal
  * @param state - Previously stored curated sync state metadata.
  * @param collection - Active TrustGraph collection for the current CLI invocation.
+ * @param flow - Active TrustGraph flow for the current CLI invocation.
  * @returns Collection-aware sync state metadata for the current run.
  * @category CrossCutting
  * @since 0.0.0
  */
-export const normalizeCuratedSyncStateForCollection = (
+export const normalizeCuratedSyncStateForTarget = (
   state: CuratedSyncStateLike,
-  collection: string
+  collection: string,
+  flow: string
 ): {
-  readonly collectionChanged: boolean;
+  readonly identityChanged: boolean;
   readonly previousCollection: string;
+  readonly previousFlow: string;
   readonly state: CuratedSyncStateLike;
 } => {
   const previousCollection = state.collection;
+  const previousFlow = state.flow;
 
   if (!hasCuratedSyncStateDocuments(state)) {
     return {
-      collectionChanged: false,
+      identityChanged: false,
       previousCollection,
-      state: mkEmptyCuratedSyncState(collection),
+      previousFlow,
+      state: mkEmptyCuratedSyncState(collection, flow),
     } as const;
   }
 
-  if (previousCollection === collection) {
+  if (previousCollection === collection && previousFlow === flow) {
     return {
-      collectionChanged: false,
+      identityChanged: false,
       previousCollection,
+      previousFlow,
       state,
     } as const;
   }
 
   return {
-    collectionChanged: true,
+    identityChanged: true,
     previousCollection,
-    state: mkEmptyCuratedSyncState(collection),
+    previousFlow,
+    state: mkEmptyCuratedSyncState(collection, flow),
   } as const;
 };
 
@@ -250,6 +260,31 @@ export const shouldReloadManagedDocument = (
   return (
     previous === undefined || previous.hash !== document.hash || !HashSet.has(managedDocumentIds, document.documentId)
   );
+};
+
+/**
+ * Partition managed processing rows into those tied to one document and those left untouched.
+ *
+ * @internal
+ * @param processingEntries - Managed processing rows already discovered for the current collection.
+ * @param documentId - Managed document identifier being removed or re-queued.
+ * @returns Matching processing rows plus the remaining rows that do not target the document.
+ * @category CrossCutting
+ * @since 0.0.0
+ */
+export const partitionManagedProcessingEntriesByDocument = (
+  processingEntries: ReadonlyArray<TrustGraphProcessingMetadata>,
+  documentId: string
+): {
+  readonly matching: ReadonlyArray<TrustGraphProcessingMetadata>;
+  readonly remaining: ReadonlyArray<TrustGraphProcessingMetadata>;
+} => {
+  const matching = A.filter(processingEntries, (entry) => entry.documentId === documentId);
+
+  return {
+    matching,
+    remaining: A.filter(processingEntries, (entry) => entry.documentId !== documentId),
+  } as const;
 };
 
 const parseJsonObject = (label: string, text: string): Effect.Effect<Record<string, unknown>, DomainError> =>
@@ -957,7 +992,7 @@ const readCuratedSyncState = (
     );
 
     if (!exists) {
-      return mkEmptyCuratedSyncState(defaultTrustGraphCollection);
+      return mkEmptyCuratedSyncState(defaultTrustGraphCollection, defaultTrustGraphFlow);
     }
 
     const text = yield* fs.readFileString(absoluteStatePath).pipe(
@@ -980,7 +1015,10 @@ const readCuratedSyncState = (
     const parsedVersion = typeof parsed.version === "number" ? parsed.version : 0;
     const parsedTransport = asString(parsed.transport);
     if (parsedVersion !== curatedSyncStateVersion || parsedTransport !== curatedSyncTransport) {
-      return mkEmptyCuratedSyncState(asString(parsed.collection) ?? defaultTrustGraphCollection);
+      return mkEmptyCuratedSyncState(
+        asString(parsed.collection) ?? defaultTrustGraphCollection,
+        asString(parsed.flow) ?? defaultTrustGraphFlow
+      );
     }
 
     return yield* Effect.try({
@@ -1242,6 +1280,7 @@ const collectCuratedDocuments = (
 const managedStateFromDocuments = (
   documents: ReadonlyArray<CuratedDocument>,
   collection: string,
+  flow: string,
   syncedAt: string
 ): CuratedSyncState =>
   new CuratedSyncState({
@@ -1257,6 +1296,7 @@ const managedStateFromDocuments = (
         }),
       ])
     ),
+    flow,
     transport: curatedSyncTransport,
     version: curatedSyncStateVersion,
   });
@@ -1276,6 +1316,21 @@ const filterManagedProcessingEntries = (
       pipe(entry.documentId, O.fromUndefinedOr, O.exists(Str.startsWith(managedDocumentIdPrefix))) &&
       entry.collection === config.collection
   );
+
+const stopManagedProcessingForDocument = (
+  session: TrustGraphSession,
+  processingEntries: ReadonlyArray<TrustGraphProcessingMetadata>,
+  documentId: string
+): Effect.Effect<ReadonlyArray<TrustGraphProcessingMetadata>, TrustGraphCliError, HttpClient.HttpClient> =>
+  Effect.gen(function* () {
+    const partition = partitionManagedProcessingEntriesByDocument(processingEntries, documentId);
+
+    for (const entry of partition.matching) {
+      yield* trustGraphStopProcessingEntry(session, entry.id);
+    }
+
+    return partition.remaining;
+  });
 
 const isProbeDocumentId = (documentId: string): boolean =>
   Str.startsWith("tg-smoke-beep-effect")(documentId) ||
@@ -1527,7 +1582,11 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
     const repoRoot = yield* findRepoRoot();
     const path = yield* Path.Path;
     const storedState = yield* readCuratedSyncState(path.join(repoRoot, curatedSyncStateRelativePath));
-    const stateResolution = normalizeCuratedSyncStateForCollection(storedState, session.config.collection);
+    const stateResolution = normalizeCuratedSyncStateForTarget(
+      storedState,
+      session.config.collection,
+      session.config.flow
+    );
     const state = stateResolution.state;
     const localDocuments = yield* collectCuratedDocuments(repoRoot, session.config);
     const flows = yield* getTrustGraphFlows(session);
@@ -1567,9 +1626,9 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
       );
     }
 
-    if (stateResolution.collectionChanged) {
+    if (stateResolution.identityChanged) {
       yield* Console.log(
-        `[trustgraph:status] local sync state belongs to "${stateResolution.previousCollection}" but the current collection is "${session.config.collection}". The next sync will reseed local state and re-queue processing for the new collection.`
+        `[trustgraph:status] local sync state belongs to collection="${stateResolution.previousCollection}" flow="${stateResolution.previousFlow}" but the current target is collection="${session.config.collection}" flow="${session.config.flow}". The next sync will reseed local state and re-queue processing for the new target.`
       );
     } else if (Object.keys(state.documents).length === 0) {
       yield* Console.log(
@@ -1583,9 +1642,9 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
       );
     }
 
-    if (stateResolution.collectionChanged) {
+    if (stateResolution.identityChanged) {
       failures.push(
-        `local sync state belongs to "${stateResolution.previousCollection}" but current TRUSTGRAPH_COLLECTION is "${session.config.collection}".`
+        `local sync state belongs to collection="${stateResolution.previousCollection}" flow="${stateResolution.previousFlow}" but the current target is collection="${session.config.collection}" flow="${session.config.flow}".`
       );
     }
 
@@ -1716,10 +1775,15 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
         : HashSet.fromIterable(existingManagedDocuments.map((document) => document.id));
       const existingManagedProcessing = filterManagedProcessingEntries(remoteProcessingEntries, session.config);
       const existingProbeProcessing = filterRepoProbeProcessingEntries(remoteProcessingEntries);
+      let pendingManagedProcessing = existingManagedProcessing;
       const storedState = options.reset
-        ? mkEmptyCuratedSyncState(session.config.collection)
+        ? mkEmptyCuratedSyncState(session.config.collection, session.config.flow)
         : yield* readCuratedSyncState(absoluteStatePath);
-      const stateResolution = normalizeCuratedSyncStateForCollection(storedState, session.config.collection);
+      const stateResolution = normalizeCuratedSyncStateForTarget(
+        storedState,
+        session.config.collection,
+        session.config.flow
+      );
       const previousState = stateResolution.state;
 
       if (options.reset) {
@@ -1730,12 +1794,15 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
           probeDocuments,
           existingProbeProcessing
         );
-        yield* writeCuratedSyncState(absoluteStatePath, mkEmptyCuratedSyncState(session.config.collection));
+        yield* writeCuratedSyncState(
+          absoluteStatePath,
+          mkEmptyCuratedSyncState(session.config.collection, session.config.flow)
+        );
       }
 
-      if (!options.reset && stateResolution.collectionChanged) {
+      if (!options.reset && stateResolution.identityChanged) {
         yield* Console.log(
-          `[trustgraph:sync-curated] detected collection change from "${stateResolution.previousCollection}" to "${session.config.collection}". Re-queueing processing for the new collection while preserving unchanged remote documents where possible.`
+          `[trustgraph:sync-curated] detected sync target change from collection="${stateResolution.previousCollection}" flow="${stateResolution.previousFlow}" to collection="${session.config.collection}" flow="${session.config.flow}". Re-queueing processing for the new target while preserving unchanged remote documents where possible.`
         );
       }
 
@@ -1748,6 +1815,11 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
       yield* trustGraphEnsureCollection(session, session.config.collection);
 
       for (const documentId of diff.staleDocumentIds) {
+        pendingManagedProcessing = yield* stopManagedProcessingForDocument(
+          session,
+          pendingManagedProcessing,
+          documentId
+        );
         if (HashSet.has(existingManagedDocumentIds, documentId)) {
           yield* trustGraphRemoveDocument(session, documentId);
           existingManagedDocumentIds = HashSet.remove(existingManagedDocumentIds, documentId);
@@ -1757,6 +1829,11 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
       }
 
       for (const document of diff.uploadCandidates) {
+        pendingManagedProcessing = yield* stopManagedProcessingForDocument(
+          session,
+          pendingManagedProcessing,
+          document.documentId
+        );
         const reloadManagedDocument = shouldReloadManagedDocument(document, storedState, existingManagedDocumentIds);
 
         if (reloadManagedDocument && HashSet.has(existingManagedDocumentIds, document.documentId)) {
@@ -1777,7 +1854,12 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
         Effect.map(DateTime.toDateUtc),
         Effect.map((date) => date.toISOString())
       );
-      const nextState = managedStateFromDocuments(localDocuments, session.config.collection, syncedAt);
+      const nextState = managedStateFromDocuments(
+        localDocuments,
+        session.config.collection,
+        session.config.flow,
+        syncedAt
+      );
       yield* writeCuratedSyncState(absoluteStatePath, nextState);
 
       const staleEntryLabel = diff.staleDocumentIds.length === 1 ? "entry" : "entries";
