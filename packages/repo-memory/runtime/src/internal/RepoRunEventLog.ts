@@ -208,6 +208,8 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
   const readRunEvents: RepoRunEventLogShape["readRunEvents"] = Effect.fn("RepoRunEventLog.readRunEvents")(
     function* (runId) {
       yield* Effect.annotateCurrentSpan({ run_id: runId });
+      // EventJournal currently exposes only a full entry listing, so per-run
+      // filtering happens here until a keyed journal read primitive exists.
       const entries = yield* mapJournalError(`load journal entries for run "${runId}"`, journal.entries);
       const runEntries = pipe(
         entries,

@@ -518,6 +518,8 @@ const interpretQuery = (question: string): QueryInterpretation => {
     );
   }
 
+  // An explicit "search"/"keyword" prefix intentionally wins over symbol-intent
+  // verbs in the remainder of the question so free-text lookup stays bounded.
   if (startsWith("search ") || contains("keyword")) {
     return new KeywordSearchInterpretation({
       query: pipe(

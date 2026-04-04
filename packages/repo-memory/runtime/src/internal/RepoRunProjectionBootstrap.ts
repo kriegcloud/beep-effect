@@ -270,6 +270,8 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
             return Stream.fromIterable(terminalBootstrap.replayEvents);
           }
 
+          // Subscribe before replay bootstrap so events appended during snapshot refresh
+          // or journal reconciliation still arrive after the replay cursor catches up.
           const liveStream = yield* repoRunEventLog.openLiveRunEventsAfter(request.runId, request.cursor);
           const bootstrap = yield* prepareStreamForRun(request, run).pipe(Effect.mapError(toRunStreamFailure));
           const replayStream = Stream.fromIterable(bootstrap.replayEvents);
