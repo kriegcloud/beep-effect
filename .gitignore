@@ -78,4 +78,5 @@ sst-env.d.ts
 **/.beep
 
 # subtrees
-.repos
+.repos/*
+
