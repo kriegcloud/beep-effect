@@ -507,6 +507,30 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/common/nlp/src/Tools/ToolExport.ts",
+      "symbol": "ExportedTool",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/common/nlp/src/Wink/WinkEngine.ts",
+      "symbol": "WinkEngineRuntimeState",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Type alias contains a live wink runtime handle and stays tracked as a runtime-boundary exception."
+    },
+    {
+      "file": "packages/common/nlp/src/Wink/WinkVectorizer.ts",
+      "symbol": "ScopedVectorizer",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/nlp",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/common/schema/src/Fn.ts",
       "symbol": "FnSchemaNoArg",
       "kind": "exported-interface",

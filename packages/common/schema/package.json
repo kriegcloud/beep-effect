@@ -10,8 +10,8 @@
     "build": "tsc -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest",
-    "coverage": "vitest --coverage",
+    "test": "bunx --bun vitest",
+    "coverage": "bunx --bun vitest --coverage",
     "docgen": "bun run ../../../tooling/docgen/docgen/src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
@@ -26,7 +26,6 @@
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "jsonc-parser": "catalog:",
-    "minimatch": "catalog:",
     "uuid": "catalog:",
     "yaml": "catalog:"
   },

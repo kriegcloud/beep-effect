@@ -84,9 +84,6 @@
       "path": "../tooling/cli/tsconfig.json"
     },
     {
-      "path": "../tooling/codegraph/tsconfig.json"
-    },
-    {
       "path": "../tooling/configs/tsconfig.json"
     },
     {

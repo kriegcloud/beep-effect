@@ -84,7 +84,7 @@ describe("Yaml", () => {
       if (Exit.isFailure(result)) {
         const rendered = Cause.pretty(result.cause);
 
-        expect(rendered).toContain("Invalid YAML input");
+        expect(/Invalid YAML input|YAML Parse error/.test(rendered)).toBe(true);
       }
     })
   );

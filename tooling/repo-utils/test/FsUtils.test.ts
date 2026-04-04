@@ -1,4 +1,5 @@
 import { FsUtils, FsUtilsLive } from "@beep/repo-utils/FsUtils";
+import { normalizePath } from "@beep/schema";
 import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, Layer } from "effect";
@@ -45,6 +46,25 @@ layer(TestLayer)("FsUtils", (it) => {
           ignore: ["**/errors/**"],
         });
         expect(results.every((r) => !r.includes("errors/"))).toBe(true);
+      })
+    );
+
+    it.effect(
+      "supports array patterns, absolute paths, and deduped matches",
+      Effect.fn(function* () {
+        const utils = yield* FsUtils;
+        const cwd = `${__dirname}/..`;
+        const canonicalCwd = yield* utils.realPath(cwd);
+        const results = yield* utils.glob(["src/**/*.ts", "src/FsUtils.ts", "src/FsUtils.ts"], {
+          cwd,
+          absolute: true,
+        });
+        const normalizedResults = results.map(normalizePath);
+
+        expect(results.length).toBeGreaterThan(0);
+        expect(normalizedResults.every((result) => result.startsWith(normalizePath(canonicalCwd)))).toBe(true);
+        expect(new Set(normalizedResults).size).toBe(normalizedResults.length);
+        expect(normalizedResults.some((result) => result.endsWith("/src/FsUtils.ts"))).toBe(true);
       })
     );
   });
