@@ -19,7 +19,6 @@
     "packages/runtime/*",
     "packages/shared/*",
     "tooling/cli",
-    "tooling/codegraph",
     "tooling/configs",
     "packages/editor",
     "tooling/repo-utils",

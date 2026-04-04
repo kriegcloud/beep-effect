@@ -45,7 +45,6 @@
     "@beep/shared-ui": "workspace:^",
     "@beep/claude": "workspace:^",
     "@beep/repo-cli": "workspace:^",
-    "@beep/codegraph": "workspace:^",
     "@beep/repo-configs": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/test-utils": "workspace:^"

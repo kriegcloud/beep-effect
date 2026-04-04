@@ -291,6 +291,7 @@
       "devDependencies": {
         "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
+        "@types/bun": "catalog:",
         "@types/node": "catalog:",
       },
     },
@@ -719,7 +720,6 @@
       "version": "0.0.0",
       "dependencies": {
         "@beep/claude": "workspace:^",
-        "@beep/codegraph": "workspace:^",
         "@beep/data": "workspace:^",
         "@beep/editor": "workspace:^",
         "@beep/identity": "workspace:^",
@@ -793,17 +793,6 @@
         "@effect/vitest": "catalog:",
         "@types/babel__code-frame": "catalog:",
         "@types/doctrine": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "tooling/codegraph": {
-      "name": "@beep/codegraph",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
     },
@@ -1165,8 +1154,6 @@
     "@beep/claude": ["@beep/claude@workspace:.claude"],
 
     "@beep/clawhole": ["@beep/clawhole@workspace:apps/clawhole"],
-
-    "@beep/codegraph": ["@beep/codegraph@workspace:tooling/codegraph"],
 
     "@beep/codex": ["@beep/codex@workspace:.codex"],
 
