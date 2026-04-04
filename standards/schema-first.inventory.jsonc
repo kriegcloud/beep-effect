@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-04-03",
+  "generatedOn": "2026-04-04",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -19,7 +19,7 @@
   ],
   "entries": [
     {
-      "file": "apps/clawhole/src/config/Gateway.ts",
+      "file": "apps/clawhole/src/domain/Gateway.ts",
       "symbol": "GatewayConfig",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -27,7 +27,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "apps/clawhole/src/config/Gateway.ts",
+      "file": "apps/clawhole/src/domain/Gateway.ts",
       "symbol": "TalkConfig",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -35,7 +35,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "apps/clawhole/src/config/Gateway.ts",
+      "file": "apps/clawhole/src/domain/Gateway.ts",
       "symbol": "TalkConfigResponse",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -43,7 +43,7 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "apps/clawhole/src/config/Gateway.ts",
+      "file": "apps/clawhole/src/domain/Gateway.ts",
       "symbol": "TalkProviderConfig",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1211,14 +1211,6 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/DocgenV2/Process.ts",
-      "symbol": "ProcessShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/repo-cli",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
       "file": "tooling/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",
       "symbol": "CategorySelectionServiceShape",
       "kind": "exported-type-literal",
@@ -1249,6 +1241,14 @@
       "status": "exception",
       "owner": "@beep/repo-cli",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "tooling/docgen/docgen/src/Process.ts",
+      "symbol": "ProcessShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/docgen",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "tooling/repo-utils/src/FsUtils.ts",

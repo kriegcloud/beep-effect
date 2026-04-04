@@ -6,9 +6,15 @@ clawd
 codegraph
 Docable
 graphiti
+mcporter
 osdk
 prefs
+pids
+tmpfs
+ulimits
 Uncheckbox
+unfocuses
 Unradio
 Unsandboxed
+vsearch
 yeet

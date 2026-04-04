@@ -8,13 +8,13 @@
  * @since 0.0.0
  * @category Re-exports
  */
-export * from "./config/Secrets.ts";
+export * from "./domain/Secrets.ts";
 
 /**
  * @since 0.0.0
  * @category Re-exports
  */
-export * from "./config/TextToSpeech.ts";
+export * from "./domain/Tts.ts";
 
 /**
  * @since 0.0.0

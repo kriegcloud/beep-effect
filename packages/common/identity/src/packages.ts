@@ -77,7 +77,8 @@ const composers = $I.compose(
   "shared-providers",
   "colors",
   "clawhole",
-  "chalk", "docgen"
+  "chalk",
+  "docgen"
 );
 
 // --- common ---

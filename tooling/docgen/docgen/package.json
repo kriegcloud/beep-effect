@@ -20,7 +20,7 @@
     "docgen": "bunx @effect/docgen",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest"
+    "test": "vitest run --passWithNoTests"
   },
   "exports": {
     ".": "./src/index.ts",
@@ -47,23 +47,23 @@
     }
   },
   "dependencies": {
-    "effect": "catalog:",
-    "@beep/repo-utils": "workspace:^",
-    "@beep/identity": "workspace:^",
-    "@beep/utils": "workspace:^",
-    "@beep/schema": "workspace:^",
-    "@beep/chalk": "workspace:^",
     "@babel/code-frame": "catalog:",
-    "doctrine": "catalog:",
+    "@beep/chalk": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/repo-utils": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@effect/markdown-toc": "catalog:",
-    "jsonc-parser": "catalog:",
-    "@effect/platform-node": "catalog:"
+    "@effect/platform-node": "catalog:",
+    "doctrine": "catalog:",
+    "effect": "catalog:",
+    "jsonc-parser": "catalog:"
   },
   "devDependencies": {
-    "@effect/vitest": "catalog:",
-    "@types/node": "catalog:",
     "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/babel__code-frame": "catalog:",
     "@types/doctrine": "catalog:",
-    "@types/babel__code-frame": "catalog:"
+    "@types/node": "catalog:"
   }
 }

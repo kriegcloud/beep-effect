@@ -60,6 +60,7 @@
   },
   "dependencies": {
     "@beep/chalk": "workspace:^",
+    "@beep/docgen": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
@@ -73,9 +74,9 @@
     "yaml": "catalog:"
   },
   "devDependencies": {
-    "@types/doctrine": "catalog:",
-    "@types/babel__code-frame": "catalog:",
     "@effect/vitest": "catalog:",
+    "@types/babel__code-frame": "catalog:",
+    "@types/doctrine": "catalog:",
     "@types/node": "catalog:"
   }
 }

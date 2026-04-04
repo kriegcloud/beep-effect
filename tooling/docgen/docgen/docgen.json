@@ -1,8 +1,6 @@
 {
   "$schema": "../../../node_modules/@effect/docgen/schema.json",
-  "exclude": [
-    "src/internal/**/*.ts"
-  ],
+  "exclude": ["src/internal/**/*.ts"],
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/tooling/docgen/docgen/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
@@ -11,11 +9,7 @@
     "moduleResolution": "Bundler",
     "module": "ES2022",
     "target": "ES2022",
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
     "rewriteRelativeImportExtensions": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
@@ -35,48 +29,20 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/docgen": [
-        "../../../tooling/docgen/docgen/src/index.ts"
-      ],
-      "@beep/docgen/*": [
-        "../../../tooling/docgen/docgen/src/*.ts"
-      ],
-      "@beep/chalk": [
-        "../../../packages/common/chalk/src/index.ts"
-      ],
-      "@beep/chalk/*": [
-        "../../../packages/common/chalk/src/*.ts"
-      ],
-      "@beep/identity": [
-        "../../../packages/common/identity/src/index.ts"
-      ],
-      "@beep/identity/*": [
-        "../../../packages/common/identity/src/*.ts"
-      ],
-      "@beep/repo-utils": [
-        "../../../tooling/repo-utils/src/index.ts"
-      ],
-      "@beep/repo-utils/*": [
-        "../../../tooling/repo-utils/src/*.ts"
-      ],
-      "@beep/schema": [
-        "../../../packages/common/schema/src/index.ts"
-      ],
-      "@beep/schema/*": [
-        "../../../packages/common/schema/src/*.ts"
-      ],
-      "@beep/types": [
-        "../../../packages/common/types/src/index.ts"
-      ],
-      "@beep/types/*": [
-        "../../../packages/common/types/src/*.ts"
-      ],
-      "@beep/utils": [
-        "../../../packages/common/utils/src/index.ts"
-      ],
-      "@beep/utils/*": [
-        "../../../packages/common/utils/src/*.ts"
-      ]
+      "@beep/docgen": ["../../../tooling/docgen/docgen/src/index.ts"],
+      "@beep/docgen/*": ["../../../tooling/docgen/docgen/src/*.ts"],
+      "@beep/chalk": ["../../../packages/common/chalk/src/index.ts"],
+      "@beep/chalk/*": ["../../../packages/common/chalk/src/*.ts"],
+      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/repo-utils": ["../../../tooling/repo-utils/src/index.ts"],
+      "@beep/repo-utils/*": ["../../../tooling/repo-utils/src/*.ts"],
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/types": ["../../../packages/common/types/src/index.ts"],
+      "@beep/types/*": ["../../../packages/common/types/src/*.ts"],
+      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
     }
   }
 }
