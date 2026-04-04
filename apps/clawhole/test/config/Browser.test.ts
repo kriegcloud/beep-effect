@@ -6,7 +6,7 @@ import {
   BrowserProfileConfig,
   BrowserSnapshotDefaults,
   BrowserSsrFPolicyConfig,
-} from "../../src/config/Browser.ts";
+} from "../../src/domain/Browser.ts";
 
 const decodeBrowserConfig = S.decodeUnknownSync(BrowserConfig);
 const decodeBrowserProfileConfig = S.decodeUnknownSync(BrowserProfileConfig);

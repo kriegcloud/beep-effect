@@ -4,7 +4,7 @@
  * This module ports the OpenClaw gateway config surface to the repository's
  * schema-first conventions while preserving the original encoded payload shape.
  *
- * @module @beep/clawhole/config/Gateway
+ * @module @beep/clawhole/domain/Gateway
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

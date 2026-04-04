@@ -24,7 +24,7 @@
  * console.log(O.isNone(queueModes.googlechat)) // true
  * ```
  *
- * @module @beep/clawhole/config/Queue
+ * @module @beep/clawhole/domain/Queue
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

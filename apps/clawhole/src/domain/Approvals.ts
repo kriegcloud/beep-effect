@@ -12,7 +12,7 @@
  * ```typescript
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
- * import { ApprovalsConfig } from "@beep/clawhole/config/Approvals"
+ * import { ApprovalsConfig } from "@beep/clawhole/domain/Approvals"
  *
  * const approvals = S.decodeUnknownSync(ApprovalsConfig)({
  *   exec: {
@@ -31,7 +31,7 @@
  * console.log(O.isNone(approvals.plugin)) // true
  * ```
  *
- * @module @beep/clawhole/config/Approvals
+ * @module @beep/clawhole/domain/Approvals
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

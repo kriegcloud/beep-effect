@@ -19,7 +19,7 @@ import {
   SecretRef,
   SecretsConfig,
   UnresolvedSecretRefError,
-} from "../../src/config/Secrets.ts";
+} from "../../src/domain/Secrets.ts";
 
 const decodeSecretRef = S.decodeUnknownSync(SecretRef);
 const decodeSecretProviderConfig = S.decodeUnknownSync(SecretProviderConfig);

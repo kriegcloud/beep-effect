@@ -5,7 +5,7 @@
  * schemas while preserving the documented config shape, compatibility aliases,
  * and validation boundaries.
  *
- * @module @beep/clawhole/config/Base
+ * @module @beep/clawhole/domain/Base
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

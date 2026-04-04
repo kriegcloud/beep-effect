@@ -7,9 +7,10 @@
  *
  * @example
  * ```typescript
+ * import { pipe } from "effect/Function"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
- * import { MemoryConfig } from "@beep/clawhole/config/Memory"
+ * import { MemoryConfig } from "@beep/clawhole/domain/Memory"
  *
  * const memory = S.decodeUnknownSync(MemoryConfig)({
  *   backend: "qmd",
@@ -22,10 +23,10 @@
  * })
  *
  * console.log(memory.backend) // { _id: "Option", _tag: "Some", value: "qmd" }
- * console.log(O.getOrUndefined(memory.qmd)?.searchTool) // { _id: "Option", _tag: "Some", value: "search_memory" }
+ * console.log(pipe(memory.qmd, O.flatMap((qmd) => qmd.searchTool), O.getOrUndefined)) // "search_memory"
  * ```
  *
- * @module @beep/clawhole/config/Memory
+ * @module @beep/clawhole/domain/Memory
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

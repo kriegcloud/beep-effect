@@ -9,7 +9,7 @@
  * ```typescript
  * import * as S from "effect/Schema"
  * import { Duration } from "effect"
- * import { CronConfig } from "@beep/clawhole/config/Cron"
+ * import { CronConfig } from "@beep/clawhole/domain/Cron"
  *
  * const decodeCronConfig = S.decodeUnknownSync(CronConfig)
  *
@@ -26,7 +26,7 @@
  * console.log(cron.runLog.maxBytes) // "5mb"
  * ```
  *
- * @module @beep/clawhole/config/Cron
+ * @module @beep/clawhole/domain/Cron
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

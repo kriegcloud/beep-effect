@@ -20,6 +20,6 @@ Build and maintain features with effect first development.
   - `bun run trustgraph:sync-curated`
   - `bun run trustgraph:context -- --prompt "<text>"`
   - `bun run codex:hook:session-start`
-- Keep `graphiti-memory` as a fallback for prior-session recall and legacy/effect-v4 knowledge graph workflows.
+- Keep `graphiti-memory` as a fallback for prior-session recall and legacy plus effect-v4 knowledge graph workflows.
 - Graphiti memory MCP startup gotcha: the server expects `group_ids` as a list. If the tool wrapper exposes `group_ids` as `string`, pass a JSON array literal string containing `beep-dev` instead of the plain string `beep-dev`.
 - When the user asks questions on differences between effect v3 and effect v4, prefer the `effect-v4` skill and only reach for `graphiti-memory` when the legacy graph adds useful historical context.

@@ -632,13 +632,14 @@ const getTrustGraphDocuments = (
   session: TrustGraphSession
 ): Effect.Effect<ReadonlyArray<TrustGraphDocumentMetadata>, TrustGraphCliError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
+    // cspell:ignore metadatas
     const result = yield* callTrustGraphTool(session, "get_documents", { user: session.config.user });
     const structuredContent = yield* extractStructuredContent(result, "get_documents");
-    const documentMetadatas = Array.isArray(structuredContent.document_metadatas)
+    const documentMetadataEntries = Array.isArray(structuredContent.document_metadatas)
       ? structuredContent.document_metadatas
       : [];
 
-    return documentMetadatas.flatMap((entry): ReadonlyArray<TrustGraphDocumentMetadata> => {
+    return documentMetadataEntries.flatMap((entry): ReadonlyArray<TrustGraphDocumentMetadata> => {
       if (!isRecord(entry)) {
         return [];
       }
@@ -664,13 +665,14 @@ const getTrustGraphProcessingEntries = (
   session: TrustGraphSession
 ): Effect.Effect<ReadonlyArray<TrustGraphProcessingMetadata>, TrustGraphCliError, HttpClient.HttpClient> =>
   Effect.gen(function* () {
+    // cspell:ignore metadatas
     const result = yield* callTrustGraphTool(session, "get_processing", { user: session.config.user });
     const structuredContent = yield* extractStructuredContent(result, "get_processing");
-    const processingMetadatas = Array.isArray(structuredContent.processing_metadatas)
+    const processingMetadataEntries = Array.isArray(structuredContent.processing_metadatas)
       ? structuredContent.processing_metadatas
       : [];
 
-    return processingMetadatas.flatMap((entry): ReadonlyArray<TrustGraphProcessingMetadata> => {
+    return processingMetadataEntries.flatMap((entry): ReadonlyArray<TrustGraphProcessingMetadata> => {
       if (!isRecord(entry)) {
         return [];
       }
@@ -1508,9 +1510,8 @@ export const runTrustGraphStatus = withTrustGraphSession((session) =>
     }
 
     if (diff.staleDocumentIds.length > 0) {
-      failures.push(
-        `local sync state contains ${diff.staleDocumentIds.length} stale document entr${diff.staleDocumentIds.length === 1 ? "y" : "ies"}.`
-      );
+      const staleEntryLabel = diff.staleDocumentIds.length === 1 ? "entry" : "entries";
+      failures.push(`local sync state contains ${diff.staleDocumentIds.length} stale document ${staleEntryLabel}.`);
     }
 
     if (missingManagedDocuments.length > 0) {
@@ -1677,10 +1678,9 @@ export const runTrustGraphSyncCurated = (options: { readonly reset: boolean }) =
       const nextState = managedStateFromDocuments(localDocuments, session.config.collection, syncedAt);
       yield* writeCuratedSyncState(absoluteStatePath, nextState);
 
+      const staleEntryLabel = diff.staleDocumentIds.length === 1 ? "entry" : "entries";
       yield* Console.log(
-        `[trustgraph:sync-curated] synced ${diff.uploadCandidates.length} document(s), skipped ${diff.unchanged.length}, dropped ${diff.staleDocumentIds.length} stale local state entr${
-          diff.staleDocumentIds.length === 1 ? "y" : "ies"
-        }`
+        `[trustgraph:sync-curated] synced ${diff.uploadCandidates.length} document(s), skipped ${diff.unchanged.length}, dropped ${diff.staleDocumentIds.length} stale local state ${staleEntryLabel}`
       );
       yield* Console.log(
         `[trustgraph:sync-curated] note: curated sync now uploads library documents and queues processing jobs, so retrieval depends on the TrustGraph processing pipeline finishing successfully after upload.`

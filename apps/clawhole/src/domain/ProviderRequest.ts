@@ -9,7 +9,7 @@
  * ```typescript
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
- * import { ConfiguredProviderRequest } from "@beep/clawhole/config/ProviderRequest"
+ * import { ConfiguredProviderRequest } from "@beep/clawhole/domain/ProviderRequest"
  *
  * const request = S.decodeUnknownSync(ConfiguredProviderRequest)({
  *   headers: {
@@ -29,7 +29,7 @@
  * console.log(O.isSome(request.tls)) // false
  * ```
  *
- * @module @beep/clawhole/config/ProviderRequest
+ * @module @beep/clawhole/domain/ProviderRequest
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

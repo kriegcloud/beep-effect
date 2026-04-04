@@ -4,7 +4,7 @@
  * This module keeps the legacy helper surface for secret refs while rewriting
  * the underlying models to the repository's schema-first conventions.
  *
- * @module @beep/clawhole/config/Secrets
+ * @module @beep/clawhole/domain/Secrets
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";

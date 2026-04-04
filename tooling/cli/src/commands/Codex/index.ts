@@ -17,6 +17,12 @@ const codexHookSessionStartCommand = Command.make(
   })
 ).pipe(Command.withDescription("Emit Codex SessionStart hook JSON enriched with TrustGraph startup context"));
 
+/**
+ * Codex command group.
+ *
+ * @category UseCase
+ * @since 0.0.0
+ */
 export const codexCommand = Command.make(
   "codex",
   {},

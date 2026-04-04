@@ -10,7 +10,7 @@
  * @example
  * ```typescript
  * import * as S from "effect/Schema";
- * import { BrowserConfig } from "@beep/clawhole/config/Browser";
+ * import { BrowserConfig } from "@beep/clawhole/domain/Browser";
  *
  * const browser = S.decodeUnknownSync(BrowserConfig)({
  *   color: "#FF4500",
@@ -30,7 +30,7 @@
  * console.log(browser instanceof BrowserConfig); // true
  * ```
  *
- * @module @beep/clawhole/config/Browser
+ * @module @beep/clawhole/domain/Browser
  * @since 0.0.0
  */
 import { $ClawholeId } from "@beep/identity";
@@ -289,7 +289,7 @@ export type BrowserProfileConfig = typeof BrowserProfileConfig.Type;
  * @example
  * ```typescript
  * import * as S from "effect/Schema";
- * import { BrowserConfig } from "@beep/clawhole/config/Browser";
+ * import { BrowserConfig } from "@beep/clawhole/domain/Browser";
  *
  * const browser = S.decodeUnknownSync(BrowserConfig)({
  *   enabled: true,
