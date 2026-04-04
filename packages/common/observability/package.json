@@ -18,7 +18,7 @@
     "check:examples": "tsc --noEmit -p tsconfig.examples.json",
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
-    "docgen": "bunx @effect/docgen",
+    "docgen": "bun run ../../../tooling/docgen/docgen/src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "vitest"

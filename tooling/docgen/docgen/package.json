@@ -17,15 +17,19 @@
     "check": "tsc -b tsconfig.json",
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
-    "docgen": "bunx @effect/docgen",
+    "docgen": "bun run src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest run --passWithNoTests"
+    "test": "vitest"
+  },
+  "bin": {
+    "docgen": "./src/bin.ts"
   },
   "exports": {
     ".": "./src/index.ts",
     "./*": "./src/*.ts",
     "./internal/*": null,
+    "./schema.json": "./schema.json",
     "./package.json": "./package.json"
   },
   "files": [
@@ -54,10 +58,13 @@
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/markdown-toc": "catalog:",
+    "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
     "doctrine": "catalog:",
     "effect": "catalog:",
-    "jsonc-parser": "catalog:"
+    "glob": "catalog:",
+    "jsonc-parser": "catalog:",
+    "ts-morph": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

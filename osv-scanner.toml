@@ -1,3 +1,7 @@
 [[IgnoredVulns]]
 id = "GHSA-5f7q-jpqc-wp7h"
 reason = "apps/crypto-taxes does not enable PPR, cacheComponents, or NEXT_PRIVATE_MINIMAL_MODE, so the advisory preconditions are not met in this repo."
+
+[[IgnoredVulns]]
+id = "GHSA-5474-4w2j-mq4c"
+reason = "Accepted temporarily because the vulnerable @anthropic-ai/sdk version is pulled transitively via @anthropic-ai/claude-agent-sdk and is not part of this docgen branch scope."

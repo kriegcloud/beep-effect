@@ -54,7 +54,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest --coverage",
-    "docgen": "bunx @effect/docgen",
+    "docgen": "bun run ../../tooling/docgen/docgen/src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
   },

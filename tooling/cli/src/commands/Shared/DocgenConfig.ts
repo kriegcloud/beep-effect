@@ -91,9 +91,9 @@ export class CanonicalDocgenExamplesCompilerOptions extends S.Class<CanonicalDoc
     noEmit: S.Literal(true),
     strict: S.Literal(true),
     skipLibCheck: S.Literal(true),
-    moduleResolution: S.Literal("Bundler"),
-    module: S.Literal("ES2022"),
-    target: S.Literal("ES2022"),
+    moduleResolution: S.Literal("bundler"),
+    module: S.Literal("es2022"),
+    target: S.Literal("es2022"),
     lib: S.Array(S.String),
     rewriteRelativeImportExtensions: S.Literal(true),
     allowImportingTsExtensions: S.Literal(true),
@@ -317,16 +317,16 @@ export const createCanonicalDocgenConfig: (
   );
 
   return new CanonicalDocgenConfig({
-    $schema: `${rootRelativePrefix}node_modules/@effect/docgen/schema.json`,
+    $schema: `${rootRelativePrefix}tooling/docgen/docgen/schema.json`,
     exclude: [...DEFAULT_DOCGEN_EXCLUDE],
     srcLink: `https://github.com/kriegcloud/beep-effect/tree/main/${input.packageRelativePath}/src/`,
     examplesCompilerOptions: new CanonicalDocgenExamplesCompilerOptions({
       noEmit: true,
       strict: true,
       skipLibCheck: true,
-      moduleResolution: "Bundler",
-      module: "ES2022",
-      target: "ES2022",
+      moduleResolution: "bundler",
+      module: "es2022",
+      target: "es2022",
       lib: ["ESNext", "DOM", "DOM.Iterable"],
       rewriteRelativeImportExtensions: true,
       allowImportingTsExtensions: true,

@@ -303,4 +303,69 @@ describe("create-package", () => {
       )
     );
   });
+
+  it("registers top-level tooling packages explicitly instead of widening workspace globs", async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rootDir = process.cwd();
+
+          yield* bootstrapRootConfig(rootDir, {
+            workspaces: ["packages/common/*", "tooling/cli"],
+            references: ["packages/common/identity", "tooling/cli"],
+            paths: {
+              "@beep/identity": ["./packages/common/identity/src/index.ts"],
+              "@beep/identity/*": ["./packages/common/identity/src/*"],
+              "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
+              "@beep/repo-cli/*": ["./tooling/cli/src/*"],
+            },
+            testFileMatch: [
+              "packages/*/dtslint/**/*.tst.*",
+              "packages/common/identity/dtslint/**/*.tst.*",
+              "tooling/cli/dtslint/**/*.tst.*",
+            ],
+            syncpackSources: ["package.json", "packages/common/*/package.json", "tooling/cli/package.json"],
+          });
+          yield* bootstrapIdentityWorkspace(rootDir);
+          yield* writeJsonFile(path.join(rootDir, "tooling", "cli", "package.json"), {
+            name: "@beep/repo-cli",
+            version: "0.0.0",
+            exports: {
+              ".": "./src/index.ts",
+              "./*": "./src/*.ts",
+            },
+          });
+          yield* writeJsonFile(path.join(rootDir, "tooling", "cli", "tsconfig.json"), {
+            compilerOptions: {
+              outDir: "dist",
+              rootDir: "src",
+            },
+            include: ["src/**/*.ts"],
+          });
+          yield* writeTextFile(path.join(rootDir, "tooling", "cli", "src", "index.ts"), "export {};\n");
+
+          yield* runCreatePackageCommand(["repo-utils", "--type", "tool", "--description", "Repo helpers"]);
+
+          const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
+          expect(rootPackage.workspaces).toEqual(["packages/common/*", "tooling/cli", "tooling/repo-utils"]);
+          expect(rootPackage.workspaces).not.toContain("tooling/*");
+
+          const packageRefs = decodeTsconfigReferences(
+            yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json"))
+          );
+          expect(A.map(packageRefs.references, (entry) => entry.path)).toEqual([
+            "packages/common/identity",
+            "tooling/cli",
+            "tooling/repo-utils",
+          ]);
+
+          const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
+          expect(syncpackConfig).toContain(`"tooling/repo-utils/package.json"`);
+          expect(syncpackConfig).not.toContain(`"tooling/*/package.json"`);
+        })
+      )
+    );
+  });
 });

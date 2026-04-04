@@ -289,7 +289,7 @@ describe("tsconfig-sync", () => {
             relativeDir: "packages/common/schema",
             packageName: "@beep/schema",
             docgenConfig: {
-              $schema: "../../../node_modules/@effect/docgen/schema.json",
+              $schema: "../../../tooling/docgen/docgen/schema.json",
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
             },
           });
@@ -301,7 +301,7 @@ describe("tsconfig-sync", () => {
             },
             references: ["../schema/tsconfig.json"],
             docgenConfig: {
-              $schema: "../../../node_modules/@effect/docgen/schema.json",
+              $schema: "../../../tooling/docgen/docgen/schema.json",
               exclude: ["src/**/*.spec.ts"],
               enforceDescriptions: true,
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/identity/src/",
@@ -309,9 +309,9 @@ describe("tsconfig-sync", () => {
                 noEmit: true,
                 strict: true,
                 skipLibCheck: true,
-                moduleResolution: "Bundler",
-                module: "ES2022",
-                target: "ES2022",
+                moduleResolution: "bundler",
+                module: "es2022",
+                target: "es2022",
                 lib: ["ESNext", "DOM", "DOM.Iterable"],
                 rewriteRelativeImportExtensions: true,
                 allowImportingTsExtensions: true,
@@ -395,16 +395,16 @@ describe("tsconfig-sync", () => {
             relativeDir: "packages/common/schema",
             packageName: "@beep/schema",
             docgenConfig: {
-              $schema: "../../../node_modules/@effect/docgen/schema.json",
+              $schema: "../../../tooling/docgen/docgen/schema.json",
               exclude: ["src/internal/**/*.ts"],
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/schema/src/",
               examplesCompilerOptions: {
                 noEmit: true,
                 strict: true,
                 skipLibCheck: true,
-                moduleResolution: "Bundler",
-                module: "ES2022",
-                target: "ES2022",
+                moduleResolution: "bundler",
+                module: "es2022",
+                target: "es2022",
                 lib: ["ESNext", "DOM", "DOM.Iterable"],
                 rewriteRelativeImportExtensions: true,
                 allowImportingTsExtensions: true,
@@ -439,7 +439,7 @@ describe("tsconfig-sync", () => {
             },
             references: ["../../common/schema/tsconfig.json"],
             docgenConfig: {
-              $schema: "../../../node_modules/@effect/docgen/schema.json",
+              $schema: "../../../tooling/docgen/docgen/schema.json",
               srcLink: "https://github.com/kriegcloud/beep-effect/tree/main/packages/runtime/protocol/src/",
             },
           });

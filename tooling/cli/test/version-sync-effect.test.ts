@@ -36,7 +36,6 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
               "@effect/platform-bun": "^4.0.0-beta.28",
               "@effect/vitest": "^4.0.0-beta.26",
               "@effect/language-service": "^0.78.0",
-              "@effect/docgen": "https://pkg.pr.new/Effect-TS/docgen/@effect/docgen@e7fe055",
             },
           })}\n`
         );

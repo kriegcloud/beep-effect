@@ -11,7 +11,7 @@
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "tsc -b tsconfig.json",
     "test": "vitest run",
-    "docgen": "bunx @effect/docgen",
+    "docgen": "bun run ../../../tooling/docgen/docgen/src/bin.ts",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --write"
   },

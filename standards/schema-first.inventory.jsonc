@@ -1243,14 +1243,6 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/docgen/docgen/src/Process.ts",
-      "symbol": "ProcessShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/docgen",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
       "file": "tooling/repo-utils/src/FsUtils.ts",
       "symbol": "FsUtilsShape",
       "kind": "exported-interface",
