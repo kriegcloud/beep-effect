@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { UnitInterval } from "../internal/numbers.ts";
 
 const $I = $NlpId.create("Tools/BowCosineSimilarity");
 
@@ -32,7 +33,7 @@ class BowCosineSimilaritySuccess extends S.Class<BowCosineSimilaritySuccess>($I`
     method: S.Literal("bow.cosine").annotateKey({
       description: "The similarity method used",
     }),
-    score: S.Number.annotateKey({
+    score: UnitInterval.annotateKey({
       description: "Similarity score from 0 (unrelated) to 1 (identical)",
     }),
   },

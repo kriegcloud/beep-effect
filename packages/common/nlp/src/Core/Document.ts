@@ -7,9 +7,11 @@
 
 import { $NlpId } from "@beep/identity";
 import { NonNegativeInt } from "@beep/schema";
-import { Brand, Chunk } from "effect";
+import { Brand, Chunk, pipe } from "effect";
+import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import type * as O from "effect/Option";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Sentence, type SentenceIndex } from "./Sentence.ts";
@@ -116,7 +118,7 @@ export class Document extends S.Class<Document>($I`Document`)(
   static readonly getTokensInRange = dual(
     3,
     (document: Document, start: number, end: number): Chunk.Chunk<Token> =>
-      Chunk.filter(document.tokens, (token) => token.start >= start && token.end <= end)
+      Chunk.filter(document.tokens, (token) => token.start < end && token.end > start)
   );
 
   /**
@@ -132,7 +134,8 @@ export class Document extends S.Class<Document>($I`Document`)(
    */
   static readonly getTokenByIndex = dual(
     2,
-    (document: Document, index: TokenIndex): O.Option<Token> => Chunk.get(document.tokens, index)
+    (document: Document, index: TokenIndex): O.Option<Token> =>
+      A.findFirst(Chunk.toReadonlyArray(document.tokens), (token) => token.index === index)
   );
 
   /**
@@ -148,20 +151,53 @@ export class Document extends S.Class<Document>($I`Document`)(
    */
   static readonly getSentenceByIndex = dual(
     2,
-    (document: Document, index: SentenceIndex): O.Option<Sentence> => Chunk.get(document.sentences, index)
+    (document: Document, index: SentenceIndex): O.Option<Sentence> =>
+      A.findFirst(Chunk.toReadonlyArray(document.sentences), (sentence) => sentence.index === index)
   );
 
   /**
    * Filter the token collection.
    */
-  static readonly filterTokens = dual(
-    2,
-    (document: Document, predicate: (token: Token) => boolean): Document =>
-      new Document({
-        ...document,
-        tokens: Chunk.filter(document.tokens, predicate),
-      })
-  );
+  static readonly filterTokens = dual(2, (document: Document, predicate: (token: Token) => boolean): Document => {
+    const tokens = Chunk.filter(document.tokens, predicate);
+    const sentences = pipe(
+      Chunk.toReadonlyArray(document.sentences),
+      A.filterMap((sentence) => {
+        const filteredTokens = Chunk.filter(sentence.tokens, predicate);
+
+        return A.match(Chunk.toReadonlyArray(filteredTokens), {
+          onEmpty: () => Result.failVoid,
+          onNonEmpty: (sentenceTokens) => {
+            const [firstToken, ...remainingTokens] = sentenceTokens;
+            const lastToken = A.reduce(remainingTokens, firstToken, (_, token) => token);
+
+            return Result.succeed(
+              new Sentence({
+                end: lastToken.index,
+                importance: sentence.importance,
+                index: sentence.index,
+                markedUpText: sentence.markedUpText,
+                negationFlag: sentence.negationFlag,
+                sentiment: sentence.sentiment,
+                start: firstToken.index,
+                text: sentence.text,
+                tokens: Chunk.fromIterable(sentenceTokens),
+              })
+            );
+          },
+        });
+      }),
+      Chunk.fromIterable
+    );
+
+    return new Document({
+      id: document.id,
+      sentences,
+      sentiment: document.sentiment,
+      text: document.text,
+      tokens,
+    });
+  });
 
   /**
    * Extract token texts in order.

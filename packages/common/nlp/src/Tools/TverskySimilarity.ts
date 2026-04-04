@@ -6,17 +6,19 @@
  */
 
 import { $NlpId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { UnitInterval } from "../internal/numbers.ts";
 
 const $I = $NlpId.create("Tools/TverskySimilarity");
 
 class TverskySimilarityParameters extends S.Class<TverskySimilarityParameters>($I`TverskySimilarityParameters`)(
   {
-    alpha: S.optionalKey(S.Number.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1))).annotateKey({
+    alpha: SchemaUtils.withKeyDefaults(UnitInterval, 0.5).annotateKey({
       description: "Weight for terms present in text1 but absent in text2 (default: 0.5)",
     }),
-    beta: S.optionalKey(S.Number.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1))).annotateKey({
+    beta: SchemaUtils.withKeyDefaults(UnitInterval, 0.5).annotateKey({
       description: "Weight for terms present in text2 but absent in text1 (default: 0.5)",
     }),
     text1: S.String.annotateKey({
@@ -35,16 +37,16 @@ class TverskySimilarityParameters extends S.Class<TverskySimilarityParameters>($
 
 class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`TverskySimilaritySuccess`)(
   {
-    alpha: S.Number.annotateKey({
+    alpha: UnitInterval.annotateKey({
       description: "Applied alpha parameter",
     }),
-    beta: S.Number.annotateKey({
+    beta: UnitInterval.annotateKey({
       description: "Applied beta parameter",
     }),
     method: S.Literal("set.tversky").annotateKey({
       description: "The similarity method used",
     }),
-    score: S.Number.annotateKey({
+    score: UnitInterval.annotateKey({
       description: "Similarity score from 0 (no overlap) to 1 (identical sets)",
     }),
   },

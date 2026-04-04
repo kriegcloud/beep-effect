@@ -91,12 +91,12 @@ export class Sentence extends S.Class<Sentence>($I`Sentence`)(
   static readonly make = Sentence.makeUnsafe;
 
   /**
-   * Get tokens between two token offsets.
+   * Get tokens between two inclusive document token offsets.
    */
   static readonly getTokensInRange = dual(
     3,
     (sentence: Sentence, startIdx: number, endIdx: number): Chunk.Chunk<Token> =>
-      Chunk.take(Chunk.drop(sentence.tokens, startIdx), endIdx - startIdx)
+      Chunk.filter(sentence.tokens, (token) => token.index >= startIdx && token.index <= endIdx)
   );
 
   /**

@@ -13,6 +13,7 @@ import * as Inspectable from "effect/Inspectable";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { DocumentId } from "../Core/Document.ts";
+import { UnitInterval } from "../internal/numbers.ts";
 import type { BagOfWords, DocumentVector } from "./WinkVectorizer.ts";
 
 const $I = $NlpId.create("Wink/WinkSimilarity");
@@ -61,8 +62,8 @@ const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utiliti
  */
 export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
   {
-    alpha: S.Number.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)),
-    beta: S.Number.check(S.isGreaterThanOrEqualTo(0), S.isLessThanOrEqualTo(1)),
+    alpha: UnitInterval,
+    beta: UnitInterval,
   },
   $I.annote("TverskyParams", {
     description: "Weights used when computing the asymmetric Tversky set similarity.",
@@ -107,7 +108,7 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
     document2Id: DocumentId,
     method: SimilarityMethod,
     parameters: S.OptionFromOptionalKey(S.Record(S.String, S.Unknown)),
-    score: S.Number,
+    score: UnitInterval,
   },
   $I.annote("SimilarityScore", {
     description: "Similarity score comparing two document-like inputs.",
@@ -152,7 +153,21 @@ export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`Simila
   }
 }
 
-const sanitizeScore = (score: number): number => (Number.isFinite(score) ? score : 0);
+const sanitizeScore = (score: number): number => {
+  if (!Number.isFinite(score)) {
+    return 0;
+  }
+
+  if (score < 0) {
+    return 0;
+  }
+
+  if (score > 1) {
+    return 1;
+  }
+
+  return score;
+};
 
 const makeWinkSimilarity = Effect.gen(function* () {
   const similarity = yield* Effect.try({

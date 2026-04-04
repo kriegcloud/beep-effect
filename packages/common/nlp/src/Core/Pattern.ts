@@ -9,10 +9,17 @@ import { $NlpId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt, SchemaUtils } from "@beep/schema";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $NlpId.create("Core/Pattern");
 
 const EmptyPatternChoice = S.Literal("");
+const MeaningfulPatternOptionChoice = S.makeFilter((values: ReadonlyArray<string>) => A.some(values, Str.isNonEmpty), {
+  description: "Pattern options must include at least one non-empty choice.",
+  identifier: $I`MeaningfulPatternOptionChoice`,
+  message: "Pattern options must include at least one non-empty choice.",
+  title: "Meaningful Pattern Option Choice",
+});
 const WinkPOSTagKit = LiteralKit([
   "ADJ",
   "ADP",
@@ -93,19 +100,32 @@ export const WinkEntityType = WinkEntityTypeKit.pipe(
  */
 export type WinkEntityType = typeof WinkEntityType.Type;
 
+const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
+  (values: ReadonlyArray<string>) =>
+    A.some(values, (value) => Str.isNonEmpty(value) && !S.is(WinkPOSTag)(value) && !S.is(WinkEntityType)(value)),
+  {
+    description: "Literal pattern options must include at least one non-reserved literal choice.",
+    identifier: $I`DisambiguatedLiteralPatternOptionChoice`,
+    message: "Literal pattern options must include at least one non-reserved literal choice.",
+    title: "Disambiguated Literal Pattern Option Choice",
+  }
+);
+
 /**
  * POS alternatives for a single pattern position.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatternChoice])).pipe(
-  S.annotate(
-    $I.annote("POSPatternOption", {
-      description: "One or more POS tag alternatives for a pattern position.",
-    })
-  )
-);
+export const POSPatternOption = S.NonEmptyArray(S.Union([WinkPOSTag, EmptyPatternChoice]))
+  .check(MeaningfulPatternOptionChoice)
+  .pipe(
+    S.annotate(
+      $I.annote("POSPatternOption", {
+        description: "One or more POS tag alternatives for a pattern position.",
+      })
+    )
+  );
 
 /**
  * Runtime type for {@link POSPatternOption}.
@@ -121,13 +141,15 @@ export type POSPatternOption = typeof POSPatternOption.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, EmptyPatternChoice])).pipe(
-  S.annotate(
-    $I.annote("EntityPatternOption", {
-      description: "One or more entity-type alternatives for a pattern position.",
-    })
-  )
-);
+export const EntityPatternOption = S.NonEmptyArray(S.Union([WinkEntityType, EmptyPatternChoice]))
+  .check(MeaningfulPatternOptionChoice)
+  .pipe(
+    S.annotate(
+      $I.annote("EntityPatternOption", {
+        description: "One or more entity-type alternatives for a pattern position.",
+      })
+    )
+  );
 
 /**
  * Runtime type for {@link EntityPatternOption}.
@@ -143,13 +165,16 @@ export type EntityPatternOption = typeof EntityPatternOption.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const LiteralPatternOption = S.NonEmptyArray(S.Union([S.NonEmptyString, EmptyPatternChoice])).pipe(
-  S.annotate(
-    $I.annote("LiteralPatternOption", {
-      description: "One or more literal-text alternatives for a pattern position.",
-    })
-  )
-);
+export const LiteralPatternOption = S.NonEmptyArray(S.Union([S.NonEmptyString, EmptyPatternChoice]))
+  .check(MeaningfulPatternOptionChoice)
+  .check(DisambiguatedLiteralPatternOptionChoice)
+  .pipe(
+    S.annotate(
+      $I.annote("LiteralPatternOption", {
+        description: "One or more literal-text alternatives for a pattern position.",
+      })
+    )
+  );
 
 /**
  * Runtime type for {@link LiteralPatternOption}.

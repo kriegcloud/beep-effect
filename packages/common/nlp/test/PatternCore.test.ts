@@ -9,6 +9,7 @@ import {
   combine,
   composePatches,
   drop,
+  EntityPatternOption,
   elementAt,
   entity,
   filterElements,
@@ -17,6 +18,7 @@ import {
   hasMark,
   head,
   isEmpty,
+  LiteralPatternOption,
   last,
   length,
   literal,
@@ -26,6 +28,7 @@ import {
   optionalPos,
   Pattern,
   PatternFromString,
+  POSPatternOption,
   patchReplaceAllLiterals,
   patchReplaceLiteralAt,
   pos,
@@ -69,6 +72,7 @@ describe("Core Pattern", () => {
     expect(Chunk.isChunk(filterElements(extended, (item) => item._tag !== "LiteralPatternElement").elements)).toBe(
       true
     );
+    expect(hasMark(prependElements(withMark(base, [0, 1]), [literal("the")]))).toBe(false);
   });
 
   it("supports patch-based literal generalization", () => {
@@ -114,11 +118,24 @@ describe("Core Pattern", () => {
 
   it("parses mixed pattern strings in order", () => {
     const elements = PatternFromString(["[ADJ|NOUN]", "[DATE]", "[|the]"]);
+    const nounElement = PatternFromString(["[NOUN]"]);
 
     expect(elements).toHaveLength(3);
     expect(elements[0]?._tag).toBe("POSPatternElement");
     expect(elements[1]?._tag).toBe("EntityPatternElement");
     expect(elements[2]?._tag).toBe("LiteralPatternElement");
+    expect(nounElement[0]?._tag).toBe("POSPatternElement");
+  });
+
+  it("rejects all-empty pattern options at the schema boundary", () => {
+    expect(() => Schema.decodeUnknownSync(POSPatternOption)([""])).toThrow();
+    expect(() => Schema.decodeUnknownSync(EntityPatternOption)([""])).toThrow();
+    expect(() => Schema.decodeUnknownSync(LiteralPatternOption)([""])).toThrow();
+  });
+
+  it("rejects reserved literal choices that would collide with typed bracket syntax", () => {
+    expect(() => literal("DATE")).toThrow();
+    expect(() => Schema.decodeUnknownSync(BracketStringToLiteralPatternElement)("[DATE]")).toThrow();
   });
 
   it("supports Pattern schema helpers", () => {

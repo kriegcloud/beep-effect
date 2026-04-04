@@ -736,8 +736,8 @@ export const NlpToolkitLive: ReturnType<typeof NlpToolkit.toLayer> = NlpToolkit.
             tokenization.tokenize(text2),
           ]);
           const params = TverskyParams.makeUnsafe({
-            alpha: alpha ?? 0.5,
-            beta: beta ?? 0.5,
+            alpha,
+            beta,
           });
           const score = yield* similarity.setTversky(
             DocumentTermSet.makeUnsafe({

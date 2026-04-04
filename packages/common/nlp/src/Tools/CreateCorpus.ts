@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
+import { PositiveNumber, UnitInterval } from "../internal/numbers.ts";
 import { BM25Norm } from "../Wink/WinkVectorizer.ts";
 import { AiCorpusSummary } from "./_schemas.ts";
 
@@ -15,10 +16,18 @@ const $I = $NlpId.create("Tools/CreateCorpus");
 
 class CreateCorpusBM25Config extends S.Class<CreateCorpusBM25Config>($I`CreateCorpusBM25Config`)(
   {
-    b: S.optionalKey(S.Number),
-    k: S.optionalKey(S.Number),
-    k1: S.optionalKey(S.Number),
-    norm: S.optionalKey(BM25Norm),
+    b: S.optionalKey(UnitInterval).annotateKey({
+      description: "Document length normalization parameter in the inclusive range [0, 1].",
+    }),
+    k: S.optionalKey(PositiveNumber).annotateKey({
+      description: "Inverse-document-frequency saturation parameter. Must be greater than 0.",
+    }),
+    k1: S.optionalKey(PositiveNumber).annotateKey({
+      description: "Term-frequency saturation parameter. Must be greater than 0.",
+    }),
+    norm: S.optionalKey(BM25Norm).annotateKey({
+      description: "Optional vector normalization mode override.",
+    }),
   },
   $I.annote("CreateCorpusBM25Config", {
     description: "Optional BM25 overrides for a new corpus session.",

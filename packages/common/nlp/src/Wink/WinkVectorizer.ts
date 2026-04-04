@@ -17,6 +17,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { type Document, DocumentId } from "../Core/Document.ts";
 import type { Token } from "../Core/Token.ts";
+import { PositiveNumber, UnitInterval } from "../internal/numbers.ts";
 import { WinkEngine } from "./WinkEngine.ts";
 
 const $I = $NlpId.create("Wink/WinkVectorizer");
@@ -131,9 +132,9 @@ const decodeTermFrequencyPairs = (
  */
 export class BM25Config extends S.Class<BM25Config>($I`BM25Config`)(
   {
-    b: S.Number,
-    k: S.Number,
-    k1: S.Number,
+    b: UnitInterval,
+    k: PositiveNumber,
+    k1: PositiveNumber,
     norm: BM25Norm,
   },
   $I.annote("BM25Config", {

@@ -6,18 +6,20 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { Effect, SchemaGetter, SchemaIssue } from "effect";
-import * as A from "effect/Array";
+import { Effect, Match, SchemaGetter, SchemaIssue } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import {
   EntityPatternElement,
+  EntityPatternOption,
   LiteralPatternElement,
+  LiteralPatternOption,
   Pattern,
+  PatternElement,
+  type PatternElement as PatternElementType,
   POSPatternElement,
-  WinkEntityType,
-  WinkPOSTag,
+  POSPatternOption,
 } from "./Pattern.ts";
 
 const $I = $NlpId.create("Core/PatternParsers");
@@ -45,38 +47,52 @@ const parseBracketValues = (input: string): O.Option<NonEmptyChoices<string>> =>
   return ensureNonEmpty(Str.split(content, "|"));
 };
 
-const hasMeaningfulChoice = (values: ReadonlyArray<string>): boolean => A.some(values, (value) => value !== "");
-
-const isPOSChoice = (part: string): part is WinkPOSTag | "" => part === "" || S.is(WinkPOSTag)(part);
-
-const isPOSChoices = (parts: NonEmptyChoices<string>): parts is NonEmptyChoices<WinkPOSTag | ""> =>
-  A.every(parts, isPOSChoice);
-
-const isEntityChoice = (part: string): part is WinkEntityType | "" => part === "" || S.is(WinkEntityType)(part);
-
-const isEntityChoices = (parts: NonEmptyChoices<string>): parts is NonEmptyChoices<WinkEntityType | ""> =>
-  A.every(parts, isEntityChoice);
-
-const hasNonBlankLiteralChoices = (parts: NonEmptyChoices<string>): boolean =>
-  A.every(parts, (part) => part === "" || Str.isNonEmpty(Str.trim(part))) && hasMeaningfulChoice(parts);
-
 const decodePOSPatternElement = (input: string): O.Option<POSPatternElement> =>
   O.map(
-    O.filter(O.filter(parseBracketValues(input), isPOSChoices), hasMeaningfulChoice),
+    O.filter(parseBracketValues(input), S.is(POSPatternOption)),
     (parts) => new POSPatternElement({ value: parts })
   );
 
 const decodeEntityPatternElement = (input: string): O.Option<EntityPatternElement> =>
   O.map(
-    O.filter(O.filter(parseBracketValues(input), isEntityChoices), hasMeaningfulChoice),
+    O.filter(parseBracketValues(input), S.is(EntityPatternOption)),
     (parts) => new EntityPatternElement({ value: parts })
   );
 
 const decodeLiteralPatternElement = (input: string): O.Option<LiteralPatternElement> =>
   O.map(
-    O.filter(parseBracketValues(input), hasNonBlankLiteralChoices),
+    O.filter(parseBracketValues(input), S.is(LiteralPatternOption)),
     (parts) => new LiteralPatternElement({ value: parts })
   );
+
+const encodePatternElement = Match.type<PatternElementType>().pipe(
+  Match.tagsExhaustive({
+    EntityPatternElement: (element) => Pattern.Entity.toBracketString(element.value),
+    LiteralPatternElement: (element) => Pattern.Literal.toBracketString(element.value),
+    POSPatternElement: (element) => Pattern.POS.toBracketString(element.value),
+  })
+);
+
+const decodePatternElement = (input: string): Effect.Effect<PatternElementType, SchemaIssue.InvalidValue> => {
+  return O.match(decodePOSPatternElement(input), {
+    onNone: () =>
+      O.match(decodeEntityPatternElement(input), {
+        onNone: () =>
+          O.match(decodeLiteralPatternElement(input), {
+            onNone: () =>
+              Effect.fail(
+                invalidBracketString(
+                  input,
+                  "Pattern element must be bracketed and contain valid POS, entity, or non-empty literal choices."
+                )
+              ),
+            onSome: Effect.succeed,
+          }),
+        onSome: Effect.succeed,
+      }),
+    onSome: Effect.succeed,
+  });
+};
 
 /**
  * Decode a POS bracket string into a pattern element.
@@ -160,11 +176,17 @@ export const BracketStringToLiteralPatternElement = S.String.pipe(
  * @since 0.0.0
  * @category Validation
  */
-export const BracketStringToPatternElement = S.Union([
-  BracketStringToPOSPatternElement,
-  BracketStringToEntityPatternElement,
-  BracketStringToLiteralPatternElement,
-]);
+export const BracketStringToPatternElement = S.String.pipe(
+  S.decodeTo(PatternElement, {
+    decode: SchemaGetter.transformOrFail(decodePatternElement),
+    encode: SchemaGetter.transform(encodePatternElement),
+  }),
+  S.annotate(
+    $I.annote("BracketStringToPatternElement", {
+      description: "Decoder for bracket strings that resolve to exactly one supported pattern element variant.",
+    })
+  )
+);
 
 /**
  * Runtime type for {@link BracketStringToPatternElement}.

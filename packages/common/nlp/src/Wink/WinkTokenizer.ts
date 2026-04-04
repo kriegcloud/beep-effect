@@ -5,22 +5,31 @@
  * @module @beep/nlp/Wink/WinkTokenizer
  */
 
-import { Chunk, Clock, Effect, Layer } from "effect";
+import { Chunk, Clock, Effect, Layer, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import type { ItemSentence, ItemToken, ItsHelpers, Document as WinkDocument } from "wink-nlp";
 import { Document, DocumentId } from "../Core/Document.ts";
 import { Sentence, SentenceIndex } from "../Core/Sentence.ts";
 import { CharPosition, Token, TokenIndex } from "../Core/Token.ts";
 import { Tokenization, TokenizationError } from "../Core/Tokenization.ts";
 import { WinkEngine, WinkEngineLive } from "./WinkEngine.ts";
-import type { WinkEngineError, WinkTokenizationError } from "./WinkErrors.ts";
 
 const makeTokenizationError =
   (operation: string) =>
-  (cause: WinkEngineError | WinkTokenizationError): TokenizationError =>
+  (cause: unknown): TokenizationError =>
     new TokenizationError({ cause, operation });
+
+type SentenceSpanFailure = {
+  readonly _tag: "SentenceSpanFailure";
+  readonly reason: string;
+  readonly sentenceIndex: number;
+  readonly sentenceText: string;
+};
+
+const decodeDocumentIdOption = S.decodeUnknownOption(DocumentId);
 
 const isSpan = (value: unknown): value is readonly [number, number] =>
   A.isArray(value) && value.length >= 2 && P.isNumber(value[0]) && P.isNumber(value[1]);
@@ -30,9 +39,49 @@ const getSentenceSpan = (sentence: ItemSentence, its: ItsHelpers): readonly [num
   return isSpan(span) ? [span[0], span[1]] : undefined;
 };
 
+const countSentenceTokens = (sentence: ItemSentence): number => {
+  let count = 0;
+
+  sentence.tokens().each(() => {
+    count += 1;
+  });
+
+  return count;
+};
+
+const deriveSequentialSentenceSpan = (
+  sentence: ItemSentence,
+  nextTokenStart: number,
+  totalTokenCount: number
+): O.Option<readonly [number, number]> => {
+  const sentenceTokenCount = countSentenceTokens(sentence);
+
+  if (sentenceTokenCount <= 0) {
+    return O.none();
+  }
+
+  const end = nextTokenStart + sentenceTokenCount - 1;
+  return end >= totalTokenCount ? O.none() : O.some([nextTokenStart, end] as const);
+};
+
+const resolveSentenceSpan = (
+  sentence: ItemSentence,
+  its: ItsHelpers,
+  nextTokenStart: number,
+  totalTokenCount: number
+): O.Option<readonly [number, number]> =>
+  pipe(
+    (() => {
+      const span = getSentenceSpan(sentence, its);
+      return span === undefined ? O.none() : O.some(span);
+    })(),
+    O.filter(([start, end]) => start >= 0 && end >= start && end < totalTokenCount),
+    O.orElse(() => deriveSequentialSentenceSpan(sentence, nextTokenStart, totalTokenCount))
+  );
+
 const tryOut = (token: ItemToken, itsFunction: unknown): unknown => {
   try {
-    return token.out(itsFunction as never);
+    return Reflect.apply(token.out, token, [itsFunction]);
   } catch {
     return undefined;
   }
@@ -101,34 +150,70 @@ const collectTokens = (doc: WinkDocument, its: ItsHelpers): Chunk.Chunk<Token> =
   return Chunk.fromIterable(tokens);
 };
 
-const collectSentences = (doc: WinkDocument, tokens: Chunk.Chunk<Token>, its: ItsHelpers): Chunk.Chunk<Sentence> => {
+const collectSentences = (
+  doc: WinkDocument,
+  tokens: Chunk.Chunk<Token>,
+  its: ItsHelpers
+): Effect.Effect<Chunk.Chunk<Sentence>, SentenceSpanFailure> => {
   const tokenArray = Chunk.toReadonlyArray(tokens);
   const sentences: Array<Sentence> = [];
+  let failure: O.Option<SentenceSpanFailure> = O.none();
+  let nextTokenStart = 0;
 
   doc.sentences().each((sentence, index) => {
-    const [rawStart, rawEnd] = getSentenceSpan(sentence, its) ?? [0, Math.max(tokenArray.length - 1, 0)];
-    const safeStart = Math.max(0, Math.min(rawStart, tokenArray.length === 0 ? 0 : tokenArray.length - 1));
-    const safeEnd = Math.max(safeStart, Math.min(rawEnd, tokenArray.length === 0 ? 0 : tokenArray.length - 1));
-    const sentenceTokens = tokenArray.slice(safeStart, safeEnd + 1);
+    if (O.isSome(failure)) {
+      return;
+    }
+
+    const resolvedSpan = resolveSentenceSpan(sentence, its, nextTokenStart, tokenArray.length);
+
+    if (O.isNone(resolvedSpan)) {
+      failure = O.some({
+        _tag: "SentenceSpanFailure",
+        reason: "Unable to derive a stable sentence token span.",
+        sentenceIndex: index,
+        sentenceText: sentence.out(),
+      });
+      return;
+    }
+
+    const [safeStart, safeEnd] = resolvedSpan.value;
+    const sentenceTokens = pipe(tokenArray, A.drop(safeStart), A.take(safeEnd - safeStart + 1));
     const firstToken = sentenceTokens[0];
-    const lastToken = sentenceTokens[sentenceTokens.length - 1];
+
+    if (firstToken === undefined) {
+      failure = O.some({
+        _tag: "SentenceSpanFailure",
+        reason: "Resolved sentence span produced no tokens.",
+        sentenceIndex: index,
+        sentenceText: sentence.out(),
+      });
+      return;
+    }
+
+    const lastToken = A.reduce(sentenceTokens, firstToken, (_, token) => token);
 
     sentences.push(
       Sentence.makeUnsafe({
-        end: lastToken?.index ?? TokenIndex.makeUnsafe(0),
+        end: lastToken.index,
         importance: O.none(),
         index: SentenceIndex.makeUnsafe(index),
         markedUpText: O.none(),
         negationFlag: O.none(),
         sentiment: O.none(),
-        start: firstToken?.index ?? TokenIndex.makeUnsafe(0),
+        start: firstToken.index,
         text: sentence.out(),
         tokens: Chunk.fromIterable(sentenceTokens),
       })
     );
+
+    nextTokenStart = safeEnd + 1;
   });
 
-  return Chunk.fromIterable(sentences);
+  return O.match(failure, {
+    onNone: () => Effect.succeed(Chunk.fromIterable(sentences)),
+    onSome: Effect.fail,
+  });
 };
 
 const buildDocument = (
@@ -150,24 +235,52 @@ const buildDocument = (
   });
 };
 
+const resolveDocumentId = (
+  rawId: DocumentId | string,
+  operation: string
+): Effect.Effect<DocumentId, TokenizationError> =>
+  O.match(decodeDocumentIdOption(rawId), {
+    onNone: () =>
+      Effect.fail(
+        new TokenizationError({
+          cause: {
+            input: rawId,
+            reason: "Document ids must be non-empty strings.",
+          },
+          operation,
+        })
+      ),
+    onSome: Effect.succeed,
+  });
+
 const makeWinkTokenization = Effect.gen(function* () {
   const engine = yield* WinkEngine;
+  const documentIdCounterRef = yield* Ref.make(0);
+
+  const allocateDocumentId = Ref.updateAndGet(documentIdCounterRef, (current) => current + 1).pipe(
+    Effect.flatMap((counter) => Clock.currentTimeMillis.pipe(Effect.map((nowMs) => `doc-${nowMs}-${counter}`)))
+  );
 
   return Tokenization.of({
     document: Effect.fn("Nlp.Wink.WinkTokenizer.document")(function* (text: string, id?: DocumentId | string) {
       const doc = yield* engine.getWinkDoc(text).pipe(Effect.mapError(makeTokenizationError("document")));
       const its = yield* engine.its.pipe(Effect.mapError(makeTokenizationError("document")));
-      const timestamp = yield* Clock.currentTimeMillis;
       const tokens = collectTokens(doc, its);
-      const sentences = collectSentences(doc, tokens, its);
-      const documentId = id === undefined ? DocumentId.makeUnsafe(`doc-${timestamp}`) : DocumentId.makeUnsafe(id);
+      const sentences = yield* collectSentences(doc, tokens, its).pipe(
+        Effect.mapError(makeTokenizationError("document"))
+      );
+      const rawDocumentId = id === undefined ? yield* allocateDocumentId : id;
+      const documentId = yield* resolveDocumentId(rawDocumentId, "document");
       return buildDocument(text, documentId, tokens, sentences, doc, its);
     }),
     sentences: Effect.fn("Nlp.Wink.WinkTokenizer.sentences")(function* (text: string) {
       const doc = yield* engine.getWinkDoc(text).pipe(Effect.mapError(makeTokenizationError("sentences")));
       const its = yield* engine.its.pipe(Effect.mapError(makeTokenizationError("sentences")));
       const tokens = collectTokens(doc, its);
-      return Chunk.toReadonlyArray(collectSentences(doc, tokens, its));
+      return yield* collectSentences(doc, tokens, its).pipe(
+        Effect.map(Chunk.toReadonlyArray),
+        Effect.mapError(makeTokenizationError("sentences"))
+      );
     }),
     tokenCount: Effect.fn("Nlp.Wink.WinkTokenizer.tokenCount")(function* (text: string) {
       return yield* engine.getWinkTokenCount(text).pipe(Effect.mapError(makeTokenizationError("tokenCount")));

@@ -66,7 +66,7 @@ const rebuildPattern = (pattern: Pattern, changes: Partial<Pick<Pattern, "elemen
   new Pattern({
     elements: changes.elements ?? pattern.elements,
     id: changes.id ?? pattern.id,
-    mark: changes.mark ?? pattern.mark,
+    mark: changes.mark ?? (changes.elements === undefined ? pattern.mark : O.none()),
   });
 
 const isLiteralElement = (element: PatternElement): element is LiteralPatternElement =>

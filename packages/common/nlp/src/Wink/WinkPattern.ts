@@ -158,7 +158,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
             : Result.succeed(
                 new CustomEntityExample({
                   mark: pattern.mark,
-                  name: pattern.id,
+                  name: groupName,
                   patterns: [head, ...tail],
                 })
               );
