@@ -163,6 +163,10 @@
       "name": "@beep/editor-app",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/editor-client": "workspace:^",
+        "@beep/editor-lexical": "workspace:^",
+        "@beep/editor-protocol": "workspace:^",
+        "@beep/schema": "workspace:^",
         "@effect/platform-bun": "catalog:",
         "@tanstack/react-router": "catalog:",
         "@tauri-apps/api": "catalog:",
