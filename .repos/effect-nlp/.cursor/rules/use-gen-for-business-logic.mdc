@@ -1,0 +1,13 @@
+---
+description: "Use Effect.gen for business logic."
+globs:
+alwaysApply: false
+---
+
+- Title: Use Effect.gen for Business Logic
+- Id: use-gen-for-business-logic
+- Skill Level: intermediate
+- Use Cases: Domain Modeling
+- Tags: generators, business-logic, control-flow, readability
+
+@content/published/use-gen-for-business-logic.mdx

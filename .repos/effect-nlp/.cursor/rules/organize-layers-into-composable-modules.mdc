@@ -1,0 +1,13 @@
+---
+description: "Organize services into modular Layers that are composed hierarchically to manage complexity in large applications."
+globs:
+alwaysApply: false
+---
+
+- Title: Organize Layers into Composable Modules
+- Id: organize-layers-into-composable-modules
+- Skill Level: advanced
+- Use Cases: Testing
+- Tags: layer, dependency-injection, architecture, modules, composition, scalability
+
+@content/published/organize-layers-into-composable-modules.mdx

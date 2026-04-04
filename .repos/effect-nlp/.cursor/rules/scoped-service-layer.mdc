@@ -1,0 +1,13 @@
+---
+description: "Provide a managed resource to the application context using `Layer.scoped`."
+globs:
+alwaysApply: false
+---
+
+- Title: Create a Service Layer from a Managed Resource
+- Id: scoped-service-layer
+- Skill Level: intermediate
+- Use Cases: Resource Management, Dependency Injection, Application Architecture
+- Tags: resource, layer, scope, service, dependency-injection, context, acquire-release
+
+@content/published/scoped-service-layer.mdx

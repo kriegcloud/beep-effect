@@ -1,0 +1,13 @@
+---
+description: "Execute synchronous effects with Effect.runSync."
+globs:
+alwaysApply: false
+---
+
+- Title: Execute Synchronous Effects with Effect.runSync
+- Id: execute-with-runsync
+- Skill Level: beginner
+- Use Cases: Project Setup & Execution
+- Tags: execution, runtime, sync, end-of-world
+
+@content/published/execute-with-runsync.mdx

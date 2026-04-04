@@ -1,0 +1,13 @@
+---
+description: "Use conditional combinators for control flow."
+globs:
+alwaysApply: false
+---
+
+- Title: Control Flow with Conditional Combinators
+- Id: control-flow-with-combinators
+- Skill Level: intermediate
+- Use Cases: Core Concepts
+- Tags: control-flow, conditional, if, when, cond, declarative
+
+@content/published/control-flow-with-combinators.mdx

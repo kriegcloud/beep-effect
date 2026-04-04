@@ -1,0 +1,13 @@
+---
+description: "Use Effect<Option<A>> to distinguish between recoverable 'not found' cases and actual failures."
+globs:
+alwaysApply: false
+---
+
+- Title: Distinguish 'Not Found' from Errors
+- Id: distinguish-not-found-from-errors
+- Skill Level: intermediate
+- Use Cases: Error Management, Domain Modeling
+- Tags: option, error-management, not-found, effect, composition, data
+
+@content/published/distinguish-not-found-from-errors.mdx

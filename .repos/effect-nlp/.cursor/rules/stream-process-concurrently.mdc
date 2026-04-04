@@ -1,0 +1,13 @@
+---
+description: "Use Stream.mapEffect with the `concurrency` option to process stream items in parallel."
+globs:
+alwaysApply: false
+---
+
+- Title: Process Items Concurrently
+- Id: stream-process-concurrently
+- Skill Level: intermediate
+- Use Cases: Building Data Pipelines
+- Tags: stream, concurrency, performance, mapEffect, parallelism
+
+@content/published/stream-process-concurrently.mdx

@@ -1,0 +1,13 @@
+---
+description: "Transform Effect values with map and flatMap."
+globs:
+alwaysApply: false
+---
+
+- Title: Transform Effect Values with map and flatMap
+- Id: transform-effect-values
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: map, flatMap, composition, transformation, chaining
+
+@content/published/transform-effect-values.mdx

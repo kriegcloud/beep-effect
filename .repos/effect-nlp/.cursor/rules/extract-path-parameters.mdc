@@ -1,0 +1,13 @@
+---
+description: "Define routes with colon-prefixed parameters (e.g., /users/:id) and access their values within the handler."
+globs:
+alwaysApply: false
+---
+
+- Title: Extract Path Parameters
+- Id: extract-path-parameters
+- Skill Level: beginner
+- Use Cases: Building APIs
+- Tags: http, server, routing, parameters, api
+
+@content/published/extract-path-parameters.mdx

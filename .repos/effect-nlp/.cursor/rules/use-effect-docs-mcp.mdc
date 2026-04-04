@@ -1,0 +1,19 @@
+---
+alwaysApply: true
+---
+
+# Always Check Effect Documentation for Idiomatic Solutions
+
+## Guideline
+
+Before implementing any functionality, consult the Effect documentation to identify the most idiomatic Effect-based solution. Effect provides a rich ecosystem of interfaces, combinators, and patterns that are designed to work together seamlessly. Use effect_docs mcp to get the most up-to-date information.
+
+## Rationale
+
+Effect is a comprehensive ecosystem that provides well-designed, type-safe solutions for common programming patterns. Using Effect's built-in solutions offers several advantages:
+
+1. **Ecosystem Integration**: Effect's components are designed to work together, providing seamless composition and interoperability.
+2. **Type Safety**: Effect's APIs are carefully typed to catch errors at compile time.
+3. **Resource Safety**: Effect's resource management ensures proper cleanup and handling of resources.
+4. **Testability**: Effect's design makes testing straightforward with built-in test helpers and mocking capabilities.
+5. **Performance**: Effect's implementations are optimized for both runtime performance and memory usage.

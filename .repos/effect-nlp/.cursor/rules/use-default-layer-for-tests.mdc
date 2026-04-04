@@ -1,0 +1,13 @@
+---
+description: "Use the auto-generated .Default layer in tests."
+globs:
+alwaysApply: false
+---
+
+- Title: Use the Auto-Generated .Default Layer in Tests
+- Id: use-default-layer-for-tests
+- Skill Level: intermediate
+- Use Cases: Testing
+- Tags: testing, service, layers, dependency-injection
+
+@content/published/use-default-layer-for-tests.mdx

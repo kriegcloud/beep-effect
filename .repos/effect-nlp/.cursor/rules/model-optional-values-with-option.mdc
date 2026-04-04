@@ -1,0 +1,13 @@
+---
+description: "Use Option<A> to explicitly model values that may be absent, avoiding null or undefined."
+globs:
+alwaysApply: false
+---
+
+- Title: Model Optional Values Safely with Option
+- Id: model-optional-values-with-option
+- Skill Level: intermediate
+- Use Cases: Domain Modeling, Error Management
+- Tags: option, optional-values, null-handling, domain-modeling, type-safety, data
+
+@content/published/model-optional-values-with-option.mdx

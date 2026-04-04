@@ -1,0 +1,13 @@
+---
+description: "Use Effect.race to run a repeating polling task that is automatically interrupted when a main task completes."
+globs:
+alwaysApply: false
+---
+
+- Title: Poll for Status Until a Task Completes
+- Id: poll-for-status-until-task-completes
+- Skill Level: advanced
+- Use Cases: Concurrency
+- Tags: polling, repeat, race, concurrency, schedule, long-running-task
+
+@content/published/poll-for-status-until-task-completes.mdx

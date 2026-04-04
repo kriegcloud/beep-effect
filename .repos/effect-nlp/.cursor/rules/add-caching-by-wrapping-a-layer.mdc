@@ -1,0 +1,13 @@
+---
+description: "Use a wrapping Layer to add cross-cutting concerns like caching to a service without altering its original implementation."
+globs:
+alwaysApply: false
+---
+
+- Title: Add Caching by Wrapping a Layer
+- Id: add-caching-by-wrapping-a-layer
+- Skill Level: advanced
+- Use Cases: Making HTTP Requests, Concurrency
+- Tags: caching, wrapper, layer, dependency-injection, architecture, performance
+
+@content/published/add-caching-by-wrapping-a-layer.mdx

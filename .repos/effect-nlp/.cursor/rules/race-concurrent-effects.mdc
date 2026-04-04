@@ -1,0 +1,13 @@
+---
+description: "Use Effect.race to get the result from the first of several effects to succeed, automatically interrupting the losers."
+globs:
+alwaysApply: false
+---
+
+- Title: Race Concurrent Effects for the Fastest Result
+- Id: race-concurrent-effects
+- Skill Level: intermediate
+- Use Cases: Concurrency
+- Tags: concurrency, race, performance, timeout, fallback
+
+@content/published/race-concurrent-effects.mdx

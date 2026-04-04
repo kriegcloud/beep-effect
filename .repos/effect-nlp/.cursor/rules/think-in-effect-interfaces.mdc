@@ -1,0 +1,448 @@
+---
+alwaysApply: true
+---
+
+# Think in Effect Interfaces
+
+## Guideline
+
+When working with Effect, always think in terms of Effect's native interfaces and modules rather than standard JavaScript/TypeScript patterns. Effect provides a comprehensive ecosystem of functional programming primitives that should be your first choice for any operation. Utilize effect_docs mcp to find the best effect interface for any operation.
+
+## Core Principle
+
+Effect is not just a library for managing side effects - it's a complete functional programming ecosystem. Every common operation has an Effect-native equivalent that provides better type safety, composability, and integration with the Effect runtime.
+
+## Native Modules to Leverage
+
+### Core Effect Operations
+
+- **Effect**: Use `Effect.succeed`, `Effect.fail`, `Effect.gen`, `Effect.pipe` for all computations
+- **Exit**: Handle success/failure with `Exit.succeed`, `Exit.fail`, `Exit.die` for explicit exit handling
+- **Cause**: Model failure reasons with `Cause.fail`, `Cause.die`, `Cause.interrupt` for detailed error tracking
+- **Fiber**: Manage concurrent computations with `Fiber.join`, `Fiber.interrupt`, `Fiber.status`
+
+### Data Transformation & Manipulation
+
+- **Array**: Use `Array.map`, `Array.filter`, `Array.reduce` instead of native array methods for better composition
+- **String**: Leverage `String.split`, `String.trim`, `String.startsWith` for string operations
+- **Boolean**: Use `Boolean.and`, `Boolean.or`, `Boolean.not` for logical operations
+- **Predicates**: Build composable predicates with `Predicate.and`, `Predicate.or`, `Predicate.not`
+- **Number**: Use `Number.add`, `Number.multiply`, `Number.compare` for numeric operations
+- **BigInt**: Handle large integers with `BigInt.add`, `BigInt.multiply`, `BigInt.compare`
+- **BigDecimal**: Use `BigDecimal.add`, `BigDecimal.multiply` for precise decimal arithmetic
+
+### Functional Composition
+
+- **Pipe**: Always use `pipe()` for data transformation pipelines
+- **Function**: Utilize `Function.flip`, `Function.compose`, `Function.identity` for function manipulation
+- **Pipeable**: Create pipeable APIs with `Pipeable.pipe` for custom operators
+- **Match**: Use `Match.value`, `Match.type`, `Match.tag` for pattern matching
+- **Tuple**: Work with tuples using `Tuple.make`, `Tuple.get`, `Tuple.map`
+
+### Data Modeling & Validation
+
+- **Option**: Model optional values with `Option.some`, `Option.none`, `Option.map`
+- **Either**: Handle validation and error accumulation with `Either.left`, `Either.right`
+- **Schema**: Define contracts and validation with `Schema.struct`, `Schema.array`, `Schema.string`
+- **Brand**: Create validated domain types with `Brand.nominal`
+- **TaggedError**: Define structured errors with `Data.TaggedError`
+- **ParseResult**: Handle parsing results with `ParseResult.success`, `ParseResult.failure`
+
+### Collections & Iteration
+
+- **Iterable**: Work with iterables using `Iterable.map`, `Iterable.filter`, `Iterable.reduce`
+- **Chunk**: Use `Chunk` for high-performance immutable collections
+- **HashMap**: Leverage `HashMap` for efficient key-value operations
+- **HashSet**: Use `HashSet` for efficient set operations
+- **List**: Use `List` for linked list operations with `List.cons`, `List.head`, `List.tail`
+- **SortedMap**: Use `SortedMap` for ordered key-value collections
+- **SortedSet**: Use `SortedSet` for ordered unique collections
+- **RedBlackTree**: Use `RedBlackTree` for balanced tree structures
+
+### Concurrency & Asynchrony
+
+- **Channel**: Use `Channel` for producer-consumer patterns with `Channel.write`, `Channel.read`
+- **Queue**: Use `Queue` for point-to-point messaging with `Queue.offer`, `Queue.take`
+- **PubSub**: Use `PubSub` for broadcast messaging with `PubSub.publish`, `PubSub.subscribe`
+- **Deferred**: Use `Deferred` for one-shot promises with `Deferred.succeed`, `Deferred.fail`
+- **Ref**: Use `Ref` for shared mutable state with `Ref.get`, `Ref.set`, `Ref.update`
+- **STM**: Use `STM` for transactional memory operations
+
+### Stream Processing
+
+- **Stream**: Use `Stream` for data processing pipelines with `Stream.map`, `Stream.filter`, `Stream.merge`
+- **Sink**: Use `Sink` for stream consumers with `Sink.fold`, `Sink.collect`
+- **Streamable**: Use `Streamable` for creating streams from various sources
+- **Take**: Use `Take` for stream elements with `Take.value`, `Take.end`, `Take.fail`
+
+### Serialization & Encoding
+
+- **Encoding**: Handle text encoding with `Encoding.encodeUtf8`, `Encoding.decodeUtf8`
+- **Serializable**: Make data serializable with `Serializable.serialize`
+- **JSON**: Parse and stringify with `JSON.parse`, `JSON.stringify` (Effect versions)
+- **JSONSchema**: Define JSON schemas with `JSONSchema.object`, `JSONSchema.array`
+
+### Comparison & Equality
+
+- **Equivalence**: Define custom equality with `Equivalence.make`
+- **Equal**: Use structural equality with `Equal.equals`
+- **Order**: Define ordering with `Order.make` for sorting operations
+- **Ordering**: Use `Ordering.less`, `Ordering.equal`, `Ordering.greater` for comparisons
+
+### Refinements & Validation
+
+- **Refinement**: Create type refinements with `Refinement.fromPredicate`
+- **Guard**: Build type guards with `Guard.is`
+- **Hash**: Generate hashes with `Hash.string`, `Hash.number`, `Hash.combine`
+
+### Time & Scheduling
+
+- **DateTime**: Handle dates with `DateTime.now`, `DateTime.format`
+- **Duration**: Represent time spans with `Duration.seconds`, `Duration.minutes`
+- **Schedule**: Control repetition with `Schedule.exponential`, `Schedule.fixed`
+- **Clock**: Access time with `Clock.currentTimeMillis`, `Clock.nanoTime`
+- **Cron**: Use `Cron` for time-based scheduling with `Cron.parse`, `Cron.next`
+
+### Resource Management
+
+- **Scope**: Use `Scope` for resource lifecycle management with `Scope.addFinalizer`
+- **Resource**: Use `Resource` for acquire/release patterns with `Resource.acquireRelease`
+- **Pool**: Use `Pool` for resource pooling with `Pool.get`, `Pool.release`
+- **KeyedPool**: Use `KeyedPool` for keyed resource pools
+
+### Error Handling & Recovery
+
+- **Request**: Use `Request` for typed error handling with `Request.fail`, `Request.succeed`
+- **RequestResolver**: Use `RequestResolver` for request resolution strategies
+- **Retry**: Use `Effect.retry` with `Schedule` for retry policies
+- **Timeout**: Use `Effect.timeout` for operation timeouts
+- **Race**: Use `Effect.race` for competing operations
+
+### Data Operations
+
+- **Merging**: Combine data structures with appropriate merge strategies
+- **Folding**: Reduce collections with `fold` operations
+- **Diffing**: Compare data structures with `Diff.make`
+- **GroupBy**: Group data with `GroupBy.by` for categorization
+- **Trie**: Use `Trie` for prefix-based data structures
+
+### Debugging & Inspection
+
+- **Inspectable**: Create string representations with `Inspectable.toStringUnknown`
+- **Pretty**: Format output with `Pretty.pretty`
+- **Debug**: Use `Effect.log` and structured logging for debugging
+- **Tracer**: Use `Tracer` for distributed tracing with `Tracer.span`
+
+### Architecture & Dependencies
+
+- **Context**: Model dependencies with `Context.Tag` and `Context.make`
+- **Layer**: Provide dependencies with `Layer.succeed`, `Layer.scoped`
+- **Service**: Define services with `Effect.Service`
+- **ManagedRuntime**: Use `ManagedRuntime` for managed application lifecycles
+- **Runtime**: Use `Runtime` for custom runtime configurations
+
+### Testing & Development
+
+- **TestClock**: Use `TestClock` for deterministic time-based testing
+- **TestContext**: Use `TestContext` for test-specific services
+- **TestLive**: Use `TestLive` for live service testing
+- **FastCheck**: Use `FastCheck` for property-based testing
+
+### Advanced Patterns
+
+- **ExecutionPlan**: Use `ExecutionPlan` for complex workflow orchestration
+- **ExecutionStrategy**: Use `ExecutionStrategy` for execution optimization
+- **MergeStrategy**: Use `MergeStrategy` for data merging policies
+- **UpstreamPullStrategy**: Use `UpstreamPullStrategy` for stream backpressure handling
+
+## Complex Workflows
+
+### Execution Plans for NLP Flows
+
+For complex natural language processing workflows, model your execution plan as a composition of Effects:
+
+```typescript
+// Example: Document processing pipeline
+const processDocument = pipe(
+  Stream.fromFile(filePath),
+  Stream.mapEffect(parseDocument),
+  Stream.mapEffect(extractEntities),
+  Stream.mapEffect(classifyContent),
+  Stream.runCollect
+);
+```
+
+### Concurrent Processing Patterns
+
+Use Effect's concurrency primitives for efficient parallel processing:
+
+```typescript
+// Example: Parallel API calls with bounded concurrency
+const fetchUserData = pipe(
+  userIds,
+  Effect.forEach((id) => apiClient.getUser(id), { concurrency: 10 })
+);
+```
+
+### Resource Management Patterns
+
+Leverage Effect's resource management for safe operations:
+
+```typescript
+// Example: Database connection management
+const withDatabase = pipe(
+  Database.connect(config),
+  Effect.scoped,
+  Effect.map((db) => new UserRepository(db))
+);
+```
+
+## Best Practices
+
+1. **Always use Effect-native operations** instead of JavaScript/TypeScript built-ins
+2. **Prefer pipe() composition** over method chaining for better readability
+3. **Use Effect.gen** for complex sequential operations
+4. **Leverage the type system** with Schema validation and Brand types
+5. **Model errors explicitly** with TaggedError and Either types
+6. **Use Layer composition** for dependency injection and testing
+7. **Prefer immutable data structures** like Chunk, HashMap, and HashSet
+8. **Use structured logging** with Effect.log for observability
+9. **Implement graceful shutdown** with Effect.runFork and signal handlers
+10. **Test with Effect's test utilities** for deterministic, fast tests
+
+## Migration Guide
+
+When converting existing code to Effect:
+
+1. Replace `Promise` with `Effect`
+2. Replace `async/await` with `Effect.gen`
+3. Replace `try/catch` with `Effect.catchAll` or `Effect.catchTag`
+4. Replace `Array` methods with `Chunk` operations
+5. Replace `Map`/`Set` with `HashMap`/`HashSet`
+6. Replace `Date` with `DateTime`
+7. Replace `setTimeout` with `Effect.delay`
+8. Replace `fetch` with `Http.client.request`
+
+Remember: Effect is not just a library—it's a complete programming paradigm that provides better alternatives to most JavaScript/TypeScript patterns.
+# Think in Effect Interfaces
+
+## Guideline
+
+When working with Effect, always think in terms of Effect's native interfaces and modules rather than standard JavaScript/TypeScript patterns. Effect provides a comprehensive ecosystem of functional programming primitives that should be your first choice for any operation. Utilize effect_docs mcp to find the best effect interface for any operation.
+
+## Core Principle
+
+Effect is not just a library for managing side effects - it's a complete functional programming ecosystem. Every common operation has an Effect-native equivalent that provides better type safety, composability, and integration with the Effect runtime.
+
+## Native Modules to Leverage
+
+### Core Effect Operations
+
+- **Effect**: Use `Effect.succeed`, `Effect.fail`, `Effect.gen`, `Effect.pipe` for all computations
+- **Exit**: Handle success/failure with `Exit.succeed`, `Exit.fail`, `Exit.die` for explicit exit handling
+- **Cause**: Model failure reasons with `Cause.fail`, `Cause.die`, `Cause.interrupt` for detailed error tracking
+- **Fiber**: Manage concurrent computations with `Fiber.join`, `Fiber.interrupt`, `Fiber.status`
+
+### Data Transformation & Manipulation
+
+- **Array**: Use `Array.map`, `Array.filter`, `Array.reduce` instead of native array methods for better composition
+- **String**: Leverage `String.split`, `String.trim`, `String.startsWith` for string operations
+- **Boolean**: Use `Boolean.and`, `Boolean.or`, `Boolean.not` for logical operations
+- **Predicates**: Build composable predicates with `Predicate.and`, `Predicate.or`, `Predicate.not`
+- **Number**: Use `Number.add`, `Number.multiply`, `Number.compare` for numeric operations
+- **BigInt**: Handle large integers with `BigInt.add`, `BigInt.multiply`, `BigInt.compare`
+- **BigDecimal**: Use `BigDecimal.add`, `BigDecimal.multiply` for precise decimal arithmetic
+
+### Functional Composition
+
+- **Pipe**: Always use `pipe()` for data transformation pipelines
+- **Function**: Utilize `Function.flip`, `Function.compose`, `Function.identity` for function manipulation
+- **Pipeable**: Create pipeable APIs with `Pipeable.pipe` for custom operators
+- **Match**: Use `Match.value`, `Match.type`, `Match.tag` for pattern matching
+- **Tuple**: Work with tuples using `Tuple.make`, `Tuple.get`, `Tuple.map`
+
+### Data Modeling & Validation
+
+- **Option**: Model optional values with `Option.some`, `Option.none`, `Option.map`
+- **Either**: Handle validation and error accumulation with `Either.left`, `Either.right`
+- **Schema**: Define contracts and validation with `Schema.struct`, `Schema.array`, `Schema.string`
+- **Brand**: Create validated domain types with `Brand.nominal`
+- **TaggedError**: Define structured errors with `Data.TaggedError`
+- **ParseResult**: Handle parsing results with `ParseResult.success`, `ParseResult.failure`
+
+### Collections & Iteration
+
+- **Iterable**: Work with iterables using `Iterable.map`, `Iterable.filter`, `Iterable.reduce`
+- **Chunk**: Use `Chunk` for high-performance immutable collections
+- **HashMap**: Leverage `HashMap` for efficient key-value operations
+- **HashSet**: Use `HashSet` for efficient set operations
+- **List**: Use `List` for linked list operations with `List.cons`, `List.head`, `List.tail`
+- **SortedMap**: Use `SortedMap` for ordered key-value collections
+- **SortedSet**: Use `SortedSet` for ordered unique collections
+- **RedBlackTree**: Use `RedBlackTree` for balanced tree structures
+
+### Concurrency & Asynchrony
+
+- **Channel**: Use `Channel` for producer-consumer patterns with `Channel.write`, `Channel.read`
+- **Queue**: Use `Queue` for point-to-point messaging with `Queue.offer`, `Queue.take`
+- **PubSub**: Use `PubSub` for broadcast messaging with `PubSub.publish`, `PubSub.subscribe`
+- **Deferred**: Use `Deferred` for one-shot promises with `Deferred.succeed`, `Deferred.fail`
+- **Ref**: Use `Ref` for shared mutable state with `Ref.get`, `Ref.set`, `Ref.update`
+- **STM**: Use `STM` for transactional memory operations
+
+### Stream Processing
+
+- **Stream**: Use `Stream` for data processing pipelines with `Stream.map`, `Stream.filter`, `Stream.merge`
+- **Sink**: Use `Sink` for stream consumers with `Sink.fold`, `Sink.collect`
+- **Streamable**: Use `Streamable` for creating streams from various sources
+- **Take**: Use `Take` for stream elements with `Take.value`, `Take.end`, `Take.fail`
+
+### Serialization & Encoding
+
+- **Encoding**: Handle text encoding with `Encoding.encodeUtf8`, `Encoding.decodeUtf8`
+- **Serializable**: Make data serializable with `Serializable.serialize`
+- **JSON**: Parse and stringify with `JSON.parse`, `JSON.stringify` (Effect versions)
+- **JSONSchema**: Define JSON schemas with `JSONSchema.object`, `JSONSchema.array`
+
+### Comparison & Equality
+
+- **Equivalence**: Define custom equality with `Equivalence.make`
+- **Equal**: Use structural equality with `Equal.equals`
+- **Order**: Define ordering with `Order.make` for sorting operations
+- **Ordering**: Use `Ordering.less`, `Ordering.equal`, `Ordering.greater` for comparisons
+
+### Refinements & Validation
+
+- **Refinement**: Create type refinements with `Refinement.fromPredicate`
+- **Guard**: Build type guards with `Guard.is`
+- **Hash**: Generate hashes with `Hash.string`, `Hash.number`, `Hash.combine`
+
+### Time & Scheduling
+
+- **DateTime**: Handle dates with `DateTime.now`, `DateTime.format`
+- **Duration**: Represent time spans with `Duration.seconds`, `Duration.minutes`
+- **Schedule**: Control repetition with `Schedule.exponential`, `Schedule.fixed`
+- **Clock**: Access time with `Clock.currentTimeMillis`, `Clock.nanoTime`
+- **Cron**: Use `Cron` for time-based scheduling with `Cron.parse`, `Cron.next`
+
+### Resource Management
+
+- **Scope**: Use `Scope` for resource lifecycle management with `Scope.addFinalizer`
+- **Resource**: Use `Resource` for acquire/release patterns with `Resource.acquireRelease`
+- **Pool**: Use `Pool` for resource pooling with `Pool.get`, `Pool.release`
+- **KeyedPool**: Use `KeyedPool` for keyed resource pools
+
+### Error Handling & Recovery
+
+- **Request**: Use `Request` for typed error handling with `Request.fail`, `Request.succeed`
+- **RequestResolver**: Use `RequestResolver` for request resolution strategies
+- **Retry**: Use `Effect.retry` with `Schedule` for retry policies
+- **Timeout**: Use `Effect.timeout` for operation timeouts
+- **Race**: Use `Effect.race` for competing operations
+
+### Data Operations
+
+- **Merging**: Combine data structures with appropriate merge strategies
+- **Folding**: Reduce collections with `fold` operations
+- **Diffing**: Compare data structures with `Diff.make`
+- **GroupBy**: Group data with `GroupBy.by` for categorization
+- **Trie**: Use `Trie` for prefix-based data structures
+
+### Debugging & Inspection
+
+- **Inspectable**: Create string representations with `Inspectable.toStringUnknown`
+- **Pretty**: Format output with `Pretty.pretty`
+- **Debug**: Use `Effect.log` and structured logging for debugging
+- **Tracer**: Use `Tracer` for distributed tracing with `Tracer.span`
+
+### Architecture & Dependencies
+
+- **Context**: Model dependencies with `Context.Tag` and `Context.make`
+- **Layer**: Provide dependencies with `Layer.succeed`, `Layer.scoped`
+- **Service**: Define services with `Effect.Service`
+- **ManagedRuntime**: Use `ManagedRuntime` for managed application lifecycles
+- **Runtime**: Use `Runtime` for custom runtime configurations
+
+### Testing & Development
+
+- **TestClock**: Use `TestClock` for deterministic time-based testing
+- **TestContext**: Use `TestContext` for test-specific services
+- **TestLive**: Use `TestLive` for live service testing
+- **FastCheck**: Use `FastCheck` for property-based testing
+
+### Advanced Patterns
+
+- **ExecutionPlan**: Use `ExecutionPlan` for complex workflow orchestration
+- **ExecutionStrategy**: Use `ExecutionStrategy` for execution optimization
+- **MergeStrategy**: Use `MergeStrategy` for data merging policies
+- **UpstreamPullStrategy**: Use `UpstreamPullStrategy` for stream backpressure handling
+
+## Complex Workflows
+
+### Execution Plans for NLP Flows
+
+For complex natural language processing workflows, model your execution plan as a composition of Effects:
+
+```typescript
+// Example: Document processing pipeline
+const processDocument = pipe(
+  Stream.fromFile(filePath),
+  Stream.mapEffect(parseDocument),
+  Stream.mapEffect(extractEntities),
+  Stream.mapEffect(classifyContent),
+  Stream.runCollect
+);
+```
+
+### Concurrent Processing Patterns
+
+Use Effect's concurrency primitives for efficient parallel processing:
+
+```typescript
+// Example: Parallel API calls with bounded concurrency
+const fetchUserData = pipe(
+  userIds,
+  Effect.forEach((id) => apiClient.getUser(id), { concurrency: 10 })
+);
+```
+
+### Resource Management Patterns
+
+Leverage Effect's resource management for safe operations:
+
+```typescript
+// Example: Database connection management
+const withDatabase = pipe(
+  Database.connect(config),
+  Effect.scoped,
+  Effect.map((db) => new UserRepository(db))
+);
+```
+
+## Best Practices
+
+1. **Always use Effect-native operations** instead of JavaScript/TypeScript built-ins
+2. **Prefer pipe() composition** over method chaining for better readability
+3. **Use Effect.gen** for complex sequential operations
+4. **Leverage the type system** with Schema validation and Brand types
+5. **Model errors explicitly** with TaggedError and Either types
+6. **Use Layer composition** for dependency injection and testing
+7. **Prefer immutable data structures** like Chunk, HashMap, and HashSet
+8. **Use structured logging** with Effect.log for observability
+9. **Implement graceful shutdown** with Effect.runFork and signal handlers
+10. **Test with Effect's test utilities** for deterministic, fast tests
+
+## Migration Guide
+
+When converting existing code to Effect:
+
+1. Replace `Promise` with `Effect`
+2. Replace `async/await` with `Effect.gen`
+3. Replace `try/catch` with `Effect.catchAll` or `Effect.catchTag`
+4. Replace `Array` methods with `Chunk` operations
+5. Replace `Map`/`Set` with `HashMap`/`HashSet`
+6. Replace `Date` with `DateTime`
+7. Replace `setTimeout` with `Effect.delay`
+8. Replace `fetch` with `Http.client.request`
+
+Remember: Effect is not just a library—it's a complete programming paradigm that provides better alternatives to most JavaScript/TypeScript patterns.

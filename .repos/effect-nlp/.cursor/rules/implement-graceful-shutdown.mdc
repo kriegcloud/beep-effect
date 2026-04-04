@@ -1,0 +1,13 @@
+---
+description: "Use Effect.runFork and OS signal listeners to implement graceful shutdown for long-running applications."
+globs:
+alwaysApply: false
+---
+
+- Title: Implement Graceful Shutdown for Your Application
+- Id: implement-graceful-shutdown
+- Skill Level: advanced
+- Use Cases: Concurrency, Resource Management
+- Tags: graceful-shutdown, resource-management, server, fiber, runFork, interrupt, finalizer
+
+@content/published/implement-graceful-shutdown.mdx

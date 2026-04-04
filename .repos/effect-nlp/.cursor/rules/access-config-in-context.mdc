@@ -1,0 +1,13 @@
+---
+description: "Access configuration from the Effect context."
+globs:
+alwaysApply: false
+---
+
+- Title: Access Configuration from the Context
+- Id: access-config-in-context
+- Skill Level: intermediate
+- Use Cases: Application Configuration
+- Tags: configuration, config, context, generators, business-logic
+
+@content/published/access-config-in-context.mdx

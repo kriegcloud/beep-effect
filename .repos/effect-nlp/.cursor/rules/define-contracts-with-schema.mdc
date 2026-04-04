@@ -1,0 +1,13 @@
+---
+description: "Define contracts upfront with schema."
+globs:
+alwaysApply: false
+---
+
+- Title: Define Contracts Upfront with Schema
+- Id: define-contracts-with-schema
+- Skill Level: intermediate
+- Use Cases: Domain Modeling
+- Tags: schema, design, architecture, type-safety, contract-first, data-modeling
+
+@content/published/define-contracts-with-schema.mdx

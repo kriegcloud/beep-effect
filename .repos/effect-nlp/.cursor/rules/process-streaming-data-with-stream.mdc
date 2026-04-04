@@ -1,0 +1,13 @@
+---
+description: "Use Stream to model and process data that arrives over time in a composable, efficient way."
+globs:
+alwaysApply: false
+---
+
+- Title: Process Streaming Data with Stream
+- Id: process-streaming-data-with-stream
+- Skill Level: intermediate
+- Use Cases: Core Concepts
+- Tags: stream, streaming, concurrency, data-processing, pagination
+
+@content/published/process-streaming-data-with-stream.mdx

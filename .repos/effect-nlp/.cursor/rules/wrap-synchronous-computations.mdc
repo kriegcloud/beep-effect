@@ -1,0 +1,13 @@
+---
+description: "Wrap synchronous computations with sync and try."
+globs:
+alwaysApply: false
+---
+
+- Title: Wrap Synchronous Computations with sync and try
+- Id: wrap-synchronous-computations
+- Skill Level: beginner
+- Use Cases: Core Concepts
+- Tags: sync, try, creation, error-handling, integration, exceptions
+
+@content/published/wrap-synchronous-computations.mdx

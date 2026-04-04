@@ -1,0 +1,13 @@
+---
+description: "Use Stream.fromIterable to begin a pipeline from an in-memory collection."
+globs:
+alwaysApply: false
+---
+
+- Title: Create a Stream from a List
+- Id: stream-from-iterable
+- Skill Level: beginner
+- Use Cases: Building Data Pipelines
+- Tags: stream, iterable, array, list, data-processing
+
+@content/published/stream-from-iterable.mdx

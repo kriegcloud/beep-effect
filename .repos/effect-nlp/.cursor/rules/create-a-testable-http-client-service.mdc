@@ -1,0 +1,13 @@
+---
+description: "Define an HttpClient service with distinct Live and Test layers to enable testable API interactions."
+globs:
+alwaysApply: false
+---
+
+- Title: Create a Testable HTTP Client Service
+- Id: create-a-testable-http-client-service
+- Skill Level: intermediate
+- Use Cases: Making HTTP Requests, Testing
+- Tags: http-client, service, testing, dependency-injection, layer, fetch
+
+@content/published/create-a-testable-http-client-service.mdx

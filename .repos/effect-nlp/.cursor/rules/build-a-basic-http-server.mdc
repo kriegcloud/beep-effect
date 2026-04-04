@@ -1,0 +1,13 @@
+---
+description: "Use a managed Runtime created from a Layer to handle requests in a Node.js HTTP server."
+globs:
+alwaysApply: false
+---
+
+- Title: Build a Basic HTTP Server
+- Id: build-a-basic-http-server
+- Skill Level: advanced
+- Use Cases: Making HTTP Requests
+- Tags: http, server, api, runtime, layer, end-to-end
+
+@content/published/build-a-basic-http-server.mdx

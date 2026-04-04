@@ -1,0 +1,10 @@
+---
+alwaysApply: true
+---
+- Title: Model Validated Domain Types with Brand
+- Id: model-validated-domain-types-with-brand
+- Skill Level: intermediate
+- Use Cases: Domain Modeling
+- Tags: branded-types, domain-modeling, type-safety, validation, invariants, data
+
+@content/published/model-validated-domain-types-with-brand.mdx

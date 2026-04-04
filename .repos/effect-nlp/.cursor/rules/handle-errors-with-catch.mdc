@@ -1,0 +1,13 @@
+---
+description: "Handle errors with catchTag, catchTags, and catchAll."
+globs:
+alwaysApply: false
+---
+
+- Title: Handle Errors with catchTag, catchTags, and catchAll
+- Id: handle-errors-with-catch
+- Skill Level: intermediate
+- Use Cases: Error Management
+- Tags: error-handling, catch, tagged-error, recovery
+
+@content/published/handle-errors-with-catch.mdx
