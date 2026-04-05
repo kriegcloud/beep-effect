@@ -114,7 +114,7 @@ export const LexicalNodeKeys = [
 ] as const;
 
 const hasFunctionProperty = (input: unknown, key: string): boolean =>
-  P.isObject(input) &&  P.hasProperty(input, key) && P.isFunction(input[key]);
+  P.isObject(input) && P.hasProperty(input, key) && P.isFunction(input[key]);
 
 const hasStringProperty = (input: Record<string, unknown>, key: string): boolean =>
   P.hasProperty(input, key) && P.isString(input[key]);
@@ -133,7 +133,7 @@ export const isLexicalNode = (input: unknown): input is lexical.LexicalNode => {
 
   if (!P.isFunction(constructorValue)) return false;
 
-  const lexicalNodeConstructor = constructorValue
+  const lexicalNodeConstructor = constructorValue;
 
   return (
     hasStringProperty(lexicalNode, "__type") &&
