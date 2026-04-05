@@ -1,3 +1,4 @@
+import { AppThemeProvider } from "@beep/ui/themes";
 import { describe, expect, it } from "@effect/vitest";
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -10,7 +11,7 @@ describe("@beep/editor-app", () => {
   });
 
   it("renders the editor workspace shell instead of a placeholder route", () => {
-    const markup = renderToStaticMarkup(createElement(EditorWorkspaceApp));
+    const markup = renderToStaticMarkup(createElement(AppThemeProvider, null, createElement(EditorWorkspaceApp)));
 
     expect(markup).toContain("New page");
     expect(markup).toContain("Select or create a page to begin.");

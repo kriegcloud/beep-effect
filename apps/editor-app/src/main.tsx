@@ -26,7 +26,7 @@ const root = O.fromNullishOr(document.getElementById("root"));
 
 if (O.isNone(root)) {
   throw MissingRootElementError.new({
-    message: "Missing #root element for editor app" + " bootstrap.",
+    message: "Missing #root element for editor app bootstrap.",
   });
 }
 
