@@ -21,7 +21,10 @@ const withSource = <A, E, R>(source: SourceShape, effect: Effect.Effect<A, E, R 
   );
 
 /**
+ * Source metadata carried through parser effects while a module is being processed.
+ *
  * @internal
+ * @category parsers
  */
 export class SourceShape {
   readonly path: ReadonlyArray<string>;
@@ -45,7 +48,10 @@ export class SourceShape {
 }
 
 /**
+ * Parser service that provides the active source context while traversing a module.
+ *
  * @internal
+ * @category parsers
  */
 export class Source extends ServiceMap.Service<Source, SourceShape>()($I`Source`) {
   /**
@@ -79,7 +85,12 @@ type Comment = {
 };
 
 /**
+ * Parses a raw JSDoc block into a normalized description and grouped tag map.
+ *
  * @internal
+ * @param text - Raw JSDoc text to parse.
+ * @returns Parsed comment description and grouped tag values.
+ * @category parsers
  */
 export const parseComment = (text: string): Comment => {
   const annotation: doctrine.Annotation = doctrine.parse(text, {
@@ -460,7 +471,12 @@ const parseProperties = (c: ast.ClassDeclaration) =>
   ).pipe(Effect.map(A.flatten));
 
 /**
+ * Computes a printable constructor signature without including the implementation body.
+ *
  * @internal
+ * @param constructorDeclaration - Constructor declaration to serialize.
+ * @returns Constructor signature text suitable for generated docs.
+ * @category parsers
  */
 export const getConstructorDeclarationSignature = (constructorDeclaration: ast.ConstructorDeclaration): string =>
   pipe(
@@ -518,7 +534,10 @@ export const parseClasses = Effect.gen(function* () {
 });
 
 /**
+ * Parses the file-level module documentation block from the current source file.
+ *
  * @internal
+ * @category parsers
  */
 export const parseModuleDocumentation = Effect.gen(function* () {
   const source = yield* Source;
@@ -565,7 +584,12 @@ export const parseModule = Effect.gen(function* () {
 });
 
 /**
+ * Creates a parser for a single file using a shared ts-morph project instance.
+ *
  * @internal
+ * @param project - Project used to resolve and parse source files.
+ * @returns Function that parses one file into a module model.
+ * @category parsers
  */
 export const parseFile =
   (project: ast.Project) =>
@@ -614,6 +638,10 @@ const createProject = (files: ReadonlyArray<Domain.File>) =>
   });
 
 /**
+ * Parses a set of source files into sorted module models.
+ *
+ * @param files - Files to parse into module documentation models.
+ * @returns Effect that parses and sorts the provided files into modules.
  * @category parsers
  * @since 0.0.0
  */

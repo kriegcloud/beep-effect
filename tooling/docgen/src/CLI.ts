@@ -115,7 +115,13 @@ const options = {
   examplesCompilerOptionsText,
 } as const;
 
-/** @internal */
+/**
+ * Builds the `docgen` CLI command and wires configuration loading to the core program.
+ *
+ * @internal
+ * @category CLI
+ * @since 0.0.0
+ */
 export const docgenCommand = Command.make("docgen", options, (input) =>
   Effect.gen(function* () {
     const parseCompilerOptions = yield* resolveCompilerOptionsInput(

@@ -113,8 +113,8 @@ export const LexicalNodeKeys = [
   "reconcileObservedMutation",
 ] as const;
 
-const hasFunctionProperty = (input: Record<string, unknown>, key: string): boolean =>
-  P.hasProperty(input, key) && P.isFunction(input[key]);
+const hasFunctionProperty = (input: unknown, key: string): boolean =>
+  P.isObject(input) &&  P.hasProperty(input, key) && P.isFunction(input[key]);
 
 const hasStringProperty = (input: Record<string, unknown>, key: string): boolean =>
   P.hasProperty(input, key) && P.isString(input[key]);
@@ -128,12 +128,12 @@ const hasStringProperty = (input: Record<string, unknown>, key: string): boolean
 export const isLexicalNode = (input: unknown): input is lexical.LexicalNode => {
   if (!P.isObject(input)) return false;
 
-  const lexicalNode = input as Record<string, unknown>;
+  const lexicalNode = input;
   const constructorValue = lexicalNode.constructor;
 
   if (!P.isFunction(constructorValue)) return false;
 
-  const lexicalNodeConstructor = constructorValue as unknown as Record<string, unknown>;
+  const lexicalNodeConstructor = constructorValue
 
   return (
     hasStringProperty(lexicalNode, "__type") &&

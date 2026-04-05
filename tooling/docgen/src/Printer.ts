@@ -11,7 +11,10 @@ import type * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
 
 /**
+ * Union of documented entities that the markdown printer can render.
+ *
  * @internal
+ * @category printers
  */
 export type Printable =
   | Domain.Class
@@ -273,7 +276,12 @@ const printNamespace = (
   });
 
 /**
+ * Renders a single documented entity into markdown.
+ *
  * @internal
+ * @param printable - Documented entity to render.
+ * @returns Effect that renders markdown for the provided entity.
+ * @category printers
  */
 export const print = (printable: Printable) =>
   Match.value(printable).pipe(
@@ -307,6 +315,10 @@ const sortByName: <A extends { name: string }>(self: Iterable<A>) => Array<A> = 
 );
 
 /**
+ * Renders a parsed module into markdown grouped by documentation category.
+ *
+ * @param module - Module to render.
+ * @returns Effect that renders markdown for the provided module.
  * @category printers
  * @since 0.0.0
  */
@@ -342,6 +354,12 @@ export const printModule = (module: Domain.Module) =>
   );
 
 /**
+ * Builds the front matter used for a generated module documentation page.
+ *
+ * @param module - Module whose page metadata is being rendered.
+ * @param navOrder - Navigation order to assign in the generated site.
+ * @returns Front matter block for the module page.
+ * @category printers
  * @since 0.0.0
  */
 export const printFrontMatter = (module: Domain.Module, navOrder: number): string => `---
@@ -355,6 +373,9 @@ parent: Modules
  * unchanged keeps generation deterministic while avoiding another runtime
  * dependency during the migration.
  *
+ * @param content - Markdown content to normalize before writing.
+ * @returns Effect that currently returns the markdown unchanged.
+ * @category printers
  * @since 0.0.0
  */
 export function prettify(content: string) {

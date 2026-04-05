@@ -74,6 +74,11 @@ function checkFunction(model: Domain.Function) {
 }
 
 /**
+ * Checks documented functions for required docgen annotations.
+ *
+ * @param models - Function models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkFunctions(models: ReadonlyArray<Domain.Function>) {
@@ -91,6 +96,11 @@ function checkClass(model: Domain.Class) {
 }
 
 /**
+ * Checks documented classes and their members for required docgen annotations.
+ *
+ * @param models - Class models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkClasses(models: ReadonlyArray<Domain.Class>) {
@@ -102,6 +112,11 @@ function checkConstant(model: Domain.Constant) {
 }
 
 /**
+ * Checks documented constants for required docgen annotations.
+ *
+ * @param models - Constant models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkConstants(models: ReadonlyArray<Domain.Constant>) {
@@ -113,6 +128,11 @@ function checkInterface(model: Domain.Interface) {
 }
 
 /**
+ * Checks documented interfaces for required docgen annotations.
+ *
+ * @param models - Interface models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkInterfaces(models: ReadonlyArray<Domain.Interface>) {
@@ -124,6 +144,11 @@ function checkTypeAlias(model: Domain.TypeAlias) {
 }
 
 /**
+ * Checks documented type aliases for required docgen annotations.
+ *
+ * @param models - Type alias models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkTypeAliases(models: ReadonlyArray<Domain.TypeAlias>) {
@@ -143,6 +168,11 @@ function checkNamespace(
 }
 
 /**
+ * Checks documented namespaces and their nested members for required docgen annotations.
+ *
+ * @param models - Namespace models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkNamespaces(models: ReadonlyArray<Domain.Namespace>) {
@@ -154,6 +184,11 @@ function checkExport(model: Domain.Export) {
 }
 
 /**
+ * Checks documented manual exports for required docgen annotations.
+ *
+ * @param models - Export models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkExports(models: ReadonlyArray<Domain.Export>) {
@@ -161,6 +196,11 @@ export function checkExports(models: ReadonlyArray<Domain.Export>) {
 }
 
 /**
+ * Checks a parsed module and all of its documented members for required docgen annotations.
+ *
+ * @param module - Module model to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkModule(module: Domain.Module) {
@@ -192,6 +232,11 @@ export function checkModule(module: Domain.Module) {
 }
 
 /**
+ * Checks multiple parsed modules for required docgen annotations.
+ *
+ * @param modules - Module models to validate.
+ * @returns Effect that accumulates validation error messages.
+ * @category checkers
  * @since 0.0.0
  */
 export function checkModules(modules: ReadonlyArray<Domain.Module>) {

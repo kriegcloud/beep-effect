@@ -17,6 +17,8 @@ const OptionalString = S.UndefinedOr(S.String);
 const OptionalStringArray = S.UndefinedOr(StringArray);
 
 /**
+ * Represents a one-based source location in a parsed file.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -37,6 +39,8 @@ export class Position extends S.Class<Position>($I`Position`)({
 }
 
 /**
+ * Represents normalized JSDoc metadata for a documented symbol.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -106,6 +110,8 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
 }
 
 /**
+ * Represents a named documented API member with source and signature metadata.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -130,6 +136,8 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
 }
 
 /**
+ * Represents a documented class and its emitted member structure.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -178,6 +186,8 @@ export class Class extends S.Class<Class>($I`Class`)({
 }
 
 /**
+ * Represents a documented interface declaration.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -203,6 +213,8 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
 }
 
 /**
+ * Represents a documented function declaration or function-valued export.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -228,6 +240,8 @@ export class Function extends S.Class<Function>($I`Function`)({
 }
 
 /**
+ * Represents a documented type alias declaration.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -253,6 +267,8 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
 }
 
 /**
+ * Represents a documented exported constant declaration.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -315,6 +331,8 @@ export class Export extends S.Class<Export>($I`Export`)({
 }
 
 /**
+ * Represents a documented namespace and its nested exported members.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -361,6 +379,8 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
 }
 
 /**
+ * Represents a fully parsed module ready for validation and printing.
+ *
  * @category model
  * @since 0.0.0
  */
@@ -460,18 +480,24 @@ export class File extends S.Class<File>($I`File`)({
 }
 
 /**
+ * Unique symbol used to brand docgen-specific errors.
+ *
  * @category symbol
  * @since 0.0.0
  */
 export const DocgenErrorTypeId = Symbol.for("@beep/docgen/DocgenError");
 
 /**
+ * Type-level alias for the unique docgen error branding symbol.
+ *
  * @category symbol
  * @since 0.0.0
  */
 export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
 
 /**
+ * Typed error used throughout docgen parsing and generation operations.
+ *
  * @category model
  * @since 0.0.0
  */

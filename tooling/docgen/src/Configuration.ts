@@ -13,6 +13,9 @@ import * as Domain from "./Domain.js";
 const $I = $DocgenId.create("Configuration");
 
 /**
+ * Default Jekyll theme used when docgen does not receive an explicit theme override.
+ *
+ * @category service
  * @since 0.0.0
  */
 // cspell:ignore mikearnaldi
@@ -26,6 +29,8 @@ const CompilerOptionsSchema = S.Union([S.String, CompilerOptionsShape]);
 const encodeCompilerOptions = S.encodeSync(TSConfigCompilerOptions);
 
 /**
+ * Schema describing the optional `docgen.json` configuration document.
+ *
  * @category service
  * @since 0.0.0
  */
@@ -48,12 +53,16 @@ export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`Configu
 }) {}
 
 /**
+ * Runtime type for decoded `docgen.json` configuration documents.
+ *
  * @category service
  * @since 0.0.0
  */
 export type ConfigurationDocument = typeof ConfigurationSchema.Type;
 
 /**
+ * Fully resolved configuration values used while docgen executes.
+ *
  * @category service
  * @since 0.0.0
  */
@@ -94,6 +103,8 @@ export class Configuration extends ServiceMap.Service<Configuration, Configurati
 }
 
 /**
+ * Accepted CLI or config-file input for compiler options.
+ *
  * @category service
  * @since 0.0.0
  */
@@ -119,7 +130,12 @@ type LoadArgs = {
   readonly tscExecutable: O.Option<string>;
 };
 
-/** @internal */
+/**
+ * Default compiler options used when no explicit parse configuration is provided.
+ *
+ * @internal
+ * @category service
+ */
 export const defaultCompilerOptions = {
   noEmit: true,
   strict: true,
@@ -255,7 +271,12 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
   );
 
 /**
+ * Loads and resolves the effective docgen configuration from CLI input and repo files.
+ *
  * @internal
+ * @param args - CLI-sourced configuration overrides.
+ * @returns Effect that resolves the effective docgen configuration service value.
+ * @category service
  */
 export const load = (args: LoadArgs) =>
   Effect.gen(function* () {
@@ -324,5 +345,6 @@ export const load = (args: LoadArgs) =>
  * Present for upstream parity; the CLI merges configuration directly in `load`.
  *
  * @internal
+ * @category service
  */
 export const configProviderLayer = Layer.empty;

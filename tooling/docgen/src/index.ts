@@ -1,4 +1,7 @@
 /**
+ * Public exports for the repo-local docgen package.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 

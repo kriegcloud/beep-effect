@@ -1,6 +1,12 @@
-import { $EditorId } from "@beep/identity/packages";
-import { LiteralKit, NonEmptyTrimmedStr, NonNegativeInt, Slug, UUID } from "@beep/schema";
-import { type DateTime, flow, Match, pipe } from "effect";
+import {$EditorId} from "@beep/identity/packages";
+import {
+  LiteralKit,
+  NonEmptyTrimmedStr,
+  NonNegativeInt,
+  Slug,
+  UUID
+} from "@beep/schema";
+import {type DateTime, flow, Match, pipe, identity} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -18,9 +24,12 @@ const $I = $EditorId.create("Canonical");
 export const PageId = UUID.pipe(
   S.brand("PageId"),
   S.annotate(
-    $I.annote("PageId", {
-      description: "Stable internal identifier for a page document.",
-    })
+    $I.annote(
+      "PageId",
+      {
+        description: "Stable internal identifier for a page document.",
+      }
+    )
   )
 );
 /**
@@ -38,9 +47,12 @@ export type PageId = typeof PageId.Type;
 export const BlockId = UUID.pipe(
   S.brand("BlockId"),
   S.annotate(
-    $I.annote("BlockId", {
-      description: "Stable internal identifier for a block within a page document.",
-    })
+    $I.annote(
+      "BlockId",
+      {
+        description: "Stable internal identifier for a block within a page document.",
+      }
+    )
   )
 );
 /**
@@ -58,9 +70,12 @@ export type BlockId = typeof BlockId.Type;
 export const RevisionId = UUID.pipe(
   S.brand("RevisionId"),
   S.annotate(
-    $I.annote("RevisionId", {
-      description: "Stable internal identifier for a persisted page revision record.",
-    })
+    $I.annote(
+      "RevisionId",
+      {
+        description: "Stable internal identifier for a persisted page revision record.",
+      }
+    )
   )
 );
 /**
@@ -78,9 +93,12 @@ export type RevisionId = typeof RevisionId.Type;
 export const WorkspaceId = UUID.pipe(
   S.brand("WorkspaceId"),
   S.annotate(
-    $I.annote("WorkspaceId", {
-      description: "Stable internal identifier for an app-owned editor workspace.",
-    })
+    $I.annote(
+      "WorkspaceId",
+      {
+        description: "Stable internal identifier for an app-owned editor workspace.",
+      }
+    )
   )
 );
 /**
@@ -89,24 +107,24 @@ export const WorkspaceId = UUID.pipe(
  */
 export type WorkspaceId = typeof WorkspaceId.Type;
 
-const decodeBlockId = S.decodeUnknownSync(BlockId);
-const decodePageId = S.decodeUnknownSync(PageId);
-const decodeRevisionId = S.decodeUnknownSync(RevisionId);
-const decodeSlug = S.decodeUnknownOption(Slug);
-const decodeWorkspaceId = S.decodeUnknownSync(WorkspaceId);
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-
 /**
  * Supported canonical export formats for the editor runtime.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export const ExportFormat = LiteralKit(["json", "markdown"]).annotate(
-  $I.annote("ExportFormat", {
-    description: "Canonical export formats currently implemented by the editor runtime.",
-  })
-);
+export const ExportFormat = LiteralKit([
+  "json",
+  "markdown"
+])
+  .annotate(
+    $I.annote(
+      "ExportFormat",
+      {
+        description: "Canonical export formats currently implemented by the editor runtime.",
+      }
+    )
+  );
 /**
  * @since 0.0.0
  * @category DomainModel
@@ -119,11 +137,19 @@ export type ExportFormat = typeof ExportFormat.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const HeadingLevel = LiteralKit([1, 2, 3]).annotate(
-  $I.annote("HeadingLevel", {
-    description: "Heading depth supported by the initial editor bootstrap.",
-  })
-);
+export const HeadingLevel = LiteralKit([
+  1,
+  2,
+  3
+])
+  .annotate(
+    $I.annote(
+      "HeadingLevel",
+      {
+        description: "Heading depth supported by the initial editor bootstrap.",
+      }
+    )
+  );
 /**
  * @since 0.0.0
  * @category DomainModel
@@ -140,10 +166,14 @@ export class PageLinkRef extends S.Class<PageLinkRef>($I`PageLinkRef`)(
   {
     targetSlug: Slug,
   },
-  $I.annote("PageLinkRef", {
-    description: "Canonical outbound page-link reference derived from page content.",
-  })
-) {}
+  $I.annote(
+    "PageLinkRef",
+    {
+      description: "Canonical outbound page-link reference derived from page content.",
+    }
+  )
+) {
+}
 
 /**
  * Paragraph block in the canonical document model.
@@ -157,10 +187,14 @@ export class ParagraphBlock extends S.Class<ParagraphBlock>($I`ParagraphBlock`)(
     id: BlockId,
     text: S.String,
   },
-  $I.annote("ParagraphBlock", {
-    description: "Paragraph block in the canonical editor document model.",
-  })
-) {}
+  $I.annote(
+    "ParagraphBlock",
+    {
+      description: "Paragraph block in the canonical editor document model.",
+    }
+  )
+) {
+}
 
 /**
  * Heading block in the canonical document model.
@@ -175,10 +209,14 @@ export class HeadingBlock extends S.Class<HeadingBlock>($I`HeadingBlock`)(
     level: HeadingLevel,
     text: S.String,
   },
-  $I.annote("HeadingBlock", {
-    description: "Heading block in the canonical editor document model.",
-  })
-) {}
+  $I.annote(
+    "HeadingBlock",
+    {
+      description: "Heading block in the canonical editor document model.",
+    }
+  )
+) {
+}
 
 /**
  * Quote block in the canonical document model.
@@ -192,10 +230,14 @@ export class QuoteBlock extends S.Class<QuoteBlock>($I`QuoteBlock`)(
     id: BlockId,
     text: S.String,
   },
-  $I.annote("QuoteBlock", {
-    description: "Quote block in the canonical editor document model.",
-  })
-) {}
+  $I.annote(
+    "QuoteBlock",
+    {
+      description: "Quote block in the canonical editor document model.",
+    }
+  )
+) {
+}
 
 /**
  * Canonical editor document block union.
@@ -203,12 +245,19 @@ export class QuoteBlock extends S.Class<QuoteBlock>($I`QuoteBlock`)(
  * @since 0.0.0
  * @category DomainModel
  */
-const DocumentBlockSchema = S.Union([ParagraphBlock, HeadingBlock, QuoteBlock])
+const DocumentBlockSchema = S.Union([
+  ParagraphBlock,
+  HeadingBlock,
+  QuoteBlock
+])
   .pipe(S.toTaggedUnion("kind"))
   .annotate(
-    $I.annote("DocumentBlock", {
-      description: "Supported block variants in the canonical editor document model.",
-    })
+    $I.annote(
+      "DocumentBlock",
+      {
+        description: "Supported block variants in the canonical editor document model.",
+      }
+    )
   );
 type DocumentBlockValue = typeof DocumentBlockSchema.Type;
 type DocumentBlockCases<A> = {
@@ -216,11 +265,19 @@ type DocumentBlockCases<A> = {
   readonly heading: (block: HeadingBlock) => A;
   readonly quote: (block: QuoteBlock) => A;
 };
-const matchDocumentBlock = <A>(block: DocumentBlockValue, cases: DocumentBlockCases<A>) =>
-  Match.value(block).pipe(Match.discriminatorsExhaustive("kind")(cases));
-export const DocumentBlock = Object.assign(DocumentBlockSchema, {
-  match: matchDocumentBlock,
-});
+const matchDocumentBlock = <A>(
+  block: DocumentBlockValue,
+  cases: DocumentBlockCases<A>
+) =>
+  Match.value(block)
+    .pipe(Match.discriminatorsExhaustive("kind")(
+      cases));
+export const DocumentBlock = Object.assign(
+  DocumentBlockSchema,
+  {
+    match: matchDocumentBlock,
+  }
+);
 /**
  * @since 0.0.0
  * @category DomainModel
@@ -243,10 +300,14 @@ export class PageDocument extends S.Class<PageDocument>($I`PageDocument`)(
     createdAt: S.DateTimeUtcFromMillis,
     updatedAt: S.DateTimeUtcFromMillis,
   },
-  $I.annote("PageDocument", {
-    description: "Canonical persisted editor page document stored by the local workspace.",
-  })
-) {}
+  $I.annote(
+    "PageDocument",
+    {
+      description: "Canonical persisted editor page document stored by the local workspace.",
+    }
+  )
+) {
+}
 
 const PageDocumentJson = S.fromJsonString(PageDocument);
 const encodePageDocumentJson = S.encodeUnknownSync(PageDocumentJson);
@@ -267,10 +328,14 @@ export class PageSummary extends S.Class<PageSummary>($I`PageSummary`)(
     outboundLinkCount: NonNegativeInt,
     backlinkCount: NonNegativeInt,
   },
-  $I.annote("PageSummary", {
-    description: "Lightweight page projection used for listings, search, and backlink surfaces.",
-  })
-) {}
+  $I.annote(
+    "PageSummary",
+    {
+      description: "Lightweight page projection used for listings, search, and backlink surfaces.",
+    }
+  )
+) {
+}
 
 /**
  * App-owned workspace manifest.
@@ -286,10 +351,14 @@ export class WorkspaceManifest extends S.Class<WorkspaceManifest>($I`WorkspaceMa
     createdAt: S.DateTimeUtcFromMillis,
     updatedAt: S.DateTimeUtcFromMillis,
   },
-  $I.annote("WorkspaceManifest", {
-    description: "App-owned workspace manifest for the local editor workspace.",
-  })
-) {}
+  $I.annote(
+    "WorkspaceManifest",
+    {
+      description: "App-owned workspace manifest for the local editor workspace.",
+    }
+  )
+) {
+}
 
 /**
  * Immutable page revision record.
@@ -306,10 +375,14 @@ export class RevisionRecord extends S.Class<RevisionRecord>($I`RevisionRecord`)(
     reason: S.String,
     page: PageDocument,
   },
-  $I.annote("RevisionRecord", {
-    description: "Immutable local revision record captured whenever a page is saved.",
-  })
-) {}
+  $I.annote(
+    "RevisionRecord",
+    {
+      description: "Immutable local revision record captured whenever a page is saved.",
+    }
+  )
+) {
+}
 
 /**
  * Export payload materialized by the editor runtime.
@@ -325,50 +398,69 @@ export class PageExport extends S.Class<PageExport>($I`PageExport`)(
     fileName: S.String,
     content: S.String,
   },
-  $I.annote("PageExport", {
-    description: "Export payload materialized from the canonical page document.",
-  })
-) {}
+  $I.annote(
+    "PageExport",
+    {
+      description: "Export payload materialized from the canonical page document.",
+    }
+  )
+) {
+}
 
-const untitledSlug = S.decodeUnknownSync(Slug)("untitled");
-type TextBlock = {
-  readonly text: string;
-};
+const untitledSlug = Slug.makeUnsafe(
+  "untitled");
 
-const blockText = (block: DocumentBlock): string =>
-  DocumentBlock.match(block, {
-    paragraph: ({ text }) => text,
-    heading: ({ text }) => text,
-    quote: ({ text }) => text,
+class TextBlock extends S.Class<TextBlock>($I`TextBlock`)(
+  {
+    text: S.String,
+  }) {
+}
+
+const blockText = DocumentBlock.match({
+  paragraph: ({text}) => text,
+  heading: ({text}) => text,
+  quote: ({text}) => text,
+})
+const markdownBlockText =
+  DocumentBlock.match({
+    paragraph: ({text}) => text,
+    heading: ({
+                level,
+                text
+              }) => `${Str.repeat(level)(
+      "#")} ${text}`,
+    quote: ({text}) => `> ${text}`,
   });
-const markdownBlockText = (block: DocumentBlock): string =>
-  DocumentBlock.match(block, {
-    paragraph: ({ text }) => text,
-    heading: ({ level, text }) => `${"#".repeat(level)} ${text}`,
-    quote: ({ text }) => `> ${text}`,
+const exportFormatExtension =
+  ExportFormat.$match({
+    json: identity,
+    markdown: identity,
   });
-const exportFormatExtension = (format: ExportFormat): "json" | "md" =>
-  ExportFormat.$match(format, {
-    json: (): "json" => "json",
-    markdown: (): "md" => "md",
-  });
-const exportFormatContent = (page: PageDocument, format: ExportFormat): string =>
-  ExportFormat.$match(format, {
-    json: () => encodePageDocumentJson(page),
-    markdown: () => pageToMarkdown(page),
-  });
+const exportFormatContent = (
+  page: PageDocument,
+  format: ExportFormat
+): string =>
+  ExportFormat.$match(
+    format,
+    {
+      json: () => encodePageDocumentJson(page),
+      markdown: () => pageToMarkdown(page),
+    }
+  );
 const withDerivedOutboundLinks = (page: PageDocument): PageDocument =>
   new PageDocument({
     ...page,
     outboundLinks: A.fromIterable(extractPageLinks(page)),
   });
-const extractLinksFromTextBlock = ({ text }: TextBlock): ReadonlyArray<PageLinkRef> => extractBlockLinks(text);
-const extractLinksFromBlock = (block: DocumentBlock): ReadonlyArray<PageLinkRef> =>
-  DocumentBlock.match(block, {
-    paragraph: extractLinksFromTextBlock,
-    heading: extractLinksFromTextBlock,
-    quote: extractLinksFromTextBlock,
-  });
+const extractLinksFromTextBlock = ({text}: TextBlock): ReadonlyArray<PageLinkRef> => extractBlockLinks(text);
+const extractLinksFromBlock =
+  DocumentBlock.match(
+    {
+      paragraph: extractLinksFromTextBlock,
+      heading: extractLinksFromTextBlock,
+      quote: extractLinksFromTextBlock,
+    }
+  );
 
 const extractBlockLinks = (text: string): ReadonlyArray<PageLinkRef> => {
   const pageLinkPattern = /\[\[([a-z0-9-]+)]]/g;
@@ -376,7 +468,7 @@ const extractBlockLinks = (text: string): ReadonlyArray<PageLinkRef> => {
   let match = pageLinkPattern.exec(text);
 
   while (P.isNotNull(match)) {
-    const slugOption = decodeSlug(match[1]);
+    const slugOption = Slug.makeOption(match[1]);
     if (O.isSome(slugOption)) {
       links = A.append(
         links,
@@ -406,12 +498,24 @@ export const normalizePageSlug = (input: string): Slug =>
     input,
     Str.trim,
     Str.toLowerCase,
-    Str.replace(/[^a-z0-9]+/g, "-"),
-    Str.replace(/^-+/g, ""),
-    Str.replace(/-+$/g, ""),
-    Str.replace(/-{2,}/g, "-"),
+    Str.replace(
+      /[^a-z0-9]+/g,
+      "-"
+    ),
+    Str.replace(
+      /^-+/g,
+      ""
+    ),
+    Str.replace(
+      /-+$/g,
+      ""
+    ),
+    Str.replace(
+      /-{2,}/g,
+      "-"
+    ),
     flow(
-      decodeSlug,
+      Slug.makeOption,
       O.getOrElse(() => untitledSlug)
     )
   );
@@ -427,7 +531,7 @@ export const normalizePageSlug = (input: string): Slug =>
  */
 export const makeParagraphBlock = (text: string): ParagraphBlock =>
   new ParagraphBlock({
-    id: decodeBlockId(crypto.randomUUID()),
+    id: BlockId.makeUnsafe(crypto.randomUUID()),
     text,
   });
 
@@ -441,9 +545,12 @@ export const makeParagraphBlock = (text: string): ParagraphBlock =>
  * @since 0.0.0
  * @category Helpers
  */
-export const makeHeadingBlock = (text: string, level: HeadingLevel = 1): HeadingBlock =>
+export const makeHeadingBlock = (
+  text: string,
+  level: HeadingLevel = 1
+): HeadingBlock =>
   new HeadingBlock({
-    id: decodeBlockId(crypto.randomUUID()),
+    id: BlockId.makeUnsafe(crypto.randomUUID()),
     level,
     text,
   });
@@ -459,7 +566,7 @@ export const makeHeadingBlock = (text: string, level: HeadingLevel = 1): Heading
  */
 export const makeQuoteBlock = (text: string): QuoteBlock =>
   new QuoteBlock({
-    id: decodeBlockId(crypto.randomUUID()),
+    id: BlockId.makeUnsafe(crypto.randomUUID()),
     text,
   });
 
@@ -473,7 +580,10 @@ export const makeQuoteBlock = (text: string): QuoteBlock =>
  * @category Helpers
  */
 export const extractPageLinks = (page: PageDocument): ReadonlyArray<PageLinkRef> =>
-  pipe(page.blocks, A.flatMap(extractLinksFromBlock));
+  pipe(
+    page.blocks,
+    A.flatMap(extractLinksFromBlock)
+  );
 
 /**
  * Render a canonical page to plain text for search and previews.
@@ -484,7 +594,11 @@ export const extractPageLinks = (page: PageDocument): ReadonlyArray<PageLinkRef>
  * @since 0.0.0
  * @category Helpers
  */
-export const pageToPlainText = (page: PageDocument): string => pipe(page.blocks, A.map(blockText), A.join("\n"));
+export const pageToPlainText = (page: PageDocument): string => pipe(
+  page.blocks,
+  A.map(blockText),
+  A.join("\n")
+);
 
 /**
  * Render a canonical page to Markdown.
@@ -496,7 +610,11 @@ export const pageToPlainText = (page: PageDocument): string => pipe(page.blocks,
  * @category Helpers
  */
 export const pageToMarkdown = (page: PageDocument): string =>
-  pipe(page.blocks, A.map(markdownBlockText), A.join("\n\n"));
+  pipe(
+    page.blocks,
+    A.map(markdownBlockText),
+    A.join("\n\n")
+  );
 
 /**
  * Resolve the persisted file extension for an export format.
@@ -519,10 +637,13 @@ export const exportPageExtension = (format: ExportFormat): "json" | "md" => expo
  * @category Helpers
  */
 export const exportPageMimeType = (format: ExportFormat): "application/json" | "text/markdown" =>
-  ExportFormat.$match(format, {
-    json: (): "application/json" => "application/json",
-    markdown: (): "text/markdown" => "text/markdown",
-  });
+  ExportFormat.$match(
+    format,
+    {
+      json: (): "application/json" => "application/json",
+      markdown: (): "text/markdown" => "text/markdown",
+    }
+  );
 
 /**
  * Materialize an export payload from a canonical page document.
@@ -534,13 +655,19 @@ export const exportPageMimeType = (format: ExportFormat): "application/json" | "
  * @since 0.0.0
  * @category Helpers
  */
-export const pageToExport = (page: PageDocument, format: ExportFormat): PageExport =>
+export const pageToExport = (
+  page: PageDocument,
+  format: ExportFormat
+): PageExport =>
   new PageExport({
     pageId: page.id,
     slug: page.slug,
     format,
     fileName: `${page.slug}.${exportFormatExtension(format)}`,
-    content: exportFormatContent(page, format),
+    content: exportFormatContent(
+      page,
+      format
+    ),
   });
 
 /**
@@ -560,7 +687,7 @@ export const createPageDocument = (input: {
 }): PageDocument =>
   withDerivedOutboundLinks(
     new PageDocument({
-      id: decodePageId(crypto.randomUUID()),
+      id: PageId.makeUnsafe(crypto.randomUUID()),
       slug: input.slug ?? normalizePageSlug(input.title),
       title: input.title,
       blocks: A.fromIterable(input.blocks),
@@ -580,15 +707,24 @@ export const createPageDocument = (input: {
  * @since 0.0.0
  * @category Helpers
  */
-export const makePageSummary = (page: PageDocument, backlinkCount: number): PageSummary =>
+export const makePageSummary = (
+  page: PageDocument,
+  backlinkCount: number
+): PageSummary =>
   new PageSummary({
     id: page.id,
     slug: page.slug,
     title: page.title,
-    excerpt: pipe(pageToPlainText(page), Str.slice(0, 160)),
+    excerpt: pipe(
+      pageToPlainText(page),
+      Str.slice(
+        0,
+        160
+      )
+    ),
     updatedAt: page.updatedAt,
-    outboundLinkCount: decodeNonNegativeInt(page.outboundLinks.length),
-    backlinkCount: decodeNonNegativeInt(backlinkCount),
+    outboundLinkCount: NonNegativeInt.makeUnsafe(page.outboundLinks.length),
+    backlinkCount: NonNegativeInt.makeUnsafe(backlinkCount),
   });
 
 /**
@@ -633,9 +769,13 @@ export const refreshPageDocument = (
  * @since 0.0.0
  * @category Helpers
  */
-export const makeRevisionRecord = (page: PageDocument, savedAt: DateTime.Utc, reason: string): RevisionRecord =>
+export const makeRevisionRecord = (
+  page: PageDocument,
+  savedAt: DateTime.Utc,
+  reason: string
+): RevisionRecord =>
   new RevisionRecord({
-    id: decodeRevisionId(crypto.randomUUID()),
+    id: RevisionId.makeUnsafe(crypto.randomUUID()),
     pageId: page.id,
     pageSlug: page.slug,
     savedAt,
@@ -658,7 +798,7 @@ export const createWorkspaceManifest = (input: {
   readonly now: DateTime.Utc;
 }): WorkspaceManifest =>
   new WorkspaceManifest({
-    id: decodeWorkspaceId(crypto.randomUUID()),
+    id: WorkspaceId.makeUnsafe(crypto.randomUUID()),
     name: input.name,
     rootPageSlug: O.fromUndefinedOr(input.rootPageSlug),
     createdAt: input.now,

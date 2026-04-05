@@ -149,15 +149,18 @@ const extractPrefixedNestedNamespaces = (
 /**
  * The metadata key for skipping type-checking.
  *
+ * @category core
  * @since 0.0.0
  */
 export const SKIP_TYPE_CHECKING_FENCE_METADATA = "skip-type-checking";
 
 /**
- * Extracts all fenced code blocks from markdown content.
- * Handles both ``` and ~~~ fences, including any metadata.
+ * Extracts fenced code blocks and their metadata from markdown content.
  *
  * @internal
+ * @param content - Markdown content that may contain fenced code examples.
+ * @returns Tuple containing extracted example code blocks and any fence warnings.
+ * @category core
  */
 export const extractFencedCode = (content: string): [examples: Array<string>, warnings: Array<string>] => {
   const fenceRegex = /(?:```|~~~)(.*?)\n([\s\S]*?)(?:(```|~~~)|$)/g;
@@ -571,7 +574,10 @@ const writeMarkdown = (files: ReadonlyArray<Domain.File>) =>
   });
 
 /**
+ * Runs the full docgen workflow from source parsing through markdown emission.
+ *
  * @internal
+ * @category core
  */
 export const program = Effect.gen(function* () {
   yield* Effect.logInfo("Reading modules...");

@@ -53,7 +53,6 @@ const exactRTLRegex = S.makeFilter(
     message: "Expected the exact Lexical RTL regular expression.",
   }
 );
-
 const exactLTRRegex = S.makeFilter(
   (value: RegExp) => value.source === ltrRegexValue.source && value.flags === ltrRegexValue.flags,
   {
