@@ -1,5 +1,7 @@
+import { resolveIsMobile } from "@beep/ui/hooks/useMobile";
 import { getStepFactor, numberToString, toNumber } from "@beep/ui/hooks/useNumberInput";
 import { pipe } from "effect";
+import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
 
 describe("@beep/ui hooks/useNumberInput", () => {
@@ -37,6 +39,14 @@ describe("@beep/ui hooks/useNumberInput", () => {
 
     it("falls back to the base step when fine-grained scaling would be rounded away", () => {
       expect(getStepFactor({ ctrlKey: true }, 0.001, 2)).toBe(0.001);
+    });
+  });
+
+  describe("resolveIsMobile", () => {
+    it("unwraps the mobile Option without coercing the container object", () => {
+      expect(resolveIsMobile(O.some(true))).toBe(true);
+      expect(resolveIsMobile(O.some(false))).toBe(false);
+      expect(resolveIsMobile(O.none())).toBe(false);
     });
   });
 });

@@ -7,6 +7,8 @@ const MOBILE_BREAKPOINT = 768;
 
 const isMobileAtom = Atom.make<O.Option<boolean>>(O.none<boolean>());
 
+export const resolveIsMobile = (isMobile: O.Option<boolean>): boolean => O.getOrElse(isMobile, () => false);
+
 export function useIsMobile() {
   const [isMobile, setIsMobile] = useAtom(isMobileAtom);
 
@@ -20,5 +22,5 @@ export function useIsMobile() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  return !!isMobile;
+  return resolveIsMobile(isMobile);
 }

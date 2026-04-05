@@ -66,6 +66,14 @@ interface ThemeModeControls {
   readonly toggleMode: () => void;
 }
 
+export const resolveThemeMode = (
+  mode: ThemeMode | null | undefined,
+  systemMode: ThemeMode | null | undefined
+): ResolvedThemeMode =>
+  ThemeMode.is.dark(mode) || (ThemeMode.is.system(mode) && ThemeMode.is.dark(systemMode))
+    ? ThemeMode.Enum.dark
+    : ThemeMode.Enum.light;
+
 export function AppThemeProvider({ children, defaultMode = ThemeMode.Enum.system }: AppThemeProviderProps) {
   return (
     <MuiThemeProvider theme={theme} defaultMode={defaultMode} disableTransitionOnChange>
@@ -77,10 +85,7 @@ export function AppThemeProvider({ children, defaultMode = ThemeMode.Enum.system
 
 export function useThemeMode(): ThemeModeControls {
   const { mode, setMode, systemMode } = useColorScheme();
-  const resolvedMode: ResolvedThemeMode =
-    ThemeMode.is.dark(mode) || (ThemeMode.is.system(mode) && ThemeMode.is.dark(systemMode))
-      ? ThemeMode.Enum.light
-      : ThemeMode.Enum.dark;
+  const resolvedMode = resolveThemeMode(mode, systemMode);
 
   return {
     mode: mode ?? ThemeMode.Enum.system,

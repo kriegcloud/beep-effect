@@ -6,6 +6,7 @@ import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import ReactDOM from "react-dom/client";
 import "@beep/ui/styles/globals.css";
+import "./styles.css";
 import { router } from "./router.tsx";
 import "@mui/material-pigment-css/styles.css";
 
