@@ -111,9 +111,8 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        warning: "oklch(var(--warning) / <alpha-value>)",
-        "warning-foreground":
-          "oklch(var(--warning-foreground) / <alpha-value>)",
+        warning: "var(--warning)",
+        "warning-foreground": "var(--warning-foreground)",
       },
     },
   },
@@ -157,7 +156,13 @@ Edit the component source to add a variant via `cva`:
 
 ```tsx
 // components/ui/button.tsx
-warning: "bg-warning text-warning-foreground hover:bg-warning/90",
+const buttonVariants = cva("...", {
+  variants: {
+    variant: {
+      warning: "bg-warning text-warning-foreground hover:bg-warning/90",
+    },
+  },
+})
 ```
 
 ### 4. Wrapper components

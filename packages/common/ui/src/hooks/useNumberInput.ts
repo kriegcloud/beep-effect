@@ -107,10 +107,18 @@ const normalizeEventKey = (event: KeyboardLikeEvent): O.Option<NumberInputEventK
 const isValidNumberValue = (value: number): boolean => !Number.isNaN(value);
 const isVoidHandler = (value: unknown): value is () => void => P.isFunction(value);
 
+const getMaxTouchPoints = (): number => {
+  if (typeof navigator === "undefined") {
+    return 0;
+  }
+
+  const msMaxTouchPoints = Reflect.get(navigator, "msMaxTouchPoints");
+
+  return Math.max(navigator.maxTouchPoints, P.isNumber(msMaxTouchPoints) ? msMaxTouchPoints : 0);
+};
+
 const isTouchDevice = (): boolean =>
-  typeof window !== "undefined" &&
-  document.documentElement.ontouchstart !== undefined &&
-  !P.isNull(document.documentElement.ontouchstart);
+  typeof window !== "undefined" && ("ontouchstart" in window || getMaxTouchPoints() > 0);
 
 const getNodeEnv = (): string | undefined => {
   const runtimeProcess = Reflect.get(globalThis, "process");
@@ -218,7 +226,7 @@ export class SpinParams extends S.Class<SpinParams>($I`SpinParams`)(
 export const toNumber = (value: string | undefined): number | undefined =>
   pipe(
     O.fromUndefinedOr(value),
-    O.filter(Str.isNonEmpty),
+    O.filter((current) => Str.isNonEmpty(Str.trim(current))),
     O.map(Number),
     O.filter(isValidNumberValue),
     O.getOrUndefined
@@ -710,10 +718,12 @@ function NumberInput() {
         }
       }
 
+      const resolvedValue = toNumber(result);
+
       setInterfaceValue(result);
-      onChange?.(Number(result), {
+      onChange?.(resolvedValue, {
         valueText: formatter(result),
-        error: getError(Number(result), min, max),
+        error: getError(resolvedValue, min, max),
         eventType: NumberInputEventType.Enum.blur,
       });
     } else {

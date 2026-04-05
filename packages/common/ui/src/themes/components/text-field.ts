@@ -13,6 +13,12 @@ declare module "@mui/material/TextField" {
   }
 }
 
+declare module "@mui/material/InputLabel" {
+  interface InputLabelPropsSizeOverrides {
+    large: true;
+  }
+}
+
 declare module "@mui/material/FormControl" {
   interface FormControlPropsSizeOverrides {
     large: true;
@@ -326,6 +332,22 @@ export const textFieldTheme: ThemeComponents = {
               },
             },
           },
+          {
+            props: { size: "large" },
+            style: {
+              "&:where(input)": {
+                paddingTop: CONTROL_HEIGHTS.lg / 2 + 5,
+                paddingInline: 16,
+                paddingBottom: CONTROL_HEIGHTS.lg / 2 - 12,
+                ...(CONTROL_HEIGHTS.lg !== CONTROL_TOUCH_HEIGHTS.lg && {
+                  [TOUCH_MEDIA_QUERY]: {
+                    paddingTop: CONTROL_TOUCH_HEIGHTS.lg / 2 + 5,
+                    paddingBottom: CONTROL_TOUCH_HEIGHTS.lg / 2 - 12,
+                  },
+                }),
+              },
+            },
+          },
         ],
       }),
     },
@@ -349,7 +371,24 @@ export const textFieldTheme: ThemeComponents = {
         },
       }),
       input: {
-        padding: "4px 0 5px",
+        paddingTop: 4,
+        paddingBottom: 5,
+        variants: [
+          {
+            props: { size: "small" },
+            style: {
+              paddingTop: 3,
+              paddingBottom: 4,
+            },
+          },
+          {
+            props: { size: "large" },
+            style: {
+              paddingTop: 6,
+              paddingBottom: 7,
+            },
+          },
+        ],
       },
     },
   },
@@ -410,6 +449,15 @@ export const textFieldTheme: ThemeComponents = {
               transform: "translate(12px, 14px) scale(1)",
               "&.MuiInputLabel-shrink": {
                 transform: "translate(10px, 6px) scale(0.75)",
+              },
+            },
+          },
+          {
+            props: { size: "large" },
+            style: {
+              transform: "translate(14px, 18px) scale(1)",
+              "&.MuiInputLabel-shrink": {
+                transform: "translate(12px, 8px) scale(0.75)",
               },
             },
           },

@@ -7,7 +7,7 @@ import {
   StatusCauseFields,
   TaggedErrorClass,
 } from "@beep/schema";
-import { Cause, Effect, pipe } from "effect";
+import { Effect, pipe } from "effect";
 import type * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -105,16 +105,15 @@ const invokeNative: <A>(
   fallback: string,
   args?: undefined | Record<string, unknown>
 ) =>
-  (isNativeDesktop()
+  isNativeDesktop()
     ? Effect.tryPromise({
         try: async () => {
           const { invoke } = await import("@tauri-apps/api/core");
           return decode(await invoke(command, args));
         },
-        catch: toNativeError(fallback, 500),
+        catch: (cause) => toNativeError(fallback, 500, cause),
       })
-    : Effect.fail(toNativeError(fallback, 500, undefined))
-  ).pipe(Effect.catchCause((cause) => Effect.fail(toNativeError(fallback, 500, Cause.squash(cause)))));
+    : Effect.fail(toNativeError(fallback, 500, undefined));
 
 /**
  * Start the managed editor sidecar from the native shell.

@@ -37,6 +37,8 @@ Initializes shadcn/ui in an existing project or creates a new project (when `--n
 | `--silent`              | `-s`  | Mute output                                               | `false` |
 | `--rtl`                 |       | Enable RTL support                                        | —       |
 | `--reinstall`           |       | Re-install existing UI components                         | `false` |
+| `--no-reinstall`        |       | Keep existing UI components when switching presets        | `false` |
+| `--base <base>`         |       | Override the base primitive library in scratch workflows  | —       |
 | `--monorepo`            |       | Scaffold a monorepo project                               | —       |
 | `--no-monorepo`         |       | Skip the monorepo prompt                                  | —       |
 

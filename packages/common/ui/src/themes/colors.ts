@@ -2,6 +2,11 @@ import type { CssVarsThemeOptions } from "@mui/material/styles";
 
 // Augment the palette to include custom 'text' property
 declare module "@mui/material/styles" {
+  interface CommonColors {
+    readonly background: string;
+    readonly onBackground: string;
+  }
+
   interface PaletteColor {
     readonly text: string;
   }
@@ -53,8 +58,13 @@ export const colors: CssVarsThemeOptions["colorSchemes"] = {
         main: "rgb(0, 136, 255)", // blue
         text: "rgb(30, 110, 244)", // blue increased contrast
       },
+      common: {
+        background: "rgb(248, 248, 248)",
+        onBackground: "#212121",
+      },
       background: {
         default: "rgb(248, 248, 248)",
+        paper: "rgb(255, 255, 255)",
       },
     },
   },
@@ -93,6 +103,10 @@ export const colors: CssVarsThemeOptions["colorSchemes"] = {
       info: {
         main: "rgb(0, 145, 255)", // blue for dark
         text: "rgb(92, 184, 255)", // blue for dark
+      },
+      common: {
+        background: "rgb(0, 0, 0)",
+        onBackground: "#f5f5f5",
       },
       background: {
         default: "rgb(0, 0, 0)", // systemGrayDark
