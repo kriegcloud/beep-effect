@@ -1,0 +1,98 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]:
+    - generic [ref=e5]:
+      - generic [ref=e6]:
+        - img [ref=e8]
+        - heading "TrustGraph" [level=2] [ref=e11]
+      - separator [ref=e12]
+      - generic [ref=e13]:
+        - link [ref=e14] [cursor=pointer]:
+          - /url: /search
+          - group [ref=e15]:
+            - img [ref=e16]
+            - paragraph [ref=e19]: Vector Search
+        - link [ref=e20] [cursor=pointer]:
+          - /url: /chat
+          - group [ref=e21]:
+            - img [ref=e22]
+            - paragraph [ref=e24]: Assistant
+        - link [ref=e25] [cursor=pointer]:
+          - /url: /entity
+          - group [ref=e26]:
+            - img [ref=e27]
+            - paragraph [ref=e34]: Relationships
+        - link [ref=e35] [cursor=pointer]:
+          - /url: /graph
+          - group [ref=e36]:
+            - img [ref=e37]
+            - paragraph [ref=e41]: Graph Visualizer
+        - link [ref=e42] [cursor=pointer]:
+          - /url: /library
+          - group [ref=e43]:
+            - img [ref=e44]
+            - paragraph [ref=e47]: Library
+        - link [ref=e48] [cursor=pointer]:
+          - /url: /flows
+          - group [ref=e49]:
+            - img [ref=e50]
+            - paragraph [ref=e54]: Flows
+        - link [ref=e55] [cursor=pointer]:
+          - /url: /kc
+          - group [ref=e56]:
+            - img [ref=e57]
+            - paragraph [ref=e69]: Knowledge Cores
+        - link [ref=e70] [cursor=pointer]:
+          - /url: /prompts
+          - group [ref=e71]:
+            - img [ref=e72]
+            - paragraph [ref=e76]: Prompts
+        - link [ref=e77] [cursor=pointer]:
+          - /url: /agents
+          - group [ref=e78]:
+            - img [ref=e79]
+            - paragraph [ref=e83]: Agent Tools
+        - link [ref=e84] [cursor=pointer]:
+          - /url: /settings
+          - group [ref=e85]:
+            - img [ref=e86]
+            - paragraph [ref=e89]: Settings
+    - generic [ref=e90]:
+      - generic [ref=e91]:
+        - generic [ref=e92]:
+          - img [ref=e94]
+          - generic [ref=e98]:
+            - heading "Processing Flows" [level=1] [ref=e99]
+            - paragraph [ref=e100]: Managing the data flows in the system
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - generic [ref=e104]:
+              - img [ref=e106]
+              - paragraph [ref=e109]: Connecting...
+            - generic [ref=e110]:
+              - img [ref=e111]
+              - paragraph [ref=e114]: trustgraph
+          - generic [ref=e115] [cursor=pointer]:
+            - generic [ref=e116]:
+              - img [ref=e117]
+              - paragraph [ref=e121]: default
+            - generic [ref=e122]:
+              - img [ref=e123]
+              - paragraph [ref=e127]: default
+          - button "toggle color mode" [ref=e128] [cursor=pointer]:
+            - img [ref=e129]
+      - table [ref=e135]:
+        - rowgroup [ref=e136]:
+          - row "ID Flow blueprint Description Parameters" [ref=e137]:
+            - columnheader [ref=e138]:
+              - generic [ref=e139]:
+                - checkbox [ref=e140]
+                - img [ref=e142]
+            - columnheader "ID" [ref=e143]
+            - columnheader "Flow blueprint" [ref=e144]
+            - columnheader "Description" [ref=e145]
+            - columnheader "Parameters" [ref=e146]
+        - rowgroup
+      - button "Create" [ref=e148] [cursor=pointer]:
+        - img [ref=e149]
+        - text: Create
+  - region "bottom-end Notifications alt+T"

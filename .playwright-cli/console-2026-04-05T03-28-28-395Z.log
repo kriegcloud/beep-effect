@@ -1,0 +1,14 @@
+[     967ms] [LOG] A-Frame Version: 1.7.0 (Date 2025-03-12, Commit #1b9650f1) @ https://unpkg.com/aframe@1.7.1:42935
+[     968ms] [LOG] THREE Version (https://github.com/supermedium/three.js): 173 @ https://unpkg.com/aframe@1.7.1:42936
+[    1215ms] [LOG] SocketProvider: Creating socket with auth: disabled user: trustgraph @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[    1215ms] [LOG] SOCKET: opening socket... without auth user: trustgraph @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[    1215ms] [LOG] SOCKET: connecting to /api/socket @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[    1216ms] [LOG] SOCKET: socket opened @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[    1319ms] [LOG] App: Waiting for socket connection... connecting @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:354
+[    1404ms] [LOG] [socket open] @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[    1440ms] [LOG] App: Socket connected, loading flows... @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:354
+[   61451ms] [LOG] Request 04ttloqxplsyv9aq-2 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[   61496ms] [LOG] Request 04ttloqxplsyv9aq-5 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  121472ms] [LOG] Request 04ttloqxplsyv9aq-7 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  121473ms] [LOG] Request 04ttloqxplsyv9aq-9 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  121571ms] [LOG] Request 04ttloqxplsyv9aq-10 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66

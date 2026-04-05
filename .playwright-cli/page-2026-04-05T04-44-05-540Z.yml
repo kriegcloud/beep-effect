@@ -1,0 +1,1324 @@
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e5] [cursor=pointer]:
+    - /url: "#pageContent"
+    - generic [ref=e6]: Skip to main content
+  - banner [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - button "Open menu" [ref=e10] [cursor=pointer]:
+          - generic [ref=e12]:
+            - img "Grafana" [ref=e13]
+            - img [ref=e14]
+        - navigation "Breadcrumbs" [ref=e16]:
+          - list [ref=e17]:
+            - listitem [ref=e18]:
+              - link "Home" [ref=e19] [cursor=pointer]:
+                - /url: /
+              - img [ref=e21]
+            - listitem [ref=e23]:
+              - link "Dashboards" [ref=e24] [cursor=pointer]:
+                - /url: /dashboards
+              - img [ref=e26]
+            - listitem [ref=e28]:
+              - link "TrustGraph" [ref=e29] [cursor=pointer]:
+                - /url: /dashboards/f/afi2pm98gdlvkb/trustgraph
+              - img [ref=e31]
+            - listitem [ref=e33]:
+              - generic "Logs" [ref=e34]
+      - generic [ref=e35]:
+        - button "Search or jump to..." [ref=e36] [cursor=pointer]:
+          - img [ref=e37]
+        - button "New" [ref=e39] [cursor=pointer]:
+          - img [ref=e40]
+          - img [ref=e42]
+        - button "Help" [ref=e45] [cursor=pointer]:
+          - img [ref=e46]
+        - button "News" [ref=e48] [cursor=pointer]:
+          - img [ref=e49]
+        - button "Profile" [ref=e51] [cursor=pointer]:
+          - img "User avatar" [ref=e52]
+    - generic [ref=e56]:
+      - button "Mark as favorite" [ref=e58] [cursor=pointer]:
+        - img [ref=e59]
+      - button "Edit" [ref=e64] [cursor=pointer]:
+        - generic [ref=e65]: Edit
+      - button "Export" [ref=e70] [cursor=pointer]:
+        - generic [ref=e71]:
+          - text: Export
+          - img [ref=e72]
+      - generic [ref=e75]:
+        - button "Share" [ref=e76] [cursor=pointer]:
+          - generic [ref=e77]: Share
+        - button "share-dropdown-menu" [ref=e78] [cursor=pointer]:
+          - img [ref=e79]
+  - main [ref=e83]:
+    - generic [ref=e86]:
+      - generic [ref=e89]:
+        - generic [ref=e90]:
+          - 'button "Time range selected: Last 15 minutes" [ref=e91] [cursor=pointer]':
+            - img [ref=e92]
+            - generic [ref=e96]: Last 15 minutes
+            - img [ref=e97]
+          - button "Zoom out time range" [ref=e99] [cursor=pointer]:
+            - img [ref=e100]
+        - generic [ref=e102]:
+          - button "Refresh" [ref=e103] [cursor=pointer]:
+            - img [ref=e104]
+            - generic [ref=e106]: Refresh
+          - button "Auto refresh turned off. Choose refresh time interval" [ref=e108] [cursor=pointer]:
+            - img [ref=e109]
+      - generic [ref=e114]:
+        - region "Error volume" [ref=e118]:
+          - heading "Error volume" [level=2] [ref=e121]
+          - list [ref=e139]:
+            - listitem [ref=e140]:
+              - 'button "{processor=\"agent-manager\"}" [ref=e144] [cursor=pointer]'
+            - listitem [ref=e145]:
+              - 'button "{processor=\"api-gateway\"}" [ref=e149] [cursor=pointer]'
+            - listitem [ref=e150]:
+              - 'button "{processor=\"chunker\"}" [ref=e154] [cursor=pointer]'
+            - listitem [ref=e155]:
+              - 'button "{processor=\"graph-rag\"}" [ref=e159] [cursor=pointer]'
+            - listitem [ref=e160]:
+              - 'button "{processor=\"prompt\"}" [ref=e164] [cursor=pointer]'
+            - listitem [ref=e165]:
+              - 'button "{processor=\"prompt-rag\"}" [ref=e169] [cursor=pointer]'
+            - listitem [ref=e170]:
+              - 'button "{processor=\"text-completion\"}" [ref=e174] [cursor=pointer]'
+            - listitem [ref=e175]:
+              - 'button "{processor=\"text-completion-rag\"}" [ref=e179] [cursor=pointer]'
+        - region "Log errors" [active] [ref=e183]:
+          - generic [ref=e184]:
+            - heading "Log errors" [level=2] [ref=e186]
+            - button "Menu for panel with title Log errors" [ref=e950] [cursor=pointer]:
+              - img [ref=e951]
+          - table [ref=e192]:
+            - rowgroup [ref=e193]:
+              - 'row "2026-04-05 04:43:17,666 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e194] [cursor=pointer]':
+                - cell [ref=e195]
+                - cell "See log details" [ref=e196]:
+                  - img [ref=e197]
+                - 'cell "2026-04-05 04:43:17,666 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e199]':
+                  - 'button "2026-04-05 04:43:17,666 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e201]'
+                - cell
+              - 'row "2026-04-05 04:43:17,585 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e202] [cursor=pointer]':
+                - cell [ref=e203]
+                - cell "See log details" [ref=e204]:
+                  - img [ref=e205]
+                - 'cell "2026-04-05 04:43:17,585 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e207]':
+                  - 'button "2026-04-05 04:43:17,585 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e209]'
+                - cell
+              - 'row "2026-04-05 04:43:17,517 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e210] [cursor=pointer]':
+                - cell [ref=e211]
+                - cell "See log details" [ref=e212]:
+                  - img [ref=e213]
+                - 'cell "2026-04-05 04:43:17,517 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e215]':
+                  - 'button "2026-04-05 04:43:17,517 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e217]'
+                - cell
+              - 'row "2026-04-05 04:43:17,417 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e218] [cursor=pointer]':
+                - cell [ref=e219]
+                - cell "See log details" [ref=e220]:
+                  - img [ref=e221]
+                - 'cell "2026-04-05 04:43:17,417 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e223]':
+                  - 'button "2026-04-05 04:43:17,417 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e225]'
+                - cell
+              - 'row "2026-04-05 04:42:55,752 - api-gateway - ERROR - Exception: Timeout" [ref=e226] [cursor=pointer]':
+                - cell [ref=e227]
+                - cell "See log details" [ref=e228]:
+                  - img [ref=e229]
+                - 'cell "2026-04-05 04:42:55,752 - api-gateway - ERROR - Exception: Timeout" [ref=e231]':
+                  - 'button "2026-04-05 04:42:55,752 - api-gateway - ERROR - Exception: Timeout" [ref=e233]'
+                - cell
+              - 'row "2026-04-05 04:42:55,751 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e234] [cursor=pointer]':
+                - cell [ref=e235]
+                - cell "See log details" [ref=e236]:
+                  - img [ref=e237]
+                - 'cell "2026-04-05 04:42:55,751 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e239]':
+                  - 'button "2026-04-05 04:42:55,751 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e241]'
+                - cell
+              - 'row "2026-04-05 04:42:17,297 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e242] [cursor=pointer]':
+                - cell [ref=e243]
+                - cell "See log details" [ref=e244]:
+                  - img [ref=e245]
+                - 'cell "2026-04-05 04:42:17,297 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e247]':
+                  - 'button "2026-04-05 04:42:17,297 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e249]'
+                - cell
+              - 'row "2026-04-05 04:42:17,230 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e250] [cursor=pointer]':
+                - cell [ref=e251]
+                - cell "See log details" [ref=e252]:
+                  - img [ref=e253]
+                - 'cell "2026-04-05 04:42:17,230 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e255]':
+                  - 'button "2026-04-05 04:42:17,230 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e257]'
+                - cell
+              - 'row "2026-04-05 04:42:17,096 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e258] [cursor=pointer]':
+                - cell [ref=e259]
+                - cell "See log details" [ref=e260]:
+                  - img [ref=e261]
+                - 'cell "2026-04-05 04:42:17,096 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e263]':
+                  - 'button "2026-04-05 04:42:17,096 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e265]'
+                - cell
+              - 'row "2026-04-05 04:42:16,996 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e266] [cursor=pointer]':
+                - cell [ref=e267]
+                - cell "See log details" [ref=e268]:
+                  - img [ref=e269]
+                - 'cell "2026-04-05 04:42:16,996 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e271]':
+                  - 'button "2026-04-05 04:42:16,996 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e273]'
+                - cell
+              - 'row "2026-04-05 04:41:55,769 - api-gateway - ERROR - Exception: Timeout" [ref=e274] [cursor=pointer]':
+                - cell [ref=e275]
+                - cell "See log details" [ref=e276]:
+                  - img [ref=e277]
+                - 'cell "2026-04-05 04:41:55,769 - api-gateway - ERROR - Exception: Timeout" [ref=e279]':
+                  - 'button "2026-04-05 04:41:55,769 - api-gateway - ERROR - Exception: Timeout" [ref=e281]'
+                - cell
+              - 'row "2026-04-05 04:41:55,768 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e282] [cursor=pointer]':
+                - cell [ref=e283]
+                - cell "See log details" [ref=e284]:
+                  - img [ref=e285]
+                - 'cell "2026-04-05 04:41:55,768 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e287]':
+                  - 'button "2026-04-05 04:41:55,768 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e289]'
+                - cell
+              - 'row "2026-04-05 04:41:55,747 - api-gateway - ERROR - Exception: Timeout" [ref=e290] [cursor=pointer]':
+                - cell [ref=e291]
+                - cell "See log details" [ref=e292]:
+                  - img [ref=e293]
+                - 'cell "2026-04-05 04:41:55,747 - api-gateway - ERROR - Exception: Timeout" [ref=e295]':
+                  - 'button "2026-04-05 04:41:55,747 - api-gateway - ERROR - Exception: Timeout" [ref=e297]'
+                - cell
+              - 'row "2026-04-05 04:41:55,746 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e298] [cursor=pointer]':
+                - cell [ref=e299]
+                - cell "See log details" [ref=e300]:
+                  - img [ref=e301]
+                - 'cell "2026-04-05 04:41:55,746 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e303]':
+                  - 'button "2026-04-05 04:41:55,746 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e305]'
+                - cell
+              - 'row "2026-04-05 04:41:53,736 - api-gateway - ERROR - Exception: Timeout" [ref=e306] [cursor=pointer]':
+                - cell [ref=e307]
+                - cell "See log details" [ref=e308]:
+                  - img [ref=e309]
+                - 'cell "2026-04-05 04:41:53,736 - api-gateway - ERROR - Exception: Timeout" [ref=e311]':
+                  - 'button "2026-04-05 04:41:53,736 - api-gateway - ERROR - Exception: Timeout" [ref=e313]'
+                - cell
+              - 'row "2026-04-05 04:41:53,732 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e314] [cursor=pointer]':
+                - cell [ref=e315]
+                - cell "See log details" [ref=e316]:
+                  - img [ref=e317]
+                - 'cell "2026-04-05 04:41:53,732 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e319]':
+                  - 'button "2026-04-05 04:41:53,732 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e321]'
+                - cell
+              - 'row "2026-04-05 04:41:16,920 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e322] [cursor=pointer]':
+                - cell [ref=e323]
+                - cell "See log details" [ref=e324]:
+                  - img [ref=e325]
+                - 'cell "2026-04-05 04:41:16,920 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e327]':
+                  - 'button "2026-04-05 04:41:16,920 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e329]'
+                - cell
+              - 'row "2026-04-05 04:41:16,787 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e330] [cursor=pointer]':
+                - cell [ref=e331]
+                - cell "See log details" [ref=e332]:
+                  - img [ref=e333]
+                - 'cell "2026-04-05 04:41:16,787 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e335]':
+                  - 'button "2026-04-05 04:41:16,787 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e337]'
+                - cell
+              - 'row "2026-04-05 04:41:16,674 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e338] [cursor=pointer]':
+                - cell [ref=e339]
+                - cell "See log details" [ref=e340]:
+                  - img [ref=e341]
+                - 'cell "2026-04-05 04:41:16,674 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e343]':
+                  - 'button "2026-04-05 04:41:16,674 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e345]'
+                - cell
+              - 'row "2026-04-05 04:41:16,563 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e346] [cursor=pointer]':
+                - cell [ref=e347]
+                - cell "See log details" [ref=e348]:
+                  - img [ref=e349]
+                - 'cell "2026-04-05 04:41:16,563 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e351]':
+                  - 'button "2026-04-05 04:41:16,563 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e353]'
+                - cell
+              - 'row "2026-04-05 04:40:53,731 - api-gateway - ERROR - Exception: Timeout" [ref=e354] [cursor=pointer]':
+                - cell [ref=e355]
+                - cell "See log details" [ref=e356]:
+                  - img [ref=e357]
+                - 'cell "2026-04-05 04:40:53,731 - api-gateway - ERROR - Exception: Timeout" [ref=e359]':
+                  - 'button "2026-04-05 04:40:53,731 - api-gateway - ERROR - Exception: Timeout" [ref=e361]'
+                - cell
+              - 'row "2026-04-05 04:40:53,728 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e362] [cursor=pointer]':
+                - cell [ref=e363]
+                - cell "See log details" [ref=e364]:
+                  - img [ref=e365]
+                - 'cell "2026-04-05 04:40:53,728 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e367]':
+                  - 'button "2026-04-05 04:40:53,728 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e369]'
+                - cell
+              - 'row "2026-04-05 04:40:16,475 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e370] [cursor=pointer]':
+                - cell [ref=e371]
+                - cell "See log details" [ref=e372]:
+                  - img [ref=e373]
+                - 'cell "2026-04-05 04:40:16,475 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e375]':
+                  - 'button "2026-04-05 04:40:16,475 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e377]'
+                - cell
+              - 'row "2026-04-05 04:40:16,386 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e378] [cursor=pointer]':
+                - cell [ref=e379]
+                - cell "See log details" [ref=e380]:
+                  - img [ref=e381]
+                - 'cell "2026-04-05 04:40:16,386 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e383]':
+                  - 'button "2026-04-05 04:40:16,386 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e385]'
+                - cell
+              - 'row "2026-04-05 04:40:16,252 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e386] [cursor=pointer]':
+                - cell [ref=e387]
+                - cell "See log details" [ref=e388]:
+                  - img [ref=e389]
+                - 'cell "2026-04-05 04:40:16,252 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e391]':
+                  - 'button "2026-04-05 04:40:16,252 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e393]'
+                - cell
+              - 'row "2026-04-05 04:40:16,132 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e394] [cursor=pointer]':
+                - cell [ref=e395]
+                - cell "See log details" [ref=e396]:
+                  - img [ref=e397]
+                - 'cell "2026-04-05 04:40:16,132 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e399]':
+                  - 'button "2026-04-05 04:40:16,132 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e401]'
+                - cell
+              - row [ref=e402] [cursor=pointer]:
+                - cell [ref=e403]
+                - cell "See log details" [ref=e404]:
+                  - img [ref=e405]
+                - cell [ref=e407]:
+                  - button [ref=e409]
+                - cell
+              - row [ref=e410] [cursor=pointer]:
+                - cell [ref=e411]
+                - cell "See log details" [ref=e412]:
+                  - img [ref=e413]
+                - cell [ref=e415]:
+                  - button [ref=e417]
+                - cell
+              - row [ref=e418] [cursor=pointer]:
+                - cell [ref=e419]
+                - cell "See log details" [ref=e420]:
+                  - img [ref=e421]
+                - cell [ref=e423]:
+                  - button [ref=e425]
+                - cell
+              - row [ref=e426] [cursor=pointer]:
+                - cell [ref=e427]
+                - cell "See log details" [ref=e428]:
+                  - img [ref=e429]
+                - cell [ref=e431]:
+                  - button [ref=e433]
+                - cell
+              - row [ref=e434] [cursor=pointer]:
+                - cell [ref=e435]
+                - cell "See log details" [ref=e436]:
+                  - img [ref=e437]
+                - cell [ref=e439]:
+                  - button [ref=e441]
+                - cell
+              - 'row "2026-04-05 04:39:53,789 - api-gateway - ERROR - Exception: Timeout" [ref=e442] [cursor=pointer]':
+                - cell [ref=e443]
+                - cell "See log details" [ref=e444]:
+                  - img [ref=e445]
+                - 'cell "2026-04-05 04:39:53,789 - api-gateway - ERROR - Exception: Timeout" [ref=e447]':
+                  - 'button "2026-04-05 04:39:53,789 - api-gateway - ERROR - Exception: Timeout" [ref=e449]'
+                - cell
+              - 'row "2026-04-05 04:39:53,784 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e450] [cursor=pointer]':
+                - cell [ref=e451]
+                - cell "See log details" [ref=e452]:
+                  - img [ref=e453]
+                - 'cell "2026-04-05 04:39:53,784 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e455]':
+                  - 'button "2026-04-05 04:39:53,784 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e457]'
+                - cell
+              - 'row "2026-04-05 04:39:53,728 - api-gateway - ERROR - Exception: Timeout" [ref=e458] [cursor=pointer]':
+                - cell [ref=e459]
+                - cell "See log details" [ref=e460]:
+                  - img [ref=e461]
+                - 'cell "2026-04-05 04:39:53,728 - api-gateway - ERROR - Exception: Timeout" [ref=e463]':
+                  - 'button "2026-04-05 04:39:53,728 - api-gateway - ERROR - Exception: Timeout" [ref=e465]'
+                - cell
+              - 'row "2026-04-05 04:39:53,724 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e466] [cursor=pointer]':
+                - cell [ref=e467]
+                - cell "See log details" [ref=e468]:
+                  - img [ref=e469]
+                - 'cell "2026-04-05 04:39:53,724 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e471]':
+                  - 'button "2026-04-05 04:39:53,724 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e473]'
+                - cell
+              - 'row "2026-04-05 04:39:52,887 - api-gateway - ERROR - Exception: Timeout" [ref=e474] [cursor=pointer]':
+                - cell [ref=e475]
+                - cell "See log details" [ref=e476]:
+                  - img [ref=e477]
+                - 'cell "2026-04-05 04:39:52,887 - api-gateway - ERROR - Exception: Timeout" [ref=e479]':
+                  - 'button "2026-04-05 04:39:52,887 - api-gateway - ERROR - Exception: Timeout" [ref=e481]'
+                - cell
+              - 'row "2026-04-05 04:39:52,887 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e482] [cursor=pointer]':
+                - cell [ref=e483]
+                - cell "See log details" [ref=e484]:
+                  - img [ref=e485]
+                - 'cell "2026-04-05 04:39:52,887 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e487]':
+                  - 'button "2026-04-05 04:39:52,887 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e489]'
+                - cell
+              - 'row "2026-04-05 04:39:16,041 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e490] [cursor=pointer]':
+                - cell [ref=e491]
+                - cell "See log details" [ref=e492]:
+                  - img [ref=e493]
+                - 'cell "2026-04-05 04:39:16,041 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e495]':
+                  - 'button "2026-04-05 04:39:16,041 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e497]'
+                - cell
+              - 'row "2026-04-05 04:39:15,907 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e498] [cursor=pointer]':
+                - cell [ref=e499]
+                - cell "See log details" [ref=e500]:
+                  - img [ref=e501]
+                - 'cell "2026-04-05 04:39:15,907 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e503]':
+                  - 'button "2026-04-05 04:39:15,907 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e505]'
+                - cell
+              - 'row "2026-04-05 04:39:15,773 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e506] [cursor=pointer]':
+                - cell [ref=e507]
+                - cell "See log details" [ref=e508]:
+                  - img [ref=e509]
+                - 'cell "2026-04-05 04:39:15,773 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e511]':
+                  - 'button "2026-04-05 04:39:15,773 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e513]'
+                - cell
+              - 'row "2026-04-05 04:39:15,662 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e514] [cursor=pointer]':
+                - cell [ref=e515]
+                - cell "See log details" [ref=e516]:
+                  - img [ref=e517]
+                - 'cell "2026-04-05 04:39:15,662 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e519]':
+                  - 'button "2026-04-05 04:39:15,662 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e521]'
+                - cell
+              - 'row "2026-04-05 04:38:52,720 - api-gateway - ERROR - Exception: Timeout" [ref=e522] [cursor=pointer]':
+                - cell [ref=e523]
+                - cell "See log details" [ref=e524]:
+                  - img [ref=e525]
+                - 'cell "2026-04-05 04:38:52,720 - api-gateway - ERROR - Exception: Timeout" [ref=e527]':
+                  - 'button "2026-04-05 04:38:52,720 - api-gateway - ERROR - Exception: Timeout" [ref=e529]'
+                - cell
+              - 'row "2026-04-05 04:38:52,716 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e530] [cursor=pointer]':
+                - cell [ref=e531]
+                - cell "See log details" [ref=e532]:
+                  - img [ref=e533]
+                - 'cell "2026-04-05 04:38:52,716 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e535]':
+                  - 'button "2026-04-05 04:38:52,716 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e537]'
+                - cell
+              - 'row "2026-04-05 04:38:47,835 - api-gateway - ERROR - Exception: ''vector''" [ref=e538] [cursor=pointer]':
+                - cell [ref=e539]
+                - cell "See log details" [ref=e540]:
+                  - img [ref=e541]
+                - 'cell "2026-04-05 04:38:47,835 - api-gateway - ERROR - Exception: ''vector''" [ref=e543]':
+                  - 'button "2026-04-05 04:38:47,835 - api-gateway - ERROR - Exception: ''vector''" [ref=e545]'
+                - cell
+              - 'row "2026-04-05 04:38:47,754 - api-gateway - ERROR - Exception: ''texts''" [ref=e546] [cursor=pointer]':
+                - cell [ref=e547]
+                - cell "See log details" [ref=e548]:
+                  - img [ref=e549]
+                - 'cell "2026-04-05 04:38:47,754 - api-gateway - ERROR - Exception: ''texts''" [ref=e551]':
+                  - 'button "2026-04-05 04:38:47,754 - api-gateway - ERROR - Exception: ''texts''" [ref=e553]'
+                - cell
+              - 'row "2026-04-05 04:38:42,068 - api-gateway - ERROR - Exception: ''texts''" [ref=e554] [cursor=pointer]':
+                - cell [ref=e555]
+                - cell "See log details" [ref=e556]:
+                  - img [ref=e557]
+                - 'cell "2026-04-05 04:38:42,068 - api-gateway - ERROR - Exception: ''texts''" [ref=e559]':
+                  - 'button "2026-04-05 04:38:42,068 - api-gateway - ERROR - Exception: ''texts''" [ref=e561]'
+                - cell
+              - 'row "2026-04-05 04:38:42,038 - api-gateway - ERROR - Exception: ''texts''" [ref=e562] [cursor=pointer]':
+                - cell [ref=e563]
+                - cell "See log details" [ref=e564]:
+                  - img [ref=e565]
+                - 'cell "2026-04-05 04:38:42,038 - api-gateway - ERROR - Exception: ''texts''" [ref=e567]':
+                  - 'button "2026-04-05 04:38:42,038 - api-gateway - ERROR - Exception: ''texts''" [ref=e569]'
+                - cell
+              - row [ref=e570] [cursor=pointer]:
+                - cell [ref=e571]
+                - cell "See log details" [ref=e572]:
+                  - img [ref=e573]
+                - cell [ref=e575]:
+                  - button [ref=e577]
+                - cell
+              - row [ref=e578] [cursor=pointer]:
+                - cell [ref=e579]
+                - cell "See log details" [ref=e580]:
+                  - img [ref=e581]
+                - cell [ref=e583]:
+                  - button [ref=e585]
+                - cell
+              - row [ref=e586] [cursor=pointer]:
+                - cell [ref=e587]
+                - cell "See log details" [ref=e588]:
+                  - img [ref=e589]
+                - cell [ref=e591]:
+                  - button [ref=e593]
+                - cell
+              - row [ref=e594] [cursor=pointer]:
+                - cell [ref=e595]
+                - cell "See log details" [ref=e596]:
+                  - img [ref=e597]
+                - cell [ref=e599]:
+                  - button [ref=e601]
+                - cell
+              - row [ref=e602] [cursor=pointer]:
+                - cell [ref=e603]
+                - cell "See log details" [ref=e604]:
+                  - img [ref=e605]
+                - cell [ref=e607]:
+                  - button [ref=e609]
+                - cell
+              - 'row "2026-04-05 04:38:15,575 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e610] [cursor=pointer]':
+                - cell [ref=e611]
+                - cell "See log details" [ref=e612]:
+                  - img [ref=e613]
+                - 'cell "2026-04-05 04:38:15,575 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e615]':
+                  - 'button "2026-04-05 04:38:15,575 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e617]'
+                - cell
+              - 'row "2026-04-05 04:38:15,508 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e618] [cursor=pointer]':
+                - cell [ref=e619]
+                - cell "See log details" [ref=e620]:
+                  - img [ref=e621]
+                - 'cell "2026-04-05 04:38:15,508 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e623]':
+                  - 'button "2026-04-05 04:38:15,508 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e625]'
+                - cell
+              - 'row "2026-04-05 04:38:15,374 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e626] [cursor=pointer]':
+                - cell [ref=e627]
+                - cell "See log details" [ref=e628]:
+                  - img [ref=e629]
+                - 'cell "2026-04-05 04:38:15,374 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e631]':
+                  - 'button "2026-04-05 04:38:15,374 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e633]'
+                - cell
+              - 'row "2026-04-05 04:38:15,273 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e634] [cursor=pointer]':
+                - cell [ref=e635]
+                - cell "See log details" [ref=e636]:
+                  - img [ref=e637]
+                - 'cell "2026-04-05 04:38:15,273 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e639]':
+                  - 'button "2026-04-05 04:38:15,273 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e641]'
+                - cell
+              - 'row "2026-04-05 04:37:52,764 - api-gateway - ERROR - Exception: Timeout" [ref=e642] [cursor=pointer]':
+                - cell [ref=e643]
+                - cell "See log details" [ref=e644]:
+                  - img [ref=e645]
+                - 'cell "2026-04-05 04:37:52,764 - api-gateway - ERROR - Exception: Timeout" [ref=e647]':
+                  - 'button "2026-04-05 04:37:52,764 - api-gateway - ERROR - Exception: Timeout" [ref=e649]'
+                - cell
+              - 'row "2026-04-05 04:37:52,763 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e650] [cursor=pointer]':
+                - cell [ref=e651]
+                - cell "See log details" [ref=e652]:
+                  - img [ref=e653]
+                - 'cell "2026-04-05 04:37:52,763 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e655]':
+                  - 'button "2026-04-05 04:37:52,763 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e657]'
+                - cell
+              - 'row "2026-04-05 04:37:52,720 - api-gateway - ERROR - Exception: Timeout" [ref=e658] [cursor=pointer]':
+                - cell [ref=e659]
+                - cell "See log details" [ref=e660]:
+                  - img [ref=e661]
+                - 'cell "2026-04-05 04:37:52,720 - api-gateway - ERROR - Exception: Timeout" [ref=e663]':
+                  - 'button "2026-04-05 04:37:52,720 - api-gateway - ERROR - Exception: Timeout" [ref=e665]'
+                - cell
+              - 'row "2026-04-05 04:37:52,719 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e666] [cursor=pointer]':
+                - cell [ref=e667]
+                - cell "See log details" [ref=e668]:
+                  - img [ref=e669]
+                - 'cell "2026-04-05 04:37:52,719 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e671]':
+                  - 'button "2026-04-05 04:37:52,719 - api-gateway - ERROR - Request timeout exception: Traceback (most recent call last): File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 507, in wait_for return await fut ^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/queues.py\", line 186, in get await getter asyncio.exceptions.CancelledError The above exception was the direct cause of the following exception: Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/gateway/dispatch/requestor.py\", line 67, in process resp = await asyncio.wait_for( ^^^^^^^^^^^^^^^^^^^^^^^ q.get(), timeout=self.timeout ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ ) ^ File \"/usr/lib64/python3.13/asyncio/tasks.py\", line 506, in wait_for async with timeouts.timeout(timeout): ~~~~~~~~~~~~~~~~^^^^^^^^^ File \"/usr/lib64/python3.13/asyncio/timeouts.py\", line 116, in __aexit__ raise TimeoutError from exc_val TimeoutError" [ref=e673]'
+                - cell
+              - row [ref=e674] [cursor=pointer]:
+                - cell [ref=e675]
+                - cell "See log details" [ref=e676]:
+                  - img [ref=e677]
+                - cell [ref=e679]:
+                  - button [ref=e681]
+                - cell
+              - row [ref=e682] [cursor=pointer]:
+                - cell [ref=e683]
+                - cell "See log details" [ref=e684]:
+                  - img [ref=e685]
+                - cell [ref=e687]:
+                  - button [ref=e689]
+                - cell
+              - row [ref=e690] [cursor=pointer]:
+                - cell [ref=e691]
+                - cell "See log details" [ref=e692]:
+                  - img [ref=e693]
+                - cell [ref=e695]:
+                  - button [ref=e697]
+                - cell
+              - row [ref=e698] [cursor=pointer]:
+                - cell [ref=e699]
+                - cell "See log details" [ref=e700]:
+                  - img [ref=e701]
+                - cell [ref=e703]:
+                  - button [ref=e705]
+                - cell
+              - row [ref=e706] [cursor=pointer]:
+                - cell [ref=e707]
+                - cell "See log details" [ref=e708]:
+                  - img [ref=e709]
+                - cell [ref=e711]:
+                  - button [ref=e713]
+                - cell
+              - row [ref=e714] [cursor=pointer]:
+                - cell [ref=e715]
+                - cell "See log details" [ref=e716]:
+                  - img [ref=e717]
+                - cell [ref=e719]:
+                  - button [ref=e721]
+                - cell
+              - row [ref=e722] [cursor=pointer]:
+                - cell [ref=e723]
+                - cell "See log details" [ref=e724]:
+                  - img [ref=e725]
+                - cell [ref=e727]:
+                  - button [ref=e729]
+                - cell
+              - row [ref=e730] [cursor=pointer]:
+                - cell [ref=e731]
+                - cell "See log details" [ref=e732]:
+                  - img [ref=e733]
+                - cell [ref=e735]:
+                  - button [ref=e737]
+                - cell
+              - row [ref=e738] [cursor=pointer]:
+                - cell [ref=e739]
+                - cell "See log details" [ref=e740]:
+                  - img [ref=e741]
+                - cell [ref=e743]:
+                  - button [ref=e745]
+                - cell
+              - row [ref=e746] [cursor=pointer]:
+                - cell [ref=e747]
+                - cell "See log details" [ref=e748]:
+                  - img [ref=e749]
+                - cell [ref=e751]:
+                  - button [ref=e753]
+                - cell
+              - row [ref=e754] [cursor=pointer]:
+                - cell [ref=e755]
+                - cell "See log details" [ref=e756]:
+                  - img [ref=e757]
+                - cell [ref=e759]:
+                  - button [ref=e761]
+                - cell
+              - row [ref=e762] [cursor=pointer]:
+                - cell [ref=e763]
+                - cell "See log details" [ref=e764]:
+                  - img [ref=e765]
+                - cell [ref=e767]:
+                  - button [ref=e769]
+                - cell
+              - row [ref=e770] [cursor=pointer]:
+                - cell [ref=e771]
+                - cell "See log details" [ref=e772]:
+                  - img [ref=e773]
+                - cell [ref=e775]:
+                  - button [ref=e777]
+                - cell
+              - row [ref=e778] [cursor=pointer]:
+                - cell [ref=e779]
+                - cell "See log details" [ref=e780]:
+                  - img [ref=e781]
+                - cell [ref=e783]:
+                  - button [ref=e785]
+                - cell
+              - row [ref=e786] [cursor=pointer]:
+                - cell [ref=e787]
+                - cell "See log details" [ref=e788]:
+                  - img [ref=e789]
+                - cell [ref=e791]:
+                  - button [ref=e793]
+                - cell
+              - row [ref=e794] [cursor=pointer]:
+                - cell [ref=e795]
+                - cell "See log details" [ref=e796]:
+                  - img [ref=e797]
+                - cell [ref=e799]:
+                  - button [ref=e801]
+                - cell
+              - row [ref=e802] [cursor=pointer]:
+                - cell [ref=e803]
+                - cell "See log details" [ref=e804]:
+                  - img [ref=e805]
+                - cell [ref=e807]:
+                  - button [ref=e809]
+                - cell
+              - row [ref=e810] [cursor=pointer]:
+                - cell [ref=e811]
+                - cell "See log details" [ref=e812]:
+                  - img [ref=e813]
+                - cell [ref=e815]:
+                  - button [ref=e817]
+                - cell
+              - row [ref=e818] [cursor=pointer]:
+                - cell [ref=e819]
+                - cell "See log details" [ref=e820]:
+                  - img [ref=e821]
+                - cell [ref=e823]:
+                  - button [ref=e825]
+                - cell
+              - row [ref=e826] [cursor=pointer]:
+                - cell [ref=e827]
+                - cell "See log details" [ref=e828]:
+                  - img [ref=e829]
+                - cell [ref=e831]:
+                  - button [ref=e833]
+                - cell
+              - 'row "2026-04-05 04:37:15,195 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e834] [cursor=pointer]':
+                - cell [ref=e835]
+                - cell "See log details" [ref=e836]:
+                  - img [ref=e837]
+                - 'cell "2026-04-05 04:37:15,195 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e839]':
+                  - 'button "2026-04-05 04:37:15,195 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist" [ref=e841]'
+                - cell
+              - 'row "2026-04-05 04:37:15,073 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e842] [cursor=pointer]':
+                - cell [ref=e843]
+                - cell "See log details" [ref=e844]:
+                  - img [ref=e845]
+                - 'cell "2026-04-05 04:37:15,073 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e847]':
+                  - 'button "2026-04-05 04:37:15,073 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-4 does not exist" [ref=e849]'
+                - cell
+              - 'row "2026-04-05 04:37:14,939 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e850] [cursor=pointer]':
+                - cell [ref=e851]
+                - cell "See log details" [ref=e852]:
+                  - img [ref=e853]
+                - 'cell "2026-04-05 04:37:14,939 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e855]':
+                  - 'button "2026-04-05 04:37:14,939 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document tg-smoke-beep-effect-20260404-2 does not exist" [ref=e857]'
+                - cell
+              - 'row "2026-04-05 04:37:14,826 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e858] [cursor=pointer]':
+                - cell [ref=e859]
+                - cell "See log details" [ref=e860]:
+                  - img [ref=e861]
+                - 'cell "2026-04-05 04:37:14,826 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e863]':
+                  - 'button "2026-04-05 04:37:14,826 - chunker - ERROR - Message processing exception: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist Traceback (most recent call last): File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/consumer.py\", line 201, in handle_one_from_queue await self.handler(msg, self, self.flow) File \"/usr/local/lib/python3.13/site-packages/trustgraph/chunking/recursive/chunker.py\", line 136, in on_message await self.save_child_document( ...<6 lines>... ) File \"/usr/local/lib/python3.13/site-packages/trustgraph/base/chunking_service.py\", line 189, in save_child_document raise RuntimeError( f\"Librarian error saving chunk: {response.error.type}: {response.error.message}\" ) RuntimeError: Librarian error saving chunk: request-error: Parent document urn:test:tg-debug does not exist" [ref=e865]'
+                - cell
+              - row [ref=e866] [cursor=pointer]:
+                - cell [ref=e867]
+                - cell "See log details" [ref=e868]:
+                  - img [ref=e869]
+                - cell [ref=e871]:
+                  - button [ref=e873]
+                - cell
+              - row [ref=e874] [cursor=pointer]:
+                - cell [ref=e875]
+                - cell "See log details" [ref=e876]:
+                  - img [ref=e877]
+                - cell [ref=e879]:
+                  - button [ref=e881]
+                - cell
+              - row [ref=e882] [cursor=pointer]:
+                - cell [ref=e883]
+                - cell "See log details" [ref=e884]:
+                  - img [ref=e885]
+                - cell [ref=e887]:
+                  - button [ref=e889]
+                - cell
+              - row [ref=e890] [cursor=pointer]:
+                - cell [ref=e891]
+                - cell "See log details" [ref=e892]:
+                  - img [ref=e893]
+                - cell [ref=e895]:
+                  - button [ref=e897]
+                - cell
+              - row [ref=e898] [cursor=pointer]:
+                - cell [ref=e899]
+                - cell "See log details" [ref=e900]:
+                  - img [ref=e901]
+                - cell [ref=e903]:
+                  - button [ref=e905]
+                - cell
+              - row [ref=e906] [cursor=pointer]:
+                - cell [ref=e907]
+                - cell "See log details" [ref=e908]:
+                  - img [ref=e909]
+                - cell [ref=e911]:
+                  - button [ref=e913]
+                - cell
+              - row [ref=e914] [cursor=pointer]:
+                - cell [ref=e915]
+                - cell "See log details" [ref=e916]:
+                  - img [ref=e917]
+                - cell [ref=e919]:
+                  - button [ref=e921]
+                - cell
+              - row [ref=e922] [cursor=pointer]:
+                - cell [ref=e923]
+                - cell "See log details" [ref=e924]:
+                  - img [ref=e925]
+                - cell [ref=e927]:
+                  - button [ref=e929]
+                - cell
+              - row [ref=e930] [cursor=pointer]:
+                - cell [ref=e931]
+                - cell "See log details" [ref=e932]:
+                  - img [ref=e933]
+                - cell [ref=e935]:
+                  - button [ref=e937]
+                - cell
+              - row [ref=e938] [cursor=pointer]:
+                - cell [ref=e939]
+                - cell "See log details" [ref=e940]:
+                  - img [ref=e941]
+                - cell [ref=e943]:
+                  - button [ref=e945]
+                - cell
+              - row [ref=e946]:
+                - cell [ref=e947]
+                - cell [ref=e948]
+                - cell [ref=e949]
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell
+              - row:
+                - cell
+                - cell
+                - cell
+                - cell
+                - cell

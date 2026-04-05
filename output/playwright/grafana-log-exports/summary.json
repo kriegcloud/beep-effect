@@ -1,0 +1,38 @@
+{
+  "capturedAt": "2026-04-05T04:47:24.379Z",
+  "since": "45m",
+  "summary": [
+    {
+      "container": "trustgraph-chunker-1",
+      "outPath": "/home/elpresidank/YeeBois/projects/beep-effect/output/playwright/grafana-log-exports/trustgraph-chunker-1-events.json",
+      "eventCount": 282,
+      "levelCounts": {
+        "WARNING": 102,
+        "ERROR": 180
+      },
+      "firstEvent": "Received unexpected librarian response: cfe1c50d-c7ec-4881-a7dd-4c32d4cd30a6",
+      "lastEvent": "Message processing exception: Librarian error saving chunk: request-error: Parent document tg-default-smoke-1 does not exist"
+    },
+    {
+      "container": "trustgraph-text-completion-rag-1",
+      "outPath": "/home/elpresidank/YeeBois/projects/beep-effect/output/playwright/grafana-log-exports/trustgraph-text-completion-rag-1-events.json",
+      "eventCount": 34,
+      "levelCounts": {
+        "ERROR": 34
+      },
+      "firstEvent": "OpenAI LLM exception (NotFoundError): Error code: 404 - {'error': {'message': 'This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?', 'type': 'invalid_request_error', 'param': 'model', 'code': None}}",
+      "lastEvent": "LLM service exception: Error code: 404 - {'error': {'message': 'This is not a chat model and thus not supported in the v1/chat/completions endpoint. Did you mean to use v1/completions?', 'type': 'invalid_request_error', 'param': 'model', 'code': None}}"
+    },
+    {
+      "container": "trustgraph-graph-rag-1",
+      "outPath": "/home/elpresidank/YeeBois/projects/beep-effect/output/playwright/grafana-log-exports/trustgraph-graph-rag-1-events.json",
+      "eventCount": 534,
+      "levelCounts": {
+        "WARNING": 517,
+        "ERROR": 17
+      },
+      "firstEvent": "Received unexpected librarian response: cfe1c50d-c7ec-4881-a7dd-4c32d4cd30a6",
+      "lastEvent": "Received unexpected librarian response: 1bd792b9-fd12-4ac8-8ac8-20ee5c5ab216"
+    }
+  ]
+}

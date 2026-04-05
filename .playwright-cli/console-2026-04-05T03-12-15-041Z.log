@@ -1,0 +1,19 @@
+[     580ms] [LOG] A-Frame Version: 1.7.0 (Date 2025-03-12, Commit #1b9650f1) @ https://unpkg.com/aframe@1.7.1:42935
+[     580ms] [LOG] THREE Version (https://github.com/supermedium/three.js): 173 @ https://unpkg.com/aframe@1.7.1:42936
+[     711ms] [LOG] SocketProvider: Creating socket with auth: disabled user: trustgraph @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[     711ms] [LOG] SOCKET: opening socket... without auth user: trustgraph @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[     712ms] [LOG] SOCKET: connecting to /api/socket @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[     712ms] [LOG] SOCKET: socket opened @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[     738ms] [LOG] App: Waiting for socket connection... connecting @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:354
+[     768ms] [LOG] [socket open] @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[     776ms] [LOG] App: Socket connected, loading flows... @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:354
+[   60783ms] [LOG] Request qx43mb7g0uvstyel-2 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[   60842ms] [LOG] Request qx43mb7g0uvstyel-4 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  120842ms] [LOG] Request qx43mb7g0uvstyel-4 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  180847ms] [LOG] Request qx43mb7g0uvstyel-9 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  180847ms] [LOG] Request qx43mb7g0uvstyel-11 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  240848ms] [LOG] Request qx43mb7g0uvstyel-9 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  240858ms] [LOG] ServiceCall: API error detected in response: Timeout Full error: {type: gateway-error, message: Timeout} @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  301864ms] [LOG] Request qx43mb7g0uvstyel-13 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  301864ms] [LOG] Request qx43mb7g0uvstyel-15 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
+[  361865ms] [LOG] Request qx43mb7g0uvstyel-15 timed out @ https://dankserver.tailc7c348.ts.net:8444/assets/index-BYlcJZvU.js:66
