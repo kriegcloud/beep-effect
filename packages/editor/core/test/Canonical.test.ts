@@ -1,5 +1,6 @@
 import {
   createPageDocument,
+  DocumentBlock,
   exportPageExtension,
   exportPageMimeType,
   extractPageLinks,
@@ -23,6 +24,24 @@ const decodeNonEmptyTrimmedStr = S.decodeUnknownSync(NonEmptyTrimmedStr);
 const decodePageDocumentJson = S.decodeUnknownSync(S.fromJsonString(PageDocument));
 
 describe("Canonical editor document helpers", () => {
+  it("supports both curried and direct tagged-union block matching", () => {
+    const paragraph = makeParagraphBlock("Dual matcher");
+    const matchBlockText = DocumentBlock.match({
+      paragraph: ({ text }) => text,
+      heading: ({ text }) => text,
+      quote: ({ text }) => text,
+    });
+
+    expect(matchBlockText(paragraph)).toBe("Dual matcher");
+    expect(
+      DocumentBlock.match(paragraph, {
+        paragraph: ({ text }) => text,
+        heading: ({ text }) => text,
+        quote: ({ text }) => text,
+      })
+    ).toBe("Dual matcher");
+  });
+
   it("projects canonical blocks to plain text and markdown via tagged-union matching", () => {
     const now = DateTime.nowUnsafe();
     const page = createPageDocument({

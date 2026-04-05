@@ -13,6 +13,11 @@ import type * as lexical from "lexical";
 
 const $I = $EditorId.create("Domain/LexicalNode");
 
+const isPropertyOwner = (
+  input: unknown
+): input is Record<string, unknown> | ((...args: ReadonlyArray<unknown>) => unknown) =>
+  P.isObject(input) || P.isFunction(input);
+
 /**
  * The base type for all serialized nodes
  *
@@ -114,7 +119,7 @@ export const LexicalNodeKeys = [
 ] as const;
 
 const hasFunctionProperty = (input: unknown, key: string): boolean =>
-  P.isObject(input) && P.hasProperty(input, key) && P.isFunction(input[key]);
+  isPropertyOwner(input) && P.hasProperty(input, key) && P.isFunction(input[key]);
 
 const hasStringProperty = (input: Record<string, unknown>, key: string): boolean =>
   P.hasProperty(input, key) && P.isString(input[key]);

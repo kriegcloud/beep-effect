@@ -3,6 +3,7 @@ import { LiteralKit, MimeType, NonEmptyTrimmedStr, NonNegativeInt, SchemaUtils, 
 import { Struct } from "@beep/utils";
 import { type DateTime, flow, identity, Match, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -212,8 +213,12 @@ type DocumentBlockCases<A> = {
   readonly heading: (block: HeadingBlock) => A;
   readonly quote: (block: QuoteBlock) => A;
 };
-const matchDocumentBlock = <A>(block: DocumentBlockValue, cases: DocumentBlockCases<A>) =>
-  Match.value(block).pipe(Match.discriminatorsExhaustive("kind")(cases));
+const matchDocumentBlock: {
+  <A>(cases: DocumentBlockCases<A>): (block: DocumentBlockValue) => A;
+  <A>(block: DocumentBlockValue, cases: DocumentBlockCases<A>): A;
+} = dual(2, <A>(block: DocumentBlockValue, cases: DocumentBlockCases<A>) =>
+  Match.value(block).pipe(Match.discriminatorsExhaustive("kind")(cases))
+);
 export const DocumentBlock = Object.assign(DocumentBlockSchema, {
   match: matchDocumentBlock,
 });
@@ -349,9 +354,10 @@ const markdownBlockText = DocumentBlock.match({
   heading: ({ level, text }) => `${Str.repeat(level)("#")} ${text}`,
   quote: ({ text }) => `> ${text}`,
 });
+const markdownFileExtension = (): "md" => "md";
 const exportFormatExtension = ExportFormat.$match({
   json: identity,
-  markdown: identity,
+  markdown: markdownFileExtension,
 });
 const exportFormatContent = (page: PageDocument, format: ExportFormat): string =>
   ExportFormat.$match(format, {
