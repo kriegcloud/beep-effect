@@ -6,6 +6,12 @@
 
 /**
  * @since 0.0.0
- * @category Configuration
+ * @category Versions
  */
 export const VERSION = "0.0.0" as const;
+
+/**
+ * @since 0.0.0
+ * @category Re-exports
+ */
+export * from "./EditorWorkspaceApp.tsx";

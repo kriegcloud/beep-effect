@@ -134,7 +134,7 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
     "RepoRunEventLog.ensureProjectedIndexRun"
   )(function* (run) {
     if (run.kind !== "index") {
-      return yield* toRunServiceError(`Expected an index run projection for "${run.id}".`, 500);
+      return yield* toRunServiceError(`Expected an index run projection for "${run.id}".`, 500, undefined);
     }
 
     return run;
@@ -144,7 +144,7 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
     "RepoRunEventLog.ensureProjectedQueryRun"
   )(function* (run) {
     if (run.kind !== "query") {
-      return yield* toRunServiceError(`Expected a query run projection for "${run.id}".`, 500);
+      return yield* toRunServiceError(`Expected a query run projection for "${run.id}".`, 500, undefined);
     }
 
     return run;

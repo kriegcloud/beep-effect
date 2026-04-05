@@ -35,7 +35,7 @@ bun run lint:fix
 
 `ui-add` is intentionally scoped to `packages/common/ui`. It is meant for shared primitives, hooks, libs, and styles that should live in `@beep/ui`.
 
-It does not currently implement the full app-aware shadcn monorepo flow for app-local blocks.
+App-local shadcn blocks for `@beep/editor-app` now use `apps/editor-app/components.json`, while shared primitives should continue to be added through `bun run ui-add`.
 
 ## License
 

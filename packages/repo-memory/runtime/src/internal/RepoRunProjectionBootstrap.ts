@@ -87,7 +87,7 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       const maybeRun = yield* mapStatusCauseError(repoRunStore.getRun(runId));
 
       return yield* O.match(maybeRun, {
-        onNone: () => toRunServiceError(`Run not found: "${runId}".`, 404),
+        onNone: () => toRunServiceError(`Run not found: "${runId}".`, 404, undefined),
         onSome: Effect.succeed,
       });
     }
@@ -119,7 +119,8 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
 
     return yield* toRunServiceError(
       `Replay cursor "${request.cursor.value}" exceeds the last stored sequence "${run.lastEventSequence}" for "${run.id}".`,
-      409
+      409,
+      undefined
     );
   });
 
@@ -131,7 +132,8 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
         if (O.isSome(previous) && event.sequence <= previous.value) {
           return yield* toRunServiceError(
             `Decoded run events for "${runId}" must be strictly increasing by sequence.`,
-            500
+            500,
+            undefined
           );
         }
 
@@ -148,7 +150,8 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
         if (run.lastEventSequence > 0) {
           return yield* toRunServiceError(
             `Run "${run.id}" has stored sequence "${run.lastEventSequence}" but no decoded journal events.`,
-            500
+            500,
+            undefined
           );
         }
 
@@ -158,7 +161,8 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       if (lastEvent.value.sequence !== run.lastEventSequence) {
         return yield* toRunServiceError(
           `Decoded journal tail "${lastEvent.value.sequence}" does not match stored sequence "${run.lastEventSequence}" for "${run.id}".`,
-          500
+          500,
+          undefined
         );
       }
 
@@ -168,7 +172,8 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       if (journalIsTerminal !== snapshotIsTerminal) {
         return yield* toRunServiceError(
           `Stored run "${run.id}" terminal state does not match the decoded journal tail.`,
-          500
+          500,
+          undefined
         );
       }
     }
@@ -223,14 +228,16 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       if (O.isSome(cursor) && event.sequence <= cursor.value) {
         return yield* toRunServiceError(
           `Replay for "${run.id}" included sequence "${event.sequence}" at or before the requested cursor "${cursor.value}".`,
-          500
+          500,
+          undefined
         );
       }
 
       if (event.sequence > run.lastEventSequence) {
         return yield* toRunServiceError(
           `Replay for "${run.id}" included sequence "${event.sequence}" beyond the stored run sequence "${run.lastEventSequence}".`,
-          500
+          500,
+          undefined
         );
       }
     }

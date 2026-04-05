@@ -246,7 +246,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
       .makeDirectory(revisionsDirectory, { recursive: true })
       .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to create "${revisionsDirectory}".`, 500, cause)));
 
-    const manifestExists = yield* fs.exists(manifestPath).pipe(Effect.orElseSucceed(() => false));
+    const manifestExists = yield* fs.exists(manifestPath).pipe(Effect.orElseSucceed(thunkFalse));
 
     if (manifestExists) {
       return;
@@ -304,7 +304,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     const fileExists = yield* fs.exists(filePath).pipe(Effect.orElseSucceed(thunkFalse));
 
     if (!fileExists) {
-      return yield* toRuntimeError(`Page "${normalizedSlug}" was not found.`, 404);
+      return yield* toRuntimeError(`Page "${normalizedSlug}" was not found.`, 404, undefined);
     }
 
     return yield* readPageFile(filePath);
@@ -313,7 +313,14 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
   const pagesLinkingToSlug = (pages: ReadonlyArray<PageDocument>, slug: string): ReadonlyArray<PageDocument> =>
     pipe(
       pages,
-      A.filter((page) => pipe(page.outboundLinks, A.some(P.Struct({ targetSlug: Eq.equals(slug) }))))
+      A.filter((page) =>
+        pipe(
+          page.outboundLinks,
+          O.fromNullishOr,
+          O.getOrElse(A.empty<NonNullable<PageDocument["outboundLinks"]>[number]>),
+          A.some((link) => Eq.equals(slug)(link.targetSlug))
+        )
+      )
     );
 
   const backlinkCountForPages = (pages: ReadonlyArray<PageDocument>, slug: string): number =>
@@ -374,7 +381,11 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     savePage: (slug, page) =>
       Effect.gen(function* () {
         if (slug !== page.slug) {
-          return yield* toRuntimeError(`Route slug "${slug}" does not match payload slug "${page.slug}".`, 400);
+          return yield* toRuntimeError(
+            `Route slug "${slug}" does not match payload slug "${page.slug}".`,
+            400,
+            undefined
+          );
         }
 
         const existingPage = yield* readExistingPage(slug);

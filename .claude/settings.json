@@ -1,4 +1,5 @@
 {
+  "enabledMcpjsonServers": ["shadcn", "mui-mcp"],
   "hooks": {
     "SessionStart": [
       {

@@ -1,12 +1,36 @@
+import { $EditorAppId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import { AppThemeProvider } from "@beep/ui/themes";
 import { RouterProvider } from "@tanstack/react-router";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import ReactDOM from "react-dom/client";
+import "@beep/ui/styles/globals.css";
 import { router } from "./router.tsx";
-import "./styles.css";
+import "@mui/material-pigment-css/styles.css";
 
-const root = document.getElementById("root");
+const $I = $EditorAppId.create("main");
 
-if (root === null) {
-  throw new Error("Missing #root element for editor app bootstrap.");
+export class MissingRootElementError extends TaggedErrorClass<MissingRootElementError>($I`MissingRootElementError`)(
+  "MissingRootElementError",
+  {
+    message: S.String,
+  },
+  $I.annote("MissingRootElementError", {
+    description: "Missing the root element for editor app bootstrap.",
+  })
+) {}
+
+const root = O.fromNullishOr(document.getElementById("root"));
+
+if (O.isNone(root)) {
+  throw MissingRootElementError.new({
+    message: "Missing #root element for editor app" + " bootstrap.",
+  });
 }
 
-ReactDOM.createRoot(root).render(<RouterProvider router={router} />);
+ReactDOM.createRoot(root.value).render(
+  <AppThemeProvider>
+    <RouterProvider router={router} />
+  </AppThemeProvider>
+);

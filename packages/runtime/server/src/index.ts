@@ -479,7 +479,7 @@ const handleControlPlaneErrors = <A, E, R>(
 
 const toPublicAddress = (config: SidecarRuntimeConfig, address: HttpServer.Address) => {
   if (!P.isTagged(address, "TcpAddress")) {
-    return Effect.fail(toRuntimeError("Sidecar runtime requires a TCP address.", 500));
+    return Effect.fail(toRuntimeError("Sidecar runtime requires a TCP address.", 500, undefined));
   }
 
   const host = internalRunnerHost(config.host);

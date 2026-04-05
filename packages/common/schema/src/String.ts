@@ -53,3 +53,42 @@ export const UUID = NonEmptyTrimmedStr.check(S.isUUID()).pipe(
  * @category DomainModel
  */
 export type UUID = typeof UUID.Type;
+
+/**
+ * A Nullable string.
+ *
+ * @category Validation
+ * @since 0.0.0
+ */
+export const NullableStr = S.String.pipe(
+  S.NullOr,
+  $I.annoteSchema("NullableStr", {
+    description: "A nullable string",
+  })
+);
+
+/**
+ * Type for {@link NullableStr}.
+ *
+ * @category Validation
+ * @since 0.0.0
+ */
+export type NullableStr = typeof NullableStr.Type;
+
+/**
+ * A Nullable string wrapped in an Option.
+ *
+ * @category Validation
+ * @since 0.0.0
+ */
+export const OptionFromNullableStr = S.String.pipe(
+  S.OptionFromNullOr,
+  $I.annoteSchema("OptionFromNullableStr", {
+    description: "An option from a nullable string",
+  })
+);
+
+/**
+ * Type for {@link OptionFromNullableStr}.
+ */
+export type OptionFromNullableStr = typeof OptionFromNullableStr.Type;

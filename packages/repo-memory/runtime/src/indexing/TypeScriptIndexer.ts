@@ -1120,7 +1120,8 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
   if (!A.isReadonlyArrayNonEmpty(tsconfigPaths)) {
     return yield* toIndexError(
       `Repository "${repoRootPath}" does not contain any discoverable tsconfig.json files.`,
-      400
+      400,
+      undefined
     );
   }
 

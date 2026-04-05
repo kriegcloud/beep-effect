@@ -75,6 +75,8 @@
   "exports": {
     "./package.json": "./package.json",
     ".": "./src/index.ts",
+    "./themes": "./src/themes/index.ts",
+    "./themes/*": "./src/themes/*.ts",
     "./styles/globals.css": "./src/styles/globals.css",
     "./postcss.config": "./postcss.config.mjs",
     "./components/*": "./src/components/*.tsx",

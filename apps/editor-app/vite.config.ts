@@ -1,16 +1,25 @@
+import { fileURLToPath, URL } from "node:url";
+import { theme } from "@beep/ui/themes/theme";
+import { pigment } from "@pigment-css/vite-plugin";
 import react from "@vitejs/plugin-react";
+import * as P from "effect/Predicate";
+import * as Str from "effect/String";
 import { defineConfig } from "vite";
 
+const pigmentConfig = {
+  theme,
+  transformLibraries: ["@mui/material"],
+};
 const manualChunks = (id: string): string | undefined => {
-  if (id.includes("/node_modules/react-dom/") || id.includes("/node_modules/react/")) {
+  if (P.or(Str.includes("/node_modules/react-dom/"), Str.includes("/node_modules/react/"))(id)) {
     return "react";
   }
 
-  if (id.includes("/node_modules/@tanstack/")) {
+  if (Str.includes("/node_modules/@tanstack/")(id)) {
     return "router";
   }
 
-  if (id.includes("/node_modules/effect/") || id.includes("/node_modules/@effect/")) {
+  if (P.or(Str.includes("/node_modules/effect/"), Str.includes("/node_modules/@effect/"))(id)) {
     return "effect";
   }
 
@@ -18,9 +27,14 @@ const manualChunks = (id: string): string | undefined => {
 };
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [pigment(pigmentConfig), react()],
+  resolve: {
+    alias: {
+      "@": fileURLToPath(new URL("./src", import.meta.url)),
+    },
+  },
   build: {
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         manualChunks,
       },

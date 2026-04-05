@@ -114,7 +114,7 @@ export class RunStateMachineError extends TaggedErrorClass<RunStateMachineError>
 const toRunStateMachineError = makeStatusCauseError(RunStateMachineError);
 
 const invalidTransition = (runId: RunId, status: RepoRunStatus, command: string) =>
-  Effect.fail(toRunStateMachineError(`Run "${runId}" cannot ${command} while it is "${status}".`, 409));
+  Effect.fail(toRunStateMachineError(`Run "${runId}" cannot ${command} while it is "${status}".`, 409, undefined));
 
 /**
  * Execution lifecycle event kinds emitted when a run starts or resumes.

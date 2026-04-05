@@ -4,6 +4,11 @@
   "include": ["src", "scripts", "vite.config.ts"],
   "compilerOptions": {
     "types": ["node", "vite/client"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@beep/ui": ["../../packages/common/ui/src/index.ts"],
+      "@beep/ui/*": ["../../packages/common/ui/src/*"]
+    },
     "outDir": "dist",
     "rootDir": ".",
     "noEmit": true
@@ -11,6 +16,15 @@
   "references": [
     {
       "path": "../../packages/common/schema/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/types/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.json"
     },
     {
       "path": "../../packages/editor/client/tsconfig.json"
