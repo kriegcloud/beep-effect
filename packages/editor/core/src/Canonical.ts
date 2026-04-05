@@ -4,7 +4,9 @@ import {
   NonEmptyTrimmedStr,
   NonNegativeInt,
   Slug,
-  UUID
+  UUID,
+  SchemaUtils,
+  MimeType,
 } from "@beep/schema";
 import {type DateTime, flow, Match, pipe, identity} from "effect";
 import * as A from "effect/Array";
@@ -12,6 +14,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import {Struct} from "@beep/utils";
 
 const $I = $EditorId.create("Canonical");
 
@@ -69,6 +72,9 @@ export type BlockId = typeof BlockId.Type;
  */
 export const RevisionId = UUID.pipe(
   S.brand("RevisionId"),
+  SchemaUtils.withStatics((schema) => ({
+    create: () => schema.makeUnsafe(crypto.randomUUID())
+  })),
   S.annotate(
     $I.annote(
       "RevisionId",
@@ -250,15 +256,15 @@ const DocumentBlockSchema = S.Union([
   HeadingBlock,
   QuoteBlock
 ])
-  .pipe(S.toTaggedUnion("kind"))
-  .annotate(
-    $I.annote(
+  .pipe(
+    S.toTaggedUnion("kind"),
+    $I.annoteSchema(
       "DocumentBlock",
       {
         description: "Supported block variants in the canonical editor document model.",
       }
     )
-  );
+  )
 type DocumentBlockValue = typeof DocumentBlockSchema.Type;
 type DocumentBlockCases<A> = {
   readonly paragraph: (block: ParagraphBlock) => A;
@@ -296,7 +302,7 @@ export class PageDocument extends S.Class<PageDocument>($I`PageDocument`)(
     slug: Slug,
     title: NonEmptyTrimmedStr,
     blocks: S.Array(DocumentBlock),
-    outboundLinks: S.Array(PageLinkRef),
+    outboundLinks: PageLinkRef.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults(A.empty<PageLinkRef>())),
     createdAt: S.DateTimeUtcFromMillis,
     updatedAt: S.DateTimeUtcFromMillis,
   },
@@ -368,7 +374,10 @@ export class WorkspaceManifest extends S.Class<WorkspaceManifest>($I`WorkspaceMa
  */
 export class RevisionRecord extends S.Class<RevisionRecord>($I`RevisionRecord`)(
   {
-    id: RevisionId,
+    id: RevisionId.pipe(
+      S.optionalKey,
+      SchemaUtils.withKeyDefaults(RevisionId.create())
+    ),
     pageId: PageId,
     pageSlug: Slug,
     savedAt: S.DateTimeUtcFromMillis,
@@ -416,14 +425,20 @@ class TextBlock extends S.Class<TextBlock>($I`TextBlock`)(
   }) {
 }
 
+const getText = <T extends {
+  readonly text: string
+}>(i: T) => Struct.get(
+  i,
+  "text"
+)
 const blockText = DocumentBlock.match({
-  paragraph: ({text}) => text,
-  heading: ({text}) => text,
-  quote: ({text}) => text,
+  paragraph: getText,
+  heading: getText,
+  quote: getText,
 })
 const markdownBlockText =
   DocumentBlock.match({
-    paragraph: ({text}) => text,
+    paragraph: getText,
     heading: ({
                 level,
                 text
@@ -640,8 +655,8 @@ export const exportPageMimeType = (format: ExportFormat): "application/json" | "
   ExportFormat.$match(
     format,
     {
-      json: (): "application/json" => "application/json",
-      markdown: (): "text/markdown" => "text/markdown",
+      json: MimeType.thunk["application/json"],
+      markdown: MimeType.thunk["text/markdown"],
     }
   );
 
@@ -691,7 +706,6 @@ export const createPageDocument = (input: {
       slug: input.slug ?? normalizePageSlug(input.title),
       title: input.title,
       blocks: A.fromIterable(input.blocks),
-      outboundLinks: A.empty<PageLinkRef>(),
       createdAt: input.now,
       updatedAt: input.now,
     })
@@ -723,7 +737,7 @@ export const makePageSummary = (
       )
     ),
     updatedAt: page.updatedAt,
-    outboundLinkCount: NonNegativeInt.makeUnsafe(page.outboundLinks.length),
+    outboundLinkCount: NonNegativeInt.makeUnsafe(page.outboundLinks?.length ?? 0),
     backlinkCount: NonNegativeInt.makeUnsafe(backlinkCount),
   });
 

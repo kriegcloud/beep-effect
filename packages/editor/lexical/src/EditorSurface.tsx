@@ -26,7 +26,7 @@ import {
   QuoteNode,
 } from "@lexical/rich-text";
 import { $setBlocksType } from "@lexical/selection";
-import { DateTime, pipe } from "effect";
+import { DateTime, identity, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import {
@@ -95,7 +95,7 @@ const reuseOrCreateHeadingBlock = (page: PageDocument, index: number, nextText: 
     O.filter(DocumentBlock.guards.heading),
     O.match({
       onNone: () => makeHeadingBlock(nextText, 1),
-      onSome: (block) => block,
+      onSome: identity,
     })
   );
 
@@ -105,7 +105,7 @@ const reuseOrCreateQuoteBlock = (page: PageDocument, index: number, nextText: st
     O.filter(DocumentBlock.guards.quote),
     O.match({
       onNone: () => makeQuoteBlock(nextText),
-      onSome: (block) => block,
+      onSome: identity,
     })
   );
 
@@ -115,7 +115,7 @@ const reuseOrCreateParagraphBlock = (page: PageDocument, index: number, nextText
     O.filter(DocumentBlock.guards.paragraph),
     O.match({
       onNone: () => makeParagraphBlock(nextText),
-      onSome: (block) => block,
+      onSome: identity,
     })
   );
 
@@ -148,9 +148,7 @@ const initializeEditorState =
       pipe(
         page.blocks,
         A.map(appendPageBlock),
-        A.forEach((node) => {
-          root.append(node);
-        })
+        A.forEach((node) => void root.append(node))
       );
 
       if (root.getChildrenSize() === 0) {
@@ -249,7 +247,7 @@ const BlockTypeToolbar = () => {
       const selection = $getSelection();
 
       if ($isRangeSelection(selection)) {
-        $setBlocksType(selection, () => $createQuoteNode());
+        $setBlocksType(selection, $createQuoteNode);
       }
     });
   };
