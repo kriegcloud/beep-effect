@@ -1,0 +1,3 @@
+- main [ref=e4]:
+  - button "Switch to dark mode" [ref=e6]: Use dark mode
+  - heading "BEEP!" [level=1] [ref=e8]

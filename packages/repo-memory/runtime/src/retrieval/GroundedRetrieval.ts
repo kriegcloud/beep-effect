@@ -187,7 +187,7 @@ const latestSnapshotForRepo = (store: GroundedRetrievalStoreShape) =>
     const latestSnapshot = yield* mapStoreError(store.latestSourceSnapshot(repoId));
 
     return yield* O.match(latestSnapshot, {
-      onNone: () => toRetrievalError(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400),
+      onNone: () => toRetrievalError(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400, undefined),
       onSome: (snapshot) => Effect.succeed(snapshot.id),
     });
   });

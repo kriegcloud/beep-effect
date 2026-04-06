@@ -16,6 +16,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { startTransition, useEffect, useState } from "react";
+import { ThemeToggleButton } from "./components/theme-toggle-button.tsx";
 import {
   EditorSidecarState,
   getEditorSidecarState,
@@ -352,6 +353,7 @@ export function EditorWorkspaceApp() {
           </p>
         </div>
         <div className="hero-actions">
+          <ThemeToggleButton />
           <button className="button primary" type="button" onClick={handleCreatePage} disabled={busyState !== "idle"}>
             New page
           </button>

@@ -2,7 +2,7 @@ import { RepoId, RunId } from "@beep/repo-memory-model";
 import { TypeScriptIndexRequest, TypeScriptIndexService } from "@beep/repo-memory-runtime";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
 import { FilePath } from "@beep/schema";
-import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
+import { BunSqliteTestDriver, makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
@@ -14,11 +14,12 @@ const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRepoId = S.decodeUnknownSync(RepoId);
 const decodeRunId = S.decodeUnknownSync(RunId);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const sqlTestDriver = process.versions.bun === undefined ? NodeSqliteTestDriver : BunSqliteTestDriver;
 
 const makeIndexerLayer = () => {
   const sqlLayer = makeSqlTestLayer({
     config: undefined,
-    driver: NodeSqliteTestDriver,
+    driver: sqlTestDriver,
   });
   const storeLayer = Layer.unwrap(
     Effect.gen(function* () {

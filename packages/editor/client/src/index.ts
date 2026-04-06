@@ -12,6 +12,7 @@ import {
 import { $EditorClientId } from "@beep/identity/packages";
 import { Slug, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
 import { Cause, Effect, Layer, pipe, ServiceMap } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -39,7 +40,19 @@ export class EditorClientConfig extends S.Class<EditorClientConfig>($I`EditorCli
   $I.annote("EditorClientConfig", {
     description: "Client configuration for calling the local editor sidecar.",
   })
-) {}
+) {
+  static readonly new: {
+    (baseUrl: string, sessionId: string): EditorClientConfig;
+    (sessionId: string): (baseUrl: string) => EditorClientConfig;
+  } = dual(
+    2,
+    (baseUrl: string, sessionId: string) =>
+      new EditorClientConfig({
+        baseUrl,
+        sessionId,
+      })
+  );
+}
 
 /**
  * Typed client error for editor sidecar communication failures.

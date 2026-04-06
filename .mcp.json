@@ -1,5 +1,13 @@
 {
   "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["shadcn@latest", "mcp", "--cwd", "apps/editor-app"]
+    },
+    "mui-mcp": {
+      "command": "npx",
+      "args": ["-y", "@mui/mcp@latest"]
+    },
     "graphiti-memory": {
       "type": "http",
       "url": "http://localhost:8000/mcp"

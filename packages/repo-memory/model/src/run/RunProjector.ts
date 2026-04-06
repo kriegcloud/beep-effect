@@ -222,7 +222,9 @@ const requireCurrentRun = (
 ): Effect.Effect<RepoRun, RunProjectorError> =>
   O.match(currentRun, {
     onNone: () =>
-      Effect.fail(toRunProjectorError(`Run "${event.runId}" must exist before projecting "${event.kind}".`, 404)),
+      Effect.fail(
+        toRunProjectorError(`Run "${event.runId}" must exist before projecting "${event.kind}".`, 404, undefined)
+      ),
     onSome: Effect.succeed,
   });
 
@@ -235,7 +237,11 @@ const requireCurrentQueryRun = (
       run.kind === "query"
         ? Effect.succeed(run)
         : Effect.fail(
-            toRunProjectorError(`Run "${event.runId}" must be a query run before projecting "${event.kind}".`, 409)
+            toRunProjectorError(
+              `Run "${event.runId}" must be a query run before projecting "${event.kind}".`,
+              409,
+              undefined
+            )
           )
     )
   );
@@ -264,7 +270,11 @@ const acceptedRunFromEvent = (event: Extract<RunStreamEvent, { readonly kind: "a
         O.match({
           onNone: () =>
             Effect.fail(
-              toRunProjectorError(`Accepted query run "${event.runId}" must include its original question.`, 500)
+              toRunProjectorError(
+                `Accepted query run "${event.runId}" must include its original question.`,
+                500,
+                undefined
+              )
             ),
           onSome: (question) =>
             Effect.succeed(

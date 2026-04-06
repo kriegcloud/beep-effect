@@ -1,19 +1,13 @@
 :root {
-  color-scheme: dark;
   font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(92, 126, 250, 0.22), transparent 24%),
-    radial-gradient(circle at bottom right, rgba(95, 211, 182, 0.16), transparent 28%),
-    linear-gradient(180deg, #0b1220 0%, #090f19 48%, #060912 100%);
-  color: #eef4ff;
-  --surface: rgba(10, 15, 26, 0.78);
-  --surface-soft: rgba(255, 255, 255, 0.04);
-  --line: rgba(174, 188, 210, 0.16);
-  --line-strong: rgba(174, 188, 210, 0.28);
-  --text-soft: rgba(238, 244, 255, 0.74);
-  --accent: #79b4ff;
-  --accent-strong: #56d5b1;
-  --shadow: 0 28px 90px rgba(0, 0, 0, 0.3);
+  --surface: var(--card);
+  --surface-soft: var(--muted);
+  --line: var(--border);
+  --line-strong: var(--border);
+  --text-soft: var(--muted-foreground);
+  --accent: var(--primary);
+  --accent-strong: var(--ring);
+  --shadow: 0 24px 80px rgb(0 0 0 / 0.12);
 }
 
 * {
@@ -29,6 +23,8 @@ body,
 
 body {
   min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
 }
 
 button,
@@ -47,7 +43,7 @@ textarea {
   width: 100%;
   border-radius: 16px;
   border: 1px solid var(--line);
-  background: rgba(5, 10, 18, 0.72);
+  background: var(--background);
   color: inherit;
   padding: 0.9rem 1rem;
 }
@@ -55,8 +51,8 @@ textarea {
 input:focus,
 textarea:focus {
   outline: none;
-  border-color: rgba(121, 180, 255, 0.55);
-  box-shadow: 0 0 0 4px rgba(121, 180, 255, 0.12);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 12%, transparent);
 }
 
 .shell {
@@ -64,6 +60,10 @@ textarea:focus {
   padding: 28px;
   display: grid;
   gap: 20px;
+  background:
+    radial-gradient(circle at top left, color-mix(in srgb, var(--accent) 12%, transparent), transparent 24%),
+    radial-gradient(circle at bottom right, color-mix(in srgb, var(--accent-strong) 10%, transparent), transparent 28%),
+    linear-gradient(180deg, var(--background) 0%, var(--background) 100%);
 }
 
 .hero,
@@ -71,7 +71,6 @@ textarea:focus {
   border: 1px solid var(--line);
   border-radius: 28px;
   background: var(--surface);
-  backdrop-filter: blur(24px);
   box-shadow: var(--shadow);
 }
 
@@ -127,6 +126,7 @@ h1 {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
+  align-items: center;
 }
 
 .button,
@@ -142,7 +142,7 @@ h1 {
 .button {
   border-radius: 999px;
   border: 1px solid var(--line);
-  background: rgba(13, 21, 34, 0.82);
+  background: var(--secondary);
   color: inherit;
   padding: 11px 16px;
   cursor: pointer;
@@ -153,18 +153,18 @@ h1 {
 .backlink-item:hover,
 .beep-editor-toolbar-button:hover {
   transform: translateY(-1px);
-  border-color: rgba(121, 180, 255, 0.52);
+  border-color: var(--accent);
 }
 
 .button.primary {
   border-color: transparent;
-  color: #06111c;
-  background: linear-gradient(135deg, #79b4ff 0%, #56d5b1 100%);
+  background: var(--primary);
+  color: var(--primary-foreground);
 }
 
 .button.ghost,
 .beep-editor-toolbar-button {
-  background: rgba(5, 10, 18, 0.58);
+  background: var(--background);
 }
 
 .button:disabled {
@@ -209,7 +209,7 @@ h1 {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 18px;
-  background: rgba(15, 23, 37, 0.58);
+  background: var(--surface-soft);
   color: inherit;
   text-align: left;
   padding: 14px;
@@ -217,8 +217,8 @@ h1 {
 }
 
 .page-card-active {
-  border-color: rgba(121, 180, 255, 0.56);
-  background: rgba(121, 180, 255, 0.12);
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, var(--surface));
 }
 
 .page-card strong {
@@ -250,16 +250,16 @@ h1 {
 }
 
 .status-healthy {
-  background: rgba(86, 213, 177, 0.16);
+  background: color-mix(in srgb, var(--accent-strong) 12%, transparent);
 }
 
 .status-starting {
-  background: rgba(245, 158, 11, 0.16);
+  background: color-mix(in srgb, var(--chart-4) 18%, transparent);
 }
 
 .status-stopped,
 .status-failed {
-  background: rgba(248, 113, 113, 0.14);
+  background: color-mix(in srgb, var(--destructive) 15%, transparent);
 }
 
 .editor-panel {
@@ -285,7 +285,7 @@ h1 {
   min-height: 520px;
   border-radius: 24px;
   border: 1px solid var(--line-strong);
-  background: radial-gradient(circle at top right, rgba(121, 180, 255, 0.12), transparent 26%), rgba(6, 10, 18, 0.84);
+  background: var(--background);
   padding: 24px;
 }
 
@@ -324,9 +324,8 @@ h1 {
 }
 
 .beep-editor-quote {
-  border-left: 3px solid rgba(121, 180, 255, 0.5);
+  border-left: 3px solid var(--accent);
   padding-left: 14px;
-  color: #d8e7ff;
 }
 
 .inspector-grid {
@@ -348,9 +347,9 @@ h1 {
 
 .error-banner {
   border-radius: 18px;
-  border: 1px solid rgba(248, 113, 113, 0.32);
-  background: rgba(127, 29, 29, 0.28);
-  color: #ffd2d2;
+  border: 1px solid color-mix(in srgb, var(--destructive) 35%, transparent);
+  background: color-mix(in srgb, var(--destructive) 15%, transparent);
+  color: var(--foreground);
   padding: 12px 14px;
 }
 

@@ -16,6 +16,7 @@
   "globalEnv": ["TURBO_TOKEN", "TURBO_TEAM"],
   "globalPassThroughEnv": [
     "NODE_TLS_REJECT_UNAUTHORIZED",
+    "PORTLESS_*",
     "AWS_*",
     "SST_*",
     "APP_ADMINS_EMAILS",

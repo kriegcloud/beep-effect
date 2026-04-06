@@ -1,7 +1,7 @@
 import { makeStatusCauseError, StatusCauseFields, statusCauseInput } from "@beep/schema/StatusCauseError";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { describe, expect, it } from "@effect/vitest";
-import { Option as O } from "effect";
+import { Option as O, pipe } from "effect";
 import * as S from "effect/Schema";
 
 class BeepStatusError extends TaggedErrorClass<BeepStatusError>("BeepStatusError")(
@@ -37,5 +37,43 @@ describe("StatusCauseError", () => {
     expect(S.is(BeepStatusError)(error)).toBe(true);
     expect(error.status).toBe(500);
     expect(O.isSome(error.cause)).toBe(true);
+  });
+
+  it("supports partial application for catch handlers", () => {
+    const toBeepStatusError = makeStatusCauseError(BeepStatusError);
+    const error = toBeepStatusError("boom", 500)(new Error("kapow"));
+
+    expect(error).toBeInstanceOf(BeepStatusError);
+    expect(S.is(BeepStatusError)(error)).toBe(true);
+    expect(error.status).toBe(500);
+    expect(O.isSome(error.cause)).toBe(true);
+  });
+
+  it("supports direct data-first partial application", () => {
+    const error = makeStatusCauseError(BeepStatusError, "boom", 500)(new Error("kapow"));
+
+    expect(error).toBeInstanceOf(BeepStatusError);
+    expect(S.is(BeepStatusError)(error)).toBe(true);
+    expect(error.status).toBe(500);
+    expect(O.isSome(error.cause)).toBe(true);
+  });
+
+  it("supports pipeable data-last partial application", () => {
+    const error = pipe(BeepStatusError, makeStatusCauseError("boom", 500))(new Error("kapow"));
+
+    expect(error).toBeInstanceOf(BeepStatusError);
+    expect(S.is(BeepStatusError)(error)).toBe(true);
+    expect(error.status).toBe(500);
+    expect(O.isSome(error.cause)).toBe(true);
+  });
+
+  it("supports explicit no-cause construction", () => {
+    const toBeepStatusError = makeStatusCauseError(BeepStatusError);
+    const error = toBeepStatusError("boom", 500, undefined);
+
+    expect(error).toBeInstanceOf(BeepStatusError);
+    expect(S.is(BeepStatusError)(error)).toBe(true);
+    expect(error.status).toBe(500);
+    expect(O.isNone(error.cause)).toBe(true);
   });
 });

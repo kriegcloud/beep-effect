@@ -20,7 +20,7 @@ import { projectRunEvent } from "@beep/repo-memory-runtime/run/RunProjector";
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
 import { RepoRunStore } from "@beep/repo-memory-store";
 import { FilePath, NonNegativeInt, PosInt } from "@beep/schema";
-import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
+import { BunSqliteTestDriver, makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime, Effect, Layer, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";
@@ -39,6 +39,7 @@ const decodeRunCursor = S.decodeUnknownSync(RunCursor);
 const decodeRunEventSequence = S.decodeUnknownSync(RunEventSequence);
 const decodeRunId = S.decodeUnknownSync(RunId);
 const encodeRunEventPayload = S.encodeUnknownEffect(Msgpack.schema(RunStreamEvent));
+const sqlTestDriver = process.versions.bun === undefined ? NodeSqliteTestDriver : BunSqliteTestDriver;
 
 const repoId = decodeRepoId("repo:projection-bootstrap:test");
 const queryRunId = decodeRunId("run:query:projection-bootstrap:test");
@@ -47,7 +48,7 @@ const filePath = decodeFilePath("/tmp/repo/src/index.ts");
 const makeRuntimeLayer = () => {
   const sqlLayer = makeSqlTestLayer({
     config: undefined,
-    driver: NodeSqliteTestDriver,
+    driver: sqlTestDriver,
   });
   const storeLayer = Layer.unwrap(
     Effect.gen(function* () {
