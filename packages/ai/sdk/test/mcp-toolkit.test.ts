@@ -4,7 +4,7 @@ import { expect, test } from "@effect/vitest";
 import * as Effect from "effect/Effect";
 import * as Predicate from "effect/Predicate";
 import * as Schema from "effect/Schema";
-import { z } from "zod";
+import * as Z from "zod";
 import { runEffect } from "./effect-test.js";
 
 class ExplosionError extends Error {
@@ -61,7 +61,7 @@ test("Mcp.toolsFromToolkit builds tools and renders success results", async () =
   expect(tools).toHaveLength(1);
 
   const tool = requireFirst(tools);
-  expect(z.object(tool.inputSchema).safeParse({ message: "hi" }).success).toBe(true);
+  expect(Z.object(tool.inputSchema).safeParse({ message: "hi" }).success).toBe(true);
 
   const result = await invokeTool(tool, { message: "hi" });
   expect(result.isError).toBe(false);

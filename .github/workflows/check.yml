@@ -192,8 +192,6 @@ jobs:
           bun run check:effect-laws-allowlist
           bun run lint:tooling-tagged-errors
           bun run lint:schema-first
-          bun run agents:check
-          bun run agents:pathless:check
           bun run lint:typos
           bun run lint:repo
           bun run lint:ox

@@ -6,7 +6,7 @@
  * - FileGenerationPlanService for deterministic plan/execute
  * - Shared repo config synchronization after scaffolding
  *
- * @module
+ * @module @beep/repo-cli/commands/CreatePackage/Handler
  * @since 0.0.0
  */
 
@@ -23,6 +23,7 @@ import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, identity, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -55,16 +56,17 @@ const $I = $RepoCliId.create("commands/CreatePackage/Handler");
 
 const templateDirCandidates = (baseDir: string, path: Path.Path): ReadonlyArray<string> => {
   const join = (...on: A.NonEmptyArray<string>) => path.join(baseDir, ...on);
-  return A.make(join("templates"), join("..", "..", "..", "src", "commands", "CreatePackage", "templates"));
+  return A.make(join("..", "..", "..", "src", "commands", "CreatePackage", "templates"), join("templates"));
 };
 
 /**
  * Resolve create-package template directory for both src and dist runtimes.
  *
  * In source execution (`bun run src/bin.ts`), templates live beside this file.
- * In built execution (`dist/bin.js`), templates are copied under `dist/.../templates`.
- * A src fallback is retained for local development scenarios where dist assets
- * are stale but source templates are present.
+ * In built execution (`dist/bin.js`), template resolution prefers packaged
+ * source templates under `src/.../templates`.
+ * A legacy dist fallback is retained so existing copied templates still work
+ * in environments that already have them on disk.
  *
  * @param baseDir - Optional command module directory override (defaults to current module directory).
  * @returns Resolved template directory path.
@@ -235,21 +237,34 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
  */
 const toRootRelative = (packagePath: string): string => CommonStr.repeat("../", A.length(Str.split(packagePath, "/")));
 
-const parseJsonDocument = Effect.fn(function* (content: string, filePath: string) {
-  return yield* Effect.try({
-    try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(content),
-    catch: (cause) =>
-      new DomainError({
-        message: `Failed to parse JSON in "${filePath}"`,
-        cause,
-      }),
-  });
-});
+const parseJsonDocument: {
+  (filePath: string, content: string): Effect.Effect<unknown, DomainError, never>;
+  (content: string): (filePath: string) => Effect.Effect<unknown, DomainError, never>;
+} = dual(
+  2,
+  Effect.fn(function* (content: string, filePath: string) {
+    return yield* Effect.try({
+      try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(content),
+      catch: (cause) =>
+        new DomainError({
+          message: `Failed to parse JSON in "${filePath}"`,
+          cause,
+        }),
+    });
+  })
+);
 
 const readRootPackageJsonDocument = Effect.fn(function* (repoRoot: string) {
   const path = yield* Path.Path;
   const fs = yield* FileSystem.FileSystem;
   const filePath = path.join(repoRoot, "package.json");
+  const l = pipe(
+    path.join(repoRoot, "package.json"),
+    fs.readFileString,
+    Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause }))
+  );
+
+  console.log(l);
   const content = yield* fs
     .readFileString(filePath)
     .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
@@ -695,8 +710,8 @@ const generatePackageJson: (
       check: "tsc -b tsconfig.json",
       lint: "biome check .",
       "lint:fix": "biome check . --write",
-      test: "vitest",
-      coverage: "vitest --coverage",
+      test: "bunx --bun vitest run",
+      coverage: "bunx --bun vitest --coverage",
       docgen: `bun run ${rootRelative}tooling/docgen/src/bin.ts`,
     },
     dependencies,

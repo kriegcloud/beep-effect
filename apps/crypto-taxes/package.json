@@ -10,7 +10,7 @@
     "build": "next build",
     "start": "next start",
     "check": "next typegen && tsc --noEmit -p tsconfig.json",
-    "test": "vitest run --config vitest.config.ts",
+    "test": "bunx --bun vitest run --config vitest.config.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write"
   },

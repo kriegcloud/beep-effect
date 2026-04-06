@@ -246,7 +246,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
       .makeDirectory(revisionsDirectory, { recursive: true })
       .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to create "${revisionsDirectory}".`, 500, cause)));
 
-    const manifestExists = yield* fs.exists(manifestPath).pipe(Effect.orElseSucceed(() => false));
+    const manifestExists = yield* fs.exists(manifestPath).pipe(Effect.orElseSucceed(thunkFalse));
 
     if (manifestExists) {
       return;
@@ -313,7 +313,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
   const pagesLinkingToSlug = (pages: ReadonlyArray<PageDocument>, slug: string): ReadonlyArray<PageDocument> =>
     pipe(
       pages,
-      A.filter((page) => pipe(page.outboundLinks, A.some(P.Struct({ targetSlug: Eq.equals(slug) }))))
+      A.filter((page) => pipe(page.outboundLinks ?? A.empty(), A.some(P.Struct({ targetSlug: Eq.equals(slug) }))))
     );
 
   const backlinkCountForPages = (pages: ReadonlyArray<PageDocument>, slug: string): number =>

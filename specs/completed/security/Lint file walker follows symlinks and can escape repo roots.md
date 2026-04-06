@@ -8,4 +8,4 @@ The lint file walker now canonicalizes roots, skips symlinked paths, enforces re
 - Code: `tooling/cli/src/commands/Lint/index.ts`
 - Tests: `tooling/cli/test/lint-security.test.ts`
 - Verification: `bunx tsc -p tooling/cli/tsconfig.json --noEmit`
-- Verification: `bunx vitest run tooling/cli/test/lint-security.test.ts`
+- Verification: `bunx --bun vitest run tooling/cli/test/lint-security.test.ts`

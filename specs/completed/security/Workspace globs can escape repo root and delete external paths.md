@@ -9,4 +9,4 @@ Workspace discovery now rejects absolute/traversing glob patterns, canonicalizes
 - Code: `tooling/repo-utils/src/FsUtils.ts`
 - Tests: `tooling/repo-utils/test/Workspaces.test.ts`
 - Verification: `bunx tsc -p tooling/repo-utils/tsconfig.json --noEmit`
-- Verification: `bunx vitest run tooling/repo-utils/test/Workspaces.test.ts`
+- Verification: `bunx --bun vitest run tooling/repo-utils/test/Workspaces.test.ts`

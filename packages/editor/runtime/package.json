@@ -18,10 +18,10 @@
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
     "dev": "bun src/main.ts",
-    "docgen": "bun run ../../../tooling/docgen/docgen/src/bin.ts",
+    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
-    "test": "vitest"
+    "test": "bunx --bun vitest run"
   },
   "exports": {
     ".": "./src/index.ts",

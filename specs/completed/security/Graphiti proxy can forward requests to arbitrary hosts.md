@@ -8,4 +8,4 @@ The Graphiti proxy now forwards only the configured `/mcp` endpoint, preserves q
 - Code: `tooling/cli/src/commands/Graphiti/internal/ProxyServices.ts`
 - Tests: `tooling/cli/test/graphiti-proxy-security.test.ts`
 - Verification: `bunx tsc -p tooling/cli/tsconfig.json --noEmit`
-- Verification: `bunx vitest run tooling/cli/test/graphiti-proxy-security.test.ts`
+- Verification: `bunx --bun vitest run tooling/cli/test/graphiti-proxy-security.test.ts`

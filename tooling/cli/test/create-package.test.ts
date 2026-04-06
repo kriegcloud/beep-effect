@@ -36,11 +36,17 @@ const TsconfigPaths = S.Struct({
 const TstycheConfig = S.Struct({
   testFileMatch: S.Array(S.String),
 });
+const PackageScripts = S.Struct({
+  scripts: S.Struct({
+    test: S.String,
+  }),
+});
 
 const decodeRootPackage = S.decodeUnknownSync(RootPackage);
 const decodeTsconfigReferences = S.decodeUnknownSync(TsconfigReferences);
 const decodeTsconfigPaths = S.decodeUnknownSync(TsconfigPaths);
 const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
+const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
 
 const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -204,6 +210,11 @@ describe("create-package", () => {
 
           const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
           expect(rootPackage.workspaces).toEqual(["packages/common/*", "packages/editor"]);
+
+          const generatedPackage = decodePackageScripts(
+            yield* readJsonFile(path.join(rootDir, "packages", "editor", "package.json"))
+          );
+          expect(generatedPackage.scripts.test).toBe("bunx --bun vitest run");
 
           const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
           expect(rootTsconfig.compilerOptions.paths).toMatchObject({

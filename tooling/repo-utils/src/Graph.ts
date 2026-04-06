@@ -12,6 +12,7 @@
 import { Effect, Graph as G, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import { CyclicDependencyError } from "./errors/index.js";
 
 // ---------------------------------------------------------------------------
@@ -216,7 +217,7 @@ export const detectCycles: (
       if (O.isNone(nameOpt)) continue;
 
       const selfEdge = G.findEdge(graph, (_data, source, target) => source === first && target === first);
-      if (selfEdge !== undefined) {
+      if (P.isNotUndefined(selfEdge)) {
         cyclePaths = A.append(cyclePaths, [nameOpt.value, nameOpt.value]);
       }
     }

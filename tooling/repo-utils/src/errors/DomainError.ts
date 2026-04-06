@@ -9,6 +9,7 @@
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $RepoUtilsId.create("errors/DomainError");
@@ -23,12 +24,16 @@ export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
   "DomainError",
   {
     message: S.String,
-    cause: S.optional(S.Defect),
+    cause: S.optionalKey(S.Defect),
   },
   $I.annote("DomainError", {
     title: "Domain Error",
     description:
       "A generic domain-level error with an optional underlying cause for JSON parse failures, glob failures, and other operational errors.",
   })
-) {}
-// bench
+) {
+  static readonly newCause: {
+    (message: string, cause: unknown): DomainError;
+    (message: string): (cause: unknown) => DomainError;
+  } = dual(2, (message: string, cause: unknown) => new DomainError({ message, cause }));
+}

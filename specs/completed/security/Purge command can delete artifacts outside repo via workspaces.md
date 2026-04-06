@@ -8,4 +8,4 @@ Purge now validates workspace-derived paths against the repo root before deletio
 - Code: `tooling/cli/src/commands/Purge.ts`
 - Code: `tooling/repo-utils/src/Workspaces.ts`
 - Tests: `tooling/cli/test/purge-security.test.ts`, `tooling/repo-utils/test/Workspaces.test.ts`
-- Verification: `bunx vitest run tooling/cli/test/purge-security.test.ts tooling/repo-utils/test/Workspaces.test.ts`
+- Verification: `bunx --bun vitest run tooling/cli/test/purge-security.test.ts tooling/repo-utils/test/Workspaces.test.ts`

@@ -8,9 +8,11 @@
  * @since 0.0.0
  */
 import { normalizePath } from "@beep/schema";
+import { thunkEffectSucceedNull } from "@beep/utils";
 import { Effect, HashMap, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -34,12 +36,12 @@ const absoluteWorkspacePattern = /^(?:[A-Za-z]:\/|\/\/|\/)/;
 const isWorkspacePatternArray = (value: PackageJsonWorkspaces): value is ReadonlyArray<string> => Array.isArray(value);
 
 const workspaceGlobsFrom = (workspaces: PackageJson["workspaces"]): ReadonlyArray<string> => {
-  if (workspaces === undefined || O.isNone(workspaces)) {
+  if (P.isUndefined(workspaces) || O.isNone(workspaces)) {
     return [];
   }
 
   const presentWorkspaces = workspaces.value;
-  return isWorkspacePatternArray(presentWorkspaces) ? presentWorkspaces : (presentWorkspaces.packages ?? []);
+  return isWorkspacePatternArray(presentWorkspaces) ? presentWorkspaces : (presentWorkspaces.packages ?? A.empty());
 };
 
 const isSafeWorkspacePattern = (pattern: string): boolean => {
@@ -49,7 +51,10 @@ const isSafeWorkspacePattern = (pattern: string): boolean => {
   return Str.isNonEmpty(normalized) && !absoluteWorkspacePattern.test(normalized) && !A.some(segments, Eq.equals(".."));
 };
 
-const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolean => {
+const isContainedCanonicalPath: {
+  (rootDir: string, candidateDir: string): boolean;
+  (candidateDir: string): (rootDir: string) => boolean;
+} = dual(2, (rootDir: string, candidateDir: string): boolean => {
   const normalizedRootDir = normalizePath(rootDir);
   const normalizedCandidateDir = normalizePath(candidateDir);
   return (
@@ -58,7 +63,7 @@ const isContainedCanonicalPath = (rootDir: string, candidateDir: string): boolea
       Str.startsWith(hasSuffix ? normalizedRootDir : `${normalizedRootDir}/`)(normalizedCandidateDir)
     )
   );
-};
+});
 
 /**
  * Resolve all workspace directories declared in the root `package.json`.
@@ -119,11 +124,7 @@ export const resolveWorkspaceDirs: (
 
     const canonicalRootDir = yield* fsUtils
       .realPath(rootDir)
-      .pipe(
-        Effect.mapError((error) =>
-          DomainError.new(error, { message: `Failed to resolve repository root "${rootDir}"` })
-        )
-      );
+      .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve repository root "${rootDir}"`)));
 
     // Expand all workspace globs
     const dirs = yield* fsUtils.glob(workspaceGlobs, {
@@ -138,9 +139,7 @@ export const resolveWorkspaceDirs: (
     for (const dir of dirs) {
       const canonicalDir = yield* fsUtils
         .realPath(dir)
-        .pipe(
-          Effect.mapError((error) => DomainError.new(error, { message: `Failed to resolve workspace path "${dir}"` }))
-        );
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve workspace path "${dir}"`)));
 
       if (!isContainedCanonicalPath(canonicalRootDir, canonicalDir)) {
         return yield* DomainError.new({
@@ -151,7 +150,7 @@ export const resolveWorkspaceDirs: (
       const pkgJsonPath = `${dir}/package.json`;
       const rawChildPkg = yield* fsUtils
         .readJson(pkgJsonPath)
-        .pipe(Effect.catchTag("NoSuchFileError", () => Effect.succeed(null)));
+        .pipe(Effect.catchTag("NoSuchFileError", thunkEffectSucceedNull));
       if (P.isNull(rawChildPkg)) {
         continue;
       }
@@ -162,9 +161,7 @@ export const resolveWorkspaceDirs: (
       }
 
       const childPkg = yield* decodePackageJsonEffect(rawChildPkg.value).pipe(
-        Effect.mapError((error) =>
-          DomainError.new(error, { message: `Failed to decode package.json at "${pkgJsonPath}"` })
-        )
+        Effect.mapError(DomainError.newCause(`Failed to decode package.json at "${pkgJsonPath}"`))
       );
 
       result = HashMap.set(result, childPkg.name, canonicalDir);
@@ -200,11 +197,14 @@ export const resolveWorkspaceDirs: (
  * @category Utility
  * @since 0.0.0
  */
-export const getWorkspaceDir: (
-  rootDir: string,
-  name: string
-) => Effect.Effect<O.Option<string>, NoSuchFileError | DomainError, FsUtils> = Effect.fn(function* (rootDir, name) {
-  const workspaces = yield* resolveWorkspaceDirs(rootDir);
-  return HashMap.get(workspaces, name);
-});
+export const getWorkspaceDir: {
+  (rootDir: string, name: string): Effect.Effect<O.Option<string>, NoSuchFileError | DomainError, FsUtils>;
+  (name: string): (rootDir: string) => Effect.Effect<O.Option<string>, NoSuchFileError | DomainError, FsUtils>;
+} = dual(
+  2,
+  Effect.fn(function* (rootDir, name) {
+    const workspaces = yield* resolveWorkspaceDirs(rootDir);
+    return HashMap.get(workspaces, name);
+  })
+);
 // bench

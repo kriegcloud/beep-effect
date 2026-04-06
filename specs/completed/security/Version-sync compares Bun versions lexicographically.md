@@ -8,4 +8,4 @@ Version-sync now parses Bun versions as semver-like values and compares numeric 
 - Code: `tooling/cli/src/commands/VersionSync/internal/resolvers/BunResolver.ts`
 - Tests: `tooling/cli/test/version-sync-effect.test.ts`
 - Verification: `bunx tsc -p tooling/cli/tsconfig.json --noEmit`
-- Verification: `bunx vitest run tooling/cli/test/version-sync-effect.test.ts`
+- Verification: `bunx --bun vitest run tooling/cli/test/version-sync-effect.test.ts`

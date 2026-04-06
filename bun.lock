@@ -457,11 +457,13 @@
       "version": "0.0.0",
       "dependencies": {
         "effect": "catalog:",
+        "picomatch": "catalog:",
       },
       "devDependencies": {
         "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+        "@types/picomatch": "catalog:",
         "type-fest": "catalog:",
       },
     },

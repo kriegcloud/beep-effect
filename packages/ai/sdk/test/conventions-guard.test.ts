@@ -30,10 +30,16 @@ const collectSourceFiles = async (directory: string): Promise<ReadonlyArray<Sour
 };
 
 const findPatternHits = (files: ReadonlyArray<SourceFile>, pattern: string) =>
-  files.filter((file) => file.content.includes(pattern)).map((file) => file.path);
+  files
+    .filter((file) => file.content.includes(pattern))
+    .map((file) => file.path)
+    .sort();
 
 const findRegexHits = (files: ReadonlyArray<SourceFile>, pattern: RegExp) =>
-  files.filter((file) => pattern.test(file.content)).map((file) => file.path);
+  files
+    .filter((file) => pattern.test(file.content))
+    .map((file) => file.path)
+    .sort();
 
 const castPattern = ["as unknown", "as"].join(" ");
 const anyPattern = new RegExp(["\\b", "an", "y", "\\b"].join(""));
