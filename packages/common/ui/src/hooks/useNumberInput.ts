@@ -3,13 +3,13 @@ import { LiteralKit } from "@beep/schema";
 import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
-import { dual } from "effect/Function";
+import { constVoid, dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type React from "react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSpinner } from "./useSpinner";
 
 const $I = $UiId.create("hooks/useNumberInput");
@@ -38,6 +38,9 @@ const NumberInputEventKey = LiteralKit([
     description: "Normalized keyboard event keys recognized by the number input hook.",
   })
 );
+
+const numberInputTextPatternSource = "(-|\\+)?(0|[1-9]\\d*)?(\\.)?(\\d+)?";
+const numberInputTextPattern = new RegExp(`^${numberInputTextPatternSource}$`);
 
 type NumberInputEventKey = typeof NumberInputEventKey.Type;
 
@@ -68,7 +71,7 @@ type ButtonHandlers = {
 };
 
 const NumberInputText = S.String.check(
-  S.isPattern(/^(-|\+)?(0|[1-9]\d*)?(\.)?(\d+)?$/, {
+  S.isPattern(numberInputTextPattern, {
     identifier: $I`NumberInputTextPattern`,
     title: "Number Input Text",
     description: "A partial numeric string accepted while the user edits a number input.",
@@ -92,9 +95,6 @@ const NonNegativePrecision = S.Number.check(S.isInt(), S.isGreaterThanOrEqualTo(
     })
   )
 );
-
-const noop = <T>(value: T): T => value;
-const noopVoid = (): void => {};
 
 const normalizeEventKey = (event: KeyboardLikeEvent): O.Option<NumberInputEventKey> =>
   pipe(
@@ -469,8 +469,8 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
     precision = 0,
     step = 1,
     keepWithinRange = true,
-    formatter = noop,
-    parser = noop,
+    formatter = identity,
+    parser = identity,
   } = options;
 
   const [interfaceValue, setInterfaceValueState] = useState<string>(() =>
@@ -485,32 +485,41 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
     }
   }, [defaultValue, formatter, numberValue, precision, value]);
 
-  function change(multiplier = 1, params: SpinParams = {}) {
-    setInterfaceValueState((current) => {
-      const result = (pipe(current, parser, toNumber) ?? 0) + multiplier * (params.step ?? step);
-      const digits = params.precision ?? precision;
+  const change = useCallback(
+    (multiplier = 1, params: SpinParams = {}) => {
+      setInterfaceValueState((current) => {
+        const result = (pipe(current, parser, toNumber) ?? 0) + multiplier * (params.step ?? step);
+        const digits = params.precision ?? precision;
 
-      if (keepWithinRange) {
-        if (result > max) {
-          return max.toFixed(digits);
+        if (keepWithinRange) {
+          if (result > max) {
+            return formatter(max.toFixed(digits));
+          }
+
+          if (result < min) {
+            return formatter(min.toFixed(digits));
+          }
         }
 
-        if (result < min) {
-          return min.toFixed(digits);
-        }
-      }
+        return formatter(result.toFixed(digits));
+      });
+    },
+    [formatter, keepWithinRange, max, min, parser, precision, step]
+  );
 
-      return formatter(result.toFixed(digits));
-    });
-  }
+  const increment = useCallback(
+    (params: SpinParams = {}) => {
+      change(1, params);
+    },
+    [change]
+  );
 
-  function increment(params: SpinParams = {}) {
-    change(1, params);
-  }
-
-  function decrement(params: SpinParams = {}) {
-    change(-1, params);
-  }
+  const decrement = useCallback(
+    (params: SpinParams = {}) => {
+      change(-1, params);
+    },
+    [change]
+  );
 
   return {
     numberValue,
@@ -579,8 +588,8 @@ export const useNumberInput = (options: UseNumberInputOptions = {}) => {
     keepWithinRange = true,
     clampValueOnBlur = true,
     allowMouseWheel = false,
-    parser = noop,
-    formatter = noop,
+    parser = identity,
+    formatter = identity,
     onChange,
   } = options;
 
@@ -599,7 +608,9 @@ function NumberInput() {
 }
         `);
     }
+  }, [focusInputOnChange, inputRef]);
 
+  useEffect(() => {
     function handler(event: WheelEvent) {
       const isInputFocused = document.activeElement === inputRef.current;
 
@@ -628,7 +639,7 @@ function NumberInput() {
         element.removeEventListener("wheel", handler);
       };
     }
-  }, [allowMouseWheel, decrement, focusInputOnChange, increment, precision, step]);
+  }, [allowMouseWheel, decrement, increment, inputRef, precision, step]);
 
   const isFirstMount = useIsFirstMount();
 
@@ -651,7 +662,7 @@ function NumberInput() {
 
     Bool.match(focusInputOnChange, {
       onTrue: () => inputRef.current?.focus(),
-      onFalse: noopVoid,
+      onFalse: constVoid,
     });
   };
 
@@ -661,7 +672,7 @@ function NumberInput() {
 
     Bool.match(focusInputOnChange, {
       onTrue: () => inputRef.current?.focus(),
-      onFalse: noopVoid,
+      onFalse: constVoid,
     });
   };
 
@@ -676,7 +687,7 @@ function NumberInput() {
       normalizeEventKey(event),
       O.flatMap((eventKey) => pipe(keyMap[eventKey], O.fromNullishOr, O.filter(isVoidHandler))),
       O.match({
-        onNone: noopVoid,
+        onNone: constVoid,
         onSome: (action) => {
           event.preventDefault();
           action();
@@ -741,7 +752,7 @@ function NumberInput() {
   return {
     inputRef,
     getInputProps: (handlers?: Partial<InputHandlers>) => ({
-      pattern: "[0-9]*(.[0-9]+)?",
+      pattern: numberInputTextPatternSource,
       role: "spinbutton",
       "aria-valuemin": min,
       "aria-valuemax": max,

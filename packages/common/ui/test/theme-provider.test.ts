@@ -12,5 +12,10 @@ describe("@beep/ui themes", () => {
       expect(resolveThemeMode(ThemeMode.Enum.system, ThemeMode.Enum.dark)).toBe(ThemeMode.Enum.dark);
       expect(resolveThemeMode(ThemeMode.Enum.system, ThemeMode.Enum.light)).toBe(ThemeMode.Enum.light);
     });
+
+    it("treats null and undefined mode as system mode", () => {
+      expect(resolveThemeMode(null, ThemeMode.Enum.dark)).toBe(ThemeMode.Enum.dark);
+      expect(resolveThemeMode(undefined, ThemeMode.Enum.light)).toBe(ThemeMode.Enum.light);
+    });
   });
 });

@@ -99,6 +99,12 @@ export const textFieldTheme: ThemeComponents = {
             props: { size: "large" },
             style: {
               fontSize: theme.typography.body1.fontSize,
+              "&:has(.MuiInputAdornment-positionStart)": {
+                paddingLeft: "14px",
+              },
+              "&:has(.MuiInputAdornment-positionEnd)": {
+                paddingRight: "14px",
+              },
               [theme.breakpoints.up(768)]: {
                 fontSize: theme.typography.body1.fontSize,
                 lineHeight: theme.typography.body1.lineHeight,
@@ -293,13 +299,13 @@ export const textFieldTheme: ThemeComponents = {
             duration: theme.transitions.duration.shorter,
           }),
         },
-        "&:hover::before": {
+        "&:not(.Mui-disabled):not(.Mui-error):hover::before": {
           borderBottom: `2px solid ${(theme.vars || theme).palette.text.primary}`,
         },
         "&::after": {
           borderBottom: `2px solid ${(theme.vars || theme).palette.primary.main}`,
         },
-        "&.Mui-error::after": {
+        "&.Mui-error::before, &.Mui-error::after": {
           borderBottomColor: (theme.vars || theme).palette.error.main,
         },
       }),
@@ -360,13 +366,13 @@ export const textFieldTheme: ThemeComponents = {
             duration: theme.transitions.duration.shorter,
           }),
         },
-        "&:hover:not(.Mui-disabled)::before": {
+        "&:not(.Mui-disabled):not(.Mui-error):hover::before": {
           borderBottom: `2px solid ${(theme.vars || theme).palette.text.primary}`,
         },
         "&::after": {
           borderBottom: `2px solid ${(theme.vars || theme).palette.primary.main}`,
         },
-        "&.Mui-error::after": {
+        "&.Mui-error::before, &.Mui-error::after": {
           borderBottomColor: (theme.vars || theme).palette.error.main,
         },
       }),

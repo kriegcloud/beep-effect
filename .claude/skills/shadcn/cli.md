@@ -9,7 +9,7 @@ Configuration is read from `components.json`.
 ## Contents
 
 - Commands: init, add (dry-run, smart merge), search, view, docs, info, build
-- Templates: next, vite, start, react-router, astro
+- Templates: next, vite, start, react-router, astro, laravel
 - Presets: named, code, URL formats and fields
 - Switching presets
 
@@ -27,7 +27,7 @@ Initializes shadcn/ui in an existing project or creates a new project (when `--n
 
 | Flag                    | Short | Description                                               | Default |
 | ----------------------- | ----- | --------------------------------------------------------- | ------- |
-| `--template <template>` | `-t`  | Template (next, start, vite, next-monorepo, react-router) | —       |
+| `--template <template>` | `-t`  | Template (next, vite, start, react-router, astro, laravel) | —       |
 | `--preset [name]`       | `-p`  | Preset configuration (named, code, or URL)                | —       |
 | `--yes`                 | `-y`  | Skip confirmation prompt                                  | `true`  |
 | `--defaults`            | `-d`  | Use defaults (`--template=next --preset=base-nova`)       | `false` |
@@ -95,11 +95,11 @@ npx shadcn@latest add button --diff globals.css
 
 **When to use dry-run:**
 
-- When the user asks "what files will this add?" or "what will this change?" — use `--dry-run`.
-- Before overwriting existing components — use `--diff` to preview the changes first.
-- When the user wants to inspect component source code without installing — use `--view`.
-- When checking what CSS changes would be made to `globals.css` — use `--diff globals.css`.
-- When the user asks to review or audit third-party registry code before installing — use `--view` to inspect the source.
+- To see what files will be added or changed, use `--dry-run`.
+- Preview changes before overwriting existing components with `--diff`.
+- Inspect component source without installing by using `--view`.
+- Check CSS changes to `globals.css` with `--diff globals.css`.
+- Audit third-party registry code before installing with `--view`.
 
 > **`npx shadcn@latest add --dry-run` vs `npx shadcn@latest view`:** Prefer `npx shadcn@latest add --dry-run/--diff/--view` over `npx shadcn@latest view` when the user wants to preview changes to their project. `npx shadcn@latest view` only shows raw registry metadata. `npx shadcn@latest add --dry-run` shows exactly what would happen in the user's project: resolved file paths, diffs against existing files, and CSS updates. Use `npx shadcn@latest view` only when the user wants to browse registry info without a project context.
 

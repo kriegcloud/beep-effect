@@ -10,6 +10,7 @@ import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider as MuiThemeProvider, useColorScheme } from "@mui/material/styles";
+import * as Bool from "effect/Boolean";
 import type * as React from "react";
 import { theme } from "./theme.ts";
 
@@ -69,10 +70,14 @@ interface ThemeModeControls {
 export const resolveThemeMode = (
   mode: ThemeMode | null | undefined,
   systemMode: ThemeMode | null | undefined
-): ResolvedThemeMode =>
-  ThemeMode.is.dark(mode) || (ThemeMode.is.system(mode) && ThemeMode.is.dark(systemMode))
-    ? ThemeMode.Enum.dark
-    : ThemeMode.Enum.light;
+): ResolvedThemeMode => {
+  const prefersDarkMode = ThemeMode.is.dark(mode) || (!ThemeMode.is.light(mode) && ThemeMode.is.dark(systemMode));
+
+  return Bool.match(prefersDarkMode, {
+    onTrue: () => ThemeMode.Enum.dark,
+    onFalse: () => ThemeMode.Enum.light,
+  });
+};
 
 export function AppThemeProvider({ children, defaultMode = ThemeMode.Enum.system }: AppThemeProviderProps) {
   return (
