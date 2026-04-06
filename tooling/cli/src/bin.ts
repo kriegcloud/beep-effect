@@ -9,10 +9,9 @@
  */
 
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
-import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
+import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect, Layer } from "effect";
 import { Command } from "effect/unstable/cli";
-import { FetchHttpClient } from "effect/unstable/http";
 import { rootCommand } from "./commands/Root.js";
 
 /**
@@ -25,7 +24,7 @@ import { rootCommand } from "./commands/Root.js";
  * @category Configuration
  * @since 0.0.0
  */
-const BaseLayers = Layer.mergeAll(NodeServices.layer);
+const BaseLayers = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
 
 /**
  * Fully assembled runtime layer that merges higher-level services
@@ -38,12 +37,9 @@ const BaseLayers = Layer.mergeAll(NodeServices.layer);
  * @category Configuration
  * @since 0.0.0
  */
-const DerivedLayers = Layer.mergeAll(
-  NodeChildProcessSpawner.layer,
-  FetchHttpClient.layer,
-  FsUtilsLive,
-  TSMorphServiceLive
-).pipe(Layer.provideMerge(BaseLayers));
+const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, TSMorphServiceLive).pipe(
+  Layer.provideMerge(BaseLayers)
+);
 
 /**
  * Top-level CLI program effect produced by running the root command tree
@@ -61,8 +57,5 @@ const program = Effect.scoped(
   )
 );
 
-Effect.runPromise(program).catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+BunRuntime.runMain(program);
 // bench

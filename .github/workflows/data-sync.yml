@@ -40,13 +40,13 @@ jobs:
         run: bunx tsc -p tooling/cli/tsconfig.json --noEmit
 
       - name: Test sync-data-to-ts
-        run: bunx vitest run tooling/cli/test/sync-data-to-ts.test.ts
+        run: bunx --bun vitest run tooling/cli/test/sync-data-to-ts.test.ts
 
       - name: Typecheck @beep/data
         run: bunx tsc -p packages/common/data/tsconfig.json --noEmit
 
       - name: Test @beep/data currency exports
-        run: bunx vitest run packages/common/data/test/currency-codes.test.ts
+        run: bunx --bun vitest run packages/common/data/test/currency-codes.test.ts
 
       - name: Create or update pull request
         uses: peter-evans/create-pull-request@v8

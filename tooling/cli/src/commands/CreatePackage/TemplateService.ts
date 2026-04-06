@@ -1,7 +1,7 @@
 /**
  * Template rendering service for package generation.
  *
- * @module
+ * @module @beep/repo-cli/commands/CreatePackage/TemplateService
  * @since 0.0.0
  */
 
@@ -92,10 +92,12 @@ const UnknownToTemplateHelperString = S.Unknown.pipe(
     S.String,
     SchemaTransformation.transform({
       decode: (value) =>
-        O.match(O.fromNullishOr(value), {
-          onNone: thunkEmptyStr,
-          onSome: (inner) => `${inner}`,
-        }),
+        O.fromNullishOr(value).pipe(
+          O.match({
+            onNone: thunkEmptyStr,
+            onSome: String,
+          })
+        ),
       encode: identity,
     })
   ),

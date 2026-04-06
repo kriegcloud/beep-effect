@@ -94,7 +94,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = undefined;
+      process.exitCode = 0;
       yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
       return { fs, previousCwd, previousExitCode, tmpDir } as const;
@@ -103,7 +103,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
     ({ fs, previousCwd, previousExitCode, tmpDir }) =>
       Effect.gen(function* () {
         process.chdir(previousCwd);
-        process.exitCode = previousExitCode;
+        process.exitCode = previousExitCode ?? 0;
         yield* fs.remove(tmpDir, { recursive: true });
       })
   ).pipe(Effect.provide(CommandTestLayer));
@@ -151,7 +151,7 @@ describe("sync-data-to-ts", () => {
             expect(logs).toContain(
               "sync-data-to-ts: updated iso4217 -> packages/common/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
             );
-            expect(process.exitCode).toBeUndefined();
+            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -172,7 +172,7 @@ describe("sync-data-to-ts", () => {
             expect(logs).toContain(
               "sync-data-to-ts: would update iso4217 -> packages/common/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
             );
-            expect(process.exitCode).toBeUndefined();
+            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )
@@ -213,7 +213,7 @@ describe("sync-data-to-ts", () => {
             const logs = yield* TestConsole.logLines;
 
             expect(logs).toContain("sync-data-to-ts: wrote 0 of 1 target(s)");
-            expect(process.exitCode).toBeUndefined();
+            expect(process.exitCode ?? 0).toBe(0);
           })
         )
       )

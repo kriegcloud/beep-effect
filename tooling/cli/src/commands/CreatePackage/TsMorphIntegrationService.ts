@@ -51,7 +51,9 @@ class TsMorphMutationAddIdentityComposer extends S.Class<TsMorphMutationAddIdent
   $I.annote("TsMorphMutationAddIdentityComposer", {
     description: "Mutation descriptor for adding identity composer exports/imports.",
   })
-) {}
+) {
+  static readonly thunkThis = () => TsMorphMutationAddIdentityComposer;
+}
 
 class TsMorphMutationAddEntityIdExport extends S.Class<TsMorphMutationAddEntityIdExport>(
   $I`TsMorphMutationAddEntityIdExport`
@@ -66,7 +68,9 @@ class TsMorphMutationAddEntityIdExport extends S.Class<TsMorphMutationAddEntityI
   $I.annote("TsMorphMutationAddEntityIdExport", {
     description: "Mutation descriptor for adding entity id exports.",
   })
-) {}
+) {
+  static readonly thunkThis = () => TsMorphMutationAddEntityIdExport;
+}
 
 class TsMorphMutationWirePersistence extends S.Class<TsMorphMutationWirePersistence>(
   $I`TsMorphMutationWirePersistence`
@@ -81,7 +85,9 @@ class TsMorphMutationWirePersistence extends S.Class<TsMorphMutationWirePersiste
   $I.annote("TsMorphMutationWirePersistence", {
     description: "Mutation descriptor for persistence wiring.",
   })
-) {}
+) {
+  static readonly thunkThis = () => TsMorphMutationWirePersistence;
+}
 
 class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAccess>($I`TsMorphMutationWireDataAccess`)(
   {
@@ -94,7 +100,9 @@ class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAcces
   $I.annote("TsMorphMutationWireDataAccess", {
     description: "Mutation descriptor for data-access wiring.",
   })
-) {}
+) {
+  static readonly thunkThis = () => TsMorphMutationWireDataAccess;
+}
 /**
  * Input descriptor for one AST mutation.
  *
@@ -102,14 +110,16 @@ class TsMorphMutationWireDataAccess extends S.Class<TsMorphMutationWireDataAcces
  * @category DomainModel
  * @since 0.0.0
  */
-export const TsMorphMutation = S.Union([
-  TsMorphMutationAddIdentityComposer,
-  TsMorphMutationAddEntityIdExport,
-  TsMorphMutationWirePersistence,
-  TsMorphMutationWireDataAccess,
-])
+export const TsMorphMutation = TsMorphMutationKind.mapMembers(
+  Tuple.evolve([
+    TsMorphMutationAddIdentityComposer.thunkThis,
+    TsMorphMutationAddEntityIdExport.thunkThis,
+    TsMorphMutationWirePersistence.thunkThis,
+    TsMorphMutationWireDataAccess.thunkThis,
+  ])
+)
   .annotate(
-    $I.annote("TsMorphMutationBase", {
+    $I.annote("TsMorphMutation", {
       description: "Input descriptor for one AST mutation.",
     })
   )
@@ -132,7 +142,11 @@ class TsMorphMutationOutcomeApplied extends S.Class<TsMorphMutationOutcomeApplie
   $I.annote("TsMorphMutationOutcomeApplied", {
     description: "Applied mutation outcome.",
   })
-) {}
+) {
+  static readonly thunkThis = () => {
+    return this;
+  };
+}
 
 class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkipped>($I`TsMorphMutationOutcomeSkipped`)(
   {
@@ -143,7 +157,9 @@ class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkippe
   $I.annote("TsMorphMutationOutcomeSkipped", {
     description: "Skipped mutation outcome.",
   })
-) {}
+) {
+  static readonly thunkThis = () => TsMorphMutationOutcomeSkipped;
+}
 
 /**
  * Outcome for one mutation.
@@ -153,7 +169,7 @@ class TsMorphMutationOutcomeSkipped extends S.Class<TsMorphMutationOutcomeSkippe
  * @since 0.0.0
  */
 const TsMorphMutationOutcome = LiteralKit(["applied", "skipped"])
-  .mapMembers(Tuple.evolve([() => TsMorphMutationOutcomeApplied, () => TsMorphMutationOutcomeSkipped]))
+  .mapMembers(Tuple.evolve([TsMorphMutationOutcomeApplied.thunkThis, TsMorphMutationOutcomeSkipped.thunkThis]))
   .annotate(
     $I.annote("TsMorphMutationOutcome", {
       description: "Outcome for one mutation.",
@@ -182,7 +198,9 @@ export class TsMorphIntegrationResult extends S.Class<TsMorphIntegrationResult>(
   $I.annote("TsMorphIntegrationResult", {
     description: "Batch mutation result.",
   })
-) {}
+) {
+  static readonly new = (outcomes: ReadonlyArray<TsMorphMutationOutcome>) => new TsMorphIntegrationResult({ outcomes });
+}
 
 /**
  * Adapter boundary for concrete ts-morph-morph implementations.
@@ -243,12 +261,5 @@ export const createTsMorphIntegrationService = (
   previewMutations: A.map((mutation) => `${mutation.kind} ${mutation.symbolName} in ${mutation.filePath}`),
 
   applyMutations: (mutations) =>
-    Effect.forEach(mutations, adapter.applyMutation).pipe(
-      Effect.map(
-        (outcomes) =>
-          new TsMorphIntegrationResult({
-            outcomes,
-          })
-      )
-    ),
+    Effect.forEach(mutations, adapter.applyMutation).pipe(Effect.map(TsMorphIntegrationResult.new)),
 });

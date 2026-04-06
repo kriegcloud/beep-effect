@@ -15,7 +15,8 @@ import {
   resolveWorkspaceDirs,
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { DateTime, Effect, FileSystem, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
+import { thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -50,7 +51,9 @@ const byDocsOutputPathAscending: Order.Order<DocgenWorkspacePackage> = Order.map
 const byIssueAscending: Order.Order<DocgenExportAnalysis> = Order.mapInput(
   Order.String,
   (analysis: DocgenExportAnalysis) =>
-    `${analysis.priority === "high" ? "0" : analysis.priority === "medium" ? "1" : "2"}:${analysis.filePath}:${analysis.line}:${analysis.name}`
+    `${
+      analysis.priority === "high" ? "0" : analysis.priority === "medium" ? "1" : "2"
+    }:${analysis.filePath}:${analysis.line}:${analysis.name}`
 );
 
 /**
@@ -63,7 +66,7 @@ export const DocgenPackageStatus = LiteralKit([
   "configured-and-generated",
   "configured-not-generated",
   "not-configured",
-] as const).annotate(
+]).annotate(
   $I.annote("DocgenPackageStatus", {
     description: "Workspace docgen status derived from config and generated output presence.",
   })
@@ -138,7 +141,7 @@ export class DocgenWorkspacePackage extends S.Class<DocgenWorkspacePackage>($I`D
  * @category DomainModel
  * @since 0.0.0
  */
-export const DocgenIssuePriority = LiteralKit(["high", "medium", "low"] as const).annotate(
+export const DocgenIssuePriority = LiteralKit(["high", "medium", "low"]).annotate(
   $I.annote("DocgenIssuePriority", {
     description: "Issue priority used by analysis findings.",
   })
@@ -167,7 +170,7 @@ export const DocgenExportKind = LiteralKit([
   "enum",
   "re-export",
   "module-fileoverview",
-] as const).annotate(
+]).annotate(
   $I.annote("DocgenExportKind", {
     description: "Export kind surfaced by analysis.",
   })
@@ -280,6 +283,7 @@ export class DocgenAggregateResult extends S.Class<DocgenAggregateResult>($I`Doc
     description: "Per-package aggregated docs result.",
   })
 ) {}
+
 const decodeDocgenConfigDocument = S.decodeUnknownEffect(DocgenConfigDocument);
 
 const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(value);
@@ -307,12 +311,22 @@ const jsonText = (value: unknown): string => {
 const readUnknownJsonFile = (filePath: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
-    const content = yield* fs
-      .readFileString(filePath)
-      .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
+    const content = yield* fs.readFileString(filePath).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to read "${filePath}"`,
+            cause,
+          })
+      )
+    );
     const parsed = yield* Effect.try({
       try: () => parseJsonText(content),
-      catch: (cause) => new DomainError({ message: `Invalid JSON in "${filePath}"`, cause }),
+      catch: (cause) =>
+        new DomainError({
+          message: `Invalid JSON in "${filePath}"`,
+          cause,
+        }),
     });
     return parsed;
   });
@@ -323,7 +337,13 @@ const readPackageJson = (absolutePackagePath: string) =>
     const packageJsonPath = path.join(absolutePackagePath, "package.json");
     const parsed = yield* readUnknownJsonFile(packageJsonPath);
     return yield* decodePackageJsonEffect(parsed).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Invalid package.json at "${packageJsonPath}"`, cause }))
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Invalid package.json at "${packageJsonPath}"`,
+            cause,
+          })
+      )
     );
   });
 
@@ -349,7 +369,7 @@ const packageHasDocgenConfig = (absolutePackagePath: string) =>
     const path = yield* Path.Path;
     return yield* fs
       .exists(path.join(absolutePackagePath, DOCGEN_CONFIG_FILENAME))
-      .pipe(Effect.orElseSucceed(() => false));
+      .pipe(Effect.orElseSucceed(thunkFalse));
   });
 
 const packageHasGeneratedDocs = (absolutePackagePath: string) =>
@@ -358,7 +378,7 @@ const packageHasGeneratedDocs = (absolutePackagePath: string) =>
     const path = yield* Path.Path;
     return yield* fs
       .exists(path.join(absolutePackagePath, ...DOCS_MODULES_SEGMENTS))
-      .pipe(Effect.orElseSucceed(() => false));
+      .pipe(Effect.orElseSucceed(thunkFalse));
   });
 
 const computePackageStatus = (hasDocgenConfig: boolean, hasGeneratedDocs: boolean): DocgenPackageStatus => {
@@ -386,7 +406,7 @@ const getJsDocs = (node: Node): ReadonlyArray<JSDoc> => {
     }
   }
 
-  return [];
+  return A.empty();
 };
 
 const extractJsDocTags = (node: Node): ReadonlyArray<string> =>
@@ -486,7 +506,7 @@ const analyzeModuleFileoverview = (
         kind: "module-fileoverview",
         filePath: relativeFilePath,
         line: 1,
-        presentTags: [],
+        presentTags: A.empty(),
         missingTags: ["@since"],
         hasJsDoc: false,
         declarationSource: "",
@@ -501,7 +521,7 @@ const analyzeModuleFileoverview = (
   }
 
   const presentTags = pipe(
-    ["@file", "@fileoverview", "@module", "@category", "@example"] as const,
+    ["@file", "@fileoverview", "@module", "@category", "@example"],
     A.filter((tag) => Str.includes(tag)(commentText))
   );
 
@@ -546,7 +566,7 @@ const analyzeReExports = (sourceFile: SourceFile, relativeFilePath: string): Rea
         context: `Re-export from ${declaration.getModuleSpecifierValue() ?? "<unknown>"} needs documentation.`,
       });
     }),
-    A.filter((analysis) => analysis.missingTags.length > 0)
+    A.filter((analysis) => A.isReadonlyArrayNonEmpty(analysis.missingTags))
   );
 
 const sourceFileMatchesExclude = (
@@ -556,14 +576,17 @@ const sourceFileMatchesExclude = (
   pattern: string
 ): boolean => {
   const normalizedPattern = normalizeSlashes(Str.replace(/^\.\//, "")(pattern));
-  const packageRelative = normalizeSlashes(sourceFilePath).replace(`${normalizeSlashes(absolutePackagePath)}/`, "");
-  const srcRelative = packageRelative.startsWith(`${srcDir}/`)
+  const packageRelative = Str.replace(
+    `${normalizeSlashes(absolutePackagePath)}/`,
+    ""
+  )(normalizeSlashes(sourceFilePath));
+  const srcRelative = Str.startsWith(`${srcDir}/`)(packageRelative)
     ? packageRelative.slice(srcDir.length + 1)
     : packageRelative;
   const escapedPattern = Str.replace(/[.+?^${}()|[\]\\]/g, "\\$&")(normalizedPattern);
   const patternRegex = new RegExp(`^${Str.replace(/\*/g, ".*")(escapedPattern)}$`);
 
-  return [packageRelative, srcRelative].some((candidate) => patternRegex.test(candidate));
+  return A.some([packageRelative, srcRelative], (candidate) => patternRegex.test(candidate));
 };
 
 const getSourceFiles = (
@@ -613,20 +636,23 @@ const analyzeSourceFile = (
 const computeAnalysisSummary = (analyses: ReadonlyArray<DocgenExportAnalysis>): DocgenAnalysisSummary =>
   new DocgenAnalysisSummary({
     totalExports: analyses.length,
-    fullyDocumented: analyses.filter((analysis) => analysis.missingTags.length === 0).length,
-    missingDocumentation: analyses.filter((analysis) => analysis.missingTags.length > 0).length,
-    missingCategory: analyses.filter((analysis) => A.contains(analysis.missingTags, "@category")).length,
-    missingExample: analyses.filter((analysis) => A.contains(analysis.missingTags, "@example")).length,
-    missingSince: analyses.filter((analysis) => A.contains(analysis.missingTags, "@since")).length,
+    fullyDocumented: A.filter(analyses, (analysis) => analysis.missingTags.length === 0).length,
+    missingDocumentation: A.filter(analyses, (analysis) => analysis.missingTags.length > 0).length,
+    missingCategory: A.filter(analyses, (analysis) => A.contains(analysis.missingTags, "@category")).length,
+    missingExample: A.filter(analyses, (analysis) => A.contains(analysis.missingTags, "@example")).length,
+    missingSince: A.filter(analyses, (analysis) => A.contains(analysis.missingTags, "@since")).length,
   });
 
 const formatChecklistItem = (analysis: DocgenExportAnalysis): string =>
-  [
-    `- [ ] \`${analysis.filePath}:${analysis.line}\` - **${analysis.name}** (${analysis.kind})`,
-    `  - Missing: ${analysis.missingTags.join(", ") || "none"}`,
-    ...(analysis.presentTags.length === 0 ? [] : [`  - Has: ${analysis.presentTags.join(", ")}`]),
-    ...(analysis.context === undefined ? [] : [`  - Context: ${analysis.context}`]),
-  ].join("\n");
+  A.join(
+    [
+      `- [ ] \`${analysis.filePath}:${analysis.line}\` - **${analysis.name}** (${analysis.kind})`,
+      `  - Missing: ${A.join(analysis.missingTags, ", ") || "none"}`,
+      ...(analysis.presentTags.length === 0 ? A.empty() : [`  - Has: ${A.join(analysis.presentTags, ", ")}`]),
+      ...(analysis.context === undefined ? A.empty() : [`  - Context: ${analysis.context}`]),
+    ],
+    "\n"
+  );
 
 const generateDocsIndexContent = (packageName: string, outputPath: string, order: number): string => `---
 title: "${packageName}"
@@ -645,35 +671,65 @@ const copyDocsTree = (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
-    yield* fs
-      .makeDirectory(destinationDir, { recursive: true })
-      .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to create "${destinationDir}"`, cause })));
+    yield* fs.makeDirectory(destinationDir, { recursive: true }).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to create "${destinationDir}"`,
+            cause,
+          })
+      )
+    );
 
-    const entries = yield* fs
-      .readDirectory(sourceDir)
-      .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${sourceDir}"`, cause })));
+    const entries = yield* fs.readDirectory(sourceDir).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to read "${sourceDir}"`,
+            cause,
+          })
+      )
+    );
 
     let copiedFiles = 0;
 
     for (const entry of entries) {
       const sourcePath = path.join(sourceDir, entry);
       const destinationPath = path.join(destinationDir, entry);
-      const stat = yield* fs
-        .stat(sourcePath)
-        .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to stat "${sourcePath}"`, cause })));
+      const stat = yield* fs.stat(sourcePath).pipe(
+        Effect.mapError(
+          (cause) =>
+            new DomainError({
+              message: `Failed to stat "${sourcePath}"`,
+              cause,
+            })
+        )
+      );
 
       if (stat.type === "Directory") {
         copiedFiles += yield* copyDocsTree(sourcePath, destinationPath, packageName);
         continue;
       }
 
-      const content = yield* fs
-        .readFileString(sourcePath)
-        .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${sourcePath}"`, cause })));
+      const content = yield* fs.readFileString(sourcePath).pipe(
+        Effect.mapError(
+          (cause) =>
+            new DomainError({
+              message: `Failed to read "${sourcePath}"`,
+              cause,
+            })
+        )
+      );
       const rewritten = Str.replace(/^parent: Modules$/m, `parent: "${packageName}"`)(content);
-      yield* fs
-        .writeFileString(destinationPath, rewritten)
-        .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to write "${destinationPath}"`, cause })));
+      yield* fs.writeFileString(destinationPath, rewritten).pipe(
+        Effect.mapError(
+          (cause) =>
+            new DomainError({
+              message: `Failed to write "${destinationPath}"`,
+              cause,
+            })
+        )
+      );
       copiedFiles += 1;
     }
 
@@ -708,7 +764,11 @@ export const loadDocgenConfigDocument: (
     const parsed = yield* readUnknownJsonFile(configPath);
     return yield* decodeDocgenConfigDocument(parsed).pipe(
       Effect.mapError(
-        (cause) => new DomainError({ message: `Invalid JSON shape in "${configPath}": ${cause.message}`, cause })
+        (cause) =>
+          new DomainError({
+            message: `Invalid JSON shape in "${configPath}": ${cause.message}`,
+            cause,
+          })
       )
     );
   });
@@ -849,11 +909,11 @@ export const analyzePackageDocumentation: (
       ? yield* loadDocgenConfigDocument(targetPackage.absolutePath)
       : new DocgenConfigDocument({
           srcDir: "src",
-          exclude: [],
+          exclude: A.empty(),
         });
     const project = new Project({ skipAddingFilesFromTsConfig: true });
     const srcDir = config.srcDir ?? "src";
-    const exclude = config.exclude ?? [];
+    const exclude = config.exclude ?? A.empty();
     const analyses = pipe(
       getSourceFiles(project, targetPackage.absolutePath, srcDir, exclude),
       A.flatMap((sourceFile) => analyzeSourceFile(sourceFile, targetPackage.absolutePath, path)),
@@ -883,11 +943,11 @@ export const analyzePackageDocumentation: (
  * @since 0.0.0
  */
 export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode: boolean): string => {
-  const issues = analysis.exports.filter((entry) => entry.missingTags.length > 0);
-  const high = issues.filter((entry) => entry.priority === "high");
-  const medium = issues.filter((entry) => entry.priority === "medium");
-  const low = issues.filter((entry) => entry.priority === "low");
-  const sections: Array<string> = [];
+  const issues = A.filter(analysis.exports, (entry) => A.isReadonlyArrayNonEmpty(entry.missingTags));
+  const high = A.filter(issues, (entry) => entry.priority === "high");
+  const medium = A.filter(issues, (entry) => entry.priority === "medium");
+  const low = A.filter(issues, (entry) => entry.priority === "low");
+  const sections = A.empty<string>();
 
   sections.push(`# JSDoc Analysis Report: ${analysis.packageName}`);
   sections.push("");
@@ -914,11 +974,11 @@ export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode:
     sections.push("## Fix Checklist");
     sections.push("");
 
-    if (issues.length === 0) {
+    if (A.isReadonlyArrayEmpty(issues)) {
       sections.push("All public exports are fully documented.");
       sections.push("");
     } else {
-      if (high.length > 0) {
+      if (A.isReadonlyArrayNonEmpty(high)) {
         sections.push("### High Priority");
         sections.push("");
         for (const entry of high) {
@@ -927,7 +987,7 @@ export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode:
         }
       }
 
-      if (medium.length > 0) {
+      if (A.isReadonlyArrayNonEmpty(medium)) {
         sections.push("### Medium Priority");
         sections.push("");
         for (const entry of medium) {
@@ -936,7 +996,7 @@ export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode:
         }
       }
 
-      if (low.length > 0) {
+      if (A.isReadonlyArrayNonEmpty(low)) {
         sections.push("### Low Priority");
         sections.push("");
         for (const entry of low) {
@@ -949,7 +1009,7 @@ export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode:
     sections.push("## Findings");
     sections.push("");
 
-    if (issues.length === 0) {
+    if (A.isReadonlyArrayEmpty(issues)) {
       sections.push("All public exports are fully documented.");
       sections.push("");
     } else {
@@ -962,7 +1022,7 @@ export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode:
         if (entry.presentTags.length > 0) {
           sections.push(`- Present: ${entry.presentTags.join(", ")}`);
         }
-        if (entry.context !== undefined) {
+        if (P.isNotUndefined(entry.context)) {
           sections.push(`- Context: ${entry.context}`);
         }
         sections.push("");
@@ -1018,26 +1078,26 @@ export const aggregateGeneratedDocs = (options?: {
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot();
     const docsRoot = path.join(repoRoot, "docs");
-    const selectedPackage =
-      options?.package === undefined ? undefined : yield* resolveDocgenWorkspacePackage(options.package, repoRoot);
-    const packages =
-      selectedPackage === undefined
-        ? (yield* discoverDocgenWorkspacePackages(repoRoot)).filter((pkg) => pkg.hasGeneratedDocs)
-        : selectedPackage.hasGeneratedDocs
-          ? [selectedPackage]
-          : [];
+    const selectedPackage = P.isUndefined(options?.package)
+      ? undefined
+      : yield* resolveDocgenWorkspacePackage(options.package, repoRoot);
+    const packages = P.isUndefined(selectedPackage)
+      ? A.filter(yield* discoverDocgenWorkspacePackages(repoRoot), (pkg) => pkg.hasGeneratedDocs)
+      : selectedPackage.hasGeneratedDocs
+        ? [selectedPackage]
+        : A.empty();
 
-    if (selectedPackage !== undefined && packages.length === 0) {
+    if (selectedPackage !== undefined && A.isReadonlyArrayEmpty(packages)) {
       return yield* new DomainError({
         message: `Package "${selectedPackage.name}" does not have generated docs. Run "bun run beep docgen generate -p ${selectedPackage.relativePath}" first.`,
       });
     }
 
-    if (packages.length === 0) {
-      return [];
+    if (A.isReadonlyArrayEmpty(packages)) {
+      return A.empty();
     }
 
-    if (options?.package === undefined) {
+    if (P.isUndefined(options?.package)) {
       const seen = MutableHashSet.empty<string>();
       const duplicates = MutableHashSet.empty<string>();
 
@@ -1051,7 +1111,11 @@ export const aggregateGeneratedDocs = (options?: {
 
       if (MutableHashSet.size(duplicates) > 0) {
         return yield* new DomainError({
-          message: `Duplicate docs output paths detected: ${pipe(A.fromIterable(duplicates), A.sort(Order.String), A.join(", "))}`,
+          message: `Duplicate docs output paths detected: ${pipe(
+            A.fromIterable(duplicates),
+            A.sort(Order.String),
+            A.join(", ")
+          )}`,
         });
       }
     }
@@ -1060,20 +1124,24 @@ export const aggregateGeneratedDocs = (options?: {
       if (selectedPackage !== undefined) {
         const destinationDir = path.join(docsRoot, selectedPackage.docsOutputPath);
         yield* fs
-          .remove(destinationDir, { recursive: true, force: true })
-          .pipe(
-            Effect.mapError((cause) => new DomainError({ message: `Failed to remove "${destinationDir}"`, cause }))
-          );
+          .remove(destinationDir, {
+            recursive: true,
+            force: true,
+          })
+          .pipe(Effect.mapError(DomainError.newCause(`Failed to remove "${destinationDir}"`)));
       } else {
         yield* fs
-          .remove(docsRoot, { recursive: true, force: true })
-          .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to remove "${docsRoot}"`, cause })));
+          .remove(docsRoot, {
+            recursive: true,
+            force: true,
+          })
+          .pipe(Effect.mapError(DomainError.newCause(`Failed to remove "${docsRoot}"`)));
       }
     }
 
     yield* fs
       .makeDirectory(docsRoot, { recursive: true })
-      .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to create "${docsRoot}"`, cause })));
+      .pipe(Effect.mapError(DomainError.newCause(`Failed to create "${docsRoot}"`)));
 
     const sortedPackages = A.sort(packages, byDocsOutputPathAscending);
     return yield* Effect.forEach(
@@ -1082,7 +1150,7 @@ export const aggregateGeneratedDocs = (options?: {
         Effect.gen(function* () {
           const sourceDir = path.join(pkg.absolutePath, ...DOCS_MODULES_SEGMENTS);
           const destinationDir = path.join(docsRoot, pkg.docsOutputPath);
-          const hasDocs = yield* fs.exists(sourceDir).pipe(Effect.orElseSucceed(() => false));
+          const hasDocs = yield* fs.exists(sourceDir).pipe(Effect.orElseSucceed(thunkFalse));
 
           if (!hasDocs) {
             return yield* new DomainError({
@@ -1091,9 +1159,18 @@ export const aggregateGeneratedDocs = (options?: {
           }
 
           yield* fs
-            .remove(destinationDir, { recursive: true, force: true })
+            .remove(destinationDir, {
+              recursive: true,
+              force: true,
+            })
             .pipe(
-              Effect.mapError((cause) => new DomainError({ message: `Failed to reset "${destinationDir}"`, cause }))
+              Effect.mapError(
+                (cause) =>
+                  new DomainError({
+                    message: `Failed to reset "${destinationDir}"`,
+                    cause,
+                  })
+              )
             );
           const fileCount = yield* copyDocsTree(sourceDir, destinationDir, pkg.name);
           yield* fs
@@ -1101,11 +1178,7 @@ export const aggregateGeneratedDocs = (options?: {
               path.join(destinationDir, "index.md"),
               generateDocsIndexContent(pkg.name, pkg.docsOutputPath, index + 2)
             )
-            .pipe(
-              Effect.mapError(
-                (cause) => new DomainError({ message: `Failed to write docs index for "${pkg.name}"`, cause })
-              )
-            );
+            .pipe(Effect.mapError(DomainError.newCause(`Failed to write docs index for "${pkg.name}"`)));
 
           return new DocgenAggregateResult({
             packageName: pkg.name,
@@ -1147,13 +1220,13 @@ export const runDocgenForPackage: (
         const handle = yield* command;
         const output = yield* handle.all.pipe(
           Stream.decodeText(),
-          Stream.runFold(
-            () => "",
-            (acc: string, chunk) => `${acc}${chunk}`
-          )
+          Stream.runFold(thunkEmptyStr, (acc: string, chunk) => `${acc}${chunk}`)
         );
         const exitCode = yield* handle.exitCode;
-        return { output: Str.trim(output), exitCode };
+        return {
+          output: Str.trim(output),
+          exitCode,
+        };
       })
     ).pipe(
       Effect.catch((cause) =>
@@ -1170,19 +1243,18 @@ export const runDocgenForPackage: (
         packagePath: targetPackage.relativePath,
         success: false,
         error: `docgen exited with code ${result.exitCode}`,
-        ...(result.output.length === 0 ? {} : { output: result.output }),
+        ...(Str.isEmpty(result.output) ? {} : { output: result.output }),
       });
     }
 
     const docsModulesDir = path.join(targetPackage.absolutePath, ...DOCS_MODULES_SEGMENTS);
     const moduleCount = yield* fs.exists(docsModulesDir).pipe(
-      Effect.orElseSucceed(() => false),
+      Effect.orElseSucceed(thunkFalse),
       Effect.flatMap((exists) =>
         exists
-          ? fs.readDirectory(docsModulesDir).pipe(
-              Effect.map((entries) => entries.filter((entry) => Str.endsWith(".md")(entry)).length),
-              Effect.orElseSucceed(() => 0)
-            )
+          ? fs
+              .readDirectory(docsModulesDir)
+              .pipe(Effect.map(flow(A.filter(Str.endsWith(".md")), A.length)), Effect.orElseSucceed(thunk0))
           : Effect.succeed(0)
       )
     );

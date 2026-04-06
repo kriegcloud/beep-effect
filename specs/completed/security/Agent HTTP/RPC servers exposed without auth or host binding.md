@@ -10,4 +10,4 @@ Agent HTTP and RPC servers now default to `127.0.0.1`, and non-loopback exposure
 - Code: `packages/ai/sdk/src/core/service/AgentHttpHandlers.ts`, `packages/ai/sdk/src/core/service/AgentRpcHandlers.ts`
 - Tests: `packages/ai/sdk/test/agent-service-http.test.ts`, `packages/ai/sdk/test/agent-service-rpc.test.ts`
 - Verification: `bunx tsc -p packages/ai/sdk/tsconfig.json --noEmit`
-- Verification: `bunx vitest run packages/ai/sdk/test/agent-service-http.test.ts packages/ai/sdk/test/agent-service-rpc.test.ts`
+- Verification: `bunx --bun vitest run packages/ai/sdk/test/agent-service-http.test.ts packages/ai/sdk/test/agent-service-rpc.test.ts`

@@ -126,8 +126,6 @@ const DocsSections: ReadonlyArray<DocsSection> = [
       "Benchmark compliance and allowlist checks are strict by default.",
       "Agent instruction surfaces must remain pathless and lightweight.",
       "Worktree runs must use isolated disposable worktrees when enabled.",
-      "Run: bun run agents:check",
-      "Run: bun run agents:pathless:check",
       "Run: bun run lint:effect-laws:strict",
     ],
     keywords: ["policy", "policies", "allowlist", "worktree", "pathless", "compliance"],

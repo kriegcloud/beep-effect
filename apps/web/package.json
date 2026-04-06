@@ -11,7 +11,7 @@
     "check": "tsc -b",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --write",
-    "test": "vitest run",
+    "test": "bunx --bun vitest run",
     "preview": "vite preview"
   },
   "dependencies": {

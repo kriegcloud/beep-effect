@@ -10,7 +10,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest",
+    "test": "bunx --bun vitest run",
     "coverage": "vitest --coverage",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "biome check src/ .storybook/",

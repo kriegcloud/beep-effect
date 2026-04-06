@@ -25,7 +25,7 @@
     "docgen": "bun run ../../tooling/docgen/src/bin.ts",
     "lint": "biome check src/ scripts/",
     "lint:fix": "biome check src/ scripts/ --write",
-    "test": "vitest run"
+    "test": "bunx --bun vitest run"
   },
   "dependencies": {
     "@beep/editor-client": "workspace:^",

@@ -12,7 +12,7 @@
   "scripts": {
     "build": "tsc -b tsconfig.json",
     "check": "tsc -b tsconfig.json",
-    "test": "vitest run",
+    "test": "bunx --bun vitest run",
     "test:watch": "vitest",
     "lint": "biome check .",
     "lint:fix": "biome check . --write"

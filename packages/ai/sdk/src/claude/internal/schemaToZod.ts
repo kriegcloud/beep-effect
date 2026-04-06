@@ -3,7 +3,7 @@ import { TaggedErrorClass } from "@beep/schema";
 import { SchemaAST as AST, Effect, Result } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { z } from "zod";
+import * as Z from "zod";
 
 const $I = $AiSdkId.create("core/internal/schemaToZod");
 
@@ -30,10 +30,10 @@ export class SchemaToZodError extends TaggedErrorClass<SchemaToZodError>($I`Sche
 const unsupported = <A>(message: string, path: ReadonlyArray<string>): Result.Result<A, SchemaToZodError> =>
   Result.fail(SchemaToZodError.make(message, path));
 
-const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
+const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): Result.Result<Z.ZodType, SchemaToZodError> => {
   const members = ast.types;
   if (members.length === 0) {
-    return Result.succeed(z.never());
+    return Result.succeed(Z.never());
   }
   if (members.length === 1) {
     return compile(members[0], path);
@@ -42,10 +42,10 @@ const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): Result.Resul
   const undefinedIndex = members.findIndex(AST.isUndefined);
   if (undefinedIndex >= 0 && members.length === 2) {
     const other = members[undefinedIndex === 0 ? 1 : 0];
-    return Result.map(compile(other, path), (compiled: z.ZodType) => compiled.optional());
+    return Result.map(compile(other, path), (compiled: Z.ZodType) => compiled.optional());
   }
 
-  const compiledMembers: Array<z.ZodType> = [];
+  const compiledMembers: Array<Z.ZodType> = [];
   for (const member of members) {
     const compiled = compile(member, path);
     if (Result.isFailure(compiled)) {
@@ -56,18 +56,18 @@ const compileUnion = (ast: AST.Union, path: ReadonlyArray<string>): Result.Resul
 
   const [head, next, ...rest] = compiledMembers;
   if (head === undefined || next === undefined) {
-    return Result.succeed(z.never());
+    return Result.succeed(Z.never());
   }
 
-  let schema: z.ZodType = z.union([head, next]);
+  let schema: Z.ZodType = Z.union([head, next]);
   for (const item of rest) {
-    schema = z.union([schema, item]);
+    schema = Z.union([schema, item]);
   }
   return Result.succeed(schema);
 };
 
-const compileObjects = (ast: AST.Objects, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
-  const shape: Record<string, z.ZodType> = {};
+const compileObjects = (ast: AST.Objects, path: ReadonlyArray<string>): Result.Result<Z.ZodType, SchemaToZodError> => {
+  const shape: Record<string, Z.ZodType> = {};
 
   for (const property of ast.propertySignatures) {
     const key = String(property.name);
@@ -78,7 +78,7 @@ const compileObjects = (ast: AST.Objects, path: ReadonlyArray<string>): Result.R
     shape[key] = AST.isOptional(property.type) ? schema.success.optional() : schema.success;
   }
 
-  const base = z.object(shape);
+  const base = Z.object(shape);
 
   if (ast.indexSignatures.length === 0) {
     return Result.succeed(base.strict());
@@ -99,17 +99,17 @@ const compileObjects = (ast: AST.Objects, path: ReadonlyArray<string>): Result.R
   return unsupported("Multiple index signatures are unsupported", path);
 };
 
-const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
+const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Result<Z.ZodType, SchemaToZodError> => {
   if (ast.elements.length === 0 && ast.rest.length === 1) {
-    return Result.map(compile(ast.rest[0], path), (schema: z.ZodType) => z.array(schema));
+    return Result.map(compile(ast.rest[0], path), (schema: Z.ZodType) => Z.array(schema));
   }
 
   if (ast.elements.length === 0 && ast.rest.length === 0) {
-    return Result.succeed(z.tuple([]));
+    return Result.succeed(Z.tuple([]));
   }
 
   if (ast.elements.length > 0 && ast.rest.length === 0) {
-    const compiledElements: Array<z.ZodType> = [];
+    const compiledElements: Array<Z.ZodType> = [];
     for (let index = 0; index < ast.elements.length; index += 1) {
       const element = ast.elements[index];
       if (element === undefined) {
@@ -123,13 +123,13 @@ const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Res
     }
     const [first, ...rest] = compiledElements;
     if (first === undefined) {
-      return Result.succeed(z.tuple([]));
+      return Result.succeed(Z.tuple([]));
     }
-    return Result.succeed(z.tuple([first, ...rest]));
+    return Result.succeed(Z.tuple([first, ...rest]));
   }
 
   if (ast.elements.length > 0 && ast.rest.length === 1) {
-    const compiledElements: Array<z.ZodType> = [];
+    const compiledElements: Array<Z.ZodType> = [];
     for (let index = 0; index < ast.elements.length; index += 1) {
       const element = ast.elements[index];
       if (element === undefined) {
@@ -147,13 +147,13 @@ const compileArrays = (ast: AST.Arrays, path: ReadonlyArray<string>): Result.Res
     }
     const [first, ...rest] = compiledElements;
     if (first === undefined) {
-      return Result.succeed(z.array(compiledRest.success));
+      return Result.succeed(Z.array(compiledRest.success));
     }
-    return Result.succeed(z.tuple([first, ...rest]).rest(compiledRest.success));
+    return Result.succeed(Z.tuple([first, ...rest]).rest(compiledRest.success));
   }
 
   if (ast.rest.length === 1) {
-    return Result.map(compile(ast.rest[0], path.concat("[rest]")), (schema: z.ZodType) => z.array(schema));
+    return Result.map(compile(ast.rest[0], path.concat("[rest]")), (schema: Z.ZodType) => Z.array(schema));
   }
 
   return unsupported("Array shape is not supported", path);
@@ -183,7 +183,7 @@ const templatePartRegex = (part: AST.AST): string | undefined => {
 const compileTemplateLiteral = (
   ast: AST.TemplateLiteral,
   path: ReadonlyArray<string>
-): Result.Result<z.ZodType, SchemaToZodError> => {
+): Result.Result<Z.ZodType, SchemaToZodError> => {
   const fragments: Array<string> = [];
   for (const part of ast.parts) {
     const regex = templatePartRegex(part);
@@ -193,14 +193,14 @@ const compileTemplateLiteral = (
     fragments.push(regex);
   }
   const pattern = new RegExp(`^${fragments.join("")}$`);
-  return Result.succeed(z.string().regex(pattern));
+  return Result.succeed(Z.string().regex(pattern));
 };
 
-const compileEnum = (ast: AST.Enum): Result.Result<z.ZodType, SchemaToZodError> => {
-  const literals = ast.enums.map((entry) => z.literal(entry[1]));
+const compileEnum = (ast: AST.Enum): Result.Result<Z.ZodType, SchemaToZodError> => {
+  const literals = ast.enums.map((entry) => Z.literal(entry[1]));
 
   if (literals.length === 0) {
-    return Result.succeed(z.never());
+    return Result.succeed(Z.never());
   }
 
   if (literals.length === 1) {
@@ -209,42 +209,42 @@ const compileEnum = (ast: AST.Enum): Result.Result<z.ZodType, SchemaToZodError> 
 
   const [head, next, ...rest] = literals;
   if (head === undefined || next === undefined) {
-    return Result.succeed(z.never());
+    return Result.succeed(Z.never());
   }
 
-  let schema: z.ZodType = z.union([head, next]);
+  let schema: Z.ZodType = Z.union([head, next]);
   for (const literal of rest) {
-    schema = z.union([schema, literal]);
+    schema = Z.union([schema, literal]);
   }
   return Result.succeed(schema);
 };
 
-const compile = (ast: AST.AST, path: ReadonlyArray<string>): Result.Result<z.ZodType, SchemaToZodError> => {
-  if (AST.isDeclaration(ast)) return Result.succeed(z.unknown());
-  if (AST.isString(ast)) return Result.succeed(z.string());
-  if (AST.isNumber(ast)) return Result.succeed(z.number());
-  if (AST.isBoolean(ast)) return Result.succeed(z.boolean());
-  if (AST.isBigInt(ast)) return Result.succeed(z.bigint());
-  if (AST.isSymbol(ast) || AST.isUniqueSymbol(ast)) return Result.succeed(z.symbol());
-  if (AST.isLiteral(ast)) return Result.succeed(z.literal(ast.literal));
+const compile = (ast: AST.AST, path: ReadonlyArray<string>): Result.Result<Z.ZodType, SchemaToZodError> => {
+  if (AST.isDeclaration(ast)) return Result.succeed(Z.unknown());
+  if (AST.isString(ast)) return Result.succeed(Z.string());
+  if (AST.isNumber(ast)) return Result.succeed(Z.number());
+  if (AST.isBoolean(ast)) return Result.succeed(Z.boolean());
+  if (AST.isBigInt(ast)) return Result.succeed(Z.bigint());
+  if (AST.isSymbol(ast) || AST.isUniqueSymbol(ast)) return Result.succeed(Z.symbol());
+  if (AST.isLiteral(ast)) return Result.succeed(Z.literal(ast.literal));
   if (AST.isEnum(ast)) return compileEnum(ast);
   if (AST.isArrays(ast)) return compileArrays(ast, path);
   if (AST.isObjects(ast)) return compileObjects(ast, path);
   if (AST.isUnion(ast)) return compileUnion(ast, path);
   if (AST.isSuspend(ast)) {
     return Result.succeed(
-      z.lazy(() => {
+      Z.lazy(() => {
         const suspended = compile(ast.thunk(), path);
-        return Result.isSuccess(suspended) ? suspended.success : z.never();
+        return Result.isSuccess(suspended) ? suspended.success : Z.never();
       })
     );
   }
   if (AST.isTemplateLiteral(ast)) return compileTemplateLiteral(ast, path);
-  if (AST.isUndefined(ast)) return Result.succeed(z.undefined());
-  if (AST.isVoid(ast)) return Result.succeed(z.void());
-  if (AST.isNever(ast)) return Result.succeed(z.never());
-  if (AST.isUnknown(ast) || AST.isAny(ast)) return Result.succeed(z.unknown());
-  if (AST.isObjectKeyword(ast)) return Result.succeed(z.record(z.string(), z.unknown()));
+  if (AST.isUndefined(ast)) return Result.succeed(Z.undefined());
+  if (AST.isVoid(ast)) return Result.succeed(Z.void());
+  if (AST.isNever(ast)) return Result.succeed(Z.never());
+  if (AST.isUnknown(ast) || AST.isAny(ast)) return Result.succeed(Z.unknown());
+  if (AST.isObjectKeyword(ast)) return Result.succeed(Z.record(Z.string(), Z.unknown()));
   return unsupported(`Unsupported schema (${ast._tag})`, path);
 };
 
@@ -257,16 +257,16 @@ const fromResult = <A, E>(value: Result.Result<A, E>): Effect.Effect<A, E> =>
 /**
  * @since 0.0.0
  */
-export const schemaToZod = (schema: S.Top): Effect.Effect<z.ZodType, SchemaToZodError> =>
+export const schemaToZod = (schema: S.Top): Effect.Effect<Z.ZodType, SchemaToZodError> =>
   fromResult(compile(schema.ast, []));
 
 /**
  * @since 0.0.0
  */
-export const schemaToZodObject = (schema: S.Top): Effect.Effect<z.ZodObject<z.ZodRawShape>, SchemaToZodError> =>
+export const schemaToZodObject = (schema: S.Top): Effect.Effect<Z.ZodObject<Z.ZodRawShape>, SchemaToZodError> =>
   schemaToZod(schema).pipe(
     Effect.flatMap((compiled) =>
-      compiled instanceof z.ZodObject
+      compiled instanceof Z.ZodObject
         ? Effect.succeed(compiled)
         : Effect.fail(SchemaToZodError.make("Tool parameters schema must be an object", []))
     )

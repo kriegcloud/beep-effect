@@ -293,9 +293,11 @@ const makeMemoryStore = Effect.gen(function* () {
 export class ArtifactStore extends ServiceMap.Service<ArtifactStore, ArtifactStoreService>()($I`ArtifactStore`) {
   static readonly layerMemory = Layer.effect(ArtifactStore, makeMemoryStore);
 
-  static readonly layerKeyValueStore = (_options?: { readonly prefix?: string }) => ArtifactStore.layerMemory;
+  static readonly layerKeyValueStore = (_options?: { readonly prefix?: string }) =>
+    Layer.effect(ArtifactStore, makeMemoryStore);
 
-  static readonly layerJournaled = <R = never>(_options?: ArtifactJournaledOptions<R>) => ArtifactStore.layerMemory;
+  static readonly layerJournaled = <R = never>(_options?: ArtifactJournaledOptions<R>) =>
+    Layer.effect(ArtifactStore, makeMemoryStore);
 
   static readonly layerJournaledWithSyncWebSocket = <R = never>(_url: string, options?: ArtifactSyncOptions<R>) =>
     ArtifactStore.layerJournaled(options);

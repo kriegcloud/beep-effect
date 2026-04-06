@@ -1,24 +1,24 @@
 /**
  * Deterministic file generation planning/execution service.
  *
- * @module
+ * @module @beep/repo-cli/commands/CreatePackage/FileGenerationPlanService
  * @since 0.0.0
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, normalizePath } from "@beep/schema";
-import { thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
-import { Effect, FileSystem, flow, identity, Order, Path, pipe, ServiceMap, Struct } from "effect";
+import { Struct, thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
+import { Effect, FileSystem, flow, identity, Order, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
-const relativePlanPathSegments = (value: string): ReadonlyArray<string> =>
-  pipe(normalizePath(value), Str.split("/"), A.filter(Str.isNonEmpty));
+const relativePlanPathSegments = flow(normalizePath, Str.split("/"), A.filter(Str.isNonEmpty));
 
 const isSafeRelativePlanPath = (value: string): boolean => {
   const normalized = normalizePath(value);
@@ -28,7 +28,7 @@ const isSafeRelativePlanPath = (value: string): boolean => {
     Str.isNonEmpty(normalized) &&
     !pipe(normalized, Str.startsWith("/")) &&
     A.isReadonlyArrayNonEmpty(segments) &&
-    !A.some(segments, (segment) => segment === "." || segment === "..")
+    !A.some(segments, P.or(Eq.equals("."), Eq.equals("..")))
   );
 };
 
@@ -75,6 +75,7 @@ const SymlinkTargetPath = RelativePlanPath.pipe(
     })
   )
 );
+
 /**
  * A file write operation.
  *
@@ -268,18 +269,20 @@ const stringEquivalence = S.toEquivalence(S.String);
 
 const unique = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(values);
 
-const byDirectoryDepthAscending: Order.Order<string> = Order.mapInput(Order.Number, (value: string) =>
-  A.length(Str.split("/")(value))
-);
+const byDirectoryDepthAscending: Order.Order<string> = Order.mapInput(Order.Number, flow(Str.split("/"), A.length));
 
-const byDirectoryPathAscending: Order.Order<string> = Order.mapInput(Order.String, (value: string) => value);
+const byDirectoryPathAscending: Order.Order<string> = Order.mapInput(Order.String, identity);
 
 const byDirectoryAscending: Order.Order<string> = Order.combine(byDirectoryDepthAscending, byDirectoryPathAscending);
 
 const sortedDirectories = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
   A.sort(values, byDirectoryAscending);
 
-const sortedByRelativePath = <T extends { readonly relativePath: string }>(
+const sortedByRelativePath = <
+  T extends {
+    readonly relativePath: string;
+  },
+>(
   entries: ReadonlyArray<T>
 ): ReadonlyArray<T> =>
   A.sort(
@@ -321,7 +324,7 @@ const ensureDirectoryFor = Effect.fn(function* (absolutePath: string) {
   const parentDir = path.dirname(absolutePath);
   yield* fs
     .makeDirectory(parentDir, { recursive: true })
-    .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to create directory "${parentDir}"`, cause })));
+    .pipe(Effect.mapError(DomainError.newCause(`Failed to create directory "${parentDir}"`)));
 });
 
 const resolveExistingAncestor = Effect.fn(function* (absolutePath: string) {
@@ -332,14 +335,17 @@ const resolveExistingAncestor = Effect.fn(function* (absolutePath: string) {
   while (true) {
     const exists = yield* fs
       .exists(candidate)
-      .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to inspect path "${candidate}"`, cause })));
+      .pipe(Effect.mapError(DomainError.newCause(`Failed to inspect path "${candidate}"`)));
 
     if (exists) {
       const canonicalPath = yield* fs
         .realPath(candidate)
-        .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to resolve path "${candidate}"`, cause })));
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve path "${candidate}"`)));
 
-      return { canonicalPath, existingPath: candidate } as const;
+      return {
+        canonicalPath,
+        existingPath: candidate,
+      } as const;
     }
 
     const parent = path.dirname(candidate);
@@ -358,7 +364,7 @@ const resolveContainedPath = Effect.fn(function* (rootDir: string, relativePath:
   const resolvedPath = path.resolve(resolvedRoot, relativePath);
   const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedPath));
 
-  if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || pipe(relativeFromRoot, Str.startsWith("../"))) {
+  if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
     return yield* new DomainError({
       message: `Generation action escapes output directory: "${relativePath}"`,
     });
@@ -392,7 +398,10 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
   const createPlan: FileGenerationPlanServiceShape["createPlan"] = (input) => {
     const symlinks = input.symlinks;
 
-    const parentDirsOf = flow((i: PlannedFile | PlannedSymlink) => Struct.get(i, "relativePath"), parentDirectoriesOf);
+    const parentDirsOf = flow(
+      Struct.get<PlannedFile | PlannedSymlink, "relativePath">("relativePath"),
+      parentDirectoriesOf
+    );
 
     const directoryCandidates = A.filter(
       unique(
@@ -459,9 +468,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       GenerationAction.match(action, {
         mkdir: () =>
           fs.makeDirectory(absolutePath, { recursive: true }).pipe(
-            Effect.mapError(
-              (cause) => new DomainError({ message: `Failed to create directory "${absolutePath}"`, cause })
-            ),
+            Effect.mapError(DomainError.newCause(`Failed to create directory "${absolutePath}"`)),
             Effect.tap(() =>
               Effect.sync(() => {
                 createdDirectories += 1;
@@ -477,9 +484,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
                     skippedFileWrites += 1;
                   })
                 : fs.writeFileString(absolutePath, writeAction.content).pipe(
-                    Effect.mapError(
-                      (cause) => new DomainError({ message: `Failed to write file "${absolutePath}"`, cause })
-                    ),
+                    Effect.mapError(DomainError.newCause(`Failed to write file "${absolutePath}"`)),
                     Effect.tap(() =>
                       Effect.sync(() => {
                         writtenFiles += 1;
@@ -501,31 +506,28 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
                         ? Effect.sync(() => {
                             skippedSymlinks += 1;
                           })
-                        : fs.remove(absolutePath, { recursive: true, force: true }).pipe(
-                            Effect.mapError(
-                              (cause) =>
-                                new DomainError({ message: `Failed to remove existing path "${absolutePath}"`, cause })
-                            ),
-                            Effect.andThen(() =>
-                              fs.symlink(linkAction.target, absolutePath).pipe(
-                                Effect.mapError(
-                                  (cause) =>
-                                    new DomainError({ message: `Failed to create symlink "${absolutePath}"`, cause })
-                                ),
-                                Effect.tap(() =>
-                                  Effect.sync(() => {
-                                    createdSymlinks += 1;
-                                  })
+                        : fs
+                            .remove(absolutePath, {
+                              recursive: true,
+                              force: true,
+                            })
+                            .pipe(
+                              Effect.mapError(DomainError.newCause(`Failed to remove existing path "${absolutePath}"`)),
+                              Effect.andThen(() =>
+                                fs.symlink(linkAction.target, absolutePath).pipe(
+                                  Effect.mapError(DomainError.newCause(`Failed to create symlink "${absolutePath}"`)),
+                                  Effect.tap(() =>
+                                    Effect.sync(() => {
+                                      createdSymlinks += 1;
+                                    })
+                                  )
                                 )
                               )
                             )
-                          )
                     )
                   )
                 : fs.symlink(linkAction.target, absolutePath).pipe(
-                    Effect.mapError(
-                      (cause) => new DomainError({ message: `Failed to create symlink "${absolutePath}"`, cause })
-                    ),
+                    Effect.mapError(DomainError.newCause(`Failed to create symlink "${absolutePath}"`)),
                     Effect.tap(() =>
                       Effect.sync(() => {
                         createdSymlinks += 1;
@@ -541,11 +543,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       if (action.kind === "symlink") {
         const resolvedTarget = yield* resolveContainedPath(path.dirname(absolutePath), action.target);
         const relativeToOutputDir = normalizePath(path.relative(path.resolve(plan.outputDir), resolvedTarget));
-        if (
-          path.isAbsolute(relativeToOutputDir) ||
-          relativeToOutputDir === ".." ||
-          pipe(relativeToOutputDir, Str.startsWith("../"))
-        ) {
+        if (P.some([path.isAbsolute, Eq.equals(".."), Str.startsWith("../")])(relativeToOutputDir)) {
           return yield* new DomainError({
             message: `Symlink target escapes output directory: "${action.target}"`,
           });

@@ -5,6 +5,7 @@ import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import picomatch from "picomatch";
 import * as Thunk from "./internal/Thunk.ts";
 
 const $I = $UtilsId.create("Glob");
@@ -84,24 +85,7 @@ export interface Glob {
  */
 export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");
 
-type BunGlobScanRoot = {
-  cwd?: string | undefined;
-  dot?: boolean | undefined;
-  onlyFiles?: boolean | undefined;
-};
-
-type BunGlobInstance = {
-  readonly match: (relativePath: string) => boolean;
-  readonly scanSync: (options?: BunGlobScanRoot) => Iterable<string>;
-};
-
-type BunGlobConstructor = new (pattern: string) => BunGlobInstance;
-
-type NodeGlobScanRoot = {
-  cwd?: string | URL | undefined;
-  exclude?: ReadonlyArray<string> | undefined;
-  withFileTypes?: false | undefined;
-};
+type GlobMatcher = (relativePath: string) => boolean;
 
 const absolutePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
 
@@ -138,25 +122,15 @@ const toAbsolutePath =
   (relativePath: string): string =>
     fileURLToPath(new URL(normalizePathSeparators(relativePath), cwdUrl));
 
-const getBunGlobConstructor = (): undefined | BunGlobConstructor => {
-  const BunGlob = (
-    globalThis as typeof globalThis & {
-      readonly Bun?: {
-        readonly Glob?: BunGlobConstructor;
-      };
-    }
-  ).Bun?.Glob;
+const compileMatchers = (
+  patterns: ReadonlyArray<string>,
+  options: undefined | GlobOptions
+): ReadonlyArray<GlobMatcher> => A.map(patterns, (pattern) => picomatch(pattern, { dot: options?.dot ?? false }));
 
-  return BunGlob;
-};
-
-const compileGlobs = (BunGlob: BunGlobConstructor, patterns: ReadonlyArray<string>): ReadonlyArray<BunGlobInstance> =>
-  A.map(patterns, (pattern) => new BunGlob(pattern));
-
-const matchesAny = (globs: ReadonlyArray<BunGlobInstance>, relativePath: string): boolean =>
+const matchesAny = (globs: ReadonlyArray<GlobMatcher>, relativePath: string): boolean =>
   pipe(
     globs,
-    A.some((glob) => glob.match(relativePath))
+    A.some((glob) => glob(relativePath))
   );
 
 const scanWithNodeGlob = async (
@@ -166,24 +140,36 @@ const scanWithNodeGlob = async (
   toAbsolute: (relativePath: string) => string
 ): Promise<Array<string>> => {
   const fs = await import("node:fs");
-  const scanOptions: NodeGlobScanRoot = {
-    cwd: options?.cwd,
-    exclude: toIgnorePatterns(options?.ignore),
-    withFileTypes: false,
+  const path = await import("node:path");
+  const cwdPath = fileURLToPath(cwdUrl);
+  const includeMatchers = compileMatchers(toPatterns(pattern), options);
+  const ignoreMatchers = compileMatchers(toIgnorePatterns(options?.ignore), options);
+
+  const walk = (relativeDir = ""): ReadonlyArray<readonly [relativePath: string, isFile: boolean]> => {
+    const absoluteDir = relativeDir.length === 0 ? cwdPath : path.join(cwdPath, relativeDir);
+    const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
+
+    return A.flatMap(entries, (entry) => {
+      const relativePath = normalizePathSeparators(
+        relativeDir.length === 0 ? entry.name : path.join(relativeDir, entry.name)
+      );
+      const isFile = entry.isFile();
+
+      if (entry.isDirectory()) {
+        return [[relativePath, false] as const, ...walk(relativePath)];
+      }
+
+      return [[relativePath, isFile] as const];
+    });
   };
 
   const relativePaths = pipe(
-    fs.globSync(toPatterns(pattern), scanOptions),
-    A.fromIterable,
-    A.map(normalizePathSeparators),
-    A.filter((candidate) => options?.dot === true || !hasDotSegment(candidate)),
-    A.filter((candidate) => {
-      if (options?.nodir !== true) {
-        return true;
-      }
-
-      return fs.statSync(new URL(normalizePathSeparators(candidate), cwdUrl)).isFile();
-    }),
+    walk(),
+    A.filter(([candidate]) => options?.dot === true || !hasDotSegment(candidate)),
+    A.filter(([candidate]) => !matchesAny(ignoreMatchers, candidate)),
+    A.filter(([, isFile]) => options?.nodir !== true || isFile),
+    A.filter(([candidate]) => matchesAny(includeMatchers, candidate)),
+    A.map(([candidate]) => candidate),
     A.dedupe,
     A.sort(Order.String)
   );
@@ -203,43 +189,8 @@ export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
   glob: (pattern, options) => {
     const cwdUrl = toDirectoryUrl(options?.cwd ?? ".");
     const toAbsolute = toAbsolutePath(cwdUrl);
-    const BunGlob = getBunGlobConstructor();
-
-    if (BunGlob === undefined) {
-      return Effect.tryPromise({
-        try: () => scanWithNodeGlob(pattern, options, cwdUrl, toAbsolute),
-        catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
-      });
-    }
-
-    return Effect.try({
-      try: (): Array<string> => {
-        const scanOptions: BunGlobScanRoot = {
-          dot: options?.dot ?? false,
-          onlyFiles: options?.nodir ?? false,
-        };
-
-        if (options?.cwd !== undefined) {
-          scanOptions.cwd = options.cwd;
-        }
-
-        const ignoreGlobs = compileGlobs(BunGlob, toIgnorePatterns(options?.ignore));
-        const relativePaths = pipe(
-          toPatterns(pattern),
-          (patterns) => compileGlobs(BunGlob, patterns),
-          A.flatMap((glob) => A.fromIterable(glob.scanSync(scanOptions))),
-          A.map(normalizePathSeparators),
-          A.filter((candidate) => !matchesAny(ignoreGlobs, candidate)),
-          A.dedupe,
-          A.sort(Order.String)
-        );
-
-        if (options?.absolute === true) {
-          return A.map(relativePaths, toAbsolute);
-        }
-
-        return [...relativePaths];
-      },
+    return Effect.tryPromise({
+      try: () => scanWithNodeGlob(pattern, options, cwdUrl, toAbsolute),
       catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
     });
   },

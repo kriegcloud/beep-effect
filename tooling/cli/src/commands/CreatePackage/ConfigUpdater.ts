@@ -5,7 +5,7 @@
  * to `tsconfig.json` (JSONC-safe via `jsonc-parser`). All operations are
  * idempotent — existing entries are silently skipped.
  *
- * @module
+ * @module @beep/repo-cli/commands/CreatePackage/ConfigUpdater
  * @since 0.0.0
  */
 
@@ -15,8 +15,10 @@ import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkFalse, thunkNegative1, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as jsonc from "jsonc-parser";
@@ -161,37 +163,60 @@ const JsoncUnknownObject = S.Record(S.String, S.Unknown).annotate(
   })
 );
 
-const parseJsoncObject: (content: string, filePath: string) => Effect.Effect<Record<string, unknown>, DomainError> =
+const parseJsoncObject: {
+  (content: string, filePath: string): Effect.Effect<Record<string, unknown>, DomainError>;
+  (filePath: string): (content: string) => Effect.Effect<Record<string, unknown>, DomainError>;
+} = dual(
+  2,
   Effect.fn(function* (content, filePath) {
     return yield* decodeJsoncTextAs(JsoncUnknownObject)(content).pipe(
-      Effect.mapError((cause) => new DomainError({ message: `Invalid JSONC in ${filePath}: ${cause.message}`, cause }))
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Invalid JSONC in ${filePath}: ${cause.message}`,
+            cause,
+          })
+      )
     );
-  });
+  })
+);
 
 const readReferences = (parsed: Record<string, unknown>): Array<unknown> =>
-  A.isArray(parsed.references) ? [...parsed.references] : [];
+  A.isArray(parsed.references) ? [...parsed.references] : A.empty();
 
-const hasReferencePath = (entry: unknown, target: string): boolean =>
-  P.isObject(entry) && P.isString(entry.path) && stringEquivalence(entry.path, target);
+const hasReferencePath: {
+  (entry: unknown, target: string): boolean;
+  (target: string): (entry: unknown) => boolean;
+} = dual(
+  2,
+  (entry: unknown, target: string): boolean =>
+    P.isObject(entry) && P.isString(entry.path) && stringEquivalence(entry.path, target)
+);
 
 const readPathsRecord = (parsed: Record<string, unknown>): Record<string, unknown> => {
-  if (!P.isObject(parsed.compilerOptions)) return {};
-  if (!P.isObject(parsed.compilerOptions.paths)) return {};
+  if (!P.isObject(parsed.compilerOptions)) return R.empty();
+  if (!P.isObject(parsed.compilerOptions.paths)) return R.empty();
   return parsed.compilerOptions.paths;
 };
 
-const pathValuesEqual = (currentValue: unknown, expectedValue: ReadonlyArray<string>): boolean => {
+const pathValuesEqual: {
+  (currentValue: unknown, expectedValue: ReadonlyArray<string>): boolean;
+  (expectedValue: ReadonlyArray<string>): (currentValue: unknown) => boolean;
+} = dual(2, (currentValue: unknown, expectedValue: ReadonlyArray<string>): boolean => {
   if (!A.isArray(currentValue) || !A.every(currentValue, P.isString)) {
     return false;
   }
 
   return stringArrayEquivalence(currentValue, expectedValue);
-};
+});
 
 const readTestFileMatch = (parsed: Record<string, unknown>): Array<unknown> =>
-  A.isArray(parsed.testFileMatch) ? [...parsed.testFileMatch] : [];
+  A.isArray(parsed.testFileMatch) ? [...parsed.testFileMatch] : A.empty();
 
-const isTstycheEntryCovered = (testFileMatch: Array<unknown>, packagePath: string): boolean => {
+const isTstycheEntryCovered: {
+  (testFileMatch: Array<unknown>, packagePath: string): boolean;
+  (packagePath: string): (testFileMatch: Array<unknown>) => boolean;
+} = dual(2, (testFileMatch: Array<unknown>, packagePath: string): boolean => {
   if (!isPackagePath(packagePath)) return false;
   const candidatePattern = decodeTstychePattern(packagePath);
   if (A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, candidatePattern))) return true;
@@ -200,7 +225,7 @@ const isTstycheEntryCovered = (testFileMatch: Array<unknown>, packagePath: strin
   const parentDir = Str.substring(0, lastSlash)(packagePath);
   const parentWildcard = `${parentDir}/*/dtslint/**/*.tst.*`;
   return A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, parentWildcard));
-};
+});
 
 const byPackagePathAscending: Order.Order<ConfigUpdateTarget> = Order.mapInput(
   Order.String,
@@ -229,21 +254,41 @@ const aliasTargetsForTarget = (target: ConfigUpdateTarget) => ({
  * Read → transform → write-if-changed. Returns `true` when the file was
  * actually modified.
  */
-const modifyFileString: (
-  filePath: string,
-  transform: (content: string) => Effect.Effect<string, DomainError>
-) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem> = Effect.fn(function* (filePath, transform) {
-  const fs = yield* FileSystem.FileSystem;
-  const original = yield* fs
-    .readFileString(filePath)
-    .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to read ${filePath}: ${e}` })));
-  const transformed = yield* transform(original);
-  if (stringEquivalence(transformed, original)) return false;
-  yield* fs
-    .writeFileString(filePath, transformed)
-    .pipe(Effect.mapError((e) => new DomainError({ message: `Failed to write ${filePath}: ${e}` })));
-  return true;
-});
+const modifyFileString: {
+  (
+    filePath: string,
+    transform: (content: string) => Effect.Effect<string, DomainError>
+  ): Effect.Effect<boolean, DomainError, FileSystem.FileSystem>;
+  (
+    transform: (content: string) => Effect.Effect<string, DomainError>
+  ): (filePath: string) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem>;
+} = dual(
+  2,
+  Effect.fn(function* (filePath, transform) {
+    const fs = yield* FileSystem.FileSystem;
+    const original = yield* fs.readFileString(filePath).pipe(
+      Effect.mapError(
+        (e) =>
+          new DomainError({
+            message: `Failed to read ${filePath}: ${e}`,
+            cause: e,
+          })
+      )
+    );
+    const transformed = yield* transform(original);
+    if (stringEquivalence(transformed, original)) return false;
+    yield* fs.writeFileString(filePath, transformed).pipe(
+      Effect.mapError(
+        (e) =>
+          new DomainError({
+            message: `Failed to write ${filePath}: ${e}`,
+            cause: e,
+          })
+      )
+    );
+    return true;
+  })
+);
 
 // ── Public API ───────────────────────────────────────────────────────────────
 
@@ -259,11 +304,12 @@ const modifyFileString: (
  * @category Utility
  * @since 0.0.0
  */
-export const updateTsconfigPackages: (
-  repoRoot: string,
-  packagePath: string
-) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, packagePath) {
+export const updateTsconfigPackages: {
+  (repoRoot: string, packagePath: string): Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path>;
+  (packagePath: string): (repoRoot: string) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, packagePath) {
     const path = yield* Path.Path;
     const filePath = path.join(repoRoot, "tsconfig.packages.json");
 
@@ -285,7 +331,7 @@ export const updateTsconfigPackages: (
         return jsonc.applyEdits(content, edits);
       })
     );
-  }
+  })
 );
 
 /**
@@ -303,48 +349,56 @@ export const updateTsconfigPackages: (
  * @category Utility
  * @since 0.0.0
  */
-export const updateTsconfigPaths: (
-  repoRoot: string,
-  target: ConfigUpdateTarget
-) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(function* (repoRoot, target) {
-  const path = yield* Path.Path;
-  const filePath = path.join(repoRoot, "tsconfig.json");
-  const alias = `@beep/${target.packageName}`;
-  const { rootAliasTarget, wildcardAliasTarget } = aliasTargetsForTarget(target);
+export const updateTsconfigPaths: {
+  (
+    repoRoot: string,
+    target: ConfigUpdateTarget
+  ): Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    target: ConfigUpdateTarget
+  ): (repoRoot: string) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, target) {
+    const path = yield* Path.Path;
+    const filePath = path.join(repoRoot, "tsconfig.json");
+    const alias = `@beep/${target.packageName}`;
+    const { rootAliasTarget, wildcardAliasTarget } = aliasTargetsForTarget(target);
 
-  return yield* modifyFileString(
-    filePath,
-    Effect.fn(function* (content: string) {
-      const parsed = yield* parseJsoncObject(content, filePath);
-      const paths = readPathsRecord(parsed);
-      const hasBaseAlias = pathValuesEqual(paths[alias], [rootAliasTarget]);
-      const hasWildcardAlias = pathValuesEqual(paths[`${alias}/*`], [wildcardAliasTarget]);
+    return yield* modifyFileString(
+      filePath,
+      Effect.fn(function* (content: string) {
+        const parsed = yield* parseJsoncObject(content, filePath);
+        const paths = readPathsRecord(parsed);
+        const hasBaseAlias = pathValuesEqual(paths[alias], [rootAliasTarget]);
+        const hasWildcardAlias = pathValuesEqual(paths[`${alias}/*`], [wildcardAliasTarget]);
 
-      // Idempotency: skip if both aliases already present
-      if (hasBaseAlias && hasWildcardAlias) {
-        return content;
-      }
+        // Idempotency: skip if both aliases already present
+        if (hasBaseAlias && hasWildcardAlias) {
+          return content;
+        }
 
-      let result = content;
+        let result = content;
 
-      if (!hasBaseAlias) {
-        const edits1 = jsonc.modify(result, ["compilerOptions", "paths", alias], [rootAliasTarget], {
-          formattingOptions: FORMATTING_OPTIONS,
-        });
-        result = jsonc.applyEdits(result, edits1);
-      }
+        if (!hasBaseAlias) {
+          const edits1 = jsonc.modify(result, ["compilerOptions", "paths", alias], [rootAliasTarget], {
+            formattingOptions: FORMATTING_OPTIONS,
+          });
+          result = jsonc.applyEdits(result, edits1);
+        }
 
-      if (!hasWildcardAlias) {
-        const edits2 = jsonc.modify(result, ["compilerOptions", "paths", `${alias}/*`], [wildcardAliasTarget], {
-          formattingOptions: FORMATTING_OPTIONS,
-        });
-        result = jsonc.applyEdits(result, edits2);
-      }
+        if (!hasWildcardAlias) {
+          const edits2 = jsonc.modify(result, ["compilerOptions", "paths", `${alias}/*`], [wildcardAliasTarget], {
+            formattingOptions: FORMATTING_OPTIONS,
+          });
+          result = jsonc.applyEdits(result, edits2);
+        }
 
-      return result;
-    })
-  );
-});
+        return result;
+      })
+    );
+  })
+);
 
 /**
  * Add a test file match entry to `tstyche.json`.
@@ -359,11 +413,12 @@ export const updateTsconfigPaths: (
  * @category Utility
  * @since 0.0.0
  */
-export const updateTstycheConfig: (
-  repoRoot: string,
-  packagePath: string
-) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, packagePath) {
+export const updateTstycheConfig: {
+  (repoRoot: string, packagePath: string): Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path>;
+  (packagePath: string): (repoRoot: string) => Effect.Effect<boolean, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, packagePath) {
     const path = yield* Path.Path;
     const filePath = path.join(repoRoot, "tstyche.json");
 
@@ -392,26 +447,42 @@ export const updateTstycheConfig: (
         return jsonc.applyEdits(content, edits);
       })
     );
-  }
+  })
 );
 
-const updateRootConfigsForTarget: (
-  repoRoot: string,
-  target: ConfigUpdateTarget
-) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, target) {
+const updateRootConfigsForTarget: {
+  (
+    repoRoot: string,
+    target: ConfigUpdateTarget
+  ): Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    target: ConfigUpdateTarget
+  ): (repoRoot: string) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, target) {
     const tsconfigPackages = yield* updateTsconfigPackages(repoRoot, target.packagePath);
     const tsconfigPaths = yield* updateTsconfigPaths(repoRoot, target);
     const tstycheConfig = yield* updateTstycheConfig(repoRoot, target.packagePath);
-    return new ConfigUpdateResult({ tsconfigPackages, tsconfigPaths, tstycheConfig });
-  }
+    return new ConfigUpdateResult({
+      tsconfigPackages,
+      tsconfigPaths,
+      tstycheConfig,
+    });
+  })
 );
 
-const checkConfigNeedsUpdateForTarget: (
-  repoRoot: string,
-  target: ConfigUpdateTarget
-) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, target) {
+const checkConfigNeedsUpdateForTarget: {
+  (
+    repoRoot: string,
+    target: ConfigUpdateTarget
+  ): Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    target: ConfigUpdateTarget
+  ): (repoRoot: string) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, target) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
@@ -440,8 +511,12 @@ const checkConfigNeedsUpdateForTarget: (
     const testFileMatch = readTestFileMatch(tstycheParsed);
     const tstycheConfig = !isTstycheEntryCovered(testFileMatch, target.packagePath);
 
-    return new ConfigUpdateResult({ tsconfigPackages, tsconfigPaths, tstycheConfig });
-  }
+    return new ConfigUpdateResult({
+      tsconfigPackages,
+      tsconfigPaths,
+      tstycheConfig,
+    });
+  })
 );
 
 /**
@@ -454,16 +529,26 @@ const checkConfigNeedsUpdateForTarget: (
  * @category Utility
  * @since 0.0.0
  */
-export const updateRootConfigsForTargets: (
-  repoRoot: string,
-  targets: ReadonlyArray<ConfigUpdateTarget>
-) => Effect.Effect<ConfigUpdateBatchResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, targets) {
+export const updateRootConfigsForTargets: {
+  (
+    repoRoot: string,
+    targets: ReadonlyArray<ConfigUpdateTarget>
+  ): Effect.Effect<ConfigUpdateBatchResult, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    targets: ReadonlyArray<ConfigUpdateTarget>
+  ): (repoRoot: string) => Effect.Effect<ConfigUpdateBatchResult, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, targets) {
     const normalizedTargets = normalizeTargets(targets);
     const targetResults = yield* Effect.forEach(normalizedTargets, (target) =>
       Effect.map(
         updateRootConfigsForTarget(repoRoot, target),
-        (result) => new ConfigUpdateTargetResult({ target, result })
+        (result) =>
+          new ConfigUpdateTargetResult({
+            target,
+            result,
+          })
       )
     );
 
@@ -473,7 +558,7 @@ export const updateRootConfigsForTargets: (
       tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
       tstycheConfig: A.some(targetResults, ({ result }) => result.tstycheConfig),
     });
-  }
+  })
 );
 
 /**
@@ -486,16 +571,26 @@ export const updateRootConfigsForTargets: (
  * @category Utility
  * @since 0.0.0
  */
-export const checkConfigNeedsUpdateForTargets: (
-  repoRoot: string,
-  targets: ReadonlyArray<ConfigUpdateTarget>
-) => Effect.Effect<ConfigUpdateBatchResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, targets) {
+export const checkConfigNeedsUpdateForTargets: {
+  (
+    repoRoot: string,
+    targets: ReadonlyArray<ConfigUpdateTarget>
+  ): Effect.Effect<ConfigUpdateBatchResult, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    targets: ReadonlyArray<ConfigUpdateTarget>
+  ): (repoRoot: string) => Effect.Effect<ConfigUpdateBatchResult, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, targets) {
     const normalizedTargets = normalizeTargets(targets);
     const targetResults = yield* Effect.forEach(normalizedTargets, (target) =>
       Effect.map(
         checkConfigNeedsUpdateForTarget(repoRoot, target),
-        (result) => new ConfigUpdateTargetResult({ target, result })
+        (result) =>
+          new ConfigUpdateTargetResult({
+            target,
+            result,
+          })
       )
     );
 
@@ -505,7 +600,7 @@ export const checkConfigNeedsUpdateForTargets: (
       tsconfigPaths: A.some(targetResults, ({ result }) => result.tsconfigPaths),
       tstycheConfig: A.some(targetResults, ({ result }) => result.tstycheConfig),
     });
-  }
+  })
 );
 
 /**

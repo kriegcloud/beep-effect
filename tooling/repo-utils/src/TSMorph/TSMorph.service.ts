@@ -846,7 +846,7 @@ export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never
     ): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
       Effect.gen(function* () {
         const project = yield* projectPool.getOrCreate(scope);
-        const entries: Array<ScopeSymbolEntry> = [];
+        const entries = A.empty<ScopeSymbolEntry>();
 
         for (const sourceFile of project.getSourceFiles()) {
           const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());

@@ -6,7 +6,7 @@
 
 /**
  * @since 0.0.0
- * @category Versions
+ * @category Configuration
  */
 export const VERSION = "0.0.0" as const;
 

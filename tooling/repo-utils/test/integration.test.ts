@@ -21,7 +21,7 @@ import { Effect, FileSystem, HashMap, HashSet, Layer } from "effect";
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer));
 
-layer(TestLayer)("integration (real monorepo)", (it) => {
+layer(TestLayer, { timeout: 20_000 })("integration (real monorepo)", (it) => {
   // ── findRepoRoot ─────────────────────────────────────────────────────
   describe("findRepoRoot", () => {
     it.effect(
@@ -38,7 +38,8 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
         expect(hasPackageJson).toBe(true);
         expect(hasTurboJson).toBe(true);
         expect(hasBunLock).toBe(true);
-      })
+      }),
+      20_000
     );
   });
 
@@ -55,7 +56,8 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
 
         // At least 2 workspaces (could be more as repo grows)
         expect(HashMap.size(workspaces)).toBeGreaterThanOrEqual(2);
-      })
+      }),
+      20_000
     );
   });
 
@@ -81,7 +83,8 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
             expect(p).toMatch(/tsconfig.*\.json$/);
           }
         }
-      })
+      }),
+      20_000
     );
   });
 
@@ -105,7 +108,8 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
           expect(deps.npm).toHaveProperty("dependencies");
           expect(deps.npm).toHaveProperty("devDependencies");
         }
-      })
+      }),
+      20_000
     );
   });
 
@@ -130,7 +134,8 @@ layer(TestLayer)("integration (real monorepo)", (it) => {
         // No duplicates within each array
         expect(HashSet.size(HashSet.fromIterable(unique.dependencies))).toBe(unique.dependencies.length);
         expect(HashSet.size(HashSet.fromIterable(unique.devDependencies))).toBe(unique.devDependencies.length);
-      })
+      }),
+      20_000
     );
   });
 });

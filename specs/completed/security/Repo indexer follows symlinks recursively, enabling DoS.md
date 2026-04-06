@@ -8,4 +8,4 @@ Repo-memory indexing now resolves canonical paths, skips symlink recursion, trac
 - Code: `packages/repo-memory/runtime/src/indexing/TypeScriptIndexer.ts`
 - Tests: `packages/repo-memory/runtime/test/TypeScriptIndexer.security.test.ts`
 - Verification: `bunx tsc -p packages/repo-memory/runtime/tsconfig.json --noEmit`
-- Verification: `bunx vitest run packages/repo-memory/runtime/test/TypeScriptIndexer.security.test.ts`
+- Verification: `bunx --bun vitest run packages/repo-memory/runtime/test/TypeScriptIndexer.security.test.ts`

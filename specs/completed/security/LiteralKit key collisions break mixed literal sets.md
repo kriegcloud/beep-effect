@@ -8,4 +8,4 @@ fixed on current branch
 - Code: `packages/common/schema/src/LiteralKit.ts`
 - Tests: `packages/common/schema/test/LiteralKit.test.ts`
 - Verification: `bunx tsc -p packages/common/schema/tsconfig.json --noEmit`
-- Verification: `bunx vitest run packages/common/schema/test/LiteralKit.test.ts`
+- Verification: `bunx --bun vitest run packages/common/schema/test/LiteralKit.test.ts`
