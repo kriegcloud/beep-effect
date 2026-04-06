@@ -33,7 +33,7 @@ import { Entity, ObjectRef, ProvBundle } from "@beep/semantic-web/prov";
 import { makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/semantic-web/rdf";
 import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
 import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
-import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
+import { BunSqliteTestDriver, makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime, Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
@@ -51,11 +51,12 @@ const decodePosInt = S.decodeUnknownSync(PosInt);
 const decodeRunId = S.decodeUnknownSync(RunId);
 const decodeSha256Hex = S.decodeUnknownSync(Sha256Hex);
 const decodeSourceSnapshotId = S.decodeUnknownSync(SourceSnapshotId);
+const sqlTestDriver = process.versions.bun === undefined ? NodeSqliteTestDriver : BunSqliteTestDriver;
 
 const makeSqliteLayer = () => {
   const sqlLayer = makeSqlTestLayer({
     config: undefined,
-    driver: NodeSqliteTestDriver,
+    driver: sqlTestDriver,
   });
   const storeLayer = Layer.unwrap(
     Effect.gen(function* () {

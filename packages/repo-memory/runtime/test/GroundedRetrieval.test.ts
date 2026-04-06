@@ -16,7 +16,7 @@ import {
 import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite";
 import { RepoSnapshotStore, RepoSymbolStore } from "@beep/repo-memory-store";
 import { FilePath } from "@beep/schema";
-import { makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
+import { BunSqliteTestDriver, makeSqlTestLayer, NodeSqliteTestDriver, TestDatabaseInfo } from "@beep/test-utils";
 import * as Str from "@beep/utils/Str";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer, pipe, Stream } from "effect";
@@ -31,11 +31,12 @@ import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRunId = S.decodeUnknownSync(RunId);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const sqlTestDriver = process.versions.bun === undefined ? NodeSqliteTestDriver : BunSqliteTestDriver;
 
 const makeRuntimeLayer = () => {
   const sqlLayer = makeSqlTestLayer({
     config: undefined,
-    driver: NodeSqliteTestDriver,
+    driver: sqlTestDriver,
   });
   const storeLayer = Layer.unwrap(
     Effect.gen(function* () {

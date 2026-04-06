@@ -1,4 +1,5 @@
 import {
+  BunSqliteTestDriver,
   makeSqlTestLayer,
   NodeSqliteTestDriver,
   SqlTestHarnessError,
@@ -11,19 +12,35 @@ import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 
+const isBunRuntime = process.versions.bun !== undefined;
+const expectedDriver = isBunRuntime ? "bun-sqlite" : "node-sqlite";
+
 const makeLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks<MigrateError, SeedError>) =>
-  makeSqlTestLayer(
-    hooks === undefined
-      ? {
-          config: undefined,
-          driver: NodeSqliteTestDriver,
-        }
-      : {
-          config: undefined,
-          driver: NodeSqliteTestDriver,
-          hooks,
-        }
-  );
+  isBunRuntime
+    ? makeSqlTestLayer(
+        hooks === undefined
+          ? {
+              config: undefined,
+              driver: BunSqliteTestDriver,
+            }
+          : {
+              config: undefined,
+              driver: BunSqliteTestDriver,
+              hooks,
+            }
+      )
+    : makeSqlTestLayer(
+        hooks === undefined
+          ? {
+              config: undefined,
+              driver: NodeSqliteTestDriver,
+            }
+          : {
+              config: undefined,
+              driver: NodeSqliteTestDriver,
+              hooks,
+            }
+      );
 
 const doesTableExist = (tableName: string) =>
   Effect.gen(function* () {
@@ -109,7 +126,7 @@ describe("SqlTest", () => {
         )
       );
 
-      expect(result.driver).toBe("node-sqlite");
+      expect(result.driver).toBe(expectedDriver);
       expect(result.databasePathExists).toBe(true);
       expect(result.tempDirExists).toBe(true);
       expect(result.values).toEqual(["alpha", "beta"]);
@@ -136,7 +153,7 @@ describe("SqlTest", () => {
         expect(failure).toBeInstanceOf(SqlTestHarnessError);
         if (failure instanceof SqlTestHarnessError) {
           expect(failure.phase).toBe("migrate");
-          expect(failure.driver).toBe("node-sqlite");
+          expect(failure.driver).toBe(expectedDriver);
         }
       }
     })
