@@ -805,7 +805,7 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
  * @category DomainModel
  * @since 0.0.0
  */
-export type ReuseCatalogServiceShape = {
+type ReuseCatalogServiceShape = {
   readonly buildCatalog: (
     scopeSelector?: O.Option<string>
   ) => Effect.Effect<ReadonlyArray<ReuseCatalogEntry>, ReuseAnalysisError>;
@@ -827,7 +827,7 @@ export class ReuseCatalogService extends ServiceMap.Service<ReuseCatalogService,
  * @category DomainModel
  * @since 0.0.0
  */
-export type ReusePartitionPlannerServiceShape = {
+type ReusePartitionPlannerServiceShape = {
   readonly buildPartitions: (scopeSelector?: O.Option<string>) => Effect.Effect<ReusePartitionPlan, ReuseAnalysisError>;
 };
 
@@ -848,7 +848,7 @@ export class ReusePartitionPlannerService extends ServiceMap.Service<
  * @category DomainModel
  * @since 0.0.0
  */
-export type ReuseDiscoveryServiceShape = {
+type ReuseDiscoveryServiceShape = {
   readonly discoverCandidates: (
     scopeSelector?: O.Option<string>
   ) => Effect.Effect<ReadonlyArray<ReuseCandidate>, ReuseAnalysisError>;
@@ -875,7 +875,7 @@ export class ReuseDiscoveryService extends ServiceMap.Service<ReuseDiscoveryServ
  * @category DomainModel
  * @since 0.0.0
  */
-export type ReuseInventoryServiceShape = {
+type ReuseInventoryServiceShape = {
   readonly buildInventory: (scopeSelector?: O.Option<string>) => Effect.Effect<ReuseInventory, ReuseAnalysisError>;
   readonly buildPacket: (
     candidateId: string,
