@@ -93,7 +93,6 @@ export const ESLintConfig: ESLintConfigShape = [
       "**/dist/**",
       "**/.turbo/**",
       "**/.next/**",
-      "**/lostpixel.config.ts",
       "**/vitest.storybook.config.ts",
       "tooling/*/scripts/**",
       "tooling/*/src/internal/**",

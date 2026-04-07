@@ -77,7 +77,19 @@
     },
     "p4": {
       "name": "Ranked Candidate Inventory and Approval Loop",
-      "status": "NOT_STARTED",
+      "status": "IN_PROGRESS",
+      "active_candidate": null,
+      "candidate_decisions": {
+        "approved": [
+          "P4-C02"
+        ],
+        "completed": [
+          "P4-C02"
+        ],
+        "rejected": [
+          "P4-C01"
+        ]
+      },
       "handoff": "handoffs/HANDOFF_P4.md",
       "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p4-ranked-candidate-inventory.md",
