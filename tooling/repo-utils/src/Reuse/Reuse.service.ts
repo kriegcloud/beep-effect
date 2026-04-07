@@ -996,7 +996,12 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
       const scoutUnits = scopes.map(makeScoutWorkUnit);
       const specialistHotspots = new Map<
         string,
-        { readonly label: string; readonly rationale: string; readonly selectors: Array<string> }
+        {
+          readonly label: string;
+          readonly rationale: string;
+          readonly selectors: Array<string>;
+          totalOccurrences: number;
+        }
       >();
 
       for (const scope of scopes) {
@@ -1004,19 +1009,24 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
 
         for (const pattern of PATTERN_DEFINITIONS) {
           const matched = occurrences.get(pattern.id) ?? [];
-          if (matched.length >= 2) {
-            const existing = specialistHotspots.get(pattern.specialistLabel) ?? {
-              label: pattern.specialistLabel,
-              rationale: pattern.rationale,
-              selectors: [],
-            };
-            existing.selectors.push(scope.packagePath);
-            specialistHotspots.set(pattern.specialistLabel, existing);
+          if (matched.length === 0) {
+            continue;
           }
+
+          const existing = specialistHotspots.get(pattern.specialistLabel) ?? {
+            label: pattern.specialistLabel,
+            rationale: pattern.rationale,
+            selectors: [],
+            totalOccurrences: 0,
+          };
+          existing.totalOccurrences += matched.length;
+          existing.selectors.push(scope.packagePath);
+          specialistHotspots.set(pattern.specialistLabel, existing);
         }
       }
 
       const specialistUnits = Array.from(specialistHotspots.values())
+        .filter((hotspot) => hotspot.totalOccurrences >= 2)
         .sort((left, right) => left.label.localeCompare(right.label))
         .map((hotspot) => makeSpecialistWorkUnit(hotspot.label, hotspot.selectors, hotspot.rationale));
 
@@ -1092,6 +1102,14 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
       const normalizedFilePath = canonicalizeRelativePath(
         runtime.path.isAbsolute(filePath) ? runtime.path.relative(runtime.repoRoot, filePath) : filePath
       );
+
+      if (normalizedFilePath.length === 0 || normalizedFilePath === ".." || normalizedFilePath.startsWith("../")) {
+        return yield* mkAnalysisError(
+          "findReuseOptions",
+          `Target file must be a repo-relative path inside the repository: ${filePath}`
+        );
+      }
+
       const absoluteFilePath = runtime.path.resolve(runtime.repoRoot, normalizedFilePath);
       const exists = yield* runtime.fs
         .exists(absoluteFilePath)
@@ -1103,10 +1121,7 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
 
       const scopes = yield* discoverWorkspaceScopes(analysisContext, O.none());
       const owningScope = scopes.find(
-        (scope) =>
-          normalizedFilePath === scope.packagePath ||
-          normalizedFilePath.startsWith(`${scope.packagePath}/`) ||
-          scope.packagePath.startsWith(normalizedFilePath)
+        (scope) => normalizedFilePath === scope.packagePath || normalizedFilePath.startsWith(`${scope.packagePath}/`)
       );
 
       if (owningScope === undefined) {

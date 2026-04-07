@@ -26,7 +26,7 @@
     "update_checklist_with_manifest": true
   },
   "commit_policy": {
-    "default": "one commit per completed implementation phase in P1-P3 and P7 and one commit per approved candidate in P4",
+    "default": "one commit per completed implementation phase in P1-P3 and P7 when changes were made, and one commit per approved candidate in P4",
     "override_source": "outputs/p0-planning-and-document-classification.md",
     "push_requires_explicit_confirmation": true
   },
