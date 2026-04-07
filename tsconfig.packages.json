@@ -7,12 +7,6 @@
   "include": [],
   "references": [
     {
-      "path": ".claude"
-    },
-    {
-      "path": ".codex"
-    },
-    {
       "path": "apps/desktop"
     },
     {
@@ -101,9 +95,6 @@
     },
     {
       "path": "packages/shared/env"
-    },
-    {
-      "path": "packages/shared/providers"
     },
     {
       "path": "packages/shared/server"

@@ -5,7 +5,6 @@
     "": {
       "name": "@beep/root",
       "devDependencies": {
-        "@1password/sdk": "catalog:",
         "@babel/cli": "catalog:",
         "@babel/core": "catalog:",
         "@babel/plugin-transform-export-namespace-from": "catalog:",
@@ -636,18 +635,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/shared/providers": {
-      "name": "@beep/shared-providers",
-      "version": "0.0.0",
-      "dependencies": {
-        "@1password/sdk": "catalog:",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/shared/server": {
       "name": "@beep/shared-server",
       "version": "0.0.0",
@@ -870,7 +857,6 @@
     "undici": "^7.24.4",
   },
   "catalog": {
-    "@1password/sdk": "^0.4.1-beta.1",
     "@babel/cli": "^7.28.6",
     "@babel/code-frame": "^7.29.0",
     "@babel/core": "^7.29.0",
@@ -1028,10 +1014,6 @@
     "yaml": "^2.8.3",
   },
   "packages": {
-    "@1password/sdk": ["@1password/sdk@0.4.1-beta.1", "", { "dependencies": { "@1password/sdk-core": "0.4.1-beta.1" } }, "sha512-QWY6eIIEs9at6kAFbgjZ1vVxg7ygp/MwXJ6/BoBdPkqIk8vfulXu4pjDsVQ87HhddJAD5LVGBXSbQIa+svI3bA=="],
-
-    "@1password/sdk-core": ["@1password/sdk-core@0.4.1-beta.1", "", {}, "sha512-/otbg1JVhsEn6oUIeReoT9TmFr8J7KBwr9UuRVfJFwwGG3bHPF8ewT+LhRimQeJtypqQ69ZVuOYkxknD4iQHxw=="],
-
     "@adobe/css-tools": ["@adobe/css-tools@4.4.4", "", {}, "sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg=="],
 
     "@ai-sdk/gateway": ["@ai-sdk/gateway@3.0.91", "", { "dependencies": { "@ai-sdk/provider": "3.0.8", "@ai-sdk/provider-utils": "4.0.23", "@vercel/oidc": "3.1.0" }, "peerDependencies": { "zod": "^3.25.76 || ^4.1.8" } }, "sha512-J39Dh6Gyg6HjG3A7OFKnJMp3QyZ3Eex+XDiX8aFBdRwwZm3jGWaMhkCxQPH7yiQ9kRiErZwHXX/Oexx4SyGGGA=="],
@@ -1175,8 +1157,6 @@
     "@beep/shared-domain": ["@beep/shared-domain@workspace:packages/shared/domain"],
 
     "@beep/shared-env": ["@beep/shared-env@workspace:packages/shared/env"],
-
-    "@beep/shared-providers": ["@beep/shared-providers@workspace:packages/shared/providers"],
 
     "@beep/shared-server": ["@beep/shared-server@workspace:packages/shared/server"],
 

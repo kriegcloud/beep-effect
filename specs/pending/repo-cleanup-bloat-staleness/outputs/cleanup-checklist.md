@@ -47,8 +47,8 @@
 | P1 | Remove `apps/clawhole`, `apps/web`, `apps/crypto-taxes`, and `packages/ai/sdk`; regenerate managed config and docs | `COMPLETED` | 2026-04-07 | Exit gate met: live workspace refs are removed, managed artifacts were regenerated, `lint` and `test` passed, and broader `build` or `check` failures were recorded as unrelated repo-baseline findings |
 | P2 | Verify local `@beep/docgen` ownership and remove stale docgen references or generated artifacts | `COMPLETED` | 2026-04-07 | Exit gate met: repo-local docgen ownership is proven, `packages/editor/runtime` now has explicit docgen config, stale README guidance was removed, `docgen` plus `lint` and `test` passed, and the existing editor-app `check` blocker was recorded as unrelated |
 | P3 | Prune unused root dependency catalog entries, security exceptions, and orphaned platform or test config | `COMPLETED` | 2026-04-07 | Exit gate met: stale OSV ignores, former workspace-only catalog entries, and the orphaned Playwright lane are removed; broader dependency hygiene findings were logged instead of widened into this phase |
-| P4 | Ranked candidate inventory and incremental cleanup loop | `IN_PROGRESS` | 2026-04-07 | Ranked inventory is now populated; first candidate approval is pending before any destructive executor session starts |
-| P5 | Final quality and TrustGraph closeout | `NOT_STARTED` | 2026-04-06 | Awaiting approved execution plan |
+| P4 | Ranked candidate inventory and incremental cleanup loop | `COMPLETED` | 2026-04-07 | Inventory exhausted: two candidates were intentionally preserved and two approved cleanups landed with verification and per-candidate commits |
+| P5 | Final quality and TrustGraph closeout | `IN_PROGRESS` | 2026-04-07 | P4 inventory loop is exhausted, so final validation and knowledge closeout are now the active phase |
 
 ## Candidate Review Ledger
 
@@ -56,8 +56,8 @@
 |---|---|---|---|---|---|---|---|
 | `P4-C01` | Empty excluded workspace | Remove the tracked but effectively empty `scratchpad/` workspace and its root exclusions if approved | Rejected by user | `REJECTED` | Not run | None | Kept intentionally because the user uses `scratchpad/` to sandbox ideas |
 | `P4-C02` | Orphaned disabled tooling surface | Remove the half-disabled Lost Pixel visual-regression residue if approved | Approved by user | `COMPLETED` | `rg -n "test:visual|lost-pixel|lostpixel" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'` is clean; `bun run version-sync --skip-network`, `bun install --lockfile-only`, `bun run lint:repo`, and `bun run lint` passed; `bun run test:storybook` remains blocked by missing local Playwright browser binaries | `chore(repo): remove stale visual-regression residue` | Completed without touching Storybook; failure is environment-level browser provisioning rather than a Lost Pixel cleanup regression |
-| `P4-C03` | Unused internal package | Review removal of `packages/_internal/db-admin` if the repo no longer intends to grow it | Pending user review | `NOT_STARTED` | Candidate-specific verification is defined in `outputs/p4-ranked-candidate-inventory.md` | TBD | Zero consumers found; lower confidence than the first two candidates |
-| `P4-C04` | Unused provider package | Review removal of `packages/shared/providers` if the 1Password provider surface is abandoned | Pending user review | `NOT_STARTED` | Candidate-specific verification is defined in `outputs/p4-ranked-candidate-inventory.md` | TBD | Real code exists, so this remains a lower-confidence review candidate |
+| `P4-C03` | Unused internal package | Review removal of `packages/_internal/db-admin` if the repo no longer intends to grow it | Rejected by user | `REJECTED` | Not run | None | Kept intentionally for future shared migrations between vertical slices |
+| `P4-C04` | Unused provider package | Review removal of `packages/shared/providers` if the 1Password provider surface is abandoned | Approved by user | `COMPLETED` | `rg -n "@beep/shared-providers|shared/providers|shared-providers|@1password/sdk" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'` is clean; `find docs -maxdepth 3 -type f | sort | rg 'shared/providers|shared-providers|providers'` is clean; `bun run config-sync`, `bun run docgen`, `bun run version-sync --skip-network`, `bun install --lockfile-only`, `bun run lint`, `bun run check`, and `bun run test` all passed | `chore(repo): remove stale shared providers package` | Completed without widening into future provider work; active refs, managed docs, tsconfig wiring, and the root `@1password/sdk` residue are removed |
 
 ## Documentation Classification Ledger
 
@@ -80,6 +80,7 @@
 | 2026-04-07 | P3 dependency, security, and platform pruning | targeted `sed`; targeted `rg`; targeted `find`; targeted `node <<'EOF' ... EOF`; `bun run version-sync --skip-network`; `bun install --lockfile-only`; `bun run lint:repo`; `bun run audit:high`; `bun run lint`; `bun run check`; `bun run test`; `bun run build` | Mixed | `version-sync`, `lint:repo`, `audit:high`, `lint`, and `test` passed; `check` and `build` still fail on the pre-existing `apps/editor-app` missing `@pigment-css/vite-plugin` declaration while stale OSV, lockfile, and Playwright drift are otherwise gone |
 | 2026-04-07 | Post-P3 editor-app dependency fix baseline | `bun install`; `bun run check --filter=@beep/editor-app`; `bun run build --filter=@beep/editor-app`; `bun run check`; `bun run build` | Success | Resolved the earlier Pigment dependency gap in commit `83166a377d`; P4 starts from a green `check` and `build` baseline |
 | 2026-04-07 | P4 candidate `P4-C02` visual-regression residue cleanup | `rg -n "test:visual|lost-pixel|lostpixel" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'`; `bun run version-sync --skip-network`; `bun install --lockfile-only`; `bun run lint:repo`; `bun run lint`; `bun run test:storybook` | Mixed | Active Lost Pixel refs are gone and repo metadata checks passed; `test:storybook` still fails because Playwright browser binaries are missing from the local environment |
+| 2026-04-07 | P4 candidate `P4-C04` shared-providers cleanup | `rg -n "@beep/shared-providers|shared/providers|shared-providers|@1password/sdk" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'`; `find docs -maxdepth 3 -type f | sort | rg 'shared/providers|shared-providers|providers'`; `bun run config-sync`; `bun run docgen`; `bun run version-sync --skip-network`; `bun install --lockfile-only`; `bun run lint`; `bun run check`; `bun run test` | Success | The shared-providers workspace, its identity and tsconfig wiring, its generated docs, and the root `@1password/sdk` residue are all gone from active repo surfaces |
 
 ## Phase Transition Log
 
@@ -95,6 +96,7 @@
 | 2026-04-07 | P3 | `p3=IN_PROGRESS` | P3 tracker moved to `IN_PROGRESS` | Active P3 execution began to prune only cleanup-caused dependency, security, and orphaned Playwright drift |
 | 2026-04-07 | P3 | `p3=COMPLETED`, `active_phase=p4` | P3 tracker moved to `COMPLETED`; P4 is now the next active phase | Stale OSV ignores, former workspace-only catalog entries, and the orphaned Playwright lane are removed; broader dependency hygiene findings were deferred instead of widened |
 | 2026-04-07 | P4 | `p4=IN_PROGRESS` | P4 tracker moved to `IN_PROGRESS`; candidate ledger seeded and ranked inventory written | The orchestrator session is active, but no destructive cleanup has started because P4 still requires per-candidate `yes` approval |
+| 2026-04-07 | P4 | `p4=COMPLETED`, `active_phase=p5`, `p5=IN_PROGRESS` | P4 tracker moved to `COMPLETED`; P5 is now the active phase | The ranked inventory is exhausted after two rejections and two approved per-candidate cleanups |
 
 ## Commit Log
 
@@ -105,6 +107,7 @@
 | `chore(repo): prune stale dependency and platform drift` | P3 dependency, security, and platform-config pruning | `COMPLETED` | Phase commit is created in this session after the stale OSV, lockfile, and Playwright surfaces were removed |
 | `fix(editor-app): declare pigment build deps` | Post-P3 repo-baseline dependency fix | `COMPLETED` | Follow-up commit `83166a377d` removed the pre-existing `apps/editor-app` Pigment blocker before P4 inventory work began |
 | `chore(repo): remove stale visual-regression residue` | P4 candidate `P4-C02` approved cleanup | `COMPLETED` | Candidate-scoped cleanup commit for removing the dead Lost Pixel lane and its stale active references |
+| `chore(repo): remove stale shared providers package` | P4 candidate `P4-C04` approved cleanup | `COMPLETED` | Candidate-scoped cleanup commit for removing the unconsumed shared-providers workspace and its stale active references |
 
 ## Deferred Findings
 

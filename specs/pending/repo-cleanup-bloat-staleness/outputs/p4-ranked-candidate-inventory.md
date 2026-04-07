@@ -2,7 +2,7 @@
 
 ## Status
 
-**IN_PROGRESS**
+**COMPLETED**
 
 ## Objective
 
@@ -44,8 +44,8 @@ Tie-break order:
 |---|---|---|---|---|---|
 | 1 | `P4-C01` | Empty excluded workspace | `0.95` | `REJECTED` | User wants to preserve `scratchpad/` as an easy sandbox for ideas, so this is intentionally retained despite the low activity footprint |
 | 2 | `P4-C02` | Orphaned disabled tooling surface | `0.91` | `COMPLETED` | Approved and completed: the dead Lost Pixel lane is removed while Storybook remains in place |
-| 3 | `P4-C03` | Unused internal package | `0.82` | Pending user review | `packages/_internal/db-admin` has no consumers and only exports a `VERSION` constant |
-| 4 | `P4-C04` | Unused provider package | `0.68` | Pending user review | `packages/shared/providers` has no consumers, but it does contain real 1Password config code, so the intent is less certain |
+| 3 | `P4-C03` | Unused internal package | `0.82` | `REJECTED` | User wants to preserve `packages/_internal/db-admin` for future shared-migration work across vertical slices |
+| 4 | `P4-C04` | Unused provider package | `0.68` | `COMPLETED` | Approved and completed: the unconsumed shared providers package and its stale active wiring are removed from the live repo graph |
 
 ## Candidate Details
 
@@ -100,7 +100,7 @@ Tie-break order:
 - `managed_artifact_impact`: removing the workspace would require `config-sync`, `docgen`, and version or lockfile refresh.
 - `expected_value`: removes a placeholder workspace whose implementation, README example, tests, and generated docs currently revolve around a version constant only.
 - `blast_radius`: Medium. Workspace-graph changes are real, but no live consumers were found.
-- `recommended_action`: Candidate is safe to review for deletion if the repo no longer intends to grow a dedicated db-admin package.
+- `recommended_action`: Rejected for deletion. Preserve as planned future shared-migration infrastructure across vertical slices.
 - `verification_commands`: `rg -n "@beep/db-admin|db-admin" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'`; `bun run config-sync`; `bun run docgen`; `bun run version-sync --skip-network`; `bun run lint`; `bun run check`; `bun run test`
 
 ### `P4-C04` — `packages/shared/providers`
@@ -118,7 +118,7 @@ Tie-break order:
 - `managed_artifact_impact`: removing the workspace would require config, docgen, and identity-registry cleanup.
 - `expected_value`: removes a currently unconsumed provider surface and its identity registration if the repo no longer plans to ship it.
 - `blast_radius`: Medium to high. The code is real and could still represent near-term planned work even though it has no current consumers.
-- `recommended_action`: Review-only candidate for now; do not treat this as a blind deletion.
+- `recommended_action`: Completed. The unconsumed shared-providers package and its stale active repo wiring were removed.
 - `verification_commands`: `rg -n "@beep/shared-providers" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'`; `bun run config-sync`; `bun run docgen`; `bun run version-sync --skip-network`; `bun run lint`; `bun run check`; `bun run test`
 
 ## Approved Cleanup Log
@@ -126,14 +126,14 @@ Tie-break order:
 | Candidate ID | Verification Summary | Commit | Notes |
 |---|---|---|---|
 | `P4-C02` | Active `lost-pixel` or `test:visual` refs are now gone outside spec history; `version-sync`, `bun install --lockfile-only`, `lint:repo`, and `lint` passed; `test:storybook` still fails because the local Playwright browser binary is missing | `chore(repo): remove stale visual-regression residue` | Completed in one approved candidate cleanup without widening into Storybook or other browser-test surfaces |
+| `P4-C04` | Active `shared-providers` and `@1password/sdk` refs are now gone outside spec history; `config-sync`, `docgen`, `version-sync`, `bun install --lockfile-only`, `lint`, `check`, and `test` all passed | `chore(repo): remove stale shared providers package` | Completed in one approved candidate cleanup; the inventory is now exhausted |
 
 ## Deferred Or Unreviewed Candidates
 
 | Candidate ID | Status | Notes |
 |---|---|---|
 | `P4-C01` | `REJECTED` | User chose to keep `scratchpad/` as an idea-sandbox workspace |
-| `P4-C03` | `NOT_STARTED` | Highest-ranked remaining candidate after `P4-C02` completed |
-| `P4-C04` | `NOT_STARTED` | Lower-confidence review-only candidate; keep behind the higher-confidence queue |
+| `P4-C03` | `REJECTED` | User wants to keep `db-admin` for future shared migrations between vertical slices |
 
 ## Exit Gate
 

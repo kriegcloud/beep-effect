@@ -32,7 +32,6 @@
     "packages/shared/client/dtslint/**/*.tst.*",
     "packages/shared/domain/dtslint/**/*.tst.*",
     "packages/shared/env/dtslint/**/*.tst.*",
-    "packages/shared/providers/dtslint/**/*.tst.*",
     "packages/shared/server/dtslint/**/*.tst.*",
     "packages/shared/tables/dtslint/**/*.tst.*",
     "packages/shared/ui/dtslint/**/*.tst.*"

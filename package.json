@@ -109,7 +109,6 @@
     "@beep/*": "Needed to force PNPM to install local packages"
   },
   "devDependencies": {
-    "@1password/sdk": "catalog:",
     "@babel/cli": "catalog:",
     "@babel/core": "catalog:",
     "@babel/plugin-transform-export-namespace-from": "catalog:",
@@ -237,7 +236,6 @@
     "tokenlens": "^1.3.1",
     "use-stick-to-bottom": "^1.1.3",
     "@tauri-apps/cli": "^2.10.1",
-    "@1password/sdk": "^0.4.1-beta.1",
     "effect": "^4.0.0-beta.43",
     "wink-eng-lite-web-model": "^1.8.1",
     "wink-nlp": "^2.4.0",

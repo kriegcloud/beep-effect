@@ -118,8 +118,6 @@
       "@beep/editor/*": ["./packages/editor/core/src/*"],
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
-      "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
-      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"],
       "@beep/colors": ["./packages/common/colors/src/index.ts"],
       "@beep/colors/*": ["./packages/common/colors/src/*"],
       "@beep/chalk": ["./packages/common/chalk/src/index.ts"],
