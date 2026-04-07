@@ -15,7 +15,7 @@
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "biome check src/ .storybook/",
     "lint:fix": "biome check src/ .storybook/ --write",
-    "test:storybook": "vitest --config vitest.storybook.config.ts"
+    "test:storybook": "playwright install --only-shell chromium && vitest --config vitest.storybook.config.ts"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",
@@ -61,6 +61,7 @@
     "@types/react-dom": "catalog:",
     "@vitest/browser": "catalog:",
     "@vitest/browser-playwright": "catalog:",
+    "playwright": "catalog:",
     "shadcn": "catalog:",
     "storybook": "catalog:",
     "tailwindcss": "catalog:",
