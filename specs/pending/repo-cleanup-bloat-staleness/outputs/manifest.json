@@ -1,10 +1,10 @@
 {
   "slug": "repo-cleanup-bloat-staleness",
   "title": "Repo Cleanup: Bloat, Staleness, and Duplication",
-  "status": "PENDING",
+  "status": "COMPLETED",
   "created": "2026-04-06",
-  "updated": "2026-04-06",
-  "active_phase": "p0",
+  "updated": "2026-04-07",
+  "active_phase": null,
   "status_model": {
     "phase": [
       "BOOTSTRAPPED",
@@ -41,7 +41,7 @@
   "phases": {
     "p0": {
       "name": "Planning, Grilling, and Document Classification",
-      "status": "BOOTSTRAPPED",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P0.md",
       "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p0-planning-and-document-classification.md",
@@ -53,7 +53,7 @@
     },
     "p1": {
       "name": "Targeted Workspace Removal and Managed Artifact Regeneration",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P1.md",
       "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p1-workspace-removal-and-regeneration.md",
@@ -61,7 +61,7 @@
     },
     "p2": {
       "name": "Docgen Verification and Stale Docgen Cleanup",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P2.md",
       "orchestrator": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p2-docgen-verification-and-cleanup.md",
@@ -69,7 +69,7 @@
     },
     "p3": {
       "name": "Dependency, Security, and Platform-Config Pruning",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P3.md",
       "orchestrator": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p3-dependency-security-and-platform-pruning.md",
@@ -77,7 +77,22 @@
     },
     "p4": {
       "name": "Ranked Candidate Inventory and Approval Loop",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
+      "active_candidate": null,
+      "candidate_decisions": {
+        "approved": [
+          "P4-C02",
+          "P4-C04"
+        ],
+        "completed": [
+          "P4-C02",
+          "P4-C04"
+        ],
+        "rejected": [
+          "P4-C01",
+          "P4-C03"
+        ]
+      },
       "handoff": "handoffs/HANDOFF_P4.md",
       "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p4-ranked-candidate-inventory.md",
@@ -85,7 +100,7 @@
     },
     "p5": {
       "name": "Final Validation and Knowledge Closeout",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P5.md",
       "orchestrator": "handoffs/P5_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p5-final-closeout.md",

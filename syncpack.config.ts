@@ -8,7 +8,6 @@ const config = {
     "apps/*/package.json",
     "scratchpad/package.json",
     "packages/_internal/*/package.json",
-    "packages/ai/*/package.json",
     "packages/common/*/package.json",
     "packages/repo-memory/client/package.json",
     "packages/repo-memory/model/package.json",

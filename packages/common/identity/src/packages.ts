@@ -34,8 +34,6 @@ const composers = $I.compose(
   "types",
   "utils",
   "ui",
-  "web",
-  "crypto-taxes",
   "semantic-web",
   "beep-sync",
   "repo-cli",
@@ -46,7 +44,6 @@ const composers = $I.compose(
   "test-utils",
   "claude",
   "codex",
-  "ai-sdk",
   "nlp",
   // Shared Slice
   "shared-domain",
@@ -74,9 +71,7 @@ const composers = $I.compose(
   // editor
   "editor",
   "observability",
-  "shared-providers",
   "colors",
-  "clawhole",
   "chalk",
   "docgen",
   "editor-app",
@@ -138,21 +133,6 @@ export const $UtilsId = composers.$UtilsId;
  */
 export const $UiId = composers.$UiId;
 
-// --- apps ---
-
-/**
- * @since 0.0.0
- * @category Configuration
- */
-export const $WebId = composers.$WebId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/crypto-taxes">}
- */
-export const $CryptoTaxesId: Identity.IdentityComposer<"@beep/crypto-taxes"> = composers.$CryptoTaxesId;
-
 // --- tooling ---
 
 /**
@@ -198,12 +178,6 @@ export const $TestUtilsId = composers.$TestUtilsId;
  * @category Configuration
  */
 export const $ClaudeId = composers.$ClaudeId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- */
-export const $AiSdkId = composers.$AiSdkId;
 
 // --- shared ---
 
@@ -368,13 +342,6 @@ export const $ObservabilityId: Identity.IdentityComposer<"@beep/observability"> 
 /**
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/shared-providers">}
- */
-export const $SharedProvidersId: Identity.IdentityComposer<"@beep/shared-providers"> = composers.$SharedProvidersId;
-
-/**
- * @since 0.0.0
- * @category Configuration
  * @type {Identity.IdentityComposer<"@beep/codex">}
  */
 export const $CodexId: Identity.IdentityComposer<"@beep/codex"> = composers.$CodexId;
@@ -385,13 +352,6 @@ export const $CodexId: Identity.IdentityComposer<"@beep/codex"> = composers.$Cod
  * @type {Identity.IdentityComposer<"@beep/colors">}
  */
 export const $ColorsId: Identity.IdentityComposer<"@beep/colors"> = composers.$ColorsId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/clawhole">}
- */
-export const $ClawholeId: Identity.IdentityComposer<"@beep/clawhole"> = composers.$ClawholeId;
 
 /**
  * @since 0.0.0

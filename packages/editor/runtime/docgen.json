@@ -1,7 +1,9 @@
 {
+  "srcDir": "src",
+  "outDir": "docs",
   "$schema": "../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/ai/sdk/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/editor/runtime/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,24 +31,18 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/ai-sdk": ["../../../packages/ai/sdk/src/claude/index.ts"],
-      "@beep/ai-sdk/*": ["../../../packages/ai/sdk/src/claude/*.ts"],
-      "@beep/data": ["../../../packages/common/data/src/index.ts"],
-      "@beep/data/*": ["../../../packages/common/data/src/*.ts"],
+      "@beep/editor-runtime": ["../../../packages/editor/runtime/src/index.ts"],
+      "@beep/editor-runtime/*": ["../../../packages/editor/runtime/src/*.ts"],
+      "@beep/editor": ["../../../packages/editor/core/src/index.ts"],
+      "@beep/editor/*": ["../../../packages/editor/core/src/*.ts"],
+      "@beep/editor-protocol": [
+        "../../../packages/editor/protocol/src/index.ts"
+      ],
+      "@beep/editor-protocol/*": ["../../../packages/editor/protocol/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-      "@beep/observability": [
-        "../../../packages/common/observability/src/index.ts"
-      ],
-      "@beep/observability/*": [
-        "../../../packages/common/observability/src/*.ts"
-      ],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
-      "@beep/types": ["../../../packages/common/types/src/index.ts"],
-      "@beep/types/*": ["../../../packages/common/types/src/*.ts"],
-      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
     }
   }
 }

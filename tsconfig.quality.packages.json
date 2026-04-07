@@ -4,25 +4,13 @@
   "extends": "./tsconfig.packages.json",
   "references": [
     {
-      "path": "apps/clawhole"
-    },
-    {
-      "path": "apps/crypto-taxes"
-    },
-    {
       "path": "apps/desktop"
     },
     {
       "path": "apps/editor-app"
     },
     {
-      "path": "apps/web"
-    },
-    {
       "path": "packages/_internal/db-admin"
-    },
-    {
-      "path": "packages/ai/sdk"
     },
     {
       "path": "packages/common/chalk"
@@ -104,9 +92,6 @@
     },
     {
       "path": "packages/shared/env"
-    },
-    {
-      "path": "packages/shared/providers"
     },
     {
       "path": "packages/shared/server"

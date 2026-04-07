@@ -5,7 +5,6 @@
     "tooling/*/dtslint/**/*.tst.*",
     "apps/*/dtslint/**/*.tst.*",
     "packages/_internal/db-admin/dtslint/**/*.tst.*",
-    "packages/ai/sdk/dtslint/**/*.tst.*",
     "packages/common/chalk/dtslint/**/*.tst.*",
     "packages/common/colors/dtslint/**/*.tst.*",
     "packages/common/data/dtslint/**/*.tst.*",
@@ -33,7 +32,6 @@
     "packages/shared/client/dtslint/**/*.tst.*",
     "packages/shared/domain/dtslint/**/*.tst.*",
     "packages/shared/env/dtslint/**/*.tst.*",
-    "packages/shared/providers/dtslint/**/*.tst.*",
     "packages/shared/server/dtslint/**/*.tst.*",
     "packages/shared/tables/dtslint/**/*.tst.*",
     "packages/shared/ui/dtslint/**/*.tst.*"

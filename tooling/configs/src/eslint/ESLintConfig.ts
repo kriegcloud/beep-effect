@@ -93,7 +93,6 @@ export const ESLintConfig: ESLintConfigShape = [
       "**/dist/**",
       "**/.turbo/**",
       "**/.next/**",
-      "**/lostpixel.config.ts",
       "**/vitest.storybook.config.ts",
       "tooling/*/scripts/**",
       "tooling/*/src/internal/**",
@@ -123,9 +122,6 @@ export const ESLintConfig: ESLintConfigShape = [
       "tooling/repo-utils/src/FsUtils.ts",
       "tooling/repo-utils/src/UniqueDeps.ts",
       "tooling/repo-utils/src/schemas/WorkspaceDeps.ts",
-      "packages/ai/sdk/src/claude/Schema/Session.ts",
-      "packages/ai/sdk/src/claude/Storage/SessionIndexStore.ts",
-      "packages/ai/sdk/src/claude/Storage/StorageConfig.ts",
     ],
     ignores: ["**/*.d.ts"],
     plugins: {
@@ -144,10 +140,6 @@ export const ESLintConfig: ESLintConfigShape = [
   },
   {
     files: [
-      "packages/ai/sdk/src/claude/AgentSdkConfig.ts",
-      "packages/ai/sdk/src/claude/SessionConfig.ts",
-      "packages/ai/sdk/src/claude/Diagnose.ts",
-      "packages/ai/sdk/src/claude/Storage/SessionIndexStore.ts",
       "tooling/cli/src/commands/DocsAggregate.ts",
       "tooling/cli/src/commands/Lint/index.ts",
       "tooling/cli/src/commands/Laws/index.ts",

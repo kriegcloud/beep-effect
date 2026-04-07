@@ -1,5 +1,8 @@
 import { EditorRuntimeConfig, loadEditorRuntimeConfig, runEditorRuntime } from "@beep/editor-runtime";
 import { describe, expect, it } from "@effect/vitest";
+import * as S from "effect/Schema";
+
+const decodeEditorRuntimeConfig = S.decodeUnknownSync(EditorRuntimeConfig);
 
 describe("@beep/editor-runtime", () => {
   it("exports the runtime entrypoints", () => {
@@ -8,7 +11,7 @@ describe("@beep/editor-runtime", () => {
   });
 
   it("constructs validated runtime configuration values", () => {
-    const config = new EditorRuntimeConfig({
+    const config = decodeEditorRuntimeConfig({
       host: "127.0.0.1",
       port: 8789,
       appDataDir: "/tmp/beep-editor-runtime",

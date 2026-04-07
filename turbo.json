@@ -99,10 +99,6 @@
     "test:storybook": {
       "cache": false
     },
-    "test:visual": {
-      "dependsOn": ["build-storybook"],
-      "cache": false
-    },
 
     "//#check:infra": {
       "cache": true,

@@ -76,7 +76,7 @@ describe("Canonical editor document helpers", () => {
     });
 
     expect(A.map(extractPageLinks(created), (link) => link.targetSlug)).toEqual(["home", "daily-notes"]);
-    expect(A.map(created.outboundLinks, (link) => link.targetSlug)).toEqual(["home", "daily-notes"]);
+    expect(A.map(created.outboundLinks ?? [], (link) => link.targetSlug)).toEqual(["home", "daily-notes"]);
 
     const refreshed = refreshPageDocument(created, {
       title: created.title,
@@ -85,7 +85,7 @@ describe("Canonical editor document helpers", () => {
       blocks: [makeParagraphBlock("Now linking to [[home]] and [[writing]].")],
     });
 
-    expect(A.map(refreshed.outboundLinks, (link) => link.targetSlug)).toEqual(["home", "writing"]);
+    expect(A.map(refreshed.outboundLinks ?? [], (link) => link.targetSlug)).toEqual(["home", "writing"]);
   });
 
   it("exports canonical pages with schema-first codecs and shared format metadata", () => {
