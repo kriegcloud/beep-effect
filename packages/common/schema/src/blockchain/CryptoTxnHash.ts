@@ -4,17 +4,17 @@
  * Supports EVM, Bitcoin, and Solana families.
  *
  * @since 0.0.0
- * @module @beep/schema/blockchain/TxnHash
+ * @module @beep/schema/blockchain/CryptoTxnHash
  */
 
 import { $SchemaId } from "@beep/identity/packages";
 import { base58 } from "@scure/base";
 import * as S from "effect/Schema";
 
-const $I = $SchemaId.create("blockchain/TxnHash");
+const $I = $SchemaId.create("blockchain/CryptoTxnHash");
 
-const evmTxnHashPattern = /^0x[0-9a-f]{64}$/;
-const bitcoinTxnHashPattern = /^[0-9a-f]{64}$/;
+const evmCryptoTxnHashPattern = /^0x[0-9a-f]{64}$/;
+const bitcoinCryptoTxnHashPattern = /^[0-9a-f]{64}$/;
 
 const decodeCanonicalBase58 = (input: string): Uint8Array | null => {
   try {
@@ -32,21 +32,21 @@ const isCanonicalSolanaSignature = (input: string): boolean => {
   return decoded !== null && decoded.length === 64;
 };
 
-const isCanonicalTxnHash = (input: string): boolean =>
-  evmTxnHashPattern.test(input) || bitcoinTxnHashPattern.test(input) || isCanonicalSolanaSignature(input);
+const isCanonicalCryptoTxnHash = (input: string): boolean =>
+  evmCryptoTxnHashPattern.test(input) || bitcoinCryptoTxnHashPattern.test(input) || isCanonicalSolanaSignature(input);
 
-const TxnHashChecks = S.makeFilterGroup(
+const CryptoTxnHashChecks = S.makeFilterGroup(
   [
-    S.makeFilter(isCanonicalTxnHash, {
-      identifier: $I`TxnHashFormatCheck`,
+    S.makeFilter(isCanonicalCryptoTxnHash, {
+      identifier: $I`CryptoTxnHashFormatCheck`,
       title: "Transaction Hash Format",
       description: "A canonical mainnet EVM, Bitcoin, or Solana transaction identifier.",
-      message: "TxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier",
+      message: "CryptoTxnHash must be a canonical mainnet EVM, Bitcoin, or Solana transaction identifier",
     }),
   ],
   {
-    identifier: $I`TxnHashChecks`,
-    title: "TxnHash",
+    identifier: $I`CryptoTxnHashChecks`,
+    title: "CryptoTxnHash",
     description: "Checks for canonical mainnet transaction identifiers across EVM, Bitcoin, and Solana families.",
   }
 );
@@ -57,19 +57,19 @@ const TxnHashChecks = S.makeFilterGroup(
  * @since 0.0.0
  * @category Validation
  */
-export const TxnHash = S.NonEmptyString.check(TxnHashChecks).pipe(
-  S.brand("TxnHash"),
+export const CryptoTxnHash = S.NonEmptyString.check(CryptoTxnHashChecks).pipe(
+  S.brand("CryptoTxnHash"),
   S.annotate(
-    $I.annote("TxnHash", {
+    $I.annote("CryptoTxnHash", {
       description: "Canonical mainnet transaction identifier for supported EVM, Bitcoin, and Solana networks.",
     })
   )
 );
 
 /**
- * Type for {@link TxnHash}.
+ * Type for {@link CryptoTxnHash}.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export type TxnHash = typeof TxnHash.Type;
+export type CryptoTxnHash = typeof CryptoTxnHash.Type;

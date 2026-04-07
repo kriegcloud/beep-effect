@@ -1,3 +1,0 @@
-- main [ref=e4]:
-  - button "Switch to light mode" [ref=e6]: Use light mode
-  - heading "BEEP!" [level=1] [ref=e8]

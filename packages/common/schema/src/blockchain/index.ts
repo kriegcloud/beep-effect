@@ -8,8 +8,8 @@
 /**
  * @since 0.0.0
  */
-export * from "./Address.ts";
+export * from "./CryptoTxnHash.ts";
 /**
  * @since 0.0.0
  */
-export * from "./TxnHash.ts";
+export * from "./CryptoWalletAddress.ts";
