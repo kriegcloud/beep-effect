@@ -24,6 +24,7 @@ Implement the `beep reuse` tool defined in P6, prove it against the tooling pilo
 ### Tests and package metadata
 
 - `tooling/repo-utils/test/Reuse.service.test.ts`
+- `tooling/repo-utils/test/TSMorph.service.test.ts`
 - `tooling/cli/test/reuse-command.test.ts`
 - `tooling/cli/package.json`
 - root `package.json`
@@ -103,14 +104,20 @@ Result:
 ### Targeted implementation verification
 
 - `bunx turbo run check --filter=@beep/repo-utils --filter=@beep/repo-cli`
+- `bunx turbo run test --filter=@beep/repo-utils --filter=@beep/repo-cli`
 - `bunx --bun vitest run tooling/repo-utils/test/Reuse.service.test.ts`
 - `bunx --bun vitest run tooling/cli/test/reuse-command.test.ts`
 - `bun run beep reuse partitions --scope tooling/cli --json`
 - `bun run beep reuse inventory --scope tooling/cli --json`
+- `bun run beep reuse find --file tooling/cli/src/commands/Docgen/index.ts --query json --json`
+- `bun run beep reuse packet --candidate-id reuse-pattern:schema-json-encode-sync --scope tooling/cli --json`
+- `bun run beep reuse codex-smoke --json`
 
 Result:
 
 - all of the above passed on the current tree
+- the full filtered turbo `test` run is green after widening the shared TSMorph suite timeout budget for the heavier repo-utils pilot workload
+- the final pilot pass produced one scout unit, two specialist units, a three-candidate tooling inventory, a valid packet for `reuse-pattern:schema-json-encode-sync`, and a clean `codex-smoke` result
 
 ## Key Decisions During Implementation
 
@@ -118,6 +125,7 @@ Result:
 - keep the service memoization inside a shared reuse-analysis context so repeated inventory and packet work stays fast without using broad type assertions
 - keep the real Codex smoke path, because the SDK thread constructor itself does not own a spawned child-process lifecycle; the heavier child-process cleanup path only exists when `thread.run()` executes
 - keep the CLI integration tests on a smaller `tooling/cli` scope because it still exercises real candidates while reducing unnecessary scan time
+- widen the shared TSMorph test timeout budget instead of weakening the assertions, because the filtered turbo run is materially heavier than the direct package-local test invocation
 
 ## Residual Risks
 
@@ -128,4 +136,4 @@ Result:
 
 ## Outcome
 
-P7 is complete. The repo now has a reusable, typed `beep reuse` tool with a proven tooling-stack pilot, and the spec is ready to describe P6/P7 as completed extension phases rather than future ideas.
+P7 is complete. The repo now has a reusable, typed `beep reuse` tool with a proven tooling-stack pilot, a narrow but real Codex SDK seam, and green filtered `check` and `test` coverage for `@beep/repo-utils` plus `@beep/repo-cli`. The spec is ready to describe P6/P7 as completed extension phases rather than future ideas.

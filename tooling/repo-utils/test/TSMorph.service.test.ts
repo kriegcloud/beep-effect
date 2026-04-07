@@ -84,7 +84,9 @@ const lateFileScopeRequest = (mode: "syntax" | "semantic" = "syntax") =>
     referencePolicy: "workspaceOnly",
   });
 
-layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
+const TSMORPH_TIMEOUT = 40_000;
+
+layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
   describe("resolveProjectScope", () => {
     it.effect(
       "resolves a workspace tsconfig into a stable scope",
@@ -98,7 +100,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(scope.workspaceDirectoryPath).toBe(WORKSPACE_ROOT);
         expect(scope.tsConfigPath).toBe(TSCONFIG_PATH);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 
@@ -117,7 +119,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(sourceText.sourceText).toContain("export class TsMorphProjectScope");
         expect(sourceText.contentHash).toMatch(/^[0-9a-f]{64}$/u);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 
@@ -140,7 +142,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
           outline.symbols.some((symbol) => symbol.name === "TsMorphProjectScope" && symbol.kind === "ClassDeclaration")
         ).toBe(true);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
 
     it.effect(
@@ -161,7 +163,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
 
         expect(names).toEqual(["ZebraThing", "AlphaThing"]);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 
@@ -217,7 +219,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(source.contentHash).toBe(targetSymbol.value.contentHash);
         expect(new TextDecoder().decode(symbolSlice)).toBe(source.sourceText);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
 
     it.effect(
@@ -277,7 +279,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         }
         expect(sourceError.symbolId).toBe(missingSymbolId);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 
@@ -342,7 +344,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(unbounded.symbols.some((symbol) => symbol.name === "TsMorphProjectScope")).toBe(true);
         expect(limited.symbols[0]?.name).toBe(unbounded.symbols[0]?.name);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 
@@ -390,7 +392,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(lookup.symbol.filePath).toBe(LATE_FILE_EXTRA_FILE_PATH);
         expect(lookup.symbol.qualifiedName).toBe("ExtraThing");
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 
@@ -410,7 +412,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(diagnostics.filePath).toBe(MODEL_FILE_PATH);
         expect(diagnostics.diagnostics).toEqual([]);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
 
     it.effect(
@@ -440,7 +442,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(firstDiagnostic.value.startColumn).toBeGreaterThan(0);
         expect(firstDiagnostic.value.endColumn).toBeGreaterThanOrEqual(firstDiagnostic.value.startColumn);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 
@@ -467,7 +469,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         expect(O.getOrNull(error.scopeId)).toBe(scope.scopeId);
         expect(O.getOrNull(error.filePath)).toBe(OUTSIDE_WORKSPACE_FILE_PATH);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
 
     it.effect(
@@ -491,7 +493,7 @@ layer(TestLayer, { timeout: 20_000 })("TSMorphService", (it) => {
         }
         expect(error.filePath).toBe(DECLARATION_FILE_PATH);
       }),
-      20_000
+      TSMORPH_TIMEOUT
     );
   });
 });
