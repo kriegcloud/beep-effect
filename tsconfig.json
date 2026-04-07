@@ -30,7 +30,11 @@
     // Desktop owns its own test/vitest typecheck through apps/desktop/tsconfig.test.json.
     "./apps/desktop/test/**/*.ts",
     "./apps/desktop/test/**/*.tsx",
-    "./apps/desktop/test/**/*.json"
+    "./apps/desktop/test/**/*.json",
+    // Editor app owns its own test typecheck through apps/editor-app/tsconfig.json.
+    "./apps/editor-app/test/**/*.ts",
+    "./apps/editor-app/test/**/*.tsx",
+    "./apps/editor-app/test/**/*.json"
   ],
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.root.tsbuildinfo",
@@ -63,9 +67,6 @@
       "@beep/messages/*": ["./packages/common/messages/src/*"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
       "@beep/data/*": ["./packages/common/data/src/*"],
-      "@beep/ai-sdk/Mcp": ["./packages/ai/sdk/src/Mcp.ts"],
-      "@beep/ai-sdk/codex/*": ["./packages/ai/sdk/src/codex/*.ts"],
-      "@beep/ai-sdk/internal/*": ["./packages/ai/sdk/src/claude/internal/*.ts"],
       "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
       "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
       "@beep/shared-env": ["./packages/shared/env/src/index.ts"],
@@ -111,8 +112,6 @@
       "@beep/repo-configs/internal/*": ["./tooling/configs/src/internal/*"],
       "@beep/test-utils": ["./tooling/test-utils/src/index.ts"],
       "@beep/test-utils/*": ["./tooling/test-utils/src/*"],
-      "@beep/ai-sdk": ["./packages/ai/sdk/src/claude/index.ts"],
-      "@beep/ai-sdk/*": ["./packages/ai/sdk/src/claude/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
       "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
       "@beep/semantic-web": ["./packages/common/semantic-web/src/index.ts"],
@@ -123,10 +122,6 @@
       "@beep/editor/*": ["./packages/editor/core/src/*"],
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
-      "@beep/shared-providers": ["./packages/shared/providers/src/index.ts"],
-      "@beep/shared-providers/*": ["./packages/shared/providers/src/*"],
-      "@beep/clawhole": ["./apps/clawhole/src/index.ts"],
-      "@beep/clawhole/*": ["./apps/clawhole/src/*"],
       "@beep/colors": ["./packages/common/colors/src/index.ts"],
       "@beep/colors/*": ["./packages/common/colors/src/*"],
       "@beep/chalk": ["./packages/common/chalk/src/index.ts"],

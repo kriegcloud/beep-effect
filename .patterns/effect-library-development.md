@@ -210,13 +210,14 @@ const internalTransform = Effect.fnUntraced(function*(pull, scope) {
 
 ### Error Handling with S.TaggedErrorClass
 
-Create structured, typed errors using `S.TaggedErrorClass`:
+Create structured, typed errors using `TaggedErrorClass` from `@beep/schema`:
 
 ```typescript
 import {Effect} from "effect";
-import {$SomePackageId} from "@beep/identity/packages";
+import {$SomePackageId} from "@beep/identity";
 import * as Str from "effect/String";
 import * as S from "effect/Schema";
+import { TaggedErrorClass } from "@beep/schema";
 
 const $I = $SomePackageId.create("relative/path/to/file");
 

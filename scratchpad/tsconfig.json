@@ -9,9 +9,6 @@
   },
   "references": [
     {
-      "path": "../.claude/tsconfig.json"
-    },
-    {
       "path": "../packages/common/data/tsconfig.json"
     },
     {
@@ -91,6 +88,9 @@
     },
     {
       "path": "../tooling/test-utils/tsconfig.json"
+    },
+    {
+      "path": "../.claude/tsconfig.json"
     }
   ]
 }

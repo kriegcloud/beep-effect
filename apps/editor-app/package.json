@@ -36,6 +36,7 @@
     "@beep/ui": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-bun": "catalog:",
+    "@mui/material-pigment-css": "catalog:",
     "@tanstack/react-router": "catalog:",
     "@tauri-apps/api": "catalog:",
     "effect": "catalog:",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@beep/types": "workspace:^",
     "@effect/vitest": "catalog:",
+    "@pigment-css/vite-plugin": "catalog:",
     "@tauri-apps/cli": "catalog:",
     "@types/node": "catalog:",
     "@types/react": "catalog:",

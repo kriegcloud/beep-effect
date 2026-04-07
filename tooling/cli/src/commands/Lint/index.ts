@@ -21,12 +21,8 @@ import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 const $I = $RepoCliId.create("commands/Lint");
 
 const TOOLING_ROOT = "tooling/cli/src";
-const RUNTIME_SCHEMA_FIRST_ROOTS = [TOOLING_ROOT, "packages/ai/sdk/src/claude", ".claude/hooks"] as const;
+const RUNTIME_SCHEMA_FIRST_ROOTS = [TOOLING_ROOT, ".claude/hooks"] as const;
 const FOCUS_RUNTIME_FILES = HashSet.fromIterable([
-  "packages/ai/sdk/src/claude/AgentSdkConfig.ts",
-  "packages/ai/sdk/src/claude/SessionConfig.ts",
-  "packages/ai/sdk/src/claude/Diagnose.ts",
-  "packages/ai/sdk/src/claude/Storage/SessionIndexStore.ts",
   "tooling/cli/src/commands/DocsAggregate.ts",
   "tooling/cli/src/commands/Lint/index.ts",
   "tooling/cli/src/commands/Laws/index.ts",

@@ -1,6 +1,6 @@
 import { Buffer } from "node:buffer";
 import { spawnSync as spawnSyncNode } from "node:child_process";
-import { globSync, statSync } from "node:fs";
+import { type GlobOptionsWithoutFileTypes, globSync, statSync } from "node:fs";
 import { readFile, rm, writeFile } from "node:fs/promises";
 import { matchesGlob, resolve } from "node:path";
 import { addEqualityTesters } from "@effect/vitest";
@@ -36,10 +36,12 @@ class BunGlobShim {
 
   scanSync(options?: BunGlobScanOptions): Array<string> {
     const cwd = options?.cwd ?? ".";
-    const matches = globSync(this.pattern, {
+    const globOptions = {
       cwd,
-      dot: options?.dot ?? false,
-    }).map(normalizePathSeparators);
+      withFileTypes: false,
+      ...(options?.dot === undefined ? {} : { dot: options.dot }),
+    } satisfies GlobOptionsWithoutFileTypes;
+    const matches = globSync(this.pattern, globOptions).map(normalizePathSeparators);
 
     if (options?.onlyFiles !== true) {
       return matches;

@@ -151,7 +151,7 @@ describe("eslint rule migration", () => {
     const messages = verify(
       ["export interface StorageConfigShape {", "  readonly enabled: boolean;", "}"].join("\n"),
       schemaFirstConfig,
-      "packages/ai/sdk/src/core/Storage/StorageConfig.ts"
+      "tooling/cli/src/SchemaFirstFixture.ts"
     );
 
     expect(messages.some((message) => message.ruleId === "beep-laws/schema-first")).toBe(true);
@@ -161,7 +161,7 @@ describe("eslint rule migration", () => {
     const messages = verify(
       ["export interface StorageService {", "  readonly get: (key: string) => Promise<string>;", "}"].join("\n"),
       schemaFirstConfig,
-      "packages/ai/sdk/src/core/Storage/StorageService.ts"
+      "tooling/cli/src/StorageServiceFixture.ts"
     );
 
     expect(messages.some((message) => message.ruleId === "beep-laws/schema-first")).toBe(false);
@@ -251,7 +251,11 @@ describe("eslint rule migration", () => {
   });
 
   it("does not suppress violations after the allowlist entry is removed", () => {
-    const messages = verify("export const value = new Date();", noNativeRuntimeConfig, "apps/web/src/lib/db/schema.ts");
+    const messages = verify(
+      "export const value = new Date();",
+      noNativeRuntimeConfig,
+      "apps/editor-app/src/lib/db/schema.ts"
+    );
 
     expect(messages.some((message) => message.ruleId === "beep-laws/no-native-runtime")).toBe(true);
   });

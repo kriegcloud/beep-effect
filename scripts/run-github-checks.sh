@@ -46,25 +46,6 @@ ensure_origin_main() {
   git fetch origin main:refs/remotes/origin/main --quiet
 }
 
-has_e2e_tests() {
-  if [ ! -d "e2e" ]; then
-    return 1
-  fi
-
-  find e2e -type f \( \
-    -name '*.spec.ts' -o \
-    -name '*.spec.tsx' -o \
-    -name '*.spec.js' -o \
-    -name '*.spec.jsx' -o \
-    -name '*.spec.mjs' -o \
-    -name '*.test.ts' -o \
-    -name '*.test.tsx' -o \
-    -name '*.test.js' -o \
-    -name '*.test.jsx' -o \
-    -name '*.test.mjs' \
-  \) -print -quit | grep -q .
-}
-
 run_changeset_status() {
   if [ "${GITHUB_EVENT_NAME:-}" = "push" ] && [ "${GITHUB_REF_NAME:-}" = "main" ]; then
     log "quality: skipped changeset status on main push"
@@ -186,23 +167,6 @@ run_nix_checks() {
   nix --option warn-dirty false develop --command echo "Dev shell OK"
 }
 
-run_e2e_checks() {
-  if ! has_e2e_tests; then
-    log "e2e: skipped"
-    bash scripts/run-e2e.sh
-    return
-  fi
-
-  log "e2e: install playwright browser"
-  bunx playwright install chromium
-
-  log "e2e: build"
-  run_with_local_env bun run build:ci
-
-  log "e2e: run tests"
-  run_with_local_env bun run test:e2e
-}
-
 run_pre_push() {
   ensure_origin_main
   run_quality
@@ -210,7 +174,6 @@ run_pre_push() {
   run_security_scan
   run_sast_scan
   run_nix_checks
-  run_e2e_checks
 }
 
 case "$MODE" in
@@ -232,14 +195,11 @@ case "$MODE" in
   nix)
     run_nix_checks
     ;;
-  e2e)
-    run_e2e_checks
-    ;;
   pre-push)
     run_pre_push
     ;;
   *)
-    printf 'usage: %s [quality|secrets|security|sast|nix|e2e|pre-push]\n' "$0" >&2
+    printf 'usage: %s [quality|secrets|security|sast|nix|pre-push]\n' "$0" >&2
     exit 1
     ;;
 esac

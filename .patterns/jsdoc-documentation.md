@@ -1,12 +1,10 @@
 # JSDoc Documentation Patterns - Effect Library
 
-## OVERVIEW
+## 🎯 OVERVIEW
 
-Comprehensive JSDoc documentation patterns used throughout the beep-effect repository, ensuring consistent, practical,
-and
-compilable examples for all APIs.
+Comprehensive JSDoc documentation patterns used throughout the [beep-effect](https://github.com/kriegcloud/beep-effect) repository, ensuring consistent, practical, and compilable examples for all APIs.
 
-## CRITICAL REQUIREMENTS
+## 🚨 CRITICAL REQUIREMENTS
 
 ### Documentation Standards
 
@@ -14,27 +12,23 @@ compilable examples for all APIs.
 - **ZERO TOLERANCE**: Even pre-existing docgen errors must be fixed
 - **FORBIDDEN**: Removing examples to fix compilation - always fix type issues properly
 - **MANDATORY**: Use proper Effect patterns in all examples
-- **MANDATORY**: Function and method docs must use repo-standard TSDoc tags with one `@param name {Type} - description.` line per declared parameter
-- **MANDATORY**: Document every function return contract with `@returns {Type} - description.`, including `void` and assertion signatures
-- **MANDATORY**: Add `@throws {ErrorType} - description.` when a function can actually throw, including assertion helpers and explicit re-throws
-- **FORBIDDEN**: Using `@throws` to document `Effect<A, E, R>` error channels - describe those in prose and in the `@returns` type instead
 - **FORBIDDEN**: `any` types, type assertions, or unsafe patterns in examples
 
-## STANDARD JSDOC STRUCTURE
+## 📝 STANDARD JSDOC STRUCTURE
 
 ### Complete Function Documentation Template
 
 ````typescript
 /**
  * Brief description of what the function does in one line.
- *
+ * 
  * More detailed explanation if needed, including:
  * - Important behavior notes
- * - Performance characteristics
+ * - Performance characteristics  
  * - Common use cases
  *
  * @example
- * ```typescript
+ * ```ts
  * import { ModuleName, Effect } from "effect"
  *
  * // Clear description of what this example demonstrates
@@ -49,7 +43,7 @@ compilable examples for all APIs.
  * ```
  *
  * @example
- * ```typescript
+ * ```ts  
  * import { ModuleName } from "effect"
  *
  * // Different use case or advanced usage
@@ -59,7 +53,9 @@ compilable examples for all APIs.
  * )
  * ```
  *
- * @category Utility
+ * @category utilities
+ * @template A - 
+ * @template B - 
  * @param input {A} - The primary input value.
  * @param options {Options} - Additional configuration for the operation.
  * @returns {ModuleName<B>} - The resulting value produced by the function.
@@ -67,60 +63,8 @@ compilable examples for all APIs.
  * @since 0.0.0
  */
 export const functionName = <A, B>(input: A, options: Options): ModuleName<B> => { /* implementation */ }
+  // implementation
 ````
-
-Include the `@throws` line in the template above only when the function can actually throw.
-
-### Required Function Tag Block
-
-- Use the repo-standard function tag syntax exactly: `@param name {Type} - description.`
-- Order function tags as `@param`, then `@returns`, then `@throws` when applicable
-- Add one `@param` line for every declared parameter
-- Add `@returns {Type} - description.` for every documented function, including `void` and assertion signatures
-- Add `@throws {ErrorType} - description.` only when the function can actually throw
-- Do not use `@throws` for `Effect<A, E, R>` error channels; describe those failures in prose and in the `@returns` type instead
-
-````typescript
-/**
- * Parses an input payload into a typed domain value.
- *
- * @param input {unknown} - The raw payload to decode.
- * @param options {ParseOptions} - Decoder configuration for this parse.
- * @returns {Effect.Effect<User, ParseError>} - An Effect that resolves with a User or fails with ParseError.
- */
-````
-
-````typescript
-/**
- * Asserts that the input is a string.
- *
- * @param u {unknown} - The input value to validate.
- * @returns {asserts u is string} - An assertion that the input is a string.
- * @throws {NotMySchemaError} - Throws a NotMySchemaError if the input is not a string.
- */
-````
-
-#### Tag Syntax
-
-Correct:
-
-```typescript
-/**
- * @param input {Input} - The value to validate.
- * @returns {Output} - The validated output.
- * @throws {ValidationError} - Throws a ValidationError when the value is invalid.
- */
-```
-
-Avoid:
-
-```typescript
-/**
- * @param {Input} input The value to validate.
- * @returns {Output} The validated output.
- * @throws {ValidationError} When the value is invalid.
- */
-```
 
 ### Module-Level Documentation
 
@@ -139,39 +83,36 @@ Avoid:
  * - **Performance optimized**: Efficient implementations for common operations
  *
  * @example
- * ```typescript
+ * ```ts
  * import { Effect } from "effect";
  * import * as A from "effect/Array";
- *
  * // Creating and transforming arrays
- * const numbers = A.range(1, 5) // [1, 2, 3, 4, 5]
- * const doubled = A.map(numbers, x => x * 2) // [2, 4, 6, 8, 10]
+ * const numbers = A.range(1, 5) // [1, 2, 3, 4, 5];
+ * const doubled = A.map(numbers, x => x * 2) // [2, 4, 6, 8, 10];
  *
  * // Functional composition with pipe
- * const result = pipe(
- *   [1, 2, 3, 4, 5],
+ * const result = [1, 2, 3, 4, 5].pipe(
  *   A.filter(x => x % 2 === 0),
  *   A.map(x => x * x),
  *   A.reduce(0, (acc, x) => acc + x)
  * ) // 20
  * ```
- *
+ * @module ""
  * @since 0.0.0
- * @module @beep/package-name/relative/path/to/module
- **/
+ */
 ````
 
-## IMPORT PATTERN STANDARDS
+## 🔧 IMPORT PATTERN STANDARDS
 
 ### Core Effect Library Imports
 
 ````typescript
 /**
  * @example
- * ```typescript
+ * ```ts
  * import { Effect, Console } from "effect"
- * import * as A from "effect/Array"
- *
+ * import * as A from "effect/Array";
+ * 
  * const program = Effect.gen(function* () {
  *   const items = A.make(1, 2, 3)
  *   yield* Console.log(`Items: ${A.join(items, ", ")}`)
@@ -186,14 +127,20 @@ Avoid:
 ````typescript
 /**
  * @example
- * ```typescript
+ * ```ts
  * // ✅ CORRECT - Import Schema from main "effect" package
- * import { Effect } from "effect"
+ * import { Effect } from "effect";
  * import * as S from "effect/Schema";
- * const Person = S.Struct({
- *   name: S.String,
- *   age: S.Number
- * })
+ * 
+ * class Person extends S.Class<Person>("Person")(
+ *   {
+ *     name: S.String,
+ *     age: S.Int.check(S.isGreaterThanOrEqualTo(0))
+ *   },
+ *   {
+ *     description: "A Person."
+ *   }
+ * ) {}
  *
  * const program = Effect.gen(function* () {
  *   const person = yield* S.decodeUnknownEffect(Person)({
@@ -211,12 +158,10 @@ Avoid:
 ````typescript
 /**
  * @example
- * ```typescript
+ * ```ts
  * import { Effect } from "effect"
- * import { NodeHttpServer } from "@effect/platform-node";
- * import * as S from "effect/Schema";
- *
- *
+ * import { NodeHttpServer } from "@effect/platform-node"
+ * 
  * const server = Effect.gen(function* () {
  *   const httpServer = yield* NodeHttpServer.make(app, { port: 3000 })
  *   yield* Effect.log("Server started on port 3000")
@@ -226,16 +171,16 @@ Avoid:
  */
 ````
 
-## ️ EXAMPLE CONTENT PATTERNS
+## 🏗️ EXAMPLE CONTENT PATTERNS
 
-### Utility Examples (Constructor Style)
+### Constructor Examples
 
 ````typescript
 /**
  * Creates a new Array from the provided elements.
  *
  * @example
- * ```typescript
+ * ```ts
  * import * as A from "effect"
  *
  * // Creating arrays with different types
@@ -247,29 +192,28 @@ Avoid:
  * ```
  *
  * @example
- * ```typescript
+ * ```ts
  * import * as A from "effect/Array";
- * import { HashSet } from "effect";
  *
  * // Empty array creation
  * const empty = A.empty<number>() // Array<number>
- * const fromIterable = A.fromIterable(HashSet.fromIterable([1, 2, 3])) // [1, 2, 3]
+ * const fromIterable = A.fromIterable(new Set([1, 2, 3])) // [1, 2, 3]
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category constructors
  */
 ````
 
-### Utility Examples (Combinator Style)
+### Combinator Examples
 
 ````typescript
 /**
  * Transforms each element of the array using the provided function.
  *
  * @example
- * ```typescript
- * import * as A from "effect/Array"
+ * ```ts
+ * import * as A from "effect/Array";
  *
  * // Data-first usage
  * const numbers = [1, 2, 3, 4, 5]
@@ -278,13 +222,11 @@ Avoid:
  * ```
  *
  * @example
- * ```typescript
+ * ```ts
  * import * as A from "effect/Array"
- * import { pipe } from "effect"
  *
  * // Data-last usage (pipeable)
- * const result = pipe(
- *   [1, 2, 3],
+ * const result = [1, 2, 3].pipe(
  *   A.map(x => x * 2),
  *   A.filter(x => x > 4),
  *   A.reduce(0, (sum, x) => sum + x)
@@ -293,7 +235,7 @@ Avoid:
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category combinators
  */
 ````
 
@@ -304,9 +246,9 @@ Avoid:
  * Performs an effectful operation on each element of the array.
  *
  * @example
- * ```typescript
+ * ```ts
  * import { Effect, Console } from "effect"
- * import * as A from "effect/Array"
+ * import * as A from "effect/Array";
  * const logEachItem = (items: ReadonlyArray<string>) =>
  *   A.forEach(items, item =>
  *     Console.log(`Processing: ${item}`)
@@ -320,7 +262,7 @@ Avoid:
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category combinators
  */
 ````
 
@@ -331,30 +273,22 @@ Avoid:
  * Validates array elements and fails fast on first error.
  *
  * @example
- * ```typescript
+ * ```ts
  * import { Effect, Data } from "effect";
  * import * as A from "effect/Array";
- * import * as S from "effect/Schema";
- * import { LiteralKit } from "@beep/schema";
- * import { $SomePackageId } from "@beep/identity/packages";
- *
- * const $I = $SomePackageId.create("relative/path/to/file"); // define canonical IdentityComposer helper for annotations & path composition
- *
- * // Basic tagged error - has _tag for catchTag discrimination
- * class ValidationError extends S.TaggedErrorClass<ValidationError>($I`ValidationError`)(
- *   "ValidationError",
- *   {
- *     field: S.String,
- *     message: S.String
- *   },
- *   $I.annote( // Annotate with IdentityComposer to tersly add `identifier` & `title` annotations
- *     "ValidationError",
- *     {
- *       description: "A validation error."
- *     }
- *   )
- * ) {
- * }
+ * import { TaggedErrorClass } from "@beep/schema";
+ * import {$SomePackageId} from "@beep/identity";
+ * 
+ * const $I = $SomePackageId.create("relative/path/to/file");
+ * 
+ * class ValidationError extends TaggedErrorClass<ValidationError>($I`ValidationError`)(
+ *  "ValidationError",
+ *  {
+ *    value: S.Unknown
+ *    message: S.String
+ *  },
+ *  $I.annote("ValidationError", { description: "An error that occurs when the validation of some data fails." })
+ * ) {}
  *
  * const validatePositive = (n: number) =>
  *   n > 0
@@ -374,68 +308,116 @@ Avoid:
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category combinators
  */
 ````
 
-## ️ CATEGORY ANNOTATION PATTERNS
+## 🏷️ CATEGORY ANNOTATION PATTERNS
 
 ### Category Naming Convention
 
-**IMPORTANT**: Use the exact TS taxonomy value in PascalCase. Do not use lowercase legacy names.
+**IMPORTANT**: Always use lowercase for category names. The codebase has some legacy inconsistencies (e.g., `Constructors` vs `constructors`), but new documentation should consistently use lowercase.
 
-### TS Category Taxonomy (Canonical Values)
+### Standard Categories Used
 
 ```typescript
-@category DomainModel
-@category DomainLogic
-@category PortContract
-@category Validation
-@category Utility
-@category UseCase
-@category Presentation
-@category DataAccess
-@category Integration
-@category Configuration
-@category CrossCutting
-@category Uncategorized
+// Creation functions
+@category constructors
+
+// Transformation functions
+@category combinators
+
+// Transformation operations (alternative to combinators)
+@category transforming
+
+// Helper utilities
+@category utilities
+
+// Boolean-returning functions
+@category predicates
+
+// Property access functions
+@category getters
+
+// Type definitions and interfaces
+@category models
+
+// Type identifiers and branded types
+@category symbols
+
+// Type guard functions
+@category guards
+
+// Type refinement functions
+@category refinements
+
+// Data transformation
+@category mapping
+
+// Data selection and filtering
+@category filtering
+
+// Data aggregation
+@category folding
+
+// Sequential operations
+@category sequencing
+
+// Error management
+@category error handling
+
+// Resource lifecycle
+@category resource management
+
+// Concurrent operations
+@category concurrency
+
+// Test utilities
+@category testing
+
+// Interoperability functions
+@category interop
+
+// Element-level operations (Chunk, Array, etc.)
+@category elements
+
+// Mathematical operations
+@category math
+
+// Mutable operations (when mutability is intentional)
+@category mutations
 ```
 
 ### Category Usage Examples
 
 ```typescript
 /**
- * Generic helper constructor.
- * @category Utility
+ * @category constructors
  */
 export const make = ...
 
 /**
- * Generic transformation helper.
- * @category Utility
+ * @category combinators
  */
 export const map = ...
 
 /**
- * Boundary parsing and validation.
- * @category Validation
+ * @category predicates  
  */
-export const parseInput = ...
+export const isEmpty = ...
 
 /**
- * Stable contract or model definition.
- * @category DomainModel
+ * @category models
  */
 export interface Array<A> ...
 
 /**
- * External SDK / API adapter.
- * @category Integration
+ * @category symbols
  */
-export const PaymentGatewayClient = ...
+export const TypeId = ...
 ```
 
-## ADVANCED EXAMPLE PATTERNS
+## 🧪 ADVANCED EXAMPLE PATTERNS
 
 ### Type-Level Function Examples
 
@@ -444,7 +426,7 @@ export const PaymentGatewayClient = ...
  * Type-level utility for extracting the success type from an Effect.
  *
  * @example
- * ```typescript
+ * ```ts
  * import { Effect } from "effect"
  *
  * // Demonstrate type extraction using conditional types
@@ -461,7 +443,7 @@ export const PaymentGatewayClient = ...
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category type level
  */
 ````
 
@@ -472,9 +454,10 @@ export const PaymentGatewayClient = ...
  * Advanced function for performance-critical scenarios.
  *
  * @example
- * ```typescript
- * import * as A from "effect/Array"
- * import {Order} from "effect"
+ * ```ts
+ * import * as A from "effect/Array";
+ * import { Order } from "effect";
+ *
  * // Note: This is an advanced function for specific performance use cases
  * // Most users should use simpler alternatives like:
  * const simpleSort = A.sort(Order.number)
@@ -491,7 +474,7 @@ export const PaymentGatewayClient = ...
  * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 ````
 
@@ -502,16 +485,16 @@ export const PaymentGatewayClient = ...
  * Integrates with multiple Effect modules for complex workflows.
  *
  * @example
- * ```typescript
- * import { Effect, Schedule, Layer, Console } from "effect"
- * import { HttpClient } from "@effect/platform"
+ * ```ts
+ * import { Effect, Schedule, Layer, Console } from "effect";
  * import * as S from "effect/Schema";
+ * import { HttpClient } from "effect/unstable/http";
  *
- * const User = S.Struct({
+ * class User = S.Class<User>("User")({
  *   id: S.Number,
  *   name: S.String,
  *   email: S.String
- * })
+ * }) {}
  *
  * const fetchUserWithRetry = (id: number) =>
  *   Effect.gen(function* () {
@@ -540,29 +523,28 @@ export const PaymentGatewayClient = ...
  * ```
  *
  * @since 0.0.0
- * @category Integration
+ * @category combinators
  */
 ````
 
-## COMMON DOCUMENTATION ISSUES TO AVOID
+## 🔍 COMMON DOCUMENTATION ISSUES TO AVOID
 
 ### ❌ Problematic Patterns
 
 ````typescript
-// ⚠️ Mixed import examples (wrong + canonical)
+// ❌ WRONG - Non-compiling imports
 /**
  * @example
- * ```typescript
+ * ```ts
  * import { Schema } from "@effect/schema"      // Wrong package (deprecated)
- * import * as S from "effect/Schema"           // Canonical namespace alias
- * import { Schema } from "effect/schema"       // Wrong - use "effect" instead
+ * import { Schema } from "effect/Schema"       // Wrong - use `S` namespace "import * as S from "effect/Schema"
  * ```
  */
 
 // ❌ WRONG - Using any types
 /**
  * @example
- * ```typescript
+ * ```ts
  * const data: any = someValue // Never use any in examples
  * ```
  */
@@ -570,7 +552,7 @@ export const PaymentGatewayClient = ...
 // ❌ WRONG - Type assertions
 /**
  * @example
- * ```typescript
+ * ```ts
  * const value = something as unknown as SomeType // Avoid assertions
  * ```
  */
@@ -578,7 +560,7 @@ export const PaymentGatewayClient = ...
 // ❌ WRONG - Declare patterns
 /**
  * @example
- * ```typescript
+ * ```ts
  * declare const Service: any // Don't use declare in examples
  * ```
  */
@@ -590,14 +572,13 @@ export const PaymentGatewayClient = ...
 // ✅ CORRECT - Proper imports and types
 /**
  * @example
- * ```typescript
- * import { Effect } from "effect"
- * import * as S from "effect/Schema"
- *
- * const User = S.Struct({
+ * ```ts
+ * import { Effect } from "effect";
+ * import * as S from "effect/Schema";
+ * const User = S.Class<User>("User")({
  *   name: S.String,
  *   age: S.Number
- * })
+ * }) {}
  *
  * const program = Effect.gen(function* () {
  *   const user = yield* S.decodeUnknownEffect(User)({
@@ -612,7 +593,7 @@ export const PaymentGatewayClient = ...
 // ✅ CORRECT - Real service usage
 /**
  * @example
- * ```typescript
+ * ```ts
  * import { Effect, Layer } from "effect"
  * import { Console } from "effect/logging"
  *
@@ -626,7 +607,7 @@ export const PaymentGatewayClient = ...
  */
 ````
 
-## SUCCESS CRITERIA
+## 🎯 SUCCESS CRITERIA
 
 ### Quality JSDoc Checklist
 
@@ -636,9 +617,6 @@ export const PaymentGatewayClient = ...
 - [ ] Examples compile with `bun run docgen`
 - [ ] No `any` types or type assertions
 - [ ] Appropriate @category annotation
-- [ ] Each declared parameter has a `@param name {Type} - description.` tag
-- [ ] Every documented function has `@returns {Type} - description.`
-- [ ] Functions that can throw have `@throws {ErrorType} - description.` and non-throwing or `Effect`-returning functions omit it
 - [ ] @since version annotation
 - [ ] Multiple examples for complex functions
 - [ ] Integration examples for advanced use cases
