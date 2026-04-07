@@ -257,18 +257,39 @@ const PATTERN_DEFINITIONS = [
 
 const normalizeRelativePath = (value: string): string => value.replace(/\\/gu, "/");
 
+const canonicalizeRelativePath = (value: string): string => {
+  const normalized = normalizeRelativePath(value.trim());
+  const segments = normalized.split("/");
+  const resolved: Array<string> = [];
+
+  for (const segment of segments) {
+    if (segment.length === 0 || segment === ".") {
+      continue;
+    }
+
+    if (segment === "..") {
+      const previous = resolved.at(-1);
+      if (previous !== undefined && previous !== "..") {
+        resolved.pop();
+      } else {
+        resolved.push(segment);
+      }
+      continue;
+    }
+
+    resolved.push(segment);
+  }
+
+  return resolved.join("/");
+};
+
 const toNullableNonEmptyString = (value: string): string | null => {
   const trimmed = value.trim();
   return trimmed.length > 0 ? trimmed : null;
 };
 
 const optionFromNullableNonEmptyString = (value: string | null | undefined): O.Option<string> =>
-  value == null
-    ? O.none()
-    : (() => {
-        const normalized = toNullableNonEmptyString(value);
-        return normalized === null ? O.none() : O.some(normalized);
-      })();
+  value == null ? O.none() : O.fromNullishOr(toNullableNonEmptyString(value));
 
 const formatCauseMessage = (cause: unknown): string =>
   cause instanceof Error ? cause.message : Inspectable.toStringUnknown(cause, 2);
@@ -292,9 +313,9 @@ const parseScopeSelector = (scopeSelector: O.Option<string>): ReadonlyArray<stri
   const rawTokens = scopeSelector.value.split(",");
   const tokens: string[] = [];
   for (const rawToken of rawTokens) {
-    const trimmed = rawToken.trim();
-    if (trimmed.length > 0) {
-      tokens.push(normalizeRelativePath(trimmed));
+    const normalized = canonicalizeRelativePath(rawToken);
+    if (normalized.length > 0) {
+      tokens.push(normalized);
     }
   }
 
@@ -457,7 +478,8 @@ const candidateFromPattern = (
 
 const scopeSelectorLabel = (scopeSelector: O.Option<string>, scopes: ReadonlyArray<WorkspaceScope>): string => {
   if (O.isSome(scopeSelector)) {
-    return scopeSelector.value;
+    const tokens = parseScopeSelector(scopeSelector);
+    return tokens.length > 0 ? tokens.join(",") : "all-production";
   }
 
   const joined = scopes.map((scope) => scope.packagePath).join(",");
@@ -1064,10 +1086,10 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
       symbolId,
     }) {
       const runtime = analysisContext.runtime;
-      const normalizedFilePath = normalizeRelativePath(
+      const normalizedFilePath = canonicalizeRelativePath(
         runtime.path.isAbsolute(filePath) ? runtime.path.relative(runtime.repoRoot, filePath) : filePath
       );
-      const absoluteFilePath = runtime.path.join(runtime.repoRoot, normalizedFilePath);
+      const absoluteFilePath = runtime.path.resolve(runtime.repoRoot, normalizedFilePath);
       const exists = yield* runtime.fs
         .exists(absoluteFilePath)
         .pipe(Effect.mapError(mapAnalysisError("findReuseOptions", `Failed to stat ${normalizedFilePath}`)));

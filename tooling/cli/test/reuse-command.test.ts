@@ -53,6 +53,19 @@ describe("reuse command", () => {
     );
   }, 60_000);
 
+  it("canonicalizes dot-prefixed scope selectors before emitting partitions", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        yield* runReuseCommand(["partitions", "--scope", "./tooling/cli", "--json"]);
+
+        const plan = yield* parseLoggedJson(decodePartitionPlan);
+
+        expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
+        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
+      }).pipe(Effect.provide(CommandTestLayer))
+    );
+  }, 60_000);
+
   it("emits a stable machine-readable inventory for the tooling pilot scope", async () => {
     await Effect.runPromise(
       Effect.gen(function* () {
@@ -111,6 +124,26 @@ describe("reuse command", () => {
 
         expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
         expect(O.isSome(result.query)).toBe(true);
+        expect(result.matches.length).toBeGreaterThan(0);
+      }).pipe(Effect.provide(CommandTestLayer))
+    );
+  }, 60_000);
+
+  it("canonicalizes dot-prefixed file paths in machine-readable find results", async () => {
+    await Effect.runPromise(
+      Effect.gen(function* () {
+        yield* runReuseCommand([
+          "find",
+          "--file",
+          "./tooling/cli/src/commands/Docgen/index.ts",
+          "--query",
+          "json",
+          "--json",
+        ]);
+
+        const result = yield* parseLoggedJson(decodeFindResult);
+
+        expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
         expect(result.matches.length).toBeGreaterThan(0);
       }).pipe(Effect.provide(CommandTestLayer))
     );

@@ -36,6 +36,18 @@ layer(TestLayer, { timeout: 60_000 })("Reuse services", (it) => {
       }),
       60_000
     );
+
+    it.effect(
+      "canonicalizes repo-relative scope selectors before matching workspace scopes",
+      Effect.fn(function* () {
+        const planner = yield* ReusePartitionPlannerService;
+        const plan = yield* planner.buildPartitions(O.some("./tooling/cli,./tooling/repo-utils"));
+
+        expect(plan.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
+        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual(["tooling/cli", "tooling/repo-utils"]);
+      }),
+      60_000
+    );
   });
 
   describe("buildInventory and buildPacket", () => {
@@ -82,6 +94,22 @@ layer(TestLayer, { timeout: 60_000 })("Reuse services", (it) => {
         expect(
           result.matches.some((match) => match.packageName === "effect" || match.packageName.startsWith("@beep/"))
         ).toBe(true);
+      }),
+      60_000
+    );
+
+    it.effect(
+      "canonicalizes repo-relative file paths before resolving owning workspace scopes",
+      Effect.fn(function* () {
+        const discovery = yield* ReuseDiscoveryService;
+        const result = yield* discovery.findReuseOptions({
+          filePath: "./tooling/cli/src/commands/Docgen/index.ts",
+          query: O.some("json"),
+          symbolId: O.none(),
+        });
+
+        expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
+        expect(result.matches.length).toBeGreaterThan(0);
       }),
       60_000
     );

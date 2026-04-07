@@ -82,12 +82,14 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
           message: cause instanceof Error ? cause.message : "Failed to construct Codex SDK client",
         }),
     });
-    const thread = yield* Effect.try({
+    const thread = yield* Effect.tryPromise({
       try: () =>
-        codex.startThread({
-          workingDirectory: repoRoot,
-          skipGitRepoCheck: true,
-        }),
+        Promise.resolve(
+          codex.startThread({
+            workingDirectory: repoRoot,
+            skipGitRepoCheck: true,
+          })
+        ),
       catch: (cause) =>
         new CodexRunnerError({
           stage: "startThread",
