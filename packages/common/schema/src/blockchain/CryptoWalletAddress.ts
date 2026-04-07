@@ -222,3 +222,4 @@ export const CryptoWalletAddressRedacted = CryptoWalletAddress.pipe(
  * @category DomainModel
  */
 export type CryptoWalletAddressRedacted = typeof CryptoWalletAddressRedacted.Type;
+t;
