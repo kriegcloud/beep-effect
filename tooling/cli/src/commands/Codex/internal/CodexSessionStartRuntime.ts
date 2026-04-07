@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { SessionStartCommandInput } from "@beep/codex/Domain/Hooks/SessionStart.ts";
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { Console, Effect } from "effect";
@@ -25,6 +26,7 @@ class CodexSessionStartHookRuntimeError extends TaggedErrorClass<CodexSessionSta
 ) {}
 
 const asString = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
+const decodeSessionStartCommandInput = S.decodeUnknownSync(SessionStartCommandInput);
 
 const messageFromUnknown = (error: unknown): string => {
   if (error instanceof Error && error.message.trim().length > 0) {
@@ -36,22 +38,12 @@ const messageFromUnknown = (error: unknown): string => {
 
 const parseHookInput = (text: string): Effect.Effect<Record<string, unknown>, CodexSessionStartHookRuntimeError> =>
   Effect.try({
-    try: () => JSON.parse(text) as unknown,
+    try: () => ({ ...decodeSessionStartCommandInput(JSON.parse(text)) }) as Record<string, unknown>,
     catch: (cause) =>
       new CodexSessionStartHookRuntimeError({
-        message: `Failed to parse Codex SessionStart hook input: ${messageFromUnknown(cause)}`,
+        message: `Failed to decode Codex SessionStart hook input: ${messageFromUnknown(cause)}`,
       }),
-  }).pipe(
-    Effect.flatMap((value) =>
-      value !== null && typeof value === "object" && !Array.isArray(value)
-        ? Effect.succeed(value as Record<string, unknown>)
-        : Effect.fail(
-            new CodexSessionStartHookRuntimeError({
-              message: "Codex SessionStart hook input must decode to a JSON object.",
-            })
-          )
-    )
-  );
+  });
 
 /**
  * Read and decode the optional JSON payload passed to the Codex SessionStart hook via stdin.
@@ -60,10 +52,7 @@ const parseHookInput = (text: string): Effect.Effect<Record<string, unknown>, Co
  * @category DomainModel
  * @since 0.0.0
  */
-export const readHookInput = (): Effect.Effect<
-  Record<string, unknown> | undefined,
-  CodexSessionStartHookRuntimeError
-> =>
+export const readHookInput: Effect.Effect<Record<string, unknown> | undefined, CodexSessionStartHookRuntimeError> =
   Effect.gen(function* () {
     if (process.stdin.isTTY) {
       return undefined;
@@ -144,7 +133,7 @@ export const buildSessionStartHookOutput = (additionalContext: string): string =
  * @since 0.0.0
  */
 export const runCodexSessionStartHook: Effect.Effect<void> = Effect.gen(function* () {
-  const hookInput = yield* readHookInput();
+  const hookInput = yield* readHookInput;
   const source = asString(hookInput?.source) ?? "startup";
   const cwd = asString(hookInput?.cwd);
   const output = buildSessionStartHookOutput(buildCodexSessionStartContext(source, cwd));
