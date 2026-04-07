@@ -1,3 +1,5 @@
+// cspell:words tsmorph stringifier
+
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { Effect, FileSystem, Inspectable, Layer, MutableHashMap, Path, ServiceMap } from "effect";
