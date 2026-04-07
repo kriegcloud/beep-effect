@@ -10,8 +10,8 @@ import {
   TsMorphFileOutlineRequest,
   TsMorphProjectScopeRequest,
   TsMorphSourceTextRequest,
-  TsMorphSymbolLookupRequest,
   type Symbol as TsMorphSymbol,
+  TsMorphSymbolLookupRequest,
 } from "../TSMorph/index.js";
 import {
   ReuseCandidate,
@@ -69,6 +69,12 @@ class WorkspacePackageManifest extends S.Class<WorkspacePackageManifest>($I`Work
   })
 ) {}
 
+/**
+ * Typed error returned when reuse analysis cannot complete a repository scan or lookup.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
 export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`ReuseAnalysisError`)(
   "ReuseAnalysisError",
   {
@@ -80,7 +86,15 @@ export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`
   })
 ) {}
 
-export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidateNotFoundError>($I`ReuseCandidateNotFoundError`)(
+/**
+ * Typed error returned when a requested candidate id is absent from the current reuse inventory.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidateNotFoundError>(
+  $I`ReuseCandidateNotFoundError`
+)(
   "ReuseCandidateNotFoundError",
   {
     candidateId: S.NonEmptyString,
@@ -111,7 +125,11 @@ const PRODUCTION_FILE_IGNORE_PATTERNS = [
   "**/storybook-static/**",
 ] as const;
 
-const WORKSPACE_PACKAGE_PATTERNS = ["packages/*/*/package.json", "tooling/*/package.json", "apps/*/package.json"] as const;
+const WORKSPACE_PACKAGE_PATTERNS = [
+  "packages/*/*/package.json",
+  "tooling/*/package.json",
+  "apps/*/package.json",
+] as const;
 
 const CURATED_EFFECT_V4_ENTRIES = [
   new ReuseCatalogEntry({
@@ -196,8 +214,7 @@ const PATTERN_DEFINITIONS = [
     specialistLabel: "JSON codec specialist",
     rationale:
       "Multiple files decode JSON strings through the same Schema helper shape, which is a good candidate for a shared boundary utility.",
-    recommendedAction:
-      "Extract a shared schema JSON decoder helper and route repeated inline decoders through it.",
+    recommendedAction: "Extract a shared schema JSON decoder helper and route repeated inline decoders through it.",
     proposedDestinationPackage: "@beep/schema",
     proposedDestinationModule: "packages/common/schema/src/json/SchemaJsonCodec.ts",
     blockingConcerns: [
@@ -271,7 +288,7 @@ const parseScopeSelector = (scopeSelector: O.Option<string>): ReadonlyArray<stri
   }
 
   const rawTokens = scopeSelector.value.split(",");
-  const tokens = new Array<string>();
+  const tokens: string[] = [];
   for (const rawToken of rawTokens) {
     const trimmed = rawToken.trim();
     if (trimmed.length > 0) {
@@ -344,7 +361,7 @@ const rankCatalogMatches = (
   limit = 8
 ): ReadonlyArray<ReuseCatalogEntry> => {
   const normalizedQuery = Array.from(new Set(queryKeywords.map((keyword) => keyword.toLowerCase())));
-  const scored = new Array<{ readonly entry: ReuseCatalogEntry; readonly score: number }>();
+  const scored: { readonly entry: ReuseCatalogEntry; readonly score: number }[] = [];
 
   for (const entry of catalogEntries) {
     const entryKeywords = catalogEntryKeywords(entry);
@@ -373,7 +390,7 @@ const rankCatalogMatches = (
 
 const stableSourceSymbols = (symbols: ReadonlyArray<ReuseSourceSymbolRef>): ReadonlyArray<ReuseSourceSymbolRef> => {
   const seen = new Set<string>();
-  const result = new Array<ReuseSourceSymbolRef>();
+  const result: ReuseSourceSymbolRef[] = [];
 
   for (const symbol of symbols) {
     if (!seen.has(symbol.symbolId)) {
@@ -604,58 +621,62 @@ const getCachedOrCompute = <A, E, R>(
   );
 
 const discoverWorkspaceScopes = (analysisContext: ReuseAnalysisContextShape, scopeSelector: O.Option<string>) =>
-  getCachedOrCompute(analysisContext.workspaceScopesBySelector, selectorCacheKey(scopeSelector), Effect.gen(function* () {
-    const runtime = analysisContext.runtime;
-    const selectorTokens = parseScopeSelector(scopeSelector);
-    const packageJsonPaths = yield* runtime.fsUtils
-      .globFiles(WORKSPACE_PACKAGE_PATTERNS, {
-        cwd: runtime.repoRoot,
-        ignore: ["**/node_modules/**", "**/dist/**"],
-      })
-      .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", "Failed to list workspace manifests")));
+  getCachedOrCompute(
+    analysisContext.workspaceScopesBySelector,
+    selectorCacheKey(scopeSelector),
+    Effect.gen(function* () {
+      const runtime = analysisContext.runtime;
+      const selectorTokens = parseScopeSelector(scopeSelector);
+      const packageJsonPaths = yield* runtime.fsUtils
+        .globFiles(WORKSPACE_PACKAGE_PATTERNS, {
+          cwd: runtime.repoRoot,
+          ignore: ["**/node_modules/**", "**/dist/**"],
+        })
+        .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", "Failed to list workspace manifests")));
 
-    const scopes = new Array<WorkspaceScope>();
+      const scopes: WorkspaceScope[] = [];
 
-    for (const packageJsonPath of packageJsonPaths) {
-      const absolutePackageJsonPath = runtime.path.join(runtime.repoRoot, packageJsonPath);
-      const content = yield* runtime.fs.readFileString(absolutePackageJsonPath).pipe(
-        Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to read ${packageJsonPath}`))
-      );
-      const manifest = yield* Effect.try({
-        try: () => decodeWorkspacePackageManifest(decodeJsonString(content)),
-        catch: mapAnalysisError("discoverWorkspaceScopes", `Failed to decode ${packageJsonPath}`),
-      });
+      for (const packageJsonPath of packageJsonPaths) {
+        const absolutePackageJsonPath = runtime.path.join(runtime.repoRoot, packageJsonPath);
+        const content = yield* runtime.fs
+          .readFileString(absolutePackageJsonPath)
+          .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to read ${packageJsonPath}`)));
+        const manifest = yield* Effect.try({
+          try: () => decodeWorkspacePackageManifest(decodeJsonString(content)),
+          catch: mapAnalysisError("discoverWorkspaceScopes", `Failed to decode ${packageJsonPath}`),
+        });
 
-      const packagePath = normalizeRelativePath(runtime.path.dirname(packageJsonPath));
-      const srcPath = normalizeRelativePath(runtime.path.join(packagePath, "src"));
-      const tsConfigPath = normalizeRelativePath(runtime.path.join(packagePath, "tsconfig.json"));
-      const hasSrc = yield* runtime.fs.exists(runtime.path.join(runtime.repoRoot, srcPath)).pipe(
-        Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to stat ${srcPath}`))
-      );
-      const hasTsConfig = yield* runtime.fs.exists(runtime.path.join(runtime.repoRoot, tsConfigPath)).pipe(
-        Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to stat ${tsConfigPath}`))
-      );
+        const packagePath = normalizeRelativePath(runtime.path.dirname(packageJsonPath));
+        const srcPath = normalizeRelativePath(runtime.path.join(packagePath, "src"));
+        const tsConfigPath = normalizeRelativePath(runtime.path.join(packagePath, "tsconfig.json"));
+        const hasSrc = yield* runtime.fs
+          .exists(runtime.path.join(runtime.repoRoot, srcPath))
+          .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to stat ${srcPath}`)));
+        const hasTsConfig = yield* runtime.fs
+          .exists(runtime.path.join(runtime.repoRoot, tsConfigPath))
+          .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to stat ${tsConfigPath}`)));
 
-      if (!(hasSrc && hasTsConfig)) {
-        continue;
+        if (!(hasSrc && hasTsConfig)) {
+          continue;
+        }
+
+        const scope = {
+          packageName: manifest.name ?? packagePath,
+          packagePath,
+          srcPath,
+          tsConfigPath,
+        } satisfies WorkspaceScope;
+
+        if (matchesScopeSelector(scope, selectorTokens)) {
+          scopes.push(scope);
+        }
       }
 
-      const scope = {
-        packageName: manifest.name ?? packagePath,
-        packagePath,
-        srcPath,
-        tsConfigPath,
-      } satisfies WorkspaceScope;
-
-      if (matchesScopeSelector(scope, selectorTokens)) {
-        scopes.push(scope);
-      }
-    }
-
-    scopes.sort((left, right) => left.packagePath.localeCompare(right.packagePath));
-    const resolvedScopes: ReadonlyArray<WorkspaceScope> = scopes;
-    return resolvedScopes;
-  }));
+      scopes.sort((left, right) => left.packagePath.localeCompare(right.packagePath));
+      const resolvedScopes: ReadonlyArray<WorkspaceScope> = scopes;
+      return resolvedScopes;
+    })
+  );
 
 const collectScopeFiles = (analysisContext: ReuseAnalysisContextShape, scope: WorkspaceScope) =>
   getCachedOrCompute(
@@ -667,106 +688,164 @@ const collectScopeFiles = (analysisContext: ReuseAnalysisContextShape, scope: Wo
         ignore: Array.from(PRODUCTION_FILE_IGNORE_PATTERNS),
       })
       .pipe(
-        Effect.mapError(mapAnalysisError("collectScopeFiles", `Failed to collect source files for ${scope.packagePath}`)),
-        Effect.map((files) => Array.from(files).map(normalizeRelativePath).sort((left, right) => left.localeCompare(right)))
+        Effect.mapError(
+          mapAnalysisError("collectScopeFiles", `Failed to collect source files for ${scope.packagePath}`)
+        ),
+        Effect.map((files) =>
+          Array.from(files)
+            .map(normalizeRelativePath)
+            .sort((left, right) => left.localeCompare(right))
+        )
       )
   );
 
 const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShape, scope: WorkspaceScope) =>
-  getCachedOrCompute(analysisContext.catalogEntriesByScope, scope.packagePath, Effect.gen(function* () {
-    const runtime = analysisContext.runtime;
-    const files = yield* collectScopeFiles(analysisContext, scope);
-    const projectScope = yield* runtime.tsmorph.resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath)).pipe(
-      Effect.mapError(mapAnalysisError("collectCatalogEntriesForScope", `Failed to resolve ts-morph scope for ${scope.packagePath}`))
-    );
-    const entries = new Array<ReuseCatalogEntry>();
+  getCachedOrCompute(
+    analysisContext.catalogEntriesByScope,
+    scope.packagePath,
+    Effect.gen(function* () {
+      const runtime = analysisContext.runtime;
+      const files = yield* collectScopeFiles(analysisContext, scope);
+      const projectScope = yield* runtime.tsmorph
+        .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath))
+        .pipe(
+          Effect.mapError(
+            mapAnalysisError(
+              "collectCatalogEntriesForScope",
+              `Failed to resolve ts-morph scope for ${scope.packagePath}`
+            )
+          )
+        );
+      const entries: ReuseCatalogEntry[] = [];
 
-    for (const filePath of files) {
-      const outlineOption = yield* runtime.tsmorph
-        .getFileOutline(
-          decodeFileOutlineRequest({
-            scopeId: projectScope.scopeId,
-            filePath,
-          })
-        )
-        .pipe(Effect.option);
+      for (const filePath of files) {
+        const outlineOption = yield* runtime.tsmorph
+          .getFileOutline(
+            decodeFileOutlineRequest({
+              scopeId: projectScope.scopeId,
+              filePath,
+            })
+          )
+          .pipe(Effect.option);
 
-      if (O.isNone(outlineOption)) {
-        continue;
+        if (O.isNone(outlineOption)) {
+          continue;
+        }
+
+        for (const symbol of outlineOption.value.symbols) {
+          entries.push(buildCatalogEntry(scope, symbol));
+        }
       }
 
-      for (const symbol of outlineOption.value.symbols) {
-        entries.push(buildCatalogEntry(scope, symbol));
-      }
-    }
-
-    const resolvedEntries: ReadonlyArray<ReuseCatalogEntry> = entries;
-    return resolvedEntries;
-  }));
+      const resolvedEntries: ReadonlyArray<ReuseCatalogEntry> = entries;
+      return resolvedEntries;
+    })
+  );
 
 const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContextShape, scope: WorkspaceScope) =>
-  getCachedOrCompute(analysisContext.patternOccurrencesByScope, scope.packagePath, Effect.gen(function* () {
-    const runtime = analysisContext.runtime;
-    const files = yield* collectScopeFiles(analysisContext, scope);
-    const projectScope = yield* runtime.tsmorph.resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath)).pipe(
-      Effect.mapError(
-        mapAnalysisError("collectPatternOccurrencesForScope", `Failed to resolve ts-morph scope for ${scope.packagePath}`)
-      )
-    );
-    const merged = new Map<string, Array<PatternOccurrence>>();
+  getCachedOrCompute(
+    analysisContext.patternOccurrencesByScope,
+    scope.packagePath,
+    Effect.gen(function* () {
+      const runtime = analysisContext.runtime;
+      const files = yield* collectScopeFiles(analysisContext, scope);
+      const projectScope = yield* runtime.tsmorph
+        .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath))
+        .pipe(
+          Effect.mapError(
+            mapAnalysisError(
+              "collectPatternOccurrencesForScope",
+              `Failed to resolve ts-morph scope for ${scope.packagePath}`
+            )
+          )
+        );
+      const merged = new Map<string, Array<PatternOccurrence>>();
 
-    for (const filePath of files) {
-      const sourceTextOption = yield* runtime.tsmorph
-        .readSourceText(decodeSourceTextRequest({ filePath }))
-        .pipe(Effect.option);
-      const outlineOption = yield* runtime.tsmorph
-        .getFileOutline(
-          decodeFileOutlineRequest({
-            scopeId: projectScope.scopeId,
-            filePath,
-          })
-        )
-        .pipe(Effect.option);
+      for (const filePath of files) {
+        const sourceTextOption = yield* runtime.tsmorph
+          .readSourceText(decodeSourceTextRequest({ filePath }))
+          .pipe(Effect.option);
+        const outlineOption = yield* runtime.tsmorph
+          .getFileOutline(
+            decodeFileOutlineRequest({
+              scopeId: projectScope.scopeId,
+              filePath,
+            })
+          )
+          .pipe(Effect.option);
 
-      if (O.isNone(sourceTextOption) || O.isNone(outlineOption)) {
-        continue;
+        if (O.isNone(sourceTextOption) || O.isNone(outlineOption)) {
+          continue;
+        }
+
+        const scanned = scanPatternsInFile(
+          filePath,
+          scope.packagePath,
+          sourceTextOption.value.sourceText,
+          outlineOption.value.symbols
+        );
+
+        for (const [patternId, occurrences] of scanned.entries()) {
+          const next = merged.get(patternId) ?? [];
+          next.push(...occurrences);
+          merged.set(patternId, next);
+        }
       }
 
-      const scanned = scanPatternsInFile(
-        filePath,
-        scope.packagePath,
-        sourceTextOption.value.sourceText,
-        outlineOption.value.symbols
-      );
+      const resolvedOccurrences: ReadonlyMap<string, ReadonlyArray<PatternOccurrence>> = merged;
+      return resolvedOccurrences;
+    })
+  );
 
-      for (const [patternId, occurrences] of scanned.entries()) {
-        const next = merged.get(patternId) ?? [];
-        next.push(...occurrences);
-        merged.set(patternId, next);
-      }
-    }
-
-    const resolvedOccurrences: ReadonlyMap<string, ReadonlyArray<PatternOccurrence>> = merged;
-    return resolvedOccurrences;
-  }));
-
+/**
+ * Service contract for building a shared reuse catalog from repository scopes plus curated external entries.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
 export type ReuseCatalogServiceShape = {
-  readonly buildCatalog: (scopeSelector?: O.Option<string>) => Effect.Effect<ReadonlyArray<ReuseCatalogEntry>, ReuseAnalysisError>;
+  readonly buildCatalog: (
+    scopeSelector?: O.Option<string>
+  ) => Effect.Effect<ReadonlyArray<ReuseCatalogEntry>, ReuseAnalysisError>;
 };
 
+/**
+ * Service tag for the reuse catalog contract.
+ *
+ * @category PortContract
+ * @since 0.0.0
+ */
 export class ReuseCatalogService extends ServiceMap.Service<ReuseCatalogService, ReuseCatalogServiceShape>()(
   $I`ReuseCatalogService`
 ) {}
 
+/**
+ * Service contract for turning reuse hotspots into scout and specialist work partitions.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
 export type ReusePartitionPlannerServiceShape = {
   readonly buildPartitions: (scopeSelector?: O.Option<string>) => Effect.Effect<ReusePartitionPlan, ReuseAnalysisError>;
 };
 
+/**
+ * Service tag for reuse partition planning.
+ *
+ * @category PortContract
+ * @since 0.0.0
+ */
 export class ReusePartitionPlannerService extends ServiceMap.Service<
   ReusePartitionPlannerService,
   ReusePartitionPlannerServiceShape
 >()($I`ReusePartitionPlannerService`) {}
 
+/**
+ * Service contract for reuse candidate discovery and file-local reuse option lookups.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
 export type ReuseDiscoveryServiceShape = {
   readonly discoverCandidates: (
     scopeSelector?: O.Option<string>
@@ -778,10 +857,22 @@ export type ReuseDiscoveryServiceShape = {
   }) => Effect.Effect<ReuseFindResult, ReuseAnalysisError>;
 };
 
+/**
+ * Service tag for reuse candidate discovery.
+ *
+ * @category PortContract
+ * @since 0.0.0
+ */
 export class ReuseDiscoveryService extends ServiceMap.Service<ReuseDiscoveryService, ReuseDiscoveryServiceShape>()(
   $I`ReuseDiscoveryService`
 ) {}
 
+/**
+ * Service contract for materializing ranked inventories and implementation packets from discovered candidates.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
 export type ReuseInventoryServiceShape = {
   readonly buildInventory: (scopeSelector?: O.Option<string>) => Effect.Effect<ReuseInventory, ReuseAnalysisError>;
   readonly buildPacket: (
@@ -790,6 +881,12 @@ export type ReuseInventoryServiceShape = {
   ) => Effect.Effect<ReusePacket, ReuseAnalysisError | ReuseCandidateNotFoundError>;
 };
 
+/**
+ * Service tag for reuse inventory materialization.
+ *
+ * @category PortContract
+ * @since 0.0.0
+ */
 export class ReuseInventoryService extends ServiceMap.Service<ReuseInventoryService, ReuseInventoryServiceShape>()(
   $I`ReuseInventoryService`
 ) {}
@@ -811,6 +908,12 @@ const ReuseAnalysisContextLive = Layer.effect(
   })
 );
 
+/**
+ * Default live layer for building the shared reuse catalog.
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const ReuseCatalogServiceLive = Layer.effect(
   ReuseCatalogService,
   Effect.gen(function* () {
@@ -820,20 +923,24 @@ export const ReuseCatalogServiceLive = Layer.effect(
       const effectiveScopeSelector = catalogScopeSelector(scopeSelector);
       const cacheKey = selectorCacheKey(effectiveScopeSelector);
 
-      return yield* getCachedOrCompute(analysisContext.catalogBySelector, cacheKey, Effect.gen(function* () {
-        const scopes = yield* discoverWorkspaceScopes(analysisContext, effectiveScopeSelector);
-        const entries = new Array<ReuseCatalogEntry>();
+      return yield* getCachedOrCompute(
+        analysisContext.catalogBySelector,
+        cacheKey,
+        Effect.gen(function* () {
+          const scopes = yield* discoverWorkspaceScopes(analysisContext, effectiveScopeSelector);
+          const entries: ReuseCatalogEntry[] = [];
 
-        for (const scope of scopes) {
-          const scopeEntries = yield* collectCatalogEntriesForScope(analysisContext, scope);
-          entries.push(...scopeEntries);
-        }
+          for (const scope of scopes) {
+            const scopeEntries = yield* collectCatalogEntriesForScope(analysisContext, scope);
+            entries.push(...scopeEntries);
+          }
 
-        entries.push(...CURATED_EFFECT_V4_ENTRIES);
-        entries.sort((left, right) => left.id.localeCompare(right.id));
-        const resolvedEntries: ReadonlyArray<ReuseCatalogEntry> = entries;
-        return resolvedEntries;
-      }));
+          entries.push(...CURATED_EFFECT_V4_ENTRIES);
+          entries.sort((left, right) => left.id.localeCompare(right.id));
+          const resolvedEntries: ReadonlyArray<ReuseCatalogEntry> = entries;
+          return resolvedEntries;
+        })
+      );
     });
 
     return ReuseCatalogService.of({
@@ -842,6 +949,12 @@ export const ReuseCatalogServiceLive = Layer.effect(
   })
 );
 
+/**
+ * Default live layer for reuse partition planning.
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const ReusePartitionPlannerServiceLive = Layer.effect(
   ReusePartitionPlannerService,
   Effect.gen(function* () {
@@ -854,7 +967,10 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
       const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
       const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
       const scoutUnits = scopes.map(makeScoutWorkUnit);
-      const specialistHotspots = new Map<string, { readonly label: string; readonly rationale: string; readonly selectors: Array<string> }>();
+      const specialistHotspots = new Map<
+        string,
+        { readonly label: string; readonly rationale: string; readonly selectors: Array<string> }
+      >();
 
       for (const scope of scopes) {
         const occurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
@@ -891,6 +1007,12 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
   })
 );
 
+/**
+ * Default live layer for reuse candidate discovery and local option lookup.
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const ReuseDiscoveryServiceLive = Layer.effect(
   ReuseDiscoveryService,
   Effect.gen(function* () {
@@ -900,34 +1022,38 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
     const discoverCandidates: ReuseDiscoveryServiceShape["discoverCandidates"] = Effect.fn(function* (
       scopeSelector = O.none()
     ) {
-      return yield* getCachedOrCompute(analysisContext.candidatesBySelector, selectorCacheKey(scopeSelector), Effect.gen(function* () {
-        const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
-        const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
-        const mergedOccurrences = new Map<string, Array<PatternOccurrence>>();
+      return yield* getCachedOrCompute(
+        analysisContext.candidatesBySelector,
+        selectorCacheKey(scopeSelector),
+        Effect.gen(function* () {
+          const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
+          const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
+          const mergedOccurrences = new Map<string, Array<PatternOccurrence>>();
 
-        for (const scope of scopes) {
-          const scopedOccurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
-          for (const [patternId, occurrences] of scopedOccurrences.entries()) {
-            const next = mergedOccurrences.get(patternId) ?? [];
-            next.push(...occurrences);
-            mergedOccurrences.set(patternId, next);
+          for (const scope of scopes) {
+            const scopedOccurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
+            for (const [patternId, occurrences] of scopedOccurrences.entries()) {
+              const next = mergedOccurrences.get(patternId) ?? [];
+              next.push(...occurrences);
+              mergedOccurrences.set(patternId, next);
+            }
           }
-        }
 
-        const candidates = new Array<ReuseCandidate>();
-        for (const pattern of PATTERN_DEFINITIONS) {
-          const occurrences = mergedOccurrences.get(pattern.id) ?? [];
-          if (occurrences.length >= 2) {
-            candidates.push(candidateFromPattern(pattern, occurrences, catalogEntries));
+          const candidates: ReuseCandidate[] = [];
+          for (const pattern of PATTERN_DEFINITIONS) {
+            const occurrences = mergedOccurrences.get(pattern.id) ?? [];
+            if (occurrences.length >= 2) {
+              candidates.push(candidateFromPattern(pattern, occurrences, catalogEntries));
+            }
           }
-        }
 
-        candidates.sort(
-          (left, right) => right.confidence - left.confidence || left.candidateId.localeCompare(right.candidateId)
-        );
-        const resolvedCandidates: ReadonlyArray<ReuseCandidate> = candidates;
-        return resolvedCandidates;
-      }));
+          candidates.sort(
+            (left, right) => right.confidence - left.confidence || left.candidateId.localeCompare(right.candidateId)
+          );
+          const resolvedCandidates: ReadonlyArray<ReuseCandidate> = candidates;
+          return resolvedCandidates;
+        })
+      );
     });
 
     const findReuseOptions: ReuseDiscoveryServiceShape["findReuseOptions"] = Effect.fn(function* ({
@@ -940,9 +1066,9 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
         runtime.path.isAbsolute(filePath) ? runtime.path.relative(runtime.repoRoot, filePath) : filePath
       );
       const absoluteFilePath = runtime.path.join(runtime.repoRoot, normalizedFilePath);
-      const exists = yield* runtime.fs.exists(absoluteFilePath).pipe(
-        Effect.mapError(mapAnalysisError("findReuseOptions", `Failed to stat ${normalizedFilePath}`))
-      );
+      const exists = yield* runtime.fs
+        .exists(absoluteFilePath)
+        .pipe(Effect.mapError(mapAnalysisError("findReuseOptions", `Failed to stat ${normalizedFilePath}`)));
 
       if (!exists) {
         return yield* mkAnalysisError("findReuseOptions", `Target file does not exist: ${normalizedFilePath}`);
@@ -968,16 +1094,20 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
         candidate.evidence.some((line) => line.startsWith(`${normalizedFilePath}:`))
       );
       const catalogEntries = yield* catalogService.buildCatalog(O.some(owningScope.packagePath));
-      const queryKeywords = new Array<string>();
+      const queryKeywords: string[] = [];
 
       if (O.isSome(query)) {
         queryKeywords.push(...lowerKeywords(query.value));
       }
 
       if (O.isSome(symbolId)) {
-        const projectScope = yield* runtime.tsmorph.resolveProjectScope(resolveScopeRequest(runtime.repoRoot, owningScope.tsConfigPath)).pipe(
-          Effect.mapError(mapAnalysisError("findReuseOptions", `Failed to resolve ts-morph scope for ${owningScope.packagePath}`))
-        );
+        const projectScope = yield* runtime.tsmorph
+          .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, owningScope.tsConfigPath))
+          .pipe(
+            Effect.mapError(
+              mapAnalysisError("findReuseOptions", `Failed to resolve ts-morph scope for ${owningScope.packagePath}`)
+            )
+          );
         const lookup = yield* runtime.tsmorph
           .getSymbolById(
             decodeSymbolLookupRequest({
@@ -1018,6 +1148,12 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
   })
 );
 
+/**
+ * Default live layer for ranked reuse inventories and implementation packets.
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
 export const ReuseInventoryServiceLive = Layer.effect(
   ReuseInventoryService,
   Effect.gen(function* () {
@@ -1025,7 +1161,9 @@ export const ReuseInventoryServiceLive = Layer.effect(
     const catalogService = yield* ReuseCatalogService;
     const discoveryService = yield* ReuseDiscoveryService;
 
-    const buildInventory: ReuseInventoryServiceShape["buildInventory"] = Effect.fn(function* (scopeSelector = O.none()) {
+    const buildInventory: ReuseInventoryServiceShape["buildInventory"] = Effect.fn(function* (
+      scopeSelector = O.none()
+    ) {
       const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
       const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
       const candidates = yield* discoveryService.discoverCandidates(scopeSelector);

@@ -80,9 +80,7 @@ layer(TestLayer, { timeout: 60_000 })("Reuse services", (it) => {
         expect(O.getOrElse(result.query, () => "")).toBe("json");
         expect(result.matches.length).toBeGreaterThan(0);
         expect(
-          result.matches.some(
-            (match) => match.packageName === "effect" || match.packageName.startsWith("@beep/")
-          )
+          result.matches.some((match) => match.packageName === "effect" || match.packageName.startsWith("@beep/"))
         ).toBe(true);
       }),
       60_000
