@@ -1,0 +1,122 @@
+{
+  "slug": "repo-cleanup-bloat-staleness",
+  "title": "Repo Cleanup: Bloat, Staleness, and Duplication",
+  "status": "PENDING",
+  "created": "2026-04-06",
+  "updated": "2026-04-06",
+  "active_phase": "p0",
+  "status_model": {
+    "phase": [
+      "BOOTSTRAPPED",
+      "NOT_STARTED",
+      "IN_PROGRESS",
+      "BLOCKED",
+      "COMPLETED"
+    ],
+    "candidate": [
+      "NOT_STARTED",
+      "IN_PROGRESS",
+      "COMPLETED",
+      "REJECTED"
+    ]
+  },
+  "phase_transition_rules": {
+    "active_phase_is_authoritative": true,
+    "update_manifest_on_phase_state_change": true,
+    "update_checklist_with_manifest": true
+  },
+  "commit_policy": {
+    "default": "one commit per completed implementation phase in P1-P3 and one commit per approved candidate in P4",
+    "override_source": "outputs/p0-planning-and-document-classification.md",
+    "push_requires_explicit_confirmation": true
+  },
+  "phase_order": [
+    "p0",
+    "p1",
+    "p2",
+    "p3",
+    "p4",
+    "p5"
+  ],
+  "phases": {
+    "p0": {
+      "name": "Planning, Grilling, and Document Classification",
+      "status": "BOOTSTRAPPED",
+      "handoff": "handoffs/HANDOFF_P0.md",
+      "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p0-planning-and-document-classification.md",
+      "trackers": [
+        "outputs/codex-plan-mode-prompt.md",
+        "outputs/grill-log.md",
+        "outputs/cleanup-checklist.md"
+      ]
+    },
+    "p1": {
+      "name": "Targeted Workspace Removal and Managed Artifact Regeneration",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P1.md",
+      "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p1-workspace-removal-and-regeneration.md",
+      "tracker": "outputs/cleanup-checklist.md"
+    },
+    "p2": {
+      "name": "Docgen Verification and Stale Docgen Cleanup",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P2.md",
+      "orchestrator": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p2-docgen-verification-and-cleanup.md",
+      "tracker": "outputs/cleanup-checklist.md"
+    },
+    "p3": {
+      "name": "Dependency, Security, and Platform-Config Pruning",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P3.md",
+      "orchestrator": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p3-dependency-security-and-platform-pruning.md",
+      "tracker": "outputs/cleanup-checklist.md"
+    },
+    "p4": {
+      "name": "Ranked Candidate Inventory and Approval Loop",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P4.md",
+      "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p4-ranked-candidate-inventory.md",
+      "tracker": "outputs/cleanup-checklist.md"
+    },
+    "p5": {
+      "name": "Final Validation and Knowledge Closeout",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P5.md",
+      "orchestrator": "handoffs/P5_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p5-final-closeout.md",
+      "tracker": "outputs/cleanup-checklist.md"
+    }
+  },
+  "directories": {
+    "handoffs": "handoffs",
+    "prompts": "prompts",
+    "outputs": "outputs"
+  },
+  "outputs": {
+    "manifest": "outputs/manifest.json",
+    "prompt": "outputs/codex-plan-mode-prompt.md",
+    "checklist": "outputs/cleanup-checklist.md",
+    "grill_log": "outputs/grill-log.md",
+    "p0": "outputs/p0-planning-and-document-classification.md",
+    "p1": "outputs/p1-workspace-removal-and-regeneration.md",
+    "p2": "outputs/p2-docgen-verification-and-cleanup.md",
+    "p3": "outputs/p3-dependency-security-and-platform-pruning.md",
+    "p4": "outputs/p4-ranked-candidate-inventory.md",
+    "p5": "outputs/p5-final-closeout.md"
+  },
+  "prompt_assets": {
+    "candidate_executor": "prompts/CANDIDATE_EXECUTOR_PROMPT.md",
+    "final_validator": "prompts/FINAL_VALIDATOR_PROMPT.md"
+  },
+  "root_files": [
+    "README.md",
+    "QUICK_START.md",
+    "AGENT_PROMPTS.md",
+    "REFLECTION_LOG.md"
+  ]
+}
