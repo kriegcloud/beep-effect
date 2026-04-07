@@ -25,7 +25,7 @@ import {
 import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
-import { CodexSmokeResult, type CodexRunnerError, runCodexSmoke } from "./internal/CodexRunner.js";
+import { type CodexRunnerError, CodexSmokeResult, runCodexSmoke } from "./internal/CodexRunner.js";
 
 const scopeFlag = Flag.string("scope").pipe(
   Flag.withDescription("Limit analysis to one or more package or path selectors separated by commas"),

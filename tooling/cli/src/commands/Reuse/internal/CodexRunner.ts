@@ -57,49 +57,50 @@ export class CodexRunnerError extends TaggedErrorClass<CodexRunnerError>($I`Code
  */
 export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, FileSystem.FileSystem> = Effect.gen(
   function* () {
-  const repoRoot = yield* findRepoRoot().pipe(
-    Effect.mapError(
-      (cause) =>
+    const repoRoot = yield* findRepoRoot().pipe(
+      Effect.mapError(
+        (cause) =>
+          new CodexRunnerError({
+            stage: "findRepoRoot",
+            message: cause.message,
+          })
+      )
+    );
+    const sdkModule = yield* Effect.tryPromise({
+      try: () => import("@openai/codex-sdk"),
+      catch: (cause) =>
         new CodexRunnerError({
-          stage: "findRepoRoot",
-          message: cause.message,
-        })
-    )
-  );
-  const sdkModule = yield* Effect.tryPromise({
-    try: () => import("@openai/codex-sdk"),
-    catch: (cause) =>
-      new CodexRunnerError({
-        stage: "import",
-        message: cause instanceof Error ? cause.message : "Failed to import @openai/codex-sdk",
-      }),
-  });
-  const codex = yield* Effect.try({
-    try: () => new sdkModule.Codex(),
-    catch: (cause) =>
-      new CodexRunnerError({
-        stage: "construct",
-        message: cause instanceof Error ? cause.message : "Failed to construct Codex SDK client",
-      }),
-  });
-  const thread = yield* Effect.try({
-    try: () =>
-      codex.startThread({
-        workingDirectory: repoRoot,
-        skipGitRepoCheck: true,
-      }),
-    catch: (cause) =>
-      new CodexRunnerError({
-        stage: "startThread",
-        message: cause instanceof Error ? cause.message : "Failed to start Codex SDK thread",
-      }),
-  });
+          stage: "import",
+          message: cause instanceof Error ? cause.message : "Failed to import @openai/codex-sdk",
+        }),
+    });
+    const codex = yield* Effect.try({
+      try: () => new sdkModule.Codex(),
+      catch: (cause) =>
+        new CodexRunnerError({
+          stage: "construct",
+          message: cause instanceof Error ? cause.message : "Failed to construct Codex SDK client",
+        }),
+    });
+    const thread = yield* Effect.try({
+      try: () =>
+        codex.startThread({
+          workingDirectory: repoRoot,
+          skipGitRepoCheck: true,
+        }),
+      catch: (cause) =>
+        new CodexRunnerError({
+          stage: "startThread",
+          message: cause instanceof Error ? cause.message : "Failed to start Codex SDK thread",
+        }),
+    });
 
-  return new CodexSmokeResult({
-    sdkPackage: "@openai/codex-sdk",
-    workingDirectory: repoRoot,
-    threadCreated: true,
-    threadRunMethodAvailable: typeof thread.run === "function",
-    note: "The smoke path validates SDK import and thread startup only. It does not execute an agent loop.",
-  });
-});
+    return new CodexSmokeResult({
+      sdkPackage: "@openai/codex-sdk",
+      workingDirectory: repoRoot,
+      threadCreated: true,
+      threadRunMethodAvailable: typeof thread.run === "function",
+      note: "The smoke path validates SDK import and thread startup only. It does not execute an agent loop.",
+    });
+  }
+);

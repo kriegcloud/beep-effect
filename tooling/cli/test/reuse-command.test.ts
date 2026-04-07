@@ -1,4 +1,11 @@
-import { FsUtilsLive, ReuseFindResult, ReuseInventory, ReusePacket, ReusePartitionPlan, TSMorphServiceLive } from "@beep/repo-utils";
+import {
+  FsUtilsLive,
+  ReuseFindResult,
+  ReuseInventory,
+  ReusePacket,
+  ReusePartitionPlan,
+  TSMorphServiceLive,
+} from "@beep/repo-utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
@@ -78,13 +85,7 @@ describe("reuse command", () => {
 
     await Effect.runPromise(
       Effect.gen(function* () {
-        yield* runReuseCommand([
-          "packet",
-          "--candidate-id",
-          firstCandidateId,
-          "--scope", TOOLING_CLI_SCOPE,
-          "--json",
-        ]);
+        yield* runReuseCommand(["packet", "--candidate-id", firstCandidateId, "--scope", TOOLING_CLI_SCOPE, "--json"]);
 
         const packet = yield* parseLoggedJson(decodePacket);
 
