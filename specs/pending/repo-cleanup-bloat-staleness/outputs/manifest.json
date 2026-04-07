@@ -26,7 +26,7 @@
     "update_checklist_with_manifest": true
   },
   "commit_policy": {
-    "default": "one commit per completed implementation phase in P1-P3 and one commit per approved candidate in P4",
+    "default": "one commit per completed implementation phase in P1-P3 and P7 when changes were made, and one commit per approved candidate in P4",
     "override_source": "outputs/p0-planning-and-document-classification.md",
     "push_requires_explicit_confirmation": true
   },
@@ -36,7 +36,9 @@
     "p2",
     "p3",
     "p4",
-    "p5"
+    "p5",
+    "p6",
+    "p7"
   ],
   "phases": {
     "p0": {
@@ -105,6 +107,22 @@
       "orchestrator": "handoffs/P5_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p5-final-closeout.md",
       "tracker": "outputs/cleanup-checklist.md"
+    },
+    "p6": {
+      "name": "Reuse-Discovery Design And Contract",
+      "status": "COMPLETED",
+      "handoff": "handoffs/HANDOFF_P6.md",
+      "orchestrator": "handoffs/P6_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p6-reuse-discovery-design-and-contract.md",
+      "tracker": "outputs/cleanup-checklist.md"
+    },
+    "p7": {
+      "name": "Reuse Tool Implementation And Tooling-Stack Pilot",
+      "status": "COMPLETED",
+      "handoff": "handoffs/HANDOFF_P7.md",
+      "orchestrator": "handoffs/P7_ORCHESTRATOR_PROMPT.md",
+      "output": "outputs/p7-reuse-tool-implementation-and-pilot.md",
+      "tracker": "outputs/cleanup-checklist.md"
     }
   },
   "directories": {
@@ -122,8 +140,11 @@
     "p2": "outputs/p2-docgen-verification-and-cleanup.md",
     "p3": "outputs/p3-dependency-security-and-platform-pruning.md",
     "p4": "outputs/p4-ranked-candidate-inventory.md",
-    "p5": "outputs/p5-final-closeout.md"
+    "p5": "outputs/p5-final-closeout.md",
+    "p6": "outputs/p6-reuse-discovery-design-and-contract.md",
+    "p7": "outputs/p7-reuse-tool-implementation-and-pilot.md"
   },
+  "phase_router": "handoffs/P0-P7_ORCHESTRATOR_PROMPT.md",
   "prompt_assets": {
     "candidate_executor": "prompts/CANDIDATE_EXECUTOR_PROMPT.md",
     "final_validator": "prompts/FINAL_VALIDATOR_PROMPT.md"

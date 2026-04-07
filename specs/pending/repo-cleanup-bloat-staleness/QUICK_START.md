@@ -1,14 +1,14 @@
 # Repo Cleanup: Bloat, Staleness, and Duplication — Quick Start
 
-> A phased repo-cleanup spec package for scoped Codex sessions, approval-driven deletion, and durable planning artifacts.
+> A phased cleanup-and-reuse-tooling spec package for scoped Codex sessions, approval-driven deletion, and durable reuse-discovery contracts.
 
 ## What This Delivers
 
-- one narrow Codex session per cleanup phase instead of one overloaded session
+- one narrow Codex session per phase instead of one overloaded session
 - explicit document-preservation policy before destructive cleanup starts
 - managed artifact regeneration as part of cleanup completeness
 - a ranked stale-code inventory with one-candidate-at-a-time approval
-- durable checklist, grill log, and per-phase outputs
+- a reusable `beep reuse` tool for future duplicate and reuse discovery
 
 ## Current Status
 
@@ -16,12 +16,14 @@ The authoritative status source is [outputs/manifest.json](./outputs/manifest.js
 
 | Phase | Focus | Status |
 |---|---|---|
-| P0 | Planning, grilling, and document classification | BOOTSTRAPPED |
-| P1 | Targeted workspace removal and managed artifact regeneration | NOT_STARTED |
-| P2 | Docgen verification and stale docgen cleanup | NOT_STARTED |
-| P3 | Dependency, security, and platform pruning | NOT_STARTED |
-| P4 | Ranked candidate inventory and approval loop | NOT_STARTED |
-| P5 | Final validation and knowledge closeout | NOT_STARTED |
+| P0 | Planning, grilling, and document classification | COMPLETED |
+| P1 | Targeted workspace removal and managed artifact regeneration | COMPLETED |
+| P2 | Docgen verification and stale docgen cleanup | COMPLETED |
+| P3 | Dependency, security, and platform pruning | COMPLETED |
+| P4 | Ranked candidate inventory and approval loop | COMPLETED |
+| P5 | Final validation and knowledge closeout | COMPLETED |
+| P6 | Reuse-discovery design and contract | COMPLETED |
+| P7 | Reuse tool implementation and tooling-stack pilot | COMPLETED |
 
 ## Start Here
 
@@ -36,9 +38,10 @@ The authoritative status source is [outputs/manifest.json](./outputs/manifest.js
 
 1. Use one Codex session per phase.
 2. For P4, use one inventory-orchestrator session to build and rank candidates, then one executor session per approved candidate.
-3. Stop at the phase exit gate and wait for explicit instruction before moving to the next phase.
-4. Follow the default commit cadence unless P0 overrides it:
-   - one commit at the end of P1, P2, and P3 if changes were made
+3. P6 defines the reuse-discovery tooling contract; P7 implements and pilots it.
+4. Stop at the phase exit gate and wait for explicit instruction before moving to the next phase.
+5. Follow the default commit cadence unless P0 overrides it:
+   - one commit at the end of P1, P2, P3, and P7 if changes were made
    - one commit per approved candidate in P4
    - no push without explicit confirmation
 
@@ -52,12 +55,19 @@ The authoritative status source is [outputs/manifest.json](./outputs/manifest.js
 | P3 | [HANDOFF_P3.md](./handoffs/HANDOFF_P3.md) | [P3_ORCHESTRATOR_PROMPT.md](./handoffs/P3_ORCHESTRATOR_PROMPT.md) | [p3-dependency-security-and-platform-pruning.md](./outputs/p3-dependency-security-and-platform-pruning.md) |
 | P4 | [HANDOFF_P4.md](./handoffs/HANDOFF_P4.md) | [P4_ORCHESTRATOR_PROMPT.md](./handoffs/P4_ORCHESTRATOR_PROMPT.md) | [p4-ranked-candidate-inventory.md](./outputs/p4-ranked-candidate-inventory.md) |
 | P5 | [HANDOFF_P5.md](./handoffs/HANDOFF_P5.md) | [P5_ORCHESTRATOR_PROMPT.md](./handoffs/P5_ORCHESTRATOR_PROMPT.md) | [p5-final-closeout.md](./outputs/p5-final-closeout.md) |
+| P6 | [HANDOFF_P6.md](./handoffs/HANDOFF_P6.md) | [P6_ORCHESTRATOR_PROMPT.md](./handoffs/P6_ORCHESTRATOR_PROMPT.md) | [p6-reuse-discovery-design-and-contract.md](./outputs/p6-reuse-discovery-design-and-contract.md) |
+| P7 | [HANDOFF_P7.md](./handoffs/HANDOFF_P7.md) | [P7_ORCHESTRATOR_PROMPT.md](./handoffs/P7_ORCHESTRATOR_PROMPT.md) | [p7-reuse-tool-implementation-and-pilot.md](./outputs/p7-reuse-tool-implementation-and-pilot.md) |
 
 ## Shared Trackers
 
 - [outputs/cleanup-checklist.md](./outputs/cleanup-checklist.md)
 - [outputs/grill-log.md](./outputs/grill-log.md)
 - [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md)
+
+## Combined Router
+
+- [handoffs/HANDOFF_P0-P7.md](./handoffs/HANDOFF_P0-P7.md)
+- [handoffs/P0-P7_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P7_ORCHESTRATOR_PROMPT.md)
 
 ## P4 Session Split
 
