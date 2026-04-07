@@ -194,19 +194,6 @@ export {
   topoSortCommand,
 } from "./commands/TopoSort.js";
 /**
- * TrustGraph operational command group.
- *
- * @since 0.0.0
- */
-export {
-  /**
-   * TrustGraph operational command group.
-   *
-   * @since 0.0.0
-   */
-  trustgraphCommand,
-} from "./commands/TrustGraph/index.js";
-/**
  * Tsconfig sync command for workspace tsconfig references and root aliases.
  *
  * @since 0.0.0
