@@ -25,8 +25,9 @@ class CodexSessionStartHookRuntimeError extends TaggedErrorClass<CodexSessionSta
   })
 ) {}
 
-const asString = (value: unknown): string | undefined => (typeof value === "string" ? value : undefined);
 const decodeSessionStartCommandInput = S.decodeUnknownSync(SessionStartCommandInput);
+const isString = S.is(S.String);
+const asString = (value: unknown): string | undefined => (isString(value) ? value : undefined);
 
 const messageFromUnknown = (error: unknown): string => {
   if (error instanceof Error && error.message.trim().length > 0) {
