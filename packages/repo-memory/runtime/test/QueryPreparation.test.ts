@@ -162,9 +162,14 @@ const indexFixtureRepo = Effect.gen(function* () {
     O.getOrThrow
   );
   const importEdges = yield* symbolStore.listImportEdges(registration.id, snapshotId);
+  const queryPreparationStore = {
+    ...snapshotStore,
+    ...symbolStore,
+  };
 
   return {
     importEdges,
+    queryPreparationStore,
     registration,
     snapshotId,
     snapshotStore,
@@ -315,13 +320,13 @@ describe("repo-memory query preparation", () => {
   it.effect("applies bounded variant ranking and emits inspectable selection notes", () =>
     withRuntime(
       Effect.gen(function* () {
-        const { importEdges, registration, snapshotId, snapshotStore, symbolStore } = yield* indexFixtureRepo;
+        const { importEdges, queryPreparationStore, registration, snapshotId } = yield* indexFixtureRepo;
 
         const cases = A.make(
           {
             label: "symbol",
             effect: findSymbolMatches(
-              symbolStore,
+              queryPreparationStore,
               registration.id,
               snapshotId
             )("repo memory answer helper").pipe(
@@ -341,7 +346,7 @@ describe("repo-memory query preparation", () => {
           },
           {
             label: "file",
-            effect: resolveFileCandidates(snapshotStore)(registration.id, snapshotId, "util").pipe(
+            effect: resolveFileCandidates(queryPreparationStore)(registration.id, snapshotId, "util").pipe(
               Effect.map((selection) => ({
                 matches: pipe(
                   selection.matches,
@@ -370,7 +375,7 @@ describe("repo-memory query preparation", () => {
           {
             label: "keyword",
             effect: searchKeywordMatches(
-              symbolStore,
+              queryPreparationStore,
               registration.id,
               snapshotId
             )("repo memory answer helper").pipe(

@@ -1,32 +1,14 @@
-import { Effect, pipe, Schema } from "effect";
-import * as A from "effect/Array";
+import { Cause, Effect, Exit, Schema } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
 import { BowCosineSimilarity } from "../src/Tools/BowCosineSimilarity.ts";
 import { ChunkBySentences } from "../src/Tools/ChunkBySentences.ts";
 import { CreateCorpus } from "../src/Tools/CreateCorpus.ts";
 import { ExtractKeywords } from "../src/Tools/ExtractKeywords.ts";
-import { NlpToolkitLive } from "../src/Tools/NlpToolkit.ts";
 import { TextSimilarity } from "../src/Tools/TextSimilarity.ts";
-import { exportTools } from "../src/Tools/ToolExport.ts";
 import { TverskySimilarity } from "../src/Tools/TverskySimilarity.ts";
-
-const requireTool = (name: string) =>
-  Effect.runPromise(
-    exportTools.pipe(
-      Effect.provide(NlpToolkitLive),
-      Effect.flatMap((tools) =>
-        pipe(
-          tools,
-          A.findFirst((tool) => tool.name === name),
-          O.match({
-            onNone: () => Effect.die(`Missing exported NLP tool: ${name}`),
-            onSome: Effect.succeed,
-          })
-        )
-      )
-    )
-  );
+import { WinkEngine, WinkEngineLive } from "../src/Wink/WinkEngine.ts";
+import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "../src/Wink/WinkPattern.ts";
 
 describe("Tool validation", () => {
   it("rejects fractional keyword limits at the schema boundary", () => {
@@ -83,25 +65,33 @@ describe("Tool validation", () => {
     ).toThrow();
   });
 
-  it("rejects invalid custom-entity bracket patterns during tool execution", async () => {
-    const tool = await requireTool("LearnCustomEntities");
-
-    await expect(
-      Effect.runPromise(
-        tool.handle([
-          undefined,
-          undefined,
-          [
-            {
-              name: "BROKEN_ENTITY",
-              patterns: ["[NOT_A_TAG]"],
-            },
-          ],
-        ])
-      )
-    ).rejects.toMatchObject({
-      _tag: "ExportedToolError",
-      toolName: "LearnCustomEntities",
+  it("rejects invalid custom-entity bracket patterns during engine learning", async () => {
+    const brokenEntities = new WinkEngineCustomEntities({
+      name: EntityGroupName.makeUnsafe("custom-entities"),
+      patterns: [
+        new CustomEntityExample({
+          mark: O.none(),
+          name: "BROKEN_ENTITY",
+          patterns: ["[NOT_A_TAG]"],
+        }),
+      ],
     });
+
+    const result = await Effect.runPromise(
+      Effect.exit(
+        Effect.gen(function* () {
+          const engine = yield* WinkEngine;
+          yield* engine.learnCustomEntities(brokenEntities);
+        }).pipe(Effect.provide(WinkEngineLive))
+      )
+    );
+
+    expect(Exit.isFailure(result)).toBe(true);
+    if (Exit.isFailure(result)) {
+      const rendered = Cause.pretty(result.cause);
+
+      expect(rendered).toContain("learnCustomEntities");
+      expect(rendered).toContain('incorrect token "not_a_tag"');
+    }
   });
 });

@@ -52,7 +52,7 @@ describe("WinkEngineRef", () => {
 
         expect(updatedState.instanceId).not.toBe(initialState.instanceId);
         expect(updatedState.customEntities._tag).toBe("Some");
-        expect(updatedState.customEntities.value.name).toBe("money");
+        expect(O.getOrThrow(updatedState.customEntities).name).toBe("money");
         expect(tokens.map((token) => token.out())).toContain("$");
       }).pipe(Effect.provide(WinkEngineRefBundleLive))
     );

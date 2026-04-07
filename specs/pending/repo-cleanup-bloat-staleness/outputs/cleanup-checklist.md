@@ -48,7 +48,7 @@
 | P2 | Verify local `@beep/docgen` ownership and remove stale docgen references or generated artifacts | `COMPLETED` | 2026-04-07 | Exit gate met: repo-local docgen ownership is proven, `packages/editor/runtime` now has explicit docgen config, stale README guidance was removed, `docgen` plus `lint` and `test` passed, and the existing editor-app `check` blocker was recorded as unrelated |
 | P3 | Prune unused root dependency catalog entries, security exceptions, and orphaned platform or test config | `COMPLETED` | 2026-04-07 | Exit gate met: stale OSV ignores, former workspace-only catalog entries, and the orphaned Playwright lane are removed; broader dependency hygiene findings were logged instead of widened into this phase |
 | P4 | Ranked candidate inventory and incremental cleanup loop | `COMPLETED` | 2026-04-07 | Inventory exhausted: two candidates were intentionally preserved and two approved cleanups landed with verification and per-candidate commits |
-| P5 | Final quality and TrustGraph closeout | `IN_PROGRESS` | 2026-04-07 | P4 inventory loop is exhausted, so final validation and knowledge closeout are now the active phase |
+| P5 | Final quality and TrustGraph closeout | `COMPLETED` | 2026-04-07 | Exit gate met: final `lint`, `check`, `test`, and `check:full` are green, curated TrustGraph sync is recorded, and the repo is ready for review plus optional push confirmation |
 
 ## Candidate Review Ledger
 
@@ -81,6 +81,7 @@
 | 2026-04-07 | Post-P3 editor-app dependency fix baseline | `bun install`; `bun run check --filter=@beep/editor-app`; `bun run build --filter=@beep/editor-app`; `bun run check`; `bun run build` | Success | Resolved the earlier Pigment dependency gap in commit `83166a377d`; P4 starts from a green `check` and `build` baseline |
 | 2026-04-07 | P4 candidate `P4-C02` visual-regression residue cleanup | `rg -n "test:visual|lost-pixel|lostpixel" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'`; `bun run version-sync --skip-network`; `bun install --lockfile-only`; `bun run lint:repo`; `bun run lint`; `bun run test:storybook` | Mixed | Active Lost Pixel refs are gone and repo metadata checks passed; `test:storybook` still fails because Playwright browser binaries are missing from the local environment |
 | 2026-04-07 | P4 candidate `P4-C04` shared-providers cleanup | `rg -n "@beep/shared-providers|shared/providers|shared-providers|@1password/sdk" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'`; `find docs -maxdepth 3 -type f | sort | rg 'shared/providers|shared-providers|providers'`; `bun run config-sync`; `bun run docgen`; `bun run version-sync --skip-network`; `bun install --lockfile-only`; `bun run lint`; `bun run check`; `bun run test` | Success | The shared-providers workspace, its identity and tsconfig wiring, its generated docs, and the root `@1password/sdk` residue are all gone from active repo surfaces |
+| 2026-04-07 | P5 final validation and baseline closeout | `bun run lint`; `bun run check`; `bun run test`; `bun run check:full`; `bun run trustgraph:sync-curated` | Success | Final verification is green on the same tree; P5 also closed the lingering strict-root typecheck issues by tightening the editor-app test boundary, several tests, and the Bun glob shim without leaning on broad type assertions, and curated TrustGraph sync found 34 docs already current with 0 uploads needed |
 
 ## Phase Transition Log
 
@@ -97,6 +98,7 @@
 | 2026-04-07 | P3 | `p3=COMPLETED`, `active_phase=p4` | P3 tracker moved to `COMPLETED`; P4 is now the next active phase | Stale OSV ignores, former workspace-only catalog entries, and the orphaned Playwright lane are removed; broader dependency hygiene findings were deferred instead of widened |
 | 2026-04-07 | P4 | `p4=IN_PROGRESS` | P4 tracker moved to `IN_PROGRESS`; candidate ledger seeded and ranked inventory written | The orchestrator session is active, but no destructive cleanup has started because P4 still requires per-candidate `yes` approval |
 | 2026-04-07 | P4 | `p4=COMPLETED`, `active_phase=p5`, `p5=IN_PROGRESS` | P4 tracker moved to `COMPLETED`; P5 is now the active phase | The ranked inventory is exhausted after two rejections and two approved per-candidate cleanups |
+| 2026-04-07 | P5 | `p5=COMPLETED`, `active_phase=null`, `status=COMPLETED` | P5 tracker moved to `COMPLETED`; final closeout recorded | Repo-wide validation is green, curated TrustGraph sync is recorded, and the cleanup spec is ready for review plus optional push confirmation |
 
 ## Commit Log
 
@@ -108,6 +110,7 @@
 | `fix(editor-app): declare pigment build deps` | Post-P3 repo-baseline dependency fix | `COMPLETED` | Follow-up commit `83166a377d` removed the pre-existing `apps/editor-app` Pigment blocker before P4 inventory work began |
 | `chore(repo): remove stale visual-regression residue` | P4 candidate `P4-C02` approved cleanup | `COMPLETED` | Candidate-scoped cleanup commit for removing the dead Lost Pixel lane and its stale active references |
 | `chore(repo): remove stale shared providers package` | P4 candidate `P4-C04` approved cleanup | `COMPLETED` | Candidate-scoped cleanup commit for removing the unconsumed shared-providers workspace and its stale active references |
+| `chore(repo): close out cleanup validation` | P5 final validation, strict-root baseline fixes, and knowledge closeout | `COMPLETED` | Final closeout commit lands after the verified P5 tree and spec outputs are written |
 
 ## Deferred Findings
 

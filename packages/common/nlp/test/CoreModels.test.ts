@@ -65,20 +65,30 @@ describe("Core models", () => {
     const tokens = [makeToken(0, "Ada", 0, 3), makeToken(1, "Loves", 3, 8), makeToken(2, "Code", 8, 12)];
     const sentence = makeSentence(0, "AdaLovesCode", tokens);
     const document = makeDocument("AdaLovesCode", tokens, [sentence]);
+    const overlappingTokens: Chunk.Chunk<Token> = Document.getTokensInRange(document, 2, 4);
 
-    const overlapping = Chunk.toReadonlyArray(Document.getTokensInRange(document, 2, 4));
+    const overlapping = pipe(
+      overlappingTokens,
+      Chunk.map((token) => token.text),
+      Chunk.toReadonlyArray
+    );
 
-    expect(A.map(overlapping, (token) => token.text)).toEqual(["Ada", "Loves"]);
+    expect(overlapping).toEqual(["Ada", "Loves"]);
   });
 
   it("uses document token indices for sentence range lookups", () => {
     const grace = makeToken(2, "Grace", 10, 15);
     const debugged = makeToken(3, "debugged", 16, 24);
     const sentence = makeSentence(1, "Grace debugged", [grace, debugged]);
+    const rangedTokens: Chunk.Chunk<Token> = Sentence.getTokensInRange(sentence, 2, 3);
 
-    const inRange = Chunk.toReadonlyArray(Sentence.getTokensInRange(sentence, 2, 3));
+    const inRange = pipe(
+      rangedTokens,
+      Chunk.map((token) => token.text),
+      Chunk.toReadonlyArray
+    );
 
-    expect(A.map(inRange, (token) => token.text)).toEqual(["Grace", "debugged"]);
+    expect(inRange).toEqual(["Grace", "debugged"]);
   });
 
   it("rebuilds filtered documents with consistent sentence and index lookups", () => {
@@ -92,19 +102,24 @@ describe("Core models", () => {
       makeSentence(1, "Grace debugged", [grace, debugged]),
     ];
     const document = makeDocument("Ada wrote Grace debugged", tokens, sentences);
-    const filtered = Document.filterTokens(document, (token) => token.index === 0 || token.index === 2);
+    const filtered = Document.filterTokens(document, (token: Token) => token.index === 0 || token.index === 2);
+    const filteredSentences: Chunk.Chunk<Sentence> = filtered.sentences;
 
     expect(filtered.tokenCount).toBe(2);
     expect(filtered.sentenceCount).toBe(2);
     expect(
       pipe(
-        Chunk.toReadonlyArray(filtered.sentences),
-        A.map((sentence) =>
-          pipe(
-            Chunk.toReadonlyArray(sentence.tokens),
-            A.map((token) => token.index)
-          )
-        )
+        filteredSentences,
+        Chunk.map((sentence) => {
+          const sentenceTokens: Chunk.Chunk<Token> = sentence.tokens;
+
+          return pipe(
+            sentenceTokens,
+            Chunk.map((token) => token.index),
+            Chunk.toReadonlyArray
+          );
+        }),
+        Chunk.toReadonlyArray
       )
     ).toEqual([[0], [2]]);
     expect(O.isSome(Document.getTokenByIndex(filtered, ada.index))).toBe(true);

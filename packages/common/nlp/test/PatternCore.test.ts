@@ -27,6 +27,7 @@ import {
   optionalLiteral,
   optionalPos,
   Pattern,
+  type PatternElement,
   PatternFromString,
   POSPatternOption,
   patchReplaceAllLiterals,
@@ -69,9 +70,9 @@ describe("Core Pattern", () => {
     expect(length(extended)).toBe(4);
     expect(length(sliced)).toBe(2);
     expect(Chunk.isChunk(mapElements(base, () => pos("VERB")).elements)).toBe(true);
-    expect(Chunk.isChunk(filterElements(extended, (item) => item._tag !== "LiteralPatternElement").elements)).toBe(
-      true
-    );
+    expect(
+      Chunk.isChunk(filterElements(extended, (item: PatternElement) => item._tag !== "LiteralPatternElement").elements)
+    ).toBe(true);
     expect(hasMark(prependElements(withMark(base, [0, 1]), [literal("the")]))).toBe(false);
   });
 

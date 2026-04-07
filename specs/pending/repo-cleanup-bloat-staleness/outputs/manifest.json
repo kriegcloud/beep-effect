@@ -1,10 +1,10 @@
 {
   "slug": "repo-cleanup-bloat-staleness",
   "title": "Repo Cleanup: Bloat, Staleness, and Duplication",
-  "status": "PENDING",
+  "status": "COMPLETED",
   "created": "2026-04-06",
   "updated": "2026-04-07",
-  "active_phase": "p5",
+  "active_phase": null,
   "status_model": {
     "phase": [
       "BOOTSTRAPPED",
@@ -100,7 +100,7 @@
     },
     "p5": {
       "name": "Final Validation and Knowledge Closeout",
-      "status": "IN_PROGRESS",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P5.md",
       "orchestrator": "handoffs/P5_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p5-final-closeout.md",

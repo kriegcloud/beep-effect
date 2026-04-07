@@ -124,7 +124,7 @@ const makePacket = (retrievedAt: DateTime.Utc) =>
     issue: O.none(),
   });
 
-const unexpectedEffect = <A>(message: string): Effect.Effect<A> => Effect.dieMessage(message);
+const unexpectedEffect = <A>(message: string): Effect.Effect<A> => Effect.die(new Error(message));
 
 describe("repo run projection bootstrap", () => {
   it.effect("hydrates persisted runs through the snapshot-primary read path", () =>
