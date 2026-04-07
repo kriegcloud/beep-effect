@@ -215,6 +215,11 @@ export * from "./Primitive.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Options.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./person/index.ts";
 /**
  * @since 0.0.0
