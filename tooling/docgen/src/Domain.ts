@@ -142,7 +142,7 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
  * @since 0.0.0
  */
 export class Class extends S.Class<Class>($I`Class`)({
-  _tag: S.Literal("Class"),
+  _tag: S.tag("Class"),
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -173,7 +173,6 @@ export class Class extends S.Class<Class>($I`Class`)({
     properties: ReadonlyArray<DocEntry>
   ): Class {
     return new Class({
-      _tag: "Class",
       name,
       doc,
       signature,
@@ -192,7 +191,7 @@ export class Class extends S.Class<Class>($I`Class`)({
  * @since 0.0.0
  */
 export class Interface extends S.Class<Interface>($I`Interface`)({
-  _tag: S.Literal("Interface"),
+  _tag: S.tag("Interface"),
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -208,7 +207,7 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
    * @returns Interface model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position): Interface {
-    return new Interface({ _tag: "Interface", name, doc, signature, position });
+    return new Interface({name, doc, signature, position });
   }
 }
 
@@ -219,7 +218,7 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
  * @since 0.0.0
  */
 export class Function extends S.Class<Function>($I`Function`)({
-  _tag: S.Literal("Function"),
+  _tag: S.tag("Function"),
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -235,7 +234,7 @@ export class Function extends S.Class<Function>($I`Function`)({
    * @returns Function model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position): Function {
-    return new Function({ _tag: "Function", name, doc, signature, position });
+    return new Function({  name, doc, signature, position });
   }
 }
 
@@ -246,7 +245,7 @@ export class Function extends S.Class<Function>($I`Function`)({
  * @since 0.0.0
  */
 export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
-  _tag: S.Literal("TypeAlias"),
+  _tag: S.tag("TypeAlias"),
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -262,7 +261,7 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
    * @returns Type alias model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position): TypeAlias {
-    return new TypeAlias({ _tag: "TypeAlias", name, doc, signature, position });
+    return new TypeAlias({  name, doc, signature, position });
   }
 }
 
@@ -273,7 +272,7 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
  * @since 0.0.0
  */
 export class Constant extends S.Class<Constant>($I`Constant`)({
-  _tag: S.Literal("Constant"),
+  _tag: S.tag("Constant"),
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -289,7 +288,7 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
    * @returns Constant model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position): Constant {
-    return new Constant({ _tag: "Constant", name, doc, signature, position });
+    return new Constant({ name, doc, signature, position });
   }
 }
 
@@ -308,7 +307,7 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
  * @since 0.0.0
  */
 export class Export extends S.Class<Export>($I`Export`)({
-  _tag: S.Literal("Export"),
+  _tag: S.tag("Export"),
   name: S.String,
   doc: Doc,
   signature: S.String,
@@ -326,7 +325,7 @@ export class Export extends S.Class<Export>($I`Export`)({
    * @returns Export model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position, isNamespaceExport: boolean): Export {
-    return new Export({ _tag: "Export", name, doc, signature, position, isNamespaceExport });
+    return new Export({ name, doc, signature, position, isNamespaceExport });
   }
 }
 
@@ -337,7 +336,7 @@ export class Export extends S.Class<Export>($I`Export`)({
  * @since 0.0.0
  */
 export class Namespace extends S.Class<Namespace>($I`Namespace`)({
-  _tag: S.Literal("Namespace"),
+  _tag: S.tag("Namespace"),
   name: S.String,
   doc: Doc,
   position: Position,
@@ -367,7 +366,6 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
     namespaces: ReadonlyArray<Namespace>
   ): Namespace {
     return new Namespace({
-      _tag: "Namespace",
       name,
       doc,
       position,

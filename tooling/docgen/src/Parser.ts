@@ -12,6 +12,7 @@ import * as Str from "effect/String";
 import * as ast from "ts-morph";
 import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
+import {thunkEmptyStr} from "@beep/utils";
 
 const $I = $DocgenId.create("Parser");
 
@@ -68,7 +69,7 @@ export class Source extends ServiceMap.Service<Source, SourceShape>()($I`Source`
 const sortModulesByPath: <A extends Domain.Module>(self: Iterable<A>) => Array<A> = A.sort(Domain.ByPath);
 
 const getJSDocText: (jsdocs: ReadonlyArray<ast.JSDoc>) => string = A.matchRight({
-  onEmpty: () => "",
+  onEmpty: thunkEmptyStr,
   onNonEmpty: (_, last) => last.getText(),
 });
 
@@ -112,7 +113,7 @@ export const parseComment = (text: string): Comment => {
         pipe(
           O.fromNullishOr(tag.description),
           O.map(Str.trim),
-          O.getOrElse(() => "")
+          O.getOrElse(thunkEmptyStr)
         )
       )
     )
@@ -451,7 +452,7 @@ const parseProperty = (pd: ast.PropertyDeclaration) =>
     const readonlyPrefix = pipe(
       O.fromNullishOr(pd.getFirstModifierByKind(ast.ts.SyntaxKind.ReadonlyKeyword)),
       O.match({
-        onNone: () => "",
+        onNone: thunkEmptyStr,
         onSome: () => "readonly ",
       })
     );

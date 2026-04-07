@@ -2,7 +2,7 @@ import { thunkSomeEmptyArray } from "@beep/utils";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
-const ImportKindSchema = S.Union([S.Literal("type"), S.Literal("value")]);
+const ImportKindSchema = S.Literals(["type", "value"]);
 
 type ImportKind = "type" | "value";
 

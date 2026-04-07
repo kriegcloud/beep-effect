@@ -165,7 +165,7 @@ const agentsCheckCommand = Command.make(
     const agentPaths = pipe(
       manifest.files,
       A.map((entry) => entry.path),
-      A.filter((path) => Str.endsWith("AGENTS.md")(path))
+      A.filter(Str.endsWith("AGENTS.md"))
     );
 
     const missingCandidates = yield* Effect.forEach(

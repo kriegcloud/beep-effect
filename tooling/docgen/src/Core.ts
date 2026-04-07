@@ -14,6 +14,7 @@ import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
 import * as Printer from "./Printer.js";
+import {thunkEmptyStr, thunkFalse} from "@beep/utils";
 
 const globFiles = (pattern: string, exclude: ReadonlyArray<string> = []) =>
   Effect.gen(function* () {
@@ -300,7 +301,7 @@ const cleanupExamples = Effect.gen(function* () {
   const config = yield* Configuration.Configuration;
   const path = yield* Path.Path;
   const examplesDir = path.join(config.outDir, "examples");
-  const exists = yield* fs.exists(examplesDir).pipe(Effect.orElseSucceed(() => false));
+  const exists = yield* fs.exists(examplesDir).pipe(Effect.orElseSucceed(thunkFalse));
   if (exists) {
     yield* fs.remove(examplesDir, { recursive: true }).pipe(
       Effect.mapError(
@@ -320,7 +321,7 @@ const collectCommandOutput = (command: ChildProcess.Command) =>
       const output = yield* handle.all.pipe(
         Stream.decodeText(),
         Stream.runFold(
-          () => "",
+          thunkEmptyStr,
           (acc: string, chunk) => `${acc}${chunk}`
         )
       );
@@ -486,7 +487,7 @@ const getMarkdownConfigYML = Effect.gen(function* () {
   const cwd = yield* process.cwd;
   const path = yield* Path.Path;
   const configPath = path.join(cwd, config.outDir, "_config.yml");
-  const exists = yield* fs.exists(configPath).pipe(Effect.orElseSucceed(() => false));
+  const exists = yield* fs.exists(configPath).pipe(Effect.orElseSucceed(thunkFalse));
 
   if (exists) {
     const content = yield* fs.readFileString(configPath).pipe(

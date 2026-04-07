@@ -1,3 +1,4 @@
+import * as A from "effect/Array";
 import type { Rule } from "eslint";
 
 const NON_SCHEMA_TEXT_PATTERN =
@@ -147,7 +148,7 @@ export const schemaFirstRule: Rule.RuleModule = {
         if (node.typeParameters !== undefined || node.typeAnnotation.type !== "TSTypeLiteral") {
           return;
         }
-        if (hasFunctionLikeMembers(node.typeAnnotation.members ?? [])) {
+        if (hasFunctionLikeMembers(node.typeAnnotation.members ?? A.empty())) {
           return;
         }
         const sourceText = getSourceText(context, node);

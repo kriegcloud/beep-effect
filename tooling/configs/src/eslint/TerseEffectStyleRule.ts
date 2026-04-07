@@ -63,10 +63,7 @@ const getMemberCall = (
 
   const callee = expression.callee;
   if (
-    callee.type !== "MemberExpression" ||
-    callee.computed !== false ||
-    !isExpression(callee.object) ||
-    !isIdentifier(callee.object) ||
+    callee.type !== "MemberExpression" || callee.computed || !isExpression(callee.object) || !isIdentifier(callee.object) ||
     !isIdentifier(callee.property)
   ) {
     return O.none();
@@ -157,7 +154,7 @@ const detectFlowViolation = (parameterName: O.Option<string>, expression: ESTree
             O.filter(isExpression),
             O.flatMap(O.liftPredicate(isIdentifier)),
             O.filter((identifier) => identifier.name === resolvedParameterName),
-            O.map(() => toFlowViolation())
+            O.map(toFlowViolation)
           )
         : O.none()
     )

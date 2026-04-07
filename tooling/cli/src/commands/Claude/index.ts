@@ -7,6 +7,7 @@
 
 import { Console, Effect } from "effect";
 import { Command } from "effect/unstable/cli";
+import {thunkUndefined} from "@beep/utils";
 
 /**
  * Keep stop-hook behavior no-op and non-blocking.
@@ -26,7 +27,7 @@ const claudeHookStopCommand = Command.make(
       () =>
         new Promise((resolve) => {
           process.stdin.setEncoding("utf8");
-          process.stdin.on("data", () => undefined);
+          process.stdin.on("data", thunkUndefined);
           process.stdin.on("end", () => {
             resolve();
           });

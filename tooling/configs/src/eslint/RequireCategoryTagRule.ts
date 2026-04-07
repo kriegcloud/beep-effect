@@ -121,7 +121,7 @@ export const requireCategoryTagRule: Rule.RuleModule = {
         O.liftPredicate(isExportedNode)(node),
         O.filter(
           (exportedNode) =>
-            !A.some(getCandidateComments(context.sourceCode, exportedNode), (comment) => hasCategoryTag(comment))
+            !A.some(getCandidateComments(context.sourceCode, exportedNode), hasCategoryTag)
         ),
         O.map(getNodeName)
       );
