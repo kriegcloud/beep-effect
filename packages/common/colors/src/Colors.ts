@@ -218,7 +218,7 @@ export class Colors extends S.Class<Colors>($I`Colors`)(
  * @returns {Colors} - A configured immutable formatter set.
  * @since 0.0.0
  */
-export const createColors = (enabled = isColorSupported): Colors => {
+export const createColors = (enabled: boolean = isColorSupported): Colors => {
   const makeFormatter: typeof formatter = enabled ? formatter : () => stringIdentity;
 
   return new Colors({

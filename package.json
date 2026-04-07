@@ -163,18 +163,6 @@
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
-  "overrides": {
-    "@anthropic-ai/sdk": "0.81.0",
-    "@hono/node-server": "^1.19.11",
-    "autolinker": "^3.11.0",
-    "undici": "^7.24.4",
-    "express-rate-limit": "^8.3.0",
-    "flatted": "^3.4.1",
-    "happy-dom": "^20.8.9",
-    "hono": "^4.12.7",
-    "lodash": "catalog:",
-    "smol-toml": "1.6.1"
-  },
   "catalog": {
     "@noble/hashes": "^2.0.1",
     "@scure/base": "^2.0.0",
@@ -182,6 +170,7 @@
     "eslint-plugin-tsdoc": "^0.5.2",
     "fast-xml-parser": "^5.5.10",
     "zod": "^4.3.6",
+    "@pulumi/pulumi": "^3.229.0",
     "drizzle-orm": "^1.0.0-beta.9-e89174b",
     "@microsoft/tsdoc": "^0.16.0",
     "i18next": "^26.0.3",
