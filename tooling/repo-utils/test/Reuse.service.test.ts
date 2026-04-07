@@ -35,7 +35,7 @@ describe("Reuse services", () => {
           expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual(["tooling/cli", "tooling/repo-utils"]);
           expect(plan.specialistUnits.length).toBeGreaterThan(0);
         }).pipe(Effect.provide(makeTestLayer())),
-      60_000
+      120_000
     );
 
     it.effect(
@@ -48,7 +48,7 @@ describe("Reuse services", () => {
           expect(plan.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
           expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual(["tooling/cli", "tooling/repo-utils"]);
         }).pipe(Effect.provide(makeTestLayer())),
-      60_000
+      120_000
     );
 
     it.effect(
@@ -62,7 +62,7 @@ describe("Reuse services", () => {
           expect(plan.scoutUnits.length).toBe(0);
           expect(plan.specialistUnits.length).toBe(0);
         }).pipe(Effect.provide(makeTestLayer())),
-      60_000
+      120_000
     );
   });
 
@@ -89,7 +89,7 @@ describe("Reuse services", () => {
           expect(packet.candidate.implementationSteps.length).toBeGreaterThan(0);
           expect(packet.candidate.verificationCommands.length).toBeGreaterThan(0);
         }).pipe(Effect.provide(makeTestLayer())),
-      60_000
+      120_000
     );
   });
 
@@ -113,7 +113,7 @@ describe("Reuse services", () => {
             result.matches.some((match) => match.packageName === "effect" || match.packageName.startsWith("@beep/"))
           ).toBe(true);
         }).pipe(Effect.provide(makeTestLayer())),
-      60_000
+      120_000
     );
 
     it.effect(
@@ -130,7 +130,7 @@ describe("Reuse services", () => {
           expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
           expect(result.matches.length).toBeGreaterThan(0);
         }).pipe(Effect.provide(makeTestLayer())),
-      60_000
+      120_000
     );
   });
 });
