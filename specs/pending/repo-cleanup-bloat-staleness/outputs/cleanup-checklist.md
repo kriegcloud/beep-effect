@@ -38,6 +38,8 @@
 | P3 | `handoffs/HANDOFF_P3.md` | `handoffs/P3_ORCHESTRATOR_PROMPT.md` | `outputs/p3-dependency-security-and-platform-pruning.md` |
 | P4 | `handoffs/HANDOFF_P4.md` | `handoffs/P4_ORCHESTRATOR_PROMPT.md` | `outputs/p4-ranked-candidate-inventory.md` |
 | P5 | `handoffs/HANDOFF_P5.md` | `handoffs/P5_ORCHESTRATOR_PROMPT.md` | `outputs/p5-final-closeout.md` |
+| P6 | `handoffs/HANDOFF_P6.md` | `handoffs/P6_ORCHESTRATOR_PROMPT.md` | `outputs/p6-reuse-discovery-design-and-contract.md` |
+| P7 | `handoffs/HANDOFF_P7.md` | `handoffs/P7_ORCHESTRATOR_PROMPT.md` | `outputs/p7-reuse-tool-implementation-and-pilot.md` |
 
 ## Phase Tracker
 
@@ -49,6 +51,8 @@
 | P3 | Prune unused root dependency catalog entries, security exceptions, and orphaned platform or test config | `COMPLETED` | 2026-04-07 | Exit gate met: stale OSV ignores, former workspace-only catalog entries, and the orphaned Playwright lane are removed; broader dependency hygiene findings were logged instead of widened into this phase |
 | P4 | Ranked candidate inventory and incremental cleanup loop | `COMPLETED` | 2026-04-07 | Inventory exhausted: two candidates were intentionally preserved and two approved cleanups landed with verification and per-candidate commits |
 | P5 | Final quality and TrustGraph closeout | `COMPLETED` | 2026-04-07 | Exit gate met: final `lint`, `check`, `test`, `check:full`, and the follow-up `test:storybook` lane are green, curated TrustGraph sync is recorded, and the repo is ready for review plus optional push confirmation |
+| P6 | Reuse-discovery methodology, contracts, and orchestration design | `COMPLETED` | 2026-04-07 | Exit gate met: the `beep reuse` command surface, partition model, catalog strategy, Codex SDK seam, and RAG deferral are documented clearly enough for implementation |
+| P7 | Reuse tool implementation and tooling-stack pilot | `COMPLETED` | 2026-04-07 | Exit gate met: the reuse services, CLI commands, tests, and tooling pilot are implemented and verified without widening into autonomous repo-wide edits |
 
 ## Candidate Review Ledger
 
@@ -83,6 +87,8 @@
 | 2026-04-07 | P4 candidate `P4-C04` shared-providers cleanup | `rg -n "@beep/shared-providers|shared/providers|shared-providers|@1password/sdk" . --glob '!node_modules/**' --glob '!bun.lock' --glob '!specs/**'`; `find docs -maxdepth 3 -type f | sort | rg 'shared/providers|shared-providers|providers'`; `bun run config-sync`; `bun run docgen`; `bun run version-sync --skip-network`; `bun install --lockfile-only`; `bun run lint`; `bun run check`; `bun run test` | Success | The shared-providers workspace, its identity and tsconfig wiring, its generated docs, and the root `@1password/sdk` residue are all gone from active repo surfaces |
 | 2026-04-07 | P5 final validation and baseline closeout | `bun run lint`; `bun run check`; `bun run test`; `bun run check:full`; `bun run trustgraph:sync-curated` | Success | Final verification is green on the same tree; P5 also closed the lingering strict-root typecheck issues by tightening the editor-app test boundary, several tests, and the Bun glob shim without leaning on broad type assertions, and curated TrustGraph sync found 34 docs already current with 0 uploads needed |
 | 2026-04-07 | Post-closeout Storybook follow-up | `bun install`; `bun run test:storybook`; `bun run lint`; `bun run check`; `bun run test`; `bun run build` | Success | The remaining optional Storybook browser-provisioning caveat is resolved: `@beep/ui` now installs the required Playwright Chromium headless shell on demand, the obsolete setup-file warning is gone, and the same tree is green for Storybook plus the standard repo-wide validation set |
+| 2026-04-07 | P6 design and contract work | `bun run codex:hook:session-start`; targeted `sed`; targeted `rg`; targeted `find`; targeted `ps` | Mixed | TrustGraph MCP initialization returned a non-2xx response in this session, so repo-context startup was treated as skipped; the phase still produced the approved reuse-discovery methodology, contracts, and orchestration boundary from local repo evidence |
+| 2026-04-07 | P7 targeted reuse-tool verification | `bunx turbo run check --filter=@beep/repo-utils --filter=@beep/repo-cli`; `bunx turbo run test --filter=@beep/repo-utils --filter=@beep/repo-cli`; `bunx --bun vitest run tooling/repo-utils/test/Reuse.service.test.ts`; `bunx --bun vitest run tooling/cli/test/reuse-command.test.ts`; `bun run beep reuse partitions --scope tooling/cli --json`; `bun run beep reuse inventory --scope tooling/cli --json`; `bun run beep reuse find --file tooling/cli/src/commands/Docgen/index.ts --query json --json`; `bun run beep reuse packet --candidate-id reuse-pattern:schema-json-encode-sync --scope tooling/cli --json`; `bun run beep reuse codex-smoke --json` | Success | The new reuse services and CLI contract are green on the tooling pilot, the full filtered turbo `check` and `test` runs pass, the widened TSMorph timeout budget keeps the shared suite deterministic under the heavier pilot workload, and `tooling/cli` proves real scout, specialist, inventory, find, packet, and Codex smoke output |
 
 ## Phase Transition Log
 
@@ -100,6 +106,9 @@
 | 2026-04-07 | P4 | `p4=IN_PROGRESS` | P4 tracker moved to `IN_PROGRESS`; candidate ledger seeded and ranked inventory written | The orchestrator session is active, but no destructive cleanup has started because P4 still requires per-candidate `yes` approval |
 | 2026-04-07 | P4 | `p4=COMPLETED`, `active_phase=p5`, `p5=IN_PROGRESS` | P4 tracker moved to `COMPLETED`; P5 is now the active phase | The ranked inventory is exhausted after two rejections and two approved per-candidate cleanups |
 | 2026-04-07 | P5 | `p5=COMPLETED`, `active_phase=null`, `status=COMPLETED` | P5 tracker moved to `COMPLETED`; final closeout recorded | Repo-wide validation is green, curated TrustGraph sync is recorded, and the cleanup spec is ready for review plus optional push confirmation |
+| 2026-04-07 | P6 | `status=IN_PROGRESS`, `active_phase=p6`, `p6=IN_PROGRESS` | P6 tracker moved to `IN_PROGRESS` and the spec was reopened for the reuse-discovery extension | The extension stays inside this spec package rather than forking into a separate reuse-discovery spec |
+| 2026-04-07 | P6 | `p6=COMPLETED`, `active_phase=p7`, `p7=IN_PROGRESS` | P6 tracker moved to `COMPLETED`; P7 is now the active phase | The methodology, contracts, and pilot boundary are explicit enough for implementation |
+| 2026-04-07 | P7 | `p7=COMPLETED`, `active_phase=null`, `status=COMPLETED` | P7 tracker moved to `COMPLETED`; the extension closes with the overall spec still `COMPLETED` | The reuse tooling is implemented and pilot-verified without changing the original push-confirmation rule |
 
 ## Commit Log
 

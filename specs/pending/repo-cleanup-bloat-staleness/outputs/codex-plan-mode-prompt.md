@@ -11,8 +11,8 @@ Read these files first:
 - `specs/pending/repo-cleanup-bloat-staleness/QUICK_START.md`
 - `specs/pending/repo-cleanup-bloat-staleness/AGENT_PROMPTS.md`
 - `specs/pending/repo-cleanup-bloat-staleness/outputs/manifest.json`
-- `specs/pending/repo-cleanup-bloat-staleness/handoffs/HANDOFF_P0-P5.md`
-- `specs/pending/repo-cleanup-bloat-staleness/handoffs/P0-P5_ORCHESTRATOR_PROMPT.md`
+- `specs/pending/repo-cleanup-bloat-staleness/handoffs/HANDOFF_P0-P7.md`
+- `specs/pending/repo-cleanup-bloat-staleness/handoffs/P0-P7_ORCHESTRATOR_PROMPT.md`
 
 Then:
 - determine the active phase from `outputs/manifest.json`
@@ -52,14 +52,21 @@ If the active phase is `p4`:
 - do not delete a candidate until I answer `yes`
 - when I answer `yes`, route the approved candidate into a fresh session using `prompts/CANDIDATE_EXECUTOR_PROMPT.md`
 - after the executor cleanup finishes, record verification and the candidate commit, then stop and wait for confirmation before moving to the next candidate
+
+If the active phase is `p6` or `p7`:
+- keep the work focused on reuse-discovery tooling and its contracts
+- do not treat the new tooling as permission for autonomous repo-wide edits
+- preserve the tooling pilot boundary unless the user explicitly broadens it
 ```
 
 ## Phase Router
 
-- Combined router: `handoffs/P0-P5_ORCHESTRATOR_PROMPT.md`
+- Combined router: `handoffs/P0-P7_ORCHESTRATOR_PROMPT.md`
 - P0: `handoffs/P0_ORCHESTRATOR_PROMPT.md`
 - P1: `handoffs/P1_ORCHESTRATOR_PROMPT.md`
 - P2: `handoffs/P2_ORCHESTRATOR_PROMPT.md`
 - P3: `handoffs/P3_ORCHESTRATOR_PROMPT.md`
 - P4: `handoffs/P4_ORCHESTRATOR_PROMPT.md`
 - P5: `handoffs/P5_ORCHESTRATOR_PROMPT.md`
+- P6: `handoffs/P6_ORCHESTRATOR_PROMPT.md`
+- P7: `handoffs/P7_ORCHESTRATOR_PROMPT.md`
