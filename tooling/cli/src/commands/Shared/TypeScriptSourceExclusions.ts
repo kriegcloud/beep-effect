@@ -19,7 +19,6 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
   "/node_modules/",
   "/dist/",
   "/build/",
-  "packages/ai/sdk/tmp/",
   "/coverage/",
   "/storybook-static/",
   "/.next/",

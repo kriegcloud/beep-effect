@@ -241,7 +241,7 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/ai/*", "packages/common/*"],
+              workspaces: ["packages/common/*", "packages/runtime/*"],
             })
           );
 
@@ -259,25 +259,25 @@ describe("Docgen operations", () => {
             })
           );
 
-          const sdkDir = path.join(tmpDir, "packages", "ai", "sdk");
-          yield* fs.makeDirectory(path.join(sdkDir, "src", "claude"), { recursive: true });
+          const runtimeDir = path.join(tmpDir, "packages", "runtime", "server");
+          yield* fs.makeDirectory(path.join(runtimeDir, "src", "internal"), { recursive: true });
           yield* fs.writeFileString(
-            path.join(sdkDir, "package.json"),
+            path.join(runtimeDir, "package.json"),
             encodeJson({
-              name: "@beep/ai-sdk",
+              name: "@beep/runtime-server",
               version: "0.0.0",
               dependencies: {
                 "@beep/schema": "workspace:*",
               },
               exports: {
-                ".": "./src/claude/index.ts",
-                "./*": "./src/claude/*.ts",
+                ".": "./src/internal/index.ts",
+                "./*": "./src/internal/*.ts",
               },
             })
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/ai-sdk");
+          const target = packages.find((pkg) => pkg.name === "@beep/runtime-server");
 
           expect(target).toBeDefined();
 
@@ -285,8 +285,8 @@ describe("Docgen operations", () => {
 
           expect(config.examplesCompilerOptions).toMatchObject({
             paths: {
-              "@beep/ai-sdk": ["../../../packages/ai/sdk/src/claude/index.ts"],
-              "@beep/ai-sdk/*": ["../../../packages/ai/sdk/src/claude/*.ts"],
+              "@beep/runtime-server": ["../../../packages/runtime/server/src/internal/index.ts"],
+              "@beep/runtime-server/*": ["../../../packages/runtime/server/src/internal/*.ts"],
               "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
               "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
             },

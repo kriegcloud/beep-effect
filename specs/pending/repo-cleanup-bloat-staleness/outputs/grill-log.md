@@ -86,3 +86,43 @@ For each entry:
 - **User Answer:** Yes.
 - **Evidence:** Stronger pending specs in this repo already use root operator docs, handoffs, per-phase orchestrator prompts, phase outputs, and a manifest to keep long-running work coherent.
 - **Status:** `resolved`
+
+### G009
+
+- **Question:** Are the four removal targets still live repo workspaces that participate in the root workspace and TypeScript project graphs?
+- **Recommended Answer:** Yes. P1 should assume all four are still active repo surfaces, not already-retired leftovers.
+- **User Answer:** Not asked.
+- **Evidence:** `package.json` workspaces still include `apps/*` and `packages/ai/*`; the directories exist on disk under `apps/clawhole`, `apps/web`, `apps/crypto-taxes`, and `packages/ai/sdk`; `tsconfig.packages.json` and `tsconfig.quality.packages.json` still reference all four targets directly.
+- **Status:** `superseded by codebase evidence`
+
+### G010
+
+- **Question:** Should P1 explicitly treat root aliases, identity composers, standards inventory entries, Playwright wiring, security exceptions, test globs, and lint ignores as active cleanup surfaces instead of assuming workspace deletion alone will clear them?
+- **Recommended Answer:** Yes. The repo has multiple non-generated root and tooling surfaces that still point at the target workspaces and will need deliberate cleanup or regeneration.
+- **User Answer:** Not asked.
+- **Evidence:** `tsconfig.json` still defines `@beep/clawhole`, `@beep/ai-sdk`, and `@beep/docgen`-adjacent path mappings; `packages/common/identity/src/packages.ts` exports identities for `@beep/clawhole` and `@beep/crypto-taxes`; `playwright.config.ts` starts `@beep/web`; `osv-scanner.toml` contains a `crypto-taxes`-specific exception; `tstyche.json`, `package.json` `lint:ox`, `tooling/configs`, `tooling/cli`, and `standards/schema-first.inventory.jsonc` still reference `packages/ai/sdk`.
+- **Status:** `superseded by codebase evidence`
+
+### G011
+
+- **Question:** Does the repo currently own docgen locally through `@beep/docgen`, making P2 a verification-and-cleanup phase for stale assumptions rather than a migration away from an active `@effect/docgen` dependency?
+- **Recommended Answer:** Yes. P2 should prove and preserve the repo-local `@beep/docgen` ownership while only removing genuinely stale `@effect/docgen` assumptions if they still exist.
+- **User Answer:** Not asked.
+- **Evidence:** `tooling/docgen/package.json` names `@beep/docgen`; `tsconfig.json` and `tooling/docgen/docgen.json` map `@beep/docgen` aliases locally; `tooling/cli/package.json` depends on `@beep/docgen`; a repo-wide search finds `@effect/docgen` only inside this cleanup spec package as a question to verify.
+- **Status:** `superseded by codebase evidence`
+
+### G012
+
+- **Question:** For P1-P3, should explicit instruction to start the phase count as approval for all in-scope destructive edits and deletions in that phase, with out-of-phase findings deferred and P4 remaining the only phase that requires per-candidate `yes` approval?
+- **Recommended Answer:** Yes. P1-P3 are already tightly bounded by the phase docs, so phase-start approval is enough; P4 stays stricter because its candidate set is intentionally open-ended.
+- **User Answer:** Yes.
+- **Evidence:** The cleanup spec already constrains P1-P3 by named workspaces, root surfaces, and phase exit gates, while `README.md` explicitly reserves per-candidate approval for P4.
+- **Status:** `resolved`
+
+### G013
+
+- **Question:** Should the default commit cadence remain in force: one commit at the end of each completed implementation phase in P1-P3, one commit per approved candidate in P4, and no push without explicit confirmation?
+- **Recommended Answer:** Yes. The default cadence matches the repo's phased scope and keeps implementation checkpoints reviewable without creating excessive commit churn.
+- **User Answer:** Yes.
+- **Evidence:** `README.md`, `QUICK_START.md`, and `outputs/manifest.json` already define this as the default cadence, and no stronger override was requested.
+- **Status:** `resolved`

@@ -3,8 +3,8 @@
   "title": "Repo Cleanup: Bloat, Staleness, and Duplication",
   "status": "PENDING",
   "created": "2026-04-06",
-  "updated": "2026-04-06",
-  "active_phase": "p0",
+  "updated": "2026-04-07",
+  "active_phase": "p2",
   "status_model": {
     "phase": [
       "BOOTSTRAPPED",
@@ -41,7 +41,7 @@
   "phases": {
     "p0": {
       "name": "Planning, Grilling, and Document Classification",
-      "status": "BOOTSTRAPPED",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P0.md",
       "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p0-planning-and-document-classification.md",
@@ -53,7 +53,7 @@
     },
     "p1": {
       "name": "Targeted Workspace Removal and Managed Artifact Regeneration",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P1.md",
       "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
       "output": "outputs/p1-workspace-removal-and-regeneration.md",
