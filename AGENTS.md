@@ -13,14 +13,12 @@ Build and maintain features with effect first development.
 - Prefer named schema building blocks, derived `S.is(...)` guards, and `LiteralKit` internal domains over ad-hoc predicate helpers.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.
-- TrustGraph is the primary durable repository knowledge base for this repo.
-- Default TrustGraph parameters for repo knowledge and context retrieval: `collection="beep-effect"`, `user="trustgraph"`, `flow_id="default"`.
+- `graphiti-memory` is the primary durable repository knowledge base for this repo.
 - Prefer the repo-local helpers when useful:
-  - `bun run trustgraph:status`
-  - `bun run trustgraph:sync-curated`
-  - `bun run trustgraph:context -- --prompt "<text>"`
   - `bun run codex:hook:session-start`
-- Keep `graphiti-memory` as a fallback for prior-session recall and legacy plus effect-v4 knowledge graph workflows.
+  - `bun run graphiti:proxy`
+  - `bun run graphiti:proxy:ensure`
+- If `graphiti-memory` is unavailable in-session, fall back to repo-local docs, code search, and the checked-in `.codex` and `.claude` guidance.
 - Graphiti memory MCP startup gotcha: the server expects `group_ids` as a list. If the tool wrapper exposes `group_ids` as `string`, pass a JSON array literal string containing `beep-dev` instead of the plain string `beep-dev`.
 - When the user asks questions on differences between effect v3 and effect v4, prefer the `effect-v4` skill and only reach for `graphiti-memory` when the legacy graph adds useful historical context.
 - When working with shadcn in this monorepo, treat the editor app as the app workspace and the shared UI package as the shared base package. Prefer the shadcn skill and the shadcn MCP server for registry discovery and installs.

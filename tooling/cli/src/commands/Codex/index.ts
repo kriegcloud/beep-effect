@@ -7,7 +7,7 @@
 
 import { Console, Effect } from "effect";
 import { Command } from "effect/unstable/cli";
-import { runCodexSessionStartHook } from "../TrustGraph/internal/TrustGraphRuntime.js";
+import { runCodexSessionStartHook } from "./internal/CodexSessionStartRuntime.js";
 
 const codexHookSessionStartCommand = Command.make(
   "hook-session-start",
@@ -15,7 +15,7 @@ const codexHookSessionStartCommand = Command.make(
   Effect.fn(function* () {
     yield* runCodexSessionStartHook;
   })
-).pipe(Command.withDescription("Emit Codex SessionStart hook JSON enriched with TrustGraph startup context"));
+).pipe(Command.withDescription("Emit Codex SessionStart hook JSON enriched with Graphiti-first startup context"));
 
 /**
  * Codex command group.
