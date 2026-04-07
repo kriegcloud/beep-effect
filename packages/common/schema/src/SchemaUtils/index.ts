@@ -9,6 +9,16 @@
  * @since 0.0.0
  * @category Utility
  */
+export * from "./pluck.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
+export * from "./split.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export * from "./withEncodeDefault.ts";
 /**
  * @since 0.0.0
