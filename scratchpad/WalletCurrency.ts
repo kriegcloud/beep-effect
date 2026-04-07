@@ -12,7 +12,7 @@ import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import {CryptoNetwork} from "./index.ts";
+import {CryptoNetwork} from "./CryptoNetwork.ts";
 
 const $I = $ScratchId.create("WalletCurrency");
 
@@ -87,6 +87,42 @@ export const CurrencyChainData = CryptoNetwork.mapMembers((members) => {
   S.toTaggedUnion("network")
 )
 
+type CurrencyMetaInput = {
+  readonly name: string;
+  readonly image: string;
+  readonly apiData?: typeof CurrencyApiData.Encoded;
+  readonly chainData?: ReadonlyArray<typeof CurrencyChainData.Encoded>;
+};
+
+type ExplorerNetwork = Exclude<CryptoNetwork, "BTC">;
+
+const explorerBaseUrlByNetwork: Record<ExplorerNetwork, string> = {
+  ETH: "https://etherscan.com/token/",
+  BNB: "https://bscscan.com/token/",
+  AVALANCHE: "https://snowscan.xyz/token/",
+};
+
+/**
+ * Builds CoinGecko annotation metadata from a coin slug.
+ *
+ * @since 0.0.0
+ */
+const makeCoinGeckoApiData = (coingeckoApiId: string): typeof CurrencyApiData.Encoded => ({
+  coingeckoApiId,
+  coingeckoUrl: `https://www.coingecko.com/en/coins/${coingeckoApiId}`,
+});
+
+/**
+ * Builds contract-backed chain metadata with its canonical block explorer URL.
+ *
+ * @since 0.0.0
+ */
+const makeChainData = <T extends ExplorerNetwork>(network: T, contract: string): typeof CurrencyChainData.Encoded => ({
+  network,
+  contract,
+  currencyExplorerUrl: `${explorerBaseUrlByNetwork[network]}${contract}`,
+});
+
 /**
  * Display metadata attached to wallet currency schema annotations.
  *
@@ -113,15 +149,18 @@ export class CurrencyMeta extends S.Class<CurrencyMeta>($I`CurrencyMeta`)(
    *
    * @since 0.0.0
    */
-  static readonly makeMeta = (input: typeof CurrencyMeta.Encoded): CurrencyMeta => pipe(
+  static readonly makeMeta = (input: CurrencyMetaInput): CurrencyMeta => pipe(
     Result.try(() => new URL(input.image)),
-    Result.flatMap((imageUrl) =>
-      S.decodeResult(CurrencyMeta)({
+    Result.flatMap((imageUrl) => {
+      const encoded: typeof CurrencyMeta.Encoded = {
         name: input.name,
         image: imageUrl.toString(),
-        apiData: input.apiData ?? {},
-      })
-    ),
+        chainData: input.chainData ?? [],
+        ...(input.apiData === undefined ? {} : { apiData: input.apiData }),
+      };
+
+      return S.decodeResult(CurrencyMeta)(encoded);
+    }),
     Result.getOrThrowWith(
       InvalidMetaValueError.make(`Invalid CurrencyMeta for ${input.name}.`)
     )
@@ -173,6 +212,7 @@ export const BTC = S.Literal("BTC").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Bitcoin",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/000/001/original.png?1544730911",
+        apiData: makeCoinGeckoApiData("bitcoin"),
       }),
     })
   )
@@ -199,6 +239,7 @@ export const ETH = S.Literal("ETH").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Ethereum",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/000/003/original.png?1750852760",
+        apiData: makeCoinGeckoApiData("ethereum"),
       }),
     })
   )
@@ -225,6 +266,12 @@ export const USDT = S.Literal("USDT").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Tether",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/000/008/original.png?1544730913",
+        apiData: makeCoinGeckoApiData("tether"),
+        chainData: [
+          makeChainData("ETH", "0xdac17f958d2ee523a2206206994597c13d831ec7"),
+          makeChainData("BNB", "0x55d398326f99059ff775485246999027b3197955"),
+          makeChainData("AVALANCHE", "0x9702230a8ea53601f5cd2dc00fdbc13d4df4a8c7"),
+        ],
       }),
     })
   )
@@ -251,6 +298,7 @@ export const BNB = S.Literal("BNB").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Binance Coin",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/001/749/original.png?1766133402",
+        apiData: makeCoinGeckoApiData("binancecoin"),
       }),
     })
   )
@@ -277,6 +325,12 @@ export const USDC = S.Literal("USDC").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "USD Coin",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/003/054/original.png?1544735408",
+        apiData: makeCoinGeckoApiData("usd-coin"),
+        chainData: [
+          makeChainData("ETH", "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"),
+          makeChainData("BNB", "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d"),
+          makeChainData("AVALANCHE", "0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e"),
+        ],
       }),
     })
   )
@@ -303,6 +357,7 @@ export const AVAX = S.Literal("AVAX").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Avalanche",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/007/737/original.png?1624005686",
+        apiData: makeCoinGeckoApiData("avalanche-2"),
       }),
     })
   )
@@ -329,6 +384,10 @@ export const CRO = S.Literal("CRO").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Cronos",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/003/219/original.png?1673517333",
+        apiData: makeCoinGeckoApiData("crypto-com-chain"),
+        chainData: [
+          makeChainData("ETH", "0xa0b73e1ff0b80914ab6fe0444e65848c4c34450b"),
+        ],
       }),
     })
   )
@@ -355,6 +414,10 @@ export const BUSD = S.Literal("BUSD").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Binance USD",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/004/258/original.png?1569029837",
+        apiData: makeCoinGeckoApiData("binance-peg-busd"),
+        chainData: [
+          makeChainData("BNB", "0xe9e7cea3dedca5984780bafc599bd69add087d56"),
+        ],
       }),
     })
   )
@@ -381,6 +444,10 @@ export const RPL = S.Literal("RPL").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Rocket Pool",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/002/630/original.png?1544735277",
+        apiData: makeCoinGeckoApiData("rocket-pool"),
+        chainData: [
+          makeChainData("ETH", "0xd33526068d116ce69f19a9ee46f0bd304f21a51f"),
+        ],
       }),
     })
   )
@@ -407,6 +474,11 @@ export const SPELL = S.Literal("SPELL").pipe(
       currencyMeta: CurrencyMeta.makeMeta({
         name: "Spell Token",
         image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/053/223/original.png?1629196704",
+        apiData: makeCoinGeckoApiData("spell-token"),
+        chainData: [
+          makeChainData("ETH", "0x090185f2135308bad17527004364ebcc2d37e5f6"),
+          makeChainData("AVALANCHE", "0xce1bffbd5374dac86a2893119683f4911a2f7814"),
+        ],
       }),
     })
   )
@@ -421,84 +493,6 @@ export const SPELL = S.Literal("SPELL").pipe(
 export type SPELL = typeof SPELL.Type;
 
 /**
- * OMG Network ticker schema enriched with display metadata for annotation-driven UI use.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export const OMG = S.Literal("OMG").pipe(
-  S.annotate(
-    $I.annote("OMG", {
-      description: "OMG Network ticker schema enriched with display metadata for annotation-driven UI use.",
-      currencyMeta: CurrencyMeta.makeMeta({
-        name: "OMG Network",
-        image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/001/728/original.png?1624006432",
-      }),
-    })
-  )
-);
-
-/**
- * Runtime type for the OMG Network wallet currency ticker.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export type OMG = typeof OMG.Type;
-
-/**
- * BitClave ticker schema enriched with display metadata for annotation-driven UI use.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export const CAT = S.Literal("CAT").pipe(
-  S.annotate(
-    $I.annote("CAT", {
-      description: "BitClave ticker schema enriched with display metadata for annotation-driven UI use.",
-      currencyMeta: CurrencyMeta.makeMeta({
-        name: "BitClave",
-        image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/002/100/original.png?1544735098",
-      }),
-    })
-  )
-);
-
-/**
- * Runtime type for the BitClave wallet currency ticker.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export type CAT = typeof CAT.Type;
-
-/**
- * Streamr DATAcoin ticker schema enriched with display metadata for annotation-driven UI use.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export const DATA = S.Literal("DATA").pipe(
-  S.annotate(
-      $I.annote("DATA", {
-        description: "Streamr DATAcoin ticker schema enriched with display metadata for annotation-driven UI use.",
-        currencyMeta: CurrencyMeta.makeMeta({
-          name: "Streamr DATAcoin",
-          image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/001/961/original.png?1544735052",
-        }),
-      })
-  )
-);
-
-/**
- * Runtime type for the Streamr DATAcoin wallet currency ticker.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export type DATA = typeof DATA.Type;
-
-/**
  * Magic Internet Money ticker schema enriched with display metadata for annotation-driven UI use.
  *
  * @category DomainModel
@@ -511,6 +505,10 @@ export const MIM = S.Literal("MIM").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "Magic Internet Money",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/079/475/original.png?1632967012",
+          apiData: makeCoinGeckoApiData("magic-internet-money-avalanche"),
+          chainData: [
+            makeChainData("AVALANCHE", "0x130966628846bfd36ff31a822705796e8cb8c18d"),
+          ],
         }),
       })
   )
@@ -537,32 +535,10 @@ export const WMEMO = S.Literal("WMEMO").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "Wrapped MEMO",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/134/106/original.png?1641806653",
-        }),
-      })
-  )
-);
-
-/**
- * Runtime type for the Wrapped MEMO wallet currency ticker.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export type WMEMO = typeof WMEMO.Type;
-
-/**
- * MoonDayPlus ticker schema enriched with display metadata for annotation-driven UI use.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export const MD_PLUS = S.Literal("MD+").pipe(
-  S.annotate(
-      $I.annote("MD+", {
-        description: "MoonDayPlus ticker schema enriched with display metadata for annotation-driven UI use.",
-        currencyMeta: CurrencyMeta.makeMeta({
-          name: "MoonDayPlus",
-          image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/022/870/original.png?1612471058",
+          apiData: makeCoinGeckoApiData("wrapped-memory"),
+          chainData: [
+            makeChainData("AVALANCHE", "0x0da67235dd5787d67955420c84ca1cecd4e5bb3b"),
+          ],
         }),
       })
   )
@@ -589,6 +565,9 @@ export const NMSP = S.Literal("NMSP").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "Nemesis DAO",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/036/032/original.png?1731311562",
+          chainData: [
+            makeChainData("BNB", "0x8ac9dc3358a2db19fdd57f433ff45d1fc357afb3"),
+          ],
         }),
       })
   )
@@ -615,6 +594,9 @@ export const GG = S.Literal("GG").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "GalaxyGoggle DAO",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/022/691/original.png?1638169987",
+          chainData: [
+            makeChainData("BNB", "0xcaf23964ca8db16d816eb314a56789f58fe0e10e"),
+          ],
         }),
       })
   )
@@ -628,31 +610,7 @@ export const GG = S.Literal("GG").pipe(
  */
 export type GG = typeof GG.Type;
 
-/**
- * Web3 Inu ticker schema enriched with display metadata for annotation-driven UI use.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export const WEB3 = S.Literal("WEB3").pipe(
-  S.annotate(
-      $I.annote("WEB3", {
-        description: "Web3 Inu ticker schema enriched with display metadata for annotation-driven UI use.",
-        currencyMeta: CurrencyMeta.makeMeta({
-          name: "Web3 Inu",
-          image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/141/791/original.png?1641324866",
-        }),
-      })
-  )
-);
 
-/**
- * Runtime type for the Web3 Inu wallet currency ticker.
- *
- * @category DomainModel
- * @since 0.0.0
- */
-export type WEB3 = typeof WEB3.Type;
 
 /**
  * WETH ticker schema enriched with display metadata for annotation-driven UI use.
@@ -667,6 +625,10 @@ export const WETH = S.Literal("WETH").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "WETH",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/002/155/original.png?1544735115",
+          apiData: makeCoinGeckoApiData("weth"),
+          chainData: [
+            makeChainData("ETH", "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"),
+          ],
         }),
       })
   )
@@ -693,6 +655,9 @@ export const USDC_E = S.Literal("USDC.E").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "Bridged USDC",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/173/145/original.png?1643717278",
+          chainData: [
+            makeChainData("AVALANCHE", "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664"),
+          ],
         }),
       })
   )
@@ -719,6 +684,9 @@ export const USDT_E = S.Literal("USDT.E").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "Tether Avalanche Bridged",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/173/121/original.png?1643717436",
+          chainData: [
+            makeChainData("AVALANCHE", "0xc7198437980c041c805a1edcba50c1ce5db95118"),
+          ],
         }),
       })
   )
@@ -745,6 +713,9 @@ export const BSGG = S.Literal("BSGG").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "Betswap.gg",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/000/146/602/original.png?1641983021",
+          chainData: [
+            makeChainData("AVALANCHE", "0x63682bdc5f875e9bf69e201550658492c9763f89"),
+          ],
         }),
       })
   )
@@ -771,6 +742,9 @@ export const BLITZ = S.Literal("BLITZ").pipe(
         currencyMeta: CurrencyMeta.makeMeta({
           name: "Blitz Labs",
           image: "https://koinly.s3.amazonaws.com/images/currencies/icons/004/329/389/original.png?1652358113",
+          chainData: [
+            makeChainData("BNB", "0xf376807dcdbaa0d7fa86e7c9eacc58d11ad710e4"),
+          ],
         }),
       })
   )
@@ -806,15 +780,10 @@ export const WalletCurrency = S.Union([
   BUSD,
   RPL,
   SPELL,
-  OMG,
-  CAT,
-  DATA,
   MIM,
   WMEMO,
-  MD_PLUS,
   NMSP,
   GG,
-  WEB3,
   WETH,
   USDC_E,
   USDT_E,

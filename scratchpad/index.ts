@@ -1,8 +1,9 @@
 import { $ScratchId } from "@beep/identity";
 import { Effect, Config, Tuple, pipe, ServiceMap, Layer} from "effect";
 import * as S from "effect/Schema";
-import { TaggedErrorClass, CryptoWalletAddressRedacted, LiteralKit} from "@beep/schema";
+import { TaggedErrorClass, CryptoWalletAddressRedacted,} from "@beep/schema";
 import { dual } from "effect/Function";
+import {CryptoNetwork} from "./CryptoNetwork.ts";
 
 const $I = $ScratchId.create("index");
 
@@ -21,23 +22,6 @@ export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
     message
   }));
 }
-
-export const CryptoNetwork = LiteralKit(
-  [
-    "ETH",
-    "BNB",
-    "AVALANCHE",
-    "BTC"
-  ]
-).pipe(
-  $I.annoteSchema("CryptoNetwork", {
-    description: "Supported blockchain networks for crypto wallet operations."
-  })
-);
-
-export type CryptoNetwork = typeof CryptoNetwork.Type;
-
-
 
 export const OwnedCryptoWallet = CryptoNetwork.mapMembers((members) => {
   const common = {
