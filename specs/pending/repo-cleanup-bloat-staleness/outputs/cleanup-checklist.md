@@ -46,8 +46,8 @@
 | P0 | Plan, grill, and classify active versus historical documentation | `COMPLETED` | 2026-04-06 | Exit gate met; phase boundaries, preservation policy, verification contract, commit cadence, and deletion approval rules are now explicit |
 | P1 | Remove `apps/clawhole`, `apps/web`, `apps/crypto-taxes`, and `packages/ai/sdk`; regenerate managed config and docs | `COMPLETED` | 2026-04-07 | Exit gate met: live workspace refs are removed, managed artifacts were regenerated, `lint` and `test` passed, and broader `build` or `check` failures were recorded as unrelated repo-baseline findings |
 | P2 | Verify local `@beep/docgen` ownership and remove stale docgen references or generated artifacts | `COMPLETED` | 2026-04-07 | Exit gate met: repo-local docgen ownership is proven, `packages/editor/runtime` now has explicit docgen config, stale README guidance was removed, `docgen` plus `lint` and `test` passed, and the existing editor-app `check` blocker was recorded as unrelated |
-| P3 | Prune unused root dependency catalog entries, security exceptions, and orphaned platform or test config | `NOT_STARTED` | 2026-04-06 | Awaiting approved execution plan |
-| P4 | Ranked candidate inventory and incremental cleanup loop | `NOT_STARTED` | 2026-04-06 | Awaiting approved execution plan |
+| P3 | Prune unused root dependency catalog entries, security exceptions, and orphaned platform or test config | `COMPLETED` | 2026-04-07 | Exit gate met: stale OSV ignores, former workspace-only catalog entries, and the orphaned Playwright lane are removed; broader dependency hygiene findings were logged instead of widened into this phase |
+| P4 | Ranked candidate inventory and incremental cleanup loop | `NOT_STARTED` | 2026-04-07 | P3 completed; broader cleanup findings are queued for inventory rather than opportunistic deletion |
 | P5 | Final quality and TrustGraph closeout | `NOT_STARTED` | 2026-04-06 | Awaiting approved execution plan |
 
 ## Candidate Review Ledger
@@ -74,6 +74,7 @@
 | 2026-04-07 | P1 affected-surface mapping | `git status --short`; `sed`; targeted `rg`; `find docs -maxdepth 3 -type f` | Success | Confirmed direct P1 surfaces in root workspace wiring, identity composers, lint and docgen tooling, Playwright config, standards inventory, generated docs, and lockfile; deferred the `apps/crypto-taxes` OSV exception to P3 |
 | 2026-04-07 | P1 regeneration and verification | `bun run config-sync`; `bun run beep lint schema-first --write`; `bun install --lockfile-only`; `bun run version-sync --skip-network`; `bun run purge --lock`; `bun install`; `bun run build`; `bun run docgen`; `bun run lint`; `bun run check`; `bun run test`; `bun run check:full` | Mixed | `lint` and `test` passed after cleanup, `build` and `check` remained blocked by the existing `apps/editor-app` missing `@pigment-css/vite-plugin` dependency, and `check:full` exposed broader repo-baseline typecheck issues plus missing built outputs after the purge/build interruption |
 | 2026-04-07 | P2 docgen verification and cleanup | targeted `sed`; targeted `rg`; targeted `find docs ...`; `bun run beep docgen status --verbose`; `bun run beep docgen init -p packages/editor/runtime --dry-run`; `bun run docgen`; `bun run lint`; `bun run check`; `bun run test` | Mixed | `docgen`, `lint`, and `test` passed; `check` reproduced the pre-existing `apps/editor-app` missing `@pigment-css/vite-plugin` dependency blocker while docgen ownership and generated-doc state were otherwise clean |
+| 2026-04-07 | P3 dependency, security, and platform pruning | targeted `sed`; targeted `rg`; targeted `find`; targeted `node <<'EOF' ... EOF`; `bun run version-sync --skip-network`; `bun install --lockfile-only`; `bun run lint:repo`; `bun run audit:high`; `bun run lint`; `bun run check`; `bun run test`; `bun run build` | Mixed | `version-sync`, `lint:repo`, `audit:high`, `lint`, and `test` passed; `check` and `build` still fail on the pre-existing `apps/editor-app` missing `@pigment-css/vite-plugin` declaration while stale OSV, lockfile, and Playwright drift are otherwise gone |
 
 ## Phase Transition Log
 
@@ -86,6 +87,8 @@
 | 2026-04-07 | P1 | `p1=COMPLETED`, `active_phase=p2` | P1 tracker moved to `COMPLETED`; P2 is now the next active phase | Live workspace refs and managed-artifact drift are removed; unrelated repo-baseline verification failures were documented instead of treated as P1 regressions |
 | 2026-04-07 | P2 | `p2=IN_PROGRESS` | P2 tracker moved to `IN_PROGRESS` | Active P2 execution began to prove repo-local docgen ownership and clean stale docgen-specific assumptions without widening into P3 |
 | 2026-04-07 | P2 | `p2=COMPLETED`, `active_phase=p3` | P2 tracker moved to `COMPLETED`; P3 is now the next active phase | Repo-local docgen ownership is proven, implicit `editor/runtime` participation is formalized, and stale README guidance is removed |
+| 2026-04-07 | P3 | `p3=IN_PROGRESS` | P3 tracker moved to `IN_PROGRESS` | Active P3 execution began to prune only cleanup-caused dependency, security, and orphaned Playwright drift |
+| 2026-04-07 | P3 | `p3=COMPLETED`, `active_phase=p4` | P3 tracker moved to `COMPLETED`; P4 is now the next active phase | Stale OSV ignores, former workspace-only catalog entries, and the orphaned Playwright lane are removed; broader dependency hygiene findings were deferred instead of widened |
 
 ## Commit Log
 
@@ -93,6 +96,7 @@
 |---|---|---|---|
 | `chore(repo): remove deprecated workspaces` | P1 targeted workspace removal and managed-artifact regeneration | `COMPLETED` | Phase commit is created in this session; resolve the exact hash from Git history after the commit lands |
 | `chore(docgen): formalize repo-local ownership` | P2 docgen verification and stale-guidance cleanup | `COMPLETED` | Phase commit is created in this session after verification lands |
+| `chore(repo): prune stale dependency and platform drift` | P3 dependency, security, and platform-config pruning | `COMPLETED` | Phase commit is created in this session after the stale OSV, lockfile, and Playwright surfaces were removed |
 
 ## Deferred Findings
 
@@ -101,3 +105,4 @@
 | 2026-04-07 | P1 | P3 | `osv-scanner.toml` still contains the `apps/crypto-taxes`-specific ignored vulnerability entry | Security-exception cleanup is a P3-owned surface unless the P1 verification commands force earlier removal |
 | 2026-04-07 | P1 | P5 | `apps/editor-app` build and `check` remain blocked by a missing `@pigment-css/vite-plugin` dependency declaration | Verification-only finding; not introduced by the workspace removals |
 | 2026-04-07 | P1 | P5 | `bun run check:full` remains red for broader repo-baseline type and built-output issues | Recorded during P1 verification so final validation has a concrete follow-up list |
+| 2026-04-07 | P3 | P4 | `packages/common/ui` imports `next/link` and `next-themes` without matching `package.json` declarations | Broader dependency hygiene finding discovered while evaluating whether the root `next` catalog entry was removable |
