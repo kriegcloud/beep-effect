@@ -144,6 +144,7 @@
     "p6": "outputs/p6-reuse-discovery-design-and-contract.md",
     "p7": "outputs/p7-reuse-tool-implementation-and-pilot.md"
   },
+  "phase_router": "handoffs/P0-P7_ORCHESTRATOR_PROMPT.md",
   "prompt_assets": {
     "candidate_executor": "prompts/CANDIDATE_EXECUTOR_PROMPT.md",
     "final_validator": "prompts/FINAL_VALIDATOR_PROMPT.md"

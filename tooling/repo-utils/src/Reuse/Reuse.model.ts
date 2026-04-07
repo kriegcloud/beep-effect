@@ -1,8 +1,10 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const $I = $RepoUtilsId.create("Reuse/Reuse.model");
+const emptyArray = (): [] => [];
 
 /**
  * Catalog entry origin domain.
@@ -149,8 +151,14 @@ export class ReuseWorkUnit extends S.Class<ReuseWorkUnit>($I`ReuseWorkUnit`)(
 export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePartitionPlan`)(
   {
     scopeSelector: S.NonEmptyString,
-    scoutUnits: S.Array(ReuseWorkUnit),
-    specialistUnits: S.Array(ReuseWorkUnit),
+    scoutUnits: S.Array(ReuseWorkUnit).pipe(
+      S.withConstructorDefault(() => O.some(emptyArray())),
+      S.withDecodingDefault(emptyArray)
+    ),
+    specialistUnits: S.Array(ReuseWorkUnit).pipe(
+      S.withConstructorDefault(() => O.some(emptyArray())),
+      S.withDecodingDefault(emptyArray)
+    ),
     catalogEntryCount: NonNegativeInt,
   },
   $I.annote("ReusePartitionPlan", {
@@ -198,7 +206,10 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
     generatedAt: S.NonEmptyString,
     catalogEntryCount: NonNegativeInt,
     candidateCount: NonNegativeInt,
-    candidates: S.Array(ReuseCandidate),
+    candidates: S.Array(ReuseCandidate).pipe(
+      S.withConstructorDefault(() => O.some(emptyArray())),
+      S.withDecodingDefault(emptyArray)
+    ),
   },
   $I.annote("ReuseInventory", {
     description: "Ranked and deduplicated reuse inventory for a requested scope.",
@@ -214,7 +225,10 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
 export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
   {
     candidate: ReuseCandidate,
-    catalogMatches: S.Array(ReuseCatalogEntry),
+    catalogMatches: S.Array(ReuseCatalogEntry).pipe(
+      S.withConstructorDefault(() => O.some(emptyArray())),
+      S.withDecodingDefault(emptyArray)
+    ),
   },
   $I.annote("ReusePacket", {
     description: "Structured implementation packet for a single reuse candidate.",
@@ -232,8 +246,14 @@ export class ReuseFindResult extends S.Class<ReuseFindResult>($I`ReuseFindResult
     filePath: S.NonEmptyString,
     query: S.OptionFromNullOr(S.NonEmptyString),
     symbolId: S.OptionFromNullOr(S.NonEmptyString),
-    matches: S.Array(ReuseCatalogEntry),
-    candidateSuggestions: S.Array(ReuseCandidate),
+    matches: S.Array(ReuseCatalogEntry).pipe(
+      S.withConstructorDefault(() => O.some(emptyArray())),
+      S.withDecodingDefault(emptyArray)
+    ),
+    candidateSuggestions: S.Array(ReuseCandidate).pipe(
+      S.withConstructorDefault(() => O.some(emptyArray())),
+      S.withDecodingDefault(emptyArray)
+    ),
   },
   $I.annote("ReuseFindResult", {
     description: "Focused reuse suggestions for a file-local query or symbol lookup.",

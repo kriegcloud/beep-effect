@@ -351,12 +351,14 @@ const matchesScopeSelector = (scope: WorkspaceScope, selectorTokens: ReadonlyArr
     return true;
   }
 
+  const scopePathSegments = scope.packagePath.split("/");
+
   for (const token of selectorTokens) {
     if (
       scope.packageName === token ||
       scope.packagePath === token ||
       scope.packagePath.startsWith(`${token}/`) ||
-      scope.packagePath.includes(token)
+      scopePathSegments.includes(token)
     ) {
       return true;
     }
@@ -798,15 +800,16 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
           )
           .pipe(Effect.option);
 
-        if (O.isNone(sourceTextOption) || O.isNone(outlineOption)) {
+        if (O.isNone(sourceTextOption)) {
           continue;
         }
+        const outlineSymbols = O.isSome(outlineOption) ? outlineOption.value.symbols : [];
 
         const scanned = scanPatternsInFile(
           filePath,
           scope.packagePath,
           sourceTextOption.value.sourceText,
-          outlineOption.value.symbols
+          outlineSymbols
         );
 
         for (const [patternId, occurrences] of scanned.entries()) {

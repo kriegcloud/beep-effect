@@ -14,6 +14,33 @@ import * as S from "effect/Schema";
 const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
 
 /**
+ * Lifecycle stages surfaced by the Codex smoke runner.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export const CodexRunnerStage = S.Union([
+  S.Literal("findRepoRoot"),
+  S.Literal("import"),
+  S.Literal("construct"),
+  S.Literal("startThread"),
+]).pipe(
+  S.annotate(
+    $I.annote("CodexRunnerStage", {
+      description: "Bounded lifecycle stage used when the Codex smoke path fails.",
+    })
+  )
+);
+
+/**
+ * Runtime type for `CodexRunnerStage`.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export type CodexRunnerStage = typeof CodexRunnerStage.Type;
+
+/**
  * Structured result for `beep reuse codex-smoke`.
  *
  * @category DomainModel
@@ -41,7 +68,7 @@ export class CodexSmokeResult extends S.Class<CodexSmokeResult>($I`CodexSmokeRes
 export class CodexRunnerError extends TaggedErrorClass<CodexRunnerError>($I`CodexRunnerError`)(
   "CodexRunnerError",
   {
-    stage: S.NonEmptyString,
+    stage: CodexRunnerStage,
     message: S.NonEmptyString,
   },
   $I.annote("CodexRunnerError", {

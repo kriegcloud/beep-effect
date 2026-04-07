@@ -50,12 +50,7 @@ const printJson = Effect.fn(function* (value: unknown) {
   yield* Console.log(rendered);
 });
 
-type ReuseProgramError =
-  | CodexRunnerError
-  | DomainError
-  | NoSuchFileError
-  | ReuseAnalysisError
-  | ReuseCandidateNotFoundError;
+type ReuseProgramError = DomainError | NoSuchFileError | ReuseAnalysisError | ReuseCandidateNotFoundError;
 
 type ReuseProgramDependencies =
   | FileSystem.FileSystem
@@ -78,10 +73,6 @@ const runReuseProgram = <A>(
 ): Effect.Effect<void, never, ReuseRuntimeContext> =>
   provideReuseServices(effect).pipe(
     Effect.catchTags({
-      CodexRunnerError: Effect.fn(function* (error) {
-        process.exitCode = 1;
-        yield* Console.error(`[reuse] codex-smoke failed during ${error.stage}: ${error.message}`);
-      }),
       DomainError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`[reuse] ${error.message}`);
@@ -99,6 +90,23 @@ const runReuseProgram = <A>(
       NoSuchFileError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`[reuse] missing file while preparing analysis context: ${error.path}`);
+      }),
+    }),
+    Effect.asVoid
+  );
+
+const runCodexSmokeProgram = <A>(
+  effect: Effect.Effect<A, CodexRunnerError | DomainError, FileSystem.FileSystem>
+): Effect.Effect<void, never, FileSystem.FileSystem> =>
+  effect.pipe(
+    Effect.catchTags({
+      CodexRunnerError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`[reuse] codex-smoke failed during ${error.stage}: ${error.message}`);
+      }),
+      DomainError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`[reuse] ${error.message}`);
       }),
     }),
     Effect.asVoid
@@ -263,7 +271,7 @@ const reuseCodexSmokeCommand = Command.make(
     json: jsonFlag,
   },
   ({ json }) =>
-    runReuseProgram(
+    runCodexSmokeProgram(
       Effect.gen(function* () {
         const result = yield* runCodexSmoke;
 

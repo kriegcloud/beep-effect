@@ -18,6 +18,7 @@ import { CodexSmokeResult } from "../src/commands/Reuse/internal/CodexRunner.js"
 
 const runReuseCommand = Command.runWith(reuseCommand, { version: "0.0.0" });
 const TOOLING_CLI_SCOPE = "tooling/cli";
+const CodexSmokeCommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const CommandTestLayer = Layer.mergeAll(
   NodeServices.layer,
   TestConsole.layer,
@@ -159,7 +160,7 @@ describe("reuse command", () => {
         expect(result.sdkPackage).toBe("@openai/codex-sdk");
         expect(result.threadCreated).toBe(true);
         expect(result.threadRunMethodAvailable).toBe(true);
-      }).pipe(Effect.provide(CommandTestLayer))
+      }).pipe(Effect.provide(CodexSmokeCommandTestLayer))
     );
   }, 60_000);
 });

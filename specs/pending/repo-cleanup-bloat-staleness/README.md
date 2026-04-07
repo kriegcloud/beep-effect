@@ -143,6 +143,7 @@ Disagreement is resolved in this order:
 | `bun run beep reuse partitions --scope tooling/cli --json` | P7 pilot verification | proves scout and specialist partition output on the tooling pilot |
 | `bun run beep reuse inventory --scope tooling/cli --json` | P7 pilot verification | proves ranked candidate inventory output on the tooling pilot |
 | `bun run beep reuse find --file tooling/cli/src/commands/Docgen/index.ts --query json --json` | P7 pilot verification | proves local reuse matching against a known hotspot |
+| `bun run beep reuse packet --candidate-id reuse-pattern:schema-json-encode-sync --scope tooling/cli --json` | P7 pilot verification | proves cross-object packet output on the tooling pilot |
 | `bun run beep reuse codex-smoke --json` | P7 pilot verification | validates the Codex SDK seam without running an agent loop |
 
 ## Phase Status Model

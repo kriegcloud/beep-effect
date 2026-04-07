@@ -8,7 +8,7 @@ import {
 } from "@beep/repo-utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { describe, expect, layer } from "@effect/vitest";
+import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
 
@@ -18,34 +18,50 @@ const InfrastructureLayer = Layer.mergeAll(
   FsUtilsLive.pipe(Layer.provideMerge(PlatformLayer)),
   TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer))
 );
-const TestLayer = ReuseServiceSuiteLive.pipe(Layer.provideMerge(InfrastructureLayer));
+const makeTestLayer = () => ReuseServiceSuiteLive.pipe(Layer.provideMerge(InfrastructureLayer));
 const TOOLING_SCOPE = O.some("tooling/cli,tooling/repo-utils");
 
-layer(TestLayer, { timeout: 60_000 })("Reuse services", (it) => {
+describe("Reuse services", () => {
   describe("buildPartitions", () => {
     it.effect(
       "emits scout and specialist work units for the tooling pilot scope",
-      Effect.fn(function* () {
-        const planner = yield* ReusePartitionPlannerService;
-        const plan = yield* planner.buildPartitions(TOOLING_SCOPE);
+      () =>
+        Effect.gen(function* () {
+          const planner = yield* ReusePartitionPlannerService;
+          const plan = yield* planner.buildPartitions(TOOLING_SCOPE);
 
-        expect(plan.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
-        expect(plan.catalogEntryCount).toBeGreaterThan(0);
-        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual(["tooling/cli", "tooling/repo-utils"]);
-        expect(plan.specialistUnits.length).toBeGreaterThan(0);
-      }),
+          expect(plan.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
+          expect(plan.catalogEntryCount).toBeGreaterThan(0);
+          expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual(["tooling/cli", "tooling/repo-utils"]);
+          expect(plan.specialistUnits.length).toBeGreaterThan(0);
+        }).pipe(Effect.provide(makeTestLayer())),
       60_000
     );
 
     it.effect(
       "canonicalizes repo-relative scope selectors before matching workspace scopes",
-      Effect.fn(function* () {
-        const planner = yield* ReusePartitionPlannerService;
-        const plan = yield* planner.buildPartitions(O.some("./tooling/cli,./tooling/repo-utils"));
+      () =>
+        Effect.gen(function* () {
+          const planner = yield* ReusePartitionPlannerService;
+          const plan = yield* planner.buildPartitions(O.some("./tooling/cli,./tooling/repo-utils"));
 
-        expect(plan.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
-        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual(["tooling/cli", "tooling/repo-utils"]);
-      }),
+          expect(plan.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
+          expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual(["tooling/cli", "tooling/repo-utils"]);
+        }).pipe(Effect.provide(makeTestLayer())),
+      60_000
+    );
+
+    it.effect(
+      "does not match raw substrings when filtering workspace scopes",
+      () =>
+        Effect.gen(function* () {
+          const planner = yield* ReusePartitionPlannerService;
+          const plan = yield* planner.buildPartitions(O.some("repo"));
+
+          expect(plan.scopeSelector).toBe("repo");
+          expect(plan.scoutUnits.length).toBe(0);
+          expect(plan.specialistUnits.length).toBe(0);
+        }).pipe(Effect.provide(makeTestLayer())),
       60_000
     );
   });
@@ -53,25 +69,26 @@ layer(TestLayer, { timeout: 60_000 })("Reuse services", (it) => {
   describe("buildInventory and buildPacket", () => {
     it.effect(
       "materializes a consistent inventory and packet for the same candidate",
-      Effect.fn(function* () {
-        const inventoryService = yield* ReuseInventoryService;
-        const inventory = yield* inventoryService.buildInventory(TOOLING_SCOPE);
-        const candidateIds = inventory.candidates.map((candidate) => candidate.candidateId);
-        const firstCandidate = inventory.candidates[0];
+      () =>
+        Effect.gen(function* () {
+          const inventoryService = yield* ReuseInventoryService;
+          const inventory = yield* inventoryService.buildInventory(TOOLING_SCOPE);
+          const candidateIds = inventory.candidates.map((candidate) => candidate.candidateId);
+          const firstCandidate = inventory.candidates[0];
 
-        expect(inventory.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
-        expect(inventory.catalogEntryCount).toBeGreaterThan(0);
-        expect(inventory.candidateCount).toBe(inventory.candidates.length);
-        expect(candidateIds.length).toBeGreaterThan(0);
-        expect(new Set(candidateIds).size).toBe(candidateIds.length);
+          expect(inventory.scopeSelector).toBe("tooling/cli,tooling/repo-utils");
+          expect(inventory.catalogEntryCount).toBeGreaterThan(0);
+          expect(inventory.candidateCount).toBe(inventory.candidates.length);
+          expect(candidateIds.length).toBeGreaterThan(0);
+          expect(new Set(candidateIds).size).toBe(candidateIds.length);
 
-        const packet = yield* inventoryService.buildPacket(firstCandidate.candidateId, TOOLING_SCOPE);
+          const packet = yield* inventoryService.buildPacket(firstCandidate.candidateId, TOOLING_SCOPE);
 
-        expect(packet.candidate.candidateId).toBe(firstCandidate.candidateId);
-        expect(packet.candidate.proposedDestinationPackage.startsWith("@beep/")).toBe(true);
-        expect(packet.candidate.implementationSteps.length).toBeGreaterThan(0);
-        expect(packet.candidate.verificationCommands.length).toBeGreaterThan(0);
-      }),
+          expect(packet.candidate.candidateId).toBe(firstCandidate.candidateId);
+          expect(packet.candidate.proposedDestinationPackage.startsWith("@beep/")).toBe(true);
+          expect(packet.candidate.implementationSteps.length).toBeGreaterThan(0);
+          expect(packet.candidate.verificationCommands.length).toBeGreaterThan(0);
+        }).pipe(Effect.provide(makeTestLayer())),
       60_000
     );
   });
@@ -79,38 +96,40 @@ layer(TestLayer, { timeout: 60_000 })("Reuse services", (it) => {
   describe("findReuseOptions", () => {
     it.effect(
       "returns ranked catalog matches for a local JSON-oriented tooling file query",
-      Effect.fn(function* () {
-        const discovery = yield* ReuseDiscoveryService;
-        const result = yield* discovery.findReuseOptions({
-          filePath: "tooling/cli/src/commands/Docgen/index.ts",
-          query: O.some("json"),
-          symbolId: O.none(),
-        });
+      () =>
+        Effect.gen(function* () {
+          const discovery = yield* ReuseDiscoveryService;
+          const result = yield* discovery.findReuseOptions({
+            filePath: "tooling/cli/src/commands/Docgen/index.ts",
+            query: O.some("json"),
+            symbolId: O.none(),
+          });
 
-        expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
-        expect(O.isSome(result.query)).toBe(true);
-        expect(O.getOrElse(result.query, () => "")).toBe("json");
-        expect(result.matches.length).toBeGreaterThan(0);
-        expect(
-          result.matches.some((match) => match.packageName === "effect" || match.packageName.startsWith("@beep/"))
-        ).toBe(true);
-      }),
+          expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
+          expect(O.isSome(result.query)).toBe(true);
+          expect(O.getOrElse(result.query, () => "")).toBe("json");
+          expect(result.matches.length).toBeGreaterThan(0);
+          expect(
+            result.matches.some((match) => match.packageName === "effect" || match.packageName.startsWith("@beep/"))
+          ).toBe(true);
+        }).pipe(Effect.provide(makeTestLayer())),
       60_000
     );
 
     it.effect(
       "canonicalizes repo-relative file paths before resolving owning workspace scopes",
-      Effect.fn(function* () {
-        const discovery = yield* ReuseDiscoveryService;
-        const result = yield* discovery.findReuseOptions({
-          filePath: "./tooling/cli/src/commands/Docgen/index.ts",
-          query: O.some("json"),
-          symbolId: O.none(),
-        });
+      () =>
+        Effect.gen(function* () {
+          const discovery = yield* ReuseDiscoveryService;
+          const result = yield* discovery.findReuseOptions({
+            filePath: "./tooling/cli/src/commands/Docgen/index.ts",
+            query: O.some("json"),
+            symbolId: O.none(),
+          });
 
-        expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
-        expect(result.matches.length).toBeGreaterThan(0);
-      }),
+          expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
+          expect(result.matches.length).toBeGreaterThan(0);
+        }).pipe(Effect.provide(makeTestLayer())),
       60_000
     );
   });
