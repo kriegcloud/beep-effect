@@ -109,7 +109,7 @@
       "tracker": "outputs/cleanup-checklist.md"
     },
     "p6": {
-      "name": "Reuse-Discovery Design and Contract",
+      "name": "Reuse-Discovery Design And Contract",
       "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P6.md",
       "orchestrator": "handoffs/P6_ORCHESTRATOR_PROMPT.md",
@@ -117,7 +117,7 @@
       "tracker": "outputs/cleanup-checklist.md"
     },
     "p7": {
-      "name": "Reuse Tool Implementation and Tooling-Stack Pilot",
+      "name": "Reuse Tool Implementation And Tooling-Stack Pilot",
       "status": "COMPLETED",
       "handoff": "handoffs/HANDOFF_P7.md",
       "orchestrator": "handoffs/P7_ORCHESTRATOR_PROMPT.md",
