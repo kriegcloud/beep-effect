@@ -155,6 +155,19 @@ export {
   purgeCommand,
 } from "./commands/Purge.js";
 /**
+ * Reuse-discovery command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Reuse-discovery command group.
+   *
+   * @since 0.0.0
+   */
+  reuseCommand,
+} from "./commands/Reuse/index.js";
+/**
  * Root CLI command that composes subcommands.
  *
  * @since 0.0.0

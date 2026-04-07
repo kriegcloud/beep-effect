@@ -300,4 +300,8 @@ export {
    */
   resolveWorkspaceDirs,
 } from "./Workspaces.js";
+/**
+ * @since 0.0.0
+ */
+export * from "./Reuse/index.js";
 // bench

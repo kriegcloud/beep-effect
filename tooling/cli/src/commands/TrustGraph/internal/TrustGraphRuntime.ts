@@ -57,6 +57,7 @@ const repoCliCommandGroups = [
   "laws",
   "lint",
   "purge",
+  "reuse",
   "sync-data-to-ts",
   "topo-sort",
   "trustgraph",

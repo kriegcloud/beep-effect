@@ -65,6 +65,7 @@
     "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/markdown-toc": "catalog:",
+    "@openai/codex-sdk": "catalog:",
     "@effect/platform-node": "catalog:",
     "d3-dsv": "catalog:",
     "doctrine": "catalog:",

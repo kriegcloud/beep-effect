@@ -2,7 +2,7 @@
 
 ## Status
 
-**PENDING**
+**COMPLETED**
 
 ## Owner
 
@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-04-06
-- **Updated:** 2026-04-06
+- **Updated:** 2026-04-07
 
 ## Quick Navigation
 
@@ -25,20 +25,24 @@
 ### Handoffs
 
 - [handoffs/README.md](./handoffs/README.md) — handoff and orchestration index
-- [handoffs/HANDOFF_P0-P5.md](./handoffs/HANDOFF_P0-P5.md) — cross-phase overview handoff
-- [handoffs/HANDOFF_P0.md](./handoffs/HANDOFF_P0.md) — Planning And Document Classification
-- [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md) — Targeted Workspace Removal And Regeneration
-- [handoffs/HANDOFF_P2.md](./handoffs/HANDOFF_P2.md) — Docgen Verification And Cleanup
-- [handoffs/HANDOFF_P3.md](./handoffs/HANDOFF_P3.md) — Dependency, Security, And Platform Pruning
-- [handoffs/HANDOFF_P4.md](./handoffs/HANDOFF_P4.md) — Ranked Candidate Inventory And Approval Loop
-- [handoffs/HANDOFF_P5.md](./handoffs/HANDOFF_P5.md) — Final Validation And Knowledge Closeout
-- [handoffs/P0-P5_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P5_ORCHESTRATOR_PROMPT.md) — combined phase router prompt
+- [handoffs/HANDOFF_P0-P7.md](./handoffs/HANDOFF_P0-P7.md) — cross-phase overview handoff
+- [handoffs/HANDOFF_P0.md](./handoffs/HANDOFF_P0.md)
+- [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md)
+- [handoffs/HANDOFF_P2.md](./handoffs/HANDOFF_P2.md)
+- [handoffs/HANDOFF_P3.md](./handoffs/HANDOFF_P3.md)
+- [handoffs/HANDOFF_P4.md](./handoffs/HANDOFF_P4.md)
+- [handoffs/HANDOFF_P5.md](./handoffs/HANDOFF_P5.md)
+- [handoffs/HANDOFF_P6.md](./handoffs/HANDOFF_P6.md)
+- [handoffs/HANDOFF_P7.md](./handoffs/HANDOFF_P7.md)
+- [handoffs/P0-P7_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P7_ORCHESTRATOR_PROMPT.md) — combined phase router prompt
 - [handoffs/P0_ORCHESTRATOR_PROMPT.md](./handoffs/P0_ORCHESTRATOR_PROMPT.md)
 - [handoffs/P1_ORCHESTRATOR_PROMPT.md](./handoffs/P1_ORCHESTRATOR_PROMPT.md)
 - [handoffs/P2_ORCHESTRATOR_PROMPT.md](./handoffs/P2_ORCHESTRATOR_PROMPT.md)
 - [handoffs/P3_ORCHESTRATOR_PROMPT.md](./handoffs/P3_ORCHESTRATOR_PROMPT.md)
 - [handoffs/P4_ORCHESTRATOR_PROMPT.md](./handoffs/P4_ORCHESTRATOR_PROMPT.md)
 - [handoffs/P5_ORCHESTRATOR_PROMPT.md](./handoffs/P5_ORCHESTRATOR_PROMPT.md)
+- [handoffs/P6_ORCHESTRATOR_PROMPT.md](./handoffs/P6_ORCHESTRATOR_PROMPT.md)
+- [handoffs/P7_ORCHESTRATOR_PROMPT.md](./handoffs/P7_ORCHESTRATOR_PROMPT.md)
 
 ### Outputs
 
@@ -52,6 +56,8 @@
 - [outputs/p3-dependency-security-and-platform-pruning.md](./outputs/p3-dependency-security-and-platform-pruning.md)
 - [outputs/p4-ranked-candidate-inventory.md](./outputs/p4-ranked-candidate-inventory.md)
 - [outputs/p5-final-closeout.md](./outputs/p5-final-closeout.md)
+- [outputs/p6-reuse-discovery-design-and-contract.md](./outputs/p6-reuse-discovery-design-and-contract.md)
+- [outputs/p7-reuse-tool-implementation-and-pilot.md](./outputs/p7-reuse-tool-implementation-and-pilot.md)
 
 ### Prompt Assets
 
@@ -59,43 +65,32 @@
 - [prompts/CANDIDATE_EXECUTOR_PROMPT.md](./prompts/CANDIDATE_EXECUTOR_PROMPT.md) — one-candidate cleanup executor prompt
 - [prompts/FINAL_VALIDATOR_PROMPT.md](./prompts/FINAL_VALIDATOR_PROMPT.md) — final validation and closeout prompt
 
----
-
 ## Purpose
 
 ### Problem
 
-This repo cleanup now spans document-classification policy, targeted workspace deletion, managed artifact regeneration, docgen verification, dependency and security pruning, ranked stale-code review, and final repo-knowledge refresh. Running all of that inside one long Codex session would accumulate too much state and make approval boundaries easy to blur.
+The original repo cleanup needed tight phase boundaries for destructive work, managed artifact regeneration, and final validation. After the cleanup finished, the repo still needed a durable way to discover duplicate logic and reuse opportunities without relying on one-off human memory or ad hoc long-context agent sessions.
 
 ### Solution
 
-This spec package uses the repo's thin canonical phased structure so each Codex session stays narrow:
+This spec package keeps the original cleanup phases and adds two extension phases:
 
 1. planning and document classification
 2. targeted workspace removal and managed artifact regeneration
 3. docgen verification and cleanup
 4. dependency, security, and platform pruning
-5. ranked stale-code inventory and approval-driven cleanup
+5. ranked stale-code review and approval-driven cleanup
 6. final validation and TrustGraph closeout
+7. reuse-discovery design and contract
+8. reuse tool implementation and tooling-stack pilot
 
-Each phase has:
+P6 and P7 intentionally ship tooling first:
 
-- one handoff
-- one orchestrator prompt
-- one named phase output
-- explicit exit gates
-
-P4 is intentionally split into two session types:
-
-- one inventory-orchestrator session that builds and ranks candidates
-- one executor session per approved candidate using `prompts/CANDIDATE_EXECUTOR_PROMPT.md`
-
-### Why It Matters
-
-- Smaller session scope reduces accidental cross-phase scope creep.
-- The grill log, checklist, and phase outputs make resumption and review deterministic.
-- Historical/security documents can be preserved intentionally instead of being rewritten by accident.
-- Managed repo commands are treated as first-class cleanup work instead of optional aftercare.
+- typed JSON contracts for reuse discovery
+- scout and specialist partition planning for future subagents
+- a live reuse catalog and ranked inventory flow
+- a narrow Codex SDK smoke seam
+- a proven tooling pilot without autonomous repo-wide edits
 
 ## Source-Of-Truth Order
 
@@ -107,13 +102,6 @@ Disagreement is resolved in this order:
 4. the named phase outputs in `outputs/`
 5. handoffs and prompt assets
 6. transient session notes
-
-The primary repo-law inputs for this package are:
-
-- `AGENTS.md`
-- root `package.json`
-- repo config files touched by the active phase
-- the current repo state as verified by command-line inspection
 
 ## Working Contract
 
@@ -128,31 +116,34 @@ The primary repo-law inputs for this package are:
 - Update [outputs/manifest.json](./outputs/manifest.json) when a phase starts, blocks, completes, or advances the active phase.
 - Log out-of-phase findings in the checklist or the next relevant phase output instead of widening scope opportunistically.
 - Default commit cadence is:
-  - one commit at the end of each completed implementation phase in P1, P2, and P3
+  - one commit at the end of each completed implementation phase in P1, P2, P3, and P7 when changes were made
   - one commit per approved candidate cleanup in P4
   - no push without explicit user confirmation
-- If the user changes commit cadence in P0, the P0 output overrides the default cadence.
-- Do not push or merge without explicit user confirmation.
+- P6 is a design-and-contract phase and does not require a phase commit unless the user explicitly wants one.
 - In P4, do not remove a candidate until the user answers `yes`.
-- In P4, the orchestrator session builds the inventory and routes approved candidates into fresh executor sessions instead of widening its own scope.
+- In P6 and P7, do not treat the new reuse tooling as permission for autonomous repo-wide edits.
 - Stop at the phase exit gate and do not silently roll into the next phase.
 
 ## Verification Command Matrix
 
 | Command | Run When | Notes |
 |---|---|---|
-| `bun run config-sync` | workspace graph, TS refs, aliases, or managed docgen config change | especially relevant in P1 and any later phase that touches root config |
+| `bun run config-sync` | workspace graph, TS refs, aliases, or managed docgen config change | especially relevant in P1 and later root-config edits |
 | `bun run version-sync --skip-network` | workspace deletion, root dependency catalog drift, or package graph drift exists | use the `--skip-network` form for cleanup work |
-| `bun run docgen` | workspace docs or docgen ownership/config changes | required after P1 and relevant in P2 |
+| `bun run docgen` | workspace docs or docgen ownership/config changes | required after P1 and relevant in P2 or later managed-doc updates |
 | `bun run lint` | any implementation phase changes repo files | summarize result in the phase output |
 | `bun run check` | any implementation phase changes repo files | summarize result in the phase output |
 | `bun run test` | any implementation phase changes repo files | summarize result in the phase output |
-| `bun run check:full` | workspace lists, project references, or root tsconfig wiring change | especially relevant in P1 and any later root-wiring edits |
-| `bun run lint:repo` | root package/dependency graph or repo package metadata changes | especially relevant in P3 |
+| `bun run check:full` | workspace lists, project references, or root tsconfig wiring change | especially relevant in P1 and P5 |
+| `bun run lint:repo` | root package or dependency graph metadata changes | especially relevant in P3 |
 | `bun run audit:high` | dependency catalog, overrides, lockfile, or security-exception surfaces change | especially relevant in P3 |
 | `bun run trustgraph:sync-curated` | final closeout after curated docs or durable repo knowledge changed | required in P5 before the repo is considered push-ready |
-
-If a required command fails due to a pre-existing or unrelated issue, record it explicitly as a blocker with evidence instead of silently downgrading the phase gate.
+| `bunx turbo run check --filter=@beep/repo-utils --filter=@beep/repo-cli` | P7 implementation changes the reuse tool | targeted typecheck gate for the tooling pilot |
+| `bunx turbo run test --filter=@beep/repo-utils --filter=@beep/repo-cli` | P7 implementation changes the reuse tool | targeted test gate for the tooling pilot |
+| `bun run beep reuse partitions --scope tooling/cli --json` | P7 pilot verification | proves scout and specialist partition output on the tooling pilot |
+| `bun run beep reuse inventory --scope tooling/cli --json` | P7 pilot verification | proves ranked candidate inventory output on the tooling pilot |
+| `bun run beep reuse find --file tooling/cli/src/commands/Docgen/index.ts --query json --json` | P7 pilot verification | proves local reuse matching against a known hotspot |
+| `bun run beep reuse codex-smoke --json` | P7 pilot verification | validates the Codex SDK seam without running an agent loop |
 
 ## Phase Status Model
 
@@ -190,38 +181,20 @@ If a phase makes no code or config changes, the output is still required to reco
 
 ### In Scope
 
-- deleting `apps/clawhole`
-- deleting `apps/web`
-- deleting `apps/crypto-taxes`
-- deleting `packages/ai/sdk`
-- removing stale active references from workspaces, root configs, tsconfig refs, path aliases, identity composers, docs, tests, standards, ignores, generated docs, package metadata, and CI or e2e config
-- verifying whether any `@effect/docgen` dependency or stale references still remain
-- removing genuine stale docgen-related references if they still exist
-- pruning root dependency catalog entries, overrides, security exceptions, and now-orphaned platform or test config after workspace removal
-- syncing repo-managed config and curated repo knowledge after cleanup
-- exploring for stale, duplicate, redundant, or low-value code and presenting ranked deletion candidates
-- maintaining durable planning and execution artifacts for the cleanup
+- the original workspace, docgen, dependency, and stale-surface cleanup from P0-P5
+- the `beep reuse` command surface and supporting schemas and services
+- machine-readable partition, inventory, packet, and find-result contracts
+- a narrow Codex SDK smoke adapter for future orchestration
+- a tooling-stack pilot on `tooling/cli` and `tooling/repo-utils`
 
 ### Out Of Scope
 
 - unrelated feature work
-- speculative refactors with no cleanup value
+- speculative refactors with no cleanup or reuse-tooling value
 - merging or pushing without explicit user approval
 - deleting P4 candidates without an explicit `yes`
-- rewriting completed specs, security reports, or historical research just because they reference removed code
-
-## Structural Pattern Reused
-
-This package intentionally reuses the repo's stronger phased-spec pattern:
-
-- normative root README
-- quick-start entrypoint
-- per-phase prompt index
-- reflection log
-- per-phase handoffs and orchestrator prompts
-- per-phase outputs
-- reusable prompt assets
-- machine-readable manifest
+- full autonomous reuse-edit loops
+- embeddings or persistent RAG infrastructure as a hard requirement for P7
 
 ## Phase Breakdown
 
@@ -233,17 +206,21 @@ This package intentionally reuses the repo's stronger phased-spec pattern:
 | P3 | Dependency, security, and platform pruning | `outputs/p3-dependency-security-and-platform-pruning.md` | now-unused catalog entries, vuln exceptions, and platform or test config are pruned and verified |
 | P4 | Ranked candidate inventory and approval loop | `outputs/p4-ranked-candidate-inventory.md` | ranked inventory exists and every approved candidate is processed with verification and checklist updates |
 | P5 | Final validation and knowledge closeout | `outputs/p5-final-closeout.md` | final quality commands pass, curated TrustGraph knowledge is refreshed, and the repo is ready for a user-approved push |
+| P6 | Reuse-discovery design and contract | `outputs/p6-reuse-discovery-design-and-contract.md` | the command surface, partition model, catalog strategy, and implementation boundaries are explicit |
+| P7 | Reuse tool implementation and tooling-stack pilot | `outputs/p7-reuse-tool-implementation-and-pilot.md` | the reuse commands exist, targeted checks and tests pass, and the tooling pilot is evidenced |
 
 ## Architecture Decision Record Summary
 
 | ADR | Decision Surface | Decision | Rationale |
 |---|---|---|---|
 | ADR-001 | Session model | Use one narrow Codex session per phase | Smaller sessions reduce accumulated state and scope drift |
-| ADR-002 | Historical references | Preserve historical/security/research docs by default | Those references often serve as evidence and should not be erased casually |
+| ADR-002 | Historical references | Preserve historical, security, and research docs by default | Those references often serve as evidence and should not be erased casually |
 | ADR-003 | Managed artifacts | Treat repo-managed commands as cleanup work, not optional verification | Workspace deletion is incomplete if managed config and generated docs are stale |
-| ADR-004 | Platform drift | Separate dependency/security/platform pruning into its own phase | Those surfaces tend to be repo-wide and deserve explicit review |
+| ADR-004 | Platform drift | Separate dependency, security, and platform pruning into its own phase | Those surfaces tend to be repo-wide and deserve explicit review |
 | ADR-005 | Approval loop | Process P4 deletions one candidate at a time with user approval and a per-candidate commit | Candidate safety varies and destructive cleanup needs tight control |
 | ADR-006 | Final closeout | Refresh curated TrustGraph knowledge after cleanup | Future sessions should not inherit stale repo context |
+| ADR-007 | Reuse tooling shape | Ship typed discovery tooling before autonomous reuse execution | A strong contract is more reusable than a one-off agent loop |
+| ADR-008 | Retrieval strategy | Start with structural analysis plus curated Effect entries; keep RAG as a seam | Deterministic live analysis is enough for v1 and avoids overbuilding |
 
 ## Success Criteria
 
@@ -256,15 +233,5 @@ This spec package is complete only when all of these statements are true:
 - dependency, security, and platform drift are reviewed as first-class repo-level cleanup
 - the stale-code inventory is ranked, evidence-backed, and approval-driven
 - final validation includes repo quality commands and curated TrustGraph sync
-- historical evidence is preserved intentionally instead of being deleted by blanket search-and-replace
-
-## Initial Operator Entry Point
-
-The intended starting point for a fresh session is:
-
-1. `AGENTS.md`
-2. [QUICK_START.md](./QUICK_START.md)
-3. [outputs/manifest.json](./outputs/manifest.json)
-4. the active phase handoff in `handoffs/`
-5. the matching orchestrator prompt in `handoffs/`
-6. [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md) if a single pasteable entry prompt is needed
+- the reuse-discovery command surface is documented, implemented, and pilot-verified
+- future agent sessions can consume the reuse partitions, inventories, and packets without inventing new contracts
