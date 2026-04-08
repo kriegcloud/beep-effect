@@ -24,7 +24,7 @@ const { dual } = Function;
  * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const TypeId = $I`ThunkUnknown`;
 
@@ -32,7 +32,7 @@ export const TypeId = $I`ThunkUnknown`;
  * Type for {@link TypeId}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TypeId = typeof TypeId;
 
@@ -41,7 +41,7 @@ export type TypeId = typeof TypeId;
  * {@link TypeId}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ThunkUnknown<A = unknown> = Brand.Branded<() => A, TypeId>;
 

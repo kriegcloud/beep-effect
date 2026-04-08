@@ -191,6 +191,13 @@ export const $TypesId = composers.$TypesId;
 /**
  * Identity composer for the `@beep/utils` package.
  *
+ * @example
+ * ```typescript
+ * import { $UtilsId } from "@beep/identity"
+ *
+ * const id = $UtilsId.make("Retry")
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */

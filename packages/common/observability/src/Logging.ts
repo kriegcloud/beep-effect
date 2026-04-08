@@ -61,6 +61,14 @@ export type LogFormat = typeof LogFormat.Type;
 /**
  * Theme palette for the custom pretty logger: `"ocean"`, `"forest"`, `"sunrise"`, or `"mono"`.
  *
+ * @example
+ * ```typescript
+ * import { PrettyLoggerConfig } from "@beep/observability"
+ *
+ * const config = new PrettyLoggerConfig({ theme: "forest", bannerMode: "off" })
+ * void config.theme // "forest"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
