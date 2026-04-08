@@ -25,6 +25,7 @@
     "@1password/connect": "catalog:",
     "@pulumi/command": "catalog:",
     "@pulumi/github": "catalog:",
+    "jsondiffpatch": "^0.7.3",
     "@pulumi/kubernetes": "catalog:",
     "@pulumi/std": "catalog:",
     "@pulumi/tls": "catalog:",
