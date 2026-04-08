@@ -2,6 +2,7 @@
 import {
   type Cause,
   type Channel,
+  Context,
   Data,
   Effect,
   Fiber,
@@ -10,7 +11,6 @@ import {
   pipe,
   Result,
   type Scope,
-  ServiceMap,
   type Sink,
   type Stream,
   type Types,
@@ -68,7 +68,7 @@ declare const fiberStringOrNumber: Fiber.Fiber<string, "err-1"> | Fiber.Fiber<nu
 declare const stringArray: Array<Effect.Effect<string, "err-3", "dep-3">>
 declare const numberRecord: Record<string, Effect.Effect<number, "err-4", "dep-4">>
 
-class AcquireReleaseDependency extends ServiceMap.Service<AcquireReleaseDependency, string>()(
+class AcquireReleaseDependency extends Context.Service<AcquireReleaseDependency, string>()(
   "AcquireReleaseDependency"
 ) {}
 
@@ -287,10 +287,10 @@ describe("Effect.catchNoSuchElement", () => {
   })
 })
 
-describe("Effect.services", () => {
+describe("Effect.context", () => {
   it("defaults R to never", () => {
-    const result = Effect.services()
-    expect(result).type.toBe<Effect.Effect<ServiceMap.ServiceMap<never>, never, never>>()
+    const result = Effect.context()
+    expect(result).type.toBe<Effect.Effect<Context.Context<never>, never, never>>()
   })
 })
 
@@ -737,5 +737,53 @@ describe("all", () => {
     expect(Effect.all(numberRecord, { mode: "result", discard: true })).type.toBe<
       Effect.Effect<void, never, "dep-4">
     >()
+  })
+})
+
+describe("Effect.retry", () => {
+  it("while refinement narrows error type without times", () => {
+    const result = Effect.retry(mixedEffect, {
+      while: (e): e is AiError => e._tag === "AiError"
+    })
+    expect(result).type.toBe<Effect.Effect<string, OtherError>>()
+  })
+
+  it("until refinement narrows error type without times", () => {
+    const result = Effect.retry(mixedEffect, {
+      until: (e): e is AiError => e._tag === "AiError"
+    })
+    expect(result).type.toBe<Effect.Effect<string, AiError>>()
+  })
+
+  it("times with while refinement preserves full error type", () => {
+    const result = Effect.retry(mixedEffect, {
+      times: 3,
+      while: (e): e is AiError => e._tag === "AiError"
+    })
+    expect(result).type.toBe<Effect.Effect<string, AiError | OtherError>>()
+  })
+
+  it("times with until refinement preserves full error type", () => {
+    const result = Effect.retry(mixedEffect, {
+      times: 3,
+      until: (e): e is AiError => e._tag === "AiError"
+    })
+    expect(result).type.toBe<Effect.Effect<string, AiError | OtherError>>()
+  })
+
+  it("times alone preserves full error type", () => {
+    const result = Effect.retry(mixedEffect, { times: 3 })
+    expect(result).type.toBe<Effect.Effect<string, AiError | OtherError>>()
+  })
+
+  it("data-last with times and while refinement preserves full error type", () => {
+    const result = pipe(
+      mixedEffect,
+      Effect.retry({
+        times: 3,
+        while: (e): e is AiError => e._tag === "AiError"
+      })
+    )
+    expect(result).type.toBe<Effect.Effect<string, AiError | OtherError>>()
   })
 })

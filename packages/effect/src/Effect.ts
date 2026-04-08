@@ -71,6 +71,7 @@
 import type * as Arr from "./Array.ts"
 import type * as Cause from "./Cause.ts"
 import type { Clock } from "./Clock.ts"
+import * as Context from "./Context.ts"
 import * as Duration from "./Duration.ts"
 import type { ExecutionPlan } from "./ExecutionPlan.ts"
 import * as Exit from "./Exit.ts"
@@ -98,7 +99,6 @@ import type * as Result from "./Result.ts"
 import type { Schedule } from "./Schedule.ts"
 import type { Scheduler } from "./Scheduler.ts"
 import type { Scope } from "./Scope.ts"
-import * as ServiceMap from "./ServiceMap.ts"
 import type {
   AnySpan,
   ParentSpan,
@@ -3907,6 +3907,7 @@ export declare namespace Retry {
   export type Return<R, E, A, O extends Options<E>> = Effect<
     A,
     | (O extends { schedule: Schedule<infer _O, infer _I, infer _E1, infer _R> } ? E
+      : O extends { times: number } ? E
       : O extends { until: Predicate.Refinement<E, infer E2> } ? E2
       : O extends { while: Predicate.Refinement<E, infer E2> } ? Exclude<E, E2>
       : E)
@@ -4238,9 +4239,9 @@ export const ignoreCause: <
  *
  * @example
  * ```ts
- * import { Effect, ExecutionPlan, Layer, ServiceMap } from "effect"
+ * import { Effect, ExecutionPlan, Layer, Context } from "effect"
  *
- * const Endpoint = ServiceMap.Service<{ url: string }>("Endpoint")
+ * const Endpoint = Context.Service<{ url: string }>("Endpoint")
  *
  * const fetchUrl = Effect.gen(function*() {
  *   const endpoint = yield* Effect.service(Endpoint)
@@ -5513,7 +5514,7 @@ export const isSuccess: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, neve
 // -----------------------------------------------------------------------------
 
 /**
- * Returns the complete service map from the current context.
+ * Returns the complete context.
  *
  * This function allows you to access all services that are currently available
  * in the effect's environment. This can be useful for debugging, introspection,
@@ -5521,57 +5522,57 @@ export const isSuccess: <A, E, R>(self: Effect<A, E, R>) => Effect<boolean, neve
  *
  * @example
  * ```ts
- * import { Console, Effect, Option, ServiceMap } from "effect"
+ * import { Console, Effect, Option, Context } from "effect"
  *
- * const Logger = ServiceMap.Service<{
+ * const Logger = Context.Service<{
  *   log: (msg: string) => void
  * }>("Logger")
- * const Database = ServiceMap.Service<{
+ * const Database = Context.Service<{
  *   query: (sql: string) => string
  * }>("Database")
  *
  * const program = Effect.gen(function*() {
- *   const allServices = yield* Effect.services()
+ *   const allServices = yield* Effect.context()
  *
  *   // Check if specific services are available
- *   const loggerOption = ServiceMap.getOption(allServices, Logger)
- *   const databaseOption = ServiceMap.getOption(allServices, Database)
+ *   const loggerOption = Context.getOption(allServices, Logger)
+ *   const databaseOption = Context.getOption(allServices, Database)
  *
  *   yield* Console.log(`Logger available: ${Option.isSome(loggerOption)}`)
  *   yield* Console.log(`Database available: ${Option.isSome(databaseOption)}`)
  * })
  *
- * const serviceMap = ServiceMap.make(Logger, { log: console.log })
- *   .pipe(ServiceMap.add(Database, { query: () => "result" }))
+ * const context = Context.make(Logger, { log: console.log })
+ *   .pipe(Context.add(Database, { query: () => "result" }))
  *
- * const provided = Effect.provideServices(program, serviceMap)
+ * const provided = Effect.provideContext(program, context)
  * ```
  *
  * @since 2.0.0
  * @category Environment
  */
-export const services: <R = never>() => Effect<ServiceMap.ServiceMap<R>, never, R> = internal.services
+export const context: <R = never>() => Effect<Context.Context<R>, never, R> = internal.context
 
 /**
- * Transforms the current service map using the provided function.
+ * Transforms the current context using the provided function.
  *
- * This function allows you to access the complete service map and perform
+ * This function allows you to access the complete context and perform
  * computations based on all available services. This is useful when you need
  * to conditionally execute logic based on what services are available.
  *
  * @example
  * ```ts
- * import { Console, Effect, Option, ServiceMap } from "effect"
+ * import { Console, Effect, Option, Context } from "effect"
  *
- * const Logger = ServiceMap.Service<{
+ * const Logger = Context.Service<{
  *   log: (msg: string) => void
  * }>("Logger")
- * const Cache = ServiceMap.Service<{
+ * const Cache = Context.Service<{
  *   get: (key: string) => string | null
  * }>("Cache")
  *
- * const program = Effect.servicesWith((services) => {
- *   const cacheOption = ServiceMap.getOption(services, Cache)
+ * const program = Effect.contextWith((services) => {
+ *   const cacheOption = Context.getOption(services, Cache)
  *   const hasCache = Option.isSome(cacheOption)
  *
  *   if (hasCache) {
@@ -5596,9 +5597,9 @@ export const services: <R = never>() => Effect<ServiceMap.ServiceMap<R>, never, 
  * @since 2.0.0
  * @category Environment
  */
-export const servicesWith: <R, A, E, R2>(
-  f: (services: ServiceMap.ServiceMap<R>) => Effect<A, E, R2>
-) => Effect<A, E, R | R2> = internal.servicesWith
+export const contextWith: <R, A, E, R2>(
+  f: (context: Context.Context<R>) => Effect<A, E, R2>
+) => Effect<A, E, R | R2> = internal.contextWith
 
 /**
  * Provides dependencies to an effect using layers or a context. Use `options.local`
@@ -5607,13 +5608,13 @@ export const servicesWith: <R, A, E, R2>(
  *
  * @example
  * ```ts
- * import { Effect, Layer, ServiceMap } from "effect"
+ * import { Effect, Layer, Context } from "effect"
  *
  * interface Database {
  *   readonly query: (sql: string) => Effect.Effect<string>
  * }
  *
- * const Database = ServiceMap.Service<Database>("Database")
+ * const Database = Context.Service<Database>("Database")
  *
  * const DatabaseLive = Layer.succeed(Database)({
  *   query: Effect.fn("Database.query")((sql: string) => Effect.succeed(`Result for: ${sql}`))
@@ -5655,7 +5656,7 @@ export const provide: {
     self: Effect<A, E, R>
   ) => Effect<A, E | E2, RIn | Exclude<R, ROut>>
   <R2>(
-    context: ServiceMap.ServiceMap<R2>
+    context: Context.Context<R2>
   ): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, Exclude<R, R2>>
   <A, E, R, const Layers extends [Layer.Any, ...Array<Layer.Any>]>(
     self: Effect<A, E, R>,
@@ -5677,34 +5678,34 @@ export const provide: {
   ): Effect<A, E | E2, RIn | Exclude<R, ROut>>
   <A, E, R, R2>(
     self: Effect<A, E, R>,
-    context: ServiceMap.ServiceMap<R2>
+    context: Context.Context<R2>
   ): Effect<A, E, Exclude<R, R2>>
 } = internalLayer.provide
 
 /**
- * Provides a service map to an effect, fulfilling its service requirements.
+ * Provides a context to an effect, fulfilling its service requirements.
  *
  * **Details**
  *
- * This function provides multiple services at once by supplying a service map
+ * This function provides multiple services at once by supplying a context
  * that contains all the required services. It removes the provided services
  * from the effect's requirements, making them available to the effect.
  *
  * @example
  * ```ts
- * import { Effect, ServiceMap } from "effect"
+ * import { Effect, Context } from "effect"
  *
  * // Define service keys
- * const Logger = ServiceMap.Service<{
+ * const Logger = Context.Service<{
  *   log: (msg: string) => void
  * }>("Logger")
- * const Database = ServiceMap.Service<{
+ * const Database = Context.Service<{
  *   query: (sql: string) => string
  * }>("Database")
  *
- * // Create service map with multiple services
- * const serviceMap = ServiceMap.make(Logger, { log: console.log })
- *   .pipe(ServiceMap.add(Database, { query: () => "result" }))
+ * // Create a context with multiple services
+ * const context = Context.make(Logger, { log: console.log })
+ *   .pipe(Context.add(Database, { query: () => "result" }))
  *
  * // An effect that requires both services
  * const program = Effect.gen(function*() {
@@ -5714,34 +5715,34 @@ export const provide: {
  *   return db.query("SELECT * FROM users")
  * })
  *
- * const provided = Effect.provideServices(program, serviceMap)
+ * const provided = Effect.provideContext(program, context)
  * ```
  *
  * @since 2.0.0
  * @category Environment
  */
-export const provideServices: {
+export const provideContext: {
   <XR>(
-    context: ServiceMap.ServiceMap<XR>
+    context: Context.Context<XR>
   ): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, Exclude<R, XR>>
   <A, E, R, XR>(
     self: Effect<A, E, R>,
-    context: ServiceMap.ServiceMap<XR>
+    context: Context.Context<XR>
   ): Effect<A, E, Exclude<R, XR>>
-} = internal.provideServices
+} = internal.provideContext
 
 /**
  * Accesses a service from the context.
  *
  * @example
  * ```ts
- * import { Effect, ServiceMap } from "effect"
+ * import { Effect, Context } from "effect"
  *
  * interface Database {
  *   readonly query: (sql: string) => Effect.Effect<string>
  * }
  *
- * const Database = ServiceMap.Service<Database>("Database")
+ * const Database = Context.Service<Database>("Database")
  *
  * const program = Effect.gen(function*() {
  *   const db = yield* Effect.service(Database)
@@ -5750,9 +5751,9 @@ export const provideServices: {
  * ```
  *
  * @since 4.0.0
- * @category ServiceMap
+ * @category Context
  */
-export const service: <I, S>(service: ServiceMap.Key<I, S>) => Effect<S, never, I> = internal.service
+export const service: <I, S>(service: Context.Key<I, S>) => Effect<S, never, I> = internal.service
 
 /**
  * Optionally accesses a service from the environment.
@@ -5766,10 +5767,10 @@ export const service: <I, S>(service: ServiceMap.Key<I, S>) => Effect<S, never, 
  *
  * @example
  * ```ts
- * import { Effect, Option, ServiceMap } from "effect"
+ * import { Effect, Option, Context } from "effect"
  *
  * // Define a service key
- * const Logger = ServiceMap.Service<{
+ * const Logger = Context.Service<{
  *   log: (msg: string) => void
  * }>("Logger")
  *
@@ -5786,9 +5787,9 @@ export const service: <I, S>(service: ServiceMap.Key<I, S>) => Effect<S, never, 
  * ```
  *
  * @since 2.0.0
- * @category ServiceMap
+ * @category Context
  */
-export const serviceOption: <I, S>(key: ServiceMap.Key<I, S>) => Effect<Option<S>> = internal.serviceOption
+export const serviceOption: <I, S>(key: Context.Key<I, S>) => Effect<Option<S>> = internal.serviceOption
 
 /**
  * Provides part of the required context while leaving the rest unchanged.
@@ -5800,13 +5801,13 @@ export const serviceOption: <I, S>(key: ServiceMap.Key<I, S>) => Effect<Option<S
  *
  * @example
  * ```ts
- * import { Effect, ServiceMap } from "effect"
+ * import { Effect, Context } from "effect"
  *
  * // Define services
- * const Logger = ServiceMap.Service<{
+ * const Logger = Context.Service<{
  *   log: (msg: string) => void
  * }>("Logger")
- * const Config = ServiceMap.Service<{
+ * const Config = Context.Service<{
  *   name: string
  * }>("Config")
  *
@@ -5816,8 +5817,8 @@ export const serviceOption: <I, S>(key: ServiceMap.Key<I, S>) => Effect<Option<S
  *
  * // Transform services by providing Config while keeping Logger requirement
  * const configured = program.pipe(
- *   Effect.updateServices((services: ServiceMap.ServiceMap<typeof Logger>) =>
- *     ServiceMap.add(services, Config, { name: "World" })
+ *   Effect.updateContext((context: Context.Context<typeof Logger>) =>
+ *     Context.add(context, Config, { name: "World" })
  *   )
  * )
  *
@@ -5828,27 +5829,27 @@ export const serviceOption: <I, S>(key: ServiceMap.Key<I, S>) => Effect<Option<S
  * ```
  *
  * @since 4.0.0
- * @category ServiceMap
+ * @category Context
  */
-export const updateServices: {
+export const updateContext: {
   <R2, R>(
-    f: (services: ServiceMap.ServiceMap<R2>) => ServiceMap.ServiceMap<NoInfer<R>>
+    f: (context: Context.Context<R2>) => Context.Context<NoInfer<R>>
   ): <A, E>(self: Effect<A, E, R>) => Effect<A, E, R2>
   <A, E, R, R2>(
     self: Effect<A, E, R>,
-    f: (services: ServiceMap.ServiceMap<R2>) => ServiceMap.ServiceMap<NoInfer<R>>
+    f: (context: Context.Context<R2>) => Context.Context<NoInfer<R>>
   ): Effect<A, E, R2>
-} = internal.updateServices
+} = internal.updateContext
 
 /**
  * Updates the service with the required service entry.
  *
  * @example
  * ```ts
- * import { Console, Effect, ServiceMap } from "effect"
+ * import { Console, Effect, Context } from "effect"
  *
  * // Define a counter service
- * const Counter = ServiceMap.Service<{ count: number }>("Counter")
+ * const Counter = Context.Service<{ count: number }>("Counter")
  *
  * const program = Effect.gen(function*() {
  *   const updatedCounter = yield* Effect.service(Counter)
@@ -5866,16 +5867,16 @@ export const updateServices: {
  * ```
  *
  * @since 2.0.0
- * @category ServiceMap
+ * @category Context
  */
 export const updateService: {
   <I, A>(
-    service: ServiceMap.Key<I, A>,
+    service: Context.Key<I, A>,
     f: (value: A) => A
   ): <XA, E, R>(self: Effect<XA, E, R>) => Effect<XA, E, R | I>
   <XA, E, R, I, A>(
     self: Effect<XA, E, R>,
-    service: ServiceMap.Key<I, A>,
+    service: Context.Key<I, A>,
     f: (value: A) => A
   ): Effect<XA, E, R | I>
 } = internal.updateService
@@ -5894,10 +5895,10 @@ export const updateService: {
  *
  * @example
  * ```ts
- * import { Console, Effect, ServiceMap } from "effect"
+ * import { Console, Effect, Context } from "effect"
  *
  * // Define a service for configuration
- * const Config = ServiceMap.Service<{
+ * const Config = Context.Service<{
  *   apiUrl: string
  *   timeout: number
  * }>("Config")
@@ -5923,22 +5924,22 @@ export const updateService: {
  * ```
  *
  * @since 2.0.0
- * @category ServiceMap
+ * @category Context
  */
 export const provideService: {
   <I, S>(
-    service: ServiceMap.Key<I, S>
+    service: Context.Key<I, S>
   ): {
     (implementation: S): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, Exclude<R, I>>
     <A, E, R>(self: Effect<A, E, R>, implementation: S): Effect<A, E, Exclude<R, I>>
   }
   <I, S>(
-    service: ServiceMap.Key<I, S>,
+    service: Context.Key<I, S>,
     implementation: S
   ): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E, Exclude<R, I>>
   <A, E, R, I, S>(
     self: Effect<A, E, R>,
-    service: ServiceMap.Key<I, S>,
+    service: Context.Key<I, S>,
     implementation: S
   ): Effect<A, E, Exclude<R, I>>
 } = internal.provideService
@@ -5955,13 +5956,13 @@ export const provideService: {
  *
  * @example
  * ```ts
- * import { Console, Effect, ServiceMap } from "effect"
+ * import { Console, Effect, Context } from "effect"
  *
  * // Define a database connection service
  * interface DatabaseConnection {
  *   readonly query: (sql: string) => Effect.Effect<string>
  * }
- * const Database = ServiceMap.Service<DatabaseConnection>("Database")
+ * const Database = Context.Service<DatabaseConnection>("Database")
  *
  * // Effect that creates a database connection
  * const createConnection = Effect.gen(function*() {
@@ -5993,16 +5994,16 @@ export const provideService: {
  * ```
  *
  * @since 2.0.0
- * @category ServiceMap
+ * @category Context
  */
 export const provideServiceEffect: {
   <I, S, E2, R2>(
-    service: ServiceMap.Key<I, S>,
+    service: Context.Key<I, S>,
     acquire: Effect<S, E2, R2>
   ): <A, E, R>(self: Effect<A, E, R>) => Effect<A, E | E2, Exclude<R, I> | R2>
   <A, E, R, I, S, E2, R2>(
     self: Effect<A, E, R>,
-    service: ServiceMap.Key<I, S>,
+    service: Context.Key<I, S>,
     acquire: Effect<S, E2, R2>
   ): Effect<A, E | E2, Exclude<R, I> | R2>
 } = internal.provideServiceEffect
@@ -7952,7 +7953,7 @@ export const request: {
 
 /**
  * Low-level entry point that registers a request with a resolver and delivers the exit value via `onExit`.
- * Use this when you already have a `ServiceMap` and need to enqueue a request outside an `Effect`.
+ * Use this when you already have a `Context` and need to enqueue a request outside an `Effect`.
  *
  * It returns a canceler that removes the pending request entry.
  *
@@ -7964,7 +7965,7 @@ export const requestUnsafe: <A extends Request.Any>(
   options: {
     readonly resolver: RequestResolver<A>
     readonly onExit: (exit: Exit.Exit<Request.Success<A>, Request.Error<A>>) => void
-    readonly services: ServiceMap.ServiceMap<never>
+    readonly context: Context.Context<never>
   }
 ) => () => void = internalRequest.requestUnsafe
 
@@ -8313,15 +8314,15 @@ export const runFork: <A, E>(effect: Effect<A, E, never>, options?: RunOptions |
  *
  * @example
  * ```ts
- * import { Effect, ServiceMap } from "effect"
+ * import { Effect, Context } from "effect"
  *
  * interface Logger {
  *   log: (message: string) => void
  * }
  *
- * const Logger = ServiceMap.Service<Logger>("Logger")
+ * const Logger = Context.Service<Logger>("Logger")
  *
- * const services = ServiceMap.make(Logger, {
+ * const services = Context.make(Logger, {
  *   log: (message) => console.log(message)
  * })
  *
@@ -8338,7 +8339,7 @@ export const runFork: <A, E>(effect: Effect<A, E, never>, options?: RunOptions |
  * @category Running Effects
  */
 export const runForkWith: <R>(
-  services: ServiceMap.ServiceMap<R>
+  context: Context.Context<R>
 ) => <A, E>(effect: Effect<A, E, R>, options?: RunOptions | undefined) => Fiber<A, E> = internal.runForkWith
 
 /**
@@ -8348,15 +8349,15 @@ export const runForkWith: <R>(
  *
  * @example
  * ```ts
- * import { Console, Effect, Exit, ServiceMap } from "effect"
+ * import { Console, Effect, Exit, Context } from "effect"
  *
  * interface Logger {
  *   log: (message: string) => Effect.Effect<void>
  * }
  *
- * const Logger = ServiceMap.Service<Logger>("Logger")
+ * const Logger = Context.Service<Logger>("Logger")
  *
- * const services = ServiceMap.make(Logger, {
+ * const services = Context.make(Logger, {
  *   log: (message) => Console.log(message)
  * })
  *
@@ -8382,7 +8383,7 @@ export const runForkWith: <R>(
  * @category Running Effects
  */
 export const runCallbackWith: <R>(
-  services: ServiceMap.ServiceMap<R>
+  context: Context.Context<R>
 ) => <A, E>(
   effect: Effect<A, E, R>,
   options?: (RunOptions & { readonly onExit: (exit: Exit.Exit<A, E>) => void }) | undefined
@@ -8474,15 +8475,15 @@ export const runPromise: <A, E>(
  *
  * @example
  * ```ts
- * import { Effect, ServiceMap } from "effect"
+ * import { Effect, Context } from "effect"
  *
  * interface Config {
  *   apiUrl: string
  * }
  *
- * const Config = ServiceMap.Service<Config>("Config")
+ * const Config = Context.Service<Config>("Config")
  *
- * const services = ServiceMap.make(Config, {
+ * const context = Context.make(Config, {
  *   apiUrl: "https://api.example.com"
  * })
  *
@@ -8491,14 +8492,14 @@ export const runPromise: <A, E>(
  *   return `Connecting to ${config.apiUrl}`
  * })
  *
- * Effect.runPromiseWith(services)(program).then(console.log)
+ * Effect.runPromiseWith(context)(program).then(console.log)
  * ```
  *
  * @since 4.0.0
  * @category Running Effects
  */
 export const runPromiseWith: <R>(
-  services: ServiceMap.ServiceMap<R>
+  context: Context.Context<R>
 ) => <A, E>(effect: Effect<A, E, R>, options?: RunOptions | undefined) => Promise<A> = internal.runPromiseWith
 
 /**
@@ -8558,15 +8559,15 @@ export const runPromiseExit: <A, E>(
  *
  * @example
  * ```ts
- * import { Effect, Exit, ServiceMap } from "effect"
+ * import { Effect, Exit, Context } from "effect"
  *
  * interface Database {
  *   query: (sql: string) => string
  * }
  *
- * const Database = ServiceMap.Service<Database>("Database")
+ * const Database = Context.Service<Database>("Database")
  *
- * const services = ServiceMap.make(Database, {
+ * const services = Context.make(Database, {
  *   query: (sql) => `Result for: ${sql}`
  * })
  *
@@ -8586,7 +8587,7 @@ export const runPromiseExit: <A, E>(
  * @category Running Effects
  */
 export const runPromiseExitWith: <R>(
-  services: ServiceMap.ServiceMap<R>
+  context: Context.Context<R>
 ) => <A, E>(effect: Effect<A, E, R>, options?: RunOptions | undefined) => Promise<Exit.Exit<A, E>> =
   internal.runPromiseExitWith
 
@@ -8654,15 +8655,15 @@ export const runSync: <A, E>(effect: Effect<A, E>) => A = internal.runSync
  *
  * @example
  * ```ts
- * import { Effect, ServiceMap } from "effect"
+ * import { Effect, Context } from "effect"
  *
  * interface MathService {
  *   add: (a: number, b: number) => number
  * }
  *
- * const MathService = ServiceMap.Service<MathService>("MathService")
+ * const MathService = Context.Service<MathService>("MathService")
  *
- * const services = ServiceMap.make(MathService, {
+ * const context = Context.make(MathService, {
  *   add: (a, b) => a + b
  * })
  *
@@ -8671,7 +8672,7 @@ export const runSync: <A, E>(effect: Effect<A, E>) => A = internal.runSync
  *   return math.add(2, 3)
  * })
  *
- * const result = Effect.runSyncWith(services)(program)
+ * const result = Effect.runSyncWith(context)(program)
  * console.log(result) // 5
  * ```
  *
@@ -8679,7 +8680,7 @@ export const runSync: <A, E>(effect: Effect<A, E>) => A = internal.runSync
  * @category Running Effects
  */
 export const runSyncWith: <R>(
-  services: ServiceMap.ServiceMap<R>
+  context: Context.Context<R>
 ) => <A, E>(effect: Effect<A, E, R>) => A = internal.runSyncWith
 
 /**
@@ -8758,10 +8759,10 @@ export const runSyncExit: <A, E>(effect: Effect<A, E>) => Exit.Exit<A, E> = inte
  *
  * @example
  * ```ts
- * import { Effect, Exit, ServiceMap } from "effect"
+ * import { Effect, Exit, Context } from "effect"
  *
  * // Define a logger service
- * const Logger = ServiceMap.Service<{
+ * const Logger = Context.Service<{
  *   log: (msg: string) => void
  * }>("Logger")
  *
@@ -8771,12 +8772,12 @@ export const runSyncExit: <A, E>(effect: Effect<A, E>) => Exit.Exit<A, E> = inte
  *   return 42
  * })
  *
- * // Prepare services
- * const services = ServiceMap.make(Logger, {
+ * // Prepare context
+ * const context = Context.make(Logger, {
  *   log: (msg) => console.log(`[LOG] ${msg}`)
  * })
  *
- * const exit = Effect.runSyncExitWith(services)(program)
+ * const exit = Effect.runSyncExitWith(context)(program)
  *
  * if (Exit.isSuccess(exit)) {
  *   console.log(`Success: ${exit.value}`)
@@ -8792,7 +8793,7 @@ export const runSyncExit: <A, E>(effect: Effect<A, E>) => Exit.Exit<A, E> = inte
  * @category Running Effects
  */
 export const runSyncExitWith: <R>(
-  services: ServiceMap.ServiceMap<R>
+  context: Context.Context<R>
 ) => <A, E>(effect: Effect<A, E, R>) => Exit.Exit<A, E> = internal.runSyncExitWith
 
 // -----------------------------------------------------------------------------
@@ -13759,7 +13760,7 @@ export const trackDuration: {
  * @since 4.0.0
  * @category Transactions
  */
-export class Transaction extends ServiceMap.Service<
+export class Transaction extends Context.Service<
   Transaction,
   {
     retry: boolean
@@ -13819,7 +13820,7 @@ export const tx = <A, E, R>(
   effect: Effect<A, E, R>
 ): Effect<A, E, Exclude<R, Transaction>> =>
   withFiber((fiber) => {
-    if (fiber.services.mapUnsafe.has(Transaction.key)) {
+    if (fiber.context.mapUnsafe.has(Transaction.key)) {
       return effect as Effect<A, E, Exclude<R, Transaction>>
     }
     // Create transaction state only at the outermost boundary
