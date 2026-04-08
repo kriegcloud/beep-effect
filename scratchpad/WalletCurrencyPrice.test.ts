@@ -1,8 +1,18 @@
-import { readFileSync } from "node:fs";
-import { describe, expect, it } from "@effect/vitest";
-import { BigDecimal, Effect, Redacted } from "effect";
+import { $ScratchId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
+import * as NodePath from "@effect/platform-node/NodePath";
+import { describe, expect, layer } from "@effect/vitest";
+import { BigDecimal, Effect, Layer, Redacted, pipe } from "effect";
+import * as A from "effect/Array";
+import * as FileSystem from "effect/FileSystem";
+import * as HashSet from "effect/HashSet";
 import * as O from "effect/Option";
+import * as Order from "effect/Order";
+import * as P from "effect/Predicate";
+import * as Path from "effect/Path";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
   CurrencyPriceApiData,
   getCurrencyMeta,
@@ -11,220 +21,344 @@ import {
   WalletCurrencyValues,
 } from "./WalletCurrency.ts";
 import {
+  CurrencyUsdPriceQuote,
   resolveWalletCurrencyUsdPrice,
-  type WalletCurrencyPriceApiKeys,
 } from "./WalletCurrencyPrice.ts";
+import type { PriceApiProvider as PriceApiProviderType } from "./WalletCurrency.ts";
 
-const uniqueCurrencyTickers = [
-  ...new Set(
-    (JSON.parse(readFileSync(new URL("./currencies.json", import.meta.url), "utf8")) as ReadonlyArray<{ ticker: string }>).map(
-      (currency) => currency.ticker
-    )
-  ),
-].sort();
+const $I = $ScratchId.create("WalletCurrencyPrice.test");
 
-const makeApiKeys = (
-  input?: Partial<{
-    readonly coinGeckoApiKey: string;
-    readonly coinApiApiKey: string;
-    readonly alchemyApiKey: string;
-  }>
-): WalletCurrencyPriceApiKeys => ({
-  coinGeckoApiKey: input?.coinGeckoApiKey === undefined ? O.none() : O.some(Redacted.make(input.coinGeckoApiKey)),
-  coinApiApiKey: input?.coinApiApiKey === undefined ? O.none() : O.some(Redacted.make(input.coinApiApiKey)),
-  alchemyApiKey: input?.alchemyApiKey === undefined ? O.none() : O.some(Redacted.make(input.alchemyApiKey)),
+const TestLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+
+class CurrencyTickerRecord extends S.Class<CurrencyTickerRecord>($I`CurrencyTickerRecord`)(
+  {
+    ticker: S.String,
+  },
+  $I.annote("CurrencyTickerRecord", {
+    description: "Ticker entry loaded from the scratchpad currencies fixture.",
+  })
+) {}
+
+const CurrencyTickerRecords = S.Array(CurrencyTickerRecord).pipe(
+  $I.annoteSchema("CurrencyTickerRecords", {
+    description: "Ticker entries loaded from the scratchpad currencies fixture.",
+  })
+);
+
+const CurrencyTickerRecordsFromJson = S.fromJsonString(CurrencyTickerRecords).pipe(
+  $I.annoteSchema("CurrencyTickerRecordsFromJson", {
+    description: "JSON string wrapper for ticker entries loaded from the scratchpad currencies fixture.",
+  })
+);
+
+class WalletCurrencyPriceApiKeyFixture extends S.Class<WalletCurrencyPriceApiKeyFixture>($I`WalletCurrencyPriceApiKeyFixture`)(
+  {
+    coinGeckoApiKey: S.OptionFromOptionalKey(S.String),
+    coinApiApiKey: S.OptionFromOptionalKey(S.String),
+    alchemyApiKey: S.OptionFromOptionalKey(S.String),
+  },
+  $I.annote("WalletCurrencyPriceApiKeyFixture", {
+    description: "Optional API key fixture inputs for wallet currency price tests.",
+  })
+) {}
+
+class UnexpectedFetchRequestError extends TaggedErrorClass<UnexpectedFetchRequestError>($I`UnexpectedFetchRequestError`)(
+  "UnexpectedFetchRequestError",
+  {
+    url: S.String,
+    message: S.String,
+  },
+  $I.annote("UnexpectedFetchRequestError", {
+    description: "Typed fetch mock error raised when a test issues an unexpected HTTP request.",
+  })
+) {}
+
+const decodeCurrencyPriceApiData = S.decodeUnknownSync(CurrencyPriceApiData);
+const encodeCurrencyPriceApiData = S.encodeSync(CurrencyPriceApiData);
+const decodePriceProviderData = S.decodeUnknownSync(PriceProviderData);
+const encodePriceProviderData = S.encodeSync(PriceProviderData);
+const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+
+const loadUniqueCurrencyTickers = Effect.gen(function* () {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const content = yield* fs.readFileString(path.join("scratchpad", "currencies.json"));
+  const currencies = yield* S.decodeUnknownEffect(CurrencyTickerRecordsFromJson)(content);
+
+  return pipe(currencies, A.map(({ ticker }) => ticker), HashSet.fromIterable, A.fromIterable, A.sort(Order.String));
+}).pipe(Effect.withSpan("WalletCurrencyPriceTest.loadUniqueCurrencyTickers"));
+
+const makeApiKeys = Effect.fn("WalletCurrencyPriceTest.makeApiKeys")(function* (
+  input: typeof WalletCurrencyPriceApiKeyFixture.Encoded = {}
+) {
+  const fixture = yield* S.decodeUnknownEffect(WalletCurrencyPriceApiKeyFixture)(input);
+
+  return {
+    coinGeckoApiKey: pipe(fixture.coinGeckoApiKey, O.map(Redacted.make)),
+    coinApiApiKey: pipe(fixture.coinApiApiKey, O.map(Redacted.make)),
+    alchemyApiKey: pipe(fixture.alchemyApiKey, O.map(Redacted.make)),
+  };
+});
+
+type MockFetchRoute = readonly [contains: string, response: Response];
+
+const toUnexpectedFetchRequestError = (url: string): UnexpectedFetchRequestError =>
+  new UnexpectedFetchRequestError({
+    url,
+    message: `Unexpected request: ${url}`,
+  });
+
+const resolveMockResponse = Effect.fn("WalletCurrencyPriceTest.resolveMockResponse")(function* (
+  input: URL | RequestInfo,
+  routes: ReadonlyArray<MockFetchRoute>
+) {
+  const url = P.isString(input) ? input : input.toString();
+  const response = pipe(
+    routes,
+    A.findFirst(([contains]) => Str.includes(contains)(url)),
+    O.map(([, match]) => match)
+  );
+
+  if (O.isNone(response)) {
+    return yield* Effect.fail(toUnexpectedFetchRequestError(url));
+  }
+
+  return response.value;
 });
 
 const jsonResponse = (body: unknown, status = 200): Response =>
-  new Response(JSON.stringify(body), {
+  new Response(encodeJson(body), {
     status,
     headers: {
       "content-type": "application/json",
     },
   });
 
-describe("WalletCurrency provider metadata", () => {
-  it("covers every unique ticker in currencies.json", () =>
-    expect([...WalletCurrencyValues].sort()).toEqual(uniqueCurrencyTickers));
+const makeFetchMock = (routes: ReadonlyArray<MockFetchRoute>): typeof fetch => {
+  const fetchMock: typeof fetch = (input) => Effect.runPromise(resolveMockResponse(input, routes));
+  fetchMock.preconnect = fetch.preconnect;
+  return fetchMock;
+};
 
-  it("decodes provider-tagged metadata and defaults fallback providers", () => {
-    const decode = S.decodeUnknownSync(CurrencyPriceApiData);
-    const encode = S.encodeSync(CurrencyPriceApiData);
+const expectProviderQuote = Effect.fn("WalletCurrencyPriceTest.expectProviderQuote")(function* (
+  quote: CurrencyUsdPriceQuote,
+  provider: PriceApiProviderType,
+  referenceFragment: string,
+  usdPrice: string
+) {
+  yield* Effect.sync(() => {
+    expect(quote.provenance.kind).toBe("provider");
 
-    const apiData = decode({
-      preferred: {
-        provider: "coinapi",
-        assetId: "BTC",
-      },
-    });
-
-    expect(apiData.preferred.provider).toBe("coinapi");
-    expect(apiData.fallbacks).toEqual([]);
-    expect(encode(apiData)).toEqual({
-      preferred: {
-        provider: "coinapi",
-        assetId: "BTC",
-      },
-      fallbacks: [],
-    });
-  });
-
-  it("round-trips a tagged provider payload", () => {
-    const decode = S.decodeUnknownSync(PriceProviderData);
-    const encode = S.encodeSync(PriceProviderData);
-
-    const provider = decode({
-      provider: "alchemy",
-      lookup: "contract",
-      network: "AVALANCHE",
-    });
-
-    expect(provider.provider).toBe("alchemy");
-    expect(encode(provider)).toEqual({
-      provider: "alchemy",
-      lookup: "contract",
-      network: "AVALANCHE",
-    });
-  });
-
-  it("configures annotation metadata for every wallet currency", () => {
-    for (const currency of WalletCurrencyValues) {
-      const meta = getCurrencyMeta(currency);
-
-      expect(meta.name.length).toBeGreaterThan(0);
+    if (quote.provenance.kind !== "provider") {
+      expect.fail("Expected provider provenance.");
+      return;
     }
-  });
 
-  it("keeps contract-backed fallback metadata for unresolved bridge assets", () => {
-    const usdcBridgeMeta = WalletCurrencyMetaByTicker["USDC.E"];
-
-    expect(O.isSome(usdcBridgeMeta.apiData)).toBe(true);
-
-    if (O.isSome(usdcBridgeMeta.apiData)) {
-      expect(usdcBridgeMeta.apiData.value.preferred.provider).toBe("alchemy");
-    }
+    expect(quote.provenance.provider).toBe(provider);
+    expect(Str.includes(referenceFragment)(quote.provenance.reference)).toBe(true);
+    expect(BigDecimal.format(quote.usdPrice)).toBe(usdPrice);
   });
 });
 
-describe("resolveWalletCurrencyUsdPrice", () => {
-  it("returns a static USD quote for USD", async () => {
-    const quote = await Effect.runPromise(resolveWalletCurrencyUsdPrice("USD"));
+layer(TestLayer)("WalletCurrencyPrice", (it) => {
+  describe("WalletCurrency provider metadata", () => {
+    it.effect(
+      "covers every unique ticker in currencies.json",
+      Effect.fn("WalletCurrencyPriceTest.coversEveryUniqueTicker")(function* () {
+        const uniqueCurrencyTickers = yield* loadUniqueCurrencyTickers;
 
-    expect(BigDecimal.format(quote.usdPrice)).toBe("1");
-    expect(quote.provenance.kind).toBe("static");
-  });
+        yield* Effect.sync(() => expect(pipe(WalletCurrencyValues, A.sort(Order.String))).toEqual(uniqueCurrencyTickers));
+      })
+    );
 
-  it("uses the preferred CoinGecko provider when it succeeds", async () => {
-    const fetchMock: typeof fetch = async (input) => {
-      const url = typeof input === "string" ? input : input.toString();
-
-      if (url.includes("coingecko")) {
-        return jsonResponse({
-          bitcoin: {
-            usd: 70234.12,
-            last_updated_at: 1_710_000_000,
+    it.effect(
+      "decodes provider-tagged metadata and defaults fallback providers",
+      Effect.fn("WalletCurrencyPriceTest.decodesProviderTaggedMetadata")(function* () {
+        const apiData = decodeCurrencyPriceApiData({
+          preferred: {
+            provider: "coinapi",
+            assetId: "BTC",
           },
         });
-      }
 
-      throw new Error(`Unexpected request: ${url}`);
-    };
-
-    const quote = await Effect.runPromise(
-      resolveWalletCurrencyUsdPrice("BTC", {
-        apiKeys: makeApiKeys({
-          coinGeckoApiKey: "coin-gecko-key",
-        }),
-        fetch: fetchMock,
+        yield* Effect.sync(() => {
+          expect(apiData.preferred.provider).toBe("coinapi");
+          expect(apiData.fallbacks).toEqual([]);
+          expect(encodeCurrencyPriceApiData(apiData)).toEqual({
+            preferred: {
+              provider: "coinapi",
+              assetId: "BTC",
+            },
+            fallbacks: [],
+          });
+        });
       })
     );
 
-    expect(quote.provenance.kind).toBe("provider");
-    if (quote.provenance.kind === "provider") {
-      expect(quote.provenance.provider).toBe("coingecko");
-      expect(quote.provenance.reference).toBe("coin:bitcoin");
-    }
-    expect(BigDecimal.format(quote.usdPrice)).toBe("70234.12");
+    it.effect(
+      "round-trips a tagged provider payload",
+      Effect.fn("WalletCurrencyPriceTest.roundTripsTaggedProviderPayload")(function* () {
+        const provider = decodePriceProviderData({
+          provider: "alchemy",
+          lookup: "contract",
+          network: "AVALANCHE",
+        });
+
+        yield* Effect.sync(() => {
+          expect(provider.provider).toBe("alchemy");
+          expect(encodePriceProviderData(provider)).toEqual({
+            provider: "alchemy",
+            lookup: "contract",
+            network: "AVALANCHE",
+          });
+        });
+      })
+    );
+
+    it.effect(
+      "requires an EVM network for alchemy contract lookups",
+      Effect.fn("WalletCurrencyPriceTest.requiresEvmNetwork")(function* () {
+        const error = yield* S.decodeUnknownEffect(PriceProviderData)({
+          provider: "alchemy",
+          lookup: "contract",
+        }).pipe(Effect.flip);
+
+        yield* Effect.sync(() => expect(error).toBeDefined());
+      })
+    );
+
+    it.effect(
+      "configures annotation metadata for every wallet currency",
+      Effect.fn("WalletCurrencyPriceTest.configuresAnnotationMetadata")(function* () {
+        yield* pipe(
+          WalletCurrencyValues,
+          Effect.forEach((currency) =>
+            Effect.sync(() => {
+              const meta = getCurrencyMeta(currency);
+              expect(meta.name.length).toBeGreaterThan(0);
+            })
+          )
+        );
+      })
+    );
+
+    it.effect(
+      "keeps contract-backed fallback metadata for unresolved bridge assets",
+      Effect.fn("WalletCurrencyPriceTest.keepsContractBackedFallbackMetadata")(function* () {
+        const usdcBridgeMeta = WalletCurrencyMetaByTicker["USDC.E"];
+
+        yield* pipe(
+          usdcBridgeMeta.apiData,
+          O.match({
+            onNone: () => Effect.sync(() => expect.fail("Expected contract-backed fallback metadata for USDC.E.")),
+            onSome: (apiData) => Effect.sync(() => expect(apiData.preferred.provider).toBe("alchemy")),
+          })
+        );
+      })
+    );
   });
 
-  it("falls back to CoinAPI after a failed preferred provider", async () => {
-    const fetchMock: typeof fetch = async (input) => {
-      const url = typeof input === "string" ? input : input.toString();
+  describe("resolveWalletCurrencyUsdPrice", () => {
+    it.effect(
+      "returns a static USD quote for USD",
+      Effect.fn("WalletCurrencyPriceTest.returnsStaticUsdQuote")(function* () {
+        const quote = yield* resolveWalletCurrencyUsdPrice("USD");
 
-      if (url.includes("coingecko")) {
-        return jsonResponse({ error: "rate limited" }, 429);
-      }
-
-      if (url.includes("coinapi")) {
-        return jsonResponse({
-          time: "2026-04-07T12:00:00Z",
-          asset_id_base: "BTC",
-          asset_id_quote: "USD",
-          rate: 70333.55,
+        yield* Effect.sync(() => {
+          expect(BigDecimal.format(quote.usdPrice)).toBe("1");
+          expect(quote.provenance.kind).toBe("static");
         });
-      }
+      })
+    );
 
-      throw new Error(`Unexpected request: ${url}`);
-    };
+    it.effect(
+      "uses the preferred CoinGecko provider when it succeeds",
+      Effect.fn("WalletCurrencyPriceTest.usesPreferredCoinGeckoProvider")(function* () {
+        const apiKeys = yield* makeApiKeys({
+          coinGeckoApiKey: "coin-gecko-key",
+        });
+        const fetchMock = makeFetchMock([
+          [
+            "coingecko",
+            jsonResponse({
+              bitcoin: {
+                usd: 70234.12,
+                last_updated_at: 1_710_000_000,
+              },
+            }),
+          ],
+        ]);
+        const quote = yield* resolveWalletCurrencyUsdPrice("BTC", {
+          apiKeys,
+          fetch: fetchMock,
+        });
 
-    const quote = await Effect.runPromise(
-      resolveWalletCurrencyUsdPrice("BTC", {
-        apiKeys: makeApiKeys({
+        yield* expectProviderQuote(quote, "coingecko", "coin:bitcoin", "70234.12");
+      })
+    );
+
+    it.effect(
+      "falls back to CoinAPI after a failed preferred provider",
+      Effect.fn("WalletCurrencyPriceTest.fallsBackToCoinApi")(function* () {
+        const apiKeys = yield* makeApiKeys({
           coinGeckoApiKey: "coin-gecko-key",
           coinApiApiKey: "coin-api-key",
-        }),
-        fetch: fetchMock,
+        });
+        const fetchMock = makeFetchMock([
+          ["coingecko", jsonResponse({ error: "rate limited" }, 429)],
+          [
+            "coinapi",
+            jsonResponse({
+              time: "2026-04-07T12:00:00Z",
+              asset_id_base: "BTC",
+              asset_id_quote: "USD",
+              rate: 70333.55,
+            }),
+          ],
+        ]);
+        const quote = yield* resolveWalletCurrencyUsdPrice("BTC", {
+          apiKeys,
+          fetch: fetchMock,
+        });
+
+        yield* expectProviderQuote(quote, "coinapi", "asset:BTC", "70333.55");
       })
     );
 
-    expect(quote.provenance.kind).toBe("provider");
-    if (quote.provenance.kind === "provider") {
-      expect(quote.provenance.provider).toBe("coinapi");
-      expect(quote.provenance.reference).toBe("asset:BTC");
-    }
-    expect(BigDecimal.format(quote.usdPrice)).toBe("70333.55");
-  });
-
-  it("resolves contract-backed bridge assets through Alchemy by address", async () => {
-    const fetchMock: typeof fetch = async (input) => {
-      const url = typeof input === "string" ? input : input.toString();
-
-      if (url.includes("api.g.alchemy.com")) {
-        return jsonResponse({
-          data: [
-            {
-              network: "avax-mainnet",
-              address: "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
-              prices: [
+    it.effect(
+      "resolves contract-backed bridge assets through Alchemy by address",
+      Effect.fn("WalletCurrencyPriceTest.resolvesAlchemyContractQuote")(function* () {
+        const apiKeys = yield* makeApiKeys({
+          alchemyApiKey: "alchemy-key",
+        });
+        const fetchMock = makeFetchMock([
+          [
+            "api.g.alchemy.com",
+            jsonResponse({
+              data: [
                 {
-                  currency: "usd",
-                  value: "1.0002",
-                  lastUpdatedAt: "2026-04-07T15:00:00Z",
+                  network: "avax-mainnet",
+                  address: "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
+                  prices: [
+                    {
+                      currency: "usd",
+                      value: "1.0002",
+                      lastUpdatedAt: "2026-04-07T15:00:00Z",
+                    },
+                  ],
+                  error: null,
                 },
               ],
-              error: null,
-            },
+            }),
           ],
+        ]);
+        const quote = yield* resolveWalletCurrencyUsdPrice("USDC.E", {
+          apiKeys,
+          fetch: fetchMock,
         });
-      }
 
-      throw new Error(`Unexpected request: ${url}`);
-    };
-
-    const quote = await Effect.runPromise(
-      resolveWalletCurrencyUsdPrice("USDC.E", {
-        apiKeys: makeApiKeys({
-          alchemyApiKey: "alchemy-key",
-        }),
-        fetch: fetchMock,
+        yield* expectProviderQuote(quote, "alchemy", "contract:avax-mainnet:", "1.0002");
       })
     );
-
-    expect(quote.provenance.kind).toBe("provider");
-    if (quote.provenance.kind === "provider") {
-      expect(quote.provenance.provider).toBe("alchemy");
-      expect(quote.provenance.reference).toContain("contract:avax-mainnet:");
-    }
-    expect(BigDecimal.format(quote.usdPrice)).toBe("1.0002");
   });
 });

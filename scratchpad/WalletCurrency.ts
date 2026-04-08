@@ -108,6 +108,20 @@ export const PriceApiProvider = LiteralKit([
 export type PriceApiProvider = typeof PriceApiProvider.Type;
 
 /**
+ * Supported EVM networks that expose token contract explorer pages and Alchemy contract pricing.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export const ExplorerNetwork = LiteralKit(["ETH", "BNB", "AVALANCHE"] as const).pipe(
+  $I.annoteSchema("ExplorerNetwork", {
+    description: "Supported EVM networks that expose token contract explorer pages and Alchemy contract pricing.",
+  })
+);
+
+export type ExplorerNetwork = typeof ExplorerNetwork.Type;
+
+/**
  * Supported Alchemy lookup strategies for wallet currency price lookups.
  *
  * @category DomainModel
@@ -122,25 +136,68 @@ const AlchemyPriceLookup = LiteralKit([
   })
 );
 
+class CoinGeckoPriceProviderData extends S.Class<CoinGeckoPriceProviderData>($I`CoinGeckoPriceProviderData`)(
+  {
+    provider: S.tag("coingecko"),
+    coinId: S.String,
+    coinUrl: S.optionalKey(S.URLFromString),
+  },
+  $I.annote("CoinGeckoPriceProviderData", {
+    description: "CoinGecko-specific lookup metadata for wallet currency prices.",
+  })
+) {}
+
+class CoinApiPriceProviderData extends S.Class<CoinApiPriceProviderData>($I`CoinApiPriceProviderData`)(
+  {
+    provider: S.tag("coinapi"),
+    assetId: S.String,
+  },
+  $I.annote("CoinApiPriceProviderData", {
+    description: "CoinAPI-specific lookup metadata for wallet currency prices.",
+  })
+) {}
+
+class AlchemySymbolPriceProviderData extends S.Class<AlchemySymbolPriceProviderData>($I`AlchemySymbolPriceProviderData`)(
+  {
+    provider: S.tag("alchemy"),
+    lookup: S.tag("symbol"),
+  },
+  $I.annote("AlchemySymbolPriceProviderData", {
+    description: "Alchemy symbol-based lookup metadata for wallet currency prices.",
+  })
+) {}
+
+class AlchemyContractPriceProviderData extends S.Class<AlchemyContractPriceProviderData>(
+  $I`AlchemyContractPriceProviderData`
+)(
+  {
+    provider: S.tag("alchemy"),
+    lookup: S.tag("contract"),
+    network: ExplorerNetwork,
+  },
+  $I.annote("AlchemyContractPriceProviderData", {
+    description: "Alchemy contract-based lookup metadata for wallet currency prices on supported EVM networks.",
+  })
+) {}
+
+const AlchemyPriceProviderData = S.Union([AlchemySymbolPriceProviderData, AlchemyContractPriceProviderData]).pipe(
+  S.toTaggedUnion("lookup"),
+  $I.annoteSchema("AlchemyPriceProviderData", {
+    description: "Alchemy-specific lookup metadata for wallet currency prices.",
+  })
+);
+
 /**
  * Tagged union of provider-specific lookup metadata for wallet currency prices.
  *
  * @category DomainModel
  * @since 0.0.0
  */
-export const PriceProviderData = PriceApiProvider.toTaggedUnion("provider")({
-  coingecko: {
-    coinId: S.String,
-    coinUrl: S.optionalKey(S.URLFromString),
-  },
-  coinapi: {
-    assetId: S.String,
-  },
-  alchemy: {
-    lookup: AlchemyPriceLookup,
-    network: S.optionalKey(CryptoNetwork),
-  },
-}).pipe(
+export const PriceProviderData = S.Union([
+  CoinGeckoPriceProviderData,
+  CoinApiPriceProviderData,
+  AlchemyPriceProviderData,
+]).pipe(
   $I.annoteSchema("PriceProviderData", {
     description: "Tagged union of provider-specific lookup metadata for wallet currency prices.",
   })
@@ -230,8 +287,6 @@ export const WalletCurrencyValues = [
 ] as const;
 
 export type WalletCurrencyCode = (typeof WalletCurrencyValues)[number];
-
-type ExplorerNetwork = Exclude<CryptoNetwork, "BTC">;
 
 const explorerBaseUrlByNetwork: Record<ExplorerNetwork, string> = {
   ETH: "https://etherscan.com/token/",

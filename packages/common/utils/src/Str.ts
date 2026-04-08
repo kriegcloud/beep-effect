@@ -278,3 +278,14 @@ export * from "effect/String";
  * @category Utility
  */
 export const trimThunk = (s: string) => () => Str.trim(s);
+
+/**
+ *
+ *
+ * @since 0.0.0
+ * @category Utility
+ * @template T {number} - The number to convert to a string literal type
+ * @param num {T} - The number to convert to a string literal type
+ * @returns {`${T}`} - The number as a string literal type
+ */
+export const fromNumber = <const T extends number>(num: T): `${T}` => `${num}` as const;

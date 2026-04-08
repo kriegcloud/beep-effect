@@ -6,12 +6,13 @@
  */
 
 import { $ScratchId } from "@beep/identity";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { TaggedErrorClass } from "@beep/schema";
 import { BigDecimal, Config, DateTime, Effect, Redacted, SchemaGetter, SchemaIssue, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
+  ExplorerNetwork,
   getCurrencyMeta,
   PriceApiProvider,
   type PriceProviderData,
@@ -247,17 +248,7 @@ type RequestJsonOptions<Schema extends S.Top & { readonly DecodingServices: neve
 
 const currentIsoTimestamp = (): string => DateTime.formatIso(DateTime.nowUnsafe());
 
-const AlchemyContractNetwork = LiteralKit(["ETH", "BNB", "AVALANCHE"] as const).pipe(
-  $I.annoteSchema("AlchemyContractNetwork", {
-    description: "Supported EVM networks for Alchemy contract-based wallet currency lookups.",
-  })
-);
-
-type AlchemyContractNetwork = typeof AlchemyContractNetwork.Type;
-
-const isAlchemyContractNetwork = S.is(AlchemyContractNetwork);
-
-const alchemyNetworkByCryptoNetwork: Record<AlchemyContractNetwork, string> = {
+const alchemyNetworkByCryptoNetwork: Record<ExplorerNetwork, string> = {
   ETH: "eth-mainnet",
   BNB: "bnb-mainnet",
   AVALANCHE: "avax-mainnet",
@@ -616,7 +607,7 @@ const resolveAlchemySymbolQuote = (options: {
 
 const resolveAlchemyContractQuote = (options: {
   readonly currency: WalletCurrency;
-  readonly network: AlchemyContractNetwork;
+  readonly network: ExplorerNetwork;
   readonly providersAttempted: ReadonlyArray<PriceApiProviderType>;
   readonly apiKeys: WalletCurrencyPriceApiKeys;
   readonly fetchImpl: typeof fetch;
@@ -768,22 +759,13 @@ const resolvePriceFromProvider = (options: {
             apiKeys: options.apiKeys,
             fetchImpl: options.fetchImpl,
           })
-        : isAlchemyContractNetwork(options.providerData.network)
-          ? resolveAlchemyContractQuote({
-              currency: options.currency,
-              network: options.providerData.network,
-              providersAttempted: options.providersAttempted,
-              apiKeys: options.apiKeys,
-              fetchImpl: options.fetchImpl,
-            })
-          : Effect.fail(
-              makeLookupError({
-                currency: options.currency,
-                provider: "alchemy",
-                providersAttempted: options.providersAttempted,
-                message: `Alchemy contract lookup for ${options.currency} requires a supported EVM network.`,
-              })
-            );
+        : resolveAlchemyContractQuote({
+            currency: options.currency,
+            network: options.providerData.network,
+            providersAttempted: options.providersAttempted,
+            apiKeys: options.apiKeys,
+            fetchImpl: options.fetchImpl,
+          });
   }
 };
 

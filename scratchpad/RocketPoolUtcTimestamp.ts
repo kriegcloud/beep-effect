@@ -1,17 +1,21 @@
 import { $ScratchId } from "@beep/identity";
-import { DateTime, Effect, Option, SchemaGetter, SchemaIssue } from "effect";
+import { DateTime, Effect, pipe, SchemaGetter, SchemaIssue } from "effect";
 import * as S from "effect/Schema";
-
+import { Str, O, P } from "@beep/utils";
+import { dual } from "effect/Function";
 const $I = $ScratchId.create("RocketPoolUtcTimestamp");
 
 const rocketPoolUtcTimestampPattern = /^(\d{4})-(\d{2})-(\d{2}), (\d{2}):(\d{2}) \+0000 UTC$/;
 
 const invalidRocketPoolUtcTimestamp = (input: string): SchemaIssue.Issue =>
-  new SchemaIssue.InvalidValue(Option.some(input), {
+  new SchemaIssue.InvalidValue(O.some(input), {
     message: "RocketPoolUtcTimestamp must match YYYY-MM-DD, HH:mm +0000 UTC",
   });
 
-const formatPart = (value: number, width: number): string => String(value).padStart(width, "0");
+const formatPart: {
+  (value: number, width: number): string,
+  (width: number): (value: number) => string,
+} = dual(2, (value: number, width: number): string => pipe(value,Str.fromNumber, Str.padStart(width, "0")));
 
 /**
  * Scratchpad-local schema for Rocket Pool CLI UTC timestamp strings.
@@ -21,7 +25,7 @@ export const RocketPoolUtcTimestamp = S.String.pipe(
     decode: SchemaGetter.transformOrFail((input) => {
       const match = input.match(rocketPoolUtcTimestampPattern);
 
-      if (match === null) {
+      if (P.isNull(match)) {
         return Effect.fail(invalidRocketPoolUtcTimestamp(input));
       }
 
@@ -29,7 +33,7 @@ export const RocketPoolUtcTimestamp = S.String.pipe(
       const iso = `${year}-${month}-${day}T${hour}:${minute}:00.000Z`;
       const dateTime = DateTime.make(iso);
 
-      if (Option.isNone(dateTime)) {
+      if (O.isNone(dateTime)) {
         return Effect.fail(invalidRocketPoolUtcTimestamp(input));
       }
 
@@ -38,7 +42,7 @@ export const RocketPoolUtcTimestamp = S.String.pipe(
     encode: SchemaGetter.transformOrFail((iso) => {
       const dateTime = DateTime.make(iso);
 
-      if (Option.isNone(dateTime)) {
+      if (O.isNone(dateTime)) {
         return Effect.fail(invalidRocketPoolUtcTimestamp(iso));
       }
 
