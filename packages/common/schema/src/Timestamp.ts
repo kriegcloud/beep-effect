@@ -111,7 +111,7 @@ export const ToIsoStr = S.Union([ISOStr, S.Number]).pipe(
     ISOStr,
     SchemaTransformation.transform({
       decode: (input) => pipe(DateTime.makeUnsafe(input), DateTime.formatIso, stripMilliseconds),
-      encode: (isoStr) => pipe(DateTime.makeUnsafe(isoStr), DateTime.formatIso, stripMilliseconds, ISOStr.makeUnsafe),
+      encode: (isoStr) => pipe(DateTime.makeUnsafe(isoStr), DateTime.formatIso, stripMilliseconds, ISOStr.make),
     })
   ),
   $I.annoteSchema("ToIsoStr", {
@@ -153,7 +153,7 @@ export declare namespace ToIsoStr {
  * ```ts
  * import { Timestamp } from "@beep/schema/Timestamp"
  *
- * const ts = Timestamp.makeUnsafe({ epochMillis: 1704067200000 })
+ * const ts = Timestamp.make({ epochMillis: 1704067200000 })
  *
  * console.log(ts.toISOStr())
  * console.log(ts.toLocalDate().toISOString())
@@ -164,7 +164,7 @@ export declare namespace ToIsoStr {
  * import { Timestamp, now, isBefore } from "@beep/schema/Timestamp"
  *
  * const a = now()
- * const b = Timestamp.makeUnsafe({ epochMillis: 0 })
+ * const b = Timestamp.make({ epochMillis: 0 })
  *
  * console.log(isBefore(b, a)) // true
  * ```
@@ -209,7 +209,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
   readonly toISOStr: () => Brand.Branded<Brand.Branded<string, "NonEmptyTrimmedStr">, "ISOStr"> = (): Brand.Branded<
     Brand.Branded<string, "NonEmptyTrimmedStr">,
     "ISOStr"
-  > => ISOStr.makeUnsafe(normalizeIsoString(this.epochMillis));
+  > => ISOStr.make(normalizeIsoString(this.epochMillis));
 
   /**
    * Convert to string representation
@@ -218,7 +218,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    * @category utilities
    * @returns {ISOStr}
    */
-  readonly toStr: () => ISOStr = (): ISOStr => ISOStr.makeUnsafe(this.toISOStr());
+  readonly toStr: () => ISOStr = (): ISOStr => ISOStr.make(this.toISOStr());
 
   /**
    * Extract the LocalDate portion (UTC date)
@@ -229,7 +229,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    */
   readonly toLocalDate: () => LocalDate = (): LocalDate => {
     const date = DateTime.toPartsUtc(this.toDateTime());
-    return LocalDate.makeUnsafe({
+    return LocalDate.make({
       year: date.year,
       month: date.month,
       day: date.day,
@@ -252,7 +252,7 @@ export const isTimestamp = Schema.is(Timestamp);
  * @category constructors
  */
 export const fromDateTime = (dateTime: DateTime.Utc): Timestamp =>
-  Timestamp.makeUnsafe({ epochMillis: dateTime.epochMilliseconds });
+  Timestamp.make({ epochMillis: dateTime.epochMilliseconds });
 
 /**
  * Create a `Timestamp` from a JavaScript `Date`.
@@ -260,7 +260,7 @@ export const fromDateTime = (dateTime: DateTime.Utc): Timestamp =>
  * @since 0.0.0
  * @category constructors
  */
-export const fromDate = (date: Date): Timestamp => Timestamp.makeUnsafe({ epochMillis: date.getTime() });
+export const fromDate = (date: Date): Timestamp => Timestamp.make({ epochMillis: date.getTime() });
 
 /**
  * Create a `Timestamp` from an ISO 8601 string, returning an `Effect` that fails for invalid input.
@@ -273,7 +273,7 @@ export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaI
     DateTime.make(dateString),
     O.match({
       onNone: () => Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString))),
-      onSome: (dateTime) => Effect.succeed(Timestamp.makeUnsafe({ epochMillis: DateTime.toEpochMillis(dateTime) })),
+      onSome: (dateTime) => Effect.succeed(Timestamp.make({ epochMillis: DateTime.toEpochMillis(dateTime) })),
     })
   );
 };
@@ -284,7 +284,7 @@ export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaI
  * @since 0.0.0
  * @category constructors
  */
-export const now = (): Timestamp => Timestamp.makeUnsafe({ epochMillis: Date.now() });
+export const now = (): Timestamp => Timestamp.make({ epochMillis: Date.now() });
 
 /**
  * Get the current timestamp as an `Effect` using the Clock service, testable with `TestClock`.
@@ -294,7 +294,7 @@ export const now = (): Timestamp => Timestamp.makeUnsafe({ epochMillis: Date.now
  */
 export const nowEffect: Effect.Effect<Timestamp> = Effect.map(
   Effect.clockWith((clock) => clock.currentTimeMillis),
-  (millis) => Timestamp.makeUnsafe({ epochMillis: Number(millis) })
+  (millis) => Timestamp.make({ epochMillis: Number(millis) })
 );
 
 /**
@@ -351,10 +351,7 @@ export const equals: {
 export const addMillis: {
   (millis: number): (self: Timestamp) => Timestamp;
   (self: Timestamp, millis: number): Timestamp;
-} = dual(
-  2,
-  (self: Timestamp, millis: number): Timestamp => Timestamp.makeUnsafe({ epochMillis: self.epochMillis + millis })
-);
+} = dual(2, (self: Timestamp, millis: number): Timestamp => Timestamp.make({ epochMillis: self.epochMillis + millis }));
 
 /**
  * Add seconds to a timestamp
@@ -450,4 +447,4 @@ export const max: {
  * @since 0.0.0
  * @category constructors
  */
-export const EPOCH: Timestamp = Timestamp.makeUnsafe({ epochMillis: 0 });
+export const EPOCH: Timestamp = Timestamp.make({ epochMillis: 0 });

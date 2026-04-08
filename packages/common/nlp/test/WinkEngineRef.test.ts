@@ -8,7 +8,7 @@ import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "
 const WinkEngineRefBundleLive = WinkEngineRefLive.pipe(Layer.provideMerge(WinkEngineLive));
 
 const moneyEntities = new WinkEngineCustomEntities({
-  name: EntityGroupName.makeUnsafe("money"),
+  name: EntityGroupName.make("money"),
   patterns: [
     new CustomEntityExample({
       mark: O.none(),

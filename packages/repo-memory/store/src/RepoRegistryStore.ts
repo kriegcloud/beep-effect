@@ -1,6 +1,6 @@
 import { $RepoMemoryStoreId } from "@beep/identity/packages";
 import type { RepoId, RepoRegistration, RepoRegistrationInput } from "@beep/repo-memory-model";
-import { type Effect, ServiceMap } from "effect";
+import { Context, type Effect } from "effect";
 import type { RepoStoreError } from "./RepoStoreError.js";
 
 const $I = $RepoMemoryStoreId.create("RepoRegistryStore");
@@ -23,6 +23,6 @@ export interface RepoRegistryStoreShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoRegistryStore extends ServiceMap.Service<RepoRegistryStore, RepoRegistryStoreShape>()(
+export class RepoRegistryStore extends Context.Service<RepoRegistryStore, RepoRegistryStoreShape>()(
   $I`RepoRegistryStore`
 ) {}

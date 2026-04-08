@@ -134,7 +134,7 @@ describe("LocalDate", () => {
 
   describe("type guard", () => {
     it("isLocalDate returns true for LocalDate instances", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       expect(isLocalDate(date)).toBe(true);
     });
 
@@ -148,7 +148,7 @@ describe("LocalDate", () => {
 
   describe("S.make() constructor", () => {
     it("creates LocalDate using Schema's .make()", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       expect(date.year).toBe(2024);
       expect(date.month).toBe(6);
       expect(date.day).toBe(15);
@@ -157,20 +157,20 @@ describe("LocalDate", () => {
 
   describe("toISOString", () => {
     it("formats date as ISO string", () => {
-      expect(LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }).toISOString()).toBe("2024-06-15");
-      expect(LocalDate.makeUnsafe({ year: 2024, month: 1, day: 1 }).toISOString()).toBe("2024-01-01");
-      expect(LocalDate.makeUnsafe({ year: 2024, month: 12, day: 31 }).toISOString()).toBe("2024-12-31");
+      expect(LocalDate.make({ year: 2024, month: 6, day: 15 }).toISOString()).toBe("2024-06-15");
+      expect(LocalDate.make({ year: 2024, month: 1, day: 1 }).toISOString()).toBe("2024-01-01");
+      expect(LocalDate.make({ year: 2024, month: 12, day: 31 }).toISOString()).toBe("2024-12-31");
     });
 
     it("pads year, month, and day correctly", () => {
-      expect(LocalDate.makeUnsafe({ year: 999, month: 1, day: 1 }).toISOString()).toBe("0999-01-01");
-      expect(LocalDate.makeUnsafe({ year: 99, month: 1, day: 1 }).toISOString()).toBe("0099-01-01");
+      expect(LocalDate.make({ year: 999, month: 1, day: 1 }).toISOString()).toBe("0999-01-01");
+      expect(LocalDate.make({ year: 99, month: 1, day: 1 }).toISOString()).toBe("0099-01-01");
     });
   });
 
   describe("toString", () => {
     it("returns ISO string", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       expect(date.toString()).toBe("2024-06-15");
     });
   });
@@ -225,7 +225,7 @@ describe("LocalDate", () => {
 
   describe("toDateTime", () => {
     it("converts LocalDate to DateTime at midnight UTC", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const dt = date.toDateTime();
       const parts = DateTime.toPartsUtc(dt);
       expect(parts.year).toBe(2024);
@@ -239,7 +239,7 @@ describe("LocalDate", () => {
 
   describe("toDate", () => {
     it("converts LocalDate to JavaScript Date at midnight UTC", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const jsDate = date.toDate();
       expect(jsDate.getUTCFullYear()).toBe(2024);
       expect(jsDate.getUTCMonth()).toBe(5); // June is month 5 in JS
@@ -312,10 +312,10 @@ describe("LocalDate", () => {
 
   describe("Order", () => {
     it("compares dates correctly", () => {
-      const date1 = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
-      const date2 = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 16 });
-      const date3 = LocalDate.makeUnsafe({ year: 2024, month: 7, day: 1 });
-      const date4 = LocalDate.makeUnsafe({ year: 2025, month: 1, day: 1 });
+      const date1 = LocalDate.make({ year: 2024, month: 6, day: 15 });
+      const date2 = LocalDate.make({ year: 2024, month: 6, day: 16 });
+      const date3 = LocalDate.make({ year: 2024, month: 7, day: 1 });
+      const date4 = LocalDate.make({ year: 2025, month: 1, day: 1 });
 
       expect(Order(date1, date2)).toBe(-1);
       expect(Order(date2, date1)).toBe(1);
@@ -328,37 +328,22 @@ describe("LocalDate", () => {
   describe("isBefore", () => {
     it("returns true when first date is before second", () => {
       expect(
-        isBefore(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 16 })
-        )
+        isBefore(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 6, day: 16 }))
       ).toBe(true);
       expect(
-        isBefore(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 7, day: 1 })
-        )
+        isBefore(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 7, day: 1 }))
       ).toBe(true);
       expect(
-        isBefore(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2025, month: 1, day: 1 })
-        )
+        isBefore(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2025, month: 1, day: 1 }))
       ).toBe(true);
     });
 
     it("returns false when first date is not before second", () => {
       expect(
-        isBefore(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 16 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
-        )
+        isBefore(LocalDate.make({ year: 2024, month: 6, day: 16 }), LocalDate.make({ year: 2024, month: 6, day: 15 }))
       ).toBe(false);
       expect(
-        isBefore(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
-        )
+        isBefore(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 6, day: 15 }))
       ).toBe(false);
     });
   });
@@ -366,37 +351,22 @@ describe("LocalDate", () => {
   describe("isAfter", () => {
     it("returns true when first date is after second", () => {
       expect(
-        isAfter(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 16 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
-        )
+        isAfter(LocalDate.make({ year: 2024, month: 6, day: 16 }), LocalDate.make({ year: 2024, month: 6, day: 15 }))
       ).toBe(true);
       expect(
-        isAfter(
-          LocalDate.makeUnsafe({ year: 2024, month: 7, day: 1 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
-        )
+        isAfter(LocalDate.make({ year: 2024, month: 7, day: 1 }), LocalDate.make({ year: 2024, month: 6, day: 15 }))
       ).toBe(true);
       expect(
-        isAfter(
-          LocalDate.makeUnsafe({ year: 2025, month: 1, day: 1 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
-        )
+        isAfter(LocalDate.make({ year: 2025, month: 1, day: 1 }), LocalDate.make({ year: 2024, month: 6, day: 15 }))
       ).toBe(true);
     });
 
     it("returns false when first date is not after second", () => {
       expect(
-        isAfter(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 16 })
-        )
+        isAfter(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 6, day: 16 }))
       ).toBe(false);
       expect(
-        isAfter(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
-        )
+        isAfter(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 6, day: 15 }))
       ).toBe(false);
     });
   });
@@ -404,38 +374,26 @@ describe("LocalDate", () => {
   describe("equals", () => {
     it("returns true for equal dates", () => {
       expect(
-        equals(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
-        )
+        equals(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 6, day: 15 }))
       ).toBe(true);
     });
 
     it("returns false for different dates", () => {
       expect(
-        equals(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 16 })
-        )
+        equals(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 6, day: 16 }))
       ).toBe(false);
       expect(
-        equals(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2024, month: 7, day: 15 })
-        )
+        equals(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2024, month: 7, day: 15 }))
       ).toBe(false);
       expect(
-        equals(
-          LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 }),
-          LocalDate.makeUnsafe({ year: 2025, month: 6, day: 15 })
-        )
+        equals(LocalDate.make({ year: 2024, month: 6, day: 15 }), LocalDate.make({ year: 2025, month: 6, day: 15 }))
       ).toBe(false);
     });
   });
 
   describe("addDays", () => {
     it("adds days correctly", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const result = addDays(date, 5);
       expect(result.year).toBe(2024);
       expect(result.month).toBe(6);
@@ -443,7 +401,7 @@ describe("LocalDate", () => {
     });
 
     it("handles month overflow", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 30 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 30 });
       const result = addDays(date, 5);
       expect(result.year).toBe(2024);
       expect(result.month).toBe(7);
@@ -451,7 +409,7 @@ describe("LocalDate", () => {
     });
 
     it("handles negative days", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const result = addDays(date, -5);
       expect(result.year).toBe(2024);
       expect(result.month).toBe(6);
@@ -461,7 +419,7 @@ describe("LocalDate", () => {
 
   describe("addMonths", () => {
     it("adds months correctly", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const result = addMonths(date, 3);
       expect(result.year).toBe(2024);
       expect(result.month).toBe(9);
@@ -469,7 +427,7 @@ describe("LocalDate", () => {
     });
 
     it("handles year overflow", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 11, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 11, day: 15 });
       const result = addMonths(date, 3);
       expect(result.year).toBe(2025);
       expect(result.month).toBe(2);
@@ -479,7 +437,7 @@ describe("LocalDate", () => {
 
   describe("addYears", () => {
     it("adds years correctly", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const result = addYears(date, 2);
       expect(result.year).toBe(2026);
       expect(result.month).toBe(6);
@@ -489,8 +447,8 @@ describe("LocalDate", () => {
 
   describe("diffInDays", () => {
     it("calculates difference in days", () => {
-      const date1 = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
-      const date2 = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 20 });
+      const date1 = LocalDate.make({ year: 2024, month: 6, day: 15 });
+      const date2 = LocalDate.make({ year: 2024, month: 6, day: 20 });
       expect(diffInDays(date2, date1)).toBe(5);
       expect(diffInDays(date1, date2)).toBe(-5);
     });
@@ -498,7 +456,7 @@ describe("LocalDate", () => {
 
   describe("startOfMonth", () => {
     it("returns first day of month", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const result = startOfMonth(date);
       expect(result.year).toBe(2024);
       expect(result.month).toBe(6);
@@ -508,15 +466,15 @@ describe("LocalDate", () => {
 
   describe("endOfMonth", () => {
     it("returns last day of month", () => {
-      const june = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const june = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const juneEnd = endOfMonth(june);
       expect(juneEnd.day).toBe(30);
 
-      const july = LocalDate.makeUnsafe({ year: 2024, month: 7, day: 15 });
+      const july = LocalDate.make({ year: 2024, month: 7, day: 15 });
       const julyEnd = endOfMonth(july);
       expect(julyEnd.day).toBe(31);
 
-      const feb = LocalDate.makeUnsafe({ year: 2024, month: 2, day: 15 });
+      const feb = LocalDate.make({ year: 2024, month: 2, day: 15 });
       const febEnd = endOfMonth(feb);
       expect(febEnd.day).toBe(29); // 2024 is a leap year
     });
@@ -524,7 +482,7 @@ describe("LocalDate", () => {
 
   describe("startOfYear", () => {
     it("returns January 1st", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const result = startOfYear(date);
       expect(result.year).toBe(2024);
       expect(result.month).toBe(1);
@@ -534,7 +492,7 @@ describe("LocalDate", () => {
 
   describe("endOfYear", () => {
     it("returns December 31st", () => {
-      const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+      const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
       const result = endOfYear(date);
       expect(result.year).toBe(2024);
       expect(result.month).toBe(12);
@@ -564,9 +522,9 @@ describe("LocalDate", () => {
 
   describe("equality", () => {
     it("Equal.equals works for LocalDate", () => {
-      const date1 = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
-      const date2 = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
-      const date3 = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 16 });
+      const date1 = LocalDate.make({ year: 2024, month: 6, day: 15 });
+      const date2 = LocalDate.make({ year: 2024, month: 6, day: 15 });
+      const date3 = LocalDate.make({ year: 2024, month: 6, day: 16 });
 
       expect(Equal.equals(date1, date2)).toBe(true);
       expect(Equal.equals(date1, date3)).toBe(false);
@@ -576,7 +534,7 @@ describe("LocalDate", () => {
   describe("encoding", () => {
     it.effect("encodes and decodes LocalDate", () =>
       Effect.gen(function* () {
-        const original = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+        const original = LocalDate.make({ year: 2024, month: 6, day: 15 });
         const encoded = yield* S.encodeEffect(LocalDate)(original);
         const decoded = yield* S.decodeUnknownEffect(LocalDate)(encoded);
 
@@ -739,7 +697,7 @@ describe("LocalDate", () => {
     describe("encoding", () => {
       it.effect("encodes LocalDate to ISO string", () =>
         Effect.gen(function* () {
-          const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+          const date = LocalDate.make({ year: 2024, month: 6, day: 15 });
           const encoded = yield* S.encodeEffect(LocalDateFromString)(date);
           expect(encoded).toBe("2024-06-15");
         })
@@ -747,11 +705,11 @@ describe("LocalDate", () => {
 
       it.effect("pads year, month, and day correctly", () =>
         Effect.gen(function* () {
-          const date1 = LocalDate.makeUnsafe({ year: 999, month: 1, day: 1 });
+          const date1 = LocalDate.make({ year: 999, month: 1, day: 1 });
           const encoded1 = yield* S.encodeEffect(LocalDateFromString)(date1);
           expect(encoded1).toBe("0999-01-01");
 
-          const date2 = LocalDate.makeUnsafe({ year: 99, month: 2, day: 5 });
+          const date2 = LocalDate.make({ year: 99, month: 2, day: 5 });
           const encoded2 = yield* S.encodeEffect(LocalDateFromString)(date2);
           expect(encoded2).toBe("0099-02-05");
         })
@@ -770,7 +728,7 @@ describe("LocalDate", () => {
 
       it.effect("encode then decode returns equal LocalDate", () =>
         Effect.gen(function* () {
-          const original = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 });
+          const original = LocalDate.make({ year: 2024, month: 6, day: 15 });
           const encoded = yield* S.encodeEffect(LocalDateFromString)(original);
           const decoded = yield* S.decodeUnknownEffect(LocalDateFromString)(encoded);
           expect(Equal.equals(original, decoded)).toBe(true);
@@ -799,8 +757,8 @@ describe("LocalDate", () => {
       it.effect("encodes struct back to string fields", () =>
         Effect.gen(function* () {
           const params = {
-            startDate: LocalDate.makeUnsafe({ year: 2024, month: 1, day: 1 }),
-            endDate: LocalDate.makeUnsafe({ year: 2024, month: 12, day: 31 }),
+            startDate: LocalDate.make({ year: 2024, month: 1, day: 1 }),
+            endDate: LocalDate.make({ year: 2024, month: 12, day: 31 }),
           };
           const encoded = yield* S.encodeEffect(TestParams)(params);
           expect(encoded.startDate).toBe("2024-01-01");

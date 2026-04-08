@@ -1,5 +1,4 @@
-import { thunkSomeEmptyRecord } from "@beep/utils";
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -14,8 +13,8 @@ export class RuleViolation extends S.Class<RuleViolation>("RuleViolation")({
   kind: S.String,
   messageId: S.String,
   data: S.Record(S.String, S.String).pipe(
-    S.withConstructorDefault(thunkSomeEmptyRecord<string, string>),
-    S.withDecodingDefault(R.empty<string, string>)
+    S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
+    S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
   ),
 }) {}
 

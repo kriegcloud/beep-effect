@@ -7,8 +7,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
-import { Str as CommonStr, thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
-import { Effect, FileSystem, flow, identity, SchemaTransformation, ServiceMap } from "effect";
+import { Str as CommonStr, thunkEmptyRecord, thunkEmptyStr } from "@beep/utils";
+import { Context, Effect, FileSystem, flow, identity, SchemaTransformation } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import Handlebars from "handlebars";
@@ -58,8 +58,8 @@ export class TemplateRenderRequest extends S.Class<TemplateRenderRequest>($I`Tem
     templateDir: S.String,
     templates: S.Array(TemplateSpec),
     context: S.Record(S.String, S.Unknown).pipe(
-      S.withConstructorDefault(thunkSomeEmptyRecord<string, unknown>),
-      S.withDecodingDefault(thunkEmptyRecord<string, unknown>)
+      S.withConstructorDefault(Effect.succeed(thunkEmptyRecord<string, unknown>())),
+      S.withDecodingDefault(Effect.succeed(thunkEmptyRecord<string, unknown>()))
     ),
   },
   $I.annote("TemplateRenderRequest", {
@@ -85,7 +85,7 @@ export type TemplateServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class TemplateService extends ServiceMap.Service<TemplateService, TemplateServiceShape>()($I`TemplateService`) {}
+export class TemplateService extends Context.Service<TemplateService, TemplateServiceShape>()($I`TemplateService`) {}
 
 const UnknownToTemplateHelperString = S.Unknown.pipe(
   S.decodeTo(

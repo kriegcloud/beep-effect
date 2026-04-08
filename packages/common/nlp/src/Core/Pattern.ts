@@ -317,14 +317,9 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   })
 ) {
   /**
-   * Backwards-compatible unsafe constructor alias.
-   */
-  static readonly make = Pattern.makeUnsafe;
-
-  /**
    * Pattern identifier constructor.
    */
-  static readonly Id = PatternId.makeUnsafe;
+  static readonly Id = PatternId.make;
 
   /**
    * Pattern element schema.

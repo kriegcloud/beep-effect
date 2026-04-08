@@ -8,7 +8,7 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { Chunk, Clock, Effect, HashMap, HashSet, Layer, pipe, Ref, ServiceMap } from "effect";
+import { Chunk, Clock, Context, Effect, HashMap, HashSet, Layer, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -375,7 +375,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       const requestedId = request?.corpusId;
       const corpusId = requestedId ?? (yield* makeGeneratedId);
       const nowMs = yield* Clock.currentTimeMillis;
-      const config = BM25Config.makeUnsafe({
+      const config = BM25Config.make({
         b: request?.bm25Config?.b ?? DefaultBM25Config.b,
         k: request?.bm25Config?.k ?? DefaultBM25Config.k,
         k1: request?.bm25Config?.k1 ?? DefaultBM25Config.k1,
@@ -574,15 +574,15 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         request.corpusId
       );
       const nowMs = yield* Clock.currentTimeMillis;
-      const queryVector = DocumentVector.makeUnsafe({
-        documentId: DocumentId.makeUnsafe(`${request.corpusId}-query-${nowMs}`),
+      const queryVector = DocumentVector.make({
+        documentId: DocumentId.make(`${request.corpusId}-query-${nowMs}`),
         terms: compiled.terms,
         vector: compiled.vectorizer.vectorOf(A.fromIterable(queryTokens)),
       });
 
       const scored = yield* Effect.forEach(compiledState.documents, (document, index) =>
         Effect.gen(function* () {
-          const candidateVector = DocumentVector.makeUnsafe({
+          const candidateVector = DocumentVector.make({
             documentId: document.id,
             terms: compiled.terms,
             vector: compiled.documentVectors[index] ?? [],
@@ -637,7 +637,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
  * @since 0.0.0
  * @category Services
  */
-export class WinkCorpusManager extends ServiceMap.Service<WinkCorpusManager, WinkCorpusManagerShape>()(
+export class WinkCorpusManager extends Context.Service<WinkCorpusManager, WinkCorpusManagerShape>()(
   $I`WinkCorpusManager`
 ) {}
 

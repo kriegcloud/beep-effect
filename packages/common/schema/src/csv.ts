@@ -6,4 +6,8 @@
  * @since 0.0.0
  */
 
+/**
+ * @since 0.0.0
+ * @category exports
+ */
 export * from "./csv/index.ts";

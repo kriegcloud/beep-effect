@@ -46,21 +46,18 @@ export * as FileSystem from "./FileSystem.ts";
 export * as Html from "./Html.ts";
 
 /**
- * Internal thunk helpers (canonical API -- prefer over `thunk.ts`).
- *
- * @category utilities
- * @since 0.0.0
- */
-export * as Thunk from "./internal/Thunk.ts";
-
-/**
  * Prototype-pollution guard.
  *
  * @category utilities
  * @since 0.0.0
  */
 export * from "./isBlockedObjectKey.ts";
-
+/**
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./NodeUrl.ts";
 /**
  * Number utilities extending `effect/Number`.
  *
@@ -68,7 +65,6 @@ export * from "./isBlockedObjectKey.ts";
  * @since 0.0.0
  */
 export * as Num from "./Number.ts";
-
 /**
  * Option utilities extending `effect/Option`.
  *
@@ -76,7 +72,6 @@ export * as Num from "./Number.ts";
  * @since 0.0.0
  */
 export * as O from "./Option.ts";
-
 /**
  * Predicate utilities extending `effect/Predicate`.
  *
@@ -84,7 +79,6 @@ export * as O from "./Option.ts";
  * @since 0.0.0
  */
 export * as P from "./Predicate.ts";
-
 /**
  * String utilities extending `effect/String` with typed case conversions.
  *
@@ -92,7 +86,6 @@ export * as P from "./Predicate.ts";
  * @since 0.0.0
  */
 export * as Str from "./Str.ts";
-
 /**
  * Stream utilities extending `effect/Stream`.
  *
@@ -100,7 +93,6 @@ export * as Str from "./Str.ts";
  * @since 0.0.0
  */
 export * as Stream from "./Stream.ts";
-
 /**
  * Struct utilities extending `effect/Struct` with dot-path access.
  *
@@ -108,7 +100,6 @@ export * as Stream from "./Stream.ts";
  * @since 0.0.0
  */
 export * as Struct from "./Struct.ts";
-
 /**
  * Plain-text formatting helpers.
  *
@@ -116,9 +107,8 @@ export * as Struct from "./Struct.ts";
  * @since 0.0.0
  */
 export * as Text from "./Text.ts";
-
 /**
- * Legacy thunk constants (`thunkTrue`, `thunkNull`, etc.).
+ * thunk constants (`thunkTrue`, `thunkNull`, etc.).
  *
  * @category utilities
  * @since 0.0.0

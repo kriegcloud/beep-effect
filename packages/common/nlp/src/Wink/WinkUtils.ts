@@ -8,7 +8,7 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, Inspectable, Layer, ServiceMap } from "effect";
+import { Context, Effect, Inspectable, Layer } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -219,7 +219,7 @@ const makeWinkUtils = Effect.gen(function* () {
  * @since 0.0.0
  * @category Services
  */
-export class WinkUtils extends ServiceMap.Service<WinkUtils, WinkUtilsShape>()($I`WinkUtils`) {}
+export class WinkUtils extends Context.Service<WinkUtils, WinkUtilsShape>()($I`WinkUtils`) {}
 
 /**
  * Live wink utility layer.

@@ -25,7 +25,7 @@ Conflicts are resolved in this order:
 | Typed failures | Failing logic exposes typed `Effect`, `Result`, or `Exit` | effect auditors, command review |
 | Throwable boundary control | `try/catch` is banned where `Result.try`, `Effect.try`, or `Effect.tryPromise` is required | effect auditors, lint review |
 | Effect-native data handling | Native helpers are banned where Effect or schema equivalents exist | effect-data auditors, manual review |
-| Service boundary integrity | `ServiceMap.Service` contracts do not leak dependencies | service/layer auditors |
+| Service boundary integrity | `Context.Service` contracts do not leak dependencies | service/layer auditors |
 | Layer boundary integrity | Layer provisioning stays close to application boundaries | service/layer auditors |
 | HTTP boundary integrity | HTTP requests use `effect/unstable/http`; HTTP APIs use `effect/unstable/httpapi` | HTTP auditors |
 | Stateful workflow integrity | Stateful flows use the correct `Ref`-family primitive | state auditors |

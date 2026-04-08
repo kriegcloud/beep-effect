@@ -67,7 +67,7 @@ describe("Tool validation", () => {
 
   it("rejects invalid custom-entity bracket patterns during engine learning", async () => {
     const brokenEntities = new WinkEngineCustomEntities({
-      name: EntityGroupName.makeUnsafe("custom-entities"),
+      name: EntityGroupName.make("custom-entities"),
       patterns: [
         new CustomEntityExample({
           mark: O.none(),

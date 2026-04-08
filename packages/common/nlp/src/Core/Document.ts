@@ -107,11 +107,6 @@ export class Document extends S.Class<Document>($I`Document`)(
   }
 
   /**
-   * Backwards-compatible unsafe constructor alias.
-   */
-  static readonly make = Document.makeUnsafe;
-
-  /**
    * Get tokens overlapping a character range.
    */
   static readonly getTokensInRange = dual(

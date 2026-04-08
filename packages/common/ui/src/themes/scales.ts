@@ -1,5 +1,8 @@
 /**
  * Used by: text-field, date-picker, select, autocomplete, button
+ *
+ * @since 0.0.0
+ * @category theme
  */
 export const CONTROL_HEIGHTS = {
   sm: 32,
@@ -9,6 +12,9 @@ export const CONTROL_HEIGHTS = {
 
 /**
  * Touch device heights (+ for better touch targets)
+ *
+ * @since 0.0.0
+ * @category theme
  */
 export const CONTROL_TOUCH_HEIGHTS = {
   sm: 34,
@@ -22,12 +28,18 @@ export const CONTROL_TOUCH_HEIGHTS = {
  * Alternatives:
  * - "(pointer: coarse)" - all touch devices regardless of screen size
  * - "(max-width: 768px)" - breakpoint only
+ *
+ * @since 0.0.0
+ * @category theme
  */
 export const TOUCH_MEDIA_QUERY = "@media (max-width: 768px)";
 
 /**
  * Used by: controls (MuiSwitch)
  * inset: space between track edge and thumb
+ *
+ * @since 0.0.0
+ * @category theme
  */
 export const SWITCH_SIZES = {
   sm: { height: 22, width: 36, inset: 2 },
@@ -35,6 +47,12 @@ export const SWITCH_SIZES = {
   lg: { height: 32, width: 52, inset: 3 },
 };
 
+/**
+ * Touch-sized switch dimensions.
+ *
+ * @since 0.0.0
+ * @category theme
+ */
 export const SWITCH_TOUCH_SIZES = {
   sm: { height: 28, width: 44, inset: 2 },
   md: { height: 34, width: 56, inset: 3 },

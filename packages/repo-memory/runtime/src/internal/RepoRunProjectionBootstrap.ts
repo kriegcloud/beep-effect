@@ -8,7 +8,7 @@ import {
   type StreamRunEventsRequest,
 } from "@beep/repo-memory-model";
 import { RepoRunStore } from "@beep/repo-memory-store";
-import { Effect, Layer, pipe, ServiceMap, Stream } from "effect";
+import { Context, Effect, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -65,7 +65,7 @@ type RepoRunProjectionBootstrapShape = {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoRunProjectionBootstrap extends ServiceMap.Service<
+export class RepoRunProjectionBootstrap extends Context.Service<
   RepoRunProjectionBootstrap,
   RepoRunProjectionBootstrapShape
 >()($I`RepoRunProjectionBootstrap`) {

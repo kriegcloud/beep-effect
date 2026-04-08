@@ -1,4 +1,4 @@
-import { thunkSomeEmptyArray } from "@beep/utils";
+import { Effect } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
@@ -38,8 +38,8 @@ export class ImportDeclarationNode extends S.Class<ImportDeclarationNode>("Impor
   source: ImportSourceLiteralNode,
   importKind: S.optionalKey(ImportKindSchema),
   specifiers: S.Array(S.Unknown).pipe(
-    S.withConstructorDefault(thunkSomeEmptyArray<unknown>),
-    S.withDecodingDefault(A.empty<unknown>)
+    S.withConstructorDefault(Effect.succeed(A.empty<unknown>())),
+    S.withDecodingDefault(Effect.succeed(A.empty<unknown>()))
   ),
 }) {}
 

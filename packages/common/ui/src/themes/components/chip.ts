@@ -7,6 +7,9 @@ declare module "@mui/material/Chip" {
   }
 }
 
+/**
+ * @since 0.0.0
+ */
 export const chipTheme: ThemeComponents = {
   MuiChip: {
     styleOverrides: {

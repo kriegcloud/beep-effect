@@ -28,7 +28,7 @@ class RankByRelevanceParameters extends S.Class<RankByRelevanceParameters>($I`Ra
     }),
     topN: S.optionalKey(PosInt).annotateKey({
       description: "Maximum number of ranked results to return (default: all texts)",
-      examples: [PosInt.makeUnsafe(3), PosInt.makeUnsafe(5), PosInt.makeUnsafe(10)],
+      examples: [PosInt.make(3), PosInt.make(5), PosInt.make(10)],
     }),
   },
   $I.annote("RankByRelevanceParameters", {

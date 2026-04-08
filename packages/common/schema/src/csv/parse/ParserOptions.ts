@@ -7,6 +7,7 @@
 
 import { $SchemaId } from "@beep/identity";
 import { Number as Num, RegExp as Regex } from "effect";
+import * as Effect from "effect/Effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -101,76 +102,76 @@ const buildNextTokenRegExp = (escapedDelimiter: string): globalThis.RegExp => {
 export class ParserOptions extends S.Class<ParserOptions>($I`ParserOptions`)(
   {
     objectMode: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(true)),
-      S.withDecodingDefaultKey(() => true)
+      S.withConstructorDefault(Effect.succeed(true)),
+      S.withDecodingDefaultKey(Effect.succeed(true))
     ),
     delimiter: SingleCharacterText.pipe(
-      S.withConstructorDefault(() => O.some(",")),
-      S.withDecodingDefaultKey(() => ",")
+      S.withConstructorDefault(Effect.succeed(",")),
+      S.withDecodingDefaultKey(Effect.succeed(","))
     ),
     ignoreEmpty: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefaultKey(() => false)
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     quote: S.OptionFromNullOr(S.String).pipe(
-      S.withConstructorDefault(() => O.some(O.some('"'))),
-      S.withDecodingDefaultKey(() => '"')
+      S.withConstructorDefault(Effect.succeed(O.some('"'))),
+      S.withDecodingDefaultKey(Effect.succeed('"'))
     ),
     escape: S.OptionFromNullOr(S.String).pipe(
-      S.withConstructorDefault(() => O.some(O.none<string>())),
-      S.withDecodingDefaultKey(() => null)
+      S.withConstructorDefault(Effect.succeed(O.none<string>())),
+      S.withDecodingDefaultKey(Effect.succeed(null))
     ),
     comment: S.OptionFromNullOr(S.String).pipe(
-      S.withConstructorDefault(() => O.some(O.none<string>())),
-      S.withDecodingDefaultKey(() => null)
+      S.withConstructorDefault(Effect.succeed(O.none<string>())),
+      S.withDecodingDefaultKey(Effect.succeed(null))
     ),
     ltrim: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefaultKey(() => false)
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     rtrim: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefaultKey(() => false)
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     trim: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefaultKey(() => false)
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     headers: S.OptionFromNullOr(HeaderValueInput).pipe(
-      S.withConstructorDefault(() => O.some(O.none<HeaderValueInput>())),
-      S.withDecodingDefaultKey(() => null)
+      S.withConstructorDefault(Effect.succeed(O.none<HeaderValueInput>())),
+      S.withDecodingDefaultKey(Effect.succeed(null))
     ),
     renameHeaders: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefaultKey(() => false)
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     strictColumnHandling: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefaultKey(() => false)
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     discardUnmappedColumns: S.Boolean.pipe(
-      S.withConstructorDefault(() => O.some(false)),
-      S.withDecodingDefaultKey(() => false)
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefaultKey(Effect.succeed(false))
     ),
     carriageReturn: S.String.pipe(
-      S.withConstructorDefault(() => O.some("\r")),
-      S.withDecodingDefaultKey(() => "\r")
+      S.withConstructorDefault(Effect.succeed("\r")),
+      S.withDecodingDefaultKey(Effect.succeed("\r"))
     ),
     encoding: BuffEncoding.pipe(
-      S.withConstructorDefault(() => O.some(BuffEncoding.Enum.utf8)),
-      S.withDecodingDefaultKey(BuffEncoding.thunk.utf8)
+      S.withConstructorDefault(Effect.succeed(BuffEncoding.Enum.utf8)),
+      S.withDecodingDefaultKey(Effect.succeed(BuffEncoding.Enum.utf8))
     ),
     maxRows: NonNegativeInt.pipe(
-      S.withConstructorDefault(() => O.some(0)),
-      S.withDecodingDefaultKey(() => 0)
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     skipLines: NonNegativeInt.pipe(
-      S.withConstructorDefault(() => O.some(0)),
-      S.withDecodingDefaultKey(() => 0)
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
     skipRows: NonNegativeInt.pipe(
-      S.withConstructorDefault(() => O.some(0)),
-      S.withDecodingDefaultKey(() => 0)
+      S.withConstructorDefault(Effect.succeed(0)),
+      S.withDecodingDefaultKey(Effect.succeed(0))
     ),
   },
   $I.annote("ParserOptions", {

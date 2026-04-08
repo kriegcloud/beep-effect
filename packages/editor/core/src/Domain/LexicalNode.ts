@@ -6,7 +6,7 @@
  */
 import { $EditorId } from "@beep/identity";
 import { NonEmptyTrimmedStr } from "@beep/schema";
-import { thunk1 } from "@beep/utils";
+import { Effect } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as lexical from "lexical";
@@ -30,7 +30,7 @@ export class SerializedLexicalNode extends S.Class<SerializedLexicalNode>($I`Ser
       description: "The type string used by the Node class",
     }),
     /** A numeric version for this schema, defaulting to 1, but not generally recommended for use */
-    version: S.Number.pipe(S.withDecodingDefaultKey(thunk1)).annotateKey({
+    version: S.Number.pipe(S.withDecodingDefaultKey(Effect.succeed(1))).annotateKey({
       description: "A numeric version for this schema, defaulting to 1, but not generally recommended for use",
     }) /**
      * Any state persisted with the NodeState API that is not

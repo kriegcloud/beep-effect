@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import type { DomainError } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
-import { Effect, ServiceMap, Tuple } from "effect";
+import { Context, Effect, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 
@@ -231,7 +231,7 @@ export type TsMorphIntegrationServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class TsMorphIntegrationService extends ServiceMap.Service<
+export class TsMorphIntegrationService extends Context.Service<
   TsMorphIntegrationService,
   TsMorphIntegrationServiceShape
 >()($I`TsMorphIntegrationService`) {}
@@ -239,7 +239,7 @@ export class TsMorphIntegrationService extends ServiceMap.Service<
 const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
   applyMutation: (mutation) =>
     Effect.succeed(
-      TsMorphMutationOutcome.cases.skipped.makeUnsafe({
+      new TsMorphMutationOutcome.cases.skipped({
         mutation,
         detail:
           "No ts-morph-morph adapter configured. Provide a TsMorphMutationAdapter before executing AST mutations.",

@@ -16,7 +16,7 @@ import { $ClaudeId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
+import { Config, Console, Context, Effect, FileSystem, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -67,7 +67,7 @@ export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`Agen
   })
 ) {}
 
-export class AgentConfig extends ServiceMap.Service<AgentConfig, { readonly projectDir: string }>()($I`AgentConfig`) {}
+export class AgentConfig extends Context.Service<AgentConfig, { readonly projectDir: string }>()($I`AgentConfig`) {}
 
 const ProjectDirConfig = pipe(Config.string("CLAUDE_PROJECT_DIR"), Config.withDefault("."));
 

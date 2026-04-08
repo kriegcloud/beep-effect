@@ -3,6 +3,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import {
+  Context,
   DateTime,
   Effect,
   FileSystem,
@@ -11,7 +12,6 @@ import {
   MutableHashMap,
   MutableHashSet,
   Path,
-  ServiceMap,
 } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -626,7 +626,7 @@ type ReuseAnalysisContextShape = {
   readonly candidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
 };
 
-class ReuseAnalysisContext extends ServiceMap.Service<ReuseAnalysisContext, ReuseAnalysisContextShape>()(
+class ReuseAnalysisContext extends Context.Service<ReuseAnalysisContext, ReuseAnalysisContextShape>()(
   $I`ReuseAnalysisContext`
 ) {}
 
@@ -863,7 +863,7 @@ type ReuseCatalogServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class ReuseCatalogService extends ServiceMap.Service<ReuseCatalogService, ReuseCatalogServiceShape>()(
+export class ReuseCatalogService extends Context.Service<ReuseCatalogService, ReuseCatalogServiceShape>()(
   $I`ReuseCatalogService`
 ) {}
 
@@ -883,7 +883,7 @@ type ReusePartitionPlannerServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class ReusePartitionPlannerService extends ServiceMap.Service<
+export class ReusePartitionPlannerService extends Context.Service<
   ReusePartitionPlannerService,
   ReusePartitionPlannerServiceShape
 >()($I`ReusePartitionPlannerService`) {}
@@ -911,7 +911,7 @@ type ReuseDiscoveryServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class ReuseDiscoveryService extends ServiceMap.Service<ReuseDiscoveryService, ReuseDiscoveryServiceShape>()(
+export class ReuseDiscoveryService extends Context.Service<ReuseDiscoveryService, ReuseDiscoveryServiceShape>()(
   $I`ReuseDiscoveryService`
 ) {}
 
@@ -935,7 +935,7 @@ type ReuseInventoryServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class ReuseInventoryService extends ServiceMap.Service<ReuseInventoryService, ReuseInventoryServiceShape>()(
+export class ReuseInventoryService extends Context.Service<ReuseInventoryService, ReuseInventoryServiceShape>()(
   $I`ReuseInventoryService`
 ) {}
 

@@ -7,6 +7,9 @@ declare module "@mui/material/Autocomplete" {
   }
 }
 
+/**
+ * @since 0.0.0
+ */
 export const autocompleteTheme: ThemeComponents = {
   MuiAutocomplete: {
     defaultProps: {

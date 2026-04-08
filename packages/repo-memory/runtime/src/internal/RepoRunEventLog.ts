@@ -16,7 +16,7 @@ import {
 } from "@beep/repo-memory-model";
 import { RepoRunStore } from "@beep/repo-memory-store";
 import { NonNegativeInt } from "@beep/schema";
-import { DateTime, Effect, flow, Layer, Match, pipe, Schedule, ServiceMap, Stream } from "effect";
+import { Context, DateTime, Effect, flow, Layer, Match, pipe, Schedule, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -85,7 +85,7 @@ type RepoRunEventLogShape = {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoRunEventLog extends ServiceMap.Service<RepoRunEventLog, RepoRunEventLogShape>()($I`RepoRunEventLog`) {
+export class RepoRunEventLog extends Context.Service<RepoRunEventLog, RepoRunEventLogShape>()($I`RepoRunEventLog`) {
   static readonly layer: Layer.Layer<
     RepoRunEventLog,
     never,

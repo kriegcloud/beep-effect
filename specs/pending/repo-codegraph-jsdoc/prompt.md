@@ -7,7 +7,7 @@ Plan to implement                                                               
  The JSDocTagDefinition schema carries ALL metadata as struct fields — both constant-per-tag data (synonyms, overview, specifications...) and per-occurrence instance data (_tag, value). This "fat Σ-type" means  │
  every decoded tag instance carries ~12 fields of static metadata that never vary, bloating serialized forms and LLM structured output schemas.                                                                    │
                                                                                                                                                                                                                    │
- The refactoring separates constant metadata → schema annotation (the fiber) from per-occurrence data → struct fields (the base), creating a Grothendieck fibration recoverable via S.resolveInto().               │
+ The refactoring separates constant metadata → schema annotation (the fiber) from per-occurrence data → struct fields (the base), creating a Grothendieck fibration recoverable via S.resolveAnnotations().               │
                                                                                                                                                                                                                    │
  Key Discovery: Effect v4 Typed Annotations                                                                                                                                                                        │
                                                                                                                                                                                                                    │
@@ -21,7 +21,7 @@ Plan to implement                                                               
    }                                                                                                                                                                                                               │
  }                                                                                                                                                                                                                 │
                                                                                                                                                                                                                    │
- Retrieval: S.resolveInto(schema)?.["jsDocTagMetadata"]                                                                                                                                                            │
+ Retrieval: S.resolveAnnotations(schema)?.["jsDocTagMetadata"]                                                                                                                                                            │
                                                                                                                                                                                                                    │
  Implementation                                                                                                                                                                                                    │
                                                                                                                                                                                                                    │
@@ -32,7 +32,7 @@ Plan to implement                                                               
  Defines:                                                                                                                                                                                                          │
  1. JSDocTagAnnotationPayload type — alias for typeof JSDocTagDefinition.Type (reuses the existing class type; avoids duplicating 12 field definitions)                                                            │
  2. declare module augmentation — registers jsDocTagMetadata as a typed annotation key on Schema.Annotations.Annotations                                                                                           │
- 3. getJSDocTagMetadata(schema) helper — wraps S.resolveInto(schema)?.["jsDocTagMetadata"]                                                                                                                         │
+ 3. getJSDocTagMetadata(schema) helper — wraps S.resolveAnnotations(schema)?.["jsDocTagMetadata"]                                                                                                                         │
                                                                                                                                                                                                                    │
  Import direction: JSDocTagAnnotation → JSDocTagDefinition (type-only import for the payload type). No circular dependency — JSDocTagDefinition.model.ts does NOT need to import this file; the declare module     │
  augmentation is ambient.                                                                                                                                                                                          │
@@ -117,11 +117,11 @@ Plan to implement                                                               
  Path: tooling/repo-utils/src/JSDoc/__tests__/                                                                                                                                                                     │
                                                                                                                                                                                                                    │
  Tests to write:                                                                                                                                                                                                   │
- 1. Annotation retrieval: S.resolveInto(JSDocParam)?.["jsDocTagMetadata"] returns correct metadata                                                                                                                 │
+ 1. Annotation retrieval: S.resolveAnnotations(JSDocParam)?.["jsDocTagMetadata"] returns correct metadata                                                                                                                 │
  2. Lean decode: { _tag: "param", value: { name: "x", type: "string" } } decodes against JSDocParam                                                                                                                │
  3. Empty decode: { _tag: "async", value: {} } decodes against JSDocAsync                                                                                                                                          │
  4. Union discrimination: JSDocTag discriminates across all members                                                                                                                                                │
- 5. Annotation through union: S.resolveInto(StructuralJSDoc.cases.param)?.["jsDocTagMetadata"] works                                                                                                               │
+ 5. Annotation through union: S.resolveAnnotations(StructuralJSDoc.cases.param)?.["jsDocTagMetadata"] works                                                                                                               │
  6. $I.annote coexistence: Both schemaId and jsDocTagMetadata accessible on same schema                                                                                                                            │
                                                                                                                                                                                                                    │
  Critical Files                                                                                                                                                                                                    │
@@ -146,7 +146,7 @@ Plan to implement                                                               
  - LiteralKit from @beep/schema — used by supporting models (ApplicableTo, TagKind, etc.), unchanged                                                                                                               │
  - S.decodeSync(JSDocTagDefinition) — input validation stays in make()                                                                                                                                             │
  - S.tag(), S.Struct(), S.Opaque, S.Union, S.toTaggedUnion — all Effect v4 APIs, verified against .repos/effect-v4                                                                                                 │
- - S.resolveInto() — Effect v4 annotation retrieval (Schema.ts:9189)                                                                                                                                               │
+ - S.resolveAnnotations() — Effect v4 annotation retrieval (Schema.ts:9189)                                                                                                                                               │
                                                                                                                                                                                                                    │
  Verification                                                                                                                                                                                                      │
                                                                                                                                                                                                                    │
@@ -171,5 +171,5 @@ Plan to implement                                                               
 
                                                                                                                                                                                                                    │
  # Verify annotation retrieval (in test or REPL)                                                                                                                                                                   │
- # S.resolveInto(JSDocParam)?.["jsDocTagMetadata"]?._tag === "param"                                                                                                                                               │
- # S.resolveInto(JSDocParam)?.["jsDocTagMetadata"]?.astDerivable === "partial"    
+ # S.resolveAnnotations(JSDocParam)?.["jsDocTagMetadata"]?._tag === "param"                                                                                                                                               │
+ # S.resolveAnnotations(JSDocParam)?.["jsDocTagMetadata"]?.astDerivable === "partial"

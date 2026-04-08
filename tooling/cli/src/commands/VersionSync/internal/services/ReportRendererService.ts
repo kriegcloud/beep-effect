@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { thunkEmptyStr } from "@beep/utils";
-import { Console, Effect, Layer, ServiceMap } from "effect";
+import { Console, Context, Effect, Layer } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
@@ -42,7 +42,7 @@ export type ReportRendererServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class ReportRendererService extends ServiceMap.Service<ReportRendererService, ReportRendererServiceShape>()(
+export class ReportRendererService extends Context.Service<ReportRendererService, ReportRendererServiceShape>()(
   $I`ReportRendererService`
 ) {}
 

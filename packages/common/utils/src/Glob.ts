@@ -1,6 +1,6 @@
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
-import { Effect, Layer, Order, pipe, ServiceMap } from "effect";
+import { Context, Effect, Layer, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -125,7 +125,7 @@ export interface Glob {
  * @category services
  * @since 0.0.0
  */
-export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");
+export const Glob: Context.Service<Glob, Glob> = Context.Service("@effect/utils/Glob");
 
 type GlobMatcher = (relativePath: string) => boolean;
 

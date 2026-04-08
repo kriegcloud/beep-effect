@@ -12,7 +12,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Tool, type Toolkit } from "effect/unstable/ai";
+import { type AiError, Tool, type Toolkit } from "effect/unstable/ai";
 import { NlpToolkit, NlpTools } from "./NlpToolkit.ts";
 
 const $I = $NlpId.create("Tools/ToolExport");
@@ -134,11 +134,23 @@ const buildArgsObject = (
   });
 };
 
-const handleTool = (toolkit: NlpToolkitWithHandler, tool: NlpTool, params: unknown) =>
+const handleTool = <T extends NlpTool>(
+  toolkit: NlpToolkitWithHandler,
+  tool: T,
+  params: Tool.Parameters<T>
+): Effect.Effect<
+  Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError, never>,
+  AiError.AiError,
+  never
+> =>
   // `Toolkit.handle` is keyed by a literal tool-name map. At this adapter boundary
   // we validate `params` against the selected tool schema immediately beforehand,
   // so the runtime pairing of tool name and decoded parameters is sound.
-  toolkit.handle(tool.name as never, params as never);
+  toolkit.handle(tool.name as never, params as never) as Effect.Effect<
+    Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError, never>,
+    AiError.AiError,
+    never
+  >;
 
 const buildExportedTool = <T extends NlpTool>(tool: T, toolkit: NlpToolkitWithHandler): ExportedTool => {
   const parameterNames = parameterNamesForTool(tool);
@@ -147,11 +159,12 @@ const buildExportedTool = <T extends NlpTool>(tool: T, toolkit: NlpToolkitWithHa
     description: Tool.getDescription(tool) ?? "",
     handle: (args) =>
       Effect.gen(function* () {
-        const params = yield* S.decodeUnknownEffect(tool.parametersSchema)(buildArgsObject(parameterNames, args)).pipe(
-          Effect.mapError((cause) =>
-            ExportedToolError.fromCause(cause, tool.name, `Invalid parameters for ${tool.name}: ${renderError(cause)}`)
-          )
-        );
+        const params = yield* Effect.try({
+          try: () =>
+            S.decodeUnknownSync(tool.parametersSchema)(buildArgsObject(parameterNames, args)) as Tool.Parameters<T>,
+          catch: (cause) =>
+            ExportedToolError.fromCause(cause, tool.name, `Invalid parameters for ${tool.name}: ${renderError(cause)}`),
+        });
         const stream = yield* handleTool(toolkit, tool, params).pipe(
           Effect.mapError((cause) =>
             ExportedToolError.fromCause(cause, tool.name, `Failed to start ${tool.name}: ${renderError(cause)}`)
@@ -192,14 +205,10 @@ const buildExportedTool = <T extends NlpTool>(tool: T, toolkit: NlpToolkitWithHa
 };
 
 /**
- * Export the NLP toolkit as positional tools suitable for REPL-style invocation.
- *
- * @returns {Effect.Effect<ReadonlyArray<ExportedTool>, ExportedToolError, Tool.HandlersFor<typeof NlpToolkit.tools>>} - An Effect that resolves with the exported positional tools once the toolkit handlers are available.
- *
  * @since 0.0.0
  * @category Adapters
  */
-export const exportTools: Effect.Effect<
+const exportToolsEffect: Effect.Effect<
   ReadonlyArray<ExportedTool>,
   ExportedToolError,
   Tool.HandlersFor<typeof NlpToolkit.tools>
@@ -211,3 +220,8 @@ export const exportTools: Effect.Effect<
     ExportedToolError.fromCause(cause, "__init__", `Failed to export NLP tools: ${renderError(cause)}`)
   )
 );
+/**
+ * @since 0.0.0
+ * @category Adapters
+ */
+export const exportTools: typeof exportToolsEffect = exportToolsEffect;

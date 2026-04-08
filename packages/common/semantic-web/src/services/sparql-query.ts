@@ -7,7 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
-import { Effect, Layer, ServiceMap } from "effect";
+import { Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 import { Dataset, Term } from "../rdf.ts";
 import { makeSemanticSchemaMetadata } from "../semantic-schema-metadata.ts";
@@ -161,7 +161,7 @@ export interface SparqlQueryServiceShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class SparqlQueryService extends ServiceMap.Service<SparqlQueryService, SparqlQueryServiceShape>()(
+export class SparqlQueryService extends Context.Service<SparqlQueryService, SparqlQueryServiceShape>()(
   $I`SparqlQueryService`
 ) {}
 

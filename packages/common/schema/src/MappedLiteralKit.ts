@@ -283,11 +283,19 @@ type ReverseDirectionalKit<M extends MappedPairs> = DirectionalKit<ToLiterals<M>
  * @category DomainModel
  * @since 0.0.0
  */
-export type MappedLiteralKit<M extends MappedPairs> = ForwardDirectionalKit<M> & {
+type MappedLiteralKitBase<M extends MappedPairs> = ForwardDirectionalKit<M> & {
   readonly From: ForwardDirectionalKit<M>;
   readonly To: ReverseDirectionalKit<M>;
   readonly Pairs: M;
 };
+
+/**
+ * @since 0.0.0
+ */
+export interface MappedLiteralKit<M extends MappedPairs> extends MappedLiteralKitBase<M> {
+  readonly "~rebuild.out": MappedLiteralKit<M>;
+  annotate(annotations: S.Annotations.Bottom<this["Type"], this["~type.parameters"]>): MappedLiteralKit<M>;
+}
 
 /**
  * Builds a mapped literal schema kit from a non-empty tuple of literal pairs.

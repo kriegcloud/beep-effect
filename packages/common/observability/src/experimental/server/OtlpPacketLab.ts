@@ -1,6 +1,6 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Effect, Layer, MutableRef, pipe, ServiceMap } from "effect";
+import { Context, Effect, Layer, MutableRef, pipe } from "effect";
 import * as A from "effect/Array";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -112,7 +112,7 @@ export class OtlpPacket extends S.Class<OtlpPacket>($I`OtlpPacket`)(
  * @since 0.0.0
  * @category services
  */
-export class OtlpPacketLab extends ServiceMap.Service<
+export class OtlpPacketLab extends Context.Service<
   OtlpPacketLab,
   {
     readonly snapshot: Effect.Effect<ReadonlyArray<OtlpPacket>>;

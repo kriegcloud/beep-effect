@@ -7,7 +7,7 @@ import type {
   RepoSourceSnapshot,
   SourceSnapshotId,
 } from "@beep/repo-memory-model";
-import { type Effect, ServiceMap } from "effect";
+import { Context, type Effect } from "effect";
 import type * as O from "effect/Option";
 import type { RepoStoreError } from "./RepoStoreError.js";
 
@@ -44,6 +44,6 @@ export interface RepoSnapshotStoreShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoSnapshotStore extends ServiceMap.Service<RepoSnapshotStore, RepoSnapshotStoreShape>()(
+export class RepoSnapshotStore extends Context.Service<RepoSnapshotStore, RepoSnapshotStoreShape>()(
   $I`RepoSnapshotStore`
 ) {}

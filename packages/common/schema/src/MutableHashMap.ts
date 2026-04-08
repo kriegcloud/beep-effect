@@ -96,6 +96,7 @@ export interface MutableHashMapFromSelf<Key extends S.Top, Value extends S.Top>
     readonly [Key, Value],
     MutableHashMapIso<Key, Value>
   > {
+  readonly "~rebuild.out": this;
   readonly key: Key;
   readonly value: Value;
 }
@@ -111,6 +112,7 @@ export interface MutableHashMap<Key extends S.Top, Value extends S.Top>
     MutableHashMapFromSelf<S.toType<Key>, S.toType<Value>>,
     S.$Array<MutableHashMapEntry<Key, Value>>
   > {
+  readonly "~rebuild.out": this;
   readonly key: Key;
   readonly value: Value;
 }

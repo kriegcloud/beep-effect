@@ -15,7 +15,7 @@
 
 import { createHash } from "node:crypto";
 import { $ClaudeId } from "@beep/identity/packages";
-import { thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
+import { thunk0, thunkEmptyStr, thunkUndefined } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Clock, Config, Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
 import * as A from "effect/Array";
@@ -31,12 +31,12 @@ const $I = $ClaudeId.create("hooks/skill-suggester/index");
 class LenientUserPromptInput extends S.Class<LenientUserPromptInput>($I`LenientUserPromptInput`)(
   {
     session_id: S.String,
-    transcript_path: S.String.pipe(S.withDecodingDefault(thunkEmptyStr)),
+    transcript_path: S.String.pipe(S.withDecodingDefault(Effect.succeed(""))),
     cwd: S.String,
-    permission_mode: S.String.pipe(S.withDecodingDefault(() => "default")),
+    permission_mode: S.String.pipe(S.withDecodingDefault(Effect.succeed("default"))),
     hook_event_name: S.Literal("UserPromptSubmit"),
-    prompt: S.String.pipe(S.withDecodingDefault(thunkEmptyStr)),
-    user_prompt: S.String.pipe(S.withDecodingDefault(thunkEmptyStr)),
+    prompt: S.String.pipe(S.withDecodingDefault(Effect.succeed(""))),
+    user_prompt: S.String.pipe(S.withDecodingDefault(Effect.succeed(""))),
   },
   $I.annote("LenientUserPromptInput", {
     description: "UserPromptSubmit hook input with lenient defaults for missing text fields.",
@@ -50,7 +50,7 @@ export type SkillMetadata = Readonly<{
 
 class HookState extends S.Class<HookState>($I`HookState`)(
   {
-    lastCallMs: S.NullOr(S.Number).pipe(S.withDecodingDefault(thunkNull)),
+    lastCallMs: S.NullOr(S.Number).pipe(S.withDecodingDefault(Effect.succeed(null))),
   },
   $I.annote("HookState", {
     description: "Persisted state for hook call timing.",
@@ -456,7 +456,7 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
         pipe(
           S.decodeUnknownOption(SnapshotRecordFromJson)(line),
           O.map((parsed) => {
-            const file = O.getOrElse(O.fromUndefinedOr(parsed.file), thunkEmptyStr);
+            const file = P.isString(parsed.file) ? parsed.file : "";
             return {
               file,
               nodeCount: O.getOrElse(O.fromUndefinedOr(parsed.nodeCount), thunk0),
@@ -472,12 +472,7 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
           }))
         )
       ),
-      A.filter(
-        P.Struct({
-          file: Str.isNonEmpty,
-          score: (score) => score > 0,
-        })
-      ),
+      A.filter((entry) => Str.isNonEmpty(entry.file) && entry.score > 0),
       A.sort(Order.mapInput(Order.flip(Order.Number), ({ score }: { readonly score: number }) => score)),
       A.take(8)
     );

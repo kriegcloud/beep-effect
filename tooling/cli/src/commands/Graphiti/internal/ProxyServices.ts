@@ -9,6 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import {
   Clock,
+  Context,
   Deferred,
   Duration,
   Effect,
@@ -20,7 +21,6 @@ import {
   Result,
   SchemaTransformation,
   type Scope,
-  ServiceMap,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -275,7 +275,7 @@ type GraphitiProxyQueueServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class GraphitiDependencyHealthService extends ServiceMap.Service<
+export class GraphitiDependencyHealthService extends Context.Service<
   GraphitiDependencyHealthService,
   GraphitiDependencyHealthServiceShape
 >()($I`GraphitiDependencyHealthService`) {}
@@ -286,7 +286,7 @@ export class GraphitiDependencyHealthService extends ServiceMap.Service<
  * @category PortContract
  * @since 0.0.0
  */
-export class GraphitiProxyForwarderService extends ServiceMap.Service<
+export class GraphitiProxyForwarderService extends Context.Service<
   GraphitiProxyForwarderService,
   GraphitiProxyForwarderServiceShape
 >()($I`GraphitiProxyForwarderService`) {}
@@ -297,7 +297,7 @@ export class GraphitiProxyForwarderService extends ServiceMap.Service<
  * @category PortContract
  * @since 0.0.0
  */
-export class GraphitiProxyQueueService extends ServiceMap.Service<
+export class GraphitiProxyQueueService extends Context.Service<
   GraphitiProxyQueueService,
   GraphitiProxyQueueServiceShape
 >()($I`GraphitiProxyQueueService`) {}

@@ -308,7 +308,7 @@ const spawnSidecar = (options: {
           }),
         catch: (cause) => toTestError("Failed to spawn the Bun sidecar process.", cause),
       });
-      const services = yield* Effect.services<never>();
+      const services = yield* Effect.context<never>();
       const runAppendOutput = Effect.runForkWith(services);
 
       child.stdout.on("data", (chunk) => {

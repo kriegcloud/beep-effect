@@ -109,9 +109,6 @@
       "path": "packages/shared/ui"
     },
     {
-      "path": "scratchpad"
-    },
-    {
       "path": "tooling/cli"
     },
     {

@@ -198,7 +198,7 @@ export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
  * ```typescript
  * import { Entity } from "@beep/semantic-web/prov"
  *
- * const entity = Entity.makeUnsafe({ provType: "Entity" })
+ * const entity = Entity.make({ provType: "Entity" })
  * console.log(entity.provType) // "Entity"
  * ```
  *
@@ -240,7 +240,7 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  * ```typescript
  * import { Activity } from "@beep/semantic-web/prov"
  *
- * const activity = Activity.makeUnsafe({ provType: "Activity" })
+ * const activity = Activity.make({ provType: "Activity" })
  * console.log(activity.provType) // "Activity"
  * ```
  *
@@ -277,7 +277,7 @@ export class Activity extends S.Class<Activity>($I`Activity`)(
  * ```typescript
  * import { Agent } from "@beep/semantic-web/prov"
  *
- * const agent = Agent.makeUnsafe({ provType: "Agent", name: "alice" })
+ * const agent = Agent.make({ provType: "Agent", name: "alice" })
  * console.log(agent.provType) // "Agent"
  * ```
  *
@@ -703,7 +703,7 @@ export type ProvRecord = typeof ProvRecord.Type;
  * ```typescript
  * import { ProvBundle } from "@beep/semantic-web/prov"
  *
- * const bundle = ProvBundle.makeUnsafe({ records: [] })
+ * const bundle = ProvBundle.make({ records: [] })
  * console.log(bundle.records.length) // 0
  * ```
  *

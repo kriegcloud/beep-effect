@@ -4,11 +4,12 @@ import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, Layer } from "effect";
 import { loadEditorRuntimeConfig, runEditorRuntime } from "./index.js";
 
-const main = Layer.effectDiscard(
-  Effect.gen(function* () {
-    const config = yield* loadEditorRuntimeConfig();
-    yield* runEditorRuntime(config);
-  })
-).pipe(Layer.provide(Layer.mergeAll(BunFileSystem.layer, BunPath.layer)));
+const loadConfig = Effect.scoped(
+  Layer.build(Layer.mergeAll(BunFileSystem.layer, BunPath.layer)).pipe(
+    Effect.flatMap((context) => loadEditorRuntimeConfig().pipe(Effect.provide(context)))
+  )
+);
 
-BunRuntime.runMain(Layer.launch(main));
+const main = loadConfig.pipe(Effect.flatMap(runEditorRuntime), Effect.scoped);
+
+BunRuntime.runMain(main);

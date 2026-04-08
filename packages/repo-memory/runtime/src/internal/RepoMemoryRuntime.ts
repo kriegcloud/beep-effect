@@ -28,7 +28,7 @@ import {
   RepoSymbolStore,
 } from "@beep/repo-memory-store";
 import { NonNegativeInt } from "@beep/schema";
-import { Config, DateTime, Effect, type FileSystem, Layer, pipe, ServiceMap, type Stream } from "effect";
+import { Config, Context, DateTime, Effect, type FileSystem, Layer, pipe, type Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -474,7 +474,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoRunService extends ServiceMap.Service<RepoRunService, RepoRunServiceShape>()($I`RepoRunService`) {
+export class RepoRunService extends Context.Service<RepoRunService, RepoRunServiceShape>()($I`RepoRunService`) {
   static readonly layer: Layer.Layer<
     RepoRunService,
     never,
@@ -514,7 +514,7 @@ export const RepoRunWorkflowsLayer = Layer.mergeAll(
     Effect.fn("RepoRunService.IndexRepoRunWorkflow")(function* (payload, executionId) {
       const repoRunService = yield* RepoRunService;
       return yield* repoRunService
-        .executeIndexRun(payload, RunId.makeUnsafe(executionId))
+        .executeIndexRun(payload, RunId.make(executionId))
         .pipe(Effect.mapError(toRunStreamFailure));
     })
   ),
@@ -522,7 +522,7 @@ export const RepoRunWorkflowsLayer = Layer.mergeAll(
     Effect.fn("RepoRunService.QueryRepoRunWorkflow")(function* (payload, executionId) {
       const repoRunService = yield* RepoRunService;
       return yield* repoRunService
-        .executeQueryRun(payload, RunId.makeUnsafe(executionId))
+        .executeQueryRun(payload, RunId.make(executionId))
         .pipe(Effect.mapError(toRunStreamFailure));
     })
   )

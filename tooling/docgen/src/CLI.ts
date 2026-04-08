@@ -6,6 +6,7 @@
 
 import { TSConfigCompilerOptions } from "@beep/repo-utils";
 import { Effect, Layer } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
@@ -144,7 +145,7 @@ export const docgenCommand = Command.make("docgen", options, (input) =>
       enforceVersion: input.enforceVersion,
       tscExecutable: input.tscExecutable,
       runExamples: input.runExamples,
-      exclude: input.exclude.pipe(O.map((value) => [value] as ReadonlyArray<string>)),
+      exclude: input.exclude.pipe(O.map(A.of)),
       parseCompilerOptions,
       examplesCompilerOptions,
     });

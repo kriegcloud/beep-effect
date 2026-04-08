@@ -7,8 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { thunkFalse, thunkSomeFalse } from "@beep/utils";
-import { Tuple } from "effect";
+import { Effect, Tuple } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -167,11 +166,11 @@ class VersionCategoryReportBun extends S.Class<VersionCategoryReportBun>($I`Vers
     category: S.tag("bun"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(A.empty<VersionDriftItem>)
+      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
   },
   $I.annote("VersionCategoryReportBun", {
     description: "Version report entry for Bun category.",
@@ -183,11 +182,11 @@ class VersionCategoryReportNode extends S.Class<VersionCategoryReportNode>($I`Ve
     category: S.tag("node"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(A.empty<VersionDriftItem>)
+      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
   },
   $I.annote("VersionCategoryReportNode", {
     description: "Version report entry for Node category.",
@@ -199,11 +198,11 @@ class VersionCategoryReportDocker extends S.Class<VersionCategoryReportDocker>($
     category: S.tag("docker"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(A.empty<VersionDriftItem>)
+      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
   },
   $I.annote("VersionCategoryReportDocker", {
     description: "Version report entry for Docker category.",
@@ -215,11 +214,11 @@ class VersionCategoryReportBiome extends S.Class<VersionCategoryReportBiome>($I`
     category: S.tag("biome"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(A.empty<VersionDriftItem>)
+      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
   },
   $I.annote("VersionCategoryReportBiome", {
     description: "Version report entry for Biome category.",
@@ -231,11 +230,11 @@ class VersionCategoryReportEffect extends S.Class<VersionCategoryReportEffect>($
     category: S.tag("effect"),
     status: VersionCategoryStatus,
     items: S.Array(VersionDriftItem).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<VersionDriftItem>())),
-      S.withDecodingDefault(A.empty<VersionDriftItem>)
+      S.withConstructorDefault(Effect.succeed(A.empty<VersionDriftItem>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<VersionDriftItem>()))
     ),
-    error: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    error: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
   },
   $I.annote("VersionCategoryReportEffect", {
     description: "Version report entry for Effect catalog packages.",
@@ -323,8 +322,8 @@ export const VersionSyncModeMatch = VersionSyncModeKit.$match;
 export type VersionSyncMode = typeof VersionSyncMode.Type;
 
 const DefaultedVersionSyncFlag = S.Boolean.pipe(
-  S.withConstructorDefault(thunkSomeFalse),
-  S.withDecodingDefault(thunkFalse)
+  S.withConstructorDefault(Effect.succeed(false)),
+  S.withDecodingDefault(Effect.succeed(false))
 );
 
 class VersionSyncOptionsCheck extends S.Class<VersionSyncOptionsCheck>($I`VersionSyncOptionsCheck`)(
@@ -423,8 +422,8 @@ export class VersionSyncResolution extends S.Class<VersionSyncResolution>($I`Ver
   {
     report: VersionSyncReport,
     nodeLocations: S.Array(VersionSyncUpdateLocation).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<VersionSyncUpdateLocation>())),
-      S.withDecodingDefault(A.empty<VersionSyncUpdateLocation>)
+      S.withConstructorDefault(Effect.succeed(A.empty<VersionSyncUpdateLocation>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<VersionSyncUpdateLocation>()))
     ),
   },
   $I.annote("VersionSyncResolution", {

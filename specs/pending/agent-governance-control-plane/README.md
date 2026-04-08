@@ -144,7 +144,7 @@ Every consumer spec and every agent session inheriting this package is required 
 4. `try/catch` is not allowed where `Result.try`, `Effect.try`, or `Effect.tryPromise` is required.
 5. Native helpers are not allowed where Effect modules or schema codecs exist.
 6. Unknown input is required to be decoded with Schema at the boundary.
-7. `ServiceMap.Service` contracts are required to expose domain-facing capabilities without leaking dependencies.
+7. `Context.Service` contracts are required to expose domain-facing capabilities without leaking dependencies.
 8. Service wiring is required to be composed with layers close to the application boundary.
 9. Network requests are required to use `effect/unstable/http`, and application HTTP boundaries are required to use `effect/unstable/httpapi`.
 10. Stateful workflows are required to use the correct `Ref`-family primitive instead of ad-hoc mutable state.

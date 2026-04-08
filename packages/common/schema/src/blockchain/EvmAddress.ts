@@ -101,7 +101,7 @@ export type EvmAddress = typeof EvmAddress.Type;
 export const EvmAddressRedacted = EvmAddress.pipe(
   S.RedactedFromValue,
   SchemaUtils.withStatics(() => ({
-    makeRedacted: flow(EvmAddress.makeUnsafe, Redacted.make),
+    makeRedacted: flow(EvmAddress.make, Redacted.make),
   })),
   S.annotate(
     $I.annote("EvmAddressRedacted", {

@@ -11,7 +11,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { decodeYamlTextAs } from "@beep/schema/Yaml";
-import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
+import { thunkFalse } from "@beep/utils";
 import { Effect, FileSystem, identity, Path, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -81,8 +81,8 @@ class WorkflowStep extends S.Class<WorkflowStep>($I`WorkflowStep`)(
 class WorkflowJob extends S.Class<WorkflowJob>($I`WorkflowJob`)(
   {
     steps: S.Array(WorkflowStep).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<WorkflowStep>())),
-      S.withDecodingDefault(A.empty<WorkflowStep>)
+      S.withConstructorDefault(Effect.succeed(A.empty<WorkflowStep>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<WorkflowStep>()))
     ),
   },
   $I.annote("WorkflowJob", {
@@ -93,8 +93,8 @@ class WorkflowJob extends S.Class<WorkflowJob>($I`WorkflowJob`)(
 class WorkflowDocument extends S.Class<WorkflowDocument>($I`WorkflowDocument`)(
   {
     jobs: S.Record(S.String, WorkflowJob).pipe(
-      S.withConstructorDefault(thunkSomeEmptyRecord<string, WorkflowJob>),
-      S.withDecodingDefault(thunkEmptyRecord<string, WorkflowJob>)
+      S.withConstructorDefault(Effect.succeed(R.empty<string, WorkflowJob>())),
+      S.withDecodingDefault(Effect.succeed(R.empty<string, WorkflowJob>()))
     ),
   },
   $I.annote("WorkflowDocument", {
@@ -224,7 +224,7 @@ const findNodeVersionLocations: (
         new NodeVersionLocation({
           file: relativeFile,
           jobName,
-          stepIndex: NonNegativeInt.makeUnsafe(stepIdx),
+          stepIndex: NonNegativeInt.make(stepIdx),
           currentValue: nodeVersion,
           yamlPath: ["jobs", jobName, "steps", stepIdx, "with", "node-version"],
         })
@@ -261,7 +261,7 @@ export const buildNodeReport: (state: NodeVersionState) => VersionCategoryReport
     }
   }
 
-  return VersionCategoryReport.cases.node.makeUnsafe({
+  return new VersionCategoryReport.cases.node({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: VersionCategoryStatusThunk.drift,

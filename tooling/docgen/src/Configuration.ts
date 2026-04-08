@@ -4,7 +4,7 @@
 
 import { $DocgenId } from "@beep/identity/packages";
 import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@beep/repo-utils";
-import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
+import { Context, Effect, FileSystem, Layer, Path } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
@@ -90,7 +90,7 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
  * @category service
  * @since 0.0.0
  */
-export class Configuration extends ServiceMap.Service<Configuration, ConfigurationShape>()($I`Configuration`) {
+export class Configuration extends Context.Service<Configuration, ConfigurationShape>()($I`Configuration`) {
   /**
    * Creates a layer that provides the current docgen configuration.
    *

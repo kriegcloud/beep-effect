@@ -52,6 +52,19 @@ export const NotificationAction = ActionType.mapMembers((members) => {
 
 export type NotificationAction = typeof NotificationAction.Type;
 
+const actionIcon = (action: NotificationAction) => {
+  switch (action.type) {
+    case "redirect":
+      return <ArrowRightIcon size={12} weight="bold" />;
+    case "api_call":
+      return <CheckIcon size={12} weight="bold" />;
+    case "workflow":
+      return <ClockIcon size={12} weight="bold" />;
+    case "modal":
+      return <WarningCircleIcon size={12} weight="bold" />;
+  }
+};
+
 interface NotificationCardProps {
   readonly actions?: undefined | NotificationAction[];
   readonly body: string;
@@ -186,16 +199,7 @@ export function NotificationCard({
                     ) : (
                       <>
                         <span>{action.label}</span>
-                        {isExecuted ? (
-                          <CheckIcon size={12} weight="bold" />
-                        ) : (
-                          NotificationAction.match(action, {
-                            redirect: () => <ArrowRightIcon size={12} weight="bold" />,
-                            api_call: () => <CheckIcon size={12} weight="bold" />,
-                            workflow: () => <ClockIcon size={12} weight="bold" />,
-                            modal: () => <WarningCircleIcon size={12} weight="bold" />,
-                          })
-                        )}
+                        {isExecuted ? <CheckIcon size={12} weight="bold" /> : actionIcon(action)}
                       </>
                     )}
                   </button>

@@ -8,7 +8,6 @@
  * @module @beep/messages
  */
 
-export type { GetLogIssuesOptions } from "./i18n.js";
 /**
  * @example
  * ```typescript
@@ -21,5 +20,5 @@ export type { GetLogIssuesOptions } from "./i18n.js";
  * @since 0.0.0
  * @category exports
  */
-export { getLogIssues, leafHook, logIssues, t } from "./i18n.js";
+export * from "./i18n.js";
 // bench

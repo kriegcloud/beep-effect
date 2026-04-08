@@ -16,14 +16,10 @@ type TaggedStructFromSchema<Tag extends string, Schema extends TaggedErrorStruct
   >
 >;
 
-type TaggedErrorBase<Self, Schema extends TaggedErrorStruct, Brand> = S.ErrorClass<
-  Self,
-  Schema,
-  TaggedErrorCause<Brand>
->;
+type TaggedErrorBase<Self, Schema extends TaggedErrorStruct, Brand> = S.Class<Self, Schema, TaggedErrorCause<Brand>>;
 
-type TaggedErrorSchema<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
-  ErrorClass extends S.ErrorClass<TUnsafe.Any, infer Schema, TUnsafe.Any> ? Schema : never;
+type TaggedErrorSchema<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
+  ErrorClass extends S.Class<TUnsafe.Any, infer Schema, TUnsafe.Any> ? Schema : never;
 
 /**
  * Input type for constructing a tagged error, omitting the discriminator `_tag`.
@@ -31,34 +27,34 @@ type TaggedErrorSchema<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any,
  * @since 0.0.0
  * @category models
  */
-export type TaggedErrorNewInput<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = Omit<
+export type TaggedErrorNewInput<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = Omit<
   S.Schema.Type<TaggedErrorSchema<ErrorClass>>,
   "_tag"
 >;
 
-type TaggedErrorNewInputHasCause<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
+type TaggedErrorNewInputHasCause<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
   "cause" extends keyof TaggedErrorNewInput<ErrorClass> ? true : false;
 
-type TaggedErrorNewInputCause<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
+type TaggedErrorNewInputCause<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
   TaggedErrorNewInput<ErrorClass> extends { readonly cause: infer Cause }
     ? Cause
     : TaggedErrorNewInput<ErrorClass> extends { readonly cause?: infer Cause }
       ? Cause
       : never;
 
-type TaggedErrorNewInputRest<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = Omit<
+type TaggedErrorNewInputRest<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = Omit<
   TaggedErrorNewInput<ErrorClass>,
   "cause"
 >;
 
-type TaggedErrorHasRequiredCause<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
+type TaggedErrorHasRequiredCause<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
   "cause" extends keyof TaggedErrorNewInput<ErrorClass>
     ? {} extends Pick<TaggedErrorNewInput<ErrorClass>, "cause">
       ? false
       : true
     : false;
 
-type TaggedErrorNewMethod<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = ((
+type TaggedErrorNewMethod<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = ((
   input: TaggedErrorNewInput<ErrorClass>
 ) => S.Schema.Type<ErrorClass>) &
   (TaggedErrorNewInputHasCause<ErrorClass> extends true
@@ -73,7 +69,7 @@ type TaggedErrorNewMethod<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.A
       ) => (cause: TaggedErrorNewInputCause<ErrorClass>) => S.Schema.Type<ErrorClass>
     : {});
 
-type TaggedErrorNewThunkMethod<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = ((
+type TaggedErrorNewThunkMethod<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = ((
   input: TaggedErrorNewInput<ErrorClass>
 ) => () => S.Schema.Type<ErrorClass>) &
   (TaggedErrorNewInputHasCause<ErrorClass> extends true
@@ -94,11 +90,10 @@ type TaggedErrorNewThunkMethod<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUns
  * @since 0.0.0
  * @category models
  */
-export type TaggedErrorClassWithNew<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
-  ErrorClass & {
-    new: TaggedErrorNewMethod<ErrorClass>;
-    newThunk: TaggedErrorNewThunkMethod<ErrorClass>;
-  };
+export type TaggedErrorClassWithNew<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = ErrorClass & {
+  new: TaggedErrorNewMethod<ErrorClass>;
+  newThunk: TaggedErrorNewThunkMethod<ErrorClass>;
+};
 
 type TaggedErrorFromFields<Self, Brand, Tag extends string, Fields extends TaggedErrorFields> = TaggedErrorClassWithNew<
   TaggedErrorBase<Self, TaggedStructFromFields<Tag, Fields>, Brand>
@@ -258,13 +253,20 @@ export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undef
     schema: TaggedErrorFields | TaggedErrorStruct,
     annotations?: S.Annotations.Declaration<TUnsafe.Any, readonly [TaggedErrorStruct]>
   ) => {
-    const taggedSchema = isStruct(schema)
-      ? schema.mapFields((fields) => ({ _tag: S.tag(tagValue), ...fields }), {
-          unsafePreserveChecks: true,
-        })
-      : S.TaggedStruct(tagValue, schema);
+    let errorClass: S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>;
+    let taggedSchema: TaggedErrorStruct;
+
+    if (isStruct(schema)) {
+      taggedSchema = schema.mapFields((fields) => ({ _tag: S.tag(tagValue), ...fields }), {
+        unsafePreserveChecks: true,
+      });
+      errorClass = S.TaggedErrorClass<TUnsafe.Any, TUnsafe.Any>(identifier)(tagValue, schema, annotations as never);
+    } else {
+      taggedSchema = S.TaggedStruct(tagValue, schema);
+      errorClass = S.TaggedErrorClass<TUnsafe.Any, TUnsafe.Any>(identifier)(tagValue, schema, annotations as never);
+    }
+
     const causeMetadata = getCauseMetadata(taggedSchema);
-    const errorClass = S.ErrorClass(identifier ?? tagValue)(taggedSchema, annotations);
     const taggedErrorClassWithNew = errorClass as TaggedErrorClassWithNew<typeof errorClass>;
     const shouldConstructImmediately = (args: IArguments) => args.length > 1 || !isRestPayload(args[0], causeMetadata);
 
@@ -285,5 +287,5 @@ export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undef
       return Reflect.apply(construct, undefined, arguments);
     } as TaggedErrorNewThunkMethod<typeof errorClass>;
     return taggedErrorClassWithNew;
-  }) as UnsafeTaggedErrorClassFactory;
+  }) as unknown as UnsafeTaggedErrorClassFactory;
 };

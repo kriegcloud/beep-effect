@@ -1,7 +1,7 @@
 import { $RepoMemoryStoreId } from "@beep/identity/packages";
 import type { RepoId, RepoImportEdge, RepoSymbolRecord, SourceSnapshotId } from "@beep/repo-memory-model";
 import type { FilePath } from "@beep/schema";
-import { type Effect, ServiceMap } from "effect";
+import { Context, type Effect } from "effect";
 import type { RepoStoreError } from "./RepoStoreError.js";
 
 const $I = $RepoMemoryStoreId.create("RepoSymbolStore");
@@ -55,4 +55,4 @@ export interface RepoSymbolStoreShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoSymbolStore extends ServiceMap.Service<RepoSymbolStore, RepoSymbolStoreShape>()($I`RepoSymbolStore`) {}
+export class RepoSymbolStore extends Context.Service<RepoSymbolStore, RepoSymbolStoreShape>()($I`RepoSymbolStore`) {}

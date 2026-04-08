@@ -85,13 +85,22 @@ const FileNameStemWithDot = S.TemplateLiteral([FileNameStem, "."]);
  * @since 0.0.0
  * @category Validation
  */
-export const FileName = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
+const FileNameSchema = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).pipe(
   $I.annoteSchema("FileName", {
     description: "A portable file name in the format basename.ext.",
     documentation:
       "Requires a non-empty basename before the final dot, allows additional dots in the basename, and validates the final extension against FileExtension.",
   })
 );
+
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export const FileName: S.Codec<`${string}.${string}`, `${string}.${string}`> = FileNameSchema as unknown as S.Codec<
+  `${string}.${string}`,
+  `${string}.${string}`
+>;
 
 /**
  * Type for {@link FileName}.

@@ -1,7 +1,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, Layer, MutableHashMap, Order, Path, pipe, ServiceMap } from "effect";
+import { Context, Effect, FileSystem, flow, Inspectable, Layer, MutableHashMap, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -101,7 +101,6 @@ const decodeTypeScriptImplementationFilePathOption = S.decodeOption(TypeScriptIm
 
 const isSymbolNameSegment = S.is(SymbolNameSegment);
 const isSymbolQualifiedName = S.is(SymbolQualifiedName);
-
 /**
  * Typed error retained for compatibility with older placeholder service wiring.
  *
@@ -228,13 +227,19 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
  * @category DomainModel
  * @since 0.0.0
  */
-export type TSMorphServiceError =
-  | TsMorphProjectLoadError
-  | TsMorphScopeResolutionError
-  | TsMorphSourceFileError
-  | TsMorphSymbolNotFoundError
-  | TsMorphUnsupportedFileError
-  | TsMorphServiceUnavailableError;
+export const TSMorphServiceError = S.Union([
+  TsMorphProjectLoadError,
+  TsMorphScopeResolutionError,
+  TsMorphSourceFileError,
+  TsMorphSymbolNotFoundError,
+  TsMorphUnsupportedFileError,
+  TsMorphServiceUnavailableError,
+]).pipe(S.toTaggedUnion("_tag"));
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type TSMorphServiceError = typeof TSMorphServiceError.Type;
 
 /**
  * Read-only v1 service contract for ts-morph-backed scope, symbol, source, and diagnostic operations.
@@ -276,7 +281,7 @@ export type TSMorphServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class TSMorphService extends ServiceMap.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
+export class TSMorphService extends Context.Service<TSMorphService, TSMorphServiceShape>()($I`TSMorphService`) {}
 
 type ProjectPool = {
   readonly getOrCreate: (scope: TsMorphProjectScope) => Effect.Effect<Project, TsMorphProjectLoadError>;
@@ -310,7 +315,7 @@ const decodeOrFail = <A, E extends TSMorphServiceError>(
 ): Effect.Effect<A, E> =>
   Effect.try({
     try: () => decode(value),
-    catch: (cause) => makeError(schemaMessage(cause)),
+    catch: flow(schemaMessage, makeError),
   });
 
 const resolveAbsolutePath = (pathApi: Path.Path, repoRootPath: RepoRootPath, inputPath: string): string =>
@@ -321,34 +326,33 @@ const isOutsideAncestor = (pathApi: Path.Path, parentPath: string, childPath: st
   return relativePath.length === 0 ? false : pathApi.isAbsolute(relativePath) || Str.startsWith("..")(relativePath);
 };
 
-const decodeRepoRelativePath = (
+const decodeRepoRelativePath = Effect.fn(function* (
   pathApi: Path.Path,
   repoRootPath: RepoRootPath,
   absolutePath: string
-): Effect.Effect<string, TsMorphScopeResolutionError> => {
+): Effect.fn.Return<string, TsMorphScopeResolutionError> {
   const relativePath = pathApi.normalize(pathApi.relative(repoRootPath, absolutePath));
 
   if (relativePath.length === 0 || pathApi.isAbsolute(relativePath) || Str.startsWith("..")(relativePath)) {
-    return Effect.fail(
-      new TsMorphScopeResolutionError({
-        entrypoint: absolutePath,
-        message: `Resolved path "${absolutePath}" is outside the repository root "${repoRootPath}".`,
-      })
-    );
+    return yield* new TsMorphScopeResolutionError({
+      entrypoint: absolutePath,
+      message: `Resolved path "${absolutePath}" is outside the repository root "${repoRootPath}".`,
+    });
   }
 
-  return Effect.succeed(relativePath);
-};
+  return yield* Effect.succeed(relativePath);
+});
 
-const ensureExists = <E extends TSMorphServiceError>(
+const ensureExists = Effect.fn("ensureExists")(function* <E extends TSMorphServiceError>(
   fs: FileSystem.FileSystem,
   absolutePath: string,
   makeError: () => E
-): Effect.Effect<void, E> =>
-  fs.exists(absolutePath).pipe(
+): Effect.fn.Return<void, E> {
+  return yield* fs.exists(absolutePath).pipe(
     Effect.orElseSucceed(thunkFalse),
     Effect.flatMap((exists) => (exists ? Effect.void : Effect.fail(makeError())))
   );
+});
 
 const createProjectPool = (pathApi: Path.Path): ProjectPool => {
   const projects = MutableHashMap.empty<ProjectCacheKey, Project>();
@@ -382,164 +386,161 @@ const createProjectPool = (pathApi: Path.Path): ProjectPool => {
   return { getOrCreate };
 };
 
-const normalizeOutlineSymbol = (
+const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
   sourceFileText: string,
   symbolFilePath: SymbolFilePath,
   declaration: OutlineDeclaration,
   parentSymbol: O.Option<TsMorphSymbol>
-): Effect.Effect<O.Option<ScopeSymbolEntry>, TSMorphServiceError> =>
-  Effect.gen(function* () {
-    const declarationName = getDeclarationName(declaration);
-    if (O.isNone(declarationName)) {
-      return O.none<ScopeSymbolEntry>();
-    }
+): Effect.fn.Return<O.Option<ScopeSymbolEntry>, TSMorphServiceError> {
+  const declarationName = getDeclarationName(declaration);
+  if (O.isNone(declarationName)) {
+    return O.none<ScopeSymbolEntry>();
+  }
 
-    if (!isSymbolNameSegment(declarationName.value.name)) {
-      return O.none<ScopeSymbolEntry>();
-    }
+  if (!isSymbolNameSegment(declarationName.value.name)) {
+    return O.none<ScopeSymbolEntry>();
+  }
 
-    const qualifiedName = pipeQualifiedName(parentSymbol, declarationName.value.name);
-    if (!isSymbolQualifiedName(qualifiedName)) {
-      return O.none<ScopeSymbolEntry>();
-    }
+  const qualifiedName = pipeQualifiedName(parentSymbol, declarationName.value.name);
+  if (!isSymbolQualifiedName(qualifiedName)) {
+    return O.none<ScopeSymbolEntry>();
+  }
 
-    const startOffset = declaration.getStart(true);
-    const endOffset = declaration.getEnd();
-    const symbolText = yield* decodeOrFail(
-      decodeSourceText,
-      sourceFileText.slice(startOffset, endOffset),
-      (message) =>
+  const startOffset = declaration.getStart(true);
+  const endOffset = declaration.getEnd();
+  const symbolText = yield* decodeOrFail(
+    decodeSourceText,
+    sourceFileText.slice(startOffset, endOffset),
+    (message) =>
+      new TsMorphSourceFileError({
+        scopeId: O.none(),
+        filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+        message: `Failed to decode extracted symbol source for "${qualifiedName}": ${message}`,
+      })
+  );
+  const contentHash = yield* decodeContentHashFromSourceText(symbolText).pipe(
+    Effect.mapError(
+      (error) =>
         new TsMorphSourceFileError({
           scopeId: O.none(),
           filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-          message: `Failed to decode extracted symbol source for "${qualifiedName}": ${message}`,
+          message: `Failed to hash extracted symbol source for "${qualifiedName}": ${schemaMessage(error)}`,
         })
-    );
-    const contentHash = yield* decodeContentHashFromSourceText(symbolText).pipe(
-      Effect.mapError(
-        (error) =>
-          new TsMorphSourceFileError({
-            scopeId: O.none(),
-            filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
-            message: `Failed to hash extracted symbol source for "${qualifiedName}": ${schemaMessage(error)}`,
-          })
-      )
-    );
+    )
+  );
 
-    const bytePrefix = utf8Encoder.encode(sourceFileText.slice(0, startOffset));
-    const byteSpan = utf8Encoder.encode(symbolText);
-    const docstring = readDocstring(declaration);
-    const symbol = makeSymbol({
-      filePath: decodeSymbolFilePath(symbolFilePath),
-      name: decodeSymbolNameSegment(declarationName.value.name),
-      qualifiedName: decodeSymbolQualifiedName(qualifiedName),
-      kind: declarationName.value.kind,
-      signature: readSignature(declaration),
-      docstring,
-      summary: makeSummary(docstring),
-      decorators: readDecorators(declaration),
-      keywords: makeKeywords(declarationName.value.name, qualifiedName, declarationName.value.kind),
-      parentId: O.map(parentSymbol, (parent) => parent.id),
-      startLine: decodeLineNumber(declaration.getStartLineNumber(true)),
-      endLine: decodeLineNumber(declaration.getEndLineNumber()),
-      byteOffset: decodeByteOffset(bytePrefix.length),
-      byteLength: decodeByteLength(byteSpan.length),
-      contentHash,
-    });
-
-    return O.some({
-      symbol,
-      sourceText: symbolText,
-      contentHash,
-      searchText: makeScopeSymbolSearchText(symbol, symbolText),
-    } satisfies ScopeSymbolEntry);
+  const bytePrefix = utf8Encoder.encode(sourceFileText.slice(0, startOffset));
+  const byteSpan = utf8Encoder.encode(symbolText);
+  const docstring = readDocstring(declaration);
+  const symbol = makeSymbol({
+    filePath: decodeSymbolFilePath(symbolFilePath),
+    name: decodeSymbolNameSegment(declarationName.value.name),
+    qualifiedName: decodeSymbolQualifiedName(qualifiedName),
+    kind: declarationName.value.kind,
+    signature: readSignature(declaration),
+    docstring,
+    summary: makeSummary(docstring),
+    decorators: readDecorators(declaration),
+    keywords: makeKeywords(declarationName.value.name, qualifiedName, declarationName.value.kind),
+    parentId: O.map(parentSymbol, (parent) => parent.id),
+    startLine: decodeLineNumber(declaration.getStartLineNumber(true)),
+    endLine: decodeLineNumber(declaration.getEndLineNumber()),
+    byteOffset: decodeByteOffset(bytePrefix.length),
+    byteLength: decodeByteLength(byteSpan.length),
+    contentHash,
   });
 
-const resolveSymbolFilePath = (
+  return O.some({
+    symbol,
+    sourceText: symbolText,
+    contentHash,
+    searchText: makeScopeSymbolSearchText(symbol, symbolText),
+  } satisfies ScopeSymbolEntry);
+});
+
+const resolveSymbolFilePath = Effect.fn(function* (
   filePath: TypeScriptFilePath
-): Effect.Effect<SymbolFilePath, TsMorphUnsupportedFileError> =>
-  Effect.gen(function* () {
-    const implementationFilePath = yield* decodeOrFail(
-      decodeTypeScriptImplementationFilePath,
-      filePath,
-      (message) =>
-        new TsMorphUnsupportedFileError({
-          filePath,
-          message: `File outlines currently support TypeScript implementation files only: ${message}`,
-        })
-    );
+): Effect.fn.Return<SymbolFilePath, TsMorphUnsupportedFileError> {
+  const implementationFilePath = yield* decodeOrFail(
+    decodeTypeScriptImplementationFilePath,
+    filePath,
+    (message) =>
+      new TsMorphUnsupportedFileError({
+        filePath,
+        message: `File outlines currently support TypeScript implementation files only: ${message}`,
+      })
+  );
 
-    return yield* decodeOrFail(
-      decodeTypeScriptImplementationToSymbolFilePath,
-      implementationFilePath,
-      (message) =>
-        new TsMorphUnsupportedFileError({
-          filePath,
-          message: `Failed to normalize implementation file path "${implementationFilePath}" for symbol ids: ${message}`,
-        })
-    );
-  });
+  return yield* decodeOrFail(
+    decodeTypeScriptImplementationToSymbolFilePath,
+    implementationFilePath,
+    (message) =>
+      new TsMorphUnsupportedFileError({
+        filePath,
+        message: `Failed to normalize implementation file path "${implementationFilePath}" for symbol ids: ${message}`,
+      })
+  );
+});
 
-const collectOutlineEntries = (
+const collectOutlineEntries = Effect.fn(function* (
   filePath: TypeScriptFilePath,
   sourceFile: SourceFile
-): Effect.Effect<ReadonlyArray<ScopeSymbolEntry>, TSMorphServiceError> =>
-  Effect.gen(function* () {
-    const symbolFilePath = yield* resolveSymbolFilePath(filePath);
+): Effect.fn.Return<ReadonlyArray<ScopeSymbolEntry>, TSMorphServiceError> {
+  const symbolFilePath = yield* resolveSymbolFilePath(filePath);
 
-    const entries: Array<ScopeSymbolEntry> = [];
-    const sourceText = sourceFile.getFullText();
+  const entries = A.empty<ScopeSymbolEntry>();
+  const sourceText = sourceFile.getFullText();
 
-    for (const statement of sourceFile.getStatements()) {
-      if (Node.isFunctionDeclaration(statement)) {
-        const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
-        if (O.isSome(entry)) {
-          entries.push(entry.value);
-        }
-        continue;
+  for (const statement of sourceFile.getStatements()) {
+    if (Node.isFunctionDeclaration(statement)) {
+      const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
+      if (O.isSome(entry)) {
+        entries.push(entry.value);
       }
+      continue;
+    }
 
-      if (Node.isClassDeclaration(statement)) {
-        const classEntry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
-        if (O.isSome(classEntry)) {
-          entries.push(classEntry.value);
+    if (Node.isClassDeclaration(statement)) {
+      const classEntry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
+      if (O.isSome(classEntry)) {
+        entries.push(classEntry.value);
 
-          for (const member of statement.getMembers()) {
-            if (
-              Node.isConstructorDeclaration(member) ||
-              Node.isMethodDeclaration(member) ||
-              Node.isGetAccessorDeclaration(member) ||
-              Node.isSetAccessorDeclaration(member)
-            ) {
-              const memberEntry = yield* normalizeOutlineSymbol(
-                sourceText,
-                symbolFilePath,
-                member,
-                O.some(classEntry.value.symbol)
-              );
-              if (O.isSome(memberEntry)) {
-                entries.push(memberEntry.value);
-              }
+        for (const member of statement.getMembers()) {
+          if (
+            Node.isConstructorDeclaration(member) ||
+            Node.isMethodDeclaration(member) ||
+            Node.isGetAccessorDeclaration(member) ||
+            Node.isSetAccessorDeclaration(member)
+          ) {
+            const memberEntry = yield* normalizeOutlineSymbol(
+              sourceText,
+              symbolFilePath,
+              member,
+              O.some(classEntry.value.symbol)
+            );
+            if (O.isSome(memberEntry)) {
+              entries.push(memberEntry.value);
             }
           }
         }
-        continue;
       }
-
-      if (
-        Node.isInterfaceDeclaration(statement) ||
-        Node.isTypeAliasDeclaration(statement) ||
-        Node.isEnumDeclaration(statement)
-      ) {
-        const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
-        if (O.isSome(entry)) {
-          entries.push(entry.value);
-        }
-      }
+      continue;
     }
 
-    return entries;
-  });
+    if (
+      Node.isInterfaceDeclaration(statement) ||
+      Node.isTypeAliasDeclaration(statement) ||
+      Node.isEnumDeclaration(statement)
+    ) {
+      const entry = yield* normalizeOutlineSymbol(sourceText, symbolFilePath, statement, O.none());
+      if (O.isSome(entry)) {
+        entries.push(entry.value);
+      }
+    }
+  }
+
+  return entries;
+});
 
 /**
  * Construct the current live implementation for the v1 TSMorphService contract.
@@ -548,608 +549,597 @@ const collectOutlineEntries = (
  * @category DomainModel
  * @since 0.0.0
  */
-export const createTSMorphService = (): Effect.Effect<TSMorphServiceShape, never, FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const pathApi = yield* Path.Path;
+export const createTSMorphService = Effect.fn("createTSMorphService")(function* (): Effect.fn.Return<
+  TSMorphServiceShape,
+  never,
+  FileSystem.FileSystem | Path.Path
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const pathApi = yield* Path.Path;
 
-    const resolvedScopes = MutableHashMap.empty<string, TsMorphProjectScope>();
-    const projectPool = createProjectPool(pathApi);
-    const symbolIndexPool = MutableHashMap.empty<ProjectCacheKey, ScopeSymbolIndex>();
+  const resolvedScopes = MutableHashMap.empty<string, TsMorphProjectScope>();
+  const projectPool = createProjectPool(pathApi);
+  const symbolIndexPool = MutableHashMap.empty<ProjectCacheKey, ScopeSymbolIndex>();
 
-    const resolveRepoRoot = (
-      repoRootPath: O.Option<RepoRootPath>
-    ): Effect.Effect<RepoRootPath, TsMorphScopeResolutionError> =>
-      Effect.gen(function* () {
-        if (O.isSome(repoRootPath)) {
-          return yield* decodeOrFail(
-            decodeRepoRootPath,
-            pathApi.normalize(
-              pathApi.isAbsolute(repoRootPath.value)
-                ? repoRootPath.value
-                : pathApi.resolve(process.cwd(), repoRootPath.value)
-            ),
-            (message) =>
-              new TsMorphScopeResolutionError({
-                entrypoint: repoRootPath.value,
-                message: `Failed to normalize explicit repository root "${repoRootPath.value}": ${message}`,
-              })
-          );
-        }
+  const resolveRepoRoot = Effect.fn("TSMorphService.resolveRepoRoot")(function* (
+    repoRootPath: O.Option<RepoRootPath>
+  ): Effect.fn.Return<RepoRootPath, TsMorphScopeResolutionError> {
+    if (O.isSome(repoRootPath)) {
+      return yield* decodeOrFail(
+        decodeRepoRootPath,
+        pathApi.normalize(
+          pathApi.isAbsolute(repoRootPath.value)
+            ? repoRootPath.value
+            : pathApi.resolve(process.cwd(), repoRootPath.value)
+        ),
+        (message) =>
+          new TsMorphScopeResolutionError({
+            entrypoint: repoRootPath.value,
+            message: `Failed to normalize explicit repository root "${repoRootPath.value}": ${message}`,
+          })
+      );
+    }
 
-        const discoveredRepoRoot = yield* findRepoRoot(process.cwd()).pipe(
-          Effect.provideService(FileSystem.FileSystem, fs),
-          Effect.mapError(
-            (error) =>
-              new TsMorphScopeResolutionError({
-                entrypoint: process.cwd(),
-                message: error.message,
-              })
-          )
-        );
+    const discoveredRepoRoot = yield* findRepoRoot(process.cwd()).pipe(
+      Effect.provideService(FileSystem.FileSystem, fs),
+      Effect.mapError(
+        (error) =>
+          new TsMorphScopeResolutionError({
+            entrypoint: process.cwd(),
+            message: error.message,
+          })
+      )
+    );
 
-        return yield* decodeOrFail(
-          decodeRepoRootPath,
-          pathApi.normalize(discoveredRepoRoot),
-          (message) =>
-            new TsMorphScopeResolutionError({
-              entrypoint: discoveredRepoRoot,
-              message: `Failed to normalize discovered repository root "${discoveredRepoRoot}": ${message}`,
-            })
-        );
-      });
+    return yield* decodeOrFail(
+      decodeRepoRootPath,
+      pathApi.normalize(discoveredRepoRoot),
+      (message) =>
+        new TsMorphScopeResolutionError({
+          entrypoint: discoveredRepoRoot,
+          message: `Failed to normalize discovered repository root "${discoveredRepoRoot}": ${message}`,
+        })
+    );
+  });
 
-    const resolveTsConfigPath = (
-      repoRootPath: RepoRootPath,
-      tsConfigPath: string
-    ): Effect.Effect<TsConfigFilePath, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const absoluteTsConfigPath = resolveAbsolutePath(pathApi, repoRootPath, tsConfigPath);
-        yield* ensureExists(
-          fs,
-          absoluteTsConfigPath,
-          () =>
-            new TsMorphScopeResolutionError({
-              entrypoint: tsConfigPath,
-              message: `No tsconfig file exists at "${absoluteTsConfigPath}".`,
-            })
-        );
+  const resolveTsConfigPath = Effect.fn(function* (
+    repoRootPath: RepoRootPath,
+    tsConfigPath: string
+  ): Effect.fn.Return<TsConfigFilePath, TSMorphServiceError> {
+    const absoluteTsConfigPath = resolveAbsolutePath(pathApi, repoRootPath, tsConfigPath);
+    yield* ensureExists(
+      fs,
+      absoluteTsConfigPath,
+      () =>
+        new TsMorphScopeResolutionError({
+          entrypoint: tsConfigPath,
+          message: `No tsconfig file exists at "${absoluteTsConfigPath}".`,
+        })
+    );
 
-        const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(pathApi, repoRootPath, absoluteTsConfigPath);
+    const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(pathApi, repoRootPath, absoluteTsConfigPath);
+    return yield* decodeOrFail(
+      decodeTsConfigFilePath,
+      repoRelativeTsConfigPath,
+      (message) =>
+        new TsMorphScopeResolutionError({
+          entrypoint: tsConfigPath,
+          message: `Resolved tsconfig path "${repoRelativeTsConfigPath}" is not a valid TsConfigFilePath: ${message}`,
+        })
+    );
+  });
+
+  const resolveScopedFilePath = Effect.fn("TSMorphService.resolveScopedFilePath")(function* (
+    repoRootPath: RepoRootPath,
+    filePath: TypeScriptFilePath
+  ): Effect.fn.Return<
+    {
+      readonly absoluteFilePath: string;
+      readonly filePath: TypeScriptFilePath;
+    },
+    TSMorphServiceError
+  > {
+    const absoluteFilePath = resolveAbsolutePath(pathApi, repoRootPath, filePath);
+    yield* ensureExists(
+      fs,
+      absoluteFilePath,
+      () =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(filePath),
+          message: `No TypeScript file exists at "${absoluteFilePath}".`,
+        })
+    );
+
+    const repoRelativeFilePath = yield* decodeRepoRelativePath(pathApi, repoRootPath, absoluteFilePath);
+    return {
+      absoluteFilePath,
+      filePath: yield* decodeOrFail(
+        decodeTypeScriptFilePath,
+        repoRelativeFilePath,
+        (message) =>
+          new TsMorphSourceFileError({
+            scopeId: O.none(),
+            filePath: S.decodeOption(TypeScriptFilePath)(filePath),
+            message: `Resolved file path "${repoRelativeFilePath}" is not a valid TypeScriptFilePath: ${message}`,
+          })
+      ),
+    };
+  });
+
+  const resolveFileEntrypointTsConfig = Effect.fn(function* (
+    repoRootPath: RepoRootPath,
+    filePath: TypeScriptFilePath
+  ): Effect.fn.Return<TsConfigFilePath, TSMorphServiceError> {
+    const { absoluteFilePath } = yield* resolveScopedFilePath(repoRootPath, filePath);
+
+    let currentDirectory = pathApi.dirname(absoluteFilePath);
+    while (true) {
+      const candidateTsConfigPath = pathApi.join(currentDirectory, DEFAULT_TSCONFIG_FILE_NAME);
+      const candidateExists = yield* fs.exists(candidateTsConfigPath).pipe(Effect.orElseSucceed(thunkFalse));
+
+      if (candidateExists) {
+        const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(pathApi, repoRootPath, candidateTsConfigPath);
         return yield* decodeOrFail(
           decodeTsConfigFilePath,
           repoRelativeTsConfigPath,
           (message) =>
             new TsMorphScopeResolutionError({
-              entrypoint: tsConfigPath,
+              entrypoint: filePath,
               message: `Resolved tsconfig path "${repoRelativeTsConfigPath}" is not a valid TsConfigFilePath: ${message}`,
             })
         );
-      });
+      }
 
-    const resolveScopedFilePath = (
-      repoRootPath: RepoRootPath,
-      filePath: TypeScriptFilePath
-    ): Effect.Effect<
-      {
-        readonly absoluteFilePath: string;
-        readonly filePath: TypeScriptFilePath;
-      },
-      TSMorphServiceError
-    > =>
-      Effect.gen(function* () {
-        const absoluteFilePath = resolveAbsolutePath(pathApi, repoRootPath, filePath);
-        yield* ensureExists(
-          fs,
-          absoluteFilePath,
-          () =>
-            new TsMorphSourceFileError({
-              scopeId: O.none(),
-              filePath: S.decodeOption(TypeScriptFilePath)(filePath),
-              message: `No TypeScript file exists at "${absoluteFilePath}".`,
-            })
-        );
+      if (currentDirectory === repoRootPath) {
+        break;
+      }
 
-        const repoRelativeFilePath = yield* decodeRepoRelativePath(pathApi, repoRootPath, absoluteFilePath);
-        return {
-          absoluteFilePath,
-          filePath: yield* decodeOrFail(
-            decodeTypeScriptFilePath,
-            repoRelativeFilePath,
-            (message) =>
-              new TsMorphSourceFileError({
-                scopeId: O.none(),
-                filePath: S.decodeOption(TypeScriptFilePath)(filePath),
-                message: `Resolved file path "${repoRelativeFilePath}" is not a valid TypeScriptFilePath: ${message}`,
-              })
-          ),
-        };
-      });
+      const parentDirectory = pathApi.dirname(currentDirectory);
+      if (parentDirectory === currentDirectory) {
+        break;
+      }
+      currentDirectory = parentDirectory;
+    }
 
-    const resolveFileEntrypointTsConfig = (
-      repoRootPath: RepoRootPath,
-      filePath: TypeScriptFilePath
-    ): Effect.Effect<TsConfigFilePath, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const { absoluteFilePath } = yield* resolveScopedFilePath(repoRootPath, filePath);
+    return yield* new TsMorphScopeResolutionError({
+      entrypoint: filePath,
+      message: `No owning "${DEFAULT_TSCONFIG_FILE_NAME}" could be found for "${filePath}" within repository root "${repoRootPath}".`,
+    });
+  });
 
-        let currentDirectory = pathApi.dirname(absoluteFilePath);
-        while (true) {
-          const candidateTsConfigPath = pathApi.join(currentDirectory, DEFAULT_TSCONFIG_FILE_NAME);
-          const candidateExists = yield* fs.exists(candidateTsConfigPath).pipe(Effect.orElseSucceed(thunkFalse));
+  const buildResolvedScope = Effect.fn("TSMorphService.buildResolvedScope")(function* (
+    repoRootPath: RepoRootPath,
+    tsConfigPath: TsConfigFilePath,
+    mode: TsMorphScopeMode,
+    referencePolicy: TsMorphReferencePolicy
+  ) {
+    const absoluteTsConfigPath = resolveAbsolutePath(pathApi, repoRootPath, tsConfigPath);
+    const workspaceDirectoryPath = yield* decodeOrFail(
+      decodeWorkspaceDirectoryPath,
+      pathApi.dirname(absoluteTsConfigPath),
+      (message) =>
+        new TsMorphScopeResolutionError({
+          entrypoint: tsConfigPath,
+          message: `Failed to normalize workspace directory for "${tsConfigPath}": ${message}`,
+        })
+    );
 
-          if (candidateExists) {
-            const repoRelativeTsConfigPath = yield* decodeRepoRelativePath(
-              pathApi,
-              repoRootPath,
-              candidateTsConfigPath
-            );
-            return yield* decodeOrFail(
-              decodeTsConfigFilePath,
-              repoRelativeTsConfigPath,
-              (message) =>
-                new TsMorphScopeResolutionError({
-                  entrypoint: filePath,
-                  message: `Resolved tsconfig path "${repoRelativeTsConfigPath}" is not a valid TsConfigFilePath: ${message}`,
-                })
-            );
-          }
+    const scopeId = makeProjectScopeId({
+      tsConfigPath,
+      mode,
+      referencePolicy,
+    });
 
-          if (currentDirectory === repoRootPath) {
-            break;
-          }
+    const scope = new TsMorphProjectScope({
+      scopeId,
+      cacheKey: makeProjectCacheKey({
+        tsConfigPath,
+        mode,
+        referencePolicy,
+      }),
+      repoRootPath,
+      workspaceDirectoryPath,
+      tsConfigPath,
+      mode,
+      referencePolicy,
+    });
 
-          const parentDirectory = pathApi.dirname(currentDirectory);
-          if (parentDirectory === currentDirectory) {
-            break;
-          }
-          currentDirectory = parentDirectory;
-        }
+    MutableHashMap.set(resolvedScopes, scope.scopeId, scope);
+    return scope;
+  });
 
-        return yield* new TsMorphScopeResolutionError({
-          entrypoint: filePath,
-          message: `No owning "${DEFAULT_TSCONFIG_FILE_NAME}" could be found for "${filePath}" within repository root "${repoRootPath}".`,
+  const resolveScopeFromEntrypoint = Effect.fn("TSMorphService.resolveScopeFromEntrypoint")(function* (
+    entrypoint: TsMorphScopeEntrypoint,
+    repoRootPath: O.Option<RepoRootPath>,
+    mode: TsMorphScopeMode,
+    referencePolicy: TsMorphReferencePolicy
+  ) {
+    const resolvedRepoRootPath = yield* resolveRepoRoot(repoRootPath);
+    const resolvedTsConfigPath = P.isTagged(entrypoint, "tsconfig")
+      ? yield* resolveTsConfigPath(resolvedRepoRootPath, entrypoint.tsConfigPath)
+      : yield* resolveFileEntrypointTsConfig(resolvedRepoRootPath, entrypoint.filePath);
+
+    return yield* buildResolvedScope(resolvedRepoRootPath, resolvedTsConfigPath, mode, referencePolicy);
+  });
+
+  const resolveScopeById = (scopeId: string): Effect.Effect<TsMorphProjectScope, TSMorphServiceError> =>
+    Effect.gen(function* () {
+      const cachedScope = MutableHashMap.get(resolvedScopes, scopeId);
+      if (O.isSome(cachedScope)) {
+        return cachedScope.value;
+      }
+
+      const [tsConfigPath, _scopeSeparator, mode, _policySeparator, referencePolicy] = yield* decodeOrFail(
+        decodeProjectScopeIdParts,
+        scopeId,
+        (message) =>
+          new TsMorphScopeResolutionError({
+            entrypoint: scopeId,
+            message: `Failed to parse scope id "${scopeId}": ${message}`,
+          })
+      );
+
+      const repoRootPath = yield* resolveRepoRoot(O.none());
+      const resolvedTsConfigPath = yield* resolveTsConfigPath(repoRootPath, tsConfigPath);
+      return yield* buildResolvedScope(repoRootPath, resolvedTsConfigPath, mode, referencePolicy);
+    });
+
+  const loadSourceFile = (
+    scope: TsMorphProjectScope,
+    filePath: TypeScriptFilePath
+  ): Effect.Effect<
+    {
+      readonly sourceFile: SourceFile;
+      readonly filePath: TypeScriptFilePath;
+    },
+    TSMorphServiceError
+  > =>
+    Effect.gen(function* () {
+      const { absoluteFilePath, filePath: normalizedFilePath } = yield* resolveScopedFilePath(
+        scope.repoRootPath,
+        filePath
+      );
+
+      if (
+        scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
+        isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
+      ) {
+        return yield* new TsMorphSourceFileError({
+          scopeId: O.some(scope.scopeId),
+          filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
+          message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
         });
-      });
+      }
 
-    const buildResolvedScope = (
-      repoRootPath: RepoRootPath,
-      tsConfigPath: TsConfigFilePath,
-      mode: TsMorphScopeMode,
-      referencePolicy: TsMorphReferencePolicy
-    ): Effect.Effect<TsMorphProjectScope, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const absoluteTsConfigPath = resolveAbsolutePath(pathApi, repoRootPath, tsConfigPath);
-        const workspaceDirectoryPath = yield* decodeOrFail(
-          decodeWorkspaceDirectoryPath,
-          pathApi.dirname(absoluteTsConfigPath),
-          (message) =>
-            new TsMorphScopeResolutionError({
-              entrypoint: tsConfigPath,
-              message: `Failed to normalize workspace directory for "${tsConfigPath}": ${message}`,
-            })
-        );
+      const project = yield* projectPool.getOrCreate(scope);
+      const existingSourceFile = project.getSourceFile(absoluteFilePath);
+      const sourceFile = existingSourceFile ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
 
-        const scopeId = makeProjectScopeId({
-          tsConfigPath,
-          mode,
-          referencePolicy,
+      if (sourceFile === undefined) {
+        return yield* new TsMorphSourceFileError({
+          scopeId: O.some(scope.scopeId),
+          filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
+          message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
         });
+      }
 
-        const scope = new TsMorphProjectScope({
-          scopeId,
-          cacheKey: makeProjectCacheKey({
-            tsConfigPath,
-            mode,
-            referencePolicy,
-          }),
-          repoRootPath,
-          workspaceDirectoryPath,
-          tsConfigPath,
-          mode,
-          referencePolicy,
-        });
+      if (existingSourceFile === undefined) {
+        MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+      }
 
-        MutableHashMap.set(resolvedScopes, scope.scopeId, scope);
-        return scope;
-      });
+      return {
+        sourceFile,
+        filePath: normalizedFilePath,
+      };
+    });
 
-    const resolveScopeFromEntrypoint = (
-      entrypoint: TsMorphScopeEntrypoint,
-      repoRootPath: O.Option<RepoRootPath>,
-      mode: TsMorphScopeMode,
-      referencePolicy: TsMorphReferencePolicy
-    ): Effect.Effect<TsMorphProjectScope, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const resolvedRepoRootPath = yield* resolveRepoRoot(repoRootPath);
-        const resolvedTsConfigPath =
-          entrypoint._tag === "tsconfig"
-            ? yield* resolveTsConfigPath(resolvedRepoRootPath, entrypoint.tsConfigPath)
-            : yield* resolveFileEntrypointTsConfig(resolvedRepoRootPath, entrypoint.filePath);
+  const collectScopeSymbolIndex = (scope: TsMorphProjectScope): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
+    Effect.gen(function* () {
+      const project = yield* projectPool.getOrCreate(scope);
+      const entries = A.empty<ScopeSymbolEntry>();
 
-        return yield* buildResolvedScope(resolvedRepoRootPath, resolvedTsConfigPath, mode, referencePolicy);
-      });
-
-    const resolveScopeById = (scopeId: string): Effect.Effect<TsMorphProjectScope, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const cachedScope = MutableHashMap.get(resolvedScopes, scopeId);
-        if (O.isSome(cachedScope)) {
-          return cachedScope.value;
-        }
-
-        const [tsConfigPath, _scopeSeparator, mode, _policySeparator, referencePolicy] = yield* decodeOrFail(
-          decodeProjectScopeIdParts,
-          scopeId,
-          (message) =>
-            new TsMorphScopeResolutionError({
-              entrypoint: scopeId,
-              message: `Failed to parse scope id "${scopeId}": ${message}`,
-            })
-        );
-
-        const repoRootPath = yield* resolveRepoRoot(O.none());
-        const resolvedTsConfigPath = yield* resolveTsConfigPath(repoRootPath, tsConfigPath);
-        return yield* buildResolvedScope(repoRootPath, resolvedTsConfigPath, mode, referencePolicy);
-      });
-
-    const loadSourceFile = (
-      scope: TsMorphProjectScope,
-      filePath: TypeScriptFilePath
-    ): Effect.Effect<
-      {
-        readonly sourceFile: SourceFile;
-        readonly filePath: TypeScriptFilePath;
-      },
-      TSMorphServiceError
-    > =>
-      Effect.gen(function* () {
-        const { absoluteFilePath, filePath: normalizedFilePath } = yield* resolveScopedFilePath(
-          scope.repoRootPath,
-          filePath
-        );
-
+      for (const sourceFile of project.getSourceFiles()) {
+        const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());
         if (
           scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
           isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
         ) {
-          return yield* new TsMorphSourceFileError({
-            scopeId: O.some(scope.scopeId),
-            filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
-            message: `File "${normalizedFilePath}" is outside the workspace directory "${scope.workspaceDirectoryPath}" for scope "${scope.scopeId}".`,
-          });
+          continue;
         }
 
-        const project = yield* projectPool.getOrCreate(scope);
-        const existingSourceFile = project.getSourceFile(absoluteFilePath);
-        const sourceFile = existingSourceFile ?? project.addSourceFileAtPathIfExists(absoluteFilePath);
-
-        if (sourceFile === undefined) {
-          return yield* new TsMorphSourceFileError({
-            scopeId: O.some(scope.scopeId),
-            filePath: S.decodeOption(TypeScriptFilePath)(normalizedFilePath),
-            message: `File "${normalizedFilePath}" could not be loaded into ts-morph project scope "${scope.scopeId}".`,
-          });
+        const repoRelativeFilePath = pathApi.normalize(pathApi.relative(scope.repoRootPath, absoluteFilePath));
+        if (
+          repoRelativeFilePath.length === 0 ||
+          pathApi.isAbsolute(repoRelativeFilePath) ||
+          Str.startsWith("..")(repoRelativeFilePath)
+        ) {
+          continue;
         }
 
-        if (existingSourceFile === undefined) {
-          MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+        const implementationFilePath = decodeTypeScriptImplementationFilePathOption(repoRelativeFilePath);
+        if (O.isSome(implementationFilePath)) {
+          const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile);
+          entries.push(...sourceEntries);
         }
+      }
 
-        return {
-          sourceFile,
-          filePath: normalizedFilePath,
-        };
-      });
+      const sortedEntries = A.sort(entries, byScopeSymbolEntryAscending);
+      const entriesById = MutableHashMap.empty<string, ScopeSymbolEntry>();
+      const entriesByFilePath = MutableHashMap.empty<string, ReadonlyArray<ScopeSymbolEntry>>();
 
-    const collectScopeSymbolIndex = (
-      scope: TsMorphProjectScope
-    ): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const project = yield* projectPool.getOrCreate(scope);
-        const entries = A.empty<ScopeSymbolEntry>();
+      for (const entry of entries) {
+        const fileEntries = O.getOrElse(
+          MutableHashMap.get(entriesByFilePath, entry.symbol.filePath),
+          A.empty<ScopeSymbolEntry>
+        );
+        MutableHashMap.set(entriesByFilePath, entry.symbol.filePath, A.append(fileEntries, entry));
+      }
 
-        for (const sourceFile of project.getSourceFiles()) {
-          const absoluteFilePath = pathApi.normalize(sourceFile.getFilePath());
-          if (
-            scope.referencePolicy === TsMorphReferencePolicy.Enum.workspaceOnly &&
-            isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, absoluteFilePath)
-          ) {
-            continue;
-          }
+      for (const entry of sortedEntries) {
+        MutableHashMap.set(entriesById, entry.symbol.id, entry);
+      }
 
-          const repoRelativeFilePath = pathApi.normalize(pathApi.relative(scope.repoRootPath, absoluteFilePath));
-          if (
-            repoRelativeFilePath.length === 0 ||
-            pathApi.isAbsolute(repoRelativeFilePath) ||
-            Str.startsWith("..")(repoRelativeFilePath)
-          ) {
-            continue;
-          }
-
-          const implementationFilePath = decodeTypeScriptImplementationFilePathOption(repoRelativeFilePath);
-          if (O.isSome(implementationFilePath)) {
-            const sourceEntries = yield* collectOutlineEntries(implementationFilePath.value, sourceFile);
-            entries.push(...sourceEntries);
-          }
-        }
-
-        const sortedEntries = A.sort(entries, byScopeSymbolEntryAscending);
-        const entriesById = MutableHashMap.empty<string, ScopeSymbolEntry>();
-        const entriesByFilePath = MutableHashMap.empty<string, ReadonlyArray<ScopeSymbolEntry>>();
-
-        for (const entry of entries) {
-          const fileEntries = O.getOrElse(
-            MutableHashMap.get(entriesByFilePath, entry.symbol.filePath),
-            A.empty<ScopeSymbolEntry>
-          );
-          MutableHashMap.set(entriesByFilePath, entry.symbol.filePath, A.append(fileEntries, entry));
-        }
-
-        for (const entry of sortedEntries) {
-          MutableHashMap.set(entriesById, entry.symbol.id, entry);
-        }
-
-        return {
-          entries: sortedEntries,
-          entriesById,
-          entriesByFilePath,
-        } satisfies ScopeSymbolIndex;
-      });
-
-    const getOrCreateScopeSymbolIndex = (
-      scope: TsMorphProjectScope
-    ): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const cachedSymbolIndex = MutableHashMap.get(symbolIndexPool, scope.cacheKey);
-        if (O.isSome(cachedSymbolIndex)) {
-          return cachedSymbolIndex.value;
-        }
-
-        const symbolIndex = yield* collectScopeSymbolIndex(scope);
-        MutableHashMap.set(symbolIndexPool, scope.cacheKey, symbolIndex);
-        return symbolIndex;
-      });
-
-    const findScopeSymbolEntry = (
-      scope: TsMorphProjectScope,
-      symbolId: SymbolId
-    ): Effect.Effect<ScopeSymbolEntry, TSMorphServiceError> =>
-      Effect.gen(function* () {
-        const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
-        const entry = MutableHashMap.get(symbolIndex.entriesById, symbolId);
-        if (O.isSome(entry)) {
-          return entry.value;
-        }
-
-        return yield* new TsMorphSymbolNotFoundError({
-          scopeId: scope.scopeId,
-          symbolId,
-          message: `Symbol "${symbolId}" could not be resolved within scope "${scope.scopeId}".`,
-        });
-      });
-
-    const resolveProjectScope: TSMorphServiceShape["resolveProjectScope"] = Effect.fn(function* (request) {
-      return yield* resolveScopeFromEntrypoint(
-        request.entrypoint,
-        request.repoRootPath,
-        request.mode,
-        request.referencePolicy
-      );
+      return {
+        entries: sortedEntries,
+        entriesById,
+        entriesByFilePath,
+      } satisfies ScopeSymbolIndex;
     });
 
-    const readSourceText: TSMorphServiceShape["readSourceText"] = Effect.fn(function* (request) {
+  const getOrCreateScopeSymbolIndex = (
+    scope: TsMorphProjectScope
+  ): Effect.Effect<ScopeSymbolIndex, TSMorphServiceError> =>
+    Effect.gen(function* () {
+      const cachedSymbolIndex = MutableHashMap.get(symbolIndexPool, scope.cacheKey);
+      if (O.isSome(cachedSymbolIndex)) {
+        return cachedSymbolIndex.value;
+      }
+
+      const symbolIndex = yield* collectScopeSymbolIndex(scope);
+      MutableHashMap.set(symbolIndexPool, scope.cacheKey, symbolIndex);
+      return symbolIndex;
+    });
+
+  const findScopeSymbolEntry = (
+    scope: TsMorphProjectScope,
+    symbolId: SymbolId
+  ): Effect.Effect<ScopeSymbolEntry, TSMorphServiceError> =>
+    Effect.gen(function* () {
+      const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
+      const entry = MutableHashMap.get(symbolIndex.entriesById, symbolId);
+      if (O.isSome(entry)) {
+        return entry.value;
+      }
+
+      return yield* new TsMorphSymbolNotFoundError({
+        scopeId: scope.scopeId,
+        symbolId,
+        message: `Symbol "${symbolId}" could not be resolved within scope "${scope.scopeId}".`,
+      });
+    });
+
+  const resolveProjectScope: TSMorphServiceShape["resolveProjectScope"] = Effect.fn(function* (request) {
+    return yield* resolveScopeFromEntrypoint(
+      request.entrypoint,
+      request.repoRootPath,
+      request.mode,
+      request.referencePolicy
+    );
+  });
+
+  const readSourceText: TSMorphServiceShape["readSourceText"] = Effect.fn(function* (request) {
+    const scope = yield* resolveScopeFromEntrypoint(
+      {
+        _tag: "file",
+        filePath: request.filePath,
+      },
+      O.none(),
+      DEFAULT_SCOPE_MODE,
+      DEFAULT_REFERENCE_POLICY
+    );
+    const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
+    const sourceText = yield* decodeOrFail(
+      decodeSourceText,
+      loadedSourceFile.sourceFile.getFullText(),
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.some(scope.scopeId),
+          filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+          message: `Failed to decode source text for "${loadedSourceFile.filePath}": ${message}`,
+        })
+    );
+    const contentHash = yield* decodeContentHashFromSourceText(sourceText).pipe(
+      Effect.mapError(
+        (error) =>
+          new TsMorphSourceFileError({
+            scopeId: O.some(scope.scopeId),
+            filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+            message: `Failed to hash source text for "${loadedSourceFile.filePath}": ${schemaMessage(error)}`,
+          })
+      )
+    );
+
+    return new TsMorphSourceTextResult({
+      filePath: loadedSourceFile.filePath,
+      sourceText,
+      contentHash,
+    });
+  });
+
+  const getFileOutline: TSMorphServiceShape["getFileOutline"] = Effect.fn(function* (request) {
+    const scope = yield* resolveScopeById(request.scopeId);
+    const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
+    const symbolFilePath = yield* resolveSymbolFilePath(loadedSourceFile.filePath);
+    const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
+    const symbols = MutableHashMap.get(symbolIndex.entriesByFilePath, symbolFilePath).pipe(
+      O.map(A.map((entry) => entry.symbol)),
+      O.getOrElse(A.empty<TsMorphSymbol>)
+    );
+
+    return new TsMorphFileOutline({
+      scopeId: scope.scopeId,
+      filePath: loadedSourceFile.filePath,
+      symbols,
+    });
+  });
+
+  const getSymbolById: TSMorphServiceShape["getSymbolById"] = Effect.fn(function* (request) {
+    const scope = yield* resolveScopeById(request.scopeId);
+    const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
+
+    return new TsMorphSymbolLookupResult({
+      scopeId: scope.scopeId,
+      symbol: entry.symbol,
+    });
+  });
+
+  const searchSymbols: TSMorphServiceShape["searchSymbols"] = Effect.fn(function* (request) {
+    const scope = yield* resolveScopeById(request.scopeId);
+    const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
+    const normalizedQuery = pipe(request.query, Str.trim, Str.toLowerCase);
+    const searchableEntries = Str.isNonEmpty(normalizedQuery) ? symbolIndex.entries : A.empty<ScopeSymbolEntry>();
+    const matchesRequestedFilters = (entry: ScopeSymbolEntry): boolean =>
+      (A.isReadonlyArrayEmpty(request.categories) ||
+        A.some(request.categories, (category) => category === entry.symbol.category)) &&
+      (A.isReadonlyArrayEmpty(request.kinds) || A.some(request.kinds, (kind) => kind === entry.symbol.kind));
+    const filteredEntries = pipe(
+      searchableEntries,
+      A.filter((entry) => Str.includes(normalizedQuery)(entry.searchText) && matchesRequestedFilters(entry))
+    );
+
+    return new TsMorphSymbolSearchResult({
+      scopeId: scope.scopeId,
+      query: request.query,
+      limit: request.limit,
+      symbols: pipe(
+        A.take(filteredEntries, request.limit),
+        A.map((entry) => entry.symbol)
+      ),
+      total: decodeNonNegativeInt(A.length(filteredEntries)),
+    });
+  });
+
+  const readSymbolSource: TSMorphServiceShape["readSymbolSource"] = Effect.fn(function* (request) {
+    const scope = yield* resolveScopeById(request.scopeId);
+    const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
+
+    return new TsMorphSymbolSourceResult({
+      scopeId: scope.scopeId,
+      symbol: entry.symbol,
+      sourceText: entry.sourceText,
+      contentHash: entry.contentHash,
+    });
+  });
+
+  const getDiagnostics: TSMorphServiceShape["getDiagnostics"] = Effect.fn(function* (request) {
+    const scope = yield* resolveScopeById(request.scopeId);
+    const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
+    const normalizedLoadedSourceFilePath = pathApi.normalize(loadedSourceFile.sourceFile.getFilePath());
+    const diagnostics = yield* pipe(
+      loadedSourceFile.sourceFile.getPreEmitDiagnostics(),
+      A.filter((diagnostic) => {
+        const diagnosticSourceFile = diagnostic.getSourceFile();
+
+        return (
+          P.isNotUndefined(diagnosticSourceFile) &&
+          pathApi.normalize(diagnosticSourceFile.getFilePath()) === normalizedLoadedSourceFilePath
+        );
+      }),
+      Effect.forEach((diagnostic) => {
+        const start = diagnostic.getStart() ?? 0;
+        const length = diagnostic.getLength() ?? 0;
+        const end = start + length;
+        const startPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(start);
+        const endPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(end);
+        const source = diagnostic.getSource();
+
+        return decodeOrFail(
+          decodeTsMorphDiagnostic,
+          {
+            category: normalizeDiagnosticCategory(diagnostic.getCategory()),
+            code: decodeNonNegativeInt(diagnostic.getCode()),
+            message: flattenDiagnosticMessageText(diagnostic.getMessageText()),
+            source: source ?? null,
+            startLine: decodeLineNumber(startPosition.line),
+            startColumn: decodeColumnNumber(startPosition.column),
+            endLine: decodeLineNumber(endPosition.line),
+            endColumn: decodeColumnNumber(endPosition.column),
+          },
+          (message) =>
+            new TsMorphSourceFileError({
+              scopeId: O.some(scope.scopeId),
+              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+              message: `Failed to normalize diagnostic for "${loadedSourceFile.filePath}": ${message}`,
+            })
+        );
+      }),
+      Effect.map(A.sort(byNormalizedDiagnosticAscending))
+    );
+
+    return new TsMorphDiagnosticsResult({
+      scopeId: scope.scopeId,
+      filePath: loadedSourceFile.filePath,
+      diagnostics,
+    });
+  });
+
+  const updateSourceFile: TSMorphServiceShape["updateSourceFile"] = (filePath, update) =>
+    Effect.gen(function* () {
+      const safeFilePath = TypeScriptImplementationFilePath.make(filePath);
       const scope = yield* resolveScopeFromEntrypoint(
         {
           _tag: "file",
-          filePath: request.filePath,
+          filePath: safeFilePath,
         },
         O.none(),
         DEFAULT_SCOPE_MODE,
         DEFAULT_REFERENCE_POLICY
       );
-      const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
-      const sourceText = yield* decodeOrFail(
-        decodeSourceText,
-        loadedSourceFile.sourceFile.getFullText(),
-        (message) =>
+      const loadedSourceFile = yield* loadSourceFile(scope, safeFilePath);
+      const project = yield* projectPool.getOrCreate(scope);
+      const before = loadedSourceFile.sourceFile.getFullText();
+
+      yield* Effect.try({
+        try: () => update(loadedSourceFile.sourceFile, project),
+        catch: (cause) =>
           new TsMorphSourceFileError({
             scopeId: O.some(scope.scopeId),
             filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-            message: `Failed to decode source text for "${loadedSourceFile.filePath}": ${message}`,
-          })
-      );
-      const contentHash = yield* decodeContentHashFromSourceText(sourceText).pipe(
-        Effect.mapError(
-          (error) =>
-            new TsMorphSourceFileError({
-              scopeId: O.some(scope.scopeId),
-              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-              message: `Failed to hash source text for "${loadedSourceFile.filePath}": ${schemaMessage(error)}`,
-            })
-        )
-      );
-
-      return new TsMorphSourceTextResult({
-        filePath: loadedSourceFile.filePath,
-        sourceText,
-        contentHash,
+            message: `Failed to update source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
+          }),
       });
+
+      const after = loadedSourceFile.sourceFile.getFullText();
+      if (before === after) {
+        return false;
+      }
+
+      yield* Effect.tryPromise({
+        try: () => loadedSourceFile.sourceFile.save(),
+        catch: (cause) =>
+          new TsMorphSourceFileError({
+            scopeId: O.some(scope.scopeId),
+            filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+            message: `Failed to save source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
+          }),
+      });
+
+      MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+      return true;
     });
 
-    const getFileOutline: TSMorphServiceShape["getFileOutline"] = Effect.fn(function* (request) {
-      const scope = yield* resolveScopeById(request.scopeId);
-      const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
-      const symbolFilePath = yield* resolveSymbolFilePath(loadedSourceFile.filePath);
-      const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
-      const symbols = pipe(
-        MutableHashMap.get(symbolIndex.entriesByFilePath, symbolFilePath),
-        O.map((entries) => A.map(entries, (entry) => entry.symbol)),
-        O.getOrElse(A.empty<TsMorphSymbol>)
-      );
-
-      return new TsMorphFileOutline({
-        scopeId: scope.scopeId,
-        filePath: loadedSourceFile.filePath,
-        symbols,
-      });
-    });
-
-    const getSymbolById: TSMorphServiceShape["getSymbolById"] = Effect.fn(function* (request) {
-      const scope = yield* resolveScopeById(request.scopeId);
-      const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
-
-      return new TsMorphSymbolLookupResult({
-        scopeId: scope.scopeId,
-        symbol: entry.symbol,
-      });
-    });
-
-    const searchSymbols: TSMorphServiceShape["searchSymbols"] = Effect.fn(function* (request) {
-      const scope = yield* resolveScopeById(request.scopeId);
-      const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
-      const normalizedQuery = pipe(request.query, Str.trim, Str.toLowerCase);
-      const searchableEntries = Str.isNonEmpty(normalizedQuery) ? symbolIndex.entries : A.empty<ScopeSymbolEntry>();
-      const matchesRequestedFilters = (entry: ScopeSymbolEntry): boolean =>
-        (A.isReadonlyArrayEmpty(request.categories) ||
-          A.some(request.categories, (category) => category === entry.symbol.category)) &&
-        (A.isReadonlyArrayEmpty(request.kinds) || A.some(request.kinds, (kind) => kind === entry.symbol.kind));
-      const filteredEntries = pipe(
-        searchableEntries,
-        A.filter((entry) => Str.includes(normalizedQuery)(entry.searchText) && matchesRequestedFilters(entry))
-      );
-
-      return new TsMorphSymbolSearchResult({
-        scopeId: scope.scopeId,
-        query: request.query,
-        limit: request.limit,
-        symbols: pipe(
-          A.take(filteredEntries, request.limit),
-          A.map((entry) => entry.symbol)
-        ),
-        total: decodeNonNegativeInt(A.length(filteredEntries)),
-      });
-    });
-
-    const readSymbolSource: TSMorphServiceShape["readSymbolSource"] = Effect.fn(function* (request) {
-      const scope = yield* resolveScopeById(request.scopeId);
-      const entry = yield* findScopeSymbolEntry(scope, request.symbolId);
-
-      return new TsMorphSymbolSourceResult({
-        scopeId: scope.scopeId,
-        symbol: entry.symbol,
-        sourceText: entry.sourceText,
-        contentHash: entry.contentHash,
-      });
-    });
-
-    const getDiagnostics: TSMorphServiceShape["getDiagnostics"] = Effect.fn(function* (request) {
-      const scope = yield* resolveScopeById(request.scopeId);
-      const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
-      const normalizedLoadedSourceFilePath = pathApi.normalize(loadedSourceFile.sourceFile.getFilePath());
-      const diagnostics = yield* pipe(
-        loadedSourceFile.sourceFile.getPreEmitDiagnostics(),
-        A.filter((diagnostic) => {
-          const diagnosticSourceFile = diagnostic.getSourceFile();
-
-          return (
-            diagnosticSourceFile !== undefined &&
-            pathApi.normalize(diagnosticSourceFile.getFilePath()) === normalizedLoadedSourceFilePath
-          );
-        }),
-        Effect.forEach((diagnostic) => {
-          const start = diagnostic.getStart() ?? 0;
-          const length = diagnostic.getLength() ?? 0;
-          const end = start + length;
-          const startPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(start);
-          const endPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(end);
-          const source = diagnostic.getSource();
-
-          return decodeOrFail(
-            decodeTsMorphDiagnostic,
-            {
-              category: normalizeDiagnosticCategory(diagnostic.getCategory()),
-              code: decodeNonNegativeInt(diagnostic.getCode()),
-              message: flattenDiagnosticMessageText(diagnostic.getMessageText()),
-              source: source ?? null,
-              startLine: decodeLineNumber(startPosition.line),
-              startColumn: decodeColumnNumber(startPosition.column),
-              endLine: decodeLineNumber(endPosition.line),
-              endColumn: decodeColumnNumber(endPosition.column),
-            },
-            (message) =>
-              new TsMorphSourceFileError({
-                scopeId: O.some(scope.scopeId),
-                filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-                message: `Failed to normalize diagnostic for "${loadedSourceFile.filePath}": ${message}`,
-              })
-          );
-        }),
-        Effect.map((items) => A.sort(items, byNormalizedDiagnosticAscending))
-      );
-
-      return new TsMorphDiagnosticsResult({
-        scopeId: scope.scopeId,
-        filePath: loadedSourceFile.filePath,
-        diagnostics,
-      });
-    });
-
-    const updateSourceFile: TSMorphServiceShape["updateSourceFile"] = (filePath, update) =>
-      Effect.gen(function* () {
-        const safeFilePath = TypeScriptImplementationFilePath.makeUnsafe(filePath);
-        const scope = yield* resolveScopeFromEntrypoint(
-          {
-            _tag: "file",
-            filePath: safeFilePath,
-          },
-          O.none(),
-          DEFAULT_SCOPE_MODE,
-          DEFAULT_REFERENCE_POLICY
-        );
-        const loadedSourceFile = yield* loadSourceFile(scope, safeFilePath);
-        const project = yield* projectPool.getOrCreate(scope);
-        const before = loadedSourceFile.sourceFile.getFullText();
-
-        yield* Effect.try({
-          try: () => update(loadedSourceFile.sourceFile, project),
-          catch: (cause) =>
-            new TsMorphSourceFileError({
-              scopeId: O.some(scope.scopeId),
-              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-              message: `Failed to update source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
-            }),
-        });
-
-        const after = loadedSourceFile.sourceFile.getFullText();
-        if (before === after) {
-          return false;
-        }
-
-        yield* Effect.tryPromise({
-          try: () => loadedSourceFile.sourceFile.save(),
-          catch: (cause) =>
-            new TsMorphSourceFileError({
-              scopeId: O.some(scope.scopeId),
-              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
-              message: `Failed to save source file "${loadedSourceFile.filePath}": ${schemaMessage(cause)}`,
-            }),
-        });
-
-        MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
-        return true;
-      });
-
-    return {
-      resolveProjectScope,
-      getFileOutline,
-      getSymbolById,
-      searchSymbols,
-      readSourceText,
-      readSymbolSource,
-      getDiagnostics,
-      updateSourceFile,
-    };
-  });
+  return {
+    resolveProjectScope,
+    getFileOutline,
+    getSymbolById,
+    searchSymbols,
+    readSourceText,
+    readSymbolSource,
+    getDiagnostics,
+    updateSourceFile,
+  };
+});
 
 /**
  * Default live layer for the current TSMorphService contract.

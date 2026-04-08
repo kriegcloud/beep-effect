@@ -37,7 +37,7 @@ const $I = $SchemaId.create("LocalDate");
  * ```ts
  * import { LocalDate } from "@beep/schema/LocalDate"
  *
- * const date = LocalDate.makeUnsafe({ year: 2024, month: 6, day: 15 })
+ * const date = LocalDate.make({ year: 2024, month: 6, day: 15 })
  *
  * console.log(date.toISOString()) // "2024-06-15"
  * console.log(date.toDateTime())
@@ -192,7 +192,7 @@ export const fromString = (dateString: string): Effect.Effect<LocalDate, S.Schem
  */
 export const fromDate = (date: Date): LocalDate =>
   pipe(date, DateTime.fromDateUnsafe, DateTime.toPartsUtc, (parts) =>
-    LocalDate.makeUnsafe({
+    LocalDate.make({
       year: parts.year,
       month: parts.month,
       day: parts.day,
@@ -226,7 +226,7 @@ export const todayEffect = pipe(
  */
 export const fromDateTime = (dateTime: DateTime.DateTime): LocalDate => {
   const parts = DateTime.toPartsUtc(dateTime);
-  return LocalDate.makeUnsafe({
+  return LocalDate.make({
     year: parts.year,
     month: parts.month,
     day: parts.day,
@@ -357,7 +357,7 @@ export const diffInDays: {
  * @category utilities
  */
 export const startOfMonth = (date: LocalDate): LocalDate => {
-  return LocalDate.makeUnsafe({
+  return LocalDate.make({
     year: date.year,
     month: date.month,
     day: 1,
@@ -371,7 +371,7 @@ export const startOfMonth = (date: LocalDate): LocalDate => {
  * @category utilities
  */
 export const endOfMonth = (date: LocalDate): LocalDate => {
-  return LocalDate.makeUnsafe({
+  return LocalDate.make({
     year: date.year,
     month: date.month,
     day: getDaysInMonth(date.year, date.month),
@@ -385,7 +385,7 @@ export const endOfMonth = (date: LocalDate): LocalDate => {
  * @category utilities
  */
 export const startOfYear = (date: LocalDate): LocalDate => {
-  return LocalDate.makeUnsafe({
+  return LocalDate.make({
     year: date.year,
     month: 1,
     day: 1,
@@ -399,7 +399,7 @@ export const startOfYear = (date: LocalDate): LocalDate => {
  * @category utilities
  */
 export const endOfYear = (date: LocalDate): LocalDate => {
-  return LocalDate.makeUnsafe({
+  return LocalDate.make({
     year: date.year,
     month: 12,
     day: 31,

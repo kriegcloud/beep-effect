@@ -271,7 +271,7 @@ describe("@beep/utils Struct.entriesNonEmpty", () => {
 
   it("throws EmptyStructError when runtime data is empty", () => {
     const runtimeEmpty = {} as { a: string };
-    expect(() => Struct.entriesNonEmpty(runtimeEmpty)).toThrowError(Struct.EmptyStructError);
+    expect(() => Struct.entriesNonEmpty(runtimeEmpty)).toThrow(Struct.EmptyStructError);
   });
 });
 

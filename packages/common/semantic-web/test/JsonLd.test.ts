@@ -207,7 +207,7 @@ describe("JSON-LD", () => {
       Effect.gen(function* () {
         const service = yield* JsonLdDocumentService;
         return yield* service.frame(
-          FrameJsonLdDocumentRequest.makeUnsafe({
+          FrameJsonLdDocumentRequest.make({
             document: decodeUnknownSync(JsonLdDocument)(S.encodeSync(JsonLdDocument)(compacted.document)),
             frame: decodeUnknownSync(JsonLdFrame)({
               "@type": "Person",
@@ -233,7 +233,7 @@ describe("JSON-LD", () => {
       Effect.gen(function* () {
         const service = yield* JsonLdDocumentService;
         return yield* service.fromRdf(
-          JsonLdFromRdfRequest.makeUnsafe({
+          JsonLdFromRdfRequest.make({
             dataset: bridged.dataset,
             context: O.some(decodeUnknownSync(JsonLdContext)(rawContext)),
           })
@@ -286,7 +286,7 @@ describe("JSON-LD", () => {
       Effect.gen(function* () {
         const service = yield* JsonLdDocumentService;
         return yield* service.fromRdf(
-          JsonLdFromRdfRequest.makeUnsafe({
+          JsonLdFromRdfRequest.make({
             dataset: bridged.dataset,
             context: O.some(decodeUnknownSync(JsonLdContext)(rawCompactedContext)),
           })
@@ -321,7 +321,7 @@ describe("JSON-LD", () => {
       Effect.gen(function* () {
         const service = yield* JsonLdDocumentService;
         return yield* service.fromRdf(
-          JsonLdFromRdfRequest.makeUnsafe({
+          JsonLdFromRdfRequest.make({
             dataset: bridged.dataset,
             context: O.some(decodeUnknownSync(JsonLdContext)(rawBlankNodeContext)),
           })

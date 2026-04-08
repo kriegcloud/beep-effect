@@ -417,12 +417,12 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
     }
 
     if (isToolingFile) {
-      const serviceLinePattern = /ServiceMap\.Service</g;
+      const serviceLinePattern = /Context\.Service</g;
       for (const match of content.matchAll(serviceLinePattern)) {
         const start = match.index ?? 0;
         const nearby = Str.slice(start, start + 320)(content);
         if (!/\(\)\(\s*\$I`/.test(nearby)) {
-          pushViolation("service-id", "ServiceMap.Service tag must use $I`ServiceName` identity.", start);
+          pushViolation("service-id", "Context.Service tag must use $I`ServiceName` identity.", start);
         }
       }
 

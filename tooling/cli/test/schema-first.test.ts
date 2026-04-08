@@ -21,7 +21,7 @@ describe("tooling/cli schema-first models", () => {
   });
 
   it("uses tagged-union helpers for GenerationAction", () => {
-    const action = GenerationAction.cases["write-file"].makeUnsafe({
+    const action = new GenerationAction.cases["write-file"]({
       relativePath: "src/index.ts",
       content: "export const x = 1;\n",
     });
@@ -57,7 +57,7 @@ describe("tooling/cli schema-first models", () => {
   });
 
   it("exposes toTaggedUnion helpers for VersionSyncOptions", () => {
-    const option = VersionSyncOptions.cases["dry-run"].makeUnsafe({
+    const option = new VersionSyncOptions.cases["dry-run"]({
       skipNetwork: true,
       bunOnly: false,
       nodeOnly: false,

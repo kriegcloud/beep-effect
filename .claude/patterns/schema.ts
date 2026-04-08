@@ -1,3 +1,4 @@
+import { Effect } from "effect";
 import * as Order from "effect/Order";
 import * as S from "effect/Schema";
 
@@ -31,12 +32,12 @@ export const PatternLevelOrder: Order.Order<PatternLevel> = Order.mapInput(
 export const PatternFrontmatter = S.Struct({
   name: S.String,
   description: S.String,
-  event: PatternEvent.pipe(S.withDecodingDefault(() => "PostToolUse" as const)),
-  tool: S.String.pipe(S.withDecodingDefault(() => ".*")),
+  event: PatternEvent.pipe(S.withDecodingDefault(Effect.succeed("PostToolUse" as const))),
+  tool: S.String.pipe(S.withDecodingDefault(Effect.succeed(".*"))),
   glob: S.optional(S.String),
   pattern: S.String,
-  action: PatternAction.pipe(S.withDecodingDefault(() => "context" as const)),
-  level: PatternLevel.pipe(S.withDecodingDefault(() => "info" as const)),
+  action: PatternAction.pipe(S.withDecodingDefault(Effect.succeed("context" as const))),
+  level: PatternLevel.pipe(S.withDecodingDefault(Effect.succeed("info" as const))),
   tag: S.optional(S.String),
 });
 

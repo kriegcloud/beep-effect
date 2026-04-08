@@ -16,6 +16,7 @@ import {
 } from "@beep/repo-memory-model";
 import { RepoRegistryStore, RepoRunStore, RepoSnapshotStore } from "@beep/repo-memory-store";
 import {
+  Context,
   DateTime,
   Duration,
   Effect,
@@ -25,7 +26,6 @@ import {
   PartitionedSemaphore,
   pipe,
   Schedule,
-  ServiceMap,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -105,7 +105,7 @@ type RepoRunLifecycleControllerShape = {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoRunLifecycleController extends ServiceMap.Service<
+export class RepoRunLifecycleController extends Context.Service<
   RepoRunLifecycleController,
   RepoRunLifecycleControllerShape
 >()($I`RepoRunLifecycleController`) {

@@ -4,7 +4,7 @@
  * @module @beep/schema/SchemaUtils/withEncodeDefault
  * @since 0.0.0
  */
-import { pipe, SchemaGetter } from "effect";
+import { Effect, pipe, SchemaGetter } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
@@ -37,7 +37,7 @@ export const withEncodeDefault: {
       self,
       S.optionalKey,
       S.decodeTo(S.toType(self), {
-        decode: SchemaGetter.withDefault(defaultValue),
+        decode: SchemaGetter.withDefault(Effect.sync(defaultValue)),
         encode: SchemaGetter.required(),
       })
     )

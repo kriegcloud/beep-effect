@@ -8,7 +8,7 @@ import type {
   TitleFromIdentifier,
 } from "@beep/identity";
 import { make } from "@beep/identity";
-import { ServiceMap } from "effect";
+import { Context } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
@@ -126,7 +126,7 @@ describe("Identity", () => {
     expect(fromAt.string()).type.toBe<IdentityString<"@beep/schema">>();
   });
 
-  it("supports create + ServiceMap.Service class keys", () => {
+  it("supports create + Context.Service class keys", () => {
     const $BeepId = make("beep").$BeepId;
     const $I = $BeepId.create("module");
     const $PathI = $BeepId.create("lib/graphiti/client");
@@ -135,7 +135,7 @@ describe("Identity", () => {
       readonly cwd: () => string;
     }
 
-    class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`MyService`) {}
+    class FsUtils extends Context.Service<FsUtils, FsUtilsShape>()($I`MyService`) {}
 
     expect(FsUtils.key).type.toBe<IdentityString<`@beep/module/${string}`>>();
     expect($PathI).type.toBeAssignableTo<IdentityComposer<"@beep/lib/graphiti/client">>();

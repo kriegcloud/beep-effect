@@ -18,7 +18,7 @@ class ChunkBySentencesParameters extends S.Class<ChunkBySentencesParameters>($I`
     maxChunkChars: PosInt.annotateKey({
       description:
         "Target maximum number of characters per chunk. If a single sentence exceeds this, it is returned as its own chunk.",
-      examples: [PosInt.makeUnsafe(500), PosInt.makeUnsafe(1200), PosInt.makeUnsafe(2000)],
+      examples: [PosInt.make(500), PosInt.make(1200), PosInt.make(2000)],
     }),
     text: S.String.annotateKey({
       description: "The text to chunk",

@@ -657,7 +657,7 @@ export interface IdentityComposer<Value extends string> {
    */
   annoteSchema<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
-    extras?: undefined | Schema["~annotate.in"]
+    extras?: undefined | S.Annotations.Bottom<Schema["Type"], Schema["~type.parameters"]>
   ): (self: Schema) => Schema["~rebuild.out"];
 
   /**
@@ -1028,7 +1028,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
    */
   const annoteSchema = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
-    extras?: undefined | Schema["~annotate.in"]
+    extras?: undefined | S.Annotations.Bottom<Schema["Type"], Schema["~type.parameters"]>
   ): ((self: Schema) => Schema["~rebuild.out"]) => {
     const annotation = annote(identifier, extras);
 

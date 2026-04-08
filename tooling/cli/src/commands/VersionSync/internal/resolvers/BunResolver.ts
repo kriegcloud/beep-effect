@@ -10,7 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { A as CommonArray, thunkEmptyStr } from "@beep/utils";
+import { A as CommonArray } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, identity, Path } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
@@ -48,8 +48,8 @@ class BunRelease extends S.Class<BunRelease>($I`BunRelease`)(
 class BunPackageJsonDocument extends S.Class<BunPackageJsonDocument>($I`BunPackageJsonDocument`)(
   {
     packageManager: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed(""))
     ),
   },
   $I.annote("BunPackageJsonDocument", {
@@ -241,14 +241,14 @@ const selectLatestLocalBunVersion = (state: BunVersionState): string => {
 export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState`)(
   {
     bunVersionFile: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed(""))
     ),
     packageManagerField: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed(""))
     ),
-    latest: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    latest: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
   },
   $I.annote("BunVersionState", {
     description: "Resolved Bun version state from local files and optionally GitHub",
@@ -387,7 +387,7 @@ export const buildBunReport: (state: BunVersionState) => VersionCategoryReport =
   const hasDrift = CommonArray.matchToBoolean(items);
   const hasInternalMismatch = state.bunVersionFile !== state.packageManagerField;
 
-  return VersionCategoryReport.cases.bun.makeUnsafe({
+  return new VersionCategoryReport.cases.bun({
     status: Bool.match(hasDrift || hasInternalMismatch, {
       onTrue: VersionCategoryStatusThunk.drift,
       onFalse: VersionCategoryStatusThunk.ok,

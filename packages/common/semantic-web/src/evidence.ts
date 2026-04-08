@@ -48,7 +48,7 @@ export type EvidenceSelectorKind = typeof EvidenceSelectorKind.Type;
  * ```typescript
  * import { TextQuoteSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = TextQuoteSelector.makeUnsafe({
+ * const selector = TextQuoteSelector.make({
  *   kind: "text-quote",
  *   exact: "important finding",
  * })
@@ -88,7 +88,7 @@ export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSe
  * ```typescript
  * import { TextPositionSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = TextPositionSelector.makeUnsafe({
+ * const selector = TextPositionSelector.make({
  *   kind: "text-position",
  *   start: 0,
  *   end: 42,
@@ -128,7 +128,7 @@ export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextP
  * ```typescript
  * import { FragmentSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = FragmentSelector.makeUnsafe({
+ * const selector = FragmentSelector.make({
  *   kind: "fragment",
  *   value: "section-1",
  * })

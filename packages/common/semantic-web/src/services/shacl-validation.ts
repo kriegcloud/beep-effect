@@ -7,7 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
-import { type Effect, ServiceMap } from "effect";
+import { Context, type Effect } from "effect";
 import * as S from "effect/Schema";
 import { Dataset, NamedNode } from "../rdf.ts";
 import { makeSemanticSchemaMetadata } from "../semantic-schema-metadata.ts";
@@ -176,6 +176,6 @@ export interface ShaclValidationServiceShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class ShaclValidationService extends ServiceMap.Service<ShaclValidationService, ShaclValidationServiceShape>()(
+export class ShaclValidationService extends Context.Service<ShaclValidationService, ShaclValidationServiceShape>()(
   $I`ShaclValidationService`
 ) {}

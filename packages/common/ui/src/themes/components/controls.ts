@@ -79,6 +79,9 @@ const Unradio = styled("span")(({ theme }) => ({
 
 const iconSize = 24; // 1.5rem icon size
 
+/**
+ * @since 0.0.0
+ */
 export const controlsTheme: ThemeComponents = {
   MuiCheckbox: {
     defaultProps: {

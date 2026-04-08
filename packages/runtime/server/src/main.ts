@@ -16,6 +16,6 @@ const loadConfig = Effect.scoped(
   )
 );
 
-const main = loadConfig.pipe(Effect.flatMap(runSidecarRuntime));
+const main = loadConfig.pipe(Effect.flatMap(runSidecarRuntime), Effect.scoped);
 
 BunRuntime.runMain(main);

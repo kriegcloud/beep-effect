@@ -23,8 +23,8 @@ const makeDefaultedStringField = (name: string, fallback: string, description: s
         encode: (value) => value,
       })
     ),
-    S.withConstructorDefault(() => O.some(fallback)),
-    S.withDecodingDefault(() => fallback),
+    S.withConstructorDefault(Effect.succeed(fallback)),
+    S.withDecodingDefault(Effect.succeed(fallback)),
     S.annotate($I.annote(name, { description }))
   );
 
@@ -41,8 +41,8 @@ const makeDefaultedPositiveIntField = (name: string, fallback: number, descripti
         encode: (value) => `${value}`,
       })
     ),
-    S.withConstructorDefault(() => O.some(fallback)),
-    S.withDecodingDefault(() => `${fallback}`),
+    S.withConstructorDefault(Effect.succeed(fallback)),
+    S.withDecodingDefault(Effect.succeed(`${fallback}`)),
     S.annotate($I.annote(name, { description }))
   );
 
@@ -60,8 +60,8 @@ const makeDefaultedBooleanField = (name: string, fallback: boolean, description:
         encode: (value) => Bool.match(value, { onTrue: () => "true", onFalse: () => "false" }),
       })
     ),
-    S.withConstructorDefault(() => O.some(fallback)),
-    S.withDecodingDefault(() => Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })),
+    S.withConstructorDefault(Effect.succeed(fallback)),
+    S.withDecodingDefault(Effect.succeed(Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" }))),
     S.annotate($I.annote(name, { description }))
   );
 
@@ -77,8 +77,8 @@ const makeDefaultedUrlField = (name: string, fallback: string, description: stri
         encode: (value) => value,
       })
     ),
-    S.withConstructorDefault(() => O.some(fallback)),
-    S.withDecodingDefault(() => fallback),
+    S.withConstructorDefault(Effect.succeed(fallback)),
+    S.withDecodingDefault(Effect.succeed(fallback)),
     S.annotate($I.annote(name, { description }))
   );
 

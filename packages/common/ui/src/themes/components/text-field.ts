@@ -25,6 +25,9 @@ declare module "@mui/material/FormControl" {
   }
 }
 
+/**
+ * @since 0.0.0
+ */
 export const textFieldTheme: ThemeComponents = {
   MuiFormControl: {
     defaultProps: {

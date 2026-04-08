@@ -82,28 +82,28 @@ export const isPercentage = S.is(Percentage);
  * @since 0.0.0
  * @category Constants
  */
-export const ZERO: Percentage = Percentage.makeUnsafe(0);
+export const ZERO: Percentage = Percentage.make(0);
 /**
  * Percentage constant for 20%.
  *
  * @since 0.0.0
  * @category Constants
  */
-export const TWENTY: Percentage = Percentage.makeUnsafe(20);
+export const TWENTY: Percentage = Percentage.make(20);
 /**
  * Percentage constant for 50%.
  *
  * @since 0.0.0
  * @category Constants
  */
-export const FIFTY: Percentage = Percentage.makeUnsafe(50);
+export const FIFTY: Percentage = Percentage.make(50);
 /**
  * Percentage constant for 100%.
  *
  * @since 0.0.0
  * @category Constants
  */
-export const HUNDRED: Percentage = Percentage.makeUnsafe(100);
+export const HUNDRED: Percentage = Percentage.make(100);
 
 /**
  * Convert a percentage to its decimal representation (0-1 range).
@@ -134,7 +134,7 @@ export const toDecimal = (percentage: Percentage): number => percentage / 100;
  * @since 0.0.0
  * @category Utility
  */
-export const fromDecimal = (decimal: number): Percentage => Percentage.makeUnsafe(decimal * 100);
+export const fromDecimal = (decimal: number): Percentage => Percentage.make(decimal * 100);
 
 /**
  * Check if a percentage value is zero.
@@ -182,7 +182,7 @@ export const isFull = (percentage: Percentage): boolean => percentage === 100;
  * @since 0.0.0
  * @category Utility
  */
-export const complement = (percentage: Percentage): Percentage => Percentage.makeUnsafe(100 - percentage);
+export const complement = (percentage: Percentage): Percentage => Percentage.make(100 - percentage);
 
 /**
  * Format a percentage as a display string with configurable decimal places.

@@ -1,6 +1,6 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
-import * as O from "effect/Option";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $RepoUtilsId.create("Reuse/Reuse.model");
@@ -152,12 +152,12 @@ export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePart
   {
     scopeSelector: S.NonEmptyString,
     scoutUnits: S.Array(ReuseWorkUnit).pipe(
-      S.withConstructorDefault(() => O.some(emptyArray())),
-      S.withDecodingDefault(emptyArray)
+      S.withConstructorDefault(Effect.succeed(emptyArray())),
+      S.withDecodingDefault(Effect.succeed(emptyArray()))
     ),
     specialistUnits: S.Array(ReuseWorkUnit).pipe(
-      S.withConstructorDefault(() => O.some(emptyArray())),
-      S.withDecodingDefault(emptyArray)
+      S.withConstructorDefault(Effect.succeed(emptyArray())),
+      S.withDecodingDefault(Effect.succeed(emptyArray()))
     ),
     catalogEntryCount: NonNegativeInt,
   },
@@ -207,8 +207,8 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
     catalogEntryCount: NonNegativeInt,
     candidateCount: NonNegativeInt,
     candidates: S.Array(ReuseCandidate).pipe(
-      S.withConstructorDefault(() => O.some(emptyArray())),
-      S.withDecodingDefault(emptyArray)
+      S.withConstructorDefault(Effect.succeed(emptyArray())),
+      S.withDecodingDefault(Effect.succeed(emptyArray()))
     ),
   },
   $I.annote("ReuseInventory", {
@@ -226,8 +226,8 @@ export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
   {
     candidate: ReuseCandidate,
     catalogMatches: S.Array(ReuseCatalogEntry).pipe(
-      S.withConstructorDefault(() => O.some(emptyArray())),
-      S.withDecodingDefault(emptyArray)
+      S.withConstructorDefault(Effect.succeed(emptyArray())),
+      S.withDecodingDefault(Effect.succeed(emptyArray()))
     ),
   },
   $I.annote("ReusePacket", {
@@ -247,12 +247,12 @@ export class ReuseFindResult extends S.Class<ReuseFindResult>($I`ReuseFindResult
     query: S.OptionFromNullOr(S.NonEmptyString),
     symbolId: S.OptionFromNullOr(S.NonEmptyString),
     matches: S.Array(ReuseCatalogEntry).pipe(
-      S.withConstructorDefault(() => O.some(emptyArray())),
-      S.withDecodingDefault(emptyArray)
+      S.withConstructorDefault(Effect.succeed(emptyArray())),
+      S.withDecodingDefault(Effect.succeed(emptyArray()))
     ),
     candidateSuggestions: S.Array(ReuseCandidate).pipe(
-      S.withConstructorDefault(() => O.some(emptyArray())),
-      S.withDecodingDefault(emptyArray)
+      S.withConstructorDefault(Effect.succeed(emptyArray())),
+      S.withDecodingDefault(Effect.succeed(emptyArray()))
     ),
   },
   $I.annote("ReuseFindResult", {

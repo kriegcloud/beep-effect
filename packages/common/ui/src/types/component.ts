@@ -11,6 +11,9 @@ type InferProps<C extends React.ElementType> =
     ? (P & {}) & React.ComponentPropsWithoutRef<D>
     : React.ComponentPropsWithoutRef<C>;
 
+/**
+ * @since 0.0.0
+ */
 export type OverridableComponent<
   Props extends { component?: React.ElementType },
   DefaultComponent extends React.ElementType = "button",
@@ -22,6 +25,9 @@ export type OverridableComponent<
 ) => React.JSX.Element) &
   OverridableComponentMeta<Props, DefaultComponent>;
 
+/**
+ * @since 0.0.0
+ */
 export type ForwardStyledProps<P extends object = Record<never, never>> = P & {
   sx?: SxProps<Theme>;
 };

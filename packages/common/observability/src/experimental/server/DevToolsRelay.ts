@@ -1,6 +1,6 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
-import { Effect, HashMap, Layer, MutableRef, Queue, ServiceMap } from "effect";
+import { Context, Effect, HashMap, Layer, MutableRef, Queue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -57,7 +57,7 @@ export class DevToolsSnapshot extends S.Class<DevToolsSnapshot>($I`DevToolsSnaps
  * @since 0.0.0
  * @category services
  */
-export class DevToolsRelayService extends ServiceMap.Service<
+export class DevToolsRelayService extends Context.Service<
   DevToolsRelayService,
   {
     readonly ingest: (request: DevToolsSchema.Request.WithoutPing) => Effect.Effect<void>;
@@ -177,7 +177,7 @@ export const layerDevToolsRelayServer: Layer.Layer<
   SocketServer.SocketServer
 > = Layer.effect(DevToolsRelayService, makeDevToolsRelayService).pipe(
   Layer.tap((services) => {
-    const relay = ServiceMap.get(services, DevToolsRelayService);
+    const relay = Context.get(services, DevToolsRelayService);
 
     return DevToolsServer.run((client) =>
       Effect.gen(function* () {

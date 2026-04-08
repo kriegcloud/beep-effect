@@ -10,7 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
+import { thunkEmptyStr } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -67,7 +67,7 @@ const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(
     S.String,
     SchemaTransformation.transform({
       decode: (schemaUrl) => Str.slice(BIOME_SCHEMA_PREFIX.length, -BIOME_SCHEMA_SUFFIX.length)(schemaUrl),
-      encode: (version) => BiomeSchemaUrl.makeUnsafe(`${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`),
+      encode: (version) => BiomeSchemaUrl.make(`${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`),
     })
   ),
   S.annotate(
@@ -114,10 +114,7 @@ const decodeExactVersion = S.decodeUnknownSync(VersionSpecifierToExactVersion);
 
 class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocument`)(
   {
-    $schema: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
-    ),
+    $schema: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
   },
   $I.annote("BiomeJsoncDocument", {
     description: "Subset of biome.jsonc used to resolve current schema URL.",
@@ -127,12 +124,12 @@ class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocume
 class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPackageJsonDocument`)(
   {
     catalog: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyRecord<string, string>),
-      S.withDecodingDefault(thunkEmptyRecord<string, string>)
+      S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
+      S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
     ),
     devDependencies: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyRecord<string, string>),
-      S.withDecodingDefault(thunkEmptyRecord<string, string>)
+      S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
+      S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
     ),
   },
   $I.annote("RootPackageJsonDocument", {
@@ -150,14 +147,11 @@ class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPa
  */
 export class BiomeSchemaState extends S.Class<BiomeSchemaState>($I`BiomeSchemaState`)(
   {
-    schemaUrl: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
-    ),
-    schemaVersion: S.Option(S.String).pipe(S.withConstructorDefault(() => O.some(O.none<string>()))),
+    schemaUrl: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    schemaVersion: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     installedVersion: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed(""))
     ),
   },
   $I.annote("BiomeSchemaState", {
@@ -248,7 +242,7 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
   let items = A.empty<VersionDriftItem>();
 
   if (Str.isEmpty(state.installedVersion)) {
-    return VersionCategoryReport.cases.biome.makeUnsafe({
+    return new VersionCategoryReport.cases.biome({
       status: VersionCategoryStatusEnum.ok,
       items,
       latest: O.none(),
@@ -272,7 +266,7 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
     );
   }
 
-  return VersionCategoryReport.cases.biome.makeUnsafe({
+  return new VersionCategoryReport.cases.biome({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: VersionCategoryStatusThunk.drift,

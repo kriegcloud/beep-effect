@@ -15,8 +15,7 @@
 // =============================================================================
 
 import { $SharedDomainId } from "@beep/identity";
-import { Config, Effect, Layer, ServiceMap } from "effect";
-import * as O from "effect/Option";
+import { Config, Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("services/authorization/AuthorizationConfig");
@@ -36,8 +35,8 @@ export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I
      * while membership records are being populated.
      */
     enforcementEnabled: S.Boolean.pipe(
-      S.withDecodingDefaultKey(() => true),
-      S.withConstructorDefault(() => O.some(true))
+      S.withDecodingDefaultKey(Effect.succeed(true)),
+      S.withConstructorDefault(Effect.succeed(true))
     ).annotateKey({
       description: "Whether to strictly enforce membership checks.",
       documentation:
@@ -54,7 +53,7 @@ export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I
 }
 
 // =============================================================================
-//  ServiceMap Service
+//  Context Service
 // =============================================================================
 /**
  * AuthorizationConfig - Context.Tag for dependency injection
@@ -72,7 +71,7 @@ export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I
  * })
  *
  **/
-export class AuthorizationConfig extends ServiceMap.Service<AuthorizationConfig, AuthorizationConfigData>()(
+export class AuthorizationConfig extends Context.Service<AuthorizationConfig, AuthorizationConfigData>()(
   $I`AuthorizationConfig`
 ) {}
 

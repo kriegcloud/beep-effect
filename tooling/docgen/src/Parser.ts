@@ -5,7 +5,7 @@
 import { $DocgenId } from "@beep/identity/packages";
 import { thunkEmptyStr } from "@beep/utils";
 import * as doctrine from "doctrine";
-import { Effect, Layer, Path, pipe, ServiceMap } from "effect";
+import { Context, Effect, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -54,7 +54,7 @@ export class SourceShape {
  * @internal
  * @category parsers
  */
-export class Source extends ServiceMap.Service<Source, SourceShape>()($I`Source`) {
+export class Source extends Context.Service<Source, SourceShape>()($I`Source`) {
   /**
    * Creates a layer that provides the current parser source context.
    *

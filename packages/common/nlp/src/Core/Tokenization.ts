@@ -7,7 +7,7 @@
 
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, ServiceMap } from "effect";
+import { Context, Effect } from "effect";
 import * as S from "effect/Schema";
 import type { Document, DocumentId } from "./Document.ts";
 import type { Sentence } from "./Sentence.ts";
@@ -45,7 +45,7 @@ export class TokenizationError extends TaggedErrorClass<TokenizationError>($I`To
  * @since 0.0.0
  * @category Services
  */
-export class Tokenization extends ServiceMap.Service<Tokenization, TokenizationShape>()($I`Tokenization`) {}
+export class Tokenization extends Context.Service<Tokenization, TokenizationShape>()($I`Tokenization`) {}
 
 /**
  * Tokenize text into tokens using the configured service.

@@ -12,7 +12,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { thunkFalse, thunkNegative1, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
+import { thunkNegative1 } from "@beep/utils";
 import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
@@ -39,9 +39,18 @@ const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
  */
 export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpdateResult`)(
   {
-    tsconfigPackages: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
-    tsconfigPaths: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
-    tstycheConfig: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    tsconfigPackages: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    tsconfigPaths: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    tstycheConfig: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
   },
   $I.annote("ConfigUpdateResult", {
     description: "Summary of root configuration files modified during a config update pass.",
@@ -82,11 +91,14 @@ export class ConfigUpdateTargetResult extends S.Class<ConfigUpdateTargetResult>(
   })
 ) {}
 
-const DefaultedBoolean = S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse));
+const DefaultedBoolean = S.Boolean.pipe(
+  S.withConstructorDefault(Effect.succeed(false)),
+  S.withDecodingDefault(Effect.succeed(false))
+);
 
 const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pipe(
-  S.withConstructorDefault(thunkSomeEmptyArray<ConfigUpdateTargetResult>),
-  S.withDecodingDefault(A.empty<ConfigUpdateTargetResult>)
+  S.withConstructorDefault(Effect.succeed(A.empty<ConfigUpdateTargetResult>())),
+  S.withDecodingDefault(Effect.succeed(A.empty<ConfigUpdateTargetResult>()))
 );
 
 /**
@@ -143,7 +155,7 @@ const PackagePathToTstychePattern = PackagePath.pipe(
     TstycheTestFileMatchPattern,
     SchemaTransformation.transform({
       decode: (packagePath) => `${packagePath}/dtslint/**/*.tst.*`,
-      encode: (pattern) => PackagePath.makeUnsafe(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, "")(pattern)),
+      encode: (pattern) => PackagePath.make(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, "")(pattern)),
     })
   ),
   S.annotate(

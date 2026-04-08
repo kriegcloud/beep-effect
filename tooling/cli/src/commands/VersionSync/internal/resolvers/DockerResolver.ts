@@ -10,7 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeYamlTextAs } from "@beep/schema/Yaml";
-import { thunkEmptyRecord, thunkFalse, thunkSomeEmptyRecord } from "@beep/utils";
+import { thunkFalse } from "@beep/utils";
 import {
   Effect,
   FileSystem,
@@ -111,8 +111,8 @@ class DockerComposeService extends S.Class<DockerComposeService>($I`DockerCompos
 class DockerComposeDocument extends S.Class<DockerComposeDocument>($I`DockerComposeDocument`)(
   {
     services: S.Record(S.String, DockerComposeService).pipe(
-      S.withConstructorDefault(thunkSomeEmptyRecord<string, DockerComposeService>),
-      S.withDecodingDefault(thunkEmptyRecord<string, DockerComposeService>)
+      S.withConstructorDefault(Effect.succeed(R.empty<string, DockerComposeService>())),
+      S.withDecodingDefault(Effect.succeed(R.empty<string, DockerComposeService>()))
     ),
   },
   $I.annote("DockerComposeDocument", {
@@ -128,8 +128,8 @@ class DockerComposeDocument extends S.Class<DockerComposeDocument>($I`DockerComp
 export class DockerImageState extends S.Class<DockerImageState>($I`DockerImageState`)(
   {
     images: S.Array(DockerImageElement).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<DockerImageElement>())),
-      S.withDecodingDefault(A.empty<DockerImageElement>)
+      S.withConstructorDefault(Effect.succeed(A.empty<DockerImageElement>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<DockerImageElement>()))
     ),
   },
   $I.annote("DockerImageState", {
@@ -489,7 +489,7 @@ export const buildDockerReport: (state: DockerImageState) => VersionCategoryRepo
     }
   }
 
-  return VersionCategoryReport.cases.docker.makeUnsafe({
+  return new VersionCategoryReport.cases.docker({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: () =>

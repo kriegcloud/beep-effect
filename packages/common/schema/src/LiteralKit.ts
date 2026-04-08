@@ -543,7 +543,7 @@ const attachHelperDescriptors = <T extends object>(schema: T, descriptors: Prope
  * @category DomainModel
  * @since 0.0.0
  */
-export type LiteralKit<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = S.Literals<L> & {
+type LiteralKitBase<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = S.Literals<L> & {
   readonly Options: L;
   readonly is: IsGuards<L>;
   readonly Enum: EnumType<L, M>;
@@ -555,6 +555,14 @@ export type LiteralKit<L extends Literals, M extends EnumMappings<L> | undefined
   readonly thunk: Thunks<L>;
   readonly toTaggedUnion: L[number] extends PropertyKeyLiteral ? ToTaggedUnionFn<PropertyKeyLiterals<L>> : never;
 };
+
+/**
+ * @since 0.0.0
+ */
+export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | undefined = undefined>
+  extends LiteralKitBase<L, M> {
+  readonly "~rebuild.out": LiteralKit<L, M>;
+}
 
 /**
  * Builds a literal schema kit from a non-empty tuple of mixed literals.

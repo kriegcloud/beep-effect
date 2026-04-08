@@ -72,7 +72,7 @@ Both sessions must preserve and strengthen these rules:
    service boundaries.
 11. Effect modules and services are required to replace native JS, Node, and
    ambient runtime APIs in domain logic.
-12. `ServiceMap.Service` contracts are required to expose domain-facing
+12. `Context.Service` contracts are required to expose domain-facing
     capabilities without leaking their constructor dependencies.
 13. Service dependencies are required to be provided with layers close to the
     application boundary.

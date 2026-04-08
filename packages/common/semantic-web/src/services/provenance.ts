@@ -7,7 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt, TaggedErrorClass } from "@beep/schema";
-import { Effect, Layer, pipe, ServiceMap } from "effect";
+import { Context, Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { BoundedEvidenceProjection, EvidenceAnchor } from "../evidence.ts";
@@ -196,7 +196,7 @@ export interface ProvenanceServiceShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class ProvenanceService extends ServiceMap.Service<ProvenanceService, ProvenanceServiceShape>()(
+export class ProvenanceService extends Context.Service<ProvenanceService, ProvenanceServiceShape>()(
   $I`ProvenanceService`
 ) {}
 
@@ -250,12 +250,12 @@ const createProjection = (
   const limitedAnchors = takeUpTo(anchors, maxItems);
   const truncated = bundle.records.length > maxItems || anchors.length > maxItems;
 
-  return BoundedProvenanceProjection.makeUnsafe({
-    bundle: ProvBundle.makeUnsafe({
+  return BoundedProvenanceProjection.make({
+    bundle: ProvBundle.make({
       records: limitedRecords,
       lifecycle: bundle.lifecycle,
     }),
-    evidence: BoundedEvidenceProjection.makeUnsafe({
+    evidence: BoundedEvidenceProjection.make({
       anchors: limitedAnchors,
       truncated,
     }),
@@ -284,7 +284,7 @@ export const ProvenanceServiceLive = Layer.succeed(
     }),
     summarize: Effect.fn((request: SummarizeProvenanceRequest) =>
       Effect.succeed(
-        ProvenanceSummary.makeUnsafe({
+        ProvenanceSummary.make({
           recordCount: decodeNonNegativeInt(request.bundle.records.length),
           entityCount: countRecords(request.bundle.records, isEntityRecord),
           activityCount: countRecords(request.bundle.records, isActivityRecord),

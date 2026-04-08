@@ -1,6 +1,6 @@
 import { $RepoMemoryStoreId } from "@beep/identity/packages";
 import type { RepoId, RepoSemanticArtifacts, SourceSnapshotId } from "@beep/repo-memory-model";
-import { type Effect, ServiceMap } from "effect";
+import { Context, type Effect } from "effect";
 import type * as O from "effect/Option";
 import type { RepoStoreError } from "./RepoStoreError.js";
 
@@ -29,6 +29,6 @@ export interface RepoSemanticStoreShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoSemanticStore extends ServiceMap.Service<RepoSemanticStore, RepoSemanticStoreShape>()(
+export class RepoSemanticStore extends Context.Service<RepoSemanticStore, RepoSemanticStoreShape>()(
   $I`RepoSemanticStore`
 ) {}

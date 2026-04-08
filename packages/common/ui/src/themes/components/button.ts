@@ -1,6 +1,9 @@
 import { CONTROL_HEIGHTS, CONTROL_TOUCH_HEIGHTS, TOUCH_MEDIA_QUERY } from "../scales.ts";
 import type { ThemeComponents } from "../types.ts";
 
+/**
+ * @since 0.0.0
+ */
 export const buttonTheme: ThemeComponents = {
   MuiButtonBase: {
     styleOverrides: {

@@ -91,7 +91,7 @@ describe("@beep/identity", () => {
         version: 1 as const,
       })
     );
-    const annotations = S.resolveInto(schema);
+    const annotations = S.resolveAnnotations(schema);
 
     expect(annotations?.schemaId).toBe(Symbol.for("@beep/schema/tenant_profile-name"));
     expect(annotations?.identifier).toBe("tenant_profile-name");
@@ -133,7 +133,7 @@ describe("@beep/identity", () => {
         "~httpApiEncoding": encoding,
       })
     );
-    const annotations = S.resolveInto(schema);
+    const annotations = S.resolveAnnotations(schema);
 
     expect(annotations?.schemaId).toBe(Symbol.for("@beep/schema/TextResponse"));
     expect(annotations?.identifier).toBe("TextResponse");
@@ -145,16 +145,12 @@ describe("@beep/identity", () => {
 
   it("throws schema validation messages for invalid values", () => {
     const $I = make("beep").$BeepId;
-    expect(() => ($I.make as (segment: string) => unknown)("/bad")).toThrowError(
+    expect(() => ($I.make as (segment: string) => unknown)("/bad")).toThrow('Identity segments cannot start with "/".');
+    expect(() => ($I.create as (segment: string) => unknown)("/bad")).toThrow(
       'Identity segments cannot start with "/".'
     );
-    expect(() => ($I.create as (segment: string) => unknown)("/bad")).toThrowError(
-      'Identity segments cannot start with "/".'
-    );
-    expect(() => ($I.create as (segment: string) => unknown)("bad/")).toThrowError(
-      'Identity segments cannot end with "/".'
-    );
-    expect(() => make("-bad")).toThrowError(
+    expect(() => ($I.create as (segment: string) => unknown)("bad/")).toThrow('Identity segments cannot end with "/".');
+    expect(() => make("-bad")).toThrow(
       "Identity bases must use alphanumeric, hyphen, or underscore characters and start/end with alphanumeric."
     );
   });
@@ -163,7 +159,7 @@ describe("@beep/identity", () => {
     const $I = make("beep").$BeepId.create("module");
     expect(
       () => ($I as unknown as (s: TemplateStringsArray, ...v: ReadonlyArray<unknown>) => unknown)`My${"Svc"}`
-    ).toThrowError("Identity template tags do not allow interpolations.");
+    ).toThrow("Identity template tags do not allow interpolations.");
   });
 
   it("creates consistent identities across derived composers", () => {

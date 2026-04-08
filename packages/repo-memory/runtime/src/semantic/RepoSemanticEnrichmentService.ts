@@ -18,7 +18,7 @@ import { makeDataset, makeLiteral, makeNamedNode, makeQuad } from "@beep/semanti
 import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
 import { RDFS_COMMENT, RDFS_LABEL } from "@beep/semantic-web/vocab/rdfs";
 import { XSD_BOOLEAN, XSD_INTEGER, XSD_STRING } from "@beep/semantic-web/vocab/xsd";
-import { Effect, HashSet, Layer, pipe, ServiceMap } from "effect";
+import { Context, Effect, HashSet, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -437,7 +437,7 @@ const deriveSemanticArtifacts = Effect.fn("RepoSemanticEnrichmentService.deriveS
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoSemanticEnrichmentService extends ServiceMap.Service<
+export class RepoSemanticEnrichmentService extends Context.Service<
   RepoSemanticEnrichmentService,
   RepoSemanticEnrichmentServiceShape
 >()($I`RepoSemanticEnrichmentService`) {

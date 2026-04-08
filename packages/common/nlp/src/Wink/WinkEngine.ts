@@ -7,7 +7,7 @@
 
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
-import { Clock, Effect, Layer, pipe, Ref, ServiceMap } from "effect";
+import { Clock, Context, Effect, Layer, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -88,7 +88,7 @@ const loadWinkRuntime = (): WinkMethods => {
 };
 
 const nextInstanceId = (nowMs: number, counter: number): InstanceId =>
-  InstanceId.makeUnsafe(`wink-engine-${nowMs}-${counter}`);
+  InstanceId.make(`wink-engine-${nowMs}-${counter}`);
 
 const copyCustomEntities = (
   customEntities: WinkEngineCustomEntities
@@ -188,7 +188,7 @@ const makeWinkEngine = Effect.gen(function* () {
  * @since 0.0.0
  * @category Services
  */
-export class WinkEngine extends ServiceMap.Service<WinkEngine, WinkEngineShape>()($I`WinkEngine`) {}
+export class WinkEngine extends Context.Service<WinkEngine, WinkEngineShape>()($I`WinkEngine`) {}
 
 /**
  * Live wink engine layer.

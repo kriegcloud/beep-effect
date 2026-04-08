@@ -80,6 +80,12 @@ const h4Styles = {
   },
 };
 
+/**
+ * Typography scale for the shared theme.
+ *
+ * @since 0.0.0
+ * @category theme
+ */
 export const typography: ThemeOptions["typography"] = {
   fontFamily:
     'var(--font-primary, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif)',
@@ -98,6 +104,12 @@ export const typography: ThemeOptions["typography"] = {
   },
 };
 
+/**
+ * Typography component overrides for the shared theme.
+ *
+ * @since 0.0.0
+ * @category theme
+ */
 export const typographyTheme: ThemeOptions["components"] = {
   MuiTypography: {
     styleOverrides: {

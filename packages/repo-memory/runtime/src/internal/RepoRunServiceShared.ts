@@ -111,9 +111,12 @@ export const isTerminalRunEvent = (event: RunStreamEvent): boolean => isRunTermi
  * @since 0.0.0
  * @category DomainLogic
  */
-export const isSequenceAfterCursor =
-  <A extends { readonly sequence: number }>(cursor: O.Option<RunCursor>) =>
-  (value: A): boolean =>
+/**
+ * @since 0.0.0
+ * @category DomainLogic
+ */
+export function isSequenceAfterCursor<A extends { readonly sequence: number }>(cursor: O.Option<RunCursor>) {
+  return (value: A): boolean =>
     pipe(
       cursor,
       O.match({
@@ -121,6 +124,7 @@ export const isSequenceAfterCursor =
         onSome: (currentCursor) => value.sequence > currentCursor,
       })
     );
+}
 
 /**
  * Poll interval used while waiting for workflow suspension after interruption.

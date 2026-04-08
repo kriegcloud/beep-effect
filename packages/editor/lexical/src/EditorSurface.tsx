@@ -1,5 +1,4 @@
 import {
-  DocumentBlock,
   HeadingBlock,
   makeHeadingBlock,
   makeParagraphBlock,
@@ -89,10 +88,16 @@ const headingLevelFromTag = (tag: string): 1 | 2 | 3 => {
   return 1;
 };
 
+const isHeadingBlock = (block: PageDocument["blocks"][number]): block is HeadingBlock => block.kind === "heading";
+
+const isQuoteBlock = (block: PageDocument["blocks"][number]): block is QuoteBlock => block.kind === "quote";
+
+const isParagraphBlock = (block: PageDocument["blocks"][number]): block is ParagraphBlock => block.kind === "paragraph";
+
 const reuseOrCreateHeadingBlock = (page: PageDocument, index: number, nextText: string): HeadingBlock =>
   pipe(
     A.get(page.blocks, index),
-    O.filter(DocumentBlock.guards.heading),
+    O.filter(isHeadingBlock),
     O.match({
       onNone: () => makeHeadingBlock(nextText, 1),
       onSome: identity,
@@ -102,7 +107,7 @@ const reuseOrCreateHeadingBlock = (page: PageDocument, index: number, nextText: 
 const reuseOrCreateQuoteBlock = (page: PageDocument, index: number, nextText: string): QuoteBlock =>
   pipe(
     A.get(page.blocks, index),
-    O.filter(DocumentBlock.guards.quote),
+    O.filter(isQuoteBlock),
     O.match({
       onNone: () => makeQuoteBlock(nextText),
       onSome: identity,
@@ -112,31 +117,35 @@ const reuseOrCreateQuoteBlock = (page: PageDocument, index: number, nextText: st
 const reuseOrCreateParagraphBlock = (page: PageDocument, index: number, nextText: string): ParagraphBlock =>
   pipe(
     A.get(page.blocks, index),
-    O.filter(DocumentBlock.guards.paragraph),
+    O.filter(isParagraphBlock),
     O.match({
       onNone: () => makeParagraphBlock(nextText),
       onSome: identity,
     })
   );
 
-const appendPageBlock = (block: PageDocument["blocks"][number]) =>
-  DocumentBlock.match(block, {
-    heading: ({ level, text }) => {
+const appendPageBlock = (block: PageDocument["blocks"][number]) => {
+  switch (block.kind) {
+    case "heading": {
+      const { level, text } = block;
       const node = $createHeadingNode(headingTagFromLevel(level));
       node.append($createTextNode(text));
       return node;
-    },
-    quote: ({ text }) => {
+    }
+    case "quote": {
+      const { text } = block;
       const node = $createQuoteNode();
       node.append($createTextNode(text));
       return node;
-    },
-    paragraph: ({ text }) => {
+    }
+    case "paragraph": {
+      const { text } = block;
       const node = $createParagraphNode();
       node.append($createTextNode(text));
       return node;
-    },
-  });
+    }
+  }
+};
 
 const initializeEditorState =
   (page: PageDocument) =>
@@ -148,7 +157,9 @@ const initializeEditorState =
       pipe(
         page.blocks,
         A.map(appendPageBlock),
-        A.forEach((node) => void root.append(node))
+        A.forEach((node) => {
+          root.append(node);
+        })
       );
 
       if (root.getChildrenSize() === 0) {

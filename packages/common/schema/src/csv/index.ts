@@ -201,7 +201,7 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
     );
     const document = yield* formatCsvDocument(schemaColumns, formattedRows, normalized.codec);
 
-    return CsvText.makeUnsafe(document);
+    return CsvText.make(document);
   });
 
 /**

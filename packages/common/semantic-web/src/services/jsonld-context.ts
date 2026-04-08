@@ -7,7 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
-import { type Effect, ServiceMap } from "effect";
+import { Context, type Effect } from "effect";
 import * as S from "effect/Schema";
 import { IRIReference } from "../iri.ts";
 import { JsonLdContext } from "../jsonld.ts";
@@ -195,6 +195,6 @@ export interface JsonLdContextServiceShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class JsonLdContextService extends ServiceMap.Service<JsonLdContextService, JsonLdContextServiceShape>()(
+export class JsonLdContextService extends Context.Service<JsonLdContextService, JsonLdContextServiceShape>()(
   $I`JsonLdContextService`
 ) {}

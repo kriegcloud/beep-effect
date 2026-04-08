@@ -8,7 +8,7 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
-import { Effect, Inspectable, Layer, ServiceMap } from "effect";
+import { Context, Effect, Inspectable, Layer } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { DocumentId } from "../Core/Document.ts";
@@ -76,7 +76,6 @@ export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = TverskyParams.makeUnsafe;
 }
 
 /**
@@ -97,7 +96,6 @@ export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = DocumentTermSet.makeUnsafe;
 }
 
 /**
@@ -121,7 +119,6 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = SimilarityScore.makeUnsafe;
 }
 
 /**
@@ -183,7 +180,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
     bowCosine: Effect.fn("Nlp.Wink.WinkSimilarity.bowCosine")(function* (left: BagOfWords, right: BagOfWords) {
       return yield* Effect.try({
         try: () =>
-          SimilarityScore.makeUnsafe({
+          SimilarityScore.make({
             document1Id: left.documentId,
             document2Id: right.documentId,
             method: "bow.cosine",
@@ -200,7 +197,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
     ) {
       return yield* Effect.try({
         try: () =>
-          SimilarityScore.makeUnsafe({
+          SimilarityScore.make({
             document1Id: left.documentId,
             document2Id: right.documentId,
             method: "set.tversky",
@@ -226,7 +223,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
     ) {
       return yield* Effect.try({
         try: () =>
-          SimilarityScore.makeUnsafe({
+          SimilarityScore.make({
             document1Id: left.documentId,
             document2Id: right.documentId,
             method: "vector.cosine",
@@ -245,7 +242,7 @@ const makeWinkSimilarity = Effect.gen(function* () {
  * @since 0.0.0
  * @category Services
  */
-export class WinkSimilarity extends ServiceMap.Service<WinkSimilarity, WinkSimilarityShape>()($I`WinkSimilarity`) {}
+export class WinkSimilarity extends Context.Service<WinkSimilarity, WinkSimilarityShape>()($I`WinkSimilarity`) {}
 
 /**
  * Live wink similarity layer.

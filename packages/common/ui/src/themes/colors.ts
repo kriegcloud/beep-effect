@@ -21,6 +21,12 @@ declare module "@mui/material/styles" {
   }
 }
 
+/**
+ * Color scheme tokens for the shared theme.
+ *
+ * @since 0.0.0
+ * @category theme
+ */
 export const colors: CssVarsThemeOptions["colorSchemes"] = {
   light: {
     palette: {

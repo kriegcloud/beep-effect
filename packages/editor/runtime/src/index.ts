@@ -57,8 +57,8 @@ const defaultHost = "127.0.0.1";
 const defaultPort = 8789;
 const defaultVersion = "0.0.0";
 const defaultAppDataDir = ".beep/editor-app";
-const defaultWorkspaceName = NonEmptyTrimmedStr.makeUnsafe("Editor Workspace");
-const defaultHomeTitle = NonEmptyTrimmedStr.makeUnsafe("Home");
+const defaultWorkspaceName = NonEmptyTrimmedStr.make("Editor Workspace");
+const defaultHomeTitle = NonEmptyTrimmedStr.make("Home");
 
 const editorFileSystemLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 const SidecarPort = NonNegativeInt.pipe(
@@ -71,6 +71,10 @@ const SidecarPort = NonNegativeInt.pipe(
 );
 const supportedExportFormats = ["json", "markdown"] as const;
 
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export class EditorRuntimeConfig extends S.Class<EditorRuntimeConfig>($I`EditorRuntimeConfig`)(
   {
     host: S.String,
@@ -84,6 +88,10 @@ export class EditorRuntimeConfig extends S.Class<EditorRuntimeConfig>($I`EditorR
   })
 ) {}
 
+/**
+ * @since 0.0.0
+ * @category Errors
+ */
 export class EditorRuntimeError extends TaggedErrorClass<EditorRuntimeError>($I`EditorRuntimeError`)(
   "EditorRuntimeError",
   StatusCauseFields,
@@ -122,7 +130,7 @@ const makeBootstrap = (config: EditorRuntimeConfig, startedAt: DateTime.Utc, sta
     host: config.host,
     port: config.port,
     baseUrl: `http://${internalRunnerHost(config.host)}:${config.port}`,
-    pid: NonNegativeInt.makeUnsafe(process.pid),
+    pid: NonNegativeInt.make(process.pid),
     version: config.version,
     status,
     startedAt,
@@ -555,7 +563,7 @@ export const runEditorRuntime = Effect.fn("EditorRuntime.run")(function* (config
 
     yield* Deferred.succeed(shutdownDeferred, void 0).pipe(Effect.ignore);
   });
-  const services = yield* Effect.services<never>();
+  const services = yield* Effect.context<never>();
   const runRequestShutdown = Effect.runForkWith(services);
 
   yield* Effect.acquireRelease(
@@ -612,8 +620,8 @@ export const loadEditorRuntimeConfig = Effect.fn("EditorRuntime.loadConfig")(fun
 
   return new EditorRuntimeConfig({
     host,
-    port: SidecarPort.makeUnsafe(port),
-    appDataDir: FilePath.makeUnsafe(appDataDir),
+    port: SidecarPort.make(port),
+    appDataDir: FilePath.make(appDataDir),
     sessionId,
     version,
   });

@@ -9,7 +9,7 @@
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { Glob as SharedGlob, layer as SharedGlobLayer } from "@beep/utils/Glob";
-import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
+import { Context, Effect, FileSystem, Layer, Path } from "effect";
 import type * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { DomainError, NoSuchFileError } from "./errors/index.js";
@@ -132,7 +132,7 @@ export interface FsUtilsShape {
  * @category PortContract
  * @since 0.0.0
  */
-export class FsUtils extends ServiceMap.Service<FsUtils, FsUtilsShape>()($I`FsUtils`) {}
+export class FsUtils extends Context.Service<FsUtils, FsUtilsShape>()($I`FsUtils`) {}
 
 /**
  * Live layer for `FsUtils` that uses the platform `FileSystem` and `Path`

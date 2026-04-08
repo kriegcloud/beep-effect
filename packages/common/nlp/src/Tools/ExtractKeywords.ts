@@ -20,9 +20,9 @@ class ExtractKeywordsParameters extends S.Class<ExtractKeywordsParameters>($I`Ex
       examples: ["Machine learning algorithms process data efficiently."],
     }),
     topN: S.optionalKey(PosInt).annotateKey({
-      default: PosInt.makeUnsafe(10),
+      default: PosInt.make(10),
       description: "Maximum number of keywords to return (default: 10)",
-      examples: [PosInt.makeUnsafe(5), PosInt.makeUnsafe(10), PosInt.makeUnsafe(20)],
+      examples: [PosInt.make(5), PosInt.make(10), PosInt.make(20)],
     }),
   },
   $I.annote("ExtractKeywordsParameters", {

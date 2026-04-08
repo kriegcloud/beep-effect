@@ -17,7 +17,7 @@ import {
   type StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
 import { StatusCauseFields, TaggedErrorClass } from "@beep/schema";
-import { Cause, Effect, Layer, pipe, ServiceMap, Stream } from "effect";
+import { Cause, Context, Effect, Layer, pipe, Stream } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -87,7 +87,7 @@ export interface RepoMemoryClientShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoMemoryClient extends ServiceMap.Service<RepoMemoryClient, RepoMemoryClientShape>()(
+export class RepoMemoryClient extends Context.Service<RepoMemoryClient, RepoMemoryClientShape>()(
   $I`RepoMemoryClient`
 ) {}
 

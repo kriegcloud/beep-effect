@@ -66,6 +66,7 @@ export interface MutableHashSetFromSelf<Value extends S.Top>
     readonly [Value],
     MutableHashSetIso<Value>
   > {
+  readonly "~rebuild.out": this;
   readonly value: Value;
 }
 
@@ -77,6 +78,7 @@ export interface MutableHashSetFromSelf<Value extends S.Top>
  */
 export interface MutableHashSet<Value extends S.Top>
   extends S.decodeTo<MutableHashSetFromSelf<S.toType<Value>>, S.$Array<Value>> {
+  readonly "~rebuild.out": this;
   readonly value: Value;
 }
 

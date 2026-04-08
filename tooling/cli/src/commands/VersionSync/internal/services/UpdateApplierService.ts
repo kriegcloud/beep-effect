@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Effect, type FileSystem, Layer, Match, MutableHashMap, Path, ServiceMap } from "effect";
+import { Context, Effect, type FileSystem, Layer, Match, MutableHashMap, Path } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -47,7 +47,7 @@ export type UpdateApplierServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class UpdateApplierService extends ServiceMap.Service<UpdateApplierService, UpdateApplierServiceShape>()(
+export class UpdateApplierService extends Context.Service<UpdateApplierService, UpdateApplierServiceShape>()(
   $I`UpdateApplierService`
 ) {}
 

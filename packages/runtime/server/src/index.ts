@@ -858,7 +858,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
  * @since 0.0.0
  * @category DomainModel
  */
-export const launchSidecar = (config: SidecarRuntimeConfig) =>
+export const launchSidecar = (config: SidecarRuntimeConfig): Effect.Effect<void, SidecarRuntimeError> =>
   provideSidecarObservability(config, Layer.launch(Layer.fresh(sidecarLayer(config)))).pipe(
     Effect.mapError((cause) => toRuntimeError("Failed to launch sidecar runtime.", 500, cause))
   );
@@ -895,7 +895,7 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
         }).pipe(Effect.annotateLogs(runtimeAnnotations));
         yield* Deferred.succeed(shutdownDeferred, void 0).pipe(Effect.ignore);
       });
-      const services = yield* Effect.services<never>();
+      const services = yield* Effect.context<never>();
       const runRequestShutdown = Effect.runForkWith(services);
 
       yield* Effect.acquireRelease(

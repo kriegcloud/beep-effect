@@ -4,7 +4,7 @@
 
 import { $DocgenId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, Layer, Order, pipe, ServiceMap } from "effect";
+import { Context, Effect, Layer, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -525,7 +525,7 @@ const defaultProcess: ProcessShape = {
  * @category service
  * @since 0.0.0
  */
-export class Process extends ServiceMap.Service<Process, ProcessShape>()($I`Process`, {
+export class Process extends Context.Service<Process, ProcessShape>()($I`Process`, {
   make: Effect.succeed(defaultProcess),
 }) {
   static readonly layer = Layer.succeed(Process, Process.of(defaultProcess));

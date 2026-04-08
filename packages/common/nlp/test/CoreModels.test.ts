@@ -7,12 +7,12 @@ import { Sentence, SentenceIndex } from "../src/Core/Sentence.ts";
 import { CharPosition, Token, TokenIndex } from "../src/Core/Token.ts";
 
 const makeToken = (index: number, text: string, start: number, end: number): Token =>
-  Token.makeUnsafe({
+  Token.make({
     abbrevFlag: O.none(),
     case: O.none(),
     contractionFlag: O.none(),
-    end: CharPosition.makeUnsafe(end),
-    index: TokenIndex.makeUnsafe(index),
+    end: CharPosition.make(end),
+    index: TokenIndex.make(index),
     lemma: O.none(),
     negationFlag: O.none(),
     normal: O.none(),
@@ -20,7 +20,7 @@ const makeToken = (index: number, text: string, start: number, end: number): Tok
     prefix: O.none(),
     precedingSpaces: O.none(),
     shape: O.none(),
-    start: CharPosition.makeUnsafe(start),
+    start: CharPosition.make(start),
     stem: O.none(),
     stopWordFlag: O.none(),
     suffix: O.none(),
@@ -38,10 +38,10 @@ const makeSentence = (index: number, text: string, tokens: ReadonlyArray<Token>)
 
   const lastToken = A.reduce(remainingTokens, firstToken, (_, token) => token);
 
-  return Sentence.makeUnsafe({
+  return Sentence.make({
     end: lastToken.index,
     importance: O.none(),
-    index: SentenceIndex.makeUnsafe(index),
+    index: SentenceIndex.make(index),
     markedUpText: O.none(),
     negationFlag: O.none(),
     sentiment: O.none(),
@@ -52,8 +52,8 @@ const makeSentence = (index: number, text: string, tokens: ReadonlyArray<Token>)
 };
 
 const makeDocument = (text: string, tokens: ReadonlyArray<Token>, sentences: ReadonlyArray<Sentence>): Document =>
-  Document.makeUnsafe({
-    id: DocumentId.makeUnsafe("core-models"),
+  Document.make({
+    id: DocumentId.make("core-models"),
     sentences: Chunk.fromIterable(sentences),
     sentiment: O.none(),
     text,

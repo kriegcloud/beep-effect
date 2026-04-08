@@ -112,12 +112,12 @@ const makeToken = (token: ItemToken, index: number, its: ItsHelpers, previousEnd
   const end = start + text.length;
 
   return [
-    Token.makeUnsafe({
+    Token.make({
       abbrevFlag: optionFromTokenBoolean(token, its.abbrevFlag),
       case: optionFromTokenString(token, its.case),
       contractionFlag: optionFromTokenBoolean(token, its.contractionFlag),
-      end: CharPosition.makeUnsafe(end),
-      index: TokenIndex.makeUnsafe(index),
+      end: CharPosition.make(end),
+      index: TokenIndex.make(index),
       lemma: optionFromTokenString(token, its.lemma),
       negationFlag: optionFromTokenBoolean(token, its.negationFlag),
       normal: optionFromTokenString(token, its.normal),
@@ -125,7 +125,7 @@ const makeToken = (token: ItemToken, index: number, its: ItsHelpers, previousEnd
       prefix: optionFromTokenString(token, its.prefix),
       precedingSpaces: precedingSpaces.length === 0 ? O.none() : O.some(precedingSpaces),
       shape: optionFromTokenString(token, its.shape),
-      start: CharPosition.makeUnsafe(start),
+      start: CharPosition.make(start),
       stem: optionFromTokenString(token, its.stem),
       stopWordFlag: optionFromTokenBoolean(token, its.stopWordFlag),
       suffix: optionFromTokenString(token, its.suffix),
@@ -194,10 +194,10 @@ const collectSentences = (
     const lastToken = A.reduce(sentenceTokens, firstToken, (_, token) => token);
 
     sentences.push(
-      Sentence.makeUnsafe({
+      Sentence.make({
         end: lastToken.index,
         importance: O.none(),
-        index: SentenceIndex.makeUnsafe(index),
+        index: SentenceIndex.make(index),
         markedUpText: O.none(),
         negationFlag: O.none(),
         sentiment: O.none(),

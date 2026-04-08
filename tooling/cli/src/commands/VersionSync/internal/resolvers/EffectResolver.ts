@@ -10,7 +10,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { thunkEmptyRecord, thunkEmptyStr, thunkSomeEmptyRecord } from "@beep/utils";
+import { thunkEmptyStr } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, Number as N, Order, Path } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -28,13 +28,15 @@ import {
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/EffectResolver");
 const VERSION_SPECIFIER_PATTERN = /^([~^<>=\s]*)(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?)$/;
 const EXACT_VERSION_PATTERN = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
+const EFFECT_SMOL_SNAPSHOT_PATTERN = /^https:\/\/pkg\.pr\.new\/Effect-TS\/effect-smol\/(.+)@([0-9a-f]+)$/i;
 const LOCKSTEP_EFFECT_PACKAGE_PREFIX = "@effect/";
+const NON_LOCKSTEP_EFFECT_PACKAGES = new Set(["@effect/language-service", "@effect/markdown-toc", "@effect/tsgo"]);
 
 class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPackageJsonDocument`)(
   {
     catalog: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyRecord<string, string>),
-      S.withDecodingDefault(thunkEmptyRecord<string, string>)
+      S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
+      S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
     ),
   },
   $I.annote("RootPackageJsonDocument", {
@@ -61,12 +63,12 @@ class EffectCatalogPackage extends S.Class<EffectCatalogPackage>($I`EffectCatalo
 export class EffectCatalogState extends S.Class<EffectCatalogState>($I`EffectCatalogState`)(
   {
     canonicalSpecifier: S.String.pipe(
-      S.withConstructorDefault(() => O.some("")),
-      S.withDecodingDefault(thunkEmptyStr)
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed(""))
     ),
     packages: S.Array(EffectCatalogPackage).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<EffectCatalogPackage>())),
-      S.withDecodingDefault(A.empty<EffectCatalogPackage>)
+      S.withConstructorDefault(Effect.succeed(A.empty<EffectCatalogPackage>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<EffectCatalogPackage>()))
     ),
   },
   $I.annote("EffectCatalogState", {
@@ -79,6 +81,11 @@ type VersionSpecifierParts = {
   readonly exact: string;
 };
 
+type SnapshotSpecifierParts = {
+  readonly packageName: string;
+  readonly sha: string;
+};
+
 const splitVersionSpecifier = (specifier: string): O.Option<VersionSpecifierParts> => {
   return O.flatMap(Str.match(VERSION_SPECIFIER_PATTERN)(Str.trim(specifier)), (match) =>
     O.flatMap(O.fromUndefinedOr(match[1]), (prefix) =>
@@ -87,13 +94,28 @@ const splitVersionSpecifier = (specifier: string): O.Option<VersionSpecifierPart
   );
 };
 
+const splitSnapshotSpecifier = (specifier: string): O.Option<SnapshotSpecifierParts> => {
+  return O.flatMap(Str.match(EFFECT_SMOL_SNAPSHOT_PATTERN)(Str.trim(specifier)), (match) =>
+    O.flatMap(O.fromUndefinedOr(match[1]), (packageName) =>
+      O.map(O.fromUndefinedOr(match[2]), (sha) => ({ packageName, sha }))
+    )
+  );
+};
+
+const makeSnapshotSpecifier = (packageName: string, sha: string): string =>
+  `https://pkg.pr.new/Effect-TS/effect-smol/${packageName}@${sha}`;
+
 const parseMajorVersion = (exactVersion: string): O.Option<number> => {
   return O.flatMap(Str.match(EXACT_VERSION_PATTERN)(exactVersion), (match) =>
     O.flatMap(O.fromUndefinedOr(match[1]), N.parse)
   );
 };
 
-const isLockstepEffectPackage = (packageName: string, versionSpecifier: string, canonicalMajor: number): boolean => {
+const isPublishedLockstepEffectPackage = (
+  packageName: string,
+  versionSpecifier: string,
+  canonicalMajor: number
+): boolean => {
   if (packageName === "effect") {
     return true;
   }
@@ -109,6 +131,14 @@ const isLockstepEffectPackage = (packageName: string, versionSpecifier: string, 
 
   const major = parseMajorVersion(parts.value.exact);
   return O.isSome(major) && major.value === canonicalMajor;
+};
+
+const isSnapshotLockstepEffectPackage = (packageName: string): boolean => {
+  if (packageName === "effect") {
+    return true;
+  }
+
+  return Str.startsWith(LOCKSTEP_EFFECT_PACKAGE_PREFIX)(packageName) && !NON_LOCKSTEP_EFFECT_PACKAGES.has(packageName);
 };
 
 /**
@@ -149,18 +179,25 @@ export const resolveEffectCatalog: (
     const canonicalMajor = O.flatMap(splitVersionSpecifier(canonicalSpecifier), (parts) =>
       parseMajorVersion(parts.exact)
     );
+    const canonicalSnapshot = splitSnapshotSpecifier(canonicalSpecifier);
     let packages = A.empty<EffectCatalogPackage>();
 
-    if (O.isSome(canonicalMajor)) {
-      for (const packageName of A.sort(R.keys(pkgJson.catalog), Order.String)) {
-        const versionSpecifier = pkgJson.catalog[packageName];
+    for (const packageName of A.sort(R.keys(pkgJson.catalog), Order.String)) {
+      const versionSpecifier = pkgJson.catalog[packageName];
 
-        if (!isLockstepEffectPackage(packageName, versionSpecifier, canonicalMajor.value)) {
+      if (O.isSome(canonicalSnapshot)) {
+        if (!isSnapshotLockstepEffectPackage(packageName)) {
           continue;
         }
-
-        packages = A.append(packages, new EffectCatalogPackage({ name: packageName, versionSpecifier }));
+      } else if (O.isSome(canonicalMajor)) {
+        if (!isPublishedLockstepEffectPackage(packageName, versionSpecifier, canonicalMajor.value)) {
+          continue;
+        }
+      } else {
+        continue;
       }
+
+      packages = A.append(packages, new EffectCatalogPackage({ name: packageName, versionSpecifier }));
     }
 
     return new EffectCatalogState({ canonicalSpecifier, packages });
@@ -177,7 +214,7 @@ export const resolveEffectCatalog: (
  */
 export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryReport = (state) => {
   if (Str.isEmpty(state.canonicalSpecifier)) {
-    return VersionCategoryReport.cases.effect.makeUnsafe({
+    return new VersionCategoryReport.cases.effect({
       status: VersionCategoryStatusEnum.error,
       items: A.empty(),
       latest: O.none(),
@@ -185,8 +222,11 @@ export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryRe
     });
   }
 
-  if (O.isNone(splitVersionSpecifier(state.canonicalSpecifier))) {
-    return VersionCategoryReport.cases.effect.makeUnsafe({
+  if (
+    O.isNone(splitVersionSpecifier(state.canonicalSpecifier)) &&
+    O.isNone(splitSnapshotSpecifier(state.canonicalSpecifier))
+  ) {
+    return new VersionCategoryReport.cases.effect({
       status: VersionCategoryStatusEnum.error,
       items: A.empty(),
       latest: O.some(state.canonicalSpecifier),
@@ -194,10 +234,16 @@ export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryRe
     });
   }
 
+  const canonicalSnapshot = splitSnapshotSpecifier(state.canonicalSpecifier);
   let items = A.empty<VersionDriftItem>();
 
   for (const pkg of state.packages) {
-    if (pkg.versionSpecifier === state.canonicalSpecifier) {
+    const expectedSpecifier = O.match(canonicalSnapshot, {
+      onNone: () => state.canonicalSpecifier,
+      onSome: ({ sha }) => makeSnapshotSpecifier(pkg.name, sha),
+    });
+
+    if (pkg.versionSpecifier === expectedSpecifier) {
       continue;
     }
 
@@ -207,13 +253,13 @@ export const buildEffectReport: (state: EffectCatalogState) => VersionCategoryRe
         file: "package.json",
         field: `catalog.${pkg.name}`,
         current: pkg.versionSpecifier,
-        expected: state.canonicalSpecifier,
+        expected: expectedSpecifier,
         line: O.none(),
       })
     );
   }
 
-  return VersionCategoryReport.cases.effect.makeUnsafe({
+  return new VersionCategoryReport.cases.effect({
     status: A.match(items, {
       onEmpty: VersionCategoryStatusThunk.ok,
       onNonEmpty: VersionCategoryStatusThunk.drift,

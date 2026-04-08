@@ -106,7 +106,7 @@ export const JsonLdContextServiceLive = Layer.succeed(
   JsonLdContextService.of({
     normalize: Effect.fn((request) =>
       Effect.succeed(
-        JsonLdContext.makeUnsafe({
+        JsonLdContext.make({
           "@base": request.context["@base"],
           "@vocab": request.context["@vocab"],
           terms: R.fromEntries(A.sort(R.toEntries(request.context.terms), byTermAscending)),
@@ -119,7 +119,7 @@ export const JsonLdContextServiceLive = Layer.succeed(
         return yield* makeContextError("unknownTerm", `Unable to expand JSON-LD term: ${request.term}`, request.term);
       }
 
-      return ExpandJsonLdTermResult.makeUnsafe({
+      return ExpandJsonLdTermResult.make({
         term: request.term,
         iri: decodeIriReference(iri),
       });
@@ -134,14 +134,14 @@ export const JsonLdContextServiceLive = Layer.succeed(
         );
       }
 
-      return CompactJsonLdIriResult.makeUnsafe({
+      return CompactJsonLdIriResult.make({
         iri: request.iri,
         term: decodeNonEmptyString(term),
       });
     }),
     merge: Effect.fn((request) =>
       Effect.succeed(
-        JsonLdContext.makeUnsafe({
+        JsonLdContext.make({
           "@base": O.isSome(request.right["@base"]) ? request.right["@base"] : request.left["@base"],
           "@vocab": O.isSome(request.right["@vocab"]) ? request.right["@vocab"] : request.left["@vocab"],
           terms: mergeContextTerms(request.left.terms, request.right.terms),

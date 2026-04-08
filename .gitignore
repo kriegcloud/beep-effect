@@ -40,12 +40,6 @@ stats.html
 **/.next/
 docs/
 **/docs
-!packages/common/schema/docs/
-packages/common/schema/docs/**
-!packages/common/schema/docs/index.md
-!packages/common/schema/docs/reviews/
-packages/common/schema/docs/reviews/**
-!packages/common/schema/docs/reviews/prov-o-spec-review.md
 # Docgen analysis artifacts
 **/JSDOC_ANALYSIS.md
 **/JSDOC_ANALYSIS.json

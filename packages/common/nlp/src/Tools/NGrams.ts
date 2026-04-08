@@ -27,7 +27,7 @@ class NGramsParameters extends S.Class<NGramsParameters>($I`NGramsParameters`)(
     }),
     size: PosInt.annotateKey({
       description: "N-gram size such as 2 for bigrams or 3 for trigrams",
-      examples: [PosInt.makeUnsafe(3)],
+      examples: [PosInt.make(3)],
     }),
     text: S.String.annotateKey({
       description: "Input text used to generate n-grams",

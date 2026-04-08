@@ -8,7 +8,7 @@
 import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
-import { Chunk, Effect, Inspectable, Layer, pipe, Ref, ServiceMap } from "effect";
+import { Chunk, Context, Effect, Inspectable, Layer, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -75,20 +75,18 @@ type WinkVectorizerShape = {
 };
 
 const loadBM25Vectorizer = (): BM25VectorizerFactory => require("wink-nlp/utilities/bm25-vectorizer");
-const BM25Norm = BM25NormKit.pipe(
-  $I.annoteSchema("BM25Norm", {
-    description: "Vector normalization mode used by the BM25 vectorizer.",
-  }),
-  SchemaUtils.withLiteralKitStatics(BM25NormKit)
-);
-
 /**
  * BM25 normalization mode used by the vectorizer and corpus services.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export { BM25Norm };
+export const BM25Norm = BM25NormKit.pipe(
+  $I.annoteSchema("BM25Norm", {
+    description: "Vector normalization mode used by the BM25 vectorizer.",
+  }),
+  SchemaUtils.withLiteralKitStatics(BM25NormKit)
+);
 
 const normalizeTokenText = (token: Token): string =>
   O.match(token.normal, {
@@ -143,7 +141,6 @@ export class BM25Config extends S.Class<BM25Config>($I`BM25Config`)(
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = BM25Config.makeUnsafe;
 }
 
 /**
@@ -152,7 +149,7 @@ export class BM25Config extends S.Class<BM25Config>($I`BM25Config`)(
  * @since 0.0.0
  * @category Configuration
  */
-export const DefaultBM25Config = BM25Config.makeUnsafe({
+export const DefaultBM25Config = BM25Config.make({
   b: 0.75,
   k: 1,
   k1: 1.2,
@@ -178,7 +175,6 @@ export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = DocumentVector.makeUnsafe;
 }
 
 /**
@@ -199,7 +195,6 @@ export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = BagOfWords.makeUnsafe;
 }
 
 /**
@@ -220,7 +215,6 @@ export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = TermFrequency.makeUnsafe;
 }
 
 /**
@@ -319,7 +313,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
       return pipe(
         raw,
         A.map(([term, frequency]) =>
-          TermFrequency.makeUnsafe({
+          TermFrequency.make({
             frequency,
             term,
           })
@@ -332,7 +326,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
       const state = yield* Ref.get(vectorizerRef);
       const tokens = yield* readNormalizedTokens(document);
 
-      return BagOfWords.makeUnsafe({
+      return BagOfWords.make({
         bow: toFiniteRecord(state.vectorizer.bowOf(tokens, true)),
         documentId: document.id,
       });
@@ -375,7 +369,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
       const tokens = yield* readNormalizedTokens(document);
       const terms = yield* getTerms(state.vectorizer);
 
-      return DocumentVector.makeUnsafe({
+      return DocumentVector.make({
         documentId: document.id,
         terms,
         vector: state.vectorizer.vectorOf(tokens),
@@ -399,7 +393,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
               const tokens = yield* readNormalizedTokens(document);
               const terms = yield* getTerms(freshVectorizer);
 
-              return DocumentVector.makeUnsafe({
+              return DocumentVector.make({
                 documentId: document.id,
                 terms,
                 vector: freshVectorizer.vectorOf(tokens),
@@ -418,7 +412,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
  * @since 0.0.0
  * @category Services
  */
-export class WinkVectorizer extends ServiceMap.Service<WinkVectorizer, WinkVectorizerShape>()($I`WinkVectorizer`) {}
+export class WinkVectorizer extends Context.Service<WinkVectorizer, WinkVectorizerShape>()($I`WinkVectorizer`) {}
 
 /**
  * Live wink vectorizer layer.

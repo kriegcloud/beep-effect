@@ -205,7 +205,7 @@ export type CryptoWalletAddress = typeof CryptoWalletAddress.Type;
 export const CryptoWalletAddressRedacted = CryptoWalletAddress.pipe(
   S.RedactedFromValue,
   SchemaUtils.withStatics(() => ({
-    makeRedacted: flow(CryptoWalletAddress.makeUnsafe, Redacted.make),
+    makeRedacted: flow(CryptoWalletAddress.make, Redacted.make),
   })),
   S.annotate(
     $I.annote("CryptoWalletAddressRedacted", {

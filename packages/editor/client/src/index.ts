@@ -11,7 +11,7 @@ import {
 } from "@beep/editor-protocol";
 import { $EditorClientId } from "@beep/identity/packages";
 import { Slug, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
-import { Cause, Effect, Layer, pipe, ServiceMap } from "effect";
+import { Cause, Context, Effect, Layer, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -90,7 +90,7 @@ export interface EditorClientShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class EditorClient extends ServiceMap.Service<EditorClient, EditorClientShape>()($I`EditorClient`) {}
+export class EditorClient extends Context.Service<EditorClient, EditorClientShape>()($I`EditorClient`) {}
 
 /**
  * Browser-friendly HTTP client type for the editor control plane.
@@ -104,7 +104,7 @@ type EditorHttpClientServiceShape = {
   readonly client: EditorControlPlaneClient;
 };
 
-class EditorHttpClientService extends ServiceMap.Service<EditorHttpClientService, EditorHttpClientServiceShape>()(
+class EditorHttpClientService extends Context.Service<EditorHttpClientService, EditorHttpClientServiceShape>()(
   $I`EditorHttpClientService`
 ) {}
 
@@ -182,7 +182,7 @@ export const makeEditorHttpClientDefault = (
 ): Effect.Effect<EditorControlPlaneClient> =>
   Effect.scoped(
     Layer.build(EditorHttpClientDefaultLayer(options)).pipe(
-      Effect.map((context) => ServiceMap.get(context, EditorHttpClientService).client)
+      Effect.map((context) => Context.get(context, EditorHttpClientService).client)
     )
   );
 

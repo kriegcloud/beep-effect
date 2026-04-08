@@ -8,8 +8,8 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, normalizePath } from "@beep/schema";
-import { Struct, thunkFalse, thunkSomeEmptyArray } from "@beep/utils";
-import { Effect, FileSystem, flow, identity, Order, Path, pipe, ServiceMap } from "effect";
+import { Struct, thunkFalse } from "@beep/utils";
+import { Context, Effect, FileSystem, flow, identity, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
@@ -120,8 +120,8 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
     directories: S.Array(RelativePlanPath),
     files: S.Array(PlannedFile),
     symlinks: S.Array(PlannedSymlink).pipe(
-      S.withConstructorDefault(thunkSomeEmptyArray<PlannedSymlink>),
-      S.withDecodingDefaultKey(A.empty<PlannedSymlink>)
+      S.withConstructorDefault(Effect.succeed(A.empty<PlannedSymlink>())),
+      S.withDecodingDefaultKey(Effect.succeed(A.empty<PlannedSymlink>()))
     ),
   },
   $I.annote("FileGenerationPlanInput", {
@@ -259,7 +259,7 @@ export type FileGenerationPlanServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class FileGenerationPlanService extends ServiceMap.Service<
+export class FileGenerationPlanService extends Context.Service<
   FileGenerationPlanService,
   FileGenerationPlanServiceShape
 >()($I`FileGenerationPlanService`) {}
@@ -417,22 +417,27 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       Str.isNonEmpty
     );
 
-    const mkdirActions = A.map(sortedDirectories(directoryCandidates), (relativePath) =>
-      GenerationAction.cases.mkdir.makeUnsafe({ relativePath })
+    const mkdirActions = A.map(
+      sortedDirectories(directoryCandidates),
+      (relativePath) => new GenerationAction.cases.mkdir({ relativePath })
     );
 
-    const writeActions = A.map(sortedByRelativePath(input.files), (file) =>
-      GenerationAction.cases["write-file"].makeUnsafe({
-        relativePath: toPosixPath(file.relativePath),
-        content: file.content,
-      })
+    const writeActions = A.map(
+      sortedByRelativePath(input.files),
+      (file) =>
+        new GenerationAction.cases["write-file"]({
+          relativePath: toPosixPath(file.relativePath),
+          content: file.content,
+        })
     );
 
-    const symlinkActions = A.map(sortedByRelativePath(symlinks), (link) =>
-      GenerationAction.cases.symlink.makeUnsafe({
-        relativePath: toPosixPath(link.relativePath),
-        target: toPosixPath(link.target),
-      })
+    const symlinkActions = A.map(
+      sortedByRelativePath(symlinks),
+      (link) =>
+        new GenerationAction.cases.symlink({
+          relativePath: toPosixPath(link.relativePath),
+          target: toPosixPath(link.target),
+        })
     );
 
     const actions: ReadonlyArray<GenerationAction> = A.appendAll(

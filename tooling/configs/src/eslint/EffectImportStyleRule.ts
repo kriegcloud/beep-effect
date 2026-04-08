@@ -1,4 +1,4 @@
-import { Struct, thunkSome, thunkSomeNone, thunkUndefined } from "@beep/utils";
+import { Struct, thunkSome, thunkUndefined } from "@beep/utils";
 import { Effect, HashMap, HashSet, pipe, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
@@ -55,7 +55,7 @@ const ROOT_EFFECT_FUNCTION_EXPORTS = HashSet.fromIterable(["absurd", "cast", "fl
 
 class EffectImportObservation extends S.Class<EffectImportObservation>("EffectImportObservation")({
   moduleName: S.String,
-  namespaceAlias: S.Option(S.String).pipe(S.withConstructorDefault(thunkSomeNone<string>)),
+  namespaceAlias: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
   namedValueImports: S.Array(S.String),
   hasOnlyNamespaceSpecifier: S.Boolean,
   isTypeOnly: S.Boolean,

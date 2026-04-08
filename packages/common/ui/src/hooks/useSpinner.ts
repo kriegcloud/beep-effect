@@ -122,6 +122,12 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * @returns {{ up: (params?: T) => void; down: (params?: T) => void; stop: () => void }} - Spinner controls for starting and stopping repeated actions.
  * @since 0.0.0
  */
+/**
+ * Spinner button hook with press-and-hold repeat behavior.
+ *
+ * @since 0.0.0
+ * @category React
+ */
 export function useSpinner<T>(increment: (params?: T) => void, decrement: (params?: T) => void) {
   const [isSpinning, setIsSpinning] = useState(false);
   const [action, setAction] = useState<O.Option<SpinnerAction>>(O.none());

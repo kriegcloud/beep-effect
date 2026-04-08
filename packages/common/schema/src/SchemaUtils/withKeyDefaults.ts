@@ -5,9 +5,8 @@
  * @module @beep/schema/SchemaUtils/withKeyDefaults
  * @since 0.0.0
  */
-import { pipe } from "effect";
+import { Effect, pipe } from "effect";
 import { dual } from "effect/Function";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 /**
@@ -50,7 +49,7 @@ export const withKeyDefaults: {
   ): S.withDecodingDefaultKey<S.withConstructorDefault<TSchema>> =>
     pipe(
       self,
-      S.withConstructorDefault(() => O.some(defaultValue)),
-      S.withDecodingDefaultKey(() => defaultValue)
+      S.withConstructorDefault(Effect.succeed(defaultValue)),
+      S.withDecodingDefaultKey(Effect.succeed(defaultValue))
     )
 );

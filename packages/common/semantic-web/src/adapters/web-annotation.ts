@@ -172,7 +172,7 @@ export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
 export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelector): WebAnnotationSelector =>
   Match.value(selector).pipe(
     Match.when({ kind: "text-quote" }, (value) =>
-      WebAnnotationTextQuoteSelector.makeUnsafe({
+      WebAnnotationTextQuoteSelector.make({
         type: "TextQuoteSelector",
         exact: value.exact,
         prefix: value.prefix,
@@ -180,14 +180,14 @@ export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelect
       })
     ),
     Match.when({ kind: "text-position" }, (value) =>
-      WebAnnotationTextPositionSelector.makeUnsafe({
+      WebAnnotationTextPositionSelector.make({
         type: "TextPositionSelector",
         start: value.start,
         end: value.end,
       })
     ),
     Match.orElse((value) =>
-      WebAnnotationFragmentSelector.makeUnsafe({
+      WebAnnotationFragmentSelector.make({
         type: "FragmentSelector",
         value: value.value,
         conformsTo: value.conformsTo,
@@ -206,7 +206,7 @@ export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelect
 export const webAnnotationSelectorToEvidenceSelector = (selector: WebAnnotationSelector): EvidenceSelector =>
   Match.value(selector).pipe(
     Match.when({ type: "TextQuoteSelector" }, (value) =>
-      TextQuoteSelector.makeUnsafe({
+      TextQuoteSelector.make({
         kind: "text-quote",
         exact: value.exact,
         prefix: value.prefix,
@@ -214,14 +214,14 @@ export const webAnnotationSelectorToEvidenceSelector = (selector: WebAnnotationS
       })
     ),
     Match.when({ type: "TextPositionSelector" }, (value) =>
-      TextPositionSelector.makeUnsafe({
+      TextPositionSelector.make({
         kind: "text-position",
         start: value.start,
         end: value.end,
       })
     ),
     Match.orElse((value) =>
-      FragmentSelector.makeUnsafe({
+      FragmentSelector.make({
         kind: "fragment",
         value: value.value,
         conformsTo: value.conformsTo,
@@ -238,7 +238,7 @@ export const webAnnotationSelectorToEvidenceSelector = (selector: WebAnnotationS
  * @category Utility
  */
 export const evidenceTargetToWebAnnotationTarget = (target: EvidenceTarget): WebAnnotationTarget =>
-  WebAnnotationTarget.makeUnsafe({
+  WebAnnotationTarget.make({
     source: target.source,
     selector: evidenceSelectorToWebAnnotationSelector(target.selector),
   });
@@ -252,7 +252,7 @@ export const evidenceTargetToWebAnnotationTarget = (target: EvidenceTarget): Web
  * @category Utility
  */
 export const webAnnotationTargetToEvidenceTarget = (target: WebAnnotationTarget): EvidenceTarget =>
-  EvidenceTarget.makeUnsafe({
+  EvidenceTarget.make({
     source: target.source,
     selector: webAnnotationSelectorToEvidenceSelector(target.selector),
   });
@@ -266,7 +266,7 @@ export const webAnnotationTargetToEvidenceTarget = (target: WebAnnotationTarget)
  * @category Utility
  */
 export const evidenceAnchorToWebAnnotation = (anchor: EvidenceAnchor): WebAnnotation =>
-  WebAnnotation.makeUnsafe({
+  WebAnnotation.make({
     id: anchor.id,
     type: "Annotation",
     bodyValue: anchor.note,
@@ -282,7 +282,7 @@ export const evidenceAnchorToWebAnnotation = (anchor: EvidenceAnchor): WebAnnota
  * @category Utility
  */
 export const webAnnotationToEvidenceAnchor = (annotation: WebAnnotation): EvidenceAnchor =>
-  EvidenceAnchor.makeUnsafe({
+  EvidenceAnchor.make({
     id: annotation.id,
     target: webAnnotationTargetToEvidenceTarget(annotation.target),
     note: annotation.bodyValue,

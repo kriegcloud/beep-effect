@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { thunkTrue } from "@beep/utils";
-import { Layer, Match, ServiceMap } from "effect";
+import { Context, Layer, Match } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import {
@@ -35,7 +35,7 @@ export type CategorySelectionServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class CategorySelectionService extends ServiceMap.Service<
+export class CategorySelectionService extends Context.Service<
   CategorySelectionService,
   CategorySelectionServiceShape
 >()($I`CategorySelectionService`) {}

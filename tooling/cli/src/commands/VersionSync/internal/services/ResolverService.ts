@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, type FileSystem, Layer, type Path, ServiceMap } from "effect";
+import { Context, Effect, type FileSystem, Layer, type Path } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -52,7 +52,7 @@ export type ResolverServiceShape = {
  * @category PortContract
  * @since 0.0.0
  */
-export class ResolverService extends ServiceMap.Service<ResolverService, ResolverServiceShape>()($I`ResolverService`) {}
+export class ResolverService extends Context.Service<ResolverService, ResolverServiceShape>()($I`ResolverService`) {}
 
 const resolve: ResolverServiceShape["resolve"] = Effect.fn(function* (repoRoot, options) {
   const categorySelection = yield* CategorySelectionService;

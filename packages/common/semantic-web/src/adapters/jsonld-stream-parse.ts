@@ -53,13 +53,13 @@ const applyLoaderBaseIri = (
     O.match({
       onNone: () => document,
       onSome: (baseIri) =>
-        JsonLdDocument.makeUnsafe({
+        JsonLdDocument.make({
           "@context": pipe(
             document["@context"],
             O.match({
               onNone: () =>
                 O.some(
-                  JsonLdContext.makeUnsafe({
+                  JsonLdContext.make({
                     "@base": O.some(baseIri),
                     "@vocab": O.none(),
                     terms: {},
@@ -67,7 +67,7 @@ const applyLoaderBaseIri = (
                 ),
               onSome: (context) =>
                 O.some(
-                  JsonLdContext.makeUnsafe({
+                  JsonLdContext.make({
                     "@base": O.some(baseIri),
                     "@vocab": context["@vocab"],
                     terms: context.terms,
@@ -118,14 +118,14 @@ export const JsonLdStreamParseServiceLive = Layer.effect(
 
         const dataset = yield* pipe(
           documentService.toRdf(
-            JsonLdToRdfRequest.makeUnsafe({
+            JsonLdToRdfRequest.make({
               document: applyLoaderBaseIri(document, request.loaderPolicy),
             })
           ),
           Effect.mapError(mapDocumentErrorToParseError)
         );
 
-        return JsonLdStreamParseResult.makeUnsafe({
+        return JsonLdStreamParseResult.make({
           dataset: dataset.dataset,
           mode: "buffered-fallback",
           chunkCount: decodeNonNegativeInt(request.input.chunks.length),

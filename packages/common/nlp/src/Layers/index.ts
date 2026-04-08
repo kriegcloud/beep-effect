@@ -6,7 +6,7 @@
  */
 
 import { Layer } from "effect";
-import { WinkEngine, WinkEngineLive } from "../Wink/WinkEngine.ts";
+import { WinkEngineLive as WinkEngineLiveService, WinkEngine as WinkEngineService } from "../Wink/WinkEngine.ts";
 import { WinkTokenization } from "../Wink/WinkTokenizer.ts";
 
 /**
@@ -15,7 +15,7 @@ import { WinkTokenization } from "../Wink/WinkTokenizer.ts";
  * @since 0.0.0
  * @category Layers
  */
-export const NLPBaseLive = WinkEngineLive;
+export const NLPBaseLive = WinkEngineLiveService;
 
 /**
  * Tokenization module layer exposing both the wink engine and tokenization service.
@@ -23,7 +23,7 @@ export const NLPBaseLive = WinkEngineLive;
  * @since 0.0.0
  * @category Layers
  */
-export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(WinkEngineLive));
+export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(WinkEngineLiveService));
 
 /**
  * Compatibility application layer matching the legacy tokenization-focused bundle.
@@ -33,4 +33,13 @@ export const TokenizationModuleLive = WinkTokenization.pipe(Layer.provideMerge(W
  */
 export const NLPAppLive = TokenizationModuleLive;
 
-export { WinkEngine, WinkEngineLive };
+/**
+ * @since 0.0.0
+ * @category exports
+ */
+export const WinkEngine = WinkEngineService;
+/**
+ * @since 0.0.0
+ * @category exports
+ */
+export const WinkEngineLive = WinkEngineLiveService;

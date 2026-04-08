@@ -22,7 +22,7 @@ Transform the Σ-type into an **indexed family over a singleton base**:
 
 - **Base category**: The schema with annotations (metadata lives here)
 - **Fibers**: Decoded instances carry only `_tag` discriminant + `value` (the tag-specific occurrence shape)
-- **Projection functor**: `S.resolveInto(schema)?.jsDocTagMetadata` recovers metadata from the base
+- **Projection functor**: `S.resolveAnnotations(schema)?.jsDocTagMetadata` recovers metadata from the base
 
 In Haskell terms:
 
@@ -132,7 +132,7 @@ import * as S from "effect/Schema";
  * from any tag schema produced by make().
  */
 export const getJSDocTagMetadata = (schema: S.Top): JSDocTagAnnotationPayload | undefined =>
-  S.resolveInto(schema)?.jsDocTagMetadata;
+  S.resolveAnnotations(schema)?.jsDocTagMetadata;
 
 // Usage: metadata recovered from schema, not from instance
 const paramTagSchema = make("param", { /* ... full definition ... */ });
@@ -150,7 +150,7 @@ const meta = getJSDocTagMetadata(paramTagSchema);
 
 Annotations survive schema composition. The `TagValue` union in `tag-values/index.ts` composes sub-unions (StructuralEnc, AccessModifierEnc, etc.) via `S.toTaggedUnion("_tag")`. Per-member annotations from individual `ParamValue`, `ReturnsValue`, etc. remain reachable through the union AST. Group-level annotations via `$I.annote()` on each value class carry occurrence-shape documentation that layers on top.
 
-When `make()` produces a tag schema with `.annotate({ jsDocTagMetadata: def })`, that annotation is recoverable regardless of whether the schema is accessed directly or through a union composition. The pipeline can introspect any tag schema at runtime via `S.resolveInto(schema)?.jsDocTagMetadata` without a separate lookup table — **the schema IS the lookup table**.
+When `make()` produces a tag schema with `.annotate({ jsDocTagMetadata: def })`, that annotation is recoverable regardless of whether the schema is accessed directly or through a union composition. The pipeline can introspect any tag schema at runtime via `S.resolveAnnotations(schema)?.jsDocTagMetadata` without a separate lookup table — **the schema IS the lookup table**.
 
 ### Extending the Annotation Surface
 
@@ -179,7 +179,7 @@ return JSDocTagDefinition.mapFields((_) => ({
 | `multiplicity` | Output schema shape for structured outputs | `{ kind: "per-parameter" \| "single" \| "per-error" \| "unbounded" }` |
 | `astSignals` | Deterministic heuristics for auto-classification | `{ modifierFlags: ["Async"], nodeKinds: [...] }` |
 
-All recoverable at runtime via `S.resolveInto(schema)?.tsCategoryClassification`, etc.
+All recoverable at runtime via `S.resolveAnnotations(schema)?.tsCategoryClassification`, etc.
 
 ### Staticness Spectrum
 
@@ -223,7 +223,7 @@ The fibration refactor enables a single schema to project into three distinct ro
 
 ### Role 1: Agent Context (Base Annotations → Markdown Descriptions)
 
-Schema annotations get projected into markdown-formatted `description` fields in the JSON Schema used for structured outputs. The agent sees rich context about what each tag means, its applicability, and derivability — all generated from a single `S.resolveInto(schema)?.jsDocTagMetadata` traversal.
+Schema annotations get projected into markdown-formatted `description` fields in the JSON Schema used for structured outputs. The agent sees rich context about what each tag means, its applicability, and derivability — all generated from a single `S.resolveAnnotations(schema)?.jsDocTagMetadata` traversal.
 
 ### Role 2: Agent Output Validation (Fiber Payload → JSON Schema)
 
@@ -287,7 +287,7 @@ Every key in the output object is a known tag kind with its own typed schema. **
 toAgentOutputSchema(astNodeKind: NodeKind) → JSON Schema
 ```
 
-1. For each tag schema produced by `make()`, call `S.resolveInto(schema)?.jsDocTagMetadata` to get the full definition
+1. For each tag schema produced by `make()`, call `S.resolveAnnotations(schema)?.jsDocTagMetadata` to get the full definition
 2. Filter to tags where `meta.applicableTo` includes the target `astNodeKind`
 3. For each applicable tag, project the fiber payload (`TagValue.cases[tagName]`) into a property on an `S.Struct`
 4. Serialize `meta.overview`, `meta.astDerivableNote`, `meta.parameters.syntax` into the `description` field of each JSON Schema property
@@ -522,10 +522,10 @@ For implementation clarity, here's a mapping of the category theory concepts to 
 | The full current type | Dependent sum (Σ-type) | `JSDocTagDefinition` S.Class with all fields |
 | Constant metadata | Section of the base | `.annotate({ jsDocTagMetadata: def })` |
 | Varying payload | Fiber | `TagValue.cases[_tag]` (e.g., `ParamValue`, `ReturnsValue`) |
-| Recovering metadata from discriminant | Display map / Projection functor | `S.resolveInto(schema)?.jsDocTagMetadata` |
+| Recovering metadata from discriminant | Display map / Projection functor | `S.resolveAnnotations(schema)?.jsDocTagMetadata` |
 | The factoring operation | Promotion / Fibration construction | `JSDocTagDefinition.mapFields(() => ({ _tag: S.tag(tag), value: TagValue.cases[tag] })).annotate(...)` |
 | Tag kind → valid fields | Indexed inductive family | `S.tag()` narrowing + `TagValue.cases` lookup |
-| Schema-as-lookup-table | The schema IS the base category | Introspect schema annotations at runtime via `S.resolveInto()` |
+| Schema-as-lookup-table | The schema IS the base category | Introspect schema annotations at runtime via `S.resolveAnnotations()` |
 | Union grouping | Coproduct with group annotations | `S.toTaggedUnion("_tag")` with `$I.annote()` |
 | Narrowing for structured output | Distributing coproduct into product | `toAgentOutputSchema(nodeKind)` |
 | Pre-filled + agent-authored fields | Known index set → product | Key-per-tag-kind in output schema |

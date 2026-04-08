@@ -256,6 +256,44 @@ export const annotateSemanticSchema = <Schema extends S.Top>(
   metadata: typeof SemanticSchemaMetadata.Encoded
 ): Schema["~rebuild.out"] => schema.annotate({ semanticSchemaMetadata: makeSemanticSchemaMetadata(metadata) });
 
+const hasAnnotationsRecord = (
+  value: unknown
+): value is {
+  annotations?:
+    | {
+        semanticSchemaMetadata?: SemanticSchemaMetadataAnnotationPayload | undefined;
+      }
+    | undefined;
+} => typeof value === "object" && value !== null;
+
+const findSemanticSchemaMetadata = (
+  value: unknown,
+  visited: WeakSet<object>
+): SemanticSchemaMetadataAnnotationPayload | undefined => {
+  if (typeof value !== "object" || value === null) {
+    return;
+  }
+
+  if (visited.has(value)) {
+    return;
+  }
+
+  visited.add(value);
+
+  if (hasAnnotationsRecord(value) && value.annotations?.semanticSchemaMetadata !== undefined) {
+    return value.annotations.semanticSchemaMetadata;
+  }
+
+  for (const nested of Object.values(value)) {
+    const metadata = findSemanticSchemaMetadata(nested, visited);
+    if (metadata !== undefined) {
+      return metadata;
+    }
+  }
+
+  return;
+};
+
 /**
  * Read semantic metadata from any Effect schema, if present.
  *
@@ -274,4 +312,4 @@ export const annotateSemanticSchema = <Schema extends S.Top>(
  * @category utilities
  */
 export const getSemanticSchemaMetadata = (schema: S.Top): SemanticSchemaMetadataAnnotationPayload | undefined =>
-  S.resolveInto(schema)?.semanticSchemaMetadata;
+  findSemanticSchemaMetadata(schema.ast, new WeakSet());

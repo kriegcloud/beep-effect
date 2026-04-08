@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
-import { thunkEmptyStr, thunkFalse, thunkSome, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
+import { thunkEmptyStr } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -76,16 +76,16 @@ class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDocument>
     version: S.Literal(1),
     generatedOn: S.String,
     scope: S.Array(S.String).pipe(
-      S.withConstructorDefault(thunkSome(A.fromIterable(INCLUDED_GLOBS))),
-      S.withDecodingDefault(() => A.fromIterable(INCLUDED_GLOBS))
+      S.withConstructorDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS))),
+      S.withDecodingDefault(Effect.succeed(A.fromIterable(INCLUDED_GLOBS)))
     ),
     enforcedRoots: S.Array(S.String).pipe(
-      S.withConstructorDefault(thunkSome(A.fromIterable(ENFORCED_ROOTS))),
-      S.withDecodingDefault(() => A.fromIterable(ENFORCED_ROOTS))
+      S.withConstructorDefault(Effect.succeed(A.fromIterable(ENFORCED_ROOTS))),
+      S.withDecodingDefault(Effect.succeed(A.fromIterable(ENFORCED_ROOTS)))
     ),
     entries: S.Array(SchemaFirstInventoryEntry).pipe(
-      S.withConstructorDefault(thunkSomeEmptyArray<SchemaFirstInventoryEntry>),
-      S.withDecodingDefault(A.empty<(typeof SchemaFirstInventoryEntry)["Encoded"]>)
+      S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstInventoryEntry>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<(typeof SchemaFirstInventoryEntry)["Encoded"]>()))
     ),
   },
   $I.annote("SchemaFirstInventoryDocument", {
@@ -95,7 +95,10 @@ class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDocument>
 
 class SchemaFirstLintOptions extends S.Class<SchemaFirstLintOptions>($I`SchemaFirstLintOptions`)(
   {
-    write: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    write: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
   },
   $I.annote("SchemaFirstLintOptions", {
     description: "CLI options for schema-first inventory verification.",

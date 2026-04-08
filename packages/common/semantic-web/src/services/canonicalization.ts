@@ -7,7 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit, Sha256Hex, TaggedErrorClass } from "@beep/schema";
-import { type Effect, ServiceMap } from "effect";
+import { Context, type Effect } from "effect";
 import * as S from "effect/Schema";
 import { Dataset } from "../rdf.ts";
 import { makeSemanticSchemaMetadata } from "../semantic-schema-metadata.ts";
@@ -162,7 +162,6 @@ export interface CanonicalizationServiceShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class CanonicalizationService extends ServiceMap.Service<
-  CanonicalizationService,
-  CanonicalizationServiceShape
->()($I`CanonicalizationService`) {}
+export class CanonicalizationService extends Context.Service<CanonicalizationService, CanonicalizationServiceShape>()(
+  $I`CanonicalizationService`
+) {}

@@ -24,6 +24,12 @@ import { treeViewTheme } from "./components/tree-view.ts";
 import { shadows } from "./shadows.ts";
 import { typography, typographyTheme } from "./typography.ts";
 
+/**
+ * The shared MUI theme used by `@beep/ui`.
+ *
+ * @since 0.0.0
+ * @category Theme
+ */
 export const theme = createTheme({
   cssVariables: {
     colorSchemeSelector: "class",

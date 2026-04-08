@@ -7,7 +7,6 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { thunkFalse, thunkSomeFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Inspectable, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -25,7 +24,10 @@ const $I = $RepoCliId.create("commands/Agents");
  */
 class AgentsCheckOptions extends S.Class<AgentsCheckOptions>($I`AgentsCheckOptions`)(
   {
-    strict: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    strict: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
   },
   $I.annote("AgentsCheckOptions", {
     description: "Resolved options for agents check command.",
@@ -56,8 +58,8 @@ class ManagedFile extends S.Class<ManagedFile>($I`ManagedFile`)(
 class ManagedFilesManifest extends S.Class<ManagedFilesManifest>($I`ManagedFilesManifest`)(
   {
     files: S.Array(ManagedFile).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<ManagedFile>())),
-      S.withDecodingDefault(A.empty<ManagedFile>)
+      S.withConstructorDefault(Effect.succeed(A.empty<ManagedFile>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<ManagedFile>()))
     ),
   },
   $I.annote("ManagedFilesManifest", {

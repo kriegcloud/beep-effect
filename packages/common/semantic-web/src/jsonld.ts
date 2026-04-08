@@ -79,7 +79,7 @@ export type JsonLdKeyword = typeof JsonLdKeyword.Type;
  * ```typescript
  * import { JsonLdTermDefinition } from "@beep/semantic-web/jsonld"
  *
- * const term = JsonLdTermDefinition.makeUnsafe({
+ * const term = JsonLdTermDefinition.make({
  *   "@id": "https://schema.org/name",
  * })
  * console.log(term["@id"]) // "https://schema.org/name"
@@ -302,7 +302,7 @@ export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObj
  * ```typescript
  * import { JsonLdDocument } from "@beep/semantic-web/jsonld"
  *
- * const doc = JsonLdDocument.makeUnsafe({ "@graph": [] })
+ * const doc = JsonLdDocument.make({ "@graph": [] })
  * console.log(doc["@graph"].length) // 0
  * ```
  *

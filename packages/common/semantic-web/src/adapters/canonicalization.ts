@@ -139,7 +139,7 @@ const fromCanonizeGraph = (graph: CanonizeGraph): GraphTerm =>
     ? makeNamedNode(graph.value)
     : graph.termType === "BlankNode"
       ? makeBlankNode(graph.value)
-      : DefaultGraph.makeUnsafe({ termType: "DefaultGraph", value: "" });
+      : DefaultGraph.make({ termType: "DefaultGraph", value: "" });
 
 const fromCanonizeQuad = (quad: CanonizeQuad): Quad =>
   makeQuad(
@@ -219,13 +219,13 @@ export const CanonicalizationServiceLive = Layer.succeed(
     canonicalize: Effect.fn(function* (request) {
       yield* enforceWorkLimit(request.dataset.quads, request.workLimit);
       const canonical = yield* getCanonicalDataset(request);
-      return CanonicalDatasetResult.makeUnsafe(canonical);
+      return CanonicalDatasetResult.make(canonical);
     }),
     fingerprint: Effect.fn(function* (request) {
       yield* enforceWorkLimit(request.dataset.quads, request.workLimit);
       const canonical = yield* getCanonicalDataset(request);
       const fingerprint = yield* hashCanonicalText(canonical.canonicalText);
-      return DatasetFingerprint.makeUnsafe({
+      return DatasetFingerprint.make({
         canonicalText: canonical.canonicalText,
         fingerprint,
       });

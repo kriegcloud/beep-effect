@@ -1,7 +1,7 @@
 import { $EditorId } from "@beep/identity/packages";
 import { LiteralKit, MimeType, NonEmptyTrimmedStr, NonNegativeInt, SchemaUtils, Slug, UUID } from "@beep/schema";
 import { Struct } from "@beep/utils";
-import { type DateTime, flow, identity, Match, pipe } from "effect";
+import { type DateTime, Effect, flow, identity, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -59,9 +59,6 @@ export type BlockId = typeof BlockId.Type;
  */
 export const RevisionId = UUID.pipe(
   S.brand("RevisionId"),
-  SchemaUtils.withStatics((schema) => ({
-    create: () => schema.makeUnsafe(crypto.randomUUID()),
-  })),
   S.annotate(
     $I.annote("RevisionId", {
       description: "Stable internal identifier for a persisted page revision record.",
@@ -73,6 +70,7 @@ export const RevisionId = UUID.pipe(
  * @category DomainModel
  */
 export type RevisionId = typeof RevisionId.Type;
+const createRevisionId = (): RevisionId => RevisionId.make(crypto.randomUUID());
 
 /**
  * Stable workspace identifier.
@@ -219,6 +217,12 @@ const matchDocumentBlock: {
 } = dual(2, <A>(block: DocumentBlockValue, cases: DocumentBlockCases<A>) =>
   Match.value(block).pipe(Match.discriminatorsExhaustive("kind")(cases))
 );
+/**
+ * Canonical editor document block union.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
 export const DocumentBlock = Object.assign(DocumentBlockSchema, {
   match: matchDocumentBlock,
 });
@@ -300,7 +304,11 @@ export class WorkspaceManifest extends S.Class<WorkspaceManifest>($I`WorkspaceMa
  */
 export class RevisionRecord extends S.Class<RevisionRecord>($I`RevisionRecord`)(
   {
-    id: RevisionId.pipe(S.optionalKey, SchemaUtils.withKeyDefaults(RevisionId.create())),
+    id: RevisionId.pipe(
+      S.optionalKey,
+      S.withConstructorDefault(Effect.sync(createRevisionId)),
+      S.withDecodingDefaultKey(Effect.sync(createRevisionId))
+    ),
     pageId: PageId,
     pageSlug: Slug,
     savedAt: S.DateTimeUtcFromMillis,
@@ -331,7 +339,7 @@ export class PageExport extends S.Class<PageExport>($I`PageExport`)(
   })
 ) {}
 
-const untitledSlug = Slug.makeUnsafe("untitled");
+const untitledSlug = Slug.make("untitled");
 
 class TextBlock extends S.Class<TextBlock>($I`TextBlock`)({
   text: S.String,
@@ -433,7 +441,7 @@ export const normalizePageSlug = (input: string): Slug =>
  */
 export const makeParagraphBlock = (text: string): ParagraphBlock =>
   new ParagraphBlock({
-    id: BlockId.makeUnsafe(crypto.randomUUID()),
+    id: BlockId.make(crypto.randomUUID()),
     text,
   });
 
@@ -449,7 +457,7 @@ export const makeParagraphBlock = (text: string): ParagraphBlock =>
  */
 export const makeHeadingBlock = (text: string, level: HeadingLevel = 1): HeadingBlock =>
   new HeadingBlock({
-    id: BlockId.makeUnsafe(crypto.randomUUID()),
+    id: BlockId.make(crypto.randomUUID()),
     level,
     text,
   });
@@ -465,7 +473,7 @@ export const makeHeadingBlock = (text: string, level: HeadingLevel = 1): Heading
  */
 export const makeQuoteBlock = (text: string): QuoteBlock =>
   new QuoteBlock({
-    id: BlockId.makeUnsafe(crypto.randomUUID()),
+    id: BlockId.make(crypto.randomUUID()),
     text,
   });
 
@@ -566,7 +574,7 @@ export const createPageDocument = (input: {
 }): PageDocument =>
   withDerivedOutboundLinks(
     new PageDocument({
-      id: PageId.makeUnsafe(crypto.randomUUID()),
+      id: PageId.make(crypto.randomUUID()),
       slug: input.slug ?? normalizePageSlug(input.title),
       title: input.title,
       blocks: A.fromIterable(input.blocks),
@@ -592,8 +600,8 @@ export const makePageSummary = (page: PageDocument, backlinkCount: number): Page
     title: page.title,
     excerpt: pipe(pageToPlainText(page), Str.slice(0, 160)),
     updatedAt: page.updatedAt,
-    outboundLinkCount: NonNegativeInt.makeUnsafe(page.outboundLinks?.length ?? 0),
-    backlinkCount: NonNegativeInt.makeUnsafe(backlinkCount),
+    outboundLinkCount: NonNegativeInt.make(page.outboundLinks?.length ?? 0),
+    backlinkCount: NonNegativeInt.make(backlinkCount),
   });
 
 /**
@@ -640,7 +648,7 @@ export const refreshPageDocument = (
  */
 export const makeRevisionRecord = (page: PageDocument, savedAt: DateTime.Utc, reason: string): RevisionRecord =>
   new RevisionRecord({
-    id: RevisionId.makeUnsafe(crypto.randomUUID()),
+    id: createRevisionId(),
     pageId: page.id,
     pageSlug: page.slug,
     savedAt,
@@ -663,7 +671,7 @@ export const createWorkspaceManifest = (input: {
   readonly now: DateTime.Utc;
 }): WorkspaceManifest =>
   new WorkspaceManifest({
-    id: WorkspaceId.makeUnsafe(crypto.randomUUID()),
+    id: WorkspaceId.make(crypto.randomUUID()),
     name: input.name,
     rootPageSlug: O.fromUndefinedOr(input.rootPageSlug),
     createdAt: input.now,

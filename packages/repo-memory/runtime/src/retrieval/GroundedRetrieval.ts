@@ -63,7 +63,7 @@ import {
   TaggedErrorClass,
 } from "@beep/schema";
 import * as Str from "@beep/utils/Str";
-import { DateTime, Effect, HashSet, Layer, Order, pipe, ServiceMap } from "effect";
+import { Context, DateTime, Effect, HashSet, Layer, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -158,7 +158,7 @@ export interface GroundedRetrievalServiceShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class GroundedRetrievalService extends ServiceMap.Service<
+export class GroundedRetrievalService extends Context.Service<
   GroundedRetrievalService,
   GroundedRetrievalServiceShape
 >()($I`GroundedRetrievalService`) {

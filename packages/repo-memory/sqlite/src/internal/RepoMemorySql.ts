@@ -20,7 +20,7 @@ import {
 import { RepoStoreError } from "@beep/repo-memory-store";
 import { FilePath, makeStatusCauseError, NonNegativeInt, PosInt, Sha256Hex, Sha256HexFromBytes } from "@beep/schema";
 import { thunk0, thunkEffectSucceedNone, thunkEffectSucceedNull } from "@beep/utils";
-import { DateTime, Effect, FileSystem, Layer, Path, pipe, ServiceMap } from "effect";
+import { Context, DateTime, Effect, FileSystem, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -276,7 +276,7 @@ export interface RepoMemorySqlShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class RepoMemorySql extends ServiceMap.Service<RepoMemorySql, RepoMemorySqlShape>()($I`RepoMemorySql`) {
+export class RepoMemorySql extends Context.Service<RepoMemorySql, RepoMemorySqlShape>()($I`RepoMemorySql`) {
   static readonly layer = (
     config: RepoMemorySqlConfig
   ): Layer.Layer<RepoMemorySql, RepoStoreError, FileSystem.FileSystem | Path.Path | SqlClient.SqlClient> =>

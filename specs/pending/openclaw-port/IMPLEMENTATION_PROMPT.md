@@ -97,7 +97,7 @@ These laws are mandatory during implementation:
 13. Network requests are required to use `effect/unstable/http`. HTTP API
     contracts are required to use `effect/unstable/httpapi` whenever the ported
     surface defines an application HTTP boundary.
-14. `ServiceMap.Service` contracts are required to expose only domain-facing
+14. `Context.Service` contracts are required to expose only domain-facing
     capabilities. Constructor dependencies, infrastructure services, and
     transitive wiring dependencies are not allowed to leak through the public
     service shape.
@@ -149,7 +149,7 @@ Rewrite these source patterns into repo-native forms:
 - network requests into `effect/unstable/http` clients and request/response
   composition
 - application HTTP boundaries into `effect/unstable/httpapi` contracts
-- leaking infrastructure dependencies through `ServiceMap.Service` public shapes
+- leaking infrastructure dependencies through `Context.Service` public shapes
 - dependency wiring into explicit `Layer` composition located close to the
   application boundary
 - mutable closure state, module-local mutable counters, mutable status flags, or
@@ -210,7 +210,7 @@ Rules for worker use:
 - Do not let workers bypass repo laws for speed.
 - Do not let workers introduce duplicate abstractions when a required reuse
   target already exists in the packet.
-- Do not let workers expose dependency wiring through `ServiceMap.Service`
+- Do not let workers expose dependency wiring through `Context.Service`
   contracts or move layer provisioning away from the application boundary.
 - Do not let workers preserve mutable closure state or choose the wrong
   `Ref`-family primitive for the required semantics.

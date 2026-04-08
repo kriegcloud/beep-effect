@@ -12,19 +12,20 @@ import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { Toolkit } from "effect/unstable/ai";
+import { type Tool, Toolkit } from "effect/unstable/ai";
 import { DocumentId } from "../Core/Document.ts";
 import { BracketStringToPatternElement } from "../Core/PatternParsers.ts";
 import type { Token } from "../Core/Token.ts";
 import { Tokenization } from "../Core/Tokenization.ts";
 import { ascendingNumber, ascendingString, descendingNumber } from "../internal/order.ts";
 import { WinkLayerAllLive } from "../Wink/Layer.ts";
-import { WinkCorpusManager } from "../Wink/WinkCorpusManager.ts";
+import { type CorpusManagerError, WinkCorpusManager } from "../Wink/WinkCorpusManager.ts";
 import { WinkEngine } from "../Wink/WinkEngine.ts";
+import type { WinkEngineError } from "../Wink/WinkErrors.ts";
 import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "../Wink/WinkPattern.ts";
-import { DocumentTermSet, TverskyParams, WinkSimilarity } from "../Wink/WinkSimilarity.ts";
+import { DocumentTermSet, type SimilarityError, TverskyParams, WinkSimilarity } from "../Wink/WinkSimilarity.ts";
 import { WinkUtils, type WinkUtilsError } from "../Wink/WinkUtils.ts";
-import { BagOfWords, WinkVectorizer } from "../Wink/WinkVectorizer.ts";
+import { BagOfWords, type VectorizerError, WinkVectorizer } from "../Wink/WinkVectorizer.ts";
 import { BowCosineSimilarity } from "./BowCosineSimilarity.ts";
 import { ChunkBySentences } from "./ChunkBySentences.ts";
 import { CorpusStats } from "./CorpusStats.ts";
@@ -206,6 +207,7 @@ type NlpToolList = readonly [
 ];
 
 type NlpToolkitTools = Toolkit.ToolsByName<NlpToolList>;
+type NlpToolkitLiveError = CorpusManagerError | SimilarityError | VectorizerError | WinkEngineError | WinkUtilsError;
 
 /**
  * Canonical ordered NLP tool list used to build the toolkit and export adapters.
@@ -249,7 +251,10 @@ export const NlpToolkit: Toolkit.Toolkit<NlpToolkitTools> = Toolkit.make(...NlpT
  * @since 0.0.0
  * @category Layers
  */
-export const NlpToolkitLive: ReturnType<typeof NlpToolkit.toLayer> = NlpToolkit.toLayer(
+export const NlpToolkitLive: Layer.Layer<
+  Tool.HandlersFor<typeof NlpToolkit.tools>,
+  NlpToolkitLiveError
+> = NlpToolkit.toLayer(
   Effect.gen(function* () {
     const corpusManager = yield* WinkCorpusManager;
     const engine = yield* WinkEngine;
@@ -267,11 +272,11 @@ export const NlpToolkitLive: ReturnType<typeof NlpToolkit.toLayer> = NlpToolkit.
           ]);
 
           const score = yield* similarity.bowCosine(
-            BagOfWords.makeUnsafe({
+            BagOfWords.make({
               bow: tokenBagOfWords(Chunk.toReadonlyArray(doc1.tokens)),
               documentId: doc1.id,
             }),
-            BagOfWords.makeUnsafe({
+            BagOfWords.make({
               bow: tokenBagOfWords(Chunk.toReadonlyArray(doc2.tokens)),
               documentId: doc2.id,
             })
@@ -499,7 +504,7 @@ export const NlpToolkitLive: ReturnType<typeof NlpToolkit.toLayer> = NlpToolkit.
           );
 
           const incoming = new WinkEngineCustomEntities({
-            name: EntityGroupName.makeUnsafe(groupName ?? "custom-entities"),
+            name: EntityGroupName.make(groupName ?? "custom-entities"),
             patterns: pipe(
               entities,
               A.map(
@@ -733,17 +738,17 @@ export const NlpToolkitLive: ReturnType<typeof NlpToolkit.toLayer> = NlpToolkit.
             tokenization.tokenize(text1),
             tokenization.tokenize(text2),
           ]);
-          const params = TverskyParams.makeUnsafe({
+          const params = TverskyParams.make({
             alpha,
             beta,
           });
           const score = yield* similarity.setTversky(
-            DocumentTermSet.makeUnsafe({
-              documentId: DocumentId.makeUnsafe("tversky-left"),
+            DocumentTermSet.make({
+              documentId: DocumentId.make("tversky-left"),
               terms: uniqueNormalizedTerms(leftTokens),
             }),
-            DocumentTermSet.makeUnsafe({
-              documentId: DocumentId.makeUnsafe("tversky-right"),
+            DocumentTermSet.make({
+              documentId: DocumentId.make("tversky-right"),
               terms: uniqueNormalizedTerms(rightTokens),
             }),
             params

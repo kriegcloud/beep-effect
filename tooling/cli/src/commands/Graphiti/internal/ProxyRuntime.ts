@@ -127,7 +127,7 @@ export const runGraphitiProxy = Effect.scoped(
 
       yield* Deferred.succeed(shutdownDeferred, undefined).pipe(Effect.ignore);
     });
-    const services = yield* Effect.services<never>();
+    const services = yield* Effect.context<never>();
     const runRequestShutdown = Effect.runForkWith(services);
 
     yield* Effect.acquireRelease(

@@ -7,10 +7,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "effect";
 import * as A from "effect/Array";
-import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { type ParseError, parse } from "jsonc-parser";
 
@@ -59,8 +57,8 @@ class EffectLawsAllowlistDocument extends S.Class<EffectLawsAllowlistDocument>($
   {
     version: S.Literal(1),
     entries: S.Array(EffectLawsAllowlistEntry).pipe(
-      S.withConstructorDefault(() => O.some(A.empty<EffectLawsAllowlistEntry>())),
-      S.withDecodingDefault(A.empty<EffectLawsAllowlistEntry>)
+      S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>()))
     ),
   },
   $I.annote("EffectLawsAllowlistDocument", {
@@ -93,10 +91,10 @@ export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`All
  */
 export class AllowlistCheckSummary extends S.Class<AllowlistCheckSummary>($I`AllowlistCheckSummary`)(
   {
-    ok: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    ok: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false)), S.withDecodingDefault(Effect.succeed(false))),
     diagnostics: S.Array(S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyArray<string>),
-      S.withDecodingDefault(thunkEmptyReadonlyArray<string>())
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
   },
   $I.annote("AllowlistCheckSummary", {

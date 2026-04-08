@@ -67,6 +67,12 @@ interface ThemeModeControls {
   readonly toggleMode: () => void;
 }
 
+/**
+ * Resolves the active theme mode from user and system preferences.
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
 export const resolveThemeMode = (
   mode: ThemeMode | null | undefined,
   systemMode: ThemeMode | null | undefined
@@ -79,6 +85,12 @@ export const resolveThemeMode = (
   });
 };
 
+/**
+ * Provides the shared app theme and color-scheme baseline.
+ *
+ * @since 0.0.0
+ * @category components
+ */
 export function AppThemeProvider({ children, defaultMode = ThemeMode.Enum.system }: AppThemeProviderProps) {
   return (
     <MuiThemeProvider theme={theme} defaultMode={defaultMode} disableTransitionOnChange>
@@ -88,6 +100,12 @@ export function AppThemeProvider({ children, defaultMode = ThemeMode.Enum.system
   );
 }
 
+/**
+ * Exposes the current theme mode controls.
+ *
+ * @since 0.0.0
+ * @category hooks
+ */
 export function useThemeMode(): ThemeModeControls {
   const { mode, setMode, systemMode } = useColorScheme();
   const resolvedMode = resolveThemeMode(mode, systemMode);

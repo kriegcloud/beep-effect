@@ -78,67 +78,67 @@ export const isCurrencyCode = S.is(CurrencyCode);
  * @category Constants
  * @since 0.0.0
  */
-export const USD: CurrencyCode = CurrencyCode.makeUnsafe("USD");
+export const USD: CurrencyCode = CurrencyCode.make("USD");
 /**
  * ISO 4217 constant for Euro.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const EUR: CurrencyCode = CurrencyCode.makeUnsafe("EUR");
+export const EUR: CurrencyCode = CurrencyCode.make("EUR");
 /**
  * ISO 4217 constant for British Pound Sterling.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const GBP: CurrencyCode = CurrencyCode.makeUnsafe("GBP");
+export const GBP: CurrencyCode = CurrencyCode.make("GBP");
 /**
  * ISO 4217 constant for Japanese Yen.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const JPY: CurrencyCode = CurrencyCode.makeUnsafe("JPY");
+export const JPY: CurrencyCode = CurrencyCode.make("JPY");
 /**
  * ISO 4217 constant for Swiss Franc.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const CHF: CurrencyCode = CurrencyCode.makeUnsafe("CHF");
+export const CHF: CurrencyCode = CurrencyCode.make("CHF");
 /**
  * ISO 4217 constant for Canadian Dollar.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const CAD: CurrencyCode = CurrencyCode.makeUnsafe("CAD");
+export const CAD: CurrencyCode = CurrencyCode.make("CAD");
 /**
  * ISO 4217 constant for Australian Dollar.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const AUD: CurrencyCode = CurrencyCode.makeUnsafe("AUD");
+export const AUD: CurrencyCode = CurrencyCode.make("AUD");
 /**
  * ISO 4217 constant for Chinese Yuan.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const CNY: CurrencyCode = CurrencyCode.makeUnsafe("CNY");
+export const CNY: CurrencyCode = CurrencyCode.make("CNY");
 /**
  * ISO 4217 constant for Hong Kong Dollar.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const HKD: CurrencyCode = CurrencyCode.makeUnsafe("HKD");
+export const HKD: CurrencyCode = CurrencyCode.make("HKD");
 /**
  * ISO 4217 constant for Singapore Dollar.
  *
  * @category Constants
  * @since 0.0.0
  */
-export const SGD: CurrencyCode = CurrencyCode.makeUnsafe("SGD");
+export const SGD: CurrencyCode = CurrencyCode.make("SGD");

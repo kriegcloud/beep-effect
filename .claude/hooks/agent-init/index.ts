@@ -12,7 +12,7 @@ import { $ClaudeId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Effect, FileSystem, flow, HashSet, Layer, Path, pipe, ServiceMap } from "effect";
+import { Config, Console, Context, Effect, FileSystem, flow, HashSet, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -104,14 +104,14 @@ export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`Agen
 // Services
 // ============================================================================
 
-export class AgentConfig extends ServiceMap.Service<
+export class AgentConfig extends Context.Service<
   AgentConfig,
   {
     readonly projectDir: string;
   }
 >()($I`AgentConfig`) {}
 
-export class ProjectStructureCapture extends ServiceMap.Service<
+export class ProjectStructureCapture extends Context.Service<
   ProjectStructureCapture,
   {
     readonly capture: () => Effect.Effect<string>;
@@ -626,8 +626,8 @@ ${previousCommits || "(none)"}
 </git-log>
 
 <branch-context>
-<current>${branchContext.current || "(detached)"}</current>
-${A.isReadonlyArrayNonEmpty(branchContext.recent) ? `<recent>\n${A.join(branchContext.recent, "\n")}\n</recent>` : ""}
+<current>${branchContext?.current || "(detached)"}</current>
+${A.isReadonlyArrayNonEmpty(branchContext?.recent) ? `<recent>\n${A.join(branchContext.recent, "\n")}\n</recent>` : ""}
 </branch-context>
 
 <collaborators>

@@ -210,7 +210,7 @@ const literalFromValue = (value: JsonLdLiteralValue, context: ContextOption, bas
 };
 
 const compactLiteralValue = (value: JsonLdLiteralValue, context: ContextOption): JsonLdLiteralValue =>
-  JsonLdLiteralValue.makeUnsafe({
+  JsonLdLiteralValue.make({
     "@value": value["@value"],
     "@type": pipe(
       value["@type"],
@@ -227,7 +227,7 @@ const compactPropertyValues = (
     values,
     A.map((value) =>
       isReferenceValue(value)
-        ? JsonLdReferenceValue.makeUnsafe({
+        ? JsonLdReferenceValue.make({
             "@id": decodeJsonLdNodeIdentifier(compactIdentifier(context, value["@id"])),
           })
         : compactLiteralValue(value, context)
@@ -244,7 +244,7 @@ const compactPropertyEntry = (
 ];
 
 const compactNode = (node: JsonLdNodeObject, context: JsonLdContext): JsonLdNodeObject =>
-  JsonLdNodeObject.makeUnsafe({
+  JsonLdNodeObject.make({
     "@id": pipe(node["@id"], O.map(compactNodeIdentifier(O.some(context)))),
     "@type": pipe(node["@type"], O.map(compactIriReferenceValues(O.some(context)))),
     properties: R.fromEntries(
@@ -273,14 +273,14 @@ const byJsonLdPropertyValueAscending: Order.Order<JsonLdPropertyValue> = Order.m
 );
 
 const normalizeJsonLdContext = (context: JsonLdContext): JsonLdContext =>
-  JsonLdContext.makeUnsafe({
+  JsonLdContext.make({
     "@base": context["@base"],
     "@vocab": context["@vocab"],
     terms: R.fromEntries(pipe(context.terms, R.toEntries, A.sort(byRecordEntryKeyAscending()))),
   });
 
 const normalizeJsonLdLiteralValue = (value: JsonLdLiteralValue): JsonLdLiteralValue =>
-  JsonLdLiteralValue.makeUnsafe({
+  JsonLdLiteralValue.make({
     "@value": value["@value"],
     "@type": value["@type"],
     "@language": pipe(
@@ -311,7 +311,7 @@ const normalizeJsonLdProperties = (
   );
 
 const normalizeJsonLdNode = (node: JsonLdNodeObject): JsonLdNodeObject =>
-  JsonLdNodeObject.makeUnsafe({
+  JsonLdNodeObject.make({
     "@id": node["@id"],
     "@type": pipe(
       node["@type"],
@@ -321,7 +321,7 @@ const normalizeJsonLdNode = (node: JsonLdNodeObject): JsonLdNodeObject =>
   });
 
 const normalizeJsonLdDocumentStructure = (document: JsonLdDocument): JsonLdDocument =>
-  JsonLdDocument.makeUnsafe({
+  JsonLdDocument.make({
     "@context": pipe(document["@context"], O.map(normalizeJsonLdContext)),
     "@graph": pipe(document["@graph"], A.map(normalizeJsonLdNode), A.sort(byNodeIdentifierAscending)),
   });
@@ -353,7 +353,7 @@ const expandLiteralValue = (
   context: ContextOption,
   base: O.Option<string>
 ): JsonLdLiteralValue =>
-  JsonLdLiteralValue.makeUnsafe({
+  JsonLdLiteralValue.make({
     "@value": value["@value"],
     "@type": pipe(
       value["@type"],
@@ -368,7 +368,7 @@ const expandJsonLdPropertyValue = (
   base: O.Option<string>
 ): JsonLdPropertyValue =>
   isReferenceValue(value)
-    ? JsonLdReferenceValue.makeUnsafe({
+    ? JsonLdReferenceValue.make({
         "@id": decodeJsonLdNodeIdentifier(resolveJsonLdIdentifier(value["@id"], context, base)),
       })
     : expandLiteralValue(value, context, base);
@@ -395,7 +395,7 @@ const expandJsonLdNode = (
       ] as const);
     });
 
-    return JsonLdNodeObject.makeUnsafe({
+    return JsonLdNodeObject.make({
       "@id": pipe(
         node["@id"],
         O.map((identifier) => decodeJsonLdNodeIdentifier(resolveJsonLdIdentifier(identifier, context, base)))
@@ -418,7 +418,7 @@ const expandJsonLdDocument = (
     const base = resolveDocumentBase(loaderPolicy, context);
     const graph = yield* Effect.forEach(document["@graph"], (node) => expandJsonLdNode(node, context, base));
     return normalizeJsonLdDocumentStructure(
-      JsonLdDocument.makeUnsafe({
+      JsonLdDocument.make({
         "@context": O.none(),
         "@graph": graph,
       })
@@ -461,7 +461,7 @@ const matchesFrameType = (node: JsonLdNodeObject, frameType: string, context: Co
   );
 
 const filterNodeProperties = (node: JsonLdNodeObject, allowed: ReadonlyArray<string>): JsonLdNodeObject =>
-  JsonLdNodeObject.makeUnsafe({
+  JsonLdNodeObject.make({
     "@id": node["@id"],
     "@type": node["@type"],
     properties: R.fromEntries(
@@ -529,7 +529,7 @@ const identifierFromObject = (object: Extract<ObjectTerm, { readonly termType: "
 
 const literalValueFromRdf = (quad: Quad, context: ContextOption): JsonLdLiteralValue => {
   if (quad.object.termType !== "Literal") {
-    return JsonLdLiteralValue.makeUnsafe({
+    return JsonLdLiteralValue.make({
       "@value": "",
       "@type": O.none(),
       "@language": O.none(),
@@ -543,7 +543,7 @@ const literalValueFromRdf = (quad: Quad, context: ContextOption): JsonLdLiteralV
         ? Number(quad.object.value)
         : quad.object.value;
 
-  return JsonLdLiteralValue.makeUnsafe({
+  return JsonLdLiteralValue.make({
     "@value": scalar,
     "@type":
       quad.object.datatype.value === XSD_STRING.value
@@ -564,8 +564,8 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
   JsonLdDocumentService.of({
     compact: Effect.fn((request) =>
       Effect.succeed(
-        JsonLdDocumentResult.makeUnsafe({
-          document: JsonLdDocument.makeUnsafe({
+        JsonLdDocumentResult.make({
+          document: JsonLdDocument.make({
             "@context": O.some(request.context),
             "@graph": pipe(
               request.document["@graph"],
@@ -577,15 +577,15 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
     ),
     expand: Effect.fn((request) =>
       Effect.map(expandJsonLdDocument(request.document, request.loaderPolicy), (document) =>
-        JsonLdDocumentResult.makeUnsafe({
+        JsonLdDocumentResult.make({
           document,
         })
       )
     ),
     flatten: Effect.fn((request) =>
       Effect.succeed(
-        JsonLdDocumentResult.makeUnsafe({
-          document: JsonLdDocument.makeUnsafe({
+        JsonLdDocumentResult.make({
+          document: JsonLdDocument.make({
             "@context": request.document["@context"],
             "@graph": A.sort(request.document["@graph"], byNodeIdentifierAscending),
           }),
@@ -594,15 +594,15 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
     ),
     normalize: Effect.fn((request) =>
       Effect.map(normalizeJsonLdDocument(request), (document) =>
-        JsonLdDocumentResult.makeUnsafe({
+        JsonLdDocumentResult.make({
           document,
         })
       )
     ),
     frame: Effect.fn((request) =>
       Effect.succeed(
-        JsonLdDocumentResult.makeUnsafe({
-          document: JsonLdDocument.makeUnsafe({
+        JsonLdDocumentResult.make({
+          document: JsonLdDocument.make({
             "@context": request.document["@context"],
             "@graph": pipe(
               request.document["@graph"],
@@ -663,7 +663,7 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
         }
       }
 
-      return JsonLdToRdfResult.makeUnsafe({
+      return JsonLdToRdfResult.make({
         dataset: makeDataset(quads),
       });
     }),
@@ -696,7 +696,7 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
             appendMutableNodePropertyValue(
               node,
               propertyKey,
-              JsonLdReferenceValue.makeUnsafe({
+              JsonLdReferenceValue.make({
                 "@id": decodeJsonLdNodeIdentifier(
                   compactIdentifier(request.context, identifierFromObject(quad.object))
                 ),
@@ -710,7 +710,7 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
             appendMutableNodePropertyValue(
               node,
               propertyKey,
-              JsonLdReferenceValue.makeUnsafe({
+              JsonLdReferenceValue.make({
                 "@id": decodeJsonLdNodeIdentifier(
                   compactIdentifier(request.context, identifierFromObject(quad.object))
                 ),
@@ -731,7 +731,7 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
         R.values,
         A.sort(byMutableNodeIdAscending),
         A.map((node) =>
-          JsonLdNodeObject.makeUnsafe({
+          JsonLdNodeObject.make({
             "@id": O.some(decodeJsonLdNodeIdentifier(compactIdentifier(request.context, node.id))),
             "@type": pipe(
               node.types,
@@ -745,8 +745,8 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
         )
       );
 
-      return JsonLdDocumentResult.makeUnsafe({
-        document: JsonLdDocument.makeUnsafe({
+      return JsonLdDocumentResult.make({
+        document: JsonLdDocument.make({
           "@context": request.context,
           "@graph": graph,
         }),

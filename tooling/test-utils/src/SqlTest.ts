@@ -3,7 +3,7 @@ import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { SqliteClient as NodeSqliteClient } from "@effect/sql-sqlite-node";
-import { Effect, FileSystem, Layer, Path, ServiceMap } from "effect";
+import { Context, Effect, FileSystem, Layer, Path } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
@@ -44,7 +44,7 @@ export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`Tes
  * @category PortContract
  * @since 0.0.0
  */
-export class TestDatabaseInfo extends ServiceMap.Service<TestDatabaseInfo, TestDatabaseInfoShape>()(
+export class TestDatabaseInfo extends Context.Service<TestDatabaseInfo, TestDatabaseInfoShape>()(
   $I`TestDatabaseInfo`
 ) {}
 
@@ -87,7 +87,7 @@ export interface SqlTestHooks<MigrateError = never, SeedError = never> {
 export interface SqlTestDriver<Config, Services, SqlService extends Services> {
   readonly makeLayer: (config: Config) => Layer.Layer<Services, SqlTestHarnessError>;
   readonly name: typeof TestDatabaseDriver.Type;
-  readonly sqlClient: ServiceMap.Key<SqlService, SqlClient.SqlClient>;
+  readonly sqlClient: Context.Key<SqlService, SqlClient.SqlClient>;
 }
 
 const toHarnessError = (
@@ -106,14 +106,14 @@ const toHarnessError = (
 const runHook = <Services, SqlService extends Services, HookError>(
   driver: typeof TestDatabaseDriver.Type,
   phase: Extract<typeof SqlTestHarnessPhase.Type, "migrate" | "seed">,
-  sqlClient: ServiceMap.Key<SqlService, SqlClient.SqlClient>,
+  sqlClient: Context.Key<SqlService, SqlClient.SqlClient>,
   hook: undefined | Effect.Effect<void, HookError, SqlClient.SqlClient>,
-  context: ServiceMap.ServiceMap<Services>
+  context: Context.Context<Services>
 ): Effect.Effect<void, SqlTestHarnessError> =>
   hook === undefined
     ? Effect.void
     : hook.pipe(
-        Effect.provideService(SqlClient.SqlClient, ServiceMap.get(context, sqlClient)),
+        Effect.provideService(SqlClient.SqlClient, Context.get(context, sqlClient)),
         Effect.mapError((cause) =>
           toHarnessError(
             driver,
@@ -153,7 +153,7 @@ export const makeSqlTestLayer = <
       yield* runHook(options.driver.name, "migrate", options.driver.sqlClient, options.hooks?.migrate, context);
       yield* runHook(options.driver.name, "seed", options.driver.sqlClient, options.hooks?.seed, context);
 
-      return Layer.succeedServices(context);
+      return Layer.succeedContext(context);
     }).pipe(
       Effect.withSpan("SqlTest.makeLayer"),
       Effect.annotateLogs({
@@ -180,8 +180,8 @@ const buildBunSqliteLayer = Effect.gen(function* () {
       toHarnessError("bun-sqlite", "provision", "Failed to load Bun SQLite support for SQL tests.", cause),
   });
   const context = yield* Layer.build(Layer.mergeAll(BunFileSystem.layer, BunPath.layer));
-  const fs = ServiceMap.get(context, FileSystem.FileSystem);
-  const path = ServiceMap.get(context, Path.Path);
+  const fs = Context.get(context, FileSystem.FileSystem);
+  const path = Context.get(context, Path.Path);
   const tempDir = yield* fs
     .makeTempDirectoryScoped({ prefix: "beep-sql-test-" })
     .pipe(

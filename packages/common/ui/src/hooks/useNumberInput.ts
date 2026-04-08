@@ -458,7 +458,12 @@ export type UseNumberInputOptions = BoundaryParams &
  * @category React
  * @param options {UseNumberInputOptions} - Number-input boundary and formatting options.
  * @returns {{ numberValue: number | undefined; interfaceValue: string; setInterfaceValue: (value: string) => void; increment: (params?: SpinParams) => void; decrement: (params?: SpinParams) => void }} - Managed numeric and interface state helpers.
+ */
+/**
+ * Low-level number-input state hook for parsing, formatting, and boundary management.
+ *
  * @since 0.0.0
+ * @category React
  */
 export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
   const {
@@ -531,51 +536,10 @@ export const useNumberBoundary = (options: UseNumberInputOptions = {}) => {
 };
 
 /**
- * Fully managed number-input hook with keyboard, blur, wheel, and press-and-hold spinner behavior.
+ * Fully managed number-input hook with keyboard and spinner controls.
  *
- * The hook keeps a string interface value and a parsed numeric value in sync, reports
- * range metadata through `onChange`, and exposes prop getters for the input plus
- * increment/decrement buttons.
- *
- * @example
- * ```typescript
- * import React from "react"
- * import { useNumberInput } from "@beep/ui/hooks/useNumberInput"
- *
- * function Example() {
- *   const numberInput = useNumberInput({ defaultValue: 2, step: 0.5, precision: 1 })
- *
- *   return React.createElement("input", {
- *     ref: numberInput.inputRef,
- *     ...numberInput.getInputProps(),
- *   })
- * }
- *
- * void Example
- * ```
- *
- * @category React
- * @param options {UseNumberInputOptions} - Number-input configuration and change callbacks.
- * @returns {{
- *   inputRef: React.MutableRefObject<HTMLInputElement | null>;
- *   getInputProps: (handlers?: Partial<InputHandlers>) => {
- *     pattern: string;
- *     role: "spinbutton";
- *     "aria-valuemin": number;
- *     "aria-valuemax": number;
- *     autoComplete: "off";
- *     autoCorrect: "off";
- *     "aria-valuetext": string;
- *     "aria-valuenow": number | undefined;
- *     value: string;
- *     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
- *     onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
- *     onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
- *   };
- *   getIncrementProps: (handlers?: Partial<ButtonHandlers>) => Record<string, unknown>;
- *   getDecrementProps: (handlers?: Partial<ButtonHandlers>) => Record<string, unknown>;
- * }} - Input refs and prop getters for the number input and its spinner buttons.
  * @since 0.0.0
+ * @category React
  */
 export const useNumberInput = (options: UseNumberInputOptions = {}) => {
   const inputRef = useRef<HTMLInputElement | null>(null);

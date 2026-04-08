@@ -1,4 +1,3 @@
-import { thunkSomeEmptyArray, thunkSomeNone } from "@beep/utils";
 import { Effect, Inspectable, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -19,26 +18,26 @@ export class EffectLawsAllowlistEntry extends S.Class<EffectLawsAllowlistEntry>(
   reason: NonEmptyString,
   owner: NonEmptyString,
   issue: NonEmptyString,
-  expiresOn: S.OptionFromOptionalKey(DateYmdString).pipe(S.withConstructorDefault(thunkSomeNone<string>)),
+  expiresOn: S.OptionFromOptionalKey(DateYmdString).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
 }) {}
 
 export class EffectLawsAllowlistDocument extends S.Class<EffectLawsAllowlistDocument>("EffectLawsAllowlistDocument")({
   version: S.Literal(1),
   entries: S.Array(EffectLawsAllowlistEntry).pipe(
-    S.withConstructorDefault(thunkSomeEmptyArray<EffectLawsAllowlistEntry>),
-    S.withDecodingDefault(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>)
+    S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
+    S.withDecodingDefault(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
   ),
 }) {}
 
 export class EffectLawsAllowlistSnapshot extends S.Class<EffectLawsAllowlistSnapshot>("EffectLawsAllowlistSnapshot")({
   path: PosixPath,
   entries: S.Array(EffectLawsAllowlistEntry).pipe(
-    S.withConstructorDefault(thunkSomeEmptyArray<EffectLawsAllowlistEntry>),
-    S.withDecodingDefault(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>)
+    S.withConstructorDefault(Effect.succeed(A.empty<EffectLawsAllowlistEntry>())),
+    S.withDecodingDefault(Effect.succeed(A.empty<(typeof EffectLawsAllowlistEntry)["Encoded"]>()))
   ),
   diagnostics: ArrayOfStrings.pipe(
-    S.withConstructorDefault(thunkSomeEmptyArray<string>),
-    S.withDecodingDefault(A.empty<string>)
+    S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+    S.withDecodingDefault(Effect.succeed(A.empty<string>()))
   ),
 }) {}
 

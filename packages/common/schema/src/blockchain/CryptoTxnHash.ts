@@ -85,7 +85,7 @@ export type CryptoTxnHash = typeof CryptoTxnHash.Type;
 export const CryptoTxnHashRedacted = CryptoTxnHash.pipe(
   S.RedactedFromValue,
   SchemaUtils.withStatics(() => ({
-    makeRedacted: flow(CryptoTxnHash.makeUnsafe, Redacted.make),
+    makeRedacted: flow(CryptoTxnHash.make, Redacted.make),
   })),
   S.annotate(
     $I.annote("CryptoTxnHashRedacted", {

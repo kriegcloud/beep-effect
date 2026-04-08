@@ -88,8 +88,6 @@ export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomE
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = CustomEntityExample.makeUnsafe;
-
   /**
    * Convert the example into the object shape accepted by `wink-nlp.learnCustomEntities`.
    *
@@ -126,8 +124,6 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
   /**
    * Backwards-compatible unsafe constructor alias.
    */
-  static readonly make = WinkEngineCustomEntities.makeUnsafe;
-
   /**
    * Build a wink custom-entity collection from existing core patterns.
    *
@@ -142,7 +138,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
     name: EntityGroupName | string,
     patterns: ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>
   ): WinkEngineCustomEntities {
-    const groupName = P.isString(name) ? EntityGroupName.makeUnsafe(name) : name;
+    const groupName = P.isString(name) ? EntityGroupName.make(name) : name;
     const entries = Chunk.isChunk(patterns) ? Chunk.toReadonlyArray(patterns) : patterns;
 
     return new WinkEngineCustomEntities({
@@ -202,7 +198,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
    */
   merge(other: WinkEngineCustomEntities, newName: EntityGroupName | string = this.name): WinkEngineCustomEntities {
     return new WinkEngineCustomEntities({
-      name: P.isString(newName) ? EntityGroupName.makeUnsafe(newName) : newName,
+      name: P.isString(newName) ? EntityGroupName.make(newName) : newName,
       patterns: pipe(
         this.patterns,
         A.appendAll(other.patterns),

@@ -86,11 +86,6 @@ export class Sentence extends S.Class<Sentence>($I`Sentence`)(
   }
 
   /**
-   * Backwards-compatible unsafe constructor alias.
-   */
-  static readonly make = Sentence.makeUnsafe;
-
-  /**
    * Get tokens between two inclusive document token offsets.
    */
   static readonly getTokensInRange = dual(

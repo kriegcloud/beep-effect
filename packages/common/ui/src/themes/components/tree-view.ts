@@ -1,6 +1,9 @@
 import type {} from "@mui/x-tree-view/themeAugmentation";
 import type { ThemeComponents } from "../types.ts";
 
+/**
+ * @since 0.0.0
+ */
 export const treeViewTheme: ThemeComponents = {
   MuiTreeItem: {
     styleOverrides: {

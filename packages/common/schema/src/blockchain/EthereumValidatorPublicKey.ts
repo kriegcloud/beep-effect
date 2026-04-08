@@ -64,7 +64,7 @@ export type EthereumValidatorPublicKey = typeof EthereumValidatorPublicKey.Type;
 export const EthereumValidatorPublicKeyRedacted = EthereumValidatorPublicKey.pipe(
   S.RedactedFromValue,
   SchemaUtils.withStatics(() => ({
-    makeRedacted: flow(EthereumValidatorPublicKey.makeUnsafe, Redacted.make),
+    makeRedacted: flow(EthereumValidatorPublicKey.make, Redacted.make),
   })),
   S.annotate(
     $I.annote("EthereumValidatorPublicKeyRedacted", {

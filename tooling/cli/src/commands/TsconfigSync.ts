@@ -1087,7 +1087,7 @@ const planRootReferenceSync = Effect.fn(function* (rootDir: string, workspaces: 
   const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
 
   return O.some(
-    PlannedFileChange.cases["root-references"].makeUnsafe({
+    new PlannedFileChange.cases["root-references"]({
       filePath,
       summary: summaryCounts(current, expected, "references"),
       content: nextContent,
@@ -1124,7 +1124,7 @@ const planRootQualityReferenceSync = Effect.fn(function* (
   const nextContent = applyJsoncModification(original, ["references"], referenceEntries(expected));
 
   return O.some(
-    PlannedFileChange.cases["root-quality-references"].makeUnsafe({
+    new PlannedFileChange.cases["root-quality-references"]({
       filePath,
       summary: summaryCounts(current, expected, "references"),
       content: nextContent,
@@ -1211,7 +1211,7 @@ const planRootAliasSync = Effect.fn(function* (rootDir: string, workspaces: Read
   const updates = A.length(keysToSet) - additions;
 
   return O.some(
-    PlannedFileChange.cases["root-aliases"].makeUnsafe({
+    new PlannedFileChange.cases["root-aliases"]({
       filePath,
       summary: `aliases: add ${additions}, update ${updates}, remove ${keysToRemove.length}`,
       content: nextContent,
@@ -1238,7 +1238,7 @@ const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: Re
   });
 
   return O.some(
-    PlannedFileChange.cases["root-tstyche"].makeUnsafe({
+    new PlannedFileChange.cases["root-tstyche"]({
       filePath,
       summary: summaryCounts(current, expected, "testFileMatch"),
       content: nextContent,
@@ -1261,7 +1261,7 @@ const planRootSyncpackSync = Effect.fn(function* (rootDir: string) {
 
   const nextContent = yield* replaceSyncpackSources(original, expected);
   return O.some(
-    PlannedFileChange.cases["root-syncpack"].makeUnsafe({
+    new PlannedFileChange.cases["root-syncpack"]({
       filePath: syncpackFilePath,
       summary: summaryCounts(current, expected, "sources"),
       content: nextContent,
@@ -1468,7 +1468,7 @@ const planPackageReferenceSync = Effect.fn(function* (
 
     const summary = summaryCounts(currentResolvedRefPaths, finalRefPaths, "references");
     plannedChanges.push(
-      PlannedFileChange.cases["package-references"].makeUnsafe({
+      new PlannedFileChange.cases["package-references"]({
         filePath: sourceOwnerTsconfigPath,
         summary,
         content: nextContent,
@@ -1532,7 +1532,7 @@ const planPackageDocgenSync = Effect.fn(function* (
     }
 
     plannedChanges.push(
-      PlannedFileChange.cases["package-docgen"].makeUnsafe({
+      new PlannedFileChange.cases["package-docgen"]({
         filePath,
         summary: "managed docgen fields synchronized",
         content: nextContent,
@@ -1549,19 +1549,19 @@ const sortChanges = (changes: ReadonlyArray<PlannedFileChange>): ReadonlyArray<P
 const toReportedChange = (change: PlannedFileChange): TsconfigSyncChange =>
   PlannedFileChange.match(change, {
     "root-references": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["root-references"].makeUnsafe({ filePath, summary }),
+      new TsconfigSyncChange.cases["root-references"]({ filePath, summary }),
     "root-quality-references": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["root-quality-references"].makeUnsafe({ filePath, summary }),
+      new TsconfigSyncChange.cases["root-quality-references"]({ filePath, summary }),
     "root-aliases": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["root-aliases"].makeUnsafe({ filePath, summary }),
+      new TsconfigSyncChange.cases["root-aliases"]({ filePath, summary }),
     "root-tstyche": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["root-tstyche"].makeUnsafe({ filePath, summary }),
+      new TsconfigSyncChange.cases["root-tstyche"]({ filePath, summary }),
     "root-syncpack": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["root-syncpack"].makeUnsafe({ filePath, summary }),
+      new TsconfigSyncChange.cases["root-syncpack"]({ filePath, summary }),
     "package-references": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["package-references"].makeUnsafe({ filePath, summary }),
+      new TsconfigSyncChange.cases["package-references"]({ filePath, summary }),
     "package-docgen": ({ filePath, summary }): TsconfigSyncChange =>
-      TsconfigSyncChange.cases["package-docgen"].makeUnsafe({ filePath, summary }),
+      new TsconfigSyncChange.cases["package-docgen"]({ filePath, summary }),
   });
 
 const renderChanges = Effect.fn(function* (
@@ -1684,19 +1684,19 @@ export const syncTsconfigAtRoot: (
 
   const result: TsconfigSyncResult = TsconfigSyncModeMatch(options.mode, {
     sync: () =>
-      TsconfigSyncResult.cases.sync.makeUnsafe({
+      new TsconfigSyncResult.cases.sync({
         mode: "sync",
         changedFiles: A.length(reportedChanges),
         changes: reportedChanges,
       }),
     check: () =>
-      TsconfigSyncResult.cases.check.makeUnsafe({
+      new TsconfigSyncResult.cases.check({
         mode: "check",
         changedFiles: A.length(reportedChanges),
         changes: reportedChanges,
       }),
     "dry-run": () =>
-      TsconfigSyncResult.cases["dry-run"].makeUnsafe({
+      new TsconfigSyncResult.cases["dry-run"]({
         mode: "dry-run",
         changedFiles: A.length(reportedChanges),
         changes: reportedChanges,

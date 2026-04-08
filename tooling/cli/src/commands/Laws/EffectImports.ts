@@ -7,7 +7,6 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Effect, Inspectable, MutableHashSet, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -27,11 +26,17 @@ const $I = $RepoCliId.create("commands/Laws/EffectImports");
  */
 export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>($I`EffectImportRulesOptions`)(
   {
-    write: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
-    strictCheck: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    write: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    strictCheck: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
     excludePaths: S.Array(S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyArray<string>),
-      S.withDecodingDefault(thunkEmptyReadonlyArray<string>())
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
   },
   $I.annote("EffectImportRulesOptions", {
@@ -52,8 +57,8 @@ export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>(
     stableConverted: S.Number,
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyArray<string>),
-      S.withDecodingDefault(thunkEmptyReadonlyArray<string>())
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
   },
   $I.annote("EffectImportRulesSummary", {

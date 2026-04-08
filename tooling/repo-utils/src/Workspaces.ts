@@ -33,7 +33,7 @@ import {
 const IGNORED_DIRS = ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.turbo/**"];
 const absoluteWorkspacePattern = /^(?:[A-Za-z]:\/|\/\/|\/)/;
 
-const isWorkspacePatternArray = (value: PackageJsonWorkspaces): value is ReadonlyArray<string> => Array.isArray(value);
+const isWorkspacePatternArray = (value: PackageJsonWorkspaces): value is ReadonlyArray<string> => A.isArray(value);
 
 const workspaceGlobsFrom = (workspaces: PackageJson["workspaces"]): ReadonlyArray<string> => {
   if (P.isUndefined(workspaces) || O.isNone(workspaces)) {

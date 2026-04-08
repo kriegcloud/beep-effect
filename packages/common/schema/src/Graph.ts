@@ -496,6 +496,7 @@ export interface EdgeFromSelf<Data extends S.Top>
     readonly [Data],
     EdgeIso<Data>
   > {
+  readonly "~rebuild.out": this;
   readonly data: Data;
 }
 
@@ -704,6 +705,7 @@ export interface GraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge>
   > {
+  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
 }
@@ -721,6 +723,7 @@ export interface DirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge, "directed">
   > {
+  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
 }
@@ -738,6 +741,7 @@ export interface UndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge, "undirected">
   > {
+  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
 }
@@ -755,6 +759,7 @@ export interface MutableGraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge>
   > {
+  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
 }
@@ -772,6 +777,7 @@ export interface MutableDirectedGraphFromSelf<Node extends S.Top, Edge extends S
     readonly [Node, Edge],
     GraphIso<Node, Edge, "directed">
   > {
+  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
 }
@@ -789,6 +795,7 @@ export interface MutableUndirectedGraphFromSelf<Node extends S.Top, Edge extends
     readonly [Node, Edge],
     GraphIso<Node, Edge, "undirected">
   > {
+  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
 }

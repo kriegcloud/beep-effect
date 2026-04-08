@@ -7,7 +7,6 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { thunkEmptyReadonlyArray, thunkFalse, thunkSomeEmptyArray, thunkSomeFalse } from "@beep/utils";
 import { Effect, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -25,11 +24,17 @@ const $I = $RepoCliId.create("commands/Laws/TerseEffect");
  */
 export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I`TerseEffectRulesOptions`)(
   {
-    write: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
-    strictCheck: S.Boolean.pipe(S.withConstructorDefault(thunkSomeFalse), S.withDecodingDefault(thunkFalse)),
+    write: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    strictCheck: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
     excludePaths: S.Array(S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyArray<string>),
-      S.withDecodingDefault(thunkEmptyReadonlyArray<string>())
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
   },
   $I.annote("TerseEffectRulesOptions", {
@@ -49,8 +54,8 @@ export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I
     helpersSimplified: S.Number,
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
-      S.withConstructorDefault(thunkSomeEmptyArray<string>),
-      S.withDecodingDefault(thunkEmptyReadonlyArray<string>())
+      S.withConstructorDefault(Effect.succeed(A.empty<string>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
   },
   $I.annote("TerseEffectRulesSummary", {

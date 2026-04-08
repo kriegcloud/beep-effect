@@ -21,32 +21,32 @@ const normalizePath = (path: PathInput): ReadonlyArray<string> => (P.isString(pa
 export const lookupAtPath = (self: unknown, path: PathInput): PathLookup => {
   const parts = normalizePath(path);
   if (parts.length === 0) {
-    return PathLookupSchema.cases.notFound.makeUnsafe({ found: false });
+    return PathLookupSchema.cases.notFound.make({ found: false });
   }
 
   let current: unknown = self;
 
   for (const part of parts) {
     if (part.length === 0) {
-      return PathLookupSchema.cases.notFound.makeUnsafe({ found: false });
+      return PathLookupSchema.cases.notFound.make({ found: false });
     }
 
     if (P.isNullish(current)) {
-      return PathLookupSchema.cases.notFound.makeUnsafe({ found: false });
+      return PathLookupSchema.cases.notFound.make({ found: false });
     }
     if (P.not(P.isObject)(current) && P.not(A.isArray)(current) && P.not(P.isFunction)(current)) {
-      return PathLookupSchema.cases.notFound.makeUnsafe({ found: false });
+      return PathLookupSchema.cases.notFound.make({ found: false });
     }
 
     const record = Fn.cast<unknown, Record<string, unknown>>(current);
     if (!R.has(record, part)) {
-      return PathLookupSchema.cases.notFound.makeUnsafe({ found: false });
+      return PathLookupSchema.cases.notFound.make({ found: false });
     }
 
     current = record[part];
   }
 
-  return PathLookupSchema.cases.found.makeUnsafe({
+  return PathLookupSchema.cases.found.make({
     found: true,
     value: current,
   });

@@ -7,7 +7,7 @@ import {
   TestDatabaseInfo,
 } from "@beep/test-utils";
 import { describe, expect, it } from "@effect/vitest";
-import { Cause, Effect, Exit, Layer, pipe, Scope, ServiceMap } from "effect";
+import { Cause, Context, Effect, Exit, Layer, pipe, Scope } from "effect";
 import * as A from "effect/Array";
 import * as FileSystem from "effect/FileSystem";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
@@ -163,8 +163,8 @@ describe("SqlTest", () => {
     Effect.gen(function* () {
       const scope = yield* Scope.make();
       const services = yield* Layer.buildWithScope(makeLayer(), scope);
-      const info = ServiceMap.get(services, TestDatabaseInfo);
-      const fs = ServiceMap.get(services, FileSystem.FileSystem);
+      const info = Context.get(services, TestDatabaseInfo);
+      const fs = Context.get(services, FileSystem.FileSystem);
 
       expect(yield* fs.exists(info.tempDir)).toBe(true);
       yield* Scope.close(scope, Exit.void);

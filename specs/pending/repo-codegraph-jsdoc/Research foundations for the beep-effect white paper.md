@@ -137,9 +137,9 @@ For code knowledge graphs, this handles re-exports, barrel files, and aliased im
 
 ### Effect-TS service architecture
 
-The idiomatic Effect-TS pattern uses **ServiceMap.Service** for service identity, **Layer** for dependency injection, and **Effect.gen** for generator-based composition.
+The idiomatic Effect-TS pattern uses **Context.Service** for service identity, **Layer** for dependency injection, and **Effect.gen** for generator-based composition.
 
-**ServiceMap.Service** declares a service as a class extending `ServiceMap.Service<Self, Shape>()("@app/ServiceName")`, 
+**Context.Service** declares a service as a class extending `Context.Service<Self, Shape>()("@app/ServiceName")`, 
 binding a unique identifier to a service interface. **Key rules**: tag identifiers must be unique (use `@path/to/ServiceName` prefix), service methods should have `R = never` (dependencies handled via Layer, not leaked through method signatures), and use `readonly` properties.
 
 **Layer** provides implementations via constructors: `Layer.succeed` (sync), `Layer.effect` (async), `Layer.scoped` (with lifecycle). Layers compose via `Layer.merge` (concurrent) and `Layer.provide` (dependency wiring). The idiomatic pattern co-locates `Live` and `Mock` layers as static properties on the Tag class.

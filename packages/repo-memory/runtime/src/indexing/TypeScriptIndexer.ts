@@ -36,6 +36,7 @@ import {
 } from "@beep/schema";
 import { Str, Text, thunkEmptyStr } from "@beep/utils";
 import {
+  Context,
   DateTime,
   Effect,
   FileSystem,
@@ -48,7 +49,6 @@ import {
   Order,
   Path,
   pipe,
-  ServiceMap,
 } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -167,7 +167,7 @@ export interface TypeScriptIndexServiceShape {
  * @since 0.0.0
  * @category PortContract
  */
-export class TypeScriptIndexService extends ServiceMap.Service<TypeScriptIndexService, TypeScriptIndexServiceShape>()(
+export class TypeScriptIndexService extends Context.Service<TypeScriptIndexService, TypeScriptIndexServiceShape>()(
   $I`TypeScriptIndexService`
 ) {
   static readonly layer: Layer.Layer<TypeScriptIndexService, never, FileSystem.FileSystem | Path.Path | RepoRunStore> =

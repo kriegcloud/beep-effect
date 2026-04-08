@@ -6,22 +6,27 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { Effect, Layer, Ref, ServiceMap } from "effect";
-import { WinkEngine, type WinkEngineRuntimeState } from "./WinkEngine.ts";
+import { Context, Effect, Layer, Ref } from "effect";
+import {
+  InstanceId as InstanceIdService,
+  type WinkEngineRuntimeState as WinkEngineRuntimeStateType,
+  WinkEngine as WinkEngineService,
+  WinkEngineState as WinkEngineStateService,
+} from "./WinkEngine.ts";
 import type { WinkEntityError } from "./WinkErrors.ts";
 import type { WinkEngineCustomEntities } from "./WinkPattern.ts";
 
 const $I = $NlpId.create("Wink/WinkEngineRef");
 
 type WinkEngineRefShape = {
-  readonly getRef: () => Ref.Ref<WinkEngineRuntimeState>;
+  readonly getRef: () => Ref.Ref<WinkEngineRuntimeStateType>;
   readonly updateWithCustomEntities: (
     customEntities: WinkEngineCustomEntities
-  ) => Effect.Effect<WinkEngineRuntimeState, WinkEntityError>;
+  ) => Effect.Effect<WinkEngineRuntimeStateType, WinkEntityError>;
 };
 
 const makeWinkEngineRef = Effect.gen(function* () {
-  const engine = yield* WinkEngine;
+  const engine = yield* WinkEngineService;
   const stateRef = yield* engine.getRef;
 
   return WinkEngineRef.of({
@@ -41,7 +46,7 @@ const makeWinkEngineRef = Effect.gen(function* () {
  * @since 0.0.0
  * @category Services
  */
-export class WinkEngineRef extends ServiceMap.Service<WinkEngineRef, WinkEngineRefShape>()($I`WinkEngineRef`) {}
+export class WinkEngineRef extends Context.Service<WinkEngineRef, WinkEngineRefShape>()($I`WinkEngineRef`) {}
 
 /**
  * Live layer for {@link WinkEngineRef}.
@@ -51,5 +56,18 @@ export class WinkEngineRef extends ServiceMap.Service<WinkEngineRef, WinkEngineR
  */
 export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
 
-export type { WinkEngineRuntimeState } from "./WinkEngine.ts";
-export { InstanceId, WinkEngineState } from "./WinkEngine.ts";
+/**
+ * @since 0.0.0
+ * @category exports
+ */
+export type WinkEngineRuntimeState = WinkEngineRuntimeStateType;
+/**
+ * @since 0.0.0
+ * @category exports
+ */
+export const InstanceId = InstanceIdService;
+/**
+ * @since 0.0.0
+ * @category exports
+ */
+export const WinkEngineState = WinkEngineStateService;

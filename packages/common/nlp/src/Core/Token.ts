@@ -120,11 +120,6 @@ export class Token extends S.Class<Token>($I`Token`)(
   }
 
   /**
-   * Backwards-compatible unsafe constructor alias.
-   */
-  static readonly make = Token.makeUnsafe;
-
-  /**
    * Whether a character position falls inside the token range.
    */
   static readonly containsPosition = dual(
@@ -158,22 +153,19 @@ export class Token extends S.Class<Token>($I`Token`)(
   /**
    * Return a copy of the token with new text.
    */
-  static readonly withText = dual(2, (token: Token, text: string): Token => Token.makeUnsafe({ ...token, text }));
+  static readonly withText = dual(2, (token: Token, text: string): Token => Token.make({ ...token, text }));
 
   /**
    * Return a copy of the token with a new part-of-speech tag.
    */
-  static readonly withPos = dual(
-    2,
-    (token: Token, pos: string): Token => Token.makeUnsafe({ ...token, pos: O.some(pos) })
-  );
+  static readonly withPos = dual(2, (token: Token, pos: string): Token => Token.make({ ...token, pos: O.some(pos) }));
 
   /**
    * Return a copy of the token with a new lemma.
    */
   static readonly withLemma = dual(
     2,
-    (token: Token, lemma: string): Token => Token.makeUnsafe({ ...token, lemma: O.some(lemma) })
+    (token: Token, lemma: string): Token => Token.make({ ...token, lemma: O.some(lemma) })
   );
 
   /**
@@ -181,6 +173,6 @@ export class Token extends S.Class<Token>($I`Token`)(
    */
   static readonly withStopWordFlag = dual(
     2,
-    (token: Token, flag: boolean): Token => Token.makeUnsafe({ ...token, stopWordFlag: O.some(flag) })
+    (token: Token, flag: boolean): Token => Token.make({ ...token, stopWordFlag: O.some(flag) })
   );
 }

@@ -111,7 +111,7 @@ Preserve these laws and enforce them aggressively:
 13. Existing repo utilities, schemas, branded types, services, and helpers are
     required to be reused when they satisfy the port requirement. Duplicating an
     existing reusable abstraction is not allowed.
-14. `ServiceMap.Service` contracts are required to expose only domain-facing
+14. `Context.Service` contracts are required to expose only domain-facing
     capabilities. Constructor dependencies, infrastructure services, and
     transitive wiring dependencies are not allowed to leak through the public
     service shape.
@@ -166,7 +166,7 @@ logic without repo-native rewriting:
 - ad-hoc request clients instead of `effect/unstable/http`
 - ad-hoc HTTP route or payload contracts where `effect/unstable/httpapi` is
   required for the ported application boundary
-- `ServiceMap.Service` shapes that expose infrastructure handles, raw
+- `Context.Service` shapes that expose infrastructure handles, raw
   dependencies, or wiring concerns instead of domain-facing capabilities
 - dependency provisioning buried inside domain flows instead of layer
   composition near the application boundary
@@ -224,7 +224,7 @@ as cheerleaders:
    - Rejects native runtime leakage, untyped failures, weak service boundaries,
      missing observability, and HTTP boundaries that fail to use
      `effect/unstable/http` or `effect/unstable/httpapi` where required.
-   - Rejects `ServiceMap.Service` contracts that leak dependencies and rejects
+   - Rejects `Context.Service` contracts that leak dependencies and rejects
      layer wiring that is not kept close to the application boundary.
    - Rejects stateful workflows that use mutable closure state or the wrong
      `Ref`-family primitive for the required semantics.

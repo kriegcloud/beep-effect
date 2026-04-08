@@ -209,11 +209,27 @@
     },
     {
       "file": "packages/common/schema/src/LiteralKit.ts",
+      "symbol": "LiteralKit",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/LiteralKit.ts",
       "symbol": "union",
       "kind": "object-struct-schema",
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/MappedLiteralKit.ts",
+      "symbol": "MappedLiteralKit",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
       "file": "packages/common/schema/src/Model.ts",

@@ -539,7 +539,7 @@ export const makeNamedNode = (value: string): NamedNode => decodeNamedNode({ ter
  * @category utilities
  */
 export const makeBlankNode = (value: string): BlankNode =>
-  BlankNode.makeUnsafe({ termType: "BlankNode", value: decodeBlankNode(value) });
+  BlankNode.make({ termType: "BlankNode", value: decodeBlankNode(value) });
 
 /**
  * Build an RDF literal.
@@ -591,11 +591,11 @@ export const makeLiteral = (value: string, datatype: string, language?: string):
  * @category utilities
  */
 export const makeQuad = (subject: Subject, predicate: NamedNode, object: ObjectTerm, graph?: GraphTerm): Quad =>
-  Quad.makeUnsafe({
+  Quad.make({
     subject,
     predicate,
     object,
-    graph: graph ?? DefaultGraph.makeUnsafe({ termType: "DefaultGraph", value: "" }),
+    graph: graph ?? DefaultGraph.make({ termType: "DefaultGraph", value: "" }),
   });
 
 /**
@@ -619,7 +619,7 @@ export const makeQuad = (subject: Subject, predicate: NamedNode, object: ObjectT
  * @since 0.0.0
  * @category utilities
  */
-export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.makeUnsafe({ quads: Array.from(quads) });
+export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({ quads: Array.from(quads) });
 
 /**
  * Serialize an RDF term to a deterministic lexical form.

@@ -70,7 +70,7 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
 
         const document = yield* pipe(
           documentService.fromRdf(
-            JsonLdFromRdfRequest.makeUnsafe({
+            JsonLdFromRdfRequest.make({
               dataset: request.dataset,
               context: request.context,
             })
@@ -99,7 +99,7 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
               ),
             onNonEmpty: ([firstChunk, ...restChunks]) =>
               Effect.succeed(
-                JsonLdStreamSerializeResult.makeUnsafe({
+                JsonLdStreamSerializeResult.make({
                   chunks: [firstChunk, ...restChunks],
                   mode: "buffered-fallback",
                   chunkCount: decodeNonNegativeInt(nonEmptyChunks.length),

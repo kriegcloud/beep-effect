@@ -25,7 +25,7 @@ const makeViolation = (
   path: ShaclValidationViolation["path"],
   message: string
 ): ShaclValidationViolation =>
-  ShaclValidationViolation.makeUnsafe({
+  ShaclValidationViolation.make({
     focusNode,
     path,
     severity: "violation",
@@ -128,7 +128,7 @@ export const BoundedShaclValidationServiceLive = Layer.succeed(
 
             if (O.isSome(request.maxResults) && violations.length >= request.maxResults.value) {
               return Effect.succeed(
-                ShaclValidationResult.makeUnsafe({
+                ShaclValidationResult.make({
                   conforms: false,
                   violations: pipe(violations, A.take(request.maxResults.value)),
                   truncated: true,
@@ -140,7 +140,7 @@ export const BoundedShaclValidationServiceLive = Layer.succeed(
       }
 
       return Effect.succeed(
-        ShaclValidationResult.makeUnsafe({
+        ShaclValidationResult.make({
           conforms: violations.length === 0,
           violations,
           truncated: false,
