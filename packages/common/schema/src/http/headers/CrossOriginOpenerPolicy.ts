@@ -87,11 +87,12 @@ export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption
  *
  * @example
  * ```ts
+ * import * as Option from "effect/Option"
  * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
  *
  * const header = new CrossOriginOpenerPolicyResponseHeader({
  *   name: "Cross-Origin-Opener-Policy",
- *   value: undefined,
+ *   value: Option.none(),
  * })
  * void header
  * ```

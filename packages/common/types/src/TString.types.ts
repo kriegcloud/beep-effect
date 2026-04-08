@@ -20,6 +20,9 @@
  *
  * type Empty = TString.NonEmpty<"">
  * // never
+ *
+ * declare const nonEmptyExamples: readonly [Hello, Empty]
+ * void nonEmptyExamples
  * ```
  *
  * @category utilities
@@ -39,6 +42,9 @@ export type NonEmpty<T extends string = string> = T extends "" ? never : T;
  *
  * type Digits = TString.Chars<"0123456789">
  * // "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9"
+ *
+ * declare const charsExamples: readonly [ABC, Digits]
+ * void charsExamples
  * ```
  *
  * @category utilities

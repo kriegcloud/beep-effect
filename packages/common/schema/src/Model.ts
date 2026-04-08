@@ -170,7 +170,7 @@ export {
    * import * as Schema from "effect/Schema"
    * import * as Model from "@beep/schema/Model"
    *
-   * const readOnly = Model.FieldExcept("insert", "update")(Schema.String)
+   * const readOnly = Model.FieldExcept(["insert", "update"])(Schema.String)
    * void readOnly
    * ```
    *
@@ -186,7 +186,7 @@ export {
    * import * as Schema from "effect/Schema"
    * import * as Model from "@beep/schema/Model"
    *
-   * const jsonOnly = Model.FieldOnly("json", "jsonCreate")(Schema.String)
+   * const jsonOnly = Model.FieldOnly(["json", "jsonCreate"])(Schema.String)
    * void jsonOnly
    * ```
    *
@@ -248,7 +248,7 @@ export {
    *
    * const a = Model.Struct({ _tag: Schema.tag("A"), value: Schema.String })
    * const b = Model.Struct({ _tag: Schema.tag("B"), count: Schema.Number })
-   * const AB = Model.Union(a, b)
+   * const AB = Model.Union([a, b])
    *
    * void AB
    * ```
@@ -1014,8 +1014,7 @@ export const DateTimeUpdateFromNumber: DateTimeUpdateFromNumber = Field({
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * const field: Model.JsonFromString<typeof Schema.Struct<{ a: typeof Schema.String }>> =
- *   Model.JsonFromString(Schema.Struct({ a: Schema.String }))
+ * const field = Model.JsonFromString(Schema.Struct({ a: Schema.String }))
  *
  * void field
  * ```

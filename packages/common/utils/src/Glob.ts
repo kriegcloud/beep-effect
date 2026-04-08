@@ -101,13 +101,13 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
  *
  * @example
  * ```ts
- * import { Effect, pipe } from "effect"
+ * import { Effect } from "effect"
  * import { Glob } from "@beep/utils/Glob"
  *
- * const program = pipe(
- *   Glob,
- *   Effect.andThen(({ glob }) => glob("src/**\/*.ts"))
- * )
+ * const program = Effect.gen(function* () {
+ *   const glob = yield* Glob
+ *   return yield* glob.glob("src/**\\/*.ts")
+ * })
  *
  * void program
  * ```

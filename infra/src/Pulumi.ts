@@ -12,6 +12,3 @@ import { $InfraId } from "@beep/identity";
 const $I = $InfraId.create("Pulumi");
 
 console.log($I);
-
-
-

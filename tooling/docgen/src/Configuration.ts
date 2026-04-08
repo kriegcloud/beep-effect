@@ -317,10 +317,21 @@ export const load = (args: LoadArgs) =>
       args.parseCompilerOptions,
       O.fromNullishOr(docgenConfig?.parseCompilerOptions)
     );
-    const examplesCompilerOptions = yield* resolveCompilerOptions(
+    const resolvedExamplesCompilerOptions = yield* resolveCompilerOptions(
       args.examplesCompilerOptions,
       O.fromNullishOr(docgenConfig?.examplesCompilerOptions)
     );
+    // Examples commonly include illustrative bindings that are intentionally unused.
+    // Force-disable unused checks to keep docs validation focused on type correctness.
+    const exampleTypes = Array.isArray(resolvedExamplesCompilerOptions.types)
+      ? Array.from(new Set([...resolvedExamplesCompilerOptions.types, "node", "bun"]))
+      : ["node", "bun"];
+    const examplesCompilerOptions = {
+      ...resolvedExamplesCompilerOptions,
+      noUnusedLocals: false,
+      noUnusedParameters: false,
+      types: exampleTypes,
+    };
 
     return Configuration.of({
       projectName,

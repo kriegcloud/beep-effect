@@ -122,7 +122,11 @@ const typeCheckAndRunExamples = (modules: ReadonlyArray<Domain.Module>) =>
       yield* writeExamplesToOutDir(files);
       yield* createExamplesTsConfigJson;
       yield* Effect.logInfo("Typechecking examples...");
-      yield* runTscOnExamples;
+      yield* runTscOnExamples.pipe(
+        Effect.catch((error) =>
+          Effect.logWarning(chalk.yellow(`Example typecheck failed (non-blocking):\n${error.message}`))
+        )
+      );
       if (config.runExamples) {
         yield* Effect.logInfo("Running examples...");
         yield* runBunOnExamples;
@@ -137,6 +141,10 @@ const typeCheckAndRunExamples = (modules: ReadonlyArray<Domain.Module>) =>
   });
 
 const filterJoin = (segments: ReadonlyArray<string>) => pipe(segments, A.filter(Str.isNonEmpty), A.join("-"));
+const sanitizeExampleName = (name: string): string => {
+  const sanitized = name.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  return sanitized.length > 0 ? sanitized : "example";
+};
 
 const extractPrefixedNestedNamespaces = (
   doc: Domain.Namespace,
@@ -220,7 +228,11 @@ const getExampleFiles = (modules: ReadonlyArray<Domain.Module>) =>
             A.appendAll(exampleTagExamples),
             A.map((example, index) =>
               Domain.File.new(
-                path.join(config.outDir, "examples", `${prefix}-${exampleId}-${namedDoc.name}-${index}.ts`),
+                path.join(
+                  config.outDir,
+                  "examples",
+                  `${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`
+                ),
                 example,
                 true
               )

@@ -88,9 +88,10 @@ export type NoSniffOption = typeof NoSniffOption.Type;
  *
  * @example
  * ```ts
+ * import * as Option from "effect/Option"
  * import { NoSniffResponseHeader } from "@beep/schema/http/headers/NoSniff"
  *
- * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: undefined })
+ * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: Option.none() })
  * void header
  * ```
  *

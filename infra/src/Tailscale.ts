@@ -4,3 +4,4 @@
  * @module @beep/infra/Tailscale
  * @since 0.0.0
  */
+export {};
