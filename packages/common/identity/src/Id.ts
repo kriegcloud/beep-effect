@@ -848,7 +848,7 @@ const decodeModuleSegment = S.decodeUnknownSync(ModuleSegmentSchema);
 const decodeBaseSegment = S.decodeUnknownSync(BaseSegmentSchema);
 
 /**
- *
+ * @template Value {string} - the string literal generic
  * @param {Value} value
  * @returns {IdentityString<Value>}
  */
@@ -862,7 +862,7 @@ const toIdentitySymbol = <Value extends string>(value: Value): IdentitySymbol<Va
   Symbol.for(value) as IdentitySymbol<Value>;
 
 /**
- *
+ * @template Identifier {TString.NonEmpty}
  * @param {Identifier} identifier
  * @returns {TitleFromIdentifier<Identifier>}
  */
@@ -956,7 +956,7 @@ const createBaseIdentity = <const Base extends TString.NonEmpty>(base: Normalize
   base === "beep" ? (BEEP_NAMESPACE as BaseIdentity<Base>) : (`${BEEP_NAMESPACE}/${base}` as BaseIdentity<Base>);
 
 /**
- *
+ * @template Value
  * @param {Value} value
  * @returns {IdentityComposer<Value>}
  */
@@ -964,7 +964,8 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   const identityValue = toIdentityString(value);
 
   /**
-   * @template Next
+   *
+   * @template Next,Value
    * @param {SegmentValue<Next>} segment
    * @returns {IdentityComposer<`${Value}/${SegmentValue<Next>}`>}
    */
@@ -977,7 +978,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   };
 
   /**
-   * @template Next
+   * @template Next,Value
    * @param {SegmentValue<Next>} identifier
    * @returns {IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>}
    */
@@ -995,7 +996,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   };
 
   /**
-   * @template Next,Extras
+   * @template Next,Extras,Value
    * @param {SegmentValue<Next>} identifier
    * @param {IdentityAnyAnnotationExtras<unknown> | undefined} extras
    * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>}

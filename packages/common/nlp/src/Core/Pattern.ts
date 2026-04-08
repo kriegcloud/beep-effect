@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt, SchemaUtils } from "@beep/schema";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -102,7 +103,7 @@ export type WinkEntityType = typeof WinkEntityType.Type;
 
 const DisambiguatedLiteralPatternOptionChoice = S.makeFilter(
   (values: ReadonlyArray<string>) =>
-    A.some(values, (value) => Str.isNonEmpty(value) && !S.is(WinkPOSTag)(value) && !S.is(WinkEntityType)(value)),
+    A.some(values, (value) => P.every([Str.isNonEmpty, P.not(S.is(WinkPOSTag)), P.not(S.is(WinkEntityType))])(value)),
   {
     description: "Literal pattern options must include at least one non-reserved literal choice.",
     identifier: $I`DisambiguatedLiteralPatternOptionChoice`,

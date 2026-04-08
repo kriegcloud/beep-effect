@@ -67,6 +67,48 @@ export const documentIndex: Brand.Constructor<DocumentIndex> = Brand.check<Docum
  */
 export const DocumentIndex = NonNegativeInt.pipe(S.fromBrand("DocumentIndex", documentIndex));
 
+const rebuildSentence = (sentence: Sentence, sentenceTokens: A.NonEmptyReadonlyArray<Token>) => {
+  const [firstToken, ...remainingTokens] = sentenceTokens;
+  const lastToken = A.reduce(remainingTokens, firstToken, (_, token) => token);
+
+  return Result.succeed(
+    new Sentence({
+      end: lastToken.index,
+      importance: sentence.importance,
+      index: sentence.index,
+      markedUpText: sentence.markedUpText,
+      negationFlag: sentence.negationFlag,
+      sentiment: sentence.sentiment,
+      start: firstToken.index,
+      text: sentence.text,
+      tokens: Chunk.fromIterable(sentenceTokens),
+    })
+  );
+};
+
+const filterSentence = (predicate: (token: Token) => boolean) => (sentence: Sentence) =>
+  pipe(
+    Chunk.filter(sentence.tokens, predicate),
+    Chunk.toReadonlyArray,
+    A.match({
+      onEmpty: () => Result.failVoid,
+      onNonEmpty: (sentenceTokens) => rebuildSentence(sentence, sentenceTokens),
+    })
+  );
+
+const filterDocument = (document: Document, predicate: (token: Token) => boolean): Document =>
+  new Document({
+    id: document.id,
+    sentences: pipe(
+      Chunk.toReadonlyArray(document.sentences),
+      A.filterMap(filterSentence(predicate)),
+      Chunk.fromIterable
+    ),
+    sentiment: document.sentiment,
+    text: document.text,
+    tokens: Chunk.filter(document.tokens, predicate),
+  });
+
 /**
  * Immutable NLP document model.
  *
@@ -152,46 +194,7 @@ export class Document extends S.Class<Document>($I`Document`)(
   /**
    * Filter the token collection.
    */
-  static readonly filterTokens = dual(2, (document: Document, predicate: (token: Token) => boolean): Document => {
-    const tokens = Chunk.filter(document.tokens, predicate);
-    const sentences = pipe(
-      Chunk.toReadonlyArray(document.sentences),
-      A.filterMap((sentence) => {
-        const filteredTokens = Chunk.filter(sentence.tokens, predicate);
-
-        return A.match(Chunk.toReadonlyArray(filteredTokens), {
-          onEmpty: () => Result.failVoid,
-          onNonEmpty: (sentenceTokens) => {
-            const [firstToken, ...remainingTokens] = sentenceTokens;
-            const lastToken = A.reduce(remainingTokens, firstToken, (_, token) => token);
-
-            return Result.succeed(
-              new Sentence({
-                end: lastToken.index,
-                importance: sentence.importance,
-                index: sentence.index,
-                markedUpText: sentence.markedUpText,
-                negationFlag: sentence.negationFlag,
-                sentiment: sentence.sentiment,
-                start: firstToken.index,
-                text: sentence.text,
-                tokens: Chunk.fromIterable(sentenceTokens),
-              })
-            );
-          },
-        });
-      }),
-      Chunk.fromIterable
-    );
-
-    return new Document({
-      id: document.id,
-      sentences,
-      sentiment: document.sentiment,
-      text: document.text,
-      tokens,
-    });
-  });
+  static readonly filterTokens = dual(2, filterDocument);
 
   /**
    * Extract token texts in order.

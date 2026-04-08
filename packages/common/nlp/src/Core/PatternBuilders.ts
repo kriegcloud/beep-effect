@@ -5,7 +5,7 @@
  * @module @beep/nlp/Core/PatternBuilders
  */
 
-import { Chunk } from "effect";
+import { Chunk} from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -27,7 +27,7 @@ type LiteralReplacer = (values: ReadonlyArray<string>, index: number) => Pattern
 
 const ensureNonEmpty = <A>(values: ReadonlyArray<A>, fallback: A): NonEmptyChoices<A> => {
   const [head, ...tail] = values;
-  return head === undefined ? [fallback] : [head, ...tail];
+  return P.isUndefined(head) ? A.of(fallback) : [head, ...tail];
 };
 
 const normalizeLiteralValues = (values: ReadonlyArray<string>): NonEmptyChoices<string> => {
@@ -66,7 +66,7 @@ const rebuildPattern = (pattern: Pattern, changes: Partial<Pick<Pattern, "elemen
   new Pattern({
     elements: changes.elements ?? pattern.elements,
     id: changes.id ?? pattern.id,
-    mark: changes.mark ?? (changes.elements === undefined ? pattern.mark : O.none()),
+    mark: changes.mark ?? (P.isUndefined(changes.elements) ? pattern.mark : O.none()),
   });
 
 const isLiteralElement = (element: PatternElement): element is LiteralPatternElement =>
@@ -192,7 +192,7 @@ export function optionalLiteral(
 export function make(id: string, elements: ReadonlyArray<PatternElement>): Pattern;
 export function make(id: string): (elements: ReadonlyArray<PatternElement>) => Pattern;
 export function make(id: string, elements?: ReadonlyArray<PatternElement>) {
-  return elements === undefined
+  return P.isUndefined(elements)
     ? (nextElements: ReadonlyArray<PatternElement>) => makePattern(id, nextElements)
     : makePattern(id, elements);
 }
@@ -217,7 +217,7 @@ export const withMark = dual(
 export function withoutMark(): (pattern: Pattern) => Pattern;
 export function withoutMark(pattern: Pattern): Pattern;
 export function withoutMark(pattern?: Pattern) {
-  return pattern === undefined
+  return P.isUndefined(pattern)
     ? (nextPattern: Pattern) => rebuildPattern(nextPattern, { mark: O.none() })
     : rebuildPattern(pattern, { mark: O.none() });
 }
@@ -474,7 +474,7 @@ export function generalizeLiterals(
   arg2?: PatternElement | LiteralReplacer
 ) {
   if (Pattern.is(arg1)) {
-    if (arg2 === undefined) {
+    if (P.isUndefined(arg2)) {
       return arg1;
     }
 

@@ -10,10 +10,7 @@ import * as A from "effect/Array";
 import * as O from "effect/Option";
 
 const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>
-  (() => {
-    const match = pattern.exec(input);
-    return match === null ? O.none() : pipe(match, A.get(1), O.map(normalizePhrase));
-  })();
+  pipe(pattern.exec(input), O.fromNullishOr, O.flatMap(A.get(1)), O.map(normalizePhrase));
 
 /**
  * Collapse user question whitespace without changing punctuation or content.

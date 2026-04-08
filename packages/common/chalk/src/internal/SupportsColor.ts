@@ -18,12 +18,23 @@ type RuntimeProcessLike = {
   readonly platform?: string | undefined;
 };
 
-const currentRuntimeProcessLike: RuntimeProcessLike = {
+type SupportsColorDecisionInput = {
+  readonly argv: ReadonlyArray<string>;
+  readonly env: Readonly<Record<string, string | undefined>>;
+  readonly isTTY?: boolean | undefined;
+  readonly osRelease?: string | undefined;
+  readonly platform?: string | undefined;
+  readonly sniffFlags?: boolean | undefined;
+};
+
+const readCurrentRuntimeProcessLike = (): RuntimeProcessLike => ({
   argv: process.argv,
   env: process.env,
   osRelease: os.release(),
   platform: process.platform,
-};
+});
+
+const currentRuntimeProcessLike: RuntimeProcessLike = readCurrentRuntimeProcessLike();
 
 const hasFlag = (flag: string, argv: ReadonlyArray<string>): boolean => {
   const prefix = flag.startsWith("-") ? "" : flag.length === 1 ? "-" : "--";
@@ -102,21 +113,22 @@ const translateLevel = (level: number): ColorInfo => {
   });
 };
 
-const supportsColorLevel = (
-  stream: StreamLike,
-  options: SupportsColorOptions,
-  runtimeProcessLike: RuntimeProcessLike
-): number => {
-  const env = runtimeProcessLike.env ?? {};
-  const argv = runtimeProcessLike.argv ?? [];
+const supportsColorLevel = ({
+  argv,
+  env,
+  isTTY,
+  osRelease,
+  platform,
+  sniffFlags,
+}: SupportsColorDecisionInput): number => {
   const noFlagForceColor = envForceColor(env);
-  const forceColor = options.sniffFlags === false ? noFlagForceColor : (noFlagForceColor ?? detectFlagForceColor(argv));
+  const forceColor = sniffFlags === false ? noFlagForceColor : (noFlagForceColor ?? detectFlagForceColor(argv));
 
   if (forceColor === 0) {
     return 0;
   }
 
-  if (options.sniffFlags !== false) {
+  if (sniffFlags !== false) {
     if (hasFlag("color=16m", argv) || hasFlag("color=full", argv) || hasFlag("color=truecolor", argv)) {
       return 3;
     }
@@ -130,7 +142,7 @@ const supportsColorLevel = (
     return 1;
   }
 
-  if (stream.isTTY !== true && forceColor === undefined) {
+  if (isTTY !== true && forceColor === undefined) {
     return 0;
   }
 
@@ -140,11 +152,12 @@ const supportsColorLevel = (
     return minimumLevel;
   }
 
-  if (runtimeProcessLike.platform === "win32") {
-    const [major = "0", , build = "0"] = (runtimeProcessLike.osRelease ?? "0.0.0").split(".");
+  if (platform === "win32") {
+    const [major = "0", , build = "0"] = (osRelease ?? "0.0.0").split(".");
+    const buildLevel = Number.parseInt(build, 10);
 
-    if (Number.parseInt(major, 10) >= 10 && Number.parseInt(build, 10) >= 10586) {
-      return Number.parseInt(build, 10) >= 14931 ? 3 : 2;
+    if (Number.parseInt(major, 10) >= 10 && buildLevel >= 10586) {
+      return buildLevel >= 14931 ? 3 : 2;
     }
 
     return 1;
@@ -215,7 +228,17 @@ export const createSupportsColor = (
   stream: StreamLike = {},
   options: SupportsColorOptions = {},
   runtimeProcessLike: RuntimeProcessLike = currentRuntimeProcessLike
-): ColorInfo => translateLevel(supportsColorLevel(stream, options, runtimeProcessLike));
+): ColorInfo =>
+  translateLevel(
+    supportsColorLevel({
+      argv: runtimeProcessLike.argv ?? [],
+      env: runtimeProcessLike.env ?? {},
+      isTTY: stream.isTTY,
+      osRelease: runtimeProcessLike.osRelease,
+      platform: runtimeProcessLike.platform,
+      sniffFlags: options.sniffFlags,
+    })
+  );
 
 export const detectedSupportsColor = {
   stderr: createSupportsColor({ isTTY: tty.isatty(2) }),

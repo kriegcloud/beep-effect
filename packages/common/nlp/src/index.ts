@@ -28,7 +28,8 @@ export const VERSION = "0.0.0";
  * ```typescript
  * import { Core } from "@beep/nlp"
  *
- * console.log(typeof Core.tokenize) // "function"
+ * const tokenize = Core.tokenize
+ * console.log(tokenize)
  * ```
  *
  * @since 0.0.0
@@ -57,7 +58,8 @@ export * as IdentifierText from "./IdentifierText.ts";
  * ```typescript
  * import { Layers } from "@beep/nlp"
  *
- * console.log(typeof Layers.NLPAppLive) // "object"
+ * const liveLayer = Layers.NLPAppLive
+ * console.log(liveLayer)
  * ```
  *
  * @since 0.0.0
@@ -101,7 +103,8 @@ export * as QueryText from "./QueryText.ts";
  * ```typescript
  * import { Tools } from "@beep/nlp"
  *
- * console.log(typeof Tools.Tokenize) // "object"
+ * const tokenizeTool = Tools.Tokenize
+ * console.log(tokenizeTool.name)
  * ```
  *
  * @since 0.0.0
@@ -130,7 +133,8 @@ export * as VariantText from "./VariantText.ts";
  * ```typescript
  * import { Wink } from "@beep/nlp"
  *
- * console.log(typeof Wink.WinkEngineLive) // "object"
+ * const liveLayer = Wink.WinkEngineLive
+ * console.log(liveLayer)
  * ```
  *
  * @since 0.0.0

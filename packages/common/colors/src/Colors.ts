@@ -36,6 +36,7 @@ import {
   Formatter as FormatterSchema,
   type Formatter as FormatterType,
 } from "./internal/ColorsSchema.ts";
+import { Str } from "@beep/utils";
 
 const $I = $ColorsId.create("Domain");
 
@@ -66,7 +67,7 @@ const replaceClose = (text: string, close: string, replace: string, index: numbe
   let nextIndex = index;
 
   do {
-    result += text.substring(cursor, nextIndex) + replace;
+    result += Str.substring(cursor, nextIndex)(text) + replace;
     cursor = nextIndex + close.length;
     nextIndex = text.indexOf(close, cursor);
   } while (nextIndex !== -1);
@@ -136,7 +137,7 @@ const formatter =
  * @since 0.0.0
  */
 export const supportsColor = (processLike: ProcessLike = runtimeProcessLike): boolean => {
-  const argv = processLike.argv ?? [];
+  const argv = processLike.argv ?? A.empty();
   const env = processLike.env ?? {};
 
   if (hasNoColorEnv(env) || hasNoColorFlag(argv)) {

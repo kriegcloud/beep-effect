@@ -1,10 +1,9 @@
-export const stringReplaceAll = (text: string, substring: string, replacer: string): string => {
+import { pipe } from "effect";
+import * as Bool from "effect/Boolean";
+import * as Str from "effect/String";
+
+const replaceAllLoop = (text: string, substring: string, replacer: string): string => {
   let index = text.indexOf(substring);
-
-  if (index === -1) {
-    return text;
-  }
-
   const substringLength = substring.length;
   let endIndex = 0;
   let result = "";
@@ -20,6 +19,29 @@ export const stringReplaceAll = (text: string, substring: string, replacer: stri
   return result;
 };
 
+const renderLineBreak = (gotCR: boolean): string =>
+  Bool.match(gotCR, {
+    onFalse: () => "\n",
+    onTrue: () => "\r\n",
+  });
+
+const renderLineBreakSliceEnd = (nextIndex: number, gotCR: boolean): number =>
+  Bool.match(gotCR, {
+    onFalse: () => nextIndex,
+    onTrue: () => nextIndex - 1,
+  });
+
+export const stringReplaceAll = (text: string, substring: string, replacer: string): string => {
+  return pipe(
+    text,
+    Str.includes(substring),
+    Bool.match({
+      onFalse: () => text,
+      onTrue: () => replaceAllLoop(text, substring, replacer),
+    })
+  );
+};
+
 export const stringEncaseCRLFWithFirstIndex = (
   text: string,
   prefix: string,
@@ -33,7 +55,8 @@ export const stringEncaseCRLFWithFirstIndex = (
   do {
     const gotCR = text[nextIndex - 1] === "\r";
 
-    result += text.slice(endIndex, gotCR ? nextIndex - 1 : nextIndex) + prefix + (gotCR ? "\r\n" : "\n") + postfix;
+    result +=
+      text.slice(endIndex, renderLineBreakSliceEnd(nextIndex, gotCR)) + prefix + renderLineBreak(gotCR) + postfix;
     endIndex = nextIndex + 1;
     nextIndex = text.indexOf("\n", endIndex);
   } while (nextIndex !== -1);

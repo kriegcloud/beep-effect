@@ -5,10 +5,26 @@
  * @module @beep/nlp/VariantText
  */
 import * as Str from "@beep/utils/Str";
-import { Order, pipe } from "effect";
+import {Order, pipe} from "effect";
 import * as A from "effect/Array";
+import {dual} from "effect/Function";
 
-const stringEquals = (left: string, right: string): boolean => Order.String(left, right) === 0;
+const stringEquals: {
+  (
+    left: string,
+    right: string
+  ): boolean
+  (right: string): (left: string) => boolean
+} = dual(
+  2,
+  (
+    left: string,
+    right: string
+  ): boolean => Order.String(
+    left,
+    right
+  ) === 0
+);
 
 /**
  * Remove empty strings and duplicates while preserving the first occurrence of
@@ -26,4 +42,8 @@ const stringEquals = (left: string, right: string): boolean => Order.String(left
  * @category variants
  */
 export const orderedDedupe = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(values, A.filter(Str.isNonEmpty), A.dedupeWith(stringEquals));
+  pipe(
+    values,
+    A.filter(Str.isNonEmpty),
+    A.dedupeWith(stringEquals)
+  );

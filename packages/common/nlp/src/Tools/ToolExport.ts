@@ -5,30 +5,79 @@
  * @module @beep/nlp/Tools/ToolExport
  */
 
-import { $NlpId } from "@beep/identity";
-import { TaggedErrorClass } from "@beep/schema";
-import { Cause, Effect, Inspectable, Stream } from "effect";
+import {$NlpId} from "@beep/identity";
+import {TaggedErrorClass} from "@beep/schema";
+import {Cause, Effect, Inspectable, Match, Stream} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { type AiError, Tool, type Toolkit } from "effect/unstable/ai";
-import { NlpToolkit, NlpTools } from "./NlpToolkit.ts";
+import {type AiError, Tool, type Toolkit} from "effect/unstable/ai";
+import {dual} from "effect/Function";
+import {NlpToolkit, NlpTools} from "./NlpToolkit.ts";
+import {Struct} from "@beep/utils";
 
 const $I = $NlpId.create("Tools/ToolExport");
 
 const TOOL_PARAMETER_NAMES: Partial<Record<string, ReadonlyArray<string>>> = {
-  ChunkBySentences: ["text", "maxChunkChars"],
-  CorpusStats: ["corpusId", "includeIdf", "includeMatrix", "topIdfTerms"],
-  CreateCorpus: ["corpusId", "bm25Config"],
-  LearnCorpus: ["corpusId", "documents", "dedupeById"],
-  LearnCustomEntities: ["groupName", "mode", "entities"],
-  NGrams: ["text", "size", "mode", "topN"],
-  PhoneticMatch: ["text1", "text2", "algorithm", "minTokenLength"],
-  QueryCorpus: ["corpusId", "query", "topN", "includeText"],
-  RankByRelevance: ["texts", "query", "topN"],
-  TransformText: ["text", "operations"],
-  TverskySimilarity: ["text1", "text2", "alpha", "beta"],
+  ChunkBySentences: [
+    "text",
+    "maxChunkChars"
+  ],
+  CorpusStats: [
+    "corpusId",
+    "includeIdf",
+    "includeMatrix",
+    "topIdfTerms"
+  ],
+  CreateCorpus: [
+    "corpusId",
+    "bm25Config"
+  ],
+  LearnCorpus: [
+    "corpusId",
+    "documents",
+    "dedupeById"
+  ],
+  LearnCustomEntities: [
+    "groupName",
+    "mode",
+    "entities"
+  ],
+  NGrams: [
+    "text",
+    "size",
+    "mode",
+    "topN"
+  ],
+  PhoneticMatch: [
+    "text1",
+    "text2",
+    "algorithm",
+    "minTokenLength"
+  ],
+  QueryCorpus: [
+    "corpusId",
+    "query",
+    "topN",
+    "includeText"
+  ],
+  RankByRelevance: [
+    "texts",
+    "query",
+    "topN"
+  ],
+  TransformText: [
+    "text",
+    "operations"
+  ],
+  TverskySimilarity: [
+    "text1",
+    "text2",
+    "alpha",
+    "beta"
+  ],
 };
 
 const USAGE_EXAMPLES: Partial<Record<string, ReadonlyArray<string>>> = {
@@ -49,26 +98,23 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 type NlpTool = (typeof NlpTools)[number];
 type NlpToolkitWithHandler = Toolkit.WithHandler<typeof NlpToolkit.tools>;
 
-const renderError = (error: unknown): string => {
-  if (P.isString(error)) {
-    return error;
-  }
-  return Inspectable.toStringUnknown(error);
-};
+const renderError = (error: unknown): string => (P.isString(error) ? error : Inspectable.toStringUnknown(error));
 
-const hasStructFields = (schema: unknown): schema is { readonly fields: Record<string, unknown> } =>
-  P.hasProperty(schema, "fields") && P.isObject(schema.fields);
+const hasStructFields = (schema: unknown): schema is {
+  readonly fields: Record<string, unknown>
+} =>
+  P.hasProperty(
+    schema,
+    "fields"
+  ) && P.isObject(schema.fields);
 
 const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
   const overridden = TOOL_PARAMETER_NAMES[tool.name];
-  if (overridden !== undefined) {
-    return overridden;
-  }
-
-  // Schema reflection exposes a plain object field map here; `Object.keys` stays
-  // isolated to this adapter boundary so runtime parameter ordering matches the
-  // encoded tool schema without widening the inferred union of field records.
-  return hasStructFields(tool.parametersSchema) ? Object.keys(tool.parametersSchema.fields) : [];
+  return P.isNotUndefined(overridden)
+    ? overridden
+    : hasStructFields(tool.parametersSchema)
+      ? Struct.keys(tool.parametersSchema.fields)
+      : A.empty();
 };
 
 /**
@@ -84,9 +130,12 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
     message: S.String,
     toolName: S.String,
   },
-  $I.annote("ExportedToolError", {
-    description: "Failure raised while exporting or executing a positional NLP tool.",
-  })
+  $I.annote(
+    "ExportedToolError",
+    {
+      description: "Failure raised while exporting or executing a positional NLP tool.",
+    }
+  )
 ) {
   /**
    * Convert an unknown cause into a typed export-adapter error.
@@ -96,13 +145,29 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
    * @param message {string} - The rendered error message for the caller.
    * @returns {ExportedToolError} - A typed export-adapter error value.
    */
-  static fromCause(cause: unknown, toolName: string, message: string): ExportedToolError {
-    return new ExportedToolError({
+  static readonly fromCause:
+    {
+      (
+        cause: unknown,
+        toolName: string,
+        message: string
+      ): ExportedToolError
+      (
+        toolName: string,
+        message: string
+      ): (cause: unknown) => ExportedToolError
+    } = dual(
+    3,
+    (
+      cause: unknown,
+      toolName: string,
+      message: string
+    ): ExportedToolError => new ExportedToolError({
       cause,
       message,
       toolName,
-    });
-  }
+    })
+  )
 }
 
 /**
@@ -125,14 +190,18 @@ export interface ExportedTool {
 const buildArgsObject = (
   parameterNames: ReadonlyArray<string>,
   args: ReadonlyArray<unknown>
-): Record<string, unknown> => {
-  const emptyOutput: Record<string, unknown> = {};
-
-  return A.reduce(parameterNames, emptyOutput, (output, name, index) => {
-    const value = args[index];
-    return value === undefined ? output : { ...output, [name]: value };
-  });
-};
+): Record<string, unknown> =>
+  A.reduce(
+    parameterNames,
+    R.empty<string, unknown>(),
+    (output, name, index) =>
+      P.isUndefined(args[index])
+        ? output
+        : {
+          ...output,
+          [name]: args[index]
+        }
+  );
 
 const handleTool = <T extends NlpTool>(
   toolkit: NlpToolkitWithHandler,
@@ -146,80 +215,136 @@ const handleTool = <T extends NlpTool>(
   // `Toolkit.handle` is keyed by a literal tool-name map. At this adapter boundary
   // we validate `params` against the selected tool schema immediately beforehand,
   // so the runtime pairing of tool name and decoded parameters is sound.
-  toolkit.handle(tool.name as never, params as never) as Effect.Effect<
+  toolkit.handle(
+    tool.name as never,
+    params as never
+  ) as Effect.Effect<
     Stream.Stream<Tool.HandlerResult<T>, Tool.HandlerError<T> | AiError.AiError, never>,
     AiError.AiError,
     never
   >;
 
-const buildExportedTool = <T extends NlpTool>(tool: T, toolkit: NlpToolkitWithHandler): ExportedTool => {
-  const parameterNames = parameterNamesForTool(tool);
 
-  return {
-    description: Tool.getDescription(tool) ?? "",
-    handle: (args) =>
-      Effect.gen(function* () {
-        const params = yield* Effect.try({
-          try: () =>
-            S.decodeUnknownSync(tool.parametersSchema)(buildArgsObject(parameterNames, args)) as Tool.Parameters<T>,
-          catch: (cause) =>
-            ExportedToolError.fromCause(cause, tool.name, `Invalid parameters for ${tool.name}: ${renderError(cause)}`),
-        });
-        const stream = yield* handleTool(toolkit, tool, params).pipe(
-          Effect.mapError((cause) =>
-            ExportedToolError.fromCause(cause, tool.name, `Failed to start ${tool.name}: ${renderError(cause)}`)
-          )
-        );
-        const last = yield* Stream.runLast(stream).pipe(
-          Effect.mapError((cause) =>
-            ExportedToolError.fromCause(cause, tool.name, `Tool ${tool.name} failed: ${renderError(cause)}`)
-          )
-        );
+const buildExportedTool: {
+  <T extends NlpTool>(
+    tool: T,
+    toolkit: NlpToolkitWithHandler
+  ): ExportedTool,
+  (toolkit: NlpToolkitWithHandler): <T extends NlpTool>(tool: T) => ExportedTool
+} = dual(
+  2,
+  <T extends NlpTool>(
+    tool: T,
+    toolkit: NlpToolkitWithHandler
+  ): ExportedTool => {
+    const parameterNames = parameterNamesForTool(tool);
 
-        return yield* O.match(last, {
-          onNone: () =>
-            Effect.fail(ExportedToolError.fromCause(undefined, tool.name, `Tool ${tool.name} returned no result`)),
-          onSome: (result) =>
-            result.isFailure
-              ? Effect.fail(
-                  ExportedToolError.fromCause(
-                    result.result,
-                    tool.name,
-                    `Tool ${tool.name} failed: ${renderError(result.result)}`
+    return {
+      description: Tool.getDescription(tool) ?? "",
+      handle:
+        Effect.fn(
+          function* (args) {
+            const params = yield* Effect.try({
+              try: () =>
+                S.decodeUnknownSync<Tool.Parameters<T>>(tool.parametersSchema)(
+                  buildArgsObject(
+                    parameterNames,
+                    args
                   )
+                ),
+              catch: (cause) =>
+                ExportedToolError.fromCause(
+                  cause,
+                  tool.name,
+                  `Invalid parameters for ${tool.name}: ${renderError(cause)}`
+                ),
+            });
+            const stream = yield* handleTool(
+              toolkit,
+              tool,
+              params
+            ).pipe(
+              Effect.mapError((cause) =>
+                ExportedToolError.fromCause(
+                  cause,
+                  tool.name,
+                  `Failed to start ${tool.name}: ${renderError(cause)}`
                 )
-              : Effect.succeed(result.encodedResult),
-        });
-      }).pipe(
-        Effect.catchCause((cause) =>
-          Effect.fail(ExportedToolError.fromCause(cause, tool.name, `Tool ${tool.name} failed: ${Cause.pretty(cause)}`))
-        )
-      ),
-    name: tool.name,
-    parameterNames,
-    parametersJsonSchema: Tool.getJsonSchema(tool),
-    returnsJsonSchema: Tool.getJsonSchemaFromSchema(tool.successSchema),
-    timeoutMs: DEFAULT_TIMEOUT_MS,
-    usageExamples: USAGE_EXAMPLES[tool.name] ?? [],
-  };
-};
+              )
+            );
+            const last = yield* Stream.runLast(stream).pipe(
+              Effect.mapError((cause) =>
+                ExportedToolError.fromCause(
+                  cause,
+                  tool.name,
+                  `Tool ${tool.name} failed: ${renderError(cause)}`
+                )
+              )
+            );
+
+            return yield* O.match(last, {
+              onNone: () =>
+                Effect.fail(
+                  ExportedToolError.fromCause(
+                    undefined,
+                    tool.name,
+                    `Tool ${tool.name} returned no result`
+                  )
+                ),
+              onSome: (result) =>
+                result.isFailure
+                  ? Effect.fail(
+                    ExportedToolError.fromCause(
+                      result.result,
+                      tool.name,
+                      `Tool ${tool.name} failed: ${renderError(result.result)}`
+                    )
+                  )
+                  : Effect.succeed(result.encodedResult),
+            });
+          },
+          Effect.catchCause((cause) =>
+            Effect.fail(
+              ExportedToolError.fromCause(
+                cause,
+                tool.name,
+                `Tool ${tool.name} failed: ${Cause.pretty(cause)}`
+              )
+            )
+          )
+        ),
+      name: tool.name,
+      parameterNames,
+      parametersJsonSchema: Tool.getJsonSchema(tool),
+      returnsJsonSchema: Tool.getJsonSchemaFromSchema(tool.successSchema),
+      timeoutMs: DEFAULT_TIMEOUT_MS,
+      usageExamples: USAGE_EXAMPLES[tool.name] ?? A.empty(),
+    };
+  }
+)
 
 /**
  * @since 0.0.0
  * @category Adapters
  */
-const exportToolsEffect: Effect.Effect<
-  ReadonlyArray<ExportedTool>,
-  ExportedToolError,
-  Tool.HandlersFor<typeof NlpToolkit.tools>
-> = Effect.gen(function* () {
+const exportToolsEffect = Effect.gen(function* () {
   const toolkit = yield* NlpToolkit;
-  return A.map(NlpTools, (tool) => buildExportedTool(tool, toolkit));
-}).pipe(
-  Effect.mapError((cause) =>
-    ExportedToolError.fromCause(cause, "__init__", `Failed to export NLP tools: ${renderError(cause)}`)
-  )
-);
+  return A.map(
+    NlpTools,
+    buildExportedTool(
+      toolkit
+    )
+  );
+})
+  .pipe(
+    Effect.mapError((cause) =>
+      ExportedToolError.fromCause(
+        cause,
+        "__init__",
+        `Failed to export NLP tools: ${renderError(cause)}`
+      )
+    )
+  );
 /**
  * @since 0.0.0
  * @category Adapters

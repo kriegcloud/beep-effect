@@ -40,22 +40,17 @@ import {
   ModifierName as ModifierNameSchema,
   modifierNameValues,
 } from "./internal/ChalkSchema.ts";
+import {
+  type ChalkConstructorOptions,
+  type ChalkInstanceSurface,
+  makeChalkConstructor,
+} from "./internal/PublicSurface.ts";
 import { detectedSupportsColor } from "./internal/SupportsColor.ts";
 
 // oxlint-disable typescript-eslint/no-unsafe-declaration-merging
 
 const createChalk = makeCreateChalk(detectedSupportsColor.stdout);
 const createChalkStderr = makeCreateChalk(detectedSupportsColor.stderr);
-
-const makeChalkConstructor = <Instance, Base extends abstract new (options?: ChalkOptions) => Instance>(
-  ConstructorBase: Base,
-  create: (options?: ChalkOptions) => object
-): Base =>
-  new Proxy(ConstructorBase, {
-    construct(_target, [options]: ReadonlyArray<ChalkOptions | undefined>) {
-      return create(options);
-    },
-  });
 
 /**
  * Recursive callable Chalk builder surface.
@@ -85,62 +80,7 @@ const makeChalkConstructor = <Instance, Base extends abstract new (options?: Cha
  * @since 0.0.0
  * @category models
  */
-export interface ChalkInstance {
-  ansi256(index: number): this;
-  bgAnsi256(index: number): this;
-  readonly bgBlack: this;
-  readonly bgBlackBright: this;
-  readonly bgBlue: this;
-  readonly bgBlueBright: this;
-  readonly bgCyan: this;
-  readonly bgCyanBright: this;
-  readonly bgGray: this;
-  readonly bgGreen: this;
-  readonly bgGreenBright: this;
-  readonly bgGrey: this;
-  bgHex(color: string): this;
-  readonly bgMagenta: this;
-  readonly bgMagentaBright: this;
-  readonly bgRed: this;
-  readonly bgRedBright: this;
-  bgRgb(red: number, green: number, blue: number): this;
-  readonly bgWhite: this;
-  readonly bgWhiteBright: this;
-  readonly bgYellow: this;
-  readonly bgYellowBright: this;
-  readonly black: this;
-  readonly blackBright: this;
-  readonly blue: this;
-  readonly blueBright: this;
-  readonly bold: this;
-  readonly cyan: this;
-  readonly cyanBright: this;
-  readonly dim: this;
-  readonly gray: this;
-  readonly green: this;
-  readonly greenBright: this;
-  readonly grey: this;
-  hex(color: string): this;
-  readonly hidden: this;
-  readonly inverse: this;
-  readonly italic: this;
-  level: typeof ColorSupportLevelSchema.Type;
-  readonly magenta: this;
-  readonly magentaBright: this;
-  readonly overline: this;
-  readonly red: this;
-  readonly redBright: this;
-  readonly reset: this;
-  rgb(red: number, green: number, blue: number): this;
-  readonly strikethrough: this;
-  readonly underline: this;
-  readonly visible: this;
-  readonly white: this;
-  readonly whiteBright: this;
-  readonly yellow: this;
-  readonly yellowBright: this;
-  (...text: ReadonlyArray<unknown>): string;
-}
+export interface ChalkInstance extends ChalkInstanceSurface {}
 
 /**
  * Runtime type for isolated Chalk instances created by {@link Chalk}.
@@ -149,10 +89,10 @@ export interface ChalkInstance {
  * @category models
  */
 class ChalkValue {
-  constructor(_options?: ChalkOptions) {}
+  constructor(_options?: ChalkConstructorOptions) {}
 }
 
-interface ChalkValue extends ChalkInstance {}
+interface ChalkValue extends ChalkInstanceSurface {}
 
 /**
  * An isolated Chalk instance with its own color support level.
@@ -657,10 +597,10 @@ export const supportsColor = detectedSupportsColor.stdout;
 export const supportsColorStderr = detectedSupportsColor.stderr;
 
 class ChalkStderrValue {
-  constructor(_options?: ChalkOptions) {}
+  constructor(_options?: ChalkConstructorOptions) {}
 }
 
-interface ChalkStderrValue extends ChalkInstance {}
+interface ChalkStderrValue extends ChalkInstanceSurface {}
 
 const ChalkStderr = makeChalkConstructor(ChalkStderrValue, createChalkStderr);
 

@@ -7,6 +7,7 @@ import * as S from "effect/Schema";
 import type * as DevToolsSchema from "effect/unstable/devtools/DevToolsSchema";
 import * as DevToolsServer from "effect/unstable/devtools/DevToolsServer";
 import * as SocketServer from "effect/unstable/socket/SocketServer";
+import {thunk0} from "@beep/utils";
 
 const $I = $ObservabilityId.create("experimental/server/DevToolsRelay");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
@@ -135,7 +136,7 @@ export const makeDevToolsRelayService: Effect.Effect<
     snapshot: Effect.sync(() => {
       const current = MutableRef.get(state);
       const metricCount = O.match(current.metrics, {
-        onNone: () => 0,
+        onNone: thunk0,
         onSome: (snapshot) => snapshot.metrics.length,
       });
 

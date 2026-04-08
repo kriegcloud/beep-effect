@@ -5,8 +5,9 @@
  * @module @beep/nlp/IdentifierText
  */
 import * as Str from "@beep/utils/Str";
-import { flow } from "effect";
+import { flow, pipe } from "effect";
 import * as A from "effect/Array";
+import * as O from "effect/Option";
 import * as QueryText from "./QueryText.ts";
 import * as VariantText from "./VariantText.ts";
 
@@ -54,7 +55,20 @@ export const tokens = flow(normalizeIdentifierWords, Str.split(" "), A.map(Str.t
 export const variants = (input: string): ReadonlyArray<string> => {
   const normalized = QueryText.normalizePhrase(input);
   const tokenized = tokens(input);
-  const spaced = A.isReadonlyArrayNonEmpty(tokenized) ? A.join(tokenized, " ") : normalized;
+  const spaced = pipe(
+    tokenized,
+    A.match({
+      onEmpty: () => normalized,
+      onNonEmpty: (nonEmptyTokens) => A.join(nonEmptyTokens, " "),
+    })
+  );
+  const joined = pipe(
+    A.get(tokenized, 0),
+    O.match({
+      onNone: () => Str.empty,
+      onSome: () => A.join(tokenized, Str.empty),
+    })
+  );
 
   return VariantText.orderedDedupe(
     A.make(
@@ -64,7 +78,7 @@ export const variants = (input: string): ReadonlyArray<string> => {
       Str.pascalCase(spaced),
       Str.snakeCase(spaced),
       Str.kebabCase(spaced),
-      A.isReadonlyArrayNonEmpty(tokenized) ? A.join(tokenized, Str.empty) : Str.empty
+      joined
     )
   );
 };

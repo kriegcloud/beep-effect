@@ -79,7 +79,7 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
       cause,
       message: `Wink tokenization ${operation} failed: ${renderCause(cause)}`,
       operation,
-      text: text === undefined ? O.none() : O.some(text),
+      text: O.fromNullishOr(text),
     });
   }
 }
@@ -113,7 +113,7 @@ export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEn
   static fromCause(cause: unknown, operation: string, entityName?: string): WinkEntityError {
     return new WinkEntityError({
       cause,
-      entityName: entityName === undefined ? O.none() : O.some(entityName),
+      entityName: O.fromNullishOr(entityName),
       message: `Wink entity ${operation} failed: ${renderCause(cause)}`,
       operation,
     });

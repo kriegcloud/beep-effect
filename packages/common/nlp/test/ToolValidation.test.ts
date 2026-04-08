@@ -77,21 +77,19 @@ describe("Tool validation", () => {
       ],
     });
 
-    const result = await Effect.runPromise(
-      Effect.exit(
-        Effect.gen(function* () {
-          const engine = yield* WinkEngine;
-          yield* engine.learnCustomEntities(brokenEntities);
-        }).pipe(Effect.provide(WinkEngineLive))
-      )
-    );
+    const program = Effect.gen(function* () {
+      const engine = yield* WinkEngine;
+      yield* engine.learnCustomEntities(brokenEntities);
+    }).pipe(Effect.provide(WinkEngineLive));
+    const exitedProgram = Effect.exit(program);
+    const result = await Effect.runPromise(exitedProgram);
+    const rendered = Exit.match(result, {
+      onFailure: Cause.pretty,
+      onSuccess: () => "",
+    });
 
     expect(Exit.isFailure(result)).toBe(true);
-    if (Exit.isFailure(result)) {
-      const rendered = Cause.pretty(result.cause);
-
-      expect(rendered).toContain("learnCustomEntities");
-      expect(rendered).toContain('incorrect token "not_a_tag"');
-    }
+    expect(rendered).toContain("learnCustomEntities");
+    expect(rendered).toContain('incorrect token "not_a_tag"');
   });
 });

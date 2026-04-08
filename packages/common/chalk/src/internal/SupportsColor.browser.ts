@@ -12,12 +12,9 @@ type BrowserNavigator = Navigator & {
 const hasUserAgentData = (browserNavigator: Navigator): browserNavigator is BrowserNavigator =>
   "userAgentData" in browserNavigator;
 
-const browserColorSupport = (): ColorInfo => {
-  if (!("navigator" in globalThis)) {
-    return false;
-  }
+const getBrowserNavigator = (): Navigator | undefined => ("navigator" in globalThis ? globalThis.navigator : undefined);
 
-  const browserNavigator = globalThis.navigator;
+const browserColorSupportFromNavigator = (browserNavigator: BrowserNavigator): ColorInfo => {
   const chromium = hasUserAgentData(browserNavigator)
     ? browserNavigator.userAgentData?.brands.find(({ brand }) => brand === "Chromium")
     : undefined;
@@ -41,6 +38,16 @@ const browserColorSupport = (): ColorInfo => {
   }
 
   return false;
+};
+
+const browserColorSupport = (): ColorInfo => {
+  const browserNavigator = getBrowserNavigator();
+
+  if (browserNavigator === undefined) {
+    return false;
+  }
+
+  return browserColorSupportFromNavigator(browserNavigator);
 };
 
 export const detectedSupportsColorBrowser = {

@@ -3,11 +3,12 @@ import { describe, expect, it } from "vitest";
 import { sentences, tokenCount, tokenize, tokenizeToDocument } from "../src/Core/Tokenization.ts";
 import { WinkTokenizationLive } from "../src/Wink/index.ts";
 
-const provideWink = <A, E, R>(effect: Effect.Effect<A, E, R>) => effect.pipe(Effect.provide(WinkTokenizationLive));
+const provideWink = Effect.provide(WinkTokenizationLive);
 
 describe("WinkTokenization", () => {
   it("tokenizes text with lemma and position metadata", async () => {
-    const tokens = await Effect.runPromise(provideWink(tokenize("Ada Lovelace wrote the first algorithm.")));
+    const program = tokenize("Ada Lovelace wrote the first algorithm.").pipe(provideWink);
+    const tokens = await Effect.runPromise(program);
 
     expect(tokens).toHaveLength(7);
     expect(tokens[0]?.text).toBe("Ada");
@@ -18,14 +19,12 @@ describe("WinkTokenization", () => {
   });
 
   it("builds sentences and documents from the live layer", async () => {
-    const text = "Ada wrote code. Grace debugged it.";
-    const [sentenceList, count, document] = await Effect.runPromise(
-      Effect.all([
-        provideWink(sentences(text)),
-        provideWink(tokenCount(text)),
-        provideWink(tokenizeToDocument(text, "history")),
-      ])
-    );
+    const program = Effect.all([
+      sentences("Ada wrote code. Grace debugged it.").pipe(provideWink),
+      tokenCount("Ada wrote code. Grace debugged it.").pipe(provideWink),
+      tokenizeToDocument("Ada wrote code. Grace debugged it.", "history").pipe(provideWink),
+    ]);
+    const [sentenceList, count, document] = await Effect.runPromise(program);
 
     expect(sentenceList).toHaveLength(2);
     expect(sentenceList[0]?.text).toBe("Ada wrote code.");
@@ -34,6 +33,6 @@ describe("WinkTokenization", () => {
     expect(document.id).toBe("history");
     expect(document.sentenceCount).toBe(2);
     expect(document.tokenCount).toBe(8);
-    expect(document.text).toBe(text);
+    expect(document.text).toBe("Ada wrote code. Grace debugged it.");
   });
 });

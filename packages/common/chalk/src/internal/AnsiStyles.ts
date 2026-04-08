@@ -1,6 +1,11 @@
 import { $ChalkId } from "@beep/identity/packages";
-import { Match } from "effect";
+import { flow, Match, pipe } from "effect";
+import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
+import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import type { backgroundColorNameValues, foregroundColorNameValues, modifierNameValues } from "./ChalkSchema.ts";
 
 type AnsiCodePair = readonly [open: number, close: number];
@@ -98,16 +103,25 @@ const toStyleEntry = ([open, close]: AnsiCodePair): StylerEntry =>
     close: `\u001B[${close}m`,
   });
 
-const modifierStyles: Record<string, StylerEntry> = Object.fromEntries(
-  Object.entries(modifierCodes).map(([styleName, pair]) => [styleName, toStyleEntry(pair)])
+const modifierStyles: Record<string, StylerEntry> = pipe(
+  modifierCodes,
+  R.toEntries,
+  A.map(([styleName, pair]) => [styleName, toStyleEntry(pair)] as const),
+  R.fromEntries
 );
 
-const foregroundStyles: Record<string, StylerEntry> = Object.fromEntries(
-  Object.entries(foregroundCodes).map(([styleName, pair]) => [styleName, toStyleEntry(pair)])
+const foregroundStyles: Record<string, StylerEntry> = pipe(
+  foregroundCodes,
+  R.toEntries,
+  A.map(([styleName, pair]) => [styleName, toStyleEntry(pair)] as const),
+  R.fromEntries
 );
 
-const backgroundStyles: Record<string, StylerEntry> = Object.fromEntries(
-  Object.entries(backgroundCodes).map(([styleName, pair]) => [styleName, toStyleEntry(pair)])
+const backgroundStyles: Record<string, StylerEntry> = pipe(
+  backgroundCodes,
+  R.toEntries,
+  A.map(([styleName, pair]) => [styleName, toStyleEntry(pair)] as const),
+  R.fromEntries
 );
 
 export const ansiStyles = {
@@ -128,96 +142,133 @@ export const ansiStyles = {
   },
 };
 
-export const getStyleEntry = (styleName: StyleName): StylerEntry => {
-  if (styleName in modifierStyles) {
-    return modifierStyles[styleName];
-  }
+const isModifierStyleName = (styleName: StyleName): styleName is ModifierStyleName => styleName in modifierStyles;
 
-  if (styleName in foregroundStyles) {
-    return foregroundStyles[styleName];
-  }
+const isForegroundStyleName = (styleName: StyleName): styleName is ForegroundStyleName => styleName in foregroundStyles;
 
-  return backgroundStyles[styleName];
-};
+export const getStyleEntry = (styleName: StyleName): StylerEntry =>
+  Match.type<StyleName>().pipe(
+    Match.when(isModifierStyleName, (value) => modifierStyles[value]),
+    Match.when(isForegroundStyleName, (value) => foregroundStyles[value]),
+    Match.orElse((value) => backgroundStyles[value])
+  )(styleName);
 
-const parseHexMatches = (hex: string): ReadonlyArray<string> => {
-  const match = /[a-f\d]{6}|[a-f\d]{3}/i.exec(hex);
+const parseHexMatch = (hex: string): O.Option<string> =>
+  pipe(
+    /[a-f\d]{6}|[a-f\d]{3}/i.exec(hex),
+    O.fromNullishOr,
+    O.map((match) => match[0])
+  );
 
-  return match === null ? [] : [match[0]];
-};
+const expandShortHex = flow(Str.split(""), A.map(Str.repeat(2)), A.join(""));
 
-export const rgbToAnsi256 = (red: number, green: number, blue: number): number => {
-  if (red === green && green === blue) {
-    if (red < 8) {
-      return 16;
-    }
+const canonicalizeHex = (matched: string): string =>
+  pipe(
+    matched.length === 3,
+    Bool.match({
+      onFalse: () => matched,
+      onTrue: () => expandShortHex(matched),
+    })
+  );
 
-    if (red > 248) {
-      return 231;
-    }
-
-    return Math.round(((red - 8) / 247) * 24) + 232;
-  }
-
-  return 16 + 36 * Math.round((red / 255) * 5) + 6 * Math.round((green / 255) * 5) + Math.round((blue / 255) * 5);
-};
-
-export const hexToRgb = (hex: string): readonly [red: number, green: number, blue: number] => {
-  const [matched] = parseHexMatches(hex);
-
-  if (matched === undefined) {
-    return [0, 0, 0];
-  }
-
-  const canonical =
-    matched.length === 3
-      ? matched
-          .split("")
-          .map((character) => `${character}${character}`)
-          .join("")
-      : matched;
+const toRgbTuple = (canonical: string): readonly [red: number, green: number, blue: number] => {
   const integer = Number.parseInt(canonical, 16);
 
   return [(integer >> 16) & 0xff, (integer >> 8) & 0xff, integer & 0xff];
 };
 
-export const ansi256ToAnsi = (code: number): number => {
-  if (code < 8) {
-    return 30 + code;
-  }
+const renderExtendedMonochromeAnsi256 = (red: number): number =>
+  pipe(
+    red > 248,
+    Bool.match({
+      onFalse: () => Math.round(((red - 8) / 247) * 24) + 232,
+      onTrue: () => 231,
+    })
+  );
 
-  if (code < 16) {
-    return 90 + (code - 8);
-  }
+const renderMonochromeAnsi256 = (red: number): number =>
+  pipe(
+    red < 8,
+    Bool.match({
+      onFalse: () => renderExtendedMonochromeAnsi256(red),
+      onTrue: () => 16,
+    })
+  );
 
-  if (code >= 232) {
-    const gray = ((code - 232) * 10 + 8) / 255;
-    const value = gray * 2;
+export const rgbToAnsi256 = (red: number, green: number, blue: number): number => {
+  return pipe(
+    red === green && green === blue,
+    Bool.match({
+      onFalse: () =>
+        16 + 36 * Math.round((red / 255) * 5) + 6 * Math.round((green / 255) * 5) + Math.round((blue / 255) * 5),
+      onTrue: () => renderMonochromeAnsi256(red),
+    })
+  );
+};
 
-    if (value === 0) {
-      return 30;
-    }
+export const hexToRgb = (hex: string): readonly [red: number, green: number, blue: number] =>
+  pipe(
+    parseHexMatch(hex),
+    O.match({
+      onNone: () => [0, 0, 0],
+      onSome: flow(canonicalizeHex, toRgbTuple),
+    })
+  );
 
-    const result = 30 + ((Math.round(gray) << 2) | (Math.round(gray) << 1) | Math.round(gray));
+const renderAnsiCodeBrightness = (value: number, result: number): number =>
+  pipe(
+    value === 2,
+    Bool.match({
+      onFalse: () => result,
+      onTrue: () => result + 60,
+    })
+  );
 
-    return value === 2 ? result + 60 : result;
-  }
+const ansi256ToAnsiGray = (code: number): number => {
+  const gray = ((code - 232) * 10 + 8) / 255;
+  const value = gray * 2;
+  const result = 30 + ((Math.round(gray) << 2) | (Math.round(gray) << 1) | Math.round(gray));
 
+  return pipe(
+    value === 0,
+    Bool.match({
+      onFalse: () => renderAnsiCodeBrightness(value, result),
+      onTrue: () => 30,
+    })
+  );
+};
+
+const ansi256ToAnsiColorCube = (code: number): number => {
   const relativeCode = code - 16;
   const remainder = relativeCode % 36;
   const red = Math.floor(relativeCode / 36) / 5;
   const green = Math.floor(remainder / 6) / 5;
   const blue = (remainder % 6) / 5;
   const value = Math.max(red, green, blue) * 2;
-
-  if (value === 0) {
-    return 30;
-  }
-
   const result = 30 + ((Math.round(blue) << 2) | (Math.round(green) << 1) | Math.round(red));
 
-  return value === 2 ? result + 60 : result;
+  return pipe(
+    value === 0,
+    Bool.match({
+      onFalse: () => renderAnsiCodeBrightness(value, result),
+      onTrue: () => 30,
+    })
+  );
 };
+
+export const ansi256ToAnsi = (code: number): number =>
+  Match.type<number>().pipe(
+    Match.when(
+      (value) => value < 8,
+      (value) => 30 + value
+    ),
+    Match.when(
+      (value) => value < 16,
+      (value) => 90 + (value - 8)
+    ),
+    Match.when((value) => value >= 232, ansi256ToAnsiGray),
+    Match.orElse(ansi256ToAnsiColorCube)
+  )(code);
 
 export const rgbToAnsi = (red: number, green: number, blue: number): number =>
   ansi256ToAnsi(rgbToAnsi256(red, green, blue));
@@ -226,29 +277,44 @@ export const hexToAnsi256 = (hex: string): number => rgbToAnsi256(...hexToRgb(he
 
 export const hexToAnsi = (hex: string): number => ansi256ToAnsi(hexToAnsi256(hex));
 
+const renderRgbModel = (
+  level: "ansi" | "ansi256" | "ansi16m",
+  type: "color" | "bgColor",
+  arguments_: ReadonlyArray<number | string>
+): string => {
+  const [red = 0, green = 0, blue = 0] = arguments_;
+
+  return Match.type<"ansi" | "ansi256" | "ansi16m">().pipe(
+    Match.when("ansi16m", () => ansiStyles[type].ansi16m(Number(red), Number(green), Number(blue))),
+    Match.when("ansi256", () => ansiStyles[type].ansi256(rgbToAnsi256(Number(red), Number(green), Number(blue)))),
+    Match.orElse(() => ansiStyles[type].ansi(rgbToAnsi(Number(red), Number(green), Number(blue))))
+  )(level);
+};
+
+const renderHexModel = (
+  level: "ansi" | "ansi256" | "ansi16m",
+  type: "color" | "bgColor",
+  arguments_: ReadonlyArray<number | string>
+): string => {
+  const [color = ""] = arguments_;
+
+  return getModelAnsi("rgb", level, type, ...hexToRgb(`${color}`));
+};
+
+const renderAnsi256Model = (type: "color" | "bgColor", arguments_: ReadonlyArray<number | string>): string => {
+  const [index = 0] = arguments_;
+
+  return ansiStyles[type].ansi256(Number(index));
+};
+
 export const getModelAnsi = (
   model: "rgb" | "hex" | "ansi256",
   level: "ansi" | "ansi256" | "ansi16m",
   type: "color" | "bgColor",
   ...arguments_: ReadonlyArray<number | string>
 ): string =>
-  Match.value(model).pipe(
-    Match.when("rgb", () => {
-      const [red = 0, green = 0, blue = 0] = arguments_;
-
-      return Match.value(level).pipe(
-        Match.when("ansi16m", () => ansiStyles[type].ansi16m(Number(red), Number(green), Number(blue))),
-        Match.when("ansi256", () => ansiStyles[type].ansi256(rgbToAnsi256(Number(red), Number(green), Number(blue)))),
-        Match.orElse(() => ansiStyles[type].ansi(rgbToAnsi(Number(red), Number(green), Number(blue))))
-      );
-    }),
-    Match.when("hex", () => {
-      const [color = ""] = arguments_;
-
-      return getModelAnsi("rgb", level, type, ...hexToRgb(String(color)));
-    }),
-    Match.orElse(() => {
-      const [index = 0] = arguments_;
-      return ansiStyles[type].ansi256(Number(index));
-    })
-  );
+  Match.type<"rgb" | "hex" | "ansi256">().pipe(
+    Match.when("rgb", () => renderRgbModel(level, type, arguments_)),
+    Match.when("hex", () => renderHexModel(level, type, arguments_)),
+    Match.orElse(() => renderAnsi256Model(type, arguments_))
+  )(model);

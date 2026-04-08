@@ -29,6 +29,12 @@ type WinkEngineShape = {
   readonly learnCustomEntities: (customEntities: WinkEngineCustomEntities) => Effect.Effect<void, WinkEntityError>;
 };
 
+type WinkCustomEntityRecord = {
+  readonly mark?: readonly [number, number] | undefined;
+  readonly name: string;
+  readonly patterns: Array<string>;
+};
+
 /**
  * Branded runtime identifier for one live wink engine instance.
  *
@@ -90,25 +96,38 @@ const loadWinkRuntime = (): WinkMethods => {
 const nextInstanceId = (nowMs: number, counter: number): InstanceId =>
   InstanceId.make(`wink-engine-${nowMs}-${counter}`);
 
-const copyCustomEntities = (
-  customEntities: WinkEngineCustomEntities
-): Array<{
-  readonly mark?: [number, number] | undefined;
-  readonly name: string;
-  readonly patterns: Array<string>;
-}> =>
-  pipe(
-    customEntities.toWinkFormat(),
-    A.map((entry) => {
-      const mark: [number, number] | undefined = entry.mark === undefined ? undefined : [entry.mark[0], entry.mark[1]];
+const toMark = (mark: readonly [number, number]): readonly [number, number] => [mark[0], mark[1]];
 
-      return {
-        ...(mark === undefined ? {} : { mark }),
-        name: entry.name,
-        patterns: A.fromIterable(entry.patterns),
-      };
-    })
-  );
+const copyCustomEntity = (entry: {
+  readonly mark?: readonly [number, number] | undefined;
+  readonly name: string;
+  readonly patterns: Iterable<string>;
+}): WinkCustomEntityRecord =>
+  O.match(O.fromNullishOr(entry.mark), {
+    onNone: () => ({
+      name: entry.name,
+      patterns: A.fromIterable(entry.patterns),
+    }),
+    onSome: (mark) => ({
+      mark: toMark(mark),
+      name: entry.name,
+      patterns: A.fromIterable(entry.patterns),
+    }),
+  });
+
+const copyCustomEntities = (customEntities: WinkEngineCustomEntities): Array<WinkCustomEntityRecord> =>
+  pipe(customEntities.toWinkFormat(), A.map(copyCustomEntity));
+
+const collectTokens = (state: WinkEngineRuntimeState, text: string): Array<ItemToken> => {
+  const tokens: Array<ItemToken> = [];
+  state.nlp
+    .readDoc(text)
+    .tokens()
+    .each((token: ItemToken) => {
+      tokens.push(token);
+    });
+  return tokens;
+};
 
 const makeWinkEngine = Effect.gen(function* () {
   const nlp = yield* Effect.try({
@@ -123,8 +142,9 @@ const makeWinkEngine = Effect.gen(function* () {
     nlp,
   });
 
-  const allocateInstanceId = Ref.updateAndGet(instanceCounterRef, (current) => current + 1).pipe(
-    Effect.flatMap((counter) => Clock.currentTimeMillis.pipe(Effect.map((nowMs) => nextInstanceId(nowMs, counter))))
+  const allocateInstanceId = pipe(
+    Ref.updateAndGet(instanceCounterRef, (current) => current + 1),
+    Effect.flatMap((counter) => Effect.map(Clock.currentTimeMillis, (nowMs) => nextInstanceId(nowMs, counter)))
   );
 
   return WinkEngine.of({
@@ -140,16 +160,7 @@ const makeWinkEngine = Effect.gen(function* () {
     getWinkTokens: Effect.fn("Nlp.Wink.WinkEngine.getWinkTokens")(function* (text: string) {
       const state = yield* Ref.get(stateRef);
       return yield* Effect.try({
-        try: () => {
-          const tokens: Array<ItemToken> = [];
-          state.nlp
-            .readDoc(text)
-            .tokens()
-            .each((token: ItemToken) => {
-              tokens.push(token);
-            });
-          return tokens;
-        },
+        try: () => collectTokens(state, text),
         catch: (cause) => WinkTokenizationError.fromCause(cause, "tokens", text),
       });
     }),

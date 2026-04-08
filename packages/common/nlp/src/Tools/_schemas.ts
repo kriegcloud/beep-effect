@@ -7,8 +7,10 @@
 
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { Match } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { BM25Norm } from "../Wink/WinkVectorizer.ts";
+import { BM25Norm } from "../Wink/index.ts";
 
 const $I = $NlpId.create("Tools/_schemas");
 
@@ -16,7 +18,22 @@ const describe = <Schema extends S.Top>(
   schema: Schema,
   description: string,
   extras?: Record<string, unknown>
-): Schema["~rebuild.out"] => schema.annotateKey(extras === undefined ? { description } : { description, ...extras });
+)=>
+  Match.type<boolean>().pipe(
+    Match.when(
+      true,
+      () => schema.annotateKey({ description })
+    ),
+    Match.when(
+      false,
+      () =>
+        schema.annotateKey({
+          description,
+          ...extras,
+        })
+    ),
+    Match.exhaustive
+  )(P.isUndefined(extras));
 
 const AiEntitySourceKit = LiteralKit(["builtin", "custom"] as const);
 const AiPhoneticAlgorithmKit = LiteralKit(["soundex", "phonetize"] as const);

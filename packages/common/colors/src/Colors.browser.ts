@@ -96,7 +96,7 @@ export const supportsColor = (): boolean => false;
  * @returns {Colors} - A formatter set whose members coerce input with `String(...)`.
  * @since 0.0.0
  */
-export const createColors = (_enabled?: boolean): Colors =>
+export const createColors = (_enabled?: undefined | boolean): Colors =>
   new Colors({
     isColorSupported: false,
     reset: identity,

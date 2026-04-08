@@ -6,8 +6,8 @@
  */
 
 import { Layer } from "effect";
+import { WinkTokenization } from "../Wink/index.ts";
 import { WinkEngineLive as WinkEngineLiveService, WinkEngine as WinkEngineService } from "../Wink/WinkEngine.ts";
-import { WinkTokenization } from "../Wink/WinkTokenizer.ts";
 
 /**
  * Base runtime layer exposing the shared wink engine service.

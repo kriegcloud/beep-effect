@@ -6,7 +6,9 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { Effect, Match, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, flow, Match, pipe, SchemaGetter, SchemaIssue } from "effect";
+import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -29,23 +31,20 @@ type NonEmptyChoices<A> = readonly [A, ...A[]];
 const invalidBracketString = (input: string, message: string): SchemaIssue.InvalidValue =>
   new SchemaIssue.InvalidValue(O.some(input), { message });
 
-const ensureNonEmpty = <A>(values: ReadonlyArray<A>): O.Option<NonEmptyChoices<A>> => {
-  const [head, ...tail] = values;
-  return head === undefined ? O.none() : O.some([head, ...tail]);
-};
+const ensureNonEmpty = <A>(values: ReadonlyArray<A>): O.Option<NonEmptyChoices<A>> =>
+  A.match(values, {
+    onEmpty: O.none,
+    onNonEmpty: O.some,
+  });
 
-const parseBracketValues = (input: string): O.Option<NonEmptyChoices<string>> => {
-  if (!Str.startsWith("[")(input) || !Str.endsWith("]")(input)) {
-    return O.none();
-  }
+const parseBracketContent = (input: string): O.Option<string> =>
+  pipe(Str.slice(1, -1)(input), O.liftPredicate(Str.isNonEmpty));
 
-  const content = Str.slice(1, -1)(input);
-  if (Str.isEmpty(content)) {
-    return O.none();
-  }
-
-  return ensureNonEmpty(Str.split(content, "|"));
-};
+const parseBracketValues = (input: string): O.Option<NonEmptyChoices<string>> =>
+  Bool.match(pipe(Str.startsWith("[")(input), Bool.and(Str.endsWith("]")(input))), {
+    onFalse: O.none,
+    onTrue: () => pipe(input, parseBracketContent, O.flatMap(flow(Str.split("|"), ensureNonEmpty))),
+  });
 
 const decodePOSPatternElement = (input: string): O.Option<POSPatternElement> =>
   O.map(
@@ -65,6 +64,8 @@ const decodeLiteralPatternElement = (input: string): O.Option<LiteralPatternElem
     (parts) => new LiteralPatternElement({ value: parts })
   );
 
+const succeedPatternElement = (element: PatternElementType) => Effect.succeed(element);
+
 const encodePatternElement = Match.type<PatternElementType>().pipe(
   Match.tagsExhaustive({
     EntityPatternElement: (element) => Pattern.Entity.toBracketString(element.value),
@@ -73,8 +74,8 @@ const encodePatternElement = Match.type<PatternElementType>().pipe(
   })
 );
 
-const decodePatternElement = (input: string): Effect.Effect<PatternElementType, SchemaIssue.InvalidValue> => {
-  return O.match(decodePOSPatternElement(input), {
+const decodePatternElement = (input: string) =>
+  O.match(decodePOSPatternElement(input), {
     onNone: () =>
       O.match(decodeEntityPatternElement(input), {
         onNone: () =>
@@ -88,11 +89,10 @@ const decodePatternElement = (input: string): Effect.Effect<PatternElementType, 
               ),
             onSome: Effect.succeed,
           }),
-        onSome: Effect.succeed,
+        onSome: succeedPatternElement,
       }),
-    onSome: Effect.succeed,
+    onSome: succeedPatternElement,
   });
-};
 
 /**
  * Decode a POS bracket string into a pattern element.

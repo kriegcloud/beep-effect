@@ -9,7 +9,7 @@ import { $NlpId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { Tool } from "effect/unstable/ai";
 import { PositiveNumber, UnitInterval } from "../internal/numbers.ts";
-import { BM25Norm } from "../Wink/WinkVectorizer.ts";
+import { BM25Norm } from "../Wink/index.ts";
 import { AiCorpusSummary } from "./_schemas.ts";
 
 const $I = $NlpId.create("Tools/CreateCorpus");
