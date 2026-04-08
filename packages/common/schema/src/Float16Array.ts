@@ -18,6 +18,21 @@ import * as S from "effect/Schema";
 import { Model } from "effect/unstable/schema";
 
 const $I = $SchemaId.create("Float16Array");
+const float16ArrayConstructor = globalThis.Float16Array;
+const unsupportedFloat16ArrayRuntimeMessage =
+  "Float16Array is not available in this runtime. Use Node >=24.0.0 or Bun >=1.1.23.";
+const unsupportedFloat16ArrayRuntime = (): never => {
+  throw new Error(unsupportedFloat16ArrayRuntimeMessage);
+};
+
+/**
+ * Float16Array type guard.
+ *
+ * @category Validation
+ * @since 0.0.0
+ */
+export const isFloat16Array = (u: unknown): u is Float16Array<ArrayBufferLike> =>
+  typeof float16ArrayConstructor !== "undefined" && u instanceof float16ArrayConstructor;
 
 /**
  * Schema that accepts native `Float16Array` instances.
@@ -38,9 +53,7 @@ const $I = $SchemaId.create("Float16Array");
  * console.log(value.length); // 3
  * ```
  */
-export const Float16Arr = S.instanceOf<globalThis.Float16ArrayConstructor, globalThis.Float16Array>(
-  globalThis.Float16Array
-).pipe(
+export const Float16Arr = S.declare(isFloat16Array).pipe(
   $I.annoteSchema("Float16Arr", {
     description: "A schema that validates native Float16Array instances.",
   })
@@ -84,7 +97,10 @@ export const Float16ArrayFromArray = S.Number.pipe(
   S.decodeTo(
     Float16Arr,
     SchemaTransformation.transform({
-      decode: (values) => new globalThis.Float16Array(values),
+      decode: (values) =>
+        typeof float16ArrayConstructor === "undefined"
+          ? unsupportedFloat16ArrayRuntime()
+          : (new float16ArrayConstructor(values) as Float16Array<ArrayBufferLike>),
       encode: A.fromIterable,
     })
   ),
