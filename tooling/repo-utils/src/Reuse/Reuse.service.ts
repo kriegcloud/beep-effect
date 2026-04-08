@@ -2,7 +2,17 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
-import { DateTime, Effect, FileSystem, Inspectable, Layer, MutableHashMap, Path, ServiceMap } from "effect";
+import {
+  DateTime,
+  Effect,
+  FileSystem,
+  Inspectable,
+  Layer,
+  MutableHashMap,
+  MutableHashSet,
+  Path,
+  ServiceMap,
+} from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FsUtils } from "../FsUtils.js";
@@ -325,10 +335,12 @@ const parseScopeSelector = (scopeSelector: O.Option<string>): ReadonlyArray<stri
 };
 
 const uniqueStrings = (values: ReadonlyArray<string>): Array<string> => {
+  const seen = MutableHashSet.empty<string>();
   const unique: string[] = [];
 
   for (const value of values) {
-    if (!unique.includes(value)) {
+    if (!MutableHashSet.has(seen, value)) {
+      MutableHashSet.add(seen, value);
       unique.push(value);
     }
   }
@@ -341,28 +353,26 @@ const uniqueSortedStrings = (values: ReadonlyArray<string>): Array<string> =>
 
 const lowerKeywords = (input: string): Array<string> => {
   const matches = input.match(/[A-Za-z0-9]+/gu) ?? [];
-  const result: string[] = [];
+  const normalizedKeywords: string[] = [];
 
   for (const match of matches) {
     const normalized = match.trim().toLowerCase();
-    if (normalized.length >= 2 && !result.includes(normalized)) {
-      result.push(normalized);
+    if (normalized.length >= 2) {
+      normalizedKeywords.push(normalized);
     }
   }
 
-  return result;
+  return uniqueStrings(normalizedKeywords);
 };
 
 const lowerKeywordsFromParts = (parts: ReadonlyArray<string>): Array<string> => {
-  const result: string[] = [];
+  const keywords: string[] = [];
   for (const part of parts) {
     for (const keyword of lowerKeywords(part)) {
-      if (!result.includes(keyword)) {
-        result.push(keyword);
-      }
+      keywords.push(keyword);
     }
   }
-  return result;
+  return uniqueStrings(keywords);
 };
 
 const matchesScopeSelector = (scope: WorkspaceScope, selectorTokens: ReadonlyArray<string>): boolean => {
