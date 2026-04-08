@@ -30,7 +30,15 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/infra": ["../infra/src/index.ts"],
-      "@beep/infra/*": ["../infra/src/*.ts"]
+      "@beep/infra/*": ["../infra/src/*.ts"],
+      "@beep/identity": ["../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../packages/common/identity/src/*.ts"],
+      "@beep/schema": ["../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../packages/common/schema/src/*.ts"],
+      "@beep/types": ["../packages/common/types/src/index.ts"],
+      "@beep/types/*": ["../packages/common/types/src/*.ts"],
+      "@beep/utils": ["../packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["../packages/common/utils/src/*.ts"]
     }
   }
 }

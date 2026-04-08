@@ -165,7 +165,7 @@ interface ChalkValue extends ChalkInstance {}
  * import { Chalk } from "@beep/chalk"
  *
  * const c: Chalk = new Chalk({ level: 3 })
- * const styled: string = c.green.bold("Success")
+ * console.log(c.green.bold("Success"))
  * ```
  *
  * @since 0.0.0
@@ -193,7 +193,7 @@ export type Chalk = ChalkValue;
  * console.log(plain.red("no color")) // "no color"
  *
  * // Default detection
- * const auto = new Chalk()
+ * console.log(new Chalk().level)
  * ```
  *
  * @since 0.0.0
@@ -213,7 +213,7 @@ export const Chalk = makeChalkConstructor(ChalkValue, createChalk);
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(BackgroundColorName)
- * const name: BackgroundColorName = decode("bgRed")
+ * console.log(decode("bgRed"))
  * ```
  *
  * @since 0.0.0
@@ -241,7 +241,7 @@ export type BackgroundColorName = typeof BackgroundColorNameSchema.Type;
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(ChalkOptions)
- * const opts: ChalkOptions = decode({ level: 2 })
+ * console.log(decode({ level: 2 }))
  * ```
  *
  * @since 0.0.0
@@ -298,8 +298,8 @@ export type ColorInfo = typeof ColorInfoSchema.Type;
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(ColorName)
- * const fg: ColorName = decode("red")
- * const bg: ColorName = decode("bgBlue")
+ * console.log(decode("red"))
+ * console.log(decode("bgBlue"))
  * ```
  *
  * @since 0.0.0
@@ -327,12 +327,12 @@ export type ColorName = typeof ColorNameSchema.Type;
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(ColorSupport)
- * const support: ColorSupport = decode({
+ * console.log(decode({
  *   level: 3,
  *   hasBasic: true,
  *   has256: true,
  *   has16m: true
- * })
+ * }))
  * ```
  *
  * @since 0.0.0
@@ -359,7 +359,7 @@ export type ColorSupport = typeof ColorSupportSchema.Type;
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(ColorSupportLevel)
- * const level: ColorSupportLevel = decode(3)
+ * console.log(decode(3))
  * ```
  *
  * @since 0.0.0
@@ -387,7 +387,7 @@ export type ColorSupportLevel = typeof ColorSupportLevelSchema.Type;
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(ForegroundColorName)
- * const name: ForegroundColorName = decode("cyanBright")
+ * console.log(decode("cyanBright"))
  * ```
  *
  * @since 0.0.0
@@ -415,7 +415,7 @@ export type ForegroundColorName = typeof ForegroundColorNameSchema.Type;
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(ModifierName)
- * const name: ModifierName = decode("bold")
+ * console.log(decode("bold"))
  * ```
  *
  * @since 0.0.0

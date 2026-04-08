@@ -18,7 +18,7 @@
  * console.log(c.hex("#FF8800")("orange"))
  *
  * // Schema decode
- * const level = S.decodeUnknownSync(ColorSupportLevel)(2)
+ * console.log(S.decodeUnknownSync(ColorSupportLevel)(2))
  * ```
  *
  * @since 0.0.0

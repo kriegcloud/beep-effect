@@ -214,7 +214,7 @@
     "@effect/platform-node": "^4.0.0-beta.43",
     "@effect/platform-node-shared": "^4.0.0-beta.43",
     "@openai/codex-sdk": "~0.118.0",
-    "@pulumi/pulumi": "^3.202.0",
+    "@pulumi/pulumi": "^3.229.0",
     "@effect/sql-pg": "^4.0.0-beta.43",
     "@effect/sql-sqlite-bun": "^4.0.0-beta.43",
     "@effect/sql-sqlite-node": "^4.0.0-beta.43",

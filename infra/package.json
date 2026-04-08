@@ -21,9 +21,13 @@
     "refresh": "pulumi refresh"
   },
   "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
     "@pulumi/pulumi": "catalog:"
   },
   "devDependencies": {
+    "@beep/types": "workspace:^",
     "@types/node": "catalog:",
     "typescript": "catalog:"
   }

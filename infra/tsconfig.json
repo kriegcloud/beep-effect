@@ -10,5 +10,19 @@
     "types": ["node"],
     "noUnusedLocals": false,
     "noUnusedParameters": false
-  }
+  },
+  "references": [
+    {
+      "path": "../packages/common/identity/tsconfig.json"
+    },
+    {
+      "path": "../packages/common/schema/tsconfig.json"
+    },
+    {
+      "path": "../packages/common/types/tsconfig.json"
+    },
+    {
+      "path": "../packages/common/utils/tsconfig.json"
+    }
+  ]
 }
