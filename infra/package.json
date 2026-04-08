@@ -24,6 +24,11 @@
   "dependencies": {
     "@1password/connect": "catalog:",
     "@pulumi/command": "catalog:",
+    "@pulumi/github": "catalog:",
+    "@pulumi/kubernetes": "catalog:",
+    "@pulumi/std": "catalog:",
+    "@pulumi/tls": "catalog:",
+    "@pulumiverse/unifi": "catalog:",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
