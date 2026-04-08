@@ -69,5 +69,5 @@ export const toRuleViolation = (payload: RuleViolationPayload): RuleViolation =>
   makeRuleViolation(
     payload.kind,
     payload.messageId,
-    O.fromNullishOr(payload.data).pipe( O.getOrElse(R.empty<string, string>))
+    O.fromNullishOr(payload.data).pipe(O.getOrElse(R.empty<string, string>))
   );

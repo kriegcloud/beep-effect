@@ -4,6 +4,7 @@
 
 import chalk from "@beep/chalk";
 import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
+import { thunkEmptyStr, thunkFalse } from "@beep/utils";
 import markdownToc from "@effect/markdown-toc";
 import { Effect, FileSystem, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
@@ -14,7 +15,6 @@ import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
 import * as Printer from "./Printer.js";
-import {thunkEmptyStr, thunkFalse} from "@beep/utils";
 
 const globFiles = (pattern: string, exclude: ReadonlyArray<string> = []) =>
   Effect.gen(function* () {
@@ -320,10 +320,7 @@ const collectCommandOutput = (command: ChildProcess.Command) =>
       const handle = yield* command;
       const output = yield* handle.all.pipe(
         Stream.decodeText(),
-        Stream.runFold(
-          thunkEmptyStr,
-          (acc: string, chunk) => `${acc}${chunk}`
-        )
+        Stream.runFold(thunkEmptyStr, (acc: string, chunk) => `${acc}${chunk}`)
       );
       const exitCode = yield* handle.exitCode;
       return {

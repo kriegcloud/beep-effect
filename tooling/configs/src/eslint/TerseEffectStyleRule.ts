@@ -63,7 +63,10 @@ const getMemberCall = (
 
   const callee = expression.callee;
   if (
-    callee.type !== "MemberExpression" || callee.computed || !isExpression(callee.object) || !isIdentifier(callee.object) ||
+    callee.type !== "MemberExpression" ||
+    callee.computed ||
+    !isExpression(callee.object) ||
+    !isIdentifier(callee.object) ||
     !isIdentifier(callee.property)
   ) {
     return O.none();

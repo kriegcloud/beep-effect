@@ -2,7 +2,7 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
-import { Effect, FileSystem, Inspectable, Layer, MutableHashMap, Path, ServiceMap } from "effect";
+import { DateTime, Effect, FileSystem, Inspectable, Layer, MutableHashMap, Path, ServiceMap } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { FsUtils } from "../FsUtils.js";
@@ -61,6 +61,8 @@ type PatternOccurrence = {
   readonly text: string;
   readonly sourceSymbol: O.Option<ReuseSourceSymbolRef>;
 };
+
+type PatternOccurrencesById = Readonly<Record<string, ReadonlyArray<PatternOccurrence>>>;
 
 class WorkspacePackageManifest extends S.Class<WorkspacePackageManifest>($I`WorkspacePackageManifest`)(
   {
@@ -322,28 +324,45 @@ const parseScopeSelector = (scopeSelector: O.Option<string>): ReadonlyArray<stri
   return tokens;
 };
 
+const uniqueStrings = (values: ReadonlyArray<string>): Array<string> => {
+  const unique: string[] = [];
+
+  for (const value of values) {
+    if (!unique.includes(value)) {
+      unique.push(value);
+    }
+  }
+
+  return unique;
+};
+
+const uniqueSortedStrings = (values: ReadonlyArray<string>): Array<string> =>
+  uniqueStrings(values).sort((left, right) => left.localeCompare(right));
+
 const lowerKeywords = (input: string): Array<string> => {
   const matches = input.match(/[A-Za-z0-9]+/gu) ?? [];
-  const result = new Set<string>();
+  const result: string[] = [];
 
   for (const match of matches) {
     const normalized = match.trim().toLowerCase();
-    if (normalized.length >= 2) {
-      result.add(normalized);
+    if (normalized.length >= 2 && !result.includes(normalized)) {
+      result.push(normalized);
     }
   }
 
-  return Array.from(result);
+  return result;
 };
 
 const lowerKeywordsFromParts = (parts: ReadonlyArray<string>): Array<string> => {
-  const result = new Set<string>();
+  const result: string[] = [];
   for (const part of parts) {
     for (const keyword of lowerKeywords(part)) {
-      result.add(keyword);
+      if (!result.includes(keyword)) {
+        result.push(keyword);
+      }
     }
   }
-  return Array.from(result);
+  return result;
 };
 
 const matchesScopeSelector = (scope: WorkspaceScope, selectorTokens: ReadonlyArray<string>): boolean => {
@@ -385,7 +404,7 @@ const rankCatalogMatches = (
   queryKeywords: ReadonlyArray<string>,
   limit = 8
 ): ReadonlyArray<ReuseCatalogEntry> => {
-  const normalizedQuery = Array.from(new Set(queryKeywords.map((keyword) => keyword.toLowerCase())));
+  const normalizedQuery = uniqueStrings(queryKeywords.map((keyword) => keyword.toLowerCase()));
   const scored: { readonly entry: ReuseCatalogEntry; readonly score: number }[] = [];
 
   for (const entry of catalogEntries) {
@@ -414,12 +433,12 @@ const rankCatalogMatches = (
 };
 
 const stableSourceSymbols = (symbols: ReadonlyArray<ReuseSourceSymbolRef>): ReadonlyArray<ReuseSourceSymbolRef> => {
-  const seen = new Set<string>();
+  const seen: string[] = [];
   const result: ReuseSourceSymbolRef[] = [];
 
   for (const symbol of symbols) {
-    if (!seen.has(symbol.symbolId)) {
-      seen.add(symbol.symbolId);
+    if (!seen.includes(symbol.symbolId)) {
+      seen.push(symbol.symbolId);
       result.push(symbol);
     }
   }
@@ -453,7 +472,7 @@ const candidateFromPattern = (
   const sourceSymbols = stableSourceSymbols(
     occurrences.flatMap((occurrence) => (O.isSome(occurrence.sourceSymbol) ? [occurrence.sourceSymbol.value] : []))
   );
-  const sourceScopes = Array.from(new Set(occurrences.map((occurrence) => occurrence.packagePath))).sort();
+  const sourceScopes = uniqueSortedStrings(occurrences.map((occurrence) => occurrence.packagePath));
   const evidence = occurrences.map(
     (occurrence) => `${occurrence.filePath}:${occurrence.line} matches ${pattern.id} -> ${occurrence.text.trim()}`
   );
@@ -525,15 +544,15 @@ const scanPatternsInFile = (
   packagePath: string,
   text: string,
   outlineSymbols: ReadonlyArray<TsMorphSymbol>
-): ReadonlyMap<string, ReadonlyArray<PatternOccurrence>> => {
-  const buckets = new Map<string, Array<PatternOccurrence>>();
+): PatternOccurrencesById => {
+  const buckets: Record<string, Array<PatternOccurrence>> = {};
   const lines = text.split(/\r?\n/u);
 
   let lineNumber = 1;
   for (const line of lines) {
     for (const pattern of PATTERN_DEFINITIONS) {
       if (pattern.regex.test(line)) {
-        const next = buckets.get(pattern.id) ?? [];
+        const next = buckets[pattern.id] ?? [];
         next.push({
           filePath,
           packagePath,
@@ -541,7 +560,7 @@ const scanPatternsInFile = (
           text: line,
           sourceSymbol: nearestSymbolForLine(outlineSymbols, lineNumber),
         });
-        buckets.set(pattern.id, next);
+        buckets[pattern.id] = next;
       }
       pattern.regex.lastIndex = 0;
     }
@@ -565,7 +584,7 @@ const makeSpecialistWorkUnit = (label: string, selectors: ReadonlyArray<string>,
     id: `reuse:specialist:${label.toLowerCase().replace(/\s+/gu, "-")}`,
     kind: "specialist",
     label,
-    scopeSelector: Array.from(new Set(selectors)).sort().join(","),
+    scopeSelector: uniqueSortedStrings(selectors).join(","),
     rationale,
   });
 
@@ -592,10 +611,7 @@ type ReuseAnalysisContextShape = {
   readonly workspaceScopesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<WorkspaceScope>>;
   readonly sourceFilesByScope: MutableHashMap.MutableHashMap<string, ReadonlyArray<string>>;
   readonly catalogEntriesByScope: MutableHashMap.MutableHashMap<string, ReadonlyArray<ReuseCatalogEntry>>;
-  readonly patternOccurrencesByScope: MutableHashMap.MutableHashMap<
-    string,
-    ReadonlyMap<string, ReadonlyArray<PatternOccurrence>>
-  >;
+  readonly patternOccurrencesByScope: MutableHashMap.MutableHashMap<string, PatternOccurrencesById>;
   readonly catalogBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCatalogEntry>>;
   readonly candidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
 };
@@ -605,7 +621,7 @@ class ReuseAnalysisContext extends ServiceMap.Service<ReuseAnalysisContext, Reus
 ) {}
 
 const selectorCacheKey = (scopeSelector: O.Option<string>): SelectorCacheKey => {
-  const tokens = Array.from(parseScopeSelector(scopeSelector)).sort((left, right) => left.localeCompare(right));
+  const tokens = scopeSelector.pipe(parseScopeSelector, uniqueSortedStrings);
   return tokens.length > 0 ? tokens.join(",") : "__all__";
 };
 
@@ -617,12 +633,7 @@ const catalogScopeSelector = (scopeSelector: O.Option<string>): O.Option<string>
     return O.none();
   }
 
-  const selectors = new Set<string>(["packages/common"]);
-  for (const token of parseScopeSelector(scopeSelector)) {
-    selectors.add(token);
-  }
-
-  return optionFromSelectorTokens(Array.from(selectors).sort((left, right) => left.localeCompare(right)));
+  return optionFromSelectorTokens(uniqueSortedStrings(["packages/common", ...parseScopeSelector(scopeSelector)]));
 };
 
 const getCachedOrCompute = <A, E, R>(
@@ -785,7 +796,7 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
             )
           )
         );
-      const merged = new Map<string, Array<PatternOccurrence>>();
+      const merged: Record<string, Array<PatternOccurrence>> = {};
 
       for (const filePath of files) {
         const sourceTextOption = yield* runtime.tsmorph
@@ -812,14 +823,14 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
           outlineSymbols
         );
 
-        for (const [patternId, occurrences] of scanned.entries()) {
-          const next = merged.get(patternId) ?? [];
+        for (const [patternId, occurrences] of Object.entries(scanned)) {
+          const next = merged[patternId] ?? [];
           next.push(...occurrences);
-          merged.set(patternId, next);
+          merged[patternId] = next;
         }
       }
 
-      const resolvedOccurrences: ReadonlyMap<string, ReadonlyArray<PatternOccurrence>> = merged;
+      const resolvedOccurrences: PatternOccurrencesById = merged;
       return resolvedOccurrences;
     })
   );
@@ -994,7 +1005,7 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
       const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
       const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
       const scoutUnits = scopes.map(makeScoutWorkUnit);
-      const specialistHotspots = new Map<
+      const specialistHotspots: Record<
         string,
         {
           readonly label: string;
@@ -1002,18 +1013,18 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
           readonly selectors: Array<string>;
           totalOccurrences: number;
         }
-      >();
+      > = {};
 
       for (const scope of scopes) {
         const occurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
 
         for (const pattern of PATTERN_DEFINITIONS) {
-          const matched = occurrences.get(pattern.id) ?? [];
+          const matched = occurrences[pattern.id] ?? [];
           if (matched.length === 0) {
             continue;
           }
 
-          const existing = specialistHotspots.get(pattern.specialistLabel) ?? {
+          const existing = specialistHotspots[pattern.specialistLabel] ?? {
             label: pattern.specialistLabel,
             rationale: pattern.rationale,
             selectors: [],
@@ -1021,11 +1032,11 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
           };
           existing.totalOccurrences += matched.length;
           existing.selectors.push(scope.packagePath);
-          specialistHotspots.set(pattern.specialistLabel, existing);
+          specialistHotspots[pattern.specialistLabel] = existing;
         }
       }
 
-      const specialistUnits = Array.from(specialistHotspots.values())
+      const specialistUnits = Object.values(specialistHotspots)
         .filter((hotspot) => hotspot.totalOccurrences >= 2)
         .sort((left, right) => left.label.localeCompare(right.label))
         .map((hotspot) => makeSpecialistWorkUnit(hotspot.label, hotspot.selectors, hotspot.rationale));
@@ -1065,20 +1076,20 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
         Effect.gen(function* () {
           const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
           const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
-          const mergedOccurrences = new Map<string, Array<PatternOccurrence>>();
+          const mergedOccurrences: Record<string, Array<PatternOccurrence>> = {};
 
           for (const scope of scopes) {
             const scopedOccurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
-            for (const [patternId, occurrences] of scopedOccurrences.entries()) {
-              const next = mergedOccurrences.get(patternId) ?? [];
+            for (const [patternId, occurrences] of Object.entries(scopedOccurrences)) {
+              const next = mergedOccurrences[patternId] ?? [];
               next.push(...occurrences);
-              mergedOccurrences.set(patternId, next);
+              mergedOccurrences[patternId] = next;
             }
           }
 
           const candidates: ReuseCandidate[] = [];
           for (const pattern of PATTERN_DEFINITIONS) {
-            const occurrences = mergedOccurrences.get(pattern.id) ?? [];
+            const occurrences = mergedOccurrences[pattern.id] ?? [];
             if (occurrences.length >= 2) {
               candidates.push(candidateFromPattern(pattern, occurrences, catalogEntries));
             }
@@ -1209,10 +1220,14 @@ export const ReuseInventoryServiceLive = Layer.effect(
       const scopes = yield* discoverWorkspaceScopes(analysisContext, scopeSelector);
       const catalogEntries = yield* catalogService.buildCatalog(scopeSelector);
       const candidates = yield* discoveryService.discoverCandidates(scopeSelector);
+      const generatedAt = yield* DateTime.now.pipe(
+        Effect.map(DateTime.toDateUtc),
+        Effect.map((date) => date.toISOString())
+      );
 
       return new ReuseInventory({
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
-        generatedAt: new Date().toISOString(),
+        generatedAt,
         catalogEntryCount: decodeNonNegativeInt(catalogEntries.length),
         candidateCount: decodeNonNegativeInt(candidates.length),
         candidates,

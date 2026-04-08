@@ -501,7 +501,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         )
       );
       let vocabulary = state.vocabulary;
-      const learnedDocuments = A.empty<Document>()
+      const learnedDocuments = A.empty<Document>();
       let skippedCount = 0;
       let totalTokenCount = state.totalTokenCount;
 

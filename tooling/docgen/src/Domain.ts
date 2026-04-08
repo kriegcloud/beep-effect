@@ -207,7 +207,7 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
    * @returns Interface model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position): Interface {
-    return new Interface({name, doc, signature, position });
+    return new Interface({ name, doc, signature, position });
   }
 }
 
@@ -234,7 +234,7 @@ export class Function extends S.Class<Function>($I`Function`)({
    * @returns Function model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position): Function {
-    return new Function({  name, doc, signature, position });
+    return new Function({ name, doc, signature, position });
   }
 }
 
@@ -261,7 +261,7 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
    * @returns Type alias model instance.
    */
   static new(name: string, doc: Doc, signature: string, position: Position): TypeAlias {
-    return new TypeAlias({  name, doc, signature, position });
+    return new TypeAlias({ name, doc, signature, position });
   }
 }
 

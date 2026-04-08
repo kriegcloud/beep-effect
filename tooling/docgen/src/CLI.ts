@@ -91,9 +91,7 @@ const resolveCompilerOptionsInput = (filePath: O.Option<string>, text: O.Option<
   O.isSome(filePath)
     ? Effect.succeed(O.some(filePath.value as Configuration.CompilerOptionsInput))
     : O.isSome(text)
-      ? decodeCompilerOptionsText(text.value).pipe(
-          Effect.option
-        )
+      ? decodeCompilerOptionsText(text.value).pipe(Effect.option)
       : Effect.succeed(O.none<Configuration.CompilerOptionsInput>());
 
 const options = {

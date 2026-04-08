@@ -3,6 +3,7 @@
  */
 
 import { $DocgenId } from "@beep/identity/packages";
+import { thunkEmptyStr } from "@beep/utils";
 import * as doctrine from "doctrine";
 import { Effect, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
@@ -12,7 +13,6 @@ import * as Str from "effect/String";
 import * as ast from "ts-morph";
 import * as Configuration from "./Configuration.js";
 import * as Domain from "./Domain.js";
-import {thunkEmptyStr} from "@beep/utils";
 
 const $I = $DocgenId.create("Parser");
 
@@ -109,13 +109,7 @@ export const parseComment = (text: string): Comment => {
     annotation.tags,
     A.groupBy((tag) => tag.title),
     R.map((values) =>
-      A.map(values, (tag) =>
-        pipe(
-          O.fromNullishOr(tag.description),
-          O.map(Str.trim),
-          O.getOrElse(thunkEmptyStr)
-        )
-      )
+      A.map(values, (tag) => pipe(O.fromNullishOr(tag.description), O.map(Str.trim), O.getOrElse(thunkEmptyStr)))
     )
   );
 

@@ -32,7 +32,6 @@ class Entry extends S.Class<Entry>($I`Entry`)(
   })
 ) {}
 
-
 function checkEntry(
   model: Entry,
   options: {

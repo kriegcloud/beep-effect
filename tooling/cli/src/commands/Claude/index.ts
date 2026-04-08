@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 
+import { thunkUndefined } from "@beep/utils";
 import { Console, Effect } from "effect";
 import { Command } from "effect/unstable/cli";
-import {thunkUndefined} from "@beep/utils";
 
 /**
  * Keep stop-hook behavior no-op and non-blocking.
