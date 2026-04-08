@@ -1,5 +1,8 @@
 /**
- * @module @beep/utils/Option;
+ * Extended Option utilities built on `effect/Option`.
+ *
+ * @module @beep/utils/Option
+ * @since 0.0.0
  */
 
 import { Function as Fn } from "effect";
@@ -12,16 +15,35 @@ import { unsafeDotGet } from "./internal/StructPath.ts";
  * Retrieves a value from a struct by path and converts missing or nullish
  * results into an `Option`.
  *
- * Mirrors {@link import("./Struct.ts").dotGet} path validation and tuple path
- * support, then applies `Option.fromNullishOr` to the retrieved value.
+ * Mirrors `Struct.dotGet` path validation and tuple path support, then
+ * applies `Option.fromNullishOr` to the retrieved value.
  *
  * Supports a dual API:
  * - Data-last: `pipe(person, O.propFromNullishOr("age"))`
  * - Data-first: `O.propFromNullishOr(person, "age")`
  * - Tuple paths: `O.propFromNullishOr(person, ["profile", "age"] as const)`
  *
+ * @example
+ * ```ts
+ * import { pipe } from "effect"
+ * import { O } from "@beep/utils"
+ *
+ * const user = { name: "Alice", age: null as number | null }
+ *
+ * // Data-first -- nullish becomes none
+ * const age = O.propFromNullishOr(user, "age")
+ * // Option.none()
+ *
+ * // Data-last (pipeable)
+ * const name = pipe(user, O.propFromNullishOr("name"))
+ * // Option.some("Alice")
+ *
+ * void age
+ * void name
+ * ```
+ *
+ * @category getters
  * @since 0.0.0
- * @category Utility
  */
 export const propFromNullishOr: {
   <const P extends string>(
@@ -43,7 +65,9 @@ export const propFromNullishOr: {
 };
 
 /**
- * @category ReExport
+ * Re-export of all helpers from `effect/Option`.
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export * from "effect/Option";

@@ -14,7 +14,16 @@ const $I = $SchemaId.create("PosixPath");
 const POSIX_PATH_PATTERN = /^[^\\]*$/;
 
 /**
- * POSIX-normalized path string schema.
+ * Branded schema for path strings using only POSIX `/` separators.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PosixPath } from "@beep/schema/PosixPath"
+ *
+ * const p = S.decodeUnknownSync(PosixPath)("/usr/local/bin")
+ * console.log(p) // "/usr/local/bin"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -31,13 +40,29 @@ export const PosixPath = S.String.check(S.isPattern(POSIX_PATH_PATTERN)).pipe(
 /**
  * Type for {@link PosixPath}.
  *
+ * @example
+ * ```ts
+ * import type { PosixPath } from "@beep/schema/PosixPath"
+ *
+ * const dir: PosixPath = "/home/user" as PosixPath
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
 export type PosixPath = typeof PosixPath.Type;
 
 /**
- * Transform native file-system paths to POSIX separators.
+ * Schema transformation that converts native file-system paths (with backslashes) to POSIX separators.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NativePathToPosixPath } from "@beep/schema/PosixPath"
+ *
+ * const p = S.decodeUnknownSync(NativePathToPosixPath)("C:\\Users\\docs")
+ * console.log(p) // "C:/Users/docs"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -60,7 +85,15 @@ export const NativePathToPosixPath = S.String.pipe(
 const decodePosixPath = S.decodeUnknownSync(NativePathToPosixPath);
 
 /**
- * Normalize a file-system path to POSIX separators.
+ * Normalize a file-system path string to POSIX separators.
+ *
+ * @example
+ * ```ts
+ * import { normalizePath } from "@beep/schema/PosixPath"
+ *
+ * const p = normalizePath("src\\lib\\index.ts")
+ * console.log(p) // "src/lib/index.ts"
+ * ```
  *
  * @param value - Input path string that may contain native separators.
  * @returns Path string normalized to POSIX separators.

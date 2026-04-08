@@ -21,7 +21,7 @@ import * as S from "effect/Schema";
  * - Data-first: `streamFilterJson(stream, schema)`
  *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  * @example
  * ```typescript
  * import { Effect, Stream } from "effect"

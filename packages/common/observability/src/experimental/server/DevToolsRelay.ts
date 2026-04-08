@@ -15,8 +15,15 @@ const maxSpanEvents = 200;
 /**
  * Summary of the in-memory relay state.
  *
+ * @example
+ * ```typescript
+ * import { DevToolsSnapshot } from "@beep/observability/experimental/server"
+ *
+ * void DevToolsSnapshot
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class DevToolsSnapshot extends S.Class<DevToolsSnapshot>($I`DevToolsSnapshot`)(
   {
@@ -33,8 +40,22 @@ export class DevToolsSnapshot extends S.Class<DevToolsSnapshot>($I`DevToolsSnaps
 /**
  * Service for ingesting and snapshotting devtools traffic.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { DevToolsRelayService } from "@beep/observability/experimental/server"
+ *
+ * const program = Effect.gen(function* () {
+ *   const relay = yield* DevToolsRelayService
+ *   const snapshot = yield* relay.snapshot
+ *   void snapshot
+ * })
+ *
+ * void program
+ * ```
+ *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class DevToolsRelayService extends ServiceMap.Service<
   DevToolsRelayService,
@@ -67,8 +88,15 @@ const toSpanKey = (span: Pick<DevToolsSchema.Span, "traceId" | "spanId">): strin
 /**
  * Create the in-memory relay service without starting a socket server.
  *
+ * @example
+ * ```typescript
+ * import { makeDevToolsRelayService } from "@beep/observability/experimental/server"
+ *
+ * void makeDevToolsRelayService
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const makeDevToolsRelayService: Effect.Effect<
   DevToolsRelayService["Service"],
@@ -133,8 +161,15 @@ const pipeAppendLimited = <A>(values: ReadonlyArray<A>, value: A): ReadonlyArray
 /**
  * Start a websocket relay using `DevToolsServer.run`.
  *
+ * @example
+ * ```typescript
+ * import { layerDevToolsRelayServer } from "@beep/observability/experimental/server"
+ *
+ * void layerDevToolsRelayServer
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const layerDevToolsRelayServer: Layer.Layer<
   DevToolsRelayService,

@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/languages | World Languages JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/WorldLanguages
  * @since 0.0.0
  */
 /**
+ * Array of major world languages with localization metadata.
+ *
+ * Each entry contains the ISO language code, name, native name, language family,
+ * estimated number of speakers, and text direction.
+ *
+ * @example
+ * ```typescript
+ * import { WorldLanguages } from "@beep/data"
+ *
+ * const arabic = WorldLanguages.find(l => l.code === "ar")
+ * console.log(arabic?.direction) // "rtl"
+ * console.log(arabic?.family) // "Afro-Asiatic"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const WorldLanguages = [

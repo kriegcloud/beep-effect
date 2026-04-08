@@ -30,7 +30,18 @@ type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typ
 };
 
 /**
- * Extracts all mime-type keys from a mime-type dictionary.
+ * Extracts all mime-type keys from a mime-type dictionary as a deduplicated array.
+ *
+ * @example
+ * ```ts
+ * import { extractMimeTypes } from "@beep/schema/MimeType"
+ *
+ * const types = extractMimeTypes({
+ *   "text/plain": { source: "iana", extensions: ["txt"] as const },
+ *   "text/html": { source: "iana", extensions: ["html"] as const },
+ * })
+ * console.log(types) // ["text/plain", "text/html"]
+ * ```
  *
  * @since 0.0.0
  * @category Utility
@@ -39,7 +50,16 @@ export const extractMimeTypes = <const T extends MimeTypeProperty>(mime: T): A.N
   Fn.cast<Array<keyof T>, A.NonEmptyReadonlyArray<keyof T>>(pipe(mime, Struct.keys, A.dedupe));
 
 /**
- * Schema kit that covers all supported mime types.
+ * Schema kit that covers all supported mime types with per-category sub-schemas.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MimeType } from "@beep/schema/MimeType"
+ *
+ * const mimeType = S.decodeUnknownSync(MimeType)("application/json")
+ * console.log(mimeType) // "application/json"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -75,13 +95,29 @@ export const MimeType: MimeTypeSchema = pipe(
 /**
  * Union of supported mime-type literals.
  *
+ * @example
+ * ```ts
+ * import type { MimeType } from "@beep/schema/MimeType"
+ *
+ * const contentType: MimeType = "application/json" as MimeType
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
 export type MimeType = MimeTypesData.MimeType;
 
 /**
- * Application mime-type schema.
+ * Schema for `application/*` mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ApplicationMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt = S.decodeUnknownSync(ApplicationMimeType)("application/pdf")
+ * console.log(mt) // "application/pdf"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -89,7 +125,14 @@ export type MimeType = MimeTypesData.MimeType;
 export const ApplicationMimeType = MimeType.kinds.Application;
 
 /**
- * Application mime-type literal union.
+ * Union of application mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import type { ApplicationMimeType } from "@beep/schema/MimeType"
+ *
+ * const contentType: ApplicationMimeType = "application/json" as ApplicationMimeType
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -97,7 +140,16 @@ export const ApplicationMimeType = MimeType.kinds.Application;
 export type ApplicationMimeType = typeof MimeType.kinds.Application.Type;
 
 /**
- * Video mime-type schema.
+ * Schema for `video/*` mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { VideoMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt = S.decodeUnknownSync(VideoMimeType)("video/mp4")
+ * console.log(mt) // "video/mp4"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -105,7 +157,14 @@ export type ApplicationMimeType = typeof MimeType.kinds.Application.Type;
 export const VideoMimeType = MimeType.kinds.Video;
 
 /**
- * Video mime-type literal union.
+ * Union of video mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import type { VideoMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt: VideoMimeType = "video/mp4" as VideoMimeType
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -113,7 +172,16 @@ export const VideoMimeType = MimeType.kinds.Video;
 export type VideoMimeType = typeof MimeType.kinds.Video.Type;
 
 /**
- * Text mime-type schema.
+ * Schema for `text/*` mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TextMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt = S.decodeUnknownSync(TextMimeType)("text/plain")
+ * console.log(mt) // "text/plain"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -121,7 +189,14 @@ export type VideoMimeType = typeof MimeType.kinds.Video.Type;
 export const TextMimeType = MimeType.kinds.Text;
 
 /**
- * Text mime-type literal union.
+ * Union of text mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import type { TextMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt: TextMimeType = "text/plain" as TextMimeType
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -129,7 +204,16 @@ export const TextMimeType = MimeType.kinds.Text;
 export type TextMimeType = typeof MimeType.kinds.Text.Type;
 
 /**
- * Image mime-type schema.
+ * Schema for `image/*` mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ImageMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt = S.decodeUnknownSync(ImageMimeType)("image/png")
+ * console.log(mt) // "image/png"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -137,7 +221,14 @@ export type TextMimeType = typeof MimeType.kinds.Text.Type;
 export const ImageMimeType = MimeType.kinds.Image;
 
 /**
- * Image mime-type literal union.
+ * Union of image mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import type { ImageMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt: ImageMimeType = "image/png" as ImageMimeType
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -145,7 +236,16 @@ export const ImageMimeType = MimeType.kinds.Image;
 export type ImageMimeType = typeof MimeType.kinds.Image.Type;
 
 /**
- * Audio mime-type schema.
+ * Schema for `audio/*` mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { AudioMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt = S.decodeUnknownSync(AudioMimeType)("audio/mpeg")
+ * console.log(mt) // "audio/mpeg"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -153,7 +253,14 @@ export type ImageMimeType = typeof MimeType.kinds.Image.Type;
 export const AudioMimeType = MimeType.kinds.Audio;
 
 /**
- * Audio mime-type literal union.
+ * Union of audio mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import type { AudioMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt: AudioMimeType = "audio/mpeg" as AudioMimeType
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -161,7 +268,7 @@ export const AudioMimeType = MimeType.kinds.Audio;
 export type AudioMimeType = typeof MimeType.kinds.Audio.Type;
 
 /**
- * Miscellaneous mime-type schema.
+ * Schema for miscellaneous mime-type literals that do not fit standard categories.
  *
  * @since 0.0.0
  * @category Validation
@@ -169,7 +276,14 @@ export type AudioMimeType = typeof MimeType.kinds.Audio.Type;
 export const MiscMimeType = MimeType.kinds.Misc;
 
 /**
- * Miscellaneous mime-type literal union.
+ * Union of miscellaneous mime-type literals.
+ *
+ * @example
+ * ```ts
+ * import type { MiscMimeType } from "@beep/schema/MimeType"
+ *
+ * const mt: MiscMimeType = "application/octet-stream" as MiscMimeType
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

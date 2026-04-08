@@ -14,8 +14,16 @@ const stringEquals = (left: string, right: string): boolean => Order.String(left
  * Remove empty strings and duplicates while preserving the first occurrence of
  * each variant.
  *
+ * @example
+ * ```typescript
+ * import * as VariantText from "@beep/nlp/VariantText"
+ *
+ * const deduped = VariantText.orderedDedupe(["foo", "bar", "foo", "", "baz"])
+ * console.log(deduped) // ["foo", "bar", "baz"]
+ * ```
+ *
  * @since 0.0.0
- * @category Variants
+ * @category variants
  */
 export const orderedDedupe = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
   pipe(values, A.filter(Str.isNonEmpty), A.dedupeWith(stringEquals));

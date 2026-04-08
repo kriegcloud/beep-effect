@@ -11,10 +11,19 @@ import { LiteralKit } from "./LiteralKit.ts";
 const $I = $SchemaId.create("Timezone");
 
 /**
- * IANA timezone identifier schema.
+ * IANA timezone identifier schema covering standard regions and UTC offsets.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Timezone } from "@beep/schema/Timezone"
+ *
+ * const tz = S.decodeUnknownSync(Timezone)("America/New_York")
+ * console.log(tz) // "America/New_York"
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category Validation
  */
 export const Timezone = LiteralKit([
   "Africa/Abidjan",
@@ -470,6 +479,13 @@ export const Timezone = LiteralKit([
 
 /**
  * Runtime type for {@link Timezone}.
+ *
+ * @example
+ * ```ts
+ * import type { Timezone } from "@beep/schema/Timezone"
+ *
+ * const zone: Timezone = "UTC"
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

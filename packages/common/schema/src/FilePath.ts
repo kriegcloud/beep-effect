@@ -40,8 +40,19 @@ const usesUnsupportedWindowsNamespacePrefix = Match.type<string>().pipe(
 /**
  * Branded schema for strings that contain an embedded NUL byte.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { HasNullByte } from "@beep/schema/FilePath"
+ *
+ * const is = S.is(HasNullByte)
+ *
+ * console.log(is("hello\x00world")) // true
+ * console.log(is("hello")) // false
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category guards
  */
 export const HasNullByte = S.String.check(
   S.isIncludes("\u0000", {
@@ -60,10 +71,10 @@ export const HasNullByte = S.String.check(
 );
 
 /**
- * Type for {@link HasNullByte}.
+ * Branded string type containing an embedded NUL byte.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HasNullByte = typeof HasNullByte.Type;
 
@@ -94,7 +105,7 @@ export const SupportedWindowsNamespace = S.NonEmptyString.check(
  * Type for {@link SupportedWindowsNamespace}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SupportedWindowsNamespace = typeof SupportedWindowsNamespace.Type;
 
@@ -124,7 +135,7 @@ export const UsesPosixSeparator = S.String.check(
  * Type for {@link UsesPosixSeparator}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type UsesPosixSeparator = typeof UsesPosixSeparator.Type;
 
@@ -154,7 +165,7 @@ export const UsesWindowsSeparator = S.String.check(
  * Type for {@link UsesWindowsSeparator}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type UsesWindowsSeparator = typeof UsesWindowsSeparator.Type;
 
@@ -184,7 +195,7 @@ export const EndsWithSeparator = S.String.check(
  * Type for {@link EndsWithSeparator}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EndsWithSeparator = typeof EndsWithSeparator.Type;
 
@@ -206,7 +217,7 @@ export const WindowsDotSegment = WindowsDotSegmentKit.annotate(
  * Type for {@link WindowsDotSegment}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WindowsDotSegment = typeof WindowsDotSegment.Type;
 
@@ -258,7 +269,7 @@ export const ValidWindowsPlainPathSegment = S.NonEmptyString.check(
  * Type for {@link ValidWindowsPlainPathSegment}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ValidWindowsPlainPathSegment = typeof ValidWindowsPlainPathSegment.Type;
 
@@ -290,7 +301,7 @@ export const ValidWindowsRootSegment = ValidWindowsPlainPathSegment.check(
  * Type for {@link ValidWindowsRootSegment}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ValidWindowsRootSegment = typeof ValidWindowsRootSegment.Type;
 
@@ -314,7 +325,7 @@ export const ValidWindowsPathSegment = S.Union([WindowsDotSegment, ValidWindowsP
  * Type for {@link ValidWindowsPathSegment}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ValidWindowsPathSegment = typeof ValidWindowsPathSegment.Type;
 
@@ -337,7 +348,7 @@ export const WindowsSegments = S.NonEmptyArray(ValidWindowsPathSegment).pipe(
  * Type for {@link WindowsSegments}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WindowsSegments = typeof WindowsSegments.Type;
 
@@ -361,7 +372,7 @@ export const ValidWindowsUncRest = S.NonEmptyArray(ValidWindowsPathSegment).pipe
  * Type for {@link ValidWindowsUncRest}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ValidWindowsUncRest = typeof ValidWindowsUncRest.Type;
 
@@ -387,7 +398,7 @@ export const ValidWindowsUncSegments = S.TupleWithRest(
  * Type for {@link ValidWindowsUncSegments}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ValidWindowsUncSegments = typeof ValidWindowsUncSegments.Type;
 
@@ -417,7 +428,7 @@ export const WindowsDriveRoot = S.String.check(
  * Type for {@link WindowsDriveRoot}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WindowsDriveRoot = typeof WindowsDriveRoot.Type;
 
@@ -447,7 +458,7 @@ export const WindowsUncRoot = S.String.check(
  * Type for {@link WindowsUncRoot}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WindowsUncRoot = typeof WindowsUncRoot.Type;
 
@@ -508,7 +519,7 @@ export const HasLeafSegment = S.NonEmptyString.check(
  * Type for {@link HasLeafSegment}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HasLeafSegment = typeof HasLeafSegment.Type;
 
@@ -572,7 +583,7 @@ export const WindowsDrivePath = S.NonEmptyString.check(
  * Type for {@link WindowsDrivePath}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WindowsDrivePath = typeof WindowsDrivePath.Type;
 
@@ -636,7 +647,7 @@ export const WindowsUncPath = S.NonEmptyString.check(
  * Type for {@link WindowsUncPath}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WindowsUncPath = typeof WindowsUncPath.Type;
 
@@ -714,7 +725,7 @@ export const WindowsRelativePath = S.NonEmptyString.check(
  * Type for {@link WindowsRelativePath}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WindowsRelativePath = typeof WindowsRelativePath.Type;
 
@@ -742,7 +753,7 @@ export const SupportedPathFamily = SupportedPathFamilyKit.annotate(
  * Type for {@link SupportedPathFamily}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SupportedPathFamily = typeof SupportedPathFamily.Type;
 
@@ -807,8 +818,34 @@ const FilePathChecks = S.makeFilterGroup(
 /**
  * Branded schema for file path strings that are valid on at least one major OS.
  *
+ * Validates POSIX absolute, POSIX relative, Windows drive, Windows UNC, and
+ * Windows relative path families. Rejects empty strings, embedded NUL bytes,
+ * bare root paths, and unsupported Windows namespace prefixes.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FilePath } from "@beep/schema/FilePath"
+ *
+ * const decode = S.decodeUnknownSync(FilePath)
+ *
+ * const posix = decode("/usr/local/bin/node")
+ * const relative = decode("src/index.ts")
+ * ```
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { FilePath } from "@beep/schema/FilePath"
+ *
+ * const is = S.is(FilePath)
+ *
+ * console.log(is("/")) // false -- bare root
+ * console.log(is("src/index.ts")) // true
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category constructors
  */
 export const FilePath = S.String.check(FilePathChecks).pipe(
   S.brand("FilePath"),
@@ -820,9 +857,9 @@ export const FilePath = S.String.check(FilePathChecks).pipe(
 );
 
 /**
- * Type for {@link FilePath}.
+ * Branded file path string type extracted from {@link FilePath}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type FilePath = typeof FilePath.Type;

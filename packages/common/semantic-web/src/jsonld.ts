@@ -38,8 +38,16 @@ const jsonLdBlankNodeIdentifierChecks = S.makeFilterGroup(
 /**
  * JSON-LD keyword surface used by the bounded v1 model.
  *
+ * @example
+ * ```typescript
+ * import { JsonLdKeyword } from "@beep/semantic-web/jsonld"
+ *
+ * console.log(JsonLdKeyword.Guard("@context")) // true
+ * console.log(JsonLdKeyword.Guard("@invalid")) // false
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdKeyword = LiteralKit([
   "@base",
@@ -60,15 +68,25 @@ export const JsonLdKeyword = LiteralKit([
  * Type for {@link JsonLdKeyword}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type JsonLdKeyword = typeof JsonLdKeyword.Type;
 
 /**
  * Normalized JSON-LD term definition used by the bounded context model.
  *
+ * @example
+ * ```typescript
+ * import { JsonLdTermDefinition } from "@beep/semantic-web/jsonld"
+ *
+ * const term = JsonLdTermDefinition.makeUnsafe({
+ *   "@id": "https://schema.org/name",
+ * })
+ * console.log(term["@id"]) // "https://schema.org/name"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonLdTermDefinition`)(
   {
@@ -93,7 +111,7 @@ export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonL
  * Normalized JSON-LD context model with bounded base, vocab, and term bindings.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
   {
@@ -120,7 +138,7 @@ export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
  * JSON-LD blank-node identifier used by the bounded document model.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdBlankNodeIdentifier = S.String.check(jsonLdBlankNodeIdentifierChecks).pipe(
   S.brand("JsonLdBlankNodeIdentifier"),
@@ -145,7 +163,7 @@ export const JsonLdBlankNodeIdentifier = S.String.check(jsonLdBlankNodeIdentifie
  * Type for {@link JsonLdBlankNodeIdentifier}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type JsonLdBlankNodeIdentifier = typeof JsonLdBlankNodeIdentifier.Type;
 
@@ -153,7 +171,7 @@ export type JsonLdBlankNodeIdentifier = typeof JsonLdBlankNodeIdentifier.Type;
  * JSON-LD node identifier used by the bounded document model.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdNodeIdentifier = S.Union([IRIReference, JsonLdBlankNodeIdentifier]).annotate(
   $I.annote("JsonLdNodeIdentifier", {
@@ -175,7 +193,7 @@ export const JsonLdNodeIdentifier = S.Union([IRIReference, JsonLdBlankNodeIdenti
  * Type for {@link JsonLdNodeIdentifier}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type JsonLdNodeIdentifier = typeof JsonLdNodeIdentifier.Type;
 
@@ -183,7 +201,7 @@ export type JsonLdNodeIdentifier = typeof JsonLdNodeIdentifier.Type;
  * JSON-LD node reference value.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonLdReferenceValue`)(
   {
@@ -208,7 +226,7 @@ export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonL
  * JSON-LD literal value object.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLiteralValue`)(
   {
@@ -234,7 +252,7 @@ export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLit
  * JSON-LD property value union used by bounded node objects.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdPropertyValue = S.Union([JsonLdReferenceValue, JsonLdLiteralValue]).annotate(
   $I.annote("JsonLdPropertyValue", {
@@ -246,7 +264,7 @@ export const JsonLdPropertyValue = S.Union([JsonLdReferenceValue, JsonLdLiteralV
  * Type for {@link JsonLdPropertyValue}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
 
@@ -254,7 +272,7 @@ export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
  * JSON-LD node object used by bounded document and framing helpers.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObject`)(
   {
@@ -280,8 +298,16 @@ export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObj
 /**
  * Bounded JSON-LD document model with normalized context and graph content.
  *
+ * @example
+ * ```typescript
+ * import { JsonLdDocument } from "@beep/semantic-web/jsonld"
+ *
+ * const doc = JsonLdDocument.makeUnsafe({ "@graph": [] })
+ * console.log(doc["@graph"].length) // 0
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
   {
@@ -308,7 +334,7 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
  * Bounded JSON-LD frame model.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdFrame extends S.Class<JsonLdFrame>($I`JsonLdFrame`)(
   {

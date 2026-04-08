@@ -1208,7 +1208,7 @@ export const runDocgenForPackage: (
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot(targetPackage.absolutePath);
-    const docgenEntrypoint = path.join(repoRoot, "tooling", "docgen", "docgen", "src", "bin.ts");
+    const docgenEntrypoint = path.join(repoRoot, "tooling", "docgen", "src", "bin.ts");
     const args = ["run", docgenEntrypoint] as const;
     const command = ChildProcess.make("bun", [...args], {
       cwd: targetPackage.absolutePath,

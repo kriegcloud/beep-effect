@@ -186,8 +186,17 @@ const uriChecks = makeNonEmptyReferenceChecks("URI", "URI", "An RFC 3986 URI.", 
 /**
  * RFC 3986 `URI-reference` schema, including absolute and relative forms.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { URIReference } from "@beep/semantic-web/uri"
+ *
+ * const decoded = S.decodeUnknownSync(URIReference)("https://example.com/path")
+ * console.log(decoded) // "https://example.com/path"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const URIReference = S.String.check(uriReferenceChecks).pipe(
   S.brand("URIReference"),
@@ -203,15 +212,24 @@ export const URIReference = S.String.check(uriReferenceChecks).pipe(
  * Type for {@link URIReference}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type URIReference = typeof URIReference.Type;
 
 /**
  * RFC 3986 `relative-ref` schema.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { RelativeURIReference } from "@beep/semantic-web/uri"
+ *
+ * const decoded = S.decodeUnknownSync(RelativeURIReference)("/path/to/resource")
+ * console.log(decoded) // "/path/to/resource"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const RelativeURIReference = S.String.check(relativeUriReferenceChecks).pipe(
   S.brand("RelativeURIReference"),
@@ -227,15 +245,24 @@ export const RelativeURIReference = S.String.check(relativeUriReferenceChecks).p
  * Type for {@link RelativeURIReference}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type RelativeURIReference = typeof RelativeURIReference.Type;
 
 /**
  * RFC 3986 `absolute-URI` schema without a fragment component.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { AbsoluteURI } from "@beep/semantic-web/uri"
+ *
+ * const decoded = S.decodeUnknownSync(AbsoluteURI)("https://example.com")
+ * console.log(decoded) // "https://example.com"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const AbsoluteURI = S.String.check(absoluteUriChecks).pipe(
   S.brand("AbsoluteURI"),
@@ -251,15 +278,24 @@ export const AbsoluteURI = S.String.check(absoluteUriChecks).pipe(
  * Type for {@link AbsoluteURI}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type AbsoluteURI = typeof AbsoluteURI.Type;
 
 /**
  * RFC 3986 `URI` schema.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { URI } from "@beep/semantic-web/uri"
+ *
+ * const decoded = S.decodeUnknownSync(URI)("https://example.com/page#anchor")
+ * console.log(decoded) // "https://example.com/page#anchor"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const URI = S.String.check(uriChecks).pipe(
   S.brand("URI"),
@@ -275,17 +311,25 @@ export const URI = S.String.check(uriChecks).pipe(
  * Type for {@link URI}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type URI = typeof URI.Type;
 
 /**
  * Normalize a URI or URI reference for transport-oriented comparisons.
  *
+ * @example
+ * ```typescript
+ * import { normalizeUriReference } from "@beep/semantic-web/uri"
+ *
+ * const normalized = normalizeUriReference("HTTP://Example.COM:80/Path")
+ * console.log(normalized) // "http://example.com/Path"
+ * ```
+ *
  * @param value - URI or URI reference text.
  * @returns Normalized URI text.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const normalizeUriReference = (value: URIReference | string): string =>
   looksLikeAbsoluteUri(value) && URL.canParse(value) ? normalizeAbsoluteUri(value) : normalizePercentEncoding(value);
@@ -293,11 +337,19 @@ export const normalizeUriReference = (value: URIReference | string): string =>
 /**
  * Resolve a URI reference against an absolute base URI.
  *
+ * @example
+ * ```typescript
+ * import { resolveUriReference } from "@beep/semantic-web/uri"
+ *
+ * const resolved = resolveUriReference("https://example.com/a/b", "../c")
+ * console.log(resolved) // "https://example.com/c"
+ * ```
+ *
  * @param base - Absolute base URI.
  * @param reference - Relative or absolute URI reference.
  * @returns Resolved absolute URI string.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const resolveUriReference = (base: AbsoluteURI | string, reference: URIReference | string): string =>
   normalizeAbsoluteUri(new URL(reference, base).href);
@@ -305,11 +357,19 @@ export const resolveUriReference = (base: AbsoluteURI | string, reference: URIRe
 /**
  * Compare two URI values using URI-family normalization rules.
  *
+ * @example
+ * ```typescript
+ * import { areUrisEquivalent } from "@beep/semantic-web/uri"
+ *
+ * const same = areUrisEquivalent("HTTP://Example.COM/", "http://example.com/")
+ * console.log(same) // true
+ * ```
+ *
  * @param left - Left URI value.
  * @param right - Right URI value.
  * @returns `true` when both normalized forms are equal.
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const areUrisEquivalent = (left: URIReference | string, right: URIReference | string): boolean =>
   normalizeUriReference(left) === normalizeUriReference(right);

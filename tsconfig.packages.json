@@ -13,6 +13,9 @@
       "path": "apps/editor-app"
     },
     {
+      "path": "infra"
+    },
+    {
       "path": "packages/_internal/db-admin"
     },
     {

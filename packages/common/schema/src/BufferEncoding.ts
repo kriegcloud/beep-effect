@@ -10,7 +10,16 @@ import { LiteralKit } from "./LiteralKit.ts";
 const $I = $SchemaId.create("BufferEncoding");
 
 /**
- * A BufferEncoding string literal
+ * Schema for Node.js `BufferEncoding` string literals (`"utf8"`, `"hex"`, `"base64"`, etc.).
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { BuffEncoding } from "@beep/schema/BufferEncoding"
+ *
+ * const encoding = S.decodeUnknownSync(BuffEncoding)("utf8")
+ * console.log(encoding) // "utf8"
+ * ```
  *
  * @category Validation
  * @since 0.0.0
@@ -35,9 +44,16 @@ export const BuffEncoding = LiteralKit([
 );
 
 /**
- * Type of {@link BuffEncoding} {@inheritDoc BuffEncoding}
+ * Type of {@link BuffEncoding}. {@inheritDoc BuffEncoding}
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import type { BufferEncoding } from "@beep/schema/BufferEncoding"
+ *
+ * const enc: BufferEncoding = "hex"
+ * ```
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type BufferEncoding = typeof BuffEncoding.Type;

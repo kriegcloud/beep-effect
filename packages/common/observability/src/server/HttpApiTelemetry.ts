@@ -24,8 +24,22 @@ const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
 /**
  * Shared HTTP API telemetry descriptor.
  *
+ * @example
+ * ```typescript
+ * import { HttpApiTelemetryDescriptor } from "@beep/observability/server"
+ *
+ * const descriptor = new HttpApiTelemetryDescriptor({
+ *   apiName: "TodoApi",
+ *   groupName: "Todos",
+ *   endpointName: "createTodo",
+ *   method: "POST",
+ *   route: "/todos",
+ *   successStatus: 201,
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class HttpApiTelemetryDescriptor extends S.Class<HttpApiTelemetryDescriptor>($I`HttpApiTelemetryDescriptor`)(
   {
@@ -45,7 +59,7 @@ export class HttpApiTelemetryDescriptor extends S.Class<HttpApiTelemetryDescript
  * Shared metric bundle for HTTP API request observation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 interface HttpApiMetricSet {
   readonly requestDuration: Metric.Metric<import("effect/Duration").Duration, unknown>;
@@ -56,7 +70,7 @@ interface HttpApiMetricSet {
  * Options for the shared HTTP API telemetry middleware layer.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 interface HttpApiTelemetryMiddlewareOptions {
   readonly apiName: string;
@@ -66,8 +80,16 @@ interface HttpApiTelemetryMiddlewareOptions {
 /**
  * Resolve the declared success status from an HttpApiSchema value.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { httpApiSuccessStatus } from "@beep/observability/server"
+ *
+ * const status = httpApiSuccessStatus(S.String, 200)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const httpApiSuccessStatus = (schema: S.Top, fallback = 200): NonNegativeInt =>
   decodeNonNegativeInt(resolveHttpApiStatus(schema.ast) ?? fallback);
@@ -100,8 +122,15 @@ const endpointErrorSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): ReadonlyA
 /**
  * Create a reusable HTTP API metric set for one metric prefix.
  *
+ * @example
+ * ```typescript
+ * import { makeHttpApiMetrics } from "@beep/observability/server"
+ *
+ * const metrics = makeHttpApiMetrics("todox_api")
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const makeHttpApiMetrics = (prefix: string, descriptionPrefix = "HTTP API request"): HttpApiMetricSet => ({
   requestsTotal: Metric.counter(`${prefix}_requests_total`, {
@@ -168,8 +197,18 @@ const annotateHttpApiOutcome = (
 /**
  * Create a telemetry descriptor directly from Effect HttpApi metadata.
  *
+ * @example
+ * ```typescript
+ * import { makeHttpApiTelemetryDescriptor } from "@beep/observability/server"
+ * import type { HttpApiGroup, HttpApiEndpoint } from "effect/unstable/httpapi"
+ *
+ * declare const group: HttpApiGroup.AnyWithProps
+ * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const descriptor = makeHttpApiTelemetryDescriptor("TodoApi", group, endpoint)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const makeHttpApiTelemetryDescriptor = (
   apiName: string,
@@ -189,8 +228,17 @@ export const makeHttpApiTelemetryDescriptor = (
  * Resolve the concrete status of a failed HTTP API effect from the runtime
  * error first, then from matching endpoint error schemas.
  *
+ * @example
+ * ```typescript
+ * import { httpApiFailureStatus } from "@beep/observability/server"
+ * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
+ *
+ * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const status = httpApiFailureStatus(endpoint, new Error("not found"))
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const httpApiFailureStatus = (endpoint: HttpApiEndpoint.AnyWithProps, error: unknown): number | undefined =>
   O.getOrUndefined(
@@ -214,8 +262,26 @@ export const httpApiFailureStatus = (endpoint: HttpApiEndpoint.AnyWithProps, err
  * Observe one encoded HTTP API effect where the success value is an
  * `HttpServerResponse`.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import {
+ *   HttpApiTelemetryDescriptor,
+ *   makeHttpApiMetrics,
+ *   observeHttpApiEffect,
+ * } from "@beep/observability/server"
+ * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
+ * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
+ *
+ * declare const descriptor: HttpApiTelemetryDescriptor
+ * declare const endpoint: HttpApiEndpoint.AnyWithProps
+ * const metrics = makeHttpApiMetrics("todox_api")
+ * const handler = Effect.succeed(HttpServerResponse.empty({ status: 200 }))
+ * const observed = observeHttpApiEffect(descriptor, endpoint, metrics, handler)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const observeHttpApiEffect = <E, R>(
   descriptor: HttpApiTelemetryDescriptor,
@@ -274,8 +340,15 @@ export const observeHttpApiEffect = <E, R>(
  * Shared server-side HttpApi middleware service for request metrics, span
  * annotations, and log correlation.
  *
+ * @example
+ * ```typescript
+ * import { HttpApiTelemetryMiddleware } from "@beep/observability/server"
+ *
+ * void HttpApiTelemetryMiddleware
+ * ```
+ *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpApiTelemetryMiddleware>()(
   $I`HttpApiTelemetryMiddleware`
@@ -285,8 +358,19 @@ export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpAp
  * Build a layer that instruments all endpoints where the middleware is
  * applied.
  *
+ * @example
+ * ```typescript
+ * import { makeHttpApiMetrics, layerHttpApiTelemetryMiddleware } from "@beep/observability/server"
+ *
+ * const metrics = makeHttpApiMetrics("todox_api")
+ * const TelemetryLive = layerHttpApiTelemetryMiddleware({
+ *   apiName: "TodoApi",
+ *   metrics,
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const layerHttpApiTelemetryMiddleware = (
   options: HttpApiTelemetryMiddlewareOptions
@@ -303,8 +387,23 @@ export const layerHttpApiTelemetryMiddleware = (
 /**
  * Observe one HTTP API handler with shared span/log annotations.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import {
+ *   HttpApiTelemetryDescriptor,
+ *   makeHttpApiMetrics,
+ *   observeHttpApiHandler,
+ * } from "@beep/observability/server"
+ *
+ * declare const descriptor: HttpApiTelemetryDescriptor
+ * const metrics = makeHttpApiMetrics("todox_api")
+ * const handler = Effect.succeed({ status: 200 as const })
+ * const observed = observeHttpApiHandler(descriptor, metrics, handler)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const observeHttpApiHandler = <A, E extends { readonly status: number }, R>(
   descriptor: HttpApiTelemetryDescriptor,

@@ -21,16 +21,35 @@ const normalizeIdentifierWords = flow(
 /**
  * Convert a candidate identifier phrase into lowercase word tokens.
  *
+ * @example
+ * ```typescript
+ * import * as IdentifierText from "@beep/nlp/IdentifierText"
+ *
+ * const result = IdentifierText.tokens("myVariableName")
+ * console.log(result) // ["my", "variable", "name"]
+ * ```
+ *
  * @since 0.0.0
- * @category Tokenization
+ * @category tokenization
  */
 export const tokens = flow(normalizeIdentifierWords, Str.split(" "), A.map(Str.toLowerCase), A.filter(Str.isNonEmpty));
 
 /**
  * Generate deterministic identifier variants for symbol lookup.
  *
+ * @example
+ * ```typescript
+ * import * as IdentifierText from "@beep/nlp/IdentifierText"
+ *
+ * const result = IdentifierText.variants("user name")
+ * // Produces camelCase, PascalCase, snake_case, kebab-case, and joined variants
+ * console.log(result.includes("userName")) // true
+ * console.log(result.includes("UserName")) // true
+ * console.log(result.includes("user_name")) // true
+ * ```
+ *
  * @since 0.0.0
- * @category Variants
+ * @category variants
  */
 export const variants = (input: string): ReadonlyArray<string> => {
   const normalized = QueryText.normalizePhrase(input);

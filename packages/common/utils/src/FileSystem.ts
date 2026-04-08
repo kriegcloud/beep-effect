@@ -24,7 +24,7 @@ import type * as O from "effect/Option";
  * - Data-last: `pipe("/tmp", waitForFile("done.txt"))`
  *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  * @example
  * ```typescript
  * import { Effect } from "effect"

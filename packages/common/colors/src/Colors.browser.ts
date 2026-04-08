@@ -25,7 +25,16 @@ const identity: FormatterType = String;
  * Browser builds keep the same API shape as the Node entrypoint, but never emit ANSI
  * escape sequences and keep `createColors` bound to the browser implementation.
  *
- * @category DomainModel
+ * @example
+ * ```typescript
+ * import { Colors, createColors } from "@beep/colors"
+ *
+ * const colors = createColors(false)
+ * const rendered = colors.bold("hello")
+ * console.log(rendered) // "hello"
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class Colors extends S.Class<Colors>($I`Colors`)(
@@ -40,7 +49,14 @@ export class Colors extends S.Class<Colors>($I`Colors`)(
 /**
  * Browser builds never emit ANSI escape sequences.
  *
- * @category Utility
+ * @example
+ * ```typescript
+ * import { isColorSupported } from "@beep/colors"
+ *
+ * console.log(typeof isColorSupported) // "boolean"
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export const isColorSupported = false;
@@ -48,7 +64,14 @@ export const isColorSupported = false;
 /**
  * Browser builds always disable ANSI escape sequences.
  *
- * @category Utility
+ * @example
+ * ```typescript
+ * import { supportsColor } from "@beep/colors"
+ *
+ * console.log(supportsColor()) // false
+ * ```
+ *
+ * @category utilities
  * @returns {boolean} - Always `false` in browser-safe builds.
  * @since 0.0.0
  */
@@ -59,7 +82,16 @@ export const supportsColor = (): boolean => false;
  *
  * The optional flag is accepted for API parity with the Node entrypoint, but ignored.
  *
- * @category Utility
+ * @example
+ * ```typescript
+ * import { createColors } from "@beep/colors"
+ *
+ * const colors = createColors(true)
+ * const rendered = colors.red("error")
+ * console.log(rendered) // "error" (no ANSI in browser builds)
+ * ```
+ *
+ * @category utilities
  * @param _enabled {boolean | undefined} - Ignored in browser-safe builds.
  * @returns {Colors} - A formatter set whose members coerce input with `String(...)`.
  * @since 0.0.0
@@ -113,10 +145,32 @@ export const createColors = (_enabled?: boolean): Colors =>
 /**
  * Default browser-safe formatter set.
  *
- * @category Utility
+ * @example
+ * ```typescript
+ * import colors from "@beep/colors"
+ *
+ * const rendered = colors.green("ok")
+ * console.log(typeof rendered) // "string"
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 const colors = createColors();
 
+/**
+ * Schema describing a unary formatter function.
+ *
+ * @example
+ * ```typescript
+ * import { type Formatter } from "@beep/colors"
+ *
+ * const fmt: Formatter = String
+ * console.log(fmt(42)) // "42"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const Formatter = FormatterSchema;
 export default colors;

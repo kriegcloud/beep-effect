@@ -1,3 +1,28 @@
+/**
+ * Typed HTTP error classes and convenience constructors for standard status codes.
+ *
+ * Each error class extends `TaggedErrorClass` with a fixed status code, carries
+ * `ErrorReporter.severity` and `ErrorReporter.attributes` for structured
+ * observability, and is transport-safe via Effect Schema.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { NotFoundError, makeBadRequestError } from "@beep/observability"
+ *
+ * const failNotFound = Effect.fail(
+ *   new NotFoundError({ message: "User not found", status: 404 })
+ * )
+ *
+ * const failBadReq = Effect.fail(makeBadRequestError("missing field"))
+ *
+ * void failNotFound
+ * void failBadReq
+ * ```
+ *
+ * @module @beep/observability/HttpError
+ * @since 0.0.0
+ */
 import { $ObservabilityId } from "@beep/identity/packages";
 import {
   HttpStatus,
@@ -35,10 +60,23 @@ const statusFields = <Status extends S.Top>(status: Status) =>
   }) as const;
 
 /**
- * Shared tagged error for 4xx HTTP responses.
+ * Shared tagged error for 4xx HTTP responses with `Warn` severity.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { ClientHttpError } from "@beep/observability"
+ *
+ * const err = new ClientHttpError({
+ *   message: "Bad request",
+ *   status: 400,
+ * })
+ *
+ * void Effect.fail(err)
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`ClientHttpError`)(
   "ClientHttpError",
@@ -56,10 +94,23 @@ export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`Client
 }
 
 /**
- * Shared tagged error for 5xx HTTP responses.
+ * Shared tagged error for 5xx HTTP responses with `Error` severity.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { ServerHttpError } from "@beep/observability"
+ *
+ * const err = new ServerHttpError({
+ *   message: "Internal error",
+ *   status: 500,
+ * })
+ *
+ * void Effect.fail(err)
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ServerHttpError extends TaggedErrorClass<ServerHttpError>($I`ServerHttpError`)(
   "ServerHttpError",
@@ -79,8 +130,17 @@ export class ServerHttpError extends TaggedErrorClass<ServerHttpError>($I`Server
 /**
  * 400 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { BadRequestError } from "@beep/observability"
+ *
+ * const err = new BadRequestError({ message: "invalid input", status: 400 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class BadRequestError extends TaggedErrorClass<BadRequestError>($I`BadRequestError`)(
   "BadRequestError",
@@ -96,8 +156,17 @@ export class BadRequestError extends TaggedErrorClass<BadRequestError>($I`BadReq
 /**
  * 401 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { UnauthorizedError } from "@beep/observability"
+ *
+ * const err = new UnauthorizedError({ message: "token expired", status: 401 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class UnauthorizedError extends TaggedErrorClass<UnauthorizedError>($I`UnauthorizedError`)(
   "UnauthorizedError",
@@ -113,8 +182,17 @@ export class UnauthorizedError extends TaggedErrorClass<UnauthorizedError>($I`Un
 /**
  * 403 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { ForbiddenError } from "@beep/observability"
+ *
+ * const err = new ForbiddenError({ message: "access denied", status: 403 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ForbiddenError extends TaggedErrorClass<ForbiddenError>($I`ForbiddenError`)(
   "ForbiddenError",
@@ -130,8 +208,17 @@ export class ForbiddenError extends TaggedErrorClass<ForbiddenError>($I`Forbidde
 /**
  * 404 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { NotFoundError } from "@beep/observability"
+ *
+ * const err = new NotFoundError({ message: "user not found", status: 404 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class NotFoundError extends TaggedErrorClass<NotFoundError>($I`NotFoundError`)(
   "NotFoundError",
@@ -147,8 +234,17 @@ export class NotFoundError extends TaggedErrorClass<NotFoundError>($I`NotFoundEr
 /**
  * 409 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { ConflictError } from "@beep/observability"
+ *
+ * const err = new ConflictError({ message: "duplicate entry", status: 409 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ConflictError extends TaggedErrorClass<ConflictError>($I`ConflictError`)(
   "ConflictError",
@@ -164,8 +260,17 @@ export class ConflictError extends TaggedErrorClass<ConflictError>($I`ConflictEr
 /**
  * 422 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { UnprocessableEntityError } from "@beep/observability"
+ *
+ * const err = new UnprocessableEntityError({ message: "validation failed", status: 422 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class UnprocessableEntityError extends TaggedErrorClass<UnprocessableEntityError>($I`UnprocessableEntityError`)(
   "UnprocessableEntityError",
@@ -181,8 +286,17 @@ export class UnprocessableEntityError extends TaggedErrorClass<UnprocessableEnti
 /**
  * 429 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { TooManyRequestsError } from "@beep/observability"
+ *
+ * const err = new TooManyRequestsError({ message: "rate limit exceeded", status: 429 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class TooManyRequestsError extends TaggedErrorClass<TooManyRequestsError>($I`TooManyRequestsError`)(
   "TooManyRequestsError",
@@ -198,8 +312,17 @@ export class TooManyRequestsError extends TaggedErrorClass<TooManyRequestsError>
 /**
  * 500 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { InternalServerErrorError } from "@beep/observability"
+ *
+ * const err = new InternalServerErrorError({ message: "unexpected failure", status: 500 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class InternalServerErrorError extends TaggedErrorClass<InternalServerErrorError>($I`InternalServerErrorError`)(
   "InternalServerErrorError",
@@ -215,8 +338,17 @@ export class InternalServerErrorError extends TaggedErrorClass<InternalServerErr
 /**
  * 502 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { BadGatewayError } from "@beep/observability"
+ *
+ * const err = new BadGatewayError({ message: "upstream unavailable", status: 502 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class BadGatewayError extends TaggedErrorClass<BadGatewayError>($I`BadGatewayError`)(
   "BadGatewayError",
@@ -232,8 +364,17 @@ export class BadGatewayError extends TaggedErrorClass<BadGatewayError>($I`BadGat
 /**
  * 503 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { ServiceUnavailableError } from "@beep/observability"
+ *
+ * const err = new ServiceUnavailableError({ message: "service down", status: 503 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ServiceUnavailableError extends TaggedErrorClass<ServiceUnavailableError>($I`ServiceUnavailableError`)(
   "ServiceUnavailableError",
@@ -249,8 +390,17 @@ export class ServiceUnavailableError extends TaggedErrorClass<ServiceUnavailable
 /**
  * 504 tagged error.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { GatewayTimeoutError } from "@beep/observability"
+ *
+ * const err = new GatewayTimeoutError({ message: "upstream timed out", status: 504 })
+ * void Effect.fail(err)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class GatewayTimeoutError extends TaggedErrorClass<GatewayTimeoutError>($I`GatewayTimeoutError`)(
   "GatewayTimeoutError",
@@ -264,68 +414,186 @@ export class GatewayTimeoutError extends TaggedErrorClass<GatewayTimeoutError>($
 }
 
 /**
- * Helper constructor for {@link BadRequestError}.
+ * Helper constructor for {@link BadRequestError} (400).
+ *
+ * @example
+ * ```typescript
+ * import { makeBadRequestError } from "@beep/observability"
+ *
+ * const error = makeBadRequestError("missing required field 'email'")
+ * console.log(error.status) // 400
+ * ```
  *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeBadRequestError = makeStatusConstructor(BadRequestError, HttpStatus.BadRequest.literal);
+
 /**
+ * Helper constructor for {@link UnauthorizedError} (401).
+ *
+ * @example
+ * ```typescript
+ * import { makeUnauthorizedError } from "@beep/observability"
+ *
+ * const error = makeUnauthorizedError("token expired")
+ * console.log(error.status) // 401
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeUnauthorizedError = makeStatusConstructor(UnauthorizedError, HttpStatus.Unauthorized.literal);
+
 /**
+ * Helper constructor for {@link ForbiddenError} (403).
+ *
+ * @example
+ * ```typescript
+ * import { makeForbiddenError } from "@beep/observability"
+ *
+ * const error = makeForbiddenError("insufficient permissions")
+ * console.log(error.status) // 403
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeForbiddenError = makeStatusConstructor(ForbiddenError, HttpStatus.Forbidden.literal);
+
 /**
+ * Helper constructor for {@link NotFoundError} (404).
+ *
+ * @example
+ * ```typescript
+ * import { makeNotFoundError } from "@beep/observability"
+ *
+ * const error = makeNotFoundError("resource missing")
+ * console.log(error.status) // 404
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeNotFoundError = makeStatusConstructor(NotFoundError, HttpStatus.NotFound.literal);
+
 /**
+ * Helper constructor for {@link ConflictError} (409).
+ *
+ * @example
+ * ```typescript
+ * import { makeConflictError } from "@beep/observability"
+ *
+ * const error = makeConflictError("duplicate key")
+ * console.log(error.status) // 409
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeConflictError = makeStatusConstructor(ConflictError, HttpStatus.Conflict.literal);
+
 /**
+ * Helper constructor for {@link UnprocessableEntityError} (422).
+ *
+ * @example
+ * ```typescript
+ * import { makeUnprocessableEntityError } from "@beep/observability"
+ *
+ * const error = makeUnprocessableEntityError("schema mismatch")
+ * console.log(error.status) // 422
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeUnprocessableEntityError = makeStatusConstructor(
   UnprocessableEntityError,
   HttpStatus.UnprocessableEntity.literal
 );
+
 /**
+ * Helper constructor for {@link TooManyRequestsError} (429).
+ *
+ * @example
+ * ```typescript
+ * import { makeTooManyRequestsError } from "@beep/observability"
+ *
+ * const error = makeTooManyRequestsError("rate limit hit")
+ * console.log(error.status) // 429
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeTooManyRequestsError = makeStatusConstructor(TooManyRequestsError, HttpStatus.TooManyRequests.literal);
+
 /**
+ * Helper constructor for {@link InternalServerErrorError} (500).
+ *
+ * @example
+ * ```typescript
+ * import { makeInternalServerError } from "@beep/observability"
+ *
+ * const error = makeInternalServerError("unexpected failure")
+ * console.log(error.status) // 500
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeInternalServerError = makeStatusConstructor(
   InternalServerErrorError,
   HttpStatus.InternalServerError.literal
 );
+
 /**
+ * Helper constructor for {@link BadGatewayError} (502).
+ *
+ * @example
+ * ```typescript
+ * import { makeBadGatewayError } from "@beep/observability"
+ *
+ * const error = makeBadGatewayError("upstream unreachable")
+ * console.log(error.status) // 502
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeBadGatewayError = makeStatusConstructor(BadGatewayError, HttpStatus.BadGateway.literal);
+
 /**
+ * Helper constructor for {@link ServiceUnavailableError} (503).
+ *
+ * @example
+ * ```typescript
+ * import { makeServiceUnavailableError } from "@beep/observability"
+ *
+ * const error = makeServiceUnavailableError("service down for maintenance")
+ * console.log(error.status) // 503
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeServiceUnavailableError = makeStatusConstructor(
   ServiceUnavailableError,
   HttpStatus.ServiceUnavailable.literal
 );
+
 /**
+ * Helper constructor for {@link GatewayTimeoutError} (504).
+ *
+ * @example
+ * ```typescript
+ * import { makeGatewayTimeoutError } from "@beep/observability"
+ *
+ * const error = makeGatewayTimeoutError("upstream timed out")
+ * console.log(error.status) // 504
+ * ```
+ *
  * @since 0.0.0
- * @category ErrorHandling
+ * @category error handling
  */
 export const makeGatewayTimeoutError = makeStatusConstructor(GatewayTimeoutError, HttpStatus.GatewayTimeout.literal);

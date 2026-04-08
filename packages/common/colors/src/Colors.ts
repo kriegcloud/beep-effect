@@ -90,7 +90,7 @@ const replaceClose = (text: string, close: string, replace: string, index: numbe
  * console.log(rendered) // "\u001b[36m42\u001b[39m"
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const Formatter = FormatterSchema;
@@ -98,7 +98,7 @@ export const Formatter = FormatterSchema;
 /**
  * Runtime type for {@link Formatter}.
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export type Formatter = FormatterType;
@@ -130,7 +130,7 @@ const formatter =
  * console.log(enabled) // true
  * ```
  *
- * @category Utility
+ * @category utilities
  * @param processLike {ProcessLike} - The process-like runtime metadata used for color capability detection.
  * @returns {boolean} - `true` when ANSI escape sequences should be emitted.
  * @since 0.0.0
@@ -164,7 +164,7 @@ export const supportsColor = (processLike: ProcessLike = runtimeProcessLike): bo
  * console.log(typeof isColorSupported) // "boolean"
  * ```
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const isColorSupported = supportsColor();
@@ -185,7 +185,7 @@ export const isColorSupported = supportsColor();
  * console.log(isColorsInstance) // true
  * ```
  *
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export class Colors extends S.Class<Colors>($I`Colors`)(
@@ -213,7 +213,7 @@ export class Colors extends S.Class<Colors>($I`Colors`)(
  * console.log(rendered) // "offline"
  * ```
  *
- * @category Utility
+ * @category utilities
  * @param enabled {boolean} - Whether the returned formatter set should emit ANSI escapes.
  * @returns {Colors} - A configured immutable formatter set.
  * @since 0.0.0
@@ -281,7 +281,7 @@ export const createColors = (enabled: boolean = isColorSupported): Colors => {
  * const rendered = colors.cyan("beep")
  * ```
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const colors = createColors();

@@ -6,6 +6,9 @@
  */
 
 /**
+ * CSV formatter re-exports.
+ *
  * @since 0.0.0
+ * @category re-exports
  */
 export * from "./CsvFormatter.ts";

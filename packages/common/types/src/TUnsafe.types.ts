@@ -1,27 +1,25 @@
 /**
- * A namespaced collection of unsafe types which are purposefully painful
+ * Namespaced collection of unsafe types, intentionally painful to use.
  *
- * @example
- *
- * import { Unsafe } from "@beep/types";
- *
- * export const youShouldFeelShame = (beepBopUnsafeValue: Unsafe.Any) => console.log(beepBopUnsafeValue);
- *
- * @module @beep/types/Unsafe.types
  * @since 0.0.0
+ * @module @beep/types/Unsafe.types
  */
 
 /**
+ * Repository-wide escape hatch for the `any` type.
  *
- * Hopefully the only any used in the repo.
+ * All code that requires `any` should import this alias so unsafe usage
+ * remains visible, auditable, and centralized.
  *
  * @example
+ * ```typescript
+ * import type { TUnsafe } from "@beep/types"
  *
- * import { Unsafe } from "@beep/types";
+ * const log = (value: TUnsafe.Any) => console.log(value)
+ * log("hello")
+ * ```
  *
- * export const youShouldFeelShame = (beepBopUnsafeValue: Unsafe.Any) => console.log(beepBopUnsafeValue);
- *
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  * biome-ignore lint/suspicious/noExplicitAny: Let this be the only `any` in the repository.
  */

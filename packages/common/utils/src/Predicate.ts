@@ -8,6 +8,9 @@ import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 
 /**
+ * Re-export of all helpers from `effect/Predicate`.
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export * from "effect/Predicate";
@@ -19,26 +22,23 @@ export * from "effect/Predicate";
  * Supports both data-last and data-first invocation styles.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  * @example
  * ```ts
- * import { hasProperties } from "@beep/utils/Predicate";
+ * import { hasProperties } from "@beep/utils/Predicate"
  *
  * // Data-last style
- * const hasFooBar = hasProperties("foo", "bar");
- * hasFooBar({ foo: 1, bar: 2 }); // true
+ * const hasFooBar = hasProperties("foo", "bar")
+ * const result1 = hasFooBar({ foo: 1, bar: 2 })
+ * // true
  *
  * // Data-first style
- * hasProperties({ foo: 1, bar: 2 }, ["foo", "bar"] as const); // true
+ * const result2 = hasProperties({ foo: 1, bar: 2 }, ["foo", "bar"] as const)
+ * // true
+ *
+ * void result1
+ * void result2
  * ```
- *
- * @param properties - The property keys to check for (data-last style)
- * @returns A predicate function that checks if the value has all properties (data-last style)
- *
- * @template Properties - The type of property keys to check for
- * @param self {unknown} - The value to check (data-first style)
- * @param properties {Properties} - The property keys to check for (data-first style)
- * @returns A type predicate indicating if the value has all properties (data-first style)
  */
 export const hasProperties: {
   <Properties extends A.NonEmptyReadonlyArray<PropertyKey>>(

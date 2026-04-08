@@ -60,7 +60,23 @@ const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content
 });
 
 /**
- * Effectful schema transformation from TOML text to unknown document values.
+ * Schema transformation that decodes TOML text into an unknown record using
+ * `Bun.TOML.parse`.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { TomlTextToUnknown } from "@beep/schema/Toml"
+ *
+ * const program = Effect.gen(function* () {
+ *   const parsed = yield* S.decodeUnknownEffect(TomlTextToUnknown)(
+ *     '[server]\nport = 8080\nhost = "localhost"'
+ *   )
+ *   return parsed
+ * })
+ * void program
+ * ```
  *
  * @category Validation
  * @since 0.0.0
@@ -78,7 +94,26 @@ export const TomlTextToUnknown = S.String.pipe(
 );
 
 /**
- * Decode TOML text into a target schema using Bun-backed parsing and schema decoding.
+ * Builds a decoder that parses TOML text and then decodes the result through a
+ * target schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { decodeTomlTextAs } from "@beep/schema/Toml"
+ *
+ * const ServerConfig = S.Struct({ port: S.Number, host: S.String })
+ * const decodeConfig = decodeTomlTextAs(S.Struct({ server: ServerConfig }))
+ *
+ * const program = Effect.gen(function* () {
+ *   const config = yield* decodeConfig(
+ *     '[server]\nport = 8080\nhost = "localhost"'
+ *   )
+ *   return config
+ * })
+ * void program
+ * ```
  *
  * @param schema - Target schema to decode parsed TOML document into.
  * @returns Decoder function from TOML text to the target schema type.

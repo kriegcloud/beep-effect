@@ -61,9 +61,16 @@ const decodeYamlUnknown = Effect.fn("Yaml.decodeYamlUnknown")(function* (input: 
 });
 
 /**
- * YAML parsing wrapper.
+ * Parses a YAML string into a JavaScript value. Uses `Bun.YAML` when available
+ * and otherwise falls back to the `yaml` package.
  *
- * Uses Bun.YAML when available and otherwise falls back to the `yaml` package.
+ * @example
+ * ```ts
+ * import { parseYaml } from "@beep/schema/Yaml"
+ *
+ * const value = parseYaml("name: Alice\nage: 30")
+ * void value
+ * ```
  *
  * @category Utility
  * @since 0.0.0
@@ -71,7 +78,22 @@ const decodeYamlUnknown = Effect.fn("Yaml.decodeYamlUnknown")(function* (input: 
 export const parseYaml = makeParseYaml(yamlRuntime, loadYamlModule);
 
 /**
- * Effectful schema transformation from YAML text to unknown document values.
+ * Schema transformation that decodes YAML text into an unknown parsed value.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { YamlTextToUnknown } from "@beep/schema/Yaml"
+ *
+ * const program = Effect.gen(function* () {
+ *   const parsed = yield* S.decodeUnknownEffect(YamlTextToUnknown)(
+ *     "name: Alice\nage: 30"
+ *   )
+ *   return parsed
+ * })
+ * void program
+ * ```
  *
  * @category Validation
  * @since 0.0.0
@@ -92,7 +114,24 @@ export const YamlTextToUnknown = S.String.pipe(
 );
 
 /**
- * Decode YAML text into a target schema using schema-backed parsing and decoding.
+ * Builds a decoder that parses YAML text and then decodes the result through a
+ * target schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { decodeYamlTextAs } from "@beep/schema/Yaml"
+ *
+ * const Config = S.Struct({ name: S.String, age: S.Number })
+ * const decodeConfig = decodeYamlTextAs(Config)
+ *
+ * const program = Effect.gen(function* () {
+ *   const config = yield* decodeConfig("name: Alice\nage: 30")
+ *   return config
+ * })
+ * void program
+ * ```
  *
  * @param schema - Target schema to decode parsed YAML document into.
  * @returns Decoder function from YAML text to the target schema type.

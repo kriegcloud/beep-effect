@@ -15,7 +15,20 @@ import * as jsonc from "jsonc-parser";
 const $I = $SchemaId.create("Jsonc");
 
 /**
- * JSONC parse diagnostics.
+ * Typed representation of a single JSONC parse diagnostic produced by `jsonc-parser`.
+ *
+ * @example
+ * ```ts
+ * import { JsoncParseDiagnostic } from "@beep/schema/Jsonc"
+ * import * as S from "effect/Schema"
+ *
+ * const diag = S.decodeUnknownSync(JsoncParseDiagnostic)({
+ *   code: 1,
+ *   offset: 10,
+ *   length: 3,
+ * })
+ * void diag
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -62,7 +75,23 @@ const decodeJsoncUnknown = Effect.fn("Jsonc.decodeJsoncUnknown")(function* (cont
 });
 
 /**
- * Effectful schema transformation from JSONC text to unknown document values.
+ * Schema transformation that decodes a JSONC string (JSON with comments and
+ * trailing commas) into an unknown parsed value.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { JsoncTextToUnknown } from "@beep/schema/Jsonc"
+ *
+ * const program = Effect.gen(function* () {
+ *   const parsed = yield* S.decodeUnknownEffect(JsoncTextToUnknown)(
+ *     '{ "name": "Alice", "age": 30, }'
+ *   )
+ *   return parsed
+ * })
+ * void program
+ * ```
  *
  * @category Validation
  * @since 0.0.0
@@ -83,7 +112,24 @@ export const JsoncTextToUnknown = S.String.pipe(
 );
 
 /**
- * Decode JSONC text into a target schema using schema-backed parsing and decoding.
+ * Builds a decoder that parses JSONC text and then decodes the result through a
+ * target schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { decodeJsoncTextAs } from "@beep/schema/Jsonc"
+ *
+ * const Config = S.Struct({ port: S.Number, host: S.String })
+ * const decodeConfig = decodeJsoncTextAs(Config)
+ *
+ * const program = Effect.gen(function* () {
+ *   const config = yield* decodeConfig('{ "port": 3000, "host": "localhost" }')
+ *   return config
+ * })
+ * void program
+ * ```
  *
  * @param schema - Target schema to decode parsed JSONC document into.
  * @returns Decoder function from JSONC text to the target schema type.

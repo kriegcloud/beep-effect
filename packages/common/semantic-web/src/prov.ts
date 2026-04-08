@@ -57,8 +57,17 @@ const provDateTimeChecks = S.makeFilterGroup(
 /**
  * PROV object reference encoded as an IRI, CURIE, or local identifier.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObjectRef } from "@beep/semantic-web/prov"
+ *
+ * const ref = S.decodeUnknownSync(ObjectRef)("prov:entity1")
+ * console.log(ref) // "prov:entity1"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const ObjectRef = S.String.check(provObjectRefChecks).pipe(
   S.brand("ProvObjectRef"),
@@ -82,7 +91,7 @@ export const ObjectRef = S.String.check(provObjectRefChecks).pipe(
  * Type for {@link ObjectRef}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ObjectRef = typeof ObjectRef.Type;
 
@@ -90,7 +99,7 @@ export type ObjectRef = typeof ObjectRef.Type;
  * Encoded PROV timestamp string.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const ProvDateTimeEncoded = S.String.check(provDateTimeChecks).pipe(
   S.brand("ProvDateTimeEncoded"),
@@ -114,7 +123,7 @@ export const ProvDateTimeEncoded = S.String.check(provDateTimeChecks).pipe(
  * Type for {@link ProvDateTimeEncoded}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ProvDateTimeEncoded = typeof ProvDateTimeEncoded.Type;
 
@@ -122,7 +131,7 @@ export type ProvDateTimeEncoded = typeof ProvDateTimeEncoded.Type;
  * PROV timestamp decoded to `DateTime.Utc`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const ProvDateTime = ProvDateTimeEncoded.pipe(
   S.decodeTo(S.DateTimeUtcFromString),
@@ -146,7 +155,7 @@ export const ProvDateTime = ProvDateTimeEncoded.pipe(
  * Type for {@link ProvDateTime}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ProvDateTime = typeof ProvDateTime.Type;
 
@@ -154,7 +163,7 @@ export type ProvDateTime = typeof ProvDateTime.Type;
  * Explicit lifecycle time fields retained outside plain PROV activity timestamps.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
   {
@@ -185,8 +194,16 @@ export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
 /**
  * PROV entity.
  *
+ * @example
+ * ```typescript
+ * import { Entity } from "@beep/semantic-web/prov"
+ *
+ * const entity = Entity.makeUnsafe({ provType: "Entity" })
+ * console.log(entity.provType) // "Entity"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Entity extends S.Class<Entity>($I`Entity`)(
   {
@@ -219,8 +236,16 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
 /**
  * PROV activity.
  *
+ * @example
+ * ```typescript
+ * import { Activity } from "@beep/semantic-web/prov"
+ *
+ * const activity = Activity.makeUnsafe({ provType: "Activity" })
+ * console.log(activity.provType) // "Activity"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Activity extends S.Class<Activity>($I`Activity`)(
   {
@@ -248,8 +273,16 @@ export class Activity extends S.Class<Activity>($I`Activity`)(
 /**
  * PROV agent.
  *
+ * @example
+ * ```typescript
+ * import { Agent } from "@beep/semantic-web/prov"
+ *
+ * const agent = Agent.makeUnsafe({ provType: "Agent", name: "alice" })
+ * console.log(agent.provType) // "Agent"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Agent extends S.Class<Agent>($I`Agent`)(
   {
@@ -275,7 +308,7 @@ export class Agent extends S.Class<Agent>($I`Agent`)(
  * PROV software agent.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class SoftwareAgent extends S.Class<SoftwareAgent>($I`SoftwareAgent`)(
   {
@@ -301,7 +334,7 @@ export class SoftwareAgent extends S.Class<SoftwareAgent>($I`SoftwareAgent`)(
  * PROV plan.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Plan extends S.Class<Plan>($I`Plan`)(
   {
@@ -327,7 +360,7 @@ export class Plan extends S.Class<Plan>($I`Plan`)(
  * PROV collection.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Collection extends S.Class<Collection>($I`Collection`)(
   {
@@ -353,7 +386,7 @@ export class Collection extends S.Class<Collection>($I`Collection`)(
  * PROV person.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Person extends S.Class<Person>($I`Person`)(
   {
@@ -379,7 +412,7 @@ export class Person extends S.Class<Person>($I`Person`)(
  * PROV organization.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Organization extends S.Class<Organization>($I`Organization`)(
   {
@@ -416,7 +449,7 @@ const relationMetadata = (canonicalName: string, overview: string, profile: "min
  * PROV usage relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Usage extends S.Class<Usage>($I`Usage`)(
   {
@@ -434,7 +467,7 @@ export class Usage extends S.Class<Usage>($I`Usage`)(
  * PROV generation relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Generation extends S.Class<Generation>($I`Generation`)(
   {
@@ -452,7 +485,7 @@ export class Generation extends S.Class<Generation>($I`Generation`)(
  * PROV association relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Association extends S.Class<Association>($I`Association`)(
   {
@@ -470,7 +503,7 @@ export class Association extends S.Class<Association>($I`Association`)(
  * PROV attribution relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Attribution extends S.Class<Attribution>($I`Attribution`)(
   {
@@ -487,7 +520,7 @@ export class Attribution extends S.Class<Attribution>($I`Attribution`)(
  * PROV delegation relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Delegation extends S.Class<Delegation>($I`Delegation`)(
   {
@@ -505,7 +538,7 @@ export class Delegation extends S.Class<Delegation>($I`Delegation`)(
  * PROV derivation relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Derivation extends S.Class<Derivation>($I`Derivation`)(
   {
@@ -522,7 +555,7 @@ export class Derivation extends S.Class<Derivation>($I`Derivation`)(
  * PROV primary-source relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class PrimarySource extends S.Class<PrimarySource>($I`PrimarySource`)(
   {
@@ -539,7 +572,7 @@ export class PrimarySource extends S.Class<PrimarySource>($I`PrimarySource`)(
  * PROV quotation relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Quotation extends S.Class<Quotation>($I`Quotation`)(
   {
@@ -556,7 +589,7 @@ export class Quotation extends S.Class<Quotation>($I`Quotation`)(
  * PROV revision relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Revision extends S.Class<Revision>($I`Revision`)(
   {
@@ -573,7 +606,7 @@ export class Revision extends S.Class<Revision>($I`Revision`)(
  * PROV start relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Start extends S.Class<Start>($I`Start`)(
   {
@@ -591,7 +624,7 @@ export class Start extends S.Class<Start>($I`Start`)(
  * PROV end relation.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class End extends S.Class<End>($I`End`)(
   {
@@ -608,8 +641,17 @@ export class End extends S.Class<End>($I`End`)(
 /**
  * Public PROV record union for the stable semantic-web surface.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ProvRecord } from "@beep/semantic-web/prov"
+ *
+ * const decoded = S.decodeUnknownSync(ProvRecord)({ provType: "Agent", name: "bob" })
+ * console.log(decoded.provType) // "Agent"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const ProvRecord = S.Union([
   Entity,
@@ -650,15 +692,23 @@ export const ProvRecord = S.Union([
  * Type for {@link ProvRecord}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ProvRecord = typeof ProvRecord.Type;
 
 /**
  * Bounded provenance bundle exported by the semantic-web surface.
  *
+ * @example
+ * ```typescript
+ * import { ProvBundle } from "@beep/semantic-web/prov"
+ *
+ * const bundle = ProvBundle.makeUnsafe({ records: [] })
+ * console.log(bundle.records.length) // 0
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
   {
@@ -685,7 +735,7 @@ export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
  * Public provenance entrypoint union.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const ProvO = S.Union([ProvBundle, ProvRecord]).annotate(
   $I.annote("ProvO", {
@@ -706,6 +756,6 @@ export const ProvO = S.Union([ProvBundle, ProvRecord]).annotate(
  * Type for {@link ProvO}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ProvO = typeof ProvO.Type;

@@ -26,8 +26,10 @@ type TaggedErrorSchema<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any,
   ErrorClass extends S.ErrorClass<TUnsafe.Any, infer Schema, TUnsafe.Any> ? Schema : never;
 
 /**
+ * Input type for constructing a tagged error, omitting the discriminator `_tag`.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TaggedErrorNewInput<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> = Omit<
   S.Schema.Type<TaggedErrorSchema<ErrorClass>>,
@@ -87,8 +89,10 @@ type TaggedErrorNewThunkMethod<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUns
     : {});
 
 /**
+ * A tagged error class augmented with `new` and `newThunk` convenience constructors.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TaggedErrorClassWithNew<ErrorClass extends S.ErrorClass<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
   ErrorClass & {
@@ -105,8 +109,10 @@ type TaggedErrorFromSchema<Self, Brand, Tag extends string, Schema extends Tagge
 >;
 
 /**
+ * Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export interface TaggedErrorClassFactory<Self, Brand = {}> {
   <Tag extends string, const Fields extends TaggedErrorFields>(
@@ -123,8 +129,10 @@ export interface TaggedErrorClassFactory<Self, Brand = {}> {
 }
 
 /**
+ * Callable constructor type for building tagged error classes.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TaggedErrorClassConstructor = <Self, Brand = {}>(
   identifier?: undefined | string
@@ -199,8 +207,50 @@ function toCausePayload(cause: unknown, rest: unknown): Record<string, unknown> 
 }
 
 /**
- * @category Validation
+ * Create a tagged error class with `_tag` discrimination, `.new()`, and `.newThunk()` constructors.
+ *
+ * Wraps `S.ErrorClass` and automatically prepends a `_tag` field. When the
+ * schema includes a `cause` field, the `.new()` method supports dual-arity
+ * `(cause, rest)` invocation for ergonomic error construction.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Effect } from "effect"
+ * import { TaggedErrorClass } from "@beep/schema"
+ *
+ * class NotFound extends TaggedErrorClass<NotFound>()("NotFound", {
+ *   message: S.String,
+ * }) {}
+ *
+ * const err = NotFound.new({ message: "User not found" })
+ *
+ * const program = Effect.fail(err).pipe(
+ *   Effect.catchTag("NotFound", (e) => Effect.succeed(e.message))
+ * )
+ * ```
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Effect } from "effect"
+ * import { TaggedErrorClass } from "@beep/schema"
+ *
+ * class DbError extends TaggedErrorClass<DbError>()("DbError", {
+ *   message: S.String,
+ *   cause: S.DefectWithStack,
+ * }) {}
+ *
+ * const program = Effect.try({
+ *   try: () => JSON.parse("bad"),
+ *   catch: (cause) => DbError.new(cause, { message: "parse failed" })
+ * })
+ *
+ * void program
+ * ```
+ *
  * @since 0.0.0
+ * @category constructors
  */
 export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undefined | string) => {
   return ((

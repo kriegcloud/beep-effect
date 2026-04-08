@@ -32,16 +32,35 @@ void i18next.init({
 /**
  * Translation function configured for repository messages.
  *
+ * @example
+ * ```typescript
+ * import { t } from "@beep/messages"
+ *
+ * const msg = t("struct.missingKey")
+ * console.log(msg) // "This field is required"
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const t = i18next.t;
 
 /**
  * Configuration for schema issue formatting hooks.
  *
+ * @example
+ * ```typescript
+ * import type { GetLogIssuesOptions } from "@beep/messages"
+ *
+ * const opts: GetLogIssuesOptions = {
+ *   leafHook: (issue) => `Leaf: ${issue._tag}`,
+ *   checkHook: () => "Check failed",
+ * }
+ * void opts
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type GetLogIssuesOptions = Readonly<{
   readonly checkHook?: undefined | SchemaIssue.CheckHook;
@@ -116,7 +135,7 @@ export type GetLogIssuesOptions = Readonly<{
  * // Failure(Cause([Fail([{"path":["name"],"message":"Please enter at least 1 character(s)"}])]))
  *
  *
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  * @param options
  */
@@ -143,8 +162,17 @@ const matchInvalidIssue = Match.type<SchemaIssue.InvalidType["ast"]>().pipe(
 /**
  * Default formatter hook for leaf-level schema issues.
  *
+ * Maps each schema issue variant to an i18n translated message string.
+ *
+ * @example
+ * ```typescript
+ * import { leafHook } from "@beep/messages"
+ *
+ * console.log(typeof leafHook) // "function"
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const leafHook = Match.type<SchemaIssue.Leaf>().pipe(
   Match.tagsExhaustive({
@@ -165,8 +193,19 @@ const matchMetaFilter = Match.type<S.Annotations.Filter["meta"]>().pipe(
 /**
  * Default issue logger using the repository i18n formatter hooks.
  *
+ * @example
+ * ```typescript
+ * import { logIssues } from "@beep/messages"
+ * import * as S from "effect/Schema"
+ *
+ * const Person = S.Struct({ name: S.NonEmptyString })
+ *
+ * logIssues(Person, { name: "" })
+ * // Logs formatted issues to console
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const logIssues = getLogIssues({
   // Format leaf-level issues (missing key, wrong type, etc.)

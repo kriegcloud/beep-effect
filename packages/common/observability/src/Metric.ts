@@ -1,3 +1,28 @@
+/**
+ * Effect metric observation helpers for duration tracking, workflow profiling,
+ * and HTTP request instrumentation.
+ *
+ * All helpers wrap an inner `Effect` and transparently record metrics and span
+ * annotations without altering the original success/failure semantics.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric, Duration } from "effect"
+ * import { measureElapsedMillis, trackDuration } from "@beep/observability"
+ *
+ * const timer = Metric.timer("my_op_duration")
+ *
+ * const program = trackDuration(
+ *   timer,
+ *   Effect.log("doing work"),
+ * )
+ *
+ * void Effect.runPromise(program)
+ * ```
+ *
+ * @module @beep/observability/Metric
+ * @since 0.0.0
+ */
 import { Clock, Duration, Effect, Exit, Metric } from "effect";
 
 const withMetricAttributes = <Input, State>(
@@ -12,10 +37,22 @@ const incrementCounter = (
   counter === undefined ? Effect.void : Metric.update(withMetricAttributes(counter, attributes), 1);
 
 /**
- * Normalize an HTTP status to its class label.
+ * Normalize an HTTP status code to its class label (e.g. `"2xx"`, `"4xx"`).
+ *
+ * Returns `"unknown"` for status codes outside the 100-599 range.
+ *
+ * @example
+ * ```typescript
+ * import { statusClass } from "@beep/observability"
+ *
+ * console.log(statusClass(200)) // "2xx"
+ * console.log(statusClass(404)) // "4xx"
+ * console.log(statusClass(503)) // "5xx"
+ * console.log(statusClass(999)) // "unknown"
+ * ```
  *
  * @since 0.0.0
- * @category Observability
+ * @category utilities
  */
 export const statusClass = (status: number): string => {
   if (status >= 100 && status < 600) {
@@ -28,8 +65,27 @@ export const statusClass = (status: number): string => {
 /**
  * Measure wall-clock elapsed milliseconds for an effect.
  *
+ * Returns a tuple of `[result, elapsedMs]` without altering the inner
+ * effect's success or failure semantics.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { measureElapsedMillis } from "@beep/observability"
+ *
+ * const program = measureElapsedMillis(
+ *   Effect.sleep("100 millis").pipe(Effect.as("done"))
+ * ).pipe(
+ *   Effect.tap(([result, elapsed]) =>
+ *     Effect.log(`${result} in ${elapsed}ms`)
+ *   )
+ * )
+ *
+ * void Effect.runPromise(program)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const measureElapsedMillis = <A, E, R>(
   effect: Effect.Effect<A, E, R>
@@ -47,8 +103,25 @@ export const measureElapsedMillis = <A, E, R>(
 /**
  * Track one timer metric around an effect.
  *
+ * Records the wall-clock elapsed duration into the provided metric and
+ * annotates the current span with `duration_ms`.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { trackDuration } from "@beep/observability"
+ *
+ * const timer = Metric.timer("user_create_duration")
+ *
+ * const createUser = Effect.succeed({ id: "user__1", name: "Alice" })
+ *
+ * const tracked = trackDuration(timer, createUser, { service: "iam" })
+ *
+ * void Effect.runPromise(tracked)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const trackDuration = <A, E, R>(
   metric: Metric.Metric<Duration.Duration, unknown>,
@@ -67,8 +140,40 @@ export const trackDuration = <A, E, R>(
 /**
  * Observe one workflow with start, terminal outcome, and duration metrics.
  *
+ * Wraps an effect and records lifecycle counters (`started`, `completed`,
+ * `failed`, `interrupted`) plus an optional duration metric. The current
+ * span is annotated with `workflow_name`, `workflow_duration_ms`, and
+ * `workflow_outcome`.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { observeWorkflow } from "@beep/observability"
+ *
+ * const started = Metric.counter("workflow_started_total")
+ * const completed = Metric.counter("workflow_completed_total")
+ * const failed = Metric.counter("workflow_failed_total")
+ * const duration = Metric.timer("workflow_duration")
+ *
+ * const myWorkflow = Effect.succeed("result")
+ *
+ * const observed = observeWorkflow(
+ *   {
+ *     name: "createOrder",
+ *     started,
+ *     completed,
+ *     failed,
+ *     duration,
+ *     attributes: { service: "orders" },
+ *   },
+ *   myWorkflow,
+ * )
+ *
+ * void Effect.runPromise(observed)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const observeWorkflow = <A, E, R>(
   options: {
@@ -120,8 +225,37 @@ export const observeWorkflow = <A, E, R>(
 /**
  * Observe one HTTP request with success and failure metrics.
  *
+ * Wraps an effect whose error type carries a `status` field. Records
+ * `requestsTotal` and `requestDuration` metrics with `method`, `route`,
+ * and `status_class` attributes. The current span is annotated with
+ * `http_status`, `http_status_class`, and `http_request_duration_ms`.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { observeHttpRequest } from "@beep/observability"
+ *
+ * const requestsTotal = Metric.counter("http_requests_total")
+ * const requestDuration = Metric.timer("http_request_duration")
+ *
+ * const handler = Effect.succeed({ id: 1, name: "Alice" })
+ *
+ * const observed = observeHttpRequest(
+ *   {
+ *     method: "GET",
+ *     route: "/users/:id",
+ *     successStatus: 200,
+ *     requestsTotal,
+ *     requestDuration,
+ *   },
+ *   handler,
+ * )
+ *
+ * void Effect.runPromise(observed)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
   options: {

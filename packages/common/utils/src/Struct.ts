@@ -72,7 +72,7 @@ function assertStructHasStringEntries<T>(
 export type PathLookup = InternalPathLookup;
 
 /**
- * Retrieves a value from a struct by a path.
+ * Retrieves a value from a struct by a dot-delimited or tuple path.
  *
  * Uses type-fest `Paths` for path validation and `Get` for value resolution.
  *
@@ -81,8 +81,25 @@ export type PathLookup = InternalPathLookup;
  * - Data-first: `dotGet(self, "attributes.name")`
  * - Tuple paths: `dotGet(["attributes", "name"] as const)(self)`
  *
+ * @example
+ * ```ts
+ * import { pipe } from "effect"
+ * import { Struct } from "@beep/utils"
+ *
+ * const user = { profile: { name: "Alice", age: 30 } }
+ *
+ * // Data-first
+ * const name = Struct.dotGet(user, "profile.name")
+ *
+ * // Data-last (pipeable)
+ * const age = pipe(user, Struct.dotGet("profile.age"))
+ *
+ * void name
+ * void age
+ * ```
+ *
+ * @category getters
  * @since 0.0.0
- * @category Utility
  */
 export const dotGet: {
   <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => Get<S, P>;
@@ -99,13 +116,32 @@ export const dotGet: {
 };
 
 /**
- * Retrieves a value as an `Option` by a path.
+ * Retrieves a value as an `Option` by a dot-delimited or tuple path.
  *
- * Missing paths return `O.none()`. Existing paths always return
- * `O.some(value)`, including `value === undefined`.
+ * Missing paths return `Option.none()`. Existing paths always return
+ * `Option.some(value)`, including when `value === undefined`.
  *
+ * @example
+ * ```ts
+ * import { pipe } from "effect"
+ * import { Struct } from "@beep/utils"
+ *
+ * const user = { profile: { name: "Alice" } }
+ *
+ * // Data-first
+ * const name = Struct.dotGetOption(user, "profile.name")
+ * // Option.some("Alice")
+ *
+ * // Missing path
+ * const missing = Struct.dotGetOption(user, "profile.age" as never)
+ * // Option.none()
+ *
+ * void name
+ * void missing
+ * ```
+ *
+ * @category getters
  * @since 0.0.0
- * @category Utility
  */
 export const dotGetOption: {
   <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => O.Option<Get<S, P>>;
@@ -136,8 +172,22 @@ export const dotGetOption: {
  * If the runtime value does not actually satisfy the statically-declared path,
  * `undefined` is forwarded to `f`, matching {@link dotGet}.
  *
+ * @example
+ * ```ts
+ * import { pipe } from "effect"
+ * import { Struct } from "@beep/utils"
+ *
+ * const user = { profile: { name: "alice" } }
+ *
+ * // Data-first
+ * const upper = Struct.mapPath(user, (s: string) => s.toUpperCase(), "profile.name")
+ * // "ALICE"
+ *
+ * void upper
+ * ```
+ *
+ * @category combinators
  * @since 0.2.0
- * @category Utility
  */
 export const mapPath: {
   <A, B, const P extends string>(
@@ -197,8 +247,21 @@ export const mapPath: {
  * If the runtime value does not actually satisfy the statically-declared path,
  * `undefined` is forwarded to `f`, matching {@link dotGet}.
  *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const user = { profile: { name: "alice" } }
+ *
+ * const lazy = Struct.mapPathLazy(user, (s: string) => s.toUpperCase(), "profile.name")
+ * const value = lazy()
+ * // "ALICE"
+ *
+ * void value
+ * ```
+ *
+ * @category combinators
  * @since 0.2.0
- * @category Utility
  */
 export const mapPathLazy: {
   <A, B, const P extends string>(
@@ -246,7 +309,7 @@ export const mapPathLazy: {
 };
 
 /**
- * Retrieves a thunk that reads a value from a struct by key.
+ * Returns a thunk that reads a value from a struct by key.
  *
  * Mirrors `effect/Struct.get`, but delays the property access until the
  * returned zero-argument function is invoked.
@@ -255,8 +318,29 @@ export const mapPathLazy: {
  * - Data-last: `pipe(self, Struct.getLazy("name"))()`
  * - Data-first: `Struct.getLazy(self, "name")()`
  *
+ * @example
+ * ```ts
+ * import { pipe } from "effect"
+ * import { Struct } from "@beep/utils"
+ *
+ * const config = { host: "localhost", port: 3000 }
+ *
+ * // Data-first
+ * const getHost = Struct.getLazy(config, "host")
+ * const host = getHost()
+ * // "localhost"
+ *
+ * // Data-last (pipeable)
+ * const getPort = pipe(config, Struct.getLazy("port"))
+ * const port = getPort()
+ * // 3000
+ *
+ * void host
+ * void port
+ * ```
+ *
+ * @category getters
  * @since 0.2.0
- * @category Utility
  */
 export const getLazy: {
   <S extends object, const K extends keyof S>(key: K): (self: S) => () => S[K];
@@ -270,13 +354,26 @@ export const getLazy: {
 // bench
 
 /**
- * Returns all type-level `Paths` of a struct as a `NonEmptyReadonlyArray` of literal strings.
+ * Returns all type-level `Paths` of a struct as a `NonEmptyReadonlyArray` of
+ * literal strings.
  *
  * Recursively walks the object at runtime, collecting every dot-delimited path
  * that `Paths<S>` would generate at the type level.
  *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const config = { db: { host: "localhost", port: 5432 }, debug: true }
+ *
+ * const paths = Struct.pathsOf(config)
+ * // ["db", "db.host", "db.port", "debug"]
+ *
+ * void paths
+ * ```
+ *
+ * @category getters
  * @since 0.2.0
- * @category Utility
  */
 export const pathsOf = <const S extends Record<string, unknown>>(
   obj: S
@@ -334,7 +431,7 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  * ```
  *
  * @since 3.17.0
- * @category Utility
+ * @category utility
  */
 export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
   Fn.cast<Array<readonly [keyof R & string, R[keyof R & string]]>, StringKeyEntries<R>>(
@@ -350,8 +447,20 @@ export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
  * Empty struct types are rejected at compile time. A runtime empty value still
  * fails fast with {@link EmptyStructError} to protect the invariant.
  *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const config = { host: "localhost", port: 3000 }
+ *
+ * const result = Struct.entriesNonEmpty(config)
+ * // [["host", "localhost"], ["port", 3000]]
+ *
+ * void result
+ * ```
+ *
+ * @category getters
  * @since 0.2.0
- * @category Utility
  */
 export const entriesNonEmpty = <const R extends object>(
   obj: R & NonEmptyStringKeyStruct<R>
@@ -364,8 +473,22 @@ export const entriesNonEmpty = <const R extends object>(
 /**
  * Returns the string keys of an object in a type-safe manner.
  *
+ * Symbol keys are excluded from the result.
+ *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const config = { host: "localhost", port: 3000 }
+ *
+ * const result = Struct.keys(config)
+ * // ["host", "port"]
+ *
+ * void result
+ * ```
+ *
+ * @category getters
  * @since 0.2.0
- * @category Utility
  */
 export const keys = <const R extends object>(obj: R): Array<keyof R & string> => EffectStruct.keys(obj);
 
@@ -375,8 +498,20 @@ export const keys = <const R extends object>(obj: R): Array<keyof R & string> =>
  * Empty struct types are rejected at compile time. A runtime empty value still
  * fails fast with {@link EmptyStructError} to protect the invariant.
  *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const config = { host: "localhost", port: 3000 }
+ *
+ * const result = Struct.keysNonEmpty(config)
+ * // ["host", "port"] typed as NonEmptyReadonlyArray
+ *
+ * void result
+ * ```
+ *
+ * @category getters
  * @since 0.2.0
- * @category Utility
  */
 export const keysNonEmpty = <const R extends object>(
   obj: R & NonEmptyStringKeyStruct<R>
@@ -392,8 +527,20 @@ export const keysNonEmpty = <const R extends object>(
  * Accepts an iterable of `[key, value]` pairs and produces an object
  * whose type is the simplified union of all entries.
  *
+ * @example
+ * ```ts
+ * import { Struct } from "@beep/utils"
+ *
+ * const entries = [["host", "localhost"], ["port", 3000]] as const
+ *
+ * const obj = Struct.fromEntries(entries)
+ * // { host: "localhost", port: 3000 }
+ *
+ * void obj
+ * ```
+ *
+ * @category constructors
  * @since 0.2.0
- * @category Utility
  */
 export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
   entries: Iterable<E>
@@ -413,8 +560,9 @@ export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
 };
 
 /**
- * Re-exports all `Struct` helpers from Effect.
+ * Re-export of all helpers from `effect/Struct`.
  *
+ * @category utilities
  * @since 0.0.0
  */
 export * from "effect/Struct";
@@ -476,7 +624,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
  * ErrorCode[reversed[ErrorCode.SUCCESSFUL_COMPLETION]]; // "00000"
  *
  * @since 0.1.0
- * @category Utility
+ * @category utility
  */
 export const reverse: {
   <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;

@@ -7,6 +7,7 @@ const config = {
     ".codex/package.json",
     "apps/*/package.json",
     "scratchpad/package.json",
+    "infra/package.json",
     "packages/_internal/*/package.json",
     "packages/common/*/package.json",
     "packages/repo-memory/client/package.json",

@@ -69,7 +69,25 @@ const makeRenderMarkdownHtml = (options?: MarkdownRenderOptions) =>
   });
 
 /**
- * Schema factory that renders Markdown text into HTML text using Bun's Markdown runtime.
+ * Schema factory that renders Markdown text into HTML using `Bun.markdown.html`.
+ *
+ * Returns a schema transformation from Markdown source text to rendered HTML
+ * text. Encoding back to Markdown is not supported.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { MarkdownTextToHtml } from "@beep/schema/Markdown"
+ *
+ * const program = Effect.gen(function* () {
+ *   const html = yield* S.decodeUnknownEffect(MarkdownTextToHtml())(
+ *     "# Hello\n\nWorld"
+ *   )
+ *   return html
+ * })
+ * void program
+ * ```
  *
  * @param options - Optional Bun Markdown parser options. When omitted, Bun defaults are preserved.
  * @returns Schema transformation from Markdown text to rendered HTML text.
@@ -93,7 +111,23 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
 };
 
 /**
- * Decode Markdown text into a target schema using Bun-backed HTML rendering and schema decoding.
+ * Builds a decoder that renders Markdown text to HTML and then decodes the
+ * result through a target schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { decodeMarkdownTextAs } from "@beep/schema/Markdown"
+ *
+ * const decodeHtml = decodeMarkdownTextAs(S.String)
+ *
+ * const program = Effect.gen(function* () {
+ *   const html = yield* decodeHtml("# Hello")
+ *   return html
+ * })
+ * void program
+ * ```
  *
  * @param schema - Target schema to decode rendered HTML output into.
  * @param options - Optional Bun Markdown parser options. When omitted, Bun defaults are preserved.

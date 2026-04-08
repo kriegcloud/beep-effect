@@ -246,8 +246,21 @@ const isMutableGraphValue = <Node, Edge>(value: unknown): value is Graph_.Mutabl
 /**
  * Branded schema for graph node indices.
  *
+ * Validates that the value is a non-negative integer.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NodeIndex } from "@beep/schema/Graph"
+ *
+ * const decode = S.decodeUnknownSync(NodeIndex)
+ *
+ * const idx = decode(0)
+ * console.log(idx) // 0
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category constructors
  */
 export const NodeIndex = S.Int.check(isNonNegative).pipe(
   S.brand("NodeIndex"),
@@ -257,18 +270,29 @@ export const NodeIndex = S.Int.check(isNonNegative).pipe(
 );
 
 /**
- * Type for {@link NodeIndex}.
+ * Branded node index type extracted from {@link NodeIndex}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type NodeIndex = typeof NodeIndex.Type;
 
 /**
- * String-backed schema for graph node indices.
+ * Decode a string-encoded graph node index into a branded {@link NodeIndex}.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NodeIndexFromString } from "@beep/schema/Graph"
+ *
+ * const decode = S.decodeUnknownSync(NodeIndexFromString)
+ *
+ * const idx = decode("3")
+ * console.log(idx) // 3
+ * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category constructors
  */
 export const NodeIndexFromString = S.NumberFromString.pipe(
   S.decodeTo(NodeIndex),
@@ -291,18 +315,18 @@ export const EdgeIndex = S.Int.check(isNonNegative).pipe(
 );
 
 /**
- * Type for {@link EdgeIndex}.
+ * Branded edge index type extracted from {@link EdgeIndex}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EdgeIndex = typeof EdgeIndex.Type;
 
 /**
- * String-backed schema for graph edge indices.
+ * Decode a string-encoded graph edge index into a branded {@link EdgeIndex}.
  *
  * @since 0.0.0
- * @category Validation
+ * @category constructors
  */
 export const EdgeIndexFromString = S.NumberFromString.pipe(
   S.decodeTo(EdgeIndex),
@@ -324,10 +348,10 @@ export const GraphKind = S.Literals(["directed", "undirected"]).pipe(
 );
 
 /**
- * Type for {@link GraphKind}.
+ * Graph kind discriminator type extracted from {@link GraphKind}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type GraphKind = typeof GraphKind.Type;
 
@@ -335,7 +359,7 @@ export type GraphKind = typeof GraphKind.Type;
  * Encoded edge representation used by graph codecs.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EdgeEncoded<Data> = Readonly<{
   readonly source: NodeIndex;
@@ -347,7 +371,7 @@ export type EdgeEncoded<Data> = Readonly<{
  * Encoded graph representation used by graph codecs.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type GraphEncoded<Node, Edge, Kind extends GraphKindValue = GraphKindValue> = Readonly<{
   readonly _tag: "Graph";
@@ -597,10 +621,30 @@ export const EdgeTransform = <Data extends S.Top>(data: Data): EdgeTransform<Dat
 /**
  * Schema for graph edges. This is an alias of {@link EdgeTransform}.
  *
+ * Decodes an `{ source, target, data }` object into a `Graph.Edge` instance.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { Edge } from "@beep/schema/Graph"
+ *
+ * const EdgeSchema = Edge(S.String)
+ *
+ * const program = Effect.gen(function* () {
+ *   const edge = yield* S.decodeUnknownEffect(EdgeSchema)({
+ *     source: 0,
+ *     target: 1,
+ *     data: "likes"
+ *   })
+ *   return edge
+ * })
+ * ```
+ *
  * @param data - Schema for edge payloads.
  * @returns Edge schema.
  * @since 0.0.0
- * @category Validation
+ * @category constructors
  */
 export const Edge = <Data extends S.Top>(data: Data): Edge<Data> =>
   ((schema) =>
@@ -1085,10 +1129,32 @@ const makeGraphTransform = <Node extends S.Top, Edge extends S.Top>(
 /**
  * Schema for immutable directed graphs.
  *
+ * Decodes an encoded `{ _tag: "Graph", type: "directed", nodes, edges }`
+ * payload into an immutable `Graph.DirectedGraph` value.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { DirectedGraph } from "@beep/schema/Graph"
+ *
+ * const GraphSchema = DirectedGraph({ node: S.String, edge: S.Number })
+ *
+ * const program = Effect.gen(function* () {
+ *   const graph = yield* S.decodeUnknownEffect(GraphSchema)({
+ *     _tag: "Graph",
+ *     type: "directed",
+ *     nodes: [[0, "A"], [1, "B"]],
+ *     edges: [{ index: 0, source: 0, target: 1, data: 42 }]
+ *   })
+ *   return graph
+ * })
+ * ```
+ *
  * @param options - Schemas for node and edge payloads.
  * @returns Directed graph transform schema.
  * @since 0.0.0
- * @category Validation
+ * @category constructors
  */
 export const DirectedGraph = <Node extends S.Top, Edge extends S.Top>(options: {
   readonly node: Node;

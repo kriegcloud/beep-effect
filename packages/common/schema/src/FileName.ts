@@ -96,6 +96,13 @@ export const FileName = S.TemplateLiteral([FileNameStemWithDot, FileExtension]).
 /**
  * Type for {@link FileName}.
  *
+ * @example
+ * ```ts
+ * import type { FileName } from "@beep/schema/FileName"
+ *
+ * const file: FileName = "readme.txt" as FileName
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */

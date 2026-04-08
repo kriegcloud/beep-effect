@@ -9,8 +9,16 @@ import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetr
 /**
  * Strip duplicate terminal histogram buckets from Prometheus exposition text.
  *
+ * @example
+ * ```typescript
+ * import { sanitizePrometheusMetrics } from "@beep/observability/server"
+ *
+ * const raw = 'my_metric_bucket{le="Infinity"} 5\nmy_metric_bucket{le="1"} 3'
+ * const clean = sanitizePrometheusMetrics(raw)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const sanitizePrometheusMetrics = (text: string): string =>
   pipe(text, Str.split("\n"), A.filter(P.not(Str.includes('le="Infinity"'))), A.join("\n"));
@@ -18,8 +26,15 @@ export const sanitizePrometheusMetrics = (text: string): string =>
 /**
  * Create a sanitized Prometheus metrics route.
  *
+ * @example
+ * ```typescript
+ * import { layerPrometheusMetricsHttp } from "@beep/observability/server"
+ *
+ * const PrometheusLive = layerPrometheusMetricsHttp({ path: "/metrics" })
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const layerPrometheusMetricsHttp = (
   options?: PrometheusMetrics.HttpOptions | undefined

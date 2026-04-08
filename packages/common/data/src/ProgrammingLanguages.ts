@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/programming-languages | Programming Languages JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/ProgrammingLanguages
  * @since 0.0.0
  */
 /**
+ * Array of popular programming languages with origin and type system metadata.
+ *
+ * Each entry contains the language name, release year, creator, paradigms, and
+ * typing discipline.
+ *
+ * @example
+ * ```typescript
+ * import { ProgrammingLanguages } from "@beep/data"
+ *
+ * const ts = ProgrammingLanguages.find(l => l.name === "TypeScript")
+ * console.log(ts?.year) // 2012
+ * console.log(ts?.typing) // "static"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const ProgrammingLanguages = [

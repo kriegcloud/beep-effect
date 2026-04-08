@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/keyboard-shortcuts | Keyboard Shortcuts JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/KeyboardShortcuts
  * @since 0.0.0
  */
 /**
+ * Array of common keyboard shortcuts with Windows and Mac bindings.
+ *
+ * Each entry contains the action name, Windows and Mac key combos, a category,
+ * and whether the shortcut is universal across platforms.
+ *
+ * @example
+ * ```typescript
+ * import { KeyboardShortcuts } from "@beep/data"
+ *
+ * const copy = KeyboardShortcuts.find(s => s.action === "Copy")
+ * console.log(copy?.windows) // "Ctrl+C"
+ * console.log(copy?.mac) // "Cmd+C"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const KeyboardShortcuts = [

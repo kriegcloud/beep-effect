@@ -21,7 +21,19 @@ const headerName = "Cross-Origin-Opener-Policy" as const;
 const CoopValueBase = LiteralKit(["unsafe-none", "same-origin-allow-popups", "same-origin", "same-origin-plus-COEP"]);
 
 /**
+ * Schema for supported `Cross-Origin-Opener-Policy` header values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CoopValue } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ *
+ * const decoded = S.decodeUnknownSync(CoopValue)("same-origin")
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
+ * @category schemas
  */
 export const CoopValue = CoopValueBase.pipe(
   $I.annoteSchema("CoopValue", {
@@ -31,14 +43,29 @@ export const CoopValue = CoopValueBase.pipe(
 );
 
 /**
+ * Type-level representation of {@link CoopValue}.
+ *
  * @since 0.0.0
+ * @category models
  */
 export type CoopValue = typeof CoopValue.Type;
 
 const CrossOriginOpenerPolicyOptionBase = LiteralKit([false, ...CoopValueBase.Options]);
 
 /**
+ * Schema for `Cross-Origin-Opener-Policy` option values, including `false` to disable.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CrossOriginOpenerPolicyOption } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ *
+ * const decoded = S.decodeUnknownSync(CrossOriginOpenerPolicyOption)(false)
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
+ * @category schemas
  */
 export const CrossOriginOpenerPolicyOption = CrossOriginOpenerPolicyOptionBase.pipe(
   $I.annoteSchema("CrossOriginOpenerPolicyOption", {
@@ -48,12 +75,29 @@ export const CrossOriginOpenerPolicyOption = CrossOriginOpenerPolicyOptionBase.p
 );
 
 /**
+ * Type-level representation of {@link CrossOriginOpenerPolicyOption}.
+ *
  * @since 0.0.0
+ * @category models
  */
 export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption.Type;
 
 /**
+ * Parsed `Cross-Origin-Opener-Policy` response header with name and optional value.
+ *
+ * @example
+ * ```ts
+ * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ *
+ * const header = new CrossOriginOpenerPolicyResponseHeader({
+ *   name: "Cross-Origin-Opener-Policy",
+ *   value: undefined,
+ * })
+ * void header
+ * ```
+ *
  * @since 0.0.0
+ * @category models
  */
 export class CrossOriginOpenerPolicyResponseHeader extends S.Class<CrossOriginOpenerPolicyResponseHeader>(
   $I`CrossOriginOpenerPolicyResponseHeader`
@@ -70,7 +114,19 @@ export class CrossOriginOpenerPolicyResponseHeader extends S.Class<CrossOriginOp
 type CrossOriginOpenerPolicyResponseHeaderEncoded = typeof CrossOriginOpenerPolicyResponseHeader.Encoded;
 
 /**
+ * One-way schema that decodes COOP options into the `Cross-Origin-Opener-Policy` response header.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { CrossOriginOpenerPolicyHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
+ *
+ * const program = CrossOriginOpenerPolicyHeader.create("same-origin")
+ * void program
+ * ```
+ *
  * @since 0.0.0
+ * @category schemas
  */
 export const CrossOriginOpenerPolicyHeader = S.Union([CrossOriginOpenerPolicyOption, S.Undefined]).pipe(
   S.decodeTo(
@@ -127,6 +183,9 @@ export const CrossOriginOpenerPolicyHeader = S.Union([CrossOriginOpenerPolicyOpt
 );
 
 /**
+ * Type-level representation of {@link CrossOriginOpenerPolicyHeader}.
+ *
  * @since 0.0.0
+ * @category models
  */
 export type CrossOriginOpenerPolicyHeader = typeof CrossOriginOpenerPolicyHeader.Type;

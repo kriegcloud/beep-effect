@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/us-capitals | US State Capitals JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/USCapitals
  * @since 0.0.0
  */
 /**
+ * Array of all 50 US state capitals with population and coordinate data.
+ *
+ * Each entry contains the state name, capital city, population, founding year,
+ * and geographic coordinates.
+ *
+ * @example
+ * ```typescript
+ * import { USCapitals } from "@beep/data"
+ *
+ * const texas = USCapitals.find(c => c.state === "Texas")
+ * console.log(texas?.capital) // "Austin"
+ * console.log(texas?.founded) // 1839
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const USCapitals = [

@@ -29,31 +29,66 @@ const pathFragmentVariants = (input: string): ReadonlyArray<string> => {
 /**
  * Normalize a candidate path or module fragment for deterministic lookup.
  *
+ * @example
+ * ```typescript
+ * import * as PathText from "@beep/nlp/PathText"
+ *
+ * const normalized = PathText.normalizePathPhrase("src\\\\utils\\\\index.ts")
+ * console.log(normalized) // "src/utils/index.ts"
+ * ```
+ *
  * @since 0.0.0
- * @category Normalization
+ * @category normalization
  */
 export const normalizePathPhrase = flow(QueryText.normalizePhrase, Str.replace(/\\+/g, "/"), Str.replace(/\/+/g, "/"));
 
 /**
  * True when the input is a bounded single-token path or module fragment.
  *
+ * @example
+ * ```typescript
+ * import * as PathText from "@beep/nlp/PathText"
+ *
+ * console.log(PathText.isPathLike("src/index.ts")) // true
+ * console.log(PathText.isPathLike("@beep/utils")) // true
+ * console.log(PathText.isPathLike("hello world")) // false
+ * ```
+ *
  * @since 0.0.0
- * @category Predicates
+ * @category predicates
  */
 export const isPathLike = (input: string): boolean => /^[A-Za-z0-9_./@-]+$/.test(normalizePathPhrase(input));
 
 /**
  * Generate deterministic file-query variants for source-file lookup.
  *
+ * @example
+ * ```typescript
+ * import * as PathText from "@beep/nlp/PathText"
+ *
+ * const variants = PathText.filePathVariants("./src/utils/index.ts")
+ * console.log(variants.includes("src/utils/index")) // true
+ * console.log(variants.includes("index")) // true
+ * ```
+ *
  * @since 0.0.0
- * @category Variants
+ * @category variants
  */
 export const filePathVariants = pathFragmentVariants;
 
 /**
  * Generate deterministic module-specifier variants for import-edge lookup.
  *
+ * @example
+ * ```typescript
+ * import * as PathText from "@beep/nlp/PathText"
+ *
+ * const variants = PathText.moduleSpecifierVariants("@beep/utils/Str.ts")
+ * console.log(variants.includes("@beep/utils/Str")) // true
+ * console.log(variants.includes("Str")) // true
+ * ```
+ *
  * @since 0.0.0
- * @category Variants
+ * @category variants
  */
 export const moduleSpecifierVariants = pathFragmentVariants;

@@ -3,7 +3,7 @@ import type {} from "./sst-platform-config";
 export default $config({
   app(input) {
     return {
-      name: "beep-effect2",
+      name: "beep-effect",
       home: "aws",
       removal: input.stage === "production" ? "retain" : "remove",
       protect: input.stage === "production",

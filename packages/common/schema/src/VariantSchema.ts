@@ -1,4 +1,11 @@
 /**
+ * Multi-variant schema system for defining field sets that project to different schemas per variant.
+ *
+ * The core API is {@link make}, which accepts a list of variant names and returns
+ * `Class`, `Field`, `Struct`, `Union`, `extract`, and `fieldEvolve` constructors
+ * scoped to those variants.
+ *
+ * @module @beep/schema/VariantSchema
  * @since 0.0.0
  */
 
@@ -17,14 +24,18 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 /**
+ * Unique symbol key used to store variant field records on `Struct` instances.
+ *
  * @since 0.0.0
- * @category Type IDs
+ * @category symbols
  */
 export const TypeId = "~effect/schema/VariantSchema";
 
 const cacheSymbol = Symbol.for(`${TypeId}/cache`);
 
 /**
+ * A pipeable container holding variant-aware fields keyed by {@link TypeId}.
+ *
  * @since 0.0.0
  * @category models
  */
@@ -35,6 +46,8 @@ export interface Struct<in out A extends Field.Fields> extends Pipeable.Pipeable
 }
 
 /**
+ * Type guard for variant `Struct` instances.
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -77,6 +90,8 @@ export declare namespace Struct {
 const FieldTypeId = "~effect/schema/VariantSchema/Field";
 
 /**
+ * A variant-aware field mapping variant keys to their respective schemas.
+ *
  * @since 0.0.0
  * @category models
  */
@@ -86,6 +101,8 @@ export interface Field<in out A extends Field.Config> extends Pipeable.Pipeable 
 }
 
 /**
+ * Type guard for variant `Field` instances.
+ *
  * @since 0.0.0
  * @category guards
  */
@@ -128,6 +145,8 @@ export declare namespace Field {
 }
 
 /**
+ * Extract the fields object for a specific variant from a `Struct.Fields` record.
+ *
  * @since 0.0.0
  * @category extractors
  */
@@ -148,6 +167,8 @@ export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefa
 };
 
 /**
+ * Extract a concrete `S.Struct` schema for a specific variant from a variant `Struct`.
+ *
  * @since 0.0.0
  * @category extractors
  */
@@ -211,12 +232,16 @@ const extract: {
 );
 
 /**
- * @category accessors
+ * Access the raw variant field record from a `Struct`.
+ *
  * @since 0.0.0
+ * @category accessors
  */
 export const fields = <A extends Struct<TUnsafe.Any>>(self: A): A[typeof TypeId] => self[TypeId];
 
 /**
+ * Interface for a variant-aware model class that extends `S.Class` with variant struct support.
+ *
  * @since 0.0.0
  * @category models
  */
@@ -278,6 +303,8 @@ type ClassShape<Self, Variants extends string, Default extends Variants, Fields 
     };
 
 /**
+ * A discriminated union of variant structs.
+ *
  * @since 0.0.0
  * @category models
  */
@@ -303,6 +330,48 @@ export declare namespace Union {
 }
 
 /**
+ * Create a variant schema toolkit scoped to the provided variant names.
+ *
+ * Returns `Class`, `Field`, `FieldOnly`, `FieldExcept`, `fieldEvolve`,
+ * `Struct`, `Union`, and `extract` helpers, all constrained to the
+ * declared variant set.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ *
+ * const { Class, Field } = VariantSchema.make({
+ *   variants: ["select", "insert"],
+ *   defaultVariant: "select",
+ * })
+ *
+ * class Item extends Class<Item>("Item")({
+ *   id: Field({ select: S.Number }),
+ *   name: S.String,
+ * }) {}
+ *
+ * void Item
+ * ```
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import * as VariantSchema from "@beep/schema/VariantSchema"
+ *
+ * const { Struct, extract } = VariantSchema.make({
+ *   variants: ["a", "b"],
+ *   defaultVariant: "a",
+ * })
+ *
+ * const vs = Struct({
+ *   x: S.String,
+ * })
+ *
+ * const schemaA = extract(vs, "a")
+ * void schemaA
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -497,12 +566,16 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
 };
 
 /**
+ * Wrap a value so it overrides the default produced by an {@link Overridable} field.
+ *
  * @since 0.0.0
  * @category overridable
  */
 export const Override = <A>(value: A): A & Brand<"Override"> => value as TUnsafe.Any;
 
 /**
+ * A schema whose decoded type is optional with a default value injected during encoding.
+ *
  * @since 0.0.0
  * @category overridable
  */
@@ -526,6 +599,8 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
   > {}
 
 /**
+ * Build an `Overridable` schema that falls back to `defaultValue` when no override is provided.
+ *
  * @since 0.0.0
  * @category overridable
  */

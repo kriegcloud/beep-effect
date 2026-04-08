@@ -3,11 +3,23 @@
  *
  * @see {@link https://jsonlint.com/datasets/us-states-with-detail | US States JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/USStates
  * @since 0.0.0
  */
 /**
+ * Array of all 50 US states with abbreviation, capital, founding date, and bordering states.
+ *
+ * @example
+ * ```typescript
+ * import { USStates } from "@beep/data"
+ *
+ * const ca = USStates.find(s => s.abbreviation === "CA")
+ * console.log(ca?.name) // "California"
+ * console.log(ca?.capital) // "Sacramento"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const USStates = [
