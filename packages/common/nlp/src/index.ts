@@ -1,12 +1,23 @@
 /**
- * @beep/nlp
+ * Natural language processing utilities for deterministic tokenization,
+ * normalization, and variant generation across identifiers, paths, and queries.
  *
  * @since 0.0.0
+ * @module @beep/nlp
  */
 
 /**
+ * Package version constant.
+ *
+ * @example
+ * ```typescript
+ * import { VERSION } from "@beep/nlp"
+ *
+ * console.log(VERSION) // "0.0.0"
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const VERSION = "0.0.0";
 

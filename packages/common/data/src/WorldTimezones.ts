@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/timezones | World Timezones JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/WorldTimezones
  * @since 0.0.0
  */
 /**
+ * Array of major world timezones with IANA identifiers and UTC offsets.
+ *
+ * Each entry contains the IANA timezone ID, display name, abbreviation,
+ * standard UTC offset, DST offset, and region.
+ *
+ * @example
+ * ```typescript
+ * import { WorldTimezones } from "@beep/data"
+ *
+ * const utc = WorldTimezones.find(tz => tz.id === "UTC")
+ * console.log(utc?.abbreviation) // "UTC"
+ * console.log(utc?.utc_offset) // "+00:00"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const WorldTimezones = [

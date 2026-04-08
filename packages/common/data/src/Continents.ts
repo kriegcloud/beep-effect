@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/continents | Continents JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/ContinentList
  * @since 0.0.0
  */
 /**
+ * Array of all seven continents with geographic metadata.
+ *
+ * Each entry contains a two-letter code, continent name, area, population,
+ * country count, largest country, and highest point.
+ *
+ * @example
+ * ```typescript
+ * import { ContinentList } from "@beep/data"
+ *
+ * const asia = ContinentList.find(c => c.code === "AS")
+ * console.log(asia?.name) // "Asia"
+ * console.log(asia?.highest_point) // "Mount Everest"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const ContinentList = [

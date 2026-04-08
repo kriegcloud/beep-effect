@@ -1,0 +1,30 @@
+{
+  "name": "@beep/infra",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Pulumi infrastructure workspace for beep-effect",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "infra"
+  },
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "check": "tsc -b tsconfig.json",
+    "docgen": "bun run ../tooling/docgen/src/bin.ts",
+    "lint": "biome check src/ test/ dtslint/",
+    "lint:fix": "biome check src/ test/ dtslint/ --write",
+    "preview": "pulumi preview",
+    "up": "pulumi up",
+    "destroy": "pulumi destroy",
+    "refresh": "pulumi refresh"
+  },
+  "dependencies": {
+    "@pulumi/pulumi": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "typescript": "catalog:"
+  }
+}

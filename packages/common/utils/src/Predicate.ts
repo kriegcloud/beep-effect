@@ -8,6 +8,9 @@ import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 
 /**
+ * Re-export of all helpers from `effect/Predicate`.
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export * from "effect/Predicate";

@@ -13,6 +13,15 @@ const $I = $SchemaId.create("ArrayOf");
 /**
  * Schema for `ReadonlyArray<string>`.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ArrayOfStrings } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(ArrayOfStrings)(["a", "b", "c"])
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -33,6 +42,15 @@ export type ArrayOfStrings = S.Schema.Type<typeof ArrayOfStrings>;
 /**
  * Schema for non-empty arrays of strings.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NonEmptyArrayOfStrings } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(NonEmptyArrayOfStrings)(["hello"])
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -51,7 +69,16 @@ export const NonEmptyArrayOfStrings = S.NonEmptyArray(S.String).annotate(
 export type NonEmptyArrayOfStrings = S.Schema.Type<typeof NonEmptyArrayOfStrings>;
 
 /**
- * Schema for arrays of `NonEmptyString`.
+ * Schema for arrays of `NonEmptyString` values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ArrayOfNonEmptyStrings } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(ArrayOfNonEmptyStrings)(["hello", "world"])
+ * void decoded
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -71,7 +98,16 @@ export const ArrayOfNonEmptyStrings = S.Array(S.NonEmptyString).annotate(
 export type ArrayOfNonEmptyStrings = S.Schema.Type<typeof ArrayOfNonEmptyStrings>;
 
 /**
- * Schema for non-empty arrays of `NonEmptyString`.
+ * Schema for non-empty arrays of `NonEmptyString` values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NonEmptyArrayOfNonEmptyStrings } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNonEmptyStrings)(["hello"])
+ * void decoded
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -93,6 +129,15 @@ export type NonEmptyArrayOfNonEmptyStrings = S.Schema.Type<typeof NonEmptyArrayO
 /**
  * Schema for arrays of numbers.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ArrayOfNumbers } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(ArrayOfNumbers)([1, 2, 3])
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -112,6 +157,15 @@ export type ArrayOfNumbers = S.Schema.Type<typeof ArrayOfNumbers>;
 
 /**
  * Schema for non-empty arrays of numbers.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NonEmptyArrayOfNumbers } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(NonEmptyArrayOfNumbers)([42])
+ * void decoded
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -133,6 +187,15 @@ export type NonEmptyArrayOfNumbers = S.Schema.Type<typeof NonEmptyArrayOfNumbers
 /**
  * Schema for arrays of integers.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ArrayOfInts } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(ArrayOfInts)([1, 2, 3])
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -152,6 +215,15 @@ export type ArrayOfInts = S.Schema.Type<typeof ArrayOfInts>;
 
 /**
  * Schema for non-empty arrays of integers.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NonEmptyArrayOfInts } from "@beep/schema/ArrayOf"
+ *
+ * const decoded = S.decodeUnknownSync(NonEmptyArrayOfInts)([1])
+ * void decoded
+ * ```
  *
  * @since 0.0.0
  * @category Validation

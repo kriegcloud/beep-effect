@@ -1,3 +1,10 @@
+/**
+ * Lossy schema transformation helpers.
+ *
+ * @module @beep/schema/Transformations
+ * @since 0.0.0
+ */
+
 import { Effect, Function as Fn, SchemaIssue, SchemaTransformation, Struct } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -15,15 +22,22 @@ const makeDestructiveOutput = <B>(): S.Codec<Readonly<B>> => S.make<S.Codec<Read
  *
  * This helper intentionally does not require an inverse transform. Decoding runs
  * the source schema first, then applies `transform`. Encoding passes the
- * transformed value through unchanged.
+ * transformed value through unchanged. Supports both data-first and data-last
+ * calling conventions.
  *
  * @example
  * ```ts
- * import * as S from "effect/Schema";
- * import { destructiveTransform } from "@beep/schema/Transformations";
+ * import * as S from "effect/Schema"
+ * import { pipe } from "effect"
+ * import { destructiveTransform } from "@beep/schema/Transformations"
  *
- * const schema = destructiveTransform(S.String, (value) => value.length);
- * void schema;
+ * // data-first
+ * const StringLength = destructiveTransform(S.String, (value) => value.length)
+ * void StringLength
+ *
+ * // data-last (pipeable)
+ * const Piped = pipe(S.String, destructiveTransform((value) => value.length))
+ * void Piped
  * ```
  *
  * @since 0.0.0

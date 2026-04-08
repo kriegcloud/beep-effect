@@ -186,6 +186,13 @@ const isBinaryFileExtensionSchema = S.is(BinaryFileExtension);
 /**
  * Union of literals accepted by {@link BinaryFileExtension}.
  *
+ * @example
+ * ```ts
+ * import type { BinaryFileExtension } from "@beep/schema/BinaryFileExtension"
+ *
+ * const ext: BinaryFileExtension = ".png"
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */

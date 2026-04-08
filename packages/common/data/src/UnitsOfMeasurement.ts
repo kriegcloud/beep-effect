@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/units-of-measurement | Units of Measurement JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/UnitsOfMeasurement
  * @since 0.0.0
  */
 /**
+ * Array of common measurement units with SI and Imperial system metadata.
+ *
+ * Each entry contains the unit name, symbol, measurement type, system,
+ * whether it is a base unit, and a conversion factor to the base unit.
+ *
+ * @example
+ * ```typescript
+ * import { UnitsOfMeasurement } from "@beep/data"
+ *
+ * const meter = UnitsOfMeasurement.find(u => u.symbol === "m")
+ * console.log(meter?.name) // "Meter"
+ * console.log(meter?.base_unit) // true
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const UnitsOfMeasurement = [

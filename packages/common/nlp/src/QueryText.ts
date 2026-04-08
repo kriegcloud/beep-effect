@@ -18,8 +18,16 @@ const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>
 /**
  * Collapse user question whitespace without changing punctuation or content.
  *
+ * @example
+ * ```typescript
+ * import * as QueryText from "@beep/nlp/QueryText"
+ *
+ * const normalized = QueryText.normalizeQuestion("  hello   world  ")
+ * console.log(normalized) // "hello world"
+ * ```
+ *
  * @since 0.0.0
- * @category Normalization
+ * @category normalization
  */
 export const normalizeQuestion = (input: string): string => pipe(input, Str.trim, Str.replace(/\s+/g, " "));
 
@@ -27,8 +35,16 @@ export const normalizeQuestion = (input: string): string => pipe(input, Str.trim
  * Normalize a short extracted phrase by trimming boundary punctuation and
  * collapsing whitespace around path separators.
  *
+ * @example
+ * ```typescript
+ * import * as QueryText from "@beep/nlp/QueryText"
+ *
+ * const normalized = QueryText.normalizePhrase('"hello / world"')
+ * console.log(normalized) // "hello/world"
+ * ```
+ *
  * @since 0.0.0
- * @category Normalization
+ * @category normalization
  */
 export const normalizePhrase = (input: string): string =>
   pipe(
@@ -43,8 +59,17 @@ export const normalizePhrase = (input: string): string =>
 /**
  * Extract the first value enclosed in backticks from a user question.
  *
+ * @example
+ * ```typescript
+ * import { Option } from "effect"
+ * import * as QueryText from "@beep/nlp/QueryText"
+ *
+ * const result = QueryText.extractBacktickValue("What is `Effect.gen`?")
+ * console.log(Option.getOrElse(result, () => "none")) // "Effect.gen"
+ * ```
+ *
  * @since 0.0.0
- * @category Extraction
+ * @category extraction
  */
 export const extractBacktickValue = (input: string): O.Option<string> =>
   pipe(firstCapture(/`([^`]+)`/, input), O.filter(Str.isNonEmpty));

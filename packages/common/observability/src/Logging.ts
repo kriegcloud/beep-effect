@@ -1,3 +1,27 @@
+/**
+ * Configurable console logging layer for Effect applications.
+ *
+ * Supports multiple output formats (`pretty`, `structured`, `json`, `logfmt`,
+ * `string`) and themeable pretty-printing with ANSI colors.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Layer } from "effect"
+ * import { LoggingConfig, layerConsoleLogger } from "@beep/observability"
+ *
+ * const config = new LoggingConfig({ format: "pretty", minLogLevel: "Info" })
+ * const loggerLayer = layerConsoleLogger(config)
+ *
+ * const program = Effect.log("hello from pretty logger").pipe(
+ *   Effect.provide(loggerLayer),
+ * )
+ *
+ * void Effect.runPromise(program)
+ * ```
+ *
+ * @module @beep/observability/Logging
+ * @since 0.0.0
+ */
 import bc from "@beep/colors";
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, LogLevel } from "@beep/schema";
@@ -9,8 +33,16 @@ const $I = $ObservabilityId.create("Logging");
 /**
  * Supported console logger formats for shared observability wiring.
  *
+ * @example
+ * ```typescript
+ * import { LoggingConfig, layerConsoleLogger } from "@beep/observability"
+ *
+ * const config = new LoggingConfig({ format: "json", minLogLevel: "Debug" })
+ * void layerConsoleLogger(config)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const LogFormat = LiteralKit(["pretty", "structured", "json", "logfmt", "string"]).pipe(
   $I.annoteSchema("LogFormat", {
@@ -22,15 +54,15 @@ export const LogFormat = LiteralKit(["pretty", "structured", "json", "logfmt", "
  * Runtime type for {@link LogFormat}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type LogFormat = typeof LogFormat.Type;
 
 /**
- * Theme palette for the custom pretty logger.
+ * Theme palette for the custom pretty logger: `"ocean"`, `"forest"`, `"sunrise"`, or `"mono"`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const PrettyLogTheme = LiteralKit(["ocean", "forest", "sunrise", "mono"]).pipe(
   $I.annoteSchema("PrettyLogTheme", {
@@ -42,15 +74,15 @@ export const PrettyLogTheme = LiteralKit(["ocean", "forest", "sunrise", "mono"])
  * Runtime type for {@link PrettyLogTheme}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PrettyLogTheme = typeof PrettyLogTheme.Type;
 
 /**
- * Banner render modes for startup and phase summaries.
+ * Banner render modes for startup and phase summaries: `"off"`, `"startup"`, `"phase"`, or `"all"`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const BannerMode = LiteralKit(["off", "startup", "phase", "all"]).pipe(
   $I.annoteSchema("BannerMode", {
@@ -62,15 +94,27 @@ export const BannerMode = LiteralKit(["off", "startup", "phase", "all"]).pipe(
  * Runtime type for {@link BannerMode}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type BannerMode = typeof BannerMode.Type;
 
 /**
- * Extra configuration for the custom pretty logger.
+ * Extra configuration for the custom pretty logger including theme and banner mode.
+ *
+ * @example
+ * ```typescript
+ * import { PrettyLoggerConfig } from "@beep/observability"
+ *
+ * const config = new PrettyLoggerConfig({
+ *   theme: "forest",
+ *   bannerMode: "startup",
+ * })
+ *
+ * void config.theme // "forest"
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLoggerConfig`)(
   {
@@ -85,8 +129,20 @@ export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLog
 /**
  * Shared logger configuration for browser-safe and server-safe console logging.
  *
+ * @example
+ * ```typescript
+ * import { LoggingConfig } from "@beep/observability"
+ *
+ * const config = new LoggingConfig({
+ *   format: "structured",
+ *   minLogLevel: "Warn",
+ * })
+ *
+ * void config.format // "structured"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class LoggingConfig extends S.Class<LoggingConfig>($I`LoggingConfig`)(
   {
@@ -180,8 +236,20 @@ const renderBannerGlyph = (kind: "phase" | "startup"): string => (kind === "phas
 /**
  * Render an opt-in banner for startup and phase summaries.
  *
+ * Returns a plain title when the banner mode is `"off"` or does not match
+ * the requested kind. Otherwise renders a themed ASCII banner with glyphs.
+ *
+ * @example
+ * ```typescript
+ * import { renderLogBanner, PrettyLoggerConfig } from "@beep/observability"
+ *
+ * const pretty = new PrettyLoggerConfig({ theme: "ocean", bannerMode: "all" })
+ * const banner = renderLogBanner("Server Ready", { kind: "startup", pretty })
+ * console.log(banner)
+ * ```
+ *
  * @since 0.0.0
- * @category Logging
+ * @category logging
  */
 export const renderLogBanner = (
   title: string,
@@ -249,8 +317,26 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
 /**
  * Build a console logger layer from a shared logging config.
  *
+ * Returns a `Layer<never>` that replaces the default Effect logger with the
+ * configured format and sets the minimum log level.
+ *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { LoggingConfig, layerConsoleLogger } from "@beep/observability"
+ *
+ * const config = new LoggingConfig({ format: "json", minLogLevel: "Info" })
+ * const layer = layerConsoleLogger(config)
+ *
+ * const program = Effect.log("structured output").pipe(
+ *   Effect.provide(layer),
+ * )
+ *
+ * void Effect.runPromise(program)
+ * ```
+ *
  * @since 0.0.0
- * @category Logging
+ * @category logging
  */
 export const layerConsoleLogger = (
   config: LoggingConfig,

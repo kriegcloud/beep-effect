@@ -83,7 +83,23 @@ const decodeJsonlUnknown = Effect.fn("Jsonl.decodeJsonlUnknown")(function* (cont
 });
 
 /**
- * Effectful schema transformation from JSONL text to parsed JSONL values.
+ * Schema transformation that decodes JSONL (JSON Lines) text into an array of
+ * parsed values using `Bun.JSONL.parseChunk`.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { JsonlTextToUnknown } from "@beep/schema/Jsonl"
+ *
+ * const program = Effect.gen(function* () {
+ *   const rows = yield* S.decodeUnknownEffect(JsonlTextToUnknown)(
+ *     '{"a":1}\n{"a":2}\n'
+ *   )
+ *   return rows
+ * })
+ * void program
+ * ```
  *
  * @category Validation
  * @since 0.0.0
@@ -101,7 +117,24 @@ export const JsonlTextToUnknown = S.String.pipe(
 );
 
 /**
- * Decode JSONL text into a target schema using Bun-backed parsing and schema decoding.
+ * Builds a decoder that parses JSONL text and then decodes the resulting value
+ * array through a target schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { decodeJsonlTextAs } from "@beep/schema/Jsonl"
+ *
+ * const Row = S.Struct({ a: S.Number })
+ * const decodeRows = decodeJsonlTextAs(S.Array(Row))
+ *
+ * const program = Effect.gen(function* () {
+ *   const rows = yield* decodeRows('{"a":1}\n{"a":2}\n')
+ *   return rows
+ * })
+ * void program
+ * ```
  *
  * @param schema - Target schema to decode the parsed JSONL value array into.
  * @returns Decoder function from JSONL text to the target schema type.

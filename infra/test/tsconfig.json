@@ -1,10 +1,11 @@
 {
   "$schema": "http://json.schemastore.org/tsconfig",
-  "extends": "../../../../tsconfig.json",
-  "include": ["./**/*.tst.*"],
+  "extends": "../tsconfig.json",
+  "include": ["./**/*.test.ts"],
   "exclude": [],
   "compilerOptions": {
     "composite": false,
-    "incremental": false
+    "incremental": false,
+    "noEmit": true
   }
 }

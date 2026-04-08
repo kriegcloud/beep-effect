@@ -1,6 +1,26 @@
 /**
  * Chalk-compatible terminal string styling with schema-backed public models.
  *
+ * Provides a chainable builder API for applying ANSI colors, background colors,
+ * and text modifiers to terminal output. All color and modifier names are
+ * validated by Effect Schemas, and isolated instances can be created with
+ * explicit color support levels.
+ *
+ * @example
+ * ```ts
+ * import chalk, { Chalk, chalkStderr } from "@beep/chalk"
+ *
+ * // Default shared instance (stdout)
+ * console.log(chalk.red.bold("Error!"))
+ *
+ * // Isolated instance with explicit color level
+ * const c = new Chalk({ level: 3 })
+ * console.log(c.hex("#FF8800").underline("Warning"))
+ *
+ * // stderr instance
+ * console.log(chalkStderr.yellow("stderr warning"))
+ * ```
+ *
  * @since 0.0.0
  * @module @beep/chalk/Chalk
  */
@@ -40,8 +60,30 @@ const makeChalkConstructor = <Instance, Base extends abstract new (options?: Cha
 /**
  * Recursive callable Chalk builder surface.
  *
+ * A `ChalkInstance` is both a callable function and a chainable style builder.
+ * Accessing style properties (e.g. `.red`, `.bold`) returns a new builder with
+ * the style stacked, and calling it as a function applies all stacked styles to
+ * the given text.
+ *
+ * @example
+ * ```ts
+ * import chalk, { type ChalkInstance } from "@beep/chalk"
+ *
+ * // Chain styles, then call to apply
+ * const warning: ChalkInstance = chalk.yellow.bold
+ * const styled: string = warning("Caution!")
+ *
+ * // Inline chaining
+ * const msg: string = chalk.red.bgWhite.underline("Error")
+ *
+ * // Hex, RGB, and ANSI256
+ * const hex: string = chalk.hex("#FF8800")("orange text")
+ * const rgb: string = chalk.rgb(255, 136, 0)("orange text")
+ * const ansi: string = chalk.ansi256(208)("orange text")
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export interface ChalkInstance {
   ansi256(index: number): this;
@@ -104,7 +146,7 @@ export interface ChalkInstance {
  * Runtime type for isolated Chalk instances created by {@link Chalk}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 class ChalkValue {
   constructor(_options?: ChalkOptions) {}
@@ -113,226 +155,448 @@ class ChalkValue {
 interface ChalkValue extends ChalkInstance {}
 
 /**
- * Runtime type for isolated Chalk instances created by {@link Chalk}.
+ * An isolated Chalk instance with its own color support level.
+ *
+ * Construct via `new Chalk()` or `new Chalk({ level })` to get an instance
+ * whose `level` is independent from the shared default.
+ *
+ * @example
+ * ```ts
+ * import { Chalk } from "@beep/chalk"
+ *
+ * const c: Chalk = new Chalk({ level: 3 })
+ * const styled: string = c.green.bold("Success")
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Chalk = ChalkValue;
 
 /**
  * Constructor for creating isolated Chalk instances.
  *
+ * Each instance maintains its own `level` so color output can be controlled
+ * independently of the shared default. Pass `{ level: 0 }` to disable colors,
+ * or `{ level: 3 }` for full truecolor support.
+ *
+ * @example
+ * ```ts
+ * import { Chalk } from "@beep/chalk"
+ *
+ * // Truecolor instance
+ * const truecolor = new Chalk({ level: 3 })
+ * console.log(truecolor.hex("#FF0000")("red text"))
+ *
+ * // Disabled instance (no ANSI output)
+ * const plain = new Chalk({ level: 0 })
+ * console.log(plain.red("no color")) // "no color"
+ *
+ * // Default detection
+ * const auto = new Chalk()
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const Chalk = makeChalkConstructor(ChalkValue, createChalk);
 
 /**
- * Schema describing supported Chalk background color names.
+ * Schema for supported Chalk background color names.
+ *
+ * A `LiteralKit` schema accepting values like `"bgRed"`, `"bgBlue"`,
+ * `"bgGreenBright"`, etc.
+ *
+ * @example
+ * ```ts
+ * import { BackgroundColorName } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(BackgroundColorName)
+ * const name: BackgroundColorName = decode("bgRed")
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const BackgroundColorName = BackgroundColorNameSchema;
 
 /**
- * Runtime type for {@link BackgroundColorName}.
+ * A supported Chalk background color name literal.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type BackgroundColorName = typeof BackgroundColorNameSchema.Type;
 
 /**
- * Schema describing constructor options for isolated Chalk instances.
+ * Schema for constructor options accepted by {@link Chalk}.
+ *
+ * Contains an optional `level` field that sets the color support level
+ * (`0` through `3`).
+ *
+ * @example
+ * ```ts
+ * import { ChalkOptions } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ChalkOptions)
+ * const opts: ChalkOptions = decode({ level: 2 })
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const ChalkOptions = ChalkOptionsSchema;
 
 /**
- * Runtime type for {@link ChalkOptions}.
+ * Constructor options for creating an isolated Chalk instance.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ChalkOptions = typeof ChalkOptionsSchema.Type;
 
 /**
- * Schema describing exported Chalk color support metadata.
+ * Schema for detected color support information.
+ *
+ * Decodes to either a {@link ColorSupport} object when color output is
+ * available, or `false` when it is disabled.
+ *
+ * @example
+ * ```ts
+ * import { ColorInfo, supportsColor } from "@beep/chalk"
+ *
+ * const info: ColorInfo = supportsColor
+ * if (info !== false) {
+ *   console.log("Level:", info.level)
+ *   console.log("Truecolor:", info.has16m)
+ * }
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const ColorInfo = ColorInfoSchema;
 
 /**
- * Runtime type for {@link ColorInfo}.
+ * Detected color support information, or `false` when color output is disabled.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColorInfo = typeof ColorInfoSchema.Type;
 
 /**
- * Schema describing supported Chalk color names.
+ * Schema for all supported Chalk color names (foreground and background).
+ *
+ * Union of {@link ForegroundColorName} and {@link BackgroundColorName} values.
+ *
+ * @example
+ * ```ts
+ * import { ColorName } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ColorName)
+ * const fg: ColorName = decode("red")
+ * const bg: ColorName = decode("bgBlue")
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const ColorName = ColorNameSchema;
 
 /**
- * Runtime type for {@link ColorName}.
+ * A supported Chalk color name literal (foreground or background).
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColorName = typeof ColorNameSchema.Type;
 
 /**
- * Schema describing supported Chalk stream color capabilities.
+ * Schema for terminal color support metadata.
+ *
+ * Describes the detected capabilities of an output stream: whether it supports
+ * basic ANSI, 256-color, and truecolor (16 million) modes.
+ *
+ * @example
+ * ```ts
+ * import { ColorSupport } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ColorSupport)
+ * const support: ColorSupport = decode({
+ *   level: 3,
+ *   hasBasic: true,
+ *   has256: true,
+ *   has16m: true
+ * })
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const ColorSupport = ColorSupportSchema;
 
 /**
- * Runtime type for {@link ColorSupport}.
+ * Detected terminal color support capabilities for an output stream.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColorSupport = typeof ColorSupportSchema.Type;
 
 /**
- * Schema describing supported Chalk color support levels.
+ * Schema for Chalk color support levels.
+ *
+ * Accepts `0` (disabled), `1` (basic ANSI), `2` (ANSI 256), or `3` (truecolor).
+ *
+ * @example
+ * ```ts
+ * import { ColorSupportLevel } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ColorSupportLevel)
+ * const level: ColorSupportLevel = decode(3)
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const ColorSupportLevel = ColorSupportLevelSchema;
 
 /**
- * Runtime type for {@link ColorSupportLevel}.
+ * A Chalk color support level: `0` | `1` | `2` | `3`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ColorSupportLevel = typeof ColorSupportLevelSchema.Type;
 
 /**
- * Schema describing supported Chalk foreground color names.
+ * Schema for supported Chalk foreground color names.
+ *
+ * A `LiteralKit` schema accepting values like `"red"`, `"blue"`,
+ * `"greenBright"`, etc.
+ *
+ * @example
+ * ```ts
+ * import { ForegroundColorName } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ForegroundColorName)
+ * const name: ForegroundColorName = decode("cyanBright")
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const ForegroundColorName = ForegroundColorNameSchema;
 
 /**
- * Runtime type for {@link ForegroundColorName}.
+ * A supported Chalk foreground color name literal.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ForegroundColorName = typeof ForegroundColorNameSchema.Type;
 
 /**
- * Schema describing supported Chalk modifier names.
+ * Schema for supported Chalk text modifier names.
+ *
+ * A `LiteralKit` schema accepting values like `"bold"`, `"italic"`,
+ * `"underline"`, `"strikethrough"`, etc.
+ *
+ * @example
+ * ```ts
+ * import { ModifierName } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ModifierName)
+ * const name: ModifierName = decode("bold")
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category schemas
  */
 export const ModifierName = ModifierNameSchema;
 
 /**
- * Runtime type for {@link ModifierName}.
+ * A supported Chalk text modifier name literal.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ModifierName = typeof ModifierNameSchema.Type;
 
 /**
- * Basic modifier names exposed for compatibility with Chalk.
+ * Readonly tuple of all supported modifier name strings.
+ *
+ * @example
+ * ```ts
+ * import { modifierNames } from "@beep/chalk"
+ *
+ * for (const name of modifierNames) {
+ *   console.log(name) // "reset" | "bold" | "dim" | ...
+ * }
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const modifierNames = modifierNameValues;
 
 /**
- * Basic foreground color names exposed for compatibility with Chalk.
+ * Readonly tuple of all supported foreground color name strings.
+ *
+ * @example
+ * ```ts
+ * import { foregroundColorNames } from "@beep/chalk"
+ *
+ * for (const name of foregroundColorNames) {
+ *   console.log(name) // "black" | "red" | "green" | ...
+ * }
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const foregroundColorNames = foregroundColorNameValues;
 
 /**
- * Basic background color names exposed for compatibility with Chalk.
+ * Readonly tuple of all supported background color name strings.
+ *
+ * @example
+ * ```ts
+ * import { backgroundColorNames } from "@beep/chalk"
+ *
+ * for (const name of backgroundColorNames) {
+ *   console.log(name) // "bgBlack" | "bgRed" | "bgGreen" | ...
+ * }
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const backgroundColorNames = backgroundColorNameValues;
 
 /**
- * Combined foreground and background color names exposed for compatibility with Chalk.
+ * Readonly tuple of all supported color name strings (foreground and background).
+ *
+ * @example
+ * ```ts
+ * import { colorNames } from "@beep/chalk"
+ *
+ * for (const name of colorNames) {
+ *   console.log(name) // "black" | "red" | ... | "bgBlack" | "bgRed" | ...
+ * }
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const colorNames = colorNameValues;
 
 /**
- * Alias for {@link modifierNames} preserved for Chalk compatibility.
+ * Alias for {@link modifierNames} preserved for Chalk API compatibility.
+ *
+ * @example
+ * ```ts
+ * import { modifiers } from "@beep/chalk"
+ *
+ * console.log(modifiers) // same as modifierNames
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const modifiers = modifierNames;
 
 /**
- * Alias for {@link foregroundColorNames} preserved for Chalk compatibility.
+ * Alias for {@link foregroundColorNames} preserved for Chalk API compatibility.
+ *
+ * @example
+ * ```ts
+ * import { foregroundColors } from "@beep/chalk"
+ *
+ * console.log(foregroundColors) // same as foregroundColorNames
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const foregroundColors = foregroundColorNames;
 
 /**
- * Alias for {@link backgroundColorNames} preserved for Chalk compatibility.
+ * Alias for {@link backgroundColorNames} preserved for Chalk API compatibility.
+ *
+ * @example
+ * ```ts
+ * import { backgroundColors } from "@beep/chalk"
+ *
+ * console.log(backgroundColors) // same as backgroundColorNames
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const backgroundColors = backgroundColorNames;
 
 /**
- * Alias for {@link colorNames} preserved for Chalk compatibility.
+ * Alias for {@link colorNames} preserved for Chalk API compatibility.
+ *
+ * @example
+ * ```ts
+ * import { colors } from "@beep/chalk"
+ *
+ * console.log(colors) // same as colorNames
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const colors = colorNames;
 
 /**
- * Color support detected for stdout in the current runtime.
+ * Color support detected for stdout in the current Node.js runtime.
+ *
+ * Returns a {@link ColorSupport} object when the terminal supports color, or
+ * `false` when color output is not available.
+ *
+ * @example
+ * ```ts
+ * import { supportsColor } from "@beep/chalk"
+ *
+ * if (supportsColor !== false) {
+ *   console.log("Color level:", supportsColor.level)
+ *   console.log("Truecolor:", supportsColor.has16m)
+ * }
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const supportsColor = detectedSupportsColor.stdout;
 
 /**
- * Color support detected for stderr in the current runtime.
+ * Color support detected for stderr in the current Node.js runtime.
+ *
+ * Returns a {@link ColorSupport} object when the terminal supports color on
+ * stderr, or `false` when color output is not available.
+ *
+ * @example
+ * ```ts
+ * import { supportsColorStderr } from "@beep/chalk"
+ *
+ * if (supportsColorStderr !== false) {
+ *   console.log("Stderr color level:", supportsColorStderr.level)
+ * }
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const supportsColorStderr = detectedSupportsColor.stderr;
 
@@ -345,18 +609,48 @@ interface ChalkStderrValue extends ChalkInstance {}
 const ChalkStderr = makeChalkConstructor(ChalkStderrValue, createChalkStderr);
 
 /**
- * Shared Chalk instance configured from stderr support detection.
+ * Shared Chalk instance configured from stderr color support detection.
+ *
+ * Use this when writing styled output to `process.stderr`.
+ *
+ * @example
+ * ```ts
+ * import { chalkStderr } from "@beep/chalk"
+ *
+ * process.stderr.write(chalkStderr.red.bold("Error!") + "\n")
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const chalkStderr: ChalkInstance = new ChalkStderr();
 
 /**
- * Shared Chalk instance configured from stdout support detection.
+ * Shared Chalk instance configured from stdout color support detection.
+ *
+ * This is the default export and the primary entry point for styling terminal
+ * strings. Style methods can be chained and the result called as a function.
+ *
+ * @example
+ * ```ts
+ * import chalk from "@beep/chalk"
+ *
+ * // Simple styling
+ * console.log(chalk.green("Success"))
+ *
+ * // Chained styles
+ * console.log(chalk.red.bgWhite.bold("Alert"))
+ *
+ * // Nested styles via template interpolation
+ * console.log(chalk.red(`Error: ${chalk.bold.underline("file not found")}`))
+ *
+ * // Hex and RGB colors (requires level >= 2 or 3)
+ * console.log(chalk.hex("#FF8800")("orange"))
+ * console.log(chalk.rgb(255, 136, 0)("also orange"))
+ * ```
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 const chalk: ChalkInstance = new Chalk();
 

@@ -10,7 +10,17 @@ import * as S from "effect/Schema";
 const $I = $SchemaId.create("Primitive");
 
 /**
- * A primitive data type schema.
+ * Schema for JavaScript primitive types (`string | number | boolean | bigint | null | undefined`).
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Primitive } from "@beep/schema/Primitive"
+ *
+ * S.decodeUnknownSync(Primitive)("hello")
+ * S.decodeUnknownSync(Primitive)(42)
+ * S.decodeUnknownSync(Primitive)(null)
+ * ```
  *
  * @category Validation
  * @since 0.0.0
@@ -22,9 +32,16 @@ export const Primitive = S.Union([S.String, S.Number, S.Boolean, S.BigInt, S.Nul
 );
 
 /**
- * Type of {@link Primitive} {@inheritDoc Primitive}
+ * Type of {@link Primitive}. {@inheritDoc Primitive}
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import type { Primitive } from "@beep/schema/Primitive"
+ *
+ * const value: Primitive = "hello"
+ * ```
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type Primitive = typeof Primitive.Type;

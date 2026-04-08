@@ -13,8 +13,16 @@ import * as S from "effect/Schema";
 const $I = $SchemaId.create("CurrencyCode");
 
 /**
- * Schema for a valid ISO 4217 currency code.
- * Must be exactly 3 uppercase ASCII letters.
+ * Schema for a valid ISO 4217 currency code (exactly 3 uppercase ASCII letters).
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CurrencyCode } from "@beep/schema/CurrencyCode"
+ *
+ * const code = S.decodeUnknownSync(CurrencyCode)("USD")
+ * console.log(code) // "USD"
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -27,7 +35,14 @@ export const CurrencyCode = S.String.check(S.isPattern(/^[A-Z]{3}$/)).pipe(
 );
 
 /**
- * The branded CurrencyCode type {@link CurrencyCode} {@inheritDoc CurrencyCode}
+ * The branded CurrencyCode type. {@link CurrencyCode} {@inheritDoc CurrencyCode}
+ *
+ * @example
+ * ```ts
+ * import type { CurrencyCode } from "@beep/schema/CurrencyCode"
+ *
+ * const currency: CurrencyCode = "EUR" as CurrencyCode
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -35,61 +50,95 @@ export const CurrencyCode = S.String.check(S.isPattern(/^[A-Z]{3}$/)).pipe(
 export type CurrencyCode = typeof CurrencyCode.Type;
 
 /**
- * Type guard for CurrencyCode using S.is
+ * Type guard for {@link CurrencyCode}.
+ *
+ * @example
+ * ```ts
+ * import { isCurrencyCode } from "@beep/schema/CurrencyCode"
+ *
+ * console.log(isCurrencyCode("USD")) // true
+ * console.log(isCurrencyCode("usd")) // false
+ * ```
+ *
  * @category Validation
  * @since 0.0.0
  */
 export const isCurrencyCode = S.is(CurrencyCode);
 
 /**
- * Common ISO 4217 currency codes
- * Using Schema's .make() constructor which validates by default
- * @category Configuration
+ * ISO 4217 constant for United States Dollar.
+ *
+ * @example
+ * ```ts
+ * import { USD } from "@beep/schema/CurrencyCode"
+ *
+ * console.log(USD) // "USD"
+ * ```
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const USD: CurrencyCode = CurrencyCode.makeUnsafe("USD");
 /**
- * @category Configuration
+ * ISO 4217 constant for Euro.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const EUR: CurrencyCode = CurrencyCode.makeUnsafe("EUR");
 /**
- * @category Configuration
+ * ISO 4217 constant for British Pound Sterling.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const GBP: CurrencyCode = CurrencyCode.makeUnsafe("GBP");
 /**
- * @category Configuration
+ * ISO 4217 constant for Japanese Yen.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const JPY: CurrencyCode = CurrencyCode.makeUnsafe("JPY");
 /**
- * @category Configuration
+ * ISO 4217 constant for Swiss Franc.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const CHF: CurrencyCode = CurrencyCode.makeUnsafe("CHF");
 /**
- * @category Configuration
+ * ISO 4217 constant for Canadian Dollar.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const CAD: CurrencyCode = CurrencyCode.makeUnsafe("CAD");
 /**
- * @category Configuration
+ * ISO 4217 constant for Australian Dollar.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const AUD: CurrencyCode = CurrencyCode.makeUnsafe("AUD");
 /**
- * @category Configuration
+ * ISO 4217 constant for Chinese Yuan.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const CNY: CurrencyCode = CurrencyCode.makeUnsafe("CNY");
 /**
- * @category Configuration
+ * ISO 4217 constant for Hong Kong Dollar.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const HKD: CurrencyCode = CurrencyCode.makeUnsafe("HKD");
 /**
- * @category Configuration
+ * ISO 4217 constant for Singapore Dollar.
+ *
+ * @category Constants
  * @since 0.0.0
  */
 export const SGD: CurrencyCode = CurrencyCode.makeUnsafe("SGD");

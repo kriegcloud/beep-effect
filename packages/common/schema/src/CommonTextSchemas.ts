@@ -24,7 +24,16 @@ const normalizeBooleanString = (value: string): boolean => {
 };
 
 /**
- * Trimmed and non-empty text schema for shared runtime boundaries.
+ * Trimmed and non-empty text schema that strips whitespace and rejects empty results.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TrimmedNonEmptyText } from "@beep/schema/CommonTextSchemas"
+ *
+ * const value = S.decodeUnknownSync(TrimmedNonEmptyText)("  hello  ")
+ * console.log(value) // "hello"
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -47,13 +56,29 @@ export const TrimmedNonEmptyText = S.String.pipe(
 /**
  * Type for {@link TrimmedNonEmptyText}.
  *
+ * @example
+ * ```ts
+ * import type { TrimmedNonEmptyText } from "@beep/schema/CommonTextSchemas"
+ *
+ * const name: TrimmedNonEmptyText = "hello" as TrimmedNonEmptyText
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
 export type TrimmedNonEmptyText = typeof TrimmedNonEmptyText.Type;
 
 /**
- * Shared comma-separated list schema that trims and removes empty entries.
+ * Schema that decodes a comma-separated string into a trimmed non-empty string array.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { CommaSeparatedList } from "@beep/schema/CommonTextSchemas"
+ *
+ * const items = S.decodeUnknownSync(CommaSeparatedList)("foo, bar, baz")
+ * console.log(items) // ["foo", "bar", "baz"]
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -76,14 +101,29 @@ export const CommaSeparatedList = S.String.pipe(
 /**
  * Type for {@link CommaSeparatedList}.
  *
+ * @example
+ * ```ts
+ * import type { CommaSeparatedList } from "@beep/schema/CommonTextSchemas"
+ *
+ * const tags: CommaSeparatedList = ["a", "b"] as CommaSeparatedList
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
 export type CommaSeparatedList = typeof CommaSeparatedList.Type;
 
 /**
- * Shared boolean-string normalization schema for runtime config boundaries.
- * Accepts common boolean string spellings and normalizes to `boolean`.
+ * Schema that normalizes common boolean string spellings (`"true"`, `"1"`, `"yes"`, `"on"`, etc.) to `boolean`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NormalizedBooleanString } from "@beep/schema/CommonTextSchemas"
+ *
+ * console.log(S.decodeUnknownSync(NormalizedBooleanString)("yes")) // true
+ * console.log(S.decodeUnknownSync(NormalizedBooleanString)("0")) // false
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -105,6 +145,13 @@ export const NormalizedBooleanString = S.String.pipe(
 
 /**
  * Type for {@link NormalizedBooleanString}.
+ *
+ * @example
+ * ```ts
+ * import type { NormalizedBooleanString } from "@beep/schema/CommonTextSchemas"
+ *
+ * const flag: NormalizedBooleanString = true
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

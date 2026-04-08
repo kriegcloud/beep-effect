@@ -45,7 +45,8 @@ const makeMutableHashSetEquivalence =
   };
 
 /**
- * `MutableHashSet` iso representation used by {@link MutableHashSetFromSelf}.
+ * Iso representation (serializable value array) used by
+ * {@link MutableHashSetFromSelf} for round-tripping.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -80,7 +81,16 @@ export interface MutableHashSet<Value extends S.Top>
 }
 
 /**
- * Guard for Effect `MutableHashSet` values.
+ * Type guard for Effect `MutableHashSet` values.
+ *
+ * @example
+ * ```ts
+ * import { MutableHashSet } from "effect"
+ * import { isMutableHashSet } from "@beep/schema/MutableHashSet"
+ *
+ * isMutableHashSet(MutableHashSet.empty())  // true
+ * isMutableHashSet(new Set())               // false
+ * ```
  *
  * @param value - Unknown input to test.
  * @returns `true` when `value` is a `MutableHashSet`.
@@ -93,6 +103,18 @@ export const isMutableHashSet = <Value>(value: unknown): value is MutableHashSet
 /**
  * Schema for validating existing `MutableHashSet` instances while applying the
  * provided member schema to each element.
+ *
+ * @example
+ * ```ts
+ * import { MutableHashSet } from "effect"
+ * import * as S from "effect/Schema"
+ * import { MutableHashSetFromSelf } from "@beep/schema/MutableHashSet"
+ *
+ * const SetSchema = MutableHashSetFromSelf(S.String)
+ * const set = MutableHashSet.fromIterable(["a", "b"])
+ * const decoded = S.decodeUnknownSync(SetSchema)(set)
+ * void decoded
+ * ```
  *
  * @param value - Element schema for set members.
  * @returns Schema whose encoded side is another `MutableHashSet` carrying the

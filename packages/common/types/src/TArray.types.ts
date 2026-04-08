@@ -1,12 +1,26 @@
 /**
+ * Array utility types for `@beep/types`.
+ *
  * @since 0.0.0
  * @module @beep/types/TArray
  */
 
 /**
- * Represents a utility type that extracts the type of an element from a tuple or an array.
+ * Extracts the element type from a tuple or array type.
+ *
+ * @example
+ * ```typescript
+ * import type { TArray } from "@beep/types"
+ *
+ * type NumberElement = TArray.Elem<readonly [1, 2, 3]>
+ * // 1 | 2 | 3
+ *
+ * type StringElement = TArray.Elem<string[]>
+ * // string
+ * ```
  *
  * @since 0.0.0
+ * @category utilities
  * @template T - The type from which the element type will be inferred.
  */
 export type Elem<T> = T extends readonly (infer U)[] ? U : never;

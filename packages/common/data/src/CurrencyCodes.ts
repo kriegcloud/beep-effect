@@ -21,7 +21,7 @@ import * as internal from "./generated/iso4217.ts";
  * array of countries where the currency is used.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import type { CurrencyCodeData } from "@beep/data/CurrencyCodes"
@@ -42,7 +42,7 @@ export type CurrencyCodeData = (typeof internal.CurrencyCodeDataValues)[number];
  * Union of all ISO 4217 three-letter currency code strings.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import type { CurrencyCode } from "@beep/data/CurrencyCodes"
@@ -69,7 +69,7 @@ export type CurrencyCode = CurrencyCodeData["code"];
  * Sourced from the official ISO 4217 published list.
  *
  * @since 0.0.0
- * @category Configuration
+ * @category constants
  * @example
  * ```typescript
  * import { CurrencyCodeDataValues } from "@beep/data/CurrencyCodes"

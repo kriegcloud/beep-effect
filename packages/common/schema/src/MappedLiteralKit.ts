@@ -65,7 +65,15 @@ type DirectionalKit<
 > = TransformedLiteralsSchema<From, To> & DirectionalHelpers<From, Enum>;
 
 /**
- * Error thrown when `MappedLiteralKit` receives duplicate literals on either side.
+ * Error thrown when `MappedLiteralKit` receives duplicate literals on the
+ * `from` or `to` side of the mapping.
+ *
+ * @example
+ * ```ts
+ * import { MappedLiteralDuplicateError } from "@beep/schema/MappedLiteralKit"
+ *
+ * void MappedLiteralDuplicateError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -268,7 +276,9 @@ type ForwardDirectionalKit<M extends MappedPairs> = DirectionalKit<FromLiterals<
 type ReverseDirectionalKit<M extends MappedPairs> = DirectionalKit<ToLiterals<M>, FromLiterals<M>, ReverseEnumMap<M>>;
 
 /**
- * Runtime type for {@link MappedLiteralKit} constructor output.
+ * Runtime type for the value returned by the {@link MappedLiteralKit}
+ * constructor. Contains `From` and `To` directional helpers and the original
+ * `Pairs`.
  *
  * @category DomainModel
  * @since 0.0.0
@@ -282,10 +292,25 @@ export type MappedLiteralKit<M extends MappedPairs> = ForwardDirectionalKit<M> &
 /**
  * Builds a mapped literal schema kit from a non-empty tuple of literal pairs.
  *
- * Requires one-to-one mappings.
+ * Requires one-to-one mappings. Exact duplicate literals on either side throw
+ * {@link MappedLiteralDuplicateError}. Helper-key collisions on either side
+ * throw {@link LiteralKitKeyCollisionError}.
  *
- * Exact duplicate literals on either side throw {@link MappedLiteralDuplicateError}.
- * Helper-key collisions on either side throw {@link LiteralKitKeyCollisionError}.
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MappedLiteralKit } from "@beep/schema/MappedLiteralKit"
+ *
+ * const HttpStatus = MappedLiteralKit([
+ *   ["OK", "200"],
+ *   ["NOT_FOUND", "404"],
+ * ] as const)
+ *
+ * S.decodeSync(HttpStatus)("OK")       // "200"
+ * S.encodeSync(HttpStatus)("200")      // "OK"
+ * HttpStatus.From.Enum.OK              // "200"
+ * HttpStatus.To.Enum["200"]            // "OK"
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0

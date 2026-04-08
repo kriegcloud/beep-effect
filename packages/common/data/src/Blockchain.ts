@@ -8,7 +8,18 @@
 /**
  * Common blockchain network ticker metadata.
  *
- * @category Constants
+ * @example
+ * ```typescript
+ * import { Blockchain } from "@beep/data"
+ *
+ * const ethTicker = Blockchain.Networks.Ethereum.ticker
+ * console.log(ethTicker) // "ETH"
+ *
+ * const btcTicker = Blockchain.Networks.Bitcoin.ticker
+ * console.log(btcTicker) // "BTC"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const Networks = {

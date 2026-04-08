@@ -11,20 +11,34 @@ import * as Thunk from "./internal/Thunk.ts";
 const $I = $UtilsId.create("Glob");
 
 /**
+ * Schema for a glob pattern: either a single string or an array of strings.
+ *
+ * @category utilities
  * @since 0.0.0
- * @category Validation
  */
 export const Pattern = S.Union([S.String, S.Array(S.String)]);
 
 /**
+ * A glob pattern: either a single string or an array of strings.
+ *
+ * @category models
  * @since 0.0.0
- * @category Validation
  */
 export type Pattern = typeof Pattern.Type;
 
 /**
+ * Optional runtime flags for Bun.Glob scans.
+ *
+ * @example
+ * ```ts
+ * import { GlobOptions } from "@beep/utils/Glob"
+ *
+ * const opts = new GlobOptions({ absolute: true, dot: true })
+ * void opts
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
   {
@@ -40,20 +54,28 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
 ) {}
 
 /**
+ * Namespace for the encoded form of {@link GlobError}.
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export declare namespace GlobError {
   /**
+   * Encoded shape of {@link GlobError}.
+   *
+   * @category models
    * @since 0.0.0
-   * @category DomainModel
    */
   export type Encoded = typeof GlobError.Encoded;
 }
 
 /**
+ * An error raised when glob pattern matching fails.
+ *
+ * Carries the offending `pattern` and an optional `cause` with stack trace.
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
   "GlobError",
@@ -72,16 +94,20 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
 }
 
 /**
+ * Service interface for performing glob-based file matching.
+ *
+ * @category models
  * @since 0.0.0
- * @category PortContract
  */
 export interface Glob {
   readonly glob: (pattern: Pattern, options?: undefined | GlobOptions) => Effect.Effect<Array<string>, GlobError>;
 }
 
 /**
+ * Service tag for the {@link Glob} capability.
+ *
+ * @category utilities
  * @since 0.0.0
- * @category PortContract
  */
 export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");
 
@@ -182,8 +208,11 @@ const scanWithNodeGlob = async (
 };
 
 /**
+ * Live `Layer` providing the {@link Glob} service backed by `picomatch` and
+ * Node.js `fs.readdirSync`.
+ *
+ * @category utilities
  * @since 0.0.0
- * @category Configuration
  */
 export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
   glob: (pattern, options) => {

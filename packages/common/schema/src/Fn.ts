@@ -104,7 +104,18 @@ const anyFnAnnotations = {
 
 /**
  * Function type helper used by {@link Fn}. Inputs modeled with `never`,
- * `undefined`, or `void` become thunk call signatures.
+ * `undefined`, or `void` produce thunk (zero-argument) call signatures;
+ * all other input types produce unary call signatures.
+ *
+ * @example
+ * ```ts
+ * import type { FnType } from "@beep/schema/Fn"
+ *
+ * type Thunk = FnType<never, string>    // () => string
+ * type Unary = FnType<number, string>   // (input: number) => string
+ * void (0 as unknown as Thunk)
+ * void (0 as unknown as Unary)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -147,7 +158,8 @@ type FnNoArgInput<Input extends S.Top> = [Input["Type"]] extends [never]
       : NoArgInputSchema;
 
 /**
- * Schema surface for thunk-like functions created by {@link Fn}.
+ * Schema surface for zero-argument (thunk-like) functions created by {@link Fn}.
+ * Provides `implement`, `implementEffect`, and `implementSync` helpers.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -164,7 +176,9 @@ export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.
 }
 
 /**
- * Schema surface for unary functions created by {@link Fn}.
+ * Schema surface for unary functions created by {@link Fn}. Provides
+ * `implement`, `implementEffect`, and `implementSync` helpers that decode
+ * input and validate output at invocation time.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -183,7 +197,8 @@ export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error 
 }
 
 /**
- * Schema type returned by {@link Fn}.
+ * Union schema type returned by {@link Fn}. Resolves to either
+ * {@link FnSchemaNoArg} or {@link FnSchemaUnary} based on the input schema.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -197,7 +212,9 @@ export type FnSchema<Input extends S.Top, Output extends S.Top, Error extends S.
     : FnSchemaUnary<Input, Output, Error>;
 
 /**
- * Static helper surface attached to {@link Fn} schemas.
+ * Subset of the {@link FnSchema} surface exposing only the invocation helpers
+ * and sub-schemas (`implement`, `implementEffect`, `implementSync`,
+ * `inputSchema`, `outputSchema`, `errorSchema`).
  *
  * @since 0.0.0
  * @category DomainModel
@@ -436,6 +453,16 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * Creates a zero-argument function schema that preserves an explicit
  * `Schema.Undefined` input contract.
  *
+ * @example
+ * ```ts
+ * import { Fn } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ *
+ * const GetTime = Fn({ input: S.Undefined, output: S.Number })
+ * const getTime = GetTime.implementSync(() => Date.now())
+ * void getTime
+ * ```
+ *
  * @param options - Input/output contract for the thunk-like function.
  * @returns A thunk schema whose `inputSchema` remains `Schema.Undefined`.
  * @since 0.0.0
@@ -450,6 +477,16 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
 /**
  * Creates a zero-argument function schema that preserves an explicit
  * `Schema.Void` input contract.
+ *
+ * @example
+ * ```ts
+ * import { Fn } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ *
+ * const Noop = Fn({ input: S.Void, output: S.Void })
+ * const noop = Noop.implementSync(() => undefined)
+ * void noop
+ * ```
  *
  * @param options - Input/output contract for the thunk-like function.
  * @returns A thunk schema whose `inputSchema` remains `Schema.Void`.

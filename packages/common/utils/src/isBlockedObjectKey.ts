@@ -10,10 +10,27 @@ import { HashSet } from "effect";
 const BlockedObjectKeys = HashSet.make("__proto__", "prototype", "constructor");
 
 /**
- * isBlockedObjectKey - check if a key is equal to one of the
- * blocked prototype keys
+ * Returns `true` when `key` is a blocked prototype key (`__proto__`,
+ * `prototype`, or `constructor`).
  *
+ * Useful for sanitizing user-provided object keys to prevent prototype
+ * pollution attacks.
+ *
+ * @example
+ * ```ts
+ * import { isBlockedObjectKey } from "@beep/utils/isBlockedObjectKey"
+ *
+ * const safe = isBlockedObjectKey("name")
+ * // false
+ *
+ * const blocked = isBlockedObjectKey("__proto__")
+ * // true
+ *
+ * void safe
+ * void blocked
+ * ```
+ *
+ * @category predicates
  * @since 0.0.0
- * @category Utility
  */
 export const isBlockedObjectKey = (key: string) => HashSet.has(BlockedObjectKeys, key);

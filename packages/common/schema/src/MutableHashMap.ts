@@ -60,7 +60,8 @@ const toReadonlyEntries = <K, V>(map: MutableHashMap_.MutableHashMap<K, V>): Rea
   );
 
 /**
- * `MutableHashMap` iso representation used by {@link MutableHashMapFromSelf}.
+ * Iso representation (serializable entry array) used by
+ * {@link MutableHashMapFromSelf} for round-tripping.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -73,7 +74,10 @@ type MutableHashMapEntry<Key extends S.Top, Value extends S.Top> = S.Codec<
 >;
 
 /**
+ * Serializable entry-array iso type for `MutableHashMap` schemas.
+ *
  * @since 0.0.0
+ * @category DomainModel
  */
 export type MutableHashMapIso<Key extends S.Top, Value extends S.Top> = ReadonlyArray<
   readonly [Key["Iso"], Value["Iso"]]
@@ -112,7 +116,16 @@ export interface MutableHashMap<Key extends S.Top, Value extends S.Top>
 }
 
 /**
- * Guard for Effect `MutableHashMap` values.
+ * Type guard for Effect `MutableHashMap` values.
+ *
+ * @example
+ * ```ts
+ * import { MutableHashMap } from "effect"
+ * import { isMutableHashMap } from "@beep/schema/MutableHashMap"
+ *
+ * isMutableHashMap(MutableHashMap.empty())  // true
+ * isMutableHashMap({})                      // false
+ * ```
  *
  * @param value - Unknown input to test.
  * @returns `true` when `value` is a `MutableHashMap`.
@@ -125,6 +138,18 @@ export const isMutableHashMap = <Key, Value>(value: unknown): value is MutableHa
 /**
  * Schema for validating existing `MutableHashMap` instances while applying the
  * provided key and value schemas to each entry.
+ *
+ * @example
+ * ```ts
+ * import { MutableHashMap } from "effect"
+ * import * as S from "effect/Schema"
+ * import { MutableHashMapFromSelf } from "@beep/schema/MutableHashMap"
+ *
+ * const MapSchema = MutableHashMapFromSelf({ key: S.String, value: S.Number })
+ * const map = MutableHashMap.fromIterable([["a", 1]])
+ * const decoded = S.decodeUnknownSync(MapSchema)(map)
+ * void decoded
+ * ```
  *
  * @param options - Schemas for keys and values.
  * @returns Schema whose encoded side is another `MutableHashMap` carrying the

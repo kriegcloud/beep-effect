@@ -16,8 +16,16 @@ const $I = $SemanticWebId.create("evidence");
 /**
  * Evidence selector discriminator.
  *
+ * @example
+ * ```typescript
+ * import { EvidenceSelectorKind } from "@beep/semantic-web/evidence"
+ *
+ * console.log(EvidenceSelectorKind.Guard("text-quote")) // true
+ * console.log(EvidenceSelectorKind.Guard("unknown")) // false
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const EvidenceSelectorKind = LiteralKit(["text-quote", "text-position", "fragment"] as const).annotate(
   $I.annote("EvidenceSelectorKind", {
@@ -29,15 +37,26 @@ export const EvidenceSelectorKind = LiteralKit(["text-quote", "text-position", "
  * Type for {@link EvidenceSelectorKind}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EvidenceSelectorKind = typeof EvidenceSelectorKind.Type;
 
 /**
  * Text-quote selector for evidence anchors.
  *
+ * @example
+ * ```typescript
+ * import { TextQuoteSelector } from "@beep/semantic-web/evidence"
+ *
+ * const selector = TextQuoteSelector.makeUnsafe({
+ *   kind: "text-quote",
+ *   exact: "important finding",
+ * })
+ * console.log(selector.kind) // "text-quote"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSelector`)(
   {
@@ -65,8 +84,20 @@ export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSe
 /**
  * Text-position selector for evidence anchors.
  *
+ * @example
+ * ```typescript
+ * import { TextPositionSelector } from "@beep/semantic-web/evidence"
+ *
+ * const selector = TextPositionSelector.makeUnsafe({
+ *   kind: "text-position",
+ *   start: 0,
+ *   end: 42,
+ * })
+ * console.log(selector.start) // 0
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextPositionSelector`)(
   {
@@ -93,8 +124,19 @@ export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextP
 /**
  * Fragment selector for evidence anchors.
  *
+ * @example
+ * ```typescript
+ * import { FragmentSelector } from "@beep/semantic-web/evidence"
+ *
+ * const selector = FragmentSelector.makeUnsafe({
+ *   kind: "fragment",
+ *   value: "section-1",
+ * })
+ * console.log(selector.value) // "section-1"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class FragmentSelector extends S.Class<FragmentSelector>($I`FragmentSelector`)(
   {
@@ -119,8 +161,20 @@ export class FragmentSelector extends S.Class<FragmentSelector>($I`FragmentSelec
 /**
  * Evidence selector union.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { EvidenceSelector } from "@beep/semantic-web/evidence"
+ *
+ * const decoded = S.decodeUnknownSync(EvidenceSelector)({
+ *   kind: "text-quote",
+ *   exact: "sample text"
+ * })
+ * console.log(decoded.kind) // "text-quote"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const EvidenceSelector = S.Union([TextQuoteSelector, TextPositionSelector, FragmentSelector]).annotate(
   $I.annote("EvidenceSelector", {
@@ -132,7 +186,7 @@ export const EvidenceSelector = S.Union([TextQuoteSelector, TextPositionSelector
  * Type for {@link EvidenceSelector}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EvidenceSelector = typeof EvidenceSelector.Type;
 
@@ -140,7 +194,7 @@ export type EvidenceSelector = typeof EvidenceSelector.Type;
  * Target resource plus selector pair referenced by an evidence anchor.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class EvidenceTarget extends S.Class<EvidenceTarget>($I`EvidenceTarget`)(
   {
@@ -165,7 +219,7 @@ export class EvidenceTarget extends S.Class<EvidenceTarget>($I`EvidenceTarget`)(
  * Evidence anchor value referenced from provenance and verification services.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class EvidenceAnchor extends S.Class<EvidenceAnchor>($I`EvidenceAnchor`)(
   {
@@ -192,7 +246,7 @@ export class EvidenceAnchor extends S.Class<EvidenceAnchor>($I`EvidenceAnchor`)(
  * Bounded evidence projection.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class BoundedEvidenceProjection extends S.Class<BoundedEvidenceProjection>($I`BoundedEvidenceProjection`)(
   {

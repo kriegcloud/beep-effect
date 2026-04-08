@@ -1,3 +1,27 @@
+/**
+ * Phase profiling for named application lifecycle phases (startup, migrations, etc.).
+ *
+ * Wraps an effect with span annotations, structured logs, and optional metric
+ * recording to produce a {@link PhaseProfile} summary upon completion.
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { profilePhase } from "@beep/observability"
+ *
+ * const migrate = Effect.log("running migrations")
+ *
+ * const profiled = profilePhase(
+ *   { phase: "database-migration" },
+ *   migrate,
+ * )
+ *
+ * void Effect.runPromise(profiled)
+ * ```
+ *
+ * @module @beep/observability/PhaseProfiler
+ * @since 0.0.0
+ */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { Clock, Duration, Effect, Exit, Match, Metric } from "effect";
@@ -7,10 +31,10 @@ const $I = $ObservabilityId.create("PhaseProfiler");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 
 /**
- * Terminal outcomes for profiled phases.
+ * Terminal outcomes for profiled phases: `"completed"`, `"failed"`, or `"interrupted"`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const PhaseOutcome = LiteralKit(["completed", "failed", "interrupted"]).pipe(
   $I.annoteSchema("PhaseOutcome", {
@@ -22,15 +46,30 @@ export const PhaseOutcome = LiteralKit(["completed", "failed", "interrupted"]).p
  * Runtime type for {@link PhaseOutcome}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type PhaseOutcome = typeof PhaseOutcome.Type;
 
 /**
- * Deterministic summary of one profiled phase.
+ * Deterministic summary of one profiled phase with outcome, duration, and attributes.
+ *
+ * @example
+ * ```typescript
+ * import { PhaseProfile } from "@beep/observability"
+ *
+ * const profile = new PhaseProfile({
+ *   phase: "startup",
+ *   outcome: "completed",
+ *   durationMs: 42,
+ *   attributes: { service: "web" },
+ * })
+ *
+ * console.log(profile.phase) // "startup"
+ * console.log(profile.outcome) // "completed"
+ * ```
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class PhaseProfile extends S.Class<PhaseProfile>($I`PhaseProfile`)(
   {
@@ -90,8 +129,39 @@ const logPhaseProfile = (profile: PhaseProfile): Effect.Effect<void> =>
 /**
  * Profile one named phase with spans, logs, and optional metrics.
  *
+ * Wraps an effect and records:
+ * - A `started` counter increment on entry
+ * - Span annotations for `phase`, `phase_outcome`, and `phase_duration_ms`
+ * - A structured log at the appropriate level on exit
+ * - Optional `completed`, `failed`, `interrupted` counters and duration metric
+ *
+ * @example
+ * ```typescript
+ * import { Effect, Metric } from "effect"
+ * import { profilePhase } from "@beep/observability"
+ *
+ * const started = Metric.counter("phase_started_total")
+ * const completed = Metric.counter("phase_completed_total")
+ * const duration = Metric.timer("phase_duration")
+ *
+ * const migrate = Effect.log("running migrations")
+ *
+ * const profiled = profilePhase(
+ *   {
+ *     phase: "database-migration",
+ *     started,
+ *     completed,
+ *     duration,
+ *     attributes: { env: "production" },
+ *   },
+ *   migrate,
+ * )
+ *
+ * void Effect.runPromise(profiled)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const profilePhase = <A, E, R>(
   options: {

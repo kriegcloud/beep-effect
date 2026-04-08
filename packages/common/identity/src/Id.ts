@@ -1,6 +1,27 @@
 /**
- * @beep/identity
+ * Hierarchical identity system for the `@beep` namespace.
  *
+ * Provides composable, type-safe identity strings and symbols for schema
+ * annotations, error tagging, and service identification throughout the
+ * Effect codebase. Identities follow a `@beep/{package}/{path}` convention
+ * and are validated at construction time.
+ *
+ * @example
+ * ```typescript
+ * import { make } from "@beep/identity"
+ *
+ * // Create a package-level identity composer
+ * const { $MyPkgId } = make("my-pkg")
+ *
+ * // Derive child identifiers for schemas and services
+ * const userId = $MyPkgId.make("UserId")
+ * const sym = $MyPkgId.symbol()
+ *
+ * void userId // "@beep/my-pkg/UserId"
+ * void sym // Symbol.for("@beep/my-pkg")
+ * ```
+ *
+ * @module @beep/identity/Id
  * @since 0.0.0
  */
 
@@ -19,8 +40,31 @@ const MODULE_LEADING_ALPHA = /^[A-Za-z]/;
 const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
 
 /**
+ * Error thrown when an identity template tag receives interpolation values.
+ *
+ * Identity template tags must be called with a single static string literal,
+ * e.g. `` $I`Segment` ``. Passing `${variable}` expressions is forbidden
+ * because identity strings must be statically deterministic.
+ *
+ * @example
+ * ```typescript
+ * import { make, IdentityInterpolationError } from "@beep/identity"
+ *
+ * const { $MyPkgId } = make("my-pkg")
+ *
+ * try {
+ *   // Template tag with no interpolations succeeds
+ *   const id = $MyPkgId`UserService`
+ *   void id
+ * } catch (error) {
+ *   if (error instanceof IdentityInterpolationError) {
+ *     console.log(error.message)
+ *   }
+ * }
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category error handling
  */
 export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInterpolationError>(
   "@beep/identity/errors/IdentityInterpolationError"
@@ -38,8 +82,20 @@ export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInter
 }
 
 /**
+ * Error thrown when an identity template tag receives more or fewer than one literal segment.
+ *
+ * Template tags must be called with exactly one static string, e.g. `` $I`Segment` ``.
+ *
+ * @example
+ * ```typescript
+ * import { IdentitySegmentCountError } from "@beep/identity"
+ *
+ * const error = new IdentitySegmentCountError()
+ * console.log(error.message) // "Identity template tags must use a single literal segment."
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category error handling
  */
 export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmentCountError>(
   "@beep/identity/errors/IdentitySegmentCountError"
@@ -52,8 +108,10 @@ export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmen
   }
 ) {
   /**
+   * Human-readable error message.
    *
-   * @returns {string}
+   * @since 0.0.0
+   * @category getters
    */
   override get message(): string {
     return "Identity template tags must use a single literal segment.";
@@ -61,14 +119,28 @@ export class IdentitySegmentCountError extends S.TaggedErrorClass<IdentitySegmen
 }
 
 /**
+ * Current version of the `@beep/identity` package.
+ *
+ * @example
+ * ```typescript
+ * import { VERSION } from "@beep/identity"
+ *
+ * console.log(VERSION) // "0.0.0"
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const VERSION = "0.0.0" as const;
 
 /**
+ * Type-level constraint ensuring an identity segment does not start or end with a slash.
+ *
+ * Resolves to `never` when the segment starts or ends with `/`, preventing
+ * invalid identity paths at compile time.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SegmentValue<S extends TString.NonEmpty> = S extends `/${string}`
   ? never
@@ -144,8 +216,12 @@ type JoinTitleWords<Words extends ReadonlyArray<string>> = Words extends readonl
     : "";
 
 /**
+ * Derive a human-readable title from a kebab-case or snake_case identifier.
+ *
+ * Converts `"my-service"` to `"My Service"` and `"user_account"` to `"User Account"`.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TitleFromIdentifier<Identifier extends string> = JoinTitleWords<
   SplitTitleWords<TrimTitleSpaces<NormalizeTitleSeparators<Identifier>>>
@@ -170,43 +246,66 @@ type InvalidModulePrefix<S extends string> = S extends `${Digit}${string}` | `-$
 type HasInvalidModuleChar<S extends string> = S extends `${string}${InvalidModuleChar}${string}` ? true : false;
 
 /**
+ * Type-level constraint for module-safe identity segments.
+ *
+ * In addition to the basic {@link SegmentValue} rules, module segments must start
+ * with an alphabetic character and contain only alphanumerics, hyphens, or underscores.
+ * Resolves to `never` when violated.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ModuleSegmentValue<S extends TString.NonEmpty> =
   InvalidModulePrefix<S> extends true ? never : HasInvalidModuleChar<S> extends true ? never : SegmentValue<S>;
 
 /**
+ * Derive a PascalCase accessor name suffixed with `Id` from a module segment.
+ *
+ * `"my-service"` becomes `"MyServiceId"`.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ModuleAccessor<S extends TString.NonEmpty> = `${PascalCaseValue<ModuleSegmentValue<S>>}Id`;
 
 /**
+ * Derive a `$`-prefixed PascalCase accessor key from a module segment.
+ *
+ * `"my-service"` becomes `"$MyServiceId"`.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TaggedAccessor<S extends TString.NonEmpty> = `$${ModuleAccessor<S>}`;
 
 /**
+ * Branded string type for identity values, preventing accidental use of raw strings.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type IdentityString<Value extends string> = Value & {
   readonly __brand: unique symbol;
 };
 
 /**
+ * Branded symbol type for identity values, created via `Symbol.for` for interning.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type IdentitySymbol<Value extends string> = symbol & {
   readonly description: Value;
 };
 
 /**
+ * Additional schema annotation fields that identity annotation helpers accept.
+ *
+ * Mirrors `S.Annotations.Bottom` so callers can supply `description`, `documentation`,
+ * and other Effect Schema annotation keys alongside identity metadata.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SchemaAnnotationExtras<
   SchemaType,
@@ -214,8 +313,10 @@ export type SchemaAnnotationExtras<
 > = S.Annotations.Bottom<SchemaType, TypeParameters>;
 
 /**
+ * Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type KeyAnnotationExtras<SchemaType> = S.Annotations.Key<SchemaType>;
 
@@ -226,7 +327,7 @@ export type KeyAnnotationExtras<SchemaType> = S.Annotations.Key<SchemaType>;
  * its published `.d.ts` does not currently export the upstream `Encoding` alias.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HttpApiEncoding =
   | {
@@ -241,8 +342,12 @@ export type HttpApiEncoding =
     };
 
 /**
+ * Annotation fields accepted by `annoteHttp`, extending schema extras with HTTP API metadata.
+ *
+ * Supports optional `httpApiStatus` and `~httpApiEncoding` for Effect HTTP API annotations.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type HttpAnnotationExtras<
   SchemaType,
@@ -253,8 +358,12 @@ export type HttpAnnotationExtras<
 };
 
 /**
+ * Union of all annotation extras accepted by the `annote` family of helpers.
+ *
+ * Combines key-level and HTTP-level annotation fields into a single constraint.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type IdentityAnyAnnotationExtras<
   SchemaType,
@@ -262,8 +371,13 @@ export type IdentityAnyAnnotationExtras<
 > = KeyAnnotationExtras<SchemaType> & HttpAnnotationExtras<SchemaType, TypeParameters>;
 
 /**
+ * Fully resolved identity annotation record applied to Effect schemas.
+ *
+ * Contains an `identifier` string, an interned `schemaId` symbol, and a
+ * human-readable `title` derived from the identifier.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type IdentityAnnotation<Value extends string, Identifier extends string> = S.Annotations.Annotations & {
   readonly identifier: Identifier;
@@ -274,8 +388,11 @@ export type IdentityAnnotation<Value extends string, Identifier extends string> 
 type IdentityAnnotationMetadataKeys = "identifier" | "schemaId" | "title";
 
 /**
+ * Result of calling `annote` -- the identity annotation merged with any caller-supplied extras,
+ * with identity metadata keys taking precedence.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type IdentityAnnotationResult<
   Value extends string,
@@ -293,23 +410,82 @@ type StrictKeyIdentifier<Struct extends object, Identifier extends TString.NonEm
 type KeyIdentifierValue<Struct extends object, Identifier extends string> = Get<Struct, KeyIdentifierPath<Identifier>>;
 
 /**
+ * Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances,
+ * produced by calling `compose` with one or more module segment names.
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyArray<TString.NonEmpty>> = {
   readonly [K in Segments[number] as TaggedAccessor<K>]: IdentityComposer<`${Value}/${ModuleSegmentValue<K>}`>;
 };
 
 /**
+ * Composable identity builder for constructing hierarchical `@beep/` identity paths.
+ *
+ * An `IdentityComposer` holds a current identity path and provides methods to:
+ * - Extend the path with child segments (`create`, `make`, template tag)
+ * - Produce annotation records for Effect schemas (`annote`, `annoteSchema`, `annoteHttp`, `annoteKey`)
+ * - Batch-create named child composers (`compose`)
+ *
+ * @example
+ * ```typescript
+ * import { make } from "@beep/identity"
+ *
+ * // Create a root composer for "my-pkg"
+ * const { $MyPkgId } = make("my-pkg")
+ *
+ * // Template tag: derive a child identity string
+ * const serviceId = $MyPkgId`UserService`
+ * void serviceId // "@beep/my-pkg/UserService"
+ *
+ * // make: one-shot string creation
+ * const modelId = $MyPkgId.make("UserModel")
+ * void modelId // "@beep/my-pkg/UserModel"
+ *
+ * // create: derive a child composer for further nesting
+ * const sub = $MyPkgId.create("domain")
+ * const nested = sub.make("Entity")
+ * void nested // "@beep/my-pkg/domain/Entity"
+ *
+ * // compose: batch-create tagged child composers
+ * const modules = $MyPkgId.compose("auth", "billing")
+ * const authId = modules.$AuthId.make("Session")
+ * void authId // "@beep/my-pkg/auth/Session"
+ *
+ * // annote: produce an annotation record for Effect schemas
+ * const annotation = $MyPkgId.annote("UserSchema", {
+ *   description: "User domain model",
+ * })
+ * void annotation.identifier // "UserSchema"
+ * void annotation.title // "UserSchema"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export interface IdentityComposer<Value extends string> {
   /**
-   * @template Next,Extras
-   * @param {SegmentValue<Next>} identifier
-   * @param {IdentityAnyAnnotationExtras<unknown> | undefined} extras
-   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>}
+   * Produce an identity annotation record for an Effect schema.
+   *
+   * Returns an object containing `schemaId`, `identifier`, `title`, and any
+   * caller-supplied extras. Use this with `S.Class`, `S.TaggedErrorClass`, or
+   * similar constructors that accept an annotation record.
+   *
+   * @example
+   * ```typescript
+   * import { make } from "@beep/identity"
+   *
+   * const { $MyPkgId } = make("my-pkg")
+   * const ann = $MyPkgId.annote("UserCreated", { description: "A user was created." })
+   *
+   * void ann.identifier // "UserCreated"
+   * void ann.title // "UserCreated"
+   * void ann.description // "A user was created."
+   * ```
+   *
+   * @since 0.0.0
+   * @category combinators
    */
   annote<
     const Next extends TString.NonEmpty = TString.NonEmpty,
@@ -320,10 +496,13 @@ export interface IdentityComposer<Value extends string> {
   ): IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>;
 
   /**
-   * @template Schema,Next
-   * @param {SegmentValue<Next>} identifier
-   * @param {HttpAnnotationExtras<Schema["Type"]> | undefined} extras
-   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   * Produce a schema annotation function with HTTP API metadata.
+   *
+   * Returns a function that annotates an Effect schema with identity metadata
+   * plus optional `httpApiStatus` and encoding fields.
+   *
+   * @since 0.0.0
+   * @category combinators
    */
   annoteHttp<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
@@ -331,8 +510,13 @@ export interface IdentityComposer<Value extends string> {
   ): (self: Schema) => Schema["~rebuild.out"];
 
   /**
-   * @template Parent
-   * @returns {(identifier: TString.NonEmpty, extras?: KeyAnnotationExtras<unknown>) => (self: Schema) => Schema["~rebuild.out"]}
+   * Produce a type-safe key annotation function scoped to a parent struct.
+   *
+   * When called with zero arguments, returns a curried builder that constrains
+   * the identifier to valid paths within `Parent`.
+   *
+   * @since 0.0.0
+   * @category combinators
    */
   annoteKey<Parent extends object>(): <
     const Next extends TString.NonEmpty = TString.NonEmpty,
@@ -345,9 +529,10 @@ export interface IdentityComposer<Value extends string> {
   ) => (self: Schema) => Schema["~rebuild.out"];
 
   /**
-   * @param {TString.NonEmpty} identifier
-   * @param {KeyAnnotationExtras<unknown> | undefined} extras
-   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   * Produce a key annotation function for an untyped parent.
+   *
+   * @since 0.0.0
+   * @category combinators
    */
   annoteKey(
     identifier: TString.NonEmpty,
@@ -355,10 +540,13 @@ export interface IdentityComposer<Value extends string> {
   ): <Schema extends S.Top>(self: Schema) => Schema["~rebuild.out"];
 
   /**
-   * @template Schema,Next
-   * @param {SegmentValue<Next>} identifier
-   * @param {Schema["~annotate.in"] | undefined} extras
-   * @returns {(self: Schema) => Schema["~rebuild.out"]}
+   * Produce a generic schema annotation function.
+   *
+   * Returns a function that calls `self.annotate(...)` with identity metadata
+   * merged with any caller-supplied extras.
+   *
+   * @since 0.0.0
+   * @category combinators
    */
   annoteSchema<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
@@ -366,51 +554,119 @@ export interface IdentityComposer<Value extends string> {
   ): (self: Schema) => Schema["~rebuild.out"];
 
   /**
+   * Batch-create child {@link IdentityComposer} instances for multiple module segments.
    *
-   * @param {ModuleSegmentValue<NonEmpty>} segments
-   * @returns {TaggedModuleRecord<Value, Segments>}
+   * Returns a record whose keys are `$`-prefixed PascalCase accessors (e.g. `$AuthId`)
+   * mapped to child composers rooted at `{Value}/{segment}`.
+   *
+   * @example
+   * ```typescript
+   * import { make } from "@beep/identity"
+   *
+   * const { $MyPkgId } = make("my-pkg")
+   * const modules = $MyPkgId.compose("auth", "billing")
+   *
+   * const authId = modules.$AuthId.make("Session")
+   * void authId // "@beep/my-pkg/auth/Session"
+   * ```
+   *
+   * @since 0.0.0
+   * @category constructors
    */
   compose<
     const Segments extends readonly [ModuleSegmentValue<TString.NonEmpty>, ...ModuleSegmentValue<TString.NonEmpty>[]],
   >(...segments: Segments): TaggedModuleRecord<Value, Segments>;
 
   /**
-   * @template Next
-   * @param {SegmentValue<Next>} segment
-   * @returns {IdentityComposer<`${Value}/${SegmentValue<Next>}`>}
+   * Create a child {@link IdentityComposer} for further path extension.
+   *
+   * Unlike `make` (which returns a plain string), `create` returns a full
+   * composer that supports further nesting, annotation, and composition.
+   *
+   * @example
+   * ```typescript
+   * import { make } from "@beep/identity"
+   *
+   * const { $MyPkgId } = make("my-pkg")
+   * const sub = $MyPkgId.create("domain")
+   * const entityId = sub.make("Entity")
+   * void entityId // "@beep/my-pkg/domain/Entity"
+   * ```
+   *
+   * @since 0.0.0
+   * @category constructors
    */
   create<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`>;
+
+  /**
+   * The identity string for this composer's current path.
+   *
+   * @since 0.0.0
+   * @category getters
+   */
   readonly identifier: IdentityString<Value>;
 
   /**
-   * @template Next
-   * @param {SegmentValue<Next>} segment
-   * @returns {IdentityString<`${Value}/${SegmentValue<Next>}`>}
+   * Create a child identity string by appending one segment.
+   *
+   * @example
+   * ```typescript
+   * import { make } from "@beep/identity"
+   *
+   * const { $MyPkgId } = make("my-pkg")
+   * const id = $MyPkgId.make("UserModel")
+   * void id // "@beep/my-pkg/UserModel"
+   * ```
+   *
+   * @since 0.0.0
+   * @category constructors
    */
   make<const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityString<`${Value}/${SegmentValue<Next>}`>;
 
   /**
+   * Return this composer's identity as a branded string.
    *
-   * @returns {IdentityString<Value>}
+   * @since 0.0.0
+   * @category getters
    */
   string(): IdentityString<Value>;
 
   /**
+   * Return this composer's identity as an interned symbol via `Symbol.for`.
    *
-   * @returns {IdentitySymbol<Value>}
+   * @since 0.0.0
+   * @category getters
    */
   symbol(): IdentitySymbol<Value>;
+
+  /**
+   * Alias for {@link identifier}.
+   *
+   * @since 0.0.0
+   * @category getters
+   */
   readonly value: IdentityString<Value>;
 
   /**
+   * Template tag call signature for creating child identity strings.
    *
-   * @param {TemplateStringsArray} strings
-   * @param values
-   * @returns {IdentityString<`${Value}/${string}`>}
+   * Must be called with a single static string literal and no interpolations.
+   *
+   * @example
+   * ```typescript
+   * import { make } from "@beep/identity"
+   *
+   * const { $MyPkgId } = make("my-pkg")
+   * const id = $MyPkgId`UserService`
+   * void id // "@beep/my-pkg/UserService"
+   * ```
+   *
+   * @since 0.0.0
+   * @category constructors
    */
   (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): IdentityString<`${Value}/${string}`>;
 }
@@ -825,11 +1081,34 @@ type MakeReturn<Base extends TString.NonEmpty> = {
 };
 
 /**
+ * Create a root identity composer for a `@beep` package namespace.
+ *
+ * Accepts a base string (with or without the `@beep/` prefix) and returns
+ * a record containing a single `$`-prefixed PascalCase accessor mapped to
+ * the root {@link IdentityComposer} for that package.
+ *
+ * @example
+ * ```typescript
+ * import { make } from "@beep/identity"
+ *
+ * // Bare name -- "@beep/" prefix is added automatically
+ * const { $MyPkgId } = make("my-pkg")
+ * const id = $MyPkgId.make("Service")
+ * void id // "@beep/my-pkg/Service"
+ * ```
+ *
+ * @example
+ * ```typescript
+ * import { make } from "@beep/identity"
+ *
+ * // Full scoped name works too
+ * const { $UtilsId } = make("@beep/utils")
+ * const sym = $UtilsId.symbol()
+ * void sym // Symbol.for("@beep/utils")
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
- * @template Base
- * @param {Base} base - The base identity string
- * @returns {{readonly [K in `$${PascalCaseValue<ModuleSegmentValue<NormalizedBase<Base>>>}Id`]: IdentityComposer<BaseIdentity<Base>>}}
+ * @category constructors
  */
 export const make = flow(<const Base extends TString.NonEmpty>(base: Base): MakeReturn<Base> => {
   const normalized = normalizeBase(base);

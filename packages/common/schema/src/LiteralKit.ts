@@ -21,14 +21,14 @@ type EnumMappingEntry<Literal extends SchemaAST.LiteralValue = SchemaAST.Literal
 type EnumMappings<L extends Literals = Literals> = A.NonEmptyReadonlyArray<EnumMappingEntry<L[number]>>;
 
 /**
- * Convert a literal value to a valid object key (string representation).
- * Used for creating the Enum and is guards objects.
+ * Maps a literal value to its string key representation used in `Enum`, `is`,
+ * `$match`, and `thunk` objects.
  *
  * Key format by type:
- * - boolean → "true" | "false"
- * - bigint → `bigint${value}n` (e.g., 1n → "bigint1n")
- * - number → `number${value}` (e.g., 200 → "number200")
- * - string → as-is (e.g., "pending" → "pending")
+ * - boolean: `"true"` or `"false"`
+ * - bigint: `"bigint${value}n"` (e.g., `1n` becomes `"bigint1n"`)
+ * - number: `"number${value}"` (e.g., `200` becomes `"number200"`)
+ * - string: as-is (e.g., `"pending"` stays `"pending"`)
  *
  * @since 0.0.0
  * @category DomainModel
@@ -183,7 +183,18 @@ type ToTaggedUnionFn<L extends ReadonlyArray<PropertyKeyLiteral>> = <const Tag e
 // ============================================================================
 
 /**
- * Convert a literal value to its string key at runtime.
+ * Converts a literal value to its string key at runtime using the
+ * {@link LiteralToKey} mapping rules.
+ *
+ * @example
+ * ```ts
+ * import { matchLiteral } from "@beep/schema/LiteralKit"
+ *
+ * matchLiteral("pending")  // "pending"
+ * matchLiteral(200)        // "number200"
+ * matchLiteral(true)       // "true"
+ * matchLiteral(1n)         // "bigint1n"
+ * ```
  *
  * @since 0.0.0
  * @category Utility
@@ -236,7 +247,16 @@ const makeThunks = <L extends Literals>(literals: L): Thunks<L> =>
 const LiteralValueSchema = S.Union([S.String, S.BigInt, S.Boolean, S.Number]);
 
 /**
- * Error thrown when `omitOptions` removes every literal and cannot return a non-empty result.
+ * Error thrown when an input value is not found in the provided literals
+ * array, typically when `omitOptions` removes every literal and cannot return
+ * a non-empty result.
+ *
+ * @example
+ * ```ts
+ * import { LiteralNotInSetError } from "@beep/schema/LiteralKit"
+ *
+ * void LiteralNotInSetError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -254,7 +274,15 @@ export class LiteralNotInSetError extends TaggedErrorClass<LiteralNotInSetError>
 ) {}
 
 /**
- * Error thrown when different literals encode to the same helper key.
+ * Error thrown when different literals encode to the same helper key via
+ * {@link LiteralToKey} mapping.
+ *
+ * @example
+ * ```ts
+ * import { LiteralKitKeyCollisionError } from "@beep/schema/LiteralKit"
+ *
+ * void LiteralKitKeyCollisionError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -277,7 +305,15 @@ export class LiteralKitKeyCollisionError extends TaggedErrorClass<LiteralKitKeyC
 type SeenLiteralKeys = HashMap.HashMap<string, SchemaAST.LiteralValue>;
 
 /**
- * Error thrown when the same source literal appears more than once in a manual enum mapping.
+ * Error thrown when the same source literal appears more than once in a manual
+ * enum mapping provided to {@link LiteralKit}.
+ *
+ * @example
+ * ```ts
+ * import { LiteralKitEnumMappingDuplicateLiteralError } from "@beep/schema/LiteralKit"
+ *
+ * void LiteralKitEnumMappingDuplicateLiteralError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -298,7 +334,15 @@ export class LiteralKitEnumMappingDuplicateLiteralError extends TaggedErrorClass
 ) {}
 
 /**
- * Error thrown when a manual enum mapping does not exactly cover the provided literals.
+ * Error thrown when a manual enum mapping does not exactly cover the provided
+ * literal set (has missing or unexpected entries).
+ *
+ * @example
+ * ```ts
+ * import { LiteralKitEnumMappingCoverageError } from "@beep/schema/LiteralKit"
+ *
+ * void LiteralKitEnumMappingCoverageError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -489,10 +533,12 @@ const attachHelperDescriptors = <T extends object>(schema: T, descriptors: Prope
 };
 
 /**
- * Runtime literal kit that augments `Schema.Literals` with convenience helpers.
+ * Runtime literal kit type that augments `Schema.Literals` with convenience
+ * helpers: `Options`, `Enum`, `is`, `pickOptions`, `omitOptions`, `$match`,
+ * `thunk`, and `toTaggedUnion`.
  *
- * Supports mixed literal types (`string | number | boolean | bigint`)
- * with keys mapped via {@link LiteralToKey}.
+ * Supports mixed literal types (`string | number | boolean | bigint`) with
+ * keys mapped via {@link LiteralToKey}.
  *
  * @category DomainModel
  * @since 0.0.0

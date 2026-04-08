@@ -55,18 +55,36 @@ export const isPositive: (u: unknown) => u is number = (u: unknown): u is number
   Num.isNumber(u) && Num.isGreaterThanOrEqualTo(0)(u);
 
 /**
- * Re-export of `effect/Number`.
+ * Re-export of all helpers from `effect/Number`.
  *
+ * @category utilities
  * @since 0.0.0
- * @category Utility
  */
 export * from "effect/Number";
 
 /**
- * Checks whether a value is an integer.
+ * Type guard that checks whether a value is a `number` and an integer.
  *
+ * @example
+ * ```ts
+ * import { Num } from "@beep/utils"
+ *
+ * const whole = Num.isInteger(42)
+ * // true
+ *
+ * const fractional = Num.isInteger(3.14)
+ * // false
+ *
+ * const notNum = Num.isInteger("42")
+ * // false
+ *
+ * void whole
+ * void fractional
+ * void notNum
+ * ```
+ *
+ * @category predicates
  * @since 0.0.0
- * @category Validation
  */
 export const isInteger: (u: unknown) => u is number = (u: unknown): u is number =>
   Num.isNumber(u) && Number.isInteger(u);

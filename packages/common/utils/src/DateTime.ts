@@ -19,6 +19,9 @@ export const makeUnsafeUtc = <A extends Parameters<typeof DateTime.makeUnsafe>[0
   DateTime.makeUnsafe(input).pipe(DateTime.toUtc);
 
 /**
+ * Re-export of all helpers from `effect/DateTime`.
+ *
+ * @category utilities
  * @since 0.1.0
  */
 export * from "effect/DateTime";

@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/currencies | World Currencies JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/WorldCurrencies
  * @since 0.0.0
  */
 /**
+ * Array of major world currencies with symbols, formatting, and country associations.
+ *
+ * Each entry contains the ISO currency code, full name, symbol, decimal digit
+ * count, and an array of countries using the currency.
+ *
+ * @example
+ * ```typescript
+ * import { WorldCurrencies } from "@beep/data"
+ *
+ * const eur = WorldCurrencies.find(c => c.code === "EUR")
+ * console.log(eur?.symbol) // "\u20AC"
+ * console.log(eur?.decimal_digits) // 2
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const WorldCurrencies = [

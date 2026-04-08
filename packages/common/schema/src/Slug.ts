@@ -60,8 +60,23 @@ const SlugChecks = S.makeFilterGroup(
 /**
  * Branded schema for canonical lowercase kebab-case slugs.
  *
+ * Validates that a string is non-empty, uses only lowercase ASCII letters,
+ * digits, and hyphens, and does not start or end with a hyphen or contain
+ * repeated hyphens.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Slug } from "@beep/schema/Slug"
+ *
+ * const decode = S.decodeUnknownSync(Slug)
+ *
+ * const slug = decode("my-post-2")
+ * console.log(slug) // "my-post-2"
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category constructors
  */
 export const Slug = S.NonEmptyString.check(SlugChecks).pipe(
   S.brand("Slug"),
@@ -73,9 +88,9 @@ export const Slug = S.NonEmptyString.check(SlugChecks).pipe(
 );
 
 /**
- * Type for {@link Slug}.
+ * Branded slug string type extracted from {@link Slug}.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Slug = typeof Slug.Type;

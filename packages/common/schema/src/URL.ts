@@ -43,7 +43,16 @@ const filterURLStr = S.makeFilter(isURLStr, {
 const urlStr = Brand.check<URLStr>(filterURLStr);
 
 /**
- * A URL encoded as a string
+ * A branded schema for URL-encoded strings validated against `new URL()`.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { URLStr } from "@beep/schema/URL"
+ *
+ * const url = S.decodeUnknownSync(URLStr)("https://example.com")
+ * console.log(url)
+ * ```
  *
  * @category Validation
  * @since 0.0.0
@@ -61,9 +70,16 @@ export const URLStr = NonEmptyTrimmedStr.pipe(
 );
 
 /**
- * Type of {@link URLStr} {@inheritDoc URLStr}
+ * Type of {@link URLStr}. {@inheritDoc URLStr}
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import type { URLStr } from "@beep/schema/URL"
+ *
+ * const endpoint: URLStr = "https://api.example.com" as URLStr
+ * ```
+ *
+ * @category DomainModel
  * @since 0.0.0
  */
 export type URLStr = Brand.Branded<NonEmptyTrimmedStr, "URLStr">;

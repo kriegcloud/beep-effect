@@ -91,6 +91,15 @@ const GlobChecks = S.makeFilterGroup(
  * rejecting backslash separators so patterns remain portable across
  * environments and keeping the repo's defensive max-length limit.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Glob } from "@beep/schema/Glob"
+ *
+ * const pattern = S.decodeUnknownSync(Glob)("src/*.ts")
+ * void pattern
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */

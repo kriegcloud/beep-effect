@@ -38,7 +38,18 @@ const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.
   }).pipe(Effect.map((buffer) => Encoding.encodeHex(new Uint8Array(buffer))));
 
 /**
- * Branded schema for canonical lowercase SHA-256 hex digests.
+ * Branded schema for canonical lowercase SHA-256 hex digests (64 hex characters).
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Sha256Hex } from "@beep/schema/Sha256"
+ *
+ * const digest = S.decodeUnknownSync(Sha256Hex)(
+ *   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * )
+ * console.log(digest)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -55,6 +66,13 @@ export const Sha256Hex = S.String.check(Sha256HexChecks).pipe(
 /**
  * Type for {@link Sha256Hex}.
  *
+ * @example
+ * ```ts
+ * import type { Sha256Hex } from "@beep/schema/Sha256"
+ *
+ * const hash: Sha256Hex = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as Sha256Hex
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -62,10 +80,20 @@ export type Sha256Hex = typeof Sha256Hex.Type;
 
 /**
  * One-way schema that decodes a byte array into a canonical lowercase SHA-256
- * hex digest.
+ * hex digest. Encoding back is intentionally forbidden.
  *
- * Encoding back to the original bytes is intentionally forbidden because the
- * digest transform is not invertible.
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { Sha256HexFromBytes } from "@beep/schema/Sha256"
+ *
+ * const program = Effect.gen(function* () {
+ *   const bytes = new TextEncoder().encode("hello")
+ *   const digest = yield* S.decodeUnknownEffect(Sha256HexFromBytes)(bytes)
+ *   console.log(digest)
+ * })
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -85,6 +113,13 @@ export const Sha256HexFromBytes = S.Uint8Array.pipe(
 /**
  * Type for {@link Sha256HexFromBytes}.
  *
+ * @example
+ * ```ts
+ * import type { Sha256HexFromBytes } from "@beep/schema/Sha256"
+ *
+ * const hash: Sha256HexFromBytes = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as Sha256HexFromBytes
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -92,10 +127,19 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
 
 /**
  * One-way schema that decodes a hex-encoded byte string into a canonical
- * lowercase SHA-256 hex digest.
+ * lowercase SHA-256 hex digest via {@link Sha256HexFromBytes}.
  *
- * This uses Effect's dedicated `Schema.Uint8ArrayFromHex` transport codec at
- * the boundary, then composes it with {@link Sha256HexFromBytes}.
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
+ *
+ * const program = Effect.gen(function* () {
+ *   const digest = yield* S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f")
+ *   console.log(digest)
+ * })
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -111,6 +155,13 @@ export const Sha256HexFromHexBytes = S.Uint8ArrayFromHex.pipe(
 
 /**
  * Type for {@link Sha256HexFromHexBytes}.
+ *
+ * @example
+ * ```ts
+ * import type { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
+ *
+ * const hash: Sha256HexFromHexBytes = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855" as Sha256HexFromHexBytes
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

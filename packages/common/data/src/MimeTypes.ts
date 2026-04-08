@@ -21,7 +21,7 @@ import * as internal from "./internal/data/mime-types/index.ts";
  * Each member is a full MIME type string such as `"application/json"` or `"image/png"`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import type { MimeType } from "@beep/data/MimeTypes"
@@ -39,7 +39,7 @@ export type MimeType = internal.MimeType;
  * Each member is a bare extension like `"json"`, `"html"`, or `"png"`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import type { FileExtension } from "@beep/data/MimeTypes"
@@ -59,7 +59,7 @@ export type FileExtension = internal.FileExtension;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { application } from "@beep/data/MimeTypes"
@@ -75,7 +75,7 @@ export const application: typeof internal.application = internal.application;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { audio } from "@beep/data/MimeTypes"
@@ -91,7 +91,7 @@ export const audio: typeof internal.audio = internal.audio;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { image } from "@beep/data/MimeTypes"
@@ -107,7 +107,7 @@ export const image: typeof internal.image = internal.image;
  * message, model, and x-conference types.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { misc } from "@beep/data/MimeTypes"
@@ -123,7 +123,7 @@ export const misc: typeof internal.misc = internal.misc;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { text } from "@beep/data/MimeTypes"
@@ -139,7 +139,7 @@ export const text: typeof internal.text = internal.text;
  * and Nginx registries.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  * @example
  * ```typescript
  * import { video } from "@beep/data/MimeTypes"
@@ -161,7 +161,7 @@ export const video: typeof internal.video = internal.video;
  * This is the raw merged data object that backs the `mimeTypes` typed record.
  *
  * @since 0.0.0
- * @category Configuration
+ * @category constants
  * @example
  * ```typescript
  * import { mimes } from "@beep/data/MimeTypes"
@@ -178,7 +178,7 @@ export const mimes: typeof internal.mimes = internal.mimes;
  * originated (`"iana"`, `"apache"`, or `"nginx"`).
  *
  * @since 0.0.0
- * @category Configuration
+ * @category constants
  * @example
  * ```typescript
  * import { mimeTypes } from "@beep/data/MimeTypes"
@@ -203,7 +203,7 @@ export const mimeTypes: typeof internal.mimeTypes = internal.mimeTypes;
  * calls return the same cached object.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  * @example
  * ```typescript
  * import { getTypes } from "@beep/data/MimeTypes"
@@ -223,7 +223,7 @@ export const getTypes: () => Record<FileExtension, MimeType> = internal.getTypes
  * calls return the same cached object.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  * @example
  * ```typescript
  * import { getExtensions } from "@beep/data/MimeTypes"
@@ -247,7 +247,7 @@ export const getExtensions: () => Record<MimeType, FileExtension[]> = internal.g
  * Returns the matching MIME type string, or `false` if no match is found.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  * @example
  * ```typescript
  * import { lookup } from "@beep/data/MimeTypes"

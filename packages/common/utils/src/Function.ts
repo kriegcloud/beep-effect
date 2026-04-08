@@ -1,11 +1,16 @@
 /**
- * @module @beep/utils/Function
+ * Extended Function utilities built on `effect/Function`.
  *
+ * @module @beep/utils/Function
+ * @since 0.0.0
  */
 import type { TUnsafe } from "@beep/types";
 import { identity } from "effect";
 
 /**
+ * Re-export of all helpers from `effect/Function`.
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export * from "effect/Function";

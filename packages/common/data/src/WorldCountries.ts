@@ -3,11 +3,26 @@
  *
  * @see {@link https://jsonlint.com/datasets/countries | World Countries JSON Dataset}
  *
- * @category Constants
+ * @category constants
  * @module @beep/data/WorldCountries
  * @since 0.0.0
  */
 /**
+ * Array of major world countries with geographic and demographic data.
+ *
+ * Each entry contains the country name, ISO code, capital, region,
+ * population, and currency code.
+ *
+ * @example
+ * ```typescript
+ * import { WorldCountries } from "@beep/data"
+ *
+ * const japan = WorldCountries.find(c => c.code === "JP")
+ * console.log(japan?.capital) // "Tokyo"
+ * console.log(japan?.currency) // "JPY"
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const WorldCountries = [
