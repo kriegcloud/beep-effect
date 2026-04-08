@@ -89,6 +89,14 @@ export type PrettyLogTheme = typeof PrettyLogTheme.Type;
 /**
  * Banner render modes for startup and phase summaries: `"off"`, `"startup"`, `"phase"`, or `"all"`.
  *
+ * @example
+ * ```typescript
+ * import { PrettyLoggerConfig } from "@beep/observability"
+ *
+ * const config = new PrettyLoggerConfig({ theme: "ocean", bannerMode: "startup" })
+ * void config.bannerMode // "startup"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */

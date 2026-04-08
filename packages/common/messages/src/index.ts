@@ -8,5 +8,16 @@
  * @module @beep/messages
  */
 
+/**
+ * @example
+ * ```typescript
+ * import { t, logIssues } from "@beep/messages"
+ *
+ * console.log(t("struct.missingKey")) // "This field is required"
+ * ```
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export * from "./i18n.js";
 // bench

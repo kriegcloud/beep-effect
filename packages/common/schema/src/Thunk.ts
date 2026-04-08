@@ -102,7 +102,7 @@ export const ThunkUnknown = S.declare<() => unknown>(isThunkUnknownValue).pipe(
  * ```
  *
  * @since 0.0.0
- * @category Guards
+ * @category guards
  */
 export const isThunkUnknown = S.is(ThunkUnknown);
 

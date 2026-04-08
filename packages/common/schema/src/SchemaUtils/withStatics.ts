@@ -47,16 +47,24 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
 };
 
 /**
- * Attach static methods to a schema object. Designed to be used with `.pipe()`:
+ * Attach static methods to a schema object. Designed to be used with `.pipe()`.
  *
  * @example
- *   export const Foo = fooSchema.pipe(
- *     withStatics((schema) => ({
- *       zero: schema.makeUnsafe(0),
- *       from: Schema.decodeUnknownOption(schema),
- *     }))
- *   )
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { withStatics } from "@beep/schema/SchemaUtils/withStatics"
+ *
+ * const MySchema = S.String.pipe(
+ *   withStatics(() => ({
+ *     empty: "" as const,
+ *   }))
+ * )
+ *
+ * void MySchema.empty
+ * ```
+ *
  * @since 0.0.0
+ * @category constructors
  */
 export const withStatics: {
   <S extends object, M extends Record<string, unknown>>(methods: (schema: S) => M): (schema: S) => S & M;

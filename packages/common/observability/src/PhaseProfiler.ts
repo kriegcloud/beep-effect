@@ -33,6 +33,13 @@ const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 /**
  * Terminal outcomes for profiled phases: `"completed"`, `"failed"`, or `"interrupted"`.
  *
+ * @example
+ * ```typescript
+ * import { PhaseOutcome } from "@beep/observability"
+ *
+ * void PhaseOutcome
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */

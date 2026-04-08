@@ -66,6 +66,13 @@ export type CauseClassification = typeof CauseClassification.Type;
 /**
  * High-level classification for an exit: `"success"` or `"failure"`.
  *
+ * @example
+ * ```typescript
+ * import { ExitOutcome } from "@beep/observability"
+ *
+ * void ExitOutcome
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -85,6 +92,14 @@ export type ExitOutcome = typeof ExitOutcome.Type;
 
 /**
  * Deterministic string fingerprint for a cause, useful for deduplication and grouping.
+ *
+ * @example
+ * ```typescript
+ * import { CauseFingerprint } from "@beep/observability"
+ *
+ * const fp = new CauseFingerprint({ value: "failure:fail:1:error:boom" })
+ * console.log(fp.value) // "failure:fail:1:error:boom"
+ * ```
  *
  * @since 0.0.0
  * @category models
