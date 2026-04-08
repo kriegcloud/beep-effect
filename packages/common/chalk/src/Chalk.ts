@@ -71,15 +71,15 @@ const makeChalkConstructor = <Instance, Base extends abstract new (options?: Cha
  *
  * // Chain styles, then call to apply
  * const warning: ChalkInstance = chalk.yellow.bold
- * const styled: string = warning("Caution!")
+ * console.log(warning("Caution!"))
  *
  * // Inline chaining
- * const msg: string = chalk.red.bgWhite.underline("Error")
+ * console.log(chalk.red.bgWhite.underline("Error"))
  *
  * // Hex, RGB, and ANSI256
- * const hex: string = chalk.hex("#FF8800")("orange text")
- * const rgb: string = chalk.rgb(255, 136, 0)("orange text")
- * const ansi: string = chalk.ansi256(208)("orange text")
+ * console.log(chalk.hex("#FF8800")("orange text"))
+ * console.log(chalk.rgb(255, 136, 0)("orange text"))
+ * console.log(chalk.ansi256(208)("orange text"))
  * ```
  *
  * @since 0.0.0
