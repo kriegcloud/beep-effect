@@ -9,7 +9,9 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { base58 } from "@scure/base";
+import { flow, Redacted } from "effect";
 import * as S from "effect/Schema";
+import * as SchemaUtils from "../SchemaUtils/index.ts";
 
 const $I = $SchemaId.create("blockchain/CryptoTxnHash");
 
@@ -73,3 +75,29 @@ export const CryptoTxnHash = S.NonEmptyString.check(CryptoTxnHashChecks).pipe(
  * @category DomainModel
  */
 export type CryptoTxnHash = typeof CryptoTxnHash.Type;
+
+/**
+ * Redacted schema for canonical mainnet blockchain transaction identifiers.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const CryptoTxnHashRedacted = CryptoTxnHash.pipe(
+  S.RedactedFromValue,
+  SchemaUtils.withStatics(() => ({
+    makeRedacted: flow(CryptoTxnHash.makeUnsafe, Redacted.make),
+  })),
+  S.annotate(
+    $I.annote("CryptoTxnHashRedacted", {
+      description: "Redacted canonical mainnet transaction identifier for supported EVM, Bitcoin, and Solana networks.",
+    })
+  )
+);
+
+/**
+ * Type for {@link CryptoTxnHashRedacted}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type CryptoTxnHashRedacted = typeof CryptoTxnHashRedacted.Type;

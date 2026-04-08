@@ -1,8 +1,8 @@
 import { describe, expect, it } from "@effect/vitest";
-import { DateTime, Effect } from "effect";
-import { readFile } from "node:fs/promises";
+import { DateTime, Effect, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { fixtureKoinlyTransactionsCsv, fixtureTransactionHash } from "../TestFixtures.ts";
 import {
   KoinlySyntheticTransactionId,
   KoinlyTransactionReference,
@@ -29,11 +29,10 @@ describe("Koinly primitives", () => {
 });
 
 describe("decodeKoinlyTransactionsCsv", () => {
-  it("decodes the real Koinly CSV export into normalized transactions", async () => {
-    const csv = await readFile(new URL("./transactions.csv", import.meta.url), "utf8");
-    const transactions = await Effect.runPromise(decodeKoinlyTransactionsCsv(csv));
+  it("decodes the fixture Koinly CSV export into normalized transactions", async () => {
+    const transactions = await Effect.runPromise(decodeKoinlyTransactionsCsv(fixtureKoinlyTransactionsCsv));
 
-    expect(transactions).toHaveLength(2103);
+    expect(transactions).toHaveLength(3);
 
     const first = transactions[0];
 
@@ -41,6 +40,12 @@ describe("decodeKoinlyTransactionsCsv", () => {
     expect(first.type).toBe("transfer");
     expect(first.deleted).toBe(false);
     expect(O.isSome(first.fromWallet)).toBe(true);
+    expect(O.isSome(first.txHash)).toBe(true);
     expect(first.valueCurrency.symbol).toBe("USD");
+
+    if (O.isSome(first.txHash)) {
+      expect(String(first.txHash.value)).toBe("<redacted>");
+      expect(Redacted.value(first.txHash.value)).toBe(fixtureTransactionHash);
+    }
   });
 });

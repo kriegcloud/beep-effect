@@ -9,9 +9,10 @@
  */
 
 import { $ScratchId } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import { NonEmptyTrimmedStr } from "@beep/schema/String";
 import { CryptoTxnHash } from "@beep/schema/blockchain/CryptoTxnHash";
-import { BigDecimal, Boolean as Bool, DateTime, Effect, Option, SchemaGetter, SchemaIssue, pipe } from "effect";
+import { BigDecimal, Boolean as Bool, DateTime, Effect, Option, Redacted, SchemaGetter, SchemaIssue, flow, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -348,3 +349,27 @@ export const KoinlyTransactionReference = S.Union([CryptoTxnHash, KoinlySyntheti
  * @since 0.0.0
  */
 export type KoinlyTransactionReference = typeof KoinlyTransactionReference.Type;
+
+/**
+ * Redacted mixed transaction reference used by Koinly rows.
+ *
+ * @category Validation
+ * @since 0.0.0
+ */
+export const KoinlyTransactionReferenceRedacted = KoinlyTransactionReference.pipe(
+  S.RedactedFromValue,
+  SchemaUtils.withStatics(() => ({
+    makeRedacted: flow(KoinlyTransactionReference.makeUnsafe, Redacted.make),
+  })),
+  $I.annoteSchema("KoinlyTransactionReferenceRedacted", {
+    description: "Redacted Koinly transaction reference accepting canonical chain hashes and Koinly synthetic IDs.",
+  })
+);
+
+/**
+ * Runtime type for {@link KoinlyTransactionReferenceRedacted}.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export type KoinlyTransactionReferenceRedacted = typeof KoinlyTransactionReferenceRedacted.Type;

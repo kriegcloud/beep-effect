@@ -127,7 +127,7 @@ export type ExplorerNetwork = typeof ExplorerNetwork.Type;
  * @category DomainModel
  * @since 0.0.0
  */
-const AlchemyPriceLookup = LiteralKit([
+export const AlchemyPriceLookup = LiteralKit([
   "symbol",
   "contract",
 ] as const).pipe(

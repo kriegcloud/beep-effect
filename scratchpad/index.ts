@@ -1,189 +1,253 @@
 import { $ScratchId } from "@beep/identity";
-import { Effect, Config, Tuple, pipe, ServiceMap, Layer} from "effect";
+import { CryptoWalletAddressRedacted, EvmAddressRedacted, TaggedErrorClass } from "@beep/schema";
+import { NonEmptyTrimmedStr } from "@beep/schema/String";
+import * as BunServices from "@effect/platform-bun/BunServices";
+import { Config, Effect, Layer, Redacted, ServiceMap, Tuple, pipe } from "effect";
 import * as S from "effect/Schema";
-import { TaggedErrorClass, CryptoWalletAddressRedacted,} from "@beep/schema";
-import { dual } from "effect/Function";
-import {CryptoNetwork} from "./CryptoNetwork.ts";
+import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { CryptoNetwork } from "./CryptoNetwork.ts";
+import { decodeMissingPurchaseTransactionsJson, MissingPurchaseTransactions } from "./MissingPurchaseTransactions.ts";
+import { decodeRPMinipoolStatusOutputsJson, RPMinipoolStatusOutputs } from "./RPMinipoolStatus.ts";
+import { KoinlyTransactions, decodeKoinlyTransactionsCsv } from "./koinly/KoinlyTransaction.ts";
 
 const $I = $ScratchId.create("index");
 
-export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(
-  "DomainError",
-  {
-    message: S.String,
-    cause: S.DefectWithStack
-  }
-) {
-  public static readonly make: {
-    (cause: unknown, message: string): DomainError,
-    (message: string): (cause: unknown) => DomainError
-  } =  dual(2, (cause: S.Schema.Type<typeof S.DefectWithStack>, message: string): DomainError => new DomainError({
-    cause,
-    message
-  }));
-}
+const CryptoApiKey = S.RedactedFromValue(S.String).pipe(
+  $I.annoteSchema("CryptoApiKey", {
+    description: "Redacted crypto API key loaded from ambient config.",
+  })
+);
 
-export const OwnedCryptoWallet = CryptoNetwork.mapMembers((members) => {
-  const common = {
-    address:  CryptoWalletAddressRedacted,
-    name: S.String,
-    owner: S.String,
-  }
+const RequiredOwnedWalletFields = {
+  name: NonEmptyTrimmedStr,
+  owner: NonEmptyTrimmedStr,
+} as const;
 
-  const make = <T extends CryptoNetwork>(literal: S.Literal<T>) => S.Struct({
-      network: S.tag(literal.literal),
-      ...common
-    })
-  return pipe(
+const makeEvmWallet = <T extends Exclude<CryptoNetwork, "BTC">>(literal: S.Literal<T>) =>
+  S.Struct({
+    network: S.tag(literal.literal),
+    address: EvmAddressRedacted,
+    ...RequiredOwnedWalletFields,
+  });
+
+const makeBitcoinWallet = (literal: S.Literal<"BTC">) =>
+  S.Struct({
+    network: S.tag(literal.literal),
+    address: CryptoWalletAddressRedacted,
+    ...RequiredOwnedWalletFields,
+  });
+
+export const OwnedCryptoWallet = CryptoNetwork.mapMembers((members) =>
+  pipe(
     members,
-    Tuple.evolve([
-      make,
-      make,
-      make,
-      make
-    ])
+    Tuple.evolve([makeEvmWallet, makeEvmWallet, makeEvmWallet, makeBitcoinWallet])
   )
-}).pipe(
+).pipe(
   S.toTaggedUnion("network"),
   $I.annoteSchema("OwnedCryptoWallet", {
-    description: "A crypto wallet with ownership information and network association."
+    description: "A crypto wallet with ownership information and network association.",
   })
 );
 
 export type OwnedCryptoWallet = typeof OwnedCryptoWallet.Type;
 
-export class CryptoServiceConfigShape extends S.Class<CryptoServiceConfigShape>($I`CryptoServiceConfigShape`)(
+export const OwnedCryptoWallets = S.NonEmptyArray(OwnedCryptoWallet).pipe(
+  $I.annoteSchema("OwnedCryptoWallets", {
+    description: "Non-empty owned crypto wallet inventory decoded from the scratchpad secret JSON.",
+  })
+);
+
+export type OwnedCryptoWallets = typeof OwnedCryptoWallets.Type;
+
+export const OwnedCryptoWalletsJson = S.fromJsonString(OwnedCryptoWallets).pipe(
+  $I.annoteSchema("OwnedCryptoWalletsJson", {
+    description: "JSON-string boundary schema for the owned crypto wallet inventory.",
+  })
+);
+
+export const decodeOwnedCryptoWalletsJson = S.decodeUnknownEffect(OwnedCryptoWalletsJson);
+
+export const OnePasswordSecretReference = NonEmptyTrimmedStr.check(
+  S.isPattern(/^op:\/\/.+$/, {
+    identifier: $I`OnePasswordSecretReferenceFormatCheck`,
+    title: "1Password Secret Reference Format",
+    description: "A 1Password secret reference such as op://vault/item/field.",
+    message: "OnePasswordSecretReference must be a valid op:// secret reference",
+  })
+).pipe(
+  S.brand("OnePasswordSecretReference"),
+  $I.annoteSchema("OnePasswordSecretReference", {
+    description: "A 1Password secret reference such as op://vault/item/field.",
+  })
+);
+
+export type OnePasswordSecretReference = typeof OnePasswordSecretReference.Type;
+
+const isOnePasswordSecretReference = S.is(OnePasswordSecretReference);
+
+export class CryptoServiceConfigError extends TaggedErrorClass<CryptoServiceConfigError>($I`CryptoServiceConfigError`)(
+  "CryptoServiceConfigError",
   {
-    beaconchainInApiKey: S.String.pipe(S.Redacted),
-    etherScanApiKey: S.String.pipe(S.Redacted),
-    cryptoWallets: S.NonEmptyArray(OwnedCryptoWallet)
-  }
+    configKey: S.String,
+    message: S.String,
+  },
+  $I.annote("CryptoServiceConfigError", {
+    description: "Typed error raised when scratchpad crypto config is missing or malformed.",
+  })
 ) {}
 
-const cryptoServiceConfigEffect = Effect.gen(function* () {
-  const { etherScanApiKey, beaconchainInApiKey} = yield* Config.all({
-    beaconchainInApiKey: Config.redacted("CRYPTO_BEACONCHAIN_IN_API_KEY"),
-    etherScanApiKey: Config.redacted("CRYPTO_ETHERSCAN_IN_API_KEY")
+const invalidSecretPayload = (configKey: string, message: string) =>
+  new CryptoServiceConfigError({
+    configKey,
+    message,
   });
 
-  const cryptoWallets = [
-    OwnedCryptoWallet.cases.BTC.makeUnsafe(
-      {
-        name: "TOM TREZOR BTC",
-        address: CryptoWalletAddressRedacted.makeRedacted("bc1q0stapewvdxup0p9s3t48l6juyfhtjj8fz77k4k"),
-        owner: "TOM"
-      }
-    ),
-      OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "TBK RP Node Wallet",
-        address: CryptoWalletAddressRedacted.makeRedacted("0xc23B28337896AB92d7e8Ed0303cec0609A58143B"),
-        owner: "TBK"
-      }
-    ),
-      OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "Ben Orig Wallet",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x6f6ab74eD6eB64983BEE610100A1938F1853C2f7"),
-        owner: "BEN"
-      }
-    ),
-      OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "Ben's Paper Wallet",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x86857373a4714194fc83784A5064CdFeca75f2f9"),
-        owner: "BEN"
-      }
-    ),
-      OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "Tom's Trezor",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x544fe14294044733F6A53d1F31f56d7B5E0256b9"),
-        owner: "TOM"
-      }
-    ),
-      OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "kate's trezor",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x562F7909cc7522C87D1c3C53fCf1adbBDC71358E"),
-        owner: "KATE"
-      }
-    ),
-      OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "ben's trezor",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x5FF9c1FC5C3239EDAe60CEbB727EAaB0C8dD298f"),
-        owner: "BEN"
-      }
-    ),
-      OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "TBK RP Node Wallet",
-        address: CryptoWalletAddressRedacted.makeRedacted("0xc23B28337896AB92d7e8Ed0303cec0609A58143B"),
-        owner: "TBK"
-      }
-    ),
-      OwnedCryptoWallet.cases.AVALANCHE.makeUnsafe(
-      {
-        name: "tbk-metamask-2",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x7F68038ff73D27b98D2dA633D3e52d5dDCdE3537"),
-        owner: "TBK"
-      }
-    ),
-      OwnedCryptoWallet.cases.BNB.makeUnsafe(
-      {
-        name: "tbk-metamask-2",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x7F68038ff73D27b98D2dA633D3e52d5dDCdE3537"),
-        owner: "TBK"
-      }
-    ),
-          OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "tbk-metamask-2",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x7F68038ff73D27b98D2dA633D3e52d5dDCdE3537"),
-        owner: "TBK"
-      }
-    ),
-          OwnedCryptoWallet.cases.AVALANCHE.makeUnsafe(
-      {
-        name: "tbk-metamask-1 (AVAX)",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x661D063e916cC8D82F82c56fa7C16bA1D77073dA"),
-        owner: "TBK"
-      }
-    ),
-          OwnedCryptoWallet.cases.BNB.makeUnsafe(
-      {
-        name: "tbk-metamask-1",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x661D063e916cC8D82F82c56fa7C16bA1D77073dA"),
-        owner: "TBK"
-      }
-    ),
-          OwnedCryptoWallet.cases.ETH.makeUnsafe(
-      {
-        name: "tbk-metamask-2",
-        address: CryptoWalletAddressRedacted.makeRedacted("0x661D063e916cC8D82F82c56fa7C16bA1D77073dA"),
-        owner: "TBK"
-      }
-    )
-  ]as const;
+const readOnePasswordSecretReference = Effect.fn("Scratchpad.readOnePasswordSecretReference")(function* (
+  reference: OnePasswordSecretReference
+) {
+  const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
 
+  return yield* spawner
+    .string(ChildProcess.make`op read ${reference}`)
+    .pipe(Effect.map(Redacted.make));
+});
 
-  return CryptoServiceConfig.of(new CryptoServiceConfigShape({
-    cryptoWallets,
-    etherScanApiKey,
-    beaconchainInApiKey
+const resolveSecretText = Effect.fn("Scratchpad.resolveSecretText")(function* (
+  configKey: string,
+  secret: Redacted.Redacted<string>
+) {
+  const value = Redacted.value(secret);
+
+  if (isOnePasswordSecretReference(value)) {
+    return yield* readOnePasswordSecretReference(value).pipe(
+      Effect.provide(BunServices.layer, { local: true }),
+      Effect.mapError(() =>
+        invalidSecretPayload(
+          configKey,
+          `Failed to resolve ${configKey} from its 1Password secret reference via \`op read\`.`
+        )
+      )
+    );
+  }
+
+  return Redacted.make(value);
+});
+
+const decodeWalletSecret = (secret: Redacted.Redacted<string>) =>
+  Effect.gen(function* () {
+    const content = yield* resolveSecretText("CRYPTO_TBK_WALLETS_JSON", secret);
+
+    return yield* decodeOwnedCryptoWalletsJson(Redacted.value(content)).pipe(
+      Effect.mapError(() =>
+        invalidSecretPayload(
+          "CRYPTO_TBK_WALLETS_JSON",
+          "Invalid CRYPTO_TBK_WALLETS_JSON secret payload. Expected a non-empty JSON array of wallets with network, name, address, and owner."
+        )
+      )
+    );
+  });
+
+const decodeRpMinipoolStatusSecret = (secret: Redacted.Redacted<string>) =>
+  Effect.gen(function* () {
+    const content = yield* resolveSecretText("CRYPTO_RP_MINIPOOL_STATUS_OUTPUTS_JSON", secret);
+
+    return yield* decodeRPMinipoolStatusOutputsJson(Redacted.value(content)).pipe(
+      Effect.mapError(() =>
+        invalidSecretPayload(
+          "CRYPTO_RP_MINIPOOL_STATUS_OUTPUTS_JSON",
+          "Invalid CRYPTO_RP_MINIPOOL_STATUS_OUTPUTS_JSON secret payload. Expected the Rocket Pool status export JSON document."
+        )
+      )
+    );
+  });
+
+const decodeTransactionsCsvSecret = (secret: Redacted.Redacted<string>) =>
+  Effect.gen(function* () {
+    const content = yield* resolveSecretText("CRYPTO_TBK_TRANSACTIONS_CSV", secret);
+
+    return yield* decodeKoinlyTransactionsCsv(Redacted.value(content)).pipe(
+      Effect.mapError(() =>
+        invalidSecretPayload(
+          "CRYPTO_TBK_TRANSACTIONS_CSV",
+          "Invalid CRYPTO_TBK_TRANSACTIONS_CSV secret payload. Expected a Koinly CSV export."
+        )
+      )
+    );
+  });
+
+const decodeMissingPurchaseTransactionsSecret = (secret: Redacted.Redacted<string>) =>
+  Effect.gen(function* () {
+    const content = yield* resolveSecretText("CRYPTO_MISSING_PURCHASE_TXNS_JSON", secret);
+
+    return yield* decodeMissingPurchaseTransactionsJson(Redacted.value(content)).pipe(
+      Effect.mapError(() =>
+        invalidSecretPayload(
+          "CRYPTO_MISSING_PURCHASE_TXNS_JSON",
+          "Invalid CRYPTO_MISSING_PURCHASE_TXNS_JSON secret payload. Expected the missing-purchase transaction export JSON document."
+        )
+      )
+    );
+  });
+
+export const cryptoServiceSecretConfig = Config.all({
+  beaconchainInApiKey: Config.option(Config.redacted("CRYPTO_BEACONCHAIN_IN_API_KEY")),
+  etherscanApiKey: Config.option(Config.redacted("CRYPTO_ETHERSCAN_API_KEY")),
+  walletsJson: Config.redacted("CRYPTO_TBK_WALLETS_JSON"),
+  rpMinipoolStatusOutputsJson: Config.redacted("CRYPTO_RP_MINIPOOL_STATUS_OUTPUTS_JSON"),
+  transactionsCsv: Config.redacted("CRYPTO_TBK_TRANSACTIONS_CSV"),
+  missingPurchaseTransactionsJson: Config.redacted("CRYPTO_MISSING_PURCHASE_TXNS_JSON"),
+});
+
+export class CryptoServiceConfigData extends S.Class<CryptoServiceConfigData>($I`CryptoServiceConfigData`)(
+  {
+    beaconchainInApiKey: S.OptionFromNullOr(CryptoApiKey),
+    etherscanApiKey: S.OptionFromNullOr(CryptoApiKey),
+    cryptoWallets: OwnedCryptoWallets,
+    rpMinipoolStatusOutputs: RPMinipoolStatusOutputs,
+    koinlyTransactions: KoinlyTransactions,
+    missingPurchaseTransactions: MissingPurchaseTransactions,
+  },
+  $I.annote("CryptoServiceConfigData", {
+    description: "Decoded scratchpad crypto configuration assembled from redacted config secrets.",
+  })
+) {}
+
+export const loadCryptoServiceConfig = Effect.gen(function* () {
+  const secretConfig = yield* cryptoServiceSecretConfig;
+  const cryptoWallets = yield* decodeWalletSecret(secretConfig.walletsJson);
+  const rpMinipoolStatusOutputs = yield* decodeRpMinipoolStatusSecret(secretConfig.rpMinipoolStatusOutputsJson);
+  const koinlyTransactions = yield* decodeTransactionsCsvSecret(secretConfig.transactionsCsv);
+  const missingPurchaseTransactions = yield* decodeMissingPurchaseTransactionsSecret(
+    secretConfig.missingPurchaseTransactionsJson
+  );
+
+  return CryptoServiceConfig.of(
+    new CryptoServiceConfigData({
+      beaconchainInApiKey: secretConfig.beaconchainInApiKey,
+      etherscanApiKey: secretConfig.etherscanApiKey,
+      cryptoWallets,
+      rpMinipoolStatusOutputs,
+      koinlyTransactions,
+      missingPurchaseTransactions,
     })
+  );
+}).pipe(
+  Effect.withSpan("Scratchpad.loadCryptoServiceConfig"),
+  Effect.mapError((error) =>
+    error instanceof CryptoServiceConfigError
+      ? error
+      : new CryptoServiceConfigError({
+          configKey: "CRYPTO_CONFIG",
+          message: error.message,
+        })
   )
-}).pipe(Effect.mapError(DomainError.make("Failed to load crypto service" +
-  " configuration")))
+);
 
-export class CryptoServiceConfig extends ServiceMap.Service<CryptoServiceConfig, CryptoServiceConfigShape>()($I`CryptoServiceConfig`) {
-  static readonly layer = Layer.effect(
+export class CryptoServiceConfig extends ServiceMap.Service<CryptoServiceConfig, CryptoServiceConfigData>()(
+  $I`CryptoServiceConfig`
+) {
+  static readonly layer: Layer.Layer<CryptoServiceConfig, CryptoServiceConfigError> = Layer.effect(
     CryptoServiceConfig,
-    cryptoServiceConfigEffect
-  )
+    loadCryptoServiceConfig
+  );
 }
-
-
-
-

@@ -12,7 +12,9 @@ import { Str } from "@beep/utils";
 import { keccak_256 } from "@noble/hashes/sha3.js";
 import { Encoding } from "effect";
 import * as Eq from "effect/Equal";
+import { flow, Redacted } from "effect";
 import * as S from "effect/Schema";
+import * as SchemaUtils from "../SchemaUtils/index.ts";
 
 const $I = $SchemaId.create("blockchain/EvmAddress");
 
@@ -90,3 +92,29 @@ export const EvmAddress = S.NonEmptyString.check(EvmAddressChecks).pipe(
  * @category DomainModel
  */
 export type EvmAddress = typeof EvmAddress.Type;
+
+/**
+ * Redacted schema for canonical mainnet EVM wallet addresses.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const EvmAddressRedacted = EvmAddress.pipe(
+  S.RedactedFromValue,
+  SchemaUtils.withStatics(() => ({
+    makeRedacted: flow(EvmAddress.makeUnsafe, Redacted.make),
+  })),
+  S.annotate(
+    $I.annote("EvmAddressRedacted", {
+      description: "Redacted canonical mainnet EVM address in lowercase or valid EIP-55 checksum form.",
+    })
+  )
+);
+
+/**
+ * Type for {@link EvmAddressRedacted}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type EvmAddressRedacted = typeof EvmAddressRedacted.Type;

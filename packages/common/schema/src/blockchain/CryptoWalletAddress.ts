@@ -203,7 +203,7 @@ export type CryptoWalletAddress = typeof CryptoWalletAddress.Type;
  * @category Validation
  */
 export const CryptoWalletAddressRedacted = CryptoWalletAddress.pipe(
-  S.Redacted,
+  S.RedactedFromValue,
   SchemaUtils.withStatics(() => ({
     makeRedacted: flow(CryptoWalletAddress.makeUnsafe, Redacted.make),
   })),

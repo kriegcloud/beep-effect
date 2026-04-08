@@ -9,7 +9,7 @@ import { $ScratchId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { NonEmptyTrimmedStr } from "@beep/schema/String";
 import { CSV } from "@beep/schema/csv";
-import { EvmAddress } from "@beep/schema/blockchain/EvmAddress";
+import { EvmAddressRedacted } from "@beep/schema/blockchain/EvmAddress";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -18,7 +18,7 @@ import {
   KoinlyDecimal,
   KoinlyDeletedText,
   KoinlyId,
-  KoinlyTransactionReference,
+  KoinlyTransactionReferenceRedacted,
   KoinlyUtcTimestamp,
   KoinlyWalletId,
   OptionFromEmptyText,
@@ -179,9 +179,9 @@ export class KoinlyTransactionCsvRow extends S.Class<KoinlyTransactionCsvRow>($I
     "Missing Rates (read-only)": KoinlyBooleanText,
     "Missing Cost Basis (read-only)": OptionFromEmptyText(KoinlyDecimal),
     "Synced To Accounting At (UTC read-only)": OptionFromEmptyText(KoinlyUtcTimestamp),
-    TxSrc: OptionFromEmptyText(EvmAddress),
-    TxDest: OptionFromEmptyText(EvmAddress),
-    TxHash: OptionFromEmptyText(KoinlyTransactionReference),
+    TxSrc: OptionFromEmptyText(EvmAddressRedacted),
+    TxDest: OptionFromEmptyText(EvmAddressRedacted),
+    TxHash: OptionFromEmptyText(KoinlyTransactionReferenceRedacted),
     Description: OptionFromEmptyText(NonEmptyTrimmedStr),
   },
   $I.annote("KoinlyTransactionCsvRow", {
@@ -229,9 +229,9 @@ export class KoinlyTransaction extends S.Class<KoinlyTransaction>($I`KoinlyTrans
     missingRates: S.Boolean,
     missingCostBasis: S.OptionFromNullOr(KoinlyDecimal),
     syncedToAccountingAt: S.OptionFromNullOr(KoinlyUtcTimestamp),
-    txSrc: S.OptionFromNullOr(EvmAddress),
-    txDest: S.OptionFromNullOr(EvmAddress),
-    txHash: S.OptionFromNullOr(KoinlyTransactionReference),
+    txSrc: S.OptionFromNullOr(EvmAddressRedacted),
+    txDest: S.OptionFromNullOr(EvmAddressRedacted),
+    txHash: S.OptionFromNullOr(KoinlyTransactionReferenceRedacted),
     description: S.OptionFromNullOr(NonEmptyTrimmedStr),
   },
   $I.annote("KoinlyTransaction", {

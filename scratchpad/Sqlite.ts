@@ -8,13 +8,13 @@
 import { $ScratchId } from "@beep/identity";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
 import { PosInt } from "@beep/schema/Int";
-import { EvmAddress } from "@beep/schema/blockchain/EvmAddress";
+import { EvmAddressRedacted } from "@beep/schema/blockchain/EvmAddress";
 import { NonEmptyTrimmedStr } from "@beep/schema/String";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import * as SqliteClient from "@effect/sql-sqlite-bun/SqliteClient";
 import * as SqliteMigrator from "@effect/sql-sqlite-bun/SqliteMigrator";
-import { BigDecimal, DateTime, Effect, FileSystem, Layer, Path, ServiceMap, pipe } from "effect";
+import { BigDecimal, DateTime, Effect, FileSystem, Layer, Path, Redacted, ServiceMap, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -24,6 +24,7 @@ import {
   KoinlyDecimal,
   KoinlyId,
   KoinlyTransactionReference,
+  KoinlyTransactionReferenceRedacted,
   KoinlyWalletId,
 } from "./koinly/KoinlyPrimitives.ts";
 import {
@@ -133,9 +134,9 @@ class KoinlyTransactionRow extends S.Class<KoinlyTransactionRow>($I`KoinlyTransa
     missing_rates: S.BooleanFromBit,
     missing_cost_basis: S.OptionFromNullOr(KoinlyDecimal),
     synced_to_accounting_at: S.OptionFromNullOr(S.DateTimeUtcFromMillis),
-    tx_src: S.OptionFromNullOr(EvmAddress),
-    tx_dest: S.OptionFromNullOr(EvmAddress),
-    tx_hash: S.OptionFromNullOr(KoinlyTransactionReference),
+    tx_src: S.OptionFromNullOr(EvmAddressRedacted),
+    tx_dest: S.OptionFromNullOr(EvmAddressRedacted),
+    tx_hash: S.OptionFromNullOr(KoinlyTransactionReferenceRedacted),
     description: S.OptionFromNullOr(NonEmptyTrimmedStr),
   },
   $I.annote("KoinlyTransactionRow", {
@@ -146,6 +147,13 @@ class KoinlyTransactionRow extends S.Class<KoinlyTransactionRow>($I`KoinlyTransa
 const decodeKoinlyTransactionRow = S.decodeUnknownEffect(KoinlyTransactionRow);
 
 const toNullable = <A>(value: O.Option<A>): A | null => O.getOrNull(value);
+
+const toNullableRedacted = <A>(value: O.Option<Redacted.Redacted<A>>): A | null =>
+  pipe(
+    value,
+    O.map(Redacted.value),
+    O.getOrNull
+  );
 
 const decimalText = (value: KoinlyTransaction["fromAmount"]): string => BigDecimal.format(value);
 
@@ -642,9 +650,9 @@ const makeKoinlySqlite = Effect.fn("KoinlySqlite.makeKoinlySqlite")(function* ()
                     onSome: DateTime.toEpochMillis,
                   })
                 )},
-                ${toNullable(transaction.txSrc)},
-                ${toNullable(transaction.txDest)},
-                ${toNullable(transaction.txHash)},
+                ${toNullableRedacted(transaction.txSrc)},
+                ${toNullableRedacted(transaction.txDest)},
+                ${toNullableRedacted(transaction.txHash)},
                 ${toNullable(transaction.description)}
               )
               ON CONFLICT(koinly_id) DO UPDATE SET

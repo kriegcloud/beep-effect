@@ -1,18 +1,17 @@
 import { describe, expect, it } from "@effect/vitest";
-import { Effect, pipe } from "effect";
-import { readFile } from "node:fs/promises";
+import { Effect, Redacted, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { tmpdir } from "node:os";
+import { fixtureKoinlyTransactionsCsv } from "./TestFixtures.ts";
 import { KoinlySqlite, KoinlySqliteConfig } from "./Sqlite.ts";
 import { decodeKoinlyTransactionsCsv } from "./koinly/KoinlyTransaction.ts";
 
 describe("KoinlySqlite", () => {
   it("imports transactions and serves lookups from a Bun-backed sqlite database", async () => {
-    const csv = await readFile(new URL("./koinly/transactions.csv", import.meta.url), "utf8");
     const filename = `${tmpdir()}/koinly-sqlite-${crypto.randomUUID()}.sqlite`;
-    const transactions = await Effect.runPromise(decodeKoinlyTransactionsCsv(csv));
+    const transactions = await Effect.runPromise(decodeKoinlyTransactionsCsv(fixtureKoinlyTransactionsCsv));
     const config = S.decodeUnknownSync(KoinlySqliteConfig)({ filename });
 
     const sampleById = transactions[0];
@@ -52,7 +51,7 @@ describe("KoinlySqlite", () => {
 
       const imported = yield* repo.importTransactions(transactions);
       const byId = yield* repo.getTransactionByKoinlyId(sampleById.koinlyId);
-      const byHash = yield* repo.listTransactionsByTxHash(sampleTxHash.value);
+      const byHash = yield* repo.listTransactionsByTxHash(Redacted.value(sampleTxHash.value));
       const withMissingCostBasis = yield* repo.listTransactionsWithMissingCostBasis;
       const withNegativeBalances = yield* repo.listTransactionsWithNegativeBalances;
 

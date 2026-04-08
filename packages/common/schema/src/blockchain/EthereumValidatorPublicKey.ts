@@ -8,7 +8,9 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { flow, Redacted } from "effect";
 import * as S from "effect/Schema";
+import * as SchemaUtils from "../SchemaUtils/index.ts";
 
 const $I = $SchemaId.create("blockchain/EthereumValidatorPublicKey");
 
@@ -52,3 +54,29 @@ export const EthereumValidatorPublicKey = S.String.check(EthereumValidatorPublic
  * @category DomainModel
  */
 export type EthereumValidatorPublicKey = typeof EthereumValidatorPublicKey.Type;
+
+/**
+ * Redacted schema for canonical Ethereum validator public keys.
+ *
+ * @since 0.0.0
+ * @category Validation
+ */
+export const EthereumValidatorPublicKeyRedacted = EthereumValidatorPublicKey.pipe(
+  S.RedactedFromValue,
+  SchemaUtils.withStatics(() => ({
+    makeRedacted: flow(EthereumValidatorPublicKey.makeUnsafe, Redacted.make),
+  })),
+  S.annotate(
+    $I.annote("EthereumValidatorPublicKeyRedacted", {
+      description: "Redacted canonical lowercase 0x-prefixed compressed Ethereum validator public key.",
+    })
+  )
+);
+
+/**
+ * Type for {@link EthereumValidatorPublicKeyRedacted}.
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type EthereumValidatorPublicKeyRedacted = typeof EthereumValidatorPublicKeyRedacted.Type;
