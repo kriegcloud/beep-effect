@@ -26,6 +26,13 @@
 /**
  * Current version of the `@beep/observability` package.
  *
+ * @example
+ * ```typescript
+ * import { VERSION } from "@beep/observability"
+ *
+ * console.log(VERSION) // "0.0.0"
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */

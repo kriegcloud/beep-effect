@@ -47,7 +47,7 @@ import { Number as Num } from "effect";
  * ```
  *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  * @param u - The value to check.
  * @returns True if the value is a number and is positive, false otherwise.
  */

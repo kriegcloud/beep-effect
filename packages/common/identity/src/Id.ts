@@ -139,6 +139,14 @@ export const VERSION = "0.0.0" as const;
  * Resolves to `never` when the segment starts or ends with `/`, preventing
  * invalid identity paths at compile time.
  *
+ * @example
+ * ```typescript
+ * import type { SegmentValue } from "@beep/identity"
+ *
+ * type Valid = SegmentValue<"UserService">
+ * type Invalid = SegmentValue<"/leading">
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -220,6 +228,13 @@ type JoinTitleWords<Words extends ReadonlyArray<string>> = Words extends readonl
  *
  * Converts `"my-service"` to `"My Service"` and `"user_account"` to `"User Account"`.
  *
+ * @example
+ * ```typescript
+ * import type { TitleFromIdentifier } from "@beep/identity"
+ *
+ * type Title = TitleFromIdentifier<"my-service"> // "My Service"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -252,6 +267,14 @@ type HasInvalidModuleChar<S extends string> = S extends `${string}${InvalidModul
  * with an alphabetic character and contain only alphanumerics, hyphens, or underscores.
  * Resolves to `never` when violated.
  *
+ * @example
+ * ```typescript
+ * import type { ModuleSegmentValue } from "@beep/identity"
+ *
+ * type Valid = ModuleSegmentValue<"auth">
+ * type Invalid = ModuleSegmentValue<"1bad">
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -263,6 +286,13 @@ export type ModuleSegmentValue<S extends TString.NonEmpty> =
  *
  * `"my-service"` becomes `"MyServiceId"`.
  *
+ * @example
+ * ```typescript
+ * import type { ModuleAccessor } from "@beep/identity"
+ *
+ * type Acc = ModuleAccessor<"my-service"> // "MyServiceId"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -273,6 +303,13 @@ export type ModuleAccessor<S extends TString.NonEmpty> = `${PascalCaseValue<Modu
  *
  * `"my-service"` becomes `"$MyServiceId"`.
  *
+ * @example
+ * ```typescript
+ * import type { TaggedAccessor } from "@beep/identity"
+ *
+ * type Tag = TaggedAccessor<"my-service"> // "$MyServiceId"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -280,6 +317,13 @@ export type TaggedAccessor<S extends TString.NonEmpty> = `$${ModuleAccessor<S>}`
 
 /**
  * Branded string type for identity values, preventing accidental use of raw strings.
+ *
+ * @example
+ * ```typescript
+ * import type { IdentityString } from "@beep/identity"
+ *
+ * declare const id: IdentityString<"@beep/utils/Service">
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -290,6 +334,13 @@ export type IdentityString<Value extends string> = Value & {
 
 /**
  * Branded symbol type for identity values, created via `Symbol.for` for interning.
+ *
+ * @example
+ * ```typescript
+ * import type { IdentitySymbol } from "@beep/identity"
+ *
+ * declare const sym: IdentitySymbol<"@beep/utils">
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -304,6 +355,13 @@ export type IdentitySymbol<Value extends string> = symbol & {
  * Mirrors `S.Annotations.Bottom` so callers can supply `description`, `documentation`,
  * and other Effect Schema annotation keys alongside identity metadata.
  *
+ * @example
+ * ```typescript
+ * import type { SchemaAnnotationExtras } from "@beep/identity"
+ *
+ * type Extras = SchemaAnnotationExtras<string>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -315,6 +373,13 @@ export type SchemaAnnotationExtras<
 /**
  * Annotation fields accepted by `annoteKey`, mirroring `S.Annotations.Key`.
  *
+ * @example
+ * ```typescript
+ * import type { KeyAnnotationExtras } from "@beep/identity"
+ *
+ * type Extras = KeyAnnotationExtras<string>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -325,6 +390,13 @@ export type KeyAnnotationExtras<SchemaType> = S.Annotations.Key<SchemaType>;
  *
  * The installed `effect@4.0.0-beta.28` runtime supports `~httpApiEncoding`, but
  * its published `.d.ts` does not currently export the upstream `Encoding` alias.
+ *
+ * @example
+ * ```typescript
+ * import type { HttpApiEncoding } from "@beep/identity"
+ *
+ * const enc: HttpApiEncoding = { _tag: "Json", contentType: "application/json" }
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -346,6 +418,13 @@ export type HttpApiEncoding =
  *
  * Supports optional `httpApiStatus` and `~httpApiEncoding` for Effect HTTP API annotations.
  *
+ * @example
+ * ```typescript
+ * import type { HttpAnnotationExtras } from "@beep/identity"
+ *
+ * type Extras = HttpAnnotationExtras<string>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -362,6 +441,13 @@ export type HttpAnnotationExtras<
  *
  * Combines key-level and HTTP-level annotation fields into a single constraint.
  *
+ * @example
+ * ```typescript
+ * import type { IdentityAnyAnnotationExtras } from "@beep/identity"
+ *
+ * type Extras = IdentityAnyAnnotationExtras<string>
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -375,6 +461,13 @@ export type IdentityAnyAnnotationExtras<
  *
  * Contains an `identifier` string, an interned `schemaId` symbol, and a
  * human-readable `title` derived from the identifier.
+ *
+ * @example
+ * ```typescript
+ * import type { IdentityAnnotation } from "@beep/identity"
+ *
+ * type Ann = IdentityAnnotation<"@beep/utils/User", "User">
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -390,6 +483,13 @@ type IdentityAnnotationMetadataKeys = "identifier" | "schemaId" | "title";
 /**
  * Result of calling `annote` -- the identity annotation merged with any caller-supplied extras,
  * with identity metadata keys taking precedence.
+ *
+ * @example
+ * ```typescript
+ * import type { IdentityAnnotationResult } from "@beep/identity"
+ *
+ * type Result = IdentityAnnotationResult<"@beep/utils/User", "User">
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -412,6 +512,13 @@ type KeyIdentifierValue<Struct extends object, Identifier extends string> = Get<
 /**
  * Record mapping `$`-prefixed accessor keys to child {@link IdentityComposer} instances,
  * produced by calling `compose` with one or more module segment names.
+ *
+ * @example
+ * ```typescript
+ * import type { TaggedModuleRecord } from "@beep/identity"
+ *
+ * type Modules = TaggedModuleRecord<"@beep/pkg", readonly ["auth", "billing"]>
+ * ```
  *
  * @since 0.0.0
  * @category models

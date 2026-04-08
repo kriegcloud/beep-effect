@@ -35,7 +35,18 @@ type ResolvedHeader = {
 };
 
 /**
+ * Aggregate input options for configuring all secure response headers.
+ *
+ * @example
+ * ```ts
+ * import { SecureHeaderOptions } from "@beep/schema/http/headers/SecureHeaderOptions"
+ *
+ * const options = new SecureHeaderOptions({ nosniff: "nosniff" })
+ * void options
+ * ```
+ *
  * @since 0.0.0
+ * @category models
  */
 export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureHeaderOptions`)(
   {
@@ -59,7 +70,18 @@ export class SecureHeaderOptions extends S.Class<SecureHeaderOptions>($I`SecureH
 ) {}
 
 /**
+ * A rendered secure header pair in `{ key, value }` format.
+ *
+ * @example
+ * ```ts
+ * import { SecureHeaderEntry } from "@beep/schema/http/headers/SecureHeaderOptions"
+ *
+ * const entry = new SecureHeaderEntry({ key: "X-Content-Type-Options", value: "nosniff" })
+ * void entry
+ * ```
+ *
  * @since 0.0.0
+ * @category models
  */
 export class SecureHeaderEntry extends S.Class<SecureHeaderEntry>($I`SecureHeaderEntry`)(
   {
@@ -117,7 +139,19 @@ const resolveHeaders = Effect.fnUntraced(function* (
 });
 
 /**
+ * Resolve secure-header options into a plain `Record<string, string>` header object.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { createHeadersObject } from "@beep/schema/http/headers/SecureHeaderOptions"
+ *
+ * const program = createHeadersObject({ nosniff: "nosniff" })
+ * void program
+ * ```
+ *
  * @since 0.0.0
+ * @category constructors
  */
 export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersObject")(function* (
   options: typeof SecureHeaderOptions.Type = {}
@@ -134,7 +168,19 @@ export const createHeadersObject = Effect.fn("SecureHeaderOptions.createHeadersO
 });
 
 /**
+ * Resolve secure-header options into an array of {@link SecureHeaderEntry} pairs.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { createSecureHeaders } from "@beep/schema/http/headers/SecureHeaderOptions"
+ *
+ * const program = createSecureHeaders({ nosniff: "nosniff" })
+ * void program
+ * ```
+ *
  * @since 0.0.0
+ * @category constructors
  */
 export const createSecureHeaders = Effect.fn("SecureHeaderOptions.createSecureHeaders")(function* (
   options: typeof SecureHeaderOptions.Type = {}

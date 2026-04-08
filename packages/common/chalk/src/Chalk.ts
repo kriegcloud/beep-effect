@@ -224,6 +224,13 @@ export const BackgroundColorName = BackgroundColorNameSchema;
 /**
  * A supported Chalk background color name literal.
  *
+ * @example
+ * ```ts
+ * import type { BackgroundColorName } from "@beep/chalk"
+ *
+ * const bg: BackgroundColorName = "bgRed"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -251,6 +258,13 @@ export const ChalkOptions = ChalkOptionsSchema;
 
 /**
  * Constructor options for creating an isolated Chalk instance.
+ *
+ * @example
+ * ```ts
+ * import type { ChalkOptions } from "@beep/chalk"
+ *
+ * const opts: ChalkOptions = { level: 3 }
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -282,6 +296,13 @@ export const ColorInfo = ColorInfoSchema;
 /**
  * Detected color support information, or `false` when color output is disabled.
  *
+ * @example
+ * ```ts
+ * import type { ColorInfo } from "@beep/chalk"
+ *
+ * const info: ColorInfo = false
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -309,6 +330,13 @@ export const ColorName = ColorNameSchema;
 
 /**
  * A supported Chalk color name literal (foreground or background).
+ *
+ * @example
+ * ```ts
+ * import type { ColorName } from "@beep/chalk"
+ *
+ * const name: ColorName = "red"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -343,6 +371,13 @@ export const ColorSupport = ColorSupportSchema;
 /**
  * Detected terminal color support capabilities for an output stream.
  *
+ * @example
+ * ```ts
+ * import type { ColorSupport } from "@beep/chalk"
+ *
+ * const support: ColorSupport = { level: 3, hasBasic: true, has256: true, has16m: true }
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -369,6 +404,13 @@ export const ColorSupportLevel = ColorSupportLevelSchema;
 
 /**
  * A Chalk color support level: `0` | `1` | `2` | `3`.
+ *
+ * @example
+ * ```ts
+ * import type { ColorSupportLevel } from "@beep/chalk"
+ *
+ * const level: ColorSupportLevel = 3
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -398,6 +440,13 @@ export const ForegroundColorName = ForegroundColorNameSchema;
 /**
  * A supported Chalk foreground color name literal.
  *
+ * @example
+ * ```ts
+ * import type { ForegroundColorName } from "@beep/chalk"
+ *
+ * const fg: ForegroundColorName = "cyanBright"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -425,6 +474,13 @@ export const ModifierName = ModifierNameSchema;
 
 /**
  * A supported Chalk text modifier name literal.
+ *
+ * @example
+ * ```ts
+ * import type { ModifierName } from "@beep/chalk"
+ *
+ * const mod: ModifierName = "bold"
+ * ```
  *
  * @since 0.0.0
  * @category models

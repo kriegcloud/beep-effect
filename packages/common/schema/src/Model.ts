@@ -103,12 +103,39 @@ export {
   /**
    * Create a Model class constructor with shared default fields merged into every model.
    *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const BaseModel = Model.ClassFactory({
+   *   createdAt: Model.DateTimeInsertFromDate,
+   *   updatedAt: Model.DateTimeUpdateFromDate,
+   * })
+   *
+   * void BaseModel
+   * ```
+   *
    * @since 0.0.0
    * @category constructors
    */
   ClassFactory,
   /**
    * Extract the schema for a specific variant from a variant struct.
+   *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const fields = Model.Struct({
+   *   name: Schema.String,
+   *   createdAt: Model.DateTimeInsertFromDate,
+   * })
+   *
+   * const InsertSchema = Model.extract(fields, "insert")
+   * void InsertSchema
+   * ```
    *
    * @since 0.0.0
    * @category extractors
@@ -117,12 +144,35 @@ export {
   /**
    * Define a variant-aware field by supplying a schema per variant key.
    *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const status = Model.Field({
+   *   select: Schema.String,
+   *   insert: Schema.String,
+   *   json: Schema.String,
+   * })
+   *
+   * void status
+   * ```
+   *
    * @since 0.0.0
    * @category fields
    */
   Field,
   /**
    * Create a field present on every variant except the listed ones.
+   *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const readOnly = Model.FieldExcept("insert", "update")(Schema.String)
+   * void readOnly
+   * ```
    *
    * @since 0.0.0
    * @category fields
@@ -131,12 +181,38 @@ export {
   /**
    * Create a field present only on the listed variants.
    *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const jsonOnly = Model.FieldOnly("json", "jsonCreate")(Schema.String)
+   * void jsonOnly
+   * ```
+   *
    * @since 0.0.0
    * @category fields
    */
   FieldOnly,
   /**
    * Transform variant schemas inside an existing field using per-variant mappers.
+   *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const makeOptional = Model.fieldEvolve({
+   *   select: Schema.OptionFromNullOr,
+   *   insert: Schema.OptionFromNullOr,
+   *   update: Schema.OptionFromNullOr,
+   *   json: Schema.OptionFromNullOr,
+   *   jsonCreate: Schema.OptionFromNullOr,
+   *   jsonUpdate: Schema.OptionFromNullOr,
+   * })
+   *
+   * void makeOptional
+   * ```
    *
    * @since 0.0.0
    * @category fields
@@ -145,12 +221,37 @@ export {
   /**
    * Create a raw variant struct without producing a class.
    *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const groupFields = Model.Struct({
+   *   name: Schema.String,
+   *   createdAt: Model.DateTimeInsertFromDate,
+   * })
+   *
+   * void groupFields
+   * ```
+   *
    * @since 0.0.0
    * @category constructors
    */
   Struct,
   /**
    * Create a discriminated union of variant structs with per-variant accessors.
+   *
+   * @example
+   * ```ts
+   * import * as Schema from "effect/Schema"
+   * import * as Model from "@beep/schema/Model"
+   *
+   * const a = Model.Struct({ _tag: Schema.tag("A"), value: Schema.String })
+   * const b = Model.Struct({ _tag: Schema.tag("B"), count: Schema.Number })
+   * const AB = Model.Union(a, b)
+   *
+   * void AB
+   * ```
    *
    * @since 0.0.0
    * @category constructors
@@ -160,6 +261,20 @@ export {
 
 /**
  * Extract the raw variant field record from a variant struct.
+ *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const s = Model.Struct({
+ *   name: Schema.String,
+ *   createdAt: Model.DateTimeInsertFromDate,
+ * })
+ *
+ * const raw = Model.fields(s)
+ * void raw
+ * ```
  *
  * @since 0.0.0
  * @category fields
@@ -311,6 +426,17 @@ export const Sensitive = <S extends S.Top>(schema: S): Sensitive<S> =>
 /**
  * Schema that decodes an optional nullable key into an `Option`.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.optionalOption<typeof Schema.String> =
+ *   Model.optionalOption(Schema.String)
+ *
+ * void field
+ * ```
+ *
  * @since 0.0.0
  * @category optional
  */
@@ -319,6 +445,15 @@ export interface optionalOption<S extends S.Top>
 
 /**
  * Build a schema that decodes an optional nullable JSON key into an `Option`.
+ *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const opt = Model.optionalOption(Schema.Number)
+ * void opt
+ * ```
  *
  * @since 0.0.0
  * @category optional
@@ -341,6 +476,17 @@ export const optionalOption = <S extends S.Top>(schema: S): optionalOption<S> =>
  * For the database variants, it will accept `null`able values.
  * For the JSON variants, it will also accept missing keys.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const opt: Model.FieldOption<typeof Schema.String> =
+ *   Model.FieldOption(Schema.String)
+ *
+ * void opt
+ * ```
+ *
  * @since 0.0.0
  * @category optional
  */
@@ -359,6 +505,15 @@ export interface FieldOption<S extends S.Top>
  *
  * For the database variants, it will accept `null`able values.
  * For the JSON variants, it will also accept missing keys.
+ *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const opt = Model.FieldOption(Schema.String)
+ * void opt
+ * ```
  *
  * @since 0.0.0
  * @category optional
@@ -387,6 +542,14 @@ export const FieldOption: <Field extends VariantSchema.Field<TUnsafe.Any> | S.To
 /**
  * Interface for an SQLite boolean field using `0 | 1` in the database and `boolean` in JSON.
  *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.BooleanSqlite = Model.BooleanSqlite
+ * void field
+ * ```
+ *
  * @since 0.0.0
  * @category booleans
  */
@@ -404,6 +567,19 @@ export interface BooleanSqlite
  * A schema for sqlite booleans that are represented as `0 | 1` in database
  * variants and `boolean` in JSON variants.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Task extends Model.Class<Task>("Task")({
+ *   id: Model.Generated(Schema.Number),
+ *   done: Model.BooleanSqlite,
+ * }) {}
+ *
+ * void Task
+ * ```
+ *
  * @since 0.0.0
  * @category booleans
  */
@@ -419,6 +595,14 @@ export const BooleanSqlite: BooleanSqlite = Field({
 /**
  * Schema interface that decodes a `YYYY-MM-DD` string into `DateTime.Utc` with time removed.
  *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.Date = Model.Date
+ * void field
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -427,6 +611,19 @@ export interface Date extends S.decodeTo<S.instanceOf<DateTime.Utc>, S.String> {
 /**
  * A schema for a `DateTime.Utc` that is serialized as a date string in the
  * format `YYYY-MM-DD`.
+ *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Event extends Model.Class<Event>("Event")({
+ *   id: Model.Generated(Schema.Number),
+ *   date: Model.Date,
+ * }) {}
+ *
+ * void Event
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -441,6 +638,13 @@ export const Date: Date = S.String.pipe(
 /**
  * Overridable date field that defaults to today's UTC date on insert.
  *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * void Model.DateWithNow
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -450,6 +654,13 @@ export const DateWithNow = VariantSchema.Overridable(Date, {
 
 /**
  * Overridable datetime field (string-backed) that defaults to `DateTime.now`.
+ *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * void Model.DateTimeWithNow
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -461,6 +672,13 @@ export const DateTimeWithNow = VariantSchema.Overridable(S.DateTimeUtcFromString
 /**
  * Overridable datetime field (Date-backed) that defaults to `DateTime.now`.
  *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * void Model.DateTimeFromDateWithNow
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -471,6 +689,13 @@ export const DateTimeFromDateWithNow = VariantSchema.Overridable(S.DateTimeUtcFr
 /**
  * Overridable datetime field (number-backed) that defaults to `DateTime.now`.
  *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * void Model.DateTimeFromNumberWithNow
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -480,6 +705,14 @@ export const DateTimeFromNumberWithNow = VariantSchema.Overridable(S.DateTimeUtc
 
 /**
  * Interface for a string-backed datetime insert field.
+ *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.DateTimeInsert = Model.DateTimeInsert
+ * void field
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -497,6 +730,19 @@ export interface DateTimeInsert
  *
  * It is omitted from updates and is available for selection.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Group extends Model.Class<Group>("Group")({
+ *   id: Model.Generated(Schema.Number),
+ *   createdAt: Model.DateTimeInsert,
+ * }) {}
+ *
+ * void Group
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -508,6 +754,14 @@ export const DateTimeInsert: DateTimeInsert = Field({
 
 /**
  * Interface for a Date-backed datetime insert field.
+ *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.DateTimeInsertFromDate = Model.DateTimeInsertFromDate
+ * void field
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -525,6 +779,19 @@ export interface DateTimeInsertFromDate
  *
  * It is omitted from updates and is available for selection.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Group extends Model.Class<Group>("Group")({
+ *   id: Model.Generated(Schema.Number),
+ *   createdAt: Model.DateTimeInsertFromDate,
+ * }) {}
+ *
+ * void Group
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -536,6 +803,14 @@ export const DateTimeInsertFromDate: DateTimeInsertFromDate = Field({
 
 /**
  * Interface for a number-backed datetime insert field.
+ *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.DateTimeInsertFromNumber = Model.DateTimeInsertFromNumber
+ * void field
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -553,6 +828,19 @@ export interface DateTimeInsertFromNumber
  *
  * It is omitted from updates and is available for selection.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Group extends Model.Class<Group>("Group")({
+ *   id: Model.Generated(Schema.Number),
+ *   createdAt: Model.DateTimeInsertFromNumber,
+ * }) {}
+ *
+ * void Group
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -564,6 +852,14 @@ export const DateTimeInsertFromNumber: DateTimeInsertFromNumber = Field({
 
 /**
  * Interface for a string-backed datetime update field.
+ *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.DateTimeUpdate = Model.DateTimeUpdate
+ * void field
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -583,6 +879,19 @@ export interface DateTimeUpdate
  * It is set to the current `DateTime.Utc` on updates and inserts and is
  * available for selection.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Group extends Model.Class<Group>("Group")({
+ *   id: Model.Generated(Schema.Number),
+ *   updatedAt: Model.DateTimeUpdate,
+ * }) {}
+ *
+ * void Group
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -595,6 +904,14 @@ export const DateTimeUpdate: DateTimeUpdate = Field({
 
 /**
  * Interface for a Date-backed datetime update field.
+ *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.DateTimeUpdateFromDate = Model.DateTimeUpdateFromDate
+ * void field
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -614,6 +931,19 @@ export interface DateTimeUpdateFromDate
  * It is set to the current `DateTime.Utc` on updates and inserts and is
  * available for selection.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Group extends Model.Class<Group>("Group")({
+ *   id: Model.Generated(Schema.Number),
+ *   updatedAt: Model.DateTimeUpdateFromDate,
+ * }) {}
+ *
+ * void Group
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -626,6 +956,14 @@ export const DateTimeUpdateFromDate: DateTimeUpdateFromDate = Field({
 
 /**
  * Interface for a number-backed datetime update field.
+ *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.DateTimeUpdateFromNumber = Model.DateTimeUpdateFromNumber
+ * void field
+ * ```
  *
  * @since 0.0.0
  * @category date & time
@@ -645,6 +983,19 @@ export interface DateTimeUpdateFromNumber
  * It is set to the current `DateTime.Utc` on updates and inserts and is
  * available for selection.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Group extends Model.Class<Group>("Group")({
+ *   id: Model.Generated(Schema.Number),
+ *   updatedAt: Model.DateTimeUpdateFromNumber,
+ * }) {}
+ *
+ * void Group
+ * ```
+ *
  * @since 0.0.0
  * @category date & time
  */
@@ -657,6 +1008,17 @@ export const DateTimeUpdateFromNumber: DateTimeUpdateFromNumber = Field({
 
 /**
  * Interface for a field stored as a JSON text column in the database.
+ *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const field: Model.JsonFromString<typeof Schema.Struct<{ a: typeof Schema.String }>> =
+ *   Model.JsonFromString(Schema.Struct({ a: Schema.String }))
+ *
+ * void field
+ * ```
  *
  * @since 0.0.0
  * @category json
@@ -676,6 +1038,19 @@ export interface JsonFromString<S extends S.Top>
  *
  * The "json" variants will use the object schema directly.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * class Record extends Model.Class<Record>("Record")({
+ *   id: Model.Generated(Schema.Number),
+ *   metadata: Model.JsonFromString(Schema.Struct({ key: Schema.String })),
+ * }) {}
+ *
+ * void Record
+ * ```
+ *
  * @since 0.0.0
  * @category json
  */
@@ -694,6 +1069,17 @@ export const JsonFromString = <S extends S.Top>(schema: S): JsonFromString<S> =>
 /**
  * Interface for a binary UUID v4 field auto-generated on insert.
  *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const BlobId = Model.Uint8Array.pipe(Schema.brand("BlobId"))
+ * const field: Model.UuidV4Insert<"BlobId"> = Model.UuidV4Insert(BlobId)
+ *
+ * void field
+ * ```
+ *
  * @since 0.0.0
  * @category uuid
  */
@@ -708,6 +1094,13 @@ export interface UuidV4Insert<B extends string>
 /**
  * Schema for `Uint8Array` values, used as the base for binary UUID fields.
  *
+ * @example
+ * ```ts
+ * import * as Model from "@beep/schema/Model"
+ *
+ * void Model.Uint8Array
+ * ```
+ *
  * @since 0.0.0
  * @category constructors
  */
@@ -717,6 +1110,17 @@ export const Uint8Array: S.instanceOf<Uint8Array<ArrayBuffer>> = S.Uint8Array as
 
 /**
  * Wrap a branded `Uint8Array` schema in an `Overridable` that generates a UUID v4 by default.
+ *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const BlobId = Model.Uint8Array.pipe(Schema.brand("BlobId"))
+ * const overridable = Model.UuidV4WithGenerate(BlobId)
+ *
+ * void overridable
+ * ```
  *
  * @since 0.0.0
  * @category uuid
@@ -730,6 +1134,21 @@ export const UuidV4WithGenerate = <B extends string>(
 
 /**
  * A field that represents a binary UUID v4 that is generated on inserts.
+ *
+ * @example
+ * ```ts
+ * import * as Schema from "effect/Schema"
+ * import * as Model from "@beep/schema/Model"
+ *
+ * const BlobId = Model.Uint8Array.pipe(Schema.brand("BlobId"))
+ *
+ * class Blob extends Model.Class<Blob>("Blob")({
+ *   id: Model.UuidV4Insert(BlobId),
+ *   name: Schema.String,
+ * }) {}
+ *
+ * void Blob
+ * ```
  *
  * @since 0.0.0
  * @category uuid

@@ -7,8 +7,26 @@ const $I = $ObservabilityId.create("server/Config");
 /**
  * Server-only observability configuration.
  *
+ * @example
+ * ```typescript
+ * import { ServerObservabilityConfig } from "@beep/observability/server"
+ *
+ * const config = new ServerObservabilityConfig({
+ *   serviceName: "todox-api",
+ *   serviceVersion: "1.0.0",
+ *   environment: "development",
+ *   minLogLevel: "Debug",
+ *   otlpBaseUrl: "http://localhost:4318",
+ *   otlpEnabled: true,
+ *   otlpResourceAttributes: {},
+ *   devtoolsEnabled: false,
+ *   devtoolsUrl: "ws://localhost:34437",
+ *   prometheusPrefix: "todox",
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ServerObservabilityConfig extends S.Class<ServerObservabilityConfig>($I`ServerObservabilityConfig`)(
   {
@@ -31,8 +49,16 @@ export class ServerObservabilityConfig extends S.Class<ServerObservabilityConfig
 /**
  * Convert server config into OTLP resource attributes.
  *
+ * @example
+ * ```typescript
+ * import { ServerObservabilityConfig, toOtlpResource } from "@beep/observability/server"
+ *
+ * declare const config: ServerObservabilityConfig
+ * const resource = toOtlpResource(config)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const toOtlpResource = (config: ServerObservabilityConfig) => ({
   serviceName: config.serviceName,

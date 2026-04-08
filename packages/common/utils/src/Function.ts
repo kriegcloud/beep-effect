@@ -26,7 +26,7 @@ export * from "effect/Function";
  * void same
  * ```
  *
- * @category Utility
+ * @category utility
  * @since 0.0.0
  */
 export const cast: <A, B>(a: A) => B = identity as TUnsafe.Any;

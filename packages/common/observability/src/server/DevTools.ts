@@ -7,8 +7,15 @@ import * as Socket from "effect/unstable/socket/Socket";
 /**
  * Predicate used to decide whether a span should be mirrored to Effect devtools.
  *
+ * @example
+ * ```typescript
+ * import type { DevToolsSpanFilter } from "@beep/observability/server"
+ *
+ * const filter: DevToolsSpanFilter = (name) => name.startsWith("Http.")
+ * ```
+ *
  * @since 0.0.0
- * @category Models
+ * @category models
  */
 export type DevToolsSpanFilter = (name: string) => boolean;
 
@@ -58,8 +65,18 @@ const toDevToolsSpan = (span: Tracer.Span): DevToolsSchema.Span => ({
 /**
  * Mirror only selected spans to the Effect devtools websocket.
  *
+ * @example
+ * ```typescript
+ * import { layerFilteredDevTools } from "@beep/observability/server"
+ *
+ * const DevToolsLive = layerFilteredDevTools({
+ *   url: "ws://localhost:34437",
+ *   shouldPublish: (name) => name.startsWith("Http."),
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const layerFilteredDevTools = (options: {
   readonly url: string;

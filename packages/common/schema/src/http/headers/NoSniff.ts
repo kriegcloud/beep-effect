@@ -22,7 +22,19 @@ const defaultValue = "nosniff" as const;
 const NoSniffValueBase = LiteralKit([defaultValue]);
 
 /**
+ * Schema for supported `X-Content-Type-Options` header values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NoSniffValue } from "@beep/schema/http/headers/NoSniff"
+ *
+ * const decoded = S.decodeUnknownSync(NoSniffValue)("nosniff")
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
+ * @category schemas
  */
 export const NoSniffValue = NoSniffValueBase.pipe(
   $I.annoteSchema("NoSniffValue", {
@@ -32,14 +44,29 @@ export const NoSniffValue = NoSniffValueBase.pipe(
 );
 
 /**
+ * Type-level representation of {@link NoSniffValue}.
+ *
  * @since 0.0.0
+ * @category models
  */
 export type NoSniffValue = typeof NoSniffValue.Type;
 
 const NoSniffOptionBase = LiteralKit([false, ...NoSniffValueBase.Options]);
 
 /**
+ * Schema for `X-Content-Type-Options` option values, including `false` to disable.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { NoSniffOption } from "@beep/schema/http/headers/NoSniff"
+ *
+ * const decoded = S.decodeUnknownSync(NoSniffOption)(false)
+ * void decoded
+ * ```
+ *
  * @since 0.0.0
+ * @category schemas
  */
 export const NoSniffOption = NoSniffOptionBase.pipe(
   $I.annoteSchema("NoSniffOption", {
@@ -49,12 +76,26 @@ export const NoSniffOption = NoSniffOptionBase.pipe(
 );
 
 /**
+ * Type-level representation of {@link NoSniffOption}.
+ *
  * @since 0.0.0
+ * @category models
  */
 export type NoSniffOption = typeof NoSniffOption.Type;
 
 /**
+ * Parsed `X-Content-Type-Options` response header with name and optional value.
+ *
+ * @example
+ * ```ts
+ * import { NoSniffResponseHeader } from "@beep/schema/http/headers/NoSniff"
+ *
+ * const header = new NoSniffResponseHeader({ name: "X-Content-Type-Options", value: undefined })
+ * void header
+ * ```
+ *
  * @since 0.0.0
+ * @category models
  */
 export class NoSniffResponseHeader extends S.Class<NoSniffResponseHeader>($I`NoSniffResponseHeader`)(
   {
@@ -69,7 +110,19 @@ export class NoSniffResponseHeader extends S.Class<NoSniffResponseHeader>($I`NoS
 type NoSniffResponseHeaderEncoded = typeof NoSniffResponseHeader.Encoded;
 
 /**
+ * One-way schema that decodes `X-Content-Type-Options` options into the response header.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { NoSniffHeader } from "@beep/schema/http/headers/NoSniff"
+ *
+ * const program = NoSniffHeader.create()
+ * void program
+ * ```
+ *
  * @since 0.0.0
+ * @category schemas
  */
 export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
   S.decodeTo(
@@ -127,6 +180,9 @@ export const NoSniffHeader = S.Union([NoSniffOption, S.Undefined]).pipe(
 );
 
 /**
+ * Type-level representation of {@link NoSniffHeader}.
+ *
  * @since 0.0.0
+ * @category models
  */
 export type NoSniffHeader = typeof NoSniffHeader.Type;

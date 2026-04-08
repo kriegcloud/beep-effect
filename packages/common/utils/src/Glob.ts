@@ -96,7 +96,23 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
 /**
  * Service interface for performing glob-based file matching.
  *
- * @category models
+ * Provides a single `glob` method that resolves glob patterns against the
+ * file system and returns the matched paths.
+ *
+ * @example
+ * ```ts
+ * import { Effect, pipe } from "effect"
+ * import { Glob } from "@beep/utils/Glob"
+ *
+ * const program = pipe(
+ *   Glob,
+ *   Effect.andThen(({ glob }) => glob("src/**\/*.ts"))
+ * )
+ *
+ * void program
+ * ```
+ *
+ * @category services
  * @since 0.0.0
  */
 export interface Glob {
@@ -106,7 +122,7 @@ export interface Glob {
 /**
  * Service tag for the {@link Glob} capability.
  *
- * @category utilities
+ * @category services
  * @since 0.0.0
  */
 export const Glob: ServiceMap.Service<Glob, Glob> = ServiceMap.Service("@effect/utils/Glob");

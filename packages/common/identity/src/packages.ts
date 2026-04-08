@@ -101,6 +101,13 @@ const composers = $I.compose(
 /**
  * Identity composer for the `@beep/data` package.
  *
+ * @example
+ * ```typescript
+ * import { $DataId } from "@beep/identity"
+ *
+ * const id = $DataId.make("Calendar")
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -108,6 +115,13 @@ export const $DataId = composers.$DataId;
 
 /**
  * Identity composer for the `@beep/identity` package.
+ *
+ * @example
+ * ```typescript
+ * import { $IdentityId } from "@beep/identity"
+ *
+ * const id = $IdentityId.make("Composer")
+ * ```
  *
  * @since 0.0.0
  * @category configuration
@@ -117,6 +131,13 @@ export const $IdentityId = composers.$IdentityId;
 /**
  * Identity composer for the `@beep/messages` package.
  *
+ * @example
+ * ```typescript
+ * import { $MessagesId } from "@beep/identity"
+ *
+ * const id = $MessagesId.make("Envelope")
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -124,6 +145,13 @@ export const $MessagesId = composers.$MessagesId;
 
 /**
  * Identity composer for the `@beep/ontology` package.
+ *
+ * @example
+ * ```typescript
+ * import { $OntologyId } from "@beep/identity"
+ *
+ * const id = $OntologyId.make("Concept")
+ * ```
  *
  * @since 0.0.0
  * @category configuration
@@ -133,6 +161,13 @@ export const $OntologyId = composers.$OntologyId;
 /**
  * Identity composer for the `@beep/schema` package.
  *
+ * @example
+ * ```typescript
+ * import { $SchemaId } from "@beep/identity"
+ *
+ * const id = $SchemaId.make("EntityId")
+ * ```
+ *
  * @since 0.0.0
  * @category configuration
  */
@@ -140,6 +175,13 @@ export const $SchemaId = composers.$SchemaId;
 
 /**
  * Identity composer for the `@beep/types` package.
+ *
+ * @example
+ * ```typescript
+ * import { $TypesId } from "@beep/identity"
+ *
+ * const id = $TypesId.make("NonEmpty")
+ * ```
  *
  * @since 0.0.0
  * @category configuration

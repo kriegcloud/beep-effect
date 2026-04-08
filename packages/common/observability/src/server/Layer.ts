@@ -7,8 +7,17 @@ import { type DevToolsSpanFilter, layerFilteredDevTools } from "./DevTools.ts";
 /**
  * Server-only local LGTM wiring for Effect OTLP + optional devtools.
  *
+ * @example
+ * ```typescript
+ * import { Layer } from "effect"
+ * import { ServerObservabilityConfig, layerLocalLgtmServer } from "@beep/observability/server"
+ *
+ * declare const config: ServerObservabilityConfig
+ * const ObservabilityLive = layerLocalLgtmServer(config)
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const layerLocalLgtmServer = (
   config: ServerObservabilityConfig,

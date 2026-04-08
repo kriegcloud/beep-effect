@@ -24,6 +24,16 @@ const $I = $ObservabilityId.create("Observed");
 /**
  * A transport-safe schema for expected errors (message only, no stack).
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedError } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedError)
+ * const err = decode({ message: "boom" })
+ * console.log(err.message) // "boom"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -45,6 +55,16 @@ export type ObservedError = typeof ObservedError.Type;
 
 /**
  * A transport-safe schema for expected errors that preserves stacks.
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedErrorWithStack } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedErrorWithStack)
+ * const err = decode(new Error("boom"))
+ * console.log(err.message) // "boom"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -68,6 +88,16 @@ export type ObservedErrorWithStack = typeof ObservedErrorWithStack.Type;
 /**
  * A transport-safe schema for defects.
  *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedDefect } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedDefect)
+ * const defect = decode("unexpected crash")
+ * void defect
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -89,6 +119,16 @@ export type ObservedDefect = typeof ObservedDefect.Type;
 
 /**
  * A transport-safe schema for defects that preserves stacks when possible.
+ *
+ * @example
+ * ```typescript
+ * import * as S from "effect/Schema"
+ * import { ObservedDefectWithStack } from "@beep/observability"
+ *
+ * const decode = S.decodeUnknownSync(ObservedDefectWithStack)
+ * const defect = decode(new Error("unexpected crash"))
+ * void defect
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -112,6 +152,13 @@ export type ObservedDefectWithStack = typeof ObservedDefectWithStack.Type;
 /**
  * One serialized failure reason from a Cause.
  *
+ * @example
+ * ```typescript
+ * import { ObservedCauseReason } from "@beep/observability"
+ *
+ * void ObservedCauseReason
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -134,6 +181,13 @@ export type ObservedCauseReason = typeof ObservedCauseReason.Type;
 /**
  * A transport-safe schema for full Effect causes.
  *
+ * @example
+ * ```typescript
+ * import { ObservedCause } from "@beep/observability"
+ *
+ * void ObservedCause
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -155,6 +209,13 @@ export type ObservedCause = typeof ObservedCause.Type;
 
 /**
  * A transport-safe schema for exits carrying unknown success values.
+ *
+ * @example
+ * ```typescript
+ * import { ObservedExit } from "@beep/observability"
+ *
+ * void ObservedExit
+ * ```
  *
  * @since 0.0.0
  * @category models

@@ -194,6 +194,13 @@ export const BackgroundColorName = BackgroundColorNameSchema;
 /**
  * A supported Chalk background color name literal.
  *
+ * @example
+ * ```ts
+ * import type { BackgroundColorName } from "@beep/chalk/Chalk.browser"
+ *
+ * const bg: BackgroundColorName = "bgRed"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -218,6 +225,13 @@ export const ChalkOptions = ChalkOptionsSchema;
 
 /**
  * Constructor options for creating an isolated browser Chalk instance.
+ *
+ * @example
+ * ```ts
+ * import type { ChalkOptions } from "@beep/chalk/Chalk.browser"
+ *
+ * const opts: ChalkOptions = { level: 1 }
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -245,6 +259,13 @@ export const ColorInfo = ColorInfoSchema;
 /**
  * Detected color support information, or `false` when color output is disabled.
  *
+ * @example
+ * ```ts
+ * import type { ColorInfo } from "@beep/chalk/Chalk.browser"
+ *
+ * const info: ColorInfo = false
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -269,6 +290,13 @@ export const ColorName = ColorNameSchema;
 
 /**
  * A supported Chalk color name literal (foreground or background).
+ *
+ * @example
+ * ```ts
+ * import type { ColorName } from "@beep/chalk/Chalk.browser"
+ *
+ * const name: ColorName = "red"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -300,6 +328,13 @@ export const ColorSupport = ColorSupportSchema;
 /**
  * Detected terminal color support capabilities for an output stream.
  *
+ * @example
+ * ```ts
+ * import type { ColorSupport } from "@beep/chalk/Chalk.browser"
+ *
+ * const support: ColorSupport = { level: 1, hasBasic: true, has256: false, has16m: false }
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -327,6 +362,13 @@ export const ColorSupportLevel = ColorSupportLevelSchema;
 /**
  * A Chalk color support level: `0` | `1` | `2` | `3`.
  *
+ * @example
+ * ```ts
+ * import type { ColorSupportLevel } from "@beep/chalk/Chalk.browser"
+ *
+ * const level: ColorSupportLevel = 1
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -352,6 +394,13 @@ export const ForegroundColorName = ForegroundColorNameSchema;
 /**
  * A supported Chalk foreground color name literal.
  *
+ * @example
+ * ```ts
+ * import type { ForegroundColorName } from "@beep/chalk/Chalk.browser"
+ *
+ * const fg: ForegroundColorName = "blue"
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -376,6 +425,13 @@ export const ModifierName = ModifierNameSchema;
 
 /**
  * A supported Chalk text modifier name literal.
+ *
+ * @example
+ * ```ts
+ * import type { ModifierName } from "@beep/chalk/Chalk.browser"
+ *
+ * const mod: ModifierName = "italic"
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -453,6 +509,13 @@ export const colorNames = colorNameValues;
 /**
  * Alias for {@link modifierNames} preserved for Chalk API compatibility.
  *
+ * @example
+ * ```ts
+ * import { modifiers } from "@beep/chalk/Chalk.browser"
+ *
+ * console.log(modifiers) // same as modifierNames
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
@@ -460,6 +523,13 @@ export const modifiers = modifierNames;
 
 /**
  * Alias for {@link foregroundColorNames} preserved for Chalk API compatibility.
+ *
+ * @example
+ * ```ts
+ * import { foregroundColors } from "@beep/chalk/Chalk.browser"
+ *
+ * console.log(foregroundColors) // same as foregroundColorNames
+ * ```
  *
  * @since 0.0.0
  * @category utilities
@@ -469,6 +539,13 @@ export const foregroundColors = foregroundColorNames;
 /**
  * Alias for {@link backgroundColorNames} preserved for Chalk API compatibility.
  *
+ * @example
+ * ```ts
+ * import { backgroundColors } from "@beep/chalk/Chalk.browser"
+ *
+ * console.log(backgroundColors) // same as backgroundColorNames
+ * ```
+ *
  * @since 0.0.0
  * @category utilities
  */
@@ -476,6 +553,13 @@ export const backgroundColors = backgroundColorNames;
 
 /**
  * Alias for {@link colorNames} preserved for Chalk API compatibility.
+ *
+ * @example
+ * ```ts
+ * import { colors } from "@beep/chalk/Chalk.browser"
+ *
+ * console.log(colors) // same as colorNames
+ * ```
  *
  * @since 0.0.0
  * @category utilities

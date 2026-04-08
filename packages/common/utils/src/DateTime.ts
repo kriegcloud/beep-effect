@@ -6,7 +6,7 @@ import { DateTime } from "effect";
  * This helper normalizes zoned inputs to UTC while preserving the instant.
  *
  * @since 0.1.0
- * @category Utility
+ * @category utility
  * @example
  * ```typescript
  * import { makeUnsafeUtc } from "@beep/utils/DateTime"

@@ -7,8 +7,15 @@ import * as HttpTraceContext from "effect/unstable/http/HttpTraceContext";
 /**
  * Extract an incoming parent span from trace headers.
  *
+ * @example
+ * ```typescript
+ * import { extractTraceContextHeaders } from "@beep/observability/server"
+ *
+ * const parentSpan = extractTraceContextHeaders({ traceparent: "00-abc-def-01" })
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const extractTraceContextHeaders = (headers?: Headers.Input): O.Option<Tracer.ExternalSpan> =>
   HttpTraceContext.fromHeaders(Headers.fromInput(headers));
@@ -16,8 +23,18 @@ export const extractTraceContextHeaders = (headers?: Headers.Input): O.Option<Tr
 /**
  * Inject the current Effect span into outbound trace headers.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { injectTraceContextHeaders } from "@beep/observability/server"
+ *
+ * const program = injectTraceContextHeaders().pipe(
+ *   Effect.tap((headers) => Effect.log("outbound headers", headers))
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const injectTraceContextHeaders = (headers?: Headers.Input): Effect.Effect<Headers.Headers> =>
   Effect.currentSpan.pipe(
@@ -28,8 +45,19 @@ export const injectTraceContextHeaders = (headers?: Headers.Input): Effect.Effec
 /**
  * Apply an incoming parent span, if present, to one effect.
  *
+ * @example
+ * ```typescript
+ * import { Effect } from "effect"
+ * import { withIncomingTraceContext } from "@beep/observability/server"
+ *
+ * const program = withIncomingTraceContext(
+ *   { traceparent: "00-abc-def-01" },
+ *   Effect.log("handling request")
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const withIncomingTraceContext = <A, E, R>(
   headers: Headers.Input | undefined,

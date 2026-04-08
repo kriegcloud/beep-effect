@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Pulumi infrastructure workspace for beep-effect",
+  "main": "src/entry.ts",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
@@ -21,6 +22,8 @@
     "refresh": "pulumi refresh"
   },
   "dependencies": {
+    "@1password/connect": "catalog:",
+    "@pulumi/command": "catalog:",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",

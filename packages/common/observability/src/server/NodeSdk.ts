@@ -13,7 +13,7 @@ import { type ServerObservabilityConfig, toOtlpResource } from "./Config.ts";
  * Additional controls for the shared Node SDK layer.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 interface NodeSdkServerOptions {
   readonly loggerExportInterval?: Duration.Input | undefined;
@@ -31,8 +31,16 @@ const endpointUrl = (baseUrl: string, path: string): string => new URL(path, `${
 /**
  * Convert the shared server observability config into a Node SDK resource shape.
  *
+ * @example
+ * ```typescript
+ * import { ServerObservabilityConfig, toNodeSdkResource } from "@beep/observability/server"
+ *
+ * declare const config: ServerObservabilityConfig
+ * const resource = toNodeSdkResource(config)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const toNodeSdkResource = (config: ServerObservabilityConfig): NonNullable<NodeSdk.Configuration["resource"]> =>
   toOtlpResource(config);
@@ -40,8 +48,16 @@ export const toNodeSdkResource = (config: ServerObservabilityConfig): NonNullabl
 /**
  * Build a Node SDK configuration with OTLP HTTP defaults for local LGTM.
  *
+ * @example
+ * ```typescript
+ * import { ServerObservabilityConfig, makeNodeSdkServerConfig } from "@beep/observability/server"
+ *
+ * declare const config: ServerObservabilityConfig
+ * const sdkConfig = makeNodeSdkServerConfig(config)
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export const makeNodeSdkServerConfig = (
   config: ServerObservabilityConfig,
@@ -102,8 +118,16 @@ export const makeNodeSdkServerConfig = (
 /**
  * Build a shared Node SDK layer for server runtimes.
  *
+ * @example
+ * ```typescript
+ * import { ServerObservabilityConfig, layerNodeSdkServer } from "@beep/observability/server"
+ *
+ * declare const config: ServerObservabilityConfig
+ * const NodeSdkLive = layerNodeSdkServer(config)
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const layerNodeSdkServer = (
   config: ServerObservabilityConfig,

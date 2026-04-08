@@ -5,8 +5,15 @@ import { renderObservedCause, summarizeCause } from "../CauseDiagnostics.ts";
 /**
  * Create a console-backed error reporter with cause fingerprints and pretty rendering.
  *
+ * @example
+ * ```typescript
+ * import { makeConsoleErrorReporter } from "@beep/observability/server"
+ *
+ * const reporter = makeConsoleErrorReporter({ includeCause: true })
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const makeConsoleErrorReporter = (options?: {
   readonly includeCause?: boolean | undefined;
@@ -39,8 +46,16 @@ export const makeConsoleErrorReporter = (options?: {
 /**
  * Register a console-backed error reporter.
  *
+ * @example
+ * ```typescript
+ * import { Layer } from "effect"
+ * import { layerErrorReporter } from "@beep/observability/server"
+ *
+ * const ErrorReporterLive = layerErrorReporter({ includeCause: true })
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const layerErrorReporter = (options?: {
   readonly includeCause?: boolean | undefined;

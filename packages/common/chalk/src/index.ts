@@ -24,5 +24,13 @@
  * @since 0.0.0
  * @module @beep/chalk
  */
+/**
+ * @since 0.0.0
+ * @category exports
+ */
 export * from "./Chalk.ts";
+/**
+ * @since 0.0.0
+ * @category exports
+ */
 export { default } from "./Chalk.ts";
