@@ -8,16 +8,18 @@
  * @module @beep/messages
  */
 
+export type { GetLogIssuesOptions } from "./i18n.js";
 /**
  * @example
  * ```typescript
  * import { t, logIssues } from "@beep/messages"
  *
  * console.log(t("struct.missingKey")) // "This field is required"
+ * void logIssues
  * ```
  *
  * @since 0.0.0
  * @category exports
  */
-export * from "./i18n.js";
+export { getLogIssues, leafHook, logIssues, t } from "./i18n.js";
 // bench

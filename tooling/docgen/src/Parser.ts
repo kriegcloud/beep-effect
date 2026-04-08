@@ -3,6 +3,7 @@
  */
 
 import { $DocgenId } from "@beep/identity/packages";
+import { thunkEmptyStr } from "@beep/utils";
 import * as doctrine from "doctrine";
 import { Effect, Layer, Path, pipe, ServiceMap } from "effect";
 import * as A from "effect/Array";
@@ -68,7 +69,7 @@ export class Source extends ServiceMap.Service<Source, SourceShape>()($I`Source`
 const sortModulesByPath: <A extends Domain.Module>(self: Iterable<A>) => Array<A> = A.sort(Domain.ByPath);
 
 const getJSDocText: (jsdocs: ReadonlyArray<ast.JSDoc>) => string = A.matchRight({
-  onEmpty: () => "",
+  onEmpty: thunkEmptyStr,
   onNonEmpty: (_, last) => last.getText(),
 });
 
@@ -108,13 +109,7 @@ export const parseComment = (text: string): Comment => {
     annotation.tags,
     A.groupBy((tag) => tag.title),
     R.map((values) =>
-      A.map(values, (tag) =>
-        pipe(
-          O.fromNullishOr(tag.description),
-          O.map(Str.trim),
-          O.getOrElse(() => "")
-        )
-      )
+      A.map(values, (tag) => pipe(O.fromNullishOr(tag.description), O.map(Str.trim), O.getOrElse(thunkEmptyStr)))
     )
   );
 
@@ -451,7 +446,7 @@ const parseProperty = (pd: ast.PropertyDeclaration) =>
     const readonlyPrefix = pipe(
       O.fromNullishOr(pd.getFirstModifierByKind(ast.ts.SyntaxKind.ReadonlyKeyword)),
       O.match({
-        onNone: () => "",
+        onNone: thunkEmptyStr,
         onSome: () => "readonly ",
       })
     );

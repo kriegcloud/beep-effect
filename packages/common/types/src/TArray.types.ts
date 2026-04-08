@@ -17,6 +17,9 @@
  *
  * type StringElement = TArray.Elem<string[]>
  * // string
+ *
+ * declare const elements: readonly [NumberElement, StringElement]
+ * void elements
  * ```
  *
  * @since 0.0.0

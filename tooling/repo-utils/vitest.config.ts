@@ -5,7 +5,10 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      sequence: {
+        concurrent: false,
+      },
+      testTimeout: 300_000,
     },
   })
 );

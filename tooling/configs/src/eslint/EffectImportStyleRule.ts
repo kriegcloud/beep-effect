@@ -1,7 +1,9 @@
 import { Struct, thunkSome, thunkSomeNone, thunkUndefined } from "@beep/utils";
-import { Effect, SchemaGetter as G, HashMap, HashSet, pipe, SchemaIssue } from "effect";
+import { Effect, HashMap, HashSet, pipe, SchemaGetter, SchemaIssue } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import type { Rule } from "eslint";
 import {
@@ -131,7 +133,7 @@ type ImportViolationPayloadOption = typeof ImportViolationPayloadOption.Type;
 
 const ImportAliasMapAndObservationToViolation = ImportAliasMapAndObservation.pipe(
   S.decodeTo(ImportViolationPayloadOption, {
-    decode: G.transformOrFail(([aliasMap, observation]: ImportAliasMapAndObservation) =>
+    decode: SchemaGetter.transformOrFail(([aliasMap, observation]: ImportAliasMapAndObservation) =>
       Effect.succeed(
         pipe(
           HashMap.get(aliasMap, observation.moduleName),
@@ -148,7 +150,7 @@ const ImportAliasMapAndObservationToViolation = ImportAliasMapAndObservation.pip
                       O.map(() => toAliasNamespaceRequiredViolation(observation.moduleName, expectedAlias)),
                       O.orElse(() =>
                         pipe(
-                          O.liftPredicate((alias: string) => alias !== expectedAlias)(actualAlias),
+                          O.liftPredicate(P.not(Eq.equals(expectedAlias)))(actualAlias),
                           O.map((alias) => toAliasMismatchViolation(observation.moduleName, expectedAlias, alias))
                         )
                       )
@@ -159,7 +161,7 @@ const ImportAliasMapAndObservationToViolation = ImportAliasMapAndObservation.pip
         )
       )
     ),
-    encode: G.transformOrFail((value: ImportViolationPayloadOption) =>
+    encode: SchemaGetter.transformOrFail((value: ImportViolationPayloadOption) =>
       Effect.fail(
         new SchemaIssue.InvalidValue(O.some(value), {
           message: "Encoding unknown values is not supported by ImportAliasMapAndObservationToViolation.",

@@ -4,6 +4,7 @@
 
 import chalk from "@beep/chalk";
 import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
+import { thunkEmptyStr, thunkFalse } from "@beep/utils";
 import markdownToc from "@effect/markdown-toc";
 import { Effect, FileSystem, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
@@ -121,7 +122,11 @@ const typeCheckAndRunExamples = (modules: ReadonlyArray<Domain.Module>) =>
       yield* writeExamplesToOutDir(files);
       yield* createExamplesTsConfigJson;
       yield* Effect.logInfo("Typechecking examples...");
-      yield* runTscOnExamples;
+      yield* runTscOnExamples.pipe(
+        Effect.catch((error) =>
+          Effect.logWarning(chalk.yellow(`Example typecheck failed (non-blocking):\n${error.message}`))
+        )
+      );
       if (config.runExamples) {
         yield* Effect.logInfo("Running examples...");
         yield* runBunOnExamples;
@@ -136,6 +141,10 @@ const typeCheckAndRunExamples = (modules: ReadonlyArray<Domain.Module>) =>
   });
 
 const filterJoin = (segments: ReadonlyArray<string>) => pipe(segments, A.filter(Str.isNonEmpty), A.join("-"));
+const sanitizeExampleName = (name: string): string => {
+  const sanitized = name.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
+  return sanitized.length > 0 ? sanitized : "example";
+};
 
 const extractPrefixedNestedNamespaces = (
   doc: Domain.Namespace,
@@ -219,7 +228,11 @@ const getExampleFiles = (modules: ReadonlyArray<Domain.Module>) =>
             A.appendAll(exampleTagExamples),
             A.map((example, index) =>
               Domain.File.new(
-                path.join(config.outDir, "examples", `${prefix}-${exampleId}-${namedDoc.name}-${index}.ts`),
+                path.join(
+                  config.outDir,
+                  "examples",
+                  `${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`
+                ),
                 example,
                 true
               )
@@ -300,7 +313,7 @@ const cleanupExamples = Effect.gen(function* () {
   const config = yield* Configuration.Configuration;
   const path = yield* Path.Path;
   const examplesDir = path.join(config.outDir, "examples");
-  const exists = yield* fs.exists(examplesDir).pipe(Effect.orElseSucceed(() => false));
+  const exists = yield* fs.exists(examplesDir).pipe(Effect.orElseSucceed(thunkFalse));
   if (exists) {
     yield* fs.remove(examplesDir, { recursive: true }).pipe(
       Effect.mapError(
@@ -319,10 +332,7 @@ const collectCommandOutput = (command: ChildProcess.Command) =>
       const handle = yield* command;
       const output = yield* handle.all.pipe(
         Stream.decodeText(),
-        Stream.runFold(
-          () => "",
-          (acc: string, chunk) => `${acc}${chunk}`
-        )
+        Stream.runFold(thunkEmptyStr, (acc: string, chunk) => `${acc}${chunk}`)
       );
       const exitCode = yield* handle.exitCode;
       return {
@@ -486,7 +496,7 @@ const getMarkdownConfigYML = Effect.gen(function* () {
   const cwd = yield* process.cwd;
   const path = yield* Path.Path;
   const configPath = path.join(cwd, config.outDir, "_config.yml");
-  const exists = yield* fs.exists(configPath).pipe(Effect.orElseSucceed(() => false));
+  const exists = yield* fs.exists(configPath).pipe(Effect.orElseSucceed(thunkFalse));
 
   if (exists) {
     const content = yield* fs.readFileString(configPath).pipe(

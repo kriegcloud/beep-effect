@@ -86,7 +86,12 @@ describe("Configuration", () => {
             tscExecutable: "tsc",
             exclude: [],
             parseCompilerOptions: Configuration.defaultCompilerOptions,
-            examplesCompilerOptions: Configuration.defaultCompilerOptions,
+            examplesCompilerOptions: {
+              ...Configuration.defaultCompilerOptions,
+              noUnusedLocals: false,
+              noUnusedParameters: false,
+              types: ["node", "bun"],
+            },
           })
         )
       )
@@ -134,7 +139,12 @@ describe("Configuration", () => {
               target: "es2022",
               lib: ["ES2022", "DOM"],
             },
-            examplesCompilerOptions: Configuration.defaultCompilerOptions,
+            examplesCompilerOptions: {
+              ...Configuration.defaultCompilerOptions,
+              noUnusedLocals: false,
+              noUnusedParameters: false,
+              types: ["node", "bun"],
+            },
           })
         )
       )

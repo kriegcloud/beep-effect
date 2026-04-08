@@ -1,5 +1,5 @@
 import { Struct, thunkUndefined } from "@beep/utils";
-import { Effect, Function as FN, SchemaGetter as G, HashSet, pipe, SchemaIssue } from "effect";
+import { Effect, Function as FN, SchemaGetter as G, HashSet, identity, pipe, SchemaIssue } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
@@ -173,7 +173,7 @@ const detectNativeFetchViolation = (
             O.zipWith(observation.memberObjectName, observation.memberPropertyName, (objectName, propertyName) =>
               P.Tuple([Eq.equals("globalThis"), Eq.equals("fetch")])([objectName, propertyName])
             ),
-            O.filter((value) => value),
+            O.filter(identity<boolean>),
             O.map(() => "fetch")
           )
         )
@@ -320,7 +320,7 @@ const TypeofComparisonObservationToViolation = TypeofComparisonObservation.pipe(
           O.liftPredicate((operator: TypeofComparisonObservation["operator"]) =>
             HashSet.has(EQUALITY_OPERATORS, operator)
           )(observation.operator),
-          O.flatMap(() => O.liftPredicate((value: boolean) => value)(hasTypeofRuntimeLiteralComparison(observation))),
+          O.flatMap(() => O.liftPredicate(identity<boolean>)(hasTypeofRuntimeLiteralComparison(observation))),
           O.map(() => makeRuleViolationPayload("typeof-runtime", "typeofRuntime"))
         )
       )

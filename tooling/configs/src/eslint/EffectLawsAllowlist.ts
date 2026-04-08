@@ -1,5 +1,5 @@
 import { thunkFalse } from "@beep/utils";
-import { pipe, Result } from "effect";
+import { identity, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import {
@@ -27,7 +27,7 @@ const decodedAllowlistSnapshot = pipe(
         path: fallbackAllowlistPath,
         diagnostics,
       }),
-    onSuccess: (snapshot) => snapshot,
+    onSuccess: identity,
   })
 );
 

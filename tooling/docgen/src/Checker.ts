@@ -3,11 +3,15 @@
  */
 
 import { codeFrameColumns } from "@babel/code-frame";
+import { $DocgenId } from "@beep/identity";
 import { Effect, Layer } from "effect";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import * as Configuration from "./Configuration.js";
-import type * as Domain from "./Domain.js";
+import * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
+
+const $I = $DocgenId.create("Checker");
 
 const makeError = (
   source: Parser.SourceShape,
@@ -18,10 +22,15 @@ const makeError = (
   return [message(source.sourceFile.getFilePath(), frame)];
 };
 
-type Entry = {
-  readonly doc: Domain.Doc;
-  readonly position: Domain.Position;
-};
+class Entry extends S.Class<Entry>($I`Entry`)(
+  {
+    doc: Domain.Doc,
+    position: Domain.Position,
+  },
+  $I.annote("Entry", {
+    description: "Represents a documentation entry with associated position information",
+  })
+) {}
 
 function checkEntry(
   model: Entry,

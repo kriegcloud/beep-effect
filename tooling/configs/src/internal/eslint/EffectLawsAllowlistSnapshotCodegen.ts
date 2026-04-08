@@ -81,7 +81,7 @@ export const renderAllowlistSnapshotModule = (
  * Build and render a generated TypeScript snapshot module from JSONC input.
  *
  * @param allowlistText - Raw JSONC allowlist content.
- * @returns Effect producing generated TypeScript source.
+ * @returns Effect producing a generated TypeScript source.
  * @since 0.0.0
  * @category Utility
  */

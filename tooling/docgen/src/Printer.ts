@@ -4,8 +4,10 @@
 
 import { Effect, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
+
 import * as Configuration from "./Configuration.js";
 import type * as Domain from "./Domain.js";
 import * as Parser from "./Parser.js";
@@ -31,7 +33,7 @@ const Markdown = {
 };
 
 function replaceJSDocLinks(text: string): string {
-  return text.replace(/\{@link\s+([^\s}]+)(?:\s+([^}]+))?\}/g, (_, link, label) => `\`${Str.trim(label || link)}\``);
+  return text.replace(/\{@link\s+([^\s}]+)(?:\s+([^}]+))?}/g, (_, link, label) => `\`${Str.trim(label || link)}\``);
 }
 
 function removeFenceMetadata(markdown: string): string {
@@ -43,7 +45,7 @@ function removeFenceMetadata(markdown: string): string {
 
 const printOptionalDescription = (description: string | undefined) =>
   Effect.gen(function* () {
-    if (description === undefined) {
+    if (P.isUndefined(description)) {
       return "";
     }
 
@@ -57,7 +59,7 @@ const printOptionalDescription = (description: string | undefined) =>
   });
 
 const printArray = (title: string, values?: ReadonlyArray<string>): string => {
-  if (values === undefined || values.length === 0) {
+  if (P.isUndefined(values) || A.isReadonlyArrayEmpty(values)) {
     return "";
   }
 
@@ -121,7 +123,7 @@ const printSeesArray = (sees?: ReadonlyArray<string>): string => {
 
 const printOptionalSourceLink = (position?: Domain.Position) =>
   Effect.gen(function* () {
-    if (position === undefined) {
+    if (P.isUndefined(position)) {
       return "";
     }
 
@@ -370,7 +372,7 @@ parent: Modules
 
 /**
  * `prettier` is optional in this repo-local port; returning the markdown
- * unchanged keeps generation deterministic while avoiding another runtime
+ * unchanged keeps the generation deterministic while avoiding another runtime
  * dependency during the migration.
  *
  * @param content - Markdown content to normalize before writing.

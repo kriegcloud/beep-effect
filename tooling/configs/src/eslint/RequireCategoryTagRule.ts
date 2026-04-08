@@ -119,10 +119,7 @@ export const requireCategoryTagRule: Rule.RuleModule = {
     const checkNode = (node: Rule.Node): void => {
       const missingCategorySymbol = pipe(
         O.liftPredicate(isExportedNode)(node),
-        O.filter(
-          (exportedNode) =>
-            !A.some(getCandidateComments(context.sourceCode, exportedNode), (comment) => hasCategoryTag(comment))
-        ),
+        O.filter((exportedNode) => !A.some(getCandidateComments(context.sourceCode, exportedNode), hasCategoryTag)),
         O.map(getNodeName)
       );
 

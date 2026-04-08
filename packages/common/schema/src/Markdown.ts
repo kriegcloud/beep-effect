@@ -7,13 +7,16 @@
 
 import { $SchemaId } from "@beep/identity/packages";
 import { Effect, flow, SchemaGetter, SchemaIssue } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import type * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("Markdown");
-type MarkdownRenderOptions = Readonly<Record<string, unknown>>;
-type MarkdownHtmlRender = (content: string, options?: MarkdownRenderOptions) => unknown;
+
+type MarkdownRenderOptions = R.ReadonlyRecord<string, unknown>;
+type MarkdownHtmlRender = (content: string, options?: undefined | MarkdownRenderOptions) => unknown;
 
 const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Issue> =>
   Effect.fail(
@@ -22,10 +25,16 @@ const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Is
     })
   );
 
-const invalidMarkdownInput = (content: string, message: string): SchemaIssue.InvalidValue =>
-  new SchemaIssue.InvalidValue(O.some(content), {
-    message,
-  });
+const invalidMarkdownInput: {
+  (content: string, message: string): SchemaIssue.InvalidValue;
+  (message: string): (content: string) => SchemaIssue.InvalidValue;
+} = dual(
+  2,
+  (content: string, message: string): SchemaIssue.InvalidValue =>
+    new SchemaIssue.InvalidValue(O.some(content), {
+      message,
+    })
+);
 
 const getMarkdownHtmlRender = (): O.Option<MarkdownHtmlRender> => {
   const bunRuntime = Reflect.get(globalThis, "Bun");
