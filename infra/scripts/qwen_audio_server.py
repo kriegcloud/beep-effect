@@ -4,10 +4,10 @@ import os
 from dataclasses import dataclass
 from io import BytesIO
 from typing import Any
-from urllib.error import URLError
-from urllib.request import urlopen
+from urllib.parse import urlparse
 
 import librosa
+import requests
 import torch
 import uvicorn
 from fastapi import FastAPI, HTTPException
@@ -99,16 +99,27 @@ class QwenRuntime:
         if self.device != "cuda":
             self.model.to(self.device)
 
+    def _validate_audio_url(self, audio_url: str) -> str:
+        parsed_url = urlparse(audio_url)
+
+        if parsed_url.scheme not in {"http", "https"} or parsed_url.netloc == "":
+            raise HTTPException(
+                status_code=400,
+                detail="Audio content items must use absolute http:// or https:// audio URLs.",
+            )
+
+        return audio_url
+
     def _resolve_audio_url(self, item: dict[str, Any]) -> str:
         audio_url = item.get("audio_url")
 
         if isinstance(audio_url, str):
-            return audio_url
+            return self._validate_audio_url(audio_url)
 
         if isinstance(audio_url, dict):
             nested_url = audio_url.get("url")
             if isinstance(nested_url, str):
-                return nested_url
+                return self._validate_audio_url(nested_url)
 
         raise HTTPException(
             status_code=400,
@@ -117,11 +128,12 @@ class QwenRuntime:
 
     def _load_audio(self, audio_url: str) -> Any:
         try:
-            with urlopen(audio_url, timeout=30) as response:
-                audio_bytes = response.read()
+            response = requests.get(audio_url, timeout=(5, 30), allow_redirects=False)
+            response.raise_for_status()
+            audio_bytes = response.content
 
             return librosa.load(BytesIO(audio_bytes), sr=self.processor.feature_extractor.sampling_rate)[0]
-        except (OSError, URLError, ValueError) as error:
+        except (OSError, ValueError, requests.RequestException) as error:
             raise HTTPException(
                 status_code=400,
                 detail=f"Unable to load audio content from {audio_url!r}: {error}",
