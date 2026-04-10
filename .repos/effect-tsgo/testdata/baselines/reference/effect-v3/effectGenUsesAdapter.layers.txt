@@ -1,1 +1,0 @@
-==== /.src/effectGenUsesAdapter.ts (0 layer exports) ====
