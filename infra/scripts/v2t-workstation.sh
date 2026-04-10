@@ -267,8 +267,6 @@ install_graphiti() {
     return 0
   fi
 
-  install_system
-
   if [[ -z "${V2T_GRAPHITI_OPENAI_API_KEY:-}" ]]; then
     die "graphiti is enabled but V2T_GRAPHITI_OPENAI_API_KEY was not provided"
   fi
@@ -352,7 +350,6 @@ wait_for_qwen_health() {
 }
 
 install_qwen() {
-  install_system
   run_as_target_user mkdir -p "$QWEN_STATE_DIR" "$QWEN_CACHE_DIR"
 
   if [[ ! -x "${QWEN_VENV_DIR}/bin/python" ]]; then
@@ -398,8 +395,6 @@ uninstall_qwen() {
 }
 
 build_app() {
-  install_system
-
   run_as_target_user bash -lc "cd '${REPO_ROOT}' && bun install --frozen-lockfile"
   run_as_target_user bash -lc "cd '${REPO_ROOT}' && { source \"\$HOME/.cargo/env\" >/dev/null 2>&1 || true; } && bun run --cwd apps/V2T build:native"
 

@@ -5,11 +5,43 @@ import { pathToFileURL } from "node:url";
 import { LocalWorkspace } from "@pulumi/pulumi/automation";
 
 const createFixtureRepo = async (repoRoot) => {
-  await mkdir(join(repoRoot, "apps/V2T"), { recursive: true });
-  await mkdir(join(repoRoot, "packages/VT2"), { recursive: true });
+  await mkdir(join(repoRoot, "apps/V2T/scripts"), { recursive: true });
+  await mkdir(join(repoRoot, "apps/V2T/src"), { recursive: true });
+  await mkdir(join(repoRoot, "apps/V2T/src-tauri/capabilities"), { recursive: true });
+  await mkdir(join(repoRoot, "apps/V2T/src-tauri/icons"), { recursive: true });
+  await mkdir(join(repoRoot, "apps/V2T/src-tauri/src"), { recursive: true });
+  await mkdir(join(repoRoot, "packages/VT2/src"), { recursive: true });
+  await writeFile(join(repoRoot, ".npmrc"), "@buf:registry=https://buf.build/gen/npm/v1/\n");
+  await writeFile(join(repoRoot, "package.json"), '{\n  "name": "@fixture/root"\n}\n');
+  await writeFile(
+    join(repoRoot, "apps/V2T/components.json"),
+    '{\n  "$schema": "https://ui.shadcn.com/schema.json"\n}\n'
+  );
+  await writeFile(join(repoRoot, "apps/V2T/index.html"), "<!doctype html>\n");
   await writeFile(join(repoRoot, "apps/V2T/package.json"), '{\n  "name": "@fixture/v2t"\n}\n');
+  await writeFile(join(repoRoot, "apps/V2T/postcss.config.mjs"), "export default {};\n");
+  await writeFile(join(repoRoot, "apps/V2T/scripts/build-sidecar.ts"), "export {};\n");
+  await writeFile(join(repoRoot, "apps/V2T/src/main.tsx"), "export {};\n");
+  await writeFile(
+    join(repoRoot, "apps/V2T/src-tauri/Cargo.toml"),
+    '[package]\nname = "fixture-v2t"\nversion = "0.0.0"\n'
+  );
+  await writeFile(join(repoRoot, "apps/V2T/src-tauri/build.rs"), "fn main() {}\n");
+  await writeFile(join(repoRoot, "apps/V2T/src-tauri/capabilities/default.json"), '{\n  "permissions": []\n}\n');
+  await writeFile(join(repoRoot, "apps/V2T/src-tauri/icons/icon.png"), "fixture-icon\n");
+  await writeFile(join(repoRoot, "apps/V2T/src-tauri/src/main.rs"), "fn main() {}\n");
+  await writeFile(join(repoRoot, "apps/V2T/src-tauri/tauri.conf.json"), '{\n  "build": {}\n}\n');
+  await writeFile(join(repoRoot, "apps/V2T/tsconfig.build.json"), '{\n  "extends": "../../tsconfig.base.json"\n}\n');
+  await writeFile(join(repoRoot, "apps/V2T/tsconfig.json"), '{\n  "extends": "../../tsconfig.base.json"\n}\n');
+  await writeFile(join(repoRoot, "apps/V2T/turbo.json"), '{\n  "$schema": "https://turbo.build/schema.json"\n}\n');
+  await writeFile(join(repoRoot, "apps/V2T/vite.config.ts"), "export default {};\n");
   await writeFile(join(repoRoot, "packages/VT2/package.json"), '{\n  "name": "@fixture/VT2"\n}\n');
+  await writeFile(join(repoRoot, "packages/VT2/src/index.ts"), "export {};\n");
+  await writeFile(join(repoRoot, "packages/VT2/tsconfig.json"), '{\n  "extends": "../../tsconfig.base.json"\n}\n');
+  await writeFile(join(repoRoot, "packages/VT2/turbo.json"), '{\n  "$schema": "https://turbo.build/schema.json"\n}\n');
+  await writeFile(join(repoRoot, "bunfig.toml"), '[install]\nlinker = "hoisted"\n');
   await writeFile(join(repoRoot, "bun.lock"), "fixture-lock\n");
+  await writeFile(join(repoRoot, "tsconfig.base.json"), '{\n  "compilerOptions": {}\n}\n');
 };
 
 const createFixtureInstallerScript = async (filePath) => {
@@ -18,6 +50,7 @@ set -euo pipefail
 
 action="\${1:-}"
 log_path="\${BEEP_FIXTURE_LOG_PATH:?}"
+repo_root="\${V2T_REPO_ROOT:?}"
 
 printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \
   "$action" \
@@ -27,6 +60,10 @@ printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \
   "\${V2T_GRAPHITI_ENABLED:-}" >> "$log_path"
 
 if [[ "$action" == "build-app" ]]; then
+  mkdir -p "\${repo_root}/apps/V2T/src-tauri/target/release/bundle/deb"
+  printf 'fixture-deb\n' > "\${repo_root}/apps/V2T/src-tauri/target/release/bundle/deb/fixture.deb"
+  mkdir -p "\${repo_root}/packages/VT2/dist"
+  printf 'export {};\n' > "\${repo_root}/packages/VT2/dist/index.js"
   printf 'fixture-package\\n'
 fi
 `;

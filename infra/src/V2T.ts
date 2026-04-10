@@ -35,6 +35,37 @@ const resolveQwenServerScriptPath = () =>
 const makeManagedStateDir = (targetHomeDir: string, name: "graphiti" | "qwen") =>
   `${targetHomeDir}/${V2TManagedStateRelativeDir}/${name}`;
 
+type TriggerAsset = pulumi.asset.Asset | pulumi.asset.Archive;
+
+const makeTriggerPath = (rootPath: string, relativePath: string): string =>
+  relativePath.length === 0 ? rootPath : `${rootPath}/${relativePath}`;
+
+const makeSourceArchiveTrigger = (
+  rootPath: string,
+  directories: ReadonlyArray<string>,
+  files: ReadonlyArray<string>
+): pulumi.asset.AssetArchive =>
+  new pulumi.asset.AssetArchive({
+    ...Object.fromEntries(
+      directories.map(
+        (relativePath) =>
+          [relativePath, new pulumi.asset.FileArchive(makeTriggerPath(rootPath, relativePath))] satisfies readonly [
+            string,
+            TriggerAsset,
+          ]
+      )
+    ),
+    ...Object.fromEntries(
+      files.map(
+        (relativePath) =>
+          [relativePath, new pulumi.asset.FileAsset(makeTriggerPath(rootPath, relativePath))] satisfies readonly [
+            string,
+            TriggerAsset,
+          ]
+      )
+    ),
+  });
+
 type V2TNormalizationOptions = {
   readonly graphitiSecretPresent?: boolean;
 };
@@ -401,6 +432,35 @@ export class V2TWorkstation extends pulumi.ComponentResource {
       new pulumi.asset.FileAsset(installerScriptPath),
       new pulumi.asset.FileAsset(qwenServerScriptPath),
     ];
+    const appBuildSourceTriggers = [
+      makeSourceArchiveTrigger(
+        resolvedConfig.repoRoot,
+        [],
+        [".npmrc", "bun.lock", "bunfig.toml", "package.json", "tsconfig.base.json"]
+      ),
+      makeSourceArchiveTrigger(
+        `${resolvedConfig.repoRoot}/apps/V2T`,
+        ["scripts", "src", "src-tauri/capabilities", "src-tauri/icons", "src-tauri/src"],
+        [
+          "components.json",
+          "index.html",
+          "package.json",
+          "postcss.config.mjs",
+          "src-tauri/Cargo.toml",
+          "src-tauri/build.rs",
+          "src-tauri/tauri.conf.json",
+          "tsconfig.build.json",
+          "tsconfig.json",
+          "turbo.json",
+          "vite.config.ts",
+        ]
+      ),
+      makeSourceArchiveTrigger(
+        `${resolvedConfig.repoRoot}/packages/VT2`,
+        ["src"],
+        ["package.json", "tsconfig.json", "turbo.json"]
+      ),
+    ];
 
     const preflight = new local.Command(
       `${name}-preflight`,
@@ -491,14 +551,7 @@ export class V2TWorkstation extends pulumi.ComponentResource {
         dir: resolvedConfig.repoRoot,
         environment: baseEnvironment,
         interpreter: ["/usr/bin/env", "bash", "-c"],
-        triggers: [
-          ...baseTriggers,
-          new pulumi.asset.FileArchive(`${resolvedConfig.repoRoot}/apps/V2T`),
-          new pulumi.asset.FileArchive(`${resolvedConfig.repoRoot}/packages/VT2`),
-          new pulumi.asset.FileAsset(`${resolvedConfig.repoRoot}/bun.lock`),
-          new pulumi.asset.FileAsset(`${resolvedConfig.repoRoot}/apps/V2T/package.json`),
-          new pulumi.asset.FileAsset(`${resolvedConfig.repoRoot}/packages/VT2/package.json`),
-        ],
+        triggers: [...baseTriggers, ...appBuildSourceTriggers],
       },
       {
         ...commandOptions,
