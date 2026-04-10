@@ -141,7 +141,15 @@
       "@beep/editor-runtime": ["./packages/editor/runtime/src/index.ts"],
       "@beep/editor-runtime/*": ["./packages/editor/runtime/src/*"],
       "@beep/VT2": ["./packages/VT2/src/index.ts"],
-      "@beep/VT2/*": ["./packages/VT2/src/*"]
+      "@beep/VT2/*": [
+        "./packages/VT2/src/*"
+      ],
+      "@beep/infra": [
+        "./infra/src/index.ts"
+      ],
+      "@beep/infra/*": [
+        "./infra/src/*"
+      ]
     },
     "plugins": [
       {
