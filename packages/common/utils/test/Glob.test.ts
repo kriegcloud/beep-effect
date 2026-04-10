@@ -32,11 +32,15 @@ const acquireFixture = Effect.promise<Fixture>(async () => {
   };
 });
 
-const runGlob = (pattern: Pattern, options?: undefined | GlobOptions) =>
-  Effect.gen(function* () {
-    const glob = yield* GlobService;
-    return yield* glob.glob(pattern, options);
-  }).pipe(Effect.provide(platformLayer));
+const runGlob = Effect.fn("GlobTest.runGlob")((pattern: Pattern, options?: undefined | GlobOptions) =>
+  Effect.provide(
+    Effect.gen(function* () {
+      const glob = yield* GlobService;
+      return yield* glob.glob(pattern, options);
+    }),
+    platformLayer
+  )
+);
 
 type GlobProgram = ReturnType<typeof runGlob>;
 

@@ -180,8 +180,8 @@ export const CurrencyCodeDataValues = ${renderedValues} as const;
 `;
 };
 
-const projectIso4217Document: SyncDataTarget["project"] = (document) =>
-  Effect.gen(function* () {
+const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToTs.Iso4217.projectIso4217Document")(
+  function* (document) {
     const decoded = yield* S.decodeUnknownEffect(Iso4217Document)(document).pipe(
       Effect.mapError((cause) =>
         SyncDataToTsError.new({
@@ -270,7 +270,8 @@ const projectIso4217Document: SyncDataTarget["project"] = (document) =>
     };
 
     return projection;
-  });
+  }
+);
 
 /**
  * Checked-in sync target for the official SIX ISO 4217 List One XML feed.

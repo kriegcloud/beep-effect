@@ -16,9 +16,9 @@ canonical spec package.
    for a good fact search result.
 7. If the wrapper exposes `group_ids` as a string, use the JSON array literal
    string `"[\"beep-dev\"]"`.
-8. If Graphiti is unavailable or recall fails, continue with repo-local docs,
-   code search, and the checked-in `.codex` guidance instead of blocking the
-   phase.
+8. If Graphiti is unavailable or recall still fails after the episode fallback,
+   continue with repo-local docs, code search, and the checked-in `.codex`
+   guidance instead of blocking the phase.
 
 ## Recall Recipe
 
@@ -31,7 +31,7 @@ canonical spec package.
 - Always record:
   - whether `get_status` passed
   - the exact recall query or queries attempted
-  - whether `get_episodes` was attempted and whether it was useful
+  - whether `get_episodes` was attempted and what it returned
   - the exact error text when recall fails
   - whether the result was useful, partially useful, or unusable
   - whether the session used the documented repo-local fallback

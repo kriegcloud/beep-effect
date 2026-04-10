@@ -35,13 +35,14 @@ instead of treating this section as a second ordered source:
 - `../../../../standards/effect-first-development.md`
 - `../../../../standards/schema-first.inventory.jsonc`
 - `../../../../tooling/configs/src/eslint/SchemaFirstRule.ts`
+- `../../../../infra/package.json`
 - `../../../../apps/V2T/package.json`
 - `../../../../packages/VT2/package.json`
 - `../prompts/ORCHESTRATOR_OPERATING_MODEL.md`
 - `../prompts/GRAPHITI_MEMORY_PROTOCOL.md`
 - `../prompts/PHASE_DELEGATION_PROMPTS.md`
 - the current phase output
-- the relevant repo seams in `apps/V2T` and `packages/VT2`
+- the relevant repo seams in `apps/V2T`, `packages/VT2`, and `infra` when installer or deployment truth matters
 - preserved raw inputs under `outputs/` only when deeper evidence is needed
 - the current phase handoff and matching phase orchestrator prompt
 
@@ -64,7 +65,7 @@ them from prose.
 - Preserve the exact root-level phase artifact names already locked in the package.
 - Use the current `apps/V2T` plus `packages/VT2` shell-and-sidecar pair unless a phase artifact explicitly documents a migration.
 - Verify workspace identity from the manifests before writing Turbo filter
-  commands. The current names are `@beep/v2t` and `@beep/VT2`.
+  commands. The current names are `@beep/infra`, `@beep/v2t`, and `@beep/VT2`.
 - Do not invent an app-local server path when the existing `@beep/VT2` control plane can carry the slice.
 - Preserve the raw PRD and legacy notes under `outputs/`.
 - Enforce the conformance matrix from `README.md`; do not claim a gate passed without recording the concrete command result.

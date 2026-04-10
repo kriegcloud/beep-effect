@@ -32,42 +32,36 @@ class Entry extends S.Class<Entry>($I`Entry`)(
   })
 ) {}
 
-function checkEntry(
+const checkEntry = Effect.fn("checkEntry")(function* (
   model: Entry,
   options: {
     readonly enforceVersion: boolean;
   }
 ) {
-  return Effect.gen(function* () {
-    const source = yield* Parser.Source;
-    const config = yield* Configuration.Configuration;
-    let errors: Array<string> = [];
+  const source = yield* Parser.Source;
+  const config = yield* Configuration.Configuration;
+  let errors: Array<string> = [];
 
-    if (config.enforceDescriptions && model.doc.description === undefined) {
-      errors = errors.concat(
-        makeError(source, model.position, (filePath, frame) => `Missing description in file ${filePath}:\n\n${frame}`)
-      );
-    }
+  if (config.enforceDescriptions && model.doc.description === undefined) {
+    errors = errors.concat(
+      makeError(source, model.position, (filePath, frame) => `Missing description in file ${filePath}:\n\n${frame}`)
+    );
+  }
 
-    if (config.enforceExamples && model.doc.examples.length === 0) {
-      errors = errors.concat(
-        makeError(source, model.position, (filePath, frame) => `Missing examples in file ${filePath}:\n\n${frame}`)
-      );
-    }
+  if (config.enforceExamples && model.doc.examples.length === 0) {
+    errors = errors.concat(
+      makeError(source, model.position, (filePath, frame) => `Missing examples in file ${filePath}:\n\n${frame}`)
+    );
+  }
 
-    if (config.enforceVersion && options.enforceVersion && model.doc.since.length === 0) {
-      errors = errors.concat(
-        makeError(
-          source,
-          model.position,
-          (filePath, frame) => `Missing \`@since\` tag in file ${filePath}:\n\n${frame}`
-        )
-      );
-    }
+  if (config.enforceVersion && options.enforceVersion && model.doc.since.length === 0) {
+    errors = errors.concat(
+      makeError(source, model.position, (filePath, frame) => `Missing \`@since\` tag in file ${filePath}:\n\n${frame}`)
+    );
+  }
 
-    return errors;
-  });
-}
+  return errors;
+});
 
 function checkEntries(
   models: ReadonlyArray<Entry>,
@@ -94,15 +88,13 @@ export function checkFunctions(models: ReadonlyArray<Domain.Function>) {
   return Effect.forEach(models, checkFunction).pipe(Effect.map(A.flatten));
 }
 
-function checkClass(model: Domain.Class) {
-  return Effect.gen(function* () {
-    const docErrors = yield* checkEntry(model, { enforceVersion: true });
-    const staticMethodsErrors = yield* checkEntries(model.staticMethods, { enforceVersion: false });
-    const methodsErrors = yield* checkEntries(model.methods, { enforceVersion: false });
-    const propertiesErrors = yield* checkEntries(model.properties, { enforceVersion: false });
-    return A.flatten([docErrors, staticMethodsErrors, methodsErrors, propertiesErrors]);
-  });
-}
+const checkClass = Effect.fn("checkClass")(function* (model: Domain.Class) {
+  const docErrors = yield* checkEntry(model, { enforceVersion: true });
+  const staticMethodsErrors = yield* checkEntries(model.staticMethods, { enforceVersion: false });
+  const methodsErrors = yield* checkEntries(model.methods, { enforceVersion: false });
+  const propertiesErrors = yield* checkEntries(model.properties, { enforceVersion: false });
+  return A.flatten([docErrors, staticMethodsErrors, methodsErrors, propertiesErrors]);
+});
 
 /**
  * Checks documented classes and their members for required docgen annotations.

@@ -113,44 +113,44 @@ const logAggregateResults = Effect.fn(function* (results: ReadonlyArray<DocgenAg
   }
 });
 
-const resolveGenerateTargets = (selector: O.Option<string>) =>
-  Effect.gen(function* () {
-    if (O.isSome(selector)) {
-      const target = yield* resolveDocgenWorkspacePackage(selector.value);
-      if (!target.hasDocgenConfig) {
-        return yield* new DomainError({
-          message: `${target.relativePath} is missing docgen.json. Run "bun run beep docgen init -p ${target.relativePath}" first.`,
-        });
-      }
-      return [target] as const;
-    }
-
-    return yield* discoverDocgenWorkspacePackages().pipe(
-      Effect.map((packages) => packages.filter((pkg) => pkg.hasDocgenConfig))
-    );
-  });
-
-const resolveAnalyzeTargets = (selector: O.Option<string>) =>
-  Effect.gen(function* () {
-    if (O.isSome(selector)) {
-      return [yield* resolveDocgenWorkspacePackage(selector.value)] as const;
-    }
-
-    return yield* discoverDocgenWorkspacePackages().pipe(
-      Effect.map((packages) => packages.filter((pkg) => pkg.hasDocgenConfig))
-    );
-  });
-
-const resolveAggregateSelector = (packageSelector: O.Option<string>, filterSelector: O.Option<string>) =>
-  Effect.gen(function* () {
-    if (O.isSome(packageSelector) && O.isSome(filterSelector) && packageSelector.value !== filterSelector.value) {
+const resolveGenerateTargets = Effect.fn("Docgen.resolveGenerateTargets")(function* (selector: O.Option<string>) {
+  if (O.isSome(selector)) {
+    const target = yield* resolveDocgenWorkspacePackage(selector.value);
+    if (!target.hasDocgenConfig) {
       return yield* new DomainError({
-        message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
+        message: `${target.relativePath} is missing docgen.json. Run "bun run beep docgen init -p ${target.relativePath}" first.`,
       });
     }
+    return [target] as const;
+  }
 
-    return O.isSome(packageSelector) ? packageSelector : filterSelector;
-  });
+  return yield* discoverDocgenWorkspacePackages().pipe(
+    Effect.map((packages) => packages.filter((pkg) => pkg.hasDocgenConfig))
+  );
+});
+
+const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function* (selector: O.Option<string>) {
+  if (O.isSome(selector)) {
+    return [yield* resolveDocgenWorkspacePackage(selector.value)] as const;
+  }
+
+  return yield* discoverDocgenWorkspacePackages().pipe(
+    Effect.map((packages) => packages.filter((pkg) => pkg.hasDocgenConfig))
+  );
+});
+
+const resolveAggregateSelector = Effect.fn("Docgen.resolveAggregateSelector")(function* (
+  packageSelector: O.Option<string>,
+  filterSelector: O.Option<string>
+) {
+  if (O.isSome(packageSelector) && O.isSome(filterSelector) && packageSelector.value !== filterSelector.value) {
+    return yield* new DomainError({
+      message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
+    });
+  }
+
+  return O.isSome(packageSelector) ? packageSelector : filterSelector;
+});
 
 const docgenInitCommand = Command.make(
   "init",

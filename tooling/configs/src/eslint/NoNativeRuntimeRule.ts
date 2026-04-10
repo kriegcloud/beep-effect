@@ -34,6 +34,7 @@ const OBJECT_METHODS = HashSet.fromIterable([
 const DATE_METHODS = HashSet.fromIterable(["now", "parse", "UTC"]);
 const ARRAY_STATIC_METHODS = HashSet.fromIterable(["from", "isArray", "of"]);
 const MAP_SET_CTORS = HashSet.fromIterable(["Map", "Set", "WeakMap", "WeakSet"]);
+const NATIVE_ERROR_CTORS = HashSet.fromIterable(["Error"]);
 const NODE_RUNTIME_IMPORTS = HashSet.fromIterable(["node:fs", "node:path", "node:child_process"]);
 const STRING_METHODS = HashSet.fromIterable(["split", "trim", "startsWith", "endsWith"]);
 const EQUALITY_OPERATORS = HashSet.fromIterable(["===", "==", "!==", "!="]);
@@ -76,6 +77,11 @@ class MemberExpressionIdentifierAccess extends S.Class<MemberExpressionIdentifie
   computed: S.Literal(false),
   object: IdentifierNode,
   property: IdentifierNode,
+}) {}
+
+class NewExpressionMemberCallee extends S.Class<NewExpressionMemberCallee>("NewExpressionMemberCallee")({
+  type: S.tag("NewExpression"),
+  callee: MemberExpressionIdentifierAccess,
 }) {}
 
 class CallExpressionIdentifierCallee extends S.Class<CallExpressionIdentifierCallee>("CallExpressionIdentifierCallee")({
@@ -125,6 +131,7 @@ const RuntimeViolationOption = S.Option(RuleViolationPayload);
 type RuntimeViolationOption = (typeof RuntimeViolationOption)["Type"];
 
 const decodeNewExpressionIdentifierCallee = S.decodeUnknownOption(NewExpressionIdentifierCallee);
+const decodeNewExpressionMemberCallee = S.decodeUnknownOption(NewExpressionMemberCallee);
 const decodeIdentifierCalleeCallExpression = S.decodeUnknownOption(CallExpressionIdentifierCallee);
 const decodeMemberCalleeCallExpression = S.decodeUnknownOption(CallExpressionMemberCallee);
 const decodeUnaryTypeofExpression = S.decodeUnknownOption(UnaryTypeofExpression);
@@ -185,6 +192,28 @@ const detectNativeFetchViolation = (
 const MemberCall = S.Tuple([S.String, S.String]);
 type MemberCall = (typeof MemberCall)["Type"];
 
+const detectNativeErrorCallViolation = (observation: CallExpressionObservation): O.Option<RuleViolationPayload> =>
+  firstSome(
+    A.make(
+      pipe(
+        observation.identifierCalleeName,
+        O.filter((constructorName) => HashSet.has(NATIVE_ERROR_CTORS, constructorName)),
+        O.map((ctor) => makeRuleViolationPayload("native-error", "nativeError", { ctor }))
+      ),
+      pipe(
+        O.zipWith(
+          observation.memberObjectName,
+          observation.memberPropertyName,
+          (objectName, propertyName): MemberCall => [objectName, propertyName]
+        ),
+        O.filter(
+          ([objectName, propertyName]) => objectName === "globalThis" && HashSet.has(NATIVE_ERROR_CTORS, propertyName)
+        ),
+        O.map(([, ctor]) => makeRuleViolationPayload("native-error", "nativeError", { ctor }))
+      )
+    )
+  );
+
 const detectMemberCallViolation = (
   observation: CallExpressionObservation,
   inHotspotScope: boolean
@@ -242,6 +271,7 @@ const CallExpressionObservationAndScopeToViolation = CallExpressionObservationAn
       Effect.succeed(
         firstSome(
           A.make(
+            detectNativeErrorCallViolation(observation),
             detectNativeFetchViolation(observation, inHotspotScope),
             detectMemberCallViolation(observation, inHotspotScope)
           )
@@ -282,6 +312,10 @@ const ConstructorNameToViolation = S.String.pipe(
             pipe(
               O.liftPredicate(Eq.equals("Date"))(constructorName),
               O.map(() => makeRuleViolationPayload("new-date", "newDate"))
+            ),
+            pipe(
+              O.liftPredicate((name: string) => HashSet.has(NATIVE_ERROR_CTORS, name))(constructorName),
+              O.map((ctor) => makeRuleViolationPayload("native-error", "nativeError", { ctor }))
             )
           )
         )
@@ -299,8 +333,36 @@ const ConstructorNameToViolation = S.String.pipe(
 
 const decodeConstructorNameViolation = S.decodeUnknownOption(ConstructorNameToViolation);
 
-const resolveNewExpressionViolation = (constructorName: string): O.Option<RuleViolation> =>
+const resolveConstructorNameViolation = (constructorName: string): O.Option<RuleViolation> =>
   pipe(decodeConstructorNameViolation(constructorName), O.flatten, O.map(toRuleViolation));
+
+const resolveGlobalNativeErrorMemberViolation = (node: unknown): O.Option<RuleViolation> =>
+  pipe(
+    decodeNewExpressionMemberCallee(node),
+    O.map(Struct.get("callee")),
+    O.filter(({ object, property }) => object.name === "globalThis" && HashSet.has(NATIVE_ERROR_CTORS, property.name)),
+    O.map(({ property }) => makeRuleViolation("native-error", "nativeError", { ctor: property.name }))
+  );
+
+const resolveGlobalNativeErrorCallViolation = (node: unknown): O.Option<RuleViolation> =>
+  pipe(
+    decodeMemberCalleeCallExpression(node),
+    O.map(Struct.get("callee")),
+    O.filter(({ object, property }) => object.name === "globalThis" && HashSet.has(NATIVE_ERROR_CTORS, property.name)),
+    O.map(({ property }) => makeRuleViolation("native-error", "nativeError", { ctor: property.name }))
+  );
+
+const resolveNewExpressionViolation = (node: unknown): O.Option<RuleViolation> =>
+  firstSome(
+    A.make(
+      pipe(
+        decodeNewExpressionIdentifierCallee(node),
+        O.map(Struct.dotGet("callee.name")),
+        O.flatMap(resolveConstructorNameViolation)
+      ),
+      resolveGlobalNativeErrorMemberViolation(node)
+    )
+  );
 
 const hasTypeofRuntimeLiteralComparison = (observation: TypeofComparisonObservation): boolean =>
   pipe(
@@ -351,7 +413,8 @@ export const noNativeRuntimeRule: Rule.RuleModule = {
   meta: {
     type: "problem",
     docs: {
-      description: "Disallow native Object/Map/Set/Date runtime APIs and runtime typeof checks in domain logic",
+      description:
+        "Disallow native Error/Object/Map/Set/Date runtime APIs and runtime typeof checks in production code",
       recommended: false,
     },
     schema: [],
@@ -360,6 +423,7 @@ export const noNativeRuntimeRule: Rule.RuleModule = {
       objectMethod: "Avoid Object.{{method}} in domain logic. Use Effect modules or add an allowlist entry.",
       mapSetCtor: "Avoid new {{ctor}} in domain logic. Use Effect HashMap/HashSet variants or add an allowlist entry.",
       newDate: "Avoid new Date() in domain logic. Use Effect DateTime/Clock or add an allowlist entry.",
+      nativeError: "Avoid native {{ctor}} in production code. Use TaggedErrorClass or add an allowlist entry.",
       dateStatic: "Avoid Date.{{method}} in domain logic. Use Effect DateTime/Clock or add an allowlist entry.",
       arrayStatic: "Avoid Array.{{method}} in domain logic. Use effect/Array helpers or add an allowlist entry.",
       typeofRuntime: "Avoid runtime typeof checks. Use effect/Predicate guards (for example P.isString).",
@@ -404,9 +468,7 @@ export const noNativeRuntimeRule: Rule.RuleModule = {
         const onSome = reportViolationIfNeeded(node);
         const onNone = thunkUndefined;
         pipe(
-          decodeNewExpressionIdentifierCallee(node),
-          O.map(Struct.dotGet("callee.name")),
-          O.flatMap(resolveNewExpressionViolation),
+          resolveNewExpressionViolation(node),
           O.match({
             onNone,
             onSome,
@@ -417,8 +479,12 @@ export const noNativeRuntimeRule: Rule.RuleModule = {
         const onSome = reportViolationIfNeeded(node);
         const onNone = thunkUndefined;
         pipe(
-          decodeCallExpressionObservation(node),
-          O.flatMap(resolveCallExpressionViolation(inHotspotScope)),
+          firstSome(
+            A.make(
+              resolveGlobalNativeErrorCallViolation(node),
+              pipe(decodeCallExpressionObservation(node), O.flatMap(resolveCallExpressionViolation(inHotspotScope)))
+            )
+          ),
           O.match({
             onNone,
             onSome,

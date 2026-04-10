@@ -725,898 +725,918 @@ const makeGroundedRetrievalService = Effect.fn("GroundedRetrieval.make")(functio
         query_kind: grounding.queryKind,
       });
 
+      const countFiles = Effect.fn("GroundedRetrieval.countFiles")(function* () {
+        const fileCount = yield* mapStoreError(store.countSourceFiles(grounding.repoId, sourceSnapshotId));
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Counted indexed TypeScript source files for snapshot ${sourceSnapshotId}.`,
+          citations: A.empty(),
+          notes: withGroundingNotes(A.make(`countFiles=${fileCount}`)),
+          payload: new RetrievalCountPayload({
+            target: "files",
+            count: decodeNonNegativeInt(fileCount),
+          }),
+        });
+      });
+      const countSymbols = Effect.fn("GroundedRetrieval.countSymbols")(function* () {
+        const symbolCount = yield* mapStoreError(store.listSymbolRecords(grounding.repoId, sourceSnapshotId)).pipe(
+          Effect.map(A.length)
+        );
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Counted indexed TypeScript symbols for snapshot ${sourceSnapshotId}.`,
+          citations: A.empty(),
+          notes: withGroundingNotes(A.make(`countSymbols=${symbolCount}`)),
+          payload: new RetrievalCountPayload({
+            target: "symbols",
+            count: decodeNonNegativeInt(symbolCount),
+          }),
+        });
+      });
+      const locateSymbol = Effect.fn("GroundedRetrieval.locateSymbol")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "locateSymbol" }>
+      ) {
+        const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("locateSymbol=no-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              note: "locateSymbol=no-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              candidates: symbolCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const symbol = selection.match;
+        const citations = normalizeCitations(A.make(symbolCitation(symbol)));
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Located symbol "${symbol.symbolName}" from indexed symbol records.`,
+          citations,
+          notes: withGroundingNotes(A.appendAll(A.make(`symbolId=${symbol.symbolId}`), selection.nlpNotes)),
+          payload: symbolDetailPayload(symbol, "location"),
+        });
+      });
+      const describeSymbol = Effect.fn("GroundedRetrieval.describeSymbol")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "describeSymbol" }>
+      ) {
+        const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("describeSymbol=no-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              note: "describeSymbol=no-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              candidates: symbolCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const symbol = selection.match;
+        const citations = O.isSome(symbol.documentation)
+          ? documentationCitations(symbol, { includeDeclaration: true })
+          : normalizeCitations(A.make(symbolCitation(symbol)));
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: O.isSome(symbol.documentation)
+            ? `Described symbol "${symbol.symbolName}" from its indexed declaration and JSDoc semantics.`
+            : `Described symbol "${symbol.symbolName}" from its indexed declaration because no JSDoc semantics were captured.`,
+          citations,
+          notes: withGroundingNotes(
+            A.appendAll(
+              A.make(`signature=${symbol.signature}`, `documentation=${O.isSome(symbol.documentation)}`),
+              selection.nlpNotes
+            )
+          ),
+          payload: symbolDetailPayload(symbol, "description"),
+        });
+      });
+      const symbolParams = Effect.fn("GroundedRetrieval.symbolParams")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "symbolParams" }>
+      ) {
+        const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("symbolParams=no-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              note: "symbolParams=no-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              candidates: symbolCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const symbol = selection.match;
+        const citations = O.isSome(symbol.documentation)
+          ? documentationCitations(symbol)
+          : normalizeCitations(A.make(symbolCitation(symbol)));
+        const notes = O.isSome(symbol.documentation)
+          ? A.appendAll(A.make(`paramCount=${A.length(symbol.documentation.value.params)}`), selection.nlpNotes)
+          : A.appendAll(A.make("symbolParams=no-documentation"), selection.nlpNotes);
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: O.isSome(symbol.documentation)
+            ? `Returned documented parameters for symbol "${symbol.symbolName}".`
+            : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
+          citations,
+          notes: withGroundingNotes(notes),
+          payload: symbolDetailPayload(symbol, "params"),
+        });
+      });
+      const symbolReturns = Effect.fn("GroundedRetrieval.symbolReturns")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "symbolReturns" }>
+      ) {
+        const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("symbolReturns=no-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              note: "symbolReturns=no-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              candidates: symbolCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const symbol = selection.match;
+        const citations = O.isSome(symbol.documentation)
+          ? documentationCitations(symbol)
+          : normalizeCitations(A.make(symbolCitation(symbol)));
+        const notes = O.isSome(symbol.documentation)
+          ? A.appendAll(A.make(`hasReturns=${O.isSome(symbol.documentation.value.returns)}`), selection.nlpNotes)
+          : A.appendAll(A.make("symbolReturns=no-documentation"), selection.nlpNotes);
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: O.isSome(symbol.documentation)
+            ? `Returned documented return semantics for symbol "${symbol.symbolName}".`
+            : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
+          citations,
+          notes: withGroundingNotes(notes),
+          payload: symbolDetailPayload(symbol, "returns"),
+        });
+      });
+      const symbolThrows = Effect.fn("GroundedRetrieval.symbolThrows")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "symbolThrows" }>
+      ) {
+        const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("symbolThrows=no-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              note: "symbolThrows=no-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              candidates: symbolCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const symbol = selection.match;
+        const citations = O.isSome(symbol.documentation)
+          ? documentationCitations(symbol)
+          : normalizeCitations(A.make(symbolCitation(symbol)));
+        const notes = O.isSome(symbol.documentation)
+          ? A.appendAll(A.make(`throwCount=${A.length(symbol.documentation.value.throws)}`), selection.nlpNotes)
+          : A.appendAll(A.make("symbolThrows=no-documentation"), selection.nlpNotes);
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: O.isSome(symbol.documentation)
+            ? `Returned documented throw semantics for symbol "${symbol.symbolName}".`
+            : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
+          citations,
+          notes: withGroundingNotes(notes),
+          payload: symbolDetailPayload(symbol, "throws"),
+        });
+      });
+      const symbolDeprecation = Effect.fn("GroundedRetrieval.symbolDeprecation")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "symbolDeprecation" }>
+      ) {
+        const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("symbolDeprecation=no-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              note: "symbolDeprecation=no-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              candidates: symbolCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const symbol = selection.match;
+        const citations = O.isSome(symbol.documentation)
+          ? documentationCitations(symbol)
+          : normalizeCitations(A.make(symbolCitation(symbol)));
+        const notes = O.isSome(symbol.documentation)
+          ? A.appendAll(A.make(`deprecated=${symbol.documentation.value.isDeprecated}`), selection.nlpNotes)
+          : A.appendAll(A.make("symbolDeprecation=no-documentation"), selection.nlpNotes);
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: O.isSome(symbol.documentation)
+            ? `Returned deprecation documentation for symbol "${symbol.symbolName}".`
+            : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
+          citations,
+          notes: withGroundingNotes(notes),
+          payload: symbolDetailPayload(symbol, "deprecation"),
+        });
+      });
+      const listFileExports = Effect.fn("GroundedRetrieval.listFileExports")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "listFileExports" }>
+      ) {
+        const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("listFileExports=no-file-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              note: "listFileExports=no-file-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              candidates: fileCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const file = selection.match;
+        const symbols = yield* mapStoreError(
+          store.listExportedSymbolsForFile(grounding.repoId, sourceSnapshotId, file.filePath)
+        );
+        const citations = normalizeCitations(pipe(symbols, A.map(symbolCitation)));
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Listed exported symbols for ${file.filePath}.`,
+          citations,
+          notes: withGroundingNotes(
+            A.appendAll(A.make(`filePath=${file.filePath}`, `exportCount=${A.length(symbols)}`), selection.nlpNotes)
+          ),
+          payload: new RetrievalRelationListPayload({
+            relation: "exports",
+            subject: fileSubjectFromRecord(file),
+            items: pipe(
+              symbols,
+              A.map((symbol) => symbolSubject(symbol, A.make(symbol.symbolId)))
+            ),
+          }),
+        });
+      });
+      const listFileImports = Effect.fn("GroundedRetrieval.listFileImports")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "listFileImports" }>
+      ) {
+        const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("listFileImports=no-file-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              note: "listFileImports=no-file-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              candidates: fileCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const file = selection.match;
+        const matchingEdges = yield* mapStoreError(
+          store.listImportEdgesForImporterFile(grounding.repoId, sourceSnapshotId, file.filePath)
+        );
+        const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
+        const items = pipe(
+          matchingEdges,
+          A.map((edge) => moduleSubject(edge.moduleSpecifier, A.make(importEdgeCitation(edge).id))),
+          A.dedupeWith((left, right) => left.moduleSpecifier === right.moduleSpecifier)
+        );
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Listed import declarations captured for ${file.filePath}.`,
+          citations,
+          notes: withGroundingNotes(
+            A.appendAll(
+              A.make(`filePath=${file.filePath}`, `importCount=${A.length(matchingEdges)}`),
+              selection.nlpNotes
+            )
+          ),
+          payload: new RetrievalRelationListPayload({
+            relation: "imports",
+            subject: fileSubjectFromRecord(file),
+            items,
+          }),
+        });
+      });
+      const listFileDependencies = Effect.fn("GroundedRetrieval.listFileDependencies")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "listFileDependencies" }>
+      ) {
+        const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("listFileDependencies=no-file-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              note: "listFileDependencies=no-file-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              candidates: fileCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const file = selection.match;
+        const fileEdges = yield* mapStoreError(
+          store.listImportEdgesForImporterFile(grounding.repoId, sourceSnapshotId, file.filePath)
+        );
+        const resolvedEdges = pipe(
+          fileEdges,
+          A.filter((edge) => O.isSome(edge.resolvedTargetFilePath))
+        );
+        const citations = normalizeCitations(pipe(resolvedEdges, A.map(importEdgeCitation)));
+        const items = pipe(
+          resolvedEdges,
+          A.map((edge) => fileSubject(O.getOrThrow(edge.resolvedTargetFilePath), A.make(importEdgeCitation(edge).id))),
+          A.dedupeWith((left, right) => left.filePath === right.filePath)
+        );
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Listed repo-local resolved file dependencies for ${file.filePath}.`,
+          citations,
+          notes: withGroundingNotes(
+            A.appendAll(
+              A.make(
+                `filePath=${file.filePath}`,
+                `dependencyCount=${A.length(items)}`,
+                `unresolvedImportCount=${A.length(fileEdges) - A.length(resolvedEdges)}`
+              ),
+              selection.nlpNotes
+            )
+          ),
+          payload: new RetrievalRelationListPayload({
+            relation: "depends-on",
+            subject: fileSubjectFromRecord(file),
+            items,
+          }),
+        });
+      });
+      const listFileDependents = Effect.fn("GroundedRetrieval.listFileDependents")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "listFileDependents" }>
+      ) {
+        const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("listFileDependents=no-file-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              note: "listFileDependents=no-file-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: fileRequestedTarget(value.fileQuery),
+              candidates: fileCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const file = selection.match;
+        const matchingEdges = yield* mapStoreError(
+          store.listImportEdgesForResolvedTargetFile(grounding.repoId, sourceSnapshotId, file.filePath)
+        );
+        const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
+        const items = pipe(
+          matchingEdges,
+          A.map((edge) => fileSubject(edge.importerFilePath, A.make(importEdgeCitation(edge).id))),
+          A.dedupeWith((left, right) => left.filePath === right.filePath)
+        );
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Listed repo-local files depending on ${file.filePath}.`,
+          citations,
+          notes: withGroundingNotes(
+            A.appendAll(A.make(`filePath=${file.filePath}`, `dependentCount=${A.length(items)}`), selection.nlpNotes)
+          ),
+          payload: new RetrievalRelationListPayload({
+            relation: "depended-on-by",
+            subject: fileSubjectFromRecord(file),
+            items,
+          }),
+        });
+      });
+      const listFileImporters = Effect.fn("GroundedRetrieval.listFileImporters")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "listFileImporters" }>
+      ) {
+        const importEdges = yield* mapStoreError(store.listImportEdges(grounding.repoId, sourceSnapshotId));
+        const selection = selectImporterEdges(value.moduleQuery, importEdges);
+        const matchingEdges = selection.matches;
+        const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
+        const items = pipe(
+          matchingEdges,
+          A.map((edge) => fileSubject(edge.importerFilePath, A.make(importEdgeCitation(edge).id))),
+          A.dedupeWith((left, right) => left.filePath === right.filePath)
+        );
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Listed files importing "${value.moduleQuery}" from captured import edges.`,
+          citations,
+          notes: withGroundingNotes(
+            A.appendAll(
+              A.make(`moduleQuery=${value.moduleQuery}`, `importerCount=${A.length(items)}`),
+              selection.nlpNotes
+            )
+          ),
+          payload: new RetrievalRelationListPayload({
+            relation: "imported-by",
+            subject: moduleSubject(value.moduleQuery),
+            items,
+          }),
+        });
+      });
+      const listSymbolImporters = Effect.fn("GroundedRetrieval.listSymbolImporters")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "listSymbolImporters" }>
+      ) {
+        const selection = selectSingleMatch(yield* findMatches(value.symbolName));
+
+        if (selection.kind === "none") {
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "none",
+            summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
+            citations: A.empty(),
+            notes: withGroundingNotes(A.appendAll(A.make("listSymbolImporters=no-match"), selection.nlpNotes)),
+            issue: new RetrievalNoMatchIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              note: "listSymbolImporters=no-match",
+            }),
+          });
+        }
+
+        if (selection.kind === "ambiguous") {
+          const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
+
+          return unresolvedEvidence({
+            repoId: grounding.repoId,
+            sourceSnapshotId,
+            query: grounding.question,
+            normalizedQuery: grounding.normalizedQuery,
+            queryKind: grounding.queryKind,
+            outcome: "ambiguous",
+            summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
+            citations,
+            notes: withGroundingNotes(
+              A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
+            ),
+            issue: new RetrievalAmbiguousIssue({
+              requested: symbolRequestedTarget(value.symbolName),
+              candidates: symbolCandidates(selection.matches, selection.nlpNotes),
+            }),
+          });
+        }
+
+        const symbol = selection.match;
+        const importEdges = yield* mapStoreError(
+          store.listImportEdgesForResolvedTargetFile(grounding.repoId, sourceSnapshotId, symbol.filePath)
+        );
+        const matchingEdges = pipe(
+          importEdges,
+          A.filter((edge) => O.isSome(edge.importedName) && edge.importedName.value === symbol.symbolName)
+        );
+        const typeOnlyImporterCount = pipe(
+          matchingEdges,
+          A.filter((edge) => edge.typeOnly),
+          A.map((edge) => edge.importerFilePath),
+          A.dedupe,
+          A.length
+        );
+        const citations = normalizeCitations(
+          A.appendAll(A.make(symbolCitation(symbol)), pipe(matchingEdges, A.map(importEdgeCitation)))
+        );
+        const items = pipe(
+          matchingEdges,
+          A.map((edge) => fileSubject(edge.importerFilePath, A.make(importEdgeCitation(edge).id))),
+          A.dedupeWith((left, right) => left.filePath === right.filePath)
+        );
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Listed files importing symbol "${symbol.symbolName}" from ${symbol.filePath}.`,
+          citations,
+          notes: withGroundingNotes(
+            A.appendAll(
+              A.make(
+                `symbolName=${symbol.symbolName}`,
+                `symbolFilePath=${symbol.filePath}`,
+                `importerCount=${A.length(items)}`,
+                `typeOnlyImporterCount=${typeOnlyImporterCount}`
+              ),
+              selection.nlpNotes
+            )
+          ),
+          payload: new RetrievalRelationListPayload({
+            relation: "imported-by",
+            subject: symbolSubject(symbol, A.make(symbol.symbolId)),
+            items,
+          }),
+        });
+      });
+      const keywordSearch = Effect.fn("GroundedRetrieval.keywordSearch")(function* (
+        value: Extract<QueryInterpretation, { readonly kind: "keywordSearch" }>
+      ) {
+        const selection = yield* findKeywordMatches(value.query);
+        const matches = selection.matches;
+        const citations = normalizeCitations(pipe(matches, A.map(symbolCitation)));
+
+        return resolvedEvidence({
+          repoId: grounding.repoId,
+          sourceSnapshotId,
+          query: grounding.question,
+          normalizedQuery: grounding.normalizedQuery,
+          queryKind: grounding.queryKind,
+          summary: `Keyword search over indexed symbols using "${value.query}".`,
+          citations,
+          notes: withGroundingNotes(A.appendAll(A.make(`matchCount=${A.length(matches)}`), selection.nlpNotes)),
+          payload: new RetrievalSearchResultsPayload({
+            query: value.query,
+            items: pipe(
+              matches,
+              A.map((symbol) => symbolSubject(symbol, A.make(symbol.symbolId)))
+            ),
+          }),
+        });
+      });
+
       return yield* QueryInterpretation.match(grounding.interpretation, {
-        countFiles: () =>
-          Effect.gen(function* () {
-            const fileCount = yield* mapStoreError(store.countSourceFiles(grounding.repoId, sourceSnapshotId));
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Counted indexed TypeScript source files for snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: withGroundingNotes(A.make(`countFiles=${fileCount}`)),
-              payload: new RetrievalCountPayload({
-                target: "files",
-                count: decodeNonNegativeInt(fileCount),
-              }),
-            });
-          }),
-        countSymbols: () =>
-          Effect.gen(function* () {
-            const symbolCount = yield* mapStoreError(store.listSymbolRecords(grounding.repoId, sourceSnapshotId)).pipe(
-              Effect.map(A.length)
-            );
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Counted indexed TypeScript symbols for snapshot ${sourceSnapshotId}.`,
-              citations: A.empty(),
-              notes: withGroundingNotes(A.make(`countSymbols=${symbolCount}`)),
-              payload: new RetrievalCountPayload({
-                target: "symbols",
-                count: decodeNonNegativeInt(symbolCount),
-              }),
-            });
-          }),
-        locateSymbol: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findMatches(value.symbolName));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("locateSymbol=no-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  note: "locateSymbol=no-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  candidates: symbolCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const symbol = selection.match;
-            const citations = normalizeCitations(A.make(symbolCitation(symbol)));
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Located symbol "${symbol.symbolName}" from indexed symbol records.`,
-              citations,
-              notes: withGroundingNotes(A.appendAll(A.make(`symbolId=${symbol.symbolId}`), selection.nlpNotes)),
-              payload: symbolDetailPayload(symbol, "location"),
-            });
-          }),
-        describeSymbol: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findMatches(value.symbolName));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("describeSymbol=no-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  note: "describeSymbol=no-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  candidates: symbolCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const symbol = selection.match;
-            const citations = O.isSome(symbol.documentation)
-              ? documentationCitations(symbol, { includeDeclaration: true })
-              : normalizeCitations(A.make(symbolCitation(symbol)));
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: O.isSome(symbol.documentation)
-                ? `Described symbol "${symbol.symbolName}" from its indexed declaration and JSDoc semantics.`
-                : `Described symbol "${symbol.symbolName}" from its indexed declaration because no JSDoc semantics were captured.`,
-              citations,
-              notes: withGroundingNotes(
-                A.appendAll(
-                  A.make(`signature=${symbol.signature}`, `documentation=${O.isSome(symbol.documentation)}`),
-                  selection.nlpNotes
-                )
-              ),
-              payload: symbolDetailPayload(symbol, "description"),
-            });
-          }),
-        symbolParams: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findMatches(value.symbolName));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("symbolParams=no-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  note: "symbolParams=no-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  candidates: symbolCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const symbol = selection.match;
-            const citations = O.isSome(symbol.documentation)
-              ? documentationCitations(symbol)
-              : normalizeCitations(A.make(symbolCitation(symbol)));
-            const notes = O.isSome(symbol.documentation)
-              ? A.appendAll(A.make(`paramCount=${A.length(symbol.documentation.value.params)}`), selection.nlpNotes)
-              : A.appendAll(A.make("symbolParams=no-documentation"), selection.nlpNotes);
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: O.isSome(symbol.documentation)
-                ? `Returned documented parameters for symbol "${symbol.symbolName}".`
-                : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
-              citations,
-              notes: withGroundingNotes(notes),
-              payload: symbolDetailPayload(symbol, "params"),
-            });
-          }),
-        symbolReturns: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findMatches(value.symbolName));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("symbolReturns=no-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  note: "symbolReturns=no-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  candidates: symbolCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const symbol = selection.match;
-            const citations = O.isSome(symbol.documentation)
-              ? documentationCitations(symbol)
-              : normalizeCitations(A.make(symbolCitation(symbol)));
-            const notes = O.isSome(symbol.documentation)
-              ? A.appendAll(A.make(`hasReturns=${O.isSome(symbol.documentation.value.returns)}`), selection.nlpNotes)
-              : A.appendAll(A.make("symbolReturns=no-documentation"), selection.nlpNotes);
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: O.isSome(symbol.documentation)
-                ? `Returned documented return semantics for symbol "${symbol.symbolName}".`
-                : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
-              citations,
-              notes: withGroundingNotes(notes),
-              payload: symbolDetailPayload(symbol, "returns"),
-            });
-          }),
-        symbolThrows: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findMatches(value.symbolName));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("symbolThrows=no-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  note: "symbolThrows=no-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  candidates: symbolCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const symbol = selection.match;
-            const citations = O.isSome(symbol.documentation)
-              ? documentationCitations(symbol)
-              : normalizeCitations(A.make(symbolCitation(symbol)));
-            const notes = O.isSome(symbol.documentation)
-              ? A.appendAll(A.make(`throwCount=${A.length(symbol.documentation.value.throws)}`), selection.nlpNotes)
-              : A.appendAll(A.make("symbolThrows=no-documentation"), selection.nlpNotes);
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: O.isSome(symbol.documentation)
-                ? `Returned documented throw semantics for symbol "${symbol.symbolName}".`
-                : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
-              citations,
-              notes: withGroundingNotes(notes),
-              payload: symbolDetailPayload(symbol, "throws"),
-            });
-          }),
-        symbolDeprecation: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findMatches(value.symbolName));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("symbolDeprecation=no-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  note: "symbolDeprecation=no-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  candidates: symbolCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const symbol = selection.match;
-            const citations = O.isSome(symbol.documentation)
-              ? documentationCitations(symbol)
-              : normalizeCitations(A.make(symbolCitation(symbol)));
-            const notes = O.isSome(symbol.documentation)
-              ? A.appendAll(A.make(`deprecated=${symbol.documentation.value.isDeprecated}`), selection.nlpNotes)
-              : A.appendAll(A.make("symbolDeprecation=no-documentation"), selection.nlpNotes);
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: O.isSome(symbol.documentation)
-                ? `Returned deprecation documentation for symbol "${symbol.symbolName}".`
-                : `No JSDoc-backed documentation was indexed for symbol "${symbol.symbolName}".`,
-              citations,
-              notes: withGroundingNotes(notes),
-              payload: symbolDetailPayload(symbol, "deprecation"),
-            });
-          }),
-        listFileExports: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("listFileExports=no-file-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  note: "listFileExports=no-file-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  candidates: fileCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const file = selection.match;
-            const symbols = yield* mapStoreError(
-              store.listExportedSymbolsForFile(grounding.repoId, sourceSnapshotId, file.filePath)
-            );
-            const citations = normalizeCitations(pipe(symbols, A.map(symbolCitation)));
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Listed exported symbols for ${file.filePath}.`,
-              citations,
-              notes: withGroundingNotes(
-                A.appendAll(A.make(`filePath=${file.filePath}`, `exportCount=${A.length(symbols)}`), selection.nlpNotes)
-              ),
-              payload: new RetrievalRelationListPayload({
-                relation: "exports",
-                subject: fileSubjectFromRecord(file),
-                items: pipe(
-                  symbols,
-                  A.map((symbol) => symbolSubject(symbol, A.make(symbol.symbolId)))
-                ),
-              }),
-            });
-          }),
-        listFileImports: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("listFileImports=no-file-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  note: "listFileImports=no-file-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  candidates: fileCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const file = selection.match;
-            const matchingEdges = yield* mapStoreError(
-              store.listImportEdgesForImporterFile(grounding.repoId, sourceSnapshotId, file.filePath)
-            );
-            const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
-            const items = pipe(
-              matchingEdges,
-              A.map((edge) => moduleSubject(edge.moduleSpecifier, A.make(importEdgeCitation(edge).id))),
-              A.dedupeWith((left, right) => left.moduleSpecifier === right.moduleSpecifier)
-            );
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Listed import declarations captured for ${file.filePath}.`,
-              citations,
-              notes: withGroundingNotes(
-                A.appendAll(
-                  A.make(`filePath=${file.filePath}`, `importCount=${A.length(matchingEdges)}`),
-                  selection.nlpNotes
-                )
-              ),
-              payload: new RetrievalRelationListPayload({
-                relation: "imports",
-                subject: fileSubjectFromRecord(file),
-                items,
-              }),
-            });
-          }),
-        listFileDependencies: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(
-                  A.appendAll(A.make("listFileDependencies=no-file-match"), selection.nlpNotes)
-                ),
-                issue: new RetrievalNoMatchIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  note: "listFileDependencies=no-file-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  candidates: fileCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const file = selection.match;
-            const fileEdges = yield* mapStoreError(
-              store.listImportEdgesForImporterFile(grounding.repoId, sourceSnapshotId, file.filePath)
-            );
-            const resolvedEdges = pipe(
-              fileEdges,
-              A.filter((edge) => O.isSome(edge.resolvedTargetFilePath))
-            );
-            const citations = normalizeCitations(pipe(resolvedEdges, A.map(importEdgeCitation)));
-            const items = pipe(
-              resolvedEdges,
-              A.map((edge) =>
-                fileSubject(O.getOrThrow(edge.resolvedTargetFilePath), A.make(importEdgeCitation(edge).id))
-              ),
-              A.dedupeWith((left, right) => left.filePath === right.filePath)
-            );
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Listed repo-local resolved file dependencies for ${file.filePath}.`,
-              citations,
-              notes: withGroundingNotes(
-                A.appendAll(
-                  A.make(
-                    `filePath=${file.filePath}`,
-                    `dependencyCount=${A.length(items)}`,
-                    `unresolvedImportCount=${A.length(fileEdges) - A.length(resolvedEdges)}`
-                  ),
-                  selection.nlpNotes
-                )
-              ),
-              payload: new RetrievalRelationListPayload({
-                relation: "depends-on",
-                subject: fileSubjectFromRecord(file),
-                items,
-              }),
-            });
-          }),
-        listFileDependents: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findFiles(value.fileQuery));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed file matched "${value.fileQuery}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("listFileDependents=no-file-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  note: "listFileDependents=no-file-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(fileCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `File query "${value.fileQuery}" matched multiple indexed files.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: fileRequestedTarget(value.fileQuery),
-                  candidates: fileCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const file = selection.match;
-            const matchingEdges = yield* mapStoreError(
-              store.listImportEdgesForResolvedTargetFile(grounding.repoId, sourceSnapshotId, file.filePath)
-            );
-            const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
-            const items = pipe(
-              matchingEdges,
-              A.map((edge) => fileSubject(edge.importerFilePath, A.make(importEdgeCitation(edge).id))),
-              A.dedupeWith((left, right) => left.filePath === right.filePath)
-            );
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Listed repo-local files depending on ${file.filePath}.`,
-              citations,
-              notes: withGroundingNotes(
-                A.appendAll(
-                  A.make(`filePath=${file.filePath}`, `dependentCount=${A.length(items)}`),
-                  selection.nlpNotes
-                )
-              ),
-              payload: new RetrievalRelationListPayload({
-                relation: "depended-on-by",
-                subject: fileSubjectFromRecord(file),
-                items,
-              }),
-            });
-          }),
-        listFileImporters: (value) =>
-          Effect.gen(function* () {
-            const importEdges = yield* mapStoreError(store.listImportEdges(grounding.repoId, sourceSnapshotId));
-            const selection = selectImporterEdges(value.moduleQuery, importEdges);
-            const matchingEdges = selection.matches;
-            const citations = normalizeCitations(pipe(matchingEdges, A.map(importEdgeCitation)));
-            const items = pipe(
-              matchingEdges,
-              A.map((edge) => fileSubject(edge.importerFilePath, A.make(importEdgeCitation(edge).id))),
-              A.dedupeWith((left, right) => left.filePath === right.filePath)
-            );
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Listed files importing "${value.moduleQuery}" from captured import edges.`,
-              citations,
-              notes: withGroundingNotes(
-                A.appendAll(
-                  A.make(`moduleQuery=${value.moduleQuery}`, `importerCount=${A.length(items)}`),
-                  selection.nlpNotes
-                )
-              ),
-              payload: new RetrievalRelationListPayload({
-                relation: "imported-by",
-                subject: moduleSubject(value.moduleQuery),
-                items,
-              }),
-            });
-          }),
-        listSymbolImporters: (value) =>
-          Effect.gen(function* () {
-            const selection = selectSingleMatch(yield* findMatches(value.symbolName));
-
-            if (selection.kind === "none") {
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "none",
-                summary: `No indexed symbol matched "${value.symbolName}" in snapshot ${sourceSnapshotId}.`,
-                citations: A.empty(),
-                notes: withGroundingNotes(A.appendAll(A.make("listSymbolImporters=no-match"), selection.nlpNotes)),
-                issue: new RetrievalNoMatchIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  note: "listSymbolImporters=no-match",
-                }),
-              });
-            }
-
-            if (selection.kind === "ambiguous") {
-              const citations = normalizeCitations(pipe(selection.matches, A.take(10), A.map(symbolCitation)));
-
-              return unresolvedEvidence({
-                repoId: grounding.repoId,
-                sourceSnapshotId,
-                query: grounding.question,
-                normalizedQuery: grounding.normalizedQuery,
-                queryKind: grounding.queryKind,
-                outcome: "ambiguous",
-                summary: `Symbol query "${value.symbolName}" matched multiple indexed symbols.`,
-                citations,
-                notes: withGroundingNotes(
-                  A.appendAll(A.make(`candidateCount=${A.length(selection.matches)}`), selection.nlpNotes)
-                ),
-                issue: new RetrievalAmbiguousIssue({
-                  requested: symbolRequestedTarget(value.symbolName),
-                  candidates: symbolCandidates(selection.matches, selection.nlpNotes),
-                }),
-              });
-            }
-
-            const symbol = selection.match;
-            const importEdges = yield* mapStoreError(
-              store.listImportEdgesForResolvedTargetFile(grounding.repoId, sourceSnapshotId, symbol.filePath)
-            );
-            const matchingEdges = pipe(
-              importEdges,
-              A.filter((edge) => O.isSome(edge.importedName) && edge.importedName.value === symbol.symbolName)
-            );
-            const typeOnlyImporterCount = pipe(
-              matchingEdges,
-              A.filter((edge) => edge.typeOnly),
-              A.map((edge) => edge.importerFilePath),
-              A.dedupe,
-              A.length
-            );
-            const citations = normalizeCitations(
-              A.appendAll(A.make(symbolCitation(symbol)), pipe(matchingEdges, A.map(importEdgeCitation)))
-            );
-            const items = pipe(
-              matchingEdges,
-              A.map((edge) => fileSubject(edge.importerFilePath, A.make(importEdgeCitation(edge).id))),
-              A.dedupeWith((left, right) => left.filePath === right.filePath)
-            );
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Listed files importing symbol "${symbol.symbolName}" from ${symbol.filePath}.`,
-              citations,
-              notes: withGroundingNotes(
-                A.appendAll(
-                  A.make(
-                    `symbolName=${symbol.symbolName}`,
-                    `symbolFilePath=${symbol.filePath}`,
-                    `importerCount=${A.length(items)}`,
-                    `typeOnlyImporterCount=${typeOnlyImporterCount}`
-                  ),
-                  selection.nlpNotes
-                )
-              ),
-              payload: new RetrievalRelationListPayload({
-                relation: "imported-by",
-                subject: symbolSubject(symbol, A.make(symbol.symbolId)),
-                items,
-              }),
-            });
-          }),
-        keywordSearch: (value) =>
-          Effect.gen(function* () {
-            const selection = yield* findKeywordMatches(value.query);
-            const matches = selection.matches;
-            const citations = normalizeCitations(pipe(matches, A.map(symbolCitation)));
-
-            return resolvedEvidence({
-              repoId: grounding.repoId,
-              sourceSnapshotId,
-              query: grounding.question,
-              normalizedQuery: grounding.normalizedQuery,
-              queryKind: grounding.queryKind,
-              summary: `Keyword search over indexed symbols using "${value.query}".`,
-              citations,
-              notes: withGroundingNotes(A.appendAll(A.make(`matchCount=${A.length(matches)}`), selection.nlpNotes)),
-              payload: new RetrievalSearchResultsPayload({
-                query: value.query,
-                items: pipe(
-                  matches,
-                  A.map((symbol) => symbolSubject(symbol, A.make(symbol.symbolId)))
-                ),
-              }),
-            });
-          }),
+        countFiles,
+        countSymbols,
+        locateSymbol,
+        describeSymbol,
+        symbolParams,
+        symbolReturns,
+        symbolThrows,
+        symbolDeprecation,
+        listFileExports,
+        listFileImports,
+        listFileDependencies,
+        listFileDependents,
+        listFileImporters,
+        listSymbolImporters,
+        keywordSearch,
         unsupported: (value) =>
           Effect.succeed(
             unresolvedEvidence({

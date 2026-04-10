@@ -25,12 +25,14 @@
       "effect-v4-http-ai"
     ],
     "workspace_packages": {
+      "infra": "@beep/infra",
       "app": "@beep/v2t",
       "sidecar": "@beep/VT2"
     },
     "command_truth_files": [
       "../../../package.json",
       "../../../turbo.json",
+      "../../../infra/package.json",
       "../../../apps/V2T/package.json",
       "../../../apps/V2T/turbo.json",
       "../../../packages/VT2/package.json",
@@ -52,6 +54,17 @@
         "test",
         "build",
         "lint"
+      ],
+      "infra": [
+        "check",
+        "test",
+        "lint",
+        "pulumi:login:local",
+        "stack:init:local",
+        "preview",
+        "up",
+        "destroy",
+        "refresh"
       ],
       "sidecar": [
         "check",
@@ -78,6 +91,11 @@
       "spec_markdown_is_ignored_by_root_markdownlint": true,
       "vt2_has_package_local_lint_task": false,
       "vt2_has_package_local_docgen_task": false,
+      "infra_has_package_local_check_task": true,
+      "infra_has_package_local_test_task": true,
+      "infra_has_package_local_lint_task": true,
+      "infra_has_package_local_pulumi_operator_scripts": true,
+      "infra_command_truth_comes_from_package_manifest_plus_root_turbo": true,
       "codex_plan_mode_prompt_filename_is_compatibility_name": true,
       "repo_local_codex_agents_available": true,
       "app_lint_command_is_package_local": true,
@@ -87,17 +105,24 @@
       "manifest_fresh_session_read_order_is_canonical": true,
       "recommended_agents_mirror_live_codex_registry": true,
       "readiness_docgen_may_be_recorded_as_not_applicable_when_public_surface_is_unchanged": true,
-      "graphiti_protocol_doc_is_canonical": true
+      "graphiti_protocol_doc_is_canonical": true,
+      "codex_entry_prompt_defers_to_manifest_startup_order": true,
+      "p1_design_workers_are_read_only_by_default": true,
+      "phase_delegation_common_frame_requires_graphiti_assignment_and_stop_condition": true,
+      "phase_docs_and_handoffs_repeat_root_and_workspace_command_truth_inputs": true,
+      "v2t_onepassword_is_optional": true,
+      "v2t_graphiti_requires_llm_secret_when_enabled": true
     },
     "spec_package_gate": [
       "git diff --check -- specs/pending/V2T",
       "node specs/pending/V2T/outputs/validate-spec.mjs"
     ],
     "implementation_floor": [
-      "bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2",
-      "bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2",
+      "bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2",
+      "bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2",
       "bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2",
-      "bun run --cwd apps/V2T lint"
+      "bun run --cwd apps/V2T lint",
+      "bun run --cwd infra lint"
     ],
     "repo_law_gate": [
       "bun run lint:effect-laws",
@@ -369,6 +394,82 @@
         "## 2026-04-10 Bootstrap Decisions",
         "## Default Assumptions Chosen From Repo Reality",
         "## 2026-04-10 Package Hardening Decisions"
+      ]
+    },
+    "required_snippets": {
+      "outputs/codex-plan-mode-prompt.md": [
+        "continue through `fresh_session_read_order` from that manifest instead of inventing a second startup list here",
+        "if operating in Plan mode, do not edit spec artifacts yet; resolve ambiguities and produce a decision-complete phase plan only",
+        "update `outputs/grill-log.md` only when the phase locks a new package-shape decision or default",
+        "`@beep/infra`",
+        "`bun run --cwd infra lint`"
+      ],
+      "README.md": [
+        "`@beep/infra`",
+        "`infra/package.json`",
+        "`bun run --cwd infra lint`"
+      ],
+      "QUICK_START.md": [
+        "`infra/package.json`",
+        "`bun run --cwd infra lint`"
+      ],
+      "AGENT_PROMPTS.md": [
+        "`@beep/infra`",
+        "`infra/package.json`"
+      ],
+      "prompts/PHASE_DELEGATION_PROMPTS.md": [
+        "Each prompt fill below supplies only the phase-specific values for the common frame.",
+        "Graphiti assignment: {{GRAPHITI_ASSIGNMENT}}",
+        "Stop condition: {{STOP_CONDITION}}",
+        "`infra/package.json`"
+      ],
+      "RESEARCH.md": [
+        "`infra/package.json`",
+        "`apps/V2T/turbo.json`",
+        "`packages/VT2/turbo.json`"
+      ],
+      "DESIGN_RESEARCH.md": [
+        "`infra/package.json`",
+        "`apps/V2T/turbo.json`",
+        "`packages/VT2/turbo.json`"
+      ],
+      "PLANNING.md": [
+        "`infra/package.json`",
+        "`@beep/infra`"
+      ],
+      "EXECUTION.md": [
+        "`infra/package.json`",
+        "`bun run --cwd infra lint`",
+        "`apps/V2T/turbo.json`",
+        "`packages/VT2/turbo.json`"
+      ],
+      "VERIFICATION.md": [
+        "`infra/package.json`",
+        "`bun run --cwd infra lint`",
+        "`apps/V2T/turbo.json`",
+        "`packages/VT2/turbo.json`"
+      ],
+      "handoffs/P0_ORCHESTRATOR_PROMPT.md": [
+        "root plus workspace `package.json` and `turbo.json`",
+        "`infra/package.json`"
+      ],
+      "handoffs/P1_ORCHESTRATOR_PROMPT.md": [
+        "root plus workspace `package.json` and `turbo.json`",
+        "`infra/package.json`"
+      ],
+      "handoffs/P2_ORCHESTRATOR_PROMPT.md": [
+        "`infra/package.json`"
+      ],
+      "handoffs/P3_ORCHESTRATOR_PROMPT.md": [
+        "root plus workspace `package.json` and `turbo.json`",
+        "`infra/package.json`"
+      ],
+      "handoffs/P4_ORCHESTRATOR_PROMPT.md": [
+        "root plus workspace `package.json` and `turbo.json`",
+        "`infra/package.json`"
+      ],
+      "handoffs/HANDOFF_P0-P4.md": [
+        "`@beep/infra`"
       ]
     }
   }

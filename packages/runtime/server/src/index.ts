@@ -526,34 +526,32 @@ const makeRpcHandlersLayer = () => {
       const repoRunService = yield* RepoRunService;
 
       return RepoRunRpcGroup.of({
-        StartIndexRepoRun: (payload) =>
-          Effect.gen(function* () {
-            const executionId = yield* IndexRepoRunWorkflow.executionId(payload);
-            const runId = yield* decodeExecutionRunId(IndexRepoRunWorkflow.name, executionId);
-            const decision = yield* repoRunService
-              .acceptIndexRun(payload, runId)
-              .pipe(Effect.mapError(toRunStreamFailure));
+        StartIndexRepoRun: Effect.fn("SidecarRuntime.rpc.StartIndexRepoRun")(function* (payload) {
+          const executionId = yield* IndexRepoRunWorkflow.executionId(payload);
+          const runId = yield* decodeExecutionRunId(IndexRepoRunWorkflow.name, executionId);
+          const decision = yield* repoRunService
+            .acceptIndexRun(payload, runId)
+            .pipe(Effect.mapError(toRunStreamFailure));
 
-            if (decision.dispatch) {
-              yield* IndexRepoRunWorkflow.execute(payload, { discard: true }).pipe(Effect.asVoid);
-            }
+          if (decision.dispatch) {
+            yield* IndexRepoRunWorkflow.execute(payload, { discard: true }).pipe(Effect.asVoid);
+          }
 
-            return decision.ack;
-          }),
-        StartQueryRepoRun: (payload) =>
-          Effect.gen(function* () {
-            const executionId = yield* QueryRepoRunWorkflow.executionId(payload);
-            const runId = yield* decodeExecutionRunId(QueryRepoRunWorkflow.name, executionId);
-            const decision = yield* repoRunService
-              .acceptQueryRun(payload, runId)
-              .pipe(Effect.mapError(toRunStreamFailure));
+          return decision.ack;
+        }),
+        StartQueryRepoRun: Effect.fn("SidecarRuntime.rpc.StartQueryRepoRun")(function* (payload) {
+          const executionId = yield* QueryRepoRunWorkflow.executionId(payload);
+          const runId = yield* decodeExecutionRunId(QueryRepoRunWorkflow.name, executionId);
+          const decision = yield* repoRunService
+            .acceptQueryRun(payload, runId)
+            .pipe(Effect.mapError(toRunStreamFailure));
 
-            if (decision.dispatch) {
-              yield* QueryRepoRunWorkflow.execute(payload, { discard: true }).pipe(Effect.asVoid);
-            }
+          if (decision.dispatch) {
+            yield* QueryRepoRunWorkflow.execute(payload, { discard: true }).pipe(Effect.asVoid);
+          }
 
-            return decision.ack;
-          }),
+          return decision.ack;
+        }),
         InterruptRepoRun: flow(repoRunService.interruptRun, Effect.mapError(toRunStreamFailure)),
         ResumeRepoRun: flow(repoRunService.resumeRun, Effect.mapError(toRunStreamFailure)),
         StreamRunEvents: repoRunService.streamRunEvents,

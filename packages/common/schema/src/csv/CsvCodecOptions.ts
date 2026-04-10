@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import * as Effect from "effect/Effect";
+import { Effect } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { NonNegativeInt } from "../Int.ts";

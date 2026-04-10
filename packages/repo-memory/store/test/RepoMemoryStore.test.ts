@@ -16,53 +16,95 @@ const repoStoreError = () =>
     status: 500,
     cause: O.none(),
   });
+const repoRegistryGetRepo = Effect.fn("RepoRegistryStore.getRepo")(() => Effect.fail(repoStoreError()));
+const repoRegistryRegisterRepo = Effect.fn("RepoRegistryStore.registerRepo")(() => Effect.fail(repoStoreError()));
+const repoSnapshotCountSourceFiles = Effect.fn("RepoSnapshotStore.countSourceFiles")(() => Effect.succeed(0));
+const repoSnapshotFindSourceFiles = Effect.fn("RepoSnapshotStore.findSourceFiles")(() => Effect.succeed([]));
+const repoSnapshotLatestIndexArtifact = Effect.fn("RepoSnapshotStore.latestIndexArtifact")(() =>
+  Effect.succeed(O.none())
+);
+const repoSnapshotLatestSourceSnapshot = Effect.fn("RepoSnapshotStore.latestSourceSnapshot")(() =>
+  Effect.succeed(O.none())
+);
+const repoSnapshotReplaceSnapshotArtifacts = Effect.fn("RepoSnapshotStore.replaceSnapshotArtifacts")(() =>
+  Effect.fail(repoStoreError())
+);
+const repoSnapshotSaveIndexArtifact = Effect.fn("RepoSnapshotStore.saveIndexArtifact")(() =>
+  Effect.fail(repoStoreError())
+);
+const repoSymbolFindSymbolsByExactName = Effect.fn("RepoSymbolStore.findSymbolsByExactName")(() => Effect.succeed([]));
+const repoSymbolListExportedSymbolsForFile = Effect.fn("RepoSymbolStore.listExportedSymbolsForFile")(() =>
+  Effect.succeed([])
+);
+const repoSymbolListImportEdges = Effect.fn("RepoSymbolStore.listImportEdges")(() => Effect.succeed([]));
+const repoSymbolListImportEdgesForImporterFile = Effect.fn("RepoSymbolStore.listImportEdgesForImporterFile")(() =>
+  Effect.succeed([])
+);
+const repoSymbolListImportEdgesForResolvedTargetFile = Effect.fn(
+  "RepoSymbolStore.listImportEdgesForResolvedTargetFile"
+)(() => Effect.succeed([]));
+const repoSymbolListSymbolRecords = Effect.fn("RepoSymbolStore.listSymbolRecords")(() => Effect.succeed([]));
+const repoSymbolSearchSymbols = Effect.fn("RepoSymbolStore.searchSymbols")(() => Effect.succeed([]));
+const repoRunGetRetrievalPacket = Effect.fn("RepoRunStore.getRetrievalPacket")(() => Effect.succeed(O.none()));
+const repoRunGetRun = Effect.fn("RepoRunStore.getRun")(() => Effect.succeed(O.none()));
+const repoRunSaveRetrievalPacket = Effect.fn("RepoRunStore.saveRetrievalPacket")(() => Effect.fail(repoStoreError()));
+const repoRunSaveRun = Effect.fn("RepoRunStore.saveRun")(() => Effect.fail(repoStoreError()));
+const repoSemanticGetSemanticArtifacts = Effect.fn("RepoSemanticStore.getSemanticArtifacts")(() =>
+  Effect.succeed(O.none())
+);
+const repoSemanticLatestSemanticArtifacts = Effect.fn("RepoSemanticStore.latestSemanticArtifacts")(() =>
+  Effect.succeed(O.none())
+);
+const repoSemanticSaveSemanticArtifacts = Effect.fn("RepoSemanticStore.saveSemanticArtifacts")(() =>
+  Effect.fail(repoStoreError())
+);
 
 const repoRegistryLayer = Layer.succeed(RepoRegistryStore)(
   RepoRegistryStore.of({
-    getRepo: () => Effect.fail(repoStoreError()),
+    getRepo: repoRegistryGetRepo,
     listRepos: Effect.succeed([]),
-    registerRepo: () => Effect.fail(repoStoreError()),
+    registerRepo: repoRegistryRegisterRepo,
   })
 );
 
 const repoSnapshotLayer = Layer.succeed(RepoSnapshotStore)(
   RepoSnapshotStore.of({
-    countSourceFiles: () => Effect.succeed(0),
-    findSourceFiles: () => Effect.succeed([]),
-    latestIndexArtifact: () => Effect.succeed(O.none()),
-    latestSourceSnapshot: () => Effect.succeed(O.none()),
-    replaceSnapshotArtifacts: () => Effect.fail(repoStoreError()),
-    saveIndexArtifact: () => Effect.fail(repoStoreError()),
+    countSourceFiles: repoSnapshotCountSourceFiles,
+    findSourceFiles: repoSnapshotFindSourceFiles,
+    latestIndexArtifact: repoSnapshotLatestIndexArtifact,
+    latestSourceSnapshot: repoSnapshotLatestSourceSnapshot,
+    replaceSnapshotArtifacts: repoSnapshotReplaceSnapshotArtifacts,
+    saveIndexArtifact: repoSnapshotSaveIndexArtifact,
   })
 );
 
 const repoSymbolLayer = Layer.succeed(RepoSymbolStore)(
   RepoSymbolStore.of({
-    findSymbolsByExactName: () => Effect.succeed([]),
-    listExportedSymbolsForFile: () => Effect.succeed([]),
-    listImportEdges: () => Effect.succeed([]),
-    listImportEdgesForImporterFile: () => Effect.succeed([]),
-    listImportEdgesForResolvedTargetFile: () => Effect.succeed([]),
-    listSymbolRecords: () => Effect.succeed([]),
-    searchSymbols: () => Effect.succeed([]),
+    findSymbolsByExactName: repoSymbolFindSymbolsByExactName,
+    listExportedSymbolsForFile: repoSymbolListExportedSymbolsForFile,
+    listImportEdges: repoSymbolListImportEdges,
+    listImportEdgesForImporterFile: repoSymbolListImportEdgesForImporterFile,
+    listImportEdgesForResolvedTargetFile: repoSymbolListImportEdgesForResolvedTargetFile,
+    listSymbolRecords: repoSymbolListSymbolRecords,
+    searchSymbols: repoSymbolSearchSymbols,
   })
 );
 
 const repoRunLayer = Layer.succeed(RepoRunStore)(
   RepoRunStore.of({
-    getRetrievalPacket: () => Effect.succeed(O.none()),
-    getRun: () => Effect.succeed(O.none()),
+    getRetrievalPacket: repoRunGetRetrievalPacket,
+    getRun: repoRunGetRun,
     listRuns: Effect.succeed([]),
-    saveRetrievalPacket: () => Effect.fail(repoStoreError()),
-    saveRun: () => Effect.fail(repoStoreError()),
+    saveRetrievalPacket: repoRunSaveRetrievalPacket,
+    saveRun: repoRunSaveRun,
   })
 );
 
 const repoSemanticLayer = Layer.succeed(RepoSemanticStore)(
   RepoSemanticStore.of({
-    getSemanticArtifacts: () => Effect.succeed(O.none()),
-    latestSemanticArtifacts: () => Effect.succeed(O.none()),
-    saveSemanticArtifacts: () => Effect.fail(repoStoreError()),
+    getSemanticArtifacts: repoSemanticGetSemanticArtifacts,
+    latestSemanticArtifacts: repoSemanticLatestSemanticArtifacts,
+    saveSemanticArtifacts: repoSemanticSaveSemanticArtifacts,
   })
 );
 

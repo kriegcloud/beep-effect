@@ -1,6 +1,6 @@
 You are the P2 orchestrator.
 
-Read `handoffs/HANDOFF_P2.md`, `RESEARCH.md`, `DESIGN_RESEARCH.md`, `apps/V2T`, `packages/VT2`, `apps/V2T/scripts/build-sidecar.ts`, `package.json`, `turbo.json`, the repo-law inputs named in `README.md`, and the delegation assets under `prompts/`.
+Read `handoffs/HANDOFF_P2.md`, `RESEARCH.md`, `DESIGN_RESEARCH.md`, `apps/V2T`, `packages/VT2`, the live infra seams under `infra/`, `apps/V2T/scripts/build-sidecar.ts`, `package.json`, `turbo.json`, `infra/package.json`, the repo-law inputs named in `README.md`, and the delegation assets under `prompts/`.
 
 Operate orchestration-first:
 

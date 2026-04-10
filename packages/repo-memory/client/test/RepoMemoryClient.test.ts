@@ -30,6 +30,20 @@ const clientError = () =>
   });
 
 const decodeRunId = S.decodeUnknownSync(RunId);
+const getRunFailure = Effect.fn("RepoMemoryClient.getRun")(() => Effect.fail(clientError()));
+const interruptRunFailure = Effect.fn("RepoMemoryClient.interruptRun")((_request: InterruptRepoRunRequest) =>
+  Effect.fail(clientError())
+);
+const registerRepoFailure = Effect.fn("RepoMemoryClient.registerRepo")((_input: RepoRegistrationInput) =>
+  Effect.fail(clientError())
+);
+const resumeRunFailure = Effect.fn("RepoMemoryClient.resumeRun")((_request: ResumeRepoRunRequest) =>
+  Effect.fail(clientError())
+);
+const startIndexRunFailure = Effect.fn("RepoMemoryClient.startIndexRun")(() => Effect.fail(clientError()));
+const startQueryRunFailure = Effect.fn("RepoMemoryClient.startQueryRun")((_input: QueryRepoRunInput) =>
+  Effect.fail(clientError())
+);
 
 describe("repo-memory client", () => {
   it("decodes client configuration", () => {
@@ -80,14 +94,14 @@ describe("repo-memory client", () => {
         Layer.succeed(RepoMemoryClient)(
           RepoMemoryClient.of({
             bootstrap: Effect.fail(clientError()),
-            getRun: () => Effect.fail(clientError()),
-            interruptRun: (_request: InterruptRepoRunRequest) => Effect.fail(clientError()),
+            getRun: getRunFailure,
+            interruptRun: interruptRunFailure,
             listRepos: Effect.succeed([]),
             listRuns: Effect.succeed([]),
-            registerRepo: (_input: RepoRegistrationInput) => Effect.fail(clientError()),
-            resumeRun: (_request: ResumeRepoRunRequest) => Effect.fail(clientError()),
-            startIndexRun: () => Effect.fail(clientError()),
-            startQueryRun: (_input: QueryRepoRunInput) => Effect.fail(clientError()),
+            registerRepo: registerRepoFailure,
+            resumeRun: resumeRunFailure,
+            startIndexRun: startIndexRunFailure,
+            startQueryRun: startQueryRunFailure,
             streamRunEvents: () => Stream.fail(clientError()),
           })
         )

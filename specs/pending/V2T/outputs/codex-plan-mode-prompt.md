@@ -7,40 +7,22 @@ The filename is a compatibility carry-over from the bootstrap pass. The prompt i
 ```markdown
 Use the canonical phased spec package at `specs/pending/V2T/`.
 
-Read these files first:
-- `specs/pending/V2T/outputs/manifest.json`
-- `AGENTS.md`
-- `.patterns/jsdoc-documentation.md`
-- `standards/effect-first-development.md`
-- `standards/schema-first.inventory.jsonc`
-- `tooling/configs/src/eslint/SchemaFirstRule.ts`
-- `.codex/config.toml`
-- `.codex/agents/README.md`
-- `specs/pending/V2T/README.md`
-- `specs/pending/V2T/QUICK_START.md`
-- `specs/pending/V2T/AGENT_PROMPTS.md`
-- `specs/pending/V2T/prompts/README.md`
-- `specs/pending/V2T/prompts/ORCHESTRATOR_OPERATING_MODEL.md`
-- `specs/pending/V2T/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
-- `specs/pending/V2T/prompts/PHASE_DELEGATION_PROMPTS.md`
-- `specs/pending/V2T/outputs/grill-log.md`
-- `specs/pending/V2T/handoffs/HANDOFF_P0-P4.md`
-- `specs/pending/V2T/handoffs/P0-P4_ORCHESTRATOR_PROMPT.md`
-
-Then:
 - run `bun run codex:hook:session-start`
+- read `specs/pending/V2T/outputs/manifest.json`
+- continue through `fresh_session_read_order` from that manifest instead of inventing a second startup list here
 - if `graphiti-memory` is available, run the Graphiti preflight and fallback exactly as documented in `specs/pending/V2T/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
 - determine the active phase from `outputs/manifest.json`
 - trust `active_phase_assets` instead of inferring the active handoff, prompt, output, or trackers from prose
 - treat the active phase session as the phase orchestrator
 - read only the matching phase handoff and matching phase orchestrator prompt
 - do not infer the active phase from markdown status headings inside the package
-- if command or task claims matter, read the root plus workspace `package.json` and `turbo.json` files before trusting the spec prose
+- if command or task claims matter, read the root plus workspace `package.json` and `turbo.json` files before trusting the spec prose, and include `infra/package.json` for installer or deployment surfaces
 - execute only that phase
-- write or refine the named phase artifact
+- if operating in Plan mode, do not edit spec artifacts yet; resolve ambiguities and produce a decision-complete phase plan only
+- if operating outside Plan mode, write or refine the named phase artifact
 - update `outputs/manifest.json` when the phase state changes
 - update `REFLECTION_LOG.md` when package-local routing, operator workflow, or validator behavior changes
-- update `outputs/grill-log.md` when the active phase is `p0`
+- update `outputs/grill-log.md` only when the phase locks a new package-shape decision or default
 - run at least one read-only review wave before phase closeout and rerun it if substantive findings remain
 - stop at the phase exit gate and wait for explicit instruction before moving to the next phase
 
@@ -53,7 +35,7 @@ Rules that apply in every phase:
 - keep all sub-agent scopes bounded; the active phase session remains the orchestrator
 - require every delegated worker to return the `specs/pending/V2T/prompts/SUBAGENT_OUTPUT_CONTRACT.md` format
 - preserve the raw PRD and legacy notes under `outputs/`
-- treat `apps/V2T` and `packages/VT2` as the current shell-and-sidecar pair unless a phase artifact explicitly documents a migration
+- treat `apps/V2T` and `packages/VT2` as the current shell-and-sidecar pair and `@beep/infra` as the current workstation/deployment seam unless a phase artifact explicitly documents a migration
 - do not invent an app-local server path if the existing `@beep/VT2` control plane can carry the slice
 - keep provider logic behind explicit adapters
 - summarize verification and residual risk in the active phase artifact
@@ -71,10 +53,11 @@ If the active phase edits the canonical spec package itself:
 
 If the active phase is `p3` or `p4`:
 - run:
-  - `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
-  - `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+  - `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+  - `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
   - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
   - `bun run --cwd apps/V2T lint`
+  - `bun run --cwd infra lint`
   - `bun run lint:effect-laws`
   - `bun run lint:jsdoc`
   - `bun run check:effect-laws-allowlist`
@@ -82,8 +65,10 @@ If the active phase is `p3` or `p4`:
 - run `bun run docgen` when exported APIs or JSDoc examples changed
 - record `bun run docgen` as `not applicable` in readiness evidence when exported APIs or JSDoc examples did not change
 - remember that the live app workspace package name is `@beep/v2t`, not `@beep/V2T`
+- remember that the live workstation/deployment workspace package name is `@beep/infra`
 - remember that `@beep/VT2` has no package-local `lint` or `docgen` task
 - use `bun run --cwd apps/V2T lint` for the default targeted app lint gate
+- use `bun run --cwd infra lint` for the default targeted infra lint gate when the slice touches installer or deployment surfaces
 - do not replace that default with `turbo run lint --filter=@beep/v2t`
   when the phase needs targeted app-only lint evidence, because the filtered
   Turbo run is dependency-expanded and therefore not equivalent to the
@@ -95,6 +80,7 @@ If the active phase is `p3` or `p4`:
 
 - Use `outputs/manifest.json` as the package authority for `active_phase`, `active_phase_assets`, and command gates.
 - Treat `outputs/manifest.json` `fresh_session_read_order` as the canonical ordered startup list after the manifest is open.
+- This prompt intentionally defers startup order to the manifest instead of restating a second ordered file list.
 - If README prose and manifest routing or gate data disagree, repair the prose and keep the manifest authoritative.
 - Update `REFLECTION_LOG.md` whenever package-local routing, operator guidance, or validator behavior changes.
 - Append `outputs/grill-log.md` only when locking a new package-shape default or decision.

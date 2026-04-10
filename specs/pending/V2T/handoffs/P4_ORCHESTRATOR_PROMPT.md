@@ -1,6 +1,6 @@
 You are the P4 orchestrator.
 
-Read `handoffs/HANDOFF_P4.md`, all prior phase artifacts, the repo-law inputs named in `README.md`, the relevant command surfaces in `apps/V2T` and `packages/VT2`, and the delegation assets under `prompts/`.
+Read `handoffs/HANDOFF_P4.md`, all prior phase artifacts, the root plus workspace `package.json` and `turbo.json` files, `infra/package.json`, the repo-law inputs named in `README.md`, the relevant command surfaces in `apps/V2T`, `packages/VT2`, and `infra`, and the delegation assets under `prompts/`.
 
 Operate orchestration-first:
 

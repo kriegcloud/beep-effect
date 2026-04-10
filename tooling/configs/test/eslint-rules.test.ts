@@ -250,6 +250,34 @@ describe("eslint rule migration", () => {
     expect(messages.some((message) => message.ruleId === "beep-laws/no-native-runtime")).toBe(true);
   });
 
+  it("flags native Error construction in non-allowlisted files", () => {
+    const messages = verify(
+      'export const fail = () => { throw new Error("boom"); };',
+      noNativeRuntimeConfig,
+      "apps/desktop/src/Main.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
+  it("flags global native Error calls in non-allowlisted files", () => {
+    const messages = verify(
+      'export const capture = () => globalThis.Error("boom");',
+      noNativeRuntimeConfig,
+      "packages/shared/domain/src/errors/DbError/Formatter.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
   it("does not suppress violations after the allowlist entry is removed", () => {
     const messages = verify(
       "export const value = new Date();",

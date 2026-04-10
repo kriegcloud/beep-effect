@@ -1273,22 +1273,24 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
         toIndexError(`Failed to resolve canonical repository root "${options.repoPath}" before indexing.`, 500, cause)
       )
     );
+  yield* suspendIfRunInterrupted(options.runId);
   const scopes = yield* discoverProjectScopes(canonicalRepoPath);
+  yield* suspendIfRunInterrupted(options.runId);
   let seenFiles = HashSet.empty<string>();
-  let processedFileCount = 0;
   const provisionalSnapshotId = decodeSourceSnapshotId("snapshot:pending");
   let extractedFiles = A.empty<RepoSourceFile>();
   let extractedSymbols = A.empty<RepoSymbolRecord>();
   let extractedImportEdges = A.empty<RepoImportEdge>();
 
   for (const scope of scopes) {
+    yield* suspendIfRunInterrupted(options.runId);
     yield* withScopedProject(scope.tsconfigPath, (project) =>
       Effect.gen(function* () {
+        yield* suspendIfRunInterrupted(options.runId);
+
         for (const sourceFile of yield* projectSourceFiles(canonicalRepoPath, project)) {
-          if (processedFileCount % 25 === 0) {
-            // Turn persisted interrupt commands into durable suspension points during large repo walks.
-            yield* suspendIfRunInterrupted(options.runId);
-          }
+          // Keep large repo walks promptly interruptible instead of waiting for coarse batched checkpoints.
+          yield* suspendIfRunInterrupted(options.runId);
 
           const filePath = sourceFile.getFilePath();
           if (HashSet.has(seenFiles, filePath)) {
@@ -1329,8 +1331,6 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
               sourceFile,
             })
           );
-
-          processedFileCount += 1;
         }
       })
     );

@@ -6,8 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity";
-import { Number as Num, RegExp as Regex } from "effect";
-import * as Effect from "effect/Effect";
+import { Effect, Number as Num, RegExp as Regex } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";

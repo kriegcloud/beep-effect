@@ -9,6 +9,54 @@
       "reason": "Chalk memoizes builder metadata by function identity and needs weak-key semantics to avoid retaining builders.",
       "owner": "@beep/chalk",
       "issue": "CHALK-WEAKMAP-MEMOIZATION"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/semantic-web/src/semantic-schema-metadata.ts",
+      "kind": "new-map-set",
+      "reason": "Recursive schema AST metadata traversal needs weak-reference cycle tracking without retaining visited nodes beyond the walk.",
+      "owner": "@beep/semantic-web",
+      "issue": "SEMANTIC-SCHEMA-METADATA-WEAKSET"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/ui/src/components/sidebar.tsx",
+      "kind": "native-error",
+      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
+      "owner": "@beep/ui",
+      "issue": "UI-SIDEBAR-CONTEXT-INVARIANT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/ui/src/components/carousel.tsx",
+      "kind": "native-error",
+      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
+      "owner": "@beep/ui",
+      "issue": "UI-CAROUSEL-CONTEXT-INVARIANT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/ui/src/components/speech-input.tsx",
+      "kind": "native-error",
+      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
+      "owner": "@beep/ui",
+      "issue": "UI-SPEECH-INPUT-CONTEXT-INVARIANT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/ui/src/components/tour.tsx",
+      "kind": "native-error",
+      "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
+      "owner": "@beep/ui",
+      "issue": "UI-TOUR-CONTEXT-INVARIANT"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/shared/domain/src/errors/DbError/utils.ts",
+      "kind": "native-error",
+      "reason": "Database error formatting captures the formatter call-site stack as a last-resort source-location fallback when the original error lacks stack metadata.",
+      "owner": "@beep/shared-domain",
+      "issue": "DB-ERROR-CALLSITE-STACK-FALLBACK"
     }
   ]
 }

@@ -5,10 +5,10 @@
 1. Start the main session as the phase orchestrator. Prefer `codex -p v2t_orchestrator` when available.
 2. Run `bun run codex:hook:session-start`.
 3. Read [outputs/manifest.json](./outputs/manifest.json) first, then follow `fresh_session_read_order`.
-4. When `fresh_session_read_order` reaches [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md), run the Graphiti preflight or fallback exactly as documented there.
+4. When `fresh_session_read_order` reaches [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md), run the Graphiti preflight, including the `get_episodes` fallback when fact search fails or is empty.
 5. Open the active phase handoff and active phase orchestrator prompt from `active_phase_assets`.
 6. Read prior phase artifacts that constrain the active phase.
-7. If command, task, or ownership claims are in scope, read the root plus workspace `package.json` and `turbo.json` files before trusting the package docs.
+7. If command, task, ownership, or installer claims are in scope, read the root plus workspace `package.json` and `turbo.json` files before trusting the package docs, and include `infra/package.json` for deployment surfaces.
 8. Execute only the active phase as the orchestrator and stop at its exit gate.
 9. Update the active phase artifact and [outputs/manifest.json](./outputs/manifest.json) before exiting.
 10. Write the Graphiti session-end summary before ending the session whenever the phase produced durable repo truth, architecture decisions, reusable failures, or meaningful in-progress status.
@@ -64,6 +64,10 @@
 - [outputs/V2_animination_V2T.md](./outputs/V2_animination_V2T.md)
 - `apps/V2T`
 - `packages/VT2`
+- `infra/Pulumi.yaml`
+- `infra/src/entry.ts`
+- `infra/src/V2T.ts`
+- `infra/scripts/v2t-workstation.sh`
 - shared UI speech input in `packages/common/ui/src/components/speech-input.tsx`
 - `apps/V2T/scripts/build-sidecar.ts`
 - root Graphiti commands and proxy tooling
@@ -92,10 +96,11 @@ If the validator says a documented gate lacks a live backing script, treat the w
 
 ### When Planning Or Implementing Code
 
-- `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
 - `bun run --cwd apps/V2T lint`
+- `bun run --cwd infra lint`
 - `bun run lint:effect-laws`
 - `bun run lint:jsdoc`
 - `bun run check:effect-laws-allowlist`
@@ -108,8 +113,12 @@ Important notes:
 
 - the live app workspace package name is `@beep/v2t`, not the stale uppercase
   app filter
+- the live workstation/deployment workspace package name is `@beep/infra`, and
+  its operator commands come from `infra/package.json`
 - `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be proven through the repo-law commands above
 - use `bun run --cwd apps/V2T lint` for the targeted app lint gate
+- use `bun run --cwd infra lint` for the targeted infra lint gate when the
+  slice touches installer or deployment code
 - do not substitute `turbo run lint --filter=@beep/v2t`, because the filtered
   Turbo run is dependency-expanded and therefore not equivalent to app-only
   lint evidence

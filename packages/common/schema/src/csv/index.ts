@@ -114,7 +114,7 @@ const mapRowToHeaderRecord = (
   );
 };
 
-const normalizeParserOptions = Effect.fn(function* (options?: CsvCodecOptionsArgs) {
+const normalizeParserOptions = Effect.fn("Csv.normalizeParserOptions")(function* (options?: CsvCodecOptionsArgs) {
   const decoded = yield* decodeCsvCodecOptions(options ?? {}, CsvCodecOptionsParseOptions);
 
   return {
@@ -140,29 +140,33 @@ const decodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
   rowSchema: RowSchema,
   options?: CsvCodecOptionsArgs
 ) =>
-  Effect.fn(function* (input: string) {
+  Effect.fn("Csv.decodeCsvRowsEffect")(function* (input: string) {
     const normalized = yield* normalizeParserOptions(options);
     const rawRows = yield* parseCsvRows(input, normalized.parser);
     const rowsAfterSkippedLines = A.drop(rawRows, normalized.codec.skipLines);
 
+    const decodeNonEmptyRows = Effect.fn("Csv.decodeCsvRowsEffect.onNonEmpty")(function* (
+      headerRow: ReadonlyArray<string>,
+      dataRows: ReadonlyArray<ReadonlyArray<string>>
+    ) {
+      const schemaColumns = getSchemaColumns(rowSchema);
+
+      yield* validateHeaderRow(headerRow, schemaColumns);
+
+      const rowsAfterSkipRows = A.drop(dataRows, normalized.codec.skipRows);
+      const rowsAfterLimit =
+        normalized.codec.maxRows > 0 ? A.take(rowsAfterSkipRows, normalized.codec.maxRows) : rowsAfterSkipRows;
+
+      const mappedRows = yield* Effect.forEach(rowsAfterLimit, (row) =>
+        mapRowToHeaderRecord(headerRow, row, normalized.codec.strictColumnHandling)
+      );
+
+      return yield* S.decodeUnknownEffect(S.Array(rowSchema))(mappedRows);
+    });
+
     return yield* A.match(rowsAfterSkippedLines, {
       onEmpty: () => Effect.succeed(A.empty<RowSchema["Type"]>()),
-      onNonEmpty: ([headerRow, ...dataRows]) =>
-        Effect.gen(function* () {
-          const schemaColumns = getSchemaColumns(rowSchema);
-
-          yield* validateHeaderRow(headerRow, schemaColumns);
-
-          const rowsAfterSkipRows = A.drop(dataRows, normalized.codec.skipRows);
-          const rowsAfterLimit =
-            normalized.codec.maxRows > 0 ? A.take(rowsAfterSkipRows, normalized.codec.maxRows) : rowsAfterSkipRows;
-
-          const mappedRows = yield* Effect.forEach(rowsAfterLimit, (row) =>
-            mapRowToHeaderRecord(headerRow, row, normalized.codec.strictColumnHandling)
-          );
-
-          return yield* S.decodeUnknownEffect(S.Array(rowSchema))(mappedRows);
-        }),
+      onNonEmpty: ([headerRow, ...dataRows]) => decodeNonEmptyRows(headerRow, dataRows),
     });
   });
 
@@ -192,7 +196,7 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
   rowSchema: RowSchema,
   options?: CsvCodecOptionsArgs
 ) =>
-  Effect.fn(function* (rows: ReadonlyArray<RowSchema["Type"]>) {
+  Effect.fn("Csv.encodeCsvRowsEffect")(function* (rows: ReadonlyArray<RowSchema["Type"]>) {
     const normalized = yield* normalizeParserOptions(options);
     const schemaColumns = getSchemaColumns(rowSchema);
     const encodedRows = yield* S.encodeEffect(S.Array(rowSchema))(rows);

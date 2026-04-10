@@ -139,21 +139,19 @@
       "@beep/editor-client": ["./packages/editor/client/src/index.ts"],
       "@beep/editor-client/*": ["./packages/editor/client/src/*"],
       "@beep/editor-runtime": ["./packages/editor/runtime/src/index.ts"],
-      "@beep/editor-runtime/*": [
-        "./packages/editor/runtime/src/*"
-      ],
-      "@beep/VT2": [
-        "./packages/VT2/src/index.ts"
-      ],
-      "@beep/VT2/*": [
-        "./packages/VT2/src/*"
-      ]
+      "@beep/editor-runtime/*": ["./packages/editor/runtime/src/*"],
+      "@beep/VT2": ["./packages/VT2/src/index.ts"],
+      "@beep/VT2/*": ["./packages/VT2/src/*"]
     },
     "plugins": [
       {
         "name": "@effect/language-service",
         "namespaceImportPackages": ["@beep/*"],
-        "ignoreEffectSuggestionsInTscExitCode": false
+        "effectFn": ["span", "inferred-span", "suggested-span"],
+        "ignoreEffectSuggestionsInTscExitCode": false,
+        "diagnosticSeverity": {
+          "effectFnOpportunity": "error"
+        }
       }
     ]
   }

@@ -72,7 +72,8 @@ Every delegated prompt should include:
 - exact read scope
 - exact write scope or explicit read-only mode
 - repo-truth checks the worker must perform, including live package names when
-  commands or task surfaces matter
+  commands or task surfaces matter, including `@beep/infra` when installer or
+  deployment surfaces are involved
 - repo-law inputs that must be read
 - commands the worker is responsible for running
 - explicit prohibitions
@@ -94,6 +95,8 @@ Every delegated prompt should include:
 - Record Graphiti recall attempted, fallback reason, and memory writeback
   status in the active phase artifact instead of treating memory work as
   invisible background behavior.
+- When `search_memory_facts` fails or is empty, require the `get_episodes`
+  fallback before concluding Graphiti recall was unusable.
 - If a later phase uncovers an unresolved earlier-phase assumption, stop and
   route that issue back instead of hiding it in the current phase.
 - If a worker returns vague recommendations without a concrete answer to its
@@ -136,7 +139,7 @@ Every delegated prompt should include:
 - confirm the worker actually answered the assigned question or objective
 - confirm commands are reported precisely, including commands not run
 - confirm Graphiti recall or fallback is documented precisely, including exact
-  query and exact error text when relevant
+  query, exact error text, and `get_episodes` fallback result when relevant
 - confirm any residual risk or blocker is visible
 - confirm the active phase artifact reflects the accepted result instead of the
   raw worker wording

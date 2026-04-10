@@ -152,7 +152,7 @@ export const dotGetOption: {
   const lookup = lookupAtPath(self, path);
   return Match.value(lookup).pipe(
     Match.when({ found: true }, ({ value }) => O.some(value)),
-    Match.orElse(() => O.none())
+    Match.orElse(O.none)
   );
 }) as {
   <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => O.Option<Get<S, P>>;

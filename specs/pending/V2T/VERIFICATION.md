@@ -42,8 +42,11 @@ P4 verification must explicitly reference:
 - `standards/effect-first-development.md`
 - `standards/schema-first.inventory.jsonc`
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
-- `apps/V2T/package.json` and `packages/VT2/package.json` for live workspace
-  package names and task availability
+- `infra/package.json`
+- root `package.json`, root `turbo.json`, `apps/V2T/package.json`,
+  `apps/V2T/turbo.json`, `packages/VT2/package.json`, and
+  `packages/VT2/turbo.json` for live workspace package names, task
+  availability, and command-truth checks
 
 ## Evidence Recording Rules
 
@@ -53,17 +56,19 @@ P4 verification must explicitly reference:
 - Worker audits can challenge or confirm evidence, but the orchestrator must make the final interpretation.
 - If verification reveals implementation gaps, send that work back to P3 explicitly instead of relabeling the gap as deferred ambition.
 - Record Graphiti recall attempted, exact query, exact error text when recall
-  fails, fallback used, and any durable writeback or queued session-end
-  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
+  fails, whether `get_episodes` fallback was attempted and what it returned,
+  fallback used, and any durable writeback or queued session-end summary using
+  `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Automated Verification Floor
 
 ### Targeted Implementation Floor
 
-- `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
 - `bun run --cwd apps/V2T lint`
+- `bun run --cwd infra lint`
 
 ### Repo Law Gate
 
@@ -86,6 +91,7 @@ P4 verification must explicitly reference:
 Important note:
 
 - `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be evidenced through the repo-law commands above
+- `@beep/infra` is a live package with package-local `check`, `test`, and `lint` scripts, so installer-surface work must record its targeted evidence instead of treating infra as future scope
 - run broader commands whenever the implementation changes shared or managed surfaces, and do not mark readiness until the appropriate broader gate is recorded
 - `@beep/v2t` is the live app package name even though the folder is
   `apps/V2T`, so verify filter casing from the manifest before editing the
@@ -124,6 +130,11 @@ Important note:
 - export artifacts or queued export records are visible after a run
 - failed provider or export work is represented by typed status and user-visible state
 
+### Workstation Installer And Deployment
+
+- when `infra` changed, the workstation config and stack entrypoint evidence match the live `V2TWorkstation` surface
+- when `infra` changed, installer or deployment-specific commands and validations are recorded explicitly instead of being implied by prose
+
 ## Evidence To Capture
 
 - command outputs or summaries
@@ -136,7 +147,8 @@ Important note:
 - whether the implementation extended `packages/VT2` or intentionally migrated away from it
 - which conformance sources were applied and whether any repo-law waivers or exceptions were needed
 - the exact Graphiti recall query, exact error text when recall failed,
-  fallback used, and writeback or session-end summary status
+  whether `get_episodes` fallback was attempted and what it returned, fallback
+  used, and writeback or session-end summary status
 
 ## Readiness Statement
 

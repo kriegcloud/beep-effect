@@ -6,6 +6,9 @@ required inputs and formed a local plan.
 Every prompt should end by requiring the output format from
 [SUBAGENT_OUTPUT_CONTRACT.md](./SUBAGENT_OUTPUT_CONTRACT.md).
 
+Each prompt fill below supplies only the phase-specific values for the common frame. Keep every common-frame field in the final prompt, especially
+`Assigned question`, `Graphiti assignment`, and `Stop condition`.
+
 Core rule:
 
 - the worker is not the orchestrator
@@ -21,6 +24,8 @@ Assigned custom agent: `{{AGENT_NAME}}`
 Mode: `{{MODE}}`
 Objective: {{OBJECTIVE}}
 Assigned question: {{QUESTION}}
+Graphiti assignment: {{GRAPHITI_ASSIGNMENT}}
+Stop condition: {{STOP_CONDITION}}
 Read scope:
 - {{READ_SCOPE}}
 
@@ -37,6 +42,7 @@ Required inputs:
 - `specs/pending/V2T/{{PHASE_ARTIFACT}}`
 - `specs/pending/V2T/prompts/ORCHESTRATOR_OPERATING_MODEL.md`
 - `specs/pending/V2T/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
+- `infra/package.json`
 - `apps/V2T/package.json`
 - `packages/VT2/package.json`
 
@@ -68,6 +74,7 @@ Return the result using `specs/pending/V2T/prompts/SUBAGENT_OUTPUT_CONTRACT.md`.
 Before sending a worker prompt, make sure it names:
 
 - the one concrete question the worker must answer
+- whether Graphiti is `none` or explicitly assigned for that worker
 - the exact fallback behavior if Graphiti lookup is unavailable or errors
 - the exact files the worker may change or audit
 - the commands the worker owns, if any
@@ -91,9 +98,20 @@ Assigned custom agent: `effect_v4_repo_mapper`
 Mode: `read-only`
 Objective: map the current `apps/V2T`, `packages/VT2`, shared UI, and command
 surfaces that the V2T spec can truthfully rely on during P0
+Assigned question: which repo seams, package identities, and task surfaces can
+P0 truthfully rely on, and what remains product ambition rather than repo fact?
+Graphiti assignment: none unless the orchestrator explicitly wants a
+corroborating recall attempt
+Stop condition: stop and return a blocker if a claim cannot be grounded in live
+files, manifests, or commands, or if repo reality contradicts the P0 objective
 Read scope:
 - `apps/V2T/**`
 - `packages/VT2/**`
+- `infra/Pulumi.yaml`
+- `infra/package.json`
+- `infra/src/entry.ts`
+- `infra/src/V2T.ts`
+- `infra/scripts/v2t-workstation.sh`
 - `packages/common/ui/src/components/speech-input.tsx`
 - root `package.json`
 - root `turbo.json`
@@ -131,16 +149,24 @@ Additional rules:
 
 ```markdown
 Assigned custom agent: `effect_v4_schema_worker`
-Mode: `read-only` or `workspace-write`, depending on the orchestrator wave
+Mode: `read-only`
 Objective: refine the schema-first domain and packet model for the P1 design
 contract without widening product scope
+Assigned question: which schema-first domain objects, packet shapes, and
+annotations should the orchestrator adopt in `DESIGN_RESEARCH.md` without
+reopening P0 scope?
+Graphiti assignment: none unless the orchestrator explicitly assigns recall
+Stop condition: stop and return a blocker if the answer depends on reopening P0,
+changing repo seams, or inventing implementation detail that belongs to P2 or P3
 Read scope:
 - `specs/pending/V2T/RESEARCH.md`
 - `apps/V2T/**`
 - `packages/VT2/**`
+- `infra/Pulumi.yaml`
+- `infra/src/V2T.ts`
 
 Write scope:
-- `specs/pending/V2T/DESIGN_RESEARCH.md`
+- none; read-only
 
 Additional required inputs:
 - `specs/pending/V2T/handoffs/HANDOFF_P1.md`
@@ -155,16 +181,24 @@ Additional rules:
 
 ```markdown
 Assigned custom agent: `effect_v4_persistence_runtime_architect`
-Mode: `read-only` or `workspace-write`, depending on the orchestrator wave
+Mode: `read-only`
 Objective: refine the local-first persistence posture for the approved P1
 design without widening the execution slice
+Assigned question: what persistence, filesystem, config, and artifact-storage
+rules should the orchestrator adopt in `DESIGN_RESEARCH.md` while keeping P1
+design-only and local-first?
+Graphiti assignment: none unless the orchestrator explicitly assigns recall
+Stop condition: stop and return a blocker if persistence posture depends on
+reopening product scope or on implementation detail that belongs to P2 or P3
 Read scope:
 - `specs/pending/V2T/RESEARCH.md`
 - `apps/V2T/**`
 - `packages/VT2/**`
+- `infra/Pulumi.yaml`
+- `infra/src/V2T.ts`
 
 Write scope:
-- `specs/pending/V2T/DESIGN_RESEARCH.md`
+- none; read-only
 
 Additional required inputs:
 - `specs/pending/V2T/handoffs/HANDOFF_P1.md`
@@ -191,11 +225,16 @@ Mode: `read-only`
 Objective: audit `PLANNING.md` for misleading command claims, missing
 conformance gates, hidden architecture decisions, and missing verification
 criteria
+Assigned question: what concrete command-truth, conformance, or acceptance
+gaps still prevent `PLANNING.md` from being a reliable execution contract?
+Graphiti assignment: none unless the orchestrator explicitly assigns recall
+Stop condition: stop and return a blocker if command truth cannot be grounded in
+live manifests, tasks, or dry-run evidence
 Read scope:
 - `specs/pending/V2T/RESEARCH.md`
 - `specs/pending/V2T/DESIGN_RESEARCH.md`
 - `specs/pending/V2T/PLANNING.md`
-- root and workspace `package.json` or `turbo.json` files in scope
+- root and workspace `package.json` or `turbo.json` files in scope plus `infra/package.json`
 
 Write scope:
 - none; read-only
@@ -218,11 +257,16 @@ Assigned custom agent: `effect_v4_repo_mapper`
 Mode: `read-only`
 Objective: validate the concrete file groups, package names, and gate commands
 that P2 intends to lock
+Assigned question: which file groups, package identities, or gate commands in
+the plan are confirmed repo truth, and which still need correction?
+Graphiti assignment: none unless the orchestrator explicitly assigns recall
+Stop condition: stop and return a blocker if command truth depends on guessed
+package names, missing tasks, or undocumented path assumptions
 Read scope:
 - `specs/pending/V2T/RESEARCH.md`
 - `specs/pending/V2T/DESIGN_RESEARCH.md`
 - `specs/pending/V2T/PLANNING.md`
-- root plus workspace `package.json` and `turbo.json` files
+- root plus workspace `package.json` and `turbo.json` files plus `infra/package.json`
 
 Write scope:
 - none; read-only
@@ -256,6 +300,11 @@ Assigned custom agent: `effect_v4_schema_worker`
 Mode: `workspace-write`
 Objective: implement the approved schema-first slice for V2T domain objects and
 wire packet contracts inside the assigned files
+Assigned question: which approved schema or packet changes can you implement in
+the assigned files without widening the slice or changing adjacent boundaries?
+Graphiti assignment: none
+Stop condition: stop and return a blocker if the assigned files are insufficient
+or if the plan requires boundary changes outside your write scope
 Read scope:
 - `specs/pending/V2T/RESEARCH.md`
 - `specs/pending/V2T/DESIGN_RESEARCH.md`
@@ -281,6 +330,11 @@ Assigned custom agent: `effect_v4_service_architect`
 Mode: `workspace-write`
 Objective: implement the approved sidecar service or adapter wiring slice using
 Effect v4 service and Layer patterns
+Assigned question: which approved service, layer, or adapter changes can you
+implement in the assigned files without redesigning adjacent seams?
+Graphiti assignment: none
+Stop condition: stop and return a blocker if the plan requires protocol,
+persistence, or schema changes outside the assigned write scope
 Read scope:
 - prior phase artifacts
 - assigned runtime and adapter files
@@ -304,6 +358,11 @@ Assigned custom agent: `effect_v4_persistence_runtime_architect`
 Mode: `workspace-write`
 Objective: implement the approved persistence slice for SQLite, filesystem,
 config, or artifact tracking inside the assigned files
+Assigned question: which approved persistence and artifact-tracking changes can
+you implement in the assigned files without reopening service or protocol design?
+Graphiti assignment: none
+Stop condition: stop and return a blocker if the work requires protocol or
+service redesign outside the assigned persistence scope
 Read scope:
 - prior phase artifacts
 - assigned persistence and runtime files
@@ -328,6 +387,11 @@ Mode: `read-only`
 Objective: review the post-merge execution diff for repo-law drift, incomplete
 verification, missing docs, or misleading gate claims before the orchestrator
 closes P3
+Assigned question: what substantive issues still prevent the current P3 result
+from closing cleanly?
+Graphiti assignment: none unless the orchestrator explicitly assigns recall
+Stop condition: stop and return a blocker if the review lacks the diff, touched
+files, or command evidence needed for a trustworthy audit
 Read scope:
 - `specs/pending/V2T/EXECUTION.md`
 - the merged diff or touched files
@@ -360,6 +424,11 @@ Assigned custom agent: `effect_v4_quality_reviewer`
 Mode: `read-only`
 Objective: audit `VERIFICATION.md` for missing evidence, overclaimed readiness,
 or unrecorded residual risks
+Assigned question: what concrete evidence gaps, overclaims, or residual risks
+still block a trustworthy readiness statement?
+Graphiti assignment: none unless the orchestrator explicitly assigns recall
+Stop condition: stop and return a blocker if the readiness audit lacks command
+outputs, touched-surface context, or the current verification artifact
 Read scope:
 - all prior phase artifacts
 - `specs/pending/V2T/VERIFICATION.md`
@@ -384,11 +453,16 @@ Assigned custom agent: `effect_v4_repo_mapper`
 Mode: `read-only`
 Objective: verify that the touched surfaces and recorded command matrix in
 `VERIFICATION.md` match the actual implementation scope
+Assigned question: do the recorded touched surfaces and command matrix match the
+real implementation scope, and if not, exactly where do they drift?
+Graphiti assignment: none unless the orchestrator explicitly assigns recall
+Stop condition: stop and return a blocker if the audit lacks the touched files,
+merged diff, or live manifest data needed to answer the scope question
 Read scope:
 - all prior phase artifacts
 - `specs/pending/V2T/VERIFICATION.md`
 - touched files or merged diff
-- root plus workspace `package.json` and `turbo.json` files
+- root plus workspace `package.json` and `turbo.json` files plus `infra/package.json`
 
 Write scope:
 - none; read-only

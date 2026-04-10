@@ -25,16 +25,18 @@ const filterFlag = Flag.string("filter").pipe(
 );
 const cleanFlag = Flag.boolean("clean").pipe(Flag.withDescription("Remove the root docs directory before aggregating"));
 
-const resolveAggregateSelector = (packageSelector: O.Option<string>, filterSelector: O.Option<string>) =>
-  Effect.gen(function* () {
-    if (O.isSome(packageSelector) && O.isSome(filterSelector) && packageSelector.value !== filterSelector.value) {
-      return yield* new DomainError({
-        message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
-      });
-    }
+const resolveAggregateSelector = Effect.fn("DocsAggregate.resolveAggregateSelector")(function* (
+  packageSelector: O.Option<string>,
+  filterSelector: O.Option<string>
+) {
+  if (O.isSome(packageSelector) && O.isSome(filterSelector) && packageSelector.value !== filterSelector.value) {
+    return yield* new DomainError({
+      message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
+    });
+  }
 
-    return O.isSome(packageSelector) ? packageSelector : filterSelector;
-  });
+  return O.isSome(packageSelector) ? packageSelector : filterSelector;
+});
 
 const aggregateDocs = Effect.fn(function* (selector: O.Option<string>, clean: boolean) {
   const results = yield* aggregateGeneratedDocs({

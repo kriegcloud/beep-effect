@@ -19,3 +19,10 @@
  * @since 0.0.0
  */
 export const infraProjectName = "beep-effect";
+
+/**
+ * V2T workstation automation surfaces.
+ *
+ * @since 0.0.0
+ */
+export * from "./V2T.js";

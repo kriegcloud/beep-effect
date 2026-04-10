@@ -111,7 +111,7 @@ export const ESLintConfig: ESLintConfigShape = [
     },
     rules: {
       "beep-laws/effect-import-style": "warn",
-      "beep-laws/no-native-runtime": "warn",
+      "beep-laws/no-native-runtime": "error",
       "beep-laws/schema-first": "warn",
       "beep-laws/terse-effect-style": "warn",
     },

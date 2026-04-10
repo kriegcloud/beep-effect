@@ -12,6 +12,7 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
@@ -21,8 +22,23 @@ const $I = $SchemaId.create("Float16Array");
 const float16ArrayConstructor = globalThis.Float16Array;
 const unsupportedFloat16ArrayRuntimeMessage =
   "Float16Array is not available in this runtime. Use Node >=24.0.0 or Bun >=1.1.23.";
+
+class UnsupportedFloat16ArrayRuntimeError extends TaggedErrorClass<UnsupportedFloat16ArrayRuntimeError>(
+  $I`UnsupportedFloat16ArrayRuntimeError`
+)(
+  "UnsupportedFloat16ArrayRuntimeError",
+  {
+    message: S.String,
+  },
+  $I.annote("UnsupportedFloat16ArrayRuntimeError", {
+    description: "Float16Array helpers were used in a runtime that does not expose globalThis.Float16Array.",
+  })
+) {}
+
 const unsupportedFloat16ArrayRuntime = (): never => {
-  throw new Error(unsupportedFloat16ArrayRuntimeMessage);
+  throw UnsupportedFloat16ArrayRuntimeError.new({
+    message: unsupportedFloat16ArrayRuntimeMessage,
+  });
 };
 
 /**

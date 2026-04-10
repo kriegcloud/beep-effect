@@ -6,7 +6,7 @@
  */
 
 import { $NlpId } from "@beep/identity";
-import { thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { thunkEmptyReadonlyArray, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Chunk, Clock, Effect, flow, Inspectable, identity, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -172,7 +172,7 @@ class EntityOutputDetail extends S.Class<EntityOutputDetail>($I`EntityOutputDeta
 
 const decodeEntityOutputDetails = (value: unknown): ReadonlyArray<EntityOutputDetail> =>
   Match.type<boolean>().pipe(
-    Match.when(true, () => A.empty()),
+    Match.when(true, thunkEmptyReadonlyArray<EntityOutputDetail>()),
     Match.when(false, () =>
       A.map(value as ReadonlyArray<unknown>, (detail) => (P.isObject(detail) ? detail : R.empty()))
     ),
@@ -181,7 +181,7 @@ const decodeEntityOutputDetails = (value: unknown): ReadonlyArray<EntityOutputDe
 
 const decodeEntityOutputSpans = (value: unknown): ReadonlyArray<ReadonlyArray<number>> =>
   Match.type<boolean>().pipe(
-    Match.when(true, () => A.empty()),
+    Match.when(true, thunkEmptyReadonlyArray<ReadonlyArray<number>>()),
     Match.when(false, () =>
       A.map(value as ReadonlyArray<unknown>, (span) =>
         A.isArray(span) && A.every(span, P.isNumber) ? span : A.empty()
@@ -516,7 +516,7 @@ export const NlpToolkitLive: Layer.Layer<
               "custom"
             )
           ),
-          Match.when(false, () => A.empty()),
+          Match.when(false, thunkEmptyReadonlyArray<ReturnType<typeof mapEntityOutput>[number]>()),
           Match.exhaustive
         )(includeCustom ?? true);
         const allEntities = pipe(
@@ -725,44 +725,43 @@ export const NlpToolkitLive: Layer.Layer<
                   returned: 0,
                   totalTexts: 0,
                 }),
-              onNonEmpty: () =>
-                Effect.gen(function* () {
-                  const documents = yield* Effect.forEach(texts, (text, index) =>
-                    tokenization.document(text, `rank-${index}`)
-                  );
-                  yield* Effect.forEach(documents, isolated.learnDocument, { discard: true });
+              onNonEmpty: Effect.fn("Nlp.NlpToolkit.RankByRelevance.onNonEmpty")(function* () {
+                const documents = yield* Effect.forEach(texts, (text, index) =>
+                  tokenization.document(text, `rank-${index}`)
+                );
+                yield* Effect.forEach(documents, isolated.learnDocument, { discard: true });
 
-                  const queryDocument = yield* tokenization.document(query, "rank-query");
-                  const queryVector = yield* isolated.vectorizeDocument(queryDocument);
-                  const scores = yield* Effect.forEach(
-                    documents,
+                const queryDocument = yield* tokenization.document(query, "rank-query");
+                const queryVector = yield* isolated.vectorizeDocument(queryDocument);
+                const scores = yield* Effect.forEach(
+                  documents,
 
-                    Effect.fn(function* (document, index) {
-                      const candidateVector = yield* isolated.vectorizeDocument(document);
-                      const score = yield* similarity.vectorCosine(queryVector, candidateVector);
-                      return {
-                        index,
-                        score: score.score,
-                      };
-                    })
-                  );
+                  Effect.fn(function* (document, index) {
+                    const candidateVector = yield* isolated.vectorizeDocument(document);
+                    const score = yield* similarity.vectorCosine(queryVector, candidateVector);
+                    return {
+                      index,
+                      score: score.score,
+                    };
+                  })
+                );
 
-                  const limit = topN ?? A.length(texts);
-                  const ranked = pipe(
-                    scores,
-                    A.sortBy(
-                      descendingNumber((score) => score.score),
-                      ascendingNumber((score) => score.index)
-                    ),
-                    A.take(limit)
-                  );
+                const limit = topN ?? A.length(texts);
+                const ranked = pipe(
+                  scores,
+                  A.sortBy(
+                    descendingNumber((score) => score.score),
+                    ascendingNumber((score) => score.index)
+                  ),
+                  A.take(limit)
+                );
 
-                  return {
-                    ranked,
-                    returned: A.length(ranked),
-                    totalTexts: A.length(texts),
-                  };
-                }),
+                return {
+                  ranked,
+                  returned: A.length(ranked),
+                  totalTexts: A.length(texts),
+                };
+              }),
             });
           })
         );

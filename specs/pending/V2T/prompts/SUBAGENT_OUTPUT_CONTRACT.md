@@ -47,6 +47,7 @@ Every V2T sub-agent must return a concise report with these sections:
 - whether Graphiti memory preflight or lookup was attempted
 - the exact query or queries attempted when lookup was relevant
 - the exact error text when lookup failed
+- whether `get_episodes` fallback was attempted and what it returned
 - whether the worker used a documented fallback instead
 - a suggested Graphiti writeback title or `none`
 

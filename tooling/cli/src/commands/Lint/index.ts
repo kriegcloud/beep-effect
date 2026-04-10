@@ -525,14 +525,13 @@ const runLintCircular = Effect.fn(function* () {
     const circular = result.circular();
     yield* A.match(circular, {
       onEmpty: () => Effect.void,
-      onNonEmpty: (cycles) =>
-        Effect.gen(function* () {
-          hasCircular = true;
-          yield* Console.error(`Circular dependencies in ${dir}:`);
-          for (const cycle of cycles) {
-            yield* Console.error(`  ${A.join(cycle, " -> ")}`);
-          }
-        }),
+      onNonEmpty: Effect.fn("Lint.circular.onNonEmpty")(function* (cycles) {
+        hasCircular = true;
+        yield* Console.error(`Circular dependencies in ${dir}:`);
+        for (const cycle of cycles) {
+          yield* Console.error(`  ${A.join(cycle, " -> ")}`);
+        }
+      }),
     });
   }
 

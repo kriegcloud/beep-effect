@@ -53,49 +53,48 @@ const readSourceFiles = Effect.gen(function* () {
   );
 });
 
-const writeFileToOutDir = (file: Domain.File) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const process = yield* Domain.Process;
-    const cwd = yield* process.cwd;
-    const fileName = path.relative(path.join(cwd, config.outDir), file.path);
-    const exists = yield* fs.exists(file.path).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Core.writeFileToOutDir] Failed to check '${file.path}'\n${String(cause)}`,
-          })
-      )
-    );
+const writeFileToOutDir = Effect.fn("writeFileToOutDir")(function* (file: Domain.File) {
+  const config = yield* Configuration.Configuration;
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const process = yield* Domain.Process;
+  const cwd = yield* process.cwd;
+  const fileName = path.relative(path.join(cwd, config.outDir), file.path);
+  const exists = yield* fs.exists(file.path).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Core.writeFileToOutDir] Failed to check '${file.path}'\n${String(cause)}`,
+        })
+    )
+  );
 
-    if (exists && !file.isOverwritable) {
-      yield* Effect.logDebug(`File ${chalk.black(fileName)} already exists, skipping creation.`);
-      return;
-    }
+  if (exists && !file.isOverwritable) {
+    yield* Effect.logDebug(`File ${chalk.black(fileName)} already exists, skipping creation.`);
+    return;
+  }
 
-    if (exists && file.isOverwritable) {
-      yield* Effect.logDebug(`Overwriting file ${chalk.black(fileName)}...`);
-    }
+  if (exists && file.isOverwritable) {
+    yield* Effect.logDebug(`Overwriting file ${chalk.black(fileName)}...`);
+  }
 
-    yield* fs.makeDirectory(path.dirname(file.path), { recursive: true }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Core.writeFileToOutDir] Failed to create '${path.dirname(file.path)}'\n${String(cause)}`,
-          })
-      )
-    );
-    yield* fs.writeFileString(file.path, file.content).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Core.writeFileToOutDir] Failed to write '${file.path}'\n${String(cause)}`,
-          })
-      )
-    );
-  });
+  yield* fs.makeDirectory(path.dirname(file.path), { recursive: true }).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Core.writeFileToOutDir] Failed to create '${path.dirname(file.path)}'\n${String(cause)}`,
+        })
+    )
+  );
+  yield* fs.writeFileString(file.path, file.content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Core.writeFileToOutDir] Failed to write '${file.path}'\n${String(cause)}`,
+        })
+    )
+  );
+});
 
 const writeFilesToOutDir = (files: ReadonlyArray<Domain.File>) =>
   Effect.forEach(files, writeFileToOutDir, { discard: true });
@@ -110,35 +109,34 @@ const parseModules = (files: ReadonlyArray<Domain.File>) =>
     )
   );
 
-const typeCheckAndRunExamples = (modules: ReadonlyArray<Domain.Module>) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    yield* cleanupExamples;
-    const files = yield* getExampleFiles(modules);
-    const len = files.length;
+const typeCheckAndRunExamples = Effect.fn("typeCheckAndRunExamples")(function* (modules: ReadonlyArray<Domain.Module>) {
+  const config = yield* Configuration.Configuration;
+  yield* cleanupExamples;
+  const files = yield* getExampleFiles(modules);
+  const len = files.length;
 
-    if (len > 0) {
-      yield* Effect.logInfo(`${len} example(s) found`);
-      yield* writeExamplesToOutDir(files);
-      yield* createExamplesTsConfigJson;
-      yield* Effect.logInfo("Typechecking examples...");
-      yield* runTscOnExamples.pipe(
-        Effect.catch((error) =>
-          Effect.logWarning(chalk.yellow(`Example typecheck failed (non-blocking):\n${error.message}`))
-        )
-      );
-      if (config.runExamples) {
-        yield* Effect.logInfo("Running examples...");
-        yield* runBunOnExamples;
-      } else {
-        yield* Effect.logInfo(chalk.gray("Skipping running examples"));
-      }
+  if (len > 0) {
+    yield* Effect.logInfo(`${len} example(s) found`);
+    yield* writeExamplesToOutDir(files);
+    yield* createExamplesTsConfigJson;
+    yield* Effect.logInfo("Typechecking examples...");
+    yield* runTscOnExamples.pipe(
+      Effect.catch((error) =>
+        Effect.logWarning(chalk.yellow(`Example typecheck failed (non-blocking):\n${error.message}`))
+      )
+    );
+    if (config.runExamples) {
+      yield* Effect.logInfo("Running examples...");
+      yield* runBunOnExamples;
     } else {
-      yield* Effect.logInfo("No examples found.");
+      yield* Effect.logInfo(chalk.gray("Skipping running examples"));
     }
+  } else {
+    yield* Effect.logInfo("No examples found.");
+  }
 
-    yield* cleanupExamples;
-  });
+  yield* cleanupExamples;
+});
 
 const filterJoin = (segments: ReadonlyArray<string>) => pipe(segments, A.filter(Str.isNonEmpty), A.join("-"));
 const sanitizeExampleName = (name: string): string => {
@@ -197,116 +195,114 @@ export const extractFencedCode = (content: string): [examples: Array<string>, wa
   return [examples, warnings];
 };
 
-const getExampleFiles = (modules: ReadonlyArray<Domain.Module>) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    const path = yield* Path.Path;
-    let warnings: Array<string> = [];
+const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: ReadonlyArray<Domain.Module>) {
+  const config = yield* Configuration.Configuration;
+  const path = yield* Path.Path;
+  let warnings: Array<string> = [];
 
-    const files = A.flatMap(modules, (module) => {
-      const prefix = A.join("-")(module.path);
+  const files = A.flatMap(modules, (module) => {
+    const prefix = A.join("-")(module.path);
 
-      const getFiles =
-        (exampleId: string) =>
-        (namedDoc: { readonly name: string; readonly doc: Domain.Doc }): ReadonlyArray<Domain.File> => {
-          let descriptionExamples: ReadonlyArray<string> = [];
-          if (namedDoc.doc.description !== undefined) {
-            const [examples, nextWarnings] = extractFencedCode(namedDoc.doc.description);
-            warnings = A.appendAll(warnings, nextWarnings);
-            descriptionExamples = examples;
-          }
+    const getFiles =
+      (exampleId: string) =>
+      (namedDoc: { readonly name: string; readonly doc: Domain.Doc }): ReadonlyArray<Domain.File> => {
+        let descriptionExamples: ReadonlyArray<string> = [];
+        if (namedDoc.doc.description !== undefined) {
+          const [examples, nextWarnings] = extractFencedCode(namedDoc.doc.description);
+          warnings = A.appendAll(warnings, nextWarnings);
+          descriptionExamples = examples;
+        }
 
-          let exampleTagExamples: ReadonlyArray<string> = [];
-          for (const example of namedDoc.doc.examples) {
-            const [examples, nextWarnings] = extractFencedCode(example);
-            warnings = A.appendAll(warnings, nextWarnings);
-            exampleTagExamples = A.appendAll(exampleTagExamples, examples);
-          }
+        let exampleTagExamples: ReadonlyArray<string> = [];
+        for (const example of namedDoc.doc.examples) {
+          const [examples, nextWarnings] = extractFencedCode(example);
+          warnings = A.appendAll(warnings, nextWarnings);
+          exampleTagExamples = A.appendAll(exampleTagExamples, examples);
+        }
 
-          return pipe(
-            descriptionExamples,
-            A.appendAll(exampleTagExamples),
-            A.map((example, index) =>
-              Domain.File.new(
-                path.join(
-                  config.outDir,
-                  "examples",
-                  `${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`
-                ),
-                example,
-                true
-              )
+        return pipe(
+          descriptionExamples,
+          A.appendAll(exampleTagExamples),
+          A.map((example, index) =>
+            Domain.File.new(
+              path.join(
+                config.outDir,
+                "examples",
+                `${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`
+              ),
+              example,
+              true
             )
-          );
-        };
+          )
+        );
+      };
 
-      const allPrefixedNamespaces = A.flatMap(module.namespaces, (namespace) =>
-        extractPrefixedNestedNamespaces(namespace, "")
-      );
-
-      const moduleExamples = getFiles("module")(module);
-      const classExamples = A.flatMap(module.classes, (c) =>
-        A.flatten([
-          getFiles("class")(c),
-          A.flatMap(c.methods, getFiles(`${c.name}-method`)),
-          A.flatMap(c.staticMethods, getFiles(`${c.name}-staticmethod`)),
-        ])
-      );
-      const allPrefixedInterfaces = A.appendAll(
-        A.map(module.interfaces, (iface) => ["" as string, iface] as const),
-        A.flatMap(allPrefixedNamespaces, ([prefixValue, namespace]) =>
-          A.map(namespace.interfaces, (iface) => [filterJoin([prefixValue, namespace.name]), iface] as const)
-        )
-      );
-      const interfacesExamples = A.flatMap(allPrefixedInterfaces, ([namespaceValue, doc]) =>
-        getFiles(filterJoin(["interface", namespaceValue]))(doc)
-      );
-      const allPrefixedTypeAliases = A.appendAll(
-        A.map(module.typeAliases, (typeAlias) => ["" as string, typeAlias] as const),
-        A.flatMap(allPrefixedNamespaces, ([prefixValue, namespace]) =>
-          A.map(namespace.typeAliases, (typeAlias) => [filterJoin([prefixValue, namespace.name]), typeAlias] as const)
-        )
-      );
-      const typeAliasesExamples = A.flatMap(allPrefixedTypeAliases, ([namespaceValue, doc]) =>
-        getFiles(filterJoin(["typealias", namespaceValue]))(doc)
-      );
-      const constantsExamples = A.flatMap(module.constants, getFiles("constant"));
-      const functionsExamples = A.flatMap(module.functions, getFiles("function"));
-      const exportsExamples = A.flatMap(module.exports, getFiles("export"));
-      const namespacesExamples = A.flatMap(allPrefixedNamespaces, ([namespaceValue, doc]) =>
-        getFiles(filterJoin(["namespace", namespaceValue]))(doc)
-      );
-
-      return A.flatten([
-        moduleExamples,
-        classExamples,
-        interfacesExamples,
-        typeAliasesExamples,
-        constantsExamples,
-        functionsExamples,
-        namespacesExamples,
-        exportsExamples,
-      ]);
-    });
-
-    if (warnings.length > 0) {
-      yield* Effect.logWarning(A.join("\n")(warnings));
-    }
-
-    return files;
-  });
-
-const getExamplesEntryPoint = (examples: ReadonlyArray<Domain.File>) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    const path = yield* Path.Path;
-    const content = pipe(
-      examples,
-      A.map((example) => `import "./${path.basename(example.path, ".ts")}"`),
-      A.join("\n")
+    const allPrefixedNamespaces = A.flatMap(module.namespaces, (namespace) =>
+      extractPrefixedNestedNamespaces(namespace, "")
     );
-    return Domain.File.new(path.normalize(path.join(config.outDir, "examples", "index.ts")), `${content}\n`, true);
+
+    const moduleExamples = getFiles("module")(module);
+    const classExamples = A.flatMap(module.classes, (c) =>
+      A.flatten([
+        getFiles("class")(c),
+        A.flatMap(c.methods, getFiles(`${c.name}-method`)),
+        A.flatMap(c.staticMethods, getFiles(`${c.name}-staticmethod`)),
+      ])
+    );
+    const allPrefixedInterfaces = A.appendAll(
+      A.map(module.interfaces, (iface) => ["" as string, iface] as const),
+      A.flatMap(allPrefixedNamespaces, ([prefixValue, namespace]) =>
+        A.map(namespace.interfaces, (iface) => [filterJoin([prefixValue, namespace.name]), iface] as const)
+      )
+    );
+    const interfacesExamples = A.flatMap(allPrefixedInterfaces, ([namespaceValue, doc]) =>
+      getFiles(filterJoin(["interface", namespaceValue]))(doc)
+    );
+    const allPrefixedTypeAliases = A.appendAll(
+      A.map(module.typeAliases, (typeAlias) => ["" as string, typeAlias] as const),
+      A.flatMap(allPrefixedNamespaces, ([prefixValue, namespace]) =>
+        A.map(namespace.typeAliases, (typeAlias) => [filterJoin([prefixValue, namespace.name]), typeAlias] as const)
+      )
+    );
+    const typeAliasesExamples = A.flatMap(allPrefixedTypeAliases, ([namespaceValue, doc]) =>
+      getFiles(filterJoin(["typealias", namespaceValue]))(doc)
+    );
+    const constantsExamples = A.flatMap(module.constants, getFiles("constant"));
+    const functionsExamples = A.flatMap(module.functions, getFiles("function"));
+    const exportsExamples = A.flatMap(module.exports, getFiles("export"));
+    const namespacesExamples = A.flatMap(allPrefixedNamespaces, ([namespaceValue, doc]) =>
+      getFiles(filterJoin(["namespace", namespaceValue]))(doc)
+    );
+
+    return A.flatten([
+      moduleExamples,
+      classExamples,
+      interfacesExamples,
+      typeAliasesExamples,
+      constantsExamples,
+      functionsExamples,
+      namespacesExamples,
+      exportsExamples,
+    ]);
   });
+
+  if (warnings.length > 0) {
+    yield* Effect.logWarning(A.join("\n")(warnings));
+  }
+
+  return files;
+});
+
+const getExamplesEntryPoint = Effect.fn("getExamplesEntryPoint")(function* (examples: ReadonlyArray<Domain.File>) {
+  const config = yield* Configuration.Configuration;
+  const path = yield* Path.Path;
+  const content = pipe(
+    examples,
+    A.map((example) => `import "./${path.basename(example.path, ".ts")}"`),
+    A.join("\n")
+  );
+  return Domain.File.new(path.normalize(path.join(config.outDir, "examples", "index.ts")), `${content}\n`, true);
+});
 
 const cleanupExamples = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -401,12 +397,11 @@ const runBunOnExamples = Effect.gen(function* () {
   }
 });
 
-const writeExamplesToOutDir = (examples: ReadonlyArray<Domain.File>) =>
-  Effect.gen(function* () {
-    yield* Effect.logDebug("Writing examples...");
-    const entryPoint = yield* getExamplesEntryPoint(examples);
-    yield* writeFilesToOutDir([entryPoint, ...examples]);
-  });
+const writeExamplesToOutDir = Effect.fn("writeExamplesToOutDir")(function* (examples: ReadonlyArray<Domain.File>) {
+  yield* Effect.logDebug("Writing examples...");
+  const entryPoint = yield* getExamplesEntryPoint(examples);
+  yield* writeFilesToOutDir([entryPoint, ...examples]);
+});
 
 const createExamplesTsConfigJson = Effect.gen(function* () {
   yield* Effect.logDebug("Writing examples tsconfig...");
@@ -427,14 +422,13 @@ const createExamplesTsConfigJson = Effect.gen(function* () {
   yield* writeFileToOutDir(Domain.File.new(path.join(cwd, config.outDir, "examples", "tsconfig.json"), content, true));
 });
 
-const getMarkdown = (modules: ReadonlyArray<Domain.Module>) =>
-  Effect.gen(function* () {
-    const homepage = yield* getMarkdownHomepage;
-    const index = yield* getMarkdownIndex;
-    const yml = yield* getMarkdownConfigYML;
-    const moduleFiles = yield* getModuleMarkdownFiles(modules);
-    return [homepage, index, yml, ...moduleFiles];
-  });
+const getMarkdown = Effect.fn("getMarkdown")(function* (modules: ReadonlyArray<Domain.Module>) {
+  const homepage = yield* getMarkdownHomepage;
+  const index = yield* getMarkdownIndex;
+  const yml = yield* getMarkdownConfigYML();
+  const moduleFiles = yield* getModuleMarkdownFiles(modules);
+  return [homepage, index, yml, ...moduleFiles];
+});
 
 const getMarkdownHomepage = Effect.gen(function* () {
   const config = yield* Configuration.Configuration;
@@ -470,26 +464,25 @@ const getMarkdownIndex = Effect.gen(function* () {
   );
 });
 
-const resolveConfigYML = (content: string) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    return pipe(
-      content,
-      Str.replace(/^remote_theme:.*$/m, `remote_theme: ${config.theme}`),
-      Str.replace(/^search_enabled:.*$/m, `search_enabled: ${config.enableSearch}`),
-      Str.replace(
-        /^ {2}'\S* on GitHub':\n {4}- '.*'/m,
-        `  '${config.projectName} on GitHub':\n    - '${config.projectHomepage}'`
-      )
-    );
-  });
+const resolveConfigYML = Effect.fn("resolveConfigYML")(function* (content: string) {
+  const config = yield* Configuration.Configuration;
+  return pipe(
+    content,
+    Str.replace(/^remote_theme:.*$/m, `remote_theme: ${config.theme}`),
+    Str.replace(/^search_enabled:.*$/m, `search_enabled: ${config.enableSearch}`),
+    Str.replace(
+      /^ {2}'\S* on GitHub':\n {4}- '.*'/m,
+      `  '${config.projectName} on GitHub':\n    - '${config.projectHomepage}'`
+    )
+  );
+});
 
 const getHomepageNavigationHeader = (config: Configuration.ConfigurationShape): string =>
   pipe(config.projectHomepage, Str.toLowerCase, Str.includes("github"))
     ? `${config.projectName} on GitHub`
     : "Homepage";
 
-const getMarkdownConfigYML = Effect.gen(function* () {
+const getMarkdownConfigYML = Effect.fn("getMarkdownConfigYML")(function* () {
   const config = yield* Configuration.Configuration;
   const process = yield* Domain.Process;
   const fs = yield* FileSystem.FileSystem;
@@ -526,13 +519,12 @@ const getMarkdownConfigYML = Effect.gen(function* () {
   );
 });
 
-const getModuleMarkdownOutputPath = (module: Domain.Module) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    const path = yield* Path.Path;
-    const modulePath = pipe(module.path, A.drop(1), A.join(path.sep));
-    return path.normalize(path.join(config.outDir, "modules", `${modulePath}.md`));
-  });
+const getModuleMarkdownOutputPath = Effect.fn("getModuleMarkdownOutputPath")(function* (module: Domain.Module) {
+  const config = yield* Configuration.Configuration;
+  const path = yield* Path.Path;
+  const modulePath = pipe(module.path, A.drop(1), A.join(path.sep));
+  return path.normalize(path.join(config.outDir, "modules", `${modulePath}.md`));
+});
 
 const getModuleMarkdownFiles = (modules: ReadonlyArray<Domain.Module>) =>
   Effect.forEach(modules, (module, index) =>
@@ -556,32 +548,31 @@ ${toc}
     })
   );
 
-const writeMarkdown = (files: ReadonlyArray<Domain.File>) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    const path = yield* Path.Path;
-    const fileSystem = yield* FileSystem.FileSystem;
-    const pattern = path.normalize(path.join(config.outDir, "**/*.ts.md"));
-    yield* Effect.logDebug(`Deleting ${chalk.black(pattern)}...`);
-    const paths = yield* globFiles(pattern);
-    yield* Effect.forEach(
-      paths,
-      (filePath) =>
-        fileSystem.remove(filePath, { recursive: true }).pipe(
-          Effect.mapError(
-            (cause) =>
-              new Domain.DocgenError({
-                message: `[Core.writeMarkdown] Failed to delete '${filePath}'\n${String(cause)}`,
-              })
-          )
-        ),
-      {
-        concurrency: "unbounded",
-        discard: true,
-      }
-    );
-    return yield* writeFilesToOutDir(files);
-  });
+const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray<Domain.File>) {
+  const config = yield* Configuration.Configuration;
+  const path = yield* Path.Path;
+  const fileSystem = yield* FileSystem.FileSystem;
+  const pattern = path.normalize(path.join(config.outDir, "**/*.ts.md"));
+  yield* Effect.logDebug(`Deleting ${chalk.black(pattern)}...`);
+  const paths = yield* globFiles(pattern);
+  yield* Effect.forEach(
+    paths,
+    (filePath) =>
+      fileSystem.remove(filePath, { recursive: true }).pipe(
+        Effect.mapError(
+          (cause) =>
+            new Domain.DocgenError({
+              message: `[Core.writeMarkdown] Failed to delete '${filePath}'\n${String(cause)}`,
+            })
+        )
+      ),
+    {
+      concurrency: "unbounded",
+      discard: true,
+    }
+  );
+  return yield* writeFilesToOutDir(files);
+});
 
 /**
  * Runs the full docgen workflow from source parsing through markdown emission.

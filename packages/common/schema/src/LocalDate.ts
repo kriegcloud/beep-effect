@@ -18,12 +18,13 @@ import {
   Hash,
   Order as Order_,
   pipe,
+  SchemaGetter,
   SchemaIssue,
-  SchemaTransformation,
 } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
 
 const $I = $SchemaId.create("LocalDate");
@@ -160,6 +161,52 @@ const makeInvalidLocalDateError: {
 
 const isValidCalendarDate = ({ year, month, day }: { year: number; month: number; day: number }): boolean =>
   month >= 1 && month <= 12 && day >= 1 && day <= getDaysInMonth(year, month);
+
+const decodeLocalDateFromString: (
+  dateString: string,
+  options: AST.ParseOptions
+) => Effect.Effect<LocalDate, SchemaIssue.Issue> = Effect.fn("LocalDateFromString.decode")(function* (
+  dateString: string,
+  _options: AST.ParseOptions
+) {
+  const match = dateString.match(ISO_DATE_PATTERN);
+  if (P.isNullish(match)) {
+    return yield* Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString)));
+  }
+  const [, yearStr, monthStr, dayStr] = match;
+  const year = Number.parseInt(yearStr, 10);
+  const month = Number.parseInt(monthStr, 10);
+  const day = Number.parseInt(dayStr, 10);
+
+  // Validate month range
+  if (month < 1 || month > 12) {
+    return yield* Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));
+  }
+
+  // Validate day range for the given month
+  const maxDays = daysInMonth(year, month);
+  if (day < 1 || day > maxDays) {
+    return yield* Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));
+  }
+
+  return LocalDate.make({
+    year,
+    month,
+    day,
+  });
+});
+
+const encodeLocalDateFromString = (localDate: {
+  readonly year: number;
+  readonly month: number;
+  readonly day: number;
+}) => {
+  // Format as ISO 8601 date string (YYYY-MM-DD)
+  const y = String(localDate.year).padStart(4, "0");
+  const m = String(localDate.month).padStart(2, "0");
+  const d = String(localDate.day).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+};
 
 /**
  * Parse a `YYYY-MM-DD` string into a `LocalDate`, returning an `Effect` that fails for invalid input.
@@ -452,45 +499,10 @@ export const daysInMonth: {
  */
 
 export const LocalDateFromString = S.String.pipe(
-  S.decodeTo(
-    LocalDate,
-    SchemaTransformation.transformOrFail({
-      decode: (dateString) => {
-        const match = dateString.match(ISO_DATE_PATTERN);
-        if (P.isNullish(match)) {
-          return Effect.fail(new SchemaIssue.InvalidValue(O.some(dateString)));
-        }
-        const [, yearStr, monthStr, dayStr] = match;
-        const year = Number.parseInt(yearStr, 10);
-        const month = Number.parseInt(monthStr, 10);
-        const day = Number.parseInt(dayStr, 10);
-
-        // Validate month range
-        if (month < 1 || month > 12) {
-          return Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));
-        }
-
-        // Validate day range for the given month
-        const maxDays = daysInMonth(year, month);
-        if (day < 1 || day > maxDays) {
-          return Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));
-        }
-
-        return Effect.succeed({
-          year,
-          month,
-          day,
-        });
-      },
-      encode: (localDate) => {
-        // Format as ISO 8601 date string (YYYY-MM-DD)
-        const y = String(localDate.year).padStart(4, "0");
-        const m = String(localDate.month).padStart(2, "0");
-        const d = String(localDate.day).padStart(2, "0");
-        return Effect.succeed(`${y}-${m}-${d}`);
-      },
-    })
-  ),
+  S.decodeTo(LocalDate, {
+    decode: SchemaGetter.transformOrFail(decodeLocalDateFromString),
+    encode: SchemaGetter.transform(encodeLocalDateFromString),
+  }),
   $I.annoteSchema("LocalDateFromString", {
     description: "LocalDateFromString - Schema that transforms ISO date strings (YYYY-MM-DD) to LocalDate",
     documentation:

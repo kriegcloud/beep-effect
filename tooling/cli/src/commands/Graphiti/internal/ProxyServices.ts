@@ -477,14 +477,13 @@ export const makeGraphitiProxyForwarderService = (
                   504
                 )
               ),
-            onSome: (upstreamResponse) =>
-              Effect.gen(function* () {
-                const bodyBuffer = yield* Effect.orElseSucceed(upstreamResponse.arrayBuffer, () => new ArrayBuffer(0));
-                return HttpServerResponse.uint8Array(new Uint8Array(bodyBuffer), {
-                  status: upstreamResponse.status,
-                  headers: upstreamResponse.headers,
-                });
-              }),
+            onSome: Effect.fn("GraphitiProxyForwarder.forward.onSome")(function* (upstreamResponse) {
+              const bodyBuffer = yield* Effect.orElseSucceed(upstreamResponse.arrayBuffer, () => new ArrayBuffer(0));
+              return HttpServerResponse.uint8Array(new Uint8Array(bodyBuffer), {
+                status: upstreamResponse.status,
+                headers: upstreamResponse.headers,
+              });
+            }),
           }),
       });
     });

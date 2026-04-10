@@ -319,6 +319,19 @@ const LiteralKitEnumMappingCoverageErrorBase: TaggedErrorClassFromFields<
   "LiteralKit Enum Mapping Coverage Error",
   "A manual LiteralKit enum mapping did not exactly match the provided literal set."
 );
+const LiteralKitTaggedUnionLiteralErrorFields = {
+  literal: LiteralValueSchema,
+} satisfies S.Struct.Fields;
+const LiteralKitTaggedUnionLiteralErrorBase: TaggedErrorClassFromFields<
+  LiteralKitTaggedUnionLiteralError,
+  "LiteralKitTaggedUnionLiteralError",
+  typeof LiteralKitTaggedUnionLiteralErrorFields
+> = makeLiteralKitErrorBase(
+  "LiteralKitTaggedUnionLiteralError",
+  LiteralKitTaggedUnionLiteralErrorFields,
+  "LiteralKit Tagged Union Literal Error",
+  "LiteralKit.toTaggedUnion only supports literals that can be used as object property keys."
+);
 
 /**
  * Error thrown when an input value is not found in the provided literals
@@ -386,6 +399,22 @@ export class LiteralKitEnumMappingDuplicateLiteralError extends LiteralKitEnumMa
  * @since 0.0.0
  */
 export class LiteralKitEnumMappingCoverageError extends LiteralKitEnumMappingCoverageErrorBase {}
+
+/**
+ * Error thrown when `LiteralKit.toTaggedUnion` receives a literal that cannot
+ * act as an object property key.
+ *
+ * @example
+ * ```ts
+ * import { LiteralKitTaggedUnionLiteralError } from "@beep/schema/LiteralKit"
+ *
+ * void LiteralKitTaggedUnionLiteralError
+ * ```
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class LiteralKitTaggedUnionLiteralError extends LiteralKitTaggedUnionLiteralErrorBase {}
 
 const validateLiteralKeys = <L extends Literals>(literals: L): void =>
   void pipe(
@@ -658,7 +687,9 @@ export function LiteralKit<const L extends Literals, const M extends EnumMapping
       const union = base.mapMembers((members) =>
         members.map((member) => {
           if (!P.isPropertyKey(member.literal)) {
-            throw new globalThis.Error("LiteralKit.toTaggedUnion requires property-key literals.");
+            throw new LiteralKitTaggedUnionLiteralError({
+              literal: member.literal,
+            });
           }
 
           return S.Struct({

@@ -43,20 +43,19 @@ function removeFenceMetadata(markdown: string): string {
   });
 }
 
-const printOptionalDescription = (description: string | undefined) =>
-  Effect.gen(function* () {
-    if (P.isUndefined(description)) {
-      return "";
-    }
+const printOptionalDescription = Effect.fn("printOptionalDescription")(function* (description: string | undefined) {
+  if (P.isUndefined(description)) {
+    return "";
+  }
 
-    const config = yield* Configuration.Configuration;
-    const descriptionWithoutLinks = replaceJSDocLinks(description);
-    const out =
-      config.theme === Configuration.DEFAULT_THEME
-        ? removeFenceMetadata(descriptionWithoutLinks)
-        : descriptionWithoutLinks;
-    return `\n\n${out}`;
-  });
+  const config = yield* Configuration.Configuration;
+  const descriptionWithoutLinks = replaceJSDocLinks(description);
+  const out =
+    config.theme === Configuration.DEFAULT_THEME
+      ? removeFenceMetadata(descriptionWithoutLinks)
+      : descriptionWithoutLinks;
+  return `\n\n${out}`;
+});
 
 const printArray = (title: string, values?: ReadonlyArray<string>): string => {
   if (P.isUndefined(values) || A.isReadonlyArrayEmpty(values)) {
@@ -121,19 +120,18 @@ const printSeesArray = (sees?: ReadonlyArray<string>): string => {
   )}`;
 };
 
-const printOptionalSourceLink = (position?: Domain.Position) =>
-  Effect.gen(function* () {
-    if (P.isUndefined(position)) {
-      return "";
-    }
+const printOptionalSourceLink = Effect.fn("printOptionalSourceLink")(function* (position?: Domain.Position) {
+  if (P.isUndefined(position)) {
+    return "";
+  }
 
-    const config = yield* Configuration.Configuration;
-    const source = yield* Parser.Source;
-    const name = source.sourceFile.getBaseName();
-    return `\n\n[Source](${config.srcLink}${name}#L${position.line})`;
-  });
+  const config = yield* Configuration.Configuration;
+  const source = yield* Parser.Source;
+  const name = source.sourceFile.getBaseName();
+  return `\n\n[Source](${config.srcLink}${name}#L${position.line})`;
+});
 
-const printModel = (
+const printModel = Effect.fn("printModel")(function* (
   name: string,
   doc: Domain.Doc,
   options: {
@@ -142,22 +140,21 @@ const printModel = (
     readonly indentation?: number | undefined;
     readonly postfix?: string | undefined;
   }
-) =>
-  Effect.gen(function* () {
-    const sourceLink = yield* printOptionalSourceLink(options.position);
-    const description = yield* printOptionalDescription(doc.description);
-    return (
-      printHeaderByIndentation(options.indentation ?? 0) +
-      printTitle(name, doc.deprecated, options.postfix) +
-      description +
-      printThrowsArray(doc.throws) +
-      printExamplesArray(doc.examples) +
-      printSeesArray(doc.sees) +
-      printOptionalSignature(options.signature) +
-      sourceLink +
-      printOptionalSince(doc.since)
-    );
-  });
+) {
+  const sourceLink = yield* printOptionalSourceLink(options.position);
+  const description = yield* printOptionalDescription(doc.description);
+  return (
+    printHeaderByIndentation(options.indentation ?? 0) +
+    printTitle(name, doc.deprecated, options.postfix) +
+    description +
+    printThrowsArray(doc.throws) +
+    printExamplesArray(doc.examples) +
+    printSeesArray(doc.sees) +
+    printOptionalSignature(options.signature) +
+    sourceLink +
+    printOptionalSince(doc.since)
+  );
+});
 
 const printEntry = (
   model: Domain.DocEntry,
@@ -191,32 +188,31 @@ const printProperty = (model: Domain.DocEntry) =>
     postfix: "(property)",
   });
 
-const printClass = (model: Domain.Class) =>
-  Effect.gen(function* () {
-    const header = yield* printEntry(model, { postfix: "(class)" });
-    const staticMethods = yield* Effect.forEach(model.staticMethods, printStaticMethod);
-    const methods = yield* Effect.forEach(model.methods, printMethod);
-    const properties = yield* Effect.forEach(model.properties, printProperty);
+const printClass = Effect.fn("printClass")(function* (model: Domain.Class) {
+  const header = yield* printEntry(model, { postfix: "(class)" });
+  const staticMethods = yield* Effect.forEach(model.staticMethods, printStaticMethod);
+  const methods = yield* Effect.forEach(model.methods, printMethod);
+  const properties = yield* Effect.forEach(model.properties, printProperty);
 
-    return (
-      header +
-      pipe(
-        staticMethods,
-        A.map((value) => `\n\n${value}`),
-        A.join("")
-      ) +
-      pipe(
-        methods,
-        A.map((value) => `\n\n${value}`),
-        A.join("")
-      ) +
-      pipe(
-        properties,
-        A.map((value) => `\n\n${value}`),
-        A.join("")
-      )
-    );
-  });
+  return (
+    header +
+    pipe(
+      staticMethods,
+      A.map((value) => `\n\n${value}`),
+      A.join("")
+    ) +
+    pipe(
+      methods,
+      A.map((value) => `\n\n${value}`),
+      A.join("")
+    ) +
+    pipe(
+      properties,
+      A.map((value) => `\n\n${value}`),
+      A.join("")
+    )
+  );
+});
 
 const printConstant = (model: Domain.Constant) => printEntry(model, {});
 

@@ -389,38 +389,40 @@ const makeWinkVectorizer = Effect.gen(function* () {
         vector: state.vectorizer.vectorOf(A.fromIterable(tokens)),
       });
     }),
-    withFreshInstance: <A, E, R>(f: (isolated: ScopedVectorizer) => Effect.Effect<A, E, R>) => {
-      const freshVectorizer = bm25(config);
+    withFreshInstance: Effect.fn("Nlp.Wink.WinkVectorizer.withFreshInstance")(
+      <A, E, R>(f: (isolated: ScopedVectorizer) => Effect.Effect<A, E, R>) => {
+        const freshVectorizer = bm25(config);
 
-      const isolated: ScopedVectorizer = {
-        getDocumentTermFrequencies: (docIndex) => getTermFrequencies(freshVectorizer, docIndex),
-        learnDocument: (document) =>
-          pipe(
-            readNormalizedTokens(document),
-            Effect.flatMap((tokens) =>
-              Effect.sync(() => {
-                freshVectorizer.learn(A.fromIterable(tokens));
-              })
-            ),
-            Effect.mapError((cause) => VectorizerError.fromCause(cause, "freshLearnDocument"))
-          ),
-        vectorizeDocument: (document) =>
-          pipe(
-            readNormalizedTokens(document),
-            Effect.flatMap((tokens) =>
-              Effect.map(getTerms(freshVectorizer), (terms) =>
-                DocumentVector.make({
-                  documentId: document.id,
-                  terms,
-                  vector: freshVectorizer.vectorOf(A.fromIterable(tokens)),
+        const isolated: ScopedVectorizer = {
+          getDocumentTermFrequencies: (docIndex) => getTermFrequencies(freshVectorizer, docIndex),
+          learnDocument: (document) =>
+            pipe(
+              readNormalizedTokens(document),
+              Effect.flatMap((tokens) =>
+                Effect.sync(() => {
+                  freshVectorizer.learn(A.fromIterable(tokens));
                 })
+              ),
+              Effect.mapError((cause) => VectorizerError.fromCause(cause, "freshLearnDocument"))
+            ),
+          vectorizeDocument: (document) =>
+            pipe(
+              readNormalizedTokens(document),
+              Effect.flatMap((tokens) =>
+                Effect.map(getTerms(freshVectorizer), (terms) =>
+                  DocumentVector.make({
+                    documentId: document.id,
+                    terms,
+                    vector: freshVectorizer.vectorOf(A.fromIterable(tokens)),
+                  })
+                )
               )
-            )
-          ),
-      };
+            ),
+        };
 
-      return f(isolated);
-    },
+        return f(isolated);
+      }
+    ),
   });
 }).pipe(Effect.withSpan("Nlp.Wink.WinkVectorizer.make"));
 
