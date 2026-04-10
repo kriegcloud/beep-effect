@@ -121,6 +121,12 @@ ensure_systemd_user() {
   run_as_target_user systemctl --user list-units --all >/dev/null
 }
 
+ensure_user_service_prereqs() {
+  ensure_target_runtime_dir
+  ensure_sudo_access
+  ensure_systemd_user
+}
+
 ensure_nvidia_driver() {
   require_command nvidia-smi
   nvidia-smi >/dev/null
@@ -129,9 +135,7 @@ ensure_nvidia_driver() {
 preflight() {
   ensure_supported_os
   ensure_repo_surface
-  ensure_target_runtime_dir
-  ensure_sudo_access
-  ensure_systemd_user
+  ensure_user_service_prereqs
   ensure_nvidia_driver
   log "preflight checks passed"
 }
@@ -287,6 +291,8 @@ wait_for_container_health() {
 }
 
 install_graphiti() {
+  ensure_user_service_prereqs
+
   if [[ "$GRAPHITI_ENABLED" != "true" ]]; then
     log "graphiti provisioning disabled"
     return 0
@@ -295,6 +301,9 @@ install_graphiti() {
   if [[ -z "${V2T_GRAPHITI_OPENAI_API_KEY:-}" ]]; then
     die "graphiti is enabled but V2T_GRAPHITI_OPENAI_API_KEY was not provided"
   fi
+
+  require_single_line_value "REPO_ROOT" "$REPO_ROOT"
+  require_single_line_value "GRAPHITI_PROXY_SERVICE_NAME" "$GRAPHITI_PROXY_SERVICE_NAME"
 
   write_graphiti_compose
 
@@ -306,9 +315,6 @@ install_graphiti() {
 
   wait_for_container_health graphiti-mcp-falkordb-1
   wait_for_container_health graphiti-mcp-graphiti-mcp-1
-
-  require_single_line_value "REPO_ROOT" "$REPO_ROOT"
-  require_single_line_value "GRAPHITI_PROXY_SERVICE_NAME" "$GRAPHITI_PROXY_SERVICE_NAME"
 
   run_as_target_user env \
     REPO_ROOT="$REPO_ROOT" \
@@ -432,6 +438,8 @@ wait_for_qwen_health() {
 }
 
 install_qwen() {
+  ensure_user_service_prereqs
+
   run_as_target_user mkdir -p "$QWEN_STATE_DIR" "$QWEN_CACHE_DIR"
 
   if [[ ! -x "${QWEN_VENV_DIR}/bin/python" ]]; then
