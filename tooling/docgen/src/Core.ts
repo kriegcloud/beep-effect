@@ -309,17 +309,14 @@ const cleanupExamples = Effect.gen(function* () {
   const config = yield* Configuration.Configuration;
   const path = yield* Path.Path;
   const examplesDir = path.join(config.outDir, "examples");
-  const exists = yield* fs.exists(examplesDir).pipe(Effect.orElseSucceed(thunkFalse));
-  if (exists) {
-    yield* fs.remove(examplesDir, { recursive: true }).pipe(
-      Effect.mapError(
-        (cause) =>
-          new Domain.DocgenError({
-            message: `[Core.cleanupExamples] Failed to remove '${examplesDir}'\n${String(cause)}`,
-          })
-      )
-    );
-  }
+  yield* fs.remove(examplesDir, { recursive: true, force: true }).pipe(
+    Effect.mapError(
+      (cause) =>
+        new Domain.DocgenError({
+          message: `[Core.cleanupExamples] Failed to remove '${examplesDir}'\n${String(cause)}`,
+        })
+    )
+  );
 });
 
 const collectCommandOutput = (command: ChildProcess.Command) =>
