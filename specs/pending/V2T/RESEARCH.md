@@ -57,7 +57,7 @@ P0 must read and cite the live repo-law inputs that constrain later phases:
 - `packages/VT2`
 - `infra/Pulumi.yaml`
 - `infra/package.json`
-- `infra/src/entry.ts`
+- `infra/src/internal/entry.ts`
 - `infra/src/V2T.ts`
 - `infra/scripts/v2t-workstation.sh`
 - `infra/test/V2T.test.ts`
@@ -101,13 +101,13 @@ The product promise is not just transcription. It is transcript plus context, me
 - `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` already compile and run the `packages/VT2` sidecar for the app shell.
 - `packages/common/ui/src/components/speech-input.tsx` already provides a reusable recording and transcript-preview UI primitive backed by the repo's speech hooks.
 - Root Graphiti commands and recovery/proxy scripts already exist, so memory infrastructure is a repo-native capability rather than an external afterthought.
-- `infra` already exists as the live `@beep/infra` workspace, with `infra/Pulumi.yaml` as the Pulumi project, `infra/src/entry.ts` as the stack entrypoint, `infra/src/V2T.ts` as the `V2TWorkstation` component boundary, and `infra/scripts/v2t-workstation.sh` as the concrete workstation reconciler.
+- `infra` already exists as the live `@beep/infra` workspace, with `infra/Pulumi.yaml` as the Pulumi project, `infra/src/internal/entry.ts` as the stack entrypoint, `infra/src/V2T.ts` as the `V2TWorkstation` component boundary, and `infra/scripts/v2t-workstation.sh` as the concrete workstation reconciler.
 
 ### Installer Findings
 
 - The installer target is one local Debian/Ubuntu workstation with an existing `beep-effect` checkout and one sudo-capable desktop user.
 - The native install path should stay on `apps/V2T` and `packages/VT2`, building the Tauri Debian package locally from the existing checkout instead of cloning or inventing a second runtime path.
-- The live Pulumi project name is `beep-effect-v2t-workstation`, its entrypoint is `infra/src/entry.ts`, and the stack namespace is `v2t` via `loadV2TWorkstationStackArgs()`.
+- The live Pulumi project name is `beep-effect-v2t-workstation`, its entrypoint is `infra/src/internal/entry.ts`, and the stack namespace is `v2t` via `loadV2TWorkstationStackArgs()`.
 - The local Pulumi backend default is `file://<repoRoot>/.pulumi-local/v2t-workstation`, exposed through the package-local `pulumi:login:local`, `stack:init:local`, `preview`, `up`, `destroy`, and `refresh` scripts in `infra/package.json`.
 - SQLite remains embedded in the existing `packages/VT2` sidecar runtime, so the workstation automation should not add a separate SQLite service.
 - The local Qwen service can stay secret-light because `Qwen/Qwen2-Audio-7B-Instruct` is publicly downloadable; a Hugging Face token is optional for authenticated pulls and rate limits, not a baseline requirement.

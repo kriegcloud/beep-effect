@@ -142,6 +142,10 @@ const staleProsePatterns = [
   {
     description: "stale infra tasks future-tense claim",
     pattern: /@beep\/infra should carry package-local `test` and `lint` tasks once the workstation installer exists/
+  },
+  {
+    description: "stale Pulumi entrypoint path",
+    pattern: /infra\/src\/entry\.ts/
   }
 ]
 
@@ -641,6 +645,10 @@ const checkRequiredSnippets = () => {
     manifest.validation?.required_snippets ?? {}
   )) {
     expectStringArray(`manifest.validation.required_snippets.${relativePath}`, snippets)
+    if (!Array.isArray(snippets)) {
+      pushFailure(`manifest.validation.required_snippets.${relativePath}: expected array of non-empty strings`)
+      continue
+    }
 
     const absolutePath = join(specDir, relativePath)
     if (!existsSync(absolutePath)) {

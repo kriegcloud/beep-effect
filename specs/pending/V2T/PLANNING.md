@@ -66,7 +66,7 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 
 ### Track 0 - Workstation Installer
 
-- keep `infra/Pulumi.yaml` and `infra/src/entry.ts` as the live project and stack entrypoint for `V2TWorkstation`
+- keep `infra/Pulumi.yaml` and `infra/src/internal/entry.ts` as the live project and stack entrypoint for `V2TWorkstation`
 - extend `infra/src/V2T.ts`, its schema-first workstation config, and its typed config errors instead of inventing a second installer entrypoint
 - provision the installer through `@pulumi/command` `local.Command` resources with explicit `create`, `update`, `delete`, `dir`, `environment`, and scoped `triggers`
 - keep the current local backend posture at `.pulumi-local/v2t-workstation` and the current stack namespace `v2t` unless an approved change explicitly updates both docs and code
@@ -110,7 +110,7 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 
 ## Suggested File And Surface Order
 
-1. `infra/src/V2T.ts`, `infra/src/entry.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts` for installer and deployment surfaces when the slice changes them
+1. `infra/src/V2T.ts`, `infra/src/internal/entry.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts` for installer and deployment surfaces when the slice changes them
 2. `apps/V2T/src` domain and service contracts
 3. `packages/VT2/src/protocol.ts` and `packages/VT2/src/Server/index.ts` sidecar contract and runtime wiring
 4. `apps/V2T/src/router.tsx` and component surfaces for the user workflow

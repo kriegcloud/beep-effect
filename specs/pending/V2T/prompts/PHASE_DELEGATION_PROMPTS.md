@@ -109,7 +109,7 @@ Read scope:
 - `packages/VT2/**`
 - `infra/Pulumi.yaml`
 - `infra/package.json`
-- `infra/src/entry.ts`
+- `infra/src/internal/entry.ts`
 - `infra/src/V2T.ts`
 - `infra/scripts/v2t-workstation.sh`
 - `packages/common/ui/src/components/speech-input.tsx`

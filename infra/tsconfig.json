@@ -7,7 +7,7 @@
     "outDir": "dist-types",
     "noEmit": true,
     "resolveJsonModule": true,
-    "types": ["node", "bun"],
+    "types": ["node"],
     "noUnusedLocals": false,
     "noUnusedParameters": false
   },

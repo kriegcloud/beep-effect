@@ -110,7 +110,7 @@
 ## 2026-04-10 Infra Reality Pass
 
 - Corrected the package to treat `@beep/infra` as live repo truth rather than future implementation work.
-- Grounded the spec against the current Pulumi workstation surfaces in `infra/Pulumi.yaml`, `infra/src/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts`.
+- Grounded the spec against the current Pulumi workstation surfaces in `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts`.
 - Extended the command-truth contract so installer and deployment claims must cite `infra/package.json` in addition to the root, app, and sidecar manifests.
 - Tightened the human-facing gates so infra check, test, and lint evidence now stay aligned with the live targeted implementation floor.
 - Extended the validator to reject stale “add Pulumi later” prose and to require infra-aware snippets across the README, quick start, phase docs, prompts, and handoffs.

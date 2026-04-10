@@ -407,34 +407,41 @@
       "README.md": [
         "`@beep/infra`",
         "`infra/package.json`",
+        "`infra/src/internal/entry.ts`",
         "`bun run --cwd infra lint`"
       ],
       "QUICK_START.md": [
         "`infra/package.json`",
+        "`infra/src/internal/entry.ts`",
         "`bun run --cwd infra lint`"
       ],
       "AGENT_PROMPTS.md": [
         "`@beep/infra`",
+        "`infra/src/internal/entry.ts`",
         "`infra/package.json`"
       ],
       "prompts/PHASE_DELEGATION_PROMPTS.md": [
         "Each prompt fill below supplies only the phase-specific values for the common frame.",
         "Graphiti assignment: {{GRAPHITI_ASSIGNMENT}}",
         "Stop condition: {{STOP_CONDITION}}",
+        "`infra/src/internal/entry.ts`",
         "`infra/package.json`"
       ],
       "RESEARCH.md": [
         "`infra/package.json`",
+        "`infra/src/internal/entry.ts`",
         "`apps/V2T/turbo.json`",
         "`packages/VT2/turbo.json`"
       ],
       "DESIGN_RESEARCH.md": [
         "`infra/package.json`",
+        "`infra/src/internal/entry.ts`",
         "`apps/V2T/turbo.json`",
         "`packages/VT2/turbo.json`"
       ],
       "PLANNING.md": [
         "`infra/package.json`",
+        "`infra/src/internal/entry.ts`",
         "`@beep/infra`"
       ],
       "EXECUTION.md": [
@@ -467,6 +474,21 @@
       "handoffs/P4_ORCHESTRATOR_PROMPT.md": [
         "root plus workspace `package.json` and `turbo.json`",
         "`infra/package.json`"
+      ],
+      "handoffs/HANDOFF_P0.md": [
+        "`../../../../infra/src/internal/entry.ts`"
+      ],
+      "handoffs/HANDOFF_P1.md": [
+        "`../../../../infra/src/internal/entry.ts`"
+      ],
+      "handoffs/HANDOFF_P2.md": [
+        "`../../../../infra/src/internal/entry.ts`"
+      ],
+      "handoffs/HANDOFF_P3.md": [
+        "`../../../../infra/src/internal/entry.ts`"
+      ],
+      "handoffs/HANDOFF_P4.md": [
+        "`../../../../infra/src/internal/entry.ts`"
       ],
       "handoffs/HANDOFF_P0-P4.md": [
         "`@beep/infra`"

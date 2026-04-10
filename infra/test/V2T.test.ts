@@ -1,3 +1,4 @@
+import { userInfo } from "node:os";
 import { describe, expect, it } from "vitest";
 import {
   normalizeV2TWorkstationConfig,
@@ -54,10 +55,12 @@ describe("normalizeV2TWorkstationConfig", () => {
   });
 
   it("requires targetHomeDir when the target user differs from the current user", () => {
+    const differentUser = `${userInfo().username}-other`;
+
     expect(() =>
       normalizeV2TWorkstationConfig({
         repoRoot: "/tmp/beep-effect",
-        targetUser: "someone-else",
+        targetUser: differentUser,
       })
     ).toThrow(V2TWorkstationConfigError);
   });

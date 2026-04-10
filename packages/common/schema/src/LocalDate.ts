@@ -178,6 +178,10 @@ const decodeLocalDateFromString: (
   const month = Number.parseInt(monthStr, 10);
   const day = Number.parseInt(dayStr, 10);
 
+  if (year < 1 || year > 9999) {
+    return yield* Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));
+  }
+
   // Validate month range
   if (month < 1 || month > 12) {
     return yield* Effect.fail(new SchemaIssue.InvalidType(S.String.ast, O.some(dateString)));

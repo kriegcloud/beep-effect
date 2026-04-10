@@ -135,11 +135,13 @@ class QwenRuntime:
 
         inputs = self.processor(text=text_prompt, return_tensors="pt")
         inputs = inputs.to(self.model.device)
+        use_sampling = body.temperature > 0
 
         generated_ids = self.model.generate(
             **inputs,
             max_new_tokens=body.max_tokens,
-            temperature=body.temperature,
+            do_sample=use_sampling,
+            **({"temperature": body.temperature} if use_sampling else {}),
         )
         new_tokens = generated_ids[:, inputs.input_ids.shape[1] :]
         text = self.processor.batch_decode(new_tokens, skip_special_tokens=True, clean_up_tokenization_spaces=False)[0]

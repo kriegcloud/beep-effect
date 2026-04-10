@@ -163,8 +163,8 @@ try {
   console.log(
     JSON.stringify({
       firstGraphitiProxyUrl: firstUp.outputs.graphitiProxyUrl?.value ?? null,
-      firstInstalledPackageName: firstUp.outputs.installedPackageName?.value,
-      firstQwenStateDir: firstUp.outputs.qwenStateDir?.value,
+      firstInstalledPackageName: firstUp.outputs.installedPackageName?.value ?? null,
+      firstQwenStateDir: firstUp.outputs.qwenStateDir?.value ?? null,
       logAfterDestroy,
       logAfterFirstUp,
       logAfterPreview,

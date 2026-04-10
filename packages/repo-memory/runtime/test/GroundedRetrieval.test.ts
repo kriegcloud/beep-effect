@@ -252,7 +252,7 @@ const runQuery = Effect.fn("GroundedRetrievalTest.runQuery")(function* (input: {
   readonly runLabel: string;
 }) {
   const server = yield* RepoRunService;
-  const runId = decodeRunId(`run:query:${input.runLabel}`);
+  const runId = decodeRunId(`run:query:${input.repoId}:${input.runLabel}`);
   const payload = new QueryRepoRunInput({
     repoId: input.repoId,
     question: input.question,

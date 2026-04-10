@@ -20,7 +20,7 @@
 - `../../../../packages/VT2/package.json`
 - `../../../../packages/VT2/turbo.json`
 - `../../../../infra/Pulumi.yaml`
-- `../../../../infra/src/entry.ts`
+- `../../../../infra/src/internal/entry.ts`
 - `../../../../infra/src/V2T.ts`
 - `../../../../infra/scripts/v2t-workstation.sh`
 - `../../../../apps/V2T`

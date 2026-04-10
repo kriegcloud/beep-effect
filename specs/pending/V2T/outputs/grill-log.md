@@ -221,5 +221,5 @@ This file is append-only. Record high-signal questions, recommendations, answers
 ### Q32 - Once the Pulumi workstation project exists in `infra`, how should the canonical spec treat it?
 
 - Recommendation: treat `@beep/infra` as live repo truth, not as planned future implementation
-- Answer: use `infra/Pulumi.yaml`, `infra/src/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, `infra/test/V2T.test.ts`, and `infra/package.json` as the authoritative workstation-install and deployment surfaces
+- Answer: use `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, `infra/test/V2T.test.ts`, and `infra/package.json` as the authoritative workstation-install and deployment surfaces
 - Resolution: updated the docs, prompts, handoffs, manifest, and validator so `@beep/infra` is now a first-class V2T seam alongside `apps/V2T` and `packages/VT2`

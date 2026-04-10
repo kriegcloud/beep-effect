@@ -113,7 +113,7 @@ That sidecar owns filesystem access, SQLite persistence, provider adapters, orch
 
 `@beep/infra` owns the workstation installation contract for this phase:
 
-- `infra/Pulumi.yaml` is the live Pulumi project manifest and `infra/src/entry.ts` is the current stack entrypoint
+- `infra/Pulumi.yaml` is the live Pulumi project manifest and `infra/src/internal/entry.ts` is the current stack entrypoint
 - a reusable `V2TWorkstation` Pulumi component in `infra/src/V2T.ts` provisions the local machine from the current checkout
 - the installer validates Debian/Ubuntu, sudo, `systemd --user`, and a working NVIDIA driver before mutating the workstation
 - the installer provisions source-build prerequisites, a local Qwen user service, Graphiti/FalkorDB Docker services plus the existing Graphiti proxy user service, and the packaged V2T app install

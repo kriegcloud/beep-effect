@@ -34,7 +34,16 @@ const OBJECT_METHODS = HashSet.fromIterable([
 const DATE_METHODS = HashSet.fromIterable(["now", "parse", "UTC"]);
 const ARRAY_STATIC_METHODS = HashSet.fromIterable(["from", "isArray", "of"]);
 const MAP_SET_CTORS = HashSet.fromIterable(["Map", "Set", "WeakMap", "WeakSet"]);
-const NATIVE_ERROR_CTORS = HashSet.fromIterable(["Error"]);
+const NATIVE_ERROR_CTORS = HashSet.fromIterable([
+  "AggregateError",
+  "Error",
+  "EvalError",
+  "RangeError",
+  "ReferenceError",
+  "SyntaxError",
+  "TypeError",
+  "URIError",
+]);
 const NODE_RUNTIME_IMPORTS = HashSet.fromIterable(["node:fs", "node:path", "node:child_process"]);
 const STRING_METHODS = HashSet.fromIterable(["split", "trim", "startsWith", "endsWith"]);
 const EQUALITY_OPERATORS = HashSet.fromIterable(["===", "==", "!==", "!="]);

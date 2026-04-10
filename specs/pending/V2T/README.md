@@ -109,7 +109,7 @@ The canonical spec is grounded in current repo anchors:
 - root Graphiti tooling and proxy commands already exist for memory infrastructure
 - `apps/V2T/vite.config.ts` already defines a local sidecar proxy seam for `/api`
 - `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` already bind the app shell to the existing sidecar runtime
-- `infra/Pulumi.yaml`, `infra/src/entry.ts`, `infra/src/V2T.ts`, and `infra/scripts/v2t-workstation.sh` already define a live `@beep/infra` workstation-install and deployment surface for V2T
+- `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, and `infra/scripts/v2t-workstation.sh` already define a live `@beep/infra` workstation-install and deployment surface for V2T
 
 ## Source-Of-Truth Order
 

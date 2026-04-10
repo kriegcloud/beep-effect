@@ -65,7 +65,7 @@
 - `apps/V2T`
 - `packages/VT2`
 - `infra/Pulumi.yaml`
-- `infra/src/entry.ts`
+- `infra/src/internal/entry.ts`
 - `infra/src/V2T.ts`
 - `infra/scripts/v2t-workstation.sh`
 - shared UI speech input in `packages/common/ui/src/components/speech-input.tsx`

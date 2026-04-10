@@ -10,7 +10,7 @@ Use the canonical phased spec package at `specs/pending/V2T/`.
 - run `bun run codex:hook:session-start`
 - read `specs/pending/V2T/outputs/manifest.json`
 - continue through `fresh_session_read_order` from that manifest instead of inventing a second startup list here
-- if `graphiti-memory` is available, run the Graphiti preflight and fallback exactly as documented in `specs/pending/V2T/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
+- when `fresh_session_read_order` reaches `specs/pending/V2T/prompts/GRAPHITI_MEMORY_PROTOCOL.md`, run the Graphiti preflight and fallback exactly as documented there
 - determine the active phase from `outputs/manifest.json`
 - trust `active_phase_assets` instead of inferring the active handoff, prompt, output, or trackers from prose
 - treat the active phase session as the phase orchestrator
