@@ -17,7 +17,7 @@ import { reuseCommand } from "../src/commands/Reuse/index.js";
 import { CodexSmokeResult } from "../src/commands/Reuse/internal/CodexRunner.js";
 
 const runReuseCommand = Command.runWith(reuseCommand, { version: "0.0.0" });
-const TOOLING_CLI_SCOPE = "tooling/cli";
+const TOOLING_UTILS_SCOPE = "packages/common/utils";
 const CommandTestLayer = Layer.mergeAll(
   NodeServices.layer,
   TestConsole.layer,
@@ -41,13 +41,13 @@ describe("reuse command", () => {
   it("emits machine-readable partitions for the tooling pilot scope", async () => {
     await Effect.runPromise(
       Effect.gen(function* () {
-        yield* runReuseCommand(["partitions", "--scope", TOOLING_CLI_SCOPE, "--json"]);
+        yield* runReuseCommand(["partitions", "--scope", TOOLING_UTILS_SCOPE, "--json"]);
 
         const plan = yield* parseLoggedJson(decodePartitionPlanJson);
 
-        expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
+        expect(plan.scopeSelector).toBe(TOOLING_UTILS_SCOPE);
         expect(plan.catalogEntryCount).toBeGreaterThan(0);
-        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
+        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([TOOLING_UTILS_SCOPE]);
         expect(plan.specialistUnits.length).toBeGreaterThan(0);
       }).pipe(Effect.provide(CommandTestLayer))
     );
@@ -56,12 +56,12 @@ describe("reuse command", () => {
   it("canonicalizes dot-prefixed scope selectors before emitting partitions", async () => {
     await Effect.runPromise(
       Effect.gen(function* () {
-        yield* runReuseCommand(["partitions", "--scope", "./tooling/cli", "--json"]);
+        yield* runReuseCommand(["partitions", "--scope", "./packages/common/utils", "--json"]);
 
         const plan = yield* parseLoggedJson(decodePartitionPlanJson);
 
-        expect(plan.scopeSelector).toBe(TOOLING_CLI_SCOPE);
-        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([TOOLING_CLI_SCOPE]);
+        expect(plan.scopeSelector).toBe(TOOLING_UTILS_SCOPE);
+        expect(plan.scoutUnits.map((unit) => unit.scopeSelector)).toEqual([TOOLING_UTILS_SCOPE]);
       }).pipe(Effect.provide(CommandTestLayer))
     );
   }, 120_000);
@@ -69,11 +69,11 @@ describe("reuse command", () => {
   it("emits a stable machine-readable inventory for the tooling pilot scope", async () => {
     await Effect.runPromise(
       Effect.gen(function* () {
-        yield* runReuseCommand(["inventory", "--scope", TOOLING_CLI_SCOPE, "--json"]);
+        yield* runReuseCommand(["inventory", "--scope", TOOLING_UTILS_SCOPE, "--json"]);
 
         const inventory = yield* parseLoggedJson(decodeInventoryJson);
 
-        expect(inventory.scopeSelector).toBe(TOOLING_CLI_SCOPE);
+        expect(inventory.scopeSelector).toBe(TOOLING_UTILS_SCOPE);
         expect(inventory.catalogEntryCount).toBeGreaterThan(0);
         expect(inventory.candidateCount).toBe(inventory.candidates.length);
         expect(inventory.candidates.length).toBeGreaterThan(0);
@@ -84,7 +84,7 @@ describe("reuse command", () => {
   it("emits a packet for a discovered candidate id", async () => {
     const firstCandidateId = await Effect.runPromise(
       Effect.gen(function* () {
-        yield* runReuseCommand(["inventory", "--scope", TOOLING_CLI_SCOPE, "--json"]);
+        yield* runReuseCommand(["inventory", "--scope", TOOLING_UTILS_SCOPE, "--json"]);
 
         const inventory = yield* parseLoggedJson(decodeInventoryJson);
         return inventory.candidates[0]?.candidateId;
@@ -98,7 +98,7 @@ describe("reuse command", () => {
 
     await Effect.runPromise(
       Effect.gen(function* () {
-        yield* runReuseCommand(["packet", "--candidate-id", firstCandidateId, "--scope", TOOLING_CLI_SCOPE, "--json"]);
+        yield* runReuseCommand(["packet", "--candidate-id", firstCandidateId, "--scope", TOOLING_UTILS_SCOPE, "--json"]);
 
         const packet = yield* parseLoggedJson(decodePacketJson);
 
@@ -114,15 +114,15 @@ describe("reuse command", () => {
         yield* runReuseCommand([
           "find",
           "--file",
-          "tooling/cli/src/commands/Docgen/index.ts",
+          "packages/common/utils/src/Glob.ts",
           "--query",
-          "json",
+          "glob",
           "--json",
         ]);
 
         const result = yield* parseLoggedJson(decodeFindResultJson);
 
-        expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
+        expect(result.filePath).toBe("packages/common/utils/src/Glob.ts");
         expect(O.isSome(result.query)).toBe(true);
         expect(result.matches.length).toBeGreaterThan(0);
       }).pipe(Effect.provide(CommandTestLayer))
@@ -135,15 +135,15 @@ describe("reuse command", () => {
         yield* runReuseCommand([
           "find",
           "--file",
-          "./tooling/cli/src/commands/Docgen/index.ts",
+          "./packages/common/utils/src/Glob.ts",
           "--query",
-          "json",
+          "glob",
           "--json",
         ]);
 
         const result = yield* parseLoggedJson(decodeFindResultJson);
 
-        expect(result.filePath).toBe("tooling/cli/src/commands/Docgen/index.ts");
+        expect(result.filePath).toBe("packages/common/utils/src/Glob.ts");
         expect(result.matches.length).toBeGreaterThan(0);
       }).pipe(Effect.provide(CommandTestLayer))
     );

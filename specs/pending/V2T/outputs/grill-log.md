@@ -88,7 +88,7 @@ This file is append-only. Record high-signal questions, recommendations, answers
 
 - Recommendation: copy the live package names from `apps/V2T/package.json` and `packages/VT2/package.json` instead of inferring them from folder names
 - Answer: use `@beep/v2t` for the app workspace and `@beep/VT2` for the sidecar workspace
-- Resolution: corrected the remaining stale `@beep/V2T` filter examples and hardened the validator to reject that drift
+- Resolution: corrected the remaining stale uppercase app-filter examples and hardened the validator to reject that drift
 
 ### Q13 - Which workspace identities and memory rules are now locked for V2T?
 
