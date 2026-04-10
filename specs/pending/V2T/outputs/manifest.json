@@ -81,6 +81,7 @@
       "codex_plan_mode_prompt_filename_is_compatibility_name": true,
       "repo_local_codex_agents_available": true,
       "app_lint_command_is_package_local": true,
+      "filtered_turbo_app_lint_is_dependency_expanded": true,
       "manifest_command_truth_must_match_live_workspace_manifests": true,
       "manifest_machine_authority_for_routing_and_gates": true,
       "manifest_fresh_session_read_order_is_canonical": true,
@@ -119,6 +120,12 @@
     "search_group_ids_json": "[\"beep-dev\"]",
     "add_memory_source": "text",
     "add_memory_source_description": "codex-cli session",
+    "recall_order": [
+      "search_memory_facts",
+      "search_memory_facts_shorter_fallback",
+      "get_episodes",
+      "repo_local_fallback"
+    ],
     "require_exact_error_logging": true,
     "require_session_end_summary_writeback": true
   },

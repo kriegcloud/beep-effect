@@ -47,6 +47,12 @@ const expectedGraphitiConfig = {
   search_group_ids_json: "[\"beep-dev\"]",
   add_memory_source: "text",
   add_memory_source_description: "codex-cli session",
+  recall_order: [
+    "search_memory_facts",
+    "search_memory_facts_shorter_fallback",
+    "get_episodes",
+    "repo_local_fallback"
+  ],
   require_exact_error_logging: true,
   require_session_end_summary_writeback: true
 }
@@ -92,6 +98,14 @@ const staleProsePatterns = [
   {
     description: "stale README authority label",
     pattern: /normative source of truth for this spec package/
+  },
+  {
+    description: "stale turbo lint nonexistent-task explanation",
+    pattern: /(?:dry-run still expands to|dependency lint expansion still reaches).+@beep\/VT2#lint/s
+  },
+  {
+    description: "stale competing startup-order heading",
+    pattern: /^## Required Read Order$/m
   }
 ]
 
@@ -137,6 +151,17 @@ const expectString = (label, value) => {
 const expectStringArray = (label, value) => {
   if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string" || entry.length === 0)) {
     pushFailure(`${label}: expected array of non-empty strings`)
+  }
+}
+
+const expectOrderedStringArray = (label, actual, expected) => {
+  if (!Array.isArray(actual) || !Array.isArray(expected)) {
+    pushFailure(`${label}: expected array values`)
+    return
+  }
+
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    pushFailure(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`)
   }
 }
 
@@ -475,8 +500,18 @@ const checkManifestStructure = () => {
     sidecarPackageManifest.scripts,
     manifest.conformance?.forbidden_script_keys?.sidecar ?? []
   )
+  expectValue(
+    "manifest.conformance.notes.filtered_turbo_app_lint_is_dependency_expanded",
+    manifest.conformance?.notes?.filtered_turbo_app_lint_is_dependency_expanded,
+    true
+  )
 
   for (const [key, value] of Object.entries(expectedGraphitiConfig)) {
+    if (Array.isArray(value)) {
+      expectOrderedStringArray(`manifest.graphiti.${key}`, manifest.graphiti?.[key], value)
+      continue
+    }
+
     expectValue(`manifest.graphiti.${key}`, manifest.graphiti?.[key], value)
   }
 

@@ -85,9 +85,9 @@ If the active phase is `p3` or `p4`:
 - remember that `@beep/VT2` has no package-local `lint` or `docgen` task
 - use `bun run --cwd apps/V2T lint` for the default targeted app lint gate
 - do not replace that default with `turbo run lint --filter=@beep/v2t`
-  unless you first audit the live Turbo graph for the current repo state,
-  because the present dry-run still expands to the nonexistent
-  `@beep/VT2#lint` task
+  when the phase needs targeted app-only lint evidence, because the filtered
+  Turbo run is dependency-expanded and therefore not equivalent to the
+  package-local app lint gate
 - distinguish shipped behavior from deferred provider ambition explicitly
 ```
 

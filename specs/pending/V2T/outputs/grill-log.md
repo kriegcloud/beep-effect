@@ -104,9 +104,9 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Answer: treat lowercase `@beep/v2t` plus the package-local app lint gate as
   authoritative
 - Resolution: corrected the scoped docs and manifest command matrix after
-  verifying that `@beep/V2T` is not a real workspace package and that
-  `turbo run lint --filter=@beep/v2t` still expands into the nonexistent
-  `@beep/VT2#lint` task
+  verifying that `@beep/V2T` is not a real workspace package and that the
+  filtered Turbo lint path is dependency-expanded rather than a targeted
+  app-only lint gate
 
 ### Q15 - What should the package-local validator enforce beyond broken links?
 
@@ -143,3 +143,21 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Recommendation: define one package-local Graphiti protocol that standardizes recall queries, exact-error fallback logging, fixed writeback metadata, and session-end summaries instead of scattering memory reminders through multiple docs
 - Answer: add a dedicated Graphiti memory protocol doc and treat it as canonical
 - Resolution: added `prompts/GRAPHITI_MEMORY_PROTOCOL.md`, wired it into the manifest, validator, entry docs, handoffs, prompt kit, and phase artifacts, and made `fresh_session_read_order` the canonical startup sequence after opening the manifest
+
+### Q21 - What should happen when Graphiti fact search is healthy but still fails to return useful recall?
+
+- Recommendation: standardize a recall ladder of `search_memory_facts`, one shorter fallback query, `get_episodes`, and only then repo-local fallback so healthy-but-fragile Graphiti sessions still get a second memory path before giving up
+- Answer: make the Graphiti recall ladder explicit and package-wide
+- Resolution: updated `prompts/GRAPHITI_MEMORY_PROTOCOL.md`, the manifest, and the startup surfaces so operators record exact query and error evidence, try `get_episodes` before abandoning Graphiti, and keep `fresh_session_read_order` as the only canonical startup order
+
+### Q22 - Why keep `bun run --cwd apps/V2T lint` as the default targeted app lint gate if `turbo run lint --filter=@beep/v2t` currently succeeds?
+
+- Recommendation: keep the package-local app lint command as the default
+  evidence because it scopes directly to the app surface, while the filtered
+  Turbo lint run fans out across dependency lint work and therefore answers a
+  different question
+- Answer: distinguish targeted app-only lint evidence from broader dependency
+  lint evidence
+- Resolution: refined the operator docs and validator expectations so they no
+  longer rely on the stale nonexistent-task explanation and instead point to
+  the stronger, more durable reason for the app-local lint gate

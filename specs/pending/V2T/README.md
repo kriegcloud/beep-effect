@@ -72,7 +72,7 @@
 
 1. Run `bun run codex:hook:session-start` from the repo root.
 2. Read [outputs/manifest.json](./outputs/manifest.json) first, then follow `fresh_session_read_order`. The shorter startup lists elsewhere in this package are summaries, not competing ordered sources.
-3. Read [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) and run the Graphiti preflight or fallback exactly as documented there.
+3. When `fresh_session_read_order` reaches [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md), run the Graphiti preflight or fallback exactly as documented there.
 4. Trust `active_phase` plus `active_phase_assets` and read only the active phase handoff, active phase orchestrator prompt, and prior phase artifacts that constrain the active phase.
 5. When command or task claims matter, confirm them against the live `package.json` and `turbo.json` files for the root, `apps/V2T`, and `packages/VT2`.
 6. Execute only the active phase as the orchestrator.
@@ -171,7 +171,8 @@ If these sources disagree, the tie-break order is:
 - [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) is the canonical recall and writeback contract for this package.
 - Use `group_id: "beep-dev"` for `add_memory`, `source: "text"`, and `source_description: "codex-cli session"`.
 - When the wrapper exposes `group_ids` as a string for recall, pass the JSON array literal string `"[\"beep-dev\"]"` instead of the plain string `beep-dev`.
-- If recall fails, log the exact query and exact error text in the phase artifact, then continue with the documented repo-local fallback instead of blocking the phase.
+- Try Graphiti recall in this order: `search_memory_facts`, one shorter fallback query, `get_episodes`, then repo-local fallback.
+- If recall fails, log the exact query, exact error text, and any `get_episodes` fallback result in the phase artifact, then continue with the documented repo-local fallback instead of blocking the phase.
 - Write back material decisions, repo-specific findings, tricky fixes, and meaningful session-end progress summaries using the template in the protocol doc.
 
 ## Phase Agent Model
@@ -228,7 +229,7 @@ Important limitation:
 
 - `@beep/VT2` does not currently define a package-local `lint` or `docgen` task, so VT2 conformance must be enforced through the repo-level law commands above rather than a nonexistent package script
 - `@beep/v2t` and `@beep/VT2` must be copied from the live package manifests, not reconstructed from folder casing or stale scripts
-- `turbo run lint --filter=@beep/v2t` is not a safe substitute for the app-local lint gate because dependency lint expansion still reaches the nonexistent `@beep/VT2#lint` task
+- `turbo run lint --filter=@beep/v2t` is not a safe substitute for the app-local lint gate because the filtered Turbo run is dependency-expanded and therefore not equivalent to targeted app-only lint evidence
 
 ### Readiness Gate
 

@@ -2,16 +2,17 @@ You are the active-phase orchestrator for the V2T canonical spec.
 
 Operate in this order:
 
-1. Read `outputs/manifest.json`, `README.md`, `prompts/README.md`, `prompts/ORCHESTRATOR_OPERATING_MODEL.md`, `prompts/GRAPHITI_MEMORY_PROTOCOL.md`, and `outputs/grill-log.md`.
+1. Read `outputs/manifest.json`, then continue through its
+   `fresh_session_read_order` instead of inventing a second startup sequence.
 2. Determine the active phase from `outputs/manifest.json` and route from
    `active_phase_assets`.
 3. Read `handoffs/HANDOFF_P0-P4.md` plus only the matching phase handoff and
    matching phase orchestrator prompt.
 4. Form a local phase plan before delegating anything.
-5. Run the Graphiti preflight or fallback using
-   `prompts/GRAPHITI_MEMORY_PROTOCOL.md`, and verify the live workspace names
-   from `apps/V2T/package.json` and `packages/VT2/package.json` before copying
-   Turbo filters.
+5. When the manifest read order reaches `prompts/GRAPHITI_MEMORY_PROTOCOL.md`,
+   run the Graphiti preflight or fallback, then verify the live workspace
+   names from `apps/V2T/package.json` and `packages/VT2/package.json` before
+   copying Turbo filters.
 6. Keep the immediate blocking work local; use repo-local custom agents under
    `.codex/config.toml` only for bounded parallel work with disjoint scopes,
    explicit assigned questions, and the V2T sub-agent output contract.

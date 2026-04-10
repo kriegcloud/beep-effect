@@ -5,7 +5,7 @@
 1. Start the main session as the phase orchestrator. Prefer `codex -p v2t_orchestrator` when available.
 2. Run `bun run codex:hook:session-start`.
 3. Read [outputs/manifest.json](./outputs/manifest.json) first, then follow `fresh_session_read_order`.
-4. Read [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) and run the Graphiti preflight or fallback exactly as documented there.
+4. When `fresh_session_read_order` reaches [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md), run the Graphiti preflight or fallback exactly as documented there.
 5. Open the active phase handoff and active phase orchestrator prompt from `active_phase_assets`.
 6. Read prior phase artifacts that constrain the active phase.
 7. If command, task, or ownership claims are in scope, read the root plus workspace `package.json` and `turbo.json` files before trusting the package docs.
@@ -17,6 +17,7 @@
 
 - Use `outputs/manifest.json` as the only authority for `active_phase`.
 - Treat `fresh_session_read_order` inside the manifest as the canonical ordered startup list after the manifest is open.
+- Treat every shorter startup list in this package as a summary of the manifest order, not a competing ordered source.
 - Use `active_phase_assets` to resolve the matching handoff, orchestrator prompt, output artifact, and trackers without guessing.
 - Do not infer the active phase from status prose inside the markdown artifacts.
 - When the active phase is `p0`, treat [outputs/grill-log.md](./outputs/grill-log.md) as an active tracker, not optional history.
@@ -109,5 +110,6 @@ Important notes:
   app filter
 - `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be proven through the repo-law commands above
 - use `bun run --cwd apps/V2T lint` for the targeted app lint gate
-- do not substitute `turbo run lint --filter=@beep/v2t`, because dependency
-  lint expansion still reaches the nonexistent `@beep/VT2#lint` task
+- do not substitute `turbo run lint --filter=@beep/v2t`, because the filtered
+  Turbo run is dependency-expanded and therefore not equivalent to app-only
+  lint evidence

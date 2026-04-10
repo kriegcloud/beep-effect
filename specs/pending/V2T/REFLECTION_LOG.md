@@ -77,3 +77,19 @@
 - Extended the manifest and validator to track the Graphiti protocol explicitly, require the memory protocol prompt asset, and fail if the README reintroduces the stale “normative source of truth” wording.
 - Propagated the Graphiti protocol through the README, quick start, prompts, handoffs, the phase entry prompt, and the five phase artifacts so memory usage is explicit, auditable, and phase-local evidence can record recall plus writeback behavior consistently.
 - Removed a duplicate `outputs/manifest.json` entry from `fresh_session_read_order` and taught the validator to fail on duplicate startup-order entries so the canonical read sequence stays strictly linear.
+
+## 2026-04-10 Startup Authority And Graphiti Fallback Pass
+
+- Removed the last competing human startup-order lists by making the README, quick start, agent prompts, combined handoff, and combined orchestrator prompt explicitly defer to `outputs/manifest.json` `fresh_session_read_order` instead of restating their own ordered sequences.
+- Extended the Graphiti protocol from a single fact-search attempt into a documented recall ladder: initial `search_memory_facts`, one shorter fallback query, `get_episodes`, then repo-local fallback.
+- Mirrored that Graphiti recall ladder into the manifest so package tooling and human operators now share the same memory-recall contract.
+- Extended the validator to enforce the ordered Graphiti recall ladder and to reject the old `## Required Read Order` heading so competing startup-order prose cannot quietly return.
+- Aligned `.codex/agents/README.md` with the rest of the package by treating `codex -p v2t_orchestrator` as the preferred startup profile rather than an implied hard requirement.
+- Corrected the Graphiti protocol preflight numbering after the recall-ladder expansion so the operator checklist remains linear and copy-safe.
+
+## 2026-04-10 Targeted Lint Gate Truth Pass
+
+- Rechecked the live Turbo behavior and confirmed that `bunx turbo run lint --filter=@beep/v2t` currently succeeds, so the older explanation that it still hits a nonexistent `@beep/VT2#lint` task was stale.
+- Kept `bun run --cwd apps/V2T lint` as the default targeted app lint gate, but updated the package guidance to use the truer rationale: the filtered Turbo lint path is dependency-expanded and therefore not equivalent to app-only lint evidence.
+- Tightened the validator to reject the stale nonexistent-task explanation so future package edits keep the lint-gate guidance aligned with live repo behavior.
+- Fixed a validator bug in the same pass: `graphiti.recall_order` is now checked as an ordered string array instead of by object identity, so the package gate no longer emits false failures when manifest and expected recall order already match.
