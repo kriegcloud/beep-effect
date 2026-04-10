@@ -493,9 +493,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
           });
 
           if (!A.isArray(raw)) {
-            return yield* Effect.fail(
-              CorpusManagerError.fromMessage("Invalid document-term matrix output", request.corpusId)
-            );
+            return yield* CorpusManagerError.fromMessage("Invalid document-term matrix output", request.corpusId);
           }
 
           return yield* Effect.forEach(raw, (row) =>
