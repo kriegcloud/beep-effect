@@ -1,5 +1,4 @@
 ---
-"@beep/ai-sdk": patch
 "@beep/semantic-web": patch
 "@beep/utils": patch
 ---

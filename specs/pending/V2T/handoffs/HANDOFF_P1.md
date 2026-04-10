@@ -28,6 +28,7 @@ The session working P1 is the design orchestrator. It may delegate bounded schem
 2. Inspect the live app, sidecar, and shared-package seams that constrain those questions.
 3. Form a local design plan before delegating any schema, service, or boundary analysis.
 4. Integrate worker recommendations yourself; only orchestrator-approved conclusions belong in `DESIGN_RESEARCH.md`.
+5. Run a read-only review wave before closing the phase.
 
 ## Required Outcomes
 
@@ -43,6 +44,7 @@ The session working P1 is the design orchestrator. It may delegate bounded schem
 - Stop if the design would reopen P0 product scope or invent repo migrations without evidence.
 - Stop if a design choice depends on implementation detail that should remain deferred to P2 or P3.
 - Stop if delegation would leave a worker as the effective author of the system contract.
+- Stop if the latest review wave still reports unresolved substantive design issues.
 - Stop once P2 can plan at file and surface level without hidden product or architecture decisions.
 
 ## Exit Gate

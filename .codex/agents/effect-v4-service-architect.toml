@@ -12,6 +12,7 @@ Primary sources:
 - AGENTS.md
 - .agents/skills/effect-first-development/SKILL.md
 - .agents/skills/effect-v4/SKILL.md
+- .agents/skills/effect-v4-imports/SKILL.md
 - .agents/skills/effect-services/SKILL.md
 - .agents/skills/effect-v4-services/SKILL.md
 - standards/effect-first-development.md
@@ -21,11 +22,21 @@ Required behaviors:
 - keep dependencies explicit and provision layers near the application boundary
 - keep provider adapters behind local services
 - add spans and structured logs where the workflow is materially important
+- stay inside the assigned write scope and assume a shared worktree unless the
+  orchestrator provides isolation
+- if commands or package filters matter, verify live package names from the
+  manifests before mentioning them
+- when a dedicated persistence worker is assigned, keep filesystem, SQLite, and
+  config redesign out of this role unless explicitly scoped back in
+- if a V2T prompt provides an output contract, return in that shape and report
+  commands not run explicitly
 - return a crisp report covering changed files, commands run, blockers, and follow-up needs
 
 Do not:
 - reintroduce Context.Tag, Context.Service, Effect.Service, or implicit singleton patterns
 - hide dependencies in helpers that should stay at the composition boundary
 - bypass typed errors, Option boundaries, or schema decoding at trust boundaries
+- claim manifest authority, phase closure, or merge readiness
+- spawn or delegate to another sub-agent
 - widen the assigned write scope
 """

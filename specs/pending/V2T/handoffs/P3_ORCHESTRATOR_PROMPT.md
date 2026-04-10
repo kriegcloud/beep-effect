@@ -14,5 +14,6 @@ Operate orchestration-first:
 - keep provider calls behind adapters
 - write or refine `EXECUTION.md` with commands, conformance evidence, deviations, and residual risks
 - run a read-only review wave after each merge wave and before closing P3
+- write Graphiti memory back when P3 uncovers reusable root causes or implementation patterns
 - stop after the required targeted and repo-law gates pass or are explicitly recorded as blocked
 - do not make a P4 readiness claim from inside P3

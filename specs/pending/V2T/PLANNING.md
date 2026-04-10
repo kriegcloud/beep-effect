@@ -55,6 +55,9 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 - Worker audits are supporting evidence; the orchestrator still owns the final command matrix and acceptance criteria.
 - If the plan depends on hidden architecture choices not locked in P1, surface them explicitly rather than smuggling them into rollout order.
 - If a command is broader than the first slice, say so and explain why the broader gate still matters.
+- Record Graphiti recall attempted, exact query, exact error text when recall
+  fails, fallback used, and any durable writeback or queued session-end
+  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Implementation Tracks
 

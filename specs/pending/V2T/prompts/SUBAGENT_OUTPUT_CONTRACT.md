@@ -18,6 +18,8 @@ Every V2T sub-agent must return a concise report with these sections:
 
 - what was audited, designed, implemented, or verified
 - whether the result is complete, partial, or blocked
+- the direct answer to the worker's assigned objective or question
+- whether the worker stopped on contradiction, ambiguity, or missing evidence
 
 ## Files
 
@@ -43,7 +45,10 @@ Every V2T sub-agent must return a concise report with these sections:
 ## Memory Notes
 
 - whether Graphiti memory preflight or lookup was attempted
+- the exact query or queries attempted when lookup was relevant
+- the exact error text when lookup failed
 - whether the worker used a documented fallback instead
+- a suggested Graphiti writeback title or `none`
 
 ## Findings Or Blockers
 
@@ -55,6 +60,13 @@ Every V2T sub-agent must return a concise report with these sections:
 
 - what the orchestrator still needs to integrate, verify, or decide
 - memory-worthy findings the orchestrator should log if they are durable
+- whether a session-end summary writeback is recommended even if the phase is
+  still in progress
+
+## Pasteable Summary
+
+- a short block the orchestrator can paste into the active phase artifact if
+  the result is accepted
 
 Rules:
 
@@ -62,5 +74,6 @@ Rules:
 - do not claim a gate passed unless you directly ran it and reported the result
 - do not imply missing evidence is equivalent to success
 - do not expand scope beyond the assigned task
+- do not return only suggestions when the assignment asked for a concrete answer
 
 Sub-agents return bounded results to the orchestrator.

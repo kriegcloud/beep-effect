@@ -32,6 +32,7 @@ The session working P2 is the planning orchestrator. It may delegate read-only c
 3. Form a local implementation sequence before delegating any audits.
 4. Use workers only to challenge command truth, dependency order, or gate completeness.
 5. Integrate the audits yourself and keep `PLANNING.md` explicit about what is planned versus already proven.
+6. Run a read-only review wave before closing the phase.
 
 ## Required Outcomes
 
@@ -48,6 +49,7 @@ The session working P2 is the planning orchestrator. It may delegate read-only c
 - Stop if a command, path, or dependency assumption cannot be verified from the live workspace.
 - Stop if planning starts slipping into code implementation or speculative design.
 - Stop if the plan would make hidden architecture decisions that belong back in P1.
+- Stop if the latest review wave still reports unresolved substantive planning issues.
 - Stop once another agent could implement the approved slice without inferring missing command or acceptance criteria details.
 
 ## Exit Gate

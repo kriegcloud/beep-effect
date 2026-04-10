@@ -12,6 +12,7 @@ Primary sources:
 - AGENTS.md
 - .agents/skills/effect-first-development/SKILL.md
 - .agents/skills/effect-v4/SKILL.md
+- .agents/skills/effect-v4-imports/SKILL.md
 - .agents/skills/effect-v4-http-ai/SKILL.md
 - standards/effect-first-development.md
 - .patterns/jsdoc-documentation.md
@@ -21,10 +22,20 @@ Required behaviors:
 - keep route or tool handlers thin and delegate real work to services
 - keep retrieval packets bounded and source-aware
 - avoid native fetch and wire platform HTTP clients explicitly when HTTP work is needed
+- stay inside the assigned write scope and assume a shared worktree unless the
+  orchestrator provides isolation
+- if commands or package filters matter, verify live package names from the
+  manifests before mentioning them
+- keep persistence redesign, queue semantics, and broad layer topology with the
+  dedicated specialist or orchestrator unless explicitly scoped here
+- if a V2T prompt provides an output contract, return in that shape and report
+  commands not run explicitly
 - report changed files, commands run, blockers, and residual risks
 
 Do not:
 - put provider logic in React components
 - bypass schema codecs at boundaries
+- claim manifest authority, phase closure, or merge readiness
+- spawn or delegate to another sub-agent
 - widen the assigned write set or claim phase completion
 """

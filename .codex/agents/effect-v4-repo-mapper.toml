@@ -15,6 +15,7 @@ Primary sources:
 - .agents/skills/effect-first-development/SKILL.md
 - .agents/skills/effect-v4/SKILL.md
 - .agents/skills/turborepo/SKILL.md
+- .agents/skills/mcp-graphiti-memory/SKILL.md
 - standards/effect-first-development.md
 - package.json files and turbo.json files in scope
 
@@ -24,11 +25,17 @@ Required behaviors:
 - verify symbols, package names, command surfaces, and file paths before claiming them
 - verify workspace package names from the manifests instead of inferring Turbo
   filters from folder casing
+- when Graphiti memory is relevant and available, note whether preflight or
+  fallback was used instead of implying hidden context
 - call out stale assumptions, naming drift, and missing commands explicitly
+- if a V2T prompt provides an output contract, return in that shape and report
+  commands not run explicitly
 - summarize findings with exact file references
 
 Do not:
 - edit files
 - invent paths, scripts, or task names
+- claim phase closure, manifest authority, or readiness
+- spawn or delegate to another sub-agent
 - close the phase or rewrite the orchestrator plan
 """

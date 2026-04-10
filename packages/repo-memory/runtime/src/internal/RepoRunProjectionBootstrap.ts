@@ -12,6 +12,7 @@ import { Context, Effect, Layer, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { projectRunEvent } from "../run/RunProjector.js";
 import { RepoRunEventLog } from "./RepoRunEventLog.js";
 import {
   isSequenceAfterCursor,
@@ -179,6 +180,50 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
     }
   );
 
+  const reconcileSnapshotWithJournalTail = Effect.fn("RepoRunProjectionBootstrap.reconcileSnapshotWithJournalTail")(
+    function* (run: RepoRun, events: ReadonlyArray<RunStreamEvent>): Effect.fn.Return<RepoRun, RepoRunServiceError> {
+      const journalTail = pipe(
+        events,
+        A.filter((event) => event.sequence > run.lastEventSequence)
+      );
+
+      if (journalTail.length === 0) {
+        yield* ensureSnapshotTailMatchesJournal(run, events);
+        return run;
+      }
+
+      const firstTailEvent = journalTail[0];
+      const expectedSequence = run.lastEventSequence + 1;
+
+      if (firstTailEvent.sequence !== expectedSequence) {
+        return yield* toRunServiceError(
+          `Decoded journal tail for "${run.id}" is missing contiguous sequence "${expectedSequence}" after stored sequence "${run.lastEventSequence}".`,
+          500,
+          undefined
+        );
+      }
+
+      let reconciledRun = run;
+
+      for (const event of journalTail) {
+        const nextExpectedSequence = reconciledRun.lastEventSequence + 1;
+
+        if (event.sequence !== nextExpectedSequence) {
+          return yield* toRunServiceError(
+            `Decoded journal events for "${run.id}" must continue contiguously from stored sequence "${reconciledRun.lastEventSequence}".`,
+            500,
+            undefined
+          );
+        }
+
+        reconciledRun = yield* mapStatusCauseError(projectRunEvent(O.some(reconciledRun), event));
+      }
+
+      yield* ensureSnapshotTailMatchesJournal(reconciledRun, events);
+      return reconciledRun;
+    }
+  );
+
   const loadConsistentRunEvents = Effect.fn("RepoRunProjectionBootstrap.loadConsistentRunEvents")(function* (
     request: StreamRunEventsRequest,
     initialRun: RepoRun
@@ -213,9 +258,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
         }
       }
 
-      yield* ensureSnapshotTailMatchesJournal(run, decodedEvents);
+      const consistentRun = yield* reconcileSnapshotWithJournalTail(run, decodedEvents);
 
-      return { decodedEvents, refreshCount, run };
+      return { decodedEvents, refreshCount, run: consistentRun };
     }
   });
 

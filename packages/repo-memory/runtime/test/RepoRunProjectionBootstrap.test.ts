@@ -288,7 +288,7 @@ describe("repo run projection bootstrap", () => {
     )
   );
 
-  it.effect("fails typed when the decoded journal tail moves past the stored snapshot sequence", () =>
+  it.effect("reconciles a contiguous journal tail when the stored snapshot lags behind", () =>
     withRuntime(
       Effect.gen(function* () {
         const journal = yield* EventJournal.EventJournal;
@@ -334,6 +334,71 @@ describe("repo run projection bootstrap", () => {
           effect: () => Effect.void,
         });
 
+        const bootstrap = yield* repoRunProjectionBootstrap.prepareStream(
+          new StreamRunEventsRequest({
+            runId: queryRunId,
+            cursor: O.some(decodeRunCursor(1)),
+          })
+        );
+
+        expect(bootstrap.run.lastEventSequence).toBe(decodeRunEventSequence(3));
+        expect(
+          pipe(
+            bootstrap.replayEvents,
+            A.map((event) => event.sequence)
+          )
+        ).toEqual([decodeRunEventSequence(2), decodeRunEventSequence(3)]);
+        expect(bootstrap.effectiveCursor).toEqual(O.some(decodeRunCursor(3)));
+      })
+    )
+  );
+
+  it.effect("fails typed when the decoded journal tail skips past the stored snapshot sequence", () =>
+    withRuntime(
+      Effect.gen(function* () {
+        const journal = yield* EventJournal.EventJournal;
+        const repoRunEventLog = yield* RepoRunEventLog;
+        const repoRunProjectionBootstrap = yield* RepoRunProjectionBootstrap;
+
+        yield* repoRunEventLog.appendRunEvent(
+          new RunAcceptedEvent({
+            runId: queryRunId,
+            sequence: decodeRunEventSequence(1),
+            emittedAt: makeUtc(1_706_500_000_000),
+            runKind: "query",
+            repoId,
+            question: O.some("describe symbol `answer`"),
+          })
+        );
+        yield* repoRunEventLog.appendRunEvent(
+          new RunProgressUpdatedEvent({
+            runId: queryRunId,
+            sequence: decodeRunEventSequence(2),
+            emittedAt: makeUtc(1_706_500_001_000),
+            phase: "grounding",
+            message: "Normalizing the question.",
+            percent: O.some(decodeNonNegativeInt(25)),
+          })
+        );
+
+        const extraPayload = yield* encodeRunEventPayload(
+          new RunProgressUpdatedEvent({
+            runId: queryRunId,
+            sequence: decodeRunEventSequence(4),
+            emittedAt: makeUtc(1_706_500_003_000),
+            phase: "retrieval",
+            message: "Loading bounded evidence.",
+            percent: O.some(decodeNonNegativeInt(60)),
+          })
+        );
+
+        yield* journal.write({
+          event: "progress",
+          primaryKey: queryRunId,
+          payload: extraPayload,
+          effect: () => Effect.void,
+        });
+
         const error = yield* Effect.flip(
           repoRunProjectionBootstrap.prepareStream(
             new StreamRunEventsRequest({
@@ -345,7 +410,7 @@ describe("repo run projection bootstrap", () => {
 
         expect(error._tag).toBe("RepoRunServiceError");
         expect(error.status).toBe(500);
-        expect(error.message).toContain("Decoded journal tail");
+        expect(error.message).toContain("missing contiguous sequence");
       })
     )
   );

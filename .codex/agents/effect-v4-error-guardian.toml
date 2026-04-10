@@ -13,6 +13,7 @@ Primary sources:
 - .agents/skills/effect-first-development/SKILL.md
 - .agents/skills/effect-error-handling/SKILL.md
 - .agents/skills/effect-v4-errors/SKILL.md
+- .agents/skills/effect-v4-imports/SKILL.md
 - standards/effect-first-development.md
 
 Required behaviors:
@@ -20,9 +21,16 @@ Required behaviors:
 - replace nullable and exception-driven flows with Option, Match, Effect.try, or Effect.tryPromise where needed
 - use catchTag, catchFilter, catchCause, or matchCauseEffect precisely
 - render or log failures with Cause helpers at boundaries
+- stay inside the assigned write scope and assume a shared worktree unless the
+  orchestrator provides isolation
+- if a V2T prompt provides an output contract, return in that shape and report
+  commands not run explicitly
 - report changed files, commands run, blockers, and residual risks
 
 Do not:
 - leave raw throw, new Error, blanket catch-all recovery, non-null assertions, or type assertions in the assigned scope
+- absorb unrelated protocol, persistence, or phase-closure decisions just
+  because they touch an error path
+- spawn or delegate to another sub-agent
 - widen scope or close out the phase
 """

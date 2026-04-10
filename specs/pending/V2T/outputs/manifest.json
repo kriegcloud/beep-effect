@@ -28,6 +28,43 @@
       "app": "@beep/v2t",
       "sidecar": "@beep/VT2"
     },
+    "command_truth_files": [
+      "../../../package.json",
+      "../../../turbo.json",
+      "../../../apps/V2T/package.json",
+      "../../../apps/V2T/turbo.json",
+      "../../../packages/VT2/package.json",
+      "../../../packages/VT2/turbo.json"
+    ],
+    "required_script_keys": {
+      "root": [
+        "check",
+        "lint",
+        "test",
+        "docgen",
+        "lint:effect-laws",
+        "lint:jsdoc",
+        "check:effect-laws-allowlist",
+        "lint:schema-first"
+      ],
+      "app": [
+        "check",
+        "test",
+        "build",
+        "lint"
+      ],
+      "sidecar": [
+        "check",
+        "test",
+        "build"
+      ]
+    },
+    "forbidden_script_keys": {
+      "sidecar": [
+        "lint",
+        "docgen"
+      ]
+    },
     "documents": [
       "../../../AGENTS.md",
       "../../../.patterns/jsdoc-documentation.md",
@@ -43,7 +80,13 @@
       "vt2_has_package_local_docgen_task": false,
       "codex_plan_mode_prompt_filename_is_compatibility_name": true,
       "repo_local_codex_agents_available": true,
-      "app_lint_command_is_package_local": true
+      "app_lint_command_is_package_local": true,
+      "manifest_command_truth_must_match_live_workspace_manifests": true,
+      "manifest_machine_authority_for_routing_and_gates": true,
+      "manifest_fresh_session_read_order_is_canonical": true,
+      "recommended_agents_mirror_live_codex_registry": true,
+      "readiness_docgen_may_be_recorded_as_not_applicable_when_public_surface_is_unchanged": true,
+      "graphiti_protocol_doc_is_canonical": true
     },
     "spec_package_gate": [
       "git diff --check -- specs/pending/V2T",
@@ -70,6 +113,14 @@
       "bun run test",
       "bun run docgen"
     ]
+  },
+  "graphiti": {
+    "group_id": "beep-dev",
+    "search_group_ids_json": "[\"beep-dev\"]",
+    "add_memory_source": "text",
+    "add_memory_source_description": "codex-cli session",
+    "require_exact_error_logging": true,
+    "require_session_end_summary_writeback": true
   },
   "phase_order": ["p0", "p1", "p2", "p3", "p4"],
   "phases": {
@@ -122,6 +173,7 @@
     "trackers": ["outputs/grill-log.md"]
   },
   "fresh_session_read_order": [
+    "outputs/manifest.json",
     "../../../AGENTS.md",
     "../../../.patterns/jsdoc-documentation.md",
     "../../../standards/effect-first-development.md",
@@ -130,10 +182,10 @@
     "README.md",
     "QUICK_START.md",
     "AGENT_PROMPTS.md",
-    "outputs/manifest.json",
     "outputs/grill-log.md",
     "prompts/README.md",
     "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
+    "prompts/GRAPHITI_MEMORY_PROTOCOL.md",
     "prompts/PHASE_DELEGATION_PROMPTS.md",
     "../../../.codex/config.toml",
     "../../../.codex/agents/README.md",
@@ -165,6 +217,7 @@
     "prompt_assets": {
       "index": "prompts/README.md",
       "operating_model": "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
+      "memory_protocol": "prompts/GRAPHITI_MEMORY_PROTOCOL.md",
       "output_contract": "prompts/SUBAGENT_OUTPUT_CONTRACT.md",
       "phase_prompts": "prompts/PHASE_DELEGATION_PROMPTS.md"
     },
@@ -174,6 +227,7 @@
       "../../../.codex/agents/effect-v4-service-architect.toml",
       "../../../.codex/agents/effect-v4-error-guardian.toml",
       "../../../.codex/agents/effect-v4-http-ai-boundary.toml",
+      "../../../.codex/agents/effect-v4-persistence-runtime-architect.toml",
       "../../../.codex/agents/effect-v4-state-concurrency-guardian.toml",
       "../../../.codex/agents/effect-v4-quality-reviewer.toml"
     ]
@@ -223,6 +277,7 @@
     "handoffs/README.md"
   ],
   "prompt_files": [
+    "prompts/GRAPHITI_MEMORY_PROTOCOL.md",
     "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
     "prompts/PHASE_DELEGATION_PROMPTS.md",
     "prompts/README.md",
@@ -245,6 +300,7 @@
     "../../../.codex/agents/effect-v4-service-architect.toml",
     "../../../.codex/agents/effect-v4-error-guardian.toml",
     "../../../.codex/agents/effect-v4-http-ai-boundary.toml",
+    "../../../.codex/agents/effect-v4-persistence-runtime-architect.toml",
     "../../../.codex/agents/effect-v4-state-concurrency-guardian.toml",
     "../../../.codex/agents/effect-v4-quality-reviewer.toml"
   ],
@@ -289,6 +345,13 @@
         "## Delegation Sequence",
         "## When Not To Delegate",
         "## Repo-Local Codex Runtime Assets"
+      ],
+      "prompts/GRAPHITI_MEMORY_PROTOCOL.md": [
+        "## Preflight",
+        "## Recall Recipe",
+        "## Writeback Template",
+        "## Session-End Summary Rule",
+        "## Worker Expectations"
       ],
       "outputs/codex-plan-mode-prompt.md": [
         "## Operator Notes",

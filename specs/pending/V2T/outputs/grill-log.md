@@ -113,3 +113,33 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Recommendation: validate manifest coherence, exact fileset coverage, required operator headings, and active phase routing in addition to relative links
 - Answer: expand the validator into a package-contract check
 - Resolution: upgraded `outputs/validate-spec.mjs` and added the supporting manifest metadata so future package drift is caught automatically
+
+### Q16 - Should the validator hardcode workspace package names or read them from the live manifests?
+
+- Recommendation: read package truth from the live workspace manifests and treat the manifest as a mirror that must stay in sync
+- Answer: derive package names from `apps/V2T/package.json` and `packages/VT2/package.json`
+- Resolution: updated `outputs/validate-spec.mjs` to compare manifest command truth against the live manifests and added `conformance.command_truth_files` to document the governing files
+
+### Q17 - What should be authoritative when README prose and manifest routing or gate data disagree?
+
+- Recommendation: make the manifest machine-authoritative for routing, command gates, and tracked custom-agent inventory, and treat README prose as explanatory guidance that must be repaired when it drifts
+- Answer: promote `outputs/manifest.json` ahead of README prose for machine-routable package contract facts
+- Resolution: updated the source-of-truth order, aligned the fresh-session entry docs, and extended the validator to enforce manifest parity with the live `.codex` registry
+
+### Q18 - How should readiness treat `bun run docgen` when exported APIs did not change?
+
+- Recommendation: keep `bun run docgen` in the readiness gate, but allow the recorded outcome to be `not applicable` when exported APIs or JSDoc examples did not change
+- Answer: preserve a single machine-readable readiness gate and make the human guidance explicit about `not applicable`
+- Resolution: aligned the README, quick start, entry prompt, and manifest notes so docgen evidence is always recorded instead of silently omitted
+
+### Q19 - Should the package validator trust only copied command strings, or also verify the live script surfaces behind those commands?
+
+- Recommendation: validate both the documented command matrix and the underlying root/app/sidecar script surfaces so machine truth cannot silently drift behind still-plausible prose
+- Answer: treat live script presence and absence as part of command truth
+- Resolution: added required and forbidden script-key catalogs to `outputs/manifest.json`, taught `outputs/validate-spec.mjs` to validate the live `scripts` maps, and updated the scoped entry docs to require same-pass repairs when command-surface drift appears
+
+### Q20 - What is the canonical Graphiti memory contract for this package?
+
+- Recommendation: define one package-local Graphiti protocol that standardizes recall queries, exact-error fallback logging, fixed writeback metadata, and session-end summaries instead of scattering memory reminders through multiple docs
+- Answer: add a dedicated Graphiti memory protocol doc and treat it as canonical
+- Resolution: added `prompts/GRAPHITI_MEMORY_PROTOCOL.md`, wired it into the manifest, validator, entry docs, handoffs, prompt kit, and phase artifacts, and made `fresh_session_read_order` the canonical startup sequence after opening the manifest

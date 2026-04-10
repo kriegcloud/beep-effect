@@ -31,6 +31,7 @@ The session working P4 is the verification orchestrator. It may delegate read-on
 3. Gather automated evidence and manual scenario evidence locally for the blocking questions.
 4. Use workers only for bounded read-only audits of evidence quality or boundary behavior.
 5. Integrate the audit feedback yourself and keep the final readiness judgment in the orchestrator session.
+6. Run a final read-only review wave before declaring readiness.
 
 ## Required Outcomes
 
@@ -46,6 +47,7 @@ The session working P4 is the verification orchestrator. It may delegate read-on
 - Stop if readiness would rely on missing execution evidence or unrun required commands.
 - Stop if a blocker requires code changes, design changes, or planning changes rather than more verification.
 - Stop if delegation would let auditors become the effective owners of readiness.
+- Stop if the final review wave still reports unresolved substantive verification issues.
 - Stop once `VERIFICATION.md` can make an evidence-backed readiness statement without hiding blockers.
 
 ## Exit Gate

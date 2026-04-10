@@ -50,6 +50,9 @@ P1 must keep these constraints active while shaping the design:
 - Worker recommendations are advisory until the orchestrator accepts and integrates them into `DESIGN_RESEARCH.md`.
 - If a design choice would reopen P0 product scope or contradict repo reality, stop and surface that conflict instead of normalizing it.
 - Do not treat provider preferences as locked architecture unless the design explicitly names them as replaceable adapters.
+- Record Graphiti recall attempted, exact query, exact error text when recall
+  fails, fallback used, and any durable writeback or queued session-end
+  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Canonical User Flow
 

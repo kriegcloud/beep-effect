@@ -29,6 +29,12 @@ const makeTokenizationError =
       operation,
     });
 
+/**
+ * Failure raised when wink sentence spans cannot be derived from the token stream.
+ *
+ * @since 0.0.0
+ * @category Errors
+ */
 export class SentenceSpanFailure extends S.TaggedClass<SentenceSpanFailure>($I`SentenceSpanFailure`)(
   "SentenceSpanFailure",
   {
@@ -37,7 +43,7 @@ export class SentenceSpanFailure extends S.TaggedClass<SentenceSpanFailure>($I`S
     sentenceText: S.String,
   },
   $I.annote("SentenceSpanFailure", {
-    description: "",
+    description: "Failure raised when wink sentence spans cannot be derived from token positions.",
   })
 ) {}
 

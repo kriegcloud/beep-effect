@@ -4,27 +4,23 @@
 
 1. Start the main session as the phase orchestrator. Prefer `codex -p v2t_orchestrator` when available.
 2. Run `bun run codex:hook:session-start`.
-3. Read [README.md](./README.md).
-4. Read [outputs/manifest.json](./outputs/manifest.json) and trust `active_phase` plus `active_phase_assets`.
-5. Read [prompts/README.md](./prompts/README.md).
-6. Read [../../../.codex/config.toml](../../../.codex/config.toml) and [../../../.codex/agents/README.md](../../../.codex/agents/README.md) so the available specialist agents are explicit.
-7. Read `AGENTS.md`, [../../../.patterns/jsdoc-documentation.md](../../../.patterns/jsdoc-documentation.md), [../../../standards/effect-first-development.md](../../../standards/effect-first-development.md), [../../../standards/schema-first.inventory.jsonc](../../../standards/schema-first.inventory.jsonc), and [../../../tooling/configs/src/eslint/SchemaFirstRule.ts](../../../tooling/configs/src/eslint/SchemaFirstRule.ts).
-8. Use the `effect-first-development` and `schema-first-development` skills when they are available in-session.
-9. Read [outputs/grill-log.md](./outputs/grill-log.md) for locked package-shape decisions.
-10. Use [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md) when bootstrapping a fresh Codex session.
-11. Read [handoffs/HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md) and [handoffs/P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md).
-12. Open the active phase handoff and active phase orchestrator prompt from `active_phase_assets`.
-13. Read prior phase artifacts that constrain the active phase.
-14. If command, task, or ownership claims are in scope, read the root plus workspace `package.json` and `turbo.json` files before trusting the package docs.
-15. Execute only the active phase as the orchestrator and stop at its exit gate.
-16. Update the active phase artifact and [outputs/manifest.json](./outputs/manifest.json) before exiting.
+3. Read [outputs/manifest.json](./outputs/manifest.json) first, then follow `fresh_session_read_order`.
+4. Read [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) and run the Graphiti preflight or fallback exactly as documented there.
+5. Open the active phase handoff and active phase orchestrator prompt from `active_phase_assets`.
+6. Read prior phase artifacts that constrain the active phase.
+7. If command, task, or ownership claims are in scope, read the root plus workspace `package.json` and `turbo.json` files before trusting the package docs.
+8. Execute only the active phase as the orchestrator and stop at its exit gate.
+9. Update the active phase artifact and [outputs/manifest.json](./outputs/manifest.json) before exiting.
+10. Write the Graphiti session-end summary before ending the session whenever the phase produced durable repo truth, architecture decisions, reusable failures, or meaningful in-progress status.
 
 ## Active Phase Resolver
 
 - Use `outputs/manifest.json` as the only authority for `active_phase`.
+- Treat `fresh_session_read_order` inside the manifest as the canonical ordered startup list after the manifest is open.
 - Use `active_phase_assets` to resolve the matching handoff, orchestrator prompt, output artifact, and trackers without guessing.
 - Do not infer the active phase from status prose inside the markdown artifacts.
 - When the active phase is `p0`, treat [outputs/grill-log.md](./outputs/grill-log.md) as an active tracker, not optional history.
+- If a package name or task claim disagrees with the manifest, trust the live workspace manifests first, then repair the manifest and rerun the validator before continuing.
 
 ## Phase Session Model
 
@@ -32,6 +28,7 @@
 - Use sub-agents only after the orchestrator has formed a local plan.
 - Keep worker write scopes disjoint.
 - Use [prompts/ORCHESTRATOR_OPERATING_MODEL.md](./prompts/ORCHESTRATOR_OPERATING_MODEL.md) and [prompts/PHASE_DELEGATION_PROMPTS.md](./prompts/PHASE_DELEGATION_PROMPTS.md) when delegating.
+- Use [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) for Graphiti recall, fallback logging, and session-end writeback.
 - Use [../../../.codex/agents/README.md](../../../.codex/agents/README.md) to choose the right Effect v4 specialist.
 
 ## If You Are Editing This Package
@@ -40,6 +37,7 @@
 - Update [REFLECTION_LOG.md](./REFLECTION_LOG.md) when package-local structure, operator guidance, or validator behavior changes.
 - Append [outputs/grill-log.md](./outputs/grill-log.md) only when you are locking a new package-shape decision or default.
 - Run the package-local spec gate before you stop.
+- If validator failures mention live script surfaces, repair the manifest and the copied operator guidance together before rerunning it.
 
 ## Combined Router
 
@@ -88,6 +86,8 @@ Unless a stronger user instruction overrides it, the package assumes the first i
 - `node specs/pending/V2T/outputs/validate-spec.mjs`
 
 Do not treat root `bun run lint:markdown` as sufficient here because `.markdownlint-cli2.jsonc` currently ignores `specs/**`.
+If the validator disagrees with copied command text, repair the command text rather than weakening the validator.
+If the validator says a documented gate lacks a live backing script, treat the workspace manifests as authoritative and update the package docs or manifest in the same pass.
 
 ### When Planning Or Implementing Code
 
@@ -100,6 +100,8 @@ Do not treat root `bun run lint:markdown` as sufficient here because `.markdownl
 - `bun run check:effect-laws-allowlist`
 - `bun run lint:schema-first`
 - `bun run docgen` when exported APIs or JSDoc examples changed
+
+If exported APIs or JSDoc examples did not change, record `bun run docgen` as `not applicable` in readiness evidence instead of omitting it.
 
 Important notes:
 

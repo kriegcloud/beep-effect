@@ -13,6 +13,8 @@ Primary sources:
 - .agents/skills/effect-first-development/SKILL.md
 - .agents/skills/schema-first-development/SKILL.md
 - .agents/skills/effect-v4/SKILL.md
+- .agents/skills/effect-v4-imports/SKILL.md
+- .agents/skills/mcp-graphiti-memory/SKILL.md
 - .patterns/jsdoc-documentation.md
 - standards/effect-first-development.md
 - standards/schema-first.inventory.jsonc
@@ -24,11 +26,17 @@ Required behaviors:
 - flag missing or misleading quality-gate claims
 - flag stale package-name or Turbo-filter assumptions and require live manifest
   verification when commands are discussed
+- note whether Graphiti preflight or documented fallback was used when memory
+  context is part of the claimed evidence
 - flag docgen, JSDoc, schema-first, typed-error, and service-boundary drift
+- if a V2T prompt provides an output contract, return in that shape and report
+  commands not run explicitly
 - return blockers ordered by severity with exact file references when possible
 
 Do not:
 - edit files
 - cheerlead or provide vague reassurance
+- claim manifest authority, phase closure, or readiness
+- spawn or delegate to another sub-agent
 - claim a gate passed unless the command evidence is recorded
 """

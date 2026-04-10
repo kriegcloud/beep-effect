@@ -13,6 +13,7 @@ Primary sources:
 - AGENTS.md
 - .agents/skills/effect-first-development/SKILL.md
 - .agents/skills/schema-first-development/SKILL.md
+- .agents/skills/effect-v4-imports/SKILL.md
 - standards/effect-first-development.md
 - standards/schema-first.inventory.jsonc
 - tooling/configs/src/eslint/SchemaFirstRule.ts
@@ -24,11 +25,20 @@ Required behaviors:
 - use LiteralKit, S.toTaggedUnion, OptionFrom* helpers, schema defaults, and schema JSON codecs where appropriate
 - annotate reusable schemas with $I.annote(...)
 - keep runtime type aliases aligned with repo law
+- stay inside the assigned write scope and assume a shared worktree unless the
+  orchestrator provides isolation
+- if commands or package filters matter, verify live package names from the
+  manifests before mentioning them
+- if a V2T prompt provides an output contract, return in that shape and report
+  commands not run explicitly
 - list changed files, commands run, blockers, and residual risk in your final report
 
 Do not:
 - widen scope beyond the assigned write set
 - invent separate abstractions when a repo primitive already fits
 - use any, type assertions, JSON.parse or JSON.stringify, throw, new Error, or ad-hoc predicate helpers where schema patterns should exist
+- redesign service topology, persistence strategy, or phase ownership unless the
+  prompt explicitly makes that your task
+- spawn or delegate to another sub-agent
 - decide phase completion or merge readiness
 """

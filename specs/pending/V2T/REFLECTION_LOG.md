@@ -46,3 +46,34 @@
   warning that `@beep/VT2` has no direct package-local lint task.
 - Added explicit `active_phase_assets`, `fresh_session_read_order`, `output_files`, and required heading validation to the manifest so operators and tooling can resolve package structure without inference.
 - Expanded `outputs/validate-spec.mjs` from a broken-link checker into a package-contract validator that now checks manifest coherence, fileset coverage, active-phase routing, command truth anchors, and required sections in the scoped operator docs.
+
+## 2026-04-10 Command-Truth Validator Pass
+
+- Tightened the validator so it derives the live app and sidecar package names from the workspace manifests instead of trusting hardcoded identifiers inside the validator itself.
+- Added an explicit `conformance.command_truth_files` catalog to the manifest so package operators and the validator can agree on which live manifests govern package-name and task-surface truth.
+- Added stale-command checks for the legacy uppercase app filter and the old path-based Turbo filters so copied command drift now fails fast during package validation.
+
+## 2026-04-10 Authority And Registry Alignment Pass
+
+- Resolved the split authority model by making `outputs/manifest.json` the explicit machine authority for routing, gates, and tracked custom-agent inventory, while keeping `README.md` as explanatory operator guidance.
+- Aligned the fresh-session entry surfaces so `README.md`, `QUICK_START.md`, `AGENT_PROMPTS.md`, and `outputs/codex-plan-mode-prompt.md` now all require the same Graphiti preflight and fallback language.
+- Extended the validator to enforce parity between the manifest's custom-agent inventory and the live `.codex/config.toml` registry so agent-catalog drift fails fast.
+
+## 2026-04-10 Final Consistency Pass
+
+- Moved Graphiti preflight ahead of active-phase execution in `AGENT_PROMPTS.md` so the startup sequence matches the orchestrator operating model.
+- Aligned the human-facing readiness guidance with the machine-readable readiness gate by requiring a recorded `bun run docgen` outcome, using `not applicable` when exported APIs or JSDoc examples did not change.
+
+## 2026-04-10 Script-Surface Enforcement Pass
+
+- Extended `outputs/manifest.json` with explicit required and forbidden script keys so the package records not just command strings, but the live script surfaces those commands depend on.
+- Extended `outputs/validate-spec.mjs` to validate the root, app, and sidecar `scripts` maps directly, which closes the remaining gap where copied command guidance could stay syntactically correct while drifting away from actual workspace scripts.
+- Tightened the scoped operator docs to state that script-surface drift is a same-pass repair event for both manifest metadata and human guidance.
+
+## 2026-04-10 Graphiti Protocol Pass
+
+- Replaced the lingering README authority contradiction by treating `README.md` as the operator guide and `outputs/manifest.json` as the machine authority, with `fresh_session_read_order` called out as the canonical ordered startup list after the manifest is open.
+- Added `prompts/GRAPHITI_MEMORY_PROTOCOL.md` so Graphiti recall, exact-error fallback logging, durable writeback metadata, and session-end summaries now have one canonical contract instead of scattered reminders.
+- Extended the manifest and validator to track the Graphiti protocol explicitly, require the memory protocol prompt asset, and fail if the README reintroduces the stale “normative source of truth” wording.
+- Propagated the Graphiti protocol through the README, quick start, prompts, handoffs, the phase entry prompt, and the five phase artifacts so memory usage is explicit, auditable, and phase-local evidence can record recall plus writeback behavior consistently.
+- Removed a duplicate `outputs/manifest.json` entry from `fresh_session_read_order` and taught the validator to fail on duplicate startup-order entries so the canonical read sequence stays strictly linear.

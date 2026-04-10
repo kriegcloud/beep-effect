@@ -64,6 +64,9 @@ P0 must read and cite the live repo-law inputs that constrain later phases:
 - Worker findings are inputs to the orchestrator, not authoritative phase closure evidence on their own.
 - Separate confirmed repo facts from PRD ambition and from deferred provider behavior.
 - If ambiguity remains meaningful after repo inspection, record it explicitly or route it through `grill-me`; do not silently resolve it.
+- Record Graphiti recall attempted, exact query, exact error text when recall
+  fails, fallback used, and any durable writeback or queued session-end
+  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## PRD Synthesis
 

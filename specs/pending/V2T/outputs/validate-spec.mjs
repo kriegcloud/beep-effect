@@ -4,15 +4,30 @@ import { fileURLToPath } from "node:url"
 
 const outputsDir = dirname(fileURLToPath(import.meta.url))
 const specDir = dirname(outputsDir)
+const repoRootDir = dirname(dirname(dirname(specDir)))
 
 const manifestPath = join(outputsDir, "manifest.json")
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"))
+const rootPackageManifestPath = join(repoRootDir, "package.json")
+const rootTurboManifestPath = join(repoRootDir, "turbo.json")
+const codexConfigPath = join(repoRootDir, ".codex", "config.toml")
+const codexAgentsReadmePath = join(repoRootDir, ".codex", "agents", "README.md")
+const appPackageManifestPath = join(repoRootDir, "apps", "V2T", "package.json")
+const appTurboManifestPath = join(repoRootDir, "apps", "V2T", "turbo.json")
+const sidecarPackageManifestPath = join(repoRootDir, "packages", "VT2", "package.json")
+const sidecarTurboManifestPath = join(repoRootDir, "packages", "VT2", "turbo.json")
+const codexConfigContent = readFileSync(codexConfigPath, "utf8")
+const rootPackageManifest = JSON.parse(readFileSync(rootPackageManifestPath, "utf8"))
+const appPackageManifest = JSON.parse(readFileSync(appPackageManifestPath, "utf8"))
+const sidecarPackageManifest = JSON.parse(readFileSync(sidecarPackageManifestPath, "utf8"))
+const appWorkspacePackageName = appPackageManifest.name
+const sidecarWorkspacePackageName = sidecarPackageManifest.name
 
 const expectedPhaseOrder = ["p0", "p1", "p2", "p3", "p4"]
 const expectedImplementationFloor = [
-  "bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2",
-  "bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2",
-  "bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2",
+  `bunx turbo run check --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
+  `bunx turbo run test --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
+  `bunx turbo run build --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
   "bun run --cwd apps/V2T lint"
 ]
 const expectedRepoLawGate = [
@@ -27,6 +42,14 @@ const expectedReadinessGate = [
   "bun run test",
   "bun run docgen"
 ]
+const expectedGraphitiConfig = {
+  group_id: "beep-dev",
+  search_group_ids_json: "[\"beep-dev\"]",
+  add_memory_source: "text",
+  add_memory_source_description: "codex-cli session",
+  require_exact_error_logging: true,
+  require_session_end_summary_writeback: true
+}
 const manifestRootFiles = new Set([
   "README.md",
   "QUICK_START.md",
@@ -46,6 +69,31 @@ const manifestFileExtensions = new Set([
   ".png",
   ".toml"
 ])
+const textFilesetExtensions = new Set([
+  ".json",
+  ".md",
+  ".mjs"
+])
+const staleCommandPatterns = [
+  {
+    description: "stale uppercase app package filter",
+    pattern: /--filter=@beep\/V2T\b/
+  },
+  {
+    description: "stale app path filter",
+    pattern: /--filter=\.\/apps\/V2T\b/
+  },
+  {
+    description: "stale sidecar path filter",
+    pattern: /--filter=\.\/packages\/VT2\b/
+  }
+]
+const staleProsePatterns = [
+  {
+    description: "stale README authority label",
+    pattern: /normative source of truth for this spec package/
+  }
+]
 
 const failures = []
 
@@ -54,6 +102,23 @@ const pushFailure = (message) => {
 }
 
 const toPosixPath = (path) => path.split("\\").join("/")
+
+const expectedCommandTruthFiles = [
+  toPosixPath(relative(specDir, rootPackageManifestPath)),
+  toPosixPath(relative(specDir, rootTurboManifestPath)),
+  toPosixPath(relative(specDir, appPackageManifestPath)),
+  toPosixPath(relative(specDir, appTurboManifestPath)),
+  toPosixPath(relative(specDir, sidecarPackageManifestPath)),
+  toPosixPath(relative(specDir, sidecarTurboManifestPath))
+]
+const expectedCodexAgentFiles = [...codexConfigContent.matchAll(/^config_file = "\.\/(agents\/[^"]+\.toml)"$/gm)].map(
+  ([, configFile]) => toPosixPath(relative(specDir, join(repoRootDir, ".codex", configFile)))
+)
+const expectedCodexFiles = [
+  toPosixPath(relative(specDir, codexConfigPath)),
+  toPosixPath(relative(specDir, codexAgentsReadmePath)),
+  ...expectedCodexAgentFiles
+]
 
 const sortStrings = (values) => [...values].sort()
 
@@ -72,6 +137,39 @@ const expectString = (label, value) => {
 const expectStringArray = (label, value) => {
   if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string" || entry.length === 0)) {
     pushFailure(`${label}: expected array of non-empty strings`)
+  }
+}
+
+const expectNoDuplicateStrings = (label, value) => {
+  if (!Array.isArray(value)) {
+    return
+  }
+
+  const duplicates = value.filter((entry, index) => value.indexOf(entry) !== index)
+  if (duplicates.length > 0) {
+    pushFailure(`${label}: duplicate entries ${JSON.stringify(sortStrings(new Set(duplicates)))}`)
+  }
+}
+
+const expectScriptsPresent = (label, scripts, requiredKeys) => {
+  for (const key of requiredKeys) {
+    if (typeof scripts?.[key] !== "string" || scripts[key].length === 0) {
+      pushFailure(`${label}: missing required script ${JSON.stringify(key)}`)
+    }
+  }
+}
+
+const expectScriptsAbsent = (label, scripts, forbiddenKeys) => {
+  for (const key of forbiddenKeys) {
+    if (typeof scripts?.[key] === "string" && scripts[key].length > 0) {
+      pushFailure(`${label}: forbidden script present ${JSON.stringify(key)}`)
+    }
+  }
+}
+
+const expectStringArrayIncludes = (label, value, expectedEntry) => {
+  if (!Array.isArray(value) || !value.includes(expectedEntry)) {
+    pushFailure(`${label}: expected to include ${JSON.stringify(expectedEntry)}`)
   }
 }
 
@@ -162,6 +260,7 @@ const getRootMarkdownFiles = () =>
     .map(toPosixPath)
 
 const markdownFiles = []
+const textFiles = []
 const walkMarkdownFiles = (currentDir) => {
   for (const entry of readdirSync(currentDir)) {
     const fullPath = join(currentDir, entry)
@@ -169,6 +268,9 @@ const walkMarkdownFiles = (currentDir) => {
     if (stats.isDirectory()) {
       walkMarkdownFiles(fullPath)
       continue
+    }
+    if (textFilesetExtensions.has(extname(fullPath))) {
+      textFiles.push(fullPath)
     }
     if (extname(fullPath) === ".md") {
       markdownFiles.push(fullPath)
@@ -264,12 +366,46 @@ const checkManifestStructure = () => {
   expectValue(
     "manifest.conformance.workspace_packages.app",
     manifest.conformance?.workspace_packages?.app,
-    "@beep/v2t"
+    appWorkspacePackageName
   )
   expectValue(
     "manifest.conformance.workspace_packages.sidecar",
     manifest.conformance?.workspace_packages?.sidecar,
-    "@beep/VT2"
+    sidecarWorkspacePackageName
+  )
+  expectSortedStringArray(
+    "manifest.conformance.command_truth_files",
+    manifest.conformance?.command_truth_files ?? [],
+    expectedCommandTruthFiles
+  )
+  expectSortedStringArray(
+    "manifest.conformance.required_script_keys.root",
+    manifest.conformance?.required_script_keys?.root ?? [],
+    [
+      "check",
+      "lint",
+      "test",
+      "docgen",
+      "lint:effect-laws",
+      "lint:jsdoc",
+      "check:effect-laws-allowlist",
+      "lint:schema-first"
+    ]
+  )
+  expectSortedStringArray(
+    "manifest.conformance.required_script_keys.app",
+    manifest.conformance?.required_script_keys?.app ?? [],
+    ["check", "test", "build", "lint"]
+  )
+  expectSortedStringArray(
+    "manifest.conformance.required_script_keys.sidecar",
+    manifest.conformance?.required_script_keys?.sidecar ?? [],
+    ["check", "test", "build"]
+  )
+  expectSortedStringArray(
+    "manifest.conformance.forbidden_script_keys.sidecar",
+    manifest.conformance?.forbidden_script_keys?.sidecar ?? [],
+    ["lint", "docgen"]
   )
   expectSortedStringArray(
     "manifest.conformance.implementation_floor",
@@ -307,13 +443,66 @@ const checkManifestStructure = () => {
     manifest.delegation?.phase_session_role,
     manifest.phase_session_role
   )
+  expectValue(
+    "manifest.delegation.custom_agent_registry",
+    manifest.delegation?.custom_agent_registry,
+    toPosixPath(relative(specDir, codexConfigPath))
+  )
+  expectValue(
+    "manifest.delegation.custom_agent_catalog",
+    manifest.delegation?.custom_agent_catalog,
+    toPosixPath(relative(specDir, codexAgentsReadmePath))
+  )
   expectValue("manifest.phase_router", manifest.phase_router, "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md")
+
+  expectScriptsPresent(
+    "root package manifest scripts",
+    rootPackageManifest.scripts,
+    manifest.conformance?.required_script_keys?.root ?? []
+  )
+  expectScriptsPresent(
+    "app package manifest scripts",
+    appPackageManifest.scripts,
+    manifest.conformance?.required_script_keys?.app ?? []
+  )
+  expectScriptsPresent(
+    "sidecar package manifest scripts",
+    sidecarPackageManifest.scripts,
+    manifest.conformance?.required_script_keys?.sidecar ?? []
+  )
+  expectScriptsAbsent(
+    "sidecar package manifest scripts",
+    sidecarPackageManifest.scripts,
+    manifest.conformance?.forbidden_script_keys?.sidecar ?? []
+  )
+
+  for (const [key, value] of Object.entries(expectedGraphitiConfig)) {
+    expectValue(`manifest.graphiti.${key}`, manifest.graphiti?.[key], value)
+  }
 
   expectStringArray("manifest.root_files", manifest.root_files)
   expectStringArray("manifest.handoff_files", manifest.handoff_files)
   expectStringArray("manifest.prompt_files", manifest.prompt_files)
   expectStringArray("manifest.output_files", manifest.output_files)
+  expectStringArray("manifest.codex_files", manifest.codex_files)
   expectStringArray("manifest.fresh_session_read_order", manifest.fresh_session_read_order)
+  expectStringArray("manifest.delegation.recommended_agents", manifest.delegation?.recommended_agents)
+  expectNoDuplicateStrings("manifest.fresh_session_read_order", manifest.fresh_session_read_order)
+  expectValue(
+    "manifest.delegation.prompt_assets.memory_protocol",
+    manifest.delegation?.prompt_assets?.memory_protocol,
+    "prompts/GRAPHITI_MEMORY_PROTOCOL.md"
+  )
+  expectValue(
+    "manifest.fresh_session_read_order[0]",
+    manifest.fresh_session_read_order?.[0],
+    "outputs/manifest.json"
+  )
+  expectStringArrayIncludes(
+    "manifest.fresh_session_read_order",
+    manifest.fresh_session_read_order,
+    "prompts/GRAPHITI_MEMORY_PROTOCOL.md"
+  )
 
   expectSortedStringArray("manifest.root_files", manifest.root_files ?? [], getRootMarkdownFiles())
   expectSortedStringArray(
@@ -330,6 +519,12 @@ const checkManifestStructure = () => {
     "manifest.output_files",
     manifest.output_files ?? [],
     getFilesRelativeToSpec(join(specDir, "outputs"))
+  )
+  expectSortedStringArray("manifest.codex_files", manifest.codex_files ?? [], expectedCodexFiles)
+  expectSortedStringArray(
+    "manifest.delegation.recommended_agents",
+    manifest.delegation?.recommended_agents ?? [],
+    expectedCodexAgentFiles
   )
 }
 
@@ -363,6 +558,25 @@ for (const manifestRef of collectManifestPaths(manifest)) {
 checkRequiredHeadings()
 
 walkMarkdownFiles(specDir)
+
+for (const textFile of textFiles) {
+  if (textFile === fileURLToPath(import.meta.url)) {
+    continue
+  }
+
+  const content = readFileSync(textFile, "utf8")
+  for (const { description, pattern } of staleCommandPatterns) {
+    if (pattern.test(content)) {
+      pushFailure(`${toPosixPath(relative(specDir, textFile))}: ${description}`)
+    }
+  }
+
+  for (const { description, pattern } of staleProsePatterns) {
+    if (pattern.test(content)) {
+      pushFailure(`${toPosixPath(relative(specDir, textFile))}: ${description}`)
+    }
+  }
+}
 
 const markdownLinkPattern = /\[[^\]]*?\]\(([^)]+)\)/g
 

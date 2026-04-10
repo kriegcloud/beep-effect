@@ -17,7 +17,7 @@
 
 ### Root
 
-- [README.md](./README.md) - normative source of truth for this spec package
+ - [README.md](./README.md) - operator guide and package overview
 - [QUICK_START.md](./QUICK_START.md) - fresh-session operator entrypoint
 - [AGENT_PROMPTS.md](./AGENT_PROMPTS.md) - condensed per-phase orchestrator prompts
 - [REFLECTION_LOG.md](./REFLECTION_LOG.md) - corrections, assumptions, and follow-up learnings
@@ -50,6 +50,7 @@
 
 - [prompts/README.md](./prompts/README.md) - delegation kit index
 - [prompts/ORCHESTRATOR_OPERATING_MODEL.md](./prompts/ORCHESTRATOR_OPERATING_MODEL.md) - phase orchestrator rules
+- [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) - canonical Graphiti recall and writeback contract
 - [prompts/SUBAGENT_OUTPUT_CONTRACT.md](./prompts/SUBAGENT_OUTPUT_CONTRACT.md) - required worker return format
 - [prompts/PHASE_DELEGATION_PROMPTS.md](./prompts/PHASE_DELEGATION_PROMPTS.md) - ready-to-paste sub-agent prompt templates
 
@@ -70,12 +71,13 @@
 ## Session Resume Checklist
 
 1. Run `bun run codex:hook:session-start` from the repo root.
-2. Read [outputs/manifest.json](./outputs/manifest.json) and trust `active_phase` plus `active_phase_assets`.
-3. Read [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md), [handoffs/HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md), [handoffs/P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md), and [prompts/README.md](./prompts/README.md).
-4. Read only the active phase handoff, active phase orchestrator prompt, and prior phase artifacts that constrain the active phase.
+2. Read [outputs/manifest.json](./outputs/manifest.json) first, then follow `fresh_session_read_order`. The shorter startup lists elsewhere in this package are summaries, not competing ordered sources.
+3. Read [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) and run the Graphiti preflight or fallback exactly as documented there.
+4. Trust `active_phase` plus `active_phase_assets` and read only the active phase handoff, active phase orchestrator prompt, and prior phase artifacts that constrain the active phase.
 5. When command or task claims matter, confirm them against the live `package.json` and `turbo.json` files for the root, `apps/V2T`, and `packages/VT2`.
 6. Execute only the active phase as the orchestrator.
 7. Update the active phase artifact, [outputs/manifest.json](./outputs/manifest.json), and the package logs touched by the change before exiting.
+8. Write the Graphiti session-end summary before ending the session whenever the phase produced durable repo truth, architecture decisions, reusable failures, or meaningful in-progress status.
 
 ## Purpose
 
@@ -113,8 +115,8 @@ The canonical spec is grounded in current repo anchors:
 Disagreement is resolved in this order:
 
 1. repo law and current repo reality
-2. this README
-3. [outputs/manifest.json](./outputs/manifest.json)
+2. [outputs/manifest.json](./outputs/manifest.json) for machine-routable package contract data such as `active_phase`, `active_phase_assets`, command gates, tracked files, and custom-agent inventory
+3. this README for explanatory and operator guidance that must not contradict repo law or the manifest
 4. phase artifacts in order: `RESEARCH.md`, `DESIGN_RESEARCH.md`, `PLANNING.md`, `EXECUTION.md`, `VERIFICATION.md`
 5. handoffs, the combined phase router, and [AGENT_PROMPTS.md](./AGENT_PROMPTS.md)
 6. preserved raw inputs under `outputs/`
@@ -123,10 +125,13 @@ Manifest notes:
 
 - all file paths stored in [outputs/manifest.json](./outputs/manifest.json) are package-root-relative, not manifest-file-relative
 - `active_phase_assets` is the fastest authoritative route to the active phase handoff, prompt, output, and trackers
+- `fresh_session_read_order` is the canonical ordered startup list once the manifest is open
+- this README explains package intent and operator workflow, but the manifest owns machine-readable routing and gate truth
 
 ## Active Phase Contract
 
 - [outputs/manifest.json](./outputs/manifest.json) is the machine authority for `active_phase`, `active_phase_assets`, and the package-wide command gates.
+- This README is explanatory guidance. If it disagrees with repo law, live manifests, or the package manifest, repair the prose instead of routing around the machine contract.
 - Do not infer the active phase from prose status headings inside individual markdown files.
 - Package status `BOOTSTRAPPED` means the package structure and routing exist; it does not imply the active phase artifact is already complete.
 - If package-local routing, command gates, or validator behavior changes, update the manifest in the same pass.
@@ -158,14 +163,16 @@ If these sources disagree, the tie-break order is:
 - `packages/VT2/package.json` is the authoritative source for the sidecar workspace identity, and its current package name is `@beep/VT2`.
 - Directory names are not authoritative for Turbo filter casing. Never infer a package filter from `apps/V2T` or `packages/VT2` alone.
 - When adding or changing command examples, verify the package names from the live manifests first. If command truth is uncertain, confirm with a dry run such as `bunx turbo run check --filter=@beep/v2t --dry=json`.
+- `outputs/manifest.json` must mirror the live package names and command-truth files. If the workspace manifests change, repair the manifest and rerun the validator in the same pass.
+- The validator also treats the root, app, and sidecar script surfaces as live command truth. If a documented gate depends on a missing script, fix the docs or manifest rather than weakening the validator.
 
 ## Graphiti Memory Protocol
 
-- Start phase work with `bun run codex:hook:session-start` when useful.
-- If `graphiti-memory` is available in-session, run a lightweight preflight: `get_status`, then `search_memory_facts`.
-- When the wrapper exposes `group_ids` as a string, pass the JSON array literal string `"[\"beep-dev\"]"` instead of the plain string `beep-dev`.
-- If Graphiti fact search fails because of the current RediSearch syntax issue, continue with repo-local docs and code search, and record that the session used a Graphiti fallback instead of blocking the phase.
-- Write back material decisions, repo-specific findings, and tricky fixes before the phase closes.
+- [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) is the canonical recall and writeback contract for this package.
+- Use `group_id: "beep-dev"` for `add_memory`, `source: "text"`, and `source_description: "codex-cli session"`.
+- When the wrapper exposes `group_ids` as a string for recall, pass the JSON array literal string `"[\"beep-dev\"]"` instead of the plain string `beep-dev`.
+- If recall fails, log the exact query and exact error text in the phase artifact, then continue with the documented repo-local fallback instead of blocking the phase.
+- Write back material decisions, repo-specific findings, tricky fixes, and meaningful session-end progress summaries using the template in the protocol doc.
 
 ## Phase Agent Model
 
@@ -174,6 +181,7 @@ Every active phase session is the phase orchestrator.
 - The orchestrator owns the phase plan, delegation decisions, integration, quality-gate evidence, and artifact updates.
 - Sub-agents are bounded workers or auditors. They do not own phase closure, manifest authority, or scope expansion.
 - Use the delegation kit under [prompts/README.md](./prompts/README.md) when a phase benefits from parallel work.
+- Use [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) when phase recall or session-end writeback is in scope.
 - Prefer the repo-local custom agent registry in [../../../.codex/config.toml](../../../.codex/config.toml) and [../../../.codex/agents/README.md](../../../.codex/agents/README.md) for Effect v4 specialist delegation.
 - Assume the CLI workers share the same worktree unless the runtime explicitly provides isolation. Disjoint write scopes are therefore mandatory, not just stylistic.
 - The recommended fresh-session profile is `codex -p v2t_orchestrator`, but the active phase still remains the orchestrator even when no sub-agents are used.
@@ -229,7 +237,9 @@ No phase may claim implementation readiness, merge readiness, or production-styl
 - `bun run check`
 - `bun run lint`
 - `bun run test`
-- `bun run docgen` when exported APIs or JSDoc examples changed
+- `bun run docgen`
+
+When exported APIs or JSDoc examples did not change, record `bun run docgen` as `not applicable` instead of omitting it from readiness evidence.
 
 ## Package Maintenance Rules
 
@@ -237,6 +247,8 @@ No phase may claim implementation readiness, merge readiness, or production-styl
 - Update [REFLECTION_LOG.md](./REFLECTION_LOG.md) whenever package-local structure, operator workflow, or validator behavior changes.
 - Append [outputs/grill-log.md](./outputs/grill-log.md) only when a new package-shape decision or default is being locked.
 - Run the spec package gate before closing any package-maintenance change.
+- Treat the validator as the final authority for package-contract drift inside owned files; do not trust copied command snippets over validator results.
+- If the validator reports command-surface drift, repair both the manifest catalog and the human-facing docs in the same pass so the machine and prose contracts stay aligned.
 
 ## Working Contract
 
@@ -244,10 +256,11 @@ No phase may claim implementation readiness, merge readiness, or production-styl
 - Preserve `outputs/v2t_app_notes.html`, `outputs/V2_animination_V2T.md`, and the reference image as source inputs.
 - Treat the exact root-level phase documents as authoritative artifacts, not aliases of `outputs/pN-...` files.
 - Route fresh sessions through [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md), [handoffs/HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md), [handoffs/P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md), and [prompts/README.md](./prompts/README.md) before dropping into a single phase.
+- Follow [outputs/manifest.json](./outputs/manifest.json) `fresh_session_read_order` as the canonical ordered startup list after opening the manifest.
 - Treat the `codex-plan-mode-prompt.md` filename as a compatibility name only; the prompt applies in either Default mode or Plan mode.
 - Treat the active phase session as the phase orchestrator even when sub-agents are used.
 - Use repo-local custom agents from `.codex/config.toml` only for bounded work; keep phase ownership in the orchestrator.
-- Run the Graphiti memory preflight when the MCP is available, and log fallback behavior when fact search is unavailable or currently broken.
+- Run the Graphiti memory preflight when the MCP is available, and log exact query, exact error, fallback behavior, and writeback status via [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md).
 - Run a read-only review wave before phase closeout, and do not close the phase while substantive findings remain unresolved.
 - Use `grill-me` during P0 whenever meaningful ambiguity remains, and append the result to [outputs/grill-log.md](./outputs/grill-log.md).
 - Keep provider-specific logic behind explicit adapters and service seams.

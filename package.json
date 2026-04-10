@@ -167,6 +167,7 @@
   "overrides": {
     "@anthropic-ai/sdk": "0.81.0",
     "@hono/node-server": "^1.19.11",
+    "axios": "^1.15.0",
     "autolinker": "^3.11.0",
     "undici": "^7.24.4",
     "express-rate-limit": "^8.3.0",

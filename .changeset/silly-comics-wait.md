@@ -1,8 +1,5 @@
 ---
-"@beep/ai-sdk": patch
 "@beep/chalk": patch
-"@beep/clawhole": patch
-"@beep/codegraph": patch
 "@beep/colors": patch
 "@beep/data": patch
 "@beep/db-admin": patch
@@ -25,7 +22,6 @@
 "@beep/shared-client": patch
 "@beep/shared-domain": patch
 "@beep/shared-env": patch
-"@beep/shared-providers": patch
 "@beep/shared-server": patch
 "@beep/shared-tables": patch
 "@beep/shared-ui": patch

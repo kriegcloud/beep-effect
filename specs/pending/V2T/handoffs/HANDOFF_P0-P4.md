@@ -18,12 +18,14 @@ If Plan mode is available and active, do not edit spec artifacts yet. First read
 - The orchestrator owns integration, gate evidence, and artifact updates.
 - Use `prompts/ORCHESTRATOR_OPERATING_MODEL.md` and
   `prompts/PHASE_DELEGATION_PROMPTS.md` when delegation helps.
+- Use `prompts/GRAPHITI_MEMORY_PROTOCOL.md` for memory recall, fallback
+  logging, and session-end writeback.
 - Sub-agents do not own phase closure, manifest authority, or scope expansion.
 
 ## Required Read Order
 
-1. [README.md](../README.md)
-2. [outputs/manifest.json](../outputs/manifest.json)
+1. [outputs/manifest.json](../outputs/manifest.json)
+2. [README.md](../README.md)
 3. [outputs/grill-log.md](../outputs/grill-log.md)
 4. `../../../../AGENTS.md`
 5. `../../../../.patterns/jsdoc-documentation.md`
@@ -33,11 +35,16 @@ If Plan mode is available and active, do not edit spec artifacts yet. First read
 9. `../../../../apps/V2T/package.json`
 10. `../../../../packages/VT2/package.json`
 11. `../prompts/ORCHESTRATOR_OPERATING_MODEL.md`
-12. `../prompts/PHASE_DELEGATION_PROMPTS.md`
-13. the current phase output
-14. the relevant repo seams in `apps/V2T` and `packages/VT2`
-15. preserved raw inputs under `outputs/` only when deeper evidence is needed
-16. the current phase handoff and matching phase orchestrator prompt
+12. `../prompts/GRAPHITI_MEMORY_PROTOCOL.md`
+13. `../prompts/PHASE_DELEGATION_PROMPTS.md`
+14. the current phase output
+15. the relevant repo seams in `apps/V2T` and `packages/VT2`
+16. preserved raw inputs under `outputs/` only when deeper evidence is needed
+17. the current phase handoff and matching phase orchestrator prompt
+
+Use `active_phase_assets` in `outputs/manifest.json` as the routing source for
+the active prompt, handoff, output artifact, and trackers instead of inferring
+them from prose.
 
 ## Phase Sequence
 
@@ -60,8 +67,9 @@ If Plan mode is available and active, do not edit spec artifacts yet. First read
 - Enforce the conformance matrix from `README.md`; do not claim a gate passed without recording the concrete command result.
 - Treat `outputs/validate-spec.mjs` plus `git diff --check -- specs/pending/V2T` as the package-local spec gate because root markdown lint ignores `specs/**`.
 - Use the custom agents under `.codex/config.toml` only as workers or auditors; do not let them replace the phase orchestrator.
-- Run the Graphiti preflight when the MCP is available, and document fallback
-  behavior instead of silently skipping memory context.
+- Run the Graphiti preflight when the MCP is available, and document exact
+  query, exact error, and fallback behavior instead of silently skipping memory
+  context.
 - Run a read-only review wave before phase closeout, and treat substantive
   findings as reopen conditions rather than optional follow-up.
 - Stop at the active phase exit gate instead of silently rolling forward.
@@ -72,6 +80,10 @@ If Plan mode is available and active, do not edit spec artifacts yet. First read
 - Distinguish `planned`, `passed`, `failed`, `blocked`, `not run`, and `not applicable`; do not imply that a required gate passed just because it is listed.
 - Treat worker reports as evidence inputs that still require orchestrator review and integration.
 - If a later phase finds an unresolved earlier-phase assumption, stop and send it back rather than normalizing the mismatch.
+- Prefer the active phase artifact for concrete evidence recording and the
+  handoff for procedural guidance; do not blur those responsibilities.
+- Record Graphiti recall attempted, fallback reason, and writeback status in
+  the active phase artifact using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Cross-Phase Stop Conditions
 

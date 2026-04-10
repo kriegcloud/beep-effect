@@ -3,20 +3,25 @@
 ## Usage Guidance
 
 - Start with [../README.md](../README.md) and [../outputs/manifest.json](../outputs/manifest.json).
+- Trust `active_phase_assets` in the manifest as the fastest route to the
+  current handoff, prompt, output, and trackers.
 - Treat the active phase session as the orchestrator, not as a worker.
 - Form a local phase plan before delegating any bounded work.
 - Use the combined router assets first in a fresh session, then drop into the active phase handoff and prompt.
 - Use the delegation kit under [../prompts/README.md](../prompts/README.md) when specialist sub-agents are helpful.
+- Use [../prompts/GRAPHITI_MEMORY_PROTOCOL.md](../prompts/GRAPHITI_MEMORY_PROTOCOL.md) for Graphiti recall, fallback logging, and session-end writeback.
 - Treat `apps/V2T` and `packages/VT2` as the current shell-plus-sidecar pair unless a phase artifact explicitly documents a migration.
 - Apply the mandatory conformance inputs and gates from [../README.md](../README.md) before claiming a phase is complete.
 - Workers may contribute bounded findings or patches, but the orchestrator owns integration, gate evidence, and phase closure.
 - If a later phase discovers an unresolved earlier-phase question, stop and route that question back instead of hiding it inside the current phase.
+- Run a read-only review wave before closing any mutating phase.
 
 ## Combined Overview
 
 - [HANDOFF_P0-P4.md](./HANDOFF_P0-P4.md) - cross-phase overview handoff
 - [P0-P4_ORCHESTRATOR_PROMPT.md](./P0-P4_ORCHESTRATOR_PROMPT.md) - combined orchestration prompt
 - [../prompts/ORCHESTRATOR_OPERATING_MODEL.md](../prompts/ORCHESTRATOR_OPERATING_MODEL.md) - orchestration rules
+- [../prompts/GRAPHITI_MEMORY_PROTOCOL.md](../prompts/GRAPHITI_MEMORY_PROTOCOL.md) - memory protocol
 - [../prompts/PHASE_DELEGATION_PROMPTS.md](../prompts/PHASE_DELEGATION_PROMPTS.md) - phase-specific worker prompt kit
 
 | Phase | Handoff | Prompt | Artifact |

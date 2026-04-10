@@ -52,6 +52,9 @@ P3 execution must actively apply:
 - Worker-reported command results are provisional until the orchestrator reviews and accepts them.
 - Record deviations from `PLANNING.md` as soon as they occur, not only at the end of the phase.
 - If a broader repo-law command is skipped, explain why it was not applicable or why the phase remains blocked.
+- Record Graphiti recall attempted, exact query, exact error text when recall
+  fails, fallback used, and any durable writeback or queued session-end
+  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Required Outcomes
 

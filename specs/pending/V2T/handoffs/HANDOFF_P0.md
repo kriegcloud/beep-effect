@@ -31,6 +31,7 @@ The session working P0 is the research orchestrator. It may delegate bounded rea
 2. Inspect the blocking repo seams locally before asking workers to help.
 3. Delegate only bounded read-only scouting or auditing that can run in parallel without changing the P0 objective.
 4. Integrate worker findings yourself and translate them into research conclusions or explicit open questions.
+5. Run a read-only review wave before closing the phase.
 
 ## Required Outcomes
 
@@ -47,6 +48,7 @@ The session working P0 is the research orchestrator. It may delegate bounded rea
 - Stop if a locked assumption conflicts with repo reality and needs explicit product judgment.
 - Stop if command or task claims cannot be verified from the live workspace.
 - Stop if delegation would create overlapping scope or de facto worker ownership of the phase.
+- Stop if the latest review wave still reports unresolved substantive issues.
 - Stop once `RESEARCH.md` is concrete enough for P1 to design without rediscovering the repo.
 
 ## Exit Gate

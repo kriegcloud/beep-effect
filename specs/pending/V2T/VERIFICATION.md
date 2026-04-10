@@ -52,6 +52,9 @@ P4 verification must explicitly reference:
 - If a required command was not run, say why and treat readiness accordingly.
 - Worker audits can challenge or confirm evidence, but the orchestrator must make the final interpretation.
 - If verification reveals implementation gaps, send that work back to P3 explicitly instead of relabeling the gap as deferred ambition.
+- Record Graphiti recall attempted, exact query, exact error text when recall
+  fails, fallback used, and any durable writeback or queued session-end
+  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Automated Verification Floor
 
@@ -132,8 +135,8 @@ Important note:
 - known gaps and the exact reason they remain deferred
 - whether the implementation extended `packages/VT2` or intentionally migrated away from it
 - which conformance sources were applied and whether any repo-law waivers or exceptions were needed
-- whether Graphiti memory preflight succeeded or the phase used a documented
-  fallback
+- the exact Graphiti recall query, exact error text when recall failed,
+  fallback used, and writeback or session-end summary status
 
 ## Readiness Statement
 

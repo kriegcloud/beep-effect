@@ -7,6 +7,7 @@ The session operating a V2T phase is always the phase orchestrator.
 The orchestrator owns:
 
 - Graphiti memory preflight and fallback handling
+- Graphiti writeback and session-end summary handling
 - the read order and interpretation of the active phase
 - the local plan and immediate next task
 - any decision to delegate
@@ -22,11 +23,15 @@ Sub-agents do not own:
 - manifest authority
 - scope expansion
 - reopening locked defaults without evidence
+- deciding that missing evidence is “good enough”
 
 ## Startup Sequence
 
 1. Read the active phase inputs and determine the immediate blocking questions.
-2. Run the Graphiti preflight if the MCP is available and note any fallback.
+2. Run the Graphiti preflight using
+   [GRAPHITI_MEMORY_PROTOCOL.md](./GRAPHITI_MEMORY_PROTOCOL.md) if the MCP is
+   available and note any fallback. A failed lookup is evidence to document,
+   not a reason to skip the phase-local repo-truth read.
 3. Form a local phase plan before delegating.
 4. Keep urgent or tightly coupled work local.
 5. Delegate only bounded parallel work that does not change the phase objective.
@@ -71,8 +76,12 @@ Every delegated prompt should include:
 - repo-law inputs that must be read
 - commands the worker is responsible for running
 - explicit prohibitions
+- exact Graphiti fallback expectations when recall is relevant
 - required output format from
   [SUBAGENT_OUTPUT_CONTRACT.md](./SUBAGENT_OUTPUT_CONTRACT.md)
+- the exact question the worker is expected to answer for the orchestrator
+- the explicit stop condition if repo reality or phase assumptions contradict
+  the assignment
 
 ## Evidence Rules
 
@@ -82,8 +91,13 @@ Every delegated prompt should include:
 - Worker-reported command results are provisional until the orchestrator has
   reviewed and integrated them.
 - Missing evidence is a blocker, not a silent pass.
+- Record Graphiti recall attempted, fallback reason, and memory writeback
+  status in the active phase artifact instead of treating memory work as
+  invisible background behavior.
 - If a later phase uncovers an unresolved earlier-phase assumption, stop and
   route that issue back instead of hiding it in the current phase.
+- If a worker returns vague recommendations without a concrete answer to its
+  assigned question, treat the packet as incomplete and rerun or replace it.
 
 ## Recommended Agent Map
 
@@ -111,15 +125,23 @@ Every delegated prompt should include:
 6. Integrate or refine the result yourself.
 7. Run the required gates.
 8. Update the phase artifact, manifest, and logs.
+9. Write the Graphiti session-end summary before ending the session when the
+   work produced durable repo truth, decisions, reusable failures, or
+   meaningful in-progress state.
 
 ## Integration Checklist
 
 - confirm the worker stayed inside scope
 - confirm the result still matches the current phase objective
+- confirm the worker actually answered the assigned question or objective
 - confirm commands are reported precisely, including commands not run
+- confirm Graphiti recall or fallback is documented precisely, including exact
+  query and exact error text when relevant
 - confirm any residual risk or blocker is visible
 - confirm the active phase artifact reflects the accepted result instead of the
   raw worker wording
+- confirm the session-end memory writeback was completed or intentionally
+  deferred with an explicit reason
 
 ## Default Stop Conditions
 

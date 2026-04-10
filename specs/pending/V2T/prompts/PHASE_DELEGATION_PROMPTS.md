@@ -20,6 +20,7 @@ You are supporting the `{{PHASE}}` orchestrator for the V2T canonical spec.
 Assigned custom agent: `{{AGENT_NAME}}`
 Mode: `{{MODE}}`
 Objective: {{OBJECTIVE}}
+Assigned question: {{QUESTION}}
 Read scope:
 - {{READ_SCOPE}}
 
@@ -35,6 +36,7 @@ Required inputs:
 - `specs/pending/V2T/README.md`
 - `specs/pending/V2T/{{PHASE_ARTIFACT}}`
 - `specs/pending/V2T/prompts/ORCHESTRATOR_OPERATING_MODEL.md`
+- `specs/pending/V2T/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
 - `apps/V2T/package.json`
 - `packages/VT2/package.json`
 
@@ -52,10 +54,25 @@ Requirements:
 - use the repo-law patterns required by your assigned role
 - run only the commands assigned to you
 - report commands not run explicitly instead of implying success
+- if Graphiti recall is relevant, report the exact query, exact error text on
+  failure, and whether you used the documented fallback
 - if repo reality contradicts the phase docs, report the contradiction and stop
+- answer the assigned objective and assigned question directly instead of
+  returning only loose advice
 
 Return the result using `specs/pending/V2T/prompts/SUBAGENT_OUTPUT_CONTRACT.md`.
 ```
+
+## Worker Packet Checklist
+
+Before sending a worker prompt, make sure it names:
+
+- the one concrete question the worker must answer
+- the exact fallback behavior if Graphiti lookup is unavailable or errors
+- the exact files the worker may change or audit
+- the commands the worker owns, if any
+- the repo-truth checks that matter for the assignment
+- the expected stop condition if the worker finds contradiction or ambiguity
 
 ## P0 Research
 
@@ -95,7 +112,8 @@ Additional rules:
 - verify the live workspace names `@beep/v2t` and `@beep/VT2` from the package
   manifests before reporting command guidance
 - record whether Graphiti fact lookup was available or whether you used the
-  documented fallback
+  documented fallback, plus the exact query and exact error text if lookup
+  failed
 - do not rewrite the research objective; report contradictions and stop
 ```
 
@@ -133,6 +151,30 @@ Additional rules:
 - if a domain decision depends on unresolved product scope, report it as a blocker
 ```
 
+### Prompt Fill: Persistence Design Worker
+
+```markdown
+Assigned custom agent: `effect_v4_persistence_runtime_architect`
+Mode: `read-only` or `workspace-write`, depending on the orchestrator wave
+Objective: refine the local-first persistence posture for the approved P1
+design without widening the execution slice
+Read scope:
+- `specs/pending/V2T/RESEARCH.md`
+- `apps/V2T/**`
+- `packages/VT2/**`
+
+Write scope:
+- `specs/pending/V2T/DESIGN_RESEARCH.md`
+
+Additional required inputs:
+- `specs/pending/V2T/handoffs/HANDOFF_P1.md`
+
+Additional rules:
+- answer where SQLite, filesystem, config, and artifact records should live
+- keep resource-lifetime and adapter decisions behind explicit services
+- if persistence posture depends on unresolved product scope, report that as a blocker
+```
+
 ## P2 Planning
 
 ### Recommended Parallel Split
@@ -167,6 +209,31 @@ Additional rules:
   removed
 - flag planned gates that are phrased like passed gates
 - do not implement or rewrite the plan; audit it
+```
+
+### Prompt Fill: Repo Reality Scout
+
+```markdown
+Assigned custom agent: `effect_v4_repo_mapper`
+Mode: `read-only`
+Objective: validate the concrete file groups, package names, and gate commands
+that P2 intends to lock
+Read scope:
+- `specs/pending/V2T/RESEARCH.md`
+- `specs/pending/V2T/DESIGN_RESEARCH.md`
+- `specs/pending/V2T/PLANNING.md`
+- root plus workspace `package.json` and `turbo.json` files
+
+Write scope:
+- none; read-only
+
+Additional required inputs:
+- `specs/pending/V2T/handoffs/HANDOFF_P2.md`
+
+Additional rules:
+- verify command truth only from live manifests, tasks, and dry-run evidence
+- flag any stale filter, nonexistent task, or guessed file path as a blocker
+- do not redesign the plan; return a repo-truth audit
 ```
 
 ## P3 Execution
@@ -230,6 +297,29 @@ Additional rules:
 - do not claim gate closure; report only what you changed and verified
 ```
 
+### Prompt Fill: Persistence And Artifact Worker
+
+```markdown
+Assigned custom agent: `effect_v4_persistence_runtime_architect`
+Mode: `workspace-write`
+Objective: implement the approved persistence slice for SQLite, filesystem,
+config, or artifact tracking inside the assigned files
+Read scope:
+- prior phase artifacts
+- assigned persistence and runtime files
+
+Write scope:
+- {{PERSISTENCE_FILE_SET}}
+
+Additional required inputs:
+- `specs/pending/V2T/handoffs/HANDOFF_P3.md`
+
+Additional rules:
+- keep persistence work inside the approved slice
+- keep filesystem, config, and managed resources behind explicit boundaries
+- do not redesign the protocol or broaden the execution slice without reporting a blocker
+```
+
 ### Prompt Fill: Quality Review Worker
 
 ```markdown
@@ -285,4 +375,28 @@ Additional rules:
 - flag any readiness claim that lacks recorded evidence
 - treat missing command results as blockers unless the orchestrator marked them not applicable
 - do not declare readiness; return an audit for the orchestrator to integrate
+```
+
+### Prompt Fill: Repo Scope Verifier
+
+```markdown
+Assigned custom agent: `effect_v4_repo_mapper`
+Mode: `read-only`
+Objective: verify that the touched surfaces and recorded command matrix in
+`VERIFICATION.md` match the actual implementation scope
+Read scope:
+- all prior phase artifacts
+- `specs/pending/V2T/VERIFICATION.md`
+- touched files or merged diff
+- root plus workspace `package.json` and `turbo.json` files
+
+Write scope:
+- none; read-only
+
+Additional required inputs:
+- `specs/pending/V2T/handoffs/HANDOFF_P4.md`
+
+Additional rules:
+- return only repo-truth mismatches, missing evidence, or clean confirmation
+- do not reinterpret readiness; give the orchestrator an evidence-scope audit
 ```

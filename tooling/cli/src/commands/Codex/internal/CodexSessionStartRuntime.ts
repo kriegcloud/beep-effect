@@ -13,7 +13,9 @@ import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Codex/internal/CodexSessionStartRuntime");
 
-class SessionStartHookSpecificOutput extends S.Class<SessionStartHookSpecificOutput>($I`SessionStartHookSpecificOutput`)(
+class SessionStartHookSpecificOutput extends S.Class<SessionStartHookSpecificOutput>(
+  $I`SessionStartHookSpecificOutput`
+)(
   {
     additionalContext: S.String,
     hookEventName: S.Literal("SessionStart"),
@@ -138,10 +140,10 @@ export const buildCodexSessionStartContext = (source: string, cwd: string | unde
 export const buildSessionStartHookOutput = (additionalContext: string): string =>
   encodeSessionStartHookOutput(
     new SessionStartHookOutput({
-    continue: true,
+      continue: true,
       hookSpecificOutput: new SessionStartHookSpecificOutput({
-      additionalContext,
-      hookEventName: "SessionStart",
+        additionalContext,
+        hookEventName: "SessionStart",
       }),
     })
   );

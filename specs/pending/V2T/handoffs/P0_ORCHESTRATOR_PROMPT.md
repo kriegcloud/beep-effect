@@ -14,4 +14,5 @@ Operate orchestration-first:
 - update `outputs/manifest.json` only when the phase state changes
 - use `grill-me` when meaningful product or architecture ambiguity remains
 - run a read-only review wave before closing P0
+- write Graphiti memory back when P0 locks durable repo truth or architecture defaults
 - stop when the P0 research exit gate is met, and do not roll into P1 design work

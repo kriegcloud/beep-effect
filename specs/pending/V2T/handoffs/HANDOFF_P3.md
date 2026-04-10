@@ -30,6 +30,7 @@ The session working P3 is the execution orchestrator. It may delegate bounded im
 3. Partition only the remaining implementation work into disjoint write scopes.
 4. Require worker results to come back with exact files, commands, findings, and residual risks.
 5. Integrate and verify every worker result yourself before updating `../EXECUTION.md`.
+6. Run a read-only review wave after each meaningful merge wave and before closing the phase.
 
 ## Required Outcomes
 
@@ -46,6 +47,7 @@ The session working P3 is the execution orchestrator. It may delegate bounded im
 - Stop if worker write scopes overlap or if integration reveals conflicting assumptions.
 - Stop if required gates fail and the failures are not resolved during P3.
 - Stop if newly discovered design or planning gaps belong back in P1 or P2.
+- Stop if the latest review wave still reports unresolved substantive execution issues.
 - Stop once the approved slice is implemented and evidenced; do not silently advance into P4.
 
 ## Exit Gate

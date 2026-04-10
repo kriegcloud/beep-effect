@@ -11,5 +11,6 @@ Operate orchestration-first:
 - integrate every audit result yourself and keep the readiness call in the orchestrator session
 - produce or refine `VERIFICATION.md` with automated results, manual scenario evidence, deferred behavior, conformance evidence, residual risks, and a readiness statement
 - run a final read-only review wave before declaring readiness
+- write Graphiti memory back with the final evidence summary and any unresolved risks
 - stop and surface blockers instead of masking missing evidence as confidence
 - stop at the P4 exit gate without reopening execution work inside the verification document
