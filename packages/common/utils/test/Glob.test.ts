@@ -2,10 +2,19 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { layer as GlobLayer, type GlobOptions, Glob as GlobService, type Pattern } from "@beep/utils/Glob";
-import { Effect, Match } from "effect";
+import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
+import * as BunPath from "@effect/platform-bun/BunPath";
+import { Effect, Layer, Match } from "effect";
 import { describe, expect, it } from "vitest";
 
-const makeFixture = async (): Promise<{ readonly dir: string; readonly cleanup: () => Promise<void> }> => {
+type Fixture = {
+  readonly dir: string;
+  readonly cleanup: () => Promise<void>;
+};
+
+const platformLayer = GlobLayer.pipe(Layer.provide(Layer.mergeAll(BunFileSystem.layer, BunPath.layer)));
+
+const acquireFixture = Effect.promise<Fixture>(async () => {
   const dir = await mkdtemp(join(tmpdir(), "beep-utils-glob-"));
 
   await mkdir(join(dir, "src", "errors"), { recursive: true });
@@ -19,100 +28,124 @@ const makeFixture = async (): Promise<{ readonly dir: string; readonly cleanup: 
     dir,
     cleanup: () => rm(dir, { recursive: true, force: true }),
   };
-};
+});
 
 const runGlob = (pattern: Pattern, options?: undefined | GlobOptions) =>
   Effect.gen(function* () {
     const glob = yield* GlobService;
     return yield* glob.glob(pattern, options);
-  }).pipe(Effect.provide(GlobLayer), Effect.runPromise);
+  }).pipe(Effect.provide(platformLayer));
 
-const withBunGlobDisabled = async <A>(run: () => Promise<A>): Promise<A> => {
-  const BunRef = globalThis.Bun;
+type GlobProgram = ReturnType<typeof runGlob>;
 
-  return Match.value(BunRef === undefined).pipe(
-    Match.when(true, run),
-    Match.orElse(async () => {
-      const originalGlob = BunRef.Glob;
-      Reflect.set(BunRef, "Glob", undefined);
+const disableBunGlob = (bunRef: typeof Bun) => {
+  const originalGlob = bunRef.Glob;
+  Reflect.set(bunRef, "Glob", undefined);
+  return originalGlob;
+};
 
-      try {
-        return await run();
-      } finally {
-        Reflect.set(BunRef, "Glob", originalGlob);
-      }
-    })
+const restoreBunGlob = (bunRef: typeof Bun, originalGlob: typeof Bun.Glob) => {
+  Reflect.set(bunRef, "Glob", originalGlob);
+};
+
+const withBunGlobDisabled = (effect: GlobProgram) => {
+  const bunRef = globalThis.Bun;
+
+  return Match.value(bunRef === undefined).pipe(
+    Match.when(true, () => effect),
+    Match.orElse(() =>
+      Effect.acquireUseRelease(
+        Effect.try({
+          try: () => disableBunGlob(bunRef),
+          catch: (cause) => cause,
+        }),
+        () => effect,
+        (originalGlob) =>
+          Effect.try({
+            try: () => restoreBunGlob(bunRef, originalGlob),
+            catch: (cause) => cause,
+          })
+      )
+    )
   );
 };
 
 describe("@beep/utils Glob", () => {
   it("supports array patterns, ignore filters, and deduped deterministic output", async () => {
-    const fixture = await makeFixture();
+    const program = Effect.acquireUseRelease(
+      acquireFixture,
+      (fixture) =>
+        runGlob(["src/**/*.ts", "src/index.ts"], {
+          cwd: fixture.dir,
+          ignore: ["**/nested/**", "**/errors/**"],
+        }),
+      (fixture) => Effect.promise(fixture.cleanup)
+    );
+    const results = await Effect.runPromise(program);
 
-    try {
-      const results = await runGlob(["src/**/*.ts", "src/index.ts"], {
-        cwd: fixture.dir,
-        ignore: ["**/nested/**", "**/errors/**"],
-      });
-
-      expect(results).toEqual(["src/index.ts"]);
-    } finally {
-      await fixture.cleanup();
-    }
+    expect(results).toEqual(["src/index.ts"]);
   });
 
   it("supports absolute paths and directory matches when nodir is false", async () => {
-    const fixture = await makeFixture();
-
-    try {
-      const results = await runGlob("src/**", {
-        absolute: true,
-        cwd: fixture.dir,
-      });
-
-      expect(results).toContain(resolve(fixture.dir, "src", "errors"));
-      expect(results).toContain(resolve(fixture.dir, "src", "index.ts"));
-      expect(results).toContain(resolve(fixture.dir, "src", "nested"));
-      expect(results).toContain(resolve(fixture.dir, "src", "nested", "deep.ts"));
-    } finally {
-      await fixture.cleanup();
-    }
-  });
-
-  it("supports nodir by returning only files", async () => {
-    const fixture = await makeFixture();
-
-    try {
-      const results = await runGlob("src/**", {
-        cwd: fixture.dir,
-        nodir: true,
-      });
-
-      expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
-    } finally {
-      await fixture.cleanup();
-    }
-  });
-
-  it("falls back to Node globbing when Bun.Glob is unavailable", async () => {
-    const fixture = await makeFixture();
-
-    try {
-      const results = await withBunGlobDisabled(() =>
+    const program = Effect.acquireUseRelease(
+      acquireFixture,
+      (fixture) =>
         runGlob("src/**", {
           absolute: true,
           cwd: fixture.dir,
-          ignore: ["**/errors/**"],
-          nodir: true,
-        })
-      );
+        }).pipe(
+          Effect.tap((results) =>
+            Effect.sync(() => {
+              expect(results).toContain(resolve(fixture.dir, "src", "errors"));
+              expect(results).toContain(resolve(fixture.dir, "src", "index.ts"));
+              expect(results).toContain(resolve(fixture.dir, "src", "nested"));
+              expect(results).toContain(resolve(fixture.dir, "src", "nested", "deep.ts"));
+            })
+          )
+        ),
+      (fixture) => Effect.promise(fixture.cleanup)
+    );
+    await Effect.runPromise(program);
+  });
 
-      expect(results).toEqual([
-        resolve(fixture.dir, "src", "index.ts"),
-        resolve(fixture.dir, "src", "nested", "deep.ts"),
-      ]);
-    } finally {
-      await fixture.cleanup();
-    }
+  it("supports nodir by returning only files", async () => {
+    const program = Effect.acquireUseRelease(
+      acquireFixture,
+      (fixture) =>
+        runGlob("src/**", {
+          cwd: fixture.dir,
+          nodir: true,
+        }),
+      (fixture) => Effect.promise(fixture.cleanup)
+    );
+    const results = await Effect.runPromise(program);
+
+    expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
+  });
+
+  it("falls back to Node globbing when Bun.Glob is unavailable", async () => {
+    const program = Effect.acquireUseRelease(
+      acquireFixture,
+      (fixture) =>
+        withBunGlobDisabled(
+          runGlob("src/**", {
+            absolute: true,
+            cwd: fixture.dir,
+            ignore: ["**/errors/**"],
+            nodir: true,
+          })
+        ).pipe(
+          Effect.tap((results) =>
+            Effect.sync(() => {
+              expect(results).toEqual([
+                resolve(fixture.dir, "src", "index.ts"),
+                resolve(fixture.dir, "src", "nested", "deep.ts"),
+              ]);
+            })
+          )
+        ),
+      (fixture) => Effect.promise(fixture.cleanup)
+    );
+    await Effect.runPromise(program);
   });
 });

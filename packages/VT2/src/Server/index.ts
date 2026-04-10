@@ -26,6 +26,7 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import type { CreateVt2DocumentInput } from "../protocol.js";
+
 import { Vt2ControlPlaneApi, Vt2Document } from "../protocol.js";
 
 const $I = $RootId.create("VT2/Server/index");
@@ -71,12 +72,15 @@ export class Vt2RuntimeConfig extends S.Class<Vt2RuntimeConfig>($I`Vt2RuntimeCon
  */
 export class Vt2RuntimeError {
   readonly _tag = "Vt2RuntimeError";
+  readonly message: string;
+  readonly status: number;
+  readonly reason: O.Option<string>;
 
-  constructor(
-    readonly message: string,
-    readonly status: number,
-    readonly reason: O.Option<string> = O.none()
-  ) {}
+  constructor(message: string, status: number, reason: O.Option<string> = O.none()) {
+    this.message = message;
+    this.status = status;
+    this.reason = reason;
+  }
 }
 
 export const makeVt2RuntimeError = (message: string, status: number, cause?: unknown) =>
@@ -233,7 +237,7 @@ const toControlPlanePayload = (
     });
   }
 
-  if (S.is(Vt2RuntimeErrorData)(error)) {
+  if (error instanceof Vt2RuntimeError) {
     if (error.status === 400) {
       return new SidecarBadRequestPayload({
         message: error.message,
@@ -313,11 +317,7 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     const row = yield* O.match(A.head(rows), {
       onNone: () =>
         Effect.fail(
-          new Vt2RuntimeErrorData({
-            message: `Document "${documentId}" was not found.`,
-            status: 404,
-            cause: O.none(),
-          })
+          new Vt2RuntimeError(`Document "${documentId}" was not found.`, 404)
         ),
       onSome: Effect.succeed,
     });
@@ -494,7 +494,7 @@ export const runVt2Runtime = Effect.fn("Vt2Runtime.run")(function* (config: Vt2R
 /**
  * Load VT2 runtime configuration from the process environment.
  *
- * @returns {Effect.Effect<Vt2RuntimeConfig, Config.ConfigError, BunServices.BunServices>} Resolved VT2 runtime configuration.
+ * @returns {Effect<Vt2RuntimeConfig, ConfigError, BunServices>} Resolved VT2 runtime configuration.
  *
  * @since 0.0.0
  * @category Configuration

@@ -8,6 +8,8 @@
 - `../outputs/v2t_app_notes.html`
 - `../outputs/V2_animination_V2T.md`
 - `../../../../apps/V2T`
+- `../../../../packages/VT2`
+- `../../../../apps/V2T/scripts/build-sidecar.ts`
 - `../../../../packages/common/ui/src/components/speech-input.tsx`
 
 ## Objective

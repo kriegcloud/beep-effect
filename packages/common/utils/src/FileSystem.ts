@@ -5,10 +5,8 @@
  * @since 0.0.0
  */
 
-import type { PlatformError } from "effect";
 import { Effect, FileSystem, Path, pipe, Stream } from "effect";
 import { dual } from "effect/Function";
-import type * as O from "effect/Option";
 
 /**
  * Creates a dual API helper that waits for the first file-system watch event

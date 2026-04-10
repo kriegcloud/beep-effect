@@ -7,6 +7,8 @@
 - `../RESEARCH.md`
 - `../DESIGN_RESEARCH.md`
 - `../../../../apps/V2T`
+- `../../../../packages/VT2`
+- `../../../../apps/V2T/scripts/build-sidecar.ts`
 - `../../../../package.json`
 - `../../../../turbo.json`
 
@@ -20,6 +22,7 @@ Produce a dependency-aware implementation sequence for the first V2T slice.
 - identify the primary file or surface groups to change
 - lock the acceptance criteria
 - lock the default verification commands
+- keep the plan tied to the existing `@beep/VT2` seam unless a migration is explicit
 - write or refine `../PLANNING.md`
 
 ## Exit Gate

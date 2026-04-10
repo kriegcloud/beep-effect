@@ -6,7 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
+import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";
 import { HashMap, pipe, type SchemaAST } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -20,6 +20,24 @@ import {
 } from "./LiteralKit.ts";
 
 const $I = $SchemaId.create("MappedLiteralKit");
+const MappedLiteralDuplicateErrorFields = {
+  side: S.Literals(["from", "to"]),
+  literal: S.Union([S.String, S.BigInt, S.Boolean, S.Number]),
+  firstIndex: S.Number,
+  secondIndex: S.Number,
+} satisfies S.Struct.Fields;
+const MappedLiteralDuplicateErrorBase: TaggedErrorClassFromFields<
+  MappedLiteralDuplicateError,
+  "MappedLiteralDuplicateError",
+  typeof MappedLiteralDuplicateErrorFields
+> = TaggedErrorClass<MappedLiteralDuplicateError>($I.make("MappedLiteralDuplicateError"))(
+  "MappedLiteralDuplicateError",
+  MappedLiteralDuplicateErrorFields,
+  $I.annote("MappedLiteralDuplicateError", {
+    title: "Mapped Literal Duplicate Error",
+    description: "Thrown when mapped literal entries are not one-to-one.",
+  })
+);
 
 type LiteralValue = SchemaAST.LiteralValue;
 type Literals = A.NonEmptyReadonlyArray<LiteralValue>;
@@ -78,21 +96,7 @@ type DirectionalKit<
  * @category DomainModel
  * @since 0.0.0
  */
-export class MappedLiteralDuplicateError extends TaggedErrorClass<MappedLiteralDuplicateError>(
-  $I`MappedLiteralDuplicateError`
-)(
-  "MappedLiteralDuplicateError",
-  {
-    side: S.Literals(["from", "to"]),
-    literal: S.Union([S.String, S.BigInt, S.Boolean, S.Number]),
-    firstIndex: S.Number,
-    secondIndex: S.Number,
-  },
-  $I.annote("MappedLiteralDuplicateError", {
-    title: "Mapped Literal Duplicate Error",
-    description: "Thrown when mapped literal entries are not one-to-one.",
-  })
-) {}
+export class MappedLiteralDuplicateError extends MappedLiteralDuplicateErrorBase {}
 
 type SeenState = {
   readonly from: HashMap.HashMap<LiteralValue, number>;

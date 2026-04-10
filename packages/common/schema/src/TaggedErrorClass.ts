@@ -1,5 +1,5 @@
 import type { TUnsafe } from "@beep/types";
-import { type Cause, Function as Fn, type Struct } from "effect";
+import { type Cause, Function as Fn, Match, type Struct } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
@@ -51,10 +51,6 @@ type TaggedErrorInstance<ErrorClass extends TaggedErrorClassLike> = ErrorClass e
 ) => infer Instance
   ? Instance
   : never;
-type TaggedErrorStaticMembers<ErrorClass extends TaggedErrorClassLike> = Pick<
-  ErrorClass,
-  Exclude<keyof ErrorClass, "extend">
->;
 
 /**
  * Input type for constructing a tagged error, omitting the discriminator `_tag`.
@@ -139,19 +135,25 @@ type TaggedErrorExtendMethod<ErrorClass extends TaggedErrorClassLike> = <Extende
 export type TaggedErrorClassWithNew<ErrorClass extends TaggedErrorClassLike> = (new (
   ...args: TaggedErrorConstructorArgs<ErrorClass>
 ) => TaggedErrorInstance<ErrorClass>) &
-  TaggedErrorStaticMembers<ErrorClass> & {
+  Omit<ErrorClass, "extend" | "new" | "newThunk"> & {
     new: TaggedErrorNewMethod<ErrorClass>;
     newThunk: TaggedErrorNewThunkMethod<ErrorClass>;
     extend: TaggedErrorExtendMethod<ErrorClass>;
   };
 
-type TaggedErrorFromFields<Self, Brand, Tag extends string, Fields extends TaggedErrorFields> = TaggedErrorClassWithNew<
-  TaggedErrorBase<Self, TaggedStructFromFields<Tag, Fields>, Brand>
->;
+export type TaggedErrorClassFromFields<
+  Self,
+  Tag extends string,
+  Fields extends TaggedErrorFields,
+  Brand = {},
+> = TaggedErrorClassWithNew<TaggedErrorBase<Self, TaggedStructFromFields<Tag, Fields>, Brand>>;
 
-type TaggedErrorFromSchema<Self, Brand, Tag extends string, Schema extends TaggedErrorStruct> = TaggedErrorClassWithNew<
-  TaggedErrorBase<Self, TaggedStructFromSchema<Tag, Schema>, Brand>
->;
+export type TaggedErrorClassFromSchema<
+  Self,
+  Tag extends string,
+  Schema extends TaggedErrorStruct,
+  Brand = {},
+> = TaggedErrorClassWithNew<TaggedErrorBase<Self, TaggedStructFromSchema<Tag, Schema>, Brand>>;
 
 /**
  * Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations.
@@ -164,13 +166,13 @@ export interface TaggedErrorClassFactory<Self, Brand = {}> {
     tag: Tag,
     fields: Fields,
     annotations?: S.Annotations.Declaration<Self, readonly [TaggedStructFromFields<Tag, Fields>]>
-  ): TaggedErrorFromFields<Self, Brand, Tag, Fields>;
+  ): TaggedErrorClassFromFields<Self, Tag, Fields, Brand>;
 
   <Tag extends string, Schema extends TaggedErrorStruct>(
     tag: Tag,
     schema: Schema,
     annotations?: S.Annotations.Declaration<Self, readonly [TaggedStructFromSchema<Tag, Schema>]>
-  ): TaggedErrorFromSchema<Self, Brand, Tag, Schema>;
+  ): TaggedErrorClassFromSchema<Self, Tag, Schema, Brand>;
 }
 
 /**
@@ -215,13 +217,14 @@ const NoCauseMetadata: CauseMetadata = {
 const TaggedErrorOriginalExtend = Symbol.for("@beep/schema/TaggedErrorClass/originalExtend");
 
 type TaggedErrorOriginalExtendMethod = (
+  this: S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>,
   identifier: string
 ) => (
   fields: TaggedErrorFields,
   annotations?: S.Annotations.Declaration<TUnsafe.Any, readonly [TaggedErrorStruct]>
 ) => S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>;
 
-type RuntimeTaggedErrorClass<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
+type RuntimeTaggedErrorClass<ErrorClass extends TaggedErrorClassLike & S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>> =
   TaggedErrorClassWithNew<ErrorClass> & {
     [TaggedErrorOriginalExtend]?: TaggedErrorOriginalExtendMethod;
   };
@@ -235,16 +238,13 @@ function isOptionalPropertyType(type: RuntimePropertyTypeLike): boolean {
 }
 
 function getCauseMetadata(carrier: { readonly ast: RuntimeObjectsAstLike }): CauseMetadata {
-  const causeProperty = carrier.ast.propertySignatures?.find((property) => property.name === "cause");
-
-  if (causeProperty === undefined) {
-    return NoCauseMetadata;
-  }
-
-  return {
-    hasCause: true,
-    isRequiredCause: !isOptionalPropertyType(causeProperty.type),
-  };
+  return Match.value(carrier.ast.propertySignatures?.find((property) => property.name === "cause")).pipe(
+    Match.when(undefined, () => NoCauseMetadata),
+    Match.orElse((causeProperty) => ({
+      hasCause: true,
+      isRequiredCause: !isOptionalPropertyType(causeProperty.type),
+    }))
+  );
 }
 
 function hasExplicitCause(value: unknown): boolean {
@@ -263,9 +263,9 @@ function toCausePayload(cause: unknown, rest: unknown): Record<string, unknown> 
   return { ...rest, cause };
 }
 
-function augmentTaggedErrorClass<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>>(
-  errorClass: ErrorClass
-): TaggedErrorClassWithNew<ErrorClass> {
+function augmentTaggedErrorClass<
+  ErrorClass extends TaggedErrorClassLike & S.Class<TUnsafe.Any, TUnsafe.Any, TUnsafe.Any>,
+>(errorClass: ErrorClass): TaggedErrorClassWithNew<ErrorClass> {
   const taggedErrorClassWithNew = errorClass as unknown as RuntimeTaggedErrorClass<ErrorClass>;
   const originalExtend = taggedErrorClassWithNew[TaggedErrorOriginalExtend] ?? errorClass.extend;
   const causeMetadata = getCauseMetadata(S.Struct(errorClass.fields as TaggedErrorFields));
@@ -274,7 +274,10 @@ function augmentTaggedErrorClass<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe
   taggedErrorClassWithNew.new = function (this: new (value: unknown) => unknown) {
     const makeError = (value: unknown) => new this(value as never);
     const construct = Fn.dual(shouldConstructImmediately, (causeOrInput: unknown, rest?: unknown) =>
-      rest === undefined ? makeError(causeOrInput) : makeError(toCausePayload(causeOrInput, rest))
+      Match.value(rest).pipe(
+        Match.when(undefined, () => makeError(causeOrInput)),
+        Match.orElse((providedRest) => makeError(toCausePayload(causeOrInput, providedRest)))
+      )
     );
 
     return Reflect.apply(construct, undefined, arguments);
@@ -282,7 +285,10 @@ function augmentTaggedErrorClass<ErrorClass extends S.Class<TUnsafe.Any, TUnsafe
   taggedErrorClassWithNew.newThunk = function (this: new (value: unknown) => unknown) {
     const makeError = (value: unknown) => new this(value as never);
     const construct = Fn.dual(shouldConstructImmediately, (causeOrInput: unknown, rest?: unknown) =>
-      rest === undefined ? () => makeError(causeOrInput) : () => makeError(toCausePayload(causeOrInput, rest))
+      Match.value(rest).pipe(
+        Match.when(undefined, () => () => makeError(causeOrInput)),
+        Match.orElse((providedRest) => () => makeError(toCausePayload(causeOrInput, providedRest)))
+      )
     );
 
     return Reflect.apply(construct, undefined, arguments);

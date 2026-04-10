@@ -23,6 +23,7 @@
     "lint:fix": "biome check . --write"
   },
   "dependencies": {
+    "@effect/platform-node-shared": "catalog:",
     "effect": "catalog:",
     "picomatch": "catalog:"
   },

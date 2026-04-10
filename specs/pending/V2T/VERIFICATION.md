@@ -10,10 +10,10 @@ Prove the implemented V2T slice matches the canonical spec and clearly separate 
 
 ## Automated Verification Floor
 
-- `bunx turbo run check --filter=./apps/V2T`
-- `bunx turbo run test --filter=./apps/V2T`
-- `bunx turbo run lint --filter=./apps/V2T`
-- `bunx turbo run build --filter=./apps/V2T`
+- `bunx turbo run check --filter=./apps/V2T --filter=./packages/VT2`
+- `bunx turbo run test --filter=./apps/V2T --filter=./packages/VT2`
+- `bunx turbo run lint --filter=./apps/V2T --filter=./packages/VT2`
+- `bunx turbo run build --filter=./apps/V2T --filter=./packages/VT2`
 
 Run broader commands only when the implementation changes shared or managed surfaces.
 
@@ -35,6 +35,7 @@ Run broader commands only when the implementation changes shared or managed surf
 - review screen shows transcript plus enrichment or memory packet status
 - composition profile changes persist and can be reopened
 - composition run creation produces a tracked packet or job record
+- the app-to-sidecar interaction is carried by the current `@beep/VT2` control plane or an explicitly documented migration
 
 ### Export Tracking
 
@@ -47,6 +48,7 @@ Run broader commands only when the implementation changes shared or managed surf
 - manual scenario notes
 - screenshots only if they materially prove UI behavior
 - known gaps and the exact reason they remain deferred
+- whether the implementation extended `packages/VT2` or intentionally migrated away from it
 
 ## Readiness Statement
 

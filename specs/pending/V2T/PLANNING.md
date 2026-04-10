@@ -18,7 +18,7 @@ Convert the research and design docs into an implementation sequence for the exi
 
 ### Track 2 - Local Persistence And Sidecar
 
-- turn the existing sidecar seam into a concrete V2T service boundary
+- extend the existing `packages/VT2` control plane into a concrete V2T service boundary
 - add filesystem and SQLite persistence for session metadata and generated artifacts
 - define packet formats for transcript persistence, memory context snapshots, and composition runs
 
@@ -43,11 +43,12 @@ Convert the research and design docs into an implementation sequence for the exi
 ## Suggested File And Surface Order
 
 1. `apps/V2T/src` domain and service contracts
-2. `apps/V2T/src/server.ts` and `apps/V2T/src/Server/index.ts` sidecar wiring
+2. `packages/VT2/src/protocol.ts` and `packages/VT2/src/Server/index.ts` sidecar contract and runtime wiring
 3. `apps/V2T/src/router.tsx` and component surfaces for the user workflow
-4. provider adapter implementations or stubs behind the service interfaces
-5. app tests and route or state verification
-6. package docs or docgen outputs if public workspace docs materially change
+4. `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` only if runtime packaging or env contracts change
+5. provider adapter implementations or stubs behind the service interfaces
+6. app and sidecar tests plus route or state verification
+7. package docs or docgen outputs if public workspace docs materially change
 
 ## Acceptance Criteria
 
@@ -56,16 +57,17 @@ Convert the research and design docs into an implementation sequence for the exi
 - memory retrieval is represented by a typed packet contract and adapter
 - composition configuration produces a persisted run packet
 - export artifacts have tracked records even when provider output is stubbed
+- the implementation uses the current `@beep/VT2` control plane or documents a deliberate migration away from it
 - implementation notes capture deviations from this plan
 
 ## Verification Commands
 
-The planning phase locks these commands as the default verification floor for the app workspace:
+The planning phase locks these commands as the default verification floor for the app workspace and sidecar:
 
-- `bunx turbo run check --filter=./apps/V2T`
-- `bunx turbo run test --filter=./apps/V2T`
-- `bunx turbo run lint --filter=./apps/V2T`
-- `bunx turbo run build --filter=./apps/V2T`
+- `bunx turbo run check --filter=./apps/V2T --filter=./packages/VT2`
+- `bunx turbo run test --filter=./apps/V2T --filter=./packages/VT2`
+- `bunx turbo run lint --filter=./apps/V2T --filter=./packages/VT2`
+- `bunx turbo run build --filter=./apps/V2T --filter=./packages/VT2`
 
 If package-level docs or managed metadata change, also consider:
 
@@ -77,6 +79,7 @@ If package-level docs or managed metadata change, also consider:
 - provider APIs may not align cleanly with the shared speech input behavior
 - local-first orchestration may need queueing or cancellation semantics not yet present in the app
 - export and generation artifacts can create path-management and status-tracking complexity early
+- extending the current `@beep/VT2` document-oriented control plane into V2T-native workflows may require careful schema and route migration
 
 ## Planning Exit Gate
 

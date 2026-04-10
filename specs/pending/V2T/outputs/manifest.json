@@ -8,6 +8,10 @@
   "status_model": {
     "phase": ["BOOTSTRAPPED", "NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED"]
   },
+  "phase_transition_rules": {
+    "active_phase_is_authoritative": true,
+    "update_manifest_on_phase_state_change": true
+  },
   "phase_order": ["p0", "p1", "p2", "p3", "p4"],
   "phases": {
     "p0": {
@@ -58,6 +62,7 @@
   },
   "outputs": {
     "manifest": "outputs/manifest.json",
+    "prompt": "outputs/codex-plan-mode-prompt.md",
     "grill_log": "outputs/grill-log.md",
     "p0": "RESEARCH.md",
     "p1": "DESIGN_RESEARCH.md",
@@ -65,6 +70,7 @@
     "p3": "EXECUTION.md",
     "p4": "VERIFICATION.md"
   },
+  "phase_router": "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md",
   "root_files": [
     "README.md",
     "QUICK_START.md",
@@ -75,5 +81,19 @@
     "PLANNING.md",
     "EXECUTION.md",
     "VERIFICATION.md"
+  ],
+  "handoff_files": [
+    "handoffs/HANDOFF_P0-P4.md",
+    "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md",
+    "handoffs/HANDOFF_P0.md",
+    "handoffs/HANDOFF_P1.md",
+    "handoffs/HANDOFF_P2.md",
+    "handoffs/HANDOFF_P3.md",
+    "handoffs/HANDOFF_P4.md",
+    "handoffs/P0_ORCHESTRATOR_PROMPT.md",
+    "handoffs/P1_ORCHESTRATOR_PROMPT.md",
+    "handoffs/P2_ORCHESTRATOR_PROMPT.md",
+    "handoffs/P3_ORCHESTRATOR_PROMPT.md",
+    "handoffs/P4_ORCHESTRATOR_PROMPT.md"
   ]
 }

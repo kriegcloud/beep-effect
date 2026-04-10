@@ -13,10 +13,16 @@ describe("CurrencyCodes", () => {
 
     expect(A.length(CurrencyCodeDataValues)).toBeGreaterThan(0);
     expect(O.isSome(usd)).toBe(true);
-    if (O.isSome(usd)) {
-      expect(usd.value.currency).toBe("US Dollar");
-      expect(usd.value.number).toBe("840");
-    }
+    pipe(
+      usd,
+      O.match({
+        onNone: () => expect.fail("Expected USD to be present in currency code data"),
+        onSome: (entry) => {
+          expect(entry.currency).toBe("US Dollar");
+          expect(entry.number).toBe("840");
+        },
+      })
+    );
   });
 
   it("keeps special-purpose codes with N.A. minor units normalized to zero digits", () => {
@@ -26,8 +32,14 @@ describe("CurrencyCodes", () => {
     );
 
     expect(O.isSome(xba)).toBe(true);
-    if (O.isSome(xba)) {
-      expect(xba.value.digits).toBe(0);
-    }
+    pipe(
+      xba,
+      O.match({
+        onNone: () => expect.fail("Expected XBA to be present in currency code data"),
+        onSome: (entry) => {
+          expect(entry.digits).toBe(0);
+        },
+      })
+    );
   });
 });

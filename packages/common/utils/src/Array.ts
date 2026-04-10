@@ -1,13 +1,10 @@
-import type {TUnsafe} from "@beep/types";
-import {Function, Match} from "effect";
+import type { TUnsafe } from "@beep/types";
+import { Function } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import {thunkFalse, thunkTrue} from "./thunk.ts";
+import { thunkFalse, thunkTrue } from "./thunk.ts";
 
-const {
-  dual,
-  flow
-} = Function;
+const { dual, flow } = Function;
 
 /**
  * Returns `true` when the array is non-empty, `false` otherwise.
@@ -116,34 +113,13 @@ function asNonEmptyReadonlyArray<T>(out: ReadonlyArray<T>): A.NonEmptyReadonlyAr
  * @since 0.0.0
  */
 export const mapNonEmpty: {
-  <T, U>(f: (
-    a: T,
-    i: number
-  ) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
-  <T, U>(
-    self: A.NonEmptyReadonlyArray<T>,
-    f: (
-      a: T,
-      i: number
-    ) => U
-  ): A.NonEmptyArray<U>;
-} = dual(
-  2,
-  <T, U>(
-    self: A.NonEmptyReadonlyArray<T>,
-    f: (
-      a: T,
-      i: number
-    ) => U
-  ): A.NonEmptyArray<U> => {
-    const result = A.map(
-      self,
-      f
-    );
-    assertNonEmptyArray(result);
-    return result;
-  }
-);
+  <T, U>(f: (a: T, i: number) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
+  <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyArray<U>;
+} = dual(2, <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyArray<U> => {
+  const result = A.map(self, f);
+  assertNonEmptyArray(result);
+  return result;
+});
 
 /**
  * Like `Array.flatMap` but asserts the result as `NonEmptyArray`.
@@ -173,31 +149,13 @@ export const mapNonEmpty: {
  * @since 0.0.0
  */
 export const flatMapNonEmpty: {
-  <T, U>(f: (
-    a: T,
-    i: number
-  ) => A.NonEmptyReadonlyArray<U>): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
-  <T, U>(
-    self: A.NonEmptyReadonlyArray<T>,
-    f: (
-      a: T,
-      i: number
-    ) => A.NonEmptyReadonlyArray<U>
-  ): A.NonEmptyArray<U>;
+  <T, U>(f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
+  <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>): A.NonEmptyArray<U>;
 } = dual(
   2,
   flow(
-    <T, U>(
-      self: A.NonEmptyReadonlyArray<T>,
-      f: (
-        a: T,
-        i: number
-      ) => A.NonEmptyReadonlyArray<U>
-    ): A.NonEmptyArray<U> =>
-      A.flatMap(
-        self,
-        f
-      ),
+    <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>): A.NonEmptyArray<U> =>
+      A.flatMap(self, f),
     asNonEmptyArray
   )
 );
@@ -229,34 +187,13 @@ export const flatMapNonEmpty: {
  * @since 0.0.0
  */
 export const mapNonEmptyReadonly: {
-  <T, U>(f: (
-    a: T,
-    i: number
-  ) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyReadonlyArray<U>;
-  <T, U>(
-    self: A.NonEmptyReadonlyArray<T>,
-    f: (
-      a: T,
-      i: number
-    ) => U
-  ): A.NonEmptyReadonlyArray<U>;
-} = dual(
-  2,
-  <T, U>(
-    self: A.NonEmptyReadonlyArray<T>,
-    f: (
-      a: T,
-      i: number
-    ) => U
-  ): A.NonEmptyReadonlyArray<U> => {
-    const result = A.map(
-      self,
-      f
-    );
-    assertNonEmptyReadonlyArray(result);
-    return result;
-  }
-);
+  <T, U>(f: (a: T, i: number) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyReadonlyArray<U>;
+  <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyReadonlyArray<U>;
+} = dual(2, <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyReadonlyArray<U> => {
+  const result = A.map(self, f);
+  assertNonEmptyReadonlyArray(result);
+  return result;
+});
 
 /**
  * Like `Array.flatMap` but asserts the result as `NonEmptyReadonlyArray`.
@@ -295,30 +232,18 @@ export const mapNonEmptyReadonly: {
  */
 export const flatMapNonEmptyReadonly: {
   <T, U>(
-    f: (
-      a: T,
-      i: number
-    ) => A.NonEmptyReadonlyArray<U>
+    f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>
   ): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyReadonlyArray<U>;
   <T, U>(
     self: A.NonEmptyReadonlyArray<T>,
-    f: (
-      a: T,
-      i: number
-    ) => A.NonEmptyReadonlyArray<U>
+    f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>
   ): A.NonEmptyReadonlyArray<U>;
 } = dual(
   2,
   <T, U>(
     self: A.NonEmptyReadonlyArray<T>,
-    f: (
-      a: T,
-      i: number
-    ) => A.NonEmptyReadonlyArray<U>
-  ): A.NonEmptyReadonlyArray<U> => asNonEmptyReadonlyArray(A.flatMap<T, U>(
-    self,
-    f
-  ))
+    f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>
+  ): A.NonEmptyReadonlyArray<U> => asNonEmptyReadonlyArray(A.flatMap<T, U>(self, f))
 );
 
 /**
@@ -352,11 +277,7 @@ export * from "effect/Array";
  * @category constructors
  * @since 0.0.0
  */
-export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> =>
-  Match.value(a).pipe(
-    Match.when(Array.isArray, (array) => array),
-    Match.orElse((value) => A.of(value))
-  );
+export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => A.ensure(a);
 /**
  * Converts an iterable into a `NonEmptyReadonlyArray`, asserting that at
  * least one element is present.
@@ -377,7 +298,4 @@ export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> =>
  * @since 0.0.0
  */
 export const fromIterableNonEmpty = <const TArray>(collection: Iterable<TArray>): A.NonEmptyReadonlyArray<TArray> =>
-  Match.value(collection).pipe(
-    Match.when(A.isArray, asNonEmptyReadonlyArray),
-    Match.orElse((iterable) => asNonEmptyReadonlyArray(Array.from(iterable)))
-  );
+  asNonEmptyReadonlyArray(Array.from(collection));

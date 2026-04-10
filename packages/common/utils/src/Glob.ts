@@ -1,13 +1,10 @@
-import { readdirSync } from "node:fs";
-import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
-import { Context, Effect, Layer, Match, Order, pipe } from "effect";
+import { Context, Effect, FileSystem, Layer, Match, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
-import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import picomatch from "picomatch";
-import * as Thunk from "./internal/Thunk.ts";
+import { thunk } from "./thunk.ts";
 
 const $I = $UtilsId.create("Glob");
 
@@ -28,7 +25,7 @@ export const Pattern = S.Union([S.String, S.Array(S.String)]);
 export type Pattern = typeof Pattern.Type;
 
 /**
- * Optional runtime flags for Bun.Glob scans.
+ * Optional runtime flags for glob scans.
  *
  * @example
  * ```ts
@@ -50,7 +47,7 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
     nodir: S.optionalKey(S.Boolean),
   },
   $I.annote("GlobOptions", {
-    description: "Optional runtime flags for Bun.Glob scans.",
+    description: "Optional runtime flags for glob scans.",
   })
 ) {}
 
@@ -91,18 +88,8 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
   static readonly new = (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
     new GlobError({ pattern, cause });
   static readonly newThunk = (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
-    Thunk.make(new GlobError({ pattern, cause }));
+    thunk(new GlobError({ pattern, cause }));
 }
-
-const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
-  const cwdUrl = toDirectoryUrl(options?.cwd ?? ".");
-  const toAbsolute = toAbsolutePath(cwdUrl);
-
-  return Effect.tryPromise({
-    try: () => scanWithNodeGlob(pattern, options, cwdUrl, toAbsolute),
-    catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
-  });
-};
 
 /**
  * Service interface for performing glob-based file matching.
@@ -127,7 +114,7 @@ const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
  * @since 0.0.0
  */
 export interface Glob {
-  readonly glob: typeof makeGlob;
+  readonly glob: ReturnType<typeof makeGlob>;
 }
 
 /**
@@ -139,108 +126,194 @@ export interface Glob {
 export const Glob: Context.Service<Glob, Glob> = Context.Service("@effect/utils/Glob");
 
 type GlobMatcher = (relativePath: string) => boolean;
+type GlobWalkEntries = Array<readonly [relativePath: string, isFile: boolean]>;
 
-const absolutePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
+function toGlobError(pattern: Pattern): (cause: unknown) => GlobError {
+  return (cause: unknown): GlobError =>
+    Match.value(cause).pipe(
+      Match.when(S.is(GlobError), (error) => error),
+      Match.orElse(
+        (error) =>
+          new GlobError({
+            pattern,
+            cause: S.decodeUnknownOption(S.DefectWithStack)(error),
+          })
+      )
+    );
+}
 
-const ensureTrailingSeparator = (value: string): string =>
-  Match.value(Str.endsWith("/")(value) || Str.endsWith("\\")(value)).pipe(
+function ensureTrailingSeparator(value: string): string {
+  return Match.value(Str.endsWith("/")(value) || Str.endsWith("\\")(value)).pipe(
     Match.when(true, () => value),
     Match.orElse(() => `${value}/`)
   );
+}
 
-const normalizePathSeparators = (value: string): string => Str.replaceAll("\\", "/")(value);
+function normalizePathSeparators(value: string): string {
+  return Str.replaceAll("\\", "/")(value);
+}
 
-const hasDotSegment = (value: string): boolean =>
-  pipe(
+function hasDotSegment(value: string): boolean {
+  return pipe(
     value,
     normalizePathSeparators,
     Str.split("/"),
     A.some((segment) => segment.length > 1 && segment !== ".." && Str.startsWith(".")(segment))
   );
+}
 
-const toPatterns = (pattern: Pattern): ReadonlyArray<string> => (P.isString(pattern) ? [pattern] : pattern);
+function toPatterns(pattern: Pattern): ReadonlyArray<string> {
+  return Match.value(pattern).pipe(
+    Match.when(Str.isString, (singlePattern) => [singlePattern]),
+    Match.orElse((patterns) => patterns)
+  );
+}
 
-const toIgnorePatterns = (ignore: undefined | Pattern): ReadonlyArray<string> =>
-  ignore === undefined ? [] : toPatterns(ignore);
+function toIgnorePatterns(ignore: undefined | Pattern): ReadonlyArray<string> {
+  return Match.value(ignore).pipe(
+    Match.when(
+      (value: undefined | Pattern): value is undefined => value === undefined,
+      () => A.empty<string>()
+    ),
+    Match.orElse(toPatterns)
+  );
+}
 
-const toDirectoryUrl = (cwd: string): URL => {
+function toDirectoryPath(path: Path.Path, cwd: string): string {
   const normalizedCwd = ensureTrailingSeparator(cwd);
 
-  return Match.value(absolutePathPattern.test(normalizedCwd)).pipe(
-    Match.when(true, () => pathToFileURL(normalizedCwd)),
-    Match.orElse(() => new URL(normalizedCwd, pathToFileURL(ensureTrailingSeparator(process.cwd()))))
+  return Match.value(path.isAbsolute(normalizedCwd)).pipe(
+    Match.when(true, () => path.normalize(normalizedCwd)),
+    Match.orElse(() => path.resolve(process.cwd(), normalizedCwd))
   );
-};
+}
 
-const toAbsolutePath =
-  (cwdUrl: URL) =>
-  (relativePath: string): string =>
-    fileURLToPath(new URL(normalizePathSeparators(relativePath), cwdUrl));
+function toAbsolutePath(path: Path.Path, cwdPath: string) {
+  return (relativePath: string): string => path.normalize(path.join(cwdPath, relativePath));
+}
 
-const compileMatchers = (
-  patterns: ReadonlyArray<string>,
-  options: undefined | GlobOptions
-): ReadonlyArray<GlobMatcher> => A.map(patterns, (pattern) => picomatch(pattern, { dot: options?.dot ?? false }));
-
-const matchesAny = (globs: ReadonlyArray<GlobMatcher>, relativePath: string): boolean =>
-  pipe(
+function matchesAny(globs: ReadonlyArray<GlobMatcher>, relativePath: string): boolean {
+  return pipe(
     globs,
     A.some((glob) => glob(relativePath))
   );
+}
 
-const scanWithNodeGlob = async (
-  pattern: Pattern,
-  options: undefined | GlobOptions,
-  cwdUrl: URL,
-  toAbsolute: (relativePath: string) => string
-): Promise<Array<string>> => {
-  const cwdPath = fileURLToPath(cwdUrl);
-  const includeMatchers = compileMatchers(toPatterns(pattern), options);
-  const ignoreMatchers = compileMatchers(toIgnorePatterns(options?.ignore), options);
-
-  const walk = (relativeDir = ""): ReadonlyArray<readonly [relativePath: string, isFile: boolean]> => {
-    const absoluteDir =
-      relativeDir.length === 0 ? cwdPath : fileURLToPath(new URL(ensureTrailingSeparator(relativeDir), cwdUrl));
-    const entries = readdirSync(absoluteDir, { withFileTypes: true });
-
-    return A.flatMap(entries, (entry) => {
-      const relativePath = normalizePathSeparators(
-        relativeDir.length === 0 ? entry.name : `${relativeDir}/${entry.name}`
-      );
-      const isFile = entry.isFile();
-
-      return Match.value(entry.isDirectory()).pipe(
-        Match.when(true, () => [[relativePath, false] as const, ...walk(relativePath)]),
-        Match.orElse(() => [[relativePath, isFile] as const])
-      );
-    });
-  };
-
-  const relativePaths = pipe(
-    walk(),
-    A.filter(([candidate]) => options?.dot === true || !hasDotSegment(candidate)),
-    A.filter(([candidate]) => !matchesAny(ignoreMatchers, candidate)),
-    A.filter(([, isFile]) => options?.nodir !== true || isFile),
-    A.filter(([candidate]) => matchesAny(includeMatchers, candidate)),
-    A.map(([candidate]) => candidate),
-    A.dedupe,
-    A.sort(Order.String)
+function toEntryRelativePath(path: Path.Path, relativeDir: string, entryName: string): string {
+  const relativePath = Match.value(relativeDir.length === 0).pipe(
+    Match.when(true, () => entryName),
+    Match.orElse(() => path.join(relativeDir, entryName))
   );
 
-  if (options?.absolute === true) {
-    return A.map(relativePaths, toAbsolute);
+  return normalizePathSeparators(relativePath);
+}
+
+const scanCandidates = Effect.fnUntraced(function* (fs: FileSystem.FileSystem, path: Path.Path, cwdPath: string) {
+  const directories = A.make("");
+  const discovered: GlobWalkEntries = [];
+
+  while (directories.length > 0) {
+    const relativeDir = directories.pop()!;
+    const absoluteDir = Match.value(relativeDir.length === 0).pipe(
+      Match.when(true, () => cwdPath),
+      Match.orElse(() => path.join(cwdPath, relativeDir))
+    );
+    const entryNames = yield* fs.readDirectory(absoluteDir);
+
+    for (const entryName of entryNames) {
+      const relativePath = toEntryRelativePath(path, relativeDir, entryName);
+      const absolutePath = path.join(absoluteDir, entryName);
+      const info = yield* fs.stat(absolutePath);
+
+      switch (info.type) {
+        case "Directory":
+          discovered.push([relativePath, false] as const);
+          directories.push(relativePath);
+          break;
+        default:
+          discovered.push([relativePath, info.type === "File"] as const);
+      }
+    }
   }
 
-  return [...relativePaths];
+  return discovered;
+});
+
+function collectRelativePaths(
+  candidates: Array<readonly [candidate: string, isFile: boolean]>,
+  includeMatchers: ReadonlyArray<GlobMatcher>,
+  ignoreMatchers: ReadonlyArray<GlobMatcher>,
+  options: undefined | GlobOptions
+) {
+  const visibleCandidates = A.filter(candidates, ([candidate]) => options?.dot === true || !hasDotSegment(candidate));
+  const filteredCandidates = A.filter(visibleCandidates, ([candidate]) => !matchesAny(ignoreMatchers, candidate));
+  const fileCandidates = A.filter(filteredCandidates, ([, isFile]) => options?.nodir !== true || isFile);
+  const matchedCandidates = A.filter(fileCandidates, ([candidate]) => matchesAny(includeMatchers, candidate));
+  const candidatePaths = A.map(matchedCandidates, ([candidate]) => candidate);
+  const dedupedPaths = A.dedupe(candidatePaths);
+
+  return A.sort(dedupedPaths, Order.String);
+}
+
+function toOutputPaths(
+  relativePaths: Array<string>,
+  options: undefined | GlobOptions,
+  toAbsolute: (relativePath: string) => string
+) {
+  return Match.value(options?.absolute === true).pipe(
+    Match.when(true, () => A.map(relativePaths, toAbsolute)),
+    Match.orElse(() => [...relativePaths])
+  );
+}
+
+const makeGlob = (fs: FileSystem.FileSystem, path: Path.Path) => {
+  return (pattern: Pattern, options?: undefined | GlobOptions) => {
+    const cwdPath = toDirectoryPath(path, options?.cwd ?? ".");
+    const toAbsolute = toAbsolutePath(path, cwdPath);
+
+    return pipe(
+      Effect.gen(function* () {
+        const includeMatchers = yield* Effect.all(
+          A.map(toPatterns(pattern), (currentPattern) =>
+            Effect.try({
+              try: () => picomatch(currentPattern, { dot: options?.dot ?? false }),
+              catch: toGlobError(pattern),
+            })
+          )
+        );
+        const ignoreMatchers = yield* Effect.all(
+          A.map(toIgnorePatterns(options?.ignore), (currentPattern) =>
+            Effect.try({
+              try: () => picomatch(currentPattern, { dot: options?.dot ?? false }),
+              catch: toGlobError(pattern),
+            })
+          )
+        );
+        const candidates = yield* scanCandidates(fs, path, cwdPath);
+        const relativePaths = collectRelativePaths(candidates, includeMatchers, ignoreMatchers, options);
+
+        return toOutputPaths(relativePaths, options, toAbsolute);
+      }),
+      Effect.mapError(toGlobError(pattern))
+    );
+  };
 };
 
 /**
- * Live `Layer` providing the {@link Glob} service backed by `picomatch` and
- * Node.js `fs.readdirSync`.
+ * Live `Layer` providing the {@link Glob} service backed by `picomatch` plus
+ * Effect `FileSystem` and `Path` services.
  *
  * @category utilities
  * @since 0.0.0
  */
-export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
-  glob: makeGlob,
-});
+export const layer = Layer.effect(
+  Glob,
+  Effect.gen(function* () {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+
+    return {
+      glob: makeGlob(fs, path),
+    };
+  })
+);

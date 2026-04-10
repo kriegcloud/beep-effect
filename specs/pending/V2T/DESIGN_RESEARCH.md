@@ -37,17 +37,28 @@ The canonical domain objects are:
 
 ### App Surface
 
-`apps/V2T` owns the user workflow, page routing, local app state, and composition controls.
+`apps/V2T` owns the user workflow, page routing, local app state, and composition controls. It talks to the control plane through the existing `/api` proxy seam.
 
 ### Sidecar Surface
 
-The sidecar owns filesystem access, SQLite persistence, provider adapters, orchestration jobs, and long-running generation or export work.
+The first-slice sidecar surface is the existing `@beep/VT2` package:
+
+- `packages/VT2/src/protocol.ts` is the current typed control-plane contract
+- `packages/VT2/src/Server/index.ts` is the current runtime and SQLite seam
+- `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` are the app-side packaging and dev entrypoints
+
+That sidecar owns filesystem access, SQLite persistence, provider adapters, orchestration jobs, and long-running generation or export work.
 
 ### Shared Package Reuse
 
 - reuse the shared speech input component for recording and transcript-preview interactions
 - reuse repo identity and schema packages for domain ids and typed contracts
 - reuse root Graphiti infrastructure instead of inventing separate memory plumbing
+
+## Current Naming Constraint
+
+- `apps/V2T` is the app shell and `@beep/VT2` is the current sidecar package name
+- the first slice documents and works with that naming drift instead of renaming packages during spec bootstrap
 
 ## Storage Posture
 
@@ -79,6 +90,7 @@ The first committed execution slice should deliver:
 - memory context packet retrieval through a Graphiti-backed adapter seam
 - composition profile editor and composition packet generation
 - export artifact records and stub-or-real queue orchestration
+- extension of the current `@beep/VT2` control plane for V2T-native artifacts instead of an app-local server fork
 
 The first slice does not need to prove fully autonomous final video quality. It must prove the local-first workflow and the orchestration contracts.
 

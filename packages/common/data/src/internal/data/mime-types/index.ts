@@ -10,7 +10,7 @@
  */
 
 import { thunkEmptyStr } from "@beep/utils";
-import { pipe, Struct } from "effect";
+import { Function as Fn, Match, pipe, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -149,7 +149,23 @@ export type FileExtension = (typeof mimes)[MimeType]["extensions"][number];
  * // { source: "iana", extensions: ["json", "map"] }
  * ```
  */
-export const mimeTypes = mimes as unknown as Record<MimeType, { source: string; extensions: FileExtension[] }>;
+type MimeTypeDefinition = {
+  source: string;
+  extensions: FileExtension[];
+};
+
+const mimeTypeDefinitions = R.empty<MimeType, MimeTypeDefinition>();
+
+for (const type of Struct.keys(mimes)) {
+  const mime = mimes[type];
+
+  mimeTypeDefinitions[type] = {
+    source: mime.source,
+    extensions: Array.from(mime.extensions),
+  };
+}
+
+export const mimeTypes: Record<MimeType, MimeTypeDefinition> = mimeTypeDefinitions;
 
 function extname(path: string) {
   return Str.lastIndexOf(".")(path).pipe(
@@ -159,7 +175,27 @@ function extname(path: string) {
 }
 
 const extensions = R.empty<MimeType, FileExtension[]>();
-const types = {} as Record<FileExtension, MimeType>;
+const types = R.empty<FileExtension, MimeType>();
+
+const normalizeLookupExtension = Fn.flow((input: string) => extname(`x.${input}`), Str.toLowerCase, Str.substring(1));
+const returnFalse = (): false => false;
+
+function hasTypeForExtension(extension: string, types: Record<FileExtension, MimeType>): extension is FileExtension {
+  return extension in types;
+}
+
+function lookupNormalizedExtension(extension: string): false | MimeType {
+  const typesByExtension = getTypes();
+
+  return pipe(
+    extension,
+    O.liftPredicate(
+      (value: string): value is FileExtension => !Str.isEmpty(value) && hasTypeForExtension(value, typesByExtension)
+    ),
+    O.map((lookupExtension) => typesByExtension[lookupExtension]),
+    O.getOrElse(returnFalse)
+  );
+}
 
 /**
  * Returns a record mapping each file extension (without leading dot) to its
@@ -228,18 +264,13 @@ export function getExtensions(): Record<MimeType, FileExtension[]> {
  * ```
  */
 export function lookup(path: string): false | MimeType {
-  if (Str.isEmpty(path)) {
-    return false;
-  }
-
-  // get the extension ("ext" or ".ext" or full path)
-  const extension = pipe(extname(`x.${path}`), Str.toLowerCase, Str.substring(1));
-
-  if (Str.isEmpty(extension)) {
-    return false;
-  }
-
-  return getTypes()[extension as keyof typeof types] || false;
+  return pipe(
+    path,
+    O.liftPredicate((value) => !Str.isEmpty(value)),
+    O.map(normalizeLookupExtension),
+    O.map(lookupNormalizedExtension),
+    O.getOrElse(returnFalse)
+  );
 }
 
 let inittedMaps = false;
@@ -255,42 +286,72 @@ function preferenceOf(source: string): number {
   );
 }
 
+function shouldKeepByPreference(currentType: MimeType, mimeSource: string): boolean {
+  const from = preferenceOf(mimeTypes[currentType].source);
+  const to = preferenceOf(mimeSource);
+
+  return (
+    currentType !== "application/octet-stream" &&
+    (from > to || (from === to && Str.startsWith("application/")(currentType)))
+  );
+}
+
+function shouldKeepCurrentMapping(
+  extension: FileExtension,
+  mimeSource: string,
+  types: Record<FileExtension, MimeType>
+): boolean {
+  return Match.value(extension in types).pipe(
+    Match.when(false, () => false),
+    Match.orElse(() => shouldKeepByPreference(types[extension], mimeSource))
+  );
+}
+
+function setTypeMapping(
+  type: MimeType,
+  extension: FileExtension,
+  mimeSource: string,
+  types: Record<FileExtension, MimeType>
+) {
+  return Match.value(shouldKeepCurrentMapping(extension, mimeSource, types)).pipe(
+    Match.when(true, () => undefined),
+    Match.orElse(() => {
+      types[extension] = type;
+    })
+  );
+}
+
+function populateTypeMappings(
+  type: MimeType,
+  exts: A.NonEmptyReadonlyArray<FileExtension>,
+  mimeSource: string,
+  extensions: Record<MimeType, FileExtension[]>,
+  types: Record<FileExtension, MimeType>
+) {
+  extensions[type] = Array.from(exts);
+
+  for (const extension of exts) {
+    setTypeMapping(type, extension, mimeSource, types);
+  }
+}
+
 /**
  * Populate the extensions and types maps.
  * @private
  */
 function populateMaps(extensions: Record<MimeType, FileExtension[]>, types: Record<FileExtension, MimeType>) {
-  if (inittedMaps) return;
-  inittedMaps = true;
+  return Match.value(inittedMaps).pipe(
+    Match.when(true, () => undefined),
+    Match.orElse(() => {
+      inittedMaps = true;
 
-  for (const type of Struct.keys(mimeTypes)) {
-    const mime = mimeTypes[type];
-    const exts = mime.extensions;
-
-    if (A.isArrayEmpty(exts)) {
-      continue;
-    }
-
-    // mime -> extensions
-    extensions[type] = exts;
-
-    // extension -> mime
-    for (const extension of exts) {
-      if (extension in types) {
-        const from = preferenceOf(mimeTypes[types[extension]].source);
-        const to = preferenceOf(mime.source);
-
-        if (
-          types[extension] !== "application/octet-stream" &&
-          (from > to || (from === to && Str.startsWith("application/")(types[extension])))
-        ) {
-          // skip the remapping
-          continue;
-        }
+      for (const type of Struct.keys(mimeTypes)) {
+        const mime = mimeTypes[type];
+        A.match(mime.extensions, {
+          onEmpty: () => undefined,
+          onNonEmpty: (nonEmptyExts) => populateTypeMappings(type, nonEmptyExts, mime.source, extensions, types),
+        });
       }
-
-      // set the extension -> mime
-      types[extension] = type;
-    }
-  }
+    })
+  );
 }

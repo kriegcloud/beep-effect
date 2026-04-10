@@ -8,9 +8,21 @@
 import { $SchemaId } from "@beep/identity";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { TaggedErrorClass } from "../TaggedErrorClass.ts";
+import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass.ts";
 
 const $I = $SchemaId.create("csv/CsvError");
+const CsvErrorFields = {
+  message: S.String,
+  offset: S.optionalKey(S.Number),
+} satisfies S.Struct.Fields;
+const CsvErrorBase: TaggedErrorClassFromFields<CsvError, "CsvError", typeof CsvErrorFields> =
+  TaggedErrorClass<CsvError>($I`CsvError`)(
+    "CsvError",
+    CsvErrorFields,
+    $I.annote("CsvError", {
+      description: "Raised when CSV parsing, header validation, or formatting fails.",
+    })
+  );
 
 /**
  * Raised when CSV parsing, header validation, or formatting fails.
@@ -18,16 +30,7 @@ const $I = $SchemaId.create("csv/CsvError");
  * @category Validation
  * @since 0.0.0
  */
-export class CsvError extends TaggedErrorClass<CsvError>($I`CsvError`)(
-  "CsvError",
-  {
-    message: S.String,
-    offset: S.optionalKey(S.Number),
-  },
-  $I.annote("CsvError", {
-    description: "Raised when CSV parsing, header validation, or formatting fails.",
-  })
-) {}
+export class CsvError extends CsvErrorBase {}
 
 /**
  * Construct a {@link CsvError}.

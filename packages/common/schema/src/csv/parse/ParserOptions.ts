@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 import { BuffEncoding } from "../../BufferEncoding.ts";
 import { NonNegativeInt } from "../../Int.ts";
 import { RegExpFromStr } from "../../RegExp.ts";
-import { TaggedErrorClass } from "../../TaggedErrorClass.ts";
+import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../../TaggedErrorClass.ts";
 import { HeaderArray, HeaderTransformFunction } from "./types.ts";
 
 const $I = $SchemaId.create("csv/parse/ParserOptions");
@@ -36,6 +36,21 @@ const SingleCharacterText = S.String.check(
 );
 
 const decodeRegExpSync = S.decodeSync(RegExpFromStr);
+const ParserOptionsErrorFields = {
+  cause: S.OptionFromOptionalKey(S.DefectWithStack),
+  message: S.String,
+} satisfies S.Struct.Fields;
+const ParserOptionsErrorBase: TaggedErrorClassFromFields<
+  ParserOptionsError,
+  "ParserOptionsError",
+  typeof ParserOptionsErrorFields
+> = TaggedErrorClass<ParserOptionsError>($I.make("ParserOptionsError"))(
+  "ParserOptionsError",
+  ParserOptionsErrorFields,
+  $I.annote("ParserOptionsError", {
+    description: "Raised when CSV parser options cannot be decoded or normalized.",
+  })
+);
 
 /**
  * A parser header configuration input.
@@ -63,16 +78,7 @@ export type HeaderValueInput = typeof HeaderValueInput.Type;
  * @category Validation
  * @since 0.0.0
  */
-export class ParserOptionsError extends TaggedErrorClass<ParserOptionsError>($I`ParserOptionsError`)(
-  "ParserOptionsError",
-  {
-    cause: S.OptionFromOptionalKey(S.DefectWithStack),
-    message: S.String,
-  },
-  $I.annote("ParserOptionsError", {
-    description: "Raised when CSV parser options cannot be decoded or normalized.",
-  })
-) {}
+export class ParserOptionsError extends ParserOptionsErrorBase {}
 
 const toParserOptionsError = (fallbackMessage: string, cause?: unknown): ParserOptionsError =>
   new ParserOptionsError({

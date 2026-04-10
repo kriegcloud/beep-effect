@@ -8,6 +8,8 @@
 - `../DESIGN_RESEARCH.md`
 - `../PLANNING.md`
 - `../EXECUTION.md`
+- `../../../../apps/V2T`
+- `../../../../packages/VT2`
 
 ## Objective
 
@@ -18,6 +20,7 @@ Verify the implemented V2T slice with both automated and manual evidence.
 - run the targeted verification floor
 - exercise the manual scenario matrix for the implemented slice
 - record any failures or deferred behavior explicitly
+- prove whether the first slice extended the current `@beep/VT2` seam or intentionally migrated away from it
 - write or refine `../VERIFICATION.md`
 
 ## Exit Gate

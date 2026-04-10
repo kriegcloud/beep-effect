@@ -1,5 +1,5 @@
 import { $UtilsId } from "@beep/identity/packages";
-import { Function as Fn, Match, Struct as EffectStruct, pipe } from "effect";
+import { Struct as EffectStruct, Function as Fn, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -15,8 +15,6 @@ const $I = $UtilsId.create("Struct");
 type NonEmptyStringKeyStruct<R extends object> = [keyof R & string] extends [never] ? never : R;
 
 const NonEmptyStringKeys = S.NonEmptyArray(S.String);
-const assertNonEmptyStringKeys: (input: unknown) => asserts input is A.NonEmptyReadonlyArray<string> =
-  S.asserts(NonEmptyStringKeys);
 
 /**
  * Thrown when a struct expected to have at least one string key is empty.
@@ -39,14 +37,15 @@ function assertStructHasStringKeys<T extends string>(
   input: Array<T>,
   source: object
 ): asserts input is A.NonEmptyArray<T> {
-  try {
-    assertNonEmptyStringKeys(input);
-  } catch (cause) {
-    throw new EmptyStructError({
-      input: source,
-      cause: S.decodeUnknownOption(S.DefectWithStack)(cause),
-    });
-  }
+  return Match.value(S.is(NonEmptyStringKeys)(input)).pipe(
+    Match.when(true, () => undefined),
+    Match.orElse(() => {
+      throw new EmptyStructError({
+        input: source,
+        cause: O.none(),
+      });
+    })
+  );
 }
 
 function assertStructHasStringEntries<T>(

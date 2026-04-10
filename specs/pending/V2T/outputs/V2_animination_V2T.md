@@ -30,4 +30,4 @@ uses [Elevan Labs](https://elevenlabs.io/docs/eleven-agents/overview/llms.txt) A
 
 - [graphiti](https://help.getzep.com/llms.txt) (same as graphiti-memory tool), aka knowledge base with semantic search. with [falkordb](https://docs.falkordb.com/llms)
 
-![image.png](V2%20animination%20V2T/image.png)
+![image.png](./V2_animination_V2T/image.png)

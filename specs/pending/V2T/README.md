@@ -33,6 +33,8 @@
 ### Handoffs
 
 - [handoffs/README.md](./handoffs/README.md) - handoff index
+- [handoffs/HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md) - combined cross-phase handoff
+- [handoffs/P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md) - combined phase router prompt
 - [handoffs/HANDOFF_P0.md](./handoffs/HANDOFF_P0.md)
 - [handoffs/HANDOFF_P1.md](./handoffs/HANDOFF_P1.md)
 - [handoffs/HANDOFF_P2.md](./handoffs/HANDOFF_P2.md)
@@ -47,6 +49,7 @@
 ### Durable Tracking
 
 - [outputs/manifest.json](./outputs/manifest.json) - machine-readable phase status and file routing
+- [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md) - pasteable fresh-session entry prompt
 - [outputs/grill-log.md](./outputs/grill-log.md) - durable record of locked package decisions
 - [outputs/v2t_app_notes.html](./outputs/v2t_app_notes.html) - upstream PRD input
 - [outputs/V2_animination_V2T.md](./outputs/V2_animination_V2T.md) - earlier V2T notes preserved as source input
@@ -76,9 +79,11 @@ V2T is a local-first conversation-to-video workspace. The product captures a rec
 The canonical spec is grounded in current repo anchors:
 
 - `apps/V2T` already exists as the app workspace and currently provides the starter shell
+- `packages/VT2` already exists as the SQLite-backed Effect sidecar package, with a control-plane protocol in `packages/VT2/src/protocol.ts` and runtime wiring in `packages/VT2/src/Server/index.ts`
 - `packages/common/ui/src/components/speech-input.tsx` already provides a reusable speech/transcript UI primitive
 - root Graphiti tooling and proxy commands already exist for memory infrastructure
 - `apps/V2T/vite.config.ts` already defines a local sidecar proxy seam for `/api`
+- `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` already bind the app shell to the existing sidecar runtime
 
 ## Source-Of-Truth Order
 
@@ -88,7 +93,7 @@ Disagreement is resolved in this order:
 2. this README
 3. [outputs/manifest.json](./outputs/manifest.json)
 4. phase artifacts in order: `RESEARCH.md`, `DESIGN_RESEARCH.md`, `PLANNING.md`, `EXECUTION.md`, `VERIFICATION.md`
-5. handoffs and [AGENT_PROMPTS.md](./AGENT_PROMPTS.md)
+5. handoffs, the combined phase router, and [AGENT_PROMPTS.md](./AGENT_PROMPTS.md)
 6. preserved raw inputs under `outputs/`
 
 ## Working Contract
@@ -96,8 +101,10 @@ Disagreement is resolved in this order:
 - Keep the canonical package in-place at `specs/pending/V2T`.
 - Preserve `outputs/v2t_app_notes.html`, `outputs/V2_animination_V2T.md`, and the reference image as source inputs.
 - Treat the exact root-level phase documents as authoritative artifacts, not aliases of `outputs/pN-...` files.
+- Route fresh sessions through [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md), [handoffs/HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md), and [handoffs/P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md) before dropping into a single phase.
 - Use `grill-me` during P0 whenever meaningful ambiguity remains, and append the result to [outputs/grill-log.md](./outputs/grill-log.md).
 - Keep provider-specific logic behind explicit adapters and service seams.
+- Treat `apps/V2T` plus `packages/VT2` as the current canonical shell-plus-sidecar pair unless a later phase explicitly documents a migration.
 - Default the first execution slice to a repo-grounded vertical slice:
   capture, transcript, session review, memory-enriched composition packet, and export orchestration seams.
 - Do not claim production-grade autonomous video generation until the provider contracts, failure handling, and verification evidence exist.
@@ -126,16 +133,18 @@ These package-shape decisions are already settled and logged in [outputs/grill-l
 
 ### In Scope
 
-- the canonical V2T app package under `apps/V2T`
+- the canonical V2T app shell under `apps/V2T`
+- the existing V2T sidecar control plane under `packages/VT2`
 - local-first capture, transcript, session review, memory retrieval, composition configuration, and export orchestration seams
 - typed domain models, provider adapters, and sidecar service boundaries
-- verification commands and evidence for the app workspace
+- verification commands and evidence for the app workspace and sidecar package
 
 ### Out Of Scope
 
 - immediate multi-user collaboration
 - unattended social publishing
 - claiming final provider choices are production-ready without phase evidence
+- renaming `@beep/VT2` as part of this bootstrap repair pass
 - inventing new repo-wide governance beyond what this package needs
 
 ## Success Criteria
@@ -143,7 +152,7 @@ These package-shape decisions are already settled and logged in [outputs/grill-l
 This spec package is complete only when all of these statements are true:
 
 - a fresh Codex session can resume from [QUICK_START.md](./QUICK_START.md) and the active handoff without inventing package structure
-- the five phase artifacts stay aligned with current repo seams in `apps/V2T`
+- the five phase artifacts stay aligned with current repo seams in `apps/V2T` and `packages/VT2`
 - external provider boundaries are explicit enough to swap mocks, stubs, or real integrations without reopening the whole design
 - the execution phase can be carried out from [PLANNING.md](./PLANNING.md) without hidden decisions
 - the verification phase proves what is actually implemented and what is still deferred

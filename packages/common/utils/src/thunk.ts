@@ -121,7 +121,7 @@ export const thunkTrue = thunk(true as const);
  * @category utilities
  * @since 0.0.0
  */
-export const thunkFalse = thunk(false);
+export const thunkFalse = thunk(false as const);
 
 /**
  * A thunk that always yields the empty string.
@@ -267,7 +267,7 @@ export const thunkEffectVoid = thunkEffect(Effect.void);
  * @category constructors
  * @since 0.0.0
  */
-export const thunkEffectSucceed = <A>(a: A): (() => Effect.Effect<A>) => thunkEffect(Effect.succeed(a));
+export const thunkEffectSucceed = <A>(a: A) => thunkEffect(Effect.succeed(a));
 
 /**
  * A thunk that returns `Effect.succeed(null)`.

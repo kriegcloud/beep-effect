@@ -1,5 +1,16 @@
 # V2T Handoffs
 
+## Usage Guidance
+
+- Start with [../README.md](../README.md) and [../outputs/manifest.json](../outputs/manifest.json).
+- Use the combined router assets first in a fresh session, then drop into the active phase handoff and prompt.
+- Treat `apps/V2T` and `packages/VT2` as the current shell-plus-sidecar pair unless a phase artifact explicitly documents a migration.
+
+## Combined Overview
+
+- [HANDOFF_P0-P4.md](./HANDOFF_P0-P4.md) - cross-phase overview handoff
+- [P0-P4_ORCHESTRATOR_PROMPT.md](./P0-P4_ORCHESTRATOR_PROMPT.md) - combined orchestration prompt
+
 | Phase | Handoff | Prompt | Artifact |
 |---|---|---|---|
 | P0 | [HANDOFF_P0.md](./HANDOFF_P0.md) | [P0_ORCHESTRATOR_PROMPT.md](./P0_ORCHESTRATOR_PROMPT.md) | [../RESEARCH.md](../RESEARCH.md) |
