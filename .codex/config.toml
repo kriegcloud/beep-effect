@@ -28,6 +28,11 @@ description = "Effect v4 worker for HTTP or tool boundaries, protocol contracts,
 config_file = "./agents/effect-v4-http-ai-boundary.toml"
 nickname_candidates = ["Boundary", "Packet"]
 
+[agents.effect_v4_persistence_runtime_architect]
+description = "Effect v4 worker for SQLite, filesystem, Config, resource lifetimes, and local-first persistence seams."
+config_file = "./agents/effect-v4-persistence-runtime-architect.toml"
+nickname_candidates = ["Vault", "Ledger"]
+
 [agents.effect_v4_state_concurrency_guardian]
 description = "Effect v4 worker for Scope, Ref-family state, retries, timeouts, fiber lifetimes, and explicit concurrency control."
 config_file = "./agents/effect-v4-state-concurrency-guardian.toml"

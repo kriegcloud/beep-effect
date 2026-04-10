@@ -2,6 +2,11 @@
 
 This file is append-only. Record high-signal questions, recommendations, answers, and package-shape decisions here so future sessions do not have to rediscover them.
 
+## Logging Rules
+
+- Append only; do not rewrite earlier decisions unless the repo evidence has changed and the reversal is recorded explicitly.
+- Record package-shape defaults, routing rules, validator expectations, and command-truth decisions here.
+
 ## 2026-04-10 Bootstrap Decisions
 
 ### Q1 - What artifact shape should the V2T canonical spec use?
@@ -84,14 +89,27 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Answer: add those agents in project-scoped `.codex` config
 - Resolution: added `.codex/config.toml` plus `.codex/agents/*.toml` so future V2T sessions can selectively delegate to Effect v4 specialists without inventing roles on the fly
 
-### Q13 - Which package names should the spec use in targeted Turbo filters?
+## 2026-04-10 Package Hardening Decisions
 
-- Recommendation: copy the live package names from `apps/V2T/package.json` and `packages/VT2/package.json` instead of inferring them from folder names
-- Answer: use `@beep/v2t` for the app workspace and `@beep/VT2` for the sidecar workspace
-- Resolution: corrected the remaining stale uppercase app-filter examples and hardened the validator to reject that drift
+### Q13 - Should active phase routing require operators to infer the current handoff, prompt, output, and trackers from separate manifest fields?
 
-### Q13 - Which workspace identities and memory rules are now locked for V2T?
+- Recommendation: no, add a single `active_phase_assets` object that duplicates the active phase routing targets and let the validator enforce coherence
+- Answer: make active phase routing explicit
+- Resolution: added `active_phase_assets` to `outputs/manifest.json` and updated the scoped operator docs to trust it
 
-- Recommendation: treat workspace package names and Graphiti startup behavior as explicit repo truth rather than soft convention
-- Answer: use `@beep/v2t` for the app workspace, `@beep/VT2` for the sidecar, and require Graphiti preflight plus a documented fallback when search is unavailable
-- Resolution: corrected the spec command matrix, fixed the root `dev:v2t` script, updated the prompts and handoffs, and hardened the validator against the stale uppercase app filter
+### Q14 - What is the command-truth package name and targeted lint gate for the app workspace?
+
+- Recommendation: use the live package name `@beep/v2t` and keep the targeted
+  lint gate aligned on `bun run --cwd apps/V2T lint`
+- Answer: treat lowercase `@beep/v2t` plus the package-local app lint gate as
+  authoritative
+- Resolution: corrected the scoped docs and manifest command matrix after
+  verifying that `@beep/V2T` is not a real workspace package and that
+  `turbo run lint --filter=@beep/v2t` still expands into the nonexistent
+  `@beep/VT2#lint` task
+
+### Q15 - What should the package-local validator enforce beyond broken links?
+
+- Recommendation: validate manifest coherence, exact fileset coverage, required operator headings, and active phase routing in addition to relative links
+- Answer: expand the validator into a package-contract check
+- Resolution: upgraded `outputs/validate-spec.mjs` and added the supporting manifest metadata so future package drift is caught automatically

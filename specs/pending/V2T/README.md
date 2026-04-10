@@ -67,6 +67,16 @@
 - [../../../.codex/config.toml](../../../.codex/config.toml) - project-scoped custom agent registry and `v2t_orchestrator` profile
 - [../../../.codex/agents/README.md](../../../.codex/agents/README.md) - specialist Effect v4 agent catalog
 
+## Session Resume Checklist
+
+1. Run `bun run codex:hook:session-start` from the repo root.
+2. Read [outputs/manifest.json](./outputs/manifest.json) and trust `active_phase` plus `active_phase_assets`.
+3. Read [outputs/codex-plan-mode-prompt.md](./outputs/codex-plan-mode-prompt.md), [handoffs/HANDOFF_P0-P4.md](./handoffs/HANDOFF_P0-P4.md), [handoffs/P0-P4_ORCHESTRATOR_PROMPT.md](./handoffs/P0-P4_ORCHESTRATOR_PROMPT.md), and [prompts/README.md](./prompts/README.md).
+4. Read only the active phase handoff, active phase orchestrator prompt, and prior phase artifacts that constrain the active phase.
+5. When command or task claims matter, confirm them against the live `package.json` and `turbo.json` files for the root, `apps/V2T`, and `packages/VT2`.
+6. Execute only the active phase as the orchestrator.
+7. Update the active phase artifact, [outputs/manifest.json](./outputs/manifest.json), and the package logs touched by the change before exiting.
+
 ## Purpose
 
 ### Problem
@@ -109,9 +119,17 @@ Disagreement is resolved in this order:
 5. handoffs, the combined phase router, and [AGENT_PROMPTS.md](./AGENT_PROMPTS.md)
 6. preserved raw inputs under `outputs/`
 
-Manifest note:
+Manifest notes:
 
 - all file paths stored in [outputs/manifest.json](./outputs/manifest.json) are package-root-relative, not manifest-file-relative
+- `active_phase_assets` is the fastest authoritative route to the active phase handoff, prompt, output, and trackers
+
+## Active Phase Contract
+
+- [outputs/manifest.json](./outputs/manifest.json) is the machine authority for `active_phase`, `active_phase_assets`, and the package-wide command gates.
+- Do not infer the active phase from prose status headings inside individual markdown files.
+- Package status `BOOTSTRAPPED` means the package structure and routing exist; it does not imply the active phase artifact is already complete.
+- If package-local routing, command gates, or validator behavior changes, update the manifest in the same pass.
 
 ## Mandatory Conformance Inputs
 
@@ -136,59 +154,37 @@ If these sources disagree, the tie-break order is:
 
 ## Workspace Identity And Command Truth
 
-- `apps/V2T/package.json` is the authoritative source for the app workspace
-  identity, and its current package name is `@beep/v2t`.
-- `packages/VT2/package.json` is the authoritative source for the sidecar
-  workspace identity, and its current package name is `@beep/VT2`.
-- Directory names are not authoritative for Turbo filter casing. Never infer a
-  package filter from `apps/V2T` or `packages/VT2` alone.
-- When adding or changing command examples, verify the package names from the
-  live manifests first. If command truth is uncertain, confirm with a dry run
-  such as `bunx turbo run check --filter=@beep/v2t --dry=json`.
+- `apps/V2T/package.json` is the authoritative source for the app workspace identity, and its current package name is `@beep/v2t`.
+- `packages/VT2/package.json` is the authoritative source for the sidecar workspace identity, and its current package name is `@beep/VT2`.
+- Directory names are not authoritative for Turbo filter casing. Never infer a package filter from `apps/V2T` or `packages/VT2` alone.
+- When adding or changing command examples, verify the package names from the live manifests first. If command truth is uncertain, confirm with a dry run such as `bunx turbo run check --filter=@beep/v2t --dry=json`.
 
 ## Graphiti Memory Protocol
 
 - Start phase work with `bun run codex:hook:session-start` when useful.
-- If `graphiti-memory` is available in-session, run a lightweight preflight:
-  `get_status`, then `search_memory_facts`.
-- When the wrapper exposes `group_ids` as a string, pass the JSON array literal
-  string `"[\"beep-dev\"]"` instead of the plain string `beep-dev`.
-- If Graphiti fact search fails because of the current RediSearch syntax issue,
-  continue with repo-local docs and code search, and record that the session
-  used a Graphiti fallback instead of blocking the phase.
-- Write back material decisions, repo-specific findings, and tricky fixes before
-  the phase closes.
+- If `graphiti-memory` is available in-session, run a lightweight preflight: `get_status`, then `search_memory_facts`.
+- When the wrapper exposes `group_ids` as a string, pass the JSON array literal string `"[\"beep-dev\"]"` instead of the plain string `beep-dev`.
+- If Graphiti fact search fails because of the current RediSearch syntax issue, continue with repo-local docs and code search, and record that the session used a Graphiti fallback instead of blocking the phase.
+- Write back material decisions, repo-specific findings, and tricky fixes before the phase closes.
 
 ## Phase Agent Model
 
 Every active phase session is the phase orchestrator.
 
-- The orchestrator owns the phase plan, delegation decisions, integration,
-  quality-gate evidence, and artifact updates.
-- Sub-agents are bounded workers or auditors. They do not own phase closure,
-  manifest authority, or scope expansion.
-- Use the delegation kit under [prompts/README.md](./prompts/README.md) when a
-  phase benefits from parallel work.
-- Prefer the repo-local custom agent registry in
-  [../../../.codex/config.toml](../../../.codex/config.toml) and
-  [../../../.codex/agents/README.md](../../../.codex/agents/README.md) for
-  Effect v4 specialist delegation.
-- Assume the CLI workers share the same worktree unless the runtime explicitly
-  provides isolation. Disjoint write scopes are therefore mandatory, not just
-  stylistic.
-- The recommended fresh-session profile is `codex -p v2t_orchestrator`, but the
-  active phase still remains the orchestrator even when no sub-agents are used.
+- The orchestrator owns the phase plan, delegation decisions, integration, quality-gate evidence, and artifact updates.
+- Sub-agents are bounded workers or auditors. They do not own phase closure, manifest authority, or scope expansion.
+- Use the delegation kit under [prompts/README.md](./prompts/README.md) when a phase benefits from parallel work.
+- Prefer the repo-local custom agent registry in [../../../.codex/config.toml](../../../.codex/config.toml) and [../../../.codex/agents/README.md](../../../.codex/agents/README.md) for Effect v4 specialist delegation.
+- Assume the CLI workers share the same worktree unless the runtime explicitly provides isolation. Disjoint write scopes are therefore mandatory, not just stylistic.
+- The recommended fresh-session profile is `codex -p v2t_orchestrator`, but the active phase still remains the orchestrator even when no sub-agents are used.
 
 ## Review Loop
 
 Every mutating phase must end with at least one read-only review wave.
 
-- Use `effect_v4_quality_reviewer` or an equivalent read-only reviewer after a
-  meaningful write wave and before phase closeout.
+- Use `effect_v4_quality_reviewer` or an equivalent read-only reviewer after a meaningful write wave and before phase closeout.
 - If the review finds substantive issues, integrate them and rerun the review.
-- A phase may close only when the latest review wave finds no substantive
-  issues or the remaining issues are explicitly logged as accepted residual
-  risk.
+- A phase may close only when the latest review wave finds no substantive issues or the remaining issues are explicitly logged as accepted residual risk.
 
 ## Conformance And Gates
 
@@ -210,7 +206,7 @@ When the active phase is planning, execution, or verification for real code chan
 - `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run lint --filter=@beep/v2t`
+- `bun run --cwd apps/V2T lint`
 - `bun run lint:effect-laws`
 - `bun run lint:jsdoc`
 - `bun run check:effect-laws-allowlist`
@@ -223,8 +219,8 @@ Additional gate:
 Important limitation:
 
 - `@beep/VT2` does not currently define a package-local `lint` or `docgen` task, so VT2 conformance must be enforced through the repo-level law commands above rather than a nonexistent package script
-- `@beep/v2t` and `@beep/VT2` must be copied from the live package manifests,
-  not reconstructed from folder casing or stale scripts
+- `@beep/v2t` and `@beep/VT2` must be copied from the live package manifests, not reconstructed from folder casing or stale scripts
+- `turbo run lint --filter=@beep/v2t` is not a safe substitute for the app-local lint gate because dependency lint expansion still reaches the nonexistent `@beep/VT2#lint` task
 
 ### Readiness Gate
 
@@ -235,6 +231,13 @@ No phase may claim implementation readiness, merge readiness, or production-styl
 - `bun run test`
 - `bun run docgen` when exported APIs or JSDoc examples changed
 
+## Package Maintenance Rules
+
+- Update [outputs/manifest.json](./outputs/manifest.json) whenever phase status, routing, command gates, or validator rules change.
+- Update [REFLECTION_LOG.md](./REFLECTION_LOG.md) whenever package-local structure, operator workflow, or validator behavior changes.
+- Append [outputs/grill-log.md](./outputs/grill-log.md) only when a new package-shape decision or default is being locked.
+- Run the spec package gate before closing any package-maintenance change.
+
 ## Working Contract
 
 - Keep the canonical package in-place at `specs/pending/V2T`.
@@ -244,17 +247,15 @@ No phase may claim implementation readiness, merge readiness, or production-styl
 - Treat the `codex-plan-mode-prompt.md` filename as a compatibility name only; the prompt applies in either Default mode or Plan mode.
 - Treat the active phase session as the phase orchestrator even when sub-agents are used.
 - Use repo-local custom agents from `.codex/config.toml` only for bounded work; keep phase ownership in the orchestrator.
-- Run the Graphiti memory preflight when the MCP is available, and log fallback
-  behavior when fact search is unavailable or currently broken.
-- Run a read-only review wave before phase closeout, and do not close the phase
-  while substantive findings remain unresolved.
+- Run the Graphiti memory preflight when the MCP is available, and log fallback behavior when fact search is unavailable or currently broken.
+- Run a read-only review wave before phase closeout, and do not close the phase while substantive findings remain unresolved.
 - Use `grill-me` during P0 whenever meaningful ambiguity remains, and append the result to [outputs/grill-log.md](./outputs/grill-log.md).
 - Keep provider-specific logic behind explicit adapters and service seams.
 - Treat `apps/V2T` plus `packages/VT2` as the current canonical shell-plus-sidecar pair unless a later phase explicitly documents a migration.
-- Default the first execution slice to a repo-grounded vertical slice:
-  capture, transcript, session review, memory-enriched composition packet, and export orchestration seams.
+- Default the first execution slice to a repo-grounded vertical slice: capture, transcript, session review, memory-enriched composition packet, and export orchestration seams.
 - Do not claim production-grade autonomous video generation until the provider contracts, failure handling, and verification evidence exist.
 - Update [outputs/manifest.json](./outputs/manifest.json) whenever phase status changes.
+- Update [REFLECTION_LOG.md](./REFLECTION_LOG.md) whenever package-local routing, operator guidance, or validator behavior changes.
 - Record conformance evidence in the active phase artifact instead of implying commands were run.
 - Stop at the active phase exit gate instead of silently rolling forward.
 
@@ -301,11 +302,11 @@ This spec package is complete only when all of these statements are true:
 - a fresh Codex session can resume from [QUICK_START.md](./QUICK_START.md) and the active handoff without inventing package structure
 - a fresh Codex session can tell that the active phase session is the orchestrator and can reach the delegation kit without guessing
 - the five phase artifacts stay aligned with current repo seams in `apps/V2T` and `packages/VT2`
-- the command examples stay aligned with the live workspace package names
-  `@beep/v2t` and `@beep/VT2`
+- the command examples stay aligned with the live workspace package names `@beep/v2t` and `@beep/VT2`
 - the mandatory conformance inputs are referenced explicitly in the active phase artifact whenever they constrain the work
 - external provider boundaries are explicit enough to swap mocks, stubs, or real integrations without reopening the whole design
 - the execution phase can be carried out from [PLANNING.md](./PLANNING.md) without hidden decisions
 - the verification phase proves what is actually implemented and what is still deferred
 - the repo-local custom agent presets are documented well enough that future sessions can selectively delegate Effect v4 work instead of improvising worker roles
+- the package-local validator can catch manifest drift, file-set drift, and required operator-section drift before a future session starts
 - no phase closes without explicit evidence for the gates it claims to have satisfied

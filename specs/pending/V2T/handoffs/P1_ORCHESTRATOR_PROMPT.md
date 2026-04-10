@@ -10,5 +10,6 @@ Operate orchestration-first:
 - delegate only bounded schema, service, or boundary analysis with disjoint scopes
 - integrate every worker result yourself using the V2T sub-agent output contract
 - produce or refine `DESIGN_RESEARCH.md` so the workflow, domain model, storage posture, adapter boundaries, and conformance rules are decision-complete
+- run a read-only review wave before closing P1
 - stop and surface any issue that really belongs back in P0
 - stop at the P1 exit gate instead of drifting into planning or implementation

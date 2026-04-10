@@ -13,4 +13,5 @@ Operate orchestration-first:
 - append any newly locked decisions to `outputs/grill-log.md`
 - update `outputs/manifest.json` only when the phase state changes
 - use `grill-me` when meaningful product or architecture ambiguity remains
+- run a read-only review wave before closing P0
 - stop when the P0 research exit gate is met, and do not roll into P1 design work

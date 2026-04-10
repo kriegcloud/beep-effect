@@ -1,13 +1,16 @@
 # V2T Canonical Spec - Reflection Log
 
+## Logging Rules
+
+- Record package-local corrections, operator guidance changes, and validator behavior changes here.
+- Do not use this file for normal phase execution progress that belongs in the phase artifacts.
+
 ## 2026-04-10 Bootstrap
 
 - Canonicalized the package in-place under `specs/pending/V2T` to preserve the existing PRD inputs.
 - Locked the exact root-level phase filenames requested by the user instead of normalizing them into `outputs/pN-...`.
-- Confirmed the repo already has meaningful V2T implementation anchors:
-  `apps/V2T`, a sidecar proxy seam in `apps/V2T/vite.config.ts`, Graphiti operational tooling at the root, and a reusable speech/transcript primitive in `packages/common/ui/src/components/speech-input.tsx`.
-- Defaulted the first execution slice to a repo-grounded vertical slice rather than full autonomous media production:
-  capture or ingest audio, produce transcript/session artifacts, enrich with memory through explicit adapters, configure composition runs, and track export artifacts.
+- Confirmed the repo already has meaningful V2T implementation anchors: `apps/V2T`, a sidecar proxy seam in `apps/V2T/vite.config.ts`, Graphiti operational tooling at the root, and a reusable speech/transcript primitive in `packages/common/ui/src/components/speech-input.tsx`.
+- Defaulted the first execution slice to a repo-grounded vertical slice rather than full autonomous media production: capture or ingest audio, produce transcript/session artifacts, enrich with memory through explicit adapters, configure composition runs, and track export artifacts.
 - Preserved the source PRD and earlier V2T notes as durable inputs instead of rewriting them into the package history.
 
 ## 2026-04-10 Review Corrections
@@ -32,22 +35,14 @@
 - Added project-scoped Codex custom-agent config under `.codex/config.toml` plus specialist Effect v4 agent definitions under `.codex/agents/`.
 - Chose a no-nested-subagent posture for this repo-local config by setting `agents.max_depth = 1`, so phase ownership stays with the orchestrator.
 
-## 2026-04-10 Package Identity Review
+## 2026-04-10 Package Hardening
 
-- Verified that the live app workspace name is `@beep/v2t` even though the folder is `apps/V2T`, while the sidecar remains `@beep/VT2`.
-- Corrected the remaining stale uppercase Turbo filter examples in the phase docs, prompts, and manifest so the package now matches the live workspace task graph.
-- Hardened `outputs/validate-spec.mjs` to reject stale package tokens and path-based Turbo filters, and to verify the manifest records the live package names.
-
-## 2026-04-10 Repo-Truth Hardening
-
-- Corrected the targeted Turbo filters to use the live app package name
-  `@beep/v2t` instead of the broken uppercase form, and fixed the root
-  `dev:v2t` script to match that repo truth.
-- Added package-name verification guidance so future sessions do not infer Turbo
-  filters from folder casing.
-- Added explicit Graphiti memory preflight and fallback instructions, including
-  the `group_ids` wrapper gotcha and the current RediSearch search fallback.
-- Tightened the prompt kit and handoffs so shared-worktree safety, repo-truth
-  checks, and `not run` gate reporting are required rather than implied.
-- Hardened `outputs/validate-spec.mjs` to reject the stale uppercase app filter
-  and to require the live workspace package names in the manifest.
+- Re-verified the live task graph against the root plus workspace `package.json` and `turbo.json` files instead of trusting the package prose.
+- Confirmed the app workspace package name is `@beep/v2t`, not the stale
+  uppercase app filter, and corrected the scoped docs plus manifest command
+  matrix accordingly.
+- Kept the targeted lint guidance aligned on `bun run --cwd apps/V2T lint`
+  while preserving the stricter
+  warning that `@beep/VT2` has no direct package-local lint task.
+- Added explicit `active_phase_assets`, `fresh_session_read_order`, `output_files`, and required heading validation to the manifest so operators and tooling can resolve package structure without inference.
+- Expanded `outputs/validate-spec.mjs` from a broken-link checker into a package-contract validator that now checks manifest coherence, fileset coverage, active-phase routing, command truth anchors, and required sections in the scoped operator docs.

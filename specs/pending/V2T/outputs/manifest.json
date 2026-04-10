@@ -4,12 +4,15 @@
   "status": "BOOTSTRAPPED",
   "created": "2026-04-10",
   "updated": "2026-04-10",
+  "package_status_note": "Package bootstrap is complete; active_phase identifies the next phase to work.",
   "active_phase": "p0",
   "status_model": {
     "phase": ["BOOTSTRAPPED", "NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED"]
   },
   "phase_transition_rules": {
     "active_phase_is_authoritative": true,
+    "active_phase_assets_are_authoritative": true,
+    "do_not_infer_active_phase_from_markdown_status_headings": true,
     "update_manifest_on_phase_state_change": true
   },
   "phase_session_role": "orchestrator",
@@ -21,6 +24,10 @@
       "effect-v4-errors",
       "effect-v4-http-ai"
     ],
+    "workspace_packages": {
+      "app": "@beep/v2t",
+      "sidecar": "@beep/VT2"
+    },
     "documents": [
       "../../../AGENTS.md",
       "../../../.patterns/jsdoc-documentation.md",
@@ -32,16 +39,11 @@
       "manifest_paths_are_spec_root_relative": true,
       "phase_session_is_orchestrator": true,
       "spec_markdown_is_ignored_by_root_markdownlint": true,
-      "app_workspace_package_name": "@beep/v2t",
-      "sidecar_workspace_package_name": "@beep/VT2",
-      "turbo_filters_must_match_manifest_package_names": true,
-      "graphiti_memory_preflight_required_when_available": true,
-      "review_wave_required_before_phase_closeout": true,
-      "subagents_share_worktree_by_default": true,
       "vt2_has_package_local_lint_task": false,
       "vt2_has_package_local_docgen_task": false,
       "codex_plan_mode_prompt_filename_is_compatibility_name": true,
-      "repo_local_codex_agents_available": true
+      "repo_local_codex_agents_available": true,
+      "app_lint_command_is_package_local": true
     },
     "spec_package_gate": [
       "git diff --check -- specs/pending/V2T",
@@ -51,7 +53,7 @@
       "bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2",
       "bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2",
       "bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2",
-      "bunx turbo run lint --filter=@beep/v2t"
+      "bun run --cwd apps/V2T lint"
     ],
     "repo_law_gate": [
       "bun run lint:effect-laws",
@@ -113,6 +115,43 @@
       "output": "VERIFICATION.md"
     }
   },
+  "active_phase_assets": {
+    "handoff": "handoffs/HANDOFF_P0.md",
+    "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
+    "output": "RESEARCH.md",
+    "trackers": ["outputs/grill-log.md"]
+  },
+  "fresh_session_read_order": [
+    "../../../AGENTS.md",
+    "../../../.patterns/jsdoc-documentation.md",
+    "../../../standards/effect-first-development.md",
+    "../../../standards/schema-first.inventory.jsonc",
+    "../../../tooling/configs/src/eslint/SchemaFirstRule.ts",
+    "README.md",
+    "QUICK_START.md",
+    "AGENT_PROMPTS.md",
+    "outputs/manifest.json",
+    "outputs/grill-log.md",
+    "prompts/README.md",
+    "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
+    "prompts/PHASE_DELEGATION_PROMPTS.md",
+    "../../../.codex/config.toml",
+    "../../../.codex/agents/README.md",
+    "outputs/codex-plan-mode-prompt.md",
+    "handoffs/HANDOFF_P0-P4.md",
+    "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md"
+  ],
+  "package_maintenance": {
+    "update_manifest_when": [
+      "phase status, routing, command gates, or validator contract changes"
+    ],
+    "update_reflection_log_when": [
+      "package-local structure, operator workflow, or validator behavior changes"
+    ],
+    "append_grill_log_when": [
+      "locking a new package-shape decision or default"
+    ]
+  },
   "directories": {
     "handoffs": "handoffs",
     "outputs": "outputs",
@@ -121,7 +160,6 @@
   "delegation": {
     "phase_session_role": "orchestrator",
     "max_custom_agent_depth": 1,
-    "worktree_isolation_default": "shared",
     "custom_agent_registry": "../../../.codex/config.toml",
     "custom_agent_catalog": "../../../.codex/agents/README.md",
     "prompt_assets": {
@@ -139,12 +177,6 @@
       "../../../.codex/agents/effect-v4-state-concurrency-guardian.toml",
       "../../../.codex/agents/effect-v4-quality-reviewer.toml"
     ]
-  },
-  "graphiti": {
-    "group_id": "beep-dev",
-    "wrapper_string_group_ids": "[\"beep-dev\"]",
-    "preflight": ["get_status", "search_memory_facts"],
-    "fallback_behavior": "continue_with_repo_docs_and_record_fallback"
   },
   "inputs": {
     "prd_html": "outputs/v2t_app_notes.html",
@@ -177,23 +209,33 @@
   ],
   "handoff_files": [
     "handoffs/HANDOFF_P0-P4.md",
-    "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md",
     "handoffs/HANDOFF_P0.md",
     "handoffs/HANDOFF_P1.md",
     "handoffs/HANDOFF_P2.md",
     "handoffs/HANDOFF_P3.md",
     "handoffs/HANDOFF_P4.md",
+    "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md",
     "handoffs/P0_ORCHESTRATOR_PROMPT.md",
     "handoffs/P1_ORCHESTRATOR_PROMPT.md",
     "handoffs/P2_ORCHESTRATOR_PROMPT.md",
     "handoffs/P3_ORCHESTRATOR_PROMPT.md",
-    "handoffs/P4_ORCHESTRATOR_PROMPT.md"
+    "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+    "handoffs/README.md"
   ],
   "prompt_files": [
-    "prompts/README.md",
     "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
-    "prompts/SUBAGENT_OUTPUT_CONTRACT.md",
-    "prompts/PHASE_DELEGATION_PROMPTS.md"
+    "prompts/PHASE_DELEGATION_PROMPTS.md",
+    "prompts/README.md",
+    "prompts/SUBAGENT_OUTPUT_CONTRACT.md"
+  ],
+  "output_files": [
+    "outputs/V2_animination_V2T.md",
+    "outputs/V2_animination_V2T/image.png",
+    "outputs/codex-plan-mode-prompt.md",
+    "outputs/grill-log.md",
+    "outputs/manifest.json",
+    "outputs/v2t_app_notes.html",
+    "outputs/validate-spec.mjs"
   ],
   "codex_files": [
     "../../../.codex/config.toml",
@@ -205,5 +247,59 @@
     "../../../.codex/agents/effect-v4-http-ai-boundary.toml",
     "../../../.codex/agents/effect-v4-state-concurrency-guardian.toml",
     "../../../.codex/agents/effect-v4-quality-reviewer.toml"
-  ]
+  ],
+  "validation": {
+    "required_headings": {
+      "README.md": [
+        "## Quick Navigation",
+        "## Session Resume Checklist",
+        "## Source-Of-Truth Order",
+        "## Active Phase Contract",
+        "## Mandatory Conformance Inputs",
+        "## Conformance And Gates",
+        "## Package Maintenance Rules",
+        "## Working Contract",
+        "## Success Criteria"
+      ],
+      "QUICK_START.md": [
+        "## Fresh Session Flow",
+        "## Active Phase Resolver",
+        "## Phase Session Model",
+        "## If You Are Editing This Package",
+        "## Combined Router",
+        "## Phase Table",
+        "## Conformance Gate Summary"
+      ],
+      "AGENT_PROMPTS.md": [
+        "## Phase Start Rule",
+        "## Shared Prompt Packet",
+        "## Prompt: P0 Orchestrator",
+        "## Prompt: P1 Orchestrator",
+        "## Prompt: P2 Orchestrator",
+        "## Prompt: P3 Orchestrator",
+        "## Prompt: P4 Orchestrator"
+      ],
+      "REFLECTION_LOG.md": [
+        "## Logging Rules",
+        "## 2026-04-10 Bootstrap",
+        "## 2026-04-10 Package Hardening"
+      ],
+      "prompts/README.md": [
+        "## Files",
+        "## Delegation Sequence",
+        "## When Not To Delegate",
+        "## Repo-Local Codex Runtime Assets"
+      ],
+      "outputs/codex-plan-mode-prompt.md": [
+        "## Operator Notes",
+        "## Phase Router"
+      ],
+      "outputs/grill-log.md": [
+        "## Logging Rules",
+        "## 2026-04-10 Bootstrap Decisions",
+        "## Default Assumptions Chosen From Repo Reality",
+        "## 2026-04-10 Package Hardening Decisions"
+      ]
+    }
+  }
 }

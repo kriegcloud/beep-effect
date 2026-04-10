@@ -970,12 +970,8 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
   const getFileOutline: TSMorphServiceShape["getFileOutline"] = Effect.fn(function* (request) {
     const scope = yield* resolveScopeById(request.scopeId);
     const loadedSourceFile = yield* loadSourceFile(scope, request.filePath);
-    const symbolFilePath = yield* resolveSymbolFilePath(loadedSourceFile.filePath);
-    const symbolIndex = yield* getOrCreateScopeSymbolIndex(scope);
-    const symbols = MutableHashMap.get(symbolIndex.entriesByFilePath, symbolFilePath).pipe(
-      O.map(A.map((entry) => entry.symbol)),
-      O.getOrElse(A.empty<TsMorphSymbol>)
-    );
+    const outlineEntries = yield* collectOutlineEntries(loadedSourceFile.filePath, loadedSourceFile.sourceFile);
+    const symbols = A.map(outlineEntries, (entry) => entry.symbol);
 
     return new TsMorphFileOutline({
       scopeId: scope.scopeId,

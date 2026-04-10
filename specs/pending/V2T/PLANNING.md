@@ -132,7 +132,7 @@ The planning phase locks these as the minimum targeted code-validation floor for
 - `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run lint --filter=@beep/v2t`
+- `bun run --cwd apps/V2T lint`
 
 Important note:
 
@@ -167,6 +167,13 @@ Before P4 can claim readiness for implementation work, plan for:
 - `bun run test`
 - `bun run docgen` when exported APIs or JSDoc examples changed
 
+### Required Review Loop
+
+- run a read-only review wave before closing P2
+- if the reviewer finds substantive issues, integrate them and rerun review
+- do not close planning while the latest review wave still contains unresolved
+  substantive findings
+
 ## Risks
 
 - provider APIs may not align cleanly with the shared speech input behavior
@@ -185,4 +192,4 @@ Before P4 can claim readiness for implementation work, plan for:
 
 ## Planning Exit Gate
 
-P2 is complete only when another agent can implement the first slice from this file and the two prior phase artifacts without needing product or architecture clarification, and when the named conformance gates match the live repo surface rather than planning-time guesswork.
+P2 is complete only when another agent can implement the first slice from this file and the two prior phase artifacts without needing product or architecture clarification, when the named conformance gates match the live repo surface rather than planning-time guesswork, and when the latest read-only review wave finds no unresolved substantive planning defects.

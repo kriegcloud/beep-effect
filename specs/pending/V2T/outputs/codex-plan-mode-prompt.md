@@ -28,19 +28,20 @@ Read these files first:
 
 Then:
 - determine the active phase from `outputs/manifest.json`
+- trust `active_phase_assets` instead of inferring the active handoff, prompt, output, or trackers from prose
 - treat the active phase session as the phase orchestrator
 - read only the matching phase handoff and matching phase orchestrator prompt
+- do not infer the active phase from markdown status headings inside the package
+- if command or task claims matter, read the root plus workspace `package.json` and `turbo.json` files before trusting the spec prose
 - execute only that phase
 - write or refine the named phase artifact
 - update `outputs/manifest.json` when the phase state changes
+- update `REFLECTION_LOG.md` when package-local routing, operator workflow, or validator behavior changes
 - update `outputs/grill-log.md` when the active phase is `p0`
 - stop at the phase exit gate and wait for explicit instruction before moving to the next phase
 
 Start by gathering repo context with:
 - `bun run codex:hook:session-start`
-- Graphiti memory preflight when available: `get_status`, then
-  `search_memory_facts` using `["beep-dev"]` or the JSON string
-  `"[\"beep-dev\"]"` when the wrapper only accepts strings
 
 Prefer `rg` / `rg --files` and parallel exploration.
 
@@ -48,19 +49,12 @@ Rules that apply in every phase:
 - use the `effect-first-development` and `schema-first-development` skills when they are available in-session
 - if you delegate, use the repo-local custom agents from `.codex/config.toml` and the prompt kit under `specs/pending/V2T/prompts/`
 - keep all sub-agent scopes bounded; the active phase session remains the orchestrator
-- assume sub-agents share the same worktree unless explicit isolation exists,
-  so do not assign overlapping write scopes
 - preserve the raw PRD and legacy notes under `outputs/`
 - treat `apps/V2T` and `packages/VT2` as the current shell-and-sidecar pair unless a phase artifact explicitly documents a migration
-- verify workspace package names from `apps/V2T/package.json` and
-  `packages/VT2/package.json` before editing Turbo filter commands; the current
-  names are `@beep/v2t` and `@beep/VT2`
 - do not invent an app-local server path if the existing `@beep/VT2` control plane can carry the slice
 - keep provider logic behind explicit adapters
 - summarize verification and residual risk in the active phase artifact
 - do not claim a quality gate passed unless the concrete command result is recorded in the active phase artifact
-- run a read-only review wave before phase closeout; if it finds substantive
-  issues, integrate them and rerun the review
 
 If the active phase is `p0`:
 - use the `grill-me` skill when meaningful product or architecture ambiguity remains
@@ -76,18 +70,25 @@ If the active phase is `p3` or `p4`:
   - `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
   - `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
   - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
-  - `bunx turbo run lint --filter=@beep/v2t`
+  - `bun run --cwd apps/V2T lint`
   - `bun run lint:effect-laws`
   - `bun run lint:jsdoc`
   - `bun run check:effect-laws-allowlist`
   - `bun run lint:schema-first`
 - run `bun run docgen` when exported APIs or JSDoc examples changed
+- remember that the live app workspace package name is `@beep/v2t`, not `@beep/V2T`
 - remember that `@beep/VT2` has no package-local `lint` or `docgen` task
-- if Graphiti fact search fails because of the current RediSearch syntax issue,
-  continue with repo-local docs and record the fallback instead of blocking the
-  phase
+- use `bun run --cwd apps/V2T lint` for the targeted app lint gate
+- do not substitute `turbo run lint --filter=@beep/v2t`, because dependency
+  lint expansion still reaches the nonexistent `@beep/VT2#lint` task
 - distinguish shipped behavior from deferred provider ambition explicitly
 ```
+
+## Operator Notes
+
+- Use `outputs/manifest.json` as the package authority for `active_phase`, `active_phase_assets`, and command gates.
+- Update `REFLECTION_LOG.md` whenever package-local routing, operator guidance, or validator behavior changes.
+- Append `outputs/grill-log.md` only when locking a new package-shape default or decision.
 
 ## Phase Router
 

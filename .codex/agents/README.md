@@ -41,6 +41,13 @@ is trusted. The active V2T spec now assumes:
   handlers, provider adapters, and bounded AI retrieval packets.
 - Best for app-side or sidecar-side protocol work.
 
+### `effect_v4_persistence_runtime_architect`
+
+- Write-capable persistence specialist for SQLite, filesystem, `Config`,
+  resource lifetimes, and local artifact storage seams.
+- Best for sidecar persistence, local-first artifact handling, and runtime
+  boundaries that need explicit managed resources.
+
 ### `effect_v4_state_concurrency_guardian`
 
 - Write-capable runtime specialist for `Scope`, `Ref`-family state, retries,

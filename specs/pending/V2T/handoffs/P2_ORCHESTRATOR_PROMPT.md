@@ -10,5 +10,6 @@ Operate orchestration-first:
 - integrate every worker result yourself using the V2T sub-agent output contract
 - produce or refine `PLANNING.md` with implementation tracks, file or surface order, acceptance criteria, and verification commands
 - lock only commands that exist in the live workspace, and label them as planned gates rather than passed gates
+- run a read-only review wave before closing P2
 - stop and surface any hidden architecture decision that belongs back in P1
 - do not implement the plan in this phase

@@ -13,6 +13,26 @@ import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Codex/internal/CodexSessionStartRuntime");
 
+class SessionStartHookSpecificOutput extends S.Class<SessionStartHookSpecificOutput>($I`SessionStartHookSpecificOutput`)(
+  {
+    additionalContext: S.String,
+    hookEventName: S.Literal("SessionStart"),
+  },
+  $I.annote("SessionStartHookSpecificOutput", {
+    description: "Codex SessionStart hook payload details surfaced to the CLI runtime.",
+  })
+) {}
+
+class SessionStartHookOutput extends S.Class<SessionStartHookOutput>($I`SessionStartHookOutput`)(
+  {
+    continue: S.Boolean,
+    hookSpecificOutput: SessionStartHookSpecificOutput,
+  },
+  $I.annote("SessionStartHookOutput", {
+    description: "Encoded response payload returned to the Codex SessionStart hook.",
+  })
+) {}
+
 class CodexSessionStartHookRuntimeError extends TaggedErrorClass<CodexSessionStartHookRuntimeError>(
   $I`CodexSessionStartHookRuntimeError`
 )(
@@ -25,7 +45,8 @@ class CodexSessionStartHookRuntimeError extends TaggedErrorClass<CodexSessionSta
   })
 ) {}
 
-const decodeSessionStartCommandInput = S.decodeUnknownSync(SessionStartCommandInput);
+const decodeSessionStartCommandInput = S.decodeUnknownSync(S.fromJsonString(SessionStartCommandInput));
+const encodeSessionStartHookOutput = S.encodeSync(S.fromJsonString(SessionStartHookOutput));
 const isString = S.is(S.String);
 const asString = (value: unknown): string | undefined => (isString(value) ? value : undefined);
 
@@ -39,7 +60,7 @@ const messageFromUnknown = (error: unknown): string => {
 
 const parseHookInput = (text: string): Effect.Effect<Record<string, unknown>, CodexSessionStartHookRuntimeError> =>
   Effect.try({
-    try: () => ({ ...decodeSessionStartCommandInput(JSON.parse(text)) }) as Record<string, unknown>,
+    try: () => ({ ...decodeSessionStartCommandInput(text) }) as Record<string, unknown>,
     catch: (cause) =>
       new CodexSessionStartHookRuntimeError({
         message: `Failed to decode Codex SessionStart hook input: ${messageFromUnknown(cause)}`,
@@ -115,16 +136,14 @@ export const buildCodexSessionStartContext = (source: string, cwd: string | unde
  * @since 0.0.0
  */
 export const buildSessionStartHookOutput = (additionalContext: string): string =>
-  JSON.stringify(
-    {
-      continue: true,
-      hookSpecificOutput: {
-        additionalContext,
-        hookEventName: "SessionStart",
-      },
-    },
-    null,
-    2
+  encodeSessionStartHookOutput(
+    new SessionStartHookOutput({
+    continue: true,
+      hookSpecificOutput: new SessionStartHookSpecificOutput({
+      additionalContext,
+      hookEventName: "SessionStart",
+      }),
+    })
   );
 
 /**

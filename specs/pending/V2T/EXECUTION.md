@@ -81,7 +81,7 @@ P3 execution must actively apply:
 - `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run lint --filter=@beep/v2t`
+- `bun run --cwd apps/V2T lint`
 
 ### Repo Law Gate
 
@@ -100,6 +100,13 @@ Important note:
 - `@beep/v2t` is the live app package name even though the folder is
   `apps/V2T`, so re-check filter casing from the manifest before editing the
   command matrix
+
+## Required Review Loop During P3
+
+- after each meaningful merge wave, run a read-only review pass
+- if the reviewer finds substantive issues, fix them and rerun review
+- do not close P3 while the latest review wave still contains unresolved
+  substantive findings
 
 ## Execution Record Template
 

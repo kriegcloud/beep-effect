@@ -53,12 +53,6 @@ export * as Html from "./Html.ts";
  */
 export * from "./isBlockedObjectKey.ts";
 /**
- *
- * @category utilities
- * @since 0.0.0
- */
-export * from "./NodeUrl.ts";
-/**
  * Number utilities extending `effect/Number`.
  *
  * @category utilities

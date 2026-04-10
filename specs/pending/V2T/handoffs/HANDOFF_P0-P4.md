@@ -62,6 +62,8 @@ If Plan mode is available and active, do not edit spec artifacts yet. First read
 - Use the custom agents under `.codex/config.toml` only as workers or auditors; do not let them replace the phase orchestrator.
 - Run the Graphiti preflight when the MCP is available, and document fallback
   behavior instead of silently skipping memory context.
+- Run a read-only review wave before phase closeout, and treat substantive
+  findings as reopen conditions rather than optional follow-up.
 - Stop at the active phase exit gate instead of silently rolling forward.
 
 ## Evidence Rules

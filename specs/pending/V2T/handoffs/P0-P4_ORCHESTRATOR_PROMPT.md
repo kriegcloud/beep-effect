@@ -13,4 +13,6 @@ Operate in this order:
 7. Integrate every worker result yourself. Workers do not own phase closure, manifest authority, or scope expansion.
 8. Apply the mandatory conformance inputs and gates from `README.md`.
 9. Use the current `apps/V2T` and `packages/VT2` seams as the default implementation boundary unless the active phase explicitly documents a migration.
-10. Update only the named phase artifact, update `outputs/manifest.json` only when phase state changes, update `outputs/grill-log.md` during P0 when new decisions are locked, and stop at the active phase exit gate instead of rolling into the next phase.
+10. Run a read-only review wave before phase closeout, integrate any
+    substantive findings, and rerun review when needed.
+11. Update only the named phase artifact, update `outputs/manifest.json` only when phase state changes, update `outputs/grill-log.md` during P0 when new decisions are locked, and stop at the active phase exit gate instead of rolling into the next phase.

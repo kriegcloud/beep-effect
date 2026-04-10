@@ -60,7 +60,7 @@ P4 verification must explicitly reference:
 - `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run lint --filter=@beep/v2t`
+- `bun run --cwd apps/V2T lint`
 
 ### Repo Law Gate
 
@@ -87,6 +87,14 @@ Important note:
 - `@beep/v2t` is the live app package name even though the folder is
   `apps/V2T`, so verify filter casing from the manifest before editing the
   verification matrix
+
+### Required Review Loop
+
+- run at least one read-only audit wave before final readiness judgment
+- if the reviewer finds substantive issues, route them back for integration or
+  record them as blocking readiness
+- do not declare readiness while the latest review wave still contains
+  unresolved substantive findings
 
 ## Manual Scenario Matrix
 
@@ -136,6 +144,7 @@ P4 can only claim readiness when:
 - deferred provider behavior is named explicitly
 - no unresolved blocker contradicts the canonical workflow
 - the conformance gates are supported by recorded evidence rather than implication
+- the latest read-only review wave reports no unresolved substantive issues
 
 ## Stop Conditions
 

@@ -400,7 +400,12 @@ const program = Effect.gen(function* () {
 
 pipe(
   program,
-  Effect.flatMap((exitCode) => Effect.sync(() => process.exit(exitCode))),
+  Effect.tap((exitCode) =>
+    Effect.sync(() => {
+      process.exitCode = exitCode;
+    })
+  ),
+  Effect.asVoid,
   Effect.provide(BunServices.layer),
   BunRuntime.runMain
 );

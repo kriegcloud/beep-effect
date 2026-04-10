@@ -13,5 +13,6 @@ Operate orchestration-first:
 - extend the current `@beep/VT2` control plane unless a migration is explicitly logged
 - keep provider calls behind adapters
 - write or refine `EXECUTION.md` with commands, conformance evidence, deviations, and residual risks
+- run a read-only review wave after each merge wave and before closing P3
 - stop after the required targeted and repo-law gates pass or are explicitly recorded as blocked
 - do not make a P4 readiness claim from inside P3

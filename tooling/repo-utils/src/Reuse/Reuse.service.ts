@@ -21,7 +21,6 @@ import {
   TSMorphService,
   TsMorphFileOutlineRequest,
   TsMorphProjectScopeRequest,
-  TsMorphSourceTextRequest,
   type Symbol as TsMorphSymbol,
   TsMorphSymbolLookupRequest,
 } from "../TSMorph/index.js";
@@ -73,6 +72,7 @@ type PatternOccurrence = {
 };
 
 type PatternOccurrencesById = Readonly<Record<string, ReadonlyArray<PatternOccurrence>>>;
+type PatternMatchCountsById = Readonly<Record<string, number>>;
 
 class WorkspacePackageManifest extends S.Class<WorkspacePackageManifest>($I`WorkspacePackageManifest`)(
   {
@@ -123,7 +123,6 @@ const decodeJsonString = S.decodeUnknownSync(S.UnknownFromJsonString);
 const decodeWorkspacePackageManifest = S.decodeUnknownSync(WorkspacePackageManifest);
 const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
 const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
-const decodeSourceTextRequest = S.decodeUnknownSync(TsMorphSourceTextRequest);
 const decodeSymbolLookupRequest = S.decodeUnknownSync(TsMorphSymbolLookupRequest);
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 
@@ -580,6 +579,22 @@ const scanPatternsInFile = (
   return buckets;
 };
 
+const countPatternsInText = (text: string): PatternMatchCountsById => {
+  const counts: Record<string, number> = {};
+  const lines = text.split(/\r?\n/u);
+
+  for (const line of lines) {
+    for (const pattern of PATTERN_DEFINITIONS) {
+      if (pattern.regex.test(line)) {
+        counts[pattern.id] = (counts[pattern.id] ?? 0) + 1;
+      }
+      pattern.regex.lastIndex = 0;
+    }
+  }
+
+  return counts;
+};
+
 const makeScoutWorkUnit = (scope: WorkspaceScope): ReuseWorkUnit =>
   new ReuseWorkUnit({
     id: `reuse:scout:${scope.packagePath}`,
@@ -622,6 +637,7 @@ type ReuseAnalysisContextShape = {
   readonly sourceFilesByScope: MutableHashMap.MutableHashMap<string, ReadonlyArray<string>>;
   readonly catalogEntriesByScope: MutableHashMap.MutableHashMap<string, ReadonlyArray<ReuseCatalogEntry>>;
   readonly patternOccurrencesByScope: MutableHashMap.MutableHashMap<string, PatternOccurrencesById>;
+  readonly patternMatchCountsByScope: MutableHashMap.MutableHashMap<string, PatternMatchCountsById>;
   readonly catalogBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCatalogEntry>>;
   readonly candidatesBySelector: MutableHashMap.MutableHashMap<SelectorCacheKey, ReadonlyArray<ReuseCandidate>>;
 };
@@ -809,8 +825,8 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
       const merged: Record<string, Array<PatternOccurrence>> = {};
 
       for (const filePath of files) {
-        const sourceTextOption = yield* runtime.tsmorph
-          .readSourceText(decodeSourceTextRequest({ filePath }))
+        const sourceTextOption = yield* runtime.fs
+          .readFileString(runtime.path.join(runtime.repoRoot, filePath))
           .pipe(Effect.option);
         const outlineOption = yield* runtime.tsmorph
           .getFileOutline(
@@ -826,12 +842,7 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
         }
         const outlineSymbols = O.isSome(outlineOption) ? outlineOption.value.symbols : [];
 
-        const scanned = scanPatternsInFile(
-          filePath,
-          scope.packagePath,
-          sourceTextOption.value.sourceText,
-          outlineSymbols
-        );
+        const scanned = scanPatternsInFile(filePath, scope.packagePath, sourceTextOption.value, outlineSymbols);
 
         for (const [patternId, occurrences] of Object.entries(scanned)) {
           const next = merged[patternId] ?? [];
@@ -842,6 +853,32 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
 
       const resolvedOccurrences: PatternOccurrencesById = merged;
       return resolvedOccurrences;
+    })
+  );
+
+const collectPatternMatchCountsForScope = (analysisContext: ReuseAnalysisContextShape, scope: WorkspaceScope) =>
+  getCachedOrCompute(
+    analysisContext.patternMatchCountsByScope,
+    scope.packagePath,
+    Effect.gen(function* () {
+      const runtime = analysisContext.runtime;
+      const files = yield* collectScopeFiles(analysisContext, scope);
+      const counts: Record<string, number> = {};
+
+      for (const filePath of files) {
+        const absoluteFilePath = runtime.path.join(runtime.repoRoot, filePath);
+        const sourceText = yield* runtime.fs
+          .readFileString(absoluteFilePath)
+          .pipe(Effect.mapError(mapAnalysisError("collectPatternMatchCountsForScope", `Failed to read ${filePath}`)));
+        const fileCounts = countPatternsInText(sourceText);
+
+        for (const [patternId, count] of Object.entries(fileCounts)) {
+          counts[patternId] = (counts[patternId] ?? 0) + count;
+        }
+      }
+
+      const resolvedCounts: PatternMatchCountsById = counts;
+      return resolvedCounts;
     })
   );
 
@@ -950,6 +987,7 @@ const ReuseAnalysisContextLive = Layer.effect(
       sourceFilesByScope: MutableHashMap.empty(),
       catalogEntriesByScope: MutableHashMap.empty(),
       patternOccurrencesByScope: MutableHashMap.empty(),
+      patternMatchCountsByScope: MutableHashMap.empty(),
       catalogBySelector: MutableHashMap.empty(),
       candidatesBySelector: MutableHashMap.empty(),
     });
@@ -1026,11 +1064,11 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
       > = {};
 
       for (const scope of scopes) {
-        const occurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
+        const matchCounts = yield* collectPatternMatchCountsForScope(analysisContext, scope);
 
         for (const pattern of PATTERN_DEFINITIONS) {
-          const matched = occurrences[pattern.id] ?? [];
-          if (matched.length === 0) {
+          const matchedCount = matchCounts[pattern.id] ?? 0;
+          if (matchedCount === 0) {
             continue;
           }
 
@@ -1040,7 +1078,7 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
             selectors: [],
             totalOccurrences: 0,
           };
-          existing.totalOccurrences += matched.length;
+          existing.totalOccurrences += matchedCount;
           existing.selectors.push(scope.packagePath);
           specialistHotspots[pattern.specialistLabel] = existing;
         }
