@@ -80,15 +80,9 @@ const createChalkStderr = makeCreateChalk(detectedSupportsColor.stderr);
  * @since 0.0.0
  * @category models
  */
-export interface ChalkInstance extends ChalkInstanceSurface {}
-
-/**
- * Callable signature for applying the accumulated Chalk styles to one or more text parts.
- *
- * @since 0.0.0
- * @category models
- */
-export type ChalkInstance = (...text: ReadonlyArray<unknown>) => string;
+export interface ChalkInstance extends ChalkInstanceSurface {
+  (...text: ReadonlyArray<unknown>): string;
+}
 
 /**
  * Runtime type for isolated Chalk instances created by {@link Chalk}.

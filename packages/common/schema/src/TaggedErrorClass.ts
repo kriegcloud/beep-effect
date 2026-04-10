@@ -7,7 +7,7 @@ type TaggedErrorFields = S.Struct.Fields;
 type TaggedErrorStruct = S.Struct<TaggedErrorFields>;
 type TaggedErrorCause<Brand> = Cause.YieldableError & Brand;
 type TaggedErrorClassLike = (new (
-  ...args: ReadonlyArray<any>
+  ...args: ReadonlyArray<TUnsafe.Any>
 ) => TUnsafe.Any) & {
   readonly Type: TUnsafe.Any;
   readonly fields: TaggedErrorFields;
@@ -47,7 +47,7 @@ type TaggedErrorConstructorArgs<ErrorClass extends TaggedErrorClassLike> = Error
   ? Args
   : never;
 type TaggedErrorInstance<ErrorClass extends TaggedErrorClassLike> = ErrorClass extends new (
-  ...args: ReadonlyArray<any>
+  ...args: ReadonlyArray<TUnsafe.Any>
 ) => infer Instance
   ? Instance
   : never;
