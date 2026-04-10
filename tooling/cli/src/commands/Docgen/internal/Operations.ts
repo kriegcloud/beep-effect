@@ -308,78 +308,79 @@ const jsonText = (value: unknown): string => {
   return `${jsonc.applyEdits(encoded, edits)}\n`;
 };
 
-const readUnknownJsonFile = (filePath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const content = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: `Failed to read "${filePath}"`,
-            cause,
-          })
-      )
-    );
-    const parsed = yield* Effect.try({
-      try: () => parseJsonText(content),
-      catch: (cause) =>
+const readUnknownJsonFile = Effect.fn("DocgenOperations.readUnknownJsonFile")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath).pipe(
+    Effect.mapError(
+      (cause) =>
         new DomainError({
-          message: `Invalid JSON in "${filePath}"`,
+          message: `Failed to read "${filePath}"`,
           cause,
-        }),
-    });
-    return parsed;
+        })
+    )
+  );
+  const parsed = yield* Effect.try({
+    try: () => parseJsonText(content),
+    catch: (cause) =>
+      new DomainError({
+        message: `Invalid JSON in "${filePath}"`,
+        cause,
+      }),
   });
+  return parsed;
+});
 
-const readPackageJson = (absolutePackagePath: string) =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const packageJsonPath = path.join(absolutePackagePath, "package.json");
-    const parsed = yield* readUnknownJsonFile(packageJsonPath);
-    return yield* decodePackageJsonEffect(parsed).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: `Invalid package.json at "${packageJsonPath}"`,
-            cause,
-          })
-      )
+const readPackageJson = Effect.fn("DocgenOperations.readPackageJson")(function* (absolutePackagePath: string) {
+  const path = yield* Path.Path;
+  const packageJsonPath = path.join(absolutePackagePath, "package.json");
+  const parsed = yield* readUnknownJsonFile(packageJsonPath);
+  return yield* decodePackageJsonEffect(parsed).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Invalid package.json at "${packageJsonPath}"`,
+          cause,
+        })
+    )
+  );
+});
+
+const loadWorkspaceDocgenAliasSources = Effect.fn("DocgenOperations.loadWorkspaceDocgenAliasSources")(function* (
+  rootDir: string
+) {
+  const path = yield* Path.Path;
+  const workspaceDirs = yield* resolveWorkspaceDirs(rootDir);
+  const aliasSources = A.empty<ReturnType<typeof buildDocgenAliasSource>>();
+
+  for (const [packageName, absolutePath] of workspaceDirs) {
+    const packageJson = yield* readPackageJson(absolutePath);
+    aliasSources.push(
+      buildDocgenAliasSource(packageName, normalizeSlashes(path.relative(rootDir, absolutePath)), packageJson)
     );
-  });
+  }
 
-const loadWorkspaceDocgenAliasSources = (rootDir: string) =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const workspaceDirs = yield* resolveWorkspaceDirs(rootDir);
-    const aliasSources = A.empty<ReturnType<typeof buildDocgenAliasSource>>();
+  return aliasSources;
+});
 
-    for (const [packageName, absolutePath] of workspaceDirs) {
-      const packageJson = yield* readPackageJson(absolutePath);
-      aliasSources.push(
-        buildDocgenAliasSource(packageName, normalizeSlashes(path.relative(rootDir, absolutePath)), packageJson)
-      );
-    }
+const packageHasDocgenConfig = Effect.fn("DocgenOperations.packageHasDocgenConfig")(function* (
+  absolutePackagePath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs
+    .exists(path.join(absolutePackagePath, DOCGEN_CONFIG_FILENAME))
+    .pipe(Effect.orElseSucceed(thunkFalse));
+});
 
-    return aliasSources;
-  });
-
-const packageHasDocgenConfig = (absolutePackagePath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    return yield* fs
-      .exists(path.join(absolutePackagePath, DOCGEN_CONFIG_FILENAME))
-      .pipe(Effect.orElseSucceed(thunkFalse));
-  });
-
-const packageHasGeneratedDocs = (absolutePackagePath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    return yield* fs
-      .exists(path.join(absolutePackagePath, ...DOCS_MODULES_SEGMENTS))
-      .pipe(Effect.orElseSucceed(thunkFalse));
-  });
+const packageHasGeneratedDocs = Effect.fn("DocgenOperations.packageHasGeneratedDocs")(function* (
+  absolutePackagePath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs
+    .exists(path.join(absolutePackagePath, ...DOCS_MODULES_SEGMENTS))
+    .pipe(Effect.orElseSucceed(thunkFalse));
+});
 
 const computePackageStatus = (hasDocgenConfig: boolean, hasGeneratedDocs: boolean): DocgenPackageStatus => {
   if (hasDocgenConfig && hasGeneratedDocs) {
@@ -757,21 +758,22 @@ export const normalizeDocsOutputPath = (relativePath: string): string =>
  */
 export const loadDocgenConfigDocument: (
   absolutePackagePath: string
-) => Effect.Effect<DocgenConfigDocument, DomainError, FileSystem.FileSystem | Path.Path> = (absolutePackagePath) =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const configPath = path.join(absolutePackagePath, DOCGEN_CONFIG_FILENAME);
-    const parsed = yield* readUnknownJsonFile(configPath);
-    return yield* decodeDocgenConfigDocument(parsed).pipe(
-      Effect.mapError(
-        (cause) =>
-          new DomainError({
-            message: `Invalid JSON shape in "${configPath}": ${cause.message}`,
-            cause,
-          })
-      )
-    );
-  });
+) => Effect.Effect<DocgenConfigDocument, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  "DocgenOperations.loadDocgenConfigDocument"
+)(function* (absolutePackagePath) {
+  const path = yield* Path.Path;
+  const configPath = path.join(absolutePackagePath, DOCGEN_CONFIG_FILENAME);
+  const parsed = yield* readUnknownJsonFile(configPath);
+  return yield* decodeDocgenConfigDocument(parsed).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Invalid JSON shape in "${configPath}": ${cause.message}`,
+          cause,
+        })
+    )
+  );
+});
 
 /**
  * Build the repo-standard `docgen.json` document for a package.
@@ -785,11 +787,8 @@ export const loadDocgenConfigDocument: (
 export const createDocgenConfigDocument: (
   targetPackage: DocgenWorkspacePackage,
   rootDir: string
-) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> = (
-  targetPackage,
-  rootDir
-) =>
-  Effect.gen(function* () {
+) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> =
+  Effect.fn("DocgenOperations.createDocgenConfigDocument")(function* (targetPackage, rootDir) {
     const packageJson = yield* readPackageJson(targetPackage.absolutePath);
     const workspaceAliasSources = yield* loadWorkspaceDocgenAliasSources(rootDir);
     const canonicalConfig = yield* createCanonicalDocgenConfig(
@@ -825,34 +824,33 @@ export const discoverDocgenWorkspacePackages: (
   ReadonlyArray<DocgenWorkspacePackage>,
   DomainError | NoSuchFileError,
   FileSystem.FileSystem | Path.Path | FsUtils
-> = (rootDir) =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const repoRoot = rootDir ?? (yield* findRepoRoot());
-    const workspaceDirs = yield* resolveWorkspaceDirs(repoRoot);
-    const packages = yield* Effect.forEach(
-      HashMap.toEntries(workspaceDirs),
-      ([name, absolutePath]) =>
-        Effect.gen(function* () {
-          const relativePath = normalizeSlashes(path.relative(repoRoot, absolutePath));
-          const hasDocgenConfig = yield* packageHasDocgenConfig(absolutePath);
-          const hasGeneratedDocs = yield* packageHasGeneratedDocs(absolutePath);
+> = Effect.fn("DocgenOperations.discoverDocgenWorkspacePackages")(function* (rootDir?: string) {
+  const path = yield* Path.Path;
+  const repoRoot = rootDir ?? (yield* findRepoRoot());
+  const workspaceDirs = yield* resolveWorkspaceDirs(repoRoot);
+  const packages = yield* Effect.forEach(
+    HashMap.toEntries(workspaceDirs),
+    ([name, absolutePath]) =>
+      Effect.gen(function* () {
+        const relativePath = normalizeSlashes(path.relative(repoRoot, absolutePath));
+        const hasDocgenConfig = yield* packageHasDocgenConfig(absolutePath);
+        const hasGeneratedDocs = yield* packageHasGeneratedDocs(absolutePath);
 
-          return new DocgenWorkspacePackage({
-            name,
-            relativePath,
-            absolutePath,
-            docsOutputPath: normalizeDocsOutputPath(relativePath),
-            hasDocgenConfig,
-            hasGeneratedDocs,
-            status: computePackageStatus(hasDocgenConfig, hasGeneratedDocs),
-          });
-        }),
-      { concurrency: "unbounded" }
-    );
+        return new DocgenWorkspacePackage({
+          name,
+          relativePath,
+          absolutePath,
+          docsOutputPath: normalizeDocsOutputPath(relativePath),
+          hasDocgenConfig,
+          hasGeneratedDocs,
+          status: computePackageStatus(hasDocgenConfig, hasGeneratedDocs),
+        });
+      }),
+    { concurrency: "unbounded" }
+  );
 
-    return A.sort(packages, byRelativePathAscending);
-  });
+  return A.sort(packages, byRelativePathAscending);
+});
 
 /**
  * Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path.
@@ -867,30 +865,29 @@ export const resolveDocgenWorkspacePackage: (
   selector: string,
   rootDir?: string
 ) => Effect.Effect<DocgenWorkspacePackage, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> =
-  (selector, rootDir) =>
-    Effect.gen(function* () {
-      const path = yield* Path.Path;
-      const repoRoot = rootDir ?? (yield* findRepoRoot());
-      const normalizedSelector = normalizeSlashes(selector);
-      const absoluteSelector = path.isAbsolute(selector) ? path.normalize(selector) : path.resolve(repoRoot, selector);
-      const packages = yield* discoverDocgenWorkspacePackages(repoRoot);
-      const match = A.findFirst(
-        packages,
-        (pkg) =>
-          pkg.name === normalizedSelector ||
-          pkg.relativePath === normalizedSelector ||
-          pkg.docsOutputPath === normalizedSelector ||
-          path.normalize(pkg.absolutePath) === absoluteSelector
-      );
+  Effect.fn("DocgenOperations.resolveDocgenWorkspacePackage")(function* (selector, rootDir) {
+    const path = yield* Path.Path;
+    const repoRoot = rootDir ?? (yield* findRepoRoot());
+    const normalizedSelector = normalizeSlashes(selector);
+    const absoluteSelector = path.isAbsolute(selector) ? path.normalize(selector) : path.resolve(repoRoot, selector);
+    const packages = yield* discoverDocgenWorkspacePackages(repoRoot);
+    const match = A.findFirst(
+      packages,
+      (pkg) =>
+        pkg.name === normalizedSelector ||
+        pkg.relativePath === normalizedSelector ||
+        pkg.docsOutputPath === normalizedSelector ||
+        path.normalize(pkg.absolutePath) === absoluteSelector
+    );
 
-      return yield* O.match(match, {
-        onNone: () =>
-          new DomainError({
-            message: `Could not resolve workspace package "${selector}". Use a package name like "@beep/schema" or a repo-relative path like "packages/common/schema".`,
-          }),
-        onSome: Effect.succeed,
-      });
+    return yield* O.match(match, {
+      onNone: () =>
+        new DomainError({
+          message: `Could not resolve workspace package "${selector}". Use a package name like "@beep/schema" or a repo-relative path like "packages/common/schema".`,
+        }),
+      onSome: Effect.succeed,
     });
+  });
 
 /**
  * Analyze a package for missing docgen-required JSDoc.
@@ -902,36 +899,37 @@ export const resolveDocgenWorkspacePackage: (
  */
 export const analyzePackageDocumentation: (
   targetPackage: DocgenWorkspacePackage
-) => Effect.Effect<DocgenPackageAnalysis, DomainError, FileSystem.FileSystem | Path.Path> = (targetPackage) =>
-  Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const config = targetPackage.hasDocgenConfig
-      ? yield* loadDocgenConfigDocument(targetPackage.absolutePath)
-      : new DocgenConfigDocument({
-          srcDir: "src",
-          exclude: A.empty(),
-        });
-    const project = new Project({ skipAddingFilesFromTsConfig: true });
-    const srcDir = config.srcDir ?? "src";
-    const exclude = config.exclude ?? A.empty();
-    const analyses = pipe(
-      getSourceFiles(project, targetPackage.absolutePath, srcDir, exclude),
-      A.flatMap((sourceFile) => analyzeSourceFile(sourceFile, targetPackage.absolutePath, path)),
-      A.sort(byIssueAscending)
-    );
-    const timestamp = yield* DateTime.now.pipe(
-      Effect.map(DateTime.toDateUtc),
-      Effect.map((date) => date.toISOString())
-    );
+) => Effect.Effect<DocgenPackageAnalysis, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+  "DocgenOperations.analyzePackageDocumentation"
+)(function* (targetPackage) {
+  const path = yield* Path.Path;
+  const config = targetPackage.hasDocgenConfig
+    ? yield* loadDocgenConfigDocument(targetPackage.absolutePath)
+    : new DocgenConfigDocument({
+        srcDir: "src",
+        exclude: A.empty(),
+      });
+  const project = new Project({ skipAddingFilesFromTsConfig: true });
+  const srcDir = config.srcDir ?? "src";
+  const exclude = config.exclude ?? A.empty();
+  const analyses = pipe(
+    getSourceFiles(project, targetPackage.absolutePath, srcDir, exclude),
+    A.flatMap((sourceFile) => analyzeSourceFile(sourceFile, targetPackage.absolutePath, path)),
+    A.sort(byIssueAscending)
+  );
+  const timestamp = yield* DateTime.now.pipe(
+    Effect.map(DateTime.toDateUtc),
+    Effect.map((date) => date.toISOString())
+  );
 
-    return new DocgenPackageAnalysis({
-      packageName: targetPackage.name,
-      packagePath: targetPackage.relativePath,
-      timestamp,
-      exports: analyses,
-      summary: computeAnalysisSummary(analyses),
-    });
+  return new DocgenPackageAnalysis({
+    packageName: targetPackage.name,
+    packagePath: targetPackage.relativePath,
+    timestamp,
+    exports: analyses,
+    summary: computeAnalysisSummary(analyses),
   });
+});
 
 /**
  * Render a human-first markdown report for a package analysis run.

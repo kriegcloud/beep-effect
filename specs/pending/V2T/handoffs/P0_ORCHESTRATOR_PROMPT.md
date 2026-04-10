@@ -1,11 +1,16 @@
 You are the P0 orchestrator.
 
-Read `handoffs/HANDOFF_P0.md`, the preserved PRD inputs, `apps/V2T`, `packages/VT2`, `apps/V2T/scripts/build-sidecar.ts`, the shared speech-input plus Graphiti seams, the repo-law inputs named in `README.md`, and the delegation assets under `prompts/`.
+Read `handoffs/HANDOFF_P0.md`, the preserved PRD inputs, `apps/V2T`,
+`packages/VT2`, the live infra seams under `infra/`, `apps/V2T/scripts/build-sidecar.ts`,
+the shared speech-input plus Graphiti seams, the root plus workspace `package.json` and `turbo.json`
+files when command, ownership, or package-identity claims matter, plus `infra/package.json`
+when installer or deployment claims matter, the repo-law inputs named in `README.md`,
+and the delegation assets under `prompts/`.
 
 Operate orchestration-first:
 
 - form a local research plan before delegating
-- verify command and task claims against the live workspace
+- verify command and task claims against the live workspace, including the live `@beep/infra` surfaces
 - keep the immediate blocking repo inspection local
 - delegate only bounded read-only scouting or audit work
 - integrate every worker result yourself using the V2T sub-agent output contract

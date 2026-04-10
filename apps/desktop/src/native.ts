@@ -69,7 +69,7 @@ const invokeNative = <A>(
         },
         catch: (cause) => toNativeError(fallback, cause),
       })
-    : Effect.fail(toNativeError(fallback, new Error(fallback)))
+    : Effect.fail(toNativeError(fallback, undefined))
   ).pipe(Effect.catchCause((cause) => Effect.fail(toNativeError(fallback, Cause.squash(cause)))));
 
 export { isNativeDesktop };

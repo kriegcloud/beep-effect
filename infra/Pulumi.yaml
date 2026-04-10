@@ -1,0 +1,5 @@
+name: beep-effect-v2t-workstation
+runtime:
+  name: nodejs
+description: Local workstation automation for the V2T application.
+main: ./src/internal/entry.ts

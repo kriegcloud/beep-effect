@@ -50,11 +50,10 @@ const makeSource = (source: string | ast.SourceFile) => {
   return Parser.SourceShape.new([sourceFile.getBaseName()], sourceFile);
 };
 
-const print = (printables: ReadonlyArray<Printer.Printable>) =>
-  Effect.gen(function* () {
-    const strings = yield* Effect.forEach(printables, (printable) => Printer.print(printable));
-    return A.join("\n")(strings);
-  });
+const print = Effect.fn("print")(function* (printables: ReadonlyArray<Printer.Printable>) {
+  const strings = yield* Effect.forEach(printables, (printable) => Printer.print(printable));
+  return A.join("\n")(strings);
+});
 
 const isModule = (printableOr: ReadonlyArray<Printer.Printable> | Domain.Module): printableOr is Domain.Module =>
   !A.isArray(printableOr);

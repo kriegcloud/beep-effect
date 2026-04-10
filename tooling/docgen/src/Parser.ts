@@ -144,16 +144,15 @@ const parsePosition = (node: ast.Node): Effect.Effect<Domain.Position, never, So
     return Domain.Position.new(position.line, position.column);
   });
 
-const parseInterfaceDeclaration = (id: ast.InterfaceDeclaration) =>
-  Effect.gen(function* () {
-    const doc = parseDoc(getJSDocText(id.getJsDocs()));
-    if (shouldIgnore(doc)) {
-      return [];
-    }
+const parseInterfaceDeclaration = Effect.fn("parseInterfaceDeclaration")(function* (id: ast.InterfaceDeclaration) {
+  const doc = parseDoc(getJSDocText(id.getJsDocs()));
+  if (shouldIgnore(doc)) {
+    return [];
+  }
 
-    const position = yield* parsePosition(id);
-    return [Domain.Interface.new(id.getName(), doc, id.getText(), position)];
-  });
+  const position = yield* parsePosition(id);
+  return [Domain.Interface.new(id.getName(), doc, id.getText(), position)];
+});
 
 const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDeclaration>) =>
   Effect.forEach(
@@ -189,35 +188,35 @@ const getFunctionDeclarationJSDocs = (fd: ast.FunctionDeclaration): Array<ast.JS
     onNonEmpty: (firstOverload) => firstOverload.getJsDocs(),
   });
 
-const parseFunctionDeclaration = (fd: ast.FunctionDeclaration) =>
-  Effect.gen(function* () {
-    const doc = parseDoc(getJSDocText(getFunctionDeclarationJSDocs(fd)));
-    if (shouldIgnore(doc)) {
-      return [];
-    }
+const parseFunctionDeclaration = Effect.fn("parseFunctionDeclaration")(function* (fd: ast.FunctionDeclaration) {
+  const doc = parseDoc(getJSDocText(getFunctionDeclarationJSDocs(fd)));
+  if (shouldIgnore(doc)) {
+    return [];
+  }
 
-    const name = fd.getName() ?? "";
-    const signature = `declare const ${name}: ${parseType(fd)}`;
-    const position = yield* parsePosition(fd);
-    return [Domain.Function.new(name, doc, signature, position)];
-  });
+  const name = fd.getName() ?? "";
+  const signature = `declare const ${name}: ${parseType(fd)}`;
+  const position = yield* parsePosition(fd);
+  return [Domain.Function.new(name, doc, signature, position)];
+});
 
-const parseFunctionVariableDeclaration = (vd: ast.VariableDeclaration) =>
-  Effect.gen(function* () {
-    const statement = vd.getParent().getParent();
-    if (!ast.Node.isVariableStatement(statement)) {
-      return [];
-    }
-    const doc = parseDoc(getJSDocText(statement.getJsDocs()));
-    if (shouldIgnore(doc)) {
-      return [];
-    }
+const parseFunctionVariableDeclaration = Effect.fn("parseFunctionVariableDeclaration")(function* (
+  vd: ast.VariableDeclaration
+) {
+  const statement = vd.getParent().getParent();
+  if (!ast.Node.isVariableStatement(statement)) {
+    return [];
+  }
+  const doc = parseDoc(getJSDocText(statement.getJsDocs()));
+  if (shouldIgnore(doc)) {
+    return [];
+  }
 
-    const name = vd.getName();
-    const signature = `declare const ${name}: ${parseType(vd)}`;
-    const position = yield* parsePosition(vd);
-    return [Domain.Function.new(name, doc, signature, position)];
-  });
+  const name = vd.getName();
+  const signature = `declare const ${name}: ${parseType(vd)}`;
+  const position = yield* parsePosition(vd);
+  return [Domain.Function.new(name, doc, signature, position)];
+});
 
 const getFunctionDeclarations = Effect.gen(function* () {
   const source = yield* Source;
@@ -258,20 +257,19 @@ export const parseFunctions = Effect.gen(function* () {
   return [...functionDeclarations, ...functionVariableDeclarations];
 });
 
-const parseTypeAliasDeclaration = (ta: ast.TypeAliasDeclaration) =>
-  Effect.gen(function* () {
-    const doc = parseDoc(getJSDocText(ta.getJsDocs()));
-    if (shouldIgnore(doc)) {
-      return [];
-    }
+const parseTypeAliasDeclaration = Effect.fn("parseTypeAliasDeclaration")(function* (ta: ast.TypeAliasDeclaration) {
+  const doc = parseDoc(getJSDocText(ta.getJsDocs()));
+  if (shouldIgnore(doc)) {
+    return [];
+  }
 
-    const name = ta.getName();
-    const type = parseType(ta);
-    const definition = ta.getTypeNode()?.getText() ?? "";
-    const signature = `type ${ta.getTypeParameters().length > 0 ? type : name} = ${definition}`;
-    const position = yield* parsePosition(ta);
-    return [Domain.TypeAlias.new(name, doc, signature, position)];
-  });
+  const name = ta.getName();
+  const type = parseType(ta);
+  const definition = ta.getTypeNode()?.getText() ?? "";
+  const signature = `type ${ta.getTypeParameters().length > 0 ? type : name} = ${definition}`;
+  const position = yield* parsePosition(ta);
+  return [Domain.TypeAlias.new(name, doc, signature, position)];
+});
 
 const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDeclaration>) =>
   Effect.forEach(
@@ -288,22 +286,23 @@ export const parseTypeAliases = Effect.gen(function* () {
   return yield* parseTypeAliasDeclarations(source.sourceFile.getTypeAliases());
 });
 
-const parseConstantVariableDeclaration = (vd: ast.VariableDeclaration) =>
-  Effect.gen(function* () {
-    const statement = vd.getParent().getParent();
-    if (!ast.Node.isVariableStatement(statement)) {
-      return [];
-    }
-    const doc = parseDoc(getJSDocText(statement.getJsDocs()));
-    if (shouldIgnore(doc)) {
-      return [];
-    }
+const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclaration")(function* (
+  vd: ast.VariableDeclaration
+) {
+  const statement = vd.getParent().getParent();
+  if (!ast.Node.isVariableStatement(statement)) {
+    return [];
+  }
+  const doc = parseDoc(getJSDocText(statement.getJsDocs()));
+  if (shouldIgnore(doc)) {
+    return [];
+  }
 
-    const name = vd.getName();
-    const signature = `declare const ${name}: ${parseType(vd)}`;
-    const position = yield* parsePosition(vd);
-    return [Domain.Constant.new(name, doc, signature, position)];
-  });
+  const name = vd.getName();
+  const signature = `declare const ${name}: ${parseType(vd)}`;
+  const position = yield* parsePosition(vd);
+  return [Domain.Constant.new(name, doc, signature, position)];
+});
 
 /**
  * @category parsers
@@ -334,35 +333,33 @@ export const parseConstants = Effect.gen(function* () {
   return yield* Effect.forEach(declarations, parseConstantVariableDeclaration).pipe(Effect.map(A.flatten));
 });
 
-const parseExportSpecifier = (es: ast.ExportSpecifier) =>
-  Effect.gen(function* () {
-    const name = es.compilerNode.name.text;
-    const docComment = getDocComment(es.getLeadingCommentRanges());
-    const doc = O.isSome(docComment) ? parseDoc(docComment.value.getText()) : parseDoc("");
-    const signature = `declare const ${name}: ${parseType(es)}`;
-    const position = yield* parsePosition(es);
-    return Domain.Export.new(name, doc, signature, position, false);
-  });
+const parseExportSpecifier = Effect.fn("parseExportSpecifier")(function* (es: ast.ExportSpecifier) {
+  const name = es.compilerNode.name.text;
+  const docComment = getDocComment(es.getLeadingCommentRanges());
+  const doc = O.isSome(docComment) ? parseDoc(docComment.value.getText()) : parseDoc("");
+  const signature = `declare const ${name}: ${parseType(es)}`;
+  const position = yield* parsePosition(es);
+  return Domain.Export.new(name, doc, signature, position, false);
+});
 
-const parseExportStar = (ed: ast.ExportDeclaration) =>
-  Effect.gen(function* () {
-    const moduleSpecifier = ed.getModuleSpecifier();
-    const name = moduleSpecifier?.getText() ?? "";
-    const namespace = ed.getNamespaceExport()?.getName();
-    const signature = `export *${namespace === undefined ? "" : ` as ${namespace}`} from ${name}`;
-    const docComment = getDocComment(ed.getLeadingCommentRanges());
-    const doc = O.isSome(docComment) ? parseDoc(docComment.value.getText()) : parseDoc("");
-    const position = yield* parsePosition(ed);
-    return Domain.Export.new(
-      namespace ?? name,
-      doc.modifyDescription(
-        `Re-exports all named exports from the ${name} module${namespace === undefined ? "" : ` as \`${namespace}\``}.`
-      ),
-      signature,
-      position,
-      true
-    );
-  });
+const parseExportStar = Effect.fn("parseExportStar")(function* (ed: ast.ExportDeclaration) {
+  const moduleSpecifier = ed.getModuleSpecifier();
+  const name = moduleSpecifier?.getText() ?? "";
+  const namespace = ed.getNamespaceExport()?.getName();
+  const signature = `export *${namespace === undefined ? "" : ` as ${namespace}`} from ${name}`;
+  const docComment = getDocComment(ed.getLeadingCommentRanges());
+  const doc = O.isSome(docComment) ? parseDoc(docComment.value.getText()) : parseDoc("");
+  const position = yield* parsePosition(ed);
+  return Domain.Export.new(
+    namespace ?? name,
+    doc.modifyDescription(
+      `Re-exports all named exports from the ${name} module${namespace === undefined ? "" : ` as \`${namespace}\``}.`
+    ),
+    signature,
+    position,
+    true
+  );
+});
 
 const parseNamedExports = (ed: ast.ExportDeclaration) => {
   const namedExports = ed.getNamedExports();
@@ -420,39 +417,37 @@ const getTypeParameters = (parameters: ReadonlyArray<ast.TypeParameterDeclaratio
         A.join(", ")
       )}>`;
 
-const parseMethod = (md: ast.MethodDeclaration) =>
-  Effect.gen(function* () {
-    const name = md.getName();
-    const jsdocs = A.matchLeft(md.getOverloads(), {
-      onEmpty: () => md.getJsDocs(),
-      onNonEmpty: (head) => head.getJsDocs(),
-    });
-    const doc = parseDoc(getJSDocText(jsdocs));
-    if (shouldIgnore(doc)) {
-      return O.none();
-    }
-
-    const position = yield* parsePosition(md);
-    return O.some(Domain.DocEntry.new(name, doc, `declare const ${name}: ${parseType(md)}`, position));
+const parseMethod = Effect.fn("parseMethod")(function* (md: ast.MethodDeclaration) {
+  const name = md.getName();
+  const jsdocs = A.matchLeft(md.getOverloads(), {
+    onEmpty: () => md.getJsDocs(),
+    onNonEmpty: (head) => head.getJsDocs(),
   });
+  const doc = parseDoc(getJSDocText(jsdocs));
+  if (shouldIgnore(doc)) {
+    return O.none();
+  }
 
-const parseProperty = (pd: ast.PropertyDeclaration) =>
-  Effect.gen(function* () {
-    const doc = parseDoc(getJSDocText(pd.getJsDocs()));
-    if (shouldIgnore(doc)) {
-      return [];
-    }
+  const position = yield* parsePosition(md);
+  return O.some(Domain.DocEntry.new(name, doc, `declare const ${name}: ${parseType(md)}`, position));
+});
 
-    const readonlyPrefix = pipe(
-      O.fromNullishOr(pd.getFirstModifierByKind(ast.ts.SyntaxKind.ReadonlyKeyword)),
-      O.match({
-        onNone: thunkEmptyStr,
-        onSome: () => "readonly ",
-      })
-    );
-    const position = yield* parsePosition(pd);
-    return [Domain.DocEntry.new(pd.getName(), doc, `${readonlyPrefix}${pd.getName()}: ${parseType(pd)}`, position)];
-  });
+const parseProperty = Effect.fn("parseProperty")(function* (pd: ast.PropertyDeclaration) {
+  const doc = parseDoc(getJSDocText(pd.getJsDocs()));
+  if (shouldIgnore(doc)) {
+    return [];
+  }
+
+  const readonlyPrefix = pipe(
+    O.fromNullishOr(pd.getFirstModifierByKind(ast.ts.SyntaxKind.ReadonlyKeyword)),
+    O.match({
+      onNone: thunkEmptyStr,
+      onSome: () => "readonly ",
+    })
+  );
+  const position = yield* parsePosition(pd);
+  return [Domain.DocEntry.new(pd.getName(), doc, `${readonlyPrefix}${pd.getName()}: ${parseType(pd)}`, position)];
+});
 
 const parseProperties = (c: ast.ClassDeclaration) =>
   Effect.forEach(
@@ -502,21 +497,20 @@ const getClassDeclarationSignature = (c: ast.ClassDeclaration) => {
   );
 };
 
-const parseClass = (c: ast.ClassDeclaration) =>
-  Effect.gen(function* () {
-    const doc = parseDoc(getJSDocText(c.getJsDocs()));
-    if (shouldIgnore(doc)) {
-      return [];
-    }
+const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
+  const doc = parseDoc(getJSDocText(c.getJsDocs()));
+  if (shouldIgnore(doc)) {
+    return [];
+  }
 
-    const name = c.getName() ?? "";
-    const signature = yield* getClassDeclarationSignature(c);
-    const methods = yield* Effect.forEach(c.getInstanceMethods(), parseMethod).pipe(Effect.map(A.getSomes));
-    const staticMethods = yield* Effect.forEach(c.getStaticMethods(), parseMethod).pipe(Effect.map(A.getSomes));
-    const properties = yield* parseProperties(c);
-    const position = yield* parsePosition(c);
-    return [Domain.Class.new(name, doc, signature, position, methods, staticMethods, properties)];
-  });
+  const name = c.getName() ?? "";
+  const signature = yield* getClassDeclarationSignature(c);
+  const methods = yield* Effect.forEach(c.getInstanceMethods(), parseMethod).pipe(Effect.map(A.getSomes));
+  const staticMethods = yield* Effect.forEach(c.getStaticMethods(), parseMethod).pipe(Effect.map(A.getSomes));
+  const properties = yield* parseProperties(c);
+  const position = yield* parsePosition(c);
+  return [Domain.Class.new(name, doc, signature, position, methods, staticMethods, properties)];
+});
 
 /**
  * @category parsers
@@ -601,36 +595,35 @@ export const parseFile =
       return yield* Effect.fail([`Unable to locate file: ${file.path}`]);
     });
 
-const createProject = (files: ReadonlyArray<Domain.File>) =>
-  Effect.gen(function* () {
-    const config = yield* Configuration.Configuration;
-    const process = yield* Domain.Process;
-    const cwd = yield* process.cwd;
-    const baseCompilerOptions = {
-      strict: true,
-      moduleResolution: "node" as const,
-    };
-    const parsed = ast.ts.parseJsonConfigFileContent(
-      {
-        compilerOptions: {
-          ...baseCompilerOptions,
-          ...config.parseCompilerOptions,
-        },
+const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray<Domain.File>) {
+  const config = yield* Configuration.Configuration;
+  const process = yield* Domain.Process;
+  const cwd = yield* process.cwd;
+  const baseCompilerOptions = {
+    strict: true,
+    moduleResolution: "node" as const,
+  };
+  const parsed = ast.ts.parseJsonConfigFileContent(
+    {
+      compilerOptions: {
+        ...baseCompilerOptions,
+        ...config.parseCompilerOptions,
       },
-      ast.ts.sys,
-      cwd
-    );
+    },
+    ast.ts.sys,
+    cwd
+  );
 
-    const project = new ast.Project({
-      compilerOptions: parsed.options,
-    });
-
-    for (const file of files) {
-      project.addSourceFileAtPath(file.path);
-    }
-
-    return project;
+  const project = new ast.Project({
+    compilerOptions: parsed.options,
   });
+
+  for (const file of files) {
+    project.addSourceFileAtPath(file.path);
+  }
+
+  return project;
+});
 
 /**
  * Parses a set of source files into sorted module models.

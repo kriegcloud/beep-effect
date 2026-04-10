@@ -8,8 +8,7 @@
  * @since 0.0.0
  */
 import * as NodeUrl from "node:url";
-import * as Effect from "effect/Effect";
-import * as PlatformError from "effect/PlatformError";
+import { Effect, PlatformError } from "effect";
 
 /**
  * Converts a `file:` URL into a platform path string.

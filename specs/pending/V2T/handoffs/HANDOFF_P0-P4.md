@@ -22,25 +22,29 @@ If Plan mode is available and active, do not edit spec artifacts yet. First read
   logging, and session-end writeback.
 - Sub-agents do not own phase closure, manifest authority, or scope expansion.
 
-## Required Read Order
+## Required Startup Inputs
 
-1. [outputs/manifest.json](../outputs/manifest.json)
-2. [README.md](../README.md)
-3. [outputs/grill-log.md](../outputs/grill-log.md)
-4. `../../../../AGENTS.md`
-5. `../../../../.patterns/jsdoc-documentation.md`
-6. `../../../../standards/effect-first-development.md`
-7. `../../../../standards/schema-first.inventory.jsonc`
-8. `../../../../tooling/configs/src/eslint/SchemaFirstRule.ts`
-9. `../../../../apps/V2T/package.json`
-10. `../../../../packages/VT2/package.json`
-11. `../prompts/ORCHESTRATOR_OPERATING_MODEL.md`
-12. `../prompts/GRAPHITI_MEMORY_PROTOCOL.md`
-13. `../prompts/PHASE_DELEGATION_PROMPTS.md`
-14. the current phase output
-15. the relevant repo seams in `apps/V2T` and `packages/VT2`
-16. preserved raw inputs under `outputs/` only when deeper evidence is needed
-17. the current phase handoff and matching phase orchestrator prompt
+Consume these inputs using `outputs/manifest.json` `fresh_session_read_order`
+instead of treating this section as a second ordered source:
+
+- [outputs/manifest.json](../outputs/manifest.json)
+- [README.md](../README.md)
+- [outputs/grill-log.md](../outputs/grill-log.md)
+- `../../../../AGENTS.md`
+- `../../../../.patterns/jsdoc-documentation.md`
+- `../../../../standards/effect-first-development.md`
+- `../../../../standards/schema-first.inventory.jsonc`
+- `../../../../tooling/configs/src/eslint/SchemaFirstRule.ts`
+- `../../../../infra/package.json`
+- `../../../../apps/V2T/package.json`
+- `../../../../packages/VT2/package.json`
+- `../prompts/ORCHESTRATOR_OPERATING_MODEL.md`
+- `../prompts/GRAPHITI_MEMORY_PROTOCOL.md`
+- `../prompts/PHASE_DELEGATION_PROMPTS.md`
+- the current phase output
+- the relevant repo seams in `apps/V2T`, `packages/VT2`, and `infra` when installer or deployment truth matters
+- preserved raw inputs under `outputs/` only when deeper evidence is needed
+- the current phase handoff and matching phase orchestrator prompt
 
 Use `active_phase_assets` in `outputs/manifest.json` as the routing source for
 the active prompt, handoff, output artifact, and trackers instead of inferring
@@ -61,15 +65,15 @@ them from prose.
 - Preserve the exact root-level phase artifact names already locked in the package.
 - Use the current `apps/V2T` plus `packages/VT2` shell-and-sidecar pair unless a phase artifact explicitly documents a migration.
 - Verify workspace identity from the manifests before writing Turbo filter
-  commands. The current names are `@beep/v2t` and `@beep/VT2`.
+  commands. The current names are `@beep/infra`, `@beep/v2t`, and `@beep/VT2`.
 - Do not invent an app-local server path when the existing `@beep/VT2` control plane can carry the slice.
 - Preserve the raw PRD and legacy notes under `outputs/`.
 - Enforce the conformance matrix from `README.md`; do not claim a gate passed without recording the concrete command result.
 - Treat `outputs/validate-spec.mjs` plus `git diff --check -- specs/pending/V2T` as the package-local spec gate because root markdown lint ignores `specs/**`.
 - Use the custom agents under `.codex/config.toml` only as workers or auditors; do not let them replace the phase orchestrator.
 - Run the Graphiti preflight when the MCP is available, and document exact
-  query, exact error, and fallback behavior instead of silently skipping memory
-  context.
+  query, exact error, `get_episodes` fallback behavior when used, and
+  repo-local fallback behavior instead of silently skipping memory context.
 - Run a read-only review wave before phase closeout, and treat substantive
   findings as reopen conditions rather than optional follow-up.
 - Stop at the active phase exit gate instead of silently rolling forward.

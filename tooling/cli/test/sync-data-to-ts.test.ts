@@ -121,14 +121,13 @@ const generatedFileExists = Effect.gen(function* () {
   return yield* fs.exists(path.join(process.cwd(), generatedOutputPath));
 });
 
-const writeGeneratedFile = (content: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const absolutePath = path.join(process.cwd(), generatedOutputPath);
-    yield* fs.makeDirectory(path.dirname(absolutePath), { recursive: true });
-    yield* fs.writeFileString(absolutePath, content);
-  });
+const writeGeneratedFile = Effect.fn("SyncDataToTsTest.writeGeneratedFile")(function* (content: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const absolutePath = path.join(process.cwd(), generatedOutputPath);
+  yield* fs.makeDirectory(path.dirname(absolutePath), { recursive: true });
+  yield* fs.writeFileString(absolutePath, content);
+});
 
 describe("sync-data-to-ts", () => {
   it("writes the generated ISO 4217 module in write mode", async () => {

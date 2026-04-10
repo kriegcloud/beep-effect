@@ -246,32 +246,35 @@ const indexCollisionFixtureRepo = Effect.gen(function* () {
   };
 });
 
-const runQuery = (input: { readonly repoId: RepoId; readonly question: string; readonly runLabel: string }) =>
-  Effect.gen(function* () {
-    const server = yield* RepoRunService;
-    const runId = decodeRunId(`run:query:${input.runLabel}`);
-    const payload = new QueryRepoRunInput({
-      repoId: input.repoId,
-      question: input.question,
-      questionFingerprint: O.none(),
-    });
-    const acceptance = yield* server.acceptQueryRun(payload, runId);
-
-    if (acceptance.dispatch) {
-      yield* server.executeQueryRun(payload, runId);
-    }
-
-    const run = yield* server.getRun(runId);
-    const events = yield* Stream.runCollect(
-      server.streamRunEvents(new StreamRunEventsRequest({ runId, cursor: O.none() }))
-    );
-
-    return {
-      events,
-      run,
-      runId,
-    };
+const runQuery = Effect.fn("GroundedRetrievalTest.runQuery")(function* (input: {
+  readonly repoId: RepoId;
+  readonly question: string;
+  readonly runLabel: string;
+}) {
+  const server = yield* RepoRunService;
+  const runId = decodeRunId(`run:query:${input.repoId}:${input.runLabel}`);
+  const payload = new QueryRepoRunInput({
+    repoId: input.repoId,
+    question: input.question,
+    questionFingerprint: O.none(),
   });
+  const acceptance = yield* server.acceptQueryRun(payload, runId);
+
+  if (acceptance.dispatch) {
+    yield* server.executeQueryRun(payload, runId);
+  }
+
+  const run = yield* server.getRun(runId);
+  const events = yield* Stream.runCollect(
+    server.streamRunEvents(new StreamRunEventsRequest({ runId, cursor: O.none() }))
+  );
+
+  return {
+    events,
+    run,
+    runId,
+  };
+});
 
 const retrievalEvent = (events: ReadonlyArray<RunStreamEvent>) =>
   A.findFirst(

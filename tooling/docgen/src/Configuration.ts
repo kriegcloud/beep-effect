@@ -4,7 +4,8 @@
 
 import { $DocgenId } from "@beep/identity/packages";
 import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@beep/repo-utils";
-import { Context, Effect, FileSystem, Layer, Path } from "effect";
+import { Context, Effect, FileSystem, Layer, Path, pipe } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
@@ -278,79 +279,78 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
  * @returns Effect that resolves the effective docgen configuration service value.
  * @category service
  */
-export const load = (args: LoadArgs) =>
-  Effect.gen(function* () {
-    const process = yield* Domain.Process;
-    const cwd = yield* process.cwd;
-    const path = yield* Path.Path;
+export const load = Effect.fn("load")(function* (args: LoadArgs) {
+  const process = yield* Domain.Process;
+  const cwd = yield* process.cwd;
+  const path = yield* Path.Path;
 
-    const packageJson = yield* readPackageJson(path.join(cwd, PACKAGE_JSON_FILE_NAME));
-    const maybeConfig = yield* readDocgenConfig(path.join(cwd, CONFIG_FILE_NAME));
-    const docgenConfig = O.getOrUndefined(maybeConfig);
+  const packageJson = yield* readPackageJson(path.join(cwd, PACKAGE_JSON_FILE_NAME));
+  const maybeConfig = yield* readDocgenConfig(path.join(cwd, CONFIG_FILE_NAME));
+  const docgenConfig = O.getOrUndefined(maybeConfig);
 
-    const projectName = packageJson.name;
-    const projectHomepage = resolveString(
-      args.projectHomepage,
-      O.fromNullishOr(docgenConfig?.projectHomepage),
-      packageJson.homepage
-    );
-    const srcLink = resolveString(
-      args.srcLink,
-      O.fromNullishOr(docgenConfig?.srcLink),
-      `${projectHomepage}/blob/main/src/`
-    );
-    const srcDir = resolveString(args.srcDir, O.fromNullishOr(docgenConfig?.srcDir), "src");
-    const outDir = resolveString(args.outDir, O.fromNullishOr(docgenConfig?.outDir), "docs");
-    const theme = resolveString(args.theme, O.fromNullishOr(docgenConfig?.theme), DEFAULT_THEME);
-    const enableSearch = resolveBoolean(args.enableSearch, O.fromNullishOr(docgenConfig?.enableSearch), true);
-    const enforceDescriptions = resolveBoolean(
-      args.enforceDescriptions,
-      O.fromNullishOr(docgenConfig?.enforceDescriptions),
-      false
-    );
-    const enforceExamples = resolveBoolean(args.enforceExamples, O.fromNullishOr(docgenConfig?.enforceExamples), false);
-    const enforceVersion = resolveBoolean(args.enforceVersion, O.fromNullishOr(docgenConfig?.enforceVersion), true);
-    const tscExecutable = resolveString(args.tscExecutable, O.fromNullishOr(docgenConfig?.tscExecutable), "tsc");
-    const runExamples = resolveBoolean(args.runExamples, O.fromNullishOr(docgenConfig?.runExamples), false);
-    const exclude = O.getOrElse(args.exclude, () => docgenConfig?.exclude ?? []);
-    const parseCompilerOptions = yield* resolveCompilerOptions(
-      args.parseCompilerOptions,
-      O.fromNullishOr(docgenConfig?.parseCompilerOptions)
-    );
-    const resolvedExamplesCompilerOptions = yield* resolveCompilerOptions(
-      args.examplesCompilerOptions,
-      O.fromNullishOr(docgenConfig?.examplesCompilerOptions)
-    );
-    // Examples commonly include illustrative bindings that are intentionally unused.
-    // Force-disable unused checks to keep docs validation focused on type correctness.
-    const exampleTypes = Array.isArray(resolvedExamplesCompilerOptions.types)
-      ? Array.from(new Set([...resolvedExamplesCompilerOptions.types, "node", "bun"]))
-      : ["node", "bun"];
-    const examplesCompilerOptions = {
-      ...resolvedExamplesCompilerOptions,
-      noUnusedLocals: false,
-      noUnusedParameters: false,
-      types: exampleTypes,
-    };
+  const projectName = packageJson.name;
+  const projectHomepage = resolveString(
+    args.projectHomepage,
+    O.fromNullishOr(docgenConfig?.projectHomepage),
+    packageJson.homepage
+  );
+  const srcLink = resolveString(
+    args.srcLink,
+    O.fromNullishOr(docgenConfig?.srcLink),
+    `${projectHomepage}/blob/main/src/`
+  );
+  const srcDir = resolveString(args.srcDir, O.fromNullishOr(docgenConfig?.srcDir), "src");
+  const outDir = resolveString(args.outDir, O.fromNullishOr(docgenConfig?.outDir), "docs");
+  const theme = resolveString(args.theme, O.fromNullishOr(docgenConfig?.theme), DEFAULT_THEME);
+  const enableSearch = resolveBoolean(args.enableSearch, O.fromNullishOr(docgenConfig?.enableSearch), true);
+  const enforceDescriptions = resolveBoolean(
+    args.enforceDescriptions,
+    O.fromNullishOr(docgenConfig?.enforceDescriptions),
+    false
+  );
+  const enforceExamples = resolveBoolean(args.enforceExamples, O.fromNullishOr(docgenConfig?.enforceExamples), false);
+  const enforceVersion = resolveBoolean(args.enforceVersion, O.fromNullishOr(docgenConfig?.enforceVersion), true);
+  const tscExecutable = resolveString(args.tscExecutable, O.fromNullishOr(docgenConfig?.tscExecutable), "tsc");
+  const runExamples = resolveBoolean(args.runExamples, O.fromNullishOr(docgenConfig?.runExamples), false);
+  const exclude = O.getOrElse(args.exclude, () => docgenConfig?.exclude ?? []);
+  const parseCompilerOptions = yield* resolveCompilerOptions(
+    args.parseCompilerOptions,
+    O.fromNullishOr(docgenConfig?.parseCompilerOptions)
+  );
+  const resolvedExamplesCompilerOptions = yield* resolveCompilerOptions(
+    args.examplesCompilerOptions,
+    O.fromNullishOr(docgenConfig?.examplesCompilerOptions)
+  );
+  // Examples commonly include illustrative bindings that are intentionally unused.
+  // Force-disable unused checks to keep docs validation focused on type correctness.
+  const exampleTypes = Array.isArray(resolvedExamplesCompilerOptions.types)
+    ? pipe(resolvedExamplesCompilerOptions.types, A.append("node"), A.append("bun"), A.dedupe)
+    : ["node", "bun"];
+  const examplesCompilerOptions = {
+    ...resolvedExamplesCompilerOptions,
+    noUnusedLocals: false,
+    noUnusedParameters: false,
+    types: exampleTypes,
+  };
 
-    return Configuration.of({
-      projectName,
-      projectHomepage,
-      srcLink,
-      srcDir,
-      outDir,
-      theme,
-      enableSearch,
-      enforceDescriptions,
-      enforceExamples,
-      enforceVersion,
-      tscExecutable,
-      runExamples,
-      exclude,
-      parseCompilerOptions,
-      examplesCompilerOptions,
-    });
+  return Configuration.of({
+    projectName,
+    projectHomepage,
+    srcLink,
+    srcDir,
+    outDir,
+    theme,
+    enableSearch,
+    enforceDescriptions,
+    enforceExamples,
+    enforceVersion,
+    tscExecutable,
+    runExamples,
+    exclude,
+    parseCompilerOptions,
+    examplesCompilerOptions,
   });
+});
 
 /**
  * Present for upstream parity; the CLI merges configuration directly in `load`.

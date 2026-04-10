@@ -40,11 +40,10 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
   yield* VersionSyncModeMatch(options.mode, {
     write: () =>
       Bool.match(resolution.report.hasDrift, {
-        onTrue: () =>
-          Effect.gen(function* () {
-            const totalChanges = yield* updater.apply(repoRoot, resolution);
-            yield* Console.log(`\nApplied ${totalChanges} file update(s).`);
-          }),
+        onTrue: Effect.fn("VersionSync.handle.write.onTrue")(function* () {
+          const totalChanges = yield* updater.apply(repoRoot, resolution);
+          yield* Console.log(`\nApplied ${totalChanges} file update(s).`);
+        }),
         onFalse: () => Effect.void,
       }),
     check: () =>

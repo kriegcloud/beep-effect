@@ -376,90 +376,86 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
       } satisfies EditorWorkspaceSnapshot;
     }),
     listPages: listPageSummaries(),
-    getPage: (slug) =>
-      Effect.gen(function* () {
-        const page = yield* readPageBySlug(slug);
-        const backlinks = yield* getBacklinks(page.slug);
+    getPage: Effect.fn("EditorRuntime.getPage")(function* (slug: string) {
+      const page = yield* readPageBySlug(slug);
+      const backlinks = yield* getBacklinks(page.slug);
+
+      return {
+        page,
+        backlinks,
+      } satisfies EditorPageResource;
+    }),
+    savePage: Effect.fn("EditorRuntime.savePage")(function* (slug: string, page: PageDocument) {
+      if (slug !== page.slug) {
+        return yield* toRuntimeError(
+          `Route slug "${slug}" does not match payload slug "${page.slug}".`,
+          400,
+          undefined
+        );
+      }
+
+      const existingPage = yield* readExistingPage(slug);
+      const now = yield* DateTime.now;
+      const nextPage = O.match(existingPage, {
+        onNone: () =>
+          refreshPageDocument(page, {
+            title: page.title,
+            slug: page.slug,
+            blocks: page.blocks,
+            now,
+          }),
+        onSome: (current) =>
+          refreshPageDocument(current, {
+            title: page.title,
+            slug: page.slug,
+            blocks: page.blocks,
+            now,
+          }),
+      });
+      const manifest = yield* readManifest();
+      const nextManifest = new WorkspaceManifest({
+        ...manifest,
+        rootPageSlug: pipe(manifest.rootPageSlug, O.orElse(thunkSome(nextPage.slug))),
+        updatedAt: now,
+      });
+
+      yield* writePage(nextPage);
+      yield* writeRevision(nextPage, now, O.isSome(existingPage) ? "save" : "create");
+      yield* writeManifest(nextManifest);
+
+      return yield* Effect.gen(function* () {
+        const backlinks = yield* getBacklinks(nextPage.slug);
 
         return {
-          page,
+          page: nextPage,
           backlinks,
         } satisfies EditorPageResource;
-      }),
-    savePage: (slug, page) =>
-      Effect.gen(function* () {
-        if (slug !== page.slug) {
-          return yield* toRuntimeError(
-            `Route slug "${slug}" does not match payload slug "${page.slug}".`,
-            400,
-            undefined
-          );
-        }
+      });
+    }),
+    exportPage: Effect.fn("EditorRuntime.exportPage")(function* (slug: string, format: ExportFormat) {
+      const page = yield* readPageBySlug(slug);
+      return pageToExport(page, format);
+    }),
+    searchPages: Effect.fn("EditorRuntime.searchPages")(function* (query: string) {
+      const trimmedQuery = pipe(query, Str.trim, Str.toLowerCase);
 
-        const existingPage = yield* readExistingPage(slug);
-        const now = yield* DateTime.now;
-        const nextPage = O.match(existingPage, {
-          onNone: () =>
-            refreshPageDocument(page, {
-              title: page.title,
-              slug: page.slug,
-              blocks: page.blocks,
-              now,
-            }),
-          onSome: (current) =>
-            refreshPageDocument(current, {
-              title: page.title,
-              slug: page.slug,
-              blocks: page.blocks,
-              now,
-            }),
-        });
-        const manifest = yield* readManifest();
-        const nextManifest = new WorkspaceManifest({
-          ...manifest,
-          rootPageSlug: pipe(manifest.rootPageSlug, O.orElse(thunkSome(nextPage.slug))),
-          updatedAt: now,
-        });
+      if (Str.isEmpty(trimmedQuery)) {
+        return yield* listPageSummaries();
+      }
 
-        yield* writePage(nextPage);
-        yield* writeRevision(nextPage, now, O.isSome(existingPage) ? "save" : "create");
-        yield* writeManifest(nextManifest);
+      const pages = yield* listAllPages();
 
-        return yield* Effect.gen(function* () {
-          const backlinks = yield* getBacklinks(nextPage.slug);
+      return pipe(
+        pages,
+        A.filter((page) => {
+          const titleMatches = pipe(page.title, Str.toLowerCase, Str.includes(trimmedQuery));
+          const contentMatches = pipe(pageToPlainText(page), Str.toLowerCase, Str.includes(trimmedQuery));
 
-          return {
-            page: nextPage,
-            backlinks,
-          } satisfies EditorPageResource;
-        });
-      }),
-    exportPage: (slug, format) =>
-      Effect.gen(function* () {
-        const page = yield* readPageBySlug(slug);
-        return pageToExport(page, format);
-      }),
-    searchPages: (query) =>
-      Effect.gen(function* () {
-        const trimmedQuery = pipe(query, Str.trim, Str.toLowerCase);
-
-        if (Str.isEmpty(trimmedQuery)) {
-          return yield* listPageSummaries();
-        }
-
-        const pages = yield* listAllPages();
-
-        return pipe(
-          pages,
-          A.filter((page) => {
-            const titleMatches = pipe(page.title, Str.toLowerCase, Str.includes(trimmedQuery));
-            const contentMatches = pipe(pageToPlainText(page), Str.toLowerCase, Str.includes(trimmedQuery));
-
-            return titleMatches || contentMatches;
-          }),
-          A.map(summaryForPage(pages))
-        );
-      }),
+          return titleMatches || contentMatches;
+        }),
+        A.map(summaryForPage(pages))
+      );
+    }),
   } satisfies EditorWorkspaceStore;
 });
 

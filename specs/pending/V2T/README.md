@@ -72,9 +72,9 @@
 
 1. Run `bun run codex:hook:session-start` from the repo root.
 2. Read [outputs/manifest.json](./outputs/manifest.json) first, then follow `fresh_session_read_order`. The shorter startup lists elsewhere in this package are summaries, not competing ordered sources.
-3. Read [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) and run the Graphiti preflight or fallback exactly as documented there.
+3. When `fresh_session_read_order` reaches [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md), run the Graphiti preflight or fallback exactly as documented there.
 4. Trust `active_phase` plus `active_phase_assets` and read only the active phase handoff, active phase orchestrator prompt, and prior phase artifacts that constrain the active phase.
-5. When command or task claims matter, confirm them against the live `package.json` and `turbo.json` files for the root, `apps/V2T`, and `packages/VT2`.
+5. When command or task claims matter, confirm them against the live `package.json` and `turbo.json` files for the root, `apps/V2T`, and `packages/VT2`, plus `infra/package.json` for installer and deployment surfaces.
 6. Execute only the active phase as the orchestrator.
 7. Update the active phase artifact, [outputs/manifest.json](./outputs/manifest.json), and the package logs touched by the change before exiting.
 8. Write the Graphiti session-end summary before ending the session whenever the phase produced durable repo truth, architecture decisions, reusable failures, or meaningful in-progress status.
@@ -109,6 +109,7 @@ The canonical spec is grounded in current repo anchors:
 - root Graphiti tooling and proxy commands already exist for memory infrastructure
 - `apps/V2T/vite.config.ts` already defines a local sidecar proxy seam for `/api`
 - `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` already bind the app shell to the existing sidecar runtime
+- `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, and `infra/scripts/v2t-workstation.sh` already define a live `@beep/infra` workstation-install and deployment surface for V2T
 
 ## Source-Of-Truth Order
 
@@ -147,7 +148,7 @@ Every phase in this package must treat these as required inputs, not optional re
 - [../../../standards/effect-first-development.md](../../../standards/effect-first-development.md)
 - [../../../standards/schema-first.inventory.jsonc](../../../standards/schema-first.inventory.jsonc)
 - [../../../tooling/configs/src/eslint/SchemaFirstRule.ts](../../../tooling/configs/src/eslint/SchemaFirstRule.ts)
-- root `package.json`, root `turbo.json`, and the workspace `package.json` / `turbo.json` files for `apps/V2T` and `packages/VT2` whenever commands, ownership, or task gates are discussed
+- root `package.json`, root `turbo.json`, `infra/package.json`, and the workspace `package.json` / `turbo.json` files for `apps/V2T` and `packages/VT2` whenever commands, ownership, task gates, or installer/deployment surfaces are discussed
 
 If these sources disagree, the tie-break order is:
 
@@ -161,17 +162,20 @@ If these sources disagree, the tie-break order is:
 
 - `apps/V2T/package.json` is the authoritative source for the app workspace identity, and its current package name is `@beep/v2t`.
 - `packages/VT2/package.json` is the authoritative source for the sidecar workspace identity, and its current package name is `@beep/VT2`.
+- `infra/package.json` is the authoritative source for the workstation/deployment workspace identity, and its current package name is `@beep/infra`.
+- `@beep/infra` does not currently have a workspace-local `turbo.json`, so command truth for infra comes from `infra/package.json` plus the root `turbo.json`.
 - Directory names are not authoritative for Turbo filter casing. Never infer a package filter from `apps/V2T` or `packages/VT2` alone.
 - When adding or changing command examples, verify the package names from the live manifests first. If command truth is uncertain, confirm with a dry run such as `bunx turbo run check --filter=@beep/v2t --dry=json`.
 - `outputs/manifest.json` must mirror the live package names and command-truth files. If the workspace manifests change, repair the manifest and rerun the validator in the same pass.
-- The validator also treats the root, app, and sidecar script surfaces as live command truth. If a documented gate depends on a missing script, fix the docs or manifest rather than weakening the validator.
+- The validator also treats the root, infra, app, and sidecar script surfaces as live command truth via root `package.json`, root `turbo.json`, `infra/package.json`, and the app/sidecar manifests. If a documented gate depends on a missing script, fix the docs or manifest rather than weakening the validator.
 
 ## Graphiti Memory Protocol
 
 - [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) is the canonical recall and writeback contract for this package.
 - Use `group_id: "beep-dev"` for `add_memory`, `source: "text"`, and `source_description: "codex-cli session"`.
 - When the wrapper exposes `group_ids` as a string for recall, pass the JSON array literal string `"[\"beep-dev\"]"` instead of the plain string `beep-dev`.
-- If recall fails, log the exact query and exact error text in the phase artifact, then continue with the documented repo-local fallback instead of blocking the phase.
+- Try Graphiti recall in this order: `search_memory_facts`, one shorter fallback query, `get_episodes`, then repo-local fallback.
+- If recall fails, log the exact query, exact error text, and any `get_episodes` fallback result in the phase artifact, then continue with the documented repo-local fallback instead of blocking the phase.
 - Write back material decisions, repo-specific findings, tricky fixes, and meaningful session-end progress summaries using the template in the protocol doc.
 
 ## Phase Agent Model
@@ -211,10 +215,11 @@ Important limitation:
 
 When the active phase is planning, execution, or verification for real code changes, the minimum targeted command floor is:
 
-- `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
 - `bun run --cwd apps/V2T lint`
+- `bun run --cwd infra lint`
 - `bun run lint:effect-laws`
 - `bun run lint:jsdoc`
 - `bun run check:effect-laws-allowlist`
@@ -227,8 +232,9 @@ Additional gate:
 Important limitation:
 
 - `@beep/VT2` does not currently define a package-local `lint` or `docgen` task, so VT2 conformance must be enforced through the repo-level law commands above rather than a nonexistent package script
+- `@beep/infra` is a live workspace with package-local `check`, `test`, `lint`, and Pulumi operator scripts; do not describe it as future work or infer its commands from app or sidecar patterns
 - `@beep/v2t` and `@beep/VT2` must be copied from the live package manifests, not reconstructed from folder casing or stale scripts
-- `turbo run lint --filter=@beep/v2t` is not a safe substitute for the app-local lint gate because dependency lint expansion still reaches the nonexistent `@beep/VT2#lint` task
+- `turbo run lint --filter=@beep/v2t` is not a safe substitute for the app-local lint gate because the filtered Turbo run is dependency-expanded and therefore not equivalent to targeted app-only lint evidence
 
 ### Readiness Gate
 
@@ -264,7 +270,7 @@ When exported APIs or JSDoc examples did not change, record `bun run docgen` as 
 - Run a read-only review wave before phase closeout, and do not close the phase while substantive findings remain unresolved.
 - Use `grill-me` during P0 whenever meaningful ambiguity remains, and append the result to [outputs/grill-log.md](./outputs/grill-log.md).
 - Keep provider-specific logic behind explicit adapters and service seams.
-- Treat `apps/V2T` plus `packages/VT2` as the current canonical shell-plus-sidecar pair unless a later phase explicitly documents a migration.
+- Treat `apps/V2T` plus `packages/VT2` as the current runtime pair, and treat `@beep/infra` as the current canonical workstation-install and deployment surface unless a later phase explicitly documents a migration.
 - Default the first execution slice to a repo-grounded vertical slice: capture, transcript, session review, memory-enriched composition packet, and export orchestration seams.
 - Do not claim production-grade autonomous video generation until the provider contracts, failure handling, and verification evidence exist.
 - Update [outputs/manifest.json](./outputs/manifest.json) whenever phase status changes.
@@ -296,9 +302,10 @@ These package-shape decisions are already settled and logged in [outputs/grill-l
 
 - the canonical V2T app shell under `apps/V2T`
 - the existing V2T sidecar control plane under `packages/VT2`
+- the live workstation-install and deployment surfaces under `infra`
 - local-first capture, transcript, session review, memory retrieval, composition configuration, and export orchestration seams
 - typed domain models, provider adapters, and sidecar service boundaries
-- verification commands and evidence for the app workspace and sidecar package
+- verification commands and evidence for the app workspace, sidecar package, and infra workspace
 
 ### Out Of Scope
 
@@ -314,8 +321,8 @@ This spec package is complete only when all of these statements are true:
 
 - a fresh Codex session can resume from [QUICK_START.md](./QUICK_START.md) and the active handoff without inventing package structure
 - a fresh Codex session can tell that the active phase session is the orchestrator and can reach the delegation kit without guessing
-- the five phase artifacts stay aligned with current repo seams in `apps/V2T` and `packages/VT2`
-- the command examples stay aligned with the live workspace package names `@beep/v2t` and `@beep/VT2`
+- the five phase artifacts stay aligned with current repo seams in `apps/V2T`, `packages/VT2`, and `infra`
+- the command examples stay aligned with the live workspace package names `@beep/v2t`, `@beep/VT2`, and `@beep/infra`
 - the mandatory conformance inputs are referenced explicitly in the active phase artifact whenever they constrain the work
 - external provider boundaries are explicit enough to swap mocks, stubs, or real integrations without reopening the whole design
 - the execution phase can be carried out from [PLANNING.md](./PLANNING.md) without hidden decisions

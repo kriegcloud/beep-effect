@@ -42,6 +42,10 @@ P1 must keep these constraints active while shaping the design:
 - `standards/effect-first-development.md`
 - `standards/schema-first.inventory.jsonc`
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
+- `infra/package.json`
+- root `package.json`, root `turbo.json`, `apps/V2T/package.json`,
+  `apps/V2T/turbo.json`, `packages/VT2/package.json`, and
+  `packages/VT2/turbo.json`
 
 ## Evidence Rules
 
@@ -51,8 +55,9 @@ P1 must keep these constraints active while shaping the design:
 - If a design choice would reopen P0 product scope or contradict repo reality, stop and surface that conflict instead of normalizing it.
 - Do not treat provider preferences as locked architecture unless the design explicitly names them as replaceable adapters.
 - Record Graphiti recall attempted, exact query, exact error text when recall
-  fails, fallback used, and any durable writeback or queued session-end
-  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
+  fails, whether `get_episodes` fallback was attempted and what it returned,
+  fallback used, and any durable writeback or queued session-end summary using
+  `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Canonical User Flow
 
@@ -104,6 +109,28 @@ The first-slice sidecar surface is the existing `@beep/VT2` package:
 
 That sidecar owns filesystem access, SQLite persistence, provider adapters, orchestration jobs, and long-running generation or export work.
 
+### Workstation Installer Surface
+
+`@beep/infra` owns the workstation installation contract for this phase:
+
+- `infra/Pulumi.yaml` is the live Pulumi project manifest and `infra/src/internal/entry.ts` is the current stack entrypoint
+- a reusable `V2TWorkstation` Pulumi component in `infra/src/V2T.ts` provisions the local machine from the current checkout
+- the installer validates Debian/Ubuntu, sudo, `systemd --user`, and a working NVIDIA driver before mutating the workstation
+- the installer provisions source-build prerequisites, a local Qwen user service, Graphiti/FalkorDB Docker services plus the existing Graphiti proxy user service, and the packaged V2T app install
+- the installer reconciles the current checkout instead of cloning a second repo or requiring a clean worktree
+- the operator surface lives in `infra/package.json`, including `pulumi:login:local`, `stack:init:local`, `preview`, `up`, `destroy`, and `refresh`
+- the local backend default remains `file://<repoRoot>/.pulumi-local/v2t-workstation`, and the stack namespace remains `v2t`
+
+### Runtime Topology
+
+The canonical workstation topology for this slice is:
+
+- `apps/V2T` built locally as the native Tauri desktop app and installed from the generated `.deb`
+- `packages/VT2` compiled as the packaged sidecar binary and still owning local SQLite persistence
+- local Qwen running as a user-owned Python service on `127.0.0.1:8011`
+- FalkorDB plus Graphiti MCP running in Docker with the repo's expected container names
+- the existing Graphiti proxy installed as a user `systemd` service on `127.0.0.1:8123`
+
 ### Shared Package Reuse
 
 - reuse the shared speech input component for recording and transcript-preview interactions
@@ -123,6 +150,15 @@ That sidecar owns filesystem access, SQLite persistence, provider adapters, orch
 - durable session, run, and artifact metadata live in SQLite
 - transcript and session brief artifacts are stored as filesystem documents with corresponding SQLite records
 - memory retrieval references are cached as packet snapshots attached to sessions or composition runs
+
+## Secret Posture
+
+- the packaged app and local Qwen service do not require mandatory secrets for a baseline install
+- `HUGGING_FACE_HUB_TOKEN` stays optional and is only needed for authenticated model download behavior
+- Graphiti provisioning requires an external LLM API key according to the current upstream Graphiti MCP documentation, so the installer must model that secret explicitly when Graphiti stays enabled
+- Pulumi secret config is the primary secret source, with optional `op run` injection for operators who already use 1Password locally
+- `1Password` is not a required dependency for a successful V2T workstation install
+- Graphiti-enabled installer configs must fail validation when `graphitiOpenAiApiKey` is absent, matching the current `infra/test/V2T.test.ts` contract
 
 ## Provider Adapter Contract
 

@@ -11,6 +11,9 @@ nana
 osdk
 prefs
 pids
+QWEN
+Qwen
+qwen
 todox
 tmpfs
 ulimits

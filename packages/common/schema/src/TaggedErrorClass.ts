@@ -1,7 +1,10 @@
+import { $SchemaId } from "@beep/identity/packages";
 import type { TUnsafe } from "@beep/types";
 import { type Cause, Function as Fn, Match, type Struct } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+
+const $I = $SchemaId.create("TaggedErrorClass");
 
 type TaggedErrorFields = S.Struct.Fields;
 type TaggedErrorStruct = S.Struct<TaggedErrorFields>;
@@ -267,9 +270,23 @@ function isRestPayload(value: unknown, metadata: CauseMetadata): boolean {
   return metadata.isRequiredCause && P.isObject(value) && !hasExplicitCause(value);
 }
 
+class TaggedErrorClassCausePayloadError extends S.TaggedErrorClass<TaggedErrorClassCausePayloadError>(
+  $I`TaggedErrorClassCausePayloadError`
+)(
+  "TaggedErrorClassCausePayloadError",
+  {
+    message: S.String,
+  },
+  $I.annote("TaggedErrorClassCausePayloadError", {
+    description: "Raised when the cause-aware tagged error constructor receives a non-object rest payload.",
+  })
+) {}
+
 function toCausePayload(cause: unknown, rest: unknown): Record<string, unknown> {
   if (!P.isObject(rest)) {
-    throw new TypeError("TaggedErrorClass cause-aware constructors expect an object payload.");
+    throw new TaggedErrorClassCausePayloadError({
+      message: "TaggedErrorClass cause-aware constructors expect an object payload.",
+    });
   }
 
   return { ...rest, cause };

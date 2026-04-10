@@ -107,33 +107,34 @@ export const makeDevToolsRelayService: Effect.Effect<
   const server = yield* SocketServer.SocketServer;
   const state = MutableRef.make<RelayState>(emptyRelayState());
 
-  return DevToolsRelayService.of({
-    ingest: (request) =>
-      Effect.sync(() => {
-        const current = MutableRef.get(state);
-        const lastUpdatedAtMs = Date.now();
-        const next: RelayState =
-          request._tag === "Span"
+  const ingest = Effect.fn("DevToolsRelayService.ingest")((request: DevToolsSchema.Request.WithoutPing) =>
+    Effect.sync(() => {
+      const current = MutableRef.get(state);
+      const lastUpdatedAtMs = Date.now();
+      const next: RelayState =
+        request._tag === "Span"
+          ? {
+              ...current,
+              spans: HashMap.set(current.spans, toSpanKey(request), request),
+              lastUpdatedAtMs,
+            }
+          : request._tag === "SpanEvent"
             ? {
                 ...current,
-                spans: HashMap.set(current.spans, toSpanKey(request), request),
+                spanEvents: pipeAppendLimited(current.spanEvents, request),
                 lastUpdatedAtMs,
               }
-            : request._tag === "SpanEvent"
-              ? {
-                  ...current,
-                  spanEvents: pipeAppendLimited(current.spanEvents, request),
-                  lastUpdatedAtMs,
-                }
-              : {
-                  ...current,
-                  metrics: O.some(request),
-                  lastUpdatedAtMs,
-                };
+            : {
+                ...current,
+                metrics: O.some(request),
+                lastUpdatedAtMs,
+              };
 
-        MutableRef.set(state, next);
-      }),
-    snapshot: Effect.sync(() => {
+      MutableRef.set(state, next);
+    })
+  );
+  const snapshot = Effect.fn("DevToolsRelayService.snapshot")(() =>
+    Effect.sync(() => {
       const current = MutableRef.get(state);
       const metricCount = O.match(current.metrics, {
         onNone: thunk0,
@@ -146,11 +147,26 @@ export const makeDevToolsRelayService: Effect.Effect<
         metricCount: decodeNonNegativeInt(metricCount),
         lastUpdatedAtMs: decodeNonNegativeInt(current.lastUpdatedAtMs),
       });
-    }),
-    latestSpans: Effect.sync(() => A.fromIterable(HashMap.values(MutableRef.get(state).spans))),
-    latestMetrics: Effect.sync(() => MutableRef.get(state).metrics),
-    clear: Effect.sync(() => void MutableRef.set(state, emptyRelayState())),
-    address: Effect.sync(() => server.address),
+    })
+  );
+  const latestSpans = Effect.fn("DevToolsRelayService.latestSpans")(() =>
+    Effect.sync(() => A.fromIterable(HashMap.values(MutableRef.get(state).spans)))
+  );
+  const latestMetrics = Effect.fn("DevToolsRelayService.latestMetrics")(() =>
+    Effect.sync(() => MutableRef.get(state).metrics)
+  );
+  const clear = Effect.fn("DevToolsRelayService.clear")(() =>
+    Effect.sync(() => void MutableRef.set(state, emptyRelayState()))
+  );
+  const address = Effect.fn("DevToolsRelayService.address")(() => Effect.sync(() => server.address));
+
+  return DevToolsRelayService.of({
+    ingest,
+    snapshot: snapshot(),
+    latestSpans: latestSpans(),
+    latestMetrics: latestMetrics(),
+    clear: clear(),
+    address: address(),
   });
 });
 

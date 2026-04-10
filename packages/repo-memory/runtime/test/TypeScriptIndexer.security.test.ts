@@ -48,11 +48,10 @@ const makeIndexRequest = (repoPath: string, runLabel: string) =>
     runId: decodeRunId(`run:indexer:${runLabel}`),
   });
 
-const indexRepo = (repoPath: string, runLabel: string) =>
-  Effect.gen(function* () {
-    const indexer = yield* TypeScriptIndexService;
-    return yield* indexer.indexRepo(makeIndexRequest(repoPath, runLabel));
-  });
+const indexRepo = Effect.fn("TypeScriptIndexerSecurity.indexRepo")(function* (repoPath: string, runLabel: string) {
+  const indexer = yield* TypeScriptIndexService;
+  return yield* indexer.indexRepo(makeIndexRequest(repoPath, runLabel));
+});
 
 describe("TypeScriptIndexer security", () => {
   it.effect("skips symlinked directories that loop back into the repository while discovering tsconfig scopes", () =>

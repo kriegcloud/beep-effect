@@ -462,47 +462,44 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
       const idfValues = yield* Bool.match(request.includeIdf ?? false, {
         onFalse: () => Effect.succeed(A.empty()),
-        onTrue: () =>
-          Effect.gen(function* () {
-            const raw = yield* Effect.try({
-              try: () => compiled.vectorizer.out(its.idf),
-              catch: (cause) =>
-                CorpusManagerError.fromCause(cause, "Failed to compute corpus idf values", request.corpusId),
-            });
-            const decoded = yield* decodeTermScorePairs(raw, "corpus idf output", request.corpusId);
-            return pipe(
-              decoded,
-              A.sortBy(
-                descendingNumber(([, idf]) => idf),
-                ascendingString(([term]) => term)
-              ),
-              A.take(sanitizeLimit(request.topIdfTerms, A.length(decoded))),
-              A.map(([term, idf]) => ({
-                idf,
-                term,
-              }))
-            );
-          }),
+        onTrue: Effect.fn("Nlp.Wink.WinkCorpusManager.getStats.idfValues")(function* () {
+          const raw = yield* Effect.try({
+            try: () => compiled.vectorizer.out(its.idf),
+            catch: (cause) =>
+              CorpusManagerError.fromCause(cause, "Failed to compute corpus idf values", request.corpusId),
+          });
+          const decoded = yield* decodeTermScorePairs(raw, "corpus idf output", request.corpusId);
+          return pipe(
+            decoded,
+            A.sortBy(
+              descendingNumber(([, idf]) => idf),
+              ascendingString(([term]) => term)
+            ),
+            A.take(sanitizeLimit(request.topIdfTerms, A.length(decoded))),
+            A.map(([term, idf]) => ({
+              idf,
+              term,
+            }))
+          );
+        }),
       });
 
       const documentTermMatrix = yield* Bool.match(request.includeMatrix ?? false, {
         onFalse: () => Effect.succeed(A.empty()),
-        onTrue: () =>
-          Effect.gen(function* () {
-            const raw = yield* Effect.try({
-              try: () => compiled.vectorizer.out(its.docTermMatrix),
-              catch: (cause) =>
-                CorpusManagerError.fromCause(cause, "Failed to compute corpus matrix", request.corpusId),
-            });
+        onTrue: Effect.fn("Nlp.Wink.WinkCorpusManager.getStats.documentTermMatrix")(function* () {
+          const raw = yield* Effect.try({
+            try: () => compiled.vectorizer.out(its.docTermMatrix),
+            catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to compute corpus matrix", request.corpusId),
+          });
 
-            if (!A.isArray(raw)) {
-              return yield* CorpusManagerError.fromMessage("Invalid document-term matrix output", request.corpusId);
-            }
+          if (!A.isArray(raw)) {
+            return yield* CorpusManagerError.fromMessage("Invalid document-term matrix output", request.corpusId);
+          }
 
-            return yield* Effect.forEach(raw, (row) =>
-              decodeNumberArray(row, "document-term matrix row", request.corpusId)
-            );
-          }),
+          return yield* Effect.forEach(raw, (row) =>
+            decodeNumberArray(row, "document-term matrix row", request.corpusId)
+          );
+        }),
       });
 
       return {

@@ -62,7 +62,7 @@ is trusted. The active V2T spec now assumes:
 
 ## Recommended Use
 
-- Start the main phase session with `codex -p v2t_orchestrator`.
+- Prefer starting the main phase session with `codex -p v2t_orchestrator`.
 - Verify the live workspace names from `apps/V2T/package.json` and
   `packages/VT2/package.json` before copying Turbo filters. The current names
   are `@beep/v2t` and `@beep/VT2`.

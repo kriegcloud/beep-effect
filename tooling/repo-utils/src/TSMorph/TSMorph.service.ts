@@ -235,9 +235,12 @@ export const TSMorphServiceError = S.Union([
   TsMorphUnsupportedFileError,
   TsMorphServiceUnavailableError,
 ]).pipe(S.toTaggedUnion("_tag"));
+
 /**
- * @since 0.0.0
+ * Tagged union type for all ts-morph service errors.
+ *
  * @category DomainModel
+ * @since 0.0.0
  */
 export type TSMorphServiceError = typeof TSMorphServiceError.Type;
 
@@ -1080,8 +1083,8 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     });
   });
 
-  const updateSourceFile: TSMorphServiceShape["updateSourceFile"] = (filePath, update) =>
-    Effect.gen(function* () {
+  const updateSourceFile: TSMorphServiceShape["updateSourceFile"] = Effect.fn("TSMorphService.updateSourceFile")(
+    function* (filePath, update) {
       const safeFilePath = TypeScriptImplementationFilePath.make(filePath);
       const scope = yield* resolveScopeFromEntrypoint(
         {
@@ -1123,7 +1126,8 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
 
       MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
       return true;
-    });
+    }
+  );
 
   return {
     resolveProjectScope,

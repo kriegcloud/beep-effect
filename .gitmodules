@@ -1,0 +1,3 @@
+[submodule ".agents/skills/effect-v4"]
+	path = .agents/skills/effect-v4
+	url = https://github.com/agustif/effect-v4-skill.git

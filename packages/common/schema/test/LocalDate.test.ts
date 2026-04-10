@@ -651,6 +651,13 @@ describe("LocalDate", () => {
         })
       );
 
+      it.effect("rejects year 0000", () =>
+        Effect.gen(function* () {
+          const result = yield* Effect.exit(S.decodeUnknownEffect(LocalDateFromString)("0000-01-15"));
+          expect(Exit.isFailure(result)).toBe(true);
+        })
+      );
+
       it.effect("rejects invalid month - 13", () =>
         Effect.gen(function* () {
           const result = yield* Effect.exit(S.decodeUnknownEffect(LocalDateFromString)("2024-13-15"));

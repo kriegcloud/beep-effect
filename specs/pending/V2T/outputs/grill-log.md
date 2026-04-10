@@ -104,9 +104,9 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Answer: treat lowercase `@beep/v2t` plus the package-local app lint gate as
   authoritative
 - Resolution: corrected the scoped docs and manifest command matrix after
-  verifying that `@beep/V2T` is not a real workspace package and that
-  `turbo run lint --filter=@beep/v2t` still expands into the nonexistent
-  `@beep/VT2#lint` task
+  verifying that `@beep/V2T` is not a real workspace package and that the
+  filtered Turbo lint path is dependency-expanded rather than a targeted
+  app-only lint gate
 
 ### Q15 - What should the package-local validator enforce beyond broken links?
 
@@ -143,3 +143,83 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Recommendation: define one package-local Graphiti protocol that standardizes recall queries, exact-error fallback logging, fixed writeback metadata, and session-end summaries instead of scattering memory reminders through multiple docs
 - Answer: add a dedicated Graphiti memory protocol doc and treat it as canonical
 - Resolution: added `prompts/GRAPHITI_MEMORY_PROTOCOL.md`, wired it into the manifest, validator, entry docs, handoffs, prompt kit, and phase artifacts, and made `fresh_session_read_order` the canonical startup sequence after opening the manifest
+
+### Q21 - What should happen when Graphiti fact search is healthy but still fails to return useful recall?
+
+- Recommendation: standardize a recall ladder of `search_memory_facts`, one shorter fallback query, `get_episodes`, and only then repo-local fallback so healthy-but-fragile Graphiti sessions still get a second memory path before giving up
+- Answer: make the Graphiti recall ladder explicit and package-wide
+- Resolution: updated `prompts/GRAPHITI_MEMORY_PROTOCOL.md`, the manifest, and the startup surfaces so operators record exact query and error evidence, try `get_episodes` before abandoning Graphiti, and keep `fresh_session_read_order` as the only canonical startup order
+
+### Q22 - Why keep `bun run --cwd apps/V2T lint` as the default targeted app lint gate if `turbo run lint --filter=@beep/v2t` currently succeeds?
+
+- Recommendation: keep the package-local app lint command as the default
+  evidence because it scopes directly to the app surface, while the filtered
+  Turbo lint run fans out across dependency lint work and therefore answers a
+  different question
+- Answer: distinguish targeted app-only lint evidence from broader dependency
+  lint evidence
+- Resolution: refined the operator docs and validator expectations so they no
+  longer rely on the stale nonexistent-task explanation and instead point to
+  the stronger, more durable reason for the app-local lint gate
+
+### Q23 - How should the spec prevent the fresh-session prompt and delegation kit from drifting away from orchestrator ownership rules?
+
+- Recommendation: make the codex entry prompt defer completely to manifest startup order, give Plan mode an explicit no-edit branch, keep P1 design workers read-only by default, and machine-enforce the common worker packet fields plus repeated command-truth inputs
+- Answer: treat startup order, Plan-mode behavior, and delegation packet completeness as validator-enforced package contract rather than guidance only
+- Resolution: simplified `outputs/codex-plan-mode-prompt.md`, tightened `prompts/PHASE_DELEGATION_PROMPTS.md`, repeated the root plus workspace manifest and Turbo inputs through the phase docs and handoff prompts, and extended `outputs/validate-spec.mjs` with required-snippet plus stale-pattern checks for those rules
+
+## 2026-04-10 Local Installer Decisions
+
+### Q24 - What machine shape should the V2T installer target first?
+
+- Recommendation: target one local Debian/Ubuntu workstation with an existing `beep-effect` checkout and one sudo-capable desktop user
+- Answer: local Debian/Ubuntu workstation
+- Resolution: V2T workstation automation now lives in `@beep/infra` instead of a cloud deploy or repo-cloning bootstrap path
+
+### Q25 - Which repo surfaces remain authoritative for the installed app?
+
+- Recommendation: keep `apps/V2T` as the native app and `packages/VT2` as the packaged sidecar seam
+- Answer: use `apps/V2T` plus `packages/VT2`
+- Resolution: the installer builds the native Tauri app locally and preserves the current SQLite-backed sidecar seam
+
+### Q26 - How should the local Qwen runtime be provisioned?
+
+- Recommendation: run `Qwen/Qwen2-Audio-7B-Instruct` natively as a user-owned Python service on localhost
+- Answer: native local Qwen service
+- Resolution: the installer provisions Qwen outside Docker and exposes it on `127.0.0.1:8011`
+
+### Q27 - Do we need a Hugging Face token for the Qwen model?
+
+- Recommendation: keep it optional because the public model can be downloaded anonymously
+- Answer: optional token
+- Resolution: `HUGGING_FACE_HUB_TOKEN` is supported as a Pulumi secret or optional `op run`-injected env var, but it is not mandatory for the default install path
+
+### Q28 - How should Graphiti and FalkorDB be provisioned?
+
+- Recommendation: provision them in-module with Docker and keep the existing proxy scripts and service names compatible
+- Answer: provision Graphiti/FalkorDB in-module
+- Resolution: the installer owns the local Graphiti compose stack and the existing Graphiti proxy user service
+
+### Q29 - Should `1Password` be required for V2T secrets?
+
+- Recommendation: no, keep Pulumi secret config primary and allow `op run` only as operator convenience
+- Answer: `1Password` stays optional
+- Resolution: V2T does not require OnePassword Connect or Pulumi ESC in V1
+
+### Q30 - Does Graphiti stay secret-free in the local installer?
+
+- Recommendation: no; record the upstream LLM credential requirement explicitly once verified
+- Answer: Graphiti requires a secret when enabled
+- Resolution: after verifying the upstream Graphiti MCP docs, the spec now treats the Graphiti LLM API key as a required installer secret whenever Graphiti provisioning stays enabled
+
+### Q31 - What Pulumi backend posture should the local installer use?
+
+- Recommendation: local file backend with a passphrase-backed secrets provider
+- Answer: local backend
+- Resolution: `@beep/infra` scripts now default to `file://<repoRoot>/.pulumi-local/v2t-workstation`
+
+### Q32 - Once the Pulumi workstation project exists in `infra`, how should the canonical spec treat it?
+
+- Recommendation: treat `@beep/infra` as live repo truth, not as planned future implementation
+- Answer: use `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, `infra/test/V2T.test.ts`, and `infra/package.json` as the authoritative workstation-install and deployment surfaces
+- Resolution: updated the docs, prompts, handoffs, manifest, and validator so `@beep/infra` is now a first-class V2T seam alongside `apps/V2T` and `packages/VT2`

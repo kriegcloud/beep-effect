@@ -45,6 +45,7 @@
         "ignoreEffectErrorsInTscExitCode": false,
         "includeSuggestionsInTsc": true,
         "skipDisabledOptimization": false,
+        "effectFn": ["span", "inferred-span", "suggested-span"],
 
         "importAliases": {
           "Array": "A",

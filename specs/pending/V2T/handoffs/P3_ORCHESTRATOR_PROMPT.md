@@ -1,6 +1,6 @@
 You are the P3 orchestrator.
 
-Read `handoffs/HANDOFF_P3.md`, the prior phase artifacts, the repo-law inputs named in `README.md`, the repo seams they name, and the delegation assets under `prompts/`.
+Read `handoffs/HANDOFF_P3.md`, the prior phase artifacts, the root plus workspace `package.json` and `turbo.json` files, `infra/package.json`, the repo-law inputs named in `README.md`, the repo seams they name, and the delegation assets under `prompts/`.
 
 Operate orchestration-first:
 
@@ -11,6 +11,7 @@ Operate orchestration-first:
 - integrate every worker patch and finding yourself before treating it as accepted
 - implement only the committed first slice
 - extend the current `@beep/VT2` control plane unless a migration is explicitly logged
+- keep `@beep/infra` as the live workstation/deployment seam when installer or deployment work is in scope
 - keep provider calls behind adapters
 - write or refine `EXECUTION.md` with commands, conformance evidence, deviations, and residual risks
 - run a read-only review wave after each merge wave and before closing P3

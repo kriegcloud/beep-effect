@@ -1,3 +1,4 @@
+import { $I } from "@beep/identity/packages";
 import {
   makeRepoMemoryClient,
   normalizeSidecarBaseUrl,
@@ -25,7 +26,7 @@ import {
   type SidecarBootstrap,
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
-import { FilePath } from "@beep/schema";
+import { FilePath, TaggedErrorClass } from "@beep/schema";
 import { DateTime, Duration, Effect, Fiber, Order, pipe, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -48,6 +49,7 @@ import {
   queryStageEntries,
 } from "./queryStages.ts";
 
+const $DesktopId = $I.create("apps/desktop/src/RepoMemoryDesktop");
 const defaultBaseUrl = "http://127.0.0.1:8788";
 const desktopSessionId = "desktop-shell";
 const sidecarBaseUrlKey = "beep.repoMemory.sidecarBaseUrl";
@@ -55,6 +57,18 @@ const desktopDevHost = "desktop.localhost";
 const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRunCursor = S.decodeUnknownSync(RunCursor);
 const decodeRunId = S.decodeUnknownSync(RunId);
+
+class MissingManagedSidecarBootstrapError extends TaggedErrorClass<MissingManagedSidecarBootstrapError>(
+  $DesktopId`MissingManagedSidecarBootstrapError`
+)(
+  "MissingManagedSidecarBootstrapError",
+  {
+    message: S.String,
+  },
+  $DesktopId.annote("MissingManagedSidecarBootstrapError", {
+    description: "Managed sidecar startup completed without a bootstrap payload.",
+  })
+) {}
 
 const readPersistedSidecarBaseUrl = (): string | null => {
   if (typeof window === "undefined") {
@@ -708,7 +722,9 @@ export function RepoMemoryDesktop() {
       }
 
       if (nextBootstrap === null) {
-        throw new Error("Managed sidecar did not report a bootstrap payload.");
+        throw MissingManagedSidecarBootstrapError.new({
+          message: "Managed sidecar did not report a bootstrap payload.",
+        });
       }
 
       await connectToBaseUrl(managedDevClientBaseUrl(nextBootstrap), {

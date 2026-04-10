@@ -6,7 +6,7 @@ NOT_STARTED
 
 ## Execution Objective
 
-Implement the first committed V2T slice in `apps/V2T`, `packages/VT2`, and their supporting seams without widening scope beyond the contracts locked in `RESEARCH.md`, `DESIGN_RESEARCH.md`, and `PLANNING.md`.
+Implement the first committed V2T slice in `apps/V2T`, `packages/VT2`, `@beep/infra`, and their supporting seams without widening scope beyond the contracts locked in `RESEARCH.md`, `DESIGN_RESEARCH.md`, and `PLANNING.md`.
 
 ## Phase Agent Role
 
@@ -42,8 +42,11 @@ P3 execution must actively apply:
 - `standards/effect-first-development.md`
 - `standards/schema-first.inventory.jsonc`
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
-- `apps/V2T/package.json` and `packages/VT2/package.json` for live workspace
-  package names and task availability
+- `infra/package.json`
+- root `package.json`, root `turbo.json`, `apps/V2T/package.json`,
+  `apps/V2T/turbo.json`, `packages/VT2/package.json`, and
+  `packages/VT2/turbo.json` for live workspace package names, task
+  availability, and command-truth checks
 
 ## Evidence Recording Rules
 
@@ -53,14 +56,16 @@ P3 execution must actively apply:
 - Record deviations from `PLANNING.md` as soon as they occur, not only at the end of the phase.
 - If a broader repo-law command is skipped, explain why it was not applicable or why the phase remains blocked.
 - Record Graphiti recall attempted, exact query, exact error text when recall
-  fails, fallback used, and any durable writeback or queued session-end
-  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
+  fails, whether `get_episodes` fallback was attempted and what it returned,
+  fallback used, and any durable writeback or queued session-end summary using
+  `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Required Outcomes
 
 - replace the placeholder app shell with the agreed workflow
 - persist projects, sessions, transcripts, composition packets, and export artifact records
 - extend the existing `@beep/VT2` control plane unless a deliberate migration is explicitly documented
+- keep `@beep/infra` as the canonical workstation/deployment seam when the approved slice touches installer or deployment behavior
 - keep all external providers behind explicit adapters
 - reuse shared repo primitives where they already fit
 - document every meaningful deviation from `PLANNING.md`
@@ -73,6 +78,7 @@ P3 execution must actively apply:
 - prefer typed errors and explicit service boundaries
 - do not let React components own provider-specific logic
 - do not invent an app-local server path if the current `packages/VT2` sidecar seam can carry the slice
+- do not invent a second installer or deployment path if the current `@beep/infra` seam can carry the slice
 - stop at the first-slice boundary instead of slipping into speculative polish
 - capture command results and touched surfaces in this document as work progresses
 - do not claim a gate passed unless the concrete command result is recorded here
@@ -81,10 +87,11 @@ P3 execution must actively apply:
 
 ### Targeted Implementation Floor
 
-- `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
 - `bun run --cwd apps/V2T lint`
+- `bun run --cwd infra lint`
 
 ### Repo Law Gate
 
@@ -100,6 +107,7 @@ P3 execution must actively apply:
 Important note:
 
 - `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be evidenced through the repo-law commands above
+- `@beep/infra` is a live package with package-local `check`, `test`, and `lint` scripts, so installer-surface work must keep those commands truthful in both code and docs
 - `@beep/v2t` is the live app package name even though the folder is
   `apps/V2T`, so re-check filter casing from the manifest before editing the
   command matrix

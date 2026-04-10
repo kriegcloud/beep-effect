@@ -6,7 +6,7 @@ BOOTSTRAP BASELINE
 
 ## Goal
 
-Convert the research and design docs into an implementation sequence for the existing `apps/V2T` workspace and its supporting seams.
+Convert the research and design docs into an implementation sequence for the existing `apps/V2T`, `packages/VT2`, and `@beep/infra` seams.
 
 ## Phase Agent Role
 
@@ -43,10 +43,12 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 - `standards/effect-first-development.md`
 - `standards/schema-first.inventory.jsonc`
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
+- `infra/package.json`
 - root `package.json`, root `turbo.json`, `apps/V2T/package.json`, `apps/V2T/turbo.json`, `packages/VT2/package.json`, and `packages/VT2/turbo.json`
 - `apps/V2T/package.json` and `packages/VT2/package.json` are authoritative for
   Turbo filter names: use `@beep/v2t` for the app and `@beep/VT2` for the
   sidecar unless the manifests change
+- `infra/package.json` is authoritative for the workstation/deployment workspace name `@beep/infra` and its package-local Pulumi scripts
 
 ## Evidence Rules
 
@@ -56,10 +58,23 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 - If the plan depends on hidden architecture choices not locked in P1, surface them explicitly rather than smuggling them into rollout order.
 - If a command is broader than the first slice, say so and explain why the broader gate still matters.
 - Record Graphiti recall attempted, exact query, exact error text when recall
-  fails, fallback used, and any durable writeback or queued session-end
-  summary using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
+  fails, whether `get_episodes` fallback was attempted and what it returned,
+  fallback used, and any durable writeback or queued session-end summary using
+  `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
 
 ## Implementation Tracks
+
+### Track 0 - Workstation Installer
+
+- keep `infra/Pulumi.yaml` and `infra/src/internal/entry.ts` as the live project and stack entrypoint for `V2TWorkstation`
+- extend `infra/src/V2T.ts`, its schema-first workstation config, and its typed config errors instead of inventing a second installer entrypoint
+- provision the installer through `@pulumi/command` `local.Command` resources with explicit `create`, `update`, `delete`, `dir`, `environment`, and scoped `triggers`
+- keep the current local backend posture at `.pulumi-local/v2t-workstation` and the current stack namespace `v2t` unless an approved change explicitly updates both docs and code
+- install workstation prerequisites for local native app builds, Qwen serving, Docker-backed Graphiti, and the existing Graphiti proxy workflow
+- build `apps/V2T` and `packages/VT2` from the current checkout and install the generated Debian package locally
+- keep destroy conservative by removing only V2T-managed services, caches, units, and package artifacts
+- require a Graphiti LLM API key secret whenever Graphiti provisioning remains enabled
+- keep `1Password` optional by supporting Pulumi secrets and optional `op run` injection instead of mandatory Connect or ESC integration
 
 ### Track 1 - Domain And Contracts
 
@@ -95,13 +110,14 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 
 ## Suggested File And Surface Order
 
-1. `apps/V2T/src` domain and service contracts
-2. `packages/VT2/src/protocol.ts` and `packages/VT2/src/Server/index.ts` sidecar contract and runtime wiring
-3. `apps/V2T/src/router.tsx` and component surfaces for the user workflow
-4. `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` only if runtime packaging or env contracts change
-5. provider adapter implementations or stubs behind the service interfaces
-6. app and sidecar tests plus route or state verification
-7. package docs or docgen outputs if public workspace docs materially change
+1. `infra/src/V2T.ts`, `infra/src/internal/entry.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts` for installer and deployment surfaces when the slice changes them
+2. `apps/V2T/src` domain and service contracts
+3. `packages/VT2/src/protocol.ts` and `packages/VT2/src/Server/index.ts` sidecar contract and runtime wiring
+4. `apps/V2T/src/router.tsx` and component surfaces for the user workflow
+5. `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` only if runtime packaging or env contracts change
+6. provider adapter implementations or stubs behind the service interfaces
+7. app, sidecar, and infra tests plus route, state, or installer verification
+8. package docs or docgen outputs if public workspace docs materially change
 
 ## Acceptance Criteria
 
@@ -132,14 +148,16 @@ Note:
 
 The planning phase locks these as the minimum targeted code-validation floor for the app workspace and sidecar:
 
-- `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
 - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
 - `bun run --cwd apps/V2T lint`
+- `bun run --cwd infra lint`
 
 Important note:
 
 - `@beep/VT2` currently has no package-local `lint` or `docgen` task, so do not write plans that depend on those nonexistent commands
+- `@beep/infra` already carries package-local `check`, `test`, and `lint` tasks plus the live Pulumi operator scripts in `infra/package.json`
 - `@beep/v2t` is the live app package name even though the folder is
   `apps/V2T`, so verify filter casing from the manifest before locking the
   command matrix
@@ -184,6 +202,8 @@ Before P4 can claim readiness for implementation work, plan for:
 - export and generation artifacts can create path-management and status-tracking complexity early
 - extending the current `@beep/VT2` document-oriented control plane into V2T-native workflows may require careful schema and route migration
 - command drift can make a plan look stricter than the repo really is if the task graph is not verified against live package scripts
+- Graphiti's upstream LLM requirement means the memory stack is not fully local-only today, so the installer must keep that secret boundary explicit instead of hiding it behind Docker
+- Debian/Ubuntu remains the supported workstation target for the installer even when development happens on a different local OS
 
 ## Stop Conditions
 

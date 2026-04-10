@@ -77,3 +77,40 @@
 - Extended the manifest and validator to track the Graphiti protocol explicitly, require the memory protocol prompt asset, and fail if the README reintroduces the stale “normative source of truth” wording.
 - Propagated the Graphiti protocol through the README, quick start, prompts, handoffs, the phase entry prompt, and the five phase artifacts so memory usage is explicit, auditable, and phase-local evidence can record recall plus writeback behavior consistently.
 - Removed a duplicate `outputs/manifest.json` entry from `fresh_session_read_order` and taught the validator to fail on duplicate startup-order entries so the canonical read sequence stays strictly linear.
+
+## 2026-04-10 Startup Authority And Graphiti Fallback Pass
+
+- Removed the last competing human startup-order lists by making the README, quick start, agent prompts, combined handoff, and combined orchestrator prompt explicitly defer to `outputs/manifest.json` `fresh_session_read_order` instead of restating their own ordered sequences.
+- Extended the Graphiti protocol from a single fact-search attempt into a documented recall ladder: initial `search_memory_facts`, one shorter fallback query, `get_episodes`, then repo-local fallback.
+- Mirrored that Graphiti recall ladder into the manifest so package tooling and human operators now share the same memory-recall contract.
+- Extended the validator to enforce the ordered Graphiti recall ladder and to reject the old `## Required Read Order` heading so competing startup-order prose cannot quietly return.
+- Aligned `.codex/agents/README.md` with the rest of the package by treating `codex -p v2t_orchestrator` as the preferred startup profile rather than an implied hard requirement.
+- Corrected the Graphiti protocol preflight numbering after the recall-ladder expansion so the operator checklist remains linear and copy-safe.
+
+## 2026-04-10 Targeted Lint Gate Truth Pass
+
+- Rechecked the live Turbo behavior and confirmed that `bunx turbo run lint --filter=@beep/v2t` currently succeeds, so the older explanation that it still hits a nonexistent `@beep/VT2#lint` task was stale.
+- Kept `bun run --cwd apps/V2T lint` as the default targeted app lint gate, but updated the package guidance to use the truer rationale: the filtered Turbo lint path is dependency-expanded and therefore not equivalent to app-only lint evidence.
+- Tightened the validator to reject the stale nonexistent-task explanation so future package edits keep the lint-gate guidance aligned with live repo behavior.
+- Fixed a validator bug in the same pass: `graphiti.recall_order` is now checked as an ordered string array instead of by object identity, so the package gate no longer emits false failures when manifest and expected recall order already match.
+
+## 2026-04-10 Graphiti Evidence Sync Pass
+
+- Brought the human-facing evidence rules back into sync with the already-recorded Graphiti recall ladder by requiring every phase and worker memory note to record the `get_episodes` fallback result, not just the initial fact-search query and error text.
+- Tightened the quick-start wording so operators are told up front that the Graphiti preflight includes the episode fallback when fact search is empty or wrapper-fragile.
+
+## 2026-04-10 Delegation And Prompt Contract Pass
+
+- Simplified `outputs/codex-plan-mode-prompt.md` so it no longer restates a second ordered startup file list and instead defers explicitly to `outputs/manifest.json` `fresh_session_read_order`.
+- Added an explicit Plan-mode branch to the fresh-session prompt so planning sessions do not claim spec edits or grill-log updates before they are allowed to mutate artifacts.
+- Tightened the delegation kit by making P1 design workers read-only by default and by requiring every worker packet to carry `Assigned question`, `Graphiti assignment`, and `Stop condition`.
+- Standardized the root plus workspace `package.json` and `turbo.json` inputs across the phase docs and phase handoff prompts so command-truth requirements stay visible outside the README.
+- Extended the validator with required-snippet checks and stale-pattern guards for the old codex prompt startup list, the old unconditional P0 grill-log rule, and the old P1 write-capable design-worker wording.
+
+## 2026-04-10 Infra Reality Pass
+
+- Corrected the package to treat `@beep/infra` as live repo truth rather than future implementation work.
+- Grounded the spec against the current Pulumi workstation surfaces in `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts`.
+- Extended the command-truth contract so installer and deployment claims must cite `infra/package.json` in addition to the root, app, and sidecar manifests.
+- Tightened the human-facing gates so infra check, test, and lint evidence now stay aligned with the live targeted implementation floor.
+- Extended the validator to reject stale “add Pulumi later” prose and to require infra-aware snippets across the README, quick start, phase docs, prompts, and handoffs.

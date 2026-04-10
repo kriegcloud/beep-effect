@@ -175,18 +175,23 @@ const makePacket = (kind: OtlpPacketKind, encoding: OtlpPacketEncoding, body: Ht
 const makePacketLabRuntime = () => {
   const packets = MutableRef.make<ReadonlyArray<OtlpPacket>>(A.empty());
 
+  const snapshot = Effect.fn("OtlpPacketLab.snapshot")(() => Effect.sync(() => MutableRef.get(packets)));
+  const clear = Effect.fn("OtlpPacketLab.clear")(() => Effect.sync(() => void MutableRef.set(packets, A.empty())));
+  const latest = Effect.fn("OtlpPacketLab.latest")((kind: OtlpPacketKind) =>
+    Effect.sync(() =>
+      pipe(
+        MutableRef.get(packets),
+        A.filter((packet) => packet.kind === kind),
+        A.last
+      )
+    )
+  );
+
   return {
     service: OtlpPacketLab.of({
-      snapshot: Effect.sync(() => MutableRef.get(packets)),
-      clear: Effect.sync(() => void MutableRef.set(packets, A.empty())),
-      latest: (kind) =>
-        Effect.sync(() =>
-          pipe(
-            MutableRef.get(packets),
-            A.filter((packet) => packet.kind === kind),
-            A.last
-          )
-        ),
+      snapshot: snapshot(),
+      clear: clear(),
+      latest,
     }),
     capture: (kind: OtlpPacketKind, encoding: OtlpPacketEncoding, body: HttpBody.HttpBody) =>
       void MutableRef.update(packets, A.append(makePacket(kind, encoding, body))),

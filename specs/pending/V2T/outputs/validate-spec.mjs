@@ -12,23 +12,27 @@ const rootPackageManifestPath = join(repoRootDir, "package.json")
 const rootTurboManifestPath = join(repoRootDir, "turbo.json")
 const codexConfigPath = join(repoRootDir, ".codex", "config.toml")
 const codexAgentsReadmePath = join(repoRootDir, ".codex", "agents", "README.md")
+const infraPackageManifestPath = join(repoRootDir, "infra", "package.json")
 const appPackageManifestPath = join(repoRootDir, "apps", "V2T", "package.json")
 const appTurboManifestPath = join(repoRootDir, "apps", "V2T", "turbo.json")
 const sidecarPackageManifestPath = join(repoRootDir, "packages", "VT2", "package.json")
 const sidecarTurboManifestPath = join(repoRootDir, "packages", "VT2", "turbo.json")
 const codexConfigContent = readFileSync(codexConfigPath, "utf8")
 const rootPackageManifest = JSON.parse(readFileSync(rootPackageManifestPath, "utf8"))
+const infraPackageManifest = JSON.parse(readFileSync(infraPackageManifestPath, "utf8"))
 const appPackageManifest = JSON.parse(readFileSync(appPackageManifestPath, "utf8"))
 const sidecarPackageManifest = JSON.parse(readFileSync(sidecarPackageManifestPath, "utf8"))
+const infraWorkspacePackageName = infraPackageManifest.name
 const appWorkspacePackageName = appPackageManifest.name
 const sidecarWorkspacePackageName = sidecarPackageManifest.name
 
 const expectedPhaseOrder = ["p0", "p1", "p2", "p3", "p4"]
 const expectedImplementationFloor = [
-  `bunx turbo run check --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
-  `bunx turbo run test --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
+  `bunx turbo run check --filter=${infraWorkspacePackageName} --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
+  `bunx turbo run test --filter=${infraWorkspacePackageName} --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
   `bunx turbo run build --filter=${appWorkspacePackageName} --filter=${sidecarWorkspacePackageName}`,
-  "bun run --cwd apps/V2T lint"
+  "bun run --cwd apps/V2T lint",
+  "bun run --cwd infra lint"
 ]
 const expectedRepoLawGate = [
   "bun run lint:effect-laws",
@@ -47,6 +51,12 @@ const expectedGraphitiConfig = {
   search_group_ids_json: "[\"beep-dev\"]",
   add_memory_source: "text",
   add_memory_source_description: "codex-cli session",
+  recall_order: [
+    "search_memory_facts",
+    "search_memory_facts_shorter_fallback",
+    "get_episodes",
+    "repo_local_fallback"
+  ],
   require_exact_error_logging: true,
   require_session_end_summary_writeback: true
 }
@@ -92,6 +102,50 @@ const staleProsePatterns = [
   {
     description: "stale README authority label",
     pattern: /normative source of truth for this spec package/
+  },
+  {
+    description: "stale turbo lint nonexistent-task explanation",
+    pattern: /(?:dry-run still expands to|dependency lint expansion still reaches).+@beep\/VT2#lint/s
+  },
+  {
+    description: "stale competing startup-order heading",
+    pattern: /^## Required Read Order$/m
+  },
+  {
+    description: "stale codex prompt explicit startup list",
+    pattern: /^Read these files first:$/m
+  },
+  {
+    description: "stale codex prompt unconditional phase-artifact write instruction",
+    pattern: /^- write or refine the named phase artifact$/m
+  },
+  {
+    description: "stale codex prompt unconditional p0 grill-log instruction",
+    pattern: /^- update `outputs\/grill-log\.md` when the active phase is `p0`$/m
+  },
+  {
+    description: "stale P1 worker mixed read-only and write mode guidance",
+    pattern: /Mode: `read-only` or `workspace-write`, depending on the orchestrator wave/
+  },
+  {
+    description: "stale P1 worker direct canonical design artifact write scope",
+    pattern: /Write scope:\s*- `specs\/pending\/V2T\/DESIGN_RESEARCH\.md`/s
+  },
+  {
+    description: "stale infra future-work claim",
+    pattern: /before this implementation pass it did not yet contain a real V2T workstation component or a usable Pulumi project entrypoint/
+  },
+  {
+    description: "stale add-real-pulumi-project planning text",
+    pattern: /add a real Pulumi project shape in `@beep\/infra` with a local stack entrypoint for `V2TWorkstation`/
+  },
+  {
+    description: "stale infra tasks future-tense claim",
+    pattern: /@beep\/infra should carry package-local `test` and `lint` tasks once the workstation installer exists/
+  },
+  {
+    description: "stale Pulumi entrypoint path",
+    pattern: /infra\/src\/entry\.ts/
   }
 ]
 
@@ -106,6 +160,7 @@ const toPosixPath = (path) => path.split("\\").join("/")
 const expectedCommandTruthFiles = [
   toPosixPath(relative(specDir, rootPackageManifestPath)),
   toPosixPath(relative(specDir, rootTurboManifestPath)),
+  toPosixPath(relative(specDir, infraPackageManifestPath)),
   toPosixPath(relative(specDir, appPackageManifestPath)),
   toPosixPath(relative(specDir, appTurboManifestPath)),
   toPosixPath(relative(specDir, sidecarPackageManifestPath)),
@@ -137,6 +192,17 @@ const expectString = (label, value) => {
 const expectStringArray = (label, value) => {
   if (!Array.isArray(value) || value.some((entry) => typeof entry !== "string" || entry.length === 0)) {
     pushFailure(`${label}: expected array of non-empty strings`)
+  }
+}
+
+const expectOrderedStringArray = (label, actual, expected) => {
+  if (!Array.isArray(actual) || !Array.isArray(expected)) {
+    pushFailure(`${label}: expected array values`)
+    return
+  }
+
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    pushFailure(`${label}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`)
   }
 }
 
@@ -364,6 +430,11 @@ const checkManifestStructure = () => {
     true
   )
   expectValue(
+    "manifest.conformance.workspace_packages.infra",
+    manifest.conformance?.workspace_packages?.infra,
+    infraWorkspacePackageName
+  )
+  expectValue(
     "manifest.conformance.workspace_packages.app",
     manifest.conformance?.workspace_packages?.app,
     appWorkspacePackageName
@@ -396,6 +467,11 @@ const checkManifestStructure = () => {
     "manifest.conformance.required_script_keys.app",
     manifest.conformance?.required_script_keys?.app ?? [],
     ["check", "test", "build", "lint"]
+  )
+  expectSortedStringArray(
+    "manifest.conformance.required_script_keys.infra",
+    manifest.conformance?.required_script_keys?.infra ?? [],
+    ["check", "test", "lint", "pulumi:login:local", "stack:init:local", "preview", "up", "destroy", "refresh"]
   )
   expectSortedStringArray(
     "manifest.conformance.required_script_keys.sidecar",
@@ -466,6 +542,11 @@ const checkManifestStructure = () => {
     manifest.conformance?.required_script_keys?.app ?? []
   )
   expectScriptsPresent(
+    "infra package manifest scripts",
+    infraPackageManifest.scripts,
+    manifest.conformance?.required_script_keys?.infra ?? []
+  )
+  expectScriptsPresent(
     "sidecar package manifest scripts",
     sidecarPackageManifest.scripts,
     manifest.conformance?.required_script_keys?.sidecar ?? []
@@ -475,8 +556,18 @@ const checkManifestStructure = () => {
     sidecarPackageManifest.scripts,
     manifest.conformance?.forbidden_script_keys?.sidecar ?? []
   )
+  expectValue(
+    "manifest.conformance.notes.filtered_turbo_app_lint_is_dependency_expanded",
+    manifest.conformance?.notes?.filtered_turbo_app_lint_is_dependency_expanded,
+    true
+  )
 
   for (const [key, value] of Object.entries(expectedGraphitiConfig)) {
+    if (Array.isArray(value)) {
+      expectOrderedStringArray(`manifest.graphiti.${key}`, manifest.graphiti?.[key], value)
+      continue
+    }
+
     expectValue(`manifest.graphiti.${key}`, manifest.graphiti?.[key], value)
   }
 
@@ -533,6 +624,10 @@ const checkRequiredHeadings = () => {
     manifest.validation?.required_headings ?? {}
   )) {
     expectStringArray(`manifest.validation.required_headings.${relativePath}`, headings)
+    if (!Array.isArray(headings)) {
+      pushFailure(`manifest.validation.required_headings.${relativePath}: expected array of non-empty strings`)
+      continue
+    }
 
     const absolutePath = join(specDir, relativePath)
     if (!existsSync(absolutePath)) {
@@ -549,6 +644,31 @@ const checkRequiredHeadings = () => {
   }
 }
 
+const checkRequiredSnippets = () => {
+  for (const [relativePath, snippets] of Object.entries(
+    manifest.validation?.required_snippets ?? {}
+  )) {
+    expectStringArray(`manifest.validation.required_snippets.${relativePath}`, snippets)
+    if (!Array.isArray(snippets)) {
+      pushFailure(`manifest.validation.required_snippets.${relativePath}: expected array of non-empty strings`)
+      continue
+    }
+
+    const absolutePath = join(specDir, relativePath)
+    if (!existsSync(absolutePath)) {
+      pushFailure(`manifest.validation.required_snippets: missing file ${relativePath}`)
+      continue
+    }
+
+    const content = readFileSync(absolutePath, "utf8")
+    for (const snippet of snippets) {
+      if (!content.includes(snippet)) {
+        pushFailure(`${relativePath}: missing required snippet ${JSON.stringify(snippet)}`)
+      }
+    }
+  }
+}
+
 checkManifestStructure()
 
 for (const manifestRef of collectManifestPaths(manifest)) {
@@ -556,6 +676,7 @@ for (const manifestRef of collectManifestPaths(manifest)) {
 }
 
 checkRequiredHeadings()
+checkRequiredSnippets()
 
 walkMarkdownFiles(specDir)
 

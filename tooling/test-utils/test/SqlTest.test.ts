@@ -42,16 +42,15 @@ const makeLayer = <MigrateError = never, SeedError = never>(hooks?: SqlTestHooks
             }
       );
 
-const doesTableExist = (tableName: string) =>
-  Effect.gen(function* () {
-    const sql = (yield* SqlClient.SqlClient).withoutTransforms();
-    const rows = yield* sql<{ readonly name: string }>`
+const doesTableExist = Effect.fn("SqlTest.doesTableExist")(function* (tableName: string) {
+  const sql = (yield* SqlClient.SqlClient).withoutTransforms();
+  const rows = yield* sql<{ readonly name: string }>`
       SELECT name
       FROM sqlite_master
       WHERE type = 'table' AND name = ${tableName}
     `;
-    return A.isReadonlyArrayNonEmpty(rows);
-  });
+  return A.isReadonlyArrayNonEmpty(rows);
+});
 
 describe("SqlTest", () => {
   it.effect("creates a fresh SQLite database for each locally provided layer", () =>

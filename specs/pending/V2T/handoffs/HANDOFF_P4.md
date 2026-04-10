@@ -13,6 +13,17 @@
 - `../../../../standards/effect-first-development.md`
 - `../../../../standards/schema-first.inventory.jsonc`
 - `../../../../tooling/configs/src/eslint/SchemaFirstRule.ts`
+- `../../../../package.json`
+- `../../../../turbo.json`
+- `../../../../infra/package.json`
+- `../../../../apps/V2T/package.json`
+- `../../../../apps/V2T/turbo.json`
+- `../../../../packages/VT2/package.json`
+- `../../../../packages/VT2/turbo.json`
+- `../../../../infra/Pulumi.yaml`
+- `../../../../infra/src/internal/entry.ts`
+- `../../../../infra/src/V2T.ts`
+- `../../../../infra/scripts/v2t-workstation.sh`
 - `../../../../apps/V2T`
 - `../../../../packages/VT2`
 

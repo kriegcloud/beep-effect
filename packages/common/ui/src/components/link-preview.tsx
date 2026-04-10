@@ -118,7 +118,8 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
       try {
         const response = await fetch(href, { signal: controller.signal });
         if (!response.ok) {
-          throw new Error("Failed to fetch link metadata");
+          setError("Preview unavailable");
+          return;
         }
 
         const html = await response.text();

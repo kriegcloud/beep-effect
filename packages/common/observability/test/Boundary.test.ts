@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFile } from "node:child_process";
 import { readFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -7,6 +7,17 @@ import { describe, expect, it } from "vitest";
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repoRoot = resolve(packageRoot, "../../..");
 const readText = (relativePath: string) => readFileSync(resolve(packageRoot, relativePath), "utf8");
+const runTypecheck = (tscPath: string, tsconfigPath: string) =>
+  new Promise<void>((resolvePromise, rejectPromise) => {
+    execFile(tscPath, ["--noEmit", "-p", tsconfigPath], { cwd: repoRoot, maxBuffer: 10 * 1024 * 1024 }, (error) => {
+      if (error) {
+        rejectPromise(error);
+        return;
+      }
+
+      resolvePromise();
+    });
+  });
 
 describe("Boundary", () => {
   it("keeps package exports explicit and removes root node ambient types", { timeout: 60_000 }, () => {
@@ -38,20 +49,16 @@ describe("Boundary", () => {
     expect(webLayerSource).not.toContain("node:");
   });
 
-  it("typechecks browser-safe, server-safe, and experimental-server fixtures", { timeout: 180_000 }, () => {
+  it("typechecks browser-safe, server-safe, and experimental-server fixtures", { timeout: 180_000 }, async () => {
     const tscPath = resolve(repoRoot, "node_modules/.bin/tsc");
     const browserTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.browser.json");
     const experimentalServerTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.experimental-server.json");
     const serverTsconfig = resolve(packageRoot, "test/fixtures/tsconfig.server.json");
 
-    expect(() =>
-      execFileSync(tscPath, ["--noEmit", "-p", browserTsconfig], { cwd: repoRoot, stdio: "pipe" })
-    ).not.toThrow();
-    expect(() =>
-      execFileSync(tscPath, ["--noEmit", "-p", serverTsconfig], { cwd: repoRoot, stdio: "pipe" })
-    ).not.toThrow();
-    expect(() =>
-      execFileSync(tscPath, ["--noEmit", "-p", experimentalServerTsconfig], { cwd: repoRoot, stdio: "pipe" })
-    ).not.toThrow();
+    await Promise.all([
+      runTypecheck(tscPath, browserTsconfig),
+      runTypecheck(tscPath, serverTsconfig),
+      runTypecheck(tscPath, experimentalServerTsconfig),
+    ]);
   });
 });

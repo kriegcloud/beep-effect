@@ -33,6 +33,7 @@
         "ignoreEffectErrorsInTscExitCode": false,
         "includeSuggestionsInTsc": true,
         "skipDisabledOptimization": false,
+        "effectFn": ["span", "inferred-span", "suggested-span"],
         "importAliases": {
           "Array": "A",
           "Option": "O",
@@ -42,6 +43,7 @@
           "Equal": "Eq"
         },
         "diagnosticSeverity": {
+          "effectFnOpportunity": "error",
           "strictBooleanExpressions": "off"
         }
       }

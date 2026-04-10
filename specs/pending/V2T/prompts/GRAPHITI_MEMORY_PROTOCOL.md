@@ -8,11 +8,17 @@ canonical spec package.
 1. Run `bun run codex:hook:session-start`.
 2. If `graphiti-memory` is available, run `get_status`.
 3. If status is healthy, attempt `search_memory_facts`.
-4. If the wrapper exposes `group_ids` as a string, use the JSON array literal
+4. If the first fact search is unusable, try one shorter fallback query.
+5. If fact search still fails, errors, or returns nothing useful, try
+   `get_episodes` with the same `group_ids` value before falling back to
+   repo-local sources.
+6. Treat `get_episodes` as a lower-signal Graphiti fallback, not a replacement
+   for a good fact search result.
+7. If the wrapper exposes `group_ids` as a string, use the JSON array literal
    string `"[\"beep-dev\"]"`.
-5. If Graphiti is unavailable or recall fails, continue with repo-local docs,
-   code search, and the checked-in `.codex` guidance instead of blocking the
-   phase.
+8. If Graphiti is unavailable or recall still fails after the episode fallback,
+   continue with repo-local docs, code search, and the checked-in `.codex`
+   guidance instead of blocking the phase.
 
 ## Recall Recipe
 
@@ -20,9 +26,12 @@ canonical spec package.
   for the current work.
 - Fallback query: a shorter task-only query if the first query fails or returns
   nothing useful.
+- Episode fallback: `get_episodes` with `group_ids: "[\"beep-dev\"]"` when
+  fact search errors, is wrapper-fragile, or returns nothing reusable.
 - Always record:
   - whether `get_status` passed
   - the exact recall query or queries attempted
+  - whether `get_episodes` was attempted and what it returned
   - the exact error text when recall fails
   - whether the result was useful, partially useful, or unusable
   - whether the session used the documented repo-local fallback

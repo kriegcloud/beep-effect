@@ -92,32 +92,30 @@ const allocatePort = Effect.tryPromise({
       : toTestError("Failed to allocate a local TCP port for sidecar integration testing.", cause),
 });
 
-const requestJson = <Schema extends S.Top & { readonly DecodingServices: never }>(
-  schema: Schema,
-  url: string,
-  init?: RequestInit
-) =>
-  Effect.gen(function* () {
-    const response = yield* requestResponse(url, init);
-    const bodyText = yield* Effect.tryPromise({
-      try: () => response.text(),
-      catch: (cause) => toTestError(`Failed to read response text from ${url}.`, cause),
-    });
-    const body = yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(bodyText).pipe(
-      Effect.flatMap(S.decodeUnknownEffect(schema)),
-      Effect.mapError((cause) =>
-        toTestError(
-          `Expected JSON matching schema from ${url} with status ${response.status}, received: ${bodyText}`,
-          cause
+const requestJson = Effect.fn("SidecarRuntimeTest.requestJson")(
+  <Schema extends S.Top & { readonly DecodingServices: never }>(schema: Schema, url: string, init?: RequestInit) =>
+    Effect.gen(function* () {
+      const response = yield* requestResponse(url, init);
+      const bodyText = yield* Effect.tryPromise({
+        try: () => response.text(),
+        catch: (cause) => toTestError(`Failed to read response text from ${url}.`, cause),
+      });
+      const body = yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(bodyText).pipe(
+        Effect.flatMap(S.decodeUnknownEffect(schema)),
+        Effect.mapError((cause) =>
+          toTestError(
+            `Expected JSON matching schema from ${url} with status ${response.status}, received: ${bodyText}`,
+            cause
+          )
         )
-      )
-    );
+      );
 
-    return {
-      body,
-      status: response.status,
-    };
-  });
+      return {
+        body,
+        status: response.status,
+      };
+    })
+);
 
 const requestResponse = (url: string, init?: RequestInit) =>
   Effect.tryPromise({
@@ -125,105 +123,102 @@ const requestResponse = (url: string, init?: RequestInit) =>
     catch: (cause) => toTestError(`HTTP request failed for ${url}.`, cause),
   });
 
-const requestText = (url: string, init?: RequestInit) =>
-  Effect.gen(function* () {
-    const response = yield* requestResponse(url, init);
-    const body = yield* Effect.tryPromise({
-      try: () => response.text(),
-      catch: (cause) => toTestError(`Failed to read response text from ${url}.`, cause),
-    });
-
-    return {
-      body,
-      status: response.status,
-    };
+const requestText = Effect.fn("SidecarRuntimeTest.requestText")(function* (url: string, init?: RequestInit) {
+  const response = yield* requestResponse(url, init);
+  const body = yield* Effect.tryPromise({
+    try: () => response.text(),
+    catch: (cause) => toTestError(`Failed to read response text from ${url}.`, cause),
   });
 
-const makeRepoRunRpcClient = (baseUrl: string) =>
-  Effect.gen(function* () {
-    const context = yield* Layer.build(
-      RpcClient.layerProtocolHttp({
-        url: `${baseUrl}/rpc`,
-      }).pipe(Layer.provide(NodeHttpClient.layerFetch), Layer.provide(RpcSerialization.layerNdjson))
-    );
+  return {
+    body,
+    status: response.status,
+  };
+});
 
-    return yield* RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context));
-  });
+const makeRepoRunRpcClient = Effect.fn("SidecarRuntimeTest.makeRepoRunRpcClient")(function* (baseUrl: string) {
+  const context = yield* Layer.build(
+    RpcClient.layerProtocolHttp({
+      url: `${baseUrl}/rpc`,
+    }).pipe(Layer.provide(NodeHttpClient.layerFetch), Layer.provide(RpcSerialization.layerNdjson))
+  );
+
+  return yield* RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context));
+});
 
 const largeFixtureGeneratedFileCount = 800;
 
-const writeFixtureRepo = (
+const writeFixtureRepo = Effect.fn("SidecarRuntimeTest.writeFixtureRepo")(function* (
   repoPath: FilePath,
   options?: {
     readonly generatedFileCount?: number;
   }
-) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const repoSourceDir = path.join(repoPath, "src");
-    const generatedSourceDir = path.join(repoSourceDir, "generated");
-    const generatedFileCount = options?.generatedFileCount ?? 0;
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const repoSourceDir = path.join(repoPath, "src");
+  const generatedSourceDir = path.join(repoSourceDir, "generated");
+  const generatedFileCount = options?.generatedFileCount ?? 0;
 
-    yield* fs.makeDirectory(repoSourceDir, { recursive: true });
-    yield* fs.makeDirectory(generatedSourceDir, { recursive: true });
+  yield* fs.makeDirectory(repoSourceDir, { recursive: true });
+  yield* fs.makeDirectory(generatedSourceDir, { recursive: true });
+  yield* fs.writeFileString(
+    path.join(repoSourceDir, "index.ts"),
+    Text.joinLines([
+      'import { helper } from "./util";',
+      'import type { Thing } from "./types";',
+      "",
+      "export const answer = helper(41);",
+      "",
+      "export function greet(name: string, _thing?: Thing): string {",
+      "  return `hello ${name}`;",
+      "}",
+      "",
+    ])
+  );
+  yield* fs.writeFileString(
+    path.join(repoSourceDir, "util.ts"),
+    Text.joinLines(["export const helper = (value: number): number => value + 1;", ""])
+  );
+  yield* fs.writeFileString(
+    path.join(repoSourceDir, "types.ts"),
+    Text.joinLines(["export interface Thing {", "  readonly name: string;", "}", ""])
+  );
+  yield* fs.writeFileString(
+    path.join(repoPath, "tsconfig.json"),
+    encodeJson({
+      compilerOptions: {
+        module: "ESNext",
+        target: "ES2022",
+      },
+      include: ["src/**/*.ts"],
+    })
+  );
+
+  for (let index = 0; index < generatedFileCount; index += 1) {
+    const moduleName = `module-${String(index).padStart(4, "0")}`;
+    const previousModuleName = index === 0 ? null : `./module-${String(index - 1).padStart(4, "0")}`;
+
     yield* fs.writeFileString(
-      path.join(repoSourceDir, "index.ts"),
+      path.join(generatedSourceDir, `${moduleName}.ts`),
       Text.joinLines([
-        'import { helper } from "./util";',
-        'import type { Thing } from "./types";',
+        previousModuleName === null ? "" : `import { value${index - 1} } from "${previousModuleName}";`,
+        `export interface GeneratedThing${index} {`,
+        "  readonly name: string;",
+        "  readonly ordinal: number;",
+        "}",
         "",
-        "export const answer = helper(41);",
+        `export const value${index} = ${index}${previousModuleName === null ? "" : ` + value${index - 1}`};`,
+        `export const label${index} = "generated:${index}";`,
         "",
-        "export function greet(name: string, _thing?: Thing): string {",
-        "  return `hello ${name}`;",
+        `export function compute${index}(input: number): number {`,
+        `  return input + value${index};`,
         "}",
         "",
       ])
     );
-    yield* fs.writeFileString(
-      path.join(repoSourceDir, "util.ts"),
-      Text.joinLines(["export const helper = (value: number): number => value + 1;", ""])
-    );
-    yield* fs.writeFileString(
-      path.join(repoSourceDir, "types.ts"),
-      Text.joinLines(["export interface Thing {", "  readonly name: string;", "}", ""])
-    );
-    yield* fs.writeFileString(
-      path.join(repoPath, "tsconfig.json"),
-      encodeJson({
-        compilerOptions: {
-          module: "ESNext",
-          target: "ES2022",
-        },
-        include: ["src/**/*.ts"],
-      })
-    );
-
-    for (let index = 0; index < generatedFileCount; index += 1) {
-      const moduleName = `module-${String(index).padStart(4, "0")}`;
-      const previousModuleName = index === 0 ? null : `./module-${String(index - 1).padStart(4, "0")}`;
-
-      yield* fs.writeFileString(
-        path.join(generatedSourceDir, `${moduleName}.ts`),
-        Text.joinLines([
-          previousModuleName === null ? "" : `import { value${index - 1} } from "${previousModuleName}";`,
-          `export interface GeneratedThing${index} {`,
-          "  readonly name: string;",
-          "  readonly ordinal: number;",
-          "}",
-          "",
-          `export const value${index} = ${index}${previousModuleName === null ? "" : ` + value${index - 1}`};`,
-          `export const label${index} = "generated:${index}";`,
-          "",
-          `export function compute${index}(input: number): number {`,
-          `  return input + value${index};`,
-          "}",
-          "",
-        ])
-      );
-    }
-  });
+  }
+});
 
 interface SpawnedSidecar {
   readonly baseUrl: string;
@@ -344,13 +339,12 @@ const spawnSidecar = (options: {
     (sidecar) => sidecar.shutdown.pipe(Effect.catch(() => Effect.void))
   );
 
-const renderChildOutput = (sidecar: SpawnedSidecar) =>
-  Effect.gen(function* () {
-    const stdout = yield* Ref.get(sidecar.stdout);
-    const stderr = yield* Ref.get(sidecar.stderr);
+const renderChildOutput = Effect.fn("SidecarRuntimeTest.renderChildOutput")(function* (sidecar: SpawnedSidecar) {
+  const stdout = yield* Ref.get(sidecar.stdout);
+  const stderr = yield* Ref.get(sidecar.stderr);
 
-    return [`stdout:\n${stdout}`, `stderr:\n${stderr}`].join("\n\n");
-  });
+  return [`stdout:\n${stdout}`, `stderr:\n${stderr}`].join("\n\n");
+});
 
 const waitForHealthyBootstrap = (sidecar: SpawnedSidecar) =>
   requestJson(SidecarBootstrap, `${sidecar.baseUrl}/health`).pipe(
@@ -367,25 +361,26 @@ const waitForHealthyBootstrap = (sidecar: SpawnedSidecar) =>
     )
   );
 
-const readBootstrapStdoutLine = (sidecar: SpawnedSidecar) =>
-  Effect.gen(function* () {
-    const stdout = yield* Ref.get(sidecar.stdout);
-    const bootstrapLine = pipe(
-      stdout.split("\n"),
-      A.findFirst((line) => line.includes('"type":"bootstrap"')),
-      O.getOrUndefined
-    );
+const readBootstrapStdoutLine = Effect.fn("SidecarRuntimeTest.readBootstrapStdoutLine")(function* (
+  sidecar: SpawnedSidecar
+) {
+  const stdout = yield* Ref.get(sidecar.stdout);
+  const bootstrapLine = pipe(
+    stdout.split("\n"),
+    A.findFirst((line) => line.includes('"type":"bootstrap"')),
+    O.getOrUndefined
+  );
 
-    if (bootstrapLine === undefined) {
-      return yield* toTestError("Expected a machine-readable bootstrap line on sidecar stdout.");
-    }
+  if (bootstrapLine === undefined) {
+    return yield* toTestError("Expected a machine-readable bootstrap line on sidecar stdout.");
+  }
 
-    const decoded = yield* decodeBootstrapStdoutLine(bootstrapLine).pipe(
-      Effect.mapError((cause) => toTestError(`Failed to decode bootstrap stdout line: ${bootstrapLine}`, cause))
-    );
+  const decoded = yield* decodeBootstrapStdoutLine(bootstrapLine).pipe(
+    Effect.mapError((cause) => toTestError(`Failed to decode bootstrap stdout line: ${bootstrapLine}`, cause))
+  );
 
-    return decoded;
-  });
+  return decoded;
+});
 
 const expectQueryRun = (run: RepoRun) => {
   if (run.kind !== "query") {
@@ -411,6 +406,36 @@ const waitForRunStatus = (sidecar: SpawnedSidecar, runId: RunId, expectedStatus:
       renderChildOutput(sidecar).pipe(
         Effect.flatMap((output) =>
           Effect.fail(toTestError(`Run "${runId}" did not reach status "${expectedStatus}".\n\n${output}`, error))
+        )
+      )
+    )
+  );
+
+const waitForRunningCheckpoint = (
+  sidecar: SpawnedSidecar,
+  runId: RunId,
+  minimumSequence: RunEventSequence = decodeRunEventSequence(3)
+) =>
+  requestJson(RepoRun, `${sidecar.baseUrl}/runs/${encodeURIComponent(runId)}`).pipe(
+    Effect.flatMap(({ body, status }) =>
+      status === 200 && body.status === "running" && body.lastEventSequence >= minimumSequence
+        ? Effect.succeed(body)
+        : Effect.fail(
+            toTestError(
+              `Expected run "${runId}" to reach running checkpoint sequence "${minimumSequence}", received HTTP ${status} with status "${status === 200 ? body.status : "unknown"}" and sequence "${status === 200 ? body.lastEventSequence : "unknown"}".`
+            )
+          )
+    ),
+    Effect.retry(Schedule.spaced(Duration.millis(200)).pipe(Schedule.both(Schedule.recurs(150)))),
+    Effect.catch((error) =>
+      renderChildOutput(sidecar).pipe(
+        Effect.flatMap((output) =>
+          Effect.fail(
+            toTestError(
+              `Run "${runId}" did not reach running checkpoint sequence "${minimumSequence}".\n\n${output}`,
+              error
+            )
+          )
         )
       )
     )
@@ -817,6 +842,7 @@ describe("spawned Bun sidecar lifecycle", () => {
             sourceFingerprint: O.none(),
           });
           expect(accepted.kind).toBe("index");
+          yield* waitForRunningCheckpoint(sidecar, accepted.runId);
 
           const interruptAck = yield* rpcClient.InterruptRepoRun({ runId: accepted.runId });
           expect(interruptAck.command).toBe("interrupt");
@@ -876,6 +902,7 @@ describe("spawned Bun sidecar lifecycle", () => {
             repoId,
             sourceFingerprint: O.none(),
           });
+          yield* waitForRunningCheckpoint(firstSidecar, accepted.runId);
 
           const interruptAck = yield* firstRpcClient.InterruptRepoRun({ runId: accepted.runId });
           expect(interruptAck.command).toBe("interrupt");

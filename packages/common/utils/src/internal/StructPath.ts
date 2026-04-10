@@ -39,7 +39,7 @@ const normalizePath = (path: PathInput): ReadonlyArray<string> =>
 
 const toRecordOption = (input: unknown): O.Option<Record<string, unknown>> =>
   Match.value(P.isNullish(input) || !isRecordLookupTarget(input)).pipe(
-    Match.when(true, () => O.none()),
+    Match.when(true, O.none<Record<string, unknown>>),
     Match.orElse(() => O.some(Fn.cast<unknown, Record<string, unknown>>(input)))
   );
 
@@ -54,7 +54,7 @@ const lookupPart =
   (part: string) =>
   (current: unknown): O.Option<unknown> =>
     Match.value(part.length === 0).pipe(
-      Match.when(true, () => O.none()),
+      Match.when(true, O.none),
       Match.orElse(() => lookupRecordPart(part)(current))
     );
 

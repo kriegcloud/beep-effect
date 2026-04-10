@@ -174,12 +174,13 @@ export class SparqlQueryService extends Context.Service<SparqlQueryService, Spar
 export const UnsupportedSparqlQueryServiceLive = Layer.succeed(
   SparqlQueryService,
   SparqlQueryService.of({
-    execute: () =>
+    execute: Effect.fn("SparqlQueryService.execute")(() =>
       Effect.fail(
         new SparqlQueryError({
           reason: "unimplemented",
           message: "No SPARQL engine is wired into the v1 semantic-web package.",
         })
-      ),
+      )
+    ),
   })
 );

@@ -4,7 +4,24 @@
  * @module @beep/schema/utils/withStatics
  * @since 0.0.0
  */
+import { $SchemaId } from "@beep/identity/packages";
 import { Function as Fn } from "effect";
+import * as S from "effect/Schema";
+
+const $I = $SchemaId.create("SchemaUtils/withStatics");
+
+class WithStaticsStaticRedefinitionError extends S.TaggedErrorClass<WithStaticsStaticRedefinitionError>(
+  $I`WithStaticsStaticRedefinitionError`
+)(
+  "WithStaticsStaticRedefinitionError",
+  {
+    key: S.String,
+    message: S.String,
+  },
+  $I.annote("WithStaticsStaticRedefinitionError", {
+    description: "Raised when schema statics would redefine a non-configurable property with a different value.",
+  })
+) {}
 
 const attachStatics = <S extends object, M extends Record<string, unknown>>(
   schema: S,
@@ -25,7 +42,10 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
       }
 
       if (existing.configurable === false) {
-        throw new TypeError(`Cannot redefine non-configurable static '${key}'.`);
+        throw new WithStaticsStaticRedefinitionError({
+          key,
+          message: `Cannot redefine non-configurable static '${key}'.`,
+        });
       }
     }
 

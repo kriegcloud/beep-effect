@@ -250,6 +250,90 @@ describe("eslint rule migration", () => {
     expect(messages.some((message) => message.ruleId === "beep-laws/no-native-runtime")).toBe(true);
   });
 
+  it("flags native Error construction in non-allowlisted files", () => {
+    const messages = verify(
+      'export const fail = () => { throw new Error("boom"); };',
+      noNativeRuntimeConfig,
+      "apps/desktop/src/Main.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
+  it("flags global native Error calls in non-allowlisted files", () => {
+    const messages = verify(
+      'export const capture = () => globalThis.Error("boom");',
+      noNativeRuntimeConfig,
+      "packages/shared/domain/src/errors/DbError/Formatter.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
+  it("flags native error subclasses in identifier form", () => {
+    const messages = verify(
+      'export const fail = () => { throw new TypeError("boom"); };',
+      noNativeRuntimeConfig,
+      "apps/desktop/src/TypeErrorFixture.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
+  it("flags native error subclasses in globalThis form", () => {
+    const messages = verify(
+      'export const capture = () => globalThis.RangeError("boom");',
+      noNativeRuntimeConfig,
+      "packages/shared/domain/src/errors/RangeErrorFixture.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
+  it("flags native error subclasses in globalThis bracket-call form", () => {
+    const messages = verify(
+      'export const capture = () => globalThis["RangeError"]("boom");',
+      noNativeRuntimeConfig,
+      "packages/shared/domain/src/RangeErrorBracketCallFixture.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
+  it("flags native error subclasses in globalThis bracket-constructor form", () => {
+    const messages = verify(
+      'export const fail = () => { throw new globalThis["TypeError"]("boom"); };',
+      noNativeRuntimeConfig,
+      "apps/desktop/src/TypeErrorBracketFixture.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
   it("does not suppress violations after the allowlist entry is removed", () => {
     const messages = verify(
       "export const value = new Date();",
@@ -389,6 +473,16 @@ describe("eslint rule migration", () => {
   it("exports a root ESLintConfig array with beep-laws plugin registration", () => {
     expect(ESLintConfig.length).toBeGreaterThan(0);
     expect(ESLintConfig.some((entry) => entry.plugins !== undefined && "beep-laws" in entry.plugins)).toBe(true);
+  });
+
+  it("keeps no-native-runtime as warn for broad repo scope and error for hotspot scope", () => {
+    const broadRepoConfig = ESLintConfig.find((entry) => entry.files?.includes("apps/**/*.{ts,tsx}"));
+    const hotspotConfig = ESLintConfig.find((entry) =>
+      entry.files?.includes("tooling/cli/src/commands/DocsAggregate.ts")
+    );
+
+    expect(broadRepoConfig?.rules?.["beep-laws/no-native-runtime"]).toBe("warn");
+    expect(hotspotConfig?.rules?.["beep-laws/no-native-runtime"]).toBe("error");
   });
 
   it("keeps root type-aware UI ignores aligned with the UI tsconfig excludes", () => {
