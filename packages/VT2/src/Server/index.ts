@@ -11,7 +11,6 @@ import {
   FilePath,
   NonEmptyTrimmedStr,
   NonNegativeInt,
-  TaggedErrorClass,
   UUID,
 } from "@beep/schema";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
@@ -70,26 +69,22 @@ export class Vt2RuntimeConfig extends S.Class<Vt2RuntimeConfig>($I`Vt2RuntimeCon
  * @since 0.0.0
  * @category Errors
  */
-class Vt2RuntimeErrorData extends TaggedErrorClass<Vt2RuntimeErrorData>($I`Vt2RuntimeError`)(
-  "Vt2RuntimeError",
-  {
-    message: S.String,
-    status: S.Number,
-    cause: S.OptionFromOptionalKey(S.String),
-  },
-  $I.annote("Vt2RuntimeError", {
-    description: "Typed error for VT2 bootstrap, sqlite, and HTTP workflows.",
-  })
-) {}
+export class Vt2RuntimeError {
+  readonly _tag = "Vt2RuntimeError";
 
-export type Vt2RuntimeError = InstanceType<typeof Vt2RuntimeErrorData>;
+  constructor(
+    readonly message: string,
+    readonly status: number,
+    readonly reason: O.Option<string> = O.none()
+  ) {}
+}
 
 export const makeVt2RuntimeError = (message: string, status: number, cause?: unknown) =>
-  new Vt2RuntimeErrorData({
+  new Vt2RuntimeError(
     message,
     status,
-    cause: O.fromUndefinedOr(cause).pipe(O.map((value) => (P.isString(value) ? value : "vt2-runtime-cause"))),
-  });
+    O.fromUndefinedOr(cause).pipe(O.map((value) => (P.isString(value) ? value : "vt2-runtime-cause")))
+  );
 
 const toRuntimeError = makeVt2RuntimeError;
 
