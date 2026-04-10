@@ -624,6 +624,10 @@ const checkRequiredHeadings = () => {
     manifest.validation?.required_headings ?? {}
   )) {
     expectStringArray(`manifest.validation.required_headings.${relativePath}`, headings)
+    if (!Array.isArray(headings)) {
+      pushFailure(`manifest.validation.required_headings.${relativePath}: expected array of non-empty strings`)
+      continue
+    }
 
     const absolutePath = join(specDir, relativePath)
     if (!existsSync(absolutePath)) {

@@ -7,6 +7,7 @@ from typing import Any
 import torch
 import uvicorn
 from fastapi import FastAPI, HTTPException
+from huggingface_hub import snapshot_download
 from pydantic import BaseModel
 from transformers import AutoProcessor, Qwen2AudioForConditionalGeneration
 
@@ -16,6 +17,14 @@ def _env(name: str, default: str) -> str:
     return value if value is not None and value != "" else default
 
 
+def _env_bool(name: str, default: bool) -> bool:
+    value = os.environ.get(name)
+    if value is None or value == "":
+        return default
+
+    return value.lower() in {"1", "true", "yes", "on"}
+
+
 @dataclass(frozen=True)
 class ServiceConfig:
     model_id: str
@@ -23,6 +32,7 @@ class ServiceConfig:
     port: int
     cache_dir: str
     token: str | None
+    trust_remote_code: bool
 
     @classmethod
     def from_env(cls) -> "ServiceConfig":
@@ -33,7 +43,16 @@ class ServiceConfig:
             port=int(_env("QWEN_SERVICE_PORT", "8011")),
             cache_dir=_env("QWEN_SERVICE_CACHE_DIR", os.path.expanduser("~/.cache/huggingface")),
             token=token if token else None,
+            trust_remote_code=_env_bool("QWEN_SERVICE_TRUST_REMOTE_CODE", False),
         )
+
+
+def download_model_artifacts(config: ServiceConfig) -> None:
+    snapshot_download(
+        repo_id=config.model_id,
+        cache_dir=config.cache_dir,
+        token=config.token,
+    )
 
 
 class ChatMessage(BaseModel):
@@ -56,7 +75,7 @@ class QwenRuntime:
             config.model_id,
             cache_dir=config.cache_dir,
             token=config.token,
-            trust_remote_code=True,
+            trust_remote_code=config.trust_remote_code,
         )
         self.model = Qwen2AudioForConditionalGeneration.from_pretrained(
             config.model_id,
@@ -64,7 +83,7 @@ class QwenRuntime:
             token=config.token,
             device_map="auto" if self.device == "cuda" else None,
             torch_dtype=self.dtype,
-            trust_remote_code=True,
+            trust_remote_code=config.trust_remote_code,
         )
 
         if self.device != "cuda":
@@ -198,12 +217,13 @@ def main() -> None:
     args = parser.parse_args()
 
     config = ServiceConfig.from_env()
-    runtime = QwenRuntime(config)
 
     if args.download_only:
+        download_model_artifacts(config)
         print(f"downloaded {config.model_id} into {config.cache_dir}")
         return
 
+    runtime = QwenRuntime(config)
     app = build_app(runtime)
     uvicorn.run(app, host=config.host, port=config.port, log_level="info")
 

@@ -59,7 +59,7 @@ console.log(
   JSON.stringify({
     commandResources,
     outputs: {
-      graphitiStateDir,
+      graphitiStateDir: graphitiStateDir ?? null,
       installedPackageName,
       qwenStateDir,
     },

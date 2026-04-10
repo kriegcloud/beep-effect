@@ -237,7 +237,7 @@ const resolveTargetHomeDir = (targetUser: string, inputTargetHomeDir?: string) =
  */
 export const normalizeV2TWorkstationConfig = (
   input?: undefined | Partial<V2TWorkstationConfig>,
-  options?: undefined | V2TNormalizationOptions
+  _options?: undefined | V2TNormalizationOptions
 ): V2TWorkstationConfig => {
   try {
     const targetUser = resolveTargetUser(input?.targetUser);
@@ -250,7 +250,7 @@ export const normalizeV2TWorkstationConfig = (
       localBackendDir: input?.localBackendDir ?? defaultLocalBackendDir,
       qwenModelId: input?.qwenModelId ?? defaultQwenModelId,
       qwenBaseUrl: input?.qwenBaseUrl ?? defaultQwenBaseUrl,
-      graphitiEnabled: input?.graphitiEnabled ?? options?.graphitiSecretPresent ?? false,
+      graphitiEnabled: input?.graphitiEnabled ?? false,
       graphitiModelName: input?.graphitiModelName ?? defaultGraphitiModelName,
     });
 

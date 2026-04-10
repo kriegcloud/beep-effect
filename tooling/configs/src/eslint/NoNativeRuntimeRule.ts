@@ -79,28 +79,9 @@ class NewExpressionIdentifierCallee extends S.Class<NewExpressionIdentifierCalle
   callee: IdentifierNode,
 }) {}
 
-class MemberExpressionIdentifierAccess extends S.Class<MemberExpressionIdentifierAccess>(
-  "MemberExpressionIdentifierAccess"
-)({
-  type: S.tag("MemberExpression"),
-  computed: S.Literal(false),
-  object: IdentifierNode,
-  property: IdentifierNode,
-}) {}
-
-class NewExpressionMemberCallee extends S.Class<NewExpressionMemberCallee>("NewExpressionMemberCallee")({
-  type: S.tag("NewExpression"),
-  callee: MemberExpressionIdentifierAccess,
-}) {}
-
 class CallExpressionIdentifierCallee extends S.Class<CallExpressionIdentifierCallee>("CallExpressionIdentifierCallee")({
   type: S.tag("CallExpression"),
   callee: IdentifierNode,
-}) {}
-
-class CallExpressionMemberCallee extends S.Class<CallExpressionMemberCallee>("CallExpressionMemberCallee")({
-  type: S.tag("CallExpression"),
-  callee: MemberExpressionIdentifierAccess,
 }) {}
 
 class UnaryTypeofExpression extends S.Class<UnaryTypeofExpression>("UnaryTypeofExpression")({
@@ -140,22 +121,58 @@ const RuntimeViolationOption = S.Option(RuleViolationPayload);
 type RuntimeViolationOption = (typeof RuntimeViolationOption)["Type"];
 
 const decodeNewExpressionIdentifierCallee = S.decodeUnknownOption(NewExpressionIdentifierCallee);
-const decodeNewExpressionMemberCallee = S.decodeUnknownOption(NewExpressionMemberCallee);
 const decodeIdentifierCalleeCallExpression = S.decodeUnknownOption(CallExpressionIdentifierCallee);
-const decodeMemberCalleeCallExpression = S.decodeUnknownOption(CallExpressionMemberCallee);
 const decodeUnaryTypeofExpression = S.decodeUnknownOption(UnaryTypeofExpression);
 const decodeLiteralStringNode = S.decodeUnknownOption(LiteralStringNode);
 const decodeBinaryExpression = S.decodeUnknownOption(BinaryExpressionNode);
 
+const isRecord = (value: unknown): value is Record<string, unknown> => typeof value === "object" && value !== null;
+
+const decodeIdentifierName = (node: unknown): O.Option<string> =>
+  isRecord(node) && node.type === "Identifier" && typeof node.name === "string" ? O.some(node.name) : O.none();
+
+const decodeStringLiteralValue = (node: unknown): O.Option<string> =>
+  isRecord(node) && node.type === "Literal" && typeof node.value === "string" ? O.some(node.value) : O.none();
+
+const decodeMemberExpressionObservation = (node: unknown): O.Option<MemberCall> => {
+  if (!isRecord(node) || node.type !== "MemberExpression" || !("computed" in node)) {
+    return O.none();
+  }
+
+  const objectName = decodeIdentifierName(node.object);
+  if (O.isNone(objectName) || typeof node.computed !== "boolean") {
+    return O.none();
+  }
+
+  const propertyName = node.computed ? decodeStringLiteralValue(node.property) : decodeIdentifierName(node.property);
+
+  return pipe(
+    propertyName,
+    O.map((name): MemberCall => [objectName.value, name])
+  );
+};
+
+const decodeCallExpressionMemberObservation = (node: unknown): O.Option<MemberCall> =>
+  isRecord(node) && node.type === "CallExpression" ? decodeMemberExpressionObservation(node.callee) : O.none();
+
+const decodeNewExpressionMemberObservation = (node: unknown): O.Option<MemberCall> =>
+  isRecord(node) && node.type === "NewExpression" ? decodeMemberExpressionObservation(node.callee) : O.none();
+
 const decodeCallExpressionObservation = (node: unknown): O.Option<CallExpressionObservation> => {
   const identifierCallee = pipe(decodeIdentifierCalleeCallExpression(node), O.map(Struct.dotGet("callee.name")));
-  const memberAccess = pipe(decodeMemberCalleeCallExpression(node), O.map(Struct.get("callee")));
+  const memberAccess = decodeCallExpressionMemberObservation(node);
 
   return O.some(
     new CallExpressionObservation({
       identifierCalleeName: identifierCallee,
-      memberObjectName: pipe(memberAccess, O.map(Struct.dotGet("object.name"))),
-      memberPropertyName: pipe(memberAccess, O.map(Struct.dotGet("property.name"))),
+      memberObjectName: pipe(
+        memberAccess,
+        O.map(([objectName]) => objectName)
+      ),
+      memberPropertyName: pipe(
+        memberAccess,
+        O.map(([, propertyName]) => propertyName)
+      ),
     })
   );
 };
@@ -271,41 +288,22 @@ const detectMemberCallViolation = (
     )
   );
 
-const CallExpressionObservationAndScope = S.Tuple([CallExpressionObservation, S.Boolean]);
-type CallExpressionObservationAndScope = (typeof CallExpressionObservationAndScope)["Type"];
-
-const CallExpressionObservationAndScopeToViolation = CallExpressionObservationAndScope.pipe(
-  S.decodeTo(RuntimeViolationOption, {
-    decode: G.transformOrFail(([observation, inHotspotScope]: CallExpressionObservationAndScope) =>
-      Effect.succeed(
-        firstSome(
-          A.make(
-            detectNativeErrorCallViolation(observation),
-            detectNativeFetchViolation(observation, inHotspotScope),
-            detectMemberCallViolation(observation, inHotspotScope)
-          )
-        )
-      )
-    ),
-    encode: G.transformOrFail((value: RuntimeViolationOption) =>
-      Effect.fail(
-        new SchemaIssue.InvalidValue(O.some(value), {
-          message: "Encoding unknown values is not supported by CallExpressionObservationAndScopeToViolation.",
-        })
-      )
-    ),
-  })
-);
-
-const decodeCallExpressionViolation = S.decodeUnknownOption(CallExpressionObservationAndScopeToViolation);
-
 const resolveCallExpressionViolation: {
   (observation: CallExpressionObservation, inHotspotScope: boolean): O.Option<RuleViolation>;
   (inHotspotScope: boolean): (observation: CallExpressionObservation) => O.Option<RuleViolation>;
 } = dual(
   2,
   (observation: CallExpressionObservation, inHotspotScope: boolean): O.Option<RuleViolation> =>
-    pipe(decodeCallExpressionViolation([observation, inHotspotScope]), O.flatten, O.map(toRuleViolation))
+    pipe(
+      firstSome(
+        A.make(
+          detectNativeErrorCallViolation(observation),
+          detectNativeFetchViolation(observation, inHotspotScope),
+          detectMemberCallViolation(observation, inHotspotScope)
+        )
+      ),
+      O.map(toRuleViolation)
+    )
 );
 
 const ConstructorNameToViolation = S.String.pipe(
@@ -347,18 +345,11 @@ const resolveConstructorNameViolation = (constructorName: string): O.Option<Rule
 
 const resolveGlobalNativeErrorMemberViolation = (node: unknown): O.Option<RuleViolation> =>
   pipe(
-    decodeNewExpressionMemberCallee(node),
-    O.map(Struct.get("callee")),
-    O.filter(({ object, property }) => object.name === "globalThis" && HashSet.has(NATIVE_ERROR_CTORS, property.name)),
-    O.map(({ property }) => makeRuleViolation("native-error", "nativeError", { ctor: property.name }))
-  );
-
-const resolveGlobalNativeErrorCallViolation = (node: unknown): O.Option<RuleViolation> =>
-  pipe(
-    decodeMemberCalleeCallExpression(node),
-    O.map(Struct.get("callee")),
-    O.filter(({ object, property }) => object.name === "globalThis" && HashSet.has(NATIVE_ERROR_CTORS, property.name)),
-    O.map(({ property }) => makeRuleViolation("native-error", "nativeError", { ctor: property.name }))
+    decodeNewExpressionMemberObservation(node),
+    O.filter(
+      ([objectName, propertyName]) => objectName === "globalThis" && HashSet.has(NATIVE_ERROR_CTORS, propertyName)
+    ),
+    O.map(([, ctor]) => makeRuleViolation("native-error", "nativeError", { ctor }))
   );
 
 const resolveNewExpressionViolation = (node: unknown): O.Option<RuleViolation> =>
@@ -488,12 +479,8 @@ export const noNativeRuntimeRule: Rule.RuleModule = {
         const onSome = reportViolationIfNeeded(node);
         const onNone = thunkUndefined;
         pipe(
-          firstSome(
-            A.make(
-              resolveGlobalNativeErrorCallViolation(node),
-              pipe(decodeCallExpressionObservation(node), O.flatMap(resolveCallExpressionViolation(inHotspotScope)))
-            )
-          ),
+          decodeCallExpressionObservation(node),
+          O.flatMap(resolveCallExpressionViolation(inHotspotScope)),
           O.match({
             onNone,
             onSome,

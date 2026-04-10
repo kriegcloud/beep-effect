@@ -306,6 +306,34 @@ describe("eslint rule migration", () => {
     ).toBe(true);
   });
 
+  it("flags native error subclasses in globalThis bracket-call form", () => {
+    const messages = verify(
+      'export const capture = () => globalThis["RangeError"]("boom");',
+      noNativeRuntimeConfig,
+      "packages/shared/domain/src/RangeErrorBracketCallFixture.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
+  it("flags native error subclasses in globalThis bracket-constructor form", () => {
+    const messages = verify(
+      'export const fail = () => { throw new globalThis["TypeError"]("boom"); };',
+      noNativeRuntimeConfig,
+      "apps/desktop/src/TypeErrorBracketFixture.ts"
+    );
+
+    expect(
+      messages.some(
+        (message) => message.ruleId === "beep-laws/no-native-runtime" && message.messageId === "nativeError"
+      )
+    ).toBe(true);
+  });
+
   it("does not suppress violations after the allowlist entry is removed", () => {
     const messages = verify(
       "export const value = new Date();",

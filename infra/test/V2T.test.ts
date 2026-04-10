@@ -39,7 +39,7 @@ describe("normalizeV2TWorkstationConfig", () => {
     expect(config.graphitiEnabled).toBe(false);
   });
 
-  it("auto-enables Graphiti when a secret is present", () => {
+  it("does not auto-enable Graphiti when a secret is present", () => {
     const config = normalizeV2TWorkstationConfig(
       {
         repoRoot: "/tmp/beep-effect",
@@ -51,7 +51,7 @@ describe("normalizeV2TWorkstationConfig", () => {
       }
     );
 
-    expect(config.graphitiEnabled).toBe(true);
+    expect(config.graphitiEnabled).toBe(false);
   });
 
   it("requires targetHomeDir when the target user differs from the current user", () => {

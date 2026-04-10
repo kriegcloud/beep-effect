@@ -7,6 +7,7 @@ ROOT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 REPO_ROOT="${V2T_REPO_ROOT:-$ROOT_DIR}"
 TARGET_USER="${V2T_TARGET_USER:-${USER:-}}"
 QWEN_MODEL_ID="${V2T_QWEN_MODEL_ID:-Qwen/Qwen2-Audio-7B-Instruct}"
+QWEN_TRUST_REMOTE_CODE="${V2T_QWEN_TRUST_REMOTE_CODE:-false}"
 QWEN_HOST="${V2T_QWEN_HOST:-127.0.0.1}"
 QWEN_PORT="${V2T_QWEN_PORT:-8011}"
 GRAPHITI_ENABLED="${V2T_GRAPHITI_ENABLED:-true}"
@@ -108,7 +109,7 @@ ensure_sudo_access() {
 }
 
 ensure_systemd_user() {
-  run_as_target_user systemctl --user --version >/dev/null
+  run_as_target_user systemctl --user list-units --all >/dev/null
 }
 
 ensure_nvidia_driver() {
@@ -304,6 +305,7 @@ write_qwen_service_files() {
 
   run_as_target_user bash -lc "umask 077 && cat > '${QWEN_ENV_FILE}' <<EOF
 QWEN_SERVICE_MODEL_ID=${QWEN_MODEL_ID}
+QWEN_SERVICE_TRUST_REMOTE_CODE=${QWEN_TRUST_REMOTE_CODE}
 QWEN_SERVICE_HOST=${QWEN_HOST}
 QWEN_SERVICE_PORT=${QWEN_PORT}
 QWEN_SERVICE_CACHE_DIR=${QWEN_CACHE_DIR}
@@ -376,12 +378,19 @@ install_qwen() {
     TRANSFORMERS_CACHE="$QWEN_CACHE_DIR" \
     QWEN_SERVICE_MODEL_ID="$QWEN_MODEL_ID" \
     QWEN_SERVICE_CACHE_DIR="$QWEN_CACHE_DIR" \
+    QWEN_SERVICE_TRUST_REMOTE_CODE="$QWEN_TRUST_REMOTE_CODE" \
     "${QWEN_VENV_DIR}/bin/python" "$QWEN_SERVER_SCRIPT" --download-only
 
   write_qwen_service_files
 
   run_as_target_user systemctl --user daemon-reload
-  run_as_target_user systemctl --user enable --now "$QWEN_SERVICE_NAME"
+  run_as_target_user systemctl --user enable "$QWEN_SERVICE_NAME"
+
+  if run_as_target_user systemctl --user is-active --quiet "$QWEN_SERVICE_NAME"; then
+    run_as_target_user systemctl --user restart "$QWEN_SERVICE_NAME"
+  else
+    run_as_target_user systemctl --user start "$QWEN_SERVICE_NAME"
+  fi
 
   wait_for_qwen_health
   log "qwen service is ready at http://${QWEN_HOST}:${QWEN_PORT}"
@@ -395,8 +404,8 @@ uninstall_qwen() {
 }
 
 build_app() {
-  run_as_target_user bash -lc "cd '${REPO_ROOT}' && bun install --frozen-lockfile"
-  run_as_target_user bash -lc "cd '${REPO_ROOT}' && { source \"\$HOME/.cargo/env\" >/dev/null 2>&1 || true; } && bun run --cwd apps/V2T build:native"
+  run_as_target_user bash -lc "cd '${REPO_ROOT}' && bun install --frozen-lockfile 1>&2"
+  run_as_target_user bash -lc "cd '${REPO_ROOT}' && { source \"\$HOME/.cargo/env\" >/dev/null 2>&1 || true; } && bun run --cwd apps/V2T build:native 1>&2"
 
   local deb_path
   deb_path="$(find "${REPO_ROOT}/apps/V2T/src-tauri/target/release/bundle/deb" -maxdepth 1 -type f -name '*.deb' | sort | tail -n 1)"

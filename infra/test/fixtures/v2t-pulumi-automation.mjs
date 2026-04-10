@@ -1,7 +1,6 @@
 import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { pathToFileURL } from "node:url";
 import { LocalWorkspace } from "@pulumi/pulumi/automation";
 
 const createFixtureRepo = async (repoRoot) => {
@@ -114,7 +113,7 @@ process.env.BEEP_INFRA_V2T_INSTALLER_SCRIPT_PATH = installerScriptPath;
 process.env.BEEP_INFRA_V2T_QWEN_SERVER_SCRIPT_PATH = qwenScriptPath;
 
 try {
-  const v2tModuleUrl = pathToFileURL(join(process.cwd(), "src/V2T.ts")).href;
+  const v2tModuleUrl = new URL("../../src/V2T.ts", import.meta.url).href;
   const { V2TWorkstation } = await import(v2tModuleUrl);
 
   const stack = await LocalWorkspace.createOrSelectStack(

@@ -17,7 +17,7 @@ class PulumiCommandResource extends S.Class<PulumiCommandResource>($I`PulumiComm
 
 class PulumiUnitFixtureOutputs extends S.Class<PulumiUnitFixtureOutputs>($I`PulumiUnitFixtureOutputs`)(
   {
-    graphitiStateDir: S.String,
+    graphitiStateDir: S.String.pipe(S.NullOr),
     installedPackageName: S.String,
     qwenStateDir: S.String,
   },
@@ -89,13 +89,12 @@ describe("Pulumi validation", () => {
 
       expect(result.outputs.installedPackageName).toBe("fixture-package");
       expect(result.outputs.qwenStateDir).toBe("/home/tester/.local/share/beep/v2t-workstation/qwen");
-      expect(result.outputs.graphitiStateDir).toBe("/home/tester/.local/share/beep/v2t-workstation/graphiti");
+      expect(result.outputs.graphitiStateDir).toBeNull();
 
       expect(result.commandResources.map((resource) => resource.name)).toEqual([
         "fixture-preflight",
         "fixture-system",
         "fixture-qwen",
-        "fixture-graphiti",
         "fixture-app",
       ]);
 
@@ -103,9 +102,7 @@ describe("Pulumi validation", () => {
       const graphitiCommand = result.commandResources.find((resource) => resource.name === "fixture-graphiti");
 
       expect(qwenCommand?.environment.V2T_QWEN_STATE_DIR).toBe("/home/tester/.local/share/beep/v2t-workstation/qwen");
-      expect(graphitiCommand?.environment.V2T_GRAPHITI_STATE_DIR).toBe(
-        "/home/tester/.local/share/beep/v2t-workstation/graphiti"
-      );
+      expect(graphitiCommand).toBeUndefined();
     },
     pulumiFixtureTimeoutMs
   );

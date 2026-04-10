@@ -42,9 +42,13 @@ Required inputs:
 - `specs/pending/V2T/{{PHASE_ARTIFACT}}`
 - `specs/pending/V2T/prompts/ORCHESTRATOR_OPERATING_MODEL.md`
 - `specs/pending/V2T/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
+- root `package.json`
+- root `turbo.json`
 - `infra/package.json`
 - `apps/V2T/package.json`
+- `apps/V2T/turbo.json`
 - `packages/VT2/package.json`
+- `packages/VT2/turbo.json`
 
 Additional required inputs:
 - {{ADDITIONAL_INPUTS}}

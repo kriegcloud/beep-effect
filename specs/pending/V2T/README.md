@@ -167,7 +167,7 @@ If these sources disagree, the tie-break order is:
 - Directory names are not authoritative for Turbo filter casing. Never infer a package filter from `apps/V2T` or `packages/VT2` alone.
 - When adding or changing command examples, verify the package names from the live manifests first. If command truth is uncertain, confirm with a dry run such as `bunx turbo run check --filter=@beep/v2t --dry=json`.
 - `outputs/manifest.json` must mirror the live package names and command-truth files. If the workspace manifests change, repair the manifest and rerun the validator in the same pass.
-- The validator also treats the root, app, and sidecar script surfaces as live command truth. If a documented gate depends on a missing script, fix the docs or manifest rather than weakening the validator.
+- The validator also treats the root, infra, app, and sidecar script surfaces as live command truth via root `package.json`, root `turbo.json`, `infra/package.json`, and the app/sidecar manifests. If a documented gate depends on a missing script, fix the docs or manifest rather than weakening the validator.
 
 ## Graphiti Memory Protocol
 
