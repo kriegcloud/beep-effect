@@ -1,0 +1,12 @@
+# Stable Qwen audio service pins verified against PyPI on 2026-04-10.
+accelerate==1.13.0
+fastapi==0.135.3
+huggingface_hub==1.10.1
+librosa==0.11.0
+safetensors==0.7.0
+sentencepiece==0.2.1
+soundfile==0.13.1
+torch==2.11.0
+torchaudio==2.11.0
+transformers==5.5.3
+uvicorn[standard]==0.44.0

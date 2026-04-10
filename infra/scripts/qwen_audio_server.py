@@ -2,13 +2,17 @@
 import argparse
 import os
 from dataclasses import dataclass
+from io import BytesIO
 from typing import Any
+from urllib.error import URLError
+from urllib.request import urlopen
 
+import librosa
 import torch
 import uvicorn
 from fastapi import FastAPI, HTTPException
 from huggingface_hub import snapshot_download
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from transformers import AutoProcessor, Qwen2AudioForConditionalGeneration
 
 
@@ -62,8 +66,14 @@ class ChatMessage(BaseModel):
 
 class ChatCompletionsRequest(BaseModel):
     messages: list[ChatMessage]
-    max_tokens: int = 256
-    temperature: float = 0.2
+    max_tokens: int = Field(default=256, ge=1)
+    temperature: float = Field(default=0.2, ge=0)
+
+
+@dataclass(frozen=True)
+class NormalizedMessageContent:
+    content: str | list[dict[str, str]]
+    audios: list[Any]
 
 
 class QwenRuntime:
@@ -89,12 +99,41 @@ class QwenRuntime:
         if self.device != "cuda":
             self.model.to(self.device)
 
-    def _normalize_message_content(self, content: Any) -> str:
+    def _resolve_audio_url(self, item: dict[str, Any]) -> str:
+        audio_url = item.get("audio_url")
+
+        if isinstance(audio_url, str):
+            return audio_url
+
+        if isinstance(audio_url, dict):
+            nested_url = audio_url.get("url")
+            if isinstance(nested_url, str):
+                return nested_url
+
+        raise HTTPException(
+            status_code=400,
+            detail="Audio content items must include a string `audio_url` field.",
+        )
+
+    def _load_audio(self, audio_url: str) -> Any:
+        try:
+            with urlopen(audio_url, timeout=30) as response:
+                audio_bytes = response.read()
+
+            return librosa.load(BytesIO(audio_bytes), sr=self.processor.feature_extractor.sampling_rate)[0]
+        except (OSError, URLError, ValueError) as error:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Unable to load audio content from {audio_url!r}: {error}",
+            ) from error
+
+    def _normalize_message_content(self, content: Any) -> NormalizedMessageContent:
         if isinstance(content, str):
-            return content
+            return NormalizedMessageContent(content=content, audios=[])
 
         if isinstance(content, list):
-            parts: list[str] = []
+            parts: list[dict[str, str]] = []
+            audios: list[Any] = []
             for item in content:
                 if not isinstance(item, dict):
                     raise HTTPException(status_code=400, detail="Message content items must be objects.")
@@ -105,46 +144,53 @@ class QwenRuntime:
                     if not isinstance(text, str):
                         raise HTTPException(status_code=400, detail="Text content items must include a string `text` field.")
 
-                    parts.append(text)
+                    parts.append({"type": "text", "text": text})
+                    continue
+
+                if item_type == "audio":
+                    audio_url = self._resolve_audio_url(item)
+                    audios.append(self._load_audio(audio_url))
+                    parts.append({"type": "audio", "audio_url": audio_url})
                     continue
 
                 raise HTTPException(
                     status_code=400,
-                    detail=(
-                        "This local Qwen service currently supports only text content items. "
-                        f"Unsupported content type: {item_type!r}."
-                    ),
+                    detail=f"Unsupported content type: {item_type!r}. Supported content types are 'text' and 'audio'.",
                 )
 
-            return "\n".join(parts)
+            return NormalizedMessageContent(content=parts, audios=audios)
 
         raise HTTPException(
             status_code=400,
-            detail="Message content must be either a string or an array of text content items.",
+            detail="Message content must be either a string or an array of text or audio content items.",
         )
 
-    def _chat_prompt(self, messages: list[ChatMessage]) -> list[dict[str, Any]]:
+    def _chat_prompt(self, messages: list[ChatMessage]) -> tuple[list[dict[str, Any]], list[Any]]:
         prompt_messages: list[dict[str, Any]] = []
+        audios: list[Any] = []
 
         for message in messages:
-            content = self._normalize_message_content(message.content)
-            if content == "":
+            normalized = self._normalize_message_content(message.content)
+            content = normalized.content
+
+            if content == "" or content == []:
                 continue
 
             prompt_messages.append(
                 {
                     "role": message.role,
-                    "content": [{"type": "text", "text": content}],
+                    "content": content,
                 }
             )
+            audios.extend(normalized.audios)
 
-        return prompt_messages
+        return prompt_messages, audios
 
     def chat(self, body: ChatCompletionsRequest) -> dict[str, Any]:
-        prompt_messages = self._chat_prompt(body.messages)
+        prompt_messages, audios = self._chat_prompt(body.messages)
 
         if len(prompt_messages) == 0:
-            raise HTTPException(status_code=400, detail="At least one text message is required.")
+            raise HTTPException(status_code=400, detail="At least one text or audio message is required.")
 
         text_prompt = self.processor.apply_chat_template(
             prompt_messages,
@@ -152,7 +198,16 @@ class QwenRuntime:
             tokenize=False,
         )
 
-        inputs = self.processor(text=text_prompt, return_tensors="pt")
+        processor_args: dict[str, Any] = {
+            "text": text_prompt,
+            "return_tensors": "pt",
+        }
+
+        if len(audios) > 0:
+            processor_args["audio"] = audios
+            processor_args["padding"] = True
+
+        inputs = self.processor(**processor_args)
         inputs = inputs.to(self.model.device)
         use_sampling = body.temperature > 0
 

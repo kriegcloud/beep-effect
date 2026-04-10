@@ -15,6 +15,7 @@ GRAPHITI_MODEL_NAME="${V2T_GRAPHITI_MODEL_NAME:-gpt-4o-mini}"
 QWEN_SERVICE_NAME="${V2T_QWEN_SERVICE_NAME:-beep-v2t-qwen.service}"
 GRAPHITI_PROXY_SERVICE_NAME="${V2T_GRAPHITI_PROXY_SERVICE_NAME:-beep-graphiti-proxy.service}"
 QWEN_SERVER_SCRIPT="${REPO_ROOT}/infra/scripts/qwen_audio_server.py"
+QWEN_REQUIREMENTS_FILE="${REPO_ROOT}/infra/scripts/qwen-audio-requirements.txt"
 
 if [[ -z "$ACTION" ]]; then
   printf 'usage: %s <preflight|install-system|install-graphiti|uninstall-graphiti|install-qwen|uninstall-qwen|build-app|uninstall-app>\n' "$0" >&2
@@ -50,6 +51,17 @@ die() {
   exit 1
 }
 
+require_single_line_value() {
+  local name="$1"
+  local value="$2"
+
+  case "$value" in
+    *$'\n'* | *$'\r'*)
+      die "${name} must not contain newlines"
+      ;;
+  esac
+}
+
 require_command() {
   command -v "$1" >/dev/null 2>&1 || die "missing required command: $1"
 }
@@ -79,10 +91,6 @@ run_as_target_user() {
     "$@"
 }
 
-run_as_target_user_shell() {
-  run_as_target_user bash -lc "$1"
-}
-
 ensure_supported_os() {
   if [[ ! -f /etc/os-release ]]; then
     die "missing /etc/os-release; only Debian and Ubuntu are supported"
@@ -98,6 +106,7 @@ ensure_repo_surface() {
   [[ -d "${REPO_ROOT}/packages/VT2" ]] || die "missing packages/VT2 under ${REPO_ROOT}"
   [[ -f "${REPO_ROOT}/bun.lock" ]] || die "missing bun.lock under ${REPO_ROOT}"
   [[ -f "$QWEN_SERVER_SCRIPT" ]] || die "missing Qwen server script at ${QWEN_SERVER_SCRIPT}"
+  [[ -f "$QWEN_REQUIREMENTS_FILE" ]] || die "missing Qwen requirements file at ${QWEN_REQUIREMENTS_FILE}"
 }
 
 ensure_target_runtime_dir() {
@@ -192,55 +201,70 @@ write_graphiti_compose() {
   run_as_target_user mkdir -p "$GRAPHITI_STATE_DIR"
   run_as_target_user mkdir -p "${GRAPHITI_STATE_DIR}/falkordb-data"
 
-  run_as_target_user bash -lc "umask 077 && cat > '${GRAPHITI_ENV_FILE}' <<EOF
-GRAPHITI_OPENAI_API_KEY=${V2T_GRAPHITI_OPENAI_API_KEY:-}
-EOF"
+  require_single_line_value "GRAPHITI_ENV_FILE" "$GRAPHITI_ENV_FILE"
+  require_single_line_value "GRAPHITI_COMPOSE_FILE" "$GRAPHITI_COMPOSE_FILE"
+  require_single_line_value "GRAPHITI_MODEL_NAME" "$GRAPHITI_MODEL_NAME"
+  require_single_line_value "V2T_GRAPHITI_OPENAI_API_KEY" "${V2T_GRAPHITI_OPENAI_API_KEY:-}"
 
-  run_as_target_user bash -lc "cat > '${GRAPHITI_COMPOSE_FILE}' <<'EOF'
-services:
-  falkordb:
-    image: falkordb/falkordb:latest
-    container_name: graphiti-mcp-falkordb-1
-    ports:
-      - '127.0.0.1:6379:6379'
-      - '127.0.0.1:3001:3000'
-    volumes:
-      - ./falkordb-data:/var/lib/falkordb/data
-    environment:
-      FALKORDB_ARGS: THREAD_COUNT 4 CACHE_SIZE 50
-      REDIS_ARGS: --appendonly yes --appendfsync everysec --maxmemory 4gb --maxmemory-policy allkeys-lru
-    healthcheck:
-      test: ['CMD', 'redis-cli', 'ping']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    restart: unless-stopped
+  run_as_target_user env \
+    GRAPHITI_ENV_FILE="$GRAPHITI_ENV_FILE" \
+    GRAPHITI_OPENAI_API_KEY="${V2T_GRAPHITI_OPENAI_API_KEY:-}" \
+    bash -lc '
+      umask 077
+      printf "GRAPHITI_OPENAI_API_KEY=%s\n" "$GRAPHITI_OPENAI_API_KEY" > "$GRAPHITI_ENV_FILE"
+    '
 
-  graphiti:
-    image: zepai/knowledge-graph-mcp:standalone
-    container_name: graphiti-mcp-graphiti-mcp-1
-    depends_on:
-      falkordb:
-        condition: service_healthy
-    ports:
-      - '127.0.0.1:8000:8000'
-    environment:
-      OPENAI_API_KEY: \${GRAPHITI_OPENAI_API_KEY}
-      MODEL_NAME: ${GRAPHITI_MODEL_NAME}
-      FALKORDB_URI: redis://falkordb:6379
-      FALKORDB_DATABASE: beep_knowledge
-      GRAPHITI_GROUP_ID: beep-dev
-      SEMAPHORE_LIMIT: 10
-      MCP_SERVER_HOST: 0.0.0.0
-      GRAPHITI_TELEMETRY_ENABLED: 'false'
-    healthcheck:
-      test: ['CMD-SHELL', 'curl -f http://localhost:8000/health || exit 1']
-      interval: 10s
-      timeout: 5s
-      start_period: 15s
-      retries: 3
-    restart: unless-stopped
-EOF"
+  run_as_target_user env \
+    GRAPHITI_COMPOSE_FILE="$GRAPHITI_COMPOSE_FILE" \
+    GRAPHITI_MODEL_NAME="$GRAPHITI_MODEL_NAME" \
+    bash -lc '
+      umask 077
+      {
+        printf "%s\n" "services:"
+        printf "%s\n" "  falkordb:"
+        printf "%s\n" "    image: falkordb/falkordb:latest"
+        printf "%s\n" "    container_name: graphiti-mcp-falkordb-1"
+        printf "%s\n" "    ports:"
+        printf "%s\n" "      - '\''127.0.0.1:6379:6379'\''"
+        printf "%s\n" "      - '\''127.0.0.1:3001:3000'\''"
+        printf "%s\n" "    volumes:"
+        printf "%s\n" "      - ./falkordb-data:/var/lib/falkordb/data"
+        printf "%s\n" "    environment:"
+        printf "%s\n" "      FALKORDB_ARGS: THREAD_COUNT 4 CACHE_SIZE 50"
+        printf "%s\n" "      REDIS_ARGS: --appendonly yes --appendfsync everysec --maxmemory 4gb --maxmemory-policy allkeys-lru"
+        printf "%s\n" "    healthcheck:"
+        printf "%s\n" "      test: ['\''CMD'\'', '\''redis-cli'\'', '\''ping'\'']"
+        printf "%s\n" "      interval: 30s"
+        printf "%s\n" "      timeout: 10s"
+        printf "%s\n" "      retries: 3"
+        printf "%s\n" "    restart: unless-stopped"
+        printf "\n"
+        printf "%s\n" "  graphiti:"
+        printf "%s\n" "    image: zepai/knowledge-graph-mcp:standalone"
+        printf "%s\n" "    container_name: graphiti-mcp-graphiti-mcp-1"
+        printf "%s\n" "    depends_on:"
+        printf "%s\n" "      falkordb:"
+        printf "%s\n" "        condition: service_healthy"
+        printf "%s\n" "    ports:"
+        printf "%s\n" "      - '\''127.0.0.1:8000:8000'\''"
+        printf "%s\n" "    environment:"
+        printf "%s\n" "      OPENAI_API_KEY: \${GRAPHITI_OPENAI_API_KEY}"
+        printf "      MODEL_NAME: %s\n" "$GRAPHITI_MODEL_NAME"
+        printf "%s\n" "      FALKORDB_URI: redis://falkordb:6379"
+        printf "%s\n" "      FALKORDB_DATABASE: beep_knowledge"
+        printf "%s\n" "      GRAPHITI_GROUP_ID: beep-dev"
+        printf "%s\n" "      SEMAPHORE_LIMIT: 10"
+        printf "%s\n" "      MCP_SERVER_HOST: 0.0.0.0"
+        printf "%s\n" "      GRAPHITI_TELEMETRY_ENABLED: '\''false'\''"
+        printf "%s\n" "    healthcheck:"
+        printf "%s\n" "      test: ['\''CMD-SHELL'\'', '\''curl -f http://localhost:8000/health || exit 1'\'']"
+        printf "%s\n" "      interval: 10s"
+        printf "%s\n" "      timeout: 5s"
+        printf "%s\n" "      start_period: 15s"
+        printf "%s\n" "      retries: 3"
+        printf "%s\n" "    restart: unless-stopped"
+      } > "$GRAPHITI_COMPOSE_FILE"
+    '
 }
 
 wait_for_container_health() {
@@ -283,14 +307,36 @@ install_graphiti() {
   wait_for_container_health graphiti-mcp-falkordb-1
   wait_for_container_health graphiti-mcp-graphiti-mcp-1
 
-  run_as_target_user bash -lc "cd '${REPO_ROOT}' && GRAPHITI_PROXY_SERVICE_NAME='${GRAPHITI_PROXY_SERVICE_NAME}' bash scripts/graphiti-proxy-service-install.sh"
+  require_single_line_value "REPO_ROOT" "$REPO_ROOT"
+  require_single_line_value "GRAPHITI_PROXY_SERVICE_NAME" "$GRAPHITI_PROXY_SERVICE_NAME"
+
+  run_as_target_user env \
+    REPO_ROOT="$REPO_ROOT" \
+    GRAPHITI_PROXY_SERVICE_NAME="$GRAPHITI_PROXY_SERVICE_NAME" \
+    bash -lc '
+      cd "$REPO_ROOT"
+      GRAPHITI_PROXY_SERVICE_NAME="$GRAPHITI_PROXY_SERVICE_NAME" bash scripts/graphiti-proxy-service-install.sh
+    '
 
   log "graphiti stack and proxy service are ready"
 }
 
 uninstall_graphiti() {
-  run_as_target_user bash -lc "systemctl --user disable --now '${GRAPHITI_PROXY_SERVICE_NAME}' >/dev/null 2>&1 || true"
-  run_as_target_user bash -lc "rm -f '${TARGET_SYSTEMD_DIR}/${GRAPHITI_PROXY_SERVICE_NAME}' && systemctl --user daemon-reload >/dev/null 2>&1 || true"
+  require_single_line_value "GRAPHITI_PROXY_SERVICE_NAME" "$GRAPHITI_PROXY_SERVICE_NAME"
+  require_single_line_value "TARGET_SYSTEMD_DIR" "$TARGET_SYSTEMD_DIR"
+
+  run_as_target_user env \
+    GRAPHITI_PROXY_SERVICE_NAME="$GRAPHITI_PROXY_SERVICE_NAME" \
+    bash -lc '
+      systemctl --user disable --now "$GRAPHITI_PROXY_SERVICE_NAME" >/dev/null 2>&1 || true
+    '
+  run_as_target_user env \
+    TARGET_SYSTEMD_DIR="$TARGET_SYSTEMD_DIR" \
+    GRAPHITI_PROXY_SERVICE_NAME="$GRAPHITI_PROXY_SERVICE_NAME" \
+    bash -lc '
+      rm -f "$TARGET_SYSTEMD_DIR/$GRAPHITI_PROXY_SERVICE_NAME"
+      systemctl --user daemon-reload >/dev/null 2>&1 || true
+    '
 
   if [[ -f "$GRAPHITI_COMPOSE_FILE" ]]; then
     sudo -n docker compose --project-name graphiti-mcp -f "$GRAPHITI_COMPOSE_FILE" down --remove-orphans --volumes >/dev/null 2>&1 || true
@@ -303,37 +349,71 @@ uninstall_graphiti() {
 write_qwen_service_files() {
   run_as_target_user mkdir -p "$QWEN_STATE_DIR" "$QWEN_CACHE_DIR" "$TARGET_SYSTEMD_DIR" "$TARGET_STATE_HOME"
 
-  run_as_target_user bash -lc "umask 077 && cat > '${QWEN_ENV_FILE}' <<EOF
-QWEN_SERVICE_MODEL_ID=${QWEN_MODEL_ID}
-QWEN_SERVICE_TRUST_REMOTE_CODE=${QWEN_TRUST_REMOTE_CODE}
-QWEN_SERVICE_HOST=${QWEN_HOST}
-QWEN_SERVICE_PORT=${QWEN_PORT}
-QWEN_SERVICE_CACHE_DIR=${QWEN_CACHE_DIR}
-HF_HOME=${QWEN_CACHE_DIR}
-TRANSFORMERS_CACHE=${QWEN_CACHE_DIR}
-PYTHONUNBUFFERED=1
-HUGGING_FACE_HUB_TOKEN=${V2T_HUGGING_FACE_HUB_TOKEN:-}
-EOF"
+  require_single_line_value "QWEN_ENV_FILE" "$QWEN_ENV_FILE"
+  require_single_line_value "QWEN_SERVICE_FILE" "$QWEN_SERVICE_FILE"
+  require_single_line_value "QWEN_MODEL_ID" "$QWEN_MODEL_ID"
+  require_single_line_value "QWEN_TRUST_REMOTE_CODE" "$QWEN_TRUST_REMOTE_CODE"
+  require_single_line_value "QWEN_HOST" "$QWEN_HOST"
+  require_single_line_value "QWEN_PORT" "$QWEN_PORT"
+  require_single_line_value "QWEN_CACHE_DIR" "$QWEN_CACHE_DIR"
+  require_single_line_value "V2T_HUGGING_FACE_HUB_TOKEN" "${V2T_HUGGING_FACE_HUB_TOKEN:-}"
+  require_single_line_value "REPO_ROOT" "$REPO_ROOT"
+  require_single_line_value "QWEN_VENV_DIR" "$QWEN_VENV_DIR"
+  require_single_line_value "QWEN_SERVER_SCRIPT" "$QWEN_SERVER_SCRIPT"
+  require_single_line_value "TARGET_STATE_HOME" "$TARGET_STATE_HOME"
 
-  run_as_target_user bash -lc "cat > '${QWEN_SERVICE_FILE}' <<EOF
-[Unit]
-Description=beep V2T local Qwen audio service
-After=network-online.target
-Wants=network-online.target
+  run_as_target_user env \
+    QWEN_ENV_FILE="$QWEN_ENV_FILE" \
+    QWEN_MODEL_ID="$QWEN_MODEL_ID" \
+    QWEN_TRUST_REMOTE_CODE="$QWEN_TRUST_REMOTE_CODE" \
+    QWEN_HOST="$QWEN_HOST" \
+    QWEN_PORT="$QWEN_PORT" \
+    QWEN_CACHE_DIR="$QWEN_CACHE_DIR" \
+    HUGGING_FACE_HUB_TOKEN="${V2T_HUGGING_FACE_HUB_TOKEN:-}" \
+    bash -lc '
+      umask 077
+      {
+        printf "QWEN_SERVICE_MODEL_ID=%s\n" "$QWEN_MODEL_ID"
+        printf "QWEN_SERVICE_TRUST_REMOTE_CODE=%s\n" "$QWEN_TRUST_REMOTE_CODE"
+        printf "QWEN_SERVICE_HOST=%s\n" "$QWEN_HOST"
+        printf "QWEN_SERVICE_PORT=%s\n" "$QWEN_PORT"
+        printf "QWEN_SERVICE_CACHE_DIR=%s\n" "$QWEN_CACHE_DIR"
+        printf "HF_HOME=%s\n" "$QWEN_CACHE_DIR"
+        printf "TRANSFORMERS_CACHE=%s\n" "$QWEN_CACHE_DIR"
+        printf "%s\n" "PYTHONUNBUFFERED=1"
+        printf "HUGGING_FACE_HUB_TOKEN=%s\n" "$HUGGING_FACE_HUB_TOKEN"
+      } > "$QWEN_ENV_FILE"
+    '
 
-[Service]
-Type=simple
-WorkingDirectory=${REPO_ROOT}
-EnvironmentFile=${QWEN_ENV_FILE}
-ExecStart=${QWEN_VENV_DIR}/bin/python ${QWEN_SERVER_SCRIPT}
-Restart=always
-RestartSec=5
-StandardOutput=append:${TARGET_STATE_HOME}/qwen.log
-StandardError=append:${TARGET_STATE_HOME}/qwen.err.log
-
-[Install]
-WantedBy=default.target
-EOF"
+  run_as_target_user env \
+    QWEN_SERVICE_FILE="$QWEN_SERVICE_FILE" \
+    REPO_ROOT="$REPO_ROOT" \
+    QWEN_ENV_FILE="$QWEN_ENV_FILE" \
+    QWEN_VENV_DIR="$QWEN_VENV_DIR" \
+    QWEN_SERVER_SCRIPT="$QWEN_SERVER_SCRIPT" \
+    TARGET_STATE_HOME="$TARGET_STATE_HOME" \
+    bash -lc '
+      umask 077
+      {
+        printf "%s\n" "[Unit]"
+        printf "%s\n" "Description=beep V2T local Qwen audio service"
+        printf "%s\n" "After=network-online.target"
+        printf "%s\n" "Wants=network-online.target"
+        printf "\n"
+        printf "%s\n" "[Service]"
+        printf "%s\n" "Type=simple"
+        printf "WorkingDirectory=%s\n" "$REPO_ROOT"
+        printf "EnvironmentFile=%s\n" "$QWEN_ENV_FILE"
+        printf "ExecStart=%s/bin/python %s\n" "$QWEN_VENV_DIR" "$QWEN_SERVER_SCRIPT"
+        printf "%s\n" "Restart=always"
+        printf "%s\n" "RestartSec=5"
+        printf "StandardOutput=append:%s/qwen.log\n" "$TARGET_STATE_HOME"
+        printf "StandardError=append:%s/qwen.err.log\n" "$TARGET_STATE_HOME"
+        printf "\n"
+        printf "%s\n" "[Install]"
+        printf "%s\n" "WantedBy=default.target"
+      } > "$QWEN_SERVICE_FILE"
+    '
 }
 
 wait_for_qwen_health() {
@@ -358,19 +438,11 @@ install_qwen() {
     run_as_target_user python3 -m venv "$QWEN_VENV_DIR"
   fi
 
-  run_as_target_user "${QWEN_VENV_DIR}/bin/pip" install --upgrade pip setuptools wheel
   run_as_target_user "${QWEN_VENV_DIR}/bin/pip" install --upgrade \
-    accelerate \
-    fastapi \
-    huggingface_hub \
-    librosa \
-    safetensors \
-    sentencepiece \
-    soundfile \
-    torch \
-    torchaudio \
-    "uvicorn[standard]"
-  run_as_target_user "${QWEN_VENV_DIR}/bin/pip" install --upgrade git+https://github.com/huggingface/transformers
+    "pip==26.0.1" \
+    "setuptools==82.0.1" \
+    "wheel==0.46.3"
+  run_as_target_user "${QWEN_VENV_DIR}/bin/pip" install --upgrade --requirement "$QWEN_REQUIREMENTS_FILE"
 
   run_as_target_user env \
     HUGGING_FACE_HUB_TOKEN="${V2T_HUGGING_FACE_HUB_TOKEN:-}" \
@@ -397,15 +469,40 @@ install_qwen() {
 }
 
 uninstall_qwen() {
-  run_as_target_user bash -lc "systemctl --user disable --now '${QWEN_SERVICE_NAME}' >/dev/null 2>&1 || true"
-  run_as_target_user bash -lc "rm -f '${QWEN_SERVICE_FILE}' && systemctl --user daemon-reload >/dev/null 2>&1 || true"
+  require_single_line_value "QWEN_SERVICE_NAME" "$QWEN_SERVICE_NAME"
+  require_single_line_value "QWEN_SERVICE_FILE" "$QWEN_SERVICE_FILE"
+
+  run_as_target_user env \
+    QWEN_SERVICE_NAME="$QWEN_SERVICE_NAME" \
+    bash -lc '
+      systemctl --user disable --now "$QWEN_SERVICE_NAME" >/dev/null 2>&1 || true
+    '
+  run_as_target_user env \
+    QWEN_SERVICE_FILE="$QWEN_SERVICE_FILE" \
+    bash -lc '
+      rm -f "$QWEN_SERVICE_FILE"
+      systemctl --user daemon-reload >/dev/null 2>&1 || true
+    '
   run_as_target_user rm -rf "$QWEN_STATE_DIR"
   log "qwen-managed assets removed"
 }
 
 build_app() {
-  run_as_target_user bash -lc "cd '${REPO_ROOT}' && bun install --frozen-lockfile 1>&2"
-  run_as_target_user bash -lc "cd '${REPO_ROOT}' && { source \"\$HOME/.cargo/env\" >/dev/null 2>&1 || true; } && bun run --cwd apps/V2T build:native 1>&2"
+  require_single_line_value "REPO_ROOT" "$REPO_ROOT"
+
+  run_as_target_user env \
+    REPO_ROOT="$REPO_ROOT" \
+    bash -lc '
+      cd "$REPO_ROOT"
+      bun install --frozen-lockfile 1>&2
+    '
+  run_as_target_user env \
+    REPO_ROOT="$REPO_ROOT" \
+    bash -lc '
+      cd "$REPO_ROOT"
+      { source "$HOME/.cargo/env" >/dev/null 2>&1 || true; }
+      bun run --cwd apps/V2T build:native 1>&2
+    '
 
   local deb_path
   deb_path="$(find "${REPO_ROOT}/apps/V2T/src-tauri/target/release/bundle/deb" -maxdepth 1 -type f -name '*.deb' | sort | tail -n 1)"
@@ -417,7 +514,15 @@ build_app() {
 
   sudo -n apt-get install -y "$deb_path"
   run_as_target_user mkdir -p "$TARGET_STATE_HOME"
-  run_as_target_user bash -lc "umask 077 && printf '%s\n' '${package_name}' > '${PACKAGE_STATE_FILE}'"
+  require_single_line_value "PACKAGE_STATE_FILE" "$PACKAGE_STATE_FILE"
+  require_single_line_value "package_name" "$package_name"
+  run_as_target_user env \
+    PACKAGE_STATE_FILE="$PACKAGE_STATE_FILE" \
+    PACKAGE_NAME="$package_name" \
+    bash -lc '
+      umask 077
+      printf "%s\n" "$PACKAGE_NAME" > "$PACKAGE_STATE_FILE"
+    '
   printf '%s\n' "$package_name"
 }
 

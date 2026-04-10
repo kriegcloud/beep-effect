@@ -25,12 +25,16 @@ const defaultQwenServiceName = "beep-v2t-qwen.service";
 const defaultGraphitiProxyServiceName = "beep-graphiti-proxy.service";
 const defaultInstallerScriptPath = fileURLToPath(new URL("../scripts/v2t-workstation.sh", import.meta.url));
 const defaultQwenServerScriptPath = fileURLToPath(new URL("../scripts/qwen_audio_server.py", import.meta.url));
+const defaultQwenRequirementsPath = fileURLToPath(new URL("../scripts/qwen-audio-requirements.txt", import.meta.url));
 const V2TManagedStateRelativeDir = ".local/share/beep/v2t-workstation";
 
 const resolveInstallerScriptPath = () => process.env.BEEP_INFRA_V2T_INSTALLER_SCRIPT_PATH ?? defaultInstallerScriptPath;
 
 const resolveQwenServerScriptPath = () =>
   process.env.BEEP_INFRA_V2T_QWEN_SERVER_SCRIPT_PATH ?? defaultQwenServerScriptPath;
+
+const resolveQwenRequirementsPath = () =>
+  process.env.BEEP_INFRA_V2T_QWEN_REQUIREMENTS_PATH ?? defaultQwenRequirementsPath;
 
 const makeManagedStateDir = (targetHomeDir: string, name: "graphiti" | "qwen") =>
   `${targetHomeDir}/${V2TManagedStateRelativeDir}/${name}`;
@@ -393,6 +397,7 @@ export class V2TWorkstation extends pulumi.ComponentResource {
 
     const installerScriptPath = resolveInstallerScriptPath();
     const qwenServerScriptPath = resolveQwenServerScriptPath();
+    const qwenRequirementsPath = resolveQwenRequirementsPath();
     const resolvedConfig = validateV2TWorkstationConfig(
       normalizeV2TWorkstationConfig(args?.config, {
         graphitiSecretPresent: args?.graphitiOpenAiApiKey !== undefined,
@@ -431,6 +436,7 @@ export class V2TWorkstation extends pulumi.ComponentResource {
       resolvedConfig.targetHomeDir,
       new pulumi.asset.FileAsset(installerScriptPath),
       new pulumi.asset.FileAsset(qwenServerScriptPath),
+      new pulumi.asset.FileAsset(qwenRequirementsPath),
     ];
     const appBuildSourceTriggers = [
       makeSourceArchiveTrigger(
