@@ -15,6 +15,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import type { ItsHelpers } from "wink-nlp";
 import { type Document, DocumentId } from "../Core/Document.ts";
 import type { Token } from "../Core/Token.ts";
 import { PositiveNumber, UnitInterval } from "../internal/numbers.ts";
@@ -24,13 +25,13 @@ const $I = $NlpId.create("Wink/WinkVectorizer");
 const require = createRequire(import.meta.url);
 const BM25NormKit = LiteralKit(["none", "l1", "l2"] as const);
 
+type BM25Accessor<T> = (...args: ReadonlyArray<never>) => T;
+
 type BM25VectorizerInstance = {
   readonly bowOf: (tokens: Array<string>, processOov?: boolean) => Record<string, number>;
-  readonly doc: (index: number) => {
-    readonly out: (accessor: unknown) => unknown;
-  };
+  readonly doc: (index: number) => { readonly out: <T>(accessor: BM25Accessor<T>) => T };
   readonly learn: (tokens: Array<string>) => void;
-  readonly out: (accessor: unknown) => unknown;
+  readonly out: <T>(accessor: BM25Accessor<T>) => T;
   readonly vectorOf: (tokens: Array<string>) => Array<number>;
 };
 
@@ -45,6 +46,7 @@ type VectorizerState = {
   readonly documentIds: ReadonlyArray<DocumentId>;
   readonly vectorizer: BM25VectorizerInstance;
 };
+type WinkEngineService = typeof WinkEngine.Service;
 
 const appendDocument = (state: VectorizerState, document: Document): VectorizerState => ({
   documentIds: [...state.documentIds, document.id],
@@ -56,7 +58,7 @@ const learnDocumentState = (
   document: Document,
   tokens: ReadonlyArray<string>
 ): VectorizerState => {
-  state.vectorizer.learn(tokens);
+  state.vectorizer.learn(A.fromIterable(tokens));
   return appendDocument(state, document);
 };
 
@@ -109,13 +111,6 @@ const normalizeTokenText = (token: Token): string =>
     onSome: (normal) => normal ?? token.text,
   });
 
-const resolveAccessor = (its: unknown, name: string): Effect.Effect<unknown, VectorizerError> =>
-  Bool.match(P.hasProperty(its, name), {
-    onFalse: () =>
-      Effect.fail(VectorizerError.fromMessage(`wink accessor its.${name} is unavailable`, "resolveAccessor")),
-    onTrue: () => Effect.succeed(its[name]),
-  });
-
 const toFiniteRecord = (record: Record<string, number>): Record<string, number> =>
   R.fromEntries(
     A.map(
@@ -138,26 +133,22 @@ const isTermFrequencyPair = (value: unknown): value is readonly [string, number]
   A.isArray(value) && value.length >= 2 && P.isString(value[0]) && P.isNumber(value[1]);
 
 const decodeStringArray = (value: unknown, operation: string): Effect.Effect<ReadonlyArray<string>, VectorizerError> =>
-  Bool.match(isStringArray(value), {
-    onFalse: () =>
-      Effect.fail(VectorizerError.fromMessage(`Invalid ${operation} result: expected string[]`, operation)),
-    onTrue: () => Effect.succeed(value),
-  });
+  isStringArray(value)
+    ? Effect.succeed(value)
+    : Effect.fail(VectorizerError.fromMessage(`Invalid ${operation} result: expected string[]`, operation));
 
 const decodeTermFrequencyPairs = (
   value: unknown,
   operation: string
 ): Effect.Effect<ReadonlyArray<readonly [string, number]>, VectorizerError> =>
-  Bool.match(A.isArray(value) && A.every(value, isTermFrequencyPair), {
-    onFalse: () =>
-      Effect.fail(VectorizerError.fromMessage(`Invalid ${operation} result: expected [string, number][]`, operation)),
-    onTrue: () => Effect.succeed(value),
-  });
+  A.isArray(value) && A.every(value, isTermFrequencyPair)
+    ? Effect.succeed(value)
+    : Effect.fail(VectorizerError.fromMessage(`Invalid ${operation} result: expected [string, number][]`, operation));
 
 const readNormalizedTokensFromWink = (
-  engine: WinkEngine,
+  engine: WinkEngineService,
   document: Document,
-  its: unknown
+  its: ItsHelpers
 ): Effect.Effect<ReadonlyArray<string>, VectorizerError> =>
   engine.getWinkDoc(document.text).pipe(
     Effect.flatMap((winkDoc) => decodeStringArray(winkDoc.tokens().out(its.normal), "readNormalizedTokens")),
@@ -332,25 +323,19 @@ const makeWinkVectorizer = Effect.gen(function* () {
 
   const getTerms = (vectorizer: BM25VectorizerInstance): Effect.Effect<ReadonlyArray<string>, VectorizerError> =>
     pipe(
-      resolveAccessor(its, "terms"),
-      Effect.flatMap((accessor) =>
-        Effect.try({
-          try: () => vectorizer.out(accessor),
-          catch: (cause) => VectorizerError.fromCause(cause, "terms"),
-        })
-      ),
+      Effect.try({
+        try: () => vectorizer.out(its.terms),
+        catch: (cause) => VectorizerError.fromCause(cause, "terms"),
+      }),
       Effect.flatMap((output) => decodeStringArray(output, "terms"))
     );
 
   const getTermFrequencies = (vectorizer: BM25VectorizerInstance, docIndex: number) =>
     pipe(
-      resolveAccessor(its, "tf"),
-      Effect.flatMap((accessor) =>
-        Effect.try({
-          try: () => vectorizer.doc(docIndex).out(accessor),
-          catch: (cause) => VectorizerError.fromCause(cause, "tf"),
-        })
-      ),
+      Effect.try({
+        try: () => vectorizer.doc(docIndex).out(its.tf),
+        catch: (cause) => VectorizerError.fromCause(cause, "tf"),
+      }),
       Effect.flatMap((output) => decodeTermFrequencyPairs(output, "tf")),
       Effect.map((raw) =>
         A.map(raw, ([term, frequency]) =>
@@ -368,7 +353,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
       const tokens = yield* readNormalizedTokens(document);
 
       return BagOfWords.make({
-        bow: toFiniteRecord(state.vectorizer.bowOf(tokens, true)),
+        bow: toFiniteRecord(state.vectorizer.bowOf(A.fromIterable(tokens), true)),
         documentId: document.id,
       });
     }),
@@ -401,7 +386,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
       return DocumentVector.make({
         documentId: document.id,
         terms,
-        vector: state.vectorizer.vectorOf(tokens),
+        vector: state.vectorizer.vectorOf(A.fromIterable(tokens)),
       });
     }),
     withFreshInstance: <A, E, R>(f: (isolated: ScopedVectorizer) => Effect.Effect<A, E, R>) => {
@@ -414,7 +399,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
             readNormalizedTokens(document),
             Effect.flatMap((tokens) =>
               Effect.sync(() => {
-                freshVectorizer.learn(tokens);
+                freshVectorizer.learn(A.fromIterable(tokens));
               })
             ),
             Effect.mapError((cause) => VectorizerError.fromCause(cause, "freshLearnDocument"))
@@ -427,7 +412,7 @@ const makeWinkVectorizer = Effect.gen(function* () {
                 DocumentVector.make({
                   documentId: document.id,
                   terms,
-                  vector: freshVectorizer.vectorOf(tokens),
+                  vector: freshVectorizer.vectorOf(A.fromIterable(tokens)),
                 })
               )
             )

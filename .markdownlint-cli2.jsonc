@@ -17,6 +17,7 @@
   },
   "ignores": [
     "node_modules/**",
+    "**/node_modules/**",
     ".repos/**",
     ".next/**",
     ".sst/**",
@@ -26,6 +27,7 @@
     "tmp/**",
     ".beep/**",
     ".aiassistant/**",
+    ".playwright-cli/**",
     "scratchpad/**",
     "**/docs/**",
     ".agents/**",

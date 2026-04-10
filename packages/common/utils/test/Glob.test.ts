@@ -2,7 +2,7 @@ import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { layer as GlobLayer, type GlobOptions, Glob as GlobService, type Pattern } from "@beep/utils/Glob";
-import { Effect } from "effect";
+import { Effect, Match } from "effect";
 import { describe, expect, it } from "vitest";
 
 const makeFixture = async (): Promise<{ readonly dir: string; readonly cleanup: () => Promise<void> }> => {
@@ -30,18 +30,19 @@ const runGlob = (pattern: Pattern, options?: undefined | GlobOptions) =>
 const withBunGlobDisabled = async <A>(run: () => Promise<A>): Promise<A> => {
   const BunRef = globalThis.Bun;
 
-  if (BunRef === undefined) {
-    return run();
-  }
+  return Match.value(BunRef === undefined).pipe(
+    Match.when(true, run),
+    Match.orElse(async () => {
+      const originalGlob = BunRef.Glob;
+      Reflect.set(BunRef, "Glob", undefined);
 
-  const originalGlob = BunRef.Glob;
-  Reflect.set(BunRef, "Glob", undefined);
-
-  try {
-    return await run();
-  } finally {
-    Reflect.set(BunRef, "Glob", originalGlob);
-  }
+      try {
+        return await run();
+      } finally {
+        Reflect.set(BunRef, "Glob", originalGlob);
+      }
+    })
+  );
 };
 
 describe("@beep/utils Glob", () => {

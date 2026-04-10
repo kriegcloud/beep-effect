@@ -1,5 +1,5 @@
 import { $UtilsId } from "@beep/identity/packages";
-import { Struct as EffectStruct, Function as Fn, pipe } from "effect";
+import { Function as Fn, Match, Struct as EffectStruct, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -53,14 +53,15 @@ function assertStructHasStringEntries<T>(
   input: ReadonlyArray<T>,
   source: object
 ): asserts input is A.NonEmptyReadonlyArray<T> {
-  try {
-    A.assertNonEmptyReadonlyArray(input);
-  } catch (cause) {
-    throw new EmptyStructError({
-      input: source,
-      cause: S.decodeUnknownOption(S.DefectWithStack)(cause),
-    });
-  }
+  return Match.value(A.isReadonlyArrayNonEmpty(input)).pipe(
+    Match.when(true, () => undefined),
+    Match.orElse(() => {
+      throw new EmptyStructError({
+        input: source,
+        cause: O.none(),
+      });
+    })
+  );
 }
 
 /**
@@ -150,7 +151,10 @@ export const dotGetOption: {
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): O.Option<Get<S, P>>;
 } = Fn.dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
   const lookup = lookupAtPath(self, path);
-  return lookup.found ? O.some(lookup.value) : O.none();
+  return Match.value(lookup).pipe(
+    Match.when({ found: true }, ({ value }) => O.some(value)),
+    Match.orElse(() => O.none())
+  );
 }) as {
   <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => O.Option<Get<S, P>>;
   <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => O.Option<Get<S, P>>;
@@ -382,9 +386,12 @@ export const pathsOf = <const S extends Record<string, unknown>>(
   const walk = (current: unknown, prefix: string): void => {
     if (P.isNullish(current) || !P.isObject(current)) return;
     for (const key of R.keys(current)) {
-      const path = Str.isEmpty(prefix) ? key : `${prefix}.${key}`;
-      result.push(path);
-      walk(current[key], path);
+      const nextPath = Match.value(Str.isEmpty(prefix)).pipe(
+        Match.when(true, () => key),
+        Match.orElse(() => `${prefix}.${key}`)
+      );
+      result.push(nextPath);
+      walk(current[key], nextPath);
     }
   };
   walk(obj, "");

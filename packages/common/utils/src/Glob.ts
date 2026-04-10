@@ -1,6 +1,7 @@
+import { readdirSync } from "node:fs";
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
-import { Context, Effect, Layer, Order, pipe } from "effect";
+import { Context, Effect, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -93,6 +94,16 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
     Thunk.make(new GlobError({ pattern, cause }));
 }
 
+const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
+  const cwdUrl = toDirectoryUrl(options?.cwd ?? ".");
+  const toAbsolute = toAbsolutePath(cwdUrl);
+
+  return Effect.tryPromise({
+    try: () => scanWithNodeGlob(pattern, options, cwdUrl, toAbsolute),
+    catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
+  });
+};
+
 /**
  * Service interface for performing glob-based file matching.
  *
@@ -116,7 +127,7 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
  * @since 0.0.0
  */
 export interface Glob {
-  readonly glob: (pattern: Pattern, options?: undefined | GlobOptions) => Effect.Effect<Array<string>, GlobError>;
+  readonly glob: typeof makeGlob;
 }
 
 /**
@@ -132,7 +143,10 @@ type GlobMatcher = (relativePath: string) => boolean;
 const absolutePathPattern = /^(?:[A-Za-z]:[\\/]|\\\\|\/)/;
 
 const ensureTrailingSeparator = (value: string): string =>
-  Str.endsWith("/")(value) || Str.endsWith("\\")(value) ? value : `${value}/`;
+  Match.value(Str.endsWith("/")(value) || Str.endsWith("\\")(value)).pipe(
+    Match.when(true, () => value),
+    Match.orElse(() => `${value}/`)
+  );
 
 const normalizePathSeparators = (value: string): string => Str.replaceAll("\\", "/")(value);
 
@@ -152,11 +166,10 @@ const toIgnorePatterns = (ignore: undefined | Pattern): ReadonlyArray<string> =>
 const toDirectoryUrl = (cwd: string): URL => {
   const normalizedCwd = ensureTrailingSeparator(cwd);
 
-  if (absolutePathPattern.test(normalizedCwd)) {
-    return pathToFileURL(normalizedCwd);
-  }
-
-  return new URL(normalizedCwd, pathToFileURL(ensureTrailingSeparator(process.cwd())));
+  return Match.value(absolutePathPattern.test(normalizedCwd)).pipe(
+    Match.when(true, () => pathToFileURL(normalizedCwd)),
+    Match.orElse(() => new URL(normalizedCwd, pathToFileURL(ensureTrailingSeparator(process.cwd()))))
+  );
 };
 
 const toAbsolutePath =
@@ -181,27 +194,25 @@ const scanWithNodeGlob = async (
   cwdUrl: URL,
   toAbsolute: (relativePath: string) => string
 ): Promise<Array<string>> => {
-  const fs = await import("node:fs");
-  const path = await import("node:path");
   const cwdPath = fileURLToPath(cwdUrl);
   const includeMatchers = compileMatchers(toPatterns(pattern), options);
   const ignoreMatchers = compileMatchers(toIgnorePatterns(options?.ignore), options);
 
   const walk = (relativeDir = ""): ReadonlyArray<readonly [relativePath: string, isFile: boolean]> => {
-    const absoluteDir = relativeDir.length === 0 ? cwdPath : path.join(cwdPath, relativeDir);
-    const entries = fs.readdirSync(absoluteDir, { withFileTypes: true });
+    const absoluteDir =
+      relativeDir.length === 0 ? cwdPath : fileURLToPath(new URL(ensureTrailingSeparator(relativeDir), cwdUrl));
+    const entries = readdirSync(absoluteDir, { withFileTypes: true });
 
     return A.flatMap(entries, (entry) => {
       const relativePath = normalizePathSeparators(
-        relativeDir.length === 0 ? entry.name : path.join(relativeDir, entry.name)
+        relativeDir.length === 0 ? entry.name : `${relativeDir}/${entry.name}`
       );
       const isFile = entry.isFile();
 
-      if (entry.isDirectory()) {
-        return [[relativePath, false] as const, ...walk(relativePath)];
-      }
-
-      return [[relativePath, isFile] as const];
+      return Match.value(entry.isDirectory()).pipe(
+        Match.when(true, () => [[relativePath, false] as const, ...walk(relativePath)]),
+        Match.orElse(() => [[relativePath, isFile] as const])
+      );
     });
   };
 
@@ -231,12 +242,5 @@ const scanWithNodeGlob = async (
  * @since 0.0.0
  */
 export const layer: Layer.Layer<Glob> = Layer.succeed(Glob, {
-  glob: (pattern, options) => {
-    const cwdUrl = toDirectoryUrl(options?.cwd ?? ".");
-    const toAbsolute = toAbsolutePath(cwdUrl);
-    return Effect.tryPromise({
-      try: () => scanWithNodeGlob(pattern, options, cwdUrl, toAbsolute),
-      catch: (cause) => new GlobError({ pattern, cause: S.decodeUnknownOption(S.DefectWithStack)(cause) }),
-    });
-  },
+  glob: makeGlob,
 });

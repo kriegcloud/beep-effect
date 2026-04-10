@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P2.md`, `RESEARCH.md`, `DESIGN_RESEARCH.md`, `apps/V2T`, `package.json`, and `turbo.json`. Produce or refine `PLANNING.md` with the implementation tracks, file or surface order, acceptance criteria, and verification commands. Do not implement the plan in this phase.

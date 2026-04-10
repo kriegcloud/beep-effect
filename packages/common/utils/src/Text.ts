@@ -1,4 +1,4 @@
-import { flow } from "effect";
+import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 
@@ -44,7 +44,13 @@ export const splitCommaSeparatedTrimmed = flow(Str.split(","), A.map(Str.trim), 
  * @since 0.0.0
  */
 export const formatNameWithAliases = (name: string, aliases: ReadonlyArray<string>, description: string): string =>
-  `${name}${A.isReadonlyArrayNonEmpty(aliases) ? ` (${A.join(aliases, ", ")})` : ""}: ${description}`;
+  pipe(
+    aliases,
+    A.match({
+      onEmpty: () => `${name}: ${description}`,
+      onNonEmpty: (nonEmptyAliases) => `${name} (${A.join(nonEmptyAliases, ", ")}): ${description}`,
+    })
+  );
 
 /**
  * Joins text lines with a newline separator.

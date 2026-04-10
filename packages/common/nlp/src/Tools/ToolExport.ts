@@ -7,7 +7,7 @@
 
 import {$NlpId} from "@beep/identity";
 import {TaggedErrorClass} from "@beep/schema";
-import {Cause, Effect, Inspectable, Match, Stream} from "effect";
+import {Cause, Effect, Inspectable, SchemaParser, Stream} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -203,6 +203,20 @@ const buildArgsObject = (
         }
   );
 
+const decodeToolParameters = <T extends NlpTool>(
+  tool: T,
+  parameterNames: ReadonlyArray<string>,
+  args: ReadonlyArray<unknown>
+): Tool.Parameters<T> =>
+  SchemaParser.decodeUnknownSync(
+    S.make<S.Decoder<Tool.Parameters<T>>>(tool.parametersSchema.ast)
+  )(
+    buildArgsObject(
+      parameterNames,
+      args
+    )
+  );
+
 const handleTool = <T extends NlpTool>(
   toolkit: NlpToolkitWithHandler,
   tool: T,
@@ -245,13 +259,7 @@ const buildExportedTool: {
         Effect.fn(
           function* (args) {
             const params = yield* Effect.try({
-              try: () =>
-                S.decodeUnknownSync<Tool.Parameters<T>>(tool.parametersSchema)(
-                  buildArgsObject(
-                    parameterNames,
-                    args
-                  )
-                ),
+              try: () => decodeToolParameters(tool, parameterNames, args),
               catch: (cause) =>
                 ExportedToolError.fromCause(
                   cause,
@@ -327,14 +335,20 @@ const buildExportedTool: {
  * @since 0.0.0
  * @category Adapters
  */
-const exportToolsEffect = Effect.gen(function* () {
+const exportToolsEffect: Effect.Effect<
+  ReadonlyArray<ExportedTool>,
+  ExportedToolError,
+  Tool.HandlersFor<typeof NlpToolkit.tools>
+> = Effect.gen(function* () {
   const toolkit = yield* NlpToolkit;
-  return A.map(
+  const exportedTools: ReadonlyArray<ExportedTool> = A.map(
     NlpTools,
     buildExportedTool(
       toolkit
     )
   );
+
+  return exportedTools;
 })
   .pipe(
     Effect.mapError((cause) =>

@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P4.md`, all prior phase artifacts, and the relevant command surfaces. Produce or refine `VERIFICATION.md` with automated results, manual scenario evidence, deferred behavior, and a readiness statement, then stop at the P4 exit gate.

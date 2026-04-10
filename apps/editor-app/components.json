@@ -19,6 +19,7 @@
     "ui": "@beep/ui/components"
   },
   "registries": {
+    "@mui-treasury": "https://www.mui-treasury.com/r/{name}.json",
     "@shadcn-editor": "https://shadcn-editor.vercel.app/r/{name}.json"
   }
 }

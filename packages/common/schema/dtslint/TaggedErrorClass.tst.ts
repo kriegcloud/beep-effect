@@ -30,6 +30,15 @@ class OptionalCauseError extends TaggedErrorClass<OptionalCauseError>("OptionalC
   message: S.String,
 }) {}
 
+class ExtendedBeepError extends BeepError.extend<ExtendedBeepError>("ExtendedBeepError")({
+  count: S.Number,
+}) {}
+
+class ExtendedCauseError extends BeepError.extend<ExtendedCauseError>("ExtendedCauseError")({
+  cause: S.DefectWithStack,
+  count: S.Number,
+}) {}
+
 describe("TaggedErrorClass", () => {
   it("infers new input from schema fields (without _tag)", () => {
     expect<TaggedErrorNewInput<typeof BeepError>>().type.toBe<{ readonly beep: string }>();
@@ -94,5 +103,35 @@ describe("TaggedErrorClass", () => {
 
     // @ts-expect-error!
     OptionalCauseError.newThunk({ message: "beep" })(new Error("boom"));
+  });
+
+  it("preserves helper constructors across extend", () => {
+    expect<TaggedErrorNewInput<typeof ExtendedBeepError>>().type.toBe<{
+      readonly beep: string;
+      readonly count: number;
+    }>();
+
+    expect(ExtendedBeepError.new).type.toBe<
+      (input: { readonly beep: string; readonly count: number }) => ExtendedBeepError
+    >();
+    expect(ExtendedBeepError.new({ beep: "beep", count: 1 })).type.toBe<ExtendedBeepError>();
+    expect(ExtendedBeepError.newThunk({ beep: "beep", count: 1 })()).type.toBe<ExtendedBeepError>();
+
+    // @ts-expect-error!
+    ExtendedBeepError.new({ beep: "beep" });
+  });
+
+  it("recomputes cause-aware constructor overloads for extended classes", () => {
+    expect(ExtendedCauseError.new(new Error("boom"), { beep: "beep", count: 1 })).type.toBe<ExtendedCauseError>();
+    expect(ExtendedCauseError.new({ beep: "beep", count: 1 })(new Error("boom"))).type.toBe<ExtendedCauseError>();
+    expect(
+      ExtendedCauseError.newThunk(new Error("boom"), { beep: "beep", count: 1 })()
+    ).type.toBe<ExtendedCauseError>();
+    expect(
+      ExtendedCauseError.newThunk({ beep: "beep", count: 1 })(new Error("boom"))()
+    ).type.toBe<ExtendedCauseError>();
+
+    // @ts-expect-error!
+    ExtendedCauseError.new({ beep: "beep" });
   });
 });

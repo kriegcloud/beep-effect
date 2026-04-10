@@ -26,6 +26,15 @@ class OptionalCauseError extends TaggedErrorClass<OptionalCauseError>("OptionalC
   message: S.String,
 }) {}
 
+class ExtendedBeepError extends BeepError.extend<ExtendedBeepError>("ExtendedBeepError")({
+  count: S.Number,
+}) {}
+
+class ExtendedCauseError extends BeepError.extend<ExtendedCauseError>("ExtendedCauseError")({
+  cause: S.DefectWithStack,
+  count: S.Number,
+}) {}
+
 describe("TaggedErrorClass", () => {
   it("creates tagged instances via new", () => {
     const error = BeepError.new({ beep: "beep" });
@@ -120,5 +129,38 @@ describe("TaggedErrorClass", () => {
     expect(error).toBeInstanceOf(RequiredCauseError);
     expect(error.cause).toBe(cause);
     expect(error.message).toBe("boom");
+  });
+
+  it("extends tagged errors with inherited fields and helper constructors", () => {
+    const thunk = ExtendedBeepError.newThunk({ beep: "boop", count: 2 });
+    const error = thunk();
+
+    expect(error).toBeInstanceOf(BeepError);
+    expect(error).toBeInstanceOf(ExtendedBeepError);
+    expect(error._tag).toBe("BeepError");
+    expect(error.name).toBe("ExtendedBeepError");
+    expect(error.beep).toBe("boop");
+    expect(error.count).toBe(2);
+  });
+
+  it("recomputes cause-aware helper constructors for extended tagged errors", () => {
+    const cause = new Error("kapow");
+    const fromCause = ExtendedCauseError.new({ beep: "boop", count: 2 });
+    const thunkFromCause = ExtendedCauseError.newThunk({ beep: "boop", count: 2 });
+    const error = fromCause(cause);
+    const thunkError = thunkFromCause(cause)();
+
+    expect(typeof fromCause).toBe("function");
+    expect(typeof thunkFromCause).toBe("function");
+    expect(error).toBeInstanceOf(BeepError);
+    expect(error).toBeInstanceOf(ExtendedCauseError);
+    expect(error._tag).toBe("BeepError");
+    expect(error.name).toBe("ExtendedCauseError");
+    expect(error.cause).toBe(cause);
+    expect(error.beep).toBe("boop");
+    expect(error.count).toBe(2);
+    expect(thunkError.cause).toBe(cause);
+    expect(thunkError.beep).toBe("boop");
+    expect(thunkError.count).toBe(2);
   });
 });

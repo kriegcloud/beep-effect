@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/v2t-schema.json",
+  "identifier": "default",
+  "description": "enables the default V2T app permissions",
+  "windows": ["main"],
+  "permissions": ["core:default"]
+}

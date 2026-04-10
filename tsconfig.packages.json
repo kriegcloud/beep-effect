@@ -13,6 +13,12 @@
       "path": "apps/editor-app"
     },
     {
+      "path": "apps/V2T"
+    },
+    {
+      "path": "packages/VT2"
+    },
+    {
       "path": "infra"
     },
     {

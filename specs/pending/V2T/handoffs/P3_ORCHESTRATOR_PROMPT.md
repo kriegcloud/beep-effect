@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P3.md`, the prior phase artifacts, and the repo seams they name. Implement only the committed first slice, keep provider calls behind adapters, write or refine `EXECUTION.md` with commands and deviations, and stop after targeted verification passes.

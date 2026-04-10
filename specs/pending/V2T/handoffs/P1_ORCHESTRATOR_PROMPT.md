@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P1.md`, `RESEARCH.md`, and the current V2T repo seams. Produce or refine `DESIGN_RESEARCH.md` so the workflow, domain model, storage posture, and adapter boundaries are decision complete, then stop at the P1 exit gate.

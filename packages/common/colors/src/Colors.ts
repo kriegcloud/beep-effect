@@ -29,6 +29,7 @@
  */
 
 import { $ColorsId } from "@beep/identity";
+import { Str } from "@beep/utils";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import {
@@ -36,7 +37,6 @@ import {
   Formatter as FormatterSchema,
   type Formatter as FormatterType,
 } from "./internal/ColorsSchema.ts";
-import { Str } from "@beep/utils";
 
 const $I = $ColorsId.create("Domain");
 

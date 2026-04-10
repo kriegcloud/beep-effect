@@ -42,27 +42,17 @@ import type * as O from "effect/Option";
 export const makeWaitForFile = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const waitForFile = (directory: string, name: string) =>
+    pipe(
+      fs.watch(directory),
+      Stream.filter((e) => path.basename(e.path) === name),
+      Stream.runHead
+    );
 
   const fn: {
-    (
-      directory: string,
-      name: string
-    ): Effect.Effect<O.Option<FileSystem.WatchEvent>, PlatformError.PlatformError, never>;
-    (
-      name: string
-    ): (directory: string) => Effect.Effect<O.Option<FileSystem.WatchEvent>, PlatformError.PlatformError, never>;
-  } = dual(
-    2,
-    (
-      directory: string,
-      name: string
-    ): Effect.Effect<O.Option<FileSystem.WatchEvent>, PlatformError.PlatformError, never> =>
-      pipe(
-        fs.watch(directory),
-        Stream.filter((e) => path.basename(e.path) === name),
-        Stream.runHead
-      )
-  );
+    (directory: string, name: string): ReturnType<typeof waitForFile>;
+    (name: string): (directory: string) => ReturnType<typeof waitForFile>;
+  } = dual(2, waitForFile);
 
   return fn;
 });

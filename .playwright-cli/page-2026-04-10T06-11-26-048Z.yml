@@ -1,0 +1,60 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - generic [ref=e5]:
+      - paragraph [ref=e6]: Registry Preview
+      - heading "MUI Treasury rendered inside the editor app." [level=1] [ref=e7]
+      - paragraph [ref=e8]: This route validates the shadcn registry wiring by rendering app-local components installed from the MUI Treasury registry while still using the shared beep theme provider.
+    - generic [ref=e9]:
+      - link "Back to editor" [ref=e10] [cursor=pointer]:
+        - /url: /
+      - link "Open registry" [ref=e11] [cursor=pointer]:
+        - /url: https://www.mui-treasury.com/
+  - main [ref=e12]:
+    - generic [ref=e13]:
+      - generic [ref=e14]:
+        - generic [ref=e15]:
+          - paragraph [ref=e16]: Installed Items
+          - heading "MUI Treasury action bar and loader" [level=2] [ref=e17]
+        - generic [ref=e18]: verified
+      - generic [ref=e19]:
+        - generic [ref=e20]:
+          - progressbar [ref=e21]:
+            - img [ref=e22]
+          - generic [ref=e24]:
+            - strong [ref=e25]: Registry component rendered successfully
+            - paragraph [ref=e26]: "The loader above is sourced from `@mui-treasury/ai-loader`."
+        - generic [ref=e27]:
+          - paragraph [ref=e28]: Quick Actions
+          - generic [ref=e29]:
+            - button "Generate" [ref=e30] [cursor=pointer]:
+              - img [ref=e31]
+            - button "Organize" [ref=e33] [cursor=pointer]:
+              - img [ref=e34]
+            - button "Launch" [ref=e36] [cursor=pointer]:
+              - img [ref=e37]
+      - generic [ref=e39]:
+        - article [ref=e40]:
+          - paragraph [ref=e41]: Shared Theme
+          - 'heading "App chrome still comes from `@beep/ui`." [level=3] [ref=e42]'
+          - paragraph [ref=e43]: The preview route stays inside the existing app shell and color tokens, so registry items blend into the rest of the workspace.
+        - article [ref=e44]:
+          - paragraph [ref=e45]: Registry Scope
+          - heading "Components installed into the app workspace." [level=3] [ref=e46]
+          - paragraph [ref=e47]: "The generated files live under `src/mui-treasury/`, which keeps this validation isolated from the shared UI package exports."
+    - complementary [ref=e48]:
+      - generic [ref=e50]:
+        - paragraph [ref=e51]: Checklist
+        - heading "What this proves" [level=2] [ref=e52]
+      - generic [ref=e53]:
+        - generic [ref=e54]:
+          - strong [ref=e55]: "Claude user config includes `shadcn`."
+          - paragraph [ref=e56]: "The MCP server is present in `~/.claude.json` under `mcpServers`."
+        - generic [ref=e57]:
+          - strong [ref=e58]: "The repo knows the `@mui-treasury` namespace."
+          - paragraph [ref=e59]:
+            - text: Both shadcn workspaces point at
+            - code [ref=e60]: "https://www.mui-treasury.com/r/{name}.json"
+            - text: .
+        - generic [ref=e61]:
+          - strong [ref=e62]: The app can install and render registry items.
+          - paragraph [ref=e63]: This page uses the generated loader and action components directly.

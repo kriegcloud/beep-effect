@@ -93,7 +93,9 @@ const composers = $I.compose(
   "editor-protocol",
   "editor-client",
   "editor-runtime",
-  "infra"
+  "infra",
+  "VT2",
+  "V2T"
 );
 
 // --- common ---
@@ -846,3 +848,33 @@ export const $EditorRuntimeId: Identity.IdentityComposer<"@beep/editor-runtime">
  * @category configuration
  */
 export const $InfraId: Identity.IdentityComposer<"@beep/infra"> = composers.$InfraId;
+
+/**
+ * Identity composer for the `@beep/VT2` package.
+ *
+ * @example
+ * ```typescript
+ * import { $VT2Id } from "@beep/identity"
+ *
+ * const id = $VT2Id.make("Runtime")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $VT2Id: Identity.IdentityComposer<"@beep/VT2"> = composers.$Vt2Id;
+
+/**
+ * Identity composer for the `@beep/V2T` package.
+ *
+ * @example
+ * ```typescript
+ * import { $V2TId } from "@beep/identity"
+ *
+ * const id = $V2TId.make("Shell")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $V2TId: Identity.IdentityComposer<"@beep/V2T"> = composers.$V2tId;

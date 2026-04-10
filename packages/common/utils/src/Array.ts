@@ -1,10 +1,13 @@
-import type { TUnsafe } from "@beep/types";
-import { Function, pipe } from "effect";
+import type {TUnsafe} from "@beep/types";
+import {Function, Match} from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
-import { thunkFalse, thunkTrue } from "./thunk.ts";
+import {thunkFalse, thunkTrue} from "./thunk.ts";
 
-const { dual, flow } = Function;
+const {
+  dual,
+  flow
+} = Function;
 
 /**
  * Returns `true` when the array is non-empty, `false` otherwise.
@@ -76,6 +79,16 @@ export const assertNonEmptyArray: (input: unknown) => asserts input is A.NonEmpt
 export const assertNonEmptyReadonlyArray: (input: unknown) => asserts input is A.NonEmptyReadonlyArray<TUnsafe.Any> =
   S.asserts(NonEmptyReadonlyArraySchema);
 
+function asNonEmptyArray<T>(out: Array<T>): A.NonEmptyArray<T> {
+  assertNonEmptyArray(out);
+  return out;
+}
+
+function asNonEmptyReadonlyArray<T>(out: ReadonlyArray<T>): A.NonEmptyReadonlyArray<T> {
+  assertNonEmptyReadonlyArray(out);
+  return out;
+}
+
 /**
  * Like `Array.map` but asserts the result as `NonEmptyArray`.
  *
@@ -103,13 +116,34 @@ export const assertNonEmptyReadonlyArray: (input: unknown) => asserts input is A
  * @since 0.0.0
  */
 export const mapNonEmpty: {
-  <T, U>(f: (a: T, i: number) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
-  <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyArray<U>;
-} = dual(2, <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyArray<U> => {
-  const result = A.map(self, f);
-  assertNonEmptyArray(result);
-  return result;
-});
+  <T, U>(f: (
+    a: T,
+    i: number
+  ) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
+  <T, U>(
+    self: A.NonEmptyReadonlyArray<T>,
+    f: (
+      a: T,
+      i: number
+    ) => U
+  ): A.NonEmptyArray<U>;
+} = dual(
+  2,
+  <T, U>(
+    self: A.NonEmptyReadonlyArray<T>,
+    f: (
+      a: T,
+      i: number
+    ) => U
+  ): A.NonEmptyArray<U> => {
+    const result = A.map(
+      self,
+      f
+    );
+    assertNonEmptyArray(result);
+    return result;
+  }
+);
 
 /**
  * Like `Array.flatMap` but asserts the result as `NonEmptyArray`.
@@ -139,17 +173,32 @@ export const mapNonEmpty: {
  * @since 0.0.0
  */
 export const flatMapNonEmpty: {
-  <T, U>(f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
-  <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>): A.NonEmptyArray<U>;
+  <T, U>(f: (
+    a: T,
+    i: number
+  ) => A.NonEmptyReadonlyArray<U>): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyArray<U>;
+  <T, U>(
+    self: A.NonEmptyReadonlyArray<T>,
+    f: (
+      a: T,
+      i: number
+    ) => A.NonEmptyReadonlyArray<U>
+  ): A.NonEmptyArray<U>;
 } = dual(
   2,
   flow(
-    <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>): A.NonEmptyArray<U> =>
-      A.flatMap(self, f),
-    (out) => {
-      assertNonEmptyArray(out);
-      return out;
-    }
+    <T, U>(
+      self: A.NonEmptyReadonlyArray<T>,
+      f: (
+        a: T,
+        i: number
+      ) => A.NonEmptyReadonlyArray<U>
+    ): A.NonEmptyArray<U> =>
+      A.flatMap(
+        self,
+        f
+      ),
+    asNonEmptyArray
   )
 );
 
@@ -180,13 +229,34 @@ export const flatMapNonEmpty: {
  * @since 0.0.0
  */
 export const mapNonEmptyReadonly: {
-  <T, U>(f: (a: T, i: number) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyReadonlyArray<U>;
-  <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyReadonlyArray<U>;
-} = dual(2, <T, U>(self: A.NonEmptyReadonlyArray<T>, f: (a: T, i: number) => U): A.NonEmptyReadonlyArray<U> => {
-  const result = A.map(self, f);
-  assertNonEmptyReadonlyArray(result);
-  return result;
-});
+  <T, U>(f: (
+    a: T,
+    i: number
+  ) => U): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyReadonlyArray<U>;
+  <T, U>(
+    self: A.NonEmptyReadonlyArray<T>,
+    f: (
+      a: T,
+      i: number
+    ) => U
+  ): A.NonEmptyReadonlyArray<U>;
+} = dual(
+  2,
+  <T, U>(
+    self: A.NonEmptyReadonlyArray<T>,
+    f: (
+      a: T,
+      i: number
+    ) => U
+  ): A.NonEmptyReadonlyArray<U> => {
+    const result = A.map(
+      self,
+      f
+    );
+    assertNonEmptyReadonlyArray(result);
+    return result;
+  }
+);
 
 /**
  * Like `Array.flatMap` but asserts the result as `NonEmptyReadonlyArray`.
@@ -225,22 +295,30 @@ export const mapNonEmptyReadonly: {
  */
 export const flatMapNonEmptyReadonly: {
   <T, U>(
-    f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>
+    f: (
+      a: T,
+      i: number
+    ) => A.NonEmptyReadonlyArray<U>
   ): (self: A.NonEmptyReadonlyArray<T>) => A.NonEmptyReadonlyArray<U>;
   <T, U>(
     self: A.NonEmptyReadonlyArray<T>,
-    f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>
+    f: (
+      a: T,
+      i: number
+    ) => A.NonEmptyReadonlyArray<U>
   ): A.NonEmptyReadonlyArray<U>;
 } = dual(
   2,
   <T, U>(
     self: A.NonEmptyReadonlyArray<T>,
-    f: (a: T, i: number) => A.NonEmptyReadonlyArray<U>
-  ): A.NonEmptyReadonlyArray<U> => {
-    const out = A.flatMap<T, U>(self, f);
-    assertNonEmptyReadonlyArray(out);
-    return out;
-  }
+    f: (
+      a: T,
+      i: number
+    ) => A.NonEmptyReadonlyArray<U>
+  ): A.NonEmptyReadonlyArray<U> => asNonEmptyReadonlyArray(A.flatMap<T, U>(
+    self,
+    f
+  ))
 );
 
 /**
@@ -274,8 +352,11 @@ export * from "effect/Array";
  * @category constructors
  * @since 0.0.0
  */
-export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => (A.isArray(a) ? a : A.of(a));
-
+export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> =>
+  Match.value(a).pipe(
+    Match.when(Array.isArray, (array) => array),
+    Match.orElse((value) => A.of(value))
+  );
 /**
  * Converts an iterable into a `NonEmptyReadonlyArray`, asserting that at
  * least one element is present.
@@ -295,15 +376,8 @@ export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => (A.isArray
  * @category constructors
  * @since 0.0.0
  */
-export const fromIterableNonEmpty = <const TArray>(collection: Iterable<TArray>): A.NonEmptyReadonlyArray<TArray> => {
-  if (A.isArray(collection)) {
-    assertNonEmptyArray(collection);
-    return collection;
-  }
-
-  return pipe(collection, Array.from, (arr) => {
-    assertNonEmptyArray(arr);
-
-    return arr;
-  });
-};
+export const fromIterableNonEmpty = <const TArray>(collection: Iterable<TArray>): A.NonEmptyReadonlyArray<TArray> =>
+  Match.value(collection).pipe(
+    Match.when(A.isArray, asNonEmptyReadonlyArray),
+    Match.orElse((iterable) => asNonEmptyReadonlyArray(Array.from(iterable)))
+  );

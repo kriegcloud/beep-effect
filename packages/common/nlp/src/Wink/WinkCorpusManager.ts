@@ -24,10 +24,12 @@ import { BM25Config, DefaultBM25Config, DocumentVector } from "./WinkVectorizer.
 const $I = $NlpId.create("Wink/WinkCorpusManager");
 const require = createRequire(import.meta.url);
 
+type BM25Accessor<T> = (...args: ReadonlyArray<never>) => T;
+
 type BM25VectorizerInstance = {
-  readonly doc: (index: number) => { readonly out: (accessor: unknown) => unknown };
+  readonly doc: (index: number) => { readonly out: <T>(accessor: BM25Accessor<T>) => T };
   readonly learn: (tokens: Array<string>) => void;
-  readonly out: (accessor: unknown) => unknown;
+  readonly out: <T>(accessor: BM25Accessor<T>) => T;
   readonly vectorOf: (tokens: Array<string>) => Array<number>;
 };
 
@@ -146,6 +148,7 @@ type WinkCorpusManagerShape = {
 };
 
 type CorpusInsertResult = readonly [boolean, HashMap.HashMap<string, CorpusSessionState>];
+type WinkEngineService = typeof WinkEngine.Service;
 
 const loadBM25Vectorizer = (): BM25VectorizerFactory => require("wink-nlp/utilities/bm25-vectorizer");
 
@@ -167,12 +170,6 @@ const normalizeTokenText = (token: Token): string =>
 
 const toCorpusIdOption = (corpusId: string | undefined): O.Option<string> => O.fromNullishOr(corpusId);
 
-const resolveAccessor = (its: unknown, name: string, corpusId: string): Effect.Effect<unknown, CorpusManagerError> =>
-  Bool.match(P.hasProperty(its, name), {
-    onFalse: () => Effect.fail(CorpusManagerError.fromMessage(`wink accessor its.${name} is unavailable`, corpusId)),
-    onTrue: () => Effect.succeed(its[name]),
-  });
-
 const makeCorpusSessionState = (corpusId: string, config: BM25Config, nowMs: number): CorpusSessionState => ({
   compiled: O.none(),
   config,
@@ -188,24 +185,25 @@ const decodeStringArray = (
   value: unknown,
   context: string,
   corpusId: string
-): Effect.Effect<ReadonlyArray<string>, CorpusManagerError> =>
-  Bool.match(A.isArray(value) && A.every(value, P.isString), {
-    onFalse: () => Effect.fail(CorpusManagerError.fromMessage(`Invalid ${context}: expected string[]`, corpusId)),
-    onTrue: () => Effect.succeed(value),
-  });
+): Effect.Effect<ReadonlyArray<string>, CorpusManagerError> => {
+  if (A.isArray(value) && A.every(value, P.isString)) {
+    return Effect.succeed(value);
+  }
+
+  return Effect.fail(CorpusManagerError.fromMessage(`Invalid ${context}: expected string[]`, corpusId));
+};
 
 const decodeNumberArray = (
   value: unknown,
   context: string,
   corpusId: string
-): Effect.Effect<ReadonlyArray<number>, CorpusManagerError> =>
-  Bool.match(
-    A.isArray(value) && A.every(value, (entry): entry is number => P.isNumber(entry) && Number.isFinite(entry)),
-    {
-      onFalse: () => Effect.fail(CorpusManagerError.fromMessage(`Invalid ${context}: expected number[]`, corpusId)),
-      onTrue: () => Effect.succeed(value),
-    }
-  );
+): Effect.Effect<ReadonlyArray<number>, CorpusManagerError> => {
+  if (A.isArray(value) && A.every(value, (entry): entry is number => P.isNumber(entry) && Number.isFinite(entry))) {
+    return Effect.succeed(value);
+  }
+
+  return Effect.fail(CorpusManagerError.fromMessage(`Invalid ${context}: expected number[]`, corpusId));
+};
 
 const isTermScorePair = (value: unknown): value is readonly [string, number] =>
   A.isArray(value) && value.length >= 2 && P.isString(value[0]) && P.isNumber(value[1]) && Number.isFinite(value[1]);
@@ -214,15 +212,16 @@ const decodeTermScorePairs = (
   value: unknown,
   context: string,
   corpusId: string
-): Effect.Effect<ReadonlyArray<readonly [string, number]>, CorpusManagerError> =>
-  Bool.match(A.isArray(value) && A.every(value, isTermScorePair), {
-    onFalse: () =>
-      Effect.fail(CorpusManagerError.fromMessage(`Invalid ${context}: expected [string, number][]`, corpusId)),
-    onTrue: () => Effect.succeed(value),
-  });
+): Effect.Effect<ReadonlyArray<readonly [string, number]>, CorpusManagerError> => {
+  if (A.isArray(value) && A.every(value, isTermScorePair)) {
+    return Effect.succeed(value);
+  }
+
+  return Effect.fail(CorpusManagerError.fromMessage(`Invalid ${context}: expected [string, number][]`, corpusId));
+};
 
 const readNormalizedTokensFromWink = (
-  engine: WinkEngine,
+  engine: WinkEngineService,
   document: Document,
   corpusId: string
 ): Effect.Effect<ReadonlyArray<string>, CorpusManagerError> =>
@@ -245,8 +244,6 @@ const removeCorpusSession = (
   const exists = HashMap.has(sessions, corpusId);
   return [exists, HashMap.remove(sessions, corpusId)];
 };
-
-const isEmptyCorpusState = (state: CorpusSessionState): boolean => state.documents.length === 0;
 
 /**
  * Error raised while managing a live corpus session.
@@ -339,8 +336,6 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       const its = yield* engine.its.pipe(
         Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to access wink helpers", state.corpusId))
       );
-      const termsAccessor = yield* resolveAccessor(its, "terms", state.corpusId);
-      const vectorAccessor = yield* resolveAccessor(its, "vector", state.corpusId);
       const vectorizer = bm25(state.config);
 
       for (const document of state.documents) {
@@ -355,13 +350,13 @@ const makeWinkCorpusManager = Effect.gen(function* () {
       }
 
       const terms = yield* Effect.try({
-        try: () => vectorizer.out(termsAccessor),
+        try: () => vectorizer.out(its.terms),
         catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to compute corpus terms", state.corpusId),
       }).pipe(Effect.flatMap((raw) => decodeStringArray(raw, "corpus term output", state.corpusId)));
 
       const documentVectors = yield* Effect.forEach(state.documents, (_document, index) =>
         Effect.try({
-          try: () => vectorizer.doc(index).out(vectorAccessor),
+          try: () => vectorizer.doc(index).out(its.vector),
           catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to compute document vector", state.corpusId),
         }).pipe(Effect.flatMap((raw) => decodeNumberArray(raw, "document vector output", state.corpusId)))
       );
@@ -426,7 +421,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
       yield* Bool.match(inserted, {
         onFalse: () => CorpusManagerError.fromMessage(`Corpus "${corpusId}" already exists`, corpusId),
-        onTrue: () => Effect.succeed(undefined),
+        onTrue: () => Effect.void,
       });
 
       return {
@@ -469,9 +464,8 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         onFalse: () => Effect.succeed(A.empty()),
         onTrue: () =>
           Effect.gen(function* () {
-            const accessor = yield* resolveAccessor(its, "idf", request.corpusId);
             const raw = yield* Effect.try({
-              try: () => compiled.vectorizer.out(accessor),
+              try: () => compiled.vectorizer.out(its.idf),
               catch: (cause) =>
                 CorpusManagerError.fromCause(cause, "Failed to compute corpus idf values", request.corpusId),
             });
@@ -495,9 +489,8 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         onFalse: () => Effect.succeed(A.empty()),
         onTrue: () =>
           Effect.gen(function* () {
-            const accessor = yield* resolveAccessor(its, "docTermMatrix", request.corpusId);
             const raw = yield* Effect.try({
-              try: () => compiled.vectorizer.out(accessor),
+              try: () => compiled.vectorizer.out(its.docTermMatrix),
               catch: (cause) =>
                 CorpusManagerError.fromCause(cause, "Failed to compute corpus matrix", request.corpusId),
             });

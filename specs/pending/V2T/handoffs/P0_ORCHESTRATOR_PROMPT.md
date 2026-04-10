@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P0.md`, the preserved PRD inputs, `apps/V2T`, and the shared speech-input plus Graphiti seams. Use `grill-me` when needed, write or refine `RESEARCH.md`, append any new decisions to `outputs/grill-log.md`, update `outputs/manifest.json`, and stop when the research exit gate is met.

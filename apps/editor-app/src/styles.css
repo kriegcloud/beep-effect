@@ -360,8 +360,77 @@ h1 {
   min-height: 100%;
 }
 
+.registry-preview-shell {
+  align-content: start;
+}
+
+.registry-preview-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.9fr);
+  align-items: start;
+}
+
+.registry-showcase,
+.registry-sidebar {
+  min-height: unset;
+}
+
+.registry-stack,
+.registry-checklist {
+  display: grid;
+  gap: 16px;
+}
+
+.registry-loader-row,
+.registry-actions-card,
+.registry-card,
+.registry-check {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: var(--background);
+  padding: 18px;
+}
+
+.registry-loader-row {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  background: color-mix(in srgb, var(--accent) 6%, var(--background));
+}
+
+.registry-actions {
+  width: fit-content;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-soft) 75%, var(--background));
+  padding: 6px;
+}
+
+.registry-card-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.registry-card h3,
+.registry-check strong {
+  margin-bottom: 8px;
+}
+
+.registry-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+}
+
 @media (max-width: 1180px) {
-  .workspace-grid {
+  .workspace-grid,
+  .registry-preview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .registry-card-grid {
     grid-template-columns: 1fr;
   }
 }

@@ -71,7 +71,7 @@ const name = pipe(
 )
 ```
 
-**Boundary rule:** `O.fromNullable(externalApi.getUser())` at library boundaries. Never let `null` leak inward.
+**Boundary rule:** `O.fromNullishOr(externalApi.getUser())` at library boundaries. Never let `null` leak inward.
 
 ## Replacing if/else and switch with Match
 

@@ -52,14 +52,16 @@ Total: ~1528 errors + ~252 infos across 1225 files
 
 ## Fix Priority
 
-**Mechanical fixes (agent-friendly, low risk):**
+### Mechanical fixes (agent-friendly, low risk)
+
 - no-manual-effect-channels (183) — just delete type annotations, let inference work
 - no-return-in-arrow (246) — convert block bodies to expression bodies
 - warn-effect-sync-wrapper (9) — swap Effect.sync(console.log) → Effect.log
 - no-effect-type-alias (24) — inline or remove type aliases
 - no-iife-wrapper (14) — extract to named const
 
-**Structural fixes (need understanding, medium risk):**
+### Structural fixes (need understanding, medium risk)
+
 - no-pipe-ladder (227) — flatten nested pipes
 - no-if-statement (199) — convert to Match/Option/Either combinators
 - no-ternary (168) — convert to Match/Option/Either combinators
@@ -69,7 +71,8 @@ Total: ~1528 errors + ~252 infos across 1225 files
 - no-nested-effect-gen (35) — flatten to single generator
 - no-effect-wrapper-alias (32) — inline or convert to domain function
 
-**Domain fixes (need context, higher risk):**
+### Domain fixes (need context, higher risk)
+
 - no-react-state (122) — migrate to @effect-atom/atom-react
 - no-string-sentinel-const (113) — redesign to tagged unions
 - no-model-overlay-cast (70) — fix schema decoding
@@ -79,11 +82,13 @@ Total: ~1528 errors + ~252 infos across 1225 files
 ## Verification
 
 After fixing a package, verify with:
+
 ```bash
 bunx biome check <package-path> --max-diagnostics=0
 ```
 
 Full repo check:
+
 ```bash
 bunx biome check . --max-diagnostics=0
 ```

@@ -1,8 +1,9 @@
-import { createRootRoute, createRoute, createRouter } from "@tanstack/react-router";
+import { createRootRoute, createRoute, createRouter, Outlet } from "@tanstack/react-router";
 import { EditorWorkspaceApp } from "./EditorWorkspaceApp.tsx";
+import { RegistryPreviewPage } from "./RegistryPreviewPage.tsx";
 
 const rootRoute = createRootRoute({
-  component: () => <EditorWorkspaceApp />,
+  component: Outlet,
 });
 
 const indexRoute = createRoute({
@@ -11,7 +12,13 @@ const indexRoute = createRoute({
   component: EditorWorkspaceApp,
 });
 
-const routeTree = rootRoute.addChildren([indexRoute]);
+const registryPreviewRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/registry-preview",
+  component: RegistryPreviewPage,
+});
+
+const routeTree = rootRoute.addChildren([indexRoute, registryPreviewRoute]);
 
 export const router = createRouter({
   routeTree,

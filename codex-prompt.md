@@ -35,14 +35,15 @@ Spawn these subagents **in parallel** (ordered by violation count descending):
 
 ### Subagent Instructions (copy into each subagent prompt)
 
-```
 You are fixing Biome Effect lint violations in: <SCOPE_PATH>
 
 ## Setup
+
 1. Run `bunx biome check <SCOPE_PATH> --max-diagnostics=0` to see all violations in your scope.
 2. Read `lint-inventory.md` for fix patterns per rule.
 
 ## Rules of Engagement
+
 - Fix violations in order: mechanical first, structural second, domain third.
 - NEVER suppress a rule with an ignore comment. Fix the actual code.
 - NEVER change behavior. These are structural refactors, not feature changes.
@@ -58,7 +59,8 @@ You are fixing Biome Effect lint violations in: <SCOPE_PATH>
 ## Fix Patterns by Rule
 
 ### no-manual-effect-channels (MECHANICAL)
-```ts
+
+~~~ts
 // Before
 const foo = (x: string): Effect.Effect<User, HttpError, UserService> =>
   UserService.pipe(Effect.flatMap(svc => svc.get(x)))
@@ -69,16 +71,18 @@ const foo = (x: string) =>
 ```
 
 ### no-return-in-arrow (MECHANICAL)
-```ts
+
+~~~ts
 // Before
 const fn = (x: number) => { return x + 1 }
 
 // After
 const fn = (x: number) => x + 1
-```
+~~~
 
 ### no-pipe-ladder (STRUCTURAL)
-```ts
+
+~~~ts
 // Before
 pipe(
   someEffect,
@@ -96,10 +100,11 @@ pipe(
   Effect.flatMap(x => otherEffect(x)),
   Effect.map(y => y.value)
 )
-```
+~~~
 
 ### no-if-statement / no-ternary (STRUCTURAL)
-```ts
+
+~~~ts
 // Before
 if (condition) { return Effect.succeed(a) } else { return Effect.succeed(b) }
 const x = condition ? a : b
@@ -113,10 +118,11 @@ Match.value(condition).pipe(
 Option.match(maybeValue, { onNone: () => fallback, onSome: (v) => v })
 // or for simple Effect branching:
 Effect.if(conditionEffect, { onTrue: () => a, onFalse: () => b })
-```
+~~~
 
 ### no-react-state (DOMAIN)
-```ts
+
+~~~ts
 // Before
 const [value, setValue] = useState(initial)
 
@@ -124,10 +130,11 @@ const [value, setValue] = useState(initial)
 const value = Atom.use(myAtom)
 // Define atom outside component:
 const myAtom = Atom.of(initial)
-```
+~~~
 
 ### no-string-sentinel-const / no-string-sentinel-return (DOMAIN)
-```ts
+
+~~~ts
 // Before
 const status = "loading" | "error" | "success"
 return "not_found"
@@ -135,10 +142,11 @@ return "not_found"
 // After
 type Status = S.TaggedStruct<"Loading", {}> | S.TaggedStruct<"Error", { message: string }> | S.TaggedStruct<"Success", { data: T }>
 return Option.none()  // or Effect.fail(new NotFoundError())
-```
+~~~
 
 ### no-try-catch (DOMAIN)
-```ts
+
+~~~ts
 // Before
 try { const x = JSON.parse(raw) } catch (e) { return null }
 
@@ -147,17 +155,18 @@ Effect.try({
   try: () => JSON.parse(raw),
   catch: (e) => new ParseError({ cause: e })
 })
-```
+~~~
 
 ## Verification
+
 After all fixes:
-```bash
+
+~~~bash
 bunx biome check <SCOPE_PATH> --max-diagnostics=0
-```
+~~~
 
 Target: **zero errors, zero warnings** in your scope.
 If a violation cannot be fixed without changing behavior, document it and move on.
-```
 
 ## Orchestrator Workflow
 

@@ -232,7 +232,7 @@ export const thunkEmptyReadonlyArray = <A = never>(): LazyArg<ReadonlyArray<A>> 
  * @category constructors
  * @since 0.0.0
  */
-export const thunkEffect = <A, E, R>(effect: Effect.Effect<A, E, R>): LazyArg<Effect.Effect<A, E, R>> => thunk(effect);
+export const thunkEffect = <T>(effect: T) => thunk(effect);
 
 /**
  * A thunk that returns `Effect.void`.

@@ -1,0 +1,62 @@
+{
+  "name": "@beep/V2T",
+  "version": "0.0.0",
+  "description": "Local-first V2T desktop workspace shell",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/apps/V2T",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "apps/V2T"
+  },
+  "scripts": {
+    "dev": "bun run scripts/dev-with-portless.ts",
+    "dev:desktop": "PORTLESS_HTTPS=1 portless v2t vite",
+    "dev:raw": "vite",
+    "dev:native": "tauri dev",
+    "build": "vite build",
+    "build:native": "tauri build",
+    "build:sidecar": "bun run scripts/build-sidecar.ts",
+    "check": "tsc -b tsconfig.json",
+    "codegen": "echo 'no codegen needed'",
+    "coverage": "vitest --coverage",
+    "docgen": "bun run ../../tooling/docgen/src/bin.ts",
+    "lint": "biome check src/ scripts/",
+    "lint:fix": "biome check src/ scripts/ --write",
+    "test": "bunx --bun vitest run"
+  },
+  "dependencies": {
+    "@beep/editor-client": "workspace:^",
+    "@beep/editor-lexical": "workspace:^",
+    "@beep/editor-protocol": "workspace:^",
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/VT2": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@effect/platform-bun": "catalog:",
+    "@mui/material": "catalog:",
+    "@mui/material-pigment-css": "catalog:",
+    "@pigment-css/react": "catalog:",
+    "@tanstack/react-router": "catalog:",
+    "@tauri-apps/api": "catalog:",
+    "effect": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@pigment-css/vite-plugin": "catalog:",
+    "@tauri-apps/cli": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@vitejs/plugin-react": "catalog:",
+    "react-grab": "^0.1.31",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

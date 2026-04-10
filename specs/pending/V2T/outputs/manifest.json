@@ -1,0 +1,79 @@
+{
+  "slug": "V2T",
+  "title": "V2T Canonical Spec",
+  "status": "BOOTSTRAPPED",
+  "created": "2026-04-10",
+  "updated": "2026-04-10",
+  "active_phase": "p0",
+  "status_model": {
+    "phase": ["BOOTSTRAPPED", "NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED"]
+  },
+  "phase_order": ["p0", "p1", "p2", "p3", "p4"],
+  "phases": {
+    "p0": {
+      "name": "Research",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P0.md",
+      "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
+      "output": "RESEARCH.md",
+      "trackers": ["outputs/grill-log.md"]
+    },
+    "p1": {
+      "name": "Design Research",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P1.md",
+      "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
+      "output": "DESIGN_RESEARCH.md"
+    },
+    "p2": {
+      "name": "Planning",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P2.md",
+      "orchestrator": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
+      "output": "PLANNING.md"
+    },
+    "p3": {
+      "name": "Execution",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P3.md",
+      "orchestrator": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
+      "output": "EXECUTION.md"
+    },
+    "p4": {
+      "name": "Verification",
+      "status": "NOT_STARTED",
+      "handoff": "handoffs/HANDOFF_P4.md",
+      "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+      "output": "VERIFICATION.md"
+    }
+  },
+  "directories": {
+    "handoffs": "handoffs",
+    "outputs": "outputs"
+  },
+  "inputs": {
+    "prd_html": "outputs/v2t_app_notes.html",
+    "legacy_notes": "outputs/V2_animination_V2T.md",
+    "legacy_image": "outputs/V2_animination_V2T/image.png"
+  },
+  "outputs": {
+    "manifest": "outputs/manifest.json",
+    "grill_log": "outputs/grill-log.md",
+    "p0": "RESEARCH.md",
+    "p1": "DESIGN_RESEARCH.md",
+    "p2": "PLANNING.md",
+    "p3": "EXECUTION.md",
+    "p4": "VERIFICATION.md"
+  },
+  "root_files": [
+    "README.md",
+    "QUICK_START.md",
+    "AGENT_PROMPTS.md",
+    "REFLECTION_LOG.md",
+    "RESEARCH.md",
+    "DESIGN_RESEARCH.md",
+    "PLANNING.md",
+    "EXECUTION.md",
+    "VERIFICATION.md"
+  ]
+}
