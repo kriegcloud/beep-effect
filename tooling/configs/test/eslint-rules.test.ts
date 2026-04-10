@@ -475,6 +475,16 @@ describe("eslint rule migration", () => {
     expect(ESLintConfig.some((entry) => entry.plugins !== undefined && "beep-laws" in entry.plugins)).toBe(true);
   });
 
+  it("keeps no-native-runtime as warn for broad repo scope and error for hotspot scope", () => {
+    const broadRepoConfig = ESLintConfig.find((entry) => entry.files?.includes("apps/**/*.{ts,tsx}"));
+    const hotspotConfig = ESLintConfig.find((entry) =>
+      entry.files?.includes("tooling/cli/src/commands/DocsAggregate.ts")
+    );
+
+    expect(broadRepoConfig?.rules?.["beep-laws/no-native-runtime"]).toBe("warn");
+    expect(hotspotConfig?.rules?.["beep-laws/no-native-runtime"]).toBe("error");
+  });
+
   it("keeps root type-aware UI ignores aligned with the UI tsconfig excludes", () => {
     const uiTsconfig = JSON.parse(
       readFileSync(new URL("../../../packages/common/ui/tsconfig.json", import.meta.url), "utf8")

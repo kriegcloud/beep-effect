@@ -79,9 +79,23 @@ class NewExpressionIdentifierCallee extends S.Class<NewExpressionIdentifierCalle
   callee: IdentifierNode,
 }) {}
 
+class MemberExpressionIdentifierAccess extends S.Class<MemberExpressionIdentifierAccess>(
+  "MemberExpressionIdentifierAccess"
+)({
+  type: S.tag("MemberExpression"),
+  computed: S.Literal(false),
+  object: IdentifierNode,
+  property: IdentifierNode,
+}) {}
+
 class CallExpressionIdentifierCallee extends S.Class<CallExpressionIdentifierCallee>("CallExpressionIdentifierCallee")({
   type: S.tag("CallExpression"),
   callee: IdentifierNode,
+}) {}
+
+class CallExpressionMemberCallee extends S.Class<CallExpressionMemberCallee>("CallExpressionMemberCallee")({
+  type: S.tag("CallExpression"),
+  callee: MemberExpressionIdentifierAccess,
 }) {}
 
 class UnaryTypeofExpression extends S.Class<UnaryTypeofExpression>("UnaryTypeofExpression")({
@@ -122,6 +136,7 @@ type RuntimeViolationOption = (typeof RuntimeViolationOption)["Type"];
 
 const decodeNewExpressionIdentifierCallee = S.decodeUnknownOption(NewExpressionIdentifierCallee);
 const decodeIdentifierCalleeCallExpression = S.decodeUnknownOption(CallExpressionIdentifierCallee);
+const decodeMemberCalleeCallExpression = S.decodeUnknownOption(CallExpressionMemberCallee);
 const decodeUnaryTypeofExpression = S.decodeUnknownOption(UnaryTypeofExpression);
 const decodeLiteralStringNode = S.decodeUnknownOption(LiteralStringNode);
 const decodeBinaryExpression = S.decodeUnknownOption(BinaryExpressionNode);
@@ -160,19 +175,13 @@ const decodeNewExpressionMemberObservation = (node: unknown): O.Option<MemberCal
 
 const decodeCallExpressionObservation = (node: unknown): O.Option<CallExpressionObservation> => {
   const identifierCallee = pipe(decodeIdentifierCalleeCallExpression(node), O.map(Struct.dotGet("callee.name")));
-  const memberAccess = decodeCallExpressionMemberObservation(node);
+  const memberAccess = pipe(decodeMemberCalleeCallExpression(node), O.map(Struct.get("callee")));
 
   return O.some(
     new CallExpressionObservation({
       identifierCalleeName: identifierCallee,
-      memberObjectName: pipe(
-        memberAccess,
-        O.map(([objectName]) => objectName)
-      ),
-      memberPropertyName: pipe(
-        memberAccess,
-        O.map(([, propertyName]) => propertyName)
-      ),
+      memberObjectName: pipe(memberAccess, O.map(Struct.dotGet("object.name"))),
+      memberPropertyName: pipe(memberAccess, O.map(Struct.dotGet("property.name"))),
     })
   );
 };
@@ -352,6 +361,15 @@ const resolveGlobalNativeErrorMemberViolation = (node: unknown): O.Option<RuleVi
     O.map(([, ctor]) => makeRuleViolation("native-error", "nativeError", { ctor }))
   );
 
+const resolveGlobalNativeErrorCallViolation = (node: unknown): O.Option<RuleViolation> =>
+  pipe(
+    decodeCallExpressionMemberObservation(node),
+    O.filter(
+      ([objectName, propertyName]) => objectName === "globalThis" && HashSet.has(NATIVE_ERROR_CTORS, propertyName)
+    ),
+    O.map(([, ctor]) => makeRuleViolation("native-error", "nativeError", { ctor }))
+  );
+
 const resolveNewExpressionViolation = (node: unknown): O.Option<RuleViolation> =>
   firstSome(
     A.make(
@@ -479,8 +497,12 @@ export const noNativeRuntimeRule: Rule.RuleModule = {
         const onSome = reportViolationIfNeeded(node);
         const onNone = thunkUndefined;
         pipe(
-          decodeCallExpressionObservation(node),
-          O.flatMap(resolveCallExpressionViolation(inHotspotScope)),
+          firstSome(
+            A.make(
+              resolveGlobalNativeErrorCallViolation(node),
+              pipe(decodeCallExpressionObservation(node), O.flatMap(resolveCallExpressionViolation(inHotspotScope)))
+            )
+          ),
           O.match({
             onNone,
             onSome,
