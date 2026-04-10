@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main] --filter=!scratchpad' || '--filter=!scratchpad' }}
+      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -102,7 +102,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main] --filter=!scratchpad' || '--filter=!scratchpad' }}
+      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
     steps:
@@ -208,7 +208,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main] --filter=!scratchpad' || '--filter=!scratchpad' }}
+      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -263,7 +263,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main] --filter=!scratchpad' || '--filter=!scratchpad' }}
+      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -319,7 +319,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main] --filter=!scratchpad' || '--filter=!scratchpad' }}
+      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
