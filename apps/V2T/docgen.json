@@ -1,7 +1,7 @@
 {
   "$schema": "../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/V2T/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/apps/V2T/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,8 +29,10 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/V2T": ["../../V2T/src/index.ts"],
-      "@beep/V2T/*": ["../../V2T/src/*.ts"],
+      "@beep/v2t": ["../../apps/V2T/src/index.ts"],
+      "@beep/v2t/*": ["../../apps/V2T/src/*.ts"],
+      "@beep/VT2": ["../../packages/VT2/src/index.ts"],
+      "@beep/VT2/*": ["../../packages/VT2/src/*.ts"],
       "@beep/editor-client": ["../../packages/editor/client/src/index.ts"],
       "@beep/editor-client/*": ["../../packages/editor/client/src/*.ts"],
       "@beep/editor-lexical": ["../../packages/editor/lexical/src/index.ts"],

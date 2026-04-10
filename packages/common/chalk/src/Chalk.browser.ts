@@ -48,13 +48,15 @@ import { detectedSupportsColorBrowser } from "./internal/SupportsColor.browser.t
 const createChalk = makeCreateChalk(detectedSupportsColorBrowser.stdout);
 const createChalkStderr = makeCreateChalk(detectedSupportsColorBrowser.stderr);
 
-export interface ChalkInstance extends ChalkInstanceSurface {}
+export interface ChalkInstance extends ChalkInstanceSurface {
+  (...text: ReadonlyArray<unknown>): string;
+}
 
 class ChalkValue {
   constructor(_options?: ChalkConstructorOptions) {}
 }
 
-interface ChalkValue extends ChalkInstanceSurface {}
+interface ChalkValue extends ChalkInstance {}
 
 export type Chalk = ChalkValue;
 

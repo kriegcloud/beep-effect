@@ -7,19 +7,19 @@
   "include": [],
   "references": [
     {
+      "path": "apps/V2T"
+    },
+    {
       "path": "apps/desktop"
     },
     {
       "path": "apps/editor-app"
     },
     {
-      "path": "apps/V2T"
+      "path": "infra"
     },
     {
       "path": "packages/VT2"
-    },
-    {
-      "path": "infra"
     },
     {
       "path": "packages/_internal/db-admin"

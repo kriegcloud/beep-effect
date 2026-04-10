@@ -1,17 +1,17 @@
-# @beep/V2T
+# @beep/v2t
 
 Local-first V2T desktop workspace shell
 
 ## Installation
 
 ```bash
-bun add @beep/V2T
+bun add @beep/v2t
 ```
 
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/V2T"
+import { VERSION } from "@beep/v2t"
 ```
 
 ## Development

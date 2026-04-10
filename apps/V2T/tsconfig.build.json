@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "include": ["src", "scripts", "vite.config.ts"],
+  "compilerOptions": {
+    "types": ["node", "vite/client"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@beep/ui": ["./src/types/ui-shims.d.ts"],
+      "@beep/ui/components/button": ["./src/types/ui-shims.d.ts"],
+      "@beep/ui/themes": ["./src/types/ui-shims.d.ts"],
+      "@beep/ui/themes/theme": ["./src/types/ui-shims.d.ts"],
+      "@beep/ui/styles/globals.css": ["./src/types/ui-shims.d.ts"],
+      "@beep/VT2": ["../../packages/VT2/dist/index"],
+      "@beep/VT2/*": ["../../packages/VT2/dist/*"],
+      "@beep/editor-client": ["../../packages/editor/client/dist/index"],
+      "@beep/editor-client/*": ["../../packages/editor/client/dist/*"],
+      "@beep/editor-lexical": ["../../packages/editor/lexical/dist/index"],
+      "@beep/editor-lexical/*": ["../../packages/editor/lexical/dist/*"],
+      "@beep/editor-protocol": ["../../packages/editor/protocol/dist/index"],
+      "@beep/editor-protocol/*": ["../../packages/editor/protocol/dist/*"],
+      "@beep/identity": ["../../packages/common/identity/dist/index"],
+      "@beep/identity/*": ["../../packages/common/identity/dist/*"],
+      "@beep/schema": ["../../packages/common/schema/dist/index"],
+      "@beep/schema/*": ["../../packages/common/schema/dist/*"],
+      "@beep/types": ["../../packages/common/types/dist/index"],
+      "@beep/types/*": ["../../packages/common/types/dist/*"],
+      "@beep/utils": ["../../packages/common/utils/dist/index"],
+      "@beep/utils/*": ["../../packages/common/utils/dist/*"]
+    },
+    "noEmit": false,
+    "emitDeclarationOnly": true,
+    "outDir": "dist",
+    "rootDir": "."
+  },
+  "references": [
+    {
+      "path": "../../packages/VT2/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/schema/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/types/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/ui/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.json"
+    },
+    {
+      "path": "../../packages/editor/client/tsconfig.json"
+    },
+    {
+      "path": "../../packages/editor/lexical/tsconfig.json"
+    },
+    {
+      "path": "../../packages/editor/protocol/tsconfig.json"
+    }
+  ]
+}

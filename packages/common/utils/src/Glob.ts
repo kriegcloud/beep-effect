@@ -199,6 +199,29 @@ function matchesAny(globs: ReadonlyArray<GlobMatcher>, relativePath: string): bo
   );
 }
 
+function shouldHideCandidate(relativePath: string, options: undefined | GlobOptions): boolean {
+  return options?.dot === true ? false : hasDotSegment(relativePath);
+}
+
+function shouldIgnoreCandidate(
+  relativePath: string,
+  ignoreMatchers: ReadonlyArray<GlobMatcher>
+): boolean {
+  return matchesAny(ignoreMatchers, relativePath);
+}
+
+function shouldPruneDirectoryTraversal(
+  relativePath: string,
+  ignoreMatchers: ReadonlyArray<GlobMatcher>,
+  options: undefined | GlobOptions
+): boolean {
+  return (
+    shouldHideCandidate(relativePath, options) ||
+    shouldIgnoreCandidate(relativePath, ignoreMatchers) ||
+    matchesAny(ignoreMatchers, `${relativePath}/__glob_prune__`)
+  );
+}
+
 function toEntryRelativePath(path: Path.Path, relativeDir: string, entryName: string): string {
   const relativePath = Match.value(relativeDir.length === 0).pipe(
     Match.when(true, () => entryName),
@@ -208,12 +231,31 @@ function toEntryRelativePath(path: Path.Path, relativeDir: string, entryName: st
   return normalizePathSeparators(relativePath);
 }
 
-const scanCandidates = Effect.fnUntraced(function* (fs: FileSystem.FileSystem, path: Path.Path, cwdPath: string) {
+const isSymbolicLink = Effect.fnUntraced(function* (fs: FileSystem.FileSystem, path: string) {
+  return yield* fs.readLink(path).pipe(
+    Effect.match({
+      onFailure: () => false,
+      onSuccess: () => true,
+    })
+  );
+});
+
+const scanCandidates = Effect.fnUntraced(function* (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  cwdPath: string,
+  ignoreMatchers: ReadonlyArray<GlobMatcher>,
+  options: undefined | GlobOptions
+) {
   const directories = A.make("");
   const discovered: GlobWalkEntries = [];
 
   while (directories.length > 0) {
-    const relativeDir = directories.pop()!;
+    const nextRelativeDir = directories.pop();
+    if (nextRelativeDir === undefined) {
+      continue;
+    }
+    const relativeDir = nextRelativeDir;
     const absoluteDir = Match.value(relativeDir.length === 0).pipe(
       Match.when(true, () => cwdPath),
       Match.orElse(() => path.join(cwdPath, relativeDir))
@@ -223,16 +265,38 @@ const scanCandidates = Effect.fnUntraced(function* (fs: FileSystem.FileSystem, p
     for (const entryName of entryNames) {
       const relativePath = toEntryRelativePath(path, relativeDir, entryName);
       const absolutePath = path.join(absoluteDir, entryName);
+      const hideCandidate = shouldHideCandidate(relativePath, options);
+      const ignoreCandidate = shouldIgnoreCandidate(relativePath, ignoreMatchers);
+      const symbolicLink = yield* isSymbolicLink(fs, absolutePath);
+
+      if (symbolicLink) {
+        if (!hideCandidate && !ignoreCandidate) {
+          discovered.push([relativePath, false] as const);
+        }
+        continue;
+      }
+
       const info = yield* fs.stat(absolutePath);
 
-      switch (info.type) {
-        case "Directory":
-          discovered.push([relativePath, false] as const);
-          directories.push(relativePath);
-          break;
-        default:
-          discovered.push([relativePath, info.type === "File"] as const);
-      }
+      yield* Match.value(info.type).pipe(
+        Match.when("Directory", () =>
+          Effect.sync(() => {
+            if (!hideCandidate && !ignoreCandidate) {
+              discovered.push([relativePath, false] as const);
+            }
+            if (!shouldPruneDirectoryTraversal(relativePath, ignoreMatchers, options)) {
+              directories.push(relativePath);
+            }
+          })
+        ),
+        Match.orElse((entryType) =>
+          Effect.sync(() => {
+            if (!hideCandidate && !ignoreCandidate) {
+              discovered.push([relativePath, entryType === "File"] as const);
+            }
+          })
+        )
+      );
     }
   }
 
@@ -289,7 +353,7 @@ const makeGlob = (fs: FileSystem.FileSystem, path: Path.Path) => {
             })
           )
         );
-        const candidates = yield* scanCandidates(fs, path, cwdPath);
+        const candidates = yield* scanCandidates(fs, path, cwdPath, ignoreMatchers, options);
         const relativePaths = collectRelativePaths(candidates, includeMatchers, ignoreMatchers, options);
 
         return toOutputPaths(relativePaths, options, toAbsolute);

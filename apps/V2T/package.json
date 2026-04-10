@@ -1,5 +1,5 @@
 {
-  "name": "@beep/V2T",
+  "name": "@beep/v2t",
   "version": "0.0.0",
   "description": "Local-first V2T desktop workspace shell",
   "license": "MIT",
@@ -16,7 +16,7 @@
     "dev:desktop": "PORTLESS_HTTPS=1 portless v2t vite",
     "dev:raw": "vite",
     "dev:native": "tauri dev",
-    "build": "vite build",
+    "build": "tsc -b tsconfig.build.json && vite build",
     "build:native": "tauri build",
     "build:sidecar": "bun run scripts/build-sidecar.ts",
     "check": "tsc -b tsconfig.json",
@@ -28,12 +28,12 @@
     "test": "bunx --bun vitest run"
   },
   "dependencies": {
+    "@beep/VT2": "workspace:^",
     "@beep/editor-client": "workspace:^",
     "@beep/editor-lexical": "workspace:^",
     "@beep/editor-protocol": "workspace:^",
     "@beep/identity": "workspace:^",
     "@beep/schema": "workspace:^",
-    "@beep/VT2": "workspace:^",
     "@beep/ui": "workspace:^",
     "@beep/utils": "workspace:^",
     "@effect/platform-bun": "catalog:",

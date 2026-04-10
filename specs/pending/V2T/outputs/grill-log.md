@@ -47,3 +47,45 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Recommendation: no, keep the repo-wide ignore in place for this pass and record the limitation explicitly
 - Answer: leave root markdown lint policy unchanged
 - Resolution: the repair stayed inside `specs/pending/V2T` and documented that `.markdownlint-cli2.jsonc` still ignores `specs/**`
+
+### Q7 - How should this package enforce conformance without inventing nonexistent workspace tasks?
+
+- Recommendation: split the gates into spec-package validation, targeted workspace commands, repo-law commands, and a final readiness gate
+- Answer: use a layered command matrix instead of pretending `@beep/VT2` has package-local `lint` or `docgen`
+- Resolution: updated `README.md`, `PLANNING.md`, `EXECUTION.md`, `VERIFICATION.md`, the handoffs, and `outputs/manifest.json` with the real gate structure
+
+### Q8 - What should validate the spec package itself while markdownlint ignores `specs/**`?
+
+- Recommendation: add a package-local validator for manifest references and markdown links, paired with `git diff --check`
+- Answer: add a dedicated spec validator
+- Resolution: added `outputs/validate-spec.mjs` and made it part of the package-level gate
+
+### Q9 - Which standards must be explicitly referenced by every serious V2T phase?
+
+- Recommendation: require `AGENTS.md`, `effect-first-development`, `schema-first-development`, `.patterns/jsdoc-documentation.md`, `standards/effect-first-development.md`, `standards/schema-first.inventory.jsonc`, and `tooling/configs/src/eslint/SchemaFirstRule.ts`
+- Answer: make those inputs explicit package-wide
+- Resolution: updated the root docs, phase docs, prompts, and handoffs so future sessions do not skip the repo-law context
+
+### Q10 - What is the role of the agent operating the active phase?
+
+- Recommendation: make that session the explicit phase orchestrator rather than treating orchestration as implied behavior
+- Answer: the active phase session is always the phase orchestrator
+- Resolution: updated the README, quick start, handoffs, phase prompts, and phase artifacts to make orchestration ownership explicit
+
+### Q11 - How should V2T orchestrators delegate work?
+
+- Recommendation: add a durable delegation kit with an operating model, worker output contract, and ready-to-paste phase-specific worker prompts
+- Answer: create a dedicated delegation kit under `specs/pending/V2T/prompts/`
+- Resolution: added `prompts/README.md`, `prompts/ORCHESTRATOR_OPERATING_MODEL.md`, `prompts/SUBAGENT_OUTPUT_CONTRACT.md`, and `prompts/PHASE_DELEGATION_PROMPTS.md`
+
+### Q12 - Which reusable sub-agents should be preconfigured for Effect v4 work?
+
+- Recommendation: preconfigure repo-local custom agents for repo mapping, schema work, service wiring, typed errors, HTTP or AI boundaries, state or concurrency semantics, and adversarial quality review
+- Answer: add those agents in project-scoped `.codex` config
+- Resolution: added `.codex/config.toml` plus `.codex/agents/*.toml` so future V2T sessions can selectively delegate to Effect v4 specialists without inventing roles on the fly
+
+### Q13 - Which workspace identities and memory rules are now locked for V2T?
+
+- Recommendation: treat workspace package names and Graphiti startup behavior as explicit repo truth rather than soft convention
+- Answer: use `@beep/v2t` for the app workspace, `@beep/VT2` for the sidecar, and require Graphiti preflight plus a documented fallback when search is unavailable
+- Resolution: corrected the spec command matrix, fixed the root `dev:v2t` script, updated the prompts and handoffs, and hardened the validator against the stale uppercase app filter

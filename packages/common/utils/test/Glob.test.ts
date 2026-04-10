@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { layer as GlobLayer, type GlobOptions, Glob as GlobService, type Pattern } from "@beep/utils/Glob";
@@ -48,6 +48,11 @@ const restoreBunGlob = (bunRef: typeof Bun, originalGlob: typeof Bun.Glob) => {
   Reflect.set(bunRef, "Glob", originalGlob);
 };
 
+const toGlobMutationError =
+  (action: string) =>
+  (cause: unknown): Error =>
+    cause instanceof Error ? cause : new Error(`Failed to ${action} Bun.Glob`);
+
 const withBunGlobDisabled = (effect: GlobProgram) => {
   const bunRef = globalThis.Bun;
 
@@ -57,13 +62,13 @@ const withBunGlobDisabled = (effect: GlobProgram) => {
       Effect.acquireUseRelease(
         Effect.try({
           try: () => disableBunGlob(bunRef),
-          catch: (cause) => cause,
+          catch: toGlobMutationError("disable"),
         }),
         () => effect,
         (originalGlob) =>
           Effect.try({
             try: () => restoreBunGlob(bunRef, originalGlob),
-            catch: (cause) => cause,
+            catch: toGlobMutationError("restore"),
           })
       )
     )
@@ -147,5 +152,24 @@ describe("@beep/utils Glob", () => {
       (fixture) => Effect.promise(fixture.cleanup)
     );
     await Effect.runPromise(program);
+  });
+
+  it("does not recurse into symlinked directories", async () => {
+    const program = Effect.acquireUseRelease(
+      acquireFixture,
+      (fixture) =>
+        Effect.promise(() => symlink(fixture.dir, join(fixture.dir, "src", "linked-root"))).pipe(
+          Effect.flatMap(() =>
+            runGlob("src/**", {
+              cwd: fixture.dir,
+              nodir: true,
+            })
+          )
+        ),
+      (fixture) => Effect.promise(fixture.cleanup)
+    );
+    const results = await Effect.runPromise(program);
+
+    expect(results).toEqual(["src/errors/problem.ts", "src/index.ts", "src/nested/deep.ts"]);
   });
 });

@@ -4,6 +4,9 @@
   "extends": "./tsconfig.packages.json",
   "references": [
     {
+      "path": "apps/V2T"
+    },
+    {
       "path": "apps/desktop"
     },
     {
@@ -11,6 +14,9 @@
     },
     {
       "path": "infra"
+    },
+    {
+      "path": "packages/VT2"
     },
     {
       "path": "packages/_internal/db-admin"

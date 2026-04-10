@@ -12,11 +12,69 @@
     "active_phase_is_authoritative": true,
     "update_manifest_on_phase_state_change": true
   },
+  "phase_session_role": "orchestrator",
+  "conformance": {
+    "skills": ["effect-first-development", "schema-first-development"],
+    "specialist_skills": [
+      "effect-v4",
+      "effect-v4-services",
+      "effect-v4-errors",
+      "effect-v4-http-ai"
+    ],
+    "documents": [
+      "../../../AGENTS.md",
+      "../../../.patterns/jsdoc-documentation.md",
+      "../../../standards/effect-first-development.md",
+      "../../../standards/schema-first.inventory.jsonc",
+      "../../../tooling/configs/src/eslint/SchemaFirstRule.ts"
+    ],
+    "notes": {
+      "manifest_paths_are_spec_root_relative": true,
+      "phase_session_is_orchestrator": true,
+      "spec_markdown_is_ignored_by_root_markdownlint": true,
+      "app_workspace_package_name": "@beep/v2t",
+      "sidecar_workspace_package_name": "@beep/VT2",
+      "turbo_filters_must_match_manifest_package_names": true,
+      "graphiti_memory_preflight_required_when_available": true,
+      "review_wave_required_before_phase_closeout": true,
+      "subagents_share_worktree_by_default": true,
+      "vt2_has_package_local_lint_task": false,
+      "vt2_has_package_local_docgen_task": false,
+      "codex_plan_mode_prompt_filename_is_compatibility_name": true,
+      "repo_local_codex_agents_available": true
+    },
+    "spec_package_gate": [
+      "git diff --check -- specs/pending/V2T",
+      "node specs/pending/V2T/outputs/validate-spec.mjs"
+    ],
+    "implementation_floor": [
+      "bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2",
+      "bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2",
+      "bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2",
+      "bunx turbo run lint --filter=@beep/v2t"
+    ],
+    "repo_law_gate": [
+      "bun run lint:effect-laws",
+      "bun run lint:jsdoc",
+      "bun run check:effect-laws-allowlist",
+      "bun run lint:schema-first"
+    ],
+    "exported_api_gate": [
+      "bun run docgen"
+    ],
+    "readiness_gate": [
+      "bun run check",
+      "bun run lint",
+      "bun run test",
+      "bun run docgen"
+    ]
+  },
   "phase_order": ["p0", "p1", "p2", "p3", "p4"],
   "phases": {
     "p0": {
       "name": "Research",
       "status": "NOT_STARTED",
+      "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P0.md",
       "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
       "output": "RESEARCH.md",
@@ -25,6 +83,7 @@
     "p1": {
       "name": "Design Research",
       "status": "NOT_STARTED",
+      "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P1.md",
       "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
       "output": "DESIGN_RESEARCH.md"
@@ -32,6 +91,7 @@
     "p2": {
       "name": "Planning",
       "status": "NOT_STARTED",
+      "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P2.md",
       "orchestrator": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
       "output": "PLANNING.md"
@@ -39,6 +99,7 @@
     "p3": {
       "name": "Execution",
       "status": "NOT_STARTED",
+      "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P3.md",
       "orchestrator": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
       "output": "EXECUTION.md"
@@ -46,6 +107,7 @@
     "p4": {
       "name": "Verification",
       "status": "NOT_STARTED",
+      "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P4.md",
       "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
       "output": "VERIFICATION.md"
@@ -53,7 +115,36 @@
   },
   "directories": {
     "handoffs": "handoffs",
-    "outputs": "outputs"
+    "outputs": "outputs",
+    "prompts": "prompts"
+  },
+  "delegation": {
+    "phase_session_role": "orchestrator",
+    "max_custom_agent_depth": 1,
+    "worktree_isolation_default": "shared",
+    "custom_agent_registry": "../../../.codex/config.toml",
+    "custom_agent_catalog": "../../../.codex/agents/README.md",
+    "prompt_assets": {
+      "index": "prompts/README.md",
+      "operating_model": "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
+      "output_contract": "prompts/SUBAGENT_OUTPUT_CONTRACT.md",
+      "phase_prompts": "prompts/PHASE_DELEGATION_PROMPTS.md"
+    },
+    "recommended_agents": [
+      "../../../.codex/agents/effect-v4-repo-mapper.toml",
+      "../../../.codex/agents/effect-v4-schema-worker.toml",
+      "../../../.codex/agents/effect-v4-service-architect.toml",
+      "../../../.codex/agents/effect-v4-error-guardian.toml",
+      "../../../.codex/agents/effect-v4-http-ai-boundary.toml",
+      "../../../.codex/agents/effect-v4-state-concurrency-guardian.toml",
+      "../../../.codex/agents/effect-v4-quality-reviewer.toml"
+    ]
+  },
+  "graphiti": {
+    "group_id": "beep-dev",
+    "wrapper_string_group_ids": "[\"beep-dev\"]",
+    "preflight": ["get_status", "search_memory_facts"],
+    "fallback_behavior": "continue_with_repo_docs_and_record_fallback"
   },
   "inputs": {
     "prd_html": "outputs/v2t_app_notes.html",
@@ -63,7 +154,9 @@
   "outputs": {
     "manifest": "outputs/manifest.json",
     "prompt": "outputs/codex-plan-mode-prompt.md",
+    "validate_script": "outputs/validate-spec.mjs",
     "grill_log": "outputs/grill-log.md",
+    "delegation_index": "prompts/README.md",
     "p0": "RESEARCH.md",
     "p1": "DESIGN_RESEARCH.md",
     "p2": "PLANNING.md",
@@ -95,5 +188,22 @@
     "handoffs/P2_ORCHESTRATOR_PROMPT.md",
     "handoffs/P3_ORCHESTRATOR_PROMPT.md",
     "handoffs/P4_ORCHESTRATOR_PROMPT.md"
+  ],
+  "prompt_files": [
+    "prompts/README.md",
+    "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
+    "prompts/SUBAGENT_OUTPUT_CONTRACT.md",
+    "prompts/PHASE_DELEGATION_PROMPTS.md"
+  ],
+  "codex_files": [
+    "../../../.codex/config.toml",
+    "../../../.codex/agents/README.md",
+    "../../../.codex/agents/effect-v4-repo-mapper.toml",
+    "../../../.codex/agents/effect-v4-schema-worker.toml",
+    "../../../.codex/agents/effect-v4-service-architect.toml",
+    "../../../.codex/agents/effect-v4-error-guardian.toml",
+    "../../../.codex/agents/effect-v4-http-ai-boundary.toml",
+    "../../../.codex/agents/effect-v4-state-concurrency-guardian.toml",
+    "../../../.codex/agents/effect-v4-quality-reviewer.toml"
   ]
 }

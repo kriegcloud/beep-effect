@@ -5,7 +5,7 @@
  * @module @beep/nlp/Core/PatternBuilders
  */
 
-import { Chunk} from "effect";
+import { Chunk } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";

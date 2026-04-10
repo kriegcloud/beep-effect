@@ -39,12 +39,23 @@ const expectSomeHeader = (header: O.Option<HeaderLike>, name: string, value: str
   }
 };
 
-const crossOriginCases = [
+type CrossOriginCase = {
+  readonly label: string;
+  readonly headerName: string;
+  readonly validValue: string;
+  readonly decodeDisabled: (input: false | undefined) => HeaderLike;
+  readonly decodeValid: () => HeaderLike;
+  readonly createValueValid: () => Effect.Effect<O.Option<string>, unknown>;
+  readonly createValid: () => Effect.Effect<O.Option<HeaderLike>, unknown>;
+  readonly createInvalid: () => Effect.Effect<O.Option<string>, unknown>;
+};
+
+const crossOriginCases: ReadonlyArray<CrossOriginCase> = [
   {
     label: "COEP",
     headerName: "Cross-Origin-Embedder-Policy",
-    header: CrossOriginEmbedderPolicyHeader,
     validValue: "require-corp",
+    decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)(input),
     decodeValid: () => S.decodeUnknownSync(CrossOriginEmbedderPolicyHeader)("require-corp"),
     createValueValid: () => CrossOriginEmbedderPolicyHeader.createValue("require-corp"),
     createValid: () => CrossOriginEmbedderPolicyHeader.create("require-corp"),
@@ -53,8 +64,8 @@ const crossOriginCases = [
   {
     label: "COOP",
     headerName: "Cross-Origin-Opener-Policy",
-    header: CrossOriginOpenerPolicyHeader,
     validValue: "same-origin",
+    decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginOpenerPolicyHeader)(input),
     decodeValid: () => S.decodeUnknownSync(CrossOriginOpenerPolicyHeader)("same-origin"),
     createValueValid: () => CrossOriginOpenerPolicyHeader.createValue("same-origin"),
     createValid: () => CrossOriginOpenerPolicyHeader.create("same-origin"),
@@ -63,21 +74,21 @@ const crossOriginCases = [
   {
     label: "CORP",
     headerName: "Cross-Origin-Resource-Policy",
-    header: CrossOriginResourcePolicyHeader,
     validValue: "same-origin",
+    decodeDisabled: (input) => S.decodeUnknownSync(CrossOriginResourcePolicyHeader)(input),
     decodeValid: () => S.decodeUnknownSync(CrossOriginResourcePolicyHeader)("same-origin"),
     createValueValid: () => CrossOriginResourcePolicyHeader.createValue("same-origin"),
     createValid: () => CrossOriginResourcePolicyHeader.create("same-origin"),
     createInvalid: () => CrossOriginResourcePolicyHeader.createValue("invalid" as never),
   },
-] as const;
+];
 
 describe("Secure header schemas", () => {
   for (const testCase of crossOriginCases) {
     describe(testCase.label, () => {
       it("decodes undefined and false to a disabled header", () => {
-        expectHeader(S.decodeUnknownSync(testCase.header)(undefined), testCase.headerName, undefined);
-        expectHeader(S.decodeUnknownSync(testCase.header)(false), testCase.headerName, undefined);
+        expectHeader(testCase.decodeDisabled(undefined), testCase.headerName, undefined);
+        expectHeader(testCase.decodeDisabled(false), testCase.headerName, undefined);
       });
 
       it("decodes valid input and creates a matching header", async () => {

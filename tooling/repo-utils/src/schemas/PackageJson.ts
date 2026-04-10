@@ -20,7 +20,9 @@ const $I = $RepoUtilsId.create("schemas/PackageJson");
 
 const strictDecodeOptions = { onExcessProperty: "error" as const };
 
-const packageNamePattern = /^(?:(?:@(?:[a-z0-9-*~][a-z0-9-*._~]*)?\/[a-z0-9-._~])|[a-z0-9-~])[a-z0-9-._~]*$/;
+const npmPackageNamePattern = /^(?:(?:@(?:[a-z0-9-*~][a-z0-9-*._~]*)?\/[a-z0-9-._~])|[a-z0-9-~])[a-z0-9-._~]*$/;
+const repoPackageNamePattern =
+  /^(?:(?:@(?:[A-Za-z0-9-*~][A-Za-z0-9-*._~]*)?\/[A-Za-z0-9-._~])|[A-Za-z0-9-~])[A-Za-z0-9-._~]*$/;
 const packageManagerPattern = /^(npm|pnpm|yarn|bun)@\d+\.\d+\.\d+(-.+)?$/;
 const packageTypePattern = /^(module|commonjs)$/;
 const relativeDotPathPattern = /^\.\//;
@@ -28,13 +30,24 @@ const exportTopLevelPattern = /^(?:\.|\.\/.+)$/;
 const importSpecifierPattern = /^#.+$/;
 const exportConditionPattern = /^(?:[^.0-9]+|types@.+)$/;
 
-const PackageName = S.String.check(S.isMinLength(1))
+const NpmPackageName = S.String.check(S.isMinLength(1))
   .check(S.isMaxLength(214))
-  .check(S.isPattern(packageNamePattern))
+  .check(S.isPattern(npmPackageNamePattern))
   .annotate(
-    $I.annote("PackageName", {
-      title: "Package Name",
+    $I.annote("NpmPackageName", {
+      title: "Npm Package Name",
       description: "An npm package name that satisfies the package.json SchemaStore constraints.",
+    })
+  );
+
+const RepoPackageName = S.String.check(S.isMinLength(1))
+  .check(S.isMaxLength(214))
+  .check(S.isPattern(repoPackageNamePattern))
+  .annotate(
+    $I.annote("RepoPackageName", {
+      title: "Repo Package Name",
+      description:
+        "A repo-local package name, including the legacy mixed-case workspace names currently present in this monorepo.",
     })
   );
 
@@ -94,10 +107,18 @@ const StringRecord = S.Record(S.String, S.String).annotate(
   })
 );
 
-const DependencyRecord = S.Record(PackageName, NonEmptyStringValue).annotate(
-  $I.annote("DependencyRecord", {
-    title: "Dependency Record",
+const NpmDependencyRecord = S.Record(NpmPackageName, NonEmptyStringValue).annotate(
+  $I.annote("NpmDependencyRecord", {
+    title: "Npm Dependency Record",
     description: "A record of npm package names to non-empty version or protocol specifiers.",
+  })
+);
+
+const RepoDependencyRecord = S.Record(RepoPackageName, NonEmptyStringValue).annotate(
+  $I.annote("RepoDependencyRecord", {
+    title: "Repo Dependency Record",
+    description:
+      "A record of repo-local package names to non-empty version or protocol specifiers, including legacy mixed-case workspace packages.",
   })
 );
 
@@ -673,7 +694,7 @@ export const PublishConfig = S.StructWithRest(PublishConfigBase, [S.Record(S.Str
 );
 
 const npmPackageJsonFields = {
-  name: PackageName,
+  name: NpmPackageName,
   version: S.OptionFromOptionalKey(S.String),
   description: S.OptionFromOptionalKey(S.String),
   keywords: S.OptionFromOptionalKey(StringArray),
@@ -696,13 +717,13 @@ const npmPackageJsonFields = {
   repository: S.OptionFromOptionalKey(Repository),
   scripts: S.OptionFromOptionalKey(NonEmptyStringRecord),
   config: S.OptionFromOptionalKey(S.Record(S.String, Json)),
-  dependencies: S.OptionFromOptionalKey(DependencyRecord),
-  devDependencies: S.OptionFromOptionalKey(DependencyRecord),
-  peerDependencies: S.OptionFromOptionalKey(DependencyRecord),
+  dependencies: S.OptionFromOptionalKey(NpmDependencyRecord),
+  devDependencies: S.OptionFromOptionalKey(NpmDependencyRecord),
+  peerDependencies: S.OptionFromOptionalKey(NpmDependencyRecord),
   peerDependenciesMeta: S.OptionFromOptionalKey(PeerDependenciesMeta),
   bundleDependencies: S.OptionFromOptionalKey(BundleDependencies),
   bundledDependencies: S.OptionFromOptionalKey(BundleDependencies),
-  optionalDependencies: S.OptionFromOptionalKey(DependencyRecord),
+  optionalDependencies: S.OptionFromOptionalKey(NpmDependencyRecord),
   overrides: S.OptionFromOptionalKey(S.Record(S.String, OverrideValue)),
   engines: S.OptionFromOptionalKey(NonEmptyStringRecord),
   engineStrict: S.OptionFromOptionalKey(S.Boolean),
@@ -728,7 +749,12 @@ const NpmPackageJsonShape = S.Struct(npmPackageJsonFields);
 
 const packageJsonFields = {
   ...npmPackageJsonFields,
-  catalog: S.OptionFromOptionalKey(DependencyRecord),
+  name: RepoPackageName,
+  dependencies: S.OptionFromOptionalKey(RepoDependencyRecord),
+  devDependencies: S.OptionFromOptionalKey(RepoDependencyRecord),
+  peerDependencies: S.OptionFromOptionalKey(RepoDependencyRecord),
+  optionalDependencies: S.OptionFromOptionalKey(RepoDependencyRecord),
+  catalog: S.OptionFromOptionalKey(RepoDependencyRecord),
   "resolutions#": S.OptionFromOptionalKey(NonEmptyStringRecord),
 } as const;
 

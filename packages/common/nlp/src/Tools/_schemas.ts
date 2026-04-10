@@ -14,23 +14,14 @@ import { BM25Norm } from "../Wink/index.ts";
 
 const $I = $NlpId.create("Tools/_schemas");
 
-const describe = <Schema extends S.Top>(
-  schema: Schema,
-  description: string,
-  extras?: Record<string, unknown>
-)=>
+const describe = <Schema extends S.Top>(schema: Schema, description: string, extras?: Record<string, unknown>) =>
   Match.type<boolean>().pipe(
-    Match.when(
-      true,
-      () => schema.annotateKey({ description })
-    ),
-    Match.when(
-      false,
-      () =>
-        schema.annotateKey({
-          description,
-          ...extras,
-        })
+    Match.when(true, () => schema.annotateKey({ description })),
+    Match.when(false, () =>
+      schema.annotateKey({
+        description,
+        ...extras,
+      })
     ),
     Match.exhaustive
   )(P.isUndefined(extras));

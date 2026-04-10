@@ -1,0 +1,124 @@
+# V2T Orchestrator Operating Model
+
+## Phase Role Rule
+
+The session operating a V2T phase is always the phase orchestrator.
+
+The orchestrator owns:
+
+- Graphiti memory preflight and fallback handling
+- the read order and interpretation of the active phase
+- the local plan and immediate next task
+- any decision to delegate
+- worker selection and scope assignment
+- integration of worker findings or patches
+- command-gate execution and evidence capture
+- updates to the active phase artifact, `outputs/manifest.json`, and
+  `outputs/grill-log.md` when applicable
+
+Sub-agents do not own:
+
+- phase closure
+- manifest authority
+- scope expansion
+- reopening locked defaults without evidence
+
+## Startup Sequence
+
+1. Read the active phase inputs and determine the immediate blocking questions.
+2. Run the Graphiti preflight if the MCP is available and note any fallback.
+3. Form a local phase plan before delegating.
+4. Keep urgent or tightly coupled work local.
+5. Delegate only bounded parallel work that does not change the phase objective.
+6. Integrate every worker result yourself before updating the phase artifact.
+7. Stop at the active phase exit gate instead of rolling forward.
+
+## Delegation Rules
+
+- Form a local plan before spawning any sub-agent.
+- Keep urgent, tightly coupled, or immediately blocking work local.
+- Delegate only work that is parallelizable, bounded, and materially useful.
+- Assume the CLI workflow is a shared worktree unless explicit isolation is
+  proven. Overlapping write scopes are forbidden.
+- Give each write-capable worker a disjoint write scope.
+- Prefer read-only scouts or reviewers for evidence gathering and adversarial
+  checks.
+- Do not spawn nested sub-agents from workers. The phase orchestrator remains
+  the only orchestrator.
+- Review every worker result yourself before treating it as accepted.
+- Keep `outputs/manifest.json` and phase closure decisions in the orchestrator
+  session unless a user explicitly asks otherwise.
+
+## Standard Worker Packet
+
+Every delegated prompt should include:
+
+- phase and current objective
+- assigned agent role
+- exact read scope
+- exact write scope or explicit read-only mode
+- repo-truth checks the worker must perform, including live package names when
+  commands or task surfaces matter
+- repo-law inputs that must be read
+- commands the worker is responsible for running
+- explicit prohibitions
+- required output format from
+  [SUBAGENT_OUTPUT_CONTRACT.md](./SUBAGENT_OUTPUT_CONTRACT.md)
+
+## Evidence Rules
+
+- A listed gate is not the same as a passed gate.
+- Record concrete `passed`, `failed`, `blocked`, `not run`, or `not applicable`
+  outcomes in the active phase artifact.
+- Worker-reported command results are provisional until the orchestrator has
+  reviewed and integrated them.
+- Missing evidence is a blocker, not a silent pass.
+- If a later phase uncovers an unresolved earlier-phase assumption, stop and
+  route that issue back instead of hiding it in the current phase.
+
+## Recommended Agent Map
+
+- `effect_v4_repo_mapper` for repo reality, command truth, and seam discovery
+- `effect_v4_schema_worker` for schema-first domain work
+- `effect_v4_service_architect` for services, layers, and runtime composition
+- `effect_v4_error_guardian` for typed failures and recovery rules
+- `effect_v4_http_ai_boundary` for protocol, route, tool, and provider-adapter
+  boundaries
+- `effect_v4_state_concurrency_guardian` for state, scope, retries, timeouts,
+  and fiber behavior
+- `effect_v4_quality_reviewer` for adversarial review of conformance and gate
+  completeness
+
+## Integration Sequence
+
+1. Read the phase inputs and state the phase-local plan.
+2. Decide which immediate task you should keep local.
+3. Spawn only the workers that unblock parallel sidecar work.
+4. Continue non-overlapping local work while workers run.
+5. Review each worker result for scope drift, repo-law drift, and missing
+   verification.
+6. Integrate or refine the result yourself.
+7. Run the required gates.
+8. Update the phase artifact, manifest, and logs.
+
+## Integration Checklist
+
+- confirm the worker stayed inside scope
+- confirm the result still matches the current phase objective
+- confirm commands are reported precisely, including commands not run
+- confirm any residual risk or blocker is visible
+- confirm the active phase artifact reflects the accepted result instead of the
+  raw worker wording
+
+## Default Stop Conditions
+
+- Stop delegation if write scopes start to overlap.
+- Stop delegation if the phase objective changes.
+- Stop delegation if a worker result contradicts repo reality.
+- Stop delegation if Graphiti or repo-truth inputs materially change the phase
+  assumptions and require a new local plan.
+- Stop delegation if the worker output is incomplete, misleading, or tries to
+  claim phase closure.
+- Stop the phase if a prerequisite earlier-phase decision is still unresolved.
+- Stop the phase when its exit gate is satisfied; do not silently roll into the
+  next phase.

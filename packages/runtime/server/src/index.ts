@@ -59,7 +59,7 @@ import * as Runners from "effect/unstable/cluster/Runners";
 import * as ShardingConfig from "effect/unstable/cluster/ShardingConfig";
 import * as SqlMessageStorage from "effect/unstable/cluster/SqlMessageStorage";
 import * as SqlRunnerStorage from "effect/unstable/cluster/SqlRunnerStorage";
-import * as SqlEventLogJournal from "effect/unstable/eventlog/SqlEventLogJournal";
+import * as SqlEventJournal from "effect/unstable/eventlog/SqlEventJournal";
 import * as HttpEffect from "effect/unstable/http/HttpEffect";
 import * as HttpMiddleware from "effect/unstable/http/HttpMiddleware";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
@@ -750,7 +750,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
       const repoMemorySqlLayer = RepoMemorySqlLive(repoMemorySqlConfig).pipe(
         Layer.provide([fileSystemLayer, sqliteLayer])
       );
-      const eventJournalLayer = SqlEventLogJournal.layer({
+      const eventJournalLayer = SqlEventJournal.layer({
         entryTable: "repo_memory_run_journal",
         remotesTable: "repo_memory_run_journal_remotes",
       }).pipe(Layer.provide(sqliteLayer));
@@ -835,7 +835,8 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         startupReconciliationLayer
       ).pipe(Layer.provide(repoRunServiceLayer));
 
-      const routesLayer = Layer.mergeAll(applicationRoutesLayer, clusterHttpRouteLayer).pipe(
+      const routesLayer = clusterHttpRouteLayer.pipe(
+        Layer.provideMerge(applicationRoutesLayer),
         Layer.provide(sidecarTransportMiddlewareLayer)
       );
       const httpServerLayer = Layer.fresh(

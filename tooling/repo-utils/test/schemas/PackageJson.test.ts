@@ -248,6 +248,22 @@ describe("PackageJson schema", () => {
       );
     });
 
+    it("decodes repo-local mixed-case workspace package names", () => {
+      const result = decodePackageJson({
+        name: "@beep/V2T",
+        dependencies: {
+          "@beep/VT2": "workspace:^",
+        },
+      });
+
+      expect(result.name).toBe("@beep/V2T");
+      expect(result.dependencies).toEqual(
+        O.some({
+          "@beep/VT2": "workspace:^",
+        })
+      );
+    });
+
     it("keeps npm-only schema separate from repo-only extensions", () => {
       const decodeNpmPackageJson = S.decodeUnknownExit(NpmPackageJson);
       const exit = decodeNpmPackageJson(
@@ -274,7 +290,7 @@ describe("PackageJson schema", () => {
     });
 
     it("rejects invalid package names", () => {
-      expect(Exit.isFailure(decodePackageJsonExit({ name: "UpperCaseName" }))).toBe(true);
+      expect(Exit.isFailure(decodePackageJsonExit({ name: "Invalid Name" }))).toBe(true);
     });
 
     it("rejects invalid package type values", () => {
@@ -423,6 +439,21 @@ describe("PackageJson schema", () => {
     it("handles scoped package names", () => {
       const result = decodePackageJson({ name: "@scope/package-name" });
       expect(result.name).toBe("@scope/package-name");
+    });
+
+    it("keeps npm package names strict even when repo package names allow mixed case", () => {
+      const decodeNpmPackageJson = S.decodeUnknownExit(NpmPackageJson);
+      const exit = decodeNpmPackageJson(
+        {
+          name: "@beep/V2T",
+          dependencies: {
+            "@beep/VT2": "workspace:^",
+          },
+        },
+        { onExcessProperty: "error" }
+      );
+
+      expect(Exit.isFailure(exit)).toBe(true);
     });
 
     it("decodes a real-world workspace package shape from this repo", () => {

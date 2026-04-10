@@ -206,13 +206,7 @@ const buildSidecar = Effect.fn("TwoTvBuild.buildSidecar")(function* () {
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(
         "bun",
-        [
-          "build",
-          sidecarEntrypoint,
-          "--compile",
-          `--target=${config.bunTarget}`,
-          `--outfile=${config.outputPath}`,
-        ],
+        ["build", sidecarEntrypoint, "--compile", `--target=${config.bunTarget}`, `--outfile=${config.outputPath}`],
         {
           cwd: config.repoRoot,
           extendEnv: true,

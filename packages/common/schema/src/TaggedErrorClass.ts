@@ -141,6 +141,12 @@ export type TaggedErrorClassWithNew<ErrorClass extends TaggedErrorClassLike> = (
     extend: TaggedErrorExtendMethod<ErrorClass>;
   };
 
+/**
+ * Tagged error class type derived from a fields object.
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export type TaggedErrorClassFromFields<
   Self,
   Tag extends string,
@@ -148,6 +154,12 @@ export type TaggedErrorClassFromFields<
   Brand = {},
 > = TaggedErrorClassWithNew<TaggedErrorBase<Self, TaggedStructFromFields<Tag, Fields>, Brand>>;
 
+/**
+ * Tagged error class type derived from a struct schema.
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export type TaggedErrorClassFromSchema<
   Self,
   Tag extends string,
@@ -268,7 +280,7 @@ function augmentTaggedErrorClass<
 >(errorClass: ErrorClass): TaggedErrorClassWithNew<ErrorClass> {
   const taggedErrorClassWithNew = errorClass as unknown as RuntimeTaggedErrorClass<ErrorClass>;
   const originalExtend = taggedErrorClassWithNew[TaggedErrorOriginalExtend] ?? errorClass.extend;
-  const causeMetadata = getCauseMetadata(S.Struct(errorClass.fields as TaggedErrorFields));
+  const causeMetadata = getCauseMetadata(errorClass.mapFields(Fn.identity));
   const shouldConstructImmediately = (args: IArguments) => args.length > 1 || !isRestPayload(args[0], causeMetadata);
 
   taggedErrorClassWithNew.new = function (this: new (value: unknown) => unknown) {

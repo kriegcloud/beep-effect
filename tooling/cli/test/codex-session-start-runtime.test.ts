@@ -1,6 +1,7 @@
 import { PassThrough } from "node:stream";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
+import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { afterEach, describe, expect, it } from "vitest";
 import {
@@ -12,6 +13,17 @@ import {
 
 const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
 const originalStdinDescriptor = Object.getOwnPropertyDescriptor(process, "stdin");
+const decodeSessionStartHookOutput = S.decodeUnknownSync(
+  S.fromJsonString(
+    S.Struct({
+      continue: S.Boolean,
+      hookSpecificOutput: S.Struct({
+        additionalContext: S.String,
+        hookEventName: S.String,
+      }),
+    })
+  )
+);
 const validHookInput = {
   cwd: "/tmp/beep-effect3",
   hook_event_name: "SessionStart",
@@ -55,7 +67,7 @@ describe("CodexSessionStartRuntime", () => {
   });
 
   it("wraps additional context in the expected hook payload", () => {
-    const output = JSON.parse(buildSessionStartHookOutput("hello"));
+    const output = decodeSessionStartHookOutput(buildSessionStartHookOutput("hello"));
 
     expect(output).toEqual({
       continue: true,
@@ -111,7 +123,7 @@ describe("CodexSessionStartRuntime", () => {
     stdin.end(JSON.stringify(validHookInput));
 
     const logLines = await result;
-    const output = JSON.parse(logLines[0] ?? "");
+    const output = decodeSessionStartHookOutput(logLines[0] ?? "");
 
     expect(output.hookSpecificOutput.additionalContext).toContain("Session source: clear.");
     expect(output.hookSpecificOutput.additionalContext).toContain("Working directory: /tmp/beep-effect3.");
@@ -128,7 +140,7 @@ describe("CodexSessionStartRuntime", () => {
     stdin.end("{");
 
     const logLines = await result;
-    const output = JSON.parse(logLines[0] ?? "");
+    const output = decodeSessionStartHookOutput(logLines[0] ?? "");
 
     expect(output.hookSpecificOutput.additionalContext).toContain("Graphiti startup context failed softly:");
     expect(output.hookSpecificOutput.additionalContext).toContain("Failed to decode Codex SessionStart hook input");

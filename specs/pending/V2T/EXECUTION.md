@@ -8,6 +8,51 @@ NOT_STARTED
 
 Implement the first committed V2T slice in `apps/V2T`, `packages/VT2`, and their supporting seams without widening scope beyond the contracts locked in `RESEARCH.md`, `DESIGN_RESEARCH.md`, and `PLANNING.md`.
 
+## Phase Agent Role
+
+The session working P3 is the execution orchestrator.
+
+The orchestrator owns:
+
+- the local implementation plan for the approved slice
+- the decision to keep urgent work local or partition bounded worker scopes
+- integration of every worker patch before it becomes accepted phase output
+- the execution record, gate evidence, and deviation log
+- the P3 exit call
+
+Workers may implement bounded parts of the approved slice, but they do not own scope changes, final integration, gate closure, or the right to silently advance into verification.
+
+## Orchestration-First Workflow
+
+1. Re-read the prior phase artifacts and restate the approved implementation slice.
+2. Decide which immediate blocking work the orchestrator should keep local.
+3. Partition only the remaining parallelizable implementation work into disjoint write scopes.
+4. Require every worker to return results with explicit commands, findings, and residual risks.
+5. Review and integrate each worker result before treating it as accepted.
+6. Run the required targeted and repo-law gates, or record why a required gate is blocked.
+7. Update `EXECUTION.md` with concrete evidence and stop at the P3 exit gate.
+
+## Mandatory Conformance Inputs
+
+P3 execution must actively apply:
+
+- `AGENTS.md`
+- the `effect-first-development` and `schema-first-development` skills when available in-session
+- `.patterns/jsdoc-documentation.md`
+- `standards/effect-first-development.md`
+- `standards/schema-first.inventory.jsonc`
+- `tooling/configs/src/eslint/SchemaFirstRule.ts`
+- `apps/V2T/package.json` and `packages/VT2/package.json` for live workspace
+  package names and task availability
+
+## Evidence Recording Rules
+
+- Do not claim a gate passed unless the exact command result is recorded in this document.
+- Distinguish `passed`, `failed`, `blocked`, `not run`, and `not applicable`; do not collapse them into generic prose.
+- Worker-reported command results are provisional until the orchestrator reviews and accepts them.
+- Record deviations from `PLANNING.md` as soon as they occur, not only at the end of the phase.
+- If a broader repo-law command is skipped, explain why it was not applicable or why the phase remains blocked.
+
 ## Required Outcomes
 
 - replace the placeholder app shell with the agreed workflow
@@ -20,11 +65,41 @@ Implement the first committed V2T slice in `apps/V2T`, `packages/VT2`, and their
 ## Execution Rules
 
 - use effect-first and schema-first patterns
+- model pure data schema-first and keep failure/absence typed
+- keep exported APIs and examples docgen-clean
 - prefer typed errors and explicit service boundaries
 - do not let React components own provider-specific logic
 - do not invent an app-local server path if the current `packages/VT2` sidecar seam can carry the slice
 - stop at the first-slice boundary instead of slipping into speculative polish
 - capture command results and touched surfaces in this document as work progresses
+- do not claim a gate passed unless the concrete command result is recorded here
+
+## Required Conformance Gates During P3
+
+### Targeted Implementation Floor
+
+- `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run lint --filter=@beep/v2t`
+
+### Repo Law Gate
+
+- `bun run lint:effect-laws`
+- `bun run lint:jsdoc`
+- `bun run check:effect-laws-allowlist`
+- `bun run lint:schema-first`
+
+### Exported API Gate
+
+- `bun run docgen` when exported APIs or JSDoc examples changed
+
+Important note:
+
+- `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be evidenced through the repo-law commands above
+- `@beep/v2t` is the live app package name even though the folder is
+  `apps/V2T`, so re-check filter casing from the manifest before editing the
+  command matrix
 
 ## Execution Record Template
 
@@ -36,6 +111,18 @@ Implement the first committed V2T slice in `apps/V2T`, `packages/VT2`, and their
 
 - pending
 
+### Delegation Register
+
+- pending
+
+### Graphiti And Repo-Truth Notes
+
+- pending
+
+### Conformance Evidence
+
+- pending
+
 ### Deviations From Plan
 
 - none yet
@@ -44,6 +131,14 @@ Implement the first committed V2T slice in `apps/V2T`, `packages/VT2`, and their
 
 - pending
 
+## Stop Conditions
+
+- Stop if implementation would widen scope beyond the approved first slice.
+- Stop if worker write scopes begin to overlap or integration reveals conflicting assumptions.
+- Stop if a required gate fails and the failure is not resolved inside P3.
+- Stop if execution uncovers a product or architecture contradiction that belongs back in P1 or P2.
+- Stop once the approved slice is implemented and evidenced; do not silently start P4.
+
 ## Exit Gate
 
-P3 is complete when the committed slice exists in code, targeted verification passes, and this document explains what shipped versus what remains deferred.
+P3 is complete only when the committed slice exists in code, the required targeted and repo-law evidence is recorded here with concrete results, deviations are explicit, and this document clearly separates shipped behavior from deferred work without making a readiness claim on P4's behalf.

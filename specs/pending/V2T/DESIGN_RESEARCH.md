@@ -8,6 +8,49 @@ BOOTSTRAP BASELINE
 
 Translate the research baseline into a decision-complete V2T system contract that another agent can plan and implement without reopening the core product shape.
 
+## Phase Agent Role
+
+The session working P1 is the design orchestrator.
+
+The orchestrator owns:
+
+- the local design plan and the questions that still need closure
+- the decision to delegate schema, service, or boundary analysis
+- integration of specialist findings into one coherent system contract
+- the final design language that later phases must implement against
+- the P1 exit call
+
+Workers can refine bounded parts of the design, but they do not get to widen product scope, reopen locked P0 defaults without evidence, or declare the design complete.
+
+## Orchestration-First Workflow
+
+1. Re-read the P0 research baseline and identify only the design decisions that remain open.
+2. Inspect the live app, sidecar, and shared-package seams for the decisions that directly constrain the design.
+3. Form a local contract-first design plan before delegating.
+4. Delegate only bounded schema, service, or protocol analysis that can run in parallel without changing the P1 objective.
+5. Integrate the specialist output into a single orchestrator-owned design contract.
+6. Record what is decided, what is deferred, and what must be carried as an explicit implementation constraint.
+7. Stop at the P1 exit gate instead of sliding into P2 planning or P3 implementation.
+
+## Mandatory Conformance Inputs
+
+P1 must keep these constraints active while shaping the design:
+
+- `AGENTS.md`
+- the `effect-first-development` and `schema-first-development` skills when available in-session
+- `.patterns/jsdoc-documentation.md`
+- `standards/effect-first-development.md`
+- `standards/schema-first.inventory.jsonc`
+- `tooling/configs/src/eslint/SchemaFirstRule.ts`
+
+## Evidence Rules
+
+- Every design claim should be anchored either in `RESEARCH.md` or in a live repo seam that the design must fit.
+- Design conclusions must distinguish required contracts from optional future extensions.
+- Worker recommendations are advisory until the orchestrator accepts and integrates them into `DESIGN_RESEARCH.md`.
+- If a design choice would reopen P0 product scope or contradict repo reality, stop and surface that conflict instead of normalizing it.
+- Do not treat provider preferences as locked architecture unless the design explicitly names them as replaceable adapters.
+
 ## Canonical User Flow
 
 1. The user creates or opens a V2T project.
@@ -33,6 +76,15 @@ The canonical domain objects are:
 - `CompositionRun`: one generation request with status, provider inputs, outputs, and retry state
 - `ExportArtifact`: concrete long-form or clip deliverable metadata with local path and format
 
+## Conformance Design Rules
+
+- Pure data models should be planned as schema-first domain objects, with `S.Class` preferred for object models unless a boundary exception is explicitly justified.
+- Reusable non-class schemas must plan for same-name runtime type aliases and meaningful `$I.annote(...)` metadata.
+- Failure-capable provider and orchestration seams must plan for typed errors rather than ambient `throw` or `new Error(...)`.
+- Provider adapters should be modeled as explicit Effect services and layers, not component-owned helpers or singleton modules.
+- React routes and components must stay provider-agnostic and talk only to local app or sidecar service seams.
+- Exported APIs introduced by the slice must plan for JSDoc and docgen-clean examples from the start.
+
 ## System Boundaries
 
 ### App Surface
@@ -57,7 +109,9 @@ That sidecar owns filesystem access, SQLite persistence, provider adapters, orch
 
 ## Current Naming Constraint
 
-- `apps/V2T` is the app shell and `@beep/VT2` is the current sidecar package name
+- `apps/V2T` is the app shell and its current package name is `@beep/v2t`
+- `packages/VT2` is the sidecar package and its current package name is `@beep/VT2`
+- Turbo filters must follow the manifest package names, not the folder casing
 - the first slice documents and works with that naming drift instead of renaming packages during spec bootstrap
 
 ## Storage Posture
@@ -101,6 +155,14 @@ The first slice does not need to prove fully autonomous final video quality. It 
 - mandatory local Qwen embedding generation on day one
 - claiming Grok or any other generator as irreversible product lock-in
 
+## Stop Conditions
+
+- Stop if P1 would need to invent product scope that P0 did not ground.
+- Stop if the design would require a repo migration or command/task surface not yet justified by evidence.
+- Stop if unresolved ambiguity should be pushed back to P0 research rather than hidden inside design prose.
+- Stop if delegation would overlap scopes or allow a worker to become the de facto design owner.
+- Stop once the system contract is explicit enough for P2 to sequence implementation without reopening architecture.
+
 ## Design Exit Gate
 
-P1 is complete when the workflow, domain objects, storage posture, adapter seams, and first execution slice are explicit enough that P2 can produce a file-level plan without product-side guesswork.
+P1 is complete only when the workflow, domain objects, storage posture, adapter seams, first execution slice, and repo-law constraints are explicit enough that P2 can produce a file-level plan without product-side guesswork or hidden architecture decisions.

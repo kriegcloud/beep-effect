@@ -95,7 +95,7 @@ const composers = $I.compose(
   "editor-runtime",
   "infra",
   "VT2",
-  "V2T"
+  "v2t"
 );
 
 // --- common ---
@@ -865,7 +865,7 @@ export const $InfraId: Identity.IdentityComposer<"@beep/infra"> = composers.$Inf
 export const $VT2Id: Identity.IdentityComposer<"@beep/VT2"> = composers.$Vt2Id;
 
 /**
- * Identity composer for the `@beep/V2T` package.
+ * Identity composer for the `@beep/v2t` package.
  *
  * @example
  * ```typescript
@@ -877,4 +877,4 @@ export const $VT2Id: Identity.IdentityComposer<"@beep/VT2"> = composers.$Vt2Id;
  * @since 0.0.0
  * @category configuration
  */
-export const $V2TId: Identity.IdentityComposer<"@beep/V2T"> = composers.$V2tId;
+export const $V2TId: Identity.IdentityComposer<"@beep/v2t"> = composers.$V2tId;

@@ -1,0 +1,46 @@
+[agents]
+max_threads = 6
+max_depth = 1
+job_max_runtime_seconds = 2400
+
+[agents.effect_v4_repo_mapper]
+description = "Read-only scout for repo reality, package seams, task graphs, and Effect v4 hotspot mapping."
+config_file = "./agents/effect-v4-repo-mapper.toml"
+nickname_candidates = ["Scout", "Tracer"]
+
+[agents.effect_v4_schema_worker]
+description = "Schema-first worker for Effect v4 domain models, tagged unions, annotations, codecs, and boundary decoding."
+config_file = "./agents/effect-v4-schema-worker.toml"
+nickname_candidates = ["SchemaSage", "Literalist"]
+
+[agents.effect_v4_service_architect]
+description = "Effect v4 worker for ServiceMap.Service, Layer composition, dependency boundaries, and runtime wiring."
+config_file = "./agents/effect-v4-service-architect.toml"
+nickname_candidates = ["LayerSmith", "Composer"]
+
+[agents.effect_v4_error_guardian]
+description = "Effect v4 worker for typed errors, Option and Match boundaries, recovery rules, and Cause-aware failures."
+config_file = "./agents/effect-v4-error-guardian.toml"
+nickname_candidates = ["Sentinel", "Causeway"]
+
+[agents.effect_v4_http_ai_boundary]
+description = "Effect v4 worker for HTTP or tool boundaries, protocol contracts, provider adapters, and bounded AI retrieval flows."
+config_file = "./agents/effect-v4-http-ai-boundary.toml"
+nickname_candidates = ["Boundary", "Packet"]
+
+[agents.effect_v4_state_concurrency_guardian]
+description = "Effect v4 worker for Scope, Ref-family state, retries, timeouts, fiber lifetimes, and explicit concurrency control."
+config_file = "./agents/effect-v4-state-concurrency-guardian.toml"
+nickname_candidates = ["Fiber", "Scope"]
+
+[agents.effect_v4_quality_reviewer]
+description = "Read-only reviewer for repo-law conformance, quality gates, docs, tests, and residual-risk audits."
+config_file = "./agents/effect-v4-quality-reviewer.toml"
+nickname_candidates = ["Verifier", "Gatekeeper"]
+
+[profiles.v2t_orchestrator]
+model = "gpt-5.4"
+model_reasoning_effort = "xhigh"
+plan_mode_reasoning_effort = "xhigh"
+personality = "friendly"
+web_search = "cached"

@@ -81,6 +81,9 @@ const createChalkStderr = makeCreateChalk(detectedSupportsColor.stderr);
  * @category models
  */
 export interface ChalkInstance extends ChalkInstanceSurface {}
+export interface ChalkInstance {
+  (...text: ReadonlyArray<unknown>): string;
+}
 
 /**
  * Runtime type for isolated Chalk instances created by {@link Chalk}.
@@ -92,7 +95,7 @@ class ChalkValue {
   constructor(_options?: ChalkConstructorOptions) {}
 }
 
-interface ChalkValue extends ChalkInstanceSurface {}
+interface ChalkValue extends ChalkInstance {}
 
 /**
  * An isolated Chalk instance with its own color support level.
@@ -600,7 +603,7 @@ class ChalkStderrValue {
   constructor(_options?: ChalkConstructorOptions) {}
 }
 
-interface ChalkStderrValue extends ChalkInstanceSurface {}
+interface ChalkStderrValue extends ChalkInstance {}
 
 const ChalkStderr = makeChalkConstructor(ChalkStderrValue, createChalkStderr);
 

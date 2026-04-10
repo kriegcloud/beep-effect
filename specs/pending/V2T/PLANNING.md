@@ -8,12 +8,61 @@ BOOTSTRAP BASELINE
 
 Convert the research and design docs into an implementation sequence for the existing `apps/V2T` workspace and its supporting seams.
 
+## Phase Agent Role
+
+The session working P2 is the planning orchestrator.
+
+The orchestrator owns:
+
+- the local planning strategy and rollout order
+- the validation of command truth against the live workspace
+- the decision to delegate read-only audits
+- the integration of audit results into one implementation plan
+- the acceptance criteria and gate matrix that later phases must honor
+- the P2 exit call
+
+Workers may audit command reality, dependencies, and gate completeness, but they do not get to implement code, invent commands, or convert the planning phase into execution.
+
+## Orchestration-First Workflow
+
+1. Re-read `RESEARCH.md` and `DESIGN_RESEARCH.md` and identify the decisions that planning must operationalize.
+2. Inspect the live task graph, workspace manifests, and concrete seams before locking any command or file-order claim.
+3. Form a local rollout plan before delegating.
+4. Delegate only bounded read-only audits for command truth, dependency order, or gate completeness.
+5. Integrate audit results into a single orchestrator-owned plan.
+6. Mark planned gates as planned, not passed; P2 may lock commands without implying they already succeeded.
+7. Stop at the P2 exit gate instead of implementing the plan.
+
+## Mandatory Conformance Inputs
+
+P2 must plan against the actual repo-law and task surface, not a guessed one:
+
+- `AGENTS.md`
+- the `effect-first-development` and `schema-first-development` skills when available in-session
+- `.patterns/jsdoc-documentation.md`
+- `standards/effect-first-development.md`
+- `standards/schema-first.inventory.jsonc`
+- `tooling/configs/src/eslint/SchemaFirstRule.ts`
+- root `package.json`, root `turbo.json`, `apps/V2T/package.json`, `apps/V2T/turbo.json`, `packages/VT2/package.json`, and `packages/VT2/turbo.json`
+- `apps/V2T/package.json` and `packages/VT2/package.json` are authoritative for
+  Turbo filter names: use `@beep/v2t` for the app and `@beep/VT2` for the
+  sidecar unless the manifests change
+
+## Evidence Rules
+
+- Every command listed in `PLANNING.md` must be confirmed to exist in the live workspace or be called out as a missing or non-applicable surface.
+- P2 may describe required future verification, but it must not phrase those gates as already passing.
+- Worker audits are supporting evidence; the orchestrator still owns the final command matrix and acceptance criteria.
+- If the plan depends on hidden architecture choices not locked in P1, surface them explicitly rather than smuggling them into rollout order.
+- If a command is broader than the first slice, say so and explain why the broader gate still matters.
+
 ## Implementation Tracks
 
 ### Track 1 - Domain And Contracts
 
 - add V2T domain schemas and typed errors for projects, sessions, recordings, transcripts, composition profiles, runs, and export artifacts
-- define adapter interfaces for transcript, enrichment, memory, composition, and export providers
+- plan schema-first models with `S.Class`, annotations, same-name runtime aliases where required, and no exported pure-data `interface` / type-literal drift
+- define adapter services for transcript, enrichment, memory, composition, and export providers using explicit Effect service boundaries
 - keep contracts local-first and sidecar-friendly
 
 ### Track 2 - Local Persistence And Sidecar
@@ -38,6 +87,7 @@ Convert the research and design docs into an implementation sequence for the exi
 
 - add targeted tests for domain contracts and route-level behavior
 - prove the app can boot, create session artifacts, and generate composition packets
+- prove the affected surfaces conform to effect-first, schema-first, and JSDoc/docgen standards
 - document any provider gaps explicitly instead of hiding them in the UI
 
 ## Suggested File And Surface Order
@@ -58,21 +108,61 @@ Convert the research and design docs into an implementation sequence for the exi
 - composition configuration produces a persisted run packet
 - export artifacts have tracked records even when provider output is stubbed
 - the implementation uses the current `@beep/VT2` control plane or documents a deliberate migration away from it
+- the implementation plan names the real conformance gates instead of assuming nonexistent workspace tasks
+- the plan explicitly covers effect-first, schema-first, and docgen/JSDoc expectations for touched exported APIs
 - implementation notes capture deviations from this plan
 
-## Verification Commands
+## Strict Conformance Gates
 
-The planning phase locks these commands as the default verification floor for the app workspace and sidecar:
+### Spec Package Gate
 
-- `bunx turbo run check --filter=./apps/V2T --filter=./packages/VT2`
-- `bunx turbo run test --filter=./apps/V2T --filter=./packages/VT2`
-- `bunx turbo run lint --filter=./apps/V2T --filter=./packages/VT2`
-- `bunx turbo run build --filter=./apps/V2T --filter=./packages/VT2`
+Use this gate whenever the canonical spec package changes:
 
-If package-level docs or managed metadata change, also consider:
+- `git diff --check -- specs/pending/V2T`
+- `node specs/pending/V2T/outputs/validate-spec.mjs`
+
+Note:
+
+- do not rely on `bun run lint:markdown` for this package because root markdownlint ignores `specs/**`
+
+### Targeted Implementation Floor
+
+The planning phase locks these as the minimum targeted code-validation floor for the app workspace and sidecar:
+
+- `bunx turbo run check --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run test --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run lint --filter=@beep/v2t`
+
+Important note:
+
+- `@beep/VT2` currently has no package-local `lint` or `docgen` task, so do not write plans that depend on those nonexistent commands
+- P2 may lock these commands as the required gate matrix, but it must not claim
+  they passed until P3 or P4 records real evidence
+
+### Repo Law Gate
+
+Any implementation that changes TS surfaces under `apps/V2T` or `packages/VT2` must also plan for:
+
+- `bun run lint:effect-laws`
+- `bun run lint:jsdoc`
+- `bun run check:effect-laws-allowlist`
+- `bun run lint:schema-first`
+
+### Exported API Gate
+
+If exported APIs or JSDoc examples change, also require:
 
 - `bun run docgen`
-- `bun run lint:markdown`
+
+### Readiness Gate
+
+Before P4 can claim readiness for implementation work, plan for:
+
+- `bun run check`
+- `bun run lint`
+- `bun run test`
+- `bun run docgen` when exported APIs or JSDoc examples changed
 
 ## Risks
 
@@ -80,7 +170,16 @@ If package-level docs or managed metadata change, also consider:
 - local-first orchestration may need queueing or cancellation semantics not yet present in the app
 - export and generation artifacts can create path-management and status-tracking complexity early
 - extending the current `@beep/VT2` document-oriented control plane into V2T-native workflows may require careful schema and route migration
+- command drift can make a plan look stricter than the repo really is if the task graph is not verified against live package scripts
+
+## Stop Conditions
+
+- Stop if the plan would require product or design decisions that P1 has not locked.
+- Stop if a named command, file path, or dependency sequence cannot be verified from the live workspace.
+- Stop if work starts drifting into code implementation or speculative polish.
+- Stop if delegation would let a worker own the planning narrative instead of supplying bounded audit evidence.
+- Stop once another agent could implement the first slice without making hidden architecture or gate assumptions.
 
 ## Planning Exit Gate
 
-P2 is complete when another agent can implement the first slice from this file and the two prior phase artifacts without needing product or architecture clarification.
+P2 is complete only when another agent can implement the first slice from this file and the two prior phase artifacts without needing product or architecture clarification, and when the named conformance gates match the live repo surface rather than planning-time guesswork.

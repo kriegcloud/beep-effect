@@ -9,16 +9,16 @@
   },
   "references": [
     {
-      "path": "../../packages/common/identity/tsconfig.json"
+      "path": "../common/identity/tsconfig.json"
     },
     {
-      "path": "../../packages/common/schema/tsconfig.json"
+      "path": "../common/schema/tsconfig.json"
     },
     {
-      "path": "../../packages/common/types/tsconfig.json"
+      "path": "../common/types/tsconfig.json"
     },
     {
-      "path": "../../packages/runtime/protocol/tsconfig.json"
+      "path": "../runtime/protocol/tsconfig.json"
     }
   ]
 }

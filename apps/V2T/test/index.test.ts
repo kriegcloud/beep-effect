@@ -5,7 +5,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TwoTvPage } from "../src/components/two-tv.tsx";
 import { VERSION } from "../src/index.ts";
 
-describe("@beep/V2T", () => {
+describe("@beep/v2t", () => {
   it("exports the package version constant", () => {
     expect(VERSION).toBe("0.0.0");
   });

@@ -22,7 +22,7 @@ import {
   ReuseServiceSuiteLive,
   type TSMorphService,
 } from "@beep/repo-utils";
-import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
+import { Console, Effect, Scope, type FileSystem, Layer, type Path } from "effect";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { type CodexRunnerError, CodexSmokeResult, runCodexSmoke } from "./internal/CodexRunner.js";
@@ -50,6 +50,9 @@ const printJson = Effect.fn(function* (value: unknown) {
   yield* Console.log(rendered);
 });
 
+const reuseServiceSuiteScope = Scope.makeUnsafe();
+const buildReuseServiceSuiteContext = Effect.cached(Layer.buildWithScope(ReuseServiceSuiteLive, reuseServiceSuiteScope));
+
 type ReuseProgramError = DomainError | NoSuchFileError | ReuseAnalysisError | ReuseCandidateNotFoundError;
 
 type ReuseProgramDependencies =
@@ -65,7 +68,11 @@ type ReuseRuntimeContext = FileSystem.FileSystem | FsUtils | Path.Path | TSMorph
 
 const provideReuseServices = <A>(effect: Effect.Effect<A, ReuseProgramError, ReuseProgramDependencies>) =>
   Effect.scoped(
-    Layer.build(ReuseServiceSuiteLive).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+    buildReuseServiceSuiteContext.pipe(
+      Effect.flatMap((buildContext) =>
+        buildContext.pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+      )
+    )
   );
 
 const runReuseProgram = <A>(

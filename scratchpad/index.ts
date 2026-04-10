@@ -101,7 +101,8 @@ export class V2TConfigShape extends S.Class<V2TConfigShape>($I`V2TConfigShape`)(
     serverUrl: S.URLFromString,
     elevanLabsApiKey: S.Redacted(S.String),
     xAiApiKey: S.Redacted(S.String),
-    apiPath: S.Literal("/api/v1/v2t").pipe(SchemaUtils.withKeyDefaults("/api/v1/v2t"))
+    apiPath: S.Literal("/api/v1/v2t").pipe(SchemaUtils.withKeyDefaults("/api/v1/v2t")),
+    veniceApiKey: S.Redacted(S.String)
   }
 ) {
 }
@@ -113,6 +114,7 @@ export class V2TConfig extends Context.Service<V2TConfig, V2TConfigShape>()($I`V
       serverUrl: Config.url("localhost:8080"),
       elevanLabsApiKey: Config.redacted("AI_ELEVENLABS_API_KEY"),
       xAiApiKey: Config.redacted("AI_XAI_API_KEY").pipe(Config.withDefault("/api/v1/v2t")),
+      veniceApiKey: Config.redacted("AI_VENICE_API_KEY")
     })
     const parsed = yield* S.decodeUnknownEffect(V2TConfigShape)(config)
 

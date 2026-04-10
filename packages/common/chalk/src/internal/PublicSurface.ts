@@ -1,6 +1,6 @@
 import type { ColorSupportLevel } from "./ChalkSchema.ts";
 
-export interface ChalkInstanceSurface {
+export declare abstract class ChalkInstanceSurface {
   ansi256(index: number): this;
   bgAnsi256(index: number): this;
   readonly bgBlack: this;
@@ -54,7 +54,6 @@ export interface ChalkInstanceSurface {
   readonly whiteBright: this;
   readonly yellow: this;
   readonly yellowBright: this;
-  (...text: ReadonlyArray<unknown>): string;
 }
 
 export type ChalkConstructorOptions = Readonly<{
