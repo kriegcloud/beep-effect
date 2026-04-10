@@ -32,6 +32,12 @@
 - Added project-scoped Codex custom-agent config under `.codex/config.toml` plus specialist Effect v4 agent definitions under `.codex/agents/`.
 - Chose a no-nested-subagent posture for this repo-local config by setting `agents.max_depth = 1`, so phase ownership stays with the orchestrator.
 
+## 2026-04-10 Package Identity Review
+
+- Verified that the live app workspace name is `@beep/v2t` even though the folder is `apps/V2T`, while the sidecar remains `@beep/VT2`.
+- Corrected the remaining stale uppercase Turbo filter examples in the phase docs, prompts, and manifest so the package now matches the live workspace task graph.
+- Hardened `outputs/validate-spec.mjs` to reject stale package tokens and path-based Turbo filters, and to verify the manifest records the live package names.
+
 ## 2026-04-10 Repo-Truth Hardening
 
 - Corrected the targeted Turbo filters to use the live app package name

@@ -47,7 +47,10 @@ const manifestFileExtensions = new Set([
   ".toml"
 ])
 const forbiddenWorkspaceTokens = new Map([
-  ["@beep/V2T", `use ${appPackage.name}`]
+  ["@beep/V2T", `use ${appPackage.name}`],
+  ["--filter=@beep/V2T", `use --filter=${appPackage.name}`],
+  ["--filter=./apps/V2T", `use --filter=${appPackage.name}`],
+  ["--filter=./packages/VT2", `use --filter=${sidecarPackage.name}`]
 ])
 
 const checkRelativePath = (baseDir, relativePath, sourceLabel) => {
@@ -111,6 +114,16 @@ if (
   failures.push("manifest.json: active_phase must exist in phases")
 }
 
+if (
+  manifest.conformance?.notes?.app_workspace_package_name !== appPackage.name ||
+  manifest.conformance?.notes?.sidecar_workspace_package_name !==
+    sidecarPackage.name
+) {
+  failures.push(
+    `manifest.json: conformance.notes package names must match live manifests (${appPackage.name}, ${sidecarPackage.name})`
+  )
+}
+
 const manifestText = JSON.stringify(manifest)
 for (const [token, guidance] of forbiddenWorkspaceTokens) {
   if (manifestText.includes(token)) {
@@ -125,13 +138,28 @@ for (const requiredToken of [appPackage.name, sidecarPackage.name]) {
 }
 
 for (const command of manifest.conformance?.implementation_floor ?? []) {
-  if (
-    typeof command !== "string" ||
-    !command.includes(appPackage.name) ||
-    !command.includes(sidecarPackage.name)
-  ) {
+  if (typeof command !== "string") {
     failures.push(
-      `manifest.json: implementation_floor command must reference ${appPackage.name} and ${sidecarPackage.name} -> ${String(command)}`
+      `manifest.json: implementation_floor command must be a string -> ${String(command)}`
+    )
+    continue
+  }
+
+  const isAppOnlyLintCommand =
+    command.includes(" turbo run lint ") || command.includes(" turbo run lint --")
+
+  if (isAppOnlyLintCommand) {
+    if (!command.includes(appPackage.name)) {
+      failures.push(
+        `manifest.json: lint implementation_floor command must reference ${appPackage.name} -> ${command}`
+      )
+    }
+    continue
+  }
+
+  if (!command.includes(appPackage.name) || !command.includes(sidecarPackage.name)) {
+    failures.push(
+      `manifest.json: implementation_floor command must reference ${appPackage.name} and ${sidecarPackage.name} -> ${command}`
     )
   }
 }

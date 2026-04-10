@@ -137,6 +137,9 @@ The planning phase locks these as the minimum targeted code-validation floor for
 Important note:
 
 - `@beep/VT2` currently has no package-local `lint` or `docgen` task, so do not write plans that depend on those nonexistent commands
+- `@beep/v2t` is the live app package name even though the folder is
+  `apps/V2T`, so verify filter casing from the manifest before locking the
+  command matrix
 - P2 may lock these commands as the required gate matrix, but it must not claim
   they passed until P3 or P4 records real evidence
 

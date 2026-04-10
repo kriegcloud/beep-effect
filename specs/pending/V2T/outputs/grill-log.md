@@ -84,6 +84,12 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Answer: add those agents in project-scoped `.codex` config
 - Resolution: added `.codex/config.toml` plus `.codex/agents/*.toml` so future V2T sessions can selectively delegate to Effect v4 specialists without inventing roles on the fly
 
+### Q13 - Which package names should the spec use in targeted Turbo filters?
+
+- Recommendation: copy the live package names from `apps/V2T/package.json` and `packages/VT2/package.json` instead of inferring them from folder names
+- Answer: use `@beep/v2t` for the app workspace and `@beep/VT2` for the sidecar workspace
+- Resolution: corrected the remaining stale `@beep/V2T` filter examples and hardened the validator to reject that drift
+
 ### Q13 - Which workspace identities and memory rules are now locked for V2T?
 
 - Recommendation: treat workspace package names and Graphiti startup behavior as explicit repo truth rather than soft convention

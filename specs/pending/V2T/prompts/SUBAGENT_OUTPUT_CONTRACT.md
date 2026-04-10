@@ -49,10 +49,12 @@ Every V2T sub-agent must return a concise report with these sections:
 
 - concrete findings, blockers, or risks
 - exact file references where possible
+- explicitly say `none` when no substantive issues were found
 
 ## Follow-Up
 
 - what the orchestrator still needs to integrate, verify, or decide
+- memory-worthy findings the orchestrator should log if they are durable
 
 Rules:
 

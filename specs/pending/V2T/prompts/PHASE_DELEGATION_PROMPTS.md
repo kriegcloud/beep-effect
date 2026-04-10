@@ -105,6 +105,8 @@ Additional rules:
 
 - `effect_v4_schema_worker` for domain object modeling
 - `effect_v4_service_architect` for service and adapter seams
+- `effect_v4_persistence_runtime_architect` for SQLite, filesystem, and local
+  artifact persistence design
 - `effect_v4_http_ai_boundary` for protocol and provider-boundary design
 
 ### Prompt Fill: Domain Modeling Worker
@@ -175,6 +177,8 @@ Additional rules:
 - `effect_v4_service_architect` for sidecar runtime and adapter wiring
 - `effect_v4_error_guardian` for typed failure surfaces
 - `effect_v4_http_ai_boundary` for protocol and handler boundaries
+- `effect_v4_persistence_runtime_architect` for SQLite, filesystem, config, and
+  artifact-lifecycle seams
 - `effect_v4_state_concurrency_guardian` for long-running job or queue control
 - `effect_v4_quality_reviewer` after merges
 

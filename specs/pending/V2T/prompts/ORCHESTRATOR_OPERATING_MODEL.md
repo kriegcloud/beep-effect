@@ -33,6 +33,15 @@ Sub-agents do not own:
 6. Integrate every worker result yourself before updating the phase artifact.
 7. Stop at the active phase exit gate instead of rolling forward.
 
+## Review Loop
+
+1. After a meaningful write wave, spawn or run a read-only review pass.
+2. Treat substantive findings as reopen conditions, not optional follow-up.
+3. Integrate the fixes yourself or through newly bounded workers.
+4. Rerun review until the latest wave finds no substantive issues or the
+   remaining issues are explicitly accepted as residual risk in the phase
+   artifact.
+
 ## Delegation Rules
 
 - Form a local plan before spawning any sub-agent.
@@ -84,6 +93,8 @@ Every delegated prompt should include:
 - `effect_v4_error_guardian` for typed failures and recovery rules
 - `effect_v4_http_ai_boundary` for protocol, route, tool, and provider-adapter
   boundaries
+- `effect_v4_persistence_runtime_architect` for filesystem, SQLite, config,
+  resource lifetimes, and local-first persistence seams
 - `effect_v4_state_concurrency_guardian` for state, scope, retries, timeouts,
   and fiber behavior
 - `effect_v4_quality_reviewer` for adversarial review of conformance and gate

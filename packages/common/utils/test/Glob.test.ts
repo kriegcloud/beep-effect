@@ -1,10 +1,12 @@
 import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { layer as GlobLayer, type GlobOptions, Glob as GlobService, type Pattern } from "@beep/utils/Glob";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, Layer, Match } from "effect";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "vitest";
 
 type Fixture = {
@@ -48,10 +50,21 @@ const restoreBunGlob = (bunRef: typeof Bun, originalGlob: typeof Bun.Glob) => {
   Reflect.set(bunRef, "Glob", originalGlob);
 };
 
+class BunGlobMutationError extends TaggedErrorClass<BunGlobMutationError>("BunGlobMutationError")(
+  "BunGlobMutationError",
+  {
+    action: S.String,
+    cause: S.DefectWithStack,
+  }
+) {}
+
 const toGlobMutationError =
   (action: string) =>
-  (cause: unknown): Error =>
-    cause instanceof Error ? cause : new Error(`Failed to ${action} Bun.Glob`);
+  (cause: unknown): BunGlobMutationError =>
+    BunGlobMutationError.new({
+      action,
+      cause: cause instanceof Error ? cause : new Error(`Failed to ${action} Bun.Glob`),
+    });
 
 const withBunGlobDisabled = (effect: GlobProgram) => {
   const bunRef = globalThis.Bun;
