@@ -224,7 +224,7 @@
     "@better-auth/stripe": "^1.7.0-beta.0",
     "@effect/platform-node": "4.0.0-beta.46",
     "@effect/platform-node-shared": "4.0.0-beta.46",
-    "@openai/codex-sdk": "~0.118.0",
+    "@openai/codex-sdk": "~0.119.0",
     "@pulumi/pulumi": "^3.230.0",
     "@effect/sql-pg": "4.0.0-beta.46",
     "@effect/sql-sqlite-bun": "4.0.0-beta.46",
