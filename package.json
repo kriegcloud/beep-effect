@@ -160,7 +160,7 @@
     "syncpack": "catalog:",
     "ts-patch": "catalog:",
     "tstyche": "catalog:",
-    "turbo": "catalog:",
+    "turbo": "^2.9.6",
     "typescript": "catalog:",
     "vitest": "catalog:"
   },
