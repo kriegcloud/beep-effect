@@ -50,7 +50,7 @@
         "syncpack": "catalog:",
         "ts-patch": "catalog:",
         "tstyche": "catalog:",
-        "turbo": "^2.9.6",
+        "turbo": "catalog:",
         "typescript": "catalog:",
         "vitest": "catalog:",
       },
