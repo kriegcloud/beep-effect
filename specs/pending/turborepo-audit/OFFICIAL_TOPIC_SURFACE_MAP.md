@@ -1,0 +1,103 @@
+# Official Topic Surface Map
+
+Source: `https://turborepo.dev/llms.txt`
+
+Generated from the live Turborepo docs surface map. Each entry lists the title, path, canonical docs URL, and the one-line summary published in `llms.txt`.
+
+- `Introduction` | path: `index.md` | url: https://turborepo.dev/docs/index | summary: Welcome to the Turborepo documentation!
+- `Acknowledgements` | path: `/acknowledgments.md` | url: https://turborepo.dev/docs/acknowledgments | summary: Thank you to all these developers, build systems, and monorepo tools for their support and assistance.
+- `Community` | path: `/community.md` | url: https://turborepo.dev/docs/community | summary: Learn about the Turborepo community.
+- `Core concepts` | path: `/core-concepts.md` | url: https://turborepo.dev/docs/core-concepts | summary: Learn about the core concepts behind Turborepo.
+- `Internal Packages` | path: `/core-concepts/internal-packages.md` | url: https://turborepo.dev/docs/core-concepts/internal-packages | summary: Learn how to build Internal Packages in your monorepo.
+- `Package and Task Graphs` | path: `/core-concepts/package-and-task-graph.md` | url: https://turborepo.dev/docs/core-concepts/package-and-task-graph | summary: Turborepo builds a Task Graph based on your configuration and repository structure.
+- `Package types` | path: `/core-concepts/package-types.md` | url: https://turborepo.dev/docs/core-concepts/package-types | summary: Learn about the different types of packages in a workspace.
+- `Remote Caching` | path: `/core-concepts/remote-caching.md` | url: https://turborepo.dev/docs/core-concepts/remote-caching | summary: Share cache artifacts across machines for even faster builds.
+- `Crafting your repository` | path: `/crafting-your-repository.md` | url: https://turborepo.dev/docs/crafting-your-repository | summary: Design and build your Turborepo.
+- `Caching` | path: `/crafting-your-repository/caching.md` | url: https://turborepo.dev/docs/crafting-your-repository/caching | summary: Learn about caching in Turborepo.
+- `Configuring tasks` | path: `/crafting-your-repository/configuring-tasks.md` | url: https://turborepo.dev/docs/crafting-your-repository/configuring-tasks | summary: Learn how to describe the workflows in your repository to get them done as fast as possible.
+- `Constructing CI` | path: `/crafting-your-repository/constructing-ci.md` | url: https://turborepo.dev/docs/crafting-your-repository/constructing-ci | summary: Learn how Turborepo can help you efficiently complete all the necessary tasks and accelerate your development workflow.
+- `Creating an Internal Package` | path: `/crafting-your-repository/creating-an-internal-package.md` | url: https://turborepo.dev/docs/crafting-your-repository/creating-an-internal-package | summary: Learn how to create an Internal Package for your monorepo.
+- `Developing applications` | path: `/crafting-your-repository/developing-applications.md` | url: https://turborepo.dev/docs/crafting-your-repository/developing-applications | summary: Learn how to develop applications in your repository.
+- `Managing dependencies` | path: `/crafting-your-repository/managing-dependencies.md` | url: https://turborepo.dev/docs/crafting-your-repository/managing-dependencies | summary: Learn how to manage dependencies in your monorepo's workspace.
+- `Running tasks` | path: `/crafting-your-repository/running-tasks.md` | url: https://turborepo.dev/docs/crafting-your-repository/running-tasks | summary: Learn how to run tasks in your repository through the `turbo` CLI.
+- `Structuring a repository` | path: `/crafting-your-repository/structuring-a-repository.md` | url: https://turborepo.dev/docs/crafting-your-repository/structuring-a-repository | summary: Start by creating a repository using the conventions of the ecosystem.
+- `Understanding your repository` | path: `/crafting-your-repository/understanding-your-repository.md` | url: https://turborepo.dev/docs/crafting-your-repository/understanding-your-repository | summary: Learn how to understand your repository structure using Turborepo.
+- `Upgrading` | path: `/crafting-your-repository/upgrading.md` | url: https://turborepo.dev/docs/crafting-your-repository/upgrading | summary: Learn how to upgrade `turbo` to get the latest improvements to your repository.
+- `Using environment variables` | path: `/crafting-your-repository/using-environment-variables.md` | url: https://turborepo.dev/docs/crafting-your-repository/using-environment-variables | summary: Learn how to handle environments for your applications.
+- `Getting started` | path: `/getting-started.md` | url: https://turborepo.dev/docs/getting-started | summary: Get started with Turborepo.
+- `Add to an existing repository` | path: `/getting-started/add-to-existing-repository.md` | url: https://turborepo.dev/docs/getting-started/add-to-existing-repository | summary: Using Turborepo with your existing repository
+- `Editor integration` | path: `/getting-started/editor-integration.md` | url: https://turborepo.dev/docs/getting-started/editor-integration | summary: Making the most of Turborepo
+- `Start with an example` | path: `/getting-started/examples.md` | url: https://turborepo.dev/docs/getting-started/examples | summary: Start with an example Turborepo.
+- `Installation` | path: `/getting-started/installation.md` | url: https://turborepo.dev/docs/getting-started/installation | summary: Learn how to get started with Turborepo.
+- `Guides` | path: `/guides.md` | url: https://turborepo.dev/docs/guides | summary: Learn how to use your favorite tooling in a Turborepo.
+- `Using AI with Turborepo` | path: `/guides/ai.md` | url: https://turborepo.dev/docs/guides/ai | summary: Get the most out of AI coding assistants in your Turborepo.
+- `Continuous Integration` | path: `/guides/ci-vendors.md` | url: https://turborepo.dev/docs/guides/ci-vendors | summary: Recipes for using Turborepo with Vercel, GitHub Actions, and other continuous integration providers.
+- `Buildkite` | path: `/guides/ci-vendors/buildkite.md` | url: https://turborepo.dev/docs/guides/ci-vendors/buildkite | summary: Learn how to use Buildkite with Turborepo.
+- `CircleCI` | path: `/guides/ci-vendors/circleci.md` | url: https://turborepo.dev/docs/guides/ci-vendors/circleci | summary: Learn how to use CircleCI with Turborepo.
+- `GitHub Actions` | path: `/guides/ci-vendors/github-actions.md` | url: https://turborepo.dev/docs/guides/ci-vendors/github-actions | summary: Learn how to use GitHub Actions with Turborepo.
+- `GitLab CI` | path: `/guides/ci-vendors/gitlab-ci.md` | url: https://turborepo.dev/docs/guides/ci-vendors/gitlab-ci | summary: Learn how to use GitLab CI with Turborepo.
+- `Travis CI` | path: `/guides/ci-vendors/travis-ci.md` | url: https://turborepo.dev/docs/guides/ci-vendors/travis-ci | summary: How to use Travis CI with Turborepo to optimize your CI workflow
+- `Vercel` | path: `/guides/ci-vendors/vercel.md` | url: https://turborepo.dev/docs/guides/ci-vendors/vercel | summary: Learn how to use Turborepo on Vercel.
+- `Frameworks` | path: `/guides/frameworks.md` | url: https://turborepo.dev/docs/guides/frameworks | summary: Integrate your favorite framework into Turborepo.
+- `Framework bindings in libraries` | path: `/guides/frameworks/framework-bindings.md` | url: https://turborepo.dev/docs/guides/frameworks/framework-bindings | summary: Learn how to create framework bindings in packages.
+- `Next.js` | path: `/guides/frameworks/nextjs.md` | url: https://turborepo.dev/docs/guides/frameworks/nextjs | summary: Learn how to use Next.js in a monorepo.
+- `Nuxt` | path: `/guides/frameworks/nuxt.md` | url: https://turborepo.dev/docs/guides/frameworks/nuxt | summary: Learn more about using Nuxt in your monorepo.
+- `SvelteKit` | path: `/guides/frameworks/sveltekit.md` | url: https://turborepo.dev/docs/guides/frameworks/sveltekit | summary: Learn more about using SvelteKit in your monorepo.
+- `Vite` | path: `/guides/frameworks/vite.md` | url: https://turborepo.dev/docs/guides/frameworks/vite | summary: Learn more about using Vite in your monorepo.
+- `Generating code` | path: `/guides/generating-code.md` | url: https://turborepo.dev/docs/guides/generating-code | summary: Learn how to generate code using Turborepo.
+- `Handling platforms` | path: `/guides/handling-platforms.md` | url: https://turborepo.dev/docs/guides/handling-platforms | summary: Learn how to handle caching around operating systems, architectures, and other arbitrary conditions for Turborepo tasks.
+- `Microfrontends` | path: `/guides/microfrontends.md` | url: https://turborepo.dev/docs/guides/microfrontends | summary: Learn how to use Turborepo's built-in microfrontends proxy for local development.
+- `Migrating from Nx` | path: `/guides/migrating-from-nx.md` | url: https://turborepo.dev/docs/guides/migrating-from-nx | summary: Learn how to migrate to Turborepo from Nx.
+- `Multi-language support` | path: `/guides/multi-language.md` | url: https://turborepo.dev/docs/guides/multi-language | summary: Learn how to use multiple languages with Turborepo.
+- `Publishing libraries` | path: `/guides/publishing-libraries.md` | url: https://turborepo.dev/docs/guides/publishing-libraries | summary: Learn how to publish libraries to the npm registry from a monorepo.
+- `Single-package workspaces` | path: `/guides/single-package-workspaces.md` | url: https://turborepo.dev/docs/guides/single-package-workspaces | summary: Learn how to use Turborepo in a single-package workspace.
+- `Skipping tasks` | path: `/guides/skipping-tasks.md` | url: https://turborepo.dev/docs/guides/skipping-tasks | summary: Never do the same work twice.
+- `Tools` | path: `/guides/tools.md` | url: https://turborepo.dev/docs/guides/tools | summary: Learn how to use your favorite tools in a monorepo.
+- `Biome` | path: `/guides/tools/biome.md` | url: https://turborepo.dev/docs/guides/tools/biome | summary: Learn how to use Biome in your Turborepo projects.
+- `Docker` | path: `/guides/tools/docker.md` | url: https://turborepo.dev/docs/guides/tools/docker | summary: Learn how to use Docker in a monorepo.
+- `ESLint` | path: `/guides/tools/eslint.md` | url: https://turborepo.dev/docs/guides/tools/eslint | summary: Learn how to use ESLint in a monorepo.
+- `Jest` | path: `/guides/tools/jest.md` | url: https://turborepo.dev/docs/guides/tools/jest | summary: Learn how to use Jest in a Turborepo.
+- `Oxc (oxlint and oxfmt)` | path: `/guides/tools/oxc.md` | url: https://turborepo.dev/docs/guides/tools/oxc | summary: Learn how to use oxlint and oxfmt in your Turborepo projects.
+- `Playwright` | path: `/guides/tools/playwright.md` | url: https://turborepo.dev/docs/guides/tools/playwright | summary: Learn how to use Playwright in a Turborepo.
+- `Prisma` | path: `/guides/tools/prisma.md` | url: https://turborepo.dev/docs/guides/tools/prisma | summary: Learn how to use Prisma in a Turborepo.
+- `shadcn/ui` | path: `/guides/tools/shadcn-ui.md` | url: https://turborepo.dev/docs/guides/tools/shadcn-ui | summary: Learn how to use shadcn/ui in a Turborepo.
+- `Storybook` | path: `/guides/tools/storybook.md` | url: https://turborepo.dev/docs/guides/tools/storybook | summary: Learn how to use Storybook in a Turborepo.
+- `Tailwind CSS` | path: `/guides/tools/tailwind.md` | url: https://turborepo.dev/docs/guides/tools/tailwind | summary: Learn how to use Tailwind CSS in a Turborepo.
+- `TypeScript` | path: `/guides/tools/typescript.md` | url: https://turborepo.dev/docs/guides/tools/typescript | summary: Learn how to use TypeScript in a monorepo.
+- `Vitest` | path: `/guides/tools/vitest.md` | url: https://turborepo.dev/docs/guides/tools/vitest | summary: Learn how to use Vitest in a monorepo.
+- `Invalid environment variable prefix` | path: `/messages/invalid-env-prefix.md` | url: https://turborepo.dev/docs/messages/invalid-env-prefix | summary: Learn more about errors with invalid environment variable prefixes in Turborepo.
+- `Missing root task in turbo.json` | path: `/messages/missing-root-task-in-turbo-json.md` | url: https://turborepo.dev/docs/messages/missing-root-task-in-turbo-json | summary: Learn more about errors for missing root tasks in turbo.json in Turborepo.
+- `Package task in single-package workspace error` | path: `/messages/package-task-in-single-package-workspace.md` | url: https://turborepo.dev/docs/messages/package-task-in-single-package-workspace | summary: Learn more about errors with package tasks in single-package workspaces.
+- `Recursive turbo invocations` | path: `/messages/recursive-turbo-invocations.md` | url: https://turborepo.dev/docs/messages/recursive-turbo-invocations | summary: Learn more about errors with recursive scripts and tasks in Turborepo.
+- `Unnecessary package task syntax error` | path: `/messages/unnecessary-package-task-syntax.md` | url: https://turborepo.dev/docs/messages/unnecessary-package-task-syntax | summary: Learn more about errors with unnecessary package task syntax in Turborepo.
+- `Turborepo API reference` | path: `/reference.md` | url: https://turborepo.dev/docs/reference | summary: Learn about Turborepo's APIs using the reference.
+- `bin` | path: `/reference/bin.md` | url: https://turborepo.dev/docs/reference/bin | summary: API reference for the `turbo bin` command
+- `boundaries` | path: `/reference/boundaries.md` | url: https://turborepo.dev/docs/reference/boundaries | summary: API reference for the `turbo boundaries` command
+- `Configuring turbo.json` | path: `/reference/configuration.md` | url: https://turborepo.dev/docs/reference/configuration | summary: Learn how to configure Turborepo through `turbo.json`.
+- `create-turbo` | path: `/reference/create-turbo.md` | url: https://turborepo.dev/docs/reference/create-turbo | summary: Quickly set up a new Turborepo repository from scratch.
+- `devtools` | path: `/reference/devtools.md` | url: https://turborepo.dev/docs/reference/devtools | summary: API reference for the `turbo devtools` command
+- `docs` | path: `/reference/docs.md` | url: https://turborepo.dev/docs/reference/docs | summary: API reference for the `turbo docs` command
+- `eslint-config-turbo` | path: `/reference/eslint-config-turbo.md` | url: https://turborepo.dev/docs/reference/eslint-config-turbo | summary: Learn more about eslint-config-turbo.
+- `eslint-plugin-turbo` | path: `/reference/eslint-plugin-turbo.md` | url: https://turborepo.dev/docs/reference/eslint-plugin-turbo | summary: Learn more about eslint-plugin-turbo.
+- `generate` | path: `/reference/generate.md` | url: https://turborepo.dev/docs/reference/generate | summary: API reference for the `turbo generate` command
+- `File glob specification` | path: `/reference/globs.md` | url: https://turborepo.dev/docs/reference/globs | summary: Learn about the file glob specification used by `turbo`.
+- `info` | path: `/reference/info.md` | url: https://turborepo.dev/docs/reference/info | summary: API reference for the `turbo info` command
+- `link` | path: `/reference/link.md` | url: https://turborepo.dev/docs/reference/link | summary: API reference for the `turbo link` command
+- `login` | path: `/reference/login.md` | url: https://turborepo.dev/docs/reference/login | summary: API reference for the `turbo login` command
+- `logout` | path: `/reference/logout.md` | url: https://turborepo.dev/docs/reference/logout | summary: API reference for the `turbo logout` command
+- `ls` | path: `/reference/ls.md` | url: https://turborepo.dev/docs/reference/ls | summary: API reference for the `turbo ls` command
+- `Options overview` | path: `/reference/options-overview.md` | url: https://turborepo.dev/docs/reference/options-overview | summary: Flags, configurations, and System Environment Variables for Turborepo
+- `Package Configurations` | path: `/reference/package-configurations.md` | url: https://turborepo.dev/docs/reference/package-configurations | summary: Learn how to use Package Configurations to bring greater task flexibility to your monorepo's package.
+- `prune` | path: `/reference/prune.md` | url: https://turborepo.dev/docs/reference/prune | summary: API reference for the `turbo prune` command
+- `query` | path: `/reference/query.md` | url: https://turborepo.dev/docs/reference/query | summary: API reference for the `turbo query` command
+- `run` | path: `/reference/run.md` | url: https://turborepo.dev/docs/reference/run | summary: API reference for the `turbo run` command
+- `scan (Deprecated)` | path: `/reference/scan.md` | url: https://turborepo.dev/docs/reference/scan | summary: API reference for the deprecated `turbo scan` command
+- `System environment variables` | path: `/reference/system-environment-variables.md` | url: https://turborepo.dev/docs/reference/system-environment-variables | summary: Learn about system variables used by Turborepo.
+- `telemetry` | path: `/reference/telemetry.md` | url: https://turborepo.dev/docs/reference/telemetry | summary: API reference for the `turbo telemetry` command
+- `@turbo/codemod` | path: `/reference/turbo-codemod.md` | url: https://turborepo.dev/docs/reference/turbo-codemod | summary: Learn more about how Turborepo uses codemods to make version migrations easy.
+- `@turbo/gen` | path: `/reference/turbo-gen.md` | url: https://turborepo.dev/docs/reference/turbo-gen | summary: Quickly generate new code in your Turborepo.
+- `turbo-ignore` | path: `/reference/turbo-ignore.md` | url: https://turborepo.dev/docs/reference/turbo-ignore | summary: Learn how to use turbo-ignore to skip tasks in CI.
+- `unlink` | path: `/reference/unlink.md` | url: https://turborepo.dev/docs/reference/unlink | summary: API reference for the `turbo unlink` command
+- `watch` | path: `/reference/watch.md` | url: https://turborepo.dev/docs/reference/watch | summary: API reference for the `watch` command
+- `Support policy` | path: `/support-policy.md` | url: https://turborepo.dev/docs/support-policy | summary: Learn about Turborepo's Support policy.
+- `Telemetry` | path: `/telemetry.md` | url: https://turborepo.dev/docs/telemetry | summary: Learn more about Turborepo's anonymous telemetry.
