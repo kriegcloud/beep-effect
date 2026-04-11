@@ -7,13 +7,11 @@ import * as Layer from "../../Layer.ts"
 import * as PubSub from "../../PubSub.ts"
 import * as Schema from "../../Schema.ts"
 import * as SqlClient from "../sql/SqlClient.ts"
-import type * as SqlError from "../sql/SqlError.ts"
+import * as SqlError from "../sql/SqlError.ts"
 import * as SqlSchema from "../sql/SqlSchema.ts"
 import * as EventJournal from "./EventJournal.ts"
 
 type WriteFromRemoteOptions = Parameters<EventJournal.EventJournal["Service"]["writeFromRemote"]>[0]
-
-type RemoteBracket = readonly [ReadonlyArray<EventJournal.Entry>, ReadonlyArray<EventJournal.RemoteEntry>]
 
 /**
  * @since 4.0.0
@@ -129,7 +127,9 @@ export const make = (options?: {
     const pubsub = yield* PubSub.unbounded<EventJournal.Entry>()
 
     const writeFromRemote = Effect.fnUntraced(function*(options: WriteFromRemoteOptions): Effect.fn.Return<
-      void,
+      {
+        readonly duplicateEntries: ReadonlyArray<EventJournal.Entry>
+      },
       EventJournal.EventJournalError | Schema.SchemaError | SqlError.SqlError
     > {
       const entries = options.entries.map((remoteEntry) => remoteEntry.entry)
@@ -164,13 +164,15 @@ export const make = (options?: {
       }
 
       const uncommitted = options.entries.filter((entry) => !existingIds.has(entry.entry.idString))
-      const brackets: ReadonlyArray<RemoteBracket> = options.compact
+      const duplicateEntries = options.entries
+        .filter((entry) => existingIds.has(entry.entry.idString))
+        .map((entry) => entry.entry)
+      const compacted = options.compact
         ? yield* options.compact(uncommitted)
-        : [[uncommitted.map((remoteEntry) => remoteEntry.entry), uncommitted] as const]
+        : uncommitted.map((remoteEntry) => remoteEntry.entry)
 
-      for (const [compacted] of brackets) {
-        for (const entry of compacted) {
-          const conflicts = yield* sql`
+      for (const entry of compacted) {
+        const conflicts = yield* sql`
             SELECT *
             FROM ${entryTableSql}
             WHERE event = ${entry.event} AND
@@ -178,11 +180,14 @@ export const make = (options?: {
                   timestamp >= ${entry.createdAtMillis}
             ORDER BY timestamp ASC
           `.pipe(
-            Effect.flatMap(decodeEntryRows),
-            Effect.map(toEntries)
-          )
-          yield* options.effect({ entry, conflicts })
-        }
+          Effect.flatMap(decodeEntryRows),
+          Effect.map(toEntries)
+        )
+        yield* options.effect({ entry, conflicts })
+      }
+
+      return {
+        duplicateEntries
       }
     })
 
@@ -205,12 +210,10 @@ export const make = (options?: {
           yield* PubSub.publish(pubsub, entry)
           return value
         },
-        sql.withTransaction,
         Effect.mapError((cause) => new EventJournal.EventJournalError({ cause, method: "write" }))
       ),
       writeFromRemote: (options) =>
         writeFromRemote(options).pipe(
-          sql.withTransaction,
           Effect.catchIf(
             (e) => e._tag !== "EventJournalError",
             (cause) => Effect.fail(new EventJournal.EventJournalError({ cause, method: "writeFromRemote" }))
@@ -229,7 +232,6 @@ export const make = (options?: {
           )
           return yield* f(entries)
         },
-        sql.withTransaction,
         Effect.mapError((cause) => new EventJournal.EventJournalError({ cause, method: "withRemoteUncommited" }))
       ),
       nextRemoteSequence: (remoteId) =>
@@ -248,7 +250,13 @@ export const make = (options?: {
         yield* sql`DROP TABLE ${remotesTableSql}`
       }).pipe(
         Effect.mapError((cause) => new EventJournal.EventJournalError({ cause, method: "destroy" }))
-      )
+      ),
+      withLock(_storeId) {
+        return (effect) =>
+          sql.withTransaction(effect).pipe(
+            Effect.catchIf(SqlError.isSqlError, Effect.die)
+          )
+      }
     })
   })
 
