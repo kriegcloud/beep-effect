@@ -1030,6 +1030,118 @@
       "status": "exception",
       "owner": "@beep/VT2",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/beepgraph/messaging/src/NatsClient.ts",
+      "symbol": "NatsMessage",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-messaging",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/beepgraph/schema/src/Primitives.ts",
+      "symbol": "IriTerm",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-schema",
+      "reason": "Recursive Term/Triple union requires explicit interfaces for Schema.suspend type annotations."
+    },
+    {
+      "file": "packages/beepgraph/schema/src/Primitives.ts",
+      "symbol": "BlankTerm",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-schema",
+      "reason": "Recursive Term/Triple union requires explicit interfaces for Schema.suspend type annotations."
+    },
+    {
+      "file": "packages/beepgraph/schema/src/Primitives.ts",
+      "symbol": "LiteralTerm",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-schema",
+      "reason": "Recursive Term/Triple union requires explicit interfaces for Schema.suspend type annotations."
+    },
+    {
+      "file": "packages/beepgraph/schema/src/Primitives.ts",
+      "symbol": "TripleTerm",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-schema",
+      "reason": "Recursive Term/Triple union requires explicit interfaces for Schema.suspend type annotations."
+    },
+    {
+      "file": "packages/beepgraph/schema/src/Primitives.ts",
+      "symbol": "Triple",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-schema",
+      "reason": "Recursive Term/Triple union requires explicit interfaces for Schema.suspend type annotations."
+    },
+    {
+      "file": "packages/beepgraph/pipeline/src/DocumentRag.ts",
+      "symbol": "DocumentRagOptions",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/beepgraph-pipeline",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/beepgraph/pipeline/src/GraphRag.ts",
+      "symbol": "GraphRagOptions",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/beepgraph-pipeline",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/beepgraph/pipeline/src/GraphRag.ts",
+      "symbol": "GraphRagResult",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/beepgraph-pipeline",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/beepgraph/services/src/ConfigPush.ts",
+      "symbol": "FlowConfig",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/beepgraph-services",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/beepgraph/services/src/ServiceRunner.ts",
+      "symbol": "ServiceRunnerConfig",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-services",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/beepgraph/services/src/TypedConsumer.ts",
+      "symbol": "DecodedMessage",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-services",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/beepgraph/services/src/TypedProducer.ts",
+      "symbol": "TypedProducer",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-services",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/beepgraph/services/src/TypedRequestor.ts",
+      "symbol": "TypedRequestor",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/beepgraph-services",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
     }
   ]
 }
