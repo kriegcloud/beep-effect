@@ -255,6 +255,20 @@
         "vitest": "catalog:",
       },
     },
+    "packages/beepgraph/pipeline": {
+      "name": "@beep/beepgraph-pipeline",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/beepgraph-schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
     "packages/beepgraph/schema": {
       "name": "@beep/beepgraph-schema",
       "version": "0.0.0",
@@ -1243,6 +1257,8 @@
     "@beep/VT2": ["@beep/VT2@workspace:packages/VT2"],
 
     "@beep/beepgraph-messaging": ["@beep/beepgraph-messaging@workspace:packages/beepgraph/messaging"],
+
+    "@beep/beepgraph-pipeline": ["@beep/beepgraph-pipeline@workspace:packages/beepgraph/pipeline"],
 
     "@beep/beepgraph-schema": ["@beep/beepgraph-schema@workspace:packages/beepgraph/schema"],
 
