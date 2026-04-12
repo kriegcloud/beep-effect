@@ -38,7 +38,8 @@
     "packages/beepgraph/messaging",
     "packages/beepgraph/schema",
     "packages/beepgraph/services",
-    "packages/beepgraph/pipeline"
+    "packages/beepgraph/pipeline",
+    "packages/beepgraph/gateway"
   ],
   "repository": {
     "type": "git",

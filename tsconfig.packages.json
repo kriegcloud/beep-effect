@@ -94,6 +94,9 @@
       "path": "packages/beepgraph/pipeline"
     },
     {
+      "path": "packages/beepgraph/gateway"
+    },
+    {
       "path": "packages/repo-memory/client"
     },
     {

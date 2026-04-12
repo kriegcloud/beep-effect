@@ -241,6 +241,21 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/beepgraph/gateway": {
+      "name": "@beep/beepgraph-gateway",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/beepgraph-pipeline": "workspace:^",
+        "@beep/beepgraph-schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
     "packages/beepgraph/messaging": {
       "name": "@beep/beepgraph-messaging",
       "version": "0.0.0",
@@ -1255,6 +1270,8 @@
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
     "@beep/VT2": ["@beep/VT2@workspace:packages/VT2"],
+
+    "@beep/beepgraph-gateway": ["@beep/beepgraph-gateway@workspace:packages/beepgraph/gateway"],
 
     "@beep/beepgraph-messaging": ["@beep/beepgraph-messaging@workspace:packages/beepgraph/messaging"],
 
