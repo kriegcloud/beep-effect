@@ -1,0 +1,35 @@
+{
+  "name": "@beep/beepgraph-client",
+  "version": "0.0.0",
+  "description": "ManagedRuntime bridge for Beep Graph — React/browser integration",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/beepgraph/client",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/beepgraph/client"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "check": "tsc -p tsconfig.json --noEmit",
+    "test": "bunx --bun vitest run --passWithNoTests"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@beep/beepgraph-gateway": "workspace:^",
+    "@beep/beepgraph-schema": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}
