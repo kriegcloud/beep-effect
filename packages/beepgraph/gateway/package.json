@@ -24,6 +24,7 @@
   "dependencies": {
     "@beep/beepgraph-schema": "workspace:^",
     "@beep/beepgraph-pipeline": "workspace:^",
+    "@beep/observability": "workspace:^",
     "effect": "catalog:"
   },
   "devDependencies": {

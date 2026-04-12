@@ -10,5 +10,6 @@
 
 export * as Api from "./Api.ts";
 export * as Errors from "./Errors.ts";
+export * as Telemetry from "./Telemetry.ts";
 export * as WebSocket from "./WebSocket.ts";
 export * as WireFormat from "./WireFormat.ts";
