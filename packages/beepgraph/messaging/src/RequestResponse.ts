@@ -141,7 +141,7 @@ export class RequestResponse extends Context.Service<
      * 6. Decodes the raw response bytes through the provided `Schema`
      * 7. Cleans up the registration via `Effect.ensuring`
      *
-     * @param payload - The request body (will be JSON-serialised).
+     * @param payload - The request body (will be JSON-serialized).
      * @param responseSchema - An Effect `Schema` used to decode and
      *   validate the response payload.
      * @param options - Optional configuration.
@@ -170,7 +170,7 @@ export class RequestResponse extends Context.Service<
      *    provided `Schema` and terminates on end-of-stream markers
      * 6. `Stream.ensuring` handles cleanup of the registration
      *
-     * @param payload - The request body (will be JSON-serialised).
+     * @param payload - The request body (will be JSON-serialized).
      * @param responseSchema - An Effect `Schema` used to decode each
      *   streamed response element.
      * @param options - Optional configuration.
@@ -251,7 +251,7 @@ export const makeRequestResponse = (
       const router = yield* ResponseRouter;
 
       // -----------------------------------------------------------------------
-      // Shared: serialise payload to bytes
+      // Shared: serialize payload to bytes
       // -----------------------------------------------------------------------
       const encodePayload = (payload: unknown): Uint8Array => {
         const text = jsonStringify(payload);

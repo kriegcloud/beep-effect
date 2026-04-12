@@ -64,12 +64,12 @@ const synthesize = Effect.fn("DocumentRag.synthesize")(function* (query: string,
   const prompt = yield* PromptClient;
   const llm = yield* LlmClient;
 
-  const tmpl = yield* prompt.render({
+  const template = yield* prompt.render({
     name: "document-rag-synthesize",
     variables: { query, context },
   });
 
-  const completion = yield* llm.complete({ system: tmpl.system, prompt: tmpl.prompt });
+  const completion = yield* llm.complete({ system: template.system, prompt: template.prompt });
   return completion.response;
 });
 

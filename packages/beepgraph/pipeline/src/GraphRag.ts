@@ -67,8 +67,8 @@ const extractConcepts = Effect.fn("GraphRag.extractConcepts")(function* (query: 
   const prompt = yield* PromptClient;
   const llm = yield* LlmClient;
 
-  const tmpl = yield* prompt.render({ name: "extract-concepts", variables: { query } });
-  const completion = yield* llm.complete({ system: tmpl.system, prompt: tmpl.prompt });
+  const template = yield* prompt.render({ name: "extract-concepts", variables: { query } });
+  const completion = yield* llm.complete({ system: template.system, prompt: template.prompt });
 
   const concepts = completion.response
     .split("\n")
@@ -192,12 +192,12 @@ const scoreEdges = Effect.fn("GraphRag.scoreEdges")(function* (
   const jsonStringify = Schema.encodeUnknownSync(Schema.UnknownFromJsonString);
   const jsonParse = Schema.decodeUnknownSync(Schema.UnknownFromJsonString);
   const knowledge = jsonStringify(edgeList);
-  const tmpl = yield* prompt.render({
+  const template = yield* prompt.render({
     name: "kg-edge-scoring",
     variables: { query, knowledge },
   });
 
-  const completion = yield* llm.complete({ system: tmpl.system, prompt: tmpl.prompt });
+  const completion = yield* llm.complete({ system: template.system, prompt: template.prompt });
 
   // Parse scored edges — expect JSON array of { id, score }
   const scored = yield* Effect.try({
@@ -221,12 +221,12 @@ const synthesize = Effect.fn("GraphRag.synthesize")(function* (query: string, ed
 
   const context = edges.map((t) => `${termToString(t.s)} -> ${termToString(t.p)} -> ${termToString(t.o)}`).join("\n");
 
-  const tmpl = yield* prompt.render({
+  const template = yield* prompt.render({
     name: "graph-rag-synthesize",
     variables: { query, context },
   });
 
-  const completion = yield* llm.complete({ system: tmpl.system, prompt: tmpl.prompt });
+  const completion = yield* llm.complete({ system: template.system, prompt: template.prompt });
   return completion.response;
 });
 

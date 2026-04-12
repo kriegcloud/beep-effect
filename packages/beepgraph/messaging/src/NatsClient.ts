@@ -3,7 +3,7 @@
  * with durable consumers, automatic lifecycle management, and typed
  * error handling.
  *
- * The service connects to a NATS server, initialises JetStream, and
+ * The service connects to a NATS server, initializes JetStream, and
  * exposes an effectful API for durable pub/sub over JetStream subjects.
  *
  * @example
@@ -253,11 +253,11 @@ export class NatsClient extends Context.Service<
   // -------------------------------------------------------------------------
 
   /**
-   * Scoped layer that connects to NATS, initialises JetStream, and
+   * Scoped layer that connects to NATS, initializes JetStream, and
    * provides the `NatsClient` service.
    *
    * The NATS connection is drained (gracefully closed) when the layer
-   * scope is finalised.
+   * scope is finalized.
    *
    * @since 0.0.0
    * @category layers
@@ -306,7 +306,7 @@ export class NatsClient extends Context.Service<
       const publish = Effect.fn("NatsClient.publish")(function* (
         topic: string,
         data: Uint8Array,
-        hdrs?: Record<string, string>
+        msgHeaders?: Record<string, string>
       ): Effect.fn.Return<void, MessageSendError> {
         // Ensure the backing stream exists before publishing
         yield* ensureStream(jsm, topic).pipe(
@@ -315,9 +315,9 @@ export class NatsClient extends Context.Service<
 
         yield* Effect.tryPromise({
           try: () => {
-            if (hdrs !== undefined && Object.keys(hdrs).length > 0) {
+            if (msgHeaders !== undefined && Object.keys(msgHeaders).length > 0) {
               const h = natsHeaders();
-              for (const [key, val] of Object.entries(hdrs)) {
+              for (const [key, val] of Object.entries(msgHeaders)) {
                 h.append(key, val);
               }
               return js.publish(topic, data, { headers: h });
@@ -349,7 +349,7 @@ export class NatsClient extends Context.Service<
         >(
           Effect.fn(function* (queue) {
             // Fork a long-running fiber that polls the pull consumer.
-            // When the stream is closed (scope finalised), the fiber
+            // When the stream is closed (scope finalized), the fiber
             // is interrupted automatically via forkScoped.
             yield* Effect.gen(function* () {
               while (true) {

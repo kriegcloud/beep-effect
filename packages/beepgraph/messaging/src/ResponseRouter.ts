@@ -19,7 +19,7 @@
  *
  * const program = Effect.gen(function* () {
  *   const router = yield* ResponseRouter
- *   // Registration/unregistration is handled internally by RequestResponse
+ *   // Registration/deregistration is handled internally by RequestResponse
  * })
  * ```
  *
@@ -106,7 +106,7 @@ type StreamRegistry = HashMap.HashMap<string, Queue.Queue<Uint8Array, Cause.Done
  * both registries. If a matching `Deferred` is found it is completed;
  * if a matching `Queue` is found the payload is offered to it.
  *
- * Messages without a recognisable `id` property are silently dropped
+ * Messages without a recognizable `id` property are silently dropped
  * (they may be heartbeats or control messages from the broker).
  *
  * @internal
