@@ -17,14 +17,14 @@
 - `../../../../infra/package.json`
 - `../../../../apps/V2T/package.json`
 - `../../../../apps/V2T/turbo.json`
-- `../../../../packages/VT2/package.json`
-- `../../../../packages/VT2/turbo.json`
+- `../../../../packages/v2t-sidecar/package.json`
+- `../../../../packages/v2t-sidecar/turbo.json`
 - `../../../../infra/Pulumi.yaml`
 - `../../../../infra/src/internal/entry.ts`
 - `../../../../infra/src/V2T.ts`
 - `../../../../infra/scripts/v2t-workstation.sh`
 - `../../../../apps/V2T`
-- `../../../../packages/VT2`
+- `../../../../packages/v2t-sidecar`
 - `../../../../apps/V2T/scripts/build-sidecar.ts`
 - `../../../../packages/common/ui/src/components/speech-input.tsx`
 

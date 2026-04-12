@@ -1,6 +1,6 @@
 You are the P1 orchestrator.
 
-Read `handoffs/HANDOFF_P1.md`, `RESEARCH.md`, `apps/V2T`, `packages/VT2`, the
+Read `handoffs/HANDOFF_P1.md`, `RESEARCH.md`, `apps/V2T`, `packages/v2t-sidecar`, the
 live infra seams under `infra/`, the root plus workspace `package.json` and `turbo.json`
 files when command, ownership, or package-identity claims matter, plus `infra/package.json`
 when installer or deployment claims matter, the repo-law inputs named in `README.md`,

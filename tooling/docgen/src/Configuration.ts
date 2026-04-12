@@ -7,6 +7,7 @@ import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@bee
 import { Context, Effect, FileSystem, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import * as Domain from "./Domain.js";
@@ -28,6 +29,8 @@ const CONFIG_FILE_NAME = "docgen.json";
 const CompilerOptionsShape = S.toEncoded(TSConfigCompilerOptions);
 const CompilerOptionsSchema = S.Union([S.String, CompilerOptionsShape]);
 const encodeCompilerOptions = S.encodeSync(TSConfigCompilerOptions);
+const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
+  A.isArray(value) && A.every(value, P.isString);
 
 /**
  * Schema describing the optional `docgen.json` configuration document.
@@ -323,9 +326,10 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
   );
   // Examples commonly include illustrative bindings that are intentionally unused.
   // Force-disable unused checks to keep docs validation focused on type correctness.
-  const exampleTypes = Array.isArray(resolvedExamplesCompilerOptions.types)
-    ? pipe(resolvedExamplesCompilerOptions.types, A.append("node"), A.append("bun"), A.dedupe)
-    : ["node", "bun"];
+  const configuredExampleTypes: ReadonlyArray<string> = isStringArray(resolvedExamplesCompilerOptions.types)
+    ? resolvedExamplesCompilerOptions.types
+    : A.empty<string>();
+  const exampleTypes: ReadonlyArray<string> = pipe(configuredExampleTypes, A.append("node"), A.append("bun"), A.dedupe);
   const examplesCompilerOptions = {
     ...resolvedExamplesCompilerOptions,
     noUnusedLocals: false,

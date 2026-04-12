@@ -284,7 +284,7 @@ export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaI
  * @since 0.0.0
  * @category constructors
  */
-export const now = (): Timestamp => Timestamp.make({ epochMillis: Date.now() });
+export const now = (): Timestamp => Timestamp.make({ epochMillis: DateTime.nowUnsafe().epochMilliseconds });
 
 /**
  * Get the current timestamp as an `Effect` using the Clock service, testable with `TestClock`.

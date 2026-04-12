@@ -7,11 +7,11 @@
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { NotFoundError, makeBadRequestError } from "@beep/observability"
  *
  * const failNotFound = Effect.fail(
- *   new NotFoundError({ message: "User not found", status: 404 })
+ *   new NotFoundError({ cause: Option.none(), message: "User not found", status: 404 })
  * )
  *
  * const failBadReq = Effect.fail(makeBadRequestError("missing field"))
@@ -64,10 +64,11 @@ const statusFields = <Status extends S.Top>(status: Status) =>
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { ClientHttpError } from "@beep/observability"
  *
  * const err = new ClientHttpError({
+ *   cause: Option.none(),
  *   message: "Bad request",
  *   status: 400,
  * })
@@ -98,10 +99,11 @@ export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`Client
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { ServerHttpError } from "@beep/observability"
  *
  * const err = new ServerHttpError({
+ *   cause: Option.none(),
  *   message: "Internal error",
  *   status: 500,
  * })
@@ -132,10 +134,10 @@ export class ServerHttpError extends TaggedErrorClass<ServerHttpError>($I`Server
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { BadRequestError } from "@beep/observability"
  *
- * const err = new BadRequestError({ message: "invalid input", status: 400 })
+ * const err = new BadRequestError({ cause: Option.none(), message: "invalid input", status: 400 })
  * void Effect.fail(err)
  * ```
  *
@@ -158,10 +160,10 @@ export class BadRequestError extends TaggedErrorClass<BadRequestError>($I`BadReq
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { UnauthorizedError } from "@beep/observability"
  *
- * const err = new UnauthorizedError({ message: "token expired", status: 401 })
+ * const err = new UnauthorizedError({ cause: Option.none(), message: "token expired", status: 401 })
  * void Effect.fail(err)
  * ```
  *
@@ -184,10 +186,10 @@ export class UnauthorizedError extends TaggedErrorClass<UnauthorizedError>($I`Un
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { ForbiddenError } from "@beep/observability"
  *
- * const err = new ForbiddenError({ message: "access denied", status: 403 })
+ * const err = new ForbiddenError({ cause: Option.none(), message: "access denied", status: 403 })
  * void Effect.fail(err)
  * ```
  *
@@ -210,10 +212,10 @@ export class ForbiddenError extends TaggedErrorClass<ForbiddenError>($I`Forbidde
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { NotFoundError } from "@beep/observability"
  *
- * const err = new NotFoundError({ message: "user not found", status: 404 })
+ * const err = new NotFoundError({ cause: Option.none(), message: "user not found", status: 404 })
  * void Effect.fail(err)
  * ```
  *
@@ -236,10 +238,10 @@ export class NotFoundError extends TaggedErrorClass<NotFoundError>($I`NotFoundEr
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { ConflictError } from "@beep/observability"
  *
- * const err = new ConflictError({ message: "duplicate entry", status: 409 })
+ * const err = new ConflictError({ cause: Option.none(), message: "duplicate entry", status: 409 })
  * void Effect.fail(err)
  * ```
  *
@@ -262,10 +264,10 @@ export class ConflictError extends TaggedErrorClass<ConflictError>($I`ConflictEr
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { UnprocessableEntityError } from "@beep/observability"
  *
- * const err = new UnprocessableEntityError({ message: "validation failed", status: 422 })
+ * const err = new UnprocessableEntityError({ cause: Option.none(), message: "validation failed", status: 422 })
  * void Effect.fail(err)
  * ```
  *
@@ -288,10 +290,10 @@ export class UnprocessableEntityError extends TaggedErrorClass<UnprocessableEnti
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { TooManyRequestsError } from "@beep/observability"
  *
- * const err = new TooManyRequestsError({ message: "rate limit exceeded", status: 429 })
+ * const err = new TooManyRequestsError({ cause: Option.none(), message: "rate limit exceeded", status: 429 })
  * void Effect.fail(err)
  * ```
  *
@@ -314,10 +316,10 @@ export class TooManyRequestsError extends TaggedErrorClass<TooManyRequestsError>
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { InternalServerErrorError } from "@beep/observability"
  *
- * const err = new InternalServerErrorError({ message: "unexpected failure", status: 500 })
+ * const err = new InternalServerErrorError({ cause: Option.none(), message: "unexpected failure", status: 500 })
  * void Effect.fail(err)
  * ```
  *
@@ -340,10 +342,10 @@ export class InternalServerErrorError extends TaggedErrorClass<InternalServerErr
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { BadGatewayError } from "@beep/observability"
  *
- * const err = new BadGatewayError({ message: "upstream unavailable", status: 502 })
+ * const err = new BadGatewayError({ cause: Option.none(), message: "upstream unavailable", status: 502 })
  * void Effect.fail(err)
  * ```
  *
@@ -366,10 +368,10 @@ export class BadGatewayError extends TaggedErrorClass<BadGatewayError>($I`BadGat
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { ServiceUnavailableError } from "@beep/observability"
  *
- * const err = new ServiceUnavailableError({ message: "service down", status: 503 })
+ * const err = new ServiceUnavailableError({ cause: Option.none(), message: "service down", status: 503 })
  * void Effect.fail(err)
  * ```
  *
@@ -392,10 +394,10 @@ export class ServiceUnavailableError extends TaggedErrorClass<ServiceUnavailable
  *
  * @example
  * ```typescript
- * import { Effect } from "effect"
+ * import { Effect, Option } from "effect"
  * import { GatewayTimeoutError } from "@beep/observability"
  *
- * const err = new GatewayTimeoutError({ message: "upstream timed out", status: 504 })
+ * const err = new GatewayTimeoutError({ cause: Option.none(), message: "upstream timed out", status: 504 })
  * void Effect.fail(err)
  * ```
  *

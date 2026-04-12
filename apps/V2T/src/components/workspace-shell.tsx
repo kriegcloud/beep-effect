@@ -12,7 +12,7 @@ import {
   type Vt2Session,
   type Vt2SessionResource,
   type Vt2WorkspaceSnapshot,
-} from "@beep/VT2";
+} from "@beep/v2t-sidecar";
 import { DateTime, Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -34,6 +34,7 @@ import {
   pickWorkspaceDirectory,
   probeV2tSidecar,
   recoverV2tRecoveryCandidate,
+  retryV2tSessionTranscript,
   runV2tSessionComposition,
   saveV2tDesktopPreferences,
   startV2tCapture,
@@ -60,6 +61,7 @@ type ActionState =
   | "refreshing"
   | "creating-record"
   | "creating-import"
+  | "retrying-transcript"
   | "running-composition"
   | "saving-preferences";
 
@@ -151,6 +153,11 @@ const runSessionComposition = async (
   isNativeDesktop()
     ? await Effect.runPromise(runV2tSessionComposition(sessionId, input))
     : await withClient(baseUrl, (client) => client.runComposition(sessionId, input));
+
+const retrySessionTranscript = async (baseUrl: string, sessionId: string): Promise<Vt2SessionResource> =>
+  isNativeDesktop()
+    ? await Effect.runPromise(retryV2tSessionTranscript(sessionId))
+    : await withClient(baseUrl, (client) => client.retryTranscript(sessionId));
 
 const sessionLabel = (session: Vt2Session): string =>
   session.source === "record" ? "Record session" : "Import session";
@@ -548,6 +555,32 @@ export const V2TWorkspaceShell: React.FC = () => {
     }
   };
 
+  const handleRetryTranscript = async (): Promise<void> => {
+    setActionState("retrying-transcript");
+
+    try {
+      const resolvedBaseUrl = await ensureControlPlaneBaseUrl("Start the sidecar before retrying transcription.");
+
+      if (currentSession === null) {
+        throw makeWorkspaceShellError("Select a session before retrying transcription.");
+      }
+
+      const nextResource = await retrySessionTranscript(resolvedBaseUrl, currentSession.session.id);
+
+      startTransition(() => {
+        setCurrentSession(nextResource);
+      });
+
+      await loadWorkspace(resolvedBaseUrl, nextResource.session.id);
+    } catch (cause) {
+      await presentActionError(cause);
+    } finally {
+      startTransition(() => {
+        setActionState("idle");
+      });
+    }
+  };
+
   const handleRunComposition = async (profileId: RunVt2CompositionInput["profileId"]): Promise<void> => {
     setActionState("running-composition");
 
@@ -656,7 +689,27 @@ export const V2TWorkspaceShell: React.FC = () => {
     currentSession !== null &&
     captureState !== null &&
     optionMatches(captureState.recoverySessionId, currentSession.session.id);
+  const currentSessionHasPendingRecovery =
+    currentSession !== null &&
+    A.some(currentSession.recoveryCandidates, (candidate) => candidate.disposition === "pending");
+  const currentSessionHasIngestedCapture =
+    currentSession !== null && A.some(currentSession.captureSegments, (segment) => segment.status === "ingested");
   const currentSessionCanCompose = currentSession !== null && currentSession.transcript.status === "ready";
+  const currentSessionCanRetryTranscript =
+    currentSession !== null &&
+    currentSession.transcript.status !== "processing" &&
+    currentSessionHasIngestedCapture &&
+    !currentSessionHasPendingRecovery;
+  const currentTranscriptDisplay =
+    currentSession === null
+      ? null
+      : pipe(
+          currentSession.transcript.text,
+          O.orElse(() => currentSession.transcript.excerpt),
+          O.getOrNull
+        );
+  const currentTranscriptFailure =
+    currentSession === null ? null : O.getOrNull(currentSession.transcript.failureReason);
   const isActivelyRecording = captureState !== null && captureState.status === "capturing";
 
   return (
@@ -839,15 +892,73 @@ export const V2TWorkspaceShell: React.FC = () => {
                   </strong>
                 </article>
                 <article className="metric-card">
-                  <p className="panel-label">Transcript excerpt</p>
-                  <strong>
-                    {O.match(currentSession.transcript.excerpt, {
-                      onNone: () => "Transcript not ready yet",
-                      onSome: (excerpt) => excerpt,
+                  <p className="panel-label">Transcript words</p>
+                  <strong>{currentSession.transcript.wordCount}</strong>
+                  <span className="muted">
+                    {O.match(currentSession.transcript.language, {
+                      onNone: () => "Language not detected yet.",
+                      onSome: (language) => `Detected language: ${language}`,
                     })}
-                  </strong>
+                  </span>
                 </article>
               </div>
+
+              <article className="metric-card">
+                <div className="panel-heading panel-heading-compact">
+                  <div>
+                    <p className="panel-label">Transcript artifact</p>
+                    <h3>Full text and retry posture</h3>
+                  </div>
+                  <span className={`status-pill ${sessionStatusTone(currentSession.session.status)}`}>
+                    {currentSession.transcript.status}
+                  </span>
+                </div>
+                <div className="hero-actions">
+                  <button
+                    className="button"
+                    disabled={actionState !== "idle" || !currentSessionCanRetryTranscript}
+                    onClick={() => {
+                      void handleRetryTranscript();
+                    }}
+                    type="button"
+                  >
+                    {currentSession.transcript.status === "failed" ? "Retry transcription" : "Re-run transcription"}
+                  </button>
+                </div>
+                <div className="backlinks">
+                  <div className="backlink-item">
+                    <strong>Excerpt</strong>
+                    <span>
+                      {O.match(currentSession.transcript.excerpt, {
+                        onNone: () => "No excerpt recorded yet.",
+                        onSome: (excerpt) => excerpt,
+                      })}
+                    </span>
+                  </div>
+                  {currentTranscriptFailure === null ? null : (
+                    <div className="backlink-item">
+                      <strong>Failure detail</strong>
+                      <span>{currentTranscriptFailure}</span>
+                    </div>
+                  )}
+                </div>
+                <div className="transcript-surface">
+                  <p className="transcript-body">
+                    {currentTranscriptDisplay ??
+                      (currentSession.transcript.status === "processing"
+                        ? "Transcription is running now."
+                        : currentSession.transcript.status === "failed"
+                          ? "The latest transcription attempt failed. Retry after checking the provider runtime below."
+                          : "No transcript text has been materialized yet. Capture or import media, then retry transcription if needed.")}
+                  </p>
+                </div>
+                {currentSessionCanRetryTranscript ? null : (
+                  <p className="muted">
+                    Resolve pending recovery work and make sure ingested capture media exists before retrying
+                    transcription.
+                  </p>
+                )}
+              </article>
 
               {canDriveNativeCapture ? (
                 <article className="metric-card">
@@ -946,8 +1057,7 @@ export const V2TWorkspaceShell: React.FC = () => {
                   </div>
                   {currentSessionCanCompose ? null : (
                     <p className="muted">
-                      Capture recovery must be resolved and a transcript excerpt must be ready before composition can
-                      run.
+                      Capture recovery must be resolved and a transcript must be ready before composition can run.
                     </p>
                   )}
                 </div>
@@ -1132,6 +1242,36 @@ export const V2TWorkspaceShell: React.FC = () => {
                 <article className="metric-card">
                   <p className="panel-label">Desktop topology</p>
                   <strong>{workspace.seams.desktopTopology}</strong>
+                </article>
+                <article className="metric-card">
+                  <div className="panel-heading panel-heading-compact">
+                    <div>
+                      <p className="panel-label">Transcript runtime</p>
+                      <h3>Provider health</h3>
+                    </div>
+                    <span
+                      className={`status-pill ${
+                        workspace.transcriptRuntime.status === "ready" ? "status-healthy" : "status-failed"
+                      }`}
+                    >
+                      {workspace.transcriptRuntime.status}
+                    </span>
+                  </div>
+                  <div className="backlinks">
+                    <div className="backlink-item">
+                      <strong>Command</strong>
+                      <span>{workspace.transcriptRuntime.resolvedCommand}</span>
+                    </div>
+                    <div className="backlink-item">
+                      <strong>Model</strong>
+                      <span>{workspace.transcriptRuntime.whisperModel}</span>
+                    </div>
+                    <div className="backlink-item">
+                      <strong>Command source</strong>
+                      <span>{workspace.transcriptRuntime.commandSource}</span>
+                    </div>
+                  </div>
+                  <p className="muted">{workspace.transcriptRuntime.detail}</p>
                 </article>
                 <article className="metric-card">
                   <p className="panel-label">Provider modes</p>

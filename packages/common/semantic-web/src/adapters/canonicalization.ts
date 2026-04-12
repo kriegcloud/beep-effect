@@ -46,9 +46,11 @@ const hashCanonicalText = (canonicalText: string): Effect.Effect<typeof Sha256He
     try: async () => {
       const bytes = new TextEncoder().encode(canonicalText);
       const digest = await crypto.subtle.digest("SHA-256", bytes);
-      const hex = Array.from(new Uint8Array(digest))
-        .map((value) => value.toString(16).padStart(2, "0"))
-        .join("");
+      const hex = pipe(
+        A.fromIterable(new Uint8Array(digest)),
+        A.map((value) => value.toString(16).padStart(2, "0")),
+        A.join("")
+      );
 
       return decodeSha256Hex(hex);
     },

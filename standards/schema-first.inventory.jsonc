@@ -984,51 +984,83 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/VT2/src/client.ts",
+      "file": "packages/shared/server/src/factories/effect-drizzle/Logger.ts",
+      "symbol": "DrizzleEffectLoggerShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/shared-server",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/shared/server/src/factories/effect-drizzle/cache-effect.ts",
+      "symbol": "DrizzleEffectCacheShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/shared-server",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/shared/server/src/factories/effect-drizzle/driver.ts",
+      "symbol": "EffectDrizzleOperations",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/shared-server",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/shared/tables/src/table/types.ts",
+      "symbol": "EntityIdLike",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/shared-tables",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/v2t-sidecar/src/client.ts",
       "symbol": "Vt2ClientShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/VT2",
+      "owner": "@beep/v2t-sidecar",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/VT2/src/client.ts",
+      "file": "packages/v2t-sidecar/src/client.ts",
       "symbol": "Vt2HttpClientOptions",
       "kind": "exported-type-literal",
       "status": "exception",
-      "owner": "@beep/VT2",
+      "owner": "@beep/v2t-sidecar",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/VT2/src/services.ts",
+      "file": "packages/v2t-sidecar/src/services.ts",
       "symbol": "Vt2TranscriptProviderShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/VT2",
+      "owner": "@beep/v2t-sidecar",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/VT2/src/services.ts",
+      "file": "packages/v2t-sidecar/src/services.ts",
       "symbol": "Vt2MemoryContextProviderShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/VT2",
+      "owner": "@beep/v2t-sidecar",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/VT2/src/services.ts",
+      "file": "packages/v2t-sidecar/src/services.ts",
       "symbol": "Vt2CompositionProviderShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/VT2",
+      "owner": "@beep/v2t-sidecar",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/VT2/src/services.ts",
+      "file": "packages/v2t-sidecar/src/services.ts",
       "symbol": "Vt2ExportProviderShape",
       "kind": "exported-interface",
       "status": "exception",
-      "owner": "@beep/VT2",
+      "owner": "@beep/v2t-sidecar",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     }
   ]

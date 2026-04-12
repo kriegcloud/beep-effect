@@ -54,6 +54,11 @@ export * from "./csv.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./EffectSchema.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Email.ts";
 /**
  * @since 0.0.0
@@ -140,6 +145,11 @@ export * from "./MutableHashSet.ts";
  * @category Validation
  */
 export * from "./PosixPath.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./PromiseSchema.ts";
 /**
  * @since 0.0.0
  * @category Validation

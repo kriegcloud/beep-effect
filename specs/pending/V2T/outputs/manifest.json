@@ -27,7 +27,7 @@
     "workspace_packages": {
       "infra": "@beep/infra",
       "app": "@beep/v2t",
-      "sidecar": "@beep/VT2"
+      "sidecar": "@beep/v2t-sidecar"
     },
     "command_truth_files": [
       "../../../package.json",
@@ -35,8 +35,8 @@
       "../../../infra/package.json",
       "../../../apps/V2T/package.json",
       "../../../apps/V2T/turbo.json",
-      "../../../packages/VT2/package.json",
-      "../../../packages/VT2/turbo.json"
+      "../../../packages/v2t-sidecar/package.json",
+      "../../../packages/v2t-sidecar/turbo.json"
     ],
     "required_script_keys": {
       "root": [
@@ -118,9 +118,9 @@
       "node specs/pending/V2T/outputs/validate-spec.mjs"
     ],
     "implementation_floor": [
-      "bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2",
-      "bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2",
-      "bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2",
+      "bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar",
+      "bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar",
+      "bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar",
       "bun run --cwd apps/V2T lint",
       "bun run --cwd infra lint"
     ],
@@ -460,7 +460,7 @@
         "`infra/package.json`",
         "`infra/src/internal/entry.ts`",
         "`apps/V2T/turbo.json`",
-        "`packages/VT2/turbo.json`",
+        "`packages/v2t-sidecar/turbo.json`",
         "one authoritative typed desktop bridge derived from the Rust command and event surface",
         "native shell owning raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake",
         "## Remaining Details To Carry Into P1 And P2"
@@ -469,7 +469,7 @@
         "`infra/package.json`",
         "`infra/src/internal/entry.ts`",
         "`apps/V2T/turbo.json`",
-        "`packages/VT2/turbo.json`",
+        "`packages/v2t-sidecar/turbo.json`",
         "one authoritative typed desktop bridge derived from the Rust command and event surface",
         "The first-slice window model is explicit: one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice."
       ],
@@ -484,13 +484,13 @@
         "`infra/package.json`",
         "`bun run --cwd infra lint`",
         "`apps/V2T/turbo.json`",
-        "`packages/VT2/turbo.json`"
+        "`packages/v2t-sidecar/turbo.json`"
       ],
       "VERIFICATION.md": [
         "`infra/package.json`",
         "`bun run --cwd infra lint`",
         "`apps/V2T/turbo.json`",
-        "`packages/VT2/turbo.json`",
+        "`packages/v2t-sidecar/turbo.json`",
         "## Resilience Evidence Minimum",
         "at least one automated recovery, interruption, backpressure, or typed native bridge path",
         "one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice"

@@ -62,12 +62,15 @@ export type PhaseOutcome = typeof PhaseOutcome.Type;
  *
  * @example
  * ```typescript
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
  * import { PhaseProfile } from "@beep/observability"
  *
+ * const durationMs = S.decodeUnknownSync(NonNegativeInt)(42)
  * const profile = new PhaseProfile({
  *   phase: "startup",
  *   outcome: "completed",
- *   durationMs: 42,
+ *   durationMs,
  *   attributes: { service: "web" },
  * })
  *

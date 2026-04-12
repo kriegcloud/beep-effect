@@ -26,6 +26,8 @@ import bc from "@beep/colors";
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, LogLevel } from "@beep/schema";
 import { Cause, Inspectable, Layer, Logger, Match, References } from "effect";
+import * as A from "effect/Array";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("Logging");
@@ -243,8 +245,11 @@ const levelColor = (palette: PrettyPalette, level: LogLevel) =>
   );
 
 const renderMessage = (message: unknown | ReadonlyArray<unknown>): string => {
-  const values = Array.isArray(message) ? message : [message];
-  return values.map((value) => Inspectable.toStringUnknown(value, 2)).join(" ");
+  const values = A.isArray(message) ? message : A.make(message);
+  return A.join(
+    A.map(values, (value) => Inspectable.toStringUnknown(value, 2)),
+    " "
+  );
 };
 
 const renderBannerGlyph = (kind: "phase" | "startup"): string => (kind === "phase" ? "<>" : "[]");
@@ -301,13 +306,13 @@ const makePrettyConsoleLogger = (pretty: PrettyLoggerConfig): Logger.Logger<unkn
     const annotations = options.fiber.getRef(References.CurrentLogAnnotations);
     const logSpans = options.fiber.getRef(References.CurrentLogSpans);
     const renderedAnnotations =
-      Object.keys(annotations).length === 0 ? "" : ` ${palette.dim(Inspectable.toStringUnknown(annotations, 2))}`;
+      R.keys(annotations).length === 0 ? "" : ` ${palette.dim(Inspectable.toStringUnknown(annotations, 2))}`;
     const renderedSpans =
       logSpans.length === 0
         ? ""
         : ` ${palette.dim(
             Inspectable.toStringUnknown(
-              logSpans.map(([label, startedAt]) => ({
+              A.map(logSpans, ([label, startedAt]) => ({
                 label,
                 elapsedMs: Math.max(0, options.date.getTime() - startedAt),
               })),

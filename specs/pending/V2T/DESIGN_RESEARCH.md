@@ -44,8 +44,8 @@ P1 must keep these constraints active while shaping the design:
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
 - `infra/package.json`
 - root `package.json`, root `turbo.json`, `apps/V2T/package.json`,
-  `apps/V2T/turbo.json`, `packages/VT2/package.json`, and
-  `packages/VT2/turbo.json`
+  `apps/V2T/turbo.json`, `packages/v2t-sidecar/package.json`, and
+  `packages/v2t-sidecar/turbo.json`
 
 ## Evidence Rules
 
@@ -121,10 +121,10 @@ The canonical domain objects are:
 
 ### Sidecar Surface
 
-The first-slice sidecar surface is the existing `@beep/VT2` package:
+The first-slice sidecar surface is the existing `@beep/v2t-sidecar` package:
 
-- `packages/VT2/src/protocol.ts` is the current typed control-plane contract
-- `packages/VT2/src/Server/index.ts` is the current runtime and SQLite seam
+- `packages/v2t-sidecar/src/protocol.ts` is the current typed control-plane contract
+- `packages/v2t-sidecar/src/Server/index.ts` is the current runtime and SQLite seam
 - `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` are the app-side packaging and dev entrypoints
 
 That sidecar owns filesystem access, SQLite persistence, provider adapters, orchestration jobs, and long-running generation or export work.
@@ -149,7 +149,7 @@ The canonical workstation topology for this slice is:
 
 - `apps/V2T` built locally as the native Tauri desktop app and installed from the generated `.deb`
 - one main V2T workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice
-- `packages/VT2` compiled as the packaged sidecar binary and still owning local SQLite persistence
+- `packages/v2t-sidecar` compiled as the packaged sidecar binary and still owning local SQLite persistence
 - local Qwen running as a user-owned Python service on `127.0.0.1:8011`
 - FalkorDB plus Graphiti MCP running in Docker with the repo's expected container names
 - the existing Graphiti proxy installed as a user `systemd` service on `127.0.0.1:8123`
@@ -163,7 +163,7 @@ The canonical workstation topology for this slice is:
 ## Current Naming Constraint
 
 - `apps/V2T` is the app shell and its current package name is `@beep/v2t`
-- `packages/VT2` is the sidecar package and its current package name is `@beep/VT2`
+- `packages/v2t-sidecar` is the sidecar package and its current package name is `@beep/v2t-sidecar`
 - Turbo filters must follow the manifest package names, not the folder casing
 - the first slice documents and works with that naming drift instead of renaming packages during spec bootstrap
 
@@ -212,7 +212,7 @@ The first committed execution slice should deliver:
 - durable desktop settings and last-used defaults for capture, composition, and recovery preferences
 - composition profile editor and composition packet generation
 - export artifact records and stub-or-real queue orchestration
-- extension of the current `@beep/VT2` control plane for V2T-native artifacts instead of an app-local server fork
+- extension of the current `@beep/v2t-sidecar` control plane for V2T-native artifacts instead of an app-local server fork
 
 The first slice does not need to prove fully autonomous final video quality or Cap's full desktop window surface. It must prove the local-first workflow, the typed desktop/native contracts, and the failure-aware orchestration posture.
 

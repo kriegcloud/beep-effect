@@ -9,6 +9,8 @@ import { $InfraId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { local, types } from "@pulumi/command";
 import * as pulumi from "@pulumi/pulumi";
+import * as A from "effect/Array";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $InfraId.create("V2T");
@@ -50,8 +52,9 @@ const makeSourceArchiveTrigger = (
   files: ReadonlyArray<string>
 ): pulumi.asset.AssetArchive =>
   new pulumi.asset.AssetArchive({
-    ...Object.fromEntries(
-      directories.map(
+    ...R.fromEntries(
+      A.map(
+        directories,
         (relativePath) =>
           [relativePath, new pulumi.asset.FileArchive(makeTriggerPath(rootPath, relativePath))] satisfies readonly [
             string,
@@ -59,8 +62,9 @@ const makeSourceArchiveTrigger = (
           ]
       )
     ),
-    ...Object.fromEntries(
-      files.map(
+    ...R.fromEntries(
+      A.map(
+        files,
         (relativePath) =>
           [relativePath, new pulumi.asset.FileAsset(makeTriggerPath(rootPath, relativePath))] satisfies readonly [
             string,
@@ -462,7 +466,7 @@ export class V2TWorkstation extends pulumi.ComponentResource {
         ]
       ),
       makeSourceArchiveTrigger(
-        `${resolvedConfig.repoRoot}/packages/VT2`,
+        `${resolvedConfig.repoRoot}/packages/v2t-sidecar`,
         ["src"],
         ["package.json", "tsconfig.json", "turbo.json"]
       ),

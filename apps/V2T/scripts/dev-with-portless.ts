@@ -41,7 +41,7 @@ class ManagedChildExitError extends TaggedErrorClass<ManagedChildExitError>($Two
 const sidecarHost = "v2t-sidecar.localhost";
 const frontendRouteName = "v2t";
 const sidecarRouteName = "v2t-sidecar";
-const sidecarEntrypoint = "packages/VT2/src/main.ts";
+const sidecarEntrypoint = "packages/v2t-sidecar/src/main.ts";
 const sidecarHealthPath = "/api/v0/health";
 const sidecarStartupPollInterval = Duration.millis(250);
 const sidecarStartupRetries = 60;

@@ -46,15 +46,15 @@ P0 must read and cite the live repo-law inputs that constrain later phases:
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
 - `infra/package.json`
 - root `package.json`, root `turbo.json`, `apps/V2T/package.json`,
-  `apps/V2T/turbo.json`, `packages/VT2/package.json`, and
-  `packages/VT2/turbo.json`
+  `apps/V2T/turbo.json`, `packages/v2t-sidecar/package.json`, and
+  `packages/v2t-sidecar/turbo.json`
 
 ## Source Inputs
 
 - `outputs/v2t_app_notes.html`
 - `outputs/V2_animination_V2T.md`
 - `apps/V2T`
-- `packages/VT2`
+- `packages/v2t-sidecar`
 - `infra/Pulumi.yaml`
 - `infra/package.json`
 - `infra/src/internal/entry.ts`
@@ -98,8 +98,8 @@ The product promise is not just transcription. It is transcript plus context, me
 - The current route tree renders a placeholder `TwoTvPage`, so the app shell exists but the product workflow does not.
 - `apps/V2T/src-tauri/src/lib.rs` already manages native sidecar launch, health polling, stderr capture, and packaged-versus-dev mode detection, so the repo already has a meaningful native app-shell seam instead of only a browser-like shell.
 - `apps/V2T/vite.config.ts` already proxies `/api` to `https://v2t-sidecar.localhost:1355`, which is the natural sidecar seam for local-first services.
-- `packages/VT2` already exists as a SQLite-backed Effect sidecar package with a typed control-plane protocol in `packages/VT2/src/protocol.ts` and runtime wiring in `packages/VT2/src/Server/index.ts`.
-- `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` already compile and run the `packages/VT2` sidecar for the app shell.
+- `packages/v2t-sidecar` already exists as a SQLite-backed Effect sidecar package with a typed control-plane protocol in `packages/v2t-sidecar/src/protocol.ts` and runtime wiring in `packages/v2t-sidecar/src/Server/index.ts`.
+- `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` already compile and run the `packages/v2t-sidecar` sidecar for the app shell.
 - `packages/common/ui/src/components/speech-input.tsx` already provides a reusable recording and transcript-preview UI primitive backed by the repo's speech hooks.
 - Root Graphiti commands and recovery/proxy scripts already exist, so memory infrastructure is a repo-native capability rather than an external afterthought.
 - `infra` already exists as the live `@beep/infra` workspace, with `infra/Pulumi.yaml` as the Pulumi project, `infra/src/internal/entry.ts` as the stack entrypoint, `infra/src/V2T.ts` as the `V2TWorkstation` component boundary, and `infra/scripts/v2t-workstation.sh` as the concrete workstation reconciler.
@@ -116,10 +116,10 @@ The product promise is not just transcription. It is transcript plus context, me
 ### Installer Findings
 
 - The installer target is one local Debian/Ubuntu workstation with an existing `beep-effect` checkout and one sudo-capable desktop user.
-- The native install path should stay on `apps/V2T` and `packages/VT2`, building the Tauri Debian package locally from the existing checkout instead of cloning or inventing a second runtime path.
+- The native install path should stay on `apps/V2T` and `packages/v2t-sidecar`, building the Tauri Debian package locally from the existing checkout instead of cloning or inventing a second runtime path.
 - The live Pulumi project name is `beep-effect-v2t-workstation`, its entrypoint is `infra/src/internal/entry.ts`, and the stack namespace is `v2t` via `loadV2TWorkstationStackArgs()`.
 - The local Pulumi backend default is `file://<repoRoot>/.pulumi-local/v2t-workstation`, exposed through the package-local `pulumi:login:local`, `stack:init:local`, `preview`, `up`, `destroy`, and `refresh` scripts in `infra/package.json`.
-- SQLite remains embedded in the existing `packages/VT2` sidecar runtime, so the workstation automation should not add a separate SQLite service.
+- SQLite remains embedded in the existing `packages/v2t-sidecar` sidecar runtime, so the workstation automation should not add a separate SQLite service.
 - The local Qwen service can stay secret-light because `Qwen/Qwen2-Audio-7B-Instruct` is publicly downloadable; a Hugging Face token is optional for authenticated pulls and rate limits, not a baseline requirement.
 - The repo already uses `op run` as local operator convenience, and `infra/src/OnePassword/Config.ts` only models partial OnePassword Connect config, so V2T should treat `1Password` as optional secret injection instead of a required platform dependency.
 - Upstream Graphiti MCP documentation currently requires an external LLM API key at the server boundary, so Graphiti provisioning is not actually secret-free even when FalkorDB and the MCP server run locally in Docker.
@@ -131,9 +131,9 @@ The product promise is not just transcription. It is transcript plus context, me
 - The spec must explicitly reference `.patterns/jsdoc-documentation.md` because exported APIs and examples are expected to stay docgen-clean.
 - `infra/package.json` is a live command-truth source for workstation and deployment surfaces, and it already defines package-local `check`, `test`, `lint`, and Pulumi operator scripts.
 - `apps/V2T/package.json` is currently `@beep/v2t`, while
-  `packages/VT2/package.json` is `@beep/VT2`, so command filters must use live
+  `packages/v2t-sidecar/package.json` is `@beep/v2t-sidecar`, so command filters must use live
   manifest names instead of folder casing.
-- `@beep/VT2` does not currently define a package-local `lint` or `docgen` task, so VT2 conformance cannot be validated by pretending those tasks exist.
+- `@beep/v2t-sidecar` does not currently define a package-local `lint` or `docgen` task, so V2T conformance cannot be validated by pretending those tasks exist.
 - `@beep/infra` has no workspace-local `turbo.json`, so infra command truth comes from `infra/package.json` plus the root `turbo.json`, not from a missing workspace-local task manifest.
 - Root `bun run lint:markdown` currently ignores `specs/**`, so spec-package validation must use package-local checks such as `git diff --check -- specs/pending/V2T` plus `node specs/pending/V2T/outputs/validate-spec.mjs`.
 - Any phase that names commands must verify those commands against the live workspace task graph instead of assuming every workspace exposes the same scripts.
@@ -146,7 +146,7 @@ The product promise is not just transcription. It is transcript plus context, me
 ### Gaps
 
 - There is no canonical V2T domain model yet.
-- The current `@beep/VT2` sidecar only exposes a simple document-oriented control plane, not V2T-native projects, sessions, transcripts, composition runs, export artifacts, or user-level desktop preference records.
+- The current `@beep/v2t-sidecar` sidecar only exposes a simple document-oriented control plane, not V2T-native projects, sessions, transcripts, composition runs, export artifacts, or user-level desktop preference records.
 - There is no typed native desktop bridge yet for V2T-side concerns such as sidecar lifecycle, file dialogs, recovery actions, or limited auxiliary window orchestration.
 - There is no implemented capture durability flow yet for chunk or segment persistence, backpressure, or recover/discard handling after interrupted direct capture.
 - There is no implemented local persistence flow for V2T sessions, transcripts, composition runs, export artifacts, or recoverable capture candidates beyond the existing sidecar bootstrap and document storage seam.
@@ -161,7 +161,7 @@ The product promise is not just transcription. It is transcript plus context, me
 - The canonical spec should preserve the PRD ambition while sequencing delivery through explicit provider seams and local artifacts.
 - The first implementation slice should make resilient capture and recovery part of the core desktop workflow, not a later hardening-only concern.
 - The first implementation slice should stop at composition packets and tracked export artifacts unless a later phase proves end-to-end generator reliability.
-- The first implementation slice should extend or explicitly supersede the current `@beep/VT2` control plane instead of inventing a second app-local server path.
+- The first implementation slice should extend or explicitly supersede the current `@beep/v2t-sidecar` control plane instead of inventing a second app-local server path.
 - The first implementation slice should keep record and import as equal session-entry paths that converge into one session and artifact model.
 - The first implementation slice should treat Tauri-only concerns as one authoritative typed desktop bridge derived from the Rust command and event surface instead of ad-hoc app-shell calls.
 - Direct capture durability should live below the React UI so the app observes typed capture status instead of owning raw capture buffers.
@@ -178,20 +178,20 @@ The product promise is not just transcription. It is transcript plus context, me
 ### Repo Constraints
 
 - use the existing `apps/V2T` workspace instead of inventing a new app package
-- use the existing `packages/VT2` sidecar package and scripts as the starting control-plane seam unless a later phase documents a migration
+- use the existing `packages/v2t-sidecar` sidecar package and scripts as the starting control-plane seam unless a later phase documents a migration
 - use `@beep/infra` as the canonical home for workstation automation instead of adding an app-local installer outside the infra workspace
-- treat `apps/V2T`, `packages/VT2`, and `@beep/infra` as the live app, sidecar, and workstation-automation seams for the first slice
+- treat `apps/V2T`, `packages/v2t-sidecar`, and `@beep/infra` as the live app, sidecar, and workstation-automation seams for the first slice
 - keep direct capture and import as equal first-slice session sources that converge into the same downstream workflow
 - keep Tauri-only concerns behind one authoritative typed desktop bridge derived from the Rust command and event surface rather than scattered manual calls
 - keep direct-capture chunk or segment persistence and recovery below the React UI, with the native shell owning raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake
 - keep the first-slice desktop UX explicit: one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice
 - keep durable desktop preferences and last-used workflow defaults as a separate settings seam rather than mixing them into project or run records
-- use `@beep/v2t` and `@beep/VT2` as the live Turbo filter identities unless
+- use `@beep/v2t` and `@beep/v2t-sidecar` as the live Turbo filter identities unless
   later repo changes update the manifests
 - keep the spec compatible with effect-first and schema-first repo rules
 - keep exported API examples docgen-clean and aligned with `.patterns/jsdoc-documentation.md`
 - prefer shared UI and runtime primitives before introducing V2T-specific duplicates
-- treat the current naming drift between `apps/V2T` and `packages/VT2` as a documented repo fact rather than a bootstrap-time rename project
+- treat the current naming drift between `apps/V2T` and `packages/v2t-sidecar` as a documented repo fact rather than a bootstrap-time rename project
 - keep `1Password` optional for V2T secrets, preferring Pulumi secret config and optional `op run` injection over mandatory Connect or ESC setup
 - treat the Graphiti LLM credential as a required installer input whenever Graphiti provisioning remains enabled
 - borrow Cap's contract, recovery, and verification posture where it strengthens the existing seams, but do not clone Cap's full package or window surface into this repo

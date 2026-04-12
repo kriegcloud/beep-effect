@@ -9,7 +9,7 @@ const createFixtureRepo = async (repoRoot) => {
   await mkdir(join(repoRoot, "apps/V2T/src-tauri/capabilities"), { recursive: true });
   await mkdir(join(repoRoot, "apps/V2T/src-tauri/icons"), { recursive: true });
   await mkdir(join(repoRoot, "apps/V2T/src-tauri/src"), { recursive: true });
-  await mkdir(join(repoRoot, "packages/VT2/src"), { recursive: true });
+  await mkdir(join(repoRoot, "packages/v2t-sidecar/src"), { recursive: true });
   await writeFile(join(repoRoot, ".npmrc"), "@buf:registry=https://buf.build/gen/npm/v1/\n");
   await writeFile(join(repoRoot, "package.json"), '{\n  "name": "@fixture/root"\n}\n');
   await writeFile(
@@ -34,10 +34,16 @@ const createFixtureRepo = async (repoRoot) => {
   await writeFile(join(repoRoot, "apps/V2T/tsconfig.json"), '{\n  "extends": "../../tsconfig.base.json"\n}\n');
   await writeFile(join(repoRoot, "apps/V2T/turbo.json"), '{\n  "$schema": "https://turbo.build/schema.json"\n}\n');
   await writeFile(join(repoRoot, "apps/V2T/vite.config.ts"), "export default {};\n");
-  await writeFile(join(repoRoot, "packages/VT2/package.json"), '{\n  "name": "@fixture/VT2"\n}\n');
-  await writeFile(join(repoRoot, "packages/VT2/src/index.ts"), "export {};\n");
-  await writeFile(join(repoRoot, "packages/VT2/tsconfig.json"), '{\n  "extends": "../../tsconfig.base.json"\n}\n');
-  await writeFile(join(repoRoot, "packages/VT2/turbo.json"), '{\n  "$schema": "https://turbo.build/schema.json"\n}\n');
+  await writeFile(join(repoRoot, "packages/v2t-sidecar/package.json"), '{\n  "name": "@fixture/v2t-sidecar"\n}\n');
+  await writeFile(join(repoRoot, "packages/v2t-sidecar/src/index.ts"), "export {};\n");
+  await writeFile(
+    join(repoRoot, "packages/v2t-sidecar/tsconfig.json"),
+    '{\n  "extends": "../../tsconfig.base.json"\n}\n'
+  );
+  await writeFile(
+    join(repoRoot, "packages/v2t-sidecar/turbo.json"),
+    '{\n  "$schema": "https://turbo.build/schema.json"\n}\n'
+  );
   await writeFile(join(repoRoot, "bunfig.toml"), '[install]\nlinker = "hoisted"\n');
   await writeFile(join(repoRoot, "bun.lock"), "fixture-lock\n");
   await writeFile(join(repoRoot, "tsconfig.base.json"), '{\n  "compilerOptions": {}\n}\n');
@@ -61,8 +67,8 @@ printf '%s\\t%s\\t%s\\t%s\\t%s\\n' \
 if [[ "$action" == "build-app" ]]; then
   mkdir -p "\${repo_root}/apps/V2T/src-tauri/target/release/bundle/deb"
   printf 'fixture-deb\n' > "\${repo_root}/apps/V2T/src-tauri/target/release/bundle/deb/fixture.deb"
-  mkdir -p "\${repo_root}/packages/VT2/dist"
-  printf 'export {};\n' > "\${repo_root}/packages/VT2/dist/index.js"
+  mkdir -p "\${repo_root}/packages/v2t-sidecar/dist"
+  printf 'export {};\n' > "\${repo_root}/packages/v2t-sidecar/dist/index.js"
   printf 'fixture-package\\n'
 fi
 `;

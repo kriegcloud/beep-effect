@@ -12,7 +12,7 @@ import * as Str from "effect/String";
 import { ChildProcess } from "effect/unstable/process";
 
 const $TwoTvBuildId = $I.create("V2T/scripts/build-sidecar");
-const sidecarEntrypoint = "packages/VT2/src/main.ts";
+const sidecarEntrypoint = "packages/v2t-sidecar/src/main.ts";
 
 const SupportedRustTargetTriple = LiteralKit([
   "x86_64-unknown-linux-gnu",

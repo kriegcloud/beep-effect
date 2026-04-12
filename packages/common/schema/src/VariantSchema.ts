@@ -18,9 +18,11 @@ import {
   Struct as Struct_,
   SchemaTransformation as Transformation,
 } from "effect";
+import * as A from "effect/Array";
 import type { Brand } from "effect/Brand";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 /**
@@ -211,7 +213,7 @@ const extract: {
       return cache[cacheKey] as TUnsafe.Any;
     }
     const fields: Record<string, TUnsafe.Any> = {};
-    for (const key of Object.keys(self[TypeId])) {
+    for (const key of R.keys(self[TypeId])) {
       const value = self[TypeId][key];
       if (TypeId in value) {
         if (options?.isDefault === true && S.isSchema(value)) {
@@ -540,7 +542,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
     (self: Field<TUnsafe.Any> | S.Top, f: Record<string, (schema: S.Top) => S.Top>): Field<TUnsafe.Any> => {
       const field = isField(self)
         ? self
-        : Field(Object.fromEntries(options.variants.map((variant) => [variant, self])));
+        : Field(R.fromEntries(A.map(options.variants, (variant) => [variant, self] as const)));
       return Field(Struct_.evolve(field.schemas, f));
     }
   );
@@ -625,29 +627,23 @@ export const Overridable = <S extends S.Top & S.WithoutConstructorDefault>(
     )
   ) as TUnsafe.Any;
 
-const StructProto = {
-  pipe() {
-    return Pipeable.pipeArguments(this, arguments);
-  },
-};
-
 const Struct = <const A extends Field.Fields>(fields: A): Struct<A> => {
-  const self = Object.create(StructProto);
-  self[TypeId] = fields;
-  return self;
-};
-
-const FieldProto = {
-  [FieldTypeId]: FieldTypeId,
-  pipe() {
-    return Pipeable.pipeArguments(this, arguments);
-  },
+  return {
+    [TypeId]: fields,
+    pipe() {
+      return Pipeable.pipeArguments(this, arguments);
+    },
+  };
 };
 
 const Field = <const A extends Field.Config>(schemas: A): Field<A> => {
-  const self = Object.create(FieldProto);
-  self.schemas = schemas;
-  return self;
+  return {
+    schemas,
+    [FieldTypeId]: FieldTypeId,
+    pipe() {
+      return Pipeable.pipeArguments(this, arguments);
+    },
+  };
 };
 
 const Union = <Members extends ReadonlyArray<Struct<TUnsafe.Any>>, Variants extends ReadonlyArray<string>>(

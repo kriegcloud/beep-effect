@@ -1,5 +1,6 @@
 import bc from "@beep/colors";
 import { ErrorReporter, Match } from "effect";
+import * as R from "effect/Record";
 import { renderObservedCause, summarizeCause } from "../CauseDiagnostics.ts";
 
 /**
@@ -34,7 +35,7 @@ export const makeConsoleErrorReporter = (options?: {
       `${severityColor} ${error.name}: ${error.message} fingerprint=${summary.fingerprint.value} classification=${summary.classification}`
     );
 
-    if (Object.keys(attributes).length > 0) {
+    if (R.keys(attributes).length > 0) {
       console.error(attributes);
     }
 

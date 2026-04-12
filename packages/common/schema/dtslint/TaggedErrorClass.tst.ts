@@ -1,8 +1,4 @@
-import {
-  TaggedErrorClass,
-  type TaggedErrorClassWithNew,
-  type TaggedErrorNewInput,
-} from "@beep/schema/TaggedErrorClass";
+import { TaggedErrorClass, type TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
@@ -40,28 +36,17 @@ class ExtendedCauseError extends BeepError.extend<ExtendedCauseError>("ExtendedC
 }) {}
 
 describe("TaggedErrorClass", () => {
-  it("infers new input from schema fields (without _tag)", () => {
+  it("infers constructor input from schema fields (without _tag)", () => {
     expect<TaggedErrorNewInput<typeof BeepError>>().type.toBe<{ readonly beep: string }>();
 
-    expect(BeepError).type.toBeAssignableTo<TaggedErrorClassWithNew<typeof BeepError>>();
-    expect(BeepError.new).type.toBe<(input: { readonly beep: string }) => BeepError>();
-    expect(BeepError.new({ beep: "beep" })).type.toBe<BeepError>();
+    expect(BeepError).type.toBeAssignableTo<new (input: { readonly beep: string }) => BeepError>();
+    expect(new BeepError({ beep: "beep" })).type.toBe<BeepError>();
 
     // @ts-expect-error!
-    BeepError.new({});
+    new BeepError({});
 
     // @ts-expect-error!
-    BeepError.new({ beep: 1 });
-
-    // @ts-expect-error!
-    BeepError.new({ _tag: "BeepError", beep: "beep" });
-  });
-
-  it("types newThunk as a thunk returning the error instance", () => {
-    const thunk = BeepError.newThunk({ beep: "beep" });
-
-    expect(thunk).type.toBe<() => BeepError>();
-    expect(thunk()).type.toBe<BeepError>();
+    new BeepError({ beep: 1 });
   });
 
   it("supports schema overload and infers all fields", () => {
@@ -70,68 +55,54 @@ describe("TaggedErrorClass", () => {
       readonly count: number;
     }>();
 
-    expect(StructuredBeepError.new).type.toBe<
-      (input: { readonly beep: string; readonly count: number }) => StructuredBeepError
+    expect(StructuredBeepError).type.toBeAssignableTo<
+      new (input: {
+        readonly beep: string;
+        readonly count: number;
+      }) => StructuredBeepError
     >();
-
-    expect(StructuredBeepError.new({ beep: "beep", count: 1 })).type.toBe<StructuredBeepError>();
-
-    // @ts-expect-error!
-    StructuredBeepError.new({ beep: "beep" });
+    expect(new StructuredBeepError({ beep: "beep", count: 1 })).type.toBe<StructuredBeepError>();
 
     // @ts-expect-error!
-    StructuredBeepError.new({ beep: "beep", count: "1" });
+    new StructuredBeepError({ beep: "beep" });
+
+    // @ts-expect-error!
+    new StructuredBeepError({ beep: "beep", count: "1" });
   });
 
-  it("supports cause-first overloads for cause-bearing errors", () => {
-    expect(RequiredCauseError.new(new Error("boom"), { message: "beep" })).type.toBe<RequiredCauseError>();
-    expect(OptionalCauseError.new(new Error("boom"), { message: "beep" })).type.toBe<OptionalCauseError>();
-
-    expect(RequiredCauseError.newThunk(new Error("boom"), { message: "beep" })()).type.toBe<RequiredCauseError>();
-    expect(OptionalCauseError.newThunk(new Error("boom"), { message: "beep" })()).type.toBe<OptionalCauseError>();
-  });
-
-  it("supports required-cause data-last overloads only", () => {
-    expect(RequiredCauseError.new({ message: "beep" })(new Error("boom"))).type.toBe<RequiredCauseError>();
-    expect(RequiredCauseError.newThunk({ message: "beep" })(new Error("boom"))()).type.toBe<RequiredCauseError>();
-
-    expect(OptionalCauseError.new({ message: "beep" })).type.toBe<OptionalCauseError>();
-    expect(OptionalCauseError.newThunk({ message: "beep" })()).type.toBe<OptionalCauseError>();
+  it("requires cause-bearing constructor payloads to be explicit", () => {
+    expect(new RequiredCauseError({ cause: new Error("boom"), message: "beep" })).type.toBe<RequiredCauseError>();
+    expect(new OptionalCauseError({ cause: new Error("boom"), message: "beep" })).type.toBe<OptionalCauseError>();
+    expect(new OptionalCauseError({ message: "beep" })).type.toBe<OptionalCauseError>();
 
     // @ts-expect-error!
-    OptionalCauseError.new({ message: "beep" })(new Error("boom"));
-
-    // @ts-expect-error!
-    OptionalCauseError.newThunk({ message: "beep" })(new Error("boom"));
+    new RequiredCauseError({ message: "beep" });
   });
 
-  it("preserves helper constructors across extend", () => {
+  it("preserves constructor typing across extend", () => {
     expect<TaggedErrorNewInput<typeof ExtendedBeepError>>().type.toBe<{
       readonly beep: string;
       readonly count: number;
     }>();
 
-    expect(ExtendedBeepError.new).type.toBe<
-      (input: { readonly beep: string; readonly count: number }) => ExtendedBeepError
+    expect(ExtendedBeepError).type.toBeAssignableTo<
+      new (input: {
+        readonly beep: string;
+        readonly count: number;
+      }) => ExtendedBeepError
     >();
-    expect(ExtendedBeepError.new({ beep: "beep", count: 1 })).type.toBe<ExtendedBeepError>();
-    expect(ExtendedBeepError.newThunk({ beep: "beep", count: 1 })()).type.toBe<ExtendedBeepError>();
+    expect(new ExtendedBeepError({ beep: "beep", count: 1 })).type.toBe<ExtendedBeepError>();
 
     // @ts-expect-error!
-    ExtendedBeepError.new({ beep: "beep" });
+    new ExtendedBeepError({ beep: "beep" });
   });
 
-  it("recomputes cause-aware constructor overloads for extended classes", () => {
-    expect(ExtendedCauseError.new(new Error("boom"), { beep: "beep", count: 1 })).type.toBe<ExtendedCauseError>();
-    expect(ExtendedCauseError.new({ beep: "beep", count: 1 })(new Error("boom"))).type.toBe<ExtendedCauseError>();
+  it("preserves cause-bearing constructor typing for extended classes", () => {
     expect(
-      ExtendedCauseError.newThunk(new Error("boom"), { beep: "beep", count: 1 })()
-    ).type.toBe<ExtendedCauseError>();
-    expect(
-      ExtendedCauseError.newThunk({ beep: "beep", count: 1 })(new Error("boom"))()
+      new ExtendedCauseError({ cause: new Error("boom"), beep: "beep", count: 1 })
     ).type.toBe<ExtendedCauseError>();
 
     // @ts-expect-error!
-    ExtendedCauseError.new({ beep: "beep" });
+    new ExtendedCauseError({ beep: "beep" });
   });
 });

@@ -140,9 +140,9 @@
       "@beep/editor-client/*": ["./packages/editor/client/src/*"],
       "@beep/editor-runtime": ["./packages/editor/runtime/src/index.ts"],
       "@beep/editor-runtime/*": ["./packages/editor/runtime/src/*"],
-      "@beep/VT2": ["./packages/VT2/src/index.ts"],
-      "@beep/VT2/*": [
-        "./packages/VT2/src/*"
+      "@beep/v2t-sidecar": ["./packages/v2t-sidecar/src/index.ts"],
+      "@beep/v2t-sidecar/*": [
+        "./packages/v2t-sidecar/src/*"
       ],
       "@beep/infra": [
         "./infra/src/index.ts"

@@ -25,7 +25,7 @@
       "path": "infra"
     },
     {
-      "path": "packages/VT2"
+      "path": "packages/v2t-sidecar"
     },
     {
       "path": "packages/_internal/db-admin"

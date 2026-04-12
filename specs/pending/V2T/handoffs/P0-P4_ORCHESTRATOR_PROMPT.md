@@ -12,13 +12,13 @@ Operate in this order:
 5. When the manifest read order reaches `prompts/GRAPHITI_MEMORY_PROTOCOL.md`,
    run the Graphiti preflight or fallback, then verify the live workspace
    names from `infra/package.json`, `apps/V2T/package.json`, and
-   `packages/VT2/package.json` before copying Turbo filters.
+   `packages/v2t-sidecar/package.json` before copying Turbo filters.
 6. Keep the immediate blocking work local; use repo-local custom agents under
    `.codex/config.toml` only for bounded parallel work with disjoint scopes,
    explicit assigned questions, and the V2T sub-agent output contract.
 7. Integrate every worker result yourself. Workers do not own phase closure, manifest authority, or scope expansion.
 8. Apply the mandatory conformance inputs and gates from `README.md`.
-9. Use the current `apps/V2T` and `packages/VT2` seams as the default runtime boundary and `@beep/infra` as the default workstation/deployment boundary unless the active phase explicitly documents a migration.
+9. Use the current `apps/V2T` and `packages/v2t-sidecar` seams as the default runtime boundary and `@beep/infra` as the default workstation/deployment boundary unless the active phase explicitly documents a migration.
 10. Treat the first slice as already locked around one authoritative typed desktop bridge derived from the Rust command and event surface, a native-shell plus sidecar capture split, record or import parity, and one main workspace window plus native dialogs and at most one focused capture or recovery surface.
 11. Run a read-only review wave before phase closeout, integrate any
     substantive findings, and rerun review when needed.

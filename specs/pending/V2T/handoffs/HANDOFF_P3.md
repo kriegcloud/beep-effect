@@ -17,14 +17,14 @@
 - `../../../../infra/package.json`
 - `../../../../apps/V2T/package.json`
 - `../../../../apps/V2T/turbo.json`
-- `../../../../packages/VT2/package.json`
-- `../../../../packages/VT2/turbo.json`
+- `../../../../packages/v2t-sidecar/package.json`
+- `../../../../packages/v2t-sidecar/turbo.json`
 - `../../../../infra/Pulumi.yaml`
 - `../../../../infra/src/internal/entry.ts`
 - `../../../../infra/src/V2T.ts`
 - `../../../../infra/scripts/v2t-workstation.sh`
 - `../../../../apps/V2T`
-- `../../../../packages/VT2`
+- `../../../../packages/v2t-sidecar`
 
 ## Objective
 
@@ -46,7 +46,7 @@ The session working P3 is the execution orchestrator. It may delegate bounded im
 ## Required Outcomes
 
 - implement only the approved scope
-- extend the current `@beep/VT2` control plane unless an explicit migration is part of the approved scope
+- extend the current `@beep/v2t-sidecar` control plane unless an explicit migration is part of the approved scope
 - keep the authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology explicit in code and execution notes
 - keep provider logic behind adapters
 - satisfy the effect-first, schema-first, and JSDoc/docgen constraints named in the phase docs

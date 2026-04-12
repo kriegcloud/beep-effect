@@ -15,14 +15,14 @@
 - `../../../../infra/package.json`
 - `../../../../apps/V2T/package.json`
 - `../../../../apps/V2T/turbo.json`
-- `../../../../packages/VT2/package.json`
-- `../../../../packages/VT2/turbo.json`
+- `../../../../packages/v2t-sidecar/package.json`
+- `../../../../packages/v2t-sidecar/turbo.json`
 - `../../../../infra/Pulumi.yaml`
 - `../../../../infra/src/internal/entry.ts`
 - `../../../../infra/src/V2T.ts`
 - `../../../../infra/scripts/v2t-workstation.sh`
 - `../../../../apps/V2T`
-- `../../../../packages/VT2`
+- `../../../../packages/v2t-sidecar`
 - `../../../../packages/common/ui/src/components/speech-input.tsx`
 
 ## Objective
@@ -46,7 +46,7 @@ The session working P1 is the design orchestrator. It may delegate bounded schem
 - finalize the canonical user flow
 - define the durable domain objects and service boundaries
 - map the workflow onto app, sidecar, and shared-package seams
-- resolve how the current `@beep/VT2` control plane carries the first slice
+- resolve how the current `@beep/v2t-sidecar` control plane carries the first slice
 - keep the authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology explicit enough that P2 does not need to infer them
 - capture the effect-first, schema-first, and docgen/JSDoc constraints that P2 and P3 must satisfy
 - write or refine `../DESIGN_RESEARCH.md`

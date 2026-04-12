@@ -10,7 +10,7 @@ The repo is already using package-level `turbo.json` files in the right narrow p
 # Current repo evidence
 - Root `turbo.json` defines the shared task model for `build`, `lint`, `check`, `test`, `docgen`, `dev`, `storybook`, and `build-storybook`.
 - `apps/editor-app/turbo.json`, `apps/V2T/turbo.json`, and `apps/desktop/turbo.json` already extend the root with package-local `dev:desktop` `with` wiring.
-- `packages/VT2/turbo.json` exists and simply extends the root, which shows the repo is already comfortable with package configurations as an organizational tool.
+- `packages/v2t-sidecar/turbo.json` exists and simply extends the root, which shows the repo is already comfortable with package configurations as an organizational tool.
 - `bunx turbo query ls @beep/editor-app @beep/v2t @beep/desktop --output json` shows package-owned scripts like `build:native`, `build:sidecar`, and `dev:native`, but none of those task surfaces are modeled with package-local Turbo metadata.
 - `tooling/cli/src/commands/CreatePackage/Handler.ts` scaffolds package manifests and config files, but a repo search found no evidence that `create-package` emits a `turbo.json` by default.
 
@@ -43,6 +43,6 @@ The repo is already using package-level `turbo.json` files in the right narrow p
 - Repo: `apps/editor-app/turbo.json`
 - Repo: `apps/V2T/turbo.json`
 - Repo: `apps/desktop/turbo.json`
-- Repo: `packages/VT2/turbo.json`
+- Repo: `packages/v2t-sidecar/turbo.json`
 - Repo: `tooling/cli/src/commands/CreatePackage/Handler.ts`
 - Official Turborepo: `https://turborepo.dev/docs/reference/package-configurations`

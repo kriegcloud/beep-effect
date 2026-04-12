@@ -17,14 +17,14 @@
 
 - Confirmed there is no root-level canonical spec registry to wire this package into, so the required fixes were package-local rather than `package.json` or `turbo.json` changes.
 - Added the combined phase router artifacts and a pasteable fresh-session prompt so the package now matches stronger canonical spec patterns in this repo.
-- Corrected the spec to name the real sidecar seam at `packages/VT2` and the existing app-side sidecar scripts, rather than pointing future implementers at hypothetical app-local server files.
+- Corrected the spec to name the real sidecar seam at `packages/v2t-sidecar` and the existing app-side sidecar scripts, rather than pointing future implementers at hypothetical app-local server files.
 - Fixed the broken relative image link in the preserved legacy notes file so the canonical package is internally navigable.
 - Left root markdown lint policy unchanged because `.markdownlint-cli2.jsonc` is already dirty and still intentionally ignores `specs/**`.
 
 ## 2026-04-10 Conformance Review
 
 - Added explicit references to `effect-first-development`, `schema-first-development`, and `.patterns/jsdoc-documentation.md` throughout the canonical package so phase work is grounded in repo law rather than implied preference.
-- Replaced the misleading `turbo lint` guidance for `packages/VT2` with a real command matrix: targeted `check` / `test` / `build`, app-local `lint`, and the repo-level effect-law, schema-first, and JSDoc gates.
+- Replaced the misleading `turbo lint` guidance for `packages/v2t-sidecar` with a real command matrix: targeted `check` / `test` / `build`, app-local `lint`, and the repo-level effect-law, schema-first, and JSDoc gates.
 - Added `outputs/validate-spec.mjs` so the spec package has an enforceable integrity gate even though root markdownlint ignores `specs/**`.
 - Clarified that the `codex-plan-mode-prompt.md` filename is legacy compatibility language and that the prompt applies in either Default mode or Plan mode.
 
@@ -43,7 +43,7 @@
   matrix accordingly.
 - Kept the targeted lint guidance aligned on `bun run --cwd apps/V2T lint`
   while preserving the stricter
-  warning that `@beep/VT2` has no direct package-local lint task.
+  warning that `@beep/v2t-sidecar` has no direct package-local lint task.
 - Added explicit `active_phase_assets`, `fresh_session_read_order`, `output_files`, and required heading validation to the manifest so operators and tooling can resolve package structure without inference.
 - Expanded `outputs/validate-spec.mjs` from a broken-link checker into a package-contract validator that now checks manifest coherence, fileset coverage, active-phase routing, command truth anchors, and required sections in the scoped operator docs.
 
@@ -89,7 +89,7 @@
 
 ## 2026-04-10 Targeted Lint Gate Truth Pass
 
-- Rechecked the live Turbo behavior and confirmed that `bunx turbo run lint --filter=@beep/v2t` currently succeeds, so the older explanation that it still hits a nonexistent `@beep/VT2#lint` task was stale.
+- Rechecked the live Turbo behavior and confirmed that `bunx turbo run lint --filter=@beep/v2t` currently succeeds, so the older explanation that it still hits a nonexistent `@beep/v2t-sidecar#lint` task was stale.
 - Kept `bun run --cwd apps/V2T lint` as the default targeted app lint gate, but updated the package guidance to use the truer rationale: the filtered Turbo lint path is dependency-expanded and therefore not equivalent to app-only lint evidence.
 - Tightened the validator to reject the stale nonexistent-task explanation so future package edits keep the lint-gate guidance aligned with live repo behavior.
 - Fixed a validator bug in the same pass: `graphiti.recall_order` is now checked as an ordered string array instead of by object identity, so the package gate no longer emits false failures when manifest and expected recall order already match.
@@ -118,7 +118,7 @@
 ## 2026-04-12 Cap-Informed Consistency Pass
 
 - Closed the remaining high-impact P0 ambiguity by locking the first-slice desktop bridge as one authoritative contract derived from the Rust command and event surface instead of a soft preference.
-- Locked the hybrid capture ownership split so the native shell owns raw direct-capture control and durability while `@beep/VT2` owns canonical session metadata and downstream artifact indexing after intake.
+- Locked the hybrid capture ownership split so the native shell owns raw direct-capture control and durability while `@beep/v2t-sidecar` owns canonical session metadata and downstream artifact indexing after intake.
 - Replaced the vague limited-multi-window wording with an explicit first-slice topology: one main workspace window, native file dialogs, and at most one focused capture or recovery surface, with settings and review staying in the main workspace.
 - Tightened the verification contract so capture-enabled slices must record at least one automated recovery, interruption, backpressure, or typed native bridge path instead of relying on generic command success alone.
 - Propagated those defaults through the phase artifacts, handoffs, prompts, README, and quick start, and expanded the validator plus manifest metadata so future drift is machine-detectable.

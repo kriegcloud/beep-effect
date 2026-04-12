@@ -39,7 +39,7 @@ function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...pr
             className="bg-primary select-none data-horizontal:h-full data-vertical:w-full"
           />
         </SliderPrimitive.Track>
-        {Array.from({ length: _values.length }, (_, index) => (
+        {A.makeBy(_values.length, (index) => (
           <SliderPrimitive.Thumb
             data-slot="slider-thumb"
             key={index}

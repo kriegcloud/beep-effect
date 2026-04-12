@@ -12,7 +12,7 @@
 - `../../../../standards/schema-first.inventory.jsonc`
 - `../../../../tooling/configs/src/eslint/SchemaFirstRule.ts`
 - `../../../../apps/V2T`
-- `../../../../packages/VT2`
+- `../../../../packages/v2t-sidecar`
 - `../../../../infra/Pulumi.yaml`
 - `../../../../infra/src/internal/entry.ts`
 - `../../../../infra/src/V2T.ts`
@@ -23,8 +23,8 @@
 - `../../../../infra/package.json`
 - `../../../../apps/V2T/package.json`
 - `../../../../apps/V2T/turbo.json`
-- `../../../../packages/VT2/package.json`
-- `../../../../packages/VT2/turbo.json`
+- `../../../../packages/v2t-sidecar/package.json`
+- `../../../../packages/v2t-sidecar/turbo.json`
 
 ## Objective
 
@@ -49,8 +49,8 @@ The session working P2 is the planning orchestrator. It may delegate read-only c
 - identify the primary file or surface groups to change
 - lock the acceptance criteria
 - lock the default verification commands
-- lock the real conformance gates, including the repo-law commands and the VT2 task limitations
-- keep the plan tied to the existing `@beep/VT2` seam unless a migration is explicit
+- lock the real conformance gates, including the repo-law commands and the V2T task limitations
+- keep the plan tied to the existing `@beep/v2t-sidecar` seam unless a migration is explicit
 - keep the authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology explicit enough that P3 does not need to infer them
 - write or refine `../PLANNING.md`
 

@@ -2,6 +2,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -57,7 +58,7 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
       }
     }
 
-    for (const nested of Object.values(entry)) {
+    for (const nested of R.values(entry)) {
       const candidate = firstRelativeDotPath(nested);
       if (O.isSome(candidate)) {
         return candidate;
@@ -82,7 +83,7 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
     if ("." in exportsRecord) {
       return firstRelativeDotPath(exportsRecord["."]);
     }
-    if (Object.keys(exportsRecord).some((key) => key === "." || Str.startsWith("./")(key))) {
+    if (A.some(R.keys(exportsRecord), (key) => key === "." || Str.startsWith("./")(key))) {
       return O.none();
     }
   }

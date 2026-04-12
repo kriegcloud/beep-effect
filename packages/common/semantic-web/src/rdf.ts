@@ -619,7 +619,7 @@ export const makeQuad = (subject: Subject, predicate: NamedNode, object: ObjectT
  * @since 0.0.0
  * @category utilities
  */
-export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({ quads: Array.from(quads) });
+export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({ quads: A.fromIterable(quads) });
 
 /**
  * Serialize an RDF term to a deterministic lexical form.

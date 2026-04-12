@@ -6,7 +6,7 @@ COMPLETED
 
 ## Goal
 
-Convert the research and design docs into an implementation sequence for the existing `apps/V2T`, `packages/VT2`, and `@beep/infra` seams.
+Convert the research and design docs into an implementation sequence for the existing `apps/V2T`, `packages/v2t-sidecar`, and `@beep/infra` seams.
 
 ## Phase Agent Role
 
@@ -44,9 +44,9 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 - `standards/schema-first.inventory.jsonc`
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
 - `infra/package.json`
-- root `package.json`, root `turbo.json`, `apps/V2T/package.json`, `apps/V2T/turbo.json`, `packages/VT2/package.json`, and `packages/VT2/turbo.json`
-- `apps/V2T/package.json` and `packages/VT2/package.json` are authoritative for
-  Turbo filter names: use `@beep/v2t` for the app and `@beep/VT2` for the
+- root `package.json`, root `turbo.json`, `apps/V2T/package.json`, `apps/V2T/turbo.json`, `packages/v2t-sidecar/package.json`, and `packages/v2t-sidecar/turbo.json`
+- `apps/V2T/package.json` and `packages/v2t-sidecar/package.json` are authoritative for
+  Turbo filter names: use `@beep/v2t` for the app and `@beep/v2t-sidecar` for the
   sidecar unless the manifests change
 - `infra/package.json` is authoritative for the workstation/deployment workspace name `@beep/infra` and its package-local Pulumi scripts
 
@@ -71,7 +71,7 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 - provision the installer through `@pulumi/command` `local.Command` resources with explicit `create`, `update`, `delete`, `dir`, `environment`, and scoped `triggers`
 - keep the current local backend posture at `.pulumi-local/v2t-workstation` and the current stack namespace `v2t` unless an approved change explicitly updates both docs and code
 - install workstation prerequisites for local native app builds, Qwen serving, Docker-backed Graphiti, and the existing Graphiti proxy workflow
-- build `apps/V2T` and `packages/VT2` from the current checkout and install the generated Debian package locally
+- build `apps/V2T` and `packages/v2t-sidecar` from the current checkout and install the generated Debian package locally
 - keep destroy conservative by removing only V2T-managed services, caches, units, and package artifacts
 - require a Graphiti LLM API key secret whenever Graphiti provisioning remains enabled
 - keep `1Password` optional by supporting Pulumi secrets and optional `op run` injection instead of mandatory Connect or ESC integration
@@ -92,7 +92,7 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 
 ### Track 3 - Local Persistence And Sidecar
 
-- extend the existing `packages/VT2` control plane into a concrete V2T service boundary
+- extend the existing `packages/v2t-sidecar` control plane into a concrete V2T service boundary
 - add filesystem and SQLite persistence for session metadata, recoverable capture candidates, desktop-default references, and generated artifacts
 - define packet formats for transcript persistence, memory context snapshots, composition runs, and export records
 
@@ -121,7 +121,7 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 
 1. `infra/src/V2T.ts`, `infra/src/internal/entry.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts` for installer and deployment surfaces when the slice changes them
 2. `apps/V2T/src-tauri/src/lib.rs` plus the app-side typed native bridge surface for sidecar lifecycle, dialogs, capture control, recovery actions, and limited window events
-3. `packages/VT2/src/protocol.ts` and `packages/VT2/src/Server/index.ts` for V2T-native session, run, and artifact contracts plus persistence
+3. `packages/v2t-sidecar/src/protocol.ts` and `packages/v2t-sidecar/src/Server/index.ts` for V2T-native session, run, and artifact contracts plus persistence
 4. `apps/V2T/src` domain and service contracts, including record or import parity and durable desktop preferences
 5. `apps/V2T/src/router.tsx` and component surfaces for the workspace, review, settings, and limited auxiliary-window entry points
 6. `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` only if runtime packaging or env contracts change
@@ -142,7 +142,7 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 - memory retrieval is represented by a typed packet contract and adapter
 - composition configuration produces a persisted run packet
 - export artifacts have tracked records even when provider output is stubbed
-- the implementation uses the current `@beep/VT2` control plane or documents a deliberate migration away from it
+- the implementation uses the current `@beep/v2t-sidecar` control plane or documents a deliberate migration away from it
 - the implementation plan names the real conformance gates instead of assuming nonexistent workspace tasks
 - the implementation plan requires failure-path verification for recovery, backpressure, or sidecar-lifecycle behavior rather than only happy-path flows
 - the plan explicitly covers effect-first, schema-first, and docgen/JSDoc expectations for touched exported APIs
@@ -165,15 +165,15 @@ Note:
 
 The planning phase locks these as the minimum targeted code-validation floor for the app workspace and sidecar:
 
-- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
 - `bun run --cwd apps/V2T lint`
 - `bun run --cwd infra lint`
 
 Important note:
 
-- `@beep/VT2` currently has no package-local `lint` or `docgen` task, so do not write plans that depend on those nonexistent commands
+- `@beep/v2t-sidecar` currently has no package-local `lint` or `docgen` task, so do not write plans that depend on those nonexistent commands
 - `@beep/infra` already carries package-local `check`, `test`, and `lint` tasks plus the live Pulumi operator scripts in `infra/package.json`
 - `@beep/v2t` is the live app package name even though the folder is
   `apps/V2T`, so verify filter casing from the manifest before locking the
@@ -183,7 +183,7 @@ Important note:
 
 ### Repo Law Gate
 
-Any implementation that changes TS surfaces under `apps/V2T` or `packages/VT2` must also plan for:
+Any implementation that changes TS surfaces under `apps/V2T` or `packages/v2t-sidecar` must also plan for:
 
 - `bun run lint:effect-laws`
 - `bun run lint:jsdoc`
@@ -220,7 +220,7 @@ Before P4 can claim readiness for implementation work, plan for:
 - typed native bridge generation or maintenance can drift if implementation stops treating the Rust command and event surface as the one authoritative bridge source
 - export and generation artifacts can create path-management and status-tracking complexity early
 - limited multi-window UX can expand into Cap-style window sprawl if the first-slice boundary is not kept explicit
-- extending the current `@beep/VT2` document-oriented control plane into V2T-native workflows may require careful schema and route migration
+- extending the current `@beep/v2t-sidecar` document-oriented control plane into V2T-native workflows may require careful schema and route migration
 - command drift can make a plan look stricter than the repo really is if the task graph is not verified against live package scripts
 - Graphiti's upstream LLM requirement means the memory stack is not fully local-only today, so the installer must keep that secret boundary explicit instead of hiding it behind Docker
 - Debian/Ubuntu remains the supported workstation target for the installer even when development happens on a different local OS
