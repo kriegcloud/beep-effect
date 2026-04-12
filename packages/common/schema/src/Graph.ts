@@ -416,8 +416,8 @@ export interface EdgeEncodedSchema<Data extends S.Top>
     Data["DecodingServices"],
     Data["EncodingServices"]
   > {
-  readonly "~rebuild.out": this;
   readonly data: Data;
+  readonly Rebuild: this;
 }
 
 /**
@@ -433,9 +433,9 @@ export interface GraphEncodedSchema<Node extends S.Top, Edge extends S.Top>
     Node["DecodingServices"] | Edge["DecodingServices"],
     Node["EncodingServices"] | Edge["EncodingServices"]
   > {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -496,8 +496,8 @@ export interface EdgeFromSelf<Data extends S.Top>
     readonly [Data],
     EdgeIso<Data>
   > {
-  readonly "~rebuild.out": this;
   readonly data: Data;
+  readonly Rebuild: this;
 }
 
 /**
@@ -508,8 +508,8 @@ export interface EdgeFromSelf<Data extends S.Top>
  */
 export interface EdgeTransform<Data extends S.Top>
   extends S.decodeTo<EdgeFromSelf<S.toType<Data>>, EdgeEncodedSchema<Data>> {
-  readonly "~rebuild.out": this;
   readonly data: Data;
+  readonly Rebuild: this;
 }
 
 /**
@@ -705,9 +705,9 @@ export interface GraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge>
   > {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -723,9 +723,9 @@ export interface DirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge, "directed">
   > {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -741,9 +741,9 @@ export interface UndirectedGraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge, "undirected">
   > {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -759,9 +759,9 @@ export interface MutableGraphFromSelf<Node extends S.Top, Edge extends S.Top>
     readonly [Node, Edge],
     GraphIso<Node, Edge>
   > {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -777,9 +777,9 @@ export interface MutableDirectedGraphFromSelf<Node extends S.Top, Edge extends S
     readonly [Node, Edge],
     GraphIso<Node, Edge, "directed">
   > {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -795,9 +795,9 @@ export interface MutableUndirectedGraphFromSelf<Node extends S.Top, Edge extends
     readonly [Node, Edge],
     GraphIso<Node, Edge, "undirected">
   > {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
@@ -1032,9 +1032,9 @@ export const MutableUndirectedGraphFromSelf = <Node extends S.Top, Edge extends 
  */
 export interface DirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<DirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -1045,9 +1045,9 @@ export interface DirectedGraph<Node extends S.Top, Edge extends S.Top>
  */
 export interface UndirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<UndirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -1058,9 +1058,9 @@ export interface UndirectedGraph<Node extends S.Top, Edge extends S.Top>
  */
 export interface MutableDirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<MutableDirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 /**
@@ -1071,9 +1071,9 @@ export interface MutableDirectedGraph<Node extends S.Top, Edge extends S.Top>
  */
 export interface MutableUndirectedGraph<Node extends S.Top, Edge extends S.Top>
   extends S.decodeTo<MutableUndirectedGraphFromSelf<S.toType<Node>, S.toType<Edge>>, GraphEncodedSchema<Node, Edge>> {
-  readonly "~rebuild.out": this;
   readonly edge: Edge;
   readonly node: Node;
+  readonly Rebuild: this;
 }
 
 const makeGraphTransform = <Node extends S.Top, Edge extends S.Top>(

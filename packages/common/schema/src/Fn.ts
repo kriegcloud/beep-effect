@@ -166,13 +166,13 @@ type FnNoArgInput<Input extends S.Top> = [Input["Type"]] extends [never]
  */
 export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.Top, Error extends S.Top>
   extends S.Codec<FnRuntime<Input, Output>, FnRuntime<Input, Output>> {
-  readonly "~rebuild.out": this;
   readonly errorSchema: Error;
   readonly implement: (handler: () => Output["Type"]) => FnEffectWrapperNoArg<Output, SchemaIssue.Issue, never>;
   readonly implementEffect: FnImplementEffectNoArg<Output, Error>;
   readonly implementSync: (handler: () => Output["Type"]) => FnSyncWrapperNoArg<Output>;
   readonly inputSchema: Input;
   readonly outputSchema: Output;
+  readonly Rebuild: this;
 }
 
 /**
@@ -185,7 +185,6 @@ export interface FnSchemaNoArg<Input extends NoArgInputSchema, Output extends S.
  */
 export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error extends S.Top>
   extends S.Codec<FnRuntime<Input, Output>, FnRuntime<Input, Output>> {
-  readonly "~rebuild.out": this;
   readonly errorSchema: Error;
   readonly implement: (
     handler: FnType<Input["Type"], Output["Type"]>
@@ -194,6 +193,7 @@ export interface FnSchemaUnary<Input extends S.Top, Output extends S.Top, Error 
   readonly implementSync: (handler: FnType<Input["Type"], Output["Type"]>) => FnSyncWrapperUnary<Output>;
   readonly inputSchema: Input;
   readonly outputSchema: Output;
+  readonly Rebuild: this;
 }
 
 /**

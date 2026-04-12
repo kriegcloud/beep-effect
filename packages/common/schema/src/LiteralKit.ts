@@ -614,7 +614,7 @@ type LiteralKitBase<L extends Literals, M extends EnumMappings<L> | undefined = 
  */
 export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | undefined = undefined>
   extends LiteralKitBase<L, M> {
-  readonly "~rebuild.out": LiteralKit<L, M>;
+  readonly Rebuild: LiteralKit<L, M>;
 }
 
 /**

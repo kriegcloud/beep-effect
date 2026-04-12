@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-04-07",
+  "generatedOn": "2026-04-12",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -590,6 +590,14 @@
       "status": "candidate",
       "owner": "@beep/ui",
       "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/common/utils/src/Event.ts",
+      "symbol": "makeEvent",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/utils",
+      "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
       "file": "packages/common/utils/src/Glob.ts",
