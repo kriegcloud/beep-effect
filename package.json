@@ -34,7 +34,9 @@
     "packages/editor/lexical",
     "packages/editor/protocol",
     "packages/editor/client",
-    "packages/editor/runtime"
+    "packages/editor/runtime",
+    "packages/beepgraph/messaging",
+    "packages/beepgraph/schema"
   ],
   "repository": {
     "type": "git",

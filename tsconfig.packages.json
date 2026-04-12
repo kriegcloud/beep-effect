@@ -82,6 +82,12 @@
       "path": "packages/editor/runtime"
     },
     {
+      "path": "packages/beepgraph/messaging"
+    },
+    {
+      "path": "packages/beepgraph/schema"
+    },
+    {
       "path": "packages/repo-memory/client"
     },
     {
