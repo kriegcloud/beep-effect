@@ -179,6 +179,11 @@ h1 {
   align-items: start;
 }
 
+.stack {
+  display: grid;
+  gap: 16px;
+}
+
 .panel {
   min-height: 700px;
   padding: 20px;
@@ -192,10 +197,19 @@ h1 {
   margin-bottom: 18px;
 }
 
+.panel-heading-compact {
+  margin-bottom: 12px;
+}
+
 .page-list,
 .backlinks {
   display: grid;
   gap: 12px;
+}
+
+.native-state-grid {
+  display: grid;
+  gap: 10px;
 }
 
 .search-label,
@@ -353,6 +367,26 @@ h1 {
   padding: 12px 14px;
 }
 
+.metric-grid,
+.session-detail-grid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.metric-card {
+  display: grid;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  padding: 14px;
+}
+
+.metric-card strong {
+  line-height: 1.4;
+}
+
 .empty-state {
   display: grid;
   align-content: center;
@@ -362,6 +396,11 @@ h1 {
 
 @media (max-width: 1180px) {
   .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-grid,
+  .session-detail-grid {
     grid-template-columns: 1fr;
   }
 }

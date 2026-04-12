@@ -256,7 +256,7 @@ write_graphiti_compose() {
         printf "      MODEL_NAME: %s\n" "$GRAPHITI_MODEL_NAME"
         printf "%s\n" "      FALKORDB_URI: redis://falkordb:6379"
         printf "%s\n" "      FALKORDB_DATABASE: beep_knowledge"
-        printf "%s\n" "      GRAPHITI_GROUP_ID: beep-dev"
+        printf "%s\n" "      GRAPHITI_GROUP_ID: beep_dev"
         printf "%s\n" "      SEMAPHORE_LIMIT: 10"
         printf "%s\n" "      MCP_SERVER_HOST: 0.0.0.0"
         printf "%s\n" "      GRAPHITI_TELEMETRY_ENABLED: '\''false'\''"

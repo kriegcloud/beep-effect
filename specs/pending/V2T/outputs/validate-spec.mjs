@@ -47,8 +47,8 @@ const expectedReadinessGate = [
   "bun run docgen"
 ]
 const expectedGraphitiConfig = {
-  group_id: "beep-dev",
-  search_group_ids_json: "[\"beep-dev\"]",
+  group_id: "beep_dev",
+  search_group_ids_json: "[\"beep_dev\"]",
   add_memory_source: "text",
   add_memory_source_description: "codex-cli session",
   recall_order: [

@@ -2,7 +2,7 @@
 
 ## Status
 
-BOOTSTRAP BASELINE
+COMPLETED
 
 ## Objective
 
@@ -137,8 +137,8 @@ The product promise is not just transcription. It is transcript plus context, me
 - `@beep/infra` has no workspace-local `turbo.json`, so infra command truth comes from `infra/package.json` plus the root `turbo.json`, not from a missing workspace-local task manifest.
 - Root `bun run lint:markdown` currently ignores `specs/**`, so spec-package validation must use package-local checks such as `git diff --check -- specs/pending/V2T` plus `node specs/pending/V2T/outputs/validate-spec.mjs`.
 - Any phase that names commands must verify those commands against the live workspace task graph instead of assuming every workspace exposes the same scripts.
-- Graphiti preflight must use `group_ids` as `["beep-dev"]` or the JSON string
-  `"[\"beep-dev\"]"` when the MCP wrapper only accepts strings, and current
+- Graphiti preflight must use `group_ids` as `["beep_dev"]` or the JSON string
+  `"[\"beep_dev\"]"` when the MCP wrapper only accepts strings, and current
   RediSearch search failures should trigger a documented fallback rather than a
   blocked phase.
 - Graphiti recall was attempted with the queries `V2T spec architecture planning sidecar app workflow memory composition export patterns` and `V2T spec Cap resilient capture typed native bridge recovery settings verification`; both failed with the exact error `Error searching facts: RediSearch: Syntax error at offset 16 near beep`, `get_episodes` returned `No episodes found`, and the fallback used for this pass was repo-local docs plus direct inspection of the cloned Cap repository.

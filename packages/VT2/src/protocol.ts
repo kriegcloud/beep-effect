@@ -1,66 +1,76 @@
 import { $I as $RootId } from "@beep/identity/packages";
 import {
   SidecarBadRequest,
+  SidecarBadRequestPayload,
   SidecarBootstrap,
   SidecarInternalError,
+  SidecarInternalErrorPayload,
   SidecarNotFound,
+  SidecarNotFoundPayload,
 } from "@beep/runtime-protocol";
-import { NonEmptyTrimmedStr, UUID } from "@beep/schema";
 import * as S from "effect/Schema";
 import { HttpApi, HttpApiEndpoint, HttpApiGroup, HttpApiSchema } from "effect/unstable/httpapi";
+import {
+  CompleteVt2CaptureInput,
+  CreateVt2SessionInput,
+  ResolveVt2RecoveryCandidateInput,
+  RunVt2CompositionInput,
+  UpdateVt2DesktopPreferencesInput,
+  Vt2DesktopPreferences,
+  Vt2RecoveryCandidateParams,
+  Vt2Session,
+  Vt2SessionIdParams,
+  Vt2SessionResource,
+  Vt2WorkspaceSnapshot,
+} from "./domain.js";
 
 const $I = $RootId.create("VT2/protocol");
 
 /**
- * A persisted VT2 document.
- *
  * @since 0.0.0
- * @category DomainModel
+ * @category Re-exports
  */
-export class Vt2Document extends S.Class<Vt2Document>($I`Vt2Document`)(
-  {
-    id: UUID,
-    title: NonEmptyTrimmedStr,
-    body: S.String,
-    createdAt: S.DateTimeUtcFromMillis,
-  },
-  $I.annote("Vt2Document", {
-    description: "SQLite-backed VT2 document exposed through the control plane.",
-  })
-) {}
+export * from "@beep/runtime-protocol";
 
 /**
- * Payload used to create a VT2 document.
+ * Union of deterministic V2T control-plane payload errors.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export class CreateVt2DocumentInput extends S.Class<CreateVt2DocumentInput>($I`CreateVt2DocumentInput`)(
-  {
-    title: NonEmptyTrimmedStr,
-    body: S.String,
-  },
-  $I.annote("CreateVt2DocumentInput", {
-    description: "Client payload for creating a VT2 document.",
+export const Vt2ControlPlaneErrorPayload = S.Union([
+  SidecarBadRequestPayload,
+  SidecarNotFoundPayload,
+  SidecarInternalErrorPayload,
+]).annotate(
+  $I.annote("Vt2ControlPlaneErrorPayload", {
+    description: "Union of deterministic error payloads returned by the V2T control plane.",
   })
-) {}
+);
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type Vt2ControlPlaneErrorPayload = typeof Vt2ControlPlaneErrorPayload.Type;
 
 /**
- * Route params for VT2 document endpoints.
+ * Union of deterministic status-aware V2T resource errors.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category Integration
  */
-export class Vt2DocumentIdParams extends S.Class<Vt2DocumentIdParams>($I`Vt2DocumentIdParams`)(
-  {
-    documentId: UUID,
-  },
-  $I.annote("Vt2DocumentIdParams", {
-    description: "Route params for document-specific VT2 endpoints.",
+export const Vt2ControlPlaneResourceError = S.Union([SidecarBadRequest, SidecarNotFound, SidecarInternalError]).annotate(
+  $I.annote("Vt2ControlPlaneResourceError", {
+    description: "Union of deterministic status-aware resource errors returned by the V2T control plane.",
   })
-) {}
+);
+/**
+ * @since 0.0.0
+ * @category Integration
+ */
+export type Vt2ControlPlaneResourceError = typeof Vt2ControlPlaneResourceError.Type;
 
-const Vt2DocumentCreated = Vt2Document.pipe(HttpApiSchema.status(201));
+const Vt2SessionResourceCreated = Vt2SessionResource.pipe(HttpApiSchema.status(201));
 
 class SystemGroup extends HttpApiGroup.make("system", { topLevel: true }).add(
   HttpApiEndpoint.get("health", "/health", {
@@ -69,25 +79,77 @@ class SystemGroup extends HttpApiGroup.make("system", { topLevel: true }).add(
   })
 ) {}
 
-class DocumentsGroup extends HttpApiGroup.make("documents", { topLevel: true })
+class WorkspaceGroup extends HttpApiGroup.make("workspace", { topLevel: true })
   .add(
-    HttpApiEndpoint.get("listDocuments", "/documents", {
-      success: S.Array(Vt2Document),
+    HttpApiEndpoint.get("getWorkspace", "/workspace", {
+      success: Vt2WorkspaceSnapshot,
       error: SidecarInternalError,
     })
   )
   .add(
-    HttpApiEndpoint.get("getDocument", "/documents/:documentId", {
-      params: Vt2DocumentIdParams,
-      success: Vt2Document,
-      error: S.Union([SidecarBadRequest, SidecarNotFound, SidecarInternalError]),
+    HttpApiEndpoint.get("getPreferences", "/preferences", {
+      success: Vt2DesktopPreferences,
+      error: SidecarInternalError,
     })
   )
   .add(
-    HttpApiEndpoint.post("createDocument", "/documents", {
-      payload: CreateVt2DocumentInput,
-      success: Vt2DocumentCreated,
-      error: S.Union([SidecarBadRequest, SidecarNotFound, SidecarInternalError]),
+    HttpApiEndpoint.put("savePreferences", "/preferences", {
+      payload: UpdateVt2DesktopPreferencesInput,
+      success: Vt2DesktopPreferences,
+      error: S.Union([SidecarBadRequest, SidecarInternalError]),
+    })
+  ) {}
+
+class SessionsGroup extends HttpApiGroup.make("sessions", { topLevel: true })
+  .add(
+    HttpApiEndpoint.get("listSessions", "/sessions", {
+      success: S.Array(Vt2Session),
+      error: SidecarInternalError,
+    })
+  )
+  .add(
+    HttpApiEndpoint.get("getSession", "/sessions/:sessionId", {
+      params: Vt2SessionIdParams,
+      success: Vt2SessionResource,
+      error: Vt2ControlPlaneResourceError,
+    })
+  )
+  .add(
+    HttpApiEndpoint.post("createSession", "/sessions", {
+      payload: CreateVt2SessionInput,
+      success: Vt2SessionResourceCreated,
+      error: S.Union([SidecarBadRequest, SidecarInternalError]),
+    })
+  )
+  .add(
+    HttpApiEndpoint.post("startCapture", "/sessions/:sessionId/capture/start", {
+      params: Vt2SessionIdParams,
+      success: Vt2SessionResource,
+      error: Vt2ControlPlaneResourceError,
+    })
+  )
+  .add(
+    HttpApiEndpoint.post("completeCapture", "/sessions/:sessionId/capture/complete", {
+      params: Vt2SessionIdParams,
+      payload: CompleteVt2CaptureInput,
+      success: Vt2SessionResource,
+      error: Vt2ControlPlaneResourceError,
+    })
+  )
+  .add(
+    HttpApiEndpoint.post("resolveRecoveryCandidate", "/sessions/:sessionId/recovery/:candidateId", {
+      params: Vt2RecoveryCandidateParams,
+      payload: ResolveVt2RecoveryCandidateInput,
+      success: Vt2SessionResource,
+      error: Vt2ControlPlaneResourceError,
+    })
+  )
+  .add(
+    HttpApiEndpoint.post("runComposition", "/sessions/:sessionId/composition/run", {
+      params: Vt2SessionIdParams,
+      payload: RunVt2CompositionInput,
+      success: Vt2SessionResource,
+      error: Vt2ControlPlaneResourceError,
     })
   ) {}
 
@@ -98,5 +160,5 @@ class DocumentsGroup extends HttpApiGroup.make("documents", { topLevel: true })
  * @category Integration
  */
 export class Vt2ControlPlaneApi extends HttpApi.make("vt2-control-plane")
-  .add(SystemGroup, DocumentsGroup)
+  .add(SystemGroup, WorkspaceGroup, SessionsGroup)
   .prefix("/api/v0") {}

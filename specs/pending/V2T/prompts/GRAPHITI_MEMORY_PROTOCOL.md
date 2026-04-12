@@ -15,7 +15,7 @@ canonical spec package.
 6. Treat `get_episodes` as a lower-signal Graphiti fallback, not a replacement
    for a good fact search result.
 7. If the wrapper exposes `group_ids` as a string, use the JSON array literal
-   string `"[\"beep-dev\"]"`.
+   string `"[\"beep_dev\"]"`.
 8. If Graphiti is unavailable or recall still fails after the episode fallback,
    continue with repo-local docs, code search, and the checked-in `.codex`
    guidance instead of blocking the phase.
@@ -26,7 +26,7 @@ canonical spec package.
   for the current work.
 - Fallback query: a shorter task-only query if the first query fails or returns
   nothing useful.
-- Episode fallback: `get_episodes` with `group_ids: "[\"beep-dev\"]"` when
+- Episode fallback: `get_episodes` with `group_ids: "[\"beep_dev\"]"` when
   fact search errors, is wrapper-fragile, or returns nothing reusable.
 - Always record:
   - whether `get_status` passed
@@ -40,7 +40,7 @@ canonical spec package.
 
 Use these fixed Graphiti metadata values for durable writeback:
 
-- `group_id: "beep-dev"`
+- `group_id: "beep_dev"`
 - `source: "text"`
 - `source_description: "codex-cli session"`
 

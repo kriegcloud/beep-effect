@@ -79,12 +79,12 @@ mcp__graphiti-memory__get_status({})
 ```
 
 ### Core expert-memory cluster
-If the MCP wrapper expects `group_ids` as a string, pass `"[\"beep-dev\"]"`. If it accepts arrays, pass `["beep-dev"]`.
+If the MCP wrapper expects `group_ids` as a string, pass `"[\"beep_dev\"]"`. If it accepts arrays, pass `["beep_dev"]`.
 
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "expert memory big picture knowledge slice claim evidence control plane epistemic runtime grounded answer verification",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -93,7 +93,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "old knowledge slice mention relation evidence progress streaming llm control idempotency workflow state control plane",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -102,7 +102,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "repo-codegraph jsdoc ontology provenance temporal lifecycle expert memory code as proving ground",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -111,7 +111,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "cluster-first runtime substrate ClusterWorkflowEngine HttpApi Rpc EventJournal sqlite-bun HTTPAPI RPC pivot",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -146,7 +146,7 @@ Default payload:
 {
   "name": "<short declarative title>",
   "episode_body": "<durable conclusion with retrieval-friendly terms>",
-  "group_id": "beep-dev",
+  "group_id": "beep_dev",
   "source": "text",
   "source_description": "codex-cli run writeback"
 }

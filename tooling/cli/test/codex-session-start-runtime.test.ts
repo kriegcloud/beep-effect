@@ -61,7 +61,7 @@ describe("CodexSessionStartRuntime", () => {
     expect(context).toContain("Session source: startup.");
     expect(context).toContain("Working directory: /tmp/beep-effect3.");
     expect(context).toContain("Durable repo memory is Graphiti-first now");
-    expect(context).toContain('group_ids: ["beep-dev"]');
+    expect(context).toContain('group_ids: ["beep_dev"]');
     expect(context).toContain("bun run codex:hook:session-start");
     expect(context).toContain("legacy repo-memory tooling");
   });

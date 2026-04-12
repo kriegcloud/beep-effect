@@ -15,7 +15,7 @@ Replace every `{{PLACEHOLDER}}` before starting.
 
 Grounding rules:
 
-1. Query Graphiti memory first if available, using the `beep-dev` group.
+1. Query Graphiti memory first if available, using the `beep_dev` group.
 2. Do a quick local context pass before proposing ideas:
    - inspect the relevant repo area
    - inspect comparable patterns or prior work

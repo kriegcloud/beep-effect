@@ -27,8 +27,8 @@ Non-negotiable repo contract:
 
 Required startup:
 
-1. Query Graphiti memory first if available, using the `beep-dev` group.
-2. If the wrapper expects `group_ids` as a string, pass `"[\"beep-dev\"]"`.
+1. Query Graphiti memory first if available, using the `beep_dev` group.
+2. If the wrapper expects `group_ids` as a string, pass `"[\"beep_dev\"]"`.
 3. Read the target files, nearby implementations, nearby tests, and any spec or pattern docs relevant to this task.
 4. If Effect APIs are involved, inspect `.repos/effect-v4` before editing.
 5. Identify the narrowest initial verification command before making edits.

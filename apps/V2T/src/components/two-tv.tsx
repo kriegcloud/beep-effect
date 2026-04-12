@@ -1,10 +1,6 @@
 import type * as React from "react";
+import { V2TWorkspaceShell } from "./workspace-shell.tsx";
 
-export const TwoTvPage: React.FC = () => {
-  return (
-    <main>
-      <h1>V2T</h1>
-      <p>V2T workspace shell</p>
-    </main>
-  );
-};
+export const TwoTvPage: React.FC = () => <V2TWorkspaceShell />;
+
+export { V2TWorkspaceShell };

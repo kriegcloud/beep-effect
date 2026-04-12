@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"enables the default V2T app permissions","local":true,"windows":["main"],"permissions":["core:default"]}}

@@ -2,7 +2,7 @@
 
 ## Status
 
-NOT_STARTED
+COMPLETED
 
 ## Execution Objective
 
@@ -131,31 +131,72 @@ Important note:
 
 ### Implemented Surfaces
 
-- pending
+- `packages/VT2/src/domain.ts`, `protocol.ts`, `client.ts`, and `services.ts`
+  - added schema-first memory-context, composition-run, and export-request contracts, kept provider seams explicit, and moved the default transcript seam to the local provider path
+- `packages/VT2/src/Server/index.ts`
+  - added sqlite-backed session mutations for native capture start, capture completion, interruption-driven recovery candidates, recover or discard resolution, memory-context packet persistence, composition-run persistence, local export artifact materialization, and a local Whisper transcript adapter that promotes sessions into `transcribing`, `review-ready`, or `failed`
+- `apps/V2T/src-tauri/src/lib.rs`
+  - added managed native capture state, Linux microphone capture via `ffmpeg`, durable draft artifact writes under the app data directory, native commands for start or stop or interrupt capture plus recover or discard, and the typed `v2t://capture-state-changed` event
+- `apps/V2T/src/native.ts` and `apps/V2T/src/components/workspace-shell.tsx`
+  - added typed capture-state schemas, native bridge helpers, event subscription, direct-capture controls, recovery actions, composition-run triggers, and workspace views for memory packets, run history, and export artifacts
+- `apps/V2T/src/native.test.ts` and `packages/VT2/test/VT2Contracts.test.ts`
+  - added coverage for the native capture payload contract plus the new VT2 composition, memory-context, export-oriented control-plane inputs, and the local transcript-provider default
 
 ### Commands Run
 
-- pending
+- `passed` `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bun run --cwd apps/V2T lint`
+- `passed` `bun run --cwd infra lint`
+- `passed` `bun run lint:jsdoc`
+- `passed` `bun run check:effect-laws-allowlist`
+- `passed` `bun run lint:schema-first`
+- `passed with warnings` `bun run lint:effect-laws`
+  - command exited successfully with repository-wide warning-only findings outside the touched V2T slice
+- `passed` `bun run docgen`
+- `passed` `bun run check`
+- `passed` `bun run lint`
+  - the final readiness pass required a verification-driven cleanup: add `cspell` hints for the embedded Whisper script and provider error reason, then remove generated `apps/V2T/src-tauri/target` outputs before rerunning `typos`
+- `passed` `bun run test`
+- `passed` `git diff --check -- apps/V2T packages/VT2 standards/schema-first.inventory.jsonc`
+- `passed (prior local execution wave)` `cargo check --manifest-path apps/V2T/src-tauri/Cargo.toml`
+- `passed (prior local execution wave)` `bun run --cwd apps/V2T build:sidecar`
+- `passed (prior local execution wave)` `bun run --cwd apps/V2T build:native`
 
 ### Delegation Register
 
-- pending
+- no sub-agent delegation used for this capture and recovery slice
 
 ### Graphiti And Repo-Truth Notes
 
-- pending
+- Graphiti recall attempted with query `V2T VT2 native tauri capture recovery sidecar next phase`
+- Graphiti recall failed with `Error searching facts: RediSearch: Syntax error at offset 16 near beep`
+- fallback used: repo-local skill guidance, live code inspection, and the current VT2 and V2T package seams
+- durable writeback should summarize the native capture lifecycle slice, the local Whisper transcript integration, the verification-driven lint cleanup, and the remaining provider/runtime caveats
 
 ### Conformance Evidence
 
-- pending
+- The native shell remains the owner of raw direct-capture control, draft artifact durability, interruption discovery, and recover or discard actions.
+- The VT2 sidecar remains the owner of canonical session metadata and downstream artifact indexing after intake.
+- Record and import still share the same session and artifact pipeline; capture-specific controls are only exposed for record sessions.
+- The first-slice desktop topology remains one main workspace window with native dialogs and no extra always-on review window.
+- The transcript seam now defaults to the local provider path and is implemented behind the VT2 transcript adapter boundary rather than synthesized from capture metadata.
+- Memory-context packets, composition runs, and export artifact records are now persisted by the VT2 sidecar instead of remaining UI-only placeholders.
+- Local export files are materialized under the selected session workspace or the VT2 app-data export directory while staying behind explicit memory, composition, and export service seams.
+- Exported VT2 contracts remain schema-first and docgen-clean, and the existing service-boundary interfaces in `packages/VT2` remain tracked as schema-first inventory exceptions instead of unregistered findings.
 
 ### Deviations From Plan
 
-- none yet
+- Verification surfaced two non-behavioral readiness blockers after the implementation landed: `cspell` misses from the embedded Whisper script and provider-reason literal, and `typos` noise from generated Rust `target/` artifacts after a native-build wave. Both were addressed before the final readiness rerun.
+- Repo-wide `lint:effect-laws` and `lint:jsdoc` both passed with existing warning-only findings outside the touched VT2/V2T slice; those warnings were not introduced by this work.
 
 ### Residual Risks
 
-- pending
+- The local transcript provider depends on a Python runtime that can import `openai-whisper`, either through `BEEP_VT2_TRANSCRIPT_PYTHON_BIN`, the app-data provider venv, or a compatible `python3` on `PATH`.
+- The first slice still stores transcript excerpt metadata on the session resource rather than persisting a richer speaker/timing transcript artifact body.
+- Memory retrieval now uses a local-first seam packet rather than a live Graphiti-backed retrieval adapter, so the provider boundary is exercised but upstream Graphiti integration is still deferred.
+- Repo-wide lint remains sensitive to generated `apps/V2T/src-tauri/target` outputs because `typos` scans those filenames unless the build artifacts are cleaned before the broader lint gate.
 
 ## Stop Conditions
 

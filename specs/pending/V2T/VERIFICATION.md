@@ -2,7 +2,7 @@
 
 ## Status
 
-NOT_STARTED
+COMPLETED
 
 ## Goal
 
@@ -178,6 +178,125 @@ P4 can only claim readiness when:
 - the conformance gates are supported by recorded evidence rather than implication
 - non-happy-path desktop behavior required by the slice has explicit evidence rather than being assumed from happy-path output
 - the latest read-only review wave reports no unresolved substantive issues
+
+## Verification Record
+
+### Review Wave
+
+- A read-only verification pass first found spec drift rather than product regressions: the manifest still routed to `p0`, `EXECUTION.md` still claimed Rust verification was blocked and transcript readiness was synthesized, and `VERIFICATION.md` had not been started.
+- That same pass found two non-behavioral gate blockers in the current codebase state: repo-wide `cspell` failures on `nargs`, `isinstance`, and `unconfigured`, then a repo-wide `typos` failure caused by generated Rust filenames under `apps/V2T/src-tauri/target` after earlier native-build work.
+- Those findings were routed back into the implementation slice as verification-driven cleanup before the final readiness rerun. No unresolved substantive review findings remained after the rerun.
+
+### Graphiti And Repo-Truth Notes
+
+- Graphiti recall attempted with query `V2T current implementation status next phase after local whisper transcript provider and native build verification`
+- Graphiti recall failed with `Error searching facts: RediSearch: Syntax error at offset 16 near beep`
+- fallback used: repo-local docs, the live V2T and VT2 package seams, and the current execution record
+- session-end writeback should summarize the spec reconciliation, the final gate results, the local Whisper verification outcome, and the generated-artifact lint caveat
+
+### Automated Results
+
+#### Targeted Implementation Floor
+
+- `passed` `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bun run --cwd apps/V2T lint`
+- `passed` `bun run --cwd infra lint`
+
+#### Repo Law Gate
+
+- `passed with warnings` `bun run lint:effect-laws`
+  - exited successfully with repository-wide warning-only `beep-laws/no-native-runtime` findings outside the touched slice
+- `passed with warnings` `bun run lint:jsdoc`
+  - exited successfully with the same repository-wide warning-only findings outside the touched slice
+- `passed` `bun run check:effect-laws-allowlist`
+- `passed` `bun run lint:schema-first`
+
+#### Exported API Gate
+
+- `passed` `bun run docgen`
+
+#### Readiness Gate
+
+- `passed` `bun run check`
+- `passed` `bun run lint`
+  - first rerun failed on `cspell` because the new embedded Whisper script contained `nargs` and `isinstance` and the provider-reason literal used `unconfigured`
+  - second rerun failed on `typos` because generated Rust build artifacts under `apps/V2T/src-tauri/target` were included in the scan after an earlier native-build verification wave
+  - final rerun passed after adding scoped `cspell` ignores in `packages/VT2/src/Server/index.ts` and `packages/VT2/src/services.ts`, then removing the generated `target/` directory before rerunning the gate
+- `passed` `bun run test`
+- `passed` `bun run docgen`
+
+#### Additional Execution Evidence
+
+- `passed (prior local execution wave)` `cargo check --manifest-path apps/V2T/src-tauri/Cargo.toml`
+- `passed (prior local execution wave)` `bun run --cwd apps/V2T build:sidecar`
+- `passed (prior local execution wave)` `bun run --cwd apps/V2T build:native`
+
+### Resilience Evidence Minimum
+
+- `passed` automated typed native-bridge coverage through `bun run --cwd apps/V2T test`, including `apps/V2T/src/native.test.ts`, which decodes the managed capture payload emitted by the native shell
+- `passed` automated capture-contract coverage through `bun run --cwd packages/VT2 test`, including `packages/VT2/test/VT2Contracts.test.ts`, which validates interrupted capture payloads and explicit recovery resolution
+- `passed` manual typed failure-path evidence:
+  - calling `POST /api/v0/sessions/:sessionId/capture/complete` before capture start returned `400` with `Session "<id>" is not currently capturing.`
+
+### Manual Scenario Outcomes
+
+#### Workspace Boot
+
+- `partially exercised`
+  - the source-run VT2 sidecar booted healthy on `http://127.0.0.1:43522` with bootstrap payload `{ "status": "healthy", "version": "0.0.0" }`
+  - the React shell was not re-driven manually in this P4 wave, but `bun run --cwd apps/V2T test` still confirmed the workspace shell renders and the native bridge contract test passed
+
+#### Capture And Session Creation
+
+- `passed` record-session state progression through the sidecar API
+  - `POST /api/v0/sessions` created `8b8c5ca5-123c-40ce-b0f5-0570060fab45` with `status: "draft"` and `transcriptStatus: "pending"`
+  - `POST /api/v0/sessions/:sessionId/capture/start` moved the same session to `status: "capturing"`
+  - `POST /api/v0/sessions/:sessionId/capture/complete` with the spoken WAV artifact path moved the session to `status: "review-ready"` and `transcriptStatus: "ready"`
+- `passed` manual transcript visibility
+  - the completed session returned transcript metadata `{ "excerpt": "Hello, my name is Ben. I'm enjoying life. This is fun.", "language": "en", "wordCount": 11 }`
+- `not re-exercised`
+  - interrupted live microphone capture and recover-or-discard UX were not manually re-run in this P4 wave
+
+#### Desktop Preferences And Recovery
+
+- `partially exercised`
+  - persisted composition profiles and desktop defaults remained present in the session resource payloads returned by the sidecar
+  - relaunch-specific preference rehydration was not manually re-run in this P4 wave
+
+#### Review And Composition
+
+- `partially exercised`
+  - session resources included transcript state, composition profiles, memory-context packet arrays, run arrays, and export arrays on the current `@beep/VT2` control plane
+  - composition-run creation and reopening were not manually re-run in this P4 wave
+
+#### Export Tracking
+
+- `partially exercised`
+  - export artifact records remained part of the resource contract and persisted arrays
+  - export execution was not manually re-run in this P4 wave
+
+#### Workstation Installer And Deployment
+
+- `not applicable`
+  - `@beep/infra` code did not change in this verification wave, but its targeted `check`, `test`, and `lint` gates still passed as part of the required floor
+
+### Deferred Behavior And Known Gaps
+
+- The first slice is ready as a local-first transcript and session-management desktop workflow, not as a production-complete autonomous media pipeline.
+- The transcript provider is now real and local, but it still depends on a Python runtime that can import `openai-whisper`.
+- Transcript persistence is still excerpt-first and metadata-first; richer speaker and timing artifacts remain deferred.
+- Memory retrieval remains a local-first seam packet and is not yet backed by live Graphiti retrieval in the V2T workflow.
+- This P4 wave revalidated ingest and transcription using an existing spoken WAV rather than capturing a fresh microphone clip end-to-end.
+
+### Final Readiness Call
+
+- `ready for first-slice spec closure`
+  - the targeted implementation floor passed
+  - the broader readiness gates passed after resolving verification-discovered non-behavioral blockers
+  - manual evidence confirmed the VT2 session pipeline reaches `review-ready` with a real local transcript result
+  - deferred scope is explicit and does not contradict the canonical first-slice workflow
 
 ## Stop Conditions
 

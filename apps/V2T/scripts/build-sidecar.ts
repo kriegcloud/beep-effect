@@ -229,8 +229,12 @@ const buildSidecar = Effect.fn("TwoTvBuild.buildSidecar")(function* () {
   }
 });
 
-const main = Layer.effectDiscard(buildSidecar().pipe(Effect.withSpan("TwoTvBuild.buildSidecar"))).pipe(
-  Layer.provide(BunServices.layer)
+const main = Effect.scoped(
+  Layer.build(BunServices.layer).pipe(
+    Effect.flatMap((context) =>
+      buildSidecar().pipe(Effect.withSpan("TwoTvBuild.buildSidecar"), Effect.provide(context))
+    )
+  )
 );
 
-BunRuntime.runMain(Layer.launch(main));
+BunRuntime.runMain(main);

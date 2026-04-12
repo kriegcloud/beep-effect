@@ -18,7 +18,7 @@ Repo rules:
 - Use `bun` for commands. Use `bun run --filter=@beep/{{PACKAGE_NAME}} <script>` when package-scoped work is appropriate.
 - Keep JSDoc/docgen expectations in mind for touched exports.
 - Run the narrowest relevant quality checks before finishing.
-- Query Graphiti memory first if available, using the `beep-dev` group.
+- Query Graphiti memory first if available, using the `beep_dev` group.
 
 Task:
 

@@ -23,7 +23,7 @@ Repo contract:
    - use `bun` command conventions
    - preserve JSDoc/docgen expectations when code changes are involved
    - run relevant quality commands before claiming completion
-3. Query Graphiti memory first if available, using the `beep-dev` group.
+3. Query Graphiti memory first if available, using the `beep_dev` group.
 4. Read comparable local prompt artifacts before writing the new one.
 
 Prompt artifact request:

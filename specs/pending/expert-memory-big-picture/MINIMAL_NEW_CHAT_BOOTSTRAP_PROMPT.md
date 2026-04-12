@@ -22,17 +22,17 @@ Before making broad recommendations:
 2. Query Graphiti memory with:
    mcp__graphiti-memory__get_status({})
 
-   If the MCP wrapper expects `group_ids` as a string, pass `"[\"beep-dev\"]"`. If it accepts arrays, pass `["beep-dev"]`.
+   If the MCP wrapper expects `group_ids` as a string, pass `"[\"beep_dev\"]"`. If it accepts arrays, pass `["beep_dev"]`.
 
    mcp__graphiti-memory__search_memory_facts({
      "query": "expert memory big picture knowledge slice claim evidence control plane epistemic runtime grounded answer verification",
-     "group_ids": "[\"beep-dev\"]",
+     "group_ids": "[\"beep_dev\"]",
      "max_facts": 10
    })
 
    mcp__graphiti-memory__search_memory_facts({
      "query": "cluster-first runtime substrate ClusterWorkflowEngine HttpApi Rpc EventJournal sqlite-bun HTTPAPI RPC pivot",
-     "group_ids": "[\"beep-dev\"]",
+     "group_ids": "[\"beep_dev\"]",
      "max_facts": 10
    })
 

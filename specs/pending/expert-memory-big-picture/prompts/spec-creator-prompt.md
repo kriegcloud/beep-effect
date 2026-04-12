@@ -15,7 +15,7 @@ Replace every `{{PLACEHOLDER}}` before starting.
 
 Repo contract:
 
-1. Query Graphiti memory first if available, using the `beep-dev` group.
+1. Query Graphiti memory first if available, using the `beep_dev` group.
 2. Read nearby specs, handoff prompts, and output artifacts before drafting the new spec.
 3. Reuse existing spec structure and repo terminology where possible.
 4. If the spec touches Effect work, treat `.repos/effect-v4` as the source of truth for API claims.

@@ -32,7 +32,7 @@ Before coding, do this exploration first and use it as evidence:
    - `packages/common/schema/test/Prov0.test.ts`
    - `packages/common/schema/test/FilePath.test.ts`
 3. Verify every Effect v4 API you intend to use against local source or tests in `.repos/effect-v4`. If an API is not confirmed there, do not assume it exists.
-4. Query Graphiti memory at the start of the run if available, using the repo’s required `group_ids` form for `beep-dev`.
+4. Query Graphiti memory at the start of the run if available, using the repo’s required `group_ids` form for `beep_dev`.
 
 Primary objective:
 

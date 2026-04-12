@@ -982,6 +982,54 @@
       "status": "exception",
       "owner": "@beep/test-utils",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/VT2/src/client.ts",
+      "symbol": "Vt2ClientShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/VT2",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/VT2/src/client.ts",
+      "symbol": "Vt2HttpClientOptions",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/VT2",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/VT2/src/services.ts",
+      "symbol": "Vt2TranscriptProviderShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/VT2",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/VT2/src/services.ts",
+      "symbol": "Vt2MemoryContextProviderShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/VT2",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/VT2/src/services.ts",
+      "symbol": "Vt2CompositionProviderShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/VT2",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/VT2/src/services.ts",
+      "symbol": "Vt2ExportProviderShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/VT2",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     }
   ]
 }

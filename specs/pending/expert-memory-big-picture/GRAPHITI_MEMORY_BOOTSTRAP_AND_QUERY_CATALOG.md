@@ -16,12 +16,12 @@ mcp__graphiti-memory__get_status({})
 ## Canonical `group_ids` Shape
 The safest payload rule for this repo is:
 
-- if the wrapper exposes `group_ids` as a string, pass `"[\"beep-dev\"]"`
-- if it accepts native arrays, pass `["beep-dev"]`
+- if the wrapper exposes `group_ids` as a string, pass `"[\"beep_dev\"]"`
+- if it accepts native arrays, pass `["beep_dev"]`
 
 If a future wrapper behaves differently, document the exact transport quirk rather than silently changing the query catalog.
 
-The examples below assume a wrapper that expects the string form. If your wrapper accepts native arrays, replace `"[\"beep-dev\"]"` with `["beep-dev"]`.
+The examples below assume a wrapper that expects the string form. If your wrapper accepts native arrays, replace `"[\"beep_dev\"]"` with `["beep_dev"]`.
 
 ## Memory Episodes To Preserve
 | Episode name | Purpose | Durable concepts | Optional aliases / historical terms |
@@ -44,7 +44,7 @@ The examples below assume a wrapper that expects the string form. If your wrappe
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "expert memory big picture artifact-to-packet claim evidence control plane epistemic runtime grounded answer verification",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -53,7 +53,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "repo-codegraph jsdoc ontology provenance temporal lifecycle expert memory code as proving ground",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -62,7 +62,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "old knowledge slice mention relation evidence progress streaming llm control idempotency workflow state control plane",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -71,7 +71,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "ts-morph service project lifecycle memory footprint project references turborepo workspace scope",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 8
 })
 ```
@@ -80,7 +80,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "nomik tree-sitter neo4j falkordb graphiti local-first service-grade driver architecture",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 8
 })
 ```
@@ -89,7 +89,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "expert memory domain transfer law wealth compliance claim evidence contradiction temporal lifecycle",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -98,7 +98,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "repo expert memory query stages grounding retrieval packet answer extraction provenance explainability retrieval packet payload issue",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```
@@ -107,7 +107,7 @@ mcp__graphiti-memory__search_memory_facts({
 ```json
 mcp__graphiti-memory__search_memory_facts({
   "query": "cluster-first runtime substrate ClusterWorkflowEngine HttpApi Rpc EventJournal sqlite-bun HTTPAPI RPC pivot custom start RPC runId WorkflowProxy discard",
-  "group_ids": "[\"beep-dev\"]",
+  "group_ids": "[\"beep_dev\"]",
   "max_facts": 10
 })
 ```

@@ -29,11 +29,11 @@ You must follow this repo contract for the entire task:
 Startup workflow:
 
 1. Query Graphiti memory first if the tool is available.
-2. Use the `beep-dev` memory group.
+2. Use the `beep_dev` memory group.
 3. Important Graphiti wrapper gotcha:
-   - if the MCP surface expects `group_ids` as a string, pass `"[\"beep-dev\"]"`
-   - if it accepts native arrays, pass `["beep-dev"]`
-   - never pass plain `"beep-dev"` because that fails validation
+   - if the MCP surface expects `group_ids` as a string, pass `"[\"beep_dev\"]"`
+   - if it accepts native arrays, pass `["beep_dev"]`
+   - never pass plain `"beep_dev"` because that fails validation
 4. Search memory using a query tailored to this task before exploring files.
 5. Explore local repo context before editing. Read the relevant target files, neighboring modules, tests, specs, and pattern docs first.
 

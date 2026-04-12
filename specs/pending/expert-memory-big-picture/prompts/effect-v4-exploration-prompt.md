@@ -18,7 +18,7 @@ Non-negotiable rules:
 1. Treat `.repos/effect-v4` as the only trustworthy source of truth for Effect v4 APIs.
 2. Do not rely on training data, `node_modules`, or web docs for Effect v4 answers.
 3. If local docs and local source disagree, source and tests win.
-4. Query Graphiti memory first if available, using the `beep-dev` group.
+4. Query Graphiti memory first if available, using the `beep_dev` group.
 5. Search this repo for existing usages of the Effect area under discussion before concluding anything.
 
 Exploration request:

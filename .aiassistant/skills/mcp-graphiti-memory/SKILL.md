@@ -8,7 +8,7 @@ Use this skill for Graphiti memory operations and startup diagnosis.
 
 ## Quick Smoke
 1. Call `get_status`.
-2. Call `search_memory_facts` with `group_ids: ["beep-dev"]`.
+2. Call `search_memory_facts` with `group_ids: ["beep_dev"]`.
 
 ## Common Failures
 - `group_ids` passed as string instead of list.

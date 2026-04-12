@@ -2,7 +2,7 @@
 
 ## Status
 
-**BOOTSTRAPPED**
+**COMPLETED**
 
 ## Owner
 
@@ -83,11 +83,11 @@
 
 ### Problem
 
-`apps/V2T` already exists as a workspace shell, and the PRD captures a compelling voice-to-timeline product direction, but the repo does not yet have a canonical, phase-structured spec that turns those notes into an execution-ready delivery contract.
+`apps/V2T` already exists as a workspace shell, and the PRD captured a compelling voice-to-timeline product direction, but the repo needed a canonical, phase-structured spec that turned those notes into an execution-ready delivery contract.
 
 ### Solution
 
-This package formalizes V2T as a five-phase canonical spec rooted in the current repo reality:
+This package formalizes V2T as a five-phase canonical spec rooted in the current repo reality and now carries completed research, design, planning, execution, and verification artifacts for the first slice:
 
 1. P0 research
 2. P1 design research
@@ -95,7 +95,7 @@ This package formalizes V2T as a five-phase canonical spec rooted in the current
 4. P3 execution
 5. P4 verification
 
-The package keeps the exact phase artifact names requested by the user and preserves the original PRD artifacts in place under `specs/pending/V2T`.
+The package keeps the exact phase artifact names requested by the user, preserves the original PRD artifacts in place under `specs/pending/V2T`, and routes fresh sessions to the final verification artifact through the manifest.
 
 ## Product Summary
 
@@ -112,7 +112,7 @@ The first slice is already constrained enough to be treated as a concrete deskto
 
 The canonical spec is grounded in current repo anchors:
 
-- `apps/V2T` already exists as the app workspace and currently provides the starter shell
+- `apps/V2T` already exists as the app workspace and now provides the first-slice workspace shell
 - `packages/VT2` already exists as the SQLite-backed Effect sidecar package, with a control-plane protocol in `packages/VT2/src/protocol.ts` and runtime wiring in `packages/VT2/src/Server/index.ts`
 - `packages/common/ui/src/components/speech-input.tsx` already provides a reusable speech/transcript UI primitive
 - root Graphiti tooling and proxy commands already exist for memory infrastructure
@@ -181,8 +181,8 @@ If these sources disagree, the tie-break order is:
 ## Graphiti Memory Protocol
 
 - [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md) is the canonical recall and writeback contract for this package.
-- Use `group_id: "beep-dev"` for `add_memory`, `source: "text"`, and `source_description: "codex-cli session"`.
-- When the wrapper exposes `group_ids` as a string for recall, pass the JSON array literal string `"[\"beep-dev\"]"` instead of the plain string `beep-dev`.
+- Use `group_id: "beep_dev"` for `add_memory`, `source: "text"`, and `source_description: "codex-cli session"`.
+- When the wrapper exposes `group_ids` as a string for recall, pass the JSON array literal string `"[\"beep_dev\"]"` instead of the plain string `beep_dev`.
 - Try Graphiti recall in this order: `search_memory_facts`, one shorter fallback query, `get_episodes`, then repo-local fallback.
 - If recall fails, log the exact query, exact error text, and any `get_episodes` fallback result in the phase artifact, then continue with the documented repo-local fallback instead of blocking the phase.
 - Write back material decisions, repo-specific findings, tricky fixes, and meaningful session-end progress summaries using the template in the protocol doc.
