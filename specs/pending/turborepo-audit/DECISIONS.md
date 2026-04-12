@@ -6,11 +6,12 @@ This file captures the implementation defaults and design choices agreed before 
 
 ## Scope and Output Shape
 
-- Spec root: `specs/pending/turborepo-audit`
-- Topic outputs: `specs/pending/turborepo-audit/outputs/{topic-id}.md`
-- Summary output: `specs/pending/turborepo-audit/outputs/_turborepo-orchestrator-summary.md`
+- Audit support root: `specs/pending/turborepo-audit`
+- Canonical topic outputs: `specs/pending/outputs/{topic-id}.md`
+- Canonical summary output: `specs/pending/outputs/_turborepo-orchestrator-summary.md`
 - Shared support doc: `specs/pending/turborepo-audit/OFFICIAL_TOPIC_SURFACE_MAP.md`
 - This decisions log is intentionally separate from the orchestrator summary.
+- The audit was initially drafted against a nested output folder during authoring, but the final deliverables were normalized into `specs/pending/outputs` to match the original output contract and avoid duplicate sources of truth.
 
 ## Locked Defaults
 

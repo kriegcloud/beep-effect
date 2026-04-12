@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { Effect, Function as Fn, SchemaIssue, SchemaTransformation, Struct } from "effect";
+import { Effect, Function as Fn, SchemaGetter as Getter, SchemaIssue, Struct } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -55,22 +55,24 @@ export const destructiveTransform: {
     return S.Unknown.pipe(
       S.decodeTo(
         output,
-        SchemaTransformation.transformOrFail({
-          decode: (input, options) =>
+        {
+          decode: Getter.transformOrFail((input: unknown, options) =>
             decodeInput(input, options).pipe(
               Effect.mapError(Struct.get("issue")),
               Effect.flatMap((decoded) =>
                 Effect.try({
-                  try: () => transform(decoded),
+                  try: () => transform(decoded) as Readonly<B>,
                   catch: () =>
                     new SchemaIssue.InvalidValue(O.some(decoded), {
                       message: "Error applying transformation",
                     }),
                 })
               )
-            ),
-          encode: Effect.succeed,
-        })
+            )),
+          // Lossy transforms intentionally keep encode as a passthrough so the
+          // transformed value remains the encoded value as well.
+          encode: Getter.transform((value: Readonly<B>) => value as unknown),
+        }
       )
     );
   }

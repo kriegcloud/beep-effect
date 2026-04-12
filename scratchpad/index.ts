@@ -3,6 +3,7 @@ import * as S from "effect/Schema";
 import {$V2TId} from "@beep/identity";
 import { SchemaUtils, TaggedErrorClass } from "@beep/schema";
 import * as O from "effect/Option";
+import type * as R from "effect/Record"
 
 const $I = $V2TId.create("Project");
 
@@ -127,3 +128,8 @@ export interface XAiApiServiceShape {
   startGeneration: () => Effect.Effect<unknown>,
   stopGeneration: () => Effect.Effect<unknown>
 }
+
+
+
+
+
