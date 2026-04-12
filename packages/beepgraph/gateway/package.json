@@ -24,8 +24,8 @@
     "./package.json": "./package.json"
   },
   "dependencies": {
-    "@beep/beepgraph-schema": "workspace:^",
     "@beep/beepgraph-pipeline": "workspace:^",
+    "@beep/beepgraph-schema": "workspace:^",
     "@beep/observability": "workspace:^",
     "effect": "catalog:"
   },
