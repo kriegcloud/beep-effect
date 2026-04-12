@@ -295,7 +295,7 @@
     "syncpack": "14.0.0-alpha.41",
     "tailwind-merge": "^3.5.0",
     "tailwindcss": "^4",
-    "ts-morph": "^27.0.2",
+    "ts-morph": "^28.0.0",
     "rdf-canonize": "^5.0.0",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
