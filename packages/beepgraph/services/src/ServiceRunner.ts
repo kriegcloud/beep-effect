@@ -53,6 +53,10 @@ class RequestDecodeError extends Data.TaggedError("RequestDecodeError")<{
   readonly raw: string;
 }> {}
 
+class ResponseEncodeError extends Data.TaggedError("ResponseEncodeError")<{
+  readonly cause: string;
+}> {}
+
 // ---------------------------------------------------------------------------
 // Runner
 // ---------------------------------------------------------------------------
@@ -85,16 +89,22 @@ export const makeServiceRunner = <Req, Res, E, R>(config: ServiceRunnerConfig<Re
             catch: () => new RequestDecodeError({ raw: text }),
           });
 
-          // Handle
+          // Handle + encode + publish — wrapped so handler errors
+          // don't escape and kill the consumer loop
           const response = yield* config.handler(decoded, requestId).pipe(
             Effect.withSpan(`${config.name}.handle`, {
               attributes: { requestId },
             })
           );
 
-          // Encode + publish response
-          const responseEncoded = encodeResponse(response);
-          const responseJson = jsonStringify(responseEncoded);
+          const responseEncoded = yield* Effect.try({
+            try: () => encodeResponse(response),
+            catch: (cause) => new ResponseEncodeError({ cause: String(cause) }),
+          });
+          const responseJson = yield* Effect.try({
+            try: () => jsonStringify(responseEncoded),
+            catch: (cause) => new ResponseEncodeError({ cause: String(cause) }),
+          });
           yield* nats.publish(config.responseTopic, new TextEncoder().encode(responseJson), {
             "Nats-Msg-Id": requestId,
           });
@@ -104,6 +114,20 @@ export const makeServiceRunner = <Req, Res, E, R>(config: ServiceRunnerConfig<Re
           Effect.catchTag("RequestDecodeError", () =>
             Effect.gen(function* () {
               yield* Effect.logWarning(`${config.name}: decode failed`);
+              yield* msg.nak();
+            })
+          ),
+          Effect.catchTag("ResponseEncodeError", () =>
+            Effect.gen(function* () {
+              yield* Effect.logError(`${config.name}: response encode failed`);
+              yield* msg.nak();
+            })
+          ),
+          // Catch all remaining errors (handler errors of type E, publish
+          // errors, etc.) so the consumer loop stays alive
+          Effect.catchCause((cause) =>
+            Effect.gen(function* () {
+              yield* Effect.logError(`${config.name}: handler failed`, cause);
               yield* msg.nak();
             })
           )

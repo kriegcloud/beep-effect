@@ -5,8 +5,7 @@
  * @since 0.1.0
  */
 
-import type { MessageSendError } from "@beep/beepgraph-messaging/Errors";
-
+import { MessageSendError } from "@beep/beepgraph-messaging/Errors";
 import { NatsClient } from "@beep/beepgraph-messaging/NatsClient";
 import { Effect, Schema } from "effect";
 
@@ -52,11 +51,26 @@ export const makeTypedProducer = <T>(
     const encode = Schema.encodeUnknownSync(encoder);
 
     return {
-      send: (id: string, value: T): Effect.Effect<void, MessageSendError> => {
-        const encoded = encode(value);
-        const json = jsonStringify(encoded);
-        const bytes = new TextEncoder().encode(json);
-        return nats.publish(topic, bytes, { "Nats-Msg-Id": id });
-      },
+      send: (id: string, value: T): Effect.Effect<void, MessageSendError> =>
+        Effect.gen(function* () {
+          const encoded = yield* Effect.try({
+            try: () => encode(value),
+            catch: (cause) =>
+              new MessageSendError({
+                topic,
+                cause: `Schema encode failed: ${String(cause)}`,
+              }),
+          });
+          const json = yield* Effect.try({
+            try: () => jsonStringify(encoded),
+            catch: (cause) =>
+              new MessageSendError({
+                topic,
+                cause: `JSON stringify failed: ${String(cause)}`,
+              }),
+          });
+          const bytes = new TextEncoder().encode(json);
+          yield* nats.publish(topic, bytes, { "Nats-Msg-Id": id });
+        }),
     };
   });

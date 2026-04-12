@@ -203,13 +203,17 @@ const scoreEdges = Effect.fn("GraphRag.scoreEdges")(function* (
   const scored = yield* Effect.try({
     try: () => {
       const parsed = jsonParse(completion.response) as Array<{ id: number; score: number }>;
-      return parsed.sort((a, b) => b.score - a.score).slice(0, 25);
+      return parsed
+        .filter((s) => Number.isFinite(s.score) && Number.isInteger(s.id) && s.id >= 0 && s.id < edgeList.length)
+        .map((s) => ({ ...s, score: Math.max(0, Math.min(1, s.score)) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, 25);
     },
     catch: () => new GraphRagError({ phase: "scoreEdges", reason: "Failed to parse LLM scoring response" }),
   });
 
-  // Map back to triples
-  return scored.map((s) => subgraph[s.id]).filter((t): t is Primitives.Triple => t !== undefined);
+  // Map back to triples — id is guaranteed in-bounds by the filter above
+  return scored.map((s) => subgraph[s.id]!).filter((t): t is Primitives.Triple => t !== undefined);
 });
 
 /**

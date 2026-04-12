@@ -284,7 +284,9 @@ export class NatsClient extends Context.Service<
         }),
         (conn) =>
           Effect.promise(async () => {
-            await conn.drain();
+            // Drain can throw if the connection is already closed.
+            // Release finalizers must never fail, so catch and discard.
+            await conn.drain().catch(() => {});
           })
       );
 
@@ -340,68 +342,72 @@ export class NatsClient extends Context.Service<
         const consumer = yield* ensureConsumer(js, jsm, streamName, topic, group);
 
         // Build a Stream using Stream.callback -- the v4 pattern for
-        // callback-based / pull-based sources. We continuously pull
-        // messages from the JetStream consumer and offer them into the
-        // queue that backs the stream.
+        // callback-based / pull-based sources. The callback effect runs
+        // concurrently with the stream consumer. When it errors, the
+        // stream emits that error. When interrupted (scope closes), the
+        // loop stops cleanly.
         const messageStream: Stream.Stream<NatsMessage, NatsConnectionError> = Stream.callback<
           NatsMessage,
           NatsConnectionError
-        >(
-          Effect.fn(function* (queue) {
-            // Fork a long-running fiber that polls the pull consumer.
-            // When the stream is closed (scope finalized), the fiber
-            // is interrupted automatically via forkScoped.
-            yield* Effect.gen(function* () {
-              while (true) {
-                const msg = yield* Effect.tryPromise({
-                  try: () => consumer.next({ expires: 5_000 }),
-                  catch: (cause) =>
-                    new NatsConnectionError({
-                      url: config.url,
-                      cause: `Consumer pull failed: ${String(cause)}`,
-                    }),
-                });
+        >((queue) =>
+          Effect.gen(function* () {
+            // Run the poll loop directly (not forked) so errors
+            // propagate to the stream and Queue.offer provides
+            // backpressure when the consumer can't keep up.
+            while (true) {
+              const msg = yield* Effect.tryPromise({
+                try: () => consumer.next({ expires: 5_000 }),
+                catch: (cause) =>
+                  new NatsConnectionError({
+                    url: config.url,
+                    cause: `Consumer pull failed: ${String(cause)}`,
+                  }),
+              });
 
-                if (msg !== null) {
-                  // Parse headers into a flat record
-                  const parsedHeaders: Record<string, string> = {};
-                  const rawHeaders = msg.headers;
-                  if (rawHeaders !== undefined) {
-                    for (const [key, values] of rawHeaders) {
-                      const first = values[0];
-                      if (first !== undefined) {
-                        parsedHeaders[key] = first;
-                      }
+              if (msg !== null) {
+                // Parse headers into a flat record
+                const parsedHeaders: Record<string, string> = {};
+                const rawHeaders = msg.headers;
+                if (rawHeaders !== undefined) {
+                  for (const [key, values] of rawHeaders) {
+                    const first = values[0];
+                    if (first !== undefined) {
+                      parsedHeaders[key] = first;
                     }
                   }
-
-                  // Build properties map (includes message ID when present)
-                  const props: Record<string, string> & { id?: string } = { ...parsedHeaders };
-                  const msgId = parsedHeaders["Nats-Msg-Id"];
-                  if (msgId !== undefined) {
-                    props.id = msgId;
-                  }
-
-                  const natsMessage: NatsMessage = {
-                    data: msg.data,
-                    subject: msg.subject,
-                    headers: parsedHeaders,
-                    properties: props,
-                    ack: () => Effect.sync(() => msg.ack()),
-                    nak: (delayMs?: number) =>
-                      Effect.sync(() => {
-                        if (delayMs !== undefined) {
-                          msg.nak(delayMs);
-                        } else {
-                          msg.nak();
-                        }
-                      }),
-                  };
-
-                  Queue.offerUnsafe(queue, natsMessage);
                 }
+
+                // Build properties map (includes message ID when present)
+                const props: Record<string, string> & { id?: string } = { ...parsedHeaders };
+                const msgId = parsedHeaders["Nats-Msg-Id"];
+                if (msgId !== undefined) {
+                  props.id = msgId;
+                }
+
+                const natsMessage: NatsMessage = {
+                  data: msg.data,
+                  subject: msg.subject,
+                  headers: parsedHeaders,
+                  properties: props,
+                  ack: () => Effect.sync(() => msg.ack()),
+                  nak: (delayMs?: number) =>
+                    Effect.sync(() => {
+                      if (delayMs !== undefined) {
+                        msg.nak(delayMs);
+                      } else {
+                        msg.nak();
+                      }
+                    }),
+                };
+
+                // Queue.offer awaits space — provides backpressure
+                yield* Queue.offer(queue, natsMessage);
+              } else {
+                // No message within the poll window — yield to let
+                // other fibers run before polling again
+                yield* Effect.yieldNow;
               }
-            }).pipe(Effect.forkScoped);
+            }
           })
         );
 

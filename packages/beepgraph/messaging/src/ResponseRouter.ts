@@ -131,6 +131,10 @@ const dispatchMessage = Effect.fn("ResponseRouter.dispatchMessage")(function* (
 
   if (maybePending._tag === "Some") {
     yield* Deferred.succeed(maybePending.value, msg.data);
+    // Remove eagerly — the requester's ensuring(unregister) will
+    // be a no-op, but we prevent stale entries from accumulating
+    // between dispatch and the requester's cleanup.
+    yield* Ref.update(deferredRef, HashMap.remove(id));
     return;
   }
 
@@ -139,7 +143,10 @@ const dispatchMessage = Effect.fn("ResponseRouter.dispatchMessage")(function* (
   const maybeStream = HashMap.get(streamMap, id);
 
   if (maybeStream._tag === "Some") {
-    yield* Queue.offer(maybeStream.value, msg.data);
+    // Ignore offer failure — the queue may have been shut down if
+    // the consumer disconnected. Dropping the message is safe; the
+    // important thing is that the dispatch loop stays alive.
+    yield* Queue.offer(maybeStream.value, msg.data).pipe(Effect.ignore);
     return;
   }
 
