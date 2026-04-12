@@ -88,6 +88,9 @@
       "path": "packages/beepgraph/schema"
     },
     {
+      "path": "packages/beepgraph/services"
+    },
+    {
       "path": "packages/repo-memory/client"
     },
     {

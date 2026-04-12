@@ -268,6 +268,21 @@
         "vitest": "catalog:",
       },
     },
+    "packages/beepgraph/services": {
+      "name": "@beep/beepgraph-services",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/beepgraph-messaging": "workspace:^",
+        "@beep/beepgraph-schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "typescript": "catalog:",
+        "vitest": "catalog:",
+      },
+    },
     "packages/common/chalk": {
       "name": "@beep/chalk",
       "version": "0.0.0",
@@ -1230,6 +1245,8 @@
     "@beep/beepgraph-messaging": ["@beep/beepgraph-messaging@workspace:packages/beepgraph/messaging"],
 
     "@beep/beepgraph-schema": ["@beep/beepgraph-schema@workspace:packages/beepgraph/schema"],
+
+    "@beep/beepgraph-services": ["@beep/beepgraph-services@workspace:packages/beepgraph/services"],
 
     "@beep/chalk": ["@beep/chalk@workspace:packages/common/chalk"],
 

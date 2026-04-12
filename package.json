@@ -36,7 +36,8 @@
     "packages/editor/client",
     "packages/editor/runtime",
     "packages/beepgraph/messaging",
-    "packages/beepgraph/schema"
+    "packages/beepgraph/schema",
+    "packages/beepgraph/services"
   ],
   "repository": {
     "type": "git",
