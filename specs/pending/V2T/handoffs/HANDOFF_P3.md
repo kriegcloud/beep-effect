@@ -47,6 +47,7 @@ The session working P3 is the execution orchestrator. It may delegate bounded im
 
 - implement only the approved scope
 - extend the current `@beep/VT2` control plane unless an explicit migration is part of the approved scope
+- keep the authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology explicit in code and execution notes
 - keep provider logic behind adapters
 - satisfy the effect-first, schema-first, and JSDoc/docgen constraints named in the phase docs
 - record commands run, touched surfaces, and deviations in `../EXECUTION.md`

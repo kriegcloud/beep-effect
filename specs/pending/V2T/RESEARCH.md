@@ -96,12 +96,22 @@ The product promise is not just transcription. It is transcript plus context, me
 
 - `apps/V2T` already exists as a dedicated workspace with Vite, Vitest, and Tauri wiring.
 - The current route tree renders a placeholder `TwoTvPage`, so the app shell exists but the product workflow does not.
+- `apps/V2T/src-tauri/src/lib.rs` already manages native sidecar launch, health polling, stderr capture, and packaged-versus-dev mode detection, so the repo already has a meaningful native app-shell seam instead of only a browser-like shell.
 - `apps/V2T/vite.config.ts` already proxies `/api` to `https://v2t-sidecar.localhost:1355`, which is the natural sidecar seam for local-first services.
 - `packages/VT2` already exists as a SQLite-backed Effect sidecar package with a typed control-plane protocol in `packages/VT2/src/protocol.ts` and runtime wiring in `packages/VT2/src/Server/index.ts`.
 - `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` already compile and run the `packages/VT2` sidecar for the app shell.
 - `packages/common/ui/src/components/speech-input.tsx` already provides a reusable recording and transcript-preview UI primitive backed by the repo's speech hooks.
 - Root Graphiti commands and recovery/proxy scripts already exist, so memory infrastructure is a repo-native capability rather than an external afterthought.
 - `infra` already exists as the live `@beep/infra` workspace, with `infra/Pulumi.yaml` as the Pulumi project, `infra/src/internal/entry.ts` as the stack entrypoint, `infra/src/V2T.ts` as the `V2TWorkstation` component boundary, and `infra/scripts/v2t-workstation.sh` as the concrete workstation reconciler.
+
+### Cap Comparison Findings
+
+- A comparative pass over the cloned Cap desktop app found a strong typed native-bridge pattern: Cap generates a TypeScript command and event client in `apps/desktop/src/utils/tauri.ts` from its Rust Tauri command surface in `apps/desktop/src-tauri/src/lib.rs`, which keeps desktop-only capabilities explicit and typed.
+- Cap treats direct capture as a failure-prone workflow rather than a best-effort file save. Its `apps/web/app/(org)/dashboard/caps/components/web-recorder-dialog/recording-spool.ts` persists chunks, models backpressure, and supports recovery of already-persisted plus in-memory data when writes fail.
+- Cap exposes crash recovery as first-class UX. `apps/desktop/src/components/RecoveryToast.tsx` and `apps/desktop/src-tauri/src/recovery.rs` surface incomplete recordings, recover/discard actions, and follow-up editor opening instead of burying interrupted capture behind generic errors.
+- Cap persists user-level desktop defaults and recent UI state separately from project data through `apps/desktop/src/store.ts`, `apps/desktop/src/utils/general-settings.ts`, and multiple `makePersisted(...)` UI states, which makes its desktop workflow reopen predictably without conflating preferences with project artifacts.
+- Cap converges recording and import into the same downstream project flow. Its typed native bridge includes both capture controls and import readiness checks, which is a useful model for V2T's first slice because it avoids splitting recorded and imported conversations into separate product pipelines.
+- Cap also verifies failure paths directly. Its spool tests cover chunk ordering, backpressure, recovery, and cleanup, while its desktop scripts include a memory-soak harness for stability work. V2T does not need Cap's full test suite immediately, but it should copy the posture that desktop failure modes are spec-visible and testable.
 
 ### Installer Findings
 
@@ -131,12 +141,15 @@ The product promise is not just transcription. It is transcript plus context, me
   `"[\"beep-dev\"]"` when the MCP wrapper only accepts strings, and current
   RediSearch search failures should trigger a documented fallback rather than a
   blocked phase.
+- Graphiti recall was attempted with the queries `V2T spec architecture planning sidecar app workflow memory composition export patterns` and `V2T spec Cap resilient capture typed native bridge recovery settings verification`; both failed with the exact error `Error searching facts: RediSearch: Syntax error at offset 16 near beep`, `get_episodes` returned `No episodes found`, and the fallback used for this pass was repo-local docs plus direct inspection of the cloned Cap repository.
 
 ### Gaps
 
 - There is no canonical V2T domain model yet.
-- The current `@beep/VT2` sidecar only exposes a simple document-oriented control plane, not V2T-native projects, sessions, transcripts, composition runs, or export artifacts.
-- There is no implemented local persistence flow for V2T sessions, transcripts, composition runs, or export artifacts beyond the existing sidecar bootstrap and document storage seam.
+- The current `@beep/VT2` sidecar only exposes a simple document-oriented control plane, not V2T-native projects, sessions, transcripts, composition runs, export artifacts, or user-level desktop preference records.
+- There is no typed native desktop bridge yet for V2T-side concerns such as sidecar lifecycle, file dialogs, recovery actions, or limited auxiliary window orchestration.
+- There is no implemented capture durability flow yet for chunk or segment persistence, backpressure, or recover/discard handling after interrupted direct capture.
+- There is no implemented local persistence flow for V2T sessions, transcripts, composition runs, export artifacts, or recoverable capture candidates beyond the existing sidecar bootstrap and document storage seam.
 - The current app does not expose the record -> review -> configure -> generate workflow from the PRD.
 - Provider contracts for transcript enrichment, audio embedding, video generation, and export orchestration are not formalized.
 
@@ -146,8 +159,13 @@ The product promise is not just transcription. It is transcript plus context, me
 
 - V2T should be treated as a local-first workspace first and an automated media-production pipeline second.
 - The canonical spec should preserve the PRD ambition while sequencing delivery through explicit provider seams and local artifacts.
+- The first implementation slice should make resilient capture and recovery part of the core desktop workflow, not a later hardening-only concern.
 - The first implementation slice should stop at composition packets and tracked export artifacts unless a later phase proves end-to-end generator reliability.
 - The first implementation slice should extend or explicitly supersede the current `@beep/VT2` control plane instead of inventing a second app-local server path.
+- The first implementation slice should keep record and import as equal session-entry paths that converge into one session and artifact model.
+- The first implementation slice should treat Tauri-only concerns as one authoritative typed desktop bridge derived from the Rust command and event surface instead of ad-hoc app-shell calls.
+- Direct capture durability should live below the React UI so the app observes typed capture status instead of owning raw capture buffers.
+- The native shell should own raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions, while the sidecar owns canonical session metadata and downstream artifact indexing after intake.
 
 ### Provider Classification
 
@@ -163,6 +181,11 @@ The product promise is not just transcription. It is transcript plus context, me
 - use the existing `packages/VT2` sidecar package and scripts as the starting control-plane seam unless a later phase documents a migration
 - use `@beep/infra` as the canonical home for workstation automation instead of adding an app-local installer outside the infra workspace
 - treat `apps/V2T`, `packages/VT2`, and `@beep/infra` as the live app, sidecar, and workstation-automation seams for the first slice
+- keep direct capture and import as equal first-slice session sources that converge into the same downstream workflow
+- keep Tauri-only concerns behind one authoritative typed desktop bridge derived from the Rust command and event surface rather than scattered manual calls
+- keep direct-capture chunk or segment persistence and recovery below the React UI, with the native shell owning raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake
+- keep the first-slice desktop UX explicit: one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice
+- keep durable desktop preferences and last-used workflow defaults as a separate settings seam rather than mixing them into project or run records
 - use `@beep/v2t` and `@beep/VT2` as the live Turbo filter identities unless
   later repo changes update the manifests
 - keep the spec compatible with effect-first and schema-first repo rules
@@ -171,6 +194,7 @@ The product promise is not just transcription. It is transcript plus context, me
 - treat the current naming drift between `apps/V2T` and `packages/VT2` as a documented repo fact rather than a bootstrap-time rename project
 - keep `1Password` optional for V2T secrets, preferring Pulumi secret config and optional `op run` injection over mandatory Connect or ESC setup
 - treat the Graphiti LLM credential as a required installer input whenever Graphiti provisioning remains enabled
+- borrow Cap's contract, recovery, and verification posture where it strengthens the existing seams, but do not clone Cap's full package or window surface into this repo
 
 ## Research Deliverables For This Package
 
@@ -178,16 +202,17 @@ P0 is complete when all of these are explicit:
 
 - the product workflow is grounded in repo seams rather than PRD-only language
 - the initial execution slice is named and scoped
+- the desktop resilience posture, typed native bridge ownership, and unified record/import pipeline are explicit
 - provider seams are classified as local, optional, or deferred
 - the mandatory repo-law inputs and command-matrix constraints are written down for later phases
 - preserved source artifacts remain linked and unmodified
 
-## Open Research Questions To Close During Active P0 Work
+## Remaining Details To Carry Into P1 And P2
 
-- Should the first slice extend the existing `Vt2Document` control plane into V2T-native project/session endpoints or introduce parallel endpoints with an explicit migration path?
-- Which existing speech hook/provider behavior is sufficient for V2T transcript capture versus where a dedicated adapter is required?
-- Should transcript enrichment and research run entirely in the sidecar or as queued jobs surfaced through the sidecar?
-- What exact artifact set is required before a composition run can be considered export-ready?
+- How should the first slice extend the existing `Vt2Document` control plane into V2T-native project, session, and run endpoints without hiding migration or compatibility costs?
+- Which concrete transport or storage shapes best express the already-locked hybrid capture contract, where the native shell owns raw direct-capture durability and the sidecar owns canonical session metadata after intake?
+- Should the single focused capture or recovery surface be implemented as an overlay or as one auxiliary native window in the first slice?
+- How should the shared speech input component compose with the already-locked native-shell capture lifecycle without becoming the authoritative owner of raw capture state?
 
 ## Stop Conditions
 
@@ -205,4 +230,4 @@ P0 is complete only when `RESEARCH.md` gives P1 a trustworthy baseline:
 - the initial execution slice is named and bounded
 - provider seams are classified as local, optional, or deferred
 - repo-law and command-truth constraints are explicit
-- unresolved questions are visible instead of buried in assumptions
+- only implementation-detail questions remain, and they are visible instead of buried in assumptions

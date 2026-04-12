@@ -51,6 +51,7 @@ The session working P2 is the planning orchestrator. It may delegate read-only c
 - lock the default verification commands
 - lock the real conformance gates, including the repo-law commands and the VT2 task limitations
 - keep the plan tied to the existing `@beep/VT2` seam unless a migration is explicit
+- keep the authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology explicit enough that P3 does not need to infer them
 - write or refine `../PLANNING.md`
 
 ## Stop Conditions

@@ -19,9 +19,10 @@ Operate in this order:
 7. Integrate every worker result yourself. Workers do not own phase closure, manifest authority, or scope expansion.
 8. Apply the mandatory conformance inputs and gates from `README.md`.
 9. Use the current `apps/V2T` and `packages/VT2` seams as the default runtime boundary and `@beep/infra` as the default workstation/deployment boundary unless the active phase explicitly documents a migration.
-10. Run a read-only review wave before phase closeout, integrate any
+10. Treat the first slice as already locked around one authoritative typed desktop bridge derived from the Rust command and event surface, a native-shell plus sidecar capture split, record or import parity, and one main workspace window plus native dialogs and at most one focused capture or recovery surface.
+11. Run a read-only review wave before phase closeout, integrate any
     substantive findings, and rerun review when needed.
-11. Update only the named phase artifact, update `outputs/manifest.json` only when phase state changes, update `outputs/grill-log.md` during P0 when new decisions are locked, and stop at the active phase exit gate instead of rolling into the next phase.
-12. Write Graphiti memory back using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`
+12. Update only the named phase artifact, update `outputs/manifest.json` only when phase state changes, update `outputs/grill-log.md` during P0 when new decisions are locked, and stop at the active phase exit gate instead of rolling into the next phase.
+13. Write Graphiti memory back using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`
     when the phase produced durable repo truth, architecture decisions,
     reusable failure knowledge, or meaningful in-progress state.

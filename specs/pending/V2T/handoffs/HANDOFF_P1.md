@@ -47,6 +47,7 @@ The session working P1 is the design orchestrator. It may delegate bounded schem
 - define the durable domain objects and service boundaries
 - map the workflow onto app, sidecar, and shared-package seams
 - resolve how the current `@beep/VT2` control plane carries the first slice
+- keep the authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology explicit enough that P2 does not need to infer them
 - capture the effect-first, schema-first, and docgen/JSDoc constraints that P2 and P3 must satisfy
 - write or refine `../DESIGN_RESEARCH.md`
 

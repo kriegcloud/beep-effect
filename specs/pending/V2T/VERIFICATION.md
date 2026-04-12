@@ -81,6 +81,11 @@ P4 verification must explicitly reference:
 
 - `bun run docgen` when exported APIs or JSDoc examples changed
 
+### Resilience Evidence Minimum
+
+- whenever the implemented slice includes capture or desktop lifecycle behavior, record at least one automated recovery, interruption, backpressure, or typed native bridge path
+- command success alone is not enough for readiness when the slice depends on direct capture, recovery, or Tauri-only lifecycle behavior
+
 ### Readiness Gate
 
 - `bun run check`
@@ -111,12 +116,22 @@ Important note:
 
 - app loads the V2T workspace instead of the placeholder screen
 - routes render without provider credentials when adapters are stubbed or unavailable
+- the typed native desktop bridge is available for the first-slice Tauri-only actions the workflow depends on
+- the desktop topology stays within one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice
 
 ### Capture And Session Creation
 
 - user can create a project and session
-- record or import flow produces durable session metadata
+- record and import both produce durable session metadata inside the same session model
+- direct capture persists chunk or segment intermediates strongly enough that interrupted sessions can be discovered for recover or discard
+- recover or discard flows leave the workspace in an explicit typed state instead of silent failure
 - transcript state is visible in the review surface
+
+### Desktop Preferences And Recovery
+
+- capture, composition, and recovery defaults persist across relaunches without being mixed into project-specific records
+- the app rehydrates last-used workflow defaults without corrupting project or run state
+- sidecar lifecycle and recovery status are surfaced through the typed desktop bridge rather than inferred from ad-hoc UI state
 
 ### Review And Composition
 
@@ -142,6 +157,8 @@ Important note:
   do not pass
 - manual scenario notes
 - screenshots only if they materially prove UI behavior
+- the exact automated recovery, interruption, backpressure, or typed native bridge path recorded for the slice when capture or desktop lifecycle behavior is in scope
+- recovery or failure-path evidence for interrupted capture, backpressure, or sidecar lifecycle when those behaviors are part of the implemented slice
 - delegation audit notes when read-only reviewers were used
 - known gaps and the exact reason they remain deferred
 - whether the implementation extended `packages/VT2` or intentionally migrated away from it
@@ -159,6 +176,7 @@ P4 can only claim readiness when:
 - deferred provider behavior is named explicitly
 - no unresolved blocker contradicts the canonical workflow
 - the conformance gates are supported by recorded evidence rather than implication
+- non-happy-path desktop behavior required by the slice has explicit evidence rather than being assumed from happy-path output
 - the latest read-only review wave reports no unresolved substantive issues
 
 ## Stop Conditions

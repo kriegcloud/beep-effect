@@ -67,6 +67,7 @@ them from prose.
 - Verify workspace identity from the manifests before writing Turbo filter
   commands. The current names are `@beep/infra`, `@beep/v2t`, and `@beep/VT2`.
 - Do not invent an app-local server path when the existing `@beep/VT2` control plane can carry the slice.
+- Treat the first slice as already locked around one authoritative typed desktop bridge derived from the Rust command and event surface, a native-shell plus sidecar capture split, record or import parity, and one main workspace window plus native dialogs and at most one focused capture or recovery surface.
 - Preserve the raw PRD and legacy notes under `outputs/`.
 - Enforce the conformance matrix from `README.md`; do not claim a gate passed without recording the concrete command result.
 - Treat `outputs/validate-spec.mjs` plus `git diff --check -- specs/pending/V2T` as the package-local spec gate because root markdown lint ignores `specs/**`.
@@ -88,6 +89,7 @@ them from prose.
   handoff for procedural guidance; do not blur those responsibilities.
 - Record Graphiti recall attempted, fallback reason, and writeback status in
   the active phase artifact using `prompts/GRAPHITI_MEMORY_PROTOCOL.md`.
+- When the implemented slice includes capture or desktop lifecycle behavior, record at least one automated recovery, interruption, backpressure, or typed native bridge path before readiness can be claimed.
 
 ## Cross-Phase Stop Conditions
 

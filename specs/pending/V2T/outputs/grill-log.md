@@ -223,3 +223,59 @@ This file is append-only. Record high-signal questions, recommendations, answers
 - Recommendation: treat `@beep/infra` as live repo truth, not as planned future implementation
 - Answer: use `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, `infra/test/V2T.test.ts`, and `infra/package.json` as the authoritative workstation-install and deployment surfaces
 - Resolution: updated the docs, prompts, handoffs, manifest, and validator so `@beep/infra` is now a first-class V2T seam alongside `apps/V2T` and `packages/VT2`
+
+## 2026-04-12 Cap-Informed Product Decisions
+
+### Q33 - Should crash-tolerant capture be a first-slice requirement?
+
+- Recommendation: yes; adopt Cap's failure-aware posture and treat chunk or segment durability plus recover or discard flows as part of the first slice
+- Answer: yes, first slice
+- Resolution: refreshed the research, design, planning, execution, and verification docs so direct capture resilience is a core requirement rather than later hardening
+
+### Q34 - Should V2T require a typed native desktop bridge?
+
+- Recommendation: yes; model Tauri-only commands and events through one typed bridge instead of scattered ad-hoc calls
+- Answer: typed bridge now
+- Resolution: the canonical spec now treats sidecar lifecycle, dialogs, capture control, recovery actions, and native status events as a typed desktop boundary
+
+### Q35 - What window topology should the first slice use?
+
+- Recommendation: limited multi-window; keep one main workspace and only a few focused native overlays or windows where capture, recovery, or review truly need them
+- Answer: limited multi-window
+- Resolution: the spec now rejects a single-window-only assumption while also rejecting Cap-style full window sprawl for the first slice
+
+### Q36 - Should desktop settings and workflow defaults persist in the first slice?
+
+- Recommendation: yes; persist capture, composition, and recovery defaults separately from project artifacts
+- Answer: yes, include them
+- Resolution: the design and planning docs now require a durable desktop preferences seam rather than treating defaults as transient UI state
+
+### Q37 - Who owns direct-capture durability and recovery state?
+
+- Recommendation: the native shell or sidecar should own it, with React observing typed lifecycle state instead of buffering authoritative capture data
+- Answer: native or sidecar owned
+- Resolution: the spec now places chunk or segment persistence and recovery below the React UI boundary
+
+### Q38 - How strict should first-slice verification be about desktop resilience?
+
+- Recommendation: require failure-path tests for recovery, backpressure, and lifecycle behavior rather than only happy-path flows
+- Answer: require failure-path tests
+- Resolution: the verification-facing docs now require explicit evidence for non-happy-path desktop behavior when it is part of the implemented slice
+
+### Q39 - How should recording and import relate in the first slice?
+
+- Recommendation: treat them as equal session sources that converge into one downstream pipeline
+- Answer: yes, unify them
+- Resolution: the spec now treats recorded and imported conversations as first-class entries into the same session and artifact model
+
+### Q40 - How should Cap's contract discipline map onto our repo seams?
+
+- Recommendation: reuse the current seams instead of adding a new top-level V2T contract package
+- Answer: reuse current seams
+- Resolution: the spec keeps sidecar contracts in `@beep/VT2`, native app-shell contracts in `apps/V2T`, and shared schema work in existing shared packages
+
+### Q41 - How broadly should the Cap findings be applied in the spec?
+
+- Recommendation: perform a cross-phase refresh so research, design, planning, execution, and verification all agree on the new first-slice posture
+- Answer: cross-phase refresh
+- Resolution: updated the phase artifacts and operator guidance together instead of leaving the Cap findings trapped in P0 notes

@@ -14,7 +14,7 @@ Operate orchestration-first:
 - keep the immediate blocking repo inspection local
 - delegate only bounded read-only scouting or audit work
 - integrate every worker result yourself using the V2T sub-agent output contract
-- write or refine `RESEARCH.md` with confirmed repo facts, provider-seam classification, and explicit open questions
+- write or refine `RESEARCH.md` with confirmed repo facts, the authoritative typed desktop bridge, the native-shell versus sidecar capture ownership split, the explicit first-slice window topology, provider-seam classification, and only the remaining implementation-detail questions
 - append any newly locked decisions to `outputs/grill-log.md`
 - update `outputs/manifest.json` only when the phase state changes
 - use `grill-me` when meaningful product or architecture ambiguity remains

@@ -114,3 +114,11 @@
 - Extended the command-truth contract so installer and deployment claims must cite `infra/package.json` in addition to the root, app, and sidecar manifests.
 - Tightened the human-facing gates so infra check, test, and lint evidence now stay aligned with the live targeted implementation floor.
 - Extended the validator to reject stale “add Pulumi later” prose and to require infra-aware snippets across the README, quick start, phase docs, prompts, and handoffs.
+
+## 2026-04-12 Cap-Informed Consistency Pass
+
+- Closed the remaining high-impact P0 ambiguity by locking the first-slice desktop bridge as one authoritative contract derived from the Rust command and event surface instead of a soft preference.
+- Locked the hybrid capture ownership split so the native shell owns raw direct-capture control and durability while `@beep/VT2` owns canonical session metadata and downstream artifact indexing after intake.
+- Replaced the vague limited-multi-window wording with an explicit first-slice topology: one main workspace window, native file dialogs, and at most one focused capture or recovery surface, with settings and review staying in the main workspace.
+- Tightened the verification contract so capture-enabled slices must record at least one automated recovery, interruption, backpressure, or typed native bridge path instead of relying on generic command success alone.
+- Propagated those defaults through the phase artifacts, handoffs, prompts, README, and quick start, and expanded the validator plus manifest metadata so future drift is machine-detectable.

@@ -64,6 +64,11 @@ P3 execution must actively apply:
 
 - replace the placeholder app shell with the agreed workflow
 - persist projects, sessions, transcripts, composition packets, and export artifact records
+- implement the typed native desktop bridge or record the exact blocker that prevents it from being part of the slice
+- keep that bridge as one authoritative contract derived from the Rust command and event surface
+- implement resilient direct capture with recover or discard behavior and explicit interruption or backpressure state, or record the exact blocker that pushes it back
+- unify record and import into the same session and artifact pipeline
+- persist user-level capture, composition, and recovery defaults separately from project and run records
 - extend the existing `@beep/VT2` control plane unless a deliberate migration is explicitly documented
 - keep `@beep/infra` as the canonical workstation/deployment seam when the approved slice touches installer or deployment behavior
 - keep all external providers behind explicit adapters
@@ -77,8 +82,11 @@ P3 execution must actively apply:
 - keep exported APIs and examples docgen-clean
 - prefer typed errors and explicit service boundaries
 - do not let React components own provider-specific logic
+- do not let React components own authoritative direct-capture buffers or recovery state
+- keep the native shell authoritative for raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake
 - do not invent an app-local server path if the current `packages/VT2` sidecar seam can carry the slice
 - do not invent a second installer or deployment path if the current `@beep/infra` seam can carry the slice
+- keep the first-slice desktop UX to one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace
 - stop at the first-slice boundary instead of slipping into speculative polish
 - capture command results and touched surfaces in this document as work progresses
 - do not claim a gate passed unless the concrete command result is recorded here

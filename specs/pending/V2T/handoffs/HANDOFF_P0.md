@@ -48,6 +48,7 @@ The session working P0 is the research orchestrator. It may delegate bounded rea
 
 - classify which PRD claims already map to repo seams
 - confirm the first execution slice
+- lock the authoritative desktop bridge, capture ownership split, record or import parity, and first-slice window topology unless live repo evidence forces a reopen
 - name provider seams and deferred assumptions explicitly
 - confirm the conformance inputs and live command/task assumptions that later phases must use
 - append any new locked decisions to `../outputs/grill-log.md`

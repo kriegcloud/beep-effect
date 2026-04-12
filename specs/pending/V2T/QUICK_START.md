@@ -76,11 +76,17 @@
 
 Unless a stronger user instruction overrides it, the package assumes the first implementation slice should convert the existing `apps/V2T` shell into a local-first workspace that can:
 
-- capture or ingest a conversation
+- capture or ingest a conversation through one unified session pipeline
+- expose Tauri-only capabilities through one authoritative typed native bridge derived from the Rust command and event surface
+- persist direct-capture intermediates strongly enough to support recover or discard after interruption
+- keep the native shell authoritative for raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake
 - create structured transcript/session artifacts
 - retrieve memory context through an explicit adapter seam
+- persist durable capture, composition, and recovery defaults separately from project records
 - configure a composition run
 - produce export-ready composition packets and artifact records
+- keep the desktop topology to one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice
+- record at least one automated recovery, interruption, backpressure, or typed native bridge path before a capture-enabled slice can claim readiness
 - do so by extending the current `@beep/VT2` control plane instead of inventing a second app-local server
 
 ## Conformance Gate Summary

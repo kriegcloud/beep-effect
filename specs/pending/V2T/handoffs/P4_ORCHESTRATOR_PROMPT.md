@@ -9,7 +9,7 @@ Operate orchestration-first:
 - delegate only read-only specialists to audit evidence quality or boundary behavior
 - require every worker result to use the V2T sub-agent output contract
 - integrate every audit result yourself and keep the readiness call in the orchestrator session
-- produce or refine `VERIFICATION.md` with automated results, manual scenario evidence, deferred behavior, conformance evidence, residual risks, and a readiness statement
+- produce or refine `VERIFICATION.md` with automated results, manual scenario evidence, deferred behavior, conformance evidence, the explicit resilience evidence minimum, residual risks, and a readiness statement
 - run a final read-only review wave before declaring readiness
 - write Graphiti memory back with the final evidence summary and any unresolved risks
 - stop and surface blockers instead of masking missing evidence as confidence

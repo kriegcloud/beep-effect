@@ -13,7 +13,7 @@ Operate orchestration-first:
 - keep the contract-shaping decisions in the orchestrator session
 - delegate only bounded schema, service, or boundary analysis with disjoint scopes
 - integrate every worker result yourself using the V2T sub-agent output contract
-- produce or refine `DESIGN_RESEARCH.md` so the workflow, domain model, storage posture, adapter boundaries, and conformance rules are decision-complete
+- produce or refine `DESIGN_RESEARCH.md` so the workflow, domain model, storage posture, adapter boundaries, authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, first-slice window topology, and conformance rules are decision-complete
 - run a read-only review wave before closing P1
 - write Graphiti memory back when P1 locks durable system-boundary or storage decisions
 - stop and surface any issue that really belongs back in P0

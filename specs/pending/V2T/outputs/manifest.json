@@ -3,7 +3,7 @@
   "title": "V2T Canonical Spec",
   "status": "BOOTSTRAPPED",
   "created": "2026-04-10",
-  "updated": "2026-04-10",
+  "updated": "2026-04-12",
   "package_status_note": "Package bootstrap is complete; active_phase identifies the next phase to work.",
   "active_phase": "p0",
   "status_model": {
@@ -153,6 +153,20 @@
     ],
     "require_exact_error_logging": true,
     "require_session_end_summary_writeback": true
+  },
+  "first_slice_contract": {
+    "desktop_bridge_authority": "one authoritative typed desktop bridge derived from the Rust command and event surface",
+    "native_shell_capture_ownership": "native shell owns raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions",
+    "sidecar_capture_ownership": "sidecar owns canonical session metadata and downstream artifact indexing after intake",
+    "session_sources": "record and import are equal first-slice session sources that converge into the same session and artifact model",
+    "window_topology": [
+      "one main workspace window",
+      "native file dialogs",
+      "at most one focused capture or recovery surface",
+      "settings stay in the main workspace",
+      "review stays in the main workspace"
+    ],
+    "resilience_evidence_minimum": "at least one automated recovery, interruption, backpressure, or typed native bridge path when capture or desktop lifecycle behavior is in scope"
   },
   "phase_order": ["p0", "p1", "p2", "p3", "p4"],
   "phases": {
@@ -370,7 +384,8 @@
       "REFLECTION_LOG.md": [
         "## Logging Rules",
         "## 2026-04-10 Bootstrap",
-        "## 2026-04-10 Package Hardening"
+        "## 2026-04-10 Package Hardening",
+        "## 2026-04-12 Cap-Informed Consistency Pass"
       ],
       "prompts/README.md": [
         "## Files",
@@ -408,17 +423,32 @@
         "`@beep/infra`",
         "`infra/package.json`",
         "`infra/src/internal/entry.ts`",
-        "`bun run --cwd infra lint`"
+        "`bun run --cwd infra lint`",
+        "one authoritative typed desktop bridge derived from the Rust command and event surface",
+        "native shell owns raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions",
+        "one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice"
       ],
       "QUICK_START.md": [
         "`infra/package.json`",
         "`infra/src/internal/entry.ts`",
-        "`bun run --cwd infra lint`"
+        "`bun run --cwd infra lint`",
+        "one authoritative typed native bridge derived from the Rust command and event surface",
+        "the native shell authoritative for raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake",
+        "one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice",
+        "at least one automated recovery, interruption, backpressure, or typed native bridge path before a capture-enabled slice can claim readiness"
       ],
       "AGENT_PROMPTS.md": [
         "`@beep/infra`",
         "`infra/src/internal/entry.ts`",
-        "`infra/package.json`"
+        "`infra/package.json`",
+        "Treat the first-slice desktop bridge as one authoritative contract derived from the Rust command and event surface rather than a preference.",
+        "Treat the native shell as the owner of raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions, while the sidecar owns canonical session metadata and downstream artifact indexing after intake.",
+        "Require at least one automated recovery, interruption, backpressure, or typed native bridge path before a capture-enabled slice can claim readiness."
+      ],
+      "REFLECTION_LOG.md": [
+        "## 2026-04-12 Cap-Informed Consistency Pass",
+        "Locked the hybrid capture ownership split",
+        "Tightened the verification contract so capture-enabled slices must record at least one automated recovery, interruption, backpressure, or typed native bridge path"
       ],
       "prompts/PHASE_DELEGATION_PROMPTS.md": [
         "Each prompt fill below supplies only the phase-specific values for the common frame.",
@@ -431,18 +461,25 @@
         "`infra/package.json`",
         "`infra/src/internal/entry.ts`",
         "`apps/V2T/turbo.json`",
-        "`packages/VT2/turbo.json`"
+        "`packages/VT2/turbo.json`",
+        "one authoritative typed desktop bridge derived from the Rust command and event surface",
+        "native shell owning raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake",
+        "## Remaining Details To Carry Into P1 And P2"
       ],
       "DESIGN_RESEARCH.md": [
         "`infra/package.json`",
         "`infra/src/internal/entry.ts`",
         "`apps/V2T/turbo.json`",
-        "`packages/VT2/turbo.json`"
+        "`packages/VT2/turbo.json`",
+        "one authoritative typed desktop bridge derived from the Rust command and event surface",
+        "The first-slice window model is explicit: one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice."
       ],
       "PLANNING.md": [
         "`infra/package.json`",
         "`infra/src/internal/entry.ts`",
-        "`@beep/infra`"
+        "`@beep/infra`",
+        "from one authoritative source of truth derived from the Rust command and event surface",
+        "require at least one automated recovery, interruption, backpressure, or typed native bridge path whenever the implemented slice includes capture or desktop lifecycle work"
       ],
       "EXECUTION.md": [
         "`infra/package.json`",
@@ -454,44 +491,66 @@
         "`infra/package.json`",
         "`bun run --cwd infra lint`",
         "`apps/V2T/turbo.json`",
-        "`packages/VT2/turbo.json`"
+        "`packages/VT2/turbo.json`",
+        "## Resilience Evidence Minimum",
+        "at least one automated recovery, interruption, backpressure, or typed native bridge path",
+        "one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice"
       ],
       "handoffs/P0_ORCHESTRATOR_PROMPT.md": [
         "root plus workspace `package.json` and `turbo.json`",
-        "`infra/package.json`"
+        "`infra/package.json`",
+        "the authoritative typed desktop bridge",
+        "remaining implementation-detail questions"
       ],
       "handoffs/P1_ORCHESTRATOR_PROMPT.md": [
         "root plus workspace `package.json` and `turbo.json`",
-        "`infra/package.json`"
+        "`infra/package.json`",
+        "authoritative typed desktop bridge",
+        "first-slice window topology"
       ],
       "handoffs/P2_ORCHESTRATOR_PROMPT.md": [
-        "`infra/package.json`"
+        "`infra/package.json`",
+        "authoritative typed desktop bridge",
+        "first-slice window topology"
       ],
       "handoffs/P3_ORCHESTRATOR_PROMPT.md": [
         "root plus workspace `package.json` and `turbo.json`",
-        "`infra/package.json`"
+        "`infra/package.json`",
+        "authoritative typed desktop bridge",
+        "first-slice window topology"
       ],
       "handoffs/P4_ORCHESTRATOR_PROMPT.md": [
         "root plus workspace `package.json` and `turbo.json`",
-        "`infra/package.json`"
+        "`infra/package.json`",
+        "explicit resilience evidence minimum"
       ],
       "handoffs/HANDOFF_P0.md": [
-        "`../../../../infra/src/internal/entry.ts`"
+        "`../../../../infra/src/internal/entry.ts`",
+        "desktop bridge, capture ownership split, record or import parity, and first-slice window topology"
       ],
       "handoffs/HANDOFF_P1.md": [
-        "`../../../../infra/src/internal/entry.ts`"
+        "`../../../../infra/src/internal/entry.ts`",
+        "typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology"
       ],
       "handoffs/HANDOFF_P2.md": [
-        "`../../../../infra/src/internal/entry.ts`"
+        "`../../../../infra/src/internal/entry.ts`",
+        "typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology"
       ],
       "handoffs/HANDOFF_P3.md": [
-        "`../../../../infra/src/internal/entry.ts`"
+        "`../../../../infra/src/internal/entry.ts`",
+        "typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology"
       ],
       "handoffs/HANDOFF_P4.md": [
         "`../../../../infra/src/internal/entry.ts`"
       ],
       "handoffs/HANDOFF_P0-P4.md": [
-        "`@beep/infra`"
+        "`@beep/infra`",
+        "one authoritative typed desktop bridge derived from the Rust command and event surface",
+        "at least one automated recovery, interruption, backpressure, or typed native bridge path before readiness can be claimed"
+      ],
+      "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md": [
+        "one authoritative typed desktop bridge derived from the Rust command and event surface",
+        "one main workspace window plus native dialogs and at most one focused capture or recovery surface"
       ]
     }
   }

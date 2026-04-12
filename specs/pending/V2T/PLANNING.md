@@ -78,56 +78,73 @@ P2 must plan against the actual repo-law and task surface, not a guessed one:
 
 ### Track 1 - Domain And Contracts
 
-- add V2T domain schemas and typed errors for projects, sessions, recordings, transcripts, composition profiles, runs, and export artifacts
+- add V2T domain schemas and typed errors for projects, sessions, session sources, recordings, capture segments or recovery candidates, transcripts, composition profiles, runs, export artifacts, and desktop preferences
 - plan schema-first models with `S.Class`, annotations, same-name runtime aliases where required, and no exported pure-data `interface` / type-literal drift
 - define adapter services for transcript, enrichment, memory, composition, and export providers using explicit Effect service boundaries
+- define the typed native desktop bridge contract for Tauri-only commands and events from one authoritative source of truth derived from the Rust command and event surface
 - keep contracts local-first and sidecar-friendly
 
-### Track 2 - Local Persistence And Sidecar
+### Track 2 - Native Desktop Bridge And Capture Resilience
+
+- extend `apps/V2T/src-tauri` so it owns sidecar lifecycle visibility, native file dialogs, direct capture control, recover or discard flows, and at most one focused capture or recovery surface
+- persist direct-capture chunk or segment state below the React UI and surface explicit interruption, recovery, and backpressure states through the typed native bridge while keeping the native shell authoritative for raw capture state and the sidecar authoritative for canonical session metadata after intake
+- keep record and import as equal entry points while ensuring the native shell and sidecar own authoritative capture lifecycle state
+
+### Track 3 - Local Persistence And Sidecar
 
 - extend the existing `packages/VT2` control plane into a concrete V2T service boundary
-- add filesystem and SQLite persistence for session metadata and generated artifacts
-- define packet formats for transcript persistence, memory context snapshots, and composition runs
+- add filesystem and SQLite persistence for session metadata, recoverable capture candidates, desktop-default references, and generated artifacts
+- define packet formats for transcript persistence, memory context snapshots, composition runs, and export records
 
-### Track 3 - App Workflow
+### Track 4 - App Workflow And Settings
 
 - replace the placeholder `TwoTvPage` with the real V2T workspace shell
 - add project, session, capture or import, review, and composition configuration screens
+- persist user-level capture, composition, and recovery defaults separately from project and run records
 - reuse the shared speech input component where it fits instead of building a second recorder control stack
 
-### Track 4 - Composition And Export Orchestration
+### Track 5 - Composition And Export Orchestration
 
 - create composition profile editing and composition run submission
 - persist run history, status transitions, and export artifact records
 - allow provider-backed execution or stubbed local development paths through the same contracts
 
-### Track 5 - Verification
+### Track 6 - Verification
 
-- add targeted tests for domain contracts and route-level behavior
-- prove the app can boot, create session artifacts, and generate composition packets
+- add targeted tests for domain contracts, route-level behavior, typed native bridge behavior, and failure-path capture semantics
+- prove the app can boot, create session artifacts, recover or discard interrupted capture, and generate composition packets
+- require at least one automated recovery, interruption, backpressure, or typed native bridge path whenever the implemented slice includes capture or desktop lifecycle work
 - prove the affected surfaces conform to effect-first, schema-first, and JSDoc/docgen standards
 - document any provider gaps explicitly instead of hiding them in the UI
 
 ## Suggested File And Surface Order
 
 1. `infra/src/V2T.ts`, `infra/src/internal/entry.ts`, `infra/scripts/v2t-workstation.sh`, and `infra/test/V2T.test.ts` for installer and deployment surfaces when the slice changes them
-2. `apps/V2T/src` domain and service contracts
-3. `packages/VT2/src/protocol.ts` and `packages/VT2/src/Server/index.ts` sidecar contract and runtime wiring
-4. `apps/V2T/src/router.tsx` and component surfaces for the user workflow
-5. `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` only if runtime packaging or env contracts change
-6. provider adapter implementations or stubs behind the service interfaces
-7. app, sidecar, and infra tests plus route, state, or installer verification
-8. package docs or docgen outputs if public workspace docs materially change
+2. `apps/V2T/src-tauri/src/lib.rs` plus the app-side typed native bridge surface for sidecar lifecycle, dialogs, capture control, recovery actions, and limited window events
+3. `packages/VT2/src/protocol.ts` and `packages/VT2/src/Server/index.ts` for V2T-native session, run, and artifact contracts plus persistence
+4. `apps/V2T/src` domain and service contracts, including record or import parity and durable desktop preferences
+5. `apps/V2T/src/router.tsx` and component surfaces for the workspace, review, settings, and limited auxiliary-window entry points
+6. `apps/V2T/scripts/build-sidecar.ts` and `apps/V2T/scripts/dev-with-portless.ts` only if runtime packaging or env contracts change
+7. provider adapter implementations or stubs behind the service interfaces
+8. app, sidecar, and infra tests plus route, state, capture-failure, or installer verification
+9. package docs or docgen outputs if public workspace docs materially change
 
 ## Acceptance Criteria
 
 - the app has a concrete project/session workflow instead of a placeholder page
 - the first slice produces durable session and transcript artifacts
+- direct capture uses persisted chunk or segment intermediates and exposes recover or discard state after interruption
+- record and import converge into the same session pipeline and artifact model
+- Tauri-only capabilities are exposed through a typed native bridge rather than scattered ad-hoc calls
+- the typed native bridge remains one authoritative contract derived from the Rust command and event surface
+- durable desktop settings and last-used defaults persist separately from project or run records
+- the first slice stays within one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace
 - memory retrieval is represented by a typed packet contract and adapter
 - composition configuration produces a persisted run packet
 - export artifacts have tracked records even when provider output is stubbed
 - the implementation uses the current `@beep/VT2` control plane or documents a deliberate migration away from it
 - the implementation plan names the real conformance gates instead of assuming nonexistent workspace tasks
+- the implementation plan requires failure-path verification for recovery, backpressure, or sidecar-lifecycle behavior rather than only happy-path flows
 - the plan explicitly covers effect-first, schema-first, and docgen/JSDoc expectations for touched exported APIs
 - implementation notes capture deviations from this plan
 
@@ -198,8 +215,11 @@ Before P4 can claim readiness for implementation work, plan for:
 ## Risks
 
 - provider APIs may not align cleanly with the shared speech input behavior
+- the native-shell and sidecar split for direct capture durability may expose subtle lifecycle ownership bugs if the contract is left vague
 - local-first orchestration may need queueing or cancellation semantics not yet present in the app
+- typed native bridge generation or maintenance can drift if implementation stops treating the Rust command and event surface as the one authoritative bridge source
 - export and generation artifacts can create path-management and status-tracking complexity early
+- limited multi-window UX can expand into Cap-style window sprawl if the first-slice boundary is not kept explicit
 - extending the current `@beep/VT2` document-oriented control plane into V2T-native workflows may require careful schema and route migration
 - command drift can make a plan look stricter than the repo really is if the task graph is not verified against live package scripts
 - Graphiti's upstream LLM requirement means the memory stack is not fully local-only today, so the installer must keep that secret boundary explicit instead of hiding it behind Docker

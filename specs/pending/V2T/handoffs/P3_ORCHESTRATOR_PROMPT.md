@@ -11,6 +11,7 @@ Operate orchestration-first:
 - integrate every worker patch and finding yourself before treating it as accepted
 - implement only the committed first slice
 - extend the current `@beep/VT2` control plane unless a migration is explicitly logged
+- keep the authoritative typed desktop bridge, native-shell versus sidecar capture ownership split, and first-slice window topology explicit instead of inferring them during implementation
 - keep `@beep/infra` as the live workstation/deployment seam when installer or deployment work is in scope
 - keep provider calls behind adapters
 - write or refine `EXECUTION.md` with commands, conformance evidence, deviations, and residual risks

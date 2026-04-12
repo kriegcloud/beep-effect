@@ -11,7 +11,7 @@
 ## Created / Updated
 
 - **Created:** 2026-04-10
-- **Updated:** 2026-04-10
+- **Updated:** 2026-04-12
 
 ## Quick Navigation
 
@@ -100,6 +100,15 @@ The package keeps the exact phase artifact names requested by the user and prese
 ## Product Summary
 
 V2T is a local-first conversation-to-video workspace. The product captures a recording, produces a structured transcript and companion notes, enriches the session with memory and contextual research, lets the user configure a composition style, and routes the result into long-form or short-form video output.
+
+The first slice is already constrained enough to be treated as a concrete desktop contract rather than a loose direction:
+
+- one authoritative typed desktop bridge derived from the Rust command and event surface
+- native shell owns raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions
+- sidecar owns canonical session metadata and downstream artifact indexing after intake
+- record and import are equal first-slice session sources that converge into the same session and artifact model
+- one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice
+- capture-enabled slices must record at least one automated recovery, interruption, backpressure, or typed native bridge path before readiness can be claimed
 
 The canonical spec is grounded in current repo anchors:
 
@@ -271,7 +280,9 @@ When exported APIs or JSDoc examples did not change, record `bun run docgen` as 
 - Use `grill-me` during P0 whenever meaningful ambiguity remains, and append the result to [outputs/grill-log.md](./outputs/grill-log.md).
 - Keep provider-specific logic behind explicit adapters and service seams.
 - Treat `apps/V2T` plus `packages/VT2` as the current runtime pair, and treat `@beep/infra` as the current canonical workstation-install and deployment surface unless a later phase explicitly documents a migration.
-- Default the first execution slice to a repo-grounded vertical slice: capture, transcript, session review, memory-enriched composition packet, and export orchestration seams.
+- Default the first execution slice to a repo-grounded vertical slice: typed-native-bridge desktop workflow, hybrid native-shell plus sidecar capture ownership, resilient capture or import parity, transcript plus session review, durable desktop defaults, memory-enriched composition packets, and export orchestration seams.
+- Treat the first-slice desktop bridge as one authoritative contract derived from the native Rust command and event surface rather than a hand-waved preference or scattered app-local calls.
+- Keep the first-slice desktop topology explicit: one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace unless a later phase deliberately expands scope.
 - Do not claim production-grade autonomous video generation until the provider contracts, failure handling, and verification evidence exist.
 - Update [outputs/manifest.json](./outputs/manifest.json) whenever phase status changes.
 - Update [REFLECTION_LOG.md](./REFLECTION_LOG.md) whenever package-local routing, operator guidance, or validator behavior changes.

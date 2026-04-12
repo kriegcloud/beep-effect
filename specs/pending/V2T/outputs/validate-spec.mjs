@@ -60,6 +60,20 @@ const expectedGraphitiConfig = {
   require_exact_error_logging: true,
   require_session_end_summary_writeback: true
 }
+const expectedFirstSliceContract = {
+  desktop_bridge_authority: "one authoritative typed desktop bridge derived from the Rust command and event surface",
+  native_shell_capture_ownership: "native shell owns raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions",
+  sidecar_capture_ownership: "sidecar owns canonical session metadata and downstream artifact indexing after intake",
+  session_sources: "record and import are equal first-slice session sources that converge into the same session and artifact model",
+  window_topology: [
+    "one main workspace window",
+    "native file dialogs",
+    "at most one focused capture or recovery surface",
+    "settings stay in the main workspace",
+    "review stays in the main workspace"
+  ],
+  resilience_evidence_minimum: "at least one automated recovery, interruption, backpressure, or typed native bridge path when capture or desktop lifecycle behavior is in scope"
+}
 const manifestRootFiles = new Set([
   "README.md",
   "QUICK_START.md",
@@ -146,6 +160,22 @@ const staleProsePatterns = [
   {
     description: "stale Pulumi entrypoint path",
     pattern: /infra\/src\/entry\.ts/
+  },
+  {
+    description: "stale soft generated-bridge wording",
+    pattern: /preferably generated from the Rust command or event surface/
+  },
+  {
+    description: "stale open research questions section",
+    pattern: /^## Open Research Questions To Close During Active P0 Work$/m
+  },
+  {
+    description: "stale raw-capture ownership open question",
+    pattern: /Should live capture durability be implemented as native segment files, sidecar-managed chunk records, or a hybrid/
+  },
+  {
+    description: "stale auxiliary-window scope open question",
+    pattern: /Which limited auxiliary windows or overlays are truly necessary for first-slice capture, recovery, and focused review beyond the main workspace window\?/
   }
 ]
 
@@ -569,6 +599,15 @@ const checkManifestStructure = () => {
     }
 
     expectValue(`manifest.graphiti.${key}`, manifest.graphiti?.[key], value)
+  }
+
+  for (const [key, value] of Object.entries(expectedFirstSliceContract)) {
+    if (Array.isArray(value)) {
+      expectOrderedStringArray(`manifest.first_slice_contract.${key}`, manifest.first_slice_contract?.[key], value)
+      continue
+    }
+
+    expectValue(`manifest.first_slice_contract.${key}`, manifest.first_slice_contract?.[key], value)
   }
 
   expectStringArray("manifest.root_files", manifest.root_files)

@@ -8,7 +8,7 @@ Operate orchestration-first:
 - verify file, command, and task claims against the live workspace
 - delegate only read-only scouts or reviewers for command-truth, dependency-order, or gate-completeness audits
 - integrate every worker result yourself using the V2T sub-agent output contract
-- produce or refine `PLANNING.md` with implementation tracks, file or surface order, acceptance criteria, and verification commands
+- produce or refine `PLANNING.md` with implementation tracks, file or surface order, acceptance criteria, verification commands, the authoritative typed desktop bridge, the native-shell versus sidecar capture ownership split, and the explicit first-slice window topology
 - lock only commands that exist in the live workspace, and label them as planned gates rather than passed gates
 - run a read-only review wave before closing P2
 - write Graphiti memory back when P2 locks durable command-matrix or rollout decisions
