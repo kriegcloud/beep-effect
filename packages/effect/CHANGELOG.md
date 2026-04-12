@@ -1,5 +1,29 @@
 # effect
 
+## 4.0.0-beta.48
+
+### Patch Changes
+
+- [#2025](https://github.com/Effect-TS/effect-smol/pull/2025) [`4da56ec`](https://github.com/Effect-TS/effect-smol/commit/4da56ecff129b2da40137ffede23a73cc4e532d8) Thanks @tim-smart! - update dependencies
+
+- [#2029](https://github.com/Effect-TS/effect-smol/pull/2029) [`a5e6f77`](https://github.com/Effect-TS/effect-smol/commit/a5e6f774bab195cf50ecdc818240765f69a3bf4a) Thanks @tim-smart! - omit scope from HttpApi handlers
+
+- [#2023](https://github.com/Effect-TS/effect-smol/pull/2023) [`f1ba5b8`](https://github.com/Effect-TS/effect-smol/commit/f1ba5b8584d325a541156928cecf041b37fd5070) Thanks @tim-smart! - EventLog Identity string encodes to base 64
+
+- [#2023](https://github.com/Effect-TS/effect-smol/pull/2023) [`f1ba5b8`](https://github.com/Effect-TS/effect-smol/commit/f1ba5b8584d325a541156928cecf041b37fd5070) Thanks @tim-smart! - disable tracer propagation for otlp exporter
+
+## 4.0.0-beta.47
+
+### Patch Changes
+
+- [#2017](https://github.com/Effect-TS/effect-smol/pull/2017) [`c584726`](https://github.com/Effect-TS/effect-smol/commit/c58472674e750e6938df955044eab88feda95e45) Thanks @gcanti! - Schema: add `annotateEncoded` function for annotating the encoded side of a schema.
+
+- [#2013](https://github.com/Effect-TS/effect-smol/pull/2013) [`86a91a4`](https://github.com/Effect-TS/effect-smol/commit/86a91a4f0c59286dfa9393232d8020dea70ed4db) Thanks @gcanti! - Schema: add withDecodingDefaultTypeKey / withDecodingDefaultType, closes #2012
+
+- [#2018](https://github.com/Effect-TS/effect-smol/pull/2018) [`131caf9`](https://github.com/Effect-TS/effect-smol/commit/131caf9525151a0cb29803a8f1dffa0f4f479d12) Thanks @gcanti! - Schema: allow `Class` constructors to accept `void` when all fields are optional, closes #2015.
+
+- [#2016](https://github.com/Effect-TS/effect-smol/pull/2016) [`c3615c8`](https://github.com/Effect-TS/effect-smol/commit/c3615c88379b9daf252df0db72c6ac5a20326406) Thanks @gcanti! - Schema: rename `"~rebuild.out"` to `"Rebuild"`
+
 ## 4.0.0-beta.46
 
 ### Patch Changes
