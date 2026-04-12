@@ -35,9 +35,6 @@
   },
   "references": [
     {
-      "path": "../../packages/v2t-sidecar/tsconfig.json"
-    },
-    {
       "path": "../../packages/common/identity/tsconfig.json"
     },
     {
@@ -60,6 +57,9 @@
     },
     {
       "path": "../../packages/editor/protocol/tsconfig.json"
+    },
+    {
+      "path": "../../packages/v2t-sidecar/tsconfig.json"
     }
   ]
 }

@@ -25,9 +25,6 @@
       "path": "infra"
     },
     {
-      "path": "packages/v2t-sidecar"
-    },
-    {
       "path": "packages/_internal/db-admin"
     },
     {
@@ -119,6 +116,9 @@
     },
     {
       "path": "packages/shared/ui"
+    },
+    {
+      "path": "packages/v2t-sidecar"
     },
     {
       "path": "tooling/cli"

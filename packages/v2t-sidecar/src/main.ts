@@ -2,7 +2,7 @@ import { BunRuntime } from "@effect/platform-bun";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, FileSystem, Layer } from "effect";
-import { loadVt2RuntimeConfig, makeVt2RuntimeError, runVt2Runtime } from "./index.js";
+import { loadVt2RuntimeConfig, makeVt2RuntimeError, runVt2Runtime } from "./Server/index.js";
 
 const vt2RuntimeLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 
