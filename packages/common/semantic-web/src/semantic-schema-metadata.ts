@@ -254,7 +254,7 @@ export const makeSemanticSchemaMetadata = (
 export const annotateSemanticSchema = <Schema extends S.Top>(
   schema: Schema,
   metadata: typeof SemanticSchemaMetadata.Encoded
-): Schema["~rebuild.out"] => schema.annotate({ semanticSchemaMetadata: makeSemanticSchemaMetadata(metadata) });
+): Schema["Rebuild"] => schema.annotate({ semanticSchemaMetadata: makeSemanticSchemaMetadata(metadata) });
 
 const hasAnnotationsRecord = (
   value: unknown

@@ -631,7 +631,7 @@ export interface IdentityComposer<Value extends string> {
   annoteHttp<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | HttpAnnotationExtras<Schema["Type"]>
-  ): (self: Schema) => Schema["~rebuild.out"];
+  ): (self: Schema) => Schema["Rebuild"];
 
   /**
    * Produce a type-safe key annotation function scoped to a parent struct.
@@ -650,7 +650,7 @@ export interface IdentityComposer<Value extends string> {
   >(
     identifier: SegmentValue<Next> & StrictKeyIdentifier<Parent, Next>,
     extras?: undefined | KeyAnnotationExtras<KeyIdentifierValue<Parent, SegmentValue<Next>>>
-  ) => (self: Schema) => Schema["~rebuild.out"];
+  ) => (self: Schema) => Schema["Rebuild"];
 
   /**
    * Produce a key annotation function for an untyped parent.
@@ -661,7 +661,7 @@ export interface IdentityComposer<Value extends string> {
   annoteKey(
     identifier: TString.NonEmpty,
     extras?: undefined | KeyAnnotationExtras<unknown>
-  ): <Schema extends S.Top>(self: Schema) => Schema["~rebuild.out"];
+  ): <Schema extends S.Top>(self: Schema) => Schema["Rebuild"];
 
   /**
    * Produce a generic schema annotation function.
@@ -675,7 +675,7 @@ export interface IdentityComposer<Value extends string> {
   annoteSchema<Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | S.Annotations.Bottom<Schema["Type"], Schema["~type.parameters"]>
-  ): (self: Schema) => Schema["~rebuild.out"];
+  ): (self: Schema) => Schema["Rebuild"];
 
   /**
    * Batch-create child {@link IdentityComposer} instances for multiple module segments.
@@ -1085,10 +1085,10 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   const annoteSchema = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | S.Annotations.Bottom<Schema["Type"], Schema["~type.parameters"]>
-  ): ((self: Schema) => Schema["~rebuild.out"]) => {
+  ): ((self: Schema) => Schema["Rebuild"]) => {
     const annotation = annote(identifier, extras);
 
-    return (self: Schema): Schema["~rebuild.out"] => self.annotate(annotation);
+    return (self: Schema): Schema["Rebuild"] => self.annotate(annotation);
   };
 
   function annoteKey<Parent extends object>(): <
@@ -1099,11 +1099,11 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   >(
     identifier: SegmentValue<Next> & StrictKeyIdentifier<Parent, Next>,
     extras?: undefined | KeyAnnotationExtras<KeyIdentifierValue<Parent, SegmentValue<Next>>>
-  ) => (self: Schema) => Schema["~rebuild.out"];
+  ) => (self: Schema) => Schema["Rebuild"];
   function annoteKey(
     identifier: TString.NonEmpty,
     extras?: undefined | KeyAnnotationExtras<unknown>
-  ): <Schema extends S.Top>(self: Schema) => Schema["~rebuild.out"];
+  ): <Schema extends S.Top>(self: Schema) => Schema["Rebuild"];
   function annoteKey(identifier?: TString.NonEmpty, extras?: undefined | KeyAnnotationExtras<unknown>): unknown {
     return O.match(O.fromUndefinedOr(identifier), {
       onNone:
@@ -1115,7 +1115,7 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
           annoteKey(strictIdentifier, strictExtras),
       onSome:
         (currentIdentifier) =>
-        <Schema extends S.Top>(self: Schema): Schema["~rebuild.out"] =>
+        <Schema extends S.Top>(self: Schema): Schema["Rebuild"] =>
           self.annotateKey(annote(currentIdentifier, extras)),
     });
   }
@@ -1129,10 +1129,10 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
   const annoteHttp = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | HttpAnnotationExtras<Schema["Type"]>
-  ): ((self: Schema) => Schema["~rebuild.out"]) => {
+  ): ((self: Schema) => Schema["Rebuild"]) => {
     const annotation = annote(identifier, extras);
 
-    return (self: Schema): Schema["~rebuild.out"] => self.annotate(annotation);
+    return (self: Schema): Schema["Rebuild"] => self.annotate(annotation);
   };
 
   return Object.defineProperties(createTemplateIdentity, {
