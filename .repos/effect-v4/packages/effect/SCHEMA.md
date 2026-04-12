@@ -5154,7 +5154,7 @@ console.log(JSON.stringify(document, null, 2))
 
 When a schema includes a transformation (e.g. `Schema.Trim`), the generated JSON Schema corresponds to the encoded side. Calling `.annotate(...)` on a transformation annotates the decoded side, so the annotations won't appear in the JSON Schema output.
 
-To annotate the encoded side, use `Schema.flip` twice: flip to expose the encoded side, annotate it, then flip back.
+To annotate the encoded side, use `Schema.annotateEncoded`.
 
 **Example** (Annotating the encoded side of `Trim`)
 
@@ -5162,12 +5162,10 @@ To annotate the encoded side, use `Schema.flip` twice: flip to expose the encode
 import { Schema } from "effect"
 
 const schema = Schema.Trim.pipe(
-  Schema.flip,
-  Schema.annotate({
+  Schema.annotateEncoded({
     description: "my description",
     title: "my title"
-  }),
-  Schema.flip
+  })
 )
 
 console.log(JSON.stringify(Schema.toJsonSchemaDocument(schema), null, 2))
@@ -6478,7 +6476,7 @@ export interface Bottom<
   readonly [TypeId]: typeof TypeId
 
   readonly ast: Ast
-  readonly "~rebuild.out": RebuildOut
+  readonly "Rebuild": RebuildOut
   readonly "~type.parameters": TypeParameters
 
   readonly Type: T
@@ -6496,10 +6494,10 @@ export interface Bottom<
   readonly "~encoded.mutability": EncodedMutability
   readonly "~encoded.optionality": EncodedOptionality
 
-  annotate(annotations: Annotations.Bottom<this["Type"], this["~type.parameters"]>): this["~rebuild.out"]
-  annotateKey(annotations: Annotations.Key<this["Type"]>): this["~rebuild.out"]
-  check(...checks: readonly [AST.Check<this["Type"]>, ...Array<AST.Check<this["Type"]>>]): this["~rebuild.out"]
-  rebuild(ast: this["ast"]): this["~rebuild.out"]
+  annotate(annotations: Annotations.Bottom<this["Type"], this["~type.parameters"]>): this["Rebuild"]
+  annotateKey(annotations: Annotations.Key<this["Type"]>): this["Rebuild"]
+  check(...checks: readonly [AST.Check<this["Type"]>, ...Array<AST.Check<this["Type"]>>]): this["Rebuild"]
+  rebuild(ast: this["ast"]): this["Rebuild"]
   /**
    * @throws {Error} The issue is contained in the error cause.
    */
