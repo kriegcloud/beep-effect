@@ -14,7 +14,9 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "check": "tsc -p tsconfig.json --noEmit",
-    "test": "bunx --bun vitest run --passWithNoTests"
+    "test": "bunx --bun vitest run --passWithNoTests",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
   },
   "exports": {
     ".": "./src/index.ts",
