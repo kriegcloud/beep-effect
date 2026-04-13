@@ -44,7 +44,14 @@
     "@tauri-apps/api": "catalog:",
     "effect": "catalog:",
     "react": "catalog:",
-    "react-dom": "catalog:"
+    "react-dom": "catalog:",
+    "react-zoom-pan-pinch": "^3.7.0",
+    "react-easy-crop": "^5.1.0",
+    "piexifjs": "^1.0.6",
+    "exifr": "^7.1.3",
+    "fflate": "^0.8.2",
+    "@ffmpeg/ffmpeg": "catalog:",
+    "@ffmpeg/core": "catalog:"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",
