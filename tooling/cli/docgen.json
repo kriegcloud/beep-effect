@@ -39,6 +39,8 @@
       "@beep/docgen/*": ["../../tooling/docgen/src/*.ts"],
       "@beep/identity": ["../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/repo-configs": ["../../tooling/configs/src/index.ts"],
+      "@beep/repo-configs/*": ["../../tooling/configs/src/*.ts"],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],
       "@beep/schema": ["../../packages/common/schema/src/index.ts"],
