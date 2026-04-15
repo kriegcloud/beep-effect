@@ -24,7 +24,7 @@ Before writing EventLog or graph code, verify:
 3. Am I handling events (projecting state)? Use `EventLog.group(MyGroup, handlers => ...)` to register handlers per event tag. Each handler receives `{ storeId, payload, entry, conflicts }`.
 4. Am I writing events? Use `EventLog.makeClient(schema)` to get a typed writer. Never write to the journal directly.
 5. Am I persisting events? Use `SqlEventJournal.layer` for SQLite/PostgreSQL. Never write custom `CREATE TABLE` for event storage.
-6. Am I subscribing to live events? Use `EventJournal.changes` PubSub. Never build custom NDJSON streams.
+6. Am I subscribing to live events? Use `EventJournal.changes` (yields a `PubSub.Subscription`). Never build custom NDJSON streams.
 7. Am I invalidating UI? Use `EventLog.groupReactivity(MyGroup, { EventTag: ["key1", "key2"] })`.
 8. Am I compacting old events? Use `EventLog.groupCompaction(MyGroup, compactFn)`.
 9. Am I building the top-level EventLog? Use `EventLog.layer(schema, handlerLayers)` or `EventLog.layerEventLog`.
@@ -101,7 +101,7 @@ const NodeRemoved = Event.make({
 Key rules for `Event.make`:
 - `tag` is the unique event discriminator string.
 - `primaryKey` returns a string used for conflict detection. Two events conflict when they share the same `(event tag, primaryKey)` pair and arrive with different timestamps.
-- `payload` is encoded via msgpack internally (`event.payloadMsgPack`). Use Effect Schema types.
+- `payload` defaults to `S.Void` and can be any Schema type (not just `S.Struct`). It is encoded via msgpack internally (`event.payloadMsgPack`). Use Effect Schema types.
 - `success` defaults to `S.Void`. Use a typed schema when the handler returns domain data.
 - `error` defaults to `S.Never`. Use a typed schema when the handler can fail with domain errors.
 
@@ -211,7 +211,7 @@ const graphHandlers = EventLog.group(
 )
 ```
 
-Return type: `Layer.Layer<Event.ToService<Events>, E, R | Registry>`. All events in the group MUST be handled -- TypeScript will error on `"Event not handled: ..."` if any tag is missing.
+Return type: `Layer.Layer<Event.ToService<Events>, E, Exclude<R, Scope.Scope | Identity> | Registry>`. `Scope.Scope` and `Identity` are excluded from requirements because `Identity` is automatically provided to handlers by the EventLog runtime. All events in the group MUST be handled -- TypeScript will error on `"Event not handled: ..."` if any tag is missing.
 
 Handler signature per event:
 
@@ -304,7 +304,7 @@ const addNode = Effect.gen(function* () {
 })
 ```
 
-`makeClient` returns `Effect.Effect<WriteFn, never, EventLog>`. The returned write function is fully typed per event tag: autocomplete on event names and type-checked payloads.
+`makeClient` returns `Effect.Effect<WriteFn, never, EventLog>`. The returned write function is fully typed per event tag: autocomplete on event names and type-checked payloads. Note that writes can fail with `EventJournalError` in addition to the event's declared error type (from the `error` schema on the event definition).
 
 ## EventJournal Storage
 
@@ -424,7 +424,7 @@ The `conflicts` array in each handler contains all conflicting entries that arri
 
 ## Live Streaming
 
-`EventJournal.changes` is a `PubSub` that broadcasts every entry written to the local journal.
+`EventJournal.changes` yields a `PubSub.Subscription` that receives every entry written to the local journal.
 
 ```ts
 const openLiveGraphEvents = Effect.gen(function* () {
@@ -674,7 +674,7 @@ To extend for the knowledge graph:
 - Direct `EventJournal.EventJournal` usage for write + subscribe
 - Msgpack encoding/decoding of event payloads
 - Materialization via a projection function called in the `write.effect` callback
-- Live streaming via `journal.changes` PubSub to `Stream.fromSubscription`
+- Live streaming via `journal.changes` (`PubSub.Subscription`) to `Stream.fromSubscription`
 - Reactivity invalidation via `Reactivity.invalidate(keys)`
 
 Key pattern from this file: the `journal.write({ event, primaryKey, payload, effect })` call runs the effect BEFORE committing the entry. If the effect fails, the entry is not persisted.
@@ -699,7 +699,7 @@ Key pattern from this file: the `journal.write({ event, primaryKey, payload, eff
 7. **Single database**: `.beep/graph/graph.db` -- Effect journal tables and application materialized views coexist.
 8. **Materialized view tables** use `Table.make(entityId)(columns)` from `@beep/shared-tables`.
 9. **Conflict handling** must be explicit in every handler -- acknowledge the `conflicts` parameter.
-10. **Live streaming** uses `EventJournal.changes` PubSub -- never build custom NDJSON streams or polling.
+10. **Live streaming** uses `EventJournal.changes` (yields a `PubSub.Subscription`) -- never build custom NDJSON streams or polling.
 11. **Event payloads** are msgpack-encoded internally -- use Effect Schema types, never raw JSON.
 12. **All handler events must be handled** -- TypeScript enforces exhaustive handling via `"Event not handled: ..."` errors.
 13. **Remote sync** uses the built-in `EventLogRemote` client/server -- never build custom sync protocols.
@@ -711,7 +711,7 @@ Key pattern from this file: the `journal.write({ event, primaryKey, payload, eff
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/Event.ts` -- Event definition with Tag, Payload, Success, Error
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/EventGroup.ts` -- Fluent group builder
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/EventLog.ts` -- Core orchestration (Registry, handlers, compaction, reactivity, client)
-- `.repos/effect-v4/packages/effect/src/unstable/eventlog/EventJournal.ts` -- Storage abstraction (Entry, write, entries, changes PubSub, memory + IndexedDB)
+- `.repos/effect-v4/packages/effect/src/unstable/eventlog/EventJournal.ts` -- Storage abstraction (Entry, write, entries, changes PubSub.Subscription, memory + IndexedDB)
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/SqlEventJournal.ts` -- SQL-backed journal (PostgreSQL, MySQL, MSSQL, SQLite)
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/EventLogMessage.ts` -- Protocol definitions, StoreId, RPC types
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/EventLogRemote.ts` -- Client-side remote sync

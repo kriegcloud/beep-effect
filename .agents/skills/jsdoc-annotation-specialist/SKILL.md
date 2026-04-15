@@ -127,17 +127,19 @@ const Status = LiteralKit(["active", "inactive"]).annotate(
 
 ### Union, TemplateLiteral, and composed schemas
 
-Use `S.annotate($I.annote(...))` inside `.pipe(...)`:
+Use `$I.annoteSchema(...)` inside `.pipe(...)` for non-class schemas. This is
+the canonical pattern for unions, template literals, and other composed schemas:
 
 ```ts
 const MyUnion = S.Union([SchemaA, SchemaB]).pipe(
-  S.annotate(
-    $I.annote("MyUnion", {
-      description: "Discriminated union of A and B."
-    })
-  )
+  $I.annoteSchema("MyUnion", {
+    description: "Discriminated union of A and B."
+  })
 )
 ```
+
+For class schemas, `$I.annote("Name", {...})` is passed as the last argument to
+the class constructor (see the Class schemas section above).
 
 ## Category Conventions
 

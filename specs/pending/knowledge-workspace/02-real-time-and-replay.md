@@ -35,7 +35,7 @@ The `EventJournal` exposes a `changes` field that returns a `PubSub.Subscription
  * const liveEntries = Effect.gen(function*() {
  *   const journal = yield* EventJournal
  *   const sub = yield* journal.changes
- *   return Stream.fromPubSub(sub)
+ *   return Stream.fromSubscription(sub)
  * })
  * ```
  *
@@ -447,7 +447,7 @@ Filters apply in both live mode and replay mode. They control which events are p
  * import * as S from "effect/Schema"
  *
  * const sourceFilter$ = Atom.searchParam("source")
- * const certaintyFilter$ = Atom.searchParam("certainty", S.NumberFromString)
+ * const certaintyFilter$ = Atom.searchParam("certainty", { schema: S.NumberFromString })
  * const actorFilter$ = Atom.searchParam("actor")
  * ```
  *

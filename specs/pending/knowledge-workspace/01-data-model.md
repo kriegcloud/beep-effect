@@ -3,7 +3,7 @@
 All types in this spec are schema-first. No standalone type aliases or interfaces.
 Every schema carries `$I` identity annotations. Every literal domain uses
 `LiteralKit`. Every URI uses `S.TemplateLiteral`. Every persisted entity uses
-`Model.Class` (via `DomainModel.make`) or `S.Class` with `$I`. Events use
+`Model.Class` (via `DomainModel.make`) with `$I`. Events use
 `S.TaggedClass` with `$I`.
 
 ```ts
@@ -44,7 +44,11 @@ const KnowledgeNodeKind = LiteralKit([
   "code-file",
   "code-module",
   "concept",
-] as const)
+] as const).pipe(
+  $I.annoteSchema("KnowledgeNodeKind", {
+    description: "Classification of knowledge graph node types.",
+  })
+)
 ```
 
 | Kind | Description | Source |
@@ -93,7 +97,11 @@ const KnowledgeEdgeKind = LiteralKit([
   "code-export",
   "code-dependency",
   "semantic",
-] as const)
+] as const).pipe(
+  $I.annoteSchema("KnowledgeEdgeKind", {
+    description: "Classification of knowledge graph edge types.",
+  })
+)
 ```
 
 | Kind | Description | Certainty | Source |
@@ -134,7 +142,11 @@ const KnowledgeDomain = LiteralKit([
   "legal",
   "compliance",
   "general",
-] as const)
+] as const).pipe(
+  $I.annoteSchema("KnowledgeDomain", {
+    description: "Domain partition for knowledge graph nodes.",
+  })
+)
 ```
 
 ---
@@ -298,11 +310,9 @@ const KnowledgeNodeId = S.Union([
   ModuleNodeId,
   ConceptNodeId,
 ]).pipe(
-  S.annotate(
-    $I.annote("KnowledgeNodeId", {
-      description: "Union of all knowledge node URI schemas.",
-    })
-  )
+  $I.annoteSchema("KnowledgeNodeId", {
+    description: "Union of all knowledge node URI schemas.",
+  })
 )
 type KnowledgeNodeId = typeof KnowledgeNodeId.Type
 ```
@@ -404,7 +414,7 @@ const KnowledgeNodeBody = KnowledgeNodeKind.toTaggedUnion("kind")({
     slug: Slug,
     title: S.NonEmptyTrimmedString,
     outboundLinks: S.Array(S.NonEmptyTrimmedString),
-    excerpt: S.optionalKey(SchemaUtils.withKeyDefaults(S.String, "")),
+    excerpt: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
   },
   "code-symbol": {
     repoId: RepoId,
@@ -412,13 +422,13 @@ const KnowledgeNodeBody = KnowledgeNodeKind.toTaggedUnion("kind")({
     qualifiedName: S.NonEmptyTrimmedString,
     symbolKind: RepoSymbolKind,
     filePath: S.NonEmptyTrimmedString,
-    signature: S.optionalKey(SchemaUtils.withKeyDefaults(S.String, "")),
+    signature: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
     exported: S.Boolean,
   },
   "code-file": {
     repoId: RepoId,
     filePath: S.NonEmptyTrimmedString,
-    workspaceName: S.optionalKey(SchemaUtils.withKeyDefaults(S.String, "")),
+    workspaceName: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
     lineCount: S.Int,
   },
   "code-module": {
@@ -427,10 +437,10 @@ const KnowledgeNodeBody = KnowledgeNodeKind.toTaggedUnion("kind")({
   },
   concept: {
     domain: S.NonEmptyTrimmedString,
-    jurisdiction: S.optionalKey(SchemaUtils.withKeyDefaults(S.String, "")),
-    statuteRef: S.optionalKey(SchemaUtils.withKeyDefaults(S.String, "")),
+    jurisdiction: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
+    statuteRef: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
     effectiveDate: S.optionalKey(S.DateTimeUtc),
-    complianceStatus: S.optionalKey(SchemaUtils.withKeyDefaults(S.String, "")),
+    complianceStatus: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
   },
 })
 type KnowledgeNodeBody = typeof KnowledgeNodeBody.Type
@@ -475,8 +485,8 @@ export class GraphNode extends DomainModel.make<GraphNode>($I`GraphNodeModel`)(
     displayLabel: S.NonEmptyTrimmedString,
     certainty: CertaintyTier,
     body: KnowledgeNodeBody,
-    tags: S.optionalKey(SchemaUtils.withKeyDefaults(S.Array(S.NonEmptyTrimmedString), [])),
-    aliases: S.optionalKey(SchemaUtils.withKeyDefaults(S.Array(S.NonEmptyTrimmedString), [])),
+    tags: S.Array(S.NonEmptyTrimmedString).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    aliases: S.Array(S.NonEmptyTrimmedString).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
     lastSequence: NonNegativeInt,
   },
   $I.annote("GraphNodeModel", {
@@ -501,7 +511,7 @@ Produces six variants: `GraphNode` (select), `GraphNode.insert`,
  * ```ts
  * import * as S from "effect/Schema"
  *
- * // GraphEdge.make({ edgeId: "beep:edge/...", source: "beep:page/a", ... })
+ * // GraphEdge.make({ edgeId: "beep:edge/...", sourceNodeId: "beep:page/a", ... })
  * ```
  *
  * @category models
@@ -513,7 +523,7 @@ export class GraphEdge extends DomainModel.make<GraphEdge>($I`GraphEdgeModel`)(
     sourceNodeId: KnowledgeNodeId,
     targetNodeId: KnowledgeNodeId,
     kind: KnowledgeEdgeKind,
-    label: S.NonEmptyTrimmedString,
+    displayLabel: S.NonEmptyTrimmedString,
     certainty: CertaintyTier,
     lastSequence: NonNegativeInt,
   },
@@ -545,21 +555,19 @@ represents the on-disk markdown document before it is projected into the graph.
  * @category models
  * @since 0.0.0
  */
-export class Page extends S.Class<Page>($I`Page`)(
+export class Page extends DomainModel.make<Page>($I`PageModel`)(
   {
-    id: PageNodeId,
+    id: M.GeneratedByApp(PageNodeId),
     slug: Slug,
     title: S.NonEmptyTrimmedString,
-    domain: S.optionalKey(SchemaUtils.withKeyDefaults(KnowledgeDomain, "general")),
-    certainty: S.optionalKey(SchemaUtils.withKeyDefaults(CertaintyTier, 1.0)),
-    tags: S.optionalKey(SchemaUtils.withKeyDefaults(S.Array(S.NonEmptyTrimmedString), [])),
-    aliases: S.optionalKey(SchemaUtils.withKeyDefaults(S.Array(S.NonEmptyTrimmedString), [])),
-    outboundLinks: S.optionalKey(SchemaUtils.withKeyDefaults(S.Array(S.NonEmptyTrimmedString), [])),
-    excerpt: S.optionalKey(SchemaUtils.withKeyDefaults(S.String, "")),
-    createdAt: S.DateTimeUtc,
-    updatedAt: S.DateTimeUtc,
+    domain: KnowledgeDomain.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("general")),
+    certainty: CertaintyTier.pipe(S.optionalKey, SchemaUtils.withKeyDefaults(1.0)),
+    tags: S.Array(S.NonEmptyTrimmedString).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    aliases: S.Array(S.NonEmptyTrimmedString).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    outboundLinks: S.Array(S.NonEmptyTrimmedString).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    excerpt: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
   },
-  $I.annote("Page", {
+  $I.annote("PageModel", {
     description: "Vault page document with frontmatter metadata.",
   })
 ) {}
@@ -586,7 +594,7 @@ class NodeCreated extends S.TaggedClass<NodeCreated>($I`NodeCreated`)(
     nodeId: KnowledgeNodeId,
     kind: KnowledgeNodeKind,
     domain: KnowledgeDomain,
-    label: S.NonEmptyTrimmedString,
+    displayLabel: S.NonEmptyTrimmedString,
     certainty: CertaintyTier,
     body: KnowledgeNodeBody,
   },
@@ -605,7 +613,7 @@ class NodeUpdated extends S.TaggedClass<NodeUpdated>($I`NodeUpdated`)(
   "NodeUpdated",
   {
     nodeId: KnowledgeNodeId,
-    patch: S.Record({ key: S.String, value: S.Unknown }),
+    patch: S.Record(S.String, S.Unknown),
   },
   $I.annote("NodeUpdated", {
     description: "Emitted when an existing node is mutated.",
@@ -639,10 +647,10 @@ class EdgeCreated extends S.TaggedClass<EdgeCreated>($I`EdgeCreated`)(
   "EdgeCreated",
   {
     edgeId: KnowledgeEdgeId,
-    source: KnowledgeNodeId,
-    target: KnowledgeNodeId,
+    sourceNodeId: KnowledgeNodeId,
+    targetNodeId: KnowledgeNodeId,
     kind: KnowledgeEdgeKind,
-    label: S.NonEmptyTrimmedString,
+    displayLabel: S.NonEmptyTrimmedString,
     certainty: CertaintyTier,
   },
   $I.annote("EdgeCreated", {
@@ -710,14 +718,14 @@ const GraphEvent = S.Union([
   EdgeRemoved,
   SnapshotReset,
 ]).pipe(
-  S.annotate(
-    $I.annote("GraphEvent", {
-      description: "Discriminated union of all graph mutation events.",
-    })
-  )
+  $I.annoteSchema("GraphEvent", {
+    description: "Discriminated union of all graph mutation events.",
+  })
 )
 type GraphEvent = typeof GraphEvent.Type
 ```
+
+> **Cross-reference**: These event schemas define the canonical field shapes. Doc 00 (§ Event Payloads) wraps some fields in a `NodeMetadata` container for the EventGroup registration — both representations encode the same domain facts.
 
 ---
 
@@ -942,7 +950,7 @@ export const graphEdges = sqlite.sqliteTable("graph_edges", {
   sourceNodeId: sqlite.text("source_node_id").notNull(),
   targetNodeId: sqlite.text("target_node_id").notNull(),
   kind: sqlite.text("kind").notNull(),
-  label: sqlite.text("label").notNull(),
+  displayLabel: sqlite.text("display_label").notNull(),
   certainty: sqlite.real("certainty").notNull().default(1.0),
   lastSequence: sqlite.integer("last_sequence").notNull(),
   ...makeGlobalColumns(),
@@ -950,28 +958,6 @@ export const graphEdges = sqlite.sqliteTable("graph_edges", {
   sqlite.index("idx_edges_source").on(t.sourceNodeId),
   sqlite.index("idx_edges_target").on(t.targetNodeId),
   sqlite.index("idx_edges_kind").on(t.kind),
-])
-
-/**
- * Append-only graph event log table. The `sequence` column is the monotonic
- * primary key via AUTOINCREMENT.
- *
- * @category tables
- * @since 0.0.0
- */
-export const graphEvents = sqlite.sqliteTable("graph_events", {
-  sequence: sqlite.integer("sequence").primaryKey({ autoIncrement: true }),
-  timestamp: sqlite.integer("timestamp", { mode: "number" }).notNull(),
-  actor: sqlite.text("actor").notNull(),
-  eventType: sqlite.text("event_type").notNull(),
-  eventData: sqlite.text("event_data", { mode: "json" }).notNull(),
-  provenance: sqlite.text("provenance", { mode: "json" }),
-  source: sqlite.text("source").notNull(),
-  certainty: sqlite.real("certainty").notNull().default(1.0),
-}, (t) => [
-  sqlite.index("idx_events_timestamp").on(t.timestamp),
-  sqlite.index("idx_events_source").on(t.source),
-  sqlite.index("idx_events_type").on(t.eventType),
 ])
 
 /**
@@ -987,7 +973,8 @@ export const graphBuildState = sqlite.sqliteTable("graph_build_state", {
 })
 ```
 
-All four tables live in a single `graph.db` file.
+All three tables live in a single `graph.db` file. Event log tables are owned by
+`SqlEventJournal` and are not defined here.
 
 ---
 

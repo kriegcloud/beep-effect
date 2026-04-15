@@ -214,6 +214,19 @@ const ObservedExitSummaryTagged = CauseClassification.toTaggedUnion("classificat
   },
 });
 
+/**
+ * Summary of an observed Effect exit including outcome classification and cause analysis.
+ *
+ * @example
+ * ```typescript
+ * import { ObservedExitSummary } from "@beep/observability"
+ *
+ * void ObservedExitSummary
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export const ObservedExitSummary = ObservedExitSummaryTagged.pipe(
   $I.annoteSchema("ObservedExitSummary", {
     description: "Summary information for an exit.",
@@ -308,25 +321,6 @@ const fingerprintValue: {
   return pipe(A.make(classification, reasonTags, `${A.length(prettyErrors)}`, primaryChunk), A.join(":"));
 });
 
-/**
- * Classify a cause by its reason makeup into a single {@link CauseClassification} label.
- *
- * Returns `"empty"` for empty causes, `"mixed"` when multiple reason kinds are
- * present, or the single kind (`"failure"`, `"defect"`, `"interrupted"`) otherwise.
- *
- * @example
- * ```typescript
- * import { Cause } from "effect"
- * import { classifyCause } from "@beep/observability"
- *
- * console.log(classifyCause(Cause.empty)) // "empty"
- * console.log(classifyCause(Cause.fail("err"))) // "failure"
- * console.log(classifyCause(Cause.die("bug"))) // "defect"
- * ```
- *
- * @since 0.0.0
- * @category diagnostics
- */
 const countPresentKinds = flow(
   (counts: ReasonCounts) => A.make(counts.errorCount, counts.defectCount, counts.interruptCount),
   A.filter(N.isGreaterThan(0)),
@@ -359,6 +353,25 @@ const classifyReasonCounts = flow(
   O.getOrElse(CauseClassification.thunk.empty)
 );
 
+/**
+ * Classify a cause by its reason makeup into a single {@link CauseClassification} label.
+ *
+ * Returns `"empty"` for empty causes, `"mixed"` when multiple reason kinds are
+ * present, or the single kind (`"failure"`, `"defect"`, `"interrupted"`) otherwise.
+ *
+ * @example
+ * ```typescript
+ * import { Cause } from "effect"
+ * import { classifyCause } from "@beep/observability"
+ *
+ * console.log(classifyCause(Cause.empty)) // "empty"
+ * console.log(classifyCause(Cause.fail("err"))) // "failure"
+ * console.log(classifyCause(Cause.die("bug"))) // "defect"
+ * ```
+ *
+ * @since 0.0.0
+ * @category diagnostics
+ */
 export const classifyCause = flow(summarizeReasonCounts, classifyReasonCounts);
 
 /**

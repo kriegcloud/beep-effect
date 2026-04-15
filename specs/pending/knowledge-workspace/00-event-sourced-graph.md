@@ -84,21 +84,25 @@ import { LiteralKit, SchemaUtils } from "@beep/schema"
  * ```ts
  * import * as S from "effect/Schema"
  *
- * // NodeKind.Enum.page === "page"
- * // NodeKind.is.page("page") === true
- * // NodeKind.$match(value, { page: ..., "code-symbol": ..., ... })
+ * // KnowledgeNodeKind.Enum.page === "page"
+ * // KnowledgeNodeKind.is.page("page") === true
+ * // KnowledgeNodeKind.$match(value, { page: ..., "code-symbol": ..., ... })
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-const NodeKind = LiteralKit([
+const KnowledgeNodeKind = LiteralKit([
   "page",
   "code-symbol",
   "code-file",
   "code-module",
   "concept",
-] as const)
+] as const).pipe(
+  $I.annoteSchema("KnowledgeNodeKind", {
+    description: "Kinds of knowledge graph nodes.",
+  })
+)
 
 /**
  * Kinds of knowledge graph edges.
@@ -107,19 +111,47 @@ const NodeKind = LiteralKit([
  * ```ts
  * import * as S from "effect/Schema"
  *
- * // EdgeRelation.Enum["wiki-link"] === "wiki-link"
+ * // KnowledgeEdgeKind.Enum["wiki-link"] === "wiki-link"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
-const EdgeRelation = LiteralKit([
+const KnowledgeEdgeKind = LiteralKit([
   "wiki-link",
   "code-import",
   "code-export",
   "code-dependency",
   "semantic",
-] as const)
+] as const).pipe(
+  $I.annoteSchema("KnowledgeEdgeKind", {
+    description: "Kinds of knowledge graph edges.",
+  })
+)
+
+/**
+ * Domain partition for knowledge graph nodes.
+ *
+ * @example
+ * ```ts
+ * import { LiteralKit } from "@beep/schema"
+ *
+ * KnowledgeDomain.Enum.general // "general"
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+const KnowledgeDomain = LiteralKit([
+  "code",
+  "legal",
+  "compliance",
+  "general",
+] as const).pipe(
+  $I.annoteSchema("KnowledgeDomain", {
+    description: "Domain partition for knowledge graph nodes.",
+  })
+)
 
 /**
  * Branded string identifier for graph nodes. URI-shaped, deterministic.
@@ -135,6 +167,8 @@ const EdgeRelation = LiteralKit([
  * @category models
  * @since 0.0.0
  */
+// Full definition: S.Union of five S.TemplateLiteral types.
+// See 01-data-model.md § Node Identity for the complete schema.
 const KnowledgeNodeId = S.NonEmptyTrimmedString.pipe(
   S.brand("KnowledgeNodeId"),
   $I.annoteSchema("KnowledgeNodeId", {
@@ -150,7 +184,7 @@ type KnowledgeNodeId = typeof KnowledgeNodeId.Type
  * ```ts
  * import * as S from "effect/Schema"
  *
- * // "beep:edge/{sourceId}/{targetId}/{relation}"
+ * // "beep:edge/{sourceNodeId}/{targetNodeId}/{kind}"
  * ```
  *
  * @category models
@@ -180,15 +214,15 @@ type KnowledgeEdgeId = typeof KnowledgeEdgeId.Type
  * @category models
  * @since 0.0.0
  */
-const Certainty = S.Number.pipe(
+const CertaintyTier = S.Number.pipe(
   S.greaterThanOrEqualTo(0),
   S.lessThanOrEqualTo(1),
-  S.brand("Certainty"),
-  $I.annoteSchema("Certainty", {
+  S.brand("CertaintyTier"),
+  $I.annoteSchema("CertaintyTier", {
     description: "Confidence score in the range [0, 1].",
   })
 )
-type Certainty = typeof Certainty.Type
+type CertaintyTier = typeof CertaintyTier.Type
 
 /**
  * Metadata attached to a node for display and filtering.
@@ -205,7 +239,7 @@ type Certainty = typeof Certainty.Type
  */
 class NodeMetadata extends S.Class<NodeMetadata>($I`NodeMetadata`)(
   {
-    domain: S.optionalKey(S.String).pipe(SchemaUtils.withKeyDefaults("general")),
+    domain: S.optionalKey(KnowledgeDomain).pipe(SchemaUtils.withKeyDefaults("general")),
     source: S.NonEmptyTrimmedString,
     tags: S.optionalKey(S.Array(S.NonEmptyTrimmedString)).pipe(
       SchemaUtils.withKeyDefaults([])
@@ -213,7 +247,7 @@ class NodeMetadata extends S.Class<NodeMetadata>($I`NodeMetadata`)(
     aliases: S.optionalKey(S.Array(S.NonEmptyTrimmedString)).pipe(
       SchemaUtils.withKeyDefaults([])
     ),
-    certainty: S.optionalKey(Certainty).pipe(SchemaUtils.withKeyDefaults(1.0)),
+    certainty: S.optionalKey(CertaintyTier).pipe(SchemaUtils.withKeyDefaults(1.0)),
   },
   $I.annote("NodeMetadata", {
     description: "Display and filtering metadata for a knowledge graph node.",
@@ -231,13 +265,14 @@ Each event payload is an `S.TaggedClass` carrying the data for one mutation type
  *
  * @example
  * ```ts
+ * import { Option } from "effect"
  * import * as S from "effect/Schema"
  *
  * const payload = new NodeCreatedPayload({
  *   nodeId: "beep:page/design-decisions" as KnowledgeNodeId,
  *   kind: "page",
- *   label: "Design Decisions",
- *   content: S.OptionFromNullishOr(S.String).make("..."),
+ *   displayLabel: "Design Decisions",
+ *   content: Option.some("..."),
  *   metadata: new NodeMetadata({ source: "vault" }),
  * })
  * void payload
@@ -246,12 +281,12 @@ Each event payload is an `S.TaggedClass` carrying the data for one mutation type
  * @category events
  * @since 0.0.0
  */
-class NodeCreatedPayload extends S.TaggedClass<NodeCreatedPayload>()(
+class NodeCreatedPayload extends S.TaggedClass<NodeCreatedPayload>($I`NodeCreatedPayload`)(
   "NodeCreatedPayload",
   {
     nodeId: KnowledgeNodeId,
-    kind: NodeKind.Schema,
-    label: S.NonEmptyTrimmedString,
+    kind: KnowledgeNodeKind,
+    displayLabel: S.NonEmptyTrimmedString,
     content: S.OptionFromNullishOr(S.String),
     metadata: NodeMetadata,
   },
@@ -271,7 +306,7 @@ class NodeCreatedPayload extends S.TaggedClass<NodeCreatedPayload>()(
  *
  * const payload = new NodeUpdatedPayload({
  *   nodeId: "beep:page/design-decisions" as KnowledgeNodeId,
- *   label: "Design Decisions (revised)",
+ *   displayLabel: "Design Decisions (revised)",
  * })
  * void payload
  * ```
@@ -279,11 +314,11 @@ class NodeCreatedPayload extends S.TaggedClass<NodeCreatedPayload>()(
  * @category events
  * @since 0.0.0
  */
-class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>()(
+class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>($I`NodeUpdatedPayload`)(
   "NodeUpdatedPayload",
   {
     nodeId: KnowledgeNodeId,
-    label: S.optional(S.NonEmptyTrimmedString),
+    displayLabel: S.optional(S.NonEmptyTrimmedString),
     content: S.optional(S.OptionFromNullishOr(S.String)),
     metadata: S.optional(NodeMetadata),
   },
@@ -312,7 +347,7 @@ class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>()(
  * @category events
  * @since 0.0.0
  */
-class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>()(
+class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>($I`NodeRemovedPayload`)(
   "NodeRemovedPayload",
   {
     nodeId: KnowledgeNodeId,
@@ -328,14 +363,15 @@ class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>()(
  *
  * @example
  * ```ts
+ * import { Option } from "effect"
  * import * as S from "effect/Schema"
  *
  * const payload = new EdgeCreatedPayload({
  *   edgeId: "beep:edge/src/tgt/wiki-link" as KnowledgeEdgeId,
- *   sourceId: "beep:page/a" as KnowledgeNodeId,
- *   targetId: "beep:page/b" as KnowledgeNodeId,
- *   relation: "wiki-link",
- *   weight: S.OptionFromNullishOr(S.Number).make(1.0),
+ *   sourceNodeId: "beep:page/a" as KnowledgeNodeId,
+ *   targetNodeId: "beep:page/b" as KnowledgeNodeId,
+ *   kind: "wiki-link",
+ *   weight: Option.some(1.0),
  * })
  * void payload
  * ```
@@ -343,13 +379,13 @@ class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>()(
  * @category events
  * @since 0.0.0
  */
-class EdgeCreatedPayload extends S.TaggedClass<EdgeCreatedPayload>()(
+class EdgeCreatedPayload extends S.TaggedClass<EdgeCreatedPayload>($I`EdgeCreatedPayload`)(
   "EdgeCreatedPayload",
   {
     edgeId: KnowledgeEdgeId,
-    sourceId: KnowledgeNodeId,
-    targetId: KnowledgeNodeId,
-    relation: EdgeRelation.Schema,
+    sourceNodeId: KnowledgeNodeId,
+    targetNodeId: KnowledgeNodeId,
+    kind: KnowledgeEdgeKind,
     weight: S.OptionFromNullishOr(S.Number),
   },
   $I.annote("EdgeCreatedPayload", {
@@ -374,7 +410,7 @@ class EdgeCreatedPayload extends S.TaggedClass<EdgeCreatedPayload>()(
  * @category events
  * @since 0.0.0
  */
-class EdgeRemovedPayload extends S.TaggedClass<EdgeRemovedPayload>()(
+class EdgeRemovedPayload extends S.TaggedClass<EdgeRemovedPayload>($I`EdgeRemovedPayload`)(
   "EdgeRemovedPayload",
   {
     edgeId: KnowledgeEdgeId,
@@ -406,7 +442,7 @@ class EdgeRemovedPayload extends S.TaggedClass<EdgeRemovedPayload>()(
  * @category events
  * @since 0.0.0
  */
-class SnapshotResetPayload extends S.TaggedClass<SnapshotResetPayload>()(
+class SnapshotResetPayload extends S.TaggedClass<SnapshotResetPayload>($I`SnapshotResetPayload`)(
   "SnapshotResetPayload",
   {
     source: S.NonEmptyTrimmedString,
@@ -528,7 +564,7 @@ const graphHandlers = EventLog.group(
           yield* insertGraphNode({
             nodeId: payload.nodeId,
             kind: payload.kind,
-            label: payload.label,
+            displayLabel: payload.displayLabel,
             content: payload.content,
             metadata: payload.metadata,
             createdAt: entry.createdAtMillis,
@@ -540,7 +576,7 @@ const graphHandlers = EventLog.group(
         Effect.gen(function* () {
           void conflicts
           yield* updateGraphNode(payload.nodeId, {
-            label: payload.label,
+            displayLabel: payload.displayLabel,
             content: payload.content,
             metadata: payload.metadata,
             updatedAt: entry.createdAtMillis,
@@ -560,9 +596,9 @@ const graphHandlers = EventLog.group(
           void conflicts
           yield* insertGraphEdge({
             edgeId: payload.edgeId,
-            sourceId: payload.sourceId,
-            targetId: payload.targetId,
-            relation: payload.relation,
+            sourceNodeId: payload.sourceNodeId,
+            targetNodeId: payload.targetNodeId,
+            kind: payload.kind,
             weight: payload.weight,
             createdAt: entry.createdAtMillis,
           })
@@ -643,7 +679,7 @@ Each stored event is an `Entry` (from `EventJournal`):
 
 ```ts
 .handle("NodeCreated", ({ payload, conflicts }) =>
-  A.isNonEmptyReadonlyArray(conflicts)
+  A.isReadonlyArrayNonEmpty(conflicts)
     ? Effect.fail(new ConflictError({ nodeId: payload.nodeId }))
     : insertGraphNode(payload)
 )
@@ -661,8 +697,8 @@ import { EventLog } from "effect/unstable/eventlog"
 /**
  * Reactivity key mapping for UI invalidation.
  *
- * When `NodeRemoved` fires, both `"graph-nodes"` and `"graph-edges"` are
- * invalidated because the handler cascades edge removal.
+ * When `NodeRemoved` fires, `"graph:nodes"`, `"graph:edges"`, and `"graph:stats"`
+ * are invalidated because the handler cascades edge removal.
  *
  * @category reactivity
  * @since 0.0.0
@@ -670,12 +706,12 @@ import { EventLog } from "effect/unstable/eventlog"
 const graphReactivity = EventLog.groupReactivity(
   KnowledgeGraphEvents,
   {
-    NodeCreated:   ["graph-nodes"],
-    NodeUpdated:   ["graph-nodes"],
-    NodeRemoved:   ["graph-nodes", "graph-edges"],
-    EdgeCreated:   ["graph-edges"],
-    EdgeRemoved:   ["graph-edges"],
-    SnapshotReset: ["graph-nodes", "graph-edges"],
+    NodeCreated:   ["graph:nodes", "graph:stats"],
+    NodeUpdated:   ["graph:nodes"],
+    NodeRemoved:   ["graph:nodes", "graph:edges", "graph:stats"],
+    EdgeCreated:   ["graph:edges", "graph:stats"],
+    EdgeRemoved:   ["graph:edges", "graph:stats"],
+    SnapshotReset: ["graph:nodes", "graph:edges", "graph:stats"],
   }
 )
 ```
@@ -685,7 +721,7 @@ Alternative: pass a flat array to invalidate the same keys for ALL events in the
 ```ts
 const graphReactivity = EventLog.groupReactivity(
   KnowledgeGraphEvents,
-  ["graph-nodes", "graph-edges"]
+  ["graph:nodes", "graph:edges", "graph:stats"]
 )
 ```
 
@@ -804,7 +840,7 @@ const make = Effect.gen(function* () {
         Effect.flatMap(S.decodeUnknownEffect(S.Array(GraphNodeRow)))
       ),
     queryEdges: (filter) =>
-      sql`SELECT * FROM graph_edges WHERE source_id = ${filter.sourceId}`.pipe(
+      sql`SELECT * FROM graph_edges WHERE source_node_id = ${filter.sourceNodeId}`.pipe(
         Effect.flatMap(S.decodeUnknownEffect(S.Array(GraphEdgeRow)))
       ),
 
@@ -873,7 +909,7 @@ export const graphNodes = Table.make(KnowledgeNodeId)({
   nodeId: sqlite.text("node_id").notNull().unique(),
   kind: sqlite.text("kind").notNull(),
   domain: sqlite.text("domain").notNull(),
-  label: sqlite.text("label").notNull(),
+  displayLabel: sqlite.text("display_label").notNull(),
   content: sqlite.text("content"),
   certainty: sqlite.real("certainty").notNull().default(1.0),
   tags: sqlite.text("tags"),       // JSON-encoded array
@@ -903,16 +939,16 @@ export const graphNodes = Table.make(KnowledgeNodeId)({
  */
 export const graphEdges = Table.make(KnowledgeEdgeId)({
   edgeId: sqlite.text("edge_id").notNull().unique(),
-  sourceId: sqlite.text("source_id").notNull(),
-  targetId: sqlite.text("target_id").notNull(),
-  relation: sqlite.text("relation").notNull(),
+  sourceNodeId: sqlite.text("source_node_id").notNull(),
+  targetNodeId: sqlite.text("target_node_id").notNull(),
+  kind: sqlite.text("kind").notNull(),
   weight: sqlite.real("weight"),
   certainty: sqlite.real("certainty").notNull().default(1.0),
   lastSequence: sqlite.integer("last_sequence"),
 }, (t) => [
-  sqlite.index("graph_edges_source_idx").on(t.sourceId),
-  sqlite.index("graph_edges_target_idx").on(t.targetId),
-  sqlite.index("graph_edges_relation_idx").on(t.relation),
+  sqlite.index("graph_edges_source_idx").on(t.sourceNodeId),
+  sqlite.index("graph_edges_target_idx").on(t.targetNodeId),
+  sqlite.index("graph_edges_kind_idx").on(t.kind),
 ])
 ```
 
@@ -999,7 +1035,7 @@ future domain stores ──┘      primaryKey,                   │
 
 4. **Materialized views**: each view is an independent consumer of the event stream via handlers. The graph index (SQLite tables) is the primary view. Others (Cytoscape elements for the UI, backlink index for fast reverse lookups, statistics) can be added as additional `EventLog.group` registrations without modifying the event log or other views.
 
-5. **Reactivity**: every processed event triggers `Reactivity.invalidate` for the keys registered in `graphReactivity`. The UI subscribes to `"graph-nodes"` and `"graph-edges"` keys and re-fetches affected queries automatically.
+5. **Reactivity**: every processed event triggers `Reactivity.invalidate` for the keys registered in `graphReactivity`. The UI subscribes to `"graph:nodes"`, `"graph:edges"`, and `"graph:stats"` keys and re-fetches affected queries automatically.
 
 6. **Remote sync**: when enabled, `EventLogRemote` handles bidirectional sync. The `graphCompaction` function reduces backlog during sync processing. Encryption is optional via `EventLogEncryption`.
 

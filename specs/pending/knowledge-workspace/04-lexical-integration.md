@@ -52,11 +52,16 @@ The WikiLinkNode data is validated through an `S.Class` with `$I` identity:
  *
  * const $I = $KnowledgeId.create("WikiLink")
  *
- * class SerializedWikiLink extends S.Class<SerializedWikiLink>($I`SerializedWikiLink`)({
- *   targetSlug: S.NonEmptyTrimmedString,
- *   displayText: S.NonEmptyTrimmedString,
- *   resolved: S.Boolean,
- * }) {}
+ * class SerializedWikiLink extends S.Class<SerializedWikiLink>($I`SerializedWikiLink`)(
+ *   {
+ *     targetSlug: S.NonEmptyTrimmedString,
+ *     displayText: S.NonEmptyTrimmedString,
+ *     resolved: S.Boolean,
+ *   },
+ *   $I.annote("SerializedWikiLink", {
+ *     description: "Schema for serialized WikiLinkNode state.",
+ *   })
+ * ) {}
  * ```
  *
  * @category model
@@ -260,7 +265,7 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
 1. **Diff wiki-links**: Compare the current page's `[[wiki-link]]` set against the previous save's link set. Use `extractBlockLinks` (from `packages/editor/core/src/Canonical.ts:389`) on the serialized markdown content.
 
 2. **Emit node event via KnowledgeGraph facade**:
-   - First save: the facade calls `EventLog.write` with event tag `"NodeCreated"`, `kind: "page"`, `domain: "vault"`, `certainty: 1.0`, `actor: "user:local"`.
+   - First save: the facade calls `EventLog.write` with event tag `"NodeCreated"`, `kind: "page"`, `domain: "general"`, `certainty: 1.0`, `actor: "user:local"`.
    - Subsequent saves: the facade calls `EventLog.write` with event tag `"NodeUpdated"` and a patch containing changed fields (title, body digest, tags).
 
 3. **Emit edge events for new links**: For each `[[wiki-link]]` that did not exist in the previous save, the facade calls `EventLog.write` with event tag `"EdgeCreated"`, `kind: "wiki-link"`, `source` = current page node ID, `target` = linked page node ID, `certainty: 1.0`.
@@ -278,7 +283,12 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
  * import * as Model from "@beep/schema/Model"
  * import * as S from "effect/Schema"
  *
- * class Page extends Model.Class<Page>("Page")({
+ * // NOTE: Simplified illustration of the page-save pipeline.
+ * // The canonical Page entity (01-data-model.md § Page Entity) uses
+ * // DomainModel.make with $I identity, optional keys, and different
+ * // field set (aliases, outboundLinks, excerpt). Refer to that
+ * // definition for persistence-layer field truth.
+ * class Page extends Model.Class<Page>($I`Page`)({
  *   id: Model.Generated(PageId),
  *   slug: PageSlug,
  *   title: S.NonEmptyTrimmedString,
@@ -300,6 +310,8 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
  * @since 0.0.0
  */
 ```
+
+> **Cross-reference**: The canonical `Page` entity is defined in 01-data-model.md § Page Entity using `DomainModel.make`. The example here is a simplified illustration of the page-save pipeline.
 
 ### Save mutation via runtime.fn
 

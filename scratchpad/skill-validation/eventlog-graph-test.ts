@@ -80,5 +80,5 @@ void (undefined as unknown as _TodoGroupEvents)
 // 9. Event.isEvent guard
 // ---------------------------------------------------------------------------
 
-const _isEvent: (u: unknown) => u is Event.Event<any, any, any, any> = Event.isEvent
+const _isEvent: (u: unknown) => u is Event.Event<string, S.Top, S.Top, S.Top> = Event.isEvent
 void _isEvent

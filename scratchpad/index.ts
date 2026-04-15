@@ -1,22 +1,7 @@
-import { A, O, Struct, P } from "@beep/utils";
 import { $ScratchId } from "@beep/identity";
-import {
-  Layer,
-  Context,
-  Effect,
-  FileSystem,
-  Match,
-  Path,
-  flow,
-  pipe,
-  identity,
-  Config,
-} from "effect";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { Effect } from "effect";
+import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
-import { BunServices, BunRuntime } from "@effect/platform-bun";
-import { Model } from "effect/unstable/schema";
-import { Table } from "@beep/shared-tables";
 import { dual } from "effect/Function";
 
 const $I = $ScratchId.create("index");

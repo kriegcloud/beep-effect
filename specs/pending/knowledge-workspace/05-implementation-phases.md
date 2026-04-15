@@ -44,7 +44,7 @@ Assign to Codex:
 - `SqlEventJournal` configuration for graph persistence
 - WikiLinkNode serialization logic (exportJSON, importJSON, MarkdownTransformer)
 - Link resolution service (slug lookup, resolved status)
-- `extractBlockLinks` regex extension for `[[code:...]]` prefix
+- `extractBlockLinks` basic `[[wiki-link]]` extraction (Phase 2); `[[code:...]]` prefix extension deferred to Phase 3
 - Page save to `EventLog.write` emission pipeline
 - Replay projection engine (temporal rebuild from `effect_event_journal` table)
 - Cross-domain `[[code:SymbolName]]` resolution service
@@ -94,7 +94,7 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
  * // schema-model-specialist
  * const Status = LiteralKit(["active", "inactive"] as const)
  * class Entity extends S.Class<Entity>($I`Entity`)({
- *   status: Status.Schema,
+ *   status: Status,
  * }) {}
  *
  * // eventlog-graph-specialist
@@ -132,7 +132,7 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 | File | Owner | Purpose |
 |------|-------|---------|
 | `packages/common/knowledge-graph/src/events.ts` | Codex | `EventGroup` definition with six event tags (`NodeCreated`, `EdgeCreated`, etc.) |
-| `packages/common/knowledge-graph/src/schema.ts` | Codex | `EventLog.schema(graphEvents)` configuration |
+| `packages/common/knowledge-graph/src/schema.ts` | Codex | `EventLog.schema(KnowledgeGraphEvents)` configuration |
 | `packages/common/knowledge-graph/src/handlers.ts` | Codex | `EventLog.Handlers` implementations for graph projection |
 | `packages/common/knowledge-graph/src/facade.ts` | Codex | `KnowledgeGraph` thin facade over `EventLog.write` |
 | `packages/common/knowledge-graph/src/models.ts` | Codex | `Model.Class` definitions for `KnowledgeNode`, `KnowledgeEdge` |
@@ -154,15 +154,15 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
  * import { EventGroup } from "effect/unstable/eventlog"
  * import * as S from "effect/Schema"
  *
- * const GraphEvents = EventGroup.make("KnowledgeGraph")
+ * const KnowledgeGraphEvents = EventGroup.empty
  *   .add({
  *     tag: "NodeCreated",
  *     primaryKey: (p) => p.nodeId,
  *     payload: S.Struct({
  *       nodeId: KnowledgeNodeId,
- *       kind: KnowledgeNodeKind.Schema,
- *       domain: KnowledgeDomain.Schema,
- *       label: S.NonEmptyTrimmedString,
+ *       kind: KnowledgeNodeKind,
+ *       domain: KnowledgeDomain,
+ *       displayLabel: S.NonEmptyTrimmedString,
  *       certainty: CertaintyTier,
  *       body: KnowledgeNodeBody,
  *     }),
@@ -172,10 +172,10 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
  *     primaryKey: (p) => p.edgeId,
  *     payload: S.Struct({
  *       edgeId: KnowledgeEdgeId,
- *       source: KnowledgeNodeId,
- *       target: KnowledgeNodeId,
- *       kind: KnowledgeEdgeKind.Schema,
- *       label: S.NonEmptyTrimmedString,
+ *       sourceNodeId: KnowledgeNodeId,
+ *       targetNodeId: KnowledgeNodeId,
+ *       kind: KnowledgeEdgeKind,
+ *       displayLabel: S.NonEmptyTrimmedString,
  *       certainty: CertaintyTier,
  *     }),
  *   })
@@ -201,7 +201,7 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
  * const SymbolNodeId = S.TemplateLiteral(["beep:symbol/", S.String, "/", S.String])
  * const FileNodeId = S.TemplateLiteral(["beep:file/", S.String, "/", S.String])
  *
- * const KnowledgeNodeId = S.Union(PageNodeId, SymbolNodeId, FileNodeId)
+ * const KnowledgeNodeId = S.Union([PageNodeId, SymbolNodeId, FileNodeId])
  * ```
  *
  * @category identifiers
@@ -257,6 +257,8 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 - [ ] Event journal persists entries in `effect_event_journal` and survives process restart
 - [ ] Graph index rebuilds correctly from a cold replay of the event journal
 
+> **Note**: Reconcile table definitions between spec 00 and spec 01 before implementation -- ensure single canonical schema.
+
 ---
 
 ## Phase 2: Lexical Editor + Wiki-Linking
@@ -310,7 +312,7 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 1. **Page saves to graph event emission**: When a page is saved, diff the current `[[wiki-link]]` set against the previous save. The `KnowledgeGraph` facade calls `EventLog.write` for `NodeCreated`/`NodeUpdated` (document node) and `EdgeCreated`/`EdgeRemoved` (wiki-link edges). Uses `extractBlockLinks` from `packages/editor/core/src/Canonical.ts:389`.
 
-2. **Extend `extractBlockLinks` regex**: Add support for `[[code:SymbolName]]` prefix syntax at `Canonical.ts:390`. The regex currently matches `[[target]]` -- extend to optionally capture a `code:` prefix group.
+2. **Extend `extractBlockLinks` regex**: The regex currently matches `[[target]]`. In Phase 2, basic `[[wiki-link]]` extraction is sufficient. The `[[code:SymbolName]]` prefix resolution belongs in Phase 3 (which adds cross-domain resolution); do not extend the regex for `code:` prefix support until then.
 
 3. **WikiLinkTypeaheadPlugin to PagesGroup.searchPages**: The typeahead calls the existing search endpoint at `packages/editor/protocol/src/index.ts:159` to find matching pages.
 
@@ -412,7 +414,7 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 1. **Temporal scrubber to replay projection**: The scrubber emits a target timestamp. The replay engine queries `effect_event_journal` for all entries up to that timestamp, producing a point-in-time graph state. The Cytoscape canvas renders this state.
 
-2. **Play mode**: Animate graph evolution by stepping through entries at configurable speed (1x, 2x, 4x). Each step applies one event to the Cytoscape canvas. Nodes fade in with `opacity` transitions. Edges draw with CSS stroke animations.
+2. **Play mode**: Animate graph evolution by stepping through entries at configurable speed (1x, 2x, 4x, 8x). Each step applies one event to the Cytoscape canvas. Nodes fade in with `opacity` transitions. Edges draw with CSS stroke animations.
 
 3. **Cross-domain resolution**: When a wiki-link uses the `[[code:SymbolName]]` prefix, the link resolution service queries the `graph_nodes` table for nodes with `kind: "code-symbol"` and matching label. If found, the edge connects the document node to the code entity node.
 
@@ -457,7 +459,7 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 - [ ] Temporal scrubber shows timeline from first to latest entry timestamp
 - [ ] Dragging scrubber projects graph at that point in time
-- [ ] Play mode animates graph evolution at configurable speed (1x, 2x, 4x)
+- [ ] Play mode animates graph evolution at configurable speed (1x, 2x, 4x, 8x)
 - [ ] Filter by source/domain/certainty during replay
 - [ ] `[[code:SymbolName]]` in editor resolves to code entity in graph
 - [ ] Unified graph shows code nodes AND document nodes with cross-domain edges
@@ -510,7 +512,7 @@ The event-sourced architecture makes this extension natural: new domains define 
 | 1 | `packages/common/knowledge-graph/` (new) | `EventGroup`, `EventLog.schema`, handlers, facade, `Model.Class` entities |
 | 1 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Extend with document node styles, certainty-based edge opacity, wiki-link edge type |
 | 1 | `apps/desktop/src/RepoMemoryDesktop.tsx` | Decompose 1831-line monolith into `WorkspaceLayout`, `GraphCanvas`, `DetailPanel`, `QueryBar` |
-| 2 | `packages/editor/core/src/Canonical.ts` | Extend `extractBlockLinks` regex at line 390 for `[[code:...]]` prefix support |
+| 2 | `packages/editor/core/src/Canonical.ts` | Basic `[[wiki-link]]` extraction via `extractBlockLinks` (no `[[code:...]]` prefix -- deferred to Phase 3) |
 | 2 | `packages/editor/lexical/src/EditorSurface.tsx` | Register `WikiLinkNode` at line 65, mount `WikiLinkTypeaheadPlugin` and `BacklinkDisplayPlugin` |
 | 2 | `packages/common/knowledge-graph/src/models/Page.ts` (new) | `Model.Class` for Page entity |
 | 2 | `packages/common/semantic-web/src/prov.ts` | Reuse `ProvBundle` for event provenance (no changes needed, reference only) |
@@ -551,7 +553,7 @@ Rules wrapper                ──> KnowledgeGraph facade        ──> Backli
                                  CytoscapeService             ──> Vault persistence        ──> Unified graph view
                                  WorkspaceLayout              ──> Page save -> EventLog    ──> Statistics overlay
                                  DetailPanel                  ──> MarkdownTransformer
-                                 QueryBar                     ──> extractBlockLinks update
+                                 QueryBar                     ──> extractBlockLinks (basic)
                                                                   Model.Class for Page
 ```
 

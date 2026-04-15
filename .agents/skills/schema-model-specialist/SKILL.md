@@ -254,8 +254,13 @@ This produces a union with `.match`, `.cases`, `.guards`, and `.isAnyOf`.
 
 ### LiteralKit with mapMembers + S.toTaggedUnion
 
-For more control, use the `mapMembers` + `Tuple.evolve` + `S.toTaggedUnion`
-pipeline. This is the preferred pattern when each member is a full S.Class:
+`mapMembers` is inherited from the underlying `S.Literals` type, not a
+LiteralKit-specific addition. Use it with `Tuple.evolve` + `S.toTaggedUnion`
+when each member needs to be a full `S.Class` with methods and identity.
+
+When to use each approach:
+- `toTaggedUnion(tag)(cases)` -- quick struct-based unions from inline field definitions (no per-member class needed)
+- `mapMembers` + `S.toTaggedUnion` -- when each member is a full `S.Class` with its own identity, methods, or annotations
 
 ```ts
 import { LiteralKit } from "@beep/schema"

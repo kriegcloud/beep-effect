@@ -76,7 +76,7 @@ Every capability the workspace UI needs is modeled as a `Context.Service` class 
 | Service              | Responsibility                                         |
 |----------------------|--------------------------------------------------------|
 | `CytoscapeService`   | Graph instance lifecycle, layout, animation, style switching |
-| `KnowledgeGraphApi`  | Graph data fetching: nodes, edges, search              |
+| `KnowledgeGraphApi`  | Graph data fetching: nodes, edges, search (frontend RPC client wrapping the backend `KnowledgeGraph` facade) |
 | `EventStreamService` | Live graph event subscription, replay cursor           |
 | `EditorService`      | Lexical editor session, page load/save                 |
 | `SidecarConnection`  | Health check, reconnect, base URL management           |
@@ -84,6 +84,8 @@ Every capability the workspace UI needs is modeled as a `Context.Service` class 
 ### Canonical service definition
 
 ```ts
+const $I = $KnowledgeWorkspaceId.create("ui/CytoscapeService")
+
 /**
  * Graph rendering lifecycle service.
  *
@@ -189,7 +191,7 @@ class CytoscapeService extends Context.Service<CytoscapeService, {
    */
   readonly onTap: Stream.Stream<CytoscapeEvent>
   readonly onSelect: Stream.Stream<ReadonlyArray<ElementDefinition>>
-}>()("@beep/knowledge-workspace/CytoscapeService") {}
+}>()($I`CytoscapeService`) {}
 ```
 
 ### Layer implementation pattern
@@ -366,15 +368,15 @@ The 948-line stylesheet in `packages/common/ui/.../codegraph/styles/graph-styles
 - Interaction classes: `.search-match`, `.faded`, `.impact-source`, `.impact-target`.
 - Performance variant: `graphStylesFast` with `min-zoomed-font-size` for 300+ node graphs.
 
-### New node type: Document
+### New node type: Page
 
 ```ts
 {
-  selector: 'node[kind = "document"]',
+  selector: 'node[kind = "page"]',
   style: {
     shape: "round-rectangle",
     "background-color": "#7c3aed",        // purple -- distinct from code nodes
-    label: "data(label)",
+    label: "data(displayLabel)",
     "font-size": 12,
     "text-wrap": "ellipsis",
     "text-max-width": 120
@@ -398,6 +400,9 @@ The 948-line stylesheet in `packages/common/ui/.../codegraph/styles/graph-styles
 ```
 
 ### Certainty-based edge styling
+
+> See `02-real-time-and-replay.md` section "Filters During Replay" for the canonical filter specification.
+
 
 ```ts
 // Deterministic edges (certainty = 1.0): solid stroke
@@ -521,15 +526,15 @@ const graphElementsAtom = workspaceRuntime.atom(
  *   import { createEdgeFn } from "@beep/knowledge-workspace-ui/atoms"
  *
  *   const [result, createEdge] = useAtom(createEdgeFn)
- *   createEdge({ sourceId, targetId, kind: "wiki-link" })
+ *   createEdge({ sourceNodeId, targetNodeId, kind: "wiki-link" })
  */
 const createEdgeFn = workspaceRuntime.fn<{
-  readonly sourceId: string
-  readonly targetId: string
+  readonly sourceNodeId: string
+  readonly targetNodeId: string
   readonly kind: string
 }>()(
   (args) => KnowledgeGraphApi.use((_) => _.createEdge(args)),
-  { reactivityKeys: ["graph"] }
+  { reactivityKeys: ["graph:nodes", "graph:edges"] }
 )
 ```
 
@@ -622,6 +627,7 @@ const certaintyFilterAtom = Atom.searchParam("certainty", {
 ```ts
 /**
  * Graph elements filtered by the current certainty threshold.
+ * See 02-real-time-and-replay.md section "Filters During Replay" for the canonical filter specification.
  *
  * @since 0.1.0
  * @category atoms
@@ -680,7 +686,7 @@ const liveEventsAtom = workspaceRuntime.atom(
         const elements = graphEventToElements(event)
         yield* cyto.applyElements(elements)
         yield* cyto.applyClass(
-          `#${event.payload.nodeId}`,
+          `#${event.primaryKey}`,
           "entering",
           1200
         )
@@ -740,8 +746,7 @@ const $I = $KnowledgeWorkspaceUiId.create("schemas/SelectedElement")
  * @since 0.1.0
  * @category schemas
  */
-class SymbolNode extends S.Class<SymbolNode>($I`SymbolNode`)({
-  _tag: S.tag("SymbolNode"),
+class SymbolNode extends S.TaggedClass<SymbolNode>($I`SymbolNode`)("SymbolNode", {
   nodeId: S.String,
   name: S.NonEmptyTrimmedString,
   kind: S.String,
@@ -758,8 +763,7 @@ class SymbolNode extends S.Class<SymbolNode>($I`SymbolNode`)({
  * @since 0.1.0
  * @category schemas
  */
-class FileNode extends S.Class<FileNode>($I`FileNode`)({
-  _tag: S.tag("FileNode"),
+class FileNode extends S.TaggedClass<FileNode>($I`FileNode`)("FileNode", {
   nodeId: S.String,
   filePath: S.String,
   exports: S.Array(S.String),
@@ -771,8 +775,7 @@ class FileNode extends S.Class<FileNode>($I`FileNode`)({
  * @since 0.1.0
  * @category schemas
  */
-class DocumentNode extends S.Class<DocumentNode>($I`DocumentNode`)({
-  _tag: S.tag("DocumentNode"),
+class DocumentNode extends S.TaggedClass<DocumentNode>($I`DocumentNode`)("DocumentNode", {
   nodeId: S.String,
   title: S.NonEmptyTrimmedString,
   lastModified: S.DateTimeUtc,
@@ -785,8 +788,7 @@ class DocumentNode extends S.Class<DocumentNode>($I`DocumentNode`)({
  * @since 0.1.0
  * @category schemas
  */
-class ImportEdge extends S.Class<ImportEdge>($I`ImportEdge`)({
-  _tag: S.tag("ImportEdge"),
+class ImportEdge extends S.TaggedClass<ImportEdge>($I`ImportEdge`)("ImportEdge", {
   importerFile: S.String,
   importerLine: S.Number,
   specifier: S.String,
@@ -801,7 +803,7 @@ class ImportEdge extends S.Class<ImportEdge>($I`ImportEdge`)({
  * @since 0.1.0
  * @category schemas
  */
-const SelectedElement = S.Union(SymbolNode, FileNode, DocumentNode, ImportEdge).pipe(
+const SelectedElement = S.Union([SymbolNode, FileNode, DocumentNode, ImportEdge]).pipe(
   S.toTaggedUnion("_tag")
 )
 type SelectedElement = typeof SelectedElement.Type

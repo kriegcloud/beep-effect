@@ -78,7 +78,7 @@ import * as Atom from "effect/unstable/reactivity/Atom"
 |-------------|-----------|---------|---------|
 | `Atom.make(value)` | `<A>(value: A) => Writable<A>` | Mutable state atom | Client-only state (replaces `useState`) |
 | `Atom.make(effect)` | `<A, E>(effect: Effect<A, E>) => Atom<AsyncResult<A, E>>` | Async result atom | Server state from Effect |
-| `Atom.make(stream)` | `<A, E>(stream: Stream<A, E>) => Atom<AsyncResult<A, E>>` | Stream-backed atom | Realtime data |
+| `Atom.make(stream)` | `<A, E>(stream: Stream<A, E>) => Atom<AsyncResult<A, E \| Cause.NoSuchElementError>>` | Stream-backed atom | Realtime data |
 | `Atom.make(fn)` | `<A>((get: AtomContext) => A) => Atom<A>` | Computed atom | Derived state |
 | `Atom.readable(read, refresh?)` | `(read: (get: AtomContext) => A) => Atom<A>` | Read-only atom | Immutable computed |
 | `Atom.writable(read, write, refresh?)` | Full control | Read+write atom | Custom read/write logic |
@@ -109,6 +109,10 @@ import * as Atom from "effect/unstable/reactivity/Atom"
 | `Atom.withServerValueInitial(atom)` | Server value as `AsyncResult.initial(true)` |
 | `Atom.optimistic(atom)` | Optimistic update wrapper |
 | `Atom.batch(fn)` | Batch multiple writes |
+| `Atom.Reset` | Symbol: write to an `AtomResultFn` to reset it to initial state |
+| `Atom.Interrupt` | Symbol: write to an `AtomResultFn` to cancel the in-flight effect |
+| `Atom.windowFocusSignal` | `Atom<number>` that increments on window focus events |
+| `Atom.refreshOnWindowFocus(atom)` | Auto-refresh an atom when the window regains focus |
 
 #### URL and Persistence
 
@@ -164,6 +168,10 @@ Atom.readable((get) => {
   get.subscribe(atom, (value) => { ... })          // Side-effect on dependency change
   get.stream(atom)                                 // Stream<A> from atom
   get.streamResult(asyncAtom)                      // Stream<A, E> from async atom
+  get.resultOnce(asyncAtom)                        // Effect<A, E> from AsyncResult atom (no tracking)
+  get.setResult(asyncAtom, asyncResult)            // Directly set an AsyncResult value
+  get.some(asyncAtom)                              // Option<A> from AsyncResult (tracks dependency)
+  get.someOnce(asyncAtom)                          // Option<A> from AsyncResult (no tracking)
   return value
 })
 ```
@@ -196,6 +204,8 @@ const runtime2 = factory(ServiceLayer2)
 | `runtime.fn(effect, options?)` | `(arg: void, get) => Effect => AtomResultFn<void, A, E \| ER>` | Zero-arg mutation |
 | `runtime.pull(stream)` | `Stream<A, E, R> => Writable<PullResult<A, E \| ER>, void>` | Paginated stream |
 | `runtime.subscriptionRef(ref)` | `Effect<SubscriptionRef<A>> => Writable<AsyncResult<A, E>, A>` | SubscriptionRef |
+
+Note: The `reactivityKeys` option is only available on `runtime.fn`, not on the standalone `Atom.fn`. Use `runtime.fn` when you need automatic reactivity key invalidation after mutations.
 
 #### `RuntimeFactory` interface
 
@@ -255,9 +265,11 @@ import { Reactivity } from "effect/unstable/reactivity"
 // In service code
 Reactivity.mutation(effect, ["users"])         // Invalidate "users" key after effect
 Reactivity.invalidate(["users", "posts"])      // Manual invalidation
-Reactivity.query(["users"], fetchEffect)       // Re-run on "users" invalidation
-Reactivity.stream(["users"], fetchEffect)      // Stream of re-executions
-Reactivity.withBatch(effect)                   // Defer invalidations until completion
+Reactivity.query(fetchEffect, ["users"])       // Re-run on "users" invalidation (data-first)
+Reactivity.stream(fetchEffect, ["users"])      // Stream of re-executions (data-first)
+// withBatch is a method on the Reactivity service instance, not a module export:
+// const reactivity = yield* Reactivity
+// reactivity.withBatch(effect)                 // Defer invalidations until completion
 ```
 
 Keys can be arrays or records for namespaced invalidation:
@@ -638,7 +650,8 @@ function ThemeSync() {
 const cachedUsersAtom = Atom.swr(usersAtom, {
   staleTime: Duration.minutes(5),
   revalidateOnMount: true,
-  revalidateOnFocus: true
+  revalidateOnFocus: true,
+  focusSignal: Atom.windowFocusSignal  // Required for revalidateOnFocus to work
 })
 ```
 

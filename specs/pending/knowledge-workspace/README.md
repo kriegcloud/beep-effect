@@ -12,7 +12,7 @@ The workspace serves both code AST intelligence (repo-memory) and future expert 
 
 | Document | Summary |
 |----------|---------|
-| [00-event-sourced-graph.md](./00-event-sourced-graph.md) | Event log architecture, `GraphEvent` schema, projection engine, `EventJournal` pattern |
+| [00-event-sourced-graph.md](./00-event-sourced-graph.md) | EventLog + EventGroup + KnowledgeGraph facade pattern, projection engine, `SqlEventJournal` persistence |
 | [01-data-model.md](./01-data-model.md) | Node/edge type system, persistence format, FS layout, link resolution |
 | [02-real-time-and-replay.md](./02-real-time-and-replay.md) | Live streaming via `EventJournal.changes` PubSub, `Reactivity` integration, temporal scrubber |
 | [03-ui-architecture.md](./03-ui-architecture.md) | Three-zone layout, Cytoscape graph rendering, navigation, detail panels |
@@ -39,7 +39,7 @@ Eleven architectural questions were resolved during spec development. These deci
 | **Q2** | Custom event log or Effect primitives? | Thin domain facade (`KnowledgeGraph`) over Effect `EventLog` from `effect/unstable/eventlog`. No custom event log implementation. |
 | **Q3** | Schema patterns for entities and events? | `Model.Class` for persisted entities (Page, KnowledgeNode). `S.TaggedClass` for graph events. `S.Class` + `$I` identity for all schemas. |
 | **Q4** | Separate databases per domain? | Single `graph.db` with two table owners: `effect_event_journal` (managed by `SqlEventJournal`) and `graph_nodes`/`graph_edges` (managed by projection handlers). |
-| **Q5** | React hooks for frontend state? | Hard ban on React hooks for server state. `Atom.make` for local state, `Atom.searchParam` for URL state, `Reactivity.stream` for server-derived state, `runtime.fn` for mutations. From day one. |
+| **Q5** | React hooks for frontend state? | Hard ban on React hooks for server state. `Atom.make` for local state, `Atom.readable` for derived state, `Atom.searchParam` for URL state, `Reactivity.stream` for server-derived state, `runtime.fn` for mutations. From day one. |
 | **Q6** | Node ID format? | `S.TemplateLiteral` per domain: `beep:page/{slug}`, `beep:symbol/{repoId}/{name}`, `beep:file/{repoId}/{path}`. |
 | **Q7** | How many specialist agents? | Four: `eventlog-graph-specialist`, `schema-model-specialist`, `atom-reactivity-specialist`, `jsdoc-annotation-specialist`. |
 | **Q8** | Do skills replace Codex agents? | No. Skills complement existing Codex agents. Codex uses skills as domain knowledge; Claude Code + Chrome uses skills for state patterns. |
