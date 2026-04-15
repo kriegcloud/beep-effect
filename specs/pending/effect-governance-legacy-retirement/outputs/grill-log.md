@@ -6,6 +6,7 @@
 - Do not assume repo-wide ESLint removal is required for success.
 - Build an explicit live inventory of the remaining legacy surface before ranking retirement options.
 - Treat root scripts, Turbo metadata, `@beep/repo-configs`, `@beep/repo-cli`, and stale docs or trust references as separate retirement buckets.
+- Treat the active allowlist surface as governance data plus naming debt, not as dead rollback scaffolding; the main ESLint-removal blockers are the mixed `ESLintConfig` export and the native-runtime parity runner.
 - Allow three honest end states only:
   - `full retirement`
   - `minimal shim retained`
@@ -13,3 +14,8 @@
 - P0, P1, and P2 are read-only outside this spec package.
 - P2 must choose one retirement posture before any repo mutations happen.
 - P4 must verify retirement against the locked inventory and remove-or-retain matrix rather than inventing fresh targets late.
+- P2 chose `full retirement` as the primary path: split the docs lane away from the mixed `ESLintConfig`, rewrite the native-runtime checker off `eslint/Linter`, and delete the leftover legacy lane late in execution.
+- For this package, `full retirement` means removing active `beep-laws` or Effect-lane ESLint execution surfaces; active allowlist data may keep legacy nouns temporarily if that avoids widening the cut.
+- The only honest fallback is a minimal native-runtime shim. Do not retain the broader legacy rule corpus once the docs lane split is complete.
+- P3 kept `EffectLawsAllowlist.ts` and `NoNativeRuntimeHotspots.ts` as shared governance data even though they still live under `tooling/configs/src/eslint/*`; that path naming debt is acceptable for this wave because the live Effect lane no longer executes ESLint rules from those modules.
+- P4 verified `full retirement`: remaining `effect-laws` and `beep-laws` nouns inside the allowlist document, generated allowlist snapshot, and stable allowlist rule-id key are acceptable governance-data identity, not a retained ESLint execution shim.

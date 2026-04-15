@@ -2,7 +2,7 @@
 
 ## Status
 
-**P4 VERIFIED - STAGED CUTOVER**
+**P4 VERIFIED - FULL REPLACEMENT**
 
 ## Owner
 

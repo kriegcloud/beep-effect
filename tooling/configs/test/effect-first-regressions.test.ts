@@ -4,19 +4,10 @@ import { NodeServices } from "@effect/platform-node";
 import { describe, expect, layer } from "@effect/vitest";
 import { Effect, FileSystem } from "effect";
 
-const effectImportRulePath = fileURLToPath(new URL("../src/eslint/EffectImportStyleRule.ts", import.meta.url));
-const noNativeRuntimeRulePath = fileURLToPath(new URL("../src/eslint/NoNativeRuntimeRule.ts", import.meta.url));
+const docsEslintConfigPath = fileURLToPath(new URL("../src/eslint/DocsESLintConfig.ts", import.meta.url));
 const requireCategoryTagRulePath = fileURLToPath(new URL("../src/eslint/RequireCategoryTagRule.ts", import.meta.url));
-const schemaFirstRulePath = fileURLToPath(new URL("../src/eslint/SchemaFirstRule.ts", import.meta.url));
-const terseEffectStyleRulePath = fileURLToPath(new URL("../src/eslint/TerseEffectStyleRule.ts", import.meta.url));
 
-const ruleFilePaths = [
-  effectImportRulePath,
-  noNativeRuntimeRulePath,
-  requireCategoryTagRulePath,
-  schemaFirstRulePath,
-  terseEffectStyleRulePath,
-];
+const retainedModulePaths = [docsEslintConfigPath, requireCategoryTagRulePath];
 
 const allowlistRuntimePath = fileURLToPath(new URL("../src/eslint/EffectLawsAllowlist.ts", import.meta.url));
 const snapshotCodegenPath = fileURLToPath(
@@ -38,9 +29,9 @@ const readText = Effect.fn(function* (path: string) {
 layer(NodeServices.layer)("effect-first regressions", (it) => {
   describe("effect-first regressions", () => {
     it.effect(
-      "disallows Match.value usage in eslint rules",
+      "disallows Match.value usage in retained docs and governance modules",
       Effect.fn(function* () {
-        for (const filePath of ruleFilePaths) {
+        for (const filePath of retainedModulePaths) {
           const source = yield* readText(filePath);
           expect(source.includes("Match.value("), `${filePath} should not use Match.value`).toBe(false);
         }
@@ -48,9 +39,9 @@ layer(NodeServices.layer)("effect-first regressions", (it) => {
     );
 
     it.effect(
-      "disallows try/catch blocks in eslint rule runtime modules",
+      "disallows try/catch blocks in retained docs and governance modules",
       Effect.fn(function* () {
-        for (const filePath of [...ruleFilePaths, allowlistRuntimePath]) {
+        for (const filePath of [...retainedModulePaths, allowlistRuntimePath]) {
           const source = yield* readText(filePath);
           expect(source).not.toMatch(/\btry\s*\{|\bcatch\s*\(/);
         }
@@ -66,21 +57,16 @@ layer(NodeServices.layer)("effect-first regressions", (it) => {
     );
 
     it.effect(
-      "reuses shared internal rule modules",
+      "keeps docs linting on the dedicated docs config surface",
       Effect.fn(function* () {
-        const effectImportSource = yield* readText(effectImportRulePath);
-        const noNativeRuntimeSource = yield* readText(noNativeRuntimeRulePath);
+        const docsConfigSource = yield* readText(docsEslintConfigPath);
         const requireCategorySource = yield* readText(requireCategoryTagRulePath);
 
-        expect(effectImportSource.includes("../internal/eslint/RuleAstSchemas.ts")).toBe(true);
-        expect(noNativeRuntimeSource.includes("../internal/eslint/RuleAstSchemas.ts")).toBe(true);
+        expect(docsConfigSource.includes("beep-laws")).toBe(false);
+        expect(docsConfigSource.includes("eslint-plugin-tsdoc")).toBe(true);
         expect(requireCategorySource.includes("../internal/eslint/RuleAstSchemas.ts")).toBe(true);
-        expect(noNativeRuntimeSource.includes("../internal/eslint/RuleHelpers.ts")).toBe(true);
         expect(requireCategorySource.includes("../internal/eslint/RuleHelpers.ts")).toBe(true);
-
-        for (const source of [effectImportSource, noNativeRuntimeSource, requireCategorySource]) {
-          expect(source.includes("const firstSome =")).toBe(false);
-        }
+        expect(requireCategorySource.includes("const firstSome =")).toBe(false);
       })
     );
 

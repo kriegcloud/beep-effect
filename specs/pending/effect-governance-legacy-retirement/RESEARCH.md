@@ -2,7 +2,7 @@
 
 ## Status
 
-**IN PROGRESS**
+**COMPLETED**
 
 ## Objective
 
@@ -87,11 +87,57 @@ Current examples:
 - `tooling/cli/src/commands/Docs.ts` still advertises `bun run lint:effect-laws:strict`
 - `tooling/configs/README.md` still presents `ESLintConfig` as the root usage story
 - `tooling/configs/AGENTS.md` still frames the package around `ESLintConfig`
+- `tooling/cli/src/commands/Laws/index.ts` still describes the command group as `Effect law` validation
 
 Initial call:
 
 - these are cleanup targets once the chosen retirement posture is clear
 - trust surfaces that mention ESLint for the docs lane are not automatically wrong and should not be changed unless they imply the old Effect-law lane still matters
+
+### 6. The allowlist surface is still active governance, but it is not the ESLint-engine blocker
+
+Live usage shows:
+
+- `lint:effect-governance` still calls `check:effect-laws-allowlist`
+- `tooling/cli/src/commands/Laws/AllowlistCheck.ts` is already an Effect-first integrity gate and does not instantiate `eslint`
+- `standards/effect-laws.allowlist.jsonc` plus `standards/effect-laws.allowlist.schema.json` remain active inputs
+- `tooling/configs/src/internal/eslint/EffectLawsAllowlistSchemas.ts` and the generated snapshot still back the allowlist runtime used by the native-runtime rule family
+
+Initial call:
+
+- the `effect-laws` name is legacy, but this surface is not dead rollback scaffolding
+- this is better classified as active governance data plus naming debt, not as the primary blocker to removing `eslint` from the Effect lane
+
+### 7. The active consumer graph is narrower than "all of repo-configs"
+
+Validated consumer map:
+
+- `eslint.config.mjs` consumes the package-root `ESLintConfig` export for the root ESLint entrypoint
+- `tooling/configs/src/index.ts` re-exports the same mixed `ESLintConfig`
+- `tooling/configs/test/eslint-rules.test.ts` exercises the legacy rule modules and the mixed root config
+- `tooling/cli/src/commands/Laws/NoNativeRuntime.ts` is the only live CLI runtime that still pulls in:
+  - `eslint`
+  - `@typescript-eslint/parser`
+  - `@beep/repo-configs/eslint/NoNativeRuntimeRule`
+- `tooling/cli/test/native-runtime.test.ts` proves the current parity runner contract
+
+Initial call:
+
+- `NoNativeRuntime.ts` is the hard blocker to removing `eslint` from the Effect lane inside `tooling/cli`
+- `ESLintConfig.ts` is the hard blocker to keeping the docs lane on ESLint without also carrying the legacy Effect-law plugin surface
+- the rest of the rule corpus looks downstream of those two choke points rather than independently necessary
+
+### 8. Downstream source annotations exist, but they look like follow-up cleanup rather than retention blockers
+
+Live examples:
+
+- `packages/common/nlp/src/Wink/WinkSimilarity.ts` uses `eslint-disable-next-line beep-laws/no-native-runtime`
+- `packages/common/nlp/src/Wink/WinkEngine.ts` uses `eslint-disable-next-line beep-laws/schema-first`
+
+Initial call:
+
+- if the legacy rule ids disappear, these comments become stale and should be cleaned or remapped
+- they are not a reason to retain the old rule implementations by themselves
 
 ## Candidate Retirement Options
 
@@ -105,8 +151,9 @@ Initial call:
 
 - a naive delete of `tooling/configs/src/eslint/ESLintConfig.ts` would likely break `lint:jsdoc`
 - `tooling/cli` may still need `@typescript-eslint/parser` even if `eslint` is removed, depending on the rewrite approach
-- naming-only leftovers such as `effect-laws.allowlist` may or may not count as retirement blockers; P1 should decide that explicitly
+- the package must distinguish active governance data from dead rollback scaffolding; `effect-laws.allowlist` is currently active, even if the name is legacy
 - the allowlist integrity command survives the new governance lane and should not be deleted casually
+- downstream `eslint-disable` annotations will need cleanup if the legacy rule ids disappear
 
 ## P0 Outputs To Expand
 
@@ -115,10 +162,28 @@ Initial call:
 - [outputs/dependency-cut-map.md](./outputs/dependency-cut-map.md)
 - [outputs/candidate-scorecard.md](./outputs/candidate-scorecard.md)
 
+## Validation Snapshot
+
+Focused live checks passed while validating the current surface:
+
+- `tooling/cli`: `bunx --bun vitest run test/native-runtime.test.ts test/allowlist-check.test.ts`
+  - `2` files passed, `6` tests passed
+- `tooling/configs`: `bunx --bun vitest run test/eslint-rules.test.ts test/effect-first-regressions.test.ts`
+  - `2` files passed, `34` tests passed
+
+These results do not prove the retirement plan, but they do confirm that the currently-inventoried native-runtime, allowlist, and legacy-rule surfaces are real and still wired as described above.
+
 ## Current Stop Point
 
-P0 is open. The initial live inventory is seeded, but the package still needs:
+P0 now has a validated dependency picture:
 
-- a complete one-by-one validation of the legacy surface inventory
-- confirmation of every package and test dependency that still requires ESLint
-- a sharper call on whether naming-only `effect-laws` leftovers belong in scope for retirement or only as optional cleanup
+- the actual ESLint-removal blocker set is much smaller than the whole legacy surface
+- `NoNativeRuntime.ts` plus the mixed `ESLintConfig` export are the two main technical choke points
+- the allowlist surface is active governance data and naming debt, not dead rollback-only infrastructure
+
+The remaining open call is mostly a scope decision for P1:
+
+- does `full retirement` require renaming active `effect-laws` nouns, or is removing the Effect-lane ESLint execution path sufficient
+- if a minimal shim is retained, is the native-runtime runner the only honest candidate
+
+If the trackers stay aligned with these findings, P0 is ready to close and P1 can narrow the options instead of reopening discovery.

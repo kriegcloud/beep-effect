@@ -2,7 +2,7 @@
 
 ## Status
 
-**P0 IN PROGRESS**
+**P4 VERIFIED - FULL RETIREMENT**
 
 ## Owner
 
@@ -213,13 +213,11 @@ Every phase in this package must treat these as required inputs:
 - [../../../.github/workflows/check.yml](../../../.github/workflows/check.yml)
 - [../../../tooling/configs/package.json](../../../tooling/configs/package.json)
 - [../../../tooling/configs/src/index.ts](../../../tooling/configs/src/index.ts)
-- [../../../tooling/configs/src/eslint/ESLintConfig.ts](../../../tooling/configs/src/eslint/ESLintConfig.ts)
-- [../../../tooling/configs/src/eslint/EffectImportStyleRule.ts](../../../tooling/configs/src/eslint/EffectImportStyleRule.ts)
-- [../../../tooling/configs/src/eslint/NoNativeRuntimeRule.ts](../../../tooling/configs/src/eslint/NoNativeRuntimeRule.ts)
-- [../../../tooling/configs/src/eslint/SchemaFirstRule.ts](../../../tooling/configs/src/eslint/SchemaFirstRule.ts)
-- [../../../tooling/configs/src/eslint/TerseEffectStyleRule.ts](../../../tooling/configs/src/eslint/TerseEffectStyleRule.ts)
+- [../../../tooling/configs/src/eslint/DocsESLintConfig.ts](../../../tooling/configs/src/eslint/DocsESLintConfig.ts)
+- [../../../tooling/configs/src/eslint/EffectLawsAllowlist.ts](../../../tooling/configs/src/eslint/EffectLawsAllowlist.ts)
+- [../../../tooling/configs/src/eslint/NoNativeRuntimeHotspots.ts](../../../tooling/configs/src/eslint/NoNativeRuntimeHotspots.ts)
 - [../../../tooling/configs/src/eslint/RequireCategoryTagRule.ts](../../../tooling/configs/src/eslint/RequireCategoryTagRule.ts)
-- [../../../tooling/configs/test/eslint-rules.test.ts](../../../tooling/configs/test/eslint-rules.test.ts)
+- [../../../tooling/configs/test/docs-eslint-config.test.ts](../../../tooling/configs/test/docs-eslint-config.test.ts)
 - [../../../tooling/configs/test/effect-first-regressions.test.ts](../../../tooling/configs/test/effect-first-regressions.test.ts)
 - [../../../tooling/cli/package.json](../../../tooling/cli/package.json)
 - [../../../tooling/cli/src/commands/Laws/NoNativeRuntime.ts](../../../tooling/cli/src/commands/Laws/NoNativeRuntime.ts)

@@ -67,14 +67,13 @@
     "@beep/schema": "workspace:^",
     "@effect/markdown-toc": "catalog:",
     "@effect/platform-node": "catalog:",
-    "@typescript-eslint/parser": "catalog:",
     "@openai/codex-sdk": "catalog:",
     "d3-dsv": "catalog:",
     "doctrine": "catalog:",
     "effect": "catalog:",
-    "eslint": "catalog:",
     "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
+    "ts-morph": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {

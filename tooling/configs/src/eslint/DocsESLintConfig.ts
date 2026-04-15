@@ -2,25 +2,11 @@ import tsParser from "@typescript-eslint/parser";
 import type { Linter } from "eslint";
 import jsdoc from "eslint-plugin-jsdoc";
 import tsdoc from "eslint-plugin-tsdoc";
-import effectImportStyleRule from "./EffectImportStyleRule.ts";
-import { NO_NATIVE_RUNTIME_ERROR_FILES } from "./NoNativeRuntimeHotspots.ts";
-import noNativeRuntimeRule from "./NoNativeRuntimeRule.ts";
 import requireCategoryTagRule from "./RequireCategoryTagRule.ts";
-import schemaFirstRule from "./SchemaFirstRule.ts";
-import terseEffectStyleRule from "./TerseEffectStyleRule.ts";
 
 const beepJsdoc = {
   rules: {
     "require-category-tag": requireCategoryTagRule,
-  },
-};
-
-const beepLaws = {
-  rules: {
-    "effect-import-style": effectImportStyleRule,
-    "no-native-runtime": noNativeRuntimeRule,
-    "schema-first": schemaFirstRule,
-    "terse-effect-style": terseEffectStyleRule,
   },
 };
 
@@ -42,20 +28,20 @@ const uiTsconfigExcludedTypeAwareFiles = [
 ] as const;
 
 /**
- * Shared flat ESLint configuration used by the repository root.
+ * Flat ESLint config array shape exported for repository documentation checks.
  *
  * @category Configuration
  * @since 0.0.0
  */
-export type ESLintConfigShape = ReadonlyArray<Linter.Config>;
+export type DocsESLintConfigShape = ReadonlyArray<Linter.Config>;
 
 /**
- * Shared flat ESLint configuration used by the repository root.
+ * Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane.
  *
  * @category Configuration
  * @since 0.0.0
  */
-export const ESLintConfig: ESLintConfigShape = [
+export const DocsESLintConfig: DocsESLintConfigShape = [
   {
     ignores: [
       ".next/**",
@@ -71,89 +57,6 @@ export const ESLintConfig: ESLintConfigShape = [
       "**/.turbo/**",
       "**/src-tauri/target/**",
     ],
-  },
-  {
-    files: [
-      "apps/**/*.{ts,tsx}",
-      "packages/**/*.{ts,tsx}",
-      "tooling/**/*.{ts,tsx}",
-      "infra/**/*.ts",
-      ".claude/hooks/**/*.ts",
-    ],
-    ignores: [
-      "**/*.d.ts",
-      "**/*.test.ts",
-      "**/*.test.tsx",
-      "**/*.spec.ts",
-      "**/*.spec.tsx",
-      "**/*.stories.tsx",
-      "**/test/**",
-      "**/tests/**",
-      "**/dtslint/**",
-      "**/.storybook/**",
-      "**/dist/**",
-      "**/.turbo/**",
-      "**/.next/**",
-      "**/vitest.storybook.config.ts",
-      "tooling/*/scripts/**",
-      "tooling/*/src/internal/**",
-      ...uiTsconfigExcludedTypeAwareFiles,
-    ],
-    plugins: {
-      "beep-laws": beepLaws,
-      "eslint-plugin-tsdoc": tsdoc,
-    },
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        projectService: true,
-        warnOnUnsupportedTypeScriptVersion: false,
-      },
-    },
-    rules: {
-      "beep-laws/effect-import-style": "warn",
-      "beep-laws/no-native-runtime": "warn",
-      "beep-laws/schema-first": "warn",
-      "beep-laws/terse-effect-style": "warn",
-    },
-  },
-  {
-    files: [
-      "tooling/cli/src/**/*.ts",
-      "tooling/repo-utils/src/FsUtils.ts",
-      "tooling/repo-utils/src/UniqueDeps.ts",
-      "tooling/repo-utils/src/schemas/WorkspaceDeps.ts",
-    ],
-    ignores: ["**/*.d.ts"],
-    plugins: {
-      "beep-laws": beepLaws,
-    },
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        projectService: true,
-        warnOnUnsupportedTypeScriptVersion: false,
-      },
-    },
-    rules: {
-      "beep-laws/schema-first": "error",
-    },
-  },
-  {
-    files: [...NO_NATIVE_RUNTIME_ERROR_FILES],
-    plugins: {
-      "beep-laws": beepLaws,
-    },
-    languageOptions: {
-      parser: tsParser,
-      parserOptions: {
-        projectService: true,
-        warnOnUnsupportedTypeScriptVersion: false,
-      },
-    },
-    rules: {
-      "beep-laws/no-native-runtime": "error",
-    },
   },
   {
     files: ["tooling/*/src/**/*.ts"],
@@ -286,6 +189,10 @@ export const ESLintConfig: ESLintConfigShape = [
     },
     languageOptions: {
       parser: tsParser,
+      parserOptions: {
+        projectService: true,
+        warnOnUnsupportedTypeScriptVersion: false,
+      },
     },
     rules: {
       "jsdoc/require-file-overview": [
@@ -301,6 +208,47 @@ export const ESLintConfig: ESLintConfigShape = [
       ],
     },
   },
+  {
+    files: [
+      "apps/**/*.{ts,tsx}",
+      "packages/**/*.{ts,tsx}",
+      "tooling/**/*.{ts,tsx}",
+      "infra/**/*.ts",
+      ".claude/hooks/**/*.ts",
+    ],
+    ignores: [
+      "**/*.d.ts",
+      "**/*.test.ts",
+      "**/*.test.tsx",
+      "**/*.spec.ts",
+      "**/*.spec.tsx",
+      "**/*.stories.tsx",
+      "**/test/**",
+      "**/tests/**",
+      "**/dtslint/**",
+      "**/.storybook/**",
+      "**/dist/**",
+      "**/.turbo/**",
+      "**/.next/**",
+      "**/vitest.storybook.config.ts",
+      "tooling/*/scripts/**",
+      "tooling/*/src/internal/**",
+      ...uiTsconfigExcludedTypeAwareFiles,
+    ],
+    plugins: {
+      "eslint-plugin-tsdoc": tsdoc,
+    },
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        projectService: true,
+        warnOnUnsupportedTypeScriptVersion: false,
+      },
+    },
+    rules: {
+      "eslint-plugin-tsdoc/syntax": "warn",
+    },
+  },
 ];
 
-export default ESLintConfig;
+export default DocsESLintConfig;

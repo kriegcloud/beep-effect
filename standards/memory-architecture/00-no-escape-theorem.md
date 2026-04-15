@@ -125,10 +125,8 @@ must be treated as potentially fabricated.
 > forgetting and associative false recall must either abandon semantic
 > continuity and kernel-threshold retrieval, add an external symbolic verifier
 > or exact episodic record, or send the semantic effective rank to infinity."
-
 > "Scale alone is not sufficient. The same geometry that enables semantic
 > generalisation also creates representational crowding."
-
 > "The gap between 'inevitable' and 'catastrophic' is where engineering
 > contributes: optimising noise parameters, managing competitor density through
 > intelligent caching, and designing consolidation strategies that navigate the

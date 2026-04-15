@@ -9,18 +9,21 @@ Dated decision log for the memory architecture standard. Records decisions as th
 **Context:** After extensive exploration of agent memory systems -- including knowledge graphs (Graphiti, TrustGraph), SaaS solutions (Supermemory, Greptile, FalkorDB), research papers ("The Price of Meaning", arXiv:2603.27116), and multiple internal specs (expert-memory-big-picture, repo-codegraph-jsdoc, repo-expert-memory-local-first-v0) -- the project had accumulated too many open threads without clear prioritization. The "AI Knowledge Base" wave triggered by Andrej Karpathy's X post amplified the noise.
 
 **Decision:** Establish a foundational memory architecture standard in `standards/memory-architecture/` that:
+
 1. Codifies the mathematical constraints from the No-Escape Theorem as governing principles
 2. Defines a four-layer memory taxonomy (long-term, short-term, procedural, relational) with concrete architectures per layer
 3. Triages all open memory-related threads with clear go/no-go/pause verdicts
 4. Assesses the external SaaS landscape with clear use/learn/ignore verdicts
 
 **Rationale:**
+
 - The No-Escape Theorem proves that semantic memory systems degrade at scale -- this is mathematical, not a bug. The project's deterministic-first approach (AST-derived code intelligence) is one of the few approaches that escapes this theorem entirely.
 - The project's Graphiti deployment confirmed the theorem's predictions -- degrading effectiveness at scale.
 - Too many open threads were diluting focus from the strongest asset (repo-memory v0).
 - A standards document (not another spec) was needed to close doors, not open them.
 
 **Consequences:**
+
 - repo-memory v0 is confirmed as Priority 1. All other memory work is subordinate.
 - Supermemory is dropped. Graphiti is demoted to bounded session memory.
 - BeepGraph scope is narrowed to provenance/verification layers only.
@@ -38,6 +41,7 @@ Dated decision log for the memory architecture standard. Records decisions as th
 **Rationale:** The No-Escape Theorem proves that AST-derived facts operate outside the theorem class -- they use exact symbolic records, not semantic proximity. This means deterministic code intelligence will never degrade at scale, while every semantic approach will. This is not a preference -- it is a mathematical guarantee.
 
 **Consequences:**
+
 - repo-memory v0's deterministic query classes are the highest-value deliverable.
 - LLM-inferred knowledge (Layer 3 certainty 0.6-0.85) is supplementary, not foundational.
 - Any future memory feature must first ask: "Can this be answered deterministically?" If yes, it belongs in the deterministic layer, not the semantic layer.
@@ -53,6 +57,7 @@ Dated decision log for the memory architecture standard. Records decisions as th
 **Rationale:** The paper's key finding: compression via clustering (2,500 clusters) achieved b=0.163 with 92.8% accuracy -- the best Pareto point. Interference management (consolidation, pruning, temporal windowing) is required, not optional. The OpenClaw Dreaming pipeline's three-phase consolidation model is the most thoughtful approach in the landscape.
 
 **Consequences:**
+
 - Graphiti may only be used for session-scoped memory with temporal bounds.
 - A consolidation pipeline (inspired by OpenClaw Dreaming) is required before expanding semantic memory scope.
 - Provenance verification (from TrustGraph/BeepGraph) is required for any semantic fact promoted to durable storage.

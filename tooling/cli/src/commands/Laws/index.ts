@@ -1,5 +1,5 @@
 /**
- * Effect law command suite.
+ * Effect governance command suite.
  *
  * @module
  * @since 0.0.0
@@ -18,7 +18,7 @@ import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.js";
 const $I = $RepoCliId.create("commands/Laws");
 
 /**
- * CLI options for effect import law command.
+ * CLI options for effect import governance command.
  *
  * @category DomainModel
  * @since 0.0.0
@@ -36,7 +36,7 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
     exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
   },
   $I.annote("EffectImportsCommandOptions", {
-    description: "CLI options for effect import law command.",
+    description: "CLI options for effect import governance command.",
   })
 ) {}
 
@@ -112,13 +112,13 @@ const lawsEffectImportsCommand = Command.make(
     );
 
     const mode = options.write ? "write" : "dry-run";
-    yield* Console.log(`[effect-laws-fix-imports] mode=${mode}`);
-    yield* Console.log(`[effect-laws-fix-imports] touched_files=${summary.touchedFiles}`);
-    yield* Console.log(`[effect-laws-fix-imports] alias_renamed=${summary.aliasRenamed}`);
-    yield* Console.log(`[effect-laws-fix-imports] stable_converted=${summary.stableConverted}`);
+    yield* Console.log(`[effect-governance-imports] mode=${mode}`);
+    yield* Console.log(`[effect-governance-imports] touched_files=${summary.touchedFiles}`);
+    yield* Console.log(`[effect-governance-imports] alias_renamed=${summary.aliasRenamed}`);
+    yield* Console.log(`[effect-governance-imports] stable_converted=${summary.stableConverted}`);
 
     if (!options.write) {
-      yield* Console.log("[effect-laws-fix-imports] Run with --write to persist changes.");
+      yield* Console.log("[effect-governance-imports] Run with --write to persist changes.");
     }
 
     for (const filePath of summary.changedFiles) {
@@ -158,14 +158,14 @@ const lawsTerseEffectCommand = Command.make(
     );
 
     const mode = options.write ? "write" : "dry-run";
-    yield* Console.log(`[effect-laws-terse-effect] mode=${mode}`);
-    yield* Console.log(`[effect-laws-terse-effect] touched_files=${summary.touchedFiles}`);
-    yield* Console.log(`[effect-laws-terse-effect] helper_refs_simplified=${summary.helpersSimplified}`);
-    yield* Console.log(`[effect-laws-terse-effect] thunk_helpers_simplified=${summary.thunkHelpersSimplified}`);
-    yield* Console.log(`[effect-laws-terse-effect] flow_candidates_detected=${summary.flowCandidatesDetected}`);
+    yield* Console.log(`[effect-governance-terse-effect] mode=${mode}`);
+    yield* Console.log(`[effect-governance-terse-effect] touched_files=${summary.touchedFiles}`);
+    yield* Console.log(`[effect-governance-terse-effect] helper_refs_simplified=${summary.helpersSimplified}`);
+    yield* Console.log(`[effect-governance-terse-effect] thunk_helpers_simplified=${summary.thunkHelpersSimplified}`);
+    yield* Console.log(`[effect-governance-terse-effect] flow_candidates_detected=${summary.flowCandidatesDetected}`);
 
     if (!options.write) {
-      yield* Console.log("[effect-laws-terse-effect] Run with --write to persist changes.");
+      yield* Console.log("[effect-governance-terse-effect] Run with --write to persist changes.");
     }
 
     for (const filePath of summary.changedFiles) {
@@ -179,7 +179,7 @@ const lawsTerseEffectCommand = Command.make(
 ).pipe(Command.withDescription("Check or rewrite terse Effect helper wrappers"));
 
 /**
- * CLI command for repo-local native runtime parity checks.
+ * CLI command for repo-local native runtime governance checks.
  *
  * @category UseCase
  * @since 0.0.0
@@ -202,11 +202,11 @@ const lawsNativeRuntimeCommand = Command.make(
       })
     );
 
-    yield* Console.log(`[effect-laws-native-runtime] mode=${options.check ? "check" : "report"}`);
-    yield* Console.log(`[effect-laws-native-runtime] scanned_files=${summary.scannedFiles}`);
-    yield* Console.log(`[effect-laws-native-runtime] touched_files=${summary.touchedFiles}`);
-    yield* Console.log(`[effect-laws-native-runtime] warnings=${summary.warningCount}`);
-    yield* Console.log(`[effect-laws-native-runtime] errors=${summary.errorCount}`);
+    yield* Console.log(`[effect-governance-native-runtime] mode=${options.check ? "check" : "report"}`);
+    yield* Console.log(`[effect-governance-native-runtime] scanned_files=${summary.scannedFiles}`);
+    yield* Console.log(`[effect-governance-native-runtime] touched_files=${summary.touchedFiles}`);
+    yield* Console.log(`[effect-governance-native-runtime] warnings=${summary.warningCount}`);
+    yield* Console.log(`[effect-governance-native-runtime] errors=${summary.errorCount}`);
 
     for (const diagnostic of summary.diagnostics) {
       yield* Console.log(
@@ -221,7 +221,7 @@ const lawsNativeRuntimeCommand = Command.make(
 ).pipe(Command.withDescription("Run repo-local no-native-runtime parity checks"));
 
 /**
- * CLI command for validating effect laws allowlist integrity.
+ * CLI command for validating Effect governance allowlist integrity.
  *
  * @category UseCase
  * @since 0.0.0
@@ -242,7 +242,7 @@ const lawsAllowlistCheckCommand = Command.make(
       process.exitCode = 1;
     }
   })
-).pipe(Command.withDescription("Validate standards/effect-laws.allowlist.jsonc"));
+).pipe(Command.withDescription("Validate the Effect governance allowlist document"));
 
 /**
  * Laws command group.
@@ -254,7 +254,7 @@ export const lawsCommand = Command.make(
   "laws",
   {},
   Effect.fn(function* () {
-    yield* Console.log("Laws commands:");
+    yield* Console.log("Effect governance commands:");
     yield* Console.log("- bun run beep laws effect-imports --check");
     yield* Console.log("- bun run beep laws effect-imports --write");
     yield* Console.log("- bun run beep laws native-runtime --check");
@@ -263,7 +263,7 @@ export const lawsCommand = Command.make(
     yield* Console.log("- bun run beep laws allowlist-check");
   })
 ).pipe(
-  Command.withDescription("Effect law validation and migration commands"),
+  Command.withDescription("Effect governance validation and migration commands"),
   Command.withSubcommands([
     lawsEffectImportsCommand,
     lawsNativeRuntimeCommand,

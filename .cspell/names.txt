@@ -1,3 +1,5 @@
+Andrej
+Bodnar
 Ariary
 Barthélemy
 Bech
@@ -7,11 +9,13 @@ Cunha
 eemeli
 Eich
 elpresidank
+Gopinath
 Graydon
 Griesemer
 Hoare
 Ihaka
 Jaya
+Karpathy
 Kosaraju
 Lerdorf
 Maarten
@@ -23,5 +27,6 @@ Odersky
 Rasmus
 Rossum
 Segoe
+Starenky
 Stroustrup
 Yukihiro

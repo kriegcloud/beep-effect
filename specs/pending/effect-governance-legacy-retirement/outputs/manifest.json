@@ -1,12 +1,12 @@
 {
   "slug": "effect-governance-legacy-retirement",
   "title": "Effect Governance Legacy Retirement",
-  "status": "IN_PROGRESS",
+  "status": "COMPLETED",
   "created": "2026-04-15",
   "updated": "2026-04-15",
-  "package_status_note": "Package bootstrapped. P0 is in progress with a live initial inventory of the remaining legacy Effect-law command, config, rule, test, docs, and dependency surfaces that survived the earlier governance replacement cutover.",
-  "active_phase": "p0",
-  "verification_verdict": null,
+  "package_status_note": "P4 verification is complete and the package verdict is full retirement. The docs-only ESLint split is live, the native-runtime checker now runs without eslint/Linter, the root legacy effect-laws lane and legacy rule corpus are retired, and the remaining effect-laws or beep-laws nouns are governance-data naming debt only.",
+  "active_phase": "p4",
+  "verification_verdict": "full retirement",
   "status_model": {
     "phase": ["BOOTSTRAPPED", "NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED"]
   },
@@ -31,13 +31,11 @@
       "../../../.github/workflows/check.yml",
       "../../../tooling/configs/package.json",
       "../../../tooling/configs/src/index.ts",
-      "../../../tooling/configs/src/eslint/ESLintConfig.ts",
-      "../../../tooling/configs/src/eslint/EffectImportStyleRule.ts",
-      "../../../tooling/configs/src/eslint/NoNativeRuntimeRule.ts",
-      "../../../tooling/configs/src/eslint/SchemaFirstRule.ts",
-      "../../../tooling/configs/src/eslint/TerseEffectStyleRule.ts",
+      "../../../tooling/configs/src/eslint/DocsESLintConfig.ts",
+      "../../../tooling/configs/src/eslint/EffectLawsAllowlist.ts",
+      "../../../tooling/configs/src/eslint/NoNativeRuntimeHotspots.ts",
       "../../../tooling/configs/src/eslint/RequireCategoryTagRule.ts",
-      "../../../tooling/configs/test/eslint-rules.test.ts",
+      "../../../tooling/configs/test/docs-eslint-config.test.ts",
       "../../../tooling/configs/test/effect-first-regressions.test.ts",
       "../../../tooling/cli/package.json",
       "../../../tooling/cli/src/commands/Laws/NoNativeRuntime.ts",
@@ -67,8 +65,6 @@
       "lint",
       "lint:effect-governance",
       "lint:jsdoc",
-      "lint:effect-laws",
-      "lint:effect-laws:strict",
       "check:effect-laws-allowlist"
     ],
     "legacy_effect_rule_ids": [
@@ -102,7 +98,7 @@
   "phases": {
     "p0": {
       "name": "Research",
-      "status": "IN_PROGRESS",
+      "status": "COMPLETED",
       "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P0.md",
       "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
@@ -117,7 +113,7 @@
     },
     "p1": {
       "name": "Validated Options",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P1.md",
       "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
@@ -131,7 +127,7 @@
     },
     "p2": {
       "name": "Planning",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P2.md",
       "orchestrator": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
@@ -139,7 +135,7 @@
     },
     "p3": {
       "name": "Execution",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P3.md",
       "orchestrator": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
@@ -147,7 +143,7 @@
     },
     "p4": {
       "name": "Verification",
-      "status": "NOT_STARTED",
+      "status": "COMPLETED",
       "session_role": "orchestrator",
       "handoff": "handoffs/HANDOFF_P4.md",
       "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
@@ -160,9 +156,9 @@
     }
   },
   "active_phase_assets": {
-    "handoff": "handoffs/HANDOFF_P0.md",
-    "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
-    "output": "RESEARCH.md"
+    "handoff": "handoffs/HANDOFF_P4.md",
+    "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+    "output": "VERIFICATION.md"
   },
   "fresh_session_read_order": [
     "outputs/manifest.json",

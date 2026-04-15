@@ -21,12 +21,12 @@ const $I = $ObservabilityId.create("CoreConfig");
  * ```typescript
  * import { ObservabilityCoreConfig } from "@beep/observability"
  *
- * const config = new ObservabilityCoreConfig({
+ * const config: ObservabilityCoreConfig = {
  *   serviceName: "todox-web",
  *   serviceVersion: "0.1.0",
  *   environment: "development",
  *   minLogLevel: "Info",
- * })
+ * }
  *
  * console.log(config.serviceName) // "todox-web"
  * ```

@@ -120,19 +120,6 @@
         "eslint.config.mjs"
       ]
     },
-    "//#lint:effect-laws": {
-      "cache": true,
-      "inputs": [
-        "apps/**/*.{ts,tsx}",
-        "packages/**/*.{ts,tsx}",
-        "tooling/**/*.{ts,tsx}",
-        "infra/**/*.ts",
-        ".claude/hooks/**/*.ts",
-        "eslint.config.mjs",
-        "tooling/configs/package.json",
-        "tooling/configs/src/**/*.ts"
-      ]
-    },
     "//#lint:effect-governance": {
       "cache": true,
       "inputs": [

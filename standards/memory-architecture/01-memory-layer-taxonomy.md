@@ -110,7 +110,7 @@ This document defines the four memory layers required by the project's agent mem
 
 ## How the Layers Compose
 
-```
+```text
 +---------------------------------------------------+
 |  Layer 1: Long-Term (Durable)                     |
 |  Curated assertions, project standards            |
