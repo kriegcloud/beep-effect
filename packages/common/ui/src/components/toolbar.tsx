@@ -103,48 +103,57 @@ const dropdownArrowVariants = cva(
   }
 );
 
-type ToolbarButtonProps = {
+type ToolbarButtonBaseProps = {
   readonly isDropdown?: undefined | boolean;
-  readonly pressed?: undefined | boolean;
-} & Omit<Toggle.Props, "value" | "render"> &
-  VariantProps<typeof toolbarButtonVariants>;
+} & VariantProps<typeof toolbarButtonVariants>;
 
-export const ToolbarButton = withTooltip(function ToolbarButton({
-  children,
-  className,
-  isDropdown,
-  pressed,
-  size = "sm",
-  variant,
-  ...props
-}: ToolbarButtonProps) {
-  return typeof pressed === "boolean" ? (
-    <ToolbarToggleGroup disabled={Boolean(props.disabled)} value={pressed ? "single" : ""} type="single">
-      <ToolbarToggleItem
-        className={cn(
-          toolbarButtonVariants({
-            size,
-            variant,
-          }),
-          isDropdown && "justify-between gap-1 pr-1",
-          className
-        )}
-        value="single"
-        {...props}
-      >
-        {isDropdown ? (
-          <>
-            <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
-            <div>
-              <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
-            </div>
-          </>
-        ) : (
-          children
-        )}
-      </ToolbarToggleItem>
-    </ToolbarToggleGroup>
-  ) : (
+type ToolbarToggleButtonProps = ToolbarButtonBaseProps &
+  Omit<Toggle.Props, "pressed" | "value" | "render"> & {
+    readonly pressed: boolean;
+  };
+
+type ToolbarActionButtonProps = ToolbarButtonBaseProps &
+  Omit<ToolbarPrimitive.Button.Props, "render"> & {
+    readonly pressed?: undefined;
+  };
+
+type ToolbarButtonProps = ToolbarToggleButtonProps | ToolbarActionButtonProps;
+
+export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarButtonProps) {
+  if (typeof props.pressed === "boolean") {
+    const { children, className, isDropdown, pressed, size = "sm", variant, ...toggleProps } = props;
+    return (
+      <ToolbarToggleGroup disabled={Boolean(toggleProps.disabled)} value={pressed ? "single" : ""} type="single">
+        <ToolbarToggleItem
+          className={cn(
+            toolbarButtonVariants({
+              size,
+              variant,
+            }),
+            isDropdown && "justify-between gap-1 pr-1",
+            className
+          )}
+          value="single"
+          {...toggleProps}
+        >
+          {isDropdown ? (
+            <>
+              <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
+              <div>
+                <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
+              </div>
+            </>
+          ) : (
+            children
+          )}
+        </ToolbarToggleItem>
+      </ToolbarToggleGroup>
+    );
+  }
+
+  const { children, className, isDropdown, pressed: _pressed, size = "sm", variant, ...buttonProps } = props;
+
+  return (
     <ToolbarPrimitive.Button
       className={cn(
         toolbarButtonVariants({
@@ -154,7 +163,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
         isDropdown && "pr-1",
         className
       )}
-      {...props}
+      {...buttonProps}
     >
       {children}
     </ToolbarPrimitive.Button>
@@ -165,7 +174,7 @@ export function ToolbarSplitButton({ className, ...props }: ComponentProps<typeo
   return <ToolbarButton className={cn("group flex gap-0 px-0 hover:bg-transparent", className)} {...props} />;
 }
 
-type ToolbarSplitButtonPrimaryProps = Omit<Toggle.Props, "value"> & VariantProps<typeof toolbarButtonVariants>;
+type ToolbarSplitButtonPrimaryProps = ComponentProps<"span"> & VariantProps<typeof toolbarButtonVariants>;
 
 export function ToolbarSplitButtonPrimary({
   children,
