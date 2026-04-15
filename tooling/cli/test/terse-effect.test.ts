@@ -73,6 +73,8 @@ describe("terse effect laws", () => {
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.helpersSimplified).toBe(2);
+          expect(summary.thunkHelpersSimplified).toBe(0);
+          expect(summary.flowCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(true);
           expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
           expect(source).toContain("onNone: () => A.empty<string>()");
@@ -111,6 +113,8 @@ describe("terse effect laws", () => {
 
           expect(summary.touchedFiles).toBe(1);
           expect(summary.helpersSimplified).toBe(2);
+          expect(summary.thunkHelpersSimplified).toBe(0);
+          expect(summary.flowCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
           expect(source).toContain("onNone: A.empty<string>");
           expect(source).toContain("onSome: A.of");
@@ -147,8 +151,130 @@ describe("terse effect laws", () => {
 
           expect(summary.touchedFiles).toBe(0);
           expect(summary.helpersSimplified).toBe(0);
+          expect(summary.thunkHelpersSimplified).toBe(0);
+          expect(summary.flowCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
           expect(summary.changedFiles).toEqual([]);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("detects flow candidates and shared thunk helpers in dry-run mode", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import { pipe } from "effect";',
+              'import * as O from "effect/Option";',
+              'import { thunkUndefined } from "@beep/utils";',
+              "",
+              "declare const parse: (value: string) => O.Option<string>;",
+              "",
+              "export const value = {",
+              "  onNone: () => undefined,",
+              "  parse: (input) => pipe(input, parse, O.getOrElse(() => input)),",
+              "};",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+          const source = yield* readProjectFile("packages/demo/src/index.ts");
+
+          expect(summary.touchedFiles).toBe(1);
+          expect(summary.helpersSimplified).toBe(0);
+          expect(summary.thunkHelpersSimplified).toBe(1);
+          expect(summary.flowCandidatesDetected).toBe(1);
+          expect(summary.strictFailure).toBe(true);
+          expect(source).toContain("onNone: () => undefined");
+          expect(source).toContain("parse: (input) => pipe(input, parse, O.getOrElse(() => input))");
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("rewrites shared thunk helper cases while leaving flow-only candidates for manual follow-up", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import { pipe } from "effect";',
+              'import * as O from "effect/Option";',
+              'import { thunkUndefined } from "@beep/utils";',
+              "",
+              "declare const parse: (value: string) => O.Option<string>;",
+              "",
+              "export const value = {",
+              "  onNone: () => undefined,",
+              "  parse: (input) => pipe(input, parse, O.getOrElse(() => input)),",
+              "};",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: true,
+              strictCheck: false,
+              excludePaths: [],
+            })
+          );
+          const source = yield* readProjectFile("packages/demo/src/index.ts");
+
+          expect(summary.touchedFiles).toBe(1);
+          expect(summary.helpersSimplified).toBe(0);
+          expect(summary.thunkHelpersSimplified).toBe(1);
+          expect(summary.flowCandidatesDetected).toBe(1);
+          expect(summary.strictFailure).toBe(false);
+          expect(source).toContain("onNone: thunkUndefined");
+          expect(source).toContain("parse: (input) => pipe(input, parse, O.getOrElse(() => input))");
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("ignores type-only thunk imports when checking shared helper availability", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import { type thunkUndefined, thunk0 } from "@beep/utils";',
+              "",
+              "export const keep = thunk0;",
+              "export const value = { onNone: () => undefined };",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+
+          expect(summary.touchedFiles).toBe(0);
+          expect(summary.helpersSimplified).toBe(0);
+          expect(summary.thunkHelpersSimplified).toBe(0);
+          expect(summary.flowCandidatesDetected).toBe(0);
+          expect(summary.strictFailure).toBe(false);
         })
       ).pipe(Effect.provide(testLayer))
     );

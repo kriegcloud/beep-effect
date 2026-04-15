@@ -64,6 +64,10 @@ describe("CodexSessionStartRuntime", () => {
     expect(context).toContain('group_ids: ["beep_dev"]');
     expect(context).toContain("bun run codex:hook:session-start");
     expect(context).toContain("legacy repo-memory tooling");
+    expect(context).toContain(
+      "before `O.match(...)`, check `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)`."
+    );
+    expect(context).toContain("prefer `Match.type<T>().pipe(...)` / `Match.tags(...)`");
   });
 
   it("wraps additional context in the expected hook payload", () => {

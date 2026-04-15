@@ -369,7 +369,7 @@ redundantConcern concern =
   caughtByTypeSystem concern || caughtByLinter concern
 
 -- The compiler is a better bug-finder than speculation
--- Trust: tsc, eslint, Effect's typed errors
+-- Trust: tsc, Biome, repo-local effect-governance checks, eslint's JSDoc/TSDoc lane, and Effect's typed errors
 -- Don't: predict runtime bugs that would fail at compile time
 -- Don't: suggest fixes for issues the types will catch anyway
 

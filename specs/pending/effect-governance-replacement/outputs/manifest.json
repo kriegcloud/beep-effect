@@ -1,0 +1,213 @@
+{
+  "slug": "effect-governance-replacement",
+  "title": "Effect Governance Replacement",
+  "status": "COMPLETED",
+  "created": "2026-04-15",
+  "updated": "2026-04-15",
+  "package_status_note": "P4 verification is complete and a fresh explicit re-review after the post-P4 steering follow-up now promotes the package verdict to full replacement. The Effect-specific governance authority is `lint:effect-governance`, with parity preserved, steering coverage for the locked idiomaticity corpus shipped by default, and the legacy ESLint lane retained only as rollback or comparison scaffolding.",
+  "active_phase": "p4",
+  "verification_verdict": "full replacement",
+  "status_model": {
+    "phase": ["BOOTSTRAPPED", "NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED"]
+  },
+  "phase_transition_rules": {
+    "active_phase_is_authoritative": true,
+    "active_phase_assets_are_authoritative": true,
+    "do_not_infer_active_phase_from_markdown_status_headings": true,
+    "update_manifest_on_phase_state_change": true,
+    "phase_exit_gates_required_before_advancing": true
+  },
+  "phase_session_role": "orchestrator",
+  "objective": {
+    "primary": "Replace the Effect-specific `beep-laws` / ESLint governance lane with a faster multi-surface steering system that improves default agent idiomaticity.",
+    "secondary": "Treat JSDoc and TSDoc replacement as secondary and only in scope when it directly supports the primary objective.",
+    "allowed_outcomes": ["full replacement", "staged cutover", "no-go yet"]
+  },
+  "scope": {
+    "primary_surfaces": [
+      "../../../tooling/configs/src/eslint/ESLintConfig.ts",
+      "../../../tooling/configs/src/eslint/EffectImportStyleRule.ts",
+      "../../../tooling/configs/src/eslint/NoNativeRuntimeRule.ts",
+      "../../../tooling/configs/src/eslint/SchemaFirstRule.ts",
+      "../../../tooling/configs/src/eslint/TerseEffectStyleRule.ts",
+      "../../../tooling/configs/test/eslint-rules.test.ts",
+      "../../../package.json",
+      "../../../turbo.json",
+      "../../../.github/workflows/check.yml",
+      "../../../.claude/hooks/README.md",
+      "../../../.codex/config.toml",
+      "../../../.codex/agents/README.md",
+      "../../../packages/repo-memory/runtime/src/indexing/TypeScriptIndexer.ts",
+      "../../../packages/repo-memory/store/src/RepoSymbolStore.ts",
+      "/home/elpresidank/YeeBois/dev/biome-effect-linting-rules/README.md",
+      "/home/elpresidank/YeeBois/dev/biome-effect-linting-rules/ROADMAP.md"
+    ],
+    "separate_lanes": {
+      "effect_lane": true,
+      "jsdoc_tsdoc_lane": true
+    }
+  },
+  "conformance": {
+    "documents": [
+      "../../../AGENTS.md",
+      "../../../package.json",
+      "../../../turbo.json",
+      "../../../.github/workflows/check.yml",
+      "../../../tooling/configs/src/eslint/ESLintConfig.ts",
+      "../../../tooling/configs/test/eslint-rules.test.ts"
+    ],
+    "root_script_keys": [
+      "lint",
+      "lint:effect-laws",
+      "lint:jsdoc",
+      "check:effect-laws-allowlist",
+      "lint:schema-first",
+      "check",
+      "test"
+    ],
+    "current_effect_rule_ids": [
+      "effect-import-style",
+      "no-native-runtime",
+      "schema-first",
+      "terse-effect-style"
+    ],
+    "phase_rules": {
+      "p0_to_p2_read_only_outside_spec": true,
+      "p3_first_mutating_phase": true,
+      "p3_single_primary_path": true,
+      "p4_requires_locked_eval_corpus": true
+    }
+  },
+  "graphiti": {
+    "group_id": "beep_dev",
+    "search_group_ids_json": "[\"beep_dev\"]",
+    "add_memory_source": "text",
+    "add_memory_source_description": "codex-cli session",
+    "recall_order": [
+      "search_memory_facts",
+      "search_memory_facts_shorter_fallback",
+      "get_episodes",
+      "repo_local_fallback"
+    ],
+    "require_exact_error_logging": true,
+    "require_session_end_summary_writeback": true
+  },
+  "phase_order": ["p0", "p1", "p2", "p3", "p4"],
+  "phases": {
+    "p0": {
+      "name": "Research",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P0.md",
+      "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
+      "output": "RESEARCH.md",
+      "trackers": [
+        "outputs/grill-log.md",
+        "outputs/parity-matrix.md",
+        "outputs/steering-eval-corpus.md",
+        "outputs/candidate-scorecard.md"
+      ]
+    },
+    "p1": {
+      "name": "Validated Options",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P1.md",
+      "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
+      "output": "VALIDATED_OPTIONS.md",
+      "trackers": [
+        "outputs/parity-matrix.md",
+        "outputs/steering-eval-corpus.md",
+        "outputs/candidate-scorecard.md"
+      ]
+    },
+    "p2": {
+      "name": "Planning",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P2.md",
+      "orchestrator": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
+      "output": "PLANNING.md"
+    },
+    "p3": {
+      "name": "Execution",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P3.md",
+      "orchestrator": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
+      "output": "EXECUTION.md"
+    },
+    "p4": {
+      "name": "Verification",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P4.md",
+      "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+      "output": "VERIFICATION.md",
+      "trackers": [
+        "outputs/parity-matrix.md",
+        "outputs/steering-eval-corpus.md"
+      ]
+    }
+  },
+  "active_phase_assets": {
+    "handoff": "handoffs/HANDOFF_P4.md",
+    "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+    "output": "VERIFICATION.md"
+  },
+  "fresh_session_read_order": [
+    "outputs/manifest.json",
+    "outputs/grill-log.md",
+    "../../../AGENTS.md",
+    "README.md",
+    "QUICK_START.md",
+    "AGENT_PROMPTS.md",
+    "prompts/README.md",
+    "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
+    "prompts/GRAPHITI_MEMORY_PROTOCOL.md",
+    "prompts/PHASE_DELEGATION_PROMPTS.md",
+    "../../../.codex/config.toml",
+    "../../../.codex/agents/README.md",
+    "outputs/codex-plan-mode-prompt.md",
+    "handoffs/HANDOFF_P0-P4.md",
+    "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md"
+  ],
+  "evaluation": {
+    "parity_matrix": "outputs/parity-matrix.md",
+    "steering_eval_corpus": "outputs/steering-eval-corpus.md",
+    "candidate_scorecard": "outputs/candidate-scorecard.md",
+    "candidate_scoring": {
+      "scale": "1-5",
+      "weights": {
+        "default_steering_strength": 0.3,
+        "parity_potential": 0.25,
+        "performance_upside": 0.2,
+        "operational_complexity_penalty": 0.1,
+        "maintenance_burden_penalty": 0.1,
+        "migration_risk_penalty": 0.05
+      },
+      "generalizability": "tie_breaker_only"
+    },
+    "required_verification_buckets": [
+      "parity",
+      "performance",
+      "steering"
+    ]
+  },
+  "package_maintenance": {
+    "update_manifest_when": [
+      "phase status changes",
+      "routing changes",
+      "tracked outputs change",
+      "locked assumptions change"
+    ],
+    "append_grill_log_when": [
+      "locking a new package-shape decision or default"
+    ]
+  },
+  "directories": {
+    "handoffs": "handoffs",
+    "outputs": "outputs",
+    "prompts": "prompts"
+  }
+}

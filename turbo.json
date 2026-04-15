@@ -133,6 +133,25 @@
         "tooling/configs/src/**/*.ts"
       ]
     },
+    "//#lint:effect-governance": {
+      "cache": true,
+      "inputs": [
+        "apps/**/*.{ts,tsx}",
+        "packages/**/*.{ts,tsx}",
+        "tooling/**/*.{ts,tsx}",
+        "infra/**/*.ts",
+        ".claude/hooks/**/*.ts",
+        "biome.jsonc",
+        "package.json",
+        "standards/effect-laws.allowlist.jsonc",
+        "standards/schema-first.inventory.jsonc",
+        "tooling/configs/package.json",
+        "tooling/configs/src/**/*.ts",
+        "tooling/configs/test/**/*.ts",
+        "tooling/cli/src/**/*.ts",
+        "tooling/cli/test/**/*.ts"
+      ]
+    },
     "//#lint:typos": {
       "cache": false
     },

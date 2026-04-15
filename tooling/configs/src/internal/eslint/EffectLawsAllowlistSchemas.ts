@@ -1,4 +1,4 @@
-import { Effect, Inspectable, pipe, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, flow, Inspectable, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -130,9 +130,8 @@ export const formatSchemaDiagnostics = (issue: SchemaIssue.Issue): ReadonlyArray
       const pathLabel = pipe(
         O.fromNullishOr(diagnostic.path),
         O.filter(A.isReadonlyArrayNonEmpty),
-        O.map((pathSegments) =>
-          pipe(
-            pathSegments,
+        O.map(
+          flow(
             A.map((segment) => Inspectable.toStringUnknown(segment, 0)),
             A.join(".")
           )

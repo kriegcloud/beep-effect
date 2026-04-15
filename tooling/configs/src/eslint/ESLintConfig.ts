@@ -3,6 +3,7 @@ import type { Linter } from "eslint";
 import jsdoc from "eslint-plugin-jsdoc";
 import tsdoc from "eslint-plugin-tsdoc";
 import effectImportStyleRule from "./EffectImportStyleRule.ts";
+import { NO_NATIVE_RUNTIME_ERROR_FILES } from "./NoNativeRuntimeHotspots.ts";
 import noNativeRuntimeRule from "./NoNativeRuntimeRule.ts";
 import requireCategoryTagRule from "./RequireCategoryTagRule.ts";
 import schemaFirstRule from "./SchemaFirstRule.ts";
@@ -139,20 +140,7 @@ export const ESLintConfig: ESLintConfigShape = [
     },
   },
   {
-    files: [
-      "tooling/cli/src/commands/DocsAggregate.ts",
-      "tooling/cli/src/commands/Lint/index.ts",
-      "tooling/cli/src/commands/Laws/index.ts",
-      "tooling/cli/src/commands/Laws/EffectImports.ts",
-      "tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts",
-      "tooling/cli/src/commands/Graphiti/internal/ProxyServices.ts",
-      "tooling/cli/src/commands/Graphiti/internal/ProxyRuntime.ts",
-      ".claude/hooks/schemas/index.ts",
-      ".claude/hooks/skill-suggester/index.ts",
-      ".claude/hooks/subagent-init/index.ts",
-      ".claude/hooks/agent-init/index.ts",
-      ".claude/hooks/pattern-detector/core.ts",
-    ],
+    files: [...NO_NATIVE_RUNTIME_ERROR_FILES],
     plugins: {
       "beep-laws": beepLaws,
     },

@@ -172,16 +172,12 @@ export class LoggingConfig extends S.Class<LoggingConfig>($I`LoggingConfig`)(
   })
 ) {}
 
-type PrettyPalette = {
-  readonly accent: (value: string) => string;
-  readonly dim: (value: string) => string;
-  readonly trace: (value: string) => string;
-  readonly debug: (value: string) => string;
-  readonly info: (value: string) => string;
-  readonly warn: (value: string) => string;
-  readonly error: (value: string) => string;
-  readonly fatal: (value: string) => string;
+type PaletteFn = (value: string) => string;
+
+type MakePrettyPalette<T extends ReadonlyArray<string>> = {
+  readonly [K in T[number]]: PaletteFn;
 };
+type PrettyPalette = MakePrettyPalette<["accent", "dim", "trace", "debug", "info", "warn", "error", "fatal"]>;
 
 const defaultPrettyLoggerConfig = new PrettyLoggerConfig({
   theme: "ocean",

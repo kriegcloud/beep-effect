@@ -6,6 +6,7 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LogLevel } from "@beep/schema";
+import { pipe, Tuple } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("CoreConfig");
@@ -33,14 +34,27 @@ const $I = $ObservabilityId.create("CoreConfig");
  * @since 0.0.0
  * @category models
  */
-export class ObservabilityCoreConfig extends S.Class<ObservabilityCoreConfig>($I`ObservabilityCoreConfig`)(
-  {
-    serviceName: S.String,
-    serviceVersion: S.String,
-    environment: S.String,
-    minLogLevel: LogLevel,
-  },
-  $I.annote("ObservabilityCoreConfig", {
+export const ObservabilityCoreConfig = LogLevel.mapMembers((members) => {
+  const make = <TLogLevel extends LogLevel>(literal: S.Literal<TLogLevel>) =>
+    S.Struct({
+      serviceName: S.String,
+      serviceVersion: S.String,
+      environment: S.String,
+      minLogLevel: S.tag(literal.literal),
+    });
+
+  return pipe(members, Tuple.evolve([make, make, make, make, make, make, make, make]));
+}).pipe(
+  S.toTaggedUnion("minLogLevel"),
+  $I.annoteSchema("ObservabilityCoreConfig", {
     description: "Browser-safe shared observability configuration.",
   })
-) {}
+);
+
+/**
+ * Type of {@link ObservabilityCoreConfig}
+ *
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export type ObservabilityCoreConfig = typeof ObservabilityCoreConfig.Type;

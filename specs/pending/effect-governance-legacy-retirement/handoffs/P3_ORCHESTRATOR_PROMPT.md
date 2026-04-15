@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P3.md`, `PLANNING.md`, `outputs/legacy-surface-inventory.md`, `outputs/removal-matrix.md`, and `outputs/dependency-cut-map.md`. Implement only the chosen retirement posture plus strictly necessary glue, then record the work in `EXECUTION.md`.

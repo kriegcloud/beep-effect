@@ -17,6 +17,7 @@ import {
   RuleViolationPayload,
   toRuleViolation,
 } from "../internal/eslint/RuleViolation.ts";
+import { isNoNativeRuntimeExtraCheckHotspot } from "./NoNativeRuntimeHotspots.ts";
 
 const { dual } = FN;
 
@@ -48,26 +49,6 @@ const NODE_RUNTIME_IMPORTS = HashSet.fromIterable(["node:fs", "node:path", "node
 const STRING_METHODS = HashSet.fromIterable(["split", "trim", "startsWith", "endsWith"]);
 const EQUALITY_OPERATORS = HashSet.fromIterable(["===", "==", "!==", "!="]);
 const TYPEOF_RUNTIME_LITERAL_PATTERN = /^(string|number|boolean|object|function|undefined|symbol|bigint)$/;
-
-const HOTSPOT_RUNTIME_PATTERNS = [
-  /^packages\/ai\/sdk\/src\/core\/AgentSdkConfig\.ts$/,
-  /^packages\/ai\/sdk\/src\/core\/SessionConfig\.ts$/,
-  /^packages\/ai\/sdk\/src\/core\/Diagnose\.ts$/,
-  /^packages\/ai\/sdk\/src\/core\/Storage\/SessionIndexStore\.ts$/,
-  /^tooling\/cli\/src\/commands\/DocsAggregate\.ts$/,
-  /^tooling\/cli\/src\/commands\/Lint\/index\.ts$/,
-  /^tooling\/cli\/src\/commands\/Laws\/index\.ts$/,
-  /^tooling\/cli\/src\/commands\/Laws\/EffectImports\.ts$/,
-  /^tooling\/cli\/src\/commands\/Laws\/TerseEffect\.ts$/,
-  /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyConfig\.ts$/,
-  /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyServices\.ts$/,
-  /^tooling\/cli\/src\/commands\/Graphiti\/internal\/ProxyRuntime\.ts$/,
-  /^\.claude\/hooks\/schemas\/index\.ts$/,
-  /^\.claude\/hooks\/skill-suggester\/index\.ts$/,
-  /^\.claude\/hooks\/subagent-init\/index\.ts$/,
-  /^\.claude\/hooks\/agent-init\/index\.ts$/,
-  /^\.claude\/hooks\/pattern-detector\/core\.ts$/,
-];
 
 class IdentifierNode extends S.Class<IdentifierNode>("IdentifierNode")({
   type: S.tag("Identifier"),
@@ -456,7 +437,7 @@ export const noNativeRuntimeRule: Rule.RuleModule = {
   },
   create(context) {
     const relativeFilePath = resolveRelativeRuleFilePath(context.filename);
-    const inHotspotScope = A.some(HOTSPOT_RUNTIME_PATTERNS, (pattern) => pattern.test(relativeFilePath));
+    const inHotspotScope = isNoNativeRuntimeExtraCheckHotspot(relativeFilePath);
     const reportViolationIfNeeded = createAllowlistViolationReporter({
       context,
       ruleId: "beep-laws/no-native-runtime",

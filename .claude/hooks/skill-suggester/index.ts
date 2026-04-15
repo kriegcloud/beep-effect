@@ -142,6 +142,38 @@ const shouldShowMiseTasks = (prompt: string): boolean => {
   return false;
 };
 
+const EFFECT_STEERING_TRIGGER_KEYWORDS = HashSet.fromIterable([
+  "effect",
+  "option",
+  "schema",
+  "bool.match",
+  "match.value",
+  "o.match",
+  "idiomatic",
+  "terse",
+  "governance",
+  "effect-first",
+  "schema-first",
+]);
+
+export const shouldShowEffectSteering = (prompt: string): boolean => {
+  const lowered = Str.toLowerCase(prompt);
+  for (const keyword of EFFECT_STEERING_TRIGGER_KEYWORDS) {
+    if (Str.includes(keyword)(lowered)) return true;
+  }
+  return false;
+};
+
+export const buildEffectSteeringBlock = (prompt: string): O.Option<string> =>
+  shouldShowEffectSteering(prompt)
+    ? O.some(`<effect-steering>
+Prefer the flattest equivalent control flow first.
+Before O.match(...), check O.map(...), O.flatMap(...), O.liftPredicate(...), and O.getOrElse(...).
+Prefer Match.type<T>().pipe(...) or Match.tags(...) for reusable or exhaustive matchers; keep Match.value(...) for concrete local values at boundaries.
+Treat nested Bool.match(...) as a smell unless both branches are doing real work.
+</effect-steering>`)
+    : O.none();
+
 const fetchMiseTasks = (cwd: string) =>
   Effect.gen(function* () {
     const result = yield* pipe(
@@ -601,6 +633,11 @@ ${miseTasksResult.value}
 </available-scripts>`);
   }
 
+  const effectSteeringBlock = buildEffectSteeringBlock(input.prompt);
+  if (O.isSome(effectSteeringBlock)) {
+    parts.push(effectSteeringBlock.value);
+  }
+
   const kgHookEnabled = yield* Config.boolean("BEEP_KG_HOOK_ENABLED").pipe(Config.withDefault(true));
   if (kgHookEnabled) {
     const kgContext = yield* buildKgContextBlockEffect(input.cwd, input.prompt);
@@ -638,7 +675,7 @@ redundantConcern concern =
   caughtByTypeSystem concern || caughtByLinter concern
 
 -- The compiler is a better bug-finder than speculation
--- Trust: tsc, eslint, Effect's typed errors
+-- Trust: tsc, Biome, repo-local effect-governance checks, eslint's JSDoc/TSDoc lane, and Effect's typed errors
 -- Don't: predict runtime bugs that would fail at compile time
 -- Don't: suggest fixes for issues the types will catch anyway
 

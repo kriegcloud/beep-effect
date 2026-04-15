@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Effect, Inspectable, Order, Path, pipe } from "effect";
+import { Effect, HashMap, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -52,6 +52,8 @@ export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I
   {
     touchedFiles: S.Number,
     helpersSimplified: S.Number,
+    thunkHelpersSimplified: S.Number,
+    flowCandidatesDetected: S.Number,
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
@@ -62,6 +64,17 @@ export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I
     description: "Summary of terse Effect style migration results.",
   })
 ) {}
+
+const THUNK_HELPER_NAMES = [
+  "thunkUndefined",
+  "thunkEmptyStr",
+  "thunkNull",
+  "thunkTrue",
+  "thunkFalse",
+  "thunk0",
+] as const;
+
+type ThunkHelperName = (typeof THUNK_HELPER_NAMES)[number];
 
 class TerseEffectRulesPersistenceError extends TaggedErrorClass<TerseEffectRulesPersistenceError>(
   $I`TerseEffectRulesPersistenceError`
@@ -173,6 +186,96 @@ const getArrowReplacement = (arrowFunction: ArrowFunction): O.Option<string> => 
   );
 };
 
+const getImportedThunkHelperAliases = (sourceFile: import("ts-morph").SourceFile): HashMap.HashMap<string, string> => {
+  let aliases = HashMap.empty<string, string>();
+
+  for (const importDeclaration of sourceFile.getImportDeclarations()) {
+    if (importDeclaration.getModuleSpecifierValue() !== "@beep/utils" || importDeclaration.isTypeOnly()) {
+      continue;
+    }
+
+    for (const importSpecifier of importDeclaration.getNamedImports()) {
+      if (importSpecifier.isTypeOnly()) {
+        continue;
+      }
+
+      const importedName = importSpecifier.getName();
+      if (!A.some(THUNK_HELPER_NAMES, (helperName) => helperName === importedName)) {
+        continue;
+      }
+
+      aliases = HashMap.set(aliases, importedName, importSpecifier.getAliasNode()?.getText() ?? importedName);
+    }
+  }
+
+  return aliases;
+};
+
+const getLiteralThunkHelperName = (expression: import("ts-morph").Node): O.Option<ThunkHelperName> => {
+  if (Node.isIdentifier(expression) && expression.getText() === "undefined") {
+    return O.some("thunkUndefined");
+  }
+
+  if (Node.isStringLiteral(expression) && expression.getLiteralText() === "") {
+    return O.some("thunkEmptyStr");
+  }
+
+  if (expression.getKind() === SyntaxKind.NullKeyword) {
+    return O.some("thunkNull");
+  }
+
+  if (expression.getKind() === SyntaxKind.TrueKeyword) {
+    return O.some("thunkTrue");
+  }
+
+  if (expression.getKind() === SyntaxKind.FalseKeyword) {
+    return O.some("thunkFalse");
+  }
+
+  if (Node.isNumericLiteral(expression) && expression.getText() === "0") {
+    return O.some("thunk0");
+  }
+
+  return O.none();
+};
+
+const getThunkHelperReplacement = (
+  arrowFunction: ArrowFunction,
+  thunkHelperAliases: HashMap.HashMap<string, string>
+): O.Option<string> => {
+  if (arrowFunction.getParameters().length !== 0) {
+    return O.none();
+  }
+
+  return pipe(
+    getLiteralThunkHelperName(arrowFunction.getBody()),
+    O.flatMap((helperName) => HashMap.get(thunkHelperAliases, helperName))
+  );
+};
+
+const isFlowCandidate = (arrowFunction: ArrowFunction): boolean =>
+  pipe(
+    getSimpleIdentifierParameterName(arrowFunction),
+    O.flatMap((parameterName) => {
+      const body = arrowFunction.getBody();
+      if (!Node.isCallExpression(body)) {
+        return O.none();
+      }
+
+      const expression = body.getExpression();
+      if (!Node.isIdentifier(expression) || expression.getText() !== "pipe") {
+        return O.none();
+      }
+
+      return pipe(
+        body.getArguments().length >= 1 ? O.fromNullishOr(body.getArguments()[0]) : O.none(),
+        O.filter(Node.isIdentifier),
+        O.filter((firstArgument) => firstArgument.getText() === parameterName)
+      );
+    }),
+    O.isSome
+  );
+
 /**
  * Run terse Effect style migration/check logic.
  *
@@ -200,25 +303,63 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
   const sourceFiles = A.filter(project.getSourceFiles(), (sourceFile) => !isExcludedFile(sourceFile.getFilePath()));
 
   let helpersSimplified = 0;
+  let thunkHelpersSimplified = 0;
+  let flowCandidatesDetected = 0;
   let touchedFiles = 0;
   let changedFiles = A.empty<string>();
 
   for (const sourceFile of sourceFiles) {
     let fileTouched = false;
+    let fileMutated = false;
+    const thunkHelperAliases = getImportedThunkHelperAliases(sourceFile);
     const arrowFunctions = A.sort(
       sourceFile.getDescendantsOfKind(SyntaxKind.ArrowFunction),
       Order.mapInput(Order.Number, (arrowFunction: ArrowFunction) => -arrowFunction.getStart())
     );
 
     for (const arrowFunction of arrowFunctions) {
-      pipe(
-        getArrowReplacement(arrowFunction),
-        O.map((replacement) => {
-          arrowFunction.replaceWithText(replacement);
-          helpersSimplified += 1;
-          fileTouched = true;
-        })
-      );
+      if (
+        pipe(
+          getArrowReplacement(arrowFunction),
+          O.map((replacement) => {
+            if (options.write) {
+              arrowFunction.replaceWithText(replacement);
+              fileMutated = true;
+            }
+            helpersSimplified += 1;
+            fileTouched = true;
+          }),
+          O.isSome
+        )
+      ) {
+        continue;
+      }
+
+      if (
+        pipe(
+          getThunkHelperReplacement(arrowFunction, thunkHelperAliases),
+          O.map((replacement) => {
+            if (options.write) {
+              arrowFunction.replaceWithText(replacement);
+              fileMutated = true;
+            }
+            thunkHelpersSimplified += 1;
+            fileTouched = true;
+          }),
+          O.isSome
+        )
+      ) {
+        continue;
+      }
+
+      if (isFlowCandidate(arrowFunction)) {
+        flowCandidatesDetected += 1;
+        fileTouched = true;
+      }
+    }
+
+    if (fileMutated) {
+      sourceFile.organizeImports();
     }
 
     if (fileTouched) {
@@ -237,11 +378,14 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
     });
   }
 
-  const strictFailure = options.strictCheck && helpersSimplified > 0;
+  const strictFailure =
+    options.strictCheck && (helpersSimplified > 0 || thunkHelpersSimplified > 0 || flowCandidatesDetected > 0);
 
   return new TerseEffectRulesSummary({
     touchedFiles,
     helpersSimplified,
+    thunkHelpersSimplified,
+    flowCandidatesDetected,
     strictFailure,
     changedFiles,
   });

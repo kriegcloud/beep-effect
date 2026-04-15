@@ -12,6 +12,7 @@ import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { AllowlistCheckOptions, reportAllowlistCheckSummary, runAllowlistCheck } from "./AllowlistCheck.js";
 import { EffectImportRulesOptions, runEffectImportRules } from "./EffectImports.js";
+import { NoNativeRuntimeRulesOptions, runNoNativeRuntimeRules } from "./NoNativeRuntime.js";
 import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.js";
 
 const $I = $RepoCliId.create("commands/Laws");
@@ -59,6 +60,25 @@ class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`Te
   },
   $I.annote("TerseEffectCommandOptions", {
     description: "CLI options for terse Effect style command.",
+  })
+) {}
+
+/**
+ * CLI options for native runtime parity checks.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+class NoNativeRuntimeCommandOptions extends S.Class<NoNativeRuntimeCommandOptions>($I`NoNativeRuntimeCommandOptions`)(
+  {
+    check: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+  },
+  $I.annote("NoNativeRuntimeCommandOptions", {
+    description: "CLI options for native runtime parity checks.",
   })
 ) {}
 
@@ -140,7 +160,9 @@ const lawsTerseEffectCommand = Command.make(
     const mode = options.write ? "write" : "dry-run";
     yield* Console.log(`[effect-laws-terse-effect] mode=${mode}`);
     yield* Console.log(`[effect-laws-terse-effect] touched_files=${summary.touchedFiles}`);
-    yield* Console.log(`[effect-laws-terse-effect] helpers_simplified=${summary.helpersSimplified}`);
+    yield* Console.log(`[effect-laws-terse-effect] helper_refs_simplified=${summary.helpersSimplified}`);
+    yield* Console.log(`[effect-laws-terse-effect] thunk_helpers_simplified=${summary.thunkHelpersSimplified}`);
+    yield* Console.log(`[effect-laws-terse-effect] flow_candidates_detected=${summary.flowCandidatesDetected}`);
 
     if (!options.write) {
       yield* Console.log("[effect-laws-terse-effect] Run with --write to persist changes.");
@@ -155,6 +177,48 @@ const lawsTerseEffectCommand = Command.make(
     }
   })
 ).pipe(Command.withDescription("Check or rewrite terse Effect helper wrappers"));
+
+/**
+ * CLI command for repo-local native runtime parity checks.
+ *
+ * @category UseCase
+ * @since 0.0.0
+ */
+const lawsNativeRuntimeCommand = Command.make(
+  "native-runtime",
+  {
+    check: Flag.boolean("check").pipe(Flag.withDescription("Fail when hotspot-scope native-runtime violations remain")),
+    exclude: Flag.string("exclude").pipe(
+      Flag.withDescription("Comma-separated list of file paths to exclude"),
+      Flag.withDefault("")
+    ),
+  },
+  Effect.fn(function* ({ check, exclude }) {
+    const options = new NoNativeRuntimeCommandOptions({ check, exclude });
+    const summary = yield* runNoNativeRuntimeRules(
+      new NoNativeRuntimeRulesOptions({
+        strictCheck: options.check,
+        excludePaths: parseExcludePaths(options.exclude),
+      })
+    );
+
+    yield* Console.log(`[effect-laws-native-runtime] mode=${options.check ? "check" : "report"}`);
+    yield* Console.log(`[effect-laws-native-runtime] scanned_files=${summary.scannedFiles}`);
+    yield* Console.log(`[effect-laws-native-runtime] touched_files=${summary.touchedFiles}`);
+    yield* Console.log(`[effect-laws-native-runtime] warnings=${summary.warningCount}`);
+    yield* Console.log(`[effect-laws-native-runtime] errors=${summary.errorCount}`);
+
+    for (const diagnostic of summary.diagnostics) {
+      yield* Console.log(
+        `- [${diagnostic.severity}] ${diagnostic.file}:${diagnostic.line}:${diagnostic.column} ${diagnostic.message}`
+      );
+    }
+
+    if (summary.strictFailure) {
+      process.exitCode = 1;
+    }
+  })
+).pipe(Command.withDescription("Run repo-local no-native-runtime parity checks"));
 
 /**
  * CLI command for validating effect laws allowlist integrity.
@@ -193,11 +257,17 @@ export const lawsCommand = Command.make(
     yield* Console.log("Laws commands:");
     yield* Console.log("- bun run beep laws effect-imports --check");
     yield* Console.log("- bun run beep laws effect-imports --write");
+    yield* Console.log("- bun run beep laws native-runtime --check");
     yield* Console.log("- bun run beep laws terse-effect --check");
     yield* Console.log("- bun run beep laws terse-effect --write");
     yield* Console.log("- bun run beep laws allowlist-check");
   })
 ).pipe(
   Command.withDescription("Effect law validation and migration commands"),
-  Command.withSubcommands([lawsEffectImportsCommand, lawsTerseEffectCommand, lawsAllowlistCheckCommand])
+  Command.withSubcommands([
+    lawsEffectImportsCommand,
+    lawsNativeRuntimeCommand,
+    lawsTerseEffectCommand,
+    lawsAllowlistCheckCommand,
+  ])
 );
