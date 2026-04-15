@@ -5,6 +5,9 @@ import * as A from "effect/Array";
  *
  * Keep this list aligned with the legacy rollback lane so the repo-local checker preserves
  * the old warn-vs-error split while P3 is active.
+ *
+ * @category Configuration
+ * @since 0.0.0
  */
 export const NO_NATIVE_RUNTIME_ERROR_FILES = [
   "tooling/cli/src/commands/DocsAggregate.ts",
@@ -23,6 +26,9 @@ export const NO_NATIVE_RUNTIME_ERROR_FILES = [
 
 /**
  * Paths that enable the stricter hotspot-only runtime checks inside the ESLint rule logic.
+ *
+ * @category Configuration
+ * @since 0.0.0
  */
 export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
   /^packages\/ai\/sdk\/src\/core\/AgentSdkConfig\.ts$/,
