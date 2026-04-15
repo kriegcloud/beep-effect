@@ -789,13 +789,12 @@
         "@effect/markdown-toc": "catalog:",
         "@effect/platform-node": "catalog:",
         "@openai/codex-sdk": "catalog:",
-        "@typescript-eslint/parser": "catalog:",
         "d3-dsv": "catalog:",
         "doctrine": "catalog:",
         "effect": "catalog:",
-        "eslint": "catalog:",
         "fast-xml-parser": "catalog:",
         "handlebars": "catalog:",
+        "ts-morph": "catalog:",
         "yaml": "catalog:",
       },
       "devDependencies": {
@@ -898,6 +897,7 @@
     "axios": "^1.15.0",
     "express-rate-limit": "^8.3.0",
     "flatted": "^3.4.1",
+    "follow-redirects": "^1.16.0",
     "happy-dom": "^20.8.9",
     "hono": "^4.12.7",
     "lodash": "catalog:",
@@ -3726,7 +3726,7 @@
 
     "fn.name": ["fn.name@1.1.0", "", {}, "sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw=="],
 
-    "follow-redirects": ["follow-redirects@1.15.11", "", {}, "sha512-deG2P0JfjrTxl50XGCDyfI97ZGVCxIpfKYmfyrQ54n5FO/0gfIES8C/Psl6kWVDolizcaaxZJnTS0QSMxvnsBQ=="],
+    "follow-redirects": ["follow-redirects@1.16.0", "", {}, "sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw=="],
 
     "for-in": ["for-in@1.0.2", "", {}, "sha512-7EwmXrOjyL+ChxMhmG5lnW9MPt1aIeZEwKhQzoBUdTV0N3zuwWDZYVJatDvZ2OyzPUvdIAZDsCetk3coyMfcnQ=="],
 
