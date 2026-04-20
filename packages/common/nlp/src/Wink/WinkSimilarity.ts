@@ -54,7 +54,6 @@ const SimilarityMethod = SimilarityMethodKit.pipe(
 const loadSimilarityRuntime = (): SimilarityRuntime => require("wink-nlp/utilities/similarity");
 
 const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => {
-  // eslint-disable-next-line beep-laws/no-native-runtime -- wink similarity expects native Set instances at this adapter boundary.
   return new Set(terms);
 };
 

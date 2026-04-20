@@ -183,11 +183,12 @@ export const CurrencyCodeDataValues = ${renderedValues} as const;
 const projectIso4217Document: SyncDataTarget["project"] = Effect.fn("SyncDataToTs.Iso4217.projectIso4217Document")(
   function* (document) {
     const decoded = yield* S.decodeUnknownEffect(Iso4217Document)(document).pipe(
-      Effect.mapError((cause) =>
-        SyncDataToTsError.new({
-          message: `Failed to decode the official ISO 4217 XML payload: ${cause.message}`,
-          targetId: "iso4217",
-        })
+      Effect.mapError(
+        (cause) =>
+          new SyncDataToTsError({
+            message: `Failed to decode the official ISO 4217 XML payload: ${cause.message}`,
+            targetId: "iso4217",
+          })
       )
     );
 

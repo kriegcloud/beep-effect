@@ -15,8 +15,8 @@ const codexAgentsReadmePath = join(repoRootDir, ".codex", "agents", "README.md")
 const infraPackageManifestPath = join(repoRootDir, "infra", "package.json")
 const appPackageManifestPath = join(repoRootDir, "apps", "V2T", "package.json")
 const appTurboManifestPath = join(repoRootDir, "apps", "V2T", "turbo.json")
-const sidecarPackageManifestPath = join(repoRootDir, "packages", "VT2", "package.json")
-const sidecarTurboManifestPath = join(repoRootDir, "packages", "VT2", "turbo.json")
+const sidecarPackageManifestPath = join(repoRootDir, "packages", "v2t-sidecar", "package.json")
+const sidecarTurboManifestPath = join(repoRootDir, "packages", "v2t-sidecar", "turbo.json")
 const codexConfigContent = readFileSync(codexConfigPath, "utf8")
 const rootPackageManifest = JSON.parse(readFileSync(rootPackageManifestPath, "utf8"))
 const infraPackageManifest = JSON.parse(readFileSync(infraPackageManifestPath, "utf8"))
@@ -109,7 +109,7 @@ const staleCommandPatterns = [
   },
   {
     description: "stale sidecar path filter",
-    pattern: /--filter=\.\/packages\/VT2\b/
+    pattern: /--filter=\.\/packages\/v2t-sidecar\b/
   }
 ]
 const staleProsePatterns = [
@@ -119,7 +119,7 @@ const staleProsePatterns = [
   },
   {
     description: "stale turbo lint nonexistent-task explanation",
-    pattern: /(?:dry-run still expands to|dependency lint expansion still reaches).+@beep\/VT2#lint/s
+    pattern: /(?:dry-run still expands to|dependency lint expansion still reaches).+@beep\/v2t-sidecar#lint/s
   },
   {
     description: "stale competing startup-order heading",

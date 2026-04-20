@@ -122,9 +122,11 @@ export const buildCodexSessionStartContext = (source: string, cwd: string | unde
     cwd === undefined ? undefined : `Working directory: ${cwd}.`,
     "Durable repo memory is Graphiti-first now; do not assume any legacy repo-memory tooling exists in this clone.",
     'When the `graphiti-memory` MCP is available, query it first for cross-session recall with `group_ids: ["beep_dev"]`; if a wrapper only accepts strings, pass the JSON literal `"[\\"beep_dev\\"]"`.',
-    "High-signal commands: `bun run codex:hook:session-start`, `bun run graphiti:proxy`, `bun run graphiti:proxy:ensure`, `bun run check`, `bun run test`, and `bun run lint`.",
+    "High-signal commands: `bun run codex:hook:session-start`, `bun run graphiti:proxy`, `bun run graphiti:proxy:ensure`, `bun run lint:effect-governance`, `bun run check`, `bun run test`, and `bun run lint`.",
     "If Graphiti memory is unavailable, fall back to repo-local exploration plus the checked-in `.codex` and `.claude` guidance.",
-    "Keep the repo defaults in mind early: schema-first domain models, typed errors, effect-first modules, and explicit service boundaries.",
+    "Keep the repo defaults in mind early: schema-first domain models, typed errors, effect-first modules, explicit service boundaries, and the tersest equivalent helper forms when behavior is unchanged.",
+    "Effect steering defaults: prefer the flattest equivalent control flow first; before `O.match(...)`, check `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)`.",
+    "Matcher steering defaults: prefer `Match.type<T>().pipe(...)` / `Match.tags(...)` for reusable matchers, and treat nested `Bool.match(...)` as a smell unless both branches are doing real work.",
   ]
     .filter((entry): entry is string => entry !== undefined)
     .join(" ");

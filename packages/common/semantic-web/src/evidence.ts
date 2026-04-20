@@ -18,10 +18,11 @@ const $I = $SemanticWebId.create("evidence");
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { EvidenceSelectorKind } from "@beep/semantic-web/evidence"
  *
- * console.log(EvidenceSelectorKind.Guard("text-quote")) // true
- * console.log(EvidenceSelectorKind.Guard("unknown")) // false
+ * console.log(S.is(EvidenceSelectorKind)("text-quote")) // true
+ * console.log(S.is(EvidenceSelectorKind)("unknown")) // false
  * ```
  *
  * @since 0.0.0
@@ -46,9 +47,10 @@ export type EvidenceSelectorKind = typeof EvidenceSelectorKind.Type;
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { TextQuoteSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = TextQuoteSelector.make({
+ * const selector = S.decodeUnknownSync(TextQuoteSelector)({
  *   kind: "text-quote",
  *   exact: "important finding",
  * })
@@ -86,9 +88,10 @@ export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSe
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { TextPositionSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = TextPositionSelector.make({
+ * const selector = S.decodeUnknownSync(TextPositionSelector)({
  *   kind: "text-position",
  *   start: 0,
  *   end: 42,
@@ -126,9 +129,10 @@ export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextP
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { FragmentSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = FragmentSelector.make({
+ * const selector = S.decodeUnknownSync(FragmentSelector)({
  *   kind: "fragment",
  *   value: "section-1",
  * })

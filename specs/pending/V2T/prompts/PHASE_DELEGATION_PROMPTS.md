@@ -47,8 +47,8 @@ Required inputs:
 - `infra/package.json`
 - `apps/V2T/package.json`
 - `apps/V2T/turbo.json`
-- `packages/VT2/package.json`
-- `packages/VT2/turbo.json`
+- `packages/v2t-sidecar/package.json`
+- `packages/v2t-sidecar/turbo.json`
 
 Additional required inputs:
 - {{ADDITIONAL_INPUTS}}
@@ -90,7 +90,7 @@ Before sending a worker prompt, make sure it names:
 ### Recommended Parallel Split
 
 - `effect_v4_repo_mapper` for package seams, task graph truth, and existing
-  V2T or VT2 reality
+  V2T or V2T reality
 - `effect_v4_http_ai_boundary` for provider-boundary and packet-boundary
   classification
 - `effect_v4_quality_reviewer` for stale-assumption or gate-claim detection
@@ -100,7 +100,7 @@ Before sending a worker prompt, make sure it names:
 ```markdown
 Assigned custom agent: `effect_v4_repo_mapper`
 Mode: `read-only`
-Objective: map the current `apps/V2T`, `packages/VT2`, shared UI, and command
+Objective: map the current `apps/V2T`, `packages/v2t-sidecar`, shared UI, and command
 surfaces that the V2T spec can truthfully rely on during P0
 Assigned question: which repo seams, package identities, and task surfaces can
 P0 truthfully rely on, and what remains product ambition rather than repo fact?
@@ -110,7 +110,7 @@ Stop condition: stop and return a blocker if a claim cannot be grounded in live
 files, manifests, or commands, or if repo reality contradicts the P0 objective
 Read scope:
 - `apps/V2T/**`
-- `packages/VT2/**`
+- `packages/v2t-sidecar/**`
 - `infra/Pulumi.yaml`
 - `infra/package.json`
 - `infra/src/internal/entry.ts`
@@ -131,7 +131,7 @@ Additional required inputs:
 Additional rules:
 - confirm only what you can ground in the live repo
 - separate confirmed seams from product ambition
-- verify the live workspace names `@beep/v2t` and `@beep/VT2` from the package
+- verify the live workspace names `@beep/v2t` and `@beep/v2t-sidecar` from the package
   manifests before reporting command guidance
 - record whether Graphiti fact lookup was available or whether you used the
   documented fallback, plus the exact query and exact error text if lookup
@@ -165,7 +165,7 @@ changing repo seams, or inventing implementation detail that belongs to P2 or P3
 Read scope:
 - `specs/pending/V2T/RESEARCH.md`
 - `apps/V2T/**`
-- `packages/VT2/**`
+- `packages/v2t-sidecar/**`
 - `infra/Pulumi.yaml`
 - `infra/src/V2T.ts`
 
@@ -197,7 +197,7 @@ reopening product scope or on implementation detail that belongs to P2 or P3
 Read scope:
 - `specs/pending/V2T/RESEARCH.md`
 - `apps/V2T/**`
-- `packages/VT2/**`
+- `packages/v2t-sidecar/**`
 - `infra/Pulumi.yaml`
 - `infra/src/V2T.ts`
 

@@ -7,6 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $SemanticWebId.create("semantic-schema-metadata");
@@ -16,10 +17,11 @@ const $I = $SemanticWebId.create("semantic-schema-metadata");
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { SemanticSchemaMetadataKind } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * console.log(SemanticSchemaMetadataKind.Guard("identifier")) // true
- * console.log(SemanticSchemaMetadataKind.Guard("unknown")) // false
+ * console.log(S.is(SemanticSchemaMetadataKind)("identifier")) // true
+ * console.log(S.is(SemanticSchemaMetadataKind)("unknown")) // false
  * ```
  *
  * @since 0.0.0
@@ -258,7 +260,7 @@ export const annotateSemanticSchema = <Schema extends S.Top>(
 
 const hasAnnotationsRecord = (
   value: unknown
-): value is {
+): value is Readonly<Record<string, unknown>> & {
   annotations?:
     | {
         semanticSchemaMetadata?: SemanticSchemaMetadataAnnotationPayload | undefined;
@@ -284,7 +286,7 @@ const findSemanticSchemaMetadata = (
     return value.annotations.semanticSchemaMetadata;
   }
 
-  for (const nested of Object.values(value)) {
+  for (const nested of R.values(value)) {
     const metadata = findSemanticSchemaMetadata(nested, visited);
     if (metadata !== undefined) {
       return metadata;

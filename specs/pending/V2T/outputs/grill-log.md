@@ -43,9 +43,9 @@ This file is append-only. Record high-signal questions, recommendations, answers
 
 ### Q5 - Which sidecar seam should the canonical spec treat as authoritative?
 
-- Recommendation: use the existing `@beep/VT2` sidecar package and scripts as the current control-plane seam
-- Answer: `packages/VT2` is the current sidecar seam
-- Resolution: updated the research, design, planning, handoffs, and prompts to point at `packages/VT2/src/protocol.ts`, `packages/VT2/src/Server/index.ts`, and the app-side sidecar scripts
+- Recommendation: use the existing `@beep/v2t-sidecar` sidecar package and scripts as the current control-plane seam
+- Answer: `packages/v2t-sidecar` is the current sidecar seam
+- Resolution: updated the research, design, planning, handoffs, and prompts to point at `packages/v2t-sidecar/src/protocol.ts`, `packages/v2t-sidecar/src/Server/index.ts`, and the app-side sidecar scripts
 
 ### Q6 - Should the bootstrap repair change root markdown lint policy for specs?
 
@@ -56,7 +56,7 @@ This file is append-only. Record high-signal questions, recommendations, answers
 ### Q7 - How should this package enforce conformance without inventing nonexistent workspace tasks?
 
 - Recommendation: split the gates into spec-package validation, targeted workspace commands, repo-law commands, and a final readiness gate
-- Answer: use a layered command matrix instead of pretending `@beep/VT2` has package-local `lint` or `docgen`
+- Answer: use a layered command matrix instead of pretending `@beep/v2t-sidecar` has package-local `lint` or `docgen`
 - Resolution: updated `README.md`, `PLANNING.md`, `EXECUTION.md`, `VERIFICATION.md`, the handoffs, and `outputs/manifest.json` with the real gate structure
 
 ### Q8 - What should validate the spec package itself while markdownlint ignores `specs/**`?
@@ -117,7 +117,7 @@ This file is append-only. Record high-signal questions, recommendations, answers
 ### Q16 - Should the validator hardcode workspace package names or read them from the live manifests?
 
 - Recommendation: read package truth from the live workspace manifests and treat the manifest as a mirror that must stay in sync
-- Answer: derive package names from `apps/V2T/package.json` and `packages/VT2/package.json`
+- Answer: derive package names from `apps/V2T/package.json` and `packages/v2t-sidecar/package.json`
 - Resolution: updated `outputs/validate-spec.mjs` to compare manifest command truth against the live manifests and added `conformance.command_truth_files` to document the governing files
 
 ### Q17 - What should be authoritative when README prose and manifest routing or gate data disagree?
@@ -178,8 +178,8 @@ This file is append-only. Record high-signal questions, recommendations, answers
 
 ### Q25 - Which repo surfaces remain authoritative for the installed app?
 
-- Recommendation: keep `apps/V2T` as the native app and `packages/VT2` as the packaged sidecar seam
-- Answer: use `apps/V2T` plus `packages/VT2`
+- Recommendation: keep `apps/V2T` as the native app and `packages/v2t-sidecar` as the packaged sidecar seam
+- Answer: use `apps/V2T` plus `packages/v2t-sidecar`
 - Resolution: the installer builds the native Tauri app locally and preserves the current SQLite-backed sidecar seam
 
 ### Q26 - How should the local Qwen runtime be provisioned?
@@ -222,7 +222,7 @@ This file is append-only. Record high-signal questions, recommendations, answers
 
 - Recommendation: treat `@beep/infra` as live repo truth, not as planned future implementation
 - Answer: use `infra/Pulumi.yaml`, `infra/src/internal/entry.ts`, `infra/src/V2T.ts`, `infra/scripts/v2t-workstation.sh`, `infra/test/V2T.test.ts`, and `infra/package.json` as the authoritative workstation-install and deployment surfaces
-- Resolution: updated the docs, prompts, handoffs, manifest, and validator so `@beep/infra` is now a first-class V2T seam alongside `apps/V2T` and `packages/VT2`
+- Resolution: updated the docs, prompts, handoffs, manifest, and validator so `@beep/infra` is now a first-class V2T seam alongside `apps/V2T` and `packages/v2t-sidecar`
 
 ## 2026-04-12 Cap-Informed Product Decisions
 
@@ -272,7 +272,7 @@ This file is append-only. Record high-signal questions, recommendations, answers
 
 - Recommendation: reuse the current seams instead of adding a new top-level V2T contract package
 - Answer: reuse current seams
-- Resolution: the spec keeps sidecar contracts in `@beep/VT2`, native app-shell contracts in `apps/V2T`, and shared schema work in existing shared packages
+- Resolution: the spec keeps sidecar contracts in `@beep/v2t-sidecar`, native app-shell contracts in `apps/V2T`, and shared schema work in existing shared packages
 
 ### Q41 - How broadly should the Cap findings be applied in the spec?
 

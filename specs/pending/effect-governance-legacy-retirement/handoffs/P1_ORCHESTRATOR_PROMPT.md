@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P1.md`, `RESEARCH.md`, `outputs/legacy-surface-inventory.md`, `outputs/removal-matrix.md`, `outputs/dependency-cut-map.md`, and the live repo surfaces needed to validate P0 claims. Narrow the field to a validated shortlist, lock the inventory and removal matrix, and write or refine `VALIDATED_OPTIONS.md`.

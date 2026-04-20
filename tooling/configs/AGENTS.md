@@ -1,12 +1,13 @@
 # @beep/repo-configs Agent Guide
 
 ## Purpose & Fit
-- An library for shared build & tooling configurations
+- Shared docs-lane tooling configuration and governance data for this repo
 
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION, ESLintConfig | package entry point |
+| entry module | VERSION, DocsESLintConfig | package entry point |
+| governance data | allowlist snapshot, native-runtime hotspots | shared by repo-local governance commands |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -15,7 +16,7 @@
 
 ## Quick Recipes
 ```ts
-import { ESLintConfig, VERSION } from "@beep/repo-configs"
+import { DocsESLintConfig, VERSION } from "@beep/repo-configs"
 ```
 
 ## Verifications

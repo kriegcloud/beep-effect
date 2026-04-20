@@ -23,12 +23,14 @@
  * @module @beep/observability/Metric
  * @since 0.0.0
  */
-import { Clock, Duration, Effect, Exit, Metric } from "effect";
+
+import { P } from "@beep/utils";
+import { Clock, Duration, Effect, Exit, Metric, pipe } from "effect";
 
 const withMetricAttributes = <Input, State>(
   metric: Metric.Metric<Input, State>,
   attributes: undefined | Record<string, string>
-): Metric.Metric<Input, State> => (attributes === undefined ? metric : Metric.withAttributes(metric, attributes));
+): Metric.Metric<Input, State> => (P.isUndefined(attributes) ? metric : Metric.withAttributes(metric, attributes));
 
 const incrementCounter = (
   counter: undefined | Metric.Counter<number>,
@@ -90,7 +92,8 @@ export const statusClass = (status: number): string => {
 export const measureElapsedMillis = <A, E, R>(
   effect: Effect.Effect<A, E, R>
 ): Effect.Effect<readonly [A, number], E, R> =>
-  Clock.currentTimeMillis.pipe(
+  pipe(
+    Clock.currentTimeMillis,
     Effect.flatMap((startedAt) =>
       effect.pipe(
         Effect.flatMap((value) =>

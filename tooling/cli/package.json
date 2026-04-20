@@ -62,6 +62,7 @@
     "@beep/chalk": "workspace:^",
     "@beep/docgen": "workspace:^",
     "@beep/identity": "workspace:^",
+    "@beep/repo-configs": "workspace:^",
     "@beep/repo-utils": "workspace:^",
     "@beep/schema": "workspace:^",
     "@effect/markdown-toc": "catalog:",
@@ -72,6 +73,7 @@
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
+    "ts-morph": "catalog:",
     "yaml": "catalog:"
   },
   "devDependencies": {

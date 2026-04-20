@@ -9,7 +9,7 @@ const config = {
     "apps/editor-app/package.json",
     "apps/V2T/package.json",
     "infra/package.json",
-    "packages/VT2/package.json",
+    "packages/v2t-sidecar/package.json",
     "packages/_internal/*/package.json",
     "packages/common/*/package.json",
     "packages/repo-memory/client/package.json",

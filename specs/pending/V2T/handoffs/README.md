@@ -10,7 +10,7 @@
 - Use the combined router assets first in a fresh session, then drop into the active phase handoff and prompt.
 - Use the delegation kit under [../prompts/README.md](../prompts/README.md) when specialist sub-agents are helpful.
 - Use [../prompts/GRAPHITI_MEMORY_PROTOCOL.md](../prompts/GRAPHITI_MEMORY_PROTOCOL.md) for Graphiti recall, fallback logging, and session-end writeback.
-- Treat `apps/V2T` and `packages/VT2` as the current shell-plus-sidecar pair unless a phase artifact explicitly documents a migration.
+- Treat `apps/V2T` and `packages/v2t-sidecar` as the current shell-plus-sidecar pair unless a phase artifact explicitly documents a migration.
 - Apply the mandatory conformance inputs and gates from [../README.md](../README.md) before claiming a phase is complete.
 - Workers may contribute bounded findings or patches, but the orchestrator owns integration, gate evidence, and phase closure.
 - If a later phase discovers an unresolved earlier-phase question, stop and route that question back instead of hiding it inside the current phase.

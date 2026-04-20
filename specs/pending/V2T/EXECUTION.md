@@ -6,7 +6,7 @@ COMPLETED
 
 ## Execution Objective
 
-Implement the first committed V2T slice in `apps/V2T`, `packages/VT2`, `@beep/infra`, and their supporting seams without widening scope beyond the contracts locked in `RESEARCH.md`, `DESIGN_RESEARCH.md`, and `PLANNING.md`.
+Implement the first committed V2T slice in `apps/V2T`, `packages/v2t-sidecar`, `@beep/infra`, and their supporting seams without widening scope beyond the contracts locked in `RESEARCH.md`, `DESIGN_RESEARCH.md`, and `PLANNING.md`.
 
 ## Phase Agent Role
 
@@ -44,8 +44,8 @@ P3 execution must actively apply:
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
 - `infra/package.json`
 - root `package.json`, root `turbo.json`, `apps/V2T/package.json`,
-  `apps/V2T/turbo.json`, `packages/VT2/package.json`, and
-  `packages/VT2/turbo.json` for live workspace package names, task
+  `apps/V2T/turbo.json`, `packages/v2t-sidecar/package.json`, and
+  `packages/v2t-sidecar/turbo.json` for live workspace package names, task
   availability, and command-truth checks
 
 ## Evidence Recording Rules
@@ -69,7 +69,7 @@ P3 execution must actively apply:
 - implement resilient direct capture with recover or discard behavior and explicit interruption or backpressure state, or record the exact blocker that pushes it back
 - unify record and import into the same session and artifact pipeline
 - persist user-level capture, composition, and recovery defaults separately from project and run records
-- extend the existing `@beep/VT2` control plane unless a deliberate migration is explicitly documented
+- extend the existing `@beep/v2t-sidecar` control plane unless a deliberate migration is explicitly documented
 - keep `@beep/infra` as the canonical workstation/deployment seam when the approved slice touches installer or deployment behavior
 - keep all external providers behind explicit adapters
 - reuse shared repo primitives where they already fit
@@ -84,7 +84,7 @@ P3 execution must actively apply:
 - do not let React components own provider-specific logic
 - do not let React components own authoritative direct-capture buffers or recovery state
 - keep the native shell authoritative for raw direct-capture control, chunk or segment durability, interruption discovery, and recover or discard actions while the sidecar owns canonical session metadata and downstream artifact indexing after intake
-- do not invent an app-local server path if the current `packages/VT2` sidecar seam can carry the slice
+- do not invent an app-local server path if the current `packages/v2t-sidecar` sidecar seam can carry the slice
 - do not invent a second installer or deployment path if the current `@beep/infra` seam can carry the slice
 - keep the first-slice desktop UX to one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace
 - stop at the first-slice boundary instead of slipping into speculative polish
@@ -95,9 +95,9 @@ P3 execution must actively apply:
 
 ### Targeted Implementation Floor
 
-- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
 - `bun run --cwd apps/V2T lint`
 - `bun run --cwd infra lint`
 
@@ -114,7 +114,7 @@ P3 execution must actively apply:
 
 Important note:
 
-- `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be evidenced through the repo-law commands above
+- `@beep/v2t-sidecar` has no package-local `lint` or `docgen` task, so V2T conformance must be evidenced through the repo-law commands above
 - `@beep/infra` is a live package with package-local `check`, `test`, and `lint` scripts, so installer-surface work must keep those commands truthful in both code and docs
 - `@beep/v2t` is the live app package name even though the folder is
   `apps/V2T`, so re-check filter casing from the manifest before editing the
@@ -131,22 +131,22 @@ Important note:
 
 ### Implemented Surfaces
 
-- `packages/VT2/src/domain.ts`, `protocol.ts`, `client.ts`, and `services.ts`
+- `packages/v2t-sidecar/src/domain.ts`, `protocol.ts`, `client.ts`, and `services.ts`
   - added schema-first memory-context, composition-run, and export-request contracts, kept provider seams explicit, and moved the default transcript seam to the local provider path
-- `packages/VT2/src/Server/index.ts`
+- `packages/v2t-sidecar/src/Server/index.ts`
   - added sqlite-backed session mutations for native capture start, capture completion, interruption-driven recovery candidates, recover or discard resolution, memory-context packet persistence, composition-run persistence, local export artifact materialization, and a local Whisper transcript adapter that promotes sessions into `transcribing`, `review-ready`, or `failed`
 - `apps/V2T/src-tauri/src/lib.rs`
   - added managed native capture state, Linux microphone capture via `ffmpeg`, durable draft artifact writes under the app data directory, native commands for start or stop or interrupt capture plus recover or discard, and the typed `v2t://capture-state-changed` event
 - `apps/V2T/src/native.ts` and `apps/V2T/src/components/workspace-shell.tsx`
   - added typed capture-state schemas, native bridge helpers, event subscription, direct-capture controls, recovery actions, composition-run triggers, and workspace views for memory packets, run history, and export artifacts
-- `apps/V2T/src/native.test.ts` and `packages/VT2/test/VT2Contracts.test.ts`
-  - added coverage for the native capture payload contract plus the new VT2 composition, memory-context, export-oriented control-plane inputs, and the local transcript-provider default
+- `apps/V2T/src/native.test.ts` and `packages/v2t-sidecar/test/V2TContracts.test.ts`
+  - added coverage for the native capture payload contract plus the new V2T composition, memory-context, export-oriented control-plane inputs, and the local transcript-provider default
 
 ### Commands Run
 
-- `passed` `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `passed` `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `passed` `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `passed` `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `passed` `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
 - `passed` `bun run --cwd apps/V2T lint`
 - `passed` `bun run --cwd infra lint`
 - `passed` `bun run lint:jsdoc`
@@ -159,7 +159,7 @@ Important note:
 - `passed` `bun run lint`
   - the final readiness pass required a verification-driven cleanup: add `cspell` hints for the embedded Whisper script and provider error reason, then remove generated `apps/V2T/src-tauri/target` outputs before rerunning `typos`
 - `passed` `bun run test`
-- `passed` `git diff --check -- apps/V2T packages/VT2 standards/schema-first.inventory.jsonc`
+- `passed` `git diff --check -- apps/V2T packages/v2t-sidecar standards/schema-first.inventory.jsonc`
 - `passed (prior local execution wave)` `cargo check --manifest-path apps/V2T/src-tauri/Cargo.toml`
 - `passed (prior local execution wave)` `bun run --cwd apps/V2T build:sidecar`
 - `passed (prior local execution wave)` `bun run --cwd apps/V2T build:native`
@@ -170,26 +170,26 @@ Important note:
 
 ### Graphiti And Repo-Truth Notes
 
-- Graphiti recall attempted with query `V2T VT2 native tauri capture recovery sidecar next phase`
+- Graphiti recall attempted with query `V2T V2T native tauri capture recovery sidecar next phase`
 - Graphiti recall failed with `Error searching facts: RediSearch: Syntax error at offset 16 near beep`
-- fallback used: repo-local skill guidance, live code inspection, and the current VT2 and V2T package seams
+- fallback used: repo-local skill guidance, live code inspection, and the current V2T and V2T package seams
 - durable writeback should summarize the native capture lifecycle slice, the local Whisper transcript integration, the verification-driven lint cleanup, and the remaining provider/runtime caveats
 
 ### Conformance Evidence
 
 - The native shell remains the owner of raw direct-capture control, draft artifact durability, interruption discovery, and recover or discard actions.
-- The VT2 sidecar remains the owner of canonical session metadata and downstream artifact indexing after intake.
+- The V2T sidecar remains the owner of canonical session metadata and downstream artifact indexing after intake.
 - Record and import still share the same session and artifact pipeline; capture-specific controls are only exposed for record sessions.
 - The first-slice desktop topology remains one main workspace window with native dialogs and no extra always-on review window.
-- The transcript seam now defaults to the local provider path and is implemented behind the VT2 transcript adapter boundary rather than synthesized from capture metadata.
-- Memory-context packets, composition runs, and export artifact records are now persisted by the VT2 sidecar instead of remaining UI-only placeholders.
-- Local export files are materialized under the selected session workspace or the VT2 app-data export directory while staying behind explicit memory, composition, and export service seams.
-- Exported VT2 contracts remain schema-first and docgen-clean, and the existing service-boundary interfaces in `packages/VT2` remain tracked as schema-first inventory exceptions instead of unregistered findings.
+- The transcript seam now defaults to the local provider path and is implemented behind the V2T transcript adapter boundary rather than synthesized from capture metadata.
+- Memory-context packets, composition runs, and export artifact records are now persisted by the V2T sidecar instead of remaining UI-only placeholders.
+- Local export files are materialized under the selected session workspace or the V2T app-data export directory while staying behind explicit memory, composition, and export service seams.
+- Exported V2T contracts remain schema-first and docgen-clean, and the existing service-boundary interfaces in `packages/v2t-sidecar` remain tracked as schema-first inventory exceptions instead of unregistered findings.
 
 ### Deviations From Plan
 
 - Verification surfaced two non-behavioral readiness blockers after the implementation landed: `cspell` misses from the embedded Whisper script and provider-reason literal, and `typos` noise from generated Rust `target/` artifacts after a native-build wave. Both were addressed before the final readiness rerun.
-- Repo-wide `lint:effect-laws` and `lint:jsdoc` both passed with existing warning-only findings outside the touched VT2/V2T slice; those warnings were not introduced by this work.
+- Repo-wide `lint:effect-laws` and `lint:jsdoc` both passed with existing warning-only findings outside the touched V2T/V2T slice; those warnings were not introduced by this work.
 
 ### Residual Risks
 

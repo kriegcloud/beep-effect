@@ -28,7 +28,6 @@
     "test": "bunx --bun vitest run"
   },
   "dependencies": {
-    "@beep/VT2": "workspace:^",
     "@beep/editor-client": "workspace:^",
     "@beep/editor-lexical": "workspace:^",
     "@beep/editor-protocol": "workspace:^",
@@ -36,6 +35,7 @@
     "@beep/schema": "workspace:^",
     "@beep/ui": "workspace:^",
     "@beep/utils": "workspace:^",
+    "@beep/v2t-sidecar": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@mui/material": "catalog:",
     "@mui/material-pigment-css": "catalog:",

@@ -65,7 +65,7 @@ class BunGlobMutationError extends TaggedErrorClass<BunGlobMutationError>("BunGl
 const toGlobMutationError =
   (action: string) =>
   (cause: unknown): BunGlobMutationError =>
-    BunGlobMutationError.new({
+    new BunGlobMutationError({
       action,
       cause: cause instanceof Error ? cause : new Error(`Failed to ${action} Bun.Glob`),
     });

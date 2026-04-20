@@ -44,8 +44,8 @@ P4 verification must explicitly reference:
 - `tooling/configs/src/eslint/SchemaFirstRule.ts`
 - `infra/package.json`
 - root `package.json`, root `turbo.json`, `apps/V2T/package.json`,
-  `apps/V2T/turbo.json`, `packages/VT2/package.json`, and
-  `packages/VT2/turbo.json` for live workspace package names, task
+  `apps/V2T/turbo.json`, `packages/v2t-sidecar/package.json`, and
+  `packages/v2t-sidecar/turbo.json` for live workspace package names, task
   availability, and command-truth checks
 
 ## Evidence Recording Rules
@@ -64,9 +64,9 @@ P4 verification must explicitly reference:
 
 ### Targeted Implementation Floor
 
-- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
 - `bun run --cwd apps/V2T lint`
 - `bun run --cwd infra lint`
 
@@ -95,7 +95,7 @@ P4 verification must explicitly reference:
 
 Important note:
 
-- `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be evidenced through the repo-law commands above
+- `@beep/v2t-sidecar` has no package-local `lint` or `docgen` task, so V2T conformance must be evidenced through the repo-law commands above
 - `@beep/infra` is a live package with package-local `check`, `test`, and `lint` scripts, so installer-surface work must record its targeted evidence instead of treating infra as future scope
 - run broader commands whenever the implementation changes shared or managed surfaces, and do not mark readiness until the appropriate broader gate is recorded
 - `@beep/v2t` is the live app package name even though the folder is
@@ -138,7 +138,7 @@ Important note:
 - review screen shows transcript plus enrichment or memory packet status
 - composition profile changes persist and can be reopened
 - composition run creation produces a tracked packet or job record
-- the app-to-sidecar interaction is carried by the current `@beep/VT2` control plane or an explicitly documented migration
+- the app-to-sidecar interaction is carried by the current `@beep/v2t-sidecar` control plane or an explicitly documented migration
 
 ### Export Tracking
 
@@ -161,7 +161,7 @@ Important note:
 - recovery or failure-path evidence for interrupted capture, backpressure, or sidecar lifecycle when those behaviors are part of the implemented slice
 - delegation audit notes when read-only reviewers were used
 - known gaps and the exact reason they remain deferred
-- whether the implementation extended `packages/VT2` or intentionally migrated away from it
+- whether the implementation extended `packages/v2t-sidecar` or intentionally migrated away from it
 - which conformance sources were applied and whether any repo-law waivers or exceptions were needed
 - the exact Graphiti recall query, exact error text when recall failed,
   whether `get_episodes` fallback was attempted and what it returned, fallback
@@ -191,16 +191,16 @@ P4 can only claim readiness when:
 
 - Graphiti recall attempted with query `V2T current implementation status next phase after local whisper transcript provider and native build verification`
 - Graphiti recall failed with `Error searching facts: RediSearch: Syntax error at offset 16 near beep`
-- fallback used: repo-local docs, the live V2T and VT2 package seams, and the current execution record
+- fallback used: repo-local docs, the live V2T and V2T package seams, and the current execution record
 - session-end writeback should summarize the spec reconciliation, the final gate results, the local Whisper verification outcome, and the generated-artifact lint caveat
 
 ### Automated Results
 
 #### Targeted Implementation Floor
 
-- `passed` `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `passed` `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `passed` `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `passed` `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `passed` `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `passed` `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
 - `passed` `bun run --cwd apps/V2T lint`
 - `passed` `bun run --cwd infra lint`
 
@@ -223,7 +223,7 @@ P4 can only claim readiness when:
 - `passed` `bun run lint`
   - first rerun failed on `cspell` because the new embedded Whisper script contained `nargs` and `isinstance` and the provider-reason literal used `unconfigured`
   - second rerun failed on `typos` because generated Rust build artifacts under `apps/V2T/src-tauri/target` were included in the scan after an earlier native-build verification wave
-  - final rerun passed after adding scoped `cspell` ignores in `packages/VT2/src/Server/index.ts` and `packages/VT2/src/services.ts`, then removing the generated `target/` directory before rerunning the gate
+  - final rerun passed after adding scoped `cspell` ignores in `packages/v2t-sidecar/src/Server/index.ts` and `packages/v2t-sidecar/src/services.ts`, then removing the generated `target/` directory before rerunning the gate
 - `passed` `bun run test`
 - `passed` `bun run docgen`
 
@@ -236,7 +236,7 @@ P4 can only claim readiness when:
 ### Resilience Evidence Minimum
 
 - `passed` automated typed native-bridge coverage through `bun run --cwd apps/V2T test`, including `apps/V2T/src/native.test.ts`, which decodes the managed capture payload emitted by the native shell
-- `passed` automated capture-contract coverage through `bun run --cwd packages/VT2 test`, including `packages/VT2/test/VT2Contracts.test.ts`, which validates interrupted capture payloads and explicit recovery resolution
+- `passed` automated capture-contract coverage through `bun run --cwd packages/v2t-sidecar test`, including `packages/v2t-sidecar/test/V2TContracts.test.ts`, which validates interrupted capture payloads and explicit recovery resolution
 - `passed` manual typed failure-path evidence:
   - calling `POST /api/v0/sessions/:sessionId/capture/complete` before capture start returned `400` with `Session "<id>" is not currently capturing.`
 
@@ -245,7 +245,7 @@ P4 can only claim readiness when:
 #### Workspace Boot
 
 - `partially exercised`
-  - the source-run VT2 sidecar booted healthy on `http://127.0.0.1:43522` with bootstrap payload `{ "status": "healthy", "version": "0.0.0" }`
+  - the source-run V2T sidecar booted healthy on `http://127.0.0.1:43522` with bootstrap payload `{ "status": "healthy", "version": "0.0.0" }`
   - the React shell was not re-driven manually in this P4 wave, but `bun run --cwd apps/V2T test` still confirmed the workspace shell renders and the native bridge contract test passed
 
 #### Capture And Session Creation
@@ -268,7 +268,7 @@ P4 can only claim readiness when:
 #### Review And Composition
 
 - `partially exercised`
-  - session resources included transcript state, composition profiles, memory-context packet arrays, run arrays, and export arrays on the current `@beep/VT2` control plane
+  - session resources included transcript state, composition profiles, memory-context packet arrays, run arrays, and export arrays on the current `@beep/v2t-sidecar` control plane
   - composition-run creation and reopening were not manually re-run in this P4 wave
 
 #### Export Tracking
@@ -295,7 +295,7 @@ P4 can only claim readiness when:
 - `ready for first-slice spec closure`
   - the targeted implementation floor passed
   - the broader readiness gates passed after resolving verification-discovered non-behavioral blockers
-  - manual evidence confirmed the VT2 session pipeline reaches `review-ready` with a real local transcript result
+  - manual evidence confirmed the V2T session pipeline reaches `review-ready` with a real local transcript result
   - deferred scope is explicit and does not contradict the canonical first-slice workflow
 
 ## Stop Conditions

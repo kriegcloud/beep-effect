@@ -35,8 +35,8 @@ Rules that apply in every phase:
 - keep all sub-agent scopes bounded; the active phase session remains the orchestrator
 - require every delegated worker to return the `specs/pending/V2T/prompts/SUBAGENT_OUTPUT_CONTRACT.md` format
 - preserve the raw PRD and legacy notes under `outputs/`
-- treat `apps/V2T` and `packages/VT2` as the current shell-and-sidecar pair and `@beep/infra` as the current workstation/deployment seam unless a phase artifact explicitly documents a migration
-- do not invent an app-local server path if the existing `@beep/VT2` control plane can carry the slice
+- treat `apps/V2T` and `packages/v2t-sidecar` as the current shell-and-sidecar pair and `@beep/infra` as the current workstation/deployment seam unless a phase artifact explicitly documents a migration
+- do not invent an app-local server path if the existing `@beep/v2t-sidecar` control plane can carry the slice
 - keep provider logic behind explicit adapters
 - summarize verification and residual risk in the active phase artifact
 - do not claim a quality gate passed unless the concrete command result is recorded in the active phase artifact
@@ -53,9 +53,9 @@ If the active phase edits the canonical spec package itself:
 
 If the active phase is `p3` or `p4`:
 - run:
-  - `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-  - `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-  - `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+  - `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+  - `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+  - `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
   - `bun run --cwd apps/V2T lint`
   - `bun run --cwd infra lint`
   - `bun run lint:effect-laws`
@@ -66,7 +66,7 @@ If the active phase is `p3` or `p4`:
 - record `bun run docgen` as `not applicable` in readiness evidence when exported APIs or JSDoc examples did not change
 - remember that the live app workspace package name is `@beep/v2t`, not `@beep/V2T`
 - remember that the live workstation/deployment workspace package name is `@beep/infra`
-- remember that `@beep/VT2` has no package-local `lint` or `docgen` task
+- remember that `@beep/v2t-sidecar` has no package-local `lint` or `docgen` task
 - use `bun run --cwd apps/V2T lint` for the default targeted app lint gate
 - use `bun run --cwd infra lint` for the default targeted infra lint gate when the slice touches installer or deployment surfaces
 - do not replace that default with `turbo run lint --filter=@beep/v2t`

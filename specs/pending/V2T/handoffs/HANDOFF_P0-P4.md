@@ -37,12 +37,12 @@ instead of treating this section as a second ordered source:
 - `../../../../tooling/configs/src/eslint/SchemaFirstRule.ts`
 - `../../../../infra/package.json`
 - `../../../../apps/V2T/package.json`
-- `../../../../packages/VT2/package.json`
+- `../../../../packages/v2t-sidecar/package.json`
 - `../prompts/ORCHESTRATOR_OPERATING_MODEL.md`
 - `../prompts/GRAPHITI_MEMORY_PROTOCOL.md`
 - `../prompts/PHASE_DELEGATION_PROMPTS.md`
 - the current phase output
-- the relevant repo seams in `apps/V2T`, `packages/VT2`, and `infra` when installer or deployment truth matters
+- the relevant repo seams in `apps/V2T`, `packages/v2t-sidecar`, and `infra` when installer or deployment truth matters
 - preserved raw inputs under `outputs/` only when deeper evidence is needed
 - the current phase handoff and matching phase orchestrator prompt
 
@@ -63,10 +63,10 @@ them from prose.
 ## Constraints
 
 - Preserve the exact root-level phase artifact names already locked in the package.
-- Use the current `apps/V2T` plus `packages/VT2` shell-and-sidecar pair unless a phase artifact explicitly documents a migration.
+- Use the current `apps/V2T` plus `packages/v2t-sidecar` shell-and-sidecar pair unless a phase artifact explicitly documents a migration.
 - Verify workspace identity from the manifests before writing Turbo filter
-  commands. The current names are `@beep/infra`, `@beep/v2t`, and `@beep/VT2`.
-- Do not invent an app-local server path when the existing `@beep/VT2` control plane can carry the slice.
+  commands. The current names are `@beep/infra`, `@beep/v2t`, and `@beep/v2t-sidecar`.
+- Do not invent an app-local server path when the existing `@beep/v2t-sidecar` control plane can carry the slice.
 - Treat the first slice as already locked around one authoritative typed desktop bridge derived from the Rust command and event surface, a native-shell plus sidecar capture split, record or import parity, and one main workspace window plus native dialogs and at most one focused capture or recovery surface.
 - Preserve the raw PRD and legacy notes under `outputs/`.
 - Enforce the conformance matrix from `README.md`; do not claim a gate passed without recording the concrete command result.

@@ -36,7 +36,7 @@ class UnsupportedFloat16ArrayRuntimeError extends TaggedErrorClass<UnsupportedFl
 ) {}
 
 const unsupportedFloat16ArrayRuntime = (): never => {
-  throw UnsupportedFloat16ArrayRuntimeError.new({
+  throw new UnsupportedFloat16ArrayRuntimeError({
     message: unsupportedFloat16ArrayRuntimeMessage,
   });
 };

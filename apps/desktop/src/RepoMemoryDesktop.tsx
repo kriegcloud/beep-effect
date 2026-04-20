@@ -722,7 +722,7 @@ export function RepoMemoryDesktop() {
       }
 
       if (nextBootstrap === null) {
-        throw MissingManagedSidecarBootstrapError.new({
+        throw new MissingManagedSidecarBootstrapError({
           message: "Managed sidecar did not report a bootstrap payload.",
         });
       }

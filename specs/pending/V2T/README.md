@@ -74,7 +74,7 @@
 2. Read [outputs/manifest.json](./outputs/manifest.json) first, then follow `fresh_session_read_order`. The shorter startup lists elsewhere in this package are summaries, not competing ordered sources.
 3. When `fresh_session_read_order` reaches [prompts/GRAPHITI_MEMORY_PROTOCOL.md](./prompts/GRAPHITI_MEMORY_PROTOCOL.md), run the Graphiti preflight or fallback exactly as documented there.
 4. Trust `active_phase` plus `active_phase_assets` and read only the active phase handoff, active phase orchestrator prompt, and prior phase artifacts that constrain the active phase.
-5. When command or task claims matter, confirm them against the live `package.json` and `turbo.json` files for the root, `apps/V2T`, and `packages/VT2`, plus `infra/package.json` for installer and deployment surfaces.
+5. When command or task claims matter, confirm them against the live `package.json` and `turbo.json` files for the root, `apps/V2T`, and `packages/v2t-sidecar`, plus `infra/package.json` for installer and deployment surfaces.
 6. Execute only the active phase as the orchestrator.
 7. Update the active phase artifact, [outputs/manifest.json](./outputs/manifest.json), and the package logs touched by the change before exiting.
 8. Write the Graphiti session-end summary before ending the session whenever the phase produced durable repo truth, architecture decisions, reusable failures, or meaningful in-progress status.
@@ -113,7 +113,7 @@ The first slice is already constrained enough to be treated as a concrete deskto
 The canonical spec is grounded in current repo anchors:
 
 - `apps/V2T` already exists as the app workspace and now provides the first-slice workspace shell
-- `packages/VT2` already exists as the SQLite-backed Effect sidecar package, with a control-plane protocol in `packages/VT2/src/protocol.ts` and runtime wiring in `packages/VT2/src/Server/index.ts`
+- `packages/v2t-sidecar` already exists as the SQLite-backed Effect sidecar package, with a control-plane protocol in `packages/v2t-sidecar/src/protocol.ts` and runtime wiring in `packages/v2t-sidecar/src/Server/index.ts`
 - `packages/common/ui/src/components/speech-input.tsx` already provides a reusable speech/transcript UI primitive
 - root Graphiti tooling and proxy commands already exist for memory infrastructure
 - `apps/V2T/vite.config.ts` already defines a local sidecar proxy seam for `/api`
@@ -157,7 +157,7 @@ Every phase in this package must treat these as required inputs, not optional re
 - [../../../standards/effect-first-development.md](../../../standards/effect-first-development.md)
 - [../../../standards/schema-first.inventory.jsonc](../../../standards/schema-first.inventory.jsonc)
 - [../../../tooling/configs/src/eslint/SchemaFirstRule.ts](../../../tooling/configs/src/eslint/SchemaFirstRule.ts)
-- root `package.json`, root `turbo.json`, `infra/package.json`, and the workspace `package.json` / `turbo.json` files for `apps/V2T` and `packages/VT2` whenever commands, ownership, task gates, or installer/deployment surfaces are discussed
+- root `package.json`, root `turbo.json`, `infra/package.json`, and the workspace `package.json` / `turbo.json` files for `apps/V2T` and `packages/v2t-sidecar` whenever commands, ownership, task gates, or installer/deployment surfaces are discussed
 
 If these sources disagree, the tie-break order is:
 
@@ -170,10 +170,10 @@ If these sources disagree, the tie-break order is:
 ## Workspace Identity And Command Truth
 
 - `apps/V2T/package.json` is the authoritative source for the app workspace identity, and its current package name is `@beep/v2t`.
-- `packages/VT2/package.json` is the authoritative source for the sidecar workspace identity, and its current package name is `@beep/VT2`.
+- `packages/v2t-sidecar/package.json` is the authoritative source for the sidecar workspace identity, and its current package name is `@beep/v2t-sidecar`.
 - `infra/package.json` is the authoritative source for the workstation/deployment workspace identity, and its current package name is `@beep/infra`.
 - `@beep/infra` does not currently have a workspace-local `turbo.json`, so command truth for infra comes from `infra/package.json` plus the root `turbo.json`.
-- Directory names are not authoritative for Turbo filter casing. Never infer a package filter from `apps/V2T` or `packages/VT2` alone.
+- Directory names are not authoritative for Turbo filter casing. Never infer a package filter from `apps/V2T` or `packages/v2t-sidecar` alone.
 - When adding or changing command examples, verify the package names from the live manifests first. If command truth is uncertain, confirm with a dry run such as `bunx turbo run check --filter=@beep/v2t --dry=json`.
 - `outputs/manifest.json` must mirror the live package names and command-truth files. If the workspace manifests change, repair the manifest and rerun the validator in the same pass.
 - The validator also treats the root, infra, app, and sidecar script surfaces as live command truth via root `package.json`, root `turbo.json`, `infra/package.json`, and the app/sidecar manifests. If a documented gate depends on a missing script, fix the docs or manifest rather than weakening the validator.
@@ -224,9 +224,9 @@ Important limitation:
 
 When the active phase is planning, execution, or verification for real code changes, the minimum targeted command floor is:
 
-- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
 - `bun run --cwd apps/V2T lint`
 - `bun run --cwd infra lint`
 - `bun run lint:effect-laws`
@@ -240,9 +240,9 @@ Additional gate:
 
 Important limitation:
 
-- `@beep/VT2` does not currently define a package-local `lint` or `docgen` task, so VT2 conformance must be enforced through the repo-level law commands above rather than a nonexistent package script
+- `@beep/v2t-sidecar` does not currently define a package-local `lint` or `docgen` task, so V2T conformance must be enforced through the repo-level law commands above rather than a nonexistent package script
 - `@beep/infra` is a live workspace with package-local `check`, `test`, `lint`, and Pulumi operator scripts; do not describe it as future work or infer its commands from app or sidecar patterns
-- `@beep/v2t` and `@beep/VT2` must be copied from the live package manifests, not reconstructed from folder casing or stale scripts
+- `@beep/v2t` and `@beep/v2t-sidecar` must be copied from the live package manifests, not reconstructed from folder casing or stale scripts
 - `turbo run lint --filter=@beep/v2t` is not a safe substitute for the app-local lint gate because the filtered Turbo run is dependency-expanded and therefore not equivalent to targeted app-only lint evidence
 
 ### Readiness Gate
@@ -279,7 +279,7 @@ When exported APIs or JSDoc examples did not change, record `bun run docgen` as 
 - Run a read-only review wave before phase closeout, and do not close the phase while substantive findings remain unresolved.
 - Use `grill-me` during P0 whenever meaningful ambiguity remains, and append the result to [outputs/grill-log.md](./outputs/grill-log.md).
 - Keep provider-specific logic behind explicit adapters and service seams.
-- Treat `apps/V2T` plus `packages/VT2` as the current runtime pair, and treat `@beep/infra` as the current canonical workstation-install and deployment surface unless a later phase explicitly documents a migration.
+- Treat `apps/V2T` plus `packages/v2t-sidecar` as the current runtime pair, and treat `@beep/infra` as the current canonical workstation-install and deployment surface unless a later phase explicitly documents a migration.
 - Default the first execution slice to a repo-grounded vertical slice: typed-native-bridge desktop workflow, hybrid native-shell plus sidecar capture ownership, resilient capture or import parity, transcript plus session review, durable desktop defaults, memory-enriched composition packets, and export orchestration seams.
 - Treat the first-slice desktop bridge as one authoritative contract derived from the native Rust command and event surface rather than a hand-waved preference or scattered app-local calls.
 - Keep the first-slice desktop topology explicit: one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace unless a later phase deliberately expands scope.
@@ -312,7 +312,7 @@ These package-shape decisions are already settled and logged in [outputs/grill-l
 ### In Scope
 
 - the canonical V2T app shell under `apps/V2T`
-- the existing V2T sidecar control plane under `packages/VT2`
+- the existing V2T sidecar control plane under `packages/v2t-sidecar`
 - the live workstation-install and deployment surfaces under `infra`
 - local-first capture, transcript, session review, memory retrieval, composition configuration, and export orchestration seams
 - typed domain models, provider adapters, and sidecar service boundaries
@@ -323,7 +323,7 @@ These package-shape decisions are already settled and logged in [outputs/grill-l
 - immediate multi-user collaboration
 - unattended social publishing
 - claiming final provider choices are production-ready without phase evidence
-- renaming `@beep/VT2` as part of this bootstrap repair pass
+- renaming `@beep/v2t-sidecar` as part of this bootstrap repair pass
 - inventing new repo-wide governance beyond what this package needs
 
 ## Success Criteria
@@ -332,8 +332,8 @@ This spec package is complete only when all of these statements are true:
 
 - a fresh Codex session can resume from [QUICK_START.md](./QUICK_START.md) and the active handoff without inventing package structure
 - a fresh Codex session can tell that the active phase session is the orchestrator and can reach the delegation kit without guessing
-- the five phase artifacts stay aligned with current repo seams in `apps/V2T`, `packages/VT2`, and `infra`
-- the command examples stay aligned with the live workspace package names `@beep/v2t`, `@beep/VT2`, and `@beep/infra`
+- the five phase artifacts stay aligned with current repo seams in `apps/V2T`, `packages/v2t-sidecar`, and `infra`
+- the command examples stay aligned with the live workspace package names `@beep/v2t`, `@beep/v2t-sidecar`, and `@beep/infra`
 - the mandatory conformance inputs are referenced explicitly in the active phase artifact whenever they constrain the work
 - external provider boundaries are explicit enough to swap mocks, stubs, or real integrations without reopening the whole design
 - the execution phase can be carried out from [PLANNING.md](./PLANNING.md) without hidden decisions

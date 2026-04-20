@@ -223,9 +223,11 @@ const matchDocumentBlock: {
  * @since 0.0.0
  * @category DomainModel
  */
-export const DocumentBlock = Object.assign(DocumentBlockSchema, {
-  match: matchDocumentBlock,
-});
+export const DocumentBlock = DocumentBlockSchema.pipe(
+  SchemaUtils.withStatics(() => ({
+    match: matchDocumentBlock,
+  }))
+);
 /**
  * @since 0.0.0
  * @category DomainModel

@@ -1,0 +1,1 @@
+Read `handoffs/HANDOFF_P4.md`, `PLANNING.md`, `EXECUTION.md`, `outputs/legacy-surface-inventory.md`, `outputs/removal-matrix.md`, and `outputs/dependency-cut-map.md`. Verify the chosen path and write or refine `VERIFICATION.md`.

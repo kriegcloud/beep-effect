@@ -63,7 +63,7 @@
 - [outputs/v2t_app_notes.html](./outputs/v2t_app_notes.html)
 - [outputs/V2_animination_V2T.md](./outputs/V2_animination_V2T.md)
 - `apps/V2T`
-- `packages/VT2`
+- `packages/v2t-sidecar`
 - `infra/Pulumi.yaml`
 - `infra/src/internal/entry.ts`
 - `infra/src/V2T.ts`
@@ -87,7 +87,7 @@ Unless a stronger user instruction overrides it, the package assumes the first i
 - produce export-ready composition packets and artifact records
 - keep the desktop topology to one main workspace window, native file dialogs, and at most one focused capture or recovery surface; settings and review stay in the main workspace for the first slice
 - record at least one automated recovery, interruption, backpressure, or typed native bridge path before a capture-enabled slice can claim readiness
-- do so by extending the current `@beep/VT2` control plane instead of inventing a second app-local server
+- do so by extending the current `@beep/v2t-sidecar` control plane instead of inventing a second app-local server
 
 ## Conformance Gate Summary
 
@@ -102,9 +102,9 @@ If the validator says a documented gate lacks a live backing script, treat the w
 
 ### When Planning Or Implementing Code
 
-- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/VT2`
-- `bunx turbo run build --filter=@beep/v2t --filter=@beep/VT2`
+- `bunx turbo run check --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run test --filter=@beep/infra --filter=@beep/v2t --filter=@beep/v2t-sidecar`
+- `bunx turbo run build --filter=@beep/v2t --filter=@beep/v2t-sidecar`
 - `bun run --cwd apps/V2T lint`
 - `bun run --cwd infra lint`
 - `bun run lint:effect-laws`
@@ -121,7 +121,7 @@ Important notes:
   app filter
 - the live workstation/deployment workspace package name is `@beep/infra`, and
   its operator commands come from `infra/package.json`
-- `@beep/VT2` has no package-local `lint` or `docgen` task, so VT2 conformance must be proven through the repo-law commands above
+- `@beep/v2t-sidecar` has no package-local `lint` or `docgen` task, so V2T conformance must be proven through the repo-law commands above
 - use `bun run --cwd apps/V2T lint` for the targeted app lint gate
 - use `bun run --cwd infra lint` for the targeted infra lint gate when the
   slice touches installer or deployment code

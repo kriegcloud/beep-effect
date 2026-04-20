@@ -161,7 +161,7 @@ for (const type of Struct.keys(mimes)) {
 
   mimeTypeDefinitions[type] = {
     source: mime.source,
-    extensions: Array.from(mime.extensions),
+    extensions: A.fromIterable(mime.extensions),
   };
 }
 
@@ -328,7 +328,7 @@ function populateTypeMappings(
   extensions: Record<MimeType, FileExtension[]>,
   types: Record<FileExtension, MimeType>
 ) {
-  extensions[type] = Array.from(exts);
+  extensions[type] = A.fromIterable(exts);
 
   for (const extension of exts) {
     setTypeMapping(type, extension, mimeSource, types);

@@ -22,9 +22,6 @@
       "path": "infra"
     },
     {
-      "path": "packages/VT2"
-    },
-    {
       "path": "packages/_internal/db-admin"
     },
     {
@@ -38,6 +35,9 @@
     },
     {
       "path": "packages/common/identity"
+    },
+    {
+      "path": "packages/common/knowledge-graph"
     },
     {
       "path": "packages/common/messages"
@@ -116,6 +116,9 @@
     },
     {
       "path": "packages/shared/ui"
+    },
+    {
+      "path": "packages/v2t-sidecar"
     },
     {
       "path": "tooling/cli"

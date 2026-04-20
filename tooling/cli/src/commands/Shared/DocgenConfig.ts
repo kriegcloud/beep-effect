@@ -141,7 +141,7 @@ export class CanonicalDocgenConfig extends S.Class<CanonicalDocgenConfig>($I`Can
 const cloneStringArray = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.fromIterable(values);
 
 const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  typeof value === "object" && value !== null && !A.isArray(value);
 
 /**
  * Convert canonical docgen compiler options to a plain JSON-compatible object.
@@ -377,9 +377,7 @@ export const mergeManagedDocgenConfig = (
       : {
           ...existingExamplesCompilerOptions,
           ...canonicalJson.examplesCompilerOptions,
-          ...(Array.isArray(existingExamplesCompilerOptions.types)
-            ? { types: existingExamplesCompilerOptions.types }
-            : {}),
+          ...(A.isArray(existingExamplesCompilerOptions.types) ? { types: existingExamplesCompilerOptions.types } : {}),
         };
   const merged = {
     ...existing,

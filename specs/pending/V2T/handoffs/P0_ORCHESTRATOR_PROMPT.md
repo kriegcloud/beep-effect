@@ -1,7 +1,7 @@
 You are the P0 orchestrator.
 
 Read `handoffs/HANDOFF_P0.md`, the preserved PRD inputs, `apps/V2T`,
-`packages/VT2`, the live infra seams under `infra/`, `apps/V2T/scripts/build-sidecar.ts`,
+`packages/v2t-sidecar`, the live infra seams under `infra/`, `apps/V2T/scripts/build-sidecar.ts`,
 the shared speech-input plus Graphiti seams, the root plus workspace `package.json` and `turbo.json`
 files when command, ownership, or package-identity claims matter, plus `infra/package.json`
 when installer or deployment claims matter, the repo-law inputs named in `README.md`,

@@ -23,10 +23,12 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
-import { Cause, Exit } from "effect";
+import { Cause, Exit, flow, Match, Number as N, pipe, Struct } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 
 const $I = $ObservabilityId.create("CauseDiagnostics");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
@@ -131,21 +133,37 @@ export class CauseFingerprint extends S.Class<CauseFingerprint>($I`CauseFingerpr
  * @since 0.0.0
  * @category models
  */
-export class CauseSummary extends S.Class<CauseSummary>($I`CauseSummary`)(
-  {
-    classification: CauseClassification,
-    fingerprint: CauseFingerprint,
-    reasonCount: NonNegativeInt,
-    errorCount: NonNegativeInt,
-    defectCount: NonNegativeInt,
-    interruptCount: NonNegativeInt,
-    primaryMessage: S.String,
-    pretty: S.String,
-  },
-  $I.annote("CauseSummary", {
+const CauseSummaryFields = {
+  fingerprint: CauseFingerprint,
+  reasonCount: NonNegativeInt,
+  errorCount: NonNegativeInt,
+  defectCount: NonNegativeInt,
+  interruptCount: NonNegativeInt,
+  primaryMessage: S.String,
+  pretty: S.String,
+};
+
+const CauseSummaryTagged = CauseClassification.toTaggedUnion("classification")({
+  empty: CauseSummaryFields,
+  failure: CauseSummaryFields,
+  defect: CauseSummaryFields,
+  interrupted: CauseSummaryFields,
+  mixed: CauseSummaryFields,
+});
+
+const CauseSummary = CauseSummaryTagged.pipe(
+  $I.annoteSchema("CauseSummary", {
     description: "Summary information for a full Effect cause.",
   })
-) {}
+);
+
+/**
+ * Type of {@link CauseSummary}
+ *
+ * @category Utility
+ * @since 0.0.0
+ */
+export type CauseSummary = typeof CauseSummary.Type;
 
 /**
  * Transport-safe summary of an exit with outcome, classification, and fingerprint.
@@ -166,74 +184,174 @@ export class CauseSummary extends S.Class<CauseSummary>($I`CauseSummary`)(
  * @since 0.0.0
  * @category models
  */
-export class ObservedExitSummary extends S.Class<ObservedExitSummary>($I`ObservedExitSummary`)(
-  {
+const ObservedExitSummaryFields = {
+  fingerprint: CauseFingerprint,
+  interrupted: S.Boolean,
+  reasonCount: NonNegativeInt,
+  primaryMessage: S.String,
+};
+
+const ObservedExitSummaryTagged = CauseClassification.toTaggedUnion("classification")({
+  empty: {
     outcome: ExitOutcome,
-    classification: CauseClassification,
-    fingerprint: CauseFingerprint,
-    interrupted: S.Boolean,
-    reasonCount: NonNegativeInt,
-    primaryMessage: S.String,
+    ...ObservedExitSummaryFields,
   },
-  $I.annote("ObservedExitSummary", {
+  failure: {
+    outcome: S.tag(ExitOutcome.Enum.failure),
+    ...ObservedExitSummaryFields,
+  },
+  defect: {
+    outcome: S.tag(ExitOutcome.Enum.failure),
+    ...ObservedExitSummaryFields,
+  },
+  interrupted: {
+    outcome: S.tag(ExitOutcome.Enum.failure),
+    ...ObservedExitSummaryFields,
+  },
+  mixed: {
+    outcome: S.tag(ExitOutcome.Enum.failure),
+    ...ObservedExitSummaryFields,
+  },
+});
+
+/**
+ * Summary of an observed Effect exit including outcome classification and cause analysis.
+ *
+ * @example
+ * ```typescript
+ * import { ObservedExitSummary } from "@beep/observability"
+ *
+ * void ObservedExitSummary
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export const ObservedExitSummary = ObservedExitSummaryTagged.pipe(
+  $I.annoteSchema("ObservedExitSummary", {
     description: "Summary information for an exit.",
   })
-) {}
+);
+
+/**
+ * Type of {@link ObservedExitSummary}
+ *
+ * @category Utility
+ * @since 0.0.0
+ */
+export type ObservedExitSummary = typeof ObservedExitSummary.Type;
+
+const pipeFirstPrettyError = flow(Cause.prettyErrors, A.head);
 
 const primaryMessageFromCause = (cause: Cause.Cause<unknown>): string =>
-  pipeFirstPrettyError(cause).pipe(
-    O.match({
-      onNone: () => Cause.pretty(cause),
-      onSome: (error) => error.message,
+  pipe(
+    cause,
+    pipeFirstPrettyError,
+    O.map(Struct.get("message")),
+    O.getOrElse(() => Cause.pretty(cause))
+  );
+
+const zeroReasonCounts = {
+  errorCount: 0,
+  defectCount: 0,
+  interruptCount: 0,
+  reasonCount: 0,
+};
+
+type ReasonCounts = typeof zeroReasonCounts;
+type CauseReason = Cause.Cause<unknown>["reasons"][number];
+
+const incrementFailCounts = (counts: ReasonCounts): ReasonCounts =>
+  pipe(
+    counts,
+    Struct.evolve({
+      errorCount: N.increment,
+      reasonCount: N.increment,
     })
   );
 
-const pipeFirstPrettyError = (cause: Cause.Cause<unknown>): O.Option<Error> => A.head(Cause.prettyErrors(cause));
+const incrementDefectCounts = (counts: ReasonCounts): ReasonCounts =>
+  pipe(
+    counts,
+    Struct.evolve({
+      defectCount: N.increment,
+      reasonCount: N.increment,
+    })
+  );
 
-const summarizeReasonCounts = (cause: Cause.Cause<unknown>) => {
-  let errorCount = 0;
-  let defectCount = 0;
-  let interruptCount = 0;
+const incrementInterruptCounts = (counts: ReasonCounts): ReasonCounts =>
+  pipe(
+    counts,
+    Struct.evolve({
+      interruptCount: N.increment,
+      reasonCount: N.increment,
+    })
+  );
 
-  for (const reason of cause.reasons) {
-    switch (reason._tag) {
-      case "Fail": {
-        errorCount += 1;
-        break;
-      }
-      case "Die": {
-        defectCount += 1;
-        break;
-      }
-      case "Interrupt": {
-        interruptCount += 1;
-        break;
-      }
-    }
-  }
+const summarizeReason = (counts: ReasonCounts, reason: CauseReason): ReasonCounts =>
+  Match.value(reason).pipe(
+    Match.withReturnType<ReasonCounts>(),
+    Match.tagsExhaustive({
+      Die: () => incrementDefectCounts(counts),
+      Fail: () => incrementFailCounts(counts),
+      Interrupt: () => incrementInterruptCounts(counts),
+    })
+  );
 
-  return {
-    errorCount,
-    defectCount,
-    interruptCount,
-    reasonCount: cause.reasons.length,
-  };
-};
+const summarizeReasonCounts = flow(
+  (cause: Cause.Cause<unknown>) => cause.reasons,
+  A.reduce(zeroReasonCounts, summarizeReason)
+);
 
-const fingerprintChunk = (value: string): string => value.trim().replaceAll(/\s+/g, " ").slice(0, 80).toLowerCase();
+const fingerprintChunk = flow(Str.trim, Str.replaceAll(/\s+/g, " "), Str.slice(0, 80), Str.toLowerCase);
 
-const fingerprintValue = (cause: Cause.Cause<unknown>, classification: CauseClassification): string => {
+const fingerprintValue: {
+  (cause: Cause.Cause<unknown>, classification: CauseClassification): string;
+  (classification: CauseClassification): (cause: Cause.Cause<unknown>) => string;
+} = dual(2, (cause: Cause.Cause<unknown>, classification: CauseClassification): string => {
   const prettyErrors = Cause.prettyErrors(cause);
-  const reasonTags = cause.reasons.map((reason) => reason._tag.toLowerCase()).join("+");
-  const primaryChunk = pipeFirstPrettyError(cause).pipe(
-    O.match({
-      onNone: () => fingerprintChunk(Cause.pretty(cause)),
-      onSome: (error) => fingerprintChunk(`${error.name}:${error.message}`),
-    })
+  const reasonTags = pipe(cause.reasons, A.map(flow(Struct.get("_tag"), Str.toLowerCase)), A.join("+"));
+  const primaryChunk = pipe(
+    cause,
+    pipeFirstPrettyError,
+    O.map(flow((error) => A.make(error.name, error.message), A.join(":"), fingerprintChunk)),
+    O.getOrElse(() => pipe(cause, Cause.pretty, fingerprintChunk))
   );
 
-  return `${classification}:${reasonTags}:${prettyErrors.length}:${primaryChunk}`;
-};
+  return pipe(A.make(classification, reasonTags, `${A.length(prettyErrors)}`, primaryChunk), A.join(":"));
+});
+
+const countPresentKinds = flow(
+  (counts: ReasonCounts) => A.make(counts.errorCount, counts.defectCount, counts.interruptCount),
+  A.filter(N.isGreaterThan(0)),
+  A.length
+);
+
+const classifyReasonCounts = flow(
+  O.liftPredicate<ReasonCounts>(flow(Struct.get("reasonCount"), N.isGreaterThan(0))),
+  O.flatMap((counts) =>
+    pipe(
+      countPresentKinds(counts),
+      O.liftPredicate(N.isGreaterThan(1)),
+      O.as(CauseClassification.Enum.mixed),
+      O.orElse(() =>
+        pipe(
+          A.make(
+            pipe(
+              counts.interruptCount,
+              O.liftPredicate(N.isGreaterThan(0)),
+              O.as(CauseClassification.Enum.interrupted)
+            ),
+            pipe(counts.defectCount, O.liftPredicate(N.isGreaterThan(0)), O.as(CauseClassification.Enum.defect))
+          ),
+          O.firstSomeOf,
+          O.orElseSome(CauseClassification.thunk.failure)
+        )
+      )
+    )
+  ),
+  O.getOrElse(CauseClassification.thunk.empty)
+);
 
 /**
  * Classify a cause by its reason makeup into a single {@link CauseClassification} label.
@@ -254,30 +372,7 @@ const fingerprintValue = (cause: Cause.Cause<unknown>, classification: CauseClas
  * @since 0.0.0
  * @category diagnostics
  */
-export const classifyCause = (cause: Cause.Cause<unknown>): CauseClassification => {
-  const counts = summarizeReasonCounts(cause);
-  const presentKinds = [counts.errorCount > 0, counts.defectCount > 0, counts.interruptCount > 0].filter(
-    Boolean
-  ).length;
-
-  if (counts.reasonCount === 0) {
-    return "empty";
-  }
-
-  if (presentKinds > 1) {
-    return "mixed";
-  }
-
-  if (counts.interruptCount > 0) {
-    return "interrupted";
-  }
-
-  if (counts.defectCount > 0) {
-    return "defect";
-  }
-
-  return "failure";
-};
+export const classifyCause = flow(summarizeReasonCounts, classifyReasonCounts);
 
 /**
  * Generate a deterministic fingerprint for a cause.
@@ -299,7 +394,7 @@ export const classifyCause = (cause: Cause.Cause<unknown>): CauseClassification 
  */
 export const fingerprintCause = (cause: Cause.Cause<unknown>): CauseFingerprint =>
   new CauseFingerprint({
-    value: fingerprintValue(cause, classifyCause(cause)),
+    value: pipe(cause, fingerprintValue(classifyCause(cause))),
   });
 
 /**
@@ -323,18 +418,29 @@ export const fingerprintCause = (cause: Cause.Cause<unknown>): CauseFingerprint 
  */
 export const summarizeCause = (cause: Cause.Cause<unknown>): CauseSummary => {
   const counts = summarizeReasonCounts(cause);
-  const classification = classifyCause(cause);
-
-  return new CauseSummary({
-    classification,
-    fingerprint: fingerprintCause(cause),
+  const classification = classifyReasonCounts(counts);
+  const fields = {
+    fingerprint: new CauseFingerprint({
+      value: fingerprintValue(cause, classification),
+    }),
     reasonCount: decodeNonNegativeInt(counts.reasonCount),
     errorCount: decodeNonNegativeInt(counts.errorCount),
     defectCount: decodeNonNegativeInt(counts.defectCount),
     interruptCount: decodeNonNegativeInt(counts.interruptCount),
     primaryMessage: primaryMessageFromCause(cause),
     pretty: Cause.pretty(cause),
-  });
+  };
+
+  return pipe(
+    classification,
+    CauseClassification.$match({
+      defect: () => CauseSummaryTagged.cases.defect.make(fields),
+      empty: () => CauseSummaryTagged.cases.empty.make(fields),
+      failure: () => CauseSummaryTagged.cases.failure.make(fields),
+      interrupted: () => CauseSummaryTagged.cases.interrupted.make(fields),
+      mixed: () => CauseSummaryTagged.cases.mixed.make(fields),
+    })
+  );
 };
 
 /**
@@ -359,27 +465,37 @@ export const summarizeCause = (cause: Cause.Cause<unknown>): CauseSummary => {
  * @category diagnostics
  */
 export const summarizeExit = <A, E>(exit: Exit.Exit<A, E>): ObservedExitSummary =>
-  Exit.isSuccess(exit)
-    ? new ObservedExitSummary({
-        outcome: "success",
-        classification: "empty",
+  Exit.match(exit, {
+    onSuccess: () =>
+      ObservedExitSummaryTagged.cases.empty.make({
+        outcome: ExitOutcome.Enum.success,
         fingerprint: new CauseFingerprint({ value: "success" }),
         interrupted: false,
         reasonCount: decodeNonNegativeInt(0),
         primaryMessage: "success",
-      })
-    : (() => {
-        const summary = summarizeCause(exit.cause);
+      }),
+    onFailure: (cause) => {
+      const summary = summarizeCause(cause);
+      const fields = {
+        outcome: ExitOutcome.Enum.failure,
+        fingerprint: summary.fingerprint,
+        interrupted: Cause.hasInterrupts(cause),
+        reasonCount: summary.reasonCount,
+        primaryMessage: summary.primaryMessage,
+      };
 
-        return new ObservedExitSummary({
-          outcome: "failure",
-          classification: summary.classification,
-          fingerprint: summary.fingerprint,
-          interrupted: Exit.hasInterrupts(exit),
-          reasonCount: summary.reasonCount,
-          primaryMessage: summary.primaryMessage,
-        });
-      })();
+      return pipe(
+        summary.classification,
+        CauseClassification.$match({
+          defect: () => ObservedExitSummaryTagged.cases.defect.make(fields),
+          empty: () => ObservedExitSummaryTagged.cases.empty.make(fields),
+          failure: () => ObservedExitSummaryTagged.cases.failure.make(fields),
+          interrupted: () => ObservedExitSummaryTagged.cases.interrupted.make(fields),
+          mixed: () => ObservedExitSummaryTagged.cases.mixed.make(fields),
+        })
+      );
+    },
+  });
 
 /**
  * Render a compact human-readable representation of a cause.
@@ -402,7 +518,7 @@ export const summarizeExit = <A, E>(exit: Exit.Exit<A, E>): ObservedExitSummary 
  * @since 0.0.0
  * @category diagnostics
  */
-export const renderObservedCause = (cause: Cause.Cause<unknown>): string => {
-  const summary = summarizeCause(cause);
-  return `[${summary.classification}] ${summary.fingerprint.value}\n${summary.pretty}`;
-};
+export const renderObservedCause = flow(
+  summarizeCause,
+  (summary): string => `[${summary.classification}] ${summary.fingerprint.value}\n${summary.pretty}`
+);

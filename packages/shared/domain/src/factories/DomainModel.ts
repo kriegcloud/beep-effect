@@ -6,14 +6,14 @@ import * as S from "effect/Schema";
  * @category DomainModel
  */
 export const defaultFields = {
-  createdAt: Model.DateTimeInsert,
-  updatedAt: Model.DateTimeUpdate,
-  deletedAt: Model.FieldOption(S.DateTimeUtcFromString),
-  createdBy: S.String,
-  updatedBy: S.String,
+  createdAt: Model.DateTimeInsertFromNumber,
+  updatedAt: Model.DateTimeUpdateFromNumber,
+  deletedAt: Model.FieldOption(S.DateTimeUtcFromMillis),
+  createdBy: Model.FieldOption(S.String),
+  updatedBy: Model.FieldOption(S.String),
   deletedBy: Model.FieldOption(S.String),
   version: Model.Generated(NonNegativeInt),
-  source: S.NonEmptyString,
+  source: Model.FieldOption(S.String),
 } as const;
 
 /**

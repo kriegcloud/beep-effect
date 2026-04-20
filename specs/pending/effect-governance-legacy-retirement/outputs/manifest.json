@@ -1,0 +1,217 @@
+{
+  "slug": "effect-governance-legacy-retirement",
+  "title": "Effect Governance Legacy Retirement",
+  "status": "COMPLETED",
+  "created": "2026-04-15",
+  "updated": "2026-04-15",
+  "package_status_note": "P4 verification is complete and the package verdict is full retirement. The docs-only ESLint split is live, the native-runtime checker now runs without eslint/Linter, the root legacy effect-laws lane and legacy rule corpus are retired, and the remaining effect-laws or beep-laws nouns are governance-data naming debt only.",
+  "active_phase": "p4",
+  "verification_verdict": "full retirement",
+  "status_model": {
+    "phase": ["BOOTSTRAPPED", "NOT_STARTED", "IN_PROGRESS", "BLOCKED", "COMPLETED"]
+  },
+  "phase_transition_rules": {
+    "active_phase_is_authoritative": true,
+    "active_phase_assets_are_authoritative": true,
+    "do_not_infer_active_phase_from_markdown_status_headings": true,
+    "update_manifest_on_phase_state_change": true,
+    "phase_exit_gates_required_before_advancing": true
+  },
+  "phase_session_role": "orchestrator",
+  "objective": {
+    "primary": "Retire the remaining legacy Effect-specific `lint:effect-laws` or `beep-laws` or effect-lane ESLint surface now that `lint:effect-governance` is authoritative.",
+    "secondary": "Remove `eslint` from the Effect lane where feasible while keeping the JSDoc and TSDoc lane separate and intact.",
+    "allowed_outcomes": ["full retirement", "minimal shim retained", "no-go yet"]
+  },
+  "scope": {
+    "primary_surfaces": [
+      "../../../package.json",
+      "../../../turbo.json",
+      "../../../eslint.config.mjs",
+      "../../../.github/workflows/check.yml",
+      "../../../tooling/configs/package.json",
+      "../../../tooling/configs/src/index.ts",
+      "../../../tooling/configs/src/eslint/DocsESLintConfig.ts",
+      "../../../tooling/configs/src/eslint/EffectLawsAllowlist.ts",
+      "../../../tooling/configs/src/eslint/NoNativeRuntimeHotspots.ts",
+      "../../../tooling/configs/src/eslint/RequireCategoryTagRule.ts",
+      "../../../tooling/configs/test/docs-eslint-config.test.ts",
+      "../../../tooling/configs/test/effect-first-regressions.test.ts",
+      "../../../tooling/cli/package.json",
+      "../../../tooling/cli/src/commands/Laws/NoNativeRuntime.ts",
+      "../../../tooling/cli/src/commands/Laws/AllowlistCheck.ts",
+      "../../../tooling/cli/src/commands/Docs.ts",
+      "../../../.claude/hooks/agent-init/index.ts",
+      "../../../.claude/hooks/skill-suggester/index.ts",
+      "../effect-governance-replacement/outputs/manifest.json",
+      "../effect-governance-replacement/EXECUTION.md",
+      "../effect-governance-replacement/VERIFICATION.md"
+    ],
+    "separate_lanes": {
+      "effect_lane": true,
+      "jsdoc_tsdoc_lane": true
+    }
+  },
+  "conformance": {
+    "documents": [
+      "../../../AGENTS.md",
+      "../../../package.json",
+      "../../../turbo.json",
+      "../../../eslint.config.mjs",
+      "../../../.github/workflows/check.yml",
+      "../effect-governance-replacement/VERIFICATION.md"
+    ],
+    "root_script_keys": [
+      "lint",
+      "lint:effect-governance",
+      "lint:jsdoc",
+      "check:effect-laws-allowlist"
+    ],
+    "legacy_effect_rule_ids": [
+      "effect-import-style",
+      "no-native-runtime",
+      "schema-first",
+      "terse-effect-style"
+    ],
+    "phase_rules": {
+      "p0_to_p2_read_only_outside_spec": true,
+      "p3_first_mutating_phase": true,
+      "p3_single_primary_path": true,
+      "p4_requires_locked_inventory": true
+    }
+  },
+  "graphiti": {
+    "group_id": "beep_dev",
+    "search_group_ids_json": "[\"beep_dev\"]",
+    "add_memory_source": "text",
+    "add_memory_source_description": "codex-cli session",
+    "recall_order": [
+      "search_memory_facts",
+      "search_memory_facts_shorter_fallback",
+      "get_episodes",
+      "repo_local_fallback"
+    ],
+    "require_exact_error_logging": true,
+    "require_session_end_summary_writeback": true
+  },
+  "phase_order": ["p0", "p1", "p2", "p3", "p4"],
+  "phases": {
+    "p0": {
+      "name": "Research",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P0.md",
+      "orchestrator": "handoffs/P0_ORCHESTRATOR_PROMPT.md",
+      "output": "RESEARCH.md",
+      "trackers": [
+        "outputs/grill-log.md",
+        "outputs/legacy-surface-inventory.md",
+        "outputs/removal-matrix.md",
+        "outputs/dependency-cut-map.md",
+        "outputs/candidate-scorecard.md"
+      ]
+    },
+    "p1": {
+      "name": "Validated Options",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P1.md",
+      "orchestrator": "handoffs/P1_ORCHESTRATOR_PROMPT.md",
+      "output": "VALIDATED_OPTIONS.md",
+      "trackers": [
+        "outputs/legacy-surface-inventory.md",
+        "outputs/removal-matrix.md",
+        "outputs/dependency-cut-map.md",
+        "outputs/candidate-scorecard.md"
+      ]
+    },
+    "p2": {
+      "name": "Planning",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P2.md",
+      "orchestrator": "handoffs/P2_ORCHESTRATOR_PROMPT.md",
+      "output": "PLANNING.md"
+    },
+    "p3": {
+      "name": "Execution",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P3.md",
+      "orchestrator": "handoffs/P3_ORCHESTRATOR_PROMPT.md",
+      "output": "EXECUTION.md"
+    },
+    "p4": {
+      "name": "Verification",
+      "status": "COMPLETED",
+      "session_role": "orchestrator",
+      "handoff": "handoffs/HANDOFF_P4.md",
+      "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+      "output": "VERIFICATION.md",
+      "trackers": [
+        "outputs/legacy-surface-inventory.md",
+        "outputs/removal-matrix.md",
+        "outputs/dependency-cut-map.md"
+      ]
+    }
+  },
+  "active_phase_assets": {
+    "handoff": "handoffs/HANDOFF_P4.md",
+    "orchestrator": "handoffs/P4_ORCHESTRATOR_PROMPT.md",
+    "output": "VERIFICATION.md"
+  },
+  "fresh_session_read_order": [
+    "outputs/manifest.json",
+    "outputs/grill-log.md",
+    "../../../AGENTS.md",
+    "../effect-governance-replacement/outputs/manifest.json",
+    "../effect-governance-replacement/VERIFICATION.md",
+    "README.md",
+    "QUICK_START.md",
+    "AGENT_PROMPTS.md",
+    "prompts/README.md",
+    "prompts/ORCHESTRATOR_OPERATING_MODEL.md",
+    "prompts/GRAPHITI_MEMORY_PROTOCOL.md",
+    "prompts/PHASE_DELEGATION_PROMPTS.md",
+    "outputs/codex-plan-mode-prompt.md",
+    "handoffs/HANDOFF_P0-P4.md",
+    "handoffs/P0-P4_ORCHESTRATOR_PROMPT.md"
+  ],
+  "evaluation": {
+    "legacy_surface_inventory": "outputs/legacy-surface-inventory.md",
+    "removal_matrix": "outputs/removal-matrix.md",
+    "dependency_cut_map": "outputs/dependency-cut-map.md",
+    "candidate_scorecard": "outputs/candidate-scorecard.md",
+    "candidate_scoring": {
+      "scale": "1-5",
+      "weights": {
+        "effect_lane_retirement_value": 0.3,
+        "docs_lane_safety": 0.25,
+        "dependency_simplification": 0.2,
+        "operational_simplification": 0.15,
+        "migration_risk_penalty": 0.1
+      }
+    },
+    "required_verification_buckets": [
+      "legacy_surface_retirement",
+      "docs_lane_safety",
+      "dependency_or_performance_or_operational"
+    ]
+  },
+  "package_maintenance": {
+    "update_manifest_when": [
+      "phase status changes",
+      "routing changes",
+      "tracked outputs change",
+      "locked assumptions change"
+    ],
+    "append_grill_log_when": [
+      "locking a new package-shape decision or default"
+    ]
+  },
+  "directories": {
+    "handoffs": "handoffs",
+    "outputs": "outputs",
+    "prompts": "prompts"
+  }
+}

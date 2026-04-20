@@ -219,7 +219,7 @@ const toTypeSchemaField = Struct.lambda<ToTypeSchemaField>(S.toType);
 const toEncodedSchemaField = Struct.lambda<ToEncodedSchemaField>(S.toEncoded);
 
 const isLooseJsonRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  P.isObject(value) ? !Array.isArray(value) : false;
+  P.isObject(value) ? !A.isArray(value) : false;
 
 const makeTypeStruct = <Fields extends S.Struct.Fields>(fields: Fields) =>
   S.Struct(Struct.map(fields, toTypeSchemaField));

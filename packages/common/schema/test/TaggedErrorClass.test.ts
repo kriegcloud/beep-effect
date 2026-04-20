@@ -36,26 +36,16 @@ class ExtendedCauseError extends BeepError.extend<ExtendedCauseError>("ExtendedC
 }) {}
 
 describe("TaggedErrorClass", () => {
-  it("creates tagged instances via new", () => {
-    const error = BeepError.new({ beep: "beep" });
+  it("creates tagged instances via the constructor", () => {
+    const error = new BeepError({ beep: "beep" });
 
     expect(error).toBeInstanceOf(BeepError);
     expect(error._tag).toBe("BeepError");
     expect(error.beep).toBe("beep");
   });
 
-  it("creates thunked constructors via newThunk", () => {
-    const thunk = BeepError.newThunk({ beep: "beep" });
-    const error = thunk();
-
-    expect(typeof thunk).toBe("function");
-    expect(error).toBeInstanceOf(BeepError);
-    expect(error._tag).toBe("BeepError");
-    expect(error.beep).toBe("beep");
-  });
-
-  it("supports struct-schema overload for new", () => {
-    const error = StructuredBeepError.new({ beep: "boop", count: 2 });
+  it("supports struct-schema overloads via the constructor", () => {
+    const error = new StructuredBeepError({ beep: "boop", count: 2 });
 
     expect(error).toBeInstanceOf(StructuredBeepError);
     expect(error._tag).toBe("StructuredBeepError");
@@ -63,77 +53,35 @@ describe("TaggedErrorClass", () => {
     expect(error.count).toBe(2);
   });
 
-  it("defers schema validation in newThunk until thunk execution", () => {
+  it("validates constructor payloads eagerly", () => {
     const invalid: unknown = { beep: "boop", count: "wrong" };
 
-    const thunk = StructuredBeepError.newThunk(invalid as TaggedErrorNewInput<typeof StructuredBeepError>);
-
-    expect(() => thunk()).toThrow();
+    expect(() => new StructuredBeepError(invalid as TaggedErrorNewInput<typeof StructuredBeepError>)).toThrow();
   });
 
-  it("supports cause-first new for required causes", () => {
+  it("constructs cause-bearing errors from explicit payloads", () => {
     const cause = new Error("kapow");
-    const error = RequiredCauseError.new(cause, { message: "boom" });
+    const required = new RequiredCauseError({ cause, message: "boom" });
+    const optional = new OptionalCauseError({ cause, message: "boom" });
 
-    expect(error).toBeInstanceOf(RequiredCauseError);
-    expect(error.cause).toBe(cause);
-    expect(error.message).toBe("boom");
+    expect(required).toBeInstanceOf(RequiredCauseError);
+    expect(required.cause).toBe(cause);
+    expect(required.message).toBe("boom");
+    expect(optional).toBeInstanceOf(OptionalCauseError);
+    expect(optional.cause).toBe(cause);
+    expect(optional.message).toBe("boom");
   });
 
-  it("supports data-last new when cause is required", () => {
-    const cause = new Error("kapow");
-    const fromCause = RequiredCauseError.new({ message: "boom" });
-    const error = fromCause(cause);
-
-    expect(typeof fromCause).toBe("function");
-    expect(error).toBeInstanceOf(RequiredCauseError);
-    expect(error.cause).toBe(cause);
-    expect(error.message).toBe("boom");
-  });
-
-  it("keeps explicit required-cause payloads eager", () => {
-    const cause = new Error("kapow");
-    const error = RequiredCauseError.new({ cause, message: "boom" });
-
-    expect(error).toBeInstanceOf(RequiredCauseError);
-    expect(error.cause).toBe(cause);
-    expect(error.message).toBe("boom");
-  });
-
-  it("preserves eager new for optional-cause payloads", () => {
-    const error = OptionalCauseError.new({ message: "boom" });
+  it("supports optional-cause payloads", () => {
+    const error = new OptionalCauseError({ message: "boom" });
 
     expect(error).toBeInstanceOf(OptionalCauseError);
     expect(error.message).toBe("boom");
     expect(error.cause).toBeUndefined();
   });
 
-  it("supports cause-first newThunk for optional causes", () => {
-    const cause = new Error("kapow");
-    const thunk = OptionalCauseError.newThunk(cause, { message: "boom" });
-    const error = thunk();
-
-    expect(error).toBeInstanceOf(OptionalCauseError);
-    expect(error.message).toBe("boom");
-    expect(error.cause).toBe(cause);
-  });
-
-  it("supports data-last newThunk when cause is required", () => {
-    const cause = new Error("kapow");
-    const fromCause = RequiredCauseError.newThunk({ message: "boom" });
-    const thunk = fromCause(cause);
-    const error = thunk();
-
-    expect(typeof fromCause).toBe("function");
-    expect(typeof thunk).toBe("function");
-    expect(error).toBeInstanceOf(RequiredCauseError);
-    expect(error.cause).toBe(cause);
-    expect(error.message).toBe("boom");
-  });
-
-  it("extends tagged errors with inherited fields and helper constructors", () => {
-    const thunk = ExtendedBeepError.newThunk({ beep: "boop", count: 2 });
-    const error = thunk();
+  it("extends tagged errors with inherited fields", () => {
+    const error = new ExtendedBeepError({ beep: "boop", count: 2 });
 
     expect(error).toBeInstanceOf(BeepError);
     expect(error).toBeInstanceOf(ExtendedBeepError);
@@ -143,15 +91,10 @@ describe("TaggedErrorClass", () => {
     expect(error.count).toBe(2);
   });
 
-  it("recomputes cause-aware helper constructors for extended tagged errors", () => {
+  it("keeps constructor payload validation for extended cause-bearing errors", () => {
     const cause = new Error("kapow");
-    const fromCause = ExtendedCauseError.new({ beep: "boop", count: 2 });
-    const thunkFromCause = ExtendedCauseError.newThunk({ beep: "boop", count: 2 });
-    const error = fromCause(cause);
-    const thunkError = thunkFromCause(cause)();
+    const error = new ExtendedCauseError({ cause, beep: "boop", count: 2 });
 
-    expect(typeof fromCause).toBe("function");
-    expect(typeof thunkFromCause).toBe("function");
     expect(error).toBeInstanceOf(BeepError);
     expect(error).toBeInstanceOf(ExtendedCauseError);
     expect(error._tag).toBe("BeepError");
@@ -159,8 +102,5 @@ describe("TaggedErrorClass", () => {
     expect(error.cause).toBe(cause);
     expect(error.beep).toBe("boop");
     expect(error.count).toBe(2);
-    expect(thunkError.cause).toBe(cause);
-    expect(thunkError.beep).toBe("boop");
-    expect(thunkError.count).toBe(2);
   });
 });

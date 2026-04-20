@@ -1,7 +1,7 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { thunk0 } from "@beep/utils";
-import { Context, Effect, HashMap, Layer, MutableRef, Queue } from "effect";
+import { Clock, Context, Effect, HashMap, Layer, MutableRef, Queue } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -77,11 +77,11 @@ type RelayState = {
   readonly lastUpdatedAtMs: number;
 };
 
-const emptyRelayState = (): RelayState => ({
+const emptyRelayState = (lastUpdatedAtMs: number): RelayState => ({
   spans: HashMap.empty(),
   spanEvents: A.empty(),
   metrics: O.none(),
-  lastUpdatedAtMs: Date.now(),
+  lastUpdatedAtMs,
 });
 
 const toSpanKey = (span: Pick<DevToolsSchema.Span, "traceId" | "spanId">): string => `${span.traceId}:${span.spanId}`;
@@ -105,33 +105,37 @@ export const makeDevToolsRelayService: Effect.Effect<
   SocketServer.SocketServer
 > = Effect.gen(function* () {
   const server = yield* SocketServer.SocketServer;
-  const state = MutableRef.make<RelayState>(emptyRelayState());
+  const initialUpdatedAtMs = yield* Clock.currentTimeMillis;
+  const state = MutableRef.make<RelayState>(emptyRelayState(initialUpdatedAtMs));
 
   const ingest = Effect.fn("DevToolsRelayService.ingest")((request: DevToolsSchema.Request.WithoutPing) =>
-    Effect.sync(() => {
-      const current = MutableRef.get(state);
-      const lastUpdatedAtMs = Date.now();
-      const next: RelayState =
-        request._tag === "Span"
-          ? {
-              ...current,
-              spans: HashMap.set(current.spans, toSpanKey(request), request),
-              lastUpdatedAtMs,
-            }
-          : request._tag === "SpanEvent"
-            ? {
-                ...current,
-                spanEvents: pipeAppendLimited(current.spanEvents, request),
-                lastUpdatedAtMs,
-              }
-            : {
-                ...current,
-                metrics: O.some(request),
-                lastUpdatedAtMs,
-              };
+    Clock.currentTimeMillis.pipe(
+      Effect.flatMap((lastUpdatedAtMs) =>
+        Effect.sync(() => {
+          const current = MutableRef.get(state);
+          const next: RelayState =
+            request._tag === "Span"
+              ? {
+                  ...current,
+                  spans: HashMap.set(current.spans, toSpanKey(request), request),
+                  lastUpdatedAtMs,
+                }
+              : request._tag === "SpanEvent"
+                ? {
+                    ...current,
+                    spanEvents: pipeAppendLimited(current.spanEvents, request),
+                    lastUpdatedAtMs,
+                  }
+                : {
+                    ...current,
+                    metrics: O.some(request),
+                    lastUpdatedAtMs,
+                  };
 
-      MutableRef.set(state, next);
-    })
+          MutableRef.set(state, next);
+        })
+      )
+    )
   );
   const snapshot = Effect.fn("DevToolsRelayService.snapshot")(() =>
     Effect.sync(() => {
@@ -156,7 +160,11 @@ export const makeDevToolsRelayService: Effect.Effect<
     Effect.sync(() => MutableRef.get(state).metrics)
   );
   const clear = Effect.fn("DevToolsRelayService.clear")(() =>
-    Effect.sync(() => void MutableRef.set(state, emptyRelayState()))
+    Clock.currentTimeMillis.pipe(
+      Effect.flatMap((lastUpdatedAtMs) =>
+        Effect.sync(() => void MutableRef.set(state, emptyRelayState(lastUpdatedAtMs)))
+      )
+    )
   );
   const address = Effect.fn("DevToolsRelayService.address")(() => Effect.sync(() => server.address));
 
