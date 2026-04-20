@@ -1,4 +1,4 @@
-import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage/index";
+import { createPackageCommand } from "@beep/repo-cli/commands/CreatePackage";
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Path } from "effect";
@@ -39,9 +39,7 @@ const TstycheConfig = S.Struct({
   testFileMatch: S.Array(S.String),
 });
 const PackageScripts = S.Struct({
-  scripts: S.Struct({
-    test: S.String,
-  }),
+  scripts: S.Record(S.String, S.String),
 });
 
 const decodeRootPackage = S.decodeUnknownSync(RootPackage);
@@ -223,7 +221,9 @@ describe.sequential("create-package", () => {
             const generatedPackage = decodePackageScripts(
               yield* readJsonFile(path.join(rootDir, "packages", "editor", "package.json"))
             );
+            expect(generatedPackage.scripts.check).toBe("tsgo -b tsconfig.json");
             expect(generatedPackage.scripts.test).toBe("bunx --bun vitest run");
+            expect(generatedPackage.scripts.codegen).toBeUndefined();
 
             const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
             expect(rootTsconfig.compilerOptions.paths).toMatchObject({

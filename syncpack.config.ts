@@ -27,6 +27,7 @@ const config = {
     "tooling/cli/package.json",
     "tooling/configs/package.json",
     "packages/editor/core/package.json",
+    "tooling/repo-checks/package.json",
     "tooling/repo-utils/package.json",
     "tooling/test-utils/package.json",
     "tooling/docgen/package.json",

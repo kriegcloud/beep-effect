@@ -125,10 +125,9 @@ jobs:
               bun run lint -- "${turbo_args[@]}"
               ;;
             repo-sanity)
-              bun run audit:high:ci
-              bunx syncpack lint
+              bun run repo-sanity:ci
               if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-                bunx changeset status --since=origin/main
+                bun run changeset:status:since-main
               fi
               ;;
             check)
