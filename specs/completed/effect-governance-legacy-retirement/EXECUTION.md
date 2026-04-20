@@ -94,7 +94,7 @@ The main dependency cut landed in [../../../tooling/cli/package.json](../../../t
 - `bun run lint:effect-governance`
 - `bun run lint:jsdoc`
 - `bunx eslint --config eslint.config.mjs tooling/cli/src/commands/Docs.ts tooling/cli/src/commands/Laws/index.ts tooling/configs/src/index.ts tooling/configs/src/eslint/DocsESLintConfig.ts tooling/configs/test/docs-eslint-config.test.ts tooling/configs/test/effect-first-regressions.test.ts`
-- `git diff --check -- tooling/cli tooling/configs package.json turbo.json eslint.config.mjs specs/pending/effect-governance-legacy-retirement`
+- `git diff --check -- tooling/cli tooling/configs package.json turbo.json eslint.config.mjs specs/completed/effect-governance-legacy-retirement`
 
 ### Live Native-Runtime Command Result
 

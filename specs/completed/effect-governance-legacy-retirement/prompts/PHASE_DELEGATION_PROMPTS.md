@@ -17,10 +17,10 @@ Question:
 
 Required reads:
 
-- `specs/pending/effect-governance-legacy-retirement/outputs/manifest.json`
-- `specs/pending/effect-governance-legacy-retirement/README.md`
-- `specs/pending/effect-governance-legacy-retirement/RESEARCH.md`
-- `specs/pending/effect-governance-legacy-retirement/outputs/legacy-surface-inventory.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/manifest.json`
+- `specs/completed/effect-governance-legacy-retirement/README.md`
+- `specs/completed/effect-governance-legacy-retirement/RESEARCH.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/legacy-surface-inventory.md`
 - the bucket-specific live repo files you are assigned
 
 Expected output:
@@ -37,9 +37,9 @@ Question:
 
 Required reads:
 
-- `specs/pending/effect-governance-legacy-retirement/VALIDATED_OPTIONS.md`
-- `specs/pending/effect-governance-legacy-retirement/outputs/legacy-surface-inventory.md`
-- `specs/pending/effect-governance-legacy-retirement/outputs/removal-matrix.md`
+- `specs/completed/effect-governance-legacy-retirement/VALIDATED_OPTIONS.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/legacy-surface-inventory.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/removal-matrix.md`
 - the specific live repo files needed for the assigned call
 
 Expected output:
@@ -55,9 +55,9 @@ Question:
 
 Required reads:
 
-- `specs/pending/effect-governance-legacy-retirement/PLANNING.md`
-- `specs/pending/effect-governance-legacy-retirement/outputs/removal-matrix.md`
-- `specs/pending/effect-governance-legacy-retirement/outputs/dependency-cut-map.md`
+- `specs/completed/effect-governance-legacy-retirement/PLANNING.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/removal-matrix.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/dependency-cut-map.md`
 - the specific command or package surfaces involved
 
 Expected output:
@@ -73,8 +73,8 @@ Question:
 
 Required reads:
 
-- `specs/pending/effect-governance-legacy-retirement/EXECUTION.md`
-- `specs/pending/effect-governance-legacy-retirement/PLANNING.md`
+- `specs/completed/effect-governance-legacy-retirement/EXECUTION.md`
+- `specs/completed/effect-governance-legacy-retirement/PLANNING.md`
 - the files you own for this slice
 
 Expected output:
@@ -91,10 +91,10 @@ Question:
 
 Required reads:
 
-- `specs/pending/effect-governance-legacy-retirement/VERIFICATION.md`
-- `specs/pending/effect-governance-legacy-retirement/EXECUTION.md`
-- `specs/pending/effect-governance-legacy-retirement/outputs/legacy-surface-inventory.md`
-- `specs/pending/effect-governance-legacy-retirement/outputs/removal-matrix.md`
+- `specs/completed/effect-governance-legacy-retirement/VERIFICATION.md`
+- `specs/completed/effect-governance-legacy-retirement/EXECUTION.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/legacy-surface-inventory.md`
+- `specs/completed/effect-governance-legacy-retirement/outputs/removal-matrix.md`
 
 Expected output:
 

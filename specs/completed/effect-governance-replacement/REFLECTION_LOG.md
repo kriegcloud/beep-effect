@@ -6,7 +6,7 @@ Created the initial canonical spec package for replacing the Effect-specific `be
 
 ### Locked Package Defaults
 
-- the package lives at `specs/pending/effect-governance-replacement`
+- the package lives at `specs/completed/effect-governance-replacement`
 - the primary objective is replacing the Effect-specific governance lane, not redesigning all agent behavior
 - JSDoc and TSDoc replacement is secondary and only in scope when it directly supports the primary objective
 - P0, P1, and P2 are read-only outside the spec package

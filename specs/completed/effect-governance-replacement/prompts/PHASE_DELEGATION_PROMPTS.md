@@ -25,12 +25,12 @@ Write scope:
 
 Required inputs:
 - `AGENTS.md`
-- `specs/pending/effect-governance-replacement/README.md`
-- `specs/pending/effect-governance-replacement/outputs/manifest.json`
-- `specs/pending/effect-governance-replacement/outputs/grill-log.md`
-- `specs/pending/effect-governance-replacement/prompts/ORCHESTRATOR_OPERATING_MODEL.md`
-- `specs/pending/effect-governance-replacement/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
-- `specs/pending/effect-governance-replacement/{{PHASE_ARTIFACT}}`
+- `specs/completed/effect-governance-replacement/README.md`
+- `specs/completed/effect-governance-replacement/outputs/manifest.json`
+- `specs/completed/effect-governance-replacement/outputs/grill-log.md`
+- `specs/completed/effect-governance-replacement/prompts/ORCHESTRATOR_OPERATING_MODEL.md`
+- `specs/completed/effect-governance-replacement/prompts/GRAPHITI_MEMORY_PROTOCOL.md`
+- `specs/completed/effect-governance-replacement/{{PHASE_ARTIFACT}}`
 - {{ADDITIONAL_INPUTS}}
 
 Requirements:
@@ -42,7 +42,7 @@ Requirements:
 - if repo reality contradicts the prompt, report the contradiction and stop
 - keep the Effect lane separate from the JSDoc and TSDoc lane unless explicitly asked otherwise
 
-Return the result using `specs/pending/effect-governance-replacement/prompts/SUBAGENT_OUTPUT_CONTRACT.md`.
+Return the result using `specs/completed/effect-governance-replacement/prompts/SUBAGENT_OUTPUT_CONTRACT.md`.
 ```
 
 ## P0 Worker Fills
@@ -67,8 +67,8 @@ Write scope:
 - none
 
 Additional inputs:
-- `specs/pending/effect-governance-replacement/RESEARCH.md`
-- `specs/pending/effect-governance-replacement/outputs/parity-matrix.md`
+- `specs/completed/effect-governance-replacement/RESEARCH.md`
+- `specs/completed/effect-governance-replacement/outputs/parity-matrix.md`
 ```
 
 ### Biome Replacement Scout
@@ -90,8 +90,8 @@ Write scope:
 - none
 
 Additional inputs:
-- `specs/pending/effect-governance-replacement/RESEARCH.md`
-- `specs/pending/effect-governance-replacement/outputs/parity-matrix.md`
+- `specs/completed/effect-governance-replacement/RESEARCH.md`
+- `specs/completed/effect-governance-replacement/outputs/parity-matrix.md`
 ```
 
 ### Hook Surface Scout
@@ -114,7 +114,7 @@ Write scope:
 - none
 
 Additional inputs:
-- `specs/pending/effect-governance-replacement/RESEARCH.md`
+- `specs/completed/effect-governance-replacement/RESEARCH.md`
 ```
 
 ## P1 Worker Fill
@@ -132,14 +132,14 @@ Stop condition: stop if claims cannot be grounded rule by rule
 Read scope:
 - `tooling/configs/src/eslint/**`
 - `tooling/configs/test/eslint-rules.test.ts`
-- `specs/pending/effect-governance-replacement/RESEARCH.md`
-- `specs/pending/effect-governance-replacement/outputs/parity-matrix.md`
+- `specs/completed/effect-governance-replacement/RESEARCH.md`
+- `specs/completed/effect-governance-replacement/outputs/parity-matrix.md`
 
 Write scope:
 - none
 
 Additional inputs:
-- `specs/pending/effect-governance-replacement/VALIDATED_OPTIONS.md`
+- `specs/completed/effect-governance-replacement/VALIDATED_OPTIONS.md`
 ```
 
 ## P4 Worker Fill
@@ -155,11 +155,11 @@ Graphiti assignment: none
 Stop condition: stop if the fixed evaluation corpus was changed late or if evidence is missing
 
 Read scope:
-- `specs/pending/effect-governance-replacement/PLANNING.md`
-- `specs/pending/effect-governance-replacement/EXECUTION.md`
-- `specs/pending/effect-governance-replacement/VERIFICATION.md`
-- `specs/pending/effect-governance-replacement/outputs/parity-matrix.md`
-- `specs/pending/effect-governance-replacement/outputs/steering-eval-corpus.md`
+- `specs/completed/effect-governance-replacement/PLANNING.md`
+- `specs/completed/effect-governance-replacement/EXECUTION.md`
+- `specs/completed/effect-governance-replacement/VERIFICATION.md`
+- `specs/completed/effect-governance-replacement/outputs/parity-matrix.md`
+- `specs/completed/effect-governance-replacement/outputs/steering-eval-corpus.md`
 
 Write scope:
 - none

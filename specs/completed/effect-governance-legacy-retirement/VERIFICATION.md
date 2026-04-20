@@ -115,7 +115,7 @@ The active root `lint:effect-laws` lane is gone, the live Effect-lane native-run
 - `bun run lint:jsdoc`
   - passed with warning-only docs debt
 
-- `git diff --check -- tooling/cli tooling/configs packages/common/nlp package.json turbo.json eslint.config.mjs specs/pending/effect-governance-legacy-retirement`
+- `git diff --check -- tooling/cli tooling/configs packages/common/nlp package.json turbo.json eslint.config.mjs specs/completed/effect-governance-legacy-retirement`
   - passed clean
 
 ## Final Verdict Rationale

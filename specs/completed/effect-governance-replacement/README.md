@@ -13,6 +13,12 @@
 - **Created:** 2026-04-15
 - **Updated:** 2026-04-15
 
+## Archive Note
+
+This completed spec package was finalized under `specs/pending/effect-governance-replacement` and now lives at `specs/completed/effect-governance-replacement`.
+
+Treat the completed location as the canonical home for future reading, prompts, and cross-spec references.
+
 ## Quick Navigation
 
 ### Root

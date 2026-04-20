@@ -32,7 +32,7 @@
             worktree_name="$(basename "$repo_root")"
             echo "beep-effect dev shell loaded for $worktree_name"
             export BUN_INSTALL="$HOME/.bun"
-            export BUN_INSTALL_CACHE_DIR="/tmp/$USER-${worktree_name}-bun-install-cache"
+            export BUN_INSTALL_CACHE_DIR="/tmp/$USER-$worktree_name-bun-install-cache"
             mkdir -p "$BUN_INSTALL_CACHE_DIR"
             export PATH="$BUN_INSTALL/bin:$PATH"
           '';

@@ -1,0 +1,42 @@
+name: Setup monorepo CI
+description: Restore caches and install dependencies for CI jobs after checkout.
+
+inputs:
+  cache-turbo:
+    description: Restore the Turbo cache for jobs that execute Turbo tasks.
+    required: false
+    default: "false"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version-file: .bun-version
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version-file: .nvmrc
+
+    - name: Cache Bun dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.bun/install/cache
+        key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+        restore-keys: bun-${{ runner.os }}-
+
+    - name: Cache Turbo
+      if: ${{ inputs.cache-turbo == 'true' }}
+      uses: actions/cache@v4
+      with:
+        path: .turbo/cache
+        key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
+        restore-keys: |
+          turbo-${{ runner.os }}-${{ github.job }}-
+          turbo-${{ runner.os }}-
+
+    - name: Install dependencies
+      shell: bash
+      run: bun install --frozen-lockfile

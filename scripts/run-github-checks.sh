@@ -68,7 +68,7 @@ run_quality() {
   run_with_local_env bun run build:ci
 
   log "quality: type check"
-  bun run check
+  bun run check:all
 
   log "quality: lint"
   bun run lint
