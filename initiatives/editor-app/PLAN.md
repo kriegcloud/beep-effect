@@ -12,7 +12,7 @@ The first implementation goal is:
 ## Workstream 1: Specs And Decisions
 Land and keep current:
 - `README.md`
-- `DECISIONS.md`
+- `decisions.md`
 - `PLAN.md`
 - `history/acceptance.md`
 

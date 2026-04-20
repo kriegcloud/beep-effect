@@ -21,7 +21,7 @@ The chosen defaults are now locked to:
 This started as a `greenfield, principle-driven` spec set. It now serves as the `current-state v0` spec set for the live repo shape, with historical decision notes kept nearby but clearly marked.
 
 ## Why This V0 Exists
-The expert-memory material in [Expert Memory Big Picture](../expert-memory-big-picture/README.md) and [Local-First V0 Architecture](../expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md) established the high-level thesis.
+The expert-memory material in [Expert Memory Big Picture](../expert-memory-big-picture/README.md) and [local-first-v0-architecture.md](../expert-memory-big-picture/local-first-v0-architecture.md) established the high-level thesis.
 
 This folder turns that thesis into a concrete, implementable `v0` for one narrow proving ground:
 - a user installs a native desktop app
@@ -41,12 +41,12 @@ This v0 is intentionally a `research prototype`, not a product-complete applicat
 
 ## Current Architectural Authority
 Use these documents as the normative current-state set:
-1. [CLUSTER_FIRST_SUBSTRATE_DECISION.md](./CLUSTER_FIRST_SUBSTRATE_DECISION.md)
-2. [TOPOLOGY.md](./TOPOLOGY.md)
-3. [SIDECAR_PROTOCOL.md](./SIDECAR_PROTOCOL.md)
-4. [VERTICAL_SLICE.md](./VERTICAL_SLICE.md)
-5. [QUERY_STAGES_AND_RETRIEVAL_PACKET.md](./QUERY_STAGES_AND_RETRIEVAL_PACKET.md)
-6. [EVALUATION_AND_ACCEPTANCE.md](./EVALUATION_AND_ACCEPTANCE.md)
+1. [cluster-first-substrate-decision.md](./cluster-first-substrate-decision.md)
+2. [topology.md](./topology.md)
+3. [sidecar-protocol.md](./sidecar-protocol.md)
+4. [vertical-slice.md](./vertical-slice.md)
+5. [query-stages-and-retrieval-packet.md](./query-stages-and-retrieval-packet.md)
+6. [evaluation-and-acceptance.md](./evaluation-and-acceptance.md)
 7. [PLAN.md](./PLAN.md)
 
 Historical and supporting context:
@@ -103,10 +103,10 @@ This spec is downstream of the big-picture reading set, not a replacement for it
 
 Use these documents as upstream context when the `why` behind a v0 decision matters:
 - [Expert Memory Big Picture](../expert-memory-big-picture/README.md)
-- [Expert Memory Kernel](../expert-memory-big-picture/EXPERT_MEMORY_KERNEL.md)
-- [Claims And Evidence](../expert-memory-big-picture/CLAIMS_AND_EVIDENCE.md)
-- [Expert Memory Control Plane](../expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md)
-- [Local-First V0 Architecture](../expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md)
+- [expert-memory-kernel.md](../expert-memory-big-picture/expert-memory-kernel.md)
+- [claims-and-evidence.md](../expert-memory-big-picture/claims-and-evidence.md)
+- [expert-memory-control-plane.md](../expert-memory-big-picture/expert-memory-control-plane.md)
+- [local-first-v0-architecture.md](../expert-memory-big-picture/local-first-v0-architecture.md)
 - [NLP in the Expert-Memory Big Picture for beep-effect](<../expert-memory-big-picture/research/NLP in the Expert-Memory Big Picture for beep-effect.md>)
 
 ## Success Condition

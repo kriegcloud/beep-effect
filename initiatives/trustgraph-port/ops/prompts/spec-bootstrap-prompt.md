@@ -31,9 +31,9 @@ Required startup:
    - `bun run trustgraph:context -- --prompt "Summarize the existing repo-first expert-memory direction most relevant to a scoped TrustGraph capability port."`
 2. If TrustGraph context retrieval is unavailable, continue and say so.
 3. Read these local references before drafting:
-   - `initiatives/expert-memory-big-picture/EXPERT_MEMORY_KERNEL.md`
-   - `initiatives/expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md`
-   - `initiatives/expert-memory-big-picture/RESEARCH_LANES_AND_OPEN_QUESTIONS.md`
+   - `initiatives/expert-memory-big-picture/expert-memory-kernel.md`
+   - `initiatives/expert-memory-big-picture/expert-memory-control-plane.md`
+   - `initiatives/expert-memory-big-picture/research-lanes-and-open-questions.md`
    - `initiatives/repo-codegraph-jsdoc/SPEC.md`
    - `initiatives/repo-codegraph-jsdoc/research/semantic-kg-integration-explained.md`
    - `tooling/cli/src/commands/TrustGraph/internal/TrustGraphRuntime.ts`

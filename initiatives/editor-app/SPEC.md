@@ -42,7 +42,7 @@ That decision exists to preserve:
 
 ## Current Architectural Authority
 Use these files as the current-state authority for the editor app:
-1. [DECISIONS.md](./DECISIONS.md)
+1. [decisions.md](./decisions.md)
 2. [PLAN.md](./PLAN.md)
 3. [history/acceptance.md](./history/acceptance.md)
 

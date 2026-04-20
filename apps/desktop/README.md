@@ -16,8 +16,8 @@ This app is the local-first native shell for the repo expert-memory prototype.
 
 The runtime still belongs in the Bun + Effect sidecar described in:
 
-- `initiatives/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md`
-- `initiatives/repo-expert-memory-local-first-v0/SIDECAR_PROTOCOL.md`
+- `initiatives/expert-memory-big-picture/local-first-v0-architecture.md`
+- `initiatives/repo-expert-memory-local-first-v0/sidecar-protocol.md`
 
 ## Commands
 

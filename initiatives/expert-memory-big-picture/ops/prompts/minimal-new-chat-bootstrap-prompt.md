@@ -11,12 +11,12 @@ Before making broad recommendations:
 
 1. Read these files in order:
    - initiatives/expert-memory-big-picture/README.md
-   - initiatives/expert-memory-big-picture/EXPERT_MEMORY_KERNEL.md
-   - initiatives/expert-memory-big-picture/CLAIMS_AND_EVIDENCE.md
-   - initiatives/expert-memory-big-picture/EXPERT_MEMORY_CONTROL_PLANE.md
-   - initiatives/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md
+   - initiatives/expert-memory-big-picture/expert-memory-kernel.md
+   - initiatives/expert-memory-big-picture/claims-and-evidence.md
+   - initiatives/expert-memory-big-picture/expert-memory-control-plane.md
+   - initiatives/expert-memory-big-picture/local-first-v0-architecture.md
    - initiatives/repo-expert-memory-local-first-v0/README.md
-   - initiatives/repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md
+   - initiatives/repo-expert-memory-local-first-v0/cluster-first-substrate-decision.md
    - initiatives/repo-expert-memory-local-first-v0/history/httpapi-rpc-pivot.md
 
 2. Query Graphiti memory with:

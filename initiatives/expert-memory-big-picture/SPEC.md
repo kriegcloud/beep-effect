@@ -92,30 +92,30 @@ Read the diagram from left to right:
 - `Control Plane`: the execution and trust systems that keep the pipeline sane in production
 
 ## Reading Order
-1. [EXPERT_MEMORY_KERNEL.md](./EXPERT_MEMORY_KERNEL.md) for the core reusable architecture and the current `artifact-to-packet` proof posture
-2. [CLAIMS_AND_EVIDENCE.md](./CLAIMS_AND_EVIDENCE.md) for the likely broader durable abstraction beyond repo `v0`
-3. [EXPERT_MEMORY_CONTROL_PLANE.md](./EXPERT_MEMORY_CONTROL_PLANE.md) for the execution and trust runtime
-4. [REPRESENTATION_LAYERS.md](./REPRESENTATION_LAYERS.md) for the graph boundaries
-5. [TRUST_TIME_AND_CONFLICT.md](./TRUST_TIME_AND_CONFLICT.md) for the hardest modeling problem
-6. [DOMAIN_TRANSFER_MAP.md](./DOMAIN_TRANSFER_MAP.md) for how the model generalizes from code to law and wealth
-7. [ONTOLOGY_REASONING_PRAGMATICS.md](./ONTOLOGY_REASONING_PRAGMATICS.md) for the semantic discipline
-8. [DATABASE_AND_RUNTIME_CHOICES.md](./DATABASE_AND_RUNTIME_CHOICES.md) for store and runtime implications
-9. [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md) for the local-first rationale and hand-off to the downstream `v0` authority
-10. [RESEARCH_LANES_AND_OPEN_QUESTIONS.md](./RESEARCH_LANES_AND_OPEN_QUESTIONS.md) for practical forward paths
+1. [expert-memory-kernel.md](./expert-memory-kernel.md) for the core reusable architecture and the current `artifact-to-packet` proof posture
+2. [claims-and-evidence.md](./claims-and-evidence.md) for the likely broader durable abstraction beyond repo `v0`
+3. [expert-memory-control-plane.md](./expert-memory-control-plane.md) for the execution and trust runtime
+4. [representation-layers.md](./representation-layers.md) for the graph boundaries
+5. [trust-time-and-conflict.md](./trust-time-and-conflict.md) for the hardest modeling problem
+6. [domain-transfer-map.md](./domain-transfer-map.md) for how the model generalizes from code to law and wealth
+7. [ontology-reasoning-pragmatics.md](./ontology-reasoning-pragmatics.md) for the semantic discipline
+8. [database-and-runtime-choices.md](./database-and-runtime-choices.md) for store and runtime implications
+9. [local-first-v0-architecture.md](./local-first-v0-architecture.md) for the local-first rationale and hand-off to the downstream `v0` authority
+10. [research-lanes-and-open-questions.md](./research-lanes-and-open-questions.md) for practical forward paths
 
 ## Folder Guide
 | Document | Purpose |
 |---|---|
-| [EXPERT_MEMORY_KERNEL.md](./EXPERT_MEMORY_KERNEL.md) | Defines the reusable expert-memory kernel and its boundaries |
-| [CLAIMS_AND_EVIDENCE.md](./CLAIMS_AND_EVIDENCE.md) | Explains why claim and evidence records remain the likely broader durable abstraction beyond the repo `artifact-to-packet` proof |
-| [EXPERT_MEMORY_CONTROL_PLANE.md](./EXPERT_MEMORY_CONTROL_PLANE.md) | Frames idempotency, workflow state, progress, budgets, and audit as part of the architecture |
-| [DOMAIN_TRANSFER_MAP.md](./DOMAIN_TRANSFER_MAP.md) | Shows what transfers from repo intelligence into law, wealth, and compliance |
-| [REPRESENTATION_LAYERS.md](./REPRESENTATION_LAYERS.md) | Separates deterministic, semantic, claim, and provenance layers |
-| [ONTOLOGY_REASONING_PRAGMATICS.md](./ONTOLOGY_REASONING_PRAGMATICS.md) | Explains a pragmatic semantic-web posture for engineering use |
-| [TRUST_TIME_AND_CONFLICT.md](./TRUST_TIME_AND_CONFLICT.md) | Frames time, revision, and contradiction as central system concerns |
-| [DATABASE_AND_RUNTIME_CHOICES.md](./DATABASE_AND_RUNTIME_CHOICES.md) | Compares graph store and runtime choices without conflating them with modeling |
-| [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md) | Explains why local-first native remains the preferred `v0` product shape and points to the downstream repo-specific authority |
-| [RESEARCH_LANES_AND_OPEN_QUESTIONS.md](./RESEARCH_LANES_AND_OPEN_QUESTIONS.md) | Organizes the most credible directions for future exploration |
+| [expert-memory-kernel.md](./expert-memory-kernel.md) | Defines the reusable expert-memory kernel and its boundaries |
+| [claims-and-evidence.md](./claims-and-evidence.md) | Explains why claim and evidence records remain the likely broader durable abstraction beyond the repo `artifact-to-packet` proof |
+| [expert-memory-control-plane.md](./expert-memory-control-plane.md) | Frames idempotency, workflow state, progress, budgets, and audit as part of the architecture |
+| [domain-transfer-map.md](./domain-transfer-map.md) | Shows what transfers from repo intelligence into law, wealth, and compliance |
+| [representation-layers.md](./representation-layers.md) | Separates deterministic, semantic, claim, and provenance layers |
+| [ontology-reasoning-pragmatics.md](./ontology-reasoning-pragmatics.md) | Explains a pragmatic semantic-web posture for engineering use |
+| [trust-time-and-conflict.md](./trust-time-and-conflict.md) | Frames time, revision, and contradiction as central system concerns |
+| [database-and-runtime-choices.md](./database-and-runtime-choices.md) | Compares graph store and runtime choices without conflating them with modeling |
+| [local-first-v0-architecture.md](./local-first-v0-architecture.md) | Explains why local-first native remains the preferred `v0` product shape and points to the downstream repo-specific authority |
+| [research-lanes-and-open-questions.md](./research-lanes-and-open-questions.md) | Organizes the most credible directions for future exploration |
 
 ## Working Vocabulary
 | Term | Meaning in this folder |

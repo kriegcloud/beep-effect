@@ -16,7 +16,7 @@ The important refinement is now explicit:
 ## Current Repo Reality
 The repo now has a dedicated local-first v0 spec folder:
 - [Repo Expert-Memory Local-First V0 README](../repo-expert-memory-local-first-v0/README.md)
-- [Cluster-First Substrate Decision](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md)
+- [Cluster-First Substrate Decision](../repo-expert-memory-local-first-v0/cluster-first-substrate-decision.md)
 - [Cluster-First Plan](../repo-expert-memory-local-first-v0/history/cluster-first-repo-expert-memory-plan.md)
 - [HttpApi / Rpc Pivot Note](../repo-expert-memory-local-first-v0/history/httpapi-rpc-pivot.md)
 

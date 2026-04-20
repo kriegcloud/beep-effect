@@ -41,14 +41,14 @@ Unless new evidence materially overturns them, keep these defaults:
 
 ## Current Source-Of-Truth Reading Order
 1. [README.md](./README.md)
-2. [EXPERT_MEMORY_KERNEL.md](./EXPERT_MEMORY_KERNEL.md)
-3. [CLAIMS_AND_EVIDENCE.md](./CLAIMS_AND_EVIDENCE.md)
-4. [EXPERT_MEMORY_CONTROL_PLANE.md](./EXPERT_MEMORY_CONTROL_PLANE.md)
-5. [DATABASE_AND_RUNTIME_CHOICES.md](./DATABASE_AND_RUNTIME_CHOICES.md)
-6. [LOCAL_FIRST_V0_ARCHITECTURE.md](./LOCAL_FIRST_V0_ARCHITECTURE.md)
+2. [expert-memory-kernel.md](./expert-memory-kernel.md)
+3. [claims-and-evidence.md](./claims-and-evidence.md)
+4. [expert-memory-control-plane.md](./expert-memory-control-plane.md)
+5. [database-and-runtime-choices.md](./database-and-runtime-choices.md)
+6. [local-first-v0-architecture.md](./local-first-v0-architecture.md)
 7. [README.md](../repo-expert-memory-local-first-v0/README.md)
-8. [QUERY_STAGES_AND_RETRIEVAL_PACKET.md](../repo-expert-memory-local-first-v0/QUERY_STAGES_AND_RETRIEVAL_PACKET.md)
-9. [CLUSTER_FIRST_SUBSTRATE_DECISION.md](../repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md)
+8. [query-stages-and-retrieval-packet.md](../repo-expert-memory-local-first-v0/query-stages-and-retrieval-packet.md)
+9. [cluster-first-substrate-decision.md](../repo-expert-memory-local-first-v0/cluster-first-substrate-decision.md)
 10. [history/httpapi-rpc-pivot.md](../repo-expert-memory-local-first-v0/history/httpapi-rpc-pivot.md)
 11. [history/cluster-first-repo-expert-memory-plan.md](../repo-expert-memory-local-first-v0/history/cluster-first-repo-expert-memory-plan.md)
 12. [SPEC.md](../repo-codegraph-jsdoc/SPEC.md)
@@ -116,7 +116,7 @@ mcp__graphiti-memory__search_memory_facts({
 })
 ```
 
-For the companion notes and last-tested query catalog, see [GRAPHITI_MEMORY_BOOTSTRAP_AND_QUERY_CATALOG.md](./GRAPHITI_MEMORY_BOOTSTRAP_AND_QUERY_CATALOG.md).
+For the companion notes and last-tested query catalog, see [graphiti-memory-bootstrap-and-query-catalog.md](./graphiti-memory-bootstrap-and-query-catalog.md).
 
 ## What Not To Re-Debate Unless New Evidence Appears
 Do not reopen these by default:

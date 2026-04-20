@@ -14,6 +14,6 @@ keeping the canonical document model and runtime boundaries explicit.
 
 - [SPEC.md](./SPEC.md) — authoritative product and architecture contract
 - [PLAN.md](./PLAN.md) — implementation breakdown
-- [DECISIONS.md](./DECISIONS.md) — locked defaults and design notes
+- [decisions.md](./decisions.md) — locked defaults and design notes
 - [history/acceptance.md](./history/acceptance.md) — acceptance posture
 - [research/](./research) — upstream reference material

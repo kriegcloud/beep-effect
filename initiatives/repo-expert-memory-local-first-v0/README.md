@@ -14,8 +14,8 @@ packet, and inspectable query lifecycle.
 
 - [SPEC.md](./SPEC.md) — authoritative `v0` contract
 - [PLAN.md](./PLAN.md) — implementation plan
-- [CLUSTER_FIRST_SUBSTRATE_DECISION.md](./CLUSTER_FIRST_SUBSTRATE_DECISION.md)
-- [TOPOLOGY.md](./TOPOLOGY.md)
-- [SIDECAR_PROTOCOL.md](./SIDECAR_PROTOCOL.md)
-- [QUERY_STAGES_AND_RETRIEVAL_PACKET.md](./QUERY_STAGES_AND_RETRIEVAL_PACKET.md)
+- [cluster-first-substrate-decision.md](./cluster-first-substrate-decision.md)
+- [topology.md](./topology.md)
+- [sidecar-protocol.md](./sidecar-protocol.md)
+- [query-stages-and-retrieval-packet.md](./query-stages-and-retrieval-packet.md)
 - [history/](./history) — preserved sequencing notes and pivots

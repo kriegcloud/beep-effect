@@ -9,10 +9,10 @@ Assess whether PROV-O is the right provenance backbone for the expert-memory dir
 This assessment is grounded in the current expert-memory and semantic-web material:
 
 - [Expert Memory Big Picture](../README.md)
-- [Expert Memory Kernel](../EXPERT_MEMORY_KERNEL.md)
-- [Claims And Evidence](../CLAIMS_AND_EVIDENCE.md)
-- [Representation Layers](../REPRESENTATION_LAYERS.md)
-- [Trust, Time, And Conflict](../TRUST_TIME_AND_CONFLICT.md)
+- [Expert Memory Kernel](../expert-memory-kernel.md)
+- [Claims And Evidence](../claims-and-evidence.md)
+- [Representation Layers](../representation-layers.md)
+- [Trust, Time, And Conflict](../trust-time-and-conflict.md)
 - [`packages/common/semantic-web/README.md`](../../../packages/common/semantic-web/README.md)
 - the legacy knowledge slice package docs at `./.repos/beep-effect/packages/knowledge/{server,client,ui}/README.md` (historical archive paths, not checked into this checkout)
 - the legacy provenance emitter and RDF store implementation at `./.repos/beep-effect/packages/knowledge/server/src/Rdf/{ProvenanceEmitter.ts,RdfStoreService.ts,ProvOConstants.ts}` (historical archive paths, not checked into this checkout)

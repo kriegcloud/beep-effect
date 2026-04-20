@@ -218,7 +218,7 @@ Lock:
 Write this down in the repo as part of the same implementation plan.
 
 Create:
-- `initiatives/repo-expert-memory-local-first-v0/CLUSTER_FIRST_SUBSTRATE_DECISION.md`
+- `initiatives/repo-expert-memory-local-first-v0/cluster-first-substrate-decision.md`
 
 Keep and link:
 - `initiatives/repo-expert-memory-local-first-v0/history/httpapi-rpc-pivot.md`
@@ -228,14 +228,14 @@ Keep and link:
 
 Update:
 - `initiatives/repo-expert-memory-local-first-v0/README.md`
-- `initiatives/repo-expert-memory-local-first-v0/TOPOLOGY.md`
-- `initiatives/repo-expert-memory-local-first-v0/SIDECAR_PROTOCOL.md`
-- `initiatives/repo-expert-memory-local-first-v0/VERTICAL_SLICE.md`
-- `initiatives/repo-expert-memory-local-first-v0/EVALUATION_AND_ACCEPTANCE.md`
-- `initiatives/expert-memory-big-picture/LOCAL_FIRST_V0_ARCHITECTURE.md`
-- `initiatives/expert-memory-big-picture/EXPERT_MEMORY_ONBOARDING.md`
+- `initiatives/repo-expert-memory-local-first-v0/topology.md`
+- `initiatives/repo-expert-memory-local-first-v0/sidecar-protocol.md`
+- `initiatives/repo-expert-memory-local-first-v0/vertical-slice.md`
+- `initiatives/repo-expert-memory-local-first-v0/evaluation-and-acceptance.md`
+- `initiatives/expert-memory-big-picture/local-first-v0-architecture.md`
+- `initiatives/expert-memory-big-picture/expert-memory-onboarding.md`
 - `initiatives/expert-memory-big-picture/MINIMAL_NEW_CHAT_BOOTSTRAP_PROMPT.md`
-- `initiatives/expert-memory-big-picture/GRAPHITI_MEMORY_BOOTSTRAP_AND_QUERY_CATALOG.md`
+- `initiatives/expert-memory-big-picture/graphiti-memory-bootstrap-and-query-catalog.md`
 
 Required doc corrections:
 - remove or replace any “custom local workflow engine” recommendation

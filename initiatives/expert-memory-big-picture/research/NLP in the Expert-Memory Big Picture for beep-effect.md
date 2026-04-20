@@ -9,10 +9,10 @@ Explain where NLP belongs in this repository's expert-memory architecture, what 
 This note is grounded in the current expert-memory and semantic-web material in this repo:
 
 - [Expert Memory Big Picture](../README.md)
-- [Expert Memory Kernel](../EXPERT_MEMORY_KERNEL.md)
-- [Claims And Evidence](../CLAIMS_AND_EVIDENCE.md)
-- [Trust, Time, And Conflict](../TRUST_TIME_AND_CONFLICT.md)
-- [Local-First V0 Architecture](../LOCAL_FIRST_V0_ARCHITECTURE.md)
+- [Expert Memory Kernel](../expert-memory-kernel.md)
+- [Claims And Evidence](../claims-and-evidence.md)
+- [Trust, Time, And Conflict](../trust-time-and-conflict.md)
+- [Local-First V0 Architecture](../local-first-v0-architecture.md)
 - [Repo Expert-Memory Local-First V0](../../repo-expert-memory-local-first-v0/README.md)
 - [@beep/semantic-web](../../../packages/common/semantic-web/README.md)
 - [IP Law Knowledge Graph](../../ip-law-knowledge-graph/README.md)
