@@ -8,7 +8,8 @@
  *
  * @example
  * ```typescript
- * import { KnowledgeGraph, makeKnowledgeGraph } from "@beep/knowledge-graph/KnowledgeGraph"
+ * import { Effect } from "effect"
+ * import { KnowledgeGraph } from "@beep/knowledge-graph/KnowledgeGraph"
  *
  * // Obtain the service from the context
  * const program = Effect.gen(function* () {
@@ -80,7 +81,7 @@ export class NodeFilter extends S.Class<NodeFilter>($I`NodeFilter`)({
  * ```typescript
  * import { EdgeFilter } from "@beep/knowledge-graph/KnowledgeGraph"
  *
- * const filter = new EdgeFilter({ kind: "references" })
+ * const filter = new EdgeFilter({ kind: "wiki-link" })
  * ```
  *
  * @category models
@@ -152,19 +153,23 @@ type KnowledgeGraphShape = {
  * @example
  * ```typescript
  * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { NodeCreatedPayload } from "@beep/knowledge-graph/Events"
  * import { KnowledgeGraph } from "@beep/knowledge-graph/KnowledgeGraph"
+ * import { NodeMetadata } from "@beep/knowledge-graph/Schemas"
  *
  * const program = Effect.gen(function* () {
  *   const graph = yield* KnowledgeGraph
- *   yield* graph.addNode(
- *     new NodeCreatedPayload({
- *       nodeId: "beep:page/my-page",
- *       kind: "page",
- *       displayLabel: "My Page",
- *       content: null,
- *       metadata: new NodeMetadata({ source: "vault-parser" }),
- *     })
- *   )
+ *   const payload = S.decodeUnknownSync(NodeCreatedPayload)({
+ *     _tag: "NodeCreatedPayload",
+ *     nodeId: "beep:page/my-page",
+ *     kind: "page",
+ *     displayLabel: "My Page",
+ *     content: null,
+ *     metadata: S.decodeUnknownSync(NodeMetadata)({ source: "vault-parser" }),
+ *   })
+ *
+ *   yield* graph.addNode(payload)
  * })
  * ```
  *

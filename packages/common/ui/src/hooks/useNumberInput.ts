@@ -562,7 +562,7 @@ export const useNumberInput = (options: UseNumberInputOptions = {}) => {
   const { interfaceValue, setInterfaceValue, numberValue, increment, decrement } = useNumberBoundary(options);
 
   useEffect(() => {
-    if (getNodeEnv() !== "production" && focusInputOnChange && !inputRef.current) {
+    if (getNodeEnv() !== "production" && focusInputOnChange && inputRef.current === null) {
       console.warn(`Cannot find inputRef, make sure to pass it to <input /> like this 👇
 
 function NumberInput() {
@@ -598,7 +598,7 @@ function NumberInput() {
 
     const element = inputRef.current;
 
-    if (element && allowMouseWheel) {
+    if (element !== null && allowMouseWheel) {
       element.addEventListener("wheel", handler, { passive: false });
 
       return () => {

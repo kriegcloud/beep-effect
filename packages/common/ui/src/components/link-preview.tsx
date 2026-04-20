@@ -43,8 +43,9 @@ const extractMetaTag = (html: string, name: string): null | string => {
 
   for (const pattern of patterns) {
     const match = html.match(pattern);
-    if (match?.[1]) {
-      return match[1];
+    const matchValue = match?.[1];
+    if (hasText(matchValue)) {
+      return matchValue;
     }
   }
 
@@ -73,6 +74,8 @@ const canFetchMetadata = (href: string): boolean => {
     return false;
   }
 };
+
+const hasText = (value: null | string | undefined): value is string => P.isString(value) && value.length > 0;
 
 const getFallbackMetadata = (href: string): UrlMetadata => {
   let origin = href;
@@ -108,7 +111,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
   const shouldFetch = isValidUrl && canFetchMetadata(href);
 
   useEffect(() => {
-    if (!isInView || !shouldFetch || fetchedMetadata) {
+    if (!isInView || !shouldFetch || fetchedMetadata !== null) {
       return;
     }
 
@@ -156,13 +159,13 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
 
   useEffect(() => {
     const element = elementRef.current;
-    if (!element || href.length === 0) {
+    if (element === null || href.length === 0) {
       return;
     }
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry?.isIntersecting) {
+        if (entry?.isIntersecting === true) {
           setIsInView(true);
           observer.unobserve(element);
         }
@@ -186,7 +189,15 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
     };
   }, [fetchedMetadata, href, metadata]);
 
-  if (!href) {
+  const errorMessage = !isValidUrl ? "Invalid URL" : (error ?? "Failed to load preview");
+  const favicon = validFavicon && hasText(resolvedMetadata.favicon) ? resolvedMetadata.favicon : undefined;
+  const websiteImage = validImage && hasText(resolvedMetadata.websiteImage) ? resolvedMetadata.websiteImage : undefined;
+  const websiteName = hasText(resolvedMetadata.websiteName) ? resolvedMetadata.websiteName : undefined;
+  const title = hasText(resolvedMetadata.title) ? resolvedMetadata.title : undefined;
+  const description = hasText(resolvedMetadata.description) ? resolvedMetadata.description : undefined;
+  const hasSiteMeta = websiteName !== undefined || favicon !== undefined;
+
+  if (href.length === 0) {
     return null;
   }
 
@@ -212,51 +223,47 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
           <div className="flex justify-center p-5">
             <div className="size-5 animate-spin rounded-full border-2 border-zinc-700 border-t-white" />
           </div>
-        ) : error || !isValidUrl ? (
+        ) : error !== null || !isValidUrl ? (
           <div className="flex items-center gap-2 p-3 text-red-400">
             <InfoIcon size={16} weight="fill" />
-            <span className="text-sm">{!isValidUrl ? "Invalid URL" : (error ?? "Failed to load preview")}</span>
+            <span className="text-sm">{errorMessage}</span>
           </div>
         ) : (
           <div className="flex w-full flex-col gap-2">
-            {resolvedMetadata.websiteImage && validImage && (
+            {websiteImage !== undefined && (
               <div className="relative aspect-video w-full overflow-hidden rounded-lg">
                 <img
                   alt="Website preview"
                   className="h-full w-full rounded-lg object-cover"
-                  src={resolvedMetadata.websiteImage}
+                  src={websiteImage}
                   onError={() => setValidImage(false)}
                 />
               </div>
             )}
 
-            {(resolvedMetadata.websiteName || (resolvedMetadata.favicon && validFavicon)) && (
+            {hasSiteMeta && (
               <div className="flex items-center gap-2">
-                {resolvedMetadata.favicon && validFavicon ? (
+                {favicon !== undefined ? (
                   <img
                     width={20}
                     height={20}
                     alt="Favicon"
                     className="size-5 rounded-full"
-                    src={resolvedMetadata.favicon}
+                    src={favicon}
                     onError={() => setValidFavicon(false)}
                   />
                 ) : (
                   <ArrowSquareOutIcon size={18} className="text-zinc-400" />
                 )}
 
-                {resolvedMetadata.websiteName && (
-                  <div className="truncate text-sm font-semibold">{resolvedMetadata.websiteName}</div>
-                )}
+                {websiteName !== undefined && <div className="truncate text-sm font-semibold">{websiteName}</div>}
               </div>
             )}
 
-            {resolvedMetadata.title && (
-              <div className="truncate text-sm font-medium text-white">{resolvedMetadata.title}</div>
-            )}
+            {title !== undefined && <div className="truncate text-sm font-medium text-white">{title}</div>}
 
-            {resolvedMetadata.description && (
-              <div className="line-clamp-3 w-full text-xs text-gray-400">{resolvedMetadata.description}</div>
+            {description !== undefined && (
+              <div className="line-clamp-3 w-full text-xs text-gray-400">{description}</div>
             )}
 
             <div className="truncate text-xs text-primary">{href.replace("https://", "").replace("http://", "")}</div>

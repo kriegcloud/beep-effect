@@ -11,6 +11,7 @@
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "tsgo -b tsconfig.json",
     "test": "bunx --bun vitest run",
+    "test:integration": "bunx --bun vitest run",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "biome check src/",
     "lint:fix": "biome check src/ --write"

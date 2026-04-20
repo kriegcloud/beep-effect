@@ -730,14 +730,15 @@ const parseJsonc = Effect.fn(function* <Schema extends S.Top>(content: string, f
 });
 
 const parseJsonObject = Effect.fn(function* (content: string, filePath: string) {
-  return yield* Effect.try({
-    try: () => S.decodeUnknownSync(S.fromJsonString(JsonObject))(content),
-    catch: (cause) =>
-      new DomainError({
-        message: `Failed to parse JSON in "${filePath}"`,
-        cause,
-      }),
-  });
+  return yield* S.decodeUnknownEffect(S.fromJsonString(JsonObject))(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Failed to parse JSON in "${filePath}"`,
+          cause,
+        })
+    )
+  );
 });
 
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
@@ -960,14 +961,14 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
     const relativeDir = toPosixPath(path.relative(rootDir, absoluteDir));
     const packageJsonPath = path.join(absoluteDir, "package.json");
     const packageJsonContent = yield* readFileString(packageJsonPath);
-    const packageJson = yield* Effect.try({
-      try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(packageJsonContent),
-      catch: (cause) =>
-        new DomainError({
-          message: `Failed to parse JSON in "${packageJsonPath}"`,
-          cause,
-        }),
-    }).pipe(
+    const packageJson = yield* S.decodeUnknownEffect(S.fromJsonString(S.Unknown))(packageJsonContent).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to parse JSON in "${packageJsonPath}"`,
+            cause,
+          })
+      ),
       Effect.flatMap((parsed) =>
         decodePackageJsonEffect(parsed).pipe(
           Effect.mapError(

@@ -243,14 +243,15 @@ const parseJsonDocument: {
 } = dual(
   2,
   Effect.fn(function* (content: string, filePath: string) {
-    return yield* Effect.try({
-      try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(content),
-      catch: (cause) =>
-        new DomainError({
-          message: `Failed to parse JSON in "${filePath}"`,
-          cause,
-        }),
-    });
+    return yield* S.decodeUnknownEffect(S.fromJsonString(S.Unknown))(content).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to parse JSON in "${filePath}"`,
+            cause,
+          })
+      )
+    );
   })
 );
 

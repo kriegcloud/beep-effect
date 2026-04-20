@@ -88,6 +88,7 @@ describe("Configuration", () => {
             parseCompilerOptions: Configuration.defaultCompilerOptions,
             examplesCompilerOptions: {
               ...Configuration.defaultCompilerOptions,
+              allowImportingTsExtensions: true,
               noUnusedLocals: false,
               noUnusedParameters: false,
               types: ["node", "bun"],
@@ -141,6 +142,7 @@ describe("Configuration", () => {
             },
             examplesCompilerOptions: {
               ...Configuration.defaultCompilerOptions,
+              allowImportingTsExtensions: true,
               noUnusedLocals: false,
               noUnusedParameters: false,
               types: ["node", "bun"],

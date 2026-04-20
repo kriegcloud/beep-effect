@@ -114,14 +114,14 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
     // Export as SVG
     const exportAsSVG = useCallback(() => {
-      if (!svgRef.current) return;
+      if (svgRef.current === null) return;
 
       const clonedSvg = svgRef.current.cloneNode(true) as SVGSVGElement;
-      const graphGroup = clonedSvg.querySelector("g");
+      const graphGroup = clonedSvg.querySelector<SVGGElement>("g");
 
-      if (graphGroup) {
-        const originalGroup = svgRef.current.querySelector("g") as SVGGElement;
-        if (originalGroup) {
+      if (graphGroup !== null) {
+        const originalGroup = svgRef.current.querySelector<SVGGElement>("g");
+        if (originalGroup !== null) {
           const bbox = originalGroup.getBBox();
           const padding = 50;
           clonedSvg.setAttribute(
@@ -146,14 +146,14 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
     // Export as PNG
     const exportAsPNG = useCallback(() => {
-      if (!svgRef.current) return;
+      if (svgRef.current === null) return;
 
       const clonedSvg = svgRef.current.cloneNode(true) as SVGSVGElement;
-      const graphGroup = clonedSvg.querySelector("g");
+      const graphGroup = clonedSvg.querySelector<SVGGElement>("g");
       let bbox = { x: 0, y: 0, width: 800, height: 600 };
 
-      const originalGroup = svgRef.current.querySelector("g") as SVGGElement;
-      if (originalGroup) {
+      const originalGroup = svgRef.current.querySelector<SVGGElement>("g");
+      if (originalGroup !== null) {
         bbox = originalGroup.getBBox();
       }
 
@@ -164,7 +164,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       clonedSvg.setAttribute("viewBox", `${bbox.x - padding} ${bbox.y - padding} ${width} ${height}`);
       clonedSvg.setAttribute("width", `${width}`);
       clonedSvg.setAttribute("height", `${height}`);
-      if (graphGroup) graphGroup.removeAttribute("transform");
+      if (graphGroup !== null) graphGroup.removeAttribute("transform");
 
       const canvas = document.createElement("canvas");
       const ctx = canvas.getContext("2d");
@@ -175,7 +175,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       canvas.height = height * scale;
       ctx?.scale(scale, scale);
 
-      if (ctx) {
+      if (ctx !== null) {
         ctx.fillStyle = "#18181b";
         ctx.fillRect(0, 0, width, height);
       }
@@ -183,7 +183,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       img.onload = () => {
         ctx?.drawImage(img, 0, 0, width, height);
         canvas.toBlob((blob) => {
-          if (blob) {
+          if (blob !== null) {
             const url = URL.createObjectURL(blob);
             const link = document.createElement("a");
             link.href = url;
@@ -201,7 +201,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
     // Reset zoom
     const resetZoom = useCallback(() => {
-      if (svgRef.current && zoomRef.current) {
+      if (svgRef.current !== null && zoomRef.current !== null) {
         d3.select(svgRef.current).transition().duration(500).call(zoomRef.current.transform, d3.zoomIdentity);
       }
     }, []);
@@ -214,7 +214,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
 
     // Main D3 effect
     useEffect(() => {
-      if (!svgRef.current || !containerRef.current || nodes.length === 0) return;
+      if (svgRef.current === null || containerRef.current === null || nodes.length === 0) return;
 
       const container = containerRef.current;
       const svg = d3.select(svgRef.current);
@@ -238,7 +238,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
         colorMapping[type] = stringToColor(type);
       }
 
-      const colorScale = (type: string, customColor?: string) => customColor || colorMapping[type] || "#6b7280";
+      const colorScale = (type: string, customColor?: string) => customColor ?? colorMapping[type] ?? "#6b7280";
 
       // Set legend items
       setLegendItems(
@@ -251,13 +251,13 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       // Clone data to avoid mutation
       const nodesCopy: GraphNode[] = nodes.map((n) => ({
         ...n,
-        size: n.size || 20,
+        size: n.size ?? 20,
       }));
       const linksCopy: GraphLink[] = links.map((l) => ({ ...l }));
 
       // Position center node if specified
-      const centerNode = centerNodeId ? nodesCopy.find((n) => n.id === centerNodeId) : null;
-      if (centerNode) {
+      const centerNode = centerNodeId !== undefined ? (nodesCopy.find((n) => n.id === centerNodeId) ?? null) : null;
+      if (centerNode !== null) {
         centerNode.x = width / 2;
         centerNode.y = height / 2;
       }
@@ -271,13 +271,13 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
             .forceLink<GraphNode, GraphLink>(linksCopy)
             .id((d: GraphNode) => d.id)
             .distance(150)
-            .strength((d: GraphLink) => d.strength || 0.8)
+            .strength((d: GraphLink) => d.strength ?? 0.8)
         )
         .force("charge", d3.forceManyBody().strength(-800))
         .force("center", d3.forceCenter(width / 2, height / 2))
         .force(
           "collision",
-          d3.forceCollide<GraphNode>().radius((d: GraphNode) => (d.size || 20) + 20)
+          d3.forceCollide<GraphNode>().radius((d: GraphNode) => (d.size ?? 20) + 20)
         );
 
       // Create zoom behavior
@@ -315,7 +315,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
             .attr("text-anchor", "middle")
             .attr("font-size", "10px")
             .attr("fill", "#9ca3af")
-            .text((d: GraphLink) => d.label || "")
+            .text((d: GraphLink) => d.label ?? "")
         : null;
 
       // Create node groups
@@ -329,7 +329,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
           d3
             .drag<SVGGElement, GraphNode>()
             .on("start", (event: d3.D3DragEvent<SVGGElement, GraphNode, GraphNode>, d: GraphNode) => {
-              if (!event.active) simulation.alphaTarget(0.3).restart();
+              if (event.active === 0) simulation.alphaTarget(0.3).restart();
               d.fx = d.x;
               d.fy = d.y;
             })
@@ -338,7 +338,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
               d.fy = event.y;
             })
             .on("end", (event: d3.D3DragEvent<SVGGElement, GraphNode, GraphNode>, d: GraphNode) => {
-              if (!event.active) simulation.alphaTarget(0);
+              if (event.active === 0) simulation.alphaTarget(0);
               d.fx = null;
               d.fy = null;
             })
@@ -347,7 +347,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
       // Add circles
       nodeGroup
         .append("circle")
-        .attr("r", (d: GraphNode) => d.size || 20)
+        .attr("r", (d: GraphNode) => d.size ?? 20)
         .attr("fill", (d: GraphNode) => colorScale(d.type, d.color))
         .attr("stroke", "#27272a")
         .attr("stroke-width", 2);
@@ -390,7 +390,7 @@ export const KnowledgeGraph = forwardRef<KnowledgeGraphHandle, KnowledgeGraphPro
           .attr("x2", (d: GraphLink) => (d.target as GraphNode).x ?? 0)
           .attr("y2", (d: GraphLink) => (d.target as GraphNode).y ?? 0);
 
-        if (linkLabel) {
+        if (linkLabel !== null) {
           linkLabel
             .attr("x", (d: GraphLink) => (((d.source as GraphNode).x ?? 0) + ((d.target as GraphNode).x ?? 0)) / 2)
             .attr("y", (d: GraphLink) => (((d.source as GraphNode).y ?? 0) + ((d.target as GraphNode).y ?? 0)) / 2);

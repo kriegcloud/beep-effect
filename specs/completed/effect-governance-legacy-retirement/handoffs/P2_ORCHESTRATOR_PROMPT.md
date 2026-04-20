@@ -1,1 +1,0 @@
-Read `handoffs/HANDOFF_P2.md`, `RESEARCH.md`, `VALIDATED_OPTIONS.md`, `outputs/legacy-surface-inventory.md`, `outputs/removal-matrix.md`, `outputs/dependency-cut-map.md`, and the live command, config, and dependency surfaces. Produce the ranked retirement plan in `PLANNING.md`.

@@ -16,9 +16,9 @@ function Slider({ className, defaultValue, value, min = 0, max = 100, ref, ...pr
     <SliderPrimitive.Root
       className="data-horizontal:w-full data-vertical:h-full"
       data-slot="slider"
-      {...(defaultValue ? { defaultValue } : {})}
-      {...(value ? { value } : {})}
-      {...(ref ? { ref } : {})}
+      {...(defaultValue !== undefined ? { defaultValue } : {})}
+      {...(value !== undefined ? { value } : {})}
+      {...(ref !== undefined && ref !== null ? { ref } : {})}
       min={min}
       max={max}
       thumbAlignment="edge"

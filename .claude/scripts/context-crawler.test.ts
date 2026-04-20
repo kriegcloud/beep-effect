@@ -1,5 +1,5 @@
 import { BunServices } from "@effect/platform-bun";
-import { Effect, FileSystem, pipe } from "effect";
+import { Effect, FileSystem, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as Str from "effect/String";
@@ -10,13 +10,13 @@ import { describe, expect, it } from "vitest";
 const parseFrontmatter = (content: string): O.Option<string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
   const match = O.getOrNull(Str.match(frontmatterRegex)(content));
-  return match ? O.some(match[1]) : O.none();
+  return match === null ? O.none() : O.some(match[1]);
 };
 
 const extractTomlMessage = (toml: string): O.Option<string> => {
   const messageRegex = /message\s*=\s*"([^"]*)"/;
   const match = O.getOrNull(Str.match(messageRegex)(toml));
-  return match ? O.some(match[1]) : O.none();
+  return match === null ? O.none() : O.some(match[1]);
 };
 
 const extractFirstParagraph = (content: string): O.Option<string> => {
@@ -36,7 +36,7 @@ const extractFirstParagraph = (content: string): O.Option<string> => {
 const extractPurposeSection = (content: string): O.Option<string> => {
   const purposeRegex = /## Purpose\n([^\n]+)/;
   const match = O.getOrNull(Str.match(purposeRegex)(content));
-  return match ? O.some(Str.trim(match[1])) : O.none();
+  return match === null ? O.none() : O.some(Str.trim(match[1]));
 };
 
 const extractSummary = (content: string, fallback: string): string => {
@@ -321,18 +321,22 @@ External lib`
       return fixtureDir;
     });
 
-    const runCrawlerInFixture = (args: ReadonlyArray<string>) =>
-      Effect.gen(function* () {
-        const fixtureDir = yield* setupFixture;
-        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-        return yield* spawner.string(
-          ChildProcess.make("bun", [`${process.cwd()}/scripts/context-crawler.ts`, ...args], { cwd: fixtureDir })
-        );
-      }).pipe(Effect.scoped, Effect.provide(BunServices.layer));
+    const runCrawlerInFixture = Effect.fn("runCrawlerInFixture")(function* (args: ReadonlyArray<string>) {
+      const fixtureDir = yield* setupFixture;
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      return yield* spawner.string(
+        ChildProcess.make("bun", [`${process.cwd()}/scripts/context-crawler.ts`, ...args], { cwd: fixtureDir })
+      );
+    });
+
+    const runCrawlerWithBun = Effect.fn("runCrawlerWithBun")(function* (args: ReadonlyArray<string>) {
+      const context = yield* Layer.build(BunServices.layer);
+      return yield* runCrawlerInFixture(args).pipe(Effect.provide(context));
+    }, Effect.scoped);
 
     it("--list returns module paths", () =>
       Effect.gen(function* () {
-        const result = yield* runCrawlerInFixture(["--list"]);
+        const result = yield* runCrawlerWithBun(["--list"]);
         expect(result).toContain(".");
         expect(result).toContain("apps/editor");
         expect(result).toContain("packages/core");
@@ -340,7 +344,7 @@ External lib`
 
     it("--summary returns grouped modules", () =>
       Effect.gen(function* () {
-        const result = yield* runCrawlerInFixture(["--summary"]);
+        const result = yield* runCrawlerWithBun(["--summary"]);
         expect(result).toContain('<modules count="');
         expect(result).toContain("</modules>");
         expect(result).toContain("<internal");
@@ -350,7 +354,7 @@ External lib`
 
     it("--search finds matching modules", () =>
       Effect.gen(function* () {
-        const result = yield* runCrawlerInFixture(["--search", "editor"]);
+        const result = yield* runCrawlerWithBun(["--search", "editor"]);
         expect(result).toContain('<modules-search pattern="editor"');
         expect(result).toContain("</modules-search>");
         expect(result).toContain("apps/editor");
@@ -358,7 +362,7 @@ External lib`
 
     it("--module returns content without frontmatter", () =>
       Effect.gen(function* () {
-        const result = yield* runCrawlerInFixture(["--module", "."]);
+        const result = yield* runCrawlerWithBun(["--module", "."]);
         expect(result).toContain('<module path=".">');
         expect(result).toContain("Root content");
         expect(result).not.toContain('message = "Root module"');

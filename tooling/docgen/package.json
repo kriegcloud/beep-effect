@@ -18,6 +18,7 @@
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
     "docgen": "bun run src/bin.ts",
+    "docs:aggregate": "bash -o pipefail -c 'cd ../.. && bun run tooling/cli/src/bin.ts -- docs aggregate --clean'",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "bunx --bun vitest run"

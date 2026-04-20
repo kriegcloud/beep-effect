@@ -32,19 +32,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
         with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          registry-url: https://registry.npmjs.org
-          node-version-file: .nvmrc
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+          cache-turbo: false
 
       - name: Create or update release pull request
         uses: changesets/action@v1
@@ -65,25 +56,25 @@ jobs:
     environment:
       # Configure this environment with required reviewers to enforce approval.
       name: release-publish
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
         with:
-          bun-version-file: .bun-version
+          cache-turbo: true
 
-      - name: Setup Node.js
+      - name: Configure npm registry access
         uses: actions/setup-node@v4
         with:
           registry-url: https://registry.npmjs.org
           node-version-file: .nvmrc
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
 
       - name: Publish packages via locked release script
         run: bun run release

@@ -426,9 +426,10 @@ export type KnowledgeEdgeId = typeof KnowledgeEdgeId.Type;
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { NodeMetadata } from "@beep/knowledge-graph/Schemas"
  *
- * const meta = new NodeMetadata({ source: "vault-parser" })
+ * const meta = S.decodeUnknownSync(NodeMetadata)({ source: "vault-parser" })
  * console.log(meta.domain) // "general"
  * console.log(meta.certainty) // 1
  * console.log(meta.tags) // []

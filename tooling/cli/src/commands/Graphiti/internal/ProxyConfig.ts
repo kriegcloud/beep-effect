@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
-import { Config, Effect, SchemaTransformation } from "effect";
+import { Config, Effect, SchemaGetter } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -16,13 +16,12 @@ const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyConfig");
 
 const makeDefaultedStringField = (name: string, fallback: string, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.String,
-      SchemaTransformation.transform({
-        decode: (value) => O.getOrElse(O.fromUndefinedOr(value), () => fallback),
-        encode: (value) => value,
-      })
-    ),
+    S.decodeTo(S.String, {
+      decode: SchemaGetter.transform((value: string | undefined) =>
+        O.getOrElse(O.fromUndefinedOr(value), () => fallback)
+      ),
+      encode: SchemaGetter.transform((value: string) => value),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(fallback)),
     S.annotate($I.annote(name, { description }))
@@ -30,17 +29,14 @@ const makeDefaultedStringField = (name: string, fallback: string, description: s
 
 const makeDefaultedPositiveIntField = (name: string, fallback: number, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.Number,
-      SchemaTransformation.transform({
-        decode: (value) => {
-          const normalized = O.getOrElse(O.fromUndefinedOr(value), () => `${fallback}`);
-          const parsed = globalThis.Number(normalized);
-          return globalThis.Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-        },
-        encode: (value) => `${value}`,
-      })
-    ),
+    S.decodeTo(S.Number, {
+      decode: SchemaGetter.transform((value: string | undefined) => {
+        const normalized = O.getOrElse(O.fromUndefinedOr(value), () => `${fallback}`);
+        const parsed = globalThis.Number(normalized);
+        return globalThis.Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+      }),
+      encode: SchemaGetter.transform((value: number) => `${value}`),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(`${fallback}`)),
     S.annotate($I.annote(name, { description }))
@@ -48,18 +44,17 @@ const makeDefaultedPositiveIntField = (name: string, fallback: number, descripti
 
 const makeDefaultedBooleanField = (name: string, fallback: boolean, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.Boolean,
-      SchemaTransformation.transform({
-        decode: (value) => {
-          const raw = O.getOrElse(O.fromUndefinedOr(value), () =>
-            Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })
-          );
-          return O.getOrElse(S.decodeUnknownOption(NormalizedBooleanString)(raw), () => fallback);
-        },
-        encode: (value) => Bool.match(value, { onTrue: () => "true", onFalse: () => "false" }),
-      })
-    ),
+    S.decodeTo(S.Boolean, {
+      decode: SchemaGetter.transform((value: string | undefined) => {
+        const raw = O.getOrElse(O.fromUndefinedOr(value), () =>
+          Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })
+        );
+        return O.getOrElse(S.decodeUnknownOption(NormalizedBooleanString)(raw), () => fallback);
+      }),
+      encode: SchemaGetter.transform((value: boolean) =>
+        Bool.match(value, { onTrue: () => "true", onFalse: () => "false" })
+      ),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" }))),
     S.annotate($I.annote(name, { description }))
@@ -67,16 +62,13 @@ const makeDefaultedBooleanField = (name: string, fallback: boolean, description:
 
 const makeDefaultedUrlField = (name: string, fallback: string, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.String,
-      SchemaTransformation.transform({
-        decode: (value) => {
-          const candidate = O.getOrElse(O.fromUndefinedOr(value), () => fallback);
-          return URL.canParse(candidate) ? new URL(candidate).href : fallback;
-        },
-        encode: (value) => value,
-      })
-    ),
+    S.decodeTo(S.String, {
+      decode: SchemaGetter.transform((value: string | undefined) => {
+        const candidate = O.getOrElse(O.fromUndefinedOr(value), () => fallback);
+        return URL.canParse(candidate) ? new URL(candidate).href : fallback;
+      }),
+      encode: SchemaGetter.transform((value: string) => value),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(fallback)),
     S.annotate($I.annote(name, { description }))

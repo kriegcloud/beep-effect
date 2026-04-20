@@ -474,27 +474,29 @@ export const summarizeExit = <A, E>(exit: Exit.Exit<A, E>): ObservedExitSummary 
         reasonCount: decodeNonNegativeInt(0),
         primaryMessage: "success",
       }),
-    onFailure: flow((cause) => [summarizeCause(cause), cause] as const, ([summary, cause]) => {
+    onFailure: flow(
+      (cause) => [summarizeCause(cause), cause] as const,
+      ([summary, cause]) => {
+        const fields = {
+          outcome: ExitOutcome.Enum.failure,
+          fingerprint: summary.fingerprint,
+          interrupted: Cause.hasInterrupts(cause),
+          reasonCount: summary.reasonCount,
+          primaryMessage: summary.primaryMessage,
+        };
 
-      const fields = {
-        outcome: ExitOutcome.Enum.failure,
-        fingerprint: summary.fingerprint,
-        interrupted: Cause.hasInterrupts(cause),
-        reasonCount: summary.reasonCount,
-        primaryMessage: summary.primaryMessage,
-      };
-
-      return pipe(
-        summary.classification,
-        CauseClassification.$match({
-          defect: () => ObservedExitSummaryTagged.cases.defect.make(fields),
-          empty: () => ObservedExitSummaryTagged.cases.empty.make(fields),
-          failure: () => ObservedExitSummaryTagged.cases.failure.make(fields),
-          interrupted: () => ObservedExitSummaryTagged.cases.interrupted.make(fields),
-          mixed: () => ObservedExitSummaryTagged.cases.mixed.make(fields),
-        })
-      );
-    }),
+        return pipe(
+          summary.classification,
+          CauseClassification.$match({
+            defect: () => ObservedExitSummaryTagged.cases.defect.make(fields),
+            empty: () => ObservedExitSummaryTagged.cases.empty.make(fields),
+            failure: () => ObservedExitSummaryTagged.cases.failure.make(fields),
+            interrupted: () => ObservedExitSummaryTagged.cases.interrupted.make(fields),
+            mixed: () => ObservedExitSummaryTagged.cases.mixed.make(fields),
+          })
+        );
+      }
+    ),
   });
 
 /**

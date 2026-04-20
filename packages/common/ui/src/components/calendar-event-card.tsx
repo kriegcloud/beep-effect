@@ -34,7 +34,8 @@ export function CalendarEventCard({
   opacity = 1,
   className,
 }: CalendarEventCardProps) {
-  const hasAction = variant === "action" && onAction;
+  const hasAction = variant === "action" && onAction !== undefined;
+  const hasLabel = label !== undefined && label.length > 0;
   const finalOpacity = status === "completed" ? 0.5 : opacity;
 
   const buttonColorClasses = {
@@ -67,7 +68,7 @@ export function CalendarEventCard({
       </div>
 
       <div className="min-w-0 flex-1">
-        {label && (
+        {hasLabel && (
           <div
             className={cn(
               "mb-1 text-xs font-medium",
@@ -125,10 +126,12 @@ interface EventTimeProps {
 }
 
 export function EventTime({ startTime, endTime, className }: EventTimeProps) {
+  const hasEndTime = endTime !== undefined && endTime.length > 0;
+
   return (
     <p className={cn("text-sm text-zinc-600 dark:text-zinc-400", className)}>
       {startTime}
-      {endTime ? ` - ${endTime}` : ""}
+      {hasEndTime ? ` - ${endTime}` : ""}
     </p>
   );
 }

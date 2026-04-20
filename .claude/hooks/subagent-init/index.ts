@@ -21,6 +21,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { provideLayerScoped } from "../../internal/runtime.ts";
 
 const $I = $ClaudeId.create("hooks/subagent-init/index");
 
@@ -376,8 +377,7 @@ ${miseTasks || "(none)"}
 });
 
 const runnable = pipe(
-  program,
-  Effect.provide(AppLive),
+  Effect.scoped(provideLayerScoped(program, AppLive)),
   Effect.catchTag("AgentConfigError", (error) => Console.error(`<error>${error.reason}</error>`))
 );
 

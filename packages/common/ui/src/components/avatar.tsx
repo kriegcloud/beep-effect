@@ -30,7 +30,7 @@ function AvatarImage({ className, src, alt, onLoadingStatusChange, ...props }: A
   callbackRef.current = onLoadingStatusChange;
 
   React.useEffect(() => {
-    if (!src) {
+    if (src === undefined || src.length === 0) {
       setStatus("error");
       return;
     }

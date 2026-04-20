@@ -72,7 +72,7 @@ export type GetLogIssuesOptions = Readonly<{
  *
  * @example
  * ```ts
- * import { getLogIssues } from "@beep/messages";
+ * import { getLogIssues, t } from "@beep/messages";
  * import * as S from "effect/Schema";
  *
  * const Person = S.Struct({

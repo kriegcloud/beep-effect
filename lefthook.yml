@@ -3,7 +3,7 @@ pre-commit:
   commands:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc,css}"
-      exclude: ".beep/**|specs/**|outputs/**|scratchpad/**"
+      exclude: ".beep/**|initiatives/**|outputs/**|scratchpad/**"
       run: bunx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched {staged_files}
       stage_fixed: true
     jsdoc:
@@ -14,7 +14,7 @@ pre-commit:
       run: gitleaks protect --staged --verbose
     typos:
       glob: "*.{ts,tsx,js,jsx,md,json}"
-      exclude: ".beep/**|specs/**|outputs/**|scratchpad/**"
+      exclude: ".beep/**|initiatives/**|outputs/**|scratchpad/**"
       run: typos --exclude '.beep/**' --exclude 'scratchpad/**'
 
 commit-msg:
