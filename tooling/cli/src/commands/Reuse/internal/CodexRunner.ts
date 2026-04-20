@@ -9,6 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { TaggedErrorClass } from "@beep/schema";
 import { Effect, type FileSystem } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
@@ -128,7 +129,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
       sdkPackage: "@openai/codex-sdk",
       workingDirectory: repoRoot,
       threadCreated: true,
-      threadRunMethodAvailable: typeof thread.run === "function",
+      threadRunMethodAvailable: P.isFunction(thread.run),
       note: "The smoke path validates SDK import and thread startup only. It does not execute an agent loop.",
     });
   }

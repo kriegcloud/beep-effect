@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/languages | World Languages JSON Dataset}
  *
  * @category constants
- * @module @beep/data/WorldLanguages
+ * @module \@beep/data/WorldLanguages
  * @since 0.0.0
  */
 /**

@@ -2,7 +2,7 @@
  * Schema for the `Expect-CT` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/ExpectCT
+ * @module \@beep/schema/http/headers/ExpectCT
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";

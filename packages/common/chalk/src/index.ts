@@ -1,7 +1,7 @@
 /**
  * Public entrypoint for `@beep/chalk`.
  *
- * Re-exports all symbols from {@link module:@beep/chalk/Chalk} including the
+ * Re-exports all symbols from the `./Chalk.ts` module, including the
  * default shared `chalk` instance, the `Chalk` constructor, schema-backed
  * color models, and compatibility arrays.
  *
@@ -22,7 +22,7 @@
  * ```
  *
  * @since 0.0.0
- * @module @beep/chalk
+ * @module \@beep/chalk
  */
 /**
  * @since 0.0.0

@@ -1,7 +1,7 @@
 /**
  * Lexical constant schemas mirrored from the upstream Lexical source.
  *
- * @module @beep/editor/Domain/LexicalConstants
+ * @module \@beep/editor/Domain/LexicalConstants
  * @since 0.0.0
  */
 import { $EditorId } from "@beep/identity";

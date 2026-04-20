@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/countries | World Countries JSON Dataset}
  *
  * @category constants
- * @module @beep/data/WorldCountries
+ * @module \@beep/data/WorldCountries
  * @since 0.0.0
  */
 /**

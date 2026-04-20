@@ -7,6 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
@@ -266,13 +267,13 @@ const hasAnnotationsRecord = (
         semanticSchemaMetadata?: SemanticSchemaMetadataAnnotationPayload | undefined;
       }
     | undefined;
-} => typeof value === "object" && value !== null;
+} => P.isObject(value);
 
 const findSemanticSchemaMetadata = (
   value: unknown,
   visited: WeakSet<object>
 ): SemanticSchemaMetadataAnnotationPayload | undefined => {
-  if (typeof value !== "object" || value === null) {
+  if (!P.isObject(value)) {
     return;
   }
 

@@ -1,7 +1,7 @@
 /**
  * A module containing utilities for escaping HTML text.
  *
- * @module @beep/utils/Html
+ * @module \@beep/utils/Html
  * @since 0.0.0
  */
 

@@ -591,11 +591,13 @@ export type ReverseableStruct = Readonly<{
  * of all matching original keys.
  *
  * @example
+ * ```ts
  * import type { ReverseStruct } from "@beep/utils/Struct";
  *
  * type Direction = ReverseStruct<{ readonly up: "north"; readonly down: "south" }>;
  * let example!: Direction;
  * void example;
+ * ```
  *
  * @category DomainModel
  * @since 0.1.0
@@ -617,6 +619,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
  * When duplicate values exist, the last encountered key wins at runtime.
  *
  * @example
+ * ```ts
  * import { Struct } from "@beep/utils";
  *
  * const ErrorCode = {
@@ -628,6 +631,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
  *
  * reversed["00000"]; // "SUCCESSFUL_COMPLETION"
  * ErrorCode[reversed[ErrorCode.SUCCESSFUL_COMPLETION]]; // "00000"
+ * ```
  *
  * @since 0.1.0
  * @category utility

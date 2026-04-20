@@ -1,7 +1,7 @@
 /**
  * DOM element schemas
  *
- * @module @beep/schema/dom/elements
+ * @module \@beep/schema/dom/elements
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -16,8 +16,8 @@ const $I = $SchemaId.create("dom/elements");
  *
  * @since 0.0.0
  * @category Validation
- * @param u
- * @returns {u is HTMLElement}
+ * @param u - Value to test.
+ * @returns `true` when the value is an `HTMLElement`.
  */
 export const isHTMLElement = (u: unknown): u is HTMLElement => u instanceof HTMLElement;
 
@@ -34,7 +34,7 @@ export const DOMHtmlElement = S.declare(isHTMLElement).pipe(
 );
 
 /**
- * type of {@link HTMLElement} {@inheritDoc HTMLElement}
+ * {@inheritDoc HTMLElement}
  *
  * @since 0.0.0
  * @category DomainModel
@@ -46,8 +46,8 @@ export type DOMHtmlElement = typeof DOMHtmlElement.Type;
  *
  * @since 0.0.0
  * @category Validation
- * @param u
- * @returns {u is React.CSSProperties}
+ * @param u - Value to test.
+ * @returns `true` when the value is a `React.CSSProperties` object.
  */
 export const isCSSProperties = (u: unknown): u is React.CSSProperties => {
   if (P.not(P.isObject)(u) || P.isNull(u)) {
@@ -75,8 +75,8 @@ export const DOMCssProperties = S.declare(isCSSProperties).pipe(
  *
  * @since 0.0.0
  * @category Validation
- * @param u
- * @returns {u is React.ReactNode}
+ * @param u - Value to test.
+ * @returns `true` when the value is a valid `React.ReactNode`.
  */
 export const isReactNode = (u: unknown): u is React.ReactNode => {
   // React.ReactNode can be:
@@ -123,7 +123,7 @@ export const DOMReactNode = S.declare(isReactNode).pipe(
 );
 
 /**
- * type of {@link DOMReactNode} {@inheritDoc DOMReactNode}
+ * {@inheritDoc DOMReactNode}
  *
  * @since 0.0.0
  * @category DomainModel
@@ -135,8 +135,8 @@ export type DOMReactNode = typeof DOMReactNode.Type;
  *
  * @since 0.0.0
  * @category Validation
- * @param u
- * @returns {u is React.Ref<T>}
+ * @param u - Value to test.
+ * @returns `true` when the value is a valid `React.Ref<T>`.
  */
 export const isReactRef = <T>(u: unknown): u is React.Ref<T> => {
   // React.Ref can be:
@@ -185,8 +185,8 @@ export const createDOMRefSchema = <T extends HTMLElement>() => {
  *
  * @since 0.0.0
  * @category Validation
- * @param u
- * @returns {u is DragEvent}
+ * @param u - Value to test.
+ * @returns `true` when the value is a `DragEvent`.
  */
 export const isDragEvent = (u: unknown): u is DragEvent => u instanceof DragEvent;
 
@@ -203,7 +203,7 @@ export const DOMDragEvent = S.declare(isDragEvent).pipe(
 );
 
 /**
- * type of {@link DOMDragEvent} {@inheritDoc DOMDragEvent}
+ * {@inheritDoc DOMDragEvent}
  *
  * @since 0.0.0
  * @category DomainModel

@@ -3,7 +3,7 @@
  * pattern strings.
  *
  * @since 0.0.0
- * @module @beep/schema/RegExp
+ * @module \@beep/schema/RegExp
  */
 
 import { $SchemaId } from "@beep/identity/packages";

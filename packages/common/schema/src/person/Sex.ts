@@ -1,5 +1,5 @@
 /**
- * @module @beep/schema/person/Sex
+ * @module \@beep/schema/person/Sex
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -19,7 +19,7 @@ export const Sex = LiteralKit(["male", "female"]).pipe(
   })
 );
 /**
- * Type for {@link Sex} {@inheritDoc Sex}
+ * {@inheritDoc Sex}
  *
  * @category Validation
  * @since 0.0.0

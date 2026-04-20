@@ -71,8 +71,10 @@ const formatDateTime = (value: DateTime.Utc): string =>
     timeStyle: "short",
   }).format(DateTime.toEpochMillis(value));
 
-const browserBaseUrl = (): O.Option<string> =>
-  typeof window === "undefined" ? O.none() : O.some(normalizeVt2BaseUrl(window.location.origin));
+const browserBaseUrl = (): O.Option<string> => {
+  const runtimeWindow = globalThis.window;
+  return P.isUndefined(runtimeWindow) ? O.none() : O.some(normalizeVt2BaseUrl(runtimeWindow.location.origin));
+};
 
 const resolveManagedBaseUrl = (state: Vt2ManagedSidecarState | null): O.Option<string> =>
   O.fromNullishOr(state).pipe(

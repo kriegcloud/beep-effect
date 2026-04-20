@@ -2,7 +2,7 @@
  * DeleteCorpus tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/DeleteCorpus
+ * @module \@beep/nlp/Tools/DeleteCorpus
  */
 
 import { $NlpId } from "@beep/identity";

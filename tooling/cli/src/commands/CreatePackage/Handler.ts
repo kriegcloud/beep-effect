@@ -6,7 +6,7 @@
  * - FileGenerationPlanService for deterministic plan/execute
  * - Shared repo config synchronization after scaffolding
  *
- * @module @beep/repo-cli/commands/CreatePackage/Handler
+ * @module \@beep/repo-cli/commands/CreatePackage/Handler
  * @since 0.0.0
  */
 
@@ -222,17 +222,17 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
  *
  * Must be repo-relative, normalized, and free of traversal segments.
  *
- * @param value Parent directory override to validate.
+ * @param value - Parent directory override to validate.
  * @returns True when the override is safe and repo-relative.
  */
 /**
  * Compute the path from a package directory back to repo root.
  *
  * Examples:
- * - `tooling/cli` => `../../`
- * - `packages/common/types` => `../../../`
+ * - `tooling/cli` maps to `../../`
+ * - `packages/common/types` maps to `../../../`
  *
- * @param packagePath Repo-relative package path.
+ * @param packagePath - Repo-relative package path.
  * @returns Relative path from the package directory to repo root.
  */
 const toRootRelative = (packagePath: string): string => CommonStr.repeat("../", A.length(Str.split(packagePath, "/")));

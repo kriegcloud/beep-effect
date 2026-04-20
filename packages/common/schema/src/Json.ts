@@ -1,7 +1,7 @@
 /**
  * A module containing effect schema's for json data types
  *
- * @module @beep/schema/Json
+ * @module \@beep/schema/Json
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

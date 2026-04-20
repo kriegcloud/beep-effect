@@ -1,5 +1,5 @@
 /**
- * @beep/shared-env
+ * \@beep/shared-env
  *
  * @since 0.0.0
  */

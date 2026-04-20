@@ -7,7 +7,7 @@
  * invocation time using the provided input, output, and error schemas.
  *
  * @since 0.0.0
- * @module @beep/schema/Fn
+ * @module \@beep/schema/Fn
  */
 
 import { $SchemaId } from "@beep/identity/packages";

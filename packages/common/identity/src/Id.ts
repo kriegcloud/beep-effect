@@ -21,7 +21,7 @@
  * void sym // Symbol.for("@beep/my-pkg")
  * ```
  *
- * @module @beep/identity/Id
+ * @module \@beep/identity/Id
  * @since 0.0.0
  */
 
@@ -60,8 +60,9 @@ const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
  * Error thrown when an identity template tag receives interpolation values.
  *
  * Identity template tags must be called with a single static string literal,
- * e.g. `` $I`Segment` ``. Passing `${variable}` expressions is forbidden
- * because identity strings must be statically deterministic.
+ * for example by calling the `$I` template tag with a static segment.
+ * Passing interpolated expressions is forbidden because identity strings
+ * must be statically deterministic.
  *
  * @example
  * ```typescript
@@ -101,7 +102,7 @@ export class IdentityInterpolationError extends S.TaggedErrorClass<IdentityInter
 /**
  * Error thrown when an identity template tag receives more or fewer than one literal segment.
  *
- * Template tags must be called with exactly one static string, e.g. `` $I`Segment` ``.
+ * Template tags must be called with exactly one static string segment.
  *
  * @example
  * ```typescript
@@ -864,17 +865,8 @@ const decodeSegment = S.decodeUnknownSync(SegmentSchema);
 const decodeModuleSegment = S.decodeUnknownSync(ModuleSegmentSchema);
 const decodeBaseSegment = S.decodeUnknownSync(BaseSegmentSchema);
 
-/**
- * @template Value {string} - the string literal generic
- * @param {Value} value
- * @returns {IdentityString<Value>}
- */
 const toIdentityString = <Value extends string>(value: Value): IdentityString<Value> => value as IdentityString<Value>;
 
-/**
- *
- * @param value
- */
 const toIdentitySymbol = <Value extends string>(value: Value): IdentitySymbol<Value> =>
   Symbol.for(value) as IdentitySymbol<Value>;
 
@@ -883,11 +875,6 @@ function appendIdentityValue(value: string, next: string): string {
   return `${value}/${next}`;
 }
 
-/**
- * @template Identifier {TString.NonEmpty}
- * @param {Identifier} identifier
- * @returns {TitleFromIdentifier<Identifier>}
- */
 const toTitle = <const Identifier extends TString.NonEmpty>(identifier: Identifier): TitleFromIdentifier<Identifier> =>
   pipe(
     identifier,
@@ -902,37 +889,17 @@ const toTitle = <const Identifier extends TString.NonEmpty>(identifier: Identifi
 type ModulePascal<Segment extends TString.NonEmpty> =
   ModuleAccessor<Segment> extends `${infer Pascal}Id` ? Pascal : never;
 
-/**
- * @template Segment
- * @param {Segment} segment - A segment to convert to PascalCase
- * @returns {ModulePascal<Segment>}
- */
 const toPascalIdentifier = <const Segment extends TString.NonEmpty>(segment: Segment): ModulePascal<Segment> =>
   pipe(segment, toTitle, Str.replace(/\s+/g, "")) as ModulePascal<Segment>;
 
-/**
- * @template Segment
- * @param {Segment} segment - A segment to convert to a tagged accessor key
- * @returns {TaggedAccessor<Segment>}
- */
 const toTaggedKey = <const Segment extends TString.NonEmpty>(segment: Segment): TaggedAccessor<Segment> =>
   `$${toPascalIdentifier(segment)}Id` as TaggedAccessor<Segment>;
 
-/**
- * @template Segment
- * @param {Segment} segment - A segment to validate and return as-is
- * @returns {Segment}
- */
 const validateSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
   decodeSegment(segment);
   return segment;
 };
 
-/**
- * @template Segment
- * @param {Segment} segment - A segment to validate and return as-is
- * @returns {Segment}
- */
 const validateModuleSegment = <const Segment extends TString.NonEmpty>(segment: Segment): Segment => {
   decodeModuleSegment(segment);
   return segment;
@@ -963,11 +930,6 @@ const validateTemplateSegmentCount = (strings: TemplateStringsArray): void =>
 const stripPrefix = (prefix: string) =>
   flow(O.liftPredicate(Str.startsWith(prefix)), O.map(Str.slice(Str.length(prefix))));
 
-/**
- * @template Base
- * @param {Base} base - A base string to normalize
- * @returns {NormalizedBase<Base>}
- */
 const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): NormalizedBase<Base> => {
   const value = decodeString(base);
   const namespaceBaseOption = O.as(O.liftPredicate(isBeepNamespace)(value), beepBase);
@@ -986,22 +948,12 @@ const normalizeBase = <const Base extends TString.NonEmpty>(base: Base): Normali
   return decodeBaseSegment(withoutAtPrefix) as NormalizedBase<Base>;
 };
 
-/**
- * @template Base
- * @param {NormalizedBase<Base>} base - A normalized base string to create an identity from
- * @returns {BaseIdentity<Base>}
- */
 const createBaseIdentity = <const Base extends TString.NonEmpty>(base: NormalizedBase<Base>): BaseIdentity<Base> =>
   O.match(O.liftPredicate(isBeepBase)(base), {
     onNone: () => `${beepNamespace}/${base}` as BaseIdentity<Base>,
     onSome: () => beepNamespace as BaseIdentity<Base>,
   });
 
-/**
- * @template Value
- * @param {Value} value
- * @returns {IdentityComposer<Value>}
- */
 const createComposer = <const Value extends string>(value: Value): IdentityComposer<Value> => {
   const identityValue = toIdentityString(value);
 
@@ -1017,12 +969,6 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
     return [toTaggedKey(ensured), composeNext(ensured)] as const;
   }
 
-  /**
-   *
-   * @template Next,Value
-   * @param {SegmentValue<Next>} segment
-   * @returns {IdentityComposer<`${Value}/${SegmentValue<Next>}`>}
-   */
   const composeNext = <const Next extends TString.NonEmpty>(
     segment: SegmentValue<Next>
   ): IdentityComposer<`${Value}/${SegmentValue<Next>}`> => {
@@ -1031,11 +977,6 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
     return createComposer(composed);
   };
 
-  /**
-   * @template Next,Value
-   * @param {SegmentValue<Next>} identifier
-   * @returns {IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>}
-   */
   const identityAnnotation = <const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>
   ): IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>> => {
@@ -1049,12 +990,6 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
     } satisfies IdentityAnnotation<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>>;
   };
 
-  /**
-   * @template Next,Extras,Value
-   * @param {SegmentValue<Next>} identifier
-   * @param {IdentityAnyAnnotationExtras<unknown> | undefined} extras
-   * @returns {IdentityAnnotationResult<`${Value}/${SegmentValue<Next>}`, SegmentValue<Next>, Extras>}
-   */
   const annote = <
     const Next extends TString.NonEmpty = TString.NonEmpty,
     const Extras extends IdentityAnyAnnotationExtras<unknown> = {},
@@ -1076,12 +1011,6 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
       })
     );
 
-  /**
-   * @template Schema,Next
-   * @param {SegmentValue<Next>} identifier
-   * @param {Schema["~annotate.in"] | undefined} extras
-   * @returns {(self: Schema) => Schema["~rebuild.out"]}
-   */
   const annoteSchema = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | S.Annotations.Bottom<Schema["Type"], Schema["~type.parameters"]>
@@ -1120,12 +1049,6 @@ const createComposer = <const Value extends string>(value: Value): IdentityCompo
     });
   }
 
-  /**
-   * @template Schema,Next
-   * @param {SegmentValue<Next>} identifier
-   * @param {HttpAnnotationExtras<Schema["Type"]> | undefined} extras
-   * @returns {(self: Schema) => Schema["~rebuild.out"]}
-   */
   const annoteHttp = <Schema extends S.Top, const Next extends TString.NonEmpty = TString.NonEmpty>(
     identifier: SegmentValue<Next>,
     extras?: undefined | HttpAnnotationExtras<Schema["Type"]>

@@ -1,5 +1,5 @@
 /**
- * @beep/shared-tables
+ * \@beep/shared-tables
  *
  * @since 0.0.0
  */

@@ -2,7 +2,7 @@
  * Live NLP toolkit composed from wink-backed services and tool definitions.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/NlpToolkit
+ * @module \@beep/nlp/Tools/NlpToolkit
  */
 
 import { $NlpId } from "@beep/identity";

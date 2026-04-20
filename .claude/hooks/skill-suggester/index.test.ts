@@ -459,7 +459,7 @@ describe("skill-suggester", () => {
         expect(context.value).toContain("&lt;evil&gt;");
         expect(context.value).toContain("&quot;module&quot;");
         expect(context.value).toContain("&amp;");
-        expect(context.value).not.toContain('id="beep-effect3::packages/<evil>"module"&.ts');
+        expect(context.value).not.toContain('id="beep-effect::packages/<evil>"module"&.ts');
         expect(context.value).not.toContain('to="packages/<evil>"module"&.ts#nodes:1#edges:0"');
       }
 

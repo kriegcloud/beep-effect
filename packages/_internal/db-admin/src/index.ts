@@ -1,5 +1,5 @@
 /**
- * @beep/db-admin
+ * \@beep/db-admin
  *
  * @since 0.0.0
  */

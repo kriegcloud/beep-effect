@@ -3,6 +3,7 @@ import type { PackageJson } from "@beep/repo-utils";
 import { Effect, Function as Fn, HashMap, HashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -141,7 +142,7 @@ export class CanonicalDocgenConfig extends S.Class<CanonicalDocgenConfig>($I`Can
 const cloneStringArray = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.fromIterable(values);
 
 const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  typeof value === "object" && value !== null && !A.isArray(value);
+  P.isObject(value) && !A.isArray(value);
 
 /**
  * Convert canonical docgen compiler options to a plain JSON-compatible object.

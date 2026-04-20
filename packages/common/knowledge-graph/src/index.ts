@@ -1,7 +1,7 @@
 /**
  * Event-sourced knowledge graph backed by Effect EventLog primitives.
  *
- * @module @beep/knowledge-graph
+ * @module \@beep/knowledge-graph
  * @since 0.0.0
  */
 

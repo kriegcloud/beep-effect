@@ -2,7 +2,7 @@
  * Stateful corpus management built on wink BM25 vectorization.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkCorpusManager
+ * @module \@beep/nlp/Wink/WinkCorpusManager
  */
 
 import { createRequire } from "node:module";
@@ -265,10 +265,10 @@ export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`
   /**
    * Convert an unknown cause into a typed corpus-manager error.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param message {string} - The human-readable corpus-manager error message.
-   * @param corpusId {string | undefined} - The affected corpus identifier, when known.
-   * @returns {CorpusManagerError} - A typed corpus-manager error value.
+   * @param cause - The underlying failure or defect.
+   * @param message - The human-readable corpus-manager error message.
+   * @param corpusId - The affected corpus identifier, when known.
+   * @returns A typed corpus-manager error value.
    */
   static readonly fromCause = (cause: unknown, message: string, corpusId?: string): CorpusManagerError =>
     new CorpusManagerError({
@@ -280,9 +280,9 @@ export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`
   /**
    * Create a corpus-manager error without an external cause.
    *
-   * @param message {string} - The human-readable corpus-manager error message.
-   * @param corpusId {string | undefined} - The affected corpus identifier, when known.
-   * @returns {CorpusManagerError} - A typed corpus-manager error value without an external cause.
+   * @param message - The human-readable corpus-manager error message.
+   * @param corpusId - The affected corpus identifier, when known.
+   * @returns A typed corpus-manager error value without an external cause.
    */
   static fromMessage(message: string, corpusId?: string): CorpusManagerError {
     return new CorpusManagerError({

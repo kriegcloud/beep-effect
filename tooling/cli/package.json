@@ -50,7 +50,7 @@
     "codegen": "echo 'codegen will be implemented by this package'",
     "build": "tsc -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo -b tsconfig.json",
     "test": "bunx --bun vitest run",
     "test:watch": "vitest",
     "coverage": "vitest --coverage",

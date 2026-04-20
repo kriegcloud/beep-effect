@@ -2,7 +2,7 @@
  * Deterministic path and module-specifier normalization helpers.
  *
  * @since 0.0.0
- * @module @beep/nlp/PathText
+ * @module \@beep/nlp/PathText
  */
 import * as Str from "@beep/utils/Str";
 import { flow, pipe } from "effect";

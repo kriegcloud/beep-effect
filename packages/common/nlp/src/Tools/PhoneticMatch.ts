@@ -2,7 +2,7 @@
  * PhoneticMatch tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/PhoneticMatch
+ * @module \@beep/nlp/Tools/PhoneticMatch
  */
 
 import { $NlpId } from "@beep/identity";

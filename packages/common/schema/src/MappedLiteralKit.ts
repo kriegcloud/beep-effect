@@ -2,7 +2,7 @@
  * Schema-backed mapped literal toolkit helpers for reversible literal pairs.
  *
  * @since 0.0.0
- * @module @beep/schema/MappedLiteralKit
+ * @module \@beep/schema/MappedLiteralKit
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -10,6 +10,7 @@ import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/
 import { HashMap, pipe, type SchemaAST } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import {
   LiteralKit,
@@ -204,7 +205,7 @@ const attachHelperDescriptors = <T extends object>(
 
   return Object.defineProperties(schema, {
     ...descriptors,
-    ...(typeof originalAnnotate === "function"
+    ...(P.isFunction(originalAnnotate)
       ? {
           annotate: {
             value(annotation: unknown) {

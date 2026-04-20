@@ -21,7 +21,7 @@
  * KnowledgeDomain.Enum.general // "general"
  * ```
  *
- * @module @beep/knowledge-graph/Schemas
+ * @module \@beep/knowledge-graph/Schemas
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";

@@ -4,7 +4,7 @@
  * This module delegates runtime detection to `Effect.isEffect`, which is the
  * canonical guard provided by the Effect library.
  *
- * @module @beep/schema/EffectSchema
+ * @module \@beep/schema/EffectSchema
  * @since 0.0.0
  */
 
@@ -80,7 +80,7 @@ export const EffectSchema = S.declare<Effect.Effect<unknown, unknown, unknown>>(
 );
 
 /**
- * Type of {@link EffectSchema}. {@inheritDoc EffectSchema}
+ * {@inheritDoc EffectSchema}
  *
  * @example
  * ```ts

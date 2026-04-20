@@ -2,7 +2,7 @@
  * Shared generic severity domains.
  *
  * @since 0.0.0
- * @module @beep/schema/SeverityLevel
+ * @module \@beep/schema/SeverityLevel
  */
 
 import { $SchemaId } from "@beep/identity/packages";

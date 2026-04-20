@@ -25,7 +25,7 @@ import { CyclicDependencyError } from "./errors/index.js";
  * between package names and node indices.export * from "./Graph.ts";
  *
  * @internal
- * @param adjacencyList Package dependency adjacency list.
+ * @param adjacencyList - Package dependency adjacency list.
  * @returns Graph plus lookup maps for package names and node indices.
  */
 const fromAdjacencyList = (
@@ -141,7 +141,7 @@ export const topologicalSort: (
  *
  * Returns an empty array when the graph is acyclic.
  *
- * @param adjacencyList Package dependency adjacency list.
+ * @param adjacencyList - Package dependency adjacency list.
  * @returns Effect producing all detected cycle paths.
  * @example
  * ```typescript
@@ -231,10 +231,10 @@ export const detectCycles: (
  * the form `[start, ..., start]`.
  *
  * @internal
- * @param graph Directed dependency graph.
- * @param startIdx Starting node index for cycle reconstruction.
- * @param memberSet Node-index membership set for the SCC.
- * @param indexToName Lookup map from node index to package name.
+ * @param graph - Directed dependency graph.
+ * @param startIdx - Starting node index for cycle reconstruction.
+ * @param memberSet - Node-index membership set for the SCC.
+ * @param indexToName - Lookup map from node index to package name.
  * @returns Cycle path as package names when found, otherwise an empty array.
  */
 const buildCyclePath = (
@@ -296,8 +296,8 @@ const buildCyclePath = (
  *
  * Uses BFS traversal via the built-in `Graph.bfs`.
  *
- * @param adjacencyList Package dependency adjacency list.
- * @param pkg Package name whose dependency closure should be computed.
+ * @param adjacencyList - Package dependency adjacency list.
+ * @param pkg - Package name whose dependency closure should be computed.
  * @returns Effect producing all transitively reachable dependencies.
  * @example
  * ```typescript

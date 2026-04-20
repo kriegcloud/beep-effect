@@ -5,7 +5,7 @@
  * for human-readable validation error messages.
  *
  * @since 0.0.0
- * @module @beep/messages
+ * @module \@beep/messages
  */
 
 /**

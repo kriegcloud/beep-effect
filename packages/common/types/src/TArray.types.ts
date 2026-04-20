@@ -2,7 +2,7 @@
  * Array utility types for `@beep/types`.
  *
  * @since 0.0.0
- * @module @beep/types/TArray
+ * @module \@beep/types/TArray
  */
 
 /**

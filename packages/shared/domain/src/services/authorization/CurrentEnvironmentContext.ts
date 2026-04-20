@@ -7,7 +7,7 @@
  * This context is captured by API middleware from the HTTP request and
  * made available to the AuthorizationService for policy evaluation.
  *
- * @module @beep/shared-domain/services/authorization/CurrentEnvironmentContext
+ * @module \@beep/shared-domain/services/authorization/CurrentEnvironmentContext
  * @since 0.0.0
  */
 void 0;

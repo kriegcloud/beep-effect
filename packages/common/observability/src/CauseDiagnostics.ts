@@ -18,7 +18,7 @@
  * console.log(summary.primaryMessage) // "boom"
  * ```
  *
- * @module @beep/observability/CauseDiagnostics
+ * @module \@beep/observability/CauseDiagnostics
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
@@ -474,8 +474,8 @@ export const summarizeExit = <A, E>(exit: Exit.Exit<A, E>): ObservedExitSummary 
         reasonCount: decodeNonNegativeInt(0),
         primaryMessage: "success",
       }),
-    onFailure: (cause) => {
-      const summary = summarizeCause(cause);
+    onFailure: flow((cause) => [summarizeCause(cause), cause] as const, ([summary, cause]) => {
+
       const fields = {
         outcome: ExitOutcome.Enum.failure,
         fingerprint: summary.fingerprint,
@@ -494,7 +494,7 @@ export const summarizeExit = <A, E>(exit: Exit.Exit<A, E>): ObservedExitSummary 
           mixed: () => ObservedExitSummaryTagged.cases.mixed.make(fields),
         })
       );
-    },
+    }),
   });
 
 /**

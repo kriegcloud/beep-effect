@@ -22,7 +22,7 @@
  * ```
  *
  * @since 0.0.0
- * @module @beep/chalk/Chalk
+ * @module \@beep/chalk/Chalk
  */
 
 import { makeCreateChalk } from "./internal/ChalkRuntime.ts";

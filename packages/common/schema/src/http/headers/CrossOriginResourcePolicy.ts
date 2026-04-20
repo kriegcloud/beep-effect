@@ -2,7 +2,7 @@
  * Schema for the `Cross-Origin-Resource-Policy` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/CrossOriginResourcePolicy
+ * @module \@beep/schema/http/headers/CrossOriginResourcePolicy
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaTransformation } from "effect";

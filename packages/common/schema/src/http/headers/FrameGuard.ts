@@ -2,7 +2,7 @@
  * Schema for the `X-Frame-Options` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/FrameGuard
+ * @module \@beep/schema/http/headers/FrameGuard
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaIssue, SchemaTransformation } from "effect";

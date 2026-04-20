@@ -4,7 +4,7 @@
  * Supports EVM, Bitcoin, and Solana families.
  *
  * @since 0.0.0
- * @module @beep/schema/blockchain/CryptoWalletAddress
+ * @module \@beep/schema/blockchain/CryptoWalletAddress
  */
 
 import { $SchemaId } from "@beep/identity/packages";

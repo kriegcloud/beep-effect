@@ -2,7 +2,7 @@
  * Wink-backed tokenization layer.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkTokenizer
+ * @module \@beep/nlp/Wink/WinkTokenizer
  */
 
 import { $NlpId } from "@beep/identity";

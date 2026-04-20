@@ -1,7 +1,7 @@
 /**
  * Shared CSV domain errors.
  *
- * @module @beep/schema/csv/CsvError
+ * @module \@beep/schema/csv/CsvError
  * @since 0.0.0
  */
 

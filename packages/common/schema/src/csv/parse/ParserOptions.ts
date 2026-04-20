@@ -1,7 +1,7 @@
 /**
- * The @beep/schema/csv parser options configuration.
+ * The \@beep/schema/csv parser options configuration.
  *
- * @module @beep/schema/csv/parse/ParserOptions
+ * @module \@beep/schema/csv/parse/ParserOptions
  * @since 0.0.0
  */
 
@@ -64,7 +64,7 @@ export const HeaderValueInput = S.Union([S.Boolean, HeaderArray, HeaderTransform
 );
 
 /**
- * Type of {@link HeaderValueInput} {@inheritDoc HeaderValueInput}
+ * {@inheritDoc HeaderValueInput}
  *
  * @category Configuration
  * @since 0.0.0

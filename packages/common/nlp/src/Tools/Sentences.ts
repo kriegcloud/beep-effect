@@ -2,7 +2,7 @@
  * Sentences tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/Sentences
+ * @module \@beep/nlp/Tools/Sentences
  */
 
 import { $NlpId } from "@beep/identity";

@@ -2,7 +2,7 @@
  * Wink similarity services and domain models.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkSimilarity
+ * @module \@beep/nlp/Wink/WinkSimilarity
  */
 
 import { createRequire } from "node:module";
@@ -140,9 +140,9 @@ export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`Simila
   /**
    * Convert an unknown cause into a typed similarity error.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param operation {string} - The similarity operation that failed.
-   * @returns {SimilarityError} - A typed similarity error value.
+   * @param cause - The underlying failure or defect.
+   * @param operation - The similarity operation that failed.
+   * @returns A typed similarity error value.
    */
   static fromCause(cause: unknown, operation: string): SimilarityError {
     return new SimilarityError({

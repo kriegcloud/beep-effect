@@ -1,7 +1,7 @@
 /**
  * HTTP method literal type kit.
  *
- * @module @beep/schema/http/HttpMethod/HttpMethod
+ * @module \@beep/schema/http/HttpMethod/HttpMethod
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

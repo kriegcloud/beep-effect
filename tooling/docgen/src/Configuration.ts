@@ -259,7 +259,7 @@ const resolveCompilerOptions = (
     return Effect.succeed(defaultCompilerOptions);
   }
 
-  return typeof resolved.value === "string" ? readTSConfig(resolved.value) : Effect.succeed(resolved.value);
+  return P.isString(resolved.value) ? readTSConfig(resolved.value) : Effect.succeed(resolved.value);
 };
 
 const resolveString = (fromCLI: O.Option<string>, fromDocgenJson: O.Option<string>, fallback: string): string =>

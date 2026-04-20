@@ -14,7 +14,7 @@
  * // graphEdges.edgeId   — deterministic edge identifier
  * ```
  *
- * @module @beep/knowledge-graph/Tables
+ * @module \@beep/knowledge-graph/Tables
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";

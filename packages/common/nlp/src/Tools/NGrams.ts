@@ -2,7 +2,7 @@
  * NGrams tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/NGrams
+ * @module \@beep/nlp/Tools/NGrams
  */
 
 import { $NlpId } from "@beep/identity";

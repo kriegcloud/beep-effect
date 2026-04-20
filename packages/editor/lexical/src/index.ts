@@ -1,5 +1,5 @@
 /**
- * @beep/editor-lexical
+ * \@beep/editor-lexical
  *
  * @since 0.0.0
  */

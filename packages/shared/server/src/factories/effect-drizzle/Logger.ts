@@ -2,7 +2,7 @@
  * Effect service for Drizzle SQL logging.
  *
  * @since 0.0.0
- * @module @beep/shared-server/factories/effect-drizzle/Logger
+ * @module \@beep/shared-server/factories/effect-drizzle/Logger
  */
 
 import { $SharedServerId } from "@beep/identity";

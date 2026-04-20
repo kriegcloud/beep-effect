@@ -2,7 +2,7 @@
  * Shared schema helpers for POSIX-normalized path strings.
  *
  * @since 0.0.0
- * @module @beep/schema/PosixPath
+ * @module \@beep/schema/PosixPath
  */
 
 import { $SchemaId } from "@beep/identity/packages";

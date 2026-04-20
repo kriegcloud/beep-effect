@@ -9,7 +9,7 @@
     "codegen": "bun run ./scripts/GenerateEffectLawsAllowlistSnapshot.ts",
     "build": "bun run codegen && tsc -b tsconfig.json && bun run babel",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo -b tsconfig.json",
     "lint": "biome check .",
     "lint:fix": "biome check . --write",
     "test": "bunx --bun vitest run",

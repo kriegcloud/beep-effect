@@ -3,7 +3,7 @@
  * normalization, and variant generation across identifiers, paths, and queries.
  *
  * @since 0.0.0
- * @module @beep/nlp
+ * @module \@beep/nlp
  */
 
 /**

@@ -1,7 +1,7 @@
 /**
  * Module for number utilities.
  *
- * @module @beep/utils/Number
+ * @module \@beep/utils/Number
  * @since 0.0.0
  */
 import { Number as Num } from "effect";
@@ -10,7 +10,7 @@ import { Number as Num } from "effect";
  * Determines if the given input is a number and is positive (greater than or equal to 0).
  *
  * This utility function serves as a type guard ensuring the input is a `number`
- * and meets the condition of being >= 0. Useful when validating or filtering
+ * and meets the condition of being at least 0. Useful when validating or filtering
  * data in both functional and effect contexts.
  *
  * @example

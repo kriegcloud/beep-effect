@@ -14,7 +14,7 @@
   "scripts": {
     "dev": "bun run src/main.ts",
     "build": "tsc -p tsconfig.json",
-    "check": "tsc -p tsconfig.json --noEmit",
+    "check": "tsgo -p tsconfig.json --noEmit",
     "codegen": "echo 'no codegen needed'",
     "test": "bunx --bun vitest run --passWithNoTests"
   },

@@ -4,7 +4,7 @@
  * Provides typed wrappers around Node's file URL conversion utilities so
  * path and `file:` URL conversions can participate in Effect workflows.
  *
- * @module @beep/utils/NodeUrl
+ * @module \@beep/utils/NodeUrl
  * @since 0.0.0
  */
 import * as NodeUrl from "node:url";

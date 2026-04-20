@@ -2,7 +2,7 @@
  * Pattern builders and patch helpers.
  *
  * @since 0.0.0
- * @module @beep/nlp/Core/PatternBuilders
+ * @module \@beep/nlp/Core/PatternBuilders
  */
 
 import { Chunk } from "effect";

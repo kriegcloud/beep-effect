@@ -1,7 +1,7 @@
 /**
  * Helpers for schema-backed server-sent event envelopes.
  *
- * @module @beep/utils/Event
+ * @module \@beep/utils/Event
  * @since 0.0.0
  */
 

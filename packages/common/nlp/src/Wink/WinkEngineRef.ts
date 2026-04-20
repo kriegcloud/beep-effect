@@ -2,7 +2,7 @@
  * Compatibility service exposing the shared live wink runtime ref.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkEngineRef
+ * @module \@beep/nlp/Wink/WinkEngineRef
  */
 
 import { $NlpId } from "@beep/identity";

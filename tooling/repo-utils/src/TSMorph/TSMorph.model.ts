@@ -960,10 +960,7 @@ export type SymbolInit = Omit<Symbol.Type, "id" | "category"> & {
 /**
  * Builds a stable `SymbolId` from validated symbol identity parts.
  *
- * @param parts - Validated file path, qualified name, and declaration kind.
- * @param parts.filePath - Normalized relative file path for the declaration.
- * @param parts.qualifiedName - Fully qualified symbol name within the file.
- * @param parts.kind - TSMorph declaration kind used to disambiguate the symbol.
+ * @param parts - Validated symbol identity parts containing the file path, qualified name, and declaration kind.
  * @returns Stable symbol identifier.
  * @category Utility
  * @since 0.0.0
@@ -977,10 +974,7 @@ export const makeSymbolId = (parts: {
 /**
  * Builds a stable `ProjectScopeId` from validated scope identity parts.
  *
- * @param parts - Validated tsconfig path, scope mode, and reference policy.
- * @param parts.tsConfigPath - Tsconfig path anchoring the scope.
- * @param parts.mode - Scope mode controlling project loading breadth.
- * @param parts.referencePolicy - Reference traversal policy for the scope.
+ * @param parts - Validated scope identity parts containing the tsconfig path, scope mode, and reference policy.
  * @returns Stable project scope identifier.
  * @category Utility
  * @since 0.0.0
@@ -996,10 +990,7 @@ const decodeProjectCacheKey = S.decodeUnknownSync(ProjectCacheKey);
 /**
  * Builds a stable `ProjectCacheKey` from validated scope identity parts.
  *
- * @param parts - Validated tsconfig path, scope mode, and reference policy.
- * @param parts.tsConfigPath - Tsconfig path anchoring the cache entry.
- * @param parts.mode - Scope mode controlling cache segmentation.
- * @param parts.referencePolicy - Reference traversal policy captured in the cache key.
+ * @param parts - Validated cache identity parts containing the tsconfig path, scope mode, and reference policy.
  * @returns Stable project cache key.
  * @category Utility
  * @since 0.0.0

@@ -71,36 +71,42 @@ class MissingManagedSidecarBootstrapError extends TaggedErrorClass<MissingManage
 ) {}
 
 const readPersistedSidecarBaseUrl = (): string | null => {
-  if (typeof window === "undefined") {
+  const runtimeWindow = globalThis.window;
+
+  if (P.isUndefined(runtimeWindow)) {
     return null;
   }
 
   try {
-    return window.localStorage.getItem(sidecarBaseUrlKey);
+    return runtimeWindow.localStorage.getItem(sidecarBaseUrlKey);
   } catch {
     return null;
   }
 };
 
 const persistSidecarBaseUrl = (baseUrl: string): void => {
-  if (typeof window === "undefined") {
+  const runtimeWindow = globalThis.window;
+
+  if (P.isUndefined(runtimeWindow)) {
     return;
   }
 
   try {
-    window.localStorage.setItem(sidecarBaseUrlKey, normalizeSidecarBaseUrl(baseUrl));
+    runtimeWindow.localStorage.setItem(sidecarBaseUrlKey, normalizeSidecarBaseUrl(baseUrl));
   } catch {
     return;
   }
 };
 
 const browserDevClientBaseUrl = (): string | null => {
-  if (!import.meta.env.DEV || typeof window === "undefined") {
+  const runtimeWindow = globalThis.window;
+
+  if (!import.meta.env.DEV || P.isUndefined(runtimeWindow)) {
     return null;
   }
 
   // Raw Vite origins such as 127.0.0.1:* do not provide the desktop /api proxy.
-  return window.location.hostname === desktopDevHost ? window.location.origin : null;
+  return runtimeWindow.location.hostname === desktopDevHost ? runtimeWindow.location.origin : null;
 };
 
 const managedDevClientBaseUrl = (bootstrap: SidecarBootstrap): string => browserDevClientBaseUrl() ?? bootstrap.baseUrl;
@@ -819,16 +825,18 @@ export function RepoMemoryDesktop() {
   }, [nativeAvailable, shellMode]);
 
   useEffect(() => {
+    const runtimeWindow = globalThis.window;
+
     if (
       client === null ||
       selectedRun === null ||
       isTerminalRunStatus(selectedRun.status) ||
-      typeof window === "undefined"
+      P.isUndefined(runtimeWindow)
     ) {
       return;
     }
 
-    const intervalId = window.setInterval(() => {
+    const intervalId = runtimeWindow.setInterval(() => {
       void refreshRun(client, selectedRun.id).catch((error) => {
         startTransition(() => {
           setErrorMessage(errorToMessage(error));
@@ -836,7 +844,7 @@ export function RepoMemoryDesktop() {
       });
     }, 1000);
 
-    return () => window.clearInterval(intervalId);
+    return () => runtimeWindow.clearInterval(intervalId);
   }, [client, selectedRun?.id, selectedRun?.status]);
 
   useEffect(() => {

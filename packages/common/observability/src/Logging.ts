@@ -19,7 +19,7 @@
  * void Effect.runPromise(program)
  * ```
  *
- * @module @beep/observability/Logging
+ * @module \@beep/observability/Logging
  * @since 0.0.0
  */
 import bc from "@beep/colors";

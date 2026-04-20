@@ -1,6 +1,6 @@
 /**
  * @since 0.0.0
- * @module @beep/v2t-sidecar
+ * @module \@beep/v2t-sidecar
  */
 
 /**

@@ -11,7 +11,7 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.json",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo -b tsconfig.json",
     "test": "bunx --bun vitest run",
     "test:watch": "vitest",
     "lint": "biome check .",

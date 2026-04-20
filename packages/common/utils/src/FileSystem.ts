@@ -1,7 +1,7 @@
 /**
  * A module containing utilities for interacting with the file system.
  *
- * @module @beep/utils/FileSystem
+ * @module \@beep/utils/FileSystem
  * @since 0.0.0
  */
 

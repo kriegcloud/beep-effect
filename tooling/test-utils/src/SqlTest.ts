@@ -127,10 +127,7 @@ const runHook = <Services, SqlService extends Services, HookError>(
 /**
  * Build a fresh, scoped SQL integration-test layer for a concrete driver.
  *
- * @param options Layer construction options.
- * @param options.config Driver configuration forwarded to the selected test driver.
- * @param options.driver Driver contract used to provision services and the SQL client.
- * @param options.hooks Optional migrate and seed hooks executed after provisioning.
+ * @param options - Layer construction options, including the driver configuration, driver contract, and optional hooks.
  * @returns A fresh scoped layer that provisions the driver and runs migrate/seed hooks.
  * @category Configuration
  * @since 0.0.0

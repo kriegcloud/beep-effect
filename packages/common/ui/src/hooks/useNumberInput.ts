@@ -108,17 +108,19 @@ const isValidNumberValue = (value: number): boolean => !Number.isNaN(value);
 const isVoidHandler = (value: unknown): value is () => void => P.isFunction(value);
 
 const getMaxTouchPoints = (): number => {
-  if (typeof navigator === "undefined") {
+  const runtimeNavigator = globalThis.navigator;
+
+  if (P.isUndefined(runtimeNavigator)) {
     return 0;
   }
 
-  const msMaxTouchPoints = Reflect.get(navigator, "msMaxTouchPoints");
+  const msMaxTouchPoints = Reflect.get(runtimeNavigator, "msMaxTouchPoints");
 
-  return Math.max(navigator.maxTouchPoints, P.isNumber(msMaxTouchPoints) ? msMaxTouchPoints : 0);
+  return Math.max(runtimeNavigator.maxTouchPoints, P.isNumber(msMaxTouchPoints) ? msMaxTouchPoints : 0);
 };
 
 const isTouchDevice = (): boolean =>
-  typeof window !== "undefined" && ("ontouchstart" in window || getMaxTouchPoints() > 0);
+  P.isNotUndefined(globalThis.window) && ("ontouchstart" in globalThis.window || getMaxTouchPoints() > 0);
 
 const getNodeEnv = (): string | undefined => {
   const runtimeProcess = Reflect.get(globalThis, "process");
@@ -219,8 +221,8 @@ export class SpinParams extends S.Class<SpinParams>($I`SpinParams`)(
  * ```
  *
  * @category Utility
- * @param value {string | undefined} - Editable text from the input or parser.
- * @returns {number | undefined} - The parsed numeric value when available.
+ * @param value - Editable text from the input or parser.
+ * @returns The parsed numeric value when available.
  * @since 0.0.0
  */
 export const toNumber = (value: string | undefined): number | undefined =>
@@ -250,9 +252,9 @@ export const toNumber = (value: string | undefined): number | undefined =>
  * ```
  *
  * @category Utility
- * @param value {number | undefined} - Numeric value to render for the input.
- * @param precision {number} - Number of fractional digits to keep.
- * @returns {string} - The formatted text representation for the current input value.
+ * @param value - Numeric value to render for the input.
+ * @param precision - Number of fractional digits to keep.
+ * @returns The formatted text representation for the current input value.
  * @since 0.0.0
  */
 export const numberToString = (value: number | undefined, precision = 0): string =>
@@ -292,10 +294,10 @@ export const numberToString = (value: number | undefined, precision = 0): string
  * ```
  *
  * @category Utility
- * @param event {Partial<ModifierKeyState>} - Modifier-key state captured from the current gesture.
- * @param step {number} - Base step configured for the number input.
- * @param precision {number} - Decimal precision enforced by the number input.
- * @returns {number} - The effective step value for the current gesture.
+ * @param event - Modifier-key state captured from the current gesture.
+ * @param step - Base step configured for the number input.
+ * @param precision - Decimal precision enforced by the number input.
+ * @returns The effective step value for the current gesture.
  * @since 0.0.0
  */
 export const getStepFactor: {
@@ -456,8 +458,8 @@ export type UseNumberInputOptions = BoundaryParams &
  * ```
  *
  * @category React
- * @param options {UseNumberInputOptions} - Number-input boundary and formatting options.
- * @returns {{ numberValue: number | undefined; interfaceValue: string; setInterfaceValue: (value: string) => void; increment: (params?: SpinParams) => void; decrement: (params?: SpinParams) => void }} - Managed numeric and interface state helpers.
+ * @param options - Number-input boundary and formatting options.
+ * @returns Managed numeric and interface state helpers.
  */
 /**
  * Low-level number-input state hook for parsing, formatting, and boundary management.

@@ -2,7 +2,7 @@
  * Namespaced collection of unsafe types, intentionally painful to use.
  *
  * @since 0.0.0
- * @module @beep/types/Unsafe.types
+ * @module \@beep/types/Unsafe.types
  */
 
 /**

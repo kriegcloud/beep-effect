@@ -1,7 +1,7 @@
 /**
  * Schemas for DOM types.
  *
- * @module @beep/schema/dom
+ * @module \@beep/schema/dom
  * @since 0.0.0
  */
 

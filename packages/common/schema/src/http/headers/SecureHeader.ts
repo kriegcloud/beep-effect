@@ -1,7 +1,7 @@
 /**
  * CSP header schema & constructor's
  * @since 0.0.0
- * @module @beep/schema/http/headers/SecureHeader
+ * @module \@beep/schema/http/headers/SecureHeader
  */
 import { $SchemaId } from "@beep/identity";
 import { LiteralKit } from "../../LiteralKit.ts";

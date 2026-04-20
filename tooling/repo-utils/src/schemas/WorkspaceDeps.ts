@@ -69,7 +69,7 @@ export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
 /**
  * Create an empty WorkspaceDeps for a given package name.
  *
- * @param packageName Package name to initialize.
+ * @param packageName - Package name to initialize.
  * @returns Empty dependency structure for the package.
  * @category DomainModel
  * @since 0.0.0

@@ -514,7 +514,7 @@ function SidebarMenuButton({
     return button;
   }
 
-  const tooltipProps = typeof tooltip === "string" ? { children: tooltip } : tooltip;
+  const tooltipProps = P.isString(tooltip) ? { children: tooltip } : tooltip;
 
   return (
     <Tooltip>

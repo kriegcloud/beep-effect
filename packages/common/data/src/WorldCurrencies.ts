@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/currencies | World Currencies JSON Dataset}
  *
  * @category constants
- * @module @beep/data/WorldCurrencies
+ * @module \@beep/data/WorldCurrencies
  * @since 0.0.0
  */
 /**

@@ -3,7 +3,7 @@
  * RDF/JS-aligned value families, JSON-LD constructs, and PROV provenance models.
  *
  * @since 0.0.0
- * @module @beep/semantic-web
+ * @module \@beep/semantic-web
  */
 
 /**

@@ -30,7 +30,7 @@ const VERSION_SPECIFIER_PATTERN = /^([~^<>=\s]*)(\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+
 const EXACT_VERSION_PATTERN = /^(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
 const EFFECT_SMOL_SNAPSHOT_PATTERN = /^https:\/\/pkg\.pr\.new\/Effect-TS\/effect-smol\/(.+)@([0-9a-f]+)$/i;
 const LOCKSTEP_EFFECT_PACKAGE_PREFIX = "@effect/";
-const NON_LOCKSTEP_EFFECT_PACKAGES = ["@effect/language-service", "@effect/markdown-toc", "@effect/tsgo"] as const;
+const NON_LOCKSTEP_EFFECT_PACKAGES = ["@effect/markdown-toc", "@effect/tsgo"] as const;
 
 class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPackageJsonDocument`)(
   {

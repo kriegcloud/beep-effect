@@ -8,7 +8,7 @@
  * - Action: What action is being performed
  * - Environment: Contextual conditions (time, IP)
  *
- * @module @beep/shared-domain/services/authorization/PolicyConditions
+ * @module \@beep/shared-domain/services/authorization/PolicyConditions
  * @since 0.0.0
  */
 void 0;

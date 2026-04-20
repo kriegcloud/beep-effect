@@ -1,5 +1,5 @@
 /**
- * @beep/repo-configs
+ * \@beep/repo-configs
  *
  * @packageDocumentation
  * @since 0.0.0

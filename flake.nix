@@ -1,5 +1,5 @@
 {
-  description = "beep-effect2 development environment";
+  description = "beep-effect development environment";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
@@ -28,9 +28,11 @@
           ];
 
           shellHook = ''
-            echo "beep-effect2 dev shell loaded"
+            repo_root="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
+            worktree_name="$(basename "$repo_root")"
+            echo "beep-effect dev shell loaded for $worktree_name"
             export BUN_INSTALL="$HOME/.bun"
-            export BUN_INSTALL_CACHE_DIR="/tmp/$USER-beep-effect3-bun-install-cache"
+            export BUN_INSTALL_CACHE_DIR="/tmp/$USER-${worktree_name}-bun-install-cache"
             mkdir -p "$BUN_INSTALL_CACHE_DIR"
             export PATH="$BUN_INSTALL/bin:$PATH"
           '';

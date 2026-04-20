@@ -35,7 +35,7 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
               "@effect/opentelemetry": "^4.0.0-beta.27",
               "@effect/platform-bun": "^4.0.0-beta.28",
               "@effect/vitest": "^4.0.0-beta.26",
-              "@effect/language-service": "^0.78.0",
+              "@effect/tsgo": "^0.5.0",
             },
           })}\n`
         );

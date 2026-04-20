@@ -1,7 +1,7 @@
 /**
  * A module containing a schema utility which provides a default value
  *
- * @module @beep/schema/SchemaUtils/withEncodeDefault
+ * @module \@beep/schema/SchemaUtils/withEncodeDefault
  * @since 0.0.0
  */
 import { Effect, pipe, SchemaGetter } from "effect";
@@ -14,10 +14,10 @@ import * as S from "effect/Schema";
  * @category Utility
  * @since 0.0.0
  * @template TSchema
- * @param self {TSchema} - The schema to apply the default to
- * @param defaultValue {() => TSchema["Type"]} - A function that returns the
+ * @param self - The schema to apply the default to
+ * @param defaultValue - A function that returns the
  * default value
- * @returns {S.decodeTo<S.toType<TSchema>, S.optionalKey<TSchema>>} - A schema with the default value applied
+ * @returns A schema with the default value applied
  */
 export const withEncodeDefault: {
   <const TSchema extends S.Top>(

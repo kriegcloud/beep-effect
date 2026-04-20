@@ -2,6 +2,7 @@
 
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
+import * as P from "effect/Predicate";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { cn } from "../lib/index.ts";
 
@@ -59,13 +60,15 @@ const toHostname = (value: string): null | string => {
 };
 
 const canFetchMetadata = (href: string): boolean => {
-  if (typeof window === "undefined") {
+  const runtimeWindow = globalThis.window;
+
+  if (P.isUndefined(runtimeWindow)) {
     return false;
   }
 
   try {
-    const target = new URL(href, window.location.href);
-    return target.origin === window.location.origin;
+    const target = new URL(href, runtimeWindow.location.href);
+    return target.origin === runtimeWindow.location.origin;
   } catch {
     return false;
   }

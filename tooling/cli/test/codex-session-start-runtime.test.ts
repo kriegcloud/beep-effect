@@ -25,7 +25,7 @@ const decodeSessionStartHookOutput = S.decodeUnknownSync(
   )
 );
 const validHookInput = {
-  cwd: "/tmp/beep-effect3",
+  cwd: "/tmp/beep-effect-worktree-playground",
   hook_event_name: "SessionStart",
   model: "gpt-5.4",
   permission_mode: "acceptEdits",
@@ -56,10 +56,10 @@ afterEach(() => {
 
 describe("CodexSessionStartRuntime", () => {
   it("builds Graphiti-first startup guidance", () => {
-    const context = buildCodexSessionStartContext("startup", "/tmp/beep-effect3");
+    const context = buildCodexSessionStartContext("startup", "/tmp/beep-effect-worktree-playground");
 
     expect(context).toContain("Session source: startup.");
-    expect(context).toContain("Working directory: /tmp/beep-effect3.");
+    expect(context).toContain("Working directory: /tmp/beep-effect-worktree-playground.");
     expect(context).toContain("Durable repo memory is Graphiti-first now");
     expect(context).toContain('group_ids: ["beep_dev"]');
     expect(context).toContain("bun run codex:hook:session-start");
@@ -130,7 +130,9 @@ describe("CodexSessionStartRuntime", () => {
     const output = decodeSessionStartHookOutput(logLines[0] ?? "");
 
     expect(output.hookSpecificOutput.additionalContext).toContain("Session source: clear.");
-    expect(output.hookSpecificOutput.additionalContext).toContain("Working directory: /tmp/beep-effect3.");
+    expect(output.hookSpecificOutput.additionalContext).toContain(
+      "Working directory: /tmp/beep-effect-worktree-playground."
+    );
   });
 
   it("logs a soft-failure payload when stdin decoding fails", async () => {

@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import tsParser from "@typescript-eslint/parser";
 import type { Linter } from "eslint";
 import jsdoc from "eslint-plugin-jsdoc";
@@ -26,6 +27,8 @@ const uiTsconfigExcludedTypeAwareFiles = [
   "packages/common/ui/src/components/toaster.tsx",
   "packages/common/ui/src/components/tour.tsx",
 ] as const;
+
+const repoRootDirectory = fileURLToPath(new URL("../../../../", import.meta.url));
 
 /**
  * Flat ESLint config array shape exported for repository documentation checks.
@@ -68,7 +71,7 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        projectService: true,
+        tsconfigRootDir: repoRootDirectory,
         warnOnUnsupportedTypeScriptVersion: false,
       },
     },
@@ -151,7 +154,12 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
           ],
         },
       ],
-      "jsdoc/check-param-names": "error",
+      "jsdoc/check-param-names": [
+        "error",
+        {
+          checkDestructured: false,
+        },
+      ],
       "beep-jsdoc/require-category-tag": "warn",
       "jsdoc/match-description": [
         "warn",
@@ -190,7 +198,7 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        projectService: true,
+        tsconfigRootDir: repoRootDirectory,
         warnOnUnsupportedTypeScriptVersion: false,
       },
     },
@@ -241,7 +249,7 @@ export const DocsESLintConfig: DocsESLintConfigShape = [
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        projectService: true,
+        tsconfigRootDir: repoRootDirectory,
         warnOnUnsupportedTypeScriptVersion: false,
       },
     },

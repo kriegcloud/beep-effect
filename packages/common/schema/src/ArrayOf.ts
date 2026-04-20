@@ -2,7 +2,7 @@
  * Reusable schema constructors for array-like data.
  *
  * @since 0.0.0
- * @module @beep/schema/ArrayOf
+ * @module \@beep/schema/ArrayOf
  */
 
 import { $SchemaId } from "@beep/identity/packages";

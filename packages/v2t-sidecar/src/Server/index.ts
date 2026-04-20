@@ -1921,8 +1921,8 @@ const launchVt2Sidecar = (config: Vt2RuntimeConfig, startedAt: DateTime.Utc) =>
 /**
  * Run the V2T sidecar until shutdown is requested.
  *
- * @param config {Vt2RuntimeConfig} V2T runtime configuration.
- * @returns {Effect.Effect<void, Vt2RuntimeError>} Long-lived sidecar process effect.
+ * @param config - V2T runtime configuration.
+ * @returns Long-lived sidecar process effect.
  *
  * @since 0.0.0
  * @category DomainLogic
@@ -1972,7 +1972,7 @@ export const runVt2Runtime = Effect.fn("Vt2Runtime.run")(function* (config: Vt2R
 /**
  * Load V2T runtime configuration from the process environment.
  *
- * @returns {Effect<Vt2RuntimeConfig, ConfigError, BunServices>} Resolved V2T runtime configuration.
+ * @returns Resolved V2T runtime configuration.
  *
  * @since 0.0.0
  * @category Configuration

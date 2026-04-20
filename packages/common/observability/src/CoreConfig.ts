@@ -1,7 +1,7 @@
 /**
  * Browser-safe shared observability configuration schema.
  *
- * @module @beep/observability/CoreConfig
+ * @module \@beep/observability/CoreConfig
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";

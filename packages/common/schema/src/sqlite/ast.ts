@@ -1,7 +1,7 @@
 /**
  * Sqlite Schema Module
  *
- * @module @beep/schema/sqlite/ast
+ * @module \@beep/schema/sqlite/ast
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -9,46 +9,8 @@ import * as S from "effect/Schema";
 import { LiteralKit } from "../LiteralKit.ts";
 
 /**
- * Represents the unique identifier for the SQLite Abstract Syntax Tree (AST) schema.
- *
- * This identifier is used to annotate and provide identity composition for all schemas
- * related to AST processing within the SQLite module. It serves as a canonical reference
- * point when working with schema-based validations, transformations, and encoding/decoding
- * in the associated domain.
- *
- * ## Key Features
- * - **Identity Composition**: Simplifies schema identity management and avoids duplication.
- * - **Reusability**: Enables seamless integration of schema definitions across multiple modules.
- * - **Tractability**: Facilitates debugging and reasoning by centralizing schema references.
- *
- * ## Usage
- *
- * This ID should be used for annotating schema-related code to ensure unique identification
- * and tracking of derived schemas.
- *
- * ### Example
- * ```typescript
- * import * as S from "effect/Schema";
- * import { $I } from "sqlite/ast";
- *
- * const TableSchema = S.Struct({
- *   name: S.String,
- *   columns: S.Array(S.Struct({
- *     columnName: S.String,
- *     dataType: S.String
- *   }))
- * }).annotate(
- *   $I,
- *   { description: "Schema for representing an SQLite table" }
- * );
- *
- * const program = S.decodeUnknownEffect(TableSchema)({
- *   name: "users",
- *   columns: [
- *     { columnName: "id", dataType: "INTEGER" },
- *     { columnName: "name", dataType: "TEXT" }
- *   ]
- * }).pipe(Effect*/
+ * Identity composer used to annotate SQLite AST schemas in this module.
+ */
 const $I = $SchemaId.create("sqlite/ast");
 
 /**
@@ -217,8 +179,8 @@ export class Index extends S.TaggedClass<Index>($I`Index`)(
  * the repository or application logic.
  *
  * ## Properties
- * - `table` {string} - The name of the foreign table being referenced.
- * - `column` {string} - The column on the foreign table that the reference points to.
+ * - `table`: The name of the foreign table being referenced.
+ * - `column`: The column on the foreign table that the reference points to.
  *
  * @example
  * ```typescript

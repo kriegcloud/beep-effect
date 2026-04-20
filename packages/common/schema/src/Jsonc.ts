@@ -1,7 +1,7 @@
 /**
  * JSONC parsing and schema transforms.
  *
- * @module @beep/schema/Jsonc
+ * @module \@beep/schema/Jsonc
  * @since 0.0.0
  */
 

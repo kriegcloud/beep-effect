@@ -1056,9 +1056,7 @@ export const generateAnalysisJson = (analysis: DocgenPackageAnalysis): string =>
 /**
  * Aggregate generated package docs into the current root docs layout.
  *
- * @param options - Aggregate configuration for the docs copy step.
- * @param options.clean - Whether to remove the root `docs/` directory before copying package docs.
- * @param options.package - Optional workspace package selector that limits aggregation to one package.
+ * @param options - Aggregate configuration for the docs copy step, including the clean flag and optional package selector.
  * @returns Per-package aggregation results using the current nested layout.
  * @category DomainModel
  * @since 0.0.0

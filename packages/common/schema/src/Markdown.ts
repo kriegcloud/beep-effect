@@ -1,7 +1,7 @@
 /**
  * Markdown rendering and schema transforms.
  *
- * @module @beep/schema/Markdown
+ * @module \@beep/schema/Markdown
  * @since 0.0.0
  */
 

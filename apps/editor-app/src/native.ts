@@ -86,7 +86,7 @@ const toNativeError = makeStatusCauseError(EditorNativeError);
 /**
  * Determine whether the current runtime is the Tauri desktop shell.
  *
- * @returns {boolean} - `true` when the managed Tauri bridge is available.
+ * @returns `true` when the managed Tauri bridge is available.
  *
  * @since 0.0.0
  * @category Utility
@@ -118,7 +118,7 @@ const invokeNative: <A>(
 /**
  * Start the managed editor sidecar from the native shell.
  *
- * @returns {Effect<SidecarBootstrap, EditorNativeError>} - An Effect that resolves with the started sidecar bootstrap.
+ * @returns An Effect that resolves with the started sidecar bootstrap.
  *
  * @since 0.0.0
  * @category Integration
@@ -131,7 +131,7 @@ export const startEditorSidecar: () => Effect.Effect<SidecarBootstrap, EditorNat
 /**
  * Stop the managed editor sidecar from the native shell.
  *
- * @returns {Effect<void, EditorNativeError>} - An Effect that resolves when the sidecar has been stopped.
+ * @returns An Effect that resolves when the sidecar has been stopped.
  *
  * @since 0.0.0
  * @category Integration
@@ -144,7 +144,7 @@ export const stopEditorSidecar: () => Effect.Effect<void, EditorNativeError> = (
 /**
  * Read the current native sidecar lifecycle state.
  *
- * @returns {Effect<EditorSidecarState, EditorNativeError>} - An Effect that resolves with the latest native sidecar state.
+ * @returns An Effect that resolves with the latest native sidecar state.
  *
  * @since 0.0.0
  * @category Integration
@@ -162,7 +162,7 @@ export const getEditorSidecarState: () => Effect.Effect<EditorSidecarState, Edit
 /**
  * Open the native directory picker for selecting an editor workspace root.
  *
- * @returns {Effect<Option<string>, EditorNativeError>} - An Effect that resolves with the selected directory or no selection.
+ * @returns An Effect that resolves with the selected directory or no selection.
  *
  * @since 0.0.0
  * @category Integration

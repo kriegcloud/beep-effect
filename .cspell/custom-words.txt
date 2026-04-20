@@ -5,6 +5,8 @@ beep
 clawd
 codegraph
 Docable
+direnv
+misdetected
 graphiti
 mcporter
 nana

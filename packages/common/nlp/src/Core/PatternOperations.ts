@@ -2,7 +2,7 @@
  * Pattern inspection utilities.
  *
  * @since 0.0.0
- * @module @beep/nlp/Core/PatternOperations
+ * @module \@beep/nlp/Core/PatternOperations
  */
 
 import * as A from "effect/Array";

@@ -2,7 +2,7 @@
  * Schemas for Effect `MutableHashSet` values.
  *
  * @since 0.0.0
- * @module @beep/schema/MutableHashSet
+ * @module \@beep/schema/MutableHashSet
  */
 
 import { $SchemaId } from "@beep/identity/packages";

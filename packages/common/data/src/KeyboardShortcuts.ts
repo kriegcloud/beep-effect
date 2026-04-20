@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/keyboard-shortcuts | Keyboard Shortcuts JSON Dataset}
  *
  * @category constants
- * @module @beep/data/KeyboardShortcuts
+ * @module \@beep/data/KeyboardShortcuts
  * @since 0.0.0
  */
 /**
