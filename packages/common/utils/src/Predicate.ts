@@ -1,5 +1,5 @@
 /**
- * @module @beep/utils/Predicate
+ * @module \@beep/utils/Predicate
  * @since 0.0.0
  */
 

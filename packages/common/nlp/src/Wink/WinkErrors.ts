@@ -2,7 +2,7 @@
  * Wink runtime errors.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkErrors
+ * @module \@beep/nlp/Wink/WinkErrors
  */
 
 import { $NlpId } from "@beep/identity";
@@ -35,9 +35,9 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
   /**
    * Create a runtime error from an unknown cause.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param operation {string} - The wink runtime operation that failed.
-   * @returns {WinkEngineError} - A typed wink runtime error value.
+   * @param cause - The underlying failure or defect.
+   * @param operation - The wink runtime operation that failed.
+   * @returns A typed wink runtime error value.
    */
   static fromCause(cause: unknown, operation: string): WinkEngineError {
     return new WinkEngineError({
@@ -69,10 +69,10 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
   /**
    * Create a tokenization error from an unknown cause.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param operation {string} - The wink tokenization operation that failed.
-   * @param text {string | undefined} - The source text involved in the failure, when available.
-   * @returns {WinkTokenizationError} - A typed wink tokenization error value.
+   * @param cause - The underlying failure or defect.
+   * @param operation - The wink tokenization operation that failed.
+   * @param text - The source text involved in the failure, when available.
+   * @returns A typed wink tokenization error value.
    */
   static fromCause(cause: unknown, operation: string, text?: string): WinkTokenizationError {
     return new WinkTokenizationError({
@@ -105,10 +105,10 @@ export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEn
   /**
    * Create an entity-learning error from an unknown cause.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param operation {string} - The wink entity operation that failed.
-   * @param entityName {string | undefined} - The entity or group name involved in the failure, when available.
-   * @returns {WinkEntityError} - A typed wink entity error value.
+   * @param cause - The underlying failure or defect.
+   * @param operation - The wink entity operation that failed.
+   * @param entityName - The entity or group name involved in the failure, when available.
+   * @returns A typed wink entity error value.
    */
   static fromCause(cause: unknown, operation: string, entityName?: string): WinkEntityError {
     return new WinkEntityError({

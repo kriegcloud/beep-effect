@@ -5,7 +5,7 @@
  * to `tsconfig.json` (JSONC-safe via `jsonc-parser`). All operations are
  * idempotent — existing entries are silently skipped.
  *
- * @module @beep/repo-cli/commands/CreatePackage/ConfigUpdater
+ * @module \@beep/repo-cli/commands/CreatePackage/ConfigUpdater
  * @since 0.0.0
  */
 

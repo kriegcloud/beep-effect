@@ -4,7 +4,7 @@
  * Decodes into Effect `BigDecimal` for arithmetic safety.
  *
  * @since 0.0.0
- * @module @beep/schema/blockchain/EthAmount
+ * @module \@beep/schema/blockchain/EthAmount
  */
 
 import { $SchemaId } from "@beep/identity/packages";

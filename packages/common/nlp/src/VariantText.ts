@@ -2,7 +2,7 @@
  * Ordered string-variant helpers.
  *
  * @since 0.0.0
- * @module @beep/nlp/VariantText
+ * @module \@beep/nlp/VariantText
  */
 import * as Str from "@beep/utils/Str";
 import { Order, pipe } from "effect";

@@ -2,7 +2,7 @@
  * Schemas for Effect `Graph` values and graph-adjacent primitives.
  *
  * @since 0.0.0
- * @module @beep/schema/Graph
+ * @module \@beep/schema/Graph
  */
 
 import { $SchemaId } from "@beep/identity/packages";

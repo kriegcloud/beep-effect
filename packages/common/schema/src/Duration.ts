@@ -2,7 +2,7 @@
  * Reusable schemas for decoding duration values from Effect-compatible inputs.
  *
  * @since 0.0.0
- * @module @beep/schema/Duration
+ * @module \@beep/schema/Duration
  */
 
 import { $SchemaId } from "@beep/identity";

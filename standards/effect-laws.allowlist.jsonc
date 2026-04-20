@@ -113,6 +113,14 @@
       "reason": "OTLP serialization hooks are synchronous body factories, so packet capture timestamps must be recorded at that immediate runtime boundary without introducing Effect execution into the serializer contract.",
       "owner": "@beep/observability",
       "issue": "OBSERVABILITY-OTLP-PACKET-LAB-TIMESTAMP"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/nlp/src/Wink/WinkSimilarity.ts",
+      "kind": "new-map-set",
+      "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
+      "owner": "@beep/nlp",
+      "issue": "WINK-SIMILARITY-NATIVE-SET-BRIDGE"
     }
   ]
 }

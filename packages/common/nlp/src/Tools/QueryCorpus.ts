@@ -2,7 +2,7 @@
  * QueryCorpus tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/QueryCorpus
+ * @module \@beep/nlp/Tools/QueryCorpus
  */
 
 import { $NlpId } from "@beep/identity";

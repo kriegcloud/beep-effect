@@ -23,31 +23,6 @@
     "jsx": "react-jsx",
     "module": "ESNext",
     "moduleResolution": "Bundler",
-    "plugins": [
-      {
-        "name": "@effect/language-service",
-        "transform": "@effect/language-service/transform",
-        "namespaceImportPackages": ["effect", "@effect/*", "@beep/*"],
-        "ignoreEffectSuggestionsInTscExitCode": false,
-        "ignoreEffectWarningsInTscExitCode": false,
-        "ignoreEffectErrorsInTscExitCode": false,
-        "includeSuggestionsInTsc": true,
-        "skipDisabledOptimization": false,
-        "effectFn": ["span", "inferred-span", "suggested-span"],
-        "importAliases": {
-          "Array": "A",
-          "Option": "O",
-          "Predicate": "P",
-          "Record": "R",
-          "Schema": "S",
-          "Equal": "Eq"
-        },
-        "diagnosticSeverity": {
-          "effectFnOpportunity": "error",
-          "strictBooleanExpressions": "off"
-        }
-      }
-    ],
     "paths": {
       "@beep/ui": ["./src/index.ts"],
       "@beep/ui/*": ["./src/*"],

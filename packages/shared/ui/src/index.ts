@@ -1,5 +1,5 @@
 /**
- * @beep/shared-ui
+ * \@beep/shared-ui
  *
  * @since 0.0.0
  */

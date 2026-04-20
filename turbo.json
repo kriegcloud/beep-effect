@@ -65,7 +65,7 @@
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "check": {
-      "dependsOn": ["^build", "^check"],
+      "dependsOn": ["^check"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "test": {

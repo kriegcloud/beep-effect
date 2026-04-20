@@ -1,7 +1,7 @@
 /**
  * XML parsing and schema transforms.
  *
- * @module @beep/schema/Xml
+ * @module \@beep/schema/Xml
  * @since 0.0.0
  */
 

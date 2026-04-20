@@ -1,7 +1,7 @@
 /**
  * A schema for a lexical node.
  *
- * @module @beep/editor/Domain/LexicalNode
+ * @module \@beep/editor/Domain/LexicalNode
  * @since 0.0.0
  */
 import { $EditorId } from "@beep/identity";

@@ -21,7 +21,7 @@
  * } from "@beep/knowledge-graph/Events"
  * ```
  *
- * @module @beep/knowledge-graph/Events
+ * @module \@beep/knowledge-graph/Events
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";

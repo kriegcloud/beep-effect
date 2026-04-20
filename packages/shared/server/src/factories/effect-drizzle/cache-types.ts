@@ -2,7 +2,7 @@
  * Schema-first cache configuration models for the Effect Drizzle adapter.
  *
  * @since 0.0.0
- * @module @beep/shared-server/factories/effect-drizzle/cache-types
+ * @module \@beep/shared-server/factories/effect-drizzle/cache-types
  */
 // cspell:words HEXPIRE exat pxat
 

@@ -1,7 +1,7 @@
 /**
  * YAML parsing and schema transforms.
  *
- * @module @beep/schema/Yaml
+ * @module \@beep/schema/Yaml
  * @since 0.0.0
  */
 

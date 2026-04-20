@@ -20,7 +20,7 @@
  * void Effect.runPromise(program)
  * ```
  *
- * @module @beep/observability/Metric
+ * @module \@beep/observability/Metric
  * @since 0.0.0
  */
 

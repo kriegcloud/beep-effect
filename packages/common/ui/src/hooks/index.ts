@@ -2,7 +2,7 @@
  * Hook entrypoint exports for `@beep/ui`.
  *
  * @since 0.0.0
- * @module @beep/ui/hooks
+ * @module \@beep/ui/hooks
  */
 "use client";
 /**

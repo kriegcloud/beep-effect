@@ -2,7 +2,7 @@
  * NLP AI tools.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools
+ * @module \@beep/nlp/Tools
  */
 
 import {

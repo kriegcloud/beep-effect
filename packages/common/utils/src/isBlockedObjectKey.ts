@@ -3,7 +3,7 @@
  * blocked prototype keys
  *
  * @since 0.0.0
- * @module @beep/utils/isBlockedObjectKey
+ * @module \@beep/utils/isBlockedObjectKey
  */
 import { HashSet } from "effect";
 

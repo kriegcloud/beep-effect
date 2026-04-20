@@ -2,7 +2,7 @@
  * RankByRelevance tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/RankByRelevance
+ * @module \@beep/nlp/Tools/RankByRelevance
  */
 
 import { $NlpId } from "@beep/identity";

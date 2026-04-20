@@ -6,7 +6,7 @@
  * `then`, `catch`, and `finally` methods alongside the built-in promise
  * object tag to reject plain thenable objects.
  *
- * @module @beep/schema/PromiseSchema
+ * @module \@beep/schema/PromiseSchema
  * @since 0.0.0
  */
 
@@ -62,8 +62,7 @@ const promiseAnnotations = {
  * @since 0.0.0
  */
 export const isPromise = (u: unknown): u is globalThis.Promise<unknown> =>
-  typeof u === "object" &&
-  u !== null &&
+  P.isObject(u) &&
   "then" in u &&
   P.isFunction(u.then) &&
   "catch" in u &&
@@ -96,7 +95,7 @@ export const PromiseSchema = S.declare<globalThis.Promise<unknown>>(isPromise, p
 );
 
 /**
- * Type of {@link PromiseSchema}. {@inheritDoc PromiseSchema}
+ * {@inheritDoc PromiseSchema}
  *
  * @example
  * ```ts

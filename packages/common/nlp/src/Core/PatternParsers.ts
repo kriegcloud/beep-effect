@@ -2,7 +2,7 @@
  * Pattern string parsers.
  *
  * @since 0.0.0
- * @module @beep/nlp/Core/PatternParsers
+ * @module \@beep/nlp/Core/PatternParsers
  */
 
 import { $NlpId } from "@beep/identity";

@@ -1,5 +1,5 @@
 /**
- * @module @beep/repo-utils/TypeScript/models/TSSyntaxKind.model
+ * @module \@beep/repo-utils/TypeScript/models/TSSyntaxKind.model
  * @description Shared TypeScript syntax kind model definitions.
  * @since 0.0.0
  */
@@ -318,11 +318,11 @@ const TSSyntaxKindEntries = [
   ["CatchClause", 300],
   ["ImportAttributes", 301],
   ["ImportAttribute", 302],
-  /** @deprecated */
+  /** @deprecated Use `ImportAttribute` instead. */
   ["AssertClause", 301],
-  /** @deprecated */
+  /** @deprecated Use `ImportAttribute` instead. */
   ["AssertEntry", 302],
-  /** @deprecated */
+  /** @deprecated Use `ImportAttributes` instead. */
   ["ImportTypeAssertionContainer", 303],
   ["PropertyAssignment", 304],
   ["ShorthandPropertyAssignment", 305],

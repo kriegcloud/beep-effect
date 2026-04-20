@@ -2,7 +2,7 @@
  * Schema for the `X-Permitted-Cross-Domain-Policies` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/PermittedCrossDomainPolicies
+ * @module \@beep/schema/http/headers/PermittedCrossDomainPolicies
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaTransformation } from "effect";

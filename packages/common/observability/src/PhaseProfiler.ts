@@ -19,7 +19,7 @@
  * void Effect.runPromise(profiled)
  * ```
  *
- * @module @beep/observability/PhaseProfiler
+ * @module \@beep/observability/PhaseProfiler
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";

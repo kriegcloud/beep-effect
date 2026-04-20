@@ -507,7 +507,7 @@ export const graphStyles = [
   },
 ];
 
-/** Performance-optimized styles for large graphs (>300 nodes) */
+/** Performance-optimized styles for large graphs with more than 300 nodes. */
 export const graphStylesFast = [
   {
     selector: "node",

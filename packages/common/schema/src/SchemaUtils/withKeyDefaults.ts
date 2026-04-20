@@ -2,7 +2,7 @@
  * Attach the same default value for constructor creation and missing-key
  * decoding.
  *
- * @module @beep/schema/SchemaUtils/withKeyDefaults
+ * @module \@beep/schema/SchemaUtils/withKeyDefaults
  * @since 0.0.0
  */
 import { Effect, pipe } from "effect";

@@ -2,7 +2,7 @@
  * ExtractKeywords tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/ExtractKeywords
+ * @module \@beep/nlp/Tools/ExtractKeywords
  */
 
 import { $NlpId } from "@beep/identity";

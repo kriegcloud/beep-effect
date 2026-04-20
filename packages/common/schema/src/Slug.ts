@@ -12,7 +12,7 @@
  * ```
  *
  * @since 0.0.0
- * @module @beep/schema/Slug
+ * @module \@beep/schema/Slug
  */
 
 import { $SchemaId } from "@beep/identity/packages";

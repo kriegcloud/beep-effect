@@ -197,7 +197,7 @@ export const mimeTypes: typeof internal.mimeTypes = internal.mimeTypes;
 /**
  * Returns a record mapping each file extension (without leading dot) to its
  * preferred MIME type string. Preference is determined by source priority:
- * IANA > unspecified > Apache > Nginx.
+ * IANA, then unspecified, then Apache, then Nginx.
  *
  * Lazily populates the internal lookup tables on first call; subsequent
  * calls return the same cached object.

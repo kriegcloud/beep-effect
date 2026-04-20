@@ -1,6 +1,6 @@
 /**
  * Integration tests that exercise @beep/repo-utils against the real
- * beep-effect3 monorepo on disk.
+ * beep-effect monorepo on disk.
  *
  * These are intentionally loose assertions: they verify structural
  * invariants (non-empty results, expected keys) without hard-coding

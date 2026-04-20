@@ -2,7 +2,7 @@
  * LearnCorpus tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/LearnCorpus
+ * @module \@beep/nlp/Tools/LearnCorpus
  */
 
 import { $NlpId } from "@beep/identity";

@@ -19,7 +19,7 @@
     "build": "tsc -b tsconfig.build.json && vite build",
     "build:native": "tauri build",
     "build:sidecar": "bun run scripts/build-sidecar.ts",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo -b tsconfig.json",
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
     "docgen": "bun run ../../tooling/docgen/src/bin.ts",

@@ -1,7 +1,7 @@
 /**
  * The theme provider module.
  *
- * @module @beep/ui/themes/theme-provider
+ * @module \@beep/ui/themes/theme-provider
  * @since 0.0.0
  */
 "use client";

@@ -128,7 +128,7 @@ function Scene({
   }, [manualOutput, outputVolumeRef, getOutputVolume]);
 
   const random = useMemo(() => splitmix32(seed ?? Math.floor(Math.random() * 2 ** 32)), [seed]);
-  const offsets = useMemo(() => new Float32Array(Array.from({ length: 7 }, () => random() * Math.PI * 2)), [random]);
+  const offsets = useMemo(() => new Float32Array(A.makeBy(7, () => random() * Math.PI * 2)), [random]);
 
   useEffect(() => {
     targetColor1Ref.current = new THREE.Color(colors[0]);
@@ -249,7 +249,8 @@ function Scene({
   const uniforms = useMemo(() => {
     perlinNoiseTexture.wrapS = THREE.RepeatWrapping;
     perlinNoiseTexture.wrapT = THREE.RepeatWrapping;
-    const isDark = typeof document !== "undefined" && document.documentElement.classList.contains("dark");
+    const isDark =
+      P.isNotUndefined(globalThis.document) && globalThis.document.documentElement.classList.contains("dark");
     return {
       uColor1: new THREE.Uniform(new THREE.Color(initialColorsRef.current[0])),
       uColor2: new THREE.Uniform(new THREE.Color(initialColorsRef.current[1])),

@@ -1,7 +1,7 @@
 /**
  * HttpMethod schemas
  *
- * @module @beep/schema/http/HttpMethod
+ * @module \@beep/schema/http/HttpMethod
  * @since 0.0.0
  */
 

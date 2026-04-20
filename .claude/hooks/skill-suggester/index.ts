@@ -467,6 +467,8 @@ const escapeXmlAttribute = (value: string): string =>
     Str.replaceAll(">", "&gt;")
   );
 
+const KG_SYMBOL_NAMESPACE = "beep-effect";
+
 const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
@@ -516,7 +518,7 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
     const symbols = A.map(
       scored,
       (entry): KgContextSymbol => ({
-        id: `beep-effect3::${entry.file}::module:${entry.file}::module::${sha256(entry.file)}`,
+        id: `${KG_SYMBOL_NAMESPACE}::${entry.file}::module:${entry.file}::module::${sha256(entry.file)}`,
         kind: "module",
         score: Math.min(0.99, 0.5 + entry.score * 0.1),
         provenance: "ast",

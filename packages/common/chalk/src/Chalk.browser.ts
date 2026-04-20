@@ -18,7 +18,7 @@
  * ```
  *
  * @since 0.0.0
- * @module @beep/chalk/Chalk.browser
+ * @module \@beep/chalk/Chalk.browser
  */
 
 import { makeCreateChalk } from "./internal/ChalkRuntime.ts";

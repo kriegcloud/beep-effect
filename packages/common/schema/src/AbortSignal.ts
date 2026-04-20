@@ -1,7 +1,7 @@
 /**
  * AbortSignal schema.
  *
- * @module @beep/schema/AbortSignal
+ * @module \@beep/schema/AbortSignal
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -50,7 +50,7 @@ export const AbortSig = S.declare(isAbortSignal).pipe(
 );
 
 /**
- * Type of {@link AbortSig}. {@inheritDoc AbortSig}
+ * {@inheritDoc AbortSig}
  *
  * @example
  * ```ts

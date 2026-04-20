@@ -1,7 +1,7 @@
 /**
  * TOML parsing and schema transforms.
  *
- * @module @beep/schema/Toml
+ * @module \@beep/schema/Toml
  * @since 0.0.0
  */
 

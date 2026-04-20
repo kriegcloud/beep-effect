@@ -10,7 +10,7 @@
  * - 400 Bad Request: InvalidInvitationError, InvitationExpiredError
  * - 409 Conflict: OwnerCannotBeRemovedError, CannotTransferToNonAdminError
  *
- * @module @beep/shared-domain/services/authorization/AuthorizationErrors
+ * @module \@beep/shared-domain/services/authorization/AuthorizationErrors
  */
 import { $SharedDomainId } from "@beep/identity";
 import { UUID } from "@beep/schema";

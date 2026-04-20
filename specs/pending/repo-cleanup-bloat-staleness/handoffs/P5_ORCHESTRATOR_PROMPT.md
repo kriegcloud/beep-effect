@@ -1,1 +1,0 @@
-Read `handoffs/HANDOFF_P5.md` and the repo inputs named there. Run the final validation and knowledge closeout, write or refine `outputs/p5-final-closeout.md`, update `outputs/cleanup-checklist.md` and `outputs/manifest.json`, record `trustgraph:sync-curated`, prepare a push-ready summary, and stop before any push unless the user explicitly confirms it.

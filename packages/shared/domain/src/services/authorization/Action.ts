@@ -4,7 +4,7 @@
  * Defines all the actions that can be performed in the system,
  * used for permission checking and ABAC policy evaluation.
  *
- * @module @beep/shared-domain/services/authorization/Action
+ * @module \@beep/shared-domain/services/authorization/Action
  * @since 0.0.0
  */
 
@@ -17,7 +17,7 @@ const $I = $SharedDomainId.create("services/authorization/Action");
 /**
  * Action - An authorization action that can be performed
  *
- * Actions follow the pattern "{resource}:{verb}" where:
+ * Actions follow the `resource:verb` pattern where:
  * - resource: The type of entity being acted upon
  * - verb: The operation being performed (create, read, update, delete, etc.)
  *

@@ -2,7 +2,7 @@
  * Effect service for Drizzle cache integration.
  *
  * @since 0.0.0
- * @module @beep/shared-server/factories/effect-drizzle/cache-effect
+ * @module \@beep/shared-server/factories/effect-drizzle/cache-effect
  */
 
 import { $SharedServerId } from "@beep/identity";

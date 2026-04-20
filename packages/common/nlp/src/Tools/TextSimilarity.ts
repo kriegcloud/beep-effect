@@ -2,7 +2,7 @@
  * TextSimilarity tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/TextSimilarity
+ * @module \@beep/nlp/Tools/TextSimilarity
  */
 
 import { $NlpId } from "@beep/identity";

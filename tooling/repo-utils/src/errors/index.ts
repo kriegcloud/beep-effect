@@ -1,5 +1,5 @@
 /**
- * Error types for @beep/repo-utils.
+ * Error types for \@beep/repo-utils.
  *
  * @since 0.0.0
  */

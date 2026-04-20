@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/continents | Continents JSON Dataset}
  *
  * @category constants
- * @module @beep/data/ContinentList
+ * @module \@beep/data/ContinentList
  * @since 0.0.0
  */
 /**

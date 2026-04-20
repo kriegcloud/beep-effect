@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/programming-languages | Programming Languages JSON Dataset}
  *
  * @category constants
- * @module @beep/data/ProgrammingLanguages
+ * @module \@beep/data/ProgrammingLanguages
  * @since 0.0.0
  */
 /**

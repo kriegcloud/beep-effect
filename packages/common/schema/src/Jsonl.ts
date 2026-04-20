@@ -1,7 +1,7 @@
 /**
  * JSONL parsing and schema transforms.
  *
- * @module @beep/schema/Jsonl
+ * @module \@beep/schema/Jsonl
  * @since 0.0.0
  */
 

@@ -111,8 +111,8 @@ class EditorHttpClientService extends Context.Service<EditorHttpClientService, E
 /**
  * Normalize a user-provided sidecar URL to the root server URL.
  *
- * @param baseUrl {string | URL} - The user-provided sidecar URL or API root.
- * @returns {string} - The normalized sidecar server URL without the control-plane prefix.
+ * @param baseUrl - The user-provided sidecar URL or API root.
+ * @returns The normalized sidecar server URL without the control-plane prefix.
  *
  * @since 0.0.0
  * @category Utility
@@ -144,8 +144,8 @@ export type EditorHttpClientOptions = {
 /**
  * Construct the editor control-plane HTTP client effect.
  *
- * @param options {EditorHttpClientOptions} - Client construction options for the editor control plane.
- * @returns {Effect.Effect<EditorControlPlaneClient, never, HttpClient.HttpClient>} - An Effect that resolves with the typed control-plane client.
+ * @param options - Client construction options for the editor control plane.
+ * @returns An Effect that resolves with the typed control-plane client.
  *
  * @since 0.0.0
  * @category Integration
@@ -171,8 +171,8 @@ const EditorHttpClientDefaultLayer = (options: EditorHttpClientOptions): Layer.L
 /**
  * Construct the editor control-plane HTTP client with the default fetch implementation.
  *
- * @param options {EditorHttpClientOptions} - Client construction options for the editor control plane.
- * @returns {Effect.Effect<EditorControlPlaneClient>} - A scoped Effect that resolves with the typed control-plane client.
+ * @param options - Client construction options for the editor control plane.
+ * @returns A scoped Effect that resolves with the typed control-plane client.
  *
  * @since 0.0.0
  * @category Integration
@@ -226,8 +226,8 @@ const decodeSlugEffect = (slug: string): Effect.Effect<Slug, EditorClientError> 
 /**
  * Create the full editor client boundary over the public sidecar protocol.
  *
- * @param config {EditorClientConfig} - Connection details for the local editor sidecar.
- * @returns {Effect.Effect<EditorClientShape, never>} - An Effect that resolves with the typed editor client boundary.
+ * @param config - Connection details for the local editor sidecar.
+ * @returns An Effect that resolves with the typed editor client boundary.
  *
  * @since 0.0.0
  * @category DomainLogic
@@ -299,8 +299,8 @@ export const makeEditorClient = Effect.fn("EditorClient.make")((config: EditorCl
 /**
  * Layer providing the editor sidecar client service.
  *
- * @param config {EditorClientConfig} - Connection details for the local editor sidecar.
- * @returns {Layer.Layer<EditorClient, never, never>} - A Layer that provides the editor client service.
+ * @param config - Connection details for the local editor sidecar.
+ * @returns A Layer that provides the editor client service.
  *
  * @since 0.0.0
  * @category Configuration

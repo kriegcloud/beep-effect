@@ -2,7 +2,7 @@
  * The repositories i18n configuration.
  *
  * @since 0.0.0
- * @module @beep/messages/i18n
+ * @module \@beep/messages/i18n
  */
 import { O } from "@beep/utils";
 import { Exit, Match, pipe, SchemaIssue } from "effect";
@@ -71,6 +71,7 @@ export type GetLogIssuesOptions = Readonly<{
  * A helper to retrieve issues from schema parse issues
  *
  * @example
+ * ```ts
  * import { getLogIssues } from "@beep/messages";
  * import * as S from "effect/Schema";
  *
@@ -133,11 +134,11 @@ export type GetLogIssuesOptions = Readonly<{
  * // "name" is an empty string
  * logIssues(Person, { name: "" })
  * // Failure(Cause([Fail([{"path":["name"],"message":"Please enter at least 1 character(s)"}])]))
- *
+ * ```
  *
  * @category utilities
  * @since 0.0.0
- * @param options
+ * @param options - Optional formatter hooks for schema and leaf issue rendering.
  */
 export function getLogIssues(options?: GetLogIssuesOptions) {
   return <S extends S.Codec<unknown, unknown>>(schema: S, input: unknown) => {

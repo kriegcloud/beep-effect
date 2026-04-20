@@ -9,7 +9,7 @@
  * This module includes all official codes and some of the most popular
  * unofficial codes used in specific platforms and services.
  *
- * @module @beep/schema/http/HttpStatus
+ * @module \@beep/schema/http/HttpStatus
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -57,7 +57,7 @@ export const HttpStatusCategory = MappedLiteralKit([
 );
 
 /**
- * Type of {@link HttpStatusCategory} {@inheritDoc HttpStatusCategory}
+ * {@inheritDoc HttpStatusCategory}
  *
  * @category Validation
  * @since 0.0.0
@@ -84,7 +84,7 @@ export const Continue = S.Literal(100).pipe(
 );
 
 /**
- * Type of {@link Continue} {@inheritDoc Continue}
+ * {@inheritDoc Continue}
  *
  * @since 0.0.0
  * @category Validation
@@ -107,7 +107,7 @@ export const SwitchingProtocols = S.Literal(101).pipe(
 );
 
 /**
- * Type of {@link SwitchingProtocols} {@inheritDoc SwitchingProtocols}
+ * {@inheritDoc SwitchingProtocols}
  *
  * @since 0.0.0
  * @category Validation
@@ -131,7 +131,7 @@ export const Processing = S.Literal(102).pipe(
 );
 
 /**
- * Type of {@link Processing} {@inheritDoc Processing}
+ * {@inheritDoc Processing}
  *
  * @since 0.0.0
  * @category Validation
@@ -154,7 +154,7 @@ export const EarlyHints = S.Literal(103).pipe(
 );
 
 /**
- * Type of {@link EarlyHints} {@inheritDoc EarlyHints}
+ * {@inheritDoc EarlyHints}
  *
  * @since 0.0.0
  * @category Validation
@@ -198,7 +198,7 @@ export declare namespace HttpStatus1XX {
 }
 
 /**
- * Type of {@link HttpStatus1XX} {@inheritDoc HttpStatus1XX}
+ * {@inheritDoc HttpStatus1XX}
  *
  * @category Validation
  * @since 0.0.0
@@ -224,7 +224,7 @@ export const Ok = S.Literal(200).pipe(
 );
 
 /**
- * Type of {@link Ok} {@inheritDoc Ok}
+ * {@inheritDoc Ok}
  *
  * @since 0.0.0
  * @category Validation
@@ -245,7 +245,7 @@ export const Created = S.Literal(201).pipe(
 );
 
 /**
- * Type of {@link Created} {@inheritDoc Created}
+ * {@inheritDoc Created}
  *
  * @since 0.0.0
  * @category Validation
@@ -269,7 +269,7 @@ export const Accepted = S.Literal(202).pipe(
 );
 
 /**
- * Type of {@link Accepted} {@inheritDoc Accepted}
+ * {@inheritDoc Accepted}
  *
  * @since 0.0.0
  * @category Validation
@@ -294,7 +294,7 @@ export const NonAuthoritativeInformation = S.Literal(203).pipe(
 );
 
 /**
- * Type of {@link NonAuthoritativeInformation} {@inheritDoc NonAuthoritativeInformation}
+ * {@inheritDoc NonAuthoritativeInformation}
  *
  * @since 0.0.0
  * @category Validation
@@ -316,7 +316,7 @@ export const NoContent = S.Literal(204).pipe(
 );
 
 /**
- * Type of {@link NoContent} {@inheritDoc NoContent}
+ * {@inheritDoc NoContent}
  *
  * @since 0.0.0
  * @category Validation
@@ -339,7 +339,7 @@ export const ResetContent = S.Literal(205).pipe(
 );
 
 /**
- * Type of {@link ResetContent} {@inheritDoc ResetContent}
+ * {@inheritDoc ResetContent}
  *
  * @since 0.0.0
  * @category Validation
@@ -364,7 +364,7 @@ export const PartialContent = S.Literal(206).pipe(
 );
 
 /**
- * Type of {@link PartialContent} {@inheritDoc PartialContent}
+ * {@inheritDoc PartialContent}
  *
  * @since 0.0.0
  * @category Validation
@@ -388,7 +388,7 @@ export const MultiStatus = S.Literal(207).pipe(
 );
 
 /**
- * Type of {@link MultiStatus} {@inheritDoc MultiStatus}
+ * {@inheritDoc MultiStatus}
  *
  * @since 0.0.0
  * @category Validation
@@ -412,7 +412,7 @@ export const AlreadyReported = S.Literal(208).pipe(
 );
 
 /**
- * Type of {@link AlreadyReported} {@inheritDoc AlreadyReported}
+ * {@inheritDoc AlreadyReported}
  *
  * @since 0.0.0
  * @category Validation
@@ -436,7 +436,7 @@ export const ImUsed = S.Literal(226).pipe(
 );
 
 /**
- * Type of {@link ImUsed} {@inheritDoc ImUsed}
+ * {@inheritDoc ImUsed}
  *
  * @since 0.0.0
  * @category Validation
@@ -485,7 +485,7 @@ export declare namespace HttpStatus2XX {
 }
 
 /**
- * Type of {@link HttpStatus2XX} {@inheritDoc HttpStatus2XX}
+ * {@inheritDoc HttpStatus2XX}
  *
  * @since 0.0.0
  * @category Validation
@@ -518,7 +518,7 @@ export const MultipleChoices = S.Literal(300).pipe(
 );
 
 /**
- * Type of {@link MultipleChoices} {@inheritDoc MultipleChoices}
+ * {@inheritDoc MultipleChoices}
  *
  * @since 0.0.0
  * @category Validation
@@ -541,7 +541,7 @@ export const MovedPermanently = S.Literal(301).pipe(
 );
 
 /**
- * Type of {@link MovedPermanently} {@inheritDoc MovedPermanently}
+ * {@inheritDoc MovedPermanently}
  *
  * @since 0.0.0
  * @category Validation
@@ -567,7 +567,7 @@ export const Found = S.Literal(302).pipe(
 );
 
 /**
- * Type of {@link Found} {@inheritDoc Found}
+ * {@inheritDoc Found}
  *
  * @since 0.0.0
  * @category Validation
@@ -590,7 +590,7 @@ export const SeeOther = S.Literal(303).pipe(
 );
 
 /**
- * Type of {@link SeeOther} {@inheritDoc SeeOther}
+ * {@inheritDoc SeeOther}
  *
  * @since 0.0.0
  * @category Validation
@@ -615,7 +615,7 @@ export const NotModified = S.Literal(304).pipe(
 );
 
 /**
- * Type of {@link NotModified} {@inheritDoc NotModified}
+ * {@inheritDoc NotModified}
  *
  * @since 0.0.0
  * @category Validation
@@ -638,7 +638,7 @@ export const UseProxy = S.Literal(305).pipe(
 );
 
 /**
- * Type of {@link UseProxy} {@inheritDoc UseProxy}
+ * {@inheritDoc UseProxy}
  *
  * @since 0.0.0
  * @category Validation
@@ -661,7 +661,7 @@ export const SwitchProxy = S.Literal(306).pipe(
 );
 
 /**
- * Type of {@link SwitchProxy} {@inheritDoc SwitchProxy}
+ * {@inheritDoc SwitchProxy}
  *
  * @since 0.0.0
  * @category Validation
@@ -687,7 +687,7 @@ export const TemporaryRedirect = S.Literal(307).pipe(
 );
 
 /**
- * Type of {@link TemporaryRedirect} {@inheritDoc TemporaryRedirect}
+ * {@inheritDoc TemporaryRedirect}
  *
  * @since 0.0.0
  * @category Validation
@@ -712,7 +712,7 @@ export const PermanentRedirect = S.Literal(308).pipe(
 );
 
 /**
- * Type of {@link PermanentRedirect} {@inheritDoc PermanentRedirect}
+ * {@inheritDoc PermanentRedirect}
  *
  * @since 0.0.0
  * @category Validation
@@ -746,7 +746,7 @@ export const HttpStatus3XX = MappedLiteralKit([
 );
 
 /**
- * Type of {@link HttpStatus3XX} {@inheritDoc HttpStatus3XX}
+ * {@inheritDoc HttpStatus3XX}
  *
  * @since 0.0.0
  * @category Validation
@@ -790,7 +790,7 @@ export const BadRequest = S.Literal(400).pipe(
 );
 
 /**
- * Type of {@link BadRequest} {@inheritDoc BadRequest}
+ * {@inheritDoc BadRequest}
  *
  * @since 0.0.0
  * @category Validation
@@ -825,7 +825,7 @@ export const Unauthorized = S.Literal(401).pipe(
 );
 
 /**
- * Type of {@link Unauthorized} {@inheritDoc Unauthorized}
+ * {@inheritDoc Unauthorized}
  *
  * @since 0.0.0
  * @category Validation
@@ -849,7 +849,7 @@ export const PaymentRequired = S.Literal(402).pipe(
 );
 
 /**
- * Type of {@link PaymentRequired} {@inheritDoc PaymentRequired}
+ * {@inheritDoc PaymentRequired}
  *
  * @since 0.0.0
  * @category Validation
@@ -878,7 +878,7 @@ export const Forbidden = S.Literal(403).pipe(
 );
 
 /**
- * Type of {@link Forbidden} {@inheritDoc Forbidden}
+ * {@inheritDoc Forbidden}
  *
  * @since 0.0.0
  * @category Validation
@@ -904,7 +904,7 @@ export const NotFound = S.Literal(404).pipe(
 );
 
 /**
- * Type of {@link NotFound} {@inheritDoc NotFound}
+ * {@inheritDoc NotFound}
  *
  * @since 0.0.0
  * @category Validation
@@ -927,7 +927,7 @@ export const MethodNotAllowed = S.Literal(405).pipe(
 );
 
 /**
- * Type of {@link MethodNotAllowed} {@inheritDoc MethodNotAllowed}
+ * {@inheritDoc MethodNotAllowed}
  *
  * @since 0.0.0
  * @category Validation
@@ -950,7 +950,7 @@ export const NotAcceptable = S.Literal(406).pipe(
 );
 
 /**
- * Type of {@link NotAcceptable} {@inheritDoc NotAcceptable}
+ * {@inheritDoc NotAcceptable}
  *
  * @since 0.0.0
  * @category Validation
@@ -974,7 +974,7 @@ export const ProxyAuthenticationRequired = S.Literal(407).pipe(
 );
 
 /**
- * Type of {@link ProxyAuthenticationRequired} {@inheritDoc ProxyAuthenticationRequired}
+ * {@inheritDoc ProxyAuthenticationRequired}
  *
  * @since 0.0.0
  * @category Validation
@@ -1001,7 +1001,7 @@ export const RequestTimeout = S.Literal(408).pipe(
 );
 
 /**
- * Type of {@link RequestTimeout} {@inheritDoc RequestTimeout}
+ * {@inheritDoc RequestTimeout}
  *
  * @since 0.0.0
  * @category Validation
@@ -1026,7 +1026,7 @@ export const Conflict = S.Literal(409).pipe(
 );
 
 /**
- * Type of {@link Conflict} {@inheritDoc Conflict}
+ * {@inheritDoc Conflict}
  *
  * @since 0.0.0
  * @category Validation
@@ -1052,7 +1052,7 @@ export const Gone = S.Literal(410).pipe(
 );
 
 /**
- * Type of {@link Gone} {@inheritDoc Gone}
+ * {@inheritDoc Gone}
  *
  * @since 0.0.0
  * @category Validation
@@ -1075,7 +1075,7 @@ export const LengthRequired = S.Literal(411).pipe(
 );
 
 /**
- * Type of {@link LengthRequired} {@inheritDoc LengthRequired}
+ * {@inheritDoc LengthRequired}
  *
  * @since 0.0.0
  * @category Validation
@@ -1098,7 +1098,7 @@ export const PreconditionFailed = S.Literal(412).pipe(
 );
 
 /**
- * Type of {@link PreconditionFailed} {@inheritDoc PreconditionFailed}
+ * {@inheritDoc PreconditionFailed}
  *
  * @since 0.0.0
  * @category Validation
@@ -1125,7 +1125,7 @@ export const PayloadTooLarge = S.Literal(413).pipe(
 );
 
 /**
- * Type of {@link PayloadTooLarge} {@inheritDoc PayloadTooLarge}
+ * {@inheritDoc PayloadTooLarge}
  *
  * @since 0.0.0
  * @category Validation
@@ -1149,7 +1149,7 @@ export const UriTooLong = S.Literal(414).pipe(
 );
 
 /**
- * Type of {@link UriTooLong} {@inheritDoc UriTooLong}
+ * {@inheritDoc UriTooLong}
  *
  * @since 0.0.0
  * @category Validation
@@ -1173,7 +1173,7 @@ export const UnsupportedMediaType = S.Literal(415).pipe(
 );
 
 /**
- * Type of {@link UnsupportedMediaType} {@inheritDoc UnsupportedMediaType}
+ * {@inheritDoc UnsupportedMediaType}
  *
  * @since 0.0.0
  * @category Validation
@@ -1197,7 +1197,7 @@ export const RangeNotSatisfiable = S.Literal(416).pipe(
 );
 
 /**
- * Type of {@link RangeNotSatisfiable} {@inheritDoc RangeNotSatisfiable}
+ * {@inheritDoc RangeNotSatisfiable}
  *
  * @since 0.0.0
  * @category Validation
@@ -1220,7 +1220,7 @@ export const ExpectationFailed = S.Literal(417).pipe(
 );
 
 /**
- * Type of {@link ExpectationFailed} {@inheritDoc ExpectationFailed}
+ * {@inheritDoc ExpectationFailed}
  *
  * @since 0.0.0
  * @category Validation
@@ -1243,7 +1243,7 @@ export const ImATeapot = S.Literal(418).pipe(
 );
 
 /**
- * Type of {@link ImATeapot} {@inheritDoc ImATeapot}
+ * {@inheritDoc ImATeapot}
  *
  * @since 0.0.0
  * @category Validation
@@ -1265,7 +1265,7 @@ export const MisdirectedRequest = S.Literal(421).pipe(
 );
 
 /**
- * Type of {@link MisdirectedRequest} {@inheritDoc MisdirectedRequest}
+ * {@inheritDoc MisdirectedRequest}
  *
  * @since 0.0.0
  * @category Validation
@@ -1290,7 +1290,7 @@ export const UnprocessableEntity = S.Literal(422).pipe(
 );
 
 /**
- * Type of {@link UnprocessableEntity} {@inheritDoc UnprocessableEntity}
+ * {@inheritDoc UnprocessableEntity}
  *
  * @since 0.0.0
  * @category Validation
@@ -1311,7 +1311,7 @@ export const Locked = S.Literal(423).pipe(
 );
 
 /**
- * Type of {@link Locked} {@inheritDoc Locked}
+ * {@inheritDoc Locked}
  *
  * @since 0.0.0
  * @category Validation
@@ -1334,7 +1334,7 @@ export const FailedDependency = S.Literal(424).pipe(
 );
 
 /**
- * Type of {@link FailedDependency} {@inheritDoc FailedDependency}
+ * {@inheritDoc FailedDependency}
  *
  * @since 0.0.0
  * @category Validation
@@ -1357,7 +1357,7 @@ export const TooEarly = S.Literal(425).pipe(
 );
 
 /**
- * Type of {@link TooEarly} {@inheritDoc TooEarly}
+ * {@inheritDoc TooEarly}
  *
  * @since 0.0.0
  * @category Validation
@@ -1381,7 +1381,7 @@ export const UpgradeRequired = S.Literal(426).pipe(
 );
 
 /**
- * Type of {@link UpgradeRequired} {@inheritDoc UpgradeRequired}
+ * {@inheritDoc UpgradeRequired}
  *
  * @since 0.0.0
  * @category Validation
@@ -1407,7 +1407,7 @@ export const PreconditionRequired = S.Literal(428).pipe(
 );
 
 /**
- * Type of {@link PreconditionRequired} {@inheritDoc PreconditionRequired}
+ * {@inheritDoc PreconditionRequired}
  *
  * @since 0.0.0
  * @category Validation
@@ -1439,7 +1439,7 @@ export const TooManyRequests = S.Literal(429).pipe(
 );
 
 /**
- * Type of {@link TooManyRequests} {@inheritDoc TooManyRequests}
+ * {@inheritDoc TooManyRequests}
  *
  * @since 0.0.0
  * @category Validation
@@ -1463,7 +1463,7 @@ export const RequestHeaderFieldsTooLarge = S.Literal(431).pipe(
 );
 
 /**
- * Type of {@link RequestHeaderFieldsTooLarge} {@inheritDoc RequestHeaderFieldsTooLarge}
+ * {@inheritDoc RequestHeaderFieldsTooLarge}
  *
  * @since 0.0.0
  * @category Validation
@@ -1487,7 +1487,7 @@ export const UnavailableForLegalReasons = S.Literal(451).pipe(
 );
 
 /**
- * Type of {@link UnavailableForLegalReasons} {@inheritDoc UnavailableForLegalReasons}
+ * {@inheritDoc UnavailableForLegalReasons}
  *
  * @since 0.0.0
  * @category Validation
@@ -1562,7 +1562,7 @@ export declare namespace HttpStatus4XX {
 }
 
 /**
- * Type of {@link HttpStatus4XX} {@inheritDoc HttpStatus4XX}
+ * {@inheritDoc HttpStatus4XX}
  *
  * @since 0.0.0
  * @category Validation
@@ -1593,7 +1593,7 @@ export const InternalServerError = S.Literal(500).pipe(
 );
 
 /**
- * Type of {@link InternalServerError} {@inheritDoc InternalServerError}
+ * {@inheritDoc InternalServerError}
  *
  * @since 0.0.0
  * @category Validation
@@ -1616,7 +1616,7 @@ export const NotImplemented = S.Literal(501).pipe(
 );
 
 /**
- * Type of {@link NotImplemented} {@inheritDoc NotImplemented}
+ * {@inheritDoc NotImplemented}
  *
  * @since 0.0.0
  * @category Validation
@@ -1641,7 +1641,7 @@ export const BadGateway = S.Literal(502).pipe(
 );
 
 /**
- * Type of {@link BadGateway} {@inheritDoc BadGateway}
+ * {@inheritDoc BadGateway}
  *
  * @since 0.0.0
  * @category Validation
@@ -1666,7 +1666,7 @@ export const ServiceUnavailable = S.Literal(503).pipe(
 );
 
 /**
- * Type of {@link ServiceUnavailable} {@inheritDoc ServiceUnavailable}
+ * {@inheritDoc ServiceUnavailable}
  *
  * @since 0.0.0
  * @category Validation
@@ -1693,7 +1693,7 @@ export const GatewayTimeout = S.Literal(504).pipe(
 );
 
 /**
- * Type of {@link GatewayTimeout} {@inheritDoc GatewayTimeout}
+ * {@inheritDoc GatewayTimeout}
  *
  * @since 0.0.0
  * @category Validation
@@ -1716,7 +1716,7 @@ export const HttpVersionNotSupported = S.Literal(505).pipe(
 );
 
 /**
- * Type of {@link HttpVersionNotSupported} {@inheritDoc HttpVersionNotSupported}
+ * {@inheritDoc HttpVersionNotSupported}
  *
  * @since 0.0.0
  * @category Validation
@@ -1742,7 +1742,7 @@ export const VariantAlsoNegotiates = S.Literal(506).pipe(
 );
 
 /**
- * Type of {@link VariantAlsoNegotiates} {@inheritDoc VariantAlsoNegotiates}
+ * {@inheritDoc VariantAlsoNegotiates}
  *
  * @since 0.0.0
  * @category Validation
@@ -1765,7 +1765,7 @@ export const InsufficientStorage = S.Literal(507).pipe(
 );
 
 /**
- * Type of {@link InsufficientStorage} {@inheritDoc InsufficientStorage}
+ * {@inheritDoc InsufficientStorage}
  *
  * @since 0.0.0
  * @category Validation
@@ -1787,7 +1787,7 @@ export const LoopDetected = S.Literal(508).pipe(
 );
 
 /**
- * Type of {@link LoopDetected} {@inheritDoc LoopDetected}
+ * {@inheritDoc LoopDetected}
  *
  * @since 0.0.0
  * @category Validation
@@ -1810,7 +1810,7 @@ export const NotExtended = S.Literal(510).pipe(
 );
 
 /**
- * Type of {@link NotExtended} {@inheritDoc NotExtended}
+ * {@inheritDoc NotExtended}
  *
  * @since 0.0.0
  * @category Validation
@@ -1835,7 +1835,7 @@ export const NetworkAuthenticationRequired = S.Literal(511).pipe(
 );
 
 /**
- * Type of {@link NetworkAuthenticationRequired} {@inheritDoc NetworkAuthenticationRequired}
+ * {@inheritDoc NetworkAuthenticationRequired}
  *
  * @since 0.0.0
  * @category Validation
@@ -1886,7 +1886,7 @@ export declare namespace HttpStatus5XX {
 }
 
 /**
- * Type of {@link HttpStatus5XX} {@inheritDoc HttpStatus5XX}
+ * {@inheritDoc HttpStatus5XX}
  *
  * @category Validation
  * @since 0.0.0
@@ -1914,7 +1914,7 @@ export const RequestHeaderFieldsTooLargeShopify = S.Literal(430).pipe(
 );
 
 /**
- * Type of {@link RequestHeaderFieldsTooLargeShopify} {@inheritDoc RequestHeaderFieldsTooLargeShopify}
+ * {@inheritDoc RequestHeaderFieldsTooLargeShopify}
  *
  * @since 0.0.0
  * @category Validation
@@ -1938,7 +1938,7 @@ export const LoginTimeout = S.Literal(440).pipe(
 );
 
 /**
- * Type of {@link LoginTimeout} {@inheritDoc LoginTimeout}
+ * {@inheritDoc LoginTimeout}
  *
  * @since 0.0.0
  * @category Validation
@@ -1961,7 +1961,7 @@ export const RequestHeaderTooLarge = S.Literal(494).pipe(
 );
 
 /**
- * Type of {@link RequestHeaderTooLarge} {@inheritDoc RequestHeaderTooLarge}
+ * {@inheritDoc RequestHeaderTooLarge}
  *
  * @since 0.0.0
  * @category Validation
@@ -1984,7 +1984,7 @@ export const SslCertificateError = S.Literal(495).pipe(
 );
 
 /**
- * Type of {@link SslCertificateError} {@inheritDoc SslCertificateError}
+ * {@inheritDoc SslCertificateError}
  *
  * @since 0.0.0
  * @category Validation
@@ -2007,7 +2007,7 @@ export const SslCertificateRequired = S.Literal(496).pipe(
 );
 
 /**
- * Type of {@link SslCertificateRequired} {@inheritDoc SslCertificateRequired}
+ * {@inheritDoc SslCertificateRequired}
  *
  * @since 0.0.0
  * @category Validation
@@ -2030,7 +2030,7 @@ export const ClientClosedRequest = S.Literal(499).pipe(
 );
 
 /**
- * Type of {@link ClientClosedRequest} {@inheritDoc ClientClosedRequest}
+ * {@inheritDoc ClientClosedRequest}
  *
  * @since 0.0.0
  * @category Validation
@@ -2054,7 +2054,7 @@ export const WebServerReturnedAnUnknownError = S.Literal(520).pipe(
 );
 
 /**
- * Type of {@link WebServerReturnedAnUnknownError} {@inheritDoc WebServerReturnedAnUnknownError}
+ * {@inheritDoc WebServerReturnedAnUnknownError}
  *
  * @since 0.0.0
  * @category Validation
@@ -2078,7 +2078,7 @@ export const WebServerIsDown = S.Literal(521).pipe(
 );
 
 /**
- * Type of {@link WebServerIsDown} {@inheritDoc WebServerIsDown}
+ * {@inheritDoc WebServerIsDown}
  *
  * @since 0.0.0
  * @category Validation
@@ -2101,7 +2101,7 @@ export const SslHandshakeFailed = S.Literal(525).pipe(
 );
 
 /**
- * Type of {@link SslHandshakeFailed} {@inheritDoc SslHandshakeFailed}
+ * {@inheritDoc SslHandshakeFailed}
  *
  * @since 0.0.0
  * @category Validation
@@ -2126,7 +2126,7 @@ export const InvalidSslCertificate = S.Literal(526).pipe(
 );
 
 /**
- * Type of {@link InvalidSslCertificate} {@inheritDoc InvalidSslCertificate}
+ * {@inheritDoc InvalidSslCertificate}
  *
  * @since 0.0.0
  * @category Validation
@@ -2177,7 +2177,7 @@ export declare namespace HttpStatusUnofficial {
 }
 
 /**
- * Type of {@link HttpStatusUnofficial} {@inheritDoc HttpStatusUnofficial}
+ * {@inheritDoc HttpStatusUnofficial}
  *
  * @category Validation
  * @since 0.0.0
@@ -2224,7 +2224,7 @@ export declare namespace HttpStatus {
 }
 
 /**
- * Type of {@link HttpStatus} {@inheritDoc HttpStatus}
+ * {@inheritDoc HttpStatus}
  *
  * @category Validation
  * @since 0.0.0

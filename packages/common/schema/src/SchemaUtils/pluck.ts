@@ -5,7 +5,7 @@
  * encoded side, then transforms that one-property struct into the selected
  * field's decoded value.
  *
- * @module @beep/schema/SchemaUtils/pluck
+ * @module \@beep/schema/SchemaUtils/pluck
  * @since 0.0.0
  */
 import type { TUnsafe } from "@beep/types";

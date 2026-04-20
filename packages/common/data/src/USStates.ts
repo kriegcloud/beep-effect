@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/us-states-with-detail | US States JSON Dataset}
  *
  * @category constants
- * @module @beep/data/USStates
+ * @module \@beep/data/USStates
  * @since 0.0.0
  */
 /**

@@ -3,7 +3,7 @@
  *
  *
  * @since 0.0.0
- * @module @beep/schema/LiteralKit
+ * @module \@beep/schema/LiteralKit
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -570,7 +570,7 @@ const attachHelperDescriptors = <T extends object>(schema: T, descriptors: Prope
 
   return Object.defineProperties(schema, {
     ...descriptors,
-    ...(typeof originalAnnotate === "function"
+    ...(P.isFunction(originalAnnotate)
       ? {
           annotate: {
             value(annotation: unknown) {

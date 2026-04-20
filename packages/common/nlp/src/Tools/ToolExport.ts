@@ -2,7 +2,7 @@
  * Positional export adapter for NLP tools.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/ToolExport
+ * @module \@beep/nlp/Tools/ToolExport
  */
 
 import { $NlpId } from "@beep/identity";
@@ -89,10 +89,10 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
   /**
    * Convert an unknown cause into a typed export-adapter error.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param toolName {string} - The tool name associated with the failure.
-   * @param message {string} - The rendered error message for the caller.
-   * @returns {ExportedToolError} - A typed export-adapter error value.
+   * @param cause - The underlying failure or defect.
+   * @param toolName - The tool name associated with the failure.
+   * @param message - The rendered error message for the caller.
+   * @returns A typed export-adapter error value.
    */
   static readonly fromCause: {
     (cause: unknown, toolName: string, message: string): ExportedToolError;

@@ -20,7 +20,7 @@
  * void KnowledgeGraphLive
  * ```
  *
- * @module @beep/knowledge-graph/Layer
+ * @module \@beep/knowledge-graph/Layer
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";

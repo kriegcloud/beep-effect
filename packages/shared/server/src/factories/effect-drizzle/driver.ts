@@ -2,7 +2,7 @@
  * Public Effect-first Bun SQLite Drizzle driver factory.
  *
  * @since 0.0.0
- * @module @beep/shared-server/factories/effect-drizzle/driver
+ * @module \@beep/shared-server/factories/effect-drizzle/driver
  */
 
 /// <reference types="bun" />

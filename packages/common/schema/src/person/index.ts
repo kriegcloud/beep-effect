@@ -1,7 +1,7 @@
 /**
  * Module for attributes related to people.
  *
- * @module @beep/schema/person
+ * @module \@beep/schema/person
  * @since 0.0.0
  */
 

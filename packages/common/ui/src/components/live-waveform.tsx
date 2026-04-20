@@ -1,6 +1,7 @@
 "use client";
 
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { type HTMLAttributes, useEffect, useRef } from "react";
 import { cn } from "../lib/index.ts";
 
@@ -67,7 +68,7 @@ export const LiveWaveform = ({
   const gradientCacheRef = useRef<CanvasGradient | null>(null);
   const lastWidthRef = useRef(0);
 
-  const heightStyle = typeof height === "number" ? `${height}px` : height;
+  const heightStyle = P.isNumber(height) ? `${height}px` : height;
 
   // Handle canvas resizing
   useEffect(() => {

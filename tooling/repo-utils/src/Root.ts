@@ -78,7 +78,7 @@ export const findRepoRoot: (
 /**
  * Get the parent directory of a path (pure string operation).
  *
- * @param p Absolute or relative path string.
+ * @param p - Absolute or relative path string.
  * @returns Parent directory path.
  */
 const parentDir = (p: string): string =>

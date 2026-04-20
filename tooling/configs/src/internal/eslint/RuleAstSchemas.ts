@@ -1,5 +1,6 @@
 import { Effect } from "effect";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const ImportKindSchema = S.Literals(["type", "value"]);
@@ -80,7 +81,7 @@ export const resolveImportSpecifierImportKind = (
   node: unknown,
   importDeclarationKind?: ImportKind
 ): ImportKind | undefined => {
-  if (typeof node !== "object" || node === null || !("importKind" in node)) {
+  if (!P.isObject(node) || !("importKind" in node)) {
     return importDeclarationKind;
   }
 

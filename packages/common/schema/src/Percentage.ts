@@ -5,7 +5,7 @@
  * Supports decimal values (e.g., 12.5%, 99.99%).
  * Uses Schema.brand for compile-time type safety.
  *
- * @module @beep/schema/Percentage
+ * @module \@beep/schema/Percentage
  */
 import { $SchemaId } from "@beep/identity";
 import { Function as F } from "effect";
@@ -39,7 +39,7 @@ export const Percentage = S.Number.check(
 );
 
 /**
- * Type for {@link Percentage}. {@inheritDoc Percentage}
+ * {@inheritDoc Percentage}
  *
  * @example
  * ```ts

@@ -2,7 +2,7 @@
  * Secure HTTP header schemas and helpers.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers
+ * @module \@beep/schema/http/headers
  */
 
 /**

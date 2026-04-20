@@ -5,7 +5,7 @@
  * Uses Effect's DateTime.Utc internally but only represents the date portion.
  * Encodes to/from ISO 8601 date strings (YYYY-MM-DD format).
  *
- * @module @beep/schema/LocalDate
+ * @module \@beep/schema/LocalDate
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -62,8 +62,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
   /**
    * Format as ISO 8601 date string (YYYY-MM-DD)
    *
-   * @returns {string}
-   * @since 0.0.0
+   * @returns * @since 0.0.0
    * @category utilities
    */
   toISOString(): string {
@@ -75,8 +74,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
 
   /**
    * Convert to string representation
-   * @returns {string}
-   * @since 0.0.0
+   * @returns * @since 0.0.0
    * @category utilities
    */
   override readonly toString = (): string => {
@@ -99,8 +97,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
 
   /**
    * Convert to Effect DateTime.Utc at midnight UTC
-   * @returns {DateTime.Utc}
-   * @since 0.0.0
+   * @returns * @since 0.0.0
    * @category utilities
    */
   toDateTime(): DateTime.Utc {
@@ -113,8 +110,7 @@ export class LocalDate extends S.Class<LocalDate>($I`LocalDate`)(
 
   /**
    * Convert to JavaScript Date at midnight UTC
-   * @returns {Date}
-   * @since 0.0.0
+   * @returns * @since 0.0.0
    * @category utilities
    */
   readonly toDate = (): Date => {

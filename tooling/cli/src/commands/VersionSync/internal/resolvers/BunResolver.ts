@@ -15,6 +15,7 @@ import { Effect, FileSystem, Inspectable, identity, Path } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
@@ -149,13 +150,13 @@ const parseBunSemver = (value: string): O.Option<BunSemver> => {
 };
 
 const compareBunSemverIdentifier = (left: BunSemverIdentifier, right: BunSemverIdentifier): number => {
-  if (typeof left === "number" && typeof right === "number") {
+  if (P.isNumber(left) && P.isNumber(right)) {
     return left - right;
   }
-  if (typeof left === "number") {
+  if (P.isNumber(left)) {
     return -1;
   }
-  if (typeof right === "number") {
+  if (P.isNumber(right)) {
     return 1;
   }
   if (left < right) {

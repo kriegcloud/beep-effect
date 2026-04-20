@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/us-capitals | US State Capitals JSON Dataset}
  *
  * @category constants
- * @module @beep/data/USCapitals
+ * @module \@beep/data/USCapitals
  * @since 0.0.0
  */
 /**

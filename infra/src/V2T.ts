@@ -1,7 +1,7 @@
 /**
  * Local workstation automation for the V2T desktop application.
  *
- * @module @beep/infra/V2T
+ * @module \@beep/infra/V2T
  * @since 0.0.0
  */
 import { createRequire } from "node:module";
@@ -241,7 +241,7 @@ const resolveTargetHomeDir = (targetUser: string, inputTargetHomeDir?: string) =
 /**
  * Normalize a partial config object into the installer defaults.
  *
- * @param input Partial workstation config values.
+ * @param input - Partial workstation config values.
  * @returns The decoded config with repo defaults applied.
  *
  * @example
@@ -296,8 +296,8 @@ export const normalizeV2TWorkstationConfig = (
 /**
  * Validate whether the resolved config is compatible with the provided secrets.
  *
- * @param config Resolved workstation config.
- * @param args Pulumi-facing args, including optional secrets.
+ * @param config - Resolved workstation config.
+ * @param args - Pulumi-facing args, including optional secrets.
  * @returns The same config when validation succeeds.
  *
  * @since 0.0.0

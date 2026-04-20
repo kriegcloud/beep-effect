@@ -1,5 +1,5 @@
 /**
- * @module @beep/shared-server/factories/effect-drizzle
+ * @module \@beep/shared-server/factories/effect-drizzle
  *
  * @since 0.0.0
  */

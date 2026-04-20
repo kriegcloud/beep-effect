@@ -1,5 +1,5 @@
 /**
- * @beep/v2t
+ * \@beep/v2t
  *
  * @since 0.0.0
  */

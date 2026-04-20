@@ -4,7 +4,7 @@
  * Accepts lowercase or EIP-55 checksummed addresses.
  *
  * @since 0.0.0
- * @module @beep/schema/blockchain/EvmAddress
+ * @module \@beep/schema/blockchain/EvmAddress
  */
 
 import { $SchemaId } from "@beep/identity/packages";

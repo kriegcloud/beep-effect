@@ -18,7 +18,7 @@
  * console.log(isBinaryContent(new Uint8Array([0, 159, 146, 150]))); // true
  * ```
  *
- * @module @beep/schema/BinaryFileExtension
+ * @module \@beep/schema/BinaryFileExtension
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
@@ -209,8 +209,8 @@ export type BinaryFileExtension = typeof BinaryFileExtension.Type;
  * console.log(isBinaryFileExtension("png")); // false
  * ```
  *
- * @param value {unknown} - The value to test as a binary file extension.
- * @returns {boolean} - Whether the value is a supported dotted binary file extension.
+ * @param value - The value to test as a binary file extension.
+ * @returns Whether the value is a supported dotted binary file extension.
  * @since 0.0.0
  * @category Validation
  */
@@ -231,8 +231,8 @@ export const isBinaryFileExtension = (value: unknown): value is BinaryFileExtens
  * console.log(hasBinaryExtension("notes.md")); // false
  * ```
  *
- * @param filePath {string} - The file path or file name whose extension should be checked.
- * @returns {boolean} - `true` when the normalized dotted extension is known to be binary.
+ * @param filePath - The file path or file name whose extension should be checked.
+ * @returns `true` when the normalized dotted extension is known to be binary.
  * @since 0.0.0
  * @category Utility
  */
@@ -258,8 +258,8 @@ export function hasBinaryExtension(filePath: string): boolean {
  * console.log(isBinaryContent(binary)); // true
  * ```
  *
- * @param bytes {Uint8Array} - The bytes to inspect for binary content markers.
- * @returns {boolean} - `true` when the inspected bytes look binary, otherwise `false`.
+ * @param bytes - The bytes to inspect for binary content markers.
+ * @returns `true` when the inspected bytes look binary, otherwise `false`.
  * @since 0.0.0
  * @category Utility
  */

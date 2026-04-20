@@ -27,7 +27,7 @@
  * void Page.jsonCreate
  * ```
  *
- * @module @beep/knowledge-graph/Models
+ * @module \@beep/knowledge-graph/Models
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";

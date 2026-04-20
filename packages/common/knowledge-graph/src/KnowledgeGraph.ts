@@ -18,7 +18,7 @@
  * })
  * ```
  *
- * @module @beep/knowledge-graph/KnowledgeGraph
+ * @module \@beep/knowledge-graph/KnowledgeGraph
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";

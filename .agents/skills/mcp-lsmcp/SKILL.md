@@ -12,7 +12,8 @@ description: "Use for lsmcp symbol and index workflows plus troubleshooting star
 ## Quick Smoke
 1. Call `mcp__lsmcp__get_symbol_search_guidance`.
 2. Call `mcp__lsmcp__list_memories` with this root:
-   `/home/elpresidank/YeeBois/projects/beep-effect3`.
+   `/home/elpresidank/YeeBois/projects/beep-effect`
+   or `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground`.
 
 ## Representative Calls
 - Guidance/health: `get_symbol_search_guidance`, `lsp_check_capabilities`.

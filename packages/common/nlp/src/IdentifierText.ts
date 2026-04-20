@@ -2,7 +2,7 @@
  * Deterministic identifier tokenization and variant helpers.
  *
  * @since 0.0.0
- * @module @beep/nlp/IdentifierText
+ * @module \@beep/nlp/IdentifierText
  */
 import * as Str from "@beep/utils/Str";
 import { flow, pipe } from "effect";

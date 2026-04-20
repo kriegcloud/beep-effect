@@ -1,5 +1,5 @@
 /**
- * @beep/schema
+ * \@beep/schema
  *
  * @since 0.0.0
  */

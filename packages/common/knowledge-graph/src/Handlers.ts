@@ -16,7 +16,7 @@
  * void graphHandlers
  * ```
  *
- * @module @beep/knowledge-graph/Handlers
+ * @module \@beep/knowledge-graph/Handlers
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";

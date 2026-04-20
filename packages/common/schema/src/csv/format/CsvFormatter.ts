@@ -1,7 +1,7 @@
 /**
  * Whole-text CSV formatting helpers.
  *
- * @module @beep/schema/csv/format/CsvFormatter
+ * @module \@beep/schema/csv/format/CsvFormatter
  * @since 0.0.0
  */
 

@@ -2,7 +2,7 @@
  * Wink layer composition helpers.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/Layer
+ * @module \@beep/nlp/Wink/Layer
  */
 
 import { Layer } from "effect";

@@ -250,7 +250,7 @@ const UnsupportedTsMorphAdapter: TsMorphMutationAdapter = {
 /**
  * Construct a ts-morph-morph integration service with an optional adapter.
  *
- * @param adapter Adapter used to apply ts-morph-morph mutations.
+ * @param adapter - Adapter used to apply ts-morph-morph mutations.
  * @returns Integration service for previewing and applying mutations.
  * @category DomainModel
  * @since 0.0.0

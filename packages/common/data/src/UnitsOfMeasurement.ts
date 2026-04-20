@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/units-of-measurement | Units of Measurement JSON Dataset}
  *
  * @category constants
- * @module @beep/data/UnitsOfMeasurement
+ * @module \@beep/data/UnitsOfMeasurement
  * @since 0.0.0
  */
 /**

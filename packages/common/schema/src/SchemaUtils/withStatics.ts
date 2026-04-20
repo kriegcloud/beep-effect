@@ -1,11 +1,12 @@
 /**
  * Attach static methods to a schema.
  *
- * @module @beep/schema/utils/withStatics
+ * @module \@beep/schema/utils/withStatics
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import { Function as Fn } from "effect";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
@@ -53,7 +54,7 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
     Reflect.defineProperty(schema, key, descriptor);
   }
 
-  if (typeof originalAnnotate === "function") {
+  if (P.isFunction(originalAnnotate)) {
     Reflect.defineProperty(schema, "annotate", {
       value(annotation: unknown) {
         return attachStatics(originalAnnotate.call(schema, annotation), methods);

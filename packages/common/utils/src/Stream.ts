@@ -1,7 +1,7 @@
 /**
  * A module containing utilities for working with `effect/Stream`.
  *
- * @module @beep/utils/Stream
+ * @module \@beep/utils/Stream
  * @since 0.0.0
  */
 

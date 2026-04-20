@@ -4,7 +4,7 @@
  * @see {@link https://jsonlint.com/datasets/timezones | World Timezones JSON Dataset}
  *
  * @category constants
- * @module @beep/data/WorldTimezones
+ * @module \@beep/data/WorldTimezones
  * @since 0.0.0
  */
 /**

@@ -53,6 +53,8 @@ export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
 /**
  * Check whether a file path matches the native runtime error file allowlist.
  *
+ * @param relativeFilePath - Repo-relative file path to test against the explicit allowlist.
+ * @returns `true` when the file is allowlisted for native runtime tagged errors.
  * @category predicates
  * @since 0.0.0
  */
@@ -62,6 +64,8 @@ export const isNoNativeRuntimeErrorFile = (relativeFilePath: string): boolean =>
 /**
  * Check whether a file path matches a native runtime extra-check hotspot pattern.
  *
+ * @param relativeFilePath - Repo-relative file path to test against hotspot patterns.
+ * @returns `true` when the file path matches a native runtime hotspot pattern.
  * @category predicates
  * @since 0.0.0
  */

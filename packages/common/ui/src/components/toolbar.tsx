@@ -8,6 +8,7 @@ import { Separator } from "@beep/ui/components/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as P from "effect/Predicate";
 import type { ComponentProps, ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "../lib/index.ts";
@@ -34,8 +35,8 @@ export function ToolbarToggleGroup({
   readonly children?: undefined | ReactNode;
 }) {
   const multiple = type === "multiple";
-  const normalizedValue = typeof value === "string" ? [value] : value;
-  const normalizedDefaultValue = typeof defaultValue === "string" ? [defaultValue] : defaultValue;
+  const normalizedValue = P.isString(value) ? [value] : value;
+  const normalizedDefaultValue = P.isString(defaultValue) ? [defaultValue] : defaultValue;
   return (
     <ToggleGroup
       className={cn("flex items-center", className)}
@@ -120,7 +121,7 @@ type ToolbarActionButtonProps = ToolbarButtonBaseProps &
 type ToolbarButtonProps = ToolbarToggleButtonProps | ToolbarActionButtonProps;
 
 export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarButtonProps) {
-  if (typeof props.pressed === "boolean") {
+  if (P.isBoolean(props.pressed)) {
     const { children, className, isDropdown, pressed, size = "sm", variant, ...toggleProps } = props;
     return (
       <ToolbarToggleGroup disabled={Boolean(toggleProps.disabled)} value={pressed ? "single" : ""} type="single">

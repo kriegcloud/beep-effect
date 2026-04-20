@@ -18,7 +18,7 @@
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/infra",
   "scripts": {
     "codegen": "echo 'no codegen needed'",
-    "check": "tsc -b tsconfig.json test/tsconfig.json",
+    "check": "tsgo -b tsconfig.json test/tsconfig.json",
     "docgen": "bun run ../tooling/docgen/src/bin.ts",
     "lint": "biome check src/ test/ dtslint/",
     "lint:fix": "biome check src/ test/ dtslint/ --write",

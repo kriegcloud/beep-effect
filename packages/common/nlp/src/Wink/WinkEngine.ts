@@ -2,7 +2,7 @@
  * Wink runtime engine service.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkEngine
+ * @module \@beep/nlp/Wink/WinkEngine
  */
 
 import { createRequire } from "node:module";

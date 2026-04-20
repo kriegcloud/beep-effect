@@ -5,7 +5,7 @@
  * `Class`, `Field`, `Struct`, `Union`, `extract`, and `fieldEvolve` constructors
  * scoped to those variants.
  *
- * @module @beep/schema/VariantSchema
+ * @module \@beep/schema/VariantSchema
  * @since 0.0.0
  */
 

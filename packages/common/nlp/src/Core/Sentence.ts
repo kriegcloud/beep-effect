@@ -2,7 +2,7 @@
  * Core sentence model for NLP runtime services.
  *
  * @since 0.0.0
- * @module @beep/nlp/Core/Sentence
+ * @module \@beep/nlp/Core/Sentence
  */
 
 import { $NlpId } from "@beep/identity";

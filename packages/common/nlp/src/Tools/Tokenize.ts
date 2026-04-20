@@ -2,7 +2,7 @@
  * Tokenize tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/Tokenize
+ * @module \@beep/nlp/Tools/Tokenize
  */
 
 import { $NlpId } from "@beep/identity";

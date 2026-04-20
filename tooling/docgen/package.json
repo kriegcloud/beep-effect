@@ -14,7 +14,7 @@
   "scripts": {
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "build": "tsc -b tsconfig.json && bun run babel",
-    "check": "tsc -b tsconfig.json",
+    "check": "tsgo -b tsconfig.json",
     "codegen": "echo 'no codegen needed'",
     "coverage": "vitest --coverage",
     "docgen": "bun run src/bin.ts",

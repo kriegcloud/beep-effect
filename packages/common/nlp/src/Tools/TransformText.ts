@@ -2,7 +2,7 @@
  * TransformText tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/TransformText
+ * @module \@beep/nlp/Tools/TransformText
  */
 
 import { $NlpId } from "@beep/identity";

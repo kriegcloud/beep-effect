@@ -178,7 +178,7 @@ export const SyncDataTarget = SyncDataSourceFormat.mapMembers(
   .pipe(S.toTaggedUnion("format"));
 
 /**
- * Type of {@link SyncDataTarget} {@inheritDoc SyncDataTarget}
+ * {@inheritDoc SyncDataTarget}
  *
  * @category DomainModel
  * @since 0.0.0

@@ -20,7 +20,7 @@
  * void failBadReq
  * ```
  *
- * @module @beep/observability/HttpError
+ * @module \@beep/observability/HttpError
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
