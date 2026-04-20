@@ -307,6 +307,12 @@
       ],
       "@beep/infra/*": [
         "./infra/src/*"
+      ],
+      "@beep/knowledge-graph": [
+        "./packages/common/knowledge-graph/src/index.ts"
+      ],
+      "@beep/knowledge-graph/*": [
+        "./packages/common/knowledge-graph/src/*"
       ]
     },
     "plugins": [
