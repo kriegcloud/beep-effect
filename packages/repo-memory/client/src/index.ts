@@ -16,9 +16,8 @@ import {
   type SidecarBootstrap,
   type StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
-import { StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { StatusCauseTaggedErrorClass } from "@beep/schema";
 import { Cause, Context, Effect, Layer, pipe, Stream } from "effect";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -54,9 +53,10 @@ export class RepoMemoryClientConfig extends S.Class<RepoMemoryClientConfig>($I`R
  * @since 0.0.0
  * @category DomainModel
  */
-export class RepoMemoryClientError extends TaggedErrorClass<RepoMemoryClientError>($I`RepoMemoryClientError`)(
+export class RepoMemoryClientError extends StatusCauseTaggedErrorClass<RepoMemoryClientError>(
+  $I`RepoMemoryClientError`
+)(
   "RepoMemoryClientError",
-  StatusCauseFields,
   $I.annote("RepoMemoryClientError", {
     description: "Typed client error for local sidecar communication failures.",
   })
@@ -237,16 +237,8 @@ const toClientError = (fallback: string, cause: unknown): RepoMemoryClientError 
   S.is(RepoMemoryClientError)(cause)
     ? cause
     : isRuntimeBoundaryPayload(cause)
-      ? new RepoMemoryClientError({
-          message: cause.message,
-          status: cause.status,
-          cause: O.none(),
-        })
-      : new RepoMemoryClientError({
-          message: fallback,
-          status: transportStatus(cause),
-          cause: O.fromUndefinedOr(P.isError(cause) ? cause : undefined),
-        });
+      ? RepoMemoryClientError.noCause(cause.message, cause.status)
+      : RepoMemoryClientError.new(P.isError(cause) ? cause : undefined, fallback, transportStatus(cause));
 
 const mapClientError = <A, E>(fallback: string, effect: Effect.Effect<A, E>) =>
   effect.pipe(Effect.catchCause((cause) => Effect.fail(toClientError(fallback, Cause.squash(cause)))));
