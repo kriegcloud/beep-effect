@@ -648,40 +648,19 @@ export const makeDrizzleLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
 )
 ```
 
-Product ports use product language:
+Product ports use product language. Actionable port failures live in
+`TwoFactor.errors.ts`; the port file imports those errors instead of defining
+technical/provider failures inline:
 
 ```ts
 import { $I as $RootId } from "@beep/identity/packages"
-import { TaggedErrorClass } from "@beep/schema"
 import { Context, type Effect } from "effect"
-import * as O from "effect/Option"
-import * as S from "effect/Schema"
+import type * as O from "effect/Option"
 import type { TwoFactor } from "@beep/iam-domain/entities/TwoFactor"
 import type { AccountId } from "@beep/iam-domain/entities/Account"
+import type { TwoFactorRepositoryError } from "./TwoFactor.errors.js"
 
 const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.ports.ts")
-
-export class TwoFactorRepositoryError extends TaggedErrorClass<TwoFactorRepositoryError>(
-  $I`TwoFactorRepositoryError`,
-)(
-  "TwoFactorRepositoryError",
-  {
-    operation: S.String,
-    cause: S.OptionFromOptionalKey(S.Defect),
-  },
-  $I.annote("TwoFactorRepositoryError", {
-    description: "Actionable repository failure in TwoFactor product language.",
-  }),
-) {}
-
-const toTwoFactorRepositoryError = (
-  operation: string,
-  cause?: unknown,
-): TwoFactorRepositoryError =>
-  new TwoFactorRepositoryError({
-    operation,
-    cause: O.fromUndefinedOr(cause),
-  })
 
 export class TwoFactorRepository extends Context.Service<
   TwoFactorRepository,
@@ -694,8 +673,6 @@ export class TwoFactorRepository extends Context.Service<
     ) => Effect.Effect<O.Option<TwoFactor>, TwoFactorRepositoryError>
   }
 >()($I`TwoFactorRepository`) {}
-
-export { toTwoFactorRepositoryError }
 ```
 
 The implementation belongs in server:
