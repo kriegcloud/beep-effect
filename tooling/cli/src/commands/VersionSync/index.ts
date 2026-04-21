@@ -1,8 +1,14 @@
-import { Console, Effect } from "effect";
-import * as Bool from "effect/Boolean";
+import { Console, Effect, pipe } from "effect";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import { Command, Flag } from "effect/unstable/cli";
 import { handleVersionSync } from "./internal/Handler.js";
 import type { VersionSyncMode } from "./internal/Models.js";
+
+type VersionSyncModeFlags = readonly [write: boolean, dryRun: boolean];
+
+const isDryRunModeFlags = P.Tuple([P.isTruthy, P.isTruthy]);
+const isWriteModeFlags = P.Tuple([P.isTruthy, P.not(P.isTruthy)]);
 
 /**
  * Resolve command mode from flags.
@@ -14,14 +20,16 @@ import type { VersionSyncMode } from "./internal/Models.js";
  * @since 0.0.0
  */
 const resolveMode = (write: boolean, dryRun: boolean): VersionSyncMode => {
-  return Bool.match(write, {
-    onTrue: () =>
-      Bool.match(dryRun, {
-        onTrue: () => "dry-run" as const,
-        onFalse: () => "write" as const,
-      }),
-    onFalse: () => "check" as const,
-  });
+  const flags = [write, dryRun] satisfies VersionSyncModeFlags;
+
+  return pipe(
+    [
+      pipe(flags, O.liftPredicate(isDryRunModeFlags), O.as("dry-run" as const)),
+      pipe(flags, O.liftPredicate(isWriteModeFlags), O.as("write" as const)),
+    ] satisfies ReadonlyArray<O.Option<VersionSyncMode>>,
+    O.firstSomeOf,
+    O.getOrElse((): VersionSyncMode => "check")
+  );
 };
 
 /**

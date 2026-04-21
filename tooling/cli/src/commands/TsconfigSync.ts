@@ -25,7 +25,6 @@ import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -213,6 +212,10 @@ const TsconfigSyncModeMatch = TsconfigSyncModeKit.$match;
 
 type TsconfigSyncMode = typeof TsconfigSyncMode.Type;
 const tsconfigSyncModeEquivalence = S.toEquivalence(TsconfigSyncMode);
+type TsconfigSyncModeFlags = readonly [check: boolean, dryRun: boolean];
+
+const isCheckModeFlags = P.Tuple([P.isTruthy, P.isBoolean]);
+const isDryRunModeFlags = P.Tuple([P.not(P.isTruthy), P.isTruthy]);
 
 class TsconfigSyncRunOptionsSync extends S.Class<TsconfigSyncRunOptionsSync>($I`TsconfigSyncRunOptionsSync`)(
   {
@@ -1716,14 +1719,16 @@ export const syncTsconfigAtRoot: (
 });
 
 const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
-  return Bool.match(check, {
-    onTrue: () => "check",
-    onFalse: () =>
-      Bool.match(dryRun, {
-        onTrue: () => "dry-run",
-        onFalse: () => "sync",
-      }),
-  });
+  const flags = [check, dryRun] satisfies TsconfigSyncModeFlags;
+
+  return pipe(
+    [
+      pipe(flags, O.liftPredicate(isCheckModeFlags), O.as("check" as const)),
+      pipe(flags, O.liftPredicate(isDryRunModeFlags), O.as("dry-run" as const)),
+    ] satisfies ReadonlyArray<O.Option<TsconfigSyncMode>>,
+    O.firstSomeOf,
+    O.getOrElse((): TsconfigSyncMode => "sync")
+  );
 };
 
 /**
