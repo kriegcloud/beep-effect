@@ -11,6 +11,7 @@
 import { DomainError } from "@beep/repo-utils";
 import { Console, Effect } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import { Command, Flag } from "effect/unstable/cli";
 import { aggregateGeneratedDocs } from "./Docgen/internal/Operations.js";
 
@@ -41,7 +42,7 @@ const resolveAggregateSelector = Effect.fn("DocsAggregate.resolveAggregateSelect
 const aggregateDocs = Effect.fn(function* (selector: O.Option<string>, clean: boolean) {
   const results = yield* aggregateGeneratedDocs({
     clean,
-    package: O.getOrUndefined(selector),
+    ...R.getSomes({ package: selector }),
   });
 
   if (results.length === 0) {

@@ -1,7 +1,7 @@
 /**
  * TOML parsing and schema transforms.
  *
- * @module @beep/schema/Toml
+ * @module
  * @since 0.0.0
  */
 
@@ -70,10 +70,10 @@ const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content
  * import { TomlTextToUnknown } from "@beep/schema/Toml"
  *
  * const program = Effect.gen(function* () {
- *   const parsed = yield* S.decodeUnknownEffect(TomlTextToUnknown)(
- *     '[server]\nport = 8080\nhost = "localhost"'
- *   )
- *   return parsed
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -107,10 +107,10 @@ export const TomlTextToUnknown = S.String.pipe(
  * const decodeConfig = decodeTomlTextAs(S.Struct({ server: ServerConfig }))
  *
  * const program = Effect.gen(function* () {
- *   const config = yield* decodeConfig(
- *     '[server]\nport = 8080\nhost = "localhost"'
- *   )
- *   return config
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```

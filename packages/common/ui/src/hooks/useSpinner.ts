@@ -37,11 +37,12 @@ const spinnerSchedule = decodeSpinnerSchedule({
 const noopVoid = (): void => {};
 
 function canUseDOM(): boolean {
+  const runtimeWindow = globalThis.window;
   return (
-    typeof window !== "undefined" &&
-    window.document !== undefined &&
-    P.isNotNull(window.document) &&
-    P.isFunction(window.document.createElement)
+    P.isNotUndefined(runtimeWindow) &&
+    runtimeWindow.document !== undefined &&
+    P.isNotNull(runtimeWindow.document) &&
+    P.isFunction(runtimeWindow.document.createElement)
   );
 }
 
@@ -100,26 +101,26 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * import { useSpinner } from "@beep/ui/hooks/useSpinner"
  *
  * function Example() {
- *   const [value, setValue] = React.useState(0)
- *   const spinner = useSpinner(
- *     () => setValue((current) => current + 1),
- *     () => setValue((current) => current - 1)
- *   )
  *
- *   return React.createElement(
- *     "button",
- *     { onMouseDown: () => spinner.up(), onMouseUp: spinner.stop },
- *     value
- *   )
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * }
  *
  * void Example
  * ```
  *
  * @category React
- * @param increment {(params?: T) => void} - Callback invoked for upward spinner movement.
- * @param decrement {(params?: T) => void} - Callback invoked for downward spinner movement.
- * @returns {{ up: (params?: T) => void; down: (params?: T) => void; stop: () => void }} - Spinner controls for starting and stopping repeated actions.
+ * @param increment - Callback invoked for upward spinner movement.
+ * @param decrement - Callback invoked for downward spinner movement.
+ * @returns Spinner controls for starting and stopping repeated actions.
  * @since 0.0.0
  */
 /**

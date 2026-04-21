@@ -2,7 +2,7 @@
  * Aggregate secure-header option schema and creation helpers.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/SecureHeaderOptions
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, pipe } from "effect";

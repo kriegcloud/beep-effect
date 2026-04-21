@@ -287,8 +287,8 @@ const BlockTypeToolbar = () => {
 /**
  * Lexical-powered editing surface for the canonical editor page model.
  *
- * @param props {object} - The editor surface props containing the current page and change handler.
- * @returns {JSX.Element} - The Lexical editor surface bound to the canonical page model.
+ * @param props - The editor surface props containing the current page and change handler.
+ * @returns The Lexical editor surface bound to the canonical page model.
  *
  * @since 0.0.0
  * @category Presentation

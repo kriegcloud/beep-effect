@@ -2,7 +2,7 @@
  * Re-exports the CSV schema module including the `CSV` schema factory,
  * codec options, error types, and parse/format utilities.
  *
- * @module @beep/schema/csv
+ * @module
  * @since 0.0.0
  */
 

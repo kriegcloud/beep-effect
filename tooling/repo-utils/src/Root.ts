@@ -29,16 +29,15 @@ const ROOT_MARKERS: ReadonlyArray<string> = [".git", "bun.lock"];
  * Root markers are `.git` (directory) and `bun.lock` (file).
  *
  * @param startFrom - Optional starting directory. Defaults to `process.cwd()`.
- * @returns An Effect that succeeds with the absolute path of the repo root,
- *   or fails with `NoSuchFileError` if no root marker is found.
+ * @returns An Effect that succeeds with the absolute path of the repo root.
  * @example
  * ```typescript
  * import { Effect } from "effect"
  * import { findRepoRoot } from "@beep/repo-utils/Root"
  *
  * const program = Effect.gen(function*() {
- *   const root = yield* findRepoRoot()
- *   console.log("Repo root:", root)
+ *
+ *
  * })
  * void program
  * ```
@@ -78,7 +77,7 @@ export const findRepoRoot: (
 /**
  * Get the parent directory of a path (pure string operation).
  *
- * @param p Absolute or relative path string.
+ * @param p - Absolute or relative path string.
  * @returns Parent directory path.
  */
 const parentDir = (p: string): string =>

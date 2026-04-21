@@ -18,10 +18,11 @@ const $I = $SemanticWebId.create("evidence");
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { EvidenceSelectorKind } from "@beep/semantic-web/evidence"
  *
- * console.log(EvidenceSelectorKind.Guard("text-quote")) // true
- * console.log(EvidenceSelectorKind.Guard("unknown")) // false
+ * console.log(S.is(EvidenceSelectorKind)("text-quote")) // true
+ * console.log(S.is(EvidenceSelectorKind)("unknown")) // false
  * ```
  *
  * @since 0.0.0
@@ -46,11 +47,12 @@ export type EvidenceSelectorKind = typeof EvidenceSelectorKind.Type;
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { TextQuoteSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = TextQuoteSelector.make({
- *   kind: "text-quote",
- *   exact: "important finding",
+ * const selector = S.decodeUnknownSync(TextQuoteSelector)({
+ *
+ *
  * })
  * console.log(selector.kind) // "text-quote"
  * ```
@@ -86,12 +88,13 @@ export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSe
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { TextPositionSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = TextPositionSelector.make({
- *   kind: "text-position",
- *   start: 0,
- *   end: 42,
+ * const selector = S.decodeUnknownSync(TextPositionSelector)({
+ *
+ *
+ *
  * })
  * console.log(selector.start) // 0
  * ```
@@ -126,11 +129,12 @@ export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextP
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { FragmentSelector } from "@beep/semantic-web/evidence"
  *
- * const selector = FragmentSelector.make({
- *   kind: "fragment",
- *   value: "section-1",
+ * const selector = S.decodeUnknownSync(FragmentSelector)({
+ *
+ *
  * })
  * console.log(selector.value) // "section-1"
  * ```
@@ -167,8 +171,8 @@ export class FragmentSelector extends S.Class<FragmentSelector>($I`FragmentSelec
  * import { EvidenceSelector } from "@beep/semantic-web/evidence"
  *
  * const decoded = S.decodeUnknownSync(EvidenceSelector)({
- *   kind: "text-quote",
- *   exact: "sample text"
+ *
+ *
  * })
  * console.log(decoded.kind) // "text-quote"
  * ```

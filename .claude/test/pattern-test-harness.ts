@@ -2,12 +2,13 @@ import { NodeServices } from "@effect/platform-node";
 import { Effect } from "effect";
 import { beforeAll, describe, expect, it } from "vitest";
 import { findMatches, type HookInput, loadPatterns } from "../hooks/pattern-detector/core.ts";
+import { provideLayerScoped } from "../internal/runtime.ts";
 import type { PatternDefinition } from "../patterns/schema.ts";
 
 let patterns: PatternDefinition[] = [];
 
 beforeAll(async () => {
-  patterns = await Effect.runPromise(loadPatterns.pipe(Effect.provide(NodeServices.layer)));
+  patterns = await Effect.runPromise(Effect.scoped(provideLayerScoped(loadPatterns, NodeServices.layer)));
 });
 
 export interface PatternTestConfig {
@@ -26,7 +27,7 @@ export interface BashPatternTestConfig {
 }
 
 const inferFilePathFromGlob = (glob?: string): string => {
-  if (!glob) return "test.ts";
+  if (glob === undefined || glob === "") return "test.ts";
   if (glob.includes("{test,spec}") || glob.includes(".test.") || glob.includes(".spec.")) {
     return "test.test.ts";
   }

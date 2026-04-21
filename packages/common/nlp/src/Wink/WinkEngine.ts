@@ -2,7 +2,7 @@
  * Wink runtime engine service.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkEngine
+ * @module
  */
 
 import { createRequire } from "node:module";
@@ -80,7 +80,6 @@ export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState
  * @since 0.0.0
  * @category DomainModel
  */
-// eslint-disable-next-line beep-laws/schema-first -- Runtime state carries a live wink handle and is tracked as an intentional inventory exception.
 export type WinkEngineRuntimeState = {
   readonly customEntities: O.Option<WinkEngineCustomEntities>;
   readonly instanceId: InstanceId;

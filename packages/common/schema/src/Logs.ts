@@ -1,7 +1,7 @@
 /**
  * Log level and log severity literal kits.
  *
- * @module @beep/schema/Logs
+ * @module
  * @since 0.0.0
  */
 

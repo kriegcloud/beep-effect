@@ -606,9 +606,9 @@ export const makeQuad = (subject: Subject, predicate: NamedNode, object: ObjectT
  * import { makeNamedNode, makeLiteral, makeQuad, makeDataset } from "@beep/semantic-web/rdf"
  *
  * const quad = makeQuad(
- *   makeNamedNode("https://example.org/s"),
- *   makeNamedNode("https://example.org/p"),
- *   makeLiteral("value", "http://www.w3.org/2001/XMLSchema#string")
+ *
+ *
+ *
  * )
  * const dataset = makeDataset([quad])
  * console.log(dataset.quads.length) // 1
@@ -619,7 +619,7 @@ export const makeQuad = (subject: Subject, predicate: NamedNode, object: ObjectT
  * @since 0.0.0
  * @category utilities
  */
-export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({ quads: Array.from(quads) });
+export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({ quads: A.fromIterable(quads) });
 
 /**
  * Serialize an RDF term to a deterministic lexical form.
@@ -661,9 +661,9 @@ export const serializeTerm = (term: Term): string => {
  * import { makeNamedNode, makeLiteral, makeQuad, serializeQuad } from "@beep/semantic-web/rdf"
  *
  * const quad = makeQuad(
- *   makeNamedNode("https://example.org/s"),
- *   makeNamedNode("https://example.org/p"),
- *   makeLiteral("v", "http://www.w3.org/2001/XMLSchema#string")
+ *
+ *
+ *
  * )
  * console.log(typeof serializeQuad(quad)) // "string"
  * ```

@@ -1,6 +1,6 @@
 /**
  * @packageDocumentation
- * @beep/test-utils
+ * \@beep/test-utils
  * @since 0.0.0
  */
 

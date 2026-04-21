@@ -7,7 +7,7 @@
  * Policies are evaluated in order of priority, with deny policies taking
  * precedence over allow policies at the same priority level.
  *
- * @module @beep/shared-domain/services/authorization/AuthorizationPolicy
+ * @module
  * @since 0.0.0
  */
 void 0;

@@ -1,5 +1,5 @@
 /**
- * @beep/schema
+ * \@beep/schema
  *
  * @since 0.0.0
  */
@@ -50,6 +50,11 @@ export * from "./color/index.ts";
  * @category Validation
  */
 export * from "./csv.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./EffectSchema.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -140,6 +145,11 @@ export * from "./MutableHashSet.ts";
  * @category Validation
  */
 export * from "./PosixPath.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./PromiseSchema.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -256,6 +266,11 @@ export * from "./SemanticVersion.ts";
  * @category Validation
  */
 export * from "./SeverityLevel.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./CauseTaggedErrorClass.ts";
 /**
  * @since 0.0.0
  * @category Validation

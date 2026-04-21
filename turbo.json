@@ -3,8 +3,6 @@
   "ui": "tui",
   "globalDependencies": [
     ".bun-version",
-    ".env",
-    ".env.*",
     ".nvmrc",
     "tsconfig.json",
     "tsconfig.base.json",
@@ -18,28 +16,30 @@
     "NODE_TLS_REJECT_UNAUTHORIZED",
     "PORTLESS_*",
     "AWS_*",
-    "SST_*",
-    "APP_ADMINS_EMAILS",
-    "ALLOWED_EMAILS",
-    "DATABASE_URL",
-    "DATABASE_URL_UNPOOLED",
-    "EMAIL_*",
-    "AUTH_*",
-    "BETTER_AUTH_*",
-    "OPENAI_*",
-    "GRAPHITI_*",
-    "SECURITY_*",
-    "OAUTH_*",
-    "NEXT_PUBLIC_*",
-    "LIVEBLOCKS_*",
-    "RESEND_*"
+    "SST_*"
   ],
   "tasks": {
     "build": {
       "persistent": false,
       "cache": true,
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*", "!.beep/**"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
+      "env": [
+        "APP_ADMINS_EMAILS",
+        "ALLOWED_EMAILS",
+        "DATABASE_URL",
+        "DATABASE_URL_UNPOOLED",
+        "EMAIL_*",
+        "AUTH_*",
+        "BETTER_AUTH_*",
+        "OPENAI_*",
+        "GRAPHITI_*",
+        "SECURITY_*",
+        "OAUTH_*",
+        "NEXT_PUBLIC_*",
+        "LIVEBLOCKS_*",
+        "RESEND_*"
+      ],
       "outputs": [
         "dist/**",
         "build/**",
@@ -65,7 +65,7 @@
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "check": {
-      "dependsOn": ["^build", "^check"],
+      "dependsOn": ["^check"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "test": {
@@ -99,6 +99,172 @@
     "test:storybook": {
       "cache": false
     },
+    "@beep/repo-checks#check:dtslint:tsgo": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/infra/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/.claude/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/.codex/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/scripts/run-dtslint-tsgo-checks.mjs",
+        "$TURBO_ROOT$/tsconfig*.json"
+      ]
+    },
+    "@beep/repo-checks#check:tsgo:smoke": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/scripts/check-tsgo-smoke.mjs",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/bun.lock",
+        "$TURBO_ROOT$/tsconfig.base.json"
+      ]
+    },
+    "@beep/repo-checks#check:types": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx,cts,mts}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx,cts,mts}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx,cts,mts}",
+        "$TURBO_ROOT$/infra/**/*.{ts,tsx,cts,mts}",
+        "$TURBO_ROOT$/.claude/**/*.{ts,tsx,cts,mts}",
+        "$TURBO_ROOT$/.codex/**/*.{ts,tsx,cts,mts}",
+        "$TURBO_ROOT$/tstyche.json",
+        "$TURBO_ROOT$/tsconfig*.json"
+      ]
+    },
+    "@beep/repo-checks#lint:jsdoc": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/.claude/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/.codex/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/.patterns/**/*.md",
+        "$TURBO_ROOT$/scripts/check-jsdoc-module-tags.mjs",
+        "$TURBO_ROOT$/eslint.config.mjs"
+      ]
+    },
+    "@beep/repo-checks#lint:effect-governance": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/.claude/hooks/**/*.ts",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
+        "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/tooling/configs/package.json",
+        "$TURBO_ROOT$/tooling/configs/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/configs/test/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
+      ]
+    },
+    "@beep/repo-checks#lint:spell": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/**/*.{ts,tsx,md}",
+        "$TURBO_ROOT$/cspell.json",
+        "$TURBO_ROOT$/package.json"
+      ]
+    },
+    "@beep/repo-checks#lint:markdown": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/**/*.md",
+        "$TURBO_ROOT$/.markdownlint-cli2.jsonc"
+      ]
+    },
+    "@beep/repo-checks#lint:circular": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/tooling/*/src/**/*.ts",
+        "$TURBO_ROOT$/packages/*/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/src/commands/Lint/index.ts"
+      ]
+    },
+    "@beep/repo-checks#lint:tooling-tagged-errors": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/.claude/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}"
+      ]
+    },
+    "@beep/repo-checks#lint:versions": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/bun.lock",
+        "$TURBO_ROOT$/apps/**/package.json",
+        "$TURBO_ROOT$/packages/**/package.json",
+        "$TURBO_ROOT$/tooling/**/package.json",
+        "$TURBO_ROOT$/infra/package.json"
+      ]
+    },
+    "@beep/docgen#docs:aggregate": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/docs/**/*",
+        "$TURBO_ROOT$/packages/**/docs/**/*",
+        "$TURBO_ROOT$/tooling/**/docs/**/*",
+        "$TURBO_ROOT$/tooling/docgen/**/*",
+        "$TURBO_ROOT$/tooling/cli/src/**/*.ts"
+      ],
+      "outputs": ["$TURBO_ROOT$/docs/**"]
+    },
+    "@beep/repo-memory-runtime#test:integration": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
+      "env": [
+        "DATABASE_URL",
+        "DATABASE_URL_UNPOOLED",
+        "EMAIL_*",
+        "AUTH_*",
+        "BETTER_AUTH_*",
+        "SECURITY_*",
+        "LIVEBLOCKS_*",
+        "RESEND_*"
+      ]
+    },
+    "@beep/repo-memory-sqlite#test:integration": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
+      "env": [
+        "DATABASE_URL",
+        "DATABASE_URL_UNPOOLED",
+        "EMAIL_*",
+        "AUTH_*",
+        "BETTER_AUTH_*",
+        "SECURITY_*",
+        "LIVEBLOCKS_*",
+        "RESEND_*"
+      ]
+    },
+    "@beep/shared-server#test:integration": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
+      "env": [
+        "DATABASE_URL",
+        "DATABASE_URL_UNPOOLED",
+        "EMAIL_*",
+        "AUTH_*",
+        "BETTER_AUTH_*",
+        "SECURITY_*",
+        "LIVEBLOCKS_*",
+        "RESEND_*"
+      ]
+    },
 
     "//#check:infra": {
       "cache": true,
@@ -109,56 +275,13 @@
         "infra/tsconfig.json"
       ]
     },
-    "//#lint:jsdoc": {
-      "cache": true,
-      "inputs": [
-        "apps/**/*.{ts,tsx}",
-        "packages/**/*.{ts,tsx}",
-        "tooling/**/*.{ts,tsx}",
-        "infra/**/*.ts",
-        ".claude/hooks/**/*.ts",
-        "eslint.config.mjs"
-      ]
-    },
-    "//#lint:effect-laws": {
-      "cache": true,
-      "inputs": [
-        "apps/**/*.{ts,tsx}",
-        "packages/**/*.{ts,tsx}",
-        "tooling/**/*.{ts,tsx}",
-        "infra/**/*.ts",
-        ".claude/hooks/**/*.ts",
-        "eslint.config.mjs",
-        "tooling/configs/package.json",
-        "tooling/configs/src/**/*.ts"
-      ]
-    },
     "//#lint:typos": {
       "cache": false
-    },
-    "//#lint:spell": {
-      "cache": true,
-      "inputs": ["$TURBO_DEFAULT$", "cspell.json", "!.beep/**"]
-    },
-    "//#lint:markdown": {
-      "cache": true,
-      "inputs": ["$TURBO_DEFAULT$", ".markdownlint-cli2.jsonc", "!.beep/**"]
-    },
-    "//#lint:circular": {
-      "cache": true,
-      "inputs": [
-        "tooling/*/src/**/*.ts",
-        "packages/*/src/**/*.ts",
-        "tooling/cli/src/commands/Lint/index.ts"
-      ]
     },
     "//#lint:repo": {
       "cache": false
     },
     "//#lint:ox": {
-      "cache": false
-    },
-    "//#lint:versions": {
       "cache": false
     }
   }

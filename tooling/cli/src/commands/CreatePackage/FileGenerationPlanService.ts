@@ -1,7 +1,7 @@
 /**
  * Deterministic file generation planning/execution service.
  *
- * @module @beep/repo-cli/commands/CreatePackage/FileGenerationPlanService
+ * @module
  * @since 0.0.0
  */
 

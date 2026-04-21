@@ -13,22 +13,24 @@
  * const timer = Metric.timer("my_op_duration")
  *
  * const program = trackDuration(
- *   timer,
- *   Effect.log("doing work"),
+ *
+ *
  * )
  *
  * void Effect.runPromise(program)
  * ```
  *
- * @module @beep/observability/Metric
+ * @module
  * @since 0.0.0
  */
-import { Clock, Duration, Effect, Exit, Metric } from "effect";
+
+import { P } from "@beep/utils";
+import { Clock, Duration, Effect, Exit, Metric, pipe } from "effect";
 
 const withMetricAttributes = <Input, State>(
   metric: Metric.Metric<Input, State>,
   attributes: undefined | Record<string, string>
-): Metric.Metric<Input, State> => (attributes === undefined ? metric : Metric.withAttributes(metric, attributes));
+): Metric.Metric<Input, State> => (P.isUndefined(attributes) ? metric : Metric.withAttributes(metric, attributes));
 
 const incrementCounter = (
   counter: undefined | Metric.Counter<number>,
@@ -74,11 +76,11 @@ export const statusClass = (status: number): string => {
  * import { measureElapsedMillis } from "@beep/observability"
  *
  * const program = measureElapsedMillis(
- *   Effect.sleep("100 millis").pipe(Effect.as("done"))
+ *
  * ).pipe(
- *   Effect.tap(([result, elapsed]) =>
- *     Effect.log(`${result} in ${elapsed}ms`)
- *   )
+ *
+ *
+ *
  * )
  *
  * void Effect.runPromise(program)
@@ -90,7 +92,8 @@ export const statusClass = (status: number): string => {
 export const measureElapsedMillis = <A, E, R>(
   effect: Effect.Effect<A, E, R>
 ): Effect.Effect<readonly [A, number], E, R> =>
-  Clock.currentTimeMillis.pipe(
+  pipe(
+    Clock.currentTimeMillis,
     Effect.flatMap((startedAt) =>
       effect.pipe(
         Effect.flatMap((value) =>
@@ -158,15 +161,15 @@ export const trackDuration = <A, E, R>(
  * const myWorkflow = Effect.succeed("result")
  *
  * const observed = observeWorkflow(
- *   {
- *     name: "createOrder",
- *     started,
- *     completed,
- *     failed,
- *     duration,
- *     attributes: { service: "orders" },
- *   },
- *   myWorkflow,
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * )
  *
  * void Effect.runPromise(observed)
@@ -241,14 +244,14 @@ export const observeWorkflow = <A, E, R>(
  * const handler = Effect.succeed({ id: 1, name: "Alice" })
  *
  * const observed = observeHttpRequest(
- *   {
- *     method: "GET",
- *     route: "/users/:id",
- *     successStatus: 200,
- *     requestsTotal,
- *     requestDuration,
- *   },
- *   handler,
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * )
  *
  * void Effect.runPromise(observed)

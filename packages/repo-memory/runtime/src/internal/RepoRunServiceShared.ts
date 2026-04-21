@@ -61,8 +61,8 @@ export const toRunServiceError = makeStatusCauseError(RepoRunServiceError);
 /**
  * Lift status/cause errors into the repo-run service error channel.
  *
- * @param effect {Effect.Effect<A, E>} - The effect whose status/cause error channel should be normalized.
- * @returns {Effect.Effect<A, RepoRunServiceError>} - An effect that preserves success while lifting failures into RepoRunServiceError.
+ * @param effect - The effect whose status/cause error channel should be normalized.
+ * @returns An effect that preserves success while lifting failures into RepoRunServiceError.
  * @since 0.0.0
  * @category DomainLogic
  */
@@ -72,8 +72,8 @@ export const mapStatusCauseError = <A, E extends RepoRunStatusCauseError>(effect
 /**
  * Convert a typed repo-run service error into the durable stream failure model.
  *
- * @param error {RepoRunServiceError} - The typed repo-run service error to expose on the streaming boundary.
- * @returns {RunStreamFailure} - A durable stream failure payload carrying the same message and status code.
+ * @param error - The typed repo-run service error to expose on the streaming boundary.
+ * @returns A durable stream failure payload carrying the same message and status code.
  * @since 0.0.0
  * @category DomainLogic
  */
@@ -86,8 +86,8 @@ export const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure
 /**
  * Determine whether a persisted run is already terminal.
  *
- * @param run {RepoRun} - The persisted run snapshot to inspect.
- * @returns {boolean} - `true` when the run status is a terminal repo-memory state.
+ * @param run - The persisted run snapshot to inspect.
+ * @returns `true` when the run status is a terminal repo-memory state.
  * @since 0.0.0
  * @category DomainLogic
  */
@@ -96,8 +96,8 @@ export const isTerminalRun = (run: RepoRun): boolean => isRunTerminalState(run.s
 /**
  * Determine whether a replayable run-stream event is terminal.
  *
- * @param event {RunStreamEvent} - The replayable event to inspect.
- * @returns {boolean} - `true` when the event kind represents a terminal run transition.
+ * @param event - The replayable event to inspect.
+ * @returns `true` when the event kind represents a terminal run transition.
  * @since 0.0.0
  * @category DomainLogic
  */
@@ -106,8 +106,8 @@ export const isTerminalRunEvent = (event: RunStreamEvent): boolean => isRunTermi
 /**
  * Build a stable sequence predicate for cursor-based replay and live-tail filtering.
  *
- * @param cursor {O.Option<RunCursor>} - The optional replay cursor that defines the last observed event sequence.
- * @returns {(value: A) => boolean} - A predicate that keeps only values whose `sequence` exceeds the cursor.
+ * @param cursor - The optional replay cursor that defines the last observed event sequence.
+ * @returns A predicate that keeps only values whose `sequence` exceeds the cursor.
  * @since 0.0.0
  * @category DomainLogic
  */

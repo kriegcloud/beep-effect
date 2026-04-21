@@ -3761,7 +3761,7 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
       await decoding.succeed(["1", "a", true, true, "b"], [1, "a", true, true, "b"])
       await decoding.fail(
         ["1", "a"],
-        `Expected string, got undefined
+        `Missing key
   at [2]`
       )
       await decoding.fail(
@@ -3798,12 +3798,12 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
       await decoding.succeed(["1", "a", true, true, "b", "2"], [1, "a", true, true, "b", 2])
       await decoding.fail(
         ["1", "a"],
-        `Expected string, got undefined
+        `Missing key
   at [2]`
       )
       await decoding.fail(
         ["1", "a", "b"],
-        `Expected string, got undefined
+        `Missing key
   at [3]`
       )
       await decoding.fail(
@@ -5509,6 +5509,13 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
   })
 
   describe("Class", () => {
+    it("make with void input", () => {
+      class A extends Schema.Class<A>("A")({}) {}
+      deepStrictEqual(A.make(), new A())
+      deepStrictEqual(A.makeOption(), Option.some(new A()))
+      deepStrictEqual(Effect.runSync(A.makeEffect()), new A())
+    })
+
     it("suspend before initialization", async () => {
       const schema = Schema.suspend(() => string)
       class A extends Schema.Class<A>("A")(Schema.Struct({ a: schema })) {}
@@ -5807,6 +5814,13 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
   })
 
   describe("TaggedClass", () => {
+    it("make with void input", () => {
+      class A extends Schema.TaggedClass<A>()("A", {}) {}
+      deepStrictEqual(A.make(), new A())
+      deepStrictEqual(A.makeOption(), Option.some(new A()))
+      deepStrictEqual(Effect.runSync(A.makeEffect()), new A())
+    })
+
     it("explicit identifier", async () => {
       class A extends Schema.TaggedClass<A>("B")("A", {
         a: Schema.String
@@ -5866,6 +5880,13 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
   })
 
   describe("ErrorClass", () => {
+    it("make with void input", () => {
+      class E extends Schema.ErrorClass<E>("E")({}) {}
+      deepStrictEqual(E.make(), new E())
+      deepStrictEqual(E.makeOption(), Option.some(new E()))
+      deepStrictEqual(Effect.runSync(E.makeEffect()), new E())
+    })
+
     it("fields argument", async () => {
       class E extends Schema.ErrorClass<E>("E")({
         id: Schema.Number
@@ -5950,6 +5971,13 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
   })
 
   describe("TaggedErrorClass", () => {
+    it("make with void input", () => {
+      class E extends Schema.TaggedErrorClass<E>()("E", {}) {}
+      deepStrictEqual(E.make(), new E())
+      deepStrictEqual(E.makeOption(), Option.some(new E()))
+      deepStrictEqual(Effect.runSync(E.makeEffect()), new E())
+    })
+
     it("fields argument", async () => {
       class E extends Schema.TaggedErrorClass<E>()("E", {
         id: Schema.Number
@@ -6776,6 +6804,22 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     })
   })
 
+  describe("annotateEncoded", () => {
+    it("non-transforming schema", () => {
+      const schema = Schema.String.pipe(
+        Schema.annotateEncoded({ title: "encoded title" })
+      )
+      strictEqual(SchemaAST.toEncoded(schema.ast).annotations?.title, "encoded title")
+    })
+
+    it("transforming schema", () => {
+      const schema = Schema.NumberFromString.pipe(
+        Schema.annotateEncoded({ title: "encoded title" })
+      )
+      strictEqual(SchemaAST.toEncoded(schema.ast).annotations?.title, "encoded title")
+    })
+  })
+
   describe("Struct.mapFields", () => {
     it("evolve", () => {
       const schema = Schema.Struct({
@@ -7112,7 +7156,7 @@ Expected a value with a size of at most 2, got Map([["a",1],["b",NaN],["c",3]])`
     })
   })
 
-  describe("Schema.make", () => {
+  describe("Schema.makeFilter", () => {
     it("returns undefined", async () => {
       const schema = Schema.String.check(Schema.makeFilter(() => undefined))
       const asserts = new TestSchema.Asserts(schema)
@@ -7187,7 +7231,7 @@ error message 2`
         const schema = Schema.String.check(
           Schema.makeFilter(() => ({
             path: ["a"],
-            message: "error message 1"
+            issue: "error message 1"
           }), { title: "filter title 1" }),
           Schema.makeFilter(() => false, { title: "filter title 2", message: "error message 2" })
         )
@@ -7204,7 +7248,7 @@ error message 2`
 
       it("abort: true", async () => {
         const schema = Schema.String.check(
-          Schema.makeFilter(() => ({ path: ["a"], message: "error message 1" }), { title: "error title 1" }, true),
+          Schema.makeFilter(() => ({ path: ["a"], issue: "error message 1" }), { title: "error title 1" }, true),
           Schema.makeFilter(() => false, { title: "error title 2", message: "error message 2" })
         )
         const asserts = new TestSchema.Asserts(schema)
@@ -7213,6 +7257,82 @@ error message 2`
         await decoding.fail(
           "a",
           `error message 1
+  at ["a"]`
+        )
+      })
+
+      it("issue: Issue", async () => {
+        const schema = Schema.String.check(
+          Schema.makeFilter(
+            (s) => ({ path: ["a"], issue: new SchemaIssue.InvalidValue(Option.some(s), { message: "custom issue" }) }),
+            { title: "filter title" }
+          )
+        )
+        const asserts = new TestSchema.Asserts(schema)
+
+        const decoding = asserts.decoding()
+        await decoding.fail(
+          "a",
+          `custom issue
+  at ["a"]`
+        )
+      })
+    })
+
+    describe("returns array", () => {
+      it("empty array is treated as success", async () => {
+        const schema = Schema.String.check(Schema.makeFilter(() => []))
+        const asserts = new TestSchema.Asserts(schema)
+        const decoding = asserts.decoding()
+        await decoding.succeed("a")
+      })
+
+      it("single-element array collapses to the element", async () => {
+        const schema = Schema.String.check(
+          Schema.makeFilter(() => [{ path: ["a"], issue: "error message 1" }], { title: "filter title" })
+        )
+        const asserts = new TestSchema.Asserts(schema)
+        const decoding = asserts.decoding()
+        await decoding.fail(
+          "a",
+          `error message 1
+  at ["a"]`
+        )
+      })
+
+      it("multi-element array groups into a Composite", async () => {
+        const schema = Schema.String.check(
+          Schema.makeFilter(() => [
+            { path: ["a"], issue: "error message 1" },
+            { path: ["b"], issue: "error message 2" }
+          ], { title: "filter title" })
+        )
+        const asserts = new TestSchema.Asserts(schema)
+        const decoding = asserts.decoding({ parseOptions: { errors: "all" } })
+        await decoding.fail(
+          "a",
+          `error message 1
+  at ["a"]
+error message 2
+  at ["b"]`
+        )
+      })
+
+      it("array mixing string, Issue, and { path, issue }", async () => {
+        const schema = Schema.String.check(
+          Schema.makeFilter((s) => [
+            "top-level message",
+            new SchemaIssue.InvalidValue(Option.some(s), { message: "direct issue" }),
+            { path: ["a"], issue: "pointed message" }
+          ], { title: "filter title" })
+        )
+        const asserts = new TestSchema.Asserts(schema)
+        const decoding = asserts.decoding({ parseOptions: { errors: "all" } })
+        await decoding.fail(
+          "a",
+          `top-level message
+direct issue
+pointed message
   at ["a"]`
         )
       })

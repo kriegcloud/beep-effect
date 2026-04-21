@@ -1,7 +1,7 @@
 /**
  * Module for HTTP protocol ("http" or "https").
  *
- * @module @beep/schema/http/Protocol
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -22,7 +22,7 @@ export const HttpProtocol = LiteralKit(["http", "https"]).pipe(
 );
 
 /**
- * Type of {@link HttpProtocol} {@inheritDoc HttpProtocol}
+ * {@inheritDoc HttpProtocol}
  *
  * @category Validation
  * @since 0.0.0

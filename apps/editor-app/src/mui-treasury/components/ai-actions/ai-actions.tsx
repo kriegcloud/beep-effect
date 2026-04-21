@@ -6,7 +6,7 @@ import Tooltip from "@mui/material/Tooltip";
 import { type ComponentProps, type CSSProperties, memo } from "react";
 
 export type ActionsProps = Omit<ComponentProps<typeof Box>, "sx"> & {
-  style?: CSSProperties;
+  readonly style?: undefined | CSSProperties;
 };
 
 export const Actions = ({ children, style, ...props }: ActionsProps) => (
@@ -24,9 +24,9 @@ export const Actions = ({ children, style, ...props }: ActionsProps) => (
 );
 
 export type ActionProps = ComponentProps<typeof IconButton> & {
-  tooltip?: string;
-  label?: string;
-  style?: CSSProperties;
+  readonly tooltip?: undefined | string;
+  readonly label?: undefined | string;
+  readonly style?: undefined | CSSProperties;
 };
 
 export const Action = memo(({ tooltip, children, label, size = "small", style, ...props }: ActionProps) => {

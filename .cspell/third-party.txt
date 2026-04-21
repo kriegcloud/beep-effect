@@ -15,6 +15,7 @@ geist
 ghostty
 gitea
 gitleaks
+Kuzu
 kysely
 lefthook
 markdownlint
@@ -27,6 +28,7 @@ postcss
 publint
 pyroscope
 Pyroscope
+Qdrant
 renovatebot
 scure
 semgrep

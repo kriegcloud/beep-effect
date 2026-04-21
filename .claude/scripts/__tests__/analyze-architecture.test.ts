@@ -154,7 +154,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
 
     if (symbolName === "Identifier" && isTypeReference) {
       const typeArgs = checker.getTypeArguments(typeRef);
-      if (typeArgs && typeArgs.length > 0) {
+      if (typeArgs.length > 0) {
         const typeArg = typeArgs[0];
         const typeArgString = checker.typeToString(typeArg);
 
@@ -177,14 +177,14 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
 
     if (isTypeReference) {
       const typeArgs = checker.getTypeArguments(typeRef);
-      if (typeArgs && typeArgs.length > 0) {
+      if (typeArgs.length > 0) {
         for (const arg of typeArgs) {
           processType(arg);
         }
       }
     }
 
-    if (symbol) {
+    if (symbol !== undefined) {
       const name = symbol.getName();
       if (!isEffectInfrastructure(name) && !isExcludedFromGraph(name) && !deps.includes(name)) {
         deps.push(name);
@@ -200,15 +200,15 @@ const extractLayerDependencies = (program: ts.Program, filePath: string, layerNa
   const checker = program.getTypeChecker();
   const sourceFile = program.getSourceFile(filePath);
 
-  if (!sourceFile) return [];
+  if (sourceFile === undefined) return [];
 
   const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
-  if (!moduleSymbol) return [];
+  if (moduleSymbol === undefined) return [];
 
   const exports = checker.getExportsOfModule(moduleSymbol);
   const layerExport = exports.find((s) => s.getName() === layerName);
 
-  if (!layerExport) return [];
+  if (layerExport === undefined) return [];
 
   const type = checker.getTypeOfSymbol(layerExport);
   const typeString = checker.typeToString(type);
@@ -251,7 +251,7 @@ const extractLayersFromContent = (
   const layerMatches = extractLayerMatches(content);
 
   return layerMatches.map((match) => {
-    const dependencies = program ? extractLayerDependencies(program, filePath, match.name) : [];
+    const dependencies = program === undefined ? [] : extractLayerDependencies(program, filePath, match.name);
 
     return {
       name: match.name,
@@ -1135,7 +1135,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
         const redundantContent = lines
           .slice(redundantIndex + 1)
           .find((l) => l.includes("→") && l.includes("redundant via"));
-        if (redundantContent) {
+        if (redundantContent !== undefined) {
           expect(redundantContent).toMatch(/^\s{4}\w+/);
         }
       }
@@ -2285,7 +2285,7 @@ export const make = (port: MessagePort) => Layer.succeed(Runner, createRunner(po
           /<clustering_coefficient[^>]*>([\s\S]*?)<\/clustering_coefficient>/,
           output
         );
-        if (clusteringMatch) {
+        if (clusteringMatch !== null) {
           const content = clusteringMatch[1];
           const hasCorrectFormat = /\d\.\d{2}/.test(content);
           expect(hasCorrectFormat).toBe(true);

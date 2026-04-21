@@ -11,6 +11,7 @@
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, Path } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
@@ -339,7 +340,7 @@ const docgenAggregateCommand = Command.make(
       const selector = yield* resolveAggregateSelector(packageSelector, filterSelector);
       const results = yield* aggregateGeneratedDocs({
         clean,
-        package: O.getOrUndefined(selector),
+        ...R.getSomes({ package: selector }),
       });
       yield* logAggregateResults(results);
     }).pipe(

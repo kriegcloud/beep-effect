@@ -31,7 +31,7 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 
 ## Allowlist Contract
 
-Boundary exceptions are allowed only through [effect-laws.allowlist.jsonc](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-laws.allowlist.jsonc).
+Boundary exceptions are allowed only through [effect-laws.allowlist.jsonc](./effect-laws.allowlist.jsonc).
 It is the sole supported exception registry for Effect-law and runtime-boundary exceptions, and `bun run beep laws allowlist-check` is the required integrity check that `bun run lint` runs in normal quality flows.
 
 Required fields per entry:
@@ -59,7 +59,7 @@ Wave 1 enforcement scope:
 
 Excludes by default:
 
-- tests/specs/storybook snapshots/fixtures
+- tests/initiatives/storybook snapshots/fixtures
 - generated artifacts
 
 ## Rollout
@@ -71,6 +71,6 @@ Excludes by default:
 
 ## Deep References
 
-- [JSDoc patterns](/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/jsdoc-documentation.md)
-- [Effect library development patterns](/home/elpresidank/YeeBois/projects/beep-effect3/.patterns/effect-library-development.md)
-- [Effect-first development](/home/elpresidank/YeeBois/projects/beep-effect3/standards/effect-first-development.md)
+- [JSDoc patterns](../.patterns/jsdoc-documentation.md)
+- [Effect library development patterns](../.patterns/effect-library-development.md)
+- [Effect-first development](./effect-first-development.md)

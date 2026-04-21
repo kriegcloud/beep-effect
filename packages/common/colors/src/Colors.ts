@@ -25,12 +25,13 @@
  * ```
  *
  * @since 0.0.0
- * @module @beep/colors/Colors
+ * @module
  */
 
 import { $ColorsId } from "@beep/identity";
 import { Str } from "@beep/utils";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import {
   ColorsFields,
@@ -51,7 +52,8 @@ class ProcessLike extends S.Class<ProcessLike>($I`ProcessLike`)({
   stdout: S.optionalKey(ProcessLikeStdout),
 }) {}
 
-const runtimeProcessLike: ProcessLike = typeof process === "undefined" ? {} : process;
+const runtimeProcess = Reflect.get(globalThis, "process");
+const runtimeProcessLike: ProcessLike = P.isObject(runtimeProcess) ? runtimeProcess : {};
 const stringIdentity: FormatterType = String;
 
 const hasNoColorFlag = (argv: ReadonlyArray<string>): boolean => A.contains(argv, "--no-color");
@@ -124,16 +126,16 @@ const formatter =
  * import { supportsColor } from "@beep/colors"
  *
  * const enabled = supportsColor({
- *   env: { TERM: "xterm-256color" },
- *   stdout: { isTTY: true },
+ *
+ *
  * })
  *
  * console.log(enabled) // true
  * ```
  *
  * @category utilities
- * @param processLike {ProcessLike} - The process-like runtime metadata used for color capability detection.
- * @returns {boolean} - `true` when ANSI escape sequences should be emitted.
+ * @param processLike - The process-like runtime metadata used for color capability detection.
+ * @returns `true` when ANSI escape sequences should be emitted.
  * @since 0.0.0
  */
 export const supportsColor = (processLike: ProcessLike = runtimeProcessLike): boolean => {
@@ -215,8 +217,8 @@ export class Colors extends S.Class<Colors>($I`Colors`)(
  * ```
  *
  * @category utilities
- * @param enabled {boolean} - Whether the returned formatter set should emit ANSI escapes.
- * @returns {Colors} - A configured immutable formatter set.
+ * @param enabled - Whether the returned formatter set should emit ANSI escapes.
+ * @returns A configured immutable formatter set.
  * @since 0.0.0
  */
 export const createColors = (enabled: boolean = isColorSupported): Colors => {

@@ -2,7 +2,9 @@ import { $RepoCliId } from "@beep/identity/packages";
 import type { PackageJson } from "@beep/repo-utils";
 import { Effect, Function as Fn, HashMap, HashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -141,7 +143,7 @@ export class CanonicalDocgenConfig extends S.Class<CanonicalDocgenConfig>($I`Can
 const cloneStringArray = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.fromIterable(values);
 
 const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  P.isObject(value) && !A.isArray(value);
 
 /**
  * Convert canonical docgen compiler options to a plain JSON-compatible object.
@@ -269,13 +271,10 @@ const buildDocgenExamplesPaths = (
 ): Readonly<Record<string, ReadonlyArray<string>>> => {
   const packageSequence = [
     packageName,
-    ...A.filter(
-      uniqueSortedStringValues(directWorkspaceDependencies),
-      (dependencyName) => dependencyName !== packageName
-    ),
+    ...A.filter(uniqueSortedStringValues(directWorkspaceDependencies), P.not(Eq.equals(packageName))),
   ];
 
-  let mappings: Record<string, ReadonlyArray<string>> = {};
+  let mappings = R.empty<string, ReadonlyArray<string>>();
   for (const dependencyName of packageSequence) {
     const aliasSource = HashMap.get(workspaceAliasIndex, dependencyName);
     if (O.isNone(aliasSource)) {
@@ -302,9 +301,9 @@ const buildDocgenExamplesPaths = (
  * @category DomainModel
  * @since 0.0.0
  */
-export const createCanonicalDocgenConfig: (
+export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfig")(function* (
   input: CanonicalDocgenConfigInput
-) => Effect.Effect<CanonicalDocgenConfig, never, Path.Path> = Effect.fn(function* (input: CanonicalDocgenConfigInput) {
+): Effect.fn.Return<CanonicalDocgenConfig, never, Path.Path> {
   const path = yield* Path.Path;
   const rootRelative = normalizeSlashes(path.relative(input.packageAbsolutePath, input.rootDir));
   const rootRelativePrefix = rootRelative.length === 0 ? "./" : `${rootRelative}/`;
@@ -377,9 +376,7 @@ export const mergeManagedDocgenConfig = (
       : {
           ...existingExamplesCompilerOptions,
           ...canonicalJson.examplesCompilerOptions,
-          ...(Array.isArray(existingExamplesCompilerOptions.types)
-            ? { types: existingExamplesCompilerOptions.types }
-            : {}),
+          ...(A.isArray(existingExamplesCompilerOptions.types) ? { types: existingExamplesCompilerOptions.types } : {}),
         };
   const merged = {
     ...existing,

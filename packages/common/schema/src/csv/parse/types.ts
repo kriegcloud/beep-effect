@@ -1,7 +1,7 @@
 /**
  * Common types for CSV parsing
  *
- * @module @beep/schema/csv/parse/types
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -27,7 +27,7 @@ export const HeaderArray = pipe(
 );
 
 /**
- * Type of {@link HeaderArray} {@inheritDoc HeaderArray}
+ * {@inheritDoc HeaderArray}
  *
  * @category Validation
  * @since 0.0.0
@@ -51,7 +51,7 @@ export const HeaderTransformFunction = Fn({
 );
 
 /**
- * Type of {@link HeaderTransformFunction} {@inheritDoc HeaderTransformFunction}
+ * {@inheritDoc HeaderTransformFunction}
  *
  * @category Validation
  * @since 0.0.0

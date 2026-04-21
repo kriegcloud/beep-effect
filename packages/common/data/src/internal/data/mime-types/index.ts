@@ -161,7 +161,7 @@ for (const type of Struct.keys(mimes)) {
 
   mimeTypeDefinitions[type] = {
     source: mime.source,
-    extensions: Array.from(mime.extensions),
+    extensions: A.fromIterable(mime.extensions),
   };
 }
 
@@ -200,7 +200,7 @@ function lookupNormalizedExtension(extension: string): false | MimeType {
 /**
  * Returns a record mapping each file extension (without leading dot) to its
  * preferred MIME type string. Preference is determined by source priority:
- * IANA > unspecified > Apache > Nginx.
+ * IANA, then unspecified, then Apache, then Nginx.
  *
  * Lazily populates the internal lookup tables on first call; subsequent
  * calls return the same cached object.
@@ -328,7 +328,7 @@ function populateTypeMappings(
   extensions: Record<MimeType, FileExtension[]>,
   types: Record<FileExtension, MimeType>
 ) {
-  extensions[type] = Array.from(exts);
+  extensions[type] = A.fromIterable(exts);
 
   for (const extension of exts) {
     setTypeMapping(type, extension, mimeSource, types);

@@ -2,7 +2,7 @@
  * Wink custom-entity pattern models.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkPattern
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";
@@ -91,7 +91,7 @@ export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomE
   /**
    * Convert the example into the object shape accepted by `wink-nlp.learnCustomEntities`.
    *
-   * @returns {{ readonly mark?: readonly [number, number] | undefined; readonly name: string; readonly patterns: ReadonlyArray<string> }} - The wink-compatible custom entity example payload.
+   * @returns The wink-compatible custom entity example payload.
    */
   toWinkExample(): {
     readonly mark?: readonly [number, number] | undefined;
@@ -130,9 +130,9 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
    * Patterns without any serialized elements are ignored instead of throwing so
    * callers can safely combine partially-built pattern sets before learning.
    *
-   * @param name {EntityGroupName | string} - The logical entity-group name.
-   * @param patterns {ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>} - Core patterns to convert into wink custom entity examples.
-   * @returns {WinkEngineCustomEntities} - The converted custom entity collection.
+   * @param name - The logical entity-group name.
+   * @param patterns - Core patterns to convert into wink custom entity examples.
+   * @returns The converted custom entity collection.
    */
   static fromPatterns(
     name: EntityGroupName | string,
@@ -165,7 +165,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
   /**
    * Number of custom entity examples in the group.
    *
-   * @returns {number} - The number of examples in this group.
+   * @returns The number of examples in this group.
    */
   size(): number {
     return A.length(this.patterns);
@@ -174,7 +174,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
   /**
    * Whether the collection contains no examples.
    *
-   * @returns {boolean} - `true` when the group has no examples.
+   * @returns `true` when the group has no examples.
    */
   isEmpty(): boolean {
     return A.isReadonlyArrayEmpty(this.patterns);
@@ -183,7 +183,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
   /**
    * Convert to a readonly array for iteration.
    *
-   * @returns {ReadonlyArray<CustomEntityExample>} - The examples in this group.
+   * @returns The examples in this group.
    */
   toArray(): ReadonlyArray<CustomEntityExample> {
     return this.patterns;
@@ -192,9 +192,9 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
   /**
    * Merge two custom-entity collections, preserving unique examples by content.
    *
-   * @param other {WinkEngineCustomEntities} - The additional examples to merge in.
-   * @param newName {EntityGroupName | string} - The group name to use for the merged collection.
-   * @returns {WinkEngineCustomEntities} - A merged collection with duplicate examples removed.
+   * @param other - The additional examples to merge in.
+   * @param newName - The group name to use for the merged collection.
+   * @returns A merged collection with duplicate examples removed.
    */
   merge(other: WinkEngineCustomEntities, newName: EntityGroupName | string = this.name): WinkEngineCustomEntities {
     return new WinkEngineCustomEntities({
@@ -212,7 +212,7 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
   /**
    * Convert to the array-of-example format accepted by `wink-nlp.learnCustomEntities`.
    *
-   * @returns {ReadonlyArray<{ readonly mark?: readonly [number, number] | undefined; readonly name: string; readonly patterns: ReadonlyArray<string> }>} - Wink-compatible custom entity payloads.
+   * @returns Wink-compatible custom entity payloads.
    */
   toWinkFormat(): ReadonlyArray<{
     readonly mark?: readonly [number, number] | undefined;

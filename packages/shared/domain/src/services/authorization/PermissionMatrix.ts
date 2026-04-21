@@ -11,7 +11,7 @@
  * 3. Viewer has read-only permissions (plus report:export)
  * 4. Member permissions are determined by functional roles
  *
- * @module @beep/shared-domain/services/authorization/PermissionMatrix
+ * @module
  * @since 0.0.0
  */
 void 0;

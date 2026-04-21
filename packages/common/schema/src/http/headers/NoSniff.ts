@@ -2,7 +2,7 @@
  * Schema for the `X-Content-Type-Options` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/NoSniff
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaTransformation } from "effect";

@@ -1,7 +1,7 @@
 /**
  * Schema utilities.
  *
- * @module @beep/schema/utils
+ * @module
  * @since 0.0.0
  */
 

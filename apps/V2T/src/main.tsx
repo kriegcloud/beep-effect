@@ -25,7 +25,7 @@ export class MissingRootElementError extends TaggedErrorClass<MissingRootElement
 const root = O.fromNullishOr(document.getElementById("root"));
 
 if (O.isNone(root)) {
-  throw MissingRootElementError.new({
+  throw new MissingRootElementError({
     message: "Missing #root element for V2T app bootstrap.",
   });
 }

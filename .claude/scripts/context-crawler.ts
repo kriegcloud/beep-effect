@@ -17,6 +17,7 @@ import * as O from "effect/Option";
 import type { PlatformError } from "effect/PlatformError";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
+import { provideLayerScoped } from "../internal/runtime.ts";
 
 /**
  * Module context metadata
@@ -35,7 +36,7 @@ interface ModuleContext {
 const parseFrontmatter = (content: string): O.Option<string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
   const match = O.getOrNull(Str.match(frontmatterRegex)(content));
-  return match ? O.some(match[1]) : O.none();
+  return match === null ? O.none() : O.some(match[1]);
 };
 
 /**
@@ -45,7 +46,7 @@ const parseFrontmatter = (content: string): O.Option<string> => {
 const extractTomlMessage = (toml: string): O.Option<string> => {
   const messageRegex = /message\s*=\s*"([^"]*)"/;
   const match = O.getOrNull(Str.match(messageRegex)(toml));
-  return match ? O.some(match[1]) : O.none();
+  return match === null ? O.none() : O.some(match[1]);
 };
 
 /**
@@ -75,7 +76,7 @@ const extractFirstParagraph = (content: string): O.Option<string> => {
 const extractPurposeSection = (content: string): O.Option<string> => {
   const purposeRegex = /## Purpose\n([^\n]+)/;
   const match = O.getOrNull(Str.match(purposeRegex)(content));
-  return match ? O.some(Str.trim(match[1])) : O.none();
+  return match === null ? O.none() : O.some(Str.trim(match[1]));
 };
 
 /**
@@ -152,10 +153,8 @@ const findContextFiles = Effect.gen(function* () {
   const repoRoot = process.cwd();
   const excludeDirs = HashSet.fromIterable(["node_modules", ".git", "dist", ".turbo", "build"]);
 
-  const searchDir: (dir: string) => Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path> = (
-    dir
-  ) =>
-    Effect.gen(function* () {
+  const searchDir: (dir: string) => Effect.Effect<Array<string>, PlatformError, FileSystem.FileSystem | Path.Path> =
+    Effect.fn("searchDir")(function* (dir: string) {
       const entries = yield* Effect.orElseSucceed(fs.readDirectory(dir), A.empty<string>);
 
       return yield* pipe(
@@ -187,23 +186,25 @@ const findContextFiles = Effect.gen(function* () {
 /**
  * Read and parse a single context file
  */
-const readContextFile = (filePath: string, submodulePaths: ReadonlyArray<string>) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
+const readContextFile = Effect.fn("readContextFile")(function* (
+  filePath: string,
+  submodulePaths: ReadonlyArray<string>
+) {
+  const fs = yield* FileSystem.FileSystem;
 
-    const content = yield* fs.readFileString(filePath);
-    const repoRoot = process.cwd();
-    const modulePath = toModulePath(filePath, repoRoot);
-    const summary = extractSummary(content, modulePath);
-    const source = getModuleSource(modulePath, submodulePaths);
+  const content = yield* fs.readFileString(filePath);
+  const repoRoot = process.cwd();
+  const modulePath = toModulePath(filePath, repoRoot);
+  const summary = extractSummary(content, modulePath);
+  const source = getModuleSource(modulePath, submodulePaths);
 
-    return {
-      path: modulePath,
-      summary,
-      content,
-      source,
-    } satisfies ModuleContext;
-  });
+  return {
+    path: modulePath,
+    summary,
+    content,
+    source,
+  } satisfies ModuleContext;
+});
 
 /**
  * Load all context files
@@ -293,59 +294,57 @@ const listMode = Effect.gen(function* () {
 /**
  * Module mode - full content of specific module (without frontmatter)
  */
-const moduleMode = (modulePath: string) =>
-  Effect.gen(function* () {
-    const contexts = yield* loadAllContexts;
+const renderModule = Effect.fn("renderModule")(function* (ctx: ModuleContext) {
+  const body = Str.replace(/^---\n[\s\S]*?\n---\n?/, "")(ctx.content);
+  yield* Console.log(`<module path="${ctx.path}">`);
+  yield* Console.log(Str.trim(body));
+  yield* Console.log("</module>");
+});
 
-    const context = pipe(
-      contexts,
-      A.findFirst((ctx) => ctx.path === modulePath)
-    );
+const moduleMode = Effect.fn("moduleMode")(function* (modulePath: string) {
+  const contexts = yield* loadAllContexts;
 
-    yield* pipe(
-      context,
-      O.match({
-        onNone: () => Console.error(`Module not found: ${modulePath}`),
-        onSome: (ctx) =>
-          Effect.gen(function* () {
-            // Output just the content without frontmatter
-            const body = Str.replace(/^---\n[\s\S]*?\n---\n?/, "")(ctx.content);
-            yield* Console.log(`<module path="${ctx.path}">`);
-            yield* Console.log(Str.trim(body));
-            yield* Console.log("</module>");
-          }),
-      })
-    );
-  });
+  const context = pipe(
+    contexts,
+    A.findFirst((ctx) => ctx.path === modulePath)
+  );
+
+  yield* pipe(
+    context,
+    O.match({
+      onNone: () => Console.error(`Module not found: ${modulePath}`),
+      onSome: renderModule,
+    })
+  );
+});
 
 /**
  * Search mode - find modules matching a glob pattern
  */
-const searchMode = (pattern: string) =>
-  Effect.gen(function* () {
-    const contexts = yield* loadAllContexts;
+const searchMode = Effect.fn("searchMode")(function* (pattern: string) {
+  const contexts = yield* loadAllContexts;
 
-    // Convert glob-like pattern to regex
-    const regexPattern = Str.replace(/\?/g, ".")(Str.replace(/\*/g, ".*")(pattern));
-    const regex = new RegExp(regexPattern, "i");
+  // Convert glob-like pattern to regex
+  const regexPattern = Str.replace(/\?/g, ".")(Str.replace(/\*/g, ".*")(pattern));
+  const regex = new RegExp(regexPattern, "i");
 
-    const matches = pipe(
-      contexts,
-      A.filter((ctx) => regex.test(ctx.path) || regex.test(ctx.summary) || regex.test(ctx.content))
-    );
+  const matches = pipe(
+    contexts,
+    A.filter((ctx) => regex.test(ctx.path) || regex.test(ctx.summary) || regex.test(ctx.content))
+  );
 
-    const count = A.length(matches);
-    yield* Console.log(`<modules-search pattern="${pattern}" count="${count}">`);
+  const count = A.length(matches);
+  yield* Console.log(`<modules-search pattern="${pattern}" count="${count}">`);
 
-    yield* pipe(
-      matches,
-      A.map((ctx) => Console.log(`[${ctx.source}] ${ctx.path}: ${ctx.summary}`)),
-      Effect.all,
-      Effect.asVoid
-    );
+  yield* pipe(
+    matches,
+    A.map((ctx) => Console.log(`[${ctx.source}] ${ctx.path}: ${ctx.summary}`)),
+    Effect.all,
+    Effect.asVoid
+  );
 
-    yield* Console.log("</modules-search>");
-  });
+  yield* Console.log("</modules-search>");
+});
 
 /**
  * CLI Command Definition
@@ -400,8 +399,7 @@ const cli = Command.run(contextCrawler, {
  * Exit code 0 even on errors
  */
 const runnable = pipe(
-  cli,
-  Effect.provide(BunServices.layer),
+  Effect.scoped(provideLayerScoped(cli, BunServices.layer)),
   Effect.catch((error) => Console.error(`Context crawler error: ${error}`).pipe(Effect.asVoid))
 );
 

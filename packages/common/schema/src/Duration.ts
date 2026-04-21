@@ -2,7 +2,7 @@
  * Reusable schemas for decoding duration values from Effect-compatible inputs.
  *
  * @since 0.0.0
- * @module @beep/schema/Duration
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity";
@@ -218,8 +218,8 @@ const decodeDurationInput = (input: DurationInput): Effect.Effect<D.Duration, Sc
  * import { DurationFromInput } from "@beep/schema/Duration"
  *
  * const program = Effect.gen(function* () {
- *   const duration = yield* S.decodeUnknownEffect(DurationFromInput)("5 hours")
- *   return duration
+ *
+ *
  * })
  * ```
  *

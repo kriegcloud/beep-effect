@@ -1,7 +1,7 @@
 /**
  * High-level CSV codec options for text decode/encode flows.
  *
- * @module @beep/schema/csv/CsvCodecOptions
+ * @module
  * @since 0.0.0
  */
 

@@ -15,7 +15,7 @@
  * console.log([png, jpeg]);
  * ```
  *
- * @module @beep/schema/FileExtension
+ * @module
  * @since 0.0.0
  */
 
@@ -47,25 +47,25 @@ type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][nu
  * import { extractMimeExtensions } from "@beep/schema/FileExtension";
  *
  * const extensions = extractMimeExtensions({
- *   "text/plain": {
- *     source: "iana",
- *     extensions: ["txt"] as const,
- *   },
- *   "text/markdown": {
- *     source: "iana",
- *     extensions: ["md", "markdown"] as const,
- *   },
- *   "text/x-readme": {
- *     source: "custom",
- *     extensions: ["md"] as const,
- *   },
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * });
  *
  * console.log(extensions); // ["txt", "md", "markdown"]
  * ```
  *
- * @param mime {T} - The mime-type dictionary whose extensions should be collected.
- * @returns {A.NonEmptyReadonlyArray<MimeTypeExtension<T>>} - A deduplicated non-empty list of extensions.
+ * @param mime - The mime-type dictionary whose extensions should be collected.
+ * @returns A deduplicated non-empty list of extensions.
  * @since 0.0.0
  * @category Utility
  */

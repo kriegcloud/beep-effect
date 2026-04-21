@@ -1,5 +1,5 @@
 /**
- * @beep/shared-client
+ * \@beep/shared-client
  *
  * @since 0.0.0
  */

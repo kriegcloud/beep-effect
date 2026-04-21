@@ -1,5 +1,5 @@
 /**
- * @module @beep/utils/Str
+ * @module
  * @since 0.0.0
  */
 import { Function } from "effect";
@@ -441,7 +441,7 @@ export const kebabToSnake = <const TStr extends string>(str: TF.KebabCase<TStr>)
 /**
  * Type-narrowing predicate that checks whether a string starts with `searchString`.
  *
- * Narrows the type to `TStr & \`${SearchString}${string}\`` on success.
+ * Narrows the type to a string that starts with the searched prefix on success.
  * Supports both data-first and data-last calling conventions.
  *
  * @example
@@ -483,7 +483,7 @@ export const startsWith: {
 /**
  * Type-narrowing predicate that checks whether a string ends with `searchString`.
  *
- * Narrows the type to `TStr & \`${string}${SearchString}\`` on success.
+ * Narrows the type to a string that ends with the searched suffix on success.
  * Supports both data-first and data-last calling conventions.
  *
  * @example
@@ -525,7 +525,7 @@ export const endsWith: {
 /**
  * Type-narrowing predicate that checks whether a string contains `searchString`.
  *
- * Narrows the type to `TStr & \`${string}${SearchString}${string}\`` on
+ * Narrows the type to a string that contains the searched substring on
  * success. Supports both data-first and data-last calling conventions.
  *
  * @example
@@ -627,12 +627,12 @@ export * from "effect/String";
 export const trimThunk = (s: string) => () => Str.trim(s);
 
 /**
- *
+ * Convert a numeric literal into its string-literal representation.
  *
  * @since 0.0.0
  * @category Utility
- * @template T {number} - The number to convert to a string literal type
- * @param num {T} - The number to convert to a string literal type
- * @returns {`${T}`} - The number as a string literal type
+ * @template T - Numeric literal to convert.
+ * @param num - The number to convert to a string literal type.
+ * @returns The number as a string literal type.
  */
 export const fromNumber = <const T extends number>(num: T): `${T}` => `${num}` as const;

@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json.schemastore.org/tsconfig",
+  "extends": "../../tsconfig.base.json",
+  "include": ["."],
+  "compilerOptions": {
+    "types": ["node", "bun"],
+    "rootDir": ".",
+    "noEmit": true
+  },
+  "references": [
+    {
+      "path": "../../packages/common/data/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/schema/tsconfig.json"
+    },
+    {
+      "path": "../../packages/common/utils/tsconfig.json"
+    },
+    {
+      "path": "../../packages/shared/domain/tsconfig.json"
+    },
+    {
+      "path": "../../packages/shared/tables/tsconfig.json"
+    }
+  ]
+}

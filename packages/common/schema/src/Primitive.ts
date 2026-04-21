@@ -1,7 +1,7 @@
 /**
  * A primitive data type schema.
  *
- * @module @beep/schema/Primitive
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -32,7 +32,7 @@ export const Primitive = S.Union([S.String, S.Number, S.Boolean, S.BigInt, S.Nul
 );
 
 /**
- * Type of {@link Primitive}. {@inheritDoc Primitive}
+ * {@inheritDoc Primitive}
  *
  * @example
  * ```ts

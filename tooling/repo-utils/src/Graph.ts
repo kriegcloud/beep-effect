@@ -25,7 +25,7 @@ import { CyclicDependencyError } from "./errors/index.js";
  * between package names and node indices.export * from "./Graph.ts";
  *
  * @internal
- * @param adjacencyList Package dependency adjacency list.
+ * @param adjacencyList - Package dependency adjacency list.
  * @returns Graph plus lookup maps for package names and node indices.
  */
 const fromAdjacencyList = (
@@ -90,15 +90,15 @@ const fromAdjacencyList = (
  * import { topologicalSort } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- *   ["A", HashSet.make("B")],
- *   ["B", HashSet.make("C")],
- *   ["C", HashSet.empty()]
+ *
+ *
+ *
  * )
  *
  * const program = Effect.gen(function*() {
- *   const order = yield* topologicalSort(adj)
- *   void order
- *   console.log(order) // ["C", "B", "A"]
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -141,7 +141,7 @@ export const topologicalSort: (
  *
  * Returns an empty array when the graph is acyclic.
  *
- * @param adjacencyList Package dependency adjacency list.
+ * @param adjacencyList - Package dependency adjacency list.
  * @returns Effect producing all detected cycle paths.
  * @example
  * ```typescript
@@ -149,15 +149,15 @@ export const topologicalSort: (
  * import { detectCycles } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- *   ["A", HashSet.make("B")],
- *   ["B", HashSet.make("C")],
- *   ["C", HashSet.make("A")]
+ *
+ *
+ *
  * )
  *
  * const program = Effect.gen(function*() {
- *   const cycles = yield* detectCycles(adj)
- *   void cycles
- *   // cycles contains [["A", "B", "C", "A"]] (or similar rotation)
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -231,10 +231,10 @@ export const detectCycles: (
  * the form `[start, ..., start]`.
  *
  * @internal
- * @param graph Directed dependency graph.
- * @param startIdx Starting node index for cycle reconstruction.
- * @param memberSet Node-index membership set for the SCC.
- * @param indexToName Lookup map from node index to package name.
+ * @param graph - Directed dependency graph.
+ * @param startIdx - Starting node index for cycle reconstruction.
+ * @param memberSet - Node-index membership set for the SCC.
+ * @param indexToName - Lookup map from node index to package name.
  * @returns Cycle path as package names when found, otherwise an empty array.
  */
 const buildCyclePath = (
@@ -296,8 +296,8 @@ const buildCyclePath = (
  *
  * Uses BFS traversal via the built-in `Graph.bfs`.
  *
- * @param adjacencyList Package dependency adjacency list.
- * @param pkg Package name whose dependency closure should be computed.
+ * @param adjacencyList - Package dependency adjacency list.
+ * @param pkg - Package name whose dependency closure should be computed.
  * @returns Effect producing all transitively reachable dependencies.
  * @example
  * ```typescript
@@ -305,15 +305,15 @@ const buildCyclePath = (
  * import { computeTransitiveClosure } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- *   ["A", HashSet.make("B")],
- *   ["B", HashSet.make("C")],
- *   ["C", HashSet.empty()]
+ *
+ *
+ *
  * )
  *
  * const program = Effect.gen(function*() {
- *   const deps = yield* computeTransitiveClosure(adj, "A")
- *   void deps
- *   // deps = HashSet("B", "C")
+ *
+ *
+ *
  * })
  * void program
  * ```

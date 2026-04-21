@@ -4,7 +4,7 @@
  * Provides typed wrappers around Node's file URL conversion utilities so
  * path and `file:` URL conversions can participate in Effect workflows.
  *
- * @module @beep/utils/NodeUrl
+ * @module
  * @since 0.0.0
  */
 import * as NodeUrl from "node:url";
@@ -22,8 +22,8 @@ import { Effect, PlatformError } from "effect";
  * import { fromFileUrl } from "@beep/utils/NodeUrl"
  *
  * const program = Effect.gen(function* () {
- *   const path = yield* fromFileUrl(new URL("file:///tmp/example.txt"))
- *   return path
+ *
+ *
  * })
  *
  * void program
@@ -37,7 +37,7 @@ import { Effect, PlatformError } from "effect";
  * const invalid = fromFileUrl(new URL("https://example.com/file.txt"))
  *
  * const recovered = Effect.catchTag(invalid, "BadArgument", () =>
- *   Effect.succeed("invalid file URL")
+ *
  * )
  *
  * void recovered
@@ -71,8 +71,8 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  * import { toFileUrl } from "@beep/utils/NodeUrl"
  *
  * const program = Effect.gen(function* () {
- *   const url = yield* toFileUrl("/tmp/example.txt")
- *   return url.href
+ *
+ *
  * })
  *
  * void program
@@ -84,7 +84,7 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  * import { toFileUrl } from "@beep/utils/NodeUrl"
  *
  * const recovered = Effect.catchTag(toFileUrl(""), "BadArgument", () =>
- *   Effect.succeed(new URL("file:///fallback.txt"))
+ *
  * )
  *
  * void recovered

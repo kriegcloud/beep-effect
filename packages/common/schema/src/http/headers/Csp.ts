@@ -1,7 +1,7 @@
 /**
  * CSP header schema & constructor's
  * @since 0.0.0
- * @module @beep/schema/http/headers/Csp
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Struct } from "@beep/utils";
@@ -67,7 +67,7 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
  * @example
  * ```ts
  * import {
- *   getProperHeaderName
+ *
  * } from "@beep/schema/http/headers/Csp";
  *
  * // Get standard CSP header name
@@ -81,22 +81,24 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
  * // => "Content-Security-Policy-Report-Only"
  * ```
  *
- * @category Utility
+ * @category utility
  * @since 0.0.0
- * @param {boolean} reportOnly
- * @returns {string}
+ * @param reportOnly - Whether to return the report-only header name.
+ * @returns The matching content security policy header name.
  */
 export const getProperHeaderName = (reportOnly = false): ContentSecurityPolicyHeaderName =>
   reportOnly ? reportOnlyHeaderName : headerName;
 
 /**
- * @category Utility
+ * Create a serialized directive string from a directive name and one or more values.
+ *
+ * @category utility
  * @since 0.0.0
  * @template T
- * @param {string} directiveName
- * @param {readonly T[] | T} value
- * @param {<T>(value: (ReadonlyArray<T> | T)) => readonly T[]} arrayWrapper
- * @returns {`${string} ${string}`}
+ * @param directiveName - Directive name to serialize.
+ * @param value - Directive value or values to serialize.
+ * @param arrayWrapper - Wrapper used to normalize singular and array values.
+ * @returns A serialized directive string.
  */
 export const createDirectiveValue = <const T extends string>(
   directiveName: string,

@@ -8,7 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
-import { thunkEmptyStr } from "@beep/utils";
+import { thunkEmptyStr, thunkUndefined } from "@beep/utils";
 import { Console, DateTime, Effect, FileSystem, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -71,6 +71,22 @@ class SchemaFirstInventoryEntry extends S.Class<SchemaFirstInventoryEntry>($I`Sc
   })
 ) {}
 
+/**
+ * Namespace for {@link SchemaFirstInventoryEntry} companion types.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export declare namespace SchemaFirstInventoryEntry {
+  /**
+   * Encoded representation of {@link SchemaFirstInventoryEntry}.
+   *
+   * @category DomainModel
+   * @since 0.0.0
+   */
+  export type Encoded = typeof SchemaFirstInventoryEntry.Encoded;
+}
+
 class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDocument>($I`SchemaFirstInventoryDocument`)(
   {
     version: S.Literal(1),
@@ -85,7 +101,7 @@ class SchemaFirstInventoryDocument extends S.Class<SchemaFirstInventoryDocument>
     ),
     entries: S.Array(SchemaFirstInventoryEntry).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<SchemaFirstInventoryEntry>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<(typeof SchemaFirstInventoryEntry)["Encoded"]>()))
+      S.withDecodingDefault(Effect.succeed(A.empty<SchemaFirstInventoryEntry.Encoded>()))
     ),
   },
   $I.annote("SchemaFirstInventoryDocument", {
@@ -159,7 +175,7 @@ const readInventoryDocument = Effect.fn(function* () {
   const content = yield* fs.readFileString(absolutePath);
   return yield* Effect.try({
     try: () => decodeInventoryDocument(parse(content)),
-    catch: () => undefined,
+    catch: thunkUndefined,
   }).pipe(
     Effect.match({
       onFailure: O.none,
@@ -168,7 +184,7 @@ const readInventoryDocument = Effect.fn(function* () {
   );
 });
 
-const writeInventoryDocument = Effect.fn(function* (document: SchemaFirstInventoryDocument) {
+const writeInventoryDocument = Effect.fn("writeInventoryDocument")(function* (document: SchemaFirstInventoryDocument) {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolutePath = path.resolve(process.cwd(), INVENTORY_PATH);
@@ -178,7 +194,7 @@ const writeInventoryDocument = Effect.fn(function* (document: SchemaFirstInvento
   yield* fs.writeFileString(absolutePath, `${serialized}\n`);
 });
 
-const makeOwnerResolver = Effect.fn(function* () {
+const makeOwnerResolver = Effect.fn("makeOwnerResolver")(function* () {
   const workspaces = yield* resolveWorkspaceDirs(process.cwd());
   const workspaceEntries = pipe(
     HashMap.toEntries(workspaces),

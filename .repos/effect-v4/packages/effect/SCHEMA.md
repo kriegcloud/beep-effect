@@ -2392,6 +2392,58 @@ console.log(String(Schema.decodeUnknownExit(schema)("")))
 // Failure(Cause([Fail(SchemaError: length must be >= 3, got 0)]))
 ```
 
+### Filter return shapes
+
+A filter predicate can return any of the shapes described by `Schema.FilterOutput`:
+
+- `undefined` or `true` — success.
+- `false` — generic failure (no custom message).
+- `string` — failure with the string used as the error message.
+- `SchemaIssue.Issue` — a fully-formed issue, returned as-is (escape hatch for `Composite`, `AnyOf`, etc.).
+- `{ path, issue }` — failure attached to a nested path. `issue` can be a `string` (wrapped in an `InvalidValue`) or a full `SchemaIssue.Issue`.
+- `ReadonlyArray<FilterIssue>` — several failures reported together. Empty arrays are success; a single element is unwrapped; multiple entries are grouped into an `Issue.Composite`.
+
+**Example** (Failure at a nested path)
+
+```ts
+import { Schema } from "effect"
+
+const schema = Schema.Struct({ password: Schema.String, confirmPassword: Schema.String }).check(
+  Schema.makeFilter((o) =>
+    o.password === o.confirmPassword
+      ? undefined
+      : { path: ["password"], issue: "password and confirmPassword must match" }
+  )
+)
+
+console.log(String(Schema.decodeUnknownExit(schema)({ password: "123456", confirmPassword: "1234567" })))
+// Failure(Cause([Fail(SchemaError: password and confirmPassword must match
+//   at ["password"])]))
+```
+
+**Example** (Reporting multiple failures at once)
+
+```ts
+import { Schema } from "effect"
+
+const schema = Schema.Struct({ a: Schema.Finite, b: Schema.Finite, c: Schema.Finite }).check(
+  Schema.makeFilter((o) => {
+    const issues: Array<Schema.FilterIssue> = []
+    if (o.a > 0) {
+      if (o.b <= 0) issues.push({ path: ["b"], issue: "b must be greater than 0" })
+      if (o.c <= 0) issues.push({ path: ["c"], issue: "c must be greater than 0" })
+    }
+    return issues
+  })
+)
+
+console.log(String(Schema.decodeUnknownExit(schema)({ a: 1, b: 0, c: 0 })))
+// Failure(Cause([Fail(SchemaError: b must be greater than 0
+//   at ["b"]
+// c must be greater than 0
+//   at ["c"])]))
+```
+
 ## Preserving Schema Type After Filtering
 
 Adding a filter does not change the schema's type. You can still use all schema-specific methods (like `.fields` on a struct or `.make`) after calling `.check(...)`.
@@ -5154,7 +5206,7 @@ console.log(JSON.stringify(document, null, 2))
 
 When a schema includes a transformation (e.g. `Schema.Trim`), the generated JSON Schema corresponds to the encoded side. Calling `.annotate(...)` on a transformation annotates the decoded side, so the annotations won't appear in the JSON Schema output.
 
-To annotate the encoded side, use `Schema.flip` twice: flip to expose the encoded side, annotate it, then flip back.
+To annotate the encoded side, use `Schema.annotateEncoded`.
 
 **Example** (Annotating the encoded side of `Trim`)
 
@@ -5162,12 +5214,10 @@ To annotate the encoded side, use `Schema.flip` twice: flip to expose the encode
 import { Schema } from "effect"
 
 const schema = Schema.Trim.pipe(
-  Schema.flip,
-  Schema.annotate({
+  Schema.annotateEncoded({
     description: "my description",
     title: "my title"
-  }),
-  Schema.flip
+  })
 )
 
 console.log(JSON.stringify(Schema.toJsonSchemaDocument(schema), null, 2))
@@ -6478,7 +6528,7 @@ export interface Bottom<
   readonly [TypeId]: typeof TypeId
 
   readonly ast: Ast
-  readonly "~rebuild.out": RebuildOut
+  readonly "Rebuild": RebuildOut
   readonly "~type.parameters": TypeParameters
 
   readonly Type: T
@@ -6496,10 +6546,10 @@ export interface Bottom<
   readonly "~encoded.mutability": EncodedMutability
   readonly "~encoded.optionality": EncodedOptionality
 
-  annotate(annotations: Annotations.Bottom<this["Type"], this["~type.parameters"]>): this["~rebuild.out"]
-  annotateKey(annotations: Annotations.Key<this["Type"]>): this["~rebuild.out"]
-  check(...checks: readonly [AST.Check<this["Type"]>, ...Array<AST.Check<this["Type"]>>]): this["~rebuild.out"]
-  rebuild(ast: this["ast"]): this["~rebuild.out"]
+  annotate(annotations: Annotations.Bottom<this["Type"], this["~type.parameters"]>): this["Rebuild"]
+  annotateKey(annotations: Annotations.Key<this["Type"]>): this["Rebuild"]
+  check(...checks: readonly [AST.Check<this["Type"]>, ...Array<AST.Check<this["Type"]>>]): this["Rebuild"]
+  rebuild(ast: this["ast"]): this["Rebuild"]
   /**
    * @throws {Error} The issue is contained in the error cause.
    */

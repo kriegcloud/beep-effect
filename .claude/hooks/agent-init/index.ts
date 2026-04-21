@@ -4,7 +4,7 @@
  * Provides verbose context for primary agents talking to humans.
  * Uses HTML-like syntax for all context enhancements.
  *
- * @module AgentInit
+ * @module
  * @since 0.0.0
  */
 
@@ -19,6 +19,7 @@ import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { provideLayerScoped } from "../../internal/runtime.ts";
 
 const $I = $ClaudeId.create("hooks/agent-init/index");
 
@@ -93,7 +94,7 @@ export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`Agen
   "AgentConfigError",
   {
     reason: S.String,
-    cause: S.optional(S.DefectWithStack),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("AgentConfigError", {
     description: "Raised when hook configuration cannot be decoded.",
@@ -148,17 +149,18 @@ export const ProjectStructureCaptureLive = Layer.effect(
   Effect.gen(function* () {
     const config = yield* AgentConfig;
     const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+    const capture = Effect.fn("ProjectStructureCapture.capture")(
+      () =>
+        spawner.string(
+          ChildProcess.make({
+            cwd: config.projectDir,
+          })`tree -L 2 -a -I ${"node_modules|.git|dist|.turbo|build|.next|.cache|coverage"}`
+        ),
+      Effect.catch(() => Effect.succeed("(tree unavailable)"))
+    );
 
     return {
-      capture: () =>
-        pipe(
-          spawner.string(
-            ChildProcess.make({
-              cwd: config.projectDir,
-            })`tree -L 2 -a -I ${"node_modules|.git|dist|.turbo|build|.next|.cache|coverage"}`
-          ),
-          Effect.catch(() => Effect.succeed("(tree unavailable)"))
-        ),
+      capture,
     };
   })
 );
@@ -287,7 +289,7 @@ export const program = Effect.gen(function* () {
   );
 
   // Fetch collaborators (depends on repoInfo)
-  const collaborators = yield* repoInfo
+  const collaborators = yield* Str.isNonEmpty(repoInfo)
     ? pipe(
         sh`gh api ${`repos/${repoInfo}/collaborators`} -q ${`.[] | "\\(.login):\\(.role_name)"`}`,
         Effect.map(Str.trim),
@@ -369,7 +371,7 @@ redundantConcern concern =
   caughtByTypeSystem concern || caughtByLinter concern
 
 -- The compiler is a better bug-finder than speculation
--- Trust: tsc, eslint, Effect's typed errors
+-- Trust: tsc, Biome, repo-local effect-governance checks, eslint's JSDoc/TSDoc lane, and Effect's typed errors
 -- Don't: predict runtime bugs that would fail at compile time
 -- Don't: suggest fixes for issues the types will catch anyway
 
@@ -642,12 +644,12 @@ ${pipe(
   (teamMembers) => (A.isReadonlyArrayNonEmpty(teamMembers) ? A.join(teamMembers, "\n") : "  (unavailable)")
 )}
 </team>
-<recently-active window="7d">${recentAuthors || "(none)"}</recently-active>
+<recently-active window="7d">${Str.isNonEmpty(recentAuthors) ? recentAuthors : "(none)"}</recently-active>
 </collaborators>
 
 <github-context>
-${githubIssues ? `<open-issues>\n${githubIssues}\n</open-issues>` : "<open-issues>(none)</open-issues>"}
-${githubPRs ? `<open-prs>\n${githubPRs}\n</open-prs>` : "<open-prs>(none)</open-prs>"}
+${Str.isNonEmpty(githubIssues) ? `<open-issues>\n${githubIssues}\n</open-issues>` : "<open-issues>(none)</open-issues>"}
+${Str.isNonEmpty(githubPRs) ? `<open-prs>\n${githubPRs}\n</open-prs>` : "<open-prs>(none)</open-prs>"}
 </github-context>
 
 <available-scripts>
@@ -665,8 +667,7 @@ ${miseTasks || "(none)"}
 });
 
 const runnable = pipe(
-  program,
-  Effect.provide(AppLive),
+  Effect.scoped(provideLayerScoped(program, AppLive)),
   Effect.catchTag("AgentConfigError", (error) => Console.error(`<error>Config: ${error.reason}</error>`))
 );
 

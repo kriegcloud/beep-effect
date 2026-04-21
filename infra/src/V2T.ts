@@ -1,15 +1,34 @@
 /**
  * Local workstation automation for the V2T desktop application.
  *
- * @module @beep/infra/V2T
+ * @module \@beep/infra/V2T
  * @since 0.0.0
  */
+import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { $InfraId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
-import { local, types } from "@pulumi/command";
-import * as pulumi from "@pulumi/pulumi";
+import type * as Pulumi from "@pulumi/pulumi";
+import * as A from "effect/Array";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
+
+const require = createRequire(import.meta.url);
+const rootPulumiPath = require.resolve("@pulumi/pulumi");
+const pulumi = require(rootPulumiPath) as typeof import("@pulumi/pulumi");
+
+try {
+  const vendoredPulumiPath = require.resolve("@pulumi/command/node_modules/@pulumi/pulumi");
+  const rootPulumiModule = require.cache[rootPulumiPath];
+
+  if (rootPulumiModule !== undefined) {
+    require.cache[vendoredPulumiPath] = rootPulumiModule;
+  }
+} catch {
+  // Some installs dedupe @pulumi/pulumi already, in which case there is nothing to alias.
+}
+
+const { local, types } = require("@pulumi/command") as typeof import("@pulumi/command");
 
 const $I = $InfraId.create("V2T");
 
@@ -39,19 +58,20 @@ const resolveQwenRequirementsPath = () =>
 const makeManagedStateDir = (targetHomeDir: string, name: "graphiti" | "qwen") =>
   `${targetHomeDir}/${V2TManagedStateRelativeDir}/${name}`;
 
-type TriggerAsset = pulumi.asset.Asset | pulumi.asset.Archive;
-
 const makeTriggerPath = (rootPath: string, relativePath: string): string =>
   relativePath.length === 0 ? rootPath : `${rootPath}/${relativePath}`;
+
+type TriggerAsset = Pulumi.asset.Asset | Pulumi.asset.Archive;
 
 const makeSourceArchiveTrigger = (
   rootPath: string,
   directories: ReadonlyArray<string>,
   files: ReadonlyArray<string>
-): pulumi.asset.AssetArchive =>
+): Pulumi.asset.AssetArchive =>
   new pulumi.asset.AssetArchive({
-    ...Object.fromEntries(
-      directories.map(
+    ...R.fromEntries(
+      A.map(
+        directories,
         (relativePath) =>
           [relativePath, new pulumi.asset.FileArchive(makeTriggerPath(rootPath, relativePath))] satisfies readonly [
             string,
@@ -59,8 +79,9 @@ const makeSourceArchiveTrigger = (
           ]
       )
     ),
-    ...Object.fromEntries(
-      files.map(
+    ...R.fromEntries(
+      A.map(
+        files,
         (relativePath) =>
           [relativePath, new pulumi.asset.FileAsset(makeTriggerPath(rootPath, relativePath))] satisfies readonly [
             string,
@@ -158,8 +179,8 @@ const decodeV2TWorkstationConfig = S.decodeUnknownSync(V2TWorkstationConfig);
  */
 type V2TWorkstationArgsShape = {
   readonly config?: Partial<V2TWorkstationConfig>;
-  readonly graphitiOpenAiApiKey?: pulumi.Input<string>;
-  readonly huggingFaceHubToken?: pulumi.Input<string>;
+  readonly graphitiOpenAiApiKey?: Pulumi.Input<string>;
+  readonly huggingFaceHubToken?: Pulumi.Input<string>;
 };
 
 /**
@@ -220,7 +241,7 @@ const resolveTargetHomeDir = (targetUser: string, inputTargetHomeDir?: string) =
 /**
  * Normalize a partial config object into the installer defaults.
  *
- * @param input Partial workstation config values.
+ * @param input - Partial workstation config values.
  * @returns The decoded config with repo defaults applied.
  *
  * @example
@@ -275,8 +296,8 @@ export const normalizeV2TWorkstationConfig = (
 /**
  * Validate whether the resolved config is compatible with the provided secrets.
  *
- * @param config Resolved workstation config.
- * @param args Pulumi-facing args, including optional secrets.
+ * @param config - Resolved workstation config.
+ * @param args - Pulumi-facing args, including optional secrets.
  * @returns The same config when validation succeeds.
  *
  * @since 0.0.0
@@ -383,16 +404,16 @@ export const loadV2TWorkstationStackArgs = (): V2TWorkstationArgs & { readonly c
  * @category Resources
  */
 export class V2TWorkstation extends pulumi.ComponentResource {
-  readonly installedPackageName: pulumi.Output<string>;
-  readonly graphitiProxyUrl: pulumi.Output<undefined | string>;
-  readonly qwenBaseUrl: pulumi.Output<string>;
-  readonly localBackendUrl: pulumi.Output<string>;
-  readonly graphitiStateDir: pulumi.Output<undefined | string>;
-  readonly qwenStateDir: pulumi.Output<string>;
-  readonly qwenServiceName: pulumi.Output<string>;
-  readonly graphitiProxyServiceName: pulumi.Output<undefined | string>;
+  readonly installedPackageName: Pulumi.Output<string>;
+  readonly graphitiProxyUrl: Pulumi.Output<undefined | string>;
+  readonly qwenBaseUrl: Pulumi.Output<string>;
+  readonly localBackendUrl: Pulumi.Output<string>;
+  readonly graphitiStateDir: Pulumi.Output<undefined | string>;
+  readonly qwenStateDir: Pulumi.Output<string>;
+  readonly qwenServiceName: Pulumi.Output<string>;
+  readonly graphitiProxyServiceName: Pulumi.Output<undefined | string>;
 
-  constructor(name: string, args?: V2TWorkstationArgs, opts?: pulumi.ComponentResourceOptions) {
+  constructor(name: string, args?: V2TWorkstationArgs, opts?: Pulumi.ComponentResourceOptions) {
     super("beep:infra:V2TWorkstation", name, undefined, opts);
 
     const installerScriptPath = resolveInstallerScriptPath();
@@ -420,11 +441,11 @@ export class V2TWorkstation extends pulumi.ComponentResource {
       V2T_GRAPHITI_MODEL_NAME: resolvedConfig.graphitiModelName,
       V2T_GRAPHITI_STATE_DIR: graphitiStateDir,
       V2T_GRAPHITI_PROXY_SERVICE_NAME: defaultGraphitiProxyServiceName,
-    } satisfies Record<string, pulumi.Input<string>>;
+    } satisfies Record<string, Pulumi.Input<string>>;
 
     const commandOptions = {
       parent: this,
-    } satisfies pulumi.CustomResourceOptions;
+    } satisfies Pulumi.CustomResourceOptions;
 
     const baseTriggers = [
       resolvedConfig.repoRoot,
@@ -462,7 +483,7 @@ export class V2TWorkstation extends pulumi.ComponentResource {
         ]
       ),
       makeSourceArchiveTrigger(
-        `${resolvedConfig.repoRoot}/packages/VT2`,
+        `${resolvedConfig.repoRoot}/packages/v2t-sidecar`,
         ["src"],
         ["package.json", "tsconfig.json", "turbo.json"]
       ),

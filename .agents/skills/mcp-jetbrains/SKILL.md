@@ -24,7 +24,8 @@ description: "Use for JetBrains MCP operations in this repo, including project i
 - Warnings for unsupported resource list endpoints.
 
 ## Fix Patterns
-- Use absolute `projectPath`:
-  `/home/elpresidank/YeeBois/projects/beep-effect3`.
+- Use the active checkout path, for example:
+  `/home/elpresidank/YeeBois/projects/beep-effect`
+  or `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground`.
 - Treat `resources/list` unsupported warnings as non-fatal.
 - Validate availability with `get_project_modules` first.

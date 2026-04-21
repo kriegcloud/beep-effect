@@ -12,11 +12,11 @@ const $I = $ObservabilityId.create("web/Config");
  * import { WebObservabilityConfig } from "@beep/observability/web"
  *
  * const config = new WebObservabilityConfig({
- *   serviceName: "todox-web",
- *   serviceVersion: "0.1.0",
- *   environment: "development",
- *   minLogLevel: "Info",
- *   resourceAttributes: {},
+ *
+ *
+ *
+ *
+ *
  * })
  *
  * console.log(config.serviceName) // "todox-web"
@@ -46,11 +46,11 @@ export class WebObservabilityConfig extends S.Class<WebObservabilityConfig>($I`W
  * import { WebObservabilityConfig, toWebResource } from "@beep/observability/web"
  *
  * const config = new WebObservabilityConfig({
- *   serviceName: "todox-web",
- *   serviceVersion: "0.1.0",
- *   environment: "development",
- *   minLogLevel: "Info",
- *   resourceAttributes: {},
+ *
+ *
+ *
+ *
+ *
  * })
  *
  * const resource = toWebResource(config)

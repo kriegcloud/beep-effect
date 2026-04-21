@@ -9,7 +9,7 @@
  * 3. Evaluate allow policies by priority (highest first)
  * 4. Default deny if no policies match
  *
- * @module @beep/shared-domain/services/authorization/PolicyEngine
+ * @module
  * @since 0.0.0
  */
 void 0;

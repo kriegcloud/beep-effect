@@ -1,40 +1,29 @@
 import type { QueryStage, QueryStageTrace } from "@beep/runtime-protocol";
+import { Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 
 export const queryStageEntries = (trace: QueryStageTrace): ReadonlyArray<QueryStage> =>
   A.make(trace.grounding, trace.retrieval, trace.packet, trace.answer);
 
-export const formatQueryStageLabel = (phase: QueryStage["phase"]): string => {
-  if (phase === "grounding") {
-    return "Grounding";
-  }
+export const formatQueryStageLabel = Match.type<QueryStage["phase"]>().pipe(
+  Match.when("grounding", () => "Grounding"),
+  Match.when("retrieval", () => "Retrieval"),
+  Match.when("packet", () => "Packet"),
+  Match.when("answer", () => "Answer"),
+  Match.exhaustive
+);
 
-  if (phase === "retrieval") {
-    return "Retrieval";
-  }
-
-  if (phase === "packet") {
-    return "Packet";
-  }
-
-  return "Answer";
-};
-
-export const formatQueryStageStatusTone = (status: QueryStage["status"]): string => {
-  if (status === "running") {
-    return "status-running";
-  }
-
-  if (status === "completed") {
-    return "status-completed";
-  }
-
-  return "status-pill-neutral";
-};
+export const formatQueryStageStatusTone = Match.type<QueryStage["status"]>().pipe(
+  Match.when("pending", () => "status-pill-neutral"),
+  Match.when("running", () => "status-running"),
+  Match.when("completed", () => "status-completed"),
+  Match.exhaustive
+);
 
 export const formatOptionalPercent = (value: O.Option<number>): string =>
-  O.match(value, {
-    onNone: () => "Not yet",
-    onSome: (percent) => `${percent}%`,
-  });
+  pipe(
+    value,
+    O.map((percent) => `${percent}%`),
+    O.getOrElse(() => "Not yet")
+  );

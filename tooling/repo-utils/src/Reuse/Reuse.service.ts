@@ -7,13 +7,18 @@ import {
   DateTime,
   Effect,
   FileSystem,
+  flow,
   Inspectable,
   Layer,
   MutableHashMap,
   MutableHashSet,
+  Order,
   Path,
+  pipe,
 } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { FsUtils } from "../FsUtils.js";
 import { findRepoRoot } from "../Root.js";
@@ -499,9 +504,9 @@ const candidateFromPattern = (
     proposedDestinationModule: pattern.proposedDestinationModule,
     confidence: confidenceFromOccurrenceCount(occurrences.length),
     evidence,
-    blockingConcerns: Array.from(pattern.blockingConcerns),
-    implementationSteps: Array.from(pattern.implementationSteps),
-    verificationCommands: Array.from(pattern.verificationCommands),
+    blockingConcerns: A.fromIterable(pattern.blockingConcerns),
+    implementationSteps: A.fromIterable(pattern.implementationSteps),
+    verificationCommands: A.fromIterable(pattern.verificationCommands),
     catalogMatchIds: catalogMatches,
   });
 };
@@ -748,17 +753,13 @@ const collectScopeFiles = (analysisContext: ReuseAnalysisContextShape, scope: Wo
     analysisContext.runtime.fsUtils
       .globFiles(`${scope.srcPath}/**/*.{ts,tsx,mts,cts}`, {
         cwd: analysisContext.runtime.repoRoot,
-        ignore: Array.from(PRODUCTION_FILE_IGNORE_PATTERNS),
+        ignore: A.fromIterable(PRODUCTION_FILE_IGNORE_PATTERNS),
       })
       .pipe(
         Effect.mapError(
           mapAnalysisError("collectScopeFiles", `Failed to collect source files for ${scope.packagePath}`)
         ),
-        Effect.map((files) =>
-          Array.from(files)
-            .map(normalizeRelativePath)
-            .sort((left, right) => left.localeCompare(right))
-        )
+        Effect.map(flow(A.fromIterable, A.map(normalizeRelativePath), A.sort(Order.String)))
       )
   );
 
@@ -844,7 +845,7 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
 
         const scanned = scanPatternsInFile(filePath, scope.packagePath, sourceTextOption.value, outlineSymbols);
 
-        for (const [patternId, occurrences] of Object.entries(scanned)) {
+        for (const [patternId, occurrences] of R.toEntries(scanned)) {
           const next = merged[patternId] ?? [];
           next.push(...occurrences);
           merged[patternId] = next;
@@ -872,7 +873,7 @@ const collectPatternMatchCountsForScope = (analysisContext: ReuseAnalysisContext
           .pipe(Effect.mapError(mapAnalysisError("collectPatternMatchCountsForScope", `Failed to read ${filePath}`)));
         const fileCounts = countPatternsInText(sourceText);
 
-        for (const [patternId, count] of Object.entries(fileCounts)) {
+        for (const [patternId, count] of R.toEntries(fileCounts)) {
           counts[patternId] = (counts[patternId] ?? 0) + count;
         }
       }
@@ -1084,10 +1085,29 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
         }
       }
 
-      const specialistUnits = Object.values(specialistHotspots)
-        .filter((hotspot) => hotspot.totalOccurrences >= 2)
-        .sort((left, right) => left.label.localeCompare(right.label))
-        .map((hotspot) => makeSpecialistWorkUnit(hotspot.label, hotspot.selectors, hotspot.rationale));
+      let eligibleHotspots: Array<{
+        readonly label: string;
+        readonly rationale: string;
+        readonly selectors: Array<string>;
+        totalOccurrences: number;
+      }> = [];
+      for (const label of R.keys(specialistHotspots)) {
+        const hotspot = specialistHotspots[label];
+        if (hotspot === undefined || hotspot.totalOccurrences < 2) {
+          continue;
+        }
+        eligibleHotspots = A.append(eligibleHotspots, hotspot);
+      }
+
+      const byHotspotLabelAscending: Order.Order<(typeof eligibleHotspots)[number]> = Order.mapInput(
+        Order.String,
+        (hotspot: (typeof eligibleHotspots)[number]) => hotspot.label
+      );
+      const specialistUnits = pipe(
+        eligibleHotspots,
+        A.sort(byHotspotLabelAscending),
+        A.map((hotspot) => makeSpecialistWorkUnit(hotspot.label, hotspot.selectors, hotspot.rationale))
+      );
 
       return new ReusePartitionPlan({
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
@@ -1128,7 +1148,7 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
 
           for (const scope of scopes) {
             const scopedOccurrences = yield* collectPatternOccurrencesForScope(analysisContext, scope);
-            for (const [patternId, occurrences] of Object.entries(scopedOccurrences)) {
+            for (const [patternId, occurrences] of R.toEntries(scopedOccurrences)) {
               const next = mergedOccurrences[patternId] ?? [];
               next.push(...occurrences);
               mergedOccurrences[patternId] = next;

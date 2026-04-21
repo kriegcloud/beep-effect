@@ -1,0 +1,61 @@
+{
+  "name": "@beep/knowledge-graph",
+  "version": "0.0.0",
+  "description": "Event-sourced knowledge graph backed by Effect EventLog primitives",
+  "license": "Apache-2.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "codegen": "echo 'no codegen needed'",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "check": "tsgo -b tsconfig.json",
+    "test": "bunx --bun vitest run",
+    "coverage": "bunx --bun vitest --coverage",
+    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write"
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/shared-domain": "workspace:^",
+    "@beep/shared-tables": "workspace:^",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./internal/*": null
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/knowledge-graph"
+  },
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/knowledge-graph",
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      "./package.json": "./package.json",
+      ".": "./dist/index.js",
+      "./*": "./dist/*.js",
+      "./internal/*": null
+    }
+  }
+}

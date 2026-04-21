@@ -2,7 +2,7 @@
  * Schema for the `X-Download-Options` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/NoOpen
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaTransformation } from "effect";

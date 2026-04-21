@@ -2,7 +2,7 @@
  * Wink BM25 vectorizer service and related domain models.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkVectorizer
+ * @module
  */
 
 import { createRequire } from "node:module";
@@ -272,9 +272,9 @@ export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`Vector
   /**
    * Convert an unknown cause into a typed vectorizer error.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param operation {string} - The vectorizer operation that failed.
-   * @returns {VectorizerError} - A typed vectorizer error value.
+   * @param cause - The underlying failure or defect.
+   * @param operation - The vectorizer operation that failed.
+   * @returns A typed vectorizer error value.
    */
   static fromCause(cause: unknown, operation: string): VectorizerError {
     return new VectorizerError({
@@ -287,9 +287,9 @@ export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`Vector
   /**
    * Create a vectorizer error without an external cause.
    *
-   * @param message {string} - The human-readable vectorizer error message.
-   * @param operation {string} - The vectorizer operation associated with the failure.
-   * @returns {VectorizerError} - A typed vectorizer error value without an external cause.
+   * @param message - The human-readable vectorizer error message.
+   * @param operation - The vectorizer operation associated with the failure.
+   * @returns A typed vectorizer error value without an external cause.
    */
   static fromMessage(message: string, operation: string): VectorizerError {
     return new VectorizerError({

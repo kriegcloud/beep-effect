@@ -1,5 +1,5 @@
 /**
- * @beep/domain
+ * \@beep/domain
  *
  * @since 0.0.0
  */

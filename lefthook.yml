@@ -3,29 +3,24 @@ pre-commit:
   commands:
     biome:
       glob: "*.{ts,tsx,js,jsx,json,jsonc,css}"
-      exclude: ".beep/**|specs/**|outputs/**|scratchpad/**"
+      exclude: ".beep/**|initiatives/**|outputs/**|scratchpad/**"
       run: bunx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched {staged_files}
       stage_fixed: true
     jsdoc:
       glob: "tooling/*/src/**/*.ts"
       exclude: "tooling/*/src/internal/**|tooling/_test-*/src/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
-      run: npx eslint --no-warn-ignored --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
+      run: bunx eslint --no-warn-ignored --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
     gitleaks:
       run: gitleaks protect --staged --verbose
     typos:
       glob: "*.{ts,tsx,js,jsx,md,json}"
-      exclude: ".beep/**|specs/**|outputs/**|scratchpad/**"
+      exclude: ".beep/**|initiatives/**|outputs/**|scratchpad/**"
       run: typos --exclude '.beep/**' --exclude 'scratchpad/**'
 
 commit-msg:
   commands:
     commitlint:
       run: bunx commitlint --edit {1}
-
-pre-push:
-  commands:
-    github-checks:
-      run: bash scripts/run-github-checks.sh pre-push
 
 post-merge:
   commands:

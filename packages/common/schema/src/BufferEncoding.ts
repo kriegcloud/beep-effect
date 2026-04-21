@@ -1,7 +1,7 @@
 /**
  * A schema module for BufferEncoding string literal's
  *
- * @module @beep/schema/BufferEncoding
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -44,7 +44,7 @@ export const BuffEncoding = LiteralKit([
 );
 
 /**
- * Type of {@link BuffEncoding}. {@inheritDoc BuffEncoding}
+ * {@inheritDoc BuffEncoding}
  *
  * @example
  * ```ts

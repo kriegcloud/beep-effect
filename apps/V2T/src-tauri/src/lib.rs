@@ -18,7 +18,7 @@ use tauri_plugin_shell::{
 use tokio::sync::oneshot;
 use uuid::Uuid;
 
-const DEV_SIDECAR_ENTRYPOINT: &str = "packages/VT2/src/main.ts";
+const DEV_SIDECAR_ENTRYPOINT: &str = "packages/v2t-sidecar/src/main.ts";
 const DEV_SIDECAR_HOSTNAME: &str = "v2t-sidecar";
 const PACKAGED_SIDECAR_NAME: &str = "v2t-sidecar";
 const SIDECAR_START_TIMEOUT: Duration = Duration::from_secs(10);
@@ -1296,6 +1296,17 @@ async fn run_session_composition(
 }
 
 #[tauri::command]
+async fn retry_session_transcript(
+  sidecar_state: State<'_, ManagedSidecarState>,
+  session_id: String,
+) -> Result<Value, String> {
+  let bootstrap = active_sidecar_bootstrap(&sidecar_state)?;
+  let path = format!("/sessions/{session_id}/transcript/retry");
+
+  sidecar_json_request(Method::POST, &bootstrap, &path, None).await
+}
+
+#[tauri::command]
 async fn start_capture(
   app: AppHandle,
   sidecar_state: State<'_, ManagedSidecarState>,
@@ -1592,6 +1603,7 @@ pub fn run() {
       create_session_resource,
       save_preferences,
       run_session_composition,
+      retry_session_transcript,
       start_capture,
       stop_capture,
       interrupt_capture,

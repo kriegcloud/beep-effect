@@ -42,12 +42,12 @@ export const getFilePath = (input: Record<string, unknown>): O.Option<string> =>
 
 const parseYaml = (content: string): Record<string, unknown> => {
   const matched = O.getOrNull(Str.match(/^---\n([\s\S]*?)\n---/)(content));
-  if (!matched?.[1]) return {};
+  if (matched === null || !Str.isNonEmpty(matched[1])) return {};
   return pipe(
     Str.split("\n")(matched[1]),
     A.map((line: string) => {
       const m = O.getOrNull(Str.match(/^(\w+):\s*["']?(.+?)["']?$/)(line));
-      return m?.[1] && m[2] ? O.some([m[1], m[2]] as const) : O.none();
+      return m !== null && Str.isNonEmpty(m[1]) && Str.isNonEmpty(m[2]) ? O.some([m[1], m[2]] as const) : O.none();
     }),
     A.getSomes,
     R.fromEntries
@@ -72,28 +72,27 @@ export const testGlob = (filePath: string, glob: string): boolean => {
   }
 };
 
-const readPattern = (filePath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const content = yield* fs.readFileString(filePath);
-    const fm = yield* S.decodeUnknownEffect(PatternFrontmatter)(parseYaml(content)).pipe(Effect.option);
-    return O.map(
-      fm,
-      (f): PatternDefinition => ({
-        name: f.name,
-        description: f.description,
-        event: f.event,
-        tool: f.tool,
-        glob: f.glob,
-        pattern: f.pattern,
-        action: f.action,
-        level: f.level,
-        tag: f.tag,
-        body: extractBody(content),
-        filePath,
-      })
-    );
-  });
+const readPattern = Effect.fn("readPattern")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath);
+  const fm = yield* S.decodeUnknownEffect(PatternFrontmatter)(parseYaml(content)).pipe(Effect.option);
+  return O.map(
+    fm,
+    (f): PatternDefinition => ({
+      name: f.name,
+      description: f.description,
+      event: f.event,
+      tool: f.tool,
+      pattern: f.pattern,
+      action: f.action,
+      level: f.level,
+      body: extractBody(content),
+      filePath,
+      ...(f.glob === undefined ? {} : { glob: f.glob }),
+      ...(f.tag === undefined ? {} : { tag: f.tag }),
+    })
+  );
+});
 
 export const loadPatterns = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
@@ -142,13 +141,24 @@ export const loadPatterns = Effect.gen(function* () {
 });
 
 export const matches = (input: HookInput, p: PatternDefinition): boolean => {
-  const filePath = pipe(getFilePath(input.tool_input), O.getOrUndefined);
+  const filePath = getFilePath(input.tool_input);
   const content = getMatchableContent(input.tool_input);
+  const glob = p.glob;
+  const globMatches =
+    glob === undefined || glob === ""
+      ? true
+      : pipe(
+          filePath,
+          O.match({
+            onNone: () => true,
+            onSome: (value) => testGlob(value, glob),
+          })
+        );
 
   return (
     p.event === input.hook_event_name &&
     testRegex(input.tool_name, p.tool) &&
-    (!p.glob || !filePath || testGlob(filePath, p.glob)) &&
+    globMatches &&
     testRegex(content, p.pattern)
   );
 };

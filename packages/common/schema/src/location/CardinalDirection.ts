@@ -1,5 +1,5 @@
 /**
- * @module @beep/schema/person/CardinalDirection
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -19,7 +19,7 @@ export const CardinalDirection = LiteralKit(["north", "south", "east", "west"]).
   })
 );
 /**
- * Type for {@link CardinalDirection} {@inheritDoc CardinalDirection}
+ * {@inheritDoc CardinalDirection}
  *
  * @category Validation
  * @since 0.0.0
@@ -39,7 +39,7 @@ export const CardinalDirectionAbbrev = LiteralKit(["N", "S", "E", "W"]).pipe(
 );
 
 /**
- * Type for {@link CardinalDirectionAbbrev} {@inheritDoc CardinalDirectionAbbrev}
+ * {@inheritDoc CardinalDirectionAbbrev}
  *
  * @category Validation
  * @since 0.0.0

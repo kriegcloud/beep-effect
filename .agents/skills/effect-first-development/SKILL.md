@@ -31,7 +31,7 @@ Before writing code, run this checklist:
 12. Is this a zero-arg effect value rather than a reusable function? Prefer `Effect.gen(...).pipe(Effect.withSpan("Name"))` over immediate `Effect.fn` IIFEs.
 13. Is this effect observable? Add spans and structured logs from the start; add metrics where the path is materially important.
 14. Am I expressing durations/time windows? Use `effect/Duration`.
-15. Am I mapping nullable/nullish schema values to `Option`? Use `S.OptionFrom*` helpers.
+15. Am I mapping nullable/nullish schema values to `Option` or building objects from `Option` fields? Use `S.OptionFrom*` at schema boundaries, `R.getSomes({...})` when `None` should omit keys, and `O.all({...})` when the whole object is all-or-nothing.
 16. Am I creating an exported helper API? Prefer dual data-first/data-last with `dual`.
 17. Am I parsing/stringifying JSON? Use schema JSON codecs, never `JSON.parse` / `JSON.stringify`.
 18. Am I in test code? The same JSON rule still applies there; test fixtures and request bodies should use schema codecs too.
@@ -55,18 +55,19 @@ Before writing code, run this checklist:
 36. Is this deterministic conversion between string/domain representations? Model it as `S.decodeTo(..., SchemaTransformation.transform(...))`.
 37. Am I sorting values? Use `A.sort` with an explicit `Order`, never native `.sort()`.
 38. Am I coercing unknown/scalar values to strings? Prefer schema transformations over ad-hoc `String(...)` coercion.
-39. Am I matching on a plain boolean? Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.
+39. Am I matching on a plain boolean? Prefer the flattest equivalent form first; reach for `Bool.match(...)` only when both branches are doing meaningful work or it is clearly more readable than direct boolean selection.
 40. Am I directly returning a matcher or extracting a reusable matcher? Prefer `Match.type<T>().pipe(...)` or `Match.tags(...)` over `Match.value(...)`.
-41. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
-42. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
-43. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
-44. Is a named or reused domain constraint hiding inside predicate helpers? Model it as a schema first, then derive guards with `S.is(...)`.
-45. Can a reusable check be expressed with built-in schema constructors/checks before `S.makeFilter`? Prefer that order.
-46. Is this an internal literal domain that needs `.is`, `.thunk`, `$match`, or annotation-bearing schema values? Use `LiteralKit`.
-47. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
-48. Am I designing a service or test helper? Keep `FileSystem`, `Path`, and `SqlClient` inside the layer/service unless they are the explicit domain boundary.
-49. Am I writing tests for platform/runtime semantics? Prefer `@effect/vitest` for supporting tests, but spawn the real runtime when the assertion is about platform lifecycle behavior.
-50. Am I wrapping a helper in a trivial lambda or passthrough `pipe(...)` callback? Prefer direct helper refs, `flow(...)`, and shared thunk helpers when behavior is unchanged.
+41. Before I keep an `O.match(...)`, have I checked whether `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)` would express the same control flow more flatly?
+42. Am I inside a callback-only API (schema transform, parser callback, etc.) that still needs a service? Use `ServiceMap.Service.use(...)` there.
+43. Am I manipulating filesystem paths? Use `yield* Path.Path` and its helpers, not `node:path`.
+44. Am I doing HTTP I/O? Use `effect/unstable/http` `HttpClient` (no native `fetch`), and provide runtime client layers explicitly (Bun: `@effect/platform-bun/BunHttpClient.layer`).
+45. Is a named or reused domain constraint hiding inside predicate helpers? Model it as a schema first, then derive guards with `S.is(...)`.
+46. Can a reusable check be expressed with built-in schema constructors/checks before `S.makeFilter`? Prefer that order.
+47. Is this an internal literal domain that needs `.is`, `.thunk`, `$match`, or annotation-bearing schema values? Use `LiteralKit`.
+48. Is this a reusable schema check or filter group? Give it `identifier`, `title`, and `description`.
+49. Am I designing a service or test helper? Keep `FileSystem`, `Path`, and `SqlClient` inside the layer/service unless they are the explicit domain boundary.
+50. Am I writing tests for platform/runtime semantics? Prefer `@effect/vitest` for supporting tests, but spawn the real runtime when the assertion is about platform lifecycle behavior.
+51. Am I wrapping a helper in a trivial lambda or passthrough `pipe(...)` callback? Prefer direct helper refs, `flow(...)`, and shared thunk helpers when behavior is unchanged.
 
 ## Non-Negotiable Laws
 
@@ -94,7 +95,7 @@ Before writing code, run this checklist:
 17. Reusable functions returning `Effect` should use named `Effect.fn("Namespace.name")` (or `Effect.fnUntraced` for hot/internal paths). Zero-arg effect values may stay `Effect.gen(...).pipe(Effect.withSpan("Name"))` when there is no exported/reused function to expose.
 18. Effect workflows should be observable with spans and structured logs from the start; add metrics (`effect/Metric` + `Effect.track*`) where the path is important enough to measure.
 19. Durations and time windows should use `effect/Duration`, not ad-hoc number literals.
-20. For nullable/nullish/optional schema-to-`Option` conversions, use `S.OptionFromNullOr`, `S.OptionFromNullishOr`, `S.OptionFromOptionalKey`, or `S.OptionFromOptional`.
+20. For nullable/nullish/optional schema-to-`Option` conversions, use `S.OptionFromNullOr`, `S.OptionFromNullishOr`, `S.OptionFromOptionalKey`, or `S.OptionFromOptional`. For runtime `Option` object fields, use `R.getSomes({...})` when `None` should omit keys and `O.all({...})` when the whole object is all-or-nothing.
 21. Exported helper utilities should expose dual data-first/data-last forms via `dual` from `effect/Function`.
 22. Never use `JSON.parse` / `JSON.stringify` in Effect-first code; use `S.UnknownFromJsonString` / `S.fromJsonString` + `S.decodeUnknown*` / `S.encode*`.
 23. This JSON rule applies in tests and fixtures too; do not introduce native JSON helpers just because the file is under `test/`.
@@ -119,17 +120,18 @@ Before writing code, run this checklist:
 40. For deterministic format conversions, prefer schema transformations (`S.decodeTo` + `SchemaTransformation.transform`) over ad-hoc string conversion helpers.
 41. Never use native `Array.prototype.sort`; use `A.sort(values, order)` with explicit `Order` instances.
 42. Avoid ad-hoc `String(...)` coercion in domain logic; model unknown-to-string normalization with schema transformations and compare via schema equivalence.
-43. When branching on boolean values, use `Bool.match` from `effect/Boolean` instead of `Match.when(true/false)` or ad-hoc `if/else` chains.
-44. In callback-only contexts where `yield*` is unavailable (for example `SchemaTransformation.transform*`), consume services with `ServiceMap.Service.use(...)`.
-45. Do not import `node:path` in production/tooling source. Use `Path.Path` service (`yield* Path.Path`) for `join`, `resolve`, `relative`, `basename`, etc.
-46. Do not use native `fetch` in production/tooling source. Use `HttpClient` from `effect/unstable/http` and provide platform client layers (Bun: `BunHttpClient.layer`).
-47. Named or reused domain constraints must be modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, then derive guards with `S.is(...)`.
-48. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
-49. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
-50. Prefer `P.isTagged("Tag")` over manual `_tag` guard helpers built from `P.hasProperty`, `P.isObject`, or inline `_tag` string checks.
-51. When a matcher is the function body or a reusable helper, prefer `Match.type<T>().pipe(...)` / `Match.tags(...)` over `Match.value(...)`.
-52. At logging/recovery boundaries, render causes with `Cause.pretty(...)` or `Cause.prettyErrors(...)` instead of ad-hoc `String(error)` fallback chains.
-53. Prefer the tersest equivalent helper form when behavior is unchanged: direct helper refs over trivial wrapper lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
+43. When branching on boolean values, prefer the flattest equivalent form first; use `Bool.match` when both branches do real work or when it is materially clearer than direct boolean selection.
+44. Before keeping `O.match(...)`, check whether `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)` express the same control flow more flatly. Avoid `onNone: () => ({})` object compaction; use `O.map(...)` plus `O.getOrElse(() => ({}))`, `R.getSomes({...})`, or `S.OptionFrom*` according to boundary semantics.
+45. In callback-only contexts where `yield*` is unavailable (for example `SchemaTransformation.transform*`), consume services with `ServiceMap.Service.use(...)`.
+46. Do not import `node:path` in production/tooling source. Use `Path.Path` service (`yield* Path.Path`) for `join`, `resolve`, `relative`, `basename`, etc.
+47. Do not use native `fetch` in production/tooling source. Use `HttpClient` from `effect/unstable/http` and provide platform client layers (Bun: `BunHttpClient.layer`).
+48. Named or reused domain constraints must be modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, then derive guards with `S.is(...)`.
+49. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
+50. Use `LiteralKit` for internal literal domains when `.is`, `.thunk`, `$match`, or annotation-bearing schema values are part of the design.
+51. Prefer `P.isTagged("Tag")` over manual `_tag` guard helpers built from `P.hasProperty`, `P.isObject`, or inline `_tag` string checks.
+52. When a matcher is the function body or a reusable helper, prefer `Match.type<T>().pipe(...)` / `Match.tags(...)` over `Match.value(...)`.
+53. At logging/recovery boundaries, render causes with `Cause.pretty(...)` or `Cause.prettyErrors(...)` instead of ad-hoc `String(error)` fallback chains.
+54. Prefer the tersest equivalent helper form when behavior is unchanged: direct helper refs over trivial wrapper lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
 
 ## Always / Never Examples
 
@@ -534,6 +536,8 @@ export class ProfileInput extends S.Class<ProfileInput>($I`ProfileInput`)({
   avatarUrl: S.OptionFromNullOr(S.String)
 }) {}
 ```
+
+For runtime `Option` object fields, use `R.getSomes({...})` when `None` should omit keys and `O.all({...})` when the whole object should exist only if every field is `Some`. When a single `Option` becomes an object, prefer `O.map(...)` plus `O.getOrElse(() => ({}))` over `O.match(...)` with `onNone: () => ({})`.
 
 ### 13) Dual helper APIs
 

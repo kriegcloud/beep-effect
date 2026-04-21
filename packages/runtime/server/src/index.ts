@@ -40,6 +40,7 @@ import {
   flow,
   HashSet,
   Layer,
+  Number as Num,
   Path,
   pipe,
   Ref,
@@ -131,6 +132,25 @@ const sidecarSecurityHeaders = {
 
 // FINDING-023: Maximum request body size (256KB).
 const maxBodySizeBytes = 262_144;
+const isPostMethod = Eq.equals("POST");
+const isClusterInternalPath = Str.includes("__cluster");
+const isJsonRequestContentType = P.some([Str.includes("application/json"), Str.includes("ndjson")]);
+const hasHeaderValue = flow(O.fromUndefinedOr, O.isSome);
+const isOversizedContentLength = (contentLength: string | undefined): boolean =>
+  pipe(
+    contentLength,
+    O.fromUndefinedOr,
+    O.flatMap(Num.parse),
+    O.exists((length) => length > maxBodySizeBytes)
+  );
+const isUnsupportedPostContentType = (contentType: string | undefined): boolean =>
+  pipe(contentType, O.fromUndefinedOr, O.exists(P.not(isJsonRequestContentType)));
+const shouldValidatePostBody = (request: HttpServerRequest.HttpServerRequest): boolean =>
+  isPostMethod(request.method) && !isClusterInternalPath(request.url);
+const hasRequestBodyMetadata = (request: HttpServerRequest.HttpServerRequest): boolean =>
+  hasHeaderValue(request.headers["content-length"]) || hasHeaderValue(request.headers["transfer-encoding"]);
+const isEmptyPostBody = (request: HttpServerRequest.HttpServerRequest): boolean =>
+  request.headers["content-length"] === "0" || !hasRequestBodyMetadata(request);
 
 // FINDING-009/FINDING-016/FINDING-023: Transport-level validation middleware.
 // Validates Content-Type, body presence for POST, and body size limits.
@@ -139,37 +159,26 @@ const sidecarRequestValidation = <E, R>(
 ): Effect.Effect<HttpServerResponse.HttpServerResponse, E, R | HttpServerRequest.HttpServerRequest> =>
   Effect.gen(function* () {
     const request = yield* HttpServerRequest.HttpServerRequest;
-    const method = request.method;
-    const url = request.url;
     const contentLength = request.headers["content-length"];
 
     // FINDING-023: Reject oversized request bodies.
-    if (contentLength !== undefined) {
-      const length = Number(contentLength);
-      if (!Number.isNaN(length) && length > maxBodySizeBytes) {
-        return HttpServerResponse.empty({ status: 413 });
-      }
+    if (isOversizedContentLength(contentLength)) {
+      return HttpServerResponse.empty({ status: 413 });
     }
 
     // Only apply POST-specific checks to non-cluster internal paths.
-    if (method === "POST" && !pipe(url, Str.includes("__cluster"))) {
-      // FINDING-016: Validate Content-Type for POST endpoints.
-      const contentType = request.headers["content-type"];
-      if (
-        contentType !== undefined &&
-        !pipe(contentType, Str.includes("application/json")) &&
-        !pipe(contentType, Str.includes("ndjson"))
-      ) {
-        return HttpServerResponse.empty({ status: 415 });
-      }
+    if (!shouldValidatePostBody(request)) {
+      return yield* httpEffect;
+    }
 
-      // FINDING-009: Reject empty POST bodies.
-      if (
-        contentLength === "0" ||
-        (contentLength === undefined && request.headers["transfer-encoding"] === undefined)
-      ) {
-        return HttpServerResponse.jsonUnsafe({ message: "Request body required", status: 400 }, { status: 400 });
-      }
+    // FINDING-016: Validate Content-Type for POST endpoints.
+    if (isUnsupportedPostContentType(request.headers["content-type"])) {
+      return HttpServerResponse.empty({ status: 415 });
+    }
+
+    // FINDING-009: Reject empty POST bodies.
+    if (isEmptyPostBody(request)) {
+      return HttpServerResponse.jsonUnsafe({ message: "Request body required", status: 400 }, { status: 400 });
     }
 
     return yield* httpEffect;

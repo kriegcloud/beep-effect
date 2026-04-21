@@ -50,7 +50,12 @@ const printJson = Effect.fn(function* (value: unknown) {
   yield* Console.log(rendered);
 });
 
-type ReuseProgramError = DomainError | NoSuchFileError | ReuseAnalysisError | ReuseCandidateNotFoundError;
+type ReuseProgramError =
+  | DomainError
+  | NoSuchFileError
+  | ReuseAnalysisError
+  | ReuseCandidateNotFoundError
+  | S.SchemaError;
 
 type ReuseProgramDependencies =
   | FileSystem.FileSystem
@@ -91,12 +96,16 @@ const runReuseProgram = <A>(
         process.exitCode = 1;
         yield* Console.error(`[reuse] missing file while preparing analysis context: ${error.path}`);
       }),
+      SchemaError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`[reuse] ${String(error)}`);
+      }),
     }),
     Effect.asVoid
   );
 
 const runCodexSmokeProgram = <A>(
-  effect: Effect.Effect<A, CodexRunnerError | DomainError, FileSystem.FileSystem>
+  effect: Effect.Effect<A, CodexRunnerError | DomainError | S.SchemaError, FileSystem.FileSystem>
 ): Effect.Effect<void, never, FileSystem.FileSystem> =>
   effect.pipe(
     Effect.catchTags({
@@ -107,6 +116,10 @@ const runCodexSmokeProgram = <A>(
       DomainError: Effect.fn(function* (error) {
         process.exitCode = 1;
         yield* Console.error(`[reuse] ${error.message}`);
+      }),
+      SchemaError: Effect.fn(function* (error) {
+        process.exitCode = 1;
+        yield* Console.error(`[reuse] ${String(error)}`);
       }),
     }),
     Effect.asVoid
@@ -183,7 +196,7 @@ const reusePartitionsCommand = Command.make(
         const plan = yield* planner.buildPartitions(scope);
 
         if (json) {
-          yield* printJson(S.encodeSync(ReusePartitionPlan)(plan));
+          yield* printJson(yield* S.encodeEffect(ReusePartitionPlan)(plan));
           return;
         }
 
@@ -211,7 +224,7 @@ const reuseFindCommand = Command.make(
         });
 
         if (json) {
-          yield* printJson(S.encodeSync(ReuseFindResult)(result));
+          yield* printJson(yield* S.encodeEffect(ReuseFindResult)(result));
           return;
         }
 
@@ -233,7 +246,7 @@ const reuseInventoryCommand = Command.make(
         const inventory = yield* inventoryService.buildInventory(scope);
 
         if (json) {
-          yield* printJson(S.encodeSync(ReuseInventory)(inventory));
+          yield* printJson(yield* S.encodeEffect(ReuseInventory)(inventory));
           return;
         }
 
@@ -256,7 +269,7 @@ const reusePacketCommand = Command.make(
         const packet = yield* inventoryService.buildPacket(candidateId, scope);
 
         if (json) {
-          yield* printJson(S.encodeSync(ReusePacket)(packet));
+          yield* printJson(yield* S.encodeEffect(ReusePacket)(packet));
           return;
         }
 
@@ -276,7 +289,7 @@ const reuseCodexSmokeCommand = Command.make(
         const result = yield* runCodexSmoke;
 
         if (json) {
-          yield* printJson(S.encodeSync(CodexSmokeResult)(result));
+          yield* printJson(yield* S.encodeEffect(CodexSmokeResult)(result));
           return;
         }
 

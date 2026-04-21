@@ -1,8 +1,7 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { flow, Match, pipe } from "effect";
+import { flow, Match, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import { constVoid, dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -57,6 +56,8 @@ type ModifierKeyState = {
   readonly shiftKey?: boolean | undefined;
 };
 
+type StepModifierState = readonly [coarse: boolean | undefined, fine: boolean];
+
 type InputHandlers = {
   readonly onBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
   readonly onKeyDown: (event: React.KeyboardEvent<HTMLInputElement>) => void;
@@ -69,6 +70,10 @@ type ButtonHandlers = {
   readonly onMouseUp: (event: React.MouseEvent<HTMLButtonElement>) => void;
   readonly onMouseLeave: (event: React.MouseEvent<HTMLButtonElement>) => void;
 };
+
+type SpinStartHandler = (event: React.MouseEvent<HTMLButtonElement> | React.TouchEvent<HTMLButtonElement>) => void;
+
+type SpinStartProps = Partial<Pick<ButtonHandlers, "onMouseDown" | "onTouchStart">>;
 
 const NumberInputText = S.String.check(
   S.isPattern(numberInputTextPattern, {
@@ -87,6 +92,8 @@ const NumberInputText = S.String.check(
 
 const isNumberInputText = S.is(NumberInputText);
 const isNumberInputEventKey = S.is(NumberInputEventKey);
+const isCoarseStepModifier = P.Tuple([P.isTruthy, P.isUnknown]);
+const isFineStepModifier = P.Tuple([P.isUnknown, P.isTruthy]);
 
 const NonNegativePrecision = S.Number.check(S.isInt(), S.isGreaterThanOrEqualTo(0)).pipe(
   S.annotate(
@@ -108,17 +115,37 @@ const isValidNumberValue = (value: number): boolean => !Number.isNaN(value);
 const isVoidHandler = (value: unknown): value is () => void => P.isFunction(value);
 
 const getMaxTouchPoints = (): number => {
-  if (typeof navigator === "undefined") {
+  const runtimeNavigator = globalThis.navigator;
+
+  if (P.isUndefined(runtimeNavigator)) {
     return 0;
   }
 
-  const msMaxTouchPoints = Reflect.get(navigator, "msMaxTouchPoints");
+  const msMaxTouchPoints = Reflect.get(runtimeNavigator, "msMaxTouchPoints");
 
-  return Math.max(navigator.maxTouchPoints, P.isNumber(msMaxTouchPoints) ? msMaxTouchPoints : 0);
+  return Math.max(runtimeNavigator.maxTouchPoints, P.isNumber(msMaxTouchPoints) ? msMaxTouchPoints : 0);
 };
 
 const isTouchDevice = (): boolean =>
-  typeof window !== "undefined" && ("ontouchstart" in window || getMaxTouchPoints() > 0);
+  P.isNotUndefined(globalThis.window) && ("ontouchstart" in globalThis.window || getMaxTouchPoints() > 0);
+
+const makeStepModifierState = (event: Partial<ModifierKeyState>): StepModifierState =>
+  Tuple.make(event.shiftKey, pipe(Tuple.make(event.metaKey, event.ctrlKey), A.some(P.isTruthy)));
+
+const getStepRatio = (event: Partial<ModifierKeyState>): number =>
+  pipe(
+    makeStepModifierState(event),
+    (modifierState) =>
+      Tuple.make(
+        pipe(modifierState, O.liftPredicate(isCoarseStepModifier), O.as(10)),
+        pipe(modifierState, O.liftPredicate(isFineStepModifier), O.as(0.1))
+      ),
+    O.firstSomeOf,
+    O.getOrElse(() => 1)
+  );
+
+const isAtLeastMinimumStepFactor = (minimumStepFactor: number): P.Predicate<number> =>
+  P.not((stepFactor) => stepFactor < minimumStepFactor);
 
 const getNodeEnv = (): string | undefined => {
   const runtimeProcess = Reflect.get(globalThis, "process");
@@ -141,6 +168,28 @@ const callAllHandlers =
       }
     });
   };
+
+const getSpinStartProps: {
+  (handlers: Partial<ButtonHandlers> | undefined): (spin: SpinStartHandler) => SpinStartProps;
+  (spin: SpinStartHandler, handlers: Partial<ButtonHandlers> | undefined): SpinStartProps;
+} = dual(
+  2,
+  (spin: SpinStartHandler, handlers: Partial<ButtonHandlers> | undefined): SpinStartProps =>
+    pipe(
+      isTouchDevice(),
+      O.liftPredicate(P.isTruthy),
+      O.map(
+        (): SpinStartProps => ({
+          onTouchStart: callAllHandlers(spin, handlers?.onTouchStart),
+        })
+      ),
+      O.getOrElse(
+        (): SpinStartProps => ({
+          onMouseDown: callAllHandlers(spin, handlers?.onMouseDown),
+        })
+      )
+    )
+);
 
 const useIsFirstMount = () => {
   const isFirstMount = useRef(true);
@@ -219,8 +268,8 @@ export class SpinParams extends S.Class<SpinParams>($I`SpinParams`)(
  * ```
  *
  * @category Utility
- * @param value {string | undefined} - Editable text from the input or parser.
- * @returns {number | undefined} - The parsed numeric value when available.
+ * @param value - Editable text from the input or parser.
+ * @returns The parsed numeric value when available.
  * @since 0.0.0
  */
 export const toNumber = (value: string | undefined): number | undefined =>
@@ -250,9 +299,9 @@ export const toNumber = (value: string | undefined): number | undefined =>
  * ```
  *
  * @category Utility
- * @param value {number | undefined} - Numeric value to render for the input.
- * @param precision {number} - Number of fractional digits to keep.
- * @returns {string} - The formatted text representation for the current input value.
+ * @param value - Numeric value to render for the input.
+ * @param precision - Number of fractional digits to keep.
+ * @returns The formatted text representation for the current input value.
  * @since 0.0.0
  */
 export const numberToString = (value: number | undefined, precision = 0): string =>
@@ -292,28 +341,23 @@ export const numberToString = (value: number | undefined, precision = 0): string
  * ```
  *
  * @category Utility
- * @param event {Partial<ModifierKeyState>} - Modifier-key state captured from the current gesture.
- * @param step {number} - Base step configured for the number input.
- * @param precision {number} - Decimal precision enforced by the number input.
- * @returns {number} - The effective step value for the current gesture.
+ * @param event - Modifier-key state captured from the current gesture.
+ * @param step - Base step configured for the number input.
+ * @param precision - Decimal precision enforced by the number input.
+ * @returns The effective step value for the current gesture.
  * @since 0.0.0
  */
 export const getStepFactor: {
   (step: number, precision: number): (event: Partial<ModifierKeyState>) => number;
   (event: Partial<ModifierKeyState>, step: number, precision: number): number;
 } = dual(3, (event: Partial<ModifierKeyState>, step: number, precision: number): number => {
-  const ratio = Bool.match(event.shiftKey === true, {
-    onTrue: () => 10,
-    onFalse: () =>
-      Bool.match(event.metaKey === true || event.ctrlKey === true, {
-        onTrue: () => 0.1,
-        onFalse: () => 1,
-      }),
-  });
+  const stepFactor = getStepRatio(event) * step;
 
-  const stepFactor = ratio * step;
-
-  return stepFactor < 1 / 10 ** precision ? step : stepFactor;
+  return pipe(
+    stepFactor,
+    O.liftPredicate(isAtLeastMinimumStepFactor(1 / 10 ** precision)),
+    O.getOrElse(() => step)
+  );
 });
 
 /**
@@ -443,21 +487,21 @@ export type UseNumberInputOptions = BoundaryParams &
  * import { useNumberBoundary } from "@beep/ui/hooks/useNumberInput"
  *
  * function Example() {
- *   const boundary = useNumberBoundary({ defaultValue: 1, step: 1 })
  *
- *   return React.createElement("input", {
- *     value: boundary.interfaceValue,
- *     onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
- *       boundary.setInterfaceValue(event.target.value),
- *   })
+ *
+ *
+ *
+ *
+ *
+ *
  * }
  *
  * void Example
  * ```
  *
  * @category React
- * @param options {UseNumberInputOptions} - Number-input boundary and formatting options.
- * @returns {{ numberValue: number | undefined; interfaceValue: string; setInterfaceValue: (value: string) => void; increment: (params?: SpinParams) => void; decrement: (params?: SpinParams) => void }} - Managed numeric and interface state helpers.
+ * @param options - Number-input boundary and formatting options.
+ * @returns Managed numeric and interface state helpers.
  */
 /**
  * Low-level number-input state hook for parsing, formatting, and boundary management.
@@ -560,7 +604,7 @@ export const useNumberInput = (options: UseNumberInputOptions = {}) => {
   const { interfaceValue, setInterfaceValue, numberValue, increment, decrement } = useNumberBoundary(options);
 
   useEffect(() => {
-    if (getNodeEnv() !== "production" && focusInputOnChange && !inputRef.current) {
+    if (getNodeEnv() !== "production" && focusInputOnChange && inputRef.current === null) {
       console.warn(`Cannot find inputRef, make sure to pass it to <input /> like this 👇
 
 function NumberInput() {
@@ -596,7 +640,7 @@ function NumberInput() {
 
     const element = inputRef.current;
 
-    if (element && allowMouseWheel) {
+    if (element !== null && allowMouseWheel) {
       element.addEventListener("wheel", handler, { passive: false });
 
       return () => {
@@ -624,20 +668,18 @@ function NumberInput() {
     event.preventDefault();
     spinner.up({ step: getStepFactor(event, step, precision) });
 
-    Bool.match(focusInputOnChange, {
-      onTrue: () => inputRef.current?.focus(),
-      onFalse: constVoid,
-    });
+    if (focusInputOnChange) {
+      inputRef.current?.focus();
+    }
   };
 
   const spinDown = (event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
     spinner.down({ step: getStepFactor(event, step, precision) });
 
-    Bool.match(focusInputOnChange, {
-      onTrue: () => inputRef.current?.focus(),
-      onFalse: constVoid,
-    });
+    if (focusInputOnChange) {
+      inputRef.current?.focus();
+    }
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -731,14 +773,7 @@ function NumberInput() {
     }),
     getIncrementProps: (handlers?: Partial<ButtonHandlers>) => ({
       tabIndex: -1,
-      ...Bool.match(isTouchDevice(), {
-        onTrue: () => ({
-          onTouchStart: callAllHandlers(spinUp, handlers?.onTouchStart),
-        }),
-        onFalse: () => ({
-          onMouseDown: callAllHandlers(spinUp, handlers?.onMouseDown),
-        }),
-      }),
+      ...getSpinStartProps(spinUp, handlers),
       onMouseUp: callAllHandlers(spinner.stop, handlers?.onMouseUp),
       onMouseLeave: callAllHandlers(spinner.stop, handlers?.onMouseLeave),
       onTouchEnd: callAllHandlers(spinner.stop, handlers?.onTouchEnd),
@@ -747,14 +782,7 @@ function NumberInput() {
     }),
     getDecrementProps: (handlers?: Partial<ButtonHandlers>) => ({
       tabIndex: -1,
-      ...Bool.match(isTouchDevice(), {
-        onTrue: () => ({
-          onTouchStart: callAllHandlers(spinDown, handlers?.onTouchStart),
-        }),
-        onFalse: () => ({
-          onMouseDown: callAllHandlers(spinDown, handlers?.onMouseDown),
-        }),
-      }),
+      ...getSpinStartProps(spinDown, handlers),
       onMouseUp: callAllHandlers(spinner.stop, handlers?.onMouseUp),
       onMouseLeave: callAllHandlers(spinner.stop, handlers?.onMouseLeave),
       onTouchEnd: callAllHandlers(spinner.stop, handlers?.onTouchEnd),

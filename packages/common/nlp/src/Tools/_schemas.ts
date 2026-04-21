@@ -2,7 +2,7 @@
  * AI-facing output models for NLP tools.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/_schemas
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

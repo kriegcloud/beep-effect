@@ -35,6 +35,10 @@
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/shared-tables": ["../../../packages/shared/tables/src/index.ts"],
+      "@beep/shared-tables/*": ["../../../packages/shared/tables/src/*.ts"],
+      "@beep/test-utils": ["../../../tooling/test-utils/src/index.ts"],
+      "@beep/test-utils/*": ["../../../tooling/test-utils/src/*.ts"],
       "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
       "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
     }

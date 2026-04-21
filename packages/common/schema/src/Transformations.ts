@@ -1,7 +1,7 @@
 /**
  * Lossy schema transformation helpers.
  *
- * @module @beep/schema/Transformations
+ * @module
  * @since 0.0.0
  */
 

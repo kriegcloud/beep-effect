@@ -2,7 +2,7 @@
  * LearnCustomEntities tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/LearnCustomEntities
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

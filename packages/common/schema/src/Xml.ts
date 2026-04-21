@@ -1,7 +1,7 @@
 /**
  * XML parsing and schema transforms.
  *
- * @module @beep/schema/Xml
+ * @module
  * @since 0.0.0
  */
 
@@ -65,10 +65,10 @@ const decodeXmlUnknown = Effect.fn("Xml.decodeXmlUnknown")(function* (content: s
  * import { XmlTextToUnknown } from "@beep/schema/Xml"
  *
  * const program = Effect.gen(function* () {
- *   const parsed = yield* S.decodeUnknownEffect(XmlTextToUnknown)(
- *     "<root><name>Alice</name></root>"
- *   )
- *   return parsed
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -105,8 +105,8 @@ export const XmlTextToUnknown = S.String.pipe(
  * const decodeDoc = decodeXmlTextAs(Doc)
  *
  * const program = Effect.gen(function* () {
- *   const doc = yield* decodeDoc("<root><name>Alice</name></root>")
- *   return doc
+ *
+ *
  * })
  * void program
  * ```

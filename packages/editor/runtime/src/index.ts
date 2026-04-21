@@ -539,8 +539,8 @@ const launchEditorSidecar = (config: EditorRuntimeConfig, startedAt: DateTime.Ut
 /**
  * Launch the editor control plane and keep it alive until interrupted.
  *
- * @param config {EditorRuntimeConfig} - Startup configuration for the editor sidecar runtime.
- * @returns {Effect.Effect<void, EditorRuntimeError>} - An Effect that runs the editor sidecar until shutdown is requested.
+ * @param config - Startup configuration for the editor sidecar runtime.
+ * @returns An Effect that runs the editor sidecar until shutdown is requested.
  *
  * @since 0.0.0
  * @category DomainLogic
@@ -590,7 +590,7 @@ export const runEditorRuntime = Effect.fn("EditorRuntime.run")(function* (config
 /**
  * Load editor runtime configuration from the process environment.
  *
- * @returns {Effect.Effect<EditorRuntimeConfig, Config.ConfigError, Path.Path>} - An Effect that resolves with the decoded runtime configuration.
+ * @returns An Effect that resolves with the decoded runtime configuration.
  *
  * @since 0.0.0
  * @category Configuration

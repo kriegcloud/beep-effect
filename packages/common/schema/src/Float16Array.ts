@@ -8,13 +8,14 @@
  *
  * This module requires a runtime that exposes `globalThis.Float16Array`.
  *
- * @module @beep/schema/Float16Array
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema/TaggedErrorClass";
 import { SchemaTransformation } from "effect";
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { Model } from "effect/unstable/schema";
 
@@ -36,7 +37,7 @@ class UnsupportedFloat16ArrayRuntimeError extends TaggedErrorClass<UnsupportedFl
 ) {}
 
 const unsupportedFloat16ArrayRuntime = (): never => {
-  throw UnsupportedFloat16ArrayRuntimeError.new({
+  throw new UnsupportedFloat16ArrayRuntimeError({
     message: unsupportedFloat16ArrayRuntimeMessage,
   });
 };
@@ -48,7 +49,7 @@ const unsupportedFloat16ArrayRuntime = (): never => {
  * @since 0.0.0
  */
 export const isFloat16Array = (u: unknown): u is Float16Array<ArrayBufferLike> =>
-  typeof float16ArrayConstructor !== "undefined" && u instanceof float16ArrayConstructor;
+  P.isNotUndefined(float16ArrayConstructor) && u instanceof float16ArrayConstructor;
 
 /**
  * Schema that accepts native `Float16Array` instances.
@@ -114,7 +115,7 @@ export const Float16ArrayFromArray = S.Number.pipe(
     Float16Arr,
     SchemaTransformation.transform({
       decode: (values) =>
-        typeof float16ArrayConstructor === "undefined"
+        P.isUndefined(float16ArrayConstructor)
           ? unsupportedFloat16ArrayRuntime()
           : (new float16ArrayConstructor(values) as Float16Array<ArrayBufferLike>),
       encode: A.fromIterable,

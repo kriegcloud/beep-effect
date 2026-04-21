@@ -223,9 +223,11 @@ const matchDocumentBlock: {
  * @since 0.0.0
  * @category DomainModel
  */
-export const DocumentBlock = Object.assign(DocumentBlockSchema, {
-  match: matchDocumentBlock,
-});
+export const DocumentBlock = DocumentBlockSchema.pipe(
+  SchemaUtils.withStatics(() => ({
+    match: matchDocumentBlock,
+  }))
+);
 /**
  * @since 0.0.0
  * @category DomainModel
@@ -409,8 +411,8 @@ const extractBlockLinks = (text: string): ReadonlyArray<PageLinkRef> => {
 /**
  * Normalize free-form text into a canonical page slug.
  *
- * @param input {string} - The free-form page label to normalize.
- * @returns {Slug} - The normalized canonical page slug.
+ * @param input - The free-form page label to normalize.
+ * @returns The normalized canonical page slug.
  *
  * @since 0.0.0
  * @category Helpers
@@ -433,8 +435,8 @@ export const normalizePageSlug = (input: string): Slug =>
 /**
  * Construct a stable paragraph block.
  *
- * @param text {string} - The paragraph text content.
- * @returns {ParagraphBlock} - A canonical paragraph block with a stable identifier.
+ * @param text - The paragraph text content.
+ * @returns A canonical paragraph block with a stable identifier.
  *
  * @since 0.0.0
  * @category Helpers
@@ -448,9 +450,9 @@ export const makeParagraphBlock = (text: string): ParagraphBlock =>
 /**
  * Construct a stable heading block.
  *
- * @param text {string} - The heading text content.
- * @param level {HeadingLevel} - The heading depth for the block.
- * @returns {HeadingBlock} - A canonical heading block with a stable identifier.
+ * @param text - The heading text content.
+ * @param level - The heading depth for the block.
+ * @returns A canonical heading block with a stable identifier.
  *
  * @since 0.0.0
  * @category Helpers
@@ -465,8 +467,8 @@ export const makeHeadingBlock = (text: string, level: HeadingLevel = 1): Heading
 /**
  * Construct a stable quote block.
  *
- * @param text {string} - The quote text content.
- * @returns {QuoteBlock} - A canonical quote block with a stable identifier.
+ * @param text - The quote text content.
+ * @returns A canonical quote block with a stable identifier.
  *
  * @since 0.0.0
  * @category Helpers
@@ -480,8 +482,8 @@ export const makeQuoteBlock = (text: string): QuoteBlock =>
 /**
  * Extract outbound page references from a canonical page document.
  *
- * @param page {PageDocument} - The page document to inspect.
- * @returns {ReadonlyArray<PageLinkRef>} - The outbound page references extracted from the page blocks.
+ * @param page - The page document to inspect.
+ * @returns The outbound page references extracted from the page blocks.
  *
  * @since 0.0.0
  * @category Helpers
@@ -492,8 +494,8 @@ export const extractPageLinks = (page: PageDocument): ReadonlyArray<PageLinkRef>
 /**
  * Render a canonical page to plain text for search and previews.
  *
- * @param page {PageDocument} - The page document to render.
- * @returns {string} - The plain-text projection of the page.
+ * @param page - The page document to render.
+ * @returns The plain-text projection of the page.
  *
  * @since 0.0.0
  * @category Helpers
@@ -503,8 +505,8 @@ export const pageToPlainText = (page: PageDocument): string => pipe(page.blocks,
 /**
  * Render a canonical page to Markdown.
  *
- * @param page {PageDocument} - The page document to render.
- * @returns {string} - The Markdown projection of the page.
+ * @param page - The page document to render.
+ * @returns The Markdown projection of the page.
  *
  * @since 0.0.0
  * @category Helpers
@@ -515,8 +517,8 @@ export const pageToMarkdown = (page: PageDocument): string =>
 /**
  * Resolve the persisted file extension for an export format.
  *
- * @param format {ExportFormat} - The canonical export format.
- * @returns {"json" | "md"} - The file extension for the exported artifact.
+ * @param format - The canonical export format.
+ * @returns The file extension for the exported artifact.
  *
  * @since 0.0.0
  * @category Helpers
@@ -526,8 +528,8 @@ export const exportPageExtension = (format: ExportFormat): "json" | "md" => expo
 /**
  * Resolve the MIME type for an export format.
  *
- * @param format {ExportFormat} - The canonical export format.
- * @returns {"application/json" | "text/markdown"} - The MIME type for the exported artifact.
+ * @param format - The canonical export format.
+ * @returns The MIME type for the exported artifact.
  *
  * @since 0.0.0
  * @category Helpers
@@ -541,9 +543,9 @@ export const exportPageMimeType = (format: ExportFormat): "application/json" | "
 /**
  * Materialize an export payload from a canonical page document.
  *
- * @param page {PageDocument} - The page document to export.
- * @param format {ExportFormat} - The desired export format.
- * @returns {PageExport} - The export payload materialized from the page document.
+ * @param page - The page document to export.
+ * @param format - The desired export format.
+ * @returns The export payload materialized from the page document.
  *
  * @since 0.0.0
  * @category Helpers
@@ -560,8 +562,8 @@ export const pageToExport = (page: PageDocument, format: ExportFormat): PageExpo
 /**
  * Create a new canonical page document with normalized slug and derived outbound links.
  *
- * @param input {object} - Page construction inputs containing title, optional slug, blocks, and timestamp.
- * @returns {PageDocument} - The newly created canonical page document.
+ * @param input - Page construction inputs containing title, optional slug, blocks, and timestamp.
+ * @returns The newly created canonical page document.
  *
  * @since 0.0.0
  * @category Helpers
@@ -586,9 +588,9 @@ export const createPageDocument = (input: {
 /**
  * Produce a lightweight page summary.
  *
- * @param page {PageDocument} - The page document to summarize.
- * @param backlinkCount {number} - The number of backlinks pointing to the page.
- * @returns {PageSummary} - The summary projection for list and search surfaces.
+ * @param page - The page document to summarize.
+ * @param backlinkCount - The number of backlinks pointing to the page.
+ * @returns The summary projection for list and search surfaces.
  *
  * @since 0.0.0
  * @category Helpers
@@ -607,9 +609,9 @@ export const makePageSummary = (page: PageDocument, backlinkCount: number): Page
 /**
  * Update a page document while preserving creation time and refreshing derived fields.
  *
- * @param page {PageDocument} - The existing page document.
- * @param input {object} - Replacement title, slug, blocks, and update timestamp.
- * @returns {PageDocument} - The refreshed canonical page document.
+ * @param page - The existing page document.
+ * @param input - Replacement title, slug, blocks, and update timestamp.
+ * @returns The refreshed canonical page document.
  *
  * @since 0.0.0
  * @category Helpers
@@ -638,10 +640,10 @@ export const refreshPageDocument = (
 /**
  * Create an immutable revision record from a page save.
  *
- * @param page {PageDocument} - The saved page document snapshot.
- * @param savedAt {DateTime.Utc} - The timestamp when the save completed.
- * @param reason {string} - The save reason captured with the revision.
- * @returns {RevisionRecord} - The immutable revision record.
+ * @param page - The saved page document snapshot.
+ * @param savedAt - The timestamp when the save completed.
+ * @param reason - The save reason captured with the revision.
+ * @returns The immutable revision record.
  *
  * @since 0.0.0
  * @category Helpers
@@ -659,8 +661,8 @@ export const makeRevisionRecord = (page: PageDocument, savedAt: DateTime.Utc, re
 /**
  * Create a new workspace manifest.
  *
- * @param input {object} - Workspace construction inputs containing name, optional root slug, and timestamp.
- * @returns {WorkspaceManifest} - The newly created workspace manifest.
+ * @param input - Workspace construction inputs containing name, optional root slug, and timestamp.
+ * @returns The newly created workspace manifest.
  *
  * @since 0.0.0
  * @category Helpers

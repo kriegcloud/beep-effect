@@ -50,34 +50,31 @@ const applyLoaderBaseIri = (
   pipe(
     loaderPolicy,
     O.flatMap((policy) => policy.baseIri),
-    O.match({
-      onNone: () => document,
-      onSome: (baseIri) =>
-        JsonLdDocument.make({
-          "@context": pipe(
+    O.map((baseIri) =>
+      JsonLdDocument.make({
+        "@context": O.some(
+          pipe(
             document["@context"],
-            O.match({
-              onNone: () =>
-                O.some(
-                  JsonLdContext.make({
-                    "@base": O.some(baseIri),
-                    "@vocab": O.none(),
-                    terms: {},
-                  })
-                ),
-              onSome: (context) =>
-                O.some(
-                  JsonLdContext.make({
-                    "@base": O.some(baseIri),
-                    "@vocab": context["@vocab"],
-                    terms: context.terms,
-                  })
-                ),
-            })
-          ),
-          "@graph": document["@graph"],
-        }),
-    })
+            O.map((context) =>
+              JsonLdContext.make({
+                "@base": O.some(baseIri),
+                "@vocab": context["@vocab"],
+                terms: context.terms,
+              })
+            ),
+            O.getOrElse(() =>
+              JsonLdContext.make({
+                "@base": O.some(baseIri),
+                "@vocab": O.none(),
+                terms: {},
+              })
+            )
+          )
+        ),
+        "@graph": document["@graph"],
+      })
+    ),
+    O.getOrElse(() => document)
   );
 
 /**
@@ -93,7 +90,12 @@ export const JsonLdStreamParseServiceLive = Layer.effect(
 
     return JsonLdStreamParseService.of({
       parse: Effect.fn(function* (request) {
-        if (O.isSome(request.loaderPolicy) && request.loaderPolicy.value.allowRemoteDocuments) {
+        if (
+          pipe(
+            request.loaderPolicy,
+            O.exists((policy) => policy.allowRemoteDocuments)
+          )
+        ) {
           return yield* new JsonLdStreamParseError({
             reason: "loaderPolicyViolation",
             message: "Remote JSON-LD document loading is outside the bounded v1 stream-parse adapter surface.",

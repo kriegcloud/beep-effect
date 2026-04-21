@@ -1,6 +1,6 @@
 import {
   LoggingConfig,
-  ObservabilityCoreConfig,
+  type ObservabilityCoreConfig,
   PrettyLoggerConfig,
   renderLogBanner,
   statusClass,
@@ -10,12 +10,12 @@ import {
 import { layerWebSdk, WebObservabilityConfig } from "@beep/observability/web";
 import { Cause, Exit } from "effect";
 
-const coreConfig = new ObservabilityCoreConfig({
+const coreConfig = {
   serviceName: "beep-web",
   serviceVersion: "0.0.0",
   environment: "test",
   minLogLevel: "Info",
-});
+} satisfies ObservabilityCoreConfig;
 
 const loggingConfig = new LoggingConfig({
   format: "pretty",

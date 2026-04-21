@@ -58,7 +58,7 @@ run_changeset_status() {
   fi
 
   log "quality: changeset status"
-  bunx changeset status --since=origin/main
+  bun run changeset:status:since-main
 }
 
 run_quality() {
@@ -68,7 +68,7 @@ run_quality() {
   run_with_local_env bun run build:ci
 
   log "quality: type check"
-  bun run check
+  bun run check:all
 
   log "quality: lint"
   bun run lint
@@ -79,11 +79,8 @@ run_quality() {
   log "quality: test"
   bun run test
 
-  log "quality: syncpack"
-  bunx syncpack lint
-
-  log "quality: audit"
-  bun run audit:high:ci
+  log "quality: repo sanity"
+  bun run repo-sanity:ci
 
   run_changeset_status
 }

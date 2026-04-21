@@ -2,7 +2,7 @@
  * Compatibility layer composition helpers for the ported NLP package.
  *
  * @since 0.0.0
- * @module @beep/nlp/Layers
+ * @module
  */
 
 import { Layer } from "effect";

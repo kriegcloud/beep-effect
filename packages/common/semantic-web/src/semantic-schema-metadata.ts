@@ -7,6 +7,9 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import * as A from "effect/Array";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $SemanticWebId.create("semantic-schema-metadata");
@@ -16,10 +19,11 @@ const $I = $SemanticWebId.create("semantic-schema-metadata");
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { SemanticSchemaMetadataKind } from "@beep/semantic-web/semantic-schema-metadata"
  *
- * console.log(SemanticSchemaMetadataKind.Guard("identifier")) // true
- * console.log(SemanticSchemaMetadataKind.Guard("unknown")) // false
+ * console.log(S.is(SemanticSchemaMetadataKind)("identifier")) // true
+ * console.log(S.is(SemanticSchemaMetadataKind)("unknown")) // false
  * ```
  *
  * @since 0.0.0
@@ -207,12 +211,12 @@ const decodeSemanticSchemaMetadata = S.decodeUnknownSync(SemanticSchemaMetadata)
  * import { makeSemanticSchemaMetadata } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const metadata = makeSemanticSchemaMetadata({
- *   kind: "identifier",
- *   canonicalName: "MyId",
- *   overview: "A custom identifier.",
- *   status: "stable",
- *   specifications: [{ name: "Internal", disposition: "informative" }],
- *   equivalenceBasis: "String equality.",
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * console.log(metadata.kind) // "identifier"
  * ```
@@ -235,12 +239,12 @@ export const makeSemanticSchemaMetadata = (
  * import { annotateSemanticSchema } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const MySchema = annotateSemanticSchema(S.String, {
- *   kind: "identifier",
- *   canonicalName: "MyString",
- *   overview: "A semantic string.",
- *   status: "stable",
- *   specifications: [{ name: "Internal", disposition: "informative" }],
- *   equivalenceBasis: "String equality.",
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * void MySchema
  * ```
@@ -258,19 +262,36 @@ export const annotateSemanticSchema = <Schema extends S.Top>(
 
 const hasAnnotationsRecord = (
   value: unknown
-): value is {
+): value is Readonly<Record<string, unknown>> & {
   annotations?:
     | {
         semanticSchemaMetadata?: SemanticSchemaMetadataAnnotationPayload | undefined;
       }
     | undefined;
-} => typeof value === "object" && value !== null;
+} => P.isObject(value);
 
 const findSemanticSchemaMetadata = (
   value: unknown,
   visited: WeakSet<object>
 ): SemanticSchemaMetadataAnnotationPayload | undefined => {
-  if (typeof value !== "object" || value === null) {
+  if (A.isArray(value)) {
+    if (visited.has(value)) {
+      return;
+    }
+
+    visited.add(value);
+
+    for (const nested of value) {
+      const metadata = findSemanticSchemaMetadata(nested, visited);
+      if (metadata !== undefined) {
+        return metadata;
+      }
+    }
+
+    return;
+  }
+
+  if (!P.isObject(value)) {
     return;
   }
 
@@ -284,7 +305,7 @@ const findSemanticSchemaMetadata = (
     return value.annotations.semanticSchemaMetadata;
   }
 
-  for (const nested of Object.values(value)) {
+  for (const nested of R.values(value)) {
     const metadata = findSemanticSchemaMetadata(nested, visited);
     if (metadata !== undefined) {
       return metadata;

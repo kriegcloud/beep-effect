@@ -1,7 +1,7 @@
 /**
  * Blockchain validation schemas.
  *
- * @module @beep/schema/blockchain
+ * @module
  * @since 0.0.0
  */
 

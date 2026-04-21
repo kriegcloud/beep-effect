@@ -2,7 +2,7 @@
  * Schema-first NLP pattern model.
  *
  * @since 0.0.0
- * @module @beep/nlp/Core/Pattern
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";
@@ -330,32 +330,38 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   /**
    * POS element helpers.
    */
-  static readonly POS = Object.assign(POSPatternElement, {
-    decode: S.decodeUnknownSync(POSPatternElement),
-    encode: S.encodeSync(POSPatternElement),
-    is: S.is(POSPatternElement),
-    toBracketString: (value: POSPatternOption): string => renderBracketString(value),
-  });
+  static readonly POS = POSPatternElement.pipe(
+    SchemaUtils.withStatics(() => ({
+      decode: S.decodeUnknownSync(POSPatternElement),
+      encode: S.encodeSync(POSPatternElement),
+      is: S.is(POSPatternElement),
+      toBracketString: (value: POSPatternOption): string => renderBracketString(value),
+    }))
+  );
 
   /**
    * Entity element helpers.
    */
-  static readonly Entity = Object.assign(EntityPatternElement, {
-    decode: S.decodeUnknownSync(EntityPatternElement),
-    encode: S.encodeSync(EntityPatternElement),
-    is: S.is(EntityPatternElement),
-    toBracketString: (value: EntityPatternOption): string => renderBracketString(value),
-  });
+  static readonly Entity = EntityPatternElement.pipe(
+    SchemaUtils.withStatics(() => ({
+      decode: S.decodeUnknownSync(EntityPatternElement),
+      encode: S.encodeSync(EntityPatternElement),
+      is: S.is(EntityPatternElement),
+      toBracketString: (value: EntityPatternOption): string => renderBracketString(value),
+    }))
+  );
 
   /**
    * Literal element helpers.
    */
-  static readonly Literal = Object.assign(LiteralPatternElement, {
-    decode: S.decodeUnknownSync(LiteralPatternElement),
-    encode: S.encodeSync(LiteralPatternElement),
-    is: S.is(LiteralPatternElement),
-    toBracketString: (value: LiteralPatternOption): string => renderBracketString(value),
-  });
+  static readonly Literal = LiteralPatternElement.pipe(
+    SchemaUtils.withStatics(() => ({
+      decode: S.decodeUnknownSync(LiteralPatternElement),
+      encode: S.encodeSync(LiteralPatternElement),
+      is: S.is(LiteralPatternElement),
+      toBracketString: (value: LiteralPatternOption): string => renderBracketString(value),
+    }))
+  );
 
   /**
    * Encode a pattern into its schema representation.

@@ -1,7 +1,7 @@
 /**
  * A module containing utilities for interacting with the file system.
  *
- * @module @beep/utils/FileSystem
+ * @module
  * @since 0.0.0
  */
 
@@ -29,9 +29,9 @@ import { dual } from "effect/Function";
  * import { makeWaitForFile } from "@beep/utils/FileSystem"
  *
  * const program = Effect.gen(function* () {
- *   const waitForFile = yield* makeWaitForFile
  *
- *   return yield* waitForFile("/tmp", "done.txt")
+ *
+ *
  * })
  *
  * void program

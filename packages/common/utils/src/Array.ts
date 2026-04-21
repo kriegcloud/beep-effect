@@ -211,16 +211,16 @@ export const mapNonEmptyReadonly: {
  *
  * // Data-first
  * const expanded = A.flatMapNonEmptyReadonly(
- *   items,
- *   (s): A.NonEmptyReadonlyArray<string> => [s, s.toUpperCase()]
+ *
+ *
  * )
  *
  * // Data-last (pipeable)
  * const doubled = pipe(
- *   items,
- *   A.flatMapNonEmptyReadonly(
- *     (s): A.NonEmptyReadonlyArray<string> => [s, s]
- *   )
+ *
+ *
+ *
+ *
  * )
  *
  * void expanded
@@ -298,4 +298,4 @@ export const makeReadonly = <T>(a: T | Array<T>): ReadonlyArray<T> => A.ensure(a
  * @since 0.0.0
  */
 export const fromIterableNonEmpty = <const TArray>(collection: Iterable<TArray>): A.NonEmptyReadonlyArray<TArray> =>
-  asNonEmptyReadonlyArray(Array.from(collection));
+  asNonEmptyReadonlyArray(A.fromIterable(collection));

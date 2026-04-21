@@ -6,7 +6,7 @@
  * instances, but JSON create and update payloads still need a plain array-of-
  * numbers representation.
  *
- * @module @beep/schema/Float32Array
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

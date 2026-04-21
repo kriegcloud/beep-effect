@@ -4,7 +4,7 @@
 
 import type { IdentityComposer, SegmentValue } from "@beep/identity";
 import { $SharedDomainId } from "@beep/identity/packages";
-import { CONSTANTS } from "@beep/schema/Sql/Constants";
+import { SchemaUtils } from "@beep/schema";
 import type { TString } from "@beep/types";
 import { flow } from "effect";
 import * as S from "effect/Schema";
@@ -12,51 +12,51 @@ import * as S from "effect/Schema";
 const $I = $SharedDomainId.create("EntityId");
 
 /**
- * Maximum value for a PostgreSQL 4-byte serial column.
+ * Maximum value for a positive JavaScript safe integer-backed entity id.
  *
  * @since 0.0.0
  * @category Configuration
  */
-export const PG_SERIAL_MAX = CONSTANTS.INT32_MAX;
+export const ENTITY_ID_SAFE_MAX = Number.MAX_SAFE_INTEGER;
 
 /**
- * Range filter constraining a number to the PostgreSQL serial range (1 to 2,147,483,647).
+ * Range filter constraining a number to the supported entity-id range.
  *
  * @since 0.0.0
  * @category Validation
  */
-export const isSerialRange = S.isBetween({ minimum: 1, maximum: PG_SERIAL_MAX });
+export const isEntityIdValueRange = S.isBetween({ minimum: 1, maximum: ENTITY_ID_SAFE_MAX });
 
 /**
- * Branded schema for a PostgreSQL serial (auto-incrementing 4-byte signed integer).
+ * Branded schema for a storage-neutral positive integer entity id.
  *
  * Validates:
  * - Safe integer (no fractional values)
  * - Minimum value of 1 (auto-increment starts at 1)
- * - Maximum value of 2,147,483,647 (4-byte signed integer upper bound)
+ * - Maximum value of `Number.MAX_SAFE_INTEGER`
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export const PgSerial = S.Int.check(isSerialRange).pipe(
-  S.brand("PgSerial"),
+export const EntityIdValue = S.Int.check(isEntityIdValueRange).pipe(
+  S.brand("EntityIdValue"),
   S.annotate(
-    $I.annote("PgSerial", {
-      description: "A PostgreSQL serial (auto-incrementing 4-byte integer, 1 to 2,147,483,647)",
+    $I.annote("EntityIdValue", {
+      description: "A storage-neutral positive safe integer entity id value.",
     })
   )
 );
 
 /**
- * Type for {@link PgSerial}.
+ * Type for {@link EntityIdValue}.
  *
  * @since 0.0.0
  * @category DomainModel
  */
-export type PgSerial = typeof PgSerial.Type;
+export type EntityIdValue = typeof EntityIdValue.Type;
 
 /**
- * Schema class describing an entity-id definition.
+ * Schema class describing an entity-id schema definition.
  *
  * @since 0.0.0
  * @category DomainModel
@@ -70,7 +70,7 @@ export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdD
     description: S.String,
   },
   $I.annote("EntityIdDefinition", {
-    description: "A branded schema for a PostgreSQL serial (auto-incrementing 4-byte integer, 1 to 2,147,483,647)",
+    description: "A branded schema definition for a storage-neutral integer entity id.",
   })
 ) {
   static readonly assert: (i: unknown) => asserts i is S.Schema.Type<EntityId.Any> = (
@@ -94,9 +94,8 @@ export declare namespace EntityId {
     TTag extends TString.NonEmpty,
     TTableName extends TString.NonEmpty,
     TSlice extends TString.NonEmpty,
-  > extends S.brand<S.brand<S.Int, "PgSerial">, TTag> {
+  > extends S.brand<S.brand<S.Int, "EntityIdValue">, TTag> {
     _tag: SegmentValue<TTag>;
-    dataType: "int";
     slice: TSlice;
     tableName: TTableName;
   }
@@ -156,19 +155,18 @@ export const make =
     identity: IdentityComposer<`@beep/shared-domain/entity-ids/${TSlice}`>
   ) =>
   (_tag: SegmentValue<TTag>, opts: EntityId.Options<TTableName>): EntityId.Instance<TTag, TTableName, TSlice> => {
-    const base = PgSerial.pipe(S.brand(_tag));
-
-    const instance = Object.assign(base, {
-      _tag,
-      tableName: opts.tableName,
-      slice: slice,
-      dataType: "int" as const,
-    }).pipe(
+    const instance = EntityIdValue.pipe(
+      S.brand(_tag),
       S.annotate(
         identity.annote(_tag, {
           description: `The entity ID for ${opts.tableName} in the ${slice}`,
         })
-      )
+      ),
+      SchemaUtils.withStatics(() => ({
+        _tag,
+        tableName: opts.tableName,
+        slice,
+      }))
     );
     EntityIdDefinition.assert(instance);
     return instance;

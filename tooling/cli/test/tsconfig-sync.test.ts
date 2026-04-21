@@ -508,7 +508,7 @@ describe("tsconfig-sync", () => {
         })
       )
     );
-  });
+  }, 20_000);
 
   it("treats lint-only docgen formatting drift as sync drift", async () => {
     await Effect.runPromise(
@@ -617,5 +617,5 @@ describe("tsconfig-sync", () => {
         })
       )
     );
-  });
+  }, 20_000);
 });

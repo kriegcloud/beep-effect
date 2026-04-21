@@ -1,11 +1,13 @@
 /**
  * Attach static methods to a schema.
  *
- * @module @beep/schema/utils/withStatics
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
 import { Function as Fn } from "effect";
+import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("SchemaUtils/withStatics");
@@ -30,7 +32,7 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
   const originalAnnotate = Reflect.get(schema, "annotate");
   const statics = methods(schema);
 
-  for (const [key, descriptor] of Object.entries(Object.getOwnPropertyDescriptors(statics))) {
+  for (const [key, descriptor] of R.toEntries(Object.getOwnPropertyDescriptors(statics))) {
     const existing = Reflect.getOwnPropertyDescriptor(schema, key);
     const nextValue = "value" in descriptor ? descriptor.value : Reflect.get(statics, key);
 
@@ -52,7 +54,7 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
     Reflect.defineProperty(schema, key, descriptor);
   }
 
-  if (typeof originalAnnotate === "function") {
+  if (P.isFunction(originalAnnotate)) {
     Reflect.defineProperty(schema, "annotate", {
       value(annotation: unknown) {
         return attachStatics(originalAnnotate.call(schema, annotation), methods);
@@ -75,9 +77,9 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
  * import { withStatics } from "@beep/schema/SchemaUtils/withStatics"
  *
  * const MySchema = S.String.pipe(
- *   withStatics(() => ({
- *     empty: "" as const,
- *   }))
+ *
+ *
+ *
  * )
  *
  * void MySchema.empty

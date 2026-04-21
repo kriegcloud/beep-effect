@@ -26,15 +26,18 @@ const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
  *
  * @example
  * ```typescript
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
  * import { HttpApiTelemetryDescriptor } from "@beep/observability/server"
  *
+ * const successStatus = S.decodeUnknownSync(NonNegativeInt)(201)
  * const descriptor = new HttpApiTelemetryDescriptor({
- *   apiName: "TodoApi",
- *   groupName: "Todos",
- *   endpointName: "createTodo",
- *   method: "POST",
- *   route: "/todos",
- *   successStatus: 201,
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -98,12 +101,12 @@ const httpApiErrorStatus = (schema: S.Top, fallback = 500): NonNegativeInt =>
   decodeNonNegativeInt(resolveHttpApiStatus(schema.ast) ?? fallback);
 
 const endpointSuccessSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): ReadonlyArray<S.Top> => {
-  const schemas = Array.from(endpoint.success);
-  return schemas.length > 0 ? schemas : [HttpApiSchema.NoContent];
+  const schemas = A.fromIterable(endpoint.success);
+  return A.isReadonlyArrayNonEmpty(schemas) ? schemas : A.make(HttpApiSchema.NoContent);
 };
 
 const endpointErrorSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): ReadonlyArray<S.Top> => {
-  let schemas = Array.from(endpoint.error);
+  let schemas = A.fromIterable(endpoint.error);
   const containsSchema = A.containsWith<S.Top>((left, right) => left === right);
 
   for (const middleware of endpoint.middlewares) {
@@ -266,9 +269,9 @@ export const httpApiFailureStatus = (endpoint: HttpApiEndpoint.AnyWithProps, err
  * ```typescript
  * import { Effect } from "effect"
  * import {
- *   HttpApiTelemetryDescriptor,
- *   makeHttpApiMetrics,
- *   observeHttpApiEffect,
+ *
+ *
+ *
  * } from "@beep/observability/server"
  * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
@@ -364,8 +367,8 @@ export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpAp
  *
  * const metrics = makeHttpApiMetrics("todox_api")
  * const TelemetryLive = layerHttpApiTelemetryMiddleware({
- *   apiName: "TodoApi",
- *   metrics,
+ *
+ *
  * })
  * ```
  *
@@ -391,9 +394,9 @@ export const layerHttpApiTelemetryMiddleware = (
  * ```typescript
  * import { Effect } from "effect"
  * import {
- *   HttpApiTelemetryDescriptor,
- *   makeHttpApiMetrics,
- *   observeHttpApiHandler,
+ *
+ *
+ *
  * } from "@beep/observability/server"
  *
  * declare const descriptor: HttpApiTelemetryDescriptor

@@ -2,7 +2,7 @@
  * Schemas for Effect `Graph` values and graph-adjacent primitives.
  *
  * @since 0.0.0
- * @module @beep/schema/Graph
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -633,12 +633,12 @@ export const EdgeTransform = <Data extends S.Top>(data: Data): EdgeTransform<Dat
  * const EdgeSchema = Edge(S.String)
  *
  * const program = Effect.gen(function* () {
- *   const edge = yield* S.decodeUnknownEffect(EdgeSchema)({
- *     source: 0,
- *     target: 1,
- *     data: "likes"
- *   })
- *   return edge
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -1148,13 +1148,13 @@ const makeGraphTransform = <Node extends S.Top, Edge extends S.Top>(
  * const GraphSchema = DirectedGraph({ node: S.String, edge: S.Number })
  *
  * const program = Effect.gen(function* () {
- *   const graph = yield* S.decodeUnknownEffect(GraphSchema)({
- *     _tag: "Graph",
- *     type: "directed",
- *     nodes: [[0, "A"], [1, "B"]],
- *     edges: [{ index: 0, source: 0, target: 1, data: 42 }]
- *   })
- *   return graph
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *

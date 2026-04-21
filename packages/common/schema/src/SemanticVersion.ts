@@ -11,7 +11,7 @@
  * console.log(version);
  * ```
  *
- * @module @beep/schema/SemanticVersion
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -59,7 +59,7 @@ export const SemanticVersion = S.TemplateLiteral([
 );
 
 /**
- * Type for {@link SemanticVersion}. {@inheritDoc SemanticVersion}
+ * {@inheritDoc SemanticVersion}
  *
  * @example
  * ```typescript

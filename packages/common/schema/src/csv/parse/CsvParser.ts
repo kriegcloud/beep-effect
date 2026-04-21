@@ -1,7 +1,7 @@
 /**
  * Whole-text CSV parsing helpers.
  *
- * @module @beep/schema/csv/parse/CsvParser
+ * @module
  * @since 0.0.0
  */
 

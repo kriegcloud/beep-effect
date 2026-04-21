@@ -4,6 +4,7 @@ import { Console, Effect, Order, pipe, Terminal } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
+import { provideLayerScoped } from "../../internal/runtime.ts";
 import { type PatternDefinition, PatternLevelOrder } from "../../patterns/schema.ts";
 import { findMatches, HookInput, loadPatterns } from "./core.ts";
 
@@ -64,9 +65,4 @@ const program = Effect.gen(function* () {
   }
 });
 
-BunRuntime.runMain(
-  program.pipe(
-    Effect.catch(() => Effect.void),
-    Effect.provide(BunServices.layer)
-  )
-);
+BunRuntime.runMain(Effect.scoped(provideLayerScoped(program.pipe(Effect.catch(() => Effect.void)), BunServices.layer)));

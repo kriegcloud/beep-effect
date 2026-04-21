@@ -306,17 +306,43 @@ describe("Schema", () => {
     })
 
     describe("Class", () => {
+      it("make with void input", () => {
+        class A extends Schema.Class<A>("A")({}) {}
+        expect(A.make).type.toBe<Make<void | {}, A>>()
+      })
+
       it("nested defaulted fields", () => {
         class A extends Schema.Class<A, { readonly brand: unique symbol }>("A")(Schema.Struct({
           a: Schema.Struct({
             b: Schema.Finite.pipe(Schema.withConstructorDefault(Effect.succeed(-1)))
           }).pipe(Schema.withConstructorDefault(Effect.succeed({})))
         })) {}
-        expect(A.make).type.toBe<Make<{ readonly a?: { readonly b?: number } }, A>>()
+        expect(A.make).type.toBe<Make<void | { readonly a?: { readonly b?: number } }, A>>()
         const schema = Schema.Struct({
           a: A
         })
         expect(schema.make).type.toBe<Make<{ readonly a: A }, { readonly a: A }>>()
+      })
+    })
+
+    describe("TaggedClass", () => {
+      it("make with void input", () => {
+        class A extends Schema.TaggedClass<A>()("A", {}) {}
+        expect(A.make).type.toBe<Make<void | { readonly _tag?: "A" }, A>>()
+      })
+    })
+
+    describe("ErrorClass", () => {
+      it("make with void input", () => {
+        class E extends Schema.ErrorClass<E>("E")({}) {}
+        expect(E.make).type.toBe<Make<void | {}, E>>()
+      })
+    })
+
+    describe("TaggedErrorClass", () => {
+      it("make with void input", () => {
+        class E extends Schema.TaggedErrorClass<E>()("E", {}) {}
+        expect(E.make).type.toBe<Make<void | { readonly _tag?: "E" }, E>>()
       })
     })
 
@@ -452,6 +478,33 @@ describe("Schema", () => {
       expect(Schema.revealCodec(schema)).type.toBe<Schema.Codec<string, string, never, never>>()
       expect(schema).type.toBe<Schema.toEncoded<Schema.FiniteFromString>>()
       expect(schema.annotate({})).type.toBe<Schema.toEncoded<Schema.FiniteFromString>>()
+    })
+  })
+
+  describe("annotateEncoded", () => {
+    it("non-transforming schema should return Rebuild", () => {
+      const schema = Schema.String.pipe(
+        Schema.annotateEncoded({ title: "encoded" })
+      )
+      expect(schema).type.toBe<Schema.String>()
+    })
+
+    it("transforming schema should return Rebuild", () => {
+      const schema = Schema.NumberFromString.pipe(
+        Schema.annotateEncoded({ title: "encoded" })
+      )
+      expect(schema).type.toBe<Schema.NumberFromString>()
+    })
+
+    it("should constrain annotations to the Encoded type", () => {
+      // NumberFromString has Encoded = string, so string annotations are valid
+      expect(Schema.annotateEncoded<Schema.NumberFromString>).type.toBeCallableWith(
+        { examples: ["a"] }
+      )
+      // number annotations should not be valid for a string-encoded schema
+      expect(Schema.annotateEncoded<Schema.NumberFromString>).type.not.toBeCallableWith(
+        { examples: [1] }
+      )
     })
   })
 

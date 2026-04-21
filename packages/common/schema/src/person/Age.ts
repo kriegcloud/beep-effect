@@ -1,5 +1,5 @@
 /**
- * @module @beep/schema/person/Age
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -26,7 +26,7 @@ export const Age = S.Int.check(
 );
 
 /**
- * Type for {@link Age} {@inheritDoc Age}
+ * {@inheritDoc Age}
  *
  * @category Validation
  * @since 0.0.0

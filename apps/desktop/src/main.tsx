@@ -22,7 +22,7 @@ class MissingRootElementError extends TaggedErrorClass<MissingRootElementError>(
 const root = O.fromNullishOr(document.getElementById("root"));
 
 if (O.isNone(root)) {
-  throw MissingRootElementError.new({
+  throw new MissingRootElementError({
     message: "Missing #root element for desktop app bootstrap.",
   });
 }

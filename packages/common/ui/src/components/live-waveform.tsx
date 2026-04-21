@@ -1,6 +1,7 @@
 "use client";
 
 import * as A from "effect/Array";
+import * as P from "effect/Predicate";
 import { type HTMLAttributes, useEffect, useRef } from "react";
 import { cn } from "../lib/index.ts";
 
@@ -66,18 +67,19 @@ export const LiveWaveform = ({
   const needsRedrawRef = useRef(true);
   const gradientCacheRef = useRef<CanvasGradient | null>(null);
   const lastWidthRef = useRef(0);
+  const hasDeviceId = deviceId !== undefined && deviceId.length > 0;
 
-  const heightStyle = typeof height === "number" ? `${height}px` : height;
+  const heightStyle = P.isNumber(height) ? `${height}px` : height;
 
   // Handle canvas resizing
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
-    if (!canvas || !container) return;
+    if (canvas === null || container === null) return;
 
     const resizeObserver = new ResizeObserver(() => {
       const rect = container.getBoundingClientRect();
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = window.devicePixelRatio ?? 1;
 
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
@@ -85,7 +87,7 @@ export const LiveWaveform = ({
       canvas.style.height = `${rect.height}px`;
 
       const ctx = canvas.getContext("2d");
-      if (ctx) {
+      if (ctx !== null) {
         ctx.scale(dpr, dpr);
       }
 
@@ -107,7 +109,7 @@ export const LiveWaveform = ({
         time += 0.03;
         transitionProgressRef.current = Math.min(1, transitionProgressRef.current + 0.02);
 
-        const barCount = Math.floor((containerRef.current?.getBoundingClientRect().width || 200) / (barWidth + barGap));
+        const barCount = Math.floor((containerRef.current?.getBoundingClientRect().width ?? 200) / (barWidth + barGap));
 
         const processingData =
           mode === "static"
@@ -125,7 +127,7 @@ export const LiveWaveform = ({
                 let finalValue = processingValue;
                 if (A.length(lastActiveDataRef.current) > 0 && transitionProgressRef.current < 1) {
                   const lastDataIndex = Math.min(i, A.length(lastActiveDataRef.current) - 1);
-                  const lastValue = lastActiveDataRef.current[lastDataIndex] || 0;
+                  const lastValue = lastActiveDataRef.current[lastDataIndex] ?? 0;
                   finalValue =
                     lastValue * (1 - transitionProgressRef.current) + processingValue * transitionProgressRef.current;
                 }
@@ -145,7 +147,7 @@ export const LiveWaveform = ({
                 let finalValue = processingValue;
                 if (A.length(lastActiveDataRef.current) > 0 && transitionProgressRef.current < 1) {
                   const lastDataIndex = Math.floor((i / barCount) * A.length(lastActiveDataRef.current));
-                  const lastValue = lastActiveDataRef.current[lastDataIndex] || 0;
+                  const lastValue = lastActiveDataRef.current[lastDataIndex] ?? 0;
                   finalValue =
                     lastValue * (1 - transitionProgressRef.current) + processingValue * transitionProgressRef.current;
                 }
@@ -166,7 +168,7 @@ export const LiveWaveform = ({
       animateProcessing();
 
       return () => {
-        if (processingAnimationRef.current) {
+        if (processingAnimationRef.current !== null) {
           cancelAnimationFrame(processingAnimationRef.current);
         }
       };
@@ -203,16 +205,16 @@ export const LiveWaveform = ({
   // Handle microphone setup and teardown
   useEffect(() => {
     if (!active) {
-      if (streamRef.current) {
+      if (streamRef.current !== null) {
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
         streamRef.current = null;
         onStreamEnd?.();
       }
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      if (audioContextRef.current !== null && audioContextRef.current.state !== "closed") {
         void audioContextRef.current.close();
         audioContextRef.current = null;
       }
-      if (animationRef.current) {
+      if (animationRef.current !== 0) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = 0;
       }
@@ -222,7 +224,7 @@ export const LiveWaveform = ({
     const setupMicrophone = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          audio: deviceId
+          audio: hasDeviceId
             ? {
                 deviceId: { exact: deviceId },
                 echoCancellation: true,
@@ -261,31 +263,31 @@ export const LiveWaveform = ({
     void setupMicrophone();
 
     return () => {
-      if (streamRef.current) {
+      if (streamRef.current !== null) {
         A.forEach(streamRef.current.getTracks(), (track) => track.stop());
         streamRef.current = null;
         onStreamEnd?.();
       }
-      if (audioContextRef.current && audioContextRef.current.state !== "closed") {
+      if (audioContextRef.current !== null && audioContextRef.current.state !== "closed") {
         void audioContextRef.current.close();
         audioContextRef.current = null;
       }
-      if (animationRef.current) {
+      if (animationRef.current !== 0) {
         cancelAnimationFrame(animationRef.current);
         animationRef.current = 0;
       }
     };
-  }, [active, deviceId, fftSize, smoothingTimeConstant, onError, onStreamReady, onStreamEnd]);
+  }, [active, deviceId, fftSize, hasDeviceId, smoothingTimeConstant, onError, onStreamReady, onStreamEnd]);
 
   // Animation loop
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (canvas === null) return;
 
     const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+    if (ctx === null) return;
 
-    let rafId: number;
+    let rafId = 0;
 
     const animate = (currentTime: number) => {
       // Render waveform
@@ -295,7 +297,7 @@ export const LiveWaveform = ({
       if (active && currentTime - lastUpdateRef.current > updateRate) {
         lastUpdateRef.current = currentTime;
 
-        if (analyserRef.current) {
+        if (analyserRef.current !== null) {
           const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
           analyserRef.current.getByteFrequencyData(dataArray);
 
@@ -362,12 +364,12 @@ export const LiveWaveform = ({
       ctx.clearRect(0, 0, rect.width, rect.height);
 
       const computedBarColor =
-        barColor ||
+        barColor ??
         (() => {
           const style = getComputedStyle(canvas);
           // Try to get the computed color value directly
           const color = style.color;
-          return color || "#000";
+          return color.length > 0 ? color : "#000";
         })();
 
       const step = barWidth + barGap;
@@ -386,7 +388,7 @@ export const LiveWaveform = ({
               : A.empty();
 
         for (let i = 0; i < barCount && i < A.length(dataToRender); i++) {
-          const value = dataToRender[i] || 0.1;
+          const value = dataToRender[i] ?? 0.1;
           const x = i * step;
           const barHeight = Math.max(baseBarHeight, value * rect.height * 0.8);
           const y = centerY - barHeight / 2;
@@ -406,7 +408,7 @@ export const LiveWaveform = ({
         // Scrolling mode - original behavior
         for (let i = 0; i < barCount && i < A.length(historyRef.current); i++) {
           const dataIndex = A.length(historyRef.current) - 1 - i;
-          const value = historyRef.current[dataIndex] || 0.1;
+          const value = historyRef.current[dataIndex] ?? 0.1;
           const x = rect.width - (i + 1) * step;
           const barHeight = Math.max(baseBarHeight, value * rect.height * 0.8);
           const y = centerY - barHeight / 2;
@@ -427,7 +429,7 @@ export const LiveWaveform = ({
       // Apply edge fading
       if (fadeEdges && fadeWidth > 0 && rect.width > 0) {
         // Cache gradient if width hasn't changed
-        if (!gradientCacheRef.current || lastWidthRef.current !== rect.width) {
+        if (gradientCacheRef.current === null || lastWidthRef.current !== rect.width) {
           const gradient = ctx.createLinearGradient(0, 0, rect.width, 0);
           const fadePercent = Math.min(0.3, fadeWidth / rect.width);
 
@@ -459,7 +461,7 @@ export const LiveWaveform = ({
     rafId = requestAnimationFrame(animate);
 
     return () => {
-      if (rafId) {
+      if (rafId !== 0) {
         cancelAnimationFrame(rafId);
       }
     };

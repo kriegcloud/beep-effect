@@ -16,7 +16,8 @@ Use this skill for IDE-indexed reads/search/refactors via JetBrains MCP.
 - `resources/list` unsupported warnings.
 
 ## Fix Patterns
-- Use project path:
-  `/home/elpresidank/YeeBois/projects/beep-effect3`.
+- Use the active checkout path, for example:
+  `/home/elpresidank/YeeBois/projects/beep-effect`
+  or `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground`.
 - Treat unsupported resource-list warnings as non-fatal.
 - Start with `get_project_modules` to validate server health.

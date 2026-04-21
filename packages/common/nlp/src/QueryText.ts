@@ -2,7 +2,7 @@
  * Deterministic query-text normalization helpers.
  *
  * @since 0.0.0
- * @module @beep/nlp/QueryText
+ * @module
  */
 import * as Str from "@beep/utils/Str";
 import { pipe } from "effect";

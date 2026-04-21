@@ -1,7 +1,7 @@
 /**
  * Topological sort command - outputs workspace packages in dependency order.
  *
- * @module @beep/repo-cli/topo-sort
+ * @module
  * @since 0.0.0
  */
 

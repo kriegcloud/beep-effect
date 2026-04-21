@@ -59,6 +59,70 @@ export const ALLOWLIST_SNAPSHOT = {
       "reason": "Database error formatting captures the formatter call-site stack as a last-resort source-location fallback when the original error lacks stack metadata.",
       "owner": "@beep/shared-domain",
       "issue": "DB-ERROR-CALLSITE-STACK-FALLBACK"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/V2T/scripts/build-sidecar.ts",
+      "kind": "object-method",
+      "reason": "The V2T Bun build entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
+      "owner": "@beep/v2t",
+      "issue": "V2T-BUILD-EXIT-CODE-ANNOTATION"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/V2T/scripts/dev-with-portless.ts",
+      "kind": "object-method",
+      "reason": "The V2T Bun dev entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
+      "owner": "@beep/v2t",
+      "issue": "V2T-DEV-EXIT-CODE-ANNOTATION"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/desktop/scripts/build-sidecar.ts",
+      "kind": "object-method",
+      "reason": "The desktop Bun build entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
+      "owner": "@beep/desktop",
+      "issue": "DESKTOP-BUILD-EXIT-CODE-ANNOTATION"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/desktop/scripts/dev-with-portless.ts",
+      "kind": "object-method",
+      "reason": "The desktop Bun dev entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
+      "owner": "@beep/desktop",
+      "issue": "DESKTOP-DEV-EXIT-CODE-ANNOTATION"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/editor-app/scripts/build-sidecar.ts",
+      "kind": "object-method",
+      "reason": "The editor Bun build entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
+      "owner": "@beep/editor-app",
+      "issue": "EDITOR-BUILD-EXIT-CODE-ANNOTATION"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "apps/editor-app/scripts/dev-with-portless.ts",
+      "kind": "object-method",
+      "reason": "The editor Bun dev entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
+      "owner": "@beep/editor-app",
+      "issue": "EDITOR-DEV-EXIT-CODE-ANNOTATION"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/observability/src/experimental/server/OtlpPacketLab.ts",
+      "kind": "date-static",
+      "reason": "OTLP serialization hooks are synchronous body factories, so packet capture timestamps must be recorded at that immediate runtime boundary without introducing Effect execution into the serializer contract.",
+      "owner": "@beep/observability",
+      "issue": "OBSERVABILITY-OTLP-PACKET-LAB-TIMESTAMP"
+    },
+    {
+      "rule": "beep-laws/no-native-runtime",
+      "file": "packages/common/nlp/src/Wink/WinkSimilarity.ts",
+      "kind": "new-map-set",
+      "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
+      "owner": "@beep/nlp",
+      "issue": "WINK-SIMILARITY-NATIVE-SET-BRIDGE"
     }
   ],
   "diagnostics": []

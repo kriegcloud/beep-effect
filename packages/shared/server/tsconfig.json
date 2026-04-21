@@ -3,7 +3,7 @@
   "extends": "../../../tsconfig.base.json",
   "include": ["src"],
   "compilerOptions": {
-    "types": ["node"],
+    "types": ["node", "bun"],
     "outDir": "dist",
     "rootDir": "src"
   },
@@ -16,6 +16,12 @@
     },
     {
       "path": "../../common/utils/tsconfig.json"
+    },
+    {
+      "path": "../tables/tsconfig.json"
+    },
+    {
+      "path": "../../../tooling/test-utils/tsconfig.json"
     }
   ]
 }

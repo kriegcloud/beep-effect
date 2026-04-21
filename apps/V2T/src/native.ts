@@ -15,7 +15,7 @@ import {
   Vt2DesktopPreferences,
   Vt2SessionResource,
   Vt2WorkspaceSnapshot,
-} from "@beep/VT2";
+} from "@beep/v2t-sidecar";
 import { Effect, pipe } from "effect";
 import type * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -338,6 +338,20 @@ export const runV2tSessionComposition = (
     S.decodeUnknownSync(Vt2SessionResource),
     `Failed to run the V2T composition flow for session "${sessionId}" via the native shell.`,
     { sessionId, payload: encodeCompositionInput(input) }
+  );
+
+/**
+ * Retry local transcription for the selected session through the native shell bridge.
+ *
+ * @since 0.0.0
+ * @category Integration
+ */
+export const retryV2tSessionTranscript = (sessionId: string): Effect.Effect<Vt2SessionResource, Vt2NativeError> =>
+  invokeNative(
+    "retry_session_transcript",
+    S.decodeUnknownSync(Vt2SessionResource),
+    `Failed to retry the V2T transcript flow for session "${sessionId}" via the native shell.`,
+    { sessionId }
   );
 
 /**

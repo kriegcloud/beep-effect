@@ -67,9 +67,9 @@ export class SyncDataToTsError extends TaggedErrorClass<SyncDataToTsError>($I`Sy
   "SyncDataToTsError",
   {
     message: S.String,
-    targetId: S.optional(S.String),
-    file: S.optional(S.String),
-    cause: S.optional(S.Defect),
+    targetId: S.optionalKey(S.String),
+    file: S.optionalKey(S.String),
+    cause: S.optionalKey(S.Defect),
   },
   $I.annote("SyncDataToTsError", {
     title: "Sync Data To TypeScript Error",
@@ -178,7 +178,7 @@ export const SyncDataTarget = SyncDataSourceFormat.mapMembers(
   .pipe(S.toTaggedUnion("format"));
 
 /**
- * Type of {@link SyncDataTarget} {@inheritDoc SyncDataTarget}
+ * {@inheritDoc SyncDataTarget}
  *
  * @category DomainModel
  * @since 0.0.0

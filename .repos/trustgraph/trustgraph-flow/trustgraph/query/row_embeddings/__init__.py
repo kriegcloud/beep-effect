@@ -1,3 +1,0 @@
-"""
-Row embeddings query modules.
-"""

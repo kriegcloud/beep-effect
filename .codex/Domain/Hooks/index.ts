@@ -3,7 +3,7 @@
  *
  * @see {@link https://developers.openai.com/codex/hooks#hooks | Codex Hooks}
  *
- * @module @beep/codex/hooks
+ * @module
  * @since 0.0.0
  */
 

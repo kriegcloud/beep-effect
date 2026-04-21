@@ -2,7 +2,7 @@
  * Timezone Schema
  *
  * @since 0.0.0
- * @module @beep/schema/Timezone
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity";

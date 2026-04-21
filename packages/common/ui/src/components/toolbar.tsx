@@ -8,6 +8,7 @@ import { Separator } from "@beep/ui/components/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/tooltip";
 import { CaretDownIcon } from "@phosphor-icons/react";
 import { cva, type VariantProps } from "class-variance-authority";
+import * as P from "effect/Predicate";
 import type { ComponentProps, ElementType, ReactNode } from "react";
 import { useEffect, useState } from "react";
 import { cn } from "../lib/index.ts";
@@ -34,15 +35,15 @@ export function ToolbarToggleGroup({
   readonly children?: undefined | ReactNode;
 }) {
   const multiple = type === "multiple";
-  const normalizedValue = typeof value === "string" ? [value] : value;
-  const normalizedDefaultValue = typeof defaultValue === "string" ? [defaultValue] : defaultValue;
+  const normalizedValue = P.isString(value) ? [value] : value;
+  const normalizedDefaultValue = P.isString(defaultValue) ? [defaultValue] : defaultValue;
   return (
     <ToggleGroup
       className={cn("flex items-center", className)}
       multiple={multiple}
-      {...(normalizedValue ? { value: normalizedValue } : {})}
-      {...(normalizedDefaultValue ? { defaultValue: normalizedDefaultValue } : {})}
-      {...(onValueChange ? { onValueChange } : {})}
+      {...(normalizedValue !== undefined ? { value: normalizedValue } : {})}
+      {...(normalizedDefaultValue !== undefined ? { defaultValue: normalizedDefaultValue } : {})}
+      {...(onValueChange !== undefined ? { onValueChange } : {})}
       disabled={Boolean(disabled)}
       {...props}
     />
@@ -103,48 +104,57 @@ const dropdownArrowVariants = cva(
   }
 );
 
-type ToolbarButtonProps = {
+type ToolbarButtonBaseProps = {
   readonly isDropdown?: undefined | boolean;
-  readonly pressed?: undefined | boolean;
-} & Omit<Toggle.Props, "value" | "render"> &
-  VariantProps<typeof toolbarButtonVariants>;
+} & VariantProps<typeof toolbarButtonVariants>;
 
-export const ToolbarButton = withTooltip(function ToolbarButton({
-  children,
-  className,
-  isDropdown,
-  pressed,
-  size = "sm",
-  variant,
-  ...props
-}: ToolbarButtonProps) {
-  return typeof pressed === "boolean" ? (
-    <ToolbarToggleGroup disabled={Boolean(props.disabled)} value={pressed ? "single" : ""} type="single">
-      <ToolbarToggleItem
-        className={cn(
-          toolbarButtonVariants({
-            size,
-            variant,
-          }),
-          isDropdown && "justify-between gap-1 pr-1",
-          className
-        )}
-        value="single"
-        {...props}
-      >
-        {isDropdown ? (
-          <>
-            <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
-            <div>
-              <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
-            </div>
-          </>
-        ) : (
-          children
-        )}
-      </ToolbarToggleItem>
-    </ToolbarToggleGroup>
-  ) : (
+type ToolbarToggleButtonProps = ToolbarButtonBaseProps &
+  Omit<Toggle.Props, "pressed" | "value" | "render"> & {
+    readonly pressed: boolean;
+  };
+
+type ToolbarActionButtonProps = ToolbarButtonBaseProps &
+  Omit<ToolbarPrimitive.Button.Props, "render"> & {
+    readonly pressed?: undefined;
+  };
+
+type ToolbarButtonProps = ToolbarToggleButtonProps | ToolbarActionButtonProps;
+
+export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarButtonProps) {
+  if (props.pressed !== undefined) {
+    const { children, className, isDropdown, pressed, size = "sm", variant, ...toggleProps } = props;
+    return (
+      <ToolbarToggleGroup disabled={Boolean(toggleProps.disabled)} value={pressed ? "single" : ""} type="single">
+        <ToolbarToggleItem
+          className={cn(
+            toolbarButtonVariants({
+              size,
+              variant,
+            }),
+            isDropdown && "justify-between gap-1 pr-1",
+            className
+          )}
+          value="single"
+          {...toggleProps}
+        >
+          {isDropdown === true ? (
+            <>
+              <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
+              <div>
+                <CaretDownIcon className="size-3.5 text-muted-foreground" data-icon />
+              </div>
+            </>
+          ) : (
+            children
+          )}
+        </ToolbarToggleItem>
+      </ToolbarToggleGroup>
+    );
+  }
+
+  const { children, className, isDropdown, pressed: _pressed, size = "sm", variant, ...buttonProps } = props;
+
+  return (
     <ToolbarPrimitive.Button
       className={cn(
         toolbarButtonVariants({
@@ -154,7 +164,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton({
         isDropdown && "pr-1",
         className
       )}
-      {...props}
+      {...buttonProps}
     >
       {children}
     </ToolbarPrimitive.Button>
@@ -165,7 +175,7 @@ export function ToolbarSplitButton({ className, ...props }: ComponentProps<typeo
   return <ToolbarButton className={cn("group flex gap-0 px-0 hover:bg-transparent", className)} {...props} />;
 }
 
-type ToolbarSplitButtonPrimaryProps = Omit<Toggle.Props, "value"> & VariantProps<typeof toolbarButtonVariants>;
+type ToolbarSplitButtonPrimaryProps = ComponentProps<"span"> & VariantProps<typeof toolbarButtonVariants>;
 
 export function ToolbarSplitButtonPrimary({
   children,
@@ -254,12 +264,13 @@ function withTooltip<T extends ElementType>(Component: T) {
     ...props
   }: TooltipProps<T>) {
     const [mounted, setMounted] = useState(false);
+    const hasTooltip = tooltip !== undefined && tooltip !== null && tooltip !== false;
 
     useEffect(() => void setMounted(true), []);
 
     const component = <Component {...(props as ComponentProps<T>)} />;
 
-    if (tooltip && mounted) {
+    if (hasTooltip && mounted) {
       return (
         <Tooltip {...tooltipProps}>
           <TooltipTrigger {...tooltipTriggerProps}>{component}</TooltipTrigger>

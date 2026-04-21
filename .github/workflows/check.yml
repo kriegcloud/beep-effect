@@ -43,12 +43,45 @@ jobs:
               issue_number: context.issue.number,
               labels: [label]
             });
-  build:
-    name: Build
+  verify:
+    name: ${{ matrix.name }}
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: ${{ matrix.timeout_minutes }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - id: lint
+            name: Lint
+            timeout_minutes: 20
+            uses_turbo: "true"
+            install_typos: "true"
+          - id: repo-sanity
+            name: Repo Sanity
+            timeout_minutes: 15
+            uses_turbo: "false"
+            install_typos: "false"
+          - id: check
+            name: Check
+            timeout_minutes: 20
+            uses_turbo: "true"
+            install_typos: "false"
+          - id: test-unit
+            name: Test Unit
+            timeout_minutes: 30
+            uses_turbo: "true"
+            install_typos: "false"
+          - id: test-integration
+            name: Test Integration
+            timeout_minutes: 20
+            uses_turbo: "true"
+            install_typos: "false"
+          - id: docgen
+            name: Docgen
+            timeout_minutes: 20
+            uses_turbo: "true"
+            install_typos: "false"
     env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -65,150 +98,64 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
         with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo/cache
-          key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-${{ github.job }}-
-            turbo-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run build checks
-        run: bunx turbo run build $TURBO_ARGS
-
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo/cache
-          key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-${{ github.job }}-
-            turbo-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run lint checks
-        run: bunx turbo run lint lint:effect-laws lint:jsdoc lint:spell lint:markdown lint:circular lint:versions $TURBO_ARGS
-
-  repo-sanity:
-    name: Repo Sanity
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
-      EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
-      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
-      SECURITY_TRUSTED_ORIGINS: ${{ secrets.SECURITY_TRUSTED_ORIGINS }}
-      LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
+          cache-turbo: ${{ matrix.uses_turbo }}
 
       - name: Install typos
+        if: matrix.install_typos == 'true'
         uses: taiki-e/install-action@v2
         with:
           tool: typos-cli@1.44.0
 
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run repo sanity checks
+      - name: Run verification lane
         run: |
-          bun run check:effect-laws-allowlist
-          bun run lint:tooling-tagged-errors
-          bun run lint:schema-first
-          bun run lint:typos
-          bun run lint:repo
-          bun run lint:ox
-          bun run audit:high:ci
-          bunx syncpack lint
+          set -euo pipefail
+          turbo_args=()
 
-      - name: Run changeset status
-        if: github.event_name == 'pull_request'
-        run: bunx changeset status --since=origin/main
+          if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            turbo_args+=(--affected)
+          fi
 
-  check:
-    name: Check
-    needs: build
+          turbo_args+=(--summarize)
+
+          case "${{ matrix.id }}" in
+            lint)
+              bun run lint -- "${turbo_args[@]}"
+              ;;
+            repo-sanity)
+              bun run repo-sanity:ci
+              if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+                bun run changeset:status:since-main
+              fi
+              ;;
+            check)
+              bun run check -- "${turbo_args[@]}"
+              ;;
+            test-unit)
+              bun run test:unit -- "${turbo_args[@]}"
+              bun run test:types
+              ;;
+            test-integration)
+              bun run test:integration -- "${turbo_args[@]}"
+              ;;
+            docgen)
+              bunx turbo run docgen "${turbo_args[@]}"
+              bun run docs:aggregate
+              ;;
+          esac
+
+      - name: Append Turbo summary
+        if: matrix.uses_turbo == 'true' && always()
+        run: node scripts/append-turbo-summary.mjs
+
+  build:
+    name: Build
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -225,150 +172,17 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
         with:
-          bun-version-file: .bun-version
+          cache-turbo: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
+      - name: Run build checks
+        run: bunx turbo run build --summarize
 
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo/cache
-          key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-${{ github.job }}-
-            turbo-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run package type checks
-        run: bunx turbo run check $TURBO_ARGS
-
-  test:
-    name: Test
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
-      EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
-      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
-      SECURITY_TRUSTED_ORIGINS: ${{ secrets.SECURITY_TRUSTED_ORIGINS }}
-      LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo/cache
-          key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-${{ github.job }}-
-            turbo-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run tests
-        run: |
-          bunx turbo run test $TURBO_ARGS --concurrency=1
-          bun run test:types
-
-  docgen:
-    name: Docgen
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      TURBO_ARGS: ${{ github.event_name == 'pull_request' && '--filter=...[origin/main]' || '' }}
-      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
-      TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
-      EMAIL_RESEND_API_KEY: ${{ secrets.EMAIL_RESEND_API_KEY }}
-      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
-      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
-      BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
-      SECURITY_TRUSTED_ORIGINS: ${{ secrets.SECURITY_TRUSTED_ORIGINS }}
-      LIVEBLOCKS_SECRET_KEY: ${{ secrets.LIVEBLOCKS_SECRET_KEY }}
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Cache Turbo
-        uses: actions/cache@v4
-        with:
-          path: .turbo/cache
-          key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
-          restore-keys: |
-            turbo-${{ runner.os }}-${{ github.job }}-
-            turbo-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Run docgen
-        run: |
-          bunx turbo run docgen $TURBO_ARGS
-          bun run beep docs aggregate --clean
+      - name: Append Turbo summary
+        if: always()
+        run: node scripts/append-turbo-summary.mjs
 
   full-check:
     name: Full Type Check
@@ -381,28 +195,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Cache Bun dependencies
-        uses: actions/cache@v4
-        with:
-          path: ~/.bun/install/cache
-          key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
-          restore-keys: bun-${{ runner.os }}-
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
 
       - name: Run full type check
-        run: bun run check:full
+        run: bun run check
 
   secrets:
     name: Secret Scanning

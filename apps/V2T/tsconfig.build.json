@@ -11,8 +11,8 @@
       "@beep/ui/themes": ["./src/types/ui-shims.d.ts"],
       "@beep/ui/themes/theme": ["./src/types/ui-shims.d.ts"],
       "@beep/ui/styles/globals.css": ["./src/types/ui-shims.d.ts"],
-      "@beep/VT2": ["../../packages/VT2/dist/index"],
-      "@beep/VT2/*": ["../../packages/VT2/dist/*"],
+      "@beep/v2t-sidecar": ["../../packages/v2t-sidecar/dist/index"],
+      "@beep/v2t-sidecar/*": ["../../packages/v2t-sidecar/dist/*"],
       "@beep/editor-client": ["../../packages/editor/client/dist/index"],
       "@beep/editor-client/*": ["../../packages/editor/client/dist/*"],
       "@beep/editor-lexical": ["../../packages/editor/lexical/dist/index"],
@@ -34,9 +34,6 @@
     "rootDir": "."
   },
   "references": [
-    {
-      "path": "../../packages/VT2/tsconfig.json"
-    },
     {
       "path": "../../packages/common/identity/tsconfig.json"
     },
@@ -60,6 +57,9 @@
     },
     {
       "path": "../../packages/editor/protocol/tsconfig.json"
+    },
+    {
+      "path": "../../packages/v2t-sidecar/tsconfig.json"
     }
   ]
 }

@@ -16,7 +16,7 @@
  * ```
  *
  * @since 0.0.0
- * @module @beep/identity/packages
+ * @module
  */
 import * as Identity from "./Id.ts";
 
@@ -94,7 +94,7 @@ const composers = $I.compose(
   "editor-client",
   "editor-runtime",
   "infra",
-  "VT2",
+  "v2t-sidecar",
   "v2t"
 );
 
@@ -850,19 +850,19 @@ export const $EditorRuntimeId: Identity.IdentityComposer<"@beep/editor-runtime">
 export const $InfraId: Identity.IdentityComposer<"@beep/infra"> = composers.$InfraId;
 
 /**
- * Identity composer for the `@beep/VT2` package.
+ * Identity composer for the `@beep/v2t-sidecar` package.
  *
  * @example
  * ```typescript
- * import { $VT2Id } from "@beep/identity"
+ * import { $V2TSidecarId } from "@beep/identity"
  *
- * const id = $VT2Id.make("Runtime")
+ * const id = $V2TSidecarId.make("Runtime")
  * ```
  *
  * @since 0.0.0
  * @category configuration
  */
-export const $VT2Id: Identity.IdentityComposer<"@beep/VT2"> = composers.$Vt2Id;
+export const $V2TSidecarId: Identity.IdentityComposer<"@beep/v2t-sidecar"> = composers.$V2tSidecarId;
 
 /**
  * Identity composer for the `@beep/v2t` package.

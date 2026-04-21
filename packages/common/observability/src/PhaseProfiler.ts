@@ -12,14 +12,14 @@
  * const migrate = Effect.log("running migrations")
  *
  * const profiled = profilePhase(
- *   { phase: "database-migration" },
- *   migrate,
+ *
+ *
  * )
  *
  * void Effect.runPromise(profiled)
  * ```
  *
- * @module @beep/observability/PhaseProfiler
+ * @module
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
@@ -62,13 +62,16 @@ export type PhaseOutcome = typeof PhaseOutcome.Type;
  *
  * @example
  * ```typescript
+ * import { NonNegativeInt } from "@beep/schema"
+ * import * as S from "effect/Schema"
  * import { PhaseProfile } from "@beep/observability"
  *
+ * const durationMs = S.decodeUnknownSync(NonNegativeInt)(42)
  * const profile = new PhaseProfile({
- *   phase: "startup",
- *   outcome: "completed",
- *   durationMs: 42,
- *   attributes: { service: "web" },
+ *
+ *
+ *
+ *
  * })
  *
  * console.log(profile.phase) // "startup"
@@ -154,14 +157,14 @@ const logPhaseProfile = (profile: PhaseProfile): Effect.Effect<void> =>
  * const migrate = Effect.log("running migrations")
  *
  * const profiled = profilePhase(
- *   {
- *     phase: "database-migration",
- *     started,
- *     completed,
- *     duration,
- *     attributes: { env: "production" },
- *   },
- *   migrate,
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * )
  *
  * void Effect.runPromise(profiled)

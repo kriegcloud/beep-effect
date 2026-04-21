@@ -7,7 +7,7 @@
  * Configuration is loaded from environment variables:
  * - AUTHORIZATION_ENFORCEMENT: "true" to enforce, "false" for grace period (default: true)
  *
- * @module @beep/shared-domain/services/authorization/AuthorizationConfig
+ * @module
  */
 
 // =============================================================================
@@ -59,18 +59,21 @@ export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I
  * AuthorizationConfig - Context.Tag for dependency injection
  *
  * @example
+ * ```ts
  * import { AuthorizationConfig } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
- * import { Effect } from "effect";
- * const program = Effect.gen(function* () {
- *   const config = yield* AuthorizationConfig
- *   if (config.enforcementEnabled) {
- *     // Check membership strictly
- *   } else {
- *     // Grace period: allow access
- *   }
- * })
+ * import { Effect } from "effect"
  *
- **/
+ * const program = Effect.gen(function* () {
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ * })
+ * ```
+ */
 export class AuthorizationConfig extends Context.Service<AuthorizationConfig, AuthorizationConfigData>()(
   $I`AuthorizationConfig`
 ) {}

@@ -159,7 +159,7 @@ function TourOverlay({
           readonly element: Element;
         }>();
 
-        Array.from(elements).forEach((element) => {
+        for (const element of elements) {
           const rect = element.getBoundingClientRect();
           if (rect.width === 0 && rect.height === 0) return;
 
@@ -181,7 +181,7 @@ function TourOverlay({
             radius,
             element,
           });
-        });
+        }
 
         setTargets(validElements.map(({ rect, radius }) => ({ rect, radius })));
 

@@ -53,7 +53,7 @@ const toNativeError = (message: string, cause: unknown): DesktopNativeError =>
   });
 
 const isNativeDesktop = (): boolean =>
-  typeof window !== "undefined" && P.isObject(window) && P.hasProperty(window, "__TAURI_INTERNALS__");
+  P.isObject(globalThis.window) && P.hasProperty(globalThis.window, "__TAURI_INTERNALS__");
 
 const invokeNative = <A>(
   command: string,

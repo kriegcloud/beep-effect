@@ -474,8 +474,8 @@ const symbolDetailPayload = (
   });
 };
 
-const retrievalIssue = (issue: RetrievalIssue): O.Option<RetrievalIssue> => O.some(issue);
-const retrievalPayload = (payload: RetrievalPayload): O.Option<RetrievalPayload> => O.some(payload);
+const retrievalIssue = O.some;
+const retrievalPayload = O.some;
 
 const packetEvidence = (options: {
   readonly repoId: RepoId;

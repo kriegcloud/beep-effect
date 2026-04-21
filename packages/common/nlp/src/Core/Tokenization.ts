@@ -2,7 +2,7 @@
  * Tokenization service contract.
  *
  * @since 0.0.0
- * @module @beep/nlp/Core/Tokenization
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

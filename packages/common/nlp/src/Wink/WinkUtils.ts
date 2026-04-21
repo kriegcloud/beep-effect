@@ -2,7 +2,7 @@
  * Wink utility wrappers for string, token, and n-gram helpers.
  *
  * @since 0.0.0
- * @module @beep/nlp/Wink/WinkUtils
+ * @module
  */
 
 import { createRequire } from "node:module";
@@ -121,9 +121,9 @@ export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtil
   /**
    * Convert an unknown cause into a typed wink-utils error.
    *
-   * @param cause {unknown} - The underlying failure or defect.
-   * @param operation {string} - The wink utility operation that failed.
-   * @returns {WinkUtilsError} - A typed wink-utils error value.
+   * @param cause - The underlying failure or defect.
+   * @param operation - The wink utility operation that failed.
+   * @returns A typed wink-utils error value.
    */
   static fromCause(cause: unknown, operation: string): WinkUtilsError {
     return new WinkUtilsError({

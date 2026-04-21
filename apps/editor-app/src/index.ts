@@ -1,5 +1,5 @@
 /**
- * @beep/editor-app
+ * \@beep/editor-app
  *
  * @since 0.0.0
  */

@@ -318,7 +318,7 @@ function HealthRow({
 }
 
 /** Visual health score indicator
- *  Formula: penalizes proportionally for dead code, god objects, god files, duplicates, and security issues
+ *
  */
 function HealthScore({ stats }: { readonly stats: HealthStats }) {
   const total = stats.functionCount || 1;

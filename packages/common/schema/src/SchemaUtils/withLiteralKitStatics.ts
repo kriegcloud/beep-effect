@@ -1,7 +1,7 @@
 /**
  * Reattach LiteralKit statics after a schema transformation or annotation.
  *
- * @module @beep/schema/utils/withLiteralKitStatics
+ * @module
  * @since 0.0.0
  */
 

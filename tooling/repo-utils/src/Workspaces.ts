@@ -80,9 +80,9 @@ const isContainedCanonicalPath: {
  * import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces"
  *
  * const program = Effect.gen(function*() {
- *   const workspaces = yield* resolveWorkspaceDirs("/path/to/repo")
- *   void workspaces
- *   // HashMap<string, string> e.g. { "@mock/pkg-a" => "/path/to/repo/packages/pkg-a" }
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -99,13 +99,13 @@ export const resolveWorkspaceDirs: (
     const rootPkgPath = `${rootDir}/package.json`;
     const rawPkg = yield* fsUtils.readJson(rootPkgPath);
     if (O.isNone(rawPkg)) {
-      return yield* DomainError.new({
+      return yield* new DomainError({
         message: `Failed to parse JSON at "${rootPkgPath}"`,
       });
     }
     const rootPkg = yield* decodePackageJsonEffect(rawPkg.value).pipe(
-      Effect.mapError((error) =>
-        DomainError.new(error, { message: `Failed to decode root package.json at "${rootPkgPath}"` })
+      Effect.mapError(
+        (error) => new DomainError({ cause: error, message: `Failed to decode root package.json at "${rootPkgPath}"` })
       )
     );
 
@@ -116,7 +116,7 @@ export const resolveWorkspaceDirs: (
 
     for (const workspaceGlob of workspaceGlobs) {
       if (!isSafeWorkspacePattern(workspaceGlob)) {
-        return yield* DomainError.new({
+        return yield* new DomainError({
           message: `Unsafe workspace glob "${workspaceGlob}" escapes the repository root.`,
         });
       }
@@ -142,7 +142,7 @@ export const resolveWorkspaceDirs: (
         .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve workspace path "${dir}"`)));
 
       if (!isContainedCanonicalPath(canonicalRootDir, canonicalDir)) {
-        return yield* DomainError.new({
+        return yield* new DomainError({
           message: `Workspace path escapes repository root: "${dir}" -> "${canonicalDir}"`,
         });
       }
@@ -155,7 +155,7 @@ export const resolveWorkspaceDirs: (
         continue;
       }
       if (O.isNone(rawChildPkg)) {
-        return yield* DomainError.new({
+        return yield* new DomainError({
           message: `Failed to parse JSON at "${pkgJsonPath}"`,
         });
       }
@@ -187,10 +187,10 @@ export const resolveWorkspaceDirs: (
  * import { getWorkspaceDir } from "@beep/repo-utils/Workspaces"
  *
  * const program = Effect.gen(function*() {
- *   const dir = yield* getWorkspaceDir("/path/to/repo", "@mock/pkg-a")
- *   if (O.isSome(dir)) {
- *     console.log("Found:", dir.value)
- *   }
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```

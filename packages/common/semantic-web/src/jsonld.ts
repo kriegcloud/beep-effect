@@ -40,10 +40,11 @@ const jsonLdBlankNodeIdentifierChecks = S.makeFilterGroup(
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { JsonLdKeyword } from "@beep/semantic-web/jsonld"
  *
- * console.log(JsonLdKeyword.Guard("@context")) // true
- * console.log(JsonLdKeyword.Guard("@invalid")) // false
+ * console.log(S.is(JsonLdKeyword)("@context")) // true
+ * console.log(S.is(JsonLdKeyword)("@invalid")) // false
  * ```
  *
  * @since 0.0.0
@@ -77,10 +78,11 @@ export type JsonLdKeyword = typeof JsonLdKeyword.Type;
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { JsonLdTermDefinition } from "@beep/semantic-web/jsonld"
  *
- * const term = JsonLdTermDefinition.make({
- *   "@id": "https://schema.org/name",
+ * const term = S.decodeUnknownSync(JsonLdTermDefinition)({
+ *
  * })
  * console.log(term["@id"]) // "https://schema.org/name"
  * ```
@@ -300,9 +302,10 @@ export class JsonLdNodeObject extends S.Class<JsonLdNodeObject>($I`JsonLdNodeObj
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { JsonLdDocument } from "@beep/semantic-web/jsonld"
  *
- * const doc = JsonLdDocument.make({ "@graph": [] })
+ * const doc = S.decodeUnknownSync(JsonLdDocument)({ "@graph": [] })
  * console.log(doc["@graph"].length) // 0
  * ```
  *

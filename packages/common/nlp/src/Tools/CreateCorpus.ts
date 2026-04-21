@@ -2,7 +2,7 @@
  * CreateCorpus tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/CreateCorpus
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

@@ -252,14 +252,14 @@ describe("PackageJson schema", () => {
       const result = decodePackageJson({
         name: "@beep/V2T",
         dependencies: {
-          "@beep/VT2": "workspace:^",
+          "@beep/v2t-sidecar": "workspace:^",
         },
       });
 
       expect(result.name).toBe("@beep/V2T");
       expect(result.dependencies).toEqual(
         O.some({
-          "@beep/VT2": "workspace:^",
+          "@beep/v2t-sidecar": "workspace:^",
         })
       );
     });
@@ -447,7 +447,7 @@ describe("PackageJson schema", () => {
         {
           name: "@beep/V2T",
           dependencies: {
-            "@beep/VT2": "workspace:^",
+            "@beep/v2t-sidecar": "workspace:^",
           },
         },
         { onExcessProperty: "error" }

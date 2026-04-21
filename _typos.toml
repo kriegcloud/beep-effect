@@ -16,6 +16,8 @@ Inferrable = "Inferrable"
 noInferrableTypes = "noInferrableTypes"
 
 # Domain terms
+exat = "exat"
+pxat = "pxat"
 cose = "cose"
 Cose = "Cose"
 unparseable = "unparseable"
@@ -53,6 +55,6 @@ extend-exclude = [
   ".beep/**",
   "scratchpad/**",
   "outputs/agent-reliability/**",
-  "specs/**",
+  "initiatives/**",
   "**/internal/data/**",
 ]

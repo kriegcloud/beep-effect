@@ -6,6 +6,8 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
+import { DateTime } from "effect";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { makeSemanticSchemaMetadata } from "./semantic-schema-metadata.ts";
 
@@ -40,7 +42,7 @@ const provDateTimeChecks = S.makeFilterGroup(
       description: "An ISO 8601 date-time with optional fractional seconds and timezone offset.",
       message: "Expected an ISO 8601 date-time string",
     }),
-    S.makeFilter((value: string) => Number.isFinite(Date.parse(value)), {
+    S.makeFilter((value: string) => O.isSome(DateTime.make(value)), {
       identifier: $I`ProvDateTimeParseableCheck`,
       title: "PROV Date Time Parseable",
       description: "A date-time string that can be parsed into an Effect DateTime value.",
@@ -196,9 +198,14 @@ export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { Entity } from "@beep/semantic-web/prov"
  *
- * const entity = Entity.make({ provType: "Entity" })
+ * const entity = S.decodeUnknownSync(Entity)({
+ *
+ *
+ *
+ * })
  * console.log(entity.provType) // "Entity"
  * ```
  *
@@ -238,9 +245,14 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { Activity } from "@beep/semantic-web/prov"
  *
- * const activity = Activity.make({ provType: "Activity" })
+ * const activity = S.decodeUnknownSync(Activity)({
+ *
+ *
+ *
+ * })
  * console.log(activity.provType) // "Activity"
  * ```
  *
@@ -275,9 +287,14 @@ export class Activity extends S.Class<Activity>($I`Activity`)(
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { Agent } from "@beep/semantic-web/prov"
  *
- * const agent = Agent.make({ provType: "Agent", name: "alice" })
+ * const agent = S.decodeUnknownSync(Agent)({
+ *
+ *
+ *
+ * })
  * console.log(agent.provType) // "Agent"
  * ```
  *
@@ -644,10 +661,13 @@ export class End extends S.Class<End>($I`End`)(
  * @example
  * ```typescript
  * import * as S from "effect/Schema"
- * import { ProvRecord } from "@beep/semantic-web/prov"
+ * import { Agent, ProvRecord } from "@beep/semantic-web/prov"
  *
  * const decoded = S.decodeUnknownSync(ProvRecord)({ provType: "Agent", name: "bob" })
- * console.log(decoded.provType) // "Agent"
+ *
+ * if (S.is(Agent)(decoded)) {
+ *
+ * }
  * ```
  *
  * @since 0.0.0
@@ -701,9 +721,10 @@ export type ProvRecord = typeof ProvRecord.Type;
  *
  * @example
  * ```typescript
+ * import * as S from "effect/Schema"
  * import { ProvBundle } from "@beep/semantic-web/prov"
  *
- * const bundle = ProvBundle.make({ records: [] })
+ * const bundle = S.decodeUnknownSync(ProvBundle)({ records: [] })
  * console.log(bundle.records.length) // 0
  * ```
  *

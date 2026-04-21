@@ -2,7 +2,7 @@
  * Schema for the `Cross-Origin-Embedder-Policy` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/CrossOriginEmbedderPolicy
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity";

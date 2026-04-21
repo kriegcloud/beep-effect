@@ -1,0 +1,41 @@
+{
+  "name": "@beep/v2t-sidecar",
+  "version": "0.0.0",
+  "description": "SQLite-backed Effect sidecar for the V2T vertical slice",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/v2t-sidecar",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/v2t-sidecar"
+  },
+  "scripts": {
+    "dev": "bun run src/main.ts",
+    "build": "tsc -p tsconfig.json",
+    "check": "tsgo -p tsconfig.json --noEmit",
+    "codegen": "echo 'no codegen needed'",
+    "test": "bunx --bun vitest run --passWithNoTests"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./*": "./src/*.ts",
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/runtime-protocol": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@effect/platform-bun": "catalog:",
+    "@effect/sql-sqlite-bun": "catalog:",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

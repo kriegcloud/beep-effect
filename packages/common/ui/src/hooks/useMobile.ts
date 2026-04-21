@@ -2,7 +2,7 @@
  * Responsive mobile-state helpers for `@beep/ui`.
  *
  * @since 0.0.0
- * @module @beep/ui/hooks/useMobile
+ * @module
  */
 import { useAtom } from "@effect/atom-react";
 import { constFalse } from "effect/Function";

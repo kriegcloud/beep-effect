@@ -532,13 +532,13 @@ declare const appointments: Array<Appointment.Appointment>
  * import { pipe } from "effect/Function"
  *
  * const tomorrow = DateTime.addDuration(
- *   DateTime.unsafeNow(),
- *   Duration.days(1)
+ * 
+ * 
  * )
  *
  * const beforeTomorrow = pipe(
- *   appointments,
- *   A.filter(Appointment.isScheduledBefore(tomorrow))
+ * 
+ * 
  * )
  */
 const tomorrow = DateTime.addDuration(

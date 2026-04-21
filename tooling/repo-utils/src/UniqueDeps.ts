@@ -47,17 +47,16 @@ export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
  * and optionalDependencies are also counted as runtime `dependencies`.
  *
  * @param rootDir - Absolute path to the monorepo root directory.
- * @returns An object with sorted, deduplicated `dependencies` and
- *   `devDependencies` arrays.
+ * @returns An object with sorted, deduplicated dependencies and devDependencies.
  * @example
  * ```typescript
  * import { Effect } from "effect"
  * import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps"
  *
  * const program = Effect.gen(function*() {
- *   const unique = yield* collectUniqueNpmDependencies("/path/to/repo")
- *   console.log("Runtime deps:", unique.dependencies)
- *   console.log("Dev deps:", unique.devDependencies)
+ *
+ *
+ *
  * })
  * void program
  * ```

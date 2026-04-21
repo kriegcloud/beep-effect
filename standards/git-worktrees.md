@@ -1,0 +1,246 @@
+# Git Worktrees In `beep-effect`
+
+This repo now uses **Git-native sibling worktrees** as the default way to do parallel feature work.
+
+The goal is to replace duplicate full clones like `beep-effect2` and `beep-effect3` with multiple working directories that share one Git object database but keep separate branches, indexes, local caches, and IDE state.
+
+## Workspace Layout
+
+Canonical paths for this machine:
+
+- Main checkout: `/home/elpresidank/YeeBois/projects/beep-effect`
+- Worktree root: `/home/elpresidank/YeeBois/projects/beep-effect-worktrees`
+- Starter worktree: `/home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground`
+
+Why this layout:
+
+- It keeps worktrees **outside** the main repo directory.
+- That matches current WebStorm guidance for Git worktrees.
+- It avoids the nested-worktree layout Claude Code uses by default with `claude --worktree`.
+
+## What A Worktree Actually Is
+
+`git worktree` lets one Git repository expose multiple working directories at once.
+
+Important rules:
+
+- The main checkout is already a worktree.
+- All worktrees share the same Git history and object store.
+- Each worktree has its own checked-out branch, working directory, and index.
+- A branch can only be checked out in **one** worktree at a time.
+- Deleting a worktree directory by hand leaves stale metadata behind. Prefer `git worktree remove`, then `git worktree prune`.
+
+## Everyday Commands
+
+List all worktrees:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect worktree list
+```
+
+Create a new sibling worktree from `main`:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect \
+  worktree add /home/elpresidank/YeeBois/projects/beep-effect-worktrees/feature-x \
+  -b worktree/feature-x \
+  main
+```
+
+Create a worktree for an existing branch:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect \
+  worktree add /home/elpresidank/YeeBois/projects/beep-effect-worktrees/beepgraph \
+  feat/beepgraph-messaging
+```
+
+Remove a worktree cleanly:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect \
+  worktree remove /home/elpresidank/YeeBois/projects/beep-effect-worktrees/feature-x
+```
+
+Prune stale metadata:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect worktree prune
+```
+
+Lock a long-lived worktree so Git will not prune it accidentally:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect \
+  worktree lock /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground
+```
+
+Repair broken metadata if a path moved:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect worktree repair
+```
+
+## `beep-effect` Workflow
+
+Recommended flow for a new feature:
+
+1. Start from the main checkout and make sure `main` is clean.
+2. Add a sibling worktree under `/home/elpresidank/YeeBois/projects/beep-effect-worktrees`.
+3. Open that worktree as its own project in WebStorm.
+4. Run bootstrap commands inside that worktree.
+5. Launch Claude Code or Codex CLI from that worktree root.
+
+Bootstrap checklist for a fresh worktree:
+
+```bash
+git -C /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground submodule update --init --recursive
+cd /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground
+bun install
+```
+
+Then restore any local-only files you need:
+
+- `.env`
+- `.direnv`
+- `.claude/settings.local.json`
+- `CLAUDE.local.md`
+- `.beep`
+- `.idea`
+
+By default these do **not** follow you into a fresh worktree, which is usually what we want.
+
+## Tool Integrations
+
+### WebStorm
+
+Default recommendation:
+
+- Open each worktree as a **separate WebStorm project**.
+- Do not treat sibling worktrees as attached subprojects inside one parent workspace.
+- Do not nest worktrees inside `beep-effect/`.
+
+Why:
+
+- JetBrains documents worktree support as a single-repo project flow.
+- Nested worktrees can be misdetected as multi-root projects.
+- Separate projects keep changelists, run configs, branch state, and indexing cleaner.
+
+Two good ways to create or open them:
+
+- Use `git worktree add ...` in the terminal, then `File | Open`.
+- Or use `Git | New Worktree` in WebStorm and let it open the new project.
+
+### Claude Code
+
+Default recommendation for this repo:
+
+- Use manual Git worktrees.
+- Launch Claude from the worktree root.
+- Keep using the checked-in `.claude/settings.json` and `$CLAUDE_PROJECT_DIR` hook paths.
+
+Good:
+
+```bash
+cd /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground
+claude
+```
+
+Avoid as the primary local workflow:
+
+```bash
+claude --worktree
+```
+
+Why:
+
+- Claude’s built-in worktree flow creates nested worktrees under `.claude/worktrees/`.
+- That is convenient for quick disposable sessions, but it conflicts with the sibling layout that WebStorm handles best.
+
+Still useful to know:
+
+- Tracked `.claude/settings.json`, `.mcp.json`, and hook scripts come along automatically in any worktree.
+- Gitignored files like `.claude/settings.local.json`, `CLAUDE.local.md`, and `.env` do not.
+- If you ever choose Claude-managed worktrees for throwaway tasks, `.worktreeinclude` can copy selected ignored files, but that is not part of the default `beep-effect` setup.
+
+### Codex CLI
+
+Default recommendation:
+
+- Run one Codex session per worktree.
+- Launch it from the worktree root, or use `-C`.
+
+Good:
+
+```bash
+cd /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground
+codex
+```
+
+Also good:
+
+```bash
+codex -C /home/elpresidank/YeeBois/projects/beep-effect-worktrees/playground
+```
+
+Why:
+
+- Codex CLI is cwd-driven for config discovery, hooks, trust, and resume filtering.
+- The repo’s checked-in `.codex/config.toml`, `AGENTS.md`, and SessionStart guidance already fit that model well.
+
+### Codex App
+
+The Codex app has first-class worktree support, but treat it as an **optional parallel-agent workflow**, not the source of truth for the local repo layout.
+
+Important differences:
+
+- App-managed worktrees live under `$CODEX_HOME/worktrees`.
+- They may start in detached `HEAD`.
+- The app uses handoff semantics between local and worktree tasks.
+
+Recommended use here:
+
+- Use Git-native sibling worktrees for your day-to-day local workspace.
+- Use Codex app worktrees only when you specifically want OpenAI-managed parallel task orchestration.
+
+## Migration From Duplicate Clones
+
+Use this sequence instead of creating another `beep-effectN` clone:
+
+1. Decide which branch or feature needs isolation.
+2. Create a worktree under `/home/elpresidank/YeeBois/projects/beep-effect-worktrees`.
+3. Bootstrap it.
+4. Move your IDE and agent session into that worktree.
+5. Retire the old duplicate clone only after the branch is merged or intentionally migrated.
+
+For an existing duplicate clone:
+
+1. Identify its active branch and any uncommitted work.
+2. Create an equivalent worktree on that branch.
+3. Verify the new worktree has the local env files and tooling you need.
+4. Stop using the duplicate clone.
+5. Archive or delete the duplicate clone only after you are confident nothing local-only is stranded there.
+
+## Repo-Specific Gotchas
+
+- `flake.nix` now derives its Bun cache name from the active worktree root, so each worktree gets its own cache namespace.
+- `.claude/.hook-state.json`, `.idea`, `.turbo`, `.sst`, `.beep`, and `node_modules` are intentionally local to each worktree.
+- The repo contains a Git submodule at `.agents/skills/effect-v4`; verify submodules in a fresh worktree before assuming every skill is available.
+- The Graphiti proxy is machine-global enough that you can keep using the same helper commands across worktrees:
+  - `bun run codex:hook:session-start`
+  - `bun run graphiti:proxy`
+  - `bun run graphiti:proxy:ensure`
+
+## Official References
+
+- Git worktree docs: <https://git-scm.com/docs/git-worktree>
+- WebStorm worktrees: <https://www.jetbrains.com/help/webstorm/use-git-worktrees.html>
+- WebStorm branches: <https://www.jetbrains.com/help/webstorm/manage-branches.html>
+- Claude Code hooks: <https://code.claude.com/docs/en/hooks>
+- Claude Code common workflows: <https://code.claude.com/docs/en/common-workflows>
+- Claude Code configuration: <https://code.claude.com/docs/en/configuration>
+- Claude Code JetBrains integration: <https://code.claude.com/docs/en/jetbrains>
+- Codex hooks: <https://developers.openai.com/codex/hooks>
+- Codex CLI features: <https://developers.openai.com/codex/cli/features>
+- Codex app worktrees: <https://developers.openai.com/codex/app/worktrees>
+- Codex app local environments: <https://developers.openai.com/codex/app/local-environments>

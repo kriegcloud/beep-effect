@@ -2,7 +2,7 @@
  * Schema for the `Strict-Transport-Security` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/ForceHttpsRedirect
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, pipe, SchemaTransformation } from "effect";

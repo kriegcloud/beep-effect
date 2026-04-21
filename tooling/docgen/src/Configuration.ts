@@ -7,6 +7,7 @@ import { decodeTSConfigFromJsoncTextEffect, TSConfigCompilerOptions } from "@bee
 import { Context, Effect, FileSystem, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as jsonc from "jsonc-parser";
 import * as Domain from "./Domain.js";
@@ -28,6 +29,8 @@ const CONFIG_FILE_NAME = "docgen.json";
 const CompilerOptionsShape = S.toEncoded(TSConfigCompilerOptions);
 const CompilerOptionsSchema = S.Union([S.String, CompilerOptionsShape]);
 const encodeCompilerOptions = S.encodeSync(TSConfigCompilerOptions);
+const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
+  A.isArray(value) && A.every(value, P.isString);
 
 /**
  * Schema describing the optional `docgen.json` configuration document.
@@ -174,13 +177,14 @@ const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
         }),
     });
 
-    return yield* Effect.try({
-      try: () => S.decodeUnknownSync(schema)(parsed),
-      catch: (cause) =>
-        new Domain.DocgenError({
-          message: `[Configuration.readJsoncFile] Failed to decode '${filePath}'\n${String(cause)}`,
-        }),
-    });
+    return yield* S.decodeUnknownEffect(schema)(parsed).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Domain.DocgenError({
+            message: `[Configuration.readJsoncFile] Failed to decode '${filePath}'\n${String(cause)}`,
+          })
+      )
+    );
   }) as Effect.Effect<S.Schema.Type<Schema>, Domain.DocgenError, FileSystem.FileSystem>;
 
 const readPackageJson = (filePath: string) => readJsoncFile(filePath, PackageJsonSchema);
@@ -256,7 +260,7 @@ const resolveCompilerOptions = (
     return Effect.succeed(defaultCompilerOptions);
   }
 
-  return typeof resolved.value === "string" ? readTSConfig(resolved.value) : Effect.succeed(resolved.value);
+  return P.isString(resolved.value) ? readTSConfig(resolved.value) : Effect.succeed(resolved.value);
 };
 
 const resolveString = (fromCLI: O.Option<string>, fromDocgenJson: O.Option<string>, fallback: string): string =>
@@ -323,11 +327,13 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
   );
   // Examples commonly include illustrative bindings that are intentionally unused.
   // Force-disable unused checks to keep docs validation focused on type correctness.
-  const exampleTypes = Array.isArray(resolvedExamplesCompilerOptions.types)
-    ? pipe(resolvedExamplesCompilerOptions.types, A.append("node"), A.append("bun"), A.dedupe)
-    : ["node", "bun"];
+  const configuredExampleTypes: ReadonlyArray<string> = isStringArray(resolvedExamplesCompilerOptions.types)
+    ? resolvedExamplesCompilerOptions.types
+    : A.empty<string>();
+  const exampleTypes: ReadonlyArray<string> = pipe(configuredExampleTypes, A.append("node"), A.append("bun"), A.dedupe);
   const examplesCompilerOptions = {
     ...resolvedExamplesCompilerOptions,
+    allowImportingTsExtensions: true,
     noUnusedLocals: false,
     noUnusedParameters: false,
     types: exampleTypes,

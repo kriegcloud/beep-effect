@@ -136,10 +136,10 @@ export const resolveSidecarAppDataDir = Effect.fn("SidecarRuntime.resolveAppData
  * Resolve the sidecar version from the environment or package.json.
  *
  * Priority:
- *   1. `BEEP_REPO_MEMORY_VERSION` environment variable
- *   2. `version` field of the nearest `package.json` relative to the given
- *      base directory
- *   3. `"0.0.0"` hard-coded fallback
+ *
+ *
+ *
+ *
  *
  * @since 0.0.0
  * @category Configuration

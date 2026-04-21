@@ -387,6 +387,19 @@ h1 {
   line-height: 1.4;
 }
 
+.transcript-surface {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: var(--background);
+  padding: 14px;
+}
+
+.transcript-body {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
 .empty-state {
   display: grid;
   align-content: center;

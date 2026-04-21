@@ -8,7 +8,7 @@
  *
  * Uses HTML-like syntax for all context enhancements.
  *
- * @module SubAgentInit
+ * @module
  * @since 0.0.0
  */
 
@@ -21,6 +21,7 @@ import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { provideLayerScoped } from "../../internal/runtime.ts";
 
 const $I = $ClaudeId.create("hooks/subagent-init/index");
 
@@ -61,7 +62,7 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
 
 export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
   "AgentConfigError",
-  { reason: S.String, cause: S.optional(S.DefectWithStack) },
+  { reason: S.String, cause: S.optionalKey(S.DefectWithStack) },
   $I.annote("AgentConfigError", {
     description: "Raised when subagent hook configuration cannot be decoded.",
   })
@@ -376,8 +377,7 @@ ${miseTasks || "(none)"}
 });
 
 const runnable = pipe(
-  program,
-  Effect.provide(AppLive),
+  Effect.scoped(provideLayerScoped(program, AppLive)),
   Effect.catchTag("AgentConfigError", (error) => Console.error(`<error>${error.reason}</error>`))
 );
 

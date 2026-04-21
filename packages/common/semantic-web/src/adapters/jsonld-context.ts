@@ -8,6 +8,7 @@
 import { Effect, Layer, Order } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { IRIReference } from "../iri.ts";
@@ -42,7 +43,7 @@ const makeContextError = (
   });
 
 const bindingIdentifier = (binding: string | { readonly "@id": string }): string =>
-  typeof binding === "string" ? binding : binding["@id"];
+  P.isString(binding) ? binding : binding["@id"];
 
 const mergeContextTerms = (left: JsonLdContext["terms"], right: JsonLdContext["terms"]) =>
   R.fromEntries([...R.toEntries(left), ...R.toEntries(right)]);

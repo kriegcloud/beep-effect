@@ -2,7 +2,7 @@
  * The repositories i18n configuration.
  *
  * @since 0.0.0
- * @module @beep/messages/i18n
+ * @module
  */
 import { O } from "@beep/utils";
 import { Exit, Match, pipe, SchemaIssue } from "effect";
@@ -53,8 +53,8 @@ export const t = i18next.t;
  * import type { GetLogIssuesOptions } from "@beep/messages"
  *
  * const opts: GetLogIssuesOptions = {
- *   leafHook: (issue) => `Leaf: ${issue._tag}`,
- *   checkHook: () => "Check failed",
+ *
+ *
  * }
  * void opts
  * ```
@@ -71,51 +71,52 @@ export type GetLogIssuesOptions = Readonly<{
  * A helper to retrieve issues from schema parse issues
  *
  * @example
- * import { getLogIssues } from "@beep/messages";
+ * ```ts
+ * import { getLogIssues, t } from "@beep/messages";
  * import * as S from "effect/Schema";
  *
  * const Person = S.Struct({
- *   name: S.String.check(S.isNonEmpty())
+ *
  * });
  *
  * // Configure hooks to customize how issues are rendered
  * const logIssues = getLogIssues({
- *   // Format leaf-level issues (missing key, wrong type, etc.)
- *   leafHook: (issue) => {
- *     switch (issue._tag) {
- *       case "InvalidType": {
- *         if (issue.ast._tag === "String") {
- *           return t("string.mismatch") // Wrong type for a string
- *         } else if (issue.ast._tag === "Objects") {
- *           return t("struct.mismatch") // Value is not an object
- *         }
- *         return t("default.mismatch") // Fallback for other types
- *       }
- *       case "InvalidValue": {
- *         return t("default.invalidValue")
- *       }
- *       case "MissingKey":
- *         return t("struct.missingKey")
- *       case "UnexpectedKey":
- *         return t("struct.unexpectedKey")
- *       case "Forbidden":
- *         return t("default.forbidden")
- *       case "OneOf":
- *         return t("default.oneOf")
- *     }
- *   },
- *   // Format custom check errors (like isMinLength or user-defined validations)
- *   checkHook: (issue) => {
- *     const meta = issue.filter.annotations?.meta
- *     if (meta) {
- *       switch (meta._tag) {
- *         case "isMinLength": {
- *           return t("string.minLength", { minLength: meta.minLength })
- *         }
- *       }
- *     }
- *     return t("default.check")
- *   }
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  *
  * // Invalid object (not even a struct)
@@ -133,11 +134,11 @@ export type GetLogIssuesOptions = Readonly<{
  * // "name" is an empty string
  * logIssues(Person, { name: "" })
  * // Failure(Cause([Fail([{"path":["name"],"message":"Please enter at least 1 character(s)"}])]))
- *
+ * ```
  *
  * @category utilities
  * @since 0.0.0
- * @param options
+ * @param options - Optional formatter hooks for schema and leaf issue rendering.
  */
 export function getLogIssues(options?: GetLogIssuesOptions) {
   return <S extends S.Codec<unknown, unknown>>(schema: S, input: unknown) => {

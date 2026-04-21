@@ -103,7 +103,7 @@ ensure_supported_os() {
 
 ensure_repo_surface() {
   [[ -d "${REPO_ROOT}/apps/V2T" ]] || die "missing apps/V2T under ${REPO_ROOT}"
-  [[ -d "${REPO_ROOT}/packages/VT2" ]] || die "missing packages/VT2 under ${REPO_ROOT}"
+  [[ -d "${REPO_ROOT}/packages/v2t-sidecar" ]] || die "missing packages/v2t-sidecar under ${REPO_ROOT}"
   [[ -f "${REPO_ROOT}/bun.lock" ]] || die "missing bun.lock under ${REPO_ROOT}"
   [[ -f "$QWEN_SERVER_SCRIPT" ]] || die "missing Qwen server script at ${QWEN_SERVER_SCRIPT}"
   [[ -f "$QWEN_REQUIREMENTS_FILE" ]] || die "missing Qwen requirements file at ${QWEN_REQUIREMENTS_FILE}"

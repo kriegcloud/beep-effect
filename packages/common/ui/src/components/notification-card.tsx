@@ -169,14 +169,17 @@ export function NotificationCard({
             <div className={cn("flex flex-wrap items-center gap-2", !isUnread && "opacity-60")}>
               {actions.map((action) => {
                 const isLoading = loadingActionId === action.id;
-                const isExecuted = action.executed ?? false;
+                const isExecuted = pipe(
+                  action.executed,
+                  O.getOrElse(() => false)
+                );
                 const showLoading = isLoading && action.type !== "modal";
 
                 return (
                   <button
                     key={action.id}
                     type="button"
-                    disabled={isLoading || isExecuted.pipe(O.getOrElse(() => false))}
+                    disabled={isLoading || isExecuted}
                     onClick={() => onAction?.(id, action.id, action.type)}
                     className={cn(
                       "flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-normal transition",

@@ -25,6 +25,7 @@ import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { provideLayerScoped } from "../../internal/runtime.ts";
 
 const $I = $ClaudeId.create("hooks/skill-suggester/index");
 
@@ -59,8 +60,8 @@ class HookState extends S.Class<HookState>($I`HookState`)(
 
 const HookStateFromJson = S.fromJsonString(HookState);
 
-const readHookState = (cwd: string) =>
-  Effect.gen(function* () {
+const readHookState = Effect.fn("readHookState")(
+  function* (cwd: string) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const statePath = path.join(cwd, ".claude", ".hook-state.json");
@@ -72,16 +73,17 @@ const readHookState = (cwd: string) =>
     return yield* S.decodeUnknownEffect(HookStateFromJson)(content).pipe(
       Effect.orElseSucceed(() => new HookState({ lastCallMs: null }))
     );
-  }).pipe(Effect.catch(() => Effect.succeed(new HookState({ lastCallMs: null }))));
+  },
+  Effect.catch(() => Effect.succeed(new HookState({ lastCallMs: null })))
+);
 
-const writeHookState = (cwd: string, state: HookState) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const statePath = path.join(cwd, ".claude", ".hook-state.json");
-    const encoded = yield* S.encodeEffect(HookStateFromJson)(state);
-    yield* fs.writeFileString(statePath, encoded);
-  }).pipe(Effect.orElseSucceed(thunkUndefined));
+const writeHookState = Effect.fn("writeHookState")(function* (cwd: string, state: HookState) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const statePath = path.join(cwd, ".claude", ".hook-state.json");
+  const encoded = yield* S.encodeEffect(HookStateFromJson)(state);
+  yield* fs.writeFileString(statePath, encoded);
+}, Effect.orElseSucceed(thunkUndefined));
 
 class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
   {
@@ -142,25 +144,57 @@ const shouldShowMiseTasks = (prompt: string): boolean => {
   return false;
 };
 
-const fetchMiseTasks = (cwd: string) =>
-  Effect.gen(function* () {
-    const result = yield* pipe(
-      Effect.gen(function* () {
-        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-        return yield* spawner.string(ChildProcess.make({ cwd })`mise tasks --json`);
-      }),
-      Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
-      Effect.map(formatMiseTasks),
-      Effect.catch(() => Effect.succeed(""))
-    );
+const EFFECT_STEERING_TRIGGER_KEYWORDS = HashSet.fromIterable([
+  "effect",
+  "option",
+  "schema",
+  "bool.match",
+  "match.value",
+  "o.match",
+  "idiomatic",
+  "terse",
+  "governance",
+  "effect-first",
+  "schema-first",
+]);
 
-    return Str.isNonEmpty(result) ? O.some(result) : O.none();
-  });
+export const shouldShowEffectSteering = (prompt: string): boolean => {
+  const lowered = Str.toLowerCase(prompt);
+  for (const keyword of EFFECT_STEERING_TRIGGER_KEYWORDS) {
+    if (Str.includes(keyword)(lowered)) return true;
+  }
+  return false;
+};
+
+export const buildEffectSteeringBlock = (prompt: string): O.Option<string> =>
+  shouldShowEffectSteering(prompt)
+    ? O.some(`<effect-steering>
+Prefer the flattest equivalent control flow first.
+Before O.match(...), check O.map(...), O.flatMap(...), O.liftPredicate(...), and O.getOrElse(...).
+Option-valued object fields: use R.getSomes({...}) when None should drop keys, O.all({...}) when the whole object is all-or-nothing, and S.OptionFrom* when optionality belongs at the schema boundary.
+Prefer Match.type<T>().pipe(...) or Match.tags(...) for reusable or exhaustive matchers; keep Match.value(...) for concrete local values at boundaries.
+Treat nested Bool.match(...) as a smell unless both branches are doing real work.
+</effect-steering>`)
+    : O.none();
+
+const fetchMiseTasks = Effect.fn("fetchMiseTasks")(function* (cwd: string) {
+  const result = yield* pipe(
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      return yield* spawner.string(ChildProcess.make({ cwd })`mise tasks --json`);
+    }),
+    Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
+    Effect.map(formatMiseTasks),
+    Effect.catch(() => Effect.succeed(""))
+  );
+
+  return Str.isNonEmpty(result) ? O.some(result) : O.none();
+});
 
 const parseFrontmatter = (content: string): R.ReadonlyRecord<string, string> => {
   const frontmatterRegex = /^---\n([\s\S]*?)\n---/;
   const match = O.getOrNull(Str.match(frontmatterRegex)(content));
-  if (!match) return R.empty();
+  if (match === null) return R.empty();
 
   const frontmatter = match[1];
   const lines = Str.split(frontmatter, "\n");
@@ -250,41 +284,37 @@ class OutputSchema extends S.Class<OutputSchema>($I`OutputSchema`)(
   })
 ) {}
 
-const readSkillFile = (skillPath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+const readSkillFile = Effect.fn("readSkillFile")(function* (skillPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    const content = yield* fs.readFileString(skillPath);
-    const frontmatter = parseFrontmatter(content);
-    const name = frontmatter.name || path.basename(path.dirname(skillPath));
-    const description = frontmatter.description || "";
+  const content = yield* fs.readFileString(skillPath);
+  const frontmatter = parseFrontmatter(content);
+  const name = frontmatter.name || path.basename(path.dirname(skillPath));
+  const description = frontmatter.description || "";
 
-    const nameKeywords = extractKeywords(name);
-    const descKeywords = extractKeywords(description);
-    const keywords = A.dedupe(A.appendAll(nameKeywords, descKeywords));
+  const nameKeywords = extractKeywords(name);
+  const descKeywords = extractKeywords(description);
+  const keywords = A.dedupe(A.appendAll(nameKeywords, descKeywords));
 
-    return { name, keywords };
-  });
+  return { name, keywords };
+});
 
-const loadSkills = (cwd: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+const loadSkills = Effect.fn("loadSkills")(function* (cwd: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    const skillsDir = path.join(cwd, ".claude", "skills");
-    const exists = yield* fs.exists(skillsDir);
+  const skillsDir = path.join(cwd, ".claude", "skills");
+  const exists = yield* fs.exists(skillsDir);
 
-    if (!exists) return A.empty<SkillMetadata>();
+  if (!exists) return A.empty<SkillMetadata>();
 
-    const entries = yield* fs.readDirectory(skillsDir);
-    const skillEffects = A.map(entries, (entry) =>
-      Effect.option(readSkillFile(path.join(skillsDir, entry, "SKILL.md")))
-    );
+  const entries = yield* fs.readDirectory(skillsDir);
+  const skillEffects = A.map(entries, (entry) => Effect.option(readSkillFile(path.join(skillsDir, entry, "SKILL.md"))));
 
-    const skillOptions = yield* Effect.all(skillEffects, { concurrency: "unbounded" });
-    return A.getSomes(skillOptions);
-  });
+  const skillOptions = yield* Effect.all(skillEffects, { concurrency: "unbounded" });
+  return A.getSomes(skillOptions);
+});
 
 export const matchesWordBoundary = (prompt: string, word: string): boolean => {
   const pattern = new RegExp(`\\b${Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(word)}\\b`, "i");
@@ -327,36 +357,35 @@ export const findMatchingSkills = (prompt: string, skills: ReadonlyArray<SkillMe
     A.map(({ skill }) => skill.name)
   );
 
-const searchModules = (prompt: string, cwd: string) =>
-  Effect.gen(function* () {
-    const words = pipe(
-      prompt,
-      Str.toLowerCase,
-      Str.split(/\s+/),
-      A.filter((w) => Str.length(w) >= 4)
-    );
+const searchModules = Effect.fn("searchModules")(function* (prompt: string, cwd: string) {
+  const words = pipe(
+    prompt,
+    Str.toLowerCase,
+    Str.split(/\s+/),
+    A.filter((w) => Str.length(w) >= 4)
+  );
 
-    if (!A.isReadonlyArrayNonEmpty(words)) return O.none<string>();
+  if (!A.isReadonlyArrayNonEmpty(words)) return O.none<string>();
 
-    const pattern = words[0];
+  const pattern = words[0];
 
-    const result = yield* pipe(
-      Effect.gen(function* () {
-        const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
-        return yield* spawner.string(
-          ChildProcess.make("bun", [".claude/scripts/context-crawler.ts", "--search", pattern], { cwd })
-        );
-      }),
-      Effect.catch(() => Effect.succeed(""))
-    );
+  const result = yield* pipe(
+    Effect.gen(function* () {
+      const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+      return yield* spawner.string(
+        ChildProcess.make("bun", [".claude/scripts/context-crawler.ts", "--search", pattern], { cwd })
+      );
+    }),
+    Effect.catch(() => Effect.succeed(""))
+  );
 
-    const countMatch = O.getOrNull(Str.match(/count="(\d+)"/)(result));
-    const count = countMatch ? Number.parseInt(countMatch[1], 10) : 0;
+  const countMatch = O.getOrNull(Str.match(/count="(\d+)"/)(result));
+  const count = countMatch === null ? 0 : Number.parseInt(countMatch[1], 10);
 
-    if (count === 0) return O.none<string>();
+  if (count === 0) return O.none<string>();
 
-    return O.some(Str.trim(result));
-  });
+  return O.some(Str.trim(result));
+});
 
 const formatOutput = (context: string) =>
   S.encodeEffect(S.fromJsonString(OutputSchema))({
@@ -383,9 +412,9 @@ interface KgContextRelationship {
 
 class SnapshotRecord extends S.Class<SnapshotRecord>($I`SnapshotRecord`)(
   {
-    file: S.optionalKey(S.UndefinedOr(S.String)),
-    nodeCount: S.optionalKey(S.UndefinedOr(S.Number)),
-    edgeCount: S.optionalKey(S.UndefinedOr(S.Number)),
+    file: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    nodeCount: S.Number.pipe(S.UndefinedOr, S.optionalKey),
+    edgeCount: S.Number.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("SnapshotRecord", {
     description: "Ast-kg snapshot line payload used for hook context ranking.",
@@ -394,8 +423,8 @@ class SnapshotRecord extends S.Class<SnapshotRecord>($I`SnapshotRecord`)(
 
 const SnapshotRecordFromJson = S.fromJsonString(SnapshotRecord);
 
-const readLatestSnapshotFile = (cwd: string) =>
-  Effect.gen(function* () {
+const readLatestSnapshotFile = Effect.fn("readLatestSnapshotFile")(
+  function* (cwd: string) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const snapshotRoot = path.join(cwd, "tooling", "ast-kg", ".cache", "snapshots");
@@ -412,7 +441,9 @@ const readLatestSnapshotFile = (cwd: string) =>
     const ordered = A.sort(entries, Order.flip(Order.String));
     const latest = pipe(ordered, A.head);
     return O.map(latest, (entry) => path.join(snapshotRoot, entry));
-  }).pipe(Effect.catch(() => Effect.succeed(O.none<string>())));
+  },
+  Effect.catch(() => Effect.succeed(O.none<string>()))
+);
 
 const scoreSnapshotRecord = (promptKeywords: ReadonlyArray<string>, file: string): number => {
   const lowered = Str.toLowerCase(file);
@@ -435,8 +466,10 @@ const escapeXmlAttribute = (value: string): string =>
     Str.replaceAll(">", "&gt;")
   );
 
-const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
-  Effect.gen(function* () {
+const KG_SYMBOL_NAMESPACE = "beep-effect";
+
+const buildKgContextBlockEffect = Effect.fn("buildKgContextBlockEffect")(
+  function* (cwd: string, prompt: string) {
     const fs = yield* FileSystem.FileSystem;
     const snapshotFile = yield* readLatestSnapshotFile(cwd);
     if (O.isNone(snapshotFile)) {
@@ -484,7 +517,7 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
     const symbols = A.map(
       scored,
       (entry): KgContextSymbol => ({
-        id: `beep-effect3::${entry.file}::module:${entry.file}::module::${sha256(entry.file)}`,
+        id: `${KG_SYMBOL_NAMESPACE}::${entry.file}::module:${entry.file}::module::${sha256(entry.file)}`,
         kind: "module",
         score: Math.min(0.99, 0.5 + entry.score * 0.1),
         provenance: "ast",
@@ -542,12 +575,12 @@ const buildKgContextBlockEffect = (cwd: string, prompt: string) =>
     );
 
     return block.length > 6000 ? O.none<string>() : O.some(block);
-  }).pipe(Effect.catch(() => Effect.succeed(O.none<string>())));
+  },
+  Effect.catch(() => Effect.succeed(O.none<string>()))
+);
 
 export const buildKgContextBlock = (cwd: string, prompt: string): O.Option<string> =>
-  Effect.runSync(
-    buildKgContextBlockEffect(cwd, prompt).pipe(Effect.provide(BunServices.layer), Effect.orElseSucceed(O.none<string>))
-  );
+  Effect.runSync(Effect.scoped(provideLayerScoped(buildKgContextBlockEffect(cwd, prompt), BunServices.layer)));
 
 const sha256 = (value: string): string => createHash("sha256").update(value, "utf8").digest("hex");
 
@@ -576,7 +609,7 @@ const program = Effect.gen(function* () {
   const parts = A.empty<string>();
 
   // Add hook state tracking
-  const elapsedMs = previousState.lastCallMs ? currentCallMs - previousState.lastCallMs : "n/a";
+  const elapsedMs = previousState.lastCallMs === null ? "n/a" : currentCallMs - previousState.lastCallMs;
   parts.push(`<hook_state>
 previous_call: ${previousState.lastCallMs ?? "none"}
 current_call: ${currentCallMs}
@@ -599,6 +632,11 @@ elapsed_ms: ${elapsedMs}
 Run these with: mise run <task-name>
 ${miseTasksResult.value}
 </available-scripts>`);
+  }
+
+  const effectSteeringBlock = buildEffectSteeringBlock(input.prompt);
+  if (O.isSome(effectSteeringBlock)) {
+    parts.push(effectSteeringBlock.value);
   }
 
   const kgHookEnabled = yield* Config.boolean("BEEP_KG_HOOK_ENABLED").pipe(Config.withDefault(true));
@@ -638,7 +676,7 @@ redundantConcern concern =
   caughtByTypeSystem concern || caughtByLinter concern
 
 -- The compiler is a better bug-finder than speculation
--- Trust: tsc, eslint, Effect's typed errors
+-- Trust: tsc, Biome, repo-local effect-governance checks, eslint's JSDoc/TSDoc lane, and Effect's typed errors
 -- Don't: predict runtime bugs that would fail at compile time
 -- Don't: suggest fixes for issues the types will catch anyway
 
@@ -787,8 +825,7 @@ Prefer these over manual exploration and memory management.
 });
 
 const runnable = pipe(
-  program,
-  Effect.provide(BunServices.layer),
+  Effect.scoped(provideLayerScoped(program, BunServices.layer)),
   Effect.catch(() => Effect.void)
 );
 

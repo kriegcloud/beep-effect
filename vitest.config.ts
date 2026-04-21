@@ -4,6 +4,9 @@ const isBun = process.versions.bun !== undefined;
 
 export default defineConfig({
   test: {
+    coverage: {
+      provider: isBun ? "istanbul" : "v8",
+    },
     projects: [
       "packages/*/vitest.config.ts",
       "packages/*/*/vitest.config.ts",

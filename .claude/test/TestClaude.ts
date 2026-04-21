@@ -2,13 +2,13 @@ import * as S from "effect/Schema";
 
 const BashInput = S.Struct({
   command: S.String,
-  restart: S.optional(S.Boolean),
+  restart: S.optionalKey(S.Boolean),
 });
 
 const ReadInput = S.Struct({
   file_path: S.String,
-  offset: S.optional(S.Number),
-  limit: S.optional(S.Number),
+  offset: S.optionalKey(S.Number),
+  limit: S.optionalKey(S.Number),
 });
 
 const WriteInput = S.Struct({
@@ -20,29 +20,29 @@ const EditInput = S.Struct({
   file_path: S.String,
   old_string: S.String,
   new_string: S.String,
-  replace_all: S.optional(S.Boolean),
+  replace_all: S.optionalKey(S.Boolean),
 });
 
 const GrepInput = S.Struct({
   pattern: S.String,
-  path: S.optional(S.String),
-  glob: S.optional(S.String),
-  type: S.optional(S.String),
-  output_mode: S.optional(S.Literals(["content", "files_with_matches", "count"])),
+  path: S.optionalKey(S.String),
+  glob: S.optionalKey(S.String),
+  type: S.optionalKey(S.String),
+  output_mode: S.optionalKey(S.Literals(["content", "files_with_matches", "count"])),
 });
 
 const GlobInput = S.Struct({
   pattern: S.String,
-  path: S.optional(S.String),
+  path: S.optionalKey(S.String),
 });
 
 const TaskInput = S.Struct({
   description: S.String,
   prompt: S.String,
   subagent_type: S.String,
-  model: S.optional(S.String),
-  run_in_background: S.optional(S.Boolean),
-  resume: S.optional(S.String),
+  model: S.optionalKey(S.String),
+  run_in_background: S.optionalKey(S.Boolean),
+  resume: S.optionalKey(S.String),
 });
 
 const WebFetchInput = S.Struct({
@@ -58,7 +58,7 @@ const LSPInput = S.Struct({
   file: S.String,
   line: S.Number,
   col: S.Number,
-  newName: S.optional(S.String),
+  newName: S.optionalKey(S.String),
 });
 
 const NotebookEditInput = S.Struct({
@@ -69,7 +69,7 @@ const NotebookEditInput = S.Struct({
 
 const TodoWriteInput = S.Struct({
   content: S.String,
-  append: S.optional(S.Boolean),
+  append: S.optionalKey(S.Boolean),
 });
 
 const UserPromptSubmitInput = S.Struct({
@@ -100,9 +100,9 @@ export type HookInput = S.Schema.Type<typeof HookInput>;
 export const HookOutput = S.Struct({
   hookSpecificOutput: S.Struct({
     hookEventName: S.String,
-    permissionDecision: S.optional(S.String),
-    permissionDecisionReason: S.optional(S.String),
-    additionalContext: S.optional(S.String),
+    permissionDecision: S.optionalKey(S.String),
+    permissionDecisionReason: S.optionalKey(S.String),
+    additionalContext: S.optionalKey(S.String),
   }),
 });
 

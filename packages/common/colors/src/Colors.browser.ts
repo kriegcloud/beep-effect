@@ -5,7 +5,7 @@
  * returns plain string formatters while preserving the same API shape as the default module.
  *
  * @since 0.0.0
- * @module @beep/colors/Colors.browser
+ * @module
  */
 
 import { $ColorsId } from "@beep/identity";
@@ -72,7 +72,7 @@ export const isColorSupported = false;
  * ```
  *
  * @category utilities
- * @returns {boolean} - Always `false` in browser-safe builds.
+ * @returns Always `false` in browser-safe builds.
  * @since 0.0.0
  */
 export const supportsColor = (): boolean => false;
@@ -92,8 +92,8 @@ export const supportsColor = (): boolean => false;
  * ```
  *
  * @category utilities
- * @param _enabled {boolean | undefined} - Ignored in browser-safe builds.
- * @returns {Colors} - A formatter set whose members coerce input with `String(...)`.
+ * @param _enabled - Ignored in browser-safe builds.
+ * @returns A formatter set whose members coerce input with `String(...)`.
  * @since 0.0.0
  */
 export const createColors = (_enabled?: undefined | boolean): Colors =>

@@ -2,7 +2,7 @@
  * The Domain Authorization Service.
  *
  * @since 0.0.0
- * @module @beep/shared-domain/services/authorization
+ * @module
  */
 
 /**

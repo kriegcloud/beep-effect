@@ -12,7 +12,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, Model } from "@beep/schema";
 import { JsoncTextToUnknown } from "@beep/schema/Jsonc";
-import { Cause, Effect, Exit, pipe, SchemaIssue, SchemaTransformation, Struct } from "effect";
+import { Cause, Effect, Exit, pipe, SchemaGetter, SchemaIssue, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -219,7 +219,7 @@ const toTypeSchemaField = Struct.lambda<ToTypeSchemaField>(S.toType);
 const toEncodedSchemaField = Struct.lambda<ToEncodedSchemaField>(S.toEncoded);
 
 const isLooseJsonRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
-  P.isObject(value) ? !Array.isArray(value) : false;
+  P.isObject(value) ? !A.isArray(value) : false;
 
 const makeTypeStruct = <Fields extends S.Struct.Fields>(fields: Fields) =>
   S.Struct(Struct.map(fields, toTypeSchemaField));
@@ -227,19 +227,26 @@ const makeTypeStruct = <Fields extends S.Struct.Fields>(fields: Fields) =>
 const makeEncodedStruct = <Fields extends S.Struct.Fields>(fields: Fields) =>
   S.Struct(Struct.map(fields, toEncodedSchemaField));
 
+const emptyJsonRecord: Readonly<Record<string, S.Json>> = {};
+
+const mergeLooseJsonObject = <Value extends object>(
+  rest: Readonly<Record<string, S.Json>>,
+  value: Value
+): Readonly<Record<string, S.Json>> & Value => ({ ...rest, ...value });
+
 const makeLooseJsonObject = <Fields extends S.Struct.Fields>(fields: Fields, name: string, description: string) => {
   const strict = S.Struct(fields);
   const knownKeys = R.keys(fields);
   const decoded = S.make<
     S.Codec<
-      Readonly<Record<string, unknown>> & S.Schema.Type<typeof strict>,
-      Readonly<Record<string, unknown>> & S.Schema.Type<typeof strict>
+      Readonly<Record<string, S.Json>> & S.Schema.Type<typeof strict>,
+      Readonly<Record<string, S.Json>> & S.Schema.Type<typeof strict>
     >
   >(S.StructWithRest(makeTypeStruct(fields), [JsonRecord]).ast);
   const encoded = S.make<
     S.Codec<
-      Readonly<Record<string, unknown>> & S.Codec.Encoded<typeof strict>,
-      Readonly<Record<string, unknown>> & S.Codec.Encoded<typeof strict>
+      Readonly<Record<string, S.Json>> & S.Codec.Encoded<typeof strict>,
+      Readonly<Record<string, S.Json>> & S.Codec.Encoded<typeof strict>
     >
   >(S.StructWithRest(makeEncodedStruct(fields), [JsonRecord]).ast);
   const decodeStrict = S.decodeUnknownEffect(strict);
@@ -252,27 +259,29 @@ const makeLooseJsonObject = <Fields extends S.Struct.Fields>(fields: Fields, nam
     R.filter(value, (_value, key) => !A.contains(knownKeys, key));
 
   return encoded.pipe(
-    S.decodeTo(
-      decoded,
-      SchemaTransformation.transformOrFail({
-        decode: (input, options) =>
-          isLooseJsonRecord(input)
-            ? Effect.zipWith(
-                decodeStrict(pickKnownKeys(input), options).pipe(Effect.mapError((error) => error.issue)),
-                decodeRest(pickUnknownKeys(input), options).pipe(Effect.mapError((error) => error.issue)),
-                (decodedValue, decodedRest) => ({ ...decodedRest, ...decodedValue })
-              )
-            : decodeStrict(input, options).pipe(Effect.mapError((error) => error.issue)),
-        encode: (input, options) =>
-          Effect.zipWith(
-            encodeStrict(pickKnownKeys(input) as S.Schema.Type<typeof strict>, options).pipe(
-              Effect.mapError((error) => error.issue)
-            ),
-            decodeRest(pickUnknownKeys(input), options).pipe(Effect.mapError((error) => error.issue)),
-            (encodedValue, encodedRest) => ({ ...encodedRest, ...encodedValue })
+    S.decodeTo(decoded, {
+      decode: SchemaGetter.transformOrFail((input, options) =>
+        isLooseJsonRecord(input)
+          ? Effect.zipWith(
+              decodeStrict(pickKnownKeys(input), options).pipe(Effect.mapError((error) => error.issue)),
+              decodeRest(pickUnknownKeys(input), options).pipe(Effect.mapError((error) => error.issue)),
+              (decodedValue, decodedRest) => mergeLooseJsonObject(decodedRest, decodedValue)
+            )
+          : decodeStrict(input, options).pipe(
+              Effect.mapError((error) => error.issue),
+              Effect.map((decodedValue) => mergeLooseJsonObject(emptyJsonRecord, decodedValue))
+            )
+      ),
+      encode: SchemaGetter.transformOrFail((input, options) =>
+        Effect.zipWith(
+          encodeStrict(pickKnownKeys(input) as S.Schema.Type<typeof strict>, options).pipe(
+            Effect.mapError((error) => error.issue)
           ),
-      })
-    ),
+          decodeRest(pickUnknownKeys(input), options).pipe(Effect.mapError((error) => error.issue)),
+          (encodedValue, encodedRest) => mergeLooseJsonObject(encodedRest, encodedValue)
+        )
+      ),
+    }),
     S.annotate(
       $I.annote(name, {
         description,
@@ -290,29 +299,26 @@ const makeCaseInsensitiveLiteralSchema = <const Values extends A.NonEmptyReadonl
   const expected = pipe(values, A.join(", "));
 
   return S.String.pipe(
-    S.decodeTo(
-      CanonicalValue,
-      SchemaTransformation.transformOrFail({
-        decode: (value) => {
-          const normalizedValue = pipe(value, Str.toLowerCase);
+    S.decodeTo(CanonicalValue, {
+      decode: SchemaGetter.transformOrFail((value) => {
+        const normalizedValue = pipe(value, Str.toLowerCase);
 
-          return pipe(
-            values,
-            A.findFirst((candidate) => pipe(candidate, Str.toLowerCase) === normalizedValue),
-            O.match({
-              onNone: () =>
-                Effect.fail(
-                  new SchemaIssue.InvalidValue(O.some(value), {
-                    message: `Expected one of ${expected}.`,
-                  })
-                ),
-              onSome: Effect.succeed,
-            })
-          );
-        },
-        encode: Effect.succeed,
-      })
-    ),
+        return pipe(
+          values,
+          A.findFirst((candidate) => pipe(candidate, Str.toLowerCase) === normalizedValue),
+          O.match({
+            onNone: () =>
+              Effect.fail(
+                new SchemaIssue.InvalidValue(O.some(value), {
+                  message: `Expected one of ${expected}.`,
+                })
+              ),
+            onSome: Effect.succeed,
+          })
+        );
+      }),
+      encode: SchemaGetter.transform((value) => value),
+    }),
     S.annotate(
       $I.annote(name, {
         description,
@@ -1169,10 +1175,7 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
             onSome: () =>
               pipe(
                 toOptionalValue(options.jsx),
-                O.match({
-                  onNone: () => false,
-                  onSome: (jsx) => jsx === "react",
-                })
+                O.exists((jsx) => jsx === "react")
               ),
           })
         ),

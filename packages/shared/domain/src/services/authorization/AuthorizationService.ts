@@ -8,7 +8,7 @@
  * For Phase C4, this implements RBAC only. ABAC policy engine integration
  * will be added in Track F.
  *
- * @module @beep/shared-domain/services/authorization/AuthorizationService
+ * @module
  * @since 0.0.0
  */
 void 0;

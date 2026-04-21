@@ -1,3 +1,3 @@
-import { ESLintConfig } from "@beep/repo-configs";
+import { DocsESLintConfig } from "@beep/repo-configs/eslint/DocsESLintConfig";
 
-export default ESLintConfig;
+export default DocsESLintConfig;

@@ -23,7 +23,7 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
   "/storybook-static/",
   "/.next/",
   "/.turbo/",
-  "/specs/",
+  "/initiatives/",
   "/test/",
   "/tests/",
   "/dtslint/",

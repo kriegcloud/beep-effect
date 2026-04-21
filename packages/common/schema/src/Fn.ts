@@ -7,7 +7,7 @@
  * invocation time using the provided input, output, and error schemas.
  *
  * @since 0.0.0
- * @module @beep/schema/Fn
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -509,8 +509,8 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * import * as S from "effect/Schema"
  *
  * const FormatCount = Fn({
- *   input: S.NumberFromString,
- *   output: S.String,
+ *
+ *
  * })
  *
  * const formatCount = FormatCount.implementSync((count) => `${count}`)

@@ -2,7 +2,7 @@
  * Schema for the `Permissions-Policy` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/PermissionsPolicy
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Struct } from "@beep/utils";

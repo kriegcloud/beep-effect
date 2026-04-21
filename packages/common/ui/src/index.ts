@@ -1,5 +1,5 @@
 /**
- * @beep/ui — Shared UI component library.
+ * \@beep/ui — Shared UI component library.
  *
  * Provides shadcn components, theme tokens, and utilities
  * for consistent UI across the monorepo.

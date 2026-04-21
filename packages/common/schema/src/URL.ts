@@ -1,7 +1,7 @@
 /**
  * A module housing URL related schemas
  *
- * @module @beep/schema/URL
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -70,7 +70,7 @@ export const URLStr = NonEmptyTrimmedStr.pipe(
 );
 
 /**
- * Type of {@link URLStr}. {@inheritDoc URLStr}
+ * {@inheritDoc URLStr}
  *
  * @example
  * ```ts

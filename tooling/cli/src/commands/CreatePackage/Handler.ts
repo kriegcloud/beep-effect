@@ -6,7 +6,7 @@
  * - FileGenerationPlanService for deterministic plan/execute
  * - Shared repo config synchronization after scaffolding
  *
- * @module @beep/repo-cli/commands/CreatePackage/Handler
+ * @module
  * @since 0.0.0
  */
 
@@ -222,17 +222,17 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
  *
  * Must be repo-relative, normalized, and free of traversal segments.
  *
- * @param value Parent directory override to validate.
+ * @param value - Parent directory override to validate.
  * @returns True when the override is safe and repo-relative.
  */
 /**
  * Compute the path from a package directory back to repo root.
  *
  * Examples:
- * - `tooling/cli` => `../../`
- * - `packages/common/types` => `../../../`
+ * - `tooling/cli` maps to `../../`
+ * - `packages/common/types` maps to `../../../`
  *
- * @param packagePath Repo-relative package path.
+ * @param packagePath - Repo-relative package path.
  * @returns Relative path from the package directory to repo root.
  */
 const toRootRelative = (packagePath: string): string => CommonStr.repeat("../", A.length(Str.split(packagePath, "/")));
@@ -243,14 +243,15 @@ const parseJsonDocument: {
 } = dual(
   2,
   Effect.fn(function* (content: string, filePath: string) {
-    return yield* Effect.try({
-      try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(content),
-      catch: (cause) =>
-        new DomainError({
-          message: `Failed to parse JSON in "${filePath}"`,
-          cause,
-        }),
-    });
+    return yield* S.decodeUnknownEffect(S.fromJsonString(S.Unknown))(content).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to parse JSON in "${filePath}"`,
+            cause,
+          })
+      )
+    );
   })
 );
 
@@ -704,10 +705,9 @@ const generatePackageJson: (
       },
     },
     scripts: {
-      codegen: "echo 'no codegen needed'",
       build: "tsc -b tsconfig.json && bun run babel",
       babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-      check: "tsc -b tsconfig.json",
+      check: "tsgo -b tsconfig.json",
       lint: "biome check .",
       "lint:fix": "biome check . --write",
       test: "bunx --bun vitest run",

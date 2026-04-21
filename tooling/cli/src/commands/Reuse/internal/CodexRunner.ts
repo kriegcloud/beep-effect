@@ -7,8 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
-import { TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { Effect, type FileSystem } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
@@ -19,12 +20,7 @@ const $I = $RepoCliId.create("commands/Reuse/internal/CodexRunner");
  * @category DomainModel
  * @since 0.0.0
  */
-export const CodexRunnerStage = S.Union([
-  S.Literal("findRepoRoot"),
-  S.Literal("import"),
-  S.Literal("construct"),
-  S.Literal("startThread"),
-]).pipe(
+export const CodexRunnerStage = LiteralKit(["findRepoRoot", "import", "construct", "startThread"]).pipe(
   S.annotate(
     $I.annote("CodexRunnerStage", {
       description: "Bounded lifecycle stage used when the Codex smoke path fails.",
@@ -128,7 +124,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
       sdkPackage: "@openai/codex-sdk",
       workingDirectory: repoRoot,
       threadCreated: true,
-      threadRunMethodAvailable: typeof thread.run === "function",
+      threadRunMethodAvailable: P.isFunction(thread.run),
       note: "The smoke path validates SDK import and thread startup only. It does not execute an agent loop.",
     });
   }

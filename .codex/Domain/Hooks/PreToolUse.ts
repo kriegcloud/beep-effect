@@ -6,7 +6,7 @@
  * @see {@link https://github.com/openai/codex/blob/main/codex-rs/hooks/schema/generated/pre-tool-use.command.input.schema.json | Codex PreToolUse Command Input JSON Schema}
  * @see {@link https://github.com/openai/codex/blob/main/codex-rs/hooks/schema/generated/pre-tool-use.command.output.schema.json | Codex PreToolUse Command Output JSON Schema}
  *
- * @module @beep/codex/Domain/Hooks/PreToolUse
+ * @module
  * @since 0.0.0
  */
 import { $CodexId } from "@beep/identity";

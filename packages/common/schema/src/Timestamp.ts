@@ -1,7 +1,7 @@
 /**
  * UTC timestamp value objects, branded ISO string schemas, and epoch-millisecond schemas.
  *
- * @module @beep/schema/Timestamp
+ * @module
  * @since 0.0.0
  */
 
@@ -186,8 +186,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    *
    * @since 0.0.0
    * @category utilities
-   * @returns {DateTime.Utc}
-   * {@link Timestamp.toDateTime}
+   * @returns * {@link Timestamp.toDateTime}
    */
   readonly toDateTime: () => DateTime.Utc = (): DateTime.Utc => DateTime.makeUnsafe(this.epochMillis);
 
@@ -196,8 +195,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    *
    * @since 0.0.0
    * @category utilities
-   * @returns {Date}
-   */
+   * @returns */
   readonly toDate: () => Date = (): Date => DateTime.toDateUtc(this.toDateTime());
 
   /**
@@ -216,8 +214,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    *
    * @since 0.0.0
    * @category utilities
-   * @returns {ISOStr}
-   */
+   * @returns */
   readonly toStr: () => ISOStr = (): ISOStr => ISOStr.make(this.toISOStr());
 
   /**
@@ -225,8 +222,7 @@ export class Timestamp extends S.Class<Timestamp>("Timestamp")(
    *
    * @since 0.0.0
    * @category utilities
-   * @returns {LocalDate}
-   */
+   * @returns */
   readonly toLocalDate: () => LocalDate = (): LocalDate => {
     const date = DateTime.toPartsUtc(this.toDateTime());
     return LocalDate.make({
@@ -284,7 +280,7 @@ export const fromString = (dateString: string): Effect.Effect<Timestamp, SchemaI
  * @since 0.0.0
  * @category constructors
  */
-export const now = (): Timestamp => Timestamp.make({ epochMillis: Date.now() });
+export const now = (): Timestamp => Timestamp.make({ epochMillis: DateTime.nowUnsafe().epochMilliseconds });
 
 /**
  * Get the current timestamp as an `Effect` using the Clock service, testable with `TestClock`.

@@ -17,8 +17,8 @@ import type { DependencyRecord, WorkspaceDeps } from "./schemas/WorkspaceDeps.js
 /**
  * Classify a single dependency record into workspace and npm buckets.
  *
- * @param record Dependency record keyed by package name.
- * @param workspaceNames Set of package names that belong to local workspaces.
+ * @param record - Dependency record keyed by package name.
+ * @param workspaceNames - Set of package names that belong to local workspaces.
  * @returns Classified dependency maps for workspace and npm packages.
  */
 const classifyRecord = (
@@ -60,8 +60,8 @@ const classifyRecord = (
  * import { decodePackageJson } from "@beep/repo-utils/schemas/PackageJson"
  *
  * const pkg = decodePackageJson({
- *   name: "@my/pkg",
- *   dependencies: O.some({ "@my/other": "workspace:*", "lodash": "^4.0.0" }),
+ *
+ *
  * })
  * const deps = extractWorkspaceDependencies(pkg, HashSet.make("@my/other", "@my/another"))
  * void deps

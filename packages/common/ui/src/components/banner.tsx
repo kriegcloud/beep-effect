@@ -35,8 +35,8 @@ type BannerRootProps = React.ComponentProps<"div"> &
     icon?: React.ReactNode;
   };
 
-const BannerRoot = ({ className, variant = "default", icon, children, ...props }: BannerRootProps) => {
-  const defaultIcon = variant ? variantIcons[variant] : variantIcons.default;
+function Banner({ className, variant = "default", icon, children, ...props }: BannerRootProps) {
+  const defaultIcon = variantIcons[variant ?? "default"];
 
   return (
     <div data-slot="banner" role="alert" className={cn(bannerVariants({ variant }), className)} {...props}>
@@ -44,7 +44,7 @@ const BannerRoot = ({ className, variant = "default", icon, children, ...props }
       {children}
     </div>
   );
-};
+}
 
 const BannerContent = ({ className, ...props }: React.ComponentProps<"div">) => (
   <div data-slot="banner-content" className={cn("flex-1", className)} {...props} />
@@ -81,11 +81,9 @@ const BannerDismiss = ({ className, onDismiss, onClick, ...props }: BannerDismis
   </button>
 );
 
-export const Banner = Object.assign(BannerRoot, {
-  Content: BannerContent,
-  Title: BannerTitle,
-  Description: BannerDescription,
-  Dismiss: BannerDismiss,
-});
+Banner.Content = BannerContent;
+Banner.Title = BannerTitle;
+Banner.Description = BannerDescription;
+Banner.Dismiss = BannerDismiss;
 
 export { bannerVariants };

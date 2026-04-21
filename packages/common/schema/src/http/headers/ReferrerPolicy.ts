@@ -2,7 +2,7 @@
  * Schema for the `Referrer-Policy` header.
  *
  * @since 0.0.0
- * @module @beep/schema/http/headers/ReferrerPolicy
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaIssue, SchemaTransformation } from "effect";

@@ -24,7 +24,7 @@ const $I = $RepoCliId.create("commands/VersionSync/internal/Models");
  */
 export class VersionSyncError extends TaggedErrorClass<VersionSyncError>($I`VersionSyncError`)(
   "VersionSyncError",
-  { message: S.String, file: S.String, cause: S.optional(S.Defect) },
+  { message: S.String, file: S.String, cause: S.optionalKey(S.Defect) },
   $I.annote("VersionSyncError", {
     title: "Version Sync Error",
     description: "Failed to read, resolve, or update a version pin",

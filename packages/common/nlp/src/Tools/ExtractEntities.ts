@@ -2,7 +2,7 @@
  * ExtractEntities tool definition.
  *
  * @since 0.0.0
- * @module @beep/nlp/Tools/ExtractEntities
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

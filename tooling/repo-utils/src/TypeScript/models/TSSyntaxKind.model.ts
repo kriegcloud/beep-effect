@@ -1,10 +1,11 @@
 /**
- * @module @beep/repo-utils/TypeScript/models/TSSyntaxKind.model
+ * @module
  * @description Shared TypeScript syntax kind model definitions.
  * @since 0.0.0
  */
 
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, SchemaUtils } from "@beep/schema";
+import { Struct } from "@beep/utils";
 
 /**
  * Canonical TypeScript SyntaxKind name entries.
@@ -317,11 +318,11 @@ const TSSyntaxKindEntries = [
   ["CatchClause", 300],
   ["ImportAttributes", 301],
   ["ImportAttribute", 302],
-  /** @deprecated */
+  /** @deprecated Use `ImportAttribute` instead. */
   ["AssertClause", 301],
-  /** @deprecated */
+  /** @deprecated Use `ImportAttribute` instead. */
   ["AssertEntry", 302],
-  /** @deprecated */
+  /** @deprecated Use `ImportAttributes` instead. */
   ["ImportTypeAssertionContainer", 303],
   ["PropertyAssignment", 304],
   ["ShorthandPropertyAssignment", 305],
@@ -430,7 +431,7 @@ const TSSyntaxKindNames = toNameOptions(TSSyntaxKindEntries);
  * @category DomainModel
  * @since 0.0.0
  */
-export const TSSyntaxKindCode = Object.freeze(Object.fromEntries(TSSyntaxKindEntries)) as {
+export const TSSyntaxKindCode = Struct.fromEntries(TSSyntaxKindEntries) as {
   readonly [K in TSSyntaxKindEntries[number][0]]: Extract<TSSyntaxKindEntries[number], readonly [K, number]>[1];
 };
 
@@ -445,10 +446,12 @@ const TSSyntaxKindBase = LiteralKit(TSSyntaxKindNames);
  * @category DomainModel
  * @since 0.0.0
  */
-export const TSSyntaxKind = Object.assign(TSSyntaxKindBase, {
-  From: TSSyntaxKindBase,
-  Code: TSSyntaxKindCode,
-});
+export const TSSyntaxKind = TSSyntaxKindBase.pipe(
+  SchemaUtils.withStatics(() => ({
+    From: TSSyntaxKindBase,
+    Code: TSSyntaxKindCode,
+  }))
+);
 
 /**
  * Companion namespace for {@link TSSyntaxKind}.

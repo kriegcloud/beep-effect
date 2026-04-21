@@ -6,7 +6,7 @@
  * @see {@link https://github.com/openai/codex/blob/main/codex-rs/hooks/schema/generated/stop.command.input.schema.json | Codex `Stop` Command Input JSON Schema}
  * @see {@link https://github.com/openai/codex/blob/main/codex-rs/hooks/schema/generated/stop.command.output.schema.json | Codex `Stop` Command Output JSON Schema}
  *
- * @module @beep/codex/Domain/Hooks/Stop
+ * @module
  * @since 0.0.0
  */
 import { $CodexId } from "@beep/identity";

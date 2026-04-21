@@ -97,7 +97,7 @@ const INCLUDED_GLOBS = [
   ".claude/hooks/**/*.ts",
 ] as const;
 const toStableName = Str.slice("effect/".length);
-const isStableSubmodule = P.and(Str.startsWith("effect/"), Str.startsWith("effect/unstable/"));
+const isStableSubmodule = P.and(Str.startsWith("effect/"), P.not(Str.startsWith("effect/unstable/")));
 
 /**
  * Run effect import style migration/check logic.
