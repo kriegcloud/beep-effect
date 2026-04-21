@@ -119,6 +119,18 @@ Forbidden by default:
 - `shared` depending on product slices.
 - Runtime packages merging all slice layers into one global dependency object.
 
+Client/UI dependency caveats:
+
+- `client` may import `use-cases` only for client-safe command/query language,
+  boundary contracts, actionable application errors, and client facade contracts.
+  It must not import product ports, server-only workflows, process managers, or
+  Layer implementations.
+- `ui` may import `domain` only for provider-neutral schemas, value objects,
+  display contracts, and form validation. UI behavior should go through
+  `client` services/state instead of calling use-case orchestration directly.
+- If a `use-cases` module is not safe to import in the browser, expose the
+  browser-safe language through a narrower role file or package subpath.
+
 ## Slice Package Topology
 
 Every product slice uses the same package family unless a package genuinely has
@@ -159,6 +171,9 @@ business behavior.
 
 Each slice has a domain core, an application ring, and adapter packages around
 the outside.
+
+This diagram shows runtime request/data flow, not import direction. The package
+dependency graph above is the source of truth for legal imports.
 
 ```mermaid
 flowchart LR
@@ -377,6 +392,10 @@ ReadModels.ts
 | `.tools.ts` | Provider-neutral AI tool/toolkit declarations. |
 | `.cluster.ts` | Provider-neutral cluster entity protocol definitions. |
 
+Domain protocol role files declare boundary language only. They may define
+HttpApi, Rpc, AI tool, or cluster protocol contracts, but they must not define
+handlers, clients, transports, runtimes, persistence, or provider access.
+
 ### Use-Case Role Vocabulary
 
 | Role | Meaning |
@@ -545,6 +564,9 @@ them when callers can make product decisions from the error tag.
 Provider packages wrap third-party and infrastructure shape. Server packages
 adapt those technical capabilities to product ports.
 
+In this diagram, solid arrows are import/use dependencies. The dotted arrow is an
+implementation relationship.
+
 ```mermaid
 flowchart LR
   usecases["use-cases\nTwoFactor.ports.ts\nTwoFactorRepository"]
@@ -554,7 +576,7 @@ flowchart LR
   postgres["providers/postgres\nPostgres.service.ts"]
   db[("Postgres")]
 
-  usecases --> server
+  server -. "implements" .-> usecases
   server --> tables
   server --> drizzle
   drizzle --> postgres
@@ -565,42 +587,101 @@ In this shape, a use-case can ask for `TwoFactorRepository` without knowing
 whether the implementation uses Drizzle, Postgres, SQLite, a test store, or an
 event-sourced projection.
 
-Provider services use Effect v4 `Context.Service`:
+Provider services use Effect v4 `Context.Service` and expose technical
+capability, not product verbs:
 
 ```ts
+import { $I as $RootId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
 import { Context, Effect, Layer } from "effect"
-import { $IamProvidersPostgresId } from "@beep/identity/packages"
+import * as O from "effect/Option"
+import * as S from "effect/Schema"
 
-const $I = $IamProvidersPostgresId.create("src/Postgres.service.ts")
+const $I = $RootId.create("iam/providers/drizzle/src/Drizzle.service.ts")
 
-export class Postgres extends Context.Service<
-  Postgres,
+export class DrizzleError extends TaggedErrorClass<DrizzleError>(
+  $I`DrizzleError`,
+)(
+  "DrizzleError",
   {
-    readonly withTransaction: <A, E, R>(
-      effect: Effect.Effect<A, E, R>,
-    ) => Effect.Effect<A, E, R>
-  }
->()($I`Postgres`) {}
-
-export const layer = Layer.effect(
-  Postgres,
-  Effect.gen(function* () {
-    return {
-      withTransaction: (effect) => effect,
-    }
+    operation: S.String,
+    cause: S.OptionFromOptionalKey(S.Defect),
+  },
+  $I.annote("DrizzleError", {
+    description: "Technical Drizzle provider failure.",
   }),
+) {}
+
+const toDrizzleError = (operation: string, cause?: unknown): DrizzleError =>
+  new DrizzleError({
+    operation,
+    cause: O.fromUndefinedOr(cause),
+  })
+
+export interface DrizzleClient {
+  readonly execute: (
+    statement: string,
+    parameters: ReadonlyArray<unknown>,
+  ) => Promise<ReadonlyArray<unknown>>
+}
+
+export class Drizzle extends Context.Service<
+  Drizzle,
+  {
+    readonly execute: (
+      statement: string,
+      parameters: ReadonlyArray<unknown>,
+    ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
+  }
+>()($I`Drizzle`) {}
+
+export const makeDrizzleLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
+  Layer.effect(
+    Drizzle,
+    Effect.succeed({
+      execute: (statement, parameters) =>
+        Effect.tryPromise({
+          try: () => client.execute(statement, parameters),
+          catch: (cause) => toDrizzleError("execute", cause),
+        }),
+    }),
 )
 ```
 
 Product ports use product language:
 
 ```ts
-import { Context, Effect, Option } from "effect"
-import { $IamUseCasesId } from "@beep/identity/packages"
+import { $I as $RootId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
+import { Context, type Effect } from "effect"
+import * as O from "effect/Option"
+import * as S from "effect/Schema"
 import type { TwoFactor } from "@beep/iam-domain/entities/TwoFactor"
 import type { AccountId } from "@beep/iam-domain/entities/Account"
 
-const $I = $IamUseCasesId.create("src/entities/TwoFactor/TwoFactor.ports.ts")
+const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.ports.ts")
+
+export class TwoFactorRepositoryError extends TaggedErrorClass<TwoFactorRepositoryError>(
+  $I`TwoFactorRepositoryError`,
+)(
+  "TwoFactorRepositoryError",
+  {
+    operation: S.String,
+    cause: S.OptionFromOptionalKey(S.Defect),
+  },
+  $I.annote("TwoFactorRepositoryError", {
+    description: "Actionable repository failure in TwoFactor product language.",
+  }),
+) {}
+
+const toTwoFactorRepositoryError = (
+  operation: string,
+  cause?: unknown,
+): TwoFactorRepositoryError =>
+  new TwoFactorRepositoryError({
+    operation,
+    cause: O.fromUndefinedOr(cause),
+  })
 
 export class TwoFactorRepository extends Context.Service<
   TwoFactorRepository,
@@ -610,26 +691,63 @@ export class TwoFactorRepository extends Context.Service<
     ) => Effect.Effect<void, TwoFactorRepositoryError>
     readonly findByAccountId: (
       accountId: AccountId,
-    ) => Effect.Effect<Option.Option<TwoFactor>, TwoFactorRepositoryError>
+    ) => Effect.Effect<O.Option<TwoFactor>, TwoFactorRepositoryError>
   }
 >()($I`TwoFactorRepository`) {}
+
+export { toTwoFactorRepositoryError }
 ```
 
 The implementation belongs in server:
 
 ```ts
 import { Effect, Layer } from "effect"
+import * as O from "effect/Option"
 import { Drizzle } from "@beep/iam-providers-drizzle"
-import { TwoFactorRepository } from "@beep/iam-use-cases/entities/TwoFactor"
+import {
+  TwoFactorRepository,
+  toTwoFactorRepositoryError,
+} from "@beep/iam-use-cases/entities/TwoFactor"
+import {
+  TwoFactorTable,
+  type TwoFactorRow,
+} from "@beep/iam-tables/entities/TwoFactor"
 
-export const layer = Layer.effect(
+export const TwoFactorRepositoryLive = Layer.effect(
   TwoFactorRepository,
   Effect.gen(function* () {
     const drizzle = yield* Drizzle
 
     return {
-      save: (model) => drizzle.insertTwoFactor(model),
-      findByAccountId: (accountId) => drizzle.findTwoFactor(accountId),
+      save: Effect.fn("TwoFactorRepository.save")((model) =>
+        drizzle
+          .execute(`upsert into ${TwoFactorTable.name}`, [
+            TwoFactorTable.toRow(model),
+          ])
+          .pipe(
+            Effect.asVoid,
+            Effect.mapError((error) =>
+              toTwoFactorRepositoryError("save", error),
+            ),
+          )),
+      findByAccountId: Effect.fn("TwoFactorRepository.findByAccountId")(
+        (accountId) =>
+          drizzle
+            .execute(
+              `select * from ${TwoFactorTable.name} where account_id = $1 limit 1`,
+              [accountId],
+            )
+            .pipe(
+              Effect.map((rows) =>
+                O.fromNullishOr(rows[0] as TwoFactorRow | undefined).pipe(
+                  O.map(TwoFactorTable.fromRow),
+                ),
+              ),
+              Effect.mapError((error) =>
+                toTwoFactorRepositoryError("findByAccountId", error),
+              ),
+            ),
+      ),
     }
   }),
 )
@@ -638,6 +756,9 @@ export const layer = Layer.effect(
 ## CQRS, Events, Workflows, Cluster, And Read Models
 
 CQRS and distributed-system roles stay concept-local by default.
+
+In this diagram, solid arrows are application flow. The dotted arrow is an
+implementation relationship.
 
 ```mermaid
 flowchart TD
@@ -652,7 +773,7 @@ flowchart TD
   command --> service
   service --> policy
   service --> repo
-  repo --> impl
+  impl -. "implements" .-> repo
   impl --> table
   impl --> provider
 ```
@@ -699,7 +820,8 @@ Event and projection flow:
 sequenceDiagram
   participant Command as TwoFactor command handler
   participant Domain as TwoFactor domain behavior
-  participant Events as domain Events.ts
+  participant Port as use-cases event port
+  participant Adapter as server event adapter
   participant EventLog as providers/eventlog
   participant Handler as server event-handlers
   participant Projection as server projections
@@ -707,8 +829,9 @@ sequenceDiagram
 
   Command->>Domain: apply pure transition
   Domain-->>Command: new model + domain event
-  Command->>Events: append provider-neutral event
-  Events->>EventLog: write through provider service
+  Command->>Port: publish provider-neutral event
+  Note over Port,Adapter: server Layer provides the port implementation
+  Adapter->>EventLog: write through provider service
   EventLog->>Handler: deliver event
   Handler->>Projection: update projection
   Projection->>ReadModel: write read model table
@@ -759,22 +882,64 @@ are welded together.
 
 ## Worked `iam/TwoFactor` Example
 
-Domain model behavior is pure:
+Domain errors are actionable, and domain model behavior is pure:
 
 ```ts
+import { $I as $RootId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
+
+const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.errors.ts")
+
+export class NoRecoveryCodesRemaining extends TaggedErrorClass<NoRecoveryCodesRemaining>(
+  $I`NoRecoveryCodesRemaining`,
+)(
+  "NoRecoveryCodesRemaining",
+  {},
+  $I.annote("NoRecoveryCodesRemaining", {
+    description: "Recovery-code use failed because no recovery codes remain.",
+  }),
+) {}
+```
+
+```ts
+import { $I as $RootId } from "@beep/identity/packages"
+import * as Model from "@beep/schema/Model"
+import { Effect } from "effect"
+import * as S from "effect/Schema"
+import { AccountId } from "@beep/iam-domain/entities/Account"
+import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
+
+const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.model.ts")
+
+export const TwoFactorId = S.String.pipe(S.brand("TwoFactorId"))
+export type TwoFactorId = typeof TwoFactorId.Type
+
 export class TwoFactor extends Model.Class<TwoFactor>("TwoFactor")({
   id: TwoFactorId,
   accountId: AccountId,
   enabled: S.Boolean,
   recoveryCodesRemaining: S.Number,
 }) {
-  readonly canDisable = () => this.enabled
+  readonly canDisable = (): boolean => this.enabled
 
-  readonly useRecoveryCode = () =>
+  readonly disable = (): TwoFactor =>
+    TwoFactor.make({
+      id: this.id,
+      accountId: this.accountId,
+      enabled: false,
+      recoveryCodesRemaining: this.recoveryCodesRemaining,
+    })
+
+  readonly useRecoveryCode = (): Effect.Effect<
+    TwoFactor,
+    NoRecoveryCodesRemaining
+  > =>
     this.recoveryCodesRemaining > 0
       ? Effect.succeed(
-          new TwoFactor({
-            ...this,
+          TwoFactor.make({
+            id: this.id,
+            accountId: this.accountId,
+            enabled: this.enabled,
             recoveryCodesRemaining: this.recoveryCodesRemaining - 1,
           }),
         )
@@ -785,24 +950,68 @@ export class TwoFactor extends Model.Class<TwoFactor>("TwoFactor")({
 Use-case service orchestrates ports and domain behavior:
 
 ```ts
-import { Context, Effect } from "effect"
-import { $IamUseCasesId } from "@beep/identity/packages"
+import { $I as $RootId } from "@beep/identity/packages"
+import { Context, Effect, Layer } from "effect"
+import * as O from "effect/Option"
+import { TwoFactorAccess } from "./TwoFactor.access.js"
+import { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
+import {
+  TwoFactorAccessDenied,
+  TwoFactorNotFound,
+  TwoFactorRepositoryError,
+} from "./TwoFactor.errors.js"
+import { TwoFactorRepository } from "./TwoFactor.ports.js"
 
-const $I = $IamUseCasesId.create("src/entities/TwoFactor/TwoFactor.service.ts")
+const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.service.ts")
 
 export class TwoFactorService extends Context.Service<
   TwoFactorService,
   {
     readonly disable: (
       command: DisableTwoFactorCommand,
-    ) => Effect.Effect<void, TwoFactorAccessDenied | TwoFactorNotFound>
+    ) => Effect.Effect<
+      void,
+      TwoFactorAccessDenied | TwoFactorNotFound | TwoFactorRepositoryError
+    >
   }
 >()($I`TwoFactorService`) {}
+
+export const TwoFactorServiceLive = Layer.effect(
+  TwoFactorService,
+  Effect.gen(function* () {
+    const access = yield* TwoFactorAccess
+    const repo = yield* TwoFactorRepository
+
+    return {
+      disable: Effect.fn("TwoFactorService.disable")(function* (
+        command: DisableTwoFactorCommand,
+      ) {
+        yield* access.assertCanDisable(command)
+        const model = yield* repo.findByAccountId(command.accountId).pipe(
+          Effect.flatMap(
+            O.match({
+              onNone: () => Effect.fail(new TwoFactorNotFound()),
+              onSome: Effect.succeed,
+            }),
+          ),
+        )
+
+        if (model.canDisable()) {
+          yield* repo.save(model.disable())
+        }
+      }),
+    }
+  }),
+)
 ```
 
 Server handlers consume use-case services:
 
 ```ts
+import { Effect } from "effect"
+import { DisableTwoFactorCommand } from "@beep/iam-use-cases/entities/TwoFactor"
+import { TwoFactorService } from "@beep/iam-use-cases/entities/TwoFactor"
+
 export const disableTwoFactorHandler = Effect.fn("disableTwoFactorHandler")(
   function* (command: DisableTwoFactorCommand) {
     const twoFactor = yield* TwoFactorService

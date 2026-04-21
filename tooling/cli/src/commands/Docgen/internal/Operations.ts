@@ -416,6 +416,21 @@ const extractJsDocTags = (node: Node): ReadonlyArray<string> =>
     A.flatMap((doc) => A.map(doc.getTags(), (tag) => `@${tag.getTagName()}`))
   );
 
+const getLeadingJsDocCommentText = (node: ExportDeclaration): O.Option<string> =>
+  pipe(
+    node.getLeadingCommentRanges(),
+    A.filter((range) => Str.startsWith("/**")(range.getText())),
+    A.last,
+    O.map((range) => range.getText())
+  );
+
+const extractJsDocTagsFromText = (commentText: string): ReadonlyArray<string> =>
+  pipe(
+    commentText.matchAll(/@([A-Za-z][\w-]*)/g),
+    A.fromIterable,
+    A.flatMap((match) => (match[1] === undefined ? A.empty<string>() : [`@${match[1]}`]))
+  );
+
 const extractContext = (node: Node): undefined | string =>
   pipe(
     getJsDocs(node),
@@ -546,10 +561,16 @@ const analyzeReExports = (sourceFile: SourceFile, relativeFilePath: string): Rea
     sourceFile.getDescendantsOfKind(SyntaxKind.ExportDeclaration),
     A.filter((declaration: ExportDeclaration) => declaration.getModuleSpecifier() !== undefined),
     A.map((declaration: ExportDeclaration) => {
-      const presentTags = pipe(
+      const jsDocTags = pipe(
         getJsDocs(declaration),
         A.flatMap((doc) => A.map(doc.getTags(), (tag) => `@${tag.getTagName()}`))
       );
+      const leadingTags = pipe(
+        getLeadingJsDocCommentText(declaration),
+        O.map(extractJsDocTagsFromText),
+        O.getOrElse(() => A.empty<string>())
+      );
+      const presentTags = [...jsDocTags, ...leadingTags];
       const hasJsDoc = presentTags.length > 0;
       const missingTags = hasJsDoc
         ? A.filter(["@since"] as const, (tag) => !A.contains(presentTags, tag))
