@@ -35,12 +35,12 @@
     "packages/editor/protocol",
     "packages/editor/client",
     "packages/editor/runtime",
-    "packages/beepgraph/messaging",
-    "packages/beepgraph/schema",
-    "packages/beepgraph/services",
-    "packages/beepgraph/pipeline",
-    "packages/beepgraph/gateway",
-    "packages/beepgraph/client"
+    "packages/graph/messaging",
+    "packages/graph/schema",
+    "packages/graph/services",
+    "packages/graph/pipeline",
+    "packages/graph/gateway",
+    "packages/graph/client"
   ],
   "repository": {
     "type": "git",

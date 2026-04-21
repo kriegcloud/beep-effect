@@ -88,7 +88,7 @@ this standalone.
 
 ## 4. BeepGraph (Effect-Native TrustGraph)
 
-**Location:** `packages/common/knowledge-graph`
+**Location:** `/home/elpresidank/YeeBois/projects/beep-effect2/packages/graph`
 
 **Status:** Foundation complete -- all 17 schema modules, NatsClient with
 JetStream lifecycle, ResponseRouter with correlation-based dispatch,

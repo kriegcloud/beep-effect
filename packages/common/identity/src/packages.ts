@@ -95,7 +95,15 @@ const composers = $I.compose(
   "editor-runtime",
   "infra",
   "v2t-sidecar",
-  "v2t"
+  "v2t",
+
+  // graph
+  "graph-client",
+  "graph-gateway",
+  "graph-messaging",
+  "graph-pipeline",
+  "graph-schema",
+  "graph-services",
 );
 
 // --- common ---
@@ -878,3 +886,93 @@ export const $V2TSidecarId: Identity.IdentityComposer<"@beep/v2t-sidecar"> = com
  * @category configuration
  */
 export const $V2TId: Identity.IdentityComposer<"@beep/v2t"> = composers.$V2tId;
+
+/**
+ * Identity composer for the `@beep/graph-client` package.
+ *
+ * @example
+ * ```typescript
+ * import { $GraphClientId } from "@beep/identity"
+ *
+ * const id = $GraphClientId.make("Client")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $GraphClientId: Identity.IdentityComposer<"@beep/graph-client"> = composers.$GraphClientId;
+
+/**
+ * Identity composer for the `@beep/graph-gateway` package.
+ *
+ * @example
+ * ```typescript
+ * import { $GraphGatewayId } from "@beep/identity"
+ *
+ * const id = $GraphGatewayId.make("Gateway")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $GraphGatewayId: Identity.IdentityComposer<"@beep/graph-gateway"> = composers.$GraphGatewayId;
+
+/**
+ * Identity composer for the `@beep/graph-messaging` package.
+ *
+ * @example
+ * ```typescript
+ * import { $GraphMessagingId } from "@beep/identity"
+ *
+ * const id = $GraphMessagingId.make("Messaging")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $GraphMessagingId: Identity.IdentityComposer<"@beep/graph-messaging"> = composers.$GraphMessagingId;
+
+/**
+ * Identity composer for the `@beep/graph-pipeline` package.
+ *
+ * @example
+ * ```typescript
+ * import { $GraphPipelineId } from "@beep/identity"
+ *
+ * const id = $GraphPipelineId.make("Pipeline")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $GraphPipelineId: Identity.IdentityComposer<"@beep/graph-pipeline"> = composers.$GraphPipelineId;
+
+/**
+ * Identity composer for the `@beep/graph-schema` package.
+ *
+ * @example
+ * ```typescript
+ * import { $GraphSchemaId } from "@beep/identity"
+ *
+ * const id = $GraphSchemaId.make("Schema")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $GraphSchemaId: Identity.IdentityComposer<"@beep/graph-schema"> = composers.$GraphSchemaId;
+
+/**
+ * Identity composer for the `@beep/graph-services` package.
+ *
+ * @example
+ * ```typescript
+ * import { $GraphServicesId } from "@beep/identity"
+ *
+ * const id = $GraphServicesId.make("Services")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $GraphServicesId: Identity.IdentityComposer<"@beep/graph-services"> = composers.$GraphServicesId;

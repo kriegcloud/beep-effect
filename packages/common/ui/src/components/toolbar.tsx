@@ -120,8 +120,12 @@ type ToolbarActionButtonProps = ToolbarButtonBaseProps &
 
 type ToolbarButtonProps = ToolbarToggleButtonProps | ToolbarActionButtonProps;
 
+function isToolbarToggleButtonProps(props: ToolbarButtonProps): props is ToolbarToggleButtonProps {
+  return P.isBoolean(props.pressed);
+}
+
 export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarButtonProps) {
-  if (P.isBoolean(props.pressed)) {
+  if (isToolbarToggleButtonProps(props)) {
     const { children, className, isDropdown, pressed, size = "sm", variant, ...toggleProps } = props;
     return (
       <ToolbarToggleGroup disabled={Boolean(toggleProps.disabled)} value={pressed ? "single" : ""} type="single">

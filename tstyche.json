@@ -23,6 +23,7 @@
     "packages/editor/lexical/dtslint/**/*.tst.*",
     "packages/editor/protocol/dtslint/**/*.tst.*",
     "packages/editor/runtime/dtslint/**/*.tst.*",
+    "packages/graph/*/dtslint/**/*.tst.*",
     "packages/repo-memory/client/dtslint/**/*.tst.*",
     "packages/repo-memory/model/dtslint/**/*.tst.*",
     "packages/repo-memory/runtime/dtslint/**/*.tst.*",

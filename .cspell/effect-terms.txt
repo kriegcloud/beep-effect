@@ -31,7 +31,6 @@ Pipeable
 Pivotable
 runWith
 Schema
-ServiceMap
 Somes
 TaggedError
 TaggedErrorClass

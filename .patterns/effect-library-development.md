@@ -319,18 +319,18 @@ const queryUser = (id: string) =>
 Build applications using layered architecture:
 
 ```typescript
-import {ServiceMap, Effect, Layer} from "effect";
+import {Context, Effect, Layer} from "effect";
 import {$SomePackageId} from "@beep/identity/packages";
 
 const $I = $SomePackageId.create("relative/path/to/file");
 
 // Define service interfaces
-class DatabaseService extends ServiceMap.Service<DatabaseService, {
+class DatabaseService extends Context.Service<DatabaseService, {
   readonly query: (sql: string) => Effect.Effect<unknown[], DatabaseError, never>
 }>()($I`DatabaseService`) {
 }
 
-class UserService extends ServiceMap.Service<UserService, {
+class UserService extends Context.Service<UserService, {
   readonly getUser: (id: string) => Effect.Effect<User, UserError, never>
 }>()($I`UserService`) {
 }

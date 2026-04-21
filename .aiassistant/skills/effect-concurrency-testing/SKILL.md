@@ -172,19 +172,19 @@ When testing a service that publishes events:
 
 ```typescript
 import { it } from "@effect/vitest"
-import { Effect, PubSub, ServiceMap, Layer } from "effect"
+import { Effect, PubSub, Context, Layer } from "effect"
 
 interface UserEvent {
   readonly type: "created" | "deleted"
   readonly userId: string
 }
 
-class EventBus extends ServiceMap.Service<
+class EventBus extends Context.Service<
   EventBus,
   PubSub.PubSub<UserEvent>
 >()("EventBus") {}
 
-class UserService extends ServiceMap.Service<
+class UserService extends Context.Service<
   UserService,
   { readonly createUser: (id: string) => Effect.Effect<void> }
 >()("UserService") {}

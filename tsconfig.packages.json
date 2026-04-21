@@ -82,22 +82,22 @@
       "path": "packages/editor/runtime"
     },
     {
-      "path": "packages/beepgraph/messaging"
+      "path": "packages/graph/messaging"
     },
     {
-      "path": "packages/beepgraph/schema"
+      "path": "packages/graph/schema"
     },
     {
-      "path": "packages/beepgraph/services"
+      "path": "packages/graph/services"
     },
     {
-      "path": "packages/beepgraph/pipeline"
+      "path": "packages/graph/pipeline"
     },
     {
-      "path": "packages/beepgraph/gateway"
+      "path": "packages/graph/gateway"
     },
     {
-      "path": "packages/beepgraph/client"
+      "path": "packages/graph/client"
     },
     {
       "path": "packages/repo-memory/client"

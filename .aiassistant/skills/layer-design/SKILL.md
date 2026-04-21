@@ -22,14 +22,14 @@ import { Layer } from "effect"
 ## Pattern: Simple Layer (No Dependencies)
 
 ```typescript
-import { ServiceMap, Effect, Layer } from "effect"
+import { Context, Effect, Layer } from "effect"
 
 interface ConfigData {
   readonly logLevel: string
   readonly connection: string
 }
 
-export class Config extends ServiceMap.Service<
+export class Config extends Context.Service<
   Config,
   {
     readonly getConfig: Effect.Effect<ConfigData>
@@ -55,21 +55,21 @@ export const ConfigLive = Layer.succeed(
 ## Pattern: Layer with Dependencies
 
 ```typescript
-import { ServiceMap, Effect, Layer, Console } from "effect"
+import { Context, Effect, Layer, Console } from "effect"
 
 interface ConfigData {
   readonly logLevel: string
   readonly connection: string
 }
 
-export class Config extends ServiceMap.Service<
+export class Config extends Context.Service<
   Config,
   {
     readonly getConfig: Effect.Effect<ConfigData>
   }
 >()("Config") {}
 
-export class Logger extends ServiceMap.Service<
+export class Logger extends Context.Service<
   Logger,
   { readonly log: (message: string) => Effect.Effect<void> }
 >()("Logger") {}
@@ -104,7 +104,7 @@ Use `Layer.scoped` when resources need cleanup:
 Use `Layer.effect` for stateless services without cleanup needs.
 
 ```typescript
-import { ServiceMap, Effect, Layer } from "effect"
+import { Context, Effect, Layer } from "effect"
 
 interface ConfigData {
   readonly logLevel: string
@@ -119,14 +119,14 @@ interface DatabaseError {
   readonly _tag: "DatabaseError"
 }
 
-export class Config extends ServiceMap.Service<
+export class Config extends Context.Service<
   Config,
   {
     readonly getConfig: Effect.Effect<ConfigData>
   }
 >()("Config") {}
 
-export class Database extends ServiceMap.Service<
+export class Database extends Context.Service<
   Database,
   {
     readonly query: (sql: string) => Effect.Effect<unknown, DatabaseError>
@@ -163,10 +163,10 @@ export const DatabaseLive = Layer.scoped(
 Combine independent layers:
 
 ```typescript
-import { ServiceMap, Layer } from "effect"
+import { Context, Layer } from "effect"
 
-declare class Config extends ServiceMap.Service<Config, {}>()("Config") {}
-declare class Logger extends ServiceMap.Service<Logger, {}>()("Logger") {}
+declare class Config extends Context.Service<Config, {}>()("Config") {}
+declare class Logger extends Context.Service<Logger, {}>()("Logger") {}
 
 declare const ConfigLive: Layer.Layer<Config, never, never>
 declare const LoggerLive: Layer.Layer<Logger, never, Config>
@@ -188,10 +188,10 @@ Result combines:
 Chain dependent layers:
 
 ```typescript
-import { ServiceMap, Layer } from "effect"
+import { Context, Layer } from "effect"
 
-declare class Config extends ServiceMap.Service<Config, {}>()("Config") {}
-declare class Logger extends ServiceMap.Service<Logger, {}>()("Logger") {}
+declare class Config extends Context.Service<Config, {}>()("Config") {}
+declare class Logger extends Context.Service<Logger, {}>()("Logger") {}
 
 declare const ConfigLive: Layer.Layer<Config, never, never>
 declare const LoggerLive: Layer.Layer<Logger, never, Config>
@@ -213,15 +213,15 @@ Result:
 Build applications in layers:
 
 ```typescript
-import { ServiceMap, Layer } from "effect"
+import { Context, Layer } from "effect"
 
-declare class Config extends ServiceMap.Service<Config, {}>()("Config") {}
-declare class Database extends ServiceMap.Service<Database, {}>()("Database") {}
-declare class Cache extends ServiceMap.Service<Cache, {}>()("Cache") {}
-declare class PaymentDomain extends ServiceMap.Service<PaymentDomain, {}>()("PaymentDomain") {}
-declare class OrderDomain extends ServiceMap.Service<OrderDomain, {}>()("OrderDomain") {}
-declare class PaymentGateway extends ServiceMap.Service<PaymentGateway, {}>()("PaymentGateway") {}
-declare class NotificationService extends ServiceMap.Service<NotificationService, {}>()("NotificationService") {}
+declare class Config extends Context.Service<Config, {}>()("Config") {}
+declare class Database extends Context.Service<Database, {}>()("Database") {}
+declare class Cache extends Context.Service<Cache, {}>()("Cache") {}
+declare class PaymentDomain extends Context.Service<PaymentDomain, {}>()("PaymentDomain") {}
+declare class OrderDomain extends Context.Service<OrderDomain, {}>()("OrderDomain") {}
+declare class PaymentGateway extends Context.Service<PaymentGateway, {}>()("PaymentGateway") {}
+declare class NotificationService extends Context.Service<NotificationService, {}>()("NotificationService") {}
 
 declare const ConfigLive: Layer.Layer<Config, never, never>
 declare const DatabaseLive: Layer.Layer<Database, never, Config>
@@ -262,13 +262,13 @@ const ApplicationLive = Layer.mergeAll(
 Switch implementations for different environments:
 
 ```typescript
-import { ServiceMap, Effect, Layer } from "effect"
+import { Context, Effect, Layer } from "effect"
 
 interface Connection {
   readonly close: () => void
 }
 
-export class Database extends ServiceMap.Service<
+export class Database extends Context.Service<
   Database,
   {
     readonly query: (sql: string) => Effect.Effect<{ rows: unknown[] }>
@@ -310,9 +310,9 @@ const program = myProgram.pipe(
 Layers are memoized - same instance shared across program:
 
 ```typescript
-import { ServiceMap, Effect, Layer } from "effect"
+import { Context, Effect, Layer } from "effect"
 
-declare class Config extends ServiceMap.Service<Config, { readonly value: string }>()("Config") {}
+declare class Config extends Context.Service<Config, { readonly value: string }>()("Config") {}
 declare const ConfigLive: Layer.Layer<Config, never, never>
 
 // Config is constructed once and shared
@@ -333,7 +333,7 @@ const program = Effect.all([
 Handle construction errors:
 
 ```typescript
-import { ServiceMap, Effect, Layer, Data } from "effect"
+import { Context, Effect, Layer, Data } from "effect"
 
 interface Connection {
   readonly close: () => void
@@ -347,7 +347,7 @@ class DatabaseConstructionError extends Data.TaggedError("DatabaseConstructionEr
   readonly cause: ConnectionError
 }> {}
 
-export class Database extends ServiceMap.Service<
+export class Database extends Context.Service<
   Database,
   {
     readonly query: (sql: string) => Effect.Effect<unknown>
