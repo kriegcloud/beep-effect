@@ -8,7 +8,7 @@
  *
  * Uses HTML-like syntax for all context enhancements.
  *
- * @module SubAgentInit
+ * @module
  * @since 0.0.0
  */
 

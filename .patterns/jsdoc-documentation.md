@@ -22,7 +22,6 @@ Comprehensive JSDoc documentation patterns used throughout the [beep-effect](htt
 /**
  * Brief description of what the function does in one line.
  * 
- * More detailed explanation if needed, including:
  * - Important behavior notes
  * - Performance characteristics  
  * - Common use cases
@@ -36,9 +35,9 @@ Comprehensive JSDoc documentation patterns used throughout the [beep-effect](htt
  *
  * // Usage in Effect context
  * const program = Effect.gen(function* () {
- *   const result = yield* example
- *   console.log(result) // Expected output
- *   return result
+ * 
+ * 
+ * 
  * })
  * ```
  *
@@ -48,8 +47,8 @@ Comprehensive JSDoc documentation patterns used throughout the [beep-effect](htt
  *
  * // Different use case or advanced usage
  * const advancedExample = ModuleName.functionName(
- *   complexParameters,
- *   withOptions
+ * 
+ * 
  * )
  * ```
  *
@@ -92,12 +91,12 @@ export const functionName = <A, B>(input: A, options: Options): ModuleName<B> =>
  *
  * // Functional composition with pipe
  * const result = [1, 2, 3, 4, 5].pipe(
- *   A.filter(x => x % 2 === 0),
- *   A.map(x => x * x),
- *   A.reduce(0, (acc, x) => acc + x)
+ * 
+ * 
+ * 
  * ) // 20
  * ```
- * @module ""
+ * @module
  * @since 0.0.0
  */
 ````
@@ -113,10 +112,9 @@ export const functionName = <A, B>(input: A, options: Options): ModuleName<B> =>
  * import { Effect, Console } from "effect"
  * import * as A from "effect/Array";
  * 
- * const program = Effect.gen(function* () {
- *   const items = A.make(1, 2, 3)
- *   yield* Console.log(`Items: ${A.join(items, ", ")}`)
- *   return items
+ * 
+ * 
+ * 
  * })
  * ```
  */
@@ -132,22 +130,21 @@ export const functionName = <A, B>(input: A, options: Options): ModuleName<B> =>
  * import { Effect } from "effect";
  * import * as S from "effect/Schema";
  * 
- * class Person extends S.Class<Person>("Person")(
- *   {
- *     name: S.String,
- *     age: S.Int.check(S.isGreaterThanOrEqualTo(0))
- *   },
- *   {
- *     description: "A Person."
- *   }
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * ) {}
  *
  * const program = Effect.gen(function* () {
- *   const person = yield* S.decodeUnknownEffect(Person)({
- *     name: "Alice",
- *     age: 30
- *   })
- *   return person
+ * 
+ * 
+ * 
+ * 
+ * 
  * })
  * ```
  */
@@ -162,10 +159,9 @@ export const functionName = <A, B>(input: A, options: Options): ModuleName<B> =>
  * import { Effect } from "effect"
  * import { NodeHttpServer } from "@effect/platform-node"
  * 
- * const server = Effect.gen(function* () {
- *   const httpServer = yield* NodeHttpServer.make(app, { port: 3000 })
- *   yield* Effect.log("Server started on port 3000")
- *   return httpServer
+ * 
+ * 
+ * 
  * })
  * ```
  */
@@ -227,9 +223,9 @@ export const functionName = <A, B>(input: A, options: Options): ModuleName<B> =>
  *
  * // Data-last usage (pipeable)
  * const result = [1, 2, 3].pipe(
- *   A.map(x => x * 2),
- *   A.filter(x => x > 4),
- *   A.reduce(0, (sum, x) => sum + x)
+ * 
+ * 
+ * 
  * )
  * console.log(result) // 6
  * ```
@@ -250,14 +246,14 @@ export const functionName = <A, B>(input: A, options: Options): ModuleName<B> =>
  * import { Effect, Console } from "effect"
  * import * as A from "effect/Array";
  * const logEachItem = (items: ReadonlyArray<string>) =>
- *   A.forEach(items, item =>
- *     Console.log(`Processing: ${item}`)
- *   )
+ * 
+ * 
+ * 
  *
  * const program = Effect.gen(function* () {
- *   const items = ["apple", "banana", "cherry"]
- *   yield* logEachItem(items)
- *   return "Done"
+ * 
+ * 
+ * 
  * })
  * ```
  *
@@ -279,29 +275,27 @@ export const functionName = <A, B>(input: A, options: Options): ModuleName<B> =>
  * import { TaggedErrorClass } from "@beep/schema";
  * import {$SomePackageId} from "@beep/identity";
  * 
- * const $I = $SomePackageId.create("relative/path/to/file");
  * 
- * class ValidationError extends TaggedErrorClass<ValidationError>($I`ValidationError`)(
- *  "ValidationError",
- *  {
- *    value: S.Unknown
- *    message: S.String
- *  },
- *  $I.annote("ValidationError", { description: "An error that occurs when the validation of some data fails." })
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * ) {}
  *
  * const validatePositive = (n: number) =>
- *   n > 0
- *     ? Effect.succeed(n)
- *     : Effect.fail(new ValidationError({
- *         value: n,
- *         message: "Must be positive"
- *       }))
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  *
  * const program = Effect.gen(function* () {
- *   const numbers = [1, 2, -3, 4]
- *   const validated = yield* A.validate(numbers, validatePositive)
- *   return validated
+ * 
+ * 
+ * 
  * })
  *
  * // This will fail with ValidationError for -3
@@ -438,7 +432,7 @@ export const TypeId = ...
  *
  * // Use in function signatures
  * const processUser = (user: User) => {
- *   console.log(`Processing ${user.name}, age ${user.age}`)
+ * 
  * }
  * ```
  *
@@ -465,11 +459,11 @@ export const TypeId = ...
  *
  * // Advanced usage (when fine-grained control is needed):
  * const optimizedProcessing = A.unsafePerformanceOperation(
- *   largeDataset,
- *   {
- *     batchSize: 1000,
- *     concurrency: 4
- *   }
+ * 
+ * 
+ * 
+ * 
+ * 
  * )
  * ```
  *
@@ -491,34 +485,34 @@ export const TypeId = ...
  * import { HttpClient } from "effect/unstable/http";
  *
  * class User = S.Class<User>("User")({
- *   id: S.Number,
- *   name: S.String,
- *   email: S.String
+ * 
+ * 
+ * 
  * }) {}
  *
  * const fetchUserWithRetry = (id: number) =>
- *   Effect.gen(function* () {
- *     const client = yield* HttpClient.HttpClient
+ * 
+ * 
  *
- *     const response = yield* client.get(`/users/${id}`).pipe(
- *       Effect.retry(Schedule.exponential("100 millis", 2.0).pipe(
- *         Schedule.compose(Schedule.recurs(3))
- *       )),
- *       Effect.timeout("5 seconds")
- *     )
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  *
- *     const user = yield* S.decodeUnknownEffect(User)(response.json)
- *     yield* Console.log(`Fetched user: ${user.name}`)
+ * 
+ * 
  *
- *     return user
- *   })
+ * 
+ * 
  *
  * // Usage with proper layer provision
  * const program = fetchUserWithRetry(123).pipe(
- *   Effect.provide(Layer.mergeAll(
- *     HttpClient.layer,
- *     Console.layer
- *   ))
+ * 
+ * 
+ * 
+ * 
  * )
  * ```
  *
@@ -576,16 +570,16 @@ export const TypeId = ...
  * import { Effect } from "effect";
  * import * as S from "effect/Schema";
  * const User = S.Class<User>("User")({
- *   name: S.String,
- *   age: S.Number
+ * 
+ * 
  * }) {}
  *
  * const program = Effect.gen(function* () {
- *   const user = yield* S.decodeUnknownEffect(User)({
- *     name: "Alice",
- *     age: 30
- *   })
- *   return user
+ * 
+ * 
+ * 
+ * 
+ * 
  * })
  * ```
  */
@@ -598,10 +592,10 @@ export const TypeId = ...
  * import { Console } from "effect/logging"
  *
  * const program = Effect.gen(function* () {
- *   yield* Console.log("Hello, World!")
- *   return "Done"
+ * 
+ * 
  * }).pipe(
- *   Effect.provide(Console.layer)
+ * 
  * )
  * ```
  */

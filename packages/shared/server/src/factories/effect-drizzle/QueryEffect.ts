@@ -2,7 +2,7 @@
  * Yieldable bridge for Drizzle query builders and prepared queries.
  *
  * @since 0.0.0
- * @module \@beep/shared-server/factories/effect-drizzle/QueryEffect
+ * @module
  */
 
 import { strategyFor } from "drizzle-orm/cache/core/cache";

@@ -24,6 +24,10 @@ layer(NodeServices.layer)("effect steering guidance", (it) => {
         expect(source).toContain(
           "Before keeping `O.match(...)`, check whether `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)` express the same control flow more flatly."
         );
+        expect(source).toContain("R.getSomes({...})");
+        expect(source).toContain("O.all({...})");
+        expect(source).toContain("S.OptionFrom*");
+        expect(source).toContain("onNone: () => ({})");
         expect(source.includes("Prefer `effect/Boolean` `Bool.match(...)` over `Match.when(true/false)`.")).toBe(false);
       })
     );

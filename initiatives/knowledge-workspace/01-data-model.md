@@ -76,14 +76,14 @@ All `.$match` and `Match` call sites get a compile error until handled.
  * import { LiteralKit } from "@beep/schema"
  *
  * const KnowledgeEdgeKind = LiteralKit([
- *   "wiki-link", "code-import", "code-export", "code-dependency", "semantic",
+ *   "wiki_link", "code_import", "code_export", "code_dependency", "semantic",
  * ] as const)
  *
- * KnowledgeEdgeKind.$match("wiki-link", {
- *   "wiki-link":       () => 1.0,
- *   "code-import":     () => 1.0,
- *   "code-export":     () => 1.0,
- *   "code-dependency": () => 1.0,
+ * KnowledgeEdgeKind.$match("wiki_link", {
+ *   "wiki_link":       () => 1.0,
+ *   "code_import":     () => 1.0,
+ *   "code_export":     () => 1.0,
+ *   "code_dependency": () => 1.0,
  *   semantic:          () => 0.7,
  * })
  * ```
@@ -92,10 +92,10 @@ All `.$match` and `Match` call sites get a compile error until handled.
  * @since 0.0.0
  */
 const KnowledgeEdgeKind = LiteralKit([
-  "wiki-link",
-  "code-import",
-  "code-export",
-  "code-dependency",
+  "wiki_link",
+  "code_import",
+  "code_export",
+  "code_dependency",
   "semantic",
 ] as const).pipe(
   $I.annoteSchema("KnowledgeEdgeKind", {
@@ -106,10 +106,10 @@ const KnowledgeEdgeKind = LiteralKit([
 
 | Kind | Description | Certainty | Source |
 |---|---|---|---|
-| `wiki-link` | `[[slug]]` reference in markdown body | 1.0 | Vault page parser |
-| `code-import` | AST import edge between symbols/files | 1.0 | repo-memory indexer |
-| `code-export` | Symbol exported from a file | 1.0 | repo-memory indexer |
-| `code-dependency` | File depends on file (transitive closure of imports) | 1.0 | repo-memory indexer |
+| `wiki_link` | `[[slug]]` reference in markdown body | 1.0 | Vault page parser |
+| `code_import` | AST import edge between symbols/files | 1.0 | repo-memory indexer |
+| `code_export` | Symbol exported from a file | 1.0 | repo-memory indexer |
+| `code_dependency` | File depends on file (transitive closure of imports) | 1.0 | repo-memory indexer |
 | `semantic` | LLM-inferred relationship | 0.6 - 0.85 | Agent inference pipeline |
 
 Semantic edges live inside the No-Escape Theorem boundary. They never promote to
@@ -340,7 +340,7 @@ type KnowledgeNodeId = typeof KnowledgeNodeId.Type
  * ```ts
  * import * as S from "effect/Schema"
  *
- * // Validates: "beep:edge/wiki-link/beep:page/a->beep:page/b"
+ * // Validates: "beep:edge/wiki_link/beep:page/a->beep:page/b"
  * ```
  *
  * @category constructors
@@ -868,7 +868,7 @@ is supplementary and the markdown is always readable.
 
 ## 16. Link Resolution Table
 
-Wiki-link syntax supports prefixed targets for cross-domain linking.
+wiki_link syntax supports prefixed targets for cross-domain linking.
 
 | Syntax | Resolves To | Example |
 |---|---|---|
@@ -1001,8 +1001,8 @@ symbol would create noise. The projection filter:
 |---|---|
 | `RepoSymbolRecord` (exported) | `graphNodes` entry with `nodeId = beep:symbol/{repoId}/{qualifiedName}` |
 | `RepoSourceFile` | `graphNodes` entry with `nodeId = beep:file/{repoId}/{filePath}` |
-| `RepoImportEdge` | `graphEdges` entry with `kind = code-import` |
-| `RepoExportEdge` | `graphEdges` entry with `kind = code-export` |
+| `RepoImportEdge` | `graphEdges` entry with `kind = code_import` |
+| `RepoExportEdge` | `graphEdges` entry with `kind = code_export` |
 
 ### Projection trigger
 

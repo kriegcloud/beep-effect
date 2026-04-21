@@ -68,6 +68,10 @@ Keep `Schema` as the source of truth for pure data models.
 - Use `S.OptionFromNullOr`, `S.OptionFromNullishOr`,
   `S.OptionFromOptionalKey`, and `S.OptionFromOptional` for absence at the
   boundary.
+- Use `S.OptionFrom*` when the wire/schema field is optional or nullish. If
+  runtime `Option` values are already being shaped into an object, prefer
+  `R.getSomes({...})` for omission-style objects or `O.all({...})` for
+  all-or-nothing fixed-shape composition.
 - Use `S.withConstructorDefault(...)`, `S.withDecodingDefault(...)`, and
   `S.decodeTo(...)` with `SchemaTransformation` for normalization and fallback
   behavior.

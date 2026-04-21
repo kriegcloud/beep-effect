@@ -2,7 +2,7 @@
  * Public Effect-first Bun SQLite Drizzle driver factory.
  *
  * @since 0.0.0
- * @module \@beep/shared-server/factories/effect-drizzle/driver
+ * @module
  */
 
 /// <reference types="bun" />
@@ -386,8 +386,8 @@ const drizzleWithLogger = <TSchema extends Record<string, unknown>, TRelations e
  * import { makeWithDefaults } from "@beep/shared-server/factories/effect-drizzle"
  *
  * const program = Effect.gen(function* () {
- *   const db = yield* makeWithDefaults({ client: new Database(":memory:") })
- *   yield* db.effect.run("create table users (id integer primary key, name text not null)")
+ * 
+ * 
  * })
  * ```
  *

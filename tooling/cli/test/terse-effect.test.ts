@@ -75,6 +75,7 @@ describe("terse effect laws", () => {
           expect(summary.helpersSimplified).toBe(2);
           expect(summary.thunkHelpersSimplified).toBe(0);
           expect(summary.flowCandidatesDetected).toBe(0);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(true);
           expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
           expect(source).toContain("onNone: () => A.empty<string>()");
@@ -115,6 +116,7 @@ describe("terse effect laws", () => {
           expect(summary.helpersSimplified).toBe(2);
           expect(summary.thunkHelpersSimplified).toBe(0);
           expect(summary.flowCandidatesDetected).toBe(0);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
           expect(source).toContain("onNone: A.empty<string>");
           expect(source).toContain("onSome: A.of");
@@ -153,6 +155,7 @@ describe("terse effect laws", () => {
           expect(summary.helpersSimplified).toBe(0);
           expect(summary.thunkHelpersSimplified).toBe(0);
           expect(summary.flowCandidatesDetected).toBe(0);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
           expect(summary.changedFiles).toEqual([]);
         })
@@ -195,6 +198,7 @@ describe("terse effect laws", () => {
           expect(summary.helpersSimplified).toBe(0);
           expect(summary.thunkHelpersSimplified).toBe(1);
           expect(summary.flowCandidatesDetected).toBe(1);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(true);
           expect(source).toContain("onNone: () => undefined");
           expect(source).toContain("parse: (input) => pipe(input, parse, O.getOrElse(() => input))");
@@ -238,6 +242,7 @@ describe("terse effect laws", () => {
           expect(summary.helpersSimplified).toBe(0);
           expect(summary.thunkHelpersSimplified).toBe(1);
           expect(summary.flowCandidatesDetected).toBe(1);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
           expect(source).toContain("onNone: thunkUndefined");
           expect(source).toContain("parse: (input) => pipe(input, parse, O.getOrElse(() => input))");
@@ -274,6 +279,138 @@ describe("terse effect laws", () => {
           expect(summary.helpersSimplified).toBe(0);
           expect(summary.thunkHelpersSimplified).toBe(0);
           expect(summary.flowCandidatesDetected).toBe(0);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
+          expect(summary.strictFailure).toBe(false);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("reports whole-object Option match compaction candidates without rewriting files", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import { pipe } from "effect";',
+              'import * as O from "effect/Option";',
+              "",
+              "declare const maybeParse: O.Option<(input: string) => unknown>;",
+              "",
+              "export const runtime = pipe(",
+              "  maybeParse,",
+              "  O.match({",
+              "    onNone: () => ({}),",
+              "    onSome: (parse) => ({",
+              "      Bun: {",
+              "        YAML: { parse },",
+              "      },",
+              "    }),",
+              "  })",
+              ");",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+          const source = yield* readProjectFile("packages/demo/src/index.ts");
+
+          expect(summary.touchedFiles).toBe(1);
+          expect(summary.helpersSimplified).toBe(0);
+          expect(summary.thunkHelpersSimplified).toBe(0);
+          expect(summary.flowCandidatesDetected).toBe(0);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(1);
+          expect(summary.strictFailure).toBe(true);
+          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+          expect(source).toContain("onNone: () => ({})");
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("reports object-spread Option match compaction candidates", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import * as O from "effect/Option";',
+              "",
+              "declare const selector: O.Option<string>;",
+              "",
+              "export const options = {",
+              "  verbose: true,",
+              "  ...O.match(selector, {",
+              "    onNone: () => ({}),",
+              "    onSome: (packageName) => ({ package: packageName }),",
+              "  }),",
+              "};",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+
+          expect(summary.touchedFiles).toBe(1);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(1);
+          expect(summary.strictFailure).toBe(true);
+          expect(summary.changedFiles).toEqual(["packages/demo/src/index.ts"]);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  });
+
+  it("ignores clean Option object helpers and schema-boundary Option helpers", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          yield* writeTsconfig;
+          yield* writeProjectFile(
+            "packages/demo/src/index.ts",
+            [
+              'import * as O from "effect/Option";',
+              'import * as R from "effect/Record";',
+              'import * as S from "effect/Schema";',
+              "",
+              "declare const selector: O.Option<string>;",
+              "",
+              "export const options = R.getSomes({ package: selector });",
+              'export class Input extends S.Class<Input>("Input")({',
+              "  package: S.OptionFromOptionalKey(S.String),",
+              "}) {}",
+              "",
+            ].join("\n")
+          );
+
+          const summary = yield* runTerseEffectRules(
+            new TerseEffectRulesOptions({
+              write: false,
+              strictCheck: true,
+              excludePaths: [],
+            })
+          );
+
+          expect(summary.touchedFiles).toBe(0);
+          expect(summary.helpersSimplified).toBe(0);
+          expect(summary.thunkHelpersSimplified).toBe(0);
+          expect(summary.flowCandidatesDetected).toBe(0);
+          expect(summary.optionObjectCompactionCandidatesDetected).toBe(0);
           expect(summary.strictFailure).toBe(false);
         })
       ).pipe(Effect.provide(testLayer))

@@ -1,5 +1,5 @@
 /**
- * @module \@beep/repo-utils/TypeScript/models/TSSyntaxKind.model
+ * @module
  * @description Shared TypeScript syntax kind model definitions.
  * @since 0.0.0
  */

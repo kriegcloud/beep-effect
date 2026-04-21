@@ -2,7 +2,7 @@
  * BowCosineSimilarity tool definition.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Tools/BowCosineSimilarity
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

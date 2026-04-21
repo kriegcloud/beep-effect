@@ -3,7 +3,7 @@
  * pattern strings.
  *
  * @since 0.0.0
- * @module \@beep/schema/RegExp
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -96,8 +96,8 @@ const encodeRegExpStrForbidden = (value: globalThis.RegExp): Effect.Effect<RegEx
  * import { RegExpFromStr } from "@beep/schema/RegExp"
  *
  * const program = Effect.gen(function* () {
- *   const re = yield* S.decodeUnknownEffect(RegExpFromStr)("^hello")
- *   console.log(re.test("hello world")) // true
+ * 
+ * 
  * })
  * ```
  *

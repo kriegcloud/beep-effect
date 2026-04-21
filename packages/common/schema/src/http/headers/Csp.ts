@@ -1,7 +1,7 @@
 /**
  * CSP header schema & constructor's
  * @since 0.0.0
- * @module \@beep/schema/http/headers/Csp
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Struct } from "@beep/utils";
@@ -67,7 +67,7 @@ const unwrapDirectiveValue = <T>(value: undefined | T | O.Option<T>): T | undefi
  * @example
  * ```ts
  * import {
- *   getProperHeaderName
+ * 
  * } from "@beep/schema/http/headers/Csp";
  *
  * // Get standard CSP header name

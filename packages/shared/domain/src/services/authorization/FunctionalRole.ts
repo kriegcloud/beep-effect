@@ -10,7 +10,7 @@
  * - 'period_admin': Open/close periods, create adjustment periods
  * - 'consolidation_manager': Manage consolidation groups, elimination rules
  *
- * @module \@beep/shared-domain/services/authorization/FunctionalRole
+ * @module
  * @since 0.0.0
  */
 void 0;

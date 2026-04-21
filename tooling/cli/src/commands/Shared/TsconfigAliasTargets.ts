@@ -31,7 +31,7 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
     return O.some(value);
   }
 
-  if (value === null) {
+  if (P.isNull(value)) {
     return O.none();
   }
 
@@ -79,11 +79,11 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
  */
 export const resolveRootExportTarget = (exportsField: unknown): O.Option<string> => {
   if (P.isObject(exportsField) && !A.isArray(exportsField)) {
-    const exportsRecord = exportsField as Record<string, unknown>;
-    if ("." in exportsRecord) {
-      return firstRelativeDotPath(exportsRecord["."]);
+
+    if (P.isObject(exportsField) && "." in exportsField) {
+      return firstRelativeDotPath(exportsField["."]);
     }
-    if (A.some(R.keys(exportsRecord), (key) => key === "." || Str.startsWith("./")(key))) {
+    if (A.some(R.keys(exportsField), (key) => key === "." || Str.startsWith("./")(key))) {
       return O.none();
     }
   }

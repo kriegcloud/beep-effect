@@ -2,7 +2,7 @@
  * A collection of HTTP schemas.
  *
  * @since 0.0.0
- * @module \@beep/schema/http
+ * @module
  */
 
 /**

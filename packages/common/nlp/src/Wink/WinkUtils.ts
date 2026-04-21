@@ -2,7 +2,7 @@
  * Wink utility wrappers for string, token, and n-gram helpers.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Wink/WinkUtils
+ * @module
  */
 
 import { createRequire } from "node:module";

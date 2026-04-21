@@ -59,16 +59,14 @@ const getBunYamlParse = (input: unknown): O.Option<(input: string) => unknown> =
 export const getGlobalYamlRuntime = (): YamlRuntime =>
   pipe(
     getBunYamlParse(globalThis),
-    O.match({
-      onNone: () => ({}),
-      onSome: (parse) => ({
-        Bun: {
-          YAML: {
-            parse,
-          },
+    O.map((parse) => ({
+      Bun: {
+        YAML: {
+          parse,
         },
-      }),
-    })
+      },
+    })),
+    O.getOrElse(() => ({}))
   );
 
 export const makeParseYaml =

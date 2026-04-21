@@ -517,7 +517,7 @@ const graphElementsAtom = workspaceRuntime.atom(
 
 ```ts
 /**
- * Create a new wiki-link edge between two nodes.
+ * Create a new wiki_link edge between two nodes.
  * Invalidates the "graph" reactivity key so graphElementsAtom re-fetches.
  *
  * @since 0.1.0
@@ -526,7 +526,7 @@ const graphElementsAtom = workspaceRuntime.atom(
  *   import { createEdgeFn } from "@beep/knowledge-workspace-ui/atoms"
  *
  *   const [result, createEdge] = useAtom(createEdgeFn)
- *   createEdge({ sourceNodeId, targetNodeId, kind: "wiki-link" })
+ *   createEdge({ sourceNodeId, targetNodeId, kind: "wiki_link" })
  */
 const createEdgeFn = workspaceRuntime.fn<{
   readonly sourceNodeId: string
@@ -877,7 +877,7 @@ function DetailPanel() {
 
 - Page title and last modified.
 - Excerpt (first 200 characters).
-- Outbound links (wiki-links from this page).
+- Outbound links (wiki_links from this page).
 - Backlinks (other pages/nodes that link to this page).
 - Actions: "Open in Editor" (`PencilSimpleIcon`), "Focus in Graph" (`CrosshairSimpleIcon`).
 
@@ -917,7 +917,7 @@ const CanvasMode = LiteralKit(["graph", "editor", "split"] as const)
 - Full Lexical editor occupying the entire primary zone.
 - Active document determined by URL param `?page=` or last selected document node.
 - Editor surface from `packages/editor/lexical/src/EditorSurface.tsx` extended with `WikiLinkNode` (specified in `04-lexical-integration.md`).
-- `[[wiki-link]]` clicks: navigate to the linked page, update URL params.
+- `[[wiki_link]]` clicks: navigate to the linked page, update URL params.
 - Toolbar: text formatting, heading levels, link insertion (`LinkIcon`), page metadata.
 
 ### Split mode (`Cmd+Shift+S`)
@@ -926,7 +926,7 @@ const CanvasMode = LiteralKit(["graph", "editor", "split"] as const)
 - Default split: 50/50. User-adjustable.
 - Bidirectional sync:
   - Click a document node in the graph: opens that page in the editor pane.
-  - Type a `[[wiki-link]]` in the editor: the linked node highlights in the graph with `.search-match` class via `CytoscapeService.applyClass`.
+  - Type a `[[wiki_link]]` in the editor: the linked node highlights in the graph with `.search-match` class via `CytoscapeService.applyClass`.
   - Save a page: graph updates in real time via the event stream.
 
 ## 9. Query Visualization
@@ -1041,7 +1041,7 @@ All URL params are managed through `Atom.searchParam`, not through TanStack Rout
 | User action                      | Effect                                              |
 |----------------------------------|-----------------------------------------------------|
 | Click graph node                 | Update detail panel + `?symbol=` or `?page=` param via `Atom.set(focusedSymbolAtom, ...)` |
-| Click wiki-link in editor        | Navigate editor to linked page + highlight graph node via `CytoscapeService.applyClass` |
+| Click wiki_link in editor        | Navigate editor to linked page + highlight graph node via `CytoscapeService.applyClass` |
 | Click breadcrumb segment         | Navigate to that scope level                         |
 | `Cmd+K` or `/`                   | Open command palette (universal search)              |
 | `Escape`                         | Close detail panel or exit full-screen mode          |

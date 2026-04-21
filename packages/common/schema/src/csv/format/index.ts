@@ -1,7 +1,7 @@
 /**
  * A module for effect schema driven CSV formatting.
  *
- * @module \@beep/schema/csv/format
+ * @module
  * @since 0.0.0
  */
 

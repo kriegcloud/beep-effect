@@ -112,6 +112,15 @@
         "$TURBO_ROOT$/tsconfig*.json"
       ]
     },
+    "@beep/repo-checks#check:tsgo:smoke": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/scripts/check-tsgo-smoke.mjs",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/bun.lock",
+        "$TURBO_ROOT$/tsconfig.base.json"
+      ]
+    },
     "@beep/repo-checks#check:types": {
       "cache": true,
       "inputs": [
@@ -128,11 +137,14 @@
     "@beep/repo-checks#lint:jsdoc": {
       "cache": true,
       "inputs": [
-        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
-        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx,md,hbs}",
         "$TURBO_ROOT$/infra/**/*.ts",
-        "$TURBO_ROOT$/.claude/hooks/**/*.ts",
+        "$TURBO_ROOT$/.claude/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/.codex/**/*.{ts,tsx,md,hbs}",
+        "$TURBO_ROOT$/.patterns/**/*.md",
+        "$TURBO_ROOT$/scripts/check-jsdoc-module-tags.mjs",
         "$TURBO_ROOT$/eslint.config.mjs"
       ]
     },

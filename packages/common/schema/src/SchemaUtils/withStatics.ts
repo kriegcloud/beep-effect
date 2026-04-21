@@ -1,7 +1,7 @@
 /**
  * Attach static methods to a schema.
  *
- * @module \@beep/schema/utils/withStatics
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
@@ -77,9 +77,9 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
  * import { withStatics } from "@beep/schema/SchemaUtils/withStatics"
  *
  * const MySchema = S.String.pipe(
- *   withStatics(() => ({
- *     empty: "" as const,
- *   }))
+ * 
+ * 
+ * 
  * )
  *
  * void MySchema.empty

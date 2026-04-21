@@ -7,21 +7,21 @@
  * @example
  * ```typescript
  * import {
- *   KnowledgeNodeKind,
- *   KnowledgeEdgeKind,
- *   KnowledgeDomain,
- *   CertaintyTier,
- *   KnowledgeNodeId,
- *   KnowledgeEdgeId,
- *   NodeMetadata,
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * } from "@beep/knowledge-graph/Schemas"
  *
  * KnowledgeNodeKind.Enum.page // "page"
- * KnowledgeEdgeKind.is["wiki-link"]("wiki-link") // true
+ * KnowledgeEdgeKind.is["wiki_link"]("wiki_link") // true
  * KnowledgeDomain.Enum.general // "general"
  * ```
  *
- * @module \@beep/knowledge-graph/Schemas
+ * @module
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";
@@ -79,19 +79,19 @@ export type KnowledgeNodeKind = typeof KnowledgeNodeKind.Type;
 /**
  * Discriminant for the kind of relationship edge in the graph.
  *
- * Supports `"wiki-link"`, `"code-import"`, `"code-export"`,
- * `"code-dependency"`, and `"semantic"`. Built with {@link LiteralKit}.
+ * Supports `"wiki_link"`, `"code_import"`, `"code_export"`,
+ * `"code_dependency"`, and `"semantic"`. Built with {@link LiteralKit}.
  *
  * @example
  * ```typescript
  * import { KnowledgeEdgeKind } from "@beep/knowledge-graph/Schemas"
  *
- * KnowledgeEdgeKind.$match("wiki-link", {
- *   "wiki-link":       () => 1.0,
- *   "code-import":     () => 1.0,
- *   "code-export":     () => 1.0,
- *   "code-dependency": () => 1.0,
- *   semantic:          () => 0.7,
+ * KnowledgeEdgeKind.$match("wiki_link", {
+ * 
+ * 
+ * 
+ * 
+ * 
  * })
  * ```
  *
@@ -99,12 +99,12 @@ export type KnowledgeNodeKind = typeof KnowledgeNodeKind.Type;
  * @since 0.0.0
  */
 export const KnowledgeEdgeKind = LiteralKit([
-  "wiki-link",
-  "code-import",
-  "code-export",
-  "code-dependency",
+  "wiki_link",
+  "code_import",
+  "code_export",
+  "code_dependency",
   "semantic",
-] as const).pipe(
+]).pipe(
   $I.annoteSchema("KnowledgeEdgeKind", {
     description: "Classification of knowledge graph edge types.",
   })
@@ -137,7 +137,7 @@ export type KnowledgeEdgeKind = typeof KnowledgeEdgeKind.Type;
  * @category models
  * @since 0.0.0
  */
-export const KnowledgeDomain = LiteralKit(["code", "legal", "compliance", "general"] as const).pipe(
+export const KnowledgeDomain = LiteralKit(["code", "legal", "compliance", "general"]).pipe(
   $I.annoteSchema("KnowledgeDomain", {
     description: "Domain partition for knowledge graph nodes.",
   })
@@ -391,7 +391,7 @@ export type KnowledgeNodeId = typeof KnowledgeNodeId.Type;
  * import * as S from "effect/Schema"
  * import { KnowledgeEdgeId } from "@beep/knowledge-graph/Schemas"
  *
- * const id = S.decodeUnknownSync(KnowledgeEdgeId)("beep:edge/wiki-link/beep:page/a->beep:page/b")
+ * const id = S.decodeUnknownSync(KnowledgeEdgeId)("beep:edge/wiki_link/beep:page/a->beep:page/b")
  * console.log(id)
  * ```
  *

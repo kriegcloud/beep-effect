@@ -4,7 +4,7 @@
 
 The knowledge workspace treats an event-sourced graph as its core data primitive. The graph is not computed from current state. The Effect `EventLog` from `effect/unstable/eventlog` is the source of truth. Every mutation -- node created, edge formed, property updated -- is an immutable `Entry` in the `EventJournal` carrying a UUID, event tag, primary key, msgpack payload, and timestamp. The graph that users see and query is a materialized projection of that journal, rebuilt or scrubbed to any point in time on demand.
 
-This design makes real-time streaming and temporal replay natural consequences of the architecture rather than bolted-on features. A Lexical rich text editor with `[[wiki-link]]` support provides the authoring surface. Cytoscape renders the live graph. Users watch edges form during indexing, scrub through graph history like an Obsidian timelapse, and trace every connection back to the event and actor that created it.
+This design makes real-time streaming and temporal replay natural consequences of the architecture rather than bolted-on features. A Lexical rich text editor with `[[wiki_link]]` support provides the authoring surface. Cytoscape renders the live graph. Users watch edges form during indexing, scrub through graph history like an Obsidian timelapse, and trace every connection back to the event and actor that created it.
 
 The workspace serves both code AST intelligence (repo-memory) and future expert memory domains (legal, IP, compliance) through a shared event-sourced substrate and provenance-first architecture built on the existing `ProvBundle` from `@beep/semantic-web`.
 
@@ -51,7 +51,7 @@ Eleven architectural questions were resolved during spec development. These deci
 
 | Asset | Location | What's There |
 |-------|----------|--------------|
-| Wiki-link extraction | `packages/editor/core/src/Canonical.ts:389` | `extractBlockLinks` regex, `PageLinkRef`, `withDerivedOutboundLinks` |
+| wiki_link extraction | `packages/editor/core/src/Canonical.ts:389` | `extractBlockLinks` regex, `PageLinkRef`, `withDerivedOutboundLinks` |
 | Lexical editor | `packages/editor/lexical/src/EditorSurface.tsx` | 4 node types currently (Heading, Paragraph, Quote, Text) |
 | Cytoscape styles | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | 948 lines, 17 node types, 9 edge types, performance variants |
 | D3 knowledge graph | `packages/common/ui/src/components/knowledge-graph.tsx` | Existing force-directed SVG graph |
@@ -74,7 +74,7 @@ Eleven architectural questions were resolved during spec development. These deci
 ### In Scope
 
 - Code and document graph as a unified workspace surface
-- Lexical rich text editor with `[[wiki-link]]` support and Obsidian-like graph behavior
+- Lexical rich text editor with `[[wiki_link]]` support and Obsidian-like graph behavior
 - Event-sourced persistence via Effect `EventLog` + `SqlEventJournal` as source of truth
 - Real-time graph mutation streaming via `EventJournal.changes` PubSub
 - Temporal replay via `effect_event_journal` table queries
@@ -100,7 +100,7 @@ This spec does not replace existing repo-memory or editor implementations. It co
 
 - repo-memory SQLite stays as-is. The graph is a derived projection from the event journal, not a new source of truth for code intelligence.
 - The Effect `EventLog` + `EventJournal` primitives from `effect/unstable/eventlog` are the foundation. This spec defines an `EventGroup` and handlers for the graph domain, not a custom event sourcing framework.
-- The Lexical editor port builds on the existing 4-node-type surface in `packages/editor/lexical`. It adds wiki-link nodes and graph-aware plugins, not a new editor framework.
+- The Lexical editor port builds on the existing 4-node-type surface in `packages/editor/lexical`. It adds wiki_link nodes and graph-aware plugins, not a new editor framework.
 - Cytoscape adoption reuses the existing 948-line style system. The D3 knowledge graph component remains available for simpler non-interactive views.
 - Frontend state uses `Atom` from `effect/unstable/reactivity` exclusively. No `useState`, `useEffect`, or TanStack Query for server-derived state.
 

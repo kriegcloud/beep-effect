@@ -1,5 +1,5 @@
 /**
- * @module \@beep/utils/Str
+ * @module
  * @since 0.0.0
  */
 import { Function } from "effect";

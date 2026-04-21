@@ -1,7 +1,7 @@
 /**
  * A module for CSV schema definitions.
  *
- * @module \@beep/schema/csv
+ * @module
  * @since 0.0.0
  */
 
@@ -226,10 +226,10 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * const CsvSchema = CSV(Row)
  *
  * const program = Effect.gen(function* () {
- *   const rows = yield* S.decodeUnknownEffect(CsvSchema)(
- *     "name,age\nAlice,30\nBob,25"
- *   )
- *   return rows
+ * 
+ * 
+ * 
+ * 
  * })
  * void program
  * ```

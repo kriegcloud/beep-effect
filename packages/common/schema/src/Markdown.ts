@@ -1,7 +1,7 @@
 /**
  * Markdown rendering and schema transforms.
  *
- * @module \@beep/schema/Markdown
+ * @module
  * @since 0.0.0
  */
 
@@ -81,10 +81,10 @@ const makeRenderMarkdownHtml = (options?: MarkdownRenderOptions) =>
  * import { MarkdownTextToHtml } from "@beep/schema/Markdown"
  *
  * const program = Effect.gen(function* () {
- *   const html = yield* S.decodeUnknownEffect(MarkdownTextToHtml())(
- *     "# Hello\n\nWorld"
- *   )
- *   return html
+ * 
+ * 
+ * 
+ * 
  * })
  * void program
  * ```
@@ -123,8 +123,8 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
  * const decodeHtml = decodeMarkdownTextAs(S.String)
  *
  * const program = Effect.gen(function* () {
- *   const html = yield* decodeHtml("# Hello")
- *   return html
+ * 
+ * 
  * })
  * void program
  * ```

@@ -5,7 +5,7 @@
  * Uses Effect's DateTime.Utc internally but only represents the date portion.
  * Encodes to/from ISO 8601 date strings (YYYY-MM-DD format).
  *
- * @module \@beep/schema/LocalDate
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

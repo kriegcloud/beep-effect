@@ -11,7 +11,7 @@
  * import { NotFoundError, makeBadRequestError } from "@beep/observability"
  *
  * const failNotFound = Effect.fail(
- *   new NotFoundError({ cause: Option.none(), message: "User not found", status: 404 })
+ * 
  * )
  *
  * const failBadReq = Effect.fail(makeBadRequestError("missing field"))
@@ -20,7 +20,7 @@
  * void failBadReq
  * ```
  *
- * @module \@beep/observability/HttpError
+ * @module
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
@@ -68,9 +68,9 @@ const statusFields = <Status extends S.Top>(status: Status) =>
  * import { ClientHttpError } from "@beep/observability"
  *
  * const err = new ClientHttpError({
- *   cause: Option.none(),
- *   message: "Bad request",
- *   status: 400,
+ * 
+ * 
+ * 
  * })
  *
  * void Effect.fail(err)
@@ -103,9 +103,9 @@ export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`Client
  * import { ServerHttpError } from "@beep/observability"
  *
  * const err = new ServerHttpError({
- *   cause: Option.none(),
- *   message: "Internal error",
- *   status: 500,
+ * 
+ * 
+ * 
  * })
  *
  * void Effect.fail(err)

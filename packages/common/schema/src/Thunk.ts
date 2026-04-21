@@ -2,7 +2,7 @@
  * Thunk-oriented schema helpers.
  *
  * @since 0.0.0
- * @module \@beep/schema/Thunk
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Brand, Function } from "effect";
@@ -119,7 +119,7 @@ export const isThunkUnknown = S.is(ThunkUnknown);
  * import { make } from "@beep/schema/Thunk"
  *
  * const isStringThunk = (u: unknown): u is () => string =>
- *   P.isFunction(u)
+ * 
  *
  * const StringThunk = make(isStringThunk, S.String)
  * void StringThunk

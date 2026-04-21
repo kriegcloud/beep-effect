@@ -28,6 +28,7 @@ import {
 } from "../Models.js";
 
 const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BunResolver");
+
 // ── GitHub API schema ───────────────────────────────────────────────────────
 
 /**
@@ -88,12 +89,25 @@ const extractPackageManagerVersion = Str.replace(/^bun@/, "");
 const BUN_SEMVER_PATTERN = /^v?(\d+)\.(\d+)\.(\d+)(?:-([0-9A-Za-z.-]+))?$/;
 const NUMERIC_PRERELEASE_IDENTIFIER = /^\d+$/;
 
-type BunSemverIdentifier = number | string;
+const BunSemverIdentifier = S.Union([S.Number, S.String]);
 
-type BunSemver = Readonly<{
-  readonly core: readonly [number, number, number];
-  readonly prerelease: O.Option<A.NonEmptyReadonlyArray<BunSemverIdentifier>>;
-}>;
+type BunSemverIdentifier = typeof BunSemverIdentifier.Type;
+
+/**
+ * Parsed Bun semantic version components.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class BunSemver extends S.Class<BunSemver>($I`BunSemver`)(
+  {
+    core: S.Tuple([S.Number, S.Number, S.Number]),
+    prerelease: BunSemverIdentifier.pipe(S.NonEmptyArray, S.Option),
+  },
+  $I.annote("BunSemver", {
+    description: "Parsed Bun semantic version components.",
+  })
+) {}
 
 const parseBunVersionPart = (value: string): O.Option<number> => {
   const parsed = globalThis.Number(value);
@@ -262,57 +276,60 @@ export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState
  * @category Utility
  * @since 0.0.0
  */
-export const resolveBunVersions: (
+export const resolveBunVersions = Effect.fn(function* (
   repoRoot: string,
   skipNetwork: boolean
-) => Effect.Effect<BunVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient> =
-  Effect.fn(function* (repoRoot, skipNetwork) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+): Effect.fn.Return<BunVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    // Read .bun-version
-    const bunVersionPath = path.join(repoRoot, ".bun-version");
-    const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
-      Effect.map(Str.trim),
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: ".bun-version",
-          })
-      )
-    );
+  // Read .bun-version
+  const bunVersionPath = path.join(repoRoot, ".bun-version");
+  const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
+    Effect.map(Str.trim),
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: ".bun-version",
+        })
+    )
+  );
 
-    // Read package.json packageManager field
-    const pkgJsonPath = path.join(repoRoot, "package.json");
-    const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: "package.json",
-          })
-      )
-    );
+  // Read package.json packageManager field
+  const pkgJsonPath = path.join(repoRoot, "package.json");
+  const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+          file: "package.json",
+        })
+    )
+  );
 
-    const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to parse package.json: ${e.message}`,
-            file: "package.json",
-          })
-      )
-    );
-    const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager);
+  const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
+    Effect.mapError(
+      (e) =>
+        new VersionSyncError({
+          message: `Failed to parse package.json: ${e.message}`,
+          file: "package.json",
+        })
+    )
+  );
+  const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager);
 
-    const latest = yield* Bool.match(skipNetwork, {
-      onTrue: () => Effect.succeed(O.none<string>()),
-      onFalse: () => fetchLatestBunVersion().pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>)),
-    });
-
-    return new BunVersionState({ bunVersionFile, packageManagerField, latest });
+  const latest = yield* Bool.match(skipNetwork, {
+    onTrue: () => Effect.succeed(O.none<string>()),
+    onFalse: () => fetchLatestBunVersion().pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>)),
   });
+
+  return new BunVersionState({
+    bunVersionFile,
+    packageManagerField,
+    latest,
+  });
+});
 
 /**
  * Fetch the latest stable Bun release version from GitHub.
@@ -320,28 +337,37 @@ export const resolveBunVersions: (
  * @category Utility
  * @since 0.0.0
  */
-const fetchLatestBunVersion: () => Effect.Effect<string, NetworkUnavailableError, HttpClient.HttpClient> = Effect.fn(
-  function* () {
-    const client = yield* HttpClient.HttpClient;
-    const response = yield* client
-      .get(BUN_RELEASE_URL, { headers: { "User-Agent": "beep-cli/0.0.0", Accept: "application/vnd.github+json" } })
-      .pipe(
-        Effect.mapError(
-          (e) =>
-            new NetworkUnavailableError({ message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}` })
-        )
-      );
-    const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(
+const fetchLatestBunVersion = Effect.fn(function* (): Effect.fn.Return<
+  string,
+  NetworkUnavailableError,
+  HttpClient.HttpClient
+> {
+  const client = yield* HttpClient.HttpClient;
+  const response = yield* client
+    .get(BUN_RELEASE_URL, {
+      headers: {
+        "User-Agent": "beep-cli/0.0.0",
+        Accept: "application/vnd.github+json",
+      },
+    })
+    .pipe(
       Effect.mapError(
         (e) =>
           new NetworkUnavailableError({
-            message: `Failed to parse GitHub API response: ${Inspectable.toStringUnknown(e, 0)}`,
+            message: `GitHub API request failed: ${Inspectable.toStringUnknown(e, 0)}`,
           })
       )
     );
-    return extractBunVersion(body.tag_name);
-  }
-);
+  const body = yield* HttpClientResponse.schemaBodyJson(BunRelease)(response).pipe(
+    Effect.mapError(
+      (e) =>
+        new NetworkUnavailableError({
+          message: `Failed to parse GitHub API response: ${Inspectable.toStringUnknown(e, 0)}`,
+        })
+    )
+  );
+  return extractBunVersion(body.tag_name);
+});
 
 /**
  * Build the Bun category report from resolved state.

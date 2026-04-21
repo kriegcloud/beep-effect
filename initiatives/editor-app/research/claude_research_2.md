@@ -25,7 +25,7 @@ MarkFlowy is the highest-starred Tauri + React editor found. Its README explicit
 **Stack:** Tauri v1 · React · TypeScript · **ProseMirror** (direct, no wrapper) · CodeMirror v6 (source mode) · Zustand · immer · d3  
 **Storage:** Local plain-text Markdown files  
 
-mdSilo is the most feature-rich project in this survey: WYSIWYG editor, mind maps, Kanban boards, graph view, timeline view, RSS/Atom/Podcast reader, PDF/ePub annotation, wiki-links, hashtags, Mermaid/ECharts diagrams, LaTeX math, and chemical equations — all in one app. It uses ProseMirror directly (not via TipTap or Remirror), giving maximum control over the editor layer.
+mdSilo is the most feature-rich project in this survey: WYSIWYG editor, mind maps, Kanban boards, graph view, timeline view, RSS/Atom/Podcast reader, PDF/ePub annotation, wiki_links, hashtags, Mermaid/ECharts diagrams, LaTeX math, and chemical equations — all in one app. It uses ProseMirror directly (not via TipTap or Remirror), giving maximum control over the editor layer.
 
 **Gaps:** Development has slowed (an open issue requesting Tauri v2 migration from Nov 2024 remains unresolved). The sheer breadth of features means the codebase is large and tightly coupled. No Lexical, no Effect-TS, no formal plugin architecture.
 
@@ -37,7 +37,7 @@ mdSilo is the most feature-rich project in this survey: WYSIWYG editor, mind map
 
 Gramax takes a unique "docs-as-code" approach. Its visual TipTap editor writes Markdown that's version-controlled via Git natively — not as an add-on. It supports Mermaid diagrams, Excalidraw, diagrams.net, Swagger API descriptions, tables, video embeds, and 17 UI languages. It ships as both a Tauri desktop app and a browser version.
 
-**Gaps:** Oriented toward documentation portals rather than personal note-taking. No wiki-links or graph views. No Lexical, no Effect-TS. The tight Git coupling may add complexity if you want simpler filesystem storage.
+**Gaps:** Oriented toward documentation portals rather than personal note-taking. No wiki_links or graph views. No Lexical, no Effect-TS. The tight Git coupling may add complexity if you want simpler filesystem storage.
 
 ### 4. Typethings — cleanest monorepo architecture
 
@@ -47,7 +47,7 @@ Gramax takes a unique "docs-as-code" approach. Its visual TipTap editor writes M
 
 Typethings stands out for its **Turborepo monorepo** with well-separated packages: `@typethings/editor` (TipTap primitives), `@typethings/ui` (shadcn/ui + Tailwind), `@typethings/fs` (Tauri filesystem abstraction). This separation-of-concerns pattern is the cleanest of any project surveyed and would be the easiest to fork and extend. Features include CMD+K search, workspace management, syntax highlighting, and dark/light modes.
 
-**Gaps:** Relatively early-stage with a smaller feature set. No wiki-links, graph views, or search indexing. No Lexical, no Effect-TS. Low star count suggests limited community testing.
+**Gaps:** Relatively early-stage with a smaller feature set. No wiki_links, graph views, or search indexing. No Lexical, no Effect-TS. Low star count suggests limited community testing.
 
 ### 5. WebNotes — best hybrid sync architecture
 
@@ -68,7 +68,7 @@ WebNotes is the only project with a **dual-runtime architecture**: a Tauri deskt
 
 A straightforward note-taking app with TipTap rich-text editing, note encryption, PDF export, and i18n. Its simplicity makes it the easiest codebase to read and understand, but it's essentially a starter template rather than a production app.
 
-**Gaps:** Minimal features, very low adoption. No Lexical, no Effect-TS, no search, no wiki-links.
+**Gaps:** Minimal features, very low adoption. No Lexical, no Effect-TS, no search, no wiki_links.
 
 ---
 
@@ -76,7 +76,7 @@ A straightforward note-taking app with TipTap rich-text editing, note encryption
 
 Three Svelte-based projects offer architectural patterns worth porting to a React implementation, even though they don't use React themselves.
 
-**Otterly** (https://github.com/ajkdrag/otterly, 74 stars) uses Svelte 5 + Milkdown + Tauri v2 with **SQLite FTS5 + BM25 ranking** for full-text search. Its vault-based model (vault = folder, no proprietary database) closely mirrors Obsidian's approach. Wiki-links with backlink/outlink tracking, an omnibar for universal search, and tab pinning round out the feature set. The Rust-side SQLite FTS5 search engine is its standout contribution.
+**Otterly** (https://github.com/ajkdrag/otterly, 74 stars) uses Svelte 5 + Milkdown + Tauri v2 with **SQLite FTS5 + BM25 ranking** for full-text search. Its vault-based model (vault = folder, no proprietary database) closely mirrors Obsidian's approach. wiki_links with backlink/outlink tracking, an omnibar for universal search, and tab pinning round out the feature set. The Rust-side SQLite FTS5 search engine is its standout contribution.
 
 **HelixNotes** (hosted on Codeberg, not GitHub) uses SvelteKit + TipTap v3 + Tauri v2 with **Tantivy** (a Rust-native full-text search engine comparable to Lucene) for instant search. It also includes a graph view, version history with diffs, automatic backups, Obsidian import, and AI tools. Released February 2026, it's the newest project surveyed.
 
@@ -124,6 +124,6 @@ No single repository covers the full requirements. The optimal approach is to **
 
 **MarkFlowy** demonstrates how to wire ProseMirror/Remirror into a full-featured Tauri React app with dual editing modes, file tree management, and AI integration. Its codebase is the most complete reference for the React + ProseMirror + Tauri v1 pattern, though its AGPL license means you'd study the patterns rather than directly forking code.
 
-**Otterly's Rust backend** solves the search and file-indexing problem elegantly with SQLite FTS5 + BM25 ranking, vault-based storage, and wiki-link tracking with backlinks/outlinks. Port its Rust-side search and file-watching architecture into the Tauri backend of your Typethings-based scaffold.
+**Otterly's Rust backend** solves the search and file-indexing problem elegantly with SQLite FTS5 + BM25 ranking, vault-based storage, and wiki_link tracking with backlinks/outlinks. Port its Rust-side search and file-watching architecture into the Tauri backend of your Typethings-based scaffold.
 
 If you choose to proceed with Lexical despite the absence of Tauri reference implementations, the `svelte-lexical` package (https://github.com/umaranis/svelte-lexical) and the `verbum` component library (https://github.com/ozanyurtsever/verbum) provide the most relevant starting points for understanding how Lexical integrates into component frameworks — though neither targets desktop apps. Expect to build the Tauri integration layer from scratch.

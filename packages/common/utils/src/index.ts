@@ -1,7 +1,7 @@
 /**
  * Shared runtime utilities for beep.
  *
- * @module \@beep/utils
+ * @module
  * @since 0.0.0
  */
 

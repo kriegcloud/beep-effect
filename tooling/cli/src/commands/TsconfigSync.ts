@@ -990,6 +990,10 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
       O.flatMap(resolveRootExportTarget),
       O.map((rootExportTarget) => buildCanonicalAliasTargets(relativeDir, rootExportTarget))
     );
+    const aliasTargetFields = R.getSomes({
+      rootAliasTarget: pipe(aliasTargets, O.map(({ rootAliasTarget }) => rootAliasTarget)),
+      wildcardAliasTarget: pipe(aliasTargets, O.map(({ wildcardAliasTarget }) => wildcardAliasTarget)),
+    });
     const docgenAliasSource = buildDocgenAliasSource(packageName, relativeDir, packageJson);
 
     descriptors.push(
@@ -1001,8 +1005,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
         hasProjectTsconfig,
         hasDocgenConfig,
         directWorkspaceDependencies: [...directWorkspaceDependencies],
-        rootAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.rootAliasTarget)),
-        wildcardAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.wildcardAliasTarget)),
+        ...aliasTargetFields,
         docgenRootAliasTarget: docgenAliasSource.rootAliasTarget,
         docgenWildcardAliasTarget: docgenAliasSource.wildcardAliasTarget,
       })
@@ -1742,12 +1745,13 @@ export const tsconfigSyncCommand = Command.make(
   Effect.fn(function* ({ check, dryRun, filter, verbose }) {
     const rootDir = yield* findRepoRoot();
     const mode = resolveMode(check, dryRun);
-
-    yield* syncTsconfigAtRoot(rootDir, {
+    const syncOptions = {
       mode,
-      filter: O.getOrUndefined(filter),
       verbose,
-    }).pipe(
+      ...R.getSomes({ filter }),
+    };
+
+    yield* syncTsconfigAtRoot(rootDir, syncOptions).pipe(
       Effect.catchTag(
         "TsconfigSyncDriftError",
         Effect.fn(function* (error) {

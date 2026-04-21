@@ -2,7 +2,7 @@
  * Effect service for Drizzle SQL logging.
  *
  * @since 0.0.0
- * @module \@beep/shared-server/factories/effect-drizzle/Logger
+ * @module
  */
 
 import { $SharedServerId } from "@beep/identity";
@@ -41,8 +41,8 @@ export interface DrizzleEffectLoggerShape {
  * import { DrizzleEffectLogger } from "@beep/shared-server/factories/effect-drizzle"
  *
  * const program = Effect.gen(function* () {
- *   const logger = yield* DrizzleEffectLogger
- *   yield* logger.logQuery("select 1", [])
+ * 
+ * 
  * })
  * ```
  *

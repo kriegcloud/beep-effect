@@ -2,7 +2,7 @@
  * Wink similarity services and domain models.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Wink/WinkSimilarity
+ * @module
  */
 
 import { createRequire } from "node:module";

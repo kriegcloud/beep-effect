@@ -11,7 +11,7 @@
  * console.log(version);
  * ```
  *
- * @module \@beep/schema/SemanticVersion
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

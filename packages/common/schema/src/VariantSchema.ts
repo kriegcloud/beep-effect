@@ -5,7 +5,7 @@
  * `Class`, `Field`, `Struct`, `Union`, `extract`, and `fieldEvolve` constructors
  * scoped to those variants.
  *
- * @module \@beep/schema/VariantSchema
+ * @module
  * @since 0.0.0
  */
 
@@ -344,13 +344,13 @@ export declare namespace Union {
  * import * as VariantSchema from "@beep/schema/VariantSchema"
  *
  * const { Class, Field } = VariantSchema.make({
- *   variants: ["select", "insert"],
- *   defaultVariant: "select",
+ * 
+ * 
  * })
  *
  * class Item extends Class<Item>("Item")({
- *   id: Field({ select: S.Number }),
- *   name: S.String,
+ * 
+ * 
  * }) {}
  *
  * void Item
@@ -362,12 +362,12 @@ export declare namespace Union {
  * import * as VariantSchema from "@beep/schema/VariantSchema"
  *
  * const { Struct, extract } = VariantSchema.make({
- *   variants: ["a", "b"],
- *   defaultVariant: "a",
+ * 
+ * 
  * })
  *
  * const vs = Struct({
- *   x: S.String,
+ * 
  * })
  *
  * const schemaA = extract(vs, "a")

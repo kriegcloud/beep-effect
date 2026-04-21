@@ -1,7 +1,7 @@
 /**
  * Template rendering service for package generation.
  *
- * @module \@beep/repo-cli/commands/CreatePackage/TemplateService
+ * @module
  * @since 0.0.0
  */
 

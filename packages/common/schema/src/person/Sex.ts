@@ -1,5 +1,5 @@
 /**
- * @module \@beep/schema/person/Sex
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

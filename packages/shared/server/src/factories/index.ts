@@ -1,5 +1,5 @@
 /**
- * @module \@beep/shared-server/factories
+ * @module
  *
  * @since 0.0.0
  */

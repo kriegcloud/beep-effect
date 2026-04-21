@@ -15,7 +15,9 @@ import { TaggedErrorClass } from "@beep/schema";
 import { Effect, HashSet, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+
 import {
   type BinaryExpression,
   type CallExpression,
@@ -123,6 +125,22 @@ export class NoNativeRuntimeDiagnostic extends S.Class<NoNativeRuntimeDiagnostic
 ) {}
 
 /**
+ * Namespace for {@link NoNativeRuntimeDiagnostic} companion types.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export declare namespace NoNativeRuntimeDiagnostic {
+  /**
+   * Encoded representation of {@link NoNativeRuntimeDiagnostic}.
+   *
+   * @category DomainModel
+   * @since 0.0.0
+   */
+  export type Encoded = typeof NoNativeRuntimeDiagnostic.Encoded;
+}
+
+/**
  * Summary of repo-local native runtime checks.
  *
  * @category DomainModel
@@ -140,8 +158,8 @@ export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSum
       S.withDecodingDefault(Effect.succeed(A.empty<string>()))
     ),
     diagnostics: S.Array(NoNativeRuntimeDiagnostic).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<(typeof NoNativeRuntimeDiagnostic)["Type"]>())),
-      S.withDecodingDefault(Effect.succeed(A.empty<(typeof NoNativeRuntimeDiagnostic)["Encoded"]>()))
+      S.withConstructorDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic>())),
+      S.withDecodingDefault(Effect.succeed(A.empty<NoNativeRuntimeDiagnostic.Encoded>()))
     ),
   },
   $I.annote("NoNativeRuntimeRulesSummary", {
@@ -169,7 +187,7 @@ type NativeRuntimeViolation = Readonly<{
   kind: string;
   messageId: string;
   node: import("ts-morph").Node;
-  data?: ViolationData;
+  data?: undefined | ViolationData;
 }>;
 
 type ScannedSourceFile = readonly [string, SourceFile];
@@ -184,7 +202,7 @@ const makeViolation = (
   kind: string,
   messageId: string,
   data?: ViolationData
-): NativeRuntimeViolation => (data === undefined ? { kind, messageId, node } : { kind, messageId, node, data });
+): NativeRuntimeViolation => (P.isUndefined(data) ? { kind, messageId, node } : { kind, messageId, node, data });
 
 const getMemberCall = (node: import("ts-morph").Node): O.Option<MemberCall> => {
   if (Node.isPropertyAccessExpression(node)) {
@@ -392,7 +410,9 @@ const formatViolationMessage = (violation: NativeRuntimeViolation): string => {
  * @category UseCase
  * @since 0.0.0
  */
-export const runNoNativeRuntimeRules = Effect.fn(function* (options: NoNativeRuntimeRulesOptions) {
+export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(function* (
+  options: NoNativeRuntimeRulesOptions
+) {
   const path = yield* Path.Path;
   const cwd = process.cwd();
   const allowlistDiagnostics = getAllowlistDiagnostics();

@@ -1,7 +1,7 @@
 /**
  * Module for number utilities.
  *
- * @module \@beep/utils/Number
+ * @module
  * @since 0.0.0
  */
 import { Number as Num } from "effect";
@@ -27,7 +27,7 @@ import { Number as Num } from "effect";
  * // Type guard usage to refine unknown input types
  * const value: unknown = 5;
  * if (isPositive(value)) {
- *   console.log(`${value} is a positive number`);
+ * 
  * }
  * ```
  *
@@ -39,9 +39,9 @@ import { Number as Num } from "effect";
  * import { isPositive } from "@beep/utils/Number";
  *
  * const processNumber = (n: unknown) =>
- *   isPositive(n)
- *     ? Console.log(`${n} is valid and positive.`)
- *     : Console.log(`Invalid input. Expected positive number, got: ${String(n)}`);
+ * 
+ * 
+ * 
  *
  * void processNumber(10);
  * ```

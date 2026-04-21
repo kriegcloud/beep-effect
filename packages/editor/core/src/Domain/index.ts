@@ -2,7 +2,7 @@
  * Editor domain models and constants.
  *
  * @since 0.0.0
- * @module \@beep/editor/Domain
+ * @module
  */
 
 /**

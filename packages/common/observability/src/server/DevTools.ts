@@ -70,8 +70,8 @@ const toDevToolsSpan = (span: Tracer.Span): DevToolsSchema.Span => ({
  * import { layerFilteredDevTools } from "@beep/observability/server"
  *
  * const DevToolsLive = layerFilteredDevTools({
- *   url: "ws://localhost:34437",
- *   shouldPublish: (name) => name.startsWith("Http."),
+ * 
+ * 
  * })
  * ```
  *

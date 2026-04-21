@@ -1,5 +1,5 @@
 /**
- * @module \@beep/schema/person/CardinalDirection
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

@@ -9,7 +9,7 @@
  * This module includes all official codes and some of the most popular
  * unofficial codes used in specific platforms and services.
  *
- * @module \@beep/schema/http/HttpStatus
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

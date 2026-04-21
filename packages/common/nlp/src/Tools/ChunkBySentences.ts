@@ -2,7 +2,7 @@
  * ChunkBySentences tool definition.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Tools/ChunkBySentences
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

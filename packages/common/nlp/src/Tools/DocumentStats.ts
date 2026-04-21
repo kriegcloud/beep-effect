@@ -2,7 +2,7 @@
  * DocumentStats tool definition.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Tools/DocumentStats
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

@@ -16,7 +16,7 @@
  * decodeFileName("archive.tar.gz");
  * ```
  *
- * @module \@beep/schema/FileName
+ * @module
  * @since 0.0.0
  */
 

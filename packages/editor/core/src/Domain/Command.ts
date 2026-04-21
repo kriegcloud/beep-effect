@@ -1,5 +1,5 @@
 /**
- * @module \@beep/editor/Domain/Command
+ * @module
  * @since 0.0.0
  */
 import { $EditorId } from "@beep/identity";

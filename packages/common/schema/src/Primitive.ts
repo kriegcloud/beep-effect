@@ -1,7 +1,7 @@
 /**
  * A primitive data type schema.
  *
- * @module \@beep/schema/Primitive
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

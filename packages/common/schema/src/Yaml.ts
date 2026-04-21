@@ -1,7 +1,7 @@
 /**
  * YAML parsing and schema transforms.
  *
- * @module \@beep/schema/Yaml
+ * @module
  * @since 0.0.0
  */
 
@@ -87,10 +87,10 @@ export const parseYaml = makeParseYaml(yamlRuntime, loadYamlModule);
  * import { YamlTextToUnknown } from "@beep/schema/Yaml"
  *
  * const program = Effect.gen(function* () {
- *   const parsed = yield* S.decodeUnknownEffect(YamlTextToUnknown)(
- *     "name: Alice\nage: 30"
- *   )
- *   return parsed
+ * 
+ * 
+ * 
+ * 
  * })
  * void program
  * ```
@@ -127,8 +127,8 @@ export const YamlTextToUnknown = S.String.pipe(
  * const decodeConfig = decodeYamlTextAs(Config)
  *
  * const program = Effect.gen(function* () {
- *   const config = yield* decodeConfig("name: Alice\nage: 30")
- *   return config
+ * 
+ * 
  * })
  * void program
  * ```

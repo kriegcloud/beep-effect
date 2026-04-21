@@ -13,18 +13,19 @@
  *
  * // Obtain the service from the context
  * const program = Effect.gen(function* () {
- *   const graph = yield* KnowledgeGraph
- *   const nodes = yield* graph.queryNodes({ kind: "page" })
- *   console.log(nodes)
+ * 
+ * 
+ * 
  * })
  * ```
  *
- * @module \@beep/knowledge-graph/KnowledgeGraph
+ * @module
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";
 import type { NonEmptyTrimmedStr } from "@beep/schema";
 import { Context, Effect, Stream } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
@@ -81,7 +82,7 @@ export class NodeFilter extends S.Class<NodeFilter>($I`NodeFilter`)({
  * ```typescript
  * import { EdgeFilter } from "@beep/knowledge-graph/KnowledgeGraph"
  *
- * const filter = new EdgeFilter({ kind: "wiki-link" })
+ * const filter = new EdgeFilter({ kind: "wiki_link" })
  * ```
  *
  * @category models
@@ -159,17 +160,17 @@ type KnowledgeGraphShape = {
  * import { NodeMetadata } from "@beep/knowledge-graph/Schemas"
  *
  * const program = Effect.gen(function* () {
- *   const graph = yield* KnowledgeGraph
- *   const payload = S.decodeUnknownSync(NodeCreatedPayload)({
- *     _tag: "NodeCreatedPayload",
- *     nodeId: "beep:page/my-page",
- *     kind: "page",
- *     displayLabel: "My Page",
- *     content: null,
- *     metadata: S.decodeUnknownSync(NodeMetadata)({ source: "vault-parser" }),
- *   })
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  *
- *   yield* graph.addNode(payload)
+ * 
  * })
  * ```
  *
@@ -185,9 +186,10 @@ export class KnowledgeGraph extends Context.Service<KnowledgeGraph, KnowledgeGra
 /**
  * Build a live {@link KnowledgeGraph} service from the environment.
  *
- * Requires {@link EventLog}, {@link EventJournal.EventJournal}, and
- * {@link SqlClient.SqlClient} in the context. The caller is responsible for
- * composing these into a {@link Layer} — see the separate `Layer.ts` module.
+ * Requires {@link EventLog}, {@link EventJournal}, and
+ * {@link SqlClient} in the context. The caller is responsible for
+ * composing these into a {@link Layer.Layer} — see the separate `Layer.ts`
+ * module.
  *
  * @category constructors
  * @since 0.0.0
@@ -225,7 +227,7 @@ export const makeKnowledgeGraph = Effect.gen(function* () {
   );
 
   const queryNodes: KnowledgeGraphShape["queryNodes"] = Effect.fn("KnowledgeGraph.queryNodes")((filter) => {
-    const conditions: Array<Fragment> = [];
+    const conditions = A.empty<Fragment>();
     if (filter?.kind !== undefined) conditions.push(sql`kind = ${filter.kind}`);
     if (filter?.domain !== undefined) conditions.push(sql`domain = ${filter.domain}`);
 

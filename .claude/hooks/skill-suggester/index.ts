@@ -171,6 +171,7 @@ export const buildEffectSteeringBlock = (prompt: string): O.Option<string> =>
     ? O.some(`<effect-steering>
 Prefer the flattest equivalent control flow first.
 Before O.match(...), check O.map(...), O.flatMap(...), O.liftPredicate(...), and O.getOrElse(...).
+Option-valued object fields: use R.getSomes({...}) when None should drop keys, O.all({...}) when the whole object is all-or-nothing, and S.OptionFrom* when optionality belongs at the schema boundary.
 Prefer Match.type<T>().pipe(...) or Match.tags(...) for reusable or exhaustive matchers; keep Match.value(...) for concrete local values at boundaries.
 Treat nested Bool.match(...) as a smell unless both branches are doing real work.
 </effect-steering>`)

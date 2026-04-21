@@ -11,9 +11,9 @@
 
 Plugins mounted: `RichTextPlugin`, `HistoryPlugin`, `OnChangePlugin`, `BlockTypeToolbar`.
 
-There is no wiki-link support. No custom decorator nodes. No typeahead. No backlink awareness. The editor can produce and consume basic rich text but has no graph integration.
+There is no wiki_link support. No custom decorator nodes. No typeahead. No backlink awareness. The editor can produce and consume basic rich text but has no graph integration.
 
-Wiki-link extraction already exists server-side at `packages/editor/core/src/Canonical.ts:389` via `extractBlockLinks`, which parses `[[target]]` syntax and produces `PageLinkRef` values. The gap is on the editor surface: there is no corresponding Lexical node that renders, resolves, or interacts with these links.
+wiki_link extraction already exists server-side at `packages/editor/core/src/Canonical.ts:389` via `extractBlockLinks`, which parses `[[target]]` syntax and produces `PageLinkRef` values. The gap is on the editor surface: there is no corresponding Lexical node that renders, resolves, or interacts with these links.
 
 ---
 
@@ -26,13 +26,13 @@ The beep-effect4/todox codebase at `~/YeeBois/projects/beep-effect4/apps/todox/s
 - **Real-time collaboration** via Yjs + Liveblocks provider.
 - **Markdown/JSON/HTML serialization** with a `PLAYGROUND_TRANSFORMERS` array for custom markdown rules.
 
-What the reference implementation is **missing**: wiki-links (`[[]]`), backlinks, graph integration. These are exactly the capabilities this spec adds. The existing beep-effect4 editor proves the Lexical plugin architecture scales to 54 plugins, so adding wiki-link support is a known-tractable extension, not speculative.
+What the reference implementation is **missing**: wiki_links (`[[]]`), backlinks, graph integration. These are exactly the capabilities this spec adds. The existing beep-effect4 editor proves the Lexical plugin architecture scales to 54 plugins, so adding wiki_link support is a known-tractable extension, not speculative.
 
 ---
 
 ## WikiLinkNode
 
-A custom Lexical `DecoratorNode` that represents a `[[wiki-link]]` inline in the editor.
+A custom Lexical `DecoratorNode` that represents a `[[wiki_link]]` inline in the editor.
 
 ### Schema
 
@@ -79,15 +79,15 @@ The WikiLinkNode data is validated through an `S.Class` with `$I` identity:
 
 ```ts
 static getType(): string {
-  return "wiki-link"
+  return "wiki_link"
 }
 ```
 
 ### DOM and Decoration
 
 - `createDOM()`: Returns an inline `<span>` element. The span carries CSS classes for styling:
-  - Resolved link: `class="wiki-link wiki-link--resolved"` -- blue underlined text with subtle `oklch(0.95 0.02 250)` background.
-  - Unresolved link: `class="wiki-link wiki-link--unresolved"` -- amber dashed underline (`border-bottom: 1px dashed oklch(0.75 0.15 70)`), no background fill.
+  - Resolved link: `class="wiki_link wiki_link--resolved"` -- blue underlined text with subtle `oklch(0.95 0.02 250)` background.
+  - Unresolved link: `class="wiki_link wiki_link--unresolved"` -- amber dashed underline (`border-bottom: 1px dashed oklch(0.75 0.15 70)`), no background fill.
 - `decorate()`: Returns a React component that wraps the span content and provides interactive behavior (hover card, click navigation, context menu).
 - `updateDOM()`: Returns `false` (the decorator component handles updates).
 
@@ -105,7 +105,7 @@ static getType(): string {
  * exportJSON(): SerializedWikiLinkNode {
  *   const raw = {
  *     ...super.exportJSON(),
- *     type: "wiki-link",
+ *     type: "wiki_link",
  *     targetSlug: this.__targetSlug,
  *     displayText: this.__displayText,
  *     resolved: this.__resolved,
@@ -216,7 +216,7 @@ The typeahead dropdown uses the shadcn `Command` component (cmdk) from `@beep/ui
 
 ## Backlink Detection and Display
 
-Backlinks are already computed server-side. The `EditorPageResource.backlinks` field returns `PageSummary[]` -- an array of pages that contain `[[wiki-link]]` references to the current page. No new server-side work is needed for basic backlink display.
+Backlinks are already computed server-side. The `EditorPageResource.backlinks` field returns `PageSummary[]` -- an array of pages that contain `[[wiki_link]]` references to the current page. No new server-side work is needed for basic backlink display.
 
 ### Display Locations
 
@@ -262,15 +262,15 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
 
 ### Emission Sequence
 
-1. **Diff wiki-links**: Compare the current page's `[[wiki-link]]` set against the previous save's link set. Use `extractBlockLinks` (from `packages/editor/core/src/Canonical.ts:389`) on the serialized markdown content.
+1. **Diff wiki_links**: Compare the current page's `[[wiki_link]]` set against the previous save's link set. Use `extractBlockLinks` (from `packages/editor/core/src/Canonical.ts:389`) on the serialized markdown content.
 
 2. **Emit node event via KnowledgeGraph facade**:
    - First save: the facade calls `EventLog.write` with event tag `"NodeCreated"`, `kind: "page"`, `domain: "general"`, `certainty: 1.0`, `actor: "user:local"`.
    - Subsequent saves: the facade calls `EventLog.write` with event tag `"NodeUpdated"` and a patch containing changed fields (title, body digest, tags).
 
-3. **Emit edge events for new links**: For each `[[wiki-link]]` that did not exist in the previous save, the facade calls `EventLog.write` with event tag `"EdgeCreated"`, `kind: "wiki-link"`, `source` = current page node ID, `target` = linked page node ID, `certainty: 1.0`.
+3. **Emit edge events for new links**: For each `[[wiki_link]]` that did not exist in the previous save, the facade calls `EventLog.write` with event tag `"EdgeCreated"`, `kind: "wiki_link"`, `source` = current page node ID, `target` = linked page node ID, `certainty: 1.0`.
 
-4. **Emit edge events for removed links**: For each `[[wiki-link]]` that existed in the previous save but not the current save, the facade calls `EventLog.write` with event tag `"EdgeRemoved"` and the corresponding edge ID and `reason: "link removed from page"`.
+4. **Emit edge events for removed links**: For each `[[wiki_link]]` that existed in the previous save but not the current save, the facade calls `EventLog.write` with event tag `"EdgeRemoved"` and the corresponding edge ID and `reason: "link removed from page"`.
 
 ### Page entity as Model.Class
 
@@ -349,7 +349,7 @@ Page-save events carry `actor: "user:local"` and `source: "vault"`. Provenance i
 
 ### Graph Visibility
 
-After these events are written to the `EventLog`, the `Reactivity` service invalidates the registered keys (`graph:nodes`, `graph:edges`). Any atom subscribed to those keys automatically re-queries. If the graph view is open, Cytoscape reflects the changes in real-time: new document nodes appear, wiki-link edges form or dissolve.
+After these events are written to the `EventLog`, the `Reactivity` service invalidates the registered keys (`graph:nodes`, `graph:edges`). Any atom subscribed to those keys automatically re-queries. If the graph view is open, Cytoscape reflects the changes in real-time: new document nodes appear, wiki_link edges form or dissolve.
 
 ---
 
@@ -371,7 +371,7 @@ The beep-effect4 editor has 54 plugins and 30 node types. Porting everything at 
 | `LinkPlugin` + `AutoLinkPlugin` | Port from beep-effect4 -- standard URL links |
 | Basic toolbar | Extend current `BlockTypeToolbar` with heading levels, lists, links |
 
-This set is independently shippable. A user can create pages, write rich text, insert wiki-links, and see backlinks.
+This set is independently shippable. A user can create pages, write rich text, insert wiki_links, and see backlinks.
 
 ### Phase 2b: Rich Content
 
@@ -410,7 +410,7 @@ This set is out of scope for the current knowledge workspace spec. Noted here so
 
 ## Markdown Serialization for WikiLinkNode
 
-Wiki-links must round-trip through markdown. This is required because vault pages are persisted as `.md` files with YAML frontmatter.
+wiki_links must round-trip through markdown. This is required because vault pages are persisted as `.md` files with YAML frontmatter.
 
 ### Export
 

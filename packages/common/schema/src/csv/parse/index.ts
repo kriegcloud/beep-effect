@@ -1,7 +1,7 @@
 /**
  * A module for effect schema driven CSV parsing
  *
- * @module \@beep/schema/csv/parse
+ * @module
  * @since 0.0.0
  */
 

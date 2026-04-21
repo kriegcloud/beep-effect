@@ -4,7 +4,7 @@
  * Provides array, string, and unsafe type-level utilities used across packages.
  *
  * @since 0.0.0
- * @module \@beep/types
+ * @module
  */
 
 /**

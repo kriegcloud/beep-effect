@@ -163,6 +163,9 @@ const lawsTerseEffectCommand = Command.make(
     yield* Console.log(`[effect-governance-terse-effect] helper_refs_simplified=${summary.helpersSimplified}`);
     yield* Console.log(`[effect-governance-terse-effect] thunk_helpers_simplified=${summary.thunkHelpersSimplified}`);
     yield* Console.log(`[effect-governance-terse-effect] flow_candidates_detected=${summary.flowCandidatesDetected}`);
+    yield* Console.log(
+      `[effect-governance-terse-effect] option_object_compaction_candidates_detected=${summary.optionObjectCompactionCandidatesDetected}`
+    );
 
     if (!options.write) {
       yield* Console.log("[effect-governance-terse-effect] Run with --write to persist changes.");

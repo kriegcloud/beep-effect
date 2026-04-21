@@ -7,7 +7,7 @@
  * Configuration is loaded from environment variables:
  * - AUTHORIZATION_ENFORCEMENT: "true" to enforce, "false" for grace period (default: true)
  *
- * @module \@beep/shared-domain/services/authorization/AuthorizationConfig
+ * @module
  */
 
 // =============================================================================
@@ -64,13 +64,13 @@ export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I
  * import { Effect } from "effect"
  *
  * const program = Effect.gen(function* () {
- *   const config = yield* AuthorizationConfig
+ * 
  *
- *   if (config.enforcementEnabled) {
- *     // Check membership strictly
- *   } else {
- *     // Grace period: allow access
- *   }
+ * 
+ * 
+ * 
+ * 
+ * 
  * })
  * ```
  */

@@ -5,7 +5,7 @@
  * Supports decimal values (e.g., 12.5%, 99.99%).
  * Uses Schema.brand for compile-time type safety.
  *
- * @module \@beep/schema/Percentage
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Function as F } from "effect";

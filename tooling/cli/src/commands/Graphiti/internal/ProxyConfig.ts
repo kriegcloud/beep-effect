@@ -10,6 +10,7 @@ import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
 import { Config, Effect, SchemaGetter } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyConfig");
@@ -205,20 +206,22 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
   const graphitiContainer = yield* Config.option(Config.string("GRAPHITI_PROXY_GRAPHITI_CONTAINER"));
   const upstream = yield* Config.option(Config.string("GRAPHITI_PROXY_UPSTREAM"));
 
-  const raw = new GraphitiProxyConfigInput({
-    listenHost: O.getOrUndefined(listenHost),
-    listenPort: O.getOrUndefined(listenPort),
-    concurrency: O.getOrUndefined(concurrency),
-    maxQueue: O.getOrUndefined(maxQueue),
-    requestTimeoutMs: O.getOrUndefined(requestTimeoutMs),
-    shutdownDrainTimeoutMs: O.getOrUndefined(shutdownDrainTimeoutMs),
-    verbose: O.getOrUndefined(verbose),
-    dependencyHealthEnabled: O.getOrUndefined(dependencyHealthEnabled),
-    dependencyHealthTtlMs: O.getOrUndefined(dependencyHealthTtlMs),
-    falkorContainer: O.getOrUndefined(falkorContainer),
-    graphitiContainer: O.getOrUndefined(graphitiContainer),
-    upstream: O.getOrUndefined(upstream),
-  });
+  const raw = new GraphitiProxyConfigInput(
+    R.getSomes({
+      listenHost,
+      listenPort,
+      concurrency,
+      maxQueue,
+      requestTimeoutMs,
+      shutdownDrainTimeoutMs,
+      verbose,
+      dependencyHealthEnabled,
+      dependencyHealthTtlMs,
+      falkorContainer,
+      graphitiContainer,
+      upstream,
+    })
+  );
 
   return yield* Effect.try({
     try: () => decodeGraphitiProxyConfig(raw),

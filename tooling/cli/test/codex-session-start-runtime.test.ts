@@ -67,6 +67,10 @@ describe("CodexSessionStartRuntime", () => {
     expect(context).toContain(
       "before `O.match(...)`, check `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)`."
     );
+    expect(context).toContain("Option-valued object fields");
+    expect(context).toContain("`R.getSomes({...})`");
+    expect(context).toContain("`O.all({...})`");
+    expect(context).toContain("`S.OptionFrom*`");
     expect(context).toContain("prefer `Match.type<T>().pipe(...)` / `Match.tags(...)`");
   });
 

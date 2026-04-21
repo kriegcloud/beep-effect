@@ -37,8 +37,8 @@ type MimeTypeSchema = LiteralKitSchema<A.NonEmptyReadonlyArray<Extract<keyof typ
  * import { extractMimeTypes } from "@beep/schema/MimeType"
  *
  * const types = extractMimeTypes({
- *   "text/plain": { source: "iana", extensions: ["txt"] as const },
- *   "text/html": { source: "iana", extensions: ["html"] as const },
+ * 
+ * 
  * })
  * console.log(types) // ["text/plain", "text/html"]
  * ```

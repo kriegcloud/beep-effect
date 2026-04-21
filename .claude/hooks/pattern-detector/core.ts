@@ -83,13 +83,13 @@ const readPattern = Effect.fn("readPattern")(function* (filePath: string) {
       description: f.description,
       event: f.event,
       tool: f.tool,
-      glob: f.glob,
       pattern: f.pattern,
       action: f.action,
       level: f.level,
-      tag: f.tag,
       body: extractBody(content),
       filePath,
+      ...(f.glob === undefined ? {} : { glob: f.glob }),
+      ...(f.tag === undefined ? {} : { tag: f.tag }),
     })
   );
 });

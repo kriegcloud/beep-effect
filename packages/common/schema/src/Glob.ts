@@ -15,7 +15,7 @@
  * ```
  *
  * @since 0.0.0
- * @module \@beep/schema/Glob
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity/packages";

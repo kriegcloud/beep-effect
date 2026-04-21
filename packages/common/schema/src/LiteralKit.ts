@@ -3,7 +3,7 @@
  *
  *
  * @since 0.0.0
- * @module \@beep/schema/LiteralKit
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -634,32 +634,32 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  * Status.is.hello("hello");  // true
  *
  * const result = Status.$match(Status.Enum.number1, {
- *   number1: (v) => `got ${v}`,
- *   bigint20n: (v) => `got ${v}`,
- *   true: (v) => `got ${v}`,
- *   false: (v) => `got ${v}`,
- *   hello: (v) => `got ${v}`,
+ * 
+ * 
+ * 
+ * 
+ * 
  * });
  * void result;
  *
  * const EventKind = LiteralKit(["created", "deleted"] as const);
  *
  * const Event = EventKind.toTaggedUnion("kind")({
- *   created: {
- *     value: S.Literal(1),
- *   },
- *   deleted: {
- *     value: S.Literal(2),
- *   },
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * });
  * void Event;
  *
  * const StatusKeys = LiteralKit(
- *   ["one", "two"] as const,
- *   [
- *     ["one", "ONE"],
- *     ["two", "TWO"],
- *   ] as const
+ * 
+ * 
+ * 
+ * 
+ * 
  * );
  *
  * StatusKeys.Enum.ONE; // "one"

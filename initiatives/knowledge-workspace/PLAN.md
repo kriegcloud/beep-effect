@@ -44,7 +44,7 @@ Assign to Codex:
 - `SqlEventJournal` configuration for graph persistence
 - WikiLinkNode serialization logic (exportJSON, importJSON, MarkdownTransformer)
 - Link resolution service (slug lookup, resolved status)
-- `extractBlockLinks` basic `[[wiki-link]]` extraction (Phase 2); `[[code:...]]` prefix extension deferred to Phase 3
+- `extractBlockLinks` basic `[[wiki_link]]` extraction (Phase 2); `[[code:...]]` prefix extension deferred to Phase 3
 - Page save to `EventLog.write` emission pipeline
 - Replay projection engine (temporal rebuild from `effect_event_journal` table)
 - Cross-domain `[[code:SymbolName]]` resolution service
@@ -261,9 +261,9 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 
 ---
 
-## Phase 2: Lexical Editor + Wiki-Linking
+## Phase 2: Lexical Editor + wiki_linking
 
-**Goal**: Add a rich text editor with `[[wiki-link]]` support that connects to the event-sourced graph via the `KnowledgeGraph` facade.
+**Goal**: Add a rich text editor with `[[wiki_link]]` support that connects to the event-sourced graph via the `KnowledgeGraph` facade.
 
 **Primary agents**: Codex (`schema-model-specialist`, `eventlog-graph-specialist`) for serialization and event emission, Claude Code + Chrome (`atom-reactivity-specialist`) for visual components.
 
@@ -271,7 +271,7 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 
 | File | Owner | Purpose |
 |------|-------|---------|
-| `packages/editor/lexical/src/nodes/WikiLinkNode.ts` | Codex (serialization + schema) + Claude Code + Chrome (visual) | Custom `DecoratorNode` for `[[wiki-link]]` with `S.Class` schema |
+| `packages/editor/lexical/src/nodes/WikiLinkNode.ts` | Codex (serialization + schema) + Claude Code + Chrome (visual) | Custom `DecoratorNode` for `[[wiki_link]]` with `S.Class` schema |
 | `packages/editor/lexical/src/plugins/WikiLinkTypeaheadPlugin.tsx` | Claude Code + Chrome | Typeahead dropdown triggered by `[[` |
 | `packages/editor/lexical/src/plugins/BacklinkDisplayPlugin.tsx` | Claude Code + Chrome | Collapsible backlinks pane below editor |
 | `packages/editor/lexical/src/transformers/wikiLinkTransformer.ts` | Codex | Markdown import/export for `[[...]]` syntax |
@@ -310,9 +310,9 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 ### Wiring
 
-1. **Page saves to graph event emission**: When a page is saved, diff the current `[[wiki-link]]` set against the previous save. The `KnowledgeGraph` facade calls `EventLog.write` for `NodeCreated`/`NodeUpdated` (document node) and `EdgeCreated`/`EdgeRemoved` (wiki-link edges). Uses `extractBlockLinks` from `packages/editor/core/src/Canonical.ts:389`.
+1. **Page saves to graph event emission**: When a page is saved, diff the current `[[wiki_link]]` set against the previous save. The `KnowledgeGraph` facade calls `EventLog.write` for `NodeCreated`/`NodeUpdated` (document node) and `EdgeCreated`/`EdgeRemoved` (wiki_link edges). Uses `extractBlockLinks` from `packages/editor/core/src/Canonical.ts:389`.
 
-2. **Extend `extractBlockLinks` regex**: The regex currently matches `[[target]]`. In Phase 2, basic `[[wiki-link]]` extraction is sufficient. The `[[code:SymbolName]]` prefix resolution belongs in Phase 3 (which adds cross-domain resolution); do not extend the regex for `code:` prefix support until then.
+2. **Extend `extractBlockLinks` regex**: The regex currently matches `[[target]]`. In Phase 2, basic `[[wiki_link]]` extraction is sufficient. The `[[code:SymbolName]]` prefix resolution belongs in Phase 3 (which adds cross-domain resolution); do not extend the regex for `code:` prefix support until then.
 
 3. **WikiLinkTypeaheadPlugin to PagesGroup.searchPages**: The typeahead calls the existing search endpoint at `packages/editor/protocol/src/index.ts:159` to find matching pages.
 
@@ -353,13 +353,13 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 - [ ] Create a new page with YAML frontmatter persisted to `.beep/vault/pages/{slug}.md`
 - [ ] Type `[[` then typeahead shows matching pages, select inserts `WikiLinkNode`
-- [ ] Save page: document node appears in graph, wiki-link edges connect to linked pages
-- [ ] Click wiki-link in editor: navigate to target page
-- [ ] Ctrl+click wiki-link: focus target node in graph view
+- [ ] Save page: document node appears in graph, wiki_link edges connect to linked pages
+- [ ] Click wiki_link in editor: navigate to target page
+- [ ] Ctrl+click wiki_link: focus target node in graph view
 - [ ] Backlinks section shows all pages linking to current page
 - [ ] Unresolved links render with amber dashed underline
 - [ ] Resolved links render with blue underline and subtle background
-- [ ] Markdown round-trip: save as `.md`, reload, wiki-links survive intact
+- [ ] Markdown round-trip: save as `.md`, reload, wiki_links survive intact
 - [ ] "Create page" action in typeahead creates a new page stub
 - [ ] `Page` entity uses `Model.Class` with all six variants
 
@@ -416,9 +416,9 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 2. **Play mode**: Animate graph evolution by stepping through entries at configurable speed (1x, 2x, 4x, 8x). Each step applies one event to the Cytoscape canvas. Nodes fade in with `opacity` transitions. Edges draw with CSS stroke animations.
 
-3. **Cross-domain resolution**: When a wiki-link uses the `[[code:SymbolName]]` prefix, the link resolution service queries the `graph_nodes` table for nodes with `kind: "code-symbol"` and matching label. If found, the edge connects the document node to the code entity node.
+3. **Cross-domain resolution**: When a wiki_link uses the `[[code:SymbolName]]` prefix, the link resolution service queries the `graph_nodes` table for nodes with `kind: "code-symbol"` and matching label. If found, the edge connects the document node to the code entity node.
 
-4. **Unified graph rendering**: The Cytoscape canvas renders both code nodes (from repo-memory) and document nodes (from vault) in a single layout. New Cytoscape styles for document nodes and wiki-link edges extend the existing style system at `packages/common/ui/.../codegraph/styles/graph-styles.tsx`.
+4. **Unified graph rendering**: The Cytoscape canvas renders both code nodes (from repo-memory) and document nodes (from vault) in a single layout. New Cytoscape styles for document nodes and wiki_link edges extend the existing style system at `packages/common/ui/.../codegraph/styles/graph-styles.tsx`.
 
 ### Replay State Atoms
 
@@ -510,9 +510,9 @@ The event-sourced architecture makes this extension natural: new domains define 
 | 0 | `.agents/skills/` (new) | Four specialist skills + rules wrapper |
 | 0 | `scratchpad/skill-validation/` | Type-checking validation files |
 | 1 | `packages/common/knowledge-graph/` (new) | `EventGroup`, `EventLog.schema`, handlers, facade, `Model.Class` entities |
-| 1 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Extend with document node styles, certainty-based edge opacity, wiki-link edge type |
+| 1 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Extend with document node styles, certainty-based edge opacity, wiki_link edge type |
 | 1 | `apps/desktop/src/RepoMemoryDesktop.tsx` | Decompose 1831-line monolith into `WorkspaceLayout`, `GraphCanvas`, `DetailPanel`, `QueryBar` |
-| 2 | `packages/editor/core/src/Canonical.ts` | Basic `[[wiki-link]]` extraction via `extractBlockLinks` (no `[[code:...]]` prefix -- deferred to Phase 3) |
+| 2 | `packages/editor/core/src/Canonical.ts` | Basic `[[wiki_link]]` extraction via `extractBlockLinks` (no `[[code:...]]` prefix -- deferred to Phase 3) |
 | 2 | `packages/editor/lexical/src/EditorSurface.tsx` | Register `WikiLinkNode` at line 65, mount `WikiLinkTypeaheadPlugin` and `BacklinkDisplayPlugin` |
 | 2 | `packages/common/knowledge-graph/src/models/Page.ts` (new) | `Model.Class` for Page entity |
 | 2 | `packages/common/semantic-web/src/prov.ts` | Reuse `ProvBundle` for event provenance (no changes needed, reference only) |
@@ -530,11 +530,11 @@ The event-sourced architecture makes this extension natural: new domains define 
 | 1 | Event journal persistence | Kill process mid-index, restart, verify graph rebuilds from `effect_event_journal` entries |
 | 1 | Citations highlight on graph | Run a grounded query, verify `.search-match` CSS classes applied to citation path nodes/edges |
 | 1 | Performance variant engages | Index a repo with 300+ exported symbols, verify `graphStylesFast` styles are applied |
-| 2 | Wiki-links resolve | Create page with `[[link]]`, verify `WikiLinkNode` renders with blue underline |
+| 2 | wiki_links resolve | Create page with `[[link]]`, verify `WikiLinkNode` renders with blue underline |
 | 2 | Unresolved links render correctly | Type `[[nonexistent]]`, verify amber dashed underline |
 | 2 | Backlinks compute | Create two cross-linked pages, verify backlinks section shows both directions |
 | 2 | Markdown round-trip | Save page, read `.md` file, verify `[[link]]` syntax present; reload page, verify `WikiLinkNode` recreated |
-| 2 | Graph events emitted on save | Save a page with wiki-links, query `effect_event_journal`, verify `NodeCreated` and `EdgeCreated` entries |
+| 2 | Graph events emitted on save | Save a page with wiki_links, query `effect_event_journal`, verify `NodeCreated` and `EdgeCreated` entries |
 | 3 | Temporal replay works | Scrub timeline to midpoint, verify graph state matches that timestamp's entry set |
 | 3 | Play mode animates | Start play mode, verify nodes/edges appear with transition animations |
 | 3 | Cross-domain links resolve | Use `[[code:Symbol]]` in a page, save, verify edge connects document node to code entity node in graph |
@@ -561,8 +561,8 @@ Phase 0 blocks everything: without validated specialist skills, delegation is gu
 
 Phase 1 depends on Phase 0: backend work uses `eventlog-graph-specialist` and `schema-model-specialist`; frontend work uses `atom-reactivity-specialist`.
 
-Phase 2 depends on Phase 1: wiki-link edges emit into the `EventLog` and appear on the Cytoscape canvas. Without the event-sourced graph, wiki-links are isolated text decorations.
+Phase 2 depends on Phase 1: wiki_link edges emit into the `EventLog` and appear on the Cytoscape canvas. Without the event-sourced graph, wiki_links are isolated text decorations.
 
 Phase 3 depends on Phase 2: temporal replay operates over the full event journal including document events. Cross-domain resolution requires both code nodes (Phase 1) and document nodes (Phase 2) in the graph.
 
-Each phase is independently shippable. Phase 0 delivers validated tooling. Phase 1 delivers a working code graph visualization. Phase 2 adds wiki-linking on top. Phase 3 adds time-travel and unification.
+Each phase is independently shippable. Phase 0 delivers validated tooling. Phase 1 delivers a working code graph visualization. Phase 2 adds wiki_linking on top. Phase 3 adds time-travel and unification.

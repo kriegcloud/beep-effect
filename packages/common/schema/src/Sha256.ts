@@ -2,7 +2,7 @@
  * Branded schemas and transformation codecs for lowercase SHA-256 hex digests.
  *
  * @since 0.0.0
- * @module \@beep/schema/Sha256
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -46,7 +46,7 @@ const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.
  * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const digest = S.decodeUnknownSync(Sha256Hex)(
- *   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+ * 
  * )
  * console.log(digest)
  * ```
@@ -89,9 +89,9 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  * import { Sha256HexFromBytes } from "@beep/schema/Sha256"
  *
  * const program = Effect.gen(function* () {
- *   const bytes = new TextEncoder().encode("hello")
- *   const digest = yield* S.decodeUnknownEffect(Sha256HexFromBytes)(bytes)
- *   console.log(digest)
+ * 
+ * 
+ * 
  * })
  * ```
  *
@@ -136,8 +136,8 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  * import { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
  *
  * const program = Effect.gen(function* () {
- *   const digest = yield* S.decodeUnknownEffect(Sha256HexFromHexBytes)("68656c6c6f")
- *   console.log(digest)
+ * 
+ * 
  * })
  * ```
  *

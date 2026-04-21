@@ -22,7 +22,7 @@
  * ```
  *
  * @since 0.0.0
- * @module \@beep/chalk
+ * @module
  */
 /**
  * @since 0.0.0

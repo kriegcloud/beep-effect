@@ -13,14 +13,14 @@
  * const timer = Metric.timer("my_op_duration")
  *
  * const program = trackDuration(
- *   timer,
- *   Effect.log("doing work"),
+ * 
+ * 
  * )
  *
  * void Effect.runPromise(program)
  * ```
  *
- * @module \@beep/observability/Metric
+ * @module
  * @since 0.0.0
  */
 
@@ -76,11 +76,11 @@ export const statusClass = (status: number): string => {
  * import { measureElapsedMillis } from "@beep/observability"
  *
  * const program = measureElapsedMillis(
- *   Effect.sleep("100 millis").pipe(Effect.as("done"))
+ * 
  * ).pipe(
- *   Effect.tap(([result, elapsed]) =>
- *     Effect.log(`${result} in ${elapsed}ms`)
- *   )
+ * 
+ * 
+ * 
  * )
  *
  * void Effect.runPromise(program)
@@ -161,15 +161,15 @@ export const trackDuration = <A, E, R>(
  * const myWorkflow = Effect.succeed("result")
  *
  * const observed = observeWorkflow(
- *   {
- *     name: "createOrder",
- *     started,
- *     completed,
- *     failed,
- *     duration,
- *     attributes: { service: "orders" },
- *   },
- *   myWorkflow,
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * )
  *
  * void Effect.runPromise(observed)
@@ -244,14 +244,14 @@ export const observeWorkflow = <A, E, R>(
  * const handler = Effect.succeed({ id: 1, name: "Alice" })
  *
  * const observed = observeHttpRequest(
- *   {
- *     method: "GET",
- *     route: "/users/:id",
- *     successStatus: 200,
- *     requestsTotal,
- *     requestDuration,
- *   },
- *   handler,
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * )
  *
  * void Effect.runPromise(observed)

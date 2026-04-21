@@ -2,7 +2,7 @@
  * Stateful corpus management built on wink BM25 vectorization.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Wink/WinkCorpusManager
+ * @module
  */
 
 import { createRequire } from "node:module";

@@ -1,7 +1,7 @@
 /**
  * AbortSignal schema.
  *
- * @module \@beep/schema/AbortSignal
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

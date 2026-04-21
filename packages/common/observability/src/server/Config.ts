@@ -12,16 +12,16 @@ const $I = $ObservabilityId.create("server/Config");
  * import { ServerObservabilityConfig } from "@beep/observability/server"
  *
  * const config = new ServerObservabilityConfig({
- *   serviceName: "todox-api",
- *   serviceVersion: "1.0.0",
- *   environment: "development",
- *   minLogLevel: "Debug",
- *   otlpBaseUrl: "http://localhost:4318",
- *   otlpEnabled: true,
- *   otlpResourceAttributes: {},
- *   devtoolsEnabled: false,
- *   devtoolsUrl: "ws://localhost:34437",
- *   prometheusPrefix: "todox",
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * })
  * ```
  *

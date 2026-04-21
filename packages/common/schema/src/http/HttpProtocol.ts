@@ -1,7 +1,7 @@
 /**
  * Module for HTTP protocol ("http" or "https").
  *
- * @module \@beep/schema/http/Protocol
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

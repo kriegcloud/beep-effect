@@ -411,6 +411,9 @@ describe("skill-suggester", () => {
       if (block._tag === "Some") {
         expect(block.value).toContain("<effect-steering>");
         expect(block.value).toContain("Before O.match(...)");
+        expect(block.value).toContain("R.getSomes({...})");
+        expect(block.value).toContain("O.all({...})");
+        expect(block.value).toContain("S.OptionFrom*");
         expect(block.value).toContain("Match.type<T>().pipe(...)");
         expect(block.value).toContain("nested Bool.match(...)");
       }

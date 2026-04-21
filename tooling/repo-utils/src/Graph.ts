@@ -90,15 +90,15 @@ const fromAdjacencyList = (
  * import { topologicalSort } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- *   ["A", HashSet.make("B")],
- *   ["B", HashSet.make("C")],
- *   ["C", HashSet.empty()]
+ * 
+ * 
+ * 
  * )
  *
  * const program = Effect.gen(function*() {
- *   const order = yield* topologicalSort(adj)
- *   void order
- *   console.log(order) // ["C", "B", "A"]
+ * 
+ * 
+ * 
  * })
  * void program
  * ```
@@ -149,15 +149,15 @@ export const topologicalSort: (
  * import { detectCycles } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- *   ["A", HashSet.make("B")],
- *   ["B", HashSet.make("C")],
- *   ["C", HashSet.make("A")]
+ * 
+ * 
+ * 
  * )
  *
  * const program = Effect.gen(function*() {
- *   const cycles = yield* detectCycles(adj)
- *   void cycles
- *   // cycles contains [["A", "B", "C", "A"]] (or similar rotation)
+ * 
+ * 
+ * 
  * })
  * void program
  * ```
@@ -305,15 +305,15 @@ const buildCyclePath = (
  * import { computeTransitiveClosure } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- *   ["A", HashSet.make("B")],
- *   ["B", HashSet.make("C")],
- *   ["C", HashSet.empty()]
+ * 
+ * 
+ * 
  * )
  *
  * const program = Effect.gen(function*() {
- *   const deps = yield* computeTransitiveClosure(adj, "A")
- *   void deps
- *   // deps = HashSet("B", "C")
+ * 
+ * 
+ * 
  * })
  * void program
  * ```

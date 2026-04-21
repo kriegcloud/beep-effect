@@ -13,13 +13,13 @@
  *
  * const config = new LoggingConfig({ format: "pretty", minLogLevel: "Info" })
  * const program = Effect.log("hello").pipe(
- *   Effect.provide(layerConsoleLogger(config)),
+ * 
  * )
  *
  * void Effect.runPromise(program)
  * ```
  *
- * @module \@beep/observability
+ * @module
  * @since 0.0.0
  */
 

@@ -4,7 +4,7 @@
  * Provides verbose context for primary agents talking to humans.
  * Uses HTML-like syntax for all context enhancements.
  *
- * @module AgentInit
+ * @module
  * @since 0.0.0
  */
 

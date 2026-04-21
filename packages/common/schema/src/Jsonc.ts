@@ -1,7 +1,7 @@
 /**
  * JSONC parsing and schema transforms.
  *
- * @module \@beep/schema/Jsonc
+ * @module
  * @since 0.0.0
  */
 
@@ -23,9 +23,9 @@ const $I = $SchemaId.create("Jsonc");
  * import * as S from "effect/Schema"
  *
  * const diag = S.decodeUnknownSync(JsoncParseDiagnostic)({
- *   code: 1,
- *   offset: 10,
- *   length: 3,
+ * 
+ * 
+ * 
  * })
  * void diag
  * ```
@@ -85,10 +85,10 @@ const decodeJsoncUnknown = Effect.fn("Jsonc.decodeJsoncUnknown")(function* (cont
  * import { JsoncTextToUnknown } from "@beep/schema/Jsonc"
  *
  * const program = Effect.gen(function* () {
- *   const parsed = yield* S.decodeUnknownEffect(JsoncTextToUnknown)(
- *     '{ "name": "Alice", "age": 30, }'
- *   )
- *   return parsed
+ * 
+ * 
+ * 
+ * 
  * })
  * void program
  * ```
@@ -125,8 +125,8 @@ export const JsoncTextToUnknown = S.String.pipe(
  * const decodeConfig = decodeJsoncTextAs(Config)
  *
  * const program = Effect.gen(function* () {
- *   const config = yield* decodeConfig('{ "port": 3000, "host": "localhost" }')
- *   return config
+ * 
+ * 
  * })
  * void program
  * ```

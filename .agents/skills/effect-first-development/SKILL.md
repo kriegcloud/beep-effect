@@ -31,7 +31,7 @@ Before writing code, run this checklist:
 12. Is this a zero-arg effect value rather than a reusable function? Prefer `Effect.gen(...).pipe(Effect.withSpan("Name"))` over immediate `Effect.fn` IIFEs.
 13. Is this effect observable? Add spans and structured logs from the start; add metrics where the path is materially important.
 14. Am I expressing durations/time windows? Use `effect/Duration`.
-15. Am I mapping nullable/nullish schema values to `Option`? Use `S.OptionFrom*` helpers.
+15. Am I mapping nullable/nullish schema values to `Option` or building objects from `Option` fields? Use `S.OptionFrom*` at schema boundaries, `R.getSomes({...})` when `None` should omit keys, and `O.all({...})` when the whole object is all-or-nothing.
 16. Am I creating an exported helper API? Prefer dual data-first/data-last with `dual`.
 17. Am I parsing/stringifying JSON? Use schema JSON codecs, never `JSON.parse` / `JSON.stringify`.
 18. Am I in test code? The same JSON rule still applies there; test fixtures and request bodies should use schema codecs too.
@@ -95,7 +95,7 @@ Before writing code, run this checklist:
 17. Reusable functions returning `Effect` should use named `Effect.fn("Namespace.name")` (or `Effect.fnUntraced` for hot/internal paths). Zero-arg effect values may stay `Effect.gen(...).pipe(Effect.withSpan("Name"))` when there is no exported/reused function to expose.
 18. Effect workflows should be observable with spans and structured logs from the start; add metrics (`effect/Metric` + `Effect.track*`) where the path is important enough to measure.
 19. Durations and time windows should use `effect/Duration`, not ad-hoc number literals.
-20. For nullable/nullish/optional schema-to-`Option` conversions, use `S.OptionFromNullOr`, `S.OptionFromNullishOr`, `S.OptionFromOptionalKey`, or `S.OptionFromOptional`.
+20. For nullable/nullish/optional schema-to-`Option` conversions, use `S.OptionFromNullOr`, `S.OptionFromNullishOr`, `S.OptionFromOptionalKey`, or `S.OptionFromOptional`. For runtime `Option` object fields, use `R.getSomes({...})` when `None` should omit keys and `O.all({...})` when the whole object is all-or-nothing.
 21. Exported helper utilities should expose dual data-first/data-last forms via `dual` from `effect/Function`.
 22. Never use `JSON.parse` / `JSON.stringify` in Effect-first code; use `S.UnknownFromJsonString` / `S.fromJsonString` + `S.decodeUnknown*` / `S.encode*`.
 23. This JSON rule applies in tests and fixtures too; do not introduce native JSON helpers just because the file is under `test/`.
@@ -121,7 +121,7 @@ Before writing code, run this checklist:
 41. Never use native `Array.prototype.sort`; use `A.sort(values, order)` with explicit `Order` instances.
 42. Avoid ad-hoc `String(...)` coercion in domain logic; model unknown-to-string normalization with schema transformations and compare via schema equivalence.
 43. When branching on boolean values, prefer the flattest equivalent form first; use `Bool.match` when both branches do real work or when it is materially clearer than direct boolean selection.
-44. Before keeping `O.match(...)`, check whether `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)` express the same control flow more flatly.
+44. Before keeping `O.match(...)`, check whether `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)` express the same control flow more flatly. Avoid `onNone: () => ({})` object compaction; use `O.map(...)` plus `O.getOrElse(() => ({}))`, `R.getSomes({...})`, or `S.OptionFrom*` according to boundary semantics.
 45. In callback-only contexts where `yield*` is unavailable (for example `SchemaTransformation.transform*`), consume services with `ServiceMap.Service.use(...)`.
 46. Do not import `node:path` in production/tooling source. Use `Path.Path` service (`yield* Path.Path`) for `join`, `resolve`, `relative`, `basename`, etc.
 47. Do not use native `fetch` in production/tooling source. Use `HttpClient` from `effect/unstable/http` and provide platform client layers (Bun: `BunHttpClient.layer`).
@@ -536,6 +536,8 @@ export class ProfileInput extends S.Class<ProfileInput>($I`ProfileInput`)({
   avatarUrl: S.OptionFromNullOr(S.String)
 }) {}
 ```
+
+For runtime `Option` object fields, use `R.getSomes({...})` when `None` should omit keys and `O.all({...})` when the whole object should exist only if every field is `Some`. When a single `Option` becomes an object, prefer `O.map(...)` plus `O.getOrElse(() => ({}))` over `O.match(...)` with `onNone: () => ({})`.
 
 ### 13) Dual helper APIs
 

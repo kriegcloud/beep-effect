@@ -52,7 +52,7 @@ These repos hit the required stack (Tauri + React + TypeScript) and use a rich t
 ### mdSilo — **~76 ★**
 **URL:** https://github.com/mdSilo/mdSilo-app
 **Stack:** React, TypeScript, **ProseMirror**, Tauri, Rust
-**What it does:** All-in-one local-first knowledge base AND feed reader. Editor supports Markdown, WYSIWYG, and MindMap views. Features wiki-links (`[[link]]`), hashtags, graph view, Kanban board, chronicle/timeline view, task management, full-text search, mermaid diagrams, KaTeX/LaTeX, code highlighting, PDF/epub annotation, slash commands, and hovering toolbar.
+**What it does:** All-in-one local-first knowledge base AND feed reader. Editor supports Markdown, WYSIWYG, and MindMap views. Features wiki_links (`[[link]]`), hashtags, graph view, Kanban board, chronicle/timeline view, task management, full-text search, mermaid diagrams, KaTeX/LaTeX, code highlighting, PDF/epub annotation, slash commands, and hovering toolbar.
 **Local filesystem:** Yes — plain-text markdown files, no registration required.
 **Maintenance:** Active, AGPL-3.0 license. Lower star count but feature-rich.
 **Architecture highlights:**
@@ -170,11 +170,11 @@ These don't use React but have valuable architectural patterns or could inspire 
 
 | Repo | Stars | Frontend | Editor | Local FS | Key differentiator |
 |------|-------|----------|--------|----------|--------------------|
-| [Otterly](https://github.com/ajkdrag/otterly) | Small | Svelte 5 | Milkdown/ProseMirror | ✅ | Obsidian vault compatible, SQLite FTS5 search, wiki-links with auto backlinks |
+| [Otterly](https://github.com/ajkdrag/otterly) | Small | Svelte 5 | Milkdown/ProseMirror | ✅ | Obsidian vault compatible, SQLite FTS5 search, wiki_links with auto backlinks |
 | [Moraya](https://github.com/zouwei/moraya) | Small | Svelte 5 | Milkdown/ProseMirror | ✅ | AI agent capabilities via MCP, ~10MB, detailed layered architecture |
 | [Fluster](https://github.com/flusterIO) | Small | React + TS | MDX-based | ✅ | Academic/STEM focus: LaTeX, .bib citations, Jupyter integration planned |
 | [Gramax](https://github.com/Gram-ax/gramax) | ~511 | TBD | TipTap/ProseMirror | ✅ | Docs-as-code with built-in Git integration, dual desktop+browser deployment |
-| [Marko](https://github.com/SeanPedersen/Marko) | Small | Lightweight | Custom | ✅ | Basic git integration (commit/revert/push), wiki-links, tabbed interface |
+| [Marko](https://github.com/SeanPedersen/Marko) | Small | Lightweight | Custom | ✅ | Basic git integration (commit/revert/push), wiki_links, tabbed interface |
 
 ---
 

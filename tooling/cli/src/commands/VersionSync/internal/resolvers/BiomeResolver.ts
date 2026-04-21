@@ -8,10 +8,12 @@
  * @since 0.0.0
  */
 
-import { $RepoCliId } from "@beep/identity/packages";
-import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
-import { thunkEmptyStr } from "@beep/utils";
-import { Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation } from "effect";
+import {$RepoCliId} from "@beep/identity/packages";
+import {decodeJsoncTextAs} from "@beep/schema/Jsonc";
+import {thunkEmptyStr} from "@beep/utils";
+import {
+  Effect, FileSystem, Inspectable, identity, Path, SchemaTransformation,
+} from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -26,7 +28,8 @@ import {
   VersionSyncError,
 } from "../Models.js";
 
-const $I = $RepoCliId.create("commands/VersionSync/internal/resolvers/BiomeResolver");
+const $I = $RepoCliId.create(
+  "commands/VersionSync/internal/resolvers/BiomeResolver");
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
@@ -43,14 +46,10 @@ const BIOME_SCHEMA_PREFIX = "https://biomejs.dev/schemas/";
 const BIOME_SCHEMA_SUFFIX = "/schema.json";
 const BIOME_SCHEMA_URL_PATTERN = /^https:\/\/biomejs\.dev\/schemas\/[^/]+\/schema\.json$/;
 
-const BiomeSchemaUrl = S.String.check(S.isPattern(BIOME_SCHEMA_URL_PATTERN)).pipe(
-  S.brand("BiomeSchemaUrl"),
-  S.annotate(
-    $I.annote("BiomeSchemaUrl", {
-      description: "Biome schema URL in canonical https://biomejs.dev/schemas/<version>/schema.json format.",
-    })
-  )
-);
+const BiomeSchemaUrl = S.String.check(S.isPattern(BIOME_SCHEMA_URL_PATTERN))
+  .pipe(S.brand("BiomeSchemaUrl"), S.annotate($I.annote("BiomeSchemaUrl", {
+    description: "Biome schema URL in canonical https://biomejs.dev/schemas/<version>/schema.json format.",
+  })));
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -62,20 +61,15 @@ const BiomeSchemaUrl = S.String.check(S.isPattern(BIOME_SCHEMA_URL_PATTERN)).pip
  * @category Utility
  * @since 0.0.0
  */
-const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(
-  S.decodeTo(
-    S.String,
-    SchemaTransformation.transform({
-      decode: (schemaUrl) => Str.slice(BIOME_SCHEMA_PREFIX.length, -BIOME_SCHEMA_SUFFIX.length)(schemaUrl),
-      encode: (version) => BiomeSchemaUrl.make(`${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`),
-    })
-  ),
-  S.annotate(
-    $I.annote("BiomeSchemaUrlToVersion", {
-      description: "Schema transformation between canonical Biome schema URL and bare version string.",
-    })
-  )
-);
+const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(S.decodeTo(
+  S.String,
+  SchemaTransformation.transform({
+    decode: Str.slice(BIOME_SCHEMA_PREFIX.length, -BIOME_SCHEMA_SUFFIX.length),
+    encode: (version) => BiomeSchemaUrl.make(`${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`),
+  }),
+), S.annotate($I.annote("BiomeSchemaUrlToVersion", {
+  description: "Schema transformation between canonical Biome schema URL and bare version string.",
+})));
 
 /**
  * Extract exact version from a catalog version specifier (strip `^`, `~`, etc.).
@@ -85,20 +79,15 @@ const BiomeSchemaUrlToVersion = BiomeSchemaUrl.pipe(
  * @category Utility
  * @since 0.0.0
  */
-const VersionSpecifierToExactVersion = S.String.pipe(
-  S.decodeTo(
-    S.String,
-    SchemaTransformation.transform({
-      decode: Str.replace(/^[~^>=<]+/, ""),
-      encode: identity,
-    })
-  ),
-  S.annotate(
-    $I.annote("VersionSpecifierToExactVersion", {
-      description: "Schema transformation that strips semver range prefixes from dependency version specifiers.",
-    })
-  )
-);
+const VersionSpecifierToExactVersion = S.String.pipe(S.decodeTo(
+  S.String,
+  SchemaTransformation.transform({
+    decode: Str.replace(/^[~^>=<]+/, ""),
+    encode: identity,
+  }),
+), S.annotate($I.annote("VersionSpecifierToExactVersion", {
+  description: "Schema transformation that strips semver range prefixes from dependency version specifiers.",
+})));
 
 /**
  * Build a schema URL from a version string.
@@ -114,28 +103,35 @@ const decodeExactVersion = S.decodeUnknownSync(VersionSpecifierToExactVersion);
 
 class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocument`)(
   {
-    $schema: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+    $schema: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed("")),
+    ),
   },
   $I.annote("BiomeJsoncDocument", {
     description: "Subset of biome.jsonc used to resolve current schema URL.",
-  })
-) {}
+  }),
+) {
+}
 
 class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPackageJsonDocument`)(
   {
-    catalog: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
-    ),
-    devDependencies: S.Record(S.String, S.String).pipe(
-      S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
-      S.withDecodingDefault(Effect.succeed(R.empty<string, string>()))
-    ),
+    catalog: S.Record(S.String, S.String)
+      .pipe(
+        S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
+        S.withDecodingDefault(Effect.succeed(R.empty<string, string>())),
+      ),
+    devDependencies: S.Record(S.String, S.String)
+      .pipe(
+        S.withConstructorDefault(Effect.succeed(R.empty<string, string>())),
+        S.withDecodingDefault(Effect.succeed(R.empty<string, string>())),
+      ),
   },
   $I.annote("RootPackageJsonDocument", {
     description: "Subset of root package.json fields required for Biome version resolution.",
-  })
-) {}
+  }),
+) {
+}
 
 // ── Public API ──────────────────────────────────────────────────────────────
 
@@ -147,17 +143,22 @@ class RootPackageJsonDocument extends S.Class<RootPackageJsonDocument>($I`RootPa
  */
 export class BiomeSchemaState extends S.Class<BiomeSchemaState>($I`BiomeSchemaState`)(
   {
-    schemaUrl: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
-    schemaVersion: S.Option(S.String).pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
+    schemaUrl: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("")),
+      S.withDecodingDefault(Effect.succeed("")),
+    ),
+    schemaVersion: S.Option(S.String)
+      .pipe(S.withConstructorDefault(Effect.succeed(O.none<string>()))),
     installedVersion: S.String.pipe(
       S.withConstructorDefault(Effect.succeed("")),
-      S.withDecodingDefault(Effect.succeed(""))
+      S.withDecodingDefault(Effect.succeed("")),
     ),
   },
   $I.annote("BiomeSchemaState", {
     description: "Resolved Biome schema state.",
-  })
-) {}
+  }),
+) {
+}
 
 /**
  * Resolve current Biome schema version from `biome.jsonc` and installed version from `package.json` catalog.
@@ -165,70 +166,63 @@ export class BiomeSchemaState extends S.Class<BiomeSchemaState>($I`BiomeSchemaSt
  * @category Utility
  * @since 0.0.0
  */
-export const resolveBiomeSchema: (
-  repoRoot: string
-) => Effect.Effect<BiomeSchemaState, VersionSyncError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot) {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+export const resolveBiomeSchema = Effect.fn(function* (repoRoot: string): Effect.fn.Return<BiomeSchemaState, VersionSyncError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    // Read biome.jsonc
-    const biomePath = path.join(repoRoot, "biome.jsonc");
-    const biomeContent = yield* fs.readFileString(biomePath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: "biome.jsonc",
-          })
-      )
-    );
+  // Read biome.jsonc
+  const biomePath = path.join(repoRoot, "biome.jsonc");
+  const biomeContent = yield* fs.readFileString(biomePath)
+    .pipe(Effect.mapError((e) => new VersionSyncError({
+      message: `Failed to read biome.jsonc: ${Inspectable.toStringUnknown(
+        e,
+        0,
+      )}`,
+      file: "biome.jsonc",
+    })));
 
-    const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to parse biome.jsonc: ${e.message}`,
-            file: "biome.jsonc",
-          })
-      )
-    );
+  const biomeJson = yield* decodeJsoncTextAs(BiomeJsoncDocument)(biomeContent)
+    .pipe(Effect.mapError((e) => new VersionSyncError({
+      message: `Failed to parse biome.jsonc: ${e.message}`,
+      file: "biome.jsonc",
+    })));
 
-    const schemaUrl = biomeJson.$schema;
-    const schemaVersion = decodeSchemaVersion(schemaUrl);
+  const schemaUrl = biomeJson.$schema;
+  const schemaVersion = decodeSchemaVersion(schemaUrl);
 
-    // Read installed version from root package.json catalog
-    const pkgJsonPath = path.join(repoRoot, "package.json");
-    const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: "package.json",
-          })
-      )
-    );
+  // Read installed version from root package.json catalog
+  const pkgJsonPath = path.join(repoRoot, "package.json");
+  const pkgJsonContent = yield* fs.readFileString(pkgJsonPath)
+    .pipe(Effect.mapError((e) => new VersionSyncError({
+      message: `Failed to read package.json: ${Inspectable.toStringUnknown(
+        e,
+        0,
+      )}`,
+      file: "package.json",
+    })));
 
-    const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(pkgJsonContent).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to parse package.json: ${e.message}`,
-            file: "package.json",
-          })
-      )
-    );
+  const pkgJson = yield* decodeJsoncTextAs(RootPackageJsonDocument)(
+    pkgJsonContent).pipe(Effect.mapError((e) => new VersionSyncError({
+    message: `Failed to parse package.json: ${e.message}`,
+    file: "package.json",
+  })));
 
-    const rawVersion = O.getOrElse(
-      O.orElse(R.get(pkgJson.catalog, "@biomejs/biome"), () => R.get(pkgJson.devDependencies, "@biomejs/biome")),
-      thunkEmptyStr
-    );
+  const rawVersion = O.getOrElse(O.orElse(
+    R.get(
+      pkgJson.catalog,
+      "@biomejs/biome",
+    ),
+    () => R.get(pkgJson.devDependencies, "@biomejs/biome"),
+  ), thunkEmptyStr);
 
-    const installedVersion = decodeExactVersion(rawVersion);
+  const installedVersion = decodeExactVersion(rawVersion);
 
-    return new BiomeSchemaState({ schemaUrl, schemaVersion, installedVersion });
-  }
-);
+  return new BiomeSchemaState({
+    schemaUrl,
+    schemaVersion,
+    installedVersion,
+  });
+});
 
 /**
  * Build the Biome schema category report from resolved state.
@@ -254,16 +248,13 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
   const expectedVersion = state.installedVersion;
 
   if (currentVersion !== expectedVersion) {
-    items = A.append(
-      items,
-      new VersionDriftItem({
-        file: "biome.jsonc",
-        field: "$schema version",
-        current: currentVersion,
-        expected: expectedVersion,
-        line: O.none(),
-      })
-    );
+    items = A.append(items, new VersionDriftItem({
+      file: "biome.jsonc",
+      field: "$schema version",
+      current: currentVersion,
+      expected: expectedVersion,
+      line: O.none(),
+    }));
   }
 
   return new VersionCategoryReport.cases.biome({
@@ -283,27 +274,29 @@ export const buildBiomeReport: (state: BiomeSchemaState) => VersionCategoryRepor
  * @category Utility
  * @since 0.0.0
  */
-export const updateBiomeSchema: (
-  filePath: string,
-  version: string
-) => Effect.Effect<boolean, VersionSyncError, FileSystem.FileSystem> = Effect.fn("updateBiomeSchema")(
-  function* (filePath, version) {
+export const updateBiomeSchema = Effect.fn("updateBiomeSchema")(
+  function* (
+    filePath: string,
+    version: string,
+  ): Effect.fn.Return<boolean, VersionSyncError, FileSystem.FileSystem> {
     const fs = yield* FileSystem.FileSystem;
 
-    const original = yield* fs.readFileString(filePath).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    const original = yield* fs.readFileString(filePath)
+      .pipe(Effect.mapError((e) => new VersionSyncError({
+        message: `Failed to read ${filePath}: ${Inspectable.toStringUnknown(
+          e,
+          0,
+        )}`,
+        file: filePath,
+      })));
 
     const newSchemaUrl = buildSchemaUrl(version);
 
     const edits = jsonc.modify(original, ["$schema"], newSchemaUrl, {
-      formattingOptions: { tabSize: 2, insertSpaces: true },
+      formattingOptions: {
+        tabSize: 2,
+        insertSpaces: true,
+      },
     });
 
     if (A.isReadonlyArrayEmpty(edits)) {
@@ -316,16 +309,14 @@ export const updateBiomeSchema: (
       return false;
     }
 
-    yield* fs.writeFileString(filePath, updated).pipe(
-      Effect.mapError(
-        (e) =>
-          new VersionSyncError({
-            message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(e, 0)}`,
-            file: filePath,
-          })
-      )
-    );
+    yield* fs.writeFileString(filePath, updated)
+      .pipe(Effect.mapError((e) => new VersionSyncError({
+        message: `Failed to write ${filePath}: ${Inspectable.toStringUnknown(
+          e,
+          0,
+        )}`,
+        file: filePath,
+      })));
 
     return true;
-  }
-);
+  });

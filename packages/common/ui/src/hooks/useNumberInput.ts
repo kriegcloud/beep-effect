@@ -445,13 +445,13 @@ export type UseNumberInputOptions = BoundaryParams &
  * import { useNumberBoundary } from "@beep/ui/hooks/useNumberInput"
  *
  * function Example() {
- *   const boundary = useNumberBoundary({ defaultValue: 1, step: 1 })
+ * 
  *
- *   return React.createElement("input", {
- *     value: boundary.interfaceValue,
- *     onChange: (event: React.ChangeEvent<HTMLInputElement>) =>
- *       boundary.setInterfaceValue(event.target.value),
- *   })
+ * 
+ * 
+ * 
+ * 
+ * 
  * }
  *
  * void Example

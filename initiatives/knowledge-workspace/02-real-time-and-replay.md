@@ -459,7 +459,7 @@ Filters apply in both live mode and replay mode. They control which events are p
 ### Certainty filter
 
 Certainty applies to edges. Edges carry a `certainty` field (0.0 to 1.0):
-- 1.0 = deterministic (e.g., AST import edge, explicit wiki-link).
+- 1.0 = deterministic (e.g., AST import edge, explicit wiki_link).
 - < 1.0 = inferred (e.g., semantic similarity, LLM-suggested connection).
 
 The certainty slider hides edges below the threshold. When an edge is hidden, orphaned nodes (nodes with no remaining visible edges) are optionally hidden too (toggle: "Hide orphans").
@@ -479,7 +479,7 @@ A collapsible statistics panel overlays the bottom-right of the graph canvas. It
 | Metric                | Description                                      |
 |-----------------------|--------------------------------------------------|
 | **Nodes by type**     | Count of symbols, files, pages at cursor position |
-| **Edges by type**     | Count of imports, wiki-links, semantic at cursor  |
+| **Edges by type**     | Count of imports, wiki_links, semantic at cursor  |
 | **Graph density**     | `2 * |E| / (|V| * (|V| - 1))` -- how interconnected the graph is |
 | **Total events**      | Entries processed up to cursor                   |
 | **Event rate**        | Events per hour/day histogram sparkline          |

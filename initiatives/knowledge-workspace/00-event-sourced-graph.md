@@ -111,17 +111,17 @@ const KnowledgeNodeKind = LiteralKit([
  * ```ts
  * import * as S from "effect/Schema"
  *
- * // KnowledgeEdgeKind.Enum["wiki-link"] === "wiki-link"
+ * // KnowledgeEdgeKind.Enum["wiki_link"] === "wiki_link"
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 const KnowledgeEdgeKind = LiteralKit([
-  "wiki-link",
-  "code-import",
-  "code-export",
-  "code-dependency",
+  "wiki_link",
+  "code_import",
+  "code_export",
+  "code_dependency",
   "semantic",
 ] as const).pipe(
   $I.annoteSchema("KnowledgeEdgeKind", {
@@ -367,10 +367,10 @@ class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>($I`NodeRemove
  * import * as S from "effect/Schema"
  *
  * const payload = new EdgeCreatedPayload({
- *   edgeId: "beep:edge/src/tgt/wiki-link" as KnowledgeEdgeId,
+ *   edgeId: "beep:edge/src/tgt/wiki_link" as KnowledgeEdgeId,
  *   sourceNodeId: "beep:page/a" as KnowledgeNodeId,
  *   targetNodeId: "beep:page/b" as KnowledgeNodeId,
- *   kind: "wiki-link",
+ *   kind: "wiki_link",
  *   weight: Option.some(1.0),
  * })
  * void payload
@@ -401,7 +401,7 @@ class EdgeCreatedPayload extends S.TaggedClass<EdgeCreatedPayload>($I`EdgeCreate
  * import * as S from "effect/Schema"
  *
  * const payload = new EdgeRemovedPayload({
- *   edgeId: "beep:edge/src/tgt/wiki-link" as KnowledgeEdgeId,
+ *   edgeId: "beep:edge/src/tgt/wiki_link" as KnowledgeEdgeId,
  *   reason: "source node deleted",
  * })
  * void payload

@@ -4,7 +4,7 @@
  * A branded type representing a valid ISO 4217 currency code (3 uppercase letters).
  * Uses S.brand for compile-time type safety.
  *
- * @module \@beep/schema/CurrencyCode
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity";

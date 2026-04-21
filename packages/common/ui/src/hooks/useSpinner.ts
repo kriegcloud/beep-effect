@@ -101,17 +101,17 @@ function useUnmountEffect(fn: () => void, deps: React.DependencyList = []) {
  * import { useSpinner } from "@beep/ui/hooks/useSpinner"
  *
  * function Example() {
- *   const [value, setValue] = React.useState(0)
- *   const spinner = useSpinner(
- *     () => setValue((current) => current + 1),
- *     () => setValue((current) => current - 1)
- *   )
+ * 
+ * 
+ * 
+ * 
+ * 
  *
- *   return React.createElement(
- *     "button",
- *     { onMouseDown: () => spinner.up(), onMouseUp: spinner.stop },
- *     value
- *   )
+ * 
+ * 
+ * 
+ * 
+ * 
  * }
  *
  * void Example

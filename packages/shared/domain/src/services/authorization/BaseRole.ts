@@ -13,7 +13,7 @@ const $I = $SharedDomainId.create("services/authorization/BaseRole");
  * - 'member': Standard user with access based on functional roles assigned
  * - 'viewer': Read-only access to view data and reports only
  *
- * @module \@beep/shared-domain/services/authorization/BaseRole
+ * @module
  * @since 0.0.0
  */
 export const BaseRole = LiteralKit(["owner", "admin", "member", "viewer"]).pipe(

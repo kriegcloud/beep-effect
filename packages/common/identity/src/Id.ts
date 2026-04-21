@@ -21,7 +21,7 @@
  * void sym // Symbol.for("@beep/my-pkg")
  * ```
  *
- * @module \@beep/identity/Id
+ * @module
  * @since 0.0.0
  */
 
@@ -71,13 +71,13 @@ const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
  * const { $MyPkgId } = make("my-pkg")
  *
  * try {
- *   // Template tag with no interpolations succeeds
- *   const id = $MyPkgId`UserService`
- *   void id
+ * 
+ * 
+ * 
  * } catch (error) {
- *   if (error instanceof IdentityInterpolationError) {
- *     console.log(error.message)
- *   }
+ * 
+ * 
+ * 
  * }
  * ```
  *
@@ -580,7 +580,7 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
  *
  * // annote: produce an annotation record for Effect schemas
  * const annotation = $MyPkgId.annote("UserSchema", {
- *   description: "User domain model",
+ * 
  * })
  * void annotation.identifier // "UserSchema"
  * void annotation.title // "UserSchema"

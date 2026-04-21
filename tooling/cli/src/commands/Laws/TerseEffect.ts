@@ -7,11 +7,19 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { thunkEmptyStr } from "@beep/utils";
 import { Effect, HashMap, Inspectable, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
-import { type ArrowFunction, type CallExpression, Node, Project, SyntaxKind } from "ts-morph";
+import {
+  type ArrowFunction,
+  type CallExpression,
+  Node,
+  type ObjectLiteralExpression,
+  Project,
+  SyntaxKind,
+} from "ts-morph";
 import { isExcludedTypeScriptSourcePath, toPosixPath } from "../Shared/TypeScriptSourceExclusions.ts";
 
 const $I = $RepoCliId.create("commands/Laws/TerseEffect");
@@ -54,6 +62,7 @@ export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I
     helpersSimplified: S.Number,
     thunkHelpersSimplified: S.Number,
     flowCandidatesDetected: S.Number,
+    optionObjectCompactionCandidatesDetected: S.Number,
     strictFailure: S.Boolean,
     changedFiles: S.Array(S.String).pipe(
       S.withConstructorDefault(Effect.succeed(A.empty<string>())),
@@ -114,7 +123,7 @@ const typeArgumentSuffix = (callExpression: CallExpression): string =>
   pipe(
     callExpression.getTypeArguments(),
     A.match({
-      onEmpty: () => "",
+      onEmpty: thunkEmptyStr,
       onNonEmpty: (typeArguments) =>
         `<${pipe(
           typeArguments,
@@ -276,6 +285,89 @@ const isFlowCandidate = (arrowFunction: ArrowFunction): boolean =>
     O.isSome
   );
 
+const isOptionMatchExpression = (callExpression: CallExpression): boolean => {
+  const expression = callExpression.getExpression();
+
+  if (!Node.isPropertyAccessExpression(expression) || expression.getName() !== "match") {
+    return false;
+  }
+
+  const receiverText = expression.getExpression().getText();
+  return receiverText === "O" || receiverText === "Option";
+};
+
+const getOptionMatchHandlers = (callExpression: CallExpression): O.Option<ObjectLiteralExpression> => {
+  if (!isOptionMatchExpression(callExpression)) {
+    return O.none();
+  }
+
+  const args = callExpression.getArguments();
+  const maybeHandlers = args.length === 1 ? args[0] : args[1];
+
+  return maybeHandlers !== undefined && Node.isObjectLiteralExpression(maybeHandlers)
+    ? O.some(maybeHandlers)
+    : O.none();
+};
+
+const getPropertyInitializer = (
+  objectLiteral: ObjectLiteralExpression,
+  propertyName: string
+): O.Option<import("ts-morph").Node> =>
+  pipe(
+    objectLiteral.getProperties(),
+    A.findFirst((property) => Node.isPropertyAssignment(property) && property.getName() === propertyName),
+    O.flatMap((property) =>
+      Node.isPropertyAssignment(property) ? O.fromNullishOr(property.getInitializer()) : O.none()
+    )
+  );
+
+const getObjectLiteralArrowBody = (node: import("ts-morph").Node): O.Option<ObjectLiteralExpression> => {
+  if (!Node.isArrowFunction(node)) {
+    return O.none();
+  }
+
+  const body = node.getBody();
+  if (Node.isObjectLiteralExpression(body)) {
+    return O.some(body);
+  }
+
+  if (Node.isParenthesizedExpression(body)) {
+    const expression = body.getExpression();
+    if (Node.isObjectLiteralExpression(expression)) {
+      return O.some(expression);
+    }
+  }
+
+  return O.none();
+};
+
+const isEmptyObjectThunk = (node: import("ts-morph").Node): boolean =>
+  pipe(
+    getObjectLiteralArrowBody(node),
+    O.exists((body) => A.length(body.getProperties()) === 0)
+  );
+
+const isObjectLiteralThunk = (node: import("ts-morph").Node): boolean =>
+  pipe(
+    getObjectLiteralArrowBody(node),
+    O.exists((body) => A.length(body.getProperties()) > 0)
+  );
+
+const isOptionObjectCompactionCandidate = (callExpression: CallExpression): boolean =>
+  pipe(
+    getOptionMatchHandlers(callExpression),
+    O.flatMap((handlers) =>
+      pipe(
+        O.all({
+          onNone: getPropertyInitializer(handlers, "onNone"),
+          onSome: getPropertyInitializer(handlers, "onSome"),
+        }),
+        O.filter(({ onNone, onSome }) => isEmptyObjectThunk(onNone) && isObjectLiteralThunk(onSome))
+      )
+    ),
+    O.isSome
+  );
+
 /**
  * Run terse Effect style migration/check logic.
  *
@@ -305,6 +397,7 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
   let helpersSimplified = 0;
   let thunkHelpersSimplified = 0;
   let flowCandidatesDetected = 0;
+  let optionObjectCompactionCandidatesDetected = 0;
   let touchedFiles = 0;
   let changedFiles = A.empty<string>();
 
@@ -358,6 +451,13 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
       }
     }
 
+    for (const callExpression of sourceFile.getDescendantsOfKind(SyntaxKind.CallExpression)) {
+      if (isOptionObjectCompactionCandidate(callExpression)) {
+        optionObjectCompactionCandidatesDetected += 1;
+        fileTouched = true;
+      }
+    }
+
     if (fileMutated) {
       sourceFile.organizeImports();
     }
@@ -379,13 +479,18 @@ export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRule
   }
 
   const strictFailure =
-    options.strictCheck && (helpersSimplified > 0 || thunkHelpersSimplified > 0 || flowCandidatesDetected > 0);
+    options.strictCheck &&
+    (helpersSimplified > 0 ||
+      thunkHelpersSimplified > 0 ||
+      flowCandidatesDetected > 0 ||
+      optionObjectCompactionCandidatesDetected > 0);
 
   return new TerseEffectRulesSummary({
     touchedFiles,
     helpersSimplified,
     thunkHelpersSimplified,
     flowCandidatesDetected,
+    optionObjectCompactionCandidatesDetected,
     strictFailure,
     changedFiles,
   });
