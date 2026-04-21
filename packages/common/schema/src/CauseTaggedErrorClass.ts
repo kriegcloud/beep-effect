@@ -51,6 +51,16 @@ type CauseTaggedErrorExtrasInput<Fields extends CauseTaggedErrorFields> = Omit<
 type CauseTaggedErrorCtor<Error, Fields extends CauseTaggedErrorFields> = new (
   input: CauseTaggedErrorNewInput<Fields>
 ) => Error;
+type CauseTaggedErrorConstructorArgs<ErrorClass extends CauseTaggedErrorClassLike> = ErrorClass extends new (
+  ...args: infer Args
+) => TUnsafe.Any
+  ? Args
+  : never;
+type CauseTaggedErrorInstance<ErrorClass extends CauseTaggedErrorClassLike> = ErrorClass extends new (
+  ...args: ReadonlyArray<TUnsafe.Any>
+) => infer Instance
+  ? Instance
+  : never;
 
 type CauseTaggedErrorNew<Error, Fields extends CauseTaggedErrorFields> = [keyof Fields] extends [never]
   ? {
@@ -125,7 +135,8 @@ type CauseTaggedErrorClassWithStatics<
     CauseTaggedErrorCombinedFields<Fields>,
     Brand
   >,
-> = Omit<ErrorClass, "extend"> &
+> = (new (...args: CauseTaggedErrorConstructorArgs<ErrorClass>) => CauseTaggedErrorInstance<ErrorClass>) &
+  Omit<ErrorClass, "extend"> &
   CauseTaggedErrorStatics<Self, Fields> & {
     readonly extend: CauseTaggedErrorExtendMethod<Tag, Fields, ErrorClass>;
   };
