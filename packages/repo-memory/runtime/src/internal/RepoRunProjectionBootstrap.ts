@@ -19,8 +19,7 @@ import {
   isTerminalRun,
   isTerminalRunEvent,
   mapStatusCauseError,
-  type RepoRunServiceError,
-  toRunServiceError,
+  RepoRunServiceError,
   toRunStreamFailure,
 } from "./RepoRunServiceShared.js";
 
@@ -88,7 +87,7 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       const maybeRun = yield* mapStatusCauseError(repoRunStore.getRun(runId));
 
       return yield* O.match(maybeRun, {
-        onNone: () => toRunServiceError(`Run not found: "${runId}".`, 404, undefined),
+        onNone: () => RepoRunServiceError.noCause(`Run not found: "${runId}".`, 404),
         onSome: Effect.succeed,
       });
     }
@@ -118,10 +117,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       }
     }
 
-    return yield* toRunServiceError(
+    return yield* RepoRunServiceError.noCause(
       `Replay cursor "${request.cursor.value}" exceeds the last stored sequence "${run.lastEventSequence}" for "${run.id}".`,
-      409,
-      undefined
+      409
     );
   });
 
@@ -131,10 +129,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
 
       for (const event of events) {
         if (O.isSome(previous) && event.sequence <= previous.value) {
-          return yield* toRunServiceError(
+          return yield* RepoRunServiceError.noCause(
             `Decoded run events for "${runId}" must be strictly increasing by sequence.`,
-            500,
-            undefined
+            500
           );
         }
 
@@ -149,10 +146,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
 
       if (O.isNone(lastEvent)) {
         if (run.lastEventSequence > 0) {
-          return yield* toRunServiceError(
+          return yield* RepoRunServiceError.noCause(
             `Run "${run.id}" has stored sequence "${run.lastEventSequence}" but no decoded journal events.`,
-            500,
-            undefined
+            500
           );
         }
 
@@ -160,10 +156,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       }
 
       if (lastEvent.value.sequence !== run.lastEventSequence) {
-        return yield* toRunServiceError(
+        return yield* RepoRunServiceError.noCause(
           `Decoded journal tail "${lastEvent.value.sequence}" does not match stored sequence "${run.lastEventSequence}" for "${run.id}".`,
-          500,
-          undefined
+          500
         );
       }
 
@@ -171,10 +166,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       const snapshotIsTerminal = isTerminalRun(run);
 
       if (journalIsTerminal !== snapshotIsTerminal) {
-        return yield* toRunServiceError(
+        return yield* RepoRunServiceError.noCause(
           `Stored run "${run.id}" terminal state does not match the decoded journal tail.`,
-          500,
-          undefined
+          500
         );
       }
     }
@@ -196,10 +190,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
       const expectedSequence = run.lastEventSequence + 1;
 
       if (firstTailEvent.sequence !== expectedSequence) {
-        return yield* toRunServiceError(
+        return yield* RepoRunServiceError.noCause(
           `Decoded journal tail for "${run.id}" is missing contiguous sequence "${expectedSequence}" after stored sequence "${run.lastEventSequence}".`,
-          500,
-          undefined
+          500
         );
       }
 
@@ -209,10 +202,9 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
         const nextExpectedSequence = reconciledRun.lastEventSequence + 1;
 
         if (event.sequence !== nextExpectedSequence) {
-          return yield* toRunServiceError(
+          return yield* RepoRunServiceError.noCause(
             `Decoded journal events for "${run.id}" must continue contiguously from stored sequence "${reconciledRun.lastEventSequence}".`,
-            500,
-            undefined
+            500
           );
         }
 
@@ -271,18 +263,16 @@ const makeRepoRunProjectionBootstrap = Effect.fn("RepoRunProjectionBootstrap.mak
   ): Effect.fn.Return<void, RepoRunServiceError> {
     for (const event of replayEvents) {
       if (O.isSome(cursor) && event.sequence <= cursor.value) {
-        return yield* toRunServiceError(
+        return yield* RepoRunServiceError.noCause(
           `Replay for "${run.id}" included sequence "${event.sequence}" at or before the requested cursor "${cursor.value}".`,
-          500,
-          undefined
+          500
         );
       }
 
       if (event.sequence > run.lastEventSequence) {
-        return yield* toRunServiceError(
+        return yield* RepoRunServiceError.noCause(
           `Replay for "${run.id}" included sequence "${event.sequence}" beyond the stored run sequence "${run.lastEventSequence}".`,
-          500,
-          undefined
+          500
         );
       }
     }

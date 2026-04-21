@@ -44,8 +44,7 @@ import { recordRunFinished } from "../telemetry/RepoMemoryTelemetry.js";
 import { RepoRunEventLog } from "./RepoRunEventLog.js";
 import {
   mapStatusCauseError,
-  type RepoRunServiceError,
-  toRunServiceError,
+  RepoRunServiceError,
   workflowSuspensionPollInterval,
   workflowSuspensionPollMaxAttempts,
 } from "./RepoRunServiceShared.js";
@@ -135,7 +134,7 @@ const makeRepoRunLifecycleController = Effect.fn("RepoRunLifecycleController.mak
       const maybeRun = yield* mapStatusCauseError(repoRunStore.getRun(runId));
 
       return yield* O.match(maybeRun, {
-        onNone: () => toRunServiceError(`Run not found: "${runId}".`, 404, undefined),
+        onNone: () => RepoRunServiceError.noCause(`Run not found: "${runId}".`, 404),
         onSome: Effect.succeed,
       });
     }
@@ -147,7 +146,7 @@ const makeRepoRunLifecycleController = Effect.fn("RepoRunLifecycleController.mak
     const run = yield* requireRun(runId);
 
     if (run.kind !== "index") {
-      return yield* toRunServiceError(`Run "${runId}" is not an index run.`, 400, undefined);
+      return yield* RepoRunServiceError.noCause(`Run "${runId}" is not an index run.`, 400);
     }
 
     return run;
@@ -159,7 +158,7 @@ const makeRepoRunLifecycleController = Effect.fn("RepoRunLifecycleController.mak
     const run = yield* requireRun(runId);
 
     if (run.kind !== "query") {
-      return yield* toRunServiceError(`Run "${runId}" is not a query run.`, 400, undefined);
+      return yield* RepoRunServiceError.noCause(`Run "${runId}" is not a query run.`, 400);
     }
 
     return run;
@@ -207,10 +206,9 @@ const makeRepoRunLifecycleController = Effect.fn("RepoRunLifecycleController.mak
       yield* Effect.sleep(workflowSuspensionPollInterval);
     }
 
-    return yield* toRunServiceError(
+    return yield* RepoRunServiceError.noCause(
       `Run "${run.id}" did not reach a suspended workflow state after interruption.`,
-      409,
-      undefined
+      409
     );
   });
 
@@ -223,10 +221,12 @@ const makeRepoRunLifecycleController = Effect.fn("RepoRunLifecycleController.mak
     const repoExists = yield* fs
       .exists(repo.repoPath)
       .pipe(
-        Effect.mapError((cause) => toRunServiceError(`Failed to check repository path: ${cause.message}`, 500, cause))
+        Effect.mapError((cause) =>
+          RepoRunServiceError.new(cause, `Failed to check repository path: ${cause.message}`, 500)
+        )
       );
     if (!repoExists) {
-      return yield* toRunServiceError(`Repository path does not exist: ${repo.repoPath}`, 400, undefined);
+      return yield* RepoRunServiceError.noCause(`Repository path does not exist: ${repo.repoPath}`, 400);
     }
 
     const maybeRun = yield* mapStatusCauseError(repoRunStore.getRun(runId));
@@ -270,10 +270,9 @@ const makeRepoRunLifecycleController = Effect.fn("RepoRunLifecycleController.mak
 
     const latestSnapshot = yield* mapStatusCauseError(repoSnapshotStore.latestSourceSnapshot(payload.repoId));
     if (O.isNone(latestSnapshot)) {
-      return yield* toRunServiceError(
+      return yield* RepoRunServiceError.noCause(
         `No index exists for repository "${payload.repoId}". Run an index first.`,
-        400,
-        undefined
+        400
       );
     }
 
