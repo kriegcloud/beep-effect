@@ -1,5 +1,3 @@
-import * as fs from "node:fs/promises";
-import * as nodePath from "node:path";
 import {
   buildEffectSteeringBlock,
   buildKgContextBlock,
@@ -11,7 +9,32 @@ import {
   shouldShowEffectSteering,
 } from "@beep/claude/hooks/skill-suggester/index";
 import * as TestClaude from "@beep/claude/test/TestClaude";
+import { BunServices } from "@effect/platform-bun";
+import { Effect, FileSystem } from "effect";
 import { describe, expect, it } from "vitest";
+import { provideLayerScoped } from "../../internal/runtime.ts";
+
+const runWithBun = <A, E>(effect: Effect.Effect<A, E, FileSystem.FileSystem>) =>
+  Effect.runPromise(Effect.scoped(provideLayerScoped(effect, BunServices.layer)));
+
+const writeSnapshotFile = (filePath: string, content: string) =>
+  runWithBun(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const lastSlash = filePath.lastIndexOf("/");
+      const directory = lastSlash === -1 ? "." : filePath.slice(0, lastSlash);
+      yield* fs.makeDirectory(directory, { recursive: true });
+      yield* fs.writeFileString(filePath, content);
+    })
+  );
+
+const removeDirectory = (directory: string) =>
+  runWithBun(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      yield* fs.remove(directory, { recursive: true, force: true });
+    })
+  );
 
 describe("skill-suggester", () => {
   describe("TestClaude.UserPromptSubmit", () => {
@@ -388,6 +411,9 @@ describe("skill-suggester", () => {
       if (block._tag === "Some") {
         expect(block.value).toContain("<effect-steering>");
         expect(block.value).toContain("Before O.match(...)");
+        expect(block.value).toContain("R.getSomes({...})");
+        expect(block.value).toContain("O.all({...})");
+        expect(block.value).toContain("S.OptionFrom*");
         expect(block.value).toContain("Match.type<T>().pipe(...)");
         expect(block.value).toContain("nested Bool.match(...)");
       }
@@ -406,11 +432,10 @@ describe("skill-suggester", () => {
     });
 
     it("builds bounded kg-context block from latest snapshot", async () => {
-      const cwd = nodePath.join(process.cwd(), `.claude/_test-kg-hook-${Date.now()}`);
-      const snapshotRoot = nodePath.join(cwd, "tooling", "ast-kg", ".cache", "snapshots");
-      await fs.mkdir(snapshotRoot, { recursive: true });
-      await fs.writeFile(
-        nodePath.join(snapshotRoot, "test-commit.jsonl"),
+      const cwd = `${process.cwd()}/.claude/_test-kg-hook-${Date.now()}`;
+      const snapshotRoot = `${cwd}/tooling/ast-kg/.cache/snapshots`;
+      await writeSnapshotFile(
+        `${snapshotRoot}/test-commit.jsonl`,
         [
           JSON.stringify({
             file: "packages/fixture/src/index.ts",
@@ -422,8 +447,7 @@ describe("skill-suggester", () => {
             nodeCount: 2,
             edgeCount: 1,
           }),
-        ].join("\n"),
-        "utf8"
+        ].join("\n")
       );
 
       const context = buildKgContextBlock(cwd, "update fixture index module");
@@ -436,21 +460,19 @@ describe("skill-suggester", () => {
         expect(context.value).toContain('<provenance local-cache="true"');
       }
 
-      await fs.rm(cwd, { recursive: true, force: true });
+      await removeDirectory(cwd);
     });
 
     it("escapes XML-like content from snapshot filenames", async () => {
-      const cwd = nodePath.join(process.cwd(), `.claude/_test-kg-hook-escape-${Date.now()}`);
-      const snapshotRoot = nodePath.join(cwd, "tooling", "ast-kg", ".cache", "snapshots");
-      await fs.mkdir(snapshotRoot, { recursive: true });
-      await fs.writeFile(
-        nodePath.join(snapshotRoot, "escape-commit.jsonl"),
+      const cwd = `${process.cwd()}/.claude/_test-kg-hook-escape-${Date.now()}`;
+      const snapshotRoot = `${cwd}/tooling/ast-kg/.cache/snapshots`;
+      await writeSnapshotFile(
+        `${snapshotRoot}/escape-commit.jsonl`,
         JSON.stringify({
           file: 'packages/<evil>"module"&.ts',
           nodeCount: 1,
           edgeCount: 0,
-        }),
-        "utf8"
+        })
       );
 
       const context = buildKgContextBlock(cwd, 'update evil "module"');
@@ -463,7 +485,7 @@ describe("skill-suggester", () => {
         expect(context.value).not.toContain('to="packages/<evil>"module"&.ts#nodes:1#edges:0"');
       }
 
-      await fs.rm(cwd, { recursive: true, force: true });
+      await removeDirectory(cwd);
     });
   });
 });

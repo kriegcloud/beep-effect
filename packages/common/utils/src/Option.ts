@@ -1,7 +1,7 @@
 /**
  * Extended Option utilities built on `effect/Option`.
  *
- * @module \@beep/utils/Option
+ * @module
  * @since 0.0.0
  */
 

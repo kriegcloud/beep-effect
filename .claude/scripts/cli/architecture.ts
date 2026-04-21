@@ -10,6 +10,7 @@ import * as Graph from "effect/Graph";
 import * as O from "effect/Option";
 import * as Order from "effect/Order";
 import * as Str from "effect/String";
+import { provideLayerScoped } from "../../internal/runtime.ts";
 import {
   type AnalysisGraph,
   type ArchitectureGraph,
@@ -303,8 +304,9 @@ EXAMPLES:
 const main = Effect.gen(function* () {
   const args = process.argv.slice(2);
   const command = args[0];
+  const isProvidedArg = (value: string | undefined): value is string => value !== undefined && value !== "";
 
-  if (!command || command === "--help" || command === "help") {
+  if (!isProvidedArg(command) || command === "--help" || command === "help") {
     yield* Console.log(helpText);
     return;
   }
@@ -319,8 +321,9 @@ const main = Effect.gen(function* () {
       const flags = args.slice(1).filter((arg) => arg.startsWith("--"));
       const positional = args.slice(1).filter((arg) => !arg.startsWith("--"));
 
-      if (positional[0]) {
-        directory = positional[0];
+      const positionalDirectory = positional[0];
+      if (isProvidedArg(positionalDirectory)) {
+        directory = positionalDirectory;
       }
 
       const showAll = flags.includes("--all");
@@ -333,7 +336,7 @@ const main = Effect.gen(function* () {
         showCommands: showAll || flags.includes("--commands"),
       };
 
-      const targetGraph = positional[0] ? yield* buildArchitectureGraph(directory) : graph;
+      const targetGraph = isProvidedArg(positionalDirectory) ? yield* buildArchitectureGraph(directory) : graph;
 
       yield* Console.log(formatAgentWithHints(targetGraph, options));
       break;
@@ -341,12 +344,13 @@ const main = Effect.gen(function* () {
 
     case "blast-radius": {
       const service = args[1];
-      if (!service) {
+      if (!isProvidedArg(service)) {
         yield* Console.error("Usage: architecture blast-radius <service> [directory]");
         return yield* Effect.fail("Missing service");
       }
-      if (args[2]) {
-        directory = args[2];
+      const customDirectory = args[2];
+      if (isProvidedArg(customDirectory)) {
+        directory = customDirectory;
         const customGraph = yield* buildArchitectureGraph(directory);
         const customAnalysisGraph = buildAnalysisGraph(customGraph);
         const result = computeBlastRadius(customAnalysisGraph, service);
@@ -382,8 +386,9 @@ const main = Effect.gen(function* () {
     }
 
     case "metrics": {
-      if (args[1]) {
-        directory = args[1];
+      const customDirectory = args[1];
+      if (isProvidedArg(customDirectory)) {
+        directory = customDirectory;
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
         const metricsMatch = O.getOrNull(Str.match(/<metrics>[\s\S]*?<\/metrics>/)(fullOutput));
@@ -397,8 +402,9 @@ const main = Effect.gen(function* () {
     }
 
     case "domains": {
-      if (args[1]) {
-        directory = args[1];
+      const customDirectory = args[1];
+      if (isProvidedArg(customDirectory)) {
+        directory = customDirectory;
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
         const domainsMatch = O.getOrNull(Str.match(/<domains[\s\S]*?<\/domains>/)(fullOutput));
@@ -412,8 +418,9 @@ const main = Effect.gen(function* () {
     }
 
     case "hot-services": {
-      if (args[1]) {
-        directory = args[1];
+      const customDirectory = args[1];
+      if (isProvidedArg(customDirectory)) {
+        directory = customDirectory;
         const customGraph = yield* buildArchitectureGraph(directory);
         const fullOutput = formatAgent(customGraph);
         const hotMatch = O.getOrNull(Str.match(/<hot[\s\S]*?<\/hot>/)(fullOutput));
@@ -440,4 +447,4 @@ const main = Effect.gen(function* () {
   )
 );
 
-pipe(main, Effect.provide(BunServices.layer), BunRuntime.runMain);
+BunRuntime.runMain(Effect.scoped(provideLayerScoped(main, BunServices.layer)));

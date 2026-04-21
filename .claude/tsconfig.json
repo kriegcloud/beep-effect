@@ -3,6 +3,7 @@
   "extends": "../tsconfig.base.json",
   "include": [
     "hooks/**/*.ts",
+    "internal/**/*.ts",
     "scripts/**/*.ts",
     "patterns/**/*.ts",
     "test/**/*.ts"

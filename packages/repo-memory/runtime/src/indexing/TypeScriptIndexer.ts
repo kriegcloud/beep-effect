@@ -346,14 +346,13 @@ const documentationSearchText = (documentation: O.Option<RepoSymbolDocumentation
           A.appendAll(
             pipe(
               value.returns,
-              O.match({
-                onNone: A.empty<string>,
-                onSome: (result) =>
-                  A.make(
-                    pipe(result.type, O.getOrElse(thunkEmptyStr)),
-                    pipe(result.description, O.getOrElse(thunkEmptyStr))
-                  ),
-              })
+              O.map((result) =>
+                A.make(
+                  pipe(result.type, O.getOrElse(thunkEmptyStr)),
+                  pipe(result.description, O.getOrElse(thunkEmptyStr))
+                )
+              ),
+              O.getOrElse(A.empty<string>)
             )
           ),
           A.appendAll(

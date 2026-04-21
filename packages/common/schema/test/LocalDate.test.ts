@@ -777,7 +777,7 @@ describe("LocalDate", () => {
     describe("use with S.optional", () => {
       const OptionalDateParams = S.Struct({
         requiredDate: LocalDateFromString,
-        optionalDate: S.optional(LocalDateFromString),
+        optionalDate: S.optionalKey(LocalDateFromString),
       });
 
       it.effect("decodes with optional date present", () =>

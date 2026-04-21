@@ -15,7 +15,7 @@
  * console.log([png, jpeg]);
  * ```
  *
- * @module \@beep/schema/FileExtension
+ * @module
  * @since 0.0.0
  */
 
@@ -47,18 +47,18 @@ type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][nu
  * import { extractMimeExtensions } from "@beep/schema/FileExtension";
  *
  * const extensions = extractMimeExtensions({
- *   "text/plain": {
- *     source: "iana",
- *     extensions: ["txt"] as const,
- *   },
- *   "text/markdown": {
- *     source: "iana",
- *     extensions: ["md", "markdown"] as const,
- *   },
- *   "text/x-readme": {
- *     source: "custom",
- *     extensions: ["md"] as const,
- *   },
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * });
  *
  * console.log(extensions); // ["txt", "md", "markdown"]

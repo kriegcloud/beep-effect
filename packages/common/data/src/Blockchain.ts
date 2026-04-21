@@ -1,7 +1,7 @@
 /**
  * Contains blockchain related constant data.
  *
- * @module \@beep/data/crypto
+ * @module
  * @since 0.0.0
  */
 

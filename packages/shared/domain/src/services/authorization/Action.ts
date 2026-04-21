@@ -4,7 +4,7 @@
  * Defines all the actions that can be performed in the system,
  * used for permission checking and ABAC policy evaluation.
  *
- * @module \@beep/shared-domain/services/authorization/Action
+ * @module
  * @since 0.0.0
  */
 

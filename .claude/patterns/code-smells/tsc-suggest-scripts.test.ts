@@ -3,11 +3,12 @@ import type { PatternDefinition } from "@beep/claude/patterns/schema";
 import { NodeServices } from "@effect/platform-node";
 import { Effect } from "effect";
 import { beforeAll, describe, expect, it } from "vitest";
+import { provideLayerScoped } from "../../internal/runtime.ts";
 
 let patterns: PatternDefinition[] = [];
 
 beforeAll(async () => {
-  patterns = await Effect.runPromise(loadPatterns.pipe(Effect.provide(NodeServices.layer)));
+  patterns = await Effect.runPromise(Effect.scoped(provideLayerScoped(loadPatterns, NodeServices.layer)));
 });
 
 describe("tsc-suggest-scripts", () => {

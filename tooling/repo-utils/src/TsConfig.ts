@@ -37,9 +37,9 @@ const ROOT_KEY = "@beep/root";
  * import { collectTsConfigPaths } from "@beep/repo-utils/TsConfig"
  *
  * const program = Effect.gen(function*() {
- *   const configs = yield* collectTsConfigPaths("/path/to/repo")
- *   void configs
- *   // HashMap<string, string[]>
+ *
+ *
+ *
  * })
  * void program
  * ```

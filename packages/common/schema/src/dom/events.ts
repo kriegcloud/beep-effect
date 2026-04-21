@@ -2,7 +2,7 @@
  * DOM event schemas
  *
  * @since	0.0.0
- * @module \@beep/schema/dom/events
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import * as S from "effect/Schema";

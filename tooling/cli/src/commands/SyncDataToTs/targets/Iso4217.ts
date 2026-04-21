@@ -33,7 +33,7 @@ class Iso4217CurrencyNameWithMetadata extends S.Class<Iso4217CurrencyNameWithMet
 )(
   {
     text: S.String,
-    IsFund: S.optional(S.String),
+    IsFund: S.optionalKey(S.String),
   },
   $I.annote("Iso4217CurrencyNameWithMetadata", {
     description: "Currency name node emitted when the ISO 4217 XML uses inline attributes.",
@@ -52,9 +52,9 @@ class Iso4217CurrencyCountry extends S.Class<Iso4217CurrencyCountry>($I`Iso4217C
   {
     CtryNm: S.String,
     CcyNm: Iso4217CurrencyName,
-    Ccy: S.optional(S.String),
-    CcyNbr: S.optional(S.String),
-    CcyMnrUnts: S.optional(S.String),
+    Ccy: S.optionalKey(S.String),
+    CcyNbr: S.optionalKey(S.String),
+    CcyMnrUnts: S.optionalKey(S.String),
   },
   $I.annote("Iso4217CurrencyCountry", {
     description: "Single country or fund row from the official ISO 4217 List One XML document.",

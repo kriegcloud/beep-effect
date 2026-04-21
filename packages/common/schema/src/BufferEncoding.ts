@@ -1,7 +1,7 @@
 /**
  * A schema module for BufferEncoding string literal's
  *
- * @module \@beep/schema/BufferEncoding
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

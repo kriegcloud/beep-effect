@@ -4,7 +4,7 @@
  * This module delegates runtime detection to `Effect.isEffect`, which is the
  * canonical guard provided by the Effect library.
  *
- * @module \@beep/schema/EffectSchema
+ * @module
  * @since 0.0.0
  */
 

@@ -16,7 +16,7 @@
  * ```
  *
  * @since 0.0.0
- * @module \@beep/identity/packages
+ * @module
  */
 import * as Identity from "./Id.ts";
 
@@ -103,7 +103,7 @@ const composers = $I.compose(
   "graph-messaging",
   "graph-pipeline",
   "graph-schema",
-  "graph-services",
+  "graph-services"
 );
 
 // --- common ---

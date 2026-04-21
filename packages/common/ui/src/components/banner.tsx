@@ -36,7 +36,7 @@ type BannerRootProps = React.ComponentProps<"div"> &
   };
 
 function Banner({ className, variant = "default", icon, children, ...props }: BannerRootProps) {
-  const defaultIcon = variant ? variantIcons[variant] : variantIcons.default;
+  const defaultIcon = variantIcons[variant ?? "default"];
 
   return (
     <div data-slot="banner" role="alert" className={cn(bannerVariants({ variant }), className)} {...props}>

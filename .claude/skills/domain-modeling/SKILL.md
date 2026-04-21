@@ -158,15 +158,15 @@ declare const Completed: S.Schema<any, any, never>
  * import * as DateTime from "effect/DateTime"
  *
  * const task = Task.makePending({
- *   id: "task-123",
- *   createdAt: DateTime.unsafeNow()
+ * 
+ * 
  * })
  * // Result: { _tag: "pending", id: "task-123", createdAt: ... }
  *
  * // Structural equality from S.Data:
  * const another = Task.makePending({
- *   id: "task-123",
- *   createdAt: DateTime.unsafeNow()
+ * 
+ * 
  * })
  * Eq.equals(task, another) // true if all fields match
  */
@@ -221,7 +221,7 @@ declare const Task: S.Schema<Task, any, never>
  * import * as Task from "@/schemas/Task"
  *
  * if (Task.isTask(value)) {
- *   // value is Task
+ * 
  * }
  */
 export const isTask = S.is(Task)
@@ -235,8 +235,8 @@ export const isTask = S.is(Task)
  * import * as Task from "@/schemas/Task"
  *
  * if (Task.isPending(task)) {
- *   // task is Pending, access startedAt safely
- *   console.log(task.createdAt)
+ * 
+ * 
  * }
  */
 export const isPending = (self: Task): self is Pending => self._tag === "pending"
@@ -278,9 +278,9 @@ declare type Task =
  * import * as Task from "@/schemas/Task"
  *
  * const status = Task.match({
- *   pending: (t) => `Pending: ${t.id}`,
- *   active: (t) => `Active since ${t.startedAt}`,
- *   completed: (t) => `Completed at ${t.completedAt}`
+ * 
+ * 
+ * 
  * })
  *
  * const result = status(task)
@@ -319,7 +319,7 @@ declare const Task: S.Schema<Task, any, never>
  *
  * // Structural equality (automatic from S.Data)
  * if (Eq.equals(task1, task2)) {
- *   // Tasks are structurally equal
+ * 
  * }
  */
 
@@ -618,12 +618,12 @@ export const make = S.decodeSync(Category)
  * Example usage:
  *
  * const root = Category.make({
- *   id: "1",
- *   name: "Electronics",
- *   subcategories: [
- *     Category.make({ id: "2", name: "Phones", subcategories: [] }),
- *     Category.make({ id: "3", name: "Laptops", subcategories: [] })
- *   ]
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
  * })
  */
 ```
@@ -821,8 +821,8 @@ declare const Pending: S.Schema<any, any, never>
  * import * as DateTime from "effect/DateTime"
  *
  * const task = Task.makePending({
- *   id: "task-123",
- *   createdAt: DateTime.unsafeNow()
+ * 
+ * 
  * })
  */
 export const makePending = S.decodeSync(Pending)
@@ -938,10 +938,10 @@ export type User = S.Schema.Type<typeof User>
  * import * as DateTime from "effect/DateTime"
  *
  * const admin = User.makeAdmin({
- *   id: "admin-1",
- *   name: "Alice",
- *   createdAt: DateTime.unsafeNow(),
- *   permissions: ["read", "write"]
+ * 
+ * 
+ * 
+ * 
  * })
  */
 export const makeAdmin = S.decodeSync(Admin)
@@ -995,8 +995,8 @@ export const isCustomer = (self: User): self is Customer => self._tag === "Custo
  * import * as User from "@/schemas/User"
  *
  * const greeting = User.match({
- *   Admin: (u) => `Hello Admin ${u.name}`,
- *   Customer: (u) => `Hello ${u.tier} customer ${u.name}`
+ * 
+ * 
  * })
  *
  * const message = greeting(user)

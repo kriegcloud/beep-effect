@@ -313,17 +313,17 @@ const findRepoRootOrStart = Effect.fn("Vt2Runtime.findRepoRootOrStart")(function
       fs.exists(path.join(currentDirectory, marker)).pipe(Effect.orElseSucceed(() => false))
     ).pipe(Effect.map(A.some((exists) => exists)));
 
-    return yield* Match.value(markerExists).pipe(
-      Match.when(true, () => Effect.succeed(currentDirectory)),
-      Match.orElse(() => {
-        const parentDirectory = path.dirname(currentDirectory);
+    if (markerExists) {
+      return currentDirectory;
+    }
 
-        return Match.value(parentDirectory === currentDirectory).pipe(
-          Match.when(true, () => Effect.succeed(resolvedStartDirectory)),
-          Match.orElse(() => search(parentDirectory))
-        );
-      })
-    );
+    const parentDirectory = path.dirname(currentDirectory);
+
+    if (parentDirectory === currentDirectory) {
+      return resolvedStartDirectory;
+    }
+
+    return yield* search(parentDirectory);
   });
 
   return yield* search(resolvedStartDirectory);
@@ -431,9 +431,28 @@ const makeDefaultCompositionProfiles = (): ReadonlyArray<Vt2CompositionProfile> 
 
 const isPendingRecoveryCandidate = (candidate: Vt2RecoveryCandidate): boolean => candidate.disposition === "pending";
 
+const hasRecoveryCandidateId =
+  (candidateId: string) =>
+  (candidate: Vt2RecoveryCandidate): boolean =>
+    candidate.id === candidateId;
+
+const hasCaptureSegmentId =
+  (segmentId: string) =>
+  (segment: Vt2CaptureSegment): boolean =>
+    segment.id === segmentId;
+
 const isIngestedCaptureSegment = (segment: Vt2CaptureSegment): boolean => segment.status === "ingested";
 
 const isDiscardedCaptureSegment = (segment: Vt2CaptureSegment): boolean => segment.status === "discarded";
+
+const captureSegmentStatusForRecovery = (
+  disposition: ResolveVt2RecoveryCandidateInput["disposition"]
+): Vt2CaptureSegment["status"] =>
+  Match.value(disposition).pipe(
+    Match.when("recover", () => "ingested" as const),
+    Match.when("discard", () => "discarded" as const),
+    Match.exhaustive
+  );
 
 const buildTranscriptProjection = (
   sessionId: UUID,
@@ -518,11 +537,7 @@ const resolveSessionStatusFromArtifacts = (
   return "draft";
 };
 
-const toNullableString = <A extends string>(value: O.Option<A>): string | null =>
-  O.match(value, {
-    onNone: () => null,
-    onSome: (present) => present,
-  });
+const toNullableString = <A extends string>(value: O.Option<A>): string | null => O.getOrNull(value);
 
 const toProviderRuntimeError =
   (fallback: string) =>
@@ -716,6 +731,44 @@ const defaultTranscriptPythonPath = (config: Vt2RuntimeConfig, path: Path.Path):
     ? path.resolve(config.appDataDir, "providers", "whisper", "Scripts", "python.exe")
     : path.resolve(config.appDataDir, "providers", "whisper", "bin", "python3");
 
+type TranscriptRuntimeCommand = {
+  readonly commandSource: Vt2TranscriptRuntime["commandSource"];
+  readonly resolvedCommand: string;
+};
+
+const configuredTranscriptRuntimeCommand = (resolvedCommand: string): TranscriptRuntimeCommand => ({
+  commandSource: "configured",
+  resolvedCommand,
+});
+
+const bundledTranscriptRuntimeCommand = (resolvedCommand: string): TranscriptRuntimeCommand => ({
+  commandSource: "bundled",
+  resolvedCommand,
+});
+
+const systemTranscriptRuntimeCommand: TranscriptRuntimeCommand = {
+  commandSource: "system",
+  resolvedCommand: "python3",
+};
+
+const resolveTranscriptRuntimeCommand = (input: {
+  readonly configuredCommand: O.Option<string>;
+  readonly bundledPython: string;
+  readonly bundledPythonExists: boolean;
+}): TranscriptRuntimeCommand =>
+  pipe(
+    input.configuredCommand,
+    O.map(configuredTranscriptRuntimeCommand),
+    O.orElse(() =>
+      pipe(
+        input.bundledPython,
+        O.liftPredicate(() => input.bundledPythonExists),
+        O.map(bundledTranscriptRuntimeCommand)
+      )
+    ),
+    O.getOrElse(() => systemTranscriptRuntimeCommand)
+  );
+
 const localTranscriptProviderLayer = (config: Vt2RuntimeConfig) =>
   Layer.effect(
     Vt2TranscriptProvider,
@@ -732,11 +785,11 @@ const localTranscriptProviderLayer = (config: Vt2RuntimeConfig) =>
       const resolveTranscriptRuntime = Effect.fn("Vt2TranscriptProvider.resolveTranscriptRuntime")(function* () {
         const bundledPython = defaultTranscriptPythonPath(config, path);
         const bundledPythonExists = yield* fs.exists(bundledPython).pipe(Effect.orElseSucceed(() => false));
-        const runtime = O.isSome(config.transcriptPythonBin)
-          ? { commandSource: "configured" as const, resolvedCommand: config.transcriptPythonBin.value }
-          : bundledPythonExists
-            ? { commandSource: "bundled" as const, resolvedCommand: bundledPython }
-            : { commandSource: "system" as const, resolvedCommand: "python3" };
+        const runtime = resolveTranscriptRuntimeCommand({
+          configuredCommand: config.transcriptPythonBin,
+          bundledPython,
+          bundledPythonExists,
+        });
         const available = yield* commandAvailable(runtime.resolvedCommand);
         const detail = Match.value(runtime.commandSource).pipe(
           Match.when("configured", () =>
@@ -1622,21 +1675,21 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     input: ResolveVt2RecoveryCandidateInput
   ): Effect.fn.Return<Vt2SessionResource, Vt2RuntimeError> {
     const resource = yield* getSession(sessionId);
-    const candidate = A.findFirst(resource.recoveryCandidates, (item) => item.id === candidateId);
-
-    const existingCandidate = yield* O.match(candidate, {
-      onNone: () =>
-        Effect.fail(
+    const existingCandidate = yield* pipe(
+      resource.recoveryCandidates,
+      A.findFirst(hasRecoveryCandidateId(candidateId)),
+      Effect.fromOption,
+      Effect.mapError(
+        () =>
           new Vt2RuntimeError({
             message: `Recovery candidate "${candidateId}" was not found for session "${sessionId}".`,
             status: 404,
             cause: O.none(),
           })
-        ),
-      onSome: Effect.succeed,
-    });
+      )
+    );
 
-    if (existingCandidate.disposition !== "pending") {
+    if (!isPendingRecoveryCandidate(existingCandidate)) {
       return yield* new Vt2RuntimeError({
         message: `Recovery candidate "${candidateId}" has already been resolved.`,
         status: 400,
@@ -1644,18 +1697,19 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       });
     }
 
-    const segment = A.findFirst(resource.captureSegments, (item) => item.id === existingCandidate.segmentId);
-    const existingSegment = yield* O.match(segment, {
-      onNone: () =>
-        Effect.fail(
+    const existingSegment = yield* pipe(
+      resource.captureSegments,
+      A.findFirst(hasCaptureSegmentId(existingCandidate.segmentId)),
+      Effect.fromOption,
+      Effect.mapError(
+        () =>
           new Vt2RuntimeError({
             message: `Recovery candidate "${candidateId}" referenced a missing capture segment.`,
             status: 404,
             cause: O.none(),
           })
-        ),
-      onSome: Effect.succeed,
-    });
+      )
+    );
 
     const updatedAt = yield* DateTime.now;
     const nextRecoveryCandidates = A.map(resource.recoveryCandidates, (item) =>
@@ -1675,7 +1729,7 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         ? new Vt2CaptureSegment({
             id: item.id,
             sessionId: item.sessionId,
-            status: input.disposition === "recover" ? "ingested" : "discarded",
+            status: captureSegmentStatusForRecovery(input.disposition),
             sequence: item.sequence,
             durationMs: item.durationMs,
             artifactPath: item.artifactPath,
@@ -1748,14 +1802,12 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       includeMemoryContext,
       targetFormats: input.targetFormats,
     });
-    const memoryContextPacket = yield* Match.value(includeMemoryContext).pipe(
-      Match.when(true, () =>
-        memoryContextProvider
+    const memoryContextPacket = yield* includeMemoryContext
+      ? memoryContextProvider
           .fetchContext(resource, packet)
           .pipe(Effect.map(O.some), Effect.mapError(toProviderRuntimeError("Failed to retrieve V2T memory context.")))
-      ),
-      Match.orElse(() => Effect.succeed(O.none()))
-    );
+      : Effect.succeed(O.none<Vt2MemoryContextPacket>());
+
     const preparedRun = yield* compositionProvider
       .prepareRun(resource, selectedProfile, preferences, packet, memoryContextPacket)
       .pipe(Effect.mapError(toProviderRuntimeError("Failed to prepare the V2T composition run.")));

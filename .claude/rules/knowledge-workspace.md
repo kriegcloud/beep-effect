@@ -1,8 +1,8 @@
 ---
 root: false
-targets: ["packages/common/knowledge-graph/**", "specs/pending/knowledge-workspace/**"]
+targets: ["packages/common/knowledge-graph/**", "initiatives/knowledge-workspace/**"]
 description: "Knowledge workspace specialist skills"
-globs: ["packages/common/knowledge-graph/**", "specs/pending/knowledge-workspace/**"]
+globs: ["packages/common/knowledge-graph/**", "initiatives/knowledge-workspace/**"]
 ---
 
 # Knowledge Workspace

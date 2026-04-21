@@ -177,13 +177,14 @@ const readJsoncFile = <Schema extends S.Decoder<unknown, never>>(
         }),
     });
 
-    return yield* Effect.try({
-      try: () => S.decodeUnknownSync(schema)(parsed),
-      catch: (cause) =>
-        new Domain.DocgenError({
-          message: `[Configuration.readJsoncFile] Failed to decode '${filePath}'\n${String(cause)}`,
-        }),
-    });
+    return yield* S.decodeUnknownEffect(schema)(parsed).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Domain.DocgenError({
+            message: `[Configuration.readJsoncFile] Failed to decode '${filePath}'\n${String(cause)}`,
+          })
+      )
+    );
   }) as Effect.Effect<S.Schema.Type<Schema>, Domain.DocgenError, FileSystem.FileSystem>;
 
 const readPackageJson = (filePath: string) => readJsoncFile(filePath, PackageJsonSchema);
@@ -332,6 +333,7 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
   const exampleTypes: ReadonlyArray<string> = pipe(configuredExampleTypes, A.append("node"), A.append("bun"), A.dedupe);
   const examplesCompilerOptions = {
     ...resolvedExamplesCompilerOptions,
+    allowImportingTsExtensions: true,
     noUnusedLocals: false,
     noUnusedParameters: false,
     types: exampleTypes,

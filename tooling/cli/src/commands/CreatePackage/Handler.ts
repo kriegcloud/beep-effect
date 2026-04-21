@@ -6,7 +6,7 @@
  * - FileGenerationPlanService for deterministic plan/execute
  * - Shared repo config synchronization after scaffolding
  *
- * @module \@beep/repo-cli/commands/CreatePackage/Handler
+ * @module
  * @since 0.0.0
  */
 
@@ -243,14 +243,15 @@ const parseJsonDocument: {
 } = dual(
   2,
   Effect.fn(function* (content: string, filePath: string) {
-    return yield* Effect.try({
-      try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(content),
-      catch: (cause) =>
-        new DomainError({
-          message: `Failed to parse JSON in "${filePath}"`,
-          cause,
-        }),
-    });
+    return yield* S.decodeUnknownEffect(S.fromJsonString(S.Unknown))(content).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to parse JSON in "${filePath}"`,
+            cause,
+          })
+      )
+    );
   })
 );
 
@@ -704,10 +705,9 @@ const generatePackageJson: (
       },
     },
     scripts: {
-      codegen: "echo 'no codegen needed'",
       build: "tsc -b tsconfig.json && bun run babel",
       babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-      check: "tsc -b tsconfig.json",
+      check: "tsgo -b tsconfig.json",
       lint: "biome check .",
       "lint:fix": "biome check . --write",
       test: "bunx --bun vitest run",

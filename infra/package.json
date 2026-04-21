@@ -39,7 +39,8 @@
     "@pulumi/pulumi": "catalog:",
     "@pulumi/std": "catalog:",
     "@pulumi/tls": "catalog:",
-    "@pulumiverse/unifi": "catalog:"
+    "@pulumiverse/unifi": "catalog:",
+    "protobufjs": "7.5.5"
   },
   "devDependencies": {
     "@beep/types": "workspace:^",

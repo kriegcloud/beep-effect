@@ -22,7 +22,7 @@
  * ```
  *
  * @since 0.0.0
- * @module \@beep/chalk/Chalk
+ * @module
  */
 
 import { makeCreateChalk } from "./internal/ChalkRuntime.ts";
@@ -225,8 +225,8 @@ export type ChalkOptions = typeof ChalkOptionsSchema.Type;
  *
  * const info: ColorInfo = supportsColor
  * if (info !== false) {
- *   console.log("Level:", info.level)
- *   console.log("Truecolor:", info.has16m)
+ *
+ *
  * }
  * ```
  *
@@ -298,10 +298,10 @@ export type ColorName = typeof ColorNameSchema.Type;
  *
  * const decode = S.decodeUnknownSync(ColorSupport)
  * console.log(decode({
- *   level: 3,
- *   hasBasic: true,
- *   has256: true,
- *   has16m: true
+ *
+ *
+ *
+ *
  * }))
  * ```
  *
@@ -437,7 +437,7 @@ export type ModifierName = typeof ModifierNameSchema.Type;
  * import { modifierNames } from "@beep/chalk"
  *
  * for (const name of modifierNames) {
- *   console.log(name) // "reset" | "bold" | "dim" | ...
+ *
  * }
  * ```
  *
@@ -454,7 +454,7 @@ export const modifierNames = modifierNameValues;
  * import { foregroundColorNames } from "@beep/chalk"
  *
  * for (const name of foregroundColorNames) {
- *   console.log(name) // "black" | "red" | "green" | ...
+ *
  * }
  * ```
  *
@@ -471,7 +471,7 @@ export const foregroundColorNames = foregroundColorNameValues;
  * import { backgroundColorNames } from "@beep/chalk"
  *
  * for (const name of backgroundColorNames) {
- *   console.log(name) // "bgBlack" | "bgRed" | "bgGreen" | ...
+ *
  * }
  * ```
  *
@@ -488,7 +488,7 @@ export const backgroundColorNames = backgroundColorNameValues;
  * import { colorNames } from "@beep/chalk"
  *
  * for (const name of colorNames) {
- *   console.log(name) // "black" | "red" | ... | "bgBlack" | "bgRed" | ...
+ *
  * }
  * ```
  *
@@ -568,8 +568,8 @@ export const colors = colorNames;
  * import { supportsColor } from "@beep/chalk"
  *
  * if (supportsColor !== false) {
- *   console.log("Color level:", supportsColor.level)
- *   console.log("Truecolor:", supportsColor.has16m)
+ *
+ *
  * }
  * ```
  *
@@ -589,7 +589,7 @@ export const supportsColor = detectedSupportsColor.stdout;
  * import { supportsColorStderr } from "@beep/chalk"
  *
  * if (supportsColorStderr !== false) {
- *   console.log("Stderr color level:", supportsColorStderr.level)
+ *
  * }
  * ```
  *

@@ -11,14 +11,14 @@
  * import chalk, { Chalk, supportsColor } from "@beep/chalk/Chalk.browser"
  *
  * if (supportsColor !== false) {
- *   console.log(chalk.red.bold("Browser color!"))
+ *
  * } else {
- *   console.log(chalk.red("no ANSI in this runtime"))
+ *
  * }
  * ```
  *
  * @since 0.0.0
- * @module \@beep/chalk/Chalk.browser
+ * @module
  */
 
 import { makeCreateChalk } from "./internal/ChalkRuntime.ts";

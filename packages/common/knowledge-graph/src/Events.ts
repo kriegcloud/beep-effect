@@ -14,20 +14,22 @@
  * @example
  * ```typescript
  * import {
- *   NodeCreatedPayload,
- *   KnowledgeGraphEvents,
- *   KnowledgeGraphSchema,
- *   GraphEvent,
+ *
+ *
+ *
+ *
  * } from "@beep/knowledge-graph/Events"
  * ```
  *
- * @module \@beep/knowledge-graph/Events
+ * @module
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";
 import { NonEmptyTrimmedStr } from "@beep/schema";
+import { A, O, thunkEffectVoid } from "@beep/utils";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
+
 import { EventGroup, EventLog } from "effect/unstable/eventlog";
 import { KnowledgeEdgeId, KnowledgeEdgeKind, KnowledgeNodeId, KnowledgeNodeKind, NodeMetadata } from "./Schemas.ts";
 
@@ -46,12 +48,12 @@ const $I = $SharedDomainId.create("knowledge-graph/Events");
  * import { NodeCreatedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(NodeCreatedPayload)({
- *   _tag: "NodeCreatedPayload",
- *   nodeId: "beep:page/my-page",
- *   kind: "page",
- *   displayLabel: "My Page",
- *   content: null,
- *   metadata: { source: "vault-parser" },
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -84,9 +86,9 @@ export class NodeCreatedPayload extends S.TaggedClass<NodeCreatedPayload>($I`Nod
  * import { NodeUpdatedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(NodeUpdatedPayload)({
- *   _tag: "NodeUpdatedPayload",
- *   nodeId: "beep:page/my-page",
- *   displayLabel: "Renamed Page",
+ *
+ *
+ *
  * })
  * ```
  *
@@ -97,9 +99,9 @@ export class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>($I`Nod
   "NodeUpdatedPayload",
   {
     nodeId: KnowledgeNodeId,
-    displayLabel: S.optional(NonEmptyTrimmedStr),
-    content: S.optional(S.String),
-    metadata: S.optional(NodeMetadata),
+    displayLabel: S.optionalKey(NonEmptyTrimmedStr),
+    content: S.optionalKey(S.String),
+    metadata: S.optionalKey(NodeMetadata),
   },
   $I.annote("NodeUpdatedPayload", {
     description: "Emitted when an existing node is updated.",
@@ -115,9 +117,9 @@ export class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>($I`Nod
  * import { NodeRemovedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(NodeRemovedPayload)({
- *   _tag: "NodeRemovedPayload",
- *   nodeId: "beep:page/stale-page",
- *   reason: "Vault file deleted",
+ *
+ *
+ *
  * })
  * ```
  *
@@ -144,12 +146,12 @@ export class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>($I`Nod
  * import { EdgeCreatedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(EdgeCreatedPayload)({
- *   _tag: "EdgeCreatedPayload",
- *   edgeId: "beep:edge/wiki-link/beep:page/a->beep:page/b",
- *   sourceNodeId: "beep:page/a",
- *   targetNodeId: "beep:page/b",
- *   kind: "wiki-link",
- *   weight: null,
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -179,9 +181,9 @@ export class EdgeCreatedPayload extends S.TaggedClass<EdgeCreatedPayload>($I`Edg
  * import { EdgeRemovedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(EdgeRemovedPayload)({
- *   _tag: "EdgeRemovedPayload",
- *   edgeId: "beep:edge/wiki-link/beep:page/a->beep:page/b",
- *   reason: "Source node removed",
+ *
+ *
+ *
  * })
  * ```
  *
@@ -208,9 +210,9 @@ export class EdgeRemovedPayload extends S.TaggedClass<EdgeRemovedPayload>($I`Edg
  * import { SnapshotResetPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(SnapshotResetPayload)({
- *   _tag: "SnapshotResetPayload",
- *   source: "full-reindex",
- *   reason: "Schema migration v2",
+ *
+ *
+ *
  * })
  * ```
  *
@@ -359,11 +361,13 @@ export const KnowledgeGraphReactivity = EventLog.groupReactivity(KnowledgeGraphE
  * @category compaction
  * @since 0.0.0
  */
-export const KnowledgeGraphCompaction = EventLog.groupCompaction(KnowledgeGraphEvents, ({ events, write }) =>
-  Effect.gen(function* () {
-    const last = events[events.length - 1];
-    if (last === undefined) return;
-    yield* write(last._tag, last.payload);
+export const KnowledgeGraphCompaction = EventLog.groupCompaction(
+  KnowledgeGraphEvents,
+  Effect.fnUntraced(function* ({ events, write }) {
+    return yield* O.match(A.get(events.length - 1)(events), {
+      onNone: thunkEffectVoid,
+      onSome: (last) => write(last._tag, last.payload),
+    });
   })
 );
 
@@ -383,9 +387,9 @@ export const KnowledgeGraphCompaction = EventLog.groupCompaction(KnowledgeGraphE
  *
  * declare const event: GraphEvent
  * Match.value(event).pipe(
- *   Match.tag("NodeCreatedPayload", (e) => e.nodeId),
- *   Match.tag("EdgeCreatedPayload", (e) => e.edgeId),
- *   Match.orElse(() => "other"),
+ *
+ *
+ *
  * )
  * ```
  *
@@ -400,6 +404,7 @@ export const GraphEvent = S.Union([
   EdgeRemovedPayload,
   SnapshotResetPayload,
 ]).pipe(
+  S.toTaggedUnion("_tag"),
   $I.annoteSchema("GraphEvent", {
     description: "Discriminated union of all graph mutation events.",
   })

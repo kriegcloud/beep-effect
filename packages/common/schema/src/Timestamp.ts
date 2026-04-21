@@ -1,7 +1,7 @@
 /**
  * UTC timestamp value objects, branded ISO string schemas, and epoch-millisecond schemas.
  *
- * @module \@beep/schema/Timestamp
+ * @module
  * @since 0.0.0
  */
 

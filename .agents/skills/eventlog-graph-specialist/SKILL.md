@@ -534,7 +534,7 @@ class KnowledgeGraph extends Context.Service<KnowledgeGraph, {
   readonly queryNodes: (filter: NodeFilter) => Effect.Effect<ReadonlyArray<GraphNode>>
   readonly queryEdges: (filter: EdgeFilter) => Effect.Effect<ReadonlyArray<GraphEdge>>
   readonly subscribe: Stream.Stream<StoredGraphEvent>
-}>()($I`KnowledgeGraph`)
+}>()($I`KnowledgeGraph`) {}
 ```
 
 Implementation pattern:
@@ -645,9 +645,9 @@ To extend for the knowledge graph:
   },
 },
 
-// New edge type: Wiki-link
+// New edge type: wiki_link
 {
-  selector: 'edge[label="wiki-link"]',
+  selector: 'edge[label="wiki_link"]',
   style: {
     "line-color": "#818cf8",
     "target-arrow-color": "#818cf8",

@@ -1,7 +1,7 @@
 /**
  * Common types for CSV parsing
  *
- * @module \@beep/schema/csv/parse/types
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

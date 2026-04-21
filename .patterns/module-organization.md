@@ -312,7 +312,7 @@ export type ReadonlyRecord<K extends string | symbol, V> = { readonly [P in K]: 
  *
  * // Data-last usage (pipeable)
  * const result2 = pipe([1, 2, 3],
- *   A.map(x => x * 2)
+ * 
  * )
  * ```
  *
@@ -412,10 +412,10 @@ export const symbol = "~effect/interfaces/Equal"
  * import { Effect, FiberSet } from "effect"
  *
  * Effect.gen(function*() {
- *   const set = yield* FiberSet.make()
+ * 
  *
- *   console.log(FiberSet.isFiberSet(set)) // true
- *   console.log(FiberSet.isFiberSet({})) // false
+ * 
+ * 
  * })
  * ```
  *

@@ -32,7 +32,7 @@ const SidebarContext = React.createContext<SidebarContextValue | null>(null);
 
 function useSidebar() {
   const context = React.useContext(SidebarContext);
-  if (!context) {
+  if (context === null) {
     throw new Error("useSidebar must be used within a SidebarProvider.");
   }
   return context;
@@ -88,7 +88,7 @@ function SidebarProvider({
   const setOpen = React.useCallback(
     (value: boolean | ((value: boolean) => boolean)) => {
       const openState = P.isFunction(value) ? value(open) : value;
-      if (setOpenProp) {
+      if (setOpenProp !== undefined) {
         setOpenProp(openState);
       } else {
         _setOpen(openState);
@@ -510,7 +510,7 @@ function SidebarMenuButton({
     />
   );
 
-  if (!tooltip) {
+  if (tooltip === undefined) {
     return button;
   }
 
@@ -522,7 +522,7 @@ function SidebarMenuButton({
       <TooltipContent
         side="right"
         align="center"
-        className={cn(!state || state === "expanded" || isMobile ? "hidden" : Str.empty)}
+        className={cn(state === "expanded" || isMobile ? "hidden" : Str.empty)}
         {...tooltipProps}
       />
     </Tooltip>

@@ -5,7 +5,7 @@
  * returns plain string formatters while preserving the same API shape as the default module.
  *
  * @since 0.0.0
- * @module \@beep/colors/Colors.browser
+ * @module
  */
 
 import { $ColorsId } from "@beep/identity";

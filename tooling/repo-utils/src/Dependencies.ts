@@ -60,8 +60,8 @@ const classifyRecord = (
  * import { decodePackageJson } from "@beep/repo-utils/schemas/PackageJson"
  *
  * const pkg = decodePackageJson({
- *   name: "@my/pkg",
- *   dependencies: O.some({ "@my/other": "workspace:*", "lodash": "^4.0.0" }),
+ *
+ *
  * })
  * const deps = extractWorkspaceDependencies(pkg, HashSet.make("@my/other", "@my/another"))
  * void deps

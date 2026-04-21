@@ -2,7 +2,7 @@
  * Typed error constructors for the Effect-first Drizzle Bun SQLite integration.
  *
  * @since 0.0.0
- * @module \@beep/shared-server/factories/effect-drizzle/Errors
+ * @module
  */
 
 import { $SharedServerId } from "@beep/identity";

@@ -1,5 +1,5 @@
 import { EffectSchema, type EffectSchema as EffectSchemaType } from "@beep/schema/EffectSchema";
-import { Effect } from "effect";
+import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
@@ -13,9 +13,11 @@ describe("EffectSchema", () => {
   it("exposes decode and encode helpers with the expected effect types", () => {
     const decode = S.decodeUnknownEffect(EffectSchema);
     const encode = S.encodeEffect(EffectSchema);
-    const value = S.decodeUnknownSync(EffectSchema)(Effect.succeed("done"));
+    const value = Effect.succeed("done");
+    const decoded = pipe(value, decode);
+    const encoded = pipe(value, encode);
 
-    expect(decode(value)).type.toBe<Effect.Effect<EffectSchemaType, S.SchemaError, never>>();
-    expect(encode(value)).type.toBe<Effect.Effect<Effect.Effect<unknown, unknown, unknown>, S.SchemaError, never>>();
+    expect(decoded).type.toBe<Effect.Effect<EffectSchemaType, S.SchemaError, never>>();
+    expect(encoded).type.toBe<Effect.Effect<Effect.Effect<unknown, unknown, unknown>, S.SchemaError, never>>();
   });
 });

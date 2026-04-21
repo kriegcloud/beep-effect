@@ -7,6 +7,7 @@ import type { PlatformError } from "effect/PlatformError";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, ChildProcessSpawner } from "effect/unstable/process";
+import { provideLayerScoped } from "../internal/runtime.ts";
 
 // ============================================================================
 // Data Types
@@ -247,7 +248,7 @@ const runTypeCheck = (outputDir: string) =>
 const parseTypeScriptError = (line: string, locations: ReadonlyArray<CodeBlockLocation>): TypeError | null => {
   // Parse: file.ts(line,col): error TSxxxx: message
   const match = /^(.+?)\((\d+),(\d+)\):\s*error\s+TS\d+:\s*(.+)$/.exec(line);
-  if (!match) return null;
+  if (match === null) return null;
 
   const [, tempFile, lineStr, colStr, message] = match;
   const tempFileName = Str.split("/")(tempFile).pop() || tempFile;
@@ -256,7 +257,7 @@ const parseTypeScriptError = (line: string, locations: ReadonlyArray<CodeBlockLo
 
   // Find the corresponding source location
   const location = locations.find((loc) => loc.tempFile === tempFileName);
-  if (!location) return null;
+  if (location === undefined) return null;
 
   // Map back to original line (add sourceLine offset for the code fence)
   const originalLine = errorLine + location.sourceLine;
@@ -278,7 +279,7 @@ const parseTypeScriptErrors = (
 
   for (const line of lines) {
     const error = parseTypeScriptError(line, locations);
-    if (error) {
+    if (error !== null) {
       errors.push(error);
     }
   }
@@ -290,7 +291,7 @@ const parseTypeScriptErrors = (
 // Main Program
 // ============================================================================
 
-const program = Effect.gen(function* () {
+export const mdTypecheckProgram = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
 
@@ -398,14 +399,18 @@ const program = Effect.gen(function* () {
 // Entry Point
 // ============================================================================
 
-pipe(
-  program,
+export const mdTypecheckExitCode = Effect.scoped(provideLayerScoped(mdTypecheckProgram, BunServices.layer));
+
+const runnable = mdTypecheckExitCode.pipe(
   Effect.tap((exitCode) =>
     Effect.sync(() => {
       process.exitCode = exitCode;
     })
   ),
   Effect.asVoid,
-  Effect.provide(BunServices.layer),
-  BunRuntime.runMain
+  Effect.scoped
 );
+
+if (import.meta.main) {
+  BunRuntime.runMain(runnable);
+}

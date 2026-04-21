@@ -4,7 +4,7 @@
  * This module provides repository-named wrappers around Effect's option schema
  * helpers when the local codebase benefits from a more explicit boundary name.
  *
- * @module \@beep/schema/Options
+ * @module
  * @since 0.0.0
  */
 
@@ -38,7 +38,7 @@ import * as S from "effect/Schema";
  * import { OptionFromOptionalNullishKey } from "@beep/schema"
  *
  * const Payload = S.Struct({
- *   nickname: OptionFromOptionalNullishKey(S.String),
+ *
  * })
  *
  * const decode = S.decodeUnknownSync(Payload)
@@ -57,7 +57,7 @@ import * as S from "effect/Schema";
  * import { OptionFromOptionalNullishKey } from "@beep/schema"
  *
  * const Payload = S.Struct({
- *   homepage: OptionFromOptionalNullishKey(S.URLFromString, { onNoneEncoding: null }),
+ *
  * })
  *
  * const encode = S.encodeSync(Payload)

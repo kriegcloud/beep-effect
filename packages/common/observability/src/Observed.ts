@@ -13,7 +13,7 @@
  * void ObservedCause
  * ```
  *
- * @module \@beep/observability/Observed
+ * @module
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";

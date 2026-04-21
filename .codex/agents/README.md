@@ -3,7 +3,7 @@
 This directory defines project-scoped custom Codex agents for `beep-effect`.
 
 Codex loads the registry from [../config.toml](../config.toml) when the project
-is trusted. The active V2T spec now assumes:
+is trusted. The active V2T workflow now assumes:
 
 - the session working a phase is the orchestrator
 - sub-agents are selectively spawned specialists
@@ -72,9 +72,9 @@ is trusted. The active V2T spec now assumes:
   assume workers share the same worktree unless explicit isolation exists.
 - Use the quality reviewer after merges, not as a replacement for integration.
 
-The V2T spec delegation kit lives under
-`specs/pending/V2T/prompts/` and is the normative prompt source for these
-agents.
+These agents no longer depend on the old checked-in packet layout. When a task
+needs an explicit delegation contract, treat the active initiative packet's
+`ops/` surfaces as the normative prompt source.
 
 ## Dispatch Heuristics
 
@@ -129,7 +129,7 @@ agents.
 ## Worker Return Shape
 
 - When a prompt provides an explicit output contract, follow it exactly.
-- For V2T spec work, use
-  [../../specs/pending/V2T/prompts/SUBAGENT_OUTPUT_CONTRACT.md](../../specs/pending/V2T/prompts/SUBAGENT_OUTPUT_CONTRACT.md).
+- For initiative work with a defined output contract, follow the contract
+  shipped inside that initiative packet's `ops/` tree.
 - Explicitly report commands not run, repo-truth checks performed, Graphiti
   fallback behavior, and any residual risk the orchestrator still needs to own.

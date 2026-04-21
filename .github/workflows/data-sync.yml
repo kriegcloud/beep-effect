@@ -14,39 +14,29 @@ jobs:
     name: Sync Official Data
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ vars.TURBO_TEAM || secrets.TURBO_TEAM }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Bun
-        uses: oven-sh/setup-bun@v2
+      - name: Setup monorepo CI
+        uses: ./.github/actions/setup-monorepo-ci
         with:
-          bun-version-file: .bun-version
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version-file: .nvmrc
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
+          cache-turbo: true
 
       - name: Sync official datasets
         run: bun run beep sync-data-to-ts --all
 
-      - name: Typecheck repo CLI
-        run: bunx tsc -p tooling/cli/tsconfig.json --noEmit
+      - name: Run focused Turbo verification
+        run: bunx turbo run check test --filter=@beep/repo-cli --filter=@beep/data --summarize
 
-      - name: Test sync-data-to-ts
-        run: bunx --bun vitest run tooling/cli/test/sync-data-to-ts.test.ts
-
-      - name: Typecheck @beep/data
-        run: bunx tsc -p packages/common/data/tsconfig.json --noEmit
-
-      - name: Test @beep/data currency exports
-        run: bunx --bun vitest run packages/common/data/test/currency-codes.test.ts
+      - name: Append Turbo summary
+        if: always()
+        run: node scripts/append-turbo-summary.mjs
 
       - name: Create or update pull request
         uses: peter-evans/create-pull-request@v8

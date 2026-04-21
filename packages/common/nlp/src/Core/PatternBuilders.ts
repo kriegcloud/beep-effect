@@ -2,7 +2,7 @@
  * Pattern builders and patch helpers.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Core/PatternBuilders
+ * @module
  */
 
 import { Chunk } from "effect";
@@ -24,6 +24,9 @@ import {
 
 type NonEmptyChoices<A> = readonly [A, ...A[]];
 type LiteralReplacer = (values: ReadonlyArray<string>, index: number) => PatternElement;
+type MakeDualArgs =
+  | readonly [id: string, elements: ReadonlyArray<PatternElement>]
+  | readonly [elements: ReadonlyArray<PatternElement>, id: string];
 
 const ensureNonEmpty = <A>(values: ReadonlyArray<A>, fallback: A): NonEmptyChoices<A> => {
   const [head, ...tail] = values;
@@ -71,6 +74,9 @@ const rebuildPattern = (pattern: Pattern, changes: Partial<Pick<Pattern, "elemen
 
 const isLiteralElement = (element: PatternElement): element is LiteralPatternElement =>
   P.isTagged(element, "LiteralPatternElement");
+const isMakeDataFirstArgs = (
+  args: MakeDualArgs
+): args is readonly [id: string, elements: ReadonlyArray<PatternElement>] => P.isString(args[0]);
 
 /**
  * Create a POS pattern element.
@@ -189,13 +195,14 @@ export function optionalLiteral(
  * @since 0.0.0
  * @category Constructors
  */
-export function make(id: string, elements: ReadonlyArray<PatternElement>): Pattern;
-export function make(id: string): (elements: ReadonlyArray<PatternElement>) => Pattern;
-export function make(id: string, elements?: ReadonlyArray<PatternElement>) {
-  return P.isUndefined(elements)
-    ? (nextElements: ReadonlyArray<PatternElement>) => makePattern(id, nextElements)
-    : makePattern(id, elements);
-}
+export const make: {
+  (id: string, elements: ReadonlyArray<PatternElement>): Pattern;
+  (id: string): (elements: ReadonlyArray<PatternElement>) => Pattern;
+} = dual(
+  (args) => args.length >= 2,
+  (...args: MakeDualArgs): Pattern =>
+    isMakeDataFirstArgs(args) ? makePattern(args[0], args[1]) : makePattern(args[1], args[0])
+);
 
 /**
  * Add a mark range to a pattern.
@@ -214,13 +221,13 @@ export const withMark = dual(
  * @since 0.0.0
  * @category Combinators
  */
-export function withoutMark(): (pattern: Pattern) => Pattern;
-export function withoutMark(pattern: Pattern): Pattern;
-export function withoutMark(pattern?: Pattern) {
-  return P.isUndefined(pattern)
-    ? (nextPattern: Pattern) => rebuildPattern(nextPattern, { mark: O.none() })
-    : rebuildPattern(pattern, { mark: O.none() });
-}
+export const withoutMark: {
+  (): (pattern: Pattern) => Pattern;
+  (pattern: Pattern): Pattern;
+} = dual(
+  (args) => args.length >= 1,
+  (pattern: Pattern): Pattern => rebuildPattern(pattern, { mark: O.none() })
+);
 
 /**
  * Append elements to a pattern.
@@ -391,18 +398,13 @@ export const drop = dual(
  * @since 0.0.0
  * @category Combinators
  */
-export function combine(left: Pattern, right: Pattern, id: string): Pattern;
-export function combine(right: Pattern, id: string): (left: Pattern) => Pattern;
-export function combine(leftOrRight: Pattern, rightOrId: Pattern | string, maybeId?: string) {
-  if (P.isString(rightOrId)) {
-    return (left: Pattern) => makePattern(rightOrId, [...toElements(left), ...toElements(leftOrRight)]);
-  }
-
-  return makePattern(maybeId ?? `${leftOrRight.id}-${rightOrId.id}`, [
-    ...toElements(leftOrRight),
-    ...toElements(rightOrId),
-  ]);
-}
+export const combine: {
+  (left: Pattern, right: Pattern, id: string): Pattern;
+  (right: Pattern, id: string): (left: Pattern) => Pattern;
+} = dual(
+  3,
+  (left: Pattern, right: Pattern, id: string): Pattern => makePattern(id, [...toElements(left), ...toElements(right)])
+);
 
 /**
  * Functional patch over a pattern.
@@ -465,23 +467,16 @@ export const patchReplaceAllLiterals =
  * @since 0.0.0
  * @category Combinators
  */
-export function generalizeLiterals(to: PatternElement): (pattern: Pattern) => Pattern;
-export function generalizeLiterals(f: LiteralReplacer): (pattern: Pattern) => Pattern;
-export function generalizeLiterals(pattern: Pattern, to: PatternElement): Pattern;
-export function generalizeLiterals(pattern: Pattern, f: LiteralReplacer): Pattern;
-export function generalizeLiterals(
-  arg1: Pattern | PatternElement | LiteralReplacer,
-  arg2?: PatternElement | LiteralReplacer
-) {
-  if (Pattern.is(arg1)) {
-    if (P.isUndefined(arg2)) {
-      return arg1;
-    }
+const toLiteralReplacer = (replacement: PatternElement | LiteralReplacer): LiteralReplacer =>
+  P.isFunction(replacement) ? replacement : () => replacement;
 
-    const replacer: LiteralReplacer = P.isFunction(arg2) ? arg2 : () => arg2;
-    return patchReplaceAllLiterals(replacer)(arg1);
-  }
-
-  const replacer: LiteralReplacer = P.isFunction(arg1) ? arg1 : () => arg1;
-  return (pattern: Pattern) => patchReplaceAllLiterals(replacer)(pattern);
-}
+export const generalizeLiterals: {
+  (to: PatternElement): (pattern: Pattern) => Pattern;
+  (f: LiteralReplacer): (pattern: Pattern) => Pattern;
+  (pattern: Pattern, to: PatternElement): Pattern;
+  (pattern: Pattern, f: LiteralReplacer): Pattern;
+} = dual(
+  2,
+  (pattern: Pattern, replacement: PatternElement | LiteralReplacer): Pattern =>
+    patchReplaceAllLiterals(toLiteralReplacer(replacement))(pattern)
+);

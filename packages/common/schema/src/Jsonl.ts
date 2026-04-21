@@ -1,7 +1,7 @@
 /**
  * JSONL parsing and schema transforms.
  *
- * @module \@beep/schema/Jsonl
+ * @module
  * @since 0.0.0
  */
 
@@ -93,10 +93,10 @@ const decodeJsonlUnknown = Effect.fn("Jsonl.decodeJsonlUnknown")(function* (cont
  * import { JsonlTextToUnknown } from "@beep/schema/Jsonl"
  *
  * const program = Effect.gen(function* () {
- *   const rows = yield* S.decodeUnknownEffect(JsonlTextToUnknown)(
- *     '{"a":1}\n{"a":2}\n'
- *   )
- *   return rows
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -130,8 +130,8 @@ export const JsonlTextToUnknown = S.String.pipe(
  * const decodeRows = decodeJsonlTextAs(S.Array(Row))
  *
  * const program = Effect.gen(function* () {
- *   const rows = yield* decodeRows('{"a":1}\n{"a":2}\n')
- *   return rows
+ *
+ *
  * })
  * void program
  * ```

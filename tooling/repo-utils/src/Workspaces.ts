@@ -80,9 +80,9 @@ const isContainedCanonicalPath: {
  * import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces"
  *
  * const program = Effect.gen(function*() {
- *   const workspaces = yield* resolveWorkspaceDirs("/path/to/repo")
- *   void workspaces
- *   // HashMap<string, string> e.g. { "@mock/pkg-a" => "/path/to/repo/packages/pkg-a" }
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -187,10 +187,10 @@ export const resolveWorkspaceDirs: (
  * import { getWorkspaceDir } from "@beep/repo-utils/Workspaces"
  *
  * const program = Effect.gen(function*() {
- *   const dir = yield* getWorkspaceDir("/path/to/repo", "@mock/pkg-a")
- *   if (O.isSome(dir)) {
- *     console.log("Found:", dir.value)
- *   }
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```

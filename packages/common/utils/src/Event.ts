@@ -1,7 +1,7 @@
 /**
  * Helpers for schema-backed server-sent event envelopes.
  *
- * @module \@beep/utils/Event
+ * @module
  * @since 0.0.0
  */
 
@@ -35,9 +35,9 @@ type EventShape<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> 
  *
  * const Progress = makeEvent({ percent: S.Number }, "Progress")
  * const decoded = S.decodeUnknownSync(Progress)({
- *   kind: "Event",
- *   _tag: "Progress",
- *   payload: { percent: 100 },
+ *
+ *
+ *
  * })
  * void decoded
  * ```

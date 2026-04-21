@@ -2,7 +2,7 @@
  * Wink custom-entity pattern models.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Wink/WinkPattern
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";

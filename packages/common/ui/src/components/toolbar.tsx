@@ -41,9 +41,9 @@ export function ToolbarToggleGroup({
     <ToggleGroup
       className={cn("flex items-center", className)}
       multiple={multiple}
-      {...(normalizedValue ? { value: normalizedValue } : {})}
-      {...(normalizedDefaultValue ? { defaultValue: normalizedDefaultValue } : {})}
-      {...(onValueChange ? { onValueChange } : {})}
+      {...(normalizedValue !== undefined ? { value: normalizedValue } : {})}
+      {...(normalizedDefaultValue !== undefined ? { defaultValue: normalizedDefaultValue } : {})}
+      {...(onValueChange !== undefined ? { onValueChange } : {})}
       disabled={Boolean(disabled)}
       {...props}
     />
@@ -120,12 +120,8 @@ type ToolbarActionButtonProps = ToolbarButtonBaseProps &
 
 type ToolbarButtonProps = ToolbarToggleButtonProps | ToolbarActionButtonProps;
 
-function isToolbarToggleButtonProps(props: ToolbarButtonProps): props is ToolbarToggleButtonProps {
-  return P.isBoolean(props.pressed);
-}
-
 export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarButtonProps) {
-  if (isToolbarToggleButtonProps(props)) {
+  if (props.pressed !== undefined) {
     const { children, className, isDropdown, pressed, size = "sm", variant, ...toggleProps } = props;
     return (
       <ToolbarToggleGroup disabled={Boolean(toggleProps.disabled)} value={pressed ? "single" : ""} type="single">
@@ -141,7 +137,7 @@ export const ToolbarButton = withTooltip(function ToolbarButton(props: ToolbarBu
           value="single"
           {...toggleProps}
         >
-          {isDropdown ? (
+          {isDropdown === true ? (
             <>
               <div className="flex flex-1 items-center gap-2 whitespace-nowrap">{children}</div>
               <div>
@@ -268,12 +264,13 @@ function withTooltip<T extends ElementType>(Component: T) {
     ...props
   }: TooltipProps<T>) {
     const [mounted, setMounted] = useState(false);
+    const hasTooltip = tooltip !== undefined && tooltip !== null && tooltip !== false;
 
     useEffect(() => void setMounted(true), []);
 
     const component = <Component {...(props as ComponentProps<T>)} />;
 
-    if (tooltip && mounted) {
+    if (hasTooltip && mounted) {
       return (
         <Tooltip {...tooltipProps}>
           <TooltipTrigger {...tooltipTriggerProps}>{component}</TooltipTrigger>

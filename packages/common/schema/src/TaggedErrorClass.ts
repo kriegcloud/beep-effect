@@ -160,13 +160,13 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  * import { TaggedErrorClass } from "@beep/schema"
  *
  * class NotFound extends TaggedErrorClass<NotFound>()("NotFound", {
- *   message: S.String,
+ *
  * }) {}
  *
  * const err = new NotFound({ message: "User not found" })
  *
  * const program = Effect.fail(err).pipe(
- *   Effect.catchTag("NotFound", (e) => Effect.succeed(e.message))
+ *
  * )
  * ```
  *
@@ -177,13 +177,13 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  * import { TaggedErrorClass } from "@beep/schema"
  *
  * class DbError extends TaggedErrorClass<DbError>()("DbError", {
- *   message: S.String,
- *   cause: S.DefectWithStack,
+ *
+ *
  * }) {}
  *
  * const program = Effect.try({
- *   try: () => JSON.parse("bad"),
- *   catch: (cause) => new DbError({ cause, message: "parse failed" })
+ *
+ *
  * })
  *
  * void program

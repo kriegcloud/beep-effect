@@ -27,11 +27,11 @@ import * as internal from "./generated/iso4217.ts";
  * import type { CurrencyCodeData } from "@beep/data/CurrencyCodes"
  *
  * const entry: CurrencyCodeData = {
- *   code: "AED",
- *   number: "784",
- *   digits: 2,
- *   currency: "UAE Dirham",
- *   countries: ["United Arab Emirates (The)"]
+ *
+ *
+ *
+ *
+ *
  * }
  * void entry
  * ```

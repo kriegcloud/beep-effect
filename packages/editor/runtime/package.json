@@ -16,7 +16,7 @@
     "build": "tsc -b tsconfig.json && bun run babel",
     "check": "tsgo -b tsconfig.json",
     "codegen": "echo 'no codegen needed'",
-    "coverage": "vitest --coverage",
+    "coverage": "bunx --bun vitest --coverage",
     "dev": "bun src/main.ts",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "biome check .",

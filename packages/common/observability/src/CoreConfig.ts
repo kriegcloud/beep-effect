@@ -1,7 +1,7 @@
 /**
  * Browser-safe shared observability configuration schema.
  *
- * @module \@beep/observability/CoreConfig
+ * @module
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";
@@ -22,10 +22,10 @@ const $I = $ObservabilityId.create("CoreConfig");
  * import { ObservabilityCoreConfig } from "@beep/observability"
  *
  * const config: ObservabilityCoreConfig = {
- *   serviceName: "todox-web",
- *   serviceVersion: "0.1.0",
- *   environment: "development",
- *   minLogLevel: "Info",
+ *
+ *
+ *
+ *
  * }
  *
  * console.log(config.serviceName) // "todox-web"

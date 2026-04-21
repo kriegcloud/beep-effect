@@ -6,7 +6,7 @@
  * `then`, `catch`, and `finally` methods alongside the built-in promise
  * object tag to reject plain thenable objects.
  *
- * @module \@beep/schema/PromiseSchema
+ * @module
  * @since 0.0.0
  */
 
@@ -47,9 +47,9 @@ const promiseAnnotations = {
  *
  * const nativePromise = globalThis.Promise.resolve(1)
  * const thenable = {
- *   then: () => thenable,
- *   catch: () => thenable,
- *   finally: () => thenable,
+ *
+ *
+ *
  * }
  *
  * console.log(isPromise(nativePromise)) // true

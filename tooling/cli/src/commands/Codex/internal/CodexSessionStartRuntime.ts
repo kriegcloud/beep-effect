@@ -126,6 +126,7 @@ export const buildCodexSessionStartContext = (source: string, cwd: string | unde
     "If Graphiti memory is unavailable, fall back to repo-local exploration plus the checked-in `.codex` and `.claude` guidance.",
     "Keep the repo defaults in mind early: schema-first domain models, typed errors, effect-first modules, explicit service boundaries, and the tersest equivalent helper forms when behavior is unchanged.",
     "Effect steering defaults: prefer the flattest equivalent control flow first; before `O.match(...)`, check `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)`.",
+    "Option-valued object fields: use `R.getSomes({...})` when `None` should drop keys, `O.all({...})` when the whole object is all-or-nothing, and `S.OptionFrom*` when optionality belongs at the schema boundary.",
     "Matcher steering defaults: prefer `Match.type<T>().pipe(...)` / `Match.tags(...)` for reusable matchers, and treat nested `Bool.match(...)` as a smell unless both branches are doing real work.",
   ]
     .filter((entry): entry is string => entry !== undefined)

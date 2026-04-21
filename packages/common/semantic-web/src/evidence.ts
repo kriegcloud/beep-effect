@@ -51,8 +51,8 @@ export type EvidenceSelectorKind = typeof EvidenceSelectorKind.Type;
  * import { TextQuoteSelector } from "@beep/semantic-web/evidence"
  *
  * const selector = S.decodeUnknownSync(TextQuoteSelector)({
- *   kind: "text-quote",
- *   exact: "important finding",
+ *
+ *
  * })
  * console.log(selector.kind) // "text-quote"
  * ```
@@ -92,9 +92,9 @@ export class TextQuoteSelector extends S.Class<TextQuoteSelector>($I`TextQuoteSe
  * import { TextPositionSelector } from "@beep/semantic-web/evidence"
  *
  * const selector = S.decodeUnknownSync(TextPositionSelector)({
- *   kind: "text-position",
- *   start: 0,
- *   end: 42,
+ *
+ *
+ *
  * })
  * console.log(selector.start) // 0
  * ```
@@ -133,8 +133,8 @@ export class TextPositionSelector extends S.Class<TextPositionSelector>($I`TextP
  * import { FragmentSelector } from "@beep/semantic-web/evidence"
  *
  * const selector = S.decodeUnknownSync(FragmentSelector)({
- *   kind: "fragment",
- *   value: "section-1",
+ *
+ *
  * })
  * console.log(selector.value) // "section-1"
  * ```
@@ -171,8 +171,8 @@ export class FragmentSelector extends S.Class<FragmentSelector>($I`FragmentSelec
  * import { EvidenceSelector } from "@beep/semantic-web/evidence"
  *
  * const decoded = S.decodeUnknownSync(EvidenceSelector)({
- *   kind: "text-quote",
- *   exact: "sample text"
+ *
+ *
  * })
  * console.log(decoded.kind) // "text-quote"
  * ```

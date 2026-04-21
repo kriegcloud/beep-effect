@@ -1,5 +1,5 @@
 /**
  * @since 0.0.0
- * @module \@beep/shared-domain/services/authorization/matcher
+ * @module
  */
 void 0;

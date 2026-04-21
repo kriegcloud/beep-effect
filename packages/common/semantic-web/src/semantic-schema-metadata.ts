@@ -7,6 +7,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -210,12 +211,12 @@ const decodeSemanticSchemaMetadata = S.decodeUnknownSync(SemanticSchemaMetadata)
  * import { makeSemanticSchemaMetadata } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const metadata = makeSemanticSchemaMetadata({
- *   kind: "identifier",
- *   canonicalName: "MyId",
- *   overview: "A custom identifier.",
- *   status: "stable",
- *   specifications: [{ name: "Internal", disposition: "informative" }],
- *   equivalenceBasis: "String equality.",
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * console.log(metadata.kind) // "identifier"
  * ```
@@ -238,12 +239,12 @@ export const makeSemanticSchemaMetadata = (
  * import { annotateSemanticSchema } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const MySchema = annotateSemanticSchema(S.String, {
- *   kind: "identifier",
- *   canonicalName: "MyString",
- *   overview: "A semantic string.",
- *   status: "stable",
- *   specifications: [{ name: "Internal", disposition: "informative" }],
- *   equivalenceBasis: "String equality.",
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * void MySchema
  * ```
@@ -273,6 +274,23 @@ const findSemanticSchemaMetadata = (
   value: unknown,
   visited: WeakSet<object>
 ): SemanticSchemaMetadataAnnotationPayload | undefined => {
+  if (A.isArray(value)) {
+    if (visited.has(value)) {
+      return;
+    }
+
+    visited.add(value);
+
+    for (const nested of value) {
+      const metadata = findSemanticSchemaMetadata(nested, visited);
+      if (metadata !== undefined) {
+        return metadata;
+      }
+    }
+
+    return;
+  }
+
   if (!P.isObject(value)) {
     return;
   }

@@ -14,6 +14,7 @@ import * as R from "effect/Record";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import * as ts from "typescript";
+import { provideLayerScoped } from "../internal/runtime.ts";
 export interface ServiceDefinition {
   readonly line: number;
   readonly name: string;
@@ -178,16 +179,16 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
 
       let typeArgString: string | undefined;
 
-      if (typeArgs && typeArgs.length > 0) {
+      if (typeArgs.length > 0) {
         typeArgString = checker.typeToString(typeArgs[0]);
       } else if (typeString.startsWith("Id<")) {
         const match = O.getOrNull(Str.match(/^Id<(.+)>$/)(typeString));
-        if (match) {
+        if (match !== null) {
           typeArgString = match[1];
         }
       }
 
-      if (typeArgString) {
+      if (typeArgString !== undefined && Str.isNonEmpty(typeArgString)) {
         if (typeArgString.startsWith("typeof ")) {
           const typeofContent = Str.slice(7)(typeArgString);
           const parts = Str.split(".")(typeofContent);
@@ -202,7 +203,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
           }
         } else if (typeArgString.startsWith('"@')) {
           const match = O.getOrNull(Str.match(/^"@[^/]+\/([^"]+)"$/)(typeArgString));
-          if (match) {
+          if (match !== null) {
             const serviceName = match[1];
 
             if (
@@ -220,14 +221,14 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
 
     if (isTypeReference && typeRef.target !== undefined) {
       const typeArgs = checker.getTypeArguments(typeRef);
-      if (typeArgs && typeArgs.length > 0) {
+      if (typeArgs.length > 0) {
         for (const arg of typeArgs) {
           processType(arg);
         }
       }
     }
 
-    if (symbol) {
+    if (symbol !== undefined) {
       const name = symbol.getName();
       if (!isEffectInfrastructure(name) && !isExcludedFromGraph(name) && !deps.includes(name)) {
         deps.push(name);
@@ -240,7 +241,7 @@ const extractDepsFromType = (type: ts.Type, checker: ts.TypeChecker): ReadonlyAr
 };
 
 const extractErrorTypeNames = (errorType: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
-  if (errorType.flags & ts.TypeFlags.Never) {
+  if ((errorType.flags & ts.TypeFlags.Never) !== 0) {
     return A.empty();
   }
 
@@ -261,26 +262,26 @@ const extractLayerInfo = (program: ts.Program, filePath: string, layerName: stri
 
   let sourceFile = program.getSourceFile(filePath);
 
-  if (!sourceFile) {
+  if (sourceFile === undefined) {
     const allSourceFiles = program.getSourceFiles();
     sourceFile = allSourceFiles.find(
       (sf) => sf.fileName === filePath || sf.fileName.endsWith(filePath) || filePath.endsWith(sf.fileName)
     );
   }
 
-  if (!sourceFile) {
+  if (sourceFile === undefined) {
     return { dependencies: A.empty(), errorTypes: A.empty() };
   }
 
   const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
-  if (!moduleSymbol) {
+  if (moduleSymbol === undefined) {
     return { dependencies: A.empty(), errorTypes: A.empty() };
   }
 
   const exports = checker.getExportsOfModule(moduleSymbol);
   const layerExport = exports.find((s) => s.getName() === layerName);
 
-  if (!layerExport) {
+  if (layerExport === undefined) {
     return { dependencies: A.empty(), errorTypes: A.empty() };
   }
 
@@ -334,9 +335,10 @@ export const extractLayersFromContent = (
   const layerMatches = extractLayerMatches(content);
 
   return layerMatches.map((match) => {
-    const layerInfo = program
-      ? extractLayerInfo(program, filePath, match.name)
-      : { dependencies: A.empty(), errorTypes: A.empty() };
+    const layerInfo =
+      program === undefined
+        ? { dependencies: A.empty(), errorTypes: A.empty() }
+        : extractLayerInfo(program, filePath, match.name);
 
     return {
       name: match.name,
@@ -351,58 +353,57 @@ export const extractLayersFromContent = (
   });
 };
 
-export const findTypeScriptFiles = (srcPath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
+export const findTypeScriptFiles = Effect.fn("findTypeScriptFiles")(function* (srcPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
 
-    const resolvedPath = path.resolve(srcPath);
+  const resolvedPath = path.resolve(srcPath);
 
-    const srcExists = yield* pipe(
-      fs.exists(resolvedPath),
-      Effect.orElseSucceed(() => false)
-    );
+  const srcExists = yield* pipe(
+    fs.exists(resolvedPath),
+    Effect.orElseSucceed(() => false)
+  );
 
-    if (!srcExists) {
-      return A.empty();
-    }
+  if (!srcExists) {
+    return A.empty();
+  }
 
-    const scanDir: (
-      dir: string
-    ) => Effect.Effect<ReadonlyArray<string>, PlatformError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-      function* (dir) {
-        const entries = yield* pipe(
-          fs.readDirectory(dir),
-          Effect.catchTag("PlatformError", (error: PlatformError) =>
-            P.isTagged(error.reason, "NotFound") ? Effect.succeed(A.empty<string>()) : Effect.fail(error)
-          )
-        );
+  const scanDir: (
+    dir: string
+  ) => Effect.Effect<ReadonlyArray<string>, PlatformError, FileSystem.FileSystem | Path.Path> = Effect.fn(
+    function* (dir) {
+      const entries = yield* pipe(
+        fs.readDirectory(dir),
+        Effect.catchTag("PlatformError", (error: PlatformError) =>
+          P.isTagged(error.reason, "NotFound") ? Effect.succeed(A.empty<string>()) : Effect.fail(error)
+        )
+      );
 
-        const processEntry = Effect.fn(function* (entry: string) {
-          const fullPath = path.join(dir, entry);
-          const stat = yield* fs.stat(fullPath);
+      const processEntry = Effect.fn(function* (entry: string) {
+        const fullPath = path.join(dir, entry);
+        const stat = yield* fs.stat(fullPath);
 
-          if (stat.type === "Directory") {
-            if (entry !== "node_modules" && entry !== "__tests__") {
-              return yield* scanDir(fullPath);
-            }
-            return A.empty();
+        if (stat.type === "Directory") {
+          if (entry !== "node_modules" && entry !== "__tests__") {
+            return yield* scanDir(fullPath);
           }
-
-          if (Str.endsWith(".ts")(entry) && !Str.endsWith(".test.ts")(entry)) {
-            return [fullPath];
-          }
-
           return A.empty();
-        });
+        }
 
-        const results = yield* Effect.forEach(entries, processEntry);
-        return A.flatten(results);
-      }
-    );
+        if (Str.endsWith(".ts")(entry) && !Str.endsWith(".test.ts")(entry)) {
+          return [fullPath];
+        }
 
-    return yield* scanDir(resolvedPath);
-  });
+        return A.empty();
+      });
+
+      const results = yield* Effect.forEach(entries, processEntry);
+      return A.flatten(results);
+    }
+  );
+
+  return yield* scanDir(resolvedPath);
+});
 
 export const findServiceDefinitions: (
   files: ReadonlyArray<string>
@@ -460,7 +461,7 @@ export const buildAnalysisGraph = (arch: ArchitectureGraph): AnalysisGraph => {
 
     arch.services.forEach((service) => {
       const layer = O.getOrUndefined(HashMap.get(layerMap, service.name));
-      if (!layer) return;
+      if (layer === undefined) return;
 
       const sourceIndex = O.getOrUndefined(MutableHashMap.get(serviceIndex, service.name));
       if (sourceIndex === undefined) return;
@@ -952,13 +953,13 @@ const computeBetweennessCentrality = (analysisGraph: AnalysisGraph): MutableHash
 
       const distanceMap = result.distances.get(source);
       const pathMap = result.paths.get(source);
-      if (!distanceMap || !pathMap) continue;
+      if (distanceMap === undefined || pathMap === undefined) continue;
 
       const distance = distanceMap.get(target);
       if (distance === undefined || distance === Number.POSITIVE_INFINITY || distance <= 1) continue;
 
       const path = pathMap.get(target);
-      if (!path || path.length <= 2) continue;
+      if (path === undefined || path === null || path.length <= 2) continue;
 
       const intermediateNodes = path.slice(1, -1);
 
@@ -2250,5 +2251,5 @@ const cli = Command.run(analyzeArchitecture, {
 });
 
 if (import.meta.main) {
-  pipe(cli, Effect.provide(BunServices.layer), BunRuntime.runMain);
+  BunRuntime.runMain(Effect.scoped(provideLayerScoped(cli, BunServices.layer)));
 }

@@ -498,9 +498,9 @@ export const create: <A>(config: Config<A>) => Effect.Effect<Instance<A>, never,
  * import { ModuleName, Effect } from "effect"
  *
  * const program = Effect.gen(function*() {
- *   const instance = yield* ModuleName.create({ value: 42 })
- *   const transformed = yield* ModuleName.map(instance, x => x * 2)
- *   return transformed
+ * 
+ * 
+ * 
  * })
  * ```
  *

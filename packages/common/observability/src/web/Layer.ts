@@ -11,11 +11,11 @@ import { toWebResource, type WebObservabilityConfig } from "./Config.ts";
  * import { layerWebSdk } from "@beep/observability/web"
  *
  * const config = new WebObservabilityConfig({
- *   serviceName: "todox-web",
- *   serviceVersion: "0.1.0",
- *   environment: "development",
- *   minLogLevel: "Info",
- *   resourceAttributes: {},
+ *
+ *
+ *
+ *
+ *
  * })
  *
  * const layer = layerWebSdk(config)

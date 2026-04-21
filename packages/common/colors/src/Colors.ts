@@ -25,7 +25,7 @@
  * ```
  *
  * @since 0.0.0
- * @module \@beep/colors/Colors
+ * @module
  */
 
 import { $ColorsId } from "@beep/identity";
@@ -126,8 +126,8 @@ const formatter =
  * import { supportsColor } from "@beep/colors"
  *
  * const enabled = supportsColor({
- *   env: { TERM: "xterm-256color" },
- *   stdout: { isTTY: true },
+ *
+ *
  * })
  *
  * console.log(enabled) // true

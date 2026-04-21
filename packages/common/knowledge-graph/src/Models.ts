@@ -9,11 +9,11 @@
  * @example
  * ```typescript
  * import {
- *   GraphNodeEntityId,
- *   GraphEdgeEntityId,
- *   GraphNode,
- *   GraphEdge,
- *   Page,
+ *
+ *
+ *
+ *
+ *
  * } from "@beep/knowledge-graph/Models"
  *
  * // Entity IDs for table primary keys
@@ -27,7 +27,7 @@
  * void Page.jsonCreate
  * ```
  *
- * @module \@beep/knowledge-graph/Models
+ * @module
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";
@@ -143,8 +143,8 @@ export class GraphNode extends DomainModel.make<GraphNode>($I`GraphNodeModel`)(
     displayLabel: NonEmptyTrimmedStr,
     certainty: CertaintyTier,
     body: S.Record(S.String, S.Unknown),
-    tags: S.Array(NonEmptyTrimmedStr).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
-    aliases: S.Array(NonEmptyTrimmedStr).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    tags: NonEmptyTrimmedStr.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    aliases: NonEmptyTrimmedStr.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
     lastSequence: NonNegativeInt,
   },
   $I.annote("GraphNodeModel", {
@@ -217,9 +217,9 @@ export class Page extends DomainModel.make<Page>($I`PageModel`)(
     title: NonEmptyTrimmedStr,
     domain: KnowledgeDomain.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("general")),
     certainty: CertaintyTier.pipe(S.optionalKey, SchemaUtils.withKeyDefaults(CertaintyTier.make(1))),
-    tags: S.Array(NonEmptyTrimmedStr).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
-    aliases: S.Array(NonEmptyTrimmedStr).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
-    outboundLinks: S.Array(NonEmptyTrimmedStr).pipe(S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    tags: NonEmptyTrimmedStr.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    aliases: NonEmptyTrimmedStr.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
+    outboundLinks: NonEmptyTrimmedStr.pipe(S.Array, S.optionalKey, SchemaUtils.withKeyDefaults([])),
     excerpt: S.String.pipe(S.optionalKey, SchemaUtils.withKeyDefaults("")),
   },
   $I.annote("PageModel", {

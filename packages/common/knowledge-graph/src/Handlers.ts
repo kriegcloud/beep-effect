@@ -16,10 +16,9 @@
  * void graphHandlers
  * ```
  *
- * @module \@beep/knowledge-graph/Handlers
+ * @module
  * @since 0.0.0
  */
-import { $SharedDomainId } from "@beep/identity/packages";
 import { Effect } from "effect";
 import { pipe } from "effect/Function";
 import * as O from "effect/Option";
@@ -27,9 +26,6 @@ import { EventLog } from "effect/unstable/eventlog";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import type { Fragment } from "effect/unstable/sql/Statement";
 import { KnowledgeGraphEvents } from "./Events.ts";
-
-const $I = $SharedDomainId.create("knowledge-graph/Handlers");
-void $I;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -64,8 +60,9 @@ const serializeArray = (arr: ReadonlyArray<string>): string => JSON.stringify(ar
  */
 export const graphHandlers = EventLog.group(KnowledgeGraphEvents, (handlers) =>
   handlers
-    .handle("NodeCreated", ({ payload, entry, conflicts }) =>
-      Effect.gen(function* () {
+    .handle(
+      "NodeCreated",
+      Effect.fn(function* ({ payload, entry, conflicts }) {
         void conflicts;
         const sql = yield* SqlClient.SqlClient;
         const graphNodesTable = sql("graph_nodes");
@@ -93,10 +90,11 @@ export const graphHandlers = EventLog.group(KnowledgeGraphEvents, (handlers) =>
               ${entry.createdAtMillis}
             )
           `;
-      }).pipe(Effect.orDie)
+      }, Effect.orDie)
     )
-    .handle("NodeUpdated", ({ payload, entry, conflicts }) =>
-      Effect.gen(function* () {
+    .handle(
+      "NodeUpdated",
+      Effect.fn(function* ({ payload, entry, conflicts }) {
         void conflicts;
         const sql = yield* SqlClient.SqlClient;
         const graphNodesTable = sql("graph_nodes");
@@ -121,10 +119,11 @@ export const graphHandlers = EventLog.group(KnowledgeGraphEvents, (handlers) =>
             SET ${sql.csv(setClauses)}
             WHERE node_id = ${payload.nodeId}
           `;
-      }).pipe(Effect.orDie)
+      }, Effect.orDie)
     )
-    .handle("NodeRemoved", ({ payload, conflicts }) =>
-      Effect.gen(function* () {
+    .handle(
+      "NodeRemoved",
+      Effect.fn(function* ({ payload, conflicts }) {
         void conflicts;
         const sql = yield* SqlClient.SqlClient;
         const graphEdgesTable = sql("graph_edges");
@@ -132,7 +131,7 @@ export const graphHandlers = EventLog.group(KnowledgeGraphEvents, (handlers) =>
 
         yield* sql`DELETE FROM ${graphEdgesTable} WHERE source_node_id = ${payload.nodeId} OR target_node_id = ${payload.nodeId}`;
         yield* sql`DELETE FROM ${graphNodesTable} WHERE node_id = ${payload.nodeId}`;
-      }).pipe(Effect.orDie)
+      }, Effect.orDie)
     )
     .handle("EdgeCreated", ({ payload, entry, conflicts }) =>
       Effect.gen(function* () {

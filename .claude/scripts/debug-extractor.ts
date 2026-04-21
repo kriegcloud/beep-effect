@@ -1,11 +1,11 @@
 import { BunFileSystem, BunPath, BunRuntime } from "@effect/platform-bun";
-import { HashSet } from "effect";
+import { HashSet, Layer } from "effect";
 import * as A from "effect/Array";
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
-import { pipe } from "effect/Function";
 import * as ts from "typescript";
+import { provideLayerScoped } from "../internal/runtime.ts";
 
 const EFFECT_INFRASTRUCTURE = HashSet.fromIterable([
   "never",
@@ -44,7 +44,7 @@ const extractDepsFromType = (type: ts.Type, _checker: ts.TypeChecker): ReadonlyA
     }
 
     const symbol = t.getSymbol() ?? t.aliasSymbol;
-    if (symbol) {
+    if (symbol !== undefined) {
       const name = symbol.getName();
       if (!isEffectInfrastructure(name) && !isExcludedFromGraph(name) && !deps.includes(name)) {
         deps.push(name);
@@ -57,7 +57,7 @@ const extractDepsFromType = (type: ts.Type, _checker: ts.TypeChecker): ReadonlyA
 };
 
 const extractErrorTypeNames = (errorType: ts.Type, checker: ts.TypeChecker): ReadonlyArray<string> => {
-  if (errorType.flags & ts.TypeFlags.Never) {
+  if ((errorType.flags & ts.TypeFlags.Never) !== 0) {
     return [];
   }
 
@@ -68,117 +68,116 @@ const extractErrorTypeNames = (errorType: ts.Type, checker: ts.TypeChecker): Rea
   return [checker.typeToString(errorType)];
 };
 
-const debugLayerInfo = (filePath: string, layerName: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
+const debugLayerInfo = Effect.fn("debugLayerInfo")(function* (filePath: string, layerName: string) {
+  const fs = yield* FileSystem.FileSystem;
 
-    yield* Console.log(`\n=== Debugging ${layerName} in ${filePath} ===`);
+  yield* Console.log(`\n=== Debugging ${layerName} in ${filePath} ===`);
 
-    const content = yield* fs.readFileString(filePath);
+  const content = yield* fs.readFileString(filePath);
 
-    yield* Console.log(`File content length: ${content.length} bytes`);
+  yield* Console.log(`File content length: ${content.length} bytes`);
 
-    const compilerOptions: ts.CompilerOptions = {
-      target: ts.ScriptTarget.ES2022,
-      module: ts.ModuleKind.ESNext,
-      moduleResolution: ts.ModuleResolutionKind.Bundler,
-      strict: true,
-      esModuleInterop: true,
-      skipLibCheck: true,
-      noEmit: true,
-      lib: ["lib.es2022.d.ts", "lib.dom.d.ts"],
-      baseUrl: ".",
-      paths: {
-        "~/*": ["./src/*"],
-      },
-    };
+  const compilerOptions: ts.CompilerOptions = {
+    target: ts.ScriptTarget.ES2022,
+    module: ts.ModuleKind.ESNext,
+    moduleResolution: ts.ModuleResolutionKind.Bundler,
+    strict: true,
+    esModuleInterop: true,
+    skipLibCheck: true,
+    noEmit: true,
+    lib: ["lib.es2022.d.ts", "lib.dom.d.ts"],
+    baseUrl: ".",
+    paths: {
+      "~/*": ["./src/*"],
+    },
+  };
 
-    yield* Console.log(`Creating TypeScript program...`);
-    const program = ts.createProgram([filePath], compilerOptions);
-    const checker = program.getTypeChecker();
+  yield* Console.log(`Creating TypeScript program...`);
+  const program = ts.createProgram([filePath], compilerOptions);
+  const checker = program.getTypeChecker();
 
-    yield* Console.log(`Getting source file...`);
-    let sourceFile = program.getSourceFile(filePath);
+  yield* Console.log(`Getting source file...`);
+  let sourceFile = program.getSourceFile(filePath);
 
-    if (!sourceFile) {
-      yield* Console.log(`Source file not found by exact path, trying alternatives...`);
-      const allSourceFiles = program.getSourceFiles();
-      yield* Console.log(`Total source files in program: ${allSourceFiles.length}`);
+  if (sourceFile === undefined) {
+    yield* Console.log(`Source file not found by exact path, trying alternatives...`);
+    const allSourceFiles = program.getSourceFiles();
+    yield* Console.log(`Total source files in program: ${allSourceFiles.length}`);
 
-      sourceFile = allSourceFiles.find(
-        (sf) => sf.fileName === filePath || sf.fileName.endsWith(filePath) || filePath.endsWith(sf.fileName)
-      );
+    sourceFile = allSourceFiles.find(
+      (sf) => sf.fileName === filePath || sf.fileName.endsWith(filePath) || filePath.endsWith(sf.fileName)
+    );
 
-      if (sourceFile) {
-        yield* Console.log(`Found source file: ${sourceFile.fileName}`);
-      } else {
-        yield* Console.log(`ERROR: Could not find source file at all!`);
-        yield* Console.log(`First few source files:`);
-        for (const sf of allSourceFiles.slice(0, 10)) {
-          yield* Console.log(`  - ${sf.fileName}`);
-        }
-        return;
+    if (sourceFile !== undefined) {
+      yield* Console.log(`Found source file: ${sourceFile.fileName}`);
+    } else {
+      yield* Console.log(`ERROR: Could not find source file at all!`);
+      yield* Console.log(`First few source files:`);
+      for (const sf of allSourceFiles.slice(0, 10)) {
+        yield* Console.log(`  - ${sf.fileName}`);
       }
-    } else {
-      yield* Console.log(`Source file found: ${sourceFile.fileName}`);
-    }
-
-    yield* Console.log(`Getting module symbol...`);
-    const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
-    if (!moduleSymbol) {
-      yield* Console.log(`ERROR: No module symbol found!`);
       return;
     }
+  } else {
+    yield* Console.log(`Source file found: ${sourceFile.fileName}`);
+  }
 
-    yield* Console.log(`Getting exports...`);
-    const exports = checker.getExportsOfModule(moduleSymbol);
-    yield* Console.log(`Total exports: ${exports.length}`);
-    for (const exp of exports) {
-      yield* Console.log(`  - ${exp.getName()}`);
-    }
+  yield* Console.log(`Getting module symbol...`);
+  const moduleSymbol = checker.getSymbolAtLocation(sourceFile);
+  if (moduleSymbol === undefined) {
+    yield* Console.log(`ERROR: No module symbol found!`);
+    return;
+  }
 
-    yield* Console.log(`Looking for layer export: ${layerName}`);
-    const layerExport = exports.find((s) => s.getName() === layerName);
+  yield* Console.log(`Getting exports...`);
+  const exports = checker.getExportsOfModule(moduleSymbol);
+  yield* Console.log(`Total exports: ${exports.length}`);
+  for (const exp of exports) {
+    yield* Console.log(`  - ${exp.getName()}`);
+  }
 
-    if (!layerExport) {
-      yield* Console.log(`ERROR: Layer export "${layerName}" not found!`);
-      return;
-    }
+  yield* Console.log(`Looking for layer export: ${layerName}`);
+  const layerExport = exports.find((s) => s.getName() === layerName);
 
-    yield* Console.log(`Getting type of layer...`);
-    const type = checker.getTypeOfSymbol(layerExport);
-    const typeString = checker.typeToString(type);
-    yield* Console.log(`Type string: ${typeString}`);
+  if (layerExport === undefined) {
+    yield* Console.log(`ERROR: Layer export "${layerName}" not found!`);
+    return;
+  }
 
-    if (!typeString.startsWith("Layer<")) {
-      yield* Console.log(`ERROR: Type doesn't start with "Layer<"`);
-      return;
-    }
+  yield* Console.log(`Getting type of layer...`);
+  const type = checker.getTypeOfSymbol(layerExport);
+  const typeString = checker.typeToString(type);
+  yield* Console.log(`Type string: ${typeString}`);
 
-    yield* Console.log(`Casting to TypeReference...`);
-    const typeRef = type as ts.TypeReference;
+  if (!typeString.startsWith("Layer<")) {
+    yield* Console.log(`ERROR: Type doesn't start with "Layer<"`);
+    return;
+  }
 
-    yield* Console.log(`Getting type arguments...`);
-    const typeArgs = checker.getTypeArguments(typeRef);
-    yield* Console.log(`Type args count: ${typeArgs.length}`);
+  yield* Console.log(`Casting to TypeReference...`);
+  const typeRef = type as ts.TypeReference;
 
-    if (typeArgs.length >= 3) {
-      yield* Console.log(`\nType argument 0 (Service):`);
-      yield* Console.log(`  ${checker.typeToString(typeArgs[0])}`);
+  yield* Console.log(`Getting type arguments...`);
+  const typeArgs = checker.getTypeArguments(typeRef);
+  yield* Console.log(`Type args count: ${typeArgs.length}`);
 
-      yield* Console.log(`\nType argument 1 (Error):`);
-      yield* Console.log(`  ${checker.typeToString(typeArgs[1])}`);
-      const errorTypes = extractErrorTypeNames(typeArgs[1], checker);
-      yield* Console.log(`  Extracted errors: ${errorTypes.join(", ")}`);
+  if (typeArgs.length >= 3) {
+    yield* Console.log(`\nType argument 0 (Service):`);
+    yield* Console.log(`  ${checker.typeToString(typeArgs[0])}`);
 
-      yield* Console.log(`\nType argument 2 (Requirements):`);
-      yield* Console.log(`  ${checker.typeToString(typeArgs[2])}`);
-      const deps = extractDepsFromType(typeArgs[2], checker);
-      yield* Console.log(`  Extracted deps: ${deps.join(", ")}`);
-    } else {
-      yield* Console.log(`ERROR: Expected at least 3 type arguments, got ${typeArgs.length}`);
-    }
-  });
+    yield* Console.log(`\nType argument 1 (Error):`);
+    yield* Console.log(`  ${checker.typeToString(typeArgs[1])}`);
+    const errorTypes = extractErrorTypeNames(typeArgs[1], checker);
+    yield* Console.log(`  Extracted errors: ${errorTypes.join(", ")}`);
+
+    yield* Console.log(`\nType argument 2 (Requirements):`);
+    yield* Console.log(`  ${checker.typeToString(typeArgs[2])}`);
+    const deps = extractDepsFromType(typeArgs[2], checker);
+    yield* Console.log(`  Extracted deps: ${deps.join(", ")}`);
+  } else {
+    yield* Console.log(`ERROR: Expected at least 3 type arguments, got ${typeArgs.length}`);
+  }
+});
 
 const main = Effect.gen(function* () {
   const args = process.argv.slice(2);
@@ -193,4 +192,4 @@ const main = Effect.gen(function* () {
   yield* debugLayerInfo(filePath, layerName);
 });
 
-pipe(main, Effect.provide([BunFileSystem.layer, BunPath.layer]), BunRuntime.runMain);
+BunRuntime.runMain(Effect.scoped(provideLayerScoped(main, Layer.mergeAll(BunFileSystem.layer, BunPath.layer))));

@@ -101,20 +101,25 @@ export function TodoItem({
   className,
 }: TodoItemProps) {
   const priorityStyle = priorityConfig[priority];
-  const dueDateTime = dueDate ? toUtcDateTime(dueDate) : undefined;
+  const hasDescription = description !== undefined && description.length > 0;
+  const hasDueDate = dueDate !== undefined;
+  const hasProject = project !== undefined;
+  const hasLabels = labels.length > 0;
+  const hasSubtasks = subtasks.length > 0;
+  const dueDateTime = hasDueDate ? toUtcDateTime(dueDate) : undefined;
   const now = DateTime.nowUnsafe();
 
-  const isOverdue = dueDateTime
-    ? DateTime.toEpochMillis(dueDateTime) < DateTime.toEpochMillis(now) && !completed
-    : false;
+  const isOverdue =
+    dueDateTime !== undefined ? DateTime.toEpochMillis(dueDateTime) < DateTime.toEpochMillis(now) && !completed : false;
   const isToday =
-    dueDateTime &&
+    dueDateTime !== undefined &&
     !completed &&
     (() => {
       const parsed = DateTime.toPartsUtc(dueDateTime);
       const nowParts = DateTime.toPartsUtc(now);
       return parsed.year === nowParts.year && parsed.month === nowParts.month && parsed.day === nowParts.day;
     })();
+  const hasMetadata = priority !== "none" || hasDueDate || hasLabels || hasProject || hasSubtasks;
 
   const completedSubtasks = subtasks.filter((subtask) => subtask.completed).length;
 
@@ -164,12 +169,12 @@ export function TodoItem({
             >
               {title}
             </h4>
-            {description && <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">{description}</p>}
+            {hasDescription && <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-500">{description}</p>}
           </div>
 
-          {(priority !== "none" || dueDate || labels.length > 0 || project || subtasks.length > 0) && (
+          {hasMetadata && (
             <div className="mt-2 flex flex-wrap items-center gap-1">
-              {dueDate && (
+              {hasDueDate && (
                 <span
                   className={cn(
                     "inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs",
@@ -185,10 +190,10 @@ export function TodoItem({
                 </span>
               )}
 
-              {project && (
+              {project !== undefined && (
                 <span
                   className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                  style={project.color ? { color: project.color } : undefined}
+                  style={project.color !== undefined && project.color.length > 0 ? { color: project.color } : undefined}
                 >
                   <InfoIcon size={12} />
                   {project.name}
@@ -199,7 +204,7 @@ export function TodoItem({
                 <span
                   key={label.id}
                   className="inline-flex items-center gap-1 rounded-md bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                  style={label.color ? { color: label.color } : undefined}
+                  style={label.color !== undefined && label.color.length > 0 ? { color: label.color } : undefined}
                 >
                   <InfoIcon size={12} />
                   {label.name}

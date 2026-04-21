@@ -2,7 +2,7 @@
  * Schema for the `X-XSS-Protection` header.
  *
  * @since 0.0.0
- * @module \@beep/schema/http/headers/XSSProtection
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaIssue, SchemaTransformation } from "effect";

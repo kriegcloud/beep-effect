@@ -18,7 +18,7 @@
  * console.log(summary.primaryMessage) // "boom"
  * ```
  *
- * @module \@beep/observability/CauseDiagnostics
+ * @module
  * @since 0.0.0
  */
 import { $ObservabilityId } from "@beep/identity/packages";

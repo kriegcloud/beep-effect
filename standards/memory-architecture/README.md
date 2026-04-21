@@ -40,8 +40,8 @@ The provenance and verification layers in TrustGraph provide the "external symbo
 |---|---|
 | `standards/effect-first-development.md` | Effect patterns govern all memory service implementation |
 | `standards/effect-laws-v1.md` | Effect laws constrain all memory service code |
-| `specs/pending/expert-memory-big-picture/` | The broader vision this standard makes actionable |
-| `specs/pending/repo-expert-memory-local-first-v0/` | The first concrete deliverable under this standard |
+| `initiatives/expert-memory-big-picture/` | The broader vision this standard makes actionable |
+| `initiatives/repo-expert-memory-local-first-v0/` | The first concrete deliverable under this standard |
 
 ## Anti-Goals
 

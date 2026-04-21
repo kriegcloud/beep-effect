@@ -7,6 +7,7 @@
 
 import { Effect, flow, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -86,6 +87,7 @@ const makeDocumentError = (
   });
 
 type ContextOption = O.Option<JsonLdContext>;
+type ReferenceObjectTerm = Extract<ObjectTerm, { readonly termType: "NamedNode" | "BlankNode" }>;
 
 const expandCompactIdentifier = (context: ContextOption, value: string): string => {
   if (
@@ -163,6 +165,26 @@ const compactIdentifier = (context: ContextOption, iri: string): string => {
 
   return iri;
 };
+
+const isReferenceObjectTerm = (object: ObjectTerm): object is ReferenceObjectTerm =>
+  object.termType === "NamedNode" || object.termType === "BlankNode";
+
+const referenceValueFromObject: {
+  (object: ObjectTerm, context: ContextOption): O.Option<JsonLdReferenceValue>;
+  (context: ContextOption): (object: ObjectTerm) => O.Option<JsonLdReferenceValue>;
+} = dual(
+  2,
+  (object: ObjectTerm, context: ContextOption): O.Option<JsonLdReferenceValue> =>
+    pipe(
+      object,
+      O.liftPredicate(isReferenceObjectTerm),
+      O.map((referenceObject) =>
+        JsonLdReferenceValue.make({
+          "@id": decodeJsonLdNodeIdentifier(compactIdentifier(context, identifierFromObject(referenceObject))),
+        })
+      )
+    )
+);
 
 const resolveIdentifier = (value: string, base: O.Option<string>): string => {
   if (pipe(value, Str.startsWith("_:")) || schemePrefix.test(value)) {
@@ -689,41 +711,19 @@ export const JsonLdDocumentServiceLive = Layer.succeed(
 
         const propertyKey = compactIdentifier(request.context, quad.predicate.value);
 
-        if (quad.object.termType === "NamedNode") {
-          nodes = R.set(
-            nodes,
-            subjectIdentifier,
-            appendMutableNodePropertyValue(
-              node,
-              propertyKey,
-              JsonLdReferenceValue.make({
-                "@id": decodeJsonLdNodeIdentifier(
-                  compactIdentifier(request.context, identifierFromObject(quad.object))
-                ),
-              })
+        nodes = R.set(
+          nodes,
+          subjectIdentifier,
+          appendMutableNodePropertyValue(
+            node,
+            propertyKey,
+            pipe(
+              quad.object,
+              referenceValueFromObject(request.context),
+              O.getOrElse(() => literalValueFromRdf(quad, request.context))
             )
-          );
-        } else if (quad.object.termType === "BlankNode") {
-          nodes = R.set(
-            nodes,
-            subjectIdentifier,
-            appendMutableNodePropertyValue(
-              node,
-              propertyKey,
-              JsonLdReferenceValue.make({
-                "@id": decodeJsonLdNodeIdentifier(
-                  compactIdentifier(request.context, identifierFromObject(quad.object))
-                ),
-              })
-            )
-          );
-        } else {
-          nodes = R.set(
-            nodes,
-            subjectIdentifier,
-            appendMutableNodePropertyValue(node, propertyKey, literalValueFromRdf(quad, request.context))
-          );
-        }
+          )
+        );
       }
 
       const graph = pipe(

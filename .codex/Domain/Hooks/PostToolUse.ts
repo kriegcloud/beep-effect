@@ -6,7 +6,7 @@
  * @see {@link https://github.com/openai/codex/blob/main/codex-rs/hooks/schema/generated/post-tool-use.command.input.schema.json | PostToolUse Command Input JSON Schema}
  * @see {@link https://github.com/openai/codex/blob/main/codex-rs/hooks/schema/generated/post-tool-use.command.output.schema.json | PostToolUse Command Output JSON Schema}
  *
- * @module @beep/codex/Domain/Hooks/PostToolUse
+ * @module
  * @since 0.0.0
  */
 import { $CodexId } from "@beep/identity";

@@ -8,22 +8,24 @@
  *
  * @example
  * ```typescript
- * import { KnowledgeGraph, makeKnowledgeGraph } from "@beep/knowledge-graph/KnowledgeGraph"
+ * import { Effect } from "effect"
+ * import { KnowledgeGraph } from "@beep/knowledge-graph/KnowledgeGraph"
  *
  * // Obtain the service from the context
  * const program = Effect.gen(function* () {
- *   const graph = yield* KnowledgeGraph
- *   const nodes = yield* graph.queryNodes({ kind: "page" })
- *   console.log(nodes)
+ *
+ *
+ *
  * })
  * ```
  *
- * @module \@beep/knowledge-graph/KnowledgeGraph
+ * @module
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity/packages";
 import type { NonEmptyTrimmedStr } from "@beep/schema";
 import { Context, Effect, Stream } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
@@ -69,8 +71,8 @@ const $I = $SharedDomainId.create("knowledge-graph/KnowledgeGraph");
  * @since 0.0.0
  */
 export class NodeFilter extends S.Class<NodeFilter>($I`NodeFilter`)({
-  domain: S.optional(KnowledgeDomain),
-  kind: S.optional(KnowledgeNodeKind),
+  domain: S.optionalKey(KnowledgeDomain),
+  kind: S.optionalKey(KnowledgeNodeKind),
 }) {}
 
 /**
@@ -80,16 +82,16 @@ export class NodeFilter extends S.Class<NodeFilter>($I`NodeFilter`)({
  * ```typescript
  * import { EdgeFilter } from "@beep/knowledge-graph/KnowledgeGraph"
  *
- * const filter = new EdgeFilter({ kind: "references" })
+ * const filter = new EdgeFilter({ kind: "wiki_link" })
  * ```
  *
  * @category models
  * @since 0.0.0
  */
 export class EdgeFilter extends S.Class<EdgeFilter>($I`EdgeFilter`)({
-  kind: S.optional(KnowledgeEdgeKind),
-  sourceNodeId: S.optional(KnowledgeNodeId),
-  targetNodeId: S.optional(KnowledgeNodeId),
+  kind: S.optionalKey(KnowledgeEdgeKind),
+  sourceNodeId: S.optionalKey(KnowledgeNodeId),
+  targetNodeId: S.optionalKey(KnowledgeNodeId),
 }) {}
 
 // ---------------------------------------------------------------------------
@@ -152,19 +154,23 @@ type KnowledgeGraphShape = {
  * @example
  * ```typescript
  * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { NodeCreatedPayload } from "@beep/knowledge-graph/Events"
  * import { KnowledgeGraph } from "@beep/knowledge-graph/KnowledgeGraph"
+ * import { NodeMetadata } from "@beep/knowledge-graph/Schemas"
  *
  * const program = Effect.gen(function* () {
- *   const graph = yield* KnowledgeGraph
- *   yield* graph.addNode(
- *     new NodeCreatedPayload({
- *       nodeId: "beep:page/my-page",
- *       kind: "page",
- *       displayLabel: "My Page",
- *       content: null,
- *       metadata: new NodeMetadata({ source: "vault-parser" }),
- *     })
- *   )
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -180,9 +186,10 @@ export class KnowledgeGraph extends Context.Service<KnowledgeGraph, KnowledgeGra
 /**
  * Build a live {@link KnowledgeGraph} service from the environment.
  *
- * Requires {@link EventLog}, {@link EventJournal.EventJournal}, and
- * {@link SqlClient.SqlClient} in the context. The caller is responsible for
- * composing these into a {@link Layer} — see the separate `Layer.ts` module.
+ * Requires {@link EventLog}, {@link EventJournal}, and
+ * {@link SqlClient} in the context. The caller is responsible for
+ * composing these into a {@link Layer.Layer} — see the separate `Layer.ts`
+ * module.
  *
  * @category constructors
  * @since 0.0.0
@@ -220,7 +227,7 @@ export const makeKnowledgeGraph = Effect.gen(function* () {
   );
 
   const queryNodes: KnowledgeGraphShape["queryNodes"] = Effect.fn("KnowledgeGraph.queryNodes")((filter) => {
-    const conditions: Array<Fragment> = [];
+    const conditions = A.empty<Fragment>();
     if (filter?.kind !== undefined) conditions.push(sql`kind = ${filter.kind}`);
     if (filter?.domain !== undefined) conditions.push(sql`domain = ${filter.domain}`);
 

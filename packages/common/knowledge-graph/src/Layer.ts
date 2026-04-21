@@ -4,11 +4,11 @@
  * Exports:
  *
  * - {@link KnowledgeGraphEventLogLayer} -- EventLog layer with handlers,
- *   reactivity, and compaction. Requires `EventJournal` and
- *   `EventLog.Identity` from the caller.
+ *
+ *
  * - {@link KnowledgeGraphLive} -- Full layer providing the
- *   {@link KnowledgeGraph} facade service. Requires `EventJournal`,
- *   `EventLog.Identity`, and `SqlClient` from the caller.
+ *
+ *
  *
  * The consumer is responsible for providing the SQL driver and journal
  * storage -- this module never binds to a specific database.
@@ -20,19 +20,15 @@
  * void KnowledgeGraphLive
  * ```
  *
- * @module \@beep/knowledge-graph/Layer
+ * @module
  * @since 0.0.0
  */
-import { $SharedDomainId } from "@beep/identity/packages";
 import { Layer } from "effect";
 import { EventLog } from "effect/unstable/eventlog";
 
 import { KnowledgeGraphCompaction, KnowledgeGraphReactivity, KnowledgeGraphSchema } from "./Events.ts";
 import { graphHandlers } from "./Handlers.ts";
 import { KnowledgeGraph, makeKnowledgeGraph } from "./KnowledgeGraph.ts";
-
-const $I = $SharedDomainId.create("knowledge-graph/Layer");
-void $I;
 
 // ---------------------------------------------------------------------------
 // Event log layer (handlers + reactivity + compaction)
@@ -50,7 +46,7 @@ const graphLayers = Layer.mergeAll(graphHandlers, KnowledgeGraphReactivity, Know
 /**
  * EventLog layer scoped to the knowledge graph schema.
  *
- * Provides {@link EventLog.EventLog} and {@link EventLog.Registry} with
+ * Provides {@link EventLog} and {@link EventLog.Registry} with
  * all knowledge graph handlers registered. The caller must supply
  * `EventJournal` and `EventLog.Identity` in the environment.
  *

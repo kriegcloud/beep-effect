@@ -18,7 +18,7 @@
  * console.log(isBinaryContent(new Uint8Array([0, 159, 146, 150]))); // true
  * ```
  *
- * @module \@beep/schema/BinaryFileExtension
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";

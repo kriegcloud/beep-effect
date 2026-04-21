@@ -1,7 +1,7 @@
 /**
  * A module containing a schema utility which provides a default value
  *
- * @module \@beep/schema/SchemaUtils/withEncodeDefault
+ * @module
  * @since 0.0.0
  */
 import { Effect, pipe, SchemaGetter } from "effect";

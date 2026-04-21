@@ -2,7 +2,7 @@
  * Schema-backed mapped literal toolkit helpers for reversible literal pairs.
  *
  * @since 0.0.0
- * @module \@beep/schema/MappedLiteralKit
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity/packages";
@@ -262,8 +262,8 @@ const makeDirectionalKit = <
  * import * as S from "effect/Schema";
  *
  * const SqlState = MappedLiteralKit([
- *   ["SUCCESSFUL_COMPLETION", "00000"],
- *   ["WARNING", "01000"],
+ *
+ *
  * ] as const);
  *
  * S.decodeSync(SqlState)("SUCCESSFUL_COMPLETION"); // "00000"
@@ -315,8 +315,8 @@ export interface MappedLiteralKit<M extends MappedPairs> extends MappedLiteralKi
  * import { MappedLiteralKit } from "@beep/schema/MappedLiteralKit"
  *
  * const HttpStatus = MappedLiteralKit([
- *   ["OK", "200"],
- *   ["NOT_FOUND", "404"],
+ *
+ *
  * ] as const)
  *
  * S.decodeSync(HttpStatus)("OK")       // "200"

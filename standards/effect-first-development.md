@@ -72,6 +72,8 @@ const requireEnv = (key: string) =>
 - Inside domain code, avoid `| null` and `| undefined`.
 - Convert nullable values at boundaries via `O.fromNullishOr`.
 - Consume via `O.map`, `O.flatMap`, `O.match`, `O.getOrElse`.
+- For `Option`-valued object fields, use `R.getSomes({...})` when `None` should omit keys, `O.all({...})` when the whole object is all-or-nothing, and `S.OptionFrom*` when optionality/nullability belongs at the schema boundary.
+- Avoid `O.match(...)` with `onNone: () => ({})`; for a single `Option` becoming an object, prefer `O.map(...)` plus `O.getOrElse(() => ({}))`.
 
 Example:
 

@@ -7,22 +7,22 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
-import { Config, Effect, SchemaTransformation } from "effect";
+import { Config, Effect, SchemaGetter } from "effect";
 import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyConfig");
 
 const makeDefaultedStringField = (name: string, fallback: string, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.String,
-      SchemaTransformation.transform({
-        decode: (value) => O.getOrElse(O.fromUndefinedOr(value), () => fallback),
-        encode: (value) => value,
-      })
-    ),
+    S.decodeTo(S.String, {
+      decode: SchemaGetter.transform((value: string | undefined) =>
+        O.getOrElse(O.fromUndefinedOr(value), () => fallback)
+      ),
+      encode: SchemaGetter.transform((value: string) => value),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(fallback)),
     S.annotate($I.annote(name, { description }))
@@ -30,17 +30,14 @@ const makeDefaultedStringField = (name: string, fallback: string, description: s
 
 const makeDefaultedPositiveIntField = (name: string, fallback: number, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.Number,
-      SchemaTransformation.transform({
-        decode: (value) => {
-          const normalized = O.getOrElse(O.fromUndefinedOr(value), () => `${fallback}`);
-          const parsed = globalThis.Number(normalized);
-          return globalThis.Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
-        },
-        encode: (value) => `${value}`,
-      })
-    ),
+    S.decodeTo(S.Number, {
+      decode: SchemaGetter.transform((value: string | undefined) => {
+        const normalized = O.getOrElse(O.fromUndefinedOr(value), () => `${fallback}`);
+        const parsed = globalThis.Number(normalized);
+        return globalThis.Number.isInteger(parsed) && parsed > 0 ? parsed : fallback;
+      }),
+      encode: SchemaGetter.transform((value: number) => `${value}`),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(`${fallback}`)),
     S.annotate($I.annote(name, { description }))
@@ -48,18 +45,17 @@ const makeDefaultedPositiveIntField = (name: string, fallback: number, descripti
 
 const makeDefaultedBooleanField = (name: string, fallback: boolean, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.Boolean,
-      SchemaTransformation.transform({
-        decode: (value) => {
-          const raw = O.getOrElse(O.fromUndefinedOr(value), () =>
-            Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })
-          );
-          return O.getOrElse(S.decodeUnknownOption(NormalizedBooleanString)(raw), () => fallback);
-        },
-        encode: (value) => Bool.match(value, { onTrue: () => "true", onFalse: () => "false" }),
-      })
-    ),
+    S.decodeTo(S.Boolean, {
+      decode: SchemaGetter.transform((value: string | undefined) => {
+        const raw = O.getOrElse(O.fromUndefinedOr(value), () =>
+          Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })
+        );
+        return O.getOrElse(S.decodeUnknownOption(NormalizedBooleanString)(raw), () => fallback);
+      }),
+      encode: SchemaGetter.transform((value: boolean) =>
+        Bool.match(value, { onTrue: () => "true", onFalse: () => "false" })
+      ),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" }))),
     S.annotate($I.annote(name, { description }))
@@ -67,16 +63,13 @@ const makeDefaultedBooleanField = (name: string, fallback: boolean, description:
 
 const makeDefaultedUrlField = (name: string, fallback: string, description: string) =>
   S.UndefinedOr(S.String).pipe(
-    S.decodeTo(
-      S.String,
-      SchemaTransformation.transform({
-        decode: (value) => {
-          const candidate = O.getOrElse(O.fromUndefinedOr(value), () => fallback);
-          return URL.canParse(candidate) ? new URL(candidate).href : fallback;
-        },
-        encode: (value) => value,
-      })
-    ),
+    S.decodeTo(S.String, {
+      decode: SchemaGetter.transform((value: string | undefined) => {
+        const candidate = O.getOrElse(O.fromUndefinedOr(value), () => fallback);
+        return URL.canParse(candidate) ? new URL(candidate).href : fallback;
+      }),
+      encode: SchemaGetter.transform((value: string) => value),
+    }),
     S.withConstructorDefault(Effect.succeed(fallback)),
     S.withDecodingDefault(Effect.succeed(fallback)),
     S.annotate($I.annote(name, { description }))
@@ -84,18 +77,18 @@ const makeDefaultedUrlField = (name: string, fallback: string, description: stri
 
 class GraphitiProxyConfigInput extends S.Class<GraphitiProxyConfigInput>($I`GraphitiProxyConfigInput`)(
   {
-    listenHost: S.optional(S.String),
-    listenPort: S.optional(S.String),
-    concurrency: S.optional(S.String),
-    maxQueue: S.optional(S.String),
-    requestTimeoutMs: S.optional(S.String),
-    shutdownDrainTimeoutMs: S.optional(S.String),
-    verbose: S.optional(S.String),
-    dependencyHealthEnabled: S.optional(S.String),
-    dependencyHealthTtlMs: S.optional(S.String),
-    falkorContainer: S.optional(S.String),
-    graphitiContainer: S.optional(S.String),
-    upstream: S.optional(S.String),
+    listenHost: S.optionalKey(S.String),
+    listenPort: S.optionalKey(S.String),
+    concurrency: S.optionalKey(S.String),
+    maxQueue: S.optionalKey(S.String),
+    requestTimeoutMs: S.optionalKey(S.String),
+    shutdownDrainTimeoutMs: S.optionalKey(S.String),
+    verbose: S.optionalKey(S.String),
+    dependencyHealthEnabled: S.optionalKey(S.String),
+    dependencyHealthTtlMs: S.optionalKey(S.String),
+    falkorContainer: S.optionalKey(S.String),
+    graphitiContainer: S.optionalKey(S.String),
+    upstream: S.optionalKey(S.String),
   },
   $I.annote("GraphitiProxyConfigInput", {
     description: "Raw optional environment values before GraphitiProxyConfig decoding defaults are applied.",
@@ -184,7 +177,7 @@ export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxy
   "GraphitiProxyConfigLoadError",
   {
     message: S.String,
-    cause: S.optional(S.Defect),
+    cause: S.optionalKey(S.Defect),
   },
   $I.annote("GraphitiProxyConfigLoadError", {
     description: "Raised when graphiti proxy config cannot be decoded from Effect Config values.",
@@ -213,20 +206,22 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
   const graphitiContainer = yield* Config.option(Config.string("GRAPHITI_PROXY_GRAPHITI_CONTAINER"));
   const upstream = yield* Config.option(Config.string("GRAPHITI_PROXY_UPSTREAM"));
 
-  const raw = new GraphitiProxyConfigInput({
-    listenHost: O.getOrUndefined(listenHost),
-    listenPort: O.getOrUndefined(listenPort),
-    concurrency: O.getOrUndefined(concurrency),
-    maxQueue: O.getOrUndefined(maxQueue),
-    requestTimeoutMs: O.getOrUndefined(requestTimeoutMs),
-    shutdownDrainTimeoutMs: O.getOrUndefined(shutdownDrainTimeoutMs),
-    verbose: O.getOrUndefined(verbose),
-    dependencyHealthEnabled: O.getOrUndefined(dependencyHealthEnabled),
-    dependencyHealthTtlMs: O.getOrUndefined(dependencyHealthTtlMs),
-    falkorContainer: O.getOrUndefined(falkorContainer),
-    graphitiContainer: O.getOrUndefined(graphitiContainer),
-    upstream: O.getOrUndefined(upstream),
-  });
+  const raw = new GraphitiProxyConfigInput(
+    R.getSomes({
+      listenHost,
+      listenPort,
+      concurrency,
+      maxQueue,
+      requestTimeoutMs,
+      shutdownDrainTimeoutMs,
+      verbose,
+      dependencyHealthEnabled,
+      dependencyHealthTtlMs,
+      falkorContainer,
+      graphitiContainer,
+      upstream,
+    })
+  );
 
   return yield* Effect.try({
     try: () => decodeGraphitiProxyConfig(raw),

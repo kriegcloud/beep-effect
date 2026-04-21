@@ -2,7 +2,7 @@
  * Wink BM25 vectorizer service and related domain models.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Wink/WinkVectorizer
+ * @module
  */
 
 import { createRequire } from "node:module";

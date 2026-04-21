@@ -47,9 +47,9 @@ export class DevToolsSnapshot extends S.Class<DevToolsSnapshot>($I`DevToolsSnaps
  * import { DevToolsRelayService } from "@beep/observability/experimental/server"
  *
  * const program = Effect.gen(function* () {
- *   const relay = yield* DevToolsRelayService
- *   const snapshot = yield* relay.snapshot
- *   void snapshot
+ *
+ *
+ *
  * })
  *
  * void program

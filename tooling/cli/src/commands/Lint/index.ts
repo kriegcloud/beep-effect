@@ -248,16 +248,14 @@ const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(fu
   return A.sort(roots, Order.String);
 });
 
-const recoverLintFileDiscovery =
-  <A>(checkName: string, fallback: A) =>
-  (error: LintFileDiscoveryError): Effect.Effect<A, never, never> =>
-    Effect.gen(function* () {
-      process.exitCode = 2;
-      yield* Console.error(`[${checkName}] ${error.message}`);
-      return fallback;
-    });
+const recoverLintFileDiscovery = <A>(checkName: string, fallback: A) =>
+  Effect.fn(function* (error: LintFileDiscoveryError): Effect.fn.Return<A, never, never> {
+    process.exitCode = 2;
+    yield* Console.error(`[${checkName}] ${error.message}`);
+    return fallback;
+  });
 
-const runLintToolingTaggedErrors = Effect.fn(function* () {
+const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const sourceRoots = yield* collectToolingSourceRoots().pipe(
     Effect.catchTag(
@@ -314,7 +312,7 @@ const runLintToolingTaggedErrors = Effect.fn(function* () {
   yield* Console.log("[check-tooling-tagged-errors] OK: no native Error usage found in tooling/*/src.");
 });
 
-const runLintToolingSchemaFirst = Effect.fn(function* () {
+const runLintToolingSchemaFirst = Effect.fn("runLintToolingSchemaFirst")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const filesByRoot = yield* Effect.forEach(RUNTIME_SCHEMA_FIRST_ROOTS, collectTypeScriptFiles, {
@@ -498,7 +496,7 @@ const runLintToolingSchemaFirst = Effect.fn(function* () {
   yield* Console.log("[check-tooling-schema-first] OK: tooling/cli schema-first checks passed.");
 });
 
-const runLintCircular = Effect.fn(function* () {
+const runLintCircular = Effect.fn("runLintCircular")(function* () {
   const fs = yield* FileSystem.FileSystem;
   const dirs = ["tooling/cli/src", "tooling/repo-utils/src"];
   let hasCircular = false;

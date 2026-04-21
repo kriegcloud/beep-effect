@@ -2,7 +2,7 @@
  * Effect-first migration entrypoint for the Bun SQLite Drizzle adapter.
  *
  * @since 0.0.0
- * @module \@beep/shared-server/factories/effect-drizzle/migrator
+ * @module
  */
 
 import { migrate as migrateBun } from "drizzle-orm/bun-sqlite/migrator";

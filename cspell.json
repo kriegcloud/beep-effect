@@ -71,6 +71,7 @@
     ".beep/**",
     ".aiassistant/**",
     "scratchpad/**",
+    "initiatives/**",
     ".turbo",
     "*.tsbuildinfo",
     ".agents",

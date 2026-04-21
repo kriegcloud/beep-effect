@@ -40,13 +40,24 @@ const testGlob = (filePath: string, glob: string): boolean => {
 };
 
 const matches = (input: TestClaude.HookInput, p: PatternDefinition): boolean => {
-  const filePath = pipe(getFilePath(input.tool_input as Record<string, unknown>), O.getOrUndefined);
+  const filePath = getFilePath(input.tool_input as Record<string, unknown>);
   const content = getMatchableContent(input.tool_input as Record<string, unknown>);
+  const glob = p.glob;
+  const globMatches =
+    glob === undefined || glob === ""
+      ? true
+      : pipe(
+          filePath,
+          O.match({
+            onNone: () => true,
+            onSome: (value) => testGlob(value, glob),
+          })
+        );
 
   return (
     p.event === input.hook_event_name &&
     testRegex(input.tool_name, p.tool) &&
-    (!p.glob || !filePath || testGlob(filePath, p.glob)) &&
+    globMatches &&
     testRegex(content, p.pattern)
   );
 };

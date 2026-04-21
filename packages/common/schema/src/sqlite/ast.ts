@@ -1,7 +1,7 @@
 /**
  * Sqlite Schema Module
  *
- * @module \@beep/schema/sqlite/ast
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
@@ -188,21 +188,21 @@ export class Index extends S.TaggedClass<Index>($I`Index`)(
  * import * as S from "effect/Schema";
  *
  * const exampleReference = new ForeignKeyReference({
- *   table: "users",
- *   column: "id"
+ *
+ *
  * })
  *
  * console.log(`Table: ${exampleReference.table}, Column: ${exampleReference.column}`)
  *
  * const decoded = S.decodeUnknownEffect(ForeignKeyReference.schema)({
- *   table: "orders",
- *   column: "user_id"
+ *
+ *
  * })
  *
  * const program = Effect.gen(function* () {
- *   const reference = yield* decoded
- *   console.log(reference) // Outputs { table: "orders", column: "user_id" }
- *   return reference
+ *
+ *
+ *
  * })
  * ```
  *

@@ -1,14 +1,14 @@
 /**
  * Whole-text CSV formatting helpers.
  *
- * @module \@beep/schema/csv/format/CsvFormatter
+ * @module
  * @since 0.0.0
  */
 
-import { thunkFalse } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as Str from "effect/String";
 import type { CsvCodecOptions } from "../CsvCodecOptions.ts";
 import { type CsvError, csvError } from "../CsvError.ts";
@@ -19,88 +19,67 @@ const stripNullBytes = Str.replaceAll("\0", "");
 
 const getEscapedQuote = (options: CsvCodecOptions): O.Option<string> =>
   pipe(
-    options.quote,
-    O.flatMap((quote) =>
-      pipe(
-        options.escapeChar,
-        O.map((escape) => `${escape}${quote}`)
-      )
-    )
+    O.all({
+      escape: options.escapeChar,
+      quote: options.quote,
+    }),
+    O.map(({ escape, quote }) => `${escape}${quote}`)
   );
 
 const requiresQuoting = (value: string, options: CsvCodecOptions, fieldIndex: number): boolean =>
-  pipe(
-    options.quote,
-    O.match({
-      onNone: () =>
-        Str.includes(options.delimiter)(value) ||
-        Str.includes("\r")(value) ||
-        Str.includes("\n")(value) ||
-        pipe(
-          options.comment,
-          O.match({
-            onNone: thunkFalse,
-            onSome: (comment) => fieldIndex === 0 && Str.startsWith(comment)(value),
-          })
-        ),
-      onSome: (quote) =>
-        Str.includes(options.delimiter)(value) ||
-        Str.includes("\r")(value) ||
-        Str.includes("\n")(value) ||
-        Str.includes(quote)(value) ||
-        pipe(
-          options.comment,
-          O.match({
-            onNone: thunkFalse,
-            onSome: (comment) => fieldIndex === 0 && Str.startsWith(comment)(value),
-          })
-        ),
-    })
-  );
+  P.some<string>([
+    Str.includes(options.delimiter),
+    Str.includes("\r"),
+    Str.includes("\n"),
+    (field) =>
+      pipe(
+        options.quote,
+        O.exists((quote) => Str.includes(quote)(field))
+      ),
+    (field) =>
+      pipe(
+        options.comment,
+        O.filter(() => fieldIndex === 0),
+        O.exists((comment) => Str.startsWith(comment)(field))
+      ),
+  ])(value);
 
 const escapeField = (value: string, options: CsvCodecOptions): string =>
   pipe(
     options.quote,
-    O.match({
-      onNone: () => value,
-      onSome: (quote) =>
-        pipe(
-          value,
-          (field) =>
-            pipe(
-              options.escapeChar,
-              O.match({
-                onNone: () => field,
-                onSome: (escapeChar) =>
-                  escapeChar === quote ? field : Str.replaceAll(escapeChar, `${escapeChar}${escapeChar}`)(field),
-              })
-            ),
-          (field) =>
-            pipe(
-              getEscapedQuote(options),
-              O.match({
-                onNone: () => field,
-                onSome: (escapedQuote) => Str.replaceAll(quote, escapedQuote)(field),
-              })
-            )
-        ),
-    })
+    O.map((quote) => {
+      const escapedEscapeChars = pipe(
+        options.escapeChar,
+        O.filter((escapeChar) => escapeChar !== quote),
+        O.map((escapeChar) => Str.replaceAll(escapeChar, `${escapeChar}${escapeChar}`)(value)),
+        O.getOrElse(() => value)
+      );
+
+      return pipe(
+        getEscapedQuote(options),
+        O.map((escapedQuote) => Str.replaceAll(quote, escapedQuote)(escapedEscapeChars)),
+        O.getOrElse(() => escapedEscapeChars)
+      );
+    }),
+    O.getOrElse(() => value)
   );
 
 const formatField = (value: string, fieldIndex: number, options: CsvCodecOptions): Effect.Effect<string, CsvError> => {
   const prepared = stripNullBytes(value);
 
-  if (!requiresQuoting(prepared, options, fieldIndex)) {
-    return Effect.succeed(prepared);
-  }
-
   return pipe(
-    options.quote,
-    O.match({
-      onNone: () =>
-        Effect.fail(csvError(`Unable to encode field '${prepared}' without a configured quote character.`, fieldIndex)),
-      onSome: (quote) => Effect.succeed(`${quote}${escapeField(prepared, options)}${quote}`),
-    })
+    prepared,
+    O.liftPredicate((field) => !requiresQuoting(field, options, fieldIndex)),
+    O.map(Effect.succeed),
+    O.orElse(() =>
+      pipe(
+        options.quote,
+        O.map((quote) => Effect.succeed(`${quote}${escapeField(prepared, options)}${quote}`))
+      )
+    ),
+    O.getOrElse(() =>
+      Effect.fail(csvError(`Unable to encode field '${prepared}' without a configured quote character.`, fieldIndex))
+    )
   );
 };
 

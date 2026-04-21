@@ -55,6 +55,6 @@ extend-exclude = [
   ".beep/**",
   "scratchpad/**",
   "outputs/agent-reliability/**",
-  "specs/**",
+  "initiatives/**",
   "**/internal/data/**",
 ]

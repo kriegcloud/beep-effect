@@ -5,7 +5,7 @@
  * encoded side, then transforms that one-property struct into the selected
  * field's decoded value.
  *
- * @module \@beep/schema/SchemaUtils/pluck
+ * @module
  * @since 0.0.0
  */
 import type { TUnsafe } from "@beep/types";
@@ -35,8 +35,8 @@ import * as S from "effect/Schema";
  * import { pluck } from "@beep/schema/SchemaUtils/pluck";
  *
  * const MyTable = S.Struct({
- *   column1: S.NumberFromString,
- *   column2: S.Number,
+ *
+ *
  * });
  *
  * const Column1 = MyTable.pipe(pluck("column1"));

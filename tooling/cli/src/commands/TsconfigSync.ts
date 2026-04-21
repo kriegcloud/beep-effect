@@ -25,7 +25,6 @@ import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { Console, Effect, FileSystem, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -213,6 +212,10 @@ const TsconfigSyncModeMatch = TsconfigSyncModeKit.$match;
 
 type TsconfigSyncMode = typeof TsconfigSyncMode.Type;
 const tsconfigSyncModeEquivalence = S.toEquivalence(TsconfigSyncMode);
+type TsconfigSyncModeFlags = readonly [check: boolean, dryRun: boolean];
+
+const isCheckModeFlags = P.Tuple([P.isTruthy, P.isBoolean]);
+const isDryRunModeFlags = P.Tuple([P.not(P.isTruthy), P.isTruthy]);
 
 class TsconfigSyncRunOptionsSync extends S.Class<TsconfigSyncRunOptionsSync>($I`TsconfigSyncRunOptionsSync`)(
   {
@@ -730,14 +733,15 @@ const parseJsonc = Effect.fn(function* <Schema extends S.Top>(content: string, f
 });
 
 const parseJsonObject = Effect.fn(function* (content: string, filePath: string) {
-  return yield* Effect.try({
-    try: () => S.decodeUnknownSync(S.fromJsonString(JsonObject))(content),
-    catch: (cause) =>
-      new DomainError({
-        message: `Failed to parse JSON in "${filePath}"`,
-        cause,
-      }),
-  });
+  return yield* S.decodeUnknownEffect(S.fromJsonString(JsonObject))(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Failed to parse JSON in "${filePath}"`,
+          cause,
+        })
+    )
+  );
 });
 
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
@@ -960,14 +964,14 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
     const relativeDir = toPosixPath(path.relative(rootDir, absoluteDir));
     const packageJsonPath = path.join(absoluteDir, "package.json");
     const packageJsonContent = yield* readFileString(packageJsonPath);
-    const packageJson = yield* Effect.try({
-      try: () => S.decodeUnknownSync(S.fromJsonString(S.Unknown))(packageJsonContent),
-      catch: (cause) =>
-        new DomainError({
-          message: `Failed to parse JSON in "${packageJsonPath}"`,
-          cause,
-        }),
-    }).pipe(
+    const packageJson = yield* S.decodeUnknownEffect(S.fromJsonString(S.Unknown))(packageJsonContent).pipe(
+      Effect.mapError(
+        (cause) =>
+          new DomainError({
+            message: `Failed to parse JSON in "${packageJsonPath}"`,
+            cause,
+          })
+      ),
       Effect.flatMap((parsed) =>
         decodePackageJsonEffect(parsed).pipe(
           Effect.mapError(
@@ -989,6 +993,16 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
       O.flatMap(resolveRootExportTarget),
       O.map((rootExportTarget) => buildCanonicalAliasTargets(relativeDir, rootExportTarget))
     );
+    const aliasTargetFields = R.getSomes({
+      rootAliasTarget: pipe(
+        aliasTargets,
+        O.map(({ rootAliasTarget }) => rootAliasTarget)
+      ),
+      wildcardAliasTarget: pipe(
+        aliasTargets,
+        O.map(({ wildcardAliasTarget }) => wildcardAliasTarget)
+      ),
+    });
     const docgenAliasSource = buildDocgenAliasSource(packageName, relativeDir, packageJson);
 
     descriptors.push(
@@ -1000,8 +1014,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
         hasProjectTsconfig,
         hasDocgenConfig,
         directWorkspaceDependencies: [...directWorkspaceDependencies],
-        rootAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.rootAliasTarget)),
-        wildcardAliasTarget: O.getOrUndefined(O.map(aliasTargets, (targets) => targets.wildcardAliasTarget)),
+        ...aliasTargetFields,
         docgenRootAliasTarget: docgenAliasSource.rootAliasTarget,
         docgenWildcardAliasTarget: docgenAliasSource.wildcardAliasTarget,
       })
@@ -1706,14 +1719,16 @@ export const syncTsconfigAtRoot: (
 });
 
 const resolveMode = (check: boolean, dryRun: boolean): TsconfigSyncMode => {
-  return Bool.match(check, {
-    onTrue: () => "check",
-    onFalse: () =>
-      Bool.match(dryRun, {
-        onTrue: () => "dry-run",
-        onFalse: () => "sync",
-      }),
-  });
+  const flags = [check, dryRun] satisfies TsconfigSyncModeFlags;
+
+  return pipe(
+    [
+      pipe(flags, O.liftPredicate(isCheckModeFlags), O.as("check" as const)),
+      pipe(flags, O.liftPredicate(isDryRunModeFlags), O.as("dry-run" as const)),
+    ] satisfies ReadonlyArray<O.Option<TsconfigSyncMode>>,
+    O.firstSomeOf,
+    O.getOrElse((): TsconfigSyncMode => "sync")
+  );
 };
 
 /**
@@ -1741,12 +1756,13 @@ export const tsconfigSyncCommand = Command.make(
   Effect.fn(function* ({ check, dryRun, filter, verbose }) {
     const rootDir = yield* findRepoRoot();
     const mode = resolveMode(check, dryRun);
-
-    yield* syncTsconfigAtRoot(rootDir, {
+    const syncOptions = {
       mode,
-      filter: O.getOrUndefined(filter),
       verbose,
-    }).pipe(
+      ...R.getSomes({ filter }),
+    };
+
+    yield* syncTsconfigAtRoot(rootDir, syncOptions).pipe(
       Effect.catchTag(
         "TsconfigSyncDriftError",
         Effect.fn(function* (error) {

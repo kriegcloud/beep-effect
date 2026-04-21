@@ -2,7 +2,7 @@
  * Schema for the `Cross-Origin-Opener-Policy` header.
  *
  * @since 0.0.0
- * @module \@beep/schema/http/headers/CrossOriginOpenerPolicy
+ * @module
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, SchemaTransformation } from "effect";
@@ -91,8 +91,8 @@ export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption
  * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
  *
  * const header = new CrossOriginOpenerPolicyResponseHeader({
- *   name: "Cross-Origin-Opener-Policy",
- *   value: Option.none(),
+ *
+ *
  * })
  * void header
  * ```

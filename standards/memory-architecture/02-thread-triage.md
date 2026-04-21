@@ -15,7 +15,7 @@ Definitions:
 
 ## 1. repo-memory v0
 
-**Location:** `specs/pending/repo-expert-memory-local-first-v0/`,
+**Location:** `initiatives/repo-expert-memory-local-first-v0/`,
 `packages/repo-memory/`
 
 **Status:** Substantially built. Tauri v2 desktop app, Effect runtime on
@@ -40,7 +40,7 @@ opportunity cost against an asset no competitor can replicate with embeddings.
 
 ## 2. Expert Memory Big Picture
 
-**Location:** `specs/pending/expert-memory-big-picture/` (14 documents)
+**Location:** `initiatives/expert-memory-big-picture/` (14 documents)
 
 **Status:** Thorough architectural thesis across kernel, control plane,
 claims/evidence, representation layers, ontology, temporal modeling, domain
@@ -207,7 +207,7 @@ Layer 2 to Layer 1 promotion pipeline.
 
 ## 9. repo-codegraph-jsdoc Research
 
-**Location:** `specs/pending/repo-codegraph-jsdoc/outputs/compiled_sources/`
+**Location:** `initiatives/repo-codegraph-jsdoc/history/outputs/compiled_sources/`
 
 **Status:** Pure research compilation -- 29 papers/reports synthesized.
 Validates the deterministic-first approach with evidence (32.8% improvement from

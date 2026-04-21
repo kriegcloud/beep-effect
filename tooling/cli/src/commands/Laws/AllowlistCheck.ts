@@ -9,6 +9,8 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { type ParseError, parse } from "jsonc-parser";
 
@@ -107,7 +109,7 @@ const formatSchemaDiagnostics = (issue: SchemaIssue.Issue): ReadonlyArray<string
     SchemaIssue.makeFormatterStandardSchemaV1()(issue).issues,
     A.map((diagnostic) => {
       const pathLabel =
-        diagnostic.path === undefined || diagnostic.path.length === 0
+        P.isUndefined(diagnostic.path) || Eq.equals(0, diagnostic.path.length)
           ? "<root>"
           : pipe(diagnostic.path, A.map(String), A.join("."));
 
@@ -122,7 +124,7 @@ const parseAllowlistText = (text: string): Result.Result<unknown, ReadonlyArray<
     disallowComments: false,
   });
 
-  return A.length(parseErrors) === 0
+  return Eq.equals(0, A.length(parseErrors))
     ? Result.succeed(parsed)
     : Result.fail(
         pipe(
@@ -198,7 +200,7 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
   const diagnostics = yield* validateEntryFiles(repoRoot, decodedResult.success.entries);
 
   return new AllowlistCheckSummary({
-    ok: A.length(diagnostics) === 0,
+    ok: pipe(A.length(diagnostics), Eq.equals(0)),
     diagnostics,
   });
 });

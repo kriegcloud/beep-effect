@@ -59,7 +59,7 @@ Wave 1 enforcement scope:
 
 Excludes by default:
 
-- tests/specs/storybook snapshots/fixtures
+- tests/initiatives/storybook snapshots/fixtures
 - generated artifacts
 
 ## Rollout

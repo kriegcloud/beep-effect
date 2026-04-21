@@ -1,7 +1,7 @@
 /**
  * A module containing utilities which return thunks of data
  * @since 0.0.0
- * @module \@beep/utils/thunk
+ * @module
  */
 
 import { Effect } from "effect";

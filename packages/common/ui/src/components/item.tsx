@@ -57,7 +57,7 @@ function Item({
       } as React.ComponentProps<"div">,
       props
     ),
-    ...(render ? { render } : {}),
+    ...(render !== undefined ? { render } : {}),
     state: {
       slot: "item",
       variant,

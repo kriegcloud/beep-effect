@@ -1,7 +1,7 @@
 /**
  * DOM element schemas
  *
- * @module \@beep/schema/dom/elements
+ * @module
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

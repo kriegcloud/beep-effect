@@ -2,7 +2,7 @@
  * Shared string normalization schemas.
  *
  * @since 0.0.0
- * @module \@beep/schema/String
+ * @module
  */
 
 import { $SchemaId } from "@beep/identity";

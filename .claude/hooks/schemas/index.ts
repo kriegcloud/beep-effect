@@ -31,7 +31,7 @@ export class EditToolInput extends S.Class<EditToolInput>($I`EditToolInput`)(
     file_path: S.String,
     old_string: S.String,
     new_string: S.String,
-    replace_all: S.optionalKey(S.UndefinedOr(S.Boolean)),
+    replace_all: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("EditToolInput", {
     description: "Edit tool payload for hook tool_input.",
@@ -59,9 +59,9 @@ export class TaskToolInput extends S.Class<TaskToolInput>($I`TaskToolInput`)(
     description: S.String,
     prompt: S.String,
     subagent_type: S.String,
-    model: S.optionalKey(S.UndefinedOr(S.String)),
-    run_in_background: S.optionalKey(S.UndefinedOr(S.Boolean)),
-    resume: S.optionalKey(S.UndefinedOr(S.String)),
+    model: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    run_in_background: S.Boolean.pipe(S.UndefinedOr, S.optionalKey),
+    resume: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("TaskToolInput", {
     description: "Task tool payload for subagent orchestration.",
@@ -73,11 +73,11 @@ export class TaskToolInput extends S.Class<TaskToolInput>($I`TaskToolInput`)(
  */
 export class GenericToolInput extends S.Class<GenericToolInput>($I`GenericToolInput`)(
   {
-    file_path: S.optionalKey(S.UndefinedOr(S.String)),
-    notebook_path: S.optionalKey(S.UndefinedOr(S.String)),
-    content: S.optionalKey(S.UndefinedOr(S.String)),
-    old_string: S.optionalKey(S.UndefinedOr(S.String)),
-    new_string: S.optionalKey(S.UndefinedOr(S.String)),
+    file_path: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    notebook_path: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    content: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    old_string: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    new_string: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("GenericToolInput", {
     description: "Lenient tool_input payload shared across hook events.",
@@ -185,7 +185,7 @@ export class ToolUseInput extends S.Class<ToolUseInput>($I`ToolUseInput`)(
     hook_event_name: S.String,
     tool_name: S.String,
     tool_input: GenericToolInput,
-    tool_response: S.optionalKey(S.UndefinedOr(S.Unknown)),
+    tool_response: S.Unknown.pipe(S.UndefinedOr, S.optionalKey),
     tool_use_id: S.String,
   },
   $I.annote("ToolUseInput", {
@@ -229,9 +229,9 @@ export class SessionStartInput extends S.Class<SessionStartInput>($I`SessionStar
 class HookSpecificOutput extends S.Class<HookSpecificOutput>($I`HookSpecificOutput`)(
   {
     hookEventName: S.String,
-    permissionDecision: S.optionalKey(S.UndefinedOr(S.String)),
-    permissionDecisionReason: S.optionalKey(S.UndefinedOr(S.String)),
-    additionalContext: S.optionalKey(S.UndefinedOr(S.String)),
+    permissionDecision: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    permissionDecisionReason: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    additionalContext: S.String.pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("HookSpecificOutput", {
     description: "Hook-specific output payload for hook responses.",

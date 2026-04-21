@@ -2,7 +2,7 @@
  * Schema-first NLP pattern model.
  *
  * @since 0.0.0
- * @module \@beep/nlp/Core/Pattern
+ * @module
  */
 
 import { $NlpId } from "@beep/identity";
