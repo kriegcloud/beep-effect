@@ -1,5 +1,6 @@
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import type {
   RetrievalAmbiguousIssue,
@@ -31,6 +32,17 @@ const formatSnapshotSuffix = (packet: RetrievalPacket): string =>
       onSome: (sourceSnapshotId) => ` in snapshot ${sourceSnapshotId}`,
     })
   );
+
+const renderOptionalSentence: {
+  (value: O.Option<string>, label: string): string;
+  (label: string): (value: O.Option<string>) => string;
+} = dual(2, (value: O.Option<string>, label: string): string =>
+  pipe(
+    value,
+    O.map((text) => `${label}: ${text}.`),
+    O.getOrElse(() => "")
+  )
+);
 
 const renderSubjectLabel = (subject: RetrievalSubject): string => {
   if (subject.kind === "file") {
@@ -157,37 +169,18 @@ const renderSubjectDetailPayload = (packet: RetrievalPacket, payload: RetrievalS
         ),
         pipe(
           documentation,
-          O.match({
-            onNone: () => "",
-            onSome: (facet) =>
-              pipe(
-                A.make(
-                  pipe(
-                    facet.summary,
-                    O.match({
-                      onNone: () => "",
-                      onSome: (summary) => `Summary: ${summary}.`,
-                    })
-                  ),
-                  pipe(
-                    facet.description,
-                    O.match({
-                      onNone: () => "",
-                      onSome: (description) => `Description: ${description}.`,
-                    })
-                  ),
-                  pipe(
-                    facet.remarks,
-                    O.match({
-                      onNone: () => "",
-                      onSome: (remarks) => `Remarks: ${remarks}.`,
-                    })
-                  )
-                ),
-                A.filter((part) => part.length > 0),
-                A.join(" ")
+          O.map((facet) =>
+            pipe(
+              A.make(
+                pipe(facet.summary, renderOptionalSentence("Summary")),
+                pipe(facet.description, renderOptionalSentence("Description")),
+                pipe(facet.remarks, renderOptionalSentence("Remarks"))
               ),
-          })
+              A.filter((part) => part.length > 0),
+              A.join(" ")
+            )
+          ),
+          O.getOrElse(() => "")
         )
       ),
       A.filter((part) => part.length > 0),
@@ -217,22 +210,16 @@ const renderSubjectDetailPayload = (packet: RetrievalPacket, payload: RetrievalS
   }
 
   if (payload.aspect === "returns") {
+    const missingReturnContract = `Symbol "${renderSubjectLabel(payload.subject)}" has no documented return contract${formatSnapshotSuffix(packet)}.`;
+
     return pipe(
       findReturnsFacet(payload.facets),
-      O.match({
-        onNone: () =>
-          `Symbol "${renderSubjectLabel(payload.subject)}" has no documented return contract${formatSnapshotSuffix(packet)}.`,
-        onSome: (facet) =>
-          pipe(
-            facet.item,
-            O.match({
-              onNone: () =>
-                `Symbol "${renderSubjectLabel(payload.subject)}" has no documented return contract${formatSnapshotSuffix(packet)}.`,
-              onSome: (item) =>
-                `Returns for "${renderSubjectLabel(payload.subject)}"${formatSnapshotSuffix(packet)}: ${renderItem(item)}.`,
-            })
-          ),
-      })
+      O.flatMap((facet) => facet.item),
+      O.map(
+        (item) =>
+          `Returns for "${renderSubjectLabel(payload.subject)}"${formatSnapshotSuffix(packet)}: ${renderItem(item)}.`
+      ),
+      O.getOrElse(() => missingReturnContract)
     );
   }
 
@@ -265,12 +252,13 @@ const renderSubjectDetailPayload = (packet: RetrievalPacket, payload: RetrievalS
         facet.isDeprecated
           ? pipe(
               facet.note,
-              O.match({
-                onNone: () =>
-                  `Symbol "${renderSubjectLabel(payload.subject)}" is deprecated${formatSnapshotSuffix(packet)}.`,
-                onSome: (note) =>
-                  `Symbol "${renderSubjectLabel(payload.subject)}" is deprecated${formatSnapshotSuffix(packet)}. ${note}`,
-              })
+              O.map(
+                (note) =>
+                  `Symbol "${renderSubjectLabel(payload.subject)}" is deprecated${formatSnapshotSuffix(packet)}. ${note}`
+              ),
+              O.getOrElse(
+                () => `Symbol "${renderSubjectLabel(payload.subject)}" is deprecated${formatSnapshotSuffix(packet)}.`
+              )
             )
           : `Symbol "${renderSubjectLabel(payload.subject)}" is not marked deprecated${formatSnapshotSuffix(packet)}.`,
     })

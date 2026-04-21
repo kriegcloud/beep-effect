@@ -1,27 +1,15 @@
 import { $SchemaId } from "@beep/identity/packages";
-import { thunkFalse, thunkTrue } from "@beep/utils";
 import { HashSet, identity, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $SchemaId.create("CommonTextSchemas");
 
 const truthyBooleanString = HashSet.fromIterable(["true", "1", "yes", "on"]);
-const falseyBooleanString = HashSet.fromIterable(["false", "0", "no", "off"]);
 
-const normalizeBooleanString = (value: string): boolean => {
-  const normalized = pipe(value, Str.trim, Str.toLowerCase);
-  return Bool.match(HashSet.has(truthyBooleanString, normalized), {
-    onTrue: thunkTrue,
-    onFalse: () =>
-      Bool.match(HashSet.has(falseyBooleanString, normalized), {
-        onTrue: thunkFalse,
-        onFalse: thunkFalse,
-      }),
-  });
-};
+const normalizeBooleanString = (value: string): boolean =>
+  pipe(value, Str.trim, Str.toLowerCase, (normalized) => HashSet.has(truthyBooleanString, normalized));
 
 /**
  * Trimmed and non-empty text schema that strips whitespace and rejects empty results.

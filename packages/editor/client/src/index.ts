@@ -70,33 +70,35 @@ export class EditorClientError extends TaggedErrorClass<EditorClientError>($I`Ed
   static readonly fromCause: {
     (cause: unknown, fallback: string): EditorClientError;
     (fallback: string): (cause: unknown) => EditorClientError;
-  } = dual(2, (cause: unknown, fallback: string): EditorClientError =>
-    pipe(
-      cause,
-      O.liftPredicate(S.is(EditorClientError)),
-      O.orElse(() =>
-        pipe(
-          cause,
-          O.liftPredicate(S.is(EditorControlPlaneErrorPayload)),
-          O.map(
-            (payload) =>
-              new EditorClientError({
-                message: payload.message,
-                status: payload.status,
-                cause: O.none(),
-              })
+  } = dual(
+    2,
+    (cause: unknown, fallback: string): EditorClientError =>
+      pipe(
+        cause,
+        O.liftPredicate(S.is(EditorClientError)),
+        O.orElse(() =>
+          pipe(
+            cause,
+            O.liftPredicate(S.is(EditorControlPlaneErrorPayload)),
+            O.map(
+              (payload) =>
+                new EditorClientError({
+                  message: payload.message,
+                  status: payload.status,
+                  cause: O.none(),
+                })
+            )
           )
+        ),
+        O.getOrElse(
+          () =>
+            new EditorClientError({
+              message: fallback,
+              status: transportStatus(cause),
+              cause: O.liftPredicate(P.isError)(cause),
+            })
         )
-      ),
-      O.getOrElse(
-        () =>
-          new EditorClientError({
-            message: fallback,
-            status: transportStatus(cause),
-            cause: O.liftPredicate(P.isError)(cause),
-          })
       )
-    )
   );
 }
 
@@ -222,7 +224,9 @@ const transportStatus = (cause: unknown): number =>
   HttpClientError.isHttpClientError(cause) && cause.response !== undefined ? cause.response.status : 500;
 
 const mapClientError = <A, E>(fallback: string, effect: Effect.Effect<A, E>) =>
-  effect.pipe(Effect.catchCause((cause) => pipe(Cause.squash(cause), EditorClientError.fromCause(fallback), Effect.fail)));
+  effect.pipe(
+    Effect.catchCause((cause) => pipe(Cause.squash(cause), EditorClientError.fromCause(fallback), Effect.fail))
+  );
 
 const decodeSlugEffect = (slug: string): Effect.Effect<Slug, EditorClientError> =>
   pipe(

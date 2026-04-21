@@ -13,6 +13,7 @@ import {
   InterruptRepoRunRequest,
   QueryRepoRunInput,
   type QueryRun,
+  type QueryStage,
   type QueryStageTrace,
   type RepoRegistration,
   RepoRegistrationInput,
@@ -462,23 +463,914 @@ const latestKnownRunCursor = (run: RepoRun, events: ReadonlyArray<RunStreamEvent
 const formatCitationSpan = (citation: Citation): string => {
   const columnSuffix = pipe(
     citation.span.startColumn,
-    O.match({
-      onNone: () => "",
-      onSome: (startColumn) =>
-        pipe(
-          citation.span.endColumn,
-          O.match({
-            onNone: () => `:${startColumn}`,
-            onSome: (endColumn) => `:${startColumn}-${endColumn}`,
-          })
-        ),
-    })
+    O.map((startColumn) =>
+      pipe(
+        citation.span.endColumn,
+        O.map((endColumn) => `:${startColumn}-${endColumn}`),
+        O.getOrElse(() => `:${startColumn}`)
+      )
+    ),
+    O.getOrElse(() => "")
   );
 
   return `${citation.span.filePath}:${citation.span.startLine}-${citation.span.endLine}${columnSuffix}`;
 };
 
 const optionToNullable = <A,>(option: O.Option<A>): A | null => O.getOrNull(option);
+
+type DirectSidecarConnectionTargetInput = {
+  readonly shellMode: ShellMode;
+  readonly baseUrlInput: string;
+};
+
+type DirectSidecarConnectionTarget = {
+  readonly baseUrl: string;
+  readonly persistBaseUrl: boolean;
+  readonly statusMessage: O.Option<string>;
+};
+
+const directSidecarConnectionTarget = ({
+  shellMode,
+  baseUrlInput,
+}: DirectSidecarConnectionTargetInput): DirectSidecarConnectionTarget => {
+  const browserBaseUrl = browserDevClientBaseUrl();
+
+  if (shellMode === "browser" && browserBaseUrl !== null) {
+    return {
+      baseUrl: browserBaseUrl,
+      persistBaseUrl: false,
+      statusMessage: O.some("Connecting to the repo-memory sidecar through the desktop proxy."),
+    };
+  }
+
+  return {
+    baseUrl: baseUrlInput,
+    persistBaseUrl: true,
+    statusMessage:
+      shellMode === "browser"
+        ? O.some("Raw Vite origin detected. Connecting to the saved direct sidecar URL.")
+        : O.none(),
+  };
+};
+
+const managedConnectionStatusMessage = (options?: { readonly restart?: boolean }): string =>
+  options?.restart === true ? "Restarting the managed local sidecar." : "Launching the managed local sidecar.";
+
+type ConnectionSummaryTextInput = {
+  readonly bootstrap: SidecarBootstrap | null;
+  readonly managedState: ManagedSidecarState | null;
+  readonly nativeAvailable: boolean;
+  readonly shellMode: ShellMode;
+};
+
+const connectionSummaryText = ({
+  bootstrap,
+  managedState,
+  nativeAvailable,
+  shellMode,
+}: ConnectionSummaryTextInput): string => {
+  if (bootstrap !== null) {
+    return bootstrap.status;
+  }
+
+  if (!nativeAvailable || shellMode !== "native-managed") {
+    return "Waiting for a sidecar.";
+  }
+
+  if (managedState === null) {
+    return "Managed sidecar booting.";
+  }
+
+  return `${managedState.mode} ${managedState.status}`;
+};
+
+const repoSummaryText = (repoCount: number): string =>
+  repoCount === 0 ? "No repo registered yet." : "Control plane registry loaded.";
+
+const runSummaryText = (runCount: number): string =>
+  runCount === 0 ? "No durable runs yet." : "Workflow projections ready for inspection.";
+
+const streamSummaryValue = (activeStreamRunId: string | null): string =>
+  activeStreamRunId === null ? "inactive" : "live";
+
+const streamSummaryText = (activeStreamRunId: string | null): string =>
+  activeStreamRunId === null ? "Select a run to replay." : activeStreamRunId;
+
+const browserConnectionNote = (): string =>
+  browserDevClientBaseUrl() === null
+    ? "Raw Vite dev does not include the desktop proxy. Use the saved direct sidecar URL here, or switch back to the default portless desktop flow."
+    : "Browser dev uses the HTTPS desktop proxy and the portless sidecar route. Use manual override only when you need to inspect a different runtime.";
+
+const formatIndexProjectionText = (indexedFileCount: O.Option<number>): string =>
+  O.match(indexedFileCount, {
+    onNone: () => "The index run has not published a final file count yet.",
+    onSome: (count) => `Indexed ${count} files in the latest durable snapshot.`,
+  });
+
+const formatArtifactAvailability = (artifactAvailable: O.Option<boolean>): string =>
+  O.match(artifactAvailable, {
+    onNone: () => "Not yet",
+    onSome: (available) => (available ? "Available" : "Not yet"),
+  });
+
+type SummaryCardProps = {
+  readonly label: string;
+  readonly value: React.ReactNode;
+  readonly description: React.ReactNode;
+};
+
+const SummaryCard = ({ label, value, description }: SummaryCardProps) => (
+  <article className="summary-card">
+    <span className="summary-label">{label}</span>
+    <strong>{value}</strong>
+    <p>{description}</p>
+  </article>
+);
+
+type ConnectionControlsProps = {
+  readonly nativeAvailable: boolean;
+  readonly shellMode: ShellMode;
+  readonly baseUrlInput: string;
+  readonly connectionState: ConnectionState;
+  readonly client: RepoMemoryClientShape | null;
+  readonly onBaseUrlInputChange: (value: string) => void;
+  readonly onNormalizeBaseUrlInput: () => void;
+  readonly onConnect: () => void;
+  readonly onConnectManagedRestart: () => void;
+  readonly onDisconnect: () => void;
+  readonly onEnableManualOverride: () => void;
+  readonly onRefresh: () => void;
+  readonly onShellModeChange: (mode: ShellMode) => void;
+  readonly onStopManagedConnection: () => void;
+};
+
+const ConnectionControls = (props: ConnectionControlsProps) => {
+  if (props.nativeAvailable && props.shellMode === "native-managed") {
+    return <ManagedConnectionControls {...props} />;
+  }
+
+  if (props.shellMode === "manual-override") {
+    return <ManualConnectionForm {...props} />;
+  }
+
+  return <BrowserConnectionControls {...props} />;
+};
+
+type ManagedConnectionControlsProps = Pick<
+  ConnectionControlsProps,
+  | "client"
+  | "connectionState"
+  | "onConnectManagedRestart"
+  | "onEnableManualOverride"
+  | "onRefresh"
+  | "onStopManagedConnection"
+>;
+
+const ManagedConnectionControls = ({
+  client,
+  connectionState,
+  onConnectManagedRestart,
+  onEnableManualOverride,
+  onRefresh,
+  onStopManagedConnection,
+}: ManagedConnectionControlsProps) => (
+  <div className="stack">
+    <p className="field-note">
+      The native shell owns sidecar launch, bootstrap discovery, and health checks before the client connects.
+    </p>
+    <div className="button-row">
+      <button type="button" disabled={connectionState === "connecting"} onClick={onConnectManagedRestart}>
+        {connectionState === "connecting" ? "Starting..." : "Restart sidecar"}
+      </button>
+      <button type="button" className="button-secondary" disabled={client === null} onClick={onRefresh}>
+        Refresh
+      </button>
+      <button
+        type="button"
+        className="button-secondary"
+        disabled={connectionState === "connecting"}
+        onClick={onStopManagedConnection}
+      >
+        Stop sidecar
+      </button>
+    </div>
+    <details className="debug-panel">
+      <summary>Debug override</summary>
+      <div className="stack">
+        <p className="field-note">
+          Stop the managed sidecar and switch back to the old manual URL flow only when you need to inspect a different
+          runtime.
+        </p>
+        <button type="button" className="button-secondary" onClick={onEnableManualOverride}>
+          Use manual URL override
+        </button>
+      </div>
+    </details>
+  </div>
+);
+
+type ManualConnectionFormProps = Pick<
+  ConnectionControlsProps,
+  | "baseUrlInput"
+  | "client"
+  | "connectionState"
+  | "nativeAvailable"
+  | "onBaseUrlInputChange"
+  | "onConnect"
+  | "onDisconnect"
+  | "onNormalizeBaseUrlInput"
+  | "onRefresh"
+  | "onShellModeChange"
+>;
+
+const ManualConnectionForm = ({
+  baseUrlInput,
+  client,
+  connectionState,
+  nativeAvailable,
+  onBaseUrlInputChange,
+  onConnect,
+  onDisconnect,
+  onNormalizeBaseUrlInput,
+  onRefresh,
+  onShellModeChange,
+}: ManualConnectionFormProps) => (
+  <form
+    className="stack"
+    onSubmit={(event) => {
+      event.preventDefault();
+      onConnect();
+    }}
+  >
+    <label className="field">
+      <span>Sidecar base URL</span>
+      <input
+        value={baseUrlInput}
+        onChange={(event) => onBaseUrlInputChange(event.target.value)}
+        onBlur={onNormalizeBaseUrlInput}
+        placeholder={defaultBaseUrl}
+      />
+    </label>
+    <p className="field-note">Use the root sidecar URL. Legacy `/api/v0` input is normalized automatically.</p>
+    <div className="button-row">
+      <button type="submit" disabled={connectionState === "connecting"}>
+        {connectionState === "connecting" ? "Connecting..." : "Connect"}
+      </button>
+      <button type="button" className="button-secondary" disabled={client === null} onClick={onRefresh}>
+        Refresh
+      </button>
+      <button type="button" className="button-secondary" disabled={client === null} onClick={onDisconnect}>
+        Disconnect
+      </button>
+      <ManualModeSwitcher
+        connectionState={connectionState}
+        nativeAvailable={nativeAvailable}
+        onShellModeChange={onShellModeChange}
+      />
+    </div>
+  </form>
+);
+
+type ManualModeSwitcherProps = {
+  readonly connectionState: ConnectionState;
+  readonly nativeAvailable: boolean;
+  readonly onShellModeChange: (mode: ShellMode) => void;
+};
+
+const ManualModeSwitcher = ({ connectionState, nativeAvailable, onShellModeChange }: ManualModeSwitcherProps) => {
+  const nextMode = nativeAvailable ? "native-managed" : "browser";
+  const label = nativeAvailable ? "Resume managed sidecar" : "Use desktop proxy";
+
+  return (
+    <button
+      type="button"
+      className="button-secondary"
+      disabled={connectionState === "connecting"}
+      onClick={() => onShellModeChange(nextMode)}
+    >
+      {label}
+    </button>
+  );
+};
+
+type BrowserConnectionControlsProps = Pick<
+  ConnectionControlsProps,
+  "client" | "connectionState" | "onConnect" | "onDisconnect" | "onRefresh" | "onShellModeChange"
+>;
+
+const BrowserConnectionControls = ({
+  client,
+  connectionState,
+  onConnect,
+  onDisconnect,
+  onRefresh,
+  onShellModeChange,
+}: BrowserConnectionControlsProps) => (
+  <div className="stack">
+    <p className="field-note">{browserConnectionNote()}</p>
+    <div className="button-row">
+      <button type="button" disabled={connectionState === "connecting"} onClick={onConnect}>
+        {connectionState === "connecting" ? "Connecting..." : "Connect"}
+      </button>
+      <button type="button" className="button-secondary" disabled={client === null} onClick={onRefresh}>
+        Refresh
+      </button>
+      <button type="button" className="button-secondary" disabled={client === null} onClick={onDisconnect}>
+        Disconnect
+      </button>
+    </div>
+    <details className="debug-panel">
+      <summary>Debug override</summary>
+      <div className="stack">
+        <p className="field-note">
+          Use a direct sidecar URL only when you need to inspect a different runtime or bypass the desktop proxy.
+        </p>
+        <button type="button" className="button-secondary" onClick={() => onShellModeChange("manual-override")}>
+          Use manual URL override
+        </button>
+      </div>
+    </details>
+  </div>
+);
+
+type ConnectionDiagnosticsProps = {
+  readonly bootstrap: SidecarBootstrap | null;
+  readonly errorMessage: string | null;
+  readonly managedState: ManagedSidecarState | null;
+};
+
+const ConnectionDiagnostics = ({ bootstrap, errorMessage, managedState }: ConnectionDiagnosticsProps) => (
+  <>
+    {errorMessage === null ? null : <p className="notice notice-error">{errorMessage}</p>}
+    {managedState === null ? null : (
+      <p className="notice">
+        Native state: <code>{managedState.mode}</code> {managedState.status}
+      </p>
+    )}
+    {managedState !== null && managedState.stderrTail.length > 0 ? (
+      <div className="notice">
+        <strong>Sidecar stderr</strong>
+        <pre className="mono-block">{managedState.stderrTail.join("\n")}</pre>
+      </div>
+    ) : null}
+    {bootstrap === null ? null : <BootstrapMetaGrid bootstrap={bootstrap} managedState={managedState} />}
+  </>
+);
+
+type BootstrapMetaGridProps = {
+  readonly bootstrap: SidecarBootstrap;
+  readonly managedState: ManagedSidecarState | null;
+};
+
+const BootstrapMetaGrid = ({ bootstrap, managedState }: BootstrapMetaGridProps) => (
+  <dl className="meta-grid">
+    <div>
+      <dt>Host</dt>
+      <dd>
+        {bootstrap.host}:{bootstrap.port}
+      </dd>
+    </div>
+    <div>
+      <dt>Version</dt>
+      <dd>{bootstrap.version}</dd>
+    </div>
+    <div>
+      <dt>PID</dt>
+      <dd>{bootstrap.pid}</dd>
+    </div>
+    <div>
+      <dt>Started</dt>
+      <dd>{formatDateTime(bootstrap.startedAt)}</dd>
+    </div>
+    <ManagedBootstrapMetaRows managedState={managedState} />
+  </dl>
+);
+
+const ManagedBootstrapMetaRows = ({ managedState }: { readonly managedState: ManagedSidecarState | null }) => {
+  if (managedState === null) {
+    return null;
+  }
+
+  return (
+    <>
+      <div>
+        <dt>Launch mode</dt>
+        <dd>{managedState.mode}</dd>
+      </div>
+      <div>
+        <dt>Native state</dt>
+        <dd>{managedState.status}</dd>
+      </div>
+    </>
+  );
+};
+
+type SelectedRunDetailPanelProps = {
+  readonly actionState: ActionState;
+  readonly activeStreamRunId: string | null;
+  readonly client: RepoMemoryClientShape | null;
+  readonly onInterruptRun: () => void;
+  readonly onResumeRun: () => void;
+  readonly onStreamRun: () => void;
+  readonly repos: ReadonlyArray<RepoRegistration>;
+  readonly selectedRun: RepoRun | null;
+  readonly selectedRunEvents: ReadonlyArray<RunStreamEvent>;
+};
+
+const SelectedRunDetailPanel = ({
+  actionState,
+  activeStreamRunId,
+  client,
+  onInterruptRun,
+  onResumeRun,
+  onStreamRun,
+  repos,
+  selectedRun,
+  selectedRunEvents,
+}: SelectedRunDetailPanelProps) => (
+  <section className="panel panel-detail">
+    <div className="panel-heading">
+      <div>
+        <p className="panel-kicker">Inspection</p>
+        <h2>Selected run detail</h2>
+      </div>
+      <SelectedRunDetailStatus activeStreamRunId={activeStreamRunId} selectedRun={selectedRun} />
+    </div>
+    <SelectedRunDetailBody
+      actionState={actionState}
+      client={client}
+      onInterruptRun={onInterruptRun}
+      onResumeRun={onResumeRun}
+      onStreamRun={onStreamRun}
+      repos={repos}
+      selectedRun={selectedRun}
+      selectedRunEvents={selectedRunEvents}
+    />
+  </section>
+);
+
+type SelectedRunDetailStatusProps = {
+  readonly activeStreamRunId: string | null;
+  readonly selectedRun: RepoRun | null;
+};
+
+const SelectedRunDetailStatus = ({ activeStreamRunId, selectedRun }: SelectedRunDetailStatusProps) => {
+  if (selectedRun === null) {
+    return null;
+  }
+
+  return (
+    <div className="detail-status">
+      <span className={`status-pill ${runStatusTone(selectedRun.status)}`}>{selectedRun.status}</span>
+      <LiveStreamPill isLive={activeStreamRunId === selectedRun.id} />
+    </div>
+  );
+};
+
+const LiveStreamPill = ({ isLive }: { readonly isLive: boolean }) =>
+  isLive ? <span className="status-pill status-running">live stream</span> : null;
+
+type SelectedRunDetailBodyProps = {
+  readonly actionState: ActionState;
+  readonly client: RepoMemoryClientShape | null;
+  readonly onInterruptRun: () => void;
+  readonly onResumeRun: () => void;
+  readonly onStreamRun: () => void;
+  readonly repos: ReadonlyArray<RepoRegistration>;
+  readonly selectedRun: RepoRun | null;
+  readonly selectedRunEvents: ReadonlyArray<RunStreamEvent>;
+};
+
+const SelectedRunDetailBody = ({
+  actionState,
+  client,
+  onInterruptRun,
+  onResumeRun,
+  onStreamRun,
+  repos,
+  selectedRun,
+  selectedRunEvents,
+}: SelectedRunDetailBodyProps) => {
+  if (selectedRun === null) {
+    return (
+      <p className="empty-state">Select a run to inspect its answer, citations, retrieval packet, and event feed.</p>
+    );
+  }
+
+  return (
+    <div className="detail-stack">
+      <RunOverviewCard
+        actionState={actionState}
+        client={client}
+        onInterruptRun={onInterruptRun}
+        onResumeRun={onResumeRun}
+        onStreamRun={onStreamRun}
+        repos={repos}
+        selectedRun={selectedRun}
+      />
+      <RunProjectionDetail selectedRun={selectedRun} selectedRunEvents={selectedRunEvents} />
+      <RunErrorCard errorMessage={selectedRun.errorMessage} />
+      <EventFeedCard selectedRunEvents={selectedRunEvents} />
+    </div>
+  );
+};
+
+type RunOverviewCardProps = {
+  readonly actionState: ActionState;
+  readonly client: RepoMemoryClientShape | null;
+  readonly onInterruptRun: () => void;
+  readonly onResumeRun: () => void;
+  readonly onStreamRun: () => void;
+  readonly repos: ReadonlyArray<RepoRegistration>;
+  readonly selectedRun: RepoRun;
+};
+
+const RunOverviewCard = ({
+  actionState,
+  client,
+  onInterruptRun,
+  onResumeRun,
+  onStreamRun,
+  repos,
+  selectedRun,
+}: RunOverviewCardProps) => (
+  <section className="detail-card">
+    <div className="detail-card-top">
+      <h3>{formatRunTitle(selectedRun)}</h3>
+      <RunActionButtons
+        actionState={actionState}
+        client={client}
+        onInterruptRun={onInterruptRun}
+        onResumeRun={onResumeRun}
+        onStreamRun={onStreamRun}
+        selectedRun={selectedRun}
+      />
+    </div>
+    <dl className="meta-grid">
+      <div>
+        <dt>Run ID</dt>
+        <dd>{selectedRun.id}</dd>
+      </div>
+      <div>
+        <dt>Repo</dt>
+        <dd>{findRepoById(repos, selectedRun.repoId)?.displayName ?? selectedRun.repoId}</dd>
+      </div>
+      <div>
+        <dt>Accepted</dt>
+        <dd>{formatDateTime(selectedRun.acceptedAt)}</dd>
+      </div>
+      <div>
+        <dt>Started</dt>
+        <dd>{formatOptionalDateTime(selectedRun.startedAt)}</dd>
+      </div>
+      <div>
+        <dt>Completed</dt>
+        <dd>{formatOptionalDateTime(selectedRun.completedAt)}</dd>
+      </div>
+      <div>
+        <dt>Last sequence</dt>
+        <dd>{selectedRun.lastEventSequence}</dd>
+      </div>
+    </dl>
+  </section>
+);
+
+type RunActionButtonsProps = {
+  readonly actionState: ActionState;
+  readonly client: RepoMemoryClientShape | null;
+  readonly onInterruptRun: () => void;
+  readonly onResumeRun: () => void;
+  readonly onStreamRun: () => void;
+  readonly selectedRun: RepoRun;
+};
+
+const RunActionButtons = ({
+  actionState,
+  client,
+  onInterruptRun,
+  onResumeRun,
+  onStreamRun,
+  selectedRun,
+}: RunActionButtonsProps) => (
+  <div className="button-row">
+    <InterruptRunButton
+      actionState={actionState}
+      client={client}
+      onInterruptRun={onInterruptRun}
+      selectedRun={selectedRun}
+    />
+    <ResumeRunButton actionState={actionState} client={client} onResumeRun={onResumeRun} selectedRun={selectedRun} />
+    <button type="button" className="button-secondary" disabled={client === null} onClick={onStreamRun}>
+      Replay stream
+    </button>
+  </div>
+);
+
+type InterruptRunButtonProps = {
+  readonly actionState: ActionState;
+  readonly client: RepoMemoryClientShape | null;
+  readonly onInterruptRun: () => void;
+  readonly selectedRun: RepoRun;
+};
+
+const InterruptRunButton = ({ actionState, client, onInterruptRun, selectedRun }: InterruptRunButtonProps) => {
+  if (selectedRun.status !== "accepted" && selectedRun.status !== "running") {
+    return null;
+  }
+
+  return (
+    <button type="button" disabled={client === null || actionState !== "idle"} onClick={onInterruptRun}>
+      Interrupt run
+    </button>
+  );
+};
+
+type ResumeRunButtonProps = {
+  readonly actionState: ActionState;
+  readonly client: RepoMemoryClientShape | null;
+  readonly onResumeRun: () => void;
+  readonly selectedRun: RepoRun;
+};
+
+const ResumeRunButton = ({ actionState, client, onResumeRun, selectedRun }: ResumeRunButtonProps) => {
+  if (selectedRun.status !== "interrupted") {
+    return null;
+  }
+
+  return (
+    <button type="button" disabled={client === null || actionState !== "idle"} onClick={onResumeRun}>
+      Resume run
+    </button>
+  );
+};
+
+type RunProjectionDetailProps = {
+  readonly selectedRun: RepoRun;
+  readonly selectedRunEvents: ReadonlyArray<RunStreamEvent>;
+};
+
+const RunProjectionDetail = ({ selectedRun, selectedRunEvents }: RunProjectionDetailProps) => {
+  if (selectedRun.kind === "index") {
+    return <IndexProjectionCard selectedRun={selectedRun} />;
+  }
+
+  return <QueryProjectionCards selectedRun={selectedRun} selectedRunEvents={selectedRunEvents} />;
+};
+
+const IndexProjectionCard = ({
+  selectedRun,
+}: {
+  readonly selectedRun: Extract<RepoRun, { readonly kind: "index" }>;
+}) => (
+  <section className="detail-card">
+    <h3>Index projection</h3>
+    <p className="answer-copy">{formatIndexProjectionText(selectedRun.indexedFileCount)}</p>
+  </section>
+);
+
+type QueryProjectionCardsProps = {
+  readonly selectedRun: QueryRun;
+  readonly selectedRunEvents: ReadonlyArray<RunStreamEvent>;
+};
+
+const QueryProjectionCards = ({ selectedRun, selectedRunEvents }: QueryProjectionCardsProps) => (
+  <>
+    <GroundedAnswerCard answer={answerFromRun(selectedRun, selectedRunEvents)} />
+    <QueryStagesCard queryStages={selectedRun.queryStages} />
+    <RetrievalPacketCard packet={retrievalPacketFromRun(selectedRun, selectedRunEvents)} />
+    <CitationsCard citations={citationsFromRun(selectedRun, selectedRunEvents)} />
+  </>
+);
+
+const GroundedAnswerCard = ({ answer }: { readonly answer: string }) => (
+  <section className="detail-card">
+    <h3>Grounded answer</h3>
+    <p className="answer-copy">{answer}</p>
+  </section>
+);
+
+const QueryStagesCard = ({ queryStages }: { readonly queryStages: O.Option<QueryStageTrace> }) => {
+  const content = O.match(queryStages, {
+    onNone: () => <p className="empty-state">No projected query stages are available yet.</p>,
+    onSome: (trace) => {
+      const stageCards = pipe(
+        queryStageEntries(trace),
+        A.map((stage) => <QueryStageCard key={stage.phase} stage={stage} />)
+      );
+
+      return <div className="query-stage-grid">{stageCards}</div>;
+    },
+  });
+
+  return (
+    <section className="detail-card">
+      <h3>Query stages</h3>
+      {content}
+    </section>
+  );
+};
+
+const QueryStageCard = ({ stage }: { readonly stage: QueryStage }) => (
+  <article className="query-stage-card">
+    <div className="query-stage-top">
+      <strong>{formatQueryStageLabel(stage.phase)}</strong>
+      <span className={`metric-chip ${formatQueryStageStatusTone(stage.status)}`}>{stage.status}</span>
+    </div>
+    <p className="field-note">{O.getOrElse(stage.latestMessage, () => "No stage message has been projected yet.")}</p>
+    <dl className="meta-grid query-stage-meta">
+      <div>
+        <dt>Started</dt>
+        <dd>{formatOptionalDateTime(stage.startedAt)}</dd>
+      </div>
+      <div>
+        <dt>Completed</dt>
+        <dd>{formatOptionalDateTime(stage.completedAt)}</dd>
+      </div>
+      <div>
+        <dt>Percent</dt>
+        <dd>{formatOptionalPercent(stage.percent)}</dd>
+      </div>
+      <StageArtifactMeta stage={stage} />
+    </dl>
+  </article>
+);
+
+const StageArtifactMeta = ({ stage }: { readonly stage: QueryStage }) => {
+  if (stage.phase !== "packet" && stage.phase !== "answer") {
+    return null;
+  }
+
+  return (
+    <div>
+      <dt>Artifact</dt>
+      <dd>{formatArtifactAvailability(stage.artifactAvailable)}</dd>
+    </div>
+  );
+};
+
+const RetrievalPacketCard = ({ packet }: { readonly packet: O.Option<RetrievalPacket> }) => {
+  const content = O.match(packet, {
+    onNone: () => <p className="empty-state">No retrieval packet materialized yet.</p>,
+    onSome: (retrievalPacket) => <RetrievalPacketDetail packet={retrievalPacket} />,
+  });
+
+  return (
+    <section className="detail-card">
+      <h3>Retrieval packet</h3>
+      {content}
+    </section>
+  );
+};
+
+const RetrievalPacketDetail = ({ packet }: { readonly packet: RetrievalPacket }) => (
+  <div className="packet-shell">
+    <p className="packet-summary">{packet.summary}</p>
+    <dl className="meta-grid">
+      <div>
+        <dt>Query</dt>
+        <dd>{packet.query}</dd>
+      </div>
+      <div>
+        <dt>Normalized</dt>
+        <dd>{packet.normalizedQuery}</dd>
+      </div>
+      <div>
+        <dt>Query kind</dt>
+        <dd>{packet.queryKind}</dd>
+      </div>
+      <div>
+        <dt>Outcome</dt>
+        <dd>{packet.outcome}</dd>
+      </div>
+      <div>
+        <dt>Retrieved</dt>
+        <dd>{formatDateTime(packet.retrievedAt)}</dd>
+      </div>
+      <div>
+        <dt>Snapshot</dt>
+        <dd>{O.getOrElse(packet.sourceSnapshotId, () => "none")}</dd>
+      </div>
+      <div>
+        <dt>Citations</dt>
+        <dd>{packet.citations.length}</dd>
+      </div>
+    </dl>
+    <PacketLineSection lines={packetPayloadLines(packet)} title="Payload" />
+    <PacketLineSection lines={packetIssueLines(packet)} title="Issue" />
+    <PacketNotes notes={packet.notes} />
+  </div>
+);
+
+type PacketLineSectionProps = {
+  readonly lines: ReadonlyArray<string>;
+  readonly title: string;
+};
+
+const PacketLineSection = ({ lines, title }: PacketLineSectionProps) =>
+  A.match(lines, {
+    onEmpty: () => null,
+    onNonEmpty: (nonEmptyLines) => {
+      const lineItems = pipe(
+        nonEmptyLines,
+        A.map((line) => <li key={line}>{line}</li>)
+      );
+
+      return (
+        <>
+          <h4>{title}</h4>
+          <ul className="note-list">{lineItems}</ul>
+        </>
+      );
+    },
+  });
+
+const PacketNotes = ({ notes }: { readonly notes: ReadonlyArray<string> }) =>
+  A.match(notes, {
+    onEmpty: () => null,
+    onNonEmpty: (nonEmptyNotes) => {
+      const noteItems = pipe(
+        nonEmptyNotes,
+        A.map((note) => <li key={note}>{note}</li>)
+      );
+
+      return <ul className="note-list">{noteItems}</ul>;
+    },
+  });
+
+const CitationsCard = ({ citations }: { readonly citations: ReadonlyArray<Citation> }) => {
+  const content = A.match(citations, {
+    onEmpty: () => <p className="empty-state">No citations are available for this run yet.</p>,
+    onNonEmpty: (nonEmptyCitations) => {
+      const citationCards = pipe(
+        nonEmptyCitations,
+        A.map((citation) => <CitationCard citation={citation} key={citation.id} />)
+      );
+
+      return <div className="citation-list">{citationCards}</div>;
+    },
+  });
+
+  return (
+    <section className="detail-card">
+      <h3>Citations</h3>
+      {content}
+    </section>
+  );
+};
+
+const CitationCard = ({ citation }: { readonly citation: Citation }) => (
+  <article className="citation-card">
+    <div className="citation-top">
+      <strong>{citation.label}</strong>
+      <span>{O.getOrElse(citation.span.symbolName, () => "source span")}</span>
+    </div>
+    <p>{citation.rationale}</p>
+    <code>{formatCitationSpan(citation)}</code>
+  </article>
+);
+
+const RunErrorCard = ({ errorMessage }: { readonly errorMessage: O.Option<string> }) =>
+  O.match(errorMessage, {
+    onNone: () => null,
+    onSome: (message) => (
+      <section className="detail-card">
+        <h3>Run error</h3>
+        <p className="notice notice-error">{message}</p>
+      </section>
+    ),
+  });
+
+const EventFeedCard = ({ selectedRunEvents }: { readonly selectedRunEvents: ReadonlyArray<RunStreamEvent> }) => {
+  const content = A.match(selectedRunEvents, {
+    onEmpty: () => (
+      <p className="empty-state">No stream events have been replayed for this run in the current shell session.</p>
+    ),
+    onNonEmpty: (events) => {
+      const eventItems = pipe(
+        events,
+        A.map((event) => (
+          <li key={`${event.kind}-${event.sequence}`} className="event-card">
+            <div className="event-card-top">
+              <strong>{event.kind}</strong>
+              <span>#{event.sequence}</span>
+            </div>
+            <p>{eventLabel(event)}</p>
+            <small>{formatDateTime(event.emittedAt)}</small>
+          </li>
+        ))
+      );
+
+      return <ol className="event-list">{eventItems}</ol>;
+    },
+  });
+
+  return (
+    <section className="detail-card">
+      <h3>Event feed</h3>
+      {content}
+    </section>
+  );
+};
 
 export function RepoMemoryDesktop() {
   const [nativeAvailable] = useState(() => isNativeDesktop());
@@ -510,12 +1402,6 @@ export function RepoMemoryDesktop() {
   const selectedRepo = useMemo(() => findRepoById(repos, selectedRepoId), [repos, selectedRepoId]);
   const selectedRun = useMemo(() => findRunById(runs, selectedRunId), [runs, selectedRunId]);
   const selectedRunEvents = selectedRunId === "" ? [] : (eventsByRunId[selectedRunId] ?? []);
-  const queryRun = selectedRun?.kind === "query" ? selectedRun : null;
-  const visibleAnswer = queryRun === null ? null : answerFromRun(queryRun, selectedRunEvents);
-  const visibleCitations = queryRun === null ? [] : citationsFromRun(queryRun, selectedRunEvents);
-  const visiblePacket =
-    queryRun === null ? O.none<RetrievalPacket>() : retrievalPacketFromRun(queryRun, selectedRunEvents);
-  const visibleQueryStages = queryRun === null ? O.none<QueryStageTrace>() : queryRun.queryStages;
 
   useEffect(() => {
     persistSidecarBaseUrl(baseUrlInput);
@@ -668,21 +1554,16 @@ export function RepoMemoryDesktop() {
     );
 
     try {
-      const browserBaseUrl = browserDevClientBaseUrl();
-      if (shellMode === "browser" && browserBaseUrl !== null) {
-        setStatusMessage("Connecting to the repo-memory sidecar through the desktop proxy.");
-        await connectToBaseUrl(browserBaseUrl, {
-          persistBaseUrl: false,
-        });
-        if (ac.signal.aborted) return;
-        return;
-      }
+      const connectionTarget = directSidecarConnectionTarget({ baseUrlInput, shellMode });
 
-      if (shellMode === "browser") {
-        setStatusMessage("Raw Vite origin detected. Connecting to the saved direct sidecar URL.");
-      }
+      O.match(connectionTarget.statusMessage, {
+        onNone: () => undefined,
+        onSome: setStatusMessage,
+      });
 
-      await connectToBaseUrl(baseUrlInput);
+      await connectToBaseUrl(connectionTarget.baseUrl, {
+        persistBaseUrl: connectionTarget.persistBaseUrl,
+      });
       if (ac.signal.aborted) return;
     } catch (error) {
       if (ac.signal.aborted) return;
@@ -707,11 +1588,7 @@ export function RepoMemoryDesktop() {
     setConnectionState("connecting");
     setActionState("refreshing");
     setErrorMessage(null);
-    setStatusMessage(
-      P.isNotNullish(options) && P.isNotNullish(options.restart) && options.restart
-        ? "Restarting the managed" + " local" + " sidecar."
-        : "Launching" + " the managed local sidecar."
-    );
+    setStatusMessage(managedConnectionStatusMessage(options));
 
     try {
       if (options?.restart === true) {
@@ -1149,34 +2026,18 @@ export function RepoMemoryDesktop() {
   return (
     <section className="workspace">
       <div className="summary-strip">
-        <article className="summary-card">
-          <span className="summary-label">Connection</span>
-          <strong>{formatConnectionLabel(connectionState)}</strong>
-          <p>
-            {bootstrap === null
-              ? nativeAvailable && shellMode === "native-managed"
-                ? managedState === null
-                  ? "Managed sidecar booting."
-                  : `${managedState.mode} ${managedState.status}`
-                : "Waiting for a sidecar."
-              : bootstrap.status}
-          </p>
-        </article>
-        <article className="summary-card">
-          <span className="summary-label">Repos</span>
-          <strong>{repos.length}</strong>
-          <p>{repos.length === 0 ? "No repo registered yet." : "Control plane registry loaded."}</p>
-        </article>
-        <article className="summary-card">
-          <span className="summary-label">Runs</span>
-          <strong>{runs.length}</strong>
-          <p>{runs.length === 0 ? "No durable runs yet." : "Workflow projections ready for inspection."}</p>
-        </article>
-        <article className="summary-card">
-          <span className="summary-label">Stream</span>
-          <strong>{activeStreamRunId === null ? "inactive" : "live"}</strong>
-          <p>{activeStreamRunId === null ? "Select a run to replay." : activeStreamRunId}</p>
-        </article>
+        <SummaryCard
+          description={connectionSummaryText({ bootstrap, managedState, nativeAvailable, shellMode })}
+          label="Connection"
+          value={formatConnectionLabel(connectionState)}
+        />
+        <SummaryCard description={repoSummaryText(repos.length)} label="Repos" value={repos.length} />
+        <SummaryCard description={runSummaryText(runs.length)} label="Runs" value={runs.length} />
+        <SummaryCard
+          description={streamSummaryText(activeStreamRunId)}
+          label="Stream"
+          value={streamSummaryValue(activeStreamRunId)}
+        />
       </div>
 
       <div className="workspace-grid">
@@ -1190,189 +2051,24 @@ export function RepoMemoryDesktop() {
               {formatConnectionLabel(connectionState)}
             </span>
           </div>
-          {nativeAvailable && shellMode === "native-managed" ? (
-            <div className="stack">
-              <p className="field-note">
-                The native shell owns sidecar launch, bootstrap discovery, and health checks before the client connects.
-              </p>
-              <div className="button-row">
-                <button
-                  type="button"
-                  disabled={connectionState === "connecting"}
-                  onClick={() => void connectManaged({ restart: true })}
-                >
-                  {connectionState === "connecting" ? "Starting..." : "Restart sidecar"}
-                </button>
-                <button
-                  type="button"
-                  className="button-secondary"
-                  disabled={client === null}
-                  onClick={() => void refresh()}
-                >
-                  Refresh
-                </button>
-                <button
-                  type="button"
-                  className="button-secondary"
-                  disabled={connectionState === "connecting"}
-                  onClick={() => void stopManagedConnection()}
-                >
-                  Stop sidecar
-                </button>
-              </div>
-              <details className="debug-panel">
-                <summary>Debug override</summary>
-                <div className="stack">
-                  <p className="field-note">
-                    Stop the managed sidecar and switch back to the old manual URL flow only when you need to inspect a
-                    different runtime.
-                  </p>
-                  <button type="button" className="button-secondary" onClick={() => void enableManualOverride()}>
-                    Use manual URL override
-                  </button>
-                </div>
-              </details>
-            </div>
-          ) : shellMode === "manual-override" ? (
-            <form
-              className="stack"
-              onSubmit={(event) => {
-                event.preventDefault();
-                void connect();
-              }}
-            >
-              <label className="field">
-                <span>Sidecar base URL</span>
-                <input
-                  value={baseUrlInput}
-                  onChange={(nextEvent) => setBaseUrlInput(nextEvent.target.value)}
-                  onBlur={() => setBaseUrlInput((current) => normalizeSidecarBaseUrl(current))}
-                  placeholder={defaultBaseUrl}
-                />
-              </label>
-              <p className="field-note">
-                Use the root sidecar URL. Legacy `/api/v0` input is normalized automatically.
-              </p>
-              <div className="button-row">
-                <button type="submit" disabled={connectionState === "connecting"}>
-                  {connectionState === "connecting" ? "Connecting..." : "Connect"}
-                </button>
-                <button
-                  type="button"
-                  className="button-secondary"
-                  disabled={client === null}
-                  onClick={() => void refresh()}
-                >
-                  Refresh
-                </button>
-                <button type="button" className="button-secondary" disabled={client === null} onClick={disconnect}>
-                  Disconnect
-                </button>
-                {nativeAvailable ? (
-                  <button
-                    type="button"
-                    className="button-secondary"
-                    disabled={connectionState === "connecting"}
-                    onClick={() => setShellMode("native-managed")}
-                  >
-                    Resume managed sidecar
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="button-secondary"
-                    disabled={connectionState === "connecting"}
-                    onClick={() => setShellMode("browser")}
-                  >
-                    Use desktop proxy
-                  </button>
-                )}
-              </div>
-            </form>
-          ) : (
-            <div className="stack">
-              <p className="field-note">
-                {browserDevClientBaseUrl() === null
-                  ? "Raw Vite dev does not include the desktop proxy. Use the saved direct sidecar URL here, or switch back to the default portless desktop flow."
-                  : "Browser dev uses the HTTPS desktop proxy and the portless sidecar route. Use manual override only when you need to inspect a different runtime."}
-              </p>
-              <div className="button-row">
-                <button type="button" disabled={connectionState === "connecting"} onClick={() => void connect()}>
-                  {connectionState === "connecting" ? "Connecting..." : "Connect"}
-                </button>
-                <button
-                  type="button"
-                  className="button-secondary"
-                  disabled={client === null}
-                  onClick={() => void refresh()}
-                >
-                  Refresh
-                </button>
-                <button type="button" className="button-secondary" disabled={client === null} onClick={disconnect}>
-                  Disconnect
-                </button>
-              </div>
-              <details className="debug-panel">
-                <summary>Debug override</summary>
-                <div className="stack">
-                  <p className="field-note">
-                    Use a direct sidecar URL only when you need to inspect a different runtime or bypass the desktop
-                    proxy.
-                  </p>
-                  <button type="button" className="button-secondary" onClick={() => setShellMode("manual-override")}>
-                    Use manual URL override
-                  </button>
-                </div>
-              </details>
-            </div>
-          )}
+          <ConnectionControls
+            baseUrlInput={baseUrlInput}
+            client={client}
+            connectionState={connectionState}
+            nativeAvailable={nativeAvailable}
+            onBaseUrlInputChange={setBaseUrlInput}
+            onConnect={() => void connect()}
+            onConnectManagedRestart={() => void connectManaged({ restart: true })}
+            onDisconnect={disconnect}
+            onEnableManualOverride={() => void enableManualOverride()}
+            onNormalizeBaseUrlInput={() => setBaseUrlInput((current) => normalizeSidecarBaseUrl(current))}
+            onRefresh={() => void refresh()}
+            onShellModeChange={setShellMode}
+            onStopManagedConnection={() => void stopManagedConnection()}
+            shellMode={shellMode}
+          />
           <p className="status-line">{statusMessage}</p>
-          {errorMessage === null ? null : <p className="notice notice-error">{errorMessage}</p>}
-          {managedState !== null ? (
-            <p className="notice">
-              Native state: <code>{managedState.mode}</code> {managedState.status}
-            </p>
-          ) : null}
-          {managedState !== null && managedState.stderrTail.length > 0 ? (
-            <div className="notice">
-              <strong>Sidecar stderr</strong>
-              <pre className="mono-block">{managedState.stderrTail.join("\n")}</pre>
-            </div>
-          ) : null}
-          {bootstrap === null ? null : (
-            <dl className="meta-grid">
-              <div>
-                <dt>Host</dt>
-                <dd>
-                  {bootstrap.host}:{bootstrap.port}
-                </dd>
-              </div>
-              <div>
-                <dt>Version</dt>
-                <dd>{bootstrap.version}</dd>
-              </div>
-              <div>
-                <dt>PID</dt>
-                <dd>{bootstrap.pid}</dd>
-              </div>
-              <div>
-                <dt>Started</dt>
-                <dd>{formatDateTime(bootstrap.startedAt)}</dd>
-              </div>
-              {managedState === null ? null : (
-                <div>
-                  <dt>Launch mode</dt>
-                  <dd>{managedState.mode}</dd>
-                </div>
-              )}
-              {managedState === null ? null : (
-                <div>
-                  <dt>Native state</dt>
-                  <dd>{managedState.status}</dd>
-                </div>
-              )}
-            </dl>
-          )}
+          <ConnectionDiagnostics bootstrap={bootstrap} errorMessage={errorMessage} managedState={managedState} />
         </section>
 
         <section className="panel panel-register">
@@ -1541,298 +2237,17 @@ export function RepoMemoryDesktop() {
           </div>
         </section>
 
-        <section className="panel panel-detail">
-          <div className="panel-heading">
-            <div>
-              <p className="panel-kicker">Inspection</p>
-              <h2>Selected run detail</h2>
-            </div>
-            {selectedRun === null ? null : (
-              <div className="detail-status">
-                <span className={`status-pill ${runStatusTone(selectedRun.status)}`}>{selectedRun.status}</span>
-                {activeStreamRunId === selectedRun.id ? (
-                  <span className="status-pill status-running">live stream</span>
-                ) : null}
-              </div>
-            )}
-          </div>
-          {selectedRun === null ? (
-            <p className="empty-state">
-              Select a run to inspect its answer, citations, retrieval packet, and event feed.
-            </p>
-          ) : (
-            <div className="detail-stack">
-              <section className="detail-card">
-                <div className="detail-card-top">
-                  <h3>{formatRunTitle(selectedRun)}</h3>
-                  <div className="button-row">
-                    {selectedRun.status === "accepted" || selectedRun.status === "running" ? (
-                      <button
-                        type="button"
-                        disabled={client === null || actionState !== "idle"}
-                        onClick={() => void interruptSelectedRun()}
-                      >
-                        Interrupt run
-                      </button>
-                    ) : null}
-                    {selectedRun.status === "interrupted" ? (
-                      <button
-                        type="button"
-                        disabled={client === null || actionState !== "idle"}
-                        onClick={() => void resumeSelectedRun()}
-                      >
-                        Resume run
-                      </button>
-                    ) : null}
-                    <button
-                      type="button"
-                      className="button-secondary"
-                      disabled={client === null}
-                      onClick={() => void streamSelectedRun()}
-                    >
-                      Replay stream
-                    </button>
-                  </div>
-                </div>
-                <dl className="meta-grid">
-                  <div>
-                    <dt>Run ID</dt>
-                    <dd>{selectedRun.id}</dd>
-                  </div>
-                  <div>
-                    <dt>Repo</dt>
-                    <dd>{findRepoById(repos, selectedRun.repoId)?.displayName ?? selectedRun.repoId}</dd>
-                  </div>
-                  <div>
-                    <dt>Accepted</dt>
-                    <dd>{formatDateTime(selectedRun.acceptedAt)}</dd>
-                  </div>
-                  <div>
-                    <dt>Started</dt>
-                    <dd>{formatOptionalDateTime(selectedRun.startedAt)}</dd>
-                  </div>
-                  <div>
-                    <dt>Completed</dt>
-                    <dd>{formatOptionalDateTime(selectedRun.completedAt)}</dd>
-                  </div>
-                  <div>
-                    <dt>Last sequence</dt>
-                    <dd>{selectedRun.lastEventSequence}</dd>
-                  </div>
-                </dl>
-              </section>
-
-              {selectedRun.kind === "index" ? (
-                <section className="detail-card">
-                  <h3>Index projection</h3>
-                  <p className="answer-copy">
-                    {O.match(selectedRun.indexedFileCount, {
-                      onNone: () => "The index run has not published a final file count yet.",
-                      onSome: (count) => `Indexed ${count} files in the latest durable snapshot.`,
-                    })}
-                  </p>
-                </section>
-              ) : (
-                <>
-                  <section className="detail-card">
-                    <h3>Grounded answer</h3>
-                    <p className="answer-copy">{visibleAnswer}</p>
-                  </section>
-
-                  <section className="detail-card">
-                    <h3>Query stages</h3>
-                    {pipe(
-                      visibleQueryStages,
-                      O.match({
-                        onNone: () => <p className="empty-state">No projected query stages are available yet.</p>,
-                        onSome: (queryStages) => (
-                          <div className="query-stage-grid">
-                            {queryStageEntries(queryStages).map((stage) => (
-                              <article key={stage.phase} className="query-stage-card">
-                                <div className="query-stage-top">
-                                  <strong>{formatQueryStageLabel(stage.phase)}</strong>
-                                  <span className={`metric-chip ${formatQueryStageStatusTone(stage.status)}`}>
-                                    {stage.status}
-                                  </span>
-                                </div>
-                                <p className="field-note">
-                                  {pipe(
-                                    stage.latestMessage,
-                                    O.getOrElse(() => "No stage message has been projected yet.")
-                                  )}
-                                </p>
-                                <dl className="meta-grid query-stage-meta">
-                                  <div>
-                                    <dt>Started</dt>
-                                    <dd>{formatOptionalDateTime(stage.startedAt)}</dd>
-                                  </div>
-                                  <div>
-                                    <dt>Completed</dt>
-                                    <dd>{formatOptionalDateTime(stage.completedAt)}</dd>
-                                  </div>
-                                  <div>
-                                    <dt>Percent</dt>
-                                    <dd>{formatOptionalPercent(stage.percent)}</dd>
-                                  </div>
-                                  {stage.phase === "packet" || stage.phase === "answer" ? (
-                                    <div>
-                                      <dt>Artifact</dt>
-                                      <dd>
-                                        {pipe(
-                                          stage.artifactAvailable,
-                                          O.match({
-                                            onNone: () => "Not yet",
-                                            onSome: (artifactAvailable) =>
-                                              artifactAvailable ? "Available" : "Not yet",
-                                          })
-                                        )}
-                                      </dd>
-                                    </div>
-                                  ) : null}
-                                </dl>
-                              </article>
-                            ))}
-                          </div>
-                        ),
-                      })
-                    )}
-                  </section>
-
-                  <section className="detail-card">
-                    <h3>Retrieval packet</h3>
-                    {pipe(
-                      visiblePacket,
-                      O.match({
-                        onNone: () => <p className="empty-state">No retrieval packet materialized yet.</p>,
-                        onSome: (packet) => (
-                          <div className="packet-shell">
-                            <p className="packet-summary">{packet.summary}</p>
-                            <dl className="meta-grid">
-                              <div>
-                                <dt>Query</dt>
-                                <dd>{packet.query}</dd>
-                              </div>
-                              <div>
-                                <dt>Normalized</dt>
-                                <dd>{packet.normalizedQuery}</dd>
-                              </div>
-                              <div>
-                                <dt>Query kind</dt>
-                                <dd>{packet.queryKind}</dd>
-                              </div>
-                              <div>
-                                <dt>Outcome</dt>
-                                <dd>{packet.outcome}</dd>
-                              </div>
-                              <div>
-                                <dt>Retrieved</dt>
-                                <dd>{formatDateTime(packet.retrievedAt)}</dd>
-                              </div>
-                              <div>
-                                <dt>Snapshot</dt>
-                                <dd>
-                                  {pipe(
-                                    packet.sourceSnapshotId,
-                                    O.getOrElse(() => "none")
-                                  )}
-                                </dd>
-                              </div>
-                              <div>
-                                <dt>Citations</dt>
-                                <dd>{packet.citations.length}</dd>
-                              </div>
-                            </dl>
-                            {packetPayloadLines(packet).length === 0 ? null : (
-                              <>
-                                <h4>Payload</h4>
-                                <ul className="note-list">
-                                  {packetPayloadLines(packet).map((line) => (
-                                    <li key={line}>{line}</li>
-                                  ))}
-                                </ul>
-                              </>
-                            )}
-                            {packetIssueLines(packet).length === 0 ? null : (
-                              <>
-                                <h4>Issue</h4>
-                                <ul className="note-list">
-                                  {packetIssueLines(packet).map((line) => (
-                                    <li key={line}>{line}</li>
-                                  ))}
-                                </ul>
-                              </>
-                            )}
-                            {packet.notes.length === 0 ? null : (
-                              <ul className="note-list">
-                                {packet.notes.map((note) => (
-                                  <li key={note}>{note}</li>
-                                ))}
-                              </ul>
-                            )}
-                          </div>
-                        ),
-                      })
-                    )}
-                  </section>
-
-                  <section className="detail-card">
-                    <h3>Citations</h3>
-                    {visibleCitations.length === 0 ? (
-                      <p className="empty-state">No citations are available for this run yet.</p>
-                    ) : (
-                      <div className="citation-list">
-                        {visibleCitations.map((citation) => (
-                          <article key={citation.id} className="citation-card">
-                            <div className="citation-top">
-                              <strong>{citation.label}</strong>
-                              <span>
-                                {pipe(
-                                  citation.span.symbolName,
-                                  O.getOrElse(() => "source span")
-                                )}
-                              </span>
-                            </div>
-                            <p>{citation.rationale}</p>
-                            <code>{formatCitationSpan(citation)}</code>
-                          </article>
-                        ))}
-                      </div>
-                    )}
-                  </section>
-                </>
-              )}
-
-              {O.isSome(selectedRun.errorMessage) ? (
-                <section className="detail-card">
-                  <h3>Run error</h3>
-                  <p className="notice notice-error">{selectedRun.errorMessage.value}</p>
-                </section>
-              ) : null}
-
-              <section className="detail-card">
-                <h3>Event feed</h3>
-                {selectedRunEvents.length === 0 ? (
-                  <p className="empty-state">
-                    No stream events have been replayed for this run in the current shell session.
-                  </p>
-                ) : (
-                  <ol className="event-list">
-                    {selectedRunEvents.map((event) => (
-                      <li key={`${event.kind}-${event.sequence}`} className="event-card">
-                        <div className="event-card-top">
-                          <strong>{event.kind}</strong>
-                          <span>#{event.sequence}</span>
-                        </div>
-                        <p>{eventLabel(event)}</p>
-                        <small>{formatDateTime(event.emittedAt)}</small>
-                      </li>
-                    ))}
-                  </ol>
-                )}
-              </section>
-            </div>
-          )}
-        </section>
+        <SelectedRunDetailPanel
+          actionState={actionState}
+          activeStreamRunId={activeStreamRunId}
+          client={client}
+          onInterruptRun={() => void interruptSelectedRun()}
+          onResumeRun={() => void resumeSelectedRun()}
+          onStreamRun={() => void streamSelectedRun()}
+          repos={repos}
+          selectedRun={selectedRun}
+          selectedRunEvents={selectedRunEvents}
+        />
       </div>
     </section>
   );

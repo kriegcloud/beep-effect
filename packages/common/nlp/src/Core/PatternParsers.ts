@@ -75,24 +75,20 @@ const encodePatternElement = Match.type<PatternElementType>().pipe(
 );
 
 const decodePatternElement = (input: string) =>
-  O.match(decodePOSPatternElement(input), {
-    onNone: () =>
-      O.match(decodeEntityPatternElement(input), {
-        onNone: () =>
-          O.match(decodeLiteralPatternElement(input), {
-            onNone: () =>
-              Effect.fail(
-                invalidBracketString(
-                  input,
-                  "Pattern element must be bracketed and contain valid POS, entity, or non-empty literal choices."
-                )
-              ),
-            onSome: Effect.succeed,
-          }),
-        onSome: succeedPatternElement,
-      }),
-    onSome: succeedPatternElement,
-  });
+  pipe(
+    A.make(decodePOSPatternElement(input), decodeEntityPatternElement(input), decodeLiteralPatternElement(input)),
+    O.firstSomeOf,
+    O.match({
+      onNone: () =>
+        Effect.fail(
+          invalidBracketString(
+            input,
+            "Pattern element must be bracketed and contain valid POS, entity, or non-empty literal choices."
+          )
+        ),
+      onSome: succeedPatternElement,
+    })
+  );
 
 /**
  * Decode a POS bracket string into a pattern element.

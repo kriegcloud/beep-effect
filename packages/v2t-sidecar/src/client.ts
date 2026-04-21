@@ -1,4 +1,5 @@
 import { $I as $RootId } from "@beep/identity/packages";
+import type { SidecarBootstrap } from "@beep/runtime-protocol";
 import { StatusCauseFields, TaggedErrorClass, UUID } from "@beep/schema";
 import { Cause, Context, Effect, Layer, pipe } from "effect";
 import { dual } from "effect/Function";
@@ -10,8 +11,6 @@ import * as FetchHttpClient from "effect/unstable/http/FetchHttpClient";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
 import * as HttpClientError from "effect/unstable/http/HttpClientError";
 import { HttpApiClient } from "effect/unstable/httpapi";
-import type { SidecarBootstrap } from "@beep/runtime-protocol";
-import { Vt2ControlPlaneApi, Vt2ControlPlaneErrorPayload } from "./protocol.js";
 import type {
   CompleteVt2CaptureInput,
   CreateVt2SessionInput,
@@ -23,6 +22,7 @@ import type {
   Vt2SessionResource,
   Vt2WorkspaceSnapshot,
 } from "./domain.js";
+import { Vt2ControlPlaneApi, Vt2ControlPlaneErrorPayload } from "./protocol.js";
 
 const $I = $RootId.create("V2T/client");
 const controlPlanePrefix = "/api/v0";
@@ -72,33 +72,35 @@ export class Vt2ClientError extends TaggedErrorClass<Vt2ClientError>($I`Vt2Clien
   static readonly fromCause: {
     (cause: unknown, fallback: string): Vt2ClientError;
     (fallback: string): (cause: unknown) => Vt2ClientError;
-  } = dual(2, (cause: unknown, fallback: string): Vt2ClientError =>
-    pipe(
-      cause,
-      O.liftPredicate(S.is(Vt2ClientError)),
-      O.orElse(() =>
-        pipe(
-          cause,
-          O.liftPredicate(S.is(Vt2ControlPlaneErrorPayload)),
-          O.map(
-            (payload) =>
-              new Vt2ClientError({
-                message: payload.message,
-                status: payload.status,
-                cause: O.none(),
-              })
+  } = dual(
+    2,
+    (cause: unknown, fallback: string): Vt2ClientError =>
+      pipe(
+        cause,
+        O.liftPredicate(S.is(Vt2ClientError)),
+        O.orElse(() =>
+          pipe(
+            cause,
+            O.liftPredicate(S.is(Vt2ControlPlaneErrorPayload)),
+            O.map(
+              (payload) =>
+                new Vt2ClientError({
+                  message: payload.message,
+                  status: payload.status,
+                  cause: O.none(),
+                })
+            )
           )
+        ),
+        O.getOrElse(
+          () =>
+            new Vt2ClientError({
+              message: fallback,
+              status: transportStatus(cause),
+              cause: O.liftPredicate(P.isError)(cause),
+            })
         )
-      ),
-      O.getOrElse(
-        () =>
-          new Vt2ClientError({
-            message: fallback,
-            status: transportStatus(cause),
-            cause: O.liftPredicate(P.isError)(cause),
-          })
       )
-    )
   );
 }
 
@@ -329,7 +331,10 @@ export const makeVt2Client = Effect.fn("Vt2Client.make")((config: Vt2ClientConfi
             )
           ),
         savePreferences: (input) =>
-          mapClientError("Failed to save the V2T desktop preferences.", controlPlane.savePreferences({ payload: input })),
+          mapClientError(
+            "Failed to save the V2T desktop preferences.",
+            controlPlane.savePreferences({ payload: input })
+          ),
         startCapture: (sessionId) =>
           Effect.flatMap(decodeSessionId(sessionId), (decodedSessionId) =>
             mapClientError(

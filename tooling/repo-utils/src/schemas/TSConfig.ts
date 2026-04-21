@@ -1175,10 +1175,7 @@ const TSConfigCompilerOptionsChecks = S.makeFilterGroup(
             onSome: () =>
               pipe(
                 toOptionalValue(options.jsx),
-                O.match({
-                  onNone: () => false,
-                  onSome: (jsx) => jsx === "react",
-                })
+                O.exists((jsx) => jsx === "react")
               ),
           })
         ),

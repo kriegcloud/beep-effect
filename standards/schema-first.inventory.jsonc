@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-04-15",
+  "generatedOn": "2026-04-21",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -894,6 +894,14 @@
       "status": "exception",
       "owner": "@beep/repo-cli",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "tooling/cli/src/commands/SyncDataToTs/index.ts",
+      "symbol": "rowSchema",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/repo-cli",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
       "file": "tooling/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",

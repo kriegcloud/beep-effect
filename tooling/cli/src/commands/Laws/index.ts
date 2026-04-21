@@ -166,6 +166,15 @@ const lawsTerseEffectCommand = Command.make(
     yield* Console.log(
       `[effect-governance-terse-effect] option_object_compaction_candidates_detected=${summary.optionObjectCompactionCandidatesDetected}`
     );
+    yield* Console.log(
+      `[effect-governance-terse-effect] nested_option_match_candidates_detected=${summary.nestedOptionMatchCandidatesDetected}`
+    );
+    yield* Console.log(
+      `[effect-governance-terse-effect] nested_bool_match_candidates_detected=${summary.nestedBoolMatchCandidatesDetected}`
+    );
+    yield* Console.log(
+      `[effect-governance-terse-effect] dual_overload_candidates_detected=${summary.dualOverloadCandidatesDetected}`
+    );
 
     if (!options.write) {
       yield* Console.log("[effect-governance-terse-effect] Run with --write to persist changes.");
