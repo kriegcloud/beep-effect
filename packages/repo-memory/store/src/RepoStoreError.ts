@@ -1,5 +1,5 @@
 import { $RepoMemoryStoreId } from "@beep/identity/packages";
-import { StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { StatusCauseTaggedErrorClass } from "@beep/schema";
 
 const $I = $RepoMemoryStoreId.create("RepoStoreError");
 
@@ -9,6 +9,9 @@ const $I = $RepoMemoryStoreId.create("RepoStoreError");
  * @since 0.0.0
  * @category DomainModel
  */
-export class RepoStoreError extends TaggedErrorClass<RepoStoreError>($I`RepoStoreError`)("RepoStoreError", {
-  ...StatusCauseFields,
-}) {}
+export class RepoStoreError extends StatusCauseTaggedErrorClass<RepoStoreError>($I`RepoStoreError`)(
+  "RepoStoreError",
+  $I.annote("RepoStoreError", {
+    description: "Typed persistence error emitted by repo-memory store algebras.",
+  })
+) {}
