@@ -28,15 +28,7 @@ import {
   SidecarNotFoundPayload,
 } from "@beep/editor-protocol";
 import { $EditorRuntimeId } from "@beep/identity/packages";
-import {
-  FilePath,
-  makeStatusCauseError,
-  NonEmptyTrimmedStr,
-  NonNegativeInt,
-  Slug,
-  StatusCauseFields,
-  TaggedErrorClass,
-} from "@beep/schema";
+import { FilePath, NonEmptyTrimmedStr, NonNegativeInt, Slug, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { thunkFalse, thunkSome } from "@beep/utils";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
@@ -92,9 +84,8 @@ export class EditorRuntimeConfig extends S.Class<EditorRuntimeConfig>($I`EditorR
  * @since 0.0.0
  * @category Errors
  */
-export class EditorRuntimeError extends TaggedErrorClass<EditorRuntimeError>($I`EditorRuntimeError`)(
+export class EditorRuntimeError extends StatusCauseTaggedErrorClass<EditorRuntimeError>($I`EditorRuntimeError`)(
   "EditorRuntimeError",
-  StatusCauseFields,
   $I.annote("EditorRuntimeError", {
     description: "Typed runtime error for editor sidecar bootstrap and persistence workflows.",
   })
@@ -110,7 +101,6 @@ const RevisionRecordJson = S.fromJsonString(RevisionRecord);
 const encodeRevisionRecordJson = S.encodeUnknownSync(RevisionRecordJson);
 const BootstrapStdoutJson = S.fromJsonString(SidecarBootstrapStdoutEvent);
 const encodeBootstrapStdoutJson = S.encodeUnknownEffect(BootstrapStdoutJson);
-const toRuntimeError = makeStatusCauseError(EditorRuntimeError);
 
 const internalRunnerHost = (host: string): string => {
   if (host === "0.0.0.0") {
@@ -216,23 +206,21 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
   const readPageFile = Effect.fn("EditorRuntime.readPageFile")(function* (filePath: string) {
     const raw = yield* fs
       .readFileString(filePath)
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to read "${filePath}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to read "${filePath}".`, 500));
 
-    return yield* decodePageDocumentJson(raw).pipe(
-      Effect.mapError((cause) => toRuntimeError(`Failed to decode "${filePath}".`, 500, cause))
-    );
+    return yield* decodePageDocumentJson(raw).pipe(EditorRuntimeError.mapError(`Failed to decode "${filePath}".`, 500));
   });
 
   const writeManifest = Effect.fn("EditorRuntime.writeManifest")(function* (manifest: WorkspaceManifest) {
     yield* fs
       .writeFileString(manifestPath, encodeWorkspaceManifestJson(manifest))
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to write "${manifestPath}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to write "${manifestPath}".`, 500));
   });
 
   const writePage = Effect.fn("EditorRuntime.writePage")(function* (page: PageDocument) {
     yield* fs
       .writeFileString(path.resolve(pagesDirectory, `${page.slug}.json`), encodePageDocumentJson(page))
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to persist page "${page.slug}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to persist page "${page.slug}".`, 500));
   });
 
   const writeRevision = Effect.fn("EditorRuntime.writeRevision")(function* (
@@ -243,16 +231,16 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     const revision = makeRevisionRecord(page, savedAt, reason);
     yield* fs
       .writeFileString(path.resolve(revisionsDirectory, `${revision.id}.json`), encodeRevisionRecordJson(revision))
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to persist revision for "${page.slug}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to persist revision for "${page.slug}".`, 500));
   });
 
   const ensureWorkspaceScaffold = Effect.fn("EditorRuntime.ensureWorkspaceScaffold")(function* () {
     yield* fs
       .makeDirectory(pagesDirectory, { recursive: true })
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to create "${pagesDirectory}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to create "${pagesDirectory}".`, 500));
     yield* fs
       .makeDirectory(revisionsDirectory, { recursive: true })
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to create "${revisionsDirectory}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to create "${revisionsDirectory}".`, 500));
 
     const manifestExists = yield* fs.exists(manifestPath).pipe(Effect.orElseSucceed(thunkFalse));
 
@@ -282,10 +270,10 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     yield* ensureWorkspaceScaffold();
     const raw = yield* fs
       .readFileString(manifestPath)
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to read "${manifestPath}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to read "${manifestPath}".`, 500));
 
     return yield* decodeWorkspaceManifestJson(raw).pipe(
-      Effect.mapError((cause) => toRuntimeError(`Failed to decode "${manifestPath}".`, 500, cause))
+      EditorRuntimeError.mapError(`Failed to decode "${manifestPath}".`, 500)
     );
   });
 
@@ -293,7 +281,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     yield* ensureWorkspaceScaffold();
     const entries = yield* fs
       .readDirectory(pagesDirectory)
-      .pipe(Effect.mapError((cause) => toRuntimeError(`Failed to read "${pagesDirectory}".`, 500, cause)));
+      .pipe(EditorRuntimeError.mapError(`Failed to read "${pagesDirectory}".`, 500));
 
     const jsonEntries = pipe(entries, A.filter(Str.endsWith(".json")));
 
@@ -312,7 +300,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     const fileExists = yield* fs.exists(filePath).pipe(Effect.orElseSucceed(thunkFalse));
 
     if (!fileExists) {
-      return yield* toRuntimeError(`Page "${normalizedSlug}" was not found.`, 404, undefined);
+      return yield* EditorRuntimeError.noCause(`Page "${normalizedSlug}" was not found.`, 404);
     }
 
     return yield* readPageFile(filePath);
@@ -387,10 +375,9 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     }),
     savePage: Effect.fn("EditorRuntime.savePage")(function* (slug: string, page: PageDocument) {
       if (slug !== page.slug) {
-        return yield* toRuntimeError(
+        return yield* EditorRuntimeError.noCause(
           `Route slug "${slug}" does not match payload slug "${page.slug}".`,
-          400,
-          undefined
+          400
         );
       }
 
@@ -476,7 +463,7 @@ const emitBootstrapStdoutLine = Effect.fn("EditorRuntime.emitBootstrapStdoutLine
       status: bootstrap.status,
       startedAt: DateTime.toEpochMillis(bootstrap.startedAt),
     })
-  ).pipe(Effect.mapError((cause) => toRuntimeError("Failed to encode the editor bootstrap line.", 500, cause)));
+  ).pipe(EditorRuntimeError.mapError("Failed to encode the editor bootstrap line.", 500));
 
   yield* Effect.sync(() => {
     process.stdout.write(`${encoded}\n`);
@@ -533,7 +520,7 @@ const sidecarLayer = (config: EditorRuntimeConfig, startedAt: DateTime.Utc) => {
 
 const launchEditorSidecar = (config: EditorRuntimeConfig, startedAt: DateTime.Utc) =>
   Layer.launch(Layer.fresh(sidecarLayer(config, startedAt))).pipe(
-    Effect.mapError((cause) => toRuntimeError("Failed to launch the editor sidecar.", 500, cause))
+    EditorRuntimeError.mapError("Failed to launch the editor sidecar.", 500)
   );
 
 /**

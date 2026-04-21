@@ -22,7 +22,7 @@ import {
   SidecarInternalErrorPayload,
   SidecarNotFoundPayload,
 } from "@beep/runtime-protocol";
-import { FilePath, makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { FilePath, NonNegativeInt, StatusCauseTaggedErrorClass } from "@beep/schema";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
@@ -260,15 +260,12 @@ export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`Sidec
  * @since 0.0.0
  * @category DomainModel
  */
-export class SidecarRuntimeError extends TaggedErrorClass<SidecarRuntimeError>($I`SidecarRuntimeError`)(
+export class SidecarRuntimeError extends StatusCauseTaggedErrorClass<SidecarRuntimeError>($I`SidecarRuntimeError`)(
   "SidecarRuntimeError",
-  StatusCauseFields,
   $I.annote("SidecarRuntimeError", {
     description: "Typed error for sidecar runtime bootstrap and transport boundaries.",
   })
 ) {}
-
-const toRuntimeError = makeStatusCauseError(SidecarRuntimeError);
 
 const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure =>
   new RunStreamFailure({
@@ -488,7 +485,7 @@ const handleControlPlaneErrors = <A, E, R>(
 
 const toPublicAddress = (config: SidecarRuntimeConfig, address: HttpServer.Address) => {
   if (!P.isTagged(address, "TcpAddress")) {
-    return Effect.fail(toRuntimeError("Sidecar runtime requires a TCP address.", 500, undefined));
+    return Effect.fail(SidecarRuntimeError.noCause("Sidecar runtime requires a TCP address.", 500));
   }
 
   const host = internalRunnerHost(config.host);
@@ -515,7 +512,7 @@ const emitBootstrapStdoutLine = Effect.fn("SidecarRuntime.emitBootstrapStdoutLin
     startedAt,
   });
   const encoded = yield* encodeBootstrapStdoutLine(toBootstrapStdoutLine(bootstrap)).pipe(
-    Effect.mapError((cause) => toRuntimeError("Failed to encode sidecar bootstrap stdout line.", 500, cause))
+    SidecarRuntimeError.mapError("Failed to encode sidecar bootstrap stdout line.", 500)
   );
 
   yield* Effect.sync(() => {
@@ -633,7 +630,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
         const sanitizedRunId = pipe(runId, Str.replaceAll("\0", ""));
         const repoRunService = yield* RepoRunService;
         const decodedRunId = yield* decodeRunId(sanitizedRunId).pipe(
-          Effect.mapError((cause) => toRuntimeError(`Invalid run id: "${sanitizedRunId}".`, 400, cause))
+          SidecarRuntimeError.mapError(`Invalid run id: "${sanitizedRunId}".`, 400)
         );
         return yield* repoRunService.getRun(decodedRunId);
       });
@@ -868,7 +865,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
  */
 export const launchSidecar = (config: SidecarRuntimeConfig): Effect.Effect<void, SidecarRuntimeError> =>
   provideSidecarObservability(config, Layer.launch(Layer.fresh(sidecarLayer(config)))).pipe(
-    Effect.mapError((cause) => toRuntimeError("Failed to launch sidecar runtime.", 500, cause))
+    SidecarRuntimeError.mapError("Failed to launch sidecar runtime.", 500)
   );
 
 /**

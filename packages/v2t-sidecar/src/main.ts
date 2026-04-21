@@ -2,7 +2,7 @@ import { BunRuntime } from "@effect/platform-bun";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";
 import { Effect, FileSystem, Layer } from "effect";
-import { loadVt2RuntimeConfig, makeVt2RuntimeError, runVt2Runtime } from "./Server/index.js";
+import { loadVt2RuntimeConfig, runVt2Runtime, Vt2RuntimeError } from "./Server/index.js";
 
 const vt2RuntimeLayer = Layer.mergeAll(BunFileSystem.layer, BunPath.layer);
 
@@ -12,7 +12,7 @@ const ensureAppDataDir = (config: Parameters<typeof runVt2Runtime>[0]) =>
 
     yield* fs.makeDirectory(config.appDataDir, { recursive: true });
     return config;
-  }).pipe(Effect.mapError(() => makeVt2RuntimeError(`Failed to create "${config.appDataDir}".`, 500)));
+  }).pipe(Vt2RuntimeError.mapError(`Failed to create "${config.appDataDir}".`, 500));
 
 const main = Effect.scoped(
   Layer.build(vt2RuntimeLayer).pipe(
