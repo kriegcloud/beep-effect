@@ -30,8 +30,7 @@ import {
   isSequenceAfterCursor,
   isTerminalRunEvent,
   mapStatusCauseError,
-  type RepoRunServiceError,
-  toRunServiceError,
+  RepoRunServiceError,
   toRunStreamFailure,
 } from "./RepoRunServiceShared.js";
 
@@ -134,7 +133,7 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
     "RepoRunEventLog.ensureProjectedIndexRun"
   )(function* (run) {
     if (run.kind !== "index") {
-      return yield* toRunServiceError(`Expected an index run projection for "${run.id}".`, 500, undefined);
+      return yield* RepoRunServiceError.noCause(`Expected an index run projection for "${run.id}".`, 500);
     }
 
     return run;
@@ -144,7 +143,7 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
     "RepoRunEventLog.ensureProjectedQueryRun"
   )(function* (run) {
     if (run.kind !== "query") {
-      return yield* toRunServiceError(`Expected a query run projection for "${run.id}".`, 500, undefined);
+      return yield* RepoRunServiceError.noCause(`Expected a query run projection for "${run.id}".`, 500);
     }
 
     return run;
@@ -168,13 +167,13 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
   });
 
   const mapJournalError = <A, E>(method: string, effect: Effect.Effect<A, E>) =>
-    effect.pipe(Effect.mapError((error) => toRunServiceError(`Failed to ${method}.`, 500, error)));
+    effect.pipe(Effect.mapError((error) => RepoRunServiceError.new(error, `Failed to ${method}.`, 500)));
 
   const appendRunEvent: RepoRunEventLogShape["appendRunEvent"] = Effect.fn("RepoRunEventLog.appendRunEvent")(
     function* (event) {
       const payload = yield* encodeRunEventPayload(event).pipe(
         Effect.mapError((cause) =>
-          toRunServiceError(`Failed to encode run event "${event.kind}" for "${event.runId}".`, 500, cause)
+          RepoRunServiceError.new(cause, `Failed to encode run event "${event.kind}" for "${event.runId}".`, 500)
         )
       );
 
@@ -200,7 +199,7 @@ const makeRepoRunEventLog = Effect.fn("RepoRunEventLog.make")(function* () {
   const decodeJournalEvent = Effect.fn("RepoRunEventLog.decodeJournalEvent")(function* (entry: EventJournal.Entry) {
     return yield* decodeRunEventPayload(entry.payload).pipe(
       Effect.mapError((cause) =>
-        toRunServiceError(`Failed to decode run event payload for "${entry.primaryKey}".`, 500, cause)
+        RepoRunServiceError.new(cause, `Failed to decode run event payload for "${entry.primaryKey}".`, 500)
       )
     );
   });

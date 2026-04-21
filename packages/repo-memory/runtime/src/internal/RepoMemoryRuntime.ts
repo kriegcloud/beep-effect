@@ -54,7 +54,6 @@ import {
   mapStatusCauseError,
   RepoRunServiceError,
   type RepoRuntimeStoreShape,
-  toRunServiceError,
   toRunStreamFailure,
 } from "./RepoRunServiceShared.js";
 import {
@@ -139,7 +138,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
             runId,
           })
         )
-        .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
+        .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)));
 
       yield* mapStatusCauseError(driver.saveSemanticArtifacts(semanticArtifacts));
     });
@@ -196,7 +195,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
                 runId,
               })
             )
-            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
         );
 
         const completedAt = yield* DateTime.now;
@@ -305,7 +304,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           "grounding",
           groundedRetrieval
             .ground(payload)
-            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
         );
 
         runningRun = yield* repoRunEventLog.appendQueryStageProgress(runningRun, {
@@ -320,7 +319,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           "retrieval",
           groundedRetrieval
             .retrieve(grounding)
-            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
         );
 
         runningRun = yield* repoRunEventLog.appendQueryStageProgress(runningRun, {
@@ -335,7 +334,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           "packet",
           groundedRetrieval
             .materializePacket(retrievedEvidence)
-            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
         );
 
         runningRun = yield* repoRunEventLog.appendQueryStageProgress(runningRun, {
@@ -350,7 +349,7 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           "answer",
           groundedRetrieval
             .draftAnswer(retrievalPacket)
-            .pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
         );
 
         runningRun = yield* repoRunEventLog.ensureProjectedQueryRun(

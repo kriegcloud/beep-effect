@@ -26,13 +26,11 @@ import {
 import { RepoRunStore, type RepoStoreError } from "@beep/repo-memory-store";
 import {
   FilePath,
-  makeStatusCauseError,
   NonNegativeInt,
   normalizePath,
   PosInt,
   Sha256HexFromBytes,
-  StatusCauseFields,
-  TaggedErrorClass,
+  StatusCauseTaggedErrorClass,
 } from "@beep/schema";
 import { Str, Text, thunkEmptyStr } from "@beep/utils";
 import {
@@ -141,9 +139,8 @@ export class TypeScriptIndexRequest extends S.Class<TypeScriptIndexRequest>($I`T
  * @since 0.0.0
  * @category DomainModel
  */
-export class TypeScriptIndexError extends TaggedErrorClass<TypeScriptIndexError>($I`TypeScriptIndexError`)(
+export class TypeScriptIndexError extends StatusCauseTaggedErrorClass<TypeScriptIndexError>($I`TypeScriptIndexError`)(
   "TypeScriptIndexError",
-  StatusCauseFields,
   $I.annote("TypeScriptIndexError", {
     description: "Typed failure from deterministic TypeScript index extraction.",
   })
@@ -191,8 +188,6 @@ export class TypeScriptIndexService extends Context.Service<TypeScriptIndexServi
       })
     );
 }
-
-const toIndexError = makeStatusCauseError(TypeScriptIndexError);
 
 const isTypeScriptSourceFile = (filePath: string): boolean => {
   if (pipe(filePath, Str.endsWith(".d.ts"))) {
@@ -569,7 +564,9 @@ const makeRepoSourceFile = Effect.fn("TypeScriptIndex.makeRepoSourceFile")(funct
   readonly sourceText: string;
 }): Effect.fn.Return<RepoSourceFile, TypeScriptIndexError> {
   const contentHash = yield* decodeContentHash(textEncoder.encode(options.sourceText)).pipe(
-    Effect.mapError((cause) => toIndexError(`Failed to hash source text for "${options.filePath}".`, 500, cause))
+    Effect.mapError((cause) =>
+      TypeScriptIndexError.new(cause, `Failed to hash source text for "${options.filePath}".`, 500)
+    )
   );
 
   return new RepoSourceFile({
@@ -985,10 +982,10 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
     .realPath(repoRootPath)
     .pipe(
       Effect.mapError((cause) =>
-        toIndexError(
+        TypeScriptIndexError.new(
+          cause,
           `Failed to resolve canonical repository root "${repoRootPath}" while discovering scopes.`,
-          500,
-          cause
+          500
         )
       )
     );
@@ -1003,10 +1000,10 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
         isSymlinkLoopCause(cause)
           ? Effect.succeed(O.none<string>())
           : Effect.fail(
-              toIndexError(
+              TypeScriptIndexError.new(
+                cause,
                 `Failed to resolve canonical path "${currentPath}" while discovering tsconfig scopes.`,
-                500,
-                cause
+                500
               )
             )
       )
@@ -1036,10 +1033,10 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
       .readDirectory(currentPath)
       .pipe(
         Effect.mapError((cause) =>
-          toIndexError(
+          TypeScriptIndexError.new(
+            cause,
             `Failed to read repository directory "${currentPath}" while discovering tsconfig scopes.`,
-            500,
-            cause
+            500
           )
         )
       );
@@ -1054,10 +1051,10 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
           isSymlinkLoopCause(cause)
             ? Effect.succeed(O.none<string>())
             : Effect.fail(
-                toIndexError(
+                TypeScriptIndexError.new(
+                  cause,
                   `Failed to resolve canonical repository entry "${absolutePath}" while discovering tsconfig scopes.`,
-                  500,
-                  cause
+                  500
                 )
               )
         )
@@ -1074,10 +1071,10 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
           isSymlinkLoopCause(cause)
             ? Effect.succeed(O.none<FileSystem.File.Info>())
             : Effect.fail(
-                toIndexError(
+                TypeScriptIndexError.new(
+                  cause,
                   `Failed to stat repository entry "${absolutePath}" while discovering tsconfig scopes.`,
-                  500,
-                  cause
+                  500
                 )
               )
         )
@@ -1117,10 +1114,9 @@ const discoverProjectScopes = Effect.fn("TypeScriptIndex.discoverProjectScopes")
 
   const tsconfigPaths = A.sort(yield* walk(repoRootPath), Order.String);
   if (!A.isReadonlyArrayNonEmpty(tsconfigPaths)) {
-    return yield* toIndexError(
+    return yield* TypeScriptIndexError.noCause(
       `Repository "${repoRootPath}" does not contain any discoverable tsconfig.json files.`,
-      400,
-      undefined
+      400
     );
   }
 
@@ -1147,10 +1143,10 @@ const projectSourceFiles = Effect.fn("TypeScriptIndex.projectSourceFiles")(funct
     .realPath(repoRootPath)
     .pipe(
       Effect.mapError((cause) =>
-        toIndexError(
+        TypeScriptIndexError.new(
+          cause,
           `Failed to resolve canonical repository root "${repoRootPath}" while filtering source files.`,
-          500,
-          cause
+          500
         )
       )
     );
@@ -1168,7 +1164,7 @@ const projectSourceFiles = Effect.fn("TypeScriptIndex.projectSourceFiles")(funct
       .realPath(filePath)
       .pipe(
         Effect.mapError((cause) =>
-          toIndexError(`Failed to resolve canonical source file "${filePath}" while indexing.`, 500, cause)
+          TypeScriptIndexError.new(cause, `Failed to resolve canonical source file "${filePath}" while indexing.`, 500)
         )
       );
 
@@ -1198,7 +1194,8 @@ const withScopedProject = <A, R>(
           skipFileDependencyResolution: true,
           skipLoadingLibFiles: true,
         }),
-      catch: (cause) => toIndexError(`Failed to initialize ts-morph project for "${tsconfigPath}".`, 400, cause),
+      catch: (cause) =>
+        TypeScriptIndexError.new(cause, `Failed to initialize ts-morph project for "${tsconfigPath}".`, 400),
     }),
     use,
     (project) =>
@@ -1220,16 +1217,16 @@ const snapshotIdFromFiles = Effect.fn("TypeScriptIndex.snapshotIdFromFiles")(fun
   );
 
   const digest = yield* decodeContentHash(textEncoder.encode(fingerprint)).pipe(
-    Effect.mapError((cause) => toIndexError("Failed to compute a deterministic source snapshot id.", 500, cause))
+    Effect.mapError((cause) =>
+      TypeScriptIndexError.new(cause, "Failed to compute a deterministic source snapshot id.", 500)
+    )
   );
 
   return decodeSourceSnapshotId(`snapshot:${digest}`);
 });
 
 const mapRunStoreError = <A>(effect: Effect.Effect<A, RepoStoreError>) =>
-  effect.pipe(
-    Effect.mapError((cause) => toIndexError("Failed to load persisted run control state.", cause.status, cause.cause))
-  );
+  effect.pipe(Effect.mapError((error) => TypeScriptIndexError.new(error.cause, error.message, error.status)));
 
 const suspendIfRunInterrupted = Effect.fn("TypeScriptIndex.suspendIfRunInterrupted")(function* (
   runId: RunId
@@ -1269,7 +1266,11 @@ export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRep
     .realPath(options.repoPath)
     .pipe(
       Effect.mapError((cause) =>
-        toIndexError(`Failed to resolve canonical repository root "${options.repoPath}" before indexing.`, 500, cause)
+        TypeScriptIndexError.new(
+          cause,
+          `Failed to resolve canonical repository root "${options.repoPath}" before indexing.`,
+          500
+        )
       )
     );
   yield* suspendIfRunInterrupted(options.runId);

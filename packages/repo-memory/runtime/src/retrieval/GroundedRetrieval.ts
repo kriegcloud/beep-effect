@@ -56,11 +56,9 @@ import {
 } from "@beep/repo-memory-store";
 import {
   type FilePath,
-  makeStatusCauseError,
   NonNegativeInt,
   PosInt,
-  StatusCauseFields,
-  TaggedErrorClass,
+  StatusCauseTaggedErrorClass,
 } from "@beep/schema";
 import * as Str from "@beep/utils/Str";
 import { Context, DateTime, Effect, HashSet, Layer, Order, pipe } from "effect";
@@ -130,9 +128,10 @@ type RetrievedEvidence = {
  * @since 0.0.0
  * @category DomainModel
  */
-export class GroundedRetrievalError extends TaggedErrorClass<GroundedRetrievalError>($I`GroundedRetrievalError`)(
+export class GroundedRetrievalError extends StatusCauseTaggedErrorClass<GroundedRetrievalError>(
+  $I`GroundedRetrievalError`
+)(
   "GroundedRetrievalError",
-  StatusCauseFields,
   $I.annote("GroundedRetrievalError", {
     description: "Typed error raised while resolving a bounded deterministic grounded query.",
   })
@@ -175,10 +174,8 @@ export class GroundedRetrievalService extends Context.Service<
   );
 }
 
-const toRetrievalError = makeStatusCauseError(GroundedRetrievalError);
-
 const mapStoreError = <A>(effect: Effect.Effect<A, RepoStoreError>) =>
-  effect.pipe(Effect.mapError((error) => toRetrievalError(error.message, error.status, error.cause)));
+  effect.pipe(Effect.mapError((error) => GroundedRetrievalError.new(error.cause, error.message, error.status)));
 
 const latestSnapshotForRepo = (store: GroundedRetrievalStoreShape) =>
   Effect.fn("GroundedRetrieval.latestSnapshotForRepo")(function* (
@@ -187,7 +184,7 @@ const latestSnapshotForRepo = (store: GroundedRetrievalStoreShape) =>
     const latestSnapshot = yield* mapStoreError(store.latestSourceSnapshot(repoId));
 
     return yield* O.match(latestSnapshot, {
-      onNone: () => toRetrievalError(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400, undefined),
+      onNone: () => GroundedRetrievalError.noCause(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400),
       onSome: (snapshot) => Effect.succeed(snapshot.id),
     });
   });

@@ -13,7 +13,7 @@ import type {
   RepoSnapshotStoreShape,
   RepoSymbolStoreShape,
 } from "@beep/repo-memory-store";
-import { makeStatusCauseError, StatusCauseFields, type StatusCauseInput, TaggedErrorClass } from "@beep/schema";
+import { type StatusCauseInput, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { thunkTrue } from "@beep/utils";
 import { Duration, Effect, pipe } from "effect";
 import * as O from "effect/Option";
@@ -42,9 +42,8 @@ type RepoRunStatusCauseError = StatusCauseInput;
  * @since 0.0.0
  * @category DomainModel
  */
-export class RepoRunServiceError extends TaggedErrorClass<RepoRunServiceError>($I`RepoRunServiceError`)(
+export class RepoRunServiceError extends StatusCauseTaggedErrorClass<RepoRunServiceError>($I`RepoRunServiceError`)(
   "RepoRunServiceError",
-  StatusCauseFields,
   $I.annote("RepoRunServiceError", {
     description: "Typed error for repo run service orchestration boundaries.",
   })
@@ -56,7 +55,17 @@ export class RepoRunServiceError extends TaggedErrorClass<RepoRunServiceError>($
  * @since 0.0.0
  * @category DomainLogic
  */
-export const toRunServiceError = makeStatusCauseError(RepoRunServiceError);
+export function toRunServiceError(message: string, status: number): (cause: unknown) => RepoRunServiceError;
+export function toRunServiceError(message: string, status: number, cause: unknown): RepoRunServiceError;
+export function toRunServiceError(
+  message: string,
+  status: number,
+  cause?: unknown
+): RepoRunServiceError | ((cause: unknown) => RepoRunServiceError) {
+  return arguments.length === 2
+    ? RepoRunServiceError.new(message, status)
+    : RepoRunServiceError.new(cause, message, status);
+}
 
 /**
  * Lift status/cause errors into the repo-run service error channel.
@@ -67,7 +76,7 @@ export const toRunServiceError = makeStatusCauseError(RepoRunServiceError);
  * @category DomainLogic
  */
 export const mapStatusCauseError = <A, E extends RepoRunStatusCauseError>(effect: Effect.Effect<A, E>) =>
-  effect.pipe(Effect.mapError((error) => toRunServiceError(error.message, error.status, error.cause)));
+  effect.pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)));
 
 /**
  * Convert a typed repo-run service error into the durable stream failure model.
