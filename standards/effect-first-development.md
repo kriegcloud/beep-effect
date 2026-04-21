@@ -193,23 +193,23 @@ const summarizeAttempts = (attempts: ReadonlyArray<number>) =>
 - For boolean-driven branching, prefer `Bool.match` from `effect/Boolean` over ad-hoc `if/else`.
 - This keeps control flow expression-oriented and consistent with Effect matching style.
 
-### EF-8: Services use `ServiceMap.Service` + `Layer`
+### EF-8: Services use `Context.Service` + `Layer`
 
 - Service identity comes from `@beep/identity` composer keys.
 - Service constructors are explicit and layered.
 - Dependency wiring happens in Layer composition, not hidden global state.
-- Prefer `ServiceMap.Service` over `Context.Service` for repo-aligned service construction.
+- Prefer `Context.Service` over older service-constructor patterns for repo-aligned service construction.
 - Service identity must use package-specific composer `.create("path")` and the tagged template key form `$I\`ServiceName\``.
 
 Example:
 
 ```ts
 import { $PackageNameId } from "@beep/identity/packages"
-import { ServiceMap } from "effect"
+import { Context } from "effect"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-export class MyService extends ServiceMap.Service<MyService, {
+export class MyService extends Context.Service<MyService, {
   readonly ping: () => string
 }>()($I`MyService`) {}
 ```

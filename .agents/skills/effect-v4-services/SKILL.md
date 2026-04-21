@@ -1,8 +1,8 @@
 ---
 name: effect-v4-services
 description: >
-  Focused service construction for Effect v4. Use when implementing ServiceMap.Service,
-  Layer.effect composition, and replacing Context.Tag style APIs.
+  Focused service construction for Effect v4. Use when implementing Context.Service,
+  Layer.effect composition, and current Context-based service guidance.
 version: 0.1.0
 status: active
 ---
@@ -10,8 +10,8 @@ status: active
 # Effect v4 Services (Focused)
 
 1. Service class shape:
-- Use `import { $PackageNameId } from "@beep/identity/packages"; const $I = $PackageNameId.create("relative/path/to/file"); class X extends ServiceMap.Service<X, Shape>()($I\`X\`) {}`.
-- Do not use `Context.Tag` or `Context.GenericTag`.
+- Use `import { $PackageNameId } from "@beep/identity/packages"; const $I = $PackageNameId.create("relative/path/to/file"); class X extends Context.Service<X, Shape>()($I\`X\`) {}`.
+- Use `Context.Reference` for runtime-local defaults.
 - Keep service error channels typed with `TaggedErrorClass` from `@beep/schema`, not native `Error`.
 
 2. Layer wiring:

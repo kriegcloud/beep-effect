@@ -461,15 +461,15 @@ export const patchReplaceAllLiterals =
       isLiteralElement(element) ? replacer(element.value, index) : element
     );
 
+const toLiteralReplacer = (replacement: PatternElement | LiteralReplacer): LiteralReplacer =>
+  P.isFunction(replacement) ? replacement : () => replacement;
+
 /**
  * Generalize literal elements into other element kinds.
  *
  * @since 0.0.0
  * @category Combinators
  */
-const toLiteralReplacer = (replacement: PatternElement | LiteralReplacer): LiteralReplacer =>
-  P.isFunction(replacement) ? replacement : () => replacement;
-
 export const generalizeLiterals: {
   (to: PatternElement): (pattern: Pattern) => Pattern;
   (f: LiteralReplacer): (pattern: Pattern) => Pattern;

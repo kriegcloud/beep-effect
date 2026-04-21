@@ -17,7 +17,7 @@ config_file = "./agents/effect-v4-schema-worker.toml"
 nickname_candidates = ["SchemaSage", "Literalist"]
 
 [agents.effect_v4_service_architect]
-description = "Effect v4 worker for ServiceMap.Service, Layer composition, dependency boundaries, and runtime wiring."
+description = "Effect v4 worker for Context.Service, Layer composition, dependency boundaries, and runtime wiring."
 config_file = "./agents/effect-v4-service-architect.toml"
 nickname_candidates = ["LayerSmith", "Composer"]
 

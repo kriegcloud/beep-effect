@@ -11,6 +11,7 @@ import { parseCsvRows } from "@beep/schema/csv/parse/CsvParser";
 import { ParserOptions } from "@beep/schema/csv/parse/ParserOptions";
 import { XmlTextToUnknown } from "@beep/schema/Xml";
 import { P, Struct, thunkEffectVoid, thunkTrue, thunkUndefined } from "@beep/utils";
+import { cast } from "@beep/utils/Function";
 import { Console, Effect, FileSystem, flow, Match, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -56,7 +57,18 @@ type SyncDataRunModeFlags = readonly [check: boolean, dryRun: boolean];
 const attachCsvColumns = (
   rows: ReadonlyArray<Record<string, string>>,
   columns: ReadonlyArray<string>
-): ParsedCsvRecords => Object.assign(A.fromIterable(rows), { columns }) as ParsedCsvRecords;
+): ParsedCsvRecords => {
+  const records = A.fromIterable(rows);
+
+  Reflect.defineProperty(records, "columns", {
+    configurable: true,
+    enumerable: true,
+    value: columns,
+    writable: false,
+  });
+
+  return cast<Array<Record<string, string>>, ParsedCsvRecords>(records);
+};
 
 const makeRunModeFlags = (check: boolean, dryRun: boolean): SyncDataRunModeFlags => [check, dryRun];
 

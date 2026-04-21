@@ -3,23 +3,15 @@ import {
   SidecarBadRequestPayload,
   SidecarBootstrap,
   SidecarBootstrapStdoutEvent,
+  type SidecarHealthStatus,
   SidecarInternalErrorPayload,
   SidecarNotFoundPayload,
-  type SidecarHealthStatus,
 } from "@beep/runtime-protocol";
-import {
-  FilePath,
-  makeStatusCauseError,
-  NonEmptyTrimmedStr,
-  NonNegativeInt,
-  StatusCauseFields,
-  TaggedErrorClass,
-  UUID,
-} from "@beep/schema";
+import { FilePath, NonEmptyTrimmedStr, NonNegativeInt, StatusCauseTaggedErrorClass, UUID } from "@beep/schema";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import * as BunServices from "@effect/platform-bun/BunServices";
 import * as SqliteClient from "@effect/sql-sqlite-bun/SqliteClient";
-import { Cause, Config, DateTime, Deferred, Effect, Fiber, FileSystem, Layer, Match, Path, Ref, pipe } from "effect";
+import { Cause, Config, DateTime, Deferred, Effect, Fiber, FileSystem, Layer, Match, Path, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -29,10 +21,13 @@ import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { HttpApiBuilder } from "effect/unstable/httpapi";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import {
-  CompleteVt2CaptureInput,
+  type CompleteVt2CaptureInput,
+  type CreateVt2SessionInput,
   defaultVt2DesktopPreferences,
   defaultVt2WorkspaceSeams,
-  ResolveVt2RecoveryCandidateInput,
+  type ResolveVt2RecoveryCandidateInput,
+  type RunVt2CompositionInput,
+  type UpdateVt2DesktopPreferencesInput,
   Vt2CaptureSegment,
   Vt2CompositionPacket,
   Vt2CompositionProfile,
@@ -42,16 +37,13 @@ import {
   Vt2ExportRequest,
   Vt2MemoryContextPacket,
   Vt2RecoveryCandidate,
-  RunVt2CompositionInput,
   Vt2Session,
+  Vt2SessionResource,
   Vt2SessionSource,
   Vt2SessionStatus,
-  Vt2SessionResource,
   Vt2Transcript,
   Vt2TranscriptRuntime,
   Vt2WorkspaceSnapshot,
-  type CreateVt2SessionInput,
-  type UpdateVt2DesktopPreferencesInput,
 } from "../domain.js";
 import { Vt2ControlPlaneApi } from "../protocol.js";
 import {
@@ -159,7 +151,9 @@ export class Vt2RuntimeConfig extends S.Class<Vt2RuntimeConfig>($I`Vt2RuntimeCon
   })
 ) {}
 
-class LocalWhisperTranscriptEnvelope extends S.Class<LocalWhisperTranscriptEnvelope>($I`LocalWhisperTranscriptEnvelope`)(
+class LocalWhisperTranscriptEnvelope extends S.Class<LocalWhisperTranscriptEnvelope>(
+  $I`LocalWhisperTranscriptEnvelope`
+)(
   {
     text: S.String,
     language: S.OptionFromOptionalKey(S.String),
@@ -178,17 +172,12 @@ const decodeLocalWhisperTranscriptEnvelopeJson = S.decodeUnknownEffect(localWhis
  * @since 0.0.0
  * @category DomainModel
  */
-export class Vt2RuntimeError extends TaggedErrorClass<Vt2RuntimeError>($I`Vt2RuntimeError`)(
+export class Vt2RuntimeError extends StatusCauseTaggedErrorClass<Vt2RuntimeError>($I`Vt2RuntimeError`)(
   "Vt2RuntimeError",
-  StatusCauseFields,
   $I.annote("Vt2RuntimeError", {
     description: "Typed error for V2T runtime bootstrap and control-plane boundaries.",
   })
 ) {}
-
-export const makeVt2RuntimeError = makeStatusCauseError(Vt2RuntimeError);
-
-const toRuntimeError = makeVt2RuntimeError;
 
 class PackageJsonVersion extends S.Class<PackageJsonVersion>($I`PackageJsonVersion`)({
   version: S.String,
@@ -540,17 +529,10 @@ const toNullableString = <A extends string>(value: O.Option<A>): string | null =
 const toProviderRuntimeError =
   (fallback: string) =>
   (cause: Vt2ProviderError): Vt2RuntimeError =>
-    new Vt2RuntimeError({
-      message: cause.message.length > 0 ? cause.message : fallback,
-      status: cause.status,
-      cause: O.none(),
-    });
+    Vt2RuntimeError.noCause(cause.message.length > 0 ? cause.message : fallback, cause.status);
 
 const makeLocalProviderError = (message: string): Vt2ProviderError =>
-  new Vt2ProviderError({
-    message,
-    status: 500,
-    cause: O.none(),
+  Vt2ProviderError.noCause(message, 500, {
     reason: "unavailable",
   });
 
@@ -625,9 +607,7 @@ const renderLocalExportContent = (request: Vt2ExportRequest): string => {
         "",
       ].join("\n")
     ),
-    Match.when("srt", () =>
-      ["1", "00:00:00,000 --> 00:00:05,000", transcriptExcerpt, ""].join("\n")
-    ),
+    Match.when("srt", () => ["1", "00:00:00,000 --> 00:00:05,000", transcriptExcerpt, ""].join("\n")),
     Match.exhaustive
   );
 };
@@ -676,8 +656,7 @@ const localCompositionPrepareRun = Effect.fn("Vt2CompositionProvider.prepareRun"
   });
 });
 
-const normalizeTranscriptText = (value: string): string =>
-  pipe(value, Str.trim, Str.replace(/\s+/g, " "));
+const normalizeTranscriptText = (value: string): string => pipe(value, Str.trim, Str.replace(/\s+/g, " "));
 
 const buildTranscriptExcerpt = (value: string): NonEmptyTrimmedStr => {
   const normalized = normalizeTranscriptText(value);
@@ -712,11 +691,7 @@ const buildTranscriptFailureProjection = (sessionId: UUID, message: string): Vt2
       })
   );
 
-const buildReadyTranscriptProjection = (
-  sessionId: UUID,
-  text: string,
-  language: O.Option<string>
-): Vt2Transcript => {
+const buildReadyTranscriptProjection = (sessionId: UUID, text: string, language: O.Option<string>): Vt2Transcript => {
   const normalizedText = normalizeTranscriptText(text);
   const normalizedBody = NonEmptyTrimmedStr.make(normalizedText);
 
@@ -829,7 +804,9 @@ const localTranscriptProviderLayer = (config: Vt2RuntimeConfig) =>
         const ingestedSegments = A.filter(session.captureSegments, isIngestedCaptureSegment);
 
         if (ingestedSegments.length === 0) {
-          return yield* makeLocalProviderError("No ingested capture artifacts were available for local Whisper transcription.");
+          return yield* makeLocalProviderError(
+            "No ingested capture artifacts were available for local Whisper transcription."
+          );
         }
 
         const artifactPaths = pipe(
@@ -871,7 +848,14 @@ const localTranscriptProviderLayer = (config: Vt2RuntimeConfig) =>
         const commandResult = yield* Effect.tryPromise({
           try: async () => {
             const processHandle = Bun.spawn(
-              [pythonCommand, "-c", localWhisperPythonSource, "--model", config.transcriptWhisperModel, ...artifactPaths],
+              [
+                pythonCommand,
+                "-c",
+                localWhisperPythonSource,
+                "--model",
+                config.transcriptWhisperModel,
+                ...artifactPaths,
+              ],
               {
                 stdout: "pipe",
                 stderr: "pipe",
@@ -943,17 +927,20 @@ const localExportProviderLayer = (config: Vt2RuntimeConfig) =>
         const defaultDirectory = path.resolve(config.appDataDir, "exports", request.sessionId, request.runId);
         const resolvedDestinationPath = O.getOrElse(request.destinationPath, () =>
           FilePath.make(
-            path.resolve(defaultDirectory, `${normalizeExportSlug(request.sessionTitle)}.${exportExtension(request.format)}`)
+            path.resolve(
+              defaultDirectory,
+              `${normalizeExportSlug(request.sessionTitle)}.${exportExtension(request.format)}`
+            )
           )
         );
         const destinationDirectory = path.dirname(resolvedDestinationPath);
 
-        yield* fs.makeDirectory(destinationDirectory, { recursive: true }).pipe(
-          Effect.mapError(() => makeLocalProviderError("Failed to create the V2T export directory."))
-        );
-        yield* fs.writeFileString(resolvedDestinationPath, renderLocalExportContent(request)).pipe(
-          Effect.mapError(() => makeLocalProviderError("Failed to write the V2T export artifact."))
-        );
+        yield* fs
+          .makeDirectory(destinationDirectory, { recursive: true })
+          .pipe(Effect.mapError(() => makeLocalProviderError("Failed to create the V2T export directory.")));
+        yield* fs
+          .writeFileString(resolvedDestinationPath, renderLocalExportContent(request))
+          .pipe(Effect.mapError(() => makeLocalProviderError("Failed to write the V2T export artifact.")));
 
         return new Vt2ExportArtifact({
           id: UUID.make(crypto.randomUUID()),
@@ -997,25 +984,25 @@ const decodeSessionResource = Effect.fn("Vt2Runtime.decodeSessionResource")(func
   row: Vt2SessionRow
 ): Effect.fn.Return<Vt2SessionResource, Vt2RuntimeError> {
   const transcript = yield* decodeTranscriptJson(row.transcript_json).pipe(
-    Effect.mapError(toRuntimeError("Failed to decode the persisted V2T transcript.", 500))
+    Vt2RuntimeError.mapError("Failed to decode the persisted V2T transcript.", 500)
   );
   const captureSegments = yield* decodeCaptureSegmentsJson(row.capture_segments_json).pipe(
-    Effect.mapError(toRuntimeError("Failed to decode the persisted V2T capture segments.", 500))
+    Vt2RuntimeError.mapError("Failed to decode the persisted V2T capture segments.", 500)
   );
   const recoveryCandidates = yield* decodeRecoveryCandidatesJson(row.recovery_candidates_json).pipe(
-    Effect.mapError(toRuntimeError("Failed to decode the persisted V2T recovery candidates.", 500))
+    Vt2RuntimeError.mapError("Failed to decode the persisted V2T recovery candidates.", 500)
   );
   const memoryContextPackets = yield* decodeMemoryContextPacketsJson(row.memory_context_packets_json).pipe(
-    Effect.mapError(toRuntimeError("Failed to decode the persisted V2T memory context packets.", 500))
+    Vt2RuntimeError.mapError("Failed to decode the persisted V2T memory context packets.", 500)
   );
   const compositionProfiles = yield* decodeCompositionProfilesJson(row.composition_profiles_json).pipe(
-    Effect.mapError(toRuntimeError("Failed to decode the persisted V2T composition profiles.", 500))
+    Vt2RuntimeError.mapError("Failed to decode the persisted V2T composition profiles.", 500)
   );
   const compositionRuns = yield* decodeCompositionRunsJson(row.composition_runs_json).pipe(
-    Effect.mapError(toRuntimeError("Failed to decode the persisted V2T composition runs.", 500))
+    Vt2RuntimeError.mapError("Failed to decode the persisted V2T composition runs.", 500)
   );
   const exportArtifacts = yield* decodeExportArtifactsJson(row.export_artifacts_json).pipe(
-    Effect.mapError(toRuntimeError("Failed to decode the persisted V2T export artifacts.", 500))
+    Vt2RuntimeError.mapError("Failed to decode the persisted V2T export artifacts.", 500)
   );
 
   return new Vt2SessionResource({
@@ -1040,9 +1027,12 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
   const sessionsTable = sql("vt2_sessions");
   const preferencesTable = sql("vt2_desktop_preferences");
 
-  const initializeTables = Effect.fn("Vt2Store.initializeTables")(function* (): Effect.fn.Return<void, Vt2RuntimeError> {
+  const initializeTables = Effect.fn("Vt2Store.initializeTables")(function* (): Effect.fn.Return<
+    void,
+    Vt2RuntimeError
+  > {
     yield* sql`PRAGMA busy_timeout = 5000`.pipe(
-      Effect.mapError(toRuntimeError("Failed to configure the V2T sqlite busy timeout.", 500))
+      Vt2RuntimeError.mapError("Failed to configure the V2T sqlite busy timeout.", 500)
     );
 
     yield* sql`
@@ -1063,10 +1053,10 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         composition_runs_json TEXT NOT NULL,
         export_artifacts_json TEXT NOT NULL
       )
-    `.pipe(Effect.mapError(toRuntimeError("Failed to create the V2T sessions table.", 500)));
+    `.pipe(Vt2RuntimeError.mapError("Failed to create the V2T sessions table.", 500));
 
     const sessionColumns = yield* sql<{ readonly name: string }>`PRAGMA table_info(${sessionsTable})`.pipe(
-      Effect.mapError(toRuntimeError("Failed to inspect the V2T sessions table columns.", 500))
+      Vt2RuntimeError.mapError("Failed to inspect the V2T sessions table columns.", 500)
     );
     const sessionColumnNames = pipe(
       sessionColumns,
@@ -1075,13 +1065,13 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
 
     if (!pipe(sessionColumnNames, A.contains("memory_context_packets_json"))) {
       yield* sql`ALTER TABLE ${sessionsTable} ADD COLUMN memory_context_packets_json TEXT NOT NULL DEFAULT '[]'`.pipe(
-        Effect.mapError(toRuntimeError("Failed to migrate the V2T memory context packets column.", 500))
+        Vt2RuntimeError.mapError("Failed to migrate the V2T memory context packets column.", 500)
       );
     }
 
     if (!pipe(sessionColumnNames, A.contains("composition_runs_json"))) {
       yield* sql`ALTER TABLE ${sessionsTable} ADD COLUMN composition_runs_json TEXT NOT NULL DEFAULT '[]'`.pipe(
-        Effect.mapError(toRuntimeError("Failed to migrate the V2T composition runs column.", 500))
+        Vt2RuntimeError.mapError("Failed to migrate the V2T composition runs column.", 500)
       );
     }
 
@@ -1091,17 +1081,17 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         preferences_json TEXT NOT NULL,
         updated_at INTEGER NOT NULL
       )
-    `.pipe(Effect.mapError(toRuntimeError("Failed to create the V2T desktop preferences table.", 500)));
+    `.pipe(Vt2RuntimeError.mapError("Failed to create the V2T desktop preferences table.", 500));
 
     const encodedPreferences = yield* encodePreferencesJson(defaultVt2DesktopPreferences()).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the default V2T desktop preferences.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the default V2T desktop preferences.", 500)
     );
     const now = yield* DateTime.now;
 
     yield* sql`
       INSERT OR IGNORE INTO ${preferencesTable} (id, preferences_json, updated_at)
       VALUES (1, ${encodedPreferences}, ${DateTime.toEpochMillis(now)})
-    `.pipe(Effect.mapError(toRuntimeError("Failed to seed the V2T desktop preferences row.", 500)));
+    `.pipe(Vt2RuntimeError.mapError("Failed to seed the V2T desktop preferences row.", 500));
   });
 
   const getSessionRow = Effect.fn("Vt2Store.getSessionRow")(function* (
@@ -1126,20 +1116,13 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       FROM ${sessionsTable}
       WHERE id = ${sessionId}
       LIMIT 1
-    `.pipe(Effect.mapError(toRuntimeError(`Failed to load the V2T session "${sessionId}".`, 500)));
+    `.pipe(Vt2RuntimeError.mapError(`Failed to load the V2T session "${sessionId}".`, 500));
 
     return yield* O.match(A.head(rows), {
-      onNone: () =>
-        Effect.fail(
-          new Vt2RuntimeError({
-            message: `Session "${sessionId}" was not found.`,
-            status: 404,
-            cause: O.none(),
-          })
-        ),
+      onNone: () => Effect.fail(Vt2RuntimeError.noCause(`Session "${sessionId}" was not found.`, 404)),
       onSome: (found) =>
         decodeSessionRow(found).pipe(
-          Effect.mapError(toRuntimeError(`Failed to decode the persisted V2T session "${sessionId}".`, 500))
+          Vt2RuntimeError.mapError(`Failed to decode the persisted V2T session "${sessionId}".`, 500)
         ),
     });
   });
@@ -1163,10 +1146,10 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         export_artifacts_json
       FROM ${sessionsTable}
       ORDER BY updated_at DESC
-    `.pipe(Effect.mapError(toRuntimeError("Failed to list V2T sessions.", 500)));
+    `.pipe(Vt2RuntimeError.mapError("Failed to list V2T sessions.", 500));
 
     return yield* Effect.forEach(rows, (row) =>
-      decodeSessionRow(row).pipe(Effect.mapError(toRuntimeError("Failed to decode a persisted V2T session row.", 500)))
+      decodeSessionRow(row).pipe(Vt2RuntimeError.mapError("Failed to decode a persisted V2T session row.", 500))
     );
   });
 
@@ -1176,18 +1159,18 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       FROM ${preferencesTable}
       WHERE id = 1
       LIMIT 1
-    `.pipe(Effect.mapError(toRuntimeError("Failed to load the V2T desktop preferences.", 500)));
+    `.pipe(Vt2RuntimeError.mapError("Failed to load the V2T desktop preferences.", 500));
 
     const row = yield* O.match(A.head(rows), {
-      onNone: () => Effect.fail(new Vt2RuntimeError({ message: "V2T desktop preferences were not found.", status: 404, cause: O.none() })),
+      onNone: () => Effect.fail(Vt2RuntimeError.noCause("V2T desktop preferences were not found.", 404)),
       onSome: (found) =>
         decodePreferencesRow(found).pipe(
-          Effect.mapError(toRuntimeError("Failed to decode the persisted V2T desktop preferences row.", 500))
+          Vt2RuntimeError.mapError("Failed to decode the persisted V2T desktop preferences row.", 500)
         ),
     });
 
     return yield* decodePreferencesJson(row.preferences_json).pipe(
-      Effect.mapError(toRuntimeError("Failed to decode the persisted V2T desktop preferences.", 500))
+      Vt2RuntimeError.mapError("Failed to decode the persisted V2T desktop preferences.", 500)
     );
   });
 
@@ -1214,37 +1197,34 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     resource: Vt2SessionResource
   ): Effect.fn.Return<Vt2SessionResource, Vt2RuntimeError> {
     const encodedTranscript = yield* encodeTranscriptJson(resource.transcript).pipe(
-      Effect.mapError(toRuntimeError(`Failed to encode the V2T transcript for session "${resource.session.id}".`, 500))
+      Vt2RuntimeError.mapError(`Failed to encode the V2T transcript for session "${resource.session.id}".`, 500)
     );
     const encodedCaptureSegments = yield* encodeCaptureSegmentsJson(resource.captureSegments).pipe(
-      Effect.mapError(
-        toRuntimeError(`Failed to encode the V2T capture segments for session "${resource.session.id}".`, 500)
-      )
+      Vt2RuntimeError.mapError(`Failed to encode the V2T capture segments for session "${resource.session.id}".`, 500)
     );
     const encodedRecoveryCandidates = yield* encodeRecoveryCandidatesJson(resource.recoveryCandidates).pipe(
-      Effect.mapError(
-        toRuntimeError(`Failed to encode the V2T recovery candidates for session "${resource.session.id}".`, 500)
+      Vt2RuntimeError.mapError(
+        `Failed to encode the V2T recovery candidates for session "${resource.session.id}".`,
+        500
       )
     );
     const encodedMemoryContextPackets = yield* encodeMemoryContextPacketsJson(resource.memoryContextPackets).pipe(
-      Effect.mapError(
-        toRuntimeError(`Failed to encode the V2T memory context packets for session "${resource.session.id}".`, 500)
+      Vt2RuntimeError.mapError(
+        `Failed to encode the V2T memory context packets for session "${resource.session.id}".`,
+        500
       )
     );
     const encodedCompositionProfiles = yield* encodeCompositionProfilesJson(resource.compositionProfiles).pipe(
-      Effect.mapError(
-        toRuntimeError(`Failed to encode the V2T composition profiles for session "${resource.session.id}".`, 500)
+      Vt2RuntimeError.mapError(
+        `Failed to encode the V2T composition profiles for session "${resource.session.id}".`,
+        500
       )
     );
     const encodedCompositionRuns = yield* encodeCompositionRunsJson(resource.compositionRuns).pipe(
-      Effect.mapError(
-        toRuntimeError(`Failed to encode the V2T composition runs for session "${resource.session.id}".`, 500)
-      )
+      Vt2RuntimeError.mapError(`Failed to encode the V2T composition runs for session "${resource.session.id}".`, 500)
     );
     const encodedExportArtifacts = yield* encodeExportArtifactsJson(resource.exportArtifacts).pipe(
-      Effect.mapError(
-        toRuntimeError(`Failed to encode the V2T export artifacts for session "${resource.session.id}".`, 500)
-      )
+      Vt2RuntimeError.mapError(`Failed to encode the V2T export artifacts for session "${resource.session.id}".`, 500)
     );
 
     yield* sql`
@@ -1261,7 +1241,7 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         composition_runs_json = ${encodedCompositionRuns},
         export_artifacts_json = ${encodedExportArtifacts}
       WHERE id = ${resource.session.id}
-    `.pipe(Effect.mapError(toRuntimeError(`Failed to persist the V2T session "${resource.session.id}".`, 500)));
+    `.pipe(Vt2RuntimeError.mapError(`Failed to persist the V2T session "${resource.session.id}".`, 500));
 
     return resource;
   });
@@ -1293,9 +1273,7 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         transcriptStatus: overrides.transcript.status,
         captureSegmentCount: NonNegativeInt.make(overrides.captureSegments.length),
         recoveryCandidateCount: NonNegativeInt.make(overrides.recoveryCandidates.length),
-        exportArtifactCount: NonNegativeInt.make(
-          (overrides.exportArtifacts ?? resource.exportArtifacts).length
-        ),
+        exportArtifactCount: NonNegativeInt.make((overrides.exportArtifacts ?? resource.exportArtifacts).length),
       }),
       transcript: overrides.transcript,
       captureSegments: overrides.captureSegments,
@@ -1408,7 +1386,7 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       lastOpenedAt: input.lastOpenedAt,
     });
     const encodedPreferences = yield* encodePreferencesJson(nextPreferences).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the updated V2T desktop preferences.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the updated V2T desktop preferences.", 500)
     );
 
     yield* sql`
@@ -1416,7 +1394,7 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       SET preferences_json = ${encodedPreferences},
         updated_at = ${DateTime.toEpochMillis(updatedAt)}
       WHERE id = 1
-    `.pipe(Effect.mapError(toRuntimeError("Failed to persist the V2T desktop preferences.", 500)));
+    `.pipe(Vt2RuntimeError.mapError("Failed to persist the V2T desktop preferences.", 500));
 
     return nextPreferences;
   });
@@ -1435,25 +1413,25 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     const exportArtifacts = A.empty<Vt2ExportArtifact>();
 
     const encodedTranscript = yield* encodeTranscriptJson(transcript).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the new V2T transcript scaffold.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the new V2T transcript scaffold.", 500)
     );
     const encodedCaptureSegments = yield* encodeCaptureSegmentsJson(captureSegments).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the new V2T capture segment scaffold.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the new V2T capture segment scaffold.", 500)
     );
     const encodedRecoveryCandidates = yield* encodeRecoveryCandidatesJson(recoveryCandidates).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the new V2T recovery scaffold.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the new V2T recovery scaffold.", 500)
     );
     const encodedMemoryContextPackets = yield* encodeMemoryContextPacketsJson(memoryContextPackets).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the new V2T memory context scaffold.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the new V2T memory context scaffold.", 500)
     );
     const encodedCompositionProfiles = yield* encodeCompositionProfilesJson(compositionProfiles).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the new V2T composition scaffold.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the new V2T composition scaffold.", 500)
     );
     const encodedCompositionRuns = yield* encodeCompositionRunsJson(compositionRuns).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the new V2T composition run scaffold.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the new V2T composition run scaffold.", 500)
     );
     const encodedExportArtifacts = yield* encodeExportArtifactsJson(exportArtifacts).pipe(
-      Effect.mapError(toRuntimeError("Failed to encode the new V2T export scaffold.", 500))
+      Vt2RuntimeError.mapError("Failed to encode the new V2T export scaffold.", 500)
     );
 
     yield* sql`
@@ -1491,7 +1469,7 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         ${encodedCompositionRuns},
         ${encodedExportArtifacts}
       )
-    `.pipe(Effect.mapError(toRuntimeError("Failed to create a V2T session scaffold.", 500)));
+    `.pipe(Vt2RuntimeError.mapError("Failed to create a V2T session scaffold.", 500));
 
     return new Vt2SessionResource({
       session: new Vt2Session({
@@ -1524,27 +1502,21 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     const resource = yield* getSession(sessionId);
 
     if (resource.session.source !== "record") {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" does not support native capture because it is an import session.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(
+        `Session "${sessionId}" does not support native capture because it is an import session.`,
+        400
+      );
     }
 
     if (resource.session.status === "capturing") {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" is already capturing.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(`Session "${sessionId}" is already capturing.`, 400);
     }
 
     if (A.some(resource.recoveryCandidates, isPendingRecoveryCandidate)) {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" has pending recovery work that must be resolved before starting another capture.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(
+        `Session "${sessionId}" has pending recovery work that must be resolved before starting another capture.`,
+        400
+      );
     }
 
     const updatedAt = yield* DateTime.now;
@@ -1565,19 +1537,14 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     const resource = yield* getSession(sessionId);
 
     if (resource.session.source !== "record") {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" does not support native capture because it is an import session.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(
+        `Session "${sessionId}" does not support native capture because it is an import session.`,
+        400
+      );
     }
 
     if (resource.session.status !== "capturing") {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" is not currently capturing.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(`Session "${sessionId}" is not currently capturing.`, 400);
     }
 
     const updatedAt = yield* DateTime.now;
@@ -1632,27 +1599,21 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     const resource = yield* getSession(sessionId);
 
     if (resource.transcript.status === "processing") {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" is already transcribing.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(`Session "${sessionId}" is already transcribing.`, 400);
     }
 
     if (A.some(resource.recoveryCandidates, isPendingRecoveryCandidate)) {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" still has pending recovery work and cannot retry transcription yet.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(
+        `Session "${sessionId}" still has pending recovery work and cannot retry transcription yet.`,
+        400
+      );
     }
 
     if (!A.some(resource.captureSegments, isIngestedCaptureSegment)) {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" does not have ingested capture media ready for transcription.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(
+        `Session "${sessionId}" does not have ingested capture media ready for transcription.`,
+        400
+      );
     }
 
     return yield* transcribeSessionResource(resource);
@@ -1668,35 +1629,21 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       resource.recoveryCandidates,
       A.findFirst(hasRecoveryCandidateId(candidateId)),
       Effect.fromOption,
-      Effect.mapError(
-        () =>
-          new Vt2RuntimeError({
-            message: `Recovery candidate "${candidateId}" was not found for session "${sessionId}".`,
-            status: 404,
-            cause: O.none(),
-          })
+      Effect.mapError(() =>
+        Vt2RuntimeError.noCause(`Recovery candidate "${candidateId}" was not found for session "${sessionId}".`, 404)
       )
     );
 
     if (!isPendingRecoveryCandidate(existingCandidate)) {
-      return yield* new Vt2RuntimeError({
-        message: `Recovery candidate "${candidateId}" has already been resolved.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(`Recovery candidate "${candidateId}" has already been resolved.`, 400);
     }
 
     const existingSegment = yield* pipe(
       resource.captureSegments,
       A.findFirst(hasCaptureSegmentId(existingCandidate.segmentId)),
       Effect.fromOption,
-      Effect.mapError(
-        () =>
-          new Vt2RuntimeError({
-            message: `Recovery candidate "${candidateId}" referenced a missing capture segment.`,
-            status: 404,
-            cause: O.none(),
-          })
+      Effect.mapError(() =>
+        Vt2RuntimeError.noCause(`Recovery candidate "${candidateId}" referenced a missing capture segment.`, 404)
       )
     );
 
@@ -1727,7 +1674,12 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
         : item
     );
     const nextTranscript = buildTranscriptProjection(resource.session.id, nextCaptureSegments, nextRecoveryCandidates);
-    const nextStatus = resolveSessionStatusFromArtifacts(nextCaptureSegments, nextRecoveryCandidates, nextTranscript, false);
+    const nextStatus = resolveSessionStatusFromArtifacts(
+      nextCaptureSegments,
+      nextRecoveryCandidates,
+      nextTranscript,
+      false
+    );
     const nextResource = rebuildSessionResource(resource, updatedAt, {
       status: nextStatus,
       transcript: nextTranscript,
@@ -1748,21 +1700,19 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     const preferences = yield* loadPreferences;
 
     if (A.some(resource.recoveryCandidates, isPendingRecoveryCandidate)) {
-      return yield* new Vt2RuntimeError({
-        message: `Session "${sessionId}" still has pending recovery work and cannot compose yet.`,
-        status: 400,
-        cause: O.none(),
-      });
+      return yield* Vt2RuntimeError.noCause(
+        `Session "${sessionId}" still has pending recovery work and cannot compose yet.`,
+        400
+      );
     }
 
     const transcriptExcerpt = yield* O.match(resource.transcript.excerpt, {
       onNone: () =>
         Effect.fail(
-          new Vt2RuntimeError({
-            message: `Session "${sessionId}" does not have a transcript excerpt ready for composition yet.`,
-            status: 400,
-            cause: O.none(),
-          })
+          Vt2RuntimeError.noCause(
+            `Session "${sessionId}" does not have a transcript excerpt ready for composition yet.`,
+            400
+          )
         ),
       onSome: Effect.succeed,
     });
@@ -1770,11 +1720,10 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
     const selectedProfile = yield* O.match(profile, {
       onNone: () =>
         Effect.fail(
-          new Vt2RuntimeError({
-            message: `Composition profile "${input.profileId}" was not found for session "${sessionId}".`,
-            status: 404,
-            cause: O.none(),
-          })
+          Vt2RuntimeError.noCause(
+            `Composition profile "${input.profileId}" was not found for session "${sessionId}".`,
+            404
+          )
         ),
       onSome: Effect.succeed,
     });
@@ -1786,13 +1735,11 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       includeMemoryContext,
       targetFormats: input.targetFormats,
     });
-    const memoryContextPacket = yield* (
-      includeMemoryContext
-        ? memoryContextProvider
-            .fetchContext(resource, packet)
-            .pipe(Effect.map(O.some), Effect.mapError(toProviderRuntimeError("Failed to retrieve V2T memory context.")))
-        : Effect.succeed(O.none<Vt2MemoryContextPacket>())
-    );
+    const memoryContextPacket = yield* includeMemoryContext
+      ? memoryContextProvider
+          .fetchContext(resource, packet)
+          .pipe(Effect.map(O.some), Effect.mapError(toProviderRuntimeError("Failed to retrieve V2T memory context.")))
+      : Effect.succeed(O.none<Vt2MemoryContextPacket>());
 
     const preparedRun = yield* compositionProvider
       .prepareRun(resource, selectedProfile, preferences, packet, memoryContextPacket)
@@ -1801,21 +1748,23 @@ const makeVt2Store = Effect.fn("Vt2Store.make")(function* (config: Vt2RuntimeCon
       input.destinationDirectory,
       O.orElse(() => resource.session.workingDirectory)
     );
-    const exportRequests = A.map(packet.targetFormats, (format) =>
-      new Vt2ExportRequest({
-        runId: preparedRun.id,
-        sessionId: resource.session.id,
-        sessionTitle: resource.session.title,
-        format,
-        packet,
-        transcriptExcerpt: O.some(transcriptExcerpt),
-        memoryContextPacketId: O.map(memoryContextPacket, (context) => context.id),
-        destinationPath: O.map(destinationDirectory, (directory) =>
-          FilePath.make(
-            path.resolve(directory, `${normalizeExportSlug(resource.session.title)}.${exportExtension(format)}`)
-          )
-        ),
-      })
+    const exportRequests = A.map(
+      packet.targetFormats,
+      (format) =>
+        new Vt2ExportRequest({
+          runId: preparedRun.id,
+          sessionId: resource.session.id,
+          sessionTitle: resource.session.title,
+          format,
+          packet,
+          transcriptExcerpt: O.some(transcriptExcerpt),
+          memoryContextPacketId: O.map(memoryContextPacket, (context) => context.id),
+          destinationPath: O.map(destinationDirectory, (directory) =>
+            FilePath.make(
+              path.resolve(directory, `${normalizeExportSlug(resource.session.title)}.${exportExtension(format)}`)
+            )
+          ),
+        })
     );
     const exportArtifacts = yield* Effect.forEach(exportRequests, exportProvider.exportSession).pipe(
       Effect.mapError(toProviderRuntimeError("Failed to materialize the V2T export artifacts."))
@@ -1897,7 +1846,7 @@ const emitBootstrapStdoutLine = Effect.fn("Vt2Runtime.emitBootstrapStdoutLine")(
       status: bootstrap.status,
       startedAt: DateTime.toEpochMillis(bootstrap.startedAt),
     })
-  ).pipe(Effect.mapError(toRuntimeError("Failed to encode the V2T bootstrap line.", 500)));
+  ).pipe(Vt2RuntimeError.mapError("Failed to encode the V2T bootstrap line.", 500));
 
   yield* Effect.sync(() => {
     process.stdout.write(`${encoded}\n`);
@@ -1928,7 +1877,9 @@ const controlPlaneHandlersLayer = (config: Vt2RuntimeConfig, startedAt: DateTime
             .handle("completeCapture", ({ params, payload }) =>
               handleResourceControlPlane(store.completeCapture(params.sessionId, payload))
             )
-            .handle("retryTranscript", ({ params }) => handleResourceControlPlane(store.retryTranscript(params.sessionId)))
+            .handle("retryTranscript", ({ params }) =>
+              handleResourceControlPlane(store.retryTranscript(params.sessionId))
+            )
             .handle("resolveRecoveryCandidate", ({ params, payload }) =>
               handleResourceControlPlane(store.resolveRecoveryCandidate(params.sessionId, params.candidateId, payload))
             )
@@ -1968,7 +1919,7 @@ const sidecarLayer = (config: Vt2RuntimeConfig, startedAt: DateTime.Utc) => {
 
 const launchVt2Sidecar = (config: Vt2RuntimeConfig, startedAt: DateTime.Utc) =>
   Layer.launch(Layer.fresh(sidecarLayer(config, startedAt))).pipe(
-    Effect.mapError(toRuntimeError("Failed to launch the V2T sidecar.", 500))
+    Vt2RuntimeError.mapError("Failed to launch the V2T sidecar.", 500)
   );
 
 /**

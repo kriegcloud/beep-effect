@@ -416,6 +416,22 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
+      "file": "packages/common/schema/src/CauseTaggedErrorClass.ts",
+      "symbol": "CauseTaggedErrorClassFactory",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/StatusCauseTaggedErrorClass.ts",
+      "symbol": "StatusCauseTaggedErrorClassFactory",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
       "file": "packages/common/schema/src/TaggedErrorClass.ts",
       "symbol": "TaggedErrorClassFactory",
       "kind": "exported-interface",

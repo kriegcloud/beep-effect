@@ -10,7 +10,7 @@ import {
   type SidecarBootstrap,
 } from "@beep/editor-protocol";
 import { $EditorClientId } from "@beep/identity/packages";
-import { Slug, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { Slug, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { Cause, Context, Effect, Layer, pipe } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -60,47 +60,12 @@ export class EditorClientConfig extends S.Class<EditorClientConfig>($I`EditorCli
  * @since 0.0.0
  * @category DomainModel
  */
-export class EditorClientError extends TaggedErrorClass<EditorClientError>($I`EditorClientError`)(
+export class EditorClientError extends StatusCauseTaggedErrorClass<EditorClientError>($I`EditorClientError`)(
   "EditorClientError",
-  StatusCauseFields,
   $I.annote("EditorClientError", {
     description: "Typed client error for local editor sidecar communication failures.",
   })
-) {
-  static readonly fromCause: {
-    (cause: unknown, fallback: string): EditorClientError;
-    (fallback: string): (cause: unknown) => EditorClientError;
-  } = dual(
-    2,
-    (cause: unknown, fallback: string): EditorClientError =>
-      pipe(
-        cause,
-        O.liftPredicate(S.is(EditorClientError)),
-        O.orElse(() =>
-          pipe(
-            cause,
-            O.liftPredicate(S.is(EditorControlPlaneErrorPayload)),
-            O.map(
-              (payload) =>
-                new EditorClientError({
-                  message: payload.message,
-                  status: payload.status,
-                  cause: O.none(),
-                })
-            )
-          )
-        ),
-        O.getOrElse(
-          () =>
-            new EditorClientError({
-              message: fallback,
-              status: transportStatus(cause),
-              cause: O.liftPredicate(P.isError)(cause),
-            })
-        )
-      )
-  );
-}
+) {}
 
 /**
  * Service contract for the editor sidecar client boundary.
@@ -223,23 +188,21 @@ export const makeEditorHttpClientDefault = (
 const transportStatus = (cause: unknown): number =>
   HttpClientError.isHttpClientError(cause) && cause.response !== undefined ? cause.response.status : 500;
 
+const toClientError = (fallback: string, cause: unknown): EditorClientError =>
+  S.is(EditorClientError)(cause)
+    ? cause
+    : S.is(EditorControlPlaneErrorPayload)(cause)
+      ? EditorClientError.noCause(cause.message, cause.status)
+      : EditorClientError.new(P.isError(cause) ? cause : undefined, fallback, transportStatus(cause));
+
 const mapClientError = <A, E>(fallback: string, effect: Effect.Effect<A, E>) =>
-  effect.pipe(
-    Effect.catchCause((cause) => pipe(Cause.squash(cause), EditorClientError.fromCause(fallback), Effect.fail))
-  );
+  effect.pipe(Effect.catchCause((cause) => Effect.fail(toClientError(fallback, Cause.squash(cause)))));
 
 const decodeSlugEffect = (slug: string): Effect.Effect<Slug, EditorClientError> =>
   pipe(
     decodeSlugOption(slug),
     O.match({
-      onNone: () =>
-        Effect.fail(
-          new EditorClientError({
-            message: `Invalid page slug "${slug}".`,
-            status: 400,
-            cause: O.none(),
-          })
-        ),
+      onNone: () => Effect.fail(EditorClientError.noCause(`Invalid page slug "${slug}".`, 400)),
       onSome: Effect.succeed,
     })
   );

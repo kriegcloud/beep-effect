@@ -1,15 +1,12 @@
 import type { TUnsafe } from "@beep/types";
-import { Effect } from "effect";
 import type { Struct } from "effect";
+import { Effect } from "effect";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import { withStatics } from "./SchemaUtils/withStatics.ts";
-import {
-  TaggedErrorClass,
-  type TaggedErrorClassFromFields,
-} from "./TaggedErrorClass.ts";
+import { TaggedErrorClass, type TaggedErrorClassFromFields } from "./TaggedErrorClass.ts";
 
 type CauseTaggedErrorFields = S.Struct.Fields;
 type CauseTaggedErrorReservedField = "message" | "cause";
@@ -124,7 +121,13 @@ type CauseTaggedErrorExtendMethod<
       >
     >;
 
-type CauseTaggedErrorClassWithStatics<
+/**
+ * Tagged error class returned by {@link CauseTaggedErrorClass}, including dual construction helpers.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type CauseTaggedErrorClassWithStatics<
   Self,
   Tag extends string,
   Fields extends CauseTaggedErrorFields,
@@ -135,13 +138,21 @@ type CauseTaggedErrorClassWithStatics<
     CauseTaggedErrorCombinedFields<Fields>,
     Brand
   >,
-> = (new (...args: CauseTaggedErrorConstructorArgs<ErrorClass>) => CauseTaggedErrorInstance<ErrorClass>) &
+> = (new (
+  ...args: CauseTaggedErrorConstructorArgs<ErrorClass>
+) => CauseTaggedErrorInstance<ErrorClass>) &
   Omit<ErrorClass, "extend"> &
   CauseTaggedErrorStatics<Self, Fields> & {
     readonly extend: CauseTaggedErrorExtendMethod<Tag, Fields, ErrorClass>;
   };
 
-interface CauseTaggedErrorClassFactory<Self, Brand = {}> {
+/**
+ * Factory returned by {@link CauseTaggedErrorClass} after an identity namespace has been selected.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface CauseTaggedErrorClassFactory<Self, Brand = {}> {
   <Tag extends string, const Fields extends CauseTaggedErrorFields>(
     tag: Tag,
     fields: CauseTaggedErrorNoReservedFields<Fields>,
@@ -154,7 +165,13 @@ interface CauseTaggedErrorClassFactory<Self, Brand = {}> {
   ): CauseTaggedErrorClassWithStatics<Self, Tag, {}, Brand>;
 }
 
-type CauseTaggedErrorClassConstructor = <Self, Brand = {}>(
+/**
+ * Callable constructor for creating cause-tagged error class factories.
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export type CauseTaggedErrorClassConstructor = <Self, Brand = {}>(
   identifier?: undefined | string
 ) => CauseTaggedErrorClassFactory<Self, Brand>;
 
@@ -188,7 +205,6 @@ const causeTaggedErrorInput = <Fields extends CauseTaggedErrorFields>(
   }) as CauseTaggedErrorNewInput<Fields>;
 
 const makeCauseTaggedErrorNew = <Error, Fields extends CauseTaggedErrorFields>(
-  fallbackCtor: CauseTaggedErrorCtor<Error, Fields>,
   fields: Fields
 ): CauseTaggedErrorNew<Error, Fields> => {
   const hasExtras = hasExtraFields(fields);
@@ -208,27 +224,25 @@ const makeCauseTaggedErrorNew = <Error, Fields extends CauseTaggedErrorFields>(
   ) => Error;
 
   return function (
-    this: CauseTaggedErrorCtor<Error, Fields> | undefined,
+    this: CauseTaggedErrorCtor<Error, Fields>,
     causeOrMessage: unknown,
     messageOrExtras?: string | CauseTaggedErrorExtrasInput<Fields>,
     extras?: CauseTaggedErrorExtrasInput<Fields>
   ): Error | ((cause: unknown) => Error) {
-    const ctor = this ?? fallbackCtor;
-
     if (hasExtras) {
       return arguments.length >= 3
-        ? build(ctor, causeOrMessage, messageOrExtras as string, extras)
-        : (cause: unknown) => build(ctor, cause, causeOrMessage as string, messageOrExtras as CauseTaggedErrorExtrasInput<Fields>);
+        ? build(this, causeOrMessage, messageOrExtras as string, extras)
+        : (cause: unknown) =>
+            build(this, cause, causeOrMessage as string, messageOrExtras as CauseTaggedErrorExtrasInput<Fields>);
     }
 
     return arguments.length >= 2
-      ? build(ctor, causeOrMessage, messageOrExtras as string)
-      : (cause: unknown) => build(ctor, cause, causeOrMessage as string);
+      ? build(this, causeOrMessage, messageOrExtras as string)
+      : (cause: unknown) => build(this, cause, causeOrMessage as string);
   } as CauseTaggedErrorNew<Error, Fields>;
 };
 
 const makeCauseTaggedErrorMapError = <Error, Fields extends CauseTaggedErrorFields>(
-  fallbackCtor: CauseTaggedErrorCtor<Error, Fields>,
   fields: Fields
 ): CauseTaggedErrorMapError<Error, Fields> => {
   const hasExtras = hasExtraFields(fields);
@@ -249,23 +263,21 @@ const makeCauseTaggedErrorMapError = <Error, Fields extends CauseTaggedErrorFiel
   ) => Effect.Effect<A, Error, R>;
 
   return function <A, E, R>(
-    this: CauseTaggedErrorCtor<Error, Fields> | undefined,
+    this: CauseTaggedErrorCtor<Error, Fields>,
     selfOrMessage: Effect.Effect<A, E, R> | string,
     messageOrExtras?: string | CauseTaggedErrorExtrasInput<Fields>,
     extras?: CauseTaggedErrorExtrasInput<Fields>
   ): Effect.Effect<A, Error, R> | ((self: Effect.Effect<A, E, R>) => Effect.Effect<A, Error, R>) {
-    const ctor = this ?? fallbackCtor;
-
     if (hasExtras) {
       return arguments.length >= 3
-        ? build(ctor, selfOrMessage as Effect.Effect<A, E, R>, messageOrExtras as string, extras)
+        ? build(this, selfOrMessage as Effect.Effect<A, E, R>, messageOrExtras as string, extras)
         : (self: Effect.Effect<A, E, R>) =>
-            build(ctor, self, selfOrMessage as string, messageOrExtras as CauseTaggedErrorExtrasInput<Fields>);
+            build(this, self, selfOrMessage as string, messageOrExtras as CauseTaggedErrorExtrasInput<Fields>);
     }
 
     return arguments.length >= 2
-      ? build(ctor, selfOrMessage as Effect.Effect<A, E, R>, messageOrExtras as string)
-      : (self: Effect.Effect<A, E, R>) => build(ctor, self, selfOrMessage as string);
+      ? build(this, selfOrMessage as Effect.Effect<A, E, R>, messageOrExtras as string)
+      : (self: Effect.Effect<A, E, R>) => build(this, self, selfOrMessage as string);
   } as CauseTaggedErrorMapError<Error, Fields>;
 };
 
@@ -287,22 +299,19 @@ const attachCauseTaggedErrorStatics = <
     annotations?: S.Annotations.Declaration<TUnsafe.Any, readonly [S.Struct<CauseTaggedErrorFields>]>
   ) => CauseTaggedErrorClassLike;
 
-  return withStatics(errorClass, (schema) => ({
-    new: makeCauseTaggedErrorNew(schema as CauseTaggedErrorCtor<Self, Fields>, fields),
-    mapError: makeCauseTaggedErrorMapError(schema as CauseTaggedErrorCtor<Self, Fields>, fields),
-    extend: function (this: CauseTaggedErrorClassLike | undefined, identifier: string) {
-      const extend = originalExtend.call(this ?? schema, identifier);
+  return withStatics(errorClass, () => ({
+    new: makeCauseTaggedErrorNew<Self, Fields>(fields),
+    mapError: makeCauseTaggedErrorMapError<Self, Fields>(fields),
+    extend: function (this: CauseTaggedErrorClassLike, identifier: string) {
+      const extend = originalExtend.call(this, identifier);
 
       return (newFields: CauseTaggedErrorFields, annotations?: TUnsafe.Any) => {
         const extended = extend(newFields, annotations);
 
-        return attachCauseTaggedErrorStatics(
-          extended,
-          {
-            ...fields,
-            ...newFields,
-          } as CauseTaggedErrorFields
-        );
+        return attachCauseTaggedErrorStatics(extended, {
+          ...fields,
+          ...newFields,
+        } as CauseTaggedErrorFields);
       };
     },
   })) as CauseTaggedErrorClassWithStatics<Self, Tag, Fields, Brand, ErrorClass>;

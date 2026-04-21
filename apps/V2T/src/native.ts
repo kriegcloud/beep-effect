@@ -1,12 +1,5 @@
 import { $V2TId } from "@beep/identity";
-import {
-  LiteralKit,
-  makeStatusCauseError,
-  OptionFromNullableStr,
-  StatusCauseFields,
-  TaggedErrorClass,
-  UUID,
-} from "@beep/schema";
+import { LiteralKit, OptionFromNullableStr, StatusCauseTaggedErrorClass, UUID } from "@beep/schema";
 import {
   CreateVt2SessionInput,
   RunVt2CompositionInput,
@@ -125,15 +118,12 @@ export class Vt2ManagedCaptureState extends S.Class<Vt2ManagedCaptureState>($I`V
  * @since 0.0.0
  * @category DomainModel
  */
-export class Vt2NativeError extends TaggedErrorClass<Vt2NativeError>($I`Vt2NativeError`)(
+export class Vt2NativeError extends StatusCauseTaggedErrorClass<Vt2NativeError>($I`Vt2NativeError`)(
   "Vt2NativeError",
-  StatusCauseFields,
   $I.annote("Vt2NativeError", {
     description: "Typed error emitted by the V2T native bridge.",
   })
 ) {}
-
-const toNativeError = makeStatusCauseError(Vt2NativeError);
 
 /**
  * Determine whether the current runtime is the Tauri desktop shell.
@@ -161,9 +151,9 @@ const invokeNative: <A>(
           const { invoke } = await import("@tauri-apps/api/core");
           return decode(await invoke(command, args));
         },
-        catch: (cause) => toNativeError(fallback, 500, cause),
+        catch: (cause) => Vt2NativeError.new(cause, fallback, 500),
       })
-    : Effect.fail(toNativeError(fallback, 500, undefined));
+    : Effect.fail(Vt2NativeError.noCause(fallback, 500));
 
 /**
  * Start the managed V2T sidecar from the native shell.
@@ -239,10 +229,10 @@ export const observeV2tSidecarState = (
             }
           });
         },
-        catch: (cause) => toNativeError("Failed to subscribe to V2T native sidecar-state events.", 500, cause),
+        catch: (cause) => Vt2NativeError.new(cause, "Failed to subscribe to V2T native sidecar-state events.", 500),
       })
     : Effect.fail(
-        toNativeError("V2T native sidecar-state events are only available inside the desktop shell.", 500, undefined)
+        Vt2NativeError.noCause("V2T native sidecar-state events are only available inside the desktop shell.", 500)
       );
 
 /**
@@ -452,10 +442,10 @@ export const observeV2tCaptureState = (
             }
           });
         },
-        catch: (cause) => toNativeError("Failed to subscribe to V2T native capture-state events.", 500, cause),
+        catch: (cause) => Vt2NativeError.new(cause, "Failed to subscribe to V2T native capture-state events.", 500),
       })
     : Effect.fail(
-        toNativeError("V2T native capture-state events are only available inside the desktop shell.", 500, undefined)
+        Vt2NativeError.noCause("V2T native capture-state events are only available inside the desktop shell.", 500)
       );
 
 /**

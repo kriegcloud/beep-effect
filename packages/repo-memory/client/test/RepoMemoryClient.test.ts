@@ -22,12 +22,7 @@ import { Effect, Layer, Stream } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
-const clientError = () =>
-  new RepoMemoryClientError({
-    message: "boom",
-    status: 500,
-    cause: O.none(),
-  });
+const clientError = () => RepoMemoryClientError.noCause("boom", 500);
 
 const decodeRunId = S.decodeUnknownSync(RunId);
 const getRunFailure = Effect.fn("RepoMemoryClient.getRun")(() => Effect.fail(clientError()));

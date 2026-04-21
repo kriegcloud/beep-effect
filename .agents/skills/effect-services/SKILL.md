@@ -1,8 +1,8 @@
 ---
 name: effect-services
 description: >
-  Creating services with ServiceMap.Service, IdentityComposer keys, and Layer composition.
-  Trigger on: new service, service definition, Layer wiring, dependency injection, ServiceMap.
+  Creating services with Context.Service, IdentityComposer keys, and Layer composition.
+  Trigger on: new service, service definition, Layer wiring, dependency injection, Context.
 version: 0.1.0
 status: active
 ---
@@ -24,14 +24,14 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 ## Step 2: Define the Service Class
 
-Use `ServiceMap.Service<Self, Shape>()(identityKey)`. Note: type params FIRST, then key in second call.
+Use `Context.Service<Self, Shape>()(identityKey)`. Note: type params FIRST, then key in second call.
 
 ```ts
-import { Effect, ServiceMap, Layer } from "effect"
+import { Effect, Context, Layer } from "effect"
 
 // WHY: Class syntax gives you a nominal type (Self) + the service shape in one declaration.
 // The $I template tag produces a branded IdentityString under the file-local path.
-class Notifications extends ServiceMap.Service<Notifications, {
+class Notifications extends Context.Service<Notifications, {
   readonly notify: (msg: string) => Effect.Effect<void>
 }>()($I`Notifications`) {}
 ```
@@ -54,7 +54,7 @@ const makeNotifications = Effect.gen(function*() {
   }
 }).pipe(Effect.withSpan("Notifications.make"))
 
-class Notifications extends ServiceMap.Service<Notifications, {
+class Notifications extends Context.Service<Notifications, {
   readonly notify: (msg: string) => Effect.Effect<void>
 }>()($I`Notifications`) {
   // WHY: Explicit layer construction. Wire deps with Layer.provide, not `dependencies`.
@@ -68,7 +68,7 @@ class Notifications extends ServiceMap.Service<Notifications, {
 
 Prefer `yield*` over `.use()` — it makes dependencies visible at the call site.
 
-Exception: in callback-only APIs (for example `SchemaTransformation.transform*` decode/encode callbacks) where `yield*` is not available, use `ServiceMap.Service.use(...)` directly.
+Exception: in callback-only APIs (for example `SchemaTransformation.transform*` decode/encode callbacks) where `yield*` is not available, use `Context.Service.use(...)` directly.
 
 ```ts
 // WHY: yield* in Effect.fn makes the Notifications dependency appear in the R channel.

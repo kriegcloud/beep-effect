@@ -36,7 +36,7 @@ export const PaymentIntent = S.Struct({
 Field **removed from schema**, only injected in code:
 
 ```typescript
-import { ServiceMap, Effect, Logger } from "effect"
+import { Context, Effect, Logger } from "effect"
 import * as S from "effect/Schema"
 
 declare const generateId: () => string
@@ -49,7 +49,7 @@ export const PaymentIntent = S.Struct({
 })
 
 // Serial is a witness - required but injected via Context
-const Serial = ServiceMap.Service<string>("Serial")
+const Serial = Context.Service<string>("Serial")
 
 const createPaymentIntent = (amount: bigint) =>
   Effect.gen(function* () {
@@ -85,7 +85,7 @@ By removing the field from the schema and injecting it only where needed, you:
 Use when you only need to know something **exists** in the environment:
 
 ```typescript
-import { ServiceMap, Effect } from "effect"
+import { Context, Effect } from "effect"
 import * as S from "effect/Schema"
 
 declare const PaymentIntent: S.Struct<{
@@ -96,7 +96,7 @@ declare const PaymentIntent: S.Struct<{
 declare const other: any
 
 // Witness - a serial number exists
-const Serial = ServiceMap.Service<string>("Serial")
+const Serial = Context.Service<string>("Serial")
 
 const createPaymentIntent = Effect.gen(function* () {
   const serial = yield* Serial  // Pull from environment
@@ -111,7 +111,7 @@ const createPaymentIntent = Effect.gen(function* () {
 Use when you need **operations**:
 
 ```typescript
-import { ServiceMap, Effect } from "effect"
+import { Context, Effect } from "effect"
 import * as S from "effect/Schema"
 
 declare const PaymentIntent: S.Struct<{
@@ -122,7 +122,7 @@ declare const PaymentIntent: S.Struct<{
 declare const other: any
 
 // Capability - can generate/validate
-class SerialService extends ServiceMap.Service<
+class SerialService extends Context.Service<
   SerialService,
   {
     readonly next: () => string
@@ -178,7 +178,7 @@ Witnesses are trivial to provide:
 import { Effect } from "effect"
 
 declare const myProgram: Effect.Effect<unknown, never, typeof Serial>
-declare const Serial: ServiceMap.Service.Tag<string>
+declare const Serial: Context.Service<string>
 
 const test = myProgram.pipe(
   Effect.provideService(Serial, "test-serial-123")
@@ -190,7 +190,7 @@ Capabilities need implementation:
 import { Effect } from "effect"
 
 declare const myProgram: Effect.Effect<unknown, never, SerialService>
-declare class SerialService extends ServiceMap.Service<
+declare class SerialService extends Context.Service<
   SerialService,
   {
     readonly next: () => string
@@ -215,7 +215,7 @@ const test = myProgram.pipe(
 - **Yes** → Keep in schema
 
 ```typescript
-import { ServiceMap, Effect, Logger, Clock } from "effect"
+import { Context, Effect, Logger, Clock } from "effect"
 import * as S from "effect/Schema"
 
 declare const LineItem: S.Schema<any>
@@ -232,8 +232,8 @@ export const Order = S.Struct({
 })
 
 // Witnesses for runtime context
-const CorrelationId = ServiceMap.Service<string>("CorrelationId")
-const RequestId = ServiceMap.Service<string>("RequestId")
+const CorrelationId = Context.Service<string>("CorrelationId")
+const RequestId = Context.Service<string>("RequestId")
 
 // Use in code, not in data
 const createOrder = (items: Array<S.Schema.Type<typeof LineItem>>) =>

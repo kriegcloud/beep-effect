@@ -294,7 +294,7 @@ src/
 
 ```typescript
 // services/ConfigService.ts
-import { FileSystem, Path, ServiceMap } from "effect"
+import { FileSystem, Path, Context } from "effect"
 import { Effect, Layer } from "effect"
 import * as S from "effect/Schema"
 
@@ -309,7 +309,7 @@ class ConfigError extends S.TaggedError<ConfigError>()("ConfigError", {
   message: S.String
 }) {}
 
-class ConfigService extends ServiceMap.Service<ConfigService, {
+class ConfigService extends Context.Service<ConfigService, {
   readonly load: Effect.Effect<Config, ConfigError>
   readonly save: (config: Config) => Effect.Effect<void, ConfigError>
 }>()("ConfigService") {}

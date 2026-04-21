@@ -15,7 +15,7 @@ import {
   RunEventSequence,
   type RunId,
 } from "@beep/repo-memory-model";
-import { LiteralKit, makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, NonNegativeInt, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { type DateTime, Effect, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -103,18 +103,15 @@ const updateRunStatus = (
  * @since 0.0.0
  * @category DomainModel
  */
-export class RunStateMachineError extends TaggedErrorClass<RunStateMachineError>($I`RunStateMachineError`)(
+export class RunStateMachineError extends StatusCauseTaggedErrorClass<RunStateMachineError>($I`RunStateMachineError`)(
   "RunStateMachineError",
-  StatusCauseFields,
   $I.annote("RunStateMachineError", {
     description: "Typed transition error emitted by the repo-run state machine.",
   })
 ) {}
 
-const toRunStateMachineError = makeStatusCauseError(RunStateMachineError);
-
 const invalidTransition = (runId: RunId, status: RepoRunStatus, command: string) =>
-  Effect.fail(toRunStateMachineError(`Run "${runId}" cannot ${command} while it is "${status}".`, 409, undefined));
+  Effect.fail(RunStateMachineError.noCause(`Run "${runId}" cannot ${command} while it is "${status}".`, 409));
 
 /**
  * Execution lifecycle event kinds emitted when a run starts or resumes.

@@ -1,5 +1,5 @@
 import { $RepoMemoryModelId } from "@beep/identity/packages";
-import { makeStatusCauseError, NonNegativeInt, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { NonNegativeInt, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { type DateTime, Effect, Match, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -32,15 +32,12 @@ const nextSequence = (event: RunStreamEvent) => decodeRunEventSequence(event.seq
  * @since 0.0.0
  * @category Errors
  */
-export class RunProjectorError extends TaggedErrorClass<RunProjectorError>($I`RunProjectorError`)(
+export class RunProjectorError extends StatusCauseTaggedErrorClass<RunProjectorError>($I`RunProjectorError`)(
   "RunProjectorError",
-  StatusCauseFields,
   $I.annote("RunProjectorError", {
     description: "Typed projection error emitted while materializing repo-memory run events.",
   })
 ) {}
-
-const toRunProjectorError = makeStatusCauseError(RunProjectorError);
 
 const makeQueryStage = (
   phase: QueryStagePhase,
@@ -222,9 +219,7 @@ const requireCurrentRun = (
 ): Effect.Effect<RepoRun, RunProjectorError> =>
   O.match(currentRun, {
     onNone: () =>
-      Effect.fail(
-        toRunProjectorError(`Run "${event.runId}" must exist before projecting "${event.kind}".`, 404, undefined)
-      ),
+      Effect.fail(RunProjectorError.noCause(`Run "${event.runId}" must exist before projecting "${event.kind}".`, 404)),
     onSome: Effect.succeed,
   });
 
@@ -237,10 +232,9 @@ const requireCurrentQueryRun = (
       run.kind === "query"
         ? Effect.succeed(run)
         : Effect.fail(
-            toRunProjectorError(
+            RunProjectorError.noCause(
               `Run "${event.runId}" must be a query run before projecting "${event.kind}".`,
-              409,
-              undefined
+              409
             )
           )
     )
@@ -270,11 +264,7 @@ const acceptedRunFromEvent = (event: Extract<RunStreamEvent, { readonly kind: "a
         O.match({
           onNone: () =>
             Effect.fail(
-              toRunProjectorError(
-                `Accepted query run "${event.runId}" must include its original question.`,
-                500,
-                undefined
-              )
+              RunProjectorError.noCause(`Accepted query run "${event.runId}" must include its original question.`, 500)
             ),
           onSome: (question) =>
             Effect.succeed(
