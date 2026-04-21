@@ -496,6 +496,10 @@ Providers own technical engines and dev-safe wrappers:
 
 Provider packages do not define product/business ports by default.
 
+Providers may start slice-local when that keeps experiments removable. Promote a
+provider to `shared` only when it is genuinely product-neutral, stable across
+multiple slices, and worth coupling those slices to the same technical contract.
+
 ### `tables`
 
 Tables own product-specific persistence shape:
