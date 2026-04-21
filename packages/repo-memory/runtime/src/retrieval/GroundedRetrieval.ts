@@ -54,12 +54,7 @@ import {
   RepoSymbolStore,
   type RepoSymbolStoreShape,
 } from "@beep/repo-memory-store";
-import {
-  type FilePath,
-  NonNegativeInt,
-  PosInt,
-  StatusCauseTaggedErrorClass,
-} from "@beep/schema";
+import { type FilePath, NonNegativeInt, PosInt, StatusCauseTaggedErrorClass } from "@beep/schema";
 import * as Str from "@beep/utils/Str";
 import { Context, DateTime, Effect, HashSet, Layer, Order, pipe } from "effect";
 import * as A from "effect/Array";
@@ -184,7 +179,8 @@ const latestSnapshotForRepo = (store: GroundedRetrievalStoreShape) =>
     const latestSnapshot = yield* mapStoreError(store.latestSourceSnapshot(repoId));
 
     return yield* O.match(latestSnapshot, {
-      onNone: () => GroundedRetrievalError.noCause(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400),
+      onNone: () =>
+        GroundedRetrievalError.noCause(`Repo "${repoId}" does not have a completed source snapshot yet.`, 400),
       onSome: (snapshot) => Effect.succeed(snapshot.id),
     });
   });
