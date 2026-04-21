@@ -121,7 +121,13 @@ type CauseTaggedErrorExtendMethod<
       >
     >;
 
-type CauseTaggedErrorClassWithStatics<
+/**
+ * Tagged error class returned by {@link CauseTaggedErrorClass}, including dual construction helpers.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type CauseTaggedErrorClassWithStatics<
   Self,
   Tag extends string,
   Fields extends CauseTaggedErrorFields,
@@ -140,7 +146,13 @@ type CauseTaggedErrorClassWithStatics<
     readonly extend: CauseTaggedErrorExtendMethod<Tag, Fields, ErrorClass>;
   };
 
-interface CauseTaggedErrorClassFactory<Self, Brand = {}> {
+/**
+ * Factory returned by {@link CauseTaggedErrorClass} after an identity namespace has been selected.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export interface CauseTaggedErrorClassFactory<Self, Brand = {}> {
   <Tag extends string, const Fields extends CauseTaggedErrorFields>(
     tag: Tag,
     fields: CauseTaggedErrorNoReservedFields<Fields>,
@@ -153,7 +165,13 @@ interface CauseTaggedErrorClassFactory<Self, Brand = {}> {
   ): CauseTaggedErrorClassWithStatics<Self, Tag, {}, Brand>;
 }
 
-type CauseTaggedErrorClassConstructor = <Self, Brand = {}>(
+/**
+ * Callable constructor for creating cause-tagged error class factories.
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export type CauseTaggedErrorClassConstructor = <Self, Brand = {}>(
   identifier?: undefined | string
 ) => CauseTaggedErrorClassFactory<Self, Brand>;
 

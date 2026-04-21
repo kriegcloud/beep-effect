@@ -7,7 +7,7 @@
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { $InfraId } from "@beep/identity";
-import { TaggedErrorClass } from "@beep/schema";
+import { CauseTaggedErrorClass, TaggedErrorClass } from "@beep/schema";
 import type * as Pulumi from "@pulumi/pulumi";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
@@ -101,14 +101,10 @@ type V2TNormalizationOptions = {
  * @since 0.0.0
  * @category Errors
  */
-export class V2TWorkstationConfigError extends TaggedErrorClass<V2TWorkstationConfigError>(
+export class V2TWorkstationConfigError extends CauseTaggedErrorClass<V2TWorkstationConfigError>(
   $I`V2TWorkstationConfigError`
 )(
   "V2TWorkstationConfigError",
-  {
-    message: S.String,
-    cause: S.DefectWithStack,
-  },
   $I.annote("V2TWorkstationConfigError", {
     description: "Raised when the V2T workstation config cannot be decoded from plain input.",
   })
@@ -210,10 +206,9 @@ const resolveTargetUser = (inputTargetUser?: string) => {
     return defaultTargetUser;
   }
 
-  throw new V2TWorkstationConfigError({
-    message: "Failed to resolve the default target user. Set config.targetUser explicitly.",
-    cause: makeV2TWorkstationConfigDefect("Missing USER environment variable."),
-  });
+  throw V2TWorkstationConfigError.new("Failed to resolve the default target user. Set config.targetUser explicitly.")(
+    makeV2TWorkstationConfigDefect("Missing USER environment variable.")
+  );
 };
 
 const resolveTargetHomeDir = (targetUser: string, inputTargetHomeDir?: string) => {
@@ -222,17 +217,15 @@ const resolveTargetHomeDir = (targetUser: string, inputTargetHomeDir?: string) =
   }
 
   if (defaultTargetUser === undefined || defaultTargetHomeDir === undefined) {
-    throw new V2TWorkstationConfigError({
-      message: "Failed to resolve the default target home directory. Set config.targetHomeDir explicitly.",
-      cause: makeV2TWorkstationConfigDefect("Missing USER or HOME environment variable."),
-    });
+    throw V2TWorkstationConfigError.new(
+      "Failed to resolve the default target home directory. Set config.targetHomeDir explicitly."
+    )(makeV2TWorkstationConfigDefect("Missing USER or HOME environment variable."));
   }
 
   if (targetUser !== defaultTargetUser) {
-    throw new V2TWorkstationConfigError({
-      message: `config.targetHomeDir is required when targetUser differs from the current user (${defaultTargetUser}).`,
-      cause: makeV2TWorkstationConfigDefect("Missing targetHomeDir for non-default targetUser."),
-    });
+    throw V2TWorkstationConfigError.new(
+      `config.targetHomeDir is required when targetUser differs from the current user (${defaultTargetUser}).`
+    )(makeV2TWorkstationConfigDefect("Missing targetHomeDir for non-default targetUser."));
   }
 
   return defaultTargetHomeDir;
@@ -286,10 +279,7 @@ export const normalizeV2TWorkstationConfig = (
       throw cause;
     }
 
-    throw new V2TWorkstationConfigError({
-      message: "Failed to decode the V2T workstation config.",
-      cause,
-    });
+    throw V2TWorkstationConfigError.new("Failed to decode the V2T workstation config.")(cause);
   }
 };
 
@@ -339,7 +329,9 @@ bash "${installerScriptPath}" ${action}`;
  * @since 0.0.0
  * @category Constructors
  */
-export const loadV2TWorkstationStackArgs = (): V2TWorkstationArgs & { readonly config: V2TWorkstationConfig } => {
+export const loadV2TWorkstationStackArgs = (): V2TWorkstationArgs & {
+  readonly config: V2TWorkstationConfig;
+} => {
   const config = new pulumi.Config("v2t");
   const partialConfig: MutableV2TWorkstationConfigInput = {};
   const repoRoot = config.get("repoRoot");
