@@ -70,8 +70,8 @@ const $I = $SharedDomainId.create("knowledge-graph/KnowledgeGraph");
  * @since 0.0.0
  */
 export class NodeFilter extends S.Class<NodeFilter>($I`NodeFilter`)({
-  domain: S.optional(KnowledgeDomain),
-  kind: S.optional(KnowledgeNodeKind),
+  domain: S.optionalKey(KnowledgeDomain),
+  kind: S.optionalKey(KnowledgeNodeKind),
 }) {}
 
 /**
@@ -88,9 +88,9 @@ export class NodeFilter extends S.Class<NodeFilter>($I`NodeFilter`)({
  * @since 0.0.0
  */
 export class EdgeFilter extends S.Class<EdgeFilter>($I`EdgeFilter`)({
-  kind: S.optional(KnowledgeEdgeKind),
-  sourceNodeId: S.optional(KnowledgeNodeId),
-  targetNodeId: S.optional(KnowledgeNodeId),
+  kind: S.optionalKey(KnowledgeEdgeKind),
+  sourceNodeId: S.optionalKey(KnowledgeNodeId),
+  targetNodeId: S.optionalKey(KnowledgeNodeId),
 }) {}
 
 // ---------------------------------------------------------------------------

@@ -76,18 +76,18 @@ const makeDefaultedUrlField = (name: string, fallback: string, description: stri
 
 class GraphitiProxyConfigInput extends S.Class<GraphitiProxyConfigInput>($I`GraphitiProxyConfigInput`)(
   {
-    listenHost: S.optional(S.String),
-    listenPort: S.optional(S.String),
-    concurrency: S.optional(S.String),
-    maxQueue: S.optional(S.String),
-    requestTimeoutMs: S.optional(S.String),
-    shutdownDrainTimeoutMs: S.optional(S.String),
-    verbose: S.optional(S.String),
-    dependencyHealthEnabled: S.optional(S.String),
-    dependencyHealthTtlMs: S.optional(S.String),
-    falkorContainer: S.optional(S.String),
-    graphitiContainer: S.optional(S.String),
-    upstream: S.optional(S.String),
+    listenHost: S.optionalKey(S.String),
+    listenPort: S.optionalKey(S.String),
+    concurrency: S.optionalKey(S.String),
+    maxQueue: S.optionalKey(S.String),
+    requestTimeoutMs: S.optionalKey(S.String),
+    shutdownDrainTimeoutMs: S.optionalKey(S.String),
+    verbose: S.optionalKey(S.String),
+    dependencyHealthEnabled: S.optionalKey(S.String),
+    dependencyHealthTtlMs: S.optionalKey(S.String),
+    falkorContainer: S.optionalKey(S.String),
+    graphitiContainer: S.optionalKey(S.String),
+    upstream: S.optionalKey(S.String),
   },
   $I.annote("GraphitiProxyConfigInput", {
     description: "Raw optional environment values before GraphitiProxyConfig decoding defaults are applied.",
@@ -176,7 +176,7 @@ export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxy
   "GraphitiProxyConfigLoadError",
   {
     message: S.String,
-    cause: S.optional(S.Defect),
+    cause: S.optionalKey(S.Defect),
   },
   $I.annote("GraphitiProxyConfigLoadError", {
     description: "Raised when graphiti proxy config cannot be decoded from Effect Config values.",

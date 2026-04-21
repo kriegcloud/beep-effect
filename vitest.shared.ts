@@ -8,6 +8,7 @@ type AliasEntry = {
 
 const projectRootDirectory = new URL("./", import.meta.url);
 const rootTsconfigPath = new URL("./tsconfig.json", import.meta.url).pathname;
+const coverageProvider = process.versions.bun !== undefined ? "istanbul" : "v8";
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -81,7 +82,7 @@ const config: ViteUserConfig = {
     },
     include: ["test/**/*.test.{ts,tsx}"],
     coverage: {
-      provider: "v8",
+      provider: coverageProvider,
       reporter: ["text", "html", "lcov", "json-summary"],
       reportsDirectory: "coverage",
       exclude: [

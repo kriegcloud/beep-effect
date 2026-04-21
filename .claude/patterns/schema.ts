@@ -34,11 +34,11 @@ export const PatternFrontmatter = S.Struct({
   description: S.String,
   event: PatternEvent.pipe(S.withDecodingDefault(Effect.succeed("PostToolUse" as const))),
   tool: S.String.pipe(S.withDecodingDefault(Effect.succeed(".*"))),
-  glob: S.optional(S.String),
+  glob: S.optionalKey(S.String),
   pattern: S.String,
   action: PatternAction.pipe(S.withDecodingDefault(Effect.succeed("context" as const))),
   level: PatternLevel.pipe(S.withDecodingDefault(Effect.succeed("info" as const))),
-  tag: S.optional(S.String),
+  tag: S.optionalKey(S.String),
 });
 
 export type PatternFrontmatter = S.Schema.Type<typeof PatternFrontmatter>;
@@ -48,11 +48,11 @@ export const PatternDefinition = S.Struct({
   description: S.String,
   event: PatternEvent,
   tool: S.String,
-  glob: S.optional(S.String),
+  glob: S.optionalKey(S.String),
   pattern: S.String,
   action: PatternAction,
   level: PatternLevel,
-  tag: S.optional(S.String),
+  tag: S.optionalKey(S.String),
   body: S.String,
   filePath: S.String,
 });

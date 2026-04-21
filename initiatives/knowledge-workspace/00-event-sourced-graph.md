@@ -318,9 +318,9 @@ class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>($I`NodeUpdate
   "NodeUpdatedPayload",
   {
     nodeId: KnowledgeNodeId,
-    displayLabel: S.optional(S.NonEmptyTrimmedString),
-    content: S.optional(S.OptionFromNullishOr(S.String)),
-    metadata: S.optional(NodeMetadata),
+    displayLabel: S.optionalKey(S.NonEmptyTrimmedString),
+    content: S.optionalKey(S.OptionFromNullishOr(S.String)),
+    metadata: S.optionalKey(NodeMetadata),
   },
   $I.annote("NodeUpdatedPayload", {
     description: "Emitted when an existing node is mutated.",

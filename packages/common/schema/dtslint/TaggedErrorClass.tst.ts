@@ -22,7 +22,7 @@ class RequiredCauseError extends TaggedErrorClass<RequiredCauseError>("RequiredC
 }) {}
 
 class OptionalCauseError extends TaggedErrorClass<OptionalCauseError>("OptionalCauseError")("OptionalCauseError", {
-  cause: S.optional(S.DefectWithStack),
+  cause: S.optionalKey(S.DefectWithStack),
   message: S.String,
 }) {}
 

@@ -53,7 +53,7 @@
     "check": "tsgo -b tsconfig.json",
     "test": "bunx --bun vitest run",
     "test:watch": "vitest",
-    "coverage": "vitest --coverage",
+    "coverage": "bunx --bun vitest --coverage",
     "docgen": "bun run ../../tooling/docgen/src/bin.ts",
     "lint": "biome check .",
     "lint:fix": "biome check . --write"

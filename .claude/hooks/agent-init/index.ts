@@ -94,7 +94,7 @@ export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`Agen
   "AgentConfigError",
   {
     reason: S.String,
-    cause: S.optional(S.DefectWithStack),
+    cause: S.optionalKey(S.DefectWithStack),
   },
   $I.annote("AgentConfigError", {
     description: "Raised when hook configuration cannot be decoded.",

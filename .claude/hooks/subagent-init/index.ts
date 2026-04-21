@@ -62,7 +62,7 @@ const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
 
 export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
   "AgentConfigError",
-  { reason: S.String, cause: S.optional(S.DefectWithStack) },
+  { reason: S.String, cause: S.optionalKey(S.DefectWithStack) },
   $I.annote("AgentConfigError", {
     description: "Raised when subagent hook configuration cannot be decoded.",
   })

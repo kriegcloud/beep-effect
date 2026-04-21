@@ -97,9 +97,9 @@ export class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>($I`Nod
   "NodeUpdatedPayload",
   {
     nodeId: KnowledgeNodeId,
-    displayLabel: S.optional(NonEmptyTrimmedStr),
-    content: S.optional(S.String),
-    metadata: S.optional(NodeMetadata),
+    displayLabel: S.optionalKey(NonEmptyTrimmedStr),
+    content: S.optionalKey(S.String),
+    metadata: S.optionalKey(NodeMetadata),
   },
   $I.annote("NodeUpdatedPayload", {
     description: "Emitted when an existing node is updated.",

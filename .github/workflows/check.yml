@@ -199,7 +199,7 @@ jobs:
         uses: ./.github/actions/setup-monorepo-ci
 
       - name: Run full type check
-        run: bun run check:full
+        run: bun run check
 
   secrets:
     name: Secret Scanning
