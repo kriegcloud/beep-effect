@@ -290,6 +290,11 @@ export * from "./StatusCauseError.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./StatusCauseTaggedErrorClass.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./String.ts";
 /**
  * @since 0.0.0

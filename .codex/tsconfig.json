@@ -13,6 +13,9 @@
   },
   "references": [
     {
+      "path": "../packages/common/types/tsconfig.json"
+    },
+    {
       "path": "../packages/common/identity/tsconfig.json"
     },
     {

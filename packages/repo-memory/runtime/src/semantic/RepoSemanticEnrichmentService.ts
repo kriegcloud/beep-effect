@@ -1,6 +1,6 @@
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import { RepoSemanticArtifacts, RunId, type SourceSnapshotId } from "@beep/repo-memory-model";
-import { makeStatusCauseError, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { StatusCauseTaggedErrorClass } from "@beep/schema";
 import { EvidenceAnchor, FragmentSelector } from "@beep/semantic-web/evidence";
 import { IRIReference } from "@beep/semantic-web/iri";
 import {
@@ -228,11 +228,10 @@ export class RepoSemanticEnrichmentRequest extends S.Class<RepoSemanticEnrichmen
  * @since 0.0.0
  * @category DomainModel
  */
-export class RepoSemanticEnrichmentError extends TaggedErrorClass<RepoSemanticEnrichmentError>(
+export class RepoSemanticEnrichmentError extends StatusCauseTaggedErrorClass<RepoSemanticEnrichmentError>(
   $I`RepoSemanticEnrichmentError`
 )(
   "RepoSemanticEnrichmentError",
-  StatusCauseFields,
   $I.annote("RepoSemanticEnrichmentError", {
     description: "Typed failure raised while deriving semantic artifacts.",
   })
@@ -249,8 +248,6 @@ export interface RepoSemanticEnrichmentServiceShape {
     request: RepoSemanticEnrichmentRequest
   ) => Effect.Effect<RepoSemanticArtifacts, RepoSemanticEnrichmentError>;
 }
-
-const toEnrichmentError = makeStatusCauseError(RepoSemanticEnrichmentError);
 
 const deriveSemanticArtifacts = Effect.fn("RepoSemanticEnrichmentService.deriveSemanticArtifacts")(function* (
   request: RepoSemanticEnrichmentRequest
@@ -427,7 +424,11 @@ const deriveSemanticArtifacts = Effect.fn("RepoSemanticEnrichmentService.deriveS
       });
     },
     catch: (cause) =>
-      toEnrichmentError("Failed to derive semantic artifacts from indexed TypeScript artifacts.", 500, cause),
+      RepoSemanticEnrichmentError.new(
+        cause,
+        "Failed to derive semantic artifacts from indexed TypeScript artifacts.",
+        500
+      ),
   });
 });
 
