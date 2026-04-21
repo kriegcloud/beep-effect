@@ -16,6 +16,7 @@ import type {
 import { type StatusCauseInput, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { thunkTrue } from "@beep/utils";
 import { Duration, Effect, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -55,17 +56,14 @@ export class RepoRunServiceError extends StatusCauseTaggedErrorClass<RepoRunServ
  * @since 0.0.0
  * @category DomainLogic
  */
-export function toRunServiceError(message: string, status: number): (cause: unknown) => RepoRunServiceError;
-export function toRunServiceError(message: string, status: number, cause: unknown): RepoRunServiceError;
-export function toRunServiceError(
-  message: string,
-  status: number,
-  cause?: unknown
-): RepoRunServiceError | ((cause: unknown) => RepoRunServiceError) {
-  return arguments.length === 2
-    ? RepoRunServiceError.new(message, status)
-    : RepoRunServiceError.new(cause, message, status);
-}
+export const toRunServiceError: {
+  (cause: unknown, message: string, status: number): RepoRunServiceError;
+  (message: string, status: number): (cause: unknown) => RepoRunServiceError;
+} = dual(
+  3,
+  (cause: unknown, message: string, status: number): RepoRunServiceError =>
+    RepoRunServiceError.new(cause, message, status)
+);
 
 /**
  * Lift status/cause errors into the repo-run service error channel.

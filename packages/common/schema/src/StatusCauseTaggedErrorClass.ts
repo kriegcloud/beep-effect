@@ -5,7 +5,7 @@ import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import { withStatics } from "./SchemaUtils/withStatics.ts";
+import { withStatics } from "./SchemaUtils/index.ts";
 import { StatusCauseFields, statusCauseInput } from "./StatusCauseError.ts";
 import { TaggedErrorClass, type TaggedErrorClassFromFields } from "./TaggedErrorClass.ts";
 

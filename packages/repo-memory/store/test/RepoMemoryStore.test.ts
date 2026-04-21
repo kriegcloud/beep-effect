@@ -10,12 +10,7 @@ import { describe, expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
 
-const repoStoreError = () =>
-  new RepoStoreError({
-    message: "unimplemented",
-    status: 500,
-    cause: O.none(),
-  });
+const repoStoreError = () => RepoStoreError.noCause("unimplemented", 500);
 const repoRegistryGetRepo = Effect.fn("RepoRegistryStore.getRepo")(() => Effect.fail(repoStoreError()));
 const repoRegistryRegisterRepo = Effect.fn("RepoRegistryStore.registerRepo")(() => Effect.fail(repoStoreError()));
 const repoSnapshotCountSourceFiles = Effect.fn("RepoSnapshotStore.countSourceFiles")(() => Effect.succeed(0));
