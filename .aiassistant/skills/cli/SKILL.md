@@ -204,9 +204,9 @@ Provide services to command handlers via Effect's dependency injection:
 
 ```typescript
 import { Command, Argument } from "effect/unstable/cli"
-import { Effect, ServiceMap, Layer } from "effect"
+import { Effect, Context, Layer } from "effect"
 
-declare const HttpClient: ServiceMap.Service<{ get: (url: string) => Effect.Effect<unknown> }>
+declare const HttpClient: Context.Service<{ get: (url: string) => Effect.Effect<unknown> }>
 declare const HttpClientLive: Layer.Layer<unknown>
 
 const command = Command.make("fetch", {
@@ -225,9 +225,9 @@ const command = Command.make("fetch", {
 
 ```typescript
 import { Command } from "effect/unstable/cli"
-import { Effect, ServiceMap } from "effect"
+import { Effect, Context } from "effect"
 
-declare const DatabaseService: ServiceMap.Service<unknown>
+declare const DatabaseService: Context.Service<unknown>
 declare const makeDatabaseService: () => unknown
 
 Command.provideEffect(DatabaseService,
@@ -239,9 +239,9 @@ Command.provideEffect(DatabaseService,
 
 ```typescript
 import { Command } from "effect/unstable/cli"
-import { ServiceMap } from "effect"
+import { Context } from "effect"
 
-declare const ConfigService: ServiceMap.Service<unknown>
+declare const ConfigService: Context.Service<unknown>
 declare const makeConfigService: () => unknown
 
 Command.provideSync(ConfigService, makeConfigService())

@@ -1,5 +1,5 @@
 import { $I as $RootId } from "@beep/identity/packages";
-import { LiteralKit, NonEmptyTrimmedStr, StatusCauseFields, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, NonEmptyTrimmedStr, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { Context, Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import {
@@ -41,10 +41,9 @@ export type Vt2ProviderErrorReason = typeof Vt2ProviderErrorReason.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export class Vt2ProviderError extends TaggedErrorClass<Vt2ProviderError>($I`Vt2ProviderError`)(
+export class Vt2ProviderError extends StatusCauseTaggedErrorClass<Vt2ProviderError>($I`Vt2ProviderError`)(
   "Vt2ProviderError",
   {
-    ...StatusCauseFields,
     reason: Vt2ProviderErrorReason,
   },
   $I.annote("Vt2ProviderError", {
@@ -53,10 +52,7 @@ export class Vt2ProviderError extends TaggedErrorClass<Vt2ProviderError>($I`Vt2P
 ) {}
 
 const makeUnsupportedProviderError = (providerName: string): Vt2ProviderError =>
-  new Vt2ProviderError({
-    message: `${providerName} is not configured in the first scaffolding slice.`,
-    status: 501,
-    cause: O.none(),
+  Vt2ProviderError.noCause(`${providerName} is not configured in the first scaffolding slice.`, 501, {
     reason: "unsupported",
   });
 

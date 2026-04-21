@@ -25,7 +25,7 @@ is trusted. The active V2T workflow now assumes:
 
 ### `effect_v4_service_architect`
 
-- Write-capable service and layer specialist for `ServiceMap.Service`,
+- Write-capable service and layer specialist for `Context.Service`,
   `Layer.effect`, explicit runtime seams, and dependency wiring.
 - Best for sidecar, orchestration, and adapter work in P1 through P3.
 

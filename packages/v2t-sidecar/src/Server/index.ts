@@ -532,10 +532,7 @@ const toProviderRuntimeError =
     Vt2RuntimeError.noCause(cause.message.length > 0 ? cause.message : fallback, cause.status);
 
 const makeLocalProviderError = (message: string): Vt2ProviderError =>
-  new Vt2ProviderError({
-    message,
-    status: 500,
-    cause: O.none(),
+  Vt2ProviderError.noCause(message, 500, {
     reason: "unavailable",
   });
 

@@ -10,10 +10,10 @@ Design and implement Effect services as focused capabilities that compose into c
 ## Anti-Pattern: Monolithic Services
 
 ```typescript nocheck
-import { ServiceMap, Effect } from "effect"
+import { Context, Effect } from "effect"
 
 // ❌ WRONG - Mixed concerns in one service
-export class PaymentService extends ServiceMap.Service<
+export class PaymentService extends Context.Service<
   PaymentService,
   {
     readonly processPayment: Effect.Effect<void>
@@ -30,7 +30,7 @@ export class PaymentService extends ServiceMap.Service<
 Each service represents ONE cohesive capability:
 
 ```typescript
-import { ServiceMap, Effect } from "effect"
+import { Context, Effect } from "effect"
 
 declare const Doc: unique symbol
 type Doc<T extends string> = { readonly [Doc]: T }
@@ -73,7 +73,7 @@ interface RefundError {
 
 // ✅ CORRECT - Focused capabilities
 
-export class PaymentGateway extends ServiceMap.Service<
+export class PaymentGateway extends Context.Service<
   PaymentGateway,
   {
     readonly handoff: (
@@ -84,7 +84,7 @@ export class PaymentGateway extends ServiceMap.Service<
   }
 >()("@services/payment/PaymentGateway") {}
 
-export class PaymentWebhookGateway extends ServiceMap.Service<
+export class PaymentWebhookGateway extends Context.Service<
   PaymentWebhookGateway,
   {
     readonly validateWebhook: (
@@ -93,7 +93,7 @@ export class PaymentWebhookGateway extends ServiceMap.Service<
   }
 >()("@services/payment/PaymentWebhookGateway") {}
 
-export class PaymentRefundGateway extends ServiceMap.Service<
+export class PaymentRefundGateway extends Context.Service<
   PaymentRefundGateway,
   {
     readonly refund: (
@@ -109,7 +109,7 @@ export class PaymentRefundGateway extends ServiceMap.Service<
 Service operations should **never** have requirements:
 
 ```typescript
-import { ServiceMap, Effect } from "effect"
+import { Context, Effect } from "effect"
 
 interface QueryResult {
   readonly rows: ReadonlyArray<unknown>
@@ -121,7 +121,7 @@ interface QueryError {
 }
 
 // The service interface stays clean
-export class Database extends ServiceMap.Service<
+export class Database extends Context.Service<
   Database,
   {
     readonly query: (
@@ -136,23 +136,23 @@ export class Database extends ServiceMap.Service<
 Dependencies are handled during **layer construction**, not in the service interface:
 
 ```typescript
-import { ServiceMap, Effect, Layer } from "effect"
+import { Context, Effect, Layer } from "effect"
 
-declare const Database: ServiceMap.Service.Tag<
+declare const Database: Context.Service<
   Database,
   {
     readonly query: (sql: string) => Effect.Effect<QueryResult, QueryError, never>
   }
 >
 
-declare const Config: ServiceMap.Service.Tag<
+declare const Config: Context.Service<
   Config,
   {
     readonly getConfig: Effect.Effect<{ readonly connection: string }>
   }
 >
 
-declare const Logger: ServiceMap.Service.Tag<
+declare const Logger: Context.Service<
   Logger,
   {
     readonly log: (message: string) => Effect.Effect<void>
@@ -273,7 +273,7 @@ Each capability can be tested in isolation:
 ```typescript
 import { Effect, Layer, pipe } from "effect"
 
-declare const PaymentWebhookGateway: ServiceMap.Service.Tag<
+declare const PaymentWebhookGateway: Context.Service<
   PaymentWebhookGateway,
   {
     validateWebhook: (payload: WebhookPayload) => Effect.Effect<void, WebhookValidationError>

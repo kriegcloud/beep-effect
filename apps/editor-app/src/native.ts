@@ -1,12 +1,6 @@
 import { SidecarBootstrap } from "@beep/editor-protocol";
 import { $EditorAppId } from "@beep/identity";
-import {
-  LiteralKit,
-  makeStatusCauseError,
-  OptionFromNullableStr,
-  StatusCauseFields,
-  TaggedErrorClass,
-} from "@beep/schema";
+import { LiteralKit, OptionFromNullableStr, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { Effect, pipe } from "effect";
 import type * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -73,15 +67,12 @@ export class EditorSidecarState extends S.Class<EditorSidecarState>($EditorAppId
  * @since 0.0.0
  * @category DomainModel
  */
-export class EditorNativeError extends TaggedErrorClass<EditorNativeError>($EditorAppId`EditorNativeError`)(
+export class EditorNativeError extends StatusCauseTaggedErrorClass<EditorNativeError>($EditorAppId`EditorNativeError`)(
   "EditorNativeError",
-  StatusCauseFields,
   $I.annote("EditorNativeError", {
     description: "Typed error emitted by the editor native bridge.",
   })
 ) {}
-
-const toNativeError = makeStatusCauseError(EditorNativeError);
 
 /**
  * Determine whether the current runtime is the Tauri desktop shell.
@@ -111,9 +102,9 @@ const invokeNative: <A>(
           const { invoke } = await import("@tauri-apps/api/core");
           return decode(await invoke(command, args));
         },
-        catch: (cause) => toNativeError(fallback, 500, cause),
+        catch: EditorNativeError.new(fallback, 500),
       })
-    : Effect.fail(toNativeError(fallback, 500, undefined));
+    : Effect.fail(EditorNativeError.noCause(fallback, 500));
 
 /**
  * Start the managed editor sidecar from the native shell.

@@ -18,7 +18,7 @@ Primary sources:
 - standards/effect-first-development.md
 
 Required behaviors:
-- use ServiceMap.Service and Layer.effect for new services and wiring
+- use Context.Service and Layer.effect for new services and wiring
 - keep dependencies explicit and provision layers near the application boundary
 - keep provider adapters behind local services
 - add spans and structured logs where the workflow is materially important
@@ -33,7 +33,7 @@ Required behaviors:
 - return a crisp report covering changed files, commands run, blockers, and follow-up needs
 
 Do not:
-- reintroduce Context.Tag, Context.Service, Effect.Service, or implicit singleton patterns
+- reintroduce older service-constructor guidance, Effect.Service, or implicit singleton patterns
 - hide dependencies in helpers that should stay at the composition boundary
 - bypass typed errors, Option boundaries, or schema decoding at trust boundaries
 - claim manifest authority, phase closure, or merge readiness
