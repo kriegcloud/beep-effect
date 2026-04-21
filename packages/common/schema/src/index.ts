@@ -195,6 +195,11 @@ export * from "./blockchain/index.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./CauseTaggedErrorClass.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Duration.ts";
 /**
  * @since 0.0.0
@@ -266,11 +271,6 @@ export * from "./SemanticVersion.ts";
  * @category Validation
  */
 export * from "./SeverityLevel.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * from "./CauseTaggedErrorClass.ts";
 /**
  * @since 0.0.0
  * @category Validation

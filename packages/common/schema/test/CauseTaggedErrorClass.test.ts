@@ -64,7 +64,8 @@ describe("CauseTaggedErrorClass", () => {
       expect(error).toBeInstanceOf(DomainError);
       expect(error.message).toBe("boom");
       expect(error.cause).toBe("raw failure");
-    }));
+    })
+  );
 
   it.effect("maps errors in pipe-friendly form", () =>
     Effect.gen(function* () {
@@ -73,7 +74,8 @@ describe("CauseTaggedErrorClass", () => {
       expect(error).toBeInstanceOf(DomainError);
       expect(error.message).toBe("boom");
       expect(error.cause).toBe("raw failure");
-    }));
+    })
+  );
 
   it.effect("maps extra-field errors in data-first form", () =>
     Effect.gen(function* () {
@@ -85,7 +87,8 @@ describe("CauseTaggedErrorClass", () => {
       expect(error.message).toBe("boom");
       expect(error.cause).toBe("raw failure");
       expect(error.operation).toBe("load-profile");
-    }));
+    })
+  );
 
   it.effect("maps extra-field errors in pipe-friendly form", () =>
     Effect.gen(function* () {
@@ -99,7 +102,8 @@ describe("CauseTaggedErrorClass", () => {
       expect(error.message).toBe("boom");
       expect(error.cause).toBe("raw failure");
       expect(error.operation).toBe("load-profile");
-    }));
+    })
+  );
 
   it("validates extras through the generated schema", () => {
     const makeInvalid = OperationError.new as (
