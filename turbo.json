@@ -60,7 +60,7 @@
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "lint:fix": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["^lint:fix"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
@@ -70,6 +70,11 @@
     },
     "test": {
       "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+    },
+    "audit": {
+      "cache": false,
+      "dependsOn": ["^audit"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "docgen": {
@@ -146,6 +151,17 @@
         "$TURBO_ROOT$/.patterns/**/*.md",
         "$TURBO_ROOT$/scripts/check-jsdoc-module-tags.mjs",
         "$TURBO_ROOT$/eslint.config.mjs"
+      ]
+    },
+    "@beep/repo-checks#lint:docgen": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx,json}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx,json}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx,json}",
+        "$TURBO_ROOT$/infra/**/*.{ts,tsx,json}",
+        "$TURBO_ROOT$/tooling/cli/src/commands/Docgen/**/*.ts",
+        "$TURBO_ROOT$/tooling/docgen/src/**/*.ts"
       ]
     },
     "@beep/repo-checks#lint:effect-governance": {

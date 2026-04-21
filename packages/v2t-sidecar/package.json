@@ -13,10 +13,16 @@
   },
   "scripts": {
     "dev": "bun run src/main.ts",
-    "build": "tsc -p tsconfig.json",
-    "check": "tsgo -p tsconfig.json --noEmit",
+    "build": "beep-cli build",
+    "check": "beep-cli check",
     "codegen": "echo 'no codegen needed'",
-    "test": "bunx --bun vitest run --passWithNoTests"
+    "test": "beep-cli test",
+    "beep:build": "tsc -p tsconfig.json",
+    "beep:check": "tsgo -p tsconfig.json --noEmit",
+    "beep:test": "bunx --bun vitest run --passWithNoTests",
+    "lint": "beep-cli lint",
+    "lint:fix": "beep-cli lint --fix",
+    "audit": "beep-cli audit"
   },
   "exports": {
     ".": "./src/index.ts",

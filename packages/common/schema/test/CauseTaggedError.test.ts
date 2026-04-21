@@ -1,11 +1,11 @@
-import { CauseTaggedErrorClass } from "@beep/schema/CauseTaggedErrorClass";
+import { CauseTaggedError } from "@beep/schema/CauseTaggedError";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 
-class DomainError extends CauseTaggedErrorClass<DomainError>("DomainError")("DomainError") {}
+class DomainError extends CauseTaggedError<DomainError>("DomainError")("DomainError") {}
 
-class OperationError extends CauseTaggedErrorClass<OperationError>("OperationError")("OperationError", {
+class OperationError extends CauseTaggedError<OperationError>("OperationError")("OperationError", {
   operation: S.String,
 }) {}
 
@@ -13,7 +13,7 @@ class ExtendedOperationError extends OperationError.extend<ExtendedOperationErro
   resource: S.String,
 }) {}
 
-describe("CauseTaggedErrorClass", () => {
+describe("CauseTaggedError", () => {
   it("constructs no-extra errors in data-first form", () => {
     const cause = new Error("kapow");
     const error = DomainError.new(cause, "boom");
@@ -106,13 +106,20 @@ describe("CauseTaggedErrorClass", () => {
   );
 
   it("validates extras through the generated schema", () => {
-    const makeInvalid = OperationError.new as (
-      cause: unknown,
-      message: string,
-      extras: { readonly operation: unknown }
-    ) => OperationError;
+    expect(() =>
+      S.decodeUnknownSync(OperationError)({
+        _tag: "OperationError",
+        cause: new Error("kapow"),
+        message: "boom",
+        operation: 1,
+      })
+    ).toThrow();
+  });
 
-    expect(() => makeInvalid(new Error("kapow"), "boom", { operation: 1 })).toThrow();
+  it("validates helper extras through the generated schema", () => {
+    const cause = new Error("kapow");
+
+    expect(() => Reflect.apply(OperationError.new, OperationError, ["boom", { operation: 1 }])(cause)).toThrow();
   });
 
   it("reattaches helpers when extending cause tagged errors", () => {

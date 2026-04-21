@@ -125,7 +125,7 @@ jobs:
               bun run lint -- "${turbo_args[@]}"
               ;;
             repo-sanity)
-              bun run repo-sanity:ci
+              bash scripts/run-github-checks.sh repo-sanity
               if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
                 bun run changeset:status:since-main
               fi
@@ -134,15 +134,14 @@ jobs:
               bun run check -- "${turbo_args[@]}"
               ;;
             test-unit)
-              bun run test:unit -- "${turbo_args[@]}"
-              bun run test:types
+              bun run test -- --unit --types "${turbo_args[@]}"
               ;;
             test-integration)
-              bun run test:integration -- "${turbo_args[@]}"
+              bun run test -- --integration "${turbo_args[@]}"
               ;;
             docgen)
-              bunx turbo run docgen "${turbo_args[@]}"
-              bun run docs:aggregate
+              bun run beep -- docgen generate
+              bun run beep -- docgen aggregate
               ;;
           esac
 
@@ -178,7 +177,7 @@ jobs:
           cache-turbo: true
 
       - name: Run build checks
-        run: bunx turbo run build --summarize
+        run: bun run build -- --summarize
 
       - name: Append Turbo summary
         if: always()

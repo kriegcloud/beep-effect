@@ -6,16 +6,22 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -b tsconfig.json",
+    "build": "beep-cli build",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "check": "tsgo -b tsconfig.json",
-    "test": "bunx --bun vitest run",
+    "check": "beep-cli check",
+    "test": "beep-cli test",
     "coverage": "bunx --bun vitest --coverage",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
-    "lint": "biome check src/ .storybook/",
-    "lint:fix": "biome check src/ .storybook/ --write",
-    "test:storybook": "playwright install --only-shell chromium && vitest --config vitest.storybook.config.ts"
+    "lint": "beep-cli lint",
+    "lint:fix": "beep-cli lint --fix",
+    "test:storybook": "playwright install --only-shell chromium && vitest --config vitest.storybook.config.ts",
+    "beep:build": "tsc -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:test": "bunx --bun vitest run",
+    "beep:lint": "biome check src/ .storybook/",
+    "beep:lint:fix": "biome check src/ .storybook/ --write",
+    "audit": "beep-cli audit"
   },
   "dependencies": {
     "@base-ui/react": "catalog:",

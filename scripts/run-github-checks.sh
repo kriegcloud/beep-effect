@@ -65,24 +65,42 @@ run_quality() {
   require_command typos
 
   log "quality: build"
-  run_with_local_env bun run build:ci
+  bun run build
 
   log "quality: type check"
-  bun run check:all
+  bun run check
 
   log "quality: lint"
   bun run lint
 
   log "quality: docgen"
-  bun run docgen
+  bun run beep -- docgen generate
+  bun run beep -- docgen aggregate
 
   log "quality: test"
   bun run test
 
   log "quality: repo sanity"
-  bun run repo-sanity:ci
+  run_repo_sanity
 
   run_changeset_status
+}
+
+run_repo_sanity() {
+  log "repo-sanity: tsconfig sync"
+  bun run config-sync:check
+
+  log "repo-sanity: versions"
+  bunx turbo run lint:versions
+
+  log "repo-sanity: package graph"
+  bunx sherif@1.10.0 -r non-existent-packages
+
+  log "repo-sanity: dependency policy"
+  bunx syncpack lint
+
+  log "repo-sanity: bun audit"
+  bash scripts/run-bun-audit.sh
 }
 
 run_secret_scan() {
@@ -178,6 +196,10 @@ case "$MODE" in
     ensure_origin_main
     run_quality
     ;;
+  repo-sanity)
+    ensure_origin_main
+    run_repo_sanity
+    ;;
   secrets)
     ensure_origin_main
     run_secret_scan
@@ -196,7 +218,7 @@ case "$MODE" in
     run_pre_push
     ;;
   *)
-    printf 'usage: %s [quality|secrets|security|sast|nix|pre-push]\n' "$0" >&2
+    printf 'usage: %s [quality|repo-sanity|secrets|security|sast|nix|pre-push]\n' "$0" >&2
     exit 1
     ;;
 esac

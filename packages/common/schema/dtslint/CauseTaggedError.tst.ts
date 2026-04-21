@@ -1,17 +1,17 @@
-import { CauseTaggedErrorClass } from "@beep/schema/CauseTaggedErrorClass";
+import { CauseTaggedError } from "@beep/schema/CauseTaggedError";
 import type { TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass";
 import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
-class DomainError extends CauseTaggedErrorClass<DomainError>("DomainError")("DomainError") {}
+class DomainError extends CauseTaggedError<DomainError>("DomainError")("DomainError") {}
 
-class OperationError extends CauseTaggedErrorClass<OperationError>("OperationError")("OperationError", {
+class OperationError extends CauseTaggedError<OperationError>("OperationError")("OperationError", {
   operation: S.String,
   retryable: S.Boolean,
 }) {}
 
-class OptionalContextError extends CauseTaggedErrorClass<OptionalContextError>("OptionalContextError")(
+class OptionalContextError extends CauseTaggedError<OptionalContextError>("OptionalContextError")(
   "OptionalContextError",
   {
     operation: S.String,
@@ -27,7 +27,7 @@ const OperationPayload = S.Struct({
   operation: S.String,
 });
 
-describe("CauseTaggedErrorClass", () => {
+describe("CauseTaggedError", () => {
   it("infers no-extra constructor input and helpers", () => {
     expect<TaggedErrorNewInput<typeof DomainError>>().type.toBe<{
       readonly cause: unknown;
@@ -140,12 +140,12 @@ describe("CauseTaggedErrorClass", () => {
 
   it("rejects reserved and schema-object extra fields", () => {
     // @ts-expect-error!
-    CauseTaggedErrorClass<never>()("BadMessageError", { message: S.String });
+    CauseTaggedError<never>()("BadMessageError", { message: S.String });
 
     // @ts-expect-error!
-    CauseTaggedErrorClass<never>()("BadCauseError", { cause: S.DefectWithStack });
+    CauseTaggedError<never>()("BadCauseError", { cause: S.DefectWithStack });
 
     // @ts-expect-error!
-    CauseTaggedErrorClass<never>()("StructPayloadError", OperationPayload);
+    CauseTaggedError<never>()("StructPayloadError", OperationPayload);
   });
 });

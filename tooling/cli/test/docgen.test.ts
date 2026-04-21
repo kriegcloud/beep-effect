@@ -515,6 +515,53 @@ describe("Docgen operations", () => {
     );
   });
 
+  it("checks docgen metadata without writing analysis files", async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(packageDir, "src", "index.ts"),
+            `export const MissingMetadata = "nope";\n`
+          );
+
+          yield* runDocgenCommand(["check", "-p", "packages/common/schema"]);
+
+          const errorLines = yield* TestConsole.errorLines;
+          const wroteMarkdown = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.md"));
+          const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
+
+          expect(errorLines.join("\n")).toContain("packages/common/schema has");
+          expect(errorLines.join("\n")).toContain("MissingMetadata missing @category, @example, @since");
+          expect(wroteMarkdown).toBe(false);
+          expect(wroteJson).toBe(false);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
   it("returns a non-zero exit code when generate targets an unconfigured package", async () => {
     await Effect.runPromise(
       withTempRepoCommand(

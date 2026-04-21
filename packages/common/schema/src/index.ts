@@ -195,7 +195,7 @@ export * from "./blockchain/index.ts";
  * @since 0.0.0
  * @category Validation
  */
-export * from "./CauseTaggedErrorClass.ts";
+export * from "./CauseTaggedError.ts";
 /**
  * @since 0.0.0
  * @category Validation

@@ -1,0 +1,627 @@
+/**
+ * Canonical quality task adapter for repo root and workspace package scripts.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
+import { $RepoCliId } from "@beep/identity/packages";
+import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
+import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { thunkEmptyStr, thunkFalse } from "@beep/utils";
+import { Console, Effect, FileSystem, Path, Stream } from "effect";
+import * as A from "effect/Array";
+import * as Cause from "effect/Cause";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
+import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
+
+const $I = $RepoCliId.create("commands/Quality/Tasks");
+
+const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
+const LINT_POLICY_SUBCOMMANDS = ["circular", "schema-first", "tooling-tagged-errors", "tooling-schema-first"] as const;
+
+/**
+ * Canonical quality task name.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).annotate(
+  $I.annote("QualityTaskName", {
+    description: "Canonical quality task name handled by beep-cli.",
+  })
+);
+
+/**
+ * Canonical quality task name.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export type QualityTaskName = typeof QualityTaskName.Type;
+
+/**
+ * Package-local script profile used by the quality task adapter.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTaskProfile`)(
+  {
+    task: QualityTaskName,
+    script: S.String,
+    fixScript: S.optionalKey(S.String),
+  },
+  $I.annote("PackageTaskProfile", {
+    description: "Package-local script profile used by the quality task adapter.",
+  })
+) {}
+
+/**
+ * Planned subprocess invocation.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep`)(
+  {
+    label: S.String,
+    command: S.String,
+    args: S.Array(S.String),
+    cwd: S.String,
+    useLocalEnv: S.optionalKey(S.Boolean),
+  },
+  $I.annote("QualityTaskStep", {
+    description: "Planned subprocess invocation for a quality task.",
+  })
+) {}
+
+/**
+ * Result of parsing a quality command invocation.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`QualityTaskInvocation`)(
+  {
+    task: QualityTaskName,
+    args: S.Array(S.String),
+    fix: S.Boolean,
+  },
+  $I.annote("QualityTaskInvocation", {
+    description: "Result of parsing a quality command invocation.",
+  })
+) {}
+
+/**
+ * Error raised when a quality task subprocess exits unsuccessfully.
+ *
+ * @category error handling
+ * @since 0.0.0
+ */
+export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`QualityTaskFailed`)(
+  "QualityTaskFailed",
+  {
+    label: S.String,
+    command: S.String,
+    exitCode: S.Number,
+  },
+  $I.annote("QualityTaskFailed", {
+    description: "A quality subprocess exited with a non-zero status code.",
+  })
+) {}
+
+/**
+ * Error raised when a quality task cannot resolve its required configuration.
+ *
+ * @category error handling
+ * @since 0.0.0
+ */
+export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskConfigurationError>(
+  $I`QualityTaskConfigurationError`
+)(
+  "QualityTaskConfigurationError",
+  {
+    message: S.String,
+  },
+  $I.annote("QualityTaskConfigurationError", {
+    description: "Quality task configuration could not be resolved.",
+  })
+) {}
+
+const PackageJsonDocument = S.Struct({
+  name: S.optionalKey(S.String),
+  scripts: S.optionalKey(S.Record(S.String, S.String)),
+});
+const decodePackageJsonDocument = S.decodeUnknownEffect(S.fromJsonString(PackageJsonDocument));
+
+type QualityTaskEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
+
+type TestLaneSelection = {
+  readonly unit: boolean;
+  readonly integration: boolean;
+  readonly types: boolean;
+  readonly args: ReadonlyArray<string>;
+};
+
+const profileByTask: Readonly<Record<QualityTaskName, PackageTaskProfile>> = {
+  build: new PackageTaskProfile({ task: "build", script: "beep:build" }),
+  check: new PackageTaskProfile({ task: "check", script: "beep:check" }),
+  test: new PackageTaskProfile({ task: "test", script: "beep:test" }),
+  lint: new PackageTaskProfile({ task: "lint", script: "beep:lint", fixScript: "beep:lint:fix" }),
+  audit: new PackageTaskProfile({ task: "audit", script: "beep:audit" }),
+};
+
+const isQualityTaskName = (value: string): value is QualityTaskName =>
+  A.contains(QUALITY_TASK_NAMES as ReadonlyArray<string>, value);
+
+const isLintPolicySubcommand = (value: string | undefined): boolean =>
+  value !== undefined && A.contains(LINT_POLICY_SUBCOMMANDS as ReadonlyArray<string>, value);
+
+const stripPassthroughDelimiter = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
+  args[0] === "--" ? A.drop(args, 1) : args;
+
+const parseFixArgs = (args: ReadonlyArray<string>) => {
+  let fix = false;
+  const remaining = A.empty<string>();
+
+  for (const arg of stripPassthroughDelimiter(args)) {
+    if (arg === "--fix") {
+      fix = true;
+      continue;
+    }
+    remaining.push(arg);
+  }
+
+  return { fix, args: remaining } as const;
+};
+
+const parseTestLaneSelection = (args: ReadonlyArray<string>): TestLaneSelection => {
+  let unit = false;
+  let integration = false;
+  let types = false;
+  const remaining = A.empty<string>();
+
+  for (const arg of stripPassthroughDelimiter(args)) {
+    if (arg === "--unit") {
+      unit = true;
+      continue;
+    }
+    if (arg === "--integration") {
+      integration = true;
+      continue;
+    }
+    if (arg === "--types") {
+      types = true;
+      continue;
+    }
+    remaining.push(arg);
+  }
+
+  const hasLane = unit || integration || types;
+  return {
+    unit: hasLane ? unit : true,
+    integration: hasLane ? integration : true,
+    types: hasLane ? types : true,
+    args: remaining,
+  };
+};
+
+const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QualityTaskConfigurationError({
+          message: `Failed to read ${filePath}: ${String(cause)}`,
+        })
+    )
+  );
+
+  return yield* decodePackageJsonDocument(content).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QualityTaskConfigurationError({
+          message: `Failed to parse ${filePath}: ${String(cause)}`,
+        })
+    )
+  );
+});
+
+const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* (
+  repoRoot: string,
+  cwd: string
+): Effect.fn.Return<O.Option<string>, QualityTaskConfigurationError, FileSystem.FileSystem | Path.Path> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  let current = path.resolve(cwd);
+  const root = path.resolve(repoRoot);
+
+  while (true) {
+    const packageJsonPath = path.join(current, "package.json");
+    const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
+
+    if (exists) {
+      return current === root ? O.none() : O.some(current);
+    }
+
+    if (current === root) {
+      return O.none();
+    }
+
+    const parent = path.dirname(current);
+    if (parent === current) {
+      return yield* new QualityTaskConfigurationError({
+        message: `Could not find package.json between ${cwd} and ${repoRoot}.`,
+      });
+    }
+    current = parent;
+  }
+});
+
+const commandText = (command: string, args: ReadonlyArray<string>): string => A.join([command, ...args], " ");
+
+const isTurboDryRunArg = (arg: string): boolean => arg === "--dry" || Str.startsWith("--dry=")(arg);
+
+const runExitCode = (command: string, args: ReadonlyArray<string>, cwd: string) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(command, [...args], {
+        cwd,
+        stdout: "ignore",
+        stderr: "ignore",
+      });
+      return yield* handle.exitCode;
+    })
+  );
+
+const canUseLocalEnv = Effect.fn("QualityTasks.canUseLocalEnv")(function* (
+  repoRoot: string
+): Effect.fn.Return<boolean, never, FileSystem.FileSystem | ChildProcessSpawner.ChildProcessSpawner> {
+  if (process.env.CI === "true") {
+    return false;
+  }
+
+  const fs = yield* FileSystem.FileSystem;
+  const hasEnv = yield* fs.exists(`${repoRoot}/.env`).pipe(Effect.orElseSucceed(thunkFalse));
+  if (!hasEnv) {
+    return false;
+  }
+
+  const exitCode = yield* runExitCode("op", ["whoami"], repoRoot).pipe(Effect.orElseSucceed(() => 1));
+  return exitCode === 0;
+});
+
+const withLocalEnv = Effect.fn("QualityTasks.withLocalEnv")(function* (step: QualityTaskStep) {
+  if (step.useLocalEnv !== true) {
+    return step;
+  }
+
+  const shouldUseLocalEnv = yield* canUseLocalEnv(step.cwd);
+  if (!shouldUseLocalEnv) {
+    return step;
+  }
+
+  return new QualityTaskStep({
+    label: `${step.label} (op run)`,
+    command: "op",
+    args: ["run", "--env-file=.env", "--", step.command, ...step.args],
+    cwd: step.cwd,
+  });
+});
+
+const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskStep) {
+  const resolved = yield* withLocalEnv(step);
+  yield* Console.log(`[beep-cli] ${resolved.label}: ${commandText(resolved.command, resolved.args)}`);
+  const exitCode = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(resolved.command, [...resolved.args], {
+        cwd: resolved.cwd,
+        stdin: "inherit",
+        stdout: "inherit",
+        stderr: "inherit",
+      });
+      return yield* handle.exitCode;
+    })
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new QualityTaskConfigurationError({
+          message: `Failed to spawn ${commandText(resolved.command, resolved.args)}: ${String(cause)}`,
+        })
+    )
+  );
+
+  if (exitCode !== 0) {
+    return yield* new QualityTaskFailed({
+      label: resolved.label,
+      command: commandText(resolved.command, resolved.args),
+      exitCode,
+    });
+  }
+});
+
+const runSteps = (steps: ReadonlyArray<QualityTaskStep>) => Effect.forEach(steps, runStep, { discard: true });
+
+const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, args: ReadonlyArray<string>) =>
+  new QualityTaskStep({
+    label,
+    command: "bunx",
+    args: ["turbo", "run", ...tasks, ...args],
+    cwd,
+  });
+
+const rootBuildSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
+  new QualityTaskStep({
+    label: "build",
+    command: "bunx",
+    args: ["turbo", "run", "build", ...args],
+    cwd: repoRoot,
+    useLocalEnv: true,
+  }),
+];
+
+const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
+  turboStep(repoRoot, "check", ["check", "check:dtslint:tsgo", "check:tsgo:smoke"], args),
+];
+
+const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
+  const lanes = parseTestLaneSelection(args);
+  const steps = A.empty<QualityTaskStep>();
+
+  if (lanes.unit) {
+    steps.push(
+      turboStep(
+        repoRoot,
+        "test:unit",
+        ["test"],
+        [
+          "--filter=!@beep/repo-memory-runtime",
+          "--filter=!@beep/repo-memory-sqlite",
+          "--filter=!@beep/shared-server",
+          ...lanes.args,
+        ]
+      )
+    );
+  }
+
+  if (lanes.integration) {
+    steps.push(turboStep(repoRoot, "test:integration", ["test:integration"], ["--concurrency=1", ...lanes.args]));
+  }
+
+  if (lanes.types) {
+    steps.push(turboStep(repoRoot, "test:types", ["check:types"], lanes.args));
+  }
+
+  return steps;
+};
+
+const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) =>
+  fix
+    ? [turboStep(repoRoot, "lint:fix", ["lint:fix"], args)]
+    : [
+        turboStep(
+          repoRoot,
+          "lint",
+          [
+            "lint",
+            "lint:effect-governance",
+            "lint:jsdoc",
+            "lint:docgen",
+            "lint:spell",
+            "lint:markdown",
+            "lint:circular",
+            "lint:tooling-tagged-errors",
+            "lint:typos",
+          ],
+          args
+        ),
+      ];
+
+const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
+  const auditArgs = stripPassthroughDelimiter(args);
+  if (A.some(auditArgs, isTurboDryRunArg)) {
+    return [turboStep(repoRoot, "audit:packages", ["audit"], auditArgs)];
+  }
+
+  const scriptMode = auditArgs[0] ?? "pre-push";
+  const scriptArgs = auditArgs.length === 0 ? ["pre-push"] : auditArgs;
+
+  return [
+    turboStep(repoRoot, "audit:packages", ["audit"], A.empty()),
+    new QualityTaskStep({
+      label: `audit:${scriptMode}`,
+      command: "bash",
+      args: ["scripts/run-github-checks.sh", ...scriptArgs],
+      cwd: repoRoot,
+    }),
+  ];
+};
+
+const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): ReadonlyArray<QualityTaskStep> => {
+  switch (invocation.task) {
+    case "build":
+      return rootBuildSteps(repoRoot, invocation.args);
+    case "check":
+      return rootCheckSteps(repoRoot, invocation.args);
+    case "test":
+      return rootTestSteps(repoRoot, invocation.args);
+    case "lint":
+      return rootLintSteps(repoRoot, invocation.args, invocation.fix);
+    case "audit":
+      return rootAuditSteps(repoRoot, invocation.args);
+  }
+};
+
+const readPackageJson = Effect.fn("QualityTasks.readPackageJson")(function* (packageDir: string) {
+  const path = yield* Path.Path;
+  return yield* readJsonFile(path.join(packageDir, "package.json"));
+});
+
+const runPackageTask = Effect.fn("QualityTasks.runPackageTask")(function* (
+  packageDir: string,
+  invocation: QualityTaskInvocation
+) {
+  const packageJson = yield* readPackageJson(packageDir);
+  const scripts = packageJson.scripts ?? {};
+  const profile = profileByTask[invocation.task];
+  const script = invocation.fix && profile.fixScript !== undefined ? profile.fixScript : profile.script;
+  const packageName = packageJson.name ?? packageDir;
+
+  if (P.isUndefined(scripts[script])) {
+    yield* Console.log(`[beep-cli] ${packageName} ${invocation.task}${invocation.fix ? ":fix" : ""}: no-op`);
+    return;
+  }
+
+  yield* runStep(
+    new QualityTaskStep({
+      label: `${packageName} ${script}`,
+      command: "bun",
+      args: ["run", script, ...invocation.args],
+      cwd: packageDir,
+    })
+  );
+});
+
+const runRootTask = Effect.fn("QualityTasks.runRootTask")(function* (
+  repoRoot: string,
+  invocation: QualityTaskInvocation
+) {
+  yield* runSteps(rootStepsFor(repoRoot, invocation));
+});
+
+const handleQualityTaskError = Effect.catchTags({
+  NoSuchFileError: Effect.fn("QualityTasks.handleNoSuchFileError")(function* (error: NoSuchFileError) {
+    process.exitCode = 1;
+    yield* Console.error(`[beep-cli] ${error.message}`);
+  }),
+  QualityTaskConfigurationError: Effect.fn("QualityTasks.handleConfigurationError")(function* (
+    error: QualityTaskConfigurationError
+  ) {
+    process.exitCode = 1;
+    yield* Console.error(`[beep-cli] ${error.message}`);
+  }),
+  QualityTaskFailed: Effect.fn("QualityTasks.handleFailedTask")(function* (error: QualityTaskFailed) {
+    process.exitCode = error.exitCode;
+    yield* Console.error(`[beep-cli] ${error.label} failed with exit code ${error.exitCode}`);
+  }),
+  DomainError: Effect.fn("QualityTasks.handleDomainError")(function* (error: DomainError) {
+    process.exitCode = 1;
+    yield* Console.error(`[beep-cli] ${error.message}`);
+  }),
+});
+
+const handleUnexpectedQualityTaskCause = Effect.catchCause(
+  Effect.fn("QualityTasks.handleUnexpectedCause")(function* (cause) {
+    process.exitCode = 1;
+    yield* Console.error(`[beep-cli] unexpected failure\n${Cause.pretty(cause)}`);
+  })
+);
+
+/**
+ * Parse a raw argv vector into a quality task invocation when the first token is
+ * one of the canonical quality task names.
+ *
+ * @param argv - Raw command arguments after the binary name.
+ * @returns Parsed invocation or `None` when another command group should handle it.
+ * @category Utility
+ * @since 0.0.0
+ */
+export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Option<QualityTaskInvocation> => {
+  const [command, ...rawArgs] = argv;
+  if (command === undefined || !isQualityTaskName(command)) {
+    return O.none();
+  }
+
+  if (command === "lint" && isLintPolicySubcommand(rawArgs[0])) {
+    return O.none();
+  }
+
+  const parsed = parseFixArgs(rawArgs);
+  return O.some(
+    new QualityTaskInvocation({
+      task: command,
+      args: parsed.args,
+      fix: command === "lint" && parsed.fix,
+    })
+  );
+};
+
+/**
+ * Run a parsed quality task in either repo-root or package-local mode.
+ *
+ * @param invocation - Parsed quality task invocation.
+ * @category UseCase
+ * @since 0.0.0
+ */
+export const runQualityTask: (invocation: QualityTaskInvocation) => Effect.Effect<void, never, QualityTaskEnvironment> =
+  Effect.fn("QualityTasks.runQualityTask")(
+    function* (invocation: QualityTaskInvocation) {
+      const path = yield* Path.Path;
+      const cwd = path.resolve(process.cwd());
+      const repoRoot = yield* findRepoRoot(cwd);
+      const packageDir = yield* resolvePackageDir(repoRoot, cwd);
+
+      if (O.isNone(packageDir)) {
+        yield* runRootTask(repoRoot, invocation);
+        return;
+      }
+
+      yield* runPackageTask(packageDir.value, invocation);
+    },
+    handleQualityTaskError,
+    handleUnexpectedQualityTaskCause
+  );
+
+/**
+ * Run a quality task directly from a raw argv vector.
+ *
+ * @param argv - Raw command arguments after the binary name.
+ * @returns `true` when the invocation was handled by the quality adapter.
+ * @category UseCase
+ * @since 0.0.0
+ */
+export const runQualityTaskIfRequested: (
+  argv: ReadonlyArray<string>
+) => Effect.Effect<boolean, never, QualityTaskEnvironment> = Effect.fn("QualityTasks.runQualityTaskIfRequested")(
+  function* (argv: ReadonlyArray<string>) {
+    const invocation = parseQualityTaskInvocation(argv);
+    if (O.isNone(invocation)) {
+      return false;
+    }
+
+    yield* runQualityTask(invocation.value);
+    return true;
+  }
+);
+
+/**
+ * Run a subprocess and capture all output. Exposed for focused unit tests.
+ *
+ * @param step - Step to run.
+ * @returns Captured combined stdout/stderr and exit code.
+ * @category Utility
+ * @since 0.0.0
+ */
+export const collectStepOutput = (step: QualityTaskStep) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* ChildProcess.make(step.command, [...step.args], {
+        cwd: step.cwd,
+        stdout: "pipe",
+        stderr: "pipe",
+      });
+      const output = yield* handle.all.pipe(
+        Stream.decodeText(),
+        Stream.runFold(thunkEmptyStr, (acc, chunk) => acc + chunk)
+      );
+      const exitCode = yield* handle.exitCode;
+      return {
+        output: Str.trim(output),
+        exitCode,
+      };
+    })
+  );

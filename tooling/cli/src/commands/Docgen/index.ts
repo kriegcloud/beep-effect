@@ -10,6 +10,7 @@
 
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, Path } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -444,6 +445,86 @@ const docgenAnalyzeCommand = Command.make(
     )
 ).pipe(Command.withDescription("Analyze JSDoc coverage and write a human-first report"));
 
+const docgenCheckCommand = Command.make(
+  "check",
+  {
+    package: packageFlag,
+    parallel: parallelFlag,
+    json: jsonFlag,
+  },
+  ({ package: selector, parallel, json }) =>
+    Effect.gen(function* () {
+      const targets = yield* resolveAnalyzeTargets(selector);
+
+      if (targets.length === 0) {
+        yield* Console.log("docgen: no packages selected for check");
+        return;
+      }
+
+      const analyses = yield* Effect.forEach(targets, analyzePackageDocumentation, {
+        concurrency: Math.max(1, parallel),
+      });
+      const failures = analyses.filter((analysis) => analysis.summary.missingDocumentation > 0);
+
+      if (json) {
+        yield* Console.log(
+          renderJson({
+            analyses,
+            summary: {
+              packages: analyses.length,
+              failingPackages: failures.length,
+              missingDocumentation: failures.reduce(
+                (total, analysis) => total + analysis.summary.missingDocumentation,
+                0
+              ),
+            },
+          })
+        );
+        if (failures.length > 0) {
+          process.exitCode = 1;
+        }
+        return;
+      }
+
+      for (const analysis of analyses) {
+        const issues = A.filter(analysis.exports, (entry) => A.isReadonlyArrayNonEmpty(entry.missingTags));
+
+        if (issues.length === 0) {
+          yield* Console.log(`docgen: OK ${analysis.packagePath}`);
+          continue;
+        }
+
+        yield* Console.error(
+          `docgen: ${analysis.packagePath} has ${analysis.summary.missingDocumentation} export(s) missing docgen metadata`
+        );
+        for (const issue of issues) {
+          yield* Console.error(
+            `  ${issue.filePath}:${issue.line} ${issue.name} missing ${A.join(issue.missingTags, ", ")}`
+          );
+        }
+      }
+
+      if (failures.length > 0) {
+        process.exitCode = 1;
+      }
+    }).pipe(
+      Effect.catchTag(
+        "DomainError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      ),
+      Effect.catchTag(
+        "NoSuchFileError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      )
+    )
+).pipe(Command.withDescription("Fail when package exports are missing required JSDoc/docgen metadata"));
+
 const printDocgenIndex = Effect.fn(function* () {
   yield* Console.log('Run "bun run beep docgen --help" to see the available docgen commands and flags.');
 });
@@ -462,5 +543,6 @@ export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
     docgenGenerateCommand,
     docgenAggregateCommand,
     docgenAnalyzeCommand,
+    docgenCheckCommand,
   ])
 );

@@ -10,12 +10,18 @@
     "directory": ".codex"
   },
   "scripts": {
-    "build": "tsc -b tsconfig.json",
-    "check": "tsgo -b tsconfig.json",
-    "test": "bunx --bun vitest run",
+    "build": "beep-cli build",
+    "check": "beep-cli check",
+    "test": "beep-cli test",
     "test:watch": "vitest",
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "lint": "beep-cli lint",
+    "lint:fix": "beep-cli lint --fix",
+    "beep:build": "tsc -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:test": "bunx --bun vitest run",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "audit": "beep-cli audit"
   },
   "dependencies": {
     "@beep/identity": "workspace:^",

@@ -18,17 +18,23 @@
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/infra",
   "scripts": {
     "codegen": "echo 'no codegen needed'",
-    "check": "tsgo -b tsconfig.json test/tsconfig.json",
+    "check": "beep-cli check",
     "docgen": "bun run ../tooling/docgen/src/bin.ts",
-    "lint": "biome check src/ test/ dtslint/",
-    "lint:fix": "biome check src/ test/ dtslint/ --write",
+    "lint": "beep-cli lint",
+    "lint:fix": "beep-cli lint --fix",
     "pulumi:login:local": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi login",
     "stack:init:local": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi stack init local",
     "preview": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi preview",
     "up": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi up",
     "destroy": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi destroy",
     "refresh": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi refresh",
-    "test": "bunx --bun vitest run"
+    "test": "beep-cli test",
+    "build": "beep-cli build",
+    "beep:check": "tsgo -b tsconfig.json test/tsconfig.json",
+    "beep:test": "bunx --bun vitest run",
+    "beep:lint": "biome check src/ test/ dtslint/",
+    "beep:lint:fix": "biome check src/ test/ dtslint/ --write",
+    "audit": "beep-cli audit"
   },
   "dependencies": {
     "@1password/connect": "catalog:",

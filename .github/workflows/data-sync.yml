@@ -32,7 +32,9 @@ jobs:
         run: bun run beep sync-data-to-ts --all
 
       - name: Run focused Turbo verification
-        run: bunx turbo run check test --filter=@beep/repo-cli --filter=@beep/data --summarize
+        run: |
+          bun run check -- --filter=@beep/repo-cli --filter=@beep/data --summarize
+          bun run test -- --unit --filter=@beep/repo-cli --filter=@beep/data --summarize
 
       - name: Append Turbo summary
         if: always()

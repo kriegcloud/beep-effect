@@ -13,14 +13,20 @@
   "type": "module",
   "scripts": {
     "codegen": "echo 'no codegen needed'",
-    "build": "tsc -b tsconfig.json && bun run babel",
+    "build": "beep-cli build",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "check": "tsgo -b tsconfig.json",
-    "test": "bunx --bun vitest run",
+    "check": "beep-cli check",
+    "test": "beep-cli test",
     "coverage": "bunx --bun vitest --coverage",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write"
+    "lint": "beep-cli lint",
+    "lint:fix": "beep-cli lint --fix",
+    "beep:build": "tsc -b tsconfig.json && bun run babel",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:test": "bunx --bun vitest run",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "audit": "beep-cli audit"
   },
   "dependencies": {
     "@effect/platform-node-shared": "catalog:",

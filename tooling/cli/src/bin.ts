@@ -1,4 +1,4 @@
-#!/usr/bin/env node
+#!/usr/bin/env bun
 
 /**
  * CLI entry point - assembles runtime layers and executes the root command.
@@ -11,7 +11,9 @@
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Effect, Layer } from "effect";
+import * as Cause from "effect/Cause";
 import { Command } from "effect/unstable/cli";
+import { runQualityTaskIfRequested } from "./commands/Quality/Tasks.js";
 import { rootCommand } from "./commands/Root.js";
 
 /**
@@ -51,10 +53,18 @@ const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, 
  * @category UseCase
  * @since 0.0.0
  */
-const program = Effect.scoped(
-  Layer.build(DerivedLayers).pipe(
-    Effect.flatMap((context) => Command.run(rootCommand, { version: "0.0.0" }).pipe(Effect.provide(context)))
+const commandProgram = runQualityTaskIfRequested(process.argv.slice(2)).pipe(
+  Effect.flatMap((handled) => (handled ? Effect.void : Command.run(rootCommand, { version: "0.0.0" }))),
+  Effect.catchCause((cause) =>
+    Effect.sync(() => {
+      process.exitCode = 1;
+      console.error(Cause.pretty(cause));
+    })
   )
+);
+
+const program = Effect.scoped(
+  Layer.build(DerivedLayers).pipe(Effect.flatMap((context) => commandProgram.pipe(Effect.provide(context))))
 );
 
 BunRuntime.runMain(program);
