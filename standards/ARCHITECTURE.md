@@ -935,7 +935,7 @@ import { $I as $RootId } from "@beep/identity/packages"
 import { Context, Effect, Layer } from "effect"
 import * as O from "effect/Option"
 import { TwoFactorAccess } from "./TwoFactor.access.js"
-import { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
+import type { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
 import {
   TwoFactorAccessDenied,
   TwoFactorNotFound,
@@ -990,7 +990,7 @@ Server handlers consume use-case services:
 
 ```ts
 import { Effect } from "effect"
-import { DisableTwoFactorCommand } from "@beep/iam-use-cases/entities/TwoFactor"
+import type { DisableTwoFactorCommand } from "@beep/iam-use-cases/entities/TwoFactor"
 import { TwoFactorService } from "@beep/iam-use-cases/entities/TwoFactor"
 
 export const disableTwoFactorHandler = Effect.fn("disableTwoFactorHandler")(
