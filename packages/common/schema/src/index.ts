@@ -270,6 +270,11 @@ export * from "./SeverityLevel.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./CauseTaggedErrorClass.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Sha256.ts";
 /**
  * @since 0.0.0
