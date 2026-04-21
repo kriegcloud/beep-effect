@@ -21,6 +21,13 @@ const $I = $NlpId.create("Core/Document");
 /**
  * Branded identifier for NLP documents.
  *
+ * @example
+ * ```ts
+ * import { DocumentId } from "@beep/nlp/Core/Document"
+ *
+ * console.log(DocumentId)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -36,6 +43,13 @@ export const DocumentId = S.NonEmptyString.pipe(
 /**
  * Runtime type for {@link DocumentId}.
  *
+ * @example
+ * ```ts
+ * import type { DocumentId } from "@beep/nlp/Core/Document"
+ *
+ * type Example = DocumentId
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -44,6 +58,13 @@ export type DocumentId = typeof DocumentId.Type;
 /**
  * Branded index for documents in ordered collections.
  *
+ * @example
+ * ```ts
+ * import type { DocumentIndex } from "@beep/nlp/Core/Document"
+ *
+ * type Example = DocumentIndex
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -51,6 +72,13 @@ export type DocumentIndex = Brand.Branded<NonNegativeInt, "DocumentIndex">;
 
 /**
  * Constructor for {@link DocumentIndex}.
+ *
+ * @example
+ * ```ts
+ * import { documentIndex } from "@beep/nlp/Core/Document"
+ *
+ * console.log(documentIndex)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -61,6 +89,13 @@ export const documentIndex: Brand.Constructor<DocumentIndex> = Brand.check<Docum
 
 /**
  * Schema for {@link DocumentIndex}.
+ *
+ * @example
+ * ```ts
+ * import { DocumentIndex } from "@beep/nlp/Core/Document"
+ *
+ * console.log(DocumentIndex)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -111,6 +146,13 @@ const filterDocument = (document: Document, predicate: (token: Token) => boolean
 
 /**
  * Immutable NLP document model.
+ *
+ * @example
+ * ```ts
+ * import { Document } from "@beep/nlp/Core/Document"
+ *
+ * console.log(Document)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

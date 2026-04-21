@@ -49,6 +49,13 @@ const patternElementToBracketString = (pattern: Pattern): ReadonlyArray<string> 
 /**
  * Branded identifier for a wink custom-entity group.
  *
+ * @example
+ * ```ts
+ * import { EntityGroupName } from "@beep/nlp/Wink/WinkPattern"
+ *
+ * console.log(EntityGroupName)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -64,6 +71,13 @@ export const EntityGroupName = S.NonEmptyString.pipe(
 /**
  * Runtime type for {@link EntityGroupName}.
  *
+ * @example
+ * ```ts
+ * import type { EntityGroupName } from "@beep/nlp/Wink/WinkPattern"
+ *
+ * type Example = EntityGroupName
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -71,6 +85,13 @@ export type EntityGroupName = typeof EntityGroupName.Type;
 
 /**
  * One custom-entity example expressed as ordered bracket-pattern elements.
+ *
+ * @example
+ * ```ts
+ * import { CustomEntityExample } from "@beep/nlp/Wink/WinkPattern"
+ *
+ * console.log(CustomEntityExample)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -108,6 +129,13 @@ export class CustomEntityExample extends S.Class<CustomEntityExample>($I`CustomE
 
 /**
  * Collection of learned custom-entity examples tracked as one logical group.
+ *
+ * @example
+ * ```ts
+ * import { WinkEngineCustomEntities } from "@beep/nlp/Wink/WinkPattern"
+ *
+ * console.log(WinkEngineCustomEntities)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

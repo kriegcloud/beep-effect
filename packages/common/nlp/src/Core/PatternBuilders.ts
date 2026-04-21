@@ -81,11 +81,46 @@ const isMakeDataFirstArgs = (
 /**
  * Create a POS pattern element.
  *
+ * @example
+ * ```ts
+ * import { pos } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(pos)
+ * ```
+ *
  * @since 0.0.0
  * @category Constructors
  */
 export function pos(first: WinkPOSTag | "", ...rest: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
+/**
+ * Create a POS pattern element from an array of choices.
+ *
+ * @example
+ * ```ts
+ * import { pos } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = pos([""])
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function pos(tags: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
+/**
+ * Normalize POS choices into a POS pattern element.
+ *
+ * @example
+ * ```ts
+ * import { pos } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = pos("")
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function pos(
   firstOrTags: (WinkPOSTag | "") | ReadonlyArray<WinkPOSTag | "">,
   ...rest: ReadonlyArray<WinkPOSTag | "">
@@ -99,11 +134,46 @@ export function pos(
 /**
  * Create an entity pattern element.
  *
+ * @example
+ * ```ts
+ * import { entity } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(entity)
+ * ```
+ *
  * @since 0.0.0
  * @category Constructors
  */
 export function entity(first: WinkEntityType | "", ...rest: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
+/**
+ * Create an entity pattern element from an array of choices.
+ *
+ * @example
+ * ```ts
+ * import { entity } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = entity([""])
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function entity(types: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
+/**
+ * Normalize entity choices into an entity pattern element.
+ *
+ * @example
+ * ```ts
+ * import { entity } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = entity("")
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function entity(
   firstOrTypes: (WinkEntityType | "") | ReadonlyArray<WinkEntityType | "">,
   ...rest: ReadonlyArray<WinkEntityType | "">
@@ -117,11 +187,46 @@ export function entity(
 /**
  * Create a literal pattern element.
  *
+ * @example
+ * ```ts
+ * import { literal } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(literal)
+ * ```
+ *
  * @since 0.0.0
  * @category Constructors
  */
 export function literal(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
+/**
+ * Create a literal pattern element from an array of values.
+ *
+ * @example
+ * ```ts
+ * import { literal } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = literal(["hello"])
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function literal(values: ReadonlyArray<string>): LiteralPatternElement;
+/**
+ * Normalize literal values into a literal pattern element.
+ *
+ * @example
+ * ```ts
+ * import { literal } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = literal("hello")
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function literal(
   firstOrValues: string | ReadonlyArray<string>,
   ...rest: ReadonlyArray<string>
@@ -135,11 +240,44 @@ export function literal(
 /**
  * Create an optional POS pattern element.
  *
+ * @example
+ * ```ts
+ * import { optionalPos } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(optionalPos)
+ * ```
+ *
  * @since 0.0.0
  * @category Constructors
  */
 export function optionalPos(first: WinkPOSTag, ...rest: ReadonlyArray<WinkPOSTag>): POSPatternElement;
+/**
+ * Create an optional POS pattern element from an array of tags.
+ *
+ * @example
+ * ```ts
+ * import { optionalPos } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(optionalPos)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function optionalPos(tags: ReadonlyArray<WinkPOSTag>): POSPatternElement;
+/**
+ * Normalize POS tags into an optional POS pattern element.
+ *
+ * @example
+ * ```ts
+ * import { optionalPos } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(optionalPos)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function optionalPos(
   firstOrTags: WinkPOSTag | ReadonlyArray<WinkPOSTag>,
   ...rest: ReadonlyArray<WinkPOSTag>
@@ -153,11 +291,44 @@ export function optionalPos(
 /**
  * Create an optional entity pattern element.
  *
+ * @example
+ * ```ts
+ * import { optionalEntity } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(optionalEntity)
+ * ```
+ *
  * @since 0.0.0
  * @category Constructors
  */
 export function optionalEntity(first: WinkEntityType, ...rest: ReadonlyArray<WinkEntityType>): EntityPatternElement;
+/**
+ * Create an optional entity pattern element from an array of entity types.
+ *
+ * @example
+ * ```ts
+ * import { optionalEntity } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(optionalEntity)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function optionalEntity(types: ReadonlyArray<WinkEntityType>): EntityPatternElement;
+/**
+ * Normalize entity types into an optional entity pattern element.
+ *
+ * @example
+ * ```ts
+ * import { optionalEntity } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(optionalEntity)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function optionalEntity(
   firstOrTypes: WinkEntityType | ReadonlyArray<WinkEntityType>,
   ...rest: ReadonlyArray<WinkEntityType>
@@ -171,11 +342,46 @@ export function optionalEntity(
 /**
  * Create an optional literal pattern element.
  *
+ * @example
+ * ```ts
+ * import { optionalLiteral } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(optionalLiteral)
+ * ```
+ *
  * @since 0.0.0
  * @category Constructors
  */
 export function optionalLiteral(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
+/**
+ * Create an optional literal pattern element from an array of values.
+ *
+ * @example
+ * ```ts
+ * import { optionalLiteral } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = optionalLiteral(["hello"])
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function optionalLiteral(values: ReadonlyArray<string>): LiteralPatternElement;
+/**
+ * Normalize literal values into an optional literal pattern element.
+ *
+ * @example
+ * ```ts
+ * import { optionalLiteral } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * const element = optionalLiteral("hello")
+ * console.log(element)
+ * ```
+ *
+ * @since 0.0.0
+ * @category Constructors
+ */
 export function optionalLiteral(
   firstOrValues: string | ReadonlyArray<string>,
   ...rest: ReadonlyArray<string>
@@ -192,6 +398,13 @@ export function optionalLiteral(
 /**
  * Construct a pattern from an id and ordered elements.
  *
+ * @example
+ * ```ts
+ * import { make } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(make)
+ * ```
+ *
  * @since 0.0.0
  * @category Constructors
  */
@@ -207,6 +420,13 @@ export const make: {
 /**
  * Add a mark range to a pattern.
  *
+ * @example
+ * ```ts
+ * import { withMark } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(withMark)
+ * ```
+ *
  * @since 0.0.0
  * @category Combinators
  */
@@ -217,6 +437,13 @@ export const withMark = dual(
 
 /**
  * Remove a mark range from a pattern.
+ *
+ * @example
+ * ```ts
+ * import { withoutMark } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(withoutMark)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators
@@ -232,6 +459,13 @@ export const withoutMark: {
 /**
  * Append elements to a pattern.
  *
+ * @example
+ * ```ts
+ * import { addElements } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(addElements)
+ * ```
+ *
  * @since 0.0.0
  * @category Combinators
  */
@@ -245,6 +479,13 @@ export const addElements = dual(
 
 /**
  * Prepend elements to a pattern.
+ *
+ * @example
+ * ```ts
+ * import { prependElements } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(prependElements)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators
@@ -260,6 +501,13 @@ export const prependElements = dual(
 /**
  * Replace the pattern id.
  *
+ * @example
+ * ```ts
+ * import { withId } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(withId)
+ * ```
+ *
  * @since 0.0.0
  * @category Combinators
  */
@@ -271,6 +519,13 @@ export const withId = dual(
 /**
  * Test whether a pattern has a mark.
  *
+ * @example
+ * ```ts
+ * import { hasMark } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(hasMark)
+ * ```
+ *
  * @since 0.0.0
  * @category Predicates
  */
@@ -278,6 +533,13 @@ export const hasMark = (pattern: Pattern): boolean => O.isSome(pattern.mark);
 
 /**
  * Get a pattern's mark if present.
+ *
+ * @example
+ * ```ts
+ * import { getMark } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(getMark)
+ * ```
  *
  * @since 0.0.0
  * @category Accessors
@@ -288,6 +550,13 @@ export const getMark = (pattern: Pattern): MarkRange | undefined =>
 /**
  * Count pattern elements.
  *
+ * @example
+ * ```ts
+ * import { length } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(length)
+ * ```
+ *
  * @since 0.0.0
  * @category Accessors
  */
@@ -296,6 +565,13 @@ export const length = (pattern: Pattern): number => Chunk.size(pattern.elements)
 /**
  * Materialize pattern elements as a readonly array.
  *
+ * @example
+ * ```ts
+ * import { elements } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(elements)
+ * ```
+ *
  * @since 0.0.0
  * @category Accessors
  */
@@ -303,6 +579,13 @@ export const elements = (pattern: Pattern): ReadonlyArray<PatternElement> => toE
 
 /**
  * Get an element by index.
+ *
+ * @example
+ * ```ts
+ * import { elementAt } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(elementAt)
+ * ```
  *
  * @since 0.0.0
  * @category Accessors
@@ -315,6 +598,13 @@ export const elementAt = (pattern: Pattern, index: number): PatternElement | und
 /**
  * Test whether a pattern is empty.
  *
+ * @example
+ * ```ts
+ * import { isEmpty } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(isEmpty)
+ * ```
+ *
  * @since 0.0.0
  * @category Predicates
  */
@@ -322,6 +612,13 @@ export const isEmpty = (pattern: Pattern): boolean => Chunk.isEmpty(pattern.elem
 
 /**
  * Get the first pattern element.
+ *
+ * @example
+ * ```ts
+ * import { head } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(head)
+ * ```
  *
  * @since 0.0.0
  * @category Accessors
@@ -331,6 +628,13 @@ export const head = (pattern: Pattern): PatternElement | undefined => elementAt(
 /**
  * Get the last pattern element.
  *
+ * @example
+ * ```ts
+ * import { last } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(last)
+ * ```
+ *
  * @since 0.0.0
  * @category Accessors
  */
@@ -338,6 +642,13 @@ export const last = (pattern: Pattern): PatternElement | undefined => elementAt(
 
 /**
  * Map pattern elements.
+ *
+ * @example
+ * ```ts
+ * import { mapElements } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(mapElements)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators
@@ -353,6 +664,13 @@ export const mapElements = dual(
 /**
  * Filter pattern elements.
  *
+ * @example
+ * ```ts
+ * import { filterElements } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(filterElements)
+ * ```
+ *
  * @since 0.0.0
  * @category Combinators
  */
@@ -366,6 +684,13 @@ export const filterElements = dual(
 
 /**
  * Take the first `count` elements.
+ *
+ * @example
+ * ```ts
+ * import { take } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(take)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators
@@ -381,6 +706,13 @@ export const take = dual(
 /**
  * Drop the first `count` elements.
  *
+ * @example
+ * ```ts
+ * import { drop } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(drop)
+ * ```
+ *
  * @since 0.0.0
  * @category Combinators
  */
@@ -394,6 +726,13 @@ export const drop = dual(
 
 /**
  * Combine two patterns into a new one.
+ *
+ * @example
+ * ```ts
+ * import { combine } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(combine)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators
@@ -409,6 +748,13 @@ export const combine: {
 /**
  * Functional patch over a pattern.
  *
+ * @example
+ * ```ts
+ * import type { PatternPatch } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * type Example = PatternPatch
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -417,6 +763,13 @@ export type PatternPatch = (pattern: Pattern) => Pattern;
 /**
  * Apply a patch to a pattern.
  *
+ * @example
+ * ```ts
+ * import { applyPatch } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(applyPatch)
+ * ```
+ *
  * @since 0.0.0
  * @category Combinators
  */
@@ -424,6 +777,13 @@ export const applyPatch = dual(2, (pattern: Pattern, patch: PatternPatch): Patte
 
 /**
  * Compose multiple patches from left to right.
+ *
+ * @example
+ * ```ts
+ * import { composePatches } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(composePatches)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators
@@ -438,6 +798,13 @@ export const composePatches = (...patches: ReadonlyArray<PatternPatch>): Pattern
 /**
  * Replace a literal element at a given index.
  *
+ * @example
+ * ```ts
+ * import { patchReplaceLiteralAt } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(patchReplaceLiteralAt)
+ * ```
+ *
  * @since 0.0.0
  * @category Combinators
  */
@@ -450,6 +817,13 @@ export const patchReplaceLiteralAt =
 
 /**
  * Replace all literal elements.
+ *
+ * @example
+ * ```ts
+ * import { patchReplaceAllLiterals } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(patchReplaceAllLiterals)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators
@@ -466,6 +840,13 @@ const toLiteralReplacer = (replacement: PatternElement | LiteralReplacer): Liter
 
 /**
  * Generalize literal elements into other element kinds.
+ *
+ * @example
+ * ```ts
+ * import { generalizeLiterals } from "@beep/nlp/Core/PatternBuilders"
+ *
+ * console.log(generalizeLiterals)
+ * ```
  *
  * @since 0.0.0
  * @category Combinators

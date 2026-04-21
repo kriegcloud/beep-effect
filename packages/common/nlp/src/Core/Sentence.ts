@@ -19,6 +19,13 @@ const $I = $NlpId.create("Core/Sentence");
 /**
  * Branded index for sentences in ordered collections.
  *
+ * @example
+ * ```ts
+ * import type { SentenceIndex } from "@beep/nlp/Core/Sentence"
+ *
+ * type Example = SentenceIndex
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -26,6 +33,13 @@ export type SentenceIndex = Brand.Branded<NonNegativeInt, "SentenceIndex">;
 
 /**
  * Constructor for {@link SentenceIndex}.
+ *
+ * @example
+ * ```ts
+ * import { sentenceIndex } from "@beep/nlp/Core/Sentence"
+ *
+ * console.log(sentenceIndex)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -37,6 +51,13 @@ export const sentenceIndex: Brand.Constructor<SentenceIndex> = Brand.check<Sente
 /**
  * Schema for {@link SentenceIndex}.
  *
+ * @example
+ * ```ts
+ * import { SentenceIndex } from "@beep/nlp/Core/Sentence"
+ *
+ * console.log(SentenceIndex)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -44,6 +65,13 @@ export const SentenceIndex = NonNegativeInt.pipe(S.fromBrand("SentenceIndex", se
 
 /**
  * Immutable NLP sentence model.
+ *
+ * @example
+ * ```ts
+ * import { Sentence } from "@beep/nlp/Core/Sentence"
+ *
+ * console.log(Sentence)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

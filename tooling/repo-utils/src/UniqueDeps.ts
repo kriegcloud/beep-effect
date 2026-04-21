@@ -21,7 +21,18 @@ const $I = $RepoUtilsId.create("UniqueDeps");
 /**
  * Result of collecting unique NPM dependencies across the monorepo.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { UniqueNpmDeps } from "@beep/repo-utils/UniqueDeps"
+ *
+ * const deps = new UniqueNpmDeps({
+ *   dependencies: ["effect"],
+ *   devDependencies: ["vitest"]
+ * })
+ * void deps.dependencies
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(

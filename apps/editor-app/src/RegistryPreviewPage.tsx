@@ -1,3 +1,9 @@
+/**
+ * Registry preview route for app-local MUI Treasury components.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { Link } from "@tanstack/react-router";
 import { Action, Actions } from "./mui-treasury/components/ai-actions/index.js";
 import { Loader } from "./mui-treasury/components/ai-loader/index.js";
@@ -32,6 +38,19 @@ const LaunchIcon = () => (
   </svg>
 );
 
+/**
+ * Render the MUI Treasury registry preview page.
+ *
+ * @example
+ * ```tsx
+ * import { RegistryPreviewPage } from "@beep/editor-app/RegistryPreviewPage"
+ *
+ * const Route = () => <RegistryPreviewPage />
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export function RegistryPreviewPage() {
   return (
     <div className="shell registry-preview-shell">

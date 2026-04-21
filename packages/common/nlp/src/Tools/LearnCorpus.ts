@@ -55,6 +55,13 @@ class LearnCorpusSuccess extends S.Class<LearnCorpusSuccess>($I`LearnCorpusSucce
 /**
  * Tool for incrementally learning documents into a corpus.
  *
+ * @example
+ * ```ts
+ * import { LearnCorpus } from "@beep/nlp/Tools/LearnCorpus"
+ *
+ * console.log(LearnCorpus)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

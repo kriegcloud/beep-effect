@@ -16,10 +16,10 @@ Law enforcement uses three layers:
 
 The control plane is required to recognize these repo-wide verification surfaces:
 
-- `bun run check:effect-imports`
-- `bun run check:terse-effect`
-- `bun run lint:effect-laws:strict`
-- `bun run lint:schema-first`
+- `bun run lint`
+- `bun run check`
+- `bun run test`
+- `bun run audit`
 - `bun run docgen`
 - target package or app `check`
 - target package or app `lint`
@@ -29,10 +29,10 @@ The control plane is required to recognize these repo-wide verification surfaces
 
 | Law Family | Command Surface | Auditor Surface |
 |---|---|---|
-| Schema-first | `bun run lint:schema-first` | Schema And Brand Auditor |
+| Schema-first | `bun run lint` | Schema And Brand Auditor |
 | Branded domains | package checks plus manual review | Schema And Brand Auditor, Duplication And Reuse Auditor |
-| Typed failures and throwable control | `bun run lint:effect-laws:strict`, `bun run check:effect-imports` | Effect Data Auditor |
-| Effect-native helper usage | `bun run check:terse-effect` plus package checks | Effect Data Auditor |
+| Typed failures and throwable control | `bun run lint` | Effect Data Auditor |
+| Effect-native helper usage | `bun run lint` plus package checks | Effect Data Auditor |
 | Service boundary integrity | package checks | Service And Layer Boundary Auditor |
 | Layer boundary integrity | package checks | Service And Layer Boundary Auditor |
 | HTTP boundary integrity | package checks | HTTP Boundary Auditor |

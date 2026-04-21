@@ -12,6 +12,14 @@
 /**
  * Published date reported by the official ISO 4217 List One feed.
  *
+ * @example
+ * ```typescript
+ * import { CurrencyCodeDataPublished } from "@beep/data/generated/iso4217"
+ *
+ * console.log(CurrencyCodeDataPublished)
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataPublished = "2026-01-01" as const;
@@ -19,6 +27,14 @@ export const CurrencyCodeDataPublished = "2026-01-01" as const;
 /**
  * Official source URL for the ISO 4217 List One feed.
  *
+ * @example
+ * ```typescript
+ * import { CurrencyCodeDataSourceUrl } from "@beep/data/generated/iso4217"
+ *
+ * console.log(CurrencyCodeDataSourceUrl)
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataSourceUrl = "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml" as const;
@@ -26,6 +42,14 @@ export const CurrencyCodeDataSourceUrl = "https://www.six-group.com/dam/download
 /**
  * Normalized ISO 4217 currency entries emitted from the official feed.
  *
+ * @example
+ * ```typescript
+ * import { CurrencyCodeDataValues } from "@beep/data/generated/iso4217"
+ *
+ * console.log(CurrencyCodeDataValues[0].code)
+ * ```
+ *
+ * @category constants
  * @since 0.0.0
  */
 export const CurrencyCodeDataValues = [

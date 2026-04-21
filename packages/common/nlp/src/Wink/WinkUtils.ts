@@ -104,6 +104,13 @@ const sanitizeNGramResult = (
 /**
  * Error raised while calling wink utility helpers.
  *
+ * @example
+ * ```ts
+ * import { WinkUtilsError } from "@beep/nlp/Wink/WinkUtils"
+ *
+ * console.log(WinkUtilsError)
+ * ```
+ *
  * @since 0.0.0
  * @category Errors
  */
@@ -216,6 +223,13 @@ const makeWinkUtils = Effect.gen(function* () {
 /**
  * Wink utility service.
  *
+ * @example
+ * ```ts
+ * import { WinkUtils } from "@beep/nlp/Wink/WinkUtils"
+ *
+ * console.log(WinkUtils)
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -223,6 +237,13 @@ export class WinkUtils extends Context.Service<WinkUtils, WinkUtilsShape>()($I`W
 
 /**
  * Live wink utility layer.
+ *
+ * @example
+ * ```ts
+ * import { WinkUtilsLive } from "@beep/nlp/Wink/WinkUtils"
+ *
+ * console.log(WinkUtilsLive)
+ * ```
  *
  * @since 0.0.0
  * @category Layers

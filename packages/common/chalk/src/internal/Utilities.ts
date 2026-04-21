@@ -1,3 +1,10 @@
+/**
+ * Internal string helpers used by the Chalk renderer.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { pipe } from "effect";
 import * as Bool from "effect/Boolean";
 import * as Str from "effect/String";
@@ -31,6 +38,20 @@ const renderLineBreakSliceEnd = (nextIndex: number, gotCR: boolean): number =>
     onTrue: () => nextIndex - 1,
   });
 
+/**
+ * Replace every later occurrence of a substring while preserving the first occurrence.
+ *
+ * @example
+ * ```ts
+ * import { stringReplaceAll } from "@beep/chalk/Chalk"
+ *
+ * const rendered = stringReplaceAll("a-b-c", "-", "+")
+ * console.log(rendered)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const stringReplaceAll = (text: string, substring: string, replacer: string): string => {
   return pipe(
     text,
@@ -42,6 +63,20 @@ export const stringReplaceAll = (text: string, substring: string, replacer: stri
   );
 };
 
+/**
+ * Encase each line break with close and reopen ANSI sequences.
+ *
+ * @example
+ * ```ts
+ * import { stringEncaseCRLFWithFirstIndex } from "@beep/chalk/Chalk"
+ *
+ * const rendered = stringEncaseCRLFWithFirstIndex("a\nb", "<close>", "<open>", 1)
+ * console.log(rendered)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const stringEncaseCRLFWithFirstIndex = (
   text: string,
   prefix: string,

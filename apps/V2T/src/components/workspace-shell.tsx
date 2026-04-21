@@ -1,3 +1,9 @@
+/**
+ * Workspace shell for the V2T desktop and browser control plane.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { FilePath, NonEmptyTrimmedStr } from "@beep/schema";
 import {
   CreateVt2SessionInput,
@@ -333,6 +339,19 @@ const optionMatches = (value: O.Option<string>, expected: string): boolean =>
     onSome: (present) => present === expected,
   });
 
+/**
+ * Render the interactive V2T workspace shell.
+ *
+ * @example
+ * ```tsx
+ * import { V2TWorkspaceShell } from "@beep/v2t"
+ *
+ * const App = () => <V2TWorkspaceShell />
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export const V2TWorkspaceShell: React.FC = () => {
   const [managedState, setManagedState] = useState<Vt2ManagedSidecarState | null>(null);
   const [captureState, setCaptureState] = useState<Vt2ManagedCaptureState | null>(null);

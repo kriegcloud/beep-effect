@@ -221,7 +221,19 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
 /**
  * Structured package.json validation issue.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { PackageJsonValidationIssue } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const issue = new PackageJsonValidationIssue({
+ *   message: "Expected string",
+ *   path: ["name"],
+ *   pointer: "/name"
+ * })
+ * void issue.pointer
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIssue>($I`PackageJsonValidationIssue`)(
@@ -238,7 +250,15 @@ export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIss
 /**
  * Draft 2020-12 JSON Schema document for the repo-aware package.json schema.
  *
- * @category Utility
+ * @example
+ * ```ts
+ * import { packageJsonJsonSchema } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const schema = packageJsonJsonSchema
+ * void schema
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export const packageJsonJsonSchema = S.toJsonSchemaDocument(PackageJson);
@@ -246,7 +266,15 @@ export const packageJsonJsonSchema = S.toJsonSchemaDocument(PackageJson);
 /**
  * Draft 2020-12 JSON Schema document for the npm-only package.json schema.
  *
- * @category Utility
+ * @example
+ * ```ts
+ * import { npmPackageJsonJsonSchema } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const schema = npmPackageJsonJsonSchema
+ * void schema
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
@@ -254,7 +282,18 @@ export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
 /**
  * Normalize an unknown package.json value into a canonical encoded object.
  *
- * @category DomainLogic
+ * @example
+ * ```ts
+ * import { normalizePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const program = normalizePackageJsonEffect({
+ *   name: "@beep/example",
+ *   version: "0.0.0"
+ * })
+ * void program
+ * ```
+ *
+ * @category combinators
  * @since 0.0.0
  */
 export const normalizePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Encoded, S.SchemaError> =
@@ -266,7 +305,18 @@ export const normalizePackageJsonEffect: (input: unknown) => Effect.Effect<Packa
 /**
  * Encode an unknown package.json value to a canonical pretty JSON string.
  *
- * @category DomainLogic
+ * @example
+ * ```ts
+ * import { encodePackageJsonCanonicalPrettyEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const program = encodePackageJsonCanonicalPrettyEffect({
+ *   name: "@beep/example",
+ *   version: "0.0.0"
+ * })
+ * void program
+ * ```
+ *
+ * @category combinators
  * @since 0.0.0
  */
 export const encodePackageJsonCanonicalPrettyEffect: (
@@ -281,7 +331,18 @@ export const encodePackageJsonCanonicalPrettyEffect: (
 /**
  * Compute a typed JSON Patch diff between two package.json values.
  *
- * @category DomainLogic
+ * @example
+ * ```ts
+ * import { diffPackageJsonEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const program = diffPackageJsonEffect(
+ *   { name: "@beep/example", version: "0.0.0" },
+ *   { name: "@beep/example", version: "0.0.1" }
+ * )
+ * void program
+ * ```
+ *
+ * @category combinators
  * @since 0.0.0
  */
 export const diffPackageJsonEffect: (
@@ -298,7 +359,18 @@ export const diffPackageJsonEffect: (
 /**
  * Apply a typed JSON Patch document to a package.json value.
  *
- * @category DomainLogic
+ * @example
+ * ```ts
+ * import { applyPackageJsonPatchEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const program = applyPackageJsonPatchEffect(
+ *   { name: "@beep/example", version: "0.0.0" },
+ *   []
+ * )
+ * void program
+ * ```
+ *
+ * @category combinators
  * @since 0.0.0
  */
 export const applyPackageJsonPatchEffect: (
@@ -319,7 +391,19 @@ export const applyPackageJsonPatchEffect: (
  *
  * @param error - Schema decoding or encoding error to render as structured validation issues.
  * @returns Structured validation issues derived from the schema error.
- * @category Utility
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { getPackageJsonSchemaIssues } from "@beep/repo-utils/schemas/PackageJsonTools"
+ *
+ * const program = S.decodeUnknownEffect(S.String)(1).pipe(
+ *   Effect.mapError(getPackageJsonSchemaIssues)
+ * )
+ * void program
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export const getPackageJsonSchemaIssues = (error: S.SchemaError): ReadonlyArray<PackageJsonValidationIssue> =>

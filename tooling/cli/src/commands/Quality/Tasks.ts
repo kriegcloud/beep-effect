@@ -9,9 +9,8 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Console, Effect, FileSystem, Path, Stream } from "effect";
+import { Cause, Console, Effect, FileSystem, Path, Stream } from "effect";
 import * as A from "effect/Array";
-import * as Cause from "effect/Cause";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -26,6 +25,13 @@ const LINT_POLICY_SUBCOMMANDS = ["circular", "schema-first", "tooling-tagged-err
 /**
  * Canonical quality task name.
  *
+ * @example
+ * ```ts
+ * import { QualityTaskName } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const isLint = QualityTaskName.is.lint("lint")
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -38,6 +44,13 @@ export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).annotate(
 /**
  * Canonical quality task name.
  *
+ * @example
+ * ```ts
+ * import type { QualityTaskName } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const task: QualityTaskName = "check"
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -45,6 +58,17 @@ export type QualityTaskName = typeof QualityTaskName.Type;
 
 /**
  * Package-local script profile used by the quality task adapter.
+ *
+ * @example
+ * ```ts
+ * import { PackageTaskProfile } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const profile = new PackageTaskProfile({
+ *   task: "lint",
+ *   script: "beep:lint",
+ *   fixScript: "beep:lint:fix"
+ * })
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -62,6 +86,18 @@ export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTa
 
 /**
  * Planned subprocess invocation.
+ *
+ * @example
+ * ```ts
+ * import { QualityTaskStep } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const step = new QualityTaskStep({
+ *   label: "lint",
+ *   command: "bunx",
+ *   args: ["turbo", "run", "lint"],
+ *   cwd: "/repo"
+ * })
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -82,6 +118,17 @@ export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep
 /**
  * Result of parsing a quality command invocation.
  *
+ * @example
+ * ```ts
+ * import { QualityTaskInvocation } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const invocation = new QualityTaskInvocation({
+ *   task: "lint",
+ *   args: ["--filter=@beep/repo-cli"],
+ *   fix: false
+ * })
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -98,6 +145,17 @@ export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`Qua
 
 /**
  * Error raised when a quality task subprocess exits unsuccessfully.
+ *
+ * @example
+ * ```ts
+ * import { QualityTaskFailed } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const failure = new QualityTaskFailed({
+ *   label: "lint",
+ *   command: "bunx turbo run lint",
+ *   exitCode: 1
+ * })
+ * ```
  *
  * @category error handling
  * @since 0.0.0
@@ -116,6 +174,15 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
 
 /**
  * Error raised when a quality task cannot resolve its required configuration.
+ *
+ * @example
+ * ```ts
+ * import { QualityTaskConfigurationError } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const error = new QualityTaskConfigurationError({
+ *   message: "Could not find package.json"
+ * })
+ * ```
  *
  * @category error handling
  * @since 0.0.0
@@ -401,7 +468,10 @@ const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
 
 const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) =>
   fix
-    ? [turboStep(repoRoot, "lint:fix", ["lint:fix"], args)]
+    ? [
+        turboStep(repoRoot, "lint:effect-imports:fix", ["lint:effect-imports:fix"], A.filter(args, isTurboDryRunArg)),
+        turboStep(repoRoot, "lint:fix", ["lint:fix"], args),
+      ]
     : [
         turboStep(
           repoRoot,
@@ -527,6 +597,15 @@ const handleUnexpectedQualityTaskCause = Effect.catchCause(
  *
  * @param argv - Raw command arguments after the binary name.
  * @returns Parsed invocation or `None` when another command group should handle it.
+ * @example
+ * ```ts
+ * import { parseQualityTaskInvocation } from "@beep/repo-cli/commands/Quality/Tasks"
+ * import * as O from "effect/Option"
+ *
+ * const invocation = parseQualityTaskInvocation(["lint", "--fix"])
+ * const handled = O.isSome(invocation)
+ * ```
+ *
  * @category Utility
  * @since 0.0.0
  */
@@ -554,6 +633,19 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
  * Run a parsed quality task in either repo-root or package-local mode.
  *
  * @param invocation - Parsed quality task invocation.
+ * @example
+ * ```ts
+ * import { QualityTaskInvocation, runQualityTask } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const program = runQualityTask(
+ *   new QualityTaskInvocation({
+ *     task: "check",
+ *     args: [],
+ *     fix: false
+ *   })
+ * )
+ * ```
+ *
  * @category UseCase
  * @since 0.0.0
  */
@@ -581,6 +673,13 @@ export const runQualityTask: (invocation: QualityTaskInvocation) => Effect.Effec
  *
  * @param argv - Raw command arguments after the binary name.
  * @returns `true` when the invocation was handled by the quality adapter.
+ * @example
+ * ```ts
+ * import { runQualityTaskIfRequested } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const program = runQualityTaskIfRequested(["build", "--affected"])
+ * ```
+ *
  * @category UseCase
  * @since 0.0.0
  */
@@ -603,6 +702,20 @@ export const runQualityTaskIfRequested: (
  *
  * @param step - Step to run.
  * @returns Captured combined stdout/stderr and exit code.
+ * @example
+ * ```ts
+ * import { collectStepOutput, QualityTaskStep } from "@beep/repo-cli/commands/Quality/Tasks"
+ *
+ * const output = collectStepOutput(
+ *   new QualityTaskStep({
+ *     label: "version",
+ *     command: "bun",
+ *     args: ["--version"],
+ *     cwd: "/repo"
+ *   })
+ * )
+ * ```
+ *
  * @category Utility
  * @since 0.0.0
  */

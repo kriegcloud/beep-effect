@@ -24,15 +24,9 @@ import * as internal from "./generated/iso4217.ts";
  * @category models
  * @example
  * ```typescript
- * import type { CurrencyCodeData } from "@beep/data/CurrencyCodes"
+ * import { CurrencyCodeDataValues, type CurrencyCodeData } from "@beep/data/CurrencyCodes"
  *
- * const entry: CurrencyCodeData = {
- *
- *
- *
- *
- *
- * }
+ * const entry: CurrencyCodeData = CurrencyCodeDataValues[0]
  * void entry
  * ```
  */

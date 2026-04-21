@@ -1,3 +1,10 @@
+/**
+ * Internal ANSI style tables and color model conversion helpers.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $ChalkId } from "@beep/identity/packages";
 import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
@@ -11,11 +18,84 @@ import type { backgroundColorNameValues, foregroundColorNameValues, modifierName
 type AnsiCodePair = readonly [open: number, close: number];
 const $I = $ChalkId.create("Domain");
 
+/**
+ * Modifier style names accepted by the Chalk runtime.
+ *
+ * @example
+ * ```ts
+ * import type { ModifierStyleName } from "@beep/chalk/Chalk"
+ *
+ * const styleName: ModifierStyleName = "bold"
+ * void styleName
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type ModifierStyleName = (typeof modifierNameValues)[number];
+
+/**
+ * Foreground color style names accepted by the Chalk runtime.
+ *
+ * @example
+ * ```ts
+ * import type { ForegroundStyleName } from "@beep/chalk/Chalk"
+ *
+ * const styleName: ForegroundStyleName = "cyan"
+ * void styleName
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type ForegroundStyleName = (typeof foregroundColorNameValues)[number];
+
+/**
+ * Background color style names accepted by the Chalk runtime.
+ *
+ * @example
+ * ```ts
+ * import type { BackgroundStyleName } from "@beep/chalk/Chalk"
+ *
+ * const styleName: BackgroundStyleName = "bgBlue"
+ * void styleName
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type BackgroundStyleName = (typeof backgroundColorNameValues)[number];
+
+/**
+ * Any supported Chalk style name.
+ *
+ * @example
+ * ```ts
+ * import type { StyleName } from "@beep/chalk/Chalk"
+ *
+ * const styleName: StyleName = "underline"
+ * void styleName
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type StyleName = ModifierStyleName | ForegroundStyleName | BackgroundStyleName;
 
+/**
+ * Open and close ANSI escape sequences for a style.
+ *
+ * @example
+ * ```ts
+ * import { StylerEntry } from "@beep/chalk/Chalk"
+ *
+ * const entry = new StylerEntry({ open: "\u001B[31m", close: "\u001B[39m" })
+ * console.log(entry.open)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class StylerEntry extends S.Class<StylerEntry>($I`StylerEntry`)(
   {
     open: S.String,
@@ -124,6 +204,20 @@ const backgroundStyles: Record<string, StylerEntry> = pipe(
   R.fromEntries
 );
 
+/**
+ * ANSI escape builders grouped by modifier, foreground color, and background color.
+ *
+ * @example
+ * ```ts
+ * import { ansiStyles } from "@beep/chalk/Chalk"
+ *
+ * const redOpen = ansiStyles.color.red.open
+ * console.log(redOpen)
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
 export const ansiStyles = {
   modifier: modifierStyles,
   color: {
@@ -146,6 +240,20 @@ const isModifierStyleName = (styleName: StyleName): styleName is ModifierStyleNa
 
 const isForegroundStyleName = (styleName: StyleName): styleName is ForegroundStyleName => styleName in foregroundStyles;
 
+/**
+ * Look up the ANSI style entry for a known Chalk style name.
+ *
+ * @example
+ * ```ts
+ * import { getStyleEntry } from "@beep/chalk/Chalk"
+ *
+ * const style = getStyleEntry("bold")
+ * console.log(style.close)
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
 export const getStyleEntry = (styleName: StyleName): StylerEntry =>
   Match.type<StyleName>().pipe(
     Match.when(isModifierStyleName, (value) => modifierStyles[value]),
@@ -195,6 +303,20 @@ const renderMonochromeAnsi256 = (red: number): number =>
     })
   );
 
+/**
+ * Convert RGB channel values to an ANSI 256 color index.
+ *
+ * @example
+ * ```ts
+ * import { rgbToAnsi256 } from "@beep/chalk/Chalk"
+ *
+ * const index = rgbToAnsi256(255, 0, 0)
+ * console.log(index)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const rgbToAnsi256 = (red: number, green: number, blue: number): number => {
   return pipe(
     red === green && green === blue,
@@ -206,6 +328,20 @@ export const rgbToAnsi256 = (red: number, green: number, blue: number): number =
   );
 };
 
+/**
+ * Convert a hexadecimal color string to an RGB tuple.
+ *
+ * @example
+ * ```ts
+ * import { hexToRgb } from "@beep/chalk/Chalk"
+ *
+ * const [red, green, blue] = hexToRgb("#336699")
+ * console.log(red, green, blue)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const hexToRgb = (hex: string): readonly [red: number, green: number, blue: number] =>
   pipe(
     parseHexMatch(hex),
@@ -256,6 +392,20 @@ const ansi256ToAnsiColorCube = (code: number): number => {
   );
 };
 
+/**
+ * Convert an ANSI 256 color index to a basic ANSI color code.
+ *
+ * @example
+ * ```ts
+ * import { ansi256ToAnsi } from "@beep/chalk/Chalk"
+ *
+ * const code = ansi256ToAnsi(196)
+ * console.log(code)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const ansi256ToAnsi = (code: number): number =>
   Match.type<number>().pipe(
     Match.when(
@@ -270,11 +420,53 @@ export const ansi256ToAnsi = (code: number): number =>
     Match.orElse(ansi256ToAnsiColorCube)
   )(code);
 
+/**
+ * Convert RGB values to a basic ANSI color code.
+ *
+ * @example
+ * ```ts
+ * import { rgbToAnsi } from "@beep/chalk/Chalk"
+ *
+ * const code = rgbToAnsi(255, 0, 0)
+ * console.log(code)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const rgbToAnsi = (red: number, green: number, blue: number): number =>
   ansi256ToAnsi(rgbToAnsi256(red, green, blue));
 
+/**
+ * Convert a hexadecimal color string to an ANSI 256 color index.
+ *
+ * @example
+ * ```ts
+ * import { hexToAnsi256 } from "@beep/chalk/Chalk"
+ *
+ * const index = hexToAnsi256("#ff0000")
+ * console.log(index)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const hexToAnsi256 = (hex: string): number => rgbToAnsi256(...hexToRgb(hex));
 
+/**
+ * Convert a hexadecimal color string to a basic ANSI color code.
+ *
+ * @example
+ * ```ts
+ * import { hexToAnsi } from "@beep/chalk/Chalk"
+ *
+ * const code = hexToAnsi("#ff0000")
+ * console.log(code)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const hexToAnsi = (hex: string): number => ansi256ToAnsi(hexToAnsi256(hex));
 
 const renderRgbModel = (
@@ -307,6 +499,20 @@ const renderAnsi256Model = (type: "color" | "bgColor", arguments_: ReadonlyArray
   return ansiStyles[type].ansi256(Number(index));
 };
 
+/**
+ * Render an ANSI opening escape for an RGB, hexadecimal, or ANSI 256 color model.
+ *
+ * @example
+ * ```ts
+ * import { getModelAnsi } from "@beep/chalk/Chalk"
+ *
+ * const open = getModelAnsi("rgb", "ansi16m", "color", 255, 128, 0)
+ * console.log(open)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const getModelAnsi = (
   model: "rgb" | "hex" | "ansi256",
   level: "ansi" | "ansi256" | "ansi16m",

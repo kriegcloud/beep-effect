@@ -62,6 +62,13 @@ class QueryCorpusSuccess extends S.Class<QueryCorpusSuccess>($I`QueryCorpusSucce
 /**
  * Tool for querying a previously learned corpus session.
  *
+ * @example
+ * ```ts
+ * import { QueryCorpus } from "@beep/nlp/Tools/QueryCorpus"
+ *
+ * console.log(QueryCorpus)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

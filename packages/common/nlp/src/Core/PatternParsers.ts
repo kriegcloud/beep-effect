@@ -93,6 +93,13 @@ const decodePatternElement = (input: string) =>
 /**
  * Decode a POS bracket string into a pattern element.
  *
+ * @example
+ * ```ts
+ * import { BracketStringToPOSPatternElement } from "@beep/nlp/Core/PatternParsers"
+ *
+ * console.log(BracketStringToPOSPatternElement)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -116,6 +123,13 @@ export const BracketStringToPOSPatternElement = S.String.pipe(
 
 /**
  * Decode an entity bracket string into a pattern element.
+ *
+ * @example
+ * ```ts
+ * import { BracketStringToEntityPatternElement } from "@beep/nlp/Core/PatternParsers"
+ *
+ * console.log(BracketStringToEntityPatternElement)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -143,6 +157,13 @@ export const BracketStringToEntityPatternElement = S.String.pipe(
 /**
  * Decode a literal bracket string into a pattern element.
  *
+ * @example
+ * ```ts
+ * import { BracketStringToLiteralPatternElement } from "@beep/nlp/Core/PatternParsers"
+ *
+ * console.log(BracketStringToLiteralPatternElement)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -169,6 +190,13 @@ export const BracketStringToLiteralPatternElement = S.String.pipe(
 /**
  * Decode any supported bracket string element.
  *
+ * @example
+ * ```ts
+ * import { BracketStringToPatternElement } from "@beep/nlp/Core/PatternParsers"
+ *
+ * console.log(BracketStringToPatternElement)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -187,6 +215,13 @@ export const BracketStringToPatternElement = S.String.pipe(
 /**
  * Runtime type for {@link BracketStringToPatternElement}.
  *
+ * @example
+ * ```ts
+ * import type { BracketStringToPatternElement } from "@beep/nlp/Core/PatternParsers"
+ *
+ * type Example = BracketStringToPatternElement
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -194,6 +229,13 @@ export type BracketStringToPatternElement = typeof BracketStringToPatternElement
 
 /**
  * Decode a string array into ordered pattern elements.
+ *
+ * @example
+ * ```ts
+ * import { PatternFromString } from "@beep/nlp/Core/PatternParsers"
+ *
+ * console.log(PatternFromString)
+ * ```
  *
  * @since 0.0.0
  * @category Validation

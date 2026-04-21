@@ -15,7 +15,15 @@ const $I = $RepoUtilsId.create("schemas/WorkspaceDeps");
 /**
  * A record mapping package names to version specifiers.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { DependencyRecord } from "@beep/repo-utils/schemas/WorkspaceDeps"
+ *
+ * const isRecord = DependencyRecord
+ * void isRecord
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export const DependencyRecord = S.Record(S.String, S.String).annotate(
@@ -27,7 +35,17 @@ export const DependencyRecord = S.Record(S.String, S.String).annotate(
 /**
  * A record mapping package names to version specifiers.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { DependencyRecord } from "@beep/repo-utils/schemas/WorkspaceDeps"
+ *
+ * const deps: DependencyRecord = {
+ *   effect: "^4.0.0"
+ * }
+ * void deps
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type DependencyRecord = typeof DependencyRecord.Type;
@@ -51,7 +69,15 @@ class WorkspaceDependencyBuckets extends S.Class<WorkspaceDependencyBuckets>($I`
  * categories, each further divided by dependency type (runtime, dev, peer,
  * optional).
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { emptyWorkspaceDeps } from "@beep/repo-utils/schemas/WorkspaceDeps"
+ *
+ * const deps = emptyWorkspaceDeps("@beep/example")
+ * void deps.packageName
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
@@ -71,7 +97,15 @@ export class WorkspaceDeps extends S.Class<WorkspaceDeps>($I`WorkspaceDeps`)(
  *
  * @param packageName - Package name to initialize.
  * @returns Empty dependency structure for the package.
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { emptyWorkspaceDeps } from "@beep/repo-utils/schemas/WorkspaceDeps"
+ *
+ * const deps = emptyWorkspaceDeps("@beep/example")
+ * void deps.workspace.dependencies
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
  */
 export const emptyWorkspaceDeps = (packageName: string): WorkspaceDeps =>

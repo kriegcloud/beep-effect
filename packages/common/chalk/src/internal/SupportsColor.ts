@@ -1,3 +1,10 @@
+/**
+ * Node.js color support detection for Chalk.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import os from "node:os";
 import process from "node:process";
 import tty from "node:tty";
@@ -396,6 +403,20 @@ const supportsColorLevel = ({
   );
 };
 
+/**
+ * Detect color support for a stream and process-like runtime.
+ *
+ * @example
+ * ```ts
+ * import { createSupportsColor } from "@beep/chalk/Chalk"
+ *
+ * const support = createSupportsColor({ isTTY: true }, {}, { argv: [], env: { FORCE_COLOR: "1" } })
+ * console.log(support)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const createSupportsColor = (
   stream: StreamLike = {},
   options: SupportsColorOptions = {},
@@ -412,6 +433,19 @@ export const createSupportsColor = (
     })
   );
 
+/**
+ * Color support detected for the current Node.js stdout and stderr streams.
+ *
+ * @example
+ * ```ts
+ * import { detectedSupportsColor } from "@beep/chalk/Chalk"
+ *
+ * console.log(detectedSupportsColor.stdout)
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
 export const detectedSupportsColor = {
   stderr: createSupportsColor({ isTTY: tty.isatty(2) }),
   stdout: createSupportsColor({ isTTY: tty.isatty(1) }),

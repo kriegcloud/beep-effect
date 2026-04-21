@@ -1,3 +1,10 @@
+/**
+ * Internal Chalk builder runtime.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $ChalkId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import * as S from "effect/Schema";
@@ -232,6 +239,21 @@ const createBuilder = (
   return builder;
 };
 
+/**
+ * Create a Chalk instance factory from detected default color support.
+ *
+ * @example
+ * ```ts
+ * import { makeCreateChalk } from "@beep/chalk/Chalk"
+ *
+ * const createChalk = makeCreateChalk(false)
+ * const chalk = createChalk({ level: 0 })
+ * console.log(chalk("plain"))
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makeCreateChalk = (defaultColorInfo: ColorInfo) => {
   const defaultLevel = defaultColorInfo === false ? 0 : defaultColorInfo.level;
 

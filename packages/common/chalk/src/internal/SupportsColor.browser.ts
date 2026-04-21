@@ -1,3 +1,10 @@
+/**
+ * Browser color support detection for Chalk.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { type ColorInfo, ColorSupport } from "./ChalkSchema.ts";
 
 type BrowserNavigator = Navigator & {
@@ -50,6 +57,19 @@ const browserColorSupport = (): ColorInfo => {
   return browserColorSupportFromNavigator(browserNavigator);
 };
 
+/**
+ * Color support detected for browser stdout and stderr compatibility channels.
+ *
+ * @example
+ * ```ts
+ * import { detectedSupportsColorBrowser } from "@beep/chalk/Chalk"
+ *
+ * console.log(detectedSupportsColorBrowser.stdout)
+ * ```
+ *
+ * @category constants
+ * @since 0.0.0
+ */
 export const detectedSupportsColorBrowser = {
   stderr: browserColorSupport(),
   stdout: browserColorSupport(),

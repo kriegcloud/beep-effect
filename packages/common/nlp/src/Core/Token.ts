@@ -17,6 +17,13 @@ const $I = $NlpId.create("Core/Token");
 /**
  * Branded number type for token indices.
  *
+ * @example
+ * ```ts
+ * import type { TokenIndex } from "@beep/nlp/Core/Token"
+ *
+ * type Example = TokenIndex
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -24,6 +31,13 @@ export type TokenIndex = Brand.Branded<NonNegativeInt, "TokenIndex">;
 
 /**
  * Predicate for {@link TokenIndex}.
+ *
+ * @example
+ * ```ts
+ * import { isTokenIndex } from "@beep/nlp/Core/Token"
+ *
+ * console.log(isTokenIndex)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -33,6 +47,13 @@ export const isTokenIndex = (u: unknown): u is TokenIndex => S.is(NonNegativeInt
 /**
  * Constructor for {@link TokenIndex}.
  *
+ * @example
+ * ```ts
+ * import { tokenIndex } from "@beep/nlp/Core/Token"
+ *
+ * console.log(tokenIndex)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -40,6 +61,13 @@ export const tokenIndex: Brand.Constructor<TokenIndex> = Brand.check<TokenIndex>
 
 /**
  * Schema for {@link TokenIndex}.
+ *
+ * @example
+ * ```ts
+ * import { TokenIndex } from "@beep/nlp/Core/Token"
+ *
+ * console.log(TokenIndex)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -49,6 +77,13 @@ export const TokenIndex = NonNegativeInt.pipe(S.fromBrand("TokenIndex", tokenInd
 /**
  * Branded number type for character positions.
  *
+ * @example
+ * ```ts
+ * import type { CharPosition } from "@beep/nlp/Core/Token"
+ *
+ * type Example = CharPosition
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -57,6 +92,13 @@ export type CharPosition = Brand.Branded<NonNegativeInt, "CharPosition">;
 /**
  * Predicate for {@link CharPosition}.
  *
+ * @example
+ * ```ts
+ * import { isCharPosition } from "@beep/nlp/Core/Token"
+ *
+ * console.log(isCharPosition)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -64,6 +106,13 @@ export const isCharPosition = (u: unknown): u is CharPosition => S.is(NonNegativ
 
 /**
  * Constructor for {@link CharPosition}.
+ *
+ * @example
+ * ```ts
+ * import { charPosition } from "@beep/nlp/Core/Token"
+ *
+ * console.log(charPosition)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -75,6 +124,13 @@ export const charPosition: Brand.Constructor<CharPosition> = Brand.check<CharPos
 /**
  * Schema for {@link CharPosition}.
  *
+ * @example
+ * ```ts
+ * import { CharPosition } from "@beep/nlp/Core/Token"
+ *
+ * console.log(CharPosition)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -82,6 +138,13 @@ export const CharPosition = NonNegativeInt.pipe(S.fromBrand("CharPosition", char
 
 /**
  * Immutable NLP token model with lexical and positional metadata.
+ *
+ * @example
+ * ```ts
+ * import { Token } from "@beep/nlp/Core/Token"
+ *
+ * console.log(Token)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

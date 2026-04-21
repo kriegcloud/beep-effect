@@ -32,6 +32,13 @@ const UnitIntervalChecks = S.makeFilterGroup(
 /**
  * Numeric value between 0 and 1 inclusive.
  *
+ * @example
+ * ```ts
+ * import { UnitInterval } from "./numbers"
+ *
+ * console.log(UnitInterval)
+ * ```
+ *
  * @since 0.0.0
  * @category Validation
  */
@@ -44,6 +51,13 @@ export const UnitInterval = S.Number.check(UnitIntervalChecks).annotate(
 /**
  * Runtime type for {@link UnitInterval}.
  *
+ * @example
+ * ```ts
+ * import type { UnitInterval } from "./numbers"
+ *
+ * type Example = UnitInterval
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -51,6 +65,13 @@ export type UnitInterval = typeof UnitInterval.Type;
 
 /**
  * Strictly positive numeric value.
+ *
+ * @example
+ * ```ts
+ * import { PositiveNumber } from "./numbers"
+ *
+ * console.log(PositiveNumber)
+ * ```
  *
  * @since 0.0.0
  * @category Validation
@@ -68,6 +89,13 @@ export const PositiveNumber = S.Number.check(
 
 /**
  * Runtime type for {@link PositiveNumber}.
+ *
+ * @example
+ * ```ts
+ * import type { PositiveNumber } from "./numbers"
+ *
+ * type Example = PositiveNumber
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel

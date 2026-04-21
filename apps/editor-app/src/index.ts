@@ -4,14 +4,34 @@
  * @since 0.0.0
  */
 
+import { EditorWorkspaceApp } from "./EditorWorkspaceApp.tsx";
+
 /**
+ * Current package version.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/editor-app"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @since 0.0.0
- * @category Versions
+ * @category constants
  */
 export const VERSION = "0.0.0" as const;
 
 /**
+ * Editor workspace app exports.
+ *
+ * @example
+ * ```ts
+ * import { EditorWorkspaceApp } from "@beep/editor-app"
+ *
+ * const App = EditorWorkspaceApp
+ * ```
+ *
  * @since 0.0.0
- * @category Re-exports
+ * @category exports
  */
-export * from "./EditorWorkspaceApp.tsx";
+export { EditorWorkspaceApp };

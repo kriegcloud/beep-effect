@@ -52,6 +52,13 @@ class ExtractEntitiesSuccess extends S.Class<ExtractEntitiesSuccess>($I`ExtractE
 /**
  * Tool for extracting built-in and custom entities from text.
  *
+ * @example
+ * ```ts
+ * import { ExtractEntities } from "@beep/nlp/Tools/ExtractEntities"
+ *
+ * console.log(ExtractEntities)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

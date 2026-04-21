@@ -5,7 +5,7 @@
  * Contains the list of cycles found, where each cycle is an ordered
  * array of package names forming the loop.
  *
- * @category CrossCutting
+ * @category error handling
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -18,7 +18,18 @@ const $I = $RepoUtilsId.create("errors/CyclicDependencyError");
  * Raised when topological sorting or cycle detection finds circular
  * dependencies in the workspace dependency graph.
  *
- * @category CrossCutting
+ * @example
+ * ```ts
+ * import { CyclicDependencyError } from "@beep/repo-utils/errors/CyclicDependencyError"
+ *
+ * const error = new CyclicDependencyError({
+ *   cycles: [["a", "b", "a"]],
+ *   message: "Cyclic dependencies detected"
+ * })
+ * void error.cycles
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
  */
 export class CyclicDependencyError extends TaggedErrorClass<CyclicDependencyError>($I`CyclicDependencyError`)(

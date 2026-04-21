@@ -44,6 +44,13 @@ class ChunkBySentencesSuccess extends S.Class<ChunkBySentencesSuccess>($I`ChunkB
 /**
  * Tool for chunking text along sentence boundaries.
  *
+ * @example
+ * ```ts
+ * import { ChunkBySentences } from "@beep/nlp/Tools/ChunkBySentences"
+ *
+ * console.log(ChunkBySentences)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

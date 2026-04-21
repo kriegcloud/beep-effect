@@ -25,6 +25,13 @@ type TokenizationShape = {
 /**
  * Tokenization error.
  *
+ * @example
+ * ```ts
+ * import { TokenizationError } from "@beep/nlp/Core/Tokenization"
+ *
+ * console.log(TokenizationError)
+ * ```
+ *
  * @since 0.0.0
  * @category Errors
  */
@@ -42,6 +49,13 @@ export class TokenizationError extends TaggedErrorClass<TokenizationError>($I`To
 /**
  * Tokenization service.
  *
+ * @example
+ * ```ts
+ * import { Tokenization } from "@beep/nlp/Core/Tokenization"
+ *
+ * console.log(Tokenization)
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -49,6 +63,13 @@ export class Tokenization extends Context.Service<Tokenization, TokenizationShap
 
 /**
  * Tokenize text into tokens using the configured service.
+ *
+ * @example
+ * ```ts
+ * import { tokenize } from "@beep/nlp/Core/Tokenization"
+ *
+ * console.log(tokenize)
+ * ```
  *
  * @since 0.0.0
  * @category Accessors
@@ -61,6 +82,13 @@ export const tokenize = Effect.fn("Nlp.Core.Tokenization.tokenize")(function* (t
 /**
  * Split text into sentences using the configured service.
  *
+ * @example
+ * ```ts
+ * import { sentences } from "@beep/nlp/Core/Tokenization"
+ *
+ * console.log(sentences)
+ * ```
+ *
  * @since 0.0.0
  * @category Accessors
  */
@@ -71,6 +99,13 @@ export const sentences = Effect.fn("Nlp.Core.Tokenization.sentences")(function* 
 
 /**
  * Build a document using the configured service.
+ *
+ * @example
+ * ```ts
+ * import { tokenizeToDocument } from "@beep/nlp/Core/Tokenization"
+ *
+ * console.log(tokenizeToDocument)
+ * ```
  *
  * @since 0.0.0
  * @category Accessors
@@ -85,6 +120,13 @@ export const tokenizeToDocument = Effect.fn("Nlp.Core.Tokenization.tokenizeToDoc
 
 /**
  * Count tokens using the configured service.
+ *
+ * @example
+ * ```ts
+ * import { tokenCount } from "@beep/nlp/Core/Tokenization"
+ *
+ * console.log(tokenCount)
+ * ```
  *
  * @since 0.0.0
  * @category Accessors

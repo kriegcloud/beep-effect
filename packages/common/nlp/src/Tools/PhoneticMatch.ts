@@ -45,6 +45,13 @@ class PhoneticMatchParameters extends S.Class<PhoneticMatchParameters>($I`Phonet
 /**
  * Tool for comparing texts by phonetic overlap.
  *
+ * @example
+ * ```ts
+ * import { PhoneticMatch } from "@beep/nlp/Tools/PhoneticMatch"
+ *
+ * console.log(PhoneticMatch)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

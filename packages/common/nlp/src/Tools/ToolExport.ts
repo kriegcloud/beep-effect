@@ -72,6 +72,13 @@ const parameterNamesForTool = (tool: NlpTool): ReadonlyArray<string> => {
 /**
  * Error raised while exporting or executing positional NLP tools.
  *
+ * @example
+ * ```ts
+ * import { ExportedToolError } from "@beep/nlp/Tools/ToolExport"
+ *
+ * console.log(ExportedToolError)
+ * ```
+ *
  * @since 0.0.0
  * @category Errors
  */
@@ -110,6 +117,13 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
 
 /**
  * Runtime descriptor for an exported positional tool.
+ *
+ * @example
+ * ```ts
+ * import type { ExportedTool } from "@beep/nlp/Tools/ToolExport"
+ *
+ * type Example = ExportedTool
+ * ```
  *
  * @since 0.0.0
  * @category Models
@@ -238,6 +252,13 @@ const exportToolsEffect: Effect.Effect<
   )
 );
 /**
+ * @example
+ * ```ts
+ * import { exportTools } from "@beep/nlp/Tools/ToolExport"
+ *
+ * console.log(exportTools)
+ * ```
+ *
  * @since 0.0.0
  * @category Adapters
  */

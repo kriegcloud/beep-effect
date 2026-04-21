@@ -32,6 +32,13 @@ const makeTokenizationError =
 /**
  * Failure raised when wink sentence spans cannot be derived from the token stream.
  *
+ * @example
+ * ```ts
+ * import { SentenceSpanFailure } from "@beep/nlp/Wink/WinkTokenizer"
+ *
+ * console.log(SentenceSpanFailure)
+ * ```
+ *
  * @since 0.0.0
  * @category Errors
  */
@@ -315,6 +322,13 @@ const makeWinkTokenization = Effect.gen(function* () {
 /**
  * Wink-backed tokenization layer.
  *
+ * @example
+ * ```ts
+ * import { WinkTokenization } from "@beep/nlp/Wink/WinkTokenizer"
+ *
+ * console.log(WinkTokenization)
+ * ```
+ *
  * @since 0.0.0
  * @category Layers
  */
@@ -322,6 +336,13 @@ export const WinkTokenization = Layer.effect(Tokenization, makeWinkTokenization)
 
 /**
  * Wink-backed tokenization layer with the live engine provided.
+ *
+ * @example
+ * ```ts
+ * import { WinkTokenizationLive } from "@beep/nlp/Wink/WinkTokenizer"
+ *
+ * console.log(WinkTokenizationLive)
+ * ```
  *
  * @since 0.0.0
  * @category Layers

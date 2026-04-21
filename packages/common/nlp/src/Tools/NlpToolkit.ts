@@ -315,6 +315,13 @@ type NlpToolkitLiveError = CorpusManagerError | SimilarityError | VectorizerErro
 /**
  * Canonical ordered NLP tool list used to build the toolkit and export adapters.
  *
+ * @example
+ * ```ts
+ * import { NlpTools } from "@beep/nlp/Tools/NlpToolkit"
+ *
+ * console.log(NlpTools)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */
@@ -343,6 +350,13 @@ export const NlpTools: NlpToolList = [
 /**
  * NLP toolkit definition containing the full tool surface.
  *
+ * @example
+ * ```ts
+ * import { NlpToolkit } from "@beep/nlp/Tools/NlpToolkit"
+ *
+ * console.log(NlpToolkit)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */
@@ -350,6 +364,13 @@ export const NlpToolkit: Toolkit.Toolkit<NlpToolkitTools> = Toolkit.make(...NlpT
 
 /**
  * Live toolkit handlers backed by the wink runtime layers.
+ *
+ * @example
+ * ```ts
+ * import { NlpToolkitLive } from "@beep/nlp/Tools/NlpToolkit"
+ *
+ * console.log(NlpToolkitLive)
+ * ```
  *
  * @since 0.0.0
  * @category Layers

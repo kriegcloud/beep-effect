@@ -38,6 +38,13 @@ type WinkCustomEntityRecord = {
 /**
  * Branded runtime identifier for one live wink engine instance.
  *
+ * @example
+ * ```ts
+ * import { InstanceId } from "@beep/nlp/Wink/WinkEngine"
+ *
+ * console.log(InstanceId)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -53,6 +60,13 @@ export const InstanceId = S.NonEmptyString.pipe(
 /**
  * Runtime type for {@link InstanceId}.
  *
+ * @example
+ * ```ts
+ * import type { InstanceId } from "@beep/nlp/Wink/WinkEngine"
+ *
+ * type Example = InstanceId
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -60,6 +74,13 @@ export type InstanceId = typeof InstanceId.Type;
 
 /**
  * Serializable wink engine state metadata.
+ *
+ * @example
+ * ```ts
+ * import { WinkEngineState } from "@beep/nlp/Wink/WinkEngine"
+ *
+ * console.log(WinkEngineState)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -76,6 +97,13 @@ export class WinkEngineState extends S.Class<WinkEngineState>($I`WinkEngineState
 
 /**
  * In-memory wink engine runtime state including the live wink runtime.
+ *
+ * @example
+ * ```ts
+ * import type { WinkEngineRuntimeState } from "@beep/nlp/Wink/WinkEngine"
+ *
+ * type Example = WinkEngineRuntimeState
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -195,6 +223,13 @@ const makeWinkEngine = Effect.gen(function* () {
 /**
  * Wink engine service tag.
  *
+ * @example
+ * ```ts
+ * import { WinkEngine } from "@beep/nlp/Wink/WinkEngine"
+ *
+ * console.log(WinkEngine)
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -202,6 +237,13 @@ export class WinkEngine extends Context.Service<WinkEngine, WinkEngineShape>()($
 
 /**
  * Live wink engine layer.
+ *
+ * @example
+ * ```ts
+ * import { WinkEngineLive } from "@beep/nlp/Wink/WinkEngine"
+ *
+ * console.log(WinkEngineLive)
+ * ```
  *
  * @since 0.0.0
  * @category Layers

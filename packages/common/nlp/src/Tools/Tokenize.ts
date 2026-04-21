@@ -37,6 +37,13 @@ class TokenizeSuccess extends S.Class<TokenizeSuccess>($I`TokenizeSuccess`)(
 /**
  * Tool for tokenizing text into annotated linguistic tokens.
  *
+ * @example
+ * ```ts
+ * import { Tokenize } from "@beep/nlp/Tools/Tokenize"
+ *
+ * console.log(Tokenize)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

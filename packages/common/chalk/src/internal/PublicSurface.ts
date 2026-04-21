@@ -1,5 +1,26 @@
+/**
+ * Public-facing Chalk constructor and instance surface contracts.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import type { ColorSupportLevel } from "./ChalkSchema.ts";
 
+/**
+ * Method and property surface shared by Chalk instances.
+ *
+ * @example
+ * ```ts
+ * import type { ChalkInstanceSurface } from "@beep/chalk/Chalk"
+ *
+ * const render = (chalk: ChalkInstanceSurface) => chalk.red.bold("error")
+ * void render
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export declare abstract class ChalkInstanceSurface {
   ansi256(index: number): this;
   bgAnsi256(index: number): this;
@@ -56,14 +77,71 @@ export declare abstract class ChalkInstanceSurface {
   readonly yellowBright: this;
 }
 
+/**
+ * Options accepted by Chalk constructors.
+ *
+ * @example
+ * ```ts
+ * import type { ChalkConstructorOptions } from "@beep/chalk/Chalk"
+ *
+ * const options: ChalkConstructorOptions = { level: 3 }
+ * void options
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type ChalkConstructorOptions = Readonly<{
   readonly level?: ColorSupportLevel | number | undefined;
 }>;
 
+/**
+ * Base constructor shape wrapped by the Chalk constructor proxy.
+ *
+ * @example
+ * ```ts
+ * import type { ChalkConstructorBase } from "@beep/chalk/Chalk"
+ *
+ * const Base: ChalkConstructorBase = class {}
+ * void Base
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type ChalkConstructorBase = new (options?: ChalkConstructorOptions) => object;
 
+/**
+ * Function that creates a Chalk instance from constructor options.
+ *
+ * @example
+ * ```ts
+ * import type { ChalkCreator } from "@beep/chalk/Chalk"
+ *
+ * const create: ChalkCreator = () => ({})
+ * void create
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type ChalkCreator = (options?: ChalkConstructorOptions) => object;
 
+/**
+ * Wrap a constructor base so `new` delegates to a Chalk creator.
+ *
+ * @example
+ * ```ts
+ * import { makeChalkConstructor } from "@beep/chalk/Chalk"
+ *
+ * const Base = class {}
+ * const Chalk = makeChalkConstructor(Base, () => ({}))
+ * console.log(new Chalk())
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makeChalkConstructor = <Base extends ChalkConstructorBase>(
   ConstructorBase: Base,
   create: ChalkCreator

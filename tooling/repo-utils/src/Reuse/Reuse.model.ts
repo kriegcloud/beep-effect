@@ -1,3 +1,9 @@
+/**
+ * Reuse-catalog domain models and request/response schemas.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { Effect } from "effect";
@@ -9,7 +15,15 @@ const emptyArray = (): [] => [];
 /**
  * Catalog entry origin domain.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseCatalogOrigin } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const schema = ReuseCatalogOrigin
+ * void schema
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export const ReuseCatalogOrigin = S.Union([
@@ -27,7 +41,15 @@ export const ReuseCatalogOrigin = S.Union([
 /**
  * Runtime type for `ReuseCatalogOrigin`.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { ReuseCatalogOrigin } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const origin: ReuseCatalogOrigin = "repo-common"
+ * void origin
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type ReuseCatalogOrigin = typeof ReuseCatalogOrigin.Type;
@@ -35,7 +57,15 @@ export type ReuseCatalogOrigin = typeof ReuseCatalogOrigin.Type;
 /**
  * Partition work-unit kind.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseWorkUnitKind } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const schema = ReuseWorkUnitKind
+ * void schema
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export const ReuseWorkUnitKind = S.Union([S.Literal("scout"), S.Literal("specialist")]).pipe(
@@ -49,7 +79,15 @@ export const ReuseWorkUnitKind = S.Union([S.Literal("scout"), S.Literal("special
 /**
  * Runtime type for `ReuseWorkUnitKind`.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { ReuseWorkUnitKind } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const kind: ReuseWorkUnitKind = "scout"
+ * void kind
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type ReuseWorkUnitKind = typeof ReuseWorkUnitKind.Type;
@@ -57,7 +95,15 @@ export type ReuseWorkUnitKind = typeof ReuseWorkUnitKind.Type;
 /**
  * Candidate kind domain for inventory items.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseCandidateKind } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const schema = ReuseCandidateKind
+ * void schema
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export const ReuseCandidateKind = S.Union([
@@ -76,7 +122,15 @@ export const ReuseCandidateKind = S.Union([
 /**
  * Runtime type for `ReuseCandidateKind`.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { ReuseCandidateKind } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const kind: ReuseCandidateKind = "extract-schema"
+ * void kind
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type ReuseCandidateKind = typeof ReuseCandidateKind.Type;
@@ -84,7 +138,20 @@ export type ReuseCandidateKind = typeof ReuseCandidateKind.Type;
 /**
  * File-local source symbol reference tied to a reuse opportunity.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseSourceSymbolRef } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const ref = new ReuseSourceSymbolRef({
+ *   filePath: "src/example.ts",
+ *   symbolId: "src/example.ts#makeExample",
+ *   symbolKind: "function",
+ *   symbolName: "makeExample"
+ * })
+ * void ref.symbolName
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseSourceSymbolRef extends S.Class<ReuseSourceSymbolRef>($I`ReuseSourceSymbolRef`)(
@@ -102,7 +169,27 @@ export class ReuseSourceSymbolRef extends S.Class<ReuseSourceSymbolRef>($I`Reuse
 /**
  * Catalog entry describing an existing reusable symbol or curated pattern.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseCatalogEntry } from "@beep/repo-utils/Reuse/Reuse.model"
+ * import * as O from "effect/Option"
+ *
+ * const entry = new ReuseCatalogEntry({
+ *   applicability: ["schema models"],
+ *   id: "repo-utils:ReuseCatalogEntry",
+ *   keywords: ["reuse"],
+ *   modulePath: "Reuse/Reuse.model",
+ *   origin: "repo-tooling",
+ *   packageName: "@beep/repo-utils",
+ *   packagePath: "tooling/repo-utils",
+ *   summary: O.some("Reusable catalog entry model."),
+ *   symbolKind: "class",
+ *   symbolName: "ReuseCatalogEntry"
+ * })
+ * void entry.id
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseCatalogEntry extends S.Class<ReuseCatalogEntry>($I`ReuseCatalogEntry`)(
@@ -126,7 +213,21 @@ export class ReuseCatalogEntry extends S.Class<ReuseCatalogEntry>($I`ReuseCatalo
 /**
  * Partition work unit emitted for package scouts or hotspot specialists.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseWorkUnit } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const unit = new ReuseWorkUnit({
+ *   id: "scout:repo-utils",
+ *   kind: "scout",
+ *   label: "Repo utils scan",
+ *   rationale: "Find reuse candidates.",
+ *   scopeSelector: "tooling/repo-utils"
+ * })
+ * void unit.kind
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseWorkUnit extends S.Class<ReuseWorkUnit>($I`ReuseWorkUnit`)(
@@ -145,7 +246,18 @@ export class ReuseWorkUnit extends S.Class<ReuseWorkUnit>($I`ReuseWorkUnit`)(
 /**
  * Partition plan covering scout and specialist work units for a selected scope.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReusePartitionPlan } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const plan = new ReusePartitionPlan({
+ *   catalogEntryCount: 0,
+ *   scopeSelector: "tooling/repo-utils"
+ * })
+ * void plan.scopeSelector
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePartitionPlan`)(
@@ -169,7 +281,30 @@ export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePart
 /**
  * Ranked reuse candidate inventory item.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseCandidate } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const candidate = new ReuseCandidate({
+ *   blockingConcerns: [],
+ *   candidateId: "candidate:extract-schema",
+ *   catalogMatchIds: [],
+ *   confidence: 0.8,
+ *   evidence: ["Duplicate schema shape."],
+ *   implementationSteps: ["Extract shared schema."],
+ *   kind: "extract-schema",
+ *   proposedDestinationModule: "src/shared.ts",
+ *   proposedDestinationPackage: "@beep/repo-utils",
+ *   recommendedAction: "Extract schema.",
+ *   sourceScopes: ["tooling/repo-utils"],
+ *   sourceSymbols: [],
+ *   title: "Extract shared schema",
+ *   verificationCommands: ["bun test"]
+ * })
+ * void candidate.candidateId
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
@@ -197,7 +332,20 @@ export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
 /**
  * Inventory payload produced for a requested scope.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseInventory } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const inventory = new ReuseInventory({
+ *   candidateCount: 0,
+ *   catalogEntryCount: 0,
+ *   generatedAt: "2026-04-21T00:00:00.000Z",
+ *   scopeSelector: "tooling/repo-utils"
+ * })
+ * void inventory.candidateCount
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
@@ -219,7 +367,31 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
 /**
  * Materialized implementation packet for one reuse candidate.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseCandidate, ReusePacket } from "@beep/repo-utils/Reuse/Reuse.model"
+ *
+ * const candidate = new ReuseCandidate({
+ *   blockingConcerns: [],
+ *   candidateId: "candidate:extract-schema",
+ *   catalogMatchIds: [],
+ *   confidence: 0.8,
+ *   evidence: ["Duplicate schema shape."],
+ *   implementationSteps: ["Extract shared schema."],
+ *   kind: "extract-schema",
+ *   proposedDestinationModule: "src/shared.ts",
+ *   proposedDestinationPackage: "@beep/repo-utils",
+ *   recommendedAction: "Extract schema.",
+ *   sourceScopes: ["tooling/repo-utils"],
+ *   sourceSymbols: [],
+ *   title: "Extract shared schema",
+ *   verificationCommands: ["bun test"]
+ * })
+ * const packet = new ReusePacket({ candidate })
+ * void packet.candidate
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
@@ -238,7 +410,20 @@ export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
 /**
  * Results for local-file reuse lookups.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseFindResult } from "@beep/repo-utils/Reuse/Reuse.model"
+ * import * as O from "effect/Option"
+ *
+ * const result = new ReuseFindResult({
+ *   filePath: "src/example.ts",
+ *   query: O.some("schema"),
+ *   symbolId: O.none()
+ * })
+ * void result.filePath
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseFindResult extends S.Class<ReuseFindResult>($I`ReuseFindResult`)(

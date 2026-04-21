@@ -1,3 +1,9 @@
+/**
+ * Native bridge regression tests for the V2T shell.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { describe, expect, it } from "@effect/vitest";
 import { DateTime } from "effect";
 import * as O from "effect/Option";

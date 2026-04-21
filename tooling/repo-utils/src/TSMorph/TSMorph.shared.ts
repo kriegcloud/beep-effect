@@ -1,3 +1,9 @@
+/**
+ * Shared TSMorph normalization helpers.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { Text, thunkEmptyStr } from "@beep/utils";
 import { flow, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";

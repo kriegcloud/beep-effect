@@ -45,6 +45,13 @@ class TextSimilaritySuccess extends S.Class<TextSimilaritySuccess>($I`TextSimila
 /**
  * Tool for computing similarity between two texts.
  *
+ * @example
+ * ```ts
+ * import { TextSimilarity } from "@beep/nlp/Tools/TextSimilarity"
+ *
+ * console.log(TextSimilarity)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

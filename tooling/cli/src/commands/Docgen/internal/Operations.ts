@@ -498,7 +498,7 @@ const analyzeModuleFileoverview = (
   sourceFile: SourceFile,
   relativeFilePath: string
 ): O.Option<DocgenExportAnalysis> => {
-  const match = /^\s*(\/\*\*[\s\S]*?\*\/)/.exec(sourceFile.getFullText());
+  const match = /^(?:#![^\n]*\n)?\s*(\/\*\*[\s\S]*?\*\/)/.exec(sourceFile.getFullText());
 
   if (match === null) {
     return O.some(

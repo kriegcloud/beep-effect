@@ -42,6 +42,13 @@ class ExtractKeywordsSuccess extends S.Class<ExtractKeywordsSuccess>($I`ExtractK
 /**
  * Tool for extracting ranked keywords from text.
  *
+ * @example
+ * ```ts
+ * import { ExtractKeywords } from "@beep/nlp/Tools/ExtractKeywords"
+ *
+ * console.log(ExtractKeywords)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

@@ -46,6 +46,13 @@ const AiPhoneticAlgorithm = AiPhoneticAlgorithmKit.pipe(
 /**
  * Flat token model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiToken } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiToken)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -70,6 +77,13 @@ export class AiToken extends S.Class<AiToken>($I`AiToken`)(
 /**
  * Flat sentence model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiSentence } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiSentence)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -89,6 +103,13 @@ export class AiSentence extends S.Class<AiSentence>($I`AiSentence`)(
 /**
  * Flat keyword model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiKeyword } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiKeyword)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -104,6 +125,13 @@ export class AiKeyword extends S.Class<AiKeyword>($I`AiKeyword`)(
 
 /**
  * Flat document-stats model for tool outputs.
+ *
+ * @example
+ * ```ts
+ * import { AiDocumentStats } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiDocumentStats)
+ * ```
  *
  * @since 0.0.0
  * @category ToolSchemas
@@ -122,6 +150,13 @@ export class AiDocumentStats extends S.Class<AiDocumentStats>($I`AiDocumentStats
 
 /**
  * Flat sentence-chunk model for tool outputs.
+ *
+ * @example
+ * ```ts
+ * import { AiSentenceChunk } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiSentenceChunk)
+ * ```
  *
  * @since 0.0.0
  * @category ToolSchemas
@@ -142,6 +177,13 @@ export class AiSentenceChunk extends S.Class<AiSentenceChunk>($I`AiSentenceChunk
 /**
  * Flat ranked-text model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiRankedText } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiRankedText)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -157,6 +199,13 @@ export class AiRankedText extends S.Class<AiRankedText>($I`AiRankedText`)(
 
 /**
  * Flat entity model for tool outputs.
+ *
+ * @example
+ * ```ts
+ * import { AiEntity } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiEntity)
+ * ```
  *
  * @since 0.0.0
  * @category ToolSchemas
@@ -179,6 +228,13 @@ export class AiEntity extends S.Class<AiEntity>($I`AiEntity`)(
 /**
  * Flat n-gram model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiNGram } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiNGram)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -194,6 +250,13 @@ export class AiNGram extends S.Class<AiNGram>($I`AiNGram`)(
 
 /**
  * Flat phonetic-match model for tool outputs.
+ *
+ * @example
+ * ```ts
+ * import { AiPhoneticMatch } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiPhoneticMatch)
+ * ```
  *
  * @since 0.0.0
  * @category ToolSchemas
@@ -214,6 +277,13 @@ export class AiPhoneticMatch extends S.Class<AiPhoneticMatch>($I`AiPhoneticMatch
 /**
  * BM25 corpus configuration model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiCorpusConfig } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiCorpusConfig)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -231,6 +301,13 @@ export class AiCorpusConfig extends S.Class<AiCorpusConfig>($I`AiCorpusConfig`)(
 
 /**
  * Corpus summary model for tool outputs.
+ *
+ * @example
+ * ```ts
+ * import { AiCorpusSummary } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiCorpusSummary)
+ * ```
  *
  * @since 0.0.0
  * @category ToolSchemas
@@ -251,6 +328,13 @@ export class AiCorpusSummary extends S.Class<AiCorpusSummary>($I`AiCorpusSummary
 /**
  * Ranked corpus document model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiCorpusRankedDocument } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiCorpusRankedDocument)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -269,6 +353,13 @@ export class AiCorpusRankedDocument extends S.Class<AiCorpusRankedDocument>($I`A
 /**
  * Corpus IDF value model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiCorpusIdf } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiCorpusIdf)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -285,6 +376,13 @@ export class AiCorpusIdf extends S.Class<AiCorpusIdf>($I`AiCorpusIdf`)(
 /**
  * Corpus matrix-shape model for tool outputs.
  *
+ * @example
+ * ```ts
+ * import { AiCorpusMatrixShape } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiCorpusMatrixShape)
+ * ```
+ *
  * @since 0.0.0
  * @category ToolSchemas
  */
@@ -300,6 +398,13 @@ export class AiCorpusMatrixShape extends S.Class<AiCorpusMatrixShape>($I`AiCorpu
 
 /**
  * Corpus stats model for tool outputs.
+ *
+ * @example
+ * ```ts
+ * import { AiCorpusStats } from "@beep/nlp/Tools/_schemas"
+ *
+ * console.log(AiCorpusStats)
+ * ```
  *
  * @since 0.0.0
  * @category ToolSchemas

@@ -7,7 +7,7 @@
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { $InfraId } from "@beep/identity";
-import { CauseTaggedErrorClass, TaggedErrorClass } from "@beep/schema";
+import { CauseTaggedError, TaggedErrorClass } from "@beep/schema";
 import type * as Pulumi from "@pulumi/pulumi";
 import * as A from "effect/Array";
 import * as R from "effect/Record";
@@ -98,10 +98,17 @@ type V2TNormalizationOptions = {
 /**
  * Error raised when the V2T workstation config cannot be decoded.
  *
+ * @example
+ * ```ts
+ * import { V2TWorkstationConfigError } from "@beep/infra/V2T"
+ *
+ * const error = V2TWorkstationConfigError.new("Invalid workstation config.")(new Error("Missing USER"))
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
-export class V2TWorkstationConfigError extends CauseTaggedErrorClass<V2TWorkstationConfigError>(
+export class V2TWorkstationConfigError extends CauseTaggedError<V2TWorkstationConfigError>(
   $I`V2TWorkstationConfigError`
 )(
   "V2TWorkstationConfigError",
@@ -113,8 +120,17 @@ export class V2TWorkstationConfigError extends CauseTaggedErrorClass<V2TWorkstat
 /**
  * Error raised when Graphiti is enabled without the required API key.
  *
+ * @example
+ * ```ts
+ * import { V2TGraphitiSecretError } from "@beep/infra/V2T"
+ *
+ * const error = new V2TGraphitiSecretError({
+ *   message: "Missing graphitiOpenAiApiKey.",
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class V2TGraphitiSecretError extends TaggedErrorClass<V2TGraphitiSecretError>($I`V2TGraphitiSecretError`)(
   "V2TGraphitiSecretError",
@@ -144,8 +160,17 @@ const makeV2TWorkstationConfigDefect = (message: string): V2TWorkstationConfigDe
 /**
  * Resolved configuration for the V2T workstation installer.
  *
+ * @example
+ * ```ts
+ * import { normalizeV2TWorkstationConfig } from "@beep/infra/V2T"
+ *
+ * const config = normalizeV2TWorkstationConfig({
+ *   graphitiEnabled: false,
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class V2TWorkstationConfig extends S.Class<V2TWorkstationConfig>($I`V2TWorkstationConfig`)(
   {
@@ -171,7 +196,19 @@ const decodeV2TWorkstationConfig = S.decodeUnknownSync(V2TWorkstationConfig);
  * This is a Pulumi boundary type, so `Input` wrappers stay outside the schema-first
  * domain model used for resolved config.
  *
+ * @example
+ * ```ts
+ * import type { V2TWorkstationArgs } from "@beep/infra/V2T"
+ *
+ * const args: V2TWorkstationArgs = {
+ *   config: {
+ *     graphitiEnabled: false,
+ *   },
+ * }
+ * ```
+ *
  * @since 0.0.0
+ * @category models
  */
 type V2TWorkstationArgsShape = {
   readonly config?: Partial<V2TWorkstationConfig>;
@@ -182,7 +219,19 @@ type V2TWorkstationArgsShape = {
 /**
  * Pulumi-facing args for the V2T workstation component.
  *
+ * @example
+ * ```ts
+ * import type { V2TWorkstationArgs } from "@beep/infra/V2T"
+ *
+ * const args: V2TWorkstationArgs = {
+ *   config: {
+ *     qwenBaseUrl: "http://127.0.0.1:8011",
+ *   },
+ * }
+ * ```
+ *
  * @since 0.0.0
+ * @category models
  */
 export type V2TWorkstationArgs = V2TWorkstationArgsShape;
 
@@ -251,7 +300,7 @@ const resolveTargetHomeDir = (targetUser: string, inputTargetHomeDir?: string) =
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const normalizeV2TWorkstationConfig = (
   input?: undefined | Partial<V2TWorkstationConfig>,
@@ -290,8 +339,19 @@ export const normalizeV2TWorkstationConfig = (
  * @param args - Pulumi-facing args, including optional secrets.
  * @returns The same config when validation succeeds.
  *
+ * @example
+ * ```ts
+ * import { normalizeV2TWorkstationConfig, validateV2TWorkstationConfig } from "@beep/infra/V2T"
+ *
+ * const config = validateV2TWorkstationConfig(
+ *   normalizeV2TWorkstationConfig({
+ *     graphitiEnabled: false,
+ *   })
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category Guards
+ * @category guards
  */
 export const validateV2TWorkstationConfig = (
   config: V2TWorkstationConfig,
@@ -327,7 +387,7 @@ bash "${installerScriptPath}" ${action}`;
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const loadV2TWorkstationStackArgs = (): V2TWorkstationArgs & {
   readonly config: V2TWorkstationConfig;
@@ -392,8 +452,19 @@ export const loadV2TWorkstationStackArgs = (): V2TWorkstationArgs & {
 /**
  * Pulumi component that reconciles a local workstation for the V2T app.
  *
+ * @example
+ * ```ts
+ * import { V2TWorkstation } from "@beep/infra/V2T"
+ *
+ * const workstation = new V2TWorkstation("v2t-workstation", {
+ *   config: {
+ *     graphitiEnabled: false,
+ *   },
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Resources
+ * @category resource management
  */
 export class V2TWorkstation extends pulumi.ComponentResource {
   readonly installedPackageName: Pulumi.Output<string>;

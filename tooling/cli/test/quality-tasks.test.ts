@@ -58,6 +58,11 @@ describe("quality task adapter", () => {
       fix: true,
       args: ["--filter=@beep/schema"],
     });
+    expect(getInvocation(["lint", "--fix", "--dry=json"])).toMatchObject({
+      task: "lint",
+      fix: true,
+      args: ["--dry=json"],
+    });
   });
 
   it("leaves lint policy subcommands on the existing command tree", () => {

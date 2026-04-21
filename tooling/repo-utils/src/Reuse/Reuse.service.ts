@@ -1,3 +1,9 @@
+/**
+ * Reuse-catalog discovery, partitioning, and inventory services.
+ *
+ * @module
+ * @since 0.0.0
+ */
 // cspell:words tsmorph stringifier
 
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -91,7 +97,18 @@ class WorkspacePackageManifest extends S.Class<WorkspacePackageManifest>($I`Work
 /**
  * Typed error returned when reuse analysis cannot complete a repository scan or lookup.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseAnalysisError } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const error = new ReuseAnalysisError({
+ *   message: "Inventory scan failed",
+ *   operation: "buildInventory"
+ * })
+ * void error.operation
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
  */
 export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`ReuseAnalysisError`)(
@@ -108,7 +125,18 @@ export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`
 /**
  * Typed error returned when a requested candidate id is absent from the current reuse inventory.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { ReuseCandidateNotFoundError } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const error = new ReuseCandidateNotFoundError({
+ *   candidateId: "candidate:missing",
+ *   scopeSelector: "tooling/repo-utils"
+ * })
+ * void error.candidateId
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
  */
 export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidateNotFoundError>(
@@ -898,7 +926,19 @@ type ReuseCatalogServiceShape = {
 /**
  * Service tag for the reuse catalog contract.
  *
- * @category PortContract
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { ReuseCatalogService } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ReuseCatalogService
+ *   return service
+ * })
+ * void program
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseCatalogService extends Context.Service<ReuseCatalogService, ReuseCatalogServiceShape>()(
@@ -918,7 +958,19 @@ type ReusePartitionPlannerServiceShape = {
 /**
  * Service tag for reuse partition planning.
  *
- * @category PortContract
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { ReusePartitionPlannerService } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ReusePartitionPlannerService
+ *   return service
+ * })
+ * void program
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReusePartitionPlannerService extends Context.Service<
@@ -946,7 +998,19 @@ type ReuseDiscoveryServiceShape = {
 /**
  * Service tag for reuse candidate discovery.
  *
- * @category PortContract
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { ReuseDiscoveryService } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ReuseDiscoveryService
+ *   return service
+ * })
+ * void program
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseDiscoveryService extends Context.Service<ReuseDiscoveryService, ReuseDiscoveryServiceShape>()(
@@ -970,7 +1034,19 @@ type ReuseInventoryServiceShape = {
 /**
  * Service tag for reuse inventory materialization.
  *
- * @category PortContract
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { ReuseInventoryService } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const program = Effect.gen(function* () {
+ *   const service = yield* ReuseInventoryService
+ *   return service
+ * })
+ * void program
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export class ReuseInventoryService extends Context.Service<ReuseInventoryService, ReuseInventoryServiceShape>()(
@@ -998,7 +1074,15 @@ const ReuseAnalysisContextLive = Layer.effect(
 /**
  * Default live layer for building the shared reuse catalog.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { ReuseCatalogServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const layer = ReuseCatalogServiceLive
+ * void layer
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
  */
 export const ReuseCatalogServiceLive = Layer.effect(
@@ -1039,7 +1123,15 @@ export const ReuseCatalogServiceLive = Layer.effect(
 /**
  * Default live layer for reuse partition planning.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { ReusePartitionPlannerServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const layer = ReusePartitionPlannerServiceLive
+ * void layer
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
  */
 export const ReusePartitionPlannerServiceLive = Layer.effect(
@@ -1126,7 +1218,15 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
 /**
  * Default live layer for reuse candidate discovery and local option lookup.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { ReuseDiscoveryServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const layer = ReuseDiscoveryServiceLive
+ * void layer
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
  */
 export const ReuseDiscoveryServiceLive = Layer.effect(
@@ -1272,7 +1372,15 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
 /**
  * Default live layer for ranked reuse inventories and implementation packets.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { ReuseInventoryServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const layer = ReuseInventoryServiceLive
+ * void layer
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
  */
 export const ReuseInventoryServiceLive = Layer.effect(
@@ -1340,7 +1448,15 @@ const ReuseCatalogAndDiscoveryLive = Layer.mergeAll(
 /**
  * Fully wired reuse-discovery layer suite for CLI and tests.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { ReuseServiceSuiteLive } from "@beep/repo-utils/Reuse/Reuse.service"
+ *
+ * const layer = ReuseServiceSuiteLive
+ * void layer
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
  */
 export const ReuseServiceSuiteLive = Layer.mergeAll(

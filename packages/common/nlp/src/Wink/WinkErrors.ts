@@ -18,6 +18,13 @@ const renderCause = (cause: unknown): string => Inspectable.toStringUnknown(caus
 /**
  * Failure raised while creating or accessing the wink runtime.
  *
+ * @example
+ * ```ts
+ * import { WinkEngineError } from "@beep/nlp/Wink/WinkErrors"
+ *
+ * console.log(WinkEngineError)
+ * ```
+ *
  * @since 0.0.0
  * @category Errors
  */
@@ -50,6 +57,13 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
 
 /**
  * Failure raised while reading or tokenizing text through wink.
+ *
+ * @example
+ * ```ts
+ * import { WinkTokenizationError } from "@beep/nlp/Wink/WinkErrors"
+ *
+ * console.log(WinkTokenizationError)
+ * ```
  *
  * @since 0.0.0
  * @category Errors
@@ -87,6 +101,13 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
 /**
  * Failure raised while learning or managing custom entity patterns.
  *
+ * @example
+ * ```ts
+ * import { WinkEntityError } from "@beep/nlp/Wink/WinkErrors"
+ *
+ * console.log(WinkEntityError)
+ * ```
+ *
  * @since 0.0.0
  * @category Errors
  */
@@ -122,6 +143,13 @@ export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEn
 
 /**
  * Union of wink runtime errors.
+ *
+ * @example
+ * ```ts
+ * import type { WinkError } from "@beep/nlp/Wink/WinkErrors"
+ *
+ * type Example = WinkError
+ * ```
  *
  * @since 0.0.0
  * @category Errors

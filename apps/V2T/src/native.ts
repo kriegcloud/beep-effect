@@ -1,3 +1,9 @@
+/**
+ * Native sidecar and capture bridge for the V2T desktop shell.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { $V2TId } from "@beep/identity";
 import { LiteralKit, OptionFromNullableStr, StatusCauseTaggedErrorClass, UUID } from "@beep/schema";
 import {
@@ -23,8 +29,15 @@ const encodeCompositionInput = S.encodeSync(RunVt2CompositionInput);
 /**
  * Managed V2T sidecar lifecycle status.
  *
+ * @example
+ * ```ts
+ * import type { Vt2SidecarStatus } from "@beep/v2t"
+ *
+ * const status: Vt2SidecarStatus = "healthy"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const Vt2SidecarStatus = LiteralKit(["stopped", "starting", "healthy", "failed"]).annotate(
   $I.annote("Vt2SidecarStatus", {
@@ -32,16 +45,32 @@ export const Vt2SidecarStatus = LiteralKit(["stopped", "starting", "healthy", "f
   })
 );
 /**
+ * Type for {@link Vt2SidecarStatus}. {@inheritDoc Vt2SidecarStatus}
+ *
+ * @example
+ * ```ts
+ * import type { Vt2SidecarStatus } from "@beep/v2t"
+ *
+ * const status: Vt2SidecarStatus = "stopped"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Vt2SidecarStatus = typeof Vt2SidecarStatus.Type;
 
 /**
  * Managed V2T sidecar launch mode.
  *
+ * @example
+ * ```ts
+ * import type { Vt2SidecarMode } from "@beep/v2t"
+ *
+ * const mode: Vt2SidecarMode = "managed-dev-portless"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const Vt2SidecarMode = LiteralKit(["managed-dev-portless", "managed-packaged"]).annotate(
   $I.annote("Vt2SidecarMode", {
@@ -49,16 +78,32 @@ export const Vt2SidecarMode = LiteralKit(["managed-dev-portless", "managed-packa
   })
 );
 /**
+ * Type for {@link Vt2SidecarMode}. {@inheritDoc Vt2SidecarMode}
+ *
+ * @example
+ * ```ts
+ * import type { Vt2SidecarMode } from "@beep/v2t"
+ *
+ * const mode: Vt2SidecarMode = "managed-packaged"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Vt2SidecarMode = typeof Vt2SidecarMode.Type;
 
 /**
  * Managed direct-capture lifecycle status.
  *
+ * @example
+ * ```ts
+ * import type { Vt2ManagedCaptureStatus } from "@beep/v2t"
+ *
+ * const status: Vt2ManagedCaptureStatus = "capturing"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const Vt2ManagedCaptureStatus = LiteralKit(["idle", "capturing", "recoverable"]).annotate(
   $I.annote("Vt2ManagedCaptureStatus", {
@@ -66,16 +111,38 @@ export const Vt2ManagedCaptureStatus = LiteralKit(["idle", "capturing", "recover
   })
 );
 /**
+ * Type for {@link Vt2ManagedCaptureStatus}. {@inheritDoc Vt2ManagedCaptureStatus}
+ *
+ * @example
+ * ```ts
+ * import type { Vt2ManagedCaptureStatus } from "@beep/v2t"
+ *
+ * const status: Vt2ManagedCaptureStatus = "idle"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type Vt2ManagedCaptureStatus = typeof Vt2ManagedCaptureStatus.Type;
 
 /**
  * Native-shell view of the managed V2T sidecar.
  *
+ * @example
+ * ```ts
+ * import { Vt2ManagedSidecarState } from "@beep/v2t"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(Vt2ManagedSidecarState)
+ * const state = decode({
+ *   status: "stopped",
+ *   mode: "managed-dev-portless",
+ *   stderrTail: [],
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Vt2ManagedSidecarState extends S.Class<Vt2ManagedSidecarState>($I`Vt2ManagedSidecarState`)(
   {
@@ -93,8 +160,19 @@ export class Vt2ManagedSidecarState extends S.Class<Vt2ManagedSidecarState>($I`V
 /**
  * Native-shell view of the managed direct-capture lifecycle.
  *
+ * @example
+ * ```ts
+ * import { Vt2ManagedCaptureState } from "@beep/v2t"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(Vt2ManagedCaptureState)
+ * const state = decode({
+ *   status: "idle",
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class Vt2ManagedCaptureState extends S.Class<Vt2ManagedCaptureState>($I`Vt2ManagedCaptureState`)(
   {
@@ -115,8 +193,15 @@ export class Vt2ManagedCaptureState extends S.Class<Vt2ManagedCaptureState>($I`V
 /**
  * Typed native bridge error emitted by the V2T shell.
  *
+ * @example
+ * ```ts
+ * import { Vt2NativeError } from "@beep/v2t"
+ *
+ * const error = Vt2NativeError.noCause("Native bridge unavailable.", 500)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category error handling
  */
 export class Vt2NativeError extends StatusCauseTaggedErrorClass<Vt2NativeError>($I`Vt2NativeError`)(
   "Vt2NativeError",
@@ -128,8 +213,15 @@ export class Vt2NativeError extends StatusCauseTaggedErrorClass<Vt2NativeError>(
 /**
  * Determine whether the current runtime is the Tauri desktop shell.
  *
+ * @example
+ * ```ts
+ * import { isNativeDesktop } from "@beep/v2t"
+ *
+ * const native = isNativeDesktop()
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category predicates
  */
 export const isNativeDesktop = (): boolean =>
   pipe(globalThis.window, P.every([P.isNotUndefined, P.isObject, P.hasProperty("__TAURI_INTERNALS__")]));
@@ -158,8 +250,15 @@ const invokeNative: <A>(
 /**
  * Start the managed V2T sidecar from the native shell.
  *
+ * @example
+ * ```ts
+ * import { startV2tSidecar } from "@beep/v2t"
+ *
+ * const program = startV2tSidecar()
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const startV2tSidecar: () => Effect.Effect<SidecarBootstrap, Vt2NativeError> = (): Effect.Effect<
   SidecarBootstrap,
@@ -169,8 +268,15 @@ export const startV2tSidecar: () => Effect.Effect<SidecarBootstrap, Vt2NativeErr
 /**
  * Stop the managed V2T sidecar from the native shell.
  *
+ * @example
+ * ```ts
+ * import { stopV2tSidecar } from "@beep/v2t"
+ *
+ * const program = stopV2tSidecar()
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const stopV2tSidecar: () => Effect.Effect<void, Vt2NativeError> = (): Effect.Effect<void, Vt2NativeError> =>
   invokeNative("stop_sidecar", S.decodeUnknownSync(S.Void), "Failed to stop the V2T sidecar.");
@@ -178,8 +284,15 @@ export const stopV2tSidecar: () => Effect.Effect<void, Vt2NativeError> = (): Eff
 /**
  * Read the current native sidecar lifecycle state.
  *
+ * @example
+ * ```ts
+ * import { getV2tSidecarState } from "@beep/v2t"
+ *
+ * const program = getV2tSidecarState()
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const getV2tSidecarState: () => Effect.Effect<Vt2ManagedSidecarState, Vt2NativeError> = (): Effect.Effect<
   Vt2ManagedSidecarState,
@@ -194,8 +307,15 @@ export const getV2tSidecarState: () => Effect.Effect<Vt2ManagedSidecarState, Vt2
 /**
  * Probe the managed sidecar health from the native shell and reconcile stale state.
  *
+ * @example
+ * ```ts
+ * import { probeV2tSidecar } from "@beep/v2t"
+ *
+ * const program = probeV2tSidecar()
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const probeV2tSidecar: () => Effect.Effect<Vt2ManagedSidecarState, Vt2NativeError> = (): Effect.Effect<
   Vt2ManagedSidecarState,
@@ -210,8 +330,17 @@ export const probeV2tSidecar: () => Effect.Effect<Vt2ManagedSidecarState, Vt2Nat
 /**
  * Subscribe to native sidecar-state changes while the desktop shell is active.
  *
+ * @example
+ * ```ts
+ * import { observeV2tSidecarState } from "@beep/v2t"
+ *
+ * const program = observeV2tSidecarState((state) => {
+ *   console.log(state.status)
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const observeV2tSidecarState = (
   onState: (state: Vt2ManagedSidecarState) => void
@@ -238,8 +367,15 @@ export const observeV2tSidecarState = (
 /**
  * Read the current native capture lifecycle state.
  *
+ * @example
+ * ```ts
+ * import { getV2tCaptureState } from "@beep/v2t"
+ *
+ * const program = getV2tCaptureState()
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const getV2tCaptureState: () => Effect.Effect<Vt2ManagedCaptureState, Vt2NativeError> = (): Effect.Effect<
   Vt2ManagedCaptureState,
@@ -254,8 +390,15 @@ export const getV2tCaptureState: () => Effect.Effect<Vt2ManagedCaptureState, Vt2
 /**
  * Load the V2T workspace snapshot via the native shell bridge.
  *
+ * @example
+ * ```ts
+ * import { getV2tWorkspaceSnapshot } from "@beep/v2t"
+ *
+ * const program = getV2tWorkspaceSnapshot()
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const getV2tWorkspaceSnapshot: () => Effect.Effect<Vt2WorkspaceSnapshot, Vt2NativeError> = (): Effect.Effect<
   Vt2WorkspaceSnapshot,
@@ -270,8 +413,15 @@ export const getV2tWorkspaceSnapshot: () => Effect.Effect<Vt2WorkspaceSnapshot, 
 /**
  * Load a V2T session resource via the native shell bridge.
  *
+ * @example
+ * ```ts
+ * import { getV2tSessionResource } from "@beep/v2t"
+ *
+ * const program = getV2tSessionResource("550e8400-e29b-41d4-a716-446655440000")
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const getV2tSessionResource = (sessionId: string): Effect.Effect<Vt2SessionResource, Vt2NativeError> =>
   invokeNative(
@@ -284,8 +434,16 @@ export const getV2tSessionResource = (sessionId: string): Effect.Effect<Vt2Sessi
 /**
  * Create a V2T session via the native shell bridge.
  *
+ * @example
+ * ```ts
+ * import { createV2tSessionResource } from "@beep/v2t"
+ * import type { CreateVt2SessionInput } from "@beep/v2t-sidecar"
+ *
+ * const createSession = (input: CreateVt2SessionInput) => createV2tSessionResource(input)
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const createV2tSessionResource = (
   input: CreateVt2SessionInput
@@ -300,8 +458,16 @@ export const createV2tSessionResource = (
 /**
  * Save desktop preferences via the native shell bridge.
  *
+ * @example
+ * ```ts
+ * import { saveV2tDesktopPreferences } from "@beep/v2t"
+ * import type { UpdateVt2DesktopPreferencesInput } from "@beep/v2t-sidecar"
+ *
+ * const savePreferences = (input: UpdateVt2DesktopPreferencesInput) => saveV2tDesktopPreferences(input)
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const saveV2tDesktopPreferences = (
   input: UpdateVt2DesktopPreferencesInput
@@ -316,8 +482,17 @@ export const saveV2tDesktopPreferences = (
 /**
  * Run the V2T composition flow via the native shell bridge.
  *
+ * @example
+ * ```ts
+ * import { runV2tSessionComposition } from "@beep/v2t"
+ * import type { RunVt2CompositionInput } from "@beep/v2t-sidecar"
+ *
+ * const compose = (input: RunVt2CompositionInput) =>
+ *   runV2tSessionComposition("550e8400-e29b-41d4-a716-446655440000", input)
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const runV2tSessionComposition = (
   sessionId: string,
@@ -333,8 +508,15 @@ export const runV2tSessionComposition = (
 /**
  * Retry local transcription for the selected session through the native shell bridge.
  *
+ * @example
+ * ```ts
+ * import { retryV2tSessionTranscript } from "@beep/v2t"
+ *
+ * const program = retryV2tSessionTranscript("550e8400-e29b-41d4-a716-446655440000")
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const retryV2tSessionTranscript = (sessionId: string): Effect.Effect<Vt2SessionResource, Vt2NativeError> =>
   invokeNative(
@@ -347,8 +529,15 @@ export const retryV2tSessionTranscript = (sessionId: string): Effect.Effect<Vt2S
 /**
  * Start a native-owned capture draft for the selected session.
  *
+ * @example
+ * ```ts
+ * import { startV2tCapture } from "@beep/v2t"
+ *
+ * const program = startV2tCapture("550e8400-e29b-41d4-a716-446655440000")
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const startV2tCapture = (sessionId: string): Effect.Effect<Vt2ManagedCaptureState, Vt2NativeError> =>
   invokeNative(
@@ -361,8 +550,15 @@ export const startV2tCapture = (sessionId: string): Effect.Effect<Vt2ManagedCapt
 /**
  * Stop the active native-owned capture draft and hand it to the sidecar.
  *
+ * @example
+ * ```ts
+ * import { stopV2tCapture } from "@beep/v2t"
+ *
+ * const program = stopV2tCapture("550e8400-e29b-41d4-a716-446655440000")
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const stopV2tCapture = (sessionId: string): Effect.Effect<Vt2ManagedCaptureState, Vt2NativeError> =>
   invokeNative(
@@ -375,8 +571,15 @@ export const stopV2tCapture = (sessionId: string): Effect.Effect<Vt2ManagedCaptu
 /**
  * Simulate an interruption for the active native-owned capture draft.
  *
+ * @example
+ * ```ts
+ * import { interruptV2tCapture } from "@beep/v2t"
+ *
+ * const program = interruptV2tCapture("550e8400-e29b-41d4-a716-446655440000")
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const interruptV2tCapture = (sessionId: string): Effect.Effect<Vt2ManagedCaptureState, Vt2NativeError> =>
   invokeNative(
@@ -389,8 +592,18 @@ export const interruptV2tCapture = (sessionId: string): Effect.Effect<Vt2Managed
 /**
  * Recover a pending recovery candidate through the native bridge.
  *
+ * @example
+ * ```ts
+ * import { recoverV2tRecoveryCandidate } from "@beep/v2t"
+ *
+ * const program = recoverV2tRecoveryCandidate(
+ *   "550e8400-e29b-41d4-a716-446655440000",
+ *   "550e8400-e29b-41d4-a716-446655440001"
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const recoverV2tRecoveryCandidate = (
   sessionId: string,
@@ -406,8 +619,18 @@ export const recoverV2tRecoveryCandidate = (
 /**
  * Discard a pending recovery candidate through the native bridge.
  *
+ * @example
+ * ```ts
+ * import { discardV2tRecoveryCandidate } from "@beep/v2t"
+ *
+ * const program = discardV2tRecoveryCandidate(
+ *   "550e8400-e29b-41d4-a716-446655440000",
+ *   "550e8400-e29b-41d4-a716-446655440001"
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const discardV2tRecoveryCandidate = (
   sessionId: string,
@@ -423,8 +646,17 @@ export const discardV2tRecoveryCandidate = (
 /**
  * Subscribe to native capture-state changes while the desktop shell is active.
  *
+ * @example
+ * ```ts
+ * import { observeV2tCaptureState } from "@beep/v2t"
+ *
+ * const program = observeV2tCaptureState((state) => {
+ *   console.log(state.status)
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const observeV2tCaptureState = (
   onState: (state: Vt2ManagedCaptureState) => void
@@ -451,8 +683,15 @@ export const observeV2tCaptureState = (
 /**
  * Open the native directory picker for selecting a workspace directory.
  *
+ * @example
+ * ```ts
+ * import { pickWorkspaceDirectory } from "@beep/v2t"
+ *
+ * const program = pickWorkspaceDirectory()
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const pickWorkspaceDirectory: () => Effect.Effect<O.Option<string>, Vt2NativeError, never> = (): Effect.Effect<
   O.Option<string>,

@@ -37,6 +37,13 @@ class SentencesSuccess extends S.Class<SentencesSuccess>($I`SentencesSuccess`)(
 /**
  * Tool for splitting text into sentences with metadata.
  *
+ * @example
+ * ```ts
+ * import { Sentences } from "@beep/nlp/Tools/Sentences"
+ *
+ * console.log(Sentences)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

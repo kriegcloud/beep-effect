@@ -10,8 +10,7 @@
 
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Effect, Layer } from "effect";
-import * as Cause from "effect/Cause";
+import { Cause, Effect, Layer } from "effect";
 import { Command } from "effect/unstable/cli";
 import { runQualityTaskIfRequested } from "./commands/Quality/Tasks.js";
 import { rootCommand } from "./commands/Root.js";

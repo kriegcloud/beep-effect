@@ -35,6 +35,13 @@ class DeleteCorpusSuccess extends S.Class<DeleteCorpusSuccess>($I`DeleteCorpusSu
 /**
  * Tool for deleting a corpus session.
  *
+ * @example
+ * ```ts
+ * import { DeleteCorpus } from "@beep/nlp/Tools/DeleteCorpus"
+ *
+ * console.log(DeleteCorpus)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

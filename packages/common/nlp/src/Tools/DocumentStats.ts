@@ -27,6 +27,13 @@ class DocumentStatsParameters extends S.Class<DocumentStatsParameters>($I`Docume
 /**
  * Tool for computing high-level document statistics.
  *
+ * @example
+ * ```ts
+ * import { DocumentStats } from "@beep/nlp/Tools/DocumentStats"
+ *
+ * console.log(DocumentStats)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

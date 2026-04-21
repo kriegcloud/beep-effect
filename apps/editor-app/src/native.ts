@@ -1,3 +1,9 @@
+/**
+ * Native sidecar bridge for the editor desktop shell.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { SidecarBootstrap } from "@beep/editor-protocol";
 import { $EditorAppId } from "@beep/identity";
 import { LiteralKit, OptionFromNullableStr, StatusCauseTaggedErrorClass } from "@beep/schema";
@@ -11,8 +17,15 @@ const $I = $EditorAppId.create("native");
 /**
  * Managed editor sidecar lifecycle status.
  *
+ * @example
+ * ```ts
+ * import type { EditorSidecarStatus } from "@beep/editor-app/native"
+ *
+ * const status: EditorSidecarStatus = "healthy"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const EditorSidecarStatus = LiteralKit(["stopped", "starting", "healthy", "failed"]).annotate(
   $I.annote("EditorSidecarStatus", {
@@ -20,16 +33,32 @@ export const EditorSidecarStatus = LiteralKit(["stopped", "starting", "healthy",
   })
 );
 /**
+ * Type for {@link EditorSidecarStatus}. {@inheritDoc EditorSidecarStatus}
+ *
+ * @example
+ * ```ts
+ * import type { EditorSidecarStatus } from "@beep/editor-app/native"
+ *
+ * const status: EditorSidecarStatus = "stopped"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EditorSidecarStatus = typeof EditorSidecarStatus.Type;
 
 /**
  * Managed editor sidecar launch mode.
  *
+ * @example
+ * ```ts
+ * import type { EditorSidecarMode } from "@beep/editor-app/native"
+ *
+ * const mode: EditorSidecarMode = "managed-dev-portless"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const EditorSidecarMode = LiteralKit(["managed-dev-portless", "managed-packaged"]).annotate(
   $I.annote("EditorSidecarMode", {
@@ -37,16 +66,38 @@ export const EditorSidecarMode = LiteralKit(["managed-dev-portless", "managed-pa
   })
 );
 /**
+ * Type for {@link EditorSidecarMode}. {@inheritDoc EditorSidecarMode}
+ *
+ * @example
+ * ```ts
+ * import type { EditorSidecarMode } from "@beep/editor-app/native"
+ *
+ * const mode: EditorSidecarMode = "managed-packaged"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type EditorSidecarMode = typeof EditorSidecarMode.Type;
 
 /**
  * Native shell view of the managed editor sidecar.
  *
+ * @example
+ * ```ts
+ * import { EditorSidecarState } from "@beep/editor-app/native"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(EditorSidecarState)
+ * const state = decode({
+ *   status: "stopped",
+ *   mode: "managed-dev-portless",
+ *   stderrTail: [],
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class EditorSidecarState extends S.Class<EditorSidecarState>($EditorAppId`EditorSidecarState`)(
   {
@@ -64,8 +115,15 @@ export class EditorSidecarState extends S.Class<EditorSidecarState>($EditorAppId
 /**
  * Typed error emitted by the editor native bridge.
  *
+ * @example
+ * ```ts
+ * import { EditorNativeError } from "@beep/editor-app/native"
+ *
+ * const error = EditorNativeError.noCause("Native bridge unavailable.", 500)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category error handling
  */
 export class EditorNativeError extends StatusCauseTaggedErrorClass<EditorNativeError>($EditorAppId`EditorNativeError`)(
   "EditorNativeError",
@@ -77,10 +135,17 @@ export class EditorNativeError extends StatusCauseTaggedErrorClass<EditorNativeE
 /**
  * Determine whether the current runtime is the Tauri desktop shell.
  *
+ * @example
+ * ```ts
+ * import { isNativeDesktop } from "@beep/editor-app/native"
+ *
+ * const native = isNativeDesktop()
+ * ```
+ *
  * @returns `true` when the managed Tauri bridge is available.
  *
  * @since 0.0.0
- * @category Utility
+ * @category predicates
  */
 export const isNativeDesktop = (): boolean =>
   pipe(globalThis.window, P.every([P.isNotUndefined, P.isObject, P.hasProperty("__TAURI_INTERNALS__")]));
@@ -109,10 +174,17 @@ const invokeNative: <A>(
 /**
  * Start the managed editor sidecar from the native shell.
  *
+ * @example
+ * ```ts
+ * import { startEditorSidecar } from "@beep/editor-app/native"
+ *
+ * const program = startEditorSidecar()
+ * ```
+ *
  * @returns An Effect that resolves with the started sidecar bootstrap.
  *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const startEditorSidecar: () => Effect.Effect<SidecarBootstrap, EditorNativeError, never> = (): Effect.Effect<
   SidecarBootstrap,
@@ -122,10 +194,17 @@ export const startEditorSidecar: () => Effect.Effect<SidecarBootstrap, EditorNat
 /**
  * Stop the managed editor sidecar from the native shell.
  *
+ * @example
+ * ```ts
+ * import { stopEditorSidecar } from "@beep/editor-app/native"
+ *
+ * const program = stopEditorSidecar()
+ * ```
+ *
  * @returns An Effect that resolves when the sidecar has been stopped.
  *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const stopEditorSidecar: () => Effect.Effect<void, EditorNativeError> = (): Effect.Effect<
   void,
@@ -135,10 +214,17 @@ export const stopEditorSidecar: () => Effect.Effect<void, EditorNativeError> = (
 /**
  * Read the current native sidecar lifecycle state.
  *
+ * @example
+ * ```ts
+ * import { getEditorSidecarState } from "@beep/editor-app/native"
+ *
+ * const program = getEditorSidecarState()
+ * ```
+ *
  * @returns An Effect that resolves with the latest native sidecar state.
  *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const getEditorSidecarState: () => Effect.Effect<EditorSidecarState, EditorNativeError> = (): Effect.Effect<
   EditorSidecarState,
@@ -153,10 +239,17 @@ export const getEditorSidecarState: () => Effect.Effect<EditorSidecarState, Edit
 /**
  * Open the native directory picker for selecting an editor workspace root.
  *
+ * @example
+ * ```ts
+ * import { pickWorkspaceDirectory } from "@beep/editor-app/native"
+ *
+ * const program = pickWorkspaceDirectory()
+ * ```
+ *
  * @returns An Effect that resolves with the selected directory or no selection.
  *
  * @since 0.0.0
- * @category Integration
+ * @category interop
  */
 export const pickWorkspaceDirectory: () => Effect.Effect<O.Option<string>, EditorNativeError, never> =
   (): Effect.Effect<O.Option<string>, EditorNativeError, never> =>

@@ -183,6 +183,15 @@
         "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
       ]
     },
+    "@beep/repo-checks#lint:effect-imports:fix": {
+      "cache": false,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts"
+      ]
+    },
     "@beep/repo-checks#lint:spell": {
       "cache": true,
       "inputs": [
@@ -197,6 +206,9 @@
         "$TURBO_ROOT$/**/*.md",
         "$TURBO_ROOT$/.markdownlint-cli2.jsonc"
       ]
+    },
+    "@beep/repo-checks#lint:typos": {
+      "cache": false
     },
     "@beep/repo-checks#lint:circular": {
       "cache": true,
@@ -280,25 +292,6 @@
         "LIVEBLOCKS_*",
         "RESEND_*"
       ]
-    },
-
-    "//#check:infra": {
-      "cache": true,
-      "inputs": [
-        "sst.config.ts",
-        "sst-env.d.ts",
-        "infra/**/*.ts",
-        "infra/tsconfig.json"
-      ]
-    },
-    "//#lint:typos": {
-      "cache": false
-    },
-    "//#lint:repo": {
-      "cache": false
-    },
-    "//#lint:ox": {
-      "cache": false
     }
   }
 }

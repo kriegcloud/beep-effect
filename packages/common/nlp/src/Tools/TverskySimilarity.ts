@@ -58,6 +58,13 @@ class TverskySimilaritySuccess extends S.Class<TverskySimilaritySuccess>($I`Tver
 /**
  * Tool for computing asymmetric set similarity.
  *
+ * @example
+ * ```ts
+ * import { TverskySimilarity } from "@beep/nlp/Tools/TverskySimilarity"
+ *
+ * console.log(TverskySimilarity)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

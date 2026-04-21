@@ -62,6 +62,13 @@ class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTex
 /**
  * Tool for applying text cleaning and normalization operations.
  *
+ * @example
+ * ```ts
+ * import { TransformText } from "@beep/nlp/Tools/TransformText"
+ *
+ * console.log(TransformText)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

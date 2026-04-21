@@ -9,6 +9,8 @@
  */
 
 /**
+ * Public i18n message formatting exports.
+ *
  * @example
  * ```typescript
  * import { t, logIssues } from "@beep/messages"
@@ -17,8 +19,8 @@
  * void logIssues
  * ```
  *
- * @since 0.0.0
  * @category exports
+ * @since 0.0.0
  */
 export * from "./i18n.js";
 // bench

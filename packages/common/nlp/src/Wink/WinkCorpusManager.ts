@@ -248,6 +248,13 @@ const removeCorpusSession = (
 /**
  * Error raised while managing a live corpus session.
  *
+ * @example
+ * ```ts
+ * import { CorpusManagerError } from "@beep/nlp/Wink/WinkCorpusManager"
+ *
+ * console.log(CorpusManagerError)
+ * ```
+ *
  * @since 0.0.0
  * @category Errors
  */
@@ -669,6 +676,13 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 /**
  * Wink corpus manager service.
  *
+ * @example
+ * ```ts
+ * import { WinkCorpusManager } from "@beep/nlp/Wink/WinkCorpusManager"
+ *
+ * console.log(WinkCorpusManager)
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -678,6 +692,13 @@ export class WinkCorpusManager extends Context.Service<WinkCorpusManager, WinkCo
 
 /**
  * Live wink corpus manager layer.
+ *
+ * @example
+ * ```ts
+ * import { WinkCorpusManagerLive } from "@beep/nlp/Wink/WinkCorpusManager"
+ *
+ * console.log(WinkCorpusManagerLive)
+ * ```
  *
  * @since 0.0.0
  * @category Layers

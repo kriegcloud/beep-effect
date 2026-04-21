@@ -45,6 +45,13 @@ class BowCosineSimilaritySuccess extends S.Class<BowCosineSimilaritySuccess>($I`
 /**
  * Tool for computing bag-of-words cosine similarity.
  *
+ * @example
+ * ```ts
+ * import { BowCosineSimilarity } from "@beep/nlp/Tools/BowCosineSimilarity"
+ *
+ * console.log(BowCosineSimilarity)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

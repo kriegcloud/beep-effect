@@ -4,7 +4,7 @@
  * Use this for JSON parse failures, glob failures, and other operational
  * errors where a more specific error type is not warranted.
  *
- * @category CrossCutting
+ * @category error handling
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -17,7 +17,17 @@ const $I = $RepoUtilsId.create("errors/DomainError");
 /**
  * A generic domain-level error with an optional underlying cause.
  *
- * @category CrossCutting
+ * @example
+ * ```ts
+ * import { DomainError } from "@beep/repo-utils/errors/DomainError"
+ *
+ * const error = new DomainError({
+ *   message: "Operation failed"
+ * })
+ * void error.message
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
  */
 export class DomainError extends TaggedErrorClass<DomainError>($I`DomainError`)(

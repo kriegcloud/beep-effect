@@ -1,3 +1,9 @@
+/**
+ * TSMorph project loading and source-inspection service.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { NonNegativeInt, TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";

@@ -58,6 +58,13 @@ class NGramsSuccess extends S.Class<NGramsSuccess>($I`NGramsSuccess`)(
 /**
  * Tool for extracting character n-grams.
  *
+ * @example
+ * ```ts
+ * import { NGrams } from "@beep/nlp/Tools/NGrams"
+ *
+ * console.log(NGrams)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

@@ -22,7 +22,16 @@ const compactGetter = SchemaGetter.stringifyJson();
  * using `SchemaGetter.stringifyJson`. Returns an Effect with `DomainError`
  * on serialization failure.
  *
- * @category Utility
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { jsonStringifyPretty } from "@beep/repo-utils/JsonUtils"
+ *
+ * const program = Effect.map(jsonStringifyPretty({ ok: true }), (json) => json.length)
+ * void program
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(function* (value) {
@@ -39,7 +48,16 @@ export const jsonStringifyPretty: (value: unknown) => Effect.Effect<string, Doma
  * using `SchemaGetter.stringifyJson`. Returns an Effect with `DomainError`
  * on serialization failure.
  *
- * @category Utility
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { jsonStringifyCompact } from "@beep/repo-utils/JsonUtils"
+ *
+ * const program = Effect.map(jsonStringifyCompact({ ok: true }), (json) => json.length)
+ * void program
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(
@@ -55,7 +73,16 @@ export const jsonStringifyCompact: (value: unknown) => Effect.Effect<string, Dom
  * Parse a JSON string into an unknown value using `SchemaGetter.parseJson`.
  * For typed parsing, prefer `Schema.decodeUnknown(Schema.fromJsonString(MySchema))`.
  *
- * @category Utility
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { jsonParse } from "@beep/repo-utils/JsonUtils"
+ *
+ * const program = Effect.map(jsonParse("{\"ok\":true}"), (value) => typeof value)
+ * void program
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
  */
 export const jsonParse: (input: string) => Effect.Effect<unknown, DomainError> = Effect.fn(function* (input) {

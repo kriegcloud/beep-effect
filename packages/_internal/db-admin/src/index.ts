@@ -5,7 +5,16 @@
  */
 
 /**
+ * Current package version.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/db-admin"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category constants
  */
 export const VERSION = "0.0.0" as const;

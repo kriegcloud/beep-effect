@@ -65,6 +65,13 @@ const learnDocumentState = (
 /**
  * Minimal isolated vectorizer surface used by ranking and keyword extraction.
  *
+ * @example
+ * ```ts
+ * import type { ScopedVectorizer } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * type Example = ScopedVectorizer
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -94,6 +101,13 @@ type WinkVectorizerShape = {
 const loadBM25Vectorizer = (): BM25VectorizerFactory => require("wink-nlp/utilities/bm25-vectorizer");
 /**
  * BM25 normalization mode used by the vectorizer and corpus services.
+ *
+ * @example
+ * ```ts
+ * import { BM25Norm } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(BM25Norm)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -159,6 +173,13 @@ const readNormalizedTokensFromWink = (
 /**
  * BM25 configuration used by wink vectorization and corpus management.
  *
+ * @example
+ * ```ts
+ * import { BM25Config } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(BM25Config)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -181,6 +202,13 @@ export class BM25Config extends S.Class<BM25Config>($I`BM25Config`)(
 /**
  * Default BM25 configuration used by the live wink vectorizer.
  *
+ * @example
+ * ```ts
+ * import { DefaultBM25Config } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(DefaultBM25Config)
+ * ```
+ *
  * @since 0.0.0
  * @category Configuration
  */
@@ -193,6 +221,13 @@ export const DefaultBM25Config = BM25Config.make({
 
 /**
  * Dense vector representation for a document or query.
+ *
+ * @example
+ * ```ts
+ * import { DocumentVector } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(DocumentVector)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -215,6 +250,13 @@ export class DocumentVector extends S.Class<DocumentVector>($I`DocumentVector`)(
 /**
  * Bag-of-words representation for a document or query.
  *
+ * @example
+ * ```ts
+ * import { BagOfWords } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(BagOfWords)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -235,6 +277,13 @@ export class BagOfWords extends S.Class<BagOfWords>($I`BagOfWords`)(
 /**
  * Term-frequency entry for a learned document.
  *
+ * @example
+ * ```ts
+ * import { TermFrequency } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(TermFrequency)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -254,6 +303,13 @@ export class TermFrequency extends S.Class<TermFrequency>($I`TermFrequency`)(
 
 /**
  * Error raised while learning or querying wink BM25 vectors.
+ *
+ * @example
+ * ```ts
+ * import { VectorizerError } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(VectorizerError)
+ * ```
  *
  * @since 0.0.0
  * @category Errors
@@ -429,6 +485,13 @@ const makeWinkVectorizer = Effect.gen(function* () {
 /**
  * Wink vectorizer service.
  *
+ * @example
+ * ```ts
+ * import { WinkVectorizer } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(WinkVectorizer)
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -436,6 +499,13 @@ export class WinkVectorizer extends Context.Service<WinkVectorizer, WinkVectoriz
 
 /**
  * Live wink vectorizer layer.
+ *
+ * @example
+ * ```ts
+ * import { WinkVectorizerLive } from "@beep/nlp/Wink/WinkVectorizer"
+ *
+ * console.log(WinkVectorizerLive)
+ * ```
  *
  * @since 0.0.0
  * @category Layers

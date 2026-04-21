@@ -298,10 +298,10 @@ export type ColorName = typeof ColorNameSchema.Type;
  *
  * const decode = S.decodeUnknownSync(ColorSupport)
  * console.log(decode({
- *
- *
- *
- *
+ *   level: 3,
+ *   hasBasic: true,
+ *   has256: true,
+ *   has16m: true
  * }))
  * ```
  *

@@ -36,6 +36,13 @@ class CorpusStatsParameters extends S.Class<CorpusStatsParameters>($I`CorpusStat
 /**
  * Tool for inspecting corpus internals.
  *
+ * @example
+ * ```ts
+ * import { CorpusStats } from "@beep/nlp/Tools/CorpusStats"
+ *
+ * console.log(CorpusStats)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

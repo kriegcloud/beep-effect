@@ -43,6 +43,13 @@ const makeWinkEngineRef = Effect.gen(function* () {
 /**
  * Compatibility service for inspecting and updating the shared wink runtime state ref.
  *
+ * @example
+ * ```ts
+ * import { WinkEngineRef } from "@beep/nlp/Wink/WinkEngineRef"
+ *
+ * console.log(WinkEngineRef)
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -51,22 +58,50 @@ export class WinkEngineRef extends Context.Service<WinkEngineRef, WinkEngineRefS
 /**
  * Live layer for {@link WinkEngineRef}.
  *
+ * @example
+ * ```ts
+ * import { WinkEngineRefLive } from "@beep/nlp/Wink/WinkEngineRef"
+ *
+ * console.log(WinkEngineRefLive)
+ * ```
+ *
  * @since 0.0.0
  * @category Layers
  */
 export const WinkEngineRefLive = Layer.effect(WinkEngineRef, makeWinkEngineRef);
 
 /**
+ * @example
+ * ```ts
+ * import type { WinkEngineRuntimeState } from "@beep/nlp/Wink/WinkEngineRef"
+ *
+ * type Example = WinkEngineRuntimeState
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
 export type WinkEngineRuntimeState = WinkEngineRuntimeStateType;
 /**
+ * @example
+ * ```ts
+ * import { InstanceId } from "@beep/nlp/Wink/WinkEngineRef"
+ *
+ * console.log(InstanceId)
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
 export const InstanceId = InstanceIdService;
 /**
+ * @example
+ * ```ts
+ * import { WinkEngineState } from "@beep/nlp/Wink/WinkEngineRef"
+ *
+ * console.log(WinkEngineState)
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */

@@ -51,6 +51,13 @@ class CreateCorpusParameters extends S.Class<CreateCorpusParameters>($I`CreateCo
 /**
  * Tool for creating a stateful corpus session.
  *
+ * @example
+ * ```ts
+ * import { CreateCorpus } from "@beep/nlp/Tools/CreateCorpus"
+ *
+ * console.log(CreateCorpus)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

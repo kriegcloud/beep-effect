@@ -101,6 +101,14 @@ export const Formatter = FormatterSchema;
 /**
  * Runtime type for {@link Formatter}.
  *
+ * @example
+ * ```typescript
+ * import type { Formatter } from "@beep/colors"
+ *
+ * const formatter: Formatter = (input) => `${input}`
+ * console.log(formatter("ready"))
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
@@ -197,6 +205,21 @@ export class Colors extends S.Class<Colors>($I`Colors`)(
     description: "The Colors configuration object.",
   })
 ) {
+  /**
+   * Recreate a `Colors` formatter set with explicit color support.
+   *
+   * @example
+   * ```typescript
+   * import { createColors } from "@beep/colors"
+   *
+   * const colors = createColors(false)
+   * const enabled = colors.createColors(true)
+   * console.log(enabled.green("ready"))
+   * ```
+   *
+   * @category utilities
+   * @since 0.0.0
+   */
   readonly createColors = createColors;
 }
 

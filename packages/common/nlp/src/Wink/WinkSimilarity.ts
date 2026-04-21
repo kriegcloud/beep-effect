@@ -60,6 +60,13 @@ const toNativeTermSet = (terms: ReadonlyArray<string>): Set<string> => {
 /**
  * Parameters controlling the asymmetric Tversky index.
  *
+ * @example
+ * ```ts
+ * import { TverskyParams } from "@beep/nlp/Wink/WinkSimilarity"
+ *
+ * console.log(TverskyParams)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -80,6 +87,13 @@ export class TverskyParams extends S.Class<TverskyParams>($I`TverskyParams`)(
 /**
  * Set of normalized document terms used for set-based similarity.
  *
+ * @example
+ * ```ts
+ * import { DocumentTermSet } from "@beep/nlp/Wink/WinkSimilarity"
+ *
+ * console.log(DocumentTermSet)
+ * ```
+ *
  * @since 0.0.0
  * @category DomainModel
  */
@@ -99,6 +113,13 @@ export class DocumentTermSet extends S.Class<DocumentTermSet>($I`DocumentTermSet
 
 /**
  * Similarity score returned from a wink-backed comparison.
+ *
+ * @example
+ * ```ts
+ * import { SimilarityScore } from "@beep/nlp/Wink/WinkSimilarity"
+ *
+ * console.log(SimilarityScore)
+ * ```
  *
  * @since 0.0.0
  * @category DomainModel
@@ -122,6 +143,13 @@ export class SimilarityScore extends S.Class<SimilarityScore>($I`SimilarityScore
 
 /**
  * Error raised while computing wink-backed similarity.
+ *
+ * @example
+ * ```ts
+ * import { SimilarityError } from "@beep/nlp/Wink/WinkSimilarity"
+ *
+ * console.log(SimilarityError)
+ * ```
  *
  * @since 0.0.0
  * @category Errors
@@ -238,6 +266,13 @@ const makeWinkSimilarity = Effect.gen(function* () {
 /**
  * Wink similarity service.
  *
+ * @example
+ * ```ts
+ * import { WinkSimilarity } from "@beep/nlp/Wink/WinkSimilarity"
+ *
+ * console.log(WinkSimilarity)
+ * ```
+ *
  * @since 0.0.0
  * @category Services
  */
@@ -245,6 +280,13 @@ export class WinkSimilarity extends Context.Service<WinkSimilarity, WinkSimilari
 
 /**
  * Live wink similarity layer.
+ *
+ * @example
+ * ```ts
+ * import { WinkSimilarityLive } from "@beep/nlp/Wink/WinkSimilarity"
+ *
+ * console.log(WinkSimilarityLive)
+ * ```
  *
  * @since 0.0.0
  * @category Layers

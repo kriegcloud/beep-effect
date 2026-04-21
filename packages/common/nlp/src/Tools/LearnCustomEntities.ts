@@ -70,6 +70,13 @@ class LearnCustomEntitiesSuccess extends S.Class<LearnCustomEntitiesSuccess>($I`
 /**
  * Tool for teaching custom pattern-based entities.
  *
+ * @example
+ * ```ts
+ * import { LearnCustomEntities } from "@beep/nlp/Tools/LearnCustomEntities"
+ *
+ * console.log(LearnCustomEntities)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

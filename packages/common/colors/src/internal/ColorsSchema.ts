@@ -1,9 +1,31 @@
+/**
+ * Internal schemas for ANSI color formatter objects.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $ColorsId } from "@beep/identity";
 import { Fn } from "@beep/schema";
 import * as S from "effect/Schema";
 
 const $I = $ColorsId.create("Domain");
 
+/**
+ * Input accepted by a color formatter.
+ *
+ * @example
+ * ```typescript
+ * import { FormatterInput } from "@beep/colors/Colors"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(FormatterInput)
+ * console.log(decode("ready"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const FormatterInput = S.Union([S.String, S.Number]).pipe(
   S.UndefinedOr,
   $I.annoteSchema("FormatterInput", {
@@ -11,6 +33,20 @@ export const FormatterInput = S.Union([S.String, S.Number]).pipe(
   })
 );
 
+/**
+ * Schema for a formatter that renders one value to a string.
+ *
+ * @example
+ * ```typescript
+ * import { Formatter } from "@beep/colors/Colors"
+ *
+ * const formatter: Formatter = (input) => `${input}`
+ * console.log(formatter(42))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const Formatter = Fn({
   input: FormatterInput,
   output: S.String,
@@ -20,8 +56,36 @@ export const Formatter = Fn({
   })
 );
 
+/**
+ * Runtime type for {@link Formatter}.
+ *
+ * @example
+ * ```typescript
+ * import type { Formatter } from "@beep/colors/Colors"
+ *
+ * const formatter: Formatter = (input) => `${input}`
+ * console.log(formatter("ready"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type Formatter = typeof Formatter.Type;
 
+/**
+ * Schema fields used to construct a `Colors` formatter set.
+ *
+ * @example
+ * ```typescript
+ * import { ColorsFields } from "@beep/colors/Colors"
+ *
+ * const hasBold = "bold" in ColorsFields
+ * console.log(hasBold)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const ColorsFields = {
   isColorSupported: S.Boolean,
 

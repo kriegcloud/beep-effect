@@ -50,6 +50,13 @@ class RankByRelevanceSuccess extends S.Class<RankByRelevanceSuccess>($I`RankByRe
 /**
  * Tool for ranking texts against a query.
  *
+ * @example
+ * ```ts
+ * import { RankByRelevance } from "@beep/nlp/Tools/RankByRelevance"
+ *
+ * console.log(RankByRelevance)
+ * ```
+ *
  * @since 0.0.0
  * @category Tools
  */

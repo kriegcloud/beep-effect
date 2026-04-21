@@ -1,3 +1,9 @@
+/**
+ * Editor workspace application surface.
+ *
+ * @module
+ * @since 0.0.0
+ */
 import { EditorClientConfig, type EditorClientShape, makeEditorClient } from "@beep/editor-client";
 import { EditorSurface } from "@beep/editor-lexical";
 import {
@@ -86,6 +92,19 @@ const bootstrapToSidecarState = (
     stderrTail: state === null ? [] : state.stderrTail,
   });
 
+/**
+ * Render the browser and desktop editor workspace.
+ *
+ * @example
+ * ```tsx
+ * import { EditorWorkspaceApp } from "@beep/editor-app"
+ *
+ * const App = () => <EditorWorkspaceApp />
+ * ```
+ *
+ * @category components
+ * @since 0.0.0
+ */
 export function EditorWorkspaceApp() {
   const [client, setClient] = useState<EditorClientShape | null>(null);
   const [sidecarState, setSidecarState] = useState<EditorSidecarState | null>(null);

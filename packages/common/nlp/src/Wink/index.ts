@@ -8,11 +8,25 @@ import { WinkLayerAllLive as WinkLayerAllLiveSource, WinkLayerLive as WinkLayerL
 import { WinkEngineRefLive as WinkEngineRefLiveSource, WinkEngineRef as WinkEngineRefSource } from "./WinkEngineRef.ts";
 
 /**
+ * @example
+ * ```ts
+ * import { WinkLayerAllLive } from "@beep/nlp/Wink"
+ *
+ * console.log(WinkLayerAllLive)
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
 export const WinkLayerAllLive = WinkLayerAllLiveSource;
 /**
+ * @example
+ * ```ts
+ * import { WinkLayerLive } from "@beep/nlp/Wink"
+ *
+ * console.log(WinkLayerLive)
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
@@ -28,11 +42,25 @@ export * from "./WinkCorpusManager.ts";
  */
 export * from "./WinkEngine.ts";
 /**
+ * @example
+ * ```ts
+ * import { WinkEngineRef } from "@beep/nlp/Wink"
+ *
+ * console.log(WinkEngineRef)
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
 export const WinkEngineRef = WinkEngineRefSource;
 /**
+ * @example
+ * ```ts
+ * import { WinkEngineRefLive } from "@beep/nlp/Wink"
+ *
+ * console.log(WinkEngineRefLive)
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
