@@ -623,8 +623,8 @@ export type ReverseStruct<T extends ReverseableStruct> = {
  * import { Struct } from "@beep/utils";
  *
  * const ErrorCode = {
- * 
- * 
+ *
+ *
  * } as const;
  *
  * const reversed = Struct.reverse(ErrorCode);

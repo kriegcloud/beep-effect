@@ -90,15 +90,15 @@ const fromAdjacencyList = (
  * import { topologicalSort } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- * 
- * 
- * 
+ *
+ *
+ *
  * )
  *
  * const program = Effect.gen(function*() {
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -149,15 +149,15 @@ export const topologicalSort: (
  * import { detectCycles } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- * 
- * 
- * 
+ *
+ *
+ *
  * )
  *
  * const program = Effect.gen(function*() {
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -305,15 +305,15 @@ const buildCyclePath = (
  * import { computeTransitiveClosure } from "@beep/repo-utils/Graph"
  *
  * const adj = HashMap.make(
- * 
- * 
- * 
+ *
+ *
+ *
  * )
  *
  * const program = Effect.gen(function*() {
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * void program
  * ```

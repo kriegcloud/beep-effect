@@ -7,13 +7,13 @@
  * @example
  * ```typescript
  * import {
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * } from "@beep/knowledge-graph/Schemas"
  *
  * KnowledgeNodeKind.Enum.page // "page"
@@ -87,11 +87,11 @@ export type KnowledgeNodeKind = typeof KnowledgeNodeKind.Type;
  * import { KnowledgeEdgeKind } from "@beep/knowledge-graph/Schemas"
  *
  * KnowledgeEdgeKind.$match("wiki_link", {
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *

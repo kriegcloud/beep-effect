@@ -13,7 +13,7 @@
  * const loggerLayer = layerConsoleLogger(config)
  *
  * const program = Effect.log("hello from pretty logger").pipe(
- * 
+ *
  * )
  *
  * void Effect.runPromise(program)
@@ -124,8 +124,8 @@ export type BannerMode = typeof BannerMode.Type;
  * import { PrettyLoggerConfig } from "@beep/observability"
  *
  * const config = new PrettyLoggerConfig({
- * 
- * 
+ *
+ *
  * })
  *
  * void config.theme // "forest"
@@ -152,8 +152,8 @@ export class PrettyLoggerConfig extends S.Class<PrettyLoggerConfig>($I`PrettyLog
  * import { LoggingConfig } from "@beep/observability"
  *
  * const config = new LoggingConfig({
- * 
- * 
+ *
+ *
  * })
  *
  * void config.format // "structured"
@@ -346,7 +346,7 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  * const layer = layerConsoleLogger(config)
  *
  * const program = Effect.log("structured output").pipe(
- * 
+ *
  * )
  *
  * void Effect.runPromise(program)

@@ -70,10 +70,10 @@ const decodeTomlUnknown = Effect.fn("Toml.decodeTomlUnknown")(function* (content
  * import { TomlTextToUnknown } from "@beep/schema/Toml"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -107,10 +107,10 @@ export const TomlTextToUnknown = S.String.pipe(
  * const decodeConfig = decodeTomlTextAs(S.Struct({ server: ServerConfig }))
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```

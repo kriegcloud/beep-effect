@@ -29,7 +29,7 @@ export const extractTraceContextHeaders = (headers?: Headers.Input): O.Option<Tr
  * import { injectTraceContextHeaders } from "@beep/observability/server"
  *
  * const program = injectTraceContextHeaders().pipe(
- * 
+ *
  * )
  * ```
  *
@@ -51,8 +51,8 @@ export const injectTraceContextHeaders = (headers?: Headers.Input): Effect.Effec
  * import { withIncomingTraceContext } from "@beep/observability/server"
  *
  * const program = withIncomingTraceContext(
- * 
- * 
+ *
+ *
  * )
  * ```
  *

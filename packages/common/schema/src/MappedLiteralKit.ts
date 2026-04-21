@@ -262,8 +262,8 @@ const makeDirectionalKit = <
  * import * as S from "effect/Schema";
  *
  * const SqlState = MappedLiteralKit([
- * 
- * 
+ *
+ *
  * ] as const);
  *
  * S.decodeSync(SqlState)("SUCCESSFUL_COMPLETION"); // "00000"
@@ -315,8 +315,8 @@ export interface MappedLiteralKit<M extends MappedPairs> extends MappedLiteralKi
  * import { MappedLiteralKit } from "@beep/schema/MappedLiteralKit"
  *
  * const HttpStatus = MappedLiteralKit([
- * 
- * 
+ *
+ *
  * ] as const)
  *
  * S.decodeSync(HttpStatus)("OK")       // "200"

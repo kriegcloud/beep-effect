@@ -27,7 +27,7 @@ import { Number as Num } from "effect";
  * // Type guard usage to refine unknown input types
  * const value: unknown = 5;
  * if (isPositive(value)) {
- * 
+ *
  * }
  * ```
  *
@@ -39,9 +39,9 @@ import { Number as Num } from "effect";
  * import { isPositive } from "@beep/utils/Number";
  *
  * const processNumber = (n: unknown) =>
- * 
- * 
- * 
+ *
+ *
+ *
  *
  * void processNumber(10);
  * ```

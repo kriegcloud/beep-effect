@@ -35,8 +35,8 @@ import * as S from "effect/Schema";
  * import { pluck } from "@beep/schema/SchemaUtils/pluck";
  *
  * const MyTable = S.Struct({
- * 
- * 
+ *
+ *
  * });
  *
  * const Column1 = MyTable.pipe(pluck("column1"));

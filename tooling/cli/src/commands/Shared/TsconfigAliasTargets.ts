@@ -79,7 +79,6 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
  */
 export const resolveRootExportTarget = (exportsField: unknown): O.Option<string> => {
   if (P.isObject(exportsField) && !A.isArray(exportsField)) {
-
     if (P.isObject(exportsField) && "." in exportsField) {
       return firstRelativeDotPath(exportsField["."]);
     }

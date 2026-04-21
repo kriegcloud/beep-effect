@@ -101,9 +101,9 @@ export class OtlpPacket extends S.Class<OtlpPacket>($I`OtlpPacket`)(
  * import { OtlpPacketLab } from "@beep/observability/experimental/server"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  *
  * void program

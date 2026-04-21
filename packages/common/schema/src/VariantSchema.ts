@@ -344,13 +344,13 @@ export declare namespace Union {
  * import * as VariantSchema from "@beep/schema/VariantSchema"
  *
  * const { Class, Field } = VariantSchema.make({
- * 
- * 
+ *
+ *
  * })
  *
  * class Item extends Class<Item>("Item")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Item
@@ -362,12 +362,12 @@ export declare namespace Union {
  * import * as VariantSchema from "@beep/schema/VariantSchema"
  *
  * const { Struct, extract } = VariantSchema.make({
- * 
- * 
+ *
+ *
  * })
  *
  * const vs = Struct({
- * 
+ *
  * })
  *
  * const schemaA = extract(vs, "a")

@@ -77,9 +77,9 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
  * import { withStatics } from "@beep/schema/SchemaUtils/withStatics"
  *
  * const MySchema = S.String.pipe(
- * 
- * 
- * 
+ *
+ *
+ *
  * )
  *
  * void MySchema.empty

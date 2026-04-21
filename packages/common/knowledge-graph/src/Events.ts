@@ -14,10 +14,10 @@
  * @example
  * ```typescript
  * import {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * } from "@beep/knowledge-graph/Events"
  * ```
  *
@@ -48,12 +48,12 @@ const $I = $SharedDomainId.create("knowledge-graph/Events");
  * import { NodeCreatedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(NodeCreatedPayload)({
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -86,9 +86,9 @@ export class NodeCreatedPayload extends S.TaggedClass<NodeCreatedPayload>($I`Nod
  * import { NodeUpdatedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(NodeUpdatedPayload)({
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * ```
  *
@@ -117,9 +117,9 @@ export class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>($I`Nod
  * import { NodeRemovedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(NodeRemovedPayload)({
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * ```
  *
@@ -146,12 +146,12 @@ export class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>($I`Nod
  * import { EdgeCreatedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(EdgeCreatedPayload)({
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -181,9 +181,9 @@ export class EdgeCreatedPayload extends S.TaggedClass<EdgeCreatedPayload>($I`Edg
  * import { EdgeRemovedPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(EdgeRemovedPayload)({
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * ```
  *
@@ -210,9 +210,9 @@ export class EdgeRemovedPayload extends S.TaggedClass<EdgeRemovedPayload>($I`Edg
  * import { SnapshotResetPayload } from "@beep/knowledge-graph/Events"
  *
  * const payload = S.decodeUnknownSync(SnapshotResetPayload)({
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * ```
  *
@@ -387,9 +387,9 @@ export const KnowledgeGraphCompaction = EventLog.groupCompaction(
  *
  * declare const event: GraphEvent
  * Match.value(event).pipe(
- * 
- * 
- * 
+ *
+ *
+ *
  * )
  * ```
  *

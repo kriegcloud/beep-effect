@@ -12,16 +12,16 @@ const $I = $ObservabilityId.create("server/Config");
  * import { ServerObservabilityConfig } from "@beep/observability/server"
  *
  * const config = new ServerObservabilityConfig({
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *

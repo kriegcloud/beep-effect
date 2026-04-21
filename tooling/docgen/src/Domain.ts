@@ -299,7 +299,7 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
  * const _null = ...
  *
  * export {
- * 
+ *
  * }
  * ```
  *

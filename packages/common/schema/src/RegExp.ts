@@ -96,8 +96,8 @@ const encodeRegExpStrForbidden = (value: globalThis.RegExp): Effect.Effect<RegEx
  * import { RegExpFromStr } from "@beep/schema/RegExp"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * ```
  *

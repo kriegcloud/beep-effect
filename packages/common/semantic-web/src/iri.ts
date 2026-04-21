@@ -14,15 +14,15 @@ const $I = $SemanticWebId.create("iri");
  *
  * - The schemas below encode the generic RFC 3987 section 2.2 syntax directly.
  * - RFC 3987 section 4.1's bidi-formatting prohibition is also enforced because
- * 
+ *
  * - Section 3 IRI-to-URI mapping is intentionally not performed here because it
- * 
- * 
+ *
+ *
  * - The remaining guidance in sections 4, 5, 6, and 8 covers bidi presentation,
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  */
 
 type ParseEnd = number | undefined;

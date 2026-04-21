@@ -2,11 +2,11 @@ import { $RepoCliId } from "@beep/identity/packages";
 import type { PackageJson } from "@beep/repo-utils";
 import { Effect, Function as Fn, HashMap, HashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
-import * as Eq from "effect/Equal";
 import * as Str from "effect/String";
 import {
   buildDocgenAliasTargets,
@@ -271,13 +271,10 @@ const buildDocgenExamplesPaths = (
 ): Readonly<Record<string, ReadonlyArray<string>>> => {
   const packageSequence = [
     packageName,
-    ...A.filter(
-      uniqueSortedStringValues(directWorkspaceDependencies),
-      P.not(Eq.equals(packageName))
-    ),
+    ...A.filter(uniqueSortedStringValues(directWorkspaceDependencies), P.not(Eq.equals(packageName))),
   ];
 
-  let mappings = R.empty<string, ReadonlyArray<string>>()
+  let mappings = R.empty<string, ReadonlyArray<string>>();
   for (const dependencyName of packageSequence) {
     const aliasSource = HashMap.get(workspaceAliasIndex, dependencyName);
     if (O.isNone(aliasSource)) {
@@ -304,7 +301,9 @@ const buildDocgenExamplesPaths = (
  * @category DomainModel
  * @since 0.0.0
  */
-export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfig")(function* (input: CanonicalDocgenConfigInput): Effect.fn.Return<CanonicalDocgenConfig, never, Path.Path>  {
+export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfig")(function* (
+  input: CanonicalDocgenConfigInput
+): Effect.fn.Return<CanonicalDocgenConfig, never, Path.Path> {
   const path = yield* Path.Path;
   const rootRelative = normalizeSlashes(path.relative(input.packageAbsolutePath, input.rootDir));
   const rootRelativePrefix = rootRelative.length === 0 ? "./" : `${rootRelative}/`;

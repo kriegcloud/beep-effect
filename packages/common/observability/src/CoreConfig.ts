@@ -22,10 +22,10 @@ const $I = $ObservabilityId.create("CoreConfig");
  * import { ObservabilityCoreConfig } from "@beep/observability"
  *
  * const config: ObservabilityCoreConfig = {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * }
  *
  * console.log(config.serviceName) // "todox-web"

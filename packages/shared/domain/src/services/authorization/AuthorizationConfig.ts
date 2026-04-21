@@ -64,13 +64,13 @@ export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I
  * import { Effect } from "effect"
  *
  * const program = Effect.gen(function* () {
- * 
  *
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  */

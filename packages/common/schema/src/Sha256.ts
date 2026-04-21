@@ -46,7 +46,7 @@ const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.
  * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const digest = S.decodeUnknownSync(Sha256Hex)(
- * 
+ *
  * )
  * console.log(digest)
  * ```
@@ -89,9 +89,9 @@ export type Sha256Hex = typeof Sha256Hex.Type;
  * import { Sha256HexFromBytes } from "@beep/schema/Sha256"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * ```
  *
@@ -136,8 +136,8 @@ export type Sha256HexFromBytes = typeof Sha256HexFromBytes.Type;
  * import { Sha256HexFromHexBytes } from "@beep/schema/Sha256"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * ```
  *

@@ -82,7 +82,7 @@ export type JsonLdKeyword = typeof JsonLdKeyword.Type;
  * import { JsonLdTermDefinition } from "@beep/semantic-web/jsonld"
  *
  * const term = S.decodeUnknownSync(JsonLdTermDefinition)({
- * 
+ *
  * })
  * console.log(term["@id"]) // "https://schema.org/name"
  * ```

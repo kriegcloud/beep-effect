@@ -53,8 +53,8 @@ export const t = i18next.t;
  * import type { GetLogIssuesOptions } from "@beep/messages"
  *
  * const opts: GetLogIssuesOptions = {
- * 
- * 
+ *
+ *
  * }
  * void opts
  * ```
@@ -76,47 +76,47 @@ export type GetLogIssuesOptions = Readonly<{
  * import * as S from "effect/Schema";
  *
  * const Person = S.Struct({
- * 
+ *
  * });
  *
  * // Configure hooks to customize how issues are rendered
  * const logIssues = getLogIssues({
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  *
  * // Invalid object (not even a struct)

@@ -633,12 +633,12 @@ export const EdgeTransform = <Data extends S.Top>(data: Data): EdgeTransform<Dat
  * const EdgeSchema = Edge(S.String)
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -1148,13 +1148,13 @@ const makeGraphTransform = <Node extends S.Top, Edge extends S.Top>(
  * const GraphSchema = DirectedGraph({ node: S.String, edge: S.Number })
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *

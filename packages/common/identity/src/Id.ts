@@ -71,13 +71,13 @@ const BASE_CHARACTERS = /^[A-Za-z0-9](?:[A-Za-z0-9_-]*[A-Za-z0-9])?$/;
  * const { $MyPkgId } = make("my-pkg")
  *
  * try {
- * 
- * 
- * 
+ *
+ *
+ *
  * } catch (error) {
- * 
- * 
- * 
+ *
+ *
+ *
  * }
  * ```
  *
@@ -580,7 +580,7 @@ export type TaggedModuleRecord<Value extends string, Segments extends ReadonlyAr
  *
  * // annote: produce an annotation record for Effect schemas
  * const annotation = $MyPkgId.annote("UserSchema", {
- * 
+ *
  * })
  * void annotation.identifier // "UserSchema"
  * void annotation.title // "UserSchema"

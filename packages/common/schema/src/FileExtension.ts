@@ -47,18 +47,18 @@ type MimeTypeExtension<T extends MimeTypeProperty> = T[keyof T]["extensions"][nu
  * import { extractMimeExtensions } from "@beep/schema/FileExtension";
  *
  * const extensions = extractMimeExtensions({
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * });
  *
  * console.log(extensions); // ["txt", "md", "markdown"]

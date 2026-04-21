@@ -81,10 +81,10 @@ const makeRenderMarkdownHtml = (options?: MarkdownRenderOptions) =>
  * import { MarkdownTextToHtml } from "@beep/schema/Markdown"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -123,8 +123,8 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
  * const decodeHtml = decodeMarkdownTextAs(S.String)
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * void program
  * ```

@@ -248,13 +248,12 @@ const collectToolingSourceRoots = Effect.fn("Lint.collectToolingSourceRoots")(fu
   return A.sort(roots, Order.String);
 });
 
-const recoverLintFileDiscovery =
-  <A>(checkName: string, fallback: A) =>
-    Effect.fn(function* (error: LintFileDiscoveryError): Effect.fn.Return<A, never, never> {
-      process.exitCode = 2;
-      yield* Console.error(`[${checkName}] ${error.message}`);
-      return fallback;
-    });
+const recoverLintFileDiscovery = <A>(checkName: string, fallback: A) =>
+  Effect.fn(function* (error: LintFileDiscoveryError): Effect.fn.Return<A, never, never> {
+    process.exitCode = 2;
+    yield* Console.error(`[${checkName}] ${error.message}`);
+    return fallback;
+  });
 
 const runLintToolingTaggedErrors = Effect.fn("runLintToolingTaggedErrors")(function* () {
   const fs = yield* FileSystem.FileSystem;

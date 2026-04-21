@@ -13,7 +13,7 @@
  *
  * const config = new LoggingConfig({ format: "pretty", minLogLevel: "Info" })
  * const program = Effect.log("hello").pipe(
- * 
+ *
  * )
  *
  * void Effect.runPromise(program)

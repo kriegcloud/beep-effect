@@ -41,8 +41,8 @@ export interface DrizzleEffectLoggerShape {
  * import { DrizzleEffectLogger } from "@beep/shared-server/factories/effect-drizzle"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * ```
  *

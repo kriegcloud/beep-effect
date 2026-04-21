@@ -188,21 +188,21 @@ export class Index extends S.TaggedClass<Index>($I`Index`)(
  * import * as S from "effect/Schema";
  *
  * const exampleReference = new ForeignKeyReference({
- * 
- * 
+ *
+ *
  * })
  *
  * console.log(`Table: ${exampleReference.table}, Column: ${exampleReference.column}`)
  *
  * const decoded = S.decodeUnknownEffect(ForeignKeyReference.schema)({
- * 
- * 
+ *
+ *
  * })
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * ```
  *

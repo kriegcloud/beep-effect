@@ -318,7 +318,7 @@ function HealthRow({
 }
 
 /** Visual health score indicator
- * 
+ *
  */
 function HealthScore({ stats }: { readonly stats: HealthStats }) {
   const total = stats.functionCount || 1;

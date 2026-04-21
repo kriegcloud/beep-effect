@@ -445,13 +445,13 @@ export type UseNumberInputOptions = BoundaryParams &
  * import { useNumberBoundary } from "@beep/ui/hooks/useNumberInput"
  *
  * function Example() {
- * 
  *
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * }
  *
  * void Example

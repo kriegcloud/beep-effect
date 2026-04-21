@@ -634,32 +634,32 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  * Status.is.hello("hello");  // true
  *
  * const result = Status.$match(Status.Enum.number1, {
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
  * });
  * void result;
  *
  * const EventKind = LiteralKit(["created", "deleted"] as const);
  *
  * const Event = EventKind.toTaggedUnion("kind")({
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * });
  * void Event;
  *
  * const StatusKeys = LiteralKit(
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
  * );
  *
  * StatusKeys.Enum.ONE; // "one"

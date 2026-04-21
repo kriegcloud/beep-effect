@@ -38,7 +38,7 @@ import * as S from "effect/Schema";
  * import { OptionFromOptionalNullishKey } from "@beep/schema"
  *
  * const Payload = S.Struct({
- * 
+ *
  * })
  *
  * const decode = S.decodeUnknownSync(Payload)
@@ -57,7 +57,7 @@ import * as S from "effect/Schema";
  * import { OptionFromOptionalNullishKey } from "@beep/schema"
  *
  * const Payload = S.Struct({
- * 
+ *
  * })
  *
  * const encode = S.encodeSync(Payload)

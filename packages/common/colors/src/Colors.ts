@@ -126,8 +126,8 @@ const formatter =
  * import { supportsColor } from "@beep/colors"
  *
  * const enabled = supportsColor({
- * 
- * 
+ *
+ *
  * })
  *
  * console.log(enabled) // true

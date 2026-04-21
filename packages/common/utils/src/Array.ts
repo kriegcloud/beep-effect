@@ -211,16 +211,16 @@ export const mapNonEmptyReadonly: {
  *
  * // Data-first
  * const expanded = A.flatMapNonEmptyReadonly(
- * 
- * 
+ *
+ *
  * )
  *
  * // Data-last (pipeable)
  * const doubled = pipe(
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * )
  *
  * void expanded

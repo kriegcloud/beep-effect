@@ -22,8 +22,8 @@ import { Effect, PlatformError } from "effect";
  * import { fromFileUrl } from "@beep/utils/NodeUrl"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  *
  * void program
@@ -37,7 +37,7 @@ import { Effect, PlatformError } from "effect";
  * const invalid = fromFileUrl(new URL("https://example.com/file.txt"))
  *
  * const recovered = Effect.catchTag(invalid, "BadArgument", () =>
- * 
+ *
  * )
  *
  * void recovered
@@ -71,8 +71,8 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  * import { toFileUrl } from "@beep/utils/NodeUrl"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  *
  * void program
@@ -84,7 +84,7 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  * import { toFileUrl } from "@beep/utils/NodeUrl"
  *
  * const recovered = Effect.catchTag(toFileUrl(""), "BadArgument", () =>
- * 
+ *
  * )
  *
  * void recovered

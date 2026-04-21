@@ -13,8 +13,8 @@
  * const timer = Metric.timer("my_op_duration")
  *
  * const program = trackDuration(
- * 
- * 
+ *
+ *
  * )
  *
  * void Effect.runPromise(program)
@@ -76,11 +76,11 @@ export const statusClass = (status: number): string => {
  * import { measureElapsedMillis } from "@beep/observability"
  *
  * const program = measureElapsedMillis(
- * 
+ *
  * ).pipe(
- * 
- * 
- * 
+ *
+ *
+ *
  * )
  *
  * void Effect.runPromise(program)
@@ -161,15 +161,15 @@ export const trackDuration = <A, E, R>(
  * const myWorkflow = Effect.succeed("result")
  *
  * const observed = observeWorkflow(
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * )
  *
  * void Effect.runPromise(observed)
@@ -244,14 +244,14 @@ export const observeWorkflow = <A, E, R>(
  * const handler = Effect.succeed({ id: 1, name: "Alice" })
  *
  * const observed = observeHttpRequest(
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * )
  *
  * void Effect.runPromise(observed)

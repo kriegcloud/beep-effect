@@ -4,11 +4,11 @@
  * Exports:
  *
  * - {@link KnowledgeGraphEventLogLayer} -- EventLog layer with handlers,
- * 
- * 
+ *
+ *
  * - {@link KnowledgeGraphLive} -- Full layer providing the
- * 
- * 
+ *
+ *
  *
  * The consumer is responsible for providing the SQL driver and journal
  * storage -- this module never binds to a specific database.

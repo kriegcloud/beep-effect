@@ -8,10 +8,9 @@
 import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
-import { thunkEmptyStr } from "@beep/utils";
+import { Str, thunkEmptyStr } from "@beep/utils";
 import { Effect, Path, Stream } from "effect";
 import * as S from "effect/Schema";
-import { Str } from "@beep/utils"
 import { ChildProcess } from "effect/unstable/process";
 
 const require = createRequire(import.meta.url);

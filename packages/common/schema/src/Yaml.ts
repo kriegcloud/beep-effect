@@ -87,10 +87,10 @@ export const parseYaml = makeParseYaml(yamlRuntime, loadYamlModule);
  * import { YamlTextToUnknown } from "@beep/schema/Yaml"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -127,8 +127,8 @@ export const YamlTextToUnknown = S.String.pipe(
  * const decodeConfig = decodeYamlTextAs(Config)
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * void program
  * ```

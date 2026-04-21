@@ -29,9 +29,9 @@ import { dual } from "effect/Function";
  * import { makeWaitForFile } from "@beep/utils/FileSystem"
  *
  * const program = Effect.gen(function* () {
- * 
  *
- * 
+ *
+ *
  * })
  *
  * void program

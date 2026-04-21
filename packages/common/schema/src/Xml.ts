@@ -65,10 +65,10 @@ const decodeXmlUnknown = Effect.fn("Xml.decodeXmlUnknown")(function* (content: s
  * import { XmlTextToUnknown } from "@beep/schema/Xml"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -105,8 +105,8 @@ export const XmlTextToUnknown = S.String.pipe(
  * const decodeDoc = decodeXmlTextAs(Doc)
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * void program
  * ```

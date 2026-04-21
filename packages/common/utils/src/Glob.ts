@@ -104,8 +104,8 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
  * import { Glob } from "@beep/utils/Glob"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  *
  * void program

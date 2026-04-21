@@ -509,8 +509,8 @@ export function Fn<Output extends S.Top, Error extends S.Top = typeof S.Never>(o
  * import * as S from "effect/Schema"
  *
  * const FormatCount = Fn({
- * 
- * 
+ *
+ *
  * })
  *
  * const formatCount = FormatCount.implementSync((count) => `${count}`)

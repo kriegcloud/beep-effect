@@ -136,10 +136,10 @@ export const resolveSidecarAppDataDir = Effect.fn("SidecarRuntime.resolveAppData
  * Resolve the sidecar version from the environment or package.json.
  *
  * Priority:
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  *
  * @since 0.0.0
  * @category Configuration

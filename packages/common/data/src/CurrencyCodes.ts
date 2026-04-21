@@ -27,11 +27,11 @@ import * as internal from "./generated/iso4217.ts";
  * import type { CurrencyCodeData } from "@beep/data/CurrencyCodes"
  *
  * const entry: CurrencyCodeData = {
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
  * }
  * void entry
  * ```

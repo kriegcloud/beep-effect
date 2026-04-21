@@ -211,12 +211,12 @@ const decodeSemanticSchemaMetadata = S.decodeUnknownSync(SemanticSchemaMetadata)
  * import { makeSemanticSchemaMetadata } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const metadata = makeSemanticSchemaMetadata({
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * console.log(metadata.kind) // "identifier"
  * ```
@@ -239,12 +239,12 @@ export const makeSemanticSchemaMetadata = (
  * import { annotateSemanticSchema } from "@beep/semantic-web/semantic-schema-metadata"
  *
  * const MySchema = annotateSemanticSchema(S.String, {
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * void MySchema
  * ```

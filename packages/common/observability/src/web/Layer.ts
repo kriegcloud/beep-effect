@@ -11,11 +11,11 @@ import { toWebResource, type WebObservabilityConfig } from "./Config.ts";
  * import { layerWebSdk } from "@beep/observability/web"
  *
  * const config = new WebObservabilityConfig({
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
  * })
  *
  * const layer = layerWebSdk(config)

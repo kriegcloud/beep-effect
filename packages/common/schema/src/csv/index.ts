@@ -226,10 +226,10 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * const CsvSchema = CSV(Row)
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```

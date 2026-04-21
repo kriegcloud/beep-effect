@@ -1,6 +1,7 @@
 import { $I as $RootId } from "@beep/identity/packages";
 import { StatusCauseFields, TaggedErrorClass, UUID } from "@beep/schema";
 import { Cause, Context, Effect, Layer, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -41,7 +42,19 @@ export class Vt2ClientConfig extends S.Class<Vt2ClientConfig>($I`Vt2ClientConfig
   $I.annote("Vt2ClientConfig", {
     description: "Client configuration for calling the local V2T control plane.",
   })
-) {}
+) {
+  static readonly new: {
+    (baseUrl: string, sessionId: string): Vt2ClientConfig;
+    (sessionId: string): (baseUrl: string) => Vt2ClientConfig;
+  } = dual(
+    2,
+    (baseUrl: string, sessionId: string) =>
+      new Vt2ClientConfig({
+        baseUrl,
+        sessionId,
+      })
+  );
+}
 
 /**
  * Typed client error for V2T sidecar communication failures.
@@ -55,7 +68,39 @@ export class Vt2ClientError extends TaggedErrorClass<Vt2ClientError>($I`Vt2Clien
   $I.annote("Vt2ClientError", {
     description: "Typed client error for V2T control-plane communication failures.",
   })
-) {}
+) {
+  static readonly fromCause: {
+    (cause: unknown, fallback: string): Vt2ClientError;
+    (fallback: string): (cause: unknown) => Vt2ClientError;
+  } = dual(2, (cause: unknown, fallback: string): Vt2ClientError =>
+    pipe(
+      cause,
+      O.liftPredicate(S.is(Vt2ClientError)),
+      O.orElse(() =>
+        pipe(
+          cause,
+          O.liftPredicate(S.is(Vt2ControlPlaneErrorPayload)),
+          O.map(
+            (payload) =>
+              new Vt2ClientError({
+                message: payload.message,
+                status: payload.status,
+                cause: O.none(),
+              })
+          )
+        )
+      ),
+      O.getOrElse(
+        () =>
+          new Vt2ClientError({
+            message: fallback,
+            status: transportStatus(cause),
+            cause: O.liftPredicate(P.isError)(cause),
+          })
+      )
+    )
+  );
+}
 
 /**
  * Service contract for the V2T control-plane client.
@@ -153,7 +198,9 @@ export const makeVt2HttpClient = (options: Vt2HttpClientOptions) =>
     ...(options.transformResponse === undefined ? {} : { transformResponse: options.transformResponse }),
   });
 
-const Vt2HttpClientServiceLayer = (options: Vt2HttpClientOptions): Layer.Layer<Vt2HttpClientService, never, HttpClient.HttpClient> =>
+const Vt2HttpClientServiceLayer = (
+  options: Vt2HttpClientOptions
+): Layer.Layer<Vt2HttpClientService, never, HttpClient.HttpClient> =>
   Layer.effect(
     Vt2HttpClientService,
     makeVt2HttpClient(options).pipe(Effect.map((client) => Vt2HttpClientService.of({ client })))
@@ -178,23 +225,8 @@ export const makeVt2HttpClientDefault = (options: Vt2HttpClientOptions): Effect.
 const transportStatus = (cause: unknown): number =>
   HttpClientError.isHttpClientError(cause) && cause.response !== undefined ? cause.response.status : 500;
 
-const toClientError = (fallback: string, cause: unknown): Vt2ClientError =>
-  S.is(Vt2ClientError)(cause)
-    ? cause
-    : S.is(Vt2ControlPlaneErrorPayload)(cause)
-      ? new Vt2ClientError({
-          message: cause.message,
-          status: cause.status,
-          cause: O.none(),
-        })
-      : new Vt2ClientError({
-          message: fallback,
-          status: transportStatus(cause),
-          cause: O.fromUndefinedOr(P.isError(cause) ? cause : undefined),
-        });
-
 const mapClientError = <A, E>(fallback: string, effect: Effect.Effect<A, E>) =>
-  effect.pipe(Effect.catchCause((cause) => Effect.fail(toClientError(fallback, Cause.squash(cause)))));
+  effect.pipe(Effect.catchCause((cause) => pipe(Cause.squash(cause), Vt2ClientError.fromCause(fallback), Effect.fail)));
 
 const decodeSessionId = (sessionId: string): Effect.Effect<UUID, Vt2ClientError> =>
   pipe(

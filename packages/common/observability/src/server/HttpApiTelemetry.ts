@@ -32,12 +32,12 @@ const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
  *
  * const successStatus = S.decodeUnknownSync(NonNegativeInt)(201)
  * const descriptor = new HttpApiTelemetryDescriptor({
- * 
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *
@@ -269,9 +269,9 @@ export const httpApiFailureStatus = (endpoint: HttpApiEndpoint.AnyWithProps, err
  * ```typescript
  * import { Effect } from "effect"
  * import {
- * 
- * 
- * 
+ *
+ *
+ *
  * } from "@beep/observability/server"
  * import type { HttpApiEndpoint } from "effect/unstable/httpapi"
  * import * as HttpServerResponse from "effect/unstable/http/HttpServerResponse"
@@ -367,8 +367,8 @@ export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpAp
  *
  * const metrics = makeHttpApiMetrics("todox_api")
  * const TelemetryLive = layerHttpApiTelemetryMiddleware({
- * 
- * 
+ *
+ *
  * })
  * ```
  *
@@ -394,9 +394,9 @@ export const layerHttpApiTelemetryMiddleware = (
  * ```typescript
  * import { Effect } from "effect"
  * import {
- * 
- * 
- * 
+ *
+ *
+ *
  * } from "@beep/observability/server"
  *
  * declare const descriptor: HttpApiTelemetryDescriptor

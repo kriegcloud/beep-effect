@@ -225,8 +225,8 @@ export type ChalkOptions = typeof ChalkOptionsSchema.Type;
  *
  * const info: ColorInfo = supportsColor
  * if (info !== false) {
- * 
- * 
+ *
+ *
  * }
  * ```
  *
@@ -298,10 +298,10 @@ export type ColorName = typeof ColorNameSchema.Type;
  *
  * const decode = S.decodeUnknownSync(ColorSupport)
  * console.log(decode({
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * }))
  * ```
  *
@@ -437,7 +437,7 @@ export type ModifierName = typeof ModifierNameSchema.Type;
  * import { modifierNames } from "@beep/chalk"
  *
  * for (const name of modifierNames) {
- * 
+ *
  * }
  * ```
  *
@@ -454,7 +454,7 @@ export const modifierNames = modifierNameValues;
  * import { foregroundColorNames } from "@beep/chalk"
  *
  * for (const name of foregroundColorNames) {
- * 
+ *
  * }
  * ```
  *
@@ -471,7 +471,7 @@ export const foregroundColorNames = foregroundColorNameValues;
  * import { backgroundColorNames } from "@beep/chalk"
  *
  * for (const name of backgroundColorNames) {
- * 
+ *
  * }
  * ```
  *
@@ -488,7 +488,7 @@ export const backgroundColorNames = backgroundColorNameValues;
  * import { colorNames } from "@beep/chalk"
  *
  * for (const name of colorNames) {
- * 
+ *
  * }
  * ```
  *
@@ -568,8 +568,8 @@ export const colors = colorNames;
  * import { supportsColor } from "@beep/chalk"
  *
  * if (supportsColor !== false) {
- * 
- * 
+ *
+ *
  * }
  * ```
  *
@@ -589,7 +589,7 @@ export const supportsColor = detectedSupportsColor.stdout;
  * import { supportsColorStderr } from "@beep/chalk"
  *
  * if (supportsColorStderr !== false) {
- * 
+ *
  * }
  * ```
  *

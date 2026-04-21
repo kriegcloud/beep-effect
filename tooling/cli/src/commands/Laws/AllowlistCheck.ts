@@ -9,9 +9,9 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { findRepoRoot } from "@beep/repo-utils";
 import { Console, Effect, FileSystem, Path, pipe, Result, SchemaIssue } from "effect";
 import * as A from "effect/Array";
-import * as S from "effect/Schema";
 import * as Eq from "effect/Equal";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import { type ParseError, parse } from "jsonc-parser";
 
 const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");

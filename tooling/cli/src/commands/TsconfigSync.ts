@@ -991,8 +991,14 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
       O.map((rootExportTarget) => buildCanonicalAliasTargets(relativeDir, rootExportTarget))
     );
     const aliasTargetFields = R.getSomes({
-      rootAliasTarget: pipe(aliasTargets, O.map(({ rootAliasTarget }) => rootAliasTarget)),
-      wildcardAliasTarget: pipe(aliasTargets, O.map(({ wildcardAliasTarget }) => wildcardAliasTarget)),
+      rootAliasTarget: pipe(
+        aliasTargets,
+        O.map(({ rootAliasTarget }) => rootAliasTarget)
+      ),
+      wildcardAliasTarget: pipe(
+        aliasTargets,
+        O.map(({ wildcardAliasTarget }) => wildcardAliasTarget)
+      ),
     });
     const docgenAliasSource = buildDocgenAliasSource(packageName, relativeDir, packageJson);
 

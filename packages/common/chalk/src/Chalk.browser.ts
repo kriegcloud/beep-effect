@@ -11,9 +11,9 @@
  * import chalk, { Chalk, supportsColor } from "@beep/chalk/Chalk.browser"
  *
  * if (supportsColor !== false) {
- * 
+ *
  * } else {
- * 
+ *
  * }
  * ```
  *

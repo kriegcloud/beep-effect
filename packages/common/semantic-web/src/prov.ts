@@ -202,9 +202,9 @@ export class LifecycleTimes extends S.Class<LifecycleTimes>($I`LifecycleTimes`)(
  * import { Entity } from "@beep/semantic-web/prov"
  *
  * const entity = S.decodeUnknownSync(Entity)({
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * console.log(entity.provType) // "Entity"
  * ```
@@ -249,9 +249,9 @@ export class Entity extends S.Class<Entity>($I`Entity`)(
  * import { Activity } from "@beep/semantic-web/prov"
  *
  * const activity = S.decodeUnknownSync(Activity)({
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * console.log(activity.provType) // "Activity"
  * ```
@@ -291,9 +291,9 @@ export class Activity extends S.Class<Activity>($I`Activity`)(
  * import { Agent } from "@beep/semantic-web/prov"
  *
  * const agent = S.decodeUnknownSync(Agent)({
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * console.log(agent.provType) // "Agent"
  * ```
@@ -666,7 +666,7 @@ export class End extends S.Class<End>($I`End`)(
  * const decoded = S.decodeUnknownSync(ProvRecord)({ provType: "Agent", name: "bob" })
  *
  * if (S.is(Agent)(decoded)) {
- * 
+ *
  * }
  * ```
  *

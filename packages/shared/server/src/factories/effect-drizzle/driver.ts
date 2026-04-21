@@ -386,8 +386,8 @@ const drizzleWithLogger = <TSchema extends Record<string, unknown>, TRelations e
  * import { makeWithDefaults } from "@beep/shared-server/factories/effect-drizzle"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * ```
  *

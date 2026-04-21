@@ -9,11 +9,11 @@
  * @example
  * ```typescript
  * import {
- * 
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
+ *
  * } from "@beep/knowledge-graph/Models"
  *
  * // Entity IDs for table primary keys

@@ -91,8 +91,8 @@ export type CrossOriginOpenerPolicyOption = typeof CrossOriginOpenerPolicyOption
  * import { CrossOriginOpenerPolicyResponseHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy"
  *
  * const header = new CrossOriginOpenerPolicyResponseHeader({
- * 
- * 
+ *
+ *
  * })
  * void header
  * ```

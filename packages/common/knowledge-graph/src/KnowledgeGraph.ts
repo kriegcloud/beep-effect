@@ -13,9 +13,9 @@
  *
  * // Obtain the service from the context
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
+ *
+ *
+ *
  * })
  * ```
  *
@@ -160,17 +160,17 @@ type KnowledgeGraphShape = {
  * import { NodeMetadata } from "@beep/knowledge-graph/Schemas"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
- * 
  *
- * 
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
+ *
  * })
  * ```
  *

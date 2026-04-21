@@ -47,9 +47,9 @@ const promiseAnnotations = {
  *
  * const nativePromise = globalThis.Promise.resolve(1)
  * const thenable = {
- * 
- * 
- * 
+ *
+ *
+ *
  * }
  *
  * console.log(isPromise(nativePromise)) // true

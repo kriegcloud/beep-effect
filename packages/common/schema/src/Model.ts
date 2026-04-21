@@ -70,10 +70,10 @@ export {
    * export const GroupId = Schema.Number.pipe(Schema.brand("GroupId"))
    *
    * export class Group extends Model.Class<Group>("Group")({
-   * 
-   * 
-   * 
-   * 
+   *
+   *
+   *
+   *
    * }) {}
    *
    * // schema used for selects
@@ -92,9 +92,9 @@ export {
    *
    * // you can also turn them into classes
    * class GroupJson extends Schema.Class<GroupJson>("GroupJson")(Group.json) {
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * }
    * void GroupJson
    * ```
@@ -109,8 +109,8 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const BaseModel = Model.ClassFactory({
-   * 
-   * 
+   *
+   *
    * })
    *
    * void BaseModel
@@ -129,8 +129,8 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const fields = Model.Struct({
-   * 
-   * 
+   *
+   *
    * })
    *
    * const InsertSchema = Model.extract(fields, "insert")
@@ -150,9 +150,9 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const status = Model.Field({
-   * 
-   * 
-   * 
+   *
+   *
+   *
    * })
    *
    * void status
@@ -203,12 +203,12 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const makeOptional = Model.fieldEvolve({
-   * 
-   * 
-   * 
-   * 
-   * 
-   * 
+   *
+   *
+   *
+   *
+   *
+   *
    * })
    *
    * void makeOptional
@@ -227,8 +227,8 @@ export {
    * import * as Model from "@beep/schema/Model"
    *
    * const groupFields = Model.Struct({
-   * 
-   * 
+   *
+   *
    * })
    *
    * void groupFields
@@ -268,8 +268,8 @@ export {
  * import * as Model from "@beep/schema/Model"
  *
  * const s = Model.Struct({
- * 
- * 
+ *
+ *
  * })
  *
  * const raw = Model.fields(s)
@@ -293,10 +293,10 @@ export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A
  * const GroupId = S.Number.pipe(S.brand("GroupId"))
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * }) {}
  *
  * void Group
@@ -333,8 +333,8 @@ export interface Generated<S extends S.Top>
  * const GroupId = S.Number.pipe(S.brand("GroupId"))
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Group
@@ -405,9 +405,9 @@ export interface Sensitive<S extends S.Top>
  * import * as Model from "@beep/schema/Model"
  *
  * class User extends Model.Class<User>("User")({
- * 
- * 
- * 
+ *
+ *
+ *
  * }) {}
  *
  * void User
@@ -432,7 +432,7 @@ export const Sensitive = <S extends S.Top>(schema: S): Sensitive<S> =>
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.optionalOption<typeof Schema.String> =
- * 
+ *
  *
  * void field
  * ```
@@ -482,7 +482,7 @@ export const optionalOption = <S extends S.Top>(schema: S): optionalOption<S> =>
  * import * as Model from "@beep/schema/Model"
  *
  * const opt: Model.FieldOption<typeof Schema.String> =
- * 
+ *
  *
  * void opt
  * ```
@@ -573,8 +573,8 @@ export interface BooleanSqlite
  * import * as Model from "@beep/schema/Model"
  *
  * class Task extends Model.Class<Task>("Task")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Task
@@ -618,8 +618,8 @@ export interface Date extends S.decodeTo<S.instanceOf<DateTime.Utc>, S.String> {
  * import * as Model from "@beep/schema/Model"
  *
  * class Event extends Model.Class<Event>("Event")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Event
@@ -736,8 +736,8 @@ export interface DateTimeInsert
  * import * as Model from "@beep/schema/Model"
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Group
@@ -785,8 +785,8 @@ export interface DateTimeInsertFromDate
  * import * as Model from "@beep/schema/Model"
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Group
@@ -834,8 +834,8 @@ export interface DateTimeInsertFromNumber
  * import * as Model from "@beep/schema/Model"
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Group
@@ -885,8 +885,8 @@ export interface DateTimeUpdate
  * import * as Model from "@beep/schema/Model"
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Group
@@ -937,8 +937,8 @@ export interface DateTimeUpdateFromDate
  * import * as Model from "@beep/schema/Model"
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Group
@@ -989,8 +989,8 @@ export interface DateTimeUpdateFromNumber
  * import * as Model from "@beep/schema/Model"
  *
  * class Group extends Model.Class<Group>("Group")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Group
@@ -1043,8 +1043,8 @@ export interface JsonFromString<S extends S.Top>
  * import * as Model from "@beep/schema/Model"
  *
  * class Record extends Model.Class<Record>("Record")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Record
@@ -1142,8 +1142,8 @@ export const UuidV4WithGenerate = <B extends string>(
  * const BlobId = Model.Uint8Array.pipe(Schema.brand("BlobId"))
  *
  * class Blob extends Model.Class<Blob>("Blob")({
- * 
- * 
+ *
+ *
  * }) {}
  *
  * void Blob

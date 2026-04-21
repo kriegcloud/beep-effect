@@ -93,10 +93,10 @@ const decodeJsonlUnknown = Effect.fn("Jsonl.decodeJsonlUnknown")(function* (cont
  * import { JsonlTextToUnknown } from "@beep/schema/Jsonl"
  *
  * const program = Effect.gen(function* () {
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * })
  * void program
  * ```
@@ -130,8 +130,8 @@ export const JsonlTextToUnknown = S.String.pipe(
  * const decodeRows = decodeJsonlTextAs(S.Array(Row))
  *
  * const program = Effect.gen(function* () {
- * 
- * 
+ *
+ *
  * })
  * void program
  * ```
