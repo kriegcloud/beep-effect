@@ -1,3 +1,4 @@
+import { $RepoCliId, $SchemaId } from "@beep/identity";
 import {
   LiteralKit,
   LiteralKitEnumMappingCoverageError,
@@ -195,29 +196,60 @@ describe("LiteralKit (manual Enum mapping)", () => {
     expect(Status.Enum.TWO).toBe("two");
   });
 
-  it("keeps is, thunk, and $match on the default LiteralToKey keys", () => {
-    expect(Status.is.one("one")).toBe(true);
-    expect(Status.thunk.two()).toBe("two");
+  it("maps is, thunk, and $match to the provided manual keys", () => {
+    expect(Status.is.ONE("one")).toBe(true);
+    expect(Status.thunk.TWO()).toBe("two");
     expect(
       Status.$match("one", {
-        one: () => "first",
-        two: () => "second",
+        ONE: () => "first",
+        TWO: () => "second",
       })
     ).toBe("first");
   });
 
-  it("keeps toTaggedUnion case keys on the original literal keys", () => {
+  it("maps toTaggedUnion case keys to the provided manual keys", () => {
     const Event = Status.toTaggedUnion("kind")({
-      one: {
+      ONE: {
         value: S.Literal(1),
       },
-      two: {
+      TWO: {
         value: S.Literal(2),
       },
     });
 
     expect(Event.guards.one({ kind: "one", value: 1 })).toBe(true);
     expect(Event.guards.two({ kind: "one", value: 1 })).toBe(false);
+  });
+
+  it("uses mapped keys for branded string helper objects", () => {
+    const RepoPkg = LiteralKit(
+      [$RepoCliId.identifier, $SchemaId.identifier] as const,
+      [
+        [$RepoCliId.identifier, "@beep/repo-cli"],
+        [$SchemaId.identifier, "@beep/schema"],
+      ] as const
+    );
+
+    expect(RepoPkg.Enum["@beep/repo-cli"]).toBe("@beep/repo-cli");
+    expect(RepoPkg.thunk["@beep/repo-cli"]()).toBe("@beep/repo-cli");
+    expect(RepoPkg.is["@beep/repo-cli"]("@beep/repo-cli")).toBe(true);
+    expect(
+      RepoPkg.$match($RepoCliId.identifier, {
+        "@beep/repo-cli": () => "repo-cli",
+        "@beep/schema": () => "schema",
+      })
+    ).toBe("repo-cli");
+
+    const Event = RepoPkg.toTaggedUnion("pkg")({
+      "@beep/repo-cli": {
+        enabled: S.Literal(true),
+      },
+      "@beep/schema": {
+        enabled: S.Literal(false),
+      },
+    });
+
+    expect(Event.cases).toBeDefined();
   });
 
   it("preserves mapped Enum keys after annotate", () => {
@@ -242,9 +274,9 @@ describe("LiteralKit (manual Enum mapping)", () => {
     expect(Mixed.Enum.ONE).toBe(1);
     expect(Mixed.Enum.TRUE).toBe(true);
     expect(Mixed.Enum.TWO).toBe("two");
-    expect(Mixed.is.number1(1)).toBe(true);
-    expect(Mixed.is.true(true)).toBe(true);
-    expect(Mixed.is.two("two")).toBe(true);
+    expect(Mixed.is.ONE(1)).toBe(true);
+    expect(Mixed.is.TRUE(true)).toBe(true);
+    expect(Mixed.is.TWO("two")).toBe(true);
   });
 
   it("throws LiteralKitEnumMappingDuplicateLiteralError for duplicate source literals at runtime", () => {

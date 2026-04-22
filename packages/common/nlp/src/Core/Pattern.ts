@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, NonNegativeInt, SchemaUtils } from "@beep/schema";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -460,7 +461,13 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   /**
    * Pattern identifier constructor.
    */
-  static readonly Id = PatternId.make;
+  static readonly Id: {
+    (id: string): PatternId;
+    (): (id: string) => PatternId;
+  } = dual<
+    () => (id: string) => PatternId,
+    (id: string) => PatternId
+  >((args) => args.length >= 1, PatternId.make);
 
   /**
    * Pattern element schema.
@@ -506,12 +513,24 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   /**
    * Encode a pattern into its schema representation.
    */
-  static readonly encode = S.encodeSync(Pattern);
+  static readonly encode: {
+    (pattern: Pattern): S.Codec.Encoded<typeof Pattern>;
+    (): (pattern: Pattern) => S.Codec.Encoded<typeof Pattern>;
+  } = dual<
+    () => (pattern: Pattern) => S.Codec.Encoded<typeof Pattern>,
+    (pattern: Pattern) => S.Codec.Encoded<typeof Pattern>
+  >((args) => args.length >= 1, S.encodeSync(Pattern));
 
   /**
    * Decode unknown input into a pattern.
    */
-  static readonly decode = S.decodeUnknownSync(Pattern);
+  static readonly decode: {
+    (input: S.Codec.Encoded<typeof Pattern>): Pattern;
+    (): (input: S.Codec.Encoded<typeof Pattern>) => Pattern;
+  } = dual<
+    () => (input: S.Codec.Encoded<typeof Pattern>) => Pattern,
+    (input: S.Codec.Encoded<typeof Pattern>) => Pattern
+  >((args) => args.length >= 1, S.decodeUnknownSync(Pattern));
 
   /**
    * Runtime predicate for pattern values.

@@ -6,6 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { TaggedErrorClass, type TaggedErrorClassFromFields } from "../TaggedErrorClass.ts";
@@ -38,10 +39,26 @@ export class CsvError extends CsvErrorBase {}
  * @category Utility
  * @since 0.0.0
  */
-export const csvError = (message: string, offset?: number): CsvError =>
-  P.isNumber(offset)
-    ? new CsvError({
-        message,
-        offset,
-      })
-    : new CsvError({ message });
+export const csvError: {
+  (message: string): CsvError;
+  (offset: number): (message: string) => CsvError;
+  (message: string, offset: number): CsvError;
+} = dual(
+  (args) => args.length === 1 && P.isNumber(args[0]),
+  (message: string | number, offset?: number): CsvError | ((message: string) => CsvError) => {
+    if (P.isNumber(message)) {
+      return (actualMessage: string) =>
+        new CsvError({
+          message: actualMessage,
+          offset: message,
+        });
+    }
+
+    return P.isNumber(offset)
+      ? new CsvError({
+          message,
+          offset,
+        })
+      : new CsvError({ message });
+  }
+);

@@ -47,31 +47,50 @@ Pure means:
 - no filesystem
 - no browser APIs
 - no environment reads
+- no config reads
 - no hidden runtime dependency
 
 An Effect that only models domain success/failure can still be pure in the
 architectural sense.
+
+Domain may define provider-neutral schemas and value objects that config
+packages reuse when resolving typed settings. Domain behavior must still receive
+explicit values from callers rather than reading `Config`, `ConfigProvider`,
+`@beep/shared-config`, environment variables, secrets, files, or process state.
 
 ## Example Shape
 
 `TwoFactor.model.ts` can own simple behavior:
 
 ```ts
+import { $I as $RootId } from "@beep/identity/packages"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { AccountId } from "@beep/iam-domain/entities/Account"
 import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
 
-export const TwoFactorId = S.String.pipe(S.brand("TwoFactorId"))
+const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.model.ts")
+
+export const TwoFactorId = S.String.pipe(
+  S.brand("TwoFactorId"),
+  $I.annoteSchema("TwoFactorId", {
+    description: "Unique identifier for a two-factor authentication configuration",
+  }),
+)
 export type TwoFactorId = typeof TwoFactorId.Type
 
-export class TwoFactor extends Model.Class<TwoFactor>("TwoFactor")({
-  id: TwoFactorId,
-  accountId: AccountId,
-  enabled: S.Boolean,
-  recoveryCodesRemaining: S.Number,
-}) {
+export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
+  {
+    id: TwoFactorId,
+    accountId: AccountId,
+    enabled: S.Boolean,
+    recoveryCodesRemaining: S.Number,
+  },
+  $I.annote("TwoFactor", {
+    description: "Two-factor authentication configuration for an account",
+  }),
+) {
   readonly canDisable = (): boolean => this.enabled
 
   readonly useRecoveryCode = (): Effect.Effect<

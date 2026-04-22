@@ -13,7 +13,7 @@ TypeScript is one of the strongest parts of this Turbo setup. Shared base config
 - `tsconfig.packages.json` enumerates workspace package references across apps, packages, tooling, and infra.
 - `tsconfig.quality.json` and `tsconfig.quality.packages.json` provide a broader type-checking lane.
 - `turbo.json` defines cached `build` and `check` tasks with `dependsOn` wiring.
-- Package scripts use `tsc -b` consistently: `@beep/editor-app`, `@beep/v2t`, `@beep/ui`, `@beep/repo-cli`, `@beep/desktop`, and `@beep/infra`.
+- Package scripts use `tsc -b` consistently: `@beep/editor-app`, `@beep/ui`, `@beep/repo-cli`, `@beep/desktop`, and `@beep/infra`.
 - `apps/desktop/package.json` also separates `tsconfig.test.json` for test-only typechecking.
 - Root `test:types` uses `tstyche`, so TypeScript correctness is not limited to `tsc` alone.
 
@@ -39,7 +39,6 @@ TypeScript is one of the strongest parts of this Turbo setup. Shared base config
 - `sed -n '1,220p' tsconfig.packages.json`
 - `rg -n 'extends|references|composite|tsBuildInfoFile|paths|baseUrl|include|exclude' tsconfig*.json apps/*/tsconfig*.json packages/*/tsconfig*.json tooling/*/tsconfig*.json infra/tsconfig*.json`
 - `bunx turbo query ls @beep/editor-app --output json`
-- `bunx turbo query ls @beep/v2t --output json`
 - `bunx turbo query ls @beep/repo-cli --output json`
 
 ## Sources

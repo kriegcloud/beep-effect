@@ -92,35 +92,7 @@ const isMakeDataFirstArgs = (
  * @category Constructors
  */
 export function pos(first: WinkPOSTag | "", ...rest: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
-/**
- * Create a POS pattern element from an array of choices.
- *
- * @example
- * ```ts
- * import { pos } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = pos([""])
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function pos(tags: ReadonlyArray<WinkPOSTag | "">): POSPatternElement;
-/**
- * Normalize POS choices into a POS pattern element.
- *
- * @example
- * ```ts
- * import { pos } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = pos("")
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function pos(
   firstOrTags: (WinkPOSTag | "") | ReadonlyArray<WinkPOSTag | "">,
   ...rest: ReadonlyArray<WinkPOSTag | "">
@@ -145,35 +117,7 @@ export function pos(
  * @category Constructors
  */
 export function entity(first: WinkEntityType | "", ...rest: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
-/**
- * Create an entity pattern element from an array of choices.
- *
- * @example
- * ```ts
- * import { entity } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = entity([""])
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function entity(types: ReadonlyArray<WinkEntityType | "">): EntityPatternElement;
-/**
- * Normalize entity choices into an entity pattern element.
- *
- * @example
- * ```ts
- * import { entity } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = entity("")
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function entity(
   firstOrTypes: (WinkEntityType | "") | ReadonlyArray<WinkEntityType | "">,
   ...rest: ReadonlyArray<WinkEntityType | "">
@@ -198,39 +142,8 @@ export function entity(
  * @category Constructors
  */
 export function literal(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
-/**
- * Create a literal pattern element from an array of values.
- *
- * @example
- * ```ts
- * import { literal } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = literal(["hello"])
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function literal(values: ReadonlyArray<string>): LiteralPatternElement;
-/**
- * Normalize literal values into a literal pattern element.
- *
- * @example
- * ```ts
- * import { literal } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = literal("hello")
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
-export function literal(
-  firstOrValues: string | ReadonlyArray<string>,
-  ...rest: ReadonlyArray<string>
-): LiteralPatternElement {
+export function literal(firstOrValues: string | ReadonlyArray<string>, ...rest: ReadonlyArray<string>) {
   const values = isLiteralValueArray(firstOrValues) ? firstOrValues : [firstOrValues, ...rest];
   return new LiteralPatternElement({
     value: normalizeLiteralValues(values),
@@ -251,33 +164,7 @@ export function literal(
  * @category Constructors
  */
 export function optionalPos(first: WinkPOSTag, ...rest: ReadonlyArray<WinkPOSTag>): POSPatternElement;
-/**
- * Create an optional POS pattern element from an array of tags.
- *
- * @example
- * ```ts
- * import { optionalPos } from "@beep/nlp/Core/PatternBuilders"
- *
- * console.log(optionalPos)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function optionalPos(tags: ReadonlyArray<WinkPOSTag>): POSPatternElement;
-/**
- * Normalize POS tags into an optional POS pattern element.
- *
- * @example
- * ```ts
- * import { optionalPos } from "@beep/nlp/Core/PatternBuilders"
- *
- * console.log(optionalPos)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function optionalPos(
   firstOrTags: WinkPOSTag | ReadonlyArray<WinkPOSTag>,
   ...rest: ReadonlyArray<WinkPOSTag>
@@ -302,33 +189,7 @@ export function optionalPos(
  * @category Constructors
  */
 export function optionalEntity(first: WinkEntityType, ...rest: ReadonlyArray<WinkEntityType>): EntityPatternElement;
-/**
- * Create an optional entity pattern element from an array of entity types.
- *
- * @example
- * ```ts
- * import { optionalEntity } from "@beep/nlp/Core/PatternBuilders"
- *
- * console.log(optionalEntity)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function optionalEntity(types: ReadonlyArray<WinkEntityType>): EntityPatternElement;
-/**
- * Normalize entity types into an optional entity pattern element.
- *
- * @example
- * ```ts
- * import { optionalEntity } from "@beep/nlp/Core/PatternBuilders"
- *
- * console.log(optionalEntity)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function optionalEntity(
   firstOrTypes: WinkEntityType | ReadonlyArray<WinkEntityType>,
   ...rest: ReadonlyArray<WinkEntityType>
@@ -353,35 +214,7 @@ export function optionalEntity(
  * @category Constructors
  */
 export function optionalLiteral(first: string, ...rest: ReadonlyArray<string>): LiteralPatternElement;
-/**
- * Create an optional literal pattern element from an array of values.
- *
- * @example
- * ```ts
- * import { optionalLiteral } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = optionalLiteral(["hello"])
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function optionalLiteral(values: ReadonlyArray<string>): LiteralPatternElement;
-/**
- * Normalize literal values into an optional literal pattern element.
- *
- * @example
- * ```ts
- * import { optionalLiteral } from "@beep/nlp/Core/PatternBuilders"
- *
- * const element = optionalLiteral("hello")
- * console.log(element)
- * ```
- *
- * @since 0.0.0
- * @category Constructors
- */
 export function optionalLiteral(
   firstOrValues: string | ReadonlyArray<string>,
   ...rest: ReadonlyArray<string>
@@ -590,10 +423,16 @@ export const elements = (pattern: Pattern): ReadonlyArray<PatternElement> => toE
  * @since 0.0.0
  * @category Accessors
  */
-export const elementAt = (pattern: Pattern, index: number): PatternElement | undefined => {
+export const elementAt: {
+  (pattern: Pattern, index: number): PatternElement | undefined;
+  (index: number): (pattern: Pattern) => PatternElement | undefined;
+} = dual<
+  (index: number) => (pattern: Pattern) => PatternElement | undefined,
+  (pattern: Pattern, index: number) => PatternElement | undefined
+>(2, (pattern: Pattern, index: number): PatternElement | undefined => {
   const element = Chunk.get(pattern.elements, index);
   return O.isSome(element) ? element.value : undefined;
-};
+});
 
 /**
  * Test whether a pattern is empty.
@@ -808,12 +647,18 @@ export const composePatches = (...patches: ReadonlyArray<PatternPatch>): Pattern
  * @since 0.0.0
  * @category Combinators
  */
-export const patchReplaceLiteralAt =
-  (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement): PatternPatch =>
-  (pattern) =>
+export const patchReplaceLiteralAt: {
+  (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement): PatternPatch;
+  (replacer: (values: ReadonlyArray<string>) => PatternElement): (index: number) => PatternPatch;
+} = dual<
+  (replacer: (values: ReadonlyArray<string>) => PatternElement) => (index: number) => PatternPatch,
+  (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement) => PatternPatch
+>(2, (index: number, replacer: (values: ReadonlyArray<string>) => PatternElement): PatternPatch => {
+  return (pattern) =>
     mapElements(pattern, (element: PatternElement, elementIndex: number) =>
       elementIndex === index && isLiteralElement(element) ? replacer(element.value) : element
     );
+});
 
 /**
  * Replace all literal elements.

@@ -9,9 +9,8 @@ The repo is already using package-level `turbo.json` files in the right narrow p
 
 # Current repo evidence
 - Root `turbo.json` defines the shared task model for `build`, `lint`, `check`, `test`, `docgen`, `dev`, `storybook`, and `build-storybook`.
-- `apps/editor-app/turbo.json`, `apps/V2T/turbo.json`, and `apps/desktop/turbo.json` already extend the root with package-local `dev:desktop` `with` wiring.
-- `packages/v2t-sidecar/turbo.json` exists and simply extends the root, which shows the repo is already comfortable with package configurations as an organizational tool.
-- `bunx turbo query ls @beep/editor-app @beep/v2t @beep/desktop --output json` shows package-owned scripts like `build:native`, `build:sidecar`, and `dev:native`, but none of those task surfaces are modeled with package-local Turbo metadata.
+- `apps/editor-app/turbo.json` and `apps/desktop/turbo.json` already extend the root with package-local `dev:desktop` `with` wiring.
+- `bunx turbo query ls @beep/editor-app @beep/desktop --output json` shows package-owned scripts like `build:native`, `build:sidecar`, and `dev:native`, but none of those task surfaces are modeled with package-local Turbo metadata.
 - `tooling/cli/src/commands/CreatePackage/Handler.ts` scaffolds package manifests and config files, but a repo search found no evidence that `create-package` emits a `turbo.json` by default.
 
 # Official Turborepo guidance
@@ -34,15 +33,13 @@ The repo is already using package-level `turbo.json` files in the right narrow p
 # Commands and files inspected
 - `sed -n '1,260p' turbo.json`
 - `find apps -maxdepth 2 -name turbo.json -o -path 'packages/*/turbo.json' -o -path 'packages/*/*/turbo.json' | sort | xargs -I{} sh -c 'echo FILE:{}; sed -n "1,200p" {} ; echo'`
-- `bunx turbo query ls @beep/editor-app @beep/v2t @beep/desktop --output json`
+- `bunx turbo query ls @beep/editor-app @beep/desktop --output json`
 - `rg -n 'turbo.json|dev:desktop|with|TURBO_EXTENDS|extends' tooling/cli/src/commands/CreatePackage -S`
 - `sed -n '1,260p' tooling/cli/src/commands/CreatePackage/Handler.ts`
 
 # Sources
 - Repo: `turbo.json`
 - Repo: `apps/editor-app/turbo.json`
-- Repo: `apps/V2T/turbo.json`
 - Repo: `apps/desktop/turbo.json`
-- Repo: `packages/v2t-sidecar/turbo.json`
 - Repo: `tooling/cli/src/commands/CreatePackage/Handler.ts`
 - Official Turborepo: `https://turborepo.dev/docs/reference/package-configurations`

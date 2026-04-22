@@ -275,7 +275,7 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 | `packages/editor/lexical/src/plugins/WikiLinkTypeaheadPlugin.tsx` | Claude Code + Chrome | Typeahead dropdown triggered by `[[` |
 | `packages/editor/lexical/src/plugins/BacklinkDisplayPlugin.tsx` | Claude Code + Chrome | Collapsible backlinks pane below editor |
 | `packages/editor/lexical/src/transformers/wikiLinkTransformer.ts` | Codex | Markdown import/export for `[[...]]` syntax |
-| `packages/editor/core/src/VaultPersistence.ts` | Codex | Markdown + YAML frontmatter + optional Lexical JSON sidecar |
+| `packages/editor/domain/src/VaultPersistence.ts` | Codex | Markdown + YAML frontmatter + optional Lexical JSON sidecar |
 | `packages/common/knowledge-graph/src/models/Page.ts` | Codex | `Model.Class` for Page entity with multi-variant schemas |
 
 ### Schema-First Patterns
@@ -310,7 +310,7 @@ WikiLinkNode serialization uses `S.Class` with `$I` identity for type-safe bound
 
 ### Wiring
 
-1. **Page saves to graph event emission**: When a page is saved, diff the current `[[wiki_link]]` set against the previous save. The `KnowledgeGraph` facade calls `EventLog.write` for `NodeCreated`/`NodeUpdated` (document node) and `EdgeCreated`/`EdgeRemoved` (wiki_link edges). Uses `extractBlockLinks` from `packages/editor/core/src/Canonical.ts:389`.
+1. **Page saves to graph event emission**: When a page is saved, diff the current `[[wiki_link]]` set against the previous save. The `KnowledgeGraph` facade calls `EventLog.write` for `NodeCreated`/`NodeUpdated` (document node) and `EdgeCreated`/`EdgeRemoved` (wiki_link edges). Uses `extractBlockLinks` from `packages/editor/domain/src/Canonical.ts:389`.
 
 2. **Extend `extractBlockLinks` regex**: The regex currently matches `[[target]]`. In Phase 2, basic `[[wiki_link]]` extraction is sufficient. The `[[code:SymbolName]]` prefix resolution belongs in Phase 3 (which adds cross-domain resolution); do not extend the regex for `code:` prefix support until then.
 
@@ -512,7 +512,7 @@ The event-sourced architecture makes this extension natural: new domains define 
 | 1 | `packages/common/knowledge-graph/` (new) | `EventGroup`, `EventLog.schema`, handlers, facade, `Model.Class` entities |
 | 1 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Extend with document node styles, certainty-based edge opacity, wiki_link edge type |
 | 1 | `apps/desktop/src/RepoMemoryDesktop.tsx` | Decompose 1831-line monolith into `WorkspaceLayout`, `GraphCanvas`, `DetailPanel`, `QueryBar` |
-| 2 | `packages/editor/core/src/Canonical.ts` | Basic `[[wiki_link]]` extraction via `extractBlockLinks` (no `[[code:...]]` prefix -- deferred to Phase 3) |
+| 2 | `packages/editor/domain/src/Canonical.ts` | Basic `[[wiki_link]]` extraction via `extractBlockLinks` (no `[[code:...]]` prefix -- deferred to Phase 3) |
 | 2 | `packages/editor/lexical/src/EditorSurface.tsx` | Register `WikiLinkNode` at line 65, mount `WikiLinkTypeaheadPlugin` and `BacklinkDisplayPlugin` |
 | 2 | `packages/common/knowledge-graph/src/models/Page.ts` (new) | `Model.Class` for Page entity |
 | 2 | `packages/common/semantic-web/src/prov.ts` | Reuse `ProvBundle` for event provenance (no changes needed, reference only) |

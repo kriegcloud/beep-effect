@@ -21,7 +21,7 @@ import {
   RevisionRecord,
   refreshPageDocument,
   WorkspaceManifest,
-} from "@beep/editor";
+} from "@beep/editor-domain";
 import {
   EditorControlPlaneApi,
   type EditorControlPlaneErrorPayload,

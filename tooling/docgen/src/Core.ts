@@ -44,7 +44,7 @@ const readSourceFiles = Effect.gen(function* () {
     paths,
     (filePath) =>
       fs.readFileString(filePath).pipe(
-        Effect.map((content) => Domain.File.new(filePath, content, false)),
+        Effect.map((content) => Domain.File.new(filePath, content, { isOverwritable: false })),
         Effect.mapError(
           (cause) =>
             new Domain.DocgenError({
@@ -246,7 +246,7 @@ const getExampleFiles = Effect.fn("getExampleFiles")(function* (modules: Readonl
                 `${prefix}-${exampleId}-${sanitizeExampleName(namedDoc.name)}-${index}.ts`
               ),
               example,
-              true
+              { isOverwritable: true }
             )
           )
         );
@@ -316,7 +316,9 @@ const getExamplesEntryPoint = Effect.fn("getExamplesEntryPoint")(function* (exam
     A.map((example) => `import "./${path.basename(example.path, ".ts")}"`),
     A.join("\n")
   );
-  return Domain.File.new(path.normalize(path.join(config.outDir, "examples", "index.ts")), `${content}\n`, true);
+  return Domain.File.new(path.normalize(path.join(config.outDir, "examples", "index.ts")), `${content}\n`, {
+    isOverwritable: true,
+  });
 });
 
 const cleanupExamples = Effect.gen(function* () {
@@ -431,7 +433,9 @@ const createExamplesTsConfigJson = Effect.gen(function* () {
         })
     )
   );
-  yield* writeFileToOutDir(Domain.File.new(path.join(cwd, config.outDir, "examples", "tsconfig.json"), content, true));
+  yield* writeFileToOutDir(
+    Domain.File.new(path.join(cwd, config.outDir, "examples", "tsconfig.json"), content, { isOverwritable: true })
+  );
 });
 
 const getMarkdown = Effect.fn("getMarkdown")(function* (modules: ReadonlyArray<Domain.Module>) {
@@ -454,7 +458,7 @@ const getMarkdownHomepage = Effect.gen(function* () {
        |nav_order: 1
        |---
        |`),
-    false
+    { isOverwritable: false }
   );
 });
 
@@ -472,7 +476,7 @@ const getMarkdownIndex = Effect.gen(function* () {
        |nav_order: 2
        |---
        |`),
-    false
+    { isOverwritable: false }
   );
 });
 
@@ -513,7 +517,7 @@ const getMarkdownConfigYML = Effect.fn("getMarkdownConfigYML")(function* () {
       )
     );
     const resolved = yield* resolveConfigYML(content);
-    return Domain.File.new(configPath, resolved, true);
+    return Domain.File.new(configPath, resolved, { isOverwritable: true });
   }
 
   return Domain.File.new(
@@ -527,7 +531,7 @@ const getMarkdownConfigYML = Effect.fn("getMarkdownConfigYML")(function* () {
          |aux_links:
          |'${getHomepageNavigationHeader(config)}':
          |  - '${config.projectHomepage}'`),
-    false
+    { isOverwritable: false }
   );
 });
 
@@ -556,7 +560,7 @@ ${toc}
         )
       );
       const prettified = yield* Printer.prettify(content);
-      return Domain.File.new(outputPath, prettified, true);
+      return Domain.File.new(outputPath, prettified, { isOverwritable: true });
     })
   );
 

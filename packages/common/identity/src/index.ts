@@ -10,7 +10,7 @@
  * void id // "@beep/my-pkg/Service"
  * ```
  *
- * @module
+ * @module @beep/identity
  * @since 0.0.0
  */
 

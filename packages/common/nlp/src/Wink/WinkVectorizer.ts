@@ -11,6 +11,7 @@ import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
 import { Chunk, Context, Effect, Inspectable, Layer, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -332,13 +333,18 @@ export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`Vector
    * @param operation - The vectorizer operation that failed.
    * @returns A typed vectorizer error value.
    */
-  static fromCause(cause: unknown, operation: string): VectorizerError {
-    return new VectorizerError({
-      cause,
-      message: `Wink vectorizer ${operation} failed: ${Inspectable.toStringUnknown(cause)}`,
-      operation,
-    });
-  }
+  static readonly fromCause: {
+    (cause: unknown, operation: string): VectorizerError;
+    (cause: unknown): (operation: string) => VectorizerError;
+  } = dual(
+    2,
+    (cause: unknown, operation: string): VectorizerError =>
+      new VectorizerError({
+        cause,
+        message: `Wink vectorizer ${operation} failed: ${Inspectable.toStringUnknown(cause)}`,
+        operation,
+      })
+  );
 
   /**
    * Create a vectorizer error without an external cause.
@@ -347,13 +353,18 @@ export class VectorizerError extends TaggedErrorClass<VectorizerError>($I`Vector
    * @param operation - The vectorizer operation associated with the failure.
    * @returns A typed vectorizer error value without an external cause.
    */
-  static fromMessage(message: string, operation: string): VectorizerError {
-    return new VectorizerError({
-      cause: undefined,
-      message,
-      operation,
-    });
-  }
+  static readonly fromMessage: {
+    (message: string, operation: string): VectorizerError;
+    (message: string): (operation: string) => VectorizerError;
+  } = dual(
+    2,
+    (message: string, operation: string): VectorizerError =>
+      new VectorizerError({
+        cause: undefined,
+        message,
+        operation,
+      })
+  );
 }
 
 const makeWinkVectorizer = Effect.gen(function* () {

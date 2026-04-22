@@ -12,8 +12,8 @@ The repo is already aligned with Turborepo’s dependency guidance in the import
 - Root `package.json` keeps repository tools at the root via `devDependencies` such as `turbo`, `syncpack`, `typescript`, `vitest`, `eslint`, `cspell`, `markdownlint-cli2`, `lefthook`, and `sherif`.
 - Root `package.json` uses `catalog:` for the shared toolchain and many external versions, while `overrides` pins a smaller set of transitive dependencies like `@anthropic-ai/sdk`, `axios`, `undici`, `hono`, and `lodash`.
 - `syncpack.config.ts` enforces three important policies: workspace packages use `workspace:^`, catalog dependencies stay pinned, and the root `@beep/root` devDependencies reference the catalog.
-- The repo’s package surfaces reflect the recommended layout: internal packages such as `packages/shared/env`, `packages/shared/server`, and `packages/shared/client` declare their own runtime dependencies locally, not at the root.
-- A representative package like `packages/shared/env/package.json` shows the pattern clearly: workspace dependencies are local, and external dependencies like `effect` and `@effect/vitest` come from the catalog.
+- The repo’s package surfaces reflect the recommended layout: internal packages such as `packages/shared/config`, `packages/shared/server`, and `packages/shared/client` declare their own runtime dependencies locally, not at the root.
+- A representative package like `packages/shared/config/package.json` shows the pattern clearly: workspace dependencies are local, and external dependencies like `effect` and `@effect/vitest` come from the catalog.
 
 # Official Turborepo guidance
 - Turborepo’s dependency guidance says to install dependencies where they are used, so each package’s `package.json` should describe what it needs.
@@ -38,7 +38,7 @@ The repo is already aligned with Turborepo’s dependency guidance in the import
 # Commands and files inspected
 - `node -e 'const p=require("./package.json"); console.log(JSON.stringify(...))'`
 - `sed -n '1,220p' syncpack.config.ts`
-- `sed -n '1,220p' packages/shared/env/package.json`
+- `sed -n '1,220p' packages/shared/config/package.json`
 - `sed -n '1,220p' packages/shared/server/package.json`
 - `sed -n '1,220p' packages/shared/client/package.json`
 - `sed -n '1,220p' turbo.json`
@@ -49,6 +49,6 @@ The repo is already aligned with Turborepo’s dependency guidance in the import
 - `https://turborepo.dev/docs/reference/system-environment-variables`
 - `/home/elpresidank/YeeBois/projects/beep-effect/package.json`
 - `/home/elpresidank/YeeBois/projects/beep-effect/syncpack.config.ts`
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/env/package.json`
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/config/package.json`
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/server/package.json`
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/client/package.json`

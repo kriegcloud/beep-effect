@@ -17,6 +17,7 @@ import {
   SchemaParser,
   SchemaTransformation,
 } from "effect";
+import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -668,10 +669,10 @@ export const Edge = <Data extends S.Top>(data: Data): Edge<Data> =>
  * @since 0.0.0
  * @category Validation
  */
-export const GraphEncoded = <Node extends S.Top, Edge extends S.Top>(
-  node: Node,
-  edge: Edge
-): GraphEncodedSchema<Node, Edge> => {
+export const GraphEncoded: {
+  <Node extends S.Top, Edge extends S.Top>(node: Node): (edge: Edge) => GraphEncodedSchema<Node, Edge>;
+  <Node extends S.Top, Edge extends S.Top>(node: Node, edge: Edge): GraphEncodedSchema<Node, Edge>;
+} = dual(2, <Node extends S.Top, Edge extends S.Top>(node: Node, edge: Edge) => {
   const schema = S.TaggedStruct("Graph", {
     type: GraphKind,
     nodes: S.Array(S.Tuple([NodeIndex, node])),
@@ -690,7 +691,7 @@ export const GraphEncoded = <Node extends S.Top, Edge extends S.Top>(
       description: "The encoded representation of an Effect graph value.",
     })
   );
-};
+});
 
 /**
  * Schema for validating existing immutable Effect graphs.

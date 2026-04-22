@@ -496,10 +496,11 @@ export const makeGraphitiProxyForwarderService = (
         }
         const bodyBytes = new Uint8Array(requestBodyResult.success);
         const contentTypeOption = Headers.get(headers, "content-type");
-        const body = O.match(contentTypeOption, {
-          onNone: () => HttpBody.uint8Array(bodyBytes),
-          onSome: (contentType) => HttpBody.uint8Array(bodyBytes, contentType),
-        });
+        const body = pipe(
+          contentTypeOption,
+          O.map((contentType) => HttpBody.uint8Array(bodyBytes, contentType)),
+          O.getOrElse(() => HttpBody.uint8Array(bodyBytes))
+        );
         upstreamRequest = HttpClientRequest.setBody(upstreamRequest, body);
       }
 
@@ -516,23 +517,27 @@ export const makeGraphitiProxyForwarderService = (
               : proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(error, 0), 502)
           ),
         onSuccess: (responseOption) =>
-          O.match(responseOption, {
-            onNone: () =>
+          pipe(
+            responseOption,
+            O.map((upstreamResponse) =>
+              Effect.gen(function* () {
+                const bodyBuffer = yield* Effect.orElseSucceed(upstreamResponse.arrayBuffer, () => new ArrayBuffer(0));
+                return HttpServerResponse.uint8Array(new Uint8Array(bodyBuffer), {
+                  status: upstreamResponse.status,
+                  headers: upstreamResponse.headers,
+                });
+              })
+            ),
+            O.getOrElse(() =>
               Effect.succeed(
                 proxyErrorResponse(
                   "upstream_timeout",
                   `Upstream request timed out after ${config.requestTimeoutMs}ms`,
                   504
                 )
-              ),
-            onSome: Effect.fn("GraphitiProxyForwarder.forward.onSome")(function* (upstreamResponse) {
-              const bodyBuffer = yield* Effect.orElseSucceed(upstreamResponse.arrayBuffer, () => new ArrayBuffer(0));
-              return HttpServerResponse.uint8Array(new Uint8Array(bodyBuffer), {
-                status: upstreamResponse.status,
-                headers: upstreamResponse.headers,
-              });
-            }),
-          }),
+              )
+            )
+          ),
       });
     });
 

@@ -8,12 +8,12 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { NormalizedBooleanString, TaggedErrorClass } from "@beep/schema";
 import { Config, Effect, SchemaGetter } from "effect";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Graphiti/internal/ProxyConfig");
+const booleanToNormalizedString = (value: boolean) => (value ? "true" : "false");
 
 const makeDefaultedStringField = (name: string, fallback: string, description: string) =>
   S.UndefinedOr(S.String).pipe(
@@ -47,17 +47,13 @@ const makeDefaultedBooleanField = (name: string, fallback: boolean, description:
   S.UndefinedOr(S.String).pipe(
     S.decodeTo(S.Boolean, {
       decode: SchemaGetter.transform((value: string | undefined) => {
-        const raw = O.getOrElse(O.fromUndefinedOr(value), () =>
-          Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" })
-        );
+        const raw = O.getOrElse(O.fromUndefinedOr(value), () => booleanToNormalizedString(fallback));
         return O.getOrElse(S.decodeUnknownOption(NormalizedBooleanString)(raw), () => fallback);
       }),
-      encode: SchemaGetter.transform((value: boolean) =>
-        Bool.match(value, { onTrue: () => "true", onFalse: () => "false" })
-      ),
+      encode: SchemaGetter.transform(booleanToNormalizedString),
     }),
     S.withConstructorDefault(Effect.succeed(fallback)),
-    S.withDecodingDefault(Effect.succeed(Bool.match(fallback, { onTrue: () => "true", onFalse: () => "false" }))),
+    S.withDecodingDefault(Effect.succeed(booleanToNormalizedString(fallback))),
     S.annotate($I.annote(name, { description }))
   );
 

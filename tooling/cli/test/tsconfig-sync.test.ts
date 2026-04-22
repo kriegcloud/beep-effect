@@ -195,7 +195,7 @@ describe("tsconfig-sync", () => {
           const rootDir = process.cwd();
 
           yield* bootstrapRootConfig(rootDir, {
-            workspaces: ["packages/common/*", "packages/editor"],
+            workspaces: ["packages/common/*", "packages/editor-domain"],
             references: ["packages/common/identity"],
             paths: {
               "@beep/identity": ["./packages/common/identity/src/index.ts"],
@@ -204,7 +204,7 @@ describe("tsconfig-sync", () => {
             testFileMatch: [
               "packages/*/dtslint/**/*.tst.*",
               "packages/common/identity/dtslint/**/*.tst.*",
-              "packages/editor/dtslint/**/*.tst.*",
+              "packages/editor-domain/dtslint/**/*.tst.*",
             ],
             syncpackSources: ["package.json", "packages/common/*/package.json"],
           });
@@ -213,13 +213,13 @@ describe("tsconfig-sync", () => {
             packageName: "@beep/identity",
           });
           yield* bootstrapWorkspace(rootDir, {
-            relativeDir: "packages/editor",
-            packageName: "@beep/editor",
+            relativeDir: "packages/editor-domain",
+            packageName: "@beep/editor-domain",
           });
 
           const result = yield* syncTsconfigAtRoot(rootDir, {
             mode: "sync",
-            filter: "@beep/editor",
+            filter: "@beep/editor-domain",
             verbose: false,
           });
 
@@ -234,7 +234,7 @@ describe("tsconfig-sync", () => {
           const refs = decodeTsconfigReferences(yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json")));
           expect(A.map(refs.references, (entry) => entry.path)).toEqual([
             "packages/common/identity",
-            "packages/editor",
+            "packages/editor-domain",
           ]);
 
           const qualityRefs = decodeTsconfigReferences(
@@ -242,15 +242,15 @@ describe("tsconfig-sync", () => {
           );
           expect(A.map(qualityRefs.references, (entry) => entry.path)).toEqual([
             "packages/common/identity",
-            "packages/editor",
+            "packages/editor-domain",
           ]);
 
           const paths = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
           expect(paths.compilerOptions.paths).toMatchObject({
             "@beep/identity": ["./packages/common/identity/src/index.ts"],
             "@beep/identity/*": ["./packages/common/identity/src/*"],
-            "@beep/editor": ["./packages/editor/src/index.ts"],
-            "@beep/editor/*": ["./packages/editor/src/*"],
+            "@beep/editor-domain": ["./packages/editor-domain/src/index.ts"],
+            "@beep/editor-domain/*": ["./packages/editor-domain/src/*"],
           });
 
           const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
@@ -260,7 +260,7 @@ describe("tsconfig-sync", () => {
           ]);
 
           const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
-          expect(syncpackConfig).toContain(`"packages/editor/package.json"`);
+          expect(syncpackConfig).toContain(`"packages/editor-domain/package.json"`);
         })
       )
     );

@@ -1,5 +1,6 @@
 import { $ClaudeId } from "@beep/identity/packages";
 import { Config, Effect, FileSystem, flow, Path, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -56,21 +57,27 @@ const parseYaml = (content: string): Record<string, unknown> => {
 
 const extractBody = (content: string): string => Str.trim(Str.replace(/^---\n[\s\S]*?\n---\n?/, "")(content));
 
-export const testRegex = (text: string, pattern: string): boolean => {
+export const testRegex: {
+  (text: string, pattern: string): boolean;
+  (pattern: string): (text: string) => boolean;
+} = dual(2, (text: string, pattern: string): boolean => {
   try {
     return new globalThis.RegExp(pattern).test(text);
   } catch {
     return false;
   }
-};
+});
 
-export const testGlob = (filePath: string, glob: string): boolean => {
+export const testGlob: {
+  (filePath: string, glob: string): boolean;
+  (glob: string): (filePath: string) => boolean;
+} = dual(2, (filePath: string, glob: string): boolean => {
   try {
     return picomatch(glob)(filePath);
   } catch {
     return false;
   }
-};
+});
 
 const readPattern = Effect.fn("readPattern")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -140,7 +147,10 @@ export const loadPatterns = Effect.gen(function* () {
   return yield* walk(root);
 });
 
-export const matches = (input: HookInput, p: PatternDefinition): boolean => {
+export const matches: {
+  (input: HookInput, p: PatternDefinition): boolean;
+  (p: PatternDefinition): (input: HookInput) => boolean;
+} = dual(2, (input: HookInput, p: PatternDefinition): boolean => {
   const filePath = getFilePath(input.tool_input);
   const content = getMatchableContent(input.tool_input);
   const glob = p.glob;
@@ -161,10 +171,14 @@ export const matches = (input: HookInput, p: PatternDefinition): boolean => {
     globMatches &&
     testRegex(content, p.pattern)
   );
-};
+});
 
-export const findMatches = (input: HookInput, patterns: PatternDefinition[]): PatternDefinition[] =>
+export const findMatches: {
+  (input: HookInput, patterns: PatternDefinition[]): PatternDefinition[];
+  (patterns: PatternDefinition[]): (input: HookInput) => PatternDefinition[];
+} = dual(2, (input: HookInput, patterns: PatternDefinition[]): PatternDefinition[] =>
   pipe(
     patterns,
     A.filter((p) => matches(input, p))
-  );
+  )
+);

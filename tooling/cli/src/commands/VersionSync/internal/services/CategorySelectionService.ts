@@ -6,10 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { thunkTrue } from "@beep/utils";
 import { Context, Layer, Match } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import {
   VersionCategoryOptions,
   type VersionCategory as VersionCategoryValue,
@@ -53,10 +51,7 @@ const shouldCheck: CategorySelectionServiceShape["shouldCheck"] = (options, cate
   const hasAnyExplicitCategoryFilter =
     options.bunOnly || options.nodeOnly || options.dockerOnly || options.biomeOnly || options.effectOnly;
 
-  return Bool.match(hasAnyExplicitCategoryFilter, {
-    onFalse: thunkTrue,
-    onTrue: () => hasExplicitCategoryFilter,
-  });
+  return !hasAnyExplicitCategoryFilter || hasExplicitCategoryFilter;
 };
 
 const selectedCategories: CategorySelectionServiceShape["selectedCategories"] = (options) =>

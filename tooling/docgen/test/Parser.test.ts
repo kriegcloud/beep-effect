@@ -1571,7 +1571,7 @@ Since v1.0.0`
 
   describe("parseFile", () =>
     it("should not parse a non-existent file", async () => {
-      const file = Domain.File.new("non-existent.ts", "");
+      const file = Domain.File.new("non-existent.ts", "", { isOverwritable: false });
       const project = new ast.Project({ useInMemoryFileSystem: true });
 
       const error = runSyncInLayer(Path.layer, Parser.parseFile(project)(file).pipe(Effect.flip));

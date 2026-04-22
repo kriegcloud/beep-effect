@@ -7,8 +7,7 @@
   "main": "src/index.ts",
   "exports": {
     "./package.json": "./package.json",
-    ".": "./src/index.ts",
-    "./V2T": "./src/V2T.ts"
+    ".": "./src/index.ts"
   },
   "repository": {
     "type": "git",
@@ -22,16 +21,10 @@
     "docgen": "bun run ../tooling/docgen/src/bin.ts",
     "lint": "beep-cli lint",
     "lint:fix": "beep-cli lint --fix",
-    "pulumi:login:local": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi login",
-    "stack:init:local": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi stack init local",
-    "preview": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi preview",
-    "up": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi up",
-    "destroy": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi destroy",
-    "refresh": "PULUMI_BACKEND_URL=${PULUMI_BACKEND_URL:-file://$PWD/../.pulumi-local/v2t-workstation} pulumi refresh",
     "test": "beep-cli test",
     "build": "beep-cli build",
-    "beep:check": "tsgo -b tsconfig.json test/tsconfig.json",
-    "beep:test": "bunx --bun vitest run",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:test": "bunx --bun vitest run --passWithNoTests",
     "beep:lint": "biome check src/ test/ dtslint/",
     "beep:lint:fix": "biome check src/ test/ dtslint/ --write",
     "audit": "beep-cli audit"

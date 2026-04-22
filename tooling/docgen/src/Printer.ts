@@ -7,6 +7,7 @@
 
 import { Effect, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
@@ -385,11 +386,14 @@ export const printModule = (module: Domain.Module) =>
  * @category printers
  * @since 0.0.0
  */
-export const printFrontMatter = (module: Domain.Module, navOrder: number): string => `---
+export const printFrontMatter: {
+  (module: Domain.Module, navOrder: number): string;
+  (navOrder: number): (module: Domain.Module) => string;
+} = dual(2, (module: Domain.Module, navOrder: number): string => `---
 title: ${module.name}
 nav_order: ${navOrder}
 parent: Modules
----`;
+---`);
 
 /**
  * `prettier` is optional in this repo-local port; returning the markdown

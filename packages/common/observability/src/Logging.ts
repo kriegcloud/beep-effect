@@ -27,6 +27,7 @@ import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, LogLevel } from "@beep/schema";
 import { Cause, Inspectable, Layer, Logger, Match, References } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
@@ -292,29 +293,44 @@ const renderBannerGlyph = (kind: "phase" | "startup"): string => (kind === "phas
  * @since 0.0.0
  * @category logging
  */
-export const renderLogBanner = (
-  title: string,
-  options?: {
+export const renderLogBanner: {
+  (
+    title: string,
+    options?: {
+      readonly kind?: "phase" | "startup" | undefined;
+      readonly pretty?: PrettyLoggerConfig | undefined;
+    }
+  ): string;
+  (options: {
     readonly kind?: "phase" | "startup" | undefined;
     readonly pretty?: PrettyLoggerConfig | undefined;
-  }
-): string => {
-  const pretty = options?.pretty ?? defaultPrettyLoggerConfig;
-  const kind = options?.kind ?? "startup";
+  }): (title: string) => string;
+} = dual(
+  2,
+  (
+    title: string,
+    options?: {
+      readonly kind?: "phase" | "startup" | undefined;
+      readonly pretty?: PrettyLoggerConfig | undefined;
+    }
+  ): string => {
+    const pretty = options?.pretty ?? defaultPrettyLoggerConfig;
+    const kind = options?.kind ?? "startup";
 
-  if (
-    pretty.bannerMode === "off" ||
-    (pretty.bannerMode === "startup" && kind !== "startup") ||
-    (pretty.bannerMode === "phase" && kind !== "phase")
-  ) {
-    return title;
-  }
+    if (
+      pretty.bannerMode === "off" ||
+      (pretty.bannerMode === "startup" && kind !== "startup") ||
+      (pretty.bannerMode === "phase" && kind !== "phase")
+    ) {
+      return title;
+    }
 
-  const palette = themePalette(pretty.theme);
-  const glyph = renderBannerGlyph(kind);
-  const line = palette.accent(`${glyph.repeat(4)} ${title.toUpperCase()} ${glyph.repeat(4)}`);
-  return [line, palette.dim("-".repeat(Math.max(12, title.length + 10)))].join("\n");
-};
+    const palette = themePalette(pretty.theme);
+    const glyph = renderBannerGlyph(kind);
+    const line = palette.accent(`${glyph.repeat(4)} ${title.toUpperCase()} ${glyph.repeat(4)}`);
+    return [line, palette.dim("-".repeat(Math.max(12, title.length + 10)))].join("\n");
+  }
+);
 
 const makePrettyConsoleLogger = (pretty: PrettyLoggerConfig): Logger.Logger<unknown, void> => {
   const palette = themePalette(pretty.theme);
@@ -379,11 +395,14 @@ const resolveLogger = (format: LogFormat, pretty = defaultPrettyLoggerConfig) =>
  * @since 0.0.0
  * @category logging
  */
-export const layerConsoleLogger = (
-  config: LoggingConfig,
-  pretty: PrettyLoggerConfig = defaultPrettyLoggerConfig
-): Layer.Layer<never> =>
-  Layer.mergeAll(
-    Logger.layer([resolveLogger(config.format, pretty)]),
-    Layer.succeed(References.MinimumLogLevel, config.minLogLevel)
-  );
+export const layerConsoleLogger: {
+  (config: LoggingConfig, pretty?: PrettyLoggerConfig): Layer.Layer<never>;
+  (pretty: PrettyLoggerConfig): (config: LoggingConfig) => Layer.Layer<never>;
+} = dual(
+  2,
+  (config: LoggingConfig, pretty: PrettyLoggerConfig = defaultPrettyLoggerConfig): Layer.Layer<never> =>
+    Layer.mergeAll(
+      Logger.layer([resolveLogger(config.format, pretty)]),
+      Layer.succeed(References.MinimumLogLevel, config.minLogLevel)
+    )
+);

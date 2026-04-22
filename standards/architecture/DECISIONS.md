@@ -7,8 +7,8 @@ standard. Amend this file when the standard changes.
 
 Decision:
 
-beep-effect uses slice package families with domain, use-cases, server, client,
-tables, UI, and providers.
+beep-effect uses slice package families with domain, use-cases, optional config,
+server, client, tables, UI, and providers.
 
 Rationale:
 
@@ -161,3 +161,46 @@ Rationale:
 
 The domain can own boundary language without owning the runtime side effects
 that execute that language.
+
+## 2026-04-22: Add `config` As A Canonical Optional Slice Package
+
+Decision:
+
+`config` is the canonical optional package kind for typed slice configuration.
+Package names use `@beep/<slice>-config` and `@beep/shared-config`.
+
+Rationale:
+
+Effect `Config` names a typed runtime contract, while environment variables are
+only one possible source. A config package gives application tunables, public
+config, server config, secrets, defaults, and config Layers a clear home without
+leaking runtime reads into domain code.
+
+## 2026-04-22: Treat `env` Package Naming As Legacy
+
+Decision:
+
+`env` is source vocabulary, not architecture topology. Existing package names
+such as `@beep/shared-env` and paths such as `packages/shared/env` should migrate
+to `@beep/shared-config` and `packages/shared/config`.
+
+Rationale:
+
+Naming packages after the source encourages direct environment thinking. Naming
+packages after config preserves the Effect `Config` abstraction and allows other
+`ConfigProvider` sources.
+
+## 2026-04-22: Keep Provider Config Provider-Local
+
+Decision:
+
+Provider `.config.ts` files own technical provider knobs. Slice `config`
+packages own application-facing config contracts. Server or app Layers may
+compose slice config with provider config at adapter boundaries, but slice
+config packages do not own provider internals.
+
+Rationale:
+
+Moving Drizzle, Postgres, EventLog, queue, or workflow-engine settings into a
+slice config package would make the package a provider registry. Keeping
+technical config provider-local preserves the provider boundary.

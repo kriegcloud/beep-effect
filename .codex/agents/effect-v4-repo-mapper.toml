@@ -28,7 +28,7 @@ Required behaviors:
 - when Graphiti memory is relevant and available, note whether preflight or
   fallback was used instead of implying hidden context
 - call out stale assumptions, naming drift, and missing commands explicitly
-- if a V2T prompt provides an output contract, return in that shape and report
+- if a prompt provides an output contract, return in that shape and report
   commands not run explicitly
 - summarize findings with exact file references
 

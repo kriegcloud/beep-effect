@@ -9,10 +9,10 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Cause, Console, Effect, FileSystem, Path, Stream } from "effect";
+import { Cause, Console, Effect, FileSystem, Match, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
@@ -205,6 +205,28 @@ type TestLaneSelection = {
   readonly args: ReadonlyArray<string>;
 };
 
+type ParsedFixArgs = {
+  readonly fix: boolean;
+  readonly args: ReadonlyArray<string>;
+};
+
+type OptionalQualityTaskStep = {
+  readonly enabled: boolean;
+  readonly step: () => QualityTaskStep;
+};
+
+const emptyParsedFixArgs: ParsedFixArgs = {
+  fix: false,
+  args: A.empty<string>(),
+};
+
+const emptyTestLaneSelection: TestLaneSelection = {
+  unit: false,
+  integration: false,
+  types: false,
+  args: A.empty<string>(),
+};
+
 const profileByTask: Readonly<Record<QualityTaskName, PackageTaskProfile>> = {
   build: new PackageTaskProfile({ task: "build", script: "beep:build" }),
   check: new PackageTaskProfile({ task: "check", script: "beep:check" }),
@@ -217,54 +239,39 @@ const isQualityTaskName = (value: string): value is QualityTaskName =>
   A.contains(QUALITY_TASK_NAMES as ReadonlyArray<string>, value);
 
 const isLintPolicySubcommand = (value: string | undefined): boolean =>
-  value !== undefined && A.contains(LINT_POLICY_SUBCOMMANDS as ReadonlyArray<string>, value);
+  pipe(
+    O.fromUndefinedOr(value),
+    O.exists((subcommand) => A.contains(LINT_POLICY_SUBCOMMANDS as ReadonlyArray<string>, subcommand))
+  );
 
 const stripPassthroughDelimiter = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
-  args[0] === "--" ? A.drop(args, 1) : args;
+  pipe(
+    A.head(args),
+    O.filter((arg) => arg === "--"),
+    O.map(() => A.drop(args, 1)),
+    O.getOrElse(() => args)
+  );
 
-const parseFixArgs = (args: ReadonlyArray<string>) => {
-  let fix = false;
-  const remaining = A.empty<string>();
-
-  for (const arg of stripPassthroughDelimiter(args)) {
-    if (arg === "--fix") {
-      fix = true;
-      continue;
-    }
-    remaining.push(arg);
-  }
-
-  return { fix, args: remaining } as const;
-};
+const parseFixArgs = (args: ReadonlyArray<string>): ParsedFixArgs =>
+  A.reduce(stripPassthroughDelimiter(args), emptyParsedFixArgs, (parsed, arg) =>
+    arg === "--fix" ? { ...parsed, fix: true } : { ...parsed, args: A.append(parsed.args, arg) }
+  );
 
 const parseTestLaneSelection = (args: ReadonlyArray<string>): TestLaneSelection => {
-  let unit = false;
-  let integration = false;
-  let types = false;
-  const remaining = A.empty<string>();
-
-  for (const arg of stripPassthroughDelimiter(args)) {
-    if (arg === "--unit") {
-      unit = true;
-      continue;
-    }
-    if (arg === "--integration") {
-      integration = true;
-      continue;
-    }
-    if (arg === "--types") {
-      types = true;
-      continue;
-    }
-    remaining.push(arg);
-  }
-
-  const hasLane = unit || integration || types;
+  const selected = A.reduce(stripPassthroughDelimiter(args), emptyTestLaneSelection, (lanes, arg) =>
+    Match.type<string>().pipe(
+      Match.when("--unit", () => ({ ...lanes, unit: true })),
+      Match.when("--integration", () => ({ ...lanes, integration: true })),
+      Match.when("--types", () => ({ ...lanes, types: true })),
+      Match.orElse(() => ({ ...lanes, args: A.append(lanes.args, arg) }))
+    )(arg)
+  );
+  const hasLane = selected.unit || selected.integration || selected.types;
   return {
-    unit: hasLane ? unit : true,
-    integration: hasLane ? integration : true,
-    types: hasLane ? types : true,
-    args: remaining,
+    unit: hasLane ? selected.unit : true,
+    integration: hasLane ? selected.integration : true,
+    types: hasLane ? selected.types : true,
+    args: selected.args,
   };
 };
 
@@ -295,29 +302,31 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 ): Effect.fn.Return<O.Option<string>, QualityTaskConfigurationError, FileSystem.FileSystem | Path.Path> {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
-  let current = path.resolve(cwd);
   const root = path.resolve(repoRoot);
 
-  while (true) {
-    const packageJsonPath = path.join(current, "package.json");
-    const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
+  const findPackageDir = (current: string): Effect.Effect<O.Option<string>, QualityTaskConfigurationError> =>
+    Effect.gen(function* () {
+      const packageJsonPath = path.join(current, "package.json");
+      const exists = yield* fs.exists(packageJsonPath).pipe(Effect.orElseSucceed(thunkFalse));
 
-    if (exists) {
-      return current === root ? O.none() : O.some(current);
-    }
+      if (exists) {
+        return current === root ? O.none() : O.some(current);
+      }
 
-    if (current === root) {
-      return O.none();
-    }
+      if (current === root) {
+        return O.none();
+      }
 
-    const parent = path.dirname(current);
-    if (parent === current) {
-      return yield* new QualityTaskConfigurationError({
-        message: `Could not find package.json between ${cwd} and ${repoRoot}.`,
-      });
-    }
-    current = parent;
-  }
+      const parent = path.dirname(current);
+      if (parent === current) {
+        return yield* new QualityTaskConfigurationError({
+          message: `Could not find package.json between ${cwd} and ${repoRoot}.`,
+        });
+      }
+      return yield* findPackageDir(parent);
+    });
+
+  return yield* findPackageDir(path.resolve(cwd));
 });
 
 const commandText = (command: string, args: ReadonlyArray<string>): string => A.join([command, ...args], " ");
@@ -349,7 +358,13 @@ const isUnresolvedSecretReference = (value: string | undefined): boolean =>
   value !== undefined && Str.startsWith("op://")(value);
 
 const turboEnvOverrides = (command: string, args: ReadonlyArray<string>): Record<string, string | undefined> => {
-  if (command !== "bunx" || args[0] !== "turbo") {
+  if (
+    command !== "bunx" ||
+    !pipe(
+      A.head(args),
+      O.exists((arg) => arg === "turbo")
+    )
+  ) {
     return {};
   }
 
@@ -449,6 +464,9 @@ const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, arg
     cwd,
   });
 
+const optionalQualityTaskStep = ({ enabled, step }: OptionalQualityTaskStep): ReadonlyArray<QualityTaskStep> =>
+  enabled ? A.of(step()) : A.empty();
+
 const rootBuildSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
   new QualityTaskStep({
     label: "build",
@@ -465,33 +483,35 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
 
 const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   const lanes = parseTestLaneSelection(args);
-  const steps = A.empty<QualityTaskStep>();
 
-  if (lanes.unit) {
-    steps.push(
-      turboStep(
-        repoRoot,
-        "test:unit",
-        ["test"],
-        [
-          "--filter=!@beep/repo-memory-runtime",
-          "--filter=!@beep/repo-memory-sqlite",
-          "--filter=!@beep/shared-server",
-          ...lanes.args,
-        ]
-      )
-    );
-  }
-
-  if (lanes.integration) {
-    steps.push(turboStep(repoRoot, "test:integration", ["test:integration"], ["--concurrency=1", ...lanes.args]));
-  }
-
-  if (lanes.types) {
-    steps.push(turboStep(repoRoot, "test:types", ["check:types"], lanes.args));
-  }
-
-  return steps;
+  return A.flatMap(
+    [
+      {
+        enabled: lanes.unit,
+        step: () =>
+          turboStep(
+            repoRoot,
+            "test:unit",
+            ["test"],
+            [
+              "--filter=!@beep/repo-memory-runtime",
+              "--filter=!@beep/repo-memory-sqlite",
+              "--filter=!@beep/shared-server",
+              ...lanes.args,
+            ]
+          ),
+      },
+      {
+        enabled: lanes.integration,
+        step: () => turboStep(repoRoot, "test:integration", ["test:integration"], ["--concurrency=1", ...lanes.args]),
+      },
+      {
+        enabled: lanes.types,
+        step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
+      },
+    ],
+    optionalQualityTaskStep
+  );
 };
 
 const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) =>
@@ -525,8 +545,14 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
     return [turboStep(repoRoot, "audit:packages", ["audit"], auditArgs)];
   }
 
-  const scriptMode = auditArgs[0] ?? "pre-push";
-  const scriptArgs = auditArgs.length === 0 ? ["pre-push"] : auditArgs;
+  const scriptMode = pipe(
+    A.head(auditArgs),
+    O.getOrElse(() => "pre-push")
+  );
+  const scriptArgs = A.match(auditArgs, {
+    onEmpty: () => ["pre-push"],
+    onNonEmpty: () => auditArgs,
+  });
 
   return [
     turboStep(repoRoot, "audit:packages", ["audit"], A.empty()),
@@ -539,20 +565,15 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   ];
 };
 
-const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): ReadonlyArray<QualityTaskStep> => {
-  switch (invocation.task) {
-    case "build":
-      return rootBuildSteps(repoRoot, invocation.args);
-    case "check":
-      return rootCheckSteps(repoRoot, invocation.args);
-    case "test":
-      return rootTestSteps(repoRoot, invocation.args);
-    case "lint":
-      return rootLintSteps(repoRoot, invocation.args, invocation.fix);
-    case "audit":
-      return rootAuditSteps(repoRoot, invocation.args);
-  }
-};
+const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): ReadonlyArray<QualityTaskStep> =>
+  Match.type<QualityTaskName>().pipe(
+    Match.when("build", () => rootBuildSteps(repoRoot, invocation.args)),
+    Match.when("check", () => rootCheckSteps(repoRoot, invocation.args)),
+    Match.when("test", () => rootTestSteps(repoRoot, invocation.args)),
+    Match.when("lint", () => rootLintSteps(repoRoot, invocation.args, invocation.fix)),
+    Match.when("audit", () => rootAuditSteps(repoRoot, invocation.args)),
+    Match.exhaustive
+  )(invocation.task);
 
 const readPackageJson = Effect.fn("QualityTasks.readPackageJson")(function* (packageDir: string) {
   const path = yield* Path.Path;
@@ -566,10 +587,14 @@ const runPackageTask = Effect.fn("QualityTasks.runPackageTask")(function* (
   const packageJson = yield* readPackageJson(packageDir);
   const scripts = packageJson.scripts ?? {};
   const profile = profileByTask[invocation.task];
-  const script = invocation.fix && profile.fixScript !== undefined ? profile.fixScript : profile.script;
+  const script = pipe(
+    O.fromUndefinedOr(profile.fixScript),
+    O.filter(() => invocation.fix),
+    O.getOrElse(() => profile.script)
+  );
   const packageName = packageJson.name ?? packageDir;
 
-  if (P.isUndefined(scripts[script])) {
+  if (pipe(scripts, R.get(script), O.isNone)) {
     yield* Console.log(`[beep-cli] ${packageName} ${invocation.task}${invocation.fix ? ":fix" : ""}: no-op`);
     return;
   }
@@ -636,23 +661,29 @@ const handleUnexpectedQualityTaskCause = Effect.catchCause(
  * @since 0.0.0
  */
 export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Option<QualityTaskInvocation> => {
-  const [command, ...rawArgs] = argv;
-  if (command === undefined || !isQualityTaskName(command)) {
-    return O.none();
-  }
+  const parseCommand = ([command, ...rawArgs]: A.NonEmptyReadonlyArray<string>): O.Option<QualityTaskInvocation> => {
+    if (!isQualityTaskName(command)) {
+      return O.none();
+    }
 
-  if (command === "lint" && isLintPolicySubcommand(rawArgs[0])) {
-    return O.none();
-  }
+    if (command === "lint" && isLintPolicySubcommand(pipe(A.get(rawArgs, 0), O.getOrUndefined))) {
+      return O.none();
+    }
 
-  const parsed = parseFixArgs(rawArgs);
-  return O.some(
-    new QualityTaskInvocation({
-      task: command,
-      args: parsed.args,
-      fix: command === "lint" && parsed.fix,
-    })
-  );
+    const parsed = parseFixArgs(rawArgs);
+    return O.some(
+      new QualityTaskInvocation({
+        task: command,
+        args: parsed.args,
+        fix: command === "lint" && parsed.fix,
+      })
+    );
+  };
+
+  return A.match(argv, {
+    onEmpty: () => O.none(),
+    onNonEmpty: parseCommand,
+  });
 };
 
 /**
@@ -681,12 +712,11 @@ export const runQualityTask: (invocation: QualityTaskInvocation) => Effect.Effec
       const repoRoot = yield* findRepoRoot(cwd);
       const packageDir = yield* resolvePackageDir(repoRoot, cwd);
 
-      if (O.isNone(packageDir)) {
-        yield* runRootTask(repoRoot, invocation);
-        return;
-      }
-
-      yield* runPackageTask(packageDir.value, invocation);
+      yield* pipe(
+        packageDir,
+        O.map((dir) => runPackageTask(dir, invocation)),
+        O.getOrElse(() => runRootTask(repoRoot, invocation))
+      );
     },
     handleQualityTaskError,
     handleUnexpectedQualityTaskCause
@@ -709,13 +739,11 @@ export const runQualityTaskIfRequested: (
   argv: ReadonlyArray<string>
 ) => Effect.Effect<boolean, never, QualityTaskEnvironment> = Effect.fn("QualityTasks.runQualityTaskIfRequested")(
   function* (argv: ReadonlyArray<string>) {
-    const invocation = parseQualityTaskInvocation(argv);
-    if (O.isNone(invocation)) {
-      return false;
-    }
-
-    yield* runQualityTask(invocation.value);
-    return true;
+    return yield* pipe(
+      parseQualityTaskInvocation(argv),
+      O.map((invocation) => runQualityTask(invocation).pipe(Effect.as(true))),
+      O.getOrElse(() => Effect.succeed(false))
+    );
   }
 );
 

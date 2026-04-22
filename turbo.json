@@ -188,6 +188,7 @@
         "$TURBO_ROOT$/package.json",
         "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
         "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/standards/dual-arity.inventory.jsonc",
         "$TURBO_ROOT$/tooling/configs/package.json",
         "$TURBO_ROOT$/tooling/configs/src/**/*.ts",
         "$TURBO_ROOT$/tooling/configs/test/**/*.ts",

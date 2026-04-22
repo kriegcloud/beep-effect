@@ -12,19 +12,8 @@
  * @since 0.0.0
  */
 
-import {
-  loadV2TWorkstationStackArgs,
-  normalizeV2TWorkstationConfig,
-  V2TGraphitiSecretError,
-  V2TWorkstation,
-  type V2TWorkstationArgs,
-  V2TWorkstationConfig,
-  V2TWorkstationConfigError,
-  validateV2TWorkstationConfig,
-} from "./V2T.js";
-
 /**
- * Canonical Pulumi project name for this repository's infrastructure workspace.
+ * Canonical project name for this repository's infrastructure workspace.
  *
  * @example
  * ```ts
@@ -37,26 +26,3 @@ import {
  * @since 0.0.0
  */
 export const infraProjectName = "beep-effect";
-
-/**
- * V2T workstation argument exports.
- *
- * @since 0.0.0
- * @category exports
- */
-export type { V2TWorkstationArgs };
-/**
- * V2T workstation stack exports.
- *
- * @since 0.0.0
- * @category exports
- */
-export {
-  loadV2TWorkstationStackArgs,
-  normalizeV2TWorkstationConfig,
-  V2TGraphitiSecretError,
-  V2TWorkstation,
-  V2TWorkstationConfig,
-  V2TWorkstationConfigError,
-  validateV2TWorkstationConfig,
-};

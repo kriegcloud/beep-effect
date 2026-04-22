@@ -23,6 +23,8 @@ import {
   type TSMorphService,
 } from "@beep/repo-utils";
 import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
+import * as A from "effect/Array";
+import * as Bool from "effect/Boolean";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { type CodexRunnerError, CodexSmokeResult, runCodexSmoke } from "./internal/CodexRunner.js";
@@ -49,6 +51,16 @@ const printJson = Effect.fn(function* (value: unknown) {
   const rendered = yield* jsonStringifyPretty(value);
   yield* Console.log(rendered);
 });
+
+const printSelectedOutput = <EJson, RJson, EHuman, RHuman>(
+  json: boolean,
+  jsonOutput: Effect.Effect<void, EJson, RJson>,
+  humanOutput: Effect.Effect<void, EHuman, RHuman>
+): Effect.Effect<void, EJson | EHuman, RJson | RHuman> =>
+  Bool.match(json, {
+    onFalse: () => humanOutput,
+    onTrue: () => jsonOutput,
+  });
 
 type ReuseProgramError =
   | DomainError
@@ -128,39 +140,51 @@ const runCodexSmokeProgram = <A>(
 const printPartitionPlan = Effect.fn(function* (plan: ReusePartitionPlan) {
   yield* Console.log(`Scope: ${plan.scopeSelector}`);
   yield* Console.log(`Catalog entries: ${plan.catalogEntryCount}`);
-  yield* Console.log(`Scout work units: ${plan.scoutUnits.length}`);
-  for (const unit of plan.scoutUnits) {
-    yield* Console.log(`- ${unit.id} :: ${unit.scopeSelector}`);
-  }
-  yield* Console.log(`Specialist work units: ${plan.specialistUnits.length}`);
-  for (const unit of plan.specialistUnits) {
-    yield* Console.log(`- ${unit.id} :: ${unit.scopeSelector}`);
-  }
+  yield* Console.log(`Scout work units: ${A.length(plan.scoutUnits)}`);
+  yield* Effect.forEach(plan.scoutUnits, (unit) => Console.log(`- ${unit.id} :: ${unit.scopeSelector}`), {
+    concurrency: 1,
+    discard: true,
+  });
+  yield* Console.log(`Specialist work units: ${A.length(plan.specialistUnits)}`);
+  yield* Effect.forEach(plan.specialistUnits, (unit) => Console.log(`- ${unit.id} :: ${unit.scopeSelector}`), {
+    concurrency: 1,
+    discard: true,
+  });
 });
 
 const printInventory = Effect.fn(function* (inventory: ReuseInventory) {
   yield* Console.log(`Scope: ${inventory.scopeSelector}`);
   yield* Console.log(`Catalog entries: ${inventory.catalogEntryCount}`);
   yield* Console.log(`Candidates: ${inventory.candidateCount}`);
-  for (const candidate of inventory.candidates) {
-    yield* Console.log(`- ${candidate.candidateId} (${candidate.kind}, confidence=${candidate.confidence.toFixed(2)})`);
-    yield* Console.log(`  title: ${candidate.title}`);
-    yield* Console.log(
-      `  destination: ${candidate.proposedDestinationPackage} -> ${candidate.proposedDestinationModule}`
-    );
-  }
+  yield* Effect.forEach(
+    inventory.candidates,
+    Effect.fn(function* (candidate) {
+      yield* Console.log(
+        `- ${candidate.candidateId} (${candidate.kind}, confidence=${candidate.confidence.toFixed(2)})`
+      );
+      yield* Console.log(`  title: ${candidate.title}`);
+      yield* Console.log(
+        `  destination: ${candidate.proposedDestinationPackage} -> ${candidate.proposedDestinationModule}`
+      );
+    }),
+    { concurrency: 1, discard: true }
+  );
 });
 
 const printFindResult = Effect.fn(function* (result: ReuseFindResult) {
   yield* Console.log(`File: ${result.filePath}`);
-  yield* Console.log(`Catalog matches: ${result.matches.length}`);
-  for (const match of result.matches) {
-    yield* Console.log(`- ${match.id} :: ${match.packageName} :: ${match.symbolName} (${match.modulePath})`);
-  }
-  yield* Console.log(`Local candidate suggestions: ${result.candidateSuggestions.length}`);
-  for (const candidate of result.candidateSuggestions) {
-    yield* Console.log(`- ${candidate.candidateId} (${candidate.confidence.toFixed(2)}) :: ${candidate.title}`);
-  }
+  yield* Console.log(`Catalog matches: ${A.length(result.matches)}`);
+  yield* Effect.forEach(
+    result.matches,
+    (match) => Console.log(`- ${match.id} :: ${match.packageName} :: ${match.symbolName} (${match.modulePath})`),
+    { concurrency: 1, discard: true }
+  );
+  yield* Console.log(`Local candidate suggestions: ${A.length(result.candidateSuggestions)}`);
+  yield* Effect.forEach(
+    result.candidateSuggestions,
+    (candidate) => Console.log(`- ${candidate.candidateId} (${candidate.confidence.toFixed(2)}) :: ${candidate.title}`),
+    { concurrency: 1, discard: true }
+  );
 });
 
 const printPacket = Effect.fn(function* (packet: ReusePacket) {
@@ -170,17 +194,21 @@ const printPacket = Effect.fn(function* (packet: ReusePacket) {
   yield* Console.log(`Confidence: ${candidate.confidence.toFixed(2)}`);
   yield* Console.log(`Destination: ${candidate.proposedDestinationPackage} -> ${candidate.proposedDestinationModule}`);
   yield* Console.log("Implementation steps:");
-  for (const step of candidate.implementationSteps) {
-    yield* Console.log(`- ${step}`);
-  }
+  yield* Effect.forEach(candidate.implementationSteps, (step) => Console.log(`- ${step}`), {
+    concurrency: 1,
+    discard: true,
+  });
   yield* Console.log("Verification:");
-  for (const command of candidate.verificationCommands) {
-    yield* Console.log(`- ${command}`);
-  }
-  yield* Console.log(`Catalog matches: ${packet.catalogMatches.length}`);
-  for (const match of packet.catalogMatches) {
-    yield* Console.log(`- ${match.id} :: ${match.packageName} :: ${match.symbolName}`);
-  }
+  yield* Effect.forEach(candidate.verificationCommands, (command) => Console.log(`- ${command}`), {
+    concurrency: 1,
+    discard: true,
+  });
+  yield* Console.log(`Catalog matches: ${A.length(packet.catalogMatches)}`);
+  yield* Effect.forEach(
+    packet.catalogMatches,
+    (match) => Console.log(`- ${match.id} :: ${match.packageName} :: ${match.symbolName}`),
+    { concurrency: 1, discard: true }
+  );
 });
 
 const reusePartitionsCommand = Command.make(
@@ -195,12 +223,11 @@ const reusePartitionsCommand = Command.make(
         const planner = yield* ReusePartitionPlannerService;
         const plan = yield* planner.buildPartitions(scope);
 
-        if (json) {
-          yield* printJson(yield* S.encodeEffect(ReusePartitionPlan)(plan));
-          return;
-        }
-
-        yield* printPartitionPlan(plan);
+        yield* printSelectedOutput(
+          json,
+          S.encodeEffect(ReusePartitionPlan)(plan).pipe(Effect.flatMap(printJson)),
+          printPartitionPlan(plan)
+        );
       })
     )
 ).pipe(Command.withDescription("Emit scout and specialist work partitions for reuse analysis"));
@@ -223,12 +250,11 @@ const reuseFindCommand = Command.make(
           symbolId,
         });
 
-        if (json) {
-          yield* printJson(yield* S.encodeEffect(ReuseFindResult)(result));
-          return;
-        }
-
-        yield* printFindResult(result);
+        yield* printSelectedOutput(
+          json,
+          S.encodeEffect(ReuseFindResult)(result).pipe(Effect.flatMap(printJson)),
+          printFindResult(result)
+        );
       })
     )
 ).pipe(Command.withDescription("Find likely reuse matches and extraction suggestions for one file or symbol"));
@@ -245,12 +271,11 @@ const reuseInventoryCommand = Command.make(
         const inventoryService = yield* ReuseInventoryService;
         const inventory = yield* inventoryService.buildInventory(scope);
 
-        if (json) {
-          yield* printJson(yield* S.encodeEffect(ReuseInventory)(inventory));
-          return;
-        }
-
-        yield* printInventory(inventory);
+        yield* printSelectedOutput(
+          json,
+          S.encodeEffect(ReuseInventory)(inventory).pipe(Effect.flatMap(printJson)),
+          printInventory(inventory)
+        );
       })
     )
 ).pipe(Command.withDescription("Build a ranked reuse inventory for the selected scope"));
@@ -268,12 +293,11 @@ const reusePacketCommand = Command.make(
         const inventoryService = yield* ReuseInventoryService;
         const packet = yield* inventoryService.buildPacket(candidateId, scope);
 
-        if (json) {
-          yield* printJson(yield* S.encodeEffect(ReusePacket)(packet));
-          return;
-        }
-
-        yield* printPacket(packet);
+        yield* printSelectedOutput(
+          json,
+          S.encodeEffect(ReusePacket)(packet).pipe(Effect.flatMap(printJson)),
+          printPacket(packet)
+        );
       })
     )
 ).pipe(Command.withDescription("Materialize a structured implementation packet for one reuse candidate"));
@@ -288,16 +312,17 @@ const reuseCodexSmokeCommand = Command.make(
       Effect.gen(function* () {
         const result = yield* runCodexSmoke;
 
-        if (json) {
-          yield* printJson(yield* S.encodeEffect(CodexSmokeResult)(result));
-          return;
-        }
-
-        yield* Console.log(`SDK: ${result.sdkPackage}`);
-        yield* Console.log(`Working directory: ${result.workingDirectory}`);
-        yield* Console.log(`Thread created: ${result.threadCreated}`);
-        yield* Console.log(`thread.run available: ${result.threadRunMethodAvailable}`);
-        yield* Console.log(result.note);
+        yield* printSelectedOutput(
+          json,
+          S.encodeEffect(CodexSmokeResult)(result).pipe(Effect.flatMap(printJson)),
+          Effect.gen(function* () {
+            yield* Console.log(`SDK: ${result.sdkPackage}`);
+            yield* Console.log(`Working directory: ${result.workingDirectory}`);
+            yield* Console.log(`Thread created: ${result.threadCreated}`);
+            yield* Console.log(`thread.run available: ${result.threadRunMethodAvailable}`);
+            yield* Console.log(result.note);
+          })
+        );
       })
     )
 ).pipe(Command.withDescription("Validate the Codex SDK adapter and thread startup path without running a loop"));

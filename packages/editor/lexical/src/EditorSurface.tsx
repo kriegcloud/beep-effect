@@ -14,7 +14,7 @@ import {
   ParagraphBlock,
   QuoteBlock,
   refreshPageDocument,
-} from "@beep/editor";
+} from "@beep/editor-domain";
 import { $EditorLexicalId } from "@beep/identity/packages";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";

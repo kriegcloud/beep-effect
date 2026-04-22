@@ -417,10 +417,7 @@ export function ThunkOf<Output extends S.Top, Error extends S.Top>(
   output: Output,
   error: Error
 ): FnSchema<typeof S.Never, Output, Error>;
-export function ThunkOf<Output extends S.Top, Error extends S.Top>(
-  output: Output,
-  error?: Error
-): FnSchema<typeof S.Never, Output, typeof S.Never | Error> {
+export function ThunkOf<Output extends S.Top, Error extends S.Top>(output: Output, error?: Error) {
   return makeNoArgFnSchema(S.Never, output, error ?? S.Never);
 }
 

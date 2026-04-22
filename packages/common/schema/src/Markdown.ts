@@ -6,17 +6,26 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, flow, SchemaGetter, SchemaIssue } from "effect";
+import { Effect, flow, Match, SchemaGetter, SchemaIssue } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import type * as R from "effect/Record";
 import * as S from "effect/Schema";
+import {
+  getGlobalMarkdownRuntime,
+  loadMarkdownGfmModule,
+  loadMarkdownModule,
+  type MarkdownParseResult,
+  makeParseMarkdownForSchema,
+} from "./internal/markdown.ts";
 
 const $I = $SchemaId.create("Markdown");
 
 type MarkdownRenderOptions = R.ReadonlyRecord<string, unknown>;
 type MarkdownHtmlRender = (content: string, options?: undefined | MarkdownRenderOptions) => unknown;
+
+const MarkdownBrand = S.String.pipe(S.brand("Markdown"));
 
 const encodeUnsupported = (value: unknown): Effect.Effect<string, SchemaIssue.Issue> =>
   Effect.fail(
@@ -41,13 +50,13 @@ const getMarkdownHtmlRender = (): O.Option<MarkdownHtmlRender> => {
   const markdown = P.isObject(bunRuntime) ? Reflect.get(bunRuntime, "markdown") : undefined;
   const html = P.isObject(markdown) ? Reflect.get(markdown, "html") : undefined;
   if (P.isFunction(html)) {
-    const renderMarkdownHtml: MarkdownHtmlRender = (content, options) => html(content, options);
+    const renderMarkdownHtml: MarkdownHtmlRender = flow(html);
     return O.some(renderMarkdownHtml);
   }
   return O.none();
 };
 
-const makeRenderMarkdownHtml = (options?: MarkdownRenderOptions) =>
+const makeRenderMarkdownHtml = (options?: undefined | MarkdownRenderOptions) =>
   Effect.fn("Markdown.renderMarkdownHtml")(function* (content: string) {
     const renderMarkdownHtml = yield* O.match(getMarkdownHtmlRender(), {
       onNone: () =>
@@ -67,6 +76,63 @@ const makeRenderMarkdownHtml = (options?: MarkdownRenderOptions) =>
       Effect.mapError(() => invalidMarkdownInput(content, "Invalid Markdown input (Expected HTML string output)."))
     );
   });
+
+const parseMarkdownText = (content: string): MarkdownParseResult =>
+  makeParseMarkdownForSchema(getGlobalMarkdownRuntime(), loadMarkdownModule, loadMarkdownGfmModule)(content);
+
+const decodeMarkdownParseResult = (content: string) =>
+  Match.type<MarkdownParseResult>().pipe(
+    Match.tag("success", () => Effect.succeed(content)),
+    Match.tag("failure", ({ message }) => Effect.fail(invalidMarkdownInput(content, message))),
+    Match.exhaustive
+  );
+
+const decodeMarkdownText = Effect.fn("Markdown.decodeMarkdownText")(function* (content: string) {
+  yield* decodeMarkdownParseResult(content)(parseMarkdownText(content));
+
+  return content;
+});
+
+/**
+ * Branded schema for Markdown document strings accepted by the active parser.
+ *
+ * Validation uses `Bun.markdown.html` when Bun is available. In runtimes without
+ * Bun, it falls back to the platform-agnostic `micromark` parser with GFM
+ * extensions. Markdown is intentionally permissive, so plain text and empty
+ * strings are valid when the active parser accepts them.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Markdown } from "@beep/schema/Markdown"
+ *
+ * const document = S.decodeUnknownSync(Markdown)("# Hello")
+ * void document
+ * ```
+ *
+ * @category Validation
+ * @since 0.0.0
+ */
+export const Markdown = S.String.pipe(
+  S.decodeTo(MarkdownBrand, {
+    decode: SchemaGetter.transformOrFail(decodeMarkdownText),
+    encode: SchemaGetter.transform((content: string): string => content),
+  }),
+  S.annotate(
+    $I.annote("Markdown", {
+      description:
+        "A Markdown document string accepted by Bun Markdown or the platform-agnostic micromark GFM fallback parser.",
+    })
+  )
+);
+
+/**
+ * Branded Markdown document string type extracted from {@link Markdown}.
+ *
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export type Markdown = typeof Markdown.Type;
 
 /**
  * Schema factory that renders Markdown text into HTML using `Bun.markdown.html`.

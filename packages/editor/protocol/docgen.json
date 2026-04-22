@@ -33,8 +33,8 @@
         "../../../packages/editor/protocol/src/index.ts"
       ],
       "@beep/editor-protocol/*": ["../../../packages/editor/protocol/src/*.ts"],
-      "@beep/editor": ["../../../packages/editor/core/src/index.ts"],
-      "@beep/editor/*": ["../../../packages/editor/core/src/*.ts"],
+      "@beep/editor-domain": ["../../../packages/editor/domain/src/index.ts"],
+      "@beep/editor-domain/*": ["../../../packages/editor/domain/src/*.ts"],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
     }

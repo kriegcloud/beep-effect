@@ -9,7 +9,7 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Str, thunkEmptyStr } from "@beep/utils";
-import { Effect, Path, Stream } from "effect";
+import { Effect, Function as Fn, Path, Stream } from "effect";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
 
@@ -38,47 +38,55 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
  * @category utilities
  * @since 0.0.0
  */
-export const renderBiomeJson = Effect.fn(function* (filePath: string, value: unknown) {
-  const path = yield* Path.Path;
-  const repoRoot = yield* findRepoRoot(moduleDir).pipe(
-    Effect.mapError(
-      (cause) => new DomainError({ message: "Failed to locate the repo root for Biome formatting.", cause })
-    )
-  );
-  const biomeConfigPath = path.join(repoRoot, "biome.jsonc");
-  const relativeToCwd = path.relative(process.cwd(), filePath);
-  const stdinFilePath =
-    relativeToCwd.length > 0 && relativeToCwd !== ".." && !Str.startsWith("../")(relativeToCwd)
-      ? relativeToCwd
-      : filePath;
-  const command = ChildProcess.make(
-    biomeExecutable,
-    ["format", `--config-path=${biomeConfigPath}`, `--stdin-file-path=${stdinFilePath}`],
-    {
-      stdin: Stream.make(textEncoder.encode(encodeJson(value))),
-      stdout: "pipe",
-      stderr: "pipe",
-    }
-  );
-  const result = yield* Effect.scoped(
-    Effect.gen(function* () {
-      const handle = yield* command;
-      return yield* Effect.all({
-        stdout: collectText(handle.stdout),
-        stderr: collectText(handle.stderr),
-        exitCode: handle.exitCode,
+export const renderBiomeJson: {
+  (filePath: string, value: unknown): Effect.Effect<string, DomainError, Path.Path>;
+  (value: unknown): (filePath: string) => Effect.Effect<string, DomainError, Path.Path>;
+} = Fn.dual(
+  2,
+  Effect.fn(function* (filePath: string, value: unknown) {
+    const path = yield* Path.Path;
+    const repoRoot = yield* findRepoRoot(moduleDir).pipe(
+      Effect.mapError(
+        (cause) => new DomainError({ message: "Failed to locate the repo root for Biome formatting.", cause })
+      )
+    );
+    const biomeConfigPath = path.join(repoRoot, "biome.jsonc");
+    const relativeToCwd = path.relative(process.cwd(), filePath);
+    const stdinFilePath =
+      relativeToCwd.length > 0 && relativeToCwd !== ".." && !Str.startsWith("../")(relativeToCwd)
+        ? relativeToCwd
+        : filePath;
+    const command = ChildProcess.make(
+      biomeExecutable,
+      ["format", `--config-path=${biomeConfigPath}`, `--stdin-file-path=${stdinFilePath}`],
+      {
+        stdin: Stream.make(textEncoder.encode(encodeJson(value))),
+        stdout: "pipe",
+        stderr: "pipe",
+      }
+    );
+    const result = yield* Effect.scoped(
+      Effect.gen(function* () {
+        const handle = yield* command;
+        return yield* Effect.all({
+          stdout: collectText(handle.stdout),
+          stderr: collectText(handle.stderr),
+          exitCode: handle.exitCode,
+        });
+      })
+    ).pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to run Biome for "${filePath}".`, cause })));
+    const stderr = Str.trim(result.stderr);
+
+    if (result.exitCode !== 0) {
+      return yield* new DomainError({
+        message:
+          stderr.length > 0
+            ? `Biome failed to format "${filePath}": ${stderr}`
+            : `Biome failed to format "${filePath}".`,
+        cause: result.stderr,
       });
-    })
-  ).pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to run Biome for "${filePath}".`, cause })));
-  const stderr = Str.trim(result.stderr);
+    }
 
-  if (result.exitCode !== 0) {
-    return yield* new DomainError({
-      message:
-        stderr.length > 0 ? `Biome failed to format "${filePath}": ${stderr}` : `Biome failed to format "${filePath}".`,
-      cause: result.stderr,
-    });
-  }
-
-  return Str.endsWith("\n")(result.stdout) ? result.stdout : `${result.stdout}\n`;
-});
+    return Str.endsWith("\n")(result.stdout) ? result.stdout : `${result.stdout}\n`;
+  })
+);

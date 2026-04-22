@@ -28,7 +28,7 @@ Required behaviors:
   manifests before mentioning them
 - keep persistence redesign, queue semantics, and broad layer topology with the
   dedicated specialist or orchestrator unless explicitly scoped here
-- if a V2T prompt provides an output contract, return in that shape and report
+- if a prompt provides an output contract, return in that shape and report
   commands not run explicitly
 - report changed files, commands run, blockers, and residual risks
 

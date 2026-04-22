@@ -29,7 +29,7 @@ Required behaviors:
 - note whether Graphiti preflight or documented fallback was used when memory
   context is part of the claimed evidence
 - flag docgen, JSDoc, schema-first, typed-error, and service-boundary drift
-- if a V2T prompt provides an output contract, return in that shape and report
+- if a prompt provides an output contract, return in that shape and report
   commands not run explicitly
 - return blockers ordered by severity with exact file references when possible
 

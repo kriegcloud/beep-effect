@@ -62,22 +62,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "apps/V2T/scripts/build-sidecar.ts",
-      "kind": "object-method",
-      "reason": "The V2T Bun build entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
-      "owner": "@beep/v2t",
-      "issue": "V2T-BUILD-EXIT-CODE-ANNOTATION"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "apps/V2T/scripts/dev-with-portless.ts",
-      "kind": "object-method",
-      "reason": "The V2T Bun dev entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
-      "owner": "@beep/v2t",
-      "issue": "V2T-DEV-EXIT-CODE-ANNOTATION"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "apps/desktop/scripts/build-sidecar.ts",
       "kind": "object-method",
       "reason": "The desktop Bun build entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",

@@ -250,16 +250,16 @@ describe("PackageJson schema", () => {
 
     it("decodes repo-local mixed-case workspace package names", () => {
       const result = decodePackageJson({
-        name: "@beep/V2T",
+        name: "@beep/MixedCase",
         dependencies: {
-          "@beep/v2t-sidecar": "workspace:^",
+          "@beep/mixed-case-helper": "workspace:^",
         },
       });
 
-      expect(result.name).toBe("@beep/V2T");
+      expect(result.name).toBe("@beep/MixedCase");
       expect(result.dependencies).toEqual(
         O.some({
-          "@beep/v2t-sidecar": "workspace:^",
+          "@beep/mixed-case-helper": "workspace:^",
         })
       );
     });
@@ -445,9 +445,9 @@ describe("PackageJson schema", () => {
       const decodeNpmPackageJson = S.decodeUnknownExit(NpmPackageJson);
       const exit = decodeNpmPackageJson(
         {
-          name: "@beep/V2T",
+          name: "@beep/MixedCase",
           dependencies: {
-            "@beep/v2t-sidecar": "workspace:^",
+            "@beep/mixed-case-helper": "workspace:^",
           },
         },
         { onExcessProperty: "error" }

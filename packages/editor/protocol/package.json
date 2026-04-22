@@ -53,7 +53,7 @@
     }
   },
   "dependencies": {
-    "@beep/editor": "workspace:^",
+    "@beep/editor-domain": "workspace:^",
     "@beep/schema": "workspace:^",
     "effect": "catalog:"
   },

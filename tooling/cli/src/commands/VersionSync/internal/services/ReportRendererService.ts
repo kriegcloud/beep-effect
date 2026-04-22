@@ -6,10 +6,8 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { thunkEmptyStr } from "@beep/utils";
 import { Console, Context, Effect, Layer } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
@@ -75,10 +73,7 @@ const renderCategoryReport: ReportRendererServiceShape["renderCategoryReport"] =
     onEmpty: () => Effect.succeed(false),
     onNonEmpty: (items) =>
       Effect.forEach(items, (item) => {
-        const arrow = Bool.match(stringEquivalence(item.current, item.expected), {
-          onTrue: thunkEmptyStr,
-          onFalse: () => ` -> ${item.expected}`,
-        });
+        const arrow = stringEquivalence(item.current, item.expected) ? "" : ` -> ${item.expected}`;
         return Console.log(`  ${item.file} ${item.field}: ${item.current}${arrow}`);
       }).pipe(Effect.as(true)),
   });
@@ -111,14 +106,15 @@ const renderReport: ReportRendererServiceShape["renderReport"] = Effect.fn(funct
     yield* renderCategoryReport(category);
   }
 
-  yield* Bool.match(report.hasDrift, {
-    onFalse: () => Console.log("\nAll versions are in sync."),
-    onTrue: () =>
-      VersionSyncModeMatch(mode, {
-        check: () => Console.log("\nRun `beep version-sync --write` to apply fixes."),
-        "dry-run": () => Console.log("\nRun `beep version-sync --write` to apply these changes."),
-        write: () => Effect.void,
-      }),
+  if (!report.hasDrift) {
+    yield* Console.log("\nAll versions are in sync.");
+    return;
+  }
+
+  yield* VersionSyncModeMatch(mode, {
+    check: () => Console.log("\nRun `beep version-sync --write` to apply fixes."),
+    "dry-run": () => Console.log("\nRun `beep version-sync --write` to apply these changes."),
+    write: () => Effect.void,
   });
 });
 

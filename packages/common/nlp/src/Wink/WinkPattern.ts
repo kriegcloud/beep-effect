@@ -8,6 +8,7 @@
 import { $NlpId } from "@beep/identity";
 import { Chunk, Match, pipe, Result } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -162,33 +163,41 @@ export class WinkEngineCustomEntities extends S.Class<WinkEngineCustomEntities>(
    * @param patterns - Core patterns to convert into wink custom entity examples.
    * @returns The converted custom entity collection.
    */
-  static fromPatterns(
-    name: EntityGroupName | string,
-    patterns: ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>
-  ): WinkEngineCustomEntities {
-    const groupName = P.isString(name) ? EntityGroupName.make(name) : name;
-    const entries = Chunk.isChunk(patterns) ? Chunk.toReadonlyArray(patterns) : patterns;
+  static readonly fromPatterns: {
+    (name: EntityGroupName | string, patterns: ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>): WinkEngineCustomEntities;
+    (
+      name: EntityGroupName | string
+    ): (patterns: ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>) => WinkEngineCustomEntities;
+  } = dual(
+    2,
+    (
+      name: EntityGroupName | string,
+      patterns: ReadonlyArray<Pattern> | Chunk.Chunk<Pattern>
+    ): WinkEngineCustomEntities => {
+      const groupName = P.isString(name) ? EntityGroupName.make(name) : name;
+      const entries = Chunk.isChunk(patterns) ? Chunk.toReadonlyArray(patterns) : patterns;
 
-    return new WinkEngineCustomEntities({
-      name: groupName,
-      patterns: pipe(
-        entries,
-        A.filterMap((pattern) => {
-          const serialized = patternElementToBracketString(pattern);
-          const [head, ...tail] = serialized;
-          return head === undefined
-            ? Result.failVoid
-            : Result.succeed(
-                new CustomEntityExample({
-                  mark: pattern.mark,
-                  name: groupName,
-                  patterns: [head, ...tail],
-                })
-              );
-        })
-      ),
-    });
-  }
+      return new WinkEngineCustomEntities({
+        name: groupName,
+        patterns: pipe(
+          entries,
+          A.filterMap((pattern) => {
+            const serialized = patternElementToBracketString(pattern);
+            const [head, ...tail] = serialized;
+            return head === undefined
+              ? Result.failVoid
+              : Result.succeed(
+                  new CustomEntityExample({
+                    mark: pattern.mark,
+                    name: groupName,
+                    patterns: [head, ...tail],
+                  })
+                );
+          })
+        ),
+      });
+    }
+  );
 
   /**
    * Number of custom entity examples in the group.

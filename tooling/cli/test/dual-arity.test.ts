@@ -1,0 +1,602 @@
+import { DualArityRulesOptions, runDualArityRules } from "@beep/repo-cli/commands/Laws/DualArity";
+import { FsUtilsLive } from "@beep/repo-utils";
+import { TSMorphServiceLive } from "@beep/repo-utils/TSMorph/index";
+import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
+import { expect, layer } from "@effect/vitest";
+import { Effect, FileSystem, Layer, Path } from "effect";
+
+const testLayer = Layer.mergeAll(
+  FsUtilsLive,
+  TSMorphServiceLive,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer))
+).pipe(Layer.provideMerge(NodeServices.layer));
+
+const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
+  Effect.acquireUseRelease(
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const tmpDir = yield* fs.makeTempDirectory();
+      const previousCwd = process.cwd();
+      process.chdir(tmpDir);
+      return { fs, previousCwd, tmpDir } as const;
+    }),
+    () => use,
+    ({ fs, previousCwd, tmpDir }) =>
+      Effect.gen(function* () {
+        process.chdir(previousCwd);
+        yield* fs.remove(tmpDir, { recursive: true });
+      })
+  );
+
+const writeProjectFile = Effect.fn(function* (relativePath: string, content: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const absolutePath = path.join(process.cwd(), relativePath);
+  const directoryPath = path.dirname(absolutePath);
+
+  yield* fs.makeDirectory(directoryPath, { recursive: true });
+  yield* fs.writeFileString(absolutePath, content);
+});
+
+const readProjectFile = Effect.fn(function* (relativePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  return yield* fs.readFileString(path.join(process.cwd(), relativePath));
+});
+
+const writeProjectScaffold = Effect.gen(function* () {
+  yield* writeProjectFile("bun.lock", "");
+  yield* writeProjectFile(
+    "tsconfig.json",
+    [
+      "{",
+      '  "compilerOptions": {',
+      '    "target": "ES2022",',
+      '    "module": "ESNext",',
+      '    "moduleResolution": "Bundler",',
+      '    "strict": true,',
+      '    "skipLibCheck": true',
+      "  },",
+      '  "include": ["packages/**/*.ts", "packages/**/*.tsx"]',
+      "}",
+      "",
+    ].join("\n")
+  );
+});
+
+const runLaw = (
+  options: Partial<{
+    readonly write: boolean;
+    readonly strictCheck: boolean;
+    readonly excludePaths: ReadonlyArray<string>;
+  }> = {}
+) =>
+  runDualArityRules(
+    new DualArityRulesOptions({
+      write: options.write ?? false,
+      strictCheck: options.strictCheck ?? true,
+      excludePaths: options.excludePaths ?? [],
+    })
+  );
+
+layer(testLayer)("dual arity laws", (it) => {
+  it.effect("ignores valid direct dual helpers and tracks exported helpers missing dual", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import { dual } from "effect/Function";',
+            "",
+            "export const ok: {",
+            "  (self: string, label: string): string",
+            "  (label: string): (self: string) => string",
+            "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+            "",
+            "export function missing(self: string, label: string): string {",
+            "  return `${self}:${label}`;",
+            "}",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+
+        expect(summary.liveEntries).toBe(1);
+        expect(summary.missingEntries).toBe(1);
+        expect(summary.strictFailure).toBe(true);
+        expect(summary.diagnostics[0]).toContain("missing");
+        expect(summary.diagnostics[0]).toContain("missing-dual");
+      })
+    )
+  );
+
+  it.effect("accepts namespace dual imports from effect/Function", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import * as Fn from "effect/Function";',
+            "",
+            "export const ok: {",
+            "  (self: string, label: string): string",
+            "  (label: string): (self: string) => string",
+            "} = Fn.dual(2, (self: string, label: string): string => `${self}:${label}`);",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+
+        expect(summary.liveEntries).toBe(0);
+        expect(summary.strictFailure).toBe(false);
+      })
+    )
+  );
+
+  it.effect("ignores rich callable object aliases while tracking factory-returned helpers", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            "interface IdentityLike {",
+            "  (strings: TemplateStringsArray, ...values: ReadonlyArray<unknown>): string",
+            "  readonly identifier: string",
+            "  make(segment: string): string",
+            "}",
+            "",
+            "declare const identityLike: IdentityLike;",
+            "const makeHelper = () => (self: string, label: string): string => `${self}:${label}`;",
+            "",
+            "export const composer = identityLike;",
+            "export const factoryReturned = makeHelper();",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(1);
+        expect(diagnostics).not.toContain("composer");
+        expect(diagnostics).toContain("factoryReturned");
+        expect(diagnostics).toContain("missing-dual");
+      })
+    )
+  );
+
+  it.effect("ignores exported callable values from schema codecs and Order constructors", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import * as Order from "effect/Order";',
+            'import * as S from "effect/Schema";',
+            "",
+            "export const decodeName = S.decodeUnknownOption(S.String);",
+            "export const encodeName = S.encodeUnknownSync(S.String);",
+            "export const NameEquivalence = S.toEquivalence(S.String);",
+            "export const ByName: Order.Order<{ readonly name: string }> = Order.mapInput(",
+            "  Order.String,",
+            "  (value: { readonly name: string }) => value.name",
+            ");",
+            "",
+            "export const helper = (self: string, label: string): string => `${self}:${label}`;",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(1);
+        expect(diagnostics).toContain("helper");
+        expect(diagnostics).not.toContain("decodeName");
+        expect(diagnostics).not.toContain("encodeName");
+        expect(diagnostics).not.toContain("NameEquivalence");
+        expect(diagnostics).not.toContain("ByName");
+      })
+    )
+  );
+
+  it.effect("defers optional-trailing and variadic public shapes", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            "export function variadic(first: string, ...rest: ReadonlyArray<string>): string;",
+            "export function variadic(values: ReadonlyArray<string>): string;",
+            "export function variadic(firstOrValues: string | ReadonlyArray<string>, ...rest: ReadonlyArray<string>): string {",
+            "  return Array.isArray(firstOrValues) ? firstOrValues.join(':') : [firstOrValues, ...rest].join(':');",
+            "}",
+            "",
+            "export function optionalFactory(schema: string, error?: string): string {",
+            "  return error === undefined ? schema : `${schema}:${error}`;",
+            "}",
+            "",
+            "export const variadicConst = (first: string, ...rest: ReadonlyArray<string>): string =>",
+            "  [first, ...rest].join(':');",
+            "",
+            "export const helper = (self: string, label: string): string => `${self}:${label}`;",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(1);
+        expect(diagnostics).toContain("helper");
+        expect(diagnostics).not.toContain("variadic");
+        expect(diagnostics).not.toContain("optionalFactory");
+        expect(diagnostics).not.toContain("variadicConst");
+      })
+    )
+  );
+
+  it.effect("rejects dual re-exports and mismatched dual arity", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import { dual } from "@beep/utils/Function";',
+            'import { dual as effectDual } from "effect/Function";',
+            "",
+            "export const wrongSource: {",
+            "  (self: string, label: string): string",
+            "  (label: string): (self: string) => string",
+            "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+            "",
+            "export const wrongArity: {",
+            "  (self: string, label: string): string",
+            "  (label: string): (self: string) => string",
+            "} = effectDual(3, (self: string, label: string): string => `${self}:${label}`);",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(2);
+        expect(diagnostics).toContain("invalid-dual-source");
+        expect(diagnostics).toContain("invalid-dual-arity");
+      })
+    )
+  );
+
+  it.effect("requires explicit data-first and data-last public signatures", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import { dual } from "effect/Function";',
+            "",
+            "export const missingDataLast: (self: string, label: string) => string = dual(",
+            "  2,",
+            "  (self: string, label: string): string => `${self}:${label}`",
+            ");",
+            "",
+            "export const ok: {",
+            "  (self: string, label: string): string",
+            "  (label: string): (self: string) => string",
+            "} = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(1);
+        expect(diagnostics).toContain("missingDataLast");
+        expect(diagnostics).toContain("missing-dual-signatures");
+      })
+    )
+  );
+
+  it.effect("requires ObjectLike third parameters and accepts named object shapes", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import { Effect } from "effect";',
+            'import { dual } from "effect/Function";',
+            'import * as S from "effect/Schema";',
+            "",
+            "interface InterfaceOptions { readonly strict: boolean }",
+            "class ClassOptions { readonly strict = true }",
+            "type RecordOptions = Record<string, string>;",
+            "type EffectOptions = Effect.Effect<void>;",
+            "type SchemaOptions = S.Schema<string>;",
+            "",
+            "export const inlineOk: {",
+            "  (self: string, label: string, options: { readonly strict: boolean }): string",
+            "  (label: string, options: { readonly strict: boolean }): (self: string) => string",
+            "} = dual(3, (self: string, label: string, options: { readonly strict: boolean }): string =>",
+            "  options.strict ? `${self}:${label}` : self",
+            ");",
+            "",
+            "export const interfaceOk: {",
+            "  (self: string, label: string, options: InterfaceOptions): string",
+            "  (label: string, options: InterfaceOptions): (self: string) => string",
+            "} = dual(3, (self: string, label: string, options: InterfaceOptions): string =>",
+            "  options.strict ? `${self}:${label}` : self",
+            ");",
+            "",
+            "export const classOk: {",
+            "  (self: string, label: string, options: ClassOptions): string",
+            "  (label: string, options: ClassOptions): (self: string) => string",
+            "} = dual(3, (self: string, label: string, options: ClassOptions): string =>",
+            "  options.strict ? `${self}:${label}` : self",
+            ");",
+            "",
+            "export const recordOk: {",
+            "  (self: string, label: string, options: RecordOptions): string",
+            "  (label: string, options: RecordOptions): (self: string) => string",
+            "} = dual(3, (self: string, label: string, options: RecordOptions): string =>",
+            '  options["mode"] ?? `${self}:${label}`',
+            ");",
+            "",
+            "export const constrainedGenericOk: {",
+            "  <Options extends { readonly strict: boolean }>(self: string, label: string, options: Options): string",
+            "  <Options extends { readonly strict: boolean }>(label: string, options: Options): (self: string) => string",
+            "} = dual(3, <Options extends { readonly strict: boolean }>(",
+            "  self: string,",
+            "  label: string,",
+            "  options: Options",
+            "): string => (options.strict ? `${self}:${label}` : self));",
+            "",
+            "export const arrayBad: {",
+            "  (self: string, label: string, options: ReadonlyArray<string>): string",
+            "  (label: string, options: ReadonlyArray<string>): (self: string) => string",
+            "} = dual(3, (self: string, label: string, options: ReadonlyArray<string>): string => `${self}:${label}:${options.length}`);",
+            "",
+            "export const tupleBad: {",
+            "  (self: string, label: string, options: readonly [string, string]): string",
+            "  (label: string, options: readonly [string, string]): (self: string) => string",
+            "} = dual(3, (self: string, label: string, options: readonly [string, string]): string => `${self}:${label}:${options[0]}`);",
+            "",
+            "export const functionBad: {",
+            "  (self: string, label: string, options: () => string): string",
+            "  (label: string, options: () => string): (self: string) => string",
+            "} = dual(3, (self: string, label: string, options: () => string): string => `${self}:${label}:${options()}`);",
+            "",
+            "export const effectBad: {",
+            "  (self: string, label: string, options: EffectOptions): string",
+            "  (label: string, options: EffectOptions): (self: string) => string",
+            "} = dual(3, (self: string, label: string, _options: EffectOptions): string => `${self}:${label}`);",
+            "",
+            "export const schemaBad: {",
+            "  (self: string, label: string, options: SchemaOptions): string",
+            "  (label: string, options: SchemaOptions): (self: string) => string",
+            "} = dual(3, (self: string, label: string, _options: SchemaOptions): string => `${self}:${label}`);",
+            "",
+            "export const promiseBad: {",
+            "  (self: string, label: string, options: Promise<string>): string",
+            "  (label: string, options: Promise<string>): (self: string) => string",
+            "} = dual(3, (self: string, label: string, _options: Promise<string>): string => `${self}:${label}`);",
+            "",
+            "export const anyBad: {",
+            "  (self: string, label: string, options: any): string",
+            "  (label: string, options: any): (self: string) => string",
+            "} = dual(3, (self: string, label: string, _options: any): string => `${self}:${label}`);",
+            "",
+            "export const unknownBad: {",
+            "  (self: string, label: string, options: unknown): string",
+            "  (label: string, options: unknown): (self: string) => string",
+            "} = dual(3, (self: string, label: string, _options: unknown): string => `${self}:${label}`);",
+            "",
+            "export const unconstrainedGenericBad: {",
+            "  <Options>(self: string, label: string, options: Options): string",
+            "  <Options>(label: string, options: Options): (self: string) => string",
+            "} = dual(3, <Options>(self: string, label: string, _options: Options): string => `${self}:${label}`);",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(9);
+        expect(diagnostics).toContain("arrayBad");
+        expect(diagnostics).toContain("tupleBad");
+        expect(diagnostics).toContain("functionBad");
+        expect(diagnostics).toContain("effectBad");
+        expect(diagnostics).toContain("schemaBad");
+        expect(diagnostics).toContain("promiseBad");
+        expect(diagnostics).toContain("anyBad");
+        expect(diagnostics).toContain("unknownBad");
+        expect(diagnostics).toContain("unconstrainedGenericBad");
+        expect(diagnostics).toContain("third-param-not-object-like");
+        expect(diagnostics).not.toContain("inlineOk");
+        expect(diagnostics).not.toContain("interfaceOk");
+        expect(diagnostics).not.toContain("classOk");
+        expect(diagnostics).not.toContain("recordOk");
+        expect(diagnostics).not.toContain("constrainedGenericOk");
+      })
+    )
+  );
+
+  it.effect("flags too many positional parameters and obvious wrong first parameters", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import { Effect } from "effect";',
+            'import { dual } from "effect/Function";',
+            "",
+            "export function tooMany(self: string, label: string, mode: string, strict: boolean): string {",
+            "  return `${self}:${label}:${mode}:${strict}`;",
+            "}",
+            "",
+            "export const wrongFirst: {",
+            "  (message: string, effect: Effect.Effect<string>): Effect.Effect<string>",
+            "  (effect: Effect.Effect<string>): (message: string) => Effect.Effect<string>",
+            "} = dual(2, (message: string, effect: Effect.Effect<string>): Effect.Effect<string> => effect);",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(2);
+        expect(diagnostics).toContain("tooMany");
+        expect(diagnostics).toContain("too-many-positional-params");
+        expect(diagnostics).toContain("wrongFirst");
+        expect(diagnostics).toContain("obvious-wrong-first-parameter");
+      })
+    )
+  );
+
+  it.effect("tracks manual overloads and static class helpers while excluding hooks and components", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.tsx",
+          [
+            'import { dual } from "effect/Function";',
+            "",
+            "export function manual(self: string, label: string): string;",
+            "export function manual(label: string): (self: string) => string;",
+            "export function manual(first: string, second?: string): string | ((self: string) => string) {",
+            "  return second === undefined ? (self: string) => `${self}:${first}` : `${first}:${second}`;",
+            "}",
+            "",
+            "export class DomainError {",
+            "  static readonly ok: {",
+            "    (self: string, label: string): string",
+            "    (label: string): (self: string) => string",
+            "  } = dual(2, (self: string, label: string): string => `${self}:${label}`);",
+            "",
+            "  static missing(self: string, label: string): string {",
+            "    return `${self}:${label}`;",
+            "  }",
+            "}",
+            "",
+            "export const useThing = (self: string, label: string): string => `${self}:${label}`;",
+            "export const Component = (props: { readonly value: string }, label: string): string => `${props.value}:${label}`;",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(2);
+        expect(diagnostics).toContain("manual");
+        expect(diagnostics).toContain("DomainError.missing");
+        expect(diagnostics).not.toContain("useThing");
+        expect(diagnostics).not.toContain("Component");
+      })
+    )
+  );
+
+  it.effect("refreshes inventory and fails when tracked candidates move into enforced roots", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            "export function missing(self: string, label: string): string {",
+            "  return `${self}:${label}`;",
+            "}",
+            "",
+          ].join("\n")
+        );
+
+        const writeSummary = yield* runLaw({ write: true, strictCheck: false });
+        const inventory = yield* readProjectFile("standards/dual-arity.inventory.jsonc");
+        const enforcedInventory = inventory.replace(
+          '"tooling/cli/src/commands/Laws/DualArity.ts"',
+          '"packages/demo/src"'
+        );
+        yield* writeProjectFile("standards/dual-arity.inventory.jsonc", enforcedInventory);
+
+        const checkSummary = yield* runLaw();
+
+        expect(writeSummary.wroteInventory).toBe(true);
+        expect(writeSummary.strictFailure).toBe(false);
+        expect(checkSummary.missingEntries).toBe(0);
+        expect(checkSummary.enforcedCandidates).toBe(1);
+        expect(checkSummary.strictFailure).toBe(true);
+      })
+    )
+  );
+
+  it.effect("detects stale inventory entries and validates exception metadata", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            "export function missing(self: string, label: string): string {",
+            "  return `${self}:${label}`;",
+            "}",
+            "",
+          ].join("\n")
+        );
+
+        yield* runLaw({ write: true, strictCheck: false });
+        const inventory = yield* readProjectFile("standards/dual-arity.inventory.jsonc");
+        const validExceptionInventory = inventory
+          .replace('"status": "candidate"', '"status": "exception"')
+          .replace('"owner": "@beep/root"', '"owner": "@beep/repo-cli"')
+          .replace(
+            '"reason": "Public 2-3 parameter helper APIs must be implemented with dual from effect/Function."',
+            '"reason": "Kept as an explicit compatibility exception for the test fixture."'
+          );
+        yield* writeProjectFile("standards/dual-arity.inventory.jsonc", validExceptionInventory);
+
+        const validExceptionSummary = yield* runLaw();
+
+        expect(validExceptionSummary.invalidExceptions).toBe(0);
+        expect(validExceptionSummary.strictFailure).toBe(false);
+
+        const invalidExceptionInventory = validExceptionInventory
+          .replace('"owner": "@beep/repo-cli"', '"owner": ""')
+          .replace('"reason": "Kept as an explicit compatibility exception for the test fixture."', '"reason": ""');
+        yield* writeProjectFile("standards/dual-arity.inventory.jsonc", invalidExceptionInventory);
+
+        const invalidExceptionSummary = yield* runLaw();
+
+        expect(invalidExceptionSummary.invalidExceptions).toBe(1);
+        expect(invalidExceptionSummary.strictFailure).toBe(true);
+
+        const staleInventory = invalidExceptionInventory
+          .replace('"qualifiedName": "missing"', '"qualifiedName": "gone"')
+          .replace('"owner": ""', '"owner": "@beep/repo-cli"')
+          .replace('"reason": ""', '"reason": "Tracked stale fixture."');
+        yield* writeProjectFile("standards/dual-arity.inventory.jsonc", staleInventory);
+
+        const staleSummary = yield* runLaw();
+
+        expect(staleSummary.staleEntries).toBe(1);
+        expect(staleSummary.missingEntries).toBe(1);
+        expect(staleSummary.strictFailure).toBe(true);
+        expect(staleSummary.diagnostics.join("\n")).toContain("[stale]");
+      })
+    )
+  );
+});

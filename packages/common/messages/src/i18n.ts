@@ -6,6 +6,7 @@
  */
 import { O } from "@beep/utils";
 import { Exit, Match, pipe, SchemaIssue } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import i18next from "i18next";
 
@@ -208,7 +209,7 @@ const matchMetaFilter = Match.type<S.Annotations.Filter["meta"]>().pipe(
  * @since 0.0.0
  * @category utilities
  */
-export const logIssues = getLogIssues({
+const logIssuesImpl = getLogIssues({
   // Format leaf-level issues (missing key, wrong type, etc.)
   leafHook,
   // Format custom check errors (like isMinLength or user-defined validations)
@@ -223,4 +224,8 @@ export const logIssues = getLogIssues({
       })
     ),
 });
+export const logIssues: {
+  <S extends S.Codec<unknown, unknown>>(schema: S, input: unknown): void;
+  <S extends S.Codec<unknown, unknown>>(schema: S): (input: unknown) => void;
+} = dual(2, logIssuesImpl);
 // bench

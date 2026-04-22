@@ -7,6 +7,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings } from "@beep/schema";
 import { Effect, SchemaGetter } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 /* cspell:ignore Derivability derivability */
 import { ApplicableTo } from "./ApplicableTo.model.js";
@@ -167,7 +168,15 @@ export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: 
  * @category models
  * @since 0.0.0
  */
-export const make = <const Tag extends TagName, const Def extends typeof JSDocTagDefinition.Encoded>(
+export const make: {
+  <const Tag extends TagName, const Def extends typeof JSDocTagDefinition.Encoded>(
+    meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
+  ): (tag: Tag) => ReturnType<typeof JSDocTagDefinition.mapFields>;
+  <const Tag extends TagName, const Def extends typeof JSDocTagDefinition.Encoded>(
+    _tag: Tag,
+    meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
+  ): ReturnType<typeof JSDocTagDefinition.mapFields>;
+} = dual(2, <const Tag extends TagName, const Def extends typeof JSDocTagDefinition.Encoded>(
   _tag: Tag,
   meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
 ) => {
@@ -176,4 +185,4 @@ export const make = <const Tag extends TagName, const Def extends typeof JSDocTa
     _tag: S.tag(_tag),
     value: TagValue.cases[_tag],
   })).annotate({ jsDocTagMetadata: def });
-};
+});

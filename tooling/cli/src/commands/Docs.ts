@@ -16,6 +16,7 @@ import { Argument, Command } from "effect/unstable/cli";
 import { docsAggregateCommand } from "./DocsAggregate.js";
 
 const $I = $RepoCliId.create("docs");
+const stringEquivalence = S.toEquivalence(S.String);
 
 const DocsSectionName = LiteralKit(["laws", "skills", "policies"]).annotate(
   $I.annote("DocsSectionName", {
@@ -143,9 +144,7 @@ const DocsSections: ReadonlyArray<DocsSection> = [
 const printSection = Effect.fn(function* (section: DocsSection) {
   yield* Console.log(`${section.title}`);
   yield* Console.log(`${section.summary}`);
-  for (const line of section.lines) {
-    yield* Console.log(`- ${line}`);
-  }
+  yield* Effect.forEach(section.lines, (line) => Console.log(`- ${line}`), { discard: true });
 });
 
 const printDocsIndex = Effect.fn(function* () {
@@ -158,17 +157,20 @@ const printDocsIndex = Effect.fn(function* () {
 });
 
 const findSectionByName = (name: DocsSectionName): O.Option<DocsSection> =>
-  A.findFirst(DocsSections, (entry) => entry.name === name);
+  A.findFirst(DocsSections, (entry) => stringEquivalence(entry.name, name));
+
+const printSectionByName = (name: DocsSectionName) =>
+  pipe(
+    findSectionByName(name),
+    O.map(printSection),
+    O.getOrElse(() => Effect.void)
+  );
 
 const docsLawsCommand = Command.make(
   "laws",
   {},
   Effect.fn(function* () {
-    const section = findSectionByName("laws");
-    yield* O.match(section, {
-      onNone: () => Effect.void,
-      onSome: printSection,
-    });
+    yield* printSectionByName("laws");
   })
 ).pipe(Command.withDescription("Show compact repository law summary and validation commands"));
 
@@ -176,11 +178,7 @@ const docsSkillsCommand = Command.make(
   "skills",
   {},
   Effect.fn(function* () {
-    const section = findSectionByName("skills");
-    yield* O.match(section, {
-      onNone: () => Effect.void,
-      onSome: printSection,
-    });
+    yield* printSectionByName("skills");
   })
 ).pipe(Command.withDescription("Show compact skill usage guidance"));
 
@@ -188,11 +186,7 @@ const docsPoliciesCommand = Command.make(
   "policies",
   {},
   Effect.fn(function* () {
-    const section = findSectionByName("policies");
-    yield* O.match(section, {
-      onNone: () => Effect.void,
-      onSome: printSection,
-    });
+    yield* printSectionByName("policies");
   })
 ).pipe(Command.withDescription("Show policy gates and compliance commands"));
 
@@ -221,16 +215,17 @@ const docsFindCommand = Command.make(
         yield* printDocsIndex();
       }),
       onNonEmpty: Effect.fn(function* (sections) {
-        for (let index = 0; index < A.length(sections); index += 1) {
-          const section = sections[index];
-          if (section === undefined) {
-            continue;
-          }
-          if (index > 0) {
-            yield* Console.log("");
-          }
-          yield* printSection(section);
-        }
+        yield* Effect.forEach(
+          sections,
+          (section, index) =>
+            Effect.gen(function* () {
+              if (index > 0) {
+                yield* Console.log("");
+              }
+              yield* printSection(section);
+            }),
+          { discard: true }
+        );
       }),
     });
   })

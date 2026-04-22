@@ -32,6 +32,7 @@ import {
   TaggedErrorClass,
 } from "@beep/schema";
 import { ErrorReporter } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("HttpError");
@@ -50,8 +51,17 @@ const serverStatusAttributes = <Status extends number>(status: Status) =>
 
 const makeStatusConstructor =
   <Input extends StatusCauseInput, Error>(ctor: new (value: Input) => Error, status: number) =>
-  (message: string, cause?: unknown): Error =>
-    makeStatusCauseError(ctor)(message, status, cause);
+  {
+    const makeError = dual(2, (cause: unknown, message: string): Error =>
+      makeStatusCauseError(ctor)(message, status, cause)
+    );
+
+    return function (message: string, cause?: unknown): Error {
+      return arguments.length === 1
+        ? makeStatusCauseError(ctor)(message, status, undefined)
+        : makeError(cause, message);
+    };
+  };
 
 const statusFields = <Status extends S.Top>(status: Status) =>
   ({

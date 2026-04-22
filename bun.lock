@@ -97,42 +97,6 @@
         "typescript": "catalog:",
       },
     },
-    "apps/V2T": {
-      "name": "@beep/v2t",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/editor-client": "workspace:^",
-        "@beep/editor-lexical": "workspace:^",
-        "@beep/editor-protocol": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/ui": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@beep/v2t-sidecar": "workspace:^",
-        "@effect/platform-bun": "catalog:",
-        "@mui/material": "catalog:",
-        "@mui/material-pigment-css": "catalog:",
-        "@pigment-css/react": "catalog:",
-        "@tanstack/react-router": "catalog:",
-        "@tauri-apps/api": "catalog:",
-        "effect": "catalog:",
-        "react": "catalog:",
-        "react-dom": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@pigment-css/vite-plugin": "catalog:",
-        "@tauri-apps/cli": "catalog:",
-        "@types/node": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "@vitejs/plugin-react": "catalog:",
-        "react-grab": "^0.1.31",
-        "typescript": "catalog:",
-        "vite": "catalog:",
-      },
-    },
     "apps/desktop": {
       "name": "@beep/desktop",
       "version": "0.0.0",
@@ -492,8 +456,8 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/editor/core": {
-      "name": "@beep/editor",
+    "packages/editor/domain": {
+      "name": "@beep/editor-domain",
       "version": "0.0.0",
       "dependencies": {
         "@beep/identity": "workspace:^",
@@ -511,7 +475,7 @@
       "name": "@beep/editor-lexical",
       "version": "0.0.0",
       "dependencies": {
-        "@beep/editor": "workspace:^",
+        "@beep/editor-domain": "workspace:^",
         "@lexical/react": "catalog:",
         "@lexical/rich-text": "catalog:",
         "@lexical/selection": "catalog:",
@@ -533,7 +497,7 @@
       "name": "@beep/editor-protocol",
       "version": "0.0.0",
       "dependencies": {
-        "@beep/editor": "workspace:^",
+        "@beep/editor-domain": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
       },
@@ -546,7 +510,7 @@
       "name": "@beep/editor-runtime",
       "version": "0.0.0",
       "dependencies": {
-        "@beep/editor": "workspace:^",
+        "@beep/editor-domain": "workspace:^",
         "@beep/editor-protocol": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
@@ -693,6 +657,20 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/shared/config": {
+      "name": "@beep/shared-config",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/shared/domain": {
       "name": "@beep/shared-domain",
       "version": "0.0.0",
@@ -707,20 +685,6 @@
       },
       "devDependencies": {
         "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/shared/env": {
-      "name": "@beep/shared-env",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -780,25 +744,6 @@
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
-      },
-    },
-    "packages/v2t-sidecar": {
-      "name": "@beep/v2t-sidecar",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/runtime-protocol": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@effect/platform-bun": "catalog:",
-        "@effect/sql-sqlite-bun": "catalog:",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "typescript": "catalog:",
-        "vitest": "catalog:",
       },
     },
     "tooling/cli": {
@@ -1268,7 +1213,7 @@
 
     "@beep/docgen": ["@beep/docgen@workspace:tooling/docgen"],
 
-    "@beep/editor": ["@beep/editor@workspace:packages/editor/core"],
+    "@beep/editor-domain": ["@beep/editor-domain@workspace:packages/editor/domain"],
 
     "@beep/editor-app": ["@beep/editor-app@workspace:apps/editor-app"],
 
@@ -1322,9 +1267,9 @@
 
     "@beep/shared-client": ["@beep/shared-client@workspace:packages/shared/client"],
 
-    "@beep/shared-domain": ["@beep/shared-domain@workspace:packages/shared/domain"],
+    "@beep/shared-config": ["@beep/shared-config@workspace:packages/shared/config"],
 
-    "@beep/shared-env": ["@beep/shared-env@workspace:packages/shared/env"],
+    "@beep/shared-domain": ["@beep/shared-domain@workspace:packages/shared/domain"],
 
     "@beep/shared-server": ["@beep/shared-server@workspace:packages/shared/server"],
 
@@ -1339,10 +1284,6 @@
     "@beep/ui": ["@beep/ui@workspace:packages/common/ui"],
 
     "@beep/utils": ["@beep/utils@workspace:packages/common/utils"],
-
-    "@beep/v2t": ["@beep/v2t@workspace:apps/V2T"],
-
-    "@beep/v2t-sidecar": ["@beep/v2t-sidecar@workspace:packages/v2t-sidecar"],
 
     "@bergos/jsonparse": ["@bergos/jsonparse@1.4.2", "", { "dependencies": { "buffer": "^6.0.3" } }, "sha512-qUt0QNJjvg4s1zk+AuLM6s/zcsQ8MvGn7+1f0vPuxvpCYa08YtTryuDInngbEyW5fNGGYe2znKt61RMGd5HnXg=="],
 

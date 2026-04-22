@@ -32,6 +32,8 @@
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "jsonc-parser": "catalog:",
+    "micromark": "catalog:",
+    "micromark-extension-gfm": "catalog:",
     "uuid": "catalog:",
     "yaml": "catalog:"
   },

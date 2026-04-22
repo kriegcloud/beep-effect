@@ -13,6 +13,7 @@ Shared may contain:
 - schema building blocks
 - identity helpers
 - provider-neutral domain primitives
+- shared config primitives and contracts that multiple slices deliberately agree on
 - UI primitives that are intentionally product-agnostic
 - technical helpers that are stable across slices
 
@@ -27,6 +28,7 @@ Shared should not contain:
 - provider-specific leakage that domain packages will inherit
 - one-off convenience wrappers created to avoid a local import
 - global registries that make slices depend on each other indirectly
+- app-wide config registries that aggregate every slice's private config
 
 If a concept belongs to `iam`, keep it in `iam`. Promote only when the concept is
 truly shared and the owning teams/slices accept the coupling.
@@ -48,3 +50,14 @@ It should not know about database columns, browser date pickers, or Postgres
 time zones.
 
 Those adapter concerns belong in tables, UI, client, server, or providers.
+
+`@beep/shared-config` follows the same rule. It may hold shared config
+building blocks, browser-safe shared config contracts, server config contracts,
+redacted secret helpers, and test `ConfigProvider` utilities when multiple
+slices intentionally share that language. It must not become the place where all
+slice config is gathered into one global object or Layer.
+
+Domain packages may depend on shared/common domain primitives, but not shared
+config contracts or helpers. `@beep/shared-config` is for config, use-case,
+adapter, runtime, and test composition code; it is not an escape hatch for
+domain code to read configuration.

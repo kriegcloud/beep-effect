@@ -8,6 +8,7 @@
 import { $SchemaId } from "@beep/identity";
 import { Effect, HashSet, Order, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -32,6 +33,8 @@ type RowSchemaWithFields = S.Top & {
   readonly fields: S.Struct.Fields;
 };
 
+type CsvDocument<RowSchema extends RowSchemaWithFields> = S.decodeTo<S.toType<S.$Array<RowSchema>>, typeof CsvText>;
+
 const decodeCsvCodecOptions = S.decodeUnknownEffect(CsvCodecOptions);
 
 const toSchemaIssue = (input: unknown, error: CsvError | S.SchemaError): SchemaIssue.Issue =>
@@ -41,6 +44,31 @@ const toSchemaIssue = (input: unknown, error: CsvError | S.SchemaError): SchemaI
 
 const getSchemaColumns = <RowSchema extends RowSchemaWithFields>(rowSchema: RowSchema): ReadonlyArray<string> =>
   R.keys(rowSchema.fields);
+
+const CSVEffect = <RowSchema extends RowSchemaWithFields>(
+  rowSchema: RowSchema,
+  options?: CsvCodecOptionsArgs
+): CsvDocument<RowSchema> => {
+  const decodeRows = decodeCsvRowsEffect(rowSchema, options);
+  const encodeRows = encodeCsvRowsEffect(rowSchema, options);
+  const rowsSchema = rowSchema.pipe(S.Array, S.toType);
+
+  return CsvText.pipe(
+    S.decodeTo(
+      rowsSchema,
+      SchemaTransformation.transformOrFail({
+        decode: (input) => decodeRows(input).pipe(Effect.mapError((error) => toSchemaIssue(input, error))),
+        encode: (rows) => encodeRows(rows).pipe(Effect.mapError((error) => toSchemaIssue(rows, error))),
+      })
+    ),
+    S.annotate(
+      $I.annote("CSV", {
+        description: "Schema factory for branded CSV text decoded into typed row arrays.",
+      })
+    )
+  );
+};
+
 const validateHeaderRow = Effect.fn("validateHeaderRow")(function* (
   headerRow: ReadonlyArray<string>,
   schemaColumns: ReadonlyArray<string>
@@ -237,26 +265,25 @@ const encodeCsvRowsEffect = <RowSchema extends RowSchemaWithFields>(
  * @category Validation
  * @since 0.0.0
  */
-export const CSV = <RowSchema extends RowSchemaWithFields>(rowSchema: RowSchema, options?: CsvCodecOptionsArgs) => {
-  const decodeRows = decodeCsvRowsEffect(rowSchema, options);
-  const encodeRows = encodeCsvRowsEffect(rowSchema, options);
-  const rowsSchema = rowSchema.pipe(S.Array, S.toType);
+export const CSV: {
+  <RowSchema extends RowSchemaWithFields>(rowSchema: RowSchema): CsvDocument<RowSchema>;
+  <RowSchema extends RowSchemaWithFields>(rowSchema: RowSchema, options: CsvCodecOptionsArgs): CsvDocument<RowSchema>;
+  <RowSchema extends RowSchemaWithFields>(
+    options: CsvCodecOptionsArgs
+  ): (rowSchema: RowSchema) => CsvDocument<RowSchema>;
+} = dual(
+  (args) => args.length === 1 && !S.isSchema(args[0]),
+  <RowSchema extends RowSchemaWithFields>(
+    rowSchema: RowSchema | CsvCodecOptionsArgs,
+    options?: CsvCodecOptionsArgs
+  ): CsvDocument<RowSchema> | ((schema: RowSchema) => CsvDocument<RowSchema>) => {
+    if (S.isSchema(rowSchema)) {
+      return CSVEffect(rowSchema, options);
+    }
 
-  return CsvText.pipe(
-    S.decodeTo(
-      rowsSchema,
-      SchemaTransformation.transformOrFail({
-        decode: (input) => decodeRows(input).pipe(Effect.mapError((error) => toSchemaIssue(input, error))),
-        encode: (rows) => encodeRows(rows).pipe(Effect.mapError((error) => toSchemaIssue(rows, error))),
-      })
-    ),
-    S.annotate(
-      $I.annote("CSV", {
-        description: "Schema factory for branded CSV text decoded into typed row arrays.",
-      })
-    )
-  );
-};
+    return (schema: RowSchema) => CSVEffect(schema, rowSchema);
+  }
+);
 
 /**
  * Branded runtime type for CSV document text produced by encoding a `CSV`

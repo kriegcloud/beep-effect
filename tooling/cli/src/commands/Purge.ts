@@ -8,13 +8,15 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { normalizePath } from "@beep/schema";
-import { Console, Effect, FileSystem, MutableHashSet, Path } from "effect";
+import { Console, Effect, FileSystem, Function as Fn, MutableHashSet, Path } from "effect";
 import * as A from "effect/Array";
+import * as Num from "effect/Number";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 
 const $I = $RepoCliId.create("purge");
+const stringEquivalence = S.toEquivalence(S.String);
 /**
  * Workspace-local artifact names to purge.
  *
@@ -84,7 +86,9 @@ const resolveCanonicalPurgePath = Effect.fn(function* (target: string) {
           Effect.mapError((cause) => new DomainError({ message: `Failed to resolve purge path "${candidate}"`, cause }))
         );
       const relativeSuffix = normalizePath(path.relative(candidate, resolvedTarget));
-      return relativeSuffix === "." ? canonicalCandidate : path.resolve(canonicalCandidate, relativeSuffix);
+      return stringEquivalence(relativeSuffix, ".")
+        ? canonicalCandidate
+        : path.resolve(canonicalCandidate, relativeSuffix);
     }
 
     const parent = path.dirname(candidate);
@@ -103,7 +107,11 @@ const ensureContainedPurgeTarget = Effect.fn(function* (rootDir: string, target:
   const canonicalTarget = yield* resolveCanonicalPurgePath(target);
   const relativeFromRoot = normalizePath(path.relative(canonicalRoot, canonicalTarget));
 
-  if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
+  if (
+    path.isAbsolute(relativeFromRoot) ||
+    stringEquivalence(relativeFromRoot, "..") ||
+    Str.startsWith("../")(relativeFromRoot)
+  ) {
     return yield* new DomainError({
       message: `Refusing to purge path outside repository root: "${target}"`,
     });
@@ -169,7 +177,7 @@ const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: bool
   }
 
   return {
-    targets: [...targets],
+    targets: A.fromIterable(targets),
     workspaceCount,
   } as const;
 });
@@ -187,48 +195,56 @@ const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: bool
  * @category utilities
  * @since 0.0.0
  */
-export const purgeAtRoot = Effect.fn(function* (rootDir: string, removeLock: boolean) {
-  const fs = yield* FileSystem.FileSystem;
+export const purgeAtRoot: {
+  (rootDir: string, removeLock: boolean): Effect.Effect<PurgeSummary, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    removeLock: boolean
+  ): (rootDir: string) => Effect.Effect<PurgeSummary, DomainError, FileSystem.FileSystem | Path.Path>;
+} = Fn.dual(
+  2,
+  Effect.fn(function* (rootDir: string, removeLock: boolean) {
+    const fs = yield* FileSystem.FileSystem;
 
-  const { targets, workspaceCount } = yield* buildPurgeTargets(rootDir, removeLock);
-  const safeTargets = yield* Effect.forEach(targets, (target) => ensureContainedPurgeTarget(rootDir, target), {
-    concurrency: "unbounded",
-  });
+    const { targets, workspaceCount } = yield* buildPurgeTargets(rootDir, removeLock);
+    const safeTargets = yield* Effect.forEach(targets, (target) => ensureContainedPurgeTarget(rootDir, target), {
+      concurrency: "unbounded",
+    });
 
-  yield* Console.log(`Purging ${safeTargets.length} path(s) across ${workspaceCount} workspace(s)...`);
+    yield* Console.log(`Purging ${A.length(safeTargets)} path(s) across ${workspaceCount} workspace(s)...`);
 
-  const existedBefore = yield* Effect.forEach(
-    safeTargets,
-    (target) =>
-      fs
-        .exists(target)
-        .pipe(
-          Effect.mapError((cause) => new DomainError({ message: `Failed to check purge target "${target}"`, cause }))
-        ),
-    { concurrency: "unbounded" }
-  );
+    const existedBefore = yield* Effect.forEach(
+      safeTargets,
+      (target) =>
+        fs
+          .exists(target)
+          .pipe(
+            Effect.mapError((cause) => new DomainError({ message: `Failed to check purge target "${target}"`, cause }))
+          ),
+      { concurrency: "unbounded" }
+    );
 
-  yield* Effect.forEach(
-    safeTargets,
-    (target) =>
-      fs
-        .remove(target, { recursive: true, force: true })
-        .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to purge target "${target}"`, cause }))),
-    { discard: true, concurrency: "unbounded" }
-  );
+    yield* Effect.forEach(
+      safeTargets,
+      (target) =>
+        fs
+          .remove(target, { recursive: true, force: true })
+          .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to purge target "${target}"`, cause }))),
+      { discard: true, concurrency: "unbounded" }
+    );
 
-  const removedCount = A.reduce(existedBefore, 0, (count, existed) => (existed ? count + 1 : count));
+    const removedCount = A.reduce(existedBefore, 0, (count, existed) => (existed ? Num.increment(count) : count));
 
-  yield* Console.log(
-    `Purge complete: targeted ${safeTargets.length} path(s), removed ${removedCount} existing path(s).`
-  );
+    yield* Console.log(
+      `Purge complete: targeted ${A.length(safeTargets)} path(s), removed ${removedCount} existing path(s).`
+    );
 
-  return {
-    targetedCount: safeTargets.length,
-    removedCount,
-    workspaceCount,
-  } as const satisfies PurgeSummary;
-});
+    return new PurgeSummary({
+      targetedCount: A.length(safeTargets),
+      removedCount,
+      workspaceCount,
+    });
+  })
+);
 
 /**
  * CLI command to purge workspace/root build artifacts.

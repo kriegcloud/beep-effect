@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import * as Editor from "@beep/editor";
+import * as Editor from "@beep/editor-domain";
 import { $EditorProtocolId } from "@beep/identity/packages";
 import * as RuntimeProtocol from "@beep/runtime-protocol";
 import { Slug } from "@beep/schema";
@@ -18,7 +18,7 @@ const $I = $EditorProtocolId.create("index");
  * @since 0.0.0
  * @category re-exports
  */
-export * from "@beep/editor";
+export * from "@beep/editor-domain";
 /**
  * @since 0.0.0
  * @category re-exports

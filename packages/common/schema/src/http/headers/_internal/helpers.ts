@@ -9,6 +9,7 @@ import { $SchemaId } from "@beep/identity";
 import { cast } from "@beep/utils/Function";
 import { Effect, identity, Option, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
@@ -116,14 +117,26 @@ export const makeHeaderEncodeForbidden =
 /**
  * @since 0.0.0
  */
-export const makeResponseHeader = (name: string, value: string): ResponseHeader =>
-  new ResponseHeader({
-    name,
-    value: Option.some(value),
-  });
+export const makeResponseHeader: {
+  (name: string, value: string): ResponseHeader;
+  (value: string): (name: string) => ResponseHeader;
+} = dual(
+  2,
+  (name: string, value: string): ResponseHeader =>
+    new ResponseHeader({
+      name,
+      value: Option.some(value),
+    })
+);
 
 /**
  * @since 0.0.0
  */
-export const makeResponseHeaderOption = (name: string, value: Option.Option<string>): Option.Option<ResponseHeader> =>
-  Option.map(value, (headerValue) => makeResponseHeader(name, headerValue));
+export const makeResponseHeaderOption: {
+  (name: string, value: Option.Option<string>): Option.Option<ResponseHeader>;
+  (value: Option.Option<string>): (name: string) => Option.Option<ResponseHeader>;
+} = dual(
+  2,
+  (name: string, value: Option.Option<string>): Option.Option<ResponseHeader> =>
+    Option.map(value, (headerValue) => makeResponseHeader(name, headerValue))
+);

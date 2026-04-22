@@ -1,3 +1,4 @@
+import { $RepoCliId, $SchemaId, type IdentityString } from "@beep/identity";
 import { LiteralKit, LiteralNotInSetError, type LiteralToKey } from "@beep/schema";
 import type * as A from "effect/Array";
 import * as S from "effect/Schema";
@@ -121,21 +122,21 @@ describe("LiteralKit with manual Enum mapping", () => {
     expect(Status.Enum.TWO).type.toBe<"two">();
   });
 
-  it("keeps the other helpers on the original LiteralToKey keys", () => {
-    expect(Status.is.one).type.toBe<(i: unknown) => i is "one">();
-    expect(Status.thunk.two).type.toBe<() => "two">();
+  it("maps the other key-based helpers to the provided manual keys", () => {
+    expect(Status.is.ONE).type.toBe<(i: unknown) => i is "one">();
+    expect(Status.thunk.TWO).type.toBe<() => "two">();
     expect(
       Status.$match("one", {
-        one: () => "first" as const,
-        two: () => "second" as const,
+        ONE: () => "first" as const,
+        TWO: () => "second" as const,
       })
     ).type.toBe<"first" | "second">();
 
     const Event = Status.toTaggedUnion("kind")({
-      one: {
+      ONE: {
         value: S.Literal(1),
       },
-      two: {
+      TWO: {
         value: S.Literal(2),
       },
     });
@@ -143,24 +144,58 @@ describe("LiteralKit with manual Enum mapping", () => {
     expect(Event.guards.one).type.toBe<(u: unknown) => u is { readonly kind: "one"; readonly value: 1 }>();
 
     const wrongMatchCases = {
-      ONE: () => "first" as const,
-      TWO: () => "second" as const,
+      one: () => "first" as const,
+      two: () => "second" as const,
     } as const;
 
     // @ts-expect-error!
     Status.$match("one", wrongMatchCases);
 
     const wrongTaggedCases = {
-      ONE: {
+      one: {
         value: S.Literal(1),
       },
-      TWO: {
+      two: {
         value: S.Literal(2),
       },
     } as const;
 
     // @ts-expect-error!
     Status.toTaggedUnion("kind")(wrongTaggedCases);
+  });
+
+  it("uses mapped keys for branded string helper objects", () => {
+    const RepoPkg = LiteralKit(
+      [$RepoCliId.identifier, $SchemaId.identifier] as const,
+      [
+        [$RepoCliId.identifier, "@beep/repo-cli"],
+        [$SchemaId.identifier, "@beep/schema"],
+      ] as const
+    );
+
+    expect(RepoPkg.Enum["@beep/repo-cli"]).type.toBe<IdentityString<"@beep/repo-cli">>();
+    expect(RepoPkg.thunk["@beep/repo-cli"]).type.toBe<() => IdentityString<"@beep/repo-cli">>();
+    expect(RepoPkg.is["@beep/repo-cli"]).type.toBe<(i: unknown) => i is IdentityString<"@beep/repo-cli">>();
+    expect(
+      RepoPkg.$match($RepoCliId.identifier, {
+        "@beep/repo-cli": () => "repo-cli" as const,
+        "@beep/schema": () => "schema" as const,
+      })
+    ).type.toBe<"repo-cli" | "schema">();
+
+    const Event = RepoPkg.toTaggedUnion("pkg")({
+      "@beep/repo-cli": {
+        enabled: S.Literal(true),
+      },
+      "@beep/schema": {
+        enabled: S.Literal(false),
+      },
+    });
+
+    expect(Event.Type).type.toBe<
+      | { readonly pkg: IdentityString<"@beep/repo-cli">; readonly enabled: true }
+      | { readonly pkg: IdentityString<"@beep/schema">; readonly enabled: false }
+    >();
   });
 
   it("supports mixed source literal types", () => {
@@ -176,9 +211,9 @@ describe("LiteralKit with manual Enum mapping", () => {
     expect(Mixed.Enum.ONE).type.toBe<1>();
     expect(Mixed.Enum.TRUE).type.toBe<true>();
     expect(Mixed.Enum.TWO).type.toBe<"two">();
-    expect(Mixed.is.number1).type.toBe<(i: unknown) => i is 1>();
-    expect(Mixed.is.true).type.toBe<(i: unknown) => i is true>();
-    expect(Mixed.is.two).type.toBe<(i: unknown) => i is "two">();
+    expect(Mixed.is.ONE).type.toBe<(i: unknown) => i is 1>();
+    expect(Mixed.is.TRUE).type.toBe<(i: unknown) => i is true>();
+    expect(Mixed.is.TWO).type.toBe<(i: unknown) => i is "two">();
   });
 
   it("preserves exact Enum inference from non-fixed pair arrays", () => {

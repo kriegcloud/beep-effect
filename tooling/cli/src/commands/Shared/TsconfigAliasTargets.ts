@@ -6,6 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
+import { pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -14,6 +15,7 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/Shared/TsconfigAliasTargets");
+const EXPORT_CONDITION_PRIORITY = ["types", "import", "default", "require", "node", "bun", "browser"] as const;
 
 /**
  * Canonical alias targets derived for a package root export.
@@ -37,44 +39,31 @@ export class CanonicalAliasTargets extends S.Class<CanonicalAliasTargets>($I`Can
 
 const isRelativeDotPath = (value: unknown): value is string => P.isString(value) && Str.startsWith("./")(value);
 
+const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  P.isObject(value) && !A.isArray(value);
+
+const isSubpathExportKey = (key: string): boolean => key === "." || Str.startsWith("./")(key);
+
 const firstRelativeDotPath = (value: unknown): O.Option<string> => {
   if (isRelativeDotPath(value)) {
     return O.some(value);
   }
 
-  if (P.isNull(value)) {
-    return O.none();
-  }
-
   if (A.isArray(value)) {
-    for (const entry of value) {
-      const candidate = firstRelativeDotPath(entry);
-      if (O.isSome(candidate)) {
-        return candidate;
-      }
-    }
-    return O.none();
+    return pipe(value, A.map(firstRelativeDotPath), O.firstSomeOf);
   }
 
-  if (P.isObject(value)) {
-    const entry = value as Record<string, unknown>;
+  if (isReadonlyUnknownRecord(value)) {
+    const prioritizedCandidate = pipe(
+      EXPORT_CONDITION_PRIORITY,
+      A.map((key) => pipe(value, R.get(key), O.flatMap(firstRelativeDotPath))),
+      O.firstSomeOf
+    );
 
-    for (const key of ["types", "import", "default", "require", "node", "bun", "browser"]) {
-      if (!(key in entry)) {
-        continue;
-      }
-      const candidate = firstRelativeDotPath(entry[key]);
-      if (O.isSome(candidate)) {
-        return candidate;
-      }
-    }
-
-    for (const nested of R.values(entry)) {
-      const candidate = firstRelativeDotPath(nested);
-      if (O.isSome(candidate)) {
-        return candidate;
-      }
-    }
+    return pipe(
+      prioritizedCandidate,
+      O.orElse(() => pipe(value, R.values, A.map(firstRelativeDotPath), O.firstSomeOf))
+    );
   }
 
   return O.none();
@@ -93,11 +82,11 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
  * @since 0.0.0
  */
 export const resolveRootExportTarget = (exportsField: unknown): O.Option<string> => {
-  if (P.isObject(exportsField) && !A.isArray(exportsField)) {
-    if (P.isObject(exportsField) && "." in exportsField) {
+  if (isReadonlyUnknownRecord(exportsField)) {
+    if (P.hasProperty(exportsField, ".")) {
       return firstRelativeDotPath(exportsField["."]);
     }
-    if (A.some(R.keys(exportsField), (key) => key === "." || Str.startsWith("./")(key))) {
+    if (A.some(R.keys(exportsField), isSubpathExportKey)) {
       return O.none();
     }
   }
@@ -119,11 +108,8 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
  * @since 0.0.0
  */
 export const resolveSubpathExportTarget = (exportsField: unknown, subpath: string): O.Option<string> => {
-  if (P.isObject(exportsField) && !A.isArray(exportsField)) {
-    const exportsRecord = exportsField as Record<string, unknown>;
-    if (subpath in exportsRecord) {
-      return firstRelativeDotPath(exportsRecord[subpath]);
-    }
+  if (isReadonlyUnknownRecord(exportsField)) {
+    return pipe(exportsField, R.get(subpath), O.flatMap(firstRelativeDotPath));
   }
 
   return O.none();
@@ -160,24 +146,32 @@ export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<str
 export const buildCanonicalAliasTargets = (packagePath: string, rootExportTarget: string): CanonicalAliasTargets => {
   const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
   const rootAliasTarget = `./${packagePath}/${normalizedRootExportTarget}`;
-  const lastSlash = rootAliasTarget.lastIndexOf("/");
+  const lastSlash = pipe(
+    rootAliasTarget,
+    Str.lastIndexOf("/"),
+    O.getOrElse(() => -1)
+  );
 
   return new CanonicalAliasTargets({
     rootAliasTarget,
-    wildcardAliasTarget: lastSlash < 0 ? `./${packagePath}/*` : `${rootAliasTarget.slice(0, lastSlash)}/*`,
+    wildcardAliasTarget: lastSlash < 0 ? `./${packagePath}/*` : `${pipe(rootAliasTarget, Str.slice(0, lastSlash))}/*`,
   });
 };
 
 const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
   const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
-  const lastSlash = normalizedRootExportTarget.lastIndexOf("/");
+  const lastSlash = pipe(
+    normalizedRootExportTarget,
+    Str.lastIndexOf("/"),
+    O.getOrElse(() => -1)
+  );
 
   if (lastSlash < 0) {
-    return normalizedRootExportTarget.endsWith(".ts") ? "*.ts" : "*";
+    return Str.endsWith(".ts")(normalizedRootExportTarget) ? "*.ts" : "*";
   }
 
-  const parentDir = normalizedRootExportTarget.slice(0, lastSlash);
-  return normalizedRootExportTarget.endsWith(".ts") ? `${parentDir}/*.ts` : `${parentDir}/*`;
+  const parentDir = pipe(normalizedRootExportTarget, Str.slice(0, lastSlash));
+  return Str.endsWith(".ts")(normalizedRootExportTarget) ? `${parentDir}/*.ts` : `${parentDir}/*`;
 };
 
 /**

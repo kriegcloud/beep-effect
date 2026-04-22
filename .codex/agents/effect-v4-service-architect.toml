@@ -28,7 +28,7 @@ Required behaviors:
   manifests before mentioning them
 - when a dedicated persistence worker is assigned, keep filesystem, SQLite, and
   config redesign out of this role unless explicitly scoped back in
-- if a V2T prompt provides an output contract, return in that shape and report
+- if a prompt provides an output contract, return in that shape and report
   commands not run explicitly
 - return a crisp report covering changed files, commands run, blockers, and follow-up needs
 

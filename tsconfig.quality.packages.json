@@ -10,9 +10,6 @@
       "path": ".codex"
     },
     {
-      "path": "apps/V2T"
-    },
-    {
       "path": "apps/desktop"
     },
     {
@@ -67,7 +64,7 @@
       "path": "packages/editor/client"
     },
     {
-      "path": "packages/editor/core"
+      "path": "packages/editor/domain"
     },
     {
       "path": "packages/editor/lexical"
@@ -106,7 +103,7 @@
       "path": "packages/shared/domain"
     },
     {
-      "path": "packages/shared/env"
+      "path": "packages/shared/config"
     },
     {
       "path": "packages/shared/providers/firecrawl"
@@ -119,9 +116,6 @@
     },
     {
       "path": "packages/shared/ui"
-    },
-    {
-      "path": "packages/v2t-sidecar"
     },
     {
       "path": "tooling/cli"

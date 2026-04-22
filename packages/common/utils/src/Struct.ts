@@ -6,7 +6,8 @@
  */
 
 import { $UtilsId } from "@beep/identity/packages";
-import { Struct as EffectStruct, Function as Fn, Match, pipe } from "effect";
+import { Struct as EffectStruct, Match, pipe } from "effect";
+import { cast, dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -129,7 +130,7 @@ export const dotGet: {
   <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => Get<S, P>;
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): Get<S, P>;
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): Get<S, P>;
-} = Fn.dual(2, <S extends object>(self: S, path: PathInput): unknown => {
+} = dual(2, <S extends object>(self: S, path: PathInput): unknown => {
   return unsafeDotGet(self, path);
 }) as {
   <const P extends string>(path: P): <S extends object>(self: P extends Paths<S> ? S : never) => Get<S, P>;
@@ -171,7 +172,7 @@ export const dotGetOption: {
   <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => O.Option<Get<S, P>>;
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): O.Option<Get<S, P>>;
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): O.Option<Get<S, P>>;
-} = Fn.dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
+} = dual(2, <S extends object>(self: S, path: PathInput): O.Option<unknown> => {
   const lookup = lookupAtPath(self, path);
   return Match.value(lookup).pipe(
     Match.when({ found: true }, ({ value }) => O.some(value)),
@@ -234,7 +235,7 @@ export const mapPath: {
     f: Get<S, P> extends A ? (a: A) => B : never,
     path: P
   ): B;
-} = Fn.dual(
+} = dual(
   3,
   <S extends object, B>(self: S, f: (a: unknown) => B, path: PathInput): B => f(unsafeDotGet(self, path))
 ) as {
@@ -293,45 +294,45 @@ export const mapPathLazy: {
   <A, B, const P extends string>(
     f: (a: A) => B,
     path: P
-  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => Fn.LazyArg<B>;
+  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => () => B;
   <A, B, const P extends ReadonlyArray<string>>(
     f: (a: A) => B,
     path: P
-  ): <S extends object>(self: Get<S, P> extends A ? S : never) => Fn.LazyArg<B>;
+  ): <S extends object>(self: Get<S, P> extends A ? S : never) => () => B;
   <S extends object, A, B, const P extends string & Paths<S>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
     path: P
-  ): Fn.LazyArg<B>;
+  ): () => B;
   <S extends object, A, B, const P extends ReadonlyArray<string>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
     path: P
-  ): Fn.LazyArg<B>;
-} = Fn.dual(
+  ): () => B;
+} = dual(
   3,
-  <S extends object, B>(self: S, f: (a: unknown) => B, path: PathInput): Fn.LazyArg<B> =>
+  <S extends object, B>(self: S, f: (a: unknown) => B, path: PathInput): (() => B) =>
     () =>
       f(unsafeDotGet(self, path))
 ) as {
   <A, B, const P extends string>(
     f: (a: A) => B,
     path: P
-  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => Fn.LazyArg<B>;
+  ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => () => B;
   <A, B, const P extends ReadonlyArray<string>>(
     f: (a: A) => B,
     path: P
-  ): <S extends object>(self: Get<S, P> extends A ? S : never) => Fn.LazyArg<B>;
+  ): <S extends object>(self: Get<S, P> extends A ? S : never) => () => B;
   <S extends object, A, B, const P extends string & Paths<S>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
     path: P
-  ): Fn.LazyArg<B>;
+  ): () => B;
   <S extends object, A, B, const P extends ReadonlyArray<string>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
     path: P
-  ): Fn.LazyArg<B>;
+  ): () => B;
 };
 
 /**
@@ -371,7 +372,7 @@ export const mapPathLazy: {
 export const getLazy: {
   <S extends object, const K extends keyof S>(key: K): (self: S) => () => S[K];
   <S extends object, const K extends keyof S>(self: S, key: K): () => S[K];
-} = Fn.dual(
+} = dual(
   2,
   <S extends object, const K extends keyof S>(self: S, key: K): (() => S[K]) =>
     () =>
@@ -417,7 +418,7 @@ export const pathsOf = <const S extends Record<string, unknown>>(
     }
   };
   walk(obj, "");
-  return Fn.cast(result);
+  return cast(result);
 };
 
 /**
@@ -481,7 +482,7 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  * @since 0.0.0
  */
 export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
-  Fn.cast<Array<readonly [keyof R & string, R[keyof R & string]]>, StringKeyEntries<R>>(
+  cast<Array<readonly [keyof R & string, R[keyof R & string]]>, StringKeyEntries<R>>(
     pipe(
       EffectStruct.keys(obj),
       A.map((key): readonly [keyof R & string, R[keyof R & string]] => [key, obj[key]])
@@ -512,7 +513,7 @@ export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
 export const entriesNonEmpty = <const R extends object>(
   obj: R & NonEmptyStringKeyStruct<R>
 ): A.NonEmptyReadonlyArray<readonly [keyof R & string, R[keyof R & string]]> => {
-  const result: Array<readonly [keyof R & string, R[keyof R & string]]> = Fn.cast(entries(obj));
+  const result: Array<readonly [keyof R & string, R[keyof R & string]]> = cast(entries(obj));
   assertStructHasStringEntries(result, obj);
   return result;
 };
@@ -563,9 +564,9 @@ export const keys = <const R extends object>(obj: R): Array<keyof R & string> =>
 export const keysNonEmpty = <const R extends object>(
   obj: R & NonEmptyStringKeyStruct<R>
 ): A.NonEmptyReadonlyArray<keyof R & string> => {
-  const result: Array<keyof R & string> = Fn.cast(EffectStruct.keys(obj));
+  const result: Array<keyof R & string> = cast(EffectStruct.keys(obj));
   assertStructHasStringKeys(result, obj);
-  return Fn.cast<Array<keyof R & string>, A.NonEmptyReadonlyArray<keyof R & string>>(result);
+  return cast<Array<keyof R & string>, A.NonEmptyReadonlyArray<keyof R & string>>(result);
 };
 
 /**
@@ -599,14 +600,14 @@ export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
 
   for (const [key, value] of entries) {
     Reflect.defineProperty(out, key, {
-      configurable: true,
-      enumerable: true,
+      configurable: false,
+      enumerable: false,
       value,
-      writable: true,
+      writable: false,
     });
   }
 
-  return Fn.cast<Record<PropertyKey, unknown>, Simplify<{ [P in E[0]]: Extract<E, readonly [P, unknown]>[1] }>>(out);
+  return cast<Record<PropertyKey, unknown>, Simplify<{ [P in E[0]]: Extract<E, readonly [P, unknown]>[1] }>>(out);
 };
 
 /**
@@ -690,7 +691,7 @@ export type ReverseStruct<T extends ReverseableStruct> = {
 export const reverse: {
   <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;
   <S extends ReverseableStruct>(self: S): ReverseStruct<S>;
-} = Fn.dual(
+} = dual(
   (args) => args.length === 1,
   <S extends ReverseableStruct>(self: S): ReverseStruct<S> => {
     const stringEntries = pipe(
@@ -703,6 +704,6 @@ export const reverse: {
       A.map((key) => [self[key], key] as const)
     );
 
-    return Fn.cast(fromEntries(A.appendAll(stringEntries, symbolEntries)));
+  return cast(fromEntries(A.appendAll(stringEntries, symbolEntries)));
   }
 );

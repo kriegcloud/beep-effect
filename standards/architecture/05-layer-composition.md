@@ -34,6 +34,7 @@ Prefer:
 ```txt
 packages/iam/server/src/Layer.ts
   composes iam use-cases
+  composes iam config when present
   composes iam product port implementations
   composes iam tables
   composes iam providers
@@ -41,6 +42,9 @@ packages/iam/server/src/Layer.ts
 
 The app/runtime boundary can still import `iam/server/Layer.ts`, but it should
 not need to know every concept-level repository and provider inside the slice.
+Config Layers fit this same local shape: the config package owns live/test
+config services, and server/client/app composition decides which Layers to
+provide.
 
 ## Context.Service Shape
 
@@ -120,4 +124,5 @@ Higher-level app composition is still necessary. The rule is scope:
 - app-level Layers compose slices
 
 The smell is a runtime Layer that reaches through slice boundaries and wires the
-private details of many slices at once.
+private details of many slices at once. A global config Layer that aggregates
+every slice's private config is the same smell in configuration form.

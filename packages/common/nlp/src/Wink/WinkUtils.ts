@@ -10,6 +10,7 @@ import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { Context, Effect, Inspectable, Layer } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -132,13 +133,18 @@ export class WinkUtilsError extends TaggedErrorClass<WinkUtilsError>($I`WinkUtil
    * @param operation - The wink utility operation that failed.
    * @returns A typed wink-utils error value.
    */
-  static fromCause(cause: unknown, operation: string): WinkUtilsError {
-    return new WinkUtilsError({
-      cause,
-      message: `Wink utility ${operation} failed: ${renderCause(cause)}`,
-      operation,
-    });
-  }
+  static readonly fromCause: {
+    (cause: unknown, operation: string): WinkUtilsError;
+    (cause: unknown): (operation: string) => WinkUtilsError;
+  } = dual(
+    2,
+    (cause: unknown, operation: string): WinkUtilsError =>
+      new WinkUtilsError({
+        cause,
+        message: `Wink utility ${operation} failed: ${renderCause(cause)}`,
+        operation,
+      })
+  );
 }
 
 const makeWinkUtils = Effect.gen(function* () {

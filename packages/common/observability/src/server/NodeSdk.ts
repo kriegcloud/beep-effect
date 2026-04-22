@@ -13,6 +13,7 @@ import { BatchLogRecordProcessor, type LogRecordProcessor } from "@opentelemetry
 import { type MetricReader, PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { BatchSpanProcessor, type SpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { Duration, type Layer } from "effect";
+import { dual } from "effect/Function";
 import { type ServerObservabilityConfig, toOtlpResource } from "./Config.ts";
 
 /**
@@ -65,10 +66,10 @@ export const toNodeSdkResource = (config: ServerObservabilityConfig): NonNullabl
  * @since 0.0.0
  * @category observability
  */
-export const makeNodeSdkServerConfig = (
-  config: ServerObservabilityConfig,
-  options?: NodeSdkServerOptions | undefined
-): NodeSdk.Configuration => {
+export const makeNodeSdkServerConfig: {
+  (config: ServerObservabilityConfig, options?: NodeSdkServerOptions | undefined): NodeSdk.Configuration;
+  (options: NodeSdkServerOptions | undefined): (config: ServerObservabilityConfig) => NodeSdk.Configuration;
+} = dual(2, (config: ServerObservabilityConfig, options?: NodeSdkServerOptions | undefined): NodeSdk.Configuration => {
   const loggerExportInterval = Duration.toMillis(
     Duration.fromInputUnsafe(options?.loggerExportInterval ?? Duration.seconds(1))
   );
@@ -119,7 +120,7 @@ export const makeNodeSdkServerConfig = (
     metricTemporality: options?.metricTemporality ?? "cumulative",
     shutdownTimeout: options?.shutdownTimeout ?? Duration.seconds(3),
   };
-};
+});
 
 /**
  * Build a shared Node SDK layer for server runtimes.
@@ -135,7 +136,13 @@ export const makeNodeSdkServerConfig = (
  * @since 0.0.0
  * @category layers
  */
-export const layerNodeSdkServer = (
-  config: ServerObservabilityConfig,
-  options?: NodeSdkServerOptions | undefined
-): Layer.Layer<OtelResource.Resource> => NodeSdk.layer(() => makeNodeSdkServerConfig(config, options));
+export const layerNodeSdkServer: {
+  (config: ServerObservabilityConfig, options?: NodeSdkServerOptions | undefined): Layer.Layer<OtelResource.Resource>;
+  (
+    options: NodeSdkServerOptions | undefined
+  ): (config: ServerObservabilityConfig) => Layer.Layer<OtelResource.Resource>;
+} = dual(
+  2,
+  (config: ServerObservabilityConfig, options?: NodeSdkServerOptions | undefined): Layer.Layer<OtelResource.Resource> =>
+    NodeSdk.layer(() => makeNodeSdkServerConfig(config, options))
+);

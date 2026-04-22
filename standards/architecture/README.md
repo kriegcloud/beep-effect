@@ -12,8 +12,8 @@ those rules exist, records the vocabulary, and preserves the decision trail.
 beep-effect should be easy to experiment in without becoming easy to damage.
 The architecture therefore treats topology as durable product infrastructure:
 package boundaries, domain-kind folders, role suffixes, and provider boundaries
-are not cosmetic. They are how the repo keeps domain experiments modular,
-composable, and reusable.
+are not cosmetic. Configuration boundaries now carry the same weight. They are
+how the repo keeps domain experiments modular, composable, and reusable.
 
 ## Document Index
 
@@ -27,6 +27,7 @@ composable, and reusable.
 | [`03-provider-boundaries.md`](03-provider-boundaries.md) | Why providers expose technical capability while server implements product ports. |
 | [`04-rich-domain-model.md`](04-rich-domain-model.md) | Why the repo prefers hybrid rich domain models over anemic data bags. |
 | [`05-layer-composition.md`](05-layer-composition.md) | Why slice-local Layer composition replaces runtime God Layers. |
+| [`06-configuration-boundaries.md`](06-configuration-boundaries.md) | Why config is a typed contract package, not env access or a constants dump. |
 
 ## Relationship To Standards
 

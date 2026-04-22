@@ -23,7 +23,7 @@ Required behaviors:
 - make concurrency settings explicit on fan-out operations when the load is non-trivial
 - stay inside the assigned write scope and assume a shared worktree unless the
   orchestrator provides isolation
-- if a V2T prompt provides an output contract, return in that shape and report
+- if a prompt provides an output contract, return in that shape and report
   commands not run explicitly
 - report changed files, commands run, blockers, and residual risks
 

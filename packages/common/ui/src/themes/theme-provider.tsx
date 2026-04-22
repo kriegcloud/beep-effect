@@ -11,6 +11,7 @@ import { LiteralKit } from "@beep/schema";
 import CssBaseline from "@mui/material/CssBaseline";
 import { ThemeProvider as MuiThemeProvider, useColorScheme } from "@mui/material/styles";
 import * as Bool from "effect/Boolean";
+import { dual } from "effect/Function";
 import type * as React from "react";
 import { theme } from "./theme.ts";
 
@@ -73,17 +74,17 @@ interface ThemeModeControls {
  * @since 0.0.0
  * @category utilities
  */
-export const resolveThemeMode = (
-  mode: ThemeMode | null | undefined,
-  systemMode: ThemeMode | null | undefined
-): ResolvedThemeMode => {
+export const resolveThemeMode: {
+  (systemMode: ThemeMode | null | undefined): (mode: ThemeMode | null | undefined) => ResolvedThemeMode;
+  (mode: ThemeMode | null | undefined, systemMode: ThemeMode | null | undefined): ResolvedThemeMode;
+} = dual(2, (mode: ThemeMode | null | undefined, systemMode: ThemeMode | null | undefined): ResolvedThemeMode => {
   const prefersDarkMode = ThemeMode.is.dark(mode) || (!ThemeMode.is.light(mode) && ThemeMode.is.dark(systemMode));
 
   return Bool.match(prefersDarkMode, {
     onTrue: () => ThemeMode.Enum.dark,
     onFalse: () => ThemeMode.Enum.light,
   });
-};
+});
 
 /**
  * Provides the shared app theme and color-scheme baseline.

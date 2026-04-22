@@ -14,7 +14,7 @@ The repo is already conservative and mostly correct on Turbo environment handlin
 - The root `build` task additionally includes `.env*` in task inputs, which narrows cache correctness for build-time environment changes.
 - `.github/workflows/check.yml` forwards the same application secrets and service URLs into the Turbo jobs that run `build`, `check`, `test`, and `docgen`.
 - The CI workflow still sets `TURBO_ARGS` to `--filter=...[origin/main]` for PRs, so environment handling and task selection are currently coupled to the broader Git-ref filter strategy.
-- The repo’s app packages also reinforce environment locality: packages like `apps/editor-app` and `apps/V2T` have their own native/dev scripts, and the root env list includes app-facing prefixes such as `NEXT_PUBLIC_*`, `PORTLESS_*`, and `AUTH_*`.
+- The repo’s app packages also reinforce environment locality: packages like `apps/editor-app` have their own native/dev scripts, and the root env list includes app-facing prefixes such as `NEXT_PUBLIC_*`, `PORTLESS_*`, and `AUTH_*`.
 
 # Official Turborepo guidance
 - Turborepo’s strict environment mode is the default: only variables declared in `env` and `globalEnv` are available at runtime.
@@ -40,7 +40,7 @@ The repo is already conservative and mostly correct on Turbo environment handlin
 # Commands and files inspected
 - `sed -n '1,220p' turbo.json`
 - `sed -n '1,220p' .github/workflows/check.yml`
-- `sed -n '1,220p' packages/shared/env/package.json`
+- `sed -n '1,220p' packages/shared/config/package.json`
 - `sed -n '1,220p' packages/shared/server/package.json`
 - `sed -n '1,220p' packages/shared/client/package.json`
 - `sed -n '1,220p' syncpack.config.ts`
@@ -51,6 +51,6 @@ The repo is already conservative and mostly correct on Turbo environment handlin
 - `https://turborepo.dev/docs/reference/system-environment-variables`
 - `/home/elpresidank/YeeBois/projects/beep-effect/turbo.json`
 - `/home/elpresidank/YeeBois/projects/beep-effect/.github/workflows/check.yml`
-- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/env/package.json`
+- `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/config/package.json`
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/server/package.json`
 - `/home/elpresidank/YeeBois/projects/beep-effect/packages/shared/client/package.json`

@@ -9,6 +9,7 @@ import { createRequire } from "node:module";
 import { $NlpId } from "@beep/identity";
 import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
 import { Context, Effect, Inspectable, Layer } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { DocumentId } from "../Core/Document.ts";
@@ -172,13 +173,18 @@ export class SimilarityError extends TaggedErrorClass<SimilarityError>($I`Simila
    * @param operation - The similarity operation that failed.
    * @returns A typed similarity error value.
    */
-  static fromCause(cause: unknown, operation: string): SimilarityError {
-    return new SimilarityError({
-      cause,
-      message: `Wink similarity ${operation} failed: ${Inspectable.toStringUnknown(cause)}`,
-      operation,
-    });
-  }
+  static readonly fromCause: {
+    (cause: unknown, operation: string): SimilarityError;
+    (cause: unknown): (operation: string) => SimilarityError;
+  } = dual(
+    2,
+    (cause: unknown, operation: string): SimilarityError =>
+      new SimilarityError({
+        cause,
+        message: `Wink similarity ${operation} failed: ${Inspectable.toStringUnknown(cause)}`,
+        operation,
+      })
+  );
 }
 
 const sanitizeScore = (score: number): number => {

@@ -11,7 +11,7 @@ Docker is a local services surface in this repo, not a primary Turbo build surfa
 - `docker-compose.yml` defines only local services: `redis`, `postgres`, and `grafana`.
 - Root scripts expose `services:up` and `nuke`, both of which are direct Docker operations rather than Turbo tasks.
 - The root command surface has `build`, `check`, `test`, `lint`, and `docgen` routed through Turbo, but no Dockerfile or Docker-based CI workflow.
-- `bunx turbo query ls @beep/desktop --output json` and `bunx turbo query ls @beep/v2t --output json` show the app build surfaces are Vite, Tauri, and Bun scripts, not Docker packaging.
+- `bunx turbo query ls @beep/desktop --output json` shows the app build surface is Vite, Tauri, and Bun scripts, not Docker packaging.
 
 # Official Turborepo guidance
 - The Docker guide recommends pruning monorepo inputs before container builds with `turbo prune <package> --docker`.
@@ -34,13 +34,11 @@ Docker is a local services surface in this repo, not a primary Turbo build surfa
 - `sed -n '1,220p' docker-compose.yml`
 - `node -e 'const p=require("./package.json"); console.log(JSON.stringify({build:p.scripts.build, "build:ci":p.scripts["build:ci"], nuke:p.scripts.nuke, "services:up":p.scripts["services:up"], release:p.scripts.release}, null, 2))'`
 - `bunx turbo query ls @beep/desktop --output json`
-- `bunx turbo query ls @beep/v2t --output json`
 - `rg -n "docker compose|Dockerfile|turbo prune|prune" -S . --glob '!node_modules' --glob '!.sst/**'`
 
 # Sources
 - Repo: `/home/elpresidank/YeeBois/projects/beep-effect/docker-compose.yml`
 - Repo: `/home/elpresidank/YeeBois/projects/beep-effect/package.json`
 - Repo: `/home/elpresidank/YeeBois/projects/beep-effect/apps/desktop/package.json`
-- Repo: `/home/elpresidank/YeeBois/projects/beep-effect/apps/V2T/package.json`
 - Turbo: `https://turborepo.dev/docs/guides/tools/docker`
 - Turbo: `https://turborepo.dev/docs/reference/prune`

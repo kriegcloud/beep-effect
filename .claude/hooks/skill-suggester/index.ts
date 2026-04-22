@@ -18,6 +18,7 @@ import { $ClaudeId } from "@beep/identity/packages";
 import { thunk0, thunkEmptyStr, thunkUndefined } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
 import { Clock, Config, Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
+import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -316,17 +317,23 @@ const loadSkills = Effect.fn("loadSkills")(function* (cwd: string) {
   return A.getSomes(skillOptions);
 });
 
-export const matchesWordBoundary = (prompt: string, word: string): boolean => {
+export const matchesWordBoundary: {
+  (prompt: string, word: string): boolean;
+  (word: string): (prompt: string) => boolean;
+} = dual(2, (prompt: string, word: string): boolean => {
   const pattern = new RegExp(`\\b${Str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")(word)}\\b`, "i");
   return pattern.test(prompt);
-};
+});
 
 export const MAX_SUGGESTIONS = 5;
 export const MIN_SCORE = 2;
 export const NAME_MATCH_BOOST = 3;
 export const KEYWORD_MATCH_SCORE = 1;
 
-export const scoreSkill = (prompt: string, skill: SkillMetadata): number => {
+export const scoreSkill: {
+  (prompt: string, skill: SkillMetadata): number;
+  (skill: SkillMetadata): (prompt: string) => number;
+} = dual(2, (prompt: string, skill: SkillMetadata): number => {
   const nameSegments = pipe(Str.toLowerCase(skill.name), Str.split(/-/));
 
   const nameScore = pipe(
@@ -345,9 +352,12 @@ export const scoreSkill = (prompt: string, skill: SkillMetadata): number => {
   );
 
   return nameScore + keywordScore;
-};
+});
 
-export const findMatchingSkills = (prompt: string, skills: ReadonlyArray<SkillMetadata>): ReadonlyArray<string> =>
+export const findMatchingSkills: {
+  (prompt: string, skills: ReadonlyArray<SkillMetadata>): ReadonlyArray<string>;
+  (skills: ReadonlyArray<SkillMetadata>): (prompt: string) => ReadonlyArray<string>;
+} = dual(2, (prompt: string, skills: ReadonlyArray<SkillMetadata>): ReadonlyArray<string> =>
   pipe(
     skills,
     A.map((skill) => ({ skill, score: scoreSkill(prompt, skill) })),
@@ -355,7 +365,8 @@ export const findMatchingSkills = (prompt: string, skills: ReadonlyArray<SkillMe
     A.sort(Order.mapInput(Order.flip(Order.Number), (entry: { skill: SkillMetadata; score: number }) => entry.score)),
     A.take(MAX_SUGGESTIONS),
     A.map(({ skill }) => skill.name)
-  );
+  )
+);
 
 const searchModules = Effect.fn("searchModules")(function* (prompt: string, cwd: string) {
   const words = pipe(
@@ -579,8 +590,12 @@ const buildKgContextBlockEffect = Effect.fn("buildKgContextBlockEffect")(
   Effect.catch(() => Effect.succeed(O.none<string>()))
 );
 
-export const buildKgContextBlock = (cwd: string, prompt: string): O.Option<string> =>
-  Effect.runSync(Effect.scoped(provideLayerScoped(buildKgContextBlockEffect(cwd, prompt), BunServices.layer)));
+export const buildKgContextBlock: {
+  (cwd: string, prompt: string): O.Option<string>;
+  (prompt: string): (cwd: string) => O.Option<string>;
+} = dual(2, (cwd: string, prompt: string): O.Option<string> =>
+  Effect.runSync(Effect.scoped(provideLayerScoped(buildKgContextBlockEffect(cwd, prompt), BunServices.layer)))
+);
 
 const sha256 = (value: string): string => createHash("sha256").update(value, "utf8").digest("hex");
 

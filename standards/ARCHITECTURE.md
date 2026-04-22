@@ -16,8 +16,9 @@ default way to apply them.
 beep-effect uses a hexagonal vertical slice architecture.
 
 A slice is a domain-bounded module family with its own domain language,
-application use-cases, server adapters, client adapters, tables, UI, and
-technical providers. The goal is high modularity without copy-paste drift:
+application use-cases, typed configuration contracts when those exist, server
+adapters, client adapters, tables, UI, and technical providers. The goal is high
+modularity without copy-paste drift:
 experiments should be easy to create, easy to delete, and still shaped like
 production-quality code.
 
@@ -76,55 +77,79 @@ required for every concept.
 ## Package Dependency Graph
 
 The legal dependency flow is inward toward domain and outward only through
-adapters.
+adapters. Arrows point from the importing package to the imported package.
+`domain` is the pure core: its only outbound dependencies are shared/common
+domain primitives.
 
 ```mermaid
 flowchart TD
   ui["@beep/<slice>-ui"]
   client["@beep/<slice>-client"]
-  server["@beep/<slice>-server"]
   usecases["@beep/<slice>-use-cases"]
+  config["@beep/<slice>-config"]
+  server["@beep/<slice>-server"]
   domain["@beep/<slice>-domain"]
   tables["@beep/<slice>-tables"]
   providers["@beep/<slice>-providers/*"]
-  shared["@beep/shared-*"]
+  sharedCore["@beep/shared-*<br/>shared/common primitives"]
+  sharedConfig["@beep/shared-config"]
 
   ui --> client
   ui --> domain
   client --> domain
   client --> usecases
+  client --> config
   server --> usecases
+  server --> config
   server --> domain
   server --> tables
   server --> providers
+  usecases --> config
   usecases --> domain
+  config --> domain
   tables --> domain
   tables --> providers
 
-  domain --> shared
-  usecases --> shared
-  server --> shared
-  client --> shared
-  ui --> shared
-  tables --> shared
-  providers --> shared
+  domain --> sharedCore
+  usecases --> sharedCore
+  usecases --> sharedConfig
+  config --> sharedCore
+  config --> sharedConfig
+  server --> sharedCore
+  server --> sharedConfig
+  client --> sharedCore
+  client --> sharedConfig
+  ui --> sharedCore
+  tables --> sharedCore
+  providers --> sharedCore
 ```
 
 Forbidden by default:
 
-- `domain` depending on `server`, `client`, `tables`, `ui`, or `providers`.
+- `domain` depending on anything except shared/common domain primitives. This
+  excludes slice `config`, `@beep/shared-config`, `Config`, `ConfigProvider`,
+  server, client, tables, UI, providers, and use-cases.
 - `use-cases` depending on `server`, `client`, `ui`, `tables`, or concrete
   provider packages.
+- `config` depending on `use-cases`, `server`, `client`, `ui`, `tables`, or
+  concrete provider packages.
 - `providers/*` depending on product concepts from `domain` or `use-cases`.
+- `ui`, `tables`, or `providers/*` importing slice `config` directly by default.
 - `shared` depending on product slices.
 - Runtime packages merging all slice layers into one global dependency object.
 
 Client/UI dependency caveats:
 
+- `config --> domain` is one-way. Config may reuse domain schemas, brands, and
+  value objects; domain must never import config or read runtime configuration.
 - `client` may import `use-cases` only for client-safe command/query language,
   boundary contracts, actionable application errors, and client facade contracts.
   It must not import product ports, server-only workflows, process managers, or
   Layer implementations.
+- `client` may import `config` only through public/browser-safe exports. It must
+  not import server config, secret config, or live server-only config Layers.
+- `use-cases` may import `config` contracts or services for application tunables.
+  Live config resolution belongs in server, client, or app/runtime composition.
 - `ui` may import `domain` only for provider-neutral schemas, value objects,
   display contracts, and form validation. UI behavior should go through
   `client` services/state instead of calling use-case orchestration directly.
@@ -140,6 +165,7 @@ no role in that slice.
 packages/<slice>/
   domain/
   use-cases/
+  config/
   server/
   client/
   tables/
@@ -156,6 +182,7 @@ The package names follow the public package convention:
 ```txt
 @beep/<slice>-domain
 @beep/<slice>-use-cases
+@beep/<slice>-config
 @beep/<slice>-server
 @beep/<slice>-client
 @beep/<slice>-tables
@@ -166,6 +193,12 @@ The package names follow the public package convention:
 Provider package naming may vary by package manager constraints, but the
 architecture role does not vary: providers expose technical capability, not
 business behavior.
+
+`config` is canonical but optional. Create it only when a slice has meaningful
+configuration contracts. The canonical shared package name is
+`@beep/shared-config`; `env` package naming is legacy source-specific vocabulary,
+not a slice package kind. Environment variables are one possible
+`ConfigProvider` source for config declarations.
 
 ## Hexagonal Slice
 
@@ -183,11 +216,13 @@ flowchart LR
     ai["AI Tools"]
     db["Postgres / SQLite"]
     queue["Queues / EventLog / Cluster"]
+    configSource["ConfigProvider / Environment / Secrets"]
   end
 
   subgraph slice["Slice: iam"]
     domain["domain\nrich models, values, contracts, events"]
     usecases["use-cases\ncommands, queries, product ports"]
+    config["config\nEffect Config contracts, public/server/secrets"]
     server["server\nhandlers, product port implementations"]
     client["client\nremote clients, atoms, form models"]
     tables["tables\nwrite/read model tables"]
@@ -196,8 +231,13 @@ flowchart LR
   end
 
   browser --> ui --> client --> usecases --> domain
+  client --> config
   http --> server --> usecases
   ai --> server
+  server --> config
+  usecases --> config
+  config --> domain
+  configSource --> config
   server --> tables
   server --> providers
   tables --> providers
@@ -254,6 +294,17 @@ packages/iam/
         TwoFactor.errors.ts
         TwoFactor.workflows.ts
         TwoFactor.processes.ts
+
+  config/src/
+    entities/
+      TwoFactor/
+        TwoFactor.config.ts
+    Config.ts
+    PublicConfig.ts
+    ServerConfig.ts
+    Secrets.ts
+    Layer.ts
+    TestLayer.ts
 
   server/src/
     entities/
@@ -372,6 +423,11 @@ Cluster.ts
 Layer.ts
 Tables.ts
 ReadModels.ts
+Config.ts
+PublicConfig.ts
+ServerConfig.ts
+Secrets.ts
+TestLayer.ts
 ```
 
 ### Domain Role Vocabulary
@@ -408,6 +464,18 @@ handlers, clients, transports, runtimes, persistence, or provider access.
 | `.errors.ts` | Actionable application failures. |
 | `.workflows.ts` | Durable workflow declarations or application workflow contracts. |
 | `.processes.ts` | Process managers/sagas coordinating multiple commands, events, ports, or workflows. |
+
+### Config Role Vocabulary
+
+| Role | Meaning |
+|---|---|
+| `.config.ts` | Concept-owned Effect `Config` declarations, typed config models, and config vocabulary. |
+| `Config.ts` | Package-level config composer for shared slice config contracts. |
+| `PublicConfig.ts` | Browser-safe config contracts and services that client packages may import. |
+| `ServerConfig.ts` | Server-only config contracts and services. |
+| `Secrets.ts` | Secret config declarations using redacted values. |
+| `Layer.ts` | Live config Layer reading from the ambient `ConfigProvider`. |
+| `TestLayer.ts` | Static/test config Layers and fixtures tied to config declarations. |
 
 ### Server Role Vocabulary
 
@@ -474,6 +542,29 @@ Product ports live here by default because they describe what the application
 needs in product language. They do not describe how Drizzle, Postgres, EventLog,
 or an HTTP client works.
 
+### `config`
+
+Config owns typed runtime/application configuration contracts:
+
+- Effect `Config` declarations and key namespaces
+- typed config schemas, models, and services
+- public/browser-safe config contracts
+- server-only config contracts
+- redacted secret config
+- config defaults and literal domains tied directly to config declarations
+- live Layers that read from the ambient `ConfigProvider`
+- static/test config Layers and fixtures
+
+Config may depend inward on `domain` and `shared` for provider-neutral schemas,
+brands, value objects, and validation. That dependency is one-way: domain must
+not import config, `@beep/shared-config`, `Config`, `ConfigProvider`, or any
+runtime configuration helper. Config must not import use-cases, server, client,
+UI, tables, or concrete providers.
+
+Config is not a general constants package. Business invariants belong in
+`domain`; application behavior belongs in `use-cases`; provider defaults belong
+in `providers/*`; presentation constants belong in `client` or `ui`.
+
 ### `server`
 
 Server owns runtime adapters and product port implementations:
@@ -483,7 +574,7 @@ Server owns runtime adapters and product port implementations:
 - projections and read-model writers
 - concept-level and package-level server Layers
 
-Server may depend on use-cases, domain, tables, and providers.
+Server may depend on use-cases, config, domain, tables, and providers.
 
 ### `providers/*`
 
@@ -495,6 +586,11 @@ Providers own technical engines and dev-safe wrappers:
 - provider service facades that hide unsafe third-party shape
 
 Provider packages do not define product/business ports by default.
+
+Provider `.config.ts` files own technical provider knobs. Slice `config` owns
+application-facing configuration contracts. Server or app Layers may compose
+slice config with provider config at adapter boundaries, but slice config should
+not absorb provider internals.
 
 Providers may start slice-local when that keeps experiments removable. Promote a
 provider to `shared` only when it is genuinely product-neutral, stable across
@@ -519,6 +615,9 @@ Client owns browser/client adapters and domain-facing client state:
 - client service facades
 - atoms, form models, optimistic state, and client state machines
 
+Client may depend on public/browser-safe config exports and client config Layers.
+It must not import server config, secret config, or server-only live Layers.
+
 UI code should consume this package instead of implementing domain CRUD and
 remote orchestration directly inside React components.
 
@@ -531,6 +630,7 @@ UI owns React composition:
 - interaction wiring to client services/state
 
 UI does not implement product use-cases, server handlers, or provider adapters.
+UI should consume client services/state instead of importing config directly.
 
 ## Access, Policy, And Error Kinds
 
@@ -683,15 +783,17 @@ The implementation belongs in server:
 
 ```ts
 import { Effect, Layer } from "effect"
+import * as A from "effect/Array"
 import * as O from "effect/Option"
+import * as S from "effect/Schema"
 import { Drizzle } from "@beep/iam-providers-drizzle"
 import {
   TwoFactorRepository,
   toTwoFactorRepositoryError,
 } from "@beep/iam-use-cases/entities/TwoFactor"
 import {
+  TwoFactorRow,
   TwoFactorTable,
-  type TwoFactorRow,
 } from "@beep/iam-tables/entities/TwoFactor"
 
 export const TwoFactorRepositoryLive = Layer.effect(
@@ -719,9 +821,16 @@ export const TwoFactorRepositoryLive = Layer.effect(
               [accountId],
             )
             .pipe(
-              Effect.map((rows) =>
-                O.fromNullishOr(rows[0] as TwoFactorRow | undefined).pipe(
-                  O.map(TwoFactorTable.fromRow),
+              Effect.flatMap((rows) =>
+                A.head(rows).pipe(
+                  O.match({
+                    onNone: () => Effect.succeed(O.none()),
+                    onSome: (row) =>
+                      S.decodeUnknownEffect(TwoFactorRow)(row).pipe(
+                        Effect.map(TwoFactorTable.fromRow),
+                        Effect.map(O.some),
+                      ),
+                  }),
                 ),
               ),
               Effect.mapError((error) =>
@@ -848,10 +957,12 @@ flowchart LR
 
   subgraph local["Prefer: slice-local Layers"]
     iamLayer["iam/server/Layer.ts"]
+    iamConfig["iam/config"]
     iamProviders["iam/providers/*"]
     iamTables["iam/tables"]
     iamUse["iam/use-cases"]
     iamLayer --> iamUse
+    iamLayer --> iamConfig
     iamLayer --> iamTables
     iamLayer --> iamProviders
   end
@@ -883,21 +994,34 @@ export class NoRecoveryCodesRemaining extends TaggedErrorClass<NoRecoveryCodesRe
 ```
 
 ```ts
+import { $I as $RootId } from "@beep/identity/packages"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { AccountId } from "@beep/iam-domain/entities/Account"
 import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
 
-export const TwoFactorId = S.String.pipe(S.brand("TwoFactorId"))
+const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.model.ts")
+
+export const TwoFactorId = S.String.pipe(
+  S.brand("TwoFactorId"),
+  $I.annoteSchema("TwoFactorId", {
+    description: "Unique identifier for a two-factor authentication configuration",
+  }),
+)
 export type TwoFactorId = typeof TwoFactorId.Type
 
-export class TwoFactor extends Model.Class<TwoFactor>("TwoFactor")({
-  id: TwoFactorId,
-  accountId: AccountId,
-  enabled: S.Boolean,
-  recoveryCodesRemaining: S.Number,
-}) {
+export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
+  {
+    id: TwoFactorId,
+    accountId: AccountId,
+    enabled: S.Boolean,
+    recoveryCodesRemaining: S.Number,
+  },
+  $I.annote("TwoFactor", {
+    description: "Two-factor authentication configuration for an account",
+  }),
+) {
   readonly canDisable = (): boolean => this.enabled
 
   readonly disable = (): TwoFactor =>

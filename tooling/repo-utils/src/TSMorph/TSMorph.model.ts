@@ -1446,6 +1446,34 @@ export class TsMorphProjectScopeRequest extends S.Class<TsMorphProjectScopeReque
 ) {}
 
 /**
+ * Request schema for read-only ts-morph project inspection.
+ *
+ * @example
+ * ```ts
+ * import { TsMorphProjectInspectionRequest } from "@beep/repo-utils"
+ * const value = TsMorphProjectInspectionRequest
+ * ```
+ * @category DomainModel
+ * @since 0.0.0
+ */
+export class TsMorphProjectInspectionRequest extends S.Class<TsMorphProjectInspectionRequest>(
+  $I`TsMorphProjectInspectionRequest`
+)(
+  {
+    entrypoint: TsMorphScopeEntrypoint,
+    repoRootPath: S.OptionFromNullOr(RepoRootPath),
+    mode: TsMorphScopeMode,
+    referencePolicy: TsMorphReferencePolicy,
+    filePaths: S.Array(TypeScriptImplementationFilePath),
+    sourceFileGlobs: S.Array(S.NonEmptyString),
+  },
+  $I.annote("TsMorphProjectInspectionRequest", {
+    description:
+      "Request to inspect a resolved ts-morph project with optional source file loading without persisting edits.",
+  })
+) {}
+
+/**
  * Resolved ts-morph project scope payload.
  *
  * @example

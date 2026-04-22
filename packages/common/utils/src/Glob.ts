@@ -8,6 +8,7 @@
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
 import { Context, Effect, Layer, Match, Order, pipe } from "effect";
+import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -133,10 +134,16 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
     description: "An error that occurs during glob pattern matching",
   })
 ) {
-  static readonly new = (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
-    new GlobError({ pattern, cause });
-  static readonly newThunk = (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
-    thunk(new GlobError({ pattern, cause }));
+  static readonly new: {
+    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): GlobError;
+    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => GlobError;
+  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) => new GlobError({ pattern, cause }));
+  static readonly newThunk: {
+    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): () => GlobError;
+    (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => () => GlobError;
+  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) =>
+    thunk(new GlobError({ pattern, cause }))
+  );
 }
 
 /**

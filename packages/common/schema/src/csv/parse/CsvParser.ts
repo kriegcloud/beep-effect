@@ -9,6 +9,7 @@ import { $SchemaId } from "@beep/identity";
 import { thunkFalse } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -339,30 +340,39 @@ const isCommentStart = (input: string, cursor: number, parserOptions: ParserOpti
     onSome: (comment) => input.at(cursor) === comment,
   });
 
+const parseCsvRowsEffect = (
+  input: string,
+  parserOptions: ParserOptions
+): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError> =>
+  Effect.gen(function* () {
+    const source = removeBom(input);
+    let cursor = 0;
+    let rows = A.empty<ReadonlyArray<string>>();
+
+    while (cursor < source.length) {
+      if (isCommentStart(source, cursor, parserOptions)) {
+        cursor = advancePastComment(source, cursor);
+        continue;
+      }
+
+      const parsedRow = yield* parseRowAt(source, cursor, parserOptions);
+      cursor = parsedRow.cursor;
+
+      if (!(parserOptions.ignoreEmpty && isEmptyRow(parsedRow.row))) {
+        rows = A.append(rows, parsedRow.row);
+      }
+    }
+
+    return rows;
+  });
+
 /**
  * Parse full CSV text into raw row arrays using low-level parser options.
  *
  * @category Utility
  * @since 0.0.0
  */
-export const parseCsvRows = Effect.fn(function* (input: string, parserOptions: ParserOptions) {
-  const source = removeBom(input);
-  let cursor = 0;
-  let rows = A.empty<ReadonlyArray<string>>();
-
-  while (cursor < source.length) {
-    if (isCommentStart(source, cursor, parserOptions)) {
-      cursor = advancePastComment(source, cursor);
-      continue;
-    }
-
-    const parsedRow = yield* parseRowAt(source, cursor, parserOptions);
-    cursor = parsedRow.cursor;
-
-    if (!(parserOptions.ignoreEmpty && isEmptyRow(parsedRow.row))) {
-      rows = A.append(rows, parsedRow.row);
-    }
-  }
-
-  return rows;
-});
+export const parseCsvRows: {
+  (input: string, parserOptions: ParserOptions): Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError>;
+  (parserOptions: ParserOptions): (input: string) => Effect.Effect<ReadonlyArray<ReadonlyArray<string>>, CsvError>;
+} = dual(2, parseCsvRowsEffect);

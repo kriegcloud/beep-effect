@@ -1,5 +1,5 @@
 [agents]
-# Shared-worktree safety ceiling for V2T-style orchestration. This is a cap,
+# Shared-worktree safety ceiling for phase orchestration. This is a cap,
 # not a target; the phase orchestrator should still prefer the smallest useful
 # worker set.
 max_threads = 4
@@ -45,10 +45,3 @@ nickname_candidates = ["Fiber", "Scope"]
 description = "Read-only reviewer for repo-law conformance, quality gates, docs, tests, and residual-risk audits."
 config_file = "./agents/effect-v4-quality-reviewer.toml"
 nickname_candidates = ["Verifier", "Gatekeeper"]
-
-[profiles.v2t_orchestrator]
-model = "gpt-5.4"
-model_reasoning_effort = "xhigh"
-plan_mode_reasoning_effort = "xhigh"
-personality = "friendly"
-web_search = "cached"

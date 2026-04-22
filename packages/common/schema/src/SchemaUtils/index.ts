@@ -17,6 +17,11 @@ export * from "./pluck.ts";
 export * from "./split.ts";
 /**
  * @since 0.0.0
+ * @category utilities
+ */
+export * from "./toEquivalence.ts";
+/**
+ * @since 0.0.0
  * @category Utility
  */
 export * from "./withEncodeDefault.ts";

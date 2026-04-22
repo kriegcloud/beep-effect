@@ -9,6 +9,7 @@
  * @since 0.0.0
  */
 import { HashSet } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import type { PackageJson } from "./schemas/PackageJson.js";
@@ -71,10 +72,10 @@ const classifyRecord = (
  * @category Utility
  * @since 0.0.0
  */
-export const extractWorkspaceDependencies = (
-  packageJson: PackageJson,
-  workspaceNames: HashSet.HashSet<string>
-): WorkspaceDeps => {
+export const extractWorkspaceDependencies: {
+  (workspaceNames: HashSet.HashSet<string>): (packageJson: PackageJson) => WorkspaceDeps;
+  (packageJson: PackageJson, workspaceNames: HashSet.HashSet<string>): WorkspaceDeps;
+} = dual(2, (packageJson: PackageJson, workspaceNames: HashSet.HashSet<string>): WorkspaceDeps => {
   const deps = classifyRecord(packageJson.dependencies, workspaceNames);
   const devDeps = classifyRecord(packageJson.devDependencies, workspaceNames);
   const peerDeps = classifyRecord(packageJson.peerDependencies, workspaceNames);
@@ -95,5 +96,5 @@ export const extractWorkspaceDependencies = (
       optionalDependencies: optDeps.npm,
     },
   };
-};
+});
 // bench

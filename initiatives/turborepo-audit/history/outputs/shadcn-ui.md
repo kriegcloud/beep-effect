@@ -11,7 +11,7 @@ shadcn-ui
 - `packages/common/ui/components.json` points shadcn at the shared CSS entrypoint `src/styles/globals.css` and aliases components, hooks, lib, and UI subpaths back into `@beep/ui`.
 - `packages/common/ui/src/styles/globals.css` is the shared Tailwind v4 theme layer for the UI package.
 - `packages/common/ui/README.md` explicitly says `ui-add` is scoped to `packages/common/ui` for shared primitives, and that app-local shadcn blocks for `@beep/editor-app` should stay in `apps/editor-app/components.json`.
-- `apps/editor-app/components.json` and `apps/V2T/components.json` both point their `tailwind.css` entry at the shared UI package CSS, while keeping app-specific aliases and registries local.
+- `apps/editor-app/components.json` points its `tailwind.css` entry at the shared UI package CSS, while keeping app-specific aliases and registries local.
 - `package.json` exposes `ui-add` as the root entrypoint for shared shadcn additions.
 - `packages/common/ui/package.json` exposes the shared package exports for `./styles/globals.css`, `./components/*`, `./hooks/*`, and `./lib/*`.
 
@@ -41,7 +41,6 @@ shadcn-ui
 - `sed -n '1,220p' packages/common/ui/src/index.ts`
 - `sed -n '1,220p' packages/common/ui/README.md`
 - `sed -n '1,220p' apps/editor-app/components.json`
-- `sed -n '1,220p' apps/V2T/components.json`
 - `bunx turbo query ls @beep/ui --output json`
 
 # Sources
@@ -49,7 +48,6 @@ shadcn-ui
 - Repo: `packages/common/ui/README.md`
 - Repo: `packages/common/ui/src/styles/globals.css`
 - Repo: `apps/editor-app/components.json`
-- Repo: `apps/V2T/components.json`
 - Repo: `package.json`
 - Repo: `packages/common/ui/package.json`
 - Official Turborepo docs: https://turborepo.dev/docs/guides/tools/shadcn-ui

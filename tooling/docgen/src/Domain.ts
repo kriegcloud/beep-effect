@@ -9,6 +9,7 @@ import { $DocgenId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { Context, Effect, Layer, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type * as Parser from "./Parser.js";
@@ -42,9 +43,10 @@ export class Position extends S.Class<Position>($I`Position`)({
    * @param column - One-based column number.
    * @returns Position instance for the provided coordinates.
    */
-  static new(line: number, column: number): Position {
-    return new Position({ column, line });
-  }
+  static readonly new: {
+    (line: number, column: number): Position;
+    (column: number): (line: number) => Position;
+  } = dual(2, (line: number, column: number): Position => new Position({ column, line }));
 }
 
 /**
@@ -540,12 +542,16 @@ export const ByPath: Order.Order<Module> = Order.mapInput(Str.Order, (module: Mo
  * @example
  * ```ts
  * import { File } from "@beep/docgen/Domain"
- * const file = File.new("docs/index.md", "# Docs", true)
+ * const file = File.new("docs/index.md", "# Docs", { isOverwritable: true })
  * void file
  * ```
  * @category model
  * @since 0.0.0
  */
+type FileNewOptions = {
+  readonly isOverwritable?: boolean;
+};
+
 export class File extends S.Class<File>($I`File`)({
   path: S.String,
   content: S.String,
@@ -556,12 +562,16 @@ export class File extends S.Class<File>($I`File`)({
    *
    * @param path - Output file path.
    * @param content - Output file content.
-   * @param isOverwritable - Whether existing content may be replaced.
+   * @param options - Output file write options.
    * @returns File descriptor instance.
    */
-  static new(path: string, content: string, isOverwritable = false): File {
+  static readonly new: {
+    (path: string, content: string, options: FileNewOptions): File;
+    (content: string, options: FileNewOptions): (path: string) => File;
+  } = dual(3, (path: string, content: string, options: FileNewOptions): File => {
+    const isOverwritable = options.isOverwritable ?? false;
     return new File({ path, content, isOverwritable });
-  }
+  });
 }
 
 /**

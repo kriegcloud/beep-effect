@@ -10,7 +10,7 @@ Vitest is well integrated with Turbo through package-local test scripts and a sh
 ## Current repo evidence
 - The repo has many `vitest.config.ts` files across apps, packages, tooling, and infra.
 - `vitest.shared.ts` centralizes alias generation from the root `tsconfig.json`, shared test coverage settings, and common Vitest options.
-- `packages/common/ui/vitest.config.ts`, `apps/editor-app/vitest.config.ts`, and `apps/V2T/vitest.config.ts` all merge the shared config.
+- `packages/common/ui/vitest.config.ts` and `apps/editor-app/vitest.config.ts` both merge the shared config.
 - `packages/common/ui/vitest.storybook.config.ts` adds Storybook test integration and browser-playwright setup.
 - Package scripts use `bunx --bun vitest run` for `test` and `vitest --coverage` for `coverage`.
 - Root `test` runs `bunx turbo run test --concurrency=1 && bun run test:types`.
@@ -39,18 +39,15 @@ Vitest is well integrated with Turbo through package-local test scripts and a sh
 - `sed -n '1,220p' packages/common/ui/vitest.config.ts`
 - `sed -n '1,220p' packages/common/ui/vitest.storybook.config.ts`
 - `sed -n '1,220p' apps/editor-app/vitest.config.ts`
-- `sed -n '1,220p' apps/V2T/vitest.config.ts`
 - `node -e '...package.json scripts...'`
 - `bunx turbo query ls @beep/ui --output json`
 - `bunx turbo query ls @beep/editor-app --output json`
-- `bunx turbo query ls @beep/v2t --output json`
 
 ## Sources
 - Repo: `vitest.shared.ts`
 - Repo: `packages/common/ui/vitest.config.ts`
 - Repo: `packages/common/ui/vitest.storybook.config.ts`
 - Repo: `apps/editor-app/vitest.config.ts`
-- Repo: `apps/V2T/vitest.config.ts`
 - Repo: `package.json`
 - Repo: `turbo.json`
 - Turbo docs: `https://turborepo.dev/docs/guides/tools/vitest`

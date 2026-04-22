@@ -1,5 +1,5 @@
 /**
- * AST integration contract for create-slice style workflows.
+ * AST integration contract for create-package style workflows.
  *
  * @module
  * @since 0.0.0
@@ -15,7 +15,7 @@ import * as S from "effect/Schema";
 const $I = $RepoCliId.create("commands/CreatePackage/TsMorphIntegrationService");
 
 /**
- * Supported AST mutation categories required by create-slice.
+ * Supported AST mutation categories required by create-package.
  *
  * @category DomainModel
  * @since 0.0.0
@@ -27,11 +27,11 @@ export const TsMorphMutationKind = LiteralKit([
   "wire-data-access",
 ]).annotate(
   $I.annote("TsMorphMutationKind", {
-    description: "Supported AST mutation categories required by create-slice.",
+    description: "Supported AST mutation categories required by create-package.",
   })
 );
 /**
- * Supported AST mutation categories required by create-slice.
+ * Supported AST mutation categories required by create-package.
  *
  * @category DomainModel
  * @since 0.0.0
@@ -213,7 +213,7 @@ export type TsMorphMutationAdapter = {
 };
 
 /**
- * Service contract expected by create-slice orchestration.
+ * Service contract expected by create-package orchestration.
  *
  * @category DomainModel
  * @since 0.0.0

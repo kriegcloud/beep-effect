@@ -9,18 +9,8 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
-import {
-  DateTime,
-  Duration,
-  Effect,
-  Equal,
-  Function as F,
-  Hash,
-  Order as Order_,
-  pipe,
-  SchemaGetter,
-  SchemaIssue,
-} from "effect";
+import { DateTime, Duration, Effect, Equal, Hash, Order as Order_, pipe, SchemaGetter, SchemaIssue } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -149,7 +139,7 @@ const getDaysInMonth = (year: number, month: number): number => {
 const makeInvalidLocalDateError: {
   (message: string): (dateString: string) => S.SchemaError;
   (dateString: string, message: string): S.SchemaError;
-} = F.dual(
+} = dual(
   2,
   (dateString: string, message: string): S.SchemaError =>
     new S.SchemaError(new SchemaIssue.InvalidValue(O.some(dateString), { message }))
@@ -308,7 +298,7 @@ export const Order: Order_.Order<LocalDate> = Order_.make((a, b) => {
 export const isBefore: {
   (that: LocalDate): (self: LocalDate) => boolean;
   (self: LocalDate, that: LocalDate): boolean;
-} = F.dual(2, (self: LocalDate, that: LocalDate): boolean => Order(self, that) === -1);
+} = dual(2, (self: LocalDate, that: LocalDate): boolean => Order(self, that) === -1);
 
 /**
  * Dual predicate returning `true` when `self` is chronologically after `that`.
@@ -319,7 +309,7 @@ export const isBefore: {
 export const isAfter: {
   (that: LocalDate): (self: LocalDate) => boolean;
   (self: LocalDate, that: LocalDate): boolean;
-} = F.dual(2, (self: LocalDate, that: LocalDate): boolean => Order(self, that) === 1);
+} = dual(2, (self: LocalDate, that: LocalDate): boolean => Order(self, that) === 1);
 
 /**
  * Dual predicate returning `true` when two `LocalDate` values represent the same calendar date.
@@ -330,7 +320,7 @@ export const isAfter: {
 export const equals: {
   (that: LocalDate): (self: LocalDate) => boolean;
   (self: LocalDate, that: LocalDate): boolean;
-} = F.dual(
+} = dual(
   2,
   (self: LocalDate, that: LocalDate): boolean =>
     self.year === that.year && self.month === that.month && self.day === that.day
@@ -345,7 +335,7 @@ export const equals: {
 export const addDays: {
   (days: number): (self: LocalDate) => LocalDate;
   (self: LocalDate, days: number): LocalDate;
-} = F.dual(
+} = dual(
   2,
   (self: LocalDate, days: number): LocalDate =>
     pipe(self.toDate(), DateTime.fromDateUnsafe, DateTime.toUtc, DateTime.add({ days }), DateTime.toDate, fromDate)
@@ -360,7 +350,7 @@ export const addDays: {
 export const addMonths: {
   (months: number): (self: LocalDate) => LocalDate;
   (self: LocalDate, months: number): LocalDate;
-} = F.dual(
+} = dual(
   2,
   (self: LocalDate, months: number): LocalDate =>
     pipe(self.toDate(), DateTime.fromDateUnsafe, DateTime.toUtc, DateTime.add({ months }), DateTime.toDate, fromDate)
@@ -375,7 +365,7 @@ export const addMonths: {
 export const addYears: {
   (years: number): (self: LocalDate) => LocalDate;
   (self: LocalDate, years: number): LocalDate;
-} = F.dual(
+} = dual(
   2,
   (self: LocalDate, years: number): LocalDate =>
     pipe(self.toDate(), DateTime.fromDateUnsafe, DateTime.toUtc, DateTime.add({ years }), DateTime.toDate, fromDate)
@@ -390,7 +380,7 @@ export const addYears: {
 export const diffInDays: {
   (that: LocalDate): (self: LocalDate) => number;
   (self: LocalDate, that: LocalDate): number;
-} = F.dual(2, (self: LocalDate, that: LocalDate): number => {
+} = dual(2, (self: LocalDate, that: LocalDate): number => {
   const msPerDay = Duration.days(1).pipe(Duration.toMillis);
   const dateA = self.toDate();
   const dateB = that.toDate();
@@ -472,7 +462,7 @@ export const isLeapYear = (year: number): boolean => {
 export const daysInMonth: {
   (month: number): (year: number) => number;
   (year: number, month: number): number;
-} = F.dual(2, (year: number, month: number): number => getDaysInMonth(year, month));
+} = dual(2, (year: number, month: number): number => getDaysInMonth(year, month));
 
 /**
  * Schema that transforms ISO 8601 date strings (`YYYY-MM-DD`) into `LocalDate` instances.

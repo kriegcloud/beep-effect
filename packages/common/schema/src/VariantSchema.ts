@@ -606,7 +606,21 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
  * @since 0.0.0
  * @category overridable
  */
-export const Overridable = <S extends S.Top & S.WithoutConstructorDefault>(
+export const Overridable: {
+  <S extends S.Top & S.WithoutConstructorDefault>(
+    schema: S
+  ): (
+    options: {
+      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
+    }
+  ) => Overridable<S>;
+  <S extends S.Top & S.WithoutConstructorDefault>(
+    schema: S,
+    options: {
+      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
+    }
+  ): Overridable<S>;
+} = Fn.dual(2, <S extends S.Top & S.WithoutConstructorDefault>(
   schema: S,
   options: {
     readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
@@ -625,7 +639,7 @@ export const Overridable = <S extends S.Top & S.WithoutConstructorDefault>(
         }),
       })
     )
-  ) as TUnsafe.Any;
+  ) as TUnsafe.Any);
 
 const Struct = <const A extends Field.Fields>(fields: A): Struct<A> => {
   return {

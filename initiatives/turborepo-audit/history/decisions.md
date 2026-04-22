@@ -45,7 +45,7 @@ This file captures the implementation defaults and design choices agreed before 
   - `biome.jsonc`
   - `docker-compose.yml`
   - package-level `turbo.json` files
-  - UI toolchain files under `packages/common/ui`, `apps/editor-app`, and `apps/V2T`
+  - UI toolchain files under `packages/common/ui` and `apps/editor-app`
 
 ## Execution Notes
 

@@ -5,7 +5,8 @@
  * @since 0.0.0
  */
 
-import { Effect, Function as Fn, SchemaGetter as Getter, SchemaIssue, Struct } from "effect";
+import { Effect, SchemaGetter as Getter, SchemaIssue, Struct } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -46,7 +47,7 @@ const makeDestructiveOutput = <B>(): S.Codec<Readonly<B>> => S.make<S.Codec<Read
 export const destructiveTransform: {
   <Self extends S.Top, B>(transform: (input: Self["Type"]) => B): (self: Self) => DestructiveTransform<Self, B>;
   <Self extends S.Top, B>(self: Self, transform: (input: Self["Type"]) => B): DestructiveTransform<Self, B>;
-} = Fn.dual(
+} = dual(
   2,
   <Self extends S.Top, B>(self: Self, transform: (input: Self["Type"]) => B): DestructiveTransform<Self, B> => {
     const decodeInput = S.decodeUnknownEffect(self);

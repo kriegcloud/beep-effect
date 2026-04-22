@@ -11,6 +11,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
+import { SchemaUtils } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkNegative1 } from "@beep/utils";
 import { Effect, FileSystem, HashMap, Order, Path, pipe, SchemaTransformation } from "effect";
@@ -39,18 +40,9 @@ const $I = $RepoCliId.create("commands/CreatePackage/ConfigUpdater");
  */
 export class ConfigUpdateResult extends S.Class<ConfigUpdateResult>($I`ConfigUpdateResult`)(
   {
-    tsconfigPackages: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
-    ),
-    tsconfigPaths: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
-    ),
-    tstycheConfig: S.Boolean.pipe(
-      S.withConstructorDefault(Effect.succeed(false)),
-      S.withDecodingDefault(Effect.succeed(false))
-    ),
+    tsconfigPackages: SchemaUtils.BoolKeyDefaultFalse,
+    tsconfigPaths: SchemaUtils.BoolKeyDefaultFalse,
+    tstycheConfig: SchemaUtils.BoolKeyDefaultFalse,
   },
   $I.annote("ConfigUpdateResult", {
     description: "Summary of root configuration files modified during a config update pass.",
@@ -91,14 +83,8 @@ export class ConfigUpdateTargetResult extends S.Class<ConfigUpdateTargetResult>(
   })
 ) {}
 
-const DefaultedBoolean = S.Boolean.pipe(
-  S.withConstructorDefault(Effect.succeed(false)),
-  S.withDecodingDefault(Effect.succeed(false))
-);
-
 const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pipe(
-  S.withConstructorDefault(Effect.succeed(A.empty<ConfigUpdateTargetResult>())),
-  S.withDecodingDefault(Effect.succeed(A.empty<ConfigUpdateTargetResult>()))
+  SchemaUtils.withEmptyArrayDefaults<ConfigUpdateTargetResult>()
 );
 
 /**
@@ -113,9 +99,9 @@ const DefaultedConfigUpdateTargetResults = S.Array(ConfigUpdateTargetResult).pip
 export class ConfigUpdateBatchResult extends S.Class<ConfigUpdateBatchResult>($I`ConfigUpdateBatchResult`)(
   {
     targets: DefaultedConfigUpdateTargetResults,
-    tsconfigPackages: DefaultedBoolean,
-    tsconfigPaths: DefaultedBoolean,
-    tstycheConfig: DefaultedBoolean,
+    tsconfigPackages: SchemaUtils.BoolKeyDefaultFalse,
+    tsconfigPaths: SchemaUtils.BoolKeyDefaultFalse,
+    tstycheConfig: SchemaUtils.BoolKeyDefaultFalse,
   },
   $I.annote("ConfigUpdateBatchResult", {
     description: "Batch config orchestration result for one or more package targets.",
@@ -155,7 +141,7 @@ const PackagePathToTstychePattern = PackagePath.pipe(
     TstycheTestFileMatchPattern,
     SchemaTransformation.transform({
       decode: (packagePath) => `${packagePath}/dtslint/**/*.tst.*`,
-      encode: (pattern) => PackagePath.make(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, "")(pattern)),
+      encode: (pattern) => PackagePath.make(Str.replace(TSTYCHE_TEST_FILE_MATCH_PATTERN, Str.empty)(pattern)),
     })
   ),
   S.annotate(
@@ -193,8 +179,8 @@ const parseJsoncObject: {
   })
 );
 
-const readReferences = (parsed: Record<string, unknown>): Array<unknown> =>
-  A.isArray(parsed.references) ? [...parsed.references] : A.empty();
+const readReferences = (parsed: Record<string, unknown>): ReadonlyArray<unknown> =>
+  A.isArray(parsed.references) ? A.fromIterable(parsed.references) : A.empty<unknown>();
 
 const hasReferencePath: {
   (entry: unknown, target: string): boolean;
@@ -222,13 +208,13 @@ const pathValuesEqual: {
   return stringArrayEquivalence(currentValue, expectedValue);
 });
 
-const readTestFileMatch = (parsed: Record<string, unknown>): Array<unknown> =>
-  A.isArray(parsed.testFileMatch) ? [...parsed.testFileMatch] : A.empty();
+const readTestFileMatch = (parsed: Record<string, unknown>): ReadonlyArray<unknown> =>
+  A.isArray(parsed.testFileMatch) ? A.fromIterable(parsed.testFileMatch) : A.empty();
 
 const isTstycheEntryCovered: {
-  (testFileMatch: Array<unknown>, packagePath: string): boolean;
-  (packagePath: string): (testFileMatch: Array<unknown>) => boolean;
-} = dual(2, (testFileMatch: Array<unknown>, packagePath: string): boolean => {
+  (testFileMatch: ReadonlyArray<unknown>, packagePath: string): boolean;
+  (packagePath: string): (testFileMatch: ReadonlyArray<unknown>) => boolean;
+} = dual(2, (testFileMatch: ReadonlyArray<unknown>, packagePath: string): boolean => {
   if (!isPackagePath(packagePath)) return false;
   const candidatePattern = decodeTstychePattern(packagePath);
   if (A.some(testFileMatch, (entry) => P.isString(entry) && stringEquivalence(entry, candidatePattern))) return true;
@@ -261,6 +247,20 @@ const aliasTargetsForTarget = (target: ConfigUpdateTarget) => ({
   wildcardAliasTarget:
     target.wildcardAliasTarget ?? defaultAliasTargetsForPackage(target.packagePath).wildcardAliasTarget,
 });
+
+const applyJsoncModification = (
+  content: string,
+  path: jsonc.JSONPath,
+  value: unknown,
+  options?: jsonc.ModificationOptions
+): string =>
+  jsonc.applyEdits(
+    content,
+    jsonc.modify(content, path, value, {
+      formattingOptions: FORMATTING_OPTIONS,
+      ...options,
+    })
+  );
 
 /**
  * Read → transform → write-if-changed. Returns `true` when the file was
@@ -336,11 +336,7 @@ export const updateTsconfigPackages: {
           return content;
         }
 
-        const updated = A.append(references, { path: packagePath });
-        const edits = jsonc.modify(content, ["references"], updated, {
-          formattingOptions: FORMATTING_OPTIONS,
-        });
-        return jsonc.applyEdits(content, edits);
+        return applyJsoncModification(content, ["references"], A.append(references, { path: packagePath }));
       })
     );
   })
@@ -390,23 +386,13 @@ export const updateTsconfigPaths: {
           return content;
         }
 
-        let result = content;
+        const withBaseAlias = hasBaseAlias
+          ? content
+          : applyJsoncModification(content, ["compilerOptions", "paths", alias], [rootAliasTarget]);
 
-        if (!hasBaseAlias) {
-          const edits1 = jsonc.modify(result, ["compilerOptions", "paths", alias], [rootAliasTarget], {
-            formattingOptions: FORMATTING_OPTIONS,
-          });
-          result = jsonc.applyEdits(result, edits1);
-        }
-
-        if (!hasWildcardAlias) {
-          const edits2 = jsonc.modify(result, ["compilerOptions", "paths", `${alias}/*`], [wildcardAliasTarget], {
-            formattingOptions: FORMATTING_OPTIONS,
-          });
-          result = jsonc.applyEdits(result, edits2);
-        }
-
-        return result;
+        return hasWildcardAlias
+          ? withBaseAlias
+          : applyJsoncModification(withBaseAlias, ["compilerOptions", "paths", `${alias}/*`], [wildcardAliasTarget]);
       })
     );
   })
@@ -447,16 +433,10 @@ export const updateTstycheConfig: {
         const candidatePattern = pipe(
           packagePath,
           O.liftPredicate(isPackagePath),
-          O.match({
-            onNone: () => `${packagePath}/dtslint/**/*.tst.*`,
-            onSome: decodeTstychePattern,
-          })
+          O.map(decodeTstychePattern),
+          O.getOrElse(() => `${packagePath}/dtslint/**/*.tst.*`)
         );
-        const updated = A.append(testFileMatch, candidatePattern);
-        const edits = jsonc.modify(content, ["testFileMatch"], updated, {
-          formattingOptions: FORMATTING_OPTIONS,
-        });
-        return jsonc.applyEdits(content, edits);
+        return applyJsoncModification(content, ["testFileMatch"], A.append(testFileMatch, candidatePattern));
       })
     );
   })

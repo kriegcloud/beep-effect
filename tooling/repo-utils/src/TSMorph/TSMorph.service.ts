@@ -19,6 +19,7 @@ import type {
   ProjectCacheKey,
   TsMorphDiagnosticsRequest,
   TsMorphFileOutlineRequest,
+  TsMorphProjectInspectionRequest,
   TsMorphProjectScopeRequest,
   TsMorphScopeEntrypoint,
   TsMorphSourceTextRequest,
@@ -305,6 +306,14 @@ export type TSMorphServiceShape = {
   readonly resolveProjectScope: (
     request: TsMorphProjectScopeRequest
   ) => Effect.Effect<TsMorphProjectScope, TSMorphServiceError>;
+  readonly inspectProject: <A>(
+    request: TsMorphProjectInspectionRequest,
+    inspect: (context: {
+      readonly scope: TsMorphProjectScope;
+      readonly project: Project;
+      readonly sourceFiles: ReadonlyArray<SourceFile>;
+    }) => A
+  ) => Effect.Effect<A, TSMorphServiceError>;
   readonly getFileOutline: (
     request: TsMorphFileOutlineRequest
   ) => Effect.Effect<TsMorphFileOutline, TSMorphServiceError>;
@@ -384,6 +393,14 @@ const isOutsideAncestor = (pathApi: Path.Path, parentPath: string, childPath: st
   const relativePath = pathApi.relative(parentPath, childPath);
   return relativePath.length === 0 ? false : pathApi.isAbsolute(relativePath) || Str.startsWith("..")(relativePath);
 };
+
+const isMissingDirectoryError = (cause: unknown): boolean =>
+  P.isString(cause)
+    ? Str.includes("Directory not found:")(cause)
+    : P.isObject(cause) &&
+      P.hasProperty(cause, "message") &&
+      P.isString(cause.message) &&
+      Str.includes("Directory not found:")(cause.message);
 
 const decodeRepoRelativePath = Effect.fn(function* (
   pathApi: Path.Path,
@@ -1144,6 +1161,65 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
     });
   });
 
+  const inspectProject: TSMorphServiceShape["inspectProject"] = Effect.fn("TSMorphService.inspectProject")(
+    function* (request, inspect) {
+      const scope = yield* resolveScopeFromEntrypoint(
+        request.entrypoint,
+        request.repoRootPath,
+        request.mode,
+        request.referencePolicy
+      );
+      const project = yield* projectPool.getOrCreate(scope);
+
+      for (const sourceFileGlob of request.sourceFileGlobs) {
+        yield* Effect.try({
+          try: () => project.addSourceFilesAtPaths(sourceFileGlob),
+          catch: (cause) =>
+            new TsMorphSourceFileError({
+              scopeId: O.some(scope.scopeId),
+              filePath: O.none(),
+              message: `Failed to add source file glob "${sourceFileGlob}": ${
+                P.isObject(cause) && P.hasProperty(cause, "message") && P.isString(cause.message)
+                  ? cause.message
+                  : Inspectable.toStringUnknown(cause)
+              }`,
+            }),
+        }).pipe(Effect.catch((error) => (isMissingDirectoryError(error.message) ? Effect.void : Effect.fail(error))));
+      }
+
+      if (!A.isReadonlyArrayEmpty(request.sourceFileGlobs)) {
+        MutableHashMap.remove(symbolIndexPool, scope.cacheKey);
+      }
+
+      for (const filePath of request.filePaths) {
+        yield* loadSourceFile(scope, filePath);
+      }
+
+      const sourceFiles = A.filter(project.getSourceFiles(), (sourceFile) => {
+        if (scope.referencePolicy !== TsMorphReferencePolicy.Enum.workspaceOnly) {
+          return true;
+        }
+
+        return !isOutsideAncestor(pathApi, scope.workspaceDirectoryPath, pathApi.normalize(sourceFile.getFilePath()));
+      });
+
+      return yield* Effect.try({
+        try: () =>
+          inspect({
+            scope,
+            project,
+            sourceFiles,
+          }),
+        catch: (cause) =>
+          new TsMorphSourceFileError({
+            scopeId: O.some(scope.scopeId),
+            filePath: O.none(),
+            message: `Read-only project inspection failed for scope "${scope.scopeId}": ${schemaMessage(cause)}`,
+          }),
+      });
+    }
+  );
+
   const updateSourceFile: TSMorphServiceShape["updateSourceFile"] = Effect.fn("TSMorphService.updateSourceFile")(
     function* (filePath, update) {
       const safeFilePath = TypeScriptImplementationFilePath.make(filePath);
@@ -1192,6 +1268,7 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
 
   return {
     resolveProjectScope,
+    inspectProject,
     getFileOutline,
     getSymbolById,
     searchSymbols,

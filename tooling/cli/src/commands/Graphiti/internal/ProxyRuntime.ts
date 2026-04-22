@@ -8,7 +8,6 @@
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import * as BunHttpServer from "@effect/platform-bun/BunHttpServer";
 import { Console, Deferred, Effect, Fiber, Layer, Ref } from "effect";
-import * as Bool from "effect/Boolean";
 import * as HttpRouter from "effect/unstable/http/HttpRouter";
 import { loadGraphitiProxyConfig } from "./ProxyConfig.js";
 import {
@@ -24,10 +23,7 @@ import {
 } from "./ProxyServices.js";
 
 const toHealthStatus = (snapshot: DependencyHealthSnapshot): "ok" | "degraded" =>
-  Bool.match(snapshot.status === "ok", {
-    onTrue: () => "ok",
-    onFalse: () => "degraded",
-  });
+  snapshot.status === "ok" ? "ok" : "degraded";
 
 /**
  * Run the graphiti queue proxy runtime with graceful shutdown.
@@ -53,20 +49,17 @@ export const runGraphitiProxy = Effect.scoped(
       info: (message: string) => Console.log(`[graphiti-proxy] ${message}`),
       error: (message: string) => Console.error(`[graphiti-proxy:error] ${message}`),
       debug: (message: string) =>
-        Bool.match(config.verbose, {
-          onTrue: () => Console.log(`[graphiti-proxy:debug] ${message}`),
-          onFalse: () => Effect.void,
-        }),
+        Console.log(`[graphiti-proxy:debug] ${message}`).pipe(
+          Effect.when(Effect.succeed(config.verbose)),
+          Effect.asVoid
+        ),
     };
 
     const healthHandler = Effect.gen(function* () {
       const queueStats = yield* queueService.snapshot;
       const dependencySnapshot = yield* dependencyHealthService.snapshot;
       const status = toHealthStatus(dependencySnapshot);
-      const statusCode = Bool.match(status === "ok", {
-        onTrue: () => 200,
-        onFalse: () => 503,
-      });
+      const statusCode = status === "ok" ? 200 : 503;
 
       return proxyHealthResponse(
         new ProxyHealthPayload({

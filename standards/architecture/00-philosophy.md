@@ -21,8 +21,8 @@ high modularity + consistent topology > low ceremony + improvised structure
 
 The structure is not there to slow work down. It is there to make experiments
 portable. A `TwoFactor` concept should feel the same across domain, use-cases,
-server, client, tables, and UI. Once you know the slice grammar, you can move
-quickly without hunting.
+config when meaningful config contracts exist, server, client, tables, and UI.
+Once you know the slice grammar, you can move quickly without hunting.
 
 ## Why This Matters More With Agents
 
@@ -39,8 +39,10 @@ right idea in the wrong layer.
 The architecture protects:
 
 - domain language from provider leakage
+- domain behavior from hidden config/runtime reads
 - application intent from server adapter concerns
 - providers from product-specific business concepts
+- config contracts from becoming env access or constants dumps
 - shared from becoming a junk drawer
 - UI from becoming the real application layer
 - experiments from becoming unremovable global runtime dependencies
@@ -51,13 +53,15 @@ without dragging the whole repo with it.
 
 ## The Shape Of A Good Slice
 
-A good slice has a small rich domain, explicit use-cases, boring adapters, and
-provider wrappers that are technical rather than product-aware.
+A good slice has a small rich domain, explicit use-cases, typed config contracts
+when needed, boring adapters, and provider wrappers that are technical rather
+than product-aware.
 
 The slice should answer:
 
 - What does this domain mean?
 - What application actions can be performed?
+- Which runtime/application configuration contracts are needed?
 - What ports does the application need?
 - Which adapters implement those ports?
 - Which providers make those adapters safe?

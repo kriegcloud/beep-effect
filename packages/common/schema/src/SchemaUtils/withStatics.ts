@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
-import { Function as Fn } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -91,4 +91,4 @@ const attachStatics = <S extends object, M extends Record<string, unknown>>(
 export const withStatics: {
   <S extends object, M extends Record<string, unknown>>(methods: (schema: S) => M): (schema: S) => S & M;
   <S extends object, M extends Record<string, unknown>>(schema: S, methods: (schema: S) => M): S & M;
-} = Fn.dual(2, attachStatics);
+} = dual(2, attachStatics);

@@ -34,7 +34,7 @@ The root command surface is already Turbo-first where it matters, but it still m
 - `sed -n '1,240p' package.json`
 - `node <<'NODE' ... classify root scripts ... NODE`
 - `bunx turbo query ls --output json`
-- `bunx turbo query ls @beep/editor-app @beep/v2t @beep/desktop @beep/repo-cli @beep/infra --output json`
+- `bunx turbo query ls @beep/editor-app @beep/desktop @beep/repo-cli @beep/infra --output json`
 
 # Sources
 - Repo: `package.json`

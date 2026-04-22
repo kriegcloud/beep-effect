@@ -7,6 +7,7 @@
 
 import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -83,16 +84,25 @@ const formatField = (value: string, fieldIndex: number, options: CsvCodecOptions
   );
 };
 
+const formatCsvHeaderRowEffect = (
+  headers: ReadonlyArray<string>,
+  options: CsvCodecOptions
+): Effect.Effect<string, CsvError> =>
+  Effect.gen(function* () {
+    const fields = yield* Effect.forEach(headers, (header, index) => formatField(header, index, options));
+    return A.join(fields, options.delimiter);
+  });
+
 /**
  * Format a CSV header row.
  *
  * @category Utility
  * @since 0.0.0
  */
-export const formatCsvHeaderRow = Effect.fn(function* (headers: ReadonlyArray<string>, options: CsvCodecOptions) {
-  const fields = yield* Effect.forEach(headers, (header, index) => formatField(header, index, options));
-  return A.join(fields, options.delimiter);
-});
+export const formatCsvHeaderRow: {
+  (headers: ReadonlyArray<string>, options: CsvCodecOptions): Effect.Effect<string, CsvError>;
+  (options: CsvCodecOptions): (headers: ReadonlyArray<string>) => Effect.Effect<string, CsvError>;
+} = dual(2, formatCsvHeaderRowEffect);
 
 /**
  * Format a CSV data row.
@@ -100,10 +110,19 @@ export const formatCsvHeaderRow = Effect.fn(function* (headers: ReadonlyArray<st
  * @category Utility
  * @since 0.0.0
  */
-export const formatCsvDataRow = Effect.fn(function* (fields: ReadonlyArray<string>, options: CsvCodecOptions) {
-  const encodedFields = yield* Effect.forEach(fields, (field, index) => formatField(field, index, options));
-  return A.join(encodedFields, options.delimiter);
-});
+const formatCsvDataRowEffect = (
+  fields: ReadonlyArray<string>,
+  options: CsvCodecOptions
+): Effect.Effect<string, CsvError> =>
+  Effect.gen(function* () {
+    const encodedFields = yield* Effect.forEach(fields, (field, index) => formatField(field, index, options));
+    return A.join(encodedFields, options.delimiter);
+  });
+
+export const formatCsvDataRow: {
+  (fields: ReadonlyArray<string>, options: CsvCodecOptions): Effect.Effect<string, CsvError>;
+  (options: CsvCodecOptions): (fields: ReadonlyArray<string>) => Effect.Effect<string, CsvError>;
+} = dual(2, formatCsvDataRowEffect);
 
 /**
  * Format a whole CSV document.
@@ -111,12 +130,25 @@ export const formatCsvDataRow = Effect.fn(function* (fields: ReadonlyArray<strin
  * @category Utility
  * @since 0.0.0
  */
-export const formatCsvDocument = Effect.fn(function* (
+const formatCsvDocumentEffect = (
   headers: ReadonlyArray<string>,
   rows: ReadonlyArray<ReadonlyArray<string>>,
   options: CsvCodecOptions
-) {
-  const header = yield* formatCsvHeaderRow(headers, options);
-  const dataRows = yield* Effect.forEach(rows, (row) => formatCsvDataRow(row, options));
-  return pipe([header, ...dataRows], A.join(rowDelimiter));
-});
+): Effect.Effect<string, CsvError> =>
+  Effect.gen(function* () {
+    const header = yield* formatCsvHeaderRow(headers, options);
+    const dataRows = yield* Effect.forEach(rows, (row) => formatCsvDataRow(row, options));
+    return pipe([header, ...dataRows], A.join(rowDelimiter));
+  });
+
+export const formatCsvDocument: {
+  (
+    headers: ReadonlyArray<string>,
+    rows: ReadonlyArray<ReadonlyArray<string>>,
+    options: CsvCodecOptions
+  ): Effect.Effect<string, CsvError>;
+  (
+    rows: ReadonlyArray<ReadonlyArray<string>>,
+    options: CsvCodecOptions
+  ): (headers: ReadonlyArray<string>) => Effect.Effect<string, CsvError>;
+} = dual(3, formatCsvDocumentEffect);

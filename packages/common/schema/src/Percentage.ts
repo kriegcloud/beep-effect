@@ -9,7 +9,7 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
-import { Function as F } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $SchemaId.create("Percentage");
@@ -202,4 +202,4 @@ export const complement = (percentage: Percentage): Percentage => Percentage.mak
 export const format: {
   (percentage: Percentage): (decimalPlaces?: undefined | number) => string;
   (percentage: Percentage, decimalPlaces?: undefined | number): string;
-} = F.dual(2, (percentage: Percentage, decimalPlaces = 2): string => `${percentage.toFixed(decimalPlaces)}%`);
+} = dual(2, (percentage: Percentage, decimalPlaces = 2): string => `${percentage.toFixed(decimalPlaces)}%`);

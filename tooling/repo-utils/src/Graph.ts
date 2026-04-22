@@ -11,6 +11,7 @@
  */
 import { Effect, Graph as G, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import { CyclicDependencyError } from "./errors/index.js";
@@ -320,38 +321,46 @@ const buildCyclePath = (
  * @category DomainLogic
  * @since 0.0.0
  */
-export const computeTransitiveClosure: (
-  adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
-  pkg: string
-) => Effect.Effect<HashSet.HashSet<string>> = Effect.fnUntraced(function* (adjacencyList, pkg) {
-  yield* Effect.void;
+export const computeTransitiveClosure: {
+  (pkg: string): (adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>) => Effect.Effect<
+    HashSet.HashSet<string>
+  >;
+  (
+    adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
+    pkg: string
+  ): Effect.Effect<HashSet.HashSet<string>>;
+} = dual(
+  2,
+  Effect.fnUntraced(function* (adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>, pkg: string) {
+    yield* Effect.void;
 
-  if (HashMap.size(adjacencyList) === 0) {
-    return HashSet.empty<string>();
-  }
+    if (HashMap.size(adjacencyList) === 0) {
+      return HashSet.empty<string>();
+    }
 
-  const { graph, nameToIndex, indexToName } = fromAdjacencyList(adjacencyList);
+    const { graph, nameToIndex, indexToName } = fromAdjacencyList(adjacencyList);
 
-  return pipe(
-    MutableHashMap.get(nameToIndex, pkg),
-    O.match({
-      onNone: HashSet.empty<string>,
-      onSome: (startIdx) => {
-        // BFS from the starting package, collecting all reachable nodes
-        const walker = G.bfs(graph, { start: [startIdx] });
-        let result = HashSet.empty<string>();
+    return pipe(
+      MutableHashMap.get(nameToIndex, pkg),
+      O.match({
+        onNone: HashSet.empty<string>,
+        onSome: (startIdx) => {
+          // BFS from the starting package, collecting all reachable nodes
+          const walker = G.bfs(graph, { start: [startIdx] });
+          let result = HashSet.empty<string>();
 
-        for (const [idx, _value] of walker) {
-          // Skip the starting node itself
-          if (idx === startIdx) continue;
-          const nameOpt = MutableHashMap.get(indexToName, idx);
-          if (O.isSome(nameOpt)) {
-            result = HashSet.add(result, nameOpt.value);
+          for (const [idx, _value] of walker) {
+            // Skip the starting node itself
+            if (idx === startIdx) continue;
+            const nameOpt = MutableHashMap.get(indexToName, idx);
+            if (O.isSome(nameOpt)) {
+              result = HashSet.add(result, nameOpt.value);
+            }
           }
-        }
 
-        return result;
-      },
-    })
-  );
-});
+          return result;
+        },
+      })
+    );
+  })
+);

@@ -3,7 +3,7 @@
 This directory defines project-scoped custom Codex agents for `beep-effect`.
 
 Codex loads the registry from [../config.toml](../config.toml) when the project
-is trusted. The active V2T workflow now assumes:
+is trusted. The active phase workflow assumes:
 
 - the session working a phase is the orchestrator
 - sub-agents are selectively spawned specialists
@@ -62,10 +62,8 @@ is trusted. The active V2T workflow now assumes:
 
 ## Recommended Use
 
-- Prefer starting the main phase session with `codex -p v2t_orchestrator`.
-- Verify the live workspace names from `apps/V2T/package.json` and
-  `packages/VT2/package.json` before copying Turbo filters. The current names
-  are `@beep/v2t` and `@beep/VT2`.
+- Verify live workspace names from package manifests before copying Turbo
+  filters.
 - Keep the active phase session as the orchestrator.
 - Spawn specialists only after the orchestrator has formed a local plan.
 - Give each write-capable worker a disjoint write scope. In the CLI workflow,

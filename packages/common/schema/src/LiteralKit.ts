@@ -56,16 +56,23 @@ type MappedEnumType<M extends EnumMappings> = {
 type EnumType<L extends Literals, M extends EnumMappings<L> | undefined = undefined> =
   M extends EnumMappings<L> ? MappedEnumType<M> : DefaultEnumType<L>;
 
-type IsGuards<L extends Literals> = {
-  readonly [K in L[number] as LiteralToKey<K>]: (i: unknown) => i is K;
+type HelperKey<
+  Literal extends SchemaAST.LiteralValue,
+  M extends EnumMappings | undefined = undefined,
+> = M extends EnumMappings ? Extract<EnumMappingPair<M>, readonly [Literal, string]>[1] : LiteralToKey<Literal>;
+
+type HelperKeys<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = HelperKey<L[number], M>;
+
+type IsGuards<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = {
+  readonly [K in L[number] as HelperKey<K, M>]: (i: unknown) => i is K;
 };
 
-type MatchCases<L extends Literals> = {
-  readonly [K in L[number] as LiteralToKey<K>]: (value: K) => unknown;
+type MatchCases<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = {
+  readonly [K in L[number] as HelperKey<K, M>]: (value: K) => unknown;
 };
 
-type Thunks<L extends Literals> = {
-  readonly [K in L[number] as LiteralToKey<K>]: () => K;
+type Thunks<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = {
+  readonly [K in L[number] as HelperKey<K, M>]: () => K;
 };
 
 type HasFixedLength<T extends ReadonlyArray<unknown>> = number extends T["length"] ? false : true;
@@ -107,7 +114,7 @@ type ValidEnumMapping<L extends Literals, M extends EnumMappings<L>> =
 /**
  * Valid keys for a MatchCases object derived from the literal set.
  */
-type MatchKeys<L extends Literals> = LiteralToKey<L[number]>;
+type MatchKeys<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = HelperKeys<L, M>;
 
 /**
  * Extract the union of return types from a Cases object.
@@ -118,17 +125,18 @@ type MatchReturn<Cases> = {
   [K in keyof Cases]: Cases[K] extends (...args: ReadonlyArray<unknown>) => infer R ? R : never;
 }[keyof Cases];
 
-type MatchFn<L extends Literals> = {
-  <const Cases extends MatchCases<L>>(
-    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L>>]: never }
+type MatchFn<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = {
+  <const Cases extends MatchCases<L, M>>(
+    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L, M>>]: never }
   ): (value: L[number]) => Unify.Unify<MatchReturn<Cases>>;
-  <const Cases extends MatchCases<L>>(
+  <const Cases extends MatchCases<L, M>>(
     value: L[number],
-    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L>>]: never }
+    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L, M>>]: never }
   ): Unify.Unify<MatchReturn<Cases>>;
 };
 
 type PropertyKeyLiteral = Extract<SchemaAST.LiteralValue, PropertyKey>;
+type PropertyKeyLiteralArray = A.NonEmptyReadonlyArray<PropertyKeyLiteral>;
 
 type PropertyKeyLiterals<L extends Literals> = {
   readonly [I in keyof L]: Extract<L[I], PropertyKeyLiteral>;
@@ -136,35 +144,38 @@ type PropertyKeyLiterals<L extends Literals> = {
 
 type StructFields = Readonly<Record<string, S.Top>>;
 
-type TaggedUnionCases<L extends ReadonlyArray<PropertyKeyLiteral>> = {
-  readonly [K in L[number] as LiteralToKey<K>]: StructFields;
+type TaggedUnionCases<L extends PropertyKeyLiteralArray, M extends EnumMappings<L> | undefined = undefined> = {
+  readonly [K in L[number] as HelperKey<K, M>]: StructFields;
 };
 
 type TaggedUnionCaseFields<
-  L extends ReadonlyArray<PropertyKeyLiteral>,
+  L extends PropertyKeyLiteralArray,
   Tag extends string,
-  Cases extends TaggedUnionCases<L>,
-  Literal extends L[number],
-> = Struct.Simplify<{ readonly [K in Tag]: S.tag<Literal> } & Cases[LiteralToKey<Literal> & keyof Cases]>;
+  M extends EnumMappings<L> | undefined = undefined,
+  Cases extends TaggedUnionCases<L, M> = TaggedUnionCases<L, M>,
+  Literal extends L[number] = L[number],
+> = Struct.Simplify<{ readonly [K in Tag]: S.tag<Literal> } & Cases[HelperKey<Literal, M> & keyof Cases]>;
 
 type TaggedUnionMember<
-  L extends ReadonlyArray<PropertyKeyLiteral>,
+  L extends PropertyKeyLiteralArray,
   Tag extends string,
-  Cases extends TaggedUnionCases<L>,
+  M extends EnumMappings<L> | undefined = undefined,
+  Cases extends TaggedUnionCases<L, M> = TaggedUnionCases<L, M>,
   Literal extends L[number] = L[number],
 > = Literal extends L[number]
-  ? S.Struct<TaggedUnionCaseFields<L, Tag, Cases, Literal>> & {
+  ? S.Struct<TaggedUnionCaseFields<L, Tag, M, Cases, Literal>> & {
       readonly Type: Struct.Simplify<{ readonly [K in Tag]: Literal }>;
     }
   : never;
 
 type TaggedUnionMembers<
-  L extends ReadonlyArray<PropertyKeyLiteral>,
+  L extends PropertyKeyLiteralArray,
   Tag extends string,
-  Cases extends TaggedUnionCases<L>,
+  M extends EnumMappings<L> | undefined = undefined,
+  Cases extends TaggedUnionCases<L, M> = TaggedUnionCases<L, M>,
 > = {
   readonly [I in keyof L]: L[I] extends infer Literal extends L[number]
-    ? TaggedUnionMember<L, Tag, Cases, Literal>
+    ? TaggedUnionMember<L, Tag, M, Cases, Literal>
     : never;
 };
 
@@ -172,11 +183,13 @@ type NoTagCollision<Tag extends string, Cases extends Record<string, StructField
   readonly [K in keyof Cases]: Cases[K] & { readonly [P in Tag]?: never };
 };
 
-type ToTaggedUnionFn<L extends ReadonlyArray<PropertyKeyLiteral>> = <const Tag extends string>(
+type ToTaggedUnionFn<L extends PropertyKeyLiteralArray, M extends EnumMappings<L> | undefined = undefined> = <
+  const Tag extends string,
+>(
   tag: Tag
-) => <const Cases extends TaggedUnionCases<L>>(
-  cases: Cases & NoTagCollision<Tag, Cases> & { readonly [K in Exclude<keyof Cases, LiteralToKey<L[number]>>]: never }
-) => S.toTaggedUnion<Tag, TaggedUnionMembers<L, Tag, Cases>>;
+) => <const Cases extends TaggedUnionCases<L, M>>(
+  cases: Cases & NoTagCollision<Tag, Cases> & { readonly [K in Exclude<keyof Cases, HelperKeys<L, M>>]: never }
+) => S.toTaggedUnion<Tag, TaggedUnionMembers<L, Tag, M, Cases>>;
 
 // ============================================================================
 // Utility Functions
@@ -226,21 +239,37 @@ const makeMappedEnum = <M extends EnumMappings>(mapping: M): MappedEnumType<M> =
     }))
   );
 
-const makeGuards = <L extends Literals>(literals: L): IsGuards<L> =>
+const helperKey = (literal: SchemaAST.LiteralValue, mapping: ReadonlyArray<EnumMappingEntry> | undefined): string =>
+  mapping === undefined
+    ? matchLiteral(literal)
+    : pipe(
+        mapping,
+        A.findFirst(([candidate]) => hasSameLiteral(candidate, literal)),
+        O.map(([, mappedKey]) => mappedKey),
+        O.getOrElse(() => matchLiteral(literal))
+      );
+
+const makeGuards = <L extends Literals, M extends EnumMappings<L> | undefined = undefined>(
+  literals: L,
+  mapping?: M
+): IsGuards<L, M> =>
   pipe(
     literals,
-    A.reduce({} as IsGuards<L>, (acc, literal) => ({
+    A.reduce({} as IsGuards<L, M>, (acc, literal) => ({
       ...acc,
-      [matchLiteral(literal)]: (i: unknown) => i === literal,
+      [helperKey(literal, mapping)]: (i: unknown) => i === literal,
     }))
   );
 
-const makeThunks = <L extends Literals>(literals: L): Thunks<L> =>
+const makeThunks = <L extends Literals, M extends EnumMappings<L> | undefined = undefined>(
+  literals: L,
+  mapping?: M
+): Thunks<L, M> =>
   pipe(
     literals,
-    A.reduce({} as Thunks<L>, (acc, literal) => ({
+    A.reduce({} as Thunks<L, M>, (acc, literal) => ({
       ...acc,
-      [matchLiteral(literal)]: () => literal,
+      [helperKey(literal, mapping)]: () => literal,
     }))
   );
 
@@ -540,25 +569,25 @@ const makeOptionsFns = <L extends Literals>(
   },
 });
 
-function buildMatch<L extends Literals>(_: L) {
-  function $match<const Cases extends MatchCases<L>>(
-    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L>>]: never }
+function buildMatch<L extends Literals, M extends EnumMappings<L> | undefined = undefined>(_: L, mapping?: M) {
+  function $match<const Cases extends MatchCases<L, M>>(
+    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L, M>>]: never }
   ): (value: L[number]) => Unify.Unify<MatchReturn<Cases>>;
-  function $match<const Cases extends MatchCases<L>>(
+  function $match<const Cases extends MatchCases<L, M>>(
     value: L[number],
-    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L>>]: never }
+    cases: Cases & { readonly [K in Exclude<keyof Cases, MatchKeys<L, M>>]: never }
   ): Unify.Unify<MatchReturn<Cases>>;
   function $match(...args: Array<unknown>): unknown {
     if (args.length === 1) {
       const cases = args[0] as Record<string, (value: L[number]) => unknown>;
       return (value: L[number]) => {
-        const key = matchLiteral(value);
+        const key = helperKey(value, mapping);
         return cases[key](value);
       };
     }
     const value = args[0] as L[number];
     const cases = args[1] as Record<string, (value: L[number]) => unknown>;
-    const key = matchLiteral(value);
+    const key = helperKey(value, mapping);
     return cases[key](value);
   }
 
@@ -591,22 +620,25 @@ const attachHelperDescriptors = <T extends object>(schema: T, descriptors: Prope
  * `thunk`, and `toTaggedUnion`.
  *
  * Supports mixed literal types (`string | number | boolean | bigint`) with
- * keys mapped via {@link LiteralToKey}.
+ * keys mapped via {@link LiteralToKey}, or via the manual mapping when one is
+ * supplied to {@link LiteralKit}.
  *
  * @category DomainModel
  * @since 0.0.0
  */
 type LiteralKitBase<L extends Literals, M extends EnumMappings<L> | undefined = undefined> = S.Literals<L> & {
   readonly Options: L;
-  readonly is: IsGuards<L>;
+  readonly is: IsGuards<L, M>;
   readonly Enum: EnumType<L, M>;
   readonly pickOptions: <LSubset extends A.NonEmptyReadonlyArray<L[number]>>(subset: LSubset) => LSubset;
   readonly omitOptions: <LSubset extends A.NonEmptyReadonlyArray<L[number]>>(
     subset: LSubset
   ) => A.NonEmptyReadonlyArray<Exclude<L[number], LSubset[number]>>;
-  readonly $match: MatchFn<L>;
-  readonly thunk: Thunks<L>;
-  readonly toTaggedUnion: L[number] extends PropertyKeyLiteral ? ToTaggedUnionFn<PropertyKeyLiterals<L>> : never;
+  readonly $match: MatchFn<L, M>;
+  readonly thunk: Thunks<L, M>;
+  readonly toTaggedUnion: L[number] extends PropertyKeyLiteral
+    ? ToTaggedUnionFn<PropertyKeyLiterals<L>, M extends EnumMappings<PropertyKeyLiterals<L>> ? M : undefined>
+    : never;
 };
 
 /**
@@ -676,11 +708,11 @@ export function LiteralKit<const L extends Literals, const M extends EnumMapping
   const validatedEnumMapping = enumMapping === undefined ? undefined : validateEnumMapping(literals, enumMapping);
   const base = S.Literals(literals);
 
-  const is = makeGuards(literals);
+  const is = makeGuards(literals, validatedEnumMapping);
   const { pickOptions, omitOptions } = makeOptionsFns(literals);
-  const $match = buildMatch(literals);
+  const $match = buildMatch(literals, validatedEnumMapping);
   const Enum = validatedEnumMapping === undefined ? makeDefaultEnum(literals) : makeMappedEnum(validatedEnumMapping);
-  const thunk = makeThunks(literals);
+  const thunk = makeThunks(literals, validatedEnumMapping);
   const toTaggedUnion =
     <const Tag extends string>(tag: Tag) =>
     <const Cases extends Record<string, StructFields>>(cases: Cases) => {
@@ -694,7 +726,7 @@ export function LiteralKit<const L extends Literals, const M extends EnumMapping
 
           return S.Struct({
             [tag]: S.tag(member.literal),
-            ...cases[matchLiteral(member.literal)],
+            ...cases[helperKey(member.literal, validatedEnumMapping)],
           });
         })
       );

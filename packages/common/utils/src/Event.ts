@@ -7,6 +7,7 @@
 
 import { $UtilsId } from "@beep/identity/packages";
 import type { TString } from "@beep/types";
+import { dual } from "effect/Function";
 
 /**
  * Re-export of the Effect SSE encoder/decoder primitives.
@@ -45,7 +46,7 @@ type EventShape<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> 
  * @category models
  * @since 0.0.0
  */
-export const makeEvent = <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(
+const makeEventSchema = <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(
   payload: TFields,
   tag: TTag
 ) =>
@@ -59,3 +60,17 @@ export const makeEvent = <TTag extends TString.NonEmpty, TFields extends S.Struc
       description: "A typed server-sent event envelope.",
     })
   );
+
+type MakeEventSchema<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> = ReturnType<
+  typeof makeEventSchema<TTag, TFields>
+>;
+
+export const makeEvent: {
+  <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(
+    payload: TFields,
+    tag: TTag
+  ): MakeEventSchema<TTag, TFields>;
+  <TFields extends S.Struct.Fields>(payload: TFields): <TTag extends TString.NonEmpty>(
+    tag: TTag
+  ) => MakeEventSchema<TTag, TFields>;
+} = dual(2, makeEventSchema);

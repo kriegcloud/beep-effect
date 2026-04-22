@@ -11,7 +11,7 @@ Biome is already a good fit for this repo's Turbo model. Package-local `biome ch
 - `biome.jsonc` enables the Turborepo domain rules and keeps repo-wide formatting/lint behavior centralized.
 - Root `package.json` delegates `lint` through Turbo, then layers on repo-governance commands.
 - `packages/common/ui/package.json` uses `biome check src/ .storybook/` and `biome check src/ .storybook/ --write`.
-- `apps/editor-app/package.json` and `apps/V2T/package.json` use `biome check src/ scripts/`.
+- `apps/editor-app/package.json` uses `biome check src/ scripts/`.
 - `apps/desktop/package.json` uses `biome check src/`.
 - `tooling/cli/package.json` uses `biome check .`.
 - `turbo.json` defines a cached `lint` task that depends on upstream `lint` tasks.
@@ -33,16 +33,14 @@ Biome is already a good fit for this repo's Turbo model. Package-local `biome ch
 ## Commands and files inspected
 - `sed -n '1,220p' biome.jsonc`
 - `node -e '...package.json scripts...'`
-- `rg -n '"check"|"build"|"test"|"lint"' apps/V2T/package.json apps/editor-app/package.json packages/common/ui/package.json tooling/cli/package.json apps/desktop/package.json infra/package.json package.json`
+- `rg -n '"check"|"build"|"test"|"lint"' apps/editor-app/package.json packages/common/ui/package.json tooling/cli/package.json apps/desktop/package.json infra/package.json package.json`
 - `bunx turbo query ls @beep/ui --output json`
 - `bunx turbo query ls @beep/editor-app --output json`
-- `bunx turbo query ls @beep/v2t --output json`
 
 ## Sources
 - Repo: `biome.jsonc`
 - Repo: `package.json`
 - Repo: `apps/editor-app/package.json`
-- Repo: `apps/V2T/package.json`
 - Repo: `packages/common/ui/package.json`
 - Repo: `apps/desktop/package.json`
 - Repo: `tooling/cli/package.json`

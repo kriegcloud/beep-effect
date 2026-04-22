@@ -3,8 +3,8 @@
  * @since 0.0.0
  */
 
-import { Function as Fn } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 
 /**
@@ -48,7 +48,7 @@ export const hasProperties: {
     self: unknown,
     properties: Properties
   ): self is { [K in Properties[number]]: unknown };
-} = Fn.dual(
+} = dual(
   (args) => args.length === 2 && A.isArray(args[1]),
   <Properties extends A.NonEmptyReadonlyArray<PropertyKey>>(
     self: unknown,

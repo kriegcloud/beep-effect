@@ -7,30 +7,35 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
-import { LiteralKit, normalizePath } from "@beep/schema";
-import { Struct, thunkFalse } from "@beep/utils";
-import { Context, Effect, FileSystem, flow, identity, Order, Path, pipe } from "effect";
+import { LiteralKit, normalizePath, SchemaUtils } from "@beep/schema";
+import { thunkFalse, thunkTrue } from "@beep/utils";
+import { Context, Effect, FileSystem, flow, Order, Path, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
+import { dual } from "effect/Function";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import * as Struct from "effect/Struct";
 
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
 const relativePlanPathSegments = flow(normalizePath, Str.split("/"), A.filter(Str.isNonEmpty));
+const isTraversalPathSegment = P.or(Eq.equals("."), Eq.equals(".."));
+const isNonEmptyRelativePlanPath = P.every<string>([Str.isNonEmpty, P.not(Str.startsWith("/"))]);
+const hasSafeRelativePlanPathSegments: P.Predicate<ReadonlyArray<string>> = P.every([
+  A.isReadonlyArrayNonEmpty,
+  A.every(P.not(isTraversalPathSegment)),
+]);
 
-const isSafeRelativePlanPath = (value: string): boolean => {
-  const normalized = normalizePath(value);
-  const segments = relativePlanPathSegments(value);
-
-  return (
-    Str.isNonEmpty(normalized) &&
-    !pipe(normalized, Str.startsWith("/")) &&
-    A.isReadonlyArrayNonEmpty(segments) &&
-    !A.some(segments, P.or(Eq.equals("."), Eq.equals("..")))
-  );
-};
+const isSafeRelativePlanPath = flow(
+  normalizePath,
+  O.liftPredicate(isNonEmptyRelativePlanPath),
+  O.map(relativePlanPathSegments),
+  O.filter(hasSafeRelativePlanPathSegments),
+  O.isSome
+);
 
 const RelativePlanPathChecks = S.makeFilterGroup(
   [
@@ -61,19 +66,15 @@ const RelativePlanPathChecks = S.makeFilterGroup(
 );
 
 const RelativePlanPath = S.String.check(RelativePlanPathChecks).pipe(
-  S.annotate(
-    $I.annote("RelativePlanPath", {
-      description: "Validated output-relative path used by create-package plan entries.",
-    })
-  )
+  $I.annoteSchema("RelativePlanPath", {
+    description: "Validated output-relative path used by create-package plan entries.",
+  })
 );
 
 const SymlinkTargetPath = RelativePlanPath.pipe(
-  S.annotate(
-    $I.annote("SymlinkTargetPath", {
-      description: "Validated relative symlink target path used by create-package plan entries.",
-    })
-  )
+  $I.annoteSchema("SymlinkTargetPath", {
+    description: "Validated relative symlink target path used by create-package plan entries.",
+  })
 );
 
 /**
@@ -119,10 +120,7 @@ export class FileGenerationPlanInput extends S.Class<FileGenerationPlanInput>($I
     outputDir: S.String,
     directories: S.Array(RelativePlanPath),
     files: S.Array(PlannedFile),
-    symlinks: S.Array(PlannedSymlink).pipe(
-      S.withConstructorDefault(Effect.succeed(A.empty<PlannedSymlink>())),
-      S.withDecodingDefaultKey(Effect.succeed(A.empty<PlannedSymlink>()))
-    ),
+    symlinks: PlannedSymlink.pipe(S.Array, SchemaUtils.withKeyDefaults(A.empty<PlannedSymlink>())),
   },
   $I.annote("FileGenerationPlanInput", {
     description: "Input payload used to create a generation plan.",
@@ -193,7 +191,18 @@ export const GenerationAction = S.Union([GenerationActionMkdir, GenerationAction
       description: "Planned generation action.",
     })
   )
-  .pipe(S.toTaggedUnion("kind"));
+  .pipe(
+    S.toTaggedUnion("kind"),
+    SchemaUtils.withStatics((schema) => ({
+      toStr: flow(
+        schema.match({
+          mkdir: (action) => `mkdir ${action.relativePath}`,
+          "write-file": (action) => `write ${action.relativePath}`,
+          symlink: (action) => `symlink ${action.relativePath} -> ${action.target}`,
+        })
+      ),
+    }))
+  );
 /**
  * Planned generation action.
  *
@@ -265,13 +274,13 @@ export class FileGenerationPlanService extends Context.Service<
 >()($I`FileGenerationPlanService`) {}
 
 const toPosixPath = normalizePath;
-const stringEquivalence = S.toEquivalence(S.String);
+const stringEquivalence = SchemaUtils.toEquivalence(S.String);
 
 const unique = (values: ReadonlyArray<string>): ReadonlyArray<string> => A.dedupe(values);
 
 const byDirectoryDepthAscending: Order.Order<string> = Order.mapInput(Order.Number, flow(Str.split("/"), A.length));
 
-const byDirectoryPathAscending: Order.Order<string> = Order.mapInput(Order.String, identity);
+const byDirectoryPathAscending: Order.Order<string> = Order.String;
 
 const byDirectoryAscending: Order.Order<string> = Order.combine(byDirectoryDepthAscending, byDirectoryPathAscending);
 
@@ -290,42 +299,68 @@ const sortedByRelativePath = <
     Order.mapInput(Order.String, (entry: T) => toPosixPath(entry.relativePath))
   );
 
-const parentDirectoriesOf = (relativePath: string): ReadonlyArray<string> => {
-  const normalized = toPosixPath(relativePath);
-  const segments = A.filter(Str.split("/")(normalized), Str.isNonEmpty);
-  const lastSegmentIndex = A.length(segments) - 1;
-  let currentSegments = A.empty<string>();
-  let parentDirs = A.empty<string>();
+const planPathSegments = flow(toPosixPath, Str.split("/"), A.filter(Str.isNonEmpty));
 
-  for (let index = 0; index < lastSegmentIndex; index += 1) {
-    const segment = A.get(segments, index);
-    if (O.isNone(segment)) {
-      continue;
-    }
-    currentSegments = A.append(currentSegments, segment.value);
-    parentDirs = A.append(parentDirs, A.join(currentSegments, "/"));
-  }
+const parentDirectoriesOf = flow(
+  planPathSegments,
+  A.dropRight(1),
+  A.scan(A.empty<string>(), (currentSegments, segment) => A.append(currentSegments, segment)),
+  A.drop(1),
+  A.map(A.join("/"))
+);
 
-  return parentDirs;
-};
+const parentDirectoriesForEntries = <
+  T extends {
+    readonly relativePath: string;
+  },
+>(
+  entries: ReadonlyArray<T>
+): ReadonlyArray<string> => A.flatMap(entries, flow(Struct.get("relativePath"), parentDirectoriesOf));
 
-const readIfExists = Effect.fn(function* (absolutePath: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const exists = yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse));
-  if (!exists) {
-    return O.none<string>();
-  }
-  return yield* fs.readFileString(absolutePath).pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>));
-});
+const failDomainMessage = (message: string): Effect.Effect<never, DomainError> =>
+  Effect.fail(DomainError.newMessage(message));
 
-const ensureDirectoryFor = Effect.fn(function* (absolutePath: string) {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
-  const parentDir = path.dirname(absolutePath);
-  yield* fs
-    .makeDirectory(parentDir, { recursive: true })
-    .pipe(Effect.mapError(DomainError.newCause(`Failed to create directory "${parentDir}"`)));
-});
+const mapFsError = (message: string) => Effect.mapError((cause: unknown) => DomainError.newCause(message, cause));
+
+const failWhen: {
+  (condition: boolean, effect: Effect.Effect<never, DomainError>): Effect.Effect<void, DomainError>;
+  (effect: Effect.Effect<never, DomainError>): (condition: boolean) => Effect.Effect<void, DomainError>;
+} = dual(
+  2,
+  (condition: boolean, effect: Effect.Effect<never, DomainError>): Effect.Effect<void, DomainError> =>
+    effect.pipe(Effect.when(Effect.succeed(condition)), Effect.asVoid)
+);
+
+const isEscapingResolvedPath = (path: Path.Path): P.Predicate<string> =>
+  P.some([path.isAbsolute, Eq.equals(".."), Str.startsWith("../")]);
+
+const ensureResolvedPathContained: {
+  (relativePath: string, path: Path.Path, message: string): Effect.Effect<void, DomainError>;
+  (path: Path.Path, message: string): (relativePath: string) => Effect.Effect<void, DomainError>;
+} = dual(
+  3,
+  (relativePath: string, path: Path.Path, message: string): Effect.Effect<void, DomainError> =>
+    pipe(
+      relativePath,
+      O.liftPredicate(P.not(isEscapingResolvedPath(path))),
+      O.isNone,
+      failWhen(failDomainMessage(message))
+    )
+);
+
+const ensureCanonicalAncestor = (
+  ancestor: {
+    readonly canonicalPath: string;
+    readonly existingPath: string;
+  },
+  message: string
+): Effect.Effect<void, DomainError> =>
+  pipe(
+    ancestor,
+    O.liftPredicate(({ canonicalPath, existingPath }) => stringEquivalence(existingPath, canonicalPath)),
+    O.isNone,
+    failWhen(failDomainMessage(`${message}: "${ancestor.existingPath}" -> "${ancestor.canonicalPath}"`))
+  );
 
 const resolveExistingAncestor = Effect.fn(function* (absolutePath: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -333,59 +368,97 @@ const resolveExistingAncestor = Effect.fn(function* (absolutePath: string) {
   let candidate = absolutePath;
 
   while (true) {
-    const exists = yield* fs
-      .exists(candidate)
-      .pipe(Effect.mapError(DomainError.newCause(`Failed to inspect path "${candidate}"`)));
+    const exists = yield* fs.exists(candidate).pipe(mapFsError(`Failed to inspect path "${candidate}"`));
 
     if (exists) {
-      const canonicalPath = yield* fs
-        .realPath(candidate)
-        .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve path "${candidate}"`)));
+      const canonicalPath = yield* fs.realPath(candidate).pipe(mapFsError(`Failed to resolve path "${candidate}"`));
 
       return {
         canonicalPath,
         existingPath: candidate,
-      } as const;
+      };
     }
 
     const parent = path.dirname(candidate);
     if (parent === candidate) {
-      return yield* new DomainError({
-        message: `Failed to find an existing ancestor for "${absolutePath}"`,
-      });
+      return yield* failDomainMessage(`Failed to find an existing ancestor for "${absolutePath}"`);
     }
     candidate = parent;
   }
 });
 
-const resolveContainedPath = Effect.fn(function* (rootDir: string, relativePath: string) {
-  const path = yield* Path.Path;
-  const resolvedRoot = path.resolve(rootDir);
-  const resolvedPath = path.resolve(resolvedRoot, relativePath);
-  const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedPath));
+const resolveContainedPathBase: {
+  (
+    rootDir: string,
+    relativePath: string,
+    allowTerminalSymlink: boolean
+  ): Effect.Effect<string, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    relativePath: string,
+    allowTerminalSymlink: boolean
+  ): (rootDir: string) => Effect.Effect<string, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  3,
+  Effect.fn("resolveContainedPathBase")(function* (
+    rootDir: string,
+    relativePath: string,
+    allowTerminalSymlink: boolean
+  ): Effect.fn.Return<string, DomainError, FileSystem.FileSystem | Path.Path> {
+    const path = yield* Path.Path;
+    const resolvedRoot = path.resolve(rootDir);
+    const resolvedPath = path.resolve(resolvedRoot, relativePath);
+    const relativeFromRoot = normalizePath(path.relative(resolvedRoot, resolvedPath));
+    const ancestorCandidate = pipe(
+      allowTerminalSymlink,
+      O.liftPredicate(P.isTruthy),
+      O.map(() => path.dirname(resolvedPath)),
+      O.getOrElse(() => resolvedPath)
+    );
 
-  if (path.isAbsolute(relativeFromRoot) || relativeFromRoot === ".." || Str.startsWith("../")(relativeFromRoot)) {
-    return yield* new DomainError({
-      message: `Generation action escapes output directory: "${relativePath}"`,
-    });
-  }
+    yield* pipe(
+      relativeFromRoot,
+      ensureResolvedPathContained(path, `Generation action escapes output directory: "${relativePath}"`)
+    );
 
-  const rootAncestor = yield* resolveExistingAncestor(resolvedRoot);
-  if (rootAncestor.existingPath !== rootAncestor.canonicalPath) {
-    return yield* new DomainError({
-      message: `Generation output directory uses a symlinked ancestor: "${rootAncestor.existingPath}" -> "${rootAncestor.canonicalPath}"`,
-    });
-  }
+    yield* ensureCanonicalAncestor(
+      yield* resolveExistingAncestor(resolvedRoot),
+      "Generation output directory uses a symlinked ancestor"
+    );
 
-  const pathAncestor = yield* resolveExistingAncestor(resolvedPath);
-  if (pathAncestor.existingPath !== pathAncestor.canonicalPath) {
-    return yield* new DomainError({
-      message: `Generation action resolves through a symlinked ancestor: "${pathAncestor.existingPath}" -> "${pathAncestor.canonicalPath}"`,
-    });
-  }
+    yield* ensureCanonicalAncestor(
+      yield* resolveExistingAncestor(ancestorCandidate),
+      "Generation action resolves through a symlinked ancestor"
+    );
 
-  return resolvedPath;
-});
+    return resolvedPath;
+  })
+);
+
+const resolveContainedPath: {
+  (rootDir: string, relativePath: string): Effect.Effect<string, DomainError, FileSystem.FileSystem | Path.Path>;
+  (relativePath: string): (rootDir: string) => Effect.Effect<string, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn("resolveContainedPath")(function* (
+    rootDir: string,
+    relativePath: string
+  ): Effect.fn.Return<string, DomainError, FileSystem.FileSystem | Path.Path> {
+    return yield* resolveContainedPathBase(rootDir, relativePath, false);
+  })
+);
+
+const resolveContainedSymlinkDestinationPath: {
+  (rootDir: string, relativePath: string): Effect.Effect<string, DomainError, FileSystem.FileSystem | Path.Path>;
+  (relativePath: string): (rootDir: string) => Effect.Effect<string, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn("resolveContainedSymlinkDestinationPath")(function* (
+    rootDir: string,
+    relativePath: string
+  ): Effect.fn.Return<string, DomainError, FileSystem.FileSystem | Path.Path> {
+    return yield* resolveContainedPathBase(rootDir, relativePath, true);
+  })
+);
 
 /**
  * Construct the default generation plan service implementation.
@@ -398,51 +471,51 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
   const createPlan: FileGenerationPlanServiceShape["createPlan"] = (input) => {
     const symlinks = input.symlinks;
 
-    const parentDirsOf = flow(
-      Struct.get<PlannedFile | PlannedSymlink, "relativePath">("relativePath"),
-      parentDirectoriesOf
-    );
-
-    const directoryCandidates = A.filter(
-      unique(
-        A.flatMap(
-          A.make(
-            A.map(input.directories, toPosixPath),
-            A.flatMap(input.files, parentDirsOf),
-            A.flatMap(symlinks, parentDirsOf)
-          ),
-          identity
-        )
+    const directoryCandidates = pipe(
+      A.make(
+        A.map(input.directories, toPosixPath),
+        parentDirectoriesForEntries(input.files),
+        parentDirectoriesForEntries(symlinks)
       ),
-      Str.isNonEmpty
+      A.flatten,
+      unique,
+      A.filter(Str.isNonEmpty)
     );
 
-    const mkdirActions = A.map(
-      sortedDirectories(directoryCandidates),
-      (relativePath) => new GenerationAction.cases.mkdir({ relativePath })
+    const mkdirActions = pipe(
+      directoryCandidates,
+      sortedDirectories,
+      A.map((relativePath) => new GenerationAction.cases.mkdir({ relativePath }))
     );
 
-    const writeActions = A.map(
-      sortedByRelativePath(input.files),
-      (file) =>
-        new GenerationAction.cases["write-file"]({
-          relativePath: toPosixPath(file.relativePath),
-          content: file.content,
-        })
+    const writeActions = pipe(
+      input.files,
+      sortedByRelativePath,
+      A.map(
+        (file) =>
+          new GenerationAction.cases["write-file"]({
+            relativePath: toPosixPath(file.relativePath),
+            content: file.content,
+          })
+      )
     );
 
-    const symlinkActions = A.map(
-      sortedByRelativePath(symlinks),
-      (link) =>
-        new GenerationAction.cases.symlink({
-          relativePath: toPosixPath(link.relativePath),
-          target: toPosixPath(link.target),
-        })
+    const symlinkActions = pipe(
+      symlinks,
+      sortedByRelativePath,
+      A.map(
+        (link) =>
+          new GenerationAction.cases.symlink({
+            relativePath: toPosixPath(link.relativePath),
+            target: toPosixPath(link.target),
+          })
+      )
     );
 
-    const actions: ReadonlyArray<GenerationAction> = A.appendAll(
-      A.appendAll(mkdirActions, writeActions),
-      symlinkActions
+    const actions: ReadonlyArray<GenerationAction> = pipe(
+      mkdirActions,
+      A.appendAll(writeActions),
+      A.appendAll(symlinkActions)
     );
 
     return new FileGenerationPlan({
@@ -451,119 +524,188 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
     });
   };
 
-  const matchPlan = GenerationAction.match({
-    mkdir: (action) => `mkdir ${action.relativePath}`,
-    "write-file": (action) => `write ${action.relativePath}`,
-    symlink: (action) => `symlink ${action.relativePath} -> ${action.target}`,
-  });
-
-  const previewPlan: FileGenerationPlanServiceShape["previewPlan"] = (plan) => A.map(plan.actions, matchPlan);
+  const previewPlan: FileGenerationPlanServiceShape["previewPlan"] = (plan) =>
+    A.map(plan.actions, GenerationAction.toStr);
 
   const executePlan: FileGenerationPlanServiceShape["executePlan"] = Effect.fn(function* (plan) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
-    let createdDirectories = 0;
-    let writtenFiles = 0;
-    let skippedFileWrites = 0;
-    let createdSymlinks = 0;
-    let skippedSymlinks = 0;
+    const ensureDirectoryFor = Effect.fn("ensureDirectoryFor")(function* (absolutePath: string) {
+      const parentDir = path.dirname(absolutePath);
+      yield* pipe(
+        fs.makeDirectory(parentDir, { recursive: true }),
+        mapFsError(`Failed to create directory "${parentDir}"`)
+      );
+    });
 
-    const runAction = (action: GenerationAction, absolutePath: string) =>
+    const pathExists = Effect.fn("pathExists")(function* (absolutePath: string) {
+      return yield* fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse));
+    });
+
+    const readIfExists = Effect.fn("readIfExists")(function* (absolutePath: string) {
+      return yield* pipe(
+        absolutePath,
+        fs.readFileString,
+        Effect.map(O.some),
+        Effect.orElseSucceed(O.none<string>),
+        Effect.when(pathExists(absolutePath)),
+        Effect.map(O.flatten)
+      );
+    });
+
+    const counterRefs = yield* Effect.all({
+      createdDirectories: Ref.make(0),
+      writtenFiles: Ref.make(0),
+      skippedFileWrites: Ref.make(0),
+      createdSymlinks: Ref.make(0),
+      skippedSymlinks: Ref.make(0),
+    });
+
+    const incrementCounter = Ref.update(Num.increment);
+    const countCreatedDirectory = incrementCounter(counterRefs.createdDirectories);
+    const countWrittenFile = incrementCounter(counterRefs.writtenFiles);
+    const countSkippedFileWrite = incrementCounter(counterRefs.skippedFileWrites);
+    const countCreatedSymlink = incrementCounter(counterRefs.createdSymlinks);
+    const countSkippedSymlink = incrementCounter(counterRefs.skippedSymlinks);
+
+    const createDirectory = (absolutePath: string) =>
+      fs
+        .makeDirectory(absolutePath, { recursive: true })
+        .pipe(mapFsError(`Failed to create directory "${absolutePath}"`), Effect.tap(countCreatedDirectory));
+
+    const writeFile = (absolutePath: string, content: string) =>
+      fs
+        .writeFileString(absolutePath, content)
+        .pipe(mapFsError(`Failed to write file "${absolutePath}"`), Effect.tap(countWrittenFile));
+
+  const writeFileIfChanged = (absolutePath: string, content: string) =>
+      ensureDirectoryFor(absolutePath).pipe(
+        Effect.andThen(() => readIfExists(absolutePath)),
+        Effect.andThen(
+          flow(
+            O.filter(stringEquivalence(content)),
+            O.map(() => countSkippedFileWrite),
+            O.getOrElse(() => writeFile(absolutePath, content))
+          )
+        )
+      );
+
+    const createSymlink = (absolutePath: string, target: string) =>
+      fs
+        .symlink(target, absolutePath)
+        .pipe(mapFsError(`Failed to create symlink "${absolutePath}"`), Effect.tap(countCreatedSymlink));
+
+    const removeExistingPath = (absolutePath: string) =>
+      fs
+        .remove(absolutePath, {
+          recursive: true,
+          force: true,
+        })
+        .pipe(mapFsError(`Failed to remove existing path "${absolutePath}"`));
+
+    const replaceWithSymlink = (absolutePath: string, target: string) =>
+      removeExistingPath(absolutePath).pipe(Effect.andThen(() => createSymlink(absolutePath, target)));
+
+    const inspectSymlinkPath = Effect.fn("inspectSymlinkPath")(function* (absolutePath: string) {
+      const currentTarget = yield* Effect.option(fs.readLink(absolutePath));
+      const exists = yield* pipe(
+        pathExists(absolutePath),
+        Effect.when(Effect.succeed(O.isNone(currentTarget))),
+        Effect.map(O.getOrElse(thunkTrue))
+      );
+
+      return {
+        currentTarget,
+        exists,
+      };
+    });
+
+    const writeSymlinkForState: {
+      (exists: boolean, absolutePath: string, target: string): Effect.Effect<void, DomainError, never>;
+      (absolutePath: string, target: string): (exists: boolean) => Effect.Effect<void, DomainError, never>;
+    } = dual(3, (exists: boolean, absolutePath: string, target: string) =>
+      pipe(
+        exists,
+        O.liftPredicate(P.isTruthy),
+        O.map(() => replaceWithSymlink(absolutePath, target)),
+        O.getOrElse(() => createSymlink(absolutePath, target))
+      )
+    );
+
+    const ensureSymlink: {
+      (absolutePath: string, target: string): Effect.Effect<void, DomainError, never>;
+      (target: string): (absolutePath: string) => Effect.Effect<void, DomainError, never>;
+    } = dual(
+      2,
+      Effect.fn(function* (absolutePath: string, target: string) {
+        return yield* ensureDirectoryFor(absolutePath).pipe(
+          Effect.andThen(() => inspectSymlinkPath(absolutePath)),
+          Effect.andThen(({ currentTarget, exists }) =>
+            pipe(
+              currentTarget,
+              O.filter(stringEquivalence(target)),
+              O.map(() => countSkippedSymlink),
+              O.getOrElse(() => pipe(exists, writeSymlinkForState(absolutePath, target)))
+            )
+          )
+        );
+      })
+    );
+
+    const runAction: {
+      (absolutePath: string, action: GenerationAction): Effect.Effect<void, DomainError, never>;
+      (action: GenerationAction): (absolutePath: string) => Effect.Effect<void, DomainError, never>;
+    } = dual(2, (absolutePath: string, action: GenerationAction) =>
       GenerationAction.match(action, {
-        mkdir: () =>
-          fs.makeDirectory(absolutePath, { recursive: true }).pipe(
-            Effect.mapError(DomainError.newCause(`Failed to create directory "${absolutePath}"`)),
-            Effect.tap(() =>
-              Effect.sync(() => {
-                createdDirectories += 1;
-              })
-            )
-          ),
-        "write-file": (writeAction) =>
-          ensureDirectoryFor(absolutePath).pipe(
-            Effect.andThen(() => readIfExists(absolutePath)),
-            Effect.andThen((existing) =>
-              O.isSome(existing) && stringEquivalence(existing.value, writeAction.content)
-                ? Effect.sync(() => {
-                    skippedFileWrites += 1;
-                  })
-                : fs.writeFileString(absolutePath, writeAction.content).pipe(
-                    Effect.mapError(DomainError.newCause(`Failed to write file "${absolutePath}"`)),
-                    Effect.tap(() =>
-                      Effect.sync(() => {
-                        writtenFiles += 1;
-                      })
-                    )
-                  )
-            )
-          ),
-        symlink: (linkAction) =>
-          ensureDirectoryFor(absolutePath).pipe(
-            Effect.andThen(() => fs.exists(absolutePath).pipe(Effect.orElseSucceed(thunkFalse))),
-            Effect.andThen((pathExists) =>
-              pathExists
-                ? fs.readLink(absolutePath).pipe(
-                    Effect.map(O.some),
-                    Effect.orElseSucceed(O.none<string>),
-                    Effect.andThen((currentTarget) =>
-                      O.isSome(currentTarget) && stringEquivalence(currentTarget.value, linkAction.target)
-                        ? Effect.sync(() => {
-                            skippedSymlinks += 1;
-                          })
-                        : fs
-                            .remove(absolutePath, {
-                              recursive: true,
-                              force: true,
-                            })
-                            .pipe(
-                              Effect.mapError(DomainError.newCause(`Failed to remove existing path "${absolutePath}"`)),
-                              Effect.andThen(() =>
-                                fs.symlink(linkAction.target, absolutePath).pipe(
-                                  Effect.mapError(DomainError.newCause(`Failed to create symlink "${absolutePath}"`)),
-                                  Effect.tap(() =>
-                                    Effect.sync(() => {
-                                      createdSymlinks += 1;
-                                    })
-                                  )
-                                )
-                              )
-                            )
-                    )
-                  )
-                : fs.symlink(linkAction.target, absolutePath).pipe(
-                    Effect.mapError(DomainError.newCause(`Failed to create symlink "${absolutePath}"`)),
-                    Effect.tap(() =>
-                      Effect.sync(() => {
-                        createdSymlinks += 1;
-                      })
-                    )
-                  )
-            )
-          ),
+        mkdir: () => createDirectory(absolutePath),
+        "write-file": (writeAction) => writeFileIfChanged(absolutePath, writeAction.content),
+        symlink: (linkAction) => ensureSymlink(absolutePath, linkAction.target),
+      })
+    );
+
+    const validateSymlinkTarget = Effect.fn("validateSymlinkTarget")(function* (absolutePath: string, target: string) {
+      const resolvedTarget = yield* resolveContainedPath(path.dirname(absolutePath), target);
+      const relativeToOutputDir = normalizePath(path.relative(path.resolve(plan.outputDir), resolvedTarget));
+
+      yield* ensureResolvedPathContained(
+        relativeToOutputDir,
+        path,
+        `Symlink target escapes output directory: "${target}"`
+      );
+    });
+
+    const resolveActionPath = Effect.fn("resolveActionPath")(function* (action: GenerationAction) {
+      const absolutePath = yield* GenerationAction.match(action, {
+        mkdir: () => resolveContainedPath(plan.outputDir, action.relativePath),
+        "write-file": () => resolveContainedPath(plan.outputDir, action.relativePath),
+        symlink: () => resolveContainedSymlinkDestinationPath(plan.outputDir, action.relativePath),
       });
 
-    for (const action of plan.actions) {
-      const absolutePath = yield* resolveContainedPath(plan.outputDir, action.relativePath);
-      if (action.kind === "symlink") {
-        const resolvedTarget = yield* resolveContainedPath(path.dirname(absolutePath), action.target);
-        const relativeToOutputDir = normalizePath(path.relative(path.resolve(plan.outputDir), resolvedTarget));
-        if (P.some([path.isAbsolute, Eq.equals(".."), Str.startsWith("../")])(relativeToOutputDir)) {
-          return yield* new DomainError({
-            message: `Symlink target escapes output directory: "${action.target}"`,
-          });
-        }
-      }
-      yield* runAction(action, absolutePath);
-    }
+      yield* GenerationAction.match(action, {
+        mkdir: () => Effect.void,
+        "write-file": () => Effect.void,
+        symlink: ({ target }) => validateSymlinkTarget(absolutePath, target),
+      });
 
-    return new FileGenerationExecutionResult({
-      createdDirectories,
-      writtenFiles,
-      skippedFileWrites,
-      createdSymlinks,
-      skippedSymlinks,
+      return absolutePath;
     });
+
+    yield* Effect.forEach(
+      plan.actions,
+      (action) => pipe(action, resolveActionPath, Effect.andThen(runAction(action))),
+      { discard: true }
+    );
+
+    return new FileGenerationExecutionResult(
+      yield* Effect.all({
+        createdDirectories: Ref.get(counterRefs.createdDirectories),
+        writtenFiles: Ref.get(counterRefs.writtenFiles),
+        skippedFileWrites: Ref.get(counterRefs.skippedFileWrites),
+        createdSymlinks: Ref.get(counterRefs.createdSymlinks),
+        skippedSymlinks: Ref.get(counterRefs.skippedSymlinks),
+      })
+    );
   });
 
   return {

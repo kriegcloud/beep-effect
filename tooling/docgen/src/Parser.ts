@@ -10,6 +10,7 @@ import { thunkEmptyStr } from "@beep/utils";
 import * as doctrine from "doctrine";
 import { Context, Effect, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as Str from "effect/String";
@@ -52,9 +53,12 @@ export class SourceShape {
    * @param sourceFile - Backing ts-morph source file.
    * @returns Source metadata instance.
    */
-  static new(path: ReadonlyArray<string>, sourceFile: ast.SourceFile): SourceShape {
-    return new SourceShape(path, sourceFile);
-  }
+  static readonly new: {
+    (path: ReadonlyArray<string>, sourceFile: ast.SourceFile): SourceShape;
+    (sourceFile: ast.SourceFile): (path: ReadonlyArray<string>) => SourceShape;
+  } = dual(2, (path: ReadonlyArray<string>, sourceFile: ast.SourceFile): SourceShape =>
+    new SourceShape(path, sourceFile)
+  );
 }
 
 /**

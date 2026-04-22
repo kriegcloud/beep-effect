@@ -13,13 +13,13 @@ Plugins mounted: `RichTextPlugin`, `HistoryPlugin`, `OnChangePlugin`, `BlockType
 
 There is no wiki_link support. No custom decorator nodes. No typeahead. No backlink awareness. The editor can produce and consume basic rich text but has no graph integration.
 
-wiki_link extraction already exists server-side at `packages/editor/core/src/Canonical.ts:389` via `extractBlockLinks`, which parses `[[target]]` syntax and produces `PageLinkRef` values. The gap is on the editor surface: there is no corresponding Lexical node that renders, resolves, or interacts with these links.
+wiki_link extraction already exists server-side at `packages/editor/domain/src/Canonical.ts:389` via `extractBlockLinks`, which parses `[[target]]` syntax and produces `PageLinkRef` values. The gap is on the editor surface: there is no corresponding Lexical node that renders, resolves, or interacts with these links.
 
 ---
 
 ## Reference Implementation: beep-effect4/todox
 
-The beep-effect4/todox codebase at `~/YeeBois/projects/beep-effect4/apps/todox/src/components/editor/` contains a full-featured Lexical editor with:
+The beep-effect4/todox codebase at `~/YeeBois/projects/beep-effect4/apps/todox/src/components/editor-domain/` contains a full-featured Lexical editor with:
 
 - **54 plugins**: toolbar, AI assistant, collaboration (Yjs + Liveblocks), embeds, code highlighting, tables, floating link editor, drag-and-drop, auto-embed, horizontal rule, tab focus, collapsible containers, context menu, speech-to-text, and more.
 - **30 custom node types**: `ExcalidrawNode`, `ImageNode`, `EquationNode`, `TweetNode`, `YouTubeNode`, `FigmaNode`, `StickyNode`, `CollapsibleContainerNode`, `InlineImageNode`, `AutocompleteNode`, `KeywordNode`, `MentionNode`, `PollNode`, and others.
@@ -262,7 +262,7 @@ When a page is saved, the editor emits graph events through the `KnowledgeGraph`
 
 ### Emission Sequence
 
-1. **Diff wiki_links**: Compare the current page's `[[wiki_link]]` set against the previous save's link set. Use `extractBlockLinks` (from `packages/editor/core/src/Canonical.ts:389`) on the serialized markdown content.
+1. **Diff wiki_links**: Compare the current page's `[[wiki_link]]` set against the previous save's link set. Use `extractBlockLinks` (from `packages/editor/domain/src/Canonical.ts:389`) on the serialized markdown content.
 
 2. **Emit node event via KnowledgeGraph facade**:
    - First save: the facade calls `EventLog.write` with event tag `"NodeCreated"`, `kind: "page"`, `domain: "general"`, `certainty: 1.0`, `actor: "user:local"`.

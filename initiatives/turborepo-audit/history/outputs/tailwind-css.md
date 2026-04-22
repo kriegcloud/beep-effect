@@ -12,9 +12,9 @@ Tailwind v4 is centralized well in `@beep/ui` and consumed by apps through small
 - `packages/common/ui/postcss.config.mjs` exports the Tailwind PostCSS plugin config used by the shared package.
 - `packages/common/ui/package.json` exports `./styles/globals.css` and `./postcss.config` so apps can consume the shared styling surface without reaching into internals.
 - `packages/common/ui/components.json` points the shadcn CSS entrypoint at `src/styles/globals.css`.
-- `apps/editor-app/components.json` and `apps/V2T/components.json` both point `tailwind.css` at the shared UI stylesheet.
-- `apps/editor-app/postcss.config.mjs` and `apps/V2T/postcss.config.mjs` both re-export `@beep/ui/postcss.config`.
-- `apps/editor-app/vite.config.ts` and `apps/V2T/vite.config.ts` consume the shared UI package as part of the Vite app setup.
+- `apps/editor-app/components.json` points `tailwind.css` at the shared UI stylesheet.
+- `apps/editor-app/postcss.config.mjs` re-exports `@beep/ui/postcss.config`.
+- `apps/editor-app/vite.config.ts` consumes the shared UI package as part of the Vite app setup.
 - `packages/common/ui/README.md` documents the shared UI package as the place for shared primitives, hooks, libs, and styles.
 
 # Official Turborepo guidance
@@ -43,8 +43,6 @@ Tailwind v4 is centralized well in `@beep/ui` and consumed by apps through small
 - `sed -n '1,220p' packages/common/ui/README.md`
 - `sed -n '1,220p' apps/editor-app/components.json`
 - `sed -n '1,220p' apps/editor-app/postcss.config.mjs`
-- `sed -n '1,220p' apps/V2T/components.json`
-- `sed -n '1,220p' apps/V2T/postcss.config.mjs`
 
 # Sources
 - Repo: `packages/common/ui/src/styles/globals.css`
@@ -53,6 +51,4 @@ Tailwind v4 is centralized well in `@beep/ui` and consumed by apps through small
 - Repo: `packages/common/ui/components.json`
 - Repo: `apps/editor-app/components.json`
 - Repo: `apps/editor-app/postcss.config.mjs`
-- Repo: `apps/V2T/components.json`
-- Repo: `apps/V2T/postcss.config.mjs`
 - Official Turborepo docs: https://turborepo.dev/docs/guides/tools/tailwind

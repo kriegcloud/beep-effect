@@ -77,10 +77,8 @@ const TypeScriptSourceToJSImportPath = TypeScriptSourceFileName.pipe(
         pipe(
           TS_EXTENSIONS,
           A.findFirst((ext) => Str.endsWith(ext)(fileName)),
-          O.match({
-            onNone: () => `./${fileName}`,
-            onSome: (ext) => `./${Str.slice(0, -ext.length)(fileName)}.js`,
-          })
+          O.map((ext) => `./${Str.slice(0, -ext.length)(fileName)}.js`),
+          O.getOrElse(() => `./${fileName}`)
         ),
       encode: (importPath) => decodeTypeScriptSourceFileName(pipe(importPath, Str.replace(/^\.\/(.*)\.js$/, "$1.ts"))),
     })
@@ -174,36 +172,36 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
     Effect.fn(function* (dir, prefix) {
       const entries = yield* fs.readDirectory(dir).pipe(Effect.orElseSucceed(A.empty<string>));
 
-      const results = A.empty<string>();
+      const discovered = yield* Effect.forEach(entries, (entry) =>
+        Effect.gen(function* () {
+          const fullPath = path.join(dir, entry);
 
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry);
+          // Check if this entry is a directory
+          const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(thunkUndefined));
+          if (info === undefined) return A.empty<string>();
 
-        // Check if this entry is a directory
-        const info = yield* fs.stat(fullPath).pipe(Effect.orElseSucceed(thunkUndefined));
-        if (info === undefined) continue;
+          if (stringEquivalence(info.type, "Directory")) {
+            // Skip internal directories
+            if (isInternalDirectoryName(entry)) return A.empty<string>();
 
-        if (stringEquivalence(info.type, "Directory")) {
-          // Skip internal directories
-          if (isInternalDirectoryName(entry)) continue;
-
-          // Recurse into subdirectories
-          const nested = yield* walk(fullPath, `${prefix}${entry}/`);
-          for (const n of nested) {
-            results.push(n);
+            // Recurse into subdirectories
+            return yield* walk(fullPath, `${prefix}${entry}/`);
           }
-        } else if (stringEquivalence(info.type, "File") && isTypeScriptSourceFileName(entry)) {
-          // Skip test files
-          if (isTypeScriptTestFileName(entry)) continue;
+          if (stringEquivalence(info.type, "File") && isTypeScriptSourceFileName(entry)) {
+            // Skip test files
+            if (isTypeScriptTestFileName(entry)) return A.empty<string>();
 
-          // Skip root-level index.ts (that's what we're generating)
-          if (Str.isEmpty(prefix) && isRootIndexFileName(entry)) continue;
+            // Skip root-level index.ts (that's what we're generating)
+            if (Str.isEmpty(prefix) && isRootIndexFileName(entry)) return A.empty<string>();
 
-          results.push(`${prefix}${entry}`);
-        }
-      }
+            return A.of(`${prefix}${entry}`);
+          }
 
-      return results;
+          return A.empty<string>();
+        })
+      );
+
+      return A.flatten(discovered);
     });
 
   return yield* walk(srcDir, Str.empty);
@@ -316,9 +314,7 @@ export const codegenCommand = Command.make(
     }
 
     yield* Console.log(`Found ${A.length(modules)} module(s):`);
-    for (const mod of modules) {
-      yield* Console.log(`  - ${mod}`);
-    }
+    yield* Effect.forEach(modules, (mod) => Console.log(`  - ${mod}`), { discard: true });
 
     // Generate barrel content
     const content = buildBarrelContent(packageName, modules);

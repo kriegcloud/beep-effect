@@ -9,6 +9,7 @@
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -338,10 +339,14 @@ export const makeSemanticSchemaMetadata = (
  * @since 0.0.0
  * @category utilities
  */
-export const annotateSemanticSchema = <Schema extends S.Top>(
-  schema: Schema,
-  metadata: typeof SemanticSchemaMetadata.Encoded
-): Schema["Rebuild"] => schema.annotate({ semanticSchemaMetadata: makeSemanticSchemaMetadata(metadata) });
+export const annotateSemanticSchema: {
+  <Schema extends S.Top>(metadata: typeof SemanticSchemaMetadata.Encoded): (schema: Schema) => Schema["Rebuild"];
+  <Schema extends S.Top>(schema: Schema, metadata: typeof SemanticSchemaMetadata.Encoded): Schema["Rebuild"];
+} = dual(
+  2,
+  <Schema extends S.Top>(schema: Schema, metadata: typeof SemanticSchemaMetadata.Encoded): Schema["Rebuild"] =>
+    schema.annotate({ semanticSchemaMetadata: makeSemanticSchemaMetadata(metadata) })
+);
 
 const hasAnnotationsRecord = (
   value: unknown

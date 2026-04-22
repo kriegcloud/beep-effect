@@ -72,6 +72,8 @@ export class CodexRunnerError extends TaggedErrorClass<CodexRunnerError>($I`Code
   })
 ) {}
 
+const causeMessage = (cause: unknown, fallback: string): string => (P.isError(cause) ? cause.message : fallback);
+
 /**
  * Validate the local Codex SDK adapter without running a reuse loop.
  *
@@ -94,7 +96,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
       catch: (cause) =>
         new CodexRunnerError({
           stage: "import",
-          message: cause instanceof Error ? cause.message : "Failed to import @openai/codex-sdk",
+          message: causeMessage(cause, "Failed to import @openai/codex-sdk"),
         }),
     });
     const codex = yield* Effect.try({
@@ -102,7 +104,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
       catch: (cause) =>
         new CodexRunnerError({
           stage: "construct",
-          message: cause instanceof Error ? cause.message : "Failed to construct Codex SDK client",
+          message: causeMessage(cause, "Failed to construct Codex SDK client"),
         }),
     });
     const thread = yield* Effect.tryPromise({
@@ -116,7 +118,7 @@ export const runCodexSmoke: Effect.Effect<CodexSmokeResult, CodexRunnerError, Fi
       catch: (cause) =>
         new CodexRunnerError({
           stage: "startThread",
-          message: cause instanceof Error ? cause.message : "Failed to start Codex SDK thread",
+          message: causeMessage(cause, "Failed to start Codex SDK thread"),
         }),
     });
 

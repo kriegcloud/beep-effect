@@ -5,10 +5,18 @@
  * @since 0.0.0
  */
 
-import { buildRepoDependencyIndex, findRepoRoot, topologicalSort } from "@beep/repo-utils";
-import { Console, Effect, HashMap, HashSet, Struct } from "effect";
+import { buildRepoDependencyIndex, findRepoRoot, topologicalSort, type WorkspaceDeps } from "@beep/repo-utils";
+import { Console, Effect, HashMap, HashSet } from "effect";
 import * as A from "effect/Array";
+import * as R from "effect/Record";
 import { Command } from "effect/unstable/cli";
+
+const dependencyNames = (workspaceDeps: WorkspaceDeps): ReadonlyArray<string> => [
+  ...R.keys(workspaceDeps.workspace.dependencies),
+  ...R.keys(workspaceDeps.workspace.devDependencies),
+  ...R.keys(workspaceDeps.workspace.peerDependencies),
+  ...R.keys(workspaceDeps.workspace.optionalDependencies),
+];
 
 /**
  * CLI command that builds the workspace dependency graph and prints package names
@@ -32,14 +40,8 @@ export const topoSortCommand = Command.make(
     let adjacencyList = HashMap.empty<string, HashSet.HashSet<string>>();
 
     for (const [name, workspaceDeps] of depIndex) {
-      const deps = workspaceDeps.workspace.dependencies;
-      const devDeps = workspaceDeps.workspace.devDependencies;
-
       let depSet = HashSet.empty<string>();
-      for (const depName of Struct.keys(deps)) {
-        depSet = HashSet.add(depSet, depName);
-      }
-      for (const depName of Struct.keys(devDeps)) {
+      for (const depName of dependencyNames(workspaceDeps)) {
         depSet = HashSet.add(depSet, depName);
       }
 

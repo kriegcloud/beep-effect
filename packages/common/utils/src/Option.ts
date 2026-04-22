@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import { Function as Fn } from "effect";
 import * as O from "effect/Option";
+import { dual } from "effect/Function";
 import type { Get, Paths } from "type-fest";
 import type { PathInput } from "./internal/StructPath.ts";
 import { unsafeDotGet } from "./internal/StructPath.ts";
@@ -52,7 +52,7 @@ export const propFromNullishOr: {
   <const P extends ReadonlyArray<string>>(path: P): <S extends object>(self: S) => O.Option<NonNullable<Get<S, P>>>;
   <S extends object, const P extends string & Paths<S>>(self: S, path: P): O.Option<NonNullable<Get<S, P>>>;
   <S extends object, const P extends ReadonlyArray<string>>(self: S, path: P): O.Option<NonNullable<Get<S, P>>>;
-} = Fn.dual(
+} = dual(
   2,
   <S extends object>(self: S, path: PathInput): O.Option<unknown> => O.fromNullishOr(unsafeDotGet(self, path))
 ) as {

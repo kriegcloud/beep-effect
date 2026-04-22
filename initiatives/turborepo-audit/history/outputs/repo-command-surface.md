@@ -20,7 +20,7 @@ The root command surface is workable but overloaded. The healthy part is the thi
   - `docgen:affected`: `bunx turbo run docgen --filter=...[origin/main] && bun run beep docs aggregate --clean`
 - Root `package.json` also exposes a wide repo-CLI surface that lives outside Turbo task execution, including `topo-sort`, `codegen`, `create-package`, `config-sync`, `version-sync`, `purge`, `lint:schema-first`, `lint:tooling-tagged-errors`, `check:effect-laws-allowlist`, and `graphiti:proxy`.
 - Several direct-tool root commands bypass the task graph entirely: `check:full`, `lint:jsdoc`, `lint:effect-laws`, `lint:typos`, `lint:spell`, `lint:markdown`, `lint:repo`, and `lint:ox`.
-- Package coverage is strong underneath the root surface. `bunx turbo query ls --output json` reports 43 packages, and core packages/apps already expose package-local `build`, `check`, `test`, `lint`, and `docgen` scripts. Examples include `apps/editor-app/package.json`, `apps/V2T/package.json`, `apps/desktop/package.json`, `packages/common/ui/package.json`, `tooling/cli/package.json`, and `infra/package.json`.
+- Package coverage is strong underneath the root surface. `bunx turbo query ls --output json` reports broad package coverage, and core packages/apps already expose package-local `build`, `check`, `test`, `lint`, and `docgen` scripts. Examples include `apps/editor-app/package.json`, `apps/desktop/package.json`, `packages/common/ui/package.json`, `tooling/cli/package.json`, and `infra/package.json`.
 - Root config still has several root-only pseudo tasks in `turbo.json` using `//#...` keys for `check:infra`, `lint:jsdoc`, `lint:effect-laws`, `lint:typos`, `lint:spell`, `lint:markdown`, `lint:circular`, `lint:repo`, `lint:ox`, and `lint:versions`.
 
 ## Official Turborepo guidance
@@ -51,10 +51,9 @@ The root command surface is workable but overloaded. The healthy part is the thi
 - `node -e 'const p=require("./package.json"); console.log(JSON.stringify({scripts:p.scripts}, null, 2))'`
 - `node <<'NODE' ... classify root scripts ... NODE`
 - `bunx turbo query ls --output json`
-- `bunx turbo query ls @beep/editor-app @beep/v2t @beep/desktop @beep/ui @beep/repo-cli --output json`
+- `bunx turbo query ls @beep/editor-app @beep/desktop @beep/ui @beep/repo-cli --output json`
 - `sed -n '1,260p' turbo.json`
 - `apps/editor-app/package.json`
-- `apps/V2T/package.json`
 - `apps/desktop/package.json`
 - `packages/common/ui/package.json`
 - `tooling/cli/package.json`
@@ -67,13 +66,12 @@ The root command surface is workable but overloaded. The healthy part is the thi
   - `package.json`
   - `turbo.json`
   - `apps/editor-app/package.json`
-  - `apps/V2T/package.json`
   - `apps/desktop/package.json`
   - `packages/common/ui/package.json`
   - `tooling/cli/package.json`
   - `infra/package.json`
   - `bunx turbo query ls --output json`
-  - `bunx turbo query ls @beep/editor-app @beep/v2t @beep/desktop @beep/ui @beep/repo-cli --output json`
+  - `bunx turbo query ls @beep/editor-app @beep/desktop @beep/ui @beep/repo-cli --output json`
 - Official Turborepo:
   - https://turborepo.dev/docs/crafting-your-repository/running-tasks
   - https://turborepo.dev/docs/core-concepts/package-and-task-graph

@@ -7,6 +7,7 @@
 import { Text, thunkEmptyStr } from "@beep/utils";
 import { flow, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -209,8 +210,12 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * @category CrossCutting
  * @since 0.0.0
  */
-export const makeKeywords = (name: string, qualifiedName: string, kind: SymbolKind): ReadonlyArray<string> =>
-  A.make(name, qualifiedName, kind, symbolCategoryFromKind(kind));
+export const makeKeywords: {
+  (qualifiedName: string, kind: SymbolKind): (name: string) => ReadonlyArray<string>;
+  (name: string, qualifiedName: string, kind: SymbolKind): ReadonlyArray<string>;
+} = dual(3, (name: string, qualifiedName: string, kind: SymbolKind): ReadonlyArray<string> =>
+  A.make(name, qualifiedName, kind, symbolCategoryFromKind(kind))
+);
 
 /**
  * Build deterministic lowercased search text for a normalized symbol entry.
@@ -226,7 +231,10 @@ export const makeKeywords = (name: string, qualifiedName: string, kind: SymbolKi
  * @category CrossCutting
  * @since 0.0.0
  */
-export const makeScopeSymbolSearchText = (symbol: TsMorphSymbol, sourceText: SourceText): string =>
+export const makeScopeSymbolSearchText: {
+  (sourceText: SourceText): (symbol: TsMorphSymbol) => string;
+  (symbol: TsMorphSymbol, sourceText: SourceText): string;
+} = dual(2, (symbol: TsMorphSymbol, sourceText: SourceText): string =>
   pipe(
     A.make(
       symbol.name,
@@ -240,7 +248,8 @@ export const makeScopeSymbolSearchText = (symbol: TsMorphSymbol, sourceText: Sou
     A.filter(Str.isNonEmpty),
     A.join(" "),
     Str.toLowerCase
-  );
+  )
+);
 
 const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessageChain>().pipe(
   Match.when(P.isString, (text) => text),
@@ -390,5 +399,9 @@ export const getDeclarationName = (
  * @category CrossCutting
  * @since 0.0.0
  */
-export const pipeQualifiedName = (parentSymbol: O.Option<TsMorphSymbol>, name: string): string =>
-  O.isSome(parentSymbol) ? `${parentSymbol.value.qualifiedName}.${name}` : name;
+export const pipeQualifiedName: {
+  (name: string): (parentSymbol: O.Option<TsMorphSymbol>) => string;
+  (parentSymbol: O.Option<TsMorphSymbol>, name: string): string;
+} = dual(2, (parentSymbol: O.Option<TsMorphSymbol>, name: string): string =>
+  O.isSome(parentSymbol) ? `${parentSymbol.value.qualifiedName}.${name}` : name
+);

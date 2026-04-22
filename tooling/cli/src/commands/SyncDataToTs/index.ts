@@ -10,17 +10,20 @@ import { CSV } from "@beep/schema";
 import { parseCsvRows } from "@beep/schema/csv/parse/CsvParser";
 import { ParserOptions } from "@beep/schema/csv/parse/ParserOptions";
 import { XmlTextToUnknown } from "@beep/schema/Xml";
-import { P, Struct, thunkEffectVoid, thunkTrue, thunkUndefined } from "@beep/utils";
+import { P, Struct, thunkEffectVoid, thunkTrue } from "@beep/utils";
 import { cast } from "@beep/utils/Function";
 import { Console, Effect, FileSystem, flow, Match, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { HttpClient, HttpClientResponse } from "effect/unstable/http";
 import {
+  SyncDataRunMode,
   type SyncDataRunMode as SyncDataRunModeType,
+  SyncDataSourceFormat,
   type SyncDataTarget,
   SyncDataTargetResult,
   SyncDataToTsDriftError,
@@ -53,6 +56,10 @@ type ParsedCsvRecords = Array<Record<string, string>> & {
 };
 
 type SyncDataRunModeFlags = readonly [check: boolean, dryRun: boolean];
+type SyncDataTargetSelection = {
+  readonly targetId: O.Option<string>;
+  readonly all: boolean;
+};
 
 const attachCsvColumns = (
   rows: ReadonlyArray<Record<string, string>>,
@@ -90,52 +97,70 @@ const runModeFlagConflictError = () =>
     message: "The --check and --dry-run flags are mutually exclusive.",
   });
 
-const resolveRunMode = (check: boolean, dryRun: boolean): Effect.Effect<SyncDataRunModeType, SyncDataToTsError> =>
-  pipe(
-    makeRunModeFlags(check, dryRun),
-    O.liftPredicate(P.not(isRunModeFlagConflict)),
-    O.map(resolveEnabledRunMode),
-    Effect.fromOption,
-    Effect.mapError(runModeFlagConflictError)
+const resolveRunModeFlags: (flags: SyncDataRunModeFlags) => Effect.Effect<SyncDataRunModeType, SyncDataToTsError> =
+  Match.type<SyncDataRunModeFlags>().pipe(
+    Match.when(isRunModeFlagConflict, () => Effect.fail(runModeFlagConflictError())),
+    Match.orElse((flags) => Effect.succeed(resolveEnabledRunMode(flags)))
   );
+
+const resolveRunMode = (check: boolean, dryRun: boolean): Effect.Effect<SyncDataRunModeType, SyncDataToTsError> =>
+  resolveRunModeFlags(makeRunModeFlags(check, dryRun));
+
+const targetSelectionConflictError = () =>
+  new SyncDataToTsError({
+    message: "Pass either --all or --target, but not both.",
+  });
+
+const targetSelectionRequiredError = () =>
+  new SyncDataToTsError({
+    message: "Select at least one target with --target <id> or pass --all.",
+  });
+
+const unknownTargetError = (targetId: string) =>
+  new SyncDataToTsError({
+    message: `Unknown sync target "${targetId}". Available targets: ${pipe(
+      syncDataTargets,
+      A.map((candidate) => candidate.id),
+      A.join(", ")
+    )}`,
+    targetId,
+  });
+
+const resolveTargetById = (targetId: string): Effect.Effect<ReadonlyArray<SyncDataTarget>, SyncDataToTsError> =>
+  pipe(
+    syncDataTargets,
+    A.findFirst((candidate) => candidate.id === targetId),
+    O.map(A.of),
+    Effect.fromOption,
+    Effect.mapError(() => unknownTargetError(targetId))
+  );
+
+const resolveSelectedTarget = (targetId: O.Option<string>) =>
+  pipe(
+    targetId,
+    O.map(resolveTargetById),
+    O.getOrElse(() => Effect.fail(targetSelectionRequiredError()))
+  );
+
+const resolveTargetSelection: (
+  selection: SyncDataTargetSelection
+) => Effect.Effect<ReadonlyArray<SyncDataTarget>, SyncDataToTsError> = Match.type<SyncDataTargetSelection>().pipe(
+  Match.when(
+    ({ all, targetId }) => all && O.isSome(targetId),
+    () => Effect.fail(targetSelectionConflictError())
+  ),
+  Match.when(
+    ({ all }) => all,
+    () => Effect.succeed(syncDataTargets)
+  ),
+  Match.orElse(({ targetId }) => resolveSelectedTarget(targetId))
+);
 
 const resolveTargets = Effect.fnUntraced(function* (
   targetId: O.Option<string>,
   all: boolean
 ): Effect.fn.Return<ReadonlyArray<SyncDataTarget>, SyncDataToTsError> {
-  if (all && O.isSome(targetId)) {
-    return yield* new SyncDataToTsError({
-      message: "Pass either --all or --target, but not both.",
-    });
-  }
-
-  if (all) {
-    return yield* Effect.succeed(syncDataTargets);
-  }
-
-  if (O.isNone(targetId)) {
-    return yield* new SyncDataToTsError({
-      message: "Select at least one target with --target <id> or pass --all.",
-    });
-  }
-
-  const target = pipe(
-    syncDataTargets,
-    A.findFirst((candidate) => candidate.id === targetId.value)
-  );
-
-  if (O.isSome(target)) {
-    return A.make(target.value);
-  }
-
-  return yield* new SyncDataToTsError({
-    message: `Unknown sync target "${targetId.value}". Available targets: ${pipe(
-      syncDataTargets,
-      A.map((candidate) => candidate.id),
-      A.join(", ")
-    )}`,
-    targetId: targetId.value,
-  });
+  return yield* resolveTargetSelection({ targetId, all });
 });
 
 const fetchSourceText = Effect.fn("fetchSourceText")(function* (
@@ -184,7 +209,7 @@ const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content
         )
       );
 
-      return S.decodeUnknownEffect(CSV(rowSchema))(content).pipe(
+      return S.decodeUnknownEffect(CSV({})(rowSchema))(content).pipe(
         Effect.map((rows) => attachCsvColumns(rows, headerRow))
       );
     },
@@ -204,8 +229,8 @@ const parseCsvText = (content: string, target: SyncDataTarget): Effect.Effect<un
   );
 
 const parseSourceText = (content: string, target: SyncDataTarget): Effect.Effect<unknown, SyncDataToTsError> =>
-  Match.value(target.format).pipe(
-    Match.when("json", () =>
+  SyncDataSourceFormat.$match(target.format, {
+    json: () =>
       decodeJsonText(content).pipe(
         Effect.mapError(
           (cause) =>
@@ -215,10 +240,9 @@ const parseSourceText = (content: string, target: SyncDataTarget): Effect.Effect
               cause,
             })
         )
-      )
-    ),
-    Match.when("csv", () => parseCsvText(content, target)),
-    Match.when("xml", () =>
+      ),
+    csv: () => parseCsvText(content, target),
+    xml: () =>
       decodeXmlText(content).pipe(
         Effect.mapError(
           (cause) =>
@@ -227,10 +251,8 @@ const parseSourceText = (content: string, target: SyncDataTarget): Effect.Effect
               targetId: target.id,
             })
         )
-      )
-    ),
-    Match.exhaustive
-  );
+      ),
+  });
 
 const readExistingFile = Effect.fn(function* (
   absolutePath: string,
@@ -248,10 +270,6 @@ const readExistingFile = Effect.fn(function* (
     )
   );
 
-  if (!exists) {
-    return O.none();
-  }
-
   return yield* fs.readFileString(absolutePath).pipe(
     Effect.map(O.some),
     Effect.mapError(
@@ -261,7 +279,9 @@ const readExistingFile = Effect.fn(function* (
           targetId: target.id,
           file: target.outputPath,
         })
-    )
+    ),
+    Effect.when(Effect.succeed(exists)),
+    Effect.map(O.flatten)
   );
 });
 
@@ -311,15 +331,14 @@ const syncTarget = Effect.fn("syncTarget")(function* (
   const existing = yield* readExistingFile(absoluteOutputPath, target);
   const changed = pipe(
     existing,
-    O.match({
-      onNone: thunkTrue,
-      onSome: (current) => current !== projection.content,
-    })
+    O.map((current) => current !== projection.content),
+    O.getOrElse(thunkTrue)
   );
 
-  if (changed && mode === "write") {
-    yield* writeProjectedFile(absoluteOutputPath, projection.content, target);
-  }
+  yield* writeProjectedFile(absoluteOutputPath, projection.content, target).pipe(
+    Effect.when(Effect.succeed(changed && SyncDataRunMode.is.write(mode))),
+    Effect.asVoid
+  );
 
   return new SyncDataTargetResult({
     targetId: target.id,
@@ -331,40 +350,48 @@ const syncTarget = Effect.fn("syncTarget")(function* (
   });
 });
 
+const renderChangedTargetMessage = (result: SyncDataTargetResult, mode: SyncDataRunModeType): string =>
+  SyncDataRunMode.$match(mode, {
+    write: () => `sync-data-to-ts: updated ${result.targetId} -> ${result.outputPath} (${result.summary})`,
+    "dry-run": () => `sync-data-to-ts: would update ${result.targetId} -> ${result.outputPath} (${result.summary})`,
+    check: () => `sync-data-to-ts: drift detected for ${result.targetId} -> ${result.outputPath}`,
+  });
+
+const renderUnchangedTargetMessage = (result: SyncDataTargetResult): string =>
+  `sync-data-to-ts: up to date ${result.targetId} -> ${result.outputPath}`;
+
+const targetResultMessage = (mode: SyncDataRunModeType, verbose: boolean) =>
+  Match.type<SyncDataTargetResult>().pipe(
+    Match.when(
+      (result) => result.changed,
+      (result) => O.some(renderChangedTargetMessage(result, mode))
+    ),
+    Match.orElse((result) =>
+      pipe(
+        O.some(renderUnchangedTargetMessage(result)),
+        O.filter(() => verbose)
+      )
+    )
+  );
+
 const reportTargetResult = Effect.fn("SyncDataToTs.reportTargetResult")(function* (
   result: SyncDataTargetResult,
   mode: SyncDataRunModeType,
   verbose: boolean
 ) {
-  const maybeMessage = Match.value(mode).pipe(
-    Match.when("write", () =>
-      result.changed
-        ? O.some(`sync-data-to-ts: updated ${result.targetId} -> ${result.outputPath} (${result.summary})`)
-        : verbose
-          ? O.some(`sync-data-to-ts: up to date ${result.targetId} -> ${result.outputPath}`)
-          : O.none()
-    ),
-    Match.when("dry-run", () =>
-      result.changed
-        ? O.some(`sync-data-to-ts: would update ${result.targetId} -> ${result.outputPath} (${result.summary})`)
-        : verbose
-          ? O.some(`sync-data-to-ts: up to date ${result.targetId} -> ${result.outputPath}`)
-          : O.none()
-    ),
-    Match.when("check", () =>
-      result.changed
-        ? O.some(`sync-data-to-ts: drift detected for ${result.targetId} -> ${result.outputPath}`)
-        : verbose
-          ? O.some(`sync-data-to-ts: up to date ${result.targetId} -> ${result.outputPath}`)
-          : O.none()
-    ),
-    Match.exhaustive
+  yield* pipe(
+    targetResultMessage(mode, verbose)(result),
+    O.map(Console.log),
+    O.getOrElse(() => Effect.void)
   );
-
-  if (O.isSome(maybeMessage)) {
-    yield* Console.log(maybeMessage.value);
-  }
 });
+
+const renderSummaryMessage = (mode: SyncDataRunModeType, changedCount: number, totalCount: number): string =>
+  SyncDataRunMode.$match(mode, {
+    write: () => `sync-data-to-ts: wrote ${changedCount} of ${totalCount} target(s)`,
+    "dry-run": () => `sync-data-to-ts: ${changedCount} of ${totalCount} target(s) would change`,
+    check: () => `sync-data-to-ts: ${changedCount} of ${totalCount} target(s) have drift`,
+  });
 
 const reportSummary = Effect.fn("SyncDataToTs.reportSummary")(function* (
   results: ReadonlyArray<SyncDataTargetResult>,
@@ -374,21 +401,10 @@ const reportSummary = Effect.fn("SyncDataToTs.reportSummary")(function* (
 
   const totalCount = A.length(results);
 
-  yield* Console.log(
-    Match.value(mode).pipe(
-      Match.when("write", () => `sync-data-to-ts: wrote ${changedCount} of ${totalCount} target(s)`),
-      Match.when("dry-run", () => `sync-data-to-ts: ${changedCount} of ${totalCount} target(s) would change`),
-      Match.when("check", () => `sync-data-to-ts: ${changedCount} of ${totalCount} target(s) have drift`),
-      Match.exhaustive
-    )
-  );
+  yield* Console.log(renderSummaryMessage(mode, changedCount, totalCount));
 });
 
-const failOnCheckDrift = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunModeType) => {
-  if (mode !== "check") {
-    return Effect.void;
-  }
-
+const failOnChangedTargets = (results: ReadonlyArray<SyncDataTargetResult>) => {
   const changedTargets = pipe(
     results,
     A.filter((result) => result.changed)
@@ -409,6 +425,33 @@ const failOnCheckDrift = (results: ReadonlyArray<SyncDataTargetResult>, mode: Sy
       ),
   });
 };
+
+const failOnCheckDrift = (results: ReadonlyArray<SyncDataTargetResult>, mode: SyncDataRunModeType) =>
+  failOnChangedTargets(results).pipe(Effect.when(Effect.succeed(SyncDataRunMode.is.check(mode))), Effect.asVoid);
+
+const renderSyncDataErrorContext = (error: SyncDataToTsError): string =>
+  pipe(
+    A.make(
+      pipe(
+        O.fromNullishOr(error.targetId),
+        O.map((value) => `target=${value}`)
+      ),
+      pipe(
+        O.fromNullishOr(error.file),
+        O.map((value) => `file=${value}`)
+      )
+    ),
+    A.getSomes,
+    A.join(", ")
+  );
+
+const renderSyncDataError = (error: SyncDataToTsError): string =>
+  pipe(
+    renderSyncDataErrorContext(error),
+    O.liftPredicate(Str.isNonEmpty),
+    O.map((context) => `sync-data-to-ts: ${error.message} (${context})`),
+    O.getOrElse(() => `sync-data-to-ts: ${error.message}`)
+  );
 
 /**
  * CLI command for syncing official upstream datasets into checked-in TypeScript modules.
@@ -451,26 +494,7 @@ export const syncDataToTsCommand = Command.make(
       "SyncDataToTsError",
       Effect.fn(function* (error) {
         process.exitCode = 1;
-        const contextParts = A.make(
-          pipe(
-            O.fromNullishOr(error.targetId),
-            O.match({
-              onNone: thunkUndefined,
-              onSome: (value) => `target=${value}`,
-            })
-          ),
-          pipe(
-            O.fromNullishOr(error.file),
-            O.match({
-              onNone: thunkUndefined,
-              onSome: (value) => `file=${value}`,
-            })
-          )
-        );
-        const context = pipe(contextParts, A.filter(P.isString), A.join(", "));
-        yield* Console.error(
-          context.length > 0 ? `sync-data-to-ts: ${error.message} (${context})` : `sync-data-to-ts: ${error.message}`
-        );
+        yield* Console.error(renderSyncDataError(error));
       })
     ),
     Effect.catchTag(

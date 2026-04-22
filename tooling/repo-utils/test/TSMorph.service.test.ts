@@ -5,6 +5,7 @@ import {
   TSMorphServiceLive,
   TsMorphDiagnosticsRequest,
   TsMorphFileOutlineRequest,
+  TsMorphProjectInspectionRequest,
   TsMorphProjectScopeRequest,
   TsMorphSourceFileError,
   TsMorphSourceTextRequest,
@@ -17,7 +18,7 @@ import {
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Array as A, Effect, Layer, Order, Path, pipe } from "effect";
+import { Array as A, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -44,6 +45,7 @@ const OUTSIDE_WORKSPACE_FILE_PATH = "packages/common/ui/src/css.d.ts";
 
 const decodeDiagnosticsRequest = S.decodeUnknownSync(TsMorphDiagnosticsRequest);
 const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
+const decodeProjectInspectionRequest = S.decodeUnknownSync(TsMorphProjectInspectionRequest);
 const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
 const decodeSourceTextRequest = S.decodeUnknownSync(TsMorphSourceTextRequest);
 const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
@@ -99,6 +101,96 @@ layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
         expect(scope.repoRootPath).toBe(REPO_ROOT);
         expect(scope.workspaceDirectoryPath).toBe(WORKSPACE_ROOT);
         expect(scope.tsConfigPath).toBe(TSCONFIG_PATH);
+      }),
+      TSMORPH_TIMEOUT
+    );
+  });
+
+  describe("inspectProject", () => {
+    it.effect(
+      "loads a semantic project and exposes scoped source files without saving mutations",
+      Effect.fn(function* () {
+        const service = yield* TSMorphService;
+        const fs = yield* FileSystem.FileSystem;
+        const path = yield* Path.Path;
+        const absoluteFixturePath = path.resolve(REPO_ROOT, LATE_FILE_EXTRA_FILE_PATH);
+        const before = yield* fs.readFileString(absoluteFixturePath);
+
+        const result = yield* service.inspectProject(
+          decodeProjectInspectionRequest({
+            entrypoint: {
+              _tag: "tsconfig",
+              tsConfigPath: LATE_FILE_TSCONFIG_PATH,
+            },
+            repoRootPath: REPO_ROOT,
+            mode: "semantic",
+            referencePolicy: "workspaceOnly",
+            filePaths: [LATE_FILE_EXTRA_FILE_PATH],
+            sourceFileGlobs: [],
+          }),
+          ({ scope, sourceFiles }) => {
+            const target = pipe(
+              sourceFiles,
+              A.findFirst((sourceFile) => sourceFile.getFilePath() === absoluteFixturePath)
+            );
+            if (O.isNone(target)) {
+              return {
+                changedText: "",
+                scopeId: scope.scopeId,
+                sourceFileCount: sourceFiles.length,
+              } as const;
+            }
+
+            target.value.replaceWithText(`${before}\nexport const transientInspectProjectValue = 1;\n`);
+            const changedText = target.value.getFullText();
+            target.value.replaceWithText(before);
+
+            return {
+              changedText,
+              scopeId: scope.scopeId,
+              sourceFileCount: sourceFiles.length,
+            } as const;
+          }
+        );
+        const after = yield* fs.readFileString(absoluteFixturePath);
+
+        expect(result.scopeId).toBe(
+          "tooling/repo-utils/test/fixtures/tsmorph-late-file/tsconfig.json::semantic#workspaceOnly"
+        );
+        expect(result.sourceFileCount).toBeGreaterThan(0);
+        expect(result.changedText).toContain("transientInspectProjectValue");
+        expect(after).toBe(before);
+      }),
+      TSMORPH_TIMEOUT
+    );
+
+    it.effect(
+      "skips missing source file glob directories during read-only inspection",
+      Effect.fn(function* () {
+        const service = yield* TSMorphService;
+
+        const result = yield* service.inspectProject(
+          decodeProjectInspectionRequest({
+            entrypoint: {
+              _tag: "tsconfig",
+              tsConfigPath: LATE_FILE_TSCONFIG_PATH,
+            },
+            repoRootPath: REPO_ROOT,
+            mode: "syntax",
+            referencePolicy: "workspaceOnly",
+            filePaths: [],
+            sourceFileGlobs: ["tooling/repo-utils/test/fixtures/tsmorph-late-file/missing/**/*.ts"],
+          }),
+          ({ scope, sourceFiles }) => ({
+            scopeId: scope.scopeId,
+            sourceFileCount: sourceFiles.length,
+          })
+        );
+
+        expect(result.scopeId).toBe(
+          "tooling/repo-utils/test/fixtures/tsmorph-late-file/tsconfig.json::syntax#workspaceOnly"
+        );
+        expect(result.sourceFileCount).toBeGreaterThan(0);
       }),
       TSMORPH_TIMEOUT
     );

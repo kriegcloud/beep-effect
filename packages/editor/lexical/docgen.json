@@ -31,8 +31,8 @@
     "paths": {
       "@beep/editor-lexical": ["../../../packages/editor/lexical/src/index.ts"],
       "@beep/editor-lexical/*": ["../../../packages/editor/lexical/src/*.ts"],
-      "@beep/editor": ["../../../packages/editor/core/src/index.ts"],
-      "@beep/editor/*": ["../../../packages/editor/core/src/*.ts"]
+      "@beep/editor-domain": ["../../../packages/editor/domain/src/index.ts"],
+      "@beep/editor-domain/*": ["../../../packages/editor/domain/src/*.ts"]
     }
   }
 }

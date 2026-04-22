@@ -656,51 +656,51 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/domain/src/Domain/LexicalConstants.ts",
       "symbol": "DetailTypeToDetail",
       "kind": "object-struct-schema",
       "status": "candidate",
-      "owner": "@beep/editor",
+      "owner": "@beep/editor-domain",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/domain/src/Domain/LexicalConstants.ts",
       "symbol": "ElementFormatToType",
       "kind": "object-struct-schema",
       "status": "exception",
-      "owner": "@beep/editor",
+      "owner": "@beep/editor-domain",
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/domain/src/Domain/LexicalConstants.ts",
       "symbol": "ElementTypeToFormat",
       "kind": "object-struct-schema",
       "status": "candidate",
-      "owner": "@beep/editor",
+      "owner": "@beep/editor-domain",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/domain/src/Domain/LexicalConstants.ts",
       "symbol": "TextModeToType",
       "kind": "object-struct-schema",
       "status": "candidate",
-      "owner": "@beep/editor",
+      "owner": "@beep/editor-domain",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/domain/src/Domain/LexicalConstants.ts",
       "symbol": "TextTypeToFormat",
       "kind": "object-struct-schema",
       "status": "candidate",
-      "owner": "@beep/editor",
+      "owner": "@beep/editor-domain",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "packages/editor/core/src/Domain/LexicalConstants.ts",
+      "file": "packages/editor/domain/src/Domain/LexicalConstants.ts",
       "symbol": "TextTypeToMode",
       "kind": "object-struct-schema",
       "status": "exception",
-      "owner": "@beep/editor",
+      "owner": "@beep/editor-domain",
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
@@ -838,54 +838,6 @@
       "status": "exception",
       "owner": "@beep/shared-tables",
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/v2t-sidecar/src/client.ts",
-      "symbol": "Vt2ClientShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/v2t-sidecar",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/v2t-sidecar/src/client.ts",
-      "symbol": "Vt2HttpClientOptions",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/v2t-sidecar",
-      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/v2t-sidecar/src/services.ts",
-      "symbol": "Vt2CompositionProviderShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/v2t-sidecar",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/v2t-sidecar/src/services.ts",
-      "symbol": "Vt2ExportProviderShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/v2t-sidecar",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/v2t-sidecar/src/services.ts",
-      "symbol": "Vt2MemoryContextProviderShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/v2t-sidecar",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
-    },
-    {
-      "file": "packages/v2t-sidecar/src/services.ts",
-      "symbol": "Vt2TranscriptProviderShape",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/v2t-sidecar",
-      "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts",

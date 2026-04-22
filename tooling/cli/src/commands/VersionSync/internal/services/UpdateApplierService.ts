@@ -7,8 +7,9 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Context, Effect, type FileSystem, Layer, Match, MutableHashMap, Path } from "effect";
+import { Context, Effect, type FileSystem, Layer, Match, MutableHashMap, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -27,6 +28,15 @@ const VersionCategoryName = LiteralKit(["bun", "node", "docker", "biome", "effec
 const versionCategoryNameEquivalence = S.toEquivalence(VersionCategoryName);
 
 type UpdateApplierEnvironment = FileSystem.FileSystem | Path.Path;
+type CategoryReportUpdater = (
+  repoRoot: string,
+  report: VersionCategoryReport
+) => Effect.Effect<number, VersionSyncError, UpdateApplierEnvironment>;
+
+const noChanges = Effect.succeed(0);
+const noChangesThunk = () => noChanges;
+
+const countChangedFile = (count: number, changed: boolean): number => Num.sum(count, changed ? 1 : 0);
 
 /**
  * Service contract for applying report-driven file updates.
@@ -64,7 +74,7 @@ const applyBunUpdates = Effect.fn(function* (repoRoot: string, report: VersionCa
       Match.orElse(() => Effect.succeed(false))
     );
 
-    filesChanged += changed ? 1 : 0;
+    filesChanged = countChangedFile(filesChanged, changed);
   }
 
   return filesChanged;
@@ -79,20 +89,21 @@ const applyNodeUpdates = Effect.fn(function* (
   let filesChanged = 0;
 
   for (const location of locations) {
-    const existing = MutableHashMap.get(grouped, location.file);
+    const yamlLocation = { yamlPath: location.yamlPath };
     MutableHashMap.set(
       grouped,
       location.file,
-      O.match(existing, {
-        onNone: () => [{ yamlPath: location.yamlPath }],
-        onSome: (entries) => A.append(entries, { yamlPath: location.yamlPath }),
-      })
+      pipe(
+        MutableHashMap.get(grouped, location.file),
+        O.map(A.append(yamlLocation)),
+        O.getOrElse(() => A.of(yamlLocation))
+      )
     );
   }
 
   for (const [file, yamlLocations] of grouped) {
     const changed = yield* replaceNodeVersionWithFile(path.join(repoRoot, file), yamlLocations);
-    filesChanged += changed ? 1 : 0;
+    filesChanged = countChangedFile(filesChanged, changed);
   }
 
   return filesChanged;
@@ -119,7 +130,7 @@ const applyDockerUpdates = Effect.fn(function* (repoRoot: string, report: Versio
     }
 
     const changed = yield* updateYamlValue(composePath, ["services", serviceName.value, "image"], item.expected);
-    filesChanged += changed ? 1 : 0;
+    filesChanged = countChangedFile(filesChanged, changed);
   }
 
   return filesChanged;
@@ -136,7 +147,7 @@ const applyBiomeUpdates = Effect.fn(function* (repoRoot: string, report: Version
       ),
       Match.orElse(() => Effect.succeed(false))
     );
-    filesChanged += changed ? 1 : 0;
+    filesChanged = countChangedFile(filesChanged, changed);
   }
 
   return filesChanged;
@@ -160,15 +171,29 @@ const applyEffectUpdates = Effect.fn(function* (repoRoot: string, report: Versio
     }
 
     const changed = yield* updateCatalogEntry(packageJsonPath, dependencyName, item.expected);
-    filesChanged += changed ? 1 : 0;
+    filesChanged = countChangedFile(filesChanged, changed);
   }
 
   return filesChanged;
 });
 
-const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot, resolution) {
-  let totalChanges = 0;
+const applyReportUpdates = (
+  repoRoot: string,
+  reportOption: O.Option<VersionCategoryReport>,
+  updateReport: CategoryReportUpdater
+) =>
+  pipe(
+    reportOption,
+    O.map((report) =>
+      A.match(report.items, {
+        onEmpty: noChangesThunk,
+        onNonEmpty: () => updateReport(repoRoot, report),
+      })
+    ),
+    O.getOrElse(noChangesThunk)
+  );
 
+const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot, resolution) {
   const bunReport = A.findFirst(resolution.report.categories, (category) =>
     versionCategoryNameEquivalence(category.category, "bun")
   );
@@ -182,17 +207,10 @@ const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot,
     versionCategoryNameEquivalence(category.category, "effect")
   );
 
-  totalChanges += yield* O.match(bunReport, {
-    onNone: () => Effect.succeed(0),
-    onSome: (report) =>
-      A.match(report.items, {
-        onEmpty: () => Effect.succeed(0),
-        onNonEmpty: () => applyBunUpdates(repoRoot, report),
-      }),
-  });
+  const bunChanges = yield* applyReportUpdates(repoRoot, bunReport, applyBunUpdates);
 
-  totalChanges += yield* A.match(resolution.nodeLocations, {
-    onEmpty: () => Effect.succeed(0),
+  const nodeChanges = yield* A.match(resolution.nodeLocations, {
+    onEmpty: noChangesThunk,
     onNonEmpty: (locations) =>
       applyNodeUpdates(
         repoRoot,
@@ -200,34 +218,11 @@ const apply: UpdateApplierServiceShape["apply"] = Effect.fn(function* (repoRoot,
       ),
   });
 
-  totalChanges += yield* O.match(dockerReport, {
-    onNone: () => Effect.succeed(0),
-    onSome: (report) =>
-      A.match(report.items, {
-        onEmpty: () => Effect.succeed(0),
-        onNonEmpty: () => applyDockerUpdates(repoRoot, report),
-      }),
-  });
+  const dockerChanges = yield* applyReportUpdates(repoRoot, dockerReport, applyDockerUpdates);
+  const biomeChanges = yield* applyReportUpdates(repoRoot, biomeReport, applyBiomeUpdates);
+  const effectChanges = yield* applyReportUpdates(repoRoot, effectReport, applyEffectUpdates);
 
-  totalChanges += yield* O.match(biomeReport, {
-    onNone: () => Effect.succeed(0),
-    onSome: (report) =>
-      A.match(report.items, {
-        onEmpty: () => Effect.succeed(0),
-        onNonEmpty: () => applyBiomeUpdates(repoRoot, report),
-      }),
-  });
-
-  totalChanges += yield* O.match(effectReport, {
-    onNone: () => Effect.succeed(0),
-    onSome: (report) =>
-      A.match(report.items, {
-        onEmpty: () => Effect.succeed(0),
-        onNonEmpty: () => applyEffectUpdates(repoRoot, report),
-      }),
-  });
-
-  return totalChanges;
+  return Num.sumAll([bunChanges, nodeChanges, dockerChanges, biomeChanges, effectChanges]);
 });
 
 /**

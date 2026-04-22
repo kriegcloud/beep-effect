@@ -10,10 +10,14 @@
 
 import { DomainError } from "@beep/repo-utils";
 import { Console, Effect } from "effect";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
+import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { aggregateGeneratedDocs } from "./Docgen/internal/Operations.js";
+
+const stringEquivalence = S.toEquivalence(S.String);
 
 const packageFlag = Flag.string("package").pipe(
   Flag.withAlias("p"),
@@ -30,7 +34,11 @@ const resolveAggregateSelector = Effect.fn("DocsAggregate.resolveAggregateSelect
   packageSelector: O.Option<string>,
   filterSelector: O.Option<string>
 ) {
-  if (O.isSome(packageSelector) && O.isSome(filterSelector) && packageSelector.value !== filterSelector.value) {
+  if (
+    O.isSome(packageSelector) &&
+    O.isSome(filterSelector) &&
+    !stringEquivalence(packageSelector.value, filterSelector.value)
+  ) {
     return yield* new DomainError({
       message: `Received conflicting selectors --package=${packageSelector.value} and --filter=${filterSelector.value}.`,
     });
@@ -45,14 +53,15 @@ const aggregateDocs = Effect.fn(function* (selector: O.Option<string>, clean: bo
     ...R.getSomes({ package: selector }),
   });
 
-  if (results.length === 0) {
-    yield* Console.log("docs aggregate: no generated package docs found");
-    return;
-  }
-
-  for (const result of results) {
-    yield* Console.log(`docs aggregate: ${result.packagePath} -> docs/${result.docsOutputPath}`);
-  }
+  yield* A.match(results, {
+    onEmpty: () => Console.log("docs aggregate: no generated package docs found"),
+    onNonEmpty: (nonEmptyResults) =>
+      Effect.forEach(
+        nonEmptyResults,
+        (result) => Console.log(`docs aggregate: ${result.packagePath} -> docs/${result.docsOutputPath}`),
+        { discard: true }
+      ),
+  });
 });
 
 /**

@@ -304,13 +304,17 @@ export const toNumber = (value: string | undefined): number | undefined =>
  * @returns The formatted text representation for the current input value.
  * @since 0.0.0
  */
-export const numberToString = (value: number | undefined, precision = 0): string =>
+export const numberToString: {
+  (precision: number): (value: number | undefined) => string;
+  (value: number | undefined, precision?: number): string;
+} = dual(2, (value: number | undefined, precision = 0): string =>
   pipe(
     O.fromUndefinedOr(value),
     O.map((numberValue) => numberValue.toFixed(precision)),
     O.filter((result) => result !== "NaN"),
     O.getOrElse(() => "")
-  );
+  )
+);
 
 /**
  * Compute the effective step multiplier for an increment or decrement gesture.

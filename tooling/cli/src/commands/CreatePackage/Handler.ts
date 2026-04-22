@@ -21,7 +21,7 @@ import {
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, identity, Path, pipe } from "effect";
+import { Console, DateTime, Effect, FileSystem, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -113,6 +113,7 @@ type PackageType = typeof PackageType.Type;
 const isPackageType = S.is(PackageType);
 const decodePackageType = S.decodeUnknownSync(PackageType);
 const packageTypeEquivalence = S.toEquivalence(PackageType);
+const stringEquivalence = S.toEquivalence(S.String);
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
   S.brand("ParentDir"),
@@ -238,8 +239,8 @@ export class TemplateContext extends S.Class<TemplateContext>($I`TemplateContext
 const toRootRelative = (packagePath: string): string => CommonStr.repeat("../", A.length(Str.split(packagePath, "/")));
 
 const parseJsonDocument: {
-  (filePath: string, content: string): Effect.Effect<unknown, DomainError, never>;
-  (content: string): (filePath: string) => Effect.Effect<unknown, DomainError, never>;
+  (content: string, filePath: string): Effect.Effect<unknown, DomainError, never>;
+  (filePath: string): (content: string) => Effect.Effect<unknown, DomainError, never>;
 } = dual(
   2,
   Effect.fn(function* (content: string, filePath: string) {
@@ -259,13 +260,6 @@ const readRootPackageJsonDocument = Effect.fn(function* (repoRoot: string) {
   const path = yield* Path.Path;
   const fs = yield* FileSystem.FileSystem;
   const filePath = path.join(repoRoot, "package.json");
-  const l = pipe(
-    path.join(repoRoot, "package.json"),
-    fs.readFileString,
-    Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause }))
-  );
-
-  console.log(l);
   const content = yield* fs
     .readFileString(filePath)
     .pipe(Effect.mapError((cause) => new DomainError({ message: `Failed to read "${filePath}"`, cause })));
@@ -323,7 +317,8 @@ const matchesWorkspacePattern = (pattern: string, targetPath: string): boolean =
 
   return A.every(
     A.zip(patternSegments, targetSegments),
-    ([patternSegment, targetSegment]) => patternSegment === "*" || patternSegment === targetSegment
+    ([patternSegment, targetSegment]) =>
+      stringEquivalence(patternSegment, "*") || stringEquivalence(patternSegment, targetSegment)
   );
 };
 
@@ -344,6 +339,38 @@ const applyJsoncModification = (
     })
   );
 
+const appendWorkspaceEntry = (content: string, currentWorkspaces: unknown, packagePath: string): string => {
+  if (P.isUndefined(currentWorkspaces)) {
+    return applyJsoncModification(content, ["workspaces"], [packagePath]);
+  }
+
+  if (A.isArray(currentWorkspaces) && A.every(currentWorkspaces, P.isString)) {
+    return applyJsoncModification(content, ["workspaces", A.length(currentWorkspaces)], packagePath, {
+      isArrayInsertion: true,
+    });
+  }
+
+  if (
+    P.isObject(currentWorkspaces) &&
+    P.hasProperty(currentWorkspaces, "packages") &&
+    A.isArray(currentWorkspaces.packages) &&
+    A.every(currentWorkspaces.packages, P.isString)
+  ) {
+    return applyJsoncModification(
+      content,
+      ["workspaces", "packages", A.length(currentWorkspaces.packages)],
+      packagePath,
+      {
+        isArrayInsertion: true,
+      }
+    );
+  }
+
+  return P.isObject(currentWorkspaces)
+    ? applyJsoncModification(content, ["workspaces", "packages"], [packagePath])
+    : applyJsoncModification(content, ["workspaces"], [packagePath]);
+};
+
 const ensureRootWorkspaceEntry = Effect.fn(function* (repoRoot: string, packagePath: string) {
   const fs = yield* FileSystem.FileSystem;
   const { content, filePath, packageJson } = yield* readRootPackageJsonDocument(repoRoot);
@@ -355,30 +382,9 @@ const ensureRootWorkspaceEntry = Effect.fn(function* (repoRoot: string, packageP
 
   const currentWorkspaces: unknown = O.getOrUndefined(packageJson.workspaces);
 
-  const nextContent =
-    currentWorkspaces === undefined
-      ? applyJsoncModification(content, ["workspaces"], [packagePath])
-      : A.isArray(currentWorkspaces) && A.every(currentWorkspaces, P.isString)
-        ? applyJsoncModification(content, ["workspaces", currentWorkspaces.length], packagePath, {
-            isArrayInsertion: true,
-          })
-        : P.isObject(currentWorkspaces) &&
-            P.hasProperty(currentWorkspaces, "packages") &&
-            A.isArray(currentWorkspaces.packages) &&
-            A.every(currentWorkspaces.packages, P.isString)
-          ? applyJsoncModification(
-              content,
-              ["workspaces", "packages", currentWorkspaces.packages.length],
-              packagePath,
-              {
-                isArrayInsertion: true,
-              }
-            )
-          : P.isObject(currentWorkspaces)
-            ? applyJsoncModification(content, ["workspaces", "packages"], [packagePath])
-            : applyJsoncModification(content, ["workspaces"], [packagePath]);
+  const nextContent = appendWorkspaceEntry(content, currentWorkspaces, packagePath);
 
-  if (nextContent === content) {
+  if (stringEquivalence(nextContent, content)) {
     return false;
   }
 
@@ -413,15 +419,13 @@ const ensureIdentityPackageRegistration = Effect.fn(function* (packageName: stri
   return yield* tsMorphService.updateSourceFile(IDENTITY_PACKAGES_FILE_PATH, (sourceFile) => {
     const composersDeclaration = sourceFile.getVariableDeclarationOrThrow("composers");
     const composersCall = composersDeclaration.getInitializerIfKindOrThrow(SyntaxKind.CallExpression);
-    const existingSegments = A.empty<string>();
-    for (const argument of composersCall.getArguments()) {
-      const literal = argument.asKind(SyntaxKind.StringLiteral);
-      if (literal !== undefined) {
-        existingSegments.push(literal.getLiteralText());
-      }
-    }
+    const existingSegments = pipe(
+      composersCall.getArguments(),
+      A.flatMap((argument) => pipe(O.fromNullishOr(argument.asKind(SyntaxKind.StringLiteral)), O.toArray)),
+      A.map((literal) => literal.getLiteralText())
+    );
 
-    if (!A.some(existingSegments, (segment) => segment === packageName)) {
+    if (!A.some(existingSegments, (segment) => stringEquivalence(segment, packageName))) {
       composersCall.addArgument(`"${packageName}"`);
     }
 
@@ -589,16 +593,16 @@ export const createPackageCommand = Command.make(
       new FileGenerationPlanInput({
         outputDir,
         directories: PACKAGE_DIRECTORIES,
-        files: A.flatMap(
+        files: pipe(
           A.make(
-            A.make(new PlannedFile({ relativePath: "package.json", content: packageJson })),
+            A.of(new PlannedFile({ relativePath: "package.json", content: packageJson })),
             A.map(templateFiles, (file) => new PlannedFile({ relativePath: file.outputPath, content: file.content })),
-            A.make(
+            [
               new PlannedFile({ relativePath: "test/.gitkeep", content: "" }),
-              new PlannedFile({ relativePath: "dtslint/.gitkeep", content: "" })
-            )
+              new PlannedFile({ relativePath: "dtslint/.gitkeep", content: "" }),
+            ]
           ),
-          identity
+          A.flatten
         ),
         symlinks: A.of(new PlannedSymlink({ relativePath: "CLAUDE.md", target: "AGENTS.md" })),
       })

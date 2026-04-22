@@ -8,6 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings, LiteralKit, SchemaUtils } from "@beep/schema";
 import { Order, pipe, SchemaAST } from "effect";
+import { dual } from "effect/Function";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
@@ -271,10 +272,13 @@ export const getTSCategoryMetadata = (schema: S.Top): TSCategoryAnnotationPayloa
  * @category models
  * @since 0.0.0
  */
-export const make = <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<TSCategory, "_tag">) => {
+export const make: {
+  <const Tag extends TSCategoryTagBase>(meta: Omit<TSCategory, "_tag">): (tag: Tag) => ReturnType<typeof S.Literal>;
+  <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<TSCategory, "_tag">): ReturnType<typeof S.Literal>;
+} = dual(2, <const Tag extends TSCategoryTagBase>(_tag: Tag, meta: Omit<TSCategory, "_tag">) => {
   const definition = S.decodeSync(TSCategoryDefinition)({ _tag, ...meta });
   return S.Literal(_tag).annotate({ tsCategoryMetadata: definition });
-};
+});
 
 /**
  * Confidence threshold where deterministic classification can skip LLM inference.
@@ -1392,12 +1396,12 @@ export function getCandidateCategories(
 ): ReadonlyArray<ScoredCategoryCandidate> {
   const grouped = pipe(
     signals,
-    A.groupBy((signal) => signal.category)
+    A.groupBy((signal) => String(signal.category))
   );
 
-  return pipe(
-    grouped,
-    R.collect((categoryName, categorySignals) => {
+  const candidates = pipe(
+    R.toEntries(grouped),
+    A.map(([categoryName, categorySignals]) => {
       const category = getCategory(categoryName as TSCategoryTag);
       return {
         category,
@@ -1408,7 +1412,11 @@ export function getCandidateCategories(
           )
         ),
       };
-    }),
+    })
+  );
+
+  return pipe(
+    candidates,
     A.reduce(A.empty<ScoredCategoryCandidate>(), (candidates, entry) => {
       if (entry.category === undefined) {
         return candidates;

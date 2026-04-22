@@ -10,6 +10,7 @@ import { ArrayOfStrings } from "@beep/schema";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
 import { Effect, identity, type JsonPatch, JsonPointer, Order, pipe, SchemaIssue, Tuple } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -333,16 +334,14 @@ export const encodePackageJsonCanonicalPrettyEffect: (
  * @category combinators
  * @since 0.0.0
  */
-export const diffPackageJsonEffect: (
-  before: unknown,
-  after: unknown
-) => Effect.Effect<JsonPatch.JsonPatch, S.SchemaError> = Effect.fn("RepoUtils.PackageJsonTools.diffPackageJson")(
-  function* (before, after) {
-    const decodedBefore = yield* decodePackageJsonEffect(before);
-    const decodedAfter = yield* decodePackageJsonEffect(after);
-    return packageJsonDiffer.diff(decodedBefore, decodedAfter);
-  }
-);
+export const diffPackageJsonEffect: {
+  (after: unknown): (before: unknown) => Effect.Effect<JsonPatch.JsonPatch, S.SchemaError>;
+  (before: unknown, after: unknown): Effect.Effect<JsonPatch.JsonPatch, S.SchemaError>;
+} = dual(2, Effect.fn("RepoUtils.PackageJsonTools.diffPackageJson")(function* (before, after) {
+  const decodedBefore = yield* decodePackageJsonEffect(before);
+  const decodedAfter = yield* decodePackageJsonEffect(after);
+  return packageJsonDiffer.diff(decodedBefore, decodedAfter);
+}));
 
 /**
  * Apply a typed JSON Patch document to a package.json value.
@@ -359,18 +358,16 @@ export const diffPackageJsonEffect: (
  * @category combinators
  * @since 0.0.0
  */
-export const applyPackageJsonPatchEffect: (
-  base: unknown,
-  patch: JsonPatch.JsonPatch
-) => Effect.Effect<PackageJson.Type, S.SchemaError | DomainError> = Effect.fn(
-  "RepoUtils.PackageJsonTools.applyPackageJsonPatch"
-)(function* (base, patch) {
+export const applyPackageJsonPatchEffect: {
+  (patch: JsonPatch.JsonPatch): (base: unknown) => Effect.Effect<PackageJson.Type, S.SchemaError | DomainError>;
+  (base: unknown, patch: JsonPatch.JsonPatch): Effect.Effect<PackageJson.Type, S.SchemaError | DomainError>;
+} = dual(2, Effect.fn("RepoUtils.PackageJsonTools.applyPackageJsonPatch")(function* (base, patch) {
   const decodedBase = yield* decodePackageJsonEffect(base);
   return yield* Effect.try({
     try: () => packageJsonDiffer.patch(decodedBase, patch),
     catch: (cause) => new DomainError({ cause, message: "Failed to apply package.json JSON Patch" }),
   });
-});
+}));
 
 /**
  * Format a SchemaError into package.json validation issues with JSON Pointers.

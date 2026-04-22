@@ -35,7 +35,7 @@ Turbo now has native graph and affected introspection that this repo is barely u
 - `sed -n '1,220p' tooling/cli/src/commands/TopoSort.ts`
 - `rg -n 'turbo query|turbo ls|topo-sort' package.json tooling apps packages .github scripts -S`
 - `bunx turbo query ls --output json`
-- `bunx turbo query ls @beep/editor-app @beep/v2t @beep/desktop @beep/repo-cli @beep/infra --output json`
+- `bunx turbo query ls @beep/editor-app @beep/desktop @beep/repo-cli @beep/infra --output json`
 - `bunx turbo query affected --tasks build check test lint docgen --packages`
 
 # Sources

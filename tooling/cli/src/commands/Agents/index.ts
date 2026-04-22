@@ -123,17 +123,17 @@ const decodeJsonString = S.decodeUnknownSync(S.UnknownFromJsonString);
 const decodeManagedFilesManifest = S.decodeUnknownSync(ManagedFilesManifest);
 
 const findSlashColumn = (line: string): O.Option<number> => {
-  const slashColumn = line.indexOf("/");
-  const backslashColumn = line.indexOf("\\");
+  const slashColumn = Str.indexOf("/")(line);
+  const backslashColumn = Str.indexOf("\\")(line);
 
-  if (slashColumn >= 0 && backslashColumn >= 0) {
-    return O.some(Math.min(slashColumn, backslashColumn) + 1);
+  if (O.isSome(slashColumn) && O.isSome(backslashColumn)) {
+    return O.some((slashColumn.value < backslashColumn.value ? slashColumn.value : backslashColumn.value) + 1);
   }
-  if (slashColumn >= 0) {
-    return O.some(slashColumn + 1);
+  if (O.isSome(slashColumn)) {
+    return O.some(slashColumn.value + 1);
   }
-  if (backslashColumn >= 0) {
-    return O.some(backslashColumn + 1);
+  if (O.isSome(backslashColumn)) {
+    return O.some(backslashColumn.value + 1);
   }
 
   return O.none();

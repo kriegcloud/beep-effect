@@ -287,7 +287,7 @@ export const buildDocgenAliasSource = (
   packageRelativePath: string,
   packageJson: PackageJson.Type
 ): DocgenAliasSource => {
-  const exportsField = O.isSome(packageJson.exports) ? packageJson.exports.value : undefined;
+  const exportsField = O.getOrUndefined(packageJson.exports);
   const rootExportTarget = pipe(
     exportsField,
     resolveRootExportTarget,
@@ -306,6 +306,14 @@ export const buildDocgenAliasSource = (
 const buildDocgenAliasIndex = (sources: ReadonlyArray<DocgenAliasSource>): HashMap.HashMap<string, DocgenAliasSource> =>
   HashMap.fromIterable(A.map(sources, (source) => [source.packageName, source] as const));
 
+const docgenAliasPathEntries = (
+  rootRelativePrefix: string,
+  aliasSource: DocgenAliasSource
+): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => [
+  [aliasSource.packageName, [withRootRelativePrefix(rootRelativePrefix, aliasSource.rootAliasTarget)]],
+  [`${aliasSource.packageName}/*`, [withRootRelativePrefix(rootRelativePrefix, aliasSource.wildcardAliasTarget)]],
+];
+
 const buildDocgenExamplesPaths = (
   packageName: string,
   directWorkspaceDependencies: ReadonlyArray<string>,
@@ -317,23 +325,12 @@ const buildDocgenExamplesPaths = (
     ...A.filter(uniqueSortedStringValues(directWorkspaceDependencies), P.not(Eq.equals(packageName))),
   ];
 
-  let mappings = R.empty<string, ReadonlyArray<string>>();
-  for (const dependencyName of packageSequence) {
-    const aliasSource = HashMap.get(workspaceAliasIndex, dependencyName);
-    if (O.isNone(aliasSource)) {
-      continue;
-    }
-
-    mappings = {
-      ...mappings,
-      [aliasSource.value.packageName]: [withRootRelativePrefix(rootRelativePrefix, aliasSource.value.rootAliasTarget)],
-      [`${aliasSource.value.packageName}/*`]: [
-        withRootRelativePrefix(rootRelativePrefix, aliasSource.value.wildcardAliasTarget),
-      ],
-    };
-  }
-
-  return mappings;
+  return pipe(
+    packageSequence,
+    A.flatMap((dependencyName) => pipe(HashMap.get(workspaceAliasIndex, dependencyName), O.toArray)),
+    A.flatMap((aliasSource) => docgenAliasPathEntries(rootRelativePrefix, aliasSource)),
+    R.fromEntries
+  );
 };
 
 /**
@@ -418,17 +415,26 @@ export const mergeManagedDocgenConfig = (
   canonical: CanonicalDocgenConfig
 ): Record<string, unknown> => {
   const canonicalJson = toCanonicalDocgenConfigJson(canonical);
-  const existingExamplesCompilerOptions = isReadonlyUnknownRecord(existing.examplesCompilerOptions)
-    ? existing.examplesCompilerOptions
-    : undefined;
-  const mergedExamplesCompilerOptions =
-    existingExamplesCompilerOptions === undefined
-      ? canonicalJson.examplesCompilerOptions
-      : {
-          ...existingExamplesCompilerOptions,
-          ...canonicalJson.examplesCompilerOptions,
-          ...(A.isArray(existingExamplesCompilerOptions.types) ? { types: existingExamplesCompilerOptions.types } : {}),
-        };
+  const existingExamplesCompilerOptions = pipe(
+    existing,
+    R.get("examplesCompilerOptions"),
+    O.filter(isReadonlyUnknownRecord)
+  );
+  const mergedExamplesCompilerOptions = pipe(
+    existingExamplesCompilerOptions,
+    O.map((options) => ({
+      ...options,
+      ...canonicalJson.examplesCompilerOptions,
+      ...pipe(
+        options,
+        R.get("types"),
+        O.filter(A.isArray),
+        O.map((types) => ({ types })),
+        O.getOrElse(() => ({}))
+      ),
+    })),
+    O.getOrElse(() => canonicalJson.examplesCompilerOptions)
+  );
   const merged = {
     ...existing,
     $schema: canonicalJson.$schema,
@@ -436,5 +442,5 @@ export const mergeManagedDocgenConfig = (
     examplesCompilerOptions: mergedExamplesCompilerOptions,
   };
 
-  return "exclude" in existing ? merged : { ...merged, exclude: [...canonicalJson.exclude] };
+  return R.has(existing, "exclude") ? merged : { ...merged, exclude: [...canonicalJson.exclude] };
 };

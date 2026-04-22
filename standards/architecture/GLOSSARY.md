@@ -63,6 +63,21 @@ TwoFactor.event-handlers.ts
 TwoFactor.command-client.ts
 ```
 
+## Config Contract
+
+A typed application/runtime configuration contract expressed with Effect
+`Config`, schemas, config services, and live/test Layers. A config contract may
+be backed by environment variables, files, secret stores, static test providers,
+or app/runtime composition.
+
+## Config Package
+
+The slice package that owns typed config contracts for a slice:
+`@beep/<slice>-config`. It may define public config, server config, redacted
+secret config, config services, config vocabulary, and Layers that read from the
+ambient `ConfigProvider`. It is canonical but optional, and it is not a broad
+constants package.
+
 ## Domain-Kind Folder
 
 A folder that classifies the kind of domain concept. The canonical domain-kind
@@ -90,8 +105,9 @@ and make experiments expensive to remove.
 ## Hexagonal Vertical Slice
 
 A slice that combines vertical product modularity with hexagonal boundaries.
-Domain and use-cases sit inside the slice. Server, client, tables, UI, and
-providers are adapters around that core.
+Domain and use-cases sit inside every slice. Config sits inside the slice when
+meaningful config contracts exist. Server, client, tables, UI, and providers
+are adapters around that core.
 
 ## Internal Error
 
@@ -114,9 +130,15 @@ A server-side implementation of a use-case port. Example:
 
 A technical capability package under `providers/`. Providers wrap third-party
 or infrastructure concerns such as Drizzle, Postgres, SQLite, EventLog,
-workflow engines, queues, sharding, transactions, retries, and configuration.
-Providers may be slice-local by default and promoted to shared only when the
-technical contract is product-neutral and stable across slices.
+workflow engines, queues, sharding, transactions, retries, and provider-local
+configuration. Providers may be slice-local by default and promoted to shared
+only when the technical contract is product-neutral and stable across slices.
+
+## Public Config
+
+Browser-safe config contracts and services exported from a config package. Client
+packages may import public config; they must not import server config or secret
+config.
 
 ## Protocol Declaration
 
@@ -146,18 +168,33 @@ be instance methods, exported pure functions, `*.behavior.ts`, or pure
 
 The filename suffix that states a module's role. Examples include `.model.ts`,
 `.policy.ts`, `.ports.ts`, `.http-handlers.ts`, `.projections.ts`, and
-`.test-layer.ts`.
+`.config.ts`.
+
+## Secret Config
+
+Server-only secret configuration represented with redacted values. Secret config
+must live behind explicit secret/server-only modules and must not be exported
+through browser-safe package roots.
+
+## Server Config
+
+Server-only config contracts and services exported from a config package. Server
+config may include runtime settings that are not safe or meaningful in browser
+bundles.
 
 ## Shared Kernel
 
 The DDD meaning of `packages/shared`: deliberately shared cross-cutting
-language, value objects, schemas, and capabilities. Shared is not a place for
-miscellaneous leftovers from product slices.
+language, value objects, schemas, config contracts, and capabilities. Domain
+packages consume only shared/common domain primitives from shared; they do not
+consume shared config contracts. Shared is not a place for miscellaneous
+leftovers from product slices.
 
 ## Slice
 
 A bounded product/domain package family such as `iam`. A slice owns its domain,
-use-cases, server adapters, client adapters, tables, UI, and providers.
+use-cases, config contracts when present, server adapters, client adapters,
+tables, UI, and providers.
 
 ## Tables Package
 

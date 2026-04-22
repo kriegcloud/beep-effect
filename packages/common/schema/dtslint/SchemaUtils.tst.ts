@@ -1,5 +1,7 @@
+import * as SchemaUtils from "@beep/schema/SchemaUtils/index";
 import { pluck } from "@beep/schema/SchemaUtils/pluck";
 import { split } from "@beep/schema/SchemaUtils/split";
+import { toEquivalence } from "@beep/schema/SchemaUtils/toEquivalence";
 import type { Effect } from "effect";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
@@ -39,5 +41,37 @@ describe("split", () => {
 
     expect(decode("red,green,blue")).type.toBe<Effect.Effect<ReadonlyArray<string>, S.SchemaError, never>>();
     expect(encode(["red", "green", "blue"])).type.toBe<Effect.Effect<string, S.SchemaError, never>>();
+  });
+});
+
+describe("toEquivalence", () => {
+  const NumberEquivalence = toEquivalence(S.NumberFromString);
+  const TagsEquivalence = SchemaUtils.toEquivalence(S.Array(S.String));
+
+  it("derives data-first and data-last signatures from the decoded schema type", () => {
+    expect(NumberEquivalence(1, 2)).type.toBe<boolean>();
+    expect(NumberEquivalence(1)).type.toBe<(self: number) => boolean>();
+  });
+
+  it("is exported from the SchemaUtils barrel with readonly array inference", () => {
+    expect(SchemaUtils.toEquivalence).type.toBe<typeof toEquivalence>();
+    expect(TagsEquivalence(["docs", "tests"], ["docs", "tests"])).type.toBe<boolean>();
+    expect(TagsEquivalence(["docs", "tests"])).type.toBe<(self: ReadonlyArray<string>) => boolean>();
+  });
+});
+
+describe("withEmptyArrayDefaults", () => {
+  const Tags = S.Array(S.String).pipe(SchemaUtils.withEmptyArrayDefaults<string>());
+  const DirectTags = SchemaUtils.withEmptyArrayDefaults<string>(S.Array(S.String));
+
+  it("preserves the decoded readonly array type", () => {
+    expect<typeof Tags.Type>().type.toBe<ReadonlyArray<string>>();
+    expect<typeof DirectTags.Type>().type.toBe<ReadonlyArray<string>>();
+  });
+
+  it("is exported from the SchemaUtils barrel", () => {
+    expect(SchemaUtils.withEmptyArrayDefaults).type.toBe<
+      typeof import("@beep/schema/SchemaUtils/withKeyDefaults").withEmptyArrayDefaults
+    >();
   });
 });

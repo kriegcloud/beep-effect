@@ -51,7 +51,7 @@ Eleven architectural questions were resolved during spec development. These deci
 
 | Asset | Location | What's There |
 |-------|----------|--------------|
-| wiki_link extraction | `packages/editor/core/src/Canonical.ts:389` | `extractBlockLinks` regex, `PageLinkRef`, `withDerivedOutboundLinks` |
+| wiki_link extraction | `packages/editor/domain/src/Canonical.ts:389` | `extractBlockLinks` regex, `PageLinkRef`, `withDerivedOutboundLinks` |
 | Lexical editor | `packages/editor/lexical/src/EditorSurface.tsx` | 4 node types currently (Heading, Paragraph, Quote, Text) |
 | Cytoscape styles | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | 948 lines, 17 node types, 9 edge types, performance variants |
 | D3 knowledge graph | `packages/common/ui/src/components/knowledge-graph.tsx` | Existing force-directed SVG graph |

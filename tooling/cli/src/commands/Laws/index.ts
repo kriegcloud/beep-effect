@@ -11,6 +11,7 @@ import { Console, Effect } from "effect";
 import * as S from "effect/Schema";
 import { Command, Flag } from "effect/unstable/cli";
 import { AllowlistCheckOptions, reportAllowlistCheckSummary, runAllowlistCheck } from "./AllowlistCheck.js";
+import { DualArityRulesOptions, runDualArityRules } from "./DualArity.js";
 import { EffectImportRulesOptions, runEffectImportRules } from "./EffectImports.js";
 import { NoNativeRuntimeRulesOptions, runNoNativeRuntimeRules } from "./NoNativeRuntime.js";
 import { runTerseEffectRules, TerseEffectRulesOptions } from "./TerseEffect.js";
@@ -68,6 +69,33 @@ class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`Te
   },
   $I.annote("TerseEffectCommandOptions", {
     description: "CLI options for terse Effect style command.",
+  })
+) {}
+
+/**
+ * CLI options for public API dual-arity command.
+ *
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+class DualArityCommandOptions extends S.Class<DualArityCommandOptions>($I`DualArityCommandOptions`)(
+  {
+    write: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    check: S.Boolean.pipe(
+      S.withConstructorDefault(Effect.succeed(false)),
+      S.withDecodingDefault(Effect.succeed(false))
+    ),
+    exclude: S.String.pipe(S.withConstructorDefault(Effect.succeed("")), S.withDecodingDefault(Effect.succeed(""))),
+  },
+  $I.annote("DualArityCommandOptions", {
+    description: "CLI options for public API dual-arity command.",
   })
 ) {}
 
@@ -211,6 +239,42 @@ const lawsTerseEffectCommand = Command.make(
 ).pipe(Command.withDescription("Check or rewrite terse Effect helper wrappers"));
 
 /**
+ * CLI command for public helper dual-arity enforcement.
+ *
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+const lawsDualArityCommand = Command.make(
+  "dual-arity",
+  {
+    write: Flag.boolean("write").pipe(Flag.withDescription("Refresh standards/dual-arity.inventory.jsonc")),
+    check: Flag.boolean("check").pipe(Flag.withDescription("Fail when the dual-arity inventory is stale or enforced")),
+    exclude: Flag.string("exclude").pipe(
+      Flag.withDescription("Comma-separated list of file paths to exclude"),
+      Flag.withDefault("")
+    ),
+  },
+  Effect.fn(function* ({ write, check, exclude }) {
+    const options = new DualArityCommandOptions({ write, check, exclude });
+    const summary = yield* runDualArityRules(
+      new DualArityRulesOptions({
+        write: options.write,
+        strictCheck: options.check,
+        excludePaths: parseExcludePaths(options.exclude),
+      })
+    );
+
+    if (summary.strictFailure) {
+      process.exitCode = 1;
+    }
+  })
+).pipe(Command.withDescription("Check or refresh public helper dual-arity inventory"));
+
+/**
  * CLI command for repo-local native runtime governance checks.
  *
  * @example
@@ -302,6 +366,8 @@ export const lawsCommand = Command.make(
     yield* Console.log("- bun run beep laws effect-imports --check");
     yield* Console.log("- bun run beep laws effect-imports --write");
     yield* Console.log("- bun run beep laws native-runtime --check");
+    yield* Console.log("- bun run beep laws dual-arity --check");
+    yield* Console.log("- bun run beep laws dual-arity --write");
     yield* Console.log("- bun run beep laws terse-effect --check");
     yield* Console.log("- bun run beep laws terse-effect --write");
     yield* Console.log("- bun run beep laws allowlist-check");
@@ -311,6 +377,7 @@ export const lawsCommand = Command.make(
   Command.withSubcommands([
     lawsEffectImportsCommand,
     lawsNativeRuntimeCommand,
+    lawsDualArityCommand,
     lawsTerseEffectCommand,
     lawsAllowlistCheckCommand,
   ])

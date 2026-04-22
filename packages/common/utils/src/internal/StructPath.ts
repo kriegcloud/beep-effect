@@ -5,7 +5,8 @@
  * @since 0.0.0
  */
 
-import { Function as Fn, Match } from "effect";
+import { Match } from "effect";
+import { cast, dual, flow } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -89,11 +90,11 @@ const normalizePath = (path: PathInput): ReadonlyArray<string> =>
 const toRecordOption = (input: unknown): O.Option<Record<string, unknown>> =>
   Match.value(P.isNullish(input) || !isRecordLookupTarget(input)).pipe(
     Match.when(true, O.none<Record<string, unknown>>),
-    Match.orElse(() => O.some(Fn.cast<unknown, Record<string, unknown>>(input)))
+    Match.orElse(() => O.some(cast<unknown, Record<string, unknown>>(input)))
   );
 
 const lookupRecordPart = (part: string) =>
-  Fn.flow(
+  flow(
     toRecordOption,
     O.filter((record) => R.has(record, part)),
     O.map((record) => record[part])
@@ -135,11 +136,15 @@ const lookupParts = (self: unknown, parts: A.NonEmptyReadonlyArray<string>): Pat
  * @category getters
  * @since 0.0.0
  */
-export const lookupAtPath = (self: unknown, path: PathInput): PathLookup =>
+export const lookupAtPath: {
+  <const P extends PathInput>(path: P): <S extends object>(self: S) => PathLookup;
+  <S extends object>(self: S, path: PathInput): PathLookup;
+} = dual(2, <S extends object>(self: S, path: PathInput): PathLookup =>
   A.match(normalizePath(path), {
     onEmpty: makeNotFound,
     onNonEmpty: (parts) => lookupParts(self, parts),
-  });
+  })
+);
 
 /**
  * Unsafely returns a value at a path, or `undefined` when absent.
@@ -155,11 +160,14 @@ export const lookupAtPath = (self: unknown, path: PathInput): PathLookup =>
  * @category getters
  * @since 0.0.0
  */
-export const unsafeDotGet = (self: object, path: PathInput): unknown => {
+export const unsafeDotGet: {
+  <const P extends PathInput>(path: P): <S extends object>(self: S) => unknown;
+  <S extends object>(self: S, path: PathInput): unknown;
+} = dual(2, (self: object, path: PathInput): unknown => {
   const lookup = lookupAtPath(self, path);
 
   return Match.value(lookup).pipe(
     Match.when({ found: true }, ({ value }) => value),
     Match.orElse(() => undefined)
   );
-};
+});

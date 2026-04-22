@@ -53,7 +53,7 @@
     }
   },
   "dependencies": {
-    "@beep/editor": "workspace:^",
+    "@beep/editor-domain": "workspace:^",
     "@lexical/react": "catalog:",
     "@lexical/rich-text": "catalog:",
     "@lexical/selection": "catalog:",

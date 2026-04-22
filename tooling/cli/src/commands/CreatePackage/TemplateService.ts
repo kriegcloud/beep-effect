@@ -91,13 +91,7 @@ const UnknownToTemplateHelperString = S.Unknown.pipe(
   S.decodeTo(
     S.String,
     SchemaTransformation.transform({
-      decode: (value) =>
-        O.fromNullishOr(value).pipe(
-          O.match({
-            onNone: thunkEmptyStr,
-            onSome: String,
-          })
-        ),
+      decode: (value) => O.fromNullishOr(value).pipe(O.map(String), O.getOrElse(thunkEmptyStr)),
       encode: identity,
     })
   ),

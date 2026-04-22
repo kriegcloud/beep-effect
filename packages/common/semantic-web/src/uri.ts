@@ -7,6 +7,7 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { makeSemanticSchemaMetadata } from "./semantic-schema-metadata.ts";
 
@@ -384,8 +385,12 @@ export const normalizeUriReference = (value: URIReference | string): string =>
  * @since 0.0.0
  * @category utilities
  */
-export const resolveUriReference = (base: AbsoluteURI | string, reference: URIReference | string): string =>
-  normalizeAbsoluteUri(new URL(reference, base).href);
+export const resolveUriReference: {
+  (reference: URIReference | string): (base: AbsoluteURI | string) => string;
+  (base: AbsoluteURI | string, reference: URIReference | string): string;
+} = dual(2, (base: AbsoluteURI | string, reference: URIReference | string): string =>
+  normalizeAbsoluteUri(new URL(reference, base).href)
+);
 
 /**
  * Compare two URI values using URI-family normalization rules.
@@ -404,5 +409,11 @@ export const resolveUriReference = (base: AbsoluteURI | string, reference: URIRe
  * @since 0.0.0
  * @category utilities
  */
-export const areUrisEquivalent = (left: URIReference | string, right: URIReference | string): boolean =>
-  normalizeUriReference(left) === normalizeUriReference(right);
+export const areUrisEquivalent: {
+  (right: URIReference | string): (left: URIReference | string) => boolean;
+  (left: URIReference | string, right: URIReference | string): boolean;
+} = dual(
+  2,
+  (left: URIReference | string, right: URIReference | string): boolean =>
+    normalizeUriReference(left) === normalizeUriReference(right)
+);

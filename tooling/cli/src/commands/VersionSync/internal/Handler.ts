@@ -8,7 +8,7 @@
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
+import * as Num from "effect/Number";
 import type { HttpClient } from "effect/unstable/http";
 import {
   VersionSyncDriftError,
@@ -37,32 +37,25 @@ const handleVersionSyncProgram = Effect.fn(function* (options: VersionSyncOption
   const resolution = yield* resolver.resolve(repoRoot, options);
   yield* renderer.renderReport(resolution.report, options.mode);
 
+  const applyWriteUpdates = Effect.fn("VersionSync.handle.write.applyUpdates")(function* () {
+    const totalChanges = yield* updater.apply(repoRoot, resolution);
+    yield* Console.log(`\nApplied ${totalChanges} file update(s).`);
+  });
+
+  const failOnDrift = Effect.fn("VersionSync.handle.check.failOnDrift")(function* () {
+    const driftCount = A.reduce(resolution.report.categories, 0, (count, category) =>
+      Num.sum(count, A.length(category.items))
+    );
+
+    return yield* new VersionSyncDriftError({
+      message: `Version drift detected: ${driftCount} item(s) need updating`,
+      driftCount,
+    });
+  });
+
   yield* VersionSyncModeMatch(options.mode, {
-    write: () =>
-      Bool.match(resolution.report.hasDrift, {
-        onTrue: Effect.fn("VersionSync.handle.write.onTrue")(function* () {
-          const totalChanges = yield* updater.apply(repoRoot, resolution);
-          yield* Console.log(`\nApplied ${totalChanges} file update(s).`);
-        }),
-        onFalse: () => Effect.void,
-      }),
-    check: () =>
-      Bool.match(resolution.report.hasDrift, {
-        onFalse: () => Effect.void,
-        onTrue: () => {
-          const driftCount = A.reduce(
-            resolution.report.categories,
-            0,
-            (count, category) => count + A.length(category.items)
-          );
-          return Effect.fail(
-            new VersionSyncDriftError({
-              message: `Version drift detected: ${driftCount} item(s) need updating`,
-              driftCount,
-            })
-          );
-        },
-      }),
+    write: () => applyWriteUpdates().pipe(Effect.when(Effect.succeed(resolution.report.hasDrift)), Effect.asVoid),
+    check: () => failOnDrift().pipe(Effect.when(Effect.succeed(resolution.report.hasDrift)), Effect.asVoid),
     "dry-run": () => Effect.void,
   });
 });

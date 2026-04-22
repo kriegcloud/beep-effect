@@ -16,7 +16,7 @@ import {
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
+import { DateTime, Effect, FileSystem, flow, Function as Fn, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -909,10 +909,18 @@ export const loadDocgenConfigDocument: (
  * @category DomainModel
  * @since 0.0.0
  */
-export const createDocgenConfigDocument: (
-  targetPackage: DocgenWorkspacePackage,
-  rootDir: string
-) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> =
+export const createDocgenConfigDocument: {
+  (
+    targetPackage: DocgenWorkspacePackage,
+    rootDir: string
+  ): Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils>;
+  (
+    rootDir: string
+  ): (
+    targetPackage: DocgenWorkspacePackage
+  ) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils>;
+} = Fn.dual(
+  2,
   Effect.fn("DocgenOperations.createDocgenConfigDocument")(function* (targetPackage, rootDir) {
     const packageJson = yield* readPackageJson(targetPackage.absolutePath);
     const workspaceAliasSources = yield* loadWorkspaceDocgenAliasSources(rootDir);
@@ -933,7 +941,8 @@ export const createDocgenConfigDocument: (
       outDir: "docs",
       ...canonicalConfigJson,
     });
-  });
+  })
+);
 
 /**
  * Discover all workspace packages relevant to docgen.
@@ -986,11 +995,13 @@ export const discoverDocgenWorkspacePackages: (
  * @category DomainModel
  * @since 0.0.0
  */
-export const resolveDocgenWorkspacePackage: (
-  selector: string,
-  rootDir?: string
-) => Effect.Effect<DocgenWorkspacePackage, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> =
-  Effect.fn("DocgenOperations.resolveDocgenWorkspacePackage")(function* (selector, rootDir) {
+export const resolveDocgenWorkspacePackage: {
+  (
+    selector: string,
+    rootDir?: string
+  ): Effect.Effect<DocgenWorkspacePackage, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils>;
+  (selector: string): Effect.Effect<DocgenWorkspacePackage, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils>;
+} = Effect.fn("DocgenOperations.resolveDocgenWorkspacePackage")(function* (selector: string, rootDir?: string) {
     const path = yield* Path.Path;
     const repoRoot = rootDir ?? (yield* findRepoRoot());
     const normalizedSelector = normalizeSlashes(selector);
@@ -1066,7 +1077,10 @@ export const analyzePackageDocumentation: (
  * @category DomainModel
  * @since 0.0.0
  */
-export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode: boolean): string => {
+export const generateAnalysisReport: {
+  (analysis: DocgenPackageAnalysis, fixMode: boolean): string;
+  (fixMode: boolean): (analysis: DocgenPackageAnalysis) => string;
+} = Fn.dual(2, (analysis: DocgenPackageAnalysis, fixMode: boolean): string => {
   const issues = A.filter(analysis.exports, (entry) => A.isReadonlyArrayNonEmpty(entry.missingTags));
   const high = A.filter(issues, (entry) => entry.priority === "high");
   const medium = A.filter(issues, (entry) => entry.priority === "medium");
@@ -1167,7 +1181,7 @@ export const generateAnalysisReport = (analysis: DocgenPackageAnalysis, fixMode:
   sections.push("");
 
   return sections.join("\n");
-};
+});
 
 /**
  * Encode a package analysis document as JSON text.

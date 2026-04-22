@@ -5,6 +5,7 @@ The new boundary is simple:
 
 ```txt
 providers = technical capability
+config   = application configuration contracts
 use-cases = product ports
 server    = product port implementations
 tables    = product persistence shape
@@ -131,6 +132,21 @@ A dev-safe provider wrapper should:
 
 Provider wrappers are allowed to be useful. They are not allowed to become the
 business application layer.
+
+## Provider Config Versus Slice Config
+
+Provider `.config.ts` files own technical provider knobs such as connection
+URLs, pool sizing, retry policy, timeout policy, and provider-specific feature
+flags. They may use Effect `Config`, but their vocabulary must stay technical.
+
+Slice `config` packages own application-facing configuration contracts: public
+config, server config, redacted secrets, typed config services, defaults tied to
+those declarations, and live/test Layers. Server/client/app Layers compose those
+contracts with provider Layers at the boundary.
+
+Do not move Drizzle, Postgres, EventLog, workflow-engine, or queue internals
+into `@beep/<slice>-config`. Do not put product ports or business repository
+implementations into provider config files.
 
 ## Tables Are Not Providers
 
