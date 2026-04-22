@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-04-21",
+  "generatedOn": "2026-04-22",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -70,6 +70,22 @@
       "status": "candidate",
       "owner": "@beep/observability",
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
+    },
+    {
+      "file": "packages/common/schema/src/CauseTaggedError.ts",
+      "symbol": "CauseTaggedErrorFactory",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/CauseTaggedError.ts",
+      "symbol": "isExtras",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
       "file": "packages/common/schema/src/Fn.ts",
@@ -410,14 +426,6 @@
     {
       "file": "packages/common/schema/src/Sql/Sql.ts",
       "symbol": "MakeReturn",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/schema",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/common/schema/src/CauseTaggedErrorClass.ts",
-      "symbol": "CauseTaggedErrorClassFactory",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/schema",

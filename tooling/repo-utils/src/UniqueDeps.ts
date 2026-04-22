@@ -24,14 +24,12 @@ const $I = $RepoUtilsId.create("UniqueDeps");
  * @example
  * ```ts
  * import { UniqueNpmDeps } from "@beep/repo-utils/UniqueDeps"
- *
  * const deps = new UniqueNpmDeps({
  *   dependencies: ["effect"],
  *   devDependencies: ["vitest"]
  * })
  * void deps.dependencies
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -62,11 +60,9 @@ export class UniqueNpmDeps extends S.Class<UniqueNpmDeps>($I`UniqueNpmDeps`)(
  * @example
  * ```ts
  * import { collectUniqueNpmDependencies } from "@beep/repo-utils/UniqueDeps"
- *
  * const program = collectUniqueNpmDependencies(process.cwd())
  * void program
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

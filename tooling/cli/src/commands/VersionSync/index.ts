@@ -1,3 +1,10 @@
+/**
+ * Version synchronization CLI command.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { Console, Effect, pipe } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";

@@ -122,14 +122,12 @@ const options = {
 /**
  * Builds the `docgen` CLI command and wires configuration loading to the core program.
  *
+ * @internal
  * @example
  * ```ts
  * import { docgenCommand } from "@beep/docgen/CLI"
- *
  * void docgenCommand
  * ```
- *
- * @internal
  * @category cli
  * @since 0.0.0
  */
@@ -182,10 +180,8 @@ export const docgenCommand = Command.make("docgen", options, (input) =>
  * @example
  * ```ts
  * import { cli } from "@beep/docgen/CLI"
- *
  * void cli
  * ```
- *
  * @category cli
  * @since 0.0.0
  */

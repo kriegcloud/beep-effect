@@ -13,5 +13,17 @@
  */
 import { Action, type ActionProps, Actions, type ActionsProps } from "./ai-actions.js";
 
+/**
+ * AI action component prop exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export type { ActionProps, ActionsProps };
+/**
+ * AI action component exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export { Action, Actions };

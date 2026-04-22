@@ -49,9 +49,16 @@ export const hasProperties: {
     properties: Properties
   ): self is { [K in Properties[number]]: unknown };
 } = Fn.dual(
-  2,
+  (args) => args.length === 2 && A.isArray(args[1]),
   <Properties extends A.NonEmptyReadonlyArray<PropertyKey>>(
     self: unknown,
-    property: Properties
-  ): self is { [K in Properties[number]]: unknown } => P.isObject(self) && A.every(property, P.hasProperty)
+    firstPropertyOrProperties: PropertyKey | Properties,
+    ...remainingProperties: ReadonlyArray<PropertyKey>
+  ): self is { [K in Properties[number]]: unknown } => {
+    const properties = (A.isArray(firstPropertyOrProperties)
+      ? firstPropertyOrProperties
+      : [firstPropertyOrProperties, ...remainingProperties]) as unknown as Properties;
+
+    return P.isObject(self) && A.every(properties, (property) => P.hasProperty(self, property));
+  }
 );

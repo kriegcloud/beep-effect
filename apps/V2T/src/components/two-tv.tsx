@@ -22,4 +22,10 @@ import { V2TWorkspaceShell } from "./workspace-shell.tsx";
  */
 export const TwoTvPage: React.FC = () => <V2TWorkspaceShell />;
 
+/**
+ * V2T workspace shell component export.
+ *
+ * @since 0.0.0
+ * @category components
+ */
 export { V2TWorkspaceShell };

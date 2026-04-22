@@ -12,22 +12,20 @@ const $I = $RepoUtilsId.create("JSDoc/models/TagParameters.model");
 /**
  * Structured description of what arguments a tag accepts.
  *
- *
  * @example
  * ```ts
  * import { TagParameters } from "@beep/repo-utils/JSDoc/models/TagParameters.model"
  *
  * void TagParameters
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export class TagParameters extends S.Class<TagParameters>($I`TagParameters`)(
   {
-    /** Short syntax template, e.g. "@param {Type} name - description" */
+    /** Short syntax template for a typed parameter tag. */
     syntax: S.String.annotateKey({
-      description: `Short syntax template, e.g. "@param {Type} name - description"`,
+      description: "Short syntax template for a typed parameter tag.",
     }),
     /** Whether a type expression is accepted/required */
     acceptsType: S.Boolean.annotateKey({

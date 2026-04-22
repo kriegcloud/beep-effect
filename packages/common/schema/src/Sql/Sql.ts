@@ -1,3 +1,10 @@
+/**
+ * SQL dialect and schema definition helpers.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $SchemaId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { MappedLiteralKit } from "@beep/schema/MappedLiteralKit";

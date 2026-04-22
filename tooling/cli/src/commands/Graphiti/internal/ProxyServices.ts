@@ -231,15 +231,15 @@ const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): H
 /**
  * Build a structured proxy error HTTP response.
  *
- * @example
- * ```ts
- * console.log("proxyErrorResponse")
- * ```
  * @param error - Structured proxy error kind.
  * @param message - Human-readable error message.
  * @param status - HTTP response status code.
  * @param headers - Optional response headers.
  * @returns Http server response with JSON error body.
+ * @example
+ * ```ts
+ * console.log("proxyErrorResponse")
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -263,13 +263,13 @@ export const proxyErrorResponse = (
 /**
  * Build a structured proxy health HTTP response.
  *
+ * @param payload - Structured proxy health payload.
+ * @param status - HTTP response status code.
+ * @returns Http server response with JSON health body.
  * @example
  * ```ts
  * console.log("proxyHealthResponse")
  * ```
- * @param payload - Structured proxy health payload.
- * @param status - HTTP response status code.
- * @returns Http server response with JSON health body.
  * @category models
  * @since 0.0.0
  */
@@ -385,12 +385,12 @@ const readContainerHealth = (
 /**
  * Construct dependency health service implementation.
  *
+ * @param config - Runtime graphiti proxy config.
+ * @returns Effect producing dependency health service.
  * @example
  * ```ts
  * console.log("makeGraphitiDependencyHealthService")
  * ```
- * @param config - Runtime graphiti proxy config.
- * @returns Effect producing dependency health service.
  * @category models
  * @since 0.0.0
  */
@@ -441,12 +441,12 @@ export const makeGraphitiDependencyHealthService = (
 /**
  * Construct upstream forwarder service implementation.
  *
+ * @param config - Runtime graphiti proxy config.
+ * @returns Forwarder service implementation.
  * @example
  * ```ts
  * console.log("makeGraphitiProxyForwarderService")
  * ```
- * @param config - Runtime graphiti proxy config.
- * @returns Forwarder service implementation.
  * @category models
  * @since 0.0.0
  */
@@ -544,13 +544,13 @@ export const makeGraphitiProxyForwarderService = (
 /**
  * Construct proxy queue service implementation.
  *
+ * @param config - Runtime graphiti proxy config.
+ * @param forwarderService - Forwarder service implementation.
+ * @returns Effect producing queue service implementation.
  * @example
  * ```ts
  * console.log("makeGraphitiProxyQueueService")
  * ```
- * @param config - Runtime graphiti proxy config.
- * @param forwarderService - Forwarder service implementation.
- * @returns Effect producing queue service implementation.
  * @category models
  * @since 0.0.0
  */

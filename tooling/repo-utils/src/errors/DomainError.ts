@@ -20,13 +20,11 @@ const $I = $RepoUtilsId.create("errors/DomainError");
  * @example
  * ```ts
  * import { DomainError } from "@beep/repo-utils/errors/DomainError"
- *
  * const error = new DomainError({
  *   message: "Operation failed"
  * })
  * void error.message
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */

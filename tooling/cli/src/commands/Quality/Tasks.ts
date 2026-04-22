@@ -28,10 +28,8 @@ const LINT_POLICY_SUBCOMMANDS = ["circular", "schema-first", "tooling-tagged-err
  * @example
  * ```ts
  * import { QualityTaskName } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const isLint = QualityTaskName.is.lint("lint")
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -47,10 +45,8 @@ export const QualityTaskName = LiteralKit(QUALITY_TASK_NAMES).annotate(
  * @example
  * ```ts
  * import type { QualityTaskName } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const task: QualityTaskName = "check"
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -62,14 +58,12 @@ export type QualityTaskName = typeof QualityTaskName.Type;
  * @example
  * ```ts
  * import { PackageTaskProfile } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const profile = new PackageTaskProfile({
  *   task: "lint",
  *   script: "beep:lint",
  *   fixScript: "beep:lint:fix"
  * })
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -90,7 +84,6 @@ export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTa
  * @example
  * ```ts
  * import { QualityTaskStep } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const step = new QualityTaskStep({
  *   label: "lint",
  *   command: "bunx",
@@ -98,7 +91,6 @@ export class PackageTaskProfile extends S.Class<PackageTaskProfile>($I`PackageTa
  *   cwd: "/repo"
  * })
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -121,14 +113,12 @@ export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep
  * @example
  * ```ts
  * import { QualityTaskInvocation } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const invocation = new QualityTaskInvocation({
  *   task: "lint",
  *   args: ["--filter=@beep/repo-cli"],
  *   fix: false
  * })
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -149,14 +139,12 @@ export class QualityTaskInvocation extends S.Class<QualityTaskInvocation>($I`Qua
  * @example
  * ```ts
  * import { QualityTaskFailed } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const failure = new QualityTaskFailed({
  *   label: "lint",
  *   command: "bunx turbo run lint",
  *   exitCode: 1
  * })
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */
@@ -178,12 +166,10 @@ export class QualityTaskFailed extends TaggedErrorClass<QualityTaskFailed>($I`Qu
  * @example
  * ```ts
  * import { QualityTaskConfigurationError } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const error = new QualityTaskConfigurationError({
  *   message: "Could not find package.json"
  * })
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */
@@ -199,10 +185,15 @@ export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskC
   })
 ) {}
 
-const PackageJsonDocument = S.Struct({
-  name: S.optionalKey(S.String),
-  scripts: S.optionalKey(S.Record(S.String, S.String)),
-});
+class PackageJsonDocument extends S.Class<PackageJsonDocument>($I`PackageJsonDocument`)(
+  {
+    name: S.optionalKey(S.String),
+    scripts: S.optionalKey(S.Record(S.String, S.String)),
+  },
+  $I.annote("PackageJsonDocument", {
+    description: "Minimal package.json shape used by quality task resolution.",
+  })
+) {}
 const decodePackageJsonDocument = S.decodeUnknownEffect(S.fromJsonString(PackageJsonDocument));
 
 type QualityTaskEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
@@ -333,6 +324,41 @@ const commandText = (command: string, args: ReadonlyArray<string>): string => A.
 
 const isTurboDryRunArg = (arg: string): boolean => arg === "--dry" || Str.startsWith("--dry=")(arg);
 
+const isTurboCacheControlArg = (arg: string): boolean =>
+  arg === "--no-cache" ||
+  arg === "--force" ||
+  Str.startsWith("--force=")(arg) ||
+  arg === "--remote-only" ||
+  Str.startsWith("--remote-only=")(arg) ||
+  arg === "--remote-cache-read-only" ||
+  Str.startsWith("--remote-cache-read-only=")(arg) ||
+  Str.startsWith("--cache=")(arg);
+
+const localTurboCacheArgs = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
+  process.env.CI === "true" || A.some(args, isTurboCacheControlArg) ? A.empty() : ["--cache=local:rw"];
+
+const turboRunArgs = (tasks: ReadonlyArray<string>, args: ReadonlyArray<string>): ReadonlyArray<string> => [
+  "turbo",
+  "run",
+  ...tasks,
+  ...localTurboCacheArgs(args),
+  ...args,
+];
+
+const isUnresolvedSecretReference = (value: string | undefined): boolean =>
+  value !== undefined && Str.startsWith("op://")(value);
+
+const turboEnvOverrides = (command: string, args: ReadonlyArray<string>): Record<string, string | undefined> => {
+  if (command !== "bunx" || args[0] !== "turbo") {
+    return {};
+  }
+
+  return {
+    ...(isUnresolvedSecretReference(process.env.TURBO_TOKEN) ? { TURBO_TOKEN: undefined } : {}),
+    ...(isUnresolvedSecretReference(process.env.TURBO_TEAM) ? { TURBO_TEAM: undefined } : {}),
+  };
+};
+
 const runExitCode = (command: string, args: ReadonlyArray<string>, cwd: string) =>
   Effect.scoped(
     Effect.gen(function* () {
@@ -387,6 +413,8 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(resolved.command, [...resolved.args], {
         cwd: resolved.cwd,
+        env: turboEnvOverrides(resolved.command, resolved.args),
+        extendEnv: true,
         stdin: "inherit",
         stdout: "inherit",
         stderr: "inherit",
@@ -417,7 +445,7 @@ const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, arg
   new QualityTaskStep({
     label,
     command: "bunx",
-    args: ["turbo", "run", ...tasks, ...args],
+    args: turboRunArgs(tasks, args),
     cwd,
   });
 
@@ -425,7 +453,7 @@ const rootBuildSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
   new QualityTaskStep({
     label: "build",
     command: "bunx",
-    args: ["turbo", "run", "build", ...args],
+    args: turboRunArgs(["build"], args),
     cwd: repoRoot,
     useLocalEnv: true,
   }),
@@ -601,11 +629,9 @@ const handleUnexpectedQualityTaskCause = Effect.catchCause(
  * ```ts
  * import { parseQualityTaskInvocation } from "@beep/repo-cli/commands/Quality/Tasks"
  * import * as O from "effect/Option"
- *
  * const invocation = parseQualityTaskInvocation(["lint", "--fix"])
  * const handled = O.isSome(invocation)
  * ```
- *
  * @category Utility
  * @since 0.0.0
  */
@@ -636,7 +662,6 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
  * @example
  * ```ts
  * import { QualityTaskInvocation, runQualityTask } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const program = runQualityTask(
  *   new QualityTaskInvocation({
  *     task: "check",
@@ -645,7 +670,6 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
  *   })
  * )
  * ```
- *
  * @category UseCase
  * @since 0.0.0
  */
@@ -676,10 +700,8 @@ export const runQualityTask: (invocation: QualityTaskInvocation) => Effect.Effec
  * @example
  * ```ts
  * import { runQualityTaskIfRequested } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const program = runQualityTaskIfRequested(["build", "--affected"])
  * ```
- *
  * @category UseCase
  * @since 0.0.0
  */
@@ -705,7 +727,6 @@ export const runQualityTaskIfRequested: (
  * @example
  * ```ts
  * import { collectStepOutput, QualityTaskStep } from "@beep/repo-cli/commands/Quality/Tasks"
- *
  * const output = collectStepOutput(
  *   new QualityTaskStep({
  *     label: "version",
@@ -715,7 +736,6 @@ export const runQualityTaskIfRequested: (
  *   })
  * )
  * ```
- *
  * @category Utility
  * @since 0.0.0
  */

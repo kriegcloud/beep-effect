@@ -5,6 +5,7 @@
  * Uses S.brand for compile-time type safety.
  *
  * @module
+ * @since 0.0.0
  */
 
 import { $SchemaId } from "@beep/identity";

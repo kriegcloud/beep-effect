@@ -123,12 +123,12 @@ const isContainedLintPath = (path: Path.Path, root: string, candidate: string): 
 /**
  * Collect TypeScript source files under a lint root without following symlink escapes.
  *
+ * @param root - Root directory to scan for TypeScript sources.
+ * @returns Sorted list of TypeScript source files under the lint root.
  * @example
  * ```ts
  * console.log("collectTypeScriptFiles")
  * ```
- * @param root - Root directory to scan for TypeScript sources.
- * @returns Sorted list of TypeScript source files under the lint root.
  * @category utilities
  * @since 0.0.0
  */

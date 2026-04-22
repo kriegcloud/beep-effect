@@ -34,7 +34,6 @@ const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
  * @example
  * ```ts
  * import { TestDatabaseInfoShape } from "@beep/test-utils"
- *
  * const info = new TestDatabaseInfoShape({
  *   databasePath: "/tmp/test.db",
  *   driver: "node-sqlite",
@@ -42,7 +41,6 @@ const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
  * })
  * void info.databasePath
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -62,11 +60,9 @@ export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`Tes
  * @example
  * ```ts
  * import { TestDatabaseInfo } from "@beep/test-utils"
- *
  * const key = TestDatabaseInfo
  * void key
  * ```
- *
  * @category testing
  * @since 0.0.0
  */
@@ -81,7 +77,6 @@ export class TestDatabaseInfo extends Context.Service<TestDatabaseInfo, TestData
  * ```ts
  * import { SqlTestHarnessError } from "@beep/test-utils"
  * import * as O from "effect/Option"
- *
  * const error = new SqlTestHarnessError({
  *   cause: O.none(),
  *   driver: "node-sqlite",
@@ -90,7 +85,6 @@ export class TestDatabaseInfo extends Context.Service<TestDatabaseInfo, TestData
  * })
  * void error.message
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */
@@ -113,11 +107,9 @@ export class SqlTestHarnessError extends TaggedErrorClass<SqlTestHarnessError>($
  * @example
  * ```ts
  * import type { SqlTestHooks } from "@beep/test-utils"
- *
  * const hooks: SqlTestHooks = {}
  * void hooks
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -133,13 +125,10 @@ export interface SqlTestHooks<MigrateError = never, SeedError = never> {
  * ```ts
  * import { NodeSqliteTestDriver } from "@beep/test-utils"
  * import type { SqlTestDriver } from "@beep/test-utils"
- *
  * type DriverName = SqlTestDriver<unknown, unknown, unknown>["name"]
- *
  * const driverName: DriverName = NodeSqliteTestDriver.name
  * void driverName
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -186,19 +175,17 @@ const runHook = <Services, SqlService extends Services, HookError>(
 /**
  * Build a fresh, scoped SQL integration-test layer for a concrete driver.
  *
+ * @param options - Layer construction options, including the driver configuration, driver contract, and optional hooks.
+ * @returns A fresh scoped layer that provisions the driver and runs migrate/seed hooks.
  * @example
  * ```ts
  * import { makeSqlTestLayer, NodeSqliteTestDriver } from "@beep/test-utils"
- *
  * const layer = makeSqlTestLayer({
  *   config: undefined,
  *   driver: NodeSqliteTestDriver
  * })
  * void layer
  * ```
- *
- * @param options - Layer construction options, including the driver configuration, driver contract, and optional hooks.
- * @returns A fresh scoped layer that provisions the driver and runs migrate/seed hooks.
  * @category constructors
  * @since 0.0.0
  */
@@ -283,11 +270,9 @@ const buildBunSqliteLayer = Effect.gen(function* () {
  * @example
  * ```ts
  * import { BunSqliteTestDriver } from "@beep/test-utils"
- *
  * const driverName = BunSqliteTestDriver.name
  * void driverName
  * ```
- *
  * @category testing
  * @since 0.0.0
  */
@@ -339,11 +324,9 @@ const buildNodeSqliteLayer = Effect.gen(function* () {
  * @example
  * ```ts
  * import { NodeSqliteTestDriver } from "@beep/test-utils"
- *
  * const driverName = NodeSqliteTestDriver.name
  * void driverName
  * ```
- *
  * @category testing
  * @since 0.0.0
  */

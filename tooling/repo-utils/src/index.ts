@@ -48,10 +48,8 @@ export {
  * @example
  * ```ts
  * import { FsUtils } from "@beep/repo-utils"
- *
  * void FsUtils
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -62,10 +60,8 @@ export { FsUtils } from "./FsUtils.js";
  * @example
  * ```ts
  * import { FsUtilsLive } from "@beep/repo-utils"
- *
  * void FsUtilsLive
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -76,11 +72,9 @@ export { FsUtilsLive } from "./FsUtils.js";
  * @example
  * ```ts
  * import type { FsUtilsShape } from "@beep/repo-utils"
- *
  * const key = "readJson" satisfies keyof FsUtilsShape
  * void key
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -91,11 +85,9 @@ export type { FsUtilsShape } from "./FsUtils.js";
  * @example
  * ```ts
  * import { GlobOptions } from "@beep/repo-utils"
- *
  * const options = new GlobOptions({ cwd: "src" })
  * void options.cwd
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -322,10 +314,8 @@ export * from "./TypeScript/index.js";
  * @example
  * ```ts
  * import { collectUniqueNpmDependencies } from "@beep/repo-utils"
- *
  * void collectUniqueNpmDependencies
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -336,14 +326,12 @@ export { collectUniqueNpmDependencies } from "./UniqueDeps.js";
  * @example
  * ```ts
  * import { UniqueNpmDeps } from "@beep/repo-utils"
- *
  * const deps = new UniqueNpmDeps({
  *   dependencies: ["effect"],
  *   devDependencies: ["vitest"]
  * })
  * void deps
  * ```
- *
  * @category models
  * @since 0.0.0
  */

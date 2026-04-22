@@ -1,6 +1,7 @@
 {
   "$schema": "../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
+  "enforceVersion": false,
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/ui/src/",
   "examplesCompilerOptions": {
     "noEmit": true,

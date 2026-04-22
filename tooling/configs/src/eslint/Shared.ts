@@ -13,10 +13,8 @@ import { normalizePath as normalizeSchemaPath, PosixPath as PosixPathSchema } fr
  * @example
  * ```ts
  * import { PosixPath } from "@beep/repo-configs/eslint/Shared"
- *
  * void PosixPath
  * ```
- *
  * @category validation
  * @since 0.0.0
  */
@@ -28,10 +26,8 @@ export const PosixPath = PosixPathSchema;
  * @example
  * ```ts
  * import type { PosixPath } from "@beep/repo-configs/eslint/Shared"
- *
  * type ExamplePath = PosixPath
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -40,16 +36,14 @@ export type PosixPath = typeof PosixPath.Type;
 /**
  * Normalize a file-system path to POSIX separators.
  *
+ * @param value - Input path string that may contain native separators.
+ * @returns Path string normalized to POSIX separators.
  * @example
  * ```ts
  * import { normalizePath } from "@beep/repo-configs/eslint/Shared"
- *
  * const path = normalizePath("tooling/configs/src/index.ts")
  * void path
  * ```
- *
- * @param value - Input path string that may contain native separators.
- * @returns Path string normalized to POSIX separators.
  * @category utilities
  * @since 0.0.0
  */

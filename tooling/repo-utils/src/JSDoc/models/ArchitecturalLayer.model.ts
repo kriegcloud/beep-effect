@@ -1,5 +1,5 @@
 /**
- * @module @beep/repo-utils/models/ArchitecturalLayer.model
+ * @module
  * @description Architectural layer taxonomy model definitions.
  * @packageDocumentation
  * @since 0.0.0
@@ -15,14 +15,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/ArchitecturalLayer.model");
  * Enables cross-framework queries such as "show me all code in the
  * domain core that depends on infrastructure".
  *
- *
  * @example
  * ```ts
  * import { ArchitecturalLayer } from "@beep/repo-utils/JSDoc/models/ArchitecturalLayer.model"
  *
  * void ArchitecturalLayer
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -45,7 +43,6 @@ export const ArchitecturalLayer = LiteralKit([
 /**
  * Inferred type for {@link ArchitecturalLayer}.
  *
- *
  * @example
  * ```ts
  * import type { ArchitecturalLayer } from "@beep/repo-utils/JSDoc/models/ArchitecturalLayer.model"
@@ -54,7 +51,6 @@ export const ArchitecturalLayer = LiteralKit([
  * const accept = <A extends Example>(value: A): A => value
  * void accept
  * ```
- *
  * @category models
  * @since 0.0.0
  */

@@ -20,14 +20,12 @@ const $I = $RepoUtilsId.create("errors/NoSuchFileError");
  * @example
  * ```ts
  * import { NoSuchFileError } from "@beep/repo-utils/errors/NoSuchFileError"
- *
  * const error = new NoSuchFileError({
  *   message: "Path does not exist",
  *   path: "/missing"
  * })
  * void error.path
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */

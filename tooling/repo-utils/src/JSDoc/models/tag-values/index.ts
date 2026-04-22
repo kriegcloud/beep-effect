@@ -2,8 +2,8 @@
  * Tag value occurrence shapes — individual `S.TaggedClass` members composed
  * into `TagValue` (tagged union) and `TagName` (LiteralKit).
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 import { LiteralKit } from "@beep/schema";
@@ -338,14 +338,12 @@ const TypeScriptEnc = S.Union([S.toEncoded(OverloadValue)]);
  *
  * Provides `.cases`, `.match`, `.guards`, and `.isAnyOf` out of the box.
  *
- *
  * @example
  * ```ts
  * import { TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
  *
  * void TagValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -364,16 +362,13 @@ export const TagValue = S.Union([
 ]).pipe(S.toTaggedUnion("_tag"));
 
 /**
- *
  * @example
  * ```ts
  * import type { TagValue } from "@beep/repo-utils/JSDoc/models/tag-values"
- *
  * type Example = TagValue
  * const accept = <A extends Example>(value: A): A => value
  * void accept
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -517,30 +512,25 @@ const tagNames = [
  * Provides `.Enum`, `.is`, `.$match`, `S.decodeSync(TagName)`, and
  * `TagName.Type` (`"param" | "returns" | ... | "overload"`).
  *
- *
  * @example
  * ```ts
  * import { TagName } from "@beep/repo-utils/JSDoc/models/tag-values"
  *
  * void TagName
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export const TagName = LiteralKit(tagNames);
 
 /**
- *
  * @example
  * ```ts
  * import type { TagName } from "@beep/repo-utils/JSDoc/models/tag-values"
- *
  * type Example = TagName
  * const accept = <A extends Example>(value: A): A => value
  * void accept
  * ```
- *
  * @category models
  * @since 0.0.0
  */

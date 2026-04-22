@@ -38,7 +38,19 @@ import {
  */
 export const infraProjectName = "beep-effect";
 
+/**
+ * V2T workstation argument exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export type { V2TWorkstationArgs };
+/**
+ * V2T workstation stack exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export {
   loadV2TWorkstationStackArgs,
   normalizeV2TWorkstationConfig,

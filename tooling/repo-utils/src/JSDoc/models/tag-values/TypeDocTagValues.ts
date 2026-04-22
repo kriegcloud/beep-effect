@@ -1,8 +1,8 @@
 /**
  * TypeDoc-specific tag occurrence shapes.
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -13,14 +13,11 @@ import { empty, nameField } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeDocTagValues");
 
 /**
- *
  * @example
  * ```ts
  * import { CategoryValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void CategoryValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -33,14 +30,11 @@ export class CategoryValue extends S.TaggedClass<CategoryValue>($I`CategoryValue
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { DocumentValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void DocumentValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -53,14 +47,11 @@ export class DocumentValue extends S.TaggedClass<DocumentValue>($I`DocumentValue
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { GroupValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void GroupValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -73,14 +64,11 @@ export class GroupValue extends S.TaggedClass<GroupValue>($I`GroupValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { HiddenValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void HiddenValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -93,14 +81,11 @@ export class HiddenValue extends S.TaggedClass<HiddenValue>($I`HiddenValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ExpandValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void ExpandValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -113,14 +98,11 @@ export class ExpandValue extends S.TaggedClass<ExpandValue>($I`ExpandValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { InlineValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void InlineValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -133,14 +115,11 @@ export class InlineValue extends S.TaggedClass<InlineValue>($I`InlineValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { MergeModuleWithValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void MergeModuleWithValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -153,14 +132,11 @@ export class MergeModuleWithValue extends S.TaggedClass<MergeModuleWithValue>($I
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { PrimaryExportValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void PrimaryExportValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -173,14 +149,11 @@ export class PrimaryExportValue extends S.TaggedClass<PrimaryExportValue>($I`Pri
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { SortStrategyValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void SortStrategyValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -193,14 +166,11 @@ export class SortStrategyValue extends S.TaggedClass<SortStrategyValue>($I`SortS
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { UseDeclaredTypeValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeDocTagValues"
- *
  * void UseDeclaredTypeValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */

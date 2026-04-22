@@ -67,11 +67,11 @@ class DocsSectionPolicies extends S.Class<DocsSectionPolicies>($I`DocsSectionPol
 /**
  * Documentation section model.
  *
+ * @returns Tagged union schema keyed by `name`.
  * @example
  * ```ts
  * console.log("DocsSection")
  * ```
- * @returns Tagged union schema keyed by `name`.
  * @category models
  * @since 0.0.0
  */

@@ -224,7 +224,6 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
  * @example
  * ```ts
  * import { PackageJsonValidationIssue } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const issue = new PackageJsonValidationIssue({
  *   message: "Expected string",
  *   path: ["name"],
@@ -232,7 +231,6 @@ const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<st
  * })
  * void issue.pointer
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -253,11 +251,9 @@ export class PackageJsonValidationIssue extends S.Class<PackageJsonValidationIss
  * @example
  * ```ts
  * import { packageJsonJsonSchema } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const schema = packageJsonJsonSchema
  * void schema
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -269,11 +265,9 @@ export const packageJsonJsonSchema = S.toJsonSchemaDocument(PackageJson);
  * @example
  * ```ts
  * import { npmPackageJsonJsonSchema } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const schema = npmPackageJsonJsonSchema
  * void schema
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */
@@ -285,14 +279,12 @@ export const npmPackageJsonJsonSchema = S.toJsonSchemaDocument(NpmPackageJson);
  * @example
  * ```ts
  * import { normalizePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const program = normalizePackageJsonEffect({
  *   name: "@beep/example",
  *   version: "0.0.0"
  * })
  * void program
  * ```
- *
  * @category combinators
  * @since 0.0.0
  */
@@ -308,14 +300,12 @@ export const normalizePackageJsonEffect: (input: unknown) => Effect.Effect<Packa
  * @example
  * ```ts
  * import { encodePackageJsonCanonicalPrettyEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const program = encodePackageJsonCanonicalPrettyEffect({
  *   name: "@beep/example",
  *   version: "0.0.0"
  * })
  * void program
  * ```
- *
  * @category combinators
  * @since 0.0.0
  */
@@ -334,14 +324,12 @@ export const encodePackageJsonCanonicalPrettyEffect: (
  * @example
  * ```ts
  * import { diffPackageJsonEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const program = diffPackageJsonEffect(
  *   { name: "@beep/example", version: "0.0.0" },
  *   { name: "@beep/example", version: "0.0.1" }
  * )
  * void program
  * ```
- *
  * @category combinators
  * @since 0.0.0
  */
@@ -362,14 +350,12 @@ export const diffPackageJsonEffect: (
  * @example
  * ```ts
  * import { applyPackageJsonPatchEffect } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const program = applyPackageJsonPatchEffect(
  *   { name: "@beep/example", version: "0.0.0" },
  *   []
  * )
  * void program
  * ```
- *
  * @category combinators
  * @since 0.0.0
  */
@@ -396,13 +382,11 @@ export const applyPackageJsonPatchEffect: (
  * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { getPackageJsonSchemaIssues } from "@beep/repo-utils/schemas/PackageJsonTools"
- *
  * const program = S.decodeUnknownEffect(S.String)(1).pipe(
  *   Effect.mapError(getPackageJsonSchemaIssues)
  * )
  * void program
  * ```
- *
  * @category utilities
  * @since 0.0.0
  */

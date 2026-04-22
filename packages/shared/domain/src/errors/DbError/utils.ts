@@ -413,7 +413,7 @@ export const formatParam = (value: unknown, index: number): string => {
  * ```ts
  * import { stripAnsi } from "@beep/shared-domain/errors/DbError/utils"
  *
- * const plain = stripAnsi("\\u001b[31mfailed\\u001b[0m")
+ * const plain = stripAnsi("\\u001b[31m" + "failed" + "\\u001b[0m")
  *
  * void plain
  * ```

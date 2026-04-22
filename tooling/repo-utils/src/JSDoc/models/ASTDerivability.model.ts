@@ -18,14 +18,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTDerivability.model");
  *   - "partial" → Layer 2 (certainty=0.85-0.95): Structurally derivable but may need human context
  *   - "none"    → Layer 3 (certainty=0.6-0.85): Requires human authoring or LLM inference
  *
- *
  * @example
  * ```ts
  * import { ASTDerivability } from "@beep/repo-utils/JSDoc/models/ASTDerivability.model"
  *
  * void ASTDerivability
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -40,7 +38,6 @@ export const ASTDerivability = LiteralKit(["full", "partial", "none"]).annotate(
 /**
  * JSDoc model export.
  *
- *
  * @example
  * ```ts
  * import type { ASTDerivability } from "@beep/repo-utils/JSDoc/models/ASTDerivability.model"
@@ -49,7 +46,6 @@ export const ASTDerivability = LiteralKit(["full", "partial", "none"]).annotate(
  * const accept = <A extends Example>(value: A): A => value
  * void accept
  * ```
- *
  * @category models
  * @since 0.0.0
  */

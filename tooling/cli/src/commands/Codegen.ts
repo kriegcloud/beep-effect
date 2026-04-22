@@ -117,12 +117,12 @@ const decodeJSImportPath = S.decodeUnknownSync(TypeScriptSourceToJSImportPath);
  * Strips the `.ts` or `.tsx` extension and prepends `./` so the result is a
  * valid ESM relative import path (e.g. `"FsUtils.ts"` becomes `"./FsUtils.js"`).
  *
+ * @param name - The TypeScript filename (may include a sub-path prefix).
+ * @returns A relative import specifier with a `.js` extension.
  * @example
  * ```ts
  * console.log("toImportPath")
  * ```
- * @param name - The TypeScript filename (may include a sub-path prefix).
- * @returns A relative import specifier with a `.js` extension.
  * @category utilities
  * @since 0.0.0
  */
@@ -156,13 +156,13 @@ const alphabetical: Order.Order<string> = Order.String;
  * Returns relative paths from `srcDir` (e.g. `"FsUtils.ts"`, `"errors/index.ts"`).
  * Skips `index.ts` at the root level, `internal/` directories, and test files.
  *
+ * @param srcDir - Absolute path to the `src/` directory to scan.
+ * @returns An unsorted array of relative file paths suitable for barrel re-export.
+ * @depends FileSystem, Path
  * @example
  * ```ts
  * console.log("discoverModules")
  * ```
- * @param srcDir - Absolute path to the `src/` directory to scan.
- * @returns An unsorted array of relative file paths suitable for barrel re-export.
- * @depends FileSystem, Path
  * @category utilities
  * @since 0.0.0
  */
@@ -215,13 +215,13 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
  * Produces a string containing a JSDoc header and one `export * from ...` statement
  * per module, each annotated with `@since 0.0.0` as required by `@beep/docgen`.
  *
+ * @param packageName - Used in the module description header comment.
+ * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
+ * @returns The full content of the generated `index.ts` barrel file.
  * @example
  * ```ts
  * console.log("buildBarrelContent")
  * ```
- * @param packageName - Used in the module description header comment.
- * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
- * @returns The full content of the generated `index.ts` barrel file.
  * @category utilities
  * @since 0.0.0
  */

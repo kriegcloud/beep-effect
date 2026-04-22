@@ -18,11 +18,9 @@ const emptyArray = (): [] => [];
  * @example
  * ```ts
  * import { ReuseCatalogOrigin } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const schema = ReuseCatalogOrigin
  * void schema
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -44,11 +42,9 @@ export const ReuseCatalogOrigin = S.Union([
  * @example
  * ```ts
  * import type { ReuseCatalogOrigin } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const origin: ReuseCatalogOrigin = "repo-common"
  * void origin
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -60,11 +56,9 @@ export type ReuseCatalogOrigin = typeof ReuseCatalogOrigin.Type;
  * @example
  * ```ts
  * import { ReuseWorkUnitKind } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const schema = ReuseWorkUnitKind
  * void schema
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -82,11 +76,9 @@ export const ReuseWorkUnitKind = S.Union([S.Literal("scout"), S.Literal("special
  * @example
  * ```ts
  * import type { ReuseWorkUnitKind } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const kind: ReuseWorkUnitKind = "scout"
  * void kind
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -98,11 +90,9 @@ export type ReuseWorkUnitKind = typeof ReuseWorkUnitKind.Type;
  * @example
  * ```ts
  * import { ReuseCandidateKind } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const schema = ReuseCandidateKind
  * void schema
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -125,11 +115,9 @@ export const ReuseCandidateKind = S.Union([
  * @example
  * ```ts
  * import type { ReuseCandidateKind } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const kind: ReuseCandidateKind = "extract-schema"
  * void kind
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -141,7 +129,6 @@ export type ReuseCandidateKind = typeof ReuseCandidateKind.Type;
  * @example
  * ```ts
  * import { ReuseSourceSymbolRef } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const ref = new ReuseSourceSymbolRef({
  *   filePath: "src/example.ts",
  *   symbolId: "src/example.ts#makeExample",
@@ -150,7 +137,6 @@ export type ReuseCandidateKind = typeof ReuseCandidateKind.Type;
  * })
  * void ref.symbolName
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -173,7 +159,6 @@ export class ReuseSourceSymbolRef extends S.Class<ReuseSourceSymbolRef>($I`Reuse
  * ```ts
  * import { ReuseCatalogEntry } from "@beep/repo-utils/Reuse/Reuse.model"
  * import * as O from "effect/Option"
- *
  * const entry = new ReuseCatalogEntry({
  *   applicability: ["schema models"],
  *   id: "repo-utils:ReuseCatalogEntry",
@@ -188,7 +173,6 @@ export class ReuseSourceSymbolRef extends S.Class<ReuseSourceSymbolRef>($I`Reuse
  * })
  * void entry.id
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -216,7 +200,6 @@ export class ReuseCatalogEntry extends S.Class<ReuseCatalogEntry>($I`ReuseCatalo
  * @example
  * ```ts
  * import { ReuseWorkUnit } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const unit = new ReuseWorkUnit({
  *   id: "scout:repo-utils",
  *   kind: "scout",
@@ -226,7 +209,6 @@ export class ReuseCatalogEntry extends S.Class<ReuseCatalogEntry>($I`ReuseCatalo
  * })
  * void unit.kind
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -249,14 +231,12 @@ export class ReuseWorkUnit extends S.Class<ReuseWorkUnit>($I`ReuseWorkUnit`)(
  * @example
  * ```ts
  * import { ReusePartitionPlan } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const plan = new ReusePartitionPlan({
  *   catalogEntryCount: 0,
  *   scopeSelector: "tooling/repo-utils"
  * })
  * void plan.scopeSelector
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -284,7 +264,6 @@ export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePart
  * @example
  * ```ts
  * import { ReuseCandidate } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const candidate = new ReuseCandidate({
  *   blockingConcerns: [],
  *   candidateId: "candidate:extract-schema",
@@ -303,7 +282,6 @@ export class ReusePartitionPlan extends S.Class<ReusePartitionPlan>($I`ReusePart
  * })
  * void candidate.candidateId
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -335,7 +313,6 @@ export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
  * @example
  * ```ts
  * import { ReuseInventory } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const inventory = new ReuseInventory({
  *   candidateCount: 0,
  *   catalogEntryCount: 0,
@@ -344,7 +321,6 @@ export class ReuseCandidate extends S.Class<ReuseCandidate>($I`ReuseCandidate`)(
  * })
  * void inventory.candidateCount
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -370,7 +346,6 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
  * @example
  * ```ts
  * import { ReuseCandidate, ReusePacket } from "@beep/repo-utils/Reuse/Reuse.model"
- *
  * const candidate = new ReuseCandidate({
  *   blockingConcerns: [],
  *   candidateId: "candidate:extract-schema",
@@ -390,7 +365,6 @@ export class ReuseInventory extends S.Class<ReuseInventory>($I`ReuseInventory`)(
  * const packet = new ReusePacket({ candidate })
  * void packet.candidate
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -414,7 +388,6 @@ export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
  * ```ts
  * import { ReuseFindResult } from "@beep/repo-utils/Reuse/Reuse.model"
  * import * as O from "effect/Option"
- *
  * const result = new ReuseFindResult({
  *   filePath: "src/example.ts",
  *   query: O.some("schema"),
@@ -422,7 +395,6 @@ export class ReusePacket extends S.Class<ReusePacket>($I`ReusePacket`)(
  * })
  * void result.filePath
  * ```
- *
  * @category models
  * @since 0.0.0
  */

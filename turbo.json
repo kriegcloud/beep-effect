@@ -72,6 +72,13 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
+    "coverage": {
+      "cache": false,
+      "dependsOn": ["^build"],
+      "env": ["VITEST_COVERAGE_REPORT_ONLY"],
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"],
+      "outputs": ["coverage/**"]
+    },
     "audit": {
       "cache": false,
       "dependsOn": ["^audit"],
@@ -103,6 +110,11 @@
     },
     "test:storybook": {
       "cache": false
+    },
+    "@beep/repo-checks#build": {
+      "cache": false,
+      "dependsOn": [],
+      "outputs": []
     },
     "@beep/repo-checks#check:dtslint:tsgo": {
       "cache": true,

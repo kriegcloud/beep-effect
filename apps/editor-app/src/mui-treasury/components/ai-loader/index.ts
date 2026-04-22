@@ -13,5 +13,17 @@
  */
 import { Loader, type LoaderProps } from "./ai-loader.js";
 
+/**
+ * AI loader component prop exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export type { LoaderProps };
+/**
+ * AI loader component exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export { Loader };

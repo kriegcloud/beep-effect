@@ -12,14 +12,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/Specification.model");
 /**
  * Enumerates canonical standards that define a documentation tag.
  *
- *
  * @example
  * ```ts
  * import { Specification } from "@beep/repo-utils/JSDoc/models/Specification.model"
  *
  * void Specification
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -51,7 +49,6 @@ export const Specification = LiteralKit([
 /**
  * Union of canonical documentation standards represented by {@link Specification}.
  *
- *
  * @example
  * ```ts
  * import type { Specification } from "@beep/repo-utils/JSDoc/models/Specification.model"
@@ -60,7 +57,6 @@ export const Specification = LiteralKit([
  * const accept = <A extends Example>(value: A): A => value
  * void accept
  * ```
- *
  * @category models
  * @since 0.0.0
  */

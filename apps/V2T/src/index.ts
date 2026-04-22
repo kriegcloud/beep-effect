@@ -49,6 +49,12 @@ import {
  */
 export const VERSION = "0.0.0" as const;
 
+/**
+ * Public V2T runtime and workspace exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
 export {
   createV2tSessionResource,
   discardV2tRecoveryCandidate,

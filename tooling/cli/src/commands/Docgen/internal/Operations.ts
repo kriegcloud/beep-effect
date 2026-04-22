@@ -38,7 +38,7 @@ const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 
 const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
 const DOCS_MODULES_SEGMENTS = ["docs", "modules"] as const;
-const REQUIRED_TAGS = ["@category", "@example", "@since"] as const;
+const DOCGEN_REQUIRED_TAGS = ["@example", "@since"] as const;
 const parseJsonText = S.decodeUnknownSync(S.UnknownFromJsonString);
 const byRelativePathAscending: Order.Order<DocgenWorkspacePackage> = Order.mapInput(
   Order.String,
@@ -447,6 +447,53 @@ const extractContext = (node: Node): undefined | string =>
 
 const hasJsDocComment = (node: Node): boolean => getJsDocs(node).length > 0;
 
+type DocgenRequiredTag = (typeof DOCGEN_REQUIRED_TAGS)[number];
+
+const resolveRequiredTags = (config: DocgenConfigDocument): ReadonlyArray<DocgenRequiredTag> => {
+  const tags = A.empty<DocgenRequiredTag>();
+
+  if (config.enforceExamples === true) {
+    tags.push("@example");
+  }
+
+  if (config.enforceVersion !== false) {
+    tags.push("@since");
+  }
+
+  return tags;
+};
+
+const missingRequiredTags = (
+  presentTags: ReadonlyArray<string>,
+  requiredTags: ReadonlyArray<DocgenRequiredTag>
+): ReadonlyArray<DocgenRequiredTag> => A.filter(requiredTags, (tag) => !A.contains(presentTags, tag));
+
+const extractLeadingCommentTags = (node: Node): ReadonlyArray<string> =>
+  pipe(
+    node.getLeadingCommentRanges(),
+    A.flatMap((range) => extractJsDocTagsFromText(range.getText()))
+  );
+
+const collectExportSpecifierTags = (sourceFile: SourceFile): HashMap.HashMap<string, ReadonlyArray<string>> => {
+  let index = HashMap.empty<string, ReadonlyArray<string>>();
+
+  for (const declaration of sourceFile.getDescendantsOfKind(SyntaxKind.ExportDeclaration)) {
+    for (const specifier of declaration.getNamedExports()) {
+      const exportName = specifier.getAliasNode()?.getText() ?? specifier.getName();
+      const tags = pipe(
+        [...extractLeadingCommentTags(specifier), ...extractJsDocTagsFromText(specifier.getText())],
+        A.dedupe
+      );
+
+      if (A.isReadonlyArrayNonEmpty(tags)) {
+        index = HashMap.set(index, exportName, tags);
+      }
+    }
+  }
+
+  return index;
+};
+
 const getExportKind = (node: Node): DocgenExportKind => {
   if (Node.isFunctionDeclaration(node)) return "function";
   if (Node.isVariableDeclaration(node)) return "const";
@@ -492,9 +539,15 @@ const makeExportAnalysis = (options: {
     ...(options.context === undefined ? {} : { context: options.context }),
   });
 
-const analyzeExport = (name: string, node: Node, filePath: string): DocgenExportAnalysis => {
-  const presentTags = extractJsDocTags(node);
-  const missingTags = A.filter(REQUIRED_TAGS, (tag) => !A.contains(presentTags, tag));
+const analyzeExport = (
+  name: string,
+  node: Node,
+  filePath: string,
+  requiredTags: ReadonlyArray<DocgenRequiredTag>,
+  inheritedTags: ReadonlyArray<string>
+): DocgenExportAnalysis => {
+  const presentTags = pipe([...extractJsDocTags(node), ...inheritedTags], A.dedupe);
+  const missingTags = missingRequiredTags(presentTags, requiredTags);
 
   return makeExportAnalysis({
     name,
@@ -503,7 +556,7 @@ const analyzeExport = (name: string, node: Node, filePath: string): DocgenExport
     line: node.getStartLineNumber(),
     presentTags,
     missingTags,
-    hasJsDoc: hasJsDocComment(node),
+    hasJsDoc: hasJsDocComment(node) || A.isReadonlyArrayNonEmpty(inheritedTags),
     declarationSource: node.getText(),
     context: extractContext(node),
   });
@@ -511,8 +564,13 @@ const analyzeExport = (name: string, node: Node, filePath: string): DocgenExport
 
 const analyzeModuleFileoverview = (
   sourceFile: SourceFile,
-  relativeFilePath: string
+  relativeFilePath: string,
+  requiredTags: ReadonlyArray<DocgenRequiredTag>
 ): O.Option<DocgenExportAnalysis> => {
+  if (!A.contains(requiredTags, "@since")) {
+    return O.none();
+  }
+
   const match = /^(?:#![^\n]*\n)?\s*(\/\*\*[\s\S]*?\*\/)/.exec(sourceFile.getFullText());
 
   if (match === null) {
@@ -556,10 +614,13 @@ const analyzeModuleFileoverview = (
   );
 };
 
-const analyzeReExports = (sourceFile: SourceFile, relativeFilePath: string): ReadonlyArray<DocgenExportAnalysis> =>
+const analyzeReExports = (
+  sourceFile: SourceFile,
+  relativeFilePath: string,
+  requiredTags: ReadonlyArray<DocgenRequiredTag>
+): ReadonlyArray<DocgenExportAnalysis> =>
   pipe(
     sourceFile.getDescendantsOfKind(SyntaxKind.ExportDeclaration),
-    A.filter((declaration: ExportDeclaration) => declaration.getModuleSpecifier() !== undefined),
     A.map((declaration: ExportDeclaration) => {
       const jsDocTags = pipe(
         getJsDocs(declaration),
@@ -568,13 +629,11 @@ const analyzeReExports = (sourceFile: SourceFile, relativeFilePath: string): Rea
       const leadingTags = pipe(
         getLeadingJsDocCommentText(declaration),
         O.map(extractJsDocTagsFromText),
-        O.getOrElse(() => A.empty<string>())
+        O.getOrElse(A.empty<string>)
       );
-      const presentTags = [...jsDocTags, ...leadingTags];
-      const hasJsDoc = presentTags.length > 0;
-      const missingTags = hasJsDoc
-        ? A.filter(["@since"] as const, (tag) => !A.contains(presentTags, tag))
-        : [...REQUIRED_TAGS];
+      const declarationTextTags = extractJsDocTagsFromText(declaration.getText());
+      const presentTags = pipe([...jsDocTags, ...leadingTags, ...declarationTextTags], A.dedupe);
+      const missingTags = missingRequiredTags(presentTags, requiredTags);
 
       return makeExportAnalysis({
         name: declaration.getText(),
@@ -583,7 +642,7 @@ const analyzeReExports = (sourceFile: SourceFile, relativeFilePath: string): Rea
         line: declaration.getStartLineNumber(),
         presentTags,
         missingTags,
-        hasJsDoc,
+        hasJsDoc: presentTags.length > 0,
         declarationSource: declaration.getText(),
         context: `Re-export from ${declaration.getModuleSpecifierValue() ?? "<unknown>"} needs documentation.`,
       });
@@ -605,10 +664,45 @@ const sourceFileMatchesExclude = (
   const srcRelative = Str.startsWith(`${srcDir}/`)(packageRelative)
     ? packageRelative.slice(srcDir.length + 1)
     : packageRelative;
-  const escapedPattern = Str.replace(/[.+?^${}()|[\]\\]/g, "\\$&")(normalizedPattern);
-  const patternRegex = new RegExp(`^${Str.replace(/\*/g, ".*")(escapedPattern)}$`);
+  const patternRegex = globPatternToRegExp(normalizedPattern);
 
   return A.some([packageRelative, srcRelative], (candidate) => patternRegex.test(candidate));
+};
+
+const escapeRegexChar = (char: string): string => Str.replace(/[.+?^${}()|[\]\\]/g, "\\$&")(char);
+
+const globPatternToRegExp = (pattern: string): RegExp => {
+  let source = "^";
+  let index = 0;
+
+  while (index < pattern.length) {
+    const char = pattern[index];
+    const next = pattern[index + 1];
+    const afterNext = pattern[index + 2];
+
+    if (char === "*" && next === "*" && afterNext === "/") {
+      source += "(?:.*/)?";
+      index += 3;
+      continue;
+    }
+
+    if (char === "*" && next === "*") {
+      source += ".*";
+      index += 2;
+      continue;
+    }
+
+    if (char === "*") {
+      source += "[^/]*";
+      index += 1;
+      continue;
+    }
+
+    source += escapeRegexChar(char ?? "");
+    index += 1;
+  }
+
+  return new RegExp(`${source}$`);
 };
 
 const getSourceFiles = (
@@ -636,21 +730,31 @@ const getSourceFiles = (
 const analyzeSourceFile = (
   sourceFile: SourceFile,
   absolutePackagePath: string,
-  path: Path.Path
+  path: Path.Path,
+  requiredTags: ReadonlyArray<DocgenRequiredTag>
 ): ReadonlyArray<DocgenExportAnalysis> => {
   const relativeFilePath = relativePathWithinPackage(absolutePackagePath, sourceFile.getFilePath(), path);
-  const moduleFileoverview = analyzeModuleFileoverview(sourceFile, relativeFilePath);
-  const reExports = analyzeReExports(sourceFile, relativeFilePath);
+  const reExports = analyzeReExports(sourceFile, relativeFilePath, requiredTags);
+  const exportSpecifierTags = collectExportSpecifierTags(sourceFile);
   const directExports = pipe(
     A.fromIterable(sourceFile.getExportedDeclarations().entries()),
-    A.flatMap(([name, declarations]) =>
-      pipe(
-        declarations,
-        A.filter((declaration) => declaration.getSourceFile() === sourceFile),
-        A.map((declaration) => analyzeExport(name, declaration, relativeFilePath))
-      )
-    )
+    A.flatMap(([name, declarations]) => {
+      const localDeclarations = A.filter(declarations, (declaration) => declaration.getSourceFile() === sourceFile);
+      const siblingTags = pipe(localDeclarations, A.flatMap(extractJsDocTags), A.dedupe);
+      const specifierTags = O.getOrElse(HashMap.get(exportSpecifierTags, name), A.empty<string>);
+      const inheritedTags = pipe([...siblingTags, ...specifierTags], A.dedupe);
+
+      return A.map(localDeclarations, (declaration) =>
+        analyzeExport(name, declaration, relativeFilePath, requiredTags, inheritedTags)
+      );
+    })
   );
+
+  if (reExports.length === 0 && directExports.length === 0) {
+    return A.empty();
+  }
+
+  const moduleFileoverview = analyzeModuleFileoverview(sourceFile, relativeFilePath, requiredTags);
 
   return pipe(O.toArray(moduleFileoverview), A.appendAll(reExports), A.appendAll(directExports));
 };
@@ -933,9 +1037,10 @@ export const analyzePackageDocumentation: (
   const project = new Project({ skipAddingFilesFromTsConfig: true });
   const srcDir = config.srcDir ?? "src";
   const exclude = config.exclude ?? A.empty();
+  const requiredTags = resolveRequiredTags(config);
   const analyses = pipe(
     getSourceFiles(project, targetPackage.absolutePath, srcDir, exclude),
-    A.flatMap((sourceFile) => analyzeSourceFile(sourceFile, targetPackage.absolutePath, path)),
+    A.flatMap((sourceFile) => analyzeSourceFile(sourceFile, targetPackage.absolutePath, path, requiredTags)),
     A.sort(byIssueAscending)
   );
   const timestamp = yield* DateTime.now.pipe(

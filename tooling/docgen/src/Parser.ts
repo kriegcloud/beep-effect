@@ -27,14 +27,12 @@ const withSource = <A, E, R>(source: SourceShape, effect: Effect.Effect<A, E, R 
 /**
  * Source metadata carried through parser effects while a module is being processed.
  *
+ * @internal
  * @example
  * ```ts
  * import { SourceShape } from "@beep/docgen/Parser"
- *
  * void SourceShape
  * ```
- *
- * @internal
  * @category parsers
  * @since 0.0.0
  */
@@ -62,14 +60,12 @@ export class SourceShape {
 /**
  * Parser service that provides the active source context while traversing a module.
  *
+ * @internal
  * @example
  * ```ts
  * import { Source } from "@beep/docgen/Parser"
- *
  * void Source
  * ```
- *
- * @internal
  * @category parsers
  * @since 0.0.0
  */
@@ -107,17 +103,15 @@ type Comment = {
 /**
  * Parses a raw JSDoc block into a normalized description and grouped tag map.
  *
- * @example
- * ```ts
- * import { parseComment } from "@beep/docgen/Parser"
- *
- * const comment = parseComment("/** Example. *\/")
- * void comment
- * ```
- *
  * @internal
  * @param text - Raw JSDoc text to parse.
  * @returns Parsed comment description and grouped tag values.
+ * @example
+ * ```ts
+ * import { parseComment } from "@beep/docgen/Parser"
+ * const comment = parseComment("/** Example. *\/")
+ * void comment
+ * ```
  * @category parsers
  * @since 0.0.0
  */
@@ -194,10 +188,8 @@ const parseInterfaceDeclarations = (interfaces: ReadonlyArray<ast.InterfaceDecla
  * @example
  * ```ts
  * import { parseInterfaces } from "@beep/docgen/Parser"
- *
  * void parseInterfaces
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -287,10 +279,8 @@ const getFunctionDeclarations = Effect.gen(function* () {
  * @example
  * ```ts
  * import { parseFunctions } from "@beep/docgen/Parser"
- *
  * void parseFunctions
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -329,10 +319,8 @@ const parseTypeAliasDeclarations = (typeAliases: ReadonlyArray<ast.TypeAliasDecl
  * @example
  * ```ts
  * import { parseTypeAliases } from "@beep/docgen/Parser"
- *
  * void parseTypeAliases
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -365,10 +353,8 @@ const parseConstantVariableDeclaration = Effect.fn("parseConstantVariableDeclara
  * @example
  * ```ts
  * import { parseConstants } from "@beep/docgen/Parser"
- *
  * void parseConstants
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -397,9 +383,13 @@ export const parseConstants = Effect.gen(function* () {
   return yield* Effect.forEach(declarations, parseConstantVariableDeclaration).pipe(Effect.map(A.flatten));
 });
 
-const parseExportSpecifier = Effect.fn("parseExportSpecifier")(function* (es: ast.ExportSpecifier) {
+const parseExportSpecifier = Effect.fn("parseExportSpecifier")(function* (
+  es: ast.ExportSpecifier,
+  declarationDocComment: O.Option<ast.CommentRange>
+) {
   const name = es.compilerNode.name.text;
-  const docComment = getDocComment(es.getLeadingCommentRanges());
+  const specifierDocComment = getDocComment(es.getLeadingCommentRanges());
+  const docComment = O.isSome(specifierDocComment) ? specifierDocComment : declarationDocComment;
   const doc = O.isSome(docComment) ? parseDoc(docComment.value.getText()) : parseDoc("");
   const signature = `declare const ${name}: ${parseType(es)}`;
   const position = yield* parsePosition(es);
@@ -427,9 +417,10 @@ const parseExportStar = Effect.fn("parseExportStar")(function* (ed: ast.ExportDe
 
 const parseNamedExports = (ed: ast.ExportDeclaration) => {
   const namedExports = ed.getNamedExports();
+  const declarationDocComment = getDocComment(ed.getLeadingCommentRanges());
   return namedExports.length === 0
     ? parseExportStar(ed).pipe(Effect.map(A.of))
-    : Effect.forEach(namedExports, parseExportSpecifier);
+    : Effect.forEach(namedExports, (specifier) => parseExportSpecifier(specifier, declarationDocComment));
 };
 
 /**
@@ -438,10 +429,8 @@ const parseNamedExports = (ed: ast.ExportDeclaration) => {
  * @example
  * ```ts
  * import { parseExports } from "@beep/docgen/Parser"
- *
  * void parseExports
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -478,10 +467,8 @@ const parseModuleDeclarations = (namespaces: ReadonlyArray<ast.ModuleDeclaration
  * @example
  * ```ts
  * import { parseNamespaces } from "@beep/docgen/Parser"
- *
  * void parseNamespaces
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -545,16 +532,14 @@ const parseProperties = (c: ast.ClassDeclaration) =>
 /**
  * Computes a printable constructor signature without including the implementation body.
  *
- * @example
- * ```ts
- * import { getConstructorDeclarationSignature } from "@beep/docgen/Parser"
- *
- * void getConstructorDeclarationSignature
- * ```
- *
  * @internal
  * @param constructorDeclaration - Constructor declaration to serialize.
  * @returns Constructor signature text suitable for generated docs.
+ * @example
+ * ```ts
+ * import { getConstructorDeclarationSignature } from "@beep/docgen/Parser"
+ * void getConstructorDeclarationSignature
+ * ```
  * @category parsers
  * @since 0.0.0
  */
@@ -608,10 +593,8 @@ const parseClass = Effect.fn("parseClass")(function* (c: ast.ClassDeclaration) {
  * @example
  * ```ts
  * import { parseClasses } from "@beep/docgen/Parser"
- *
  * void parseClasses
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -624,14 +607,12 @@ export const parseClasses = Effect.gen(function* () {
 /**
  * Parses the file-level module documentation block from the current source file.
  *
+ * @internal
  * @example
  * ```ts
  * import { parseModuleDocumentation } from "@beep/docgen/Parser"
- *
  * void parseModuleDocumentation
  * ```
- *
- * @internal
  * @category parsers
  * @since 0.0.0
  */
@@ -654,10 +635,8 @@ export const parseModuleDocumentation = Effect.gen(function* () {
  * @example
  * ```ts
  * import { parseModule } from "@beep/docgen/Parser"
- *
  * void parseModule
  * ```
- *
  * @category parsers
  * @since 0.0.0
  */
@@ -691,16 +670,14 @@ export const parseModule = Effect.gen(function* () {
 /**
  * Creates a parser for a single file using a shared ts-morph project instance.
  *
- * @example
- * ```ts
- * import { parseFile } from "@beep/docgen/Parser"
- *
- * void parseFile
- * ```
- *
  * @internal
  * @param project - Project used to resolve and parse source files.
  * @returns Function that parses one file into a module model.
+ * @example
+ * ```ts
+ * import { parseFile } from "@beep/docgen/Parser"
+ * void parseFile
+ * ```
  * @category parsers
  * @since 0.0.0
  */
@@ -752,16 +729,14 @@ const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray
 /**
  * Parses a set of source files into sorted module models.
  *
+ * @param files - Files to parse into module documentation models.
+ * @returns Effect that parses and sorts the provided files into modules.
  * @example
  * ```ts
  * import { parseFiles } from "@beep/docgen/Parser"
- *
  * const parsed = parseFiles([])
  * void parsed
  * ```
- *
- * @param files - Files to parse into module documentation models.
- * @returns Effect that parses and sorts the provided files into modules.
  * @category parsers
  * @since 0.0.0
  */

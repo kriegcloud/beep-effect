@@ -25,24 +25,22 @@ const defaultIsDeprecated = (): boolean => false;
  * Complete metadata for a single JSDoc/TSDoc tag.
  * Designed as a discriminated union member via `_tag`.
  *
- *
  * @example
  * ```ts
  * import { JSDocTagDefinition } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
  * void JSDocTagDefinition
  * ```
- *
  * @category models
  * @since 0.0.0
  */
 export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagDefinition`)(
   {
-    /** Canonical tag name without '@' prefix. Used as discriminant. */
+    /** Canonical tag name without the at-sign prefix. Used as discriminant. */
     _tag: S.String.annotateKey({
       description: "Canonical tag name without '@' prefix. Used as discriminant.",
     }),
-    /** Alternative names that resolve to this tag (without '@' prefix) */
+    /** Alternative names that resolve to this tag without the at-sign prefix. */
     synonyms: ArrayOfStrings.annotateKey({
       description: "Alternative names that resolve to this tag (without '@' prefix)",
     }),
@@ -105,14 +103,12 @@ export class JSDocTagDefinition extends S.Class<JSDocTagDefinition>($I`JSDocTagD
 /**
  * JSDoc model export.
  *
- *
  * @example
  * ```ts
  * import { JSDocTagDefinition } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
  * void JSDocTagDefinition
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -144,14 +140,12 @@ export declare namespace JSDocTagDefinition {
 /**
  * JSDoc model export.
  *
- *
  * @example
  * ```ts
  * import { assertJsDoc } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
  * void assertJsDoc
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -161,16 +155,15 @@ export const assertJsDoc: <const Def extends JSDocTagDefinition.Encoded>(input: 
 /**
  * Builds a JSDoc tag definition schema for a concrete tag payload.
  *
- *
+ * @param _tag - Canonical tag discriminator.
+ * @param meta - Tag metadata payload without the discriminator.
+ * @returns Specialized schema for the provided tag metadata payload.
  * @example
  * ```ts
  * import { make } from "@beep/repo-utils/JSDoc/models/JSDocTagDefinition.model"
  *
  * void make
  * ```
- * * @param _tag - Canonical tag discriminator.
- * @param meta - Tag metadata payload without the discriminator.
- * @returns Specialized schema for the provided tag metadata payload.
  * @category models
  * @since 0.0.0
  */

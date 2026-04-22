@@ -1,3 +1,10 @@
+/**
+ * HTTP header schema helpers.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $SchemaId } from "@beep/identity";
 import { cast } from "@beep/utils/Function";
 import { Effect, identity, Option, SchemaIssue, SchemaTransformation } from "effect";

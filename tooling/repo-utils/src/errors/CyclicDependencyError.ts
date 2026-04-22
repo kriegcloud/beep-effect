@@ -21,14 +21,12 @@ const $I = $RepoUtilsId.create("errors/CyclicDependencyError");
  * @example
  * ```ts
  * import { CyclicDependencyError } from "@beep/repo-utils/errors/CyclicDependencyError"
- *
  * const error = new CyclicDependencyError({
  *   cycles: [["a", "b", "a"]],
  *   message: "Cyclic dependencies detected"
  * })
  * void error.cycles
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */

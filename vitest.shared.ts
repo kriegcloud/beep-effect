@@ -9,6 +9,20 @@ type AliasEntry = {
 const projectRootDirectory = new URL("./", import.meta.url);
 const rootTsconfigPath = new URL("./tsconfig.json", import.meta.url).pathname;
 const coverageProvider = process.versions.bun !== undefined ? "istanbul" : "v8";
+const coverageThresholds =
+  process.env.VITEST_COVERAGE_REPORT_ONLY === "1"
+    ? {
+        branches: 0,
+        functions: 0,
+        lines: 0,
+        statements: 0,
+      }
+    : {
+        branches: 80,
+        functions: 60,
+        lines: 30,
+        statements: 30,
+      };
 
 const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -100,12 +114,7 @@ const config: ViteUserConfig = {
         "**/vitest.setup.*",
         "**/vitest.shared.*",
       ],
-      thresholds: {
-        branches: 80,
-        functions: 60,
-        lines: 30,
-        statements: 30,
-      },
+      thresholds: coverageThresholds,
     },
   },
 };

@@ -1,8 +1,8 @@
 /**
  * Google Closure-specific tag occurrence shapes.
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -12,14 +12,11 @@ import { empty, optionalDesc, optionalType } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/ClosureTagValues");
 
 /**
- *
  * @example
  * ```ts
  * import { DefineValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void DefineValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -32,14 +29,11 @@ export class DefineValue extends S.TaggedClass<DefineValue>($I`DefineValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { DictValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void DictValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -52,14 +46,11 @@ export class DictValue extends S.TaggedClass<DictValue>($I`DictValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ImplicitCastValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void ImplicitCastValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -72,14 +63,11 @@ export class ImplicitCastValue extends S.TaggedClass<ImplicitCastValue>($I`Impli
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { StructValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void StructValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -92,14 +80,11 @@ export class StructValue extends S.TaggedClass<StructValue>($I`StructValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { UnrestrictedValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void UnrestrictedValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -112,14 +97,11 @@ export class UnrestrictedValue extends S.TaggedClass<UnrestrictedValue>($I`Unres
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { SuppressValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void SuppressValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -132,14 +114,11 @@ export class SuppressValue extends S.TaggedClass<SuppressValue>($I`SuppressValue
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ExternsValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void ExternsValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -152,14 +131,11 @@ export class ExternsValue extends S.TaggedClass<ExternsValue>($I`ExternsValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { NoaliasValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void NoaliasValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -172,14 +148,11 @@ export class NoaliasValue extends S.TaggedClass<NoaliasValue>($I`NoaliasValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { NocompileValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void NocompileValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -192,14 +165,11 @@ export class NocompileValue extends S.TaggedClass<NocompileValue>($I`NocompileVa
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { NosideeffectsValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void NosideeffectsValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -212,14 +182,11 @@ export class NosideeffectsValue extends S.TaggedClass<NosideeffectsValue>($I`Nos
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { PolymerValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void PolymerValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -232,14 +199,11 @@ export class PolymerValue extends S.TaggedClass<PolymerValue>($I`PolymerValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { PolymerBehaviorValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void PolymerBehaviorValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -252,14 +216,11 @@ export class PolymerBehaviorValue extends S.TaggedClass<PolymerBehaviorValue>($I
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { RecordValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void RecordValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -272,14 +233,11 @@ export class RecordValue extends S.TaggedClass<RecordValue>($I`RecordValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { NocollapseValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void NocollapseValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -292,14 +250,11 @@ export class NocollapseValue extends S.TaggedClass<NocollapseValue>($I`Nocollaps
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { NoinlineValue } from "@beep/repo-utils/JSDoc/models/tag-values/ClosureTagValues"
- *
  * void NoinlineValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */

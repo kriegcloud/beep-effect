@@ -1,3 +1,10 @@
+/**
+ * SQL column definition schemas.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $SchemaId } from "@beep/identity";
 import * as S from "effect/Schema";
 import { LiteralKit } from "../LiteralKit.ts";

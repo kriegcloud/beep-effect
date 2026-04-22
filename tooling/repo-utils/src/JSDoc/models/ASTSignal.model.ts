@@ -1,5 +1,5 @@
 /**
- * @module @beep/repo-utils/models/ASTSignal.model
+ * @module
  * @description AST signal taxonomy model definitions.
  * @packageDocumentation
  * @since 0.0.0
@@ -14,14 +14,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/ASTSignal.model");
  * Deterministic heuristic for auto-classifying code elements
  * from the AST without LLM inference.
  *
- *
  * @example
  * ```ts
  * import { ASTSignal } from "@beep/repo-utils/JSDoc/models/ASTSignal.model"
  *
  * void ASTSignal
  * ```
- *
  * @category models
  * @since 0.0.0
  */

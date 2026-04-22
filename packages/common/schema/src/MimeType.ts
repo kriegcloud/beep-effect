@@ -1,3 +1,10 @@
+/**
+ * MIME type literal schemas derived from bundled MIME metadata.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { MimeTypesData } from "@beep/data";
 import { $SchemaId } from "@beep/identity/packages";
 import { Struct } from "@beep/utils";

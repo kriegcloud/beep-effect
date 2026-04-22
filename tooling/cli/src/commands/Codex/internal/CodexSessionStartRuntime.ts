@@ -72,11 +72,11 @@ const parseHookInput = (text: string): Effect.Effect<Record<string, unknown>, Co
 /**
  * Read and decode the optional JSON payload passed to the Codex SessionStart hook via stdin.
  *
+ * @returns Parsed hook payload when stdin contains JSON, otherwise `undefined`.
  * @example
  * ```ts
  * console.log("readHookInput")
  * ```
- * @returns Parsed hook payload when stdin contains JSON, otherwise `undefined`.
  * @category models
  * @since 0.0.0
  */
@@ -114,13 +114,13 @@ export const readHookInput: Effect.Effect<Record<string, unknown> | undefined, C
 /**
  * Build the Graphiti-first startup guidance injected into the Codex SessionStart hook.
  *
+ * @param source - Hook invocation source label reported by Codex.
+ * @param cwd - Working directory supplied by the hook payload, when available.
+ * @returns Human-readable startup guidance for the Codex SessionStart hook.
  * @example
  * ```ts
  * console.log("buildCodexSessionStartContext")
  * ```
- * @param source - Hook invocation source label reported by Codex.
- * @param cwd - Working directory supplied by the hook payload, when available.
- * @returns Human-readable startup guidance for the Codex SessionStart hook.
  * @category models
  * @since 0.0.0
  */
@@ -143,12 +143,12 @@ export const buildCodexSessionStartContext = (source: string, cwd: string | unde
 /**
  * Encode the hook response shape expected by Codex.
  *
+ * @param additionalContext - Context string to surface in the hook payload.
+ * @returns JSON payload string for the Codex SessionStart hook.
  * @example
  * ```ts
  * console.log("buildSessionStartHookOutput")
  * ```
- * @param additionalContext - Context string to surface in the hook payload.
- * @returns JSON payload string for the Codex SessionStart hook.
  * @category models
  * @since 0.0.0
  */

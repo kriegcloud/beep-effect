@@ -24,14 +24,12 @@ const decodeJsonString = S.decodeUnknownOption(S.fromJsonString(S.Json));
  * @example
  * ```ts
  * import { GlobOptions } from "@beep/repo-utils/FsUtils"
- *
  * const options = new GlobOptions({
  *   cwd: "src",
  *   ignore: ["*.test.ts"]
  * })
  * void options.cwd
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -53,11 +51,9 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
  * @example
  * ```ts
  * import type { FsUtilsShape } from "@beep/repo-utils/FsUtils"
- *
  * const methodName = "readJson" satisfies keyof FsUtilsShape
  * void methodName
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -152,14 +148,12 @@ export interface FsUtilsShape {
  * ```ts
  * import { Effect } from "effect"
  * import { FsUtils } from "@beep/repo-utils/FsUtils"
- *
  * const program = Effect.gen(function* () {
  *   const fsUtils = yield* FsUtils
  *   return fsUtils
  * })
  * void program
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -173,11 +167,9 @@ export class FsUtils extends Context.Service<FsUtils, FsUtilsShape>()($I`FsUtils
  * ```ts
  * import { Layer } from "effect"
  * import { FsUtilsLive } from "@beep/repo-utils/FsUtils"
- *
  * const layer = Layer.provideMerge(FsUtilsLive, Layer.empty)
  * void layer
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */

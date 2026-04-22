@@ -13,14 +13,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/CanonicalJSDocSourceMetadata.model"
 /**
  * Metadata for a canonical documentation source used in tag catalogs.
  *
- *
  * @example
  * ```ts
  * import { CanonicalJSDocSourceMetadata } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
  * void CanonicalJSDocSourceMetadata
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -40,14 +38,12 @@ export class CanonicalJSDocSourceMetadata extends S.Class<CanonicalJSDocSourceMe
 /**
  * Runtime codec companion types for {@link CanonicalJSDocSourceMetadata}.
  *
- *
  * @example
  * ```ts
  * import { CanonicalJSDocSourceMetadata } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
  * void CanonicalJSDocSourceMetadata
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -64,15 +60,14 @@ export declare namespace CanonicalJSDocSourceMetadata {
 /**
  * Constructs a model instance from its encoded wire representation.
  *
- *
+ * @param input - Serialized source metadata payload.
+ * @returns A decoded schema instance with strongly typed fields.
  * @example
  * ```ts
  * import { make } from "@beep/repo-utils/JSDoc/models/CanonicalJSDocSourceMetadata.model"
  *
  * void make
  * ```
- * * @param input - Serialized source metadata payload.
- * @returns A decoded schema instance with strongly typed fields.
  * @category models
  * @since 0.0.0
  */

@@ -1,8 +1,8 @@
 /**
  * Root CLI command definition.
  *
- * @packageDocumentation
  * @internal
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -30,7 +30,6 @@ import { versionSyncCommand } from "./VersionSync/index.js";
  * This is the command tree root consumed by `Command.run` in the bin entry point.
  *
  * @internal
- *
  * @example
  * ```ts
  * console.log("rootCommand")

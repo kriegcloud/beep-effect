@@ -1,8 +1,8 @@
 /**
  * Inline tag occurrence shapes.
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -12,14 +12,11 @@ import { optionalDesc, optionalName } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/InlineTagValues");
 
 /**
- *
  * @example
  * ```ts
  * import { LinkValue } from "@beep/repo-utils/JSDoc/models/tag-values/InlineTagValues"
- *
  * void LinkValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -32,14 +29,11 @@ export class LinkValue extends S.TaggedClass<LinkValue>($I`LinkValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { InheritDocValue } from "@beep/repo-utils/JSDoc/models/tag-values/InlineTagValues"
- *
  * void InheritDocValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */

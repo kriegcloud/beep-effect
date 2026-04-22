@@ -6,6 +6,7 @@
  * Uses Schema.brand for compile-time type safety.
  *
  * @module
+ * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
 import { Function as F } from "effect";

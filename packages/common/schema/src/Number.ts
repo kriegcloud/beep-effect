@@ -1,3 +1,10 @@
+/**
+ * Numeric refinement helpers.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $SchemaId } from "@beep/identity/packages";
 import * as S from "effect/Schema";
 

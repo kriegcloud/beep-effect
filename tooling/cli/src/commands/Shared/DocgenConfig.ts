@@ -175,12 +175,12 @@ const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<strin
 /**
  * Convert canonical docgen compiler options to a plain JSON-compatible object.
  *
+ * @param options - Canonical compiler options model.
+ * @returns Plain JSON-compatible compiler options payload.
  * @example
  * ```ts
  * console.log("toDocgenExamplesCompilerOptionsJson")
  * ```
- * @param options - Canonical compiler options model.
- * @returns Plain JSON-compatible compiler options payload.
  * @category models
  * @since 0.0.0
  */
@@ -221,12 +221,12 @@ export const toDocgenExamplesCompilerOptionsJson = (
 /**
  * Convert the canonical docgen config model to a plain JSON-compatible object.
  *
+ * @param config - Canonical docgen config model.
+ * @returns Plain JSON-compatible docgen config payload.
  * @example
  * ```ts
  * console.log("toCanonicalDocgenConfigJson")
  * ```
- * @param config - Canonical docgen config model.
- * @returns Plain JSON-compatible docgen config payload.
  * @category models
  * @since 0.0.0
  */
@@ -247,12 +247,12 @@ export const toCanonicalDocgenConfigJson = (
 /**
  * Collect direct workspace package dependencies from a package manifest.
  *
+ * @param packageJson - Parsed package manifest.
+ * @returns Sorted unique `@beep/*` dependency names across all dependency sections.
  * @example
  * ```ts
  * console.log("collectDocgenWorkspaceDependencyNames")
  * ```
- * @param packageJson - Parsed package manifest.
- * @returns Sorted unique `@beep/*` dependency names across all dependency sections.
  * @category models
  * @since 0.0.0
  */
@@ -271,14 +271,14 @@ export const collectDocgenWorkspaceDependencyNames = (packageJson: PackageJson.T
 /**
  * Build docgen alias targets for one workspace package from its exports.
  *
- * @example
- * ```ts
- * console.log("buildDocgenAliasSource")
- * ```
  * @param packageName - Scoped workspace package name.
  * @param packageRelativePath - Workspace-relative package path.
  * @param packageJson - Parsed package manifest.
  * @returns Alias metadata used by docgen example path mappings.
+ * @example
+ * ```ts
+ * console.log("buildDocgenAliasSource")
+ * ```
  * @category models
  * @since 0.0.0
  */
@@ -339,12 +339,12 @@ const buildDocgenExamplesPaths = (
 /**
  * Build the canonical repo docgen config for a package.
  *
+ * @param input - Package metadata plus workspace alias sources.
+ * @returns Canonical docgen config payload used by init and sync workflows.
  * @example
  * ```ts
  * console.log("createCanonicalDocgenConfig")
  * ```
- * @param input - Package metadata plus workspace alias sources.
- * @returns Canonical docgen config payload used by init and sync workflows.
  * @category models
  * @since 0.0.0
  */
@@ -403,13 +403,13 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
  * Existing package-local extras are preserved. The default `exclude` field is only
  * backfilled when it is absent so package-specific exclusions survive sync.
  *
+ * @param existing - Parsed existing `docgen.json` document.
+ * @param canonical - Canonical managed docgen config payload.
+ * @returns Next `docgen.json` object with managed fields synchronized.
  * @example
  * ```ts
  * console.log("mergeManagedDocgenConfig")
  * ```
- * @param existing - Parsed existing `docgen.json` document.
- * @param canonical - Canonical managed docgen config payload.
- * @returns Next `docgen.json` object with managed fields synchronized.
  * @category models
  * @since 0.0.0
  */

@@ -4,8 +4,8 @@
  * This module re-exports from `./tag-values/index.js` where individual
  * `S.TaggedClass` members are defined and composed.
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 export * from "./tag-values/index.js";

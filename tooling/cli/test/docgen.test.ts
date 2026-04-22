@@ -553,7 +553,8 @@ describe("Docgen operations", () => {
           const wroteJson = yield* fs.exists(path.join(packageDir, "JSDOC_ANALYSIS.json"));
 
           expect(errorLines.join("\n")).toContain("packages/common/schema has");
-          expect(errorLines.join("\n")).toContain("MissingMetadata missing @category, @example, @since");
+          expect(errorLines.join("\n")).toContain("<module fileoverview> missing @since");
+          expect(errorLines.join("\n")).toContain("MissingMetadata missing @since");
           expect(wroteMarkdown).toBe(false);
           expect(wroteJson).toBe(false);
           expect(process.exitCode).toBe(1);

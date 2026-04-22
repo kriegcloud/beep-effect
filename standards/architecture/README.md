@@ -46,4 +46,3 @@ composable, and reusable.
 
 This packet preserves the reasoning that matters for future design work. The
 binding rules live in `ARCHITECTURE.md`.
-

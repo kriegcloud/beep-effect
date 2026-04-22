@@ -1,3 +1,10 @@
+/**
+ * SQL validation error schemas.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $SchemaId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema/LiteralKit";
 import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass";

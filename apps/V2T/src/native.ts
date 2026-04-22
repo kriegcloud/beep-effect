@@ -45,7 +45,7 @@ export const Vt2SidecarStatus = LiteralKit(["stopped", "starting", "healthy", "f
   })
 );
 /**
- * Type for {@link Vt2SidecarStatus}. {@inheritDoc Vt2SidecarStatus}
+ * {@inheritDoc Vt2SidecarStatus}
  *
  * @example
  * ```ts
@@ -78,7 +78,7 @@ export const Vt2SidecarMode = LiteralKit(["managed-dev-portless", "managed-packa
   })
 );
 /**
- * Type for {@link Vt2SidecarMode}. {@inheritDoc Vt2SidecarMode}
+ * {@inheritDoc Vt2SidecarMode}
  *
  * @example
  * ```ts
@@ -111,7 +111,7 @@ export const Vt2ManagedCaptureStatus = LiteralKit(["idle", "capturing", "recover
   })
 );
 /**
- * Type for {@link Vt2ManagedCaptureStatus}. {@inheritDoc Vt2ManagedCaptureStatus}
+ * {@inheritDoc Vt2ManagedCaptureStatus}
  *
  * @example
  * ```ts

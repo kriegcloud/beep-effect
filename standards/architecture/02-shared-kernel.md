@@ -48,4 +48,3 @@ It should not know about database columns, browser date pickers, or Postgres
 time zones.
 
 Those adapter concerns belong in tables, UI, client, server, or providers.
-

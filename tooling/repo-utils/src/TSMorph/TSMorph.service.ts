@@ -113,10 +113,8 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
  * @example
  * ```ts
  * import { TsMorphServiceUnavailableError } from "@beep/repo-utils"
- *
  * const value = TsMorphServiceUnavailableError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -140,10 +138,8 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
  * @example
  * ```ts
  * import { TsMorphScopeResolutionError } from "@beep/repo-utils"
- *
  * const value = TsMorphScopeResolutionError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -167,10 +163,8 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
  * @example
  * ```ts
  * import { TsMorphProjectLoadError } from "@beep/repo-utils"
- *
  * const value = TsMorphProjectLoadError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -192,10 +186,8 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
  * @example
  * ```ts
  * import { TsMorphSourceFileError } from "@beep/repo-utils"
- *
  * const value = TsMorphSourceFileError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -218,10 +210,8 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
  * @example
  * ```ts
  * import { TsMorphSymbolNotFoundError } from "@beep/repo-utils"
- *
  * const value = TsMorphSymbolNotFoundError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -248,10 +238,8 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
  * @example
  * ```ts
  * import { TsMorphUnsupportedFileError } from "@beep/repo-utils"
- *
  * const value = TsMorphUnsupportedFileError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -275,10 +263,8 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
  * @example
  * ```ts
  * import { TSMorphServiceError } from "@beep/repo-utils"
- *
  * const value = TSMorphServiceError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -297,10 +283,8 @@ export const TSMorphServiceError = S.Union([
  * @example
  * ```ts
  * import type { TSMorphServiceError } from "@beep/repo-utils"
- *
  * type Example = TSMorphServiceError
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -312,10 +296,8 @@ export type TSMorphServiceError = typeof TSMorphServiceError.Type;
  * @example
  * ```ts
  * import type { TSMorphServiceShape } from "@beep/repo-utils"
- *
  * type Example = TSMorphServiceShape
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -353,10 +335,8 @@ export type TSMorphServiceShape = {
  * @example
  * ```ts
  * import { TSMorphService } from "@beep/repo-utils"
- *
  * const value = TSMorphService
  * ```
- *
  * @category PortContract
  * @since 0.0.0
  */
@@ -625,14 +605,11 @@ const collectOutlineEntries = Effect.fn(function* (
  * Construct the current live implementation for the v1 TSMorphService contract.
  *
  * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
- *
  * @example
  * ```ts
  * import { createTSMorphService } from "@beep/repo-utils"
- *
  * const value = createTSMorphService
  * ```
- *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -1231,10 +1208,8 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
  * @example
  * ```ts
  * import { TSMorphServiceLive } from "@beep/repo-utils"
- *
  * const value = TSMorphServiceLive
  * ```
- *
  * @category Configuration
  * @since 0.0.0
  */

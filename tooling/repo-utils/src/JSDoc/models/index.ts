@@ -1,8 +1,8 @@
 /**
  * Canonical source metadata model exports.
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 /* cspell:ignore Derivability */

@@ -43,11 +43,9 @@ const repoRootDirectory = fileURLToPath(new URL("../../../../", import.meta.url)
  * @example
  * ```ts
  * import type { DocsESLintConfigShape } from "@beep/repo-configs/eslint/DocsESLintConfig"
- *
  * const config = [] satisfies DocsESLintConfigShape
  * void config
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */
@@ -59,10 +57,8 @@ export type DocsESLintConfigShape = ReadonlyArray<Linter.Config>;
  * @example
  * ```ts
  * import { DocsESLintConfig } from "@beep/repo-configs/eslint/DocsESLintConfig"
- *
  * void DocsESLintConfig
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */

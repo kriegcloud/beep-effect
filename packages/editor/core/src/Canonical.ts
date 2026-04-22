@@ -1,3 +1,10 @@
+/**
+ * Canonical editor document schema model.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $EditorId } from "@beep/identity/packages";
 import { LiteralKit, MimeType, NonEmptyTrimmedStr, NonNegativeInt, SchemaUtils, Slug, UUID } from "@beep/schema";
 import { Struct } from "@beep/utils";

@@ -82,16 +82,14 @@ function checkFunction(model: Domain.Function) {
 /**
  * Checks documented functions for required docgen annotations.
  *
+ * @param models - Function models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkFunctions } from "@beep/docgen/Checker"
- *
  * const checked = checkFunctions([])
  * void checked
  * ```
- *
- * @param models - Function models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -110,16 +108,14 @@ const checkClass = Effect.fn("checkClass")(function* (model: Domain.Class) {
 /**
  * Checks documented classes and their members for required docgen annotations.
  *
+ * @param models - Class models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkClasses } from "@beep/docgen/Checker"
- *
  * const checked = checkClasses([])
  * void checked
  * ```
- *
- * @param models - Class models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -134,16 +130,14 @@ function checkConstant(model: Domain.Constant) {
 /**
  * Checks documented constants for required docgen annotations.
  *
+ * @param models - Constant models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkConstants } from "@beep/docgen/Checker"
- *
  * const checked = checkConstants([])
  * void checked
  * ```
- *
- * @param models - Constant models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -158,16 +152,14 @@ function checkInterface(model: Domain.Interface) {
 /**
  * Checks documented interfaces for required docgen annotations.
  *
+ * @param models - Interface models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkInterfaces } from "@beep/docgen/Checker"
- *
  * const checked = checkInterfaces([])
  * void checked
  * ```
- *
- * @param models - Interface models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -182,16 +174,14 @@ function checkTypeAlias(model: Domain.TypeAlias) {
 /**
  * Checks documented type aliases for required docgen annotations.
  *
+ * @param models - Type alias models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkTypeAliases } from "@beep/docgen/Checker"
- *
  * const checked = checkTypeAliases([])
  * void checked
  * ```
- *
- * @param models - Type alias models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -214,16 +204,14 @@ function checkNamespace(
 /**
  * Checks documented namespaces and their nested members for required docgen annotations.
  *
+ * @param models - Namespace models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkNamespaces } from "@beep/docgen/Checker"
- *
  * const checked = checkNamespaces([])
  * void checked
  * ```
- *
- * @param models - Namespace models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -238,16 +226,14 @@ function checkExport(model: Domain.Export) {
 /**
  * Checks documented manual exports for required docgen annotations.
  *
+ * @param models - Export models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkExports } from "@beep/docgen/Checker"
- *
  * const checked = checkExports([])
  * void checked
  * ```
- *
- * @param models - Export models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -258,15 +244,13 @@ export function checkExports(models: ReadonlyArray<Domain.Export>) {
 /**
  * Checks a parsed module and all of its documented members for required docgen annotations.
  *
+ * @param module - Module model to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkModule } from "@beep/docgen/Checker"
- *
  * void checkModule
  * ```
- *
- * @param module - Module model to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */
@@ -301,16 +285,14 @@ export function checkModule(module: Domain.Module) {
 /**
  * Checks multiple parsed modules for required docgen annotations.
  *
+ * @param modules - Module models to validate.
+ * @returns Effect that accumulates validation error messages.
  * @example
  * ```ts
  * import { checkModules } from "@beep/docgen/Checker"
- *
  * const checked = checkModules([])
  * void checked
  * ```
- *
- * @param modules - Module models to validate.
- * @returns Effect that accumulates validation error messages.
  * @category checkers
  * @since 0.0.0
  */

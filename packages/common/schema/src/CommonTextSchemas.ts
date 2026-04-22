@@ -1,3 +1,10 @@
+/**
+ * Shared text-normalization schemas.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $SchemaId } from "@beep/identity/packages";
 import { HashSet, identity, pipe, SchemaTransformation } from "effect";
 import * as A from "effect/Array";

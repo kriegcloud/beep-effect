@@ -1,8 +1,8 @@
 /**
  * Event and dependency tag occurrence shapes.
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -12,14 +12,11 @@ import { nameField, optionalDesc, optionalName } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/EventDependencyTagValues");
 
 /**
- *
  * @example
  * ```ts
  * import { FiresValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- *
  * void FiresValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -32,14 +29,11 @@ export class FiresValue extends S.TaggedClass<FiresValue>($I`FiresValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ListensValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- *
  * void ListensValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -52,14 +46,11 @@ export class ListensValue extends S.TaggedClass<ListensValue>($I`ListensValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { EventValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- *
  * void EventValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -72,14 +63,11 @@ export class EventValue extends S.TaggedClass<EventValue>($I`EventValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { RequiresValue } from "@beep/repo-utils/JSDoc/models/tag-values/EventDependencyTagValues"
- *
  * void RequiresValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */

@@ -33,7 +33,7 @@ export const EditorSidecarStatus = LiteralKit(["stopped", "starting", "healthy",
   })
 );
 /**
- * Type for {@link EditorSidecarStatus}. {@inheritDoc EditorSidecarStatus}
+ * {@inheritDoc EditorSidecarStatus}
  *
  * @example
  * ```ts
@@ -66,7 +66,7 @@ export const EditorSidecarMode = LiteralKit(["managed-dev-portless", "managed-pa
   })
 );
 /**
- * Type for {@link EditorSidecarMode}. {@inheritDoc EditorSidecarMode}
+ * {@inheritDoc EditorSidecarMode}
  *
  * @example
  * ```ts

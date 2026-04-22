@@ -11,7 +11,6 @@ import type { JSDocTagDefinition } from "./JSDocTagDefinition.model.js";
 /**
  * The payload type stored in the `jsDocTagMetadata` annotation key.
  *
- *
  * @example
  * ```ts
  * import type { JSDocTagAnnotationPayload } from "@beep/repo-utils/JSDoc/models/JSDocTagAnnotation.model"
@@ -20,7 +19,6 @@ import type { JSDocTagDefinition } from "./JSDocTagDefinition.model.js";
  * const accept = <A extends Example>(value: A): A => value
  * void accept
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -37,15 +35,14 @@ declare module "effect/Schema" {
 /**
  * Retrieve the JSDoc tag metadata annotation from a schema, if present.
  *
- *
+ * @param schema - Any Effect schema.
+ * @returns The JSDocTagDefinition metadata or `undefined`.
  * @example
  * ```ts
  * import { getJSDocTagMetadata } from "@beep/repo-utils/JSDoc/models/JSDocTagAnnotation.model"
  *
  * void getJSDocTagMetadata
  * ```
- * * @param schema - Any Effect schema.
- * @returns The JSDocTagDefinition metadata or `undefined`.
  * @category models
  * @since 0.0.0
  */

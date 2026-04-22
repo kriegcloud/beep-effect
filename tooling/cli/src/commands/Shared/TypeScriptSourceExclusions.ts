@@ -55,12 +55,12 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES = [
 /**
  * Normalize filesystem paths to POSIX separators before string matching.
  *
+ * @param value - Path string to normalize.
+ * @returns POSIX-normalized path string.
  * @example
  * ```ts
  * console.log("toPosixPath")
  * ```
- * @param value - Path string to normalize.
- * @returns POSIX-normalized path string.
  * @category utilities
  * @since 0.0.0
  */
@@ -69,12 +69,12 @@ export const toPosixPath = (value: string): string => Str.replace(/\\/g, "/")(va
 /**
  * Check whether a TypeScript source path should be excluded from lint traversals.
  *
+ * @param filePath - Relative or absolute path to inspect.
+ * @returns True when the path matches an excluded segment or suffix rule.
  * @example
  * ```ts
  * console.log("isExcludedTypeScriptSourcePath")
  * ```
- * @param filePath - Relative or absolute path to inspect.
- * @returns True when the path matches an excluded segment or suffix rule.
  * @category utilities
  * @since 0.0.0
  */

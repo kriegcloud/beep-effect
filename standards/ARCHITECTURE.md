@@ -188,7 +188,7 @@ flowchart LR
   subgraph slice["Slice: iam"]
     domain["domain\nrich models, values, contracts, events"]
     usecases["use-cases\ncommands, queries, product ports"]
-    server["server\nhandlers, product port impls"]
+    server["server\nhandlers, product port implementations"]
     client["client\nremote clients, atoms, form models"]
     tables["tables\nwrite/read model tables"]
     ui["ui\nReact views and controls"]

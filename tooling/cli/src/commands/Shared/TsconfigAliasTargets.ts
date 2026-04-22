@@ -83,12 +83,12 @@ const firstRelativeDotPath = (value: unknown): O.Option<string> => {
 /**
  * Resolve the canonical root export target from a package `exports` field.
  *
+ * @param exportsField - Raw `exports` field value from `package.json`.
+ * @returns The first relative `./...` target for the root export when one exists.
  * @example
  * ```ts
  * console.log("resolveRootExportTarget")
  * ```
- * @param exportsField - Raw `exports` field value from `package.json`.
- * @returns The first relative `./...` target for the root export when one exists.
  * @category models
  * @since 0.0.0
  */
@@ -108,13 +108,13 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
 /**
  * Resolve a specific subpath export target from a package `exports` field.
  *
+ * @param exportsField - Raw `exports` field value from `package.json`.
+ * @param subpath - Package subpath key such as `"./*"`.
+ * @returns The first relative `./...` target for the requested subpath when one exists.
  * @example
  * ```ts
  * console.log("resolveSubpathExportTarget")
  * ```
- * @param exportsField - Raw `exports` field value from `package.json`.
- * @param subpath - Package subpath key such as `"./*"`.
- * @returns The first relative `./...` target for the requested subpath when one exists.
  * @category models
  * @since 0.0.0
  */
@@ -132,12 +132,12 @@ export const resolveSubpathExportTarget = (exportsField: unknown, subpath: strin
 /**
  * Resolve the wildcard export target from a package `exports` field.
  *
+ * @param exportsField - Raw `exports` field value from `package.json`.
+ * @returns The first relative `./...` target for the `"./*"` subpath when one exists.
  * @example
  * ```ts
  * console.log("resolveWildcardExportTarget")
  * ```
- * @param exportsField - Raw `exports` field value from `package.json`.
- * @returns The first relative `./...` target for the `"./*"` subpath when one exists.
  * @category models
  * @since 0.0.0
  */
@@ -147,13 +147,13 @@ export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<str
 /**
  * Build root and wildcard alias targets for a package export target.
  *
+ * @param packagePath - Workspace-relative package path used in tsconfig alias targets.
+ * @param rootExportTarget - Canonical root export target resolved from the package `exports` field.
+ * @returns Canonical root and wildcard alias targets for tsconfig path mapping.
  * @example
  * ```ts
  * console.log("buildCanonicalAliasTargets")
  * ```
- * @param packagePath - Workspace-relative package path used in tsconfig alias targets.
- * @param rootExportTarget - Canonical root export target resolved from the package `exports` field.
- * @returns Canonical root and wildcard alias targets for tsconfig path mapping.
  * @category models
  * @since 0.0.0
  */
@@ -186,14 +186,14 @@ const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
  * Unlike root tsconfig aliases, docgen aliases should mirror source exports directly
  * so example imports resolve to concrete `*.ts` files.
  *
- * @example
- * ```ts
- * console.log("buildDocgenAliasTargets")
- * ```
  * @param packagePath - Workspace-relative package path used in alias targets.
  * @param rootExportTarget - Canonical root export target resolved from package `exports`.
  * @param wildcardExportTarget - Optional explicit wildcard export target from package `exports`.
  * @returns Source alias targets suitable for docgen `examplesCompilerOptions.paths`.
+ * @example
+ * ```ts
+ * console.log("buildDocgenAliasTargets")
+ * ```
  * @category models
  * @since 0.0.0
  */

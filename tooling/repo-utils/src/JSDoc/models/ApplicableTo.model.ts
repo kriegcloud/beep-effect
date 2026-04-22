@@ -12,14 +12,12 @@ const $I = $RepoUtilsId.create("JSDoc/models/ApplicableTo.model");
 /**
  * AST-level attachment surface for a documentation tag.
  *
- *
  * @example
  * ```ts
  * import { ApplicableTo } from "@beep/repo-utils/JSDoc/models/ApplicableTo.model"
  *
  * void ApplicableTo
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -61,7 +59,6 @@ export const ApplicableTo = LiteralKit([
 /**
  * JSDoc model export.
  *
- *
  * @example
  * ```ts
  * import type { ApplicableTo } from "@beep/repo-utils/JSDoc/models/ApplicableTo.model"
@@ -70,7 +67,6 @@ export const ApplicableTo = LiteralKit([
  * const accept = <A extends Example>(value: A): A => value
  * void accept
  * ```
- *
  * @category models
  * @since 0.0.0
  */

@@ -10,7 +10,7 @@ import * as jsonc from "jsonc-parser";
 import { describe, expect, it } from "vitest";
 
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
-const tscBinPath = fileURLToPath(new URL("../../../node_modules/typescript/bin/tsc", import.meta.url));
+const tsgoBinPath = fileURLToPath(new URL("../../../node_modules/.bin/tsgo", import.meta.url));
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = Layer.mergeAll(PlatformLayer, NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(PlatformLayer)));
@@ -94,11 +94,11 @@ const bootstrapTsgoProject = Effect.fn(function* (projectDir: string) {
   );
 });
 
-const runTscOnProject = Effect.fn(function* (projectDir: string) {
+const runTsgoOnProject = Effect.fn(function* (projectDir: string) {
   const path = yield* Path.Path;
   const command = ChildProcess.make(
     process.execPath,
-    [tscBinPath, "--noEmit", "--pretty", "false", "-p", path.join(projectDir, "tsconfig.json")],
+    [tsgoBinPath, "--noEmit", "--pretty", "false", "-p", path.join(projectDir, "tsconfig.json")],
     {
       cwd: projectDir,
       stdout: "pipe",
@@ -130,7 +130,7 @@ describe("Effect tsgo effectFn policy", () => {
       withTempProject((projectDir) =>
         Effect.gen(function* () {
           yield* bootstrapTsgoProject(projectDir);
-          const result = yield* runTscOnProject(projectDir);
+          const result = yield* runTsgoOnProject(projectDir);
           const output = Str.trim(`${result.stdout}\n${result.stderr}`);
           const effectFnOpportunityMatches = output.match(/effect\(effectFnOpportunity\)/g) ?? [];
 

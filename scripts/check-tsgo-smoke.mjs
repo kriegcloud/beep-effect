@@ -8,6 +8,7 @@ import { fileURLToPath } from "node:url";
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
 const tmpRoot = path.join(rootDir, "node_modules", ".tmp");
+mkdirSync(tmpRoot, { recursive: true });
 const smokeDir = mkdtempSync(path.join(tmpRoot, "tsgo-smoke-"));
 const srcDir = path.join(smokeDir, "src");
 const tsconfigPath = path.join(smokeDir, "tsconfig.json");
@@ -28,7 +29,6 @@ process.on("SIGTERM", () => {
   process.exit(143);
 });
 
-mkdirSync(tmpRoot, { recursive: true });
 mkdirSync(srcDir, { recursive: true });
 
 writeFileSync(

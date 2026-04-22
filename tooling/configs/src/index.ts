@@ -16,10 +16,8 @@ import {
  * @example
  * ```ts
  * import { VERSION } from "@beep/repo-configs"
- *
  * void VERSION
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */
@@ -31,11 +29,9 @@ export const VERSION = "0.0.0" as const;
  * @example
  * ```ts
  * import type { DocsESLintConfigShape } from "@beep/repo-configs"
- *
  * const config = [] satisfies DocsESLintConfigShape
  * void config
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */
@@ -47,10 +43,8 @@ export type DocsESLintConfigShape = DocsESLintConfigShapeInternal;
  * @example
  * ```ts
  * import { DocsESLintConfig } from "@beep/repo-configs"
- *
  * void DocsESLintConfig
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */

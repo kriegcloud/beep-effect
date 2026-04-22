@@ -43,14 +43,12 @@ const decodedAllowlistSnapshot = pipe(
  *
  * Snapshot-backed runtime has no mutable cache, so this is a compatibility no-op.
  *
+ * @returns `undefined` because snapshot-backed runtime has no mutable cache.
  * @example
  * ```ts
  * import { resetAllowlistCache } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
- *
  * resetAllowlistCache()
  * ```
- *
- * @returns `undefined` because snapshot-backed runtime has no mutable cache.
  * @category utilities
  * @since 0.0.0
  */
@@ -59,15 +57,13 @@ export const resetAllowlistCache = (): void => undefined;
 /**
  * Retrieve allowlist decode diagnostics.
  *
+ * @returns Read-only diagnostic messages produced while loading/decoding the allowlist document.
  * @example
  * ```ts
  * import { getAllowlistDiagnostics } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
- *
  * const diagnostics = getAllowlistDiagnostics()
  * void diagnostics
  * ```
- *
- * @returns Read-only diagnostic messages produced while loading/decoding the allowlist document.
  * @category utilities
  * @since 0.0.0
  */
@@ -76,10 +72,11 @@ export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllow
 /**
  * Check whether a normalized violation key appears in the effect-laws allowlist.
  *
+ * @param input - Candidate violation identity payload.
+ * @returns `true` when an allowlist entry exactly matches the normalized lookup key.
  * @example
  * ```ts
  * import { isViolationAllowlisted } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
- *
  * const allowlisted = isViolationAllowlisted({
  *   ruleId: "effect/no-native-runtime",
  *   filePath: "tooling/cli/src/commands/Lint/index.ts",
@@ -87,9 +84,6 @@ export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllow
  * })
  * void allowlisted
  * ```
- *
- * @param input - Candidate violation identity payload.
- * @returns `true` when an allowlist entry exactly matches the normalized lookup key.
  * @category utilities
  * @since 0.0.0
  */

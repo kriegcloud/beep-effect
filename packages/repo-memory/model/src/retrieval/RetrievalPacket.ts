@@ -1,3 +1,10 @@
+/**
+ * Retrieval packet helpers and public model re-exports.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";

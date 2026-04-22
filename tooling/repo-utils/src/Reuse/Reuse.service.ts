@@ -100,14 +100,12 @@ class WorkspacePackageManifest extends S.Class<WorkspacePackageManifest>($I`Work
  * @example
  * ```ts
  * import { ReuseAnalysisError } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const error = new ReuseAnalysisError({
  *   message: "Inventory scan failed",
  *   operation: "buildInventory"
  * })
  * void error.operation
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */
@@ -128,14 +126,12 @@ export class ReuseAnalysisError extends TaggedErrorClass<ReuseAnalysisError>($I`
  * @example
  * ```ts
  * import { ReuseCandidateNotFoundError } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const error = new ReuseCandidateNotFoundError({
  *   candidateId: "candidate:missing",
  *   scopeSelector: "tooling/repo-utils"
  * })
  * void error.candidateId
  * ```
- *
  * @category error handling
  * @since 0.0.0
  */
@@ -930,14 +926,12 @@ type ReuseCatalogServiceShape = {
  * ```ts
  * import { Effect } from "effect"
  * import { ReuseCatalogService } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const program = Effect.gen(function* () {
  *   const service = yield* ReuseCatalogService
  *   return service
  * })
  * void program
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -962,14 +956,12 @@ type ReusePartitionPlannerServiceShape = {
  * ```ts
  * import { Effect } from "effect"
  * import { ReusePartitionPlannerService } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const program = Effect.gen(function* () {
  *   const service = yield* ReusePartitionPlannerService
  *   return service
  * })
  * void program
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1002,14 +994,12 @@ type ReuseDiscoveryServiceShape = {
  * ```ts
  * import { Effect } from "effect"
  * import { ReuseDiscoveryService } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const program = Effect.gen(function* () {
  *   const service = yield* ReuseDiscoveryService
  *   return service
  * })
  * void program
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1038,14 +1028,12 @@ type ReuseInventoryServiceShape = {
  * ```ts
  * import { Effect } from "effect"
  * import { ReuseInventoryService } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const program = Effect.gen(function* () {
  *   const service = yield* ReuseInventoryService
  *   return service
  * })
  * void program
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -1077,11 +1065,9 @@ const ReuseAnalysisContextLive = Layer.effect(
  * @example
  * ```ts
  * import { ReuseCatalogServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const layer = ReuseCatalogServiceLive
  * void layer
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -1126,11 +1112,9 @@ export const ReuseCatalogServiceLive = Layer.effect(
  * @example
  * ```ts
  * import { ReusePartitionPlannerServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const layer = ReusePartitionPlannerServiceLive
  * void layer
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -1221,11 +1205,9 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
  * @example
  * ```ts
  * import { ReuseDiscoveryServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const layer = ReuseDiscoveryServiceLive
  * void layer
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -1375,11 +1357,9 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
  * @example
  * ```ts
  * import { ReuseInventoryServiceLive } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const layer = ReuseInventoryServiceLive
  * void layer
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */
@@ -1451,11 +1431,9 @@ const ReuseCatalogAndDiscoveryLive = Layer.mergeAll(
  * @example
  * ```ts
  * import { ReuseServiceSuiteLive } from "@beep/repo-utils/Reuse/Reuse.service"
- *
  * const layer = ReuseServiceSuiteLive
  * void layer
  * ```
- *
  * @category constructors
  * @since 0.0.0
  */

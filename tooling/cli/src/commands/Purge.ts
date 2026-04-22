@@ -137,14 +137,13 @@ export class PurgeSummary extends S.Class<PurgeSummary>($I`PurgeSummary`)(
  * Build absolute purge targets from root + workspace artifact rules.
  *
  * @internal
- *
+ * @param rootDir - Absolute repo root directory.
+ * @param removeLock - Whether to include root `bun.lock`.
+ * @returns Deduplicated absolute paths to purge and workspace count.
  * @example
  * ```ts
  * console.log("docgen metadata")
  * ```
- * @param rootDir - Absolute repo root directory.
- * @param removeLock - Whether to include root `bun.lock`.
- * @returns Deduplicated absolute paths to purge and workspace count.
  * @category utilities
  * @since 0.0.0
  */
@@ -178,13 +177,13 @@ const buildPurgeTargets = Effect.fn(function* (rootDir: string, removeLock: bool
 /**
  * Purge root/workspace artifacts under a specific root directory.
  *
+ * @param rootDir - Absolute repo root directory.
+ * @param removeLock - Whether to include root `bun.lock`.
+ * @returns Purge summary with targeted and existing-removed counts.
  * @example
  * ```ts
  * console.log("purgeAtRoot")
  * ```
- * @param rootDir - Absolute repo root directory.
- * @param removeLock - Whether to include root `bun.lock`.
- * @returns Purge summary with targeted and existing-removed counts.
  * @category utilities
  * @since 0.0.0
  */

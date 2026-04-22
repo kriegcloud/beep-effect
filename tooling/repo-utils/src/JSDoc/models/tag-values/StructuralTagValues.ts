@@ -1,8 +1,8 @@
 /**
  * Structural tag occurrence shapes (AST-derivable).
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -12,14 +12,11 @@ import { empty, nameField, optionalDesc, optionalName, optionalType, typeField }
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/StructuralTagValues");
 
 /**
- *
  * @example
  * ```ts
  * import { ParamValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void ParamValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -32,14 +29,11 @@ export class ParamValue extends S.TaggedClass<ParamValue>($I`ParamValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ReturnsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void ReturnsValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -52,14 +46,11 @@ export class ReturnsValue extends S.TaggedClass<ReturnsValue>($I`ReturnsValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ThrowsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void ThrowsValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -72,14 +63,11 @@ export class ThrowsValue extends S.TaggedClass<ThrowsValue>($I`ThrowsValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { TemplateValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void TemplateValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -92,14 +80,11 @@ export class TemplateValue extends S.TaggedClass<TemplateValue>($I`TemplateValue
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { TypeParamValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void TypeParamValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -112,14 +97,11 @@ export class TypeParamValue extends S.TaggedClass<TypeParamValue>($I`TypeParamVa
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { TypeValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void TypeValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -132,14 +114,11 @@ export class TypeValue extends S.TaggedClass<TypeValue>($I`TypeValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { TypedefValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void TypedefValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -152,14 +131,11 @@ export class TypedefValue extends S.TaggedClass<TypedefValue>($I`TypedefValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { CallbackValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void CallbackValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -172,14 +148,11 @@ export class CallbackValue extends S.TaggedClass<CallbackValue>($I`CallbackValue
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { AugmentsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void AugmentsValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -192,14 +165,11 @@ export class AugmentsValue extends S.TaggedClass<AugmentsValue>($I`AugmentsValue
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ImplementsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void ImplementsValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -212,14 +182,11 @@ export class ImplementsValue extends S.TaggedClass<ImplementsValue>($I`Implement
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ClassValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void ClassValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -232,14 +199,11 @@ export class ClassValue extends S.TaggedClass<ClassValue>($I`ClassValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { EnumValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void EnumValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -252,14 +216,11 @@ export class EnumValue extends S.TaggedClass<EnumValue>($I`EnumValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { AsyncValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void AsyncValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -272,14 +233,11 @@ export class AsyncValue extends S.TaggedClass<AsyncValue>($I`AsyncValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { GeneratorValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void GeneratorValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -292,14 +250,11 @@ export class GeneratorValue extends S.TaggedClass<GeneratorValue>($I`GeneratorVa
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { YieldsValue } from "@beep/repo-utils/JSDoc/models/tag-values/StructuralTagValues"
- *
  * void YieldsValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */

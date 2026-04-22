@@ -21,14 +21,12 @@ const fields = { member: S.String } as const;
 /**
  * JSDoc model export.
  *
- *
  * @example
  * ```ts
  * import { HasJSDocApplicableToMapEntry } from "@beep/repo-utils/JSDoc/models/HasJSDocApplicableToMapEntry.model"
  *
  * void HasJSDocApplicableToMapEntry
  * ```
- *
  * @category models
  * @since 0.0.0
  */

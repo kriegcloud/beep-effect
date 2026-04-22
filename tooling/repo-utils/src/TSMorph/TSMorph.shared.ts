@@ -33,10 +33,8 @@ import { symbolCategoryFromKind } from "./TSMorph.model.js";
  * @example
  * ```ts
  * import type { OutlineDeclaration } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * type Example = OutlineDeclaration
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -64,10 +62,8 @@ const bySymbolStartLineAscending: Order.Order<TsMorphSymbol> = Order.mapInput(
  * @example
  * ```ts
  * import { byTsMorphSymbolAscending } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = byTsMorphSymbolAscending
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -95,10 +91,8 @@ const byDiagnosticCodeAscending: Order.Order<TsMorphDiagnostic> = Order.mapInput
  * @example
  * ```ts
  * import { byNormalizedDiagnosticAscending } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = byNormalizedDiagnosticAscending
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -120,14 +114,11 @@ const firstSignatureLine = (text: string): string =>
  *
  * @param node - Declaration node that may carry JSDoc metadata.
  * @returns Normalized declaration description text when present.
- *
  * @example
  * ```ts
  * import { readDocstring } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = readDocstring
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -151,14 +142,11 @@ export const readDocstring = (node: OutlineDeclaration): O.Option<string> => {
  *
  * @param node - Declaration node that may carry decorators.
  * @returns Normalized decorator source text in declaration order.
- *
  * @example
  * ```ts
  * import { readDecorators } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = readDecorators
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -172,14 +160,11 @@ export const readDecorators = (node: OutlineDeclaration): ReadonlyArray<string> 
  *
  * @param node - Declaration node to read.
  * @returns First non-empty line from the declaration source text.
- *
  * @example
  * ```ts
  * import { readSignature } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = readSignature
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -199,14 +184,11 @@ export const readSignature = (node: OutlineDeclaration): string => {
  *
  * @param docstring - Optional normalized JSDoc description text.
  * @returns Stable summary text used by the public symbol model.
- *
  * @example
  * ```ts
  * import { makeSummary } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = makeSummary
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -219,14 +201,11 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * @param qualifiedName - Fully qualified symbol path.
  * @param kind - Public symbol kind literal.
  * @returns Stable keyword set used by the public symbol model.
- *
  * @example
  * ```ts
  * import { makeKeywords } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = makeKeywords
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -239,14 +218,11 @@ export const makeKeywords = (name: string, qualifiedName: string, kind: SymbolKi
  * @param symbol - Public normalized symbol metadata.
  * @param sourceText - Extracted declaration source text.
  * @returns Lowercased search corpus for symbol lookup and filtering.
- *
  * @example
  * ```ts
  * import { makeScopeSymbolSearchText } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = makeScopeSymbolSearchText
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -286,14 +262,11 @@ const flattenDiagnosticMessageTextMatcher = Match.type<string | DiagnosticMessag
  *
  * @param message - Diagnostic string or nested TypeScript message chain.
  * @returns Normalized multi-line diagnostic text.
- *
  * @example
  * ```ts
  * import { flattenDiagnosticMessageText } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = flattenDiagnosticMessageText
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -317,14 +290,11 @@ const normalizeDiagnosticCategoryMatcher = Match.type<DiagnosticCategory>().pipe
  *
  * @param category - Raw TypeScript diagnostic category.
  * @returns Public service diagnostic category literal.
- *
  * @example
  * ```ts
  * import { normalizeDiagnosticCategory } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = normalizeDiagnosticCategory
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -336,14 +306,11 @@ export const normalizeDiagnosticCategory = (category: DiagnosticCategory): TsMor
  *
  * @param declaration - Supported declaration node to inspect.
  * @returns Normalized declaration name and public kind when available.
- *
  * @example
  * ```ts
  * import { getDeclarationName } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = getDeclarationName
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */
@@ -415,14 +382,11 @@ export const getDeclarationName = (
  * @param parentSymbol - Parent symbol, when the declaration is nested.
  * @param name - Child declaration name segment.
  * @returns Qualified symbol name anchored to the nearest parent symbol.
- *
  * @example
  * ```ts
  * import { pipeQualifiedName } from "@beep/repo-utils/TSMorph/TSMorph.shared"
- *
  * const value = pipeQualifiedName
  * ```
- *
  * @category CrossCutting
  * @since 0.0.0
  */

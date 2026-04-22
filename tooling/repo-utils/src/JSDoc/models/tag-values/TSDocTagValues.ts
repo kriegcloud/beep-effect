@@ -11,14 +11,11 @@ import { empty, nameField, optionalDesc } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TSDocTagValues");
 
 /**
- *
  * @example
  * ```ts
  * import { AlphaValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void AlphaValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -31,14 +28,11 @@ export class AlphaValue extends S.TaggedClass<AlphaValue>($I`AlphaValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { BetaValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void BetaValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -51,14 +45,11 @@ export class BetaValue extends S.TaggedClass<BetaValue>($I`BetaValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { ExperimentalValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void ExperimentalValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -71,14 +62,11 @@ export class ExperimentalValue extends S.TaggedClass<ExperimentalValue>($I`Exper
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { InternalValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void InternalValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -91,14 +79,11 @@ export class InternalValue extends S.TaggedClass<InternalValue>($I`InternalValue
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { SealedValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void SealedValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -111,14 +96,11 @@ export class SealedValue extends S.TaggedClass<SealedValue>($I`SealedValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { VirtualValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void VirtualValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -131,14 +113,11 @@ export class VirtualValue extends S.TaggedClass<VirtualValue>($I`VirtualValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { PrivateRemarksValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void PrivateRemarksValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -151,14 +130,11 @@ export class PrivateRemarksValue extends S.TaggedClass<PrivateRemarksValue>($I`P
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { PackageDocumentationValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void PackageDocumentationValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -171,14 +147,11 @@ export class PackageDocumentationValue extends S.TaggedClass<PackageDocumentatio
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { LabelValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void LabelValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -191,14 +164,11 @@ export class LabelValue extends S.TaggedClass<LabelValue>($I`LabelValue`)(
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { DecoratorValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void DecoratorValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */
@@ -211,14 +181,11 @@ export class DecoratorValue extends S.TaggedClass<DecoratorValue>($I`DecoratorVa
 ) {}
 
 /**
- *
  * @example
  * ```ts
  * import { EventPropertyValue } from "@beep/repo-utils/JSDoc/models/tag-values/TSDocTagValues"
- *
  * void EventPropertyValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */

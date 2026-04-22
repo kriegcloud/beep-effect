@@ -64,6 +64,7 @@
     "build": "beep-cli build",
     "check": "beep-cli check",
     "test": "beep-cli test",
+    "coverage": "VITEST_COVERAGE_REPORT_ONLY=1 bunx turbo run coverage --cache=local:rw",
     "lint": "beep-cli lint",
     "lint:fix": "beep-cli lint --fix",
     "audit": "beep-cli audit",

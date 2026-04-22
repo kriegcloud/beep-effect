@@ -1,8 +1,8 @@
 /**
  * TypeScript-specific tag occurrence shapes.
  *
- * @category models
  * @packageDocumentation
+ * @category models
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
@@ -12,14 +12,11 @@ import { empty } from "./_fields.js";
 const $I = $RepoUtilsId.create("JSDoc/models/tag-values/TypeScriptTagValues");
 
 /**
- *
  * @example
  * ```ts
  * import { OverloadValue } from "@beep/repo-utils/JSDoc/models/tag-values/TypeScriptTagValues"
- *
  * void OverloadValue
  * ```
- *
  * @category models
  * @since 0.0.0
  */

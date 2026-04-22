@@ -65,4 +65,3 @@ The slice should answer:
 
 When those answers are visible in topology, the repo becomes easier to work in
 than a flat pile of clever abstractions.
-

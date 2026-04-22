@@ -110,10 +110,8 @@ const getCandidateComments = (sourceCode: SourceCode, node: Rule.Node): Readonly
  * @example
  * ```ts
  * import { requireCategoryTagRule } from "@beep/repo-configs/eslint/RequireCategoryTagRule"
- *
  * void requireCategoryTagRule
  * ```
- *
  * @category configuration
  * @since 0.0.0
  */

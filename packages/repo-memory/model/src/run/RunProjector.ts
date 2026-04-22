@@ -1,3 +1,10 @@
+/**
+ * Repository memory run projection helpers.
+ *
+ * @module
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryModelId } from "@beep/identity/packages";
 import { NonNegativeInt, StatusCauseTaggedErrorClass } from "@beep/schema";
 import { type DateTime, Effect, Match, pipe } from "effect";
