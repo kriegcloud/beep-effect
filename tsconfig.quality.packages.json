@@ -100,10 +100,10 @@
       "path": "packages/shared/client"
     },
     {
-      "path": "packages/shared/domain"
+      "path": "packages/shared/config"
     },
     {
-      "path": "packages/shared/config"
+      "path": "packages/shared/domain"
     },
     {
       "path": "packages/shared/providers/firecrawl"

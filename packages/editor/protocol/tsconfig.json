@@ -12,7 +12,7 @@
       "path": "../../common/schema/tsconfig.json"
     },
     {
-      "path": "../core/tsconfig.json"
+      "path": "../domain/tsconfig.json"
     },
     {
       "path": "../../common/identity/tsconfig.json"
