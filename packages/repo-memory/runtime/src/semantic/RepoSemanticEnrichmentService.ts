@@ -1,3 +1,10 @@
+/**
+ * Semantic enrichment service for indexed repo-memory artifacts.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import { RepoSemanticArtifacts, RunId, type SourceSnapshotId } from "@beep/repo-memory-model";
 import { StatusCauseTaggedErrorClass } from "@beep/schema";
@@ -207,8 +214,15 @@ const anchorForImportEdge = (input: {
 /**
  * Input required to derive semantic artifacts from a deterministic index run.
  *
+ * @example
+ * ```ts
+ * import { RepoSemanticEnrichmentRequest } from "@beep/repo-memory-runtime"
+ *
+ * const schema = RepoSemanticEnrichmentRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RepoSemanticEnrichmentRequest extends S.Class<RepoSemanticEnrichmentRequest>(
   $I`RepoSemanticEnrichmentRequest`
@@ -225,8 +239,15 @@ export class RepoSemanticEnrichmentRequest extends S.Class<RepoSemanticEnrichmen
 /**
  * Typed failure raised while deriving semantic artifacts.
  *
+ * @example
+ * ```ts
+ * import { RepoSemanticEnrichmentError } from "@beep/repo-memory-runtime"
+ *
+ * const error = RepoSemanticEnrichmentError.noCause("Unable to derive semantic artifacts.", 500)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RepoSemanticEnrichmentError extends StatusCauseTaggedErrorClass<RepoSemanticEnrichmentError>(
   $I`RepoSemanticEnrichmentError`
@@ -240,8 +261,15 @@ export class RepoSemanticEnrichmentError extends StatusCauseTaggedErrorClass<Rep
 /**
  * Service contract for deterministic semantic enrichment of indexed repo snapshots.
  *
+ * @example
+ * ```ts
+ * import type { RepoSemanticEnrichmentServiceShape } from "@beep/repo-memory-runtime"
+ *
+ * const methods = ["deriveSemanticArtifacts"] satisfies ReadonlyArray<keyof RepoSemanticEnrichmentServiceShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export interface RepoSemanticEnrichmentServiceShape {
   readonly deriveSemanticArtifacts: (
@@ -435,8 +463,15 @@ const deriveSemanticArtifacts = Effect.fn("RepoSemanticEnrichmentService.deriveS
 /**
  * Service tag for deterministic repo semantic enrichment.
  *
+ * @example
+ * ```ts
+ * import { RepoSemanticEnrichmentService } from "@beep/repo-memory-runtime"
+ *
+ * const layer = RepoSemanticEnrichmentService.layer
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoSemanticEnrichmentService extends Context.Service<
   RepoSemanticEnrichmentService,

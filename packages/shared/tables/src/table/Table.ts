@@ -1,3 +1,10 @@
+/**
+ * Shared SQLite table factory.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import type { BuildColumns, ColumnBuilderBase } from "drizzle-orm";
 import * as sqlite from "drizzle-orm/sqlite-core";
 import type { DefaultColumnKey } from "../columns.js";
@@ -32,8 +39,25 @@ const makeIdColumn = <TEntityId extends EntityIdLike>() =>
 /**
  * Create a shared SQLite table with the canonical default columns injected.
  *
+ * @example
+ * ```ts
+ * import { Table } from "@beep/shared-tables"
+ * import * as sqlite from "drizzle-orm/sqlite-core"
+ *
+ * const makeUserTable = Table.make({
+ *   _tag: "UserId",
+ *   slice: "shared",
+ *   tableName: "users"
+ * })
+ * const users = makeUserTable({
+ *   name: sqlite.text("name")
+ * })
+ *
+ * void users
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const make = <const TEntityId extends EntityIdLike>(entityId: TEntityId) => {
   const defaultColumns = {

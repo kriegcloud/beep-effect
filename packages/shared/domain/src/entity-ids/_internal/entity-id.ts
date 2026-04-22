@@ -1,4 +1,7 @@
 /**
+ * Entity-id schema factory internals for the shared domain package.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -14,16 +17,34 @@ const $I = $SharedDomainId.create("EntityId");
 /**
  * Maximum value for a positive JavaScript safe integer-backed entity id.
  *
+ * @example
+ * ```ts
+ * import { ENTITY_ID_SAFE_MAX } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const max = ENTITY_ID_SAFE_MAX
+ *
+ * void max
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const ENTITY_ID_SAFE_MAX = Number.MAX_SAFE_INTEGER;
 
 /**
  * Range filter constraining a number to the supported entity-id range.
  *
+ * @example
+ * ```ts
+ * import { isEntityIdValueRange } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const valid = isEntityIdValueRange(1)
+ *
+ * void valid
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const isEntityIdValueRange = S.isBetween({ minimum: 1, maximum: ENTITY_ID_SAFE_MAX });
 
@@ -35,8 +56,19 @@ export const isEntityIdValueRange = S.isBetween({ minimum: 1, maximum: ENTITY_ID
  * - Minimum value of 1 (auto-increment starts at 1)
  * - Maximum value of `Number.MAX_SAFE_INTEGER`
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EntityIdValue } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const decode = S.decodeUnknownSync(EntityIdValue)
+ * const id = decode(1)
+ *
+ * void id
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const EntityIdValue = S.Int.check(isEntityIdValueRange).pipe(
   S.brand("EntityIdValue"),
@@ -50,16 +82,40 @@ export const EntityIdValue = S.Int.check(isEntityIdValueRange).pipe(
 /**
  * Type for {@link EntityIdValue}.
  *
+ * @example
+ * ```ts
+ * import type { EntityIdValue } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const readValue = (id: EntityIdValue) => id
+ *
+ * void readValue
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export type EntityIdValue = typeof EntityIdValue.Type;
 
 /**
  * Schema class describing an entity-id schema definition.
  *
+ * @example
+ * ```ts
+ * import { EntityIdDefinition } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const definition = new EntityIdDefinition({
+ *   _tag: "UserId",
+ *   brand: "UserId",
+ *   tableName: "user",
+ *   context: "shared",
+ *   description: "User entity id."
+ * })
+ *
+ * void definition
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdDefinition`)(
   {
@@ -81,8 +137,17 @@ export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdD
 /**
  * Entity-id schema namespace and associated type helpers.
  *
+ * @example
+ * ```ts
+ * import type { EntityId } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const readEntityId = (id: EntityId.Any) => id
+ *
+ * void readEntityId
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export declare namespace EntityId {
   /**
@@ -142,8 +207,17 @@ export declare namespace EntityId {
 /**
  * Builds a branded entity-id schema for a slice-specific identity composer.
  *
+ * @example
+ * ```ts
+ * import { make } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const makeEntityId = make
+ *
+ * void makeEntityId
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const make =
   <
@@ -175,8 +249,19 @@ export const make =
 /**
  * Type alias for a decoded entity-id value.
  *
+ * @example
+ * ```ts
+ * import type { EntityId } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const readOrganizationId = (
+ *   id: EntityId<"OrganizationId", "organization", "shared">
+ * ) => id
+ *
+ * void readOrganizationId
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export type EntityId<
   TTag extends TString.NonEmpty,
@@ -187,8 +272,17 @@ export type EntityId<
 /**
  * Curried entity-id factory creator.
  *
+ * @example
+ * ```ts
+ * import { factory } from "@beep/shared-domain/entity-ids/_internal/entity-id"
+ *
+ * const makeFactory = factory
+ *
+ * void makeFactory
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const factory = flow(
   <const TSlice extends TString.NonEmpty>(

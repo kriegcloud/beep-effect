@@ -1,3 +1,10 @@
+/**
+ * Effect-first sidecar runtime for serving the local editor control plane.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import {
   createPageDocument,
   createWorkspaceManifest,
@@ -64,8 +71,25 @@ const SidecarPort = NonNegativeInt.pipe(
 const supportedExportFormats = ["json", "markdown"] as const;
 
 /**
+ * Startup configuration for the editor sidecar runtime.
+ *
+ * @example
+ * ```ts
+ * import { EditorRuntimeConfig } from "@beep/editor-runtime"
+ * import { FilePath, NonNegativeInt } from "@beep/schema"
+ *
+ * const config = new EditorRuntimeConfig({
+ *   host: "127.0.0.1",
+ *   port: NonNegativeInt.make(8789),
+ *   appDataDir: FilePath.make("/tmp/beep-editor"),
+ *   sessionId: "editor-session",
+ *   version: "0.0.0",
+ * })
+ * void config
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class EditorRuntimeConfig extends S.Class<EditorRuntimeConfig>($I`EditorRuntimeConfig`)(
   {
@@ -81,8 +105,18 @@ export class EditorRuntimeConfig extends S.Class<EditorRuntimeConfig>($I`EditorR
 ) {}
 
 /**
+ * Typed runtime error for editor sidecar bootstrap and persistence workflows.
+ *
+ * @example
+ * ```ts
+ * import { EditorRuntimeError } from "@beep/editor-runtime"
+ *
+ * const error = EditorRuntimeError.noCause("Editor runtime failed.", 500)
+ * void error
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
- * @category Errors
  */
 export class EditorRuntimeError extends StatusCauseTaggedErrorClass<EditorRuntimeError>($I`EditorRuntimeError`)(
   "EditorRuntimeError",
@@ -529,8 +563,25 @@ const launchEditorSidecar = (config: EditorRuntimeConfig, startedAt: DateTime.Ut
  * @param config - Startup configuration for the editor sidecar runtime.
  * @returns An Effect that runs the editor sidecar until shutdown is requested.
  *
+ * @example
+ * ```ts
+ * import { EditorRuntimeConfig, runEditorRuntime } from "@beep/editor-runtime"
+ * import { FilePath, NonNegativeInt } from "@beep/schema"
+ *
+ * const runtime = runEditorRuntime(
+ *   new EditorRuntimeConfig({
+ *     host: "127.0.0.1",
+ *     port: NonNegativeInt.make(8789),
+ *     appDataDir: FilePath.make("/tmp/beep-editor"),
+ *     sessionId: "editor-session",
+ *     version: "0.0.0",
+ *   })
+ * )
+ * void runtime
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
- * @category DomainLogic
  */
 export const runEditorRuntime = Effect.fn("EditorRuntime.run")(function* (config: EditorRuntimeConfig) {
   const startedAt = yield* DateTime.now;
@@ -579,8 +630,16 @@ export const runEditorRuntime = Effect.fn("EditorRuntime.run")(function* (config
  *
  * @returns An Effect that resolves with the decoded runtime configuration.
  *
+ * @example
+ * ```ts
+ * import { loadEditorRuntimeConfig } from "@beep/editor-runtime"
+ *
+ * const config = loadEditorRuntimeConfig()
+ * void config
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
- * @category Configuration
  */
 export const loadEditorRuntimeConfig = Effect.fn("EditorRuntime.loadConfig")(function* () {
   const path = yield* Path.Path;

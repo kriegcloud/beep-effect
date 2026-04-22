@@ -1,6 +1,9 @@
 #!/usr/bin/env node
 
 /**
+ * Command-line interface wiring for the docgen package.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -119,8 +122,15 @@ const options = {
 /**
  * Builds the `docgen` CLI command and wires configuration loading to the core program.
  *
+ * @example
+ * ```ts
+ * import { docgenCommand } from "@beep/docgen/CLI"
+ *
+ * void docgenCommand
+ * ```
+ *
  * @internal
- * @category CLI
+ * @category cli
  * @since 0.0.0
  */
 export const docgenCommand = Command.make("docgen", options, (input) =>
@@ -167,7 +177,16 @@ export const docgenCommand = Command.make("docgen", options, (input) =>
 );
 
 /**
- * @category CLI
+ * Runs the docgen command with the package version banner.
+ *
+ * @example
+ * ```ts
+ * import { cli } from "@beep/docgen/CLI"
+ *
+ * void cli
+ * ```
+ *
+ * @category cli
  * @since 0.0.0
  */
 export const cli = Command.runWith(docgenCommand, {

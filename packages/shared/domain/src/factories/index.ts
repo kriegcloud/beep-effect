@@ -1,5 +1,5 @@
 /**
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export * as DomainModel from "./DomainModel.ts";

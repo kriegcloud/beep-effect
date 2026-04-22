@@ -1,3 +1,10 @@
+/**
+ * PostgreSQL SQLSTATE literal catalog and derived schemas.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SharedDomainId } from "@beep/identity/packages";
 import { MappedLiteralKit } from "@beep/schema";
 import { Struct } from "@beep/utils";
@@ -9,8 +16,17 @@ const $I = $SharedDomainId.create("errors/DbError/ErrorEnum");
 /**
  * Canonical PostgreSQL SQLSTATE code catalog.
  *
+ * @example
+ * ```ts
+ * import { PostgresErrorEnum } from "@beep/shared-domain/errors/DbError/ErrorEnum"
+ *
+ * const uniqueViolation = PostgresErrorEnum.UNIQUE_VIOLATION
+ *
+ * void uniqueViolation
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const PostgresErrorEnum = {
   /** Class 00 - Successful Completion: [S] successful_completion */
@@ -537,8 +553,17 @@ export const PostgresErrorEnum = {
 /**
  * Single key/value tuple extracted from `PostgresErrorEnum`.
  *
+ * @example
+ * ```ts
+ * import type { Pair } from "@beep/shared-domain/errors/DbError/ErrorEnum"
+ *
+ * const readKey = (pair: Pair) => pair[0]
+ *
+ * void readKey
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export type Pair = {
   readonly [K in keyof typeof PostgresErrorEnum]: readonly [key: K, value: (typeof PostgresErrorEnum)[K]];
@@ -547,8 +572,17 @@ export type Pair = {
 /**
  * Non-empty tuple collection used to derive the mapped literal schema.
  *
+ * @example
+ * ```ts
+ * import type { PairArray } from "@beep/shared-domain/errors/DbError/ErrorEnum"
+ *
+ * const readFirstPair = (pairs: PairArray) => pairs[0]
+ *
+ * void readFirstPair
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export type PairArray = A.NonEmptyReadonlyArray<Pair>;
 
@@ -557,16 +591,35 @@ const pgErrorEntries = pipe(PostgresErrorEnum, Struct.entries, (entries) => entr
 /**
  * Reverse lookup map from SQLSTATE code to symbolic key.
  *
+ * @example
+ * ```ts
+ * import { ReversePgErrorEnum } from "@beep/shared-domain/errors/DbError/ErrorEnum"
+ *
+ * const key = ReversePgErrorEnum["23505"]
+ *
+ * void key
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const ReversePgErrorEnum = Struct.reverse(PostgresErrorEnum);
 
 /**
  * Literal schema representing the SQLSTATE codes from `PostgresErrorEnum`.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { ErrorCodeFromKey } from "@beep/shared-domain/errors/DbError/ErrorEnum"
+ *
+ * const isKnownCode = S.is(ErrorCodeFromKey)
+ *
+ * void isKnownCode
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const ErrorCodeFromKey = MappedLiteralKit(pgErrorEntries).annotate(
   $I.annote("ErrorCodeFromKey", {
@@ -577,8 +630,17 @@ export const ErrorCodeFromKey = MappedLiteralKit(pgErrorEntries).annotate(
 /**
  * Runtime-derived type aliases for `ErrorCodeFromKey`.
  *
+ * @example
+ * ```ts
+ * import type { ErrorCodeFromKey } from "@beep/shared-domain/errors/DbError/ErrorEnum"
+ *
+ * const code: ErrorCodeFromKey.Type = "23505"
+ *
+ * void code
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export declare namespace ErrorCodeFromKey {
   /**

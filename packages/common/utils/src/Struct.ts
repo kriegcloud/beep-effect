@@ -1,3 +1,10 @@
+/**
+ * Struct helpers for typed paths, entries, keys, and reverse mappings.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $UtilsId } from "@beep/identity/packages";
 import { Struct as EffectStruct, Function as Fn, Match, pipe } from "effect";
 import * as O from "effect/Option";
@@ -19,8 +26,16 @@ const NonEmptyStringKeys = S.NonEmptyArray(S.String);
 /**
  * Thrown when a struct expected to have at least one string key is empty.
  *
- * @since 0.2.0
- * @category DomainModel
+ * @example
+ * ```ts
+ * import { EmptyStructError } from "@beep/utils/Struct"
+ *
+ * const error = EmptyStructError
+ * void error
+ * ```
+ *
+ * @category error handling
+ * @since 0.0.0
  */
 export class EmptyStructError extends S.TaggedErrorClass<EmptyStructError>($I`EmptyStructError`)(
   "EmptyStructError",
@@ -66,8 +81,16 @@ function assertStructHasStringEntries<T>(
 /**
  * Result of a runtime struct path lookup.
  *
- * @since 0.2.0
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { PathLookup } from "@beep/utils/Struct"
+ *
+ * const isFound = (lookup: PathLookup) => lookup.found
+ * void isFound
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
  */
 export type PathLookup = InternalPathLookup;
 
@@ -133,7 +156,7 @@ export const dotGet: {
  * // Option.some("Alice")
  *
  * // Missing path
- * const missing = Struct.dotGetOption(user, "profile.age" as never)
+ * const missing = Struct.dotGetOption(user, ["profile", "age"])
  * // Option.none()
  *
  * void name
@@ -190,7 +213,7 @@ export const dotGetOption: {
  * ```
  *
  * @category combinators
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const mapPath: {
   <A, B, const P extends string>(
@@ -264,7 +287,7 @@ export const mapPath: {
  * ```
  *
  * @category combinators
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const mapPathLazy: {
   <A, B, const P extends string>(
@@ -343,7 +366,7 @@ export const mapPathLazy: {
  * ```
  *
  * @category getters
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const getLazy: {
   <S extends object, const K extends keyof S>(key: K): (self: S) => () => S[K];
@@ -376,7 +399,7 @@ export const getLazy: {
  * ```
  *
  * @category getters
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const pathsOf = <const S extends Record<string, unknown>>(
   obj: S
@@ -400,8 +423,17 @@ export const pathsOf = <const S extends Record<string, unknown>>(
 /**
  * A single `[key, value]` pair for a string key of `T`, preserving per-key correlation.
  *
- * @since 0.2.0
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { StringKeyEntry } from "@beep/utils/Struct"
+ *
+ * type Entry = StringKeyEntry<{ readonly host: string; readonly port: number }>
+ * const useEntry = (entry: Entry) => entry[0]
+ * void useEntry
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
  */
 export type StringKeyEntry<T> = { [K in keyof T & string]: [K, T[K]] }[keyof T & string];
 
@@ -412,8 +444,17 @@ export type StringKeyEntry<T> = { [K in keyof T & string]: [K, T[K]] }[keyof T &
  * is correlated with its key — `["a", string] | ["b", number]` rather than
  * `["a" | "b", string | number]`.
  *
- * @since 0.2.0
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { StringKeyEntries } from "@beep/utils/Struct"
+ *
+ * type Entries = StringKeyEntries<{ readonly host: string; readonly port: number }>
+ * const entries: Entries = [["host", "localhost"], ["port", 3000]]
+ * void entries
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
  */
 export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
 
@@ -436,8 +477,8 @@ export type StringKeyEntries<T> = Array<StringKeyEntry<T>>;
  * void entries
  * ```
  *
- * @since 3.17.0
- * @category utility
+ * @category getters
+ * @since 0.0.0
  */
 export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
   Fn.cast<Array<readonly [keyof R & string, R[keyof R & string]]>, StringKeyEntries<R>>(
@@ -466,7 +507,7 @@ export const entries = <const R extends object>(obj: R): StringKeyEntries<R> =>
  * ```
  *
  * @category getters
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const entriesNonEmpty = <const R extends object>(
   obj: R & NonEmptyStringKeyStruct<R>
@@ -494,7 +535,7 @@ export const entriesNonEmpty = <const R extends object>(
  * ```
  *
  * @category getters
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const keys = <const R extends object>(obj: R): Array<keyof R & string> => EffectStruct.keys(obj);
 
@@ -517,7 +558,7 @@ export const keys = <const R extends object>(obj: R): Array<keyof R & string> =>
  * ```
  *
  * @category getters
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const keysNonEmpty = <const R extends object>(
   obj: R & NonEmptyStringKeyStruct<R>
@@ -537,7 +578,10 @@ export const keysNonEmpty = <const R extends object>(
  * ```ts
  * import { Struct } from "@beep/utils"
  *
- * const entries = [["host", "localhost"], ["port", 3000]] as const
+ * const entries: ReadonlyArray<readonly ["host", "localhost"] | readonly ["port", 3000]> = [
+ *   ["host", "localhost"],
+ *   ["port", 3000],
+ * ]
  *
  * const obj = Struct.fromEntries(entries)
  * // { host: "localhost", port: 3000 }
@@ -546,7 +590,7 @@ export const keysNonEmpty = <const R extends object>(
  * ```
  *
  * @category constructors
- * @since 0.2.0
+ * @since 0.0.0
  */
 export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
   entries: Iterable<E>
@@ -576,8 +620,16 @@ export * from "effect/Struct";
 /**
  * Struct shape accepted by {@link reverse}.
  *
- * @since 0.1.0
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { ReverseableStruct } from "@beep/utils/Struct"
+ *
+ * const mapping: ReverseableStruct = { active: "A", inactive: "I" }
+ * void mapping
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
  */
 export type ReverseableStruct = Readonly<{
   readonly [key: string]: PropertyKey;
@@ -592,15 +644,15 @@ export type ReverseableStruct = Readonly<{
  *
  * @example
  * ```ts
- * import type { ReverseStruct } from "@beep/utils/Struct";
+ * import type { ReverseStruct } from "@beep/utils/Struct"
  *
- * type Direction = ReverseStruct<{ readonly up: "north"; readonly down: "south" }>;
- * let example!: Direction;
- * void example;
+ * type Direction = ReverseStruct<{ readonly up: "north"; readonly down: "south" }>
+ * const getNorth = (direction: Direction) => direction.north
+ * void getNorth
  * ```
  *
- * @category DomainModel
- * @since 0.1.0
+ * @category models
+ * @since 0.0.0
  */
 export type ReverseStruct<T extends ReverseableStruct> = {
   readonly [P in T[keyof T]]: {
@@ -620,21 +672,20 @@ export type ReverseStruct<T extends ReverseableStruct> = {
  *
  * @example
  * ```ts
- * import { Struct } from "@beep/utils";
+ * import { Struct } from "@beep/utils"
  *
- * const ErrorCode = {
+ * const errorCode = {
+ *   successfulCompletion: "00000",
+ *   warning: "01000",
+ * } satisfies Struct.ReverseableStruct
  *
+ * const reversed = Struct.reverse(errorCode)
  *
- * } as const;
- *
- * const reversed = Struct.reverse(ErrorCode);
- *
- * reversed["00000"]; // "SUCCESSFUL_COMPLETION"
- * ErrorCode[reversed[ErrorCode.SUCCESSFUL_COMPLETION]]; // "00000"
+ * void reversed
  * ```
  *
- * @since 0.1.0
- * @category utility
+ * @category combinators
+ * @since 0.0.0
  */
 export const reverse: {
   <S extends ReverseableStruct>(): (self: S) => ReverseStruct<S>;

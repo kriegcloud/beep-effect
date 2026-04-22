@@ -1,7 +1,7 @@
 /**
  * Agent-related command suite.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -19,7 +19,11 @@ const $I = $RepoCliId.create("commands/Agents");
 /**
  * `agents check` resolved options.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("AgentsCheckOptions")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class AgentsCheckOptions extends S.Class<AgentsCheckOptions>($I`AgentsCheckOptions`)(
@@ -37,7 +41,11 @@ class AgentsCheckOptions extends S.Class<AgentsCheckOptions>($I`AgentsCheckOptio
 /**
  * Managed file manifest entry.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("ManagedFile")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class ManagedFile extends S.Class<ManagedFile>($I`ManagedFile`)(
@@ -52,7 +60,11 @@ class ManagedFile extends S.Class<ManagedFile>($I`ManagedFile`)(
 /**
  * Managed file manifest payload.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("ManagedFilesManifest")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class ManagedFilesManifest extends S.Class<ManagedFilesManifest>($I`ManagedFilesManifest`)(
@@ -70,7 +82,11 @@ class ManagedFilesManifest extends S.Class<ManagedFilesManifest>($I`ManagedFiles
 /**
  * Pathless configuration violation.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("PathlessViolation")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class PathlessViolation extends S.Class<PathlessViolation>($I`PathlessViolation`)(
@@ -126,7 +142,11 @@ const findSlashColumn = (line: string): O.Option<number> => {
 /**
  * CLI command for validating AGENTS manifest coverage.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("agentsCheckCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const agentsCheckCommand = Command.make(
@@ -199,7 +219,11 @@ const agentsCheckCommand = Command.make(
 /**
  * CLI command for validating pathless agent instruction surfaces.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("agentsPathlessCheckCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const agentsPathlessCheckCommand = Command.make(
@@ -275,7 +299,11 @@ const agentsPathlessCheckCommand = Command.make(
 /**
  * Agent command group.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("agentsCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const agentsCommand = Command.make(

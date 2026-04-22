@@ -1,7 +1,7 @@
 /**
  * Lint policy command suite.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -54,7 +54,11 @@ const REQUIRED_TAGGED_UNIONS = [
 /**
  * Lint violation report row.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class LintViolation extends S.Class<LintViolation>($I`LintViolation`)(
@@ -119,9 +123,13 @@ const isContainedLintPath = (path: Path.Path, root: string, candidate: string): 
 /**
  * Collect TypeScript source files under a lint root without following symlink escapes.
  *
+ * @example
+ * ```ts
+ * console.log("collectTypeScriptFiles")
+ * ```
  * @param root - Root directory to scan for TypeScript sources.
  * @returns Sorted list of TypeScript source files under the lint root.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const collectTypeScriptFiles = Effect.fn("Lint.collectTypeScriptFiles")(function* (
@@ -544,7 +552,11 @@ const runLintCircular = Effect.fn("runLintCircular")(function* () {
 /**
  * Lint command for circular dependency checks.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const lintCircularCommand = Command.make("circular", {}, runLintCircular).pipe(
@@ -554,7 +566,11 @@ const lintCircularCommand = Command.make("circular", {}, runLintCircular).pipe(
 /**
  * Lint command for enforcing tagged error usage.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const lintToolingTaggedErrorsCommand = Command.make("tooling-tagged-errors", {}, runLintToolingTaggedErrors).pipe(
@@ -564,7 +580,11 @@ const lintToolingTaggedErrorsCommand = Command.make("tooling-tagged-errors", {},
 /**
  * Lint command for schema-first CLI conventions.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const lintToolingSchemaFirstCommand = Command.make("tooling-schema-first", {}, runLintToolingSchemaFirst).pipe(
@@ -574,7 +594,11 @@ const lintToolingSchemaFirstCommand = Command.make("tooling-schema-first", {}, r
 /**
  * Lint command group.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("lintCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const lintCommand = Command.make(

@@ -629,8 +629,16 @@ export const trimThunk = (s: string) => () => Str.trim(s);
 /**
  * Convert a numeric literal into its string-literal representation.
  *
+ * @example
+ * ```ts
+ * import { Str } from "@beep/utils"
+ *
+ * const value = Str.fromNumber(42)
+ * void value
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
- * @category Utility
  * @template T - Numeric literal to convert.
  * @param num - The number to convert to a string literal type.
  * @returns The number as a string literal type.

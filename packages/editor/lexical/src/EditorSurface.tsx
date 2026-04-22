@@ -1,3 +1,10 @@
+/**
+ * Lexical editing surface for the canonical editor page model.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import {
   HeadingBlock,
   makeHeadingBlock,
@@ -290,8 +297,16 @@ const BlockTypeToolbar = () => {
  * @param props - The editor surface props containing the current page and change handler.
  * @returns The Lexical editor surface bound to the canonical page model.
  *
+ * @example
+ * ```ts
+ * import { EditorSurface } from "@beep/editor-lexical"
+ *
+ * const component = EditorSurface
+ * void component
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
- * @category Presentation
  */
 export const EditorSurface = ({
   page,

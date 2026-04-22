@@ -1,3 +1,10 @@
+/**
+ * Environment and filesystem configuration helpers for the sidecar runtime.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RuntimeServerId } from "@beep/identity/packages";
 import { Config, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as A from "effect/Array";
@@ -16,8 +23,18 @@ class PackageJsonVersion extends S.Class<PackageJsonVersion>($I`PackageJsonVersi
 /**
  * Normalize optional text config values by trimming and dropping empty results.
  *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { normalizeOptionalText } from "@beep/runtime-server/internal/SidecarRuntimeConfig"
+ *
+ * const normalized = normalizeOptionalText(O.some(" repo-memory "))
+ *
+ * void normalized
+ * ```
+ *
  * @since 0.0.0
- * @category Helpers
+ * @category helpers
  */
 export const normalizeOptionalText = flow(O.map(Str.trim), O.flatMap(O.liftPredicate(Str.isNonEmpty)));
 
@@ -52,8 +69,21 @@ const parseOtlpResourceAttributes = (value: O.Option<string>): Record<string, st
 /**
  * Typed OTEL configuration resolved for the sidecar runtime boundary.
  *
+ * @example
+ * ```ts
+ * import { SidecarOtlpConfig } from "@beep/runtime-server/internal/SidecarRuntimeConfig"
+ *
+ * const config = new SidecarOtlpConfig({
+ *   otlpServiceName: "repo-memory",
+ *   otlpServiceVersion: "0.0.0",
+ *   otlpResourceAttributes: {}
+ * })
+ *
+ * void config
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarOtlpConfig extends S.Class<SidecarOtlpConfig>($I`SidecarOtlpConfig`)(
   {
@@ -69,8 +99,17 @@ export class SidecarOtlpConfig extends S.Class<SidecarOtlpConfig>($I`SidecarOtlp
 /**
  * Load OTEL configuration for the sidecar runtime from the ambient config provider.
  *
+ * @example
+ * ```ts
+ * import { loadSidecarOtlpConfig } from "@beep/runtime-server/internal/SidecarRuntimeConfig"
+ *
+ * const configEffect = loadSidecarOtlpConfig("0.0.0")
+ *
+ * void configEffect
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const loadSidecarOtlpConfig = Effect.fn("SidecarRuntime.loadOtlpConfig")(function* (version: string) {
   const otlpServiceNameValue = yield* Config.option(Config.string("OTEL_SERVICE_NAME"));
@@ -117,8 +156,18 @@ const findRepoRootOrStart = Effect.fn("SidecarRuntime.findRepoRootOrStart")(func
  * the repository root while leaving explicit overrides relative to the current
  * working directory.
  *
+ * @example
+ * ```ts
+ * import * as O from "effect/Option"
+ * import { resolveSidecarAppDataDir } from "@beep/runtime-server/internal/SidecarRuntimeConfig"
+ *
+ * const appDataDirEffect = resolveSidecarAppDataDir(O.none())
+ *
+ * void appDataDirEffect
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const resolveSidecarAppDataDir = Effect.fn("SidecarRuntime.resolveAppDataDir")(function* (
   appDataDir: O.Option<string>
@@ -141,8 +190,17 @@ export const resolveSidecarAppDataDir = Effect.fn("SidecarRuntime.resolveAppData
  *
  *
  *
+ * @example
+ * ```ts
+ * import { resolveSidecarVersion } from "@beep/runtime-server/internal/SidecarRuntimeConfig"
+ *
+ * const versionEffect = resolveSidecarVersion(".")
+ *
+ * void versionEffect
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const resolveSidecarVersion = Effect.fn("SidecarRuntime.resolveVersion")(function* (packageJsonDir: string) {
   const envVersion = yield* Config.option(Config.string("BEEP_REPO_MEMORY_VERSION"));

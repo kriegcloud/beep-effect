@@ -1,6 +1,7 @@
 /**
  * Local JSON-LD streaming parse adapter backing.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -80,8 +81,15 @@ const applyLoaderBaseIri = (
 /**
  * JSON-LD streaming parse service live layer.
  *
+ * @example
+ * ```ts
+ * import { JsonLdStreamParseServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-parse"
+ *
+ * void JsonLdStreamParseServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const JsonLdStreamParseServiceLive = Layer.effect(
   JsonLdStreamParseService,

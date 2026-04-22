@@ -203,7 +203,15 @@ class FundingEntry extends S.Class<FundingEntry>($I`FundingEntry`)(
 /**
  * A person involved with the package, represented as a string or structured object.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Person } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Person
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Person = S.Union([S.String, PersonObject]).annotate(
@@ -217,7 +225,15 @@ export const Person = S.Union([S.String, PersonObject]).annotate(
 /**
  * The package author field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Author } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Author
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Author = Person.annotate(
@@ -230,7 +246,15 @@ export const Author = Person.annotate(
 /**
  * The package contributors field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Contributors } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Contributors
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Contributors = S.Array(Person).annotate(
@@ -243,7 +267,15 @@ export const Contributors = S.Array(Person).annotate(
 /**
  * The package maintainers field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Maintainers } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Maintainers
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Maintainers = S.Array(Person).annotate(
@@ -256,7 +288,15 @@ export const Maintainers = S.Array(Person).annotate(
 /**
  * Schema for the `repository` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Repository } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Repository
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Repository = S.Union([S.String, RepositoryObject]).annotate(
@@ -270,7 +310,15 @@ export const Repository = S.Union([S.String, RepositoryObject]).annotate(
 /**
  * Schema for the `bugs` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Bugs } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Bugs
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Bugs = S.Union([S.String, BugsObject]).annotate(
@@ -284,7 +332,15 @@ export const Bugs = S.Union([S.String, BugsObject]).annotate(
 /**
  * Schema for the `funding` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Funding } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Funding
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union([S.String, FundingEntry]))]).annotate(
@@ -298,7 +354,15 @@ export const Funding = S.Union([S.String, FundingEntry, S.NonEmptyArray(S.Union(
 /**
  * Schema for the `bin` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Bin } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Bin
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Bin = S.Union([S.String, StringRecord]).annotate(
@@ -311,7 +375,15 @@ export const Bin = S.Union([S.String, StringRecord]).annotate(
 /**
  * Schema for the `browser` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Browser } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Browser
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)]).annotate(
@@ -325,7 +397,7 @@ export const Browser = S.Union([S.String, S.Record(S.String, BrowserReplacement)
 /**
  * Schema for the `directories` field.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 class DirectoriesShape extends S.Class<DirectoriesShape>($I`Directories`)(
@@ -346,7 +418,15 @@ class DirectoriesShape extends S.Class<DirectoriesShape>($I`Directories`)(
 /**
  * Schema for the `directories` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Directories } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Directories
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Directories = DirectoriesShape;
@@ -365,7 +445,15 @@ const PeerDependencyMetaEntry = S.Struct(peerDependencyMetaEntryFields).annotate
 /**
  * Schema for the `man` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Man } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Man
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Man = S.Union([S.String, StringArray]).annotate(
@@ -378,7 +466,15 @@ export const Man = S.Union([S.String, StringArray]).annotate(
 /**
  * Schema for the `sideEffects` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { SideEffects } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = SideEffects
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const SideEffects = S.Union([S.Boolean, StringArray]).annotate(
@@ -391,7 +487,15 @@ export const SideEffects = S.Union([S.Boolean, StringArray]).annotate(
 /**
  * Schema for the `bundleDependencies` / `bundledDependencies` fields.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { BundleDependencies } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = BundleDependencies
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const BundleDependencies = S.Union([S.Boolean, StringArray]).annotate(
@@ -404,7 +508,15 @@ export const BundleDependencies = S.Union([S.Boolean, StringArray]).annotate(
 /**
  * Schema for the `peerDependenciesMeta` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { PeerDependenciesMeta } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = PeerDependenciesMeta
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const PeerDependenciesMeta = S.Record(
@@ -420,7 +532,15 @@ export const PeerDependenciesMeta = S.Record(
 /**
  * Schema for the `typesVersions` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { TypesVersions } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = TypesVersions
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray)).annotate(
@@ -433,7 +553,7 @@ export const TypesVersions = S.Record(S.String, S.Record(S.String, StringArray))
 /**
  * Schema for a development environment requirement entry.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 class DevEngineDependencyShape extends S.Class<DevEngineDependencyShape>($I`DevEngineDependency`)(
@@ -452,7 +572,15 @@ class DevEngineDependencyShape extends S.Class<DevEngineDependencyShape>($I`DevE
 /**
  * Schema for a development environment requirement entry.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { DevEngineDependency } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = DevEngineDependency
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const DevEngineDependency = DevEngineDependencyShape;
@@ -468,7 +596,7 @@ const DevEngineRequirement = S.Union([DevEngineDependency, S.Array(DevEngineDepe
 /**
  * Schema for the `devEngines` field.
  *
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 class DevEnginesShape extends S.Class<DevEnginesShape>($I`DevEngines`)(
@@ -488,7 +616,15 @@ class DevEnginesShape extends S.Class<DevEnginesShape>($I`DevEngines`)(
 /**
  * Schema for the `devEngines` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { DevEngines } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = DevEngines
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const DevEngines = DevEnginesShape;
@@ -550,7 +686,15 @@ const PackageExportsSubpathMap = S.Record(ExportTopLevelKey, PackageExportsEntry
 /**
  * Schema for the `exports` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { PackageExports } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = PackageExports
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const PackageExports = S.Union([
@@ -616,7 +760,15 @@ const PackageImportsEntryOrFallback: S.Codec<PackageImportsEntryOrFallback, Pack
 /**
  * Schema for the `imports` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { PackageImports } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = PackageImports
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const PackageImports = S.Record(ImportSpecifierKey, PackageImportsEntryOrFallback).annotate(
@@ -668,7 +820,15 @@ const PublishConfigBase = S.Struct(publishConfigBaseFields).annotate(
 /**
  * Schema for the `workspaces` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { Workspaces } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = Workspaces
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
@@ -682,7 +842,15 @@ export const Workspaces = S.Union([StringArray, WorkspacesObject]).annotate(
 /**
  * Schema for the `publishConfig` field.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { PublishConfig } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = PublishConfig
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export const PublishConfig = S.StructWithRest(PublishConfigBase, [S.Record(S.String, Json)]).annotate(
@@ -765,7 +933,15 @@ const PackageJsonShape = S.Struct(packageJsonFields);
  *
  * Unexpected keys are rejected by the exported decode helpers.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { NpmPackageJson } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = NpmPackageJson
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export class NpmPackageJson extends S.Class<NpmPackageJson>($I`NpmPackageJson`)(
@@ -781,7 +957,15 @@ export class NpmPackageJson extends S.Class<NpmPackageJson>($I`NpmPackageJson`)(
  *
  * Extends the npm surface with repo-local metadata fields used by the monorepo.
  *
- * @category Validation
+ * @example
+ * ```ts
+ * import { PackageJson } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const schema = PackageJson
+ * void schema
+ * ```
+ *
+ * @category validation
  * @since 0.0.0
  */
 export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
@@ -795,20 +979,29 @@ export class PackageJson extends S.Class<PackageJson>($I`PackageJson`)(
 /**
  * Namespace helpers for the strict npm package-json schema.
  *
+ * @example
+ * ```ts
+ * import type { NpmPackageJson } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const readName = (value: NpmPackageJson.Type) => value.name
+ * void readName
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export declare namespace NpmPackageJson {
   /**
    * Decoded runtime type for {@link NpmPackageJson}.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Type = S.Schema.Type<typeof NpmPackageJson>;
   /**
    * Encoded representation for {@link NpmPackageJson}.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Encoded = S.Codec.Encoded<typeof NpmPackageJson>;
@@ -817,20 +1010,29 @@ export declare namespace NpmPackageJson {
 /**
  * Namespace helpers for the repo-aware package-json schema.
  *
+ * @example
+ * ```ts
+ * import type { PackageJson } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const readName = (value: PackageJson.Type) => value.name
+ * void readName
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export declare namespace PackageJson {
   /**
    * Decoded runtime type for {@link PackageJson}.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Type = S.Schema.Type<typeof PackageJson>;
   /**
    * Encoded representation for {@link PackageJson}.
    *
-   * @category DomainModel
+   * @category models
    * @since 0.0.0
    */
   export type Encoded = S.Codec.Encoded<typeof PackageJson>;
@@ -839,147 +1041,315 @@ export declare namespace PackageJson {
 /**
  * Runtime type for {@link Person}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Person } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptPerson = (_value: Person) => undefined
+ * void acceptPerson
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Person = (typeof Person)["Type"];
 /**
  * Runtime type for {@link Author}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Author } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptAuthor = (_value: Author) => undefined
+ * void acceptAuthor
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Author = (typeof Author)["Type"];
 /**
  * Runtime type for {@link Contributors}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Contributors } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptContributors = (_value: Contributors) => undefined
+ * void acceptContributors
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Contributors = (typeof Contributors)["Type"];
 /**
  * Runtime type for {@link Maintainers}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Maintainers } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptMaintainers = (_value: Maintainers) => undefined
+ * void acceptMaintainers
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Maintainers = (typeof Maintainers)["Type"];
 /**
  * Runtime type for {@link Repository}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Repository } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptRepository = (_value: Repository) => undefined
+ * void acceptRepository
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Repository = (typeof Repository)["Type"];
 /**
  * Runtime type for {@link Bugs}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Bugs } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptBugs = (_value: Bugs) => undefined
+ * void acceptBugs
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Bugs = (typeof Bugs)["Type"];
 /**
  * Runtime type for {@link Funding}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Funding } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptFunding = (_value: Funding) => undefined
+ * void acceptFunding
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Funding = (typeof Funding)["Type"];
 /**
  * Runtime type for {@link Bin}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Bin } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptBin = (_value: Bin) => undefined
+ * void acceptBin
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Bin = (typeof Bin)["Type"];
 /**
  * Runtime type for {@link Browser}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Browser } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptBrowser = (_value: Browser) => undefined
+ * void acceptBrowser
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Browser = (typeof Browser)["Type"];
 /**
  * Runtime type for {@link Directories}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Directories } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptDirectories = (_value: Directories) => undefined
+ * void acceptDirectories
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Directories = (typeof Directories)["Type"];
 /**
  * Runtime type for {@link Man}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Man } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptMan = (_value: Man) => undefined
+ * void acceptMan
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Man = (typeof Man)["Type"];
 /**
  * Runtime type for {@link SideEffects}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { SideEffects } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptSideEffects = (_value: SideEffects) => undefined
+ * void acceptSideEffects
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type SideEffects = (typeof SideEffects)["Type"];
 /**
  * Runtime type for {@link BundleDependencies}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { BundleDependencies } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptBundleDependencies = (_value: BundleDependencies) => undefined
+ * void acceptBundleDependencies
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type BundleDependencies = (typeof BundleDependencies)["Type"];
 /**
  * Runtime type for {@link PeerDependenciesMeta}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { PeerDependenciesMeta } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptPeerDependenciesMeta = (_value: PeerDependenciesMeta) => undefined
+ * void acceptPeerDependenciesMeta
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type PeerDependenciesMeta = (typeof PeerDependenciesMeta)["Type"];
 /**
  * Runtime type for {@link TypesVersions}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { TypesVersions } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptTypesVersions = (_value: TypesVersions) => undefined
+ * void acceptTypesVersions
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type TypesVersions = (typeof TypesVersions)["Type"];
 /**
  * Runtime type for {@link DevEngineDependency}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { DevEngineDependency } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptDevEngineDependency = (_value: DevEngineDependency) => undefined
+ * void acceptDevEngineDependency
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type DevEngineDependency = (typeof DevEngineDependency)["Type"];
 /**
  * Runtime type for {@link DevEngines}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { DevEngines } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptDevEngines = (_value: DevEngines) => undefined
+ * void acceptDevEngines
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type DevEngines = (typeof DevEngines)["Type"];
 /**
  * Runtime type for {@link PackageExports}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { PackageExports } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptPackageExports = (_value: PackageExports) => undefined
+ * void acceptPackageExports
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type PackageExports = (typeof PackageExports)["Type"];
 /**
  * Runtime type for {@link PackageImports}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { PackageImports } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptPackageImports = (_value: PackageImports) => undefined
+ * void acceptPackageImports
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type PackageImports = (typeof PackageImports)["Type"];
 /**
  * Runtime type for {@link Workspaces}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { Workspaces } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptWorkspaces = (_value: Workspaces) => undefined
+ * void acceptWorkspaces
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type Workspaces = (typeof Workspaces)["Type"];
 /**
  * Runtime type for {@link PublishConfig}.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * import type { PublishConfig } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const acceptPublishConfig = (_value: PublishConfig) => undefined
+ * void acceptPublishConfig
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type PublishConfig = (typeof PublishConfig)["Type"];
@@ -994,9 +1364,17 @@ const encodePackageJsonJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString
  * Synchronously decode an unknown value into a strict `PackageJson`.
  * Throws a `SchemaError` if validation fails.
  *
+ * @example
+ * ```ts
+ * import { decodePackageJson } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const packageJson = decodePackageJson({ name: "@beep/example" })
+ * void packageJson
+ * ```
+ *
  * @param input - Unknown package.json-shaped value to validate and decode.
  * @returns Decoded strict `PackageJson` value.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const decodePackageJson = (input: unknown): PackageJson.Type =>
@@ -1006,9 +1384,17 @@ export const decodePackageJson = (input: unknown): PackageJson.Type =>
  * Synchronously decode an unknown value into a strict `PackageJson`,
  * returning an `Exit` instead of throwing.
  *
+ * @example
+ * ```ts
+ * import { decodePackageJsonExit } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const exit = decodePackageJsonExit({ name: "@beep/example" })
+ * void exit
+ * ```
+ *
  * @param input - Unknown package.json-shaped value to validate and decode.
  * @returns Exit describing either the decoded package.json or the schema failure.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Type, S.SchemaError> = (input) =>
@@ -1017,9 +1403,17 @@ export const decodePackageJsonExit: (input: unknown) => Exit.Exit<PackageJson.Ty
 /**
  * Decode an unknown value into a strict `PackageJson` as an Effect.
  *
+ * @example
+ * ```ts
+ * import { decodePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const program = decodePackageJsonEffect({ name: "@beep/example" })
+ * void program
+ * ```
+ *
  * @param input - Unknown package.json-shaped value to validate and decode.
  * @returns Effect that yields a decoded strict package.json value.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Type, S.SchemaError> = (input) =>
@@ -1031,9 +1425,17 @@ export const decodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
  * The input is first decoded with strict excess-property rejection so callers
  * do not accidentally encode malformed package.json objects.
  *
+ * @example
+ * ```ts
+ * import { encodePackageJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const program = encodePackageJsonEffect({ name: "@beep/example" })
+ * void program
+ * ```
+ *
  * @param input - Unknown package.json-shaped value to validate before encoding.
  * @returns Effect that yields the encoded package.json representation.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJson.Encoded, S.SchemaError> = Effect.fn(
@@ -1046,9 +1448,17 @@ export const encodePackageJsonEffect: (input: unknown) => Effect.Effect<PackageJ
 /**
  * Encode a strict `PackageJson` value to a compact JSON string as an Effect.
  *
+ * @example
+ * ```ts
+ * import { encodePackageJsonToJsonEffect } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const program = encodePackageJsonToJsonEffect({ name: "@beep/example" })
+ * void program
+ * ```
+ *
  * @param input - Unknown package.json-shaped value to validate before encoding.
  * @returns Effect that yields a compact JSON string.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<string, S.SchemaError> = Effect.fn(
@@ -1061,9 +1471,17 @@ export const encodePackageJsonToJsonEffect: (input: unknown) => Effect.Effect<st
 /**
  * Encode a strict `PackageJson` value to a pretty-printed JSON string.
  *
+ * @example
+ * ```ts
+ * import { encodePackageJsonPrettyEffect } from "@beep/repo-utils/schemas/PackageJson"
+ *
+ * const program = encodePackageJsonPrettyEffect({ name: "@beep/example" })
+ * void program
+ * ```
+ *
  * @param input - Unknown package.json-shaped value to validate before encoding.
  * @returns Effect that yields a formatted JSON string or a domain formatting error.
- * @category Validation
+ * @category validation
  * @since 0.0.0
  */
 export const encodePackageJsonPrettyEffect: (input: unknown) => Effect.Effect<string, S.SchemaError | DomainError> =

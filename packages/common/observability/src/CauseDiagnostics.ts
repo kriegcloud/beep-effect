@@ -60,8 +60,16 @@ export const CauseClassification = LiteralKit(["empty", "failure", "defect", "in
 /**
  * Runtime type for {@link CauseClassification}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { CauseClassification } from "@beep/observability"
+ *
+ * const classification: CauseClassification = "failure"
+ * void classification
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type CauseClassification = typeof CauseClassification.Type;
 
@@ -87,8 +95,16 @@ export const ExitOutcome = LiteralKit(["success", "failure"]).pipe(
 /**
  * Runtime type for {@link ExitOutcome}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ExitOutcome } from "@beep/observability"
+ *
+ * const outcome: ExitOutcome = "success"
+ * void outcome
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ExitOutcome = typeof ExitOutcome.Type;
 
@@ -160,7 +176,15 @@ const CauseSummary = CauseSummaryTagged.pipe(
 /**
  * Type of {@link CauseSummary}
  *
- * @category Utility
+ * @example
+ * ```typescript
+ * import type { CauseSummary } from "@beep/observability"
+ *
+ * const renderClassification = (summary: CauseSummary) => summary.classification
+ * void renderClassification
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type CauseSummary = typeof CauseSummary.Type;
@@ -236,7 +260,15 @@ export const ObservedExitSummary = ObservedExitSummaryTagged.pipe(
 /**
  * Type of {@link ObservedExitSummary}
  *
- * @category Utility
+ * @example
+ * ```typescript
+ * import type { ObservedExitSummary } from "@beep/observability"
+ *
+ * const renderOutcome = (summary: ObservedExitSummary) => summary.outcome
+ * void renderOutcome
+ * ```
+ *
+ * @category models
  * @since 0.0.0
  */
 export type ObservedExitSummary = typeof ObservedExitSummary.Type;

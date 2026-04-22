@@ -1,6 +1,7 @@
 /**
  * Evidence anchors and selectors for provenance-adjacent workflows.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -36,6 +37,14 @@ export const EvidenceSelectorKind = LiteralKit(["text-quote", "text-position", "
 
 /**
  * Type for {@link EvidenceSelectorKind}.
+ *
+ * @example
+ * ```ts
+ * import type { EvidenceSelectorKind } from "@beep/semantic-web/evidence"
+ *
+ * const acceptEvidenceSelectorKind = (value: EvidenceSelectorKind) => value
+ * void acceptEvidenceSelectorKind
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -189,6 +198,14 @@ export const EvidenceSelector = S.Union([TextQuoteSelector, TextPositionSelector
 /**
  * Type for {@link EvidenceSelector}.
  *
+ * @example
+ * ```ts
+ * import type { EvidenceSelector } from "@beep/semantic-web/evidence"
+ *
+ * const acceptEvidenceSelector = (value: EvidenceSelector) => value
+ * void acceptEvidenceSelector
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -196,6 +213,13 @@ export type EvidenceSelector = typeof EvidenceSelector.Type;
 
 /**
  * Target resource plus selector pair referenced by an evidence anchor.
+ *
+ * @example
+ * ```ts
+ * import { EvidenceTarget } from "@beep/semantic-web/evidence"
+ *
+ * void EvidenceTarget
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -221,6 +245,13 @@ export class EvidenceTarget extends S.Class<EvidenceTarget>($I`EvidenceTarget`)(
 
 /**
  * Evidence anchor value referenced from provenance and verification services.
+ *
+ * @example
+ * ```ts
+ * import { EvidenceAnchor } from "@beep/semantic-web/evidence"
+ *
+ * void EvidenceAnchor
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -248,6 +279,13 @@ export class EvidenceAnchor extends S.Class<EvidenceAnchor>($I`EvidenceAnchor`)(
 
 /**
  * Bounded evidence projection.
+ *
+ * @example
+ * ```ts
+ * import { BoundedEvidenceProjection } from "@beep/semantic-web/evidence"
+ *
+ * void BoundedEvidenceProjection
+ * ```
  *
  * @since 0.0.0
  * @category models

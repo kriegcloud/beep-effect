@@ -1,6 +1,7 @@
 /**
  * Minimal stable PROV core and early extension tier for `@beep/semantic-web`.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -92,6 +93,14 @@ export const ObjectRef = S.String.check(provObjectRefChecks).pipe(
 /**
  * Type for {@link ObjectRef}.
  *
+ * @example
+ * ```ts
+ * import type { ObjectRef } from "@beep/semantic-web/prov"
+ *
+ * const acceptObjectRef = (value: ObjectRef) => value
+ * void acceptObjectRef
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -99,6 +108,13 @@ export type ObjectRef = typeof ObjectRef.Type;
 
 /**
  * Encoded PROV timestamp string.
+ *
+ * @example
+ * ```ts
+ * import { ProvDateTimeEncoded } from "@beep/semantic-web/prov"
+ *
+ * void ProvDateTimeEncoded
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -124,6 +140,14 @@ export const ProvDateTimeEncoded = S.String.check(provDateTimeChecks).pipe(
 /**
  * Type for {@link ProvDateTimeEncoded}.
  *
+ * @example
+ * ```ts
+ * import type { ProvDateTimeEncoded } from "@beep/semantic-web/prov"
+ *
+ * const acceptProvDateTimeEncoded = (value: ProvDateTimeEncoded) => value
+ * void acceptProvDateTimeEncoded
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -131,6 +155,13 @@ export type ProvDateTimeEncoded = typeof ProvDateTimeEncoded.Type;
 
 /**
  * PROV timestamp decoded to `DateTime.Utc`.
+ *
+ * @example
+ * ```ts
+ * import { ProvDateTime } from "@beep/semantic-web/prov"
+ *
+ * void ProvDateTime
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -156,6 +187,14 @@ export const ProvDateTime = ProvDateTimeEncoded.pipe(
 /**
  * Type for {@link ProvDateTime}.
  *
+ * @example
+ * ```ts
+ * import type { ProvDateTime } from "@beep/semantic-web/prov"
+ *
+ * const acceptProvDateTime = (value: ProvDateTime) => value
+ * void acceptProvDateTime
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -163,6 +202,13 @@ export type ProvDateTime = typeof ProvDateTime.Type;
 
 /**
  * Explicit lifecycle time fields retained outside plain PROV activity timestamps.
+ *
+ * @example
+ * ```ts
+ * import { LifecycleTimes } from "@beep/semantic-web/prov"
+ *
+ * void LifecycleTimes
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -324,6 +370,13 @@ export class Agent extends S.Class<Agent>($I`Agent`)(
 /**
  * PROV software agent.
  *
+ * @example
+ * ```ts
+ * import { SoftwareAgent } from "@beep/semantic-web/prov"
+ *
+ * void SoftwareAgent
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -349,6 +402,13 @@ export class SoftwareAgent extends S.Class<SoftwareAgent>($I`SoftwareAgent`)(
 
 /**
  * PROV plan.
+ *
+ * @example
+ * ```ts
+ * import { Plan } from "@beep/semantic-web/prov"
+ *
+ * void Plan
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -376,6 +436,13 @@ export class Plan extends S.Class<Plan>($I`Plan`)(
 /**
  * PROV collection.
  *
+ * @example
+ * ```ts
+ * import { Collection } from "@beep/semantic-web/prov"
+ *
+ * void Collection
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -402,6 +469,13 @@ export class Collection extends S.Class<Collection>($I`Collection`)(
 /**
  * PROV person.
  *
+ * @example
+ * ```ts
+ * import { Person } from "@beep/semantic-web/prov"
+ *
+ * void Person
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -427,6 +501,13 @@ export class Person extends S.Class<Person>($I`Person`)(
 
 /**
  * PROV organization.
+ *
+ * @example
+ * ```ts
+ * import { Organization } from "@beep/semantic-web/prov"
+ *
+ * void Organization
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -465,6 +546,13 @@ const relationMetadata = (canonicalName: string, overview: string, profile: "min
 /**
  * PROV usage relation.
  *
+ * @example
+ * ```ts
+ * import { Usage } from "@beep/semantic-web/prov"
+ *
+ * void Usage
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -482,6 +570,13 @@ export class Usage extends S.Class<Usage>($I`Usage`)(
 
 /**
  * PROV generation relation.
+ *
+ * @example
+ * ```ts
+ * import { Generation } from "@beep/semantic-web/prov"
+ *
+ * void Generation
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -501,6 +596,13 @@ export class Generation extends S.Class<Generation>($I`Generation`)(
 /**
  * PROV association relation.
  *
+ * @example
+ * ```ts
+ * import { Association } from "@beep/semantic-web/prov"
+ *
+ * void Association
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -519,6 +621,13 @@ export class Association extends S.Class<Association>($I`Association`)(
 /**
  * PROV attribution relation.
  *
+ * @example
+ * ```ts
+ * import { Attribution } from "@beep/semantic-web/prov"
+ *
+ * void Attribution
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -535,6 +644,13 @@ export class Attribution extends S.Class<Attribution>($I`Attribution`)(
 
 /**
  * PROV delegation relation.
+ *
+ * @example
+ * ```ts
+ * import { Delegation } from "@beep/semantic-web/prov"
+ *
+ * void Delegation
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -554,6 +670,13 @@ export class Delegation extends S.Class<Delegation>($I`Delegation`)(
 /**
  * PROV derivation relation.
  *
+ * @example
+ * ```ts
+ * import { Derivation } from "@beep/semantic-web/prov"
+ *
+ * void Derivation
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -570,6 +693,13 @@ export class Derivation extends S.Class<Derivation>($I`Derivation`)(
 
 /**
  * PROV primary-source relation.
+ *
+ * @example
+ * ```ts
+ * import { PrimarySource } from "@beep/semantic-web/prov"
+ *
+ * void PrimarySource
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -588,6 +718,13 @@ export class PrimarySource extends S.Class<PrimarySource>($I`PrimarySource`)(
 /**
  * PROV quotation relation.
  *
+ * @example
+ * ```ts
+ * import { Quotation } from "@beep/semantic-web/prov"
+ *
+ * void Quotation
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -604,6 +741,13 @@ export class Quotation extends S.Class<Quotation>($I`Quotation`)(
 
 /**
  * PROV revision relation.
+ *
+ * @example
+ * ```ts
+ * import { Revision } from "@beep/semantic-web/prov"
+ *
+ * void Revision
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -622,6 +766,13 @@ export class Revision extends S.Class<Revision>($I`Revision`)(
 /**
  * PROV start relation.
  *
+ * @example
+ * ```ts
+ * import { Start } from "@beep/semantic-web/prov"
+ *
+ * void Start
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -639,6 +790,13 @@ export class Start extends S.Class<Start>($I`Start`)(
 
 /**
  * PROV end relation.
+ *
+ * @example
+ * ```ts
+ * import { End } from "@beep/semantic-web/prov"
+ *
+ * void End
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -711,6 +869,14 @@ export const ProvRecord = S.Union([
 /**
  * Type for {@link ProvRecord}.
  *
+ * @example
+ * ```ts
+ * import type { ProvRecord } from "@beep/semantic-web/prov"
+ *
+ * const acceptProvRecord = (value: ProvRecord) => value
+ * void acceptProvRecord
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -755,6 +921,13 @@ export class ProvBundle extends S.Class<ProvBundle>($I`ProvBundle`)(
 /**
  * Public provenance entrypoint union.
  *
+ * @example
+ * ```ts
+ * import { ProvO } from "@beep/semantic-web/prov"
+ *
+ * void ProvO
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -775,6 +948,14 @@ export const ProvO = S.Union([ProvBundle, ProvRecord]).annotate(
 
 /**
  * Type for {@link ProvO}.
+ *
+ * @example
+ * ```ts
+ * import type { ProvO } from "@beep/semantic-web/prov"
+ *
+ * const acceptProvO = (value: ProvO) => value
+ * void acceptProvO
+ * ```
  *
  * @since 0.0.0
  * @category models

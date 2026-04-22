@@ -1,3 +1,9 @@
+/**
+ * RFC 3987 IRI schemas and validation helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SemanticWebId } from "@beep/identity/packages";
 import { pipe } from "effect";
 import * as A from "effect/Array";
@@ -863,6 +869,14 @@ export const IRIReference = S.String.check(iriReferenceChecks).pipe(
 /**
  * RFC 3987 `IRI-reference` syntax, including absolute and relative forms.
  *
+ * @example
+ * ```ts
+ * import type { IRIReference } from "@beep/semantic-web/iri"
+ *
+ * const acceptIRIReference = (value: IRIReference) => value
+ * void acceptIRIReference
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -894,6 +908,14 @@ export const RelativeIRIReference = S.String.check(relativeIriReferenceChecks).p
 
 /**
  * RFC 3987 `irelative-ref` syntax.
+ *
+ * @example
+ * ```ts
+ * import type { RelativeIRIReference } from "@beep/semantic-web/iri"
+ *
+ * const acceptRelativeIRIReference = (value: RelativeIRIReference) => value
+ * void acceptRelativeIRIReference
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -927,6 +949,14 @@ export const AbsoluteIRI = S.String.check(absoluteIriChecks).pipe(
 /**
  * RFC 3987 `absolute-IRI` syntax without a fragment component.
  *
+ * @example
+ * ```ts
+ * import type { AbsoluteIRI } from "@beep/semantic-web/iri"
+ *
+ * const acceptAbsoluteIRI = (value: AbsoluteIRI) => value
+ * void acceptAbsoluteIRI
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -958,6 +988,14 @@ export const IRI = S.String.check(iriChecks).pipe(
 
 /**
  * RFC 3987 `IRI` syntax.
+ *
+ * @example
+ * ```ts
+ * import type { IRI } from "@beep/semantic-web/iri"
+ *
+ * const acceptIRI = (value: IRI) => value
+ * void acceptIRI
+ * ```
  *
  * @since 0.0.0
  * @category models

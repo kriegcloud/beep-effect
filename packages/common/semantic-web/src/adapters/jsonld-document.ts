@@ -1,6 +1,7 @@
 /**
  * Local JSON-LD document adapter backing.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -578,8 +579,15 @@ const literalValueFromRdf = (quad: Quad, context: ContextOption): JsonLdLiteralV
 /**
  * JSON-LD document service live layer.
  *
+ * @example
+ * ```ts
+ * import { JsonLdDocumentServiceLive } from "@beep/semantic-web/adapters/jsonld-document"
+ *
+ * void JsonLdDocumentServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const JsonLdDocumentServiceLive = Layer.succeed(
   JsonLdDocumentService,

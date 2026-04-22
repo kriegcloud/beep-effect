@@ -57,17 +57,45 @@ architectural sense.
 `TwoFactor.model.ts` can own simple behavior:
 
 ```ts
+import * as Model from "@beep/schema/Model"
+import { Effect } from "effect"
+import * as S from "effect/Schema"
+import { AccountId } from "@beep/iam-domain/entities/Account"
+import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
+
+export const TwoFactorId = S.String.pipe(S.brand("TwoFactorId"))
+export type TwoFactorId = typeof TwoFactorId.Type
+
 export class TwoFactor extends Model.Class<TwoFactor>("TwoFactor")({
+  id: TwoFactorId,
+  accountId: AccountId,
   enabled: S.Boolean,
   recoveryCodesRemaining: S.Number,
 }) {
-  readonly canDisable = () => this.enabled
+  readonly canDisable = (): boolean => this.enabled
+
+  readonly useRecoveryCode = (): Effect.Effect<
+    TwoFactor,
+    NoRecoveryCodesRemaining
+  > =>
+    this.recoveryCodesRemaining > 0
+      ? Effect.succeed(
+          TwoFactor.make({
+            id: this.id,
+            accountId: this.accountId,
+            enabled: this.enabled,
+            recoveryCodesRemaining: this.recoveryCodesRemaining - 1,
+          }),
+        )
+      : Effect.fail(new NoRecoveryCodesRemaining())
 }
 ```
 
 `TwoFactor.policy.ts` can own larger pure decisions:
 
 ```ts
+import type { TwoFactor } from "./TwoFactor.model.js"
+
 export const canRotateRecoveryCodes = (model: TwoFactor) =>
   model.enabled && model.recoveryCodesRemaining < 3
 ```
@@ -75,12 +103,23 @@ export const canRotateRecoveryCodes = (model: TwoFactor) =>
 `TwoFactor.behavior.ts` can own pure transitions:
 
 ```ts
+import { Effect } from "effect"
+import { RecoveryCodeRotationRejected } from "./TwoFactor.errors.js"
+import { canRotateRecoveryCodes } from "./TwoFactor.policy.js"
+import { TwoFactor } from "./TwoFactor.model.js"
+
 export const rotateRecoveryCodes = (model: TwoFactor) =>
   canRotateRecoveryCodes(model)
-    ? Effect.succeed(model.rotateRecoveryCodes())
+    ? Effect.succeed(
+        TwoFactor.make({
+          id: model.id,
+          accountId: model.accountId,
+          enabled: model.enabled,
+          recoveryCodesRemaining: 10,
+        }),
+      )
     : Effect.fail(new RecoveryCodeRotationRejected())
 ```
 
 The use-case service then orchestrates loading, authorization, persistence, and
 event publication around these pure domain rules.
-

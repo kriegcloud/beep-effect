@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 // cspell:ignore codegraph tsmorph
+// biome-ignore-all assist/source/organizeImports: docgen requires individually documented re-export declarations.
 
 /**
  * @since 0.0.0
@@ -41,27 +42,64 @@ export {
    */
   NoSuchFileError,
 } from "./errors/index.js";
-export {
-  /**
-   * @since 0.0.0
-   */
-  FsUtils,
-  /**
-   * @since 0.0.0
-   */
-  FsUtilsLive,
-  /**
-   * @since 0.0.0
-   */
-  type FsUtilsShape,
-  /**
-   * @since 0.0.0
-   */
-  GlobOptions,
-  /**
-   * @since 0.0.0
-   */
-} from "./FsUtils.js";
+/**
+ * Filesystem utility service tag.
+ *
+ * @example
+ * ```ts
+ * import { FsUtils } from "@beep/repo-utils"
+ *
+ * void FsUtils
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export { FsUtils } from "./FsUtils.js";
+/**
+ * Live layer for the filesystem utility service.
+ *
+ * @example
+ * ```ts
+ * import { FsUtilsLive } from "@beep/repo-utils"
+ *
+ * void FsUtilsLive
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export { FsUtilsLive } from "./FsUtils.js";
+/**
+ * Service shape implemented by `FsUtils` providers.
+ *
+ * @example
+ * ```ts
+ * import type { FsUtilsShape } from "@beep/repo-utils"
+ *
+ * const key = "readJson" satisfies keyof FsUtilsShape
+ * void key
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type { FsUtilsShape } from "./FsUtils.js";
+/**
+ * Options accepted by filesystem glob helpers.
+ *
+ * @example
+ * ```ts
+ * import { GlobOptions } from "@beep/repo-utils"
+ *
+ * const options = new GlobOptions({ cwd: "src" })
+ * void options.cwd
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export { GlobOptions } from "./FsUtils.js";
 /**
  * @since 0.0.0
  */
@@ -278,19 +316,38 @@ export {
  * @since 0.0.0
  */
 export * from "./TypeScript/index.js";
-export {
-  /**
-   * @since 0.0.0
-   */
-  collectUniqueNpmDependencies,
-  /**
-   * @since 0.0.0
-   */
-  UniqueNpmDeps,
-  /**
-   * @since 0.0.0
-   */
-} from "./UniqueDeps.js";
+/**
+ * Collect unique NPM dependency names from the workspace graph.
+ *
+ * @example
+ * ```ts
+ * import { collectUniqueNpmDependencies } from "@beep/repo-utils"
+ *
+ * void collectUniqueNpmDependencies
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export { collectUniqueNpmDependencies } from "./UniqueDeps.js";
+/**
+ * Result model for unique NPM dependency aggregation.
+ *
+ * @example
+ * ```ts
+ * import { UniqueNpmDeps } from "@beep/repo-utils"
+ *
+ * const deps = new UniqueNpmDeps({
+ *   dependencies: ["effect"],
+ *   devDependencies: ["vitest"]
+ * })
+ * void deps
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export { UniqueNpmDeps } from "./UniqueDeps.js";
 /**
  * @since 0.0.0
  */

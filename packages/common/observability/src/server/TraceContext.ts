@@ -1,3 +1,9 @@
+/**
+ * HTTP trace context extraction and injection helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Effect } from "effect";
 import * as O from "effect/Option";
 import type * as Tracer from "effect/Tracer";

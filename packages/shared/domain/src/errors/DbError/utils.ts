@@ -1,3 +1,10 @@
+/**
+ * Formatting and extraction utilities for normalized database errors.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import bc from "@beep/colors";
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
@@ -15,8 +22,17 @@ import { ErrorCodeFromKey } from "./ErrorEnum.js";
 /**
  * Unicode box-drawing characters used by the database error formatter.
  *
+ * @example
+ * ```ts
+ * import { BOX } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const topLeft = BOX.topLeft
+ *
+ * void topLeft
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const BOX = {
   topLeft: "╭",
@@ -32,8 +48,18 @@ export const BOX = {
 /**
  * SQL keywords highlighted in formatted query output.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SqlKeyword } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const isSqlKeyword = S.is(SqlKeyword)
+ *
+ * void isSqlKeyword
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const SqlKeyword = LiteralKit([
   "select",
@@ -154,16 +180,34 @@ const makeQuotedIdentifierToken = (index: number): string => `${quotedIdentifier
 /**
  * Supported query categories for styled SQL error output.
  *
+ * @example
+ * ```ts
+ * import { QueryType } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const queryType = QueryType.Enum.SELECT
+ *
+ * void queryType
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const QueryType = LiteralKit(["SELECT", "INSERT", "UPDATE", "DELETE", "BEGIN", "COMMIT", "ROLLBACK", "OTHER"]);
 
 /**
  * Pattern matcher that derives a query category from a lower-cased SQL prefix.
  *
+ * @example
+ * ```ts
+ * import { matchQueryType } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const queryType = matchQueryType("select")
+ *
+ * void queryType
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const matchQueryType = Match.type<string>().pipe(
   Match.when(Str.startsWith("select"), () => QueryType.Enum.SELECT),
@@ -179,16 +223,34 @@ export const matchQueryType = Match.type<string>().pipe(
 /**
  * Classifies an arbitrary SQL statement into a known query category.
  *
+ * @example
+ * ```ts
+ * import { getQueryType } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const queryType = getQueryType("select * from users")
+ *
+ * void queryType
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const getQueryType = (query: string) => pipe(query, Str.trim, Str.toLowerCase, matchQueryType);
 
 /**
  * Maps a query category to terminal styling tokens used by the formatter.
  *
+ * @example
+ * ```ts
+ * import { getQueryTypeStyle } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const style = getQueryTypeStyle("SELECT")
+ *
+ * void style
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const getQueryTypeStyle = QueryType.$match({
   SELECT: (t) => ({ badge: bc.bgBlue(bc.white(bc.bold(` ${t} `))), color: bc.blue }),
@@ -273,7 +335,7 @@ const truncateForPreview = (value: string, maxLength: number): string =>
  * Formats and colorizes SQL for terminal-friendly diagnostics.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  *
  * @example
  * ```typescript
@@ -296,8 +358,17 @@ export const highlightSql = (sql: string): string => {
 /**
  * Renders a single SQL parameter preview for error output.
  *
+ * @example
+ * ```ts
+ * import { formatParam } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const formatted = formatParam("user@example.com", 0)
+ *
+ * void formatted
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const formatParam = (value: unknown, index: number): string => {
   const paramLabel = bc.yellow(bc.bold(`$${index + 1}`));
@@ -338,24 +409,51 @@ export const formatParam = (value: unknown, index: number): string => {
 /**
  * Removes terminal ANSI color sequences from a string.
  *
+ * @example
+ * ```ts
+ * import { stripAnsi } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const plain = stripAnsi("\\u001b[31mfailed\\u001b[0m")
+ *
+ * void plain
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const stripAnsi = (str: string): string => pipe(str, Str.replace(ansiEscapeRegex, Str.empty));
 
 /**
  * Computes display width by stripping ANSI escapes before measuring length.
  *
+ * @example
+ * ```ts
+ * import { visualLength } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const length = visualLength("failed")
+ *
+ * void length
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const visualLength = (str: string): number => pipe(str, stripAnsi, Str.length);
 
 /**
  * Pads a string to a target visual width while preserving ANSI styling.
  *
+ * @example
+ * ```ts
+ * import { padEnd } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const padded = padEnd("id", 4)
+ *
+ * void padded
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const padEnd = (str: string, targetLen: number): string => {
   const currentLen = visualLength(str);
@@ -370,8 +468,17 @@ export const padEnd = (str: string, targetLen: number): string => {
 /**
  * Formats query parameters as either a compact inline block or a 3-column grid.
  *
+ * @example
+ * ```ts
+ * import { formatParamsBlock } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const block = formatParamsBlock([1, "active"], (value) => value)
+ *
+ * void block
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: string) => string): string => {
   const formattedParams = pipe(
@@ -426,8 +533,18 @@ export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: 
 /**
  * Runtime schema for raw PostgreSQL protocol errors.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { RawPgError } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const isRawPgError = S.is(RawPgError)
+ *
+ * void isRawPgError
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const RawPgError = S.instanceOf(PgDatabaseError);
 
@@ -533,8 +650,17 @@ const extractQueryFromMessage = (message: string): DrizzleQueryExtraction =>
 /**
  * Recursively unwraps wrapped errors to locate the originating `pg` protocol error.
  *
+ * @example
+ * ```ts
+ * import { extractPgError } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const pgError = extractPgError(new Error("query failed"))
+ *
+ * void pgError
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const extractPgError = (error: unknown): PgDatabaseError | null =>
   pipe(error, extractPgErrorOption, O.getOrNull);
@@ -542,8 +668,17 @@ export const extractPgError = (error: unknown): PgDatabaseError | null =>
 /**
  * Extracts the first non-internal filesystem location from an error stack.
  *
+ * @example
+ * ```ts
+ * import { extractSourceLocation } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const location = extractSourceLocation(new Error("query failed"))
+ *
+ * void location
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const extractSourceLocation = (error: unknown): string | null =>
   pipe(
@@ -558,8 +693,19 @@ export const extractSourceLocation = (error: unknown): string | null =>
 /**
  * Pulls query text and params from Drizzle's "Failed query" wrapper error message.
  *
+ * @example
+ * ```ts
+ * import { extractQueryFromDrizzleError } from "@beep/shared-domain/errors/DbError/utils"
+ *
+ * const query = extractQueryFromDrizzleError(
+ *   new Error("Failed query: select 1")
+ * )
+ *
+ * void query
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtraction =>
   pipe(
@@ -573,7 +719,7 @@ export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtrac
  * Builds a rich, terminal-friendly database error report.
  *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  *
  * @example
  * ```typescript

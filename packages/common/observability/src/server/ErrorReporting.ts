@@ -1,3 +1,9 @@
+/**
+ * Console-backed server error reporting helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import bc from "@beep/colors";
 import { ErrorReporter, Match } from "effect";
 import * as R from "effect/Record";

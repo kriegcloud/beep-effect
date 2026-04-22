@@ -1,3 +1,10 @@
+/**
+ * Shared status/cause error payload helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -8,19 +15,21 @@ import * as S from "effect/Schema";
  *
  * @example
  * ```ts
- * import * as S from "effect/Schema"
  * import { TaggedErrorClass } from "@beep/schema"
  * import { StatusCauseFields } from "@beep/schema/StatusCauseError"
  *
- * class AppError extends TaggedErrorClass<AppError>()("AppError",
+ * class AppError extends TaggedErrorClass<AppError>()("AppError", StatusCauseFields) {}
  *
- * ) {}
+ * const error = new AppError({
+ *   message: "not found",
+ *   status: 404
+ * })
  *
- * void AppError
+ * void error
  * ```
  *
- * @since 0.0.0
  * @category fields
+ * @since 0.0.0
  */
 export const StatusCauseFields = {
   message: S.String,
@@ -42,8 +51,8 @@ export const StatusCauseFields = {
  * console.log(payload.status)  // 404
  * ```
  *
- * @since 0.0.0
  * @category utilities
+ * @since 0.0.0
  */
 export const statusCauseInput = (message: string, status: number, cause?: unknown) => ({
   message,
@@ -54,8 +63,17 @@ export const statusCauseInput = (message: string, status: number, cause?: unknow
 /**
  * Input payload shape produced by {@link statusCauseInput}.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { statusCauseInput, type StatusCauseInput } from "@beep/schema/StatusCauseError"
+ *
+ * const payload: StatusCauseInput = statusCauseInput("not found", 404)
+ *
+ * void payload
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type StatusCauseInput = ReturnType<typeof statusCauseInput>;
 
@@ -106,22 +124,20 @@ const buildStatusCauseErrorBuilder = <Input extends StatusCauseInput, Error>(
  *
  * @example
  * ```ts
- * import * as S from "effect/Schema"
  * import { TaggedErrorClass } from "@beep/schema"
  * import { StatusCauseFields, makeStatusCauseError } from "@beep/schema/StatusCauseError"
  *
- * class AppError extends TaggedErrorClass<AppError>()("AppError",
- *
- * ) {}
+ * class AppError extends TaggedErrorClass<AppError>()("AppError", StatusCauseFields) {}
  *
  * const build = makeStatusCauseError(AppError)
- * const err = build("not found", 404)
+ * const err = build("not found", 404, new Error("missing"))
  *
  * void err
+ *
  * ```
  *
- * @since 0.0.0
  * @category constructors
+ * @since 0.0.0
  */
 export const makeStatusCauseError: {
   <Input extends StatusCauseInput, Error>(ctor: StatusCauseErrorCtor<Input, Error>): StatusCauseErrorBuilder<Error>;

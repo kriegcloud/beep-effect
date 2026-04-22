@@ -1,4 +1,7 @@
 /**
+ * Core docgen workflow for parsing, checking, and writing documentation.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -156,6 +159,13 @@ const extractPrefixedNestedNamespaces = (
 /**
  * The metadata key for skipping type-checking.
  *
+ * @example
+ * ```ts
+ * import { SKIP_TYPE_CHECKING_FENCE_METADATA } from "@beep/docgen/Core"
+ *
+ * void SKIP_TYPE_CHECKING_FENCE_METADATA
+ * ```
+ *
  * @category core
  * @since 0.0.0
  */
@@ -164,10 +174,19 @@ export const SKIP_TYPE_CHECKING_FENCE_METADATA = "skip-type-checking";
 /**
  * Extracts fenced code blocks and their metadata from markdown content.
  *
+ * @example
+ * ```ts
+ * import { extractFencedCode } from "@beep/docgen/Core"
+ *
+ * const [examples] = extractFencedCode("~~~ts\nconst value = 1\n~~~")
+ * void examples
+ * ```
+ *
  * @internal
  * @param content - Markdown content that may contain fenced code examples.
  * @returns Tuple containing extracted example code blocks and any fence warnings.
  * @category core
+ * @since 0.0.0
  */
 export const extractFencedCode = (content: string): [examples: Array<string>, warnings: Array<string>] => {
   const fenceRegex = /(?:```|~~~)(.*?)\n([\s\S]*?)(?:(```|~~~)|$)/g;
@@ -574,8 +593,16 @@ const writeMarkdown = Effect.fn("writeMarkdown")(function* (files: ReadonlyArray
 /**
  * Runs the full docgen workflow from source parsing through markdown emission.
  *
+ * @example
+ * ```ts
+ * import { program } from "@beep/docgen/Core"
+ *
+ * void program
+ * ```
+ *
  * @internal
  * @category core
+ * @since 0.0.0
  */
 export const program = Effect.gen(function* () {
   yield* Effect.logInfo("Reading modules...");

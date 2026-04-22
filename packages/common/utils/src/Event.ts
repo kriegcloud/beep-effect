@@ -35,15 +35,15 @@ type EventShape<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> 
  *
  * const Progress = makeEvent({ percent: S.Number }, "Progress")
  * const decoded = S.decodeUnknownSync(Progress)({
- *
- *
- *
+ *   kind: "Event",
+ *   _tag: "Progress",
+ *   payload: { percent: 50 },
  * })
  * void decoded
  * ```
  *
+ * @category models
  * @since 0.0.0
- * @category Validation
  */
 export const makeEvent = <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(
   payload: TFields,

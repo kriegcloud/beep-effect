@@ -1,6 +1,7 @@
 /**
  * RFC 3986-oriented URI schemas and normalization helpers.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -211,6 +212,14 @@ export const URIReference = S.String.check(uriReferenceChecks).pipe(
 /**
  * Type for {@link URIReference}.
  *
+ * @example
+ * ```ts
+ * import type { URIReference } from "@beep/semantic-web/uri"
+ *
+ * const acceptURIReference = (value: URIReference) => value
+ * void acceptURIReference
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -243,6 +252,14 @@ export const RelativeURIReference = S.String.check(relativeUriReferenceChecks).p
 
 /**
  * Type for {@link RelativeURIReference}.
+ *
+ * @example
+ * ```ts
+ * import type { RelativeURIReference } from "@beep/semantic-web/uri"
+ *
+ * const acceptRelativeURIReference = (value: RelativeURIReference) => value
+ * void acceptRelativeURIReference
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -277,6 +294,14 @@ export const AbsoluteURI = S.String.check(absoluteUriChecks).pipe(
 /**
  * Type for {@link AbsoluteURI}.
  *
+ * @example
+ * ```ts
+ * import type { AbsoluteURI } from "@beep/semantic-web/uri"
+ *
+ * const acceptAbsoluteURI = (value: AbsoluteURI) => value
+ * void acceptAbsoluteURI
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -309,6 +334,14 @@ export const URI = S.String.check(uriChecks).pipe(
 
 /**
  * Type for {@link URI}.
+ *
+ * @example
+ * ```ts
+ * import type { URI } from "@beep/semantic-web/uri"
+ *
+ * const acceptURI = (value: URI) => value
+ * void acceptURI
+ * ```
  *
  * @since 0.0.0
  * @category models

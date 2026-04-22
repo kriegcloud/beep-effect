@@ -1,3 +1,10 @@
+/**
+ * Typed client boundary for the local editor sidecar runtime.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import {
   EditorControlPlaneApi,
   EditorControlPlaneErrorPayload,
@@ -29,8 +36,19 @@ const decodeSlugOption = S.decodeUnknownOption(Slug);
 /**
  * Configuration for connecting to the local editor sidecar.
  *
+ * @example
+ * ```ts
+ * import { EditorClientConfig } from "@beep/editor-client"
+ *
+ * const config = new EditorClientConfig({
+ *   baseUrl: "http://127.0.0.1:8789",
+ *   sessionId: "editor-session",
+ * })
+ * void config
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class EditorClientConfig extends S.Class<EditorClientConfig>($I`EditorClientConfig`)(
   {
@@ -57,8 +75,16 @@ export class EditorClientConfig extends S.Class<EditorClientConfig>($I`EditorCli
 /**
  * Typed client error for editor sidecar communication failures.
  *
+ * @example
+ * ```ts
+ * import { EditorClientError } from "@beep/editor-client"
+ *
+ * const error = EditorClientError.noCause("Editor sidecar unavailable.", 500)
+ * void error
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
- * @category DomainModel
  */
 export class EditorClientError extends StatusCauseTaggedErrorClass<EditorClientError>($I`EditorClientError`)(
   "EditorClientError",
@@ -70,8 +96,16 @@ export class EditorClientError extends StatusCauseTaggedErrorClass<EditorClientE
 /**
  * Service contract for the editor sidecar client boundary.
  *
+ * @example
+ * ```ts
+ * import type { EditorClientShape } from "@beep/editor-client"
+ *
+ * const useClient = (client: EditorClientShape) => client.listPages
+ * void useClient
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category PortContract
  */
 export interface EditorClientShape {
   readonly bootstrap: Effect.Effect<SidecarBootstrap, EditorClientError>;
@@ -86,16 +120,32 @@ export interface EditorClientShape {
 /**
  * Service tag for the editor sidecar client.
  *
+ * @example
+ * ```ts
+ * import { EditorClient } from "@beep/editor-client"
+ *
+ * const tag = EditorClient
+ * void tag
+ * ```
+ *
+ * @category services
  * @since 0.0.0
- * @category PortContract
  */
 export class EditorClient extends Context.Service<EditorClient, EditorClientShape>()($I`EditorClient`) {}
 
 /**
  * Browser-friendly HTTP client type for the editor control plane.
  *
+ * @example
+ * ```ts
+ * import type { EditorControlPlaneClient } from "@beep/editor-client"
+ *
+ * const useClient = (client: EditorControlPlaneClient) => client.health()
+ * void useClient
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category Integration
  */
 export type EditorControlPlaneClient = Effect.Success<ReturnType<typeof makeEditorHttpClient>>;
 
@@ -113,8 +163,16 @@ class EditorHttpClientService extends Context.Service<EditorHttpClientService, E
  * @param baseUrl - The user-provided sidecar URL or API root.
  * @returns The normalized sidecar server URL without the control-plane prefix.
  *
+ * @example
+ * ```ts
+ * import { normalizeSidecarBaseUrl } from "@beep/editor-client"
+ *
+ * const url = normalizeSidecarBaseUrl("http://127.0.0.1:8789/api/v0")
+ * void url
+ * ```
+ *
+ * @category utilities
  * @since 0.0.0
- * @category Utility
  */
 export const normalizeSidecarBaseUrl = (baseUrl: string | URL): string => {
   const trimmed = pipe(Str.trim(`${baseUrl}`), Str.replace(/\/+$/, ""));
@@ -129,8 +187,18 @@ export const normalizeSidecarBaseUrl = (baseUrl: string | URL): string => {
 /**
  * Options for creating an editor HTTP client.
  *
+ * @example
+ * ```ts
+ * import type { EditorHttpClientOptions } from "@beep/editor-client"
+ *
+ * const options: EditorHttpClientOptions = {
+ *   baseUrl: "http://127.0.0.1:8789",
+ * }
+ * void options
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category Integration
  */
 export type EditorHttpClientOptions = {
   readonly baseUrl: string | URL;
@@ -146,8 +214,18 @@ export type EditorHttpClientOptions = {
  * @param options - Client construction options for the editor control plane.
  * @returns An Effect that resolves with the typed control-plane client.
  *
+ * @example
+ * ```ts
+ * import { makeEditorHttpClient } from "@beep/editor-client"
+ *
+ * const client = makeEditorHttpClient({
+ *   baseUrl: "http://127.0.0.1:8789",
+ * })
+ * void client
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
- * @category Integration
  */
 export const makeEditorHttpClient = (options: EditorHttpClientOptions) =>
   HttpApiClient.make(EditorControlPlaneApi, {
@@ -173,8 +251,18 @@ const EditorHttpClientDefaultLayer = (options: EditorHttpClientOptions): Layer.L
  * @param options - Client construction options for the editor control plane.
  * @returns A scoped Effect that resolves with the typed control-plane client.
  *
+ * @example
+ * ```ts
+ * import { makeEditorHttpClientDefault } from "@beep/editor-client"
+ *
+ * const client = makeEditorHttpClientDefault({
+ *   baseUrl: "http://127.0.0.1:8789",
+ * })
+ * void client
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
- * @category Integration
  */
 export const makeEditorHttpClientDefault = (
   options: EditorHttpClientOptions
@@ -213,8 +301,21 @@ const decodeSlugEffect = (slug: string): Effect.Effect<Slug, EditorClientError> 
  * @param config - Connection details for the local editor sidecar.
  * @returns An Effect that resolves with the typed editor client boundary.
  *
+ * @example
+ * ```ts
+ * import { EditorClientConfig, makeEditorClient } from "@beep/editor-client"
+ *
+ * const client = makeEditorClient(
+ *   new EditorClientConfig({
+ *     baseUrl: "http://127.0.0.1:8789",
+ *     sessionId: "editor-session",
+ *   })
+ * )
+ * void client
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
- * @category DomainLogic
  */
 export const makeEditorClient = Effect.fn("EditorClient.make")((config: EditorClientConfig) =>
   Effect.scoped(
@@ -286,8 +387,21 @@ export const makeEditorClient = Effect.fn("EditorClient.make")((config: EditorCl
  * @param config - Connection details for the local editor sidecar.
  * @returns A Layer that provides the editor client service.
  *
+ * @example
+ * ```ts
+ * import { EditorClientConfig, EditorClientLive } from "@beep/editor-client"
+ *
+ * const layer = EditorClientLive(
+ *   new EditorClientConfig({
+ *     baseUrl: "http://127.0.0.1:8789",
+ *     sessionId: "editor-session",
+ *   })
+ * )
+ * void layer
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
- * @category Configuration
  */
 export const EditorClientLive = (config: EditorClientConfig) =>
   Layer.effect(EditorClient, makeEditorClient(config).pipe(Effect.map(EditorClient.of)));

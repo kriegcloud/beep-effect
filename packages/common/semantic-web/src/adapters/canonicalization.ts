@@ -1,6 +1,7 @@
 /**
  * Local canonicalization adapter backing.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -212,8 +213,15 @@ const getCanonicalDataset = (
 /**
  * Canonicalization service live layer.
  *
+ * @example
+ * ```ts
+ * import { CanonicalizationServiceLive } from "@beep/semantic-web/adapters/canonicalization"
+ *
+ * void CanonicalizationServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const CanonicalizationServiceLive = Layer.succeed(
   CanonicalizationService,

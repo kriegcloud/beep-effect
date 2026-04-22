@@ -1,3 +1,10 @@
+/**
+ * Effect laws allowlist helpers used by repository ESLint rules.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { thunkFalse } from "@beep/utils";
 import { identity, pipe, Result } from "effect";
 import * as A from "effect/Array";
@@ -36,8 +43,15 @@ const decodedAllowlistSnapshot = pipe(
  *
  * Snapshot-backed runtime has no mutable cache, so this is a compatibility no-op.
  *
+ * @example
+ * ```ts
+ * import { resetAllowlistCache } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ *
+ * resetAllowlistCache()
+ * ```
+ *
  * @returns `undefined` because snapshot-backed runtime has no mutable cache.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const resetAllowlistCache = (): void => undefined;
@@ -45,8 +59,16 @@ export const resetAllowlistCache = (): void => undefined;
 /**
  * Retrieve allowlist decode diagnostics.
  *
+ * @example
+ * ```ts
+ * import { getAllowlistDiagnostics } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ *
+ * const diagnostics = getAllowlistDiagnostics()
+ * void diagnostics
+ * ```
+ *
  * @returns Read-only diagnostic messages produced while loading/decoding the allowlist document.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllowlistSnapshot.diagnostics;
@@ -54,9 +76,21 @@ export const getAllowlistDiagnostics = (): ReadonlyArray<string> => decodedAllow
 /**
  * Check whether a normalized violation key appears in the effect-laws allowlist.
  *
+ * @example
+ * ```ts
+ * import { isViolationAllowlisted } from "@beep/repo-configs/eslint/EffectLawsAllowlist"
+ *
+ * const allowlisted = isViolationAllowlisted({
+ *   ruleId: "effect/no-native-runtime",
+ *   filePath: "tooling/cli/src/commands/Lint/index.ts",
+ *   kind: "error",
+ * })
+ * void allowlisted
+ * ```
+ *
  * @param input - Candidate violation identity payload.
  * @returns `true` when an allowlist entry exactly matches the normalized lookup key.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const isViolationAllowlisted = (input: unknown): boolean =>

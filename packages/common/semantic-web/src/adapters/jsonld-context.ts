@@ -1,6 +1,7 @@
 /**
  * Local JSON-LD context adapter backing.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -99,8 +100,15 @@ const compactIdentifier = (context: JsonLdContext, iri: string): string => {
 /**
  * JSON-LD context service live layer.
  *
+ * @example
+ * ```ts
+ * import { JsonLdContextServiceLive } from "@beep/semantic-web/adapters/jsonld-context"
+ *
+ * void JsonLdContextServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const JsonLdContextServiceLive = Layer.succeed(
   JsonLdContextService,

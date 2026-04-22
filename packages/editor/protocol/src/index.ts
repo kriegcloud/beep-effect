@@ -1,3 +1,10 @@
+/**
+ * Public HTTP protocol schemas for the local editor sidecar runtime.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as Editor from "@beep/editor";
 import { $EditorProtocolId } from "@beep/identity/packages";
 import * as RuntimeProtocol from "@beep/runtime-protocol";
@@ -9,19 +16,27 @@ const $I = $EditorProtocolId.create("index");
 
 /**
  * @since 0.0.0
- * @category Re-exports
+ * @category re-exports
  */
 export * from "@beep/editor";
 /**
  * @since 0.0.0
- * @category Re-exports
+ * @category re-exports
  */
 export * from "@beep/runtime-protocol";
 /**
  * Union of deterministic sidecar control-plane payload errors.
  *
+ * @example
+ * ```ts
+ * import { EditorControlPlaneErrorPayload } from "@beep/editor-protocol"
+ *
+ * const schema = EditorControlPlaneErrorPayload
+ * void schema
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export const EditorControlPlaneErrorPayload = S.Union([
   RuntimeProtocol.SidecarBadRequestPayload,
@@ -33,16 +48,34 @@ export const EditorControlPlaneErrorPayload = S.Union([
   })
 );
 /**
+ * Type for deterministic sidecar control-plane payload errors.
+ *
+ * @example
+ * ```ts
+ * import type { EditorControlPlaneErrorPayload } from "@beep/editor-protocol"
+ *
+ * const status = (payload: EditorControlPlaneErrorPayload) => payload.status
+ * void status
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export type EditorControlPlaneErrorPayload = typeof EditorControlPlaneErrorPayload.Type;
 
 /**
  * Union of deterministic status-aware sidecar resource errors.
  *
+ * @example
+ * ```ts
+ * import { EditorControlPlaneResourceError } from "@beep/editor-protocol"
+ *
+ * const schema = EditorControlPlaneResourceError
+ * void schema
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
- * @category Integration
  */
 export const EditorControlPlaneResourceError = S.Union([
   RuntimeProtocol.SidecarBadRequest,
@@ -50,16 +83,34 @@ export const EditorControlPlaneResourceError = S.Union([
   RuntimeProtocol.SidecarInternalError,
 ]);
 /**
+ * Type for deterministic status-aware sidecar resource errors.
+ *
+ * @example
+ * ```ts
+ * import type { EditorControlPlaneResourceError } from "@beep/editor-protocol"
+ *
+ * const status = (error: EditorControlPlaneResourceError) => error.status
+ * void status
+ * ```
+ *
+ * @category error handling
  * @since 0.0.0
- * @category Integration
  */
 export type EditorControlPlaneResourceError = typeof EditorControlPlaneResourceError.Type;
 
 /**
  * Workspace summary projection returned by the editor control plane.
  *
+ * @example
+ * ```ts
+ * import { EditorWorkspaceSnapshot } from "@beep/editor-protocol"
+ *
+ * const schema = EditorWorkspaceSnapshot
+ * void schema
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class EditorWorkspaceSnapshot extends S.Class<EditorWorkspaceSnapshot>($I`EditorWorkspaceSnapshot`)(
   {
@@ -75,8 +126,16 @@ export class EditorWorkspaceSnapshot extends S.Class<EditorWorkspaceSnapshot>($I
 /**
  * Page resource returned by the editor control plane.
  *
+ * @example
+ * ```ts
+ * import { EditorPageResource } from "@beep/editor-protocol"
+ *
+ * const schema = EditorPageResource
+ * void schema
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class EditorPageResource extends S.Class<EditorPageResource>($I`EditorPageResource`)(
   {
@@ -91,8 +150,16 @@ export class EditorPageResource extends S.Class<EditorPageResource>($I`EditorPag
 /**
  * Query params for page search.
  *
+ * @example
+ * ```ts
+ * import { PageSearchQuery } from "@beep/editor-protocol"
+ *
+ * const query = new PageSearchQuery({ query: "home" })
+ * void query
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class PageSearchQuery extends S.Class<PageSearchQuery>($I`PageSearchQuery`)(
   {
@@ -106,8 +173,16 @@ export class PageSearchQuery extends S.Class<PageSearchQuery>($I`PageSearchQuery
 /**
  * Path params for page-specific routes.
  *
+ * @example
+ * ```ts
+ * import { normalizePageSlug, PageSlugParams } from "@beep/editor-protocol"
+ *
+ * const params = new PageSlugParams({ slug: normalizePageSlug("home") })
+ * void params
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class PageSlugParams extends S.Class<PageSlugParams>($I`PageSlugParams`)(
   {
@@ -121,8 +196,19 @@ export class PageSlugParams extends S.Class<PageSlugParams>($I`PageSlugParams`)(
 /**
  * Path params for page export routes.
  *
+ * @example
+ * ```ts
+ * import { normalizePageSlug, PageExportParams } from "@beep/editor-protocol"
+ *
+ * const params = new PageExportParams({
+ *   slug: normalizePageSlug("home"),
+ *   format: "markdown",
+ * })
+ * void params
+ * ```
+ *
+ * @category models
  * @since 0.0.0
- * @category DomainModel
  */
 export class PageExportParams extends S.Class<PageExportParams>($I`PageExportParams`)(
   {
@@ -188,8 +274,16 @@ class PagesGroup extends HttpApiGroup.make("pages", { topLevel: true })
 /**
  * Editor control-plane API.
  *
+ * @example
+ * ```ts
+ * import { EditorControlPlaneApi } from "@beep/editor-protocol"
+ *
+ * const api = EditorControlPlaneApi
+ * void api
+ * ```
+ *
+ * @category interop
  * @since 0.0.0
- * @category Integration
  */
 export class EditorControlPlaneApi extends HttpApi.make("editor-control-plane")
   .add(SystemGroup, WorkspaceGroup, PagesGroup)

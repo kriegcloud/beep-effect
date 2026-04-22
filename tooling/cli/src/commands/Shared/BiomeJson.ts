@@ -1,7 +1,7 @@
 /**
  * Shared Biome-backed JSON rendering for repo-managed config files.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -28,10 +28,14 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
 /**
  * Render JSON with the same Biome config that repository lint uses.
  *
+ * @example
+ * ```ts
+ * console.log("renderBiomeJson")
+ * ```
  * @param filePath - Workspace-relative or absolute target path used for Biome formatting.
  * @param value - JSON-compatible value to render.
  * @returns Biome-formatted JSON text with a trailing newline.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 export const renderBiomeJson = Effect.fn(function* (filePath: string, value: unknown) {

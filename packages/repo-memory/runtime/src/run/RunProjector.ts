@@ -1,3 +1,10 @@
+/**
+ * Runtime adapter for shared repo run projection.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import {
   projectRunEvent as projectSharedRunEvent,
   type RepoRun,
@@ -14,8 +21,15 @@ import type * as O from "effect/Option";
  * and desktop can materialize identical run state from the same durable event
  * stream. The runtime package keeps this adapter as its stable local seam.
  *
+ * @example
+ * ```ts
+ * import { projectRunEvent } from "@beep/repo-memory-runtime/run/RunProjector"
+ *
+ * const projector = projectRunEvent
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const projectRunEvent = Effect.fn("RepoMemoryRuntime.RunProjector.projectRunEvent")(function* (
   currentRun: O.Option<RepoRun>,

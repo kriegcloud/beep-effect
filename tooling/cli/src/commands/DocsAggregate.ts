@@ -4,7 +4,7 @@
  * This command delegates to the shared human-first docgen aggregation helper so
  * `beep docs aggregate` and `beep docgen aggregate` cannot drift.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -58,7 +58,11 @@ const aggregateDocs = Effect.fn(function* (selector: O.Option<string>, clean: bo
 /**
  * Aggregate generated package docs into the root `docs/` layout.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docsAggregateCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const docsAggregateCommand = Command.make(

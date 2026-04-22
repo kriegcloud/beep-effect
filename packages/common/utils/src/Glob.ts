@@ -1,3 +1,10 @@
+/**
+ * Glob pattern schemas and file matching service helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
 import { Context, Effect, Layer, Match, Order, pipe } from "effect";
@@ -12,6 +19,14 @@ const $I = $UtilsId.create("Glob");
 /**
  * Schema for a glob pattern: either a single string or an array of strings.
  *
+ * @example
+ * ```ts
+ * import { Pattern } from "@beep/utils/Glob"
+ *
+ * const schema = Pattern
+ * void schema
+ * ```
+ *
  * @category utilities
  * @since 0.0.0
  */
@@ -19,6 +34,14 @@ export const Pattern = S.Union([S.String, S.Array(S.String)]);
 
 /**
  * A glob pattern: either a single string or an array of strings.
+ *
+ * @example
+ * ```ts
+ * import type { Pattern } from "@beep/utils/Glob"
+ *
+ * const pattern: Pattern = ["src/*.ts", "test/*.ts"]
+ * void pattern
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -55,12 +78,28 @@ export class GlobOptions extends S.Class<GlobOptions>($I`GlobOptions`)(
 /**
  * Namespace for the encoded form of {@link GlobError}.
  *
+ * @example
+ * ```ts
+ * import { GlobError } from "@beep/utils/Glob"
+ *
+ * const pattern = (value: GlobError.Encoded) => value.pattern
+ * void pattern
+ * ```
+ *
  * @category models
  * @since 0.0.0
  */
 export declare namespace GlobError {
   /**
    * Encoded shape of {@link GlobError}.
+   *
+   * @example
+   * ```ts
+   * import { GlobError } from "@beep/utils/Glob"
+   *
+   * const pattern = (value: GlobError.Encoded) => value.pattern
+   * void pattern
+   * ```
    *
    * @category models
    * @since 0.0.0
@@ -72,6 +111,14 @@ export declare namespace GlobError {
  * An error raised when glob pattern matching fails.
  *
  * Carries the offending `pattern` and an optional `cause` with stack trace.
+ *
+ * @example
+ * ```ts
+ * import { GlobError } from "@beep/utils/Glob"
+ *
+ * const error = GlobError.new("src/*.ts", undefined)
+ * void error
+ * ```
  *
  * @category models
  * @since 0.0.0
@@ -104,8 +151,8 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
  * import { Glob } from "@beep/utils/Glob"
  *
  * const program = Effect.gen(function* () {
- *
- *
+ *   const service = yield* Glob
+ *   return yield* service.glob("src/*.ts")
  * })
  *
  * void program
@@ -120,6 +167,14 @@ export interface Glob {
 
 /**
  * Service tag for the {@link Glob} capability.
+ *
+ * @example
+ * ```ts
+ * import { Glob } from "@beep/utils/Glob"
+ *
+ * const tag = Glob
+ * void tag
+ * ```
  *
  * @category services
  * @since 0.0.0
@@ -387,6 +442,22 @@ const makeGlob = (pattern: Pattern, options?: undefined | GlobOptions) => {
 /**
  * Live `Layer` providing the {@link Glob} service backed by `Bun.Glob` when
  * available and Node's `fs.globSync` otherwise.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { Glob, layer } from "@beep/utils/Glob"
+ *
+ * const program = Effect.provide(
+ *   Effect.gen(function* () {
+ *     const service = yield* Glob
+ *     return yield* service.glob("src/*.ts")
+ *   }),
+ *   layer
+ * )
+ *
+ * void program
+ * ```
  *
  * @category utilities
  * @since 0.0.0

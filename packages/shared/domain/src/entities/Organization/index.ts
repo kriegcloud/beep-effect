@@ -1,5 +1,5 @@
 /**
  * @since 0.0.0
- * @category Entities
+ * @category entities
  */
 export * from "./Organization.model.ts";

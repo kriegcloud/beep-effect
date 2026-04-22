@@ -1,3 +1,10 @@
+/**
+ * Runtime layer and entrypoints for the repo-memory sidecar.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RuntimeServerId } from "@beep/identity/packages";
 import { renderObservedCause, summarizeCause } from "@beep/observability";
 import { RunId, RunStreamFailure } from "@beep/repo-memory-model";
@@ -231,8 +238,18 @@ const sidecarTransportMiddlewareLayer = HttpRouter.middleware(
 /**
  * Startup configuration for the local sidecar runtime.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SidecarRuntimeConfig } from "@beep/runtime-server"
+ *
+ * const isConfig = S.is(SidecarRuntimeConfig)
+ *
+ * void isConfig
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`SidecarRuntimeConfig`)(
   {
@@ -257,8 +274,18 @@ export class SidecarRuntimeConfig extends S.Class<SidecarRuntimeConfig>($I`Sidec
 /**
  * Typed runtime error emitted during sidecar bootstrap and request handling.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SidecarRuntimeError } from "@beep/runtime-server"
+ *
+ * const isRuntimeError = S.is(SidecarRuntimeError)
+ *
+ * void isRuntimeError
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarRuntimeError extends StatusCauseTaggedErrorClass<SidecarRuntimeError>($I`SidecarRuntimeError`)(
   "SidecarRuntimeError",
@@ -288,8 +315,20 @@ const decodeExecutionRunId = (workflowName: string, executionId: string) =>
 /**
  * Minimal error payload shape used at runtime HTTP boundaries before protocol-specific mapping.
  *
+ * @example
+ * ```ts
+ * import { RuntimeBoundaryPayload } from "@beep/runtime-server"
+ *
+ * const payload = new RuntimeBoundaryPayload({
+ *   message: "Sidecar request failed",
+ *   status: 500
+ * })
+ *
+ * void payload
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RuntimeBoundaryPayload extends S.Class<RuntimeBoundaryPayload>($I`RuntimeBoundaryPayload`)({
   message: S.String,
@@ -581,8 +620,17 @@ const makeRpcHandlersLayer = () => {
 /**
  * Builds the live HTTP + RPC layer for the local sidecar runtime.
  *
+ * @example
+ * ```ts
+ * import { sidecarLayer } from "@beep/runtime-server"
+ *
+ * const buildLayer = sidecarLayer
+ *
+ * void buildLayer
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const sidecarLayer = (config: SidecarRuntimeConfig) =>
   Layer.unwrap(
@@ -860,8 +908,17 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
 /**
  * Launches the sidecar HTTP layer with runtime observability applied once at the boundary.
  *
+ * @example
+ * ```ts
+ * import { launchSidecar } from "@beep/runtime-server"
+ *
+ * const launch = launchSidecar
+ *
+ * void launch
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const launchSidecar = (config: SidecarRuntimeConfig): Effect.Effect<void, SidecarRuntimeError> =>
   provideSidecarObservability(config, Layer.launch(Layer.fresh(sidecarLayer(config)))).pipe(
@@ -871,8 +928,17 @@ export const launchSidecar = (config: SidecarRuntimeConfig): Effect.Effect<void,
 /**
  * Runs the sidecar runtime until shutdown is requested.
  *
+ * @example
+ * ```ts
+ * import { runSidecarRuntime } from "@beep/runtime-server"
+ *
+ * const run = runSidecarRuntime
+ *
+ * void run
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (config: SidecarRuntimeConfig) {
   const runtimeAnnotations = {
@@ -940,8 +1006,17 @@ export const runSidecarRuntime = Effect.fn("SidecarRuntime.run")(function* (conf
 /**
  * Loads sidecar runtime configuration from environment defaults.
  *
+ * @example
+ * ```ts
+ * import { loadSidecarRuntimeConfig } from "@beep/runtime-server"
+ *
+ * const configEffect = loadSidecarRuntimeConfig()
+ *
+ * void configEffect
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const loadSidecarRuntimeConfig = Effect.fn("SidecarRuntime.loadConfig")(function* () {
   const host = yield* Config.string("BEEP_REPO_MEMORY_HOST").pipe(Config.withDefault("127.0.0.1"));

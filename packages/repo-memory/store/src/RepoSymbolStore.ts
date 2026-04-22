@@ -1,3 +1,10 @@
+/**
+ * Repository symbol graph store algebra.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryStoreId } from "@beep/identity/packages";
 import type { RepoId, RepoImportEdge, RepoSymbolRecord, SourceSnapshotId } from "@beep/repo-memory-model";
 import type { FilePath } from "@beep/schema";
@@ -9,8 +16,19 @@ const $I = $RepoMemoryStoreId.create("RepoSymbolStore");
 /**
  * Contract for symbol graph persistence and lookup.
  *
+ * @example
+ * ```ts
+ * import type { RepoSymbolStoreShape } from "@beep/repo-memory-store"
+ *
+ * const methods = [
+ *   "listSymbolRecords",
+ *   "searchSymbols",
+ *   "listImportEdges"
+ * ] satisfies ReadonlyArray<keyof RepoSymbolStoreShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export interface RepoSymbolStoreShape {
   readonly findSymbolsByExactName: (
@@ -52,7 +70,18 @@ export interface RepoSymbolStoreShape {
 /**
  * Symbol store service.
  *
+ * @example
+ * ```ts
+ * import { RepoSymbolStore } from "@beep/repo-memory-store"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const store = yield* RepoSymbolStore
+ *   return store.searchSymbols
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoSymbolStore extends Context.Service<RepoSymbolStore, RepoSymbolStoreShape>()($I`RepoSymbolStore`) {}

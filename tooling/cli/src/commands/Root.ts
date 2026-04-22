@@ -1,7 +1,7 @@
 /**
  * Root CLI command definition.
  *
- * @module
+ * @packageDocumentation
  * @internal
  * @since 0.0.0
  */
@@ -30,7 +30,12 @@ import { versionSyncCommand } from "./VersionSync/index.js";
  * This is the command tree root consumed by `Command.run` in the bin entry point.
  *
  * @internal
- * @category UseCase
+ *
+ * @example
+ * ```ts
+ * console.log("rootCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const rootCommand = Command.make("beep-cli").pipe(

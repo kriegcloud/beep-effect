@@ -1,3 +1,9 @@
+/**
+ * Browser observability layer construction for the Effect web SDK.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import * as WebSdk from "@effect/opentelemetry/WebSdk";
 import type * as Layer from "effect/Layer";
 import { toWebResource, type WebObservabilityConfig } from "./Config.ts";

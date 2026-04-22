@@ -1,3 +1,10 @@
+/**
+ * Public email address schema exports.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { Email as InternalEmail } from "./internal/email.ts";
 
 /**
@@ -16,15 +23,26 @@ import { Email as InternalEmail } from "./internal/email.ts";
  * const email = decode("Alice@Example.COM")
  * ```
  *
- * @since 0.0.0
  * @category constructors
+ * @since 0.0.0
  */
 export const Email = InternalEmail;
 
 /**
  * Branded, redacted email address type extracted from {@link Email}.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Email, type Email as EmailValue } from "@beep/schema"
+ *
+ * const decode = S.decodeUnknownSync(Email)
+ * const email: EmailValue = decode("admin@example.com")
+ *
+ * void email
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type Email = typeof Email.Type;

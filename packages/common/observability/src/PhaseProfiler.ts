@@ -52,8 +52,16 @@ export const PhaseOutcome = LiteralKit(["completed", "failed", "interrupted"]).p
 /**
  * Runtime type for {@link PhaseOutcome}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { PhaseOutcome } from "@beep/observability"
+ *
+ * const outcome: PhaseOutcome = "completed"
+ * void outcome
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type PhaseOutcome = typeof PhaseOutcome.Type;
 

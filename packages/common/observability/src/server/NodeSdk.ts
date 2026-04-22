@@ -1,3 +1,9 @@
+/**
+ * Node SDK observability layer construction for server runtimes.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import * as NodeSdk from "@effect/opentelemetry/NodeSdk";
 import type * as OtelResource from "@effect/opentelemetry/Resource";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";

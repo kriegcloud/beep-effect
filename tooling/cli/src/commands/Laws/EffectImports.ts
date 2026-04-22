@@ -1,7 +1,7 @@
 /**
  * Effect import style migration and check logic.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -21,7 +21,11 @@ const $I = $RepoCliId.create("commands/Laws/EffectImports");
 /**
  * Runtime options for effect import law migration checks.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("EffectImportRulesOptions")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>($I`EffectImportRulesOptions`)(
@@ -47,7 +51,11 @@ export class EffectImportRulesOptions extends S.Class<EffectImportRulesOptions>(
 /**
  * Summary of effect import law migration results.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("EffectImportRulesSummary")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class EffectImportRulesSummary extends S.Class<EffectImportRulesSummary>($I`EffectImportRulesSummary`)(
@@ -102,7 +110,11 @@ const isStableSubmodule = P.and(Str.startsWith("effect/"), P.not(Str.startsWith(
 /**
  * Run effect import style migration/check logic.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("runEffectImportRules")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const runEffectImportRules = Effect.fn(function* (options: EffectImportRulesOptions) {

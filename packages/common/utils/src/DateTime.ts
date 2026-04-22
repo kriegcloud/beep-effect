@@ -1,3 +1,10 @@
+/**
+ * DateTime helpers and Effect DateTime re-exports.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { DateTime } from "effect";
 
 /**
@@ -5,8 +12,6 @@ import { DateTime } from "effect";
  *
  * This helper normalizes zoned inputs to UTC while preserving the instant.
  *
- * @since 0.1.0
- * @category utility
  * @example
  * ```typescript
  * import { makeUnsafeUtc } from "@beep/utils/DateTime"
@@ -14,6 +19,9 @@ import { DateTime } from "effect";
  * const value = makeUnsafeUtc("2026-01-01T00:00:00.000Z")
  * void value
  * ```
+ *
+ * @category utilities
+ * @since 0.0.0
  */
 export const makeUnsafeUtc = <A extends Parameters<typeof DateTime.make>[0]>(input: A): DateTime.Utc =>
   DateTime.makeUnsafe(input).pipe(DateTime.toUtc);
@@ -22,6 +30,6 @@ export const makeUnsafeUtc = <A extends Parameters<typeof DateTime.make>[0]>(inp
  * Re-export of all helpers from `effect/DateTime`.
  *
  * @category utilities
- * @since 0.1.0
+ * @since 0.0.0
  */
 export * from "effect/DateTime";

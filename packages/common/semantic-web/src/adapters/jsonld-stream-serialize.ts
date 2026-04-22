@@ -1,6 +1,7 @@
 /**
  * Local JSON-LD streaming serialize adapter backing.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -50,8 +51,15 @@ const mapDocumentErrorToSerializeError = (error: JsonLdDocumentError): JsonLdStr
 /**
  * JSON-LD streaming serialize service live layer.
  *
+ * @example
+ * ```ts
+ * import { JsonLdStreamSerializeServiceLive } from "@beep/semantic-web/adapters/jsonld-stream-serialize"
+ *
+ * void JsonLdStreamSerializeServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const JsonLdStreamSerializeServiceLive = Layer.effect(
   JsonLdStreamSerializeService,

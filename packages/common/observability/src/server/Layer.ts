@@ -1,3 +1,9 @@
+/**
+ * Server-side observability layer composition for OTLP and devtools.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Duration, Layer, Metric } from "effect";
 import type * as HttpClient from "effect/unstable/http/HttpClient";
 import * as Otlp from "effect/unstable/observability/Otlp";

@@ -1,3 +1,10 @@
+/**
+ * Status and optional-cause tagged error class helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import type { TUnsafe } from "@beep/types";
 import type { Struct } from "effect";
 import { Effect } from "effect";
@@ -130,8 +137,34 @@ type StatusCauseTaggedErrorExtendMethod<
 /**
  * Tagged error class returned by {@link StatusCauseTaggedErrorClass}, including dual status/cause helpers.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { $SchemaId } from "@beep/identity/packages"
+ * import {
+ *   StatusCauseTaggedErrorClass,
+ *   type StatusCauseTaggedErrorClassWithStatics
+ * } from "@beep/schema/StatusCauseTaggedErrorClass"
+ *
+ * const $I = $SchemaId.create("StatusCauseTaggedErrorClassWithStatics/example")
+ *
+ * class ExampleError extends StatusCauseTaggedErrorClass<ExampleError>($I`ExampleError`)(
+ *   "ExampleError",
+ *   $I.annote("ExampleError", {
+ *     description: "An example HTTP-style failure."
+ *   })
+ * ) {}
+ *
+ * const fromClass = (
+ *   errorClass: StatusCauseTaggedErrorClassWithStatics<ExampleError, "ExampleError", {}, {}>
+ * ) => errorClass.noCause("Missing", 404)
+ *
+ * const error = fromClass(ExampleError)
+ *
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type StatusCauseTaggedErrorClassWithStatics<
   Self,
@@ -155,8 +188,33 @@ export type StatusCauseTaggedErrorClassWithStatics<
 /**
  * Factory returned by {@link StatusCauseTaggedErrorClass} after an identity namespace has been selected.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { $SchemaId } from "@beep/identity/packages"
+ * import {
+ *   StatusCauseTaggedErrorClass,
+ *   type StatusCauseTaggedErrorClassFactory
+ * } from "@beep/schema/StatusCauseTaggedErrorClass"
+ *
+ * const $I = $SchemaId.create("StatusCauseTaggedErrorClassFactory/example")
+ *
+ * class ExampleError extends StatusCauseTaggedErrorClass<ExampleError>($I`ExampleError`)(
+ *   "ExampleError",
+ *   $I.annote("ExampleError", {
+ *     description: "An example HTTP-style failure built from a factory."
+ *   })
+ * ) {}
+ *
+ * const factory: StatusCauseTaggedErrorClassFactory<ExampleError> =
+ *   StatusCauseTaggedErrorClass<ExampleError>($I`ExampleErrorFactory`)
+ * const error = ExampleError.noCause("Missing", 404)
+ *
+ * void factory
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export interface StatusCauseTaggedErrorClassFactory<Self, Brand = {}> {
   <Tag extends string, const Fields extends StatusCauseTaggedErrorFields>(
@@ -177,8 +235,31 @@ export interface StatusCauseTaggedErrorClassFactory<Self, Brand = {}> {
 /**
  * Callable constructor for creating status-cause tagged error class factories.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { $SchemaId } from "@beep/identity/packages"
+ * import {
+ *   StatusCauseTaggedErrorClass,
+ *   type StatusCauseTaggedErrorClassConstructor
+ * } from "@beep/schema/StatusCauseTaggedErrorClass"
+ *
+ * const $I = $SchemaId.create("StatusCauseTaggedErrorClassConstructor/example")
+ * const makeStatusError: StatusCauseTaggedErrorClassConstructor = StatusCauseTaggedErrorClass
+ *
+ * class ExampleError extends makeStatusError<ExampleError>($I`ExampleError`)(
+ *   "ExampleError",
+ *   $I.annote("ExampleError", {
+ *     description: "An example HTTP-style failure built through the constructor type."
+ *   })
+ * ) {}
+ *
+ * const error = ExampleError.noCause("Missing", 404)
+ *
+ * void error
+ * ```
+ *
  * @category constructors
+ * @since 0.0.0
  */
 export type StatusCauseTaggedErrorClassConstructor = <Self, Brand = {}>(
   identifier?: undefined | string

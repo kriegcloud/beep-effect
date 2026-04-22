@@ -1,8 +1,8 @@
 /**
  * Effect service for Drizzle cache integration.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 
 import { $SharedServerId } from "@beep/identity";
@@ -17,8 +17,23 @@ const $I = $SharedServerId.create("factories/effect-drizzle/cache-effect");
 /**
  * Effect cache contract used by the Drizzle adapter.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import type { DrizzleEffectCacheShape } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const cache: DrizzleEffectCacheShape = {
+ *   get: () => Effect.succeed(undefined),
+ *   onMutate: () => Effect.void,
+ *   put: () => Effect.void,
+ *   strategy: () => "explicit"
+ * }
+ *
+ * void cache
+ * ```
+ *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export interface DrizzleEffectCacheShape {
   readonly get: (
@@ -41,8 +56,17 @@ export interface DrizzleEffectCacheShape {
 /**
  * Effect service that adapts a Drizzle cache instance.
  *
+ * @example
+ * ```ts
+ * import { DrizzleEffectCache } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const layer = DrizzleEffectCache.Default
+ *
+ * void layer
+ * ```
+ *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class DrizzleEffectCache extends Context.Service<DrizzleEffectCache, DrizzleEffectCacheShape>()(
   $I`DrizzleEffectCache`
@@ -51,7 +75,7 @@ export class DrizzleEffectCache extends Context.Service<DrizzleEffectCache, Driz
    * Adapt a standard Drizzle cache instance into an Effect service shape.
    *
    * @since 0.0.0
-   * @category Constructors
+   * @category constructors
    */
   static fromDrizzle = (cache: Cache): DrizzleEffectCacheShape => ({
     strategy: () => cache.strategy(),
@@ -87,7 +111,7 @@ export class DrizzleEffectCache extends Context.Service<DrizzleEffectCache, Driz
    * Default no-op cache layer.
    *
    * @since 0.0.0
-   * @category Layers
+   * @category layers
    */
   static readonly Default = Layer.succeed(
     DrizzleEffectCache,
@@ -98,7 +122,7 @@ export class DrizzleEffectCache extends Context.Service<DrizzleEffectCache, Driz
    * Layer adapter for a standard Drizzle cache instance.
    *
    * @since 0.0.0
-   * @category Layers
+   * @category layers
    */
   static readonly layerFromDrizzle = (cache: Cache) =>
     Layer.succeed(DrizzleEffectCache, DrizzleEffectCache.of(DrizzleEffectCache.fromDrizzle(cache)));

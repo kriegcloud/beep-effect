@@ -1,3 +1,10 @@
+/**
+ * Docs-only ESLint configuration used by repository tooling.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { fileURLToPath } from "node:url";
 import tsParser from "@typescript-eslint/parser";
 import type { Linter } from "eslint";
@@ -33,7 +40,15 @@ const repoRootDirectory = fileURLToPath(new URL("../../../../", import.meta.url)
 /**
  * Flat ESLint config array shape exported for repository documentation checks.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import type { DocsESLintConfigShape } from "@beep/repo-configs/eslint/DocsESLintConfig"
+ *
+ * const config = [] satisfies DocsESLintConfigShape
+ * void config
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export type DocsESLintConfigShape = ReadonlyArray<Linter.Config>;
@@ -41,7 +56,14 @@ export type DocsESLintConfigShape = ReadonlyArray<Linter.Config>;
 /**
  * Docs-only ESLint configuration used by the repository root `lint:jsdoc` lane.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { DocsESLintConfig } from "@beep/repo-configs/eslint/DocsESLintConfig"
+ *
+ * void DocsESLintConfig
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const DocsESLintConfig: DocsESLintConfigShape = [

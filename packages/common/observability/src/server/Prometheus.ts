@@ -1,3 +1,9 @@
+/**
+ * Prometheus metrics sanitization and HTTP route helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";

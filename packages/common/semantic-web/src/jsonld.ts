@@ -1,6 +1,7 @@
 /**
  * JSON-LD value families and normalized document shapes.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -68,6 +69,14 @@ export const JsonLdKeyword = LiteralKit([
 /**
  * Type for {@link JsonLdKeyword}.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdKeyword } from "@beep/semantic-web/jsonld"
+ *
+ * const acceptJsonLdKeyword = (value: JsonLdKeyword) => value
+ * void acceptJsonLdKeyword
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -112,6 +121,13 @@ export class JsonLdTermDefinition extends S.Class<JsonLdTermDefinition>($I`JsonL
 /**
  * Normalized JSON-LD context model with bounded base, vocab, and term bindings.
  *
+ * @example
+ * ```ts
+ * import { JsonLdContext } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdContext
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -139,6 +155,13 @@ export class JsonLdContext extends S.Class<JsonLdContext>($I`JsonLdContext`)(
 /**
  * JSON-LD blank-node identifier used by the bounded document model.
  *
+ * @example
+ * ```ts
+ * import { JsonLdBlankNodeIdentifier } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdBlankNodeIdentifier
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -164,6 +187,14 @@ export const JsonLdBlankNodeIdentifier = S.String.check(jsonLdBlankNodeIdentifie
 /**
  * Type for {@link JsonLdBlankNodeIdentifier}.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdBlankNodeIdentifier } from "@beep/semantic-web/jsonld"
+ *
+ * const acceptJsonLdBlankNodeIdentifier = (value: JsonLdBlankNodeIdentifier) => value
+ * void acceptJsonLdBlankNodeIdentifier
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -171,6 +202,13 @@ export type JsonLdBlankNodeIdentifier = typeof JsonLdBlankNodeIdentifier.Type;
 
 /**
  * JSON-LD node identifier used by the bounded document model.
+ *
+ * @example
+ * ```ts
+ * import { JsonLdNodeIdentifier } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdNodeIdentifier
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -194,6 +232,14 @@ export const JsonLdNodeIdentifier = S.Union([IRIReference, JsonLdBlankNodeIdenti
 /**
  * Type for {@link JsonLdNodeIdentifier}.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdNodeIdentifier } from "@beep/semantic-web/jsonld"
+ *
+ * const acceptJsonLdNodeIdentifier = (value: JsonLdNodeIdentifier) => value
+ * void acceptJsonLdNodeIdentifier
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -201,6 +247,13 @@ export type JsonLdNodeIdentifier = typeof JsonLdNodeIdentifier.Type;
 
 /**
  * JSON-LD node reference value.
+ *
+ * @example
+ * ```ts
+ * import { JsonLdReferenceValue } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdReferenceValue
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -226,6 +279,13 @@ export class JsonLdReferenceValue extends S.Class<JsonLdReferenceValue>($I`JsonL
 
 /**
  * JSON-LD literal value object.
+ *
+ * @example
+ * ```ts
+ * import { JsonLdLiteralValue } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdLiteralValue
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -253,6 +313,13 @@ export class JsonLdLiteralValue extends S.Class<JsonLdLiteralValue>($I`JsonLdLit
 /**
  * JSON-LD property value union used by bounded node objects.
  *
+ * @example
+ * ```ts
+ * import { JsonLdPropertyValue } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdPropertyValue
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -265,6 +332,14 @@ export const JsonLdPropertyValue = S.Union([JsonLdReferenceValue, JsonLdLiteralV
 /**
  * Type for {@link JsonLdPropertyValue}.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdPropertyValue } from "@beep/semantic-web/jsonld"
+ *
+ * const acceptJsonLdPropertyValue = (value: JsonLdPropertyValue) => value
+ * void acceptJsonLdPropertyValue
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -272,6 +347,13 @@ export type JsonLdPropertyValue = typeof JsonLdPropertyValue.Type;
 
 /**
  * JSON-LD node object used by bounded document and framing helpers.
+ *
+ * @example
+ * ```ts
+ * import { JsonLdNodeObject } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdNodeObject
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -335,6 +417,13 @@ export class JsonLdDocument extends S.Class<JsonLdDocument>($I`JsonLdDocument`)(
 
 /**
  * Bounded JSON-LD frame model.
+ *
+ * @example
+ * ```ts
+ * import { JsonLdFrame } from "@beep/semantic-web/jsonld"
+ *
+ * void JsonLdFrame
+ * ```
  *
  * @since 0.0.0
  * @category models

@@ -1,3 +1,10 @@
+/**
+ * Typed tagged error class wrappers over Effect Schema classes.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import type { TUnsafe } from "@beep/types";
 import type { Cause, Struct } from "effect";
 import * as S from "effect/Schema";
@@ -54,8 +61,25 @@ type TaggedErrorInstance<ErrorClass extends TaggedErrorClassLike> = ErrorClass e
 /**
  * Input type for constructing a tagged error, omitting the discriminator `_tag`.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TaggedErrorClass, type TaggedErrorNewInput } from "@beep/schema/TaggedErrorClass"
+ *
+ * class NotFound extends TaggedErrorClass<NotFound>()("NotFound", {
+ *   message: S.String
+ * }) {}
+ *
+ * const input: TaggedErrorNewInput<typeof NotFound> = {
+ *   message: "User not found"
+ * }
+ * const error = new NotFound(input)
+ *
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type TaggedErrorNewInput<ErrorClass extends TaggedErrorClassLike> = Omit<
   S.Schema.Type<TaggedErrorSchema<ErrorClass>>,
@@ -92,8 +116,29 @@ type TaggedErrorClassWithExtend<ErrorClass extends TaggedErrorClassLike> = (new 
 /**
  * Tagged error class type derived from a fields object.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TaggedErrorClass, type TaggedErrorClassFromFields } from "@beep/schema/TaggedErrorClass"
+ *
+ * class NotFound extends TaggedErrorClass<NotFound>()("NotFound", {
+ *   message: S.String
+ * }) {}
+ *
+ * type NotFoundClass = TaggedErrorClassFromFields<
+ *   NotFound,
+ *   "NotFound",
+ *   { readonly message: typeof S.String }
+ * >
+ *
+ * const fromClass = (errorClass: NotFoundClass) => new errorClass({ message: "User not found" })
+ * const error = fromClass(NotFound)
+ *
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type TaggedErrorClassFromFields<
   Self,
@@ -105,8 +150,27 @@ export type TaggedErrorClassFromFields<
 /**
  * Tagged error class type derived from a struct schema.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TaggedErrorClass, type TaggedErrorClassFromSchema } from "@beep/schema/TaggedErrorClass"
+ *
+ * const NotFoundFields = S.Struct({
+ *   message: S.String
+ * })
+ *
+ * class NotFound extends TaggedErrorClass<NotFound>()("NotFound", NotFoundFields) {}
+ *
+ * type NotFoundClass = TaggedErrorClassFromSchema<NotFound, "NotFound", typeof NotFoundFields>
+ *
+ * const fromClass = (errorClass: NotFoundClass) => new errorClass({ message: "User not found" })
+ * const error = fromClass(NotFound)
+ *
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type TaggedErrorClassFromSchema<
   Self,
@@ -118,8 +182,28 @@ export type TaggedErrorClassFromSchema<
 /**
  * Factory interface returned by {@link TaggedErrorClass} that accepts a tag, fields, and optional annotations.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TaggedErrorClass, type TaggedErrorClassFactory } from "@beep/schema/TaggedErrorClass"
+ *
+ * class NotFound extends TaggedErrorClass<NotFound>()("NotFound", {
+ *   message: S.String
+ * }) {}
+ *
+ * const factory: TaggedErrorClassFactory<NotFound> = TaggedErrorClass<NotFound>()
+ * const SameShapeError = factory("SameShapeError", {
+ *   message: S.String
+ * })
+ * const original = new NotFound({ message: "User not found" })
+ * const error = new SameShapeError({ message: "User not found" })
+ *
+ * void original
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export interface TaggedErrorClassFactory<Self, Brand = {}> {
   <Tag extends string, const Fields extends TaggedErrorFields>(
@@ -138,8 +222,24 @@ export interface TaggedErrorClassFactory<Self, Brand = {}> {
 /**
  * Callable constructor type for building tagged error classes.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { TaggedErrorClass, type TaggedErrorClassConstructor } from "@beep/schema/TaggedErrorClass"
+ *
+ * const makeTaggedErrorClass: TaggedErrorClassConstructor = TaggedErrorClass
+ *
+ * class NotFound extends makeTaggedErrorClass<NotFound>()("NotFound", {
+ *   message: S.String
+ * }) {}
+ *
+ * const error = new NotFound({ message: "User not found" })
+ *
+ * void error
+ * ```
+ *
+ * @category constructors
  * @since 0.0.0
- * @category models
  */
 export type TaggedErrorClassConstructor = <Self, Brand = {}>(
   identifier?: undefined | string
@@ -160,14 +260,14 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  * import { TaggedErrorClass } from "@beep/schema"
  *
  * class NotFound extends TaggedErrorClass<NotFound>()("NotFound", {
- *
+ *   message: S.String
  * }) {}
  *
  * const err = new NotFound({ message: "User not found" })
  *
- * const program = Effect.fail(err).pipe(
+ * const program = Effect.fail(err)
  *
- * )
+ * void program
  * ```
  *
  * @example
@@ -177,20 +277,19 @@ type UnsafeTaggedErrorClassFactory = TaggedErrorClassFactory<TUnsafe.Any, TUnsaf
  * import { TaggedErrorClass } from "@beep/schema"
  *
  * class DbError extends TaggedErrorClass<DbError>()("DbError", {
- *
- *
+ *   query: S.String
  * }) {}
  *
  * const program = Effect.try({
- *
- *
+ *   try: () => "ok",
+ *   catch: () => new DbError({ query: "select 1" })
  * })
  *
  * void program
  * ```
  *
- * @since 0.0.0
  * @category constructors
+ * @since 0.0.0
  */
 export const TaggedErrorClass: TaggedErrorClassConstructor = (identifier?: undefined | string) => {
   return ((

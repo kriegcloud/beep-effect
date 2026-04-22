@@ -1,3 +1,10 @@
+/**
+ * Internal runtime path lookup helpers for struct utilities.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { Function as Fn, Match } from "effect";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -6,8 +13,36 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as A from "../Array.ts";
 
+/**
+ * Schema for dot-delimited paths or path segment arrays.
+ *
+ * @example
+ * ```ts
+ * import { PathInput } from "@beep/utils/internal/StructPath"
+ *
+ * const schema = PathInput
+ * void schema
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export const PathInput = S.Union([S.String, S.Array(S.String)]);
 
+/**
+ * Runtime path input accepted by struct lookup helpers.
+ *
+ * @example
+ * ```ts
+ * import type { PathInput } from "@beep/utils/internal/StructPath"
+ *
+ * const path: PathInput = ["profile", "name"]
+ * void path
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type PathInput = typeof PathInput.Type;
 
 const PathLookupSchema = S.TaggedUnion({
@@ -18,6 +53,20 @@ const PathLookupSchema = S.TaggedUnion({
   },
 });
 
+/**
+ * Tagged result returned by a runtime path lookup.
+ *
+ * @example
+ * ```ts
+ * import type { PathLookup } from "@beep/utils/internal/StructPath"
+ *
+ * const describe = (lookup: PathLookup) => lookup.found
+ * void describe
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type PathLookup = typeof PathLookupSchema.Type;
 
 const makeNotFound = (): PathLookup => PathLookupSchema.cases.notFound.make({ found: false });
@@ -72,12 +121,40 @@ const lookupParts = (self: unknown, parts: A.NonEmptyReadonlyArray<string>): Pat
   return toPathLookup(result);
 };
 
+/**
+ * Looks up a value at a dot-delimited path or path segment array.
+ *
+ * @example
+ * ```ts
+ * import { lookupAtPath } from "@beep/utils/internal/StructPath"
+ *
+ * const lookup = lookupAtPath({ profile: { name: "Ada" } }, "profile.name")
+ * void lookup
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
 export const lookupAtPath = (self: unknown, path: PathInput): PathLookup =>
   A.match(normalizePath(path), {
     onEmpty: makeNotFound,
     onNonEmpty: (parts) => lookupParts(self, parts),
   });
 
+/**
+ * Unsafely returns a value at a path, or `undefined` when absent.
+ *
+ * @example
+ * ```ts
+ * import { unsafeDotGet } from "@beep/utils/internal/StructPath"
+ *
+ * const value = unsafeDotGet({ profile: { name: "Ada" } }, "profile.name")
+ * void value
+ * ```
+ *
+ * @category getters
+ * @since 0.0.0
+ */
 export const unsafeDotGet = (self: object, path: PathInput): unknown => {
   const lookup = lookupAtPath(self, path);
 

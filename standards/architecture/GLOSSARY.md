@@ -32,6 +32,14 @@ model does not own meaningful behavior.
 The slice package that owns browser/client adapters, remote command/query
 clients, client services, atoms, form models, and client state machines.
 
+## Client-Safe Use-Case Export
+
+A use-case export that may be imported by client packages without dragging
+server-only orchestration or infrastructure into the browser. Command/query
+language, boundary contracts, and actionable application errors are usually
+client-safe. Product ports, server Layers, process managers, and runtime
+workflow handlers are not.
+
 ## Concept
 
 A named domain idea such as `TwoFactor`, `Account`, `Enrollment`, or
@@ -107,6 +115,15 @@ A server-side implementation of a use-case port. Example:
 A technical capability package under `providers/`. Providers wrap third-party
 or infrastructure concerns such as Drizzle, Postgres, SQLite, EventLog,
 workflow engines, queues, sharding, transactions, retries, and configuration.
+Providers may be slice-local by default and promoted to shared only when the
+technical contract is product-neutral and stable across slices.
+
+## Protocol Declaration
+
+A provider-neutral boundary contract such as an HttpApi endpoint group, Rpc
+group, AI tool contract, or cluster entity protocol. Protocol declarations may
+live in `domain`; handlers, clients, transports, runtimes, persistence, and
+provider access do not.
 
 ## Projection
 
@@ -164,4 +181,3 @@ them local to the concept that uses them.
 A durable application process. Workflow declarations belong in `use-cases` when
 they are product/application concepts. Runtime workflow handlers belong in
 `server`; engines and storage belong in `providers`.
-

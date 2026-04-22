@@ -1,6 +1,7 @@
 /**
  * Local SHACL validation adapter backing.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -35,8 +36,15 @@ const makeViolation = (
 /**
  * Bounded SHACL-inspired validation service live layer.
  *
+ * @example
+ * ```ts
+ * import { BoundedShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine"
+ *
+ * void BoundedShaclValidationServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const BoundedShaclValidationServiceLive = Layer.succeed(
   ShaclValidationService,
@@ -153,7 +161,14 @@ export const BoundedShaclValidationServiceLive = Layer.succeed(
 /**
  * Backward-compatible alias for the bounded v1 SHACL adapter.
  *
+ * @example
+ * ```ts
+ * import { ShaclValidationServiceLive } from "@beep/semantic-web/adapters/shacl-engine"
+ *
+ * void ShaclValidationServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const ShaclValidationServiceLive = BoundedShaclValidationServiceLive;

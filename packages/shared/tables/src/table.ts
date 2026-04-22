@@ -2,6 +2,6 @@
  * Re-export the shared table module surface.
  *
  * @since 0.0.0
- * @category Exports
+ * @category exports
  */
 export * from "./table/index.js";

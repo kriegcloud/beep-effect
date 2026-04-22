@@ -1,3 +1,9 @@
+/**
+ * Server observability configuration and resource conversion helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LogLevel } from "@beep/schema";
 import * as S from "effect/Schema";

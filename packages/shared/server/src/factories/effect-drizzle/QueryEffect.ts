@@ -1,8 +1,8 @@
 /**
  * Yieldable bridge for Drizzle query builders and prepared queries.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 
 import { strategyFor } from "drizzle-orm/cache/core/cache";
@@ -22,8 +22,17 @@ import { effectDrizzleQueryErrorFromUnknown } from "./Errors.js";
 /**
  * Failure channel used by Effect-wrapped Drizzle query execution.
  *
+ * @example
+ * ```ts
+ * import type { QueryEffectError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const getQuery = (error: QueryEffectError) => error.query
+ *
+ * void getQuery
+ * ```
+ *
  * @since 0.0.0
- * @category Types
+ * @category types
  */
 export type QueryEffectError = ReturnType<typeof effectDrizzleQueryErrorFromUnknown>;
 
@@ -312,8 +321,15 @@ const installSqliteSelectPatch = (): void => {
  *
  * Importing this module is sufficient to activate the adapter.
  *
+ * @example
+ * ```ts
+ * import { installDrizzleEffectYieldables } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * installDrizzleEffectYieldables()
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const installDrizzleEffectYieldables = (): void => {
   installQueryPromisePatch();

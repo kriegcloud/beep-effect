@@ -1,7 +1,7 @@
 /**
  * Shared TypeScript source path exclusion rules for CLI lint commands.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -11,7 +11,11 @@ import * as Str from "effect/String";
 /**
  * Path segments excluded from TypeScript source lint traversals.
  *
- * @category CrossCutting
+ * @example
+ * ```ts
+ * console.log("TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
@@ -32,7 +36,11 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SEGMENTS = [
 /**
  * File suffixes excluded from TypeScript source lint traversals.
  *
- * @category CrossCutting
+ * @example
+ * ```ts
+ * console.log("TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES = [
@@ -47,9 +55,13 @@ export const TYPESCRIPT_SOURCE_EXCLUDED_SUFFIXES = [
 /**
  * Normalize filesystem paths to POSIX separators before string matching.
  *
+ * @example
+ * ```ts
+ * console.log("toPosixPath")
+ * ```
  * @param value - Path string to normalize.
  * @returns POSIX-normalized path string.
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const toPosixPath = (value: string): string => Str.replace(/\\/g, "/")(value);
@@ -57,9 +69,13 @@ export const toPosixPath = (value: string): string => Str.replace(/\\/g, "/")(va
 /**
  * Check whether a TypeScript source path should be excluded from lint traversals.
  *
+ * @example
+ * ```ts
+ * console.log("isExcludedTypeScriptSourcePath")
+ * ```
  * @param filePath - Relative or absolute path to inspect.
  * @returns True when the path matches an excluded segment or suffix rule.
- * @category CrossCutting
+ * @category utilities
  * @since 0.0.0
  */
 export const isExcludedTypeScriptSourcePath = (filePath: string): boolean => {

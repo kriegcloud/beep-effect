@@ -1,3 +1,9 @@
+/**
+ * Server-side Effect devtools span publishing layers and filters.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { Effect, Layer, Match, Tracer } from "effect";
 import * as O from "effect/Option";
 import * as DevToolsClient from "effect/unstable/devtools/DevToolsClient";

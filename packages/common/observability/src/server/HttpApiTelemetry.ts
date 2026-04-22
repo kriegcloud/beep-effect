@@ -1,3 +1,9 @@
+/**
+ * HTTP API telemetry descriptors, metrics, and middleware helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, SchemaAST } from "effect";

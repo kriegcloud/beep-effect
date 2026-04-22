@@ -1,7 +1,7 @@
 /**
  * Repo-local no-native-runtime parity checker.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -83,7 +83,11 @@ const TYPEOF_RUNTIME_LITERALS = HashSet.fromIterable([
 /**
  * Runtime options for repo-local native runtime checks.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("NoNativeRuntimeRulesOptions")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class NoNativeRuntimeRulesOptions extends S.Class<NoNativeRuntimeRulesOptions>($I`NoNativeRuntimeRulesOptions`)(
@@ -107,7 +111,11 @@ const NoNativeRuntimeSeverity = S.Union([S.Literal("warn"), S.Literal("error")])
 /**
  * Single repo-local native runtime diagnostic.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("NoNativeRuntimeDiagnostic")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class NoNativeRuntimeDiagnostic extends S.Class<NoNativeRuntimeDiagnostic>($I`NoNativeRuntimeDiagnostic`)(
@@ -127,14 +135,22 @@ export class NoNativeRuntimeDiagnostic extends S.Class<NoNativeRuntimeDiagnostic
 /**
  * Namespace for {@link NoNativeRuntimeDiagnostic} companion types.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("NoNativeRuntimeDiagnostic")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export declare namespace NoNativeRuntimeDiagnostic {
   /**
    * Encoded representation of {@link NoNativeRuntimeDiagnostic}.
    *
-   * @category DomainModel
+   * @example
+   * ```ts
+   * console.log("Encoded")
+   * ```
+   * @category models
    * @since 0.0.0
    */
   export type Encoded = typeof NoNativeRuntimeDiagnostic.Encoded;
@@ -143,7 +159,11 @@ export declare namespace NoNativeRuntimeDiagnostic {
 /**
  * Summary of repo-local native runtime checks.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("NoNativeRuntimeRulesSummary")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class NoNativeRuntimeRulesSummary extends S.Class<NoNativeRuntimeRulesSummary>($I`NoNativeRuntimeRulesSummary`)(
@@ -407,7 +427,11 @@ const formatViolationMessage = (violation: NativeRuntimeViolation): string => {
  * Non-hotspot files remain warning-only for `--check` so the P3 cutover preserves the
  * old warn-vs-error split while moving the blocking path away from the repo-wide ESLint lane.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("runNoNativeRuntimeRules")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const runNoNativeRuntimeRules = Effect.fn("runNoNativeRuntimeRules")(function* (

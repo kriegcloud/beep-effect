@@ -1,6 +1,7 @@
 /**
  * JSON-LD context service contract.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -29,8 +30,15 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
 /**
  * JSON-LD context error reason.
  *
+ * @example
+ * ```ts
+ * import { JsonLdContextErrorReason } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void JsonLdContextErrorReason
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdContextErrorReason = LiteralKit([
   "unknownTerm",
@@ -45,8 +53,15 @@ export const JsonLdContextErrorReason = LiteralKit([
 /**
  * Typed JSON-LD context service error.
  *
+ * @example
+ * ```ts
+ * import { JsonLdContextError } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void JsonLdContextError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class JsonLdContextError extends TaggedErrorClass<JsonLdContextError>($I`JsonLdContextError`)(
   "JsonLdContextError",
@@ -64,8 +79,15 @@ export class JsonLdContextError extends TaggedErrorClass<JsonLdContextError>($I`
 /**
  * Normalize JSON-LD context request.
  *
+ * @example
+ * ```ts
+ * import { NormalizeJsonLdContextRequest } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void NormalizeJsonLdContextRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class NormalizeJsonLdContextRequest extends S.Class<NormalizeJsonLdContextRequest>(
   $I`NormalizeJsonLdContextRequest`
@@ -85,8 +107,15 @@ export class NormalizeJsonLdContextRequest extends S.Class<NormalizeJsonLdContex
 /**
  * Expand JSON-LD term request.
  *
+ * @example
+ * ```ts
+ * import { ExpandJsonLdTermRequest } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void ExpandJsonLdTermRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ExpandJsonLdTermRequest extends S.Class<ExpandJsonLdTermRequest>($I`ExpandJsonLdTermRequest`)(
   {
@@ -105,8 +134,15 @@ export class ExpandJsonLdTermRequest extends S.Class<ExpandJsonLdTermRequest>($I
 /**
  * Expand JSON-LD term result.
  *
+ * @example
+ * ```ts
+ * import { ExpandJsonLdTermResult } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void ExpandJsonLdTermResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ExpandJsonLdTermResult extends S.Class<ExpandJsonLdTermResult>($I`ExpandJsonLdTermResult`)(
   {
@@ -122,8 +158,15 @@ export class ExpandJsonLdTermResult extends S.Class<ExpandJsonLdTermResult>($I`E
 /**
  * Compact JSON-LD IRI request.
  *
+ * @example
+ * ```ts
+ * import { CompactJsonLdIriRequest } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void CompactJsonLdIriRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class CompactJsonLdIriRequest extends S.Class<CompactJsonLdIriRequest>($I`CompactJsonLdIriRequest`)(
   {
@@ -142,8 +185,15 @@ export class CompactJsonLdIriRequest extends S.Class<CompactJsonLdIriRequest>($I
 /**
  * Compact JSON-LD IRI result.
  *
+ * @example
+ * ```ts
+ * import { CompactJsonLdIriResult } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void CompactJsonLdIriResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class CompactJsonLdIriResult extends S.Class<CompactJsonLdIriResult>($I`CompactJsonLdIriResult`)(
   {
@@ -159,8 +209,15 @@ export class CompactJsonLdIriResult extends S.Class<CompactJsonLdIriResult>($I`C
 /**
  * Merge JSON-LD contexts request.
  *
+ * @example
+ * ```ts
+ * import { MergeJsonLdContextsRequest } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void MergeJsonLdContextsRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class MergeJsonLdContextsRequest extends S.Class<MergeJsonLdContextsRequest>($I`MergeJsonLdContextsRequest`)(
   {
@@ -179,8 +236,16 @@ export class MergeJsonLdContextsRequest extends S.Class<MergeJsonLdContextsReque
 /**
  * JSON-LD context service contract shape.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdContextServiceShape } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * const acceptJsonLdContextServiceShape = (value: JsonLdContextServiceShape) => value
+ * void acceptJsonLdContextServiceShape
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export interface JsonLdContextServiceShape {
   readonly compactIri: (request: CompactJsonLdIriRequest) => Effect.Effect<CompactJsonLdIriResult, JsonLdContextError>;
@@ -192,8 +257,15 @@ export interface JsonLdContextServiceShape {
 /**
  * JSON-LD context service tag.
  *
+ * @example
+ * ```ts
+ * import { JsonLdContextService } from "@beep/semantic-web/services/jsonld-context"
+ *
+ * void JsonLdContextService
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export class JsonLdContextService extends Context.Service<JsonLdContextService, JsonLdContextServiceShape>()(
   $I`JsonLdContextService`

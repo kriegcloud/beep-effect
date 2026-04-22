@@ -1,7 +1,7 @@
 /**
  * Effect laws allowlist integrity checks.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -19,7 +19,11 @@ const $I = $RepoCliId.create("commands/Laws/AllowlistCheck");
 /**
  * Relative path to the effect laws allowlist.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * console.log("ALLOWLIST_PATH")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const ALLOWLIST_PATH = "standards/effect-laws.allowlist.jsonc";
@@ -73,7 +77,11 @@ const decodeEffectLawsAllowlist = S.decodeUnknownEffect(EffectLawsAllowlistDocum
 /**
  * Runtime options for allowlist integrity checks.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("AllowlistCheckOptions")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`AllowlistCheckOptions`)(
@@ -88,7 +96,11 @@ export class AllowlistCheckOptions extends S.Class<AllowlistCheckOptions>($I`All
 /**
  * Result of an allowlist integrity check.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("AllowlistCheckSummary")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class AllowlistCheckSummary extends S.Class<AllowlistCheckSummary>($I`AllowlistCheckSummary`)(
@@ -158,7 +170,11 @@ const validateEntryFiles = Effect.fn(function* (cwd: string, entries: ReadonlyAr
 /**
  * Run the effect laws allowlist integrity check.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("runAllowlistCheck")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOptions) {
@@ -208,7 +224,11 @@ export const runAllowlistCheck = Effect.fn(function* (options: AllowlistCheckOpt
 /**
  * Print allowlist integrity diagnostics to the console.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("reportAllowlistCheckSummary")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const reportAllowlistCheckSummary = Effect.fn(function* (summary: AllowlistCheckSummary) {

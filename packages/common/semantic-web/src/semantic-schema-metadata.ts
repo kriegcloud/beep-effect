@@ -1,6 +1,7 @@
 /**
  * Semantic schema metadata helpers for public `@beep/semantic-web` families.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -47,6 +48,14 @@ export const SemanticSchemaMetadataKind = LiteralKit([
 /**
  * Type for {@link SemanticSchemaMetadataKind}.
  *
+ * @example
+ * ```ts
+ * import type { SemanticSchemaMetadataKind } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * const acceptSemanticSchemaMetadataKind = (value: SemanticSchemaMetadataKind) => value
+ * void acceptSemanticSchemaMetadataKind
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -54,6 +63,13 @@ export type SemanticSchemaMetadataKind = typeof SemanticSchemaMetadataKind.Type;
 
 /**
  * Stability classification for semantic-web schema metadata.
+ *
+ * @example
+ * ```ts
+ * import { SemanticSchemaStatus } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * void SemanticSchemaStatus
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -67,6 +83,14 @@ export const SemanticSchemaStatus = LiteralKit(["experimental", "stable", "depre
 /**
  * Type for {@link SemanticSchemaStatus}.
  *
+ * @example
+ * ```ts
+ * import type { SemanticSchemaStatus } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * const acceptSemanticSchemaStatus = (value: SemanticSchemaStatus) => value
+ * void acceptSemanticSchemaStatus
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -74,6 +98,13 @@ export type SemanticSchemaStatus = typeof SemanticSchemaStatus.Type;
 
 /**
  * Specification disposition attached to a semantic schema reference.
+ *
+ * @example
+ * ```ts
+ * import { SemanticSchemaSpecificationDisposition } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * void SemanticSchemaSpecificationDisposition
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -87,6 +118,14 @@ export const SemanticSchemaSpecificationDisposition = LiteralKit(["normative", "
 /**
  * Type for {@link SemanticSchemaSpecificationDisposition}.
  *
+ * @example
+ * ```ts
+ * import type { SemanticSchemaSpecificationDisposition } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * const acceptSemanticSchemaSpecificationDisposition = (value: SemanticSchemaSpecificationDisposition) => value
+ * void acceptSemanticSchemaSpecificationDisposition
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -94,6 +133,13 @@ export type SemanticSchemaSpecificationDisposition = typeof SemanticSchemaSpecif
 
 /**
  * Representation label for semantic-web values.
+ *
+ * @example
+ * ```ts
+ * import { SemanticRepresentationKind } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * void SemanticRepresentationKind
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -114,6 +160,14 @@ export const SemanticRepresentationKind = LiteralKit([
 /**
  * Type for {@link SemanticRepresentationKind}.
  *
+ * @example
+ * ```ts
+ * import type { SemanticRepresentationKind } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * const acceptSemanticRepresentationKind = (value: SemanticRepresentationKind) => value
+ * void acceptSemanticRepresentationKind
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -121,6 +175,13 @@ export type SemanticRepresentationKind = typeof SemanticRepresentationKind.Type;
 
 /**
  * Single specification reference attached to public semantic-web schemas.
+ *
+ * @example
+ * ```ts
+ * import { SemanticSchemaSpecification } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * void SemanticSchemaSpecification
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -142,6 +203,13 @@ export class SemanticSchemaSpecification extends S.Class<SemanticSchemaSpecifica
 /**
  * Single representation note attached to semantic-web schemas.
  *
+ * @example
+ * ```ts
+ * import { SemanticRepresentation } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * void SemanticRepresentation
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -157,6 +225,13 @@ export class SemanticRepresentation extends S.Class<SemanticRepresentation>($I`S
 
 /**
  * Typed metadata payload stored in the `semanticSchemaMetadata` annotation key.
+ *
+ * @example
+ * ```ts
+ * import { SemanticSchemaMetadata } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * void SemanticSchemaMetadata
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -187,6 +262,14 @@ export class SemanticSchemaMetadata extends S.Class<SemanticSchemaMetadata>($I`S
 
 /**
  * Payload stored in the `semanticSchemaMetadata` annotation key.
+ *
+ * @example
+ * ```ts
+ * import type { SemanticSchemaMetadataAnnotationPayload } from "@beep/semantic-web/semantic-schema-metadata"
+ *
+ * const acceptSemanticSchemaMetadataAnnotationPayload = (value: SemanticSchemaMetadataAnnotationPayload) => value
+ * void acceptSemanticSchemaMetadataAnnotationPayload
+ * ```
  *
  * @since 0.0.0
  * @category models

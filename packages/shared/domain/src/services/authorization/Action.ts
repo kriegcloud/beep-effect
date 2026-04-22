@@ -4,7 +4,7 @@
  * Defines all the actions that can be performed in the system,
  * used for permission checking and ABAC policy evaluation.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -21,6 +21,19 @@ const $I = $SharedDomainId.create("services/authorization/Action");
  * - resource: The type of entity being acted upon
  * - verb: The operation being performed (create, read, update, delete, etc.)
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Action } from "@beep/shared-domain/services/authorization/Action"
+ *
+ * const isAction = S.is(Action)
+ * const canManageMembers = isAction("organization:manage_members")
+ *
+ * void canManageMembers
+ * ```
+ *
+ * @category domain model
+ * @since 0.0.0
  */
 export const Action = LiteralKit([
   // Organization actions
@@ -37,10 +50,34 @@ export const Action = LiteralKit([
 );
 /**
  * The Action type
+ *
+ * @example
+ * ```ts
+ * import type { Action } from "@beep/shared-domain/services/authorization/Action"
+ *
+ * const action: Action = "organization:manage_members"
+ *
+ * void action
+ * ```
+ *
+ * @category domain model
+ * @since 0.0.0
  */
 export type Action = typeof Action.Type;
 
 /**
  * Type guard for Action using Schema.is
+ *
+ * @example
+ * ```ts
+ * import { isAction } from "@beep/shared-domain/services/authorization/Action"
+ *
+ * const valid = isAction("organization:delete")
+ *
+ * void valid
+ * ```
+ *
+ * @category guards
+ * @since 0.0.0
  */
 export const isAction = S.is(Action);

@@ -1,3 +1,10 @@
+/**
+ * Normalized database error model and common SQLSTATE exports.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SharedDomainId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
@@ -20,8 +27,18 @@ const hasKnownErrorCode = (error: RawPgErrorType): error is KnownRawPgError =>
 /**
  * Typed shared domain error for normalized PostgreSQL and wrapper failures.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { DbError } from "@beep/shared-domain/errors/DbError/DbError"
+ *
+ * const isDbError = S.is(DbError)
+ *
+ * void isDbError
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class DbError extends TaggedErrorClass<DbError>($I`DbError`)("DbError", {
   type: S.OptionFromOptionalKey(ErrorCodeFromKey.From),
@@ -74,7 +91,16 @@ export class DbError extends TaggedErrorClass<DbError>($I`DbError`)("DbError", {
 /**
  * PostgreSQL unique-violation error code.
  *
+ * @example
+ * ```ts
+ * import { uniqueViolation } from "@beep/shared-domain/errors/DbError/DbError"
+ *
+ * const sqlstate = uniqueViolation
+ *
+ * void sqlstate
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const uniqueViolation = ErrorCodeFromKey.Enum.UNIQUE_VIOLATION;

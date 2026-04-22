@@ -1,7 +1,7 @@
 /**
  * Effect governance command suite.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -20,7 +20,11 @@ const $I = $RepoCliId.create("commands/Laws");
 /**
  * CLI options for effect import governance command.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($I`EffectImportsCommandOptions`)(
@@ -43,7 +47,11 @@ class EffectImportsCommandOptions extends S.Class<EffectImportsCommandOptions>($
 /**
  * CLI options for terse Effect style command.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`TerseEffectCommandOptions`)(
@@ -66,7 +74,11 @@ class TerseEffectCommandOptions extends S.Class<TerseEffectCommandOptions>($I`Te
 /**
  * CLI options for native runtime parity checks.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 class NoNativeRuntimeCommandOptions extends S.Class<NoNativeRuntimeCommandOptions>($I`NoNativeRuntimeCommandOptions`)(
@@ -88,7 +100,11 @@ const parseExcludePaths = (excludeValue: string): ReadonlyArray<string> =>
 /**
  * CLI command for effect import style migration/check.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const lawsEffectImportsCommand = Command.make(
@@ -134,7 +150,11 @@ const lawsEffectImportsCommand = Command.make(
 /**
  * CLI command for terse Effect style migration/check.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const lawsTerseEffectCommand = Command.make(
@@ -193,7 +213,11 @@ const lawsTerseEffectCommand = Command.make(
 /**
  * CLI command for repo-local native runtime governance checks.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const lawsNativeRuntimeCommand = Command.make(
@@ -235,7 +259,11 @@ const lawsNativeRuntimeCommand = Command.make(
 /**
  * CLI command for validating Effect governance allowlist integrity.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const lawsAllowlistCheckCommand = Command.make(
@@ -259,7 +287,11 @@ const lawsAllowlistCheckCommand = Command.make(
 /**
  * Laws command group.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("lawsCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const lawsCommand = Command.make(

@@ -1,6 +1,7 @@
 /**
  * SHACL validation service contract.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -32,8 +33,15 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
 /**
  * SHACL report severity.
  *
+ * @example
+ * ```ts
+ * import { ShaclSeverity } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclSeverity
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const ShaclSeverity = LiteralKit(["info", "warning", "violation"] as const).annotate(
   $I.annote("ShaclSeverity", {
@@ -44,8 +52,15 @@ export const ShaclSeverity = LiteralKit(["info", "warning", "violation"] as cons
 /**
  * SHACL property shape used by the bounded service contract.
  *
+ * @example
+ * ```ts
+ * import { ShaclPropertyShape } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclPropertyShape
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ShaclPropertyShape extends S.Class<ShaclPropertyShape>($I`ShaclPropertyShape`)(
   {
@@ -66,8 +81,15 @@ export class ShaclPropertyShape extends S.Class<ShaclPropertyShape>($I`ShaclProp
 /**
  * SHACL node shape used by the bounded service contract.
  *
+ * @example
+ * ```ts
+ * import { ShaclNodeShape } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclNodeShape
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ShaclNodeShape extends S.Class<ShaclNodeShape>($I`ShaclNodeShape`)(
   {
@@ -87,8 +109,15 @@ export class ShaclNodeShape extends S.Class<ShaclNodeShape>($I`ShaclNodeShape`)(
 /**
  * SHACL validation violation.
  *
+ * @example
+ * ```ts
+ * import { ShaclValidationViolation } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclValidationViolation
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ShaclValidationViolation extends S.Class<ShaclValidationViolation>($I`ShaclValidationViolation`)(
   {
@@ -106,8 +135,15 @@ export class ShaclValidationViolation extends S.Class<ShaclValidationViolation>(
 /**
  * SHACL validation request.
  *
+ * @example
+ * ```ts
+ * import { ShaclValidationRequest } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclValidationRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`ShaclValidationRequest`)(
   {
@@ -127,8 +163,15 @@ export class ShaclValidationRequest extends S.Class<ShaclValidationRequest>($I`S
 /**
  * SHACL validation result.
  *
+ * @example
+ * ```ts
+ * import { ShaclValidationResult } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclValidationResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`ShaclValidationResult`)(
   {
@@ -145,8 +188,15 @@ export class ShaclValidationResult extends S.Class<ShaclValidationResult>($I`Sha
 /**
  * Typed SHACL validation error.
  *
+ * @example
+ * ```ts
+ * import { ShaclValidationError } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclValidationError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class ShaclValidationError extends TaggedErrorClass<ShaclValidationError>($I`ShaclValidationError`)(
   "ShaclValidationError",
@@ -163,8 +213,16 @@ export class ShaclValidationError extends TaggedErrorClass<ShaclValidationError>
 /**
  * SHACL validation service contract shape.
  *
+ * @example
+ * ```ts
+ * import type { ShaclValidationServiceShape } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * const acceptShaclValidationServiceShape = (value: ShaclValidationServiceShape) => value
+ * void acceptShaclValidationServiceShape
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export interface ShaclValidationServiceShape {
   readonly validate: (request: ShaclValidationRequest) => Effect.Effect<ShaclValidationResult, ShaclValidationError>;
@@ -173,8 +231,15 @@ export interface ShaclValidationServiceShape {
 /**
  * SHACL validation service tag.
  *
+ * @example
+ * ```ts
+ * import { ShaclValidationService } from "@beep/semantic-web/services/shacl-validation"
+ *
+ * void ShaclValidationService
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export class ShaclValidationService extends Context.Service<ShaclValidationService, ShaclValidationServiceShape>()(
   $I`ShaclValidationService`

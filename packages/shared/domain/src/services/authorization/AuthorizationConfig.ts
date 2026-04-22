@@ -7,7 +7,8 @@
  * Configuration is loaded from environment variables:
  * - AUTHORIZATION_ENFORCEMENT: "true" to enforce, "false" for grace period (default: true)
  *
- * @module
+ * @packageDocumentation
+ * @since 0.0.0
  */
 
 // =============================================================================
@@ -22,6 +23,20 @@ const $I = $SharedDomainId.create("services/authorization/AuthorizationConfig");
 
 /**
  * AuthorizationConfigData - Authorization configuration settings
+ *
+ * @example
+ * ```ts
+ * import { AuthorizationConfigData } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
+ *
+ * const config = AuthorizationConfigData.new({
+ *   enforcementEnabled: false
+ * })
+ *
+ * void config
+ * ```
+ *
+ * @category domain model
+ * @since 0.0.0
  */
 export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I`AuthorizationConfigData`)(
   {
@@ -64,15 +79,15 @@ export class AuthorizationConfigData extends S.Class<AuthorizationConfigData>($I
  * import { Effect } from "effect"
  *
  * const program = Effect.gen(function* () {
- *
- *
- *
- *
- *
- *
- *
+ *   const config = yield* AuthorizationConfig
+ *   return config.enforcementEnabled
  * })
+ *
+ * void program
  * ```
+ *
+ * @category services
+ * @since 0.0.0
  */
 export class AuthorizationConfig extends Context.Service<AuthorizationConfig, AuthorizationConfigData>()(
   $I`AuthorizationConfig`
@@ -84,11 +99,38 @@ export class AuthorizationConfig extends Context.Service<AuthorizationConfig, Au
 
 /**
  * Full AuthorizationConfig from environment variables.
+ *
+ * @example
+ * ```ts
+ * import { authorizationConfig } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
+ *
+ * const config = authorizationConfig
+ *
+ * void config
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
  */
 export const authorizationConfig = Config.all({
   enforcementEnabled: Config.boolean("AUTHORIZATION_ENFORCEMENT").pipe(Config.withDefault(true)),
 });
 
+/**
+ * Alias for {@link authorizationConfig}.
+ *
+ * @example
+ * ```ts
+ * import { authorizationConfigFromEnv } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
+ *
+ * const config = authorizationConfigFromEnv
+ *
+ * void config
+ * ```
+ *
+ * @category configuration
+ * @since 0.0.0
+ */
 export const authorizationConfigFromEnv = authorizationConfig;
 
 // =============================================================================
@@ -106,6 +148,18 @@ export const authorizationConfigFromEnv = authorizationConfig;
  *
  * Note: This layer uses defaults when env var is not set, so it never fails
  * in practice. ConfigError is typed out for callers' convenience.
+ *
+ * @example
+ * ```ts
+ * import { AuthorizationConfigLive } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
+ *
+ * const layer = AuthorizationConfigLive
+ *
+ * void layer
+ * ```
+ *
+ * @category layers
+ * @since 0.0.0
  */
 export const AuthorizationConfigLive: Layer.Layer<AuthorizationConfig, Config.ConfigError> = Layer.effect(
   AuthorizationConfig,
@@ -124,7 +178,22 @@ export const AuthorizationConfigLive: Layer.Layer<AuthorizationConfig, Config.Co
  * Create an AuthorizationConfig layer with specific settings
  *
  * Useful for tests or specific configurations.
- * @category Configuration
+ *
+ * @example
+ * ```ts
+ * import {
+ *   AuthorizationConfigData,
+ *   makeAuthorizationConfigLayer
+ * } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
+ *
+ * const layer = makeAuthorizationConfigLayer(
+ *   AuthorizationConfigData.new({ enforcementEnabled: true })
+ * )
+ *
+ * void layer
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const makeAuthorizationConfigLayer = (config: AuthorizationConfigData): Layer.Layer<AuthorizationConfig> =>
@@ -134,7 +203,17 @@ export const makeAuthorizationConfigLayer = (config: AuthorizationConfigData): L
  * AuthorizationConfigEnforced - Layer with enforcement enabled
  *
  * Use this in production after the migration grace period.
- * @category Configuration
+ *
+ * @example
+ * ```ts
+ * import { AuthorizationConfigEnforced } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
+ *
+ * const layer = AuthorizationConfigEnforced
+ *
+ * void layer
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const AuthorizationConfigEnforced: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer(
@@ -147,7 +226,17 @@ export const AuthorizationConfigEnforced: Layer.Layer<AuthorizationConfig> = mak
  * AuthorizationConfigGracePeriod - Layer with enforcement disabled
  *
  * Use this during migration while membership records are being populated.
- * @category Configuration
+ *
+ * @example
+ * ```ts
+ * import { AuthorizationConfigGracePeriod } from "@beep/shared-domain/services/authorization/AuthorizationConfig"
+ *
+ * const layer = AuthorizationConfigGracePeriod
+ *
+ * void layer
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const AuthorizationConfigGracePeriod: Layer.Layer<AuthorizationConfig> = makeAuthorizationConfigLayer(

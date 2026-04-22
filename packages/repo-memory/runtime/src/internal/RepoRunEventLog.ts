@@ -1,3 +1,10 @@
+/**
+ * Event-log backed append and replay service for repo runs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import type { RetrievalPacket } from "@beep/repo-memory-model";
 import {
@@ -46,7 +53,7 @@ type ProjectedRunEvent = Extract<RunStreamEvent, { readonly kind: "answer" | "pr
  * Internal event-log projection and replay boundary for repo runs.
  *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 type RepoRunEventLogShape = {
   readonly appendExecutionTransitionEvent: (
@@ -81,8 +88,15 @@ type RepoRunEventLogShape = {
  * Service tag for run-event append, projection materialization, decoded reads,
  * and live tail subscription.
  *
+ * @example
+ * ```ts
+ * import { RepoRunEventLog } from "../../src/internal/RepoRunEventLog.js"
+ *
+ * const layer = RepoRunEventLog.layer
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoRunEventLog extends Context.Service<RepoRunEventLog, RepoRunEventLogShape>()($I`RepoRunEventLog`) {
   static readonly layer: Layer.Layer<

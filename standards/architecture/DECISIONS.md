@@ -136,3 +136,28 @@ Rationale:
 
 The architecture needs to be clear before enforcement is designed.
 
+## 2026-04-21: Restrict Client-Safe Use-Case Imports
+
+Decision:
+
+Client packages may import use-case command/query language, boundary contracts,
+and actionable application errors, but not product ports, server-only process
+managers, or Layer implementations.
+
+Rationale:
+
+The client needs shared application language without becoming coupled to
+server-only orchestration or infrastructure contracts.
+
+## 2026-04-21: Treat Domain Protocol Files As Declarations Only
+
+Decision:
+
+Domain `.http.ts`, `.rpc.ts`, `.tools.ts`, and `.cluster.ts` files may define
+provider-neutral protocol declarations. Implementations, handlers, clients,
+runtimes, and transports belong in adapter packages.
+
+Rationale:
+
+The domain can own boundary language without owning the runtime side effects
+that execute that language.

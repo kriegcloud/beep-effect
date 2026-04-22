@@ -1,3 +1,10 @@
+/**
+ * Helpers for non-empty array invariants and Effect array interop.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import type { TUnsafe } from "@beep/types";
 import { Function } from "effect";
 import * as A from "effect/Array";

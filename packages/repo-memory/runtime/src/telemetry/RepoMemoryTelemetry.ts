@@ -1,3 +1,10 @@
+/**
+ * Repo-memory runtime metrics and phase profiling helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity";
 import { measureElapsedMillis as measureElapsedMillisShared, profilePhase } from "@beep/observability";
 import { LiteralKit } from "@beep/schema";
@@ -7,8 +14,15 @@ const $I = $RepoMemoryRuntimeId.create("telemetry/RepoMemoryTelemetry");
 /**
  * Metric label for the two public repo-memory workflow families.
  *
+ * @example
+ * ```ts
+ * import { RepoRunKindMetric } from "@beep/repo-memory-runtime"
+ *
+ * const schema = RepoRunKindMetric
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const RepoRunKindMetric = LiteralKit(["index", "query"]).pipe(
   $I.annoteSchema("RepoRunKindMetric", {
@@ -18,16 +32,30 @@ export const RepoRunKindMetric = LiteralKit(["index", "query"]).pipe(
 /**
  * Runtime type for the repo-memory workflow metric label schema.
  *
+ * @example
+ * ```ts
+ * import type { RepoRunKindMetric } from "@beep/repo-memory-runtime"
+ *
+ * const kind: RepoRunKindMetric = "index"
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export type RepoRunKindMetric = typeof RepoRunKindMetric.Type;
 
 /**
  * Metric label for deterministic grounded query interpretations.
  *
+ * @example
+ * ```ts
+ * import { QueryKindMetric } from "@beep/repo-memory-runtime"
+ *
+ * const schema = QueryKindMetric
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const QueryKindMetric = LiteralKit([
   "countFiles",
@@ -54,16 +82,30 @@ export const QueryKindMetric = LiteralKit([
 /**
  * Runtime type for the grounded query kind metric label schema.
  *
+ * @example
+ * ```ts
+ * import type { QueryKindMetric } from "@beep/repo-memory-runtime"
+ *
+ * const kind: QueryKindMetric = "keywordSearch"
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export type QueryKindMetric = typeof QueryKindMetric.Type;
 
 /**
  * Metric label for terminal workflow outcomes.
  *
+ * @example
+ * ```ts
+ * import { RunOutcomeMetric } from "@beep/repo-memory-runtime"
+ *
+ * const schema = RunOutcomeMetric
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const RunOutcomeMetric = LiteralKit(["completed", "failed", "interrupted"]).pipe(
   $I.annoteSchema("RunOutcomeMetric", {
@@ -73,16 +115,30 @@ export const RunOutcomeMetric = LiteralKit(["completed", "failed", "interrupted"
 /**
  * Runtime type for the terminal workflow outcome metric label schema.
  *
+ * @example
+ * ```ts
+ * import type { RunOutcomeMetric } from "@beep/repo-memory-runtime"
+ *
+ * const outcome: RunOutcomeMetric = "completed"
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export type RunOutcomeMetric = typeof RunOutcomeMetric.Type;
 
 /**
  * Metric label for grounded query result quality.
  *
+ * @example
+ * ```ts
+ * import { QueryOutcomeMetric } from "@beep/repo-memory-runtime"
+ *
+ * const schema = QueryOutcomeMetric
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const QueryOutcomeMetric = LiteralKit(["cited", "notCited", "unsupported"]).pipe(
   $I.annoteSchema("QueryOutcomeMetric", {
@@ -92,8 +148,15 @@ export const QueryOutcomeMetric = LiteralKit(["cited", "notCited", "unsupported"
 /**
  * Runtime type for the grounded query result outcome metric label schema.
  *
+ * @example
+ * ```ts
+ * import type { QueryOutcomeMetric } from "@beep/repo-memory-runtime"
+ *
+ * const outcome: QueryOutcomeMetric = "cited"
+ * ```
+ *
  * @since 0.0.0
- * @category Observability
+ * @category observability
  */
 export type QueryOutcomeMetric = typeof QueryOutcomeMetric.Type;
 
@@ -159,8 +222,15 @@ const metricAttributes = (attributes: Record<string, string>) => attributes;
 /**
  * Record that one repo-memory run started.
  *
+ * @example
+ * ```ts
+ * import { recordRunStarted } from "@beep/repo-memory-runtime"
+ *
+ * const record = recordRunStarted
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const recordRunStarted = Effect.fn("RepoMemoryMetrics.recordRunStarted")(function* (runKind: RepoRunKindMetric) {
   yield* Effect.annotateCurrentSpan({
@@ -180,8 +250,15 @@ export const recordRunStarted = Effect.fn("RepoMemoryMetrics.recordRunStarted")(
 /**
  * Record one terminal repo-memory run outcome.
  *
+ * @example
+ * ```ts
+ * import { recordRunFinished } from "@beep/repo-memory-runtime"
+ *
+ * const record = recordRunFinished
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const recordRunFinished = Effect.fn("RepoMemoryMetrics.recordRunFinished")(function* (
   runKind: RepoRunKindMetric,
@@ -219,8 +296,15 @@ export const recordRunFinished = Effect.fn("RepoMemoryMetrics.recordRunFinished"
 /**
  * Record that one deterministic grounded query interpretation was selected.
  *
+ * @example
+ * ```ts
+ * import { recordQueryInterpretation } from "@beep/repo-memory-runtime"
+ *
+ * const record = recordQueryInterpretation
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const recordQueryInterpretation = Effect.fn("RepoMemoryMetrics.recordQueryInterpretation")(function* (
   queryKind: QueryKindMetric
@@ -242,8 +326,15 @@ export const recordQueryInterpretation = Effect.fn("RepoMemoryMetrics.recordQuer
 /**
  * Record the final observable quality of one grounded query result.
  *
+ * @example
+ * ```ts
+ * import { recordQueryResult } from "@beep/repo-memory-runtime"
+ *
+ * const record = recordQueryResult
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const recordQueryResult = Effect.fn("RepoMemoryMetrics.recordQueryResult")(function* (
   queryKind: QueryKindMetric,
@@ -270,8 +361,15 @@ export const recordQueryResult = Effect.fn("RepoMemoryMetrics.recordQueryResult"
 /**
  * Record the latest indexed file count emitted by the TypeScript indexer.
  *
+ * @example
+ * ```ts
+ * import { recordIndexedFileCount } from "@beep/repo-memory-runtime"
+ *
+ * const record = recordIndexedFileCount
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const recordIndexedFileCount = Effect.fn("RepoMemoryMetrics.recordIndexedFileCount")(function* (
   fileCount: number,
@@ -297,8 +395,16 @@ export const recordIndexedFileCount = Effect.fn("RepoMemoryMetrics.recordIndexed
 /**
  * Measure elapsed wall-clock milliseconds for one effect.
  *
+ * @example
+ * ```ts
+ * import { measureElapsedMillis } from "@beep/repo-memory-runtime"
+ * import { Effect } from "effect"
+ *
+ * const measured = measureElapsedMillis(Effect.succeed("ok"))
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const measureElapsedMillis = <A, E, R>(
   effect: Effect.Effect<A, E, R>
@@ -307,8 +413,16 @@ export const measureElapsedMillis = <A, E, R>(
 /**
  * Profile one repo-memory phase with shared phase metrics.
  *
+ * @example
+ * ```ts
+ * import { profileRunPhase } from "@beep/repo-memory-runtime"
+ * import { Effect } from "effect"
+ *
+ * const profiled = profileRunPhase("index", "indexing", Effect.succeed("ok"))
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const profileRunPhase = <A, E, R>(
   runKind: RepoRunKindMetric,

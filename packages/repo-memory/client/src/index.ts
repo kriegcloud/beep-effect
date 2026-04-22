@@ -1,3 +1,10 @@
+/**
+ * Client boundary for the local repo-memory sidecar protocol.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryClientId } from "@beep/identity/packages";
 import {
   ControlPlaneApi,
@@ -34,8 +41,18 @@ const rpcSuffix = `${controlPlanePrefix}/rpc`;
 /**
  * Configuration for connecting to the local repo-memory sidecar.
  *
+ * @example
+ * ```ts
+ * import { RepoMemoryClientConfig } from "@beep/repo-memory-client"
+ *
+ * const config = new RepoMemoryClientConfig({
+ *   baseUrl: "http://127.0.0.1:3000",
+ *   sessionId: "session-1"
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RepoMemoryClientConfig extends S.Class<RepoMemoryClientConfig>($I`RepoMemoryClientConfig`)(
   {
@@ -50,8 +67,15 @@ export class RepoMemoryClientConfig extends S.Class<RepoMemoryClientConfig>($I`R
 /**
  * Typed client error for repo-memory sidecar communication failures.
  *
+ * @example
+ * ```ts
+ * import { RepoMemoryClientError } from "@beep/repo-memory-client"
+ *
+ * const error = RepoMemoryClientError.noCause("Sidecar unavailable.", 503)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RepoMemoryClientError extends StatusCauseTaggedErrorClass<RepoMemoryClientError>(
   $I`RepoMemoryClientError`
@@ -65,8 +89,19 @@ export class RepoMemoryClientError extends StatusCauseTaggedErrorClass<RepoMemor
 /**
  * Service contract for interacting with the local repo-memory sidecar.
  *
+ * @example
+ * ```ts
+ * import type { RepoMemoryClientShape } from "@beep/repo-memory-client"
+ *
+ * const methods = [
+ *   "bootstrap",
+ *   "registerRepo",
+ *   "streamRunEvents"
+ * ] satisfies ReadonlyArray<keyof RepoMemoryClientShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export interface RepoMemoryClientShape {
   readonly bootstrap: Effect.Effect<SidecarBootstrap, RepoMemoryClientError>;
@@ -84,8 +119,19 @@ export interface RepoMemoryClientShape {
 /**
  * Service tag for the repo-memory sidecar client.
  *
+ * @example
+ * ```ts
+ * import { RepoMemoryClient } from "@beep/repo-memory-client"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const client = yield* RepoMemoryClient
+ *   return client.listRuns
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoMemoryClient extends Context.Service<RepoMemoryClient, RepoMemoryClientShape>()(
   $I`RepoMemoryClient`
@@ -94,22 +140,48 @@ export class RepoMemoryClient extends Context.Service<RepoMemoryClient, RepoMemo
 /**
  * Browser-friendly RPC client type for the repo-memory run surface.
  *
+ * @example
+ * ```ts
+ * import type { RepoMemoryRunRpcClient } from "@beep/repo-memory-client"
+ *
+ * type RunRpcClient = RepoMemoryRunRpcClient
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export type RepoMemoryRunRpcClient = Effect.Success<ReturnType<typeof makeRepoMemoryRpcClient>>;
 
 /**
  * Browser-friendly HTTP client type for the repo-memory control-plane surface.
  *
+ * @example
+ * ```ts
+ * import type { RepoMemoryControlPlaneClient } from "@beep/repo-memory-client"
+ *
+ * type ControlPlaneClient = RepoMemoryControlPlaneClient
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export type RepoMemoryControlPlaneClient = Effect.Success<ReturnType<typeof makeRepoMemoryHttpClientDefault>>;
 
 /**
+ * Runtime boundary payload returned by the sidecar for structured failures.
+ *
+ * @example
+ * ```ts
+ * import { RuntimeBoundaryPayload } from "@beep/repo-memory-client"
+ *
+ * const payload = new RuntimeBoundaryPayload({
+ *   message: "Sidecar unavailable.",
+ *   status: 503
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RuntimeBoundaryPayload extends S.Class<RuntimeBoundaryPayload>($I`RuntimeBoundaryPayload`)({
   message: S.String,
@@ -121,8 +193,15 @@ export class RuntimeBoundaryPayload extends S.Class<RuntimeBoundaryPayload>($I`R
  *
  * Accepts either the root URL or a control-plane URL ending in `/api/v0`.
  *
+ * @example
+ * ```ts
+ * import { normalizeSidecarBaseUrl } from "@beep/repo-memory-client"
+ *
+ * const baseUrl = normalizeSidecarBaseUrl("http://127.0.0.1:3000/api/v0")
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const normalizeSidecarBaseUrl = (baseUrl: string | URL): string => {
   const trimmed = pipe(Str.trim(`${baseUrl}`), Str.replace(/\/+$/, ""));
@@ -137,8 +216,15 @@ export const normalizeSidecarBaseUrl = (baseUrl: string | URL): string => {
 /**
  * Build the public RPC URL for the sidecar run surface.
  *
+ * @example
+ * ```ts
+ * import { makeRepoMemoryRpcUrl } from "@beep/repo-memory-client"
+ *
+ * const rpcUrl = makeRepoMemoryRpcUrl("http://127.0.0.1:3000")
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utility
  */
 export const makeRepoMemoryRpcUrl = (baseUrl: string | URL): string =>
   `${normalizeSidecarBaseUrl(baseUrl)}${rpcSuffix}`;
@@ -146,8 +232,17 @@ export const makeRepoMemoryRpcUrl = (baseUrl: string | URL): string =>
 /**
  * Options for creating a repo-memory HTTP client.
  *
+ * @example
+ * ```ts
+ * import type { RepoMemoryHttpClientOptions } from "@beep/repo-memory-client"
+ *
+ * const options: RepoMemoryHttpClientOptions = {
+ *   baseUrl: "http://127.0.0.1:3000"
+ * }
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export type RepoMemoryHttpClientOptions = {
   readonly baseUrl: string | URL;
@@ -160,8 +255,17 @@ export type RepoMemoryHttpClientOptions = {
 /**
  * Construct the control-plane HTTP client effect.
  *
+ * @example
+ * ```ts
+ * import { makeRepoMemoryHttpClient } from "@beep/repo-memory-client"
+ *
+ * const client = makeRepoMemoryHttpClient({
+ *   baseUrl: "http://127.0.0.1:3000"
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const makeRepoMemoryHttpClient = (options: RepoMemoryHttpClientOptions) =>
   HttpApiClient.make(ControlPlaneApi, {
@@ -173,8 +277,17 @@ export const makeRepoMemoryHttpClient = (options: RepoMemoryHttpClientOptions) =
 /**
  * Construct the control-plane HTTP client with the default fetch implementation.
  *
+ * @example
+ * ```ts
+ * import { makeRepoMemoryHttpClientDefault } from "@beep/repo-memory-client"
+ *
+ * const client = makeRepoMemoryHttpClientDefault({
+ *   baseUrl: "http://127.0.0.1:3000"
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const makeRepoMemoryHttpClientDefault = (options: RepoMemoryHttpClientOptions) =>
   Effect.scoped(
@@ -186,8 +299,17 @@ export const makeRepoMemoryHttpClientDefault = (options: RepoMemoryHttpClientOpt
 /**
  * Options for creating a repo-memory RPC client.
  *
+ * @example
+ * ```ts
+ * import type { RepoMemoryRpcClientOptions } from "@beep/repo-memory-client"
+ *
+ * const options: RepoMemoryRpcClientOptions = {
+ *   baseUrl: "http://127.0.0.1:3000"
+ * }
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export type RepoMemoryRpcClientOptions = {
   readonly baseUrl: string | URL;
@@ -199,8 +321,17 @@ export type RepoMemoryRpcClientOptions = {
 /**
  * Layer providing the public repo-memory RPC protocol over HTTP.
  *
+ * @example
+ * ```ts
+ * import { repoMemoryRpcLayer } from "@beep/repo-memory-client"
+ *
+ * const layer = repoMemoryRpcLayer({
+ *   baseUrl: "http://127.0.0.1:3000"
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const repoMemoryRpcLayer = (options: RepoMemoryRpcClientOptions) =>
   RpcClient.layerProtocolHttp({
@@ -211,8 +342,17 @@ export const repoMemoryRpcLayer = (options: RepoMemoryRpcClientOptions) =>
 /**
  * Construct the public repo-memory RPC client effect.
  *
+ * @example
+ * ```ts
+ * import { makeRepoMemoryRpcClient } from "@beep/repo-memory-client"
+ *
+ * const client = makeRepoMemoryRpcClient({
+ *   baseUrl: "http://127.0.0.1:3000"
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const makeRepoMemoryRpcClient = (options: RepoMemoryRpcClientOptions) =>
   Effect.scoped(
@@ -249,8 +389,20 @@ const mapStreamClientError = <A, E>(fallback: string, stream: Stream.Stream<A, E
 /**
  * Create the full repo-memory client boundary over the public sidecar protocol.
  *
+ * @example
+ * ```ts
+ * import { makeRepoMemoryClient, RepoMemoryClientConfig } from "@beep/repo-memory-client"
+ *
+ * const client = makeRepoMemoryClient(
+ *   new RepoMemoryClientConfig({
+ *     baseUrl: "http://127.0.0.1:3000",
+ *     sessionId: "session-1"
+ *   })
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: RepoMemoryClientConfig) =>
   Effect.succeed({
@@ -364,8 +516,20 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
 /**
  * Layer providing the repo-memory client service.
  *
+ * @example
+ * ```ts
+ * import { RepoMemoryClientConfig, RepoMemoryClientLive } from "@beep/repo-memory-client"
+ *
+ * const layer = RepoMemoryClientLive(
+ *   new RepoMemoryClientConfig({
+ *     baseUrl: "http://127.0.0.1:3000",
+ *     sessionId: "session-1"
+ *   })
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const RepoMemoryClientLive = (config: RepoMemoryClientConfig) =>
   Layer.effect(RepoMemoryClient, makeRepoMemoryClient(config).pipe(Effect.map(RepoMemoryClient.of)));

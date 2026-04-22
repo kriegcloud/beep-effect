@@ -1,7 +1,7 @@
 /**
  * Codex SessionStart hook helpers backed by Graphiti and repo-local guidance.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -72,8 +72,12 @@ const parseHookInput = (text: string): Effect.Effect<Record<string, unknown>, Co
 /**
  * Read and decode the optional JSON payload passed to the Codex SessionStart hook via stdin.
  *
+ * @example
+ * ```ts
+ * console.log("readHookInput")
+ * ```
  * @returns Parsed hook payload when stdin contains JSON, otherwise `undefined`.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const readHookInput: Effect.Effect<Record<string, unknown> | undefined, CodexSessionStartHookRuntimeError> =
@@ -110,10 +114,14 @@ export const readHookInput: Effect.Effect<Record<string, unknown> | undefined, C
 /**
  * Build the Graphiti-first startup guidance injected into the Codex SessionStart hook.
  *
+ * @example
+ * ```ts
+ * console.log("buildCodexSessionStartContext")
+ * ```
  * @param source - Hook invocation source label reported by Codex.
  * @param cwd - Working directory supplied by the hook payload, when available.
  * @returns Human-readable startup guidance for the Codex SessionStart hook.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const buildCodexSessionStartContext = (source: string, cwd: string | undefined): string =>
@@ -135,9 +143,13 @@ export const buildCodexSessionStartContext = (source: string, cwd: string | unde
 /**
  * Encode the hook response shape expected by Codex.
  *
+ * @example
+ * ```ts
+ * console.log("buildSessionStartHookOutput")
+ * ```
  * @param additionalContext - Context string to surface in the hook payload.
  * @returns JSON payload string for the Codex SessionStart hook.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const buildSessionStartHookOutput = (additionalContext: string): string =>
@@ -154,7 +166,11 @@ export const buildSessionStartHookOutput = (additionalContext: string): string =
 /**
  * Emit Codex SessionStart hook output enriched with Graphiti-first startup guidance.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("runCodexSessionStartHook")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const runCodexSessionStartHook: Effect.Effect<void> = Effect.gen(function* () {

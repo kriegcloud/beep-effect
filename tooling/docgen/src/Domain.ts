@@ -1,4 +1,7 @@
 /**
+ * Domain models shared by docgen parsing, checking, and printing.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -18,6 +21,14 @@ const OptionalStringArray = S.UndefinedOr(StringArray);
 
 /**
  * Represents a one-based source location in a parsed file.
+ *
+ * @example
+ * ```ts
+ * import { Position } from "@beep/docgen/Domain"
+ *
+ * const position = Position.new(1, 1)
+ * void position
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -40,6 +51,14 @@ export class Position extends S.Class<Position>($I`Position`)({
 
 /**
  * Represents normalized JSDoc metadata for a documented symbol.
+ *
+ * @example
+ * ```ts
+ * import { Doc } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * void doc
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -112,6 +131,15 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
 /**
  * Represents a named documented API member with source and signature metadata.
  *
+ * @example
+ * ```ts
+ * import { Doc, DocEntry, Position } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const entry = DocEntry.new("Example", doc, "declare const Example: string", Position.new(1, 1))
+ * void entry
+ * ```
+ *
  * @category model
  * @since 0.0.0
  */
@@ -137,6 +165,15 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
 
 /**
  * Represents a documented class and its emitted member structure.
+ *
+ * @example
+ * ```ts
+ * import { Class, Doc, Position } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const model = Class.new("Example", doc, "declare class Example", Position.new(1, 1), [], [], [])
+ * void model
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -187,6 +224,15 @@ export class Class extends S.Class<Class>($I`Class`)({
 /**
  * Represents a documented interface declaration.
  *
+ * @example
+ * ```ts
+ * import { Doc, Interface, Position } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const model = Interface.new("Example", doc, "interface Example {}", Position.new(1, 1))
+ * void model
+ * ```
+ *
  * @category model
  * @since 0.0.0
  */
@@ -213,6 +259,15 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
 
 /**
  * Represents a documented function declaration or function-valued export.
+ *
+ * @example
+ * ```ts
+ * import { Doc, Function, Position } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const model = Function.new("example", doc, "declare const example: () => void", Position.new(1, 1))
+ * void model
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -241,6 +296,15 @@ export class Function extends S.Class<Function>($I`Function`)({
 /**
  * Represents a documented type alias declaration.
  *
+ * @example
+ * ```ts
+ * import { Doc, Position, TypeAlias } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const model = TypeAlias.new("Example", doc, "type Example = string", Position.new(1, 1))
+ * void model
+ * ```
+ *
  * @category model
  * @since 0.0.0
  */
@@ -267,6 +331,15 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
 
 /**
  * Represents a documented exported constant declaration.
+ *
+ * @example
+ * ```ts
+ * import { Constant, Doc, Position } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const model = Constant.new("example", doc, "declare const example: string", Position.new(1, 1))
+ * void model
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -303,6 +376,15 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
  * }
  * ```
  *
+ * @example
+ * ```ts
+ * import { Doc, Export, Position } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const model = Export.new("Example", doc, "export { Example }", Position.new(1, 1), false)
+ * void model
+ * ```
+ *
  * @category model
  * @since 0.0.0
  */
@@ -331,6 +413,15 @@ export class Export extends S.Class<Export>($I`Export`)({
 
 /**
  * Represents a documented namespace and its nested exported members.
+ *
+ * @example
+ * ```ts
+ * import { Doc, Namespace, Position } from "@beep/docgen/Domain"
+ *
+ * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const model = Namespace.new("Example", doc, Position.new(1, 1), [], [], [])
+ * void model
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -378,6 +469,13 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
 
 /**
  * Represents a fully parsed module ready for validation and printing.
+ *
+ * @example
+ * ```ts
+ * import { Module } from "@beep/docgen/Domain"
+ *
+ * void Module
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -446,6 +544,13 @@ export class Module extends S.Class<Module>($I`Module`)({
  * A comparator function for sorting `Module` objects by their file path,
  * represented as a lowercase string.
  *
+ * @example
+ * ```ts
+ * import { ByPath } from "@beep/docgen/Domain"
+ *
+ * void ByPath
+ * ```
+ *
  * @category sorting
  * @since 0.0.0
  */
@@ -455,6 +560,14 @@ export const ByPath: Order.Order<Module> = Order.mapInput(Str.Order, (module: Mo
 
 /**
  * Represents a file which can be optionally overwritable.
+ *
+ * @example
+ * ```ts
+ * import { File } from "@beep/docgen/Domain"
+ *
+ * const file = File.new("docs/index.md", "# Docs", true)
+ * void file
+ * ```
  *
  * @category model
  * @since 0.0.0
@@ -480,6 +593,13 @@ export class File extends S.Class<File>($I`File`)({
 /**
  * Unique symbol used to brand docgen-specific errors.
  *
+ * @example
+ * ```ts
+ * import { DocgenErrorTypeId } from "@beep/docgen/Domain"
+ *
+ * void DocgenErrorTypeId
+ * ```
+ *
  * @category symbol
  * @since 0.0.0
  */
@@ -487,6 +607,13 @@ export const DocgenErrorTypeId = Symbol.for("@beep/docgen/DocgenError");
 
 /**
  * Type-level alias for the unique docgen error branding symbol.
+ *
+ * @example
+ * ```ts
+ * import type { DocgenErrorTypeId } from "@beep/docgen/Domain"
+ *
+ * type ExampleDocgenErrorTypeId = DocgenErrorTypeId
+ * ```
  *
  * @category symbol
  * @since 0.0.0
@@ -496,6 +623,14 @@ export type DocgenErrorTypeId = typeof DocgenErrorTypeId;
 /**
  * Typed error used throughout docgen parsing and generation operations.
  *
+ * @example
+ * ```ts
+ * import { DocgenError } from "@beep/docgen/Domain"
+ *
+ * const error = new DocgenError({ message: "Unable to generate docs." })
+ * void error
+ * ```
+ *
  * @category model
  * @since 0.0.0
  */
@@ -503,6 +638,13 @@ export class DocgenError extends TaggedErrorClass<DocgenError>($I`DocgenError`)(
 
 /**
  * Represents a handle to the currently executing process.
+ *
+ * @example
+ * ```ts
+ * import { Process } from "@beep/docgen/Domain"
+ *
+ * void Process
+ * ```
  *
  * @category service
  * @since 0.0.0
@@ -521,6 +663,13 @@ const defaultProcess: ProcessShape = {
 
 /**
  * Represents a handle to the currently executing process.
+ *
+ * @example
+ * ```ts
+ * import { Process } from "@beep/docgen/Domain"
+ *
+ * void Process
+ * ```
  *
  * @category service
  * @since 0.0.0

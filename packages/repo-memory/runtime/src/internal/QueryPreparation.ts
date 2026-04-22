@@ -1,3 +1,10 @@
+/**
+ * Query normalization and deterministic candidate selection for grounded retrieval.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import { IdentifierText, PathText, QueryText, VariantText } from "@beep/nlp";
 import {
@@ -190,8 +197,15 @@ class UnsupportedQueryInterpretation extends S.Class<UnsupportedQueryInterpretat
 /**
  * Deterministic interpretation union for grounded repo-memory queries.
  *
+ * @example
+ * ```ts
+ * import { QueryInterpretation } from "../../src/internal/QueryPreparation.js"
+ *
+ * const schema = QueryInterpretation
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const QueryInterpretation = S.Union([
   CountFilesInterpretation,
@@ -215,16 +229,33 @@ export const QueryInterpretation = S.Union([
 /**
  * Runtime type for `QueryInterpretation`.
  *
+ * @example
+ * ```ts
+ * import type { QueryInterpretation } from "../../src/internal/QueryPreparation.js"
+ *
+ * const interpretation: QueryInterpretation = {
+ *   kind: "unsupported",
+ *   reason: "out of scope"
+ * }
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export type QueryInterpretation = typeof QueryInterpretation.Type;
 
 /**
  * Prepared grounded-question artifact produced before retrieval starts.
  *
+ * @example
+ * ```ts
+ * import { GroundedQuestionPreparation } from "../../src/internal/QueryPreparation.js"
+ *
+ * const schema = GroundedQuestionPreparation
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class GroundedQuestionPreparation extends S.Class<GroundedQuestionPreparation>($I`GroundedQuestionPreparation`)(
   {
@@ -242,7 +273,7 @@ export class GroundedQuestionPreparation extends S.Class<GroundedQuestionPrepara
  * Internal selection result before one candidate or ambiguity posture is chosen.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 type MatchSelection<A> = {
   readonly matches: ReadonlyArray<A>;
@@ -253,7 +284,7 @@ type MatchSelection<A> = {
  * Internal single-versus-ambiguous selection view built from `MatchSelection`.
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 type SingleMatchSelection<A> =
   | {
@@ -274,8 +305,19 @@ type SingleMatchSelection<A> =
 /**
  * Store requirements for bounded query preparation over indexed artifacts.
  *
+ * @example
+ * ```ts
+ * import type { QueryPreparationStoreShape } from "../../src/internal/QueryPreparation.js"
+ *
+ * const methods = [
+ *   "findSourceFiles",
+ *   "findSymbolsByExactName",
+ *   "searchSymbols"
+ * ] satisfies ReadonlyArray<keyof QueryPreparationStoreShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export type QueryPreparationStoreShape = Pick<RepoSnapshotStoreShape, "findSourceFiles"> &
   Pick<RepoSymbolStoreShape, "findSymbolsByExactName" | "searchSymbols">;
@@ -725,8 +767,15 @@ const rankImporterMatch = (moduleSpecifier: string, variant: string): O.Option<R
 /**
  * Normalize and interpret a grounded repo question without touching durable state.
  *
+ * @example
+ * ```ts
+ * import { prepareGroundedQuery } from "../../src/internal/QueryPreparation.js"
+ *
+ * const prepared = prepareGroundedQuery("where is RepoRunService defined?")
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const prepareGroundedQuery = (question: string): GroundedQuestionPreparation => {
   const normalizedQuery = normalizeQuestion(question);
@@ -743,8 +792,18 @@ export const prepareGroundedQuery = (question: string): GroundedQuestionPreparat
 /**
  * Collapse a candidate selection into none, one, or ambiguous posture.
  *
+ * @example
+ * ```ts
+ * import { selectSingleMatch } from "../../src/internal/QueryPreparation.js"
+ *
+ * const selection = selectSingleMatch({
+ *   matches: ["RepoRunService"],
+ *   nlpNotes: []
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const selectSingleMatch = <A>(selection: MatchSelection<A>): SingleMatchSelection<A> => {
   if (!A.isReadonlyArrayNonEmpty(selection.matches)) {
@@ -772,8 +831,15 @@ export const selectSingleMatch = <A>(selection: MatchSelection<A>): SingleMatchS
 /**
  * Resolve a symbol query into bounded deterministic candidate matches.
  *
+ * @example
+ * ```ts
+ * import { findSymbolMatches } from "../../src/internal/QueryPreparation.js"
+ *
+ * const findSymbols = findSymbolMatches
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const findSymbolMatches = (
   store: QueryPreparationStoreShape,
@@ -873,8 +939,15 @@ export const findSymbolMatches = (
 /**
  * Resolve a file query into bounded deterministic candidate matches.
  *
+ * @example
+ * ```ts
+ * import { resolveFileCandidates } from "../../src/internal/QueryPreparation.js"
+ *
+ * const resolveFiles = resolveFileCandidates
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const resolveFileCandidates = (store: QueryPreparationStoreShape) =>
   Effect.fn("QueryPreparation.resolveFileCandidates")(function* (
@@ -939,8 +1012,15 @@ export const resolveFileCandidates = (store: QueryPreparationStoreShape) =>
 /**
  * Select bounded importer candidates for a normalized module query.
  *
+ * @example
+ * ```ts
+ * import { selectImporterEdges } from "../../src/internal/QueryPreparation.js"
+ *
+ * const selection = selectImporterEdges("@beep/repo-memory-runtime", [])
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const selectImporterEdges = (
   moduleQuery: string,
@@ -1007,8 +1087,15 @@ export const selectImporterEdges = (
 /**
  * Search keyword candidates with bounded variant expansion and stable ranking.
  *
+ * @example
+ * ```ts
+ * import { searchKeywordMatches } from "../../src/internal/QueryPreparation.js"
+ *
+ * const searchKeywords = searchKeywordMatches
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const searchKeywordMatches = (
   store: QueryPreparationStoreShape,

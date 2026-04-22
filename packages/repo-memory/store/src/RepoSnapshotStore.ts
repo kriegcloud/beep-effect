@@ -1,3 +1,10 @@
+/**
+ * Repository source snapshot store algebra.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryStoreId } from "@beep/identity/packages";
 import type {
   ReplaceSnapshotArtifactsInput,
@@ -16,8 +23,19 @@ const $I = $RepoMemoryStoreId.create("RepoSnapshotStore");
 /**
  * Contract for repository snapshot and artifact persistence.
  *
+ * @example
+ * ```ts
+ * import type { RepoSnapshotStoreShape } from "@beep/repo-memory-store"
+ *
+ * const methods = [
+ *   "latestSourceSnapshot",
+ *   "replaceSnapshotArtifacts",
+ *   "saveIndexArtifact"
+ * ] satisfies ReadonlyArray<keyof RepoSnapshotStoreShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export interface RepoSnapshotStoreShape {
   readonly countSourceFiles: (
@@ -41,8 +59,19 @@ export interface RepoSnapshotStoreShape {
 /**
  * Snapshot store service.
  *
+ * @example
+ * ```ts
+ * import { RepoSnapshotStore } from "@beep/repo-memory-store"
+ * import { Effect } from "effect"
+ *
+ * const program = Effect.gen(function* () {
+ *   const store = yield* RepoSnapshotStore
+ *   return store.latestSourceSnapshot
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoSnapshotStore extends Context.Service<RepoSnapshotStore, RepoSnapshotStoreShape>()(
   $I`RepoSnapshotStore`

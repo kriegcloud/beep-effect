@@ -1,3 +1,10 @@
+/**
+ * Cause-backed tagged error class helpers for schema-derived domain failures.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import type { Struct } from "effect";
 import { Effect } from "effect";
 import { dual } from "effect/Function";
@@ -127,8 +134,31 @@ type CauseTaggedErrorExtendMethod<
 /**
  * Tagged error class returned by {@link CauseTaggedError}, including dual construction helpers.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { $SchemaId } from "@beep/identity/packages"
+ * import { CauseTaggedError, type CauseTaggedErrorWithStatics } from "@beep/schema/CauseTaggedError"
+ *
+ * const $I = $SchemaId.create("CauseTaggedErrorWithStatics/example")
+ *
+ * class ExampleError extends CauseTaggedError<ExampleError>($I`ExampleError`)(
+ *   "ExampleError",
+ *   $I.annote("ExampleError", {
+ *     description: "An example failure with a required cause."
+ *   })
+ * ) {}
+ *
+ * const fromClass = (
+ *   errorClass: CauseTaggedErrorWithStatics<ExampleError, "ExampleError", {}, {}>
+ * ) => errorClass.new("Example failed")(new Error("cause"))
+ *
+ * const error = fromClass(ExampleError)
+ *
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type CauseTaggedErrorWithStatics<
   Self,
@@ -152,8 +182,29 @@ export type CauseTaggedErrorWithStatics<
 /**
  * Factory returned by {@link CauseTaggedError} after an identity namespace has been selected.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { $SchemaId } from "@beep/identity/packages"
+ * import { CauseTaggedError, type CauseTaggedErrorFactory } from "@beep/schema/CauseTaggedError"
+ *
+ * const $I = $SchemaId.create("CauseTaggedErrorFactory/example")
+ *
+ * class ExampleError extends CauseTaggedError<ExampleError>($I`ExampleError`)(
+ *   "ExampleError",
+ *   $I.annote("ExampleError", {
+ *     description: "An example failure built from a factory."
+ *   })
+ * ) {}
+ *
+ * const factory: CauseTaggedErrorFactory<ExampleError> = CauseTaggedError<ExampleError>($I`ExampleErrorFactory`)
+ * const error = ExampleError.new("Example failed")(new Error("cause"))
+ *
+ * void factory
+ * void error
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export interface CauseTaggedErrorFactory<Self, Brand = {}> {
   <Tag extends string, const Fields extends CauseTaggedErrorFields>(
@@ -171,8 +222,28 @@ export interface CauseTaggedErrorFactory<Self, Brand = {}> {
 /**
  * Callable constructor for creating cause-tagged error class factories.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { $SchemaId } from "@beep/identity/packages"
+ * import { CauseTaggedError, type CauseTaggedErrorConstructor } from "@beep/schema/CauseTaggedError"
+ *
+ * const $I = $SchemaId.create("CauseTaggedErrorConstructor/example")
+ * const makeCauseTaggedError: CauseTaggedErrorConstructor = CauseTaggedError
+ *
+ * class ExampleError extends makeCauseTaggedError<ExampleError>($I`ExampleError`)(
+ *   "ExampleError",
+ *   $I.annote("ExampleError", {
+ *     description: "An example failure built through the constructor type."
+ *   })
+ * ) {}
+ *
+ * const error = ExampleError.new("Example failed")(new Error("cause"))
+ *
+ * void error
+ * ```
+ *
  * @category constructors
+ * @since 0.0.0
  */
 export type CauseTaggedErrorConstructor = <Self, Brand = {}>(
   identifier?: undefined | string

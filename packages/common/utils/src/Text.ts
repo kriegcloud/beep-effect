@@ -1,3 +1,10 @@
+/**
+ * Text formatting helpers for command and document output.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";

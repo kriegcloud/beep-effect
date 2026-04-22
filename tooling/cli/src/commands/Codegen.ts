@@ -5,7 +5,7 @@
  * an `index.ts` barrel file with `export *` re-exports, each annotated
  * with `@since 0.0.0` JSDoc tags as required by `@beep/docgen`.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -29,7 +29,11 @@ const $I = $RepoCliId.create("commands/Codegen");
 /**
  * File extensions recognised as TypeScript source modules during barrel generation.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * console.log("TS_EXTENSIONS")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const TS_EXTENSIONS = [".ts", ".tsx"] as const;
@@ -113,9 +117,13 @@ const decodeJSImportPath = S.decodeUnknownSync(TypeScriptSourceToJSImportPath);
  * Strips the `.ts` or `.tsx` extension and prepends `./` so the result is a
  * valid ESM relative import path (e.g. `"FsUtils.ts"` becomes `"./FsUtils.js"`).
  *
+ * @example
+ * ```ts
+ * console.log("toImportPath")
+ * ```
  * @param name - The TypeScript filename (may include a sub-path prefix).
  * @returns A relative import specifier with a `.js` extension.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const toImportPath = (name: string): string => {
@@ -129,7 +137,11 @@ const toImportPath = (name: string): string => {
  * Alphabetical `Order` instance used to sort discovered module paths deterministically
  * before emitting barrel re-exports.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * console.log("alphabetical")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const alphabetical: Order.Order<string> = Order.String;
@@ -144,10 +156,14 @@ const alphabetical: Order.Order<string> = Order.String;
  * Returns relative paths from `srcDir` (e.g. `"FsUtils.ts"`, `"errors/index.ts"`).
  * Skips `index.ts` at the root level, `internal/` directories, and test files.
  *
+ * @example
+ * ```ts
+ * console.log("discoverModules")
+ * ```
  * @param srcDir - Absolute path to the `src/` directory to scan.
  * @returns An unsorted array of relative file paths suitable for barrel re-export.
  * @depends FileSystem, Path
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const discoverModules = Effect.fn(function* (srcDir: string) {
@@ -199,10 +215,14 @@ const discoverModules = Effect.fn(function* (srcDir: string) {
  * Produces a string containing a JSDoc header and one `export * from ...` statement
  * per module, each annotated with `@since 0.0.0` as required by `@beep/docgen`.
  *
+ * @example
+ * ```ts
+ * console.log("buildBarrelContent")
+ * ```
  * @param packageName - Used in the module description header comment.
  * @param modules - Sorted list of relative file paths (e.g. `"FsUtils.ts"`).
  * @returns The full content of the generated `index.ts` barrel file.
- * @category Utility
+ * @category utilities
  * @since 0.0.0
  */
 const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>): string => {
@@ -227,7 +247,11 @@ const buildBarrelContent = (packageName: string, modules: ReadonlyArray<string>)
  * CLI command that scans a package's `src/` directory and generates (or previews)
  * an `index.ts` barrel file with `export *` re-exports for every discovered module.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("codegenCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const codegenCommand = Command.make(

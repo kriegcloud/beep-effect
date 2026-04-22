@@ -13,7 +13,14 @@ import {
 /**
  * Package version for `@beep/repo-configs`.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/repo-configs"
+ *
+ * void VERSION
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const VERSION = "0.0.0" as const;
@@ -21,7 +28,15 @@ export const VERSION = "0.0.0" as const;
 /**
  * Flat docs-only ESLint config array shape exported by this package.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import type { DocsESLintConfigShape } from "@beep/repo-configs"
+ *
+ * const config = [] satisfies DocsESLintConfigShape
+ * void config
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export type DocsESLintConfigShape = DocsESLintConfigShapeInternal;
@@ -29,7 +44,14 @@ export type DocsESLintConfigShape = DocsESLintConfigShapeInternal;
 /**
  * Shared docs-only repository ESLint flat config.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { DocsESLintConfig } from "@beep/repo-configs"
+ *
+ * void DocsESLintConfig
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const DocsESLintConfig = DocsESLintConfigInternal;

@@ -1,6 +1,7 @@
 /**
  * Web Annotation seam DTOs for optional evidence interop.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -37,8 +38,15 @@ const adapterMetadata = (canonicalName: string, overview: string) =>
 /**
  * Web Annotation text-quote selector DTO.
  *
+ * @example
+ * ```ts
+ * import { WebAnnotationTextQuoteSelector } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void WebAnnotationTextQuoteSelector
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class WebAnnotationTextQuoteSelector extends S.Class<WebAnnotationTextQuoteSelector>(
   $I`WebAnnotationTextQuoteSelector`
@@ -61,8 +69,15 @@ export class WebAnnotationTextQuoteSelector extends S.Class<WebAnnotationTextQuo
 /**
  * Web Annotation text-position selector DTO.
  *
+ * @example
+ * ```ts
+ * import { WebAnnotationTextPositionSelector } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void WebAnnotationTextPositionSelector
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class WebAnnotationTextPositionSelector extends S.Class<WebAnnotationTextPositionSelector>(
   $I`WebAnnotationTextPositionSelector`
@@ -84,8 +99,15 @@ export class WebAnnotationTextPositionSelector extends S.Class<WebAnnotationText
 /**
  * Web Annotation fragment selector DTO.
  *
+ * @example
+ * ```ts
+ * import { WebAnnotationFragmentSelector } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void WebAnnotationFragmentSelector
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class WebAnnotationFragmentSelector extends S.Class<WebAnnotationFragmentSelector>(
   $I`WebAnnotationFragmentSelector`
@@ -104,8 +126,15 @@ export class WebAnnotationFragmentSelector extends S.Class<WebAnnotationFragment
 /**
  * Web Annotation selector union.
  *
+ * @example
+ * ```ts
+ * import { WebAnnotationSelector } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void WebAnnotationSelector
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const WebAnnotationSelector = S.Union([
   WebAnnotationTextQuoteSelector,
@@ -120,16 +149,31 @@ export const WebAnnotationSelector = S.Union([
 /**
  * Type for {@link WebAnnotationSelector}.
  *
+ * @example
+ * ```ts
+ * import type { WebAnnotationSelector } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * const acceptWebAnnotationSelector = (value: WebAnnotationSelector) => value
+ * void acceptWebAnnotationSelector
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type WebAnnotationSelector = typeof WebAnnotationSelector.Type;
 
 /**
  * Web Annotation target DTO.
  *
+ * @example
+ * ```ts
+ * import { WebAnnotationTarget } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void WebAnnotationTarget
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class WebAnnotationTarget extends S.Class<WebAnnotationTarget>($I`WebAnnotationTarget`)(
   {
@@ -145,8 +189,15 @@ export class WebAnnotationTarget extends S.Class<WebAnnotationTarget>($I`WebAnno
 /**
  * Web Annotation DTO.
  *
+ * @example
+ * ```ts
+ * import { WebAnnotation } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void WebAnnotation
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
   {
@@ -166,8 +217,15 @@ export class WebAnnotation extends S.Class<WebAnnotation>($I`WebAnnotation`)(
  *
  * @param selector - Evidence selector.
  * @returns Web Annotation selector DTO.
+ * @example
+ * ```ts
+ * import { evidenceSelectorToWebAnnotationSelector } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void evidenceSelectorToWebAnnotationSelector
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelector): WebAnnotationSelector =>
   Match.value(selector).pipe(
@@ -200,8 +258,15 @@ export const evidenceSelectorToWebAnnotationSelector = (selector: EvidenceSelect
  *
  * @param selector - Web Annotation selector DTO.
  * @returns Evidence selector.
+ * @example
+ * ```ts
+ * import { webAnnotationSelectorToEvidenceSelector } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void webAnnotationSelectorToEvidenceSelector
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const webAnnotationSelectorToEvidenceSelector = (selector: WebAnnotationSelector): EvidenceSelector =>
   Match.value(selector).pipe(
@@ -234,8 +299,15 @@ export const webAnnotationSelectorToEvidenceSelector = (selector: WebAnnotationS
  *
  * @param target - Evidence target.
  * @returns Web Annotation target DTO.
+ * @example
+ * ```ts
+ * import { evidenceTargetToWebAnnotationTarget } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void evidenceTargetToWebAnnotationTarget
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const evidenceTargetToWebAnnotationTarget = (target: EvidenceTarget): WebAnnotationTarget =>
   WebAnnotationTarget.make({
@@ -248,8 +320,15 @@ export const evidenceTargetToWebAnnotationTarget = (target: EvidenceTarget): Web
  *
  * @param target - Web Annotation target DTO.
  * @returns Evidence target.
+ * @example
+ * ```ts
+ * import { webAnnotationTargetToEvidenceTarget } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void webAnnotationTargetToEvidenceTarget
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const webAnnotationTargetToEvidenceTarget = (target: WebAnnotationTarget): EvidenceTarget =>
   EvidenceTarget.make({
@@ -262,8 +341,15 @@ export const webAnnotationTargetToEvidenceTarget = (target: WebAnnotationTarget)
  *
  * @param anchor - Evidence anchor.
  * @returns Web Annotation DTO.
+ * @example
+ * ```ts
+ * import { evidenceAnchorToWebAnnotation } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void evidenceAnchorToWebAnnotation
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const evidenceAnchorToWebAnnotation = (anchor: EvidenceAnchor): WebAnnotation =>
   WebAnnotation.make({
@@ -278,8 +364,15 @@ export const evidenceAnchorToWebAnnotation = (anchor: EvidenceAnchor): WebAnnota
  *
  * @param annotation - Web Annotation DTO.
  * @returns Evidence anchor.
+ * @example
+ * ```ts
+ * import { webAnnotationToEvidenceAnchor } from "@beep/semantic-web/adapters/web-annotation"
+ *
+ * void webAnnotationToEvidenceAnchor
+ * ```
+ *
  * @since 0.0.0
- * @category Utility
+ * @category utilities
  */
 export const webAnnotationToEvidenceAnchor = (annotation: WebAnnotation): EvidenceAnchor =>
   EvidenceAnchor.make({

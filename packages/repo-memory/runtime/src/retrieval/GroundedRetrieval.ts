@@ -1,3 +1,10 @@
+/**
+ * Deterministic grounded retrieval service for repo-memory query runs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import { VariantText } from "@beep/nlp";
 import {
@@ -84,8 +91,15 @@ type GroundedRetrievalStoreShape = RepoSemanticStoreShape & RepoSnapshotStoreSha
 /**
  * Deterministic grounded result returned by the repo-memory retrieval service.
  *
+ * @example
+ * ```ts
+ * import { GroundedQueryResult } from "@beep/repo-memory-runtime"
+ *
+ * const schema = GroundedQueryResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class GroundedQueryResult extends S.Class<GroundedQueryResult>($I`GroundedQueryResult`)(
   {
@@ -120,8 +134,15 @@ type RetrievedEvidence = {
 /**
  * Typed retrieval failure raised while resolving deterministic grounded queries.
  *
+ * @example
+ * ```ts
+ * import { GroundedRetrievalError } from "@beep/repo-memory-runtime"
+ *
+ * const error = GroundedRetrievalError.noCause("No matching symbols found.", 404)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class GroundedRetrievalError extends StatusCauseTaggedErrorClass<GroundedRetrievalError>(
   $I`GroundedRetrievalError`
@@ -135,8 +156,19 @@ export class GroundedRetrievalError extends StatusCauseTaggedErrorClass<Grounded
 /**
  * Service contract for deterministic grounded repo retrieval.
  *
+ * @example
+ * ```ts
+ * import type { GroundedRetrievalServiceShape } from "@beep/repo-memory-runtime"
+ *
+ * const methods = [
+ *   "ground",
+ *   "retrieve",
+ *   "resolve"
+ * ] satisfies ReadonlyArray<keyof GroundedRetrievalServiceShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export interface GroundedRetrievalServiceShape {
   readonly draftAnswer: (packet: RetrievalPacket) => Effect.Effect<string, GroundedRetrievalError>;
@@ -149,8 +181,15 @@ export interface GroundedRetrievalServiceShape {
 /**
  * Service tag for deterministic grounded repo retrieval.
  *
+ * @example
+ * ```ts
+ * import { GroundedRetrievalService } from "@beep/repo-memory-runtime"
+ *
+ * const layer = GroundedRetrievalService.layer
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class GroundedRetrievalService extends Context.Service<
   GroundedRetrievalService,

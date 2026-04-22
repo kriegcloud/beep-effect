@@ -1,3 +1,10 @@
+/**
+ * Custom ESLint rule enforcing category tags on exported symbols.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { thunkFalse, thunkUndefined } from "@beep/utils";
 import { flow, HashSet, pipe } from "effect";
 import * as A from "effect/Array";
@@ -100,7 +107,14 @@ const getCandidateComments = (sourceCode: SourceCode, node: Rule.Node): Readonly
 /**
  * Custom ESLint rule that requires exported symbols to include an `@category` tag.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { requireCategoryTagRule } from "@beep/repo-configs/eslint/RequireCategoryTagRule"
+ *
+ * void requireCategoryTagRule
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const requireCategoryTagRule: Rule.RuleModule = {

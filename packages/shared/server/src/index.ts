@@ -1,17 +1,29 @@
 /**
  * \@beep/shared-server
  *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
+ * Current package version.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/shared-server"
+ *
+ * const version = VERSION
+ *
+ * void version
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const VERSION = "0.0.0" as const;
 
 /**
  * @since 0.0.0
- * @category Exports
+ * @category exports
  */
 export * as Factories from "./factories.js";

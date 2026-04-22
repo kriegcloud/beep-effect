@@ -48,8 +48,16 @@ export const ObservedError = S.Error.pipe(
 /**
  * Runtime type for {@link ObservedError}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ObservedError } from "@beep/observability"
+ *
+ * const readMessage = (error: ObservedError) => error.message
+ * void readMessage
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ObservedError = typeof ObservedError.Type;
 
@@ -80,8 +88,16 @@ export const ObservedErrorWithStack = S.ErrorWithStack.pipe(
 /**
  * Runtime type for {@link ObservedErrorWithStack}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ObservedErrorWithStack } from "@beep/observability"
+ *
+ * const readStack = (error: ObservedErrorWithStack) => error.stack
+ * void readStack
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ObservedErrorWithStack = typeof ObservedErrorWithStack.Type;
 
@@ -112,8 +128,16 @@ export const ObservedDefect = S.Defect.pipe(
 /**
  * Runtime type for {@link ObservedDefect}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ObservedDefect } from "@beep/observability"
+ *
+ * const keepDefect = (defect: ObservedDefect) => defect
+ * void keepDefect
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ObservedDefect = typeof ObservedDefect.Type;
 
@@ -144,8 +168,16 @@ export const ObservedDefectWithStack = S.DefectWithStack.pipe(
 /**
  * Runtime type for {@link ObservedDefectWithStack}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ObservedDefectWithStack } from "@beep/observability"
+ *
+ * const keepDefect = (defect: ObservedDefectWithStack) => defect
+ * void keepDefect
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ObservedDefectWithStack = typeof ObservedDefectWithStack.Type;
 
@@ -173,8 +205,16 @@ export const ObservedCauseReason = S.CauseReason(ObservedErrorWithStack, Observe
 /**
  * Runtime type for {@link ObservedCauseReason}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ObservedCauseReason } from "@beep/observability"
+ *
+ * const keepReason = (reason: ObservedCauseReason) => reason
+ * void keepReason
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ObservedCauseReason = typeof ObservedCauseReason.Type;
 
@@ -202,8 +242,16 @@ export const ObservedCause = S.Cause(ObservedErrorWithStack, ObservedDefectWithS
 /**
  * Runtime type for {@link ObservedCause}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ObservedCause } from "@beep/observability"
+ *
+ * const keepCause = (cause: ObservedCause) => cause
+ * void keepCause
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ObservedCause = typeof ObservedCause.Type;
 
@@ -231,7 +279,15 @@ export const ObservedExit = S.Exit(S.Unknown, ObservedErrorWithStack, ObservedDe
 /**
  * Runtime type for {@link ObservedExit}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { ObservedExit } from "@beep/observability"
+ *
+ * const keepExit = (exit: ObservedExit) => exit
+ * void keepExit
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type ObservedExit = typeof ObservedExit.Type;

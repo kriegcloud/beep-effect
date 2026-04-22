@@ -1,3 +1,10 @@
+/**
+ * Bootstrap stdout encoding helpers for the sidecar process.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RuntimeServerId } from "@beep/identity/packages";
 import { type SidecarBootstrap, SidecarHealthStatus } from "@beep/runtime-protocol";
 import { NonNegativeInt } from "@beep/schema";
@@ -8,8 +15,18 @@ const $I = $RuntimeServerId.create("internal/BootstrapStdout");
 /**
  * Machine-readable bootstrap payload emitted on sidecar stdout for the native shell.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SidecarBootstrapStdoutLine } from "@beep/runtime-server/internal/BootstrapStdout"
+ *
+ * const isBootstrapLine = S.is(SidecarBootstrapStdoutLine)
+ *
+ * void isBootstrapLine
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarBootstrapStdoutLine extends S.Class<SidecarBootstrapStdoutLine>($I`SidecarBootstrapStdoutLine`)(
   {
@@ -33,24 +50,51 @@ const BootstrapStdoutJson = S.fromJsonString(SidecarBootstrapStdoutLine);
 /**
  * Encode a bootstrap stdout line as JSON text.
  *
+ * @example
+ * ```ts
+ * import { encodeBootstrapStdoutLine } from "@beep/runtime-server/internal/BootstrapStdout"
+ *
+ * const encode = encodeBootstrapStdoutLine
+ *
+ * void encode
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const encodeBootstrapStdoutLine = S.encodeUnknownEffect(BootstrapStdoutJson);
 
 /**
  * Decode a bootstrap stdout line from JSON text.
  *
+ * @example
+ * ```ts
+ * import { decodeBootstrapStdoutLine } from "@beep/runtime-server/internal/BootstrapStdout"
+ *
+ * const decode = decodeBootstrapStdoutLine
+ *
+ * void decode
+ * ```
+ *
  * @since 0.0.0
- * @category Validation
+ * @category validation
  */
 export const decodeBootstrapStdoutLine = S.decodeUnknownEffect(BootstrapStdoutJson);
 
 /**
  * Convert a typed sidecar bootstrap payload into the stdout line shape.
  *
+ * @example
+ * ```ts
+ * import { toBootstrapStdoutLine } from "@beep/runtime-server/internal/BootstrapStdout"
+ *
+ * const convert = toBootstrapStdoutLine
+ *
+ * void convert
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const toBootstrapStdoutLine = (bootstrap: SidecarBootstrap) =>
   new SidecarBootstrapStdoutLine({

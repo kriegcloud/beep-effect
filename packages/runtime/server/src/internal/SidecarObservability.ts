@@ -1,3 +1,10 @@
+/**
+ * Observability wiring for the repo-memory sidecar runtime.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RuntimeServerId } from "@beep/identity/packages";
 import { observeHttpRequest as observeSharedHttpRequest } from "@beep/observability";
 import { HttpApiTelemetryDescriptor, layerFilteredDevTools, observeHttpApiHandler } from "@beep/observability/server";
@@ -15,8 +22,18 @@ const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 /**
  * Observability configuration for the repo-memory sidecar runtime.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SidecarObservabilityConfig } from "@beep/runtime-server/internal/SidecarObservability"
+ *
+ * const isConfig = S.is(SidecarObservabilityConfig)
+ *
+ * void isConfig
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarObservabilityConfig extends S.Class<SidecarObservabilityConfig>($I`SidecarObservabilityConfig`)(
   {
@@ -88,8 +105,21 @@ const shouldPublishDevToolsSpan = (name: string): boolean =>
 /**
  * Observe one HTTP request with success and failure metrics.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { observeHttpRequest } from "@beep/runtime-server/internal/SidecarObservability"
+ *
+ * const observed = observeHttpRequest(
+ *   { method: "GET", route: "/health", successStatus: 200 },
+ *   Effect.succeed("ok")
+ * )
+ *
+ * void observed
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
   options: {
@@ -122,8 +152,17 @@ export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
 /**
  * Provide OTLP, runtime metrics, and filtered devtools support to the sidecar.
  *
+ * @example
+ * ```ts
+ * import { provideSidecarObservability } from "@beep/runtime-server/internal/SidecarObservability"
+ *
+ * const provide = provideSidecarObservability
+ *
+ * void provide
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const provideSidecarObservability = <A, E, R>(
   config: SidecarObservabilityConfig,
@@ -162,8 +201,21 @@ export const provideSidecarObservability = <A, E, R>(
  * Increments `beep_repo_memory_runs_started_total` before the effect runs,
  * then increments either `_completed_total` or `_failed_total` on completion.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { observeRunLifecycle } from "@beep/runtime-server/internal/SidecarObservability"
+ *
+ * const observed = observeRunLifecycle(
+ *   { run_kind: "index" },
+ *   Effect.succeed("completed")
+ * )
+ *
+ * void observed
+ * ```
+ *
  * @since 0.0.0
- * @category CrossCutting
+ * @category cross cutting
  */
 export const observeRunLifecycle = <A, E, R>(
   attributes: Record<string, string>,

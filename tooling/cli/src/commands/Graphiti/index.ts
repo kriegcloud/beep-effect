@@ -1,7 +1,7 @@
 /**
  * Graphiti command suite.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -12,7 +12,11 @@ import { runGraphitiProxy } from "./internal/ProxyRuntime.js";
 /**
  * Graphiti queue proxy subcommand.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docgen metadata")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 const graphitiProxyCommand = Command.make(
@@ -26,7 +30,11 @@ const graphitiProxyCommand = Command.make(
 /**
  * Graphiti command group.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("graphitiCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const graphitiCommand = Command.make(

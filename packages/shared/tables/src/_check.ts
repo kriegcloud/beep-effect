@@ -1,3 +1,10 @@
+/**
+ * Compile-time checks for shared table factory inference.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import type { InferInsertModel, InferSelectModel } from "drizzle-orm";
 import * as sqlite from "drizzle-orm/sqlite-core";
 import type { EntityIdLike } from "./table.js";

@@ -1,3 +1,10 @@
+/**
+ * Shared protocol contracts for the repo-memory sidecar and desktop shell.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RuntimeProtocolId } from "@beep/identity/packages";
 import {
   IndexRepoRunInput,
@@ -22,14 +29,38 @@ import * as RpcGroup from "effect/unstable/rpc/RpcGroup";
 const $I = $RuntimeProtocolId.create("index");
 
 /**
+ * Re-export repo-memory protocol models used by the sidecar API.
+ *
+ * @example
+ * ```ts
+ * import type { RepoRun } from "@beep/runtime-protocol"
+ *
+ * const getRunId = (run: RepoRun) => run.id
+ *
+ * void getRunId
+ * ```
+ *
  * @since 0.0.0
- * @category Re-exports
+ * @category re-exports
  */
 export * from "@beep/repo-memory-model";
 
 /**
+ * Sidecar health states reported by the control plane.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SidecarHealthStatus } from "@beep/runtime-protocol"
+ *
+ * const isHealthStatus = S.is(SidecarHealthStatus)
+ * const healthy = isHealthStatus("healthy")
+ *
+ * void healthy
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const SidecarHealthStatus = LiteralKit(["starting", "healthy", "degraded", "stopping"]).annotate(
   $I.annote("SidecarHealthStatus", {
@@ -38,14 +69,37 @@ export const SidecarHealthStatus = LiteralKit(["starting", "healthy", "degraded"
 );
 
 /**
+ * Type for {@link SidecarHealthStatus}.
+ *
+ * @example
+ * ```ts
+ * import type { SidecarHealthStatus } from "@beep/runtime-protocol"
+ *
+ * const status: SidecarHealthStatus = "healthy"
+ *
+ * void status
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export type SidecarHealthStatus = typeof SidecarHealthStatus.Type;
 
 /**
+ * Bootstrap payload returned by the sidecar health endpoint.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SidecarBootstrap } from "@beep/runtime-protocol"
+ *
+ * const isBootstrap = S.is(SidecarBootstrap)
+ *
+ * void isBootstrap
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarBootstrap extends S.Class<SidecarBootstrap>($I`SidecarBootstrap`)(
   {
@@ -64,8 +118,20 @@ export class SidecarBootstrap extends S.Class<SidecarBootstrap>($I`SidecarBootst
 ) {}
 
 /**
+ * Bootstrap event shape emitted on sidecar stdout.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { SidecarBootstrapStdoutEvent } from "@beep/runtime-protocol"
+ *
+ * const isBootstrapEvent = S.is(SidecarBootstrapStdoutEvent)
+ *
+ * void isBootstrapEvent
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarBootstrapStdoutEvent extends S.Class<SidecarBootstrapStdoutEvent>($I`SidecarBootstrapStdoutEvent`)(
   {
@@ -85,8 +151,22 @@ export class SidecarBootstrapStdoutEvent extends S.Class<SidecarBootstrapStdoutE
 ) {}
 
 /**
+ * Bad-request payload returned by the sidecar control plane.
+ *
+ * @example
+ * ```ts
+ * import { SidecarBadRequestPayload } from "@beep/runtime-protocol"
+ *
+ * const payload = new SidecarBadRequestPayload({
+ *   message: "Request body required",
+ *   status: 400
+ * })
+ *
+ * void payload
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarBadRequestPayload extends S.Class<SidecarBadRequestPayload>($I`SidecarBadRequestPayload`)(
   {
@@ -99,8 +179,22 @@ export class SidecarBadRequestPayload extends S.Class<SidecarBadRequestPayload>(
 ) {}
 
 /**
+ * Not-found payload returned by the sidecar control plane.
+ *
+ * @example
+ * ```ts
+ * import { SidecarNotFoundPayload } from "@beep/runtime-protocol"
+ *
+ * const payload = new SidecarNotFoundPayload({
+ *   message: "Run not found",
+ *   status: 404
+ * })
+ *
+ * void payload
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarNotFoundPayload extends S.Class<SidecarNotFoundPayload>($I`SidecarNotFoundPayload`)(
   {
@@ -113,8 +207,22 @@ export class SidecarNotFoundPayload extends S.Class<SidecarNotFoundPayload>($I`S
 ) {}
 
 /**
+ * Internal-error payload returned by the sidecar control plane.
+ *
+ * @example
+ * ```ts
+ * import { SidecarInternalErrorPayload } from "@beep/runtime-protocol"
+ *
+ * const payload = new SidecarInternalErrorPayload({
+ *   message: "Sidecar request failed",
+ *   status: 500
+ * })
+ *
+ * void payload
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class SidecarInternalErrorPayload extends S.Class<SidecarInternalErrorPayload>($I`SidecarInternalErrorPayload`)(
   {
@@ -127,29 +235,84 @@ export class SidecarInternalErrorPayload extends S.Class<SidecarInternalErrorPay
 ) {}
 
 /**
+ * Bad-request schema annotated with HTTP status 400.
+ *
+ * @example
+ * ```ts
+ * import { SidecarBadRequest } from "@beep/runtime-protocol"
+ *
+ * const schema = SidecarBadRequest
+ *
+ * void schema
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const SidecarBadRequest = SidecarBadRequestPayload.pipe(HttpApiSchema.status(400));
 /**
+ * Not-found schema annotated with HTTP status 404.
+ *
+ * @example
+ * ```ts
+ * import { SidecarNotFound } from "@beep/runtime-protocol"
+ *
+ * const schema = SidecarNotFound
+ *
+ * void schema
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const SidecarNotFound = SidecarNotFoundPayload.pipe(HttpApiSchema.status(404));
 /**
+ * Internal-error schema annotated with HTTP status 500.
+ *
+ * @example
+ * ```ts
+ * import { SidecarInternalError } from "@beep/runtime-protocol"
+ *
+ * const schema = SidecarInternalError
+ *
+ * void schema
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const SidecarInternalError = SidecarInternalErrorPayload.pipe(HttpApiSchema.status(500));
 /**
+ * Repo registration schema annotated with HTTP status 201.
+ *
+ * @example
+ * ```ts
+ * import { RepoRegistrationCreated } from "@beep/runtime-protocol"
+ *
+ * const schema = RepoRegistrationCreated
+ *
+ * void schema
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const RepoRegistrationCreated = RepoRegistration.pipe(HttpApiSchema.status(201));
 
 /**
+ * Route params for run-specific sidecar endpoints.
+ *
+ * @example
+ * ```ts
+ * import { RunIdPathParams } from "@beep/runtime-protocol"
+ *
+ * const params = new RunIdPathParams({ runId: "run-1" })
+ *
+ * void params
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RunIdPathParams extends S.Class<RunIdPathParams>($I`RunIdPathParams`)(
   {
@@ -198,16 +361,38 @@ class RunsGroup extends HttpApiGroup.make("runs", { topLevel: true })
   ) {}
 
 /**
+ * HTTP API descriptor for the sidecar control plane.
+ *
+ * @example
+ * ```ts
+ * import { ControlPlaneApi } from "@beep/runtime-protocol"
+ *
+ * const api = ControlPlaneApi
+ *
+ * void api
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export class ControlPlaneApi extends HttpApi.make("repo-memory-control-plane")
   .add(SystemGroup, ReposGroup, RunsGroup)
   .prefix("/api/v0") {}
 
 /**
+ * RPC descriptor for streaming run events.
+ *
+ * @example
+ * ```ts
+ * import { StreamRunEvents } from "@beep/runtime-protocol"
+ *
+ * const rpc = StreamRunEvents
+ *
+ * void rpc
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const StreamRunEvents = Rpc.make("StreamRunEvents", {
   payload: StreamRunEventsRequest,
@@ -217,8 +402,19 @@ export const StreamRunEvents = Rpc.make("StreamRunEvents", {
 });
 
 /**
+ * RPC descriptor for starting an index run.
+ *
+ * @example
+ * ```ts
+ * import { StartIndexRepoRun } from "@beep/runtime-protocol"
+ *
+ * const rpc = StartIndexRepoRun
+ *
+ * void rpc
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const StartIndexRepoRun = Rpc.make("StartIndexRepoRun", {
   payload: IndexRepoRunInput,
@@ -227,8 +423,19 @@ export const StartIndexRepoRun = Rpc.make("StartIndexRepoRun", {
 });
 
 /**
+ * RPC descriptor for starting a query run.
+ *
+ * @example
+ * ```ts
+ * import { StartQueryRepoRun } from "@beep/runtime-protocol"
+ *
+ * const rpc = StartQueryRepoRun
+ *
+ * void rpc
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const StartQueryRepoRun = Rpc.make("StartQueryRepoRun", {
   payload: QueryRepoRunInput,
@@ -237,8 +444,19 @@ export const StartQueryRepoRun = Rpc.make("StartQueryRepoRun", {
 });
 
 /**
+ * RPC descriptor for interrupting a run.
+ *
+ * @example
+ * ```ts
+ * import { InterruptRepoRun } from "@beep/runtime-protocol"
+ *
+ * const rpc = InterruptRepoRun
+ *
+ * void rpc
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const InterruptRepoRun = Rpc.make("InterruptRepoRun", {
   payload: InterruptRepoRunRequest,
@@ -247,8 +465,19 @@ export const InterruptRepoRun = Rpc.make("InterruptRepoRun", {
 });
 
 /**
+ * RPC descriptor for resuming a run.
+ *
+ * @example
+ * ```ts
+ * import { ResumeRepoRun } from "@beep/runtime-protocol"
+ *
+ * const rpc = ResumeRepoRun
+ *
+ * void rpc
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export const ResumeRepoRun = Rpc.make("ResumeRepoRun", {
   payload: ResumeRepoRunRequest,
@@ -257,8 +486,19 @@ export const ResumeRepoRun = Rpc.make("ResumeRepoRun", {
 });
 
 /**
+ * RPC group descriptor for repo run commands and event streams.
+ *
+ * @example
+ * ```ts
+ * import { RepoRunRpcGroup } from "@beep/runtime-protocol"
+ *
+ * const group = RepoRunRpcGroup
+ *
+ * void group
+ * ```
+ *
  * @since 0.0.0
- * @category Integration
+ * @category integration
  */
 export class RepoRunRpcGroup extends RpcGroup.make(
   StartIndexRepoRun,

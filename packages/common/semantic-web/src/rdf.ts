@@ -1,6 +1,7 @@
 /**
  * RDF/JS-aligned value families for `@beep/semantic-web`.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -183,6 +184,14 @@ export const PrefixLabel = S.String.check(PrefixLabelChecks).pipe(
 /**
  * Type for {@link PrefixLabel}.
  *
+ * @example
+ * ```ts
+ * import type { PrefixLabel } from "@beep/semantic-web/rdf"
+ *
+ * const acceptPrefixLabel = (value: PrefixLabel) => value
+ * void acceptPrefixLabel
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -190,6 +199,13 @@ export type PrefixLabel = typeof PrefixLabel.Type;
 
 /**
  * CURIE-style compact IRI expression.
+ *
+ * @example
+ * ```ts
+ * import { Curie } from "@beep/semantic-web/rdf"
+ *
+ * void Curie
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -207,6 +223,14 @@ export const Curie = S.String.check(CurieChecks).pipe(
 /**
  * Type for {@link Curie}.
  *
+ * @example
+ * ```ts
+ * import type { Curie } from "@beep/semantic-web/rdf"
+ *
+ * const acceptCurie = (value: Curie) => value
+ * void acceptCurie
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -214,6 +238,13 @@ export type Curie = typeof Curie.Type;
 
 /**
  * RDF literal language tag.
+ *
+ * @example
+ * ```ts
+ * import { LanguageTag } from "@beep/semantic-web/rdf"
+ *
+ * void LanguageTag
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -238,6 +269,14 @@ export const LanguageTag = S.String.check(LanguageTagChecks).pipe(
 /**
  * Type for {@link LanguageTag}.
  *
+ * @example
+ * ```ts
+ * import type { LanguageTag } from "@beep/semantic-web/rdf"
+ *
+ * const acceptLanguageTag = (value: LanguageTag) => value
+ * void acceptLanguageTag
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -245,6 +284,13 @@ export type LanguageTag = typeof LanguageTag.Type;
 
 /**
  * RDF named node value.
+ *
+ * @example
+ * ```ts
+ * import { NamedNode } from "@beep/semantic-web/rdf"
+ *
+ * void NamedNode
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -262,6 +308,13 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
 
 /**
  * RDF blank node value.
+ *
+ * @example
+ * ```ts
+ * import { BlankNode } from "@beep/semantic-web/rdf"
+ *
+ * void BlankNode
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -289,6 +342,13 @@ export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
 /**
  * RDF literal value.
  *
+ * @example
+ * ```ts
+ * import { Literal } from "@beep/semantic-web/rdf"
+ *
+ * void Literal
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -307,6 +367,13 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
 
 /**
  * RDF default graph term.
+ *
+ * @example
+ * ```ts
+ * import { DefaultGraph } from "@beep/semantic-web/rdf"
+ *
+ * void DefaultGraph
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -332,6 +399,13 @@ export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
 /**
  * RDF term union.
  *
+ * @example
+ * ```ts
+ * import { Term } from "@beep/semantic-web/rdf"
+ *
+ * void Term
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -354,6 +428,14 @@ export const Term = S.Union([NamedNode, BlankNode, Literal, DefaultGraph]).annot
 /**
  * Type for {@link Term}.
  *
+ * @example
+ * ```ts
+ * import type { Term } from "@beep/semantic-web/rdf"
+ *
+ * const acceptTerm = (value: Term) => value
+ * void acceptTerm
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -361,6 +443,13 @@ export type Term = typeof Term.Type;
 
 /**
  * RDF subject term union.
+ *
+ * @example
+ * ```ts
+ * import { Subject } from "@beep/semantic-web/rdf"
+ *
+ * void Subject
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -374,6 +463,14 @@ export const Subject = S.Union([NamedNode, BlankNode]).annotate(
 /**
  * Type for {@link Subject}.
  *
+ * @example
+ * ```ts
+ * import type { Subject } from "@beep/semantic-web/rdf"
+ *
+ * const acceptSubject = (value: Subject) => value
+ * void acceptSubject
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -381,6 +478,13 @@ export type Subject = typeof Subject.Type;
 
 /**
  * RDF object term union.
+ *
+ * @example
+ * ```ts
+ * import { ObjectTerm } from "@beep/semantic-web/rdf"
+ *
+ * void ObjectTerm
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -394,6 +498,14 @@ export const ObjectTerm = S.Union([NamedNode, BlankNode, Literal]).annotate(
 /**
  * Type for {@link ObjectTerm}.
  *
+ * @example
+ * ```ts
+ * import type { ObjectTerm } from "@beep/semantic-web/rdf"
+ *
+ * const acceptObjectTerm = (value: ObjectTerm) => value
+ * void acceptObjectTerm
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -401,6 +513,13 @@ export type ObjectTerm = typeof ObjectTerm.Type;
 
 /**
  * RDF graph term union.
+ *
+ * @example
+ * ```ts
+ * import { GraphTerm } from "@beep/semantic-web/rdf"
+ *
+ * void GraphTerm
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -414,6 +533,14 @@ export const GraphTerm = S.Union([NamedNode, BlankNode, DefaultGraph]).annotate(
 /**
  * Type for {@link GraphTerm}.
  *
+ * @example
+ * ```ts
+ * import type { GraphTerm } from "@beep/semantic-web/rdf"
+ *
+ * const acceptGraphTerm = (value: GraphTerm) => value
+ * void acceptGraphTerm
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -421,6 +548,13 @@ export type GraphTerm = typeof GraphTerm.Type;
 
 /**
  * RDF quad value aligned with RDF/JS.
+ *
+ * @example
+ * ```ts
+ * import { Quad } from "@beep/semantic-web/rdf"
+ *
+ * void Quad
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -441,6 +575,13 @@ export class Quad extends S.Class<Quad>($I`Quad`)(
 /**
  * Dataset wrapper for RDF quads.
  *
+ * @example
+ * ```ts
+ * import { Dataset } from "@beep/semantic-web/rdf"
+ *
+ * void Dataset
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -456,6 +597,13 @@ export class Dataset extends S.Class<Dataset>($I`Dataset`)(
 
 /**
  * Prefix-to-namespace binding for RDF compaction and expansion.
+ *
+ * @example
+ * ```ts
+ * import { NamespaceBinding } from "@beep/semantic-web/rdf"
+ *
+ * void NamespaceBinding
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -473,6 +621,13 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
 
 /**
  * Prefix map keyed by {@link PrefixLabel}.
+ *
+ * @example
+ * ```ts
+ * import { PrefixMap } from "@beep/semantic-web/rdf"
+ *
+ * void PrefixMap
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -493,6 +648,14 @@ export const PrefixMap = S.Record(PrefixLabel, IRI).annotate(
 
 /**
  * Type for {@link PrefixMap}.
+ *
+ * @example
+ * ```ts
+ * import type { PrefixMap } from "@beep/semantic-web/rdf"
+ *
+ * const acceptPrefixMap = (value: PrefixMap) => value
+ * void acceptPrefixMap
+ * ```
  *
  * @since 0.0.0
  * @category models

@@ -883,14 +883,11 @@ export class NoRecoveryCodesRemaining extends TaggedErrorClass<NoRecoveryCodesRe
 ```
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { AccountId } from "@beep/iam-domain/entities/Account"
 import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
-
-const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.model.ts")
 
 export const TwoFactorId = S.String.pipe(S.brand("TwoFactorId"))
 export type TwoFactorId = typeof TwoFactorId.Type

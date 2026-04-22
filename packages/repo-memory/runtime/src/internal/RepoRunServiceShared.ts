@@ -1,3 +1,10 @@
+/**
+ * Shared repo run service helpers for error mapping and stream filtering.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
   type RepoRun,
@@ -26,8 +33,19 @@ const isRunTerminalState = S.is(RunTerminalState);
 /**
  * Composite driver shape used by the repo-memory runtime orchestration layer.
  *
+ * @example
+ * ```ts
+ * import type { RepoRuntimeStoreShape } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const methods = [
+ *   "getRepo",
+ *   "getRun",
+ *   "searchSymbols"
+ * ] satisfies ReadonlyArray<keyof RepoRuntimeStoreShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export type RepoRuntimeStoreShape = RepoRegistryStoreShape &
   RepoRunStoreShape &
@@ -40,8 +58,15 @@ type RepoRunStatusCauseError = StatusCauseInput;
 /**
  * Typed orchestration error emitted by the repo run service.
  *
+ * @example
+ * ```ts
+ * import { RepoRunServiceError } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const error = RepoRunServiceError.noCause("Run not found.", 404)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RepoRunServiceError extends StatusCauseTaggedErrorClass<RepoRunServiceError>($I`RepoRunServiceError`)(
   "RepoRunServiceError",
@@ -53,8 +78,15 @@ export class RepoRunServiceError extends StatusCauseTaggedErrorClass<RepoRunServ
 /**
  * Build a repo-run service error from message, status, and cause data.
  *
+ * @example
+ * ```ts
+ * import { toRunServiceError } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const error = toRunServiceError("sqlite", "Store failed.", 500)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const toRunServiceError: {
   (cause: unknown, message: string, status: number): RepoRunServiceError;
@@ -70,8 +102,16 @@ export const toRunServiceError: {
  *
  * @param effect - The effect whose status/cause error channel should be normalized.
  * @returns An effect that preserves success while lifting failures into RepoRunServiceError.
+ * @example
+ * ```ts
+ * import { mapStatusCauseError, RepoRunServiceError } from "../../src/internal/RepoRunServiceShared.js"
+ * import { Effect } from "effect"
+ *
+ * const program = mapStatusCauseError(Effect.fail(RepoRunServiceError.noCause("Missing run.", 404)))
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const mapStatusCauseError = <A, E extends RepoRunStatusCauseError>(effect: Effect.Effect<A, E>) =>
   effect.pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)));
@@ -81,8 +121,15 @@ export const mapStatusCauseError = <A, E extends RepoRunStatusCauseError>(effect
  *
  * @param error - The typed repo-run service error to expose on the streaming boundary.
  * @returns A durable stream failure payload carrying the same message and status code.
+ * @example
+ * ```ts
+ * import { RepoRunServiceError, toRunStreamFailure } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const failure = toRunStreamFailure(RepoRunServiceError.noCause("Missing run.", 404))
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure =>
   new RunStreamFailure({
@@ -95,8 +142,15 @@ export const toRunStreamFailure = (error: RepoRunServiceError): RunStreamFailure
  *
  * @param run - The persisted run snapshot to inspect.
  * @returns `true` when the run status is a terminal repo-memory state.
+ * @example
+ * ```ts
+ * import { isTerminalRun } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const predicate = isTerminalRun
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const isTerminalRun = (run: RepoRun): boolean => isRunTerminalState(run.status);
 
@@ -105,8 +159,15 @@ export const isTerminalRun = (run: RepoRun): boolean => isRunTerminalState(run.s
  *
  * @param event - The replayable event to inspect.
  * @returns `true` when the event kind represents a terminal run transition.
+ * @example
+ * ```ts
+ * import { isTerminalRunEvent } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const predicate = isTerminalRunEvent
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const isTerminalRunEvent = (event: RunStreamEvent): boolean => isRunTerminalState(event.kind);
 
@@ -115,12 +176,16 @@ export const isTerminalRunEvent = (event: RunStreamEvent): boolean => isRunTermi
  *
  * @param cursor - The optional replay cursor that defines the last observed event sequence.
  * @returns A predicate that keeps only values whose `sequence` exceeds the cursor.
+ * @example
+ * ```ts
+ * import { isSequenceAfterCursor } from "../../src/internal/RepoRunServiceShared.js"
+ * import * as O from "effect/Option"
+ *
+ * const isAfterCursor = isSequenceAfterCursor(O.none())
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
- */
-/**
- * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export function isSequenceAfterCursor<A extends { readonly sequence: number }>(cursor: O.Option<RunCursor>) {
   return (value: A): boolean =>
@@ -136,15 +201,29 @@ export function isSequenceAfterCursor<A extends { readonly sequence: number }>(c
 /**
  * Poll interval used while waiting for workflow suspension after interruption.
  *
+ * @example
+ * ```ts
+ * import { workflowSuspensionPollInterval } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const interval = workflowSuspensionPollInterval
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const workflowSuspensionPollInterval = Duration.millis(25);
 
 /**
  * Maximum number of workflow suspension polls before failing the command.
  *
+ * @example
+ * ```ts
+ * import { workflowSuspensionPollMaxAttempts } from "../../src/internal/RepoRunServiceShared.js"
+ *
+ * const maxAttempts = workflowSuspensionPollMaxAttempts
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const workflowSuspensionPollMaxAttempts = 200;

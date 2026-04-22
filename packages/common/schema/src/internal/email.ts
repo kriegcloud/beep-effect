@@ -1,3 +1,10 @@
+/**
+ * Internal email normalization and validation schema implementation.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $SchemaId } from "@beep/identity/packages";
 import { SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
@@ -6,6 +13,21 @@ const $I = $SchemaId.create("Email");
 
 // --- Regex ---
 
+/**
+ * Regular expression used by the internal email schema.
+ *
+ * @example
+ * ```ts
+ * import { emailRegex } from "@beep/schema/internal/email"
+ *
+ * const matchesEmail = emailRegex.test("admin@example.com")
+ *
+ * void matchesEmail
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const emailRegex: RegExp =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/;
 
@@ -32,8 +54,42 @@ const EmailBranded = NormalizedString.check(emailChecks).pipe(S.brand("Email"));
 
 // --- Final schema: branded + redacted + annotated ---
 
+/**
+ * Internal normalized, branded, and redacted email schema.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Email } from "@beep/schema/internal/email"
+ *
+ * const decode = S.decodeUnknownSync(Email)
+ * const email = decode("admin@example.com")
+ *
+ * void email
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const Email = S.RedactedFromValue(EmailBranded, { label: "Email" }).pipe(
   S.annotate($I.annote("Email", { description: "RFC 5322 compliant email address" }))
 );
 
+/**
+ * Internal branded, redacted email value type.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { Email, type Email as EmailValue } from "@beep/schema/internal/email"
+ *
+ * const decode = S.decodeUnknownSync(Email)
+ * const email: EmailValue = decode("admin@example.com")
+ *
+ * void email
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type Email = typeof Email.Type;

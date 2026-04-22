@@ -1,3 +1,10 @@
+/**
+ * Repo-memory orchestration service and workflow layer assembly.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
   AnswerDraftedEvent,
@@ -69,8 +76,19 @@ const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
 /**
  * Service contract for repo-memory orchestration and workflow entrypoints.
  *
+ * @example
+ * ```ts
+ * import type { RepoRunServiceShape } from "../../src/internal/RepoMemoryRuntime.js"
+ *
+ * const methods = [
+ *   "executeIndexRun",
+ *   "executeQueryRun",
+ *   "streamRunEvents"
+ * ] satisfies ReadonlyArray<keyof RepoRunServiceShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export interface RepoRunServiceShape {
   readonly acceptIndexRun: (
@@ -470,8 +488,15 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
 /**
  * Service tag for repo-memory orchestration.
  *
+ * @example
+ * ```ts
+ * import { RepoRunService } from "../../src/internal/RepoMemoryRuntime.js"
+ *
+ * const layer = RepoRunService.layer
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoRunService extends Context.Service<RepoRunService, RepoRunServiceShape>()($I`RepoRunService`) {
   static readonly layer: Layer.Layer<
@@ -505,8 +530,15 @@ export class RepoRunService extends Context.Service<RepoRunService, RepoRunServi
 /**
  * Live workflow layers for repository index and query runs.
  *
+ * @example
+ * ```ts
+ * import { RepoRunWorkflowsLayer } from "../../src/internal/RepoMemoryRuntime.js"
+ *
+ * const layer = RepoRunWorkflowsLayer
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const RepoRunWorkflowsLayer = Layer.mergeAll(
   IndexRepoRunWorkflow.toLayer(

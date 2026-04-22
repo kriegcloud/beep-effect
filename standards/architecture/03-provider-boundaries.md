@@ -27,12 +27,24 @@ provider name.
 Use-cases define what the application needs:
 
 ```ts
+import { $I as $RootId } from "@beep/identity/packages"
+import { Context, type Effect } from "effect"
+import type * as O from "effect/Option"
+import type { TwoFactor } from "@beep/iam-domain/entities/TwoFactor"
+import type { AccountId } from "@beep/iam-domain/entities/Account"
+import type { TwoFactorRepositoryError } from "./TwoFactor.errors.js"
+
+const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.ports.ts")
+
 export class TwoFactorRepository extends Context.Service<
   TwoFactorRepository,
   {
     readonly save: (
       model: TwoFactor,
     ) => Effect.Effect<void, TwoFactorRepositoryError>
+    readonly findByAccountId: (
+      accountId: AccountId,
+    ) => Effect.Effect<O.Option<TwoFactor>, TwoFactorRepositoryError>
   }
 >()($I`TwoFactorRepository`) {}
 ```
@@ -40,14 +52,61 @@ export class TwoFactorRepository extends Context.Service<
 Providers define safe technical capability:
 
 ```ts
+import { $I as $RootId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
+import { Context, Effect, Layer } from "effect"
+import * as O from "effect/Option"
+import * as S from "effect/Schema"
+
+const $I = $RootId.create("iam/providers/drizzle/src/Drizzle.service.ts")
+
+export class DrizzleError extends TaggedErrorClass<DrizzleError>(
+  $I`DrizzleError`,
+)(
+  "DrizzleError",
+  {
+    operation: S.String,
+    cause: S.OptionFromOptionalKey(S.Defect),
+  },
+  $I.annote("DrizzleError", {
+    description: "Technical Drizzle provider failure.",
+  }),
+) {}
+
+const toDrizzleError = (operation: string, cause?: unknown): DrizzleError =>
+  new DrizzleError({
+    operation,
+    cause: O.fromUndefinedOr(cause),
+  })
+
+export interface DrizzleClient {
+  readonly execute: (
+    statement: string,
+    parameters: ReadonlyArray<unknown>,
+  ) => Promise<ReadonlyArray<unknown>>
+}
+
 export class Drizzle extends Context.Service<
   Drizzle,
   {
-    readonly withTransaction: <A, E, R>(
-      effect: Effect.Effect<A, E, R>,
-    ) => Effect.Effect<A, E, R>
+    readonly execute: (
+      statement: string,
+      parameters: ReadonlyArray<unknown>,
+    ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
   }
 >()($I`Drizzle`) {}
+
+export const makeDrizzleLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
+  Layer.effect(
+    Drizzle,
+    Effect.succeed({
+      execute: (statement, parameters) =>
+        Effect.tryPromise({
+          try: () => client.execute(statement, parameters),
+          catch: (cause) => toDrizzleError("execute", cause),
+        }),
+    }),
+  )
 ```
 
 Server connects them:
@@ -80,4 +139,3 @@ same thing as generic provider capability.
 
 `providers/drizzle` can offer safe Drizzle helpers. `tables` declares the
 `TwoFactor` table. `server` uses both to implement the product repository.
-

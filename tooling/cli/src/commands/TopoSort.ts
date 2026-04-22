@@ -1,7 +1,7 @@
 /**
  * Topological sort command - outputs workspace packages in dependency order.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -14,7 +14,11 @@ import { Command } from "effect/unstable/cli";
  * CLI command that builds the workspace dependency graph and prints package names
  * in topological order (leaf dependencies first, dependents last).
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("topoSortCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const topoSortCommand = Command.make(

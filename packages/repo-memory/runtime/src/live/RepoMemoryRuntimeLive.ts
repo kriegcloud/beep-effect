@@ -1,3 +1,10 @@
+/**
+ * Live runtime layer assembly for repo-memory services.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { Layer } from "effect";
 import { TypeScriptIndexService } from "../indexing/TypeScriptIndexer.js";
 import { RepoRunService, RepoRunWorkflowsLayer } from "../internal/RepoMemoryRuntime.js";
@@ -15,7 +22,14 @@ const RepoRunWorkflowsLive = RepoRunWorkflowsLayer.pipe(Layer.provide(RepoRunSer
 /**
  * Live repo-memory runtime layer.
  *
+ * @example
+ * ```ts
+ * import { RepoMemoryRuntimeLive } from "@beep/repo-memory-runtime"
+ *
+ * const layer = RepoMemoryRuntimeLive
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const RepoMemoryRuntimeLive = Layer.merge(RepoRunServiceLive, RepoRunWorkflowsLive);

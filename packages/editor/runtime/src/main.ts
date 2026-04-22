@@ -1,3 +1,10 @@
+/**
+ * Bun executable entrypoint for the editor sidecar runtime.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { BunRuntime } from "@effect/platform-bun";
 import * as BunFileSystem from "@effect/platform-bun/BunFileSystem";
 import * as BunPath from "@effect/platform-bun/BunPath";

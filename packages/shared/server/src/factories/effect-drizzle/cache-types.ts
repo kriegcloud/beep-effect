@@ -1,8 +1,8 @@
 /**
  * Schema-first cache configuration models for the Effect Drizzle adapter.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 // cspell:words HEXPIRE exat pxat
 
@@ -21,8 +21,19 @@ const HexExpireOption = LiteralKit(["NX", "nx", "XX", "xx", "GT", "gt", "LT", "l
 /**
  * Cache-specific TTL and expiration metadata passed through `$withCache(...)`.
  *
+ * @example
+ * ```ts
+ * import { CacheConfig } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const config = new CacheConfig({
+ *   ex: 60
+ * })
+ *
+ * void config
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class CacheConfig extends S.Class<CacheConfig>($I`CacheConfig`)(
   {
@@ -53,8 +64,19 @@ export class CacheConfig extends S.Class<CacheConfig>($I`CacheConfig`)(
 /**
  * Effect Drizzle cache toggle and metadata configuration.
  *
+ * @example
+ * ```ts
+ * import { WithCacheConfig } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const config = new WithCacheConfig({
+ *   enabled: true
+ * })
+ *
+ * void config
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class WithCacheConfig extends S.Class<WithCacheConfig>($I`WithCacheConfig`)(
   {

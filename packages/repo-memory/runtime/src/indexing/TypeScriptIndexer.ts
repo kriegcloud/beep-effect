@@ -1,3 +1,10 @@
+/**
+ * Deterministic TypeScript repository indexing service.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
   CitationSpan,
@@ -101,8 +108,15 @@ class ProjectScope extends S.Class<ProjectScope>($I`ProjectScope`)(
 /**
  * Deterministic TypeScript indexing result for one repository snapshot.
  *
+ * @example
+ * ```ts
+ * import { IndexedTypeScriptArtifacts } from "@beep/repo-memory-runtime"
+ *
+ * const schema = IndexedTypeScriptArtifacts
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class IndexedTypeScriptArtifacts extends S.Class<IndexedTypeScriptArtifacts>($I`IndexedTypeScriptArtifacts`)(
   {
@@ -119,8 +133,15 @@ export class IndexedTypeScriptArtifacts extends S.Class<IndexedTypeScriptArtifac
 /**
  * Input required to index one repository with the TypeScript indexer.
  *
+ * @example
+ * ```ts
+ * import { TypeScriptIndexRequest } from "@beep/repo-memory-runtime"
+ *
+ * const schema = TypeScriptIndexRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class TypeScriptIndexRequest extends S.Class<TypeScriptIndexRequest>($I`TypeScriptIndexRequest`)(
   {
@@ -136,8 +157,15 @@ export class TypeScriptIndexRequest extends S.Class<TypeScriptIndexRequest>($I`T
 /**
  * Typed failure emitted by deterministic TypeScript indexing.
  *
+ * @example
+ * ```ts
+ * import { TypeScriptIndexError } from "@beep/repo-memory-runtime"
+ *
+ * const error = TypeScriptIndexError.noCause("Unable to index repository.", 500)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class TypeScriptIndexError extends StatusCauseTaggedErrorClass<TypeScriptIndexError>($I`TypeScriptIndexError`)(
   "TypeScriptIndexError",
@@ -149,8 +177,15 @@ export class TypeScriptIndexError extends StatusCauseTaggedErrorClass<TypeScript
 /**
  * Service contract for deterministic TypeScript repository indexing.
  *
+ * @example
+ * ```ts
+ * import type { TypeScriptIndexServiceShape } from "@beep/repo-memory-runtime"
+ *
+ * const methods = ["indexRepo"] satisfies ReadonlyArray<keyof TypeScriptIndexServiceShape>
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export interface TypeScriptIndexServiceShape {
   readonly indexRepo: (
@@ -161,8 +196,15 @@ export interface TypeScriptIndexServiceShape {
 /**
  * Service tag for deterministic TypeScript repository indexing.
  *
+ * @example
+ * ```ts
+ * import { TypeScriptIndexService } from "@beep/repo-memory-runtime"
+ *
+ * const layer = TypeScriptIndexService.layer
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class TypeScriptIndexService extends Context.Service<TypeScriptIndexService, TypeScriptIndexServiceShape>()(
   $I`TypeScriptIndexService`
@@ -1251,8 +1293,15 @@ const suspendIfRunInterrupted = Effect.fn("TypeScriptIndex.suspendIfRunInterrupt
 /**
  * Deterministically index a TypeScript repository into repo-memory artifacts.
  *
+ * @example
+ * ```ts
+ * import { indexTypeScriptRepo } from "@beep/repo-memory-runtime"
+ *
+ * const indexRepo = indexTypeScriptRepo
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const indexTypeScriptRepo = Effect.fn("TypeScriptIndex.indexTypeScriptRepo")(function* (
   options: TypeScriptIndexRequest

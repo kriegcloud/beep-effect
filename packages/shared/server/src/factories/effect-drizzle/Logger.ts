@@ -1,8 +1,8 @@
 /**
  * Effect service for Drizzle SQL logging.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 
 import { $SharedServerId } from "@beep/identity";
@@ -25,8 +25,20 @@ const stringifyParam = (param: unknown): string =>
 /**
  * Effect logger contract for Drizzle queries.
  *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import type { DrizzleEffectLoggerShape } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const logger: DrizzleEffectLoggerShape = {
+ *   logQuery: () => Effect.void
+ * }
+ *
+ * void logger
+ * ```
+ *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export interface DrizzleEffectLoggerShape {
   readonly logQuery: (query: string, params: ReadonlyArray<unknown>) => Effect.Effect<void>;
@@ -37,17 +49,15 @@ export interface DrizzleEffectLoggerShape {
  *
  * @example
  * ```ts
- * import { Effect } from "effect"
  * import { DrizzleEffectLogger } from "@beep/shared-server/factories/effect-drizzle"
  *
- * const program = Effect.gen(function* () {
+ * const layer = DrizzleEffectLogger.Default
  *
- *
- * })
+ * void layer
  * ```
  *
  * @since 0.0.0
- * @category Services
+ * @category services
  */
 export class DrizzleEffectLogger extends Context.Service<DrizzleEffectLogger, DrizzleEffectLoggerShape>()(
   $I`DrizzleEffectLogger`
@@ -56,7 +66,7 @@ export class DrizzleEffectLogger extends Context.Service<DrizzleEffectLogger, Dr
    * Default no-op logger layer.
    *
    * @since 0.0.0
-   * @category Layers
+   * @category layers
    */
   static readonly Default = Layer.succeed(
     DrizzleEffectLogger,
@@ -69,7 +79,7 @@ export class DrizzleEffectLogger extends Context.Service<DrizzleEffectLogger, Dr
    * Effect-native logging layer that forwards query annotations into Effect logs.
    *
    * @since 0.0.0
-   * @category Layers
+   * @category layers
    */
   static readonly layer = Layer.succeed(
     DrizzleEffectLogger,
@@ -89,7 +99,7 @@ export class DrizzleEffectLogger extends Context.Service<DrizzleEffectLogger, Dr
    * Adapt a standard Drizzle logger into the Effect logger service.
    *
    * @since 0.0.0
-   * @category Constructors
+   * @category constructors
    */
   static fromDrizzle = (logger: Logger): DrizzleEffectLoggerShape => ({
     logQuery: Effect.fn("DrizzleEffectLogger.logQuery.fromDrizzle")((query: string, params: ReadonlyArray<unknown>) =>
@@ -101,7 +111,7 @@ export class DrizzleEffectLogger extends Context.Service<DrizzleEffectLogger, Dr
    * Layer adapter for a standard Drizzle logger.
    *
    * @since 0.0.0
-   * @category Layers
+   * @category layers
    */
   static readonly layerFromDrizzle = (logger: Logger) =>
     Layer.succeed(DrizzleEffectLogger, DrizzleEffectLogger.of(DrizzleEffectLogger.fromDrizzle(logger)));

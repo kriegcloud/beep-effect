@@ -1,15 +1,15 @@
 /**
  * The Domain Authorization Service.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 
 /**
  * The Action Domain Model
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export * as Action from "./Action.ts";
 
@@ -17,7 +17,7 @@ export * as Action from "./Action.ts";
  * The Authorization Configuration
  *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export * as AuthorizationConfig from "./AuthorizationConfig.ts";
 
@@ -25,7 +25,7 @@ export * as AuthorizationConfig from "./AuthorizationConfig.ts";
  * The Authorization Errors
  *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export * as AuthorizationErrors from "./AuthorizationErrors.ts";
 
@@ -33,6 +33,6 @@ export * as AuthorizationErrors from "./AuthorizationErrors.ts";
  * The Base Role Domain Model
  *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export * as BaseRole from "./BaseRole.ts";

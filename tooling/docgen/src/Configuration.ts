@@ -1,4 +1,7 @@
 /**
+ * Configuration loading and service wiring for docgen.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -17,6 +20,13 @@ const $I = $DocgenId.create("Configuration");
 /**
  * Default Jekyll theme used when docgen does not receive an explicit theme override.
  *
+ * @example
+ * ```ts
+ * import { DEFAULT_THEME } from "@beep/docgen/Configuration"
+ *
+ * void DEFAULT_THEME
+ * ```
+ *
  * @category service
  * @since 0.0.0
  */
@@ -34,6 +44,13 @@ const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
 
 /**
  * Schema describing the optional `docgen.json` configuration document.
+ *
+ * @example
+ * ```ts
+ * import { ConfigurationSchema } from "@beep/docgen/Configuration"
+ *
+ * void ConfigurationSchema
+ * ```
  *
  * @category service
  * @since 0.0.0
@@ -59,6 +76,13 @@ export class ConfigurationSchema extends S.Class<ConfigurationSchema>($I`Configu
 /**
  * Runtime type for decoded `docgen.json` configuration documents.
  *
+ * @example
+ * ```ts
+ * import type { ConfigurationDocument } from "@beep/docgen/Configuration"
+ *
+ * type ExampleConfigurationDocument = ConfigurationDocument
+ * ```
+ *
  * @category service
  * @since 0.0.0
  */
@@ -66,6 +90,13 @@ export type ConfigurationDocument = typeof ConfigurationSchema.Type;
 
 /**
  * Fully resolved configuration values used while docgen executes.
+ *
+ * @example
+ * ```ts
+ * import { ConfigurationShape } from "@beep/docgen/Configuration"
+ *
+ * void ConfigurationShape
+ * ```
  *
  * @category service
  * @since 0.0.0
@@ -91,6 +122,13 @@ export class ConfigurationShape extends S.Class<ConfigurationShape>($I`Configura
 /**
  * Runtime configuration service for docgen command execution.
  *
+ * @example
+ * ```ts
+ * import { Configuration } from "@beep/docgen/Configuration"
+ *
+ * void Configuration
+ * ```
+ *
  * @category service
  * @since 0.0.0
  */
@@ -108,6 +146,13 @@ export class Configuration extends Context.Service<Configuration, ConfigurationS
 
 /**
  * Accepted CLI or config-file input for compiler options.
+ *
+ * @example
+ * ```ts
+ * import type { CompilerOptionsInput } from "@beep/docgen/Configuration"
+ *
+ * type ExampleCompilerOptionsInput = CompilerOptionsInput
+ * ```
  *
  * @category service
  * @since 0.0.0
@@ -137,8 +182,16 @@ type LoadArgs = {
 /**
  * Default compiler options used when no explicit parse configuration is provided.
  *
+ * @example
+ * ```ts
+ * import { defaultCompilerOptions } from "@beep/docgen/Configuration"
+ *
+ * void defaultCompilerOptions
+ * ```
+ *
  * @internal
  * @category service
+ * @since 0.0.0
  */
 export const defaultCompilerOptions = {
   noEmit: true,
@@ -278,10 +331,18 @@ const resolveBoolean = (fromCLI: O.Option<boolean>, fromDocgenJson: O.Option<boo
 /**
  * Loads and resolves the effective docgen configuration from CLI input and repo files.
  *
+ * @example
+ * ```ts
+ * import { load } from "@beep/docgen/Configuration"
+ *
+ * void load
+ * ```
+ *
  * @internal
  * @param args - CLI-sourced configuration overrides.
  * @returns Effect that resolves the effective docgen configuration service value.
  * @category service
+ * @since 0.0.0
  */
 export const load = Effect.fn("load")(function* (args: LoadArgs) {
   const process = yield* Domain.Process;
@@ -361,7 +422,15 @@ export const load = Effect.fn("load")(function* (args: LoadArgs) {
 /**
  * Present for upstream parity; the CLI merges configuration directly in `load`.
  *
+ * @example
+ * ```ts
+ * import { configProviderLayer } from "@beep/docgen/Configuration"
+ *
+ * void configProviderLayer
+ * ```
+ *
  * @internal
  * @category service
+ * @since 0.0.0
  */
 export const configProviderLayer = Layer.empty;

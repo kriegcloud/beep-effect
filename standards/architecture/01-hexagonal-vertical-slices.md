@@ -45,12 +45,18 @@ packages/iam/
 The boundaries are hexagonal:
 
 ```txt
-domain <- use-cases <- server/client/ui
-                  \
-                   -> product ports <- server implementations <- providers
+domain <- use-cases <- server
+domain <- client <- ui
+use-cases <- client (client-safe exports only)
+
+use-cases product ports <- server implementations <- providers
 ```
 
 The result is local ownership without infrastructure leakage.
+
+Client imports from use-cases must stay client-safe: command/query language,
+contracts, and actionable errors are fine; product ports and server-only Layer
+composition are not.
 
 ## Same Concept, Different Lens
 
@@ -79,4 +85,3 @@ the behavior is genuinely cross-concept:
 
 The default remains concept-local because concept locality is what makes the
 slice navigable.
-

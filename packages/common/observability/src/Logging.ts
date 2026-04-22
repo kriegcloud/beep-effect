@@ -55,8 +55,16 @@ export const LogFormat = LiteralKit(["pretty", "structured", "json", "logfmt", "
 /**
  * Runtime type for {@link LogFormat}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { LogFormat } from "@beep/observability"
+ *
+ * const format: LogFormat = "json"
+ * void format
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type LogFormat = typeof LogFormat.Type;
 
@@ -83,8 +91,16 @@ export const PrettyLogTheme = LiteralKit(["ocean", "forest", "sunrise", "mono"])
 /**
  * Runtime type for {@link PrettyLogTheme}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { PrettyLogTheme } from "@beep/observability"
+ *
+ * const theme: PrettyLogTheme = "forest"
+ * void theme
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type PrettyLogTheme = typeof PrettyLogTheme.Type;
 
@@ -111,8 +127,16 @@ export const BannerMode = LiteralKit(["off", "startup", "phase", "all"]).pipe(
 /**
  * Runtime type for {@link BannerMode}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { BannerMode } from "@beep/observability"
+ *
+ * const mode: BannerMode = "startup"
+ * void mode
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type BannerMode = typeof BannerMode.Type;
 

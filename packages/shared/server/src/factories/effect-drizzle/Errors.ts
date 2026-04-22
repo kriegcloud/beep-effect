@@ -1,8 +1,8 @@
 /**
  * Typed error constructors for the Effect-first Drizzle Bun SQLite integration.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 
 import { $SharedServerId } from "@beep/identity";
@@ -20,8 +20,20 @@ const getErrorMessage = (cause: unknown, fallback: string): string => (P.isError
 /**
  * Generic infrastructure failure raised by the Effect Drizzle integration.
  *
+ * @example
+ * ```ts
+ * import { EffectDrizzleError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error = new EffectDrizzleError({
+ *   message: "Failed to open database",
+ *   cause: "database unavailable"
+ * })
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class EffectDrizzleError extends TaggedErrorClass<EffectDrizzleError>($I`EffectDrizzleError`)(
   "EffectDrizzleError",
@@ -37,7 +49,7 @@ export class EffectDrizzleError extends TaggedErrorClass<EffectDrizzleError>($I`
    * Construct an `EffectDrizzleError` in data-first or data-last form.
    *
    * @since 0.0.0
-   * @category Constructors
+   * @category constructors
    */
   static readonly new: {
     (cause: unknown, message: string): EffectDrizzleError;
@@ -55,8 +67,21 @@ export class EffectDrizzleError extends TaggedErrorClass<EffectDrizzleError>($I`
 /**
  * Query execution failure enriched with the SQL text and bound parameters.
  *
+ * @example
+ * ```ts
+ * import { EffectDrizzleQueryError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error = new EffectDrizzleQueryError({
+ *   query: "select 1",
+ *   params: [],
+ *   cause: "query failed"
+ * })
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class EffectDrizzleQueryError extends TaggedErrorClass<EffectDrizzleQueryError>($I`EffectDrizzleQueryError`)(
   "EffectDrizzleQueryError",
@@ -77,8 +102,18 @@ export class EffectDrizzleQueryError extends TaggedErrorClass<EffectDrizzleQuery
 /**
  * Explicit rollback sentinel for Effect-managed SQLite transactions.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { EffectTransactionRollbackError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const isRollback = S.is(EffectTransactionRollbackError)
+ *
+ * void isRollback
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class EffectTransactionRollbackError extends TaggedErrorClass<EffectTransactionRollbackError>(
   $I`EffectTransactionRollbackError`
@@ -98,8 +133,19 @@ const isRollbackError = S.is(EffectTransactionRollbackError);
 /**
  * Migrator failed because the database already contains migrations during init.
  *
+ * @example
+ * ```ts
+ * import { MigratorDatabaseMigrationsError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error = new MigratorDatabaseMigrationsError({
+ *   exitCode: "databaseMigrations"
+ * })
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class MigratorDatabaseMigrationsError extends TaggedErrorClass<MigratorDatabaseMigrationsError>(
   $I`MigratorDatabaseMigrationsError`
@@ -116,8 +162,19 @@ export class MigratorDatabaseMigrationsError extends TaggedErrorClass<MigratorDa
 /**
  * Migrator failed because local migrations already exist during init.
  *
+ * @example
+ * ```ts
+ * import { MigratorLocalMigrationsError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error = new MigratorLocalMigrationsError({
+ *   exitCode: "localMigrations"
+ * })
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export class MigratorLocalMigrationsError extends TaggedErrorClass<MigratorLocalMigrationsError>(
   $I`MigratorLocalMigrationsError`
@@ -134,8 +191,18 @@ export class MigratorLocalMigrationsError extends TaggedErrorClass<MigratorLocal
 /**
  * Schema union for migrator init failures.
  *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { MigratorInitError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const isMigratorInitError = S.is(MigratorInitError)
+ *
+ * void isMigratorInitError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export const MigratorInitError = S.Union([MigratorDatabaseMigrationsError, MigratorLocalMigrationsError]).pipe(
   $I.annoteSchema("MigratorInitError", {
@@ -146,16 +213,40 @@ export const MigratorInitError = S.Union([MigratorDatabaseMigrationsError, Migra
 /**
  * Runtime type for {@link MigratorInitError}.
  *
+ * @example
+ * ```ts
+ * import type { MigratorInitError } from "@beep/shared-server/factories/effect-drizzle"
+ * import { MigratorLocalMigrationsError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error: MigratorInitError = new MigratorLocalMigrationsError({
+ *   exitCode: "localMigrations"
+ * })
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category errors
  */
 export type MigratorInitError = typeof MigratorInitError.Type;
 
 /**
  * Normalize any thrown value into an `EffectDrizzleError`.
  *
+ * @example
+ * ```ts
+ * import { effectDrizzleErrorFromUnknown } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error = effectDrizzleErrorFromUnknown(
+ *   "database unavailable",
+ *   "Failed to open database."
+ * )
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const effectDrizzleErrorFromUnknown: {
   (cause: unknown, message: string): EffectDrizzleError;
@@ -172,8 +263,21 @@ export const effectDrizzleErrorFromUnknown: {
 /**
  * Normalize any thrown value into an `EffectDrizzleQueryError`.
  *
+ * @example
+ * ```ts
+ * import { effectDrizzleQueryErrorFromUnknown } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error = effectDrizzleQueryErrorFromUnknown(
+ *   "select 1",
+ *   [],
+ *   "query failed"
+ * )
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const effectDrizzleQueryErrorFromUnknown = (
   query: string,
@@ -202,8 +306,17 @@ export const effectDrizzleQueryErrorFromUnknown = (
 /**
  * Normalize any thrown value into a typed migrator init failure.
  *
+ * @example
+ * ```ts
+ * import { migratorInitErrorFromExitCode } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const error = migratorInitErrorFromExitCode("localMigrations")
+ *
+ * void error
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const migratorInitErrorFromExitCode = (
   exitCode: "databaseMigrations" | "localMigrations"
@@ -215,16 +328,34 @@ export const migratorInitErrorFromExitCode = (
 /**
  * Detect whether an unknown value is the rollback sentinel.
  *
+ * @example
+ * ```ts
+ * import { isEffectTransactionRollbackError } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const isRollback = isEffectTransactionRollbackError("Rollback")
+ *
+ * void isRollback
+ * ```
+ *
  * @since 0.0.0
- * @category Guards
+ * @category guards
  */
 export const isEffectTransactionRollbackError = isRollbackError;
 
 /**
  * Extract a human-readable query failure message from an unknown cause.
  *
+ * @example
+ * ```ts
+ * import { getQueryFailureMessage } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const message = getQueryFailureMessage("query failed", "select 1")
+ *
+ * void message
+ * ```
+ *
  * @since 0.0.0
- * @category Helpers
+ * @category helpers
  */
 export const getQueryFailureMessage = (cause: unknown, query: string): string =>
   getErrorMessage(cause, `Failed to execute query: ${query}`);

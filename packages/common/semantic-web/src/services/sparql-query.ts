@@ -1,6 +1,7 @@
 /**
  * Minimal engine-agnostic SPARQL query service contract.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -28,8 +29,15 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
 /**
  * Minimal v1 SPARQL profile.
  *
+ * @example
+ * ```ts
+ * import { SparqlQueryProfile } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlQueryProfile
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"] as const).annotate(
   $I.annote("SparqlQueryProfile", {
@@ -40,8 +48,15 @@ export const SparqlQueryProfile = LiteralKit(["select", "ask", "construct"] as c
 /**
  * SPARQL query request.
  *
+ * @example
+ * ```ts
+ * import { SparqlQueryRequest } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlQueryRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class SparqlQueryRequest extends S.Class<SparqlQueryRequest>($I`SparqlQueryRequest`)(
   {
@@ -59,8 +74,15 @@ export class SparqlQueryRequest extends S.Class<SparqlQueryRequest>($I`SparqlQue
 /**
  * SPARQL select result.
  *
+ * @example
+ * ```ts
+ * import { SparqlSelectResult } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlSelectResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class SparqlSelectResult extends S.Class<SparqlSelectResult>($I`SparqlSelectResult`)(
   {
@@ -76,8 +98,15 @@ export class SparqlSelectResult extends S.Class<SparqlSelectResult>($I`SparqlSel
 /**
  * SPARQL ask result.
  *
+ * @example
+ * ```ts
+ * import { SparqlAskResult } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlAskResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class SparqlAskResult extends S.Class<SparqlAskResult>($I`SparqlAskResult`)(
   {
@@ -93,8 +122,15 @@ export class SparqlAskResult extends S.Class<SparqlAskResult>($I`SparqlAskResult
 /**
  * SPARQL construct result.
  *
+ * @example
+ * ```ts
+ * import { SparqlConstructResult } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlConstructResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class SparqlConstructResult extends S.Class<SparqlConstructResult>($I`SparqlConstructResult`)(
   {
@@ -110,8 +146,15 @@ export class SparqlConstructResult extends S.Class<SparqlConstructResult>($I`Spa
 /**
  * SPARQL result union.
  *
+ * @example
+ * ```ts
+ * import { SparqlQueryResult } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlQueryResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const SparqlQueryResult = S.Union([SparqlSelectResult, SparqlAskResult, SparqlConstructResult]).annotate(
   $I.annote("SparqlQueryResult", {
@@ -122,16 +165,31 @@ export const SparqlQueryResult = S.Union([SparqlSelectResult, SparqlAskResult, S
 /**
  * Type for {@link SparqlQueryResult}.
  *
+ * @example
+ * ```ts
+ * import type { SparqlQueryResult } from "@beep/semantic-web/services/sparql-query"
+ *
+ * const acceptSparqlQueryResult = (value: SparqlQueryResult) => value
+ * void acceptSparqlQueryResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type SparqlQueryResult = typeof SparqlQueryResult.Type;
 
 /**
  * Typed SPARQL query error.
  *
+ * @example
+ * ```ts
+ * import { SparqlQueryError } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlQueryError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class SparqlQueryError extends TaggedErrorClass<SparqlQueryError>($I`SparqlQueryError`)(
   "SparqlQueryError",
@@ -148,8 +206,16 @@ export class SparqlQueryError extends TaggedErrorClass<SparqlQueryError>($I`Spar
 /**
  * SPARQL query service contract shape.
  *
+ * @example
+ * ```ts
+ * import type { SparqlQueryServiceShape } from "@beep/semantic-web/services/sparql-query"
+ *
+ * const acceptSparqlQueryServiceShape = (value: SparqlQueryServiceShape) => value
+ * void acceptSparqlQueryServiceShape
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export interface SparqlQueryServiceShape {
   readonly execute: (request: SparqlQueryRequest) => Effect.Effect<SparqlQueryResult, SparqlQueryError>;
@@ -158,8 +224,15 @@ export interface SparqlQueryServiceShape {
 /**
  * SPARQL query service tag.
  *
+ * @example
+ * ```ts
+ * import { SparqlQueryService } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void SparqlQueryService
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export class SparqlQueryService extends Context.Service<SparqlQueryService, SparqlQueryServiceShape>()(
   $I`SparqlQueryService`
@@ -168,8 +241,15 @@ export class SparqlQueryService extends Context.Service<SparqlQueryService, Spar
 /**
  * Unsupported default live layer for the minimal v1 SPARQL contract.
  *
+ * @example
+ * ```ts
+ * import { UnsupportedSparqlQueryServiceLive } from "@beep/semantic-web/services/sparql-query"
+ *
+ * void UnsupportedSparqlQueryServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const UnsupportedSparqlQueryServiceLive = Layer.succeed(
   SparqlQueryService,

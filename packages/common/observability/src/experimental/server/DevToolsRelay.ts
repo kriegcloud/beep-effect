@@ -1,3 +1,9 @@
+/**
+ * Experimental Effect devtools relay helpers for server-side diagnostics.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { thunk0 } from "@beep/utils";

@@ -1,3 +1,10 @@
+/**
+ * SQLite persistence service internals for repo-memory.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemorySqliteId } from "@beep/identity/packages";
 import {
   type ReplaceSnapshotArtifactsInput,
@@ -44,8 +51,20 @@ const decodeSemanticArtifactsJson = S.decodeUnknownEffect(S.fromJsonString(RepoS
 /**
  * Configuration for the local repo-memory persistence driver.
  *
+ * @example
+ * ```ts
+ * import { RepoMemorySqlConfig } from "@beep/repo-memory-sqlite"
+ * import { FilePath } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ *
+ * const decodeFilePath = S.decodeUnknownSync(FilePath)
+ * const config = new RepoMemorySqlConfig({
+ *   appDataDir: decodeFilePath("var/repo-memory")
+ * })
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export class RepoMemorySqlConfig extends S.Class<RepoMemorySqlConfig>($I`RepoMemorySqlConfig`)(
   {
@@ -195,8 +214,19 @@ const decodeImportEdgeRow = S.decodeUnknownEffect(ImportEdgeRow);
 /**
  * Service contract for the local repo-memory persistence boundary.
  *
+ * @example
+ * ```ts
+ * import type { RepoMemorySqlShape } from "../../src/internal/RepoMemorySql.js"
+ *
+ * const requiredMethods = [
+ *   "getRepo",
+ *   "listRepos",
+ *   "registerRepo"
+ * ] satisfies ReadonlyArray<keyof RepoMemorySqlShape>
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export interface RepoMemorySqlShape {
   readonly countSourceFiles: (
@@ -273,8 +303,22 @@ export interface RepoMemorySqlShape {
 /**
  * Service tag for the local repo-memory persistence driver.
  *
+ * @example
+ * ```ts
+ * import { FilePath } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ * import { RepoMemorySql, RepoMemorySqlConfig } from "../../src/internal/RepoMemorySql.js"
+ *
+ * const decodeFilePath = S.decodeUnknownSync(FilePath)
+ * const layer = RepoMemorySql.layer(
+ *   new RepoMemorySqlConfig({
+ *     appDataDir: decodeFilePath("var/repo-memory")
+ *   })
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoMemorySql extends Context.Service<RepoMemorySql, RepoMemorySqlShape>()($I`RepoMemorySql`) {
   static readonly layer = (

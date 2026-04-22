@@ -1,6 +1,7 @@
 /**
  * JSON-LD streaming serialize service contract.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -35,8 +36,15 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
 /**
  * Streaming serialize request.
  *
+ * @example
+ * ```ts
+ * import { JsonLdStreamSerializeRequest } from "@beep/semantic-web/services/jsonld-stream-serialize"
+ *
+ * void JsonLdStreamSerializeRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdStreamSerializeRequest extends S.Class<JsonLdStreamSerializeRequest>(
   $I`JsonLdStreamSerializeRequest`
@@ -58,8 +66,15 @@ export class JsonLdStreamSerializeRequest extends S.Class<JsonLdStreamSerializeR
 /**
  * Streaming serialize result.
  *
+ * @example
+ * ```ts
+ * import { JsonLdStreamSerializeResult } from "@beep/semantic-web/services/jsonld-stream-serialize"
+ *
+ * void JsonLdStreamSerializeResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdStreamSerializeResult extends S.Class<JsonLdStreamSerializeResult>($I`JsonLdStreamSerializeResult`)(
   {
@@ -79,8 +94,15 @@ export class JsonLdStreamSerializeResult extends S.Class<JsonLdStreamSerializeRe
 /**
  * Streaming serialize error reason.
  *
+ * @example
+ * ```ts
+ * import { JsonLdStreamSerializeErrorReason } from "@beep/semantic-web/services/jsonld-stream-serialize"
+ *
+ * void JsonLdStreamSerializeErrorReason
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", "invalidChunkSize"] as const).annotate(
   $I.annote("JsonLdStreamSerializeErrorReason", {
@@ -91,8 +113,15 @@ export const JsonLdStreamSerializeErrorReason = LiteralKit(["serializeFailure", 
 /**
  * Typed streaming serialize error.
  *
+ * @example
+ * ```ts
+ * import { JsonLdStreamSerializeError } from "@beep/semantic-web/services/jsonld-stream-serialize"
+ *
+ * void JsonLdStreamSerializeError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class JsonLdStreamSerializeError extends TaggedErrorClass<JsonLdStreamSerializeError>(
   $I`JsonLdStreamSerializeError`
@@ -114,8 +143,16 @@ export class JsonLdStreamSerializeError extends TaggedErrorClass<JsonLdStreamSer
 /**
  * JSON-LD streaming serialize service contract shape.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdStreamSerializeServiceShape } from "@beep/semantic-web/services/jsonld-stream-serialize"
+ *
+ * const acceptJsonLdStreamSerializeServiceShape = (value: JsonLdStreamSerializeServiceShape) => value
+ * void acceptJsonLdStreamSerializeServiceShape
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export interface JsonLdStreamSerializeServiceShape {
   readonly serialize: (
@@ -126,8 +163,15 @@ export interface JsonLdStreamSerializeServiceShape {
 /**
  * JSON-LD streaming serialize service tag.
  *
+ * @example
+ * ```ts
+ * import { JsonLdStreamSerializeService } from "@beep/semantic-web/services/jsonld-stream-serialize"
+ *
+ * void JsonLdStreamSerializeService
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export class JsonLdStreamSerializeService extends Context.Service<
   JsonLdStreamSerializeService,

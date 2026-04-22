@@ -1,3 +1,10 @@
+/**
+ * Shared table column constructors.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { sql } from "drizzle-orm";
 import * as sqlite from "drizzle-orm/sqlite-core";
 import type { DefaultColumns } from "./columns.js";
@@ -9,16 +16,34 @@ type UserTrackingColumns = Pick<SharedGlobalColumns, "createdBy" | "updatedBy" |
 /**
  * SQLite expression yielding the current UTC epoch time in milliseconds.
  *
+ * @example
+ * ```ts
+ * import { Common } from "@beep/shared-tables"
+ *
+ * const expression = Common.sqlNowMillis
+ *
+ * void expression
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const sqlNowMillis = sql`(strftime('%s', 'now') * 1000) + (strftime('%f', 'now') - strftime('%S', 'now')) * 1000`;
 
 /**
  * Create the standard audit columns for shared tables.
  *
+ * @example
+ * ```ts
+ * import { Common } from "@beep/shared-tables"
+ *
+ * const auditColumns = Common.makeAuditColumns()
+ *
+ * void auditColumns
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const makeAuditColumns = () =>
   ({
@@ -34,8 +59,17 @@ export const makeAuditColumns = () =>
 /**
  * Create the standard actor-tracking columns for shared tables.
  *
+ * @example
+ * ```ts
+ * import { Common } from "@beep/shared-tables"
+ *
+ * const userColumns = Common.makeUserTrackingColumns()
+ *
+ * void userColumns
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const makeUserTrackingColumns = () =>
   ({
@@ -47,8 +81,17 @@ export const makeUserTrackingColumns = () =>
 /**
  * Create the standard shared global columns injected into every table.
  *
+ * @example
+ * ```ts
+ * import { Common } from "@beep/shared-tables"
+ *
+ * const globalColumns = Common.makeGlobalColumns()
+ *
+ * void globalColumns
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const makeGlobalColumns = () =>
   ({

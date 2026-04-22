@@ -1,7 +1,7 @@
 /**
  * Codex helper command suite.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -20,7 +20,11 @@ const codexHookSessionStartCommand = Command.make(
 /**
  * Codex command group.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("codexCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const codexCommand = Command.make(

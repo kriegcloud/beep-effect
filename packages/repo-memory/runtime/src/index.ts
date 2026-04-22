@@ -1,3 +1,10 @@
+/**
+ * Repo-memory runtime services for indexing, querying, and run orchestration.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 export * from "./indexing/IndexedTypeScriptArtifacts.js";
 export * from "./indexing/TypeScriptIndexer.js";
 export * from "./indexing/TypeScriptIndexRequest.js";

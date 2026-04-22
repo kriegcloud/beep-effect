@@ -1,7 +1,7 @@
 /**
  * Docs discovery command suite for command-first policy lookup.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -67,8 +67,12 @@ class DocsSectionPolicies extends S.Class<DocsSectionPolicies>($I`DocsSectionPol
 /**
  * Documentation section model.
  *
+ * @example
+ * ```ts
+ * console.log("DocsSection")
+ * ```
  * @returns Tagged union schema keyed by `name`.
- * @category DomainModel
+ * @category models
  * @since 0.0.0
  */
 export const DocsSection = DocsSectionName.mapMembers(
@@ -83,7 +87,11 @@ export const DocsSection = DocsSectionName.mapMembers(
 /**
  * Documentation section model.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("DocsSection")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export type DocsSection = typeof DocsSection.Type;
@@ -231,7 +239,11 @@ const docsFindCommand = Command.make(
 /**
  * Command-first docs discovery entrypoint used by agent config surfaces.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("docsCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const docsCommand = Command.make("docs", {}, printDocsIndex).pipe(

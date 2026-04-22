@@ -1,4 +1,7 @@
 /**
+ * Markdown printer for parsed docgen module models.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -15,8 +18,16 @@ import * as Parser from "./Parser.js";
 /**
  * Union of documented entities that the markdown printer can render.
  *
+ * @example
+ * ```ts
+ * import type { Printable } from "@beep/docgen/Printer"
+ *
+ * type ExamplePrintable = Printable
+ * ```
+ *
  * @internal
  * @category printers
+ * @since 0.0.0
  */
 export type Printable =
   | Domain.Class
@@ -276,10 +287,18 @@ const printNamespace = (
 /**
  * Renders a single documented entity into markdown.
  *
+ * @example
+ * ```ts
+ * import { print } from "@beep/docgen/Printer"
+ *
+ * void print
+ * ```
+ *
  * @internal
  * @param printable - Documented entity to render.
  * @returns Effect that renders markdown for the provided entity.
  * @category printers
+ * @since 0.0.0
  */
 export const print = (printable: Printable) =>
   Match.value(printable).pipe(
@@ -314,6 +333,13 @@ const sortByName: <A extends { name: string }>(self: Iterable<A>) => Array<A> = 
 
 /**
  * Renders a parsed module into markdown grouped by documentation category.
+ *
+ * @example
+ * ```ts
+ * import { printModule } from "@beep/docgen/Printer"
+ *
+ * void printModule
+ * ```
  *
  * @param module - Module to render.
  * @returns Effect that renders markdown for the provided module.
@@ -354,6 +380,13 @@ export const printModule = (module: Domain.Module) =>
 /**
  * Builds the front matter used for a generated module documentation page.
  *
+ * @example
+ * ```ts
+ * import { printFrontMatter } from "@beep/docgen/Printer"
+ *
+ * void printFrontMatter
+ * ```
+ *
  * @param module - Module whose page metadata is being rendered.
  * @param navOrder - Navigation order to assign in the generated site.
  * @returns Front matter block for the module page.
@@ -370,6 +403,14 @@ parent: Modules
  * `prettier` is optional in this repo-local port; returning the markdown
  * unchanged keeps the generation deterministic while avoiding another runtime
  * dependency during the migration.
+ *
+ * @example
+ * ```ts
+ * import { prettify } from "@beep/docgen/Printer"
+ *
+ * const rendered = prettify("# Title")
+ * void rendered
+ * ```
  *
  * @param content - Markdown content to normalize before writing.
  * @returns Effect that currently returns the markdown unchanged.

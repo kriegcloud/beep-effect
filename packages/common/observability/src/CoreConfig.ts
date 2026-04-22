@@ -54,7 +54,15 @@ export const ObservabilityCoreConfig = LogLevel.mapMembers((members) => {
 /**
  * Type of {@link ObservabilityCoreConfig}
  *
+ * @example
+ * ```typescript
+ * import type { ObservabilityCoreConfig } from "@beep/observability"
+ *
+ * const serviceName = (config: ObservabilityCoreConfig) => config.serviceName
+ * void serviceName
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type ObservabilityCoreConfig = typeof ObservabilityCoreConfig.Type;

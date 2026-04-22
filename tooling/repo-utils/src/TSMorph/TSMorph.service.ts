@@ -110,6 +110,13 @@ const isSymbolQualifiedName = S.is(SymbolQualifiedName);
 /**
  * Typed error retained for compatibility with older placeholder service wiring.
  *
+ * @example
+ * ```ts
+ * import { TsMorphServiceUnavailableError } from "@beep/repo-utils"
+ *
+ * const value = TsMorphServiceUnavailableError
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -129,6 +136,13 @@ export class TsMorphServiceUnavailableError extends TaggedErrorClass<TsMorphServ
 
 /**
  * Typed error returned when a scope or repository path cannot be resolved.
+ *
+ * @example
+ * ```ts
+ * import { TsMorphScopeResolutionError } from "@beep/repo-utils"
+ *
+ * const value = TsMorphScopeResolutionError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -150,6 +164,13 @@ export class TsMorphScopeResolutionError extends TaggedErrorClass<TsMorphScopeRe
 /**
  * Typed error returned when a scoped ts-morph project cannot be constructed.
  *
+ * @example
+ * ```ts
+ * import { TsMorphProjectLoadError } from "@beep/repo-utils"
+ *
+ * const value = TsMorphProjectLoadError
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -167,6 +188,13 @@ export class TsMorphProjectLoadError extends TaggedErrorClass<TsMorphProjectLoad
 
 /**
  * Typed error returned when a TypeScript file cannot be loaded from a resolved scope.
+ *
+ * @example
+ * ```ts
+ * import { TsMorphSourceFileError } from "@beep/repo-utils"
+ *
+ * const value = TsMorphSourceFileError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -186,6 +214,13 @@ export class TsMorphSourceFileError extends TaggedErrorClass<TsMorphSourceFileEr
 
 /**
  * Typed error returned when a symbol id cannot be resolved within a scope.
+ *
+ * @example
+ * ```ts
+ * import { TsMorphSymbolNotFoundError } from "@beep/repo-utils"
+ *
+ * const value = TsMorphSymbolNotFoundError
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -210,6 +245,13 @@ export class TsMorphSymbolNotFoundError extends TaggedErrorClass<TsMorphSymbolNo
 /**
  * Typed error returned when a request targets a currently unsupported TypeScript source boundary.
  *
+ * @example
+ * ```ts
+ * import { TsMorphUnsupportedFileError } from "@beep/repo-utils"
+ *
+ * const value = TsMorphUnsupportedFileError
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -230,6 +272,13 @@ export class TsMorphUnsupportedFileError extends TaggedErrorClass<TsMorphUnsuppo
 /**
  * Tagged union of all recoverable service errors emitted by `TSMorphService`.
  *
+ * @example
+ * ```ts
+ * import { TSMorphServiceError } from "@beep/repo-utils"
+ *
+ * const value = TSMorphServiceError
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -245,6 +294,13 @@ export const TSMorphServiceError = S.Union([
 /**
  * Tagged union type for all ts-morph service errors.
  *
+ * @example
+ * ```ts
+ * import type { TSMorphServiceError } from "@beep/repo-utils"
+ *
+ * type Example = TSMorphServiceError
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -252,6 +308,13 @@ export type TSMorphServiceError = typeof TSMorphServiceError.Type;
 
 /**
  * Read-only v1 service contract for ts-morph-backed scope, symbol, source, and diagnostic operations.
+ *
+ * @example
+ * ```ts
+ * import type { TSMorphServiceShape } from "@beep/repo-utils"
+ *
+ * type Example = TSMorphServiceShape
+ * ```
  *
  * @category DomainModel
  * @since 0.0.0
@@ -286,6 +349,13 @@ export type TSMorphServiceShape = {
 
 /**
  * Service tag for the read-only v1 ts-morph contract.
+ *
+ * @example
+ * ```ts
+ * import { TSMorphService } from "@beep/repo-utils"
+ *
+ * const value = TSMorphService
+ * ```
  *
  * @category PortContract
  * @since 0.0.0
@@ -555,6 +625,14 @@ const collectOutlineEntries = Effect.fn(function* (
  * Construct the current live implementation for the v1 TSMorphService contract.
  *
  * @returns Live service implementation backed by filesystem, path, and ts-morph project loading.
+ *
+ * @example
+ * ```ts
+ * import { createTSMorphService } from "@beep/repo-utils"
+ *
+ * const value = createTSMorphService
+ * ```
+ *
  * @category DomainModel
  * @since 0.0.0
  */
@@ -1149,6 +1227,13 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
 
 /**
  * Default live layer for the current TSMorphService contract.
+ *
+ * @example
+ * ```ts
+ * import { TSMorphServiceLive } from "@beep/repo-utils"
+ *
+ * const value = TSMorphServiceLive
+ * ```
  *
  * @category Configuration
  * @since 0.0.0

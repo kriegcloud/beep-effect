@@ -47,12 +47,26 @@ not need to know every concept-level repository and provider inside the slice.
 Services should be explicit, small, and composed at the boundary:
 
 ```ts
+import { $I as $RootId } from "@beep/identity/packages"
+import { Context, type Effect } from "effect"
+import {
+  TwoFactorAccessDenied,
+  TwoFactorNotFound,
+  TwoFactorRepositoryError,
+} from "./TwoFactor.errors.js"
+import type { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
+
+const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.service.ts")
+
 export class TwoFactorService extends Context.Service<
   TwoFactorService,
   {
     readonly disable: (
       command: DisableTwoFactorCommand,
-    ) => Effect.Effect<void, TwoFactorAccessDenied | TwoFactorNotFound>
+    ) => Effect.Effect<
+      void,
+      TwoFactorAccessDenied | TwoFactorNotFound | TwoFactorRepositoryError
+    >
   }
 >()($I`TwoFactorService`) {}
 ```
@@ -60,6 +74,14 @@ export class TwoFactorService extends Context.Service<
 Layers should provide the service from its dependencies:
 
 ```ts
+import { Effect, Layer } from "effect"
+import * as O from "effect/Option"
+import { TwoFactorAccess } from "./TwoFactor.access.js"
+import type { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
+import { TwoFactorNotFound } from "./TwoFactor.errors.js"
+import { TwoFactorRepository } from "./TwoFactor.ports.js"
+import { TwoFactorService } from "./TwoFactor.service.js"
+
 export const layer = Layer.effect(
   TwoFactorService,
   Effect.gen(function* () {
@@ -67,9 +89,18 @@ export const layer = Layer.effect(
     const repo = yield* TwoFactorRepository
 
     return {
-      disable: Effect.fn("TwoFactorService.disable")(function* (command) {
-        yield* access.assertCanManage(command)
-        const model = yield* repo.get(command.twoFactorId)
+      disable: Effect.fn("TwoFactorService.disable")(function* (
+        command: DisableTwoFactorCommand,
+      ) {
+        yield* access.assertCanDisable(command)
+        const model = yield* repo.findByAccountId(command.accountId).pipe(
+          Effect.flatMap(
+            O.match({
+              onNone: () => Effect.fail(new TwoFactorNotFound()),
+              onSome: Effect.succeed,
+            }),
+          ),
+        )
         yield* repo.save(model.disable())
       }),
     }
@@ -90,4 +121,3 @@ Higher-level app composition is still necessary. The rule is scope:
 
 The smell is a runtime Layer that reaches through slice boundaries and wires the
 private details of many slices at once.
-

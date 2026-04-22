@@ -1,3 +1,10 @@
+/**
+ * Pure state transitions for repo-memory run projections.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
   AnswerQueryStage,
@@ -100,8 +107,15 @@ const updateRunStatus = (
 /**
  * Typed transition error emitted by the repo-run state machine.
  *
+ * @example
+ * ```ts
+ * import { RunStateMachineError } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const error = RunStateMachineError.noCause("Invalid transition.", 409)
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RunStateMachineError extends StatusCauseTaggedErrorClass<RunStateMachineError>($I`RunStateMachineError`)(
   "RunStateMachineError",
@@ -116,8 +130,15 @@ const invalidTransition = (runId: RunId, status: RepoRunStatus, command: string)
 /**
  * Execution lifecycle event kinds emitted when a run starts or resumes.
  *
+ * @example
+ * ```ts
+ * import { RunExecutionTransitionKind } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const schema = RunExecutionTransitionKind
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export const RunExecutionTransitionKind = LiteralKit(["started", "resumed"]).annotate(
   $I.annote("RunExecutionTransitionKind", {
@@ -126,16 +147,32 @@ export const RunExecutionTransitionKind = LiteralKit(["started", "resumed"]).ann
 );
 
 /**
+ * Runtime type for {@link RunExecutionTransitionKind}.
+ *
+ * @example
+ * ```ts
+ * import type { RunExecutionTransitionKind } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const kind: RunExecutionTransitionKind = "started"
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export type RunExecutionTransitionKind = typeof RunExecutionTransitionKind.Type;
 
 /**
  * Transition describing whether execution emits `started` or `resumed`.
  *
+ * @example
+ * ```ts
+ * import { RunExecutionTransition } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const schema = RunExecutionTransition
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RunExecutionTransition extends S.Class<RunExecutionTransition>($I`RunExecutionTransition`)(
   {
@@ -150,8 +187,15 @@ export class RunExecutionTransition extends S.Class<RunExecutionTransition>($I`R
 /**
  * Build the accepted index run projection for a new workflow execution.
  *
+ * @example
+ * ```ts
+ * import { acceptedIndexRun } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const makeRun = acceptedIndexRun
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const acceptedIndexRun = (options: {
   readonly acceptedAt: DateTime.Utc;
@@ -173,8 +217,15 @@ export const acceptedIndexRun = (options: {
 /**
  * Build the accepted query run projection for a new workflow execution.
  *
+ * @example
+ * ```ts
+ * import { acceptedQueryRun } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const makeRun = acceptedQueryRun
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const acceptedQueryRun = (options: {
   readonly acceptedAt: DateTime.Utc;
@@ -200,8 +251,15 @@ export const acceptedQueryRun = (options: {
 /**
  * Transition a run into active execution, emitting either `started` or `resumed`.
  *
+ * @example
+ * ```ts
+ * import { beginRunExecution } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const transition = beginRunExecution
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const beginRunExecution = Effect.fn("RunStateMachine.beginRunExecution")(function* (
   run: RepoRun,
@@ -246,8 +304,15 @@ export const beginRunExecution = Effect.fn("RunStateMachine.beginRunExecution")(
 /**
  * Transition a run into the interrupted terminal state.
  *
+ * @example
+ * ```ts
+ * import { interruptRun } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const transition = interruptRun
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const interruptRun = Effect.fn("RunStateMachine.interruptRun")(function* (
   run: RepoRun,
@@ -283,8 +348,15 @@ export const interruptRun = Effect.fn("RunStateMachine.interruptRun")(function* 
 /**
  * Transition a run into the failed terminal state.
  *
+ * @example
+ * ```ts
+ * import { failRun } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const transition = failRun
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const failRun = Effect.fn("RunStateMachine.failRun")(function* (
   run: RepoRun,
@@ -332,8 +404,15 @@ export const failRun = Effect.fn("RunStateMachine.failRun")(function* (
 /**
  * Transition an index run into the completed terminal state.
  *
+ * @example
+ * ```ts
+ * import { completeIndexRun } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const transition = completeIndexRun
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const completeIndexRun = Effect.fn("RunStateMachine.completeIndexRun")(function* (
   run: IndexRun,
@@ -360,8 +439,15 @@ export const completeIndexRun = Effect.fn("RunStateMachine.completeIndexRun")(fu
 /**
  * Transition a query run into the completed terminal state.
  *
+ * @example
+ * ```ts
+ * import { completeQueryRun } from "@beep/repo-memory-runtime/run/RunStateMachine"
+ *
+ * const transition = completeQueryRun
+ * ```
+ *
  * @since 0.0.0
- * @category DomainLogic
+ * @category domain logic
  */
 export const completeQueryRun = Effect.fn("RunStateMachine.completeQueryRun")(function* (
   run: QueryRun,

@@ -1,3 +1,10 @@
+/**
+ * SQLite-backed store layer assembly for repo-memory.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import {
   RepoRegistryStore,
   RepoRunStore,
@@ -75,8 +82,22 @@ const repoSemanticStoreLayer = Layer.effect(
 /**
  * Live sqlite-backed repo-memory store layers.
  *
+ * @example
+ * ```ts
+ * import { RepoMemorySqlConfig, RepoMemorySqlLive } from "@beep/repo-memory-sqlite"
+ * import { FilePath } from "@beep/schema"
+ * import * as S from "effect/Schema"
+ *
+ * const decodeFilePath = S.decodeUnknownSync(FilePath)
+ * const layer = RepoMemorySqlLive(
+ *   new RepoMemorySqlConfig({
+ *     appDataDir: decodeFilePath("var/repo-memory")
+ *   })
+ * )
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const RepoMemorySqlLive = (config: RepoMemorySqlConfig) =>
   Layer.mergeAll(

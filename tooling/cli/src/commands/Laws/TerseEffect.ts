@@ -1,7 +1,7 @@
 /**
  * Terse Effect style migration and check logic.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -29,7 +29,11 @@ const $I = $RepoCliId.create("commands/Laws/TerseEffect");
 /**
  * Runtime options for terse Effect style migration checks.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("TerseEffectRulesOptions")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I`TerseEffectRulesOptions`)(
@@ -55,7 +59,11 @@ export class TerseEffectRulesOptions extends S.Class<TerseEffectRulesOptions>($I
 /**
  * Summary of terse Effect style migration results.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("TerseEffectRulesSummary")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class TerseEffectRulesSummary extends S.Class<TerseEffectRulesSummary>($I`TerseEffectRulesSummary`)(
@@ -499,7 +507,11 @@ const isExplicitDualOverloadCandidate = (functionDeclaration: FunctionDeclaratio
 /**
  * Run terse Effect style migration/check logic.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("runTerseEffectRules")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const runTerseEffectRules = Effect.fn(function* (options: TerseEffectRulesOptions) {

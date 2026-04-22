@@ -1,3 +1,10 @@
+/**
+ * Native runtime lint hotspot configuration for repository governance.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import * as A from "effect/Array";
 
 /**
@@ -6,7 +13,15 @@ import * as A from "effect/Array";
  * Keep this list aligned with the legacy rollback lane so the repo-local checker preserves
  * the old warn-vs-error split while P3 is active.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { NO_NATIVE_RUNTIME_ERROR_FILES } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ *
+ * const firstPath = NO_NATIVE_RUNTIME_ERROR_FILES[0]
+ * void firstPath
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const NO_NATIVE_RUNTIME_ERROR_FILES = [
@@ -27,7 +42,15 @@ export const NO_NATIVE_RUNTIME_ERROR_FILES = [
 /**
  * Paths that enable the stricter hotspot-only runtime checks inside the ESLint rule logic.
  *
- * @category Configuration
+ * @example
+ * ```ts
+ * import { NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ *
+ * const firstPattern = NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS[0]
+ * void firstPattern
+ * ```
+ *
+ * @category configuration
  * @since 0.0.0
  */
 export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
@@ -53,6 +76,14 @@ export const NO_NATIVE_RUNTIME_EXTRA_CHECK_PATTERNS = [
 /**
  * Check whether a file path matches the native runtime error file allowlist.
  *
+ * @example
+ * ```ts
+ * import { isNoNativeRuntimeErrorFile } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ *
+ * const matches = isNoNativeRuntimeErrorFile("tooling/cli/src/commands/Lint/index.ts")
+ * void matches
+ * ```
+ *
  * @param relativeFilePath - Repo-relative file path to test against the explicit allowlist.
  * @returns `true` when the file is allowlisted for native runtime tagged errors.
  * @category predicates
@@ -63,6 +94,14 @@ export const isNoNativeRuntimeErrorFile = (relativeFilePath: string): boolean =>
 
 /**
  * Check whether a file path matches a native runtime extra-check hotspot pattern.
+ *
+ * @example
+ * ```ts
+ * import { isNoNativeRuntimeExtraCheckHotspot } from "@beep/repo-configs/eslint/NoNativeRuntimeHotspots"
+ *
+ * const matches = isNoNativeRuntimeExtraCheckHotspot("tooling/cli/src/commands/Laws/index.ts")
+ * void matches
+ * ```
  *
  * @param relativeFilePath - Repo-relative file path to test against hotspot patterns.
  * @returns `true` when the file path matches a native runtime hotspot pattern.

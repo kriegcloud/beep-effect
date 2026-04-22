@@ -1,6 +1,7 @@
 /**
  * Provenance projection and export service contract.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -52,8 +53,15 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
 /**
  * Provenance export profile.
  *
+ * @example
+ * ```ts
+ * import { ProvenanceExportProfile } from "@beep/semantic-web/services/provenance"
+ *
+ * void ProvenanceExportProfile
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-extensions-v1"] as const).annotate(
   $I.annote("ProvenanceExportProfile", {
@@ -64,8 +72,15 @@ export const ProvenanceExportProfile = LiteralKit(["prov-core-v1", "prov-core-ex
 /**
  * Provenance projection request.
  *
+ * @example
+ * ```ts
+ * import { ProjectProvenanceRequest } from "@beep/semantic-web/services/provenance"
+ *
+ * void ProjectProvenanceRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ProjectProvenanceRequest extends S.Class<ProjectProvenanceRequest>($I`ProjectProvenanceRequest`)(
   {
@@ -82,8 +97,15 @@ export class ProjectProvenanceRequest extends S.Class<ProjectProvenanceRequest>(
 /**
  * Provenance summary request.
  *
+ * @example
+ * ```ts
+ * import { SummarizeProvenanceRequest } from "@beep/semantic-web/services/provenance"
+ *
+ * void SummarizeProvenanceRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class SummarizeProvenanceRequest extends S.Class<SummarizeProvenanceRequest>($I`SummarizeProvenanceRequest`)(
   {
@@ -99,8 +121,15 @@ export class SummarizeProvenanceRequest extends S.Class<SummarizeProvenanceReque
 /**
  * Provenance export request.
  *
+ * @example
+ * ```ts
+ * import { ExportProvenanceRequest } from "@beep/semantic-web/services/provenance"
+ *
+ * void ExportProvenanceRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ExportProvenanceRequest extends S.Class<ExportProvenanceRequest>($I`ExportProvenanceRequest`)(
   {
@@ -118,8 +147,15 @@ export class ExportProvenanceRequest extends S.Class<ExportProvenanceRequest>($I
 /**
  * Bounded provenance projection result.
  *
+ * @example
+ * ```ts
+ * import { BoundedProvenanceProjection } from "@beep/semantic-web/services/provenance"
+ *
+ * void BoundedProvenanceProjection
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class BoundedProvenanceProjection extends S.Class<BoundedProvenanceProjection>($I`BoundedProvenanceProjection`)(
   {
@@ -139,8 +175,15 @@ export class BoundedProvenanceProjection extends S.Class<BoundedProvenanceProjec
 /**
  * Provenance summary result.
  *
+ * @example
+ * ```ts
+ * import { ProvenanceSummary } from "@beep/semantic-web/services/provenance"
+ *
+ * void ProvenanceSummary
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ProvenanceSummary extends S.Class<ProvenanceSummary>($I`ProvenanceSummary`)(
   {
@@ -159,8 +202,15 @@ export class ProvenanceSummary extends S.Class<ProvenanceSummary>($I`ProvenanceS
 /**
  * Typed provenance service error.
  *
+ * @example
+ * ```ts
+ * import { ProvenanceServiceError } from "@beep/semantic-web/services/provenance"
+ *
+ * void ProvenanceServiceError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class ProvenanceServiceError extends TaggedErrorClass<ProvenanceServiceError>($I`ProvenanceServiceError`)(
   "ProvenanceServiceError",
@@ -177,8 +227,16 @@ export class ProvenanceServiceError extends TaggedErrorClass<ProvenanceServiceEr
 /**
  * Provenance service contract shape.
  *
+ * @example
+ * ```ts
+ * import type { ProvenanceServiceShape } from "@beep/semantic-web/services/provenance"
+ *
+ * const acceptProvenanceServiceShape = (value: ProvenanceServiceShape) => value
+ * void acceptProvenanceServiceShape
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export interface ProvenanceServiceShape {
   readonly exportBundle: (
@@ -193,8 +251,15 @@ export interface ProvenanceServiceShape {
 /**
  * Provenance service tag.
  *
+ * @example
+ * ```ts
+ * import { ProvenanceService } from "@beep/semantic-web/services/provenance"
+ *
+ * void ProvenanceService
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export class ProvenanceService extends Context.Service<ProvenanceService, ProvenanceServiceShape>()(
   $I`ProvenanceService`
@@ -266,8 +331,15 @@ const createProjection = (
 /**
  * Live provenance service implementation for bounded projection and summary work.
  *
+ * @example
+ * ```ts
+ * import { ProvenanceServiceLive } from "@beep/semantic-web/services/provenance"
+ *
+ * void ProvenanceServiceLive
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const ProvenanceServiceLive = Layer.succeed(
   ProvenanceService,

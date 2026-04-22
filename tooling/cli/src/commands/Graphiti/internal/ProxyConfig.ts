@@ -1,7 +1,7 @@
 /**
  * Graphiti proxy runtime configuration.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -98,7 +98,11 @@ class GraphitiProxyConfigInput extends S.Class<GraphitiProxyConfigInput>($I`Grap
 /**
  * Runtime configuration schema for graphiti proxy.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("GraphitiProxyConfig")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`GraphitiProxyConfig`)(
@@ -168,7 +172,11 @@ export class GraphitiProxyConfig extends S.Class<GraphitiProxyConfig>($I`Graphit
 /**
  * Raised when graphiti proxy configuration cannot be loaded.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("GraphitiProxyConfigLoadError")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxyConfigLoadError>(
@@ -189,7 +197,11 @@ const decodeGraphitiProxyConfig = S.decodeUnknownSync(GraphitiProxyConfig);
 /**
  * Load graphiti proxy config from Effect Config environment values.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("loadGraphitiProxyConfig")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export const loadGraphitiProxyConfig = Effect.gen(function* () {

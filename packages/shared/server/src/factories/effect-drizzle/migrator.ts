@@ -1,8 +1,8 @@
 /**
  * Effect-first migration entrypoint for the Bun SQLite Drizzle adapter.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 
 import { migrate as migrateBun } from "drizzle-orm/bun-sqlite/migrator";
@@ -27,8 +27,17 @@ const isMigratorInitFailResponse = (input: unknown): input is MigratorInitFailRe
 /**
  * Run Drizzle migrations inside an `Effect`.
  *
+ * @example
+ * ```ts
+ * import { migrate } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const runMigrations = migrate
+ *
+ * void runMigrations
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const migrate = Effect.fn("EffectDrizzle.migrate")(function* <
   TSchema extends Record<string, unknown>,

@@ -1,3 +1,10 @@
+/**
+ * Accepted-run lifecycle controller for repo-memory workflows.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
   type IndexRepoRunInput,
@@ -56,8 +63,15 @@ const $I = $RepoMemoryRuntimeId.create("internal/RepoRunLifecycleController");
  * Internal decision describing whether a workflow dispatch is still required
  * after accepting a run.
  *
+ * @example
+ * ```ts
+ * import { RunAcceptanceDecision } from "../../src/internal/RepoRunLifecycleController.js"
+ *
+ * const schema = RunAcceptanceDecision
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RunAcceptanceDecision extends S.Class<RunAcceptanceDecision>($I`RunAcceptanceDecision`)(
   {
@@ -73,7 +87,7 @@ export class RunAcceptanceDecision extends S.Class<RunAcceptanceDecision>($I`Run
  * Internal lifecycle and run-command boundary for repo-memory runs.
  *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 type RepoRunLifecycleControllerShape = {
   readonly acceptIndexRun: (
@@ -101,8 +115,15 @@ type RepoRunLifecycleControllerShape = {
 /**
  * Service tag for accepted-run lifecycle decisions and durable run commands.
  *
+ * @example
+ * ```ts
+ * import { RepoRunLifecycleController } from "../../src/internal/RepoRunLifecycleController.js"
+ *
+ * const layer = RepoRunLifecycleController.layer
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoRunLifecycleController extends Context.Service<
   RepoRunLifecycleController,

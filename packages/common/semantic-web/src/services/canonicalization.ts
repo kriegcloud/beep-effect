@@ -1,6 +1,7 @@
 /**
  * Dataset canonicalization service contract.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -33,8 +34,15 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
 /**
  * Canonicalization algorithm name.
  *
+ * @example
+ * ```ts
+ * import { CanonicalizationAlgorithm } from "@beep/semantic-web/services/canonicalization"
+ *
+ * void CanonicalizationAlgorithm
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v1"] as const).annotate(
   $I.annote("CanonicalizationAlgorithm", {
@@ -45,8 +53,15 @@ export const CanonicalizationAlgorithm = LiteralKit(["rdfc-1.0", "lexical-sort-v
 /**
  * Typed canonicalization error.
  *
+ * @example
+ * ```ts
+ * import { CanonicalizationError } from "@beep/semantic-web/services/canonicalization"
+ *
+ * void CanonicalizationError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class CanonicalizationError extends TaggedErrorClass<CanonicalizationError>($I`CanonicalizationError`)(
   "CanonicalizationError",
@@ -68,8 +83,15 @@ export class CanonicalizationError extends TaggedErrorClass<CanonicalizationErro
 /**
  * Dataset canonicalization request.
  *
+ * @example
+ * ```ts
+ * import { CanonicalizeDatasetRequest } from "@beep/semantic-web/services/canonicalization"
+ *
+ * void CanonicalizeDatasetRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetRequest>($I`CanonicalizeDatasetRequest`)(
   {
@@ -89,8 +111,15 @@ export class CanonicalizeDatasetRequest extends S.Class<CanonicalizeDatasetReque
 /**
  * Dataset fingerprint request.
  *
+ * @example
+ * ```ts
+ * import { FingerprintDatasetRequest } from "@beep/semantic-web/services/canonicalization"
+ *
+ * void FingerprintDatasetRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest>($I`FingerprintDatasetRequest`)(
   {
@@ -110,8 +139,15 @@ export class FingerprintDatasetRequest extends S.Class<FingerprintDatasetRequest
 /**
  * Canonical dataset output.
  *
+ * @example
+ * ```ts
+ * import { CanonicalDatasetResult } from "@beep/semantic-web/services/canonicalization"
+ *
+ * void CanonicalDatasetResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class CanonicalDatasetResult extends S.Class<CanonicalDatasetResult>($I`CanonicalDatasetResult`)(
   {
@@ -127,8 +163,15 @@ export class CanonicalDatasetResult extends S.Class<CanonicalDatasetResult>($I`C
 /**
  * Dataset fingerprint output.
  *
+ * @example
+ * ```ts
+ * import { DatasetFingerprint } from "@beep/semantic-web/services/canonicalization"
+ *
+ * void DatasetFingerprint
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class DatasetFingerprint extends S.Class<DatasetFingerprint>($I`DatasetFingerprint`)(
   {
@@ -144,8 +187,16 @@ export class DatasetFingerprint extends S.Class<DatasetFingerprint>($I`DatasetFi
 /**
  * Canonicalization service contract shape.
  *
+ * @example
+ * ```ts
+ * import type { CanonicalizationServiceShape } from "@beep/semantic-web/services/canonicalization"
+ *
+ * const acceptCanonicalizationServiceShape = (value: CanonicalizationServiceShape) => value
+ * void acceptCanonicalizationServiceShape
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export interface CanonicalizationServiceShape {
   readonly canonicalize: (
@@ -159,8 +210,15 @@ export interface CanonicalizationServiceShape {
 /**
  * Canonicalization service tag.
  *
+ * @example
+ * ```ts
+ * import { CanonicalizationService } from "@beep/semantic-web/services/canonicalization"
+ *
+ * void CanonicalizationService
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export class CanonicalizationService extends Context.Service<CanonicalizationService, CanonicalizationServiceShape>()(
   $I`CanonicalizationService`

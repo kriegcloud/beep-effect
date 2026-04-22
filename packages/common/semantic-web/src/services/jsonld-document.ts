@@ -1,6 +1,7 @@
 /**
  * JSON-LD document service contract.
  *
+ * @packageDocumentation
  * @since 0.0.0
  * @module
  */
@@ -31,8 +32,15 @@ const serviceContractMetadata = (canonicalName: string, overview: string) =>
 /**
  * JSON-LD document error reason.
  *
+ * @example
+ * ```ts
+ * import { JsonLdDocumentErrorReason } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdDocumentErrorReason
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdDocumentErrorReason = LiteralKit([
   "invalidNodeReference",
@@ -50,8 +58,15 @@ export const JsonLdDocumentErrorReason = LiteralKit([
 /**
  * Typed JSON-LD document service error.
  *
+ * @example
+ * ```ts
+ * import { JsonLdDocumentError } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdDocumentError
+ * ```
+ *
  * @since 0.0.0
- * @category Errors
+ * @category error handling
  */
 export class JsonLdDocumentError extends TaggedErrorClass<JsonLdDocumentError>($I`JsonLdDocumentError`)(
   "JsonLdDocumentError",
@@ -69,8 +84,15 @@ export class JsonLdDocumentError extends TaggedErrorClass<JsonLdDocumentError>($
 /**
  * Compact JSON-LD document request.
  *
+ * @example
+ * ```ts
+ * import { CompactJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void CompactJsonLdDocumentRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class CompactJsonLdDocumentRequest extends S.Class<CompactJsonLdDocumentRequest>(
   $I`CompactJsonLdDocumentRequest`
@@ -91,8 +113,15 @@ export class CompactJsonLdDocumentRequest extends S.Class<CompactJsonLdDocumentR
 /**
  * Flatten JSON-LD document request.
  *
+ * @example
+ * ```ts
+ * import { FlattenJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void FlattenJsonLdDocumentRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class FlattenJsonLdDocumentRequest extends S.Class<FlattenJsonLdDocumentRequest>(
   $I`FlattenJsonLdDocumentRequest`
@@ -112,8 +141,15 @@ export class FlattenJsonLdDocumentRequest extends S.Class<FlattenJsonLdDocumentR
 /**
  * Frame JSON-LD document request.
  *
+ * @example
+ * ```ts
+ * import { FrameJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void FrameJsonLdDocumentRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class FrameJsonLdDocumentRequest extends S.Class<FrameJsonLdDocumentRequest>($I`FrameJsonLdDocumentRequest`)(
   {
@@ -132,8 +168,15 @@ export class FrameJsonLdDocumentRequest extends S.Class<FrameJsonLdDocumentReque
 /**
  * Bounded JSON-LD document loader policy.
  *
+ * @example
+ * ```ts
+ * import { JsonLdDocumentLoaderPolicy } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdDocumentLoaderPolicy
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdDocumentLoaderPolicy extends S.Class<JsonLdDocumentLoaderPolicy>($I`JsonLdDocumentLoaderPolicy`)(
   {
@@ -153,8 +196,15 @@ export class JsonLdDocumentLoaderPolicy extends S.Class<JsonLdDocumentLoaderPoli
 /**
  * JSON-LD document normalization profile.
  *
+ * @example
+ * ```ts
+ * import { JsonLdDocumentNormalizationProfile } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdDocumentNormalizationProfile
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export const JsonLdDocumentNormalizationProfile = LiteralKit(["bounded-v1", "expanded-v1"] as const).annotate(
   $I.annote("JsonLdDocumentNormalizationProfile", {
@@ -165,16 +215,31 @@ export const JsonLdDocumentNormalizationProfile = LiteralKit(["bounded-v1", "exp
 /**
  * Type for {@link JsonLdDocumentNormalizationProfile}.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdDocumentNormalizationProfile } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * const acceptJsonLdDocumentNormalizationProfile = (value: JsonLdDocumentNormalizationProfile) => value
+ * void acceptJsonLdDocumentNormalizationProfile
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export type JsonLdDocumentNormalizationProfile = typeof JsonLdDocumentNormalizationProfile.Type;
 
 /**
  * Expand JSON-LD document request.
  *
+ * @example
+ * ```ts
+ * import { ExpandJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void ExpandJsonLdDocumentRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class ExpandJsonLdDocumentRequest extends S.Class<ExpandJsonLdDocumentRequest>($I`ExpandJsonLdDocumentRequest`)(
   {
@@ -193,8 +258,15 @@ export class ExpandJsonLdDocumentRequest extends S.Class<ExpandJsonLdDocumentReq
 /**
  * Normalize JSON-LD document request.
  *
+ * @example
+ * ```ts
+ * import { NormalizeJsonLdDocumentRequest } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void NormalizeJsonLdDocumentRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class NormalizeJsonLdDocumentRequest extends S.Class<NormalizeJsonLdDocumentRequest>(
   $I`NormalizeJsonLdDocumentRequest`
@@ -217,8 +289,15 @@ export class NormalizeJsonLdDocumentRequest extends S.Class<NormalizeJsonLdDocum
 /**
  * JSON-LD to RDF request.
  *
+ * @example
+ * ```ts
+ * import { JsonLdToRdfRequest } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdToRdfRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdToRdfRequest extends S.Class<JsonLdToRdfRequest>($I`JsonLdToRdfRequest`)(
   {
@@ -236,8 +315,15 @@ export class JsonLdToRdfRequest extends S.Class<JsonLdToRdfRequest>($I`JsonLdToR
 /**
  * RDF to JSON-LD request.
  *
+ * @example
+ * ```ts
+ * import { JsonLdFromRdfRequest } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdFromRdfRequest
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdFromRdfRequest extends S.Class<JsonLdFromRdfRequest>($I`JsonLdFromRdfRequest`)(
   {
@@ -256,8 +342,15 @@ export class JsonLdFromRdfRequest extends S.Class<JsonLdFromRdfRequest>($I`JsonL
 /**
  * JSON-LD document result wrapper.
  *
+ * @example
+ * ```ts
+ * import { JsonLdDocumentResult } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdDocumentResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdDocumentResult extends S.Class<JsonLdDocumentResult>($I`JsonLdDocumentResult`)(
   {
@@ -272,8 +365,15 @@ export class JsonLdDocumentResult extends S.Class<JsonLdDocumentResult>($I`JsonL
 /**
  * JSON-LD to RDF result wrapper.
  *
+ * @example
+ * ```ts
+ * import { JsonLdToRdfResult } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdToRdfResult
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category models
  */
 export class JsonLdToRdfResult extends S.Class<JsonLdToRdfResult>($I`JsonLdToRdfResult`)(
   {
@@ -288,8 +388,16 @@ export class JsonLdToRdfResult extends S.Class<JsonLdToRdfResult>($I`JsonLdToRdf
 /**
  * JSON-LD document service contract shape.
  *
+ * @example
+ * ```ts
+ * import type { JsonLdDocumentServiceShape } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * const acceptJsonLdDocumentServiceShape = (value: JsonLdDocumentServiceShape) => value
+ * void acceptJsonLdDocumentServiceShape
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export interface JsonLdDocumentServiceShape {
   readonly compact: (request: CompactJsonLdDocumentRequest) => Effect.Effect<JsonLdDocumentResult, JsonLdDocumentError>;
@@ -306,8 +414,15 @@ export interface JsonLdDocumentServiceShape {
 /**
  * JSON-LD document service tag.
  *
+ * @example
+ * ```ts
+ * import { JsonLdDocumentService } from "@beep/semantic-web/services/jsonld-document"
+ *
+ * void JsonLdDocumentService
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category models
  */
 export class JsonLdDocumentService extends Context.Service<JsonLdDocumentService, JsonLdDocumentServiceShape>()(
   $I`JsonLdDocumentService`

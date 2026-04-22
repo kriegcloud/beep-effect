@@ -1,3 +1,10 @@
+/**
+ * Run projection bootstrap and replay helpers.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
 import { $RepoMemoryRuntimeId } from "@beep/identity/packages";
 import {
   RepoRun,
@@ -31,8 +38,15 @@ const staleSnapshotRefreshLimit = 4;
  * Internal read-plane handoff describing the persisted run snapshot plus
  * replay metadata needed before attaching a live event tail.
  *
+ * @example
+ * ```ts
+ * import { RunStreamBootstrap } from "../../src/internal/RepoRunProjectionBootstrap.js"
+ *
+ * const schema = RunStreamBootstrap
+ * ```
+ *
  * @since 0.0.0
- * @category DomainModel
+ * @category domain model
  */
 export class RunStreamBootstrap extends S.Class<RunStreamBootstrap>($I`RunStreamBootstrap`)(
   {
@@ -50,7 +64,7 @@ export class RunStreamBootstrap extends S.Class<RunStreamBootstrap>($I`RunStream
  * Read-plane bootstrap and replay boundary for persisted run projections.
  *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 type RepoRunProjectionBootstrapShape = {
   readonly listRuns: Effect.Effect<ReadonlyArray<RepoRun>, RepoRunServiceError>;
@@ -62,8 +76,15 @@ type RepoRunProjectionBootstrapShape = {
 /**
  * Service tag for snapshot-primary read bootstrap plus replay handoff.
  *
+ * @example
+ * ```ts
+ * import { RepoRunProjectionBootstrap } from "../../src/internal/RepoRunProjectionBootstrap.js"
+ *
+ * const layer = RepoRunProjectionBootstrap.layer
+ * ```
+ *
  * @since 0.0.0
- * @category PortContract
+ * @category port contract
  */
 export class RepoRunProjectionBootstrap extends Context.Service<
   RepoRunProjectionBootstrap,

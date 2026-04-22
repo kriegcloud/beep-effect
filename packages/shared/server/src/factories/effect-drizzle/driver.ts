@@ -1,8 +1,8 @@
 /**
  * Public Effect-first Bun SQLite Drizzle driver factory.
  *
+ * @packageDocumentation
  * @since 0.0.0
- * @module
  */
 
 /// <reference types="bun" />
@@ -41,8 +41,17 @@ import { DrizzleEffectLogger, type DrizzleEffectLoggerShape } from "./Logger.js"
  *
  * Logger and cache are supplied through Effect services rather than config.
  *
+ * @example
+ * ```ts
+ * import type { EffectDrizzleConfig } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const config: EffectDrizzleConfig = {}
+ *
+ * void config
+ * ```
+ *
  * @since 0.0.0
- * @category Types
+ * @category types
  */
 export type EffectDrizzleConfig<
   TSchema extends Record<string, unknown> = Record<string, never>,
@@ -52,8 +61,17 @@ export type EffectDrizzleConfig<
 /**
  * Effect helper surface attached to an `SQLiteBunDatabase`.
  *
+ * @example
+ * ```ts
+ * import type { EffectDrizzleOperations } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const getDepth = (operations: EffectDrizzleOperations) => operations.depth
+ *
+ * void getDepth
+ * ```
+ *
  * @since 0.0.0
- * @category Models
+ * @category models
  */
 export interface EffectDrizzleOperations<
   TSchema extends Record<string, unknown> = Record<string, never>,
@@ -79,8 +97,17 @@ export interface EffectDrizzleOperations<
  * Query builders remain Drizzle-native and become yieldable through the query bridge
  * installed by {@link QueryEffect}.
  *
+ * @example
+ * ```ts
+ * import type { EffectDrizzleDatabase } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const getOperations = (db: EffectDrizzleDatabase) => db.effect
+ *
+ * void getOperations
+ * ```
+ *
  * @since 0.0.0
- * @category Models
+ * @category models
  */
 export type EffectDrizzleDatabase<
   TSchema extends Record<string, unknown> = Record<string, never>,
@@ -381,18 +408,15 @@ const drizzleWithLogger = <TSchema extends Record<string, unknown>, TRelations e
  *
  * @example
  * ```ts
- * import { Database } from "bun:sqlite"
- * import { Effect } from "effect"
- * import { makeWithDefaults } from "@beep/shared-server/factories/effect-drizzle"
+ * import { make } from "@beep/shared-server/factories/effect-drizzle"
  *
- * const program = Effect.gen(function* () {
+ * const makeDatabase = make
  *
- *
- * })
+ * void makeDatabase
  * ```
  *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const make = Effect.fn("EffectDrizzle.make")(function* <
   TSchema extends Record<string, unknown> = Record<string, never>,
@@ -414,16 +438,34 @@ export const make = Effect.fn("EffectDrizzle.make")(function* <
 /**
  * Default no-op Effect services used by the Drizzle integration.
  *
+ * @example
+ * ```ts
+ * import { DefaultServices } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const services = DefaultServices
+ *
+ * void services
+ * ```
+ *
  * @since 0.0.0
- * @category Layers
+ * @category layers
  */
 export const DefaultServices = Layer.merge(DrizzleEffectCache.Default, DrizzleEffectLogger.Default);
 
 /**
  * Convenience constructor that provides {@link DefaultServices}.
  *
+ * @example
+ * ```ts
+ * import { makeWithDefaults } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const databaseEffect = makeWithDefaults()
+ *
+ * void databaseEffect
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const makeWithDefaults = <
   TSchema extends Record<string, unknown> = Record<string, never>,
@@ -444,7 +486,16 @@ export const makeWithDefaults = <
 /**
  * Alias that mirrors Drizzle's `drizzle(...)` naming.
  *
+ * @example
+ * ```ts
+ * import { drizzle } from "@beep/shared-server/factories/effect-drizzle"
+ *
+ * const makeDatabase = drizzle
+ *
+ * void makeDatabase
+ * ```
+ *
  * @since 0.0.0
- * @category Constructors
+ * @category constructors
  */
 export const drizzle = make;

@@ -1,7 +1,7 @@
 /**
  * Graphiti proxy runtime.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -32,7 +32,11 @@ const toHealthStatus = (snapshot: DependencyHealthSnapshot): "ok" | "degraded" =
 /**
  * Run the graphiti queue proxy runtime with graceful shutdown.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("runGraphitiProxy")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const runGraphitiProxy = Effect.scoped(

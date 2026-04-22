@@ -1,3 +1,9 @@
+/**
+ * Experimental OTLP packet capture helpers for server observability testing.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { Context, Effect, Layer, MutableRef, pipe } from "effect";
@@ -33,8 +39,16 @@ export const OtlpPacketKind = LiteralKit(["logs", "metrics", "traces"]).pipe(
 /**
  * Runtime type for {@link OtlpPacketKind}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { OtlpPacketKind } from "@beep/observability/experimental/server"
+ *
+ * const kind: OtlpPacketKind = "traces"
+ * void kind
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type OtlpPacketKind = typeof OtlpPacketKind.Type;
 
@@ -60,8 +74,16 @@ export const OtlpPacketEncoding = LiteralKit(["json", "protobuf"]).pipe(
 /**
  * Runtime type for {@link OtlpPacketEncoding}.
  *
- * @since 0.0.0
+ * @example
+ * ```typescript
+ * import type { OtlpPacketEncoding } from "@beep/observability/experimental/server"
+ *
+ * const encoding: OtlpPacketEncoding = "json"
+ * void encoding
+ * ```
+ *
  * @category models
+ * @since 0.0.0
  */
 export type OtlpPacketEncoding = typeof OtlpPacketEncoding.Type;
 

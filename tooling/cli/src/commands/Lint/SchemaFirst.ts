@@ -1,7 +1,7 @@
 /**
  * Schema-first inventory and enforcement command.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -74,14 +74,22 @@ class SchemaFirstInventoryEntry extends S.Class<SchemaFirstInventoryEntry>($I`Sc
 /**
  * Namespace for {@link SchemaFirstInventoryEntry} companion types.
  *
- * @category DomainModel
+ * @example
+ * ```ts
+ * console.log("SchemaFirstInventoryEntry")
+ * ```
+ * @category models
  * @since 0.0.0
  */
 export declare namespace SchemaFirstInventoryEntry {
   /**
    * Encoded representation of {@link SchemaFirstInventoryEntry}.
    *
-   * @category DomainModel
+   * @example
+   * ```ts
+   * console.log("Encoded")
+   * ```
+   * @category models
    * @since 0.0.0
    */
   export type Encoded = typeof SchemaFirstInventoryEntry.Encoded;
@@ -457,7 +465,11 @@ const mergeInventory = (
 /**
  * Run schema-first inventory verification against the committed baseline.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("runSchemaFirstLint")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintOptions) {
@@ -547,7 +559,11 @@ export const runSchemaFirstLint = Effect.fn(function* (options: SchemaFirstLintO
 /**
  * Repo-wide schema-first lint command.
  *
- * @category UseCase
+ * @example
+ * ```ts
+ * console.log("lintSchemaFirstCommand")
+ * ```
+ * @category utilities
  * @since 0.0.0
  */
 export const lintSchemaFirstCommand = Command.make(
