@@ -35,6 +35,7 @@ const config = {
     "packages/editor/protocol/package.json",
     "packages/editor/client/package.json",
     "packages/editor/runtime/package.json",
+    "packages/shared/providers/firecrawl/package.json",
   ],
   customTypes: {
     catalog: {

@@ -725,6 +725,17 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/shared/providers/firecrawl": {
+      "name": "@beep/firecrawl",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/shared/server": {
       "name": "@beep/shared-server",
       "version": "0.0.0",
@@ -1268,6 +1279,8 @@
     "@beep/editor-protocol": ["@beep/editor-protocol@workspace:packages/editor/protocol"],
 
     "@beep/editor-runtime": ["@beep/editor-runtime@workspace:packages/editor/runtime"],
+
+    "@beep/firecrawl": ["@beep/firecrawl@workspace:packages/shared/providers/firecrawl"],
 
     "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
 

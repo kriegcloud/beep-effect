@@ -112,6 +112,9 @@
       "path": "packages/shared/env"
     },
     {
+      "path": "packages/shared/providers/firecrawl"
+    },
+    {
       "path": "packages/shared/server"
     },
     {

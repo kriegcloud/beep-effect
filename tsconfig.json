@@ -313,6 +313,12 @@
       ],
       "@beep/knowledge-graph/*": [
         "./packages/common/knowledge-graph/src/*"
+      ],
+      "@beep/firecrawl": [
+        "./packages/shared/providers/firecrawl/src/index.ts"
+      ],
+      "@beep/firecrawl/*": [
+        "./packages/shared/providers/firecrawl/src/*"
       ]
     }
   }

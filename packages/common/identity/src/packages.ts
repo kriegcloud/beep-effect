@@ -95,7 +95,8 @@ const composers = $I.compose(
   "editor-runtime",
   "infra",
   "v2t-sidecar",
-  "v2t"
+  "v2t",
+  "firecrawl"
 );
 
 // --- common ---
@@ -878,3 +879,10 @@ export const $V2TSidecarId: Identity.IdentityComposer<"@beep/v2t-sidecar"> = com
  * @category configuration
  */
 export const $V2TId: Identity.IdentityComposer<"@beep/v2t"> = composers.$V2tId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/firecrawl">}
+ */
+export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;

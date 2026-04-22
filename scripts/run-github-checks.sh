@@ -91,7 +91,7 @@ run_repo_sanity() {
   bun run config-sync:check
 
   log "repo-sanity: versions"
-  bunx turbo run lint:versions
+  bunx turbo run lint:versions --cache=local:rw
 
   log "repo-sanity: package graph"
   bunx sherif@1.10.0 -r non-existent-packages
@@ -168,6 +168,7 @@ run_sast_scan() {
     --config p/javascript \
     --config p/security-audit \
     --config p/secrets \
+    --disable-version-check \
     --timeout 20 \
     "${semgrep_files[@]}"
 }
