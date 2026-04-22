@@ -6,8 +6,7 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
-import * as DateTime from "effect/DateTime";
+import { DateTime, Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -49,7 +48,7 @@ export const DateTimeInputKind = LiteralKit([
 );
 
 /**
- * Type for {@link DateTimeInputKind}. {@inheritDoc DateTimeInputKind}
+ * {@inheritDoc DateTimeInputKind}
  *
  * @example
  * ```ts
@@ -165,7 +164,7 @@ export const DateTimeInputString = S.String.check(DateTimeInputStringCheck).pipe
 );
 
 /**
- * Type for {@link DateTimeInputString}. {@inheritDoc DateTimeInputString}
+ * {@inheritDoc DateTimeInputString}
  *
  * @example
  * ```ts
@@ -208,7 +207,7 @@ export const DateTimeInputNumber = S.Finite.check(DateTimeInputNumberCheck).pipe
 );
 
 /**
- * Type for {@link DateTimeInputNumber}. {@inheritDoc DateTimeInputNumber}
+ * {@inheritDoc DateTimeInputNumber}
  *
  * @example
  * ```ts
@@ -250,7 +249,7 @@ export const DateTimeInputDate = S.DateValid.pipe(
 );
 
 /**
- * Type for {@link DateTimeInputDate}. {@inheritDoc DateTimeInputDate}
+ * {@inheritDoc DateTimeInputDate}
  *
  * @example
  * ```ts
@@ -291,7 +290,7 @@ export const DateTimeInputDateTime = S.Union([S.DateTimeUtc, S.DateTimeZoned]).p
 );
 
 /**
- * Type for {@link DateTimeInputDateTime}. {@inheritDoc DateTimeInputDateTime}
+ * {@inheritDoc DateTimeInputDateTime}
  *
  * @example
  * ```ts
@@ -362,6 +361,7 @@ export class DateTimeInputInstantWithZone extends S.TaggedClass<DateTimeInputIns
 ) {}
 
 const DateTimePart = S.Finite;
+const DateTimePartKey = S.optionalKey(DateTimePart);
 
 /**
  * Tagged `Partial<DateTime.Parts>` transport value.
@@ -383,13 +383,13 @@ const DateTimePart = S.Finite;
 export class DateTimeInputParts extends S.TaggedClass<DateTimeInputParts>($I`DateTimeInputParts`)(
   "Parts",
   {
-    millisecond: DateTimePart.pipe(S.optionalKey),
-    second: DateTimePart.pipe(S.optionalKey),
-    minute: DateTimePart.pipe(S.optionalKey),
-    hour: DateTimePart.pipe(S.optionalKey),
-    day: DateTimePart.pipe(S.optionalKey),
-    month: DateTimePart.pipe(S.optionalKey),
-    year: DateTimePart.pipe(S.optionalKey),
+    millisecond: DateTimePartKey,
+    second: DateTimePartKey,
+    minute: DateTimePartKey,
+    hour: DateTimePartKey,
+    day: DateTimePartKey,
+    month: DateTimePartKey,
+    year: DateTimePartKey,
   },
   $I.annote("DateTimeInputParts", {
     description: "A tagged Partial<DateTime.Parts> transport value.",
@@ -433,7 +433,7 @@ export const DateTimeInput = S.Union([
 );
 
 /**
- * Type for {@link DateTimeInput}. {@inheritDoc DateTimeInput}
+ * {@inheritDoc DateTimeInput}
  *
  * @example
  * ```ts
@@ -523,7 +523,7 @@ export const DateTimeUtcFromValid = DateTimeInput.pipe(
 );
 
 /**
- * Type for {@link DateTimeUtcFromValid}. {@inheritDoc DateTimeUtcFromValid}
+ * {@inheritDoc DateTimeUtcFromValid}
  *
  * @example
  * ```ts

@@ -1,5 +1,5 @@
 /**
- * @beep/firecrawl
+ * Firecrawl provider package exports.
  *
  * @since 0.0.0
  */

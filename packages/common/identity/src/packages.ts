@@ -881,8 +881,9 @@ export const $V2TSidecarId: Identity.IdentityComposer<"@beep/v2t-sidecar"> = com
 export const $V2TId: Identity.IdentityComposer<"@beep/v2t"> = composers.$V2tId;
 
 /**
+ * Identity composer for the `@beep/firecrawl` package.
+ *
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/firecrawl">}
  */
 export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;

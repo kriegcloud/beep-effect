@@ -2,7 +2,7 @@
  * Repository CLI Command for working with, indexing and publishing
  * documentation for repo coding agents
  *
- * @module @beep/repo-cli/commands/AIDocs
+ * @module
  * @since 0.0.0
  */
 import { $RepoCliId } from "@beep/identity";
@@ -14,7 +14,7 @@ import * as S from "effect/Schema";
 const $I = $RepoCliId.create("commands/AIDocs/AIDocs");
 
 /**
- * AIDocsError - A Tagged Error Class for errors occuring in the AIDocs command
+ * AIDocsError - A Tagged Error Class for errors occurring in the AIDocs command
  * context
  *
  * @category Exceptions
@@ -24,12 +24,12 @@ export class AIDocsError extends CauseTaggedError<AIDocsError>($I`AIDocsError`)(
   "AIDocsError",
   {},
   $I.annote("AIDocsError", {
-    description: "AIDocsError - A Tagged Error Class for errors occuring in the AIDocs command\ncontext",
+    description: "AIDocsError - A Tagged Error Class for errors occurring in the AIDocs command\ncontext",
   })
 ) {}
 
 /**
- * AIDocKind - The kind of AIDoc
+ * Supported external documentation source formats for AI documentation.
  *
  * @category Configuration
  * @since 0.0.0
@@ -57,13 +57,9 @@ export const AIDocKind = LiteralKit(["LLMS_TXT", "PLAIN_WEBSITE", "GITHUB_RAW"])
         url: S.URLFromString.annotateKey({
           description: "url - The URL of the AIDoc",
         }),
-        tags: S.Array(
-          NonEmptyTrimmedStr
-        ).annotateKey({
+        tags: S.Array(NonEmptyTrimmedStr).annotateKey({
           description: "tags - The tags associated with the AIDoc",
-          examples: [
-            cast(["Effect", "Schema", "Reference"])
-          ],
+          examples: [cast(["Effect", "Schema", "Reference"])],
         }),
         docFor: NonEmptyTrimmedStr.annotateKey({
           description: "docFor - What this AIDoc is for",
@@ -82,4 +78,10 @@ export const AIDocKind = LiteralKit(["LLMS_TXT", "PLAIN_WEBSITE", "GITHUB_RAW"])
   })
 );
 
+/**
+ * Union type for supported external documentation source formats.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type AIDocKind = typeof AIDocKind.Type;
