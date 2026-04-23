@@ -4,7 +4,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@beep/ui/components/too
 import { ArrowSquareOutIcon, InfoIcon } from "@phosphor-icons/react";
 import * as P from "effect/Predicate";
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import { cn } from "../lib/index.ts";
+import { cn, sanitizeAnchorHref } from "../lib/index.ts";
 
 interface UrlMetadata {
   readonly description: null | string;
@@ -105,6 +105,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
   const [fetchedMetadata, setFetchedMetadata] = useState<null | UrlMetadata>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<null | string>(null);
+  const safeHref = sanitizeAnchorHref(href);
 
   const isValidUrl = href.length > 0 && isValidHttpUrl(href) && !isEmail(href) && !href.startsWith("mailto:");
 
@@ -206,7 +207,7 @@ export function LinkPreview({ href, children, className, metadata }: LinkPreview
       <TooltipTrigger>
         <a
           ref={elementRef}
-          href={href}
+          href={safeHref}
           className={cn(
             "cursor-pointer rounded-sm bg-primary/20 px-1 text-sm font-medium text-primary transition-all hover:text-white hover:underline",
             className
