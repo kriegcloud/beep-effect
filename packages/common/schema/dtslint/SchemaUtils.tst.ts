@@ -68,7 +68,7 @@ describe("withEmptyArrayDefaults", () => {
     expect<typeof Tags.Type>().type.toBe<ReadonlyArray<string>>();
   });
 
-  it("accepts the data-first signature", () => {
+  it("exposes a data-first callable signature", () => {
     expect(SchemaUtils.withEmptyArrayDefaults<string>).type.toBeCallableWith(TagArray);
   });
 

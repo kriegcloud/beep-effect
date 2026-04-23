@@ -49,16 +49,19 @@ const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
 const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
 const ExpectedGeneratedQualityScripts = {
   audit: "beep-cli audit",
-  build: "beep-cli build",
-  check: "beep-cli check",
-  lint: "beep-cli lint",
-  "lint:fix": "beep-cli lint --fix",
-  test: "beep-cli test",
+  babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+  "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
   "beep:build": "tsc -b tsconfig.json && bun run babel",
   "beep:check": "tsgo -b tsconfig.json",
   "beep:lint": "biome check .",
   "beep:lint:fix": "biome check . --write",
-  "beep:test": "bunx --bun vitest run",
+  "beep:test": "bunx --bun vitest run --passWithNoTests",
+  build: "beep-cli build",
+  check: "beep-cli check",
+  coverage: "bunx --bun vitest --coverage --passWithNoTests",
+  lint: "beep-cli lint",
+  "lint:fix": "beep-cli lint --fix",
+  test: "beep-cli test",
 } as const;
 
 const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
