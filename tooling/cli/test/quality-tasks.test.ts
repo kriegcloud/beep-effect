@@ -46,6 +46,13 @@ const getInvocation = (argv: ReadonlyArray<string>): QualityTaskInvocation => {
   }
   return invocation.value;
 };
+const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> => [
+  "turbo",
+  "run",
+  task,
+  ...(process.env.CI === "true" || args.some((arg) => arg.startsWith("--cache=")) ? [] : ["--cache=local:rw"]),
+  ...args,
+];
 
 describe("quality task adapter", () => {
   it("parses canonical task invocations and preserves passthrough args", () => {
@@ -78,7 +85,7 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "audit:packages",
       command: "bunx",
-      args: ["turbo", "run", "audit", "--cache=local:rw", "--filter=@beep/schema", "--summarize"],
+      args: expectedTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
       cwd: "/repo",
     });
   });
@@ -113,20 +120,12 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "lint:effect-imports:fix",
       command: "bunx",
-      args: [
-        "turbo",
-        "run",
-        "lint:effect-imports:fix",
-        "--cache=local:rw",
-        "--filter=@beep/schema",
-        "--affected",
-        "--dry=json",
-      ],
+      args: expectedTurboArgs("lint:effect-imports:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
     });
     expect(steps[1]).toMatchObject({
       label: "lint:fix",
       command: "bunx",
-      args: ["turbo", "run", "lint:fix", "--cache=local:rw", "--filter=@beep/schema", "--affected", "--dry=json"],
+      args: expectedTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
     });
   });
 
@@ -140,22 +139,18 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "test:unit",
       command: "bunx",
-      args: [
-        "turbo",
-        "run",
-        "test",
-        "--cache=local:rw",
+      args: expectedTurboArgs("test", [
         "--filter=!@beep/repo-memory-runtime",
         "--filter=!@beep/repo-memory-sqlite",
         "--filter=!@beep/shared-server",
         "--filter=@beep/schema",
         "--summarize",
-      ],
+      ]),
     });
     expect(steps[1]).toMatchObject({
       label: "test:types",
       command: "bunx",
-      args: ["turbo", "run", "check:types", "--cache=local:rw", "--filter=@beep/schema", "--summarize"],
+      args: expectedTurboArgs("check:types", ["--filter=@beep/schema", "--summarize"]),
     });
   });
 

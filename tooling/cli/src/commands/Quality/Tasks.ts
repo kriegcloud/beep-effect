@@ -11,6 +11,7 @@ import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { Cause, Console, Effect, FileSystem, Match, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -626,10 +627,14 @@ const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): Read
  * @category Utility
  * @since 0.0.0
  */
-export const rootQualityStepsForTesting = (
-  repoRoot: string,
-  invocation: QualityTaskInvocation
-): ReadonlyArray<QualityTaskStep> => rootStepsFor(repoRoot, invocation);
+export const rootQualityStepsForTesting: {
+  (repoRoot: string, invocation: QualityTaskInvocation): ReadonlyArray<QualityTaskStep>;
+  (invocation: QualityTaskInvocation): (repoRoot: string) => ReadonlyArray<QualityTaskStep>;
+} = dual(
+  2,
+  (repoRoot: string, invocation: QualityTaskInvocation): ReadonlyArray<QualityTaskStep> =>
+    rootStepsFor(repoRoot, invocation)
+);
 
 const readPackageJson = Effect.fn("QualityTasks.readPackageJson")(function* (packageDir: string) {
   const path = yield* Path.Path;
