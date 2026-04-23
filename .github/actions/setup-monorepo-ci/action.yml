@@ -6,6 +6,14 @@ inputs:
     description: Restore the Turbo cache for jobs that execute Turbo tasks.
     required: false
     default: "false"
+  cache-write:
+    description: Save restored caches after install when cache misses occur.
+    required: false
+    default: "true"
+  use-node:
+    description: Setup Node.js runtime when workflow steps require it.
+    required: false
+    default: "true"
 
 runs:
   using: composite
@@ -16,20 +24,23 @@ runs:
         bun-version-file: .bun-version
 
     - name: Setup Node.js
+      if: ${{ inputs.use-node == 'true' }}
       uses: actions/setup-node@v4
       with:
         node-version-file: .nvmrc
 
-    - name: Cache Bun dependencies
-      uses: actions/cache@v4
+    - name: Restore Bun dependencies cache
+      id: bun-cache-restore
+      uses: actions/cache/restore@v4
       with:
         path: ~/.bun/install/cache
         key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
         restore-keys: bun-${{ runner.os }}-
 
-    - name: Cache Turbo
-      if: ${{ inputs.cache-turbo == 'true' }}
-      uses: actions/cache@v4
+    - name: Restore Turbo cache (local fallback only)
+      if: ${{ inputs.cache-turbo == 'true' && (env.TURBO_TOKEN == '' || env.TURBO_TEAM == '') }}
+      id: turbo-cache-restore
+      uses: actions/cache/restore@v4
       with:
         path: .turbo/cache
         key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}
@@ -40,3 +51,17 @@ runs:
     - name: Install dependencies
       shell: bash
       run: bun install --frozen-lockfile
+
+    - name: Save Bun dependencies cache
+      if: ${{ inputs.cache-write == 'true' && steps.bun-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: ~/.bun/install/cache
+        key: bun-${{ runner.os }}-${{ hashFiles('bun.lock') }}
+
+    - name: Save Turbo cache (local fallback only)
+      if: ${{ inputs.cache-write == 'true' && inputs.cache-turbo == 'true' && (env.TURBO_TOKEN == '' || env.TURBO_TEAM == '') && steps.turbo-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@v4
+      with:
+        path: .turbo/cache
+        key: turbo-${{ runner.os }}-${{ github.job }}-${{ hashFiles('turbo.json', 'package.json', 'bun.lock') }}

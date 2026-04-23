@@ -13,21 +13,21 @@
   },
   "scripts": {
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "build": "beep-cli build",
-    "check": "beep-cli check",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
     "codegen": "echo 'no codegen needed'",
     "coverage": "bunx --bun vitest run --coverage",
     "dev": "bun src/main.ts",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
-    "lint": "beep-cli lint",
-    "lint:fix": "beep-cli lint --fix",
-    "test": "beep-cli test",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test",
     "beep:build": "tsc -b tsconfig.json && bun run babel",
     "beep:check": "tsgo -b tsconfig.json",
     "beep:test": "bunx --bun vitest run",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
-    "audit": "beep-cli audit"
+    "audit": "bun run --if-present beep:audit"
   },
   "exports": {
     ".": "./src/index.ts",

@@ -79,7 +79,7 @@ jobs:
           - id: docgen
             name: Docgen
             timeout_minutes: 20
-            uses_turbo: "true"
+            uses_turbo: "false"
             install_typos: "false"
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -98,18 +98,45 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Determine lane execution
+        id: lane-gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          should_run=true
+
+          if [[ "${{ matrix.id }}" == "docgen" && "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            base_ref="origin/${GITHUB_BASE_REF:-main}"
+            if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
+              git fetch origin "${GITHUB_BASE_REF:-main}":"$base_ref" --quiet
+            fi
+
+            changed_files="$(git diff --name-only "${base_ref}...HEAD")"
+
+            if [[ -z "$changed_files" ]]; then
+              should_run=false
+            elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/|^packages/|^infra/|^tooling/docgen/|^tooling/cli/src/commands/Docgen/|^docs/|/docgen\.json$|\.(ts|tsx|mts|cts|md)$)'; then
+              should_run=false
+            fi
+          fi
+
+          echo "should_run=$should_run" >> "$GITHUB_OUTPUT"
+
       - name: Setup monorepo CI
+        if: steps.lane-gate.outputs.should_run == 'true'
         uses: ./.github/actions/setup-monorepo-ci
         with:
           cache-turbo: ${{ matrix.uses_turbo }}
+          cache-write: "false"
 
       - name: Install typos
-        if: matrix.install_typos == 'true'
+        if: steps.lane-gate.outputs.should_run == 'true' && matrix.install_typos == 'true'
         uses: taiki-e/install-action@v2
         with:
           tool: typos-cli@1.44.0
 
       - name: Run verification lane
+        if: steps.lane-gate.outputs.should_run == 'true'
         run: |
           set -euo pipefail
           turbo_args=()
@@ -141,14 +168,23 @@ jobs:
               bun run test -- --integration "${turbo_args[@]}"
               ;;
             docgen)
-              bun run beep -- docgen generate
-              bun run beep -- docgen aggregate
+              if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+                bunx turbo run docgen --affected --summarize
+                node scripts/append-turbo-summary.mjs
+                bun run docs:aggregate
+              else
+                bun run docgen
+              fi
               ;;
           esac
 
       - name: Append Turbo summary
-        if: matrix.uses_turbo == 'true' && always()
+        if: matrix.uses_turbo == 'true' && steps.lane-gate.outputs.should_run == 'true' && always()
         run: node scripts/append-turbo-summary.mjs
+
+      - name: Skip lane
+        if: steps.lane-gate.outputs.should_run != 'true'
+        run: echo "Skipping ${{ matrix.name }} for this change set."
 
   build:
     name: Build
@@ -176,6 +212,7 @@ jobs:
         uses: ./.github/actions/setup-monorepo-ci
         with:
           cache-turbo: true
+          cache-write: "true"
 
       - name: Run build checks
         run: bun run build -- --summarize
@@ -183,23 +220,6 @@ jobs:
       - name: Append Turbo summary
         if: always()
         run: node scripts/append-turbo-summary.mjs
-
-  full-check:
-    name: Full Type Check
-    if: github.event_name == 'push'
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Setup monorepo CI
-        uses: ./.github/actions/setup-monorepo-ci
-
-      - name: Run full type check
-        run: bun run check
 
   secrets:
     name: Secret Scanning

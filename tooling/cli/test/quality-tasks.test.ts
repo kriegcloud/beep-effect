@@ -1,6 +1,7 @@
 import {
   parseQualityTaskInvocation,
   type QualityTaskInvocation,
+  rootQualityStepsForTesting,
   runQualityTask,
 } from "@beep/repo-cli/commands/Quality/Tasks";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -62,6 +63,95 @@ describe("quality task adapter", () => {
       task: "lint",
       fix: true,
       args: ["--dry=json"],
+    });
+    expect(getInvocation(["audit", "packages", "--filter=@beep/schema"])).toMatchObject({
+      task: "audit",
+      fix: false,
+      args: ["packages", "--filter=@beep/schema"],
+    });
+  });
+
+  it("builds package-only audit steps by default and keeps turbo filters", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema", "--summarize"]));
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toMatchObject({
+      label: "audit:packages",
+      command: "bunx",
+      args: ["turbo", "run", "audit", "--cache=local:rw", "--filter=@beep/schema", "--summarize"],
+      cwd: "/repo",
+    });
+  });
+
+  it("routes explicit and legacy github audit modes to script checks", () => {
+    const explicitSteps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "github", "repo-sanity"]));
+    const legacySteps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "repo-sanity"]));
+
+    expect(explicitSteps).toHaveLength(1);
+    expect(legacySteps).toHaveLength(1);
+    expect(explicitSteps[0]).toMatchObject({
+      label: "audit:repo-sanity",
+      command: "bash",
+      args: ["scripts/run-github-checks.sh", "repo-sanity"],
+      cwd: "/repo",
+    });
+    expect(legacySteps[0]).toMatchObject({
+      label: "audit:repo-sanity",
+      command: "bash",
+      args: ["scripts/run-github-checks.sh", "repo-sanity"],
+      cwd: "/repo",
+    });
+  });
+
+  it("keeps scope args in both lint --fix steps", () => {
+    const steps = rootQualityStepsForTesting(
+      "/repo",
+      getInvocation(["lint", "--fix", "--filter=@beep/schema", "--affected", "--dry=json"])
+    );
+
+    expect(steps).toHaveLength(2);
+    expect(steps[0]).toMatchObject({
+      label: "lint:effect-imports:fix",
+      command: "bunx",
+      args: [
+        "turbo",
+        "run",
+        "lint:effect-imports:fix",
+        "--cache=local:rw",
+        "--filter=@beep/schema",
+        "--affected",
+        "--dry=json",
+      ],
+    });
+    expect(steps[1]).toMatchObject({
+      label: "lint:fix",
+      command: "bunx",
+      args: ["turbo", "run", "lint:fix", "--cache=local:rw", "--filter=@beep/schema", "--affected", "--dry=json"],
+    });
+  });
+
+  it("collapses unit+types into one turbo invocation", () => {
+    const steps = rootQualityStepsForTesting(
+      "/repo",
+      getInvocation(["test", "--unit", "--types", "--filter=@beep/schema", "--summarize"])
+    );
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toMatchObject({
+      label: "test:unit+types",
+      command: "bunx",
+      args: [
+        "turbo",
+        "run",
+        "test",
+        "check:types",
+        "--cache=local:rw",
+        "--filter=!@beep/repo-memory-runtime",
+        "--filter=!@beep/repo-memory-sqlite",
+        "--filter=!@beep/shared-server",
+        "--filter=@beep/schema",
+        "--summarize",
+      ],
     });
   });
 

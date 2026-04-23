@@ -17,17 +17,18 @@
   "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/infra",
   "scripts": {
     "codegen": "echo 'no codegen needed'",
-    "check": "beep-cli check",
+    "check": "bun run beep:check",
     "docgen": "bun run ../tooling/docgen/src/bin.ts",
-    "lint": "beep-cli lint",
-    "lint:fix": "beep-cli lint --fix",
-    "test": "beep-cli test",
-    "build": "beep-cli build",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test",
+    "build": "bun run beep:build",
+    "beep:build": "echo 'no build needed'",
     "beep:check": "tsgo -b tsconfig.json",
     "beep:test": "bunx --bun vitest run --passWithNoTests",
     "beep:lint": "biome check src/ test/ dtslint/",
     "beep:lint:fix": "biome check src/ test/ dtslint/ --write",
-    "audit": "beep-cli audit"
+    "audit": "bun run --if-present beep:audit"
   },
   "dependencies": {
     "@1password/connect": "catalog:",

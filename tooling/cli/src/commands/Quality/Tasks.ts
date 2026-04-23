@@ -21,6 +21,8 @@ const $I = $RepoCliId.create("commands/Quality/Tasks");
 
 const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
 const LINT_POLICY_SUBCOMMANDS = ["circular", "schema-first", "tooling-tagged-errors", "tooling-schema-first"] as const;
+const AUDIT_MODE_NAMES = ["packages", "github"] as const;
+const GITHUB_CHECK_MODES = ["quality", "repo-sanity", "secrets", "security", "sast", "nix", "pre-push"] as const;
 
 /**
  * Canonical quality task name.
@@ -215,6 +217,12 @@ type TestLaneSelectionState = {
   readonly args: ReadonlyArray<string>;
 };
 
+type RootAuditMode = (typeof AUDIT_MODE_NAMES)[number];
+type RootAuditSelectionState = {
+  readonly mode: RootAuditMode;
+  readonly args: ReadonlyArray<string>;
+};
+
 const emptyParsedFixArgs: ParsedFixArgsState = {
   fix: false,
   args: A.empty<string>(),
@@ -243,6 +251,11 @@ const isLintPolicySubcommand = (value: string | undefined): boolean =>
     O.fromUndefinedOr(value),
     O.exists((subcommand) => A.contains(LINT_POLICY_SUBCOMMANDS as ReadonlyArray<string>, subcommand))
   );
+
+const isRootAuditMode = (value: string): value is RootAuditMode =>
+  A.contains(AUDIT_MODE_NAMES as ReadonlyArray<string>, value);
+
+const isGithubCheckMode = (value: string): boolean => A.contains(GITHUB_CHECK_MODES as ReadonlyArray<string>, value);
 
 const stripPassthroughDelimiter = (args: ReadonlyArray<string>): ReadonlyArray<string> =>
   pipe(
@@ -274,6 +287,34 @@ const parseTestLaneSelection = (args: ReadonlyArray<string>): TestLaneSelectionS
     args: selected.args,
   };
 };
+
+const parseRootAuditSelection = (args: ReadonlyArray<string>): RootAuditSelectionState =>
+  A.match(stripPassthroughDelimiter(args), {
+    onEmpty: () => ({
+      mode: "packages",
+      args: A.empty<string>(),
+    }),
+    onNonEmpty: ([head, ...tail]) => {
+      if (isRootAuditMode(head)) {
+        return {
+          mode: head,
+          args: tail,
+        };
+      }
+
+      if (isGithubCheckMode(head)) {
+        return {
+          mode: "github",
+          args: [head, ...tail],
+        };
+      }
+
+      return {
+        mode: "packages",
+        args: [head, ...tail],
+      };
+    },
+  });
 
 const readJsonFile = Effect.fn("QualityTasks.readJsonFile")(function* (filePath: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -330,8 +371,6 @@ const resolvePackageDir = Effect.fn("QualityTasks.resolvePackageDir")(function* 
 });
 
 const commandText = (command: string, args: ReadonlyArray<string>): string => A.join([command, ...args], " ");
-
-const isTurboDryRunArg = (arg: string): boolean => arg === "--dry" || Str.startsWith("--dry=")(arg);
 
 const isTurboCacheControlArg = (arg: string): boolean =>
   arg === "--no-cache" ||
@@ -483,41 +522,37 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
 
 const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   const lanes = parseTestLaneSelection(args);
+  const unitArgs = [
+    "--filter=!@beep/repo-memory-runtime",
+    "--filter=!@beep/repo-memory-sqlite",
+    "--filter=!@beep/shared-server",
+    ...lanes.args,
+  ];
 
-  return A.flatMap(
-    [
-      {
-        enabled: lanes.unit,
-        step: () =>
-          turboStep(
-            repoRoot,
-            "test:unit",
-            ["test"],
-            [
-              "--filter=!@beep/repo-memory-runtime",
-              "--filter=!@beep/repo-memory-sqlite",
-              "--filter=!@beep/shared-server",
-              ...lanes.args,
-            ]
-          ),
-      },
-      {
-        enabled: lanes.integration,
-        step: () => turboStep(repoRoot, "test:integration", ["test:integration"], ["--concurrency=1", ...lanes.args]),
-      },
-      {
-        enabled: lanes.types,
-        step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
-      },
-    ],
-    optionalQualityTaskStep
-  );
+  return [
+    ...optionalQualityTaskStep({
+      enabled: lanes.unit && lanes.types,
+      step: () => turboStep(repoRoot, "test:unit+types", ["test", "check:types"], unitArgs),
+    }),
+    ...optionalQualityTaskStep({
+      enabled: lanes.unit && !lanes.types,
+      step: () => turboStep(repoRoot, "test:unit", ["test"], unitArgs),
+    }),
+    ...optionalQualityTaskStep({
+      enabled: lanes.integration,
+      step: () => turboStep(repoRoot, "test:integration", ["test:integration"], ["--concurrency=1", ...lanes.args]),
+    }),
+    ...optionalQualityTaskStep({
+      enabled: lanes.types && !lanes.unit,
+      step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
+    }),
+  ];
 };
 
 const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boolean) =>
   fix
     ? [
-        turboStep(repoRoot, "lint:effect-imports:fix", ["lint:effect-imports:fix"], A.filter(args, isTurboDryRunArg)),
+        turboStep(repoRoot, "lint:effect-imports:fix", ["lint:effect-imports:fix"], args),
         turboStep(repoRoot, "lint:fix", ["lint:fix"], args),
       ]
     : [
@@ -526,7 +561,11 @@ const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boole
           "lint",
           [
             "lint",
-            "lint:effect-governance",
+            "lint:effect-imports:check",
+            "lint:terse-effect",
+            "lint:native-runtime",
+            "lint:dual-arity",
+            "lint:allowlist",
             "lint:jsdoc",
             "lint:docgen",
             "lint:spell",
@@ -540,11 +579,13 @@ const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boole
       ];
 
 const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
-  const auditArgs = stripPassthroughDelimiter(args);
-  if (A.some(auditArgs, isTurboDryRunArg)) {
-    return [turboStep(repoRoot, "audit:packages", ["audit"], auditArgs)];
+  const selection = parseRootAuditSelection(args);
+
+  if (selection.mode === "packages") {
+    return [turboStep(repoRoot, "audit:packages", ["audit"], selection.args)];
   }
 
+  const auditArgs = selection.args;
   const scriptMode = pipe(
     A.head(auditArgs),
     O.getOrElse(() => "pre-push")
@@ -555,7 +596,6 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   });
 
   return [
-    turboStep(repoRoot, "audit:packages", ["audit"], A.empty()),
     new QualityTaskStep({
       label: `audit:${scriptMode}`,
       command: "bash",
@@ -565,22 +605,35 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   ];
 };
 
-const invocationArgs = (invocation: QualityTaskInvocation): ReadonlyArray<string> => invocation.args ?? A.empty<string>();
+const invocationArgs = (invocation: QualityTaskInvocation): ReadonlyArray<string> =>
+  invocation.args ?? A.empty<string>();
 const invocationFix = (invocation: QualityTaskInvocation): boolean => invocation.fix ?? false;
 
 const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): ReadonlyArray<QualityTaskStep> =>
-  pipe(
-    invocation,
-    (current) =>
-      Match.type<QualityTaskName>().pipe(
-        Match.when("build", () => rootBuildSteps(repoRoot, invocationArgs(current))),
-        Match.when("check", () => rootCheckSteps(repoRoot, invocationArgs(current))),
-        Match.when("test", () => rootTestSteps(repoRoot, invocationArgs(current))),
-        Match.when("lint", () => rootLintSteps(repoRoot, invocationArgs(current), invocationFix(current))),
-        Match.when("audit", () => rootAuditSteps(repoRoot, invocationArgs(current))),
-        Match.exhaustive
-      )(current.task)
+  pipe(invocation, (current) =>
+    Match.type<QualityTaskName>().pipe(
+      Match.when("build", () => rootBuildSteps(repoRoot, invocationArgs(current))),
+      Match.when("check", () => rootCheckSteps(repoRoot, invocationArgs(current))),
+      Match.when("test", () => rootTestSteps(repoRoot, invocationArgs(current))),
+      Match.when("lint", () => rootLintSteps(repoRoot, invocationArgs(current), invocationFix(current))),
+      Match.when("audit", () => rootAuditSteps(repoRoot, invocationArgs(current))),
+      Match.exhaustive
+    )(current.task)
   );
+
+/**
+ * Build root quality task subprocess steps. Exposed for focused unit tests.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param invocation - Parsed quality invocation.
+ * @returns Planned subprocess steps.
+ * @category Utility
+ * @since 0.0.0
+ */
+export const rootQualityStepsForTesting = (
+  repoRoot: string,
+  invocation: QualityTaskInvocation
+): ReadonlyArray<QualityTaskStep> => rootStepsFor(repoRoot, invocation);
 
 const readPackageJson = Effect.fn("QualityTasks.readPackageJson")(function* (packageDir: string) {
   const path = yield* Path.Path;

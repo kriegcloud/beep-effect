@@ -7,12 +7,12 @@
   "type": "module",
   "scripts": {
     "codegen": "echo 'no codegen needed'",
-    "build": "beep-cli build",
+    "build": "bun run beep:build",
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-    "check": "beep-cli check",
-    "lint": "beep-cli lint",
-    "lint:fix": "beep-cli lint --fix",
-    "test": "beep-cli test",
+    "check": "bun run beep:check",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test",
     "test:integration": "bunx --bun vitest run",
     "coverage": "bunx --bun vitest run --coverage",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
@@ -21,7 +21,7 @@
     "beep:test": "bunx --bun vitest run",
     "beep:lint": "biome check .",
     "beep:lint:fix": "biome check . --write",
-    "audit": "beep-cli audit"
+    "audit": "bun run --if-present beep:audit"
   },
   "dependencies": {
     "@beep/identity": "workspace:^",

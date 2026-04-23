@@ -96,9 +96,6 @@ run_repo_sanity() {
   log "repo-sanity: package graph"
   bunx sherif@1.10.0 -r non-existent-packages
 
-  log "repo-sanity: dependency policy"
-  bunx syncpack lint
-
   log "repo-sanity: bun audit"
   bash scripts/run-bun-audit.sh
 }

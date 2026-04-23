@@ -27,6 +27,7 @@ jobs:
         uses: ./.github/actions/setup-monorepo-ci
         with:
           cache-turbo: true
+          cache-write: "true"
 
       - name: Sync official datasets
         run: bun run beep sync-data-to-ts --all
@@ -34,11 +35,9 @@ jobs:
       - name: Run focused Turbo verification
         run: |
           bun run check -- --filter=@beep/repo-cli --filter=@beep/data --summarize
+          node scripts/append-turbo-summary.mjs
           bun run test -- --unit --filter=@beep/repo-cli --filter=@beep/data --summarize
-
-      - name: Append Turbo summary
-        if: always()
-        run: node scripts/append-turbo-summary.mjs
+          node scripts/append-turbo-summary.mjs
 
       - name: Create or update pull request
         uses: peter-evans/create-pull-request@v8
