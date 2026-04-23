@@ -30,7 +30,7 @@ throw.
 
 The `Result` render APIs are adapter-failure-safe, and the default HTML renderer escapes text-like inline content
 including `Md.rawHtml(...)`. Treat trusted HTML boundaries as explicit adapter decisions: if a custom adapter or
-external branded `HtmlFragment` introduces unsanitized HTML, that boundary must be audited or sanitized upstream.
+external branded `HtmlFragment` introduces unsafe HTML, that boundary must be audited or sanitized upstream.
 
 ## Development
 

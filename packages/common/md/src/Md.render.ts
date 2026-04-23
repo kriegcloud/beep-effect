@@ -184,7 +184,7 @@ const causeMessage = (cause: unknown): string =>
 
       return P.isSymbol(cause) ? globalThis.String(cause) : `${cause}`;
     }),
-    () => "Unrenderable thrown value."
+    () => "Cannot render thrown value."
   );
 
 const toRenderError =
