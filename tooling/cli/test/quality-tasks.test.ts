@@ -1,6 +1,7 @@
 import {
   parseQualityTaskInvocation,
   type QualityTaskInvocation,
+  rootQualityStepsForTesting,
   runQualityTask,
 } from "@beep/repo-cli/commands/Quality/Tasks";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
@@ -45,6 +46,13 @@ const getInvocation = (argv: ReadonlyArray<string>): QualityTaskInvocation => {
   }
   return invocation.value;
 };
+const expectedTurboArgs = (task: string, args: ReadonlyArray<string>): ReadonlyArray<string> => [
+  "turbo",
+  "run",
+  task,
+  ...(process.env.CI === "true" || args.some((arg) => arg.startsWith("--cache=")) ? [] : ["--cache=local:rw"]),
+  ...args,
+];
 
 describe("quality task adapter", () => {
   it("parses canonical task invocations and preserves passthrough args", () => {
@@ -62,6 +70,87 @@ describe("quality task adapter", () => {
       task: "lint",
       fix: true,
       args: ["--dry=json"],
+    });
+    expect(getInvocation(["audit", "packages", "--filter=@beep/schema"])).toMatchObject({
+      task: "audit",
+      fix: false,
+      args: ["packages", "--filter=@beep/schema"],
+    });
+  });
+
+  it("builds package-only audit steps by default and keeps turbo filters", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "--filter=@beep/schema", "--summarize"]));
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toMatchObject({
+      label: "audit:packages",
+      command: "bunx",
+      args: expectedTurboArgs("audit", ["--filter=@beep/schema", "--summarize"]),
+      cwd: "/repo",
+    });
+  });
+
+  it("routes explicit and legacy github audit modes to script checks", () => {
+    const explicitSteps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "github", "repo-sanity"]));
+    const legacySteps = rootQualityStepsForTesting("/repo", getInvocation(["audit", "repo-sanity"]));
+
+    expect(explicitSteps).toHaveLength(1);
+    expect(legacySteps).toHaveLength(1);
+    expect(explicitSteps[0]).toMatchObject({
+      label: "audit:repo-sanity",
+      command: "bash",
+      args: ["scripts/run-github-checks.sh", "repo-sanity"],
+      cwd: "/repo",
+    });
+    expect(legacySteps[0]).toMatchObject({
+      label: "audit:repo-sanity",
+      command: "bash",
+      args: ["scripts/run-github-checks.sh", "repo-sanity"],
+      cwd: "/repo",
+    });
+  });
+
+  it("keeps scope args in both lint --fix steps", () => {
+    const steps = rootQualityStepsForTesting(
+      "/repo",
+      getInvocation(["lint", "--fix", "--filter=@beep/schema", "--affected", "--dry=json"])
+    );
+
+    expect(steps).toHaveLength(2);
+    expect(steps[0]).toMatchObject({
+      label: "lint:effect-imports:fix",
+      command: "bunx",
+      args: expectedTurboArgs("lint:effect-imports:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
+    });
+    expect(steps[1]).toMatchObject({
+      label: "lint:fix",
+      command: "bunx",
+      args: expectedTurboArgs("lint:fix", ["--filter=@beep/schema", "--affected", "--dry=json"]),
+    });
+  });
+
+  it("runs unit and types as separate turbo invocations", () => {
+    const steps = rootQualityStepsForTesting(
+      "/repo",
+      getInvocation(["test", "--unit", "--types", "--filter=@beep/schema", "--summarize"])
+    );
+
+    expect(steps).toHaveLength(2);
+    expect(steps[0]).toMatchObject({
+      label: "test:unit",
+      command: "bunx",
+      args: expectedTurboArgs("test", [
+        "--filter=!@beep/repo-memory-runtime",
+        "--filter=!@beep/repo-memory-sqlite",
+        "--filter=!@beep/shared-server",
+        "--filter=@beep/schema",
+        "--summarize",
+      ]),
+    });
+    expect(steps[1]).toMatchObject({
+      label: "test:types",
+      command: "bunx",
+      args: expectedTurboArgs("check:types", ["--filter=@beep/schema", "--summarize"]),
     });
   });
 

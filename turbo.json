@@ -201,6 +201,106 @@
         "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
       ]
     },
+    "@beep/repo-checks#lint:effect-imports:check": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/.claude/hooks/**/*.ts",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
+        "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/standards/dual-arity.inventory.jsonc",
+        "$TURBO_ROOT$/tooling/configs/package.json",
+        "$TURBO_ROOT$/tooling/configs/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/configs/test/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
+      ]
+    },
+    "@beep/repo-checks#lint:terse-effect": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/.claude/hooks/**/*.ts",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
+        "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/standards/dual-arity.inventory.jsonc",
+        "$TURBO_ROOT$/tooling/configs/package.json",
+        "$TURBO_ROOT$/tooling/configs/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/configs/test/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
+      ]
+    },
+    "@beep/repo-checks#lint:native-runtime": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/.claude/hooks/**/*.ts",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
+        "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/standards/dual-arity.inventory.jsonc",
+        "$TURBO_ROOT$/tooling/configs/package.json",
+        "$TURBO_ROOT$/tooling/configs/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/configs/test/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
+      ]
+    },
+    "@beep/repo-checks#lint:dual-arity": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/.claude/hooks/**/*.ts",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
+        "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/standards/dual-arity.inventory.jsonc",
+        "$TURBO_ROOT$/tooling/configs/package.json",
+        "$TURBO_ROOT$/tooling/configs/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/configs/test/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
+      ]
+    },
+    "@beep/repo-checks#lint:allowlist": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/infra/**/*.ts",
+        "$TURBO_ROOT$/.claude/hooks/**/*.ts",
+        "$TURBO_ROOT$/biome.jsonc",
+        "$TURBO_ROOT$/package.json",
+        "$TURBO_ROOT$/standards/effect-laws.allowlist.jsonc",
+        "$TURBO_ROOT$/standards/schema-first.inventory.jsonc",
+        "$TURBO_ROOT$/standards/dual-arity.inventory.jsonc",
+        "$TURBO_ROOT$/tooling/configs/package.json",
+        "$TURBO_ROOT$/tooling/configs/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/configs/test/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/src/**/*.ts",
+        "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
+      ]
+    },
     "@beep/repo-checks#lint:effect-imports:fix": {
       "cache": false,
       "inputs": [
