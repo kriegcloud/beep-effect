@@ -14,7 +14,7 @@ import {
   type NoSuchFileError,
   resolveWorkspaceDirs,
 } from "@beep/repo-utils";
-import { LiteralKit } from "@beep/schema";
+import { LiteralKit, normalizePath } from "@beep/schema";
 import { thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
 import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
@@ -798,10 +798,25 @@ nav_order: ${order}
 ---
 `;
 
+const expectedCanonicalDocgenPath = (
+  path: Path.Path,
+  sourceRoot: string,
+  canonicalSourceRoot: string,
+  candidate: string
+): string => {
+  const relativeFromSourceRoot = normalizePath(path.relative(sourceRoot, candidate));
+
+  return relativeFromSourceRoot === "." || relativeFromSourceRoot === ""
+    ? canonicalSourceRoot
+    : path.join(canonicalSourceRoot, ...Str.split("/")(relativeFromSourceRoot));
+};
+
 const copyDocsTree = (
   sourceDir: string,
   destinationDir: string,
-  packageName: string
+  packageName: string,
+  sourceRoot: string,
+  canonicalSourceRoot: string
 ): Effect.Effect<number, DomainError, FileSystem.FileSystem | Path.Path> =>
   Effect.gen(function* () {
     const fs = yield* FileSystem.FileSystem;
@@ -832,6 +847,20 @@ const copyDocsTree = (
     for (const entry of entries) {
       const sourcePath = path.join(sourceDir, entry);
       const destinationPath = path.join(destinationDir, entry);
+      const canonicalSourcePath = yield* fs.realPath(sourcePath).pipe(
+        Effect.mapError(
+          (cause) =>
+            new DomainError({
+              message: `Failed to resolve "${sourcePath}"`,
+              cause,
+            })
+        )
+      );
+
+      if (canonicalSourcePath !== expectedCanonicalDocgenPath(path, sourceRoot, canonicalSourceRoot, sourcePath)) {
+        continue;
+      }
+
       const stat = yield* fs.stat(sourcePath).pipe(
         Effect.mapError(
           (cause) =>
@@ -843,7 +872,7 @@ const copyDocsTree = (
       );
 
       if (stat.type === "Directory") {
-        copiedFiles += yield* copyDocsTree(sourcePath, destinationPath, packageName);
+        copiedFiles += yield* copyDocsTree(sourcePath, destinationPath, packageName, sourceRoot, canonicalSourceRoot);
         continue;
       }
 
@@ -1318,6 +1347,20 @@ export const aggregateGeneratedDocs = (options?: {
             });
           }
 
+          const canonicalPackageDir = yield* fs
+            .realPath(pkg.absolutePath)
+            .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve "${pkg.absolutePath}"`)));
+          const canonicalSourceDir = yield* fs
+            .realPath(sourceDir)
+            .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve "${sourceDir}"`)));
+          const expectedCanonicalSourceDir = path.join(canonicalPackageDir, ...DOCS_MODULES_SEGMENTS);
+
+          if (canonicalSourceDir !== expectedCanonicalSourceDir) {
+            return yield* new DomainError({
+              message: `Refusing to aggregate docs for package "${pkg.name}" because "${sourceDir}" resolves outside the package docs/modules tree.`,
+            });
+          }
+
           yield* fs
             .remove(destinationDir, {
               recursive: true,
@@ -1332,7 +1375,7 @@ export const aggregateGeneratedDocs = (options?: {
                   })
               )
             );
-          const fileCount = yield* copyDocsTree(sourceDir, destinationDir, pkg.name);
+          const fileCount = yield* copyDocsTree(sourceDir, destinationDir, pkg.name, sourceDir, canonicalSourceDir);
           yield* fs
             .writeFileString(
               path.join(destinationDir, "index.md"),

@@ -390,6 +390,103 @@ describe("Docgen operations", () => {
     );
   });
 
+  it("skips symlinked docs entries during aggregation", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const docsModulesDir = path.join(packageDir, "docs", "modules");
+          const outsideFilePath = path.join(tmpDir, "outside.md");
+          yield* fs.makeDirectory(docsModulesDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(docsModulesDir, "Schema.md"),
+            `---\nparent: Modules\ntitle: Schema\n---\n\ncontent\n`
+          );
+          yield* fs.writeFileString(outsideFilePath, "top-secret\n");
+          yield* fs.symlink(outsideFilePath, path.join(docsModulesDir, "Leak.md"));
+
+          const results = yield* aggregateGeneratedDocs();
+          const aggregatedPath = path.join(tmpDir, "docs", "common", "schema", "Schema.md");
+          const leakedPath = path.join(tmpDir, "docs", "common", "schema", "Leak.md");
+          const aggregated = yield* fs.readFileString(aggregatedPath);
+          const leakedExists = yield* fs.exists(leakedPath);
+
+          expect(results).toHaveLength(1);
+          expect(results[0]?.fileCount).toBe(1);
+          expect(aggregated).toContain('parent: "@beep/schema"');
+          expect(leakedExists).toBe(false);
+        })
+      )
+    );
+  });
+
+  it("rejects symlinked docs roots during aggregation", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          const packageDocsDir = path.join(packageDir, "docs");
+          const docsModulesDir = path.join(packageDocsDir, "modules");
+          const externalDocsModulesDir = path.join(tmpDir, "external-docs", "modules");
+          yield* fs.makeDirectory(packageDocsDir, { recursive: true });
+          yield* fs.makeDirectory(externalDocsModulesDir, { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+          yield* fs.writeFileString(path.join(packageDir, "docgen.json"), encodeJson({ srcDir: "src" }));
+          yield* fs.writeFileString(
+            path.join(externalDocsModulesDir, "Schema.md"),
+            `---\nparent: Modules\ntitle: Schema\n---\n\ncontent\n`
+          );
+          yield* fs.symlink(externalDocsModulesDir, docsModulesDir);
+
+          const exit = yield* aggregateGeneratedDocs().pipe(Effect.exit);
+          const aggregatedPath = path.join(tmpDir, "docs", "common", "schema");
+          const aggregatedExists = yield* fs.exists(aggregatedPath);
+
+          expect(Exit.isFailure(exit)).toBe(true);
+          expect(aggregatedExists).toBe(false);
+        })
+      )
+    );
+  });
+
   it("supports clean aggregation when stale docs paths conflict with nested package docs", async () => {
     await Effect.runPromise(
       withTempRepo(
