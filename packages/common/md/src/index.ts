@@ -41,7 +41,7 @@ export * from "./Md.model.ts";
  * ```ts
  * import { Md, MarkdownAdapter } from "@beep/md"
  *
- * console.log(MarkdownAdapter.render(Md.make([Md.p("Hello")]))) // "Hello"
+ * console.log(MarkdownAdapter.render(Md.make([Md.p`Hello`]))) // "Hello"
  * ```
  *
  * @since 0.0.0
@@ -54,9 +54,10 @@ export * from "./Md.render.ts";
  * @example
  * ```ts
  * import { Md } from "@beep/md"
+ * import { Result } from "effect"
  *
- * const markdown = Md.render(Md.make([Md.h1("Hello")]))
- * console.log(markdown) // "# Hello"
+ * const markdown = Md.render(Md.make([Md.h1`Hello`]))
+ * console.log(Result.getOrThrow(markdown)) // "# Hello"
  * ```
  *
  * @since 0.0.0

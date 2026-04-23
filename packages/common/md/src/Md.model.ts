@@ -10,8 +10,16 @@ import * as S from "effect/Schema";
 
 const $I = $MdId.create("Md.model");
 
-const InlineChildren: S.$Array<S.suspend<S.Codec<Inline>>> = S.Array(S.suspend((): S.Codec<Inline> => Inline));
-const BlockChildren: S.$Array<S.suspend<S.Codec<Block>>> = S.Array(S.suspend((): S.Codec<Block> => Block));
+const InlineChildren: S.$Array<S.suspend<S.Codec<Inline>>> = S.Array(S.suspend((): S.Codec<Inline> => Inline)).pipe(
+  $I.annoteSchema("InlineChildren", {
+    description: "Recursive inline children used by Markdown inline container nodes.",
+  })
+);
+const BlockChildren: S.$Array<S.suspend<S.Codec<Block>>> = S.Array(S.suspend((): S.Codec<Block> => Block)).pipe(
+  $I.annoteSchema("BlockChildren", {
+    description: "Recursive block children used by Markdown block container nodes.",
+  })
+);
 
 /**
  * Plain escaped inline text.
@@ -90,7 +98,7 @@ export const RawMarkdown = S.TaggedStruct("rawMarkdown", {
 export type RawMarkdown = typeof RawMarkdown.Type;
 
 /**
- * Trusted raw HTML inline content.
+ * Raw HTML inline content for adapters that opt into trusted HTML rendering.
  *
  * @example
  * ```ts
@@ -107,7 +115,7 @@ export const RawHtml = S.TaggedStruct("rawHtml", {
   value: S.String,
 }).pipe(
   $I.annoteSchema("RawHtml", {
-    description: "Trusted raw HTML inline content.",
+    description: "Raw HTML inline content for adapters that opt into trusted HTML rendering.",
   })
 );
 
@@ -422,7 +430,38 @@ export type Br = typeof Br.Type;
  * @category models
  * @since 0.0.0
  */
-export const Inline: S.Codec<Inline> = S.Union([Text, RawMarkdown, RawHtml, Strong, Em, Del, Code, A, Img, Br]).pipe(
+export const Inline: S.Codec<Inline> = S.TaggedUnion({
+  text: {
+    value: S.String,
+  },
+  rawMarkdown: {
+    value: S.String,
+  },
+  rawHtml: {
+    value: S.String,
+  },
+  strong: {
+    children: InlineChildren,
+  },
+  em: {
+    children: InlineChildren,
+  },
+  del: {
+    children: InlineChildren,
+  },
+  code: {
+    value: S.String,
+  },
+  a: {
+    href: S.String,
+    children: InlineChildren,
+  },
+  img: {
+    src: S.String,
+    alt: S.String,
+  },
+  br: {},
+}).pipe(
   $I.annoteSchema("Inline", {
     description: "Discriminated union of inline Markdown AST nodes.",
   })
@@ -488,7 +527,11 @@ export type P = {
 const makeHeadingSchema = <const Tag extends "h1" | "h2" | "h3" | "h4" | "h5" | "h6">(tag: Tag) =>
   S.TaggedStruct(tag, {
     children: InlineChildren,
-  });
+  }).pipe(
+    $I.annoteSchema("HeadingSchema", {
+      description: "Reusable heading block schema building block.",
+    })
+  );
 
 /**
  * Level-one heading block.
@@ -765,7 +808,11 @@ export type Li = {
   readonly children: ReadonlyArray<Inline>;
 };
 
-const ListItemChildren = S.Array(Li);
+const ListItemChildren = S.Array(Li).pipe(
+  $I.annoteSchema("ListItemChildren", {
+    description: "List item children used by ordered and unordered list blocks.",
+  })
+);
 
 /**
  * Unordered list block.
@@ -1066,23 +1113,49 @@ export type Hr = typeof Hr.Type;
  * @category models
  * @since 0.0.0
  */
-export const Block: S.Codec<Block> = S.Union([
-  H1,
-  H2,
-  H3,
-  H4,
-  H5,
-  H6,
-  P,
-  BlockQuote,
-  Pre,
-  Ul,
-  Ol,
-  Li,
-  TaskList,
-  Hr,
-]).pipe(
-  S.toTaggedUnion("_tag"),
+export const Block: S.Codec<Block> = S.TaggedUnion({
+  h1: {
+    children: InlineChildren,
+  },
+  h2: {
+    children: InlineChildren,
+  },
+  h3: {
+    children: InlineChildren,
+  },
+  h4: {
+    children: InlineChildren,
+  },
+  h5: {
+    children: InlineChildren,
+  },
+  h6: {
+    children: InlineChildren,
+  },
+  p: {
+    children: InlineChildren,
+  },
+  blockquote: {
+    children: BlockChildren,
+  },
+  pre: {
+    value: S.String,
+    language: S.Option(S.String),
+  },
+  ul: {
+    children: ListItemChildren,
+  },
+  ol: {
+    children: ListItemChildren,
+  },
+  li: {
+    children: InlineChildren,
+  },
+  taskList: {
+    children: S.Array(TaskItem),
+  },
+  hr: {},
+}).pipe(
   $I.annoteSchema("Block", {
     description: "Discriminated union of block Markdown AST nodes.",
   })

@@ -5,12 +5,98 @@
  * @since 0.0.0
  */
 
+import { $MdId } from "@beep/identity";
 import { Markdown } from "@beep/schema";
-import { A, P, Str } from "@beep/utils";
-import { dual, pipe } from "effect/Function";
+import { Html, Str } from "@beep/utils";
+import * as A from "effect/Array";
+import { dual, flow, pipe } from "effect/Function";
+import * as N from "effect/Number";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
+const $I = $MdId.create("Md.utils");
 const trimBlock = Str.replace(/^\n+|\n+$/g, "");
+const unsafeUrlProtocolPattern = /^(?:javascript|vbscript|data):/i;
+const urlProtocolDetectionIgnoredPattern = /[\u0000-\u001f\u007f\s]+/g;
+const htmlCharacterReferencePattern = /&(?:#(\d+);?|#x([\da-f]+);?|(colon|tab|newline);?)/gi;
+const percentEncodedOctetPattern = /%25([0-9a-f]{2})/gi;
+const invalidSurrogatePattern = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
+const codeFenceLanguagePattern = /^[A-Za-z0-9][A-Za-z0-9_+.-]*$/;
+const lineSeparatorPattern = /\r\n?|\n/;
+const lineBreakPattern = /[\r\n]/;
+const maxUnicodeCodePoint = 0x10ffff;
+
+const StringArray = S.Array(S.String).pipe(
+  $I.annoteSchema("StringArray", {
+    description: "Rendered string array accepted by Markdown utility helpers.",
+  })
+);
+const UnsafeUrlProtocolDestination = S.String.check(
+  S.isPattern(unsafeUrlProtocolPattern, {
+    identifier: $I`UnsafeUrlProtocolDestinationCheck`,
+    title: "Unsafe URL Protocol Destination",
+    description: "A normalized URL destination that starts with an active unsafe protocol.",
+    message: "URL destination must not start with javascript:, vbscript:, or data:",
+  })
+).pipe(
+  $I.annoteSchema("UnsafeUrlProtocolDestination", {
+    description: "Normalized URL destination that starts with an active unsafe protocol.",
+  })
+);
+const CodeFenceLanguage = S.NonEmptyString.check(
+  S.isPattern(codeFenceLanguagePattern, {
+    identifier: $I`CodeFenceLanguageCheck`,
+    title: "Code Fence Language",
+    description: "A single safe Markdown fenced-code info-string token.",
+    message: "Code fence language must be a single alphanumeric token with _, +, ., or - separators",
+  })
+).pipe(
+  $I.annoteSchema("CodeFenceLanguage", {
+    description: "Single safe Markdown fenced-code info-string token.",
+  })
+);
+
+const isUnsafeUrlProtocolDestination = S.is(UnsafeUrlProtocolDestination);
+const isCodeFenceLanguage = S.is(CodeFenceLanguage);
+
+const isValidCodePoint = (codePoint: number): boolean => codePoint >= 0 && codePoint <= maxUnicodeCodePoint;
+const parseCodePoint = (value: string, radix: 10 | 16): number => globalThis.Number.parseInt(value, radix);
+const codePointToString = (codePoint: number): string => globalThis.String.fromCodePoint(codePoint);
+const replaceHtmlCharacterReferences = (
+  value: string,
+  replacer: (
+    match: string,
+    decimal: string | undefined,
+    hexadecimal: string | undefined,
+    named: string | undefined
+  ) => string
+): string => value.replace(htmlCharacterReferencePattern, replacer);
+
+const decodeHtmlCharacterReferences = (value: string): string =>
+  replaceHtmlCharacterReferences(
+    value,
+    (_match, decimal: string | undefined, hexadecimal: string | undefined, named: string | undefined) => {
+      const normalizedNamed = P.isString(named) ? Str.toLowerCase(named) : "";
+      const codePoint = P.isString(named)
+        ? normalizedNamed === "tab"
+          ? 9
+          : normalizedNamed === "newline"
+            ? 10
+            : 58
+        : P.isString(hexadecimal)
+          ? parseCodePoint(hexadecimal, 16)
+          : parseCodePoint(O.getOrThrow(O.fromUndefinedOr(decimal)), 10);
+
+      return isValidCodePoint(codePoint) ? codePointToString(codePoint) : _match;
+    }
+  );
+
+const encodeUrlDestination = flow(
+  Str.replace(invalidSurrogatePattern, "\uFFFD"),
+  encodeURI,
+  Str.replace(percentEncodedOctetPattern, "%$1")
+);
 
 /**
  * Joins rendered Markdown blocks with one blank line between blocks.
@@ -50,7 +136,7 @@ export const prefixLines: {
   (text: string, prefix: string): string;
   (prefix: string): (text: string) => string;
 } = dual(2, (text: string, prefix: string): string =>
-  pipe(text, Str.split("\n"), A.map(Str.prefix(prefix)), A.join("\n"))
+  pipe(text, Str.split(lineSeparatorPattern), A.map(Str.prefix(prefix)), A.join("\n"))
 );
 
 /**
@@ -67,7 +153,35 @@ export const prefixLines: {
  * @category utilities
  * @since 0.0.0
  */
-export const escapeMarkdownText = Str.replace(/([\\`*_{}[\]()#+\-.|<>])/g, "\\$1");
+export const escapeMarkdownText = Str.replace(/([\\`*_{}[\]()#+\-.|<>~])/g, "\\$1");
+
+/**
+ * Normalizes URL-like destinations before rendering Markdown or HTML output.
+ *
+ * Unsafe active protocols are replaced with a harmless fragment destination.
+ *
+ * @example
+ * ```ts
+ * import { sanitizeUrlDestination } from "@beep/md/Md.utils"
+ *
+ * console.log(sanitizeUrlDestination("javascript:alert(1)")) // "#"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const sanitizeUrlDestination = (destination: string): string => {
+  const normalized = pipe(destination, Str.trim, Str.replace(urlProtocolDetectionIgnoredPattern, ""), Str.toLowerCase);
+  const decoded = pipe(
+    destination,
+    decodeHtmlCharacterReferences,
+    Str.trim,
+    Str.replace(urlProtocolDetectionIgnoredPattern, ""),
+    Str.toLowerCase
+  );
+
+  return isUnsafeUrlProtocolDestination(normalized) || isUnsafeUrlProtocolDestination(decoded) ? "#" : destination;
+};
 
 /**
  * Escapes Markdown link or image destination delimiters.
@@ -83,7 +197,48 @@ export const escapeMarkdownText = Str.replace(/([\\`*_{}[\]()#+\-.|<>])/g, "\\$1
  * @category utilities
  * @since 0.0.0
  */
-export const escapeMarkdownDestination = Str.replace(/[\\()]/g, "\\$&");
+export const escapeMarkdownDestination = flow(
+  sanitizeUrlDestination,
+  encodeUrlDestination,
+  Str.replace(/[\\()]/g, "\\$&")
+);
+
+/**
+ * Escapes a URL-like destination for use inside an HTML attribute.
+ *
+ * @example
+ * ```ts
+ * import { escapeHtmlUrlAttribute } from "@beep/md/Md.utils"
+ *
+ * console.log(escapeHtmlUrlAttribute("a b")) // "a%20b"
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const escapeHtmlUrlAttribute = flow(sanitizeUrlDestination, encodeUrlDestination, Html.escapeHtml);
+
+/**
+ * Sanitizes Markdown fenced-code info strings to a single language token.
+ *
+ * Invalid language values are omitted instead of being rendered into the fence.
+ *
+ * @example
+ * ```ts
+ * import { sanitizeCodeFenceLanguage } from "@beep/md/Md.utils"
+ *
+ * console.log(sanitizeCodeFenceLanguage("ts")) // "ts"
+ * console.log(sanitizeCodeFenceLanguage("ts bad")) // ""
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const sanitizeCodeFenceLanguage = (language: string): string => {
+  const trimmed = Str.trim(language);
+
+  return isCodeFenceLanguage(trimmed) ? trimmed : "";
+};
 
 /**
  * Returns the length of the longest contiguous backtick run in text.
@@ -107,7 +262,7 @@ export const maxBackticks = (text: string): number => {
   for (let index = 0; index < text.length; index++) {
     if (text[index] === "`") {
       current++;
-      max = Math.max(max, current);
+      max = N.max(max, current);
     } else {
       current = 0;
     }
@@ -131,6 +286,10 @@ export const maxBackticks = (text: string): number => {
  * @since 0.0.0
  */
 export const renderInlineCode = (text: string): string => {
+  if (text === "" || lineBreakPattern.test(text)) {
+    return `<code>${Html.escapeHtml(text)}</code>`;
+  }
+
   const backticks = pipe("`", Str.repeat(maxBackticks(text) + 1));
   const frontPadding = Str.startsWith("`")(text) ? " " : "";
   const backPadding = Str.endsWith("`")(text) ? " " : "";
@@ -154,9 +313,10 @@ export const renderInlineCode = (text: string): string => {
  * @since 0.0.0
  */
 export const renderFencedCode = (text: string, language: string): string => {
-  const fence = pipe("`", Str.repeat(Math.max(maxBackticks(text), 2) + 1));
+  const fence = pipe("`", Str.repeat(N.max(maxBackticks(text), 2) + 1));
+  const info = sanitizeCodeFenceLanguage(language);
 
-  return `${fence}${language}\n${text}\n${fence}`;
+  return `${fence}${info}\n${text}\n${fence}`;
 };
 
 /**
@@ -172,4 +332,4 @@ export const renderFencedCode = (text: string, language: string): string => {
  * @category guards
  * @since 0.0.0
  */
-export const isStringArray = S.is(S.Array(S.String));
+export const isStringArray = S.is(StringArray);

@@ -5,14 +5,17 @@
  * @since 0.0.0
  */
 
-import * as A_ from "effect/Array";
+import { thunkFalse } from "@beep/utils";
+import * as A from "effect/Array";
 import * as O from "effect/Option";
-import * as P_ from "effect/Predicate";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import {
-  A,
+  A as ANode,
   type Block,
   BlockQuote,
+  Block as BlockSchema,
   Br,
   Code,
   Del,
@@ -29,7 +32,7 @@ import {
   type Inline,
   Li,
   Ol,
-  P,
+  P as PNode,
   Pre,
   RawHtml,
   RawMarkdown,
@@ -39,22 +42,177 @@ import {
   Text,
   Ul,
 } from "./Md.model.ts";
-import { HtmlFragmentAdapter, MarkdownAdapter, render, renderHtml, renderWith } from "./Md.render.ts";
+import {
+  HtmlFragmentAdapter,
+  MarkdownAdapter,
+  render,
+  renderEffectWith,
+  renderEffectWithUnsafe,
+  renderHtml,
+  renderHtmlUnsafe,
+  renderUnsafe,
+  renderWith,
+  renderWithUnsafe,
+} from "./Md.render.ts";
 
-type InlineInput = string | Inline;
-type InlineContent = InlineInput | ReadonlyArray<InlineInput>;
-type InlineContentBuilder<Node> = {
-  (strings: TemplateStringsArray, ...values: ReadonlyArray<InlineInput>): Node;
+/**
+ * Inline constructor input accepted by text-oriented builders.
+ *
+ * @example
+ * ```ts
+ * import type { InlineInput } from "@beep/md/Md"
+ *
+ * const accept = (input: InlineInput) => input
+ * void accept
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type InlineInput = string | Inline;
+
+/**
+ * Inline child content accepted by inline and text block builders.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import type { InlineContent } from "@beep/md/Md"
+ *
+ * const content: InlineContent = [Md.strong("Hello"), " world"]
+ * void content
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type InlineContent = InlineInput | ReadonlyArray<InlineInput>;
+
+/**
+ * Overloaded builder shape for inline-content constructors.
+ *
+ * @example
+ * ```ts
+ * import type { InlineContentBuilder } from "@beep/md/Md"
+ * import type { Strong } from "@beep/md/Md.model"
+ *
+ * const accept = (builder: InlineContentBuilder<Strong>) => builder
+ * void accept
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type InlineContentBuilder<Node> = {
+  (strings: TemplateStringsArray, ...values: ReadonlyArray<InlineContent>): Node;
   (children: InlineContent): Node;
 };
-type BlockInput = string | Block;
-type BlockContent = BlockInput | ReadonlyArray<BlockInput>;
-type BlockContentBuilder<Node> = {
-  (strings: TemplateStringsArray, ...values: ReadonlyArray<InlineInput>): Node;
+
+/**
+ * Block constructor input accepted by block containers.
+ *
+ * @example
+ * ```ts
+ * import type { BlockInput } from "@beep/md/Md"
+ *
+ * const accept = (input: BlockInput) => input
+ * void accept
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BlockInput = string | Block;
+
+/**
+ * Block child content accepted by block container call forms.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import type { BlockContent } from "@beep/md/Md"
+ *
+ * const content: BlockContent = [Md.h2("Nested"), "plain"]
+ * void content
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BlockContent = BlockInput | ReadonlyArray<BlockInput>;
+
+/**
+ * Tagged-template interpolation accepted by block containers.
+ *
+ * Arrays in templates are inline content arrays; use the call form for block
+ * arrays.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import type { BlockTemplateValue } from "@beep/md/Md"
+ *
+ * const value: BlockTemplateValue = Md.h2("Nested")
+ * void value
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BlockTemplateValue = InlineContent | Block;
+
+/**
+ * Overloaded builder shape for block-content constructors.
+ *
+ * @example
+ * ```ts
+ * import type { BlockContentBuilder } from "@beep/md/Md"
+ * import type { BlockQuote } from "@beep/md/Md.model"
+ *
+ * const accept = (builder: BlockContentBuilder<BlockQuote>) => builder
+ * void accept
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BlockContentBuilder<Node> = {
+  (strings: TemplateStringsArray, ...values: ReadonlyArray<BlockTemplateValue>): Node;
   (children: BlockContent): Node;
 };
-type ListItemInput = string | Inline | Li | ReadonlyArray<InlineInput>;
-type TaskListItemInput =
+
+/**
+ * Input accepted by ordered and unordered list constructors.
+ *
+ * @example
+ * ```ts
+ * import { Md } from "@beep/md"
+ * import type { ListItemInput } from "@beep/md/Md"
+ *
+ * const item: ListItemInput = [Md.strong("Item")]
+ * void item
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type ListItemInput = string | Inline | Li | ReadonlyArray<InlineInput>;
+
+/**
+ * Input accepted by task list constructors.
+ *
+ * @example
+ * ```ts
+ * import type { TaskListItemInput } from "@beep/md/Md"
+ *
+ * const item: TaskListItemInput = { text: "Done", checked: true }
+ * void item
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type TaskListItemInput =
   | string
   | TaskItem
   | {
@@ -62,24 +220,31 @@ type TaskListItemInput =
       readonly checked?: boolean;
     };
 
+const blockTemplateFormattingLinePattern = /[\r\n]/;
 const isTemplateStringsArray = (input: unknown): input is TemplateStringsArray =>
-  A_.isArray(input) && P_.hasProperty(input, "raw");
+  A.isArray(input) && P.hasProperty(input, "raw");
 
-const isInlineInputArray = (input: InlineContent): input is ReadonlyArray<InlineInput> => A_.isArray(input);
+const isInlineInputArray = (input: InlineContent): input is ReadonlyArray<InlineInput> => A.isArray(input);
 
-const isBlockInputArray = (input: BlockContent): input is ReadonlyArray<BlockInput> => A_.isArray(input);
+const isBlockInputArray = (input: BlockContent): input is ReadonlyArray<BlockInput> => A.isArray(input);
 
+const isBlock = S.is(BlockSchema);
 const isLi = S.is(Li);
 const isTaskItem = S.is(TaskItem);
 
-const asInline = (input: InlineInput): Inline => (P_.isString(input) ? text(input) : input);
+const isBlockTemplateBlockValue = (input: BlockTemplateValue): input is Block => isBlock(input);
+
+const isBlockTemplateFormattingChunk = (chunk: string): boolean =>
+  Str.trim(chunk) === "" && blockTemplateFormattingLinePattern.test(chunk);
+
+const asInline = (input: InlineInput): Inline => (P.isString(input) ? text(input) : input);
 
 const asInlineArray = (input: InlineContent): ReadonlyArray<Inline> =>
-  isInlineInputArray(input) ? A_.map(input, asInline) : [asInline(input)];
+  isInlineInputArray(input) ? A.map(input, asInline) : [asInline(input)];
 
 const templateToInlineArray = (
   strings: TemplateStringsArray,
-  values: ReadonlyArray<InlineInput>
+  values: ReadonlyArray<InlineContent>
 ): ReadonlyArray<Inline> => {
   const out: Array<Inline> = [];
 
@@ -91,7 +256,7 @@ const templateToInlineArray = (
 
     const value = values[index];
     if (value !== undefined) {
-      out.push(asInline(value));
+      out.push(...asInlineArray(value));
     }
   }
 
@@ -101,9 +266,9 @@ const templateToInlineArray = (
 const makeInlineContentBuilder = <Node>(
   makeNode: (children: ReadonlyArray<Inline>) => Node
 ): InlineContentBuilder<Node> => {
-  function build(strings: TemplateStringsArray, ...values: ReadonlyArray<InlineInput>): Node;
+  function build(strings: TemplateStringsArray, ...values: ReadonlyArray<InlineContent>): Node;
   function build(children: InlineContent): Node;
-  function build(input: TemplateStringsArray | InlineContent, ...values: ReadonlyArray<InlineInput>): Node {
+  function build(input: TemplateStringsArray | InlineContent, ...values: ReadonlyArray<InlineContent>): Node {
     return isTemplateStringsArray(input)
       ? makeNode(templateToInlineArray(input, values))
       : makeNode(asInlineArray(input));
@@ -112,19 +277,57 @@ const makeInlineContentBuilder = <Node>(
   return build;
 };
 
-const asBlock = (input: BlockInput): Block => (P_.isString(input) ? p(input) : input);
+const asBlock = (input: BlockInput): Block => (P.isString(input) ? p(input) : input);
 
 const asBlockArray = (input: BlockContent): ReadonlyArray<Block> =>
-  isBlockInputArray(input) ? A_.map(input, asBlock) : [asBlock(input)];
+  isBlockInputArray(input) ? A.map(input, asBlock) : [asBlock(input)];
+
+const templateToBlockArray = (
+  strings: TemplateStringsArray,
+  values: ReadonlyArray<BlockTemplateValue>
+): ReadonlyArray<Block> => {
+  const out: Array<Block> = [];
+  let pendingInline: Array<Inline> = [];
+  const flushInline = (): void => {
+    if (pendingInline.length > 0) {
+      out.push(p(pendingInline));
+      pendingInline = [];
+    }
+  };
+
+  for (let index = 0; index < strings.length; index++) {
+    const chunk = strings[index];
+    const value = values[index];
+    const previousValue = values[index - 1];
+    const nextIsBlock = value !== undefined && isBlockTemplateBlockValue(value);
+    const previousIsBlock = previousValue !== undefined && isBlockTemplateBlockValue(previousValue);
+    if (chunk !== "" && !(isBlockTemplateFormattingChunk(chunk) && (nextIsBlock || previousIsBlock))) {
+      pendingInline.push(text(chunk));
+    }
+
+    if (value !== undefined) {
+      if (nextIsBlock) {
+        flushInline();
+        out.push(...asBlockArray(value));
+      } else {
+        pendingInline.push(...asInlineArray(value));
+      }
+    }
+  }
+
+  flushInline();
+
+  return out;
+};
 
 const makeBlockContentBuilder = <Node>(
   makeNode: (children: ReadonlyArray<Block>) => Node
 ): BlockContentBuilder<Node> => {
-  function build(strings: TemplateStringsArray, ...values: ReadonlyArray<InlineInput>): Node;
+  function build(strings: TemplateStringsArray, ...values: ReadonlyArray<BlockTemplateValue>): Node;
   function build(children: BlockContent): Node;
-  function build(input: TemplateStringsArray | BlockContent, ...values: ReadonlyArray<InlineInput>): Node {
+  function build(input: TemplateStringsArray | BlockContent, ...values: ReadonlyArray<BlockTemplateValue>): Node {
     return isTemplateStringsArray(input)
-      ? makeNode([p(templateToInlineArray(input, values))])
+      ? makeNode(templateToBlockArray(input, values))
       : makeNode(asBlockArray(input));
   }
 
@@ -138,11 +341,11 @@ const asTaskItem = (input: TaskListItemInput): TaskItem => {
     return input;
   }
 
-  if (P_.isString(input)) {
+  if (P.isString(input)) {
     return taskItem(input);
   }
 
-  return P_.isBoolean(input.checked) ? taskItem(input.text, { checked: input.checked }) : taskItem(input.text);
+  return P.isBoolean(input.checked) ? taskItem(input.text, { checked: input.checked }) : taskItem(input.text);
 };
 
 /**
@@ -178,7 +381,7 @@ export const text = (value: string): Text => Text.make({ value });
 export const rawMarkdown = (value: string): RawMarkdown => RawMarkdown.make({ value });
 
 /**
- * Creates trusted raw HTML inline content.
+ * Creates raw HTML inline content for adapters that opt into trusted HTML rendering.
  *
  * @example
  * ```ts
@@ -271,7 +474,8 @@ export const code = (value: string): Code => Code.make({ value });
  * @category constructors
  * @since 0.0.0
  */
-export const a = (href: string, children: InlineContent): A => A.make({ href, children: asInlineArray(children) });
+export const a = (href: string, children: InlineContent): ANode =>
+  ANode.make({ href, children: asInlineArray(children) });
 
 /**
  * Creates an inline image.
@@ -327,7 +531,7 @@ export const h1 = makeInlineContentBuilder((children): H1 => H1.make({ children 
  * ```ts
  * import { Md } from "@beep/md"
  *
- * const node = Md.h2("Install")
+ * const node = Md.h2`Install`
  * console.log(node._tag) // "h2"
  * ```
  *
@@ -343,7 +547,7 @@ export const h2 = makeInlineContentBuilder((children): H2 => H2.make({ children 
  * ```ts
  * import { Md } from "@beep/md"
  *
- * const node = Md.h3("Config")
+ * const node = Md.h3`Config`
  * console.log(node._tag) // "h3"
  * ```
  *
@@ -359,7 +563,7 @@ export const h3 = makeInlineContentBuilder((children): H3 => H3.make({ children 
  * ```ts
  * import { Md } from "@beep/md"
  *
- * const node = Md.h4("Details")
+ * const node = Md.h4`Details`
  * console.log(node._tag) // "h4"
  * ```
  *
@@ -375,7 +579,7 @@ export const h4 = makeInlineContentBuilder((children): H4 => H4.make({ children 
  * ```ts
  * import { Md } from "@beep/md"
  *
- * const node = Md.h5("Notes")
+ * const node = Md.h5`Notes`
  * console.log(node._tag) // "h5"
  * ```
  *
@@ -391,7 +595,7 @@ export const h5 = makeInlineContentBuilder((children): H5 => H5.make({ children 
  * ```ts
  * import { Md } from "@beep/md"
  *
- * const node = Md.h6("Footnote")
+ * const node = Md.h6`Footnote`
  * console.log(node._tag) // "h6"
  * ```
  *
@@ -414,7 +618,7 @@ export const h6 = makeInlineContentBuilder((children): H6 => H6.make({ children 
  * @category constructors
  * @since 0.0.0
  */
-export const p = makeInlineContentBuilder((children): P => P.make({ children }));
+export const p = makeInlineContentBuilder((children): PNode => PNode.make({ children }));
 
 /**
  * Creates a list item block.
@@ -423,7 +627,7 @@ export const p = makeInlineContentBuilder((children): P => P.make({ children }))
  * ```ts
  * import { Md } from "@beep/md"
  *
- * const node = Md.li("Item")
+ * const node = Md.li`Item`
  * console.log(node._tag) // "li"
  * ```
  *
@@ -446,7 +650,7 @@ export const li = makeInlineContentBuilder((children): Li => Li.make({ children 
  * @category constructors
  * @since 0.0.0
  */
-export const ul = (children: ReadonlyArray<ListItemInput>): Ul => Ul.make({ children: A_.map(children, asListItem) });
+export const ul = (children: ReadonlyArray<ListItemInput>): Ul => Ul.make({ children: A.map(children, asListItem) });
 
 /**
  * Creates an ordered list block.
@@ -462,7 +666,7 @@ export const ul = (children: ReadonlyArray<ListItemInput>): Ul => Ul.make({ chil
  * @category constructors
  * @since 0.0.0
  */
-export const ol = (children: ReadonlyArray<ListItemInput>): Ol => Ol.make({ children: A_.map(children, asListItem) });
+export const ol = (children: ReadonlyArray<ListItemInput>): Ol => Ol.make({ children: A.map(children, asListItem) });
 
 /**
  * Creates a GFM task list item.
@@ -480,7 +684,7 @@ export const ol = (children: ReadonlyArray<ListItemInput>): Ol => Ol.make({ chil
  */
 export const taskItem = (children: InlineContent, options: { readonly checked?: boolean } = {}): TaskItem =>
   TaskItem.make({
-    checked: O.getOrElse(O.fromUndefinedOr(options.checked), () => false),
+    checked: O.getOrElse(O.fromUndefinedOr(options.checked), thunkFalse),
     children: asInlineArray(children),
   });
 
@@ -499,7 +703,7 @@ export const taskItem = (children: InlineContent, options: { readonly checked?: 
  * @since 0.0.0
  */
 export const taskList = (children: ReadonlyArray<TaskListItemInput>): TaskList =>
-  TaskList.make({ children: A_.map(children, asTaskItem) });
+  TaskList.make({ children: A.map(children, asTaskItem) });
 
 /**
  * Creates a block quote container.
@@ -556,7 +760,7 @@ export const hr: Hr = Hr.make({});
  * ```ts
  * import { Md } from "@beep/md"
  *
- * const document = Md.make([Md.h1("Hello"), Md.p("World")])
+ * const document = Md.make([Md.h1`Hello`, Md.p`World`])
  * console.log(document._tag) // "document"
  * ```
  *
@@ -568,12 +772,18 @@ export const make = (children: ReadonlyArray<Block>): Document => Document.make(
 /**
  * Namespace-style public Markdown DSL.
  *
+ * Simple text-oriented block builders such as {@link h1}, {@link h2}, and
+ * {@link p} are intended to read naturally as tagged template literals while
+ * keeping function-call overloads for dynamic strings and structured inline
+ * children.
+ *
  * @example
  * ```ts
  * import { Md } from "@beep/md"
+ * import { Result } from "effect"
  *
- * const document = Md.make([Md.h1("Hello"), Md.p("World")])
- * console.log(Md.render(document)) // "# Hello\n\nWorld"
+ * const document = Md.make([Md.h1`Hello`, Md.p`World`])
+ * console.log(Result.getOrThrow(Md.render(document))) // "# Hello\n\nWorld"
  * ```
  *
  * @category constructors
@@ -604,8 +814,13 @@ export const Md = {
   rawHtml,
   rawMarkdown,
   render,
+  renderEffectWith,
+  renderEffectWithUnsafe,
   renderHtml,
+  renderHtmlUnsafe,
+  renderUnsafe,
   renderWith,
+  renderWithUnsafe,
   strong,
   taskItem,
   taskList,

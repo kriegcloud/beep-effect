@@ -72,6 +72,11 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
+    "type-test": {
+      "cache": true,
+      "dependsOn": ["^type-test"],
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+    },
     "coverage": {
       "cache": false,
       "dependsOn": ["^build"],
