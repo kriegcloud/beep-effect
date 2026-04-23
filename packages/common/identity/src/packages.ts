@@ -55,6 +55,7 @@ const composers = $I.compose(
   "colors",
   "data",
   "identity",
+  "md",
   "messages",
   "nlp",
   "observability",
@@ -731,3 +732,10 @@ export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = compos
  * @since 0.0.0
  */
 export const RepoPkgs = composers;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/md">}
+ */
+export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;

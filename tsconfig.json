@@ -144,7 +144,9 @@
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/infra/*": ["./infra/src/*"],
       "@beep/firecrawl": ["./packages/shared/providers/firecrawl/src/index.ts"],
-      "@beep/firecrawl/*": ["./packages/shared/providers/firecrawl/src/*"]
+      "@beep/firecrawl/*": ["./packages/shared/providers/firecrawl/src/*"],
+      "@beep/md": ["./packages/common/md/src/index.ts"],
+      "@beep/md/*": ["./packages/common/md/src/*"]
     }
   }
 }
