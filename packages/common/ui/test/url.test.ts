@@ -18,6 +18,7 @@ describe("sanitizeAnchorHref", () => {
     expect(sanitizeAnchorHref(" \n JaVaScRiPt:alert(1)")).toBe("#");
     expect(sanitizeAnchorHref("javascript&#x3a;alert(1)")).toBe("#");
     expect(sanitizeAnchorHref("javascript%3Aalert(1)")).toBe("#");
+    expect(sanitizeAnchorHref("javascript%26colon;alert(1)")).toBe("#");
     expect(sanitizeAnchorHref("javascript%26%2358%3balert(1)")).toBe("#");
     expect(sanitizeAnchorHref("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574%253aalert(1)")).toBe("#");
   });
