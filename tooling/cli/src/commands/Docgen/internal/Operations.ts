@@ -798,16 +798,6 @@ nav_order: ${order}
 ---
 `;
 
-const isContainedDocgenPath = (path: Path.Path, root: string, candidate: string): boolean => {
-  const relativeFromRoot = normalizePath(path.relative(root, candidate));
-
-  return (
-    relativeFromRoot === "" ||
-    relativeFromRoot === "." ||
-    (!path.isAbsolute(relativeFromRoot) && relativeFromRoot !== ".." && !Str.startsWith("../")(relativeFromRoot))
-  );
-};
-
 const expectedCanonicalDocgenPath = (
   path: Path.Path,
   sourceRoot: string,
@@ -866,10 +856,6 @@ const copyDocsTree = (
             })
         )
       );
-
-      if (!isContainedDocgenPath(path, canonicalSourceRoot, canonicalSourcePath)) {
-        continue;
-      }
 
       if (canonicalSourcePath !== expectedCanonicalDocgenPath(path, sourceRoot, canonicalSourceRoot, sourcePath)) {
         continue;
