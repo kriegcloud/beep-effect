@@ -178,7 +178,6 @@ jobs:
                   bun run docgen
                 else
                   bunx turbo run docgen --affected --summarize
-                  node scripts/append-turbo-summary.mjs
                   bun run docs:aggregate
                 fi
               else
@@ -189,6 +188,10 @@ jobs:
 
       - name: Append Turbo summary
         if: matrix.uses_turbo == 'true' && steps.lane-gate.outputs.should_run == 'true' && always()
+        run: node scripts/append-turbo-summary.mjs
+
+      - name: Append Turbo summary (docgen affected)
+        if: matrix.id == 'docgen' && steps.lane-gate.outputs.should_run == 'true' && steps.lane-gate.outputs.docgen_mode == 'affected' && always()
         run: node scripts/append-turbo-summary.mjs
 
       - name: Skip lane

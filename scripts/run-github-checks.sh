@@ -93,6 +93,9 @@ run_repo_sanity() {
   log "repo-sanity: versions"
   bunx turbo run lint:versions --cache=local:rw
 
+  log "repo-sanity: dependency policy"
+  bunx syncpack lint
+
   log "repo-sanity: package graph"
   bunx sherif@1.10.0 -r non-existent-packages
 
