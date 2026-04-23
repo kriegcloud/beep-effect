@@ -48,10 +48,12 @@ clients, client services, atoms, form models, and client state machines.
 
 A use-case export that may be imported by client packages without dragging
 server-only orchestration or infrastructure into the browser. Command/query
-language, boundary contracts, and actionable application errors are usually
-client-safe. Those exports must be re-exported from a client-safe subpath such
-as `@beep/<slice>-use-cases/public`. Product ports, server Layers, process
-managers, and runtime workflow handlers are not client-safe.
+language, driver-neutral boundary contracts, driver-neutral DTOs, actionable
+application errors, and client-safe facade interfaces are usually client-safe. Those
+exports must be re-exported from a client-safe subpath such as
+`@beep/<slice>-use-cases/public`. Product ports, server-only service/facade
+contracts, workflows, process managers, schedulers, and live Layer values are
+not client-safe.
 
 ## Concept
 
@@ -81,17 +83,21 @@ Membership.command-client.ts
 A typed application/runtime configuration contract expressed with Effect
 `Config`, schemas, config services, and live/test Layers. A config contract may
 be backed by environment variables, files, secret stores, static test fixtures,
-or app/runtime composition.
+or application entrypoint composition.
 
 ## Config Package
 
 The slice package that owns typed config contracts for a slice:
 `@beep/<slice>-config`. It may define public config, server config, redacted
-secret config, config services, config vocabulary, and Layers that read from the
-ambient `ConfigProvider`. Config packages publish those boundaries through
-required subpaths such as `/public`, `/server`, `/secrets`, `/layer`, and
-`/test`. A config package is canonical but optional, and it is not a broad
-constants package.
+secret config, config services, config vocabulary, and server/runtime-only
+config resolution helpers that read from the ambient `ConfigProvider`. Config
+packages publish those boundaries through required subpaths such as `/public`,
+`/server`, `/secrets`, `/layer`, and `/test`. `/public` is the only
+browser-safe config surface. Required subpaths are required names when that
+role exists, not a placeholder-export requirement. Package roots and `./*`
+exports may remain during migration, but they are transitional rather than the
+canonical boundary contract. A config package is canonical but optional, and it
+is not a broad constants package.
 
 ## Domain-Kind Folder
 
@@ -111,7 +117,9 @@ A technical capability package under `packages/drivers/<name>`. Drivers wrap
 third-party or infrastructure concerns such as Drizzle, Postgres, SQLite,
 EventLog, workflow engines, queues, sharding, transactions, retries, browser
 APIs, and driver-local configuration. Driver packages use short public names
-such as `@beep/drizzle`.
+such as `@beep/drizzle`. When a driver exposes browser-safe functionality, it
+must do so from `@beep/<driver>/browser`; the package root is not browser-safe
+by default.
 
 ## Drivers Family
 
@@ -167,6 +175,12 @@ A product-language capability required by use-cases. Ports live in
 A server-side implementation of a use-case port. Example:
 `server/src/entities/Membership/Membership.repo.ts` implements
 `MembershipRepository` using tables and drivers.
+
+## Required Subpath
+
+A canonical export name for a boundary-sensitive package role. Required means
+use this subpath name when the role exists; it does not require placeholder
+exports from packages that do not need that role.
 
 ## Policy Pack
 
@@ -240,7 +254,7 @@ The filename suffix that states a module's role. Examples include `.model.ts`,
 
 Server-only secret configuration represented with redacted values. Secret config
 must live behind explicit secret/server-only modules and must not be exported
-through browser-safe package roots.
+through `/public` or any other browser-safe surface.
 
 ## Server Config
 
@@ -253,11 +267,16 @@ bundles.
 The DDD meaning of `packages/shared`: deliberately shared cross-cutting
 language, value objects, schemas, config contracts, and a small number of
 high-bar cross-slice adapters. `shared/domain` and `shared/config` are the
-normal homes. `shared/client`, `shared/server`, `shared/tables`, and `shared/ui`
-are exceptional. Shared packages consume shared-kernel language from shared and
-may consume appropriate `foundation` packages beside it; they do not own
-drivers. Shared is not a synonym for `common` or `foundation`, and it is not a
-place for miscellaneous leftovers from product slices.
+normal homes. `shared/use-cases`, `shared/client`, `shared/server`,
+`shared/tables`, and `shared/ui` are exceptional. `shared/use-cases` is
+contract-only: it may hold cross-slice commands, queries, driver-neutral DTOs,
+driver-neutral boundary contracts, client-safe application errors, facade
+interfaces, and product ports, but not workflows, process managers,
+schedulers, handlers, concrete adapters, driver imports, or live Layers.
+Shared packages consume shared-kernel language from shared and may consume
+appropriate `foundation` packages beside it; they do not own drivers. Shared
+is not a synonym for `common` or `foundation`, and it is not a place for
+miscellaneous leftovers from product slices.
 
 ## Slice
 
@@ -268,7 +287,8 @@ tables, and UI. Drivers stay repo-level instead of being slice package kinds.
 ## Tables Package
 
 The slice package that owns product-specific persistence schema and mapping.
-Tables are not domain and are not generic driver wrappers.
+Tables are the slice-local persistence adapter surface for product schema and
+mappings. They are not domain and they are not generic driver wrappers.
 
 ## Tooling Package
 
@@ -279,8 +299,14 @@ operations; product/runtime code does not depend on them.
 ## Use-Case Package
 
 The slice package that owns application intent: commands, queries,
-authorization, ports, services, workflows, process managers, and actionable
-application errors.
+driver-neutral boundary/protocol contracts, authorization, ports,
+service/facade contracts, slice-local workflow/process/scheduler contracts, and
+actionable application errors. Canonical export surfaces are `/public`,
+`/server`, and `/test`.
+`/public` is client-safe application contract surface. `/server` is server-only
+application contract surface. Package roots and `./*` exports may remain during
+migration, but they are transitional rather than the canonical boundary
+contract.
 
 ## Value Object
 

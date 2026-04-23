@@ -5,7 +5,7 @@
 The name is deliberate. `config` names the typed runtime contract the slice
 understands. `env` names only one possible source for those values. Effect
 `Config` can be backed by environment variables, static test fixtures, files,
-secret stores, platform config, or app/runtime composition.
+secret stores, platform config, or application entrypoint composition.
 
 ## What Config Owns
 
@@ -17,7 +17,8 @@ Slice config packages own:
 - server-only config contracts
 - redacted secret config
 - defaults and literal domains tied directly to config declarations
-- live Layers that read from the ambient `ConfigProvider`
+- server/runtime-only config resolution helpers, including live Layers that
+  read from the ambient `ConfigProvider`
 - static/test Layers and fixtures tied to config declarations
 
 The public package convention is:
@@ -55,8 +56,7 @@ config/src/
   TestLayer.ts
 ```
 
-Client packages may import public/browser-safe slice or shared config contracts
-and client-safe config Layers only through required export subpaths:
+Config packages publish an explicit export contract:
 
 ```txt
 @beep/<slice>-config/public
@@ -66,9 +66,17 @@ and client-safe config Layers only through required export subpaths:
 @beep/<slice>-config/test
 ```
 
-`@beep/shared-config` uses the same subpath contract. Browser code imports only
-`/public`. Server-only config, secrets, live Layers, and test utilities stay
-behind `/server`, `/secrets`, `/layer`, and `/test`.
+`@beep/shared-config` uses the same subpath contract.
+
+- Browser/client code imports only `/public`.
+- `/server`, `/secrets`, and `/test` are server/test-only.
+- `/layer` remains canonical, but it is server/runtime-only config resolution
+  surface rather than a client-safe API.
+
+Required subpaths are required names when that role exists, not a requirement
+to publish placeholder exports. Package-root and `./*` exports may remain during
+migration, but they are compatibility leftovers rather than the canonical
+boundary contract.
 
 Secrets must use redacted values. Secret config belongs in explicit secret or
 server-only modules, never in package roots that browser code can casually
@@ -99,9 +107,10 @@ import slice config, `@beep/shared-config`, `Config`, `ConfigProvider`, secret
 helpers, or test config utilities.
 
 Use-cases may import config contracts or services for application tunables.
-Server, client, and app/runtime packages compose the live config Layers that
-resolve those contracts from a `ConfigProvider`. Use-cases own contracts and
-facades, not live Layers.
+Server and client packages compose the live config Layers that resolve those
+contracts from a `ConfigProvider`. Top-level application entrypoints may then
+assemble those package-local Layers. Use-cases own contracts and facades, not
+live Layers.
 
 Config must not import drivers. Drivers keep technical driver config in driver
 `.config.ts` files. Slice config can expose application-facing settings that

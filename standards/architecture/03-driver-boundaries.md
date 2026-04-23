@@ -7,9 +7,9 @@ repo-level home from the start:
 drivers    = repo-level external boundary wrappers
 foundation = repo-owned reusable substrate
 shared     = deliberate cross-slice product language
-use-cases  = product ports and boundary contracts
-server     = live server adapters and Layer composition
-client     = live client adapters and Layer composition
+use-cases  = product ports and driver-neutral boundary/protocol contracts
+server     = live server adapters and package-local Layer composition
+client     = live client adapters and package-local Layer composition
 tables     = product persistence shape
 domain     = driver-neutral semantic language
 ```
@@ -52,10 +52,11 @@ Drivers define safe technical capability:
 - queue engines
 - workflow runtimes
 - retry, timeout, transaction, and transport helpers
+- boundary-local layer constructors and test layers
 
 Server adapts those drivers to product ports. Client may depend on a driver only
-when the driver exposes a browser-safe entrypoint such as
-`@beep/<driver>/browser`.
+through the required browser-safe entrypoint `@beep/<driver>/browser` when that
+surface exists. The driver package root is never browser-safe by default.
 
 ## What "Dev-Safe" Means
 
@@ -124,5 +125,6 @@ implementations into driver config files.
 `tables` stays canonical because product-specific persistence shape is not the
 same thing as generic driver capability.
 
-`@beep/drizzle` can offer safe Drizzle helpers. `tables` declares the
+`tables` is the slice-local persistence adapter surface for product schema and
+mappings. `@beep/drizzle` can offer safe Drizzle helpers. `tables` declares the
 `Membership` table. `server` uses both to implement the product repository.

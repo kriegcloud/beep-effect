@@ -102,9 +102,10 @@ Non-slice artifacts are never `misc`.
 - `tooling` owns developer-operational code packages
 - `agents` owns repo-local AI steering bundles
 
-Every non-slice artifact declares exactly one family and one kind so humans,
-agents, and tooling can infer the intended boundary before opening the first
-file.
+Every non-slice artifact declares exactly one family so humans, agents, and
+tooling can infer the intended boundary before opening the first file. `kind` is
+required only for intentionally kinded families; `drivers` remains the flat
+family exception.
 
 ## Package Dependency Graph
 
@@ -128,6 +129,7 @@ flowchart TD
   tables["@beep/<slice>-tables"]
   drivers["@beep/<driver>"]
   sharedDomain["@beep/shared-domain"]
+  sharedUseCases["@beep/shared-use-cases"]
   sharedConfig["@beep/shared-config"]
   foundation["foundation primitive/modeling"]
 
@@ -149,9 +151,11 @@ flowchart TD
   tables --> drivers
 
   domain --> sharedDomain
+  usecases --> sharedUseCases
   domain --> foundation
   usecases --> sharedDomain
   usecases --> sharedConfig
+  server --> sharedUseCases
   usecases --> foundation
   config --> sharedDomain
   config --> sharedConfig
@@ -159,6 +163,7 @@ flowchart TD
   server --> sharedDomain
   server --> sharedConfig
   server --> foundation
+  client --> sharedUseCases
   client --> sharedDomain
   client --> sharedConfig
   client --> foundation
@@ -190,24 +195,28 @@ Client/UI dependency caveats:
 - `config --> domain` is one-way. Config may reuse domain schemas, brands, and
   value objects; domain must never import config or read runtime configuration.
 - `client` may import `use-cases` only through required client-safe contract
-  subpaths such as `@beep/<slice>-use-cases/public`. Those exports may include
-  command/query language, boundary contracts, actionable application errors, and
-  client facade contracts. They must not include product ports, server-only
-  workflows, process managers, or Layer implementations.
+  subpaths such as `@beep/<slice>-use-cases/public` and
+  `@beep/shared-use-cases/public`. Those exports may include command/query
+  language, driver-neutral boundary contracts, driver-neutral DTOs, actionable
+  application errors, and client-safe facade contracts. They must not include
+  product ports, server-only service/facade contracts, workflows, process
+  managers, schedulers, or live Layer values.
 - `client` may import config only through `@beep/<slice>-config/public` and
   `@beep/shared-config/public`. It must not import `/server`, `/secrets`,
   `/layer`, or `/test`.
-- `client` may import drivers only through required browser-safe subpaths such
-  as `@beep/<driver>/browser`.
+- `client` may import drivers only through the required browser-safe subpath
+  `@beep/<driver>/browser`. Driver package roots are never browser-safe by
+  default.
 - `use-cases` may import config contracts or services for application tunables.
-  Live config resolution and live Layer composition belong in `server`,
-  `client`, or app/runtime composition.
+  Live config resolution helpers belong under config `/layer`; live application
+  Layer composition belongs in `server`, `client`, or top-level application
+  entrypoint composition that assembles those adapter boundaries.
 - `ui` may import `domain` only for driver-neutral schemas, value objects,
   display contracts, and form validation. UI behavior should go through
   `client` services/state instead of calling use-case orchestration directly.
 - `shared/domain` and `shared/config` follow the same inward rules as slice
-  `domain` and `config`. High-bar `shared/client`, `shared/server`,
-  `shared/tables`, and `shared/ui` packages never own drivers.
+  `domain` and `config`. High-bar `shared/use-cases`, `shared/client`,
+  `shared/server`, `shared/tables`, and `shared/ui` packages never own drivers.
 
 ## Slice Package Topology
 
@@ -238,10 +247,11 @@ The package names follow the public package convention:
 ```
 
 `config` is canonical but optional. Create it only when a slice has meaningful
-configuration contracts. The canonical shared package name is
-`@beep/shared-config`; `env` package naming is legacy source-specific vocabulary,
-not a slice package kind. Environment variables are one possible
-`ConfigProvider` source for config declarations.
+configuration contracts. The canonical shared package names are
+`@beep/shared-domain`, `@beep/shared-config`, and high-bar
+`@beep/shared-use-cases` when that package exists. `env` package naming is
+legacy source-specific vocabulary, not a slice package kind. Environment
+variables are one possible `ConfigProvider` source for config declarations.
 
 `shared` is the canonical cross-slice slice with a reduced spine:
 
@@ -249,16 +259,21 @@ not a slice package kind. Environment variables are one possible
 packages/shared/
   domain/
   config/
+  use-cases/ # high bar only
   client/   # high bar only
   server/   # high bar only
   tables/   # high bar only
   ui/       # high bar only
 ```
 
-`shared/domain` and `shared/config` are the normal homes. `shared/client`,
-`shared/server`, `shared/tables`, and `shared/ui` are high-bar exceptions.
-`shared/use-cases` is not canonical. `shared` never owns drivers or generic
-substrate.
+`shared/domain` and `shared/config` are the normal homes. `shared/use-cases`,
+`shared/client`, `shared/server`, `shared/tables`, and `shared/ui` are high-bar
+exceptions. `shared/use-cases` is contract-only: deliberate cross-slice
+commands, queries, driver-neutral DTOs, driver-neutral boundary contracts,
+client-safe application errors, facade interfaces, and product ports are
+allowed. It never owns workflows, process managers, schedulers, handlers,
+concrete adapters, driver imports, or live Layer values. `shared` never owns
+drivers or generic substrate.
 
 Technical wrappers live in the flat repo-level drivers family:
 
@@ -267,6 +282,55 @@ packages/drivers/<name> -> @beep/<name>
 ```
 
 New packages should follow this target layout immediately.
+
+## Boundary-Sensitive Export Contracts
+
+This standard is target-first. Boundary-sensitive package roots and `./*`
+wildcard exports may remain during migration for compatibility, but explicit
+subpaths are the only canonical boundary contract in new examples and new
+package guidance.
+
+`use-cases` publishes explicit boundary subpaths:
+
+```txt
+@beep/<slice>-use-cases/public
+@beep/<slice>-use-cases/server
+@beep/<slice>-use-cases/test
+```
+
+When it exists, `@beep/shared-use-cases` follows the same contract.
+
+- `/public` is client-safe: commands, queries, driver-neutral DTOs, boundary
+  contracts, actionable application errors, and client-safe facade interfaces.
+- `/server` is the server-only application contract surface, including product
+  ports, server-only service or facade contracts, and slice-local
+  workflow/process/scheduler contracts when that slice uses them.
+- `/test` is for use-case test helpers and fixtures.
+
+`config` publishes explicit boundary subpaths:
+
+```txt
+@beep/<slice>-config/public
+@beep/<slice>-config/server
+@beep/<slice>-config/secrets
+@beep/<slice>-config/layer
+@beep/<slice>-config/test
+```
+
+`@beep/shared-config` follows the same contract.
+
+- `/public` is the only browser/client-safe config surface.
+- `/server`, `/secrets`, and `/test` are server/test-only.
+- `/layer` remains canonical, but it is server/runtime-only config resolution
+  surface rather than a browser-safe API.
+
+Driver browser safety is also explicit: if a driver exposes a browser-safe
+surface, it must do so from `@beep/<driver>/browser`. The package root is never
+browser-safe by default.
+
+Required subpaths are required names when that role exists. They are not a
+requirement to publish placeholder exports from packages that do not need that
+role.
 
 ## Non-Slice Family Grammar
 
@@ -336,7 +400,7 @@ package. It is not a slice kind and not shared-kernel language.
 
 Every non-slice artifact declares machine-readable family metadata. `kind` is
 required for `foundation`, `tooling`, and `agents`. `drivers` is the explicit
-flat-family exception.
+flat-family exception and omits `kind`.
 
 Code packages record it in `package.json`:
 
@@ -435,8 +499,8 @@ appropriate ways:
   `foundation/ui-system` packages and browser-safe `primitive`/`modeling`
   packages.
 - `server` and `tables` may import drivers directly.
-- `client` may import only browser-safe driver entrypoints such as
-  `@beep/<driver>/browser`.
+- `client` may import only browser-safe driver entrypoints exposed from the
+  required subpath `@beep/<driver>/browser`.
 - `domain`, `use-cases`, `config`, `ui`, and all `shared/*` packages do not
   import drivers.
 - Product slices and shared-kernel packages do not depend on `tooling/*` or
@@ -735,9 +799,28 @@ persistence, or driver access.
 | `.cluster.ts`   | Driver-neutral cluster entity protocol definitions.                                 |
 | `.workflows.ts` | Durable workflow declarations or application workflow contracts.                    |
 | `.processes.ts` | Process managers/sagas coordinating multiple commands, events, ports, or workflows. |
+| `.schedulers.ts` | Scheduler contracts or schedule declarations coordinating time-based work.          |
 
-Client-safe use-case exports must be re-exported from
-`@beep/<slice>-use-cases/public`.
+Use-cases publish explicit boundary subpaths:
+
+- `@beep/<slice>-use-cases/public` for client-safe commands, queries,
+  driver-neutral DTOs, driver-neutral boundary contracts, actionable
+  application errors, and client-safe facade interfaces
+- `@beep/<slice>-use-cases/server` for server-only application contracts,
+  including product ports, server-only service/facade contracts, and slice-local
+  workflow/process/scheduler contracts when present
+- `@beep/<slice>-use-cases/test` for test helpers and fixtures
+
+Required subpaths are required names when that role exists, not a requirement
+to add placeholder exports. Package roots and `./*` exports may remain during
+migration, but they are not the canonical boundary contract.
+
+The high-bar `shared/use-cases` exception follows the same `/public`, `/server`,
+and `/test` contract. It is narrower than slice `use-cases`: only commands,
+queries, driver-neutral DTOs, driver-neutral boundary contracts, client-safe
+application errors, facade interfaces, and product ports are allowed. It never
+owns workflows, process managers, schedulers, handlers, concrete adapters,
+driver imports, or live Layer values.
 
 ### Config Role Vocabulary
 
@@ -748,11 +831,21 @@ Client-safe use-case exports must be re-exported from
 | `PublicConfig.ts` | Browser-safe config contracts and services that client packages may import.             |
 | `ServerConfig.ts` | Server-only config contracts and services.                                              |
 | `Secrets.ts`      | Secret config declarations using redacted values.                                       |
-| `Layer.ts`        | Live config Layer reading from the ambient `ConfigProvider`.                            |
+| `Layer.ts`        | Server/runtime-only config resolution helpers, including live Layers that read from the ambient `ConfigProvider`. |
 | `TestLayer.ts`    | Static/test config Layers and fixtures tied to config declarations.                     |
 
-These roles map to required export subpaths: `/public`, `/server`, `/secrets`,
-`/layer`, and `/test`.
+These roles map to explicit export subpaths:
+
+- `@beep/<slice>-config/public` for browser-safe config contracts
+- `@beep/<slice>-config/server` for server-only config contracts
+- `@beep/<slice>-config/secrets` for redacted secret config
+- `@beep/<slice>-config/layer` for server/runtime-only config resolution
+  helpers
+- `@beep/<slice>-config/test` for test helpers and fixtures
+
+`@beep/shared-config` follows the same contract. Required subpaths are required
+names when that role exists. Package roots and `./*` exports may remain during
+migration, but they are not the canonical boundary contract.
 
 ### Server Role Vocabulary
 
@@ -811,13 +904,20 @@ Use-cases own imperative application intent and boundary language:
 - effectful application authorization
 - product ports
 - service/facade contracts
-- workflows and process managers
+- slice-local workflow/process orchestration contracts when the slice needs them
 - actionable application errors
 
 Product ports live here by default because they describe what the application
 needs in product language. Protocol declarations also live here by default.
-Use-cases may import config contracts and services, but they do not own live
-Layers that read the runtime environment.
+Slice `use-cases` may also declare workflow/process/scheduler contracts. High-
+bar `shared/use-cases` does not: it is contract-only and limited to deliberate
+cross-slice commands, queries, driver-neutral DTOs, driver-neutral boundary
+contracts, client-safe application errors, facade interfaces, and product ports.
+
+Use-cases may import config contracts and services, but neither slice
+`use-cases` nor `shared/use-cases` own live Layers that read the runtime
+environment or participate in package-local or top-level application entrypoint
+Layer composition.
 
 ### `config`
 
@@ -829,7 +929,8 @@ Config owns typed runtime/application configuration contracts:
 - server-only config contracts
 - redacted secret config
 - config defaults and literal domains tied directly to config declarations
-- live Layers that read from the ambient `ConfigProvider`
+- server/runtime-only config resolution helpers, including live Layers that read
+  from the ambient `ConfigProvider`
 - static/test config Layers and fixtures
 
 Config may depend inward on `domain` and `shared` for driver-neutral schemas,
@@ -863,13 +964,20 @@ Server may depend on use-cases, config, domain, tables, and drivers.
 
 High-bar exceptions are:
 
+- `shared/use-cases`
 - `shared/client`
 - `shared/server`
 - `shared/tables`
 - `shared/ui`
 
-Shared packages encode deliberate cross-slice product semantics. They do not own
-generic substrate, technical wrappers, or drivers.
+`shared/use-cases` is contract-only. It may own cross-slice commands, queries,
+driver-neutral DTOs, driver-neutral boundary contracts, client-safe application
+errors, facade interfaces, and product ports. It never owns workflows, process
+managers, schedulers, handlers, concrete adapters, driver imports, or live
+Layer values.
+
+Shared packages encode deliberate cross-slice product semantics. They do not
+own generic substrate, technical wrappers, or drivers.
 
 ### `drivers/*`
 
@@ -877,7 +985,7 @@ Drivers own technical engines and dev-safe wrappers:
 
 - Drizzle, Postgres, SQLite, EventLog, message storage, workflow engines,
   sharding, queues, locks, browser APIs, retries, and low-level config
-- technical errors and test layers
+- technical errors, boundary-local layer constructors, and test layers
 - service facades that hide unsafe third-party shape
 
 Driver packages do not define product/business ports, shared-kernel language,
@@ -888,16 +996,21 @@ such as `@beep/drizzle`. If a technical package becomes repo-owned substrate
 instead of an external boundary wrapper, it belongs in `foundation`, not
 `drivers`.
 
+If a driver exposes browser-safe functionality, it must publish that surface
+from `@beep/<driver>/browser`. The driver package root is never browser-safe by
+default.
+
 ### `tables`
 
-Tables own product-specific persistence shape:
+Tables own the slice-local persistence adapter surface for product-specific
+schema and mapping:
 
 - write-model tables
 - read-model/projection tables
 - table-level mapping helpers when they are unavoidable
 
 Tables may depend on domain for schema/value identity, foundation helpers, and
-drivers, but tables are not domain.
+drivers, but tables are not domain and they are not repo-level generic drivers.
 
 ### `client`
 
@@ -909,9 +1022,11 @@ Layer composition:
 - atoms, form models, optimistic state, and client state machines
 
 Client may depend on `@beep/<slice>-use-cases/public`,
+`@beep/shared-use-cases/public` when that package exists,
 `@beep/<slice>-config/public`, `@beep/shared-config/public`, and browser-safe
-driver entrypoints such as `@beep/<driver>/browser`. It must not import server
-config, secret config, server-only live Layers, or non-browser driver surfaces.
+driver entrypoints exposed from `@beep/<driver>/browser`. It must not import
+server config, secret config, config `/layer`, server-only live Layers, driver
+package roots, or non-browser driver surfaces.
 
 UI code should consume this package instead of implementing domain CRUD and
 remote orchestration directly inside React components.
@@ -1088,7 +1203,7 @@ import { Drizzle } from "@beep/drizzle"
 import {
   MembershipRepository,
   toMembershipRepositoryError,
-} from "@beep/iam-use-cases/entities/Membership"
+} from "@beep/iam-use-cases/server"
 import {
   MembershipRow,
   MembershipTable,
@@ -1174,8 +1289,8 @@ domain/src/entities/Membership/Membership.machine.ts
 domain/src/Events.ts
 ```
 
-Use-cases own commands, queries, workflows, process managers, product ports, and
-protocol declarations:
+Use-cases own commands, queries, workflows, process managers, schedulers,
+product ports, and protocol declarations:
 
 ```txt
 use-cases/src/entities/Membership/Membership.commands.ts
@@ -1186,6 +1301,7 @@ use-cases/src/entities/Membership/Membership.tools.ts
 use-cases/src/entities/Membership/Membership.cluster.ts
 use-cases/src/entities/Membership/Membership.workflows.ts
 use-cases/src/entities/Membership/Membership.processes.ts
+use-cases/src/entities/Membership/Membership.schedulers.ts
 use-cases/src/entities/Membership/Membership.ports.ts
 ```
 
@@ -1402,12 +1518,14 @@ Server layer wires that contract to the runtime boundary:
 import { Effect, Layer } from "effect"
 import * as O from "effect/Option"
 import {
-  MembershipAccess,
   MembershipNotFound,
+  type RevokeMembershipCommand,
+} from "@beep/iam-use-cases/public"
+import {
+  MembershipAccess,
   MembershipRepository,
   MembershipService,
-  type RevokeMembershipCommand,
-} from "@beep/iam-use-cases/entities/Membership"
+} from "@beep/iam-use-cases/server"
 
 export const MembershipLayer = Layer.effect(
   MembershipService,
@@ -1440,8 +1558,8 @@ Server handlers consume use-case services:
 
 ```ts
 import { Effect } from "effect"
-import type { RevokeMembershipCommand } from "@beep/iam-use-cases/entities/Membership"
-import { MembershipService } from "@beep/iam-use-cases/entities/Membership"
+import type { RevokeMembershipCommand } from "@beep/iam-use-cases/public"
+import { MembershipService } from "@beep/iam-use-cases/server"
 
 export const revokeMembershipHandler = Effect.fn("revokeMembershipHandler")(
   function* (command: RevokeMembershipCommand) {
@@ -1458,7 +1576,7 @@ dependency direction:
 domain model behavior
   <- use-case service
   <- server handler
-  <- protocol/runtime
+  <- protocol/entrypoint adapter
 ```
 
 ## Enforcement Later

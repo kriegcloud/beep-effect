@@ -2,15 +2,31 @@ import {
   $ScratchId, RepoPkgs as _RepoPkgs, type IdentityString,
 } from "@beep/identity";
 import * as Struct from "@beep/utils/Struct";
-
+import type {TString} from "@beep/types";
+import type * as TF from "type-fest";
 import * as S from "effect/Schema";
 import * as Tuple from "effect/Tuple";
-import {pipe, cast, SchemaTransformation, identity} from "effect";
-import {LiteralKit, NonEmptyTrimmedStr, Markdown} from "@beep/schema";
+import {pipe, cast, SchemaTransformation, Result, identity} from "effect";
+import {
+  LiteralKit, NonEmptyTrimmedStr, Markdown, KebabCaseStr, CauseTaggedError,
+} from "@beep/schema";
 import {Str, A} from "@beep/utils";
 import {dual} from "effect/Function";
 
+
 const $I = $ScratchId.create("architecture");
+
+export class MetadataError extends CauseTaggedError<MetadataError>($I`MetadataError`)(
+  "ArchitectureMetadataError",
+  {},
+  $I.annote(
+    "MetadataError",
+    {
+      description: "MetadataError - A parse error from factoring constant" + " fibers out of fat products during fibration",
+    },
+  ),
+) {
+}
 
 type IdentifierSource = Readonly<Record<string, {
   readonly identifier: string
@@ -87,6 +103,7 @@ declare module "effect/Schema" {
   namespace Annotations {
     interface Annotations {
       readonly repoPackageMetadata?: CanonicalSlicePkgDefinition;
+      readonly useCaseRoleMetadata?: UseCaseRoleDefinition;
     }
   }
 }
@@ -130,7 +147,8 @@ export class CanonicalSlicePkgDefinition extends S.Class<CanonicalSlicePkgDefini
           identifier: `${$I.identifier}/Slice${capitalKind}Package`,
           title: `Slice ${capitalKind} Package`,
           description: `The Canonical Slice Package definition for ${capitalKind}`,
-          repoPackageMetadata: S.decodeUnknownSync(CanonicalSlicePkgDefinition)(opts),
+          repoPackageMetadata: S.decodeUnknownSync(CanonicalSlicePkgDefinition)(
+            opts),
         })
     },
   )
@@ -195,6 +213,7 @@ export const SliceNameFormat = S.String.pipe(
 
 export type SliceNameFormat = typeof SliceNameFormat.Type;
 
+
 export const RepoPkgCategory = LiteralKit([
   "common",
   "internal",
@@ -219,3 +238,421 @@ export const RepoPkgCategory = LiteralKit([
  * @since 0.0.0
  */
 export type CannonicalSlicePackage = typeof CannonicalSlicePackage.Type;
+
+
+export const NonSliceFamilyKind = LiteralKit([
+  "foundation",
+  "drivers",
+  "tooling",
+  "agents",
+])
+  .pipe($I.annoteSchema(
+    "NonSliceFamilyKind",
+    {
+      description: "A literal string for Repo-owned domain-agnostic reusable" + " substrate.",
+    },
+  ))
+
+export type NonSliceFamilyKind = typeof NonSliceFamilyKind.Type;
+
+/**
+ * FoundationCanonicalKind -
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const FoundationCanonicalKind = LiteralKit([
+  "primitive",
+  "modeling",
+  "capabillity",
+  "ui-system",
+])
+  .pipe($I.annoteSchema(
+    "FoundationCanonicalKind",
+    {
+      description: "FoundationCanonicalKind - ",
+    },
+  ));
+
+/**
+ * Type of {@link FoundationCanonicalKind} {@inheritDoc FoundationCanonicalKind}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type FoundationCanonicalKind = typeof FoundationCanonicalKind.Type;
+
+
+/**
+ * DriverCanonicalKind -
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const DriverCanonicalKind = LiteralKit([
+  "library",
+  "tool",
+  "policy-pack",
+  "test-kit",
+])
+  .pipe($I.annoteSchema(
+    "DriverCanonicalKind",
+    {
+      description: "DriverCanonicalKind -",
+    },
+  ));
+
+/**
+ * Type of {@link DriverCanonicalKind} {@inheritDoc DriverCanonicalKind}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type DriverCanonicalKind = typeof DriverCanonicalKind.Type;
+
+/**
+ * AgentCanonicalKind
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const AgentCanonicalKind = LiteralKit([
+  "skill-pack",
+  "policy-pack",
+  "runtime-adapter",
+])
+  .pipe($I.annoteSchema(
+    "AgentCanonicalKind",
+    {
+      description: "AgentCanonicalKind",
+    },
+  ));
+
+/**
+ * Type of {@link AgentCanonicalKind} {@inheritDoc AgentCanonicalKind}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type AgentCanonicalKind = typeof AgentCanonicalKind.Type;
+
+export const FoundationPrimitiveAnchor = LiteralKit([
+  "browser",
+])
+
+export type FoundationPrimitiveAnchor = typeof FoundationPrimitiveAnchor.Type;
+
+/**
+ * FoundationModelingAnchor -
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const FoundationModelingAnchor = LiteralKit([
+  "schema",
+  "brand",
+  "codec",
+])
+  .pipe($I.annoteSchema(
+    "FoundationModelingAnchor",
+    {
+      description: "FoundationModelingAnchor -",
+    },
+  ));
+
+/**
+ * Type of {@link FoundationModelingAnchor} {@inheritDoc FoundationModelingAnchor}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type FoundationModelingAnchor = typeof FoundationModelingAnchor.Type;
+
+/**
+ * FoundationCapabilityAnchor
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const FoundationCapabilityAnchor = LiteralKit([
+  "service",
+  "layer",
+  "schema",
+  "errors",
+  "client",
+])
+  .pipe($I.annoteSchema(
+    "FoundationCapabilityAnchor",
+    {
+      description: "FoundationCapabilityAnchor",
+    },
+  ));
+
+/**
+ * Type of {@link FoundationCapabilityAnchor} {@inheritDoc FoundationCapabilityAnchor}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type FoundationCapabilityAnchor = typeof FoundationCapabilityAnchor.Type;
+
+/**
+ * DriverAnchor
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const DriverAnchor = LiteralKit([
+  "service",
+  "layer",
+  "errors",
+  "config",
+  "browser",
+  "test-layer",
+])
+  .pipe($I.annoteSchema(
+    "DriverAnchor",
+    {
+      description: "DriverAnchor",
+    },
+  ));
+
+/**
+ * Type of {@link DriverAnchor} {@inheritDoc DriverAnchor}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type DriverAnchor = typeof DriverAnchor.Type;
+
+/**
+ * ToolingAnchor
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const ToolingAnchor = LiteralKit([
+  "command",
+  "service",
+  "schema",
+])
+  .pipe($I.annoteSchema(
+    "ToolingAnchor",
+    {
+      description: "ToolingAnchor",
+    },
+  ));
+
+/**
+ * Type of {@link ToolingAnchor} {@inheritDoc ToolingAnchor}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type ToolingAnchor = typeof ToolingAnchor.Type;
+
+/**
+ * ToolingPolicyPackAnchor
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const ToolingPolicyPackAnchor = LiteralKit([
+  "policy",
+])
+  .pipe($I.annoteSchema(
+    "ToolingPolicyPackAnchor",
+    {
+      description: "ToolingPolicyPackAnchor",
+    },
+  ));
+
+/**
+ * Type of {@link ToolingPolicyPackAnchor} {@inheritDoc ToolingPolicyPackAnchor}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type ToolingPolicyPackAnchor = typeof ToolingPolicyPackAnchor.Type;
+
+/**
+ * ToolingTestkitAnchor
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export const ToolingTestkitAnchor = LiteralKit([
+  "test-kit",
+])
+  .pipe($I.annoteSchema(
+    "ToolingTestkitAnchor",
+    {
+      description: "ToolingTestkitAnchor",
+    },
+  ));
+
+/**
+ * Type of {@link ToolingTestkitAnchor} {@inheritDoc ToolingTestkitAnchor}
+ *
+ * @category Configuration
+ * @since 0.0.0
+ */
+export type ToolingTestkitAnchor = typeof ToolingTestkitAnchor.Type;
+
+
+export const RolePostfix = KebabCaseStr.check(S.isLowercased())
+  .pipe(S.brand("RolePostfix"))
+
+export type RolePostfix = typeof RolePostfix.Type;
+
+export declare namespace RolePostfix {
+  export type Encoded = typeof RolePostfix.Type
+}
+
+export class UseCaseRoleDefinition extends S.Class<UseCaseRoleDefinition>($I`UseCaseRoleDefinition`)(
+  {
+    value: RolePostfix,
+    description: S.String,
+  }) {
+  static readonly define: {
+    <const TValue extends TString.NonEmpty>(
+      value: TF.KebabCase<TValue>,
+      description: string,
+    ): S.Literal<TF.KebabCase<TValue>>
+    (description: string): <const TValue extends TString.NonEmpty>(value: TF.KebabCase<TValue>) => S.Literal<TF.KebabCase<TValue>>
+  } = dual(
+    2,
+    <const TValue extends TString.NonEmpty>(
+      value: TF.KebabCase<TValue>,
+      description: string,
+    ): S.Literal<TF.KebabCase<TValue>> => {
+      const normalized = pipe(
+        {
+          description,
+          value,
+        },
+        S.decodeResult(UseCaseRoleDefinition),
+        Result.getOrThrowWith(MetadataError.new("Invalid UseCaseRoleDefinition")),
+      );
+      const capitalizedValue = Str.capitalize(value)
+      return S.Literal(value)
+        .annotate({
+          identifier: `${$I.identifier}/${capitalizedValue}UseCaseRole`,
+          title: `${capitalizedValue} UseCase Role`,
+          description,
+          useCaseRoleMetadata: normalized,
+        })
+    },
+  )
+}
+
+
+export const UseCaseRoleCommand = UseCaseRoleDefinition.define(
+  "command",
+  "Application command envelopes and command language.",
+)
+
+export type UseCaseRoleCommand = typeof UseCaseRoleCommand.Type;
+
+export const UseCaseRoleQueries = UseCaseRoleDefinition.define(
+  "queries",
+  "Application query envelopes and query language.",
+)
+
+export type UseCaseRoleQueries = typeof UseCaseRoleQueries.Type;
+
+export const UseCaseRoleAccess = UseCaseRoleDefinition.define(
+  "access",
+  "Effectful authorization over domain access vocabulary.",
+)
+export type UseCaseRoleAccess = typeof UseCaseRoleAccess.Type;
+
+export const UseCaseRolePorts = UseCaseRoleDefinition.define(
+  "ports",
+  "Product ports needed by use-cases.",
+)
+export type UseCaseRolePorts = typeof UseCaseRolePorts.Type;
+
+
+export const UseCaseRoleService = UseCaseRoleDefinition.define(
+  "service",
+  "Application service contract/orchestration facade.",
+)
+export type UseCaseRoleService = typeof UseCaseRoleService.Type;
+
+export const UseCaseRoleErrors = UseCaseRoleDefinition.define(
+  "errors",
+  "Actionable application failures.",
+)
+
+export type UseCaseRoleErrors = typeof UseCaseRoleErrors.Type;
+
+export const UseCaseRoleHttp = UseCaseRoleDefinition.define(
+  "http",
+  "Driver-neutral HttpApi endpoint/group declarations"
+)
+
+export type UseCaseRoleHttp = typeof UseCaseRoleHttp.Type;
+
+export const UseCaseRoleRpc =  UseCaseRoleDefinition.define(
+  "rpc",
+  "Driver-neutral Rpc/RpcGroup declarations.",
+);
+
+export type UseCaseRoleRpc = typeof UseCaseRoleRpc.Type;
+
+export const UseCaseRoleTools =  UseCaseRoleDefinition.define(
+  "tools",
+  "Driver-neutral AI tool/toolkit declarations.",
+);
+
+export type UseCaseRoleTools = typeof UseCaseRoleTools.Type;
+
+export const UseCaseRoleCluster =  UseCaseRoleDefinition.define(
+  "cluster",
+  "Driver-neutral cluster entity protocol definitions.",
+);
+
+export type UseCaseRoleCluster = typeof UseCaseRoleCluster.Type;
+
+export const UseCaseRoleWorkflows =  UseCaseRoleDefinition.define(
+  "workflows",
+  "Durable workflow declarations or application workflow contracts.",
+);
+
+export type UseCaseRoleWorkflows = typeof UseCaseRoleWorkflows.Type;
+
+export const UseCaseRoleProcesses =  UseCaseRoleDefinition.define(
+  "processes",
+  "Process managers/sagas coordinating multiple commands, events, ports, or workflows.",
+);
+
+export type UseCaseRoleProcesses = typeof UseCaseRoleProcesses.Type;
+
+export const UseCaseRoleSchedulers =  UseCaseRoleDefinition.define(
+  "schedulers",
+  "Scheduler contracts or schedule declarations coordinating time-based work.",
+);
+
+export type UseCaseRoleSchedulers = typeof UseCaseRoleSchedulers.Type;
+
+
+export const UseCaseRole = S.Union(
+  [
+    UseCaseRoleCommand,
+    UseCaseRoleQueries,
+    UseCaseRoleAccess,
+    UseCaseRolePorts,
+    UseCaseRoleService,
+    UseCaseRoleErrors,
+    UseCaseRoleHttp,
+    UseCaseRoleRpc,
+    UseCaseRoleTools,
+    UseCaseRoleCluster,
+    UseCaseRoleWorkflows,
+    UseCaseRoleProcesses,
+    UseCaseRoleSchedulers,
+  ]
+);
+
+export type UseCaseRole = typeof UseCaseRole.Type;

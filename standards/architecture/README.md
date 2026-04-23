@@ -16,6 +16,24 @@ shared-kernel boundaries are not cosmetic. Configuration boundaries and
 non-slice family/kind boundaries now carry the same weight. They are how the
 repo keeps domain experiments modular, composable, and reusable.
 
+## Transition Note
+
+This packet stays target-only. Use the routing table below to translate current
+repo names while migrating; do not treat legacy roots, package-root exports, or
+`./*` wildcard exports as the normative target shape.
+
+| Current label | Route to target |
+|---|---|
+| `providers` | `drivers` |
+| `env` | `config` |
+| `protocol` | `use-cases/public` when client-safe; otherwise `use-cases/server` |
+| `runtime` | `server` or `client`; use `drivers` only when wrapping an external engine; treat top-level app assembly as an entrypoint concern, not a canonical package family |
+| `common` | `foundation` by default; use `shared/*` or a concrete slice when the code carries product semantics |
+
+Boundary-sensitive packages use explicit subpaths as the canonical contract.
+Package roots and `./*` exports may still exist during migration, but they are
+compatibility leftovers rather than the intended architecture.
+
 ## Document Index
 
 | Document | Purpose |

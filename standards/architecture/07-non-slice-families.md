@@ -8,7 +8,8 @@ wrap external engines and SDKs. If those artifacts are all described as
 `common`, `shared`, or `core`, the repo loses the same compressed context that
 slice topology gives product code.
 
-This is why non-slice artifacts get first-class family and kind grammar.
+This is why non-slice artifacts get first-class family grammar, with kind where
+applicable.
 
 ## Why `common`, `shared`, And `core` Are Not Enough
 
@@ -26,6 +27,9 @@ whether it is:
 
 That is exactly the ambiguity the architecture is trying to remove.
 
+When translating legacy `common`, default to `foundation`. Route to `shared/*`
+or the owning slice instead when the code carries durable product semantics.
+
 ## The Family And Kind Grammar
 
 The canonical non-slice families are:
@@ -36,7 +40,7 @@ The canonical non-slice families are:
 - `agents`: repo-local AI steering bundles
 
 Every non-slice artifact declares one canonical family. Kind remains required
-for intentionally kinded families.
+only for intentionally kinded families.
 
 ```txt
 packages/foundation/<kind>/<name>
@@ -49,8 +53,8 @@ The path is the first layer of context compression. The manifest metadata is the
 second. Humans should infer role from the path. Tooling should enforce the same
 fact from metadata.
 
-`drivers` is the explicit flat-family exception. It records family metadata but
-does not add a second `<kind>` segment.
+`drivers` is the explicit flat-family exception. It records family metadata,
+omits `kind` in manifest metadata, and does not add a second `<kind>` segment.
 
 ## `shared` Is Not `foundation`
 

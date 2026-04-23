@@ -141,9 +141,14 @@ The architecture needs to be clear before enforcement is designed.
 
 Decision:
 
-Client packages may import use-case command/query language, boundary contracts,
-and actionable application errors, but not product ports, server-only process
-managers, or Layer implementations.
+Client packages may import use-case command/query language, driver-neutral
+boundary contracts, driver-neutral DTOs, client-safe facade contracts, and
+actionable application errors, but not product ports, server-only
+service/facade contracts, workflows, process managers, schedulers, or live
+Layer implementations.
+
+Amended 2026-04-23: this client-safe contract is now taught through the
+canonical `@beep/<slice>-use-cases/public` boundary.
 
 Rationale:
 
@@ -156,7 +161,7 @@ Decision:
 
 Use-case `.http.ts`, `.rpc.ts`, `.tools.ts`, and `.cluster.ts` files define
 driver-neutral protocol declarations. Implementations, handlers, clients,
-runtimes, and transports belong in adapter packages.
+runtime Layers, and transports belong in adapter packages.
 
 Rationale:
 
@@ -253,12 +258,12 @@ The repo needs reusable artifacts that are not slices, but those artifacts
 still need topology that compresses context for humans and agents. Naming
 families explicitly prevents generic buckets from becoming junk drawers.
 
-## 2026-04-23: Give Every Non-Slice Artifact A Family And Kind
+## 2026-04-23: Give Every Non-Slice Artifact A Family And, When Applicable, A Kind
 
 Decision:
 
 Every non-slice artifact declares exactly one canonical family. Kind remains
-required for intentionally kinded families.
+required only for intentionally kinded families.
 
 - `foundation`: `primitive`, `modeling`, `capability`, `ui-system`
 - `drivers`: flat family with no extra kind segment
@@ -275,7 +280,8 @@ agents/<kind>/<name>
 ```
 
 Code packages record `family` and `kind` in `package.json` under a top-level
-`beep` object. Agent bundles record the same metadata in `beep.json`.
+`beep` object when that family is intentionally kinded. `drivers` record
+`family` only. Agent bundles record the same metadata in `beep.json`.
 
 Rationale:
 
@@ -283,6 +289,69 @@ Family-only taxonomy is too vague for kinded families. Family plus kind makes
 dependency rules, file-role conventions, and browsing expectations visible from
 the path and machine-readable in metadata, while `drivers` remains the explicit
 flat-family exception.
+
+## 2026-04-23: Allow `shared/use-cases` As A High-Bar Shared-Kernel Exception
+
+Decision:
+
+`shared/use-cases` is canonical only as a high-bar shared-kernel exception. It
+is contract-only:
+
+- cross-slice commands and queries
+- driver-neutral DTOs and boundary/protocol contracts
+- client-safe application errors and facade interfaces
+- product ports
+
+It does not own workflows, process managers, schedulers, handlers, concrete
+adapters, driver imports, or live Layer values.
+
+Rationale:
+
+Some cross-slice application language deserves a durable shared home, but
+shared must stay small and must not become a runtime/orchestration bucket.
+
+## 2026-04-23: Make Boundary-Sensitive Export Subpaths Canonical
+
+Decision:
+
+Boundary-sensitive packages publish explicit canonical subpaths:
+
+- `use-cases`: `/public`, `/server`, `/test`
+- `config`: `/public`, `/server`, `/secrets`, `/layer`, `/test`
+- browser-safe driver surfaces: `@beep/<driver>/browser`
+
+For `use-cases`, `/public` is the client-safe application contract surface and
+`/server` is the server-only application contract surface. The shared-kernel
+`shared/use-cases` exception uses the same names but remains narrower than slice
+`use-cases`.
+
+Required subpaths are required names when that role exists, not a requirement
+to publish placeholder exports. Package roots and `./*` wildcard exports may
+remain during migration, but they are transitional only.
+
+Rationale:
+
+Explicit subpaths make browser/server safety visible in imports and let the
+target doctrine coexist with migration-era root exports.
+
+## 2026-04-23: Keep Live Application Layer Composition Out Of `use-cases`
+
+Decision:
+
+`use-cases` and `shared/use-cases` never export live Layer values. `drivers`
+may export boundary-local layer constructors. `config` may expose
+server/runtime-only config resolution helpers under `/layer`. `server` and
+`client` own package-local application Layer composition, and top-level
+application entrypoints compose those package-local boundaries.
+
+Rationale:
+
+This keeps use-cases as application contract language while leaving live wiring
+at adapter boundaries where runtime dependencies belong.
+
+Supersedes older wording that described `use-cases/server` as a runtime-complete
+surface. Live Layer composition remains package-local to `server` and `client`,
+with top-level application entrypoints composing those boundaries.
 
 ## 2026-04-23: Use Semantic Foundation Names And Repo-Scoped Tooling Names
 

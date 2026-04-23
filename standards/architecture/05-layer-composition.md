@@ -40,11 +40,13 @@ packages/iam/server/src/Layer.ts
   composes repo drivers
 ```
 
-The app/runtime boundary can still import `iam/server/Layer.ts`, but it should
-not need to know every concept-level repository and driver inside the slice.
-Config Layers fit this same local shape: the config package owns live/test
-config services, and server/client/app composition decides which Layers to
-provide.
+The application entrypoint can still import `iam/server/Layer.ts`, but it
+should not need to know every concept-level repository and driver inside the
+slice. Config Layers fit this same local shape: the config package may expose
+server/runtime-only `/layer` helpers, and server/client boundaries plus
+top-level application entrypoint composition decides which Layers to provide.
+`use-cases` and `shared/use-cases` stop at the contract surface; they do not
+export live Layer values.
 
 ## Context.Service Shape
 
@@ -79,18 +81,23 @@ export class MembershipService extends Context.Service<
 >()($I`MembershipService`) {}
 ```
 
-Layers should provide the service from its dependencies:
+Use-case packages stop at the contract. A server layer provides the live
+implementation from its dependencies:
 
 ```ts
 import { Effect, Layer } from "effect"
 import * as O from "effect/Option"
-import { MembershipAccess } from "./Membership.access.js"
-import type { RevokeMembershipCommand } from "./Membership.commands.js"
-import { MembershipNotFound } from "./Membership.errors.js"
-import { MembershipRepository } from "./Membership.ports.js"
-import { MembershipService } from "./Membership.service.js"
+import {
+  MembershipNotFound,
+  type RevokeMembershipCommand,
+} from "@beep/iam-use-cases/public"
+import {
+  MembershipAccess,
+  MembershipRepository,
+  MembershipService,
+} from "@beep/iam-use-cases/server"
 
-export const layer = Layer.effect(
+export const MembershipServerLayer = Layer.effect(
   MembershipService,
   Effect.gen(function* () {
     const access = yield* MembershipAccess
@@ -117,6 +124,11 @@ export const layer = Layer.effect(
 ```
 
 The dependencies are explicit, but local. That is the key distinction.
+
+Drivers may export boundary-local layer constructors, and config packages may
+expose server/runtime-only `/layer` helpers, but package-local application
+Layer composition still lives in `server` and `client`. Top-level application
+entrypoints compose those package-local Layers.
 
 ## When A Higher-Level Layer Is Fine
 

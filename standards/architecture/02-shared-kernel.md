@@ -15,6 +15,10 @@ Shared may contain:
   share
 - `shared/config` contracts and config vocabulary that multiple slices
   deliberately agree on
+- high-bar `shared/use-cases` application contracts when multiple slices
+  deliberately share commands, queries, driver-neutral DTOs, driver-neutral
+  boundary contracts, client-safe application errors, facade interfaces, or
+  product ports
 - high-bar `shared/client`, `shared/server`, `shared/tables`, or `shared/ui`
   packages only when they encode deliberate cross-slice product semantics
 
@@ -27,6 +31,8 @@ Shared should not contain:
 - product-specific behavior from one slice
 - a partial domain model waiting for a home
 - driver-specific leakage that domain packages will inherit
+- workflows, process managers, schedulers, handlers, or concrete adapters that
+  execute shared contracts
 - one-off convenience wrappers created to avoid a local import
 - global registries that make slices depend on each other indirectly
 - app-wide config registries that aggregate every slice's private config
@@ -47,15 +53,28 @@ slice with a deliberately reduced spine:
 packages/shared/
   domain/
   config/
+  use-cases/ # high bar only
   client/   # high bar only
   server/   # high bar only
   tables/   # high bar only
   ui/       # high bar only
 ```
 
-`shared/domain` and `shared/config` are the normal homes. `shared/client`,
-`shared/server`, `shared/tables`, and `shared/ui` are exceptional and require a
-deliberate cross-slice product contract. `shared/use-cases` is not canonical.
+`shared/domain` and `shared/config` are the normal homes. `shared/use-cases`,
+`shared/client`, `shared/server`, `shared/tables`, and `shared/ui` are
+exceptional and require a deliberate cross-slice product contract.
+
+`shared/use-cases` is contract-only. It may hold cross-slice commands, queries,
+driver-neutral DTOs, driver-neutral boundary contracts, client-safe application
+errors, facade interfaces, and product ports. It does not hold workflows,
+process managers, schedulers, handlers, concrete adapters, driver imports, or
+live Layer values.
+
+When `shared/use-cases` exists, it follows the same explicit export contract as
+slice `use-cases`: `/public`, `/server`, and `/test`. `/public` stays
+client-safe. `/server` is limited to server-only shared application contracts
+such as product ports and server-only facade interfaces. `/test` is for test
+helpers and fixtures.
 
 This is what keeps `shared` small. The reduced spine is a rule, not a
 suggestion.
