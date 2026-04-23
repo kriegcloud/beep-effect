@@ -39,6 +39,9 @@ const decodeHtmlCharacterReferences = (value: string): string =>
     }
   );
 
+// ASCII-oriented decoding is enough for protocol detection because the blocked
+// scheme names are ASCII-only. We intentionally normalize obfuscated prefixes
+// rather than fully decode arbitrary UTF-8 payloads here.
 const decodePercentEncodedBytes = (value: string): string => {
   let decoded = value;
 
@@ -72,7 +75,8 @@ export const sanitizeAnchorHref = (href: string): string => {
   const decodedHtml = decodeHtmlCharacterReferences(href);
   const decodedPercent = decodePercentEncodedBytes(href);
   const decodedHtmlAndPercent = decodePercentEncodedBytes(decodedHtml);
-  const candidates = [href, decodedHtml, decodedPercent, decodedHtmlAndPercent];
+  const decodedPercentAndHtml = decodeHtmlCharacterReferences(decodedPercent);
+  const candidates = [href, decodedHtml, decodedPercent, decodedHtmlAndPercent, decodedPercentAndHtml];
 
   return candidates.some((candidate) => unsafeHrefProtocolPattern.test(normalizeHrefProtocolCandidate(candidate)))
     ? "#"
