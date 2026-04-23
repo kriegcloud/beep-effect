@@ -21,7 +21,7 @@ import {
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunkFalse } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, Path, pipe } from "effect";
+import { Console, DateTime, Effect, FileSystem, flow, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -305,7 +305,7 @@ const workspacePatternsFromPackageJson = (
   return A.empty();
 };
 
-const pathSegments = (value: string): ReadonlyArray<string> => pipe(value, Str.split("/"), A.filter(Str.isNonEmpty));
+const pathSegments: (value: string) => ReadonlyArray<string> = flow(Str.split("/"), A.filter(Str.isNonEmpty));
 
 const matchesWorkspacePattern = (pattern: string, targetPath: string): boolean => {
   const patternSegments = pathSegments(pattern);

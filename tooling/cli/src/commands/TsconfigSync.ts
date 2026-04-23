@@ -23,7 +23,7 @@ import {
 import { LiteralKit, normalizePath, TaggedErrorClass } from "@beep/schema";
 import { decodeJsoncTextAs } from "@beep/schema/Jsonc";
 import { thunkFalse, thunkUndefined } from "@beep/utils";
-import { Console, Effect, FileSystem, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
+import { Console, Effect, FileSystem, flow, HashMap, HashSet, Order, Path, pipe, Tuple } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -831,8 +831,11 @@ const workspacePatternsFromPackageJson = (
   return A.empty();
 };
 
-const pathSegments = (value: string): ReadonlyArray<string> =>
-  pipe(value, toPosixPath, Str.split("/"), A.filter(Str.isNonEmpty));
+const pathSegments: (value: string) => ReadonlyArray<string> = flow(
+  toPosixPath,
+  Str.split("/"),
+  A.filter(Str.isNonEmpty)
+);
 
 const uniqueInInputOrder = (values: ReadonlyArray<string>): ReadonlyArray<string> => {
   const results = A.empty<string>();

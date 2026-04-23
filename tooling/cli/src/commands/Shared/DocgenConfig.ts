@@ -7,7 +7,7 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import type { PackageJson } from "@beep/repo-utils";
-import { Effect, HashMap, HashSet, Order, Path, pipe } from "effect";
+import { Effect, flow, HashMap, HashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
@@ -32,8 +32,11 @@ const normalizeSlashes = (value: string): string => Str.replace(/\\/g, "/")(valu
 const recordOrEmpty = (value: O.Option<Readonly<Record<string, string>>>): Readonly<Record<string, string>> =>
   O.getOrElse(value, () => EMPTY_STRING_RECORD);
 
-const uniqueSortedStringValues = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(values, HashSet.fromIterable, A.fromIterable, A.sort(byStringAscending));
+const uniqueSortedStringValues: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  HashSet.fromIterable,
+  A.fromIterable,
+  A.sort(byStringAscending)
+);
 const withRootRelativePrefix: {
   (rootRelativePrefix: string, targetPath: string): string;
   (rootRelativePrefix: string): (targetPath: string) => string;

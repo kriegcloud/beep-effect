@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { resolveWorkspaceDirs } from "@beep/repo-utils/Workspaces";
 import { LiteralKit } from "@beep/schema";
 import { thunkEmptyStr, thunkUndefined } from "@beep/utils";
-import { Console, DateTime, Effect, FileSystem, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
+import { Console, DateTime, Effect, FileSystem, flow, HashMap, Order, Path, pipe, SchemaGetter } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -157,8 +157,9 @@ const byWorkspacePathLengthDescending: Order.Order<readonly [string, string]> = 
   (entry) => -entry[1].length
 );
 
-const sortEntries = (entries: ReadonlyArray<SchemaFirstInventoryEntry>): ReadonlyArray<SchemaFirstInventoryEntry> =>
-  pipe(entries, A.sort(byEntryKeyAscending));
+const sortEntries: (
+  entries: ReadonlyArray<SchemaFirstInventoryEntry>
+) => ReadonlyArray<SchemaFirstInventoryEntry> = flow(A.sort(byEntryKeyAscending));
 
 const isEnforcedFile = (filePath: string): boolean =>
   ENFORCED_ROOTS.some((root) => filePath === root || Str.startsWith(`${root}/`)(filePath));
