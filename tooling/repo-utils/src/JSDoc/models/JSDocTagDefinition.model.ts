@@ -176,13 +176,16 @@ export const make: {
     _tag: Tag,
     meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
   ): ReturnType<typeof JSDocTagDefinition.mapFields>;
-} = dual(2, <const Tag extends TagName, const Def extends typeof JSDocTagDefinition.Encoded>(
-  _tag: Tag,
-  meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
-) => {
-  const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });
-  return JSDocTagDefinition.mapFields((_) => ({
-    _tag: S.tag(_tag),
-    value: TagValue.cases[_tag],
-  })).annotate({ jsDocTagMetadata: def });
-});
+} = dual(
+  2,
+  <const Tag extends TagName, const Def extends typeof JSDocTagDefinition.Encoded>(
+    _tag: Tag,
+    meta: Omit<JSDocTagDefinition.Instance<Tag, Def>, "_tag">
+  ) => {
+    const def = S.decodeSync(JSDocTagDefinition)({ _tag, ...meta });
+    return JSDocTagDefinition.mapFields((_) => ({
+      _tag: S.tag(_tag),
+      value: TagValue.cases[_tag],
+    })).annotate({ jsDocTagMetadata: def });
+  }
+);

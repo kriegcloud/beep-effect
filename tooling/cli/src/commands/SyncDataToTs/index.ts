@@ -134,12 +134,10 @@ const resolveTargetById = (targetId: string): Effect.Effect<ReadonlyArray<SyncDa
     Effect.mapError(() => unknownTargetError(targetId))
   );
 
-const resolveSelectedTarget = (targetId: O.Option<string>) =>
-  pipe(
-    targetId,
-    O.map(resolveTargetById),
-    O.getOrElse(() => Effect.fail(targetSelectionRequiredError()))
-  );
+const resolveSelectedTarget = flow(
+  O.map(resolveTargetById),
+  O.getOrElse(() => Effect.fail(targetSelectionRequiredError()))
+);
 
 const resolveTargetSelection: (
   selection: SyncDataTargetSelection

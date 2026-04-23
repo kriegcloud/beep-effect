@@ -139,11 +139,13 @@ const lookupParts = (self: unknown, parts: A.NonEmptyReadonlyArray<string>): Pat
 export const lookupAtPath: {
   <const P extends PathInput>(path: P): <S extends object>(self: S) => PathLookup;
   <S extends object>(self: S, path: PathInput): PathLookup;
-} = dual(2, <S extends object>(self: S, path: PathInput): PathLookup =>
-  A.match(normalizePath(path), {
-    onEmpty: makeNotFound,
-    onNonEmpty: (parts) => lookupParts(self, parts),
-  })
+} = dual(
+  2,
+  <S extends object>(self: S, path: PathInput): PathLookup =>
+    A.match(normalizePath(path), {
+      onEmpty: makeNotFound,
+      onNonEmpty: (parts) => lookupParts(self, parts),
+    })
 );
 
 /**

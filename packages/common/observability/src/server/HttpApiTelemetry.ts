@@ -397,6 +397,12 @@ const observeHttpApiEffectImpl = <E, R>(
     )
   );
 
+/**
+ * Observes an HTTP API Effect and records request metrics.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
 export const observeHttpApiEffect: {
   <E, R>(
     effect: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>,
@@ -540,6 +546,12 @@ const observeHttpApiHandlerImpl = <A, E extends { readonly status: number }, R>(
     }
   );
 
+/**
+ * Observes an HTTP API handler Effect and records request metrics.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
 export const observeHttpApiHandler: {
   <A, E extends { readonly status: number }, R>(
     effect: Effect.Effect<A, E, R>,

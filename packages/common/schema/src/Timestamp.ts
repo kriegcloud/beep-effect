@@ -7,7 +7,17 @@
 
 import { $SchemaId } from "@beep/identity";
 import { LocalDate } from "@beep/schema/LocalDate";
-import { type Brand, DateTime, Effect, Order as Order_, pipe, Schema, SchemaIssue, SchemaTransformation } from "effect";
+import {
+  type Brand,
+  DateTime,
+  Effect,
+  flow,
+  Order as Order_,
+  pipe,
+  Schema,
+  SchemaIssue,
+  SchemaTransformation,
+} from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -17,7 +27,7 @@ import { NonEmptyTrimmedStr } from "./String.ts";
 
 const $I = $SchemaId.create("Timestamp");
 
-const stripMilliseconds = (value: string): string => pipe(value, Str.replace(/\.\d{3}Z$/, "Z"));
+const stripMilliseconds: (value: string) => string = flow(Str.replace(/\.\d{3}Z$/, "Z"));
 
 const normalizeIsoString = (input: string | number): string =>
   pipe(DateTime.makeUnsafe(input), DateTime.formatIso, stripMilliseconds);

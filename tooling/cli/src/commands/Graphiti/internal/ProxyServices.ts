@@ -13,6 +13,7 @@ import {
   Deferred,
   Duration,
   Effect,
+  flow,
   Inspectable,
   Match,
   pipe,
@@ -543,28 +544,24 @@ export const makeGraphitiProxyForwarderService = (
               ? mapHttpClientErrorToResponse(error)
               : proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(error, 0), { status: 502 })
           ),
-        onSuccess: (responseOption) =>
-          pipe(
-            responseOption,
-            O.map((upstreamResponse) =>
-              Effect.gen(function* () {
-                const bodyBuffer = yield* Effect.orElseSucceed(upstreamResponse.arrayBuffer, () => new ArrayBuffer(0));
-                return HttpServerResponse.uint8Array(new Uint8Array(bodyBuffer), {
-                  status: upstreamResponse.status,
-                  headers: upstreamResponse.headers,
-                });
-              })
-            ),
-            O.getOrElse(() =>
-              Effect.succeed(
-                proxyErrorResponse(
-                  "upstream_timeout",
-                  `Upstream request timed out after ${config.requestTimeoutMs}ms`,
-                  { status: 504 }
-                )
-              )
-            )
+        onSuccess: flow(
+          O.map((upstreamResponse) =>
+            Effect.gen(function* () {
+              const bodyBuffer = yield* Effect.orElseSucceed(upstreamResponse.arrayBuffer, () => new ArrayBuffer(0));
+              return HttpServerResponse.uint8Array(new Uint8Array(bodyBuffer), {
+                status: upstreamResponse.status,
+                headers: upstreamResponse.headers,
+              });
+            })
           ),
+          O.getOrElse(() =>
+            Effect.succeed(
+              proxyErrorResponse("upstream_timeout", `Upstream request timed out after ${config.requestTimeoutMs}ms`, {
+                status: 504,
+              })
+            )
+          )
+        ),
       });
     });
 

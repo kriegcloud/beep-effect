@@ -1,7 +1,7 @@
 import { $ClaudeId } from "@beep/identity/packages";
 import { Config, Effect, FileSystem, flow, Path, pipe } from "effect";
-import { dual } from "effect/Function";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";

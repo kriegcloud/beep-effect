@@ -28,7 +28,7 @@ import {
   StreamRunEventsRequest,
 } from "@beep/runtime-protocol";
 import { FilePath, TaggedErrorClass } from "@beep/schema";
-import { DateTime, Duration, Effect, Fiber, Order, pipe, Result, Stream } from "effect";
+import { DateTime, Duration, Effect, Fiber, flow, Order, pipe, Result, Stream } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -281,26 +281,22 @@ const projectRunForUi = (runs: ReadonlyArray<RepoRun>, event: RunStreamEvent): R
   );
 };
 
-const findLatestAnswerEvent = (
+const findLatestAnswerEvent: (
   events: ReadonlyArray<RunStreamEvent>
-): O.Option<Extract<RunStreamEvent, { readonly kind: "answer" }>> =>
-  pipe(
-    events,
-    A.filter((event): event is Extract<RunStreamEvent, { readonly kind: "answer" }> => event.kind === "answer"),
-    A.last
-  );
+) => O.Option<Extract<RunStreamEvent, { readonly kind: "answer" }>> = flow(
+  A.filter((event): event is Extract<RunStreamEvent, { readonly kind: "answer" }> => event.kind === "answer"),
+  A.last
+);
 
-const findLatestPacketEvent = (
+const findLatestPacketEvent: (
   events: ReadonlyArray<RunStreamEvent>
-): O.Option<Extract<RunStreamEvent, { readonly kind: "retrieval-packet" }>> =>
-  pipe(
-    events,
-    A.filter(
-      (event): event is Extract<RunStreamEvent, { readonly kind: "retrieval-packet" }> =>
-        event.kind === "retrieval-packet"
-    ),
-    A.last
-  );
+) => O.Option<Extract<RunStreamEvent, { readonly kind: "retrieval-packet" }>> = flow(
+  A.filter(
+    (event): event is Extract<RunStreamEvent, { readonly kind: "retrieval-packet" }> =>
+      event.kind === "retrieval-packet"
+  ),
+  A.last
+);
 
 const formatPacketEntity = (
   value:

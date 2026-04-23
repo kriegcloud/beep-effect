@@ -1822,7 +1822,9 @@ export class JSDocPrivateRemarks extends S.Opaque<JSDocPrivateRemarks & JSDocTag
  * @category models
  * @since 0.0.0
  */
-export class JSDocPackageDocumentation extends S.Opaque<JSDocPackageDocumentation & JSDocTagMember<"packageDocumentation">>()(
+export class JSDocPackageDocumentation extends S.Opaque<
+  JSDocPackageDocumentation & JSDocTagMember<"packageDocumentation">
+>()(
   JSDocTagDefinition.make("packageDocumentation", {
     synonyms: [],
     overview: "TSDoc: indicates that a doc comment describes an entire package (placed in the entry point file).",

@@ -108,19 +108,17 @@ export const decodeAllowlistSnapshot = S.decodeUnknownSync(EffectLawsAllowlistSn
 export const encodeAllowlistSnapshot = S.encodeUnknownSync(EffectLawsAllowlistSnapshot);
 export const areLookupKeysEquivalent = S.toEquivalence(EffectLawsAllowlistLookupKey);
 
-export const normalizeAllowlistEntries = (
+export const normalizeAllowlistEntries: (
   entries: ReadonlyArray<EffectLawsAllowlistEntry>
-): ReadonlyArray<EffectLawsAllowlistEntry> =>
-  pipe(
-    entries,
-    A.map(
-      (entry) =>
-        new EffectLawsAllowlistEntry({
-          ...entry,
-          file: normalizePath(entry.file),
-        })
-    )
-  );
+) => ReadonlyArray<EffectLawsAllowlistEntry> = flow(
+  A.map(
+    (entry) =>
+      new EffectLawsAllowlistEntry({
+        ...entry,
+        file: normalizePath(entry.file),
+      })
+  )
+);
 
 export const formatSchemaDiagnostics = (issue: SchemaIssue.Issue): ReadonlyArray<string> => {
   const formatter = SchemaIssue.makeFormatterStandardSchemaV1();

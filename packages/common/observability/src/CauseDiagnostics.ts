@@ -293,32 +293,26 @@ const zeroReasonCounts = {
 type ReasonCounts = typeof zeroReasonCounts;
 type CauseReason = Cause.Cause<unknown>["reasons"][number];
 
-const incrementFailCounts = (counts: ReasonCounts): ReasonCounts =>
-  pipe(
-    counts,
-    Struct.evolve({
-      errorCount: N.increment,
-      reasonCount: N.increment,
-    })
-  );
+const incrementFailCounts: (counts: ReasonCounts) => ReasonCounts = flow(
+  Struct.evolve({
+    errorCount: N.increment,
+    reasonCount: N.increment,
+  })
+);
 
-const incrementDefectCounts = (counts: ReasonCounts): ReasonCounts =>
-  pipe(
-    counts,
-    Struct.evolve({
-      defectCount: N.increment,
-      reasonCount: N.increment,
-    })
-  );
+const incrementDefectCounts: (counts: ReasonCounts) => ReasonCounts = flow(
+  Struct.evolve({
+    defectCount: N.increment,
+    reasonCount: N.increment,
+  })
+);
 
-const incrementInterruptCounts = (counts: ReasonCounts): ReasonCounts =>
-  pipe(
-    counts,
-    Struct.evolve({
-      interruptCount: N.increment,
-      reasonCount: N.increment,
-    })
-  );
+const incrementInterruptCounts: (counts: ReasonCounts) => ReasonCounts = flow(
+  Struct.evolve({
+    interruptCount: N.increment,
+    reasonCount: N.increment,
+  })
+);
 
 const summarizeReason = (counts: ReasonCounts, reason: CauseReason): ReasonCounts =>
   Match.value(reason).pipe(

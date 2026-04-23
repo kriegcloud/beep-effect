@@ -17,9 +17,9 @@ import { createHash } from "node:crypto";
 import { $ClaudeId } from "@beep/identity/packages";
 import { thunk0, thunkEmptyStr, thunkUndefined } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Clock, Config, Console, Effect, FileSystem, HashSet, Order, Path, pipe, Terminal } from "effect";
-import { dual } from "effect/Function";
+import { Clock, Config, Console, Effect, FileSystem, flow, HashSet, Order, Path, pipe, Terminal } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -99,18 +99,16 @@ class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
 
 const MiseTasks = S.Array(MiseTask);
 
-const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  pipe(
-    tasks,
-    A.map((t) => {
-      const aliases = A.match(t.aliases, {
-        onEmpty: thunkEmptyStr,
-        onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
-      });
-      return `${t.name}${aliases}: ${t.description}`;
-    }),
-    A.join("\n")
-  );
+const formatMiseTasks: (tasks: typeof MiseTasks.Type) => string = flow(
+  A.map((t: MiseTask) => {
+    const aliases = A.match(t.aliases, {
+      onEmpty: thunkEmptyStr,
+      onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
+    });
+    return `${t.name}${aliases}: ${t.description}`;
+  }),
+  A.join("\n")
+);
 
 const SCRIPT_TRIGGER_KEYWORDS = HashSet.fromIterable([
   "run",
@@ -357,15 +355,17 @@ export const scoreSkill: {
 export const findMatchingSkills: {
   (prompt: string, skills: ReadonlyArray<SkillMetadata>): ReadonlyArray<string>;
   (skills: ReadonlyArray<SkillMetadata>): (prompt: string) => ReadonlyArray<string>;
-} = dual(2, (prompt: string, skills: ReadonlyArray<SkillMetadata>): ReadonlyArray<string> =>
-  pipe(
-    skills,
-    A.map((skill) => ({ skill, score: scoreSkill(prompt, skill) })),
-    A.filter(({ score }) => score >= MIN_SCORE),
-    A.sort(Order.mapInput(Order.flip(Order.Number), (entry: { skill: SkillMetadata; score: number }) => entry.score)),
-    A.take(MAX_SUGGESTIONS),
-    A.map(({ skill }) => skill.name)
-  )
+} = dual(
+  2,
+  (prompt: string, skills: ReadonlyArray<SkillMetadata>): ReadonlyArray<string> =>
+    pipe(
+      skills,
+      A.map((skill) => ({ skill, score: scoreSkill(prompt, skill) })),
+      A.filter(({ score }) => score >= MIN_SCORE),
+      A.sort(Order.mapInput(Order.flip(Order.Number), (entry: { skill: SkillMetadata; score: number }) => entry.score)),
+      A.take(MAX_SUGGESTIONS),
+      A.map(({ skill }) => skill.name)
+    )
 );
 
 const searchModules = Effect.fn("searchModules")(function* (prompt: string, cwd: string) {
@@ -467,15 +467,13 @@ const scoreSnapshotRecord = (promptKeywords: ReadonlyArray<string>, file: string
   return score;
 };
 
-const escapeXmlAttribute = (value: string): string =>
-  pipe(
-    value,
-    Str.replaceAll("&", "&amp;"),
-    Str.replaceAll('"', "&quot;"),
-    Str.replaceAll("'", "&apos;"),
-    Str.replaceAll("<", "&lt;"),
-    Str.replaceAll(">", "&gt;")
-  );
+const escapeXmlAttribute: (value: string) => string = flow(
+  Str.replaceAll("&", "&amp;"),
+  Str.replaceAll('"', "&quot;"),
+  Str.replaceAll("'", "&apos;"),
+  Str.replaceAll("<", "&lt;"),
+  Str.replaceAll(">", "&gt;")
+);
 
 const KG_SYMBOL_NAMESPACE = "beep-effect";
 
@@ -593,8 +591,10 @@ const buildKgContextBlockEffect = Effect.fn("buildKgContextBlockEffect")(
 export const buildKgContextBlock: {
   (cwd: string, prompt: string): O.Option<string>;
   (prompt: string): (cwd: string) => O.Option<string>;
-} = dual(2, (cwd: string, prompt: string): O.Option<string> =>
-  Effect.runSync(Effect.scoped(provideLayerScoped(buildKgContextBlockEffect(cwd, prompt), BunServices.layer)))
+} = dual(
+  2,
+  (cwd: string, prompt: string): O.Option<string> =>
+    Effect.runSync(Effect.scoped(provideLayerScoped(buildKgContextBlockEffect(cwd, prompt), BunServices.layer)))
 );
 
 const sha256 = (value: string): string => createHash("sha256").update(value, "utf8").digest("hex");

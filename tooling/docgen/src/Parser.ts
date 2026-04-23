@@ -8,7 +8,7 @@
 import { $DocgenId } from "@beep/identity/packages";
 import { thunkEmptyStr } from "@beep/utils";
 import * as doctrine from "doctrine";
-import { Context, Effect, Layer, Path, pipe } from "effect";
+import { Context, Effect, flow, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -93,12 +93,10 @@ const getJSDocText: (jsdocs: ReadonlyArray<ast.JSDoc>) => string = A.matchRight(
   onNonEmpty: (_, last) => last.getText(),
 });
 
-const getDocComment = (ranges: ReadonlyArray<ast.CommentRange>): O.Option<ast.CommentRange> =>
-  pipe(
-    ranges,
-    A.filter((range) => Str.startsWith("/**")(range.getText())),
-    A.last
-  );
+const getDocComment: (ranges: ReadonlyArray<ast.CommentRange>) => O.Option<ast.CommentRange> = flow(
+  A.filter((range) => Str.startsWith("/**")(range.getText())),
+  A.last
+);
 
 type Comment = {
   readonly description: string | undefined;

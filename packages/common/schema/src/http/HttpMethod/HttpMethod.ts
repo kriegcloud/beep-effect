@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
-import { HashSet, pipe } from "effect";
+import { HashSet } from "effect";
 import * as S from "effect/Schema";
 import { LiteralKit } from "../../LiteralKit.ts";
 import * as SchemaUtils from "../../SchemaUtils/index.ts";
@@ -39,6 +39,7 @@ const WithBody = WithBodyBase.pipe(
 
 type WithBody = typeof WithBody.Type;
 type HttpMethodValue = typeof HttpMethod_.Type;
+const hasBody: (method: HttpMethodValue) => method is WithBody = S.is(WithBody);
 
 /**
  * @since 0.0.0
@@ -51,7 +52,7 @@ export const HttpMethod = HttpMethod_.pipe(
   SchemaUtils.withStatics(
     () =>
       ({
-        hasBody: (method: HttpMethodValue): method is WithBody => pipe(method, S.is(WithBody)),
+        hasBody,
         all: HashSet.fromIterable(HttpMethod_.Options),
         allShort: [
           ["GET", "get"],

@@ -11,11 +11,11 @@
 
 import type { TUnsafe } from "@beep/types";
 import {
-    Effect,
-    SchemaGetter as Getter,
-    Pipeable,
-    Struct as Struct_,
-    SchemaTransformation as Transformation
+  Effect,
+  SchemaGetter as Getter,
+  Pipeable,
+  Struct as Struct_,
+  SchemaTransformation as Transformation,
 } from "effect";
 import * as A from "effect/Array";
 import type { Brand } from "effect/Brand";

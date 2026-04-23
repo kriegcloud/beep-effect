@@ -637,6 +637,10 @@ export class Module extends S.Class<Module>($I`Module`)({
   });
 }
 
+type FileNewOptions = {
+  readonly isOverwritable?: boolean;
+};
+
 /**
  * A comparator function for sorting `Module` objects by their file path,
  * represented as a lowercase string.
@@ -665,10 +669,6 @@ export const ByPath: Order.Order<Module> = Order.mapInput(Str.Order, (module: Mo
  * @category model
  * @since 0.0.0
  */
-type FileNewOptions = {
-  readonly isOverwritable?: boolean;
-};
-
 export class File extends S.Class<File>($I`File`)({
   path: S.String,
   content: S.String,

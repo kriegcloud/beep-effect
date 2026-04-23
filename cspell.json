@@ -58,6 +58,7 @@
   ],
   "ignorePaths": [
     "bun.lock",
+    "_typos.toml",
     "node_modules",
     ".repos",
     "*.snap",

@@ -8,7 +8,7 @@
 
 import { Sha256Hex } from "@beep/schema";
 import { Str } from "@beep/utils";
-import { Effect, Layer, pipe } from "effect";
+import { Effect, flow, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -120,8 +120,7 @@ const toCanonizeQuad = (quad: Quad): CanonizeQuad => ({
   graph: toCanonizeGraph(quad.graph),
 });
 
-const toCanonizeDataset = (quads: ReadonlyArray<Quad>): ReadonlyArray<CanonizeQuad> =>
-  pipe(quads, A.map(toCanonizeQuad));
+const toCanonizeDataset: (quads: ReadonlyArray<Quad>) => ReadonlyArray<CanonizeQuad> = flow(A.map(toCanonizeQuad));
 
 const fromCanonizeSubject = (subject: CanonizeSubject): Subject =>
   subject.termType === "NamedNode" ? makeNamedNode(subject.value) : makeBlankNode(subject.value);

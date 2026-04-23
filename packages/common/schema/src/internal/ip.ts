@@ -1,4 +1,4 @@
-import { pipe, SchemaTransformation } from "effect";
+import { flow, SchemaTransformation } from "effect";
 import * as S from "effect/Schema";
 
 /**
@@ -76,7 +76,7 @@ const IpV6Check = S.makeFilterGroup([
  *
  * @internal
  */
-const trim = (self: S.String) => pipe(self, S.decode(SchemaTransformation.trim()));
+const trim = flow(S.decode<S.String>(SchemaTransformation.trim()));
 
 /**
  * Encoded schema for IPv4 addresses (trimmed non-empty string).

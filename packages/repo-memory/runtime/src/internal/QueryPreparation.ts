@@ -17,7 +17,7 @@ import {
 } from "@beep/repo-memory-model";
 import type { RepoSnapshotStoreShape, RepoStoreError, RepoSymbolStoreShape } from "@beep/repo-memory-store";
 import * as Str from "@beep/utils/Str";
-import { Effect, Order, pipe } from "effect";
+import { Effect, flow, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -662,7 +662,7 @@ const nlpQuestionNotes = (question: string): ReadonlyArray<string> => {
   return normalized === question ? A.empty() : A.make(`nlp:normalized-question=${normalized}`);
 };
 
-const stripTypeScriptExtension = (input: string): string => pipe(input, Str.replace(/\.[cm]?tsx?$/i, ""));
+const stripTypeScriptExtension: (input: string) => string = flow(Str.replace(/\.[cm]?tsx?$/i, ""));
 
 const pathBasename = (input: string): string =>
   pipe(

@@ -9,7 +9,7 @@ import chalk from "@beep/chalk";
 import { encodeTSConfigPrettyEffect, FsUtils } from "@beep/repo-utils";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
 import markdownToc from "@effect/markdown-toc";
-import { Effect, FileSystem, Path, pipe, Stream } from "effect";
+import { Effect, FileSystem, flow, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as ChildProcess from "effect/unstable/process/ChildProcess";
@@ -141,7 +141,7 @@ const typeCheckAndRunExamples = Effect.fn("typeCheckAndRunExamples")(function* (
   yield* cleanupExamples;
 });
 
-const filterJoin = (segments: ReadonlyArray<string>) => pipe(segments, A.filter(Str.isNonEmpty), A.join("-"));
+const filterJoin: (segments: ReadonlyArray<string>) => string = flow(A.filter(Str.isNonEmpty), A.join("-"));
 const sanitizeExampleName = (name: string): string => {
   const sanitized = name.replace(/[^A-Za-z0-9._-]+/g, "_").replace(/^_+|_+$/g, "");
   return sanitized.length > 0 ? sanitized : "example";

@@ -46,10 +46,7 @@ type EventShape<TTag extends TString.NonEmpty, TFields extends S.Struct.Fields> 
  * @category models
  * @since 0.0.0
  */
-const makeEventSchema = <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(
-  payload: TFields,
-  tag: TTag
-) =>
+const makeEventSchema = <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(payload: TFields, tag: TTag) =>
   S.Class<EventShape<TTag, TFields>>($I`Event`)(
     {
       kind: S.tag("Event"),
@@ -65,12 +62,18 @@ type MakeEventSchema<TTag extends TString.NonEmpty, TFields extends S.Struct.Fie
   typeof makeEventSchema<TTag, TFields>
 >;
 
+/**
+ * Creates a typed server-sent event schema.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const makeEvent: {
   <TTag extends TString.NonEmpty, TFields extends S.Struct.Fields>(
     payload: TFields,
     tag: TTag
   ): MakeEventSchema<TTag, TFields>;
-  <TFields extends S.Struct.Fields>(payload: TFields): <TTag extends TString.NonEmpty>(
-    tag: TTag
-  ) => MakeEventSchema<TTag, TFields>;
+  <TFields extends S.Struct.Fields>(
+    payload: TFields
+  ): <TTag extends TString.NonEmpty>(tag: TTag) => MakeEventSchema<TTag, TFields>;
 } = dual(2, makeEventSchema);

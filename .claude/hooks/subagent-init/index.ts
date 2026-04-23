@@ -16,7 +16,7 @@ import { $ClaudeId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkEmptyStr } from "@beep/utils";
 import { BunRuntime, BunServices } from "@effect/platform-bun";
-import { Config, Console, Context, Effect, FileSystem, Layer, Path, pipe } from "effect";
+import { Config, Console, Context, Effect, FileSystem, flow, Layer, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -47,18 +47,16 @@ class MiseTask extends S.Class<MiseTask>($I`MiseTask`)(
 
 const MiseTasks = S.Array(MiseTask);
 
-const formatMiseTasks = (tasks: typeof MiseTasks.Type): string =>
-  pipe(
-    tasks,
-    A.map((t) => {
-      const aliases = A.match(t.aliases, {
-        onEmpty: thunkEmptyStr,
-        onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
-      });
-      return `${t.name}${aliases}: ${t.description}`;
-    }),
-    A.join("\n")
-  );
+const formatMiseTasks: (tasks: typeof MiseTasks.Type) => string = flow(
+  A.map((t: MiseTask) => {
+    const aliases = A.match(t.aliases, {
+      onEmpty: thunkEmptyStr,
+      onNonEmpty: (values) => ` (${A.join(values, ", ")})`,
+    });
+    return `${t.name}${aliases}: ${t.description}`;
+  }),
+  A.join("\n")
+);
 
 export class AgentConfigError extends TaggedErrorClass<AgentConfigError>($I`AgentConfigError`)(
   "AgentConfigError",

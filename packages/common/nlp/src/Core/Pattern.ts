@@ -464,10 +464,7 @@ export class Pattern extends S.TaggedClass<Pattern>($I`Pattern`)(
   static readonly Id: {
     (id: string): PatternId;
     (): (id: string) => PatternId;
-  } = dual<
-    () => (id: string) => PatternId,
-    (id: string) => PatternId
-  >((args) => args.length >= 1, PatternId.make);
+  } = dual<() => (id: string) => PatternId, (id: string) => PatternId>((args) => args.length >= 1, PatternId.make);
 
   /**
    * Pattern element schema.

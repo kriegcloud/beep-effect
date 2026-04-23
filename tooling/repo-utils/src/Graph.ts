@@ -322,9 +322,9 @@ const buildCyclePath = (
  * @since 0.0.0
  */
 export const computeTransitiveClosure: {
-  (pkg: string): (adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>) => Effect.Effect<
-    HashSet.HashSet<string>
-  >;
+  (
+    pkg: string
+  ): (adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>) => Effect.Effect<HashSet.HashSet<string>>;
   (
     adjacencyList: HashMap.HashMap<string, HashSet.HashSet<string>>,
     pkg: string

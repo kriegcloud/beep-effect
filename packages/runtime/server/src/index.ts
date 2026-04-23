@@ -143,15 +143,15 @@ const isPostMethod = Eq.equals("POST");
 const isClusterInternalPath = Str.includes("__cluster");
 const isJsonRequestContentType = P.some([Str.includes("application/json"), Str.includes("ndjson")]);
 const hasHeaderValue = flow(O.fromUndefinedOr, O.isSome);
-const isOversizedContentLength = (contentLength: string | undefined): boolean =>
-  pipe(
-    contentLength,
-    O.fromUndefinedOr,
-    O.flatMap(Num.parse),
-    O.exists((length) => length > maxBodySizeBytes)
-  );
-const isUnsupportedPostContentType = (contentType: string | undefined): boolean =>
-  pipe(contentType, O.fromUndefinedOr, O.exists(P.not(isJsonRequestContentType)));
+const isOversizedContentLength: (contentLength: string | undefined) => boolean = flow(
+  O.fromUndefinedOr,
+  O.flatMap(Num.parse),
+  O.exists((length) => length > maxBodySizeBytes)
+);
+const isUnsupportedPostContentType: (contentType: string | undefined) => boolean = flow(
+  O.fromUndefinedOr,
+  O.exists(P.not(isJsonRequestContentType))
+);
 const shouldValidatePostBody = (request: HttpServerRequest.HttpServerRequest): boolean =>
   isPostMethod(request.method) && !isClusterInternalPath(request.url);
 const hasRequestBodyMetadata = (request: HttpServerRequest.HttpServerRequest): boolean =>

@@ -1,5 +1,5 @@
 import type { QueryStage, QueryStageTrace } from "@beep/runtime-protocol";
-import { Match, pipe } from "effect";
+import { flow, Match } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 
@@ -21,9 +21,7 @@ export const formatQueryStageStatusTone = Match.type<QueryStage["status"]>().pip
   Match.exhaustive
 );
 
-export const formatOptionalPercent = (value: O.Option<number>): string =>
-  pipe(
-    value,
-    O.map((percent) => `${percent}%`),
-    O.getOrElse(() => "Not yet")
-  );
+export const formatOptionalPercent: (value: O.Option<number>) => string = flow(
+  O.map((percent: number) => `${percent}%`),
+  O.getOrElse(() => "Not yet")
+);

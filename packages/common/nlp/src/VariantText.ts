@@ -5,7 +5,7 @@
  * @module
  */
 import * as Str from "@beep/utils/Str";
-import { Order, pipe } from "effect";
+import { flow, Order } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 
@@ -29,5 +29,7 @@ const stringEquals: {
  * @since 0.0.0
  * @category variants
  */
-export const orderedDedupe = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(values, A.filter(Str.isNonEmpty), A.dedupeWith(stringEquals));
+export const orderedDedupe: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.filter(Str.isNonEmpty),
+  A.dedupeWith(stringEquals)
+);

@@ -5,12 +5,12 @@
  * @module
  */
 import * as Str from "@beep/utils/Str";
-import { flow, pipe } from "effect";
+import { flow } from "effect";
 import * as A from "effect/Array";
 import * as QueryText from "./QueryText.ts";
 import * as VariantText from "./VariantText.ts";
 
-const stripLeadingDotSlash = (input: string): string => pipe(input, Str.replace(/^\.\/+/, Str.empty));
+const stripLeadingDotSlash: (input: string) => string = Str.replace(/^\.\/+/, Str.empty);
 const stripTypeScriptExtension = Str.replace(/\.[cm]?tsx?$/i, Str.empty);
 const basename = Str.replace(/^.*\//, Str.empty);
 

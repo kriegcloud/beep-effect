@@ -7,9 +7,9 @@
 
 import { fileURLToPath, pathToFileURL } from "node:url";
 import { $UtilsId } from "@beep/identity/packages";
-import { Context, Effect, Layer, Match, Order, pipe } from "effect";
-import { dual } from "effect/Function";
+import { Context, Effect, flow, Layer, Match, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import picomatch from "picomatch";
@@ -137,7 +137,10 @@ export class GlobError extends S.TaggedErrorClass<GlobError>($I`GlobError`)(
   static readonly new: {
     (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): GlobError;
     (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => GlobError;
-  } = dual(2, (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) => new GlobError({ pattern, cause }));
+  } = dual(
+    2,
+    (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]) => new GlobError({ pattern, cause })
+  );
   static readonly newThunk: {
     (pattern: GlobError.Encoded["pattern"], cause: GlobError.Encoded["cause"]): () => GlobError;
     (pattern: GlobError.Encoded["pattern"]): (cause: GlobError.Encoded["cause"]) => () => GlobError;
@@ -229,13 +232,11 @@ const ensureTrailingSeparator = (value: string): string =>
 
 const normalizePathSeparators = (value: string): string => Str.replaceAll("\\", "/")(value);
 
-const hasDotSegment = (value: string): boolean =>
-  pipe(
-    value,
-    normalizePathSeparators,
-    Str.split("/"),
-    A.some((segment) => segment.length > 1 && segment !== ".." && Str.startsWith(".")(segment))
-  );
+const hasDotSegment: (value: string) => boolean = flow(
+  normalizePathSeparators,
+  Str.split("/"),
+  A.some((segment) => segment.length > 1 && segment !== ".." && Str.startsWith(".")(segment))
+);
 
 function toPatterns(pattern: Pattern): ReadonlyArray<string> {
   return Match.value(pattern).pipe(
@@ -283,33 +284,29 @@ const matchesAny = (globs: ReadonlyArray<BunGlobInstance>, relativePath: string)
     A.some((glob) => glob.match(relativePath))
   );
 
-const compileIncludedPatterns = (patterns: ReadonlyArray<string>): ReadonlyArray<PatternMatcher> =>
-  pipe(
-    patterns,
-    A.map((pattern) => {
-      const normalizedPattern = normalizePathSeparators(pattern);
-      const matcher = picomatch(normalizedPattern, {
-        dot: true,
-      });
-      const rootDirectory = Str.endsWith("/**")(normalizedPattern) ? normalizedPattern.slice(0, -3) : undefined;
+const compileIncludedPatterns: (patterns: ReadonlyArray<string>) => ReadonlyArray<PatternMatcher> = flow(
+  A.map((pattern) => {
+    const normalizedPattern = normalizePathSeparators(pattern);
+    const matcher = picomatch(normalizedPattern, {
+      dot: true,
+    });
+    const rootDirectory = Str.endsWith("/**")(normalizedPattern) ? normalizedPattern.slice(0, -3) : undefined;
 
-      return (relativePath: string, isDirectory: boolean): boolean =>
-        matcher(relativePath) && !(isDirectory && rootDirectory !== undefined && relativePath === rootDirectory);
-    })
-  );
+    return (relativePath: string, isDirectory: boolean): boolean =>
+      matcher(relativePath) && !(isDirectory && rootDirectory !== undefined && relativePath === rootDirectory);
+  })
+);
 
-const compileIgnoredPatterns = (patterns: ReadonlyArray<string>): ReadonlyArray<PatternMatcher> =>
-  pipe(
-    patterns,
-    A.map((pattern) => {
-      const matcher = picomatch(normalizePathSeparators(pattern), {
-        dot: true,
-      });
+const compileIgnoredPatterns: (patterns: ReadonlyArray<string>) => ReadonlyArray<PatternMatcher> = flow(
+  A.map((pattern) => {
+    const matcher = picomatch(normalizePathSeparators(pattern), {
+      dot: true,
+    });
 
-      return (relativePath: string, isDirectory: boolean): boolean =>
-        matcher(isDirectory ? ensureTrailingSeparator(relativePath) : relativePath);
-    })
-  );
+    return (relativePath: string, isDirectory: boolean): boolean =>
+      matcher(isDirectory ? ensureTrailingSeparator(relativePath) : relativePath);
+  })
+);
 
 const matchesCompiledPatterns = (
   matchers: ReadonlyArray<PatternMatcher>,

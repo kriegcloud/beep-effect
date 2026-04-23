@@ -17,6 +17,7 @@ import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
 const relativePlanPathSegments = flow(normalizePath, Str.split("/"), A.filter(Str.isNonEmpty));
 const isTraversalPathSegment = P.or(Eq.equals("."), Eq.equals(".."));

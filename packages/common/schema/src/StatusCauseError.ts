@@ -59,12 +59,42 @@ type StatusCauseInputOptions = {
   readonly cause?: unknown;
 };
 
+/**
+ * Input payload shape produced by {@link statusCauseInput}.
+ *
+ * @example
+ * ```ts
+ * import { statusCauseInput, type StatusCauseInput } from "@beep/schema/StatusCauseError"
+ *
+ * const payload: StatusCauseInput = statusCauseInput("not found", { status: 404 })
+ *
+ * void payload
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type StatusCauseInput = {
   readonly message: string;
   readonly status: number;
   readonly cause: O.Option<unknown>;
 };
 
+/**
+ * Creates normalized status/cause input payloads.
+ *
+ * @example
+ * ```ts
+ * import { statusCauseInput } from "@beep/schema/StatusCauseError"
+ *
+ * const payload = statusCauseInput("not found", { status: 404 })
+ *
+ * console.log(payload.status)
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const statusCauseInput: {
   (message: string, options: StatusCauseInputOptions): StatusCauseInput;
   (options: StatusCauseInputOptions): (message: string) => StatusCauseInput;
@@ -74,21 +104,6 @@ export const statusCauseInput: {
   cause: O.isOption(options.cause) ? options.cause : O.fromUndefinedOr(options.cause),
 }));
 
-/**
- * Input payload shape produced by {@link statusCauseInput}.
- *
- * @example
- * ```ts
- * import { statusCauseInput, type StatusCauseInput } from "@beep/schema/StatusCauseError"
- *
- * const payload: StatusCauseInput = statusCauseInput("not found", 404)
- *
- * void payload
- * ```
- *
- * @category models
- * @since 0.0.0
- */
 type StatusCauseErrorCtor<Input extends StatusCauseInput, Error> = new (value: Input) => Error;
 type StatusCauseContext = {
   readonly message: string;
