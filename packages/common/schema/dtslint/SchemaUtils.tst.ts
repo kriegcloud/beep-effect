@@ -63,6 +63,11 @@ describe("toEquivalence", () => {
 describe("withEmptyArrayDefaults", () => {
   const TagArray = S.Array(S.String);
   const Tags = TagArray.pipe(SchemaUtils.withEmptyArrayDefaults<string>());
+  type DataFirstTagArrayResult = typeof SchemaUtils.withEmptyArrayDefaults<string> extends (
+    schema: typeof TagArray
+  ) => infer TResult
+    ? TResult
+    : "missing data-first overload";
 
   it("preserves the decoded readonly array type", () => {
     expect<typeof Tags.Type>().type.toBe<ReadonlyArray<string>>();
@@ -70,6 +75,8 @@ describe("withEmptyArrayDefaults", () => {
 
   it("exposes a data-first callable signature", () => {
     expect(SchemaUtils.withEmptyArrayDefaults<string>).type.toBeCallableWith(TagArray);
+    expect<DataFirstTagArrayResult>().type.not.toBeAssignableTo<"missing data-first overload">();
+    expect<DataFirstTagArrayResult["Type"]>().type.toBe<ReadonlyArray<string>>();
   });
 
   it("is exported from the SchemaUtils barrel", () => {
