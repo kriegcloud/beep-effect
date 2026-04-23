@@ -18,8 +18,13 @@ import { Sentence, type SentenceIndex } from "./Sentence.ts";
 import { Token, type TokenIndex } from "./Token.ts";
 
 const $I = $NlpId.create("Core/Document");
-const getRangeEnd = (options: { readonly end: number } | number): number =>
-  P.isNumber(options) ? options : options.end;
+const getRangeEnd = (
+  options:
+    | {
+        readonly end: number;
+      }
+    | number
+): number => (P.isNumber(options) ? options : options.end);
 
 /**
  * Branded identifier for NLP documents.
@@ -174,6 +179,8 @@ export class Document extends S.Class<Document>($I`Document`)(
 ) {
   /**
    * Number of tokens in the document.
+   * @since 0.0.0
+   * @category utilities
    */
   get tokenCount(): number {
     return Chunk.size(this.tokens);
@@ -181,6 +188,8 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Number of sentences in the document.
+   * @since 0.0.0
+   * @category utilities
    */
   get sentenceCount(): number {
     return Chunk.size(this.sentences);
@@ -188,6 +197,8 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Number of characters in the source text.
+   * @since 0.0.0
+   * @category utilities
    */
   get characterCount(): number {
     return Str.length(this.text);
@@ -195,17 +206,41 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Get tokens overlapping a character range.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly getTokensInRange: {
-    (document: Document, start: number, options: { readonly end: number }): Chunk.Chunk<Token>;
-    (start: number, options: { readonly end: number }): (document: Document) => Chunk.Chunk<Token>;
-  } = dual(3, (document: Document, start: number, options: { readonly end: number }): Chunk.Chunk<Token> => {
-    const end = getRangeEnd(options);
-    return Chunk.filter(document.tokens, (token) => token.start < end && token.end > start);
-  });
+    (
+      document: Document,
+      start: number,
+      options: {
+        readonly end: number;
+      }
+    ): Chunk.Chunk<Token>;
+    (
+      start: number,
+      options: {
+        readonly end: number;
+      }
+    ): (document: Document) => Chunk.Chunk<Token>;
+  } = dual(
+    3,
+    (
+      document: Document,
+      start: number,
+      options: {
+        readonly end: number;
+      }
+    ): Chunk.Chunk<Token> => {
+      const end = getRangeEnd(options);
+      return Chunk.filter(document.tokens, (token) => token.start < end && token.end > start);
+    }
+  );
 
   /**
    * Safely get a token by zero-based index.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly getToken: {
     (document: Document, index: number): O.Option<Token>;
@@ -214,6 +249,8 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Safely get a token by branded token index.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly getTokenByIndex: {
     (document: Document, index: TokenIndex): O.Option<Token>;
@@ -226,6 +263,8 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Safely get a sentence by zero-based index.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly getSentence: {
     (document: Document, index: number): O.Option<Sentence>;
@@ -234,6 +273,8 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Safely get a sentence by branded sentence index.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly getSentenceByIndex: {
     (document: Document, index: SentenceIndex): O.Option<Sentence>;
@@ -246,6 +287,8 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Filter the token collection.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly filterTokens: {
     (document: Document, predicate: (token: Token) => boolean): Document;
@@ -254,12 +297,16 @@ export class Document extends S.Class<Document>($I`Document`)(
 
   /**
    * Extract token texts in order.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly tokenTexts = (document: Document): Chunk.Chunk<string> =>
     Chunk.map(document.tokens, (token) => token.text);
 
   /**
    * Extract sentence texts in order.
+   * @since 0.0.0
+   * @category utilities
    */
   static readonly sentenceTexts = (document: Document): Chunk.Chunk<string> =>
     Chunk.map(document.sentences, (sentence) => sentence.text);

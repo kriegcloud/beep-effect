@@ -55,7 +55,6 @@ const composers = $I.compose(
   "colors",
   "data",
   "identity",
-  "knoledge-graph",
   "md",
   "messages",
   "nlp",

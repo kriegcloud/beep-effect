@@ -6,10 +6,15 @@
  */
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LogLevel } from "@beep/schema";
-import { pipe, Tuple } from "effect";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("CoreConfig");
+
+const ObservabilityCoreConfigFields = {
+  serviceName: S.String,
+  serviceVersion: S.String,
+  environment: S.String,
+};
 
 /**
  * Browser-safe shared observability configuration.
@@ -21,12 +26,7 @@ const $I = $ObservabilityId.create("CoreConfig");
  * ```typescript
  * import { ObservabilityCoreConfig } from "@beep/observability"
  *
- * const config: ObservabilityCoreConfig = {
- *
- *
- *
- *
- * }
+ * const config: ObservabilityCoreConfig = {}
  *
  * console.log(config.serviceName) // "todox-web"
  * ```
@@ -34,18 +34,16 @@ const $I = $ObservabilityId.create("CoreConfig");
  * @since 0.0.0
  * @category models
  */
-export const ObservabilityCoreConfig = LogLevel.mapMembers((members) => {
-  const make = <TLogLevel extends LogLevel>(literal: S.Literal<TLogLevel>) =>
-    S.Struct({
-      serviceName: S.String,
-      serviceVersion: S.String,
-      environment: S.String,
-      minLogLevel: S.tag(literal.literal),
-    });
-
-  return pipe(members, Tuple.evolve([make, make, make, make, make, make, make, make]));
+export const ObservabilityCoreConfig = LogLevel.toTaggedUnion("minLogLevel")({
+  All: ObservabilityCoreConfigFields,
+  Fatal: ObservabilityCoreConfigFields,
+  Error: ObservabilityCoreConfigFields,
+  Warn: ObservabilityCoreConfigFields,
+  Info: ObservabilityCoreConfigFields,
+  Debug: ObservabilityCoreConfigFields,
+  Trace: ObservabilityCoreConfigFields,
+  None: ObservabilityCoreConfigFields,
 }).pipe(
-  S.toTaggedUnion("minLogLevel"),
   $I.annoteSchema("ObservabilityCoreConfig", {
     description: "Browser-safe shared observability configuration.",
   })

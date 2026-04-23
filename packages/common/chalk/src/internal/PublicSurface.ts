@@ -5,8 +5,65 @@
  * @since 0.0.0
  */
 
+import { $ChalkId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
+import * as S from "effect/Schema";
 import type { ColorSupportLevel } from "./ChalkSchema.ts";
+
+const $I = $ChalkId.create("Domain");
+
+const colorSupportLevelInputMessage = "The `level` option should be an integer from 0 to 3";
+
+const ColorSupportLevelInputChecks = S.makeFilterGroup(
+  [
+    S.isGreaterThanOrEqualTo(0).annotate({
+      description: "A Chalk color support level greater than or equal to 0.",
+      message: colorSupportLevelInputMessage,
+    }),
+    S.isLessThanOrEqualTo(3).annotate({
+      description: "A Chalk color support level less than or equal to 3.",
+      message: colorSupportLevelInputMessage,
+    }),
+  ],
+  {
+    identifier: $I`ColorSupportLevelInputCheck`,
+    title: "Chalk Color Support Level",
+    description: "Checks that a numeric Chalk color support level is between 0 and 3 inclusive.",
+  }
+);
+
+/**
+ * Numeric Chalk color support level input accepted by constructor and setter boundaries.
+ *
+ * The schema keeps the public constructor input broad as `number` while
+ * validating that runtime values are integer levels `0` through `3`.
+ *
+ * @example
+ * ```ts
+ * import { ColorSupportLevelInput } from "@beep/chalk/Chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ColorSupportLevelInput)
+ * console.log(decode(3))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ColorSupportLevelInput = S.Int.check(ColorSupportLevelInputChecks).pipe(
+  $I.annoteSchema("ColorSupportLevelInput", {
+    description: "A numeric Chalk color support level accepted by constructor and setter boundaries.",
+  })
+);
+
+class ChalkConstructorOptionsModel extends S.Class<ChalkConstructorOptionsModel>($I`ChalkConstructorOptions`)(
+  {
+    level: S.optionalKey(ColorSupportLevelInput),
+  },
+  $I.annote("ChalkConstructorOptions", {
+    description: "Constructor options accepted when creating an isolated Chalk instance.",
+  })
+) {}
 
 /**
  * Method and property surface shared by Chalk instances.
@@ -79,7 +136,27 @@ export declare abstract class ChalkInstanceSurface {
 }
 
 /**
- * Options accepted by Chalk constructors.
+ * Schema for options accepted by Chalk constructors.
+ *
+ * @example
+ * ```ts
+ * import { ChalkConstructorOptions } from "@beep/chalk/Chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ChalkConstructorOptions)
+ * console.log(decode({ level: 3 }).level)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export const ChalkConstructorOptions = ChalkConstructorOptionsModel;
+
+/**
+ * Plain constructor options accepted by Chalk constructors.
+ *
+ * Derived from {@link ChalkConstructorOptions}' encoded schema side so callers
+ * can continue to pass object literals like `{ level: 3 }`.
  *
  * @example
  * ```ts
@@ -92,9 +169,7 @@ export declare abstract class ChalkInstanceSurface {
  * @category models
  * @since 0.0.0
  */
-export type ChalkConstructorOptions = Readonly<{
-  readonly level?: ColorSupportLevel | number | undefined;
-}>;
+export type ChalkConstructorOptions = typeof ChalkConstructorOptions.Encoded;
 
 /**
  * Base constructor shape wrapped by the Chalk constructor proxy.

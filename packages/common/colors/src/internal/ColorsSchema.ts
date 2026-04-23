@@ -16,7 +16,7 @@ const $I = $ColorsId.create("Domain");
  *
  * @example
  * ```typescript
- * import { FormatterInput } from "@beep/colors/Colors"
+ * import { FormatterInput } from "./ColorsSchema.ts"
  * import * as S from "effect/Schema"
  *
  * const decode = S.decodeUnknownSync(FormatterInput)
@@ -34,11 +34,27 @@ export const FormatterInput = S.Union([S.String, S.Number]).pipe(
 );
 
 /**
+ * Runtime type for {@link FormatterInput}.
+ *
+ * @example
+ * ```typescript
+ * import type { FormatterInput } from "./ColorsSchema.ts"
+ *
+ * const input: FormatterInput = 42
+ * console.log(input)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type FormatterInput = typeof FormatterInput.Type;
+
+/**
  * Schema for a formatter that renders one value to a string.
  *
  * @example
  * ```typescript
- * import { Formatter } from "@beep/colors/Colors"
+ * import type { Formatter } from "./ColorsSchema.ts"
  *
  * const formatter: Formatter = (input) => `${input}`
  * console.log(formatter(42))
@@ -77,7 +93,7 @@ export type Formatter = typeof Formatter.Type;
  *
  * @example
  * ```typescript
- * import { ColorsFields } from "@beep/colors/Colors"
+ * import { ColorsFields } from "./ColorsSchema.ts"
  *
  * const hasBold = "bold" in ColorsFields
  * console.log(hasBold)

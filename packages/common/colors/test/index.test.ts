@@ -1,10 +1,12 @@
 import { describe, expect, it } from "@effect/vitest";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import browserColors, {
   supportsColor as browserSupportsColor,
   createColors as createBrowserColors,
   isColorSupported as isBrowserColorSupported,
 } from "../src/Colors.browser.ts";
-import colors, { Colors, createColors, isColorSupported, supportsColor } from "../src/index.ts";
+import colors, { Colors, createColors, isColorSupported, ProcessLike, supportsColor } from "../src/index.ts";
 
 describe("supportsColor", () => {
   it("enables colors for TTY terminals with a non-dumb TERM", () => {
@@ -92,6 +94,13 @@ describe("supportsColor", () => {
         },
       })
     ).toBe(true);
+  });
+
+  it("decodes process-like inputs through the schema model", () => {
+    const decode = S.decodeUnknownOption(ProcessLike);
+
+    expect(O.isSome(decode({ env: { FORCE_COLOR: "1" } }))).toBe(true);
+    expect(O.isNone(decode({ stdout: { isTTY: "yes" } }))).toBe(true);
   });
 });
 

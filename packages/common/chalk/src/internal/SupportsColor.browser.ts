@@ -4,65 +4,101 @@
  * @module
  * @since 0.0.0
  */
-
+import { $ChalkId } from "@beep/identity/packages";
+import { pipe } from "effect";
+import * as A from "effect/Array";
+import * as N from "effect/Number";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
+import * as Str from "effect/String";
 import { type ColorInfo, ColorSupport } from "./ChalkSchema.ts";
+
+const $I = $ChalkId.create("Domain");
+
+class BrowserBrandModel extends S.Class<BrowserBrandModel>($I`BrowserBrand`)(
+  {
+    brand: S.String,
+    version: S.String,
+  },
+  $I.annote("BrowserBrand", {
+    description: "Browser brand/version metadata used by Chalk browser color support detection.",
+  })
+) {}
+
+type BrowserBrand = typeof BrowserBrandModel.Encoded;
 
 type BrowserNavigator = Navigator & {
   readonly userAgentData?: {
-    readonly brands: ReadonlyArray<{
-      readonly brand: string;
-      readonly version: string;
-    }>;
+    readonly brands: ReadonlyArray<BrowserBrand>;
   };
 };
 
 const hasUserAgentData = (browserNavigator: Navigator): browserNavigator is BrowserNavigator =>
-  "userAgentData" in browserNavigator;
+  P.hasProperty(browserNavigator, "userAgentData");
 
-const getBrowserNavigator = (): Navigator | undefined => ("navigator" in globalThis ? globalThis.navigator : undefined);
+const getBrowserNavigator = (): O.Option<Navigator> => pipe(globalThis.navigator, O.fromNullishOr);
 
-const browserColorSupportFromNavigator = (browserNavigator: BrowserNavigator): ColorInfo => {
-  const chromium = hasUserAgentData(browserNavigator)
-    ? browserNavigator.userAgentData?.brands.find(({ brand }) => brand === "Chromium")
-    : undefined;
+const trueColorBrowserSupport = new ColorSupport({
+  has16m: true,
+  has256: true,
+  hasBasic: true,
+  level: 3,
+});
 
-  if (chromium !== undefined && Number.parseInt(chromium.version, 10) > 93) {
-    return new ColorSupport({
-      has16m: true,
-      has256: true,
-      hasBasic: true,
-      level: 3,
-    });
-  }
+const basicBrowserSupport = new ColorSupport({
+  has16m: false,
+  has256: false,
+  hasBasic: true,
+  level: 1,
+});
 
-  if (/\b(Chrome|Chromium)\//.test(browserNavigator.userAgent)) {
-    return new ColorSupport({
-      has16m: false,
-      has256: false,
-      hasBasic: true,
-      level: 1,
-    });
-  }
+const disabledBrowserSupport = false as const;
 
-  return false;
-};
+const chromeUserAgentPattern = /\b(Chrome|Chromium)\//;
 
-const browserColorSupport = (): ColorInfo => {
-  const browserNavigator = getBrowserNavigator();
+const findChromiumBrand = (browserNavigator: Navigator): O.Option<BrowserBrand> =>
+  pipe(
+    browserNavigator,
+    O.liftPredicate(hasUserAgentData),
+    O.flatMap((navigatorWithUserAgentData) =>
+      pipe(
+        navigatorWithUserAgentData.userAgentData?.brands,
+        O.fromNullishOr,
+        O.flatMap(A.findFirst(({ brand }) => brand === "Chromium"))
+      )
+    )
+  );
 
-  if (browserNavigator === undefined) {
-    return false;
-  }
+const isSupportedChromiumBrand = (browserBrand: BrowserBrand): boolean =>
+  pipe(browserBrand.version, N.parse, O.exists(N.isGreaterThan(93)));
 
-  return browserColorSupportFromNavigator(browserNavigator);
-};
+const detectTrueColorBrowserSupport = (browserNavigator: Navigator): O.Option<ColorSupport> =>
+  pipe(findChromiumBrand(browserNavigator), O.filter(isSupportedChromiumBrand), O.as(trueColorBrowserSupport));
+
+const detectBasicBrowserSupport = (browserNavigator: Navigator): O.Option<ColorSupport> =>
+  pipe(browserNavigator.userAgent, Str.match(chromeUserAgentPattern), O.as(basicBrowserSupport));
+
+const browserColorSupportFromNavigator = (browserNavigator: Navigator): ColorInfo =>
+  pipe(
+    [detectTrueColorBrowserSupport(browserNavigator), detectBasicBrowserSupport(browserNavigator)],
+    O.firstSomeOf,
+    O.getOrElse(() => disabledBrowserSupport)
+  );
+
+const browserColorSupport = (): ColorInfo =>
+  pipe(
+    getBrowserNavigator(),
+    O.map(browserColorSupportFromNavigator),
+    O.getOrElse(() => disabledBrowserSupport)
+  );
 
 /**
  * Color support detected for browser stdout and stderr compatibility channels.
  *
  * @example
  * ```ts
- * import { detectedSupportsColorBrowser } from "@beep/chalk/Chalk"
+ * import { detectedSupportsColorBrowser } from "./SupportsColor.browser.ts"
  *
  * console.log(detectedSupportsColorBrowser.stdout)
  * ```

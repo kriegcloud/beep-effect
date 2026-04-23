@@ -86,83 +86,110 @@ explicit values from callers rather than reading `Config`, `ConfigProvider`,
 
 ## Example Shape
 
-`TwoFactor.model.ts` can own simple behavior:
+`Membership.model.ts` can own simple behavior:
 
 ```ts
 import { $IamDomainId } from "@beep/identity/packages"
+import { LiteralKit } from "@beep/schema"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { AccountId } from "@beep/iam-domain/entities/Account"
-import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
+import { OrganizationId } from "@beep/iam-domain/entities/Organization"
+import { MembershipAlreadyRevoked } from "./Membership.errors.js"
 
-const $I = $IamDomainId.create("entities/TwoFactor/TwoFactor.model")
+const $I = $IamDomainId.create("entities/Membership/Membership.model")
 
-export const TwoFactorId = S.String.pipe(
-  S.brand("TwoFactorId"),
-  $I.annoteSchema("TwoFactorId", {
-    description: "Unique identifier for a two-factor authentication configuration",
+export const MembershipId = S.String.pipe(
+  S.brand("MembershipId"),
+  $I.annoteSchema("MembershipId", {
+    description: "Unique identifier for an organization membership.",
   }),
 )
-export type TwoFactorId = typeof TwoFactorId.Type
+export type MembershipId = typeof MembershipId.Type
 
-export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
+export const MembershipRole = LiteralKit(["owner", "admin", "member"]).pipe(
+  $I.annoteSchema("MembershipRole", {
+    description: "Role granted by an organization membership.",
+  }),
+)
+export type MembershipRole = typeof MembershipRole.Type
+
+export const MembershipStatus = LiteralKit([
+  "active",
+  "invited",
+  "revoked",
+]).pipe(
+  $I.annoteSchema("MembershipStatus", {
+    description: "Lifecycle status of an organization membership.",
+  }),
+)
+export type MembershipStatus = typeof MembershipStatus.Type
+
+export class Membership extends Model.Class<Membership>($I`Membership`)(
   {
-    id: TwoFactorId,
+    id: MembershipId,
+    organizationId: OrganizationId,
     accountId: AccountId,
-    enabled: S.Boolean,
-    recoveryCodesRemaining: S.Number,
+    role: MembershipRole,
+    status: MembershipStatus,
   },
-  $I.annote("TwoFactor", {
-    description: "Two-factor authentication configuration for an account",
+  $I.annote("Membership", {
+    description: "Account participation in an organization.",
   }),
 ) {
-  readonly canDisable = (): boolean => this.enabled
+  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status)
 
-  readonly useRecoveryCode = Effect.fn("TwoFactor.useRecoveryCode")(() =>
-    this.recoveryCodesRemaining > 0
+  readonly revoke = Effect.fn("Membership.revoke")(() =>
+    this.canRevoke()
       ? Effect.succeed(
-          TwoFactor.make({
+          Membership.make({
             id: this.id,
+            organizationId: this.organizationId,
             accountId: this.accountId,
-            enabled: this.enabled,
-            recoveryCodesRemaining: this.recoveryCodesRemaining - 1,
+            role: this.role,
+            status: MembershipStatus.Enum.revoked,
           }),
         )
-      : Effect.fail(new NoRecoveryCodesRemaining()),
+      : Effect.fail(new MembershipAlreadyRevoked()),
   )
 }
 ```
 
-`TwoFactor.policy.ts` can own larger pure decisions:
+`Membership.policy.ts` can own larger pure decisions:
 
 ```ts
-import type { TwoFactor } from "./TwoFactor.model.js"
+import {
+  type Membership,
+  MembershipRole,
+  MembershipStatus,
+} from "./Membership.model.js"
 
-export const canRotateRecoveryCodes = (model: TwoFactor) =>
-  model.enabled && model.recoveryCodesRemaining < 3
+export const canPromoteToOwner = (model: Membership) =>
+  MembershipStatus.is.active(model.status) && !MembershipRole.is.owner(model.role)
 ```
 
-`TwoFactor.behavior.ts` can own pure transitions:
+`Membership.behavior.ts` can own pure transitions:
 
 ```ts
 import { Effect } from "effect"
-import { RecoveryCodeRotationRejected } from "./TwoFactor.errors.js"
-import { canRotateRecoveryCodes } from "./TwoFactor.policy.js"
-import { TwoFactor } from "./TwoFactor.model.js"
+import { MembershipRoleChangeRejected } from "./Membership.errors.js"
+import { canPromoteToOwner } from "./Membership.policy.js"
+import { Membership, MembershipRole } from "./Membership.model.js"
 
-export const rotateRecoveryCodes = Effect.fn("TwoFactor.rotateRecoveryCodes")(
-  (model: TwoFactor) =>
-    canRotateRecoveryCodes(model)
+export const promoteToOwner = Effect.fn("Membership.promoteToOwner")(
+  (model: Membership) =>
+    canPromoteToOwner(model)
       ? Effect.succeed(
-          TwoFactor.make({
+          Membership.make({
             id: model.id,
+            organizationId: model.organizationId,
             accountId: model.accountId,
-            enabled: model.enabled,
-            recoveryCodesRemaining: 10,
+            role: MembershipRole.Enum.owner,
+            status: model.status,
           }),
         )
-      : Effect.fail(new RecoveryCodeRotationRejected()),
+      : Effect.fail(new MembershipRoleChangeRejected()),
 )
 ```
 

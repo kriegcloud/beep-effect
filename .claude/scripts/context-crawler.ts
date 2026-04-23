@@ -167,10 +167,12 @@ const findContextFiles = Effect.gen(function* () {
           }
 
           return fs.stat(fullPath).pipe(
-            Effect.flatMap((stat) =>
-              stat.type === "Directory" && !HashSet.has(excludeDirs, entry)
-                ? Effect.suspend(() => searchDir(fullPath))
-                : Effect.succeed(A.empty<string>())
+            Effect.flatMap(
+              Effect.fnUntraced(function* (stat) {
+                return yield* stat.type === "Directory" && !HashSet.has(excludeDirs, entry)
+                  ? Effect.suspend(() => searchDir(fullPath))
+                  : Effect.succeed(A.empty<string>());
+              })
             ),
             Effect.orElseSucceed(A.empty<string>)
           );

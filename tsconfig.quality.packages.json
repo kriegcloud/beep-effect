@@ -34,9 +34,6 @@
       "path": "packages/common/identity"
     },
     {
-      "path": "packages/common/knowledge-graph"
-    },
-    {
       "path": "packages/common/md"
     },
     {

@@ -30,30 +30,73 @@
 
 import { $ColorsId } from "@beep/identity";
 import { Str } from "@beep/utils";
+import { pipe } from "effect";
 import * as A from "effect/Array";
-import * as P from "effect/Predicate";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import {
   ColorsFields,
-  Formatter as FormatterSchema,
+  Formatter as FormatterDefinition,
   type Formatter as FormatterType,
 } from "./internal/ColorsSchema.ts";
 
 const $I = $ColorsId.create("Domain");
 
-class ProcessLikeStdout extends S.Class<ProcessLikeStdout>($I`ProcessLikeStdout`)({
-  isTTY: S.optionalKey(S.Boolean),
-}) {}
+/**
+ * Minimal stdout metadata used by ANSI color support detection.
+ *
+ * @example
+ * ```typescript
+ * import { ProcessLikeStdout } from "@beep/colors"
+ *
+ * const stdout = new ProcessLikeStdout({ isTTY: true })
+ * console.log(stdout.isTTY)
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProcessLikeStdout extends S.Class<ProcessLikeStdout>($I`ProcessLikeStdout`)(
+  {
+    isTTY: S.optionalKey(S.Boolean),
+  },
+  $I.annote("ProcessLikeStdout", {
+    description: "Minimal stdout metadata used by ANSI color support detection.",
+  })
+) {}
 
-class ProcessLike extends S.Class<ProcessLike>($I`ProcessLike`)({
-  argv: S.String.pipe(S.Array, S.optionalKey),
-  env: S.Record(S.String, S.UndefinedOr(S.String)).pipe(S.optionalKey),
-  platform: S.optionalKey(S.String),
-  stdout: S.optionalKey(ProcessLikeStdout),
-}) {}
+/**
+ * Minimal process-like runtime metadata used by ANSI color support detection.
+ *
+ * @example
+ * ```typescript
+ * import { ProcessLike, supportsColor } from "@beep/colors"
+ *
+ * const processLike = new ProcessLike({ env: { FORCE_COLOR: "1" } })
+ * console.log(supportsColor(processLike))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProcessLike extends S.Class<ProcessLike>($I`ProcessLike`)(
+  {
+    argv: S.String.pipe(S.Array, S.optionalKey),
+    env: S.Record(S.String, S.UndefinedOr(S.String)).pipe(S.optionalKey),
+    platform: S.optionalKey(S.String),
+    stdout: S.optionalKey(ProcessLikeStdout),
+  },
+  $I.annote("ProcessLike", {
+    description: "Minimal process-like runtime metadata used by ANSI color support detection.",
+  })
+) {}
 
 const runtimeProcess = Reflect.get(globalThis, "process");
-const runtimeProcessLike: ProcessLike = P.isObject(runtimeProcess) ? runtimeProcess : {};
+const decodeProcessLike = S.decodeUnknownOption(ProcessLike);
+const runtimeProcessLike: ProcessLike = pipe(
+  decodeProcessLike(runtimeProcess),
+  O.getOrElse(() => new ProcessLike({}))
+);
 const stringIdentity: FormatterType = String;
 
 const hasNoColorFlag = (argv: ReadonlyArray<string>): boolean => A.contains(argv, "--no-color");
@@ -96,7 +139,7 @@ const replaceClose = (text: string, close: string, replace: string, index: numbe
  * @category models
  * @since 0.0.0
  */
-export const Formatter = FormatterSchema;
+export const Formatter = FormatterDefinition;
 
 /**
  * Runtime type for {@link Formatter}.
@@ -134,8 +177,7 @@ const formatter =
  * import { supportsColor } from "@beep/colors"
  *
  * const enabled = supportsColor({
- *
- *
+ *   env: { FORCE_COLOR: "1" },
  * })
  *
  * console.log(enabled) // true

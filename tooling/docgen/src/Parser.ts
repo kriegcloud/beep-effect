@@ -22,7 +22,13 @@ const $I = $DocgenId.create("Parser");
 
 const withSource = <A, E, R>(source: SourceShape, effect: Effect.Effect<A, E, R | Source>) =>
   Effect.scoped(
-    Layer.build(Source.layer(source)).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+    Layer.build(Source.layer(source)).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* effect.pipe(Effect.provide(context));
+        })
+      )
+    )
   );
 
 /**
@@ -749,5 +755,9 @@ const createProject = Effect.fn("createProject")(function* (files: ReadonlyArray
  */
 export const parseFiles = (files: ReadonlyArray<Domain.File>) =>
   createProject(files).pipe(
-    Effect.flatMap((project) => pipe(files, Effect.validate(parseFile(project)), Effect.map(sortModulesByPath)))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (project) {
+        return yield* pipe(files, Effect.validate(parseFile(project)), Effect.map(sortModulesByPath));
+      })
+    )
   );

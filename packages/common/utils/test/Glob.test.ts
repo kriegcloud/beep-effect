@@ -176,10 +176,12 @@ describe("@beep/utils Glob", () => {
       acquireFixture,
       (fixture) =>
         Effect.promise(() => symlink(fixture.dir, join(fixture.dir, "src", "linked-root"))).pipe(
-          Effect.flatMap(() =>
-            runGlob("src/**", {
-              cwd: fixture.dir,
-              nodir: true,
+          Effect.flatMap(
+            Effect.fnUntraced(function* () {
+              return yield* runGlob("src/**", {
+                cwd: fixture.dir,
+                nodir: true,
+              });
             })
           )
         ),

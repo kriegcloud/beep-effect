@@ -21,7 +21,7 @@ const $I = $CodexId.create("Domain/Hooks/SessionStart");
  * @since 0.0.0
  * @category DomainModel
  */
-export const SessionStartSource = LiteralKit(["startup", "resume", "clear"] as const).annotate(
+export const SessionStartSource = LiteralKit(["startup", "resume", "clear"]).annotate(
   $I.annote("SessionStartSource", {
     description: "Session start sources permitted by the generated Codex SessionStart input schema.",
   })

@@ -1,14 +1,25 @@
+import type * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
+import browserChalk, {
+  Chalk as BrowserChalk,
+  type ChalkInstance as BrowserChalkInstance,
+  type Chalk as BrowserChalkType,
+  chalkStderr as browserChalkStderr,
+} from "../src/Chalk.browser.ts";
 import type { ChalkInstance } from "../src/index.ts";
 import chalk, {
   type BackgroundColorName,
   type backgroundColorNames,
   Chalk,
+  type ChalkConstructorOptions,
+  type ChalkConstructorOptions as ChalkConstructorOptionsType,
   type ChalkOptions,
   type ColorInfo,
   type ColorName,
   type ColorSupport,
   type ColorSupportLevel,
+  type ColorSupportLevelInput,
+  type ColorSupportLevelInput as ColorSupportLevelInputType,
   chalkStderr,
   type colorNames,
   type ForegroundColorName,
@@ -21,14 +32,31 @@ import chalk, {
 
 describe("@beep/chalk", () => {
   it("exposes the shared builder and constructor types", () => {
+    const broadLevel: number = 3;
+
     expect(chalk).type.toBe<ChalkInstance>();
     expect(new Chalk()).type.toBe<Chalk>();
     expect(new Chalk({ level: 1 })).type.toBe<Chalk>();
+    expect(new Chalk({ level: broadLevel })).type.toBe<Chalk>();
     expect(chalkStderr).type.toBe<ChalkInstance>();
+  });
+
+  it("types browser entry parity", () => {
+    const broadLevel: number = 3;
+
+    expect(browserChalk).type.toBe<BrowserChalkInstance>();
+    expect(new BrowserChalk()).type.toBe<BrowserChalkType>();
+    expect(new BrowserChalk({ level: broadLevel })).type.toBe<BrowserChalkType>();
+    expect(browserChalkStderr).type.toBe<BrowserChalkInstance>();
   });
 
   it("keeps schema-backed public models typed", () => {
     expect<ChalkOptions["level"]>().type.toBe<ColorSupportLevel | undefined>();
+    expect<ChalkConstructorOptionsType["level"]>().type.toBe<number | undefined>();
+    expect<typeof ChalkConstructorOptions.Encoded>().type.toBeAssignableTo<ChalkConstructorOptionsType>();
+    expect<ChalkConstructorOptionsType>().type.toBeAssignableTo<typeof ChalkConstructorOptions.Encoded>();
+    expect<typeof ColorSupportLevelInput.Type>().type.toBe<ColorSupportLevelInputType>();
+    expect<typeof ColorSupportLevelInput>().type.toBeAssignableTo<S.Top>();
     expect<ColorSupportLevel>().type.toBe<0 | 1 | 2 | 3>();
     expect<ColorSupport>().type.toBe<{
       readonly has16m: boolean;
@@ -74,10 +102,13 @@ describe("@beep/chalk", () => {
     const invalidBackground: BackgroundColorName = "bgPink";
     // @ts-expect-error!
     const invalidColor: ColorName = "hotpink";
+    // @ts-expect-error!
+    const invalidConstructorOptions: ChalkConstructorOptionsType = { level: "3" };
 
     void invalidModifier;
     void invalidForeground;
     void invalidBackground;
     void invalidColor;
+    void invalidConstructorOptions;
   });
 });

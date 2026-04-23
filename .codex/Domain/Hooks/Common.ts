@@ -47,13 +47,7 @@ export type NullableString = typeof NullableString.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const PermissionMode = LiteralKit([
-  "default",
-  "acceptEdits",
-  "plan",
-  "dontAsk",
-  "bypassPermissions",
-] as const).annotate(
+export const PermissionMode = LiteralKit(["default", "acceptEdits", "plan", "dontAsk", "bypassPermissions"]).annotate(
   $I.annote("PermissionMode", {
     description: "Permission mode value carried on Codex hook command inputs.",
   })
@@ -79,7 +73,7 @@ export const HookEventName = LiteralKit([
   "SessionStart",
   "UserPromptSubmit",
   "Stop",
-] as const).annotate(
+]).annotate(
   $I.annote("HookEventName", {
     description: "Hook event names permitted by the generated Codex hook output schemas.",
   })
@@ -99,7 +93,7 @@ export type HookEventName = typeof HookEventName.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const BlockDecision = LiteralKit(["block"] as const).annotate(
+export const BlockDecision = LiteralKit(["block"]).annotate(
   $I.annote("BlockDecision", {
     description: "Shared block decision emitted by Codex hook outputs that can interrupt normal flow.",
   })

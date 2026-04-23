@@ -335,14 +335,16 @@ export const makeEditorClient = Effect.fn("EditorClient.make")((config: EditorCl
         getPage: (slug) =>
           pipe(
             decodeSlugEffect(slug),
-            Effect.flatMap((decodedSlug) =>
-              withControlPlane(`Failed to load page "${slug}".`, (client) =>
-                client.getPage({
-                  params: {
-                    slug: decodedSlug,
-                  },
-                })
-              )
+            Effect.flatMap(
+              Effect.fnUntraced(function* (decodedSlug) {
+                return yield* withControlPlane(`Failed to load page "${slug}".`, (client) =>
+                  client.getPage({
+                    params: {
+                      slug: decodedSlug,
+                    },
+                  })
+                );
+              })
             )
           ),
         savePage: (page) =>
@@ -357,15 +359,17 @@ export const makeEditorClient = Effect.fn("EditorClient.make")((config: EditorCl
         exportPage: (slug, format) =>
           pipe(
             decodeSlugEffect(slug),
-            Effect.flatMap((decodedSlug) =>
-              withControlPlane(`Failed to export page "${slug}" as "${format}".`, (client) =>
-                client.exportPage({
-                  params: {
-                    slug: decodedSlug,
-                    format,
-                  },
-                })
-              )
+            Effect.flatMap(
+              Effect.fnUntraced(function* (decodedSlug) {
+                return yield* withControlPlane(`Failed to export page "${slug}" as "${format}".`, (client) =>
+                  client.exportPage({
+                    params: {
+                      slug: decodedSlug,
+                      format,
+                    },
+                  })
+                );
+              })
             )
           ),
         searchPages: (query) =>

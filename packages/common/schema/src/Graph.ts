@@ -471,11 +471,11 @@ export const isGraph = <Node, Edge>(
  * @category Validation
  */
 export const EdgeEncoded = <Data extends S.Top>(data: Data): EdgeEncodedSchema<Data> => {
-  const schema = S.Struct({
+  const schema = S.Class<EdgeEncoded<Data["Type"]>>($I`EdgeEncoded`)({
     source: NodeIndex,
     target: NodeIndex,
     data,
-  });
+  }).mapFields((fields) => fields);
 
   return S.make<EdgeEncodedSchema<Data>>(schema.ast, { data }).pipe(
     $I.annoteSchema("EdgeEncoded", {
@@ -541,14 +541,17 @@ export const EdgeFromSelf = <Data extends S.Top>(data: Data): EdgeFromSelf<Data>
           return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)));
         }
 
-        return Effect.flatMap(SchemaParser.decodeUnknownEffect(encoded)(toRawEdgeEncoded(input), options), (edge) =>
-          Effect.succeed(
-            new Graph_.Edge({
-              source: edge.source,
-              target: edge.target,
-              data: edge.data,
-            })
-          )
+        return Effect.flatMap(
+          SchemaParser.decodeUnknownEffect(encoded)(toRawEdgeEncoded(input), options),
+          Effect.fnUntraced(function* (edge) {
+            return yield* Effect.succeed(
+              new Graph_.Edge({
+                source: edge.source,
+                target: edge.target,
+                data: edge.data,
+              })
+            );
+          })
         );
       };
     },
@@ -677,12 +680,12 @@ export const GraphEncoded: {
     type: GraphKind,
     nodes: S.Array(S.Tuple([NodeIndex, node])),
     edges: S.Array(
-      S.Struct({
+      S.Class<GraphEncoded<Node["Type"], Edge["Type"]>["edges"][number]>($I`GraphEncodedEdge`)({
         index: EdgeIndex,
         source: NodeIndex,
         target: NodeIndex,
         data: edge,
-      })
+      }).mapFields((fields) => fields)
     ),
   });
 
@@ -825,7 +828,9 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
 
         return Effect.flatMap(
           SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
-          (graph) => rebuildImmutableGraph(graph, input, expectedType)
+          Effect.fnUntraced(function* (graph) {
+            return yield* rebuildImmutableGraph(graph, input, expectedType);
+          })
         );
       };
     },
@@ -877,7 +882,9 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
 
         return Effect.flatMap(
           SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
-          (graph) => rebuildMutableGraph(graph, input, expectedType)
+          Effect.fnUntraced(function* (graph) {
+            return yield* rebuildMutableGraph(graph, input, expectedType);
+          })
         );
       };
     },

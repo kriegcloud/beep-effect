@@ -5,10 +5,13 @@
  * @since 0.0.0
  */
 
+import { $SchemaId } from "@beep/identity/packages";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
+
+const $I = $SchemaId.create("StatusCauseError");
 
 /**
  * Shared field set for tagged errors that carry a message, HTTP status, and optional defect cause.
@@ -74,11 +77,16 @@ type StatusCauseInputOptions = {
  * @category models
  * @since 0.0.0
  */
-export type StatusCauseInput = {
-  readonly message: string;
-  readonly status: number;
-  readonly cause: O.Option<unknown>;
-};
+export class StatusCauseInput extends S.Class<StatusCauseInput>($I`StatusCauseInput`)(
+  {
+    message: S.String,
+    status: S.Number,
+    cause: S.Option(S.Unknown),
+  },
+  $I.annote("StatusCauseInput", {
+    description: "Normalized status/cause input payload.",
+  })
+) {}
 
 /**
  * Creates normalized status/cause input payloads.
@@ -98,11 +106,13 @@ export type StatusCauseInput = {
 export const statusCauseInput: {
   (message: string, options: StatusCauseInputOptions): StatusCauseInput;
   (options: StatusCauseInputOptions): (message: string) => StatusCauseInput;
-} = dual(2, (message: string, options: StatusCauseInputOptions) => ({
-  message,
-  status: options.status,
-  cause: O.isOption(options.cause) ? options.cause : O.fromUndefinedOr(options.cause),
-}));
+} = dual(2, (message: string, options: StatusCauseInputOptions) =>
+  StatusCauseInput.make({
+    message,
+    status: options.status,
+    cause: O.isOption(options.cause) ? options.cause : O.fromUndefinedOr(options.cause),
+  })
+);
 
 type StatusCauseErrorCtor<Input extends StatusCauseInput, Error> = new (value: Input) => Error;
 type StatusCauseContext = {

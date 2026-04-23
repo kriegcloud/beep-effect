@@ -69,14 +69,26 @@ const makeParserTestLayer = (source: string | ast.SourceFile, config?: Partial<C
   );
 
 const runPromiseInLayer = <A, E, R>(layer: Layer.Layer<R, E>, effect: Effect.Effect<A, E, R>) =>
-  Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))).pipe(
-    Effect.runPromise
-  );
+  Effect.scoped(
+    Layer.build(layer).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* effect.pipe(Effect.provide(context));
+        })
+      )
+    )
+  ).pipe(Effect.runPromise);
 
 const runSyncInLayer = <A, E, R>(layer: Layer.Layer<R, E>, effect: Effect.Effect<A, E, R>) =>
-  Effect.scoped(Layer.build(layer).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))).pipe(
-    Effect.runSync
-  );
+  Effect.scoped(
+    Layer.build(layer).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* effect.pipe(Effect.provide(context));
+        })
+      )
+    )
+  ).pipe(Effect.runSync);
 
 const expectMarkdown = async <E>(
   eff: Effect.Effect<
@@ -91,12 +103,14 @@ const expectMarkdown = async <E>(
   const actual = await runPromiseInLayer(
     makeParserTestLayer(sourceText, config),
     eff.pipe(
-      Effect.flatMap((printableOr) => {
-        if (isModule(printableOr)) {
-          return Printer.printModule(printableOr);
-        }
-        return print(printableOr);
-      })
+      Effect.flatMap(
+        Effect.fnUntraced(function* (printableOr) {
+          if (isModule(printableOr)) {
+            return yield* Printer.printModule(printableOr);
+          }
+          return yield* print(printableOr);
+        })
+      )
     )
   );
   expect(actual).toBe(expected);

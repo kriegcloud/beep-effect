@@ -234,8 +234,10 @@ const buildSidecar = Effect.fn("DesktopBuild.buildSidecar")(function* () {
 
 const main = Effect.scoped(
   Layer.build(BunServices.layer).pipe(
-    Effect.flatMap((context) =>
-      buildSidecar().pipe(Effect.withSpan("DesktopBuild.buildSidecar"), Effect.provide(context))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* buildSidecar().pipe(Effect.withSpan("DesktopBuild.buildSidecar"), Effect.provide(context));
+      })
     )
   )
 );

@@ -9,7 +9,6 @@
     "packages/common/colors/dtslint/**/*.tst.*",
     "packages/common/data/dtslint/**/*.tst.*",
     "packages/common/identity/dtslint/**/*.tst.*",
-    "packages/common/knowledge-graph/dtslint/**/*.tst.*",
     "packages/common/md/dtslint/**/*.tst.*",
     "packages/common/messages/dtslint/**/*.tst.*",
     "packages/common/nlp/dtslint/**/*.tst.*",

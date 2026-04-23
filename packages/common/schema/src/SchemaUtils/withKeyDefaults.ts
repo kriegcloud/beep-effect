@@ -176,7 +176,7 @@ export const BoolKeyDefaultFalse = boolKeyWithDefault(false).pipe(
 );
 
 /**
- * Type for {@link BoolKeyDefaultFalse}. {@inheritDoc BoolKeyDefaultFalse}
+ * {@inheritDoc BoolKeyDefaultFalse}
  *
  * @example
  * ```ts
@@ -215,7 +215,7 @@ export const BoolKeyDefaultTrue = boolKeyWithDefault(true).pipe(
 );
 
 /**
- * Type for {@link BoolKeyDefaultTrue}. {@inheritDoc BoolKeyDefaultTrue}
+ * {@inheritDoc BoolKeyDefaultTrue}
  *
  * @example
  * ```ts

@@ -221,7 +221,7 @@ domains.
 ```ts
 import { LiteralKit } from "@beep/schema"
 
-const TaskStatus = LiteralKit(["draft", "active", "completed", "archived"] as const)
+const TaskStatus = LiteralKit(["draft", "active", "completed", "archived"])
 ```
 
 ### Available helpers
@@ -267,7 +267,7 @@ import { LiteralKit } from "@beep/schema"
 import { Tuple } from "effect"
 import * as S from "effect/Schema"
 
-const TaskStateTag = LiteralKit(["draft", "active", "archived"] as const)
+const TaskStateTag = LiteralKit(["draft", "active", "archived"])
 
 class TaskDraft extends S.Class<TaskDraft>($I`TaskDraft`)(
   { state: S.tag("draft"), body: S.String },

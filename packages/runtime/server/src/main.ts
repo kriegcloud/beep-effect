@@ -13,16 +13,25 @@ import { loadSidecarRuntimeConfig, runSidecarRuntime } from "./index.js";
 
 const loadConfig = Effect.scoped(
   Layer.build(Layer.mergeAll(BunFileSystem.layer, BunPath.layer)).pipe(
-    Effect.flatMap((context) =>
-      loadSidecarRuntimeConfig().pipe(
-        Effect.annotateLogs({ component: "sidecar-config" }),
-        Effect.withSpan("SidecarRuntime.loadConfig"),
-        Effect.provide(context)
-      )
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* loadSidecarRuntimeConfig().pipe(
+          Effect.annotateLogs({ component: "sidecar-config" }),
+          Effect.withSpan("SidecarRuntime.loadConfig"),
+          Effect.provide(context)
+        );
+      })
     )
   )
 );
 
-const main = loadConfig.pipe(Effect.flatMap(runSidecarRuntime), Effect.scoped);
+const main = loadConfig.pipe(
+  Effect.flatMap(
+    Effect.fnUntraced(function* (config) {
+      return yield* runSidecarRuntime(config);
+    })
+  ),
+  Effect.scoped
+);
 
 BunRuntime.runMain(main);

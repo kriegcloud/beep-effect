@@ -227,7 +227,7 @@ import * as Str from "effect/String"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-const TopicKind = LiteralKit(["plain", "scoped"] as const)
+const TopicKind = LiteralKit(["plain", "scoped"])
 
 const ContainsScopeSeparator = S.String.check(
   S.isIncludes(":", {
@@ -351,7 +351,7 @@ import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
-const JobStateTag = LiteralKit(["queued", "running", "failed"] as const)
+const JobStateTag = LiteralKit(["queued", "running", "failed"])
 
 export class JobQueued extends S.Class<JobQueued>($I`JobQueued`)(
   { state: S.tag("queued") },
@@ -430,7 +430,7 @@ export class ExternalTaskCompleted extends S.Class<ExternalTaskCompleted>($I`Ext
   at: S.String
 }) {}
 
-const ExternalTaskKind = LiteralKit(["created", "completed"] as const)
+const ExternalTaskKind = LiteralKit(["created", "completed"])
 
 export const ExternalTaskEvent = ExternalTaskKind
   .mapMembers(Tuple.evolve([

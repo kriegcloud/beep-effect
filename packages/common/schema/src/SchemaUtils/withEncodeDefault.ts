@@ -105,7 +105,7 @@ export const BoolDefaultFalse = boolWithDefault(false).pipe(
 );
 
 /**
- * Type for {@link BoolDefaultFalse}. {@inheritDoc BoolDefaultFalse}
+ * {@inheritDoc BoolDefaultFalse}
  *
  * @example
  * ```ts
@@ -143,7 +143,7 @@ export const BoolDefaultTrue = boolWithDefault(true).pipe(
 );
 
 /**
- * Type for {@link BoolDefaultTrue}. {@inheritDoc BoolDefaultTrue}
+ * {@inheritDoc BoolDefaultTrue}
  *
  * @example
  * ```ts

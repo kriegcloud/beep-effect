@@ -73,15 +73,15 @@ browser.
 The same domain concept appears across layers with a different role:
 
 ```txt
-domain/src/entities/TwoFactor/TwoFactor.policy.ts
-use-cases/src/entities/TwoFactor/TwoFactor.commands.ts
-config/src/entities/TwoFactor/TwoFactor.config.ts
-server/src/entities/TwoFactor/TwoFactor.http-handlers.ts
-client/src/entities/TwoFactor/TwoFactor.command-client.ts
-ui/src/entities/TwoFactor/TwoFactor.form.tsx
+domain/src/entities/Membership/Membership.policy.ts
+use-cases/src/entities/Membership/Membership.commands.ts
+config/src/entities/Membership/Membership.config.ts
+server/src/entities/Membership/Membership.http-handlers.ts
+client/src/entities/Membership/Membership.command-client.ts
+ui/src/entities/Membership/Membership.form.tsx
 ```
 
-This is intentional. The `TwoFactor` folder is the concept. The package and role
+This is intentional. The `Membership` folder is the concept. The package and role
 suffix are the architectural lens.
 
 ## Cross-Concept Escape Hatches

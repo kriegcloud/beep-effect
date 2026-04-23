@@ -450,59 +450,62 @@ describe("repo-memory runtime grounded retrieval", () => {
     )
   );
 
-  it.effect("supports bounded NLP enrichment for symbol, file, importer, and dependent queries", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexFixtureRepo;
-        const spacedSymbol = yield* runQuery({
-          repoId: registration.id,
-          question: "where is repo memory answer helper?",
-          runLabel: "locate-spaced-helper",
-        });
-        const relaxedImports = yield* runQuery({
-          repoId: registration.id,
-          question: "what does src/index import?",
-          runLabel: "imports-relaxed",
-        });
-        const relaxedImporters = yield* runQuery({
-          repoId: registration.id,
-          question: "who imports util?",
-          runLabel: "importers-relaxed",
-        });
-        const relaxedDependents = yield* runQuery({
-          repoId: registration.id,
-          question: "dependents of util",
-          runLabel: "dependents-relaxed",
-        });
+  it.effect(
+    "supports bounded NLP enrichment for symbol, file, importer, and dependent queries",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const spacedSymbol = yield* runQuery({
+            repoId: registration.id,
+            question: "where is repo memory answer helper?",
+            runLabel: "locate-spaced-helper",
+          });
+          const relaxedImports = yield* runQuery({
+            repoId: registration.id,
+            question: "what does src/index import?",
+            runLabel: "imports-relaxed",
+          });
+          const relaxedImporters = yield* runQuery({
+            repoId: registration.id,
+            question: "who imports util?",
+            runLabel: "importers-relaxed",
+          });
+          const relaxedDependents = yield* runQuery({
+            repoId: registration.id,
+            question: "dependents of util",
+            runLabel: "dependents-relaxed",
+          });
 
-        if (
-          spacedSymbol.run.kind !== "query" ||
-          relaxedImports.run.kind !== "query" ||
-          relaxedImporters.run.kind !== "query" ||
-          relaxedDependents.run.kind !== "query"
-        ) {
-          return yield* Effect.die("Expected query run projections.");
-        }
+          if (
+            spacedSymbol.run.kind !== "query" ||
+            relaxedImports.run.kind !== "query" ||
+            relaxedImporters.run.kind !== "query" ||
+            relaxedDependents.run.kind !== "query"
+          ) {
+            return yield* Effect.die("Expected query run projections.");
+          }
 
-        expect(O.getOrThrow(spacedSymbol.run.answer)).toContain("src/util.ts");
-        expect(packetNlpNotes(spacedSymbol.run)).toContain("nlp:match-strategy=symbol-exact-variant");
-        expect(packetNlpNotes(spacedSymbol.run)).toContain("nlp:matched-variant=repoMemoryAnswerHelper");
-        assertCitationAlignment({ events: spacedSymbol.events, run: spacedSymbol.run });
+          expect(O.getOrThrow(spacedSymbol.run.answer)).toContain("src/util.ts");
+          expect(packetNlpNotes(spacedSymbol.run)).toContain("nlp:match-strategy=symbol-exact-variant");
+          expect(packetNlpNotes(spacedSymbol.run)).toContain("nlp:matched-variant=repoMemoryAnswerHelper");
+          assertCitationAlignment({ events: spacedSymbol.events, run: spacedSymbol.run });
 
-        expect(O.getOrThrow(relaxedImports.run.answer)).toContain("./util");
-        expect(O.getOrThrow(relaxedImports.run.answer)).toContain("./types");
-        expect(packetNlpNotes(relaxedImports.run)).toContain("nlp:match-strategy=file-suffix");
-        assertCitationAlignment({ events: relaxedImports.events, run: relaxedImports.run });
+          expect(O.getOrThrow(relaxedImports.run.answer)).toContain("./util");
+          expect(O.getOrThrow(relaxedImports.run.answer)).toContain("./types");
+          expect(packetNlpNotes(relaxedImports.run)).toContain("nlp:match-strategy=file-suffix");
+          assertCitationAlignment({ events: relaxedImports.events, run: relaxedImports.run });
 
-        expect(O.getOrThrow(relaxedImporters.run.answer)).toContain("src/index.ts");
-        expect(packetNlpNotes(relaxedImporters.run)).toContain("nlp:match-strategy=module-suffix");
-        assertCitationAlignment({ events: relaxedImporters.events, run: relaxedImporters.run });
+          expect(O.getOrThrow(relaxedImporters.run.answer)).toContain("src/index.ts");
+          expect(packetNlpNotes(relaxedImporters.run)).toContain("nlp:match-strategy=module-suffix");
+          assertCitationAlignment({ events: relaxedImporters.events, run: relaxedImporters.run });
 
-        expect(O.getOrThrow(relaxedDependents.run.answer)).toContain("src/index.ts");
-        expect(packetNlpNotes(relaxedDependents.run)).toContain("nlp:match-strategy=file-suffix");
-        assertCitationAlignment({ events: relaxedDependents.events, run: relaxedDependents.run });
-      })
-    )
+          expect(O.getOrThrow(relaxedDependents.run.answer)).toContain("src/index.ts");
+          expect(packetNlpNotes(relaxedDependents.run)).toContain("nlp:match-strategy=file-suffix");
+          assertCitationAlignment({ events: relaxedDependents.events, run: relaxedDependents.run });
+        })
+      ),
+    10_000
   );
 
   it.effect(

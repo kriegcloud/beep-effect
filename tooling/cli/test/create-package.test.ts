@@ -47,6 +47,22 @@ const decodeTsconfigReferences = S.decodeUnknownSync(TsconfigReferences);
 const decodeTsconfigPaths = S.decodeUnknownSync(TsconfigPaths);
 const decodeTstycheConfig = S.decodeUnknownSync(TstycheConfig);
 const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
+const ExpectedGeneratedQualityScripts = {
+  audit: "beep-cli audit",
+  babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+  "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+  "beep:build": "tsc -b tsconfig.json && bun run babel",
+  "beep:check": "tsgo -b tsconfig.json",
+  "beep:lint": "biome check .",
+  "beep:lint:fix": "biome check . --write",
+  "beep:test": "bunx --bun vitest run --passWithNoTests",
+  build: "beep-cli build",
+  check: "beep-cli check",
+  coverage: "bunx --bun vitest --coverage --passWithNoTests",
+  lint: "beep-cli lint",
+  "lint:fix": "beep-cli lint --fix",
+  test: "beep-cli test",
+} as const;
 
 const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -221,8 +237,8 @@ describe.sequential("create-package", () => {
             const generatedPackage = decodePackageScripts(
               yield* readJsonFile(path.join(rootDir, "packages", "editor-domain", "package.json"))
             );
-            expect(generatedPackage.scripts.check).toBe("tsgo -b tsconfig.json");
-            expect(generatedPackage.scripts.test).toBe("bunx --bun vitest run");
+            expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
+            expect(generatedPackage.scripts.docgen).toBe("bun run ../../tooling/docgen/src/bin.ts");
             expect(generatedPackage.scripts.codegen).toBeUndefined();
 
             const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));

@@ -235,15 +235,17 @@ const requireCurrentQueryRun = (
   event: Extract<RunStreamEvent, { readonly kind: "retrieval-packet" | "answer" }>
 ): Effect.Effect<QueryRun, RunProjectorError> =>
   requireCurrentRun(currentRun, event).pipe(
-    Effect.flatMap((run) =>
-      run.kind === "query"
-        ? Effect.succeed(run)
-        : Effect.fail(
-            RunProjectorError.noCause(
-              `Run "${event.runId}" must be a query run before projecting "${event.kind}".`,
-              409
-            )
-          )
+    Effect.flatMap(
+      Effect.fnUntraced(function* (run) {
+        return yield* run.kind === "query"
+          ? Effect.succeed(run)
+          : Effect.fail(
+              RunProjectorError.noCause(
+                `Run "${event.runId}" must be a query run before projecting "${event.kind}".`,
+                409
+              )
+            );
+      })
     )
   );
 

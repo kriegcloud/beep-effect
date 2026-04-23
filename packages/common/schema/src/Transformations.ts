@@ -51,27 +51,25 @@ export const destructiveTransform: {
   2,
   <Self extends S.Top, B>(self: Self, transform: (input: Self["Type"]) => B): DestructiveTransform<Self, B> => {
     const decodeInput = S.decodeUnknownEffect(self);
+    const applyTransform = Effect.fnUntraced(function* (decoded: Self["Type"]) {
+      return yield* Effect.try({
+        try: () => transform(decoded),
+        catch: () =>
+          new SchemaIssue.InvalidValue(O.some(decoded), {
+            message: "Error applying transformation",
+          }),
+      });
+    });
     const output = makeDestructiveOutput<B>();
 
     return S.Unknown.pipe(
       S.decodeTo(output, {
         decode: Getter.transformOrFail((input: unknown, options) =>
-          decodeInput(input, options).pipe(
-            Effect.mapError(Struct.get("issue")),
-            Effect.flatMap((decoded) =>
-              Effect.try({
-                try: () => transform(decoded) as Readonly<B>,
-                catch: () =>
-                  new SchemaIssue.InvalidValue(O.some(decoded), {
-                    message: "Error applying transformation",
-                  }),
-              })
-            )
-          )
+          decodeInput(input, options).pipe(Effect.mapError(Struct.get("issue")), Effect.flatMap(applyTransform))
         ),
         // Lossy transforms intentionally keep encode as a passthrough so the
         // transformed value remains the encoded value as well.
-        encode: Getter.transform((value: Readonly<B>) => value as unknown),
+        encode: Getter.transform((value: Readonly<B>) => value),
       })
     );
   }

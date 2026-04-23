@@ -1,96 +1,95 @@
 import { describe, expect, it } from "@effect/vitest";
+import * as S from "effect/Schema";
 import browserChalk, {
   chalkStderr as browserChalkStderr,
   supportsColor as browserSupportsColor,
   supportsColorStderr as browserSupportsColorStderr,
 } from "../src/Chalk.browser.ts";
-import chalk, { Chalk, chalkStderr } from "../src/index.ts";
+import chalk, {
+  Chalk,
+  ChalkConstructorOptions,
+  type ChalkInstance,
+  ChalkOptions,
+  ColorSupportLevel,
+  type ColorSupportLevel as ColorSupportLevelType,
+  chalkStderr,
+} from "../src/index.ts";
 import { createSupportsColor } from "../src/internal/SupportsColor.ts";
+
+const withLevel = (instance: ChalkInstance, level: ColorSupportLevelType, run: () => void): void => {
+  const previousLevel = instance.level;
+
+  try {
+    instance.level = level;
+    run();
+  } finally {
+    instance.level = previousLevel;
+  }
+};
 
 describe("@beep/chalk", () => {
   it("does not add styling when called as the base function", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 3;
-
-    expect(chalk("foo")).toBe("foo");
-    expect(chalk("hello", "there")).toBe("hello there");
-
-    chalk.level = previousLevel;
+    withLevel(chalk, 3, () => {
+      expect(chalk("foo")).toBe("foo");
+      expect(chalk("hello", "there")).toBe("hello there");
+    });
   });
 
   it("supports automatic casting to string", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 3;
-
-    expect(chalk(["hello", "there"])).toBe("hello,there");
-    expect(chalk(123)).toBe("123");
-    expect(chalk.bold(["foo", "bar"])).toBe("\u001B[1mfoo,bar\u001B[22m");
-    expect(chalk.green(98_765)).toBe("\u001B[32m98765\u001B[39m");
-
-    chalk.level = previousLevel;
+    withLevel(chalk, 3, () => {
+      expect(chalk(["hello", "there"])).toBe("hello,there");
+      expect(chalk(123)).toBe("123");
+      expect(chalk.bold(["foo", "bar"])).toBe("\u001B[1mfoo,bar\u001B[22m");
+      expect(chalk.green(98_765)).toBe("\u001B[32m98765\u001B[39m");
+    });
   });
 
   it("styles strings with chained modifiers and colors", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 3;
-
-    expect(chalk.underline("foo")).toBe("\u001B[4mfoo\u001B[24m");
-    expect(chalk.red.bgGreen.underline("foo")).toBe("\u001B[31m\u001B[42m\u001B[4mfoo\u001B[24m\u001B[49m\u001B[39m");
-    expect(chalk.underline.red.bgGreen("foo")).toBe("\u001B[4m\u001B[31m\u001B[42mfoo\u001B[49m\u001B[39m\u001B[24m");
-
-    chalk.level = previousLevel;
+    withLevel(chalk, 3, () => {
+      expect(chalk.underline("foo")).toBe("\u001B[4mfoo\u001B[24m");
+      expect(chalk.red.bgGreen.underline("foo")).toBe("\u001B[31m\u001B[42m\u001B[4mfoo\u001B[24m\u001B[49m\u001B[39m");
+      expect(chalk.underline.red.bgGreen("foo")).toBe("\u001B[4m\u001B[31m\u001B[42mfoo\u001B[49m\u001B[39m\u001B[24m");
+    });
   });
 
   it("supports nested styles and same-type reopen behavior", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 3;
-
-    expect(chalk.red(`foo${chalk.underline.bgBlue("bar")}!`)).toBe(
-      "\u001B[31mfoo\u001B[4m\u001B[44mbar\u001B[49m\u001B[24m!\u001B[39m"
-    );
-    expect(chalk.red(`a${chalk.yellow(`b${chalk.green("c")}b`)}c`)).toBe(
-      "\u001B[31ma\u001B[33mb\u001B[32mc\u001B[39m\u001B[31m\u001B[33mb\u001B[39m\u001B[31mc\u001B[39m"
-    );
-
-    chalk.level = previousLevel;
+    withLevel(chalk, 3, () => {
+      expect(chalk.red(`foo${chalk.underline.bgBlue("bar")}!`)).toBe(
+        "\u001B[31mfoo\u001B[4m\u001B[44mbar\u001B[49m\u001B[24m!\u001B[39m"
+      );
+      expect(chalk.red(`a${chalk.yellow(`b${chalk.green("c")}b`)}c`)).toBe(
+        "\u001B[31ma\u001B[33mb\u001B[32mc\u001B[39m\u001B[31m\u001B[33mb\u001B[39m\u001B[31mc\u001B[39m"
+      );
+    });
   });
 
   it("resets styles and preserves function prototype methods", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 3;
-
-    expect(chalk.reset(`${chalk.red.bgGreen.underline("foo")}foo`)).toBe(
-      "\u001B[0m\u001B[31m\u001B[42m\u001B[4mfoo\u001B[24m\u001B[49m\u001B[39mfoo\u001B[0m"
-    );
-    expect(Reflect.apply(chalk.grey, null, ["foo"])).toBe("\u001B[90mfoo\u001B[39m");
-    expect(chalk.apply(chalk, ["foo"])).toBe("foo");
-    expect(chalk.bind(chalk, "foo")()).toBe("foo");
-    expect(chalk.call(chalk, "foo")).toBe("foo");
-
-    chalk.level = previousLevel;
+    withLevel(chalk, 3, () => {
+      expect(chalk.reset(`${chalk.red.bgGreen.underline("foo")}foo`)).toBe(
+        "\u001B[0m\u001B[31m\u001B[42m\u001B[4mfoo\u001B[24m\u001B[49m\u001B[39mfoo\u001B[0m"
+      );
+      expect(Reflect.apply(chalk.grey, null, ["foo"])).toBe("\u001B[90mfoo\u001B[39m");
+      expect(chalk.apply(chalk, ["foo"])).toBe("foo");
+      expect(chalk.bind(chalk, "foo")()).toBe("foo");
+      expect(chalk.call(chalk, "foo")).toBe("foo");
+    });
   });
 
   it("supports aliases, empty input, and template-tag parity", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 3;
-
-    expect(chalk.grey("foo")).toBe("\u001B[90mfoo\u001B[39m");
-    expect(chalk.bgGray("foo")).toBe("\u001B[100mfoo\u001B[49m");
-    expect(chalk.red()).toBe("");
-    expect(chalk.red.blue.black()).toBe("");
-    expect(chalk.red`Hello ${"X"}!`).toBe("\u001B[31mHello ,! X\u001B[39m");
-
-    chalk.level = previousLevel;
+    withLevel(chalk, 3, () => {
+      expect(chalk.grey("foo")).toBe("\u001B[90mfoo\u001B[39m");
+      expect(chalk.bgGray("foo")).toBe("\u001B[100mfoo\u001B[49m");
+      expect(chalk.red()).toBe("");
+      expect(chalk.red.blue.black()).toBe("");
+      expect(chalk.red`Hello ${"X"}!`).toBe("\u001B[31mHello X!\u001B[39m");
+    });
   });
 
   it("re-opens styles around line breaks", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 3;
-
-    expect(chalk.grey("hello\nworld")).toBe("\u001B[90mhello\u001B[39m\n\u001B[90mworld\u001B[39m");
-    expect(chalk.grey("hello\r\nworld")).toBe("\u001B[90mhello\u001B[39m\r\n\u001B[90mworld\u001B[39m");
-
-    chalk.level = previousLevel;
+    withLevel(chalk, 3, () => {
+      expect(chalk.grey("hello\nworld")).toBe("\u001B[90mhello\u001B[39m\n\u001B[90mworld\u001B[39m");
+      expect(chalk.grey("hello\r\nworld")).toBe("\u001B[90mhello\u001B[39m\r\n\u001B[90mworld\u001B[39m");
+    });
   });
 
   it("supports RGB, HEX, and ANSI256 builders across levels", () => {
@@ -102,41 +101,35 @@ describe("@beep/chalk", () => {
   });
 
   it("keeps isolated instances separate and validates invalid levels", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 1;
+    withLevel(chalk, 1, () => {
+      const instance = new Chalk({ level: 0 });
 
-    const instance = new Chalk({ level: 0 });
+      expect(instance.red("foo")).toBe("foo");
+      expect(chalk.red("foo")).toBe("\u001B[31mfoo\u001B[39m");
 
-    expect(instance.red("foo")).toBe("foo");
-    expect(chalk.red("foo")).toBe("\u001B[31mfoo\u001B[39m");
+      instance.level = 2;
 
-    instance.level = 2;
-
-    expect(instance.red("foo")).toBe("\u001B[31mfoo\u001B[39m");
-    expect(() => Reflect.construct(Chalk, [{ level: 10 }])).toThrow(/integer from 0 to 3/);
-    expect(() => Reflect.set(chalk, "level", 10)).toThrow(/integer from 0 to 3/);
-
-    chalk.level = previousLevel;
+      expect(instance.red("foo")).toBe("\u001B[31mfoo\u001B[39m");
+      expect(() => Reflect.construct(Chalk, [{ level: 10 }])).toThrow(/integer from 0 to 3/);
+      expect(() => Reflect.set(chalk, "level", 10)).toThrow(/integer from 0 to 3/);
+    });
   });
 
   it("propagates level changes across child builders", () => {
-    const previousLevel = chalk.level;
-    chalk.level = 1;
+    withLevel(chalk, 1, () => {
+      const { red } = chalk;
 
-    const { red } = chalk;
+      expect(red.level).toBe(1);
 
-    expect(red.level).toBe(1);
+      chalk.level = 0;
 
-    chalk.level = 0;
+      expect(red.level).toBe(0);
 
-    expect(red.level).toBe(0);
+      red.level = 1;
 
-    red.level = 1;
-
-    expect(chalk.level).toBe(1);
-    expect(red("foo")).toBe("\u001B[31mfoo\u001B[39m");
-
-    chalk.level = previousLevel;
+      expect(chalk.level).toBe(1);
+      expect(red("foo")).toBe("\u001B[31mfoo\u001B[39m");
+    });
   });
 
   it("supports visible for enabled and disabled instances", () => {
@@ -152,12 +145,20 @@ describe("@beep/chalk", () => {
   });
 
   it("exposes a stderr instance with independent state", () => {
-    const previousLevel = chalkStderr.level;
-    chalkStderr.level = 3;
+    withLevel(chalkStderr, 3, () => {
+      expect(chalkStderr.red.bold("foo")).toBe("\u001B[31m\u001B[1mfoo\u001B[22m\u001B[39m");
+    });
+  });
 
-    expect(chalkStderr.red.bold("foo")).toBe("\u001B[31m\u001B[1mfoo\u001B[22m\u001B[39m");
+  it("backs public option models with Effect schemas", () => {
+    const decodeConstructorOptions = S.decodeUnknownSync(ChalkConstructorOptions);
+    const decodeStrictOptions = S.decodeUnknownSync(ChalkOptions);
 
-    chalkStderr.level = previousLevel;
+    expect(decodeConstructorOptions({ level: 3 }).level).toBe(3);
+    expect(decodeStrictOptions({ level: 3 }).level).toBe(3);
+    expect(S.is(ColorSupportLevel)(2)).toBe(true);
+    expect(S.is(ColorSupportLevel)(4)).toBe(false);
+    expect(() => decodeConstructorOptions({ level: 4 })).toThrow(/integer from 0 to 3/);
   });
 });
 
@@ -182,6 +183,36 @@ describe("supportsColor detection", () => {
         }
       )
     ).toMatchObject({ level: 3 });
+
+    expect(
+      createSupportsColor(
+        { isTTY: true },
+        {},
+        {
+          env: { NO_COLOR: "1", TERM: "xterm-256color" },
+        }
+      )
+    ).toBe(false);
+
+    expect(
+      createSupportsColor(
+        { isTTY: false },
+        {},
+        {
+          env: { FORCE_COLOR: "2", NO_COLOR: "1" },
+        }
+      )
+    ).toMatchObject({ level: 2 });
+
+    expect(
+      createSupportsColor(
+        { isTTY: false },
+        {},
+        {
+          env: { FORCE_COLOR: "definitely-not-a-level" },
+        }
+      )
+    ).toBe(false);
 
     expect(
       createSupportsColor(

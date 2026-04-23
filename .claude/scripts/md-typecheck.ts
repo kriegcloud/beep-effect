@@ -81,26 +81,28 @@ const crawlMarkdownFiles = (
 
     const crawl = (currentDir: string): Effect.Effect<ReadonlyArray<string>, PlatformError> =>
       fs.readDirectory(currentDir).pipe(
-        Effect.flatMap((entries) =>
-          Effect.forEach(
-            entries,
-            (entry) =>
-              Effect.gen(function* () {
-                if (HashSet.has(SKIP_DIRECTORIES, entry)) {
+        Effect.flatMap(
+          Effect.fnUntraced(function* (entries) {
+            return yield* Effect.forEach(
+              entries,
+              (entry) =>
+                Effect.gen(function* () {
+                  if (HashSet.has(SKIP_DIRECTORIES, entry)) {
+                    return [];
+                  }
+                  const fullPath = path.join(currentDir, entry);
+                  const stat = yield* fs.stat(fullPath).pipe(Effect.orDie);
+                  if (stat.type === "Directory") {
+                    return yield* Effect.suspend(() => crawl(fullPath));
+                  }
+                  if (entry.endsWith(".md")) {
+                    return [fullPath];
+                  }
                   return [];
-                }
-                const fullPath = path.join(currentDir, entry);
-                const stat = yield* fs.stat(fullPath).pipe(Effect.orDie);
-                if (stat.type === "Directory") {
-                  return yield* Effect.suspend(() => crawl(fullPath));
-                }
-                if (entry.endsWith(".md")) {
-                  return [fullPath];
-                }
-                return [];
-              }),
-            { concurrency: 100 }
-          )
+                }),
+              { concurrency: 100 }
+            );
+          })
         ),
         Effect.map(A.flatten)
       );

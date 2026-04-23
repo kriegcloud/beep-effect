@@ -6,6 +6,7 @@
  */
 
 import bc from "@beep/colors";
+import { $SharedDomainId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
 import { flow, Match, pipe } from "effect";
@@ -19,6 +20,8 @@ import { SqlError } from "effect/unstable/sql";
 import { DatabaseError as PgDatabaseError } from "pg-protocol";
 import { format } from "sql-formatter";
 import { ErrorCodeFromKey } from "./ErrorEnum.js";
+
+const $I = $SharedDomainId.create("errors/DbError/utils");
 
 /**
  * Unicode box-drawing characters used by the database error formatter.
@@ -730,10 +733,19 @@ export const extractQueryFromDrizzleError: (error: unknown) => DrizzleQueryExtra
  * formatDbError(error, { query: "select * from users where id = $1", params: [42] });
  * ```
  */
-export type FormatDbErrorOptions = {
-  readonly query?: string;
-  readonly params?: ReadonlyArray<unknown>;
-};
+export class FormatDbErrorOptions extends S.Class<FormatDbErrorOptions>($I`FormatDbErrorOptions`)(
+  {
+    query: S.optionalKey(S.String).annotateKey({
+      description: "SQL query text to include in the formatted database error output.",
+    }),
+    params: S.Array(S.Unknown).pipe(S.optionalKey).annotateKey({
+      description: "Bound SQL parameters to include in the formatted database error output.",
+    }),
+  },
+  $I.annote("FormatDbErrorOptions", {
+    description: "Optional query context used when formatting database errors.",
+  })
+) {}
 
 /**
  * Formats unknown database errors with optional query context.

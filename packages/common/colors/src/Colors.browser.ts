@@ -9,10 +9,11 @@
  */
 
 import { $ColorsId } from "@beep/identity";
+import { thunkFalse } from "@beep/utils";
 import * as S from "effect/Schema";
 import {
   ColorsFields,
-  Formatter as FormatterSchema,
+  Formatter as FormatterDefinition,
   type Formatter as FormatterType,
 } from "./internal/ColorsSchema.ts";
 
@@ -75,7 +76,7 @@ export const isColorSupported = false;
  * @returns Always `false` in browser-safe builds.
  * @since 0.0.0
  */
-export const supportsColor = (): boolean => false;
+export const supportsColor = thunkFalse;
 
 /**
  * Create a browser-safe formatter set that never emits ANSI escape sequences.
@@ -172,5 +173,22 @@ const colors = createColors();
  * @category models
  * @since 0.0.0
  */
-export const Formatter = FormatterSchema;
+export const Formatter = FormatterDefinition;
+
+/**
+ * Runtime type for {@link Formatter}.
+ *
+ * @example
+ * ```typescript
+ * import type { Formatter } from "@beep/colors"
+ *
+ * const formatter: Formatter = String
+ * console.log(formatter("ready"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type Formatter = FormatterType;
+
 export default colors;

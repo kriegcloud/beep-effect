@@ -113,11 +113,7 @@ export class ClientHttpError extends TaggedErrorClass<ClientHttpError>($I`Client
  * import { Effect, Option } from "effect"
  * import { ServerHttpError } from "@beep/observability"
  *
- * const err = new ServerHttpError({
- *
- *
- *
- * })
+ * const err = new ServerHttpError({})
  *
  * void Effect.fail(err)
  * ```

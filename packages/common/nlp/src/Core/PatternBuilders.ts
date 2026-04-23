@@ -5,9 +5,9 @@
  * @module
  */
 
-import { Chunk } from "effect";
+import { Chunk, Number as Num } from "effect";
 import * as A from "effect/Array";
-import { dual } from "effect/Function";
+import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -251,7 +251,7 @@ export const make: {
   (id: string, elements: ReadonlyArray<PatternElement>): Pattern;
   (id: string): (elements: ReadonlyArray<PatternElement>) => Pattern;
 } = dual(
-  (args) => args.length >= 2,
+  (args) => Num.isGreaterThanOrEqualTo(2)(args.length),
   (...args: MakeDualArgs): Pattern =>
     isMakeDataFirstArgs(args) ? makePattern(args[0], args[1]) : makePattern(args[1], args[0])
 );
@@ -291,7 +291,7 @@ export const withoutMark: {
   (): (pattern: Pattern) => Pattern;
   (pattern: Pattern): Pattern;
 } = dual(
-  (args) => args.length >= 1,
+  (args) => Num.isGreaterThanOrEqualTo(1)(args.length),
   (pattern: Pattern): Pattern => rebuildPattern(pattern, { mark: O.none() })
 );
 
@@ -638,11 +638,7 @@ export const applyPatch: PatternDual<PatternPatch> = dual(
  * @category Combinators
  */
 export const composePatches = (...patches: ReadonlyArray<PatternPatch>): PatternPatch =>
-  A.reduce(
-    patches,
-    ((pattern: Pattern) => pattern) satisfies PatternPatch,
-    (acc, patch) => (pattern) => patch(acc(pattern))
-  );
+  A.reduce(patches, identity satisfies PatternPatch, (acc, patch) => (pattern) => patch(acc(pattern)));
 
 /**
  * Replace a literal element at a given index.
