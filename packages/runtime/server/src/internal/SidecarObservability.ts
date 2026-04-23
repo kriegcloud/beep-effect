@@ -205,7 +205,13 @@ export const provideSidecarObservability: {
               })
             : Layer.empty
         )
-      ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+      ).pipe(
+        Effect.flatMap(
+          Effect.fnUntraced(function* (context) {
+            return yield* effect.pipe(Effect.provide(context));
+          })
+        )
+      )
     )
 );
 
@@ -238,7 +244,11 @@ export const observeRunLifecycle: {
   2,
   <A, E, R>(effect: Effect.Effect<A, E, R>, attributes: Record<string, string>): Effect.Effect<A, E, R> =>
     Metric.update(Metric.withAttributes(runsStartedTotal, attributes), 1).pipe(
-      Effect.andThen(effect),
+      Effect.andThen(
+        Effect.fnUntraced(function* (_: unknown): Effect.fn.Return<A, E, R> {
+          return yield* effect;
+        })
+      ),
       Effect.tap(() => Metric.update(Metric.withAttributes(runsCompletedTotal, attributes), 1)),
       Effect.tapError(() => Metric.update(Metric.withAttributes(runsFailedTotal, attributes), 1))
     )

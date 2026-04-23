@@ -116,29 +116,31 @@ export const makeDevToolsRelayService: Effect.Effect<
 
   const ingest = Effect.fn("DevToolsRelayService.ingest")((request: DevToolsSchema.Request.WithoutPing) =>
     Clock.currentTimeMillis.pipe(
-      Effect.flatMap((lastUpdatedAtMs) =>
-        Effect.sync(() => {
-          const current = MutableRef.get(state);
-          const next: RelayState =
-            request._tag === "Span"
-              ? {
-                  ...current,
-                  spans: HashMap.set(current.spans, toSpanKey(request), request),
-                  lastUpdatedAtMs,
-                }
-              : request._tag === "SpanEvent"
+      Effect.flatMap(
+        Effect.fnUntraced(function* (lastUpdatedAtMs) {
+          return yield* Effect.sync(() => {
+            const current = MutableRef.get(state);
+            const next: RelayState =
+              request._tag === "Span"
                 ? {
                     ...current,
-                    spanEvents: pipeAppendLimited(current.spanEvents, request),
+                    spans: HashMap.set(current.spans, toSpanKey(request), request),
                     lastUpdatedAtMs,
                   }
-                : {
-                    ...current,
-                    metrics: O.some(request),
-                    lastUpdatedAtMs,
-                  };
+                : request._tag === "SpanEvent"
+                  ? {
+                      ...current,
+                      spanEvents: pipeAppendLimited(current.spanEvents, request),
+                      lastUpdatedAtMs,
+                    }
+                  : {
+                      ...current,
+                      metrics: O.some(request),
+                      lastUpdatedAtMs,
+                    };
 
-          MutableRef.set(state, next);
+            MutableRef.set(state, next);
+          });
         })
       )
     )
@@ -167,8 +169,10 @@ export const makeDevToolsRelayService: Effect.Effect<
   );
   const clear = Effect.fn("DevToolsRelayService.clear")(() =>
     Clock.currentTimeMillis.pipe(
-      Effect.flatMap((lastUpdatedAtMs) =>
-        Effect.sync(() => void MutableRef.set(state, emptyRelayState(lastUpdatedAtMs)))
+      Effect.flatMap(
+        Effect.fnUntraced(function* (lastUpdatedAtMs) {
+          return yield* Effect.sync(() => void MutableRef.set(state, emptyRelayState(lastUpdatedAtMs)));
+        })
       )
     )
   );

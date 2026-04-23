@@ -52,6 +52,10 @@ const printJson = Effect.fn(function* (value: unknown) {
   yield* Console.log(rendered);
 });
 
+const printEncodedJson = Effect.fnUntraced(function* (value: unknown) {
+  return yield* printJson(value);
+});
+
 const printSelectedOutput = <EJson, RJson, EHuman, RHuman>(
   json: boolean,
   jsonOutput: Effect.Effect<void, EJson, RJson>,
@@ -82,7 +86,13 @@ type ReuseRuntimeContext = FileSystem.FileSystem | FsUtils | Path.Path | TSMorph
 
 const provideReuseServices = <A>(effect: Effect.Effect<A, ReuseProgramError, ReuseProgramDependencies>) =>
   Effect.scoped(
-    Layer.build(ReuseServiceSuiteLive).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+    Layer.build(ReuseServiceSuiteLive).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* effect.pipe(Effect.provide(context));
+        })
+      )
+    )
   );
 
 const runReuseProgram = <A>(
@@ -225,7 +235,7 @@ const reusePartitionsCommand = Command.make(
 
         yield* printSelectedOutput(
           json,
-          S.encodeEffect(ReusePartitionPlan)(plan).pipe(Effect.flatMap(printJson)),
+          S.encodeEffect(ReusePartitionPlan)(plan).pipe(Effect.flatMap(printEncodedJson)),
           printPartitionPlan(plan)
         );
       })
@@ -252,7 +262,7 @@ const reuseFindCommand = Command.make(
 
         yield* printSelectedOutput(
           json,
-          S.encodeEffect(ReuseFindResult)(result).pipe(Effect.flatMap(printJson)),
+          S.encodeEffect(ReuseFindResult)(result).pipe(Effect.flatMap(printEncodedJson)),
           printFindResult(result)
         );
       })
@@ -273,7 +283,7 @@ const reuseInventoryCommand = Command.make(
 
         yield* printSelectedOutput(
           json,
-          S.encodeEffect(ReuseInventory)(inventory).pipe(Effect.flatMap(printJson)),
+          S.encodeEffect(ReuseInventory)(inventory).pipe(Effect.flatMap(printEncodedJson)),
           printInventory(inventory)
         );
       })
@@ -295,7 +305,7 @@ const reusePacketCommand = Command.make(
 
         yield* printSelectedOutput(
           json,
-          S.encodeEffect(ReusePacket)(packet).pipe(Effect.flatMap(printJson)),
+          S.encodeEffect(ReusePacket)(packet).pipe(Effect.flatMap(printEncodedJson)),
           printPacket(packet)
         );
       })
@@ -314,7 +324,7 @@ const reuseCodexSmokeCommand = Command.make(
 
         yield* printSelectedOutput(
           json,
-          S.encodeEffect(CodexSmokeResult)(result).pipe(Effect.flatMap(printJson)),
+          S.encodeEffect(CodexSmokeResult)(result).pipe(Effect.flatMap(printEncodedJson)),
           Effect.gen(function* () {
             yield* Console.log(`SDK: ${result.sdkPackage}`);
             yield* Console.log(`Working directory: ${result.workingDirectory}`);

@@ -205,7 +205,10 @@ export const MarkdownTextToHtml = (options?: MarkdownRenderOptions) => {
  */
 export const decodeMarkdownTextAs = <Schema extends S.Top>(schema: Schema, options?: MarkdownRenderOptions) => {
   const decodeMarkdownHtmlText = S.decodeUnknownEffect(MarkdownTextToHtml(options));
-  const decodeTarget = S.decodeUnknownEffect(schema);
+  const decodeTargetSchema = S.decodeUnknownEffect(schema);
+  const decodeTarget = Effect.fnUntraced(function* (input: Parameters<typeof decodeTargetSchema>[0]) {
+    return yield* decodeTargetSchema(input);
+  });
 
   return flow(decodeMarkdownHtmlText, Effect.flatMap(decodeTarget));
 };

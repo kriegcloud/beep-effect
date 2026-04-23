@@ -262,7 +262,11 @@ export const program = Effect.gen(function* () {
       ),
       pipe(
         sh`mise tasks --json`,
-        Effect.flatMap((s) => S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s)),
+        Effect.flatMap(
+          Effect.fnUntraced(function* (s) {
+            return yield* S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(s);
+          })
+        ),
         Effect.map(formatMiseTasks),
         Effect.catch(() => Effect.succeed(""))
       ),

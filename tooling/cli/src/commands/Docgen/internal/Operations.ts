@@ -1410,12 +1410,14 @@ export const runDocgenForPackage: (
     const docsModulesDir = path.join(targetPackage.absolutePath, ...DOCS_MODULES_SEGMENTS);
     const moduleCount = yield* fs.exists(docsModulesDir).pipe(
       Effect.orElseSucceed(thunkFalse),
-      Effect.flatMap((exists) =>
-        exists
-          ? fs
-              .readDirectory(docsModulesDir)
-              .pipe(Effect.map(flow(A.filter(Str.endsWith(".md")), A.length)), Effect.orElseSucceed(thunk0))
-          : Effect.succeed(0)
+      Effect.flatMap(
+        Effect.fnUntraced(function* (exists) {
+          return yield* exists
+            ? fs
+                .readDirectory(docsModulesDir)
+                .pipe(Effect.map(flow(A.filter(Str.endsWith(".md")), A.length)), Effect.orElseSucceed(thunk0))
+            : Effect.succeed(0);
+        })
       )
     );
 

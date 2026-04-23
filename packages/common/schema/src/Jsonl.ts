@@ -143,7 +143,10 @@ export const JsonlTextToUnknown = S.String.pipe(
  */
 export const decodeJsonlTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeJsonlUnknownText = S.decodeUnknownEffect(JsonlTextToUnknown);
-  const decodeTarget = S.decodeUnknownEffect(schema);
+  const decodeTargetSchema = S.decodeUnknownEffect(schema);
+  const decodeTarget = Effect.fnUntraced(function* (input: Parameters<typeof decodeTargetSchema>[0]) {
+    return yield* decodeTargetSchema(input);
+  });
 
   return flow(decodeJsonlUnknownText, Effect.flatMap(decodeTarget));
 };

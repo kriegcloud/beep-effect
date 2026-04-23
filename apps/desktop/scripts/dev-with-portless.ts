@@ -179,9 +179,15 @@ const readNumericFile = Effect.fn("DesktopDev.readNumericFile")(function* (fileP
     return O.none<number>();
   }
 
-  return yield* fs
-    .readFileString(filePath)
-    .pipe(Effect.map(Str.trim), Effect.flatMap(decodeNumberFromString), Effect.option);
+  return yield* fs.readFileString(filePath).pipe(
+    Effect.map(Str.trim),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (input) {
+        return yield* decodeNumberFromString(input);
+      })
+    ),
+    Effect.option
+  );
 });
 
 const loadPortlessRoutes = Effect.fn("DesktopDev.loadPortlessRoutes")(function* (portlessStateDirectory: string) {
@@ -194,9 +200,14 @@ const loadPortlessRoutes = Effect.fn("DesktopDev.loadPortlessRoutes")(function* 
     return A.empty<PortlessRoute>();
   }
 
-  return yield* fs
-    .readFileString(routesPath)
-    .pipe(Effect.flatMap(decodePortlessRoutes), Effect.orElseSucceed(A.empty<PortlessRoute>));
+  return yield* fs.readFileString(routesPath).pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (input) {
+        return yield* decodePortlessRoutes(input);
+      })
+    ),
+    Effect.orElseSucceed(A.empty<PortlessRoute>)
+  );
 });
 
 const findPortlessRoute = Effect.fn("DesktopDev.findPortlessRoute")(function* (
@@ -390,8 +401,13 @@ const runDevWithPortless = Effect.fn("DesktopDev.runWithPortless")(function* () 
 
 const main = Effect.scoped(
   Layer.build(Layer.mergeAll(BunServices.layer, BunHttpClient.layer)).pipe(
-    Effect.flatMap((context) =>
-      Effect.scoped(runDevWithPortless()).pipe(Effect.withSpan("DesktopDev.runWithPortless"), Effect.provide(context))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* Effect.scoped(runDevWithPortless()).pipe(
+          Effect.withSpan("DesktopDev.runWithPortless"),
+          Effect.provide(context)
+        );
+      })
     )
   )
 );

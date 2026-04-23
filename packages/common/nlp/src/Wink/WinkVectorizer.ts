@@ -166,7 +166,11 @@ const readNormalizedTokensFromWink = (
   its: ItsHelpers
 ): Effect.Effect<ReadonlyArray<string>, VectorizerError> =>
   engine.getWinkDoc(document.text).pipe(
-    Effect.flatMap((winkDoc) => decodeStringArray(winkDoc.tokens().out(its.normal), "readNormalizedTokens")),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (winkDoc) {
+        return yield* decodeStringArray(winkDoc.tokens().out(its.normal), "readNormalizedTokens");
+      })
+    ),
     Effect.map(A.fromIterable),
     Effect.mapError((cause) => VectorizerError.fromCause(cause, "readNormalizedTokens"))
   );
@@ -394,7 +398,11 @@ const makeWinkVectorizer = Effect.gen(function* () {
         try: () => vectorizer.out(its.terms),
         catch: (cause) => VectorizerError.fromCause(cause, "terms"),
       }),
-      Effect.flatMap((output) => decodeStringArray(output, "terms"))
+      Effect.flatMap(
+        Effect.fnUntraced(function* (output) {
+          return yield* decodeStringArray(output, "terms");
+        })
+      )
     );
 
   const getTermFrequencies = (vectorizer: BM25VectorizerInstance, docIndex: number) =>
@@ -403,7 +411,11 @@ const makeWinkVectorizer = Effect.gen(function* () {
         try: () => vectorizer.doc(docIndex).out(its.tf),
         catch: (cause) => VectorizerError.fromCause(cause, "tf"),
       }),
-      Effect.flatMap((output) => decodeTermFrequencyPairs(output, "tf")),
+      Effect.flatMap(
+        Effect.fnUntraced(function* (output) {
+          return yield* decodeTermFrequencyPairs(output, "tf");
+        })
+      ),
       Effect.map((raw) =>
         A.map(raw, ([term, frequency]) =>
           TermFrequency.make({
@@ -465,9 +477,11 @@ const makeWinkVectorizer = Effect.gen(function* () {
           learnDocument: (document) =>
             pipe(
               readNormalizedTokens(document),
-              Effect.flatMap((tokens) =>
-                Effect.sync(() => {
-                  freshVectorizer.learn(A.fromIterable(tokens));
+              Effect.flatMap(
+                Effect.fnUntraced(function* (tokens) {
+                  return yield* Effect.sync(() => {
+                    freshVectorizer.learn(A.fromIterable(tokens));
+                  });
                 })
               ),
               Effect.mapError((cause) => VectorizerError.fromCause(cause, "freshLearnDocument"))
@@ -475,14 +489,16 @@ const makeWinkVectorizer = Effect.gen(function* () {
           vectorizeDocument: (document) =>
             pipe(
               readNormalizedTokens(document),
-              Effect.flatMap((tokens) =>
-                Effect.map(getTerms(freshVectorizer), (terms) =>
-                  DocumentVector.make({
-                    documentId: document.id,
-                    terms,
-                    vector: freshVectorizer.vectorOf(A.fromIterable(tokens)),
-                  })
-                )
+              Effect.flatMap(
+                Effect.fnUntraced(function* (tokens) {
+                  return yield* Effect.map(getTerms(freshVectorizer), (terms) =>
+                    DocumentVector.make({
+                      documentId: document.id,
+                      terms,
+                      vector: freshVectorizer.vectorOf(A.fromIterable(tokens)),
+                    })
+                  );
+                })
               )
             ),
         };

@@ -13,7 +13,7 @@ import { thunkFalse } from "@beep/utils";
 import * as S from "effect/Schema";
 import {
   ColorsFields,
-  Formatter as FormatterSchema,
+  Formatter as FormatterDefinition,
   type Formatter as FormatterType,
 } from "./internal/ColorsSchema.ts";
 
@@ -173,5 +173,22 @@ const colors = createColors();
  * @category models
  * @since 0.0.0
  */
-export const Formatter = FormatterSchema;
+export const Formatter = FormatterDefinition;
+
+/**
+ * Runtime type for {@link Formatter}.
+ *
+ * @example
+ * ```typescript
+ * import type { Formatter } from "@beep/colors"
+ *
+ * const formatter: Formatter = String
+ * console.log(formatter("ready"))
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type Formatter = FormatterType;
+
 export default colors;

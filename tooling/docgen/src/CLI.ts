@@ -160,7 +160,11 @@ export const docgenCommand = Command.make("docgen", options, (input) =>
 
     return yield* Effect.scoped(
       Layer.build(Configuration.Configuration.layer(config)).pipe(
-        Effect.flatMap((context) => Core.program.pipe(Effect.provide(context)))
+        Effect.flatMap(
+          Effect.fnUntraced(function* (context) {
+            return yield* Core.program.pipe(Effect.provide(context));
+          })
+        )
       )
     ).pipe(
       Effect.catchTag("DocgenError", (error) =>

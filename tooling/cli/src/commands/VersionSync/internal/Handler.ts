@@ -76,6 +76,10 @@ export const handleVersionSync: (
 > = (options) =>
   Effect.scoped(
     Layer.build(VersionSyncServicesLive).pipe(
-      Effect.flatMap((context) => handleVersionSyncProgram(options).pipe(Effect.provide(context)))
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* handleVersionSyncProgram(options).pipe(Effect.provide(context));
+        })
+      )
     )
   );

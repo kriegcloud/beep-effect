@@ -181,9 +181,15 @@ const readNumericFile = Effect.fn("EditorDev.readNumericFile")(function* (filePa
     return O.none<number>();
   }
 
-  return yield* fs
-    .readFileString(filePath)
-    .pipe(Effect.map(Str.trim), Effect.flatMap(decodeNumberFromString), Effect.option);
+  return yield* fs.readFileString(filePath).pipe(
+    Effect.map(Str.trim),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (input) {
+        return yield* decodeNumberFromString(input);
+      })
+    ),
+    Effect.option
+  );
 });
 
 const loadPortlessRoutes = Effect.fn("EditorDev.loadPortlessRoutes")(function* (portlessStateDirectory: string) {
@@ -196,9 +202,14 @@ const loadPortlessRoutes = Effect.fn("EditorDev.loadPortlessRoutes")(function* (
     return A.empty<PortlessRoute>();
   }
 
-  return yield* fs
-    .readFileString(routesPath)
-    .pipe(Effect.flatMap(decodePortlessRoutes), Effect.orElseSucceed(A.empty<PortlessRoute>));
+  return yield* fs.readFileString(routesPath).pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (input) {
+        return yield* decodePortlessRoutes(input);
+      })
+    ),
+    Effect.orElseSucceed(A.empty<PortlessRoute>)
+  );
 });
 
 const findPortlessRoute = Effect.fn("EditorDev.findPortlessRoute")(function* (

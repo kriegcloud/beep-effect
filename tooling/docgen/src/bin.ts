@@ -20,8 +20,12 @@ const DerivedLayers = Layer.mergeAll(NodeChildProcessSpawner.layer, FsUtilsLive)
 
 const program = Effect.scoped(
   Layer.build(DerivedLayers).pipe(
-    Effect.flatMap((context) =>
-      Command.run(docgenCommand, { version: `v${InternalVersion.moduleVersion}` }).pipe(Effect.provide(context))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* Command.run(docgenCommand, { version: `v${InternalVersion.moduleVersion}` }).pipe(
+          Effect.provide(context)
+        );
+      })
     )
   )
 );

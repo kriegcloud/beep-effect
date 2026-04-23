@@ -8,13 +8,12 @@
 import { $ChalkId } from "@beep/identity/packages";
 import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import type { backgroundColorNameValues, foregroundColorNameValues, modifierNameValues } from "./ChalkSchema.ts";
+import { type BackgroundColorName, ForegroundColorName, ModifierName } from "./ChalkSchema.ts";
 
 type AnsiCodePair = readonly [open: number, close: number];
 const $I = $ChalkId.create("Domain");
@@ -24,7 +23,7 @@ const $I = $ChalkId.create("Domain");
  *
  * @example
  * ```ts
- * import type { ModifierStyleName } from "@beep/chalk/Chalk"
+ * import type { ModifierStyleName } from "./AnsiStyles.ts"
  *
  * const styleName: ModifierStyleName = "bold"
  * void styleName
@@ -33,14 +32,14 @@ const $I = $ChalkId.create("Domain");
  * @category models
  * @since 0.0.0
  */
-export type ModifierStyleName = (typeof modifierNameValues)[number];
+export type ModifierStyleName = typeof ModifierName.Type;
 
 /**
  * Foreground color style names accepted by the Chalk runtime.
  *
  * @example
  * ```ts
- * import type { ForegroundStyleName } from "@beep/chalk/Chalk"
+ * import type { ForegroundStyleName } from "./AnsiStyles.ts"
  *
  * const styleName: ForegroundStyleName = "cyan"
  * void styleName
@@ -49,14 +48,14 @@ export type ModifierStyleName = (typeof modifierNameValues)[number];
  * @category models
  * @since 0.0.0
  */
-export type ForegroundStyleName = (typeof foregroundColorNameValues)[number];
+export type ForegroundStyleName = typeof ForegroundColorName.Type;
 
 /**
  * Background color style names accepted by the Chalk runtime.
  *
  * @example
  * ```ts
- * import type { BackgroundStyleName } from "@beep/chalk/Chalk"
+ * import type { BackgroundStyleName } from "./AnsiStyles.ts"
  *
  * const styleName: BackgroundStyleName = "bgBlue"
  * void styleName
@@ -65,14 +64,14 @@ export type ForegroundStyleName = (typeof foregroundColorNameValues)[number];
  * @category models
  * @since 0.0.0
  */
-export type BackgroundStyleName = (typeof backgroundColorNameValues)[number];
+export type BackgroundStyleName = typeof BackgroundColorName.Type;
 
 /**
  * Any supported Chalk style name.
  *
  * @example
  * ```ts
- * import type { StyleName } from "@beep/chalk/Chalk"
+ * import type { StyleName } from "./AnsiStyles.ts"
  *
  * const styleName: StyleName = "underline"
  * void styleName
@@ -88,7 +87,7 @@ export type StyleName = ModifierStyleName | ForegroundStyleName | BackgroundStyl
  *
  * @example
  * ```ts
- * import { StylerEntry } from "@beep/chalk/Chalk"
+ * import { StylerEntry } from "./AnsiStyles.ts"
  *
  * const entry = new StylerEntry({ open: "\u001B[31m", close: "\u001B[39m" })
  * console.log(entry.open)
@@ -210,7 +209,7 @@ const backgroundStyles: Record<string, StylerEntry> = pipe(
  *
  * @example
  * ```ts
- * import { ansiStyles } from "@beep/chalk/Chalk"
+ * import { ansiStyles } from "./AnsiStyles.ts"
  *
  * const redOpen = ansiStyles.color.red.open
  * console.log(redOpen)
@@ -237,16 +236,16 @@ export const ansiStyles = {
   },
 };
 
-const isModifierStyleName = (styleName: StyleName): styleName is ModifierStyleName => styleName in modifierStyles;
+const isModifierStyleName = S.is(ModifierName);
 
-const isForegroundStyleName = (styleName: StyleName): styleName is ForegroundStyleName => styleName in foregroundStyles;
+const isForegroundStyleName = S.is(ForegroundColorName);
 
 /**
  * Look up the ANSI style entry for a known Chalk style name.
  *
  * @example
  * ```ts
- * import { getStyleEntry } from "@beep/chalk/Chalk"
+ * import { getStyleEntry } from "./AnsiStyles.ts"
  *
  * const style = getStyleEntry("bold")
  * console.log(style.close)
@@ -271,14 +270,7 @@ const parseHexMatch = (hex: string): O.Option<string> =>
 
 const expandShortHex = flow(Str.split(""), A.map(Str.repeat(2)), A.join(""));
 
-const canonicalizeHex = (matched: string): string =>
-  pipe(
-    matched.length === 3,
-    Bool.match({
-      onFalse: () => matched,
-      onTrue: () => expandShortHex(matched),
-    })
-  );
+const canonicalizeHex = (matched: string): string => (matched.length === 3 ? expandShortHex(matched) : matched);
 
 const toRgbTuple = (canonical: string): readonly [red: number, green: number, blue: number] => {
   const integer = Number.parseInt(canonical, 16);
@@ -287,29 +279,16 @@ const toRgbTuple = (canonical: string): readonly [red: number, green: number, bl
 };
 
 const renderExtendedMonochromeAnsi256 = (red: number): number =>
-  pipe(
-    red > 248,
-    Bool.match({
-      onFalse: () => Math.round(((red - 8) / 247) * 24) + 232,
-      onTrue: () => 231,
-    })
-  );
+  red > 248 ? 231 : Math.round(((red - 8) / 247) * 24) + 232;
 
-const renderMonochromeAnsi256 = (red: number): number =>
-  pipe(
-    red < 8,
-    Bool.match({
-      onFalse: () => renderExtendedMonochromeAnsi256(red),
-      onTrue: () => 16,
-    })
-  );
+const renderMonochromeAnsi256 = (red: number): number => (red < 8 ? 16 : renderExtendedMonochromeAnsi256(red));
 
 /**
  * Convert RGB channel values to an ANSI 256 color index.
  *
  * @example
  * ```ts
- * import { rgbToAnsi256 } from "@beep/chalk/Chalk"
+ * import { rgbToAnsi256 } from "./AnsiStyles.ts"
  *
  * const index = rgbToAnsi256(255, 0, 0)
  * console.log(index)
@@ -318,23 +297,25 @@ const renderMonochromeAnsi256 = (red: number): number =>
  * @category utilities
  * @since 0.0.0
  */
-type BlueChannelOptions = {
-  readonly blue: number;
-};
+class BlueChannelOptionsModel extends S.Class<BlueChannelOptionsModel>($I`BlueChannelOptions`)(
+  {
+    blue: S.Number,
+  },
+  $I.annote("BlueChannelOptions", {
+    description: "Blue channel companion value for dual RGB conversion helpers.",
+  })
+) {}
+
+type BlueChannelOptions = typeof BlueChannelOptionsModel.Encoded;
 
 export const rgbToAnsi256: {
   (red: number, green: number, options: BlueChannelOptions): number;
   (green: number, options: BlueChannelOptions): (red: number) => number;
 } = dual(3, (red: number, green: number, options: BlueChannelOptions): number => {
   const blue = options.blue;
-  return pipe(
-    red === green && green === blue,
-    Bool.match({
-      onFalse: () =>
-        16 + 36 * Math.round((red / 255) * 5) + 6 * Math.round((green / 255) * 5) + Math.round((blue / 255) * 5),
-      onTrue: () => renderMonochromeAnsi256(red),
-    })
-  );
+  return red === green && green === blue
+    ? renderMonochromeAnsi256(red)
+    : 16 + 36 * Math.round((red / 255) * 5) + 6 * Math.round((green / 255) * 5) + Math.round((blue / 255) * 5);
 });
 
 /**
@@ -342,7 +323,7 @@ export const rgbToAnsi256: {
  *
  * @example
  * ```ts
- * import { hexToRgb } from "@beep/chalk/Chalk"
+ * import { hexToRgb } from "./AnsiStyles.ts"
  *
  * const [red, green, blue] = hexToRgb("#336699")
  * console.log(red, green, blue)
@@ -360,27 +341,14 @@ export const hexToRgb = (hex: string): readonly [red: number, green: number, blu
     })
   );
 
-const renderAnsiCodeBrightness = (value: number, result: number): number =>
-  pipe(
-    value === 2,
-    Bool.match({
-      onFalse: () => result,
-      onTrue: () => result + 60,
-    })
-  );
-const thunk30 = () => 30;
+const renderAnsiCodeBrightness = (value: number, result: number): number => (value === 2 ? result + 60 : result);
+
 const ansi256ToAnsiGray = (code: number): number => {
   const gray = ((code - 232) * 10 + 8) / 255;
   const value = gray * 2;
   const result = 30 + ((Math.round(gray) << 2) | (Math.round(gray) << 1) | Math.round(gray));
 
-  return pipe(
-    value === 0,
-    Bool.match({
-      onFalse: () => renderAnsiCodeBrightness(value, result),
-      onTrue: thunk30,
-    })
-  );
+  return value === 0 ? 30 : renderAnsiCodeBrightness(value, result);
 };
 
 const ansi256ToAnsiColorCube = (code: number): number => {
@@ -392,13 +360,7 @@ const ansi256ToAnsiColorCube = (code: number): number => {
   const value = Math.max(red, green, blue) * 2;
   const result = 30 + ((Math.round(blue) << 2) | (Math.round(green) << 1) | Math.round(red));
 
-  return pipe(
-    value === 0,
-    Bool.match({
-      onFalse: () => renderAnsiCodeBrightness(value, result),
-      onTrue: thunk30,
-    })
-  );
+  return value === 0 ? 30 : renderAnsiCodeBrightness(value, result);
 };
 
 /**
@@ -406,7 +368,7 @@ const ansi256ToAnsiColorCube = (code: number): number => {
  *
  * @example
  * ```ts
- * import { ansi256ToAnsi } from "@beep/chalk/Chalk"
+ * import { ansi256ToAnsi } from "./AnsiStyles.ts"
  *
  * const code = ansi256ToAnsi(196)
  * console.log(code)
@@ -434,7 +396,7 @@ export const ansi256ToAnsi = (code: number): number =>
  *
  * @example
  * ```ts
- * import { rgbToAnsi } from "@beep/chalk/Chalk"
+ * import { rgbToAnsi } from "./AnsiStyles.ts"
  *
  * const code = rgbToAnsi(255, 0, 0)
  * console.log(code)
@@ -455,7 +417,7 @@ export const rgbToAnsi: {
  *
  * @example
  * ```ts
- * import { hexToAnsi256 } from "@beep/chalk/Chalk"
+ * import { hexToAnsi256 } from "./AnsiStyles.ts"
  *
  * const index = hexToAnsi256("#ff0000")
  * console.log(index)
@@ -474,7 +436,7 @@ export const hexToAnsi256 = (hex: string): number => {
  *
  * @example
  * ```ts
- * import { hexToAnsi } from "@beep/chalk/Chalk"
+ * import { hexToAnsi } from "./AnsiStyles.ts"
  *
  * const code = hexToAnsi("#ff0000")
  * console.log(code)
@@ -522,7 +484,7 @@ const renderAnsi256Model = (type: "color" | "bgColor", arguments_: ReadonlyArray
  *
  * @example
  * ```ts
- * import { getModelAnsi } from "@beep/chalk/Chalk"
+ * import { getModelAnsi } from "./AnsiStyles.ts"
  *
  * const open = getModelAnsi("rgb", "ansi16m", "color", 255, 128, 0)
  * console.log(open)

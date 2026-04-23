@@ -12,10 +12,7 @@
  *
  * const timer = Metric.timer("my_op_duration")
  *
- * const program = trackDuration(
- *
- *
- * )
+ * const program = trackDuration()
  *
  * void Effect.runPromise(program)
  * ```
@@ -24,9 +21,9 @@
  * @since 0.0.0
  */
 
+import { P } from "@beep/utils";
 import { Clock, Duration, Effect, Exit, Metric, pipe } from "effect";
 import { dual } from "effect/Function";
-import * as P from "effect/Predicate";
 
 interface TrackDurationOptions {
   readonly attributes?: Record<string, string> | undefined;
@@ -68,11 +65,12 @@ const withMetricAttributes = <Input, State>(
   attributes: undefined | Record<string, string>
 ): Metric.Metric<Input, State> => (P.isUndefined(attributes) ? metric : Metric.withAttributes(metric, attributes));
 
-const incrementCounter = (
+const incrementCounter = Effect.fn("incrementCounter")(function* (
   counter: undefined | Metric.Counter<number>,
   attributes: undefined | Record<string, string>
-): Effect.Effect<void> =>
-  counter === undefined ? Effect.void : Metric.update(withMetricAttributes(counter, attributes), 1);
+): Effect.fn.Return<void> {
+  return yield* P.isUndefined(counter) ? Effect.void : Metric.update(withMetricAttributes(counter, attributes), 1);
+});
 
 /**
  * Normalize an HTTP status code to its class label (e.g. `"2xx"`, `"4xx"`).
@@ -125,19 +123,26 @@ export const statusClass = (status: number): string => {
  * @since 0.0.0
  * @category observability
  */
-export const measureElapsedMillis = <A, E, R>(
+export const measureElapsedMillis = Effect.fn("measureElapsedMillis")(function* <A, E, R>(
   effect: Effect.Effect<A, E, R>
-): Effect.Effect<readonly [A, number], E, R> =>
-  pipe(
+): Effect.fn.Return<readonly [A, number], E, R> {
+  return yield* pipe(
     Clock.currentTimeMillis,
-    Effect.flatMap((startedAt) =>
-      effect.pipe(
-        Effect.flatMap((value) =>
-          Clock.currentTimeMillis.pipe(Effect.map((endedAt) => [value, Math.max(0, endedAt - startedAt)] as const))
-        )
-      )
+    Effect.flatMap(
+      Effect.fnUntraced(function* (startedAt) {
+        return yield* effect.pipe(
+          Effect.flatMap(
+            Effect.fnUntraced(function* (value) {
+              return yield* Clock.currentTimeMillis.pipe(
+                Effect.map((endedAt) => [value, Math.max(0, endedAt - startedAt)] as const)
+              );
+            })
+          )
+        );
+      })
     )
   );
+});
 
 /**
  * Track one timer metric around an effect.
@@ -162,19 +167,20 @@ export const measureElapsedMillis = <A, E, R>(
  * @since 0.0.0
  * @category observability
  */
-const trackDurationImpl = <A, E, R>(
+const trackDurationImpl = Effect.fn("trackDurationImpl")(function* <A, E, R>(
   effect: Effect.Effect<A, E, R>,
   metric: Metric.Metric<Duration.Duration, unknown>,
   options: TrackDurationOptions
-): Effect.Effect<A, E, R> =>
-  measureElapsedMillis(effect).pipe(
+): Effect.fn.Return<A, E, R> {
+  return yield* measureElapsedMillis(effect).pipe(
     Effect.tap(([_, elapsedMs]) =>
       Metric.update(withMetricAttributes(metric, options.attributes), Duration.millis(elapsedMs)).pipe(
         Effect.andThen(Effect.annotateCurrentSpan("duration_ms", elapsedMs))
       )
     ),
-    Effect.map(([value]) => value)
+    Effect.map(([head]) => head)
   );
+});
 
 /**
  * Tracks the elapsed duration of an Effect with a metric.
@@ -203,23 +209,23 @@ export const trackDuration: {
   ): Effect.Effect<A, E, R>;
 } = dual(
   isTrackDurationDataFirst,
-  <A, E, R>(
+  Effect.fn("trackDuration")(function* <A, E, R>(
     effect: Effect.Effect<A, E, R> | Metric.Metric<Duration.Duration, unknown>,
     metric: Metric.Metric<Duration.Duration, unknown> | Effect.Effect<A, E, R>,
     options: TrackDurationOptions | Record<string, string> = defaultTrackDurationOptions
-  ): Effect.Effect<A, E, R> => {
+  ): Effect.fn.Return<A, E, R> {
     const normalizedOptions = normalizeTrackDurationOptions(options);
 
     if (Effect.isEffect(effect) && !Effect.isEffect(metric)) {
-      return trackDurationImpl(effect, metric, normalizedOptions);
+      return yield* trackDurationImpl(effect, metric, normalizedOptions);
     }
 
     if (Effect.isEffect(metric) && !Effect.isEffect(effect)) {
-      return trackDurationImpl(metric, effect, normalizedOptions);
+      return yield* trackDurationImpl(metric, effect, normalizedOptions);
     }
 
-    return Effect.die("Invalid trackDuration arguments");
-  }
+    return yield* Effect.die("Invalid trackDuration arguments");
+  })
 );
 
 /**
@@ -242,17 +248,7 @@ export const trackDuration: {
  *
  * const myWorkflow = Effect.succeed("result")
  *
- * const observed = observeWorkflow(
- *
- *
- *
- *
- *
- *
- *
- *
- *
- * )
+ * const observed = observeWorkflow()
  *
  * void Effect.runPromise(observed)
  * ```
@@ -260,44 +256,54 @@ export const trackDuration: {
  * @since 0.0.0
  * @category observability
  */
-const observeWorkflowImpl = <A, E, R>(
+const observeWorkflowImpl = Effect.fn("observeWorkflowImpl")(function* <A, E, R>(
   effect: Effect.Effect<A, E, R>,
   options: ObserveWorkflowOptions
-): Effect.Effect<A, E, R> =>
-  Clock.currentTimeMillis.pipe(
-    Effect.flatMap((startedAt) =>
-      incrementCounter(options.started, options.attributes).pipe(
-        Effect.andThen(Effect.annotateCurrentSpan("workflow_name", options.name)),
-        Effect.andThen(effect),
-        Effect.onExit((exit) =>
-          Clock.currentTimeMillis.pipe(
-            Effect.flatMap((endedAt) => {
-              const durationMs = Math.max(0, endedAt - startedAt);
-              const outcome = Exit.isSuccess(exit) ? "completed" : Exit.hasInterrupts(exit) ? "interrupted" : "failed";
-              const outcomeEffect =
-                outcome === "completed"
-                  ? incrementCounter(options.completed, options.attributes)
-                  : outcome === "interrupted"
-                    ? incrementCounter(options.interrupted, options.attributes)
-                    : incrementCounter(options.failed, options.attributes);
-              const durationEffect =
-                options.duration === undefined
-                  ? Effect.void
-                  : Metric.update(
-                      withMetricAttributes(options.duration, options.attributes),
-                      Duration.millis(durationMs)
-                    );
+): Effect.fn.Return<A, E, R> {
+  return yield* Clock.currentTimeMillis.pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (startedAt) {
+        return yield* incrementCounter(options.started, options.attributes).pipe(
+          Effect.andThen(Effect.annotateCurrentSpan("workflow_name", options.name)),
+          Effect.andThen(effect),
+          Effect.onExit(
+            Effect.fnUntraced(function* (exit) {
+              return yield* Clock.currentTimeMillis.pipe(
+                Effect.flatMap(
+                  Effect.fnUntraced(function* (endedAt) {
+                    const durationMs = Math.max(0, endedAt - startedAt);
+                    const outcome = Exit.isSuccess(exit)
+                      ? "completed"
+                      : Exit.hasInterrupts(exit)
+                        ? "interrupted"
+                        : "failed";
+                    const outcomeEffect =
+                      outcome === "completed"
+                        ? incrementCounter(options.completed, options.attributes)
+                        : outcome === "interrupted"
+                          ? incrementCounter(options.interrupted, options.attributes)
+                          : incrementCounter(options.failed, options.attributes);
+                    const durationEffect = P.isUndefined(options.duration)
+                      ? Effect.void
+                      : Metric.update(
+                          withMetricAttributes(options.duration, options.attributes),
+                          Duration.millis(durationMs)
+                        );
 
-              return Effect.annotateCurrentSpan({
-                workflow_duration_ms: durationMs,
-                workflow_outcome: outcome,
-              }).pipe(Effect.andThen(durationEffect), Effect.andThen(outcomeEffect));
+                    return yield* Effect.annotateCurrentSpan({
+                      workflow_duration_ms: durationMs,
+                      workflow_outcome: outcome,
+                    }).pipe(Effect.andThen(durationEffect), Effect.andThen(outcomeEffect));
+                  })
+                )
+              );
             })
           )
-        )
-      )
+        );
+      })
     )
   );
+});
 
 /**
  * Observes workflow duration and outcome metrics for an Effect.
@@ -311,20 +317,20 @@ export const observeWorkflow: {
   (options: ObserveWorkflowOptions): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
 } = dual(
   isEffectPairDataFirst,
-  <A, E, R>(
+  Effect.fn("observeWorkflow")(function* <A, E, R>(
     effect: Effect.Effect<A, E, R> | ObserveWorkflowOptions,
     options: ObserveWorkflowOptions | Effect.Effect<A, E, R> | undefined
-  ): Effect.Effect<A, E, R> => {
+  ): Effect.fn.Return<A, E, R> {
     if (Effect.isEffect(effect) && P.isNotUndefined(options) && !Effect.isEffect(options)) {
-      return observeWorkflowImpl(effect, options);
+      return yield* observeWorkflowImpl(effect, options);
     }
 
     if (!Effect.isEffect(effect) && Effect.isEffect(options)) {
-      return observeWorkflowImpl(options, effect);
+      return yield* observeWorkflowImpl(options, effect);
     }
 
-    return Effect.die("Invalid observeWorkflow arguments");
-  }
+    return yield* Effect.die("Invalid observeWorkflow arguments");
+  })
 );
 
 /**
@@ -345,16 +351,7 @@ export const observeWorkflow: {
  *
  * const handler = Effect.succeed({ id: 1, name: "Alice" })
  *
- * const observed = observeHttpRequest(
- *
- *
- *
- *
- *
- *
- *
- *
- * )
+ * const observed = observeHttpRequest()
  *
  * void Effect.runPromise(observed)
  * ```
@@ -362,70 +359,82 @@ export const observeWorkflow: {
  * @since 0.0.0
  * @category observability
  */
-const observeHttpRequestImpl = <A, E extends { readonly status: number }, R>(
-  effect: Effect.Effect<A, E, R>,
-  options: ObserveHttpRequestOptions
-): Effect.Effect<A, E, R> =>
-  Clock.currentTimeMillis.pipe(
-    Effect.flatMap((startedAt) =>
-      effect.pipe(
-        Effect.matchEffect({
-          onFailure: (error) =>
-            Clock.currentTimeMillis.pipe(
-              Effect.flatMap((endedAt) => {
-                const durationMs = Math.max(0, endedAt - startedAt);
-                const attributes = {
-                  method: options.method,
-                  route: options.route,
-                  status_class: statusClass(error.status),
-                };
+const observeHttpRequestImpl = Effect.fn("observeHttpRequestImpl")(function* <
+  A,
+  E extends {
+    readonly status: number;
+  },
+  R,
+>(effect: Effect.Effect<A, E, R>, options: ObserveHttpRequestOptions): Effect.fn.Return<A, E, R> {
+  return yield* Clock.currentTimeMillis.pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (startedAt) {
+        return yield* effect.pipe(
+          Effect.matchEffect({
+            onFailure: Effect.fnUntraced(function* (error) {
+              return yield* Clock.currentTimeMillis.pipe(
+                Effect.flatMap(
+                  Effect.fnUntraced(function* (endedAt) {
+                    const durationMs = Math.max(0, endedAt - startedAt);
+                    const attributes = {
+                      method: options.method,
+                      route: options.route,
+                      status_class: statusClass(error.status),
+                    };
 
-                return Effect.annotateCurrentSpan({
-                  http_status: error.status,
-                  http_status_class: statusClass(error.status),
-                  http_request_duration_ms: durationMs,
-                }).pipe(
-                  Effect.andThen(Metric.update(Metric.withAttributes(options.requestsTotal, attributes), 1)),
-                  Effect.andThen(
-                    Metric.update(
-                      Metric.withAttributes(options.requestDuration, attributes),
-                      Duration.millis(durationMs)
-                    )
-                  ),
-                  Effect.andThen(Effect.fail(error))
-                );
-              })
-            ),
-          onSuccess: (value) =>
-            Clock.currentTimeMillis.pipe(
-              Effect.flatMap((endedAt) => {
-                const durationMs = Math.max(0, endedAt - startedAt);
-                const attributes = {
-                  method: options.method,
-                  route: options.route,
-                  status_class: statusClass(options.successStatus),
-                };
+                    return yield* Effect.annotateCurrentSpan({
+                      http_status: error.status,
+                      http_status_class: statusClass(error.status),
+                      http_request_duration_ms: durationMs,
+                    }).pipe(
+                      Effect.andThen(Metric.update(Metric.withAttributes(options.requestsTotal, attributes), 1)),
+                      Effect.andThen(
+                        Metric.update(
+                          Metric.withAttributes(options.requestDuration, attributes),
+                          Duration.millis(durationMs)
+                        )
+                      ),
+                      Effect.andThen(Effect.fail(error))
+                    );
+                  })
+                )
+              );
+            }),
+            onSuccess: Effect.fnUntraced(function* (value) {
+              return yield* Clock.currentTimeMillis.pipe(
+                Effect.flatMap(
+                  Effect.fnUntraced(function* (endedAt) {
+                    const durationMs = Math.max(0, endedAt - startedAt);
+                    const attributes = {
+                      method: options.method,
+                      route: options.route,
+                      status_class: statusClass(options.successStatus),
+                    };
 
-                return Effect.annotateCurrentSpan({
-                  http_status: options.successStatus,
-                  http_status_class: statusClass(options.successStatus),
-                  http_request_duration_ms: durationMs,
-                }).pipe(
-                  Effect.andThen(Metric.update(Metric.withAttributes(options.requestsTotal, attributes), 1)),
-                  Effect.andThen(
-                    Metric.update(
-                      Metric.withAttributes(options.requestDuration, attributes),
-                      Duration.millis(durationMs)
-                    )
-                  ),
-                  Effect.as(value)
-                );
-              })
-            ),
-        })
-      )
+                    return yield* Effect.annotateCurrentSpan({
+                      http_status: options.successStatus,
+                      http_status_class: statusClass(options.successStatus),
+                      http_request_duration_ms: durationMs,
+                    }).pipe(
+                      Effect.andThen(Metric.update(Metric.withAttributes(options.requestsTotal, attributes), 1)),
+                      Effect.andThen(
+                        Metric.update(
+                          Metric.withAttributes(options.requestDuration, attributes),
+                          Duration.millis(durationMs)
+                        )
+                      ),
+                      Effect.as(value)
+                    );
+                  })
+                )
+              );
+            }),
+          })
+        );
+      })
     )
   );
+});
 
 /**
  * Observes HTTP request duration and status metrics for an Effect.
@@ -434,31 +443,57 @@ const observeHttpRequestImpl = <A, E extends { readonly status: number }, R>(
  * @since 0.0.0
  */
 export const observeHttpRequest: {
-  <A, E extends { readonly status: number }, R>(
+  <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
     effect: Effect.Effect<A, E, R>,
     options: ObserveHttpRequestOptions
   ): Effect.Effect<A, E, R>;
-  <A, E extends { readonly status: number }, R>(
+  <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
     options: ObserveHttpRequestOptions,
     effect: Effect.Effect<A, E, R>
   ): Effect.Effect<A, E, R>;
   (
     options: ObserveHttpRequestOptions
-  ): <A, E extends { readonly status: number }, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  ): <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
+    effect: Effect.Effect<A, E, R>
+  ) => Effect.Effect<A, E, R>;
 } = dual(
   isEffectPairDataFirst,
-  <A, E extends { readonly status: number }, R>(
+  Effect.fn("observeHttpRequest")(function* <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
     effect: Effect.Effect<A, E, R> | ObserveHttpRequestOptions,
     options: ObserveHttpRequestOptions | Effect.Effect<A, E, R> | undefined
-  ): Effect.Effect<A, E, R> => {
+  ): Effect.fn.Return<A, E, R> {
     if (Effect.isEffect(effect) && P.isNotUndefined(options) && !Effect.isEffect(options)) {
-      return observeHttpRequestImpl(effect, options);
+      return yield* observeHttpRequestImpl(effect, options);
     }
 
     if (!Effect.isEffect(effect) && Effect.isEffect(options)) {
-      return observeHttpRequestImpl(options, effect);
+      return yield* observeHttpRequestImpl(options, effect);
     }
 
-    return Effect.die("Invalid observeHttpRequest arguments");
-  }
+    return yield* Effect.die("Invalid observeHttpRequest arguments");
+  })
 );

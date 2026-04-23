@@ -1,8 +1,8 @@
 # 02 -- Thread Triage
 
 Every open memory-related thread in this project gets a verdict here. The goal
-is not to preserve optionality. The goal is to destroy it. Nine threads became
-three priorities and a clear "leave it alone" for everything else.
+is not to preserve optionality. The goal is to destroy it. Eight threads became
+two priorities and a clear "leave it alone" for everything else.
 
 Definitions:
 
@@ -75,48 +75,18 @@ UI. Six packages (base, flow, client, cli, mcp, workbench).
 **Verdict:** PAUSE
 
 **Rationale:** This is a working proof of architecture, but it is imperative
-TypeScript with no Effect patterns. Its value is as a reference for the
-BeepGraph Effect rewrite -- it proves the design works. Running it in production
-adds operational complexity (20+ Docker services) that is not justified while
-repo-memory v0 is the priority. The provenance and trust-scoring concepts are
-valuable, but they enter the project through BeepGraph, not through deploying
-this standalone.
+TypeScript with no Effect patterns. Its value is as a reference for future
+Effect-native provenance work -- it proves the design works. Running it in
+production adds operational complexity (20+ Docker services) that is not
+justified while repo-memory v0 is the priority. The provenance and trust-scoring
+concepts are valuable, but they should enter the project through slice-owned
+work, not through deploying this standalone.
 
 **Next action:** None. Keep as reference. Do not invest further.
 
 ---
 
-## 4. BeepGraph (Effect-Native TrustGraph)
-
-**Location:** `packages/common/knowledge-graph`
-
-**Status:** Foundation complete -- all 17 schema modules, NatsClient with
-JetStream lifecycle, ResponseRouter with correlation-based dispatch,
-RequestResponse RPC (single + streaming), ServiceRunner,
-TypedConsumer/Producer/Requestor, ConfigPush, GraphRag pipeline (6 steps),
-DocumentRag pipeline (4 steps), gateway API definition, BeepGraphClient
-interface. Tests pass. Missing: all individual service implementations (LLM
-adapters, storage backends, agent, librarian, knowledge extraction) and gateway
-handler wiring.
-
-**Verdict:** GO -- Priority 3 (selective port only)
-
-**Rationale:** The foundation work is the hard part and it is done well. But
-porting all 15 services from the TS reference is a multi-quarter distraction.
-The No-Escape Theorem identifies the "external symbolic verifier" as an escape
-route. That is the provenance/verification layer. That is what to port. The full
-TrustGraph pipeline -- LLM adapters, librarian, agent -- is not what makes this
-valuable. Provenance tracing, trust scoring, and whatever storage/retrieval
-repo-memory v0 actually needs for Layer 4 relational memory is what makes this
-valuable. Port those. Ignore the rest until concrete demand exists.
-
-**Next action:** Identify which BeepGraph services repo-memory v0 needs for
-provenance-verified relational queries. Port those services. Do not port
-anything else.
-
----
-
-## 5. Graphiti MCP (Shared Memory)
+## 4. Graphiti MCP (Shared Memory)
 
 **Location:** Configured in `.mcp.json`, backed by FalkorDB, managed via
 `bun run beep graphiti proxy`
@@ -144,7 +114,7 @@ disable until a consolidation pipeline exists. Stop adding unbounded knowledge.
 
 ---
 
-## 6. Supermemory
+## 5. Supermemory
 
 **Location:** Configured as Claude plugin in `.claude/settings.json`
 
@@ -163,7 +133,7 @@ cannot maintain authentication is noise, not signal.
 
 ---
 
-## 7. TrustGraph MCP (External Sync)
+## 6. TrustGraph MCP (External Sync)
 
 **Location:** Configured in `.mcp.json`, tracks 45+ synced documents
 
@@ -174,15 +144,15 @@ cannot maintain authentication is noise, not signal.
 
 **Rationale:** This is the external TrustGraph deployment, separate from the TS
 port. Its value depends on whether the provenance/trust features are providing
-retrieval signal. Once BeepGraph's provenance layer ships locally, this external
-dependency should be evaluated for retirement.
+retrieval signal. If a local provenance layer ships, this external dependency
+should be evaluated for retirement.
 
 **Next action:** Audit whether the synced documents are providing value. If not,
 disable to reduce operational surface.
 
 ---
 
-## 8. Karpathy-Style LLM Wiki
+## 7. Karpathy-Style LLM Wiki
 
 **Location:** N/A (concept only, not implemented)
 
@@ -205,7 +175,7 @@ Layer 2 to Layer 1 promotion pipeline.
 
 ---
 
-## 9. repo-codegraph-jsdoc Research
+## 8. repo-codegraph-jsdoc Research
 
 **Location:** `initiatives/repo-codegraph-jsdoc/history/outputs/compiled_sources/`
 
@@ -234,12 +204,11 @@ decisions.
 | 1 | repo-memory v0 | **GO** | P1 | Layer 3 (Procedural) |
 | 2 | Expert Memory Big Picture | **GO** (ref) | P2 | All layers (architecture) |
 | 3 | TrustGraph TS Port | **PAUSE** | -- | Reference only |
-| 4 | BeepGraph (selective) | **GO** | P3 | Layer 4 (Relational) |
-| 5 | Graphiti MCP | **PAUSE** | -- | Layer 2 (if bounded) |
-| 6 | Supermemory | **DROP** | -- | -- |
-| 7 | TrustGraph MCP | **PAUSE** | -- | Evaluate later |
-| 8 | Karpathy LLM Wiki | **LEARN-ONLY** | -- | Consolidation patterns |
-| 9 | repo-codegraph research | **LEARN-ONLY** | -- | Already absorbed |
+| 4 | Graphiti MCP | **PAUSE** | -- | Layer 2 (if bounded) |
+| 5 | Supermemory | **DROP** | -- | -- |
+| 6 | TrustGraph MCP | **PAUSE** | -- | Evaluate later |
+| 7 | Karpathy LLM Wiki | **LEARN-ONLY** | -- | Consolidation patterns |
+| 8 | repo-codegraph research | **LEARN-ONLY** | -- | Already absorbed |
 
-Three threads get investment. Three are paused pending demand. One is dropped.
+Two threads get investment. Three are paused pending demand. One is dropped.
 Two are research artifacts. The search space is closed.

@@ -5,10 +5,14 @@
  * @since 0.0.0
  */
 
+import { $ChalkId } from "@beep/identity/packages";
 import { pipe } from "effect";
-import * as Bool from "effect/Boolean";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
+
+const $I = $ChalkId.create("Domain");
 
 const replaceAllLoop = (text: string, substring: string, replacer: string): string => {
   let index = text.indexOf(substring);
@@ -27,35 +31,34 @@ const replaceAllLoop = (text: string, substring: string, replacer: string): stri
   return result;
 };
 
-const renderLineBreak = (gotCR: boolean): string =>
-  Bool.match(gotCR, {
-    onFalse: () => "\n",
-    onTrue: () => "\r\n",
-  });
+const renderLineBreak = (gotCR: boolean): string => (gotCR ? "\r\n" : "\n");
 
-const renderLineBreakSliceEnd = (nextIndex: number, gotCR: boolean): number =>
-  Bool.match(gotCR, {
-    onFalse: () => nextIndex,
-    onTrue: () => nextIndex - 1,
-  });
+const renderLineBreakSliceEnd = (nextIndex: number, gotCR: boolean): number => (gotCR ? nextIndex - 1 : nextIndex);
 
 /**
  * Replace every later occurrence of a substring while preserving the first occurrence.
  *
  * @example
  * ```ts
- * import { stringReplaceAll } from "@beep/chalk/Chalk"
+ * import { stringReplaceAll } from "./Utilities.ts"
  *
- * const rendered = stringReplaceAll("a-b-c", "-", "+")
+ * const rendered = stringReplaceAll("a-b-c", "-", { replacer: "+" })
  * console.log(rendered)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-type StringReplaceAllOptions = {
-  readonly replacer: string;
-};
+class StringReplaceAllOptionsModel extends S.Class<StringReplaceAllOptionsModel>($I`StringReplaceAllOptions`)(
+  {
+    replacer: S.String,
+  },
+  $I.annote("StringReplaceAllOptions", {
+    description: "Replacement text used by Chalk string replacement helpers.",
+  })
+) {}
+
+type StringReplaceAllOptions = typeof StringReplaceAllOptionsModel.Encoded;
 
 export const stringReplaceAll: {
   (text: string, substring: string, options: StringReplaceAllOptions): string;
@@ -63,11 +66,9 @@ export const stringReplaceAll: {
 } = dual(3, (text: string, substring: string, options: StringReplaceAllOptions): string => {
   return pipe(
     text,
-    Str.includes(substring),
-    Bool.match({
-      onFalse: () => text,
-      onTrue: () => replaceAllLoop(text, substring, options.replacer),
-    })
+    O.liftPredicate(Str.includes(substring)),
+    O.map(() => replaceAllLoop(text, substring, options.replacer)),
+    O.getOrElse(() => text)
   );
 });
 
@@ -76,19 +77,26 @@ export const stringReplaceAll: {
  *
  * @example
  * ```ts
- * import { stringEncaseCRLFWithFirstIndex } from "@beep/chalk/Chalk"
+ * import { stringEncaseCRLFWithFirstIndex } from "./Utilities.ts"
  *
- * const rendered = stringEncaseCRLFWithFirstIndex("a\nb", "<close>", "<open>", 1)
+ * const rendered = stringEncaseCRLFWithFirstIndex("a\nb", "<close>", { postfix: "<open>", index: 1 })
  * console.log(rendered)
  * ```
  *
  * @category utilities
  * @since 0.0.0
  */
-type StringEncaseCrlfOptions = {
-  readonly postfix: string;
-  readonly index: number;
-};
+class StringEncaseCrlfOptionsModel extends S.Class<StringEncaseCrlfOptionsModel>($I`StringEncaseCrlfOptions`)(
+  {
+    index: S.Number,
+    postfix: S.String,
+  },
+  $I.annote("StringEncaseCrlfOptions", {
+    description: "Line-break position and reopen text used by Chalk CRLF encasing helpers.",
+  })
+) {}
+
+type StringEncaseCrlfOptions = typeof StringEncaseCrlfOptionsModel.Encoded;
 
 export const stringEncaseCRLFWithFirstIndex: {
   (text: string, prefix: string, options: StringEncaseCrlfOptions): string;

@@ -579,13 +579,20 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
 
     const writeFileIfChanged = (absolutePath: string, content: string) =>
       ensureDirectoryFor(absolutePath).pipe(
-        Effect.andThen(() => readIfExists(absolutePath)),
         Effect.andThen(
-          flow(
-            O.filter(stringEquivalence(content)),
-            O.map(() => countSkippedFileWrite),
-            O.getOrElse(() => writeFile(absolutePath, content))
-          )
+          Effect.fnUntraced(function* () {
+            return yield* readIfExists(absolutePath);
+          })
+        ),
+        Effect.andThen(
+          Effect.fnUntraced(function* (existingContent: O.Option<string>) {
+            return yield* pipe(
+              existingContent,
+              O.filter(stringEquivalence(content)),
+              O.map(() => countSkippedFileWrite),
+              O.getOrElse(() => writeFile(absolutePath, content))
+            );
+          })
         )
       );
 
@@ -603,7 +610,13 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
         .pipe(mapFsError(`Failed to remove existing path "${absolutePath}"`));
 
     const replaceWithSymlink = (absolutePath: string, target: string) =>
-      removeExistingPath(absolutePath).pipe(Effect.andThen(() => createSymlink(absolutePath, target)));
+      removeExistingPath(absolutePath).pipe(
+        Effect.andThen(
+          Effect.fnUntraced(function* () {
+            return yield* createSymlink(absolutePath, target);
+          })
+        )
+      );
 
     const inspectSymlinkPath = Effect.fn("inspectSymlinkPath")(function* (absolutePath: string) {
       const currentTarget = yield* Effect.option(fs.readLink(absolutePath));
@@ -638,14 +651,26 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
       2,
       Effect.fn(function* (absolutePath: string, target: string) {
         return yield* ensureDirectoryFor(absolutePath).pipe(
-          Effect.andThen(() => inspectSymlinkPath(absolutePath)),
-          Effect.andThen(({ currentTarget, exists }) =>
-            pipe(
+          Effect.andThen(
+            Effect.fnUntraced(function* () {
+              return yield* inspectSymlinkPath(absolutePath);
+            })
+          ),
+          Effect.andThen(
+            Effect.fnUntraced(function* ({
               currentTarget,
-              O.filter(stringEquivalence(target)),
-              O.map(() => countSkippedSymlink),
-              O.getOrElse(() => pipe(exists, writeSymlinkForState(absolutePath, target)))
-            )
+              exists,
+            }: {
+              currentTarget: O.Option<string>;
+              exists: boolean;
+            }) {
+              return yield* pipe(
+                currentTarget,
+                O.filter(stringEquivalence(target)),
+                O.map(() => countSkippedSymlink),
+                O.getOrElse(() => pipe(exists, writeSymlinkForState(absolutePath, target)))
+              );
+            })
           )
         );
       })
@@ -691,7 +716,16 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
 
     yield* Effect.forEach(
       plan.actions,
-      (action) => pipe(action, resolveActionPath, Effect.andThen(runAction(action))),
+      (action) =>
+        pipe(
+          action,
+          resolveActionPath,
+          Effect.andThen(
+            Effect.fnUntraced(function* (absolutePath: string) {
+              return yield* runAction(absolutePath, action);
+            })
+          )
+        ),
       { discard: true }
     );
 

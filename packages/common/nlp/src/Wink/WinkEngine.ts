@@ -171,7 +171,11 @@ const makeWinkEngine = Effect.gen(function* () {
 
   const allocateInstanceId = pipe(
     Ref.updateAndGet(instanceCounterRef, (current) => current + 1),
-    Effect.flatMap((counter) => Effect.map(Clock.currentTimeMillis, (nowMs) => nextInstanceId(nowMs, counter)))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (counter) {
+        return yield* Effect.map(Clock.currentTimeMillis, (nowMs) => nextInstanceId(nowMs, counter));
+      })
+    )
   );
 
   return WinkEngine.of({

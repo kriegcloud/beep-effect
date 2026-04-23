@@ -426,7 +426,11 @@ const ensureExists = Effect.fn("ensureExists")(function* <E extends TSMorphServi
 ): Effect.fn.Return<void, E> {
   return yield* fs.exists(absolutePath).pipe(
     Effect.orElseSucceed(thunkFalse),
-    Effect.flatMap((exists) => (exists ? Effect.void : Effect.fail(makeError())))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (exists) {
+        return yield* exists ? Effect.void : Effect.fail(makeError());
+      })
+    )
   );
 });
 

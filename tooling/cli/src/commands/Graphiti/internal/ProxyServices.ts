@@ -653,7 +653,13 @@ export const makeGraphitiProxyQueueService: {
           yield* Ref.update(processedRef, (processed) => processed + 1);
         }).pipe(
           Effect.ensuring(
-            Ref.update(activeRef, (active) => (active > 0 ? active - 1 : 0)).pipe(Effect.andThen(checkDrain))
+            Ref.update(activeRef, (active) => (active > 0 ? active - 1 : 0)).pipe(
+              Effect.andThen(
+                Effect.fnUntraced(function* () {
+                  return yield* checkDrain;
+                })
+              )
+            )
           )
         )
       ).pipe(Effect.catchDefect(() => Effect.void));
@@ -717,7 +723,13 @@ export const makeGraphitiProxyQueueService: {
         });
       });
 
-      const beginShutdown = Ref.set(acceptingRef, false).pipe(Effect.andThen(checkDrain));
+      const beginShutdown = Ref.set(acceptingRef, false).pipe(
+        Effect.andThen(
+          Effect.fnUntraced(function* () {
+            return yield* checkDrain;
+          })
+        )
+      );
 
       const awaitDrain = (timeoutMs: number): Effect.Effect<boolean> =>
         Deferred.await(drainDeferred).pipe(Effect.timeoutOption(Duration.millis(timeoutMs)), Effect.map(O.isSome));

@@ -26,12 +26,7 @@ const ObservabilityCoreConfigFields = {
  * ```typescript
  * import { ObservabilityCoreConfig } from "@beep/observability"
  *
- * const config: ObservabilityCoreConfig = {
- *
- *
- *
- *
- * }
+ * const config: ObservabilityCoreConfig = {}
  *
  * console.log(config.serviceName) // "todox-web"
  * ```

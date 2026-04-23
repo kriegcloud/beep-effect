@@ -1,0 +1,66 @@
+{
+  "standard": "effect-fn-inventory-history",
+  "generatedAt": "2026-04-23T08:41:53.852Z",
+  "passes": [
+    {
+      "file": "tmp/effect-fn-inventory/merged/inventory-pass-1.json",
+      "pass": 1,
+      "generatedAt": "2026-04-23T08:18:09.849Z",
+      "totals": {
+        "workspacePackages": 42,
+        "findings": 95,
+        "packagesWithFindings": 15,
+        "byKind": {
+          "effectFnOpportunity": 0,
+          "flatMapCallback": 87,
+          "andThenCallback": 8
+        }
+      }
+    },
+    {
+      "file": "tmp/effect-fn-inventory/merged/inventory-pass-2.json",
+      "pass": 2,
+      "generatedAt": "2026-04-23T08:30:20.515Z",
+      "totals": {
+        "workspacePackages": 42,
+        "findings": 53,
+        "packagesWithFindings": 5,
+        "byKind": {
+          "effectFnOpportunity": 0,
+          "flatMapCallback": 29,
+          "andThenCallback": 24
+        }
+      }
+    },
+    {
+      "file": "tmp/effect-fn-inventory/merged/inventory-pass-3.json",
+      "pass": 3,
+      "generatedAt": "2026-04-23T08:40:35.446Z",
+      "totals": {
+        "workspacePackages": 42,
+        "findings": 21,
+        "packagesWithFindings": 1,
+        "byKind": {
+          "effectFnOpportunity": 0,
+          "flatMapCallback": 0,
+          "andThenCallback": 21
+        }
+      }
+    },
+    {
+      "file": "tmp/effect-fn-inventory/merged/inventory-pass-4.json",
+      "pass": 4,
+      "generatedAt": "2026-04-23T08:41:36.457Z",
+      "totals": {
+        "workspacePackages": 42,
+        "findings": 0,
+        "packagesWithFindings": 0,
+        "byKind": {
+          "effectFnOpportunity": 0,
+          "flatMapCallback": 0,
+          "andThenCallback": 0
+        }
+      }
+    }
+  ]
+}
