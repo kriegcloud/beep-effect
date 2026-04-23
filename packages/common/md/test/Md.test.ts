@@ -370,7 +370,7 @@ ${Md.h3("Inside")}
 
       expect(Result.isFailure(hostileFailure)).toBe(true);
       if (Result.isFailure(hostileFailure)) {
-        expect(hostileFailure.failure.message).toContain("Unrenderable thrown value.");
+        expect(hostileFailure.failure.message).toContain("Cannot render thrown value.");
       }
 
       const hostileError = new globalThis.Error("hidden");
@@ -389,7 +389,7 @@ ${Md.h3("Inside")}
 
       expect(Result.isFailure(hostileErrorFailure)).toBe(true);
       if (Result.isFailure(hostileErrorFailure)) {
-        expect(hostileErrorFailure.failure.message).toContain("Unrenderable thrown value.");
+        expect(hostileErrorFailure.failure.message).toContain("Cannot render thrown value.");
       }
 
       const hostileNameAdapter: PureRenderAdapter<string> = {

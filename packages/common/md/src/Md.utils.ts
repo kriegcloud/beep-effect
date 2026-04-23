@@ -8,9 +8,9 @@
 import { $MdId } from "@beep/identity";
 import { Markdown } from "@beep/schema";
 import { Html, Str } from "@beep/utils";
+import { Number as N } from "effect";
 import * as A from "effect/Array";
 import { dual, flow, pipe } from "effect/Function";
-import * as N from "effect/Number";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
