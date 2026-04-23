@@ -7,11 +7,14 @@ A repo-local documentation generator for `beep-effect`.
 ## Current Entry Points
 
 - `bun run docgen`
+- `bun run docs:aggregate`
+- `beep-cli docgen run`
 - `bun run beep docgen status --verbose`
 - `bun run beep docgen init -p <workspace-path>`
-- `bun run beep docs aggregate --clean`
 
-The root `docgen` script runs `beep-cli docgen run`, which performs generation and aggregation in one command with shared selector handling (for example `bun run docgen --filter=@beep/types`).
+`bun run docgen` is the Turbo-first workspace flow. It runs `bunx turbo run docgen` so package generation stays visible in the Turbo task UI, then follows with `bun run docs:aggregate` to copy the generated package docs into the root `docs/` layout.
+
+`beep-cli docgen run` remains the direct/manual repo CLI path when you want the one-shot generation-and-aggregation flow with shared selector handling, for example `beep-cli docgen run --filter=@beep/types`.
 
 ## Development
 
