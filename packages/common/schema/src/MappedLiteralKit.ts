@@ -107,16 +107,22 @@ type SeenState = {
 type SeenLiteralKeys = HashMap.HashMap<string, LiteralValue>;
 
 const makeForwardEnum = <M extends MappedPairs>(mappings: M): ForwardEnumMap<M> =>
-  A.reduce({} as ForwardEnumMap<M>, (acc, [fromLiteral, toLiteral]) => ({
-    ...acc,
-    [matchLiteral(fromLiteral)]: toLiteral,
-  }))(mappings);
+  A.reduce({} as ForwardEnumMap<M>, (acc, entry: M[number]) => {
+    const [fromLiteral, toLiteral] = entry;
+    return {
+      ...acc,
+      [matchLiteral(fromLiteral)]: toLiteral,
+    };
+  })(mappings);
 
 const makeReverseEnum = <M extends MappedPairs>(mappings: M): ReverseEnumMap<M> =>
-  A.reduce({} as ReverseEnumMap<M>, (acc, [fromLiteral, toLiteral]) => ({
-    ...acc,
-    [matchLiteral(toLiteral)]: fromLiteral,
-  }))(mappings);
+  A.reduce({} as ReverseEnumMap<M>, (acc, entry: M[number]) => {
+    const [fromLiteral, toLiteral] = entry;
+    return {
+      ...acc,
+      [matchLiteral(toLiteral)]: fromLiteral,
+    };
+  })(mappings);
 
 const validateMappings = <M extends MappedPairs>(mappings: M): void =>
   void pipe(

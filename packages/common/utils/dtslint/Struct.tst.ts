@@ -68,21 +68,23 @@ describe("mapPath", () => {
     const source = { attributes: { name: "beep" as const }, count: 1 as const } as const;
     const renderLength = (value: string) => value.length;
 
-    expect(Struct.mapPath(source, renderLength, "attributes.name")).type.toBe<number>();
-    expect(Struct.mapPath(renderLength, "attributes.name")(source)).type.toBe<number>();
-    expect(Struct.mapPath(source, (value: "beep") => value, ["attributes", "name"] as const)).type.toBe<"beep">();
-    expect(Struct.mapPath(source, (value: 1) => value + 1, "count")).type.toBe<number>();
+    expect(Struct.mapPath(source, renderLength, { path: "attributes.name" })).type.toBe<number>();
+    expect(Struct.mapPath(renderLength, { path: "attributes.name" })(source)).type.toBe<number>();
+    expect(
+      Struct.mapPath(source, (value: "beep") => value, { path: ["attributes", "name"] as const })
+    ).type.toBe<"beep">();
+    expect(Struct.mapPath(source, (value: 1) => value + 1, { path: "count" })).type.toBe<number>();
   });
 
   it("rejects incompatible function parameter types", () => {
     const source = { count: 1 } as const;
 
     // @ts-expect-error not assignable to parameter of type
-    Struct.mapPath(source, (value: string) => value.length, "count");
+    Struct.mapPath(source, (value: string) => value.length, { path: "count" });
     pipe(
       source,
       // @ts-expect-error not assignable to parameter of type
-      Struct.mapPath((value: string) => value.length, "count")
+      Struct.mapPath((value: string) => value.length, { path: "count" })
     );
   });
 });
@@ -91,10 +93,12 @@ describe("mapPathLazy", () => {
   it("returns typed thunks", () => {
     const source = { attributes: { name: "beep" as const }, count: 1 as const } as const;
 
-    expect(Struct.mapPathLazy(source, (value: string) => value.length, "attributes.name")).type.toBe<() => number>();
-    expect(Struct.mapPathLazy((value: "beep") => value, "attributes.name")(source)).type.toBe<() => "beep">();
-    expect(Struct.mapPathLazy(source, (value: 1) => value + 1, "count")).type.toBe<() => number>();
-    expect(Struct.mapPathLazy(source, (value: "beep") => value, ["attributes", "name"] as const)).type.toBe<
+    expect(Struct.mapPathLazy(source, (value: string) => value.length, { path: "attributes.name" })).type.toBe<
+      () => number
+    >();
+    expect(Struct.mapPathLazy((value: "beep") => value, { path: "attributes.name" })(source)).type.toBe<() => "beep">();
+    expect(Struct.mapPathLazy(source, (value: 1) => value + 1, { path: "count" })).type.toBe<() => number>();
+    expect(Struct.mapPathLazy(source, (value: "beep") => value, { path: ["attributes", "name"] as const })).type.toBe<
       () => "beep"
     >();
   });
@@ -103,7 +107,7 @@ describe("mapPathLazy", () => {
     const source = { count: 1 } as const;
 
     // @ts-expect-error not assignable to parameter of type
-    Struct.mapPathLazy(source, (value: string) => value.length, "count");
+    Struct.mapPathLazy(source, (value: string) => value.length, { path: "count" });
   });
 });
 

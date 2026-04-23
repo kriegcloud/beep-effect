@@ -152,11 +152,13 @@
     "autolinker": "^3.11.0",
     "undici": "^7.24.4",
     "express-rate-limit": "^8.3.0",
+    "fast-xml-parser": "catalog:",
     "flatted": "^3.4.1",
     "happy-dom": "^20.8.9",
     "hono": "^4.12.14",
     "lodash": "catalog:",
-    "smol-toml": "1.6.1"
+    "smol-toml": "1.6.1",
+    "uuid": "catalog:"
   },
   "catalog": {
     "@noble/hashes": "^2.2.0",

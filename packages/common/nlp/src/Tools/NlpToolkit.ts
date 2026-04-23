@@ -715,7 +715,7 @@ export const NlpToolkitLive: Layer.Layer<
             Match.exhaustive
           )(resolvedAlgorithm);
         const toCandidateTokens = flow(
-          A.filter(isWordLikeToken),
+          A.filter<Token>(isWordLikeToken),
           A.map((token) => pipe(normalizedTokenText(token), Str.trim, Str.toLowerCase)),
           A.filter((token) => Str.length(token) >= minimumLength)
         );
