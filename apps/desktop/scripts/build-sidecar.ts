@@ -65,7 +65,9 @@ class BuildSidecarCommandExitError extends TaggedErrorClass<BuildSidecarCommandE
   $DesktopBuildId.annote("BuildSidecarCommandExitError", {
     description: "Raised when a required child process exits with a non-zero status.",
   })
-) {}
+) {
+  override readonly [Runtime.errorExitCode] = this.exitCode;
+}
 
 class UnsupportedRustTargetTripleError extends TaggedErrorClass<UnsupportedRustTargetTripleError>(
   $DesktopBuildId`UnsupportedRustTargetTripleError`
@@ -89,18 +91,12 @@ const rustTripleToBunTarget: Record<SupportedRustTargetTriple, BunBuildTarget> =
   "x86_64-pc-windows-msvc": "bun-windows-x64-modern",
 };
 
-const withExitCode = <E extends object>(error: E, exitCode: number): E & { readonly [Runtime.errorExitCode]: number } =>
-  Object.assign(error, { [Runtime.errorExitCode]: exitCode });
-
 const buildSidecarCommandExitError = (command: string, exitCode: number, stderr: string) =>
-  withExitCode(
-    new BuildSidecarCommandExitError({
-      command,
-      exitCode,
-      stderr,
-    }),
-    exitCode
-  );
+  new BuildSidecarCommandExitError({
+    command,
+    exitCode,
+    stderr,
+  });
 
 const collectText = (stream: Stream.Stream<Uint8Array, PlatformError.PlatformError>) =>
   stream.pipe(
