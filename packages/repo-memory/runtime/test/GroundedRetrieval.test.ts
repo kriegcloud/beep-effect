@@ -32,6 +32,8 @@ const decodeFilePath = S.decodeUnknownSync(FilePath);
 const decodeRunId = S.decodeUnknownSync(RunId);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 const sqlTestDriver = process.versions.bun === undefined ? NodeSqliteTestDriver : BunSqliteTestDriver;
+// These end-to-end fixture indexing tests can exceed Vitest's default 5s budget on slower CI runners.
+const GroundedRetrievalIntegrationTimeout = 15_000;
 
 const makeRuntimeLayer = () => {
   const sqlLayer = makeSqlTestLayer({
@@ -335,119 +337,131 @@ const citationIds = (run: QueryRun): ReadonlyArray<string> =>
   );
 
 describe("repo-memory runtime grounded retrieval", () => {
-  it.effect("answers file import questions with grounded citations", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexFixtureRepo;
-        const result = yield* runQuery({
-          repoId: registration.id,
-          question: "what does `src/index.ts` import?",
-          runLabel: "imports",
-        });
+  it.effect(
+    "answers file import questions with grounded citations",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const result = yield* runQuery({
+            repoId: registration.id,
+            question: "what does `src/index.ts` import?",
+            runLabel: "imports",
+          });
 
-        if (result.run.kind !== "query") {
-          return yield* Effect.die("Expected a query run.");
-        }
+          if (result.run.kind !== "query") {
+            return yield* Effect.die("Expected a query run.");
+          }
 
-        const retrieval = retrievalEvent(result.events);
-        const answer = answerEvent(result.events);
+          const retrieval = retrievalEvent(result.events);
+          const answer = answerEvent(result.events);
 
-        expect(O.getOrThrow(result.run.answer)).toContain("./util");
-        expect(O.getOrThrow(result.run.answer)).toContain("./types");
-        expect(result.run.citations.length).toBeGreaterThan(0);
-        expect(O.getOrThrow(retrieval).kind).toBe("retrieval-packet");
-        expect(O.getOrThrow(answer).kind).toBe("answer");
+          expect(O.getOrThrow(result.run.answer)).toContain("./util");
+          expect(O.getOrThrow(result.run.answer)).toContain("./types");
+          expect(result.run.citations.length).toBeGreaterThan(0);
+          expect(O.getOrThrow(retrieval).kind).toBe("retrieval-packet");
+          expect(O.getOrThrow(answer).kind).toBe("answer");
 
-        const packet = O.getOrThrow(result.run.retrievalPacket);
-        expect(O.isSome(packet.sourceSnapshotId)).toBe(true);
-        expect(packet.summary).toContain("Listed import declarations");
-        expect(A.some(packet.notes, (note) => pipe(note, Str.startsWith("sourceSnapshotId=")))).toBe(true);
-        expect(A.some(packet.notes, (note) => pipe(note, Str.startsWith("semanticDatasetQuads=")))).toBe(true);
-        assertCitationAlignment({ events: result.events, run: result.run });
-      })
-    )
+          const packet = O.getOrThrow(result.run.retrievalPacket);
+          expect(O.isSome(packet.sourceSnapshotId)).toBe(true);
+          expect(packet.summary).toContain("Listed import declarations");
+          expect(A.some(packet.notes, (note) => pipe(note, Str.startsWith("sourceSnapshotId=")))).toBe(true);
+          expect(A.some(packet.notes, (note) => pipe(note, Str.startsWith("semanticDatasetQuads=")))).toBe(true);
+          assertCitationAlignment({ events: result.events, run: result.run });
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
-  it.effect("answers importer and symbol count queries deterministically", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexFixtureRepo;
-        const importers = yield* runQuery({
-          repoId: registration.id,
-          question: "who imports `./util`?",
-          runLabel: "importers",
-        });
-        const countSymbols = yield* runQuery({
-          repoId: registration.id,
-          question: "how many symbols are indexed?",
-          runLabel: "count-symbols",
-        });
+  it.effect(
+    "answers importer and symbol count queries deterministically",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const importers = yield* runQuery({
+            repoId: registration.id,
+            question: "who imports `./util`?",
+            runLabel: "importers",
+          });
+          const countSymbols = yield* runQuery({
+            repoId: registration.id,
+            question: "how many symbols are indexed?",
+            runLabel: "count-symbols",
+          });
 
-        if (importers.run.kind !== "query" || countSymbols.run.kind !== "query") {
-          return yield* Effect.die("Expected query run projections.");
-        }
+          if (importers.run.kind !== "query" || countSymbols.run.kind !== "query") {
+            return yield* Effect.die("Expected query run projections.");
+          }
 
-        expect(O.getOrThrow(importers.run.answer)).toContain("src/index.ts");
-        expect(importers.run.citations.length).toBeGreaterThan(0);
+          expect(O.getOrThrow(importers.run.answer)).toContain("src/index.ts");
+          expect(importers.run.citations.length).toBeGreaterThan(0);
 
-        const countPacket = O.getOrThrow(countSymbols.run.retrievalPacket);
-        expect(O.getOrThrow(countSymbols.run.answer)).toContain("5 captured TypeScript symbols");
-        expect(countSymbols.run.citations).toEqual([]);
-        expect(countPacket.summary).toContain("Counted indexed TypeScript symbols");
-        expect(countPacket.notes).toContain("countSymbols=5");
-      })
-    )
+          const countPacket = O.getOrThrow(countSymbols.run.retrievalPacket);
+          expect(O.getOrThrow(countSymbols.run.answer)).toContain("5 captured TypeScript symbols");
+          expect(countSymbols.run.citations).toEqual([]);
+          expect(countPacket.summary).toContain("Counted indexed TypeScript symbols");
+          expect(countPacket.notes).toContain("countSymbols=5");
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
-  it.effect("answers symbol importer queries with grounded import-edge citations", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexFixtureRepo;
-        const exact = yield* runQuery({
-          repoId: registration.id,
-          question: "who uses `helper`?",
-          runLabel: "symbol-importers-helper",
-        });
-        const relaxed = yield* runQuery({
-          repoId: registration.id,
-          question: "where is repo memory answer helper used?",
-          runLabel: "symbol-importers-relaxed-helper",
-        });
+  it.effect(
+    "answers symbol importer queries with grounded import-edge citations",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const exact = yield* runQuery({
+            repoId: registration.id,
+            question: "who uses `helper`?",
+            runLabel: "symbol-importers-helper",
+          });
+          const relaxed = yield* runQuery({
+            repoId: registration.id,
+            question: "where is repo memory answer helper used?",
+            runLabel: "symbol-importers-relaxed-helper",
+          });
 
-        if (exact.run.kind !== "query" || relaxed.run.kind !== "query") {
-          return yield* Effect.die("Expected query run projections.");
-        }
+          if (exact.run.kind !== "query" || relaxed.run.kind !== "query") {
+            return yield* Effect.die("Expected query run projections.");
+          }
 
-        const exactPacket = O.getOrThrow(exact.run.retrievalPacket);
-        expect(O.getOrThrow(exact.run.answer)).toContain('Files importing symbol "helper"');
-        expect(O.getOrThrow(exact.run.answer)).toContain("src/util.ts");
-        expect(O.getOrThrow(exact.run.answer)).toContain("src/index.ts");
-        expect(exact.run.citations.length).toBeGreaterThan(1);
-        expect(exactPacket.summary).toContain('Listed files importing symbol "helper"');
-        expect(exactPacket.notes).toContain("symbolName=helper");
-        expect(
-          A.some(exactPacket.notes, (note) => note === "symbolFilePath=src/util.ts" || note.endsWith("/src/util.ts"))
-        ).toBe(true);
-        expect(exactPacket.notes).toContain("importerCount=1");
-        expect(exactPacket.notes).toContain("typeOnlyImporterCount=0");
-        expect(packetNlpNotes(exact.run)).toEqual([]);
-        assertCitationAlignment({ events: exact.events, run: exact.run });
+          const exactPacket = O.getOrThrow(exact.run.retrievalPacket);
+          expect(O.getOrThrow(exact.run.answer)).toContain('Files importing symbol "helper"');
+          expect(O.getOrThrow(exact.run.answer)).toContain("src/util.ts");
+          expect(O.getOrThrow(exact.run.answer)).toContain("src/index.ts");
+          expect(exact.run.citations.length).toBeGreaterThan(1);
+          expect(exactPacket.summary).toContain('Listed files importing symbol "helper"');
+          expect(exactPacket.notes).toContain("symbolName=helper");
+          expect(
+            A.some(exactPacket.notes, (note) => note === "symbolFilePath=src/util.ts" || note.endsWith("/src/util.ts"))
+          ).toBe(true);
+          expect(exactPacket.notes).toContain("importerCount=1");
+          expect(exactPacket.notes).toContain("typeOnlyImporterCount=0");
+          expect(packetNlpNotes(exact.run)).toEqual([]);
+          assertCitationAlignment({ events: exact.events, run: exact.run });
 
-        const relaxedPacket = O.getOrThrow(relaxed.run.retrievalPacket);
-        expect(O.getOrThrow(relaxed.run.answer)).toContain('Files importing symbol "repoMemoryAnswerHelper"');
-        expect(O.getOrThrow(relaxed.run.answer)).toContain("src/util.ts");
-        expect(O.getOrThrow(relaxed.run.answer)).toContain("src/index.ts");
-        expect(relaxedPacket.notes).toContain("symbolName=repoMemoryAnswerHelper");
-        expect(
-          A.some(relaxedPacket.notes, (note) => note === "symbolFilePath=src/util.ts" || note.endsWith("/src/util.ts"))
-        ).toBe(true);
-        expect(relaxedPacket.notes).toContain("importerCount=1");
-        expect(relaxedPacket.notes).toContain("typeOnlyImporterCount=0");
-        expect(packetNlpNotes(relaxed.run)).toContain("nlp:match-strategy=symbol-exact-variant");
-        expect(packetNlpNotes(relaxed.run)).toContain("nlp:matched-variant=repoMemoryAnswerHelper");
-        assertCitationAlignment({ events: relaxed.events, run: relaxed.run });
-      })
-    )
+          const relaxedPacket = O.getOrThrow(relaxed.run.retrievalPacket);
+          expect(O.getOrThrow(relaxed.run.answer)).toContain('Files importing symbol "repoMemoryAnswerHelper"');
+          expect(O.getOrThrow(relaxed.run.answer)).toContain("src/util.ts");
+          expect(O.getOrThrow(relaxed.run.answer)).toContain("src/index.ts");
+          expect(relaxedPacket.notes).toContain("symbolName=repoMemoryAnswerHelper");
+          expect(
+            A.some(
+              relaxedPacket.notes,
+              (note) => note === "symbolFilePath=src/util.ts" || note.endsWith("/src/util.ts")
+            )
+          ).toBe(true);
+          expect(relaxedPacket.notes).toContain("importerCount=1");
+          expect(relaxedPacket.notes).toContain("typeOnlyImporterCount=0");
+          expect(packetNlpNotes(relaxed.run)).toContain("nlp:match-strategy=symbol-exact-variant");
+          expect(packetNlpNotes(relaxed.run)).toContain("nlp:matched-variant=repoMemoryAnswerHelper");
+          assertCitationAlignment({ events: relaxed.events, run: relaxed.run });
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
   it.effect(
@@ -505,7 +519,7 @@ describe("repo-memory runtime grounded retrieval", () => {
           assertCitationAlignment({ events: relaxedDependents.events, run: relaxedDependents.run });
         })
       ),
-    10_000
+    GroundedRetrievalIntegrationTimeout
   );
 
   it.effect(
@@ -540,178 +554,194 @@ describe("repo-memory runtime grounded retrieval", () => {
           assertCitationAlignment({ events: exact.events, run: exact.run });
           assertCitationAlignment({ events: relaxed.events, run: relaxed.run });
         })
-      )
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
-  it.effect("answers repo-local dependency and dependent queries with resolved file paths", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexFixtureRepo;
-        const dependencies = yield* runQuery({
-          repoId: registration.id,
-          question: "what does `src/index.ts` depend on?",
-          runLabel: "dependencies",
-        });
-        const dependents = yield* runQuery({
-          repoId: registration.id,
-          question: "what depends on `src/util.ts`?",
-          runLabel: "dependents",
-        });
+  it.effect(
+    "answers repo-local dependency and dependent queries with resolved file paths",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const dependencies = yield* runQuery({
+            repoId: registration.id,
+            question: "what does `src/index.ts` depend on?",
+            runLabel: "dependencies",
+          });
+          const dependents = yield* runQuery({
+            repoId: registration.id,
+            question: "what depends on `src/util.ts`?",
+            runLabel: "dependents",
+          });
 
-        if (dependencies.run.kind !== "query" || dependents.run.kind !== "query") {
-          return yield* Effect.die("Expected query run projections.");
-        }
+          if (dependencies.run.kind !== "query" || dependents.run.kind !== "query") {
+            return yield* Effect.die("Expected query run projections.");
+          }
 
-        const dependenciesPacket = O.getOrThrow(dependencies.run.retrievalPacket);
-        const dependentsPacket = O.getOrThrow(dependents.run.retrievalPacket);
+          const dependenciesPacket = O.getOrThrow(dependencies.run.retrievalPacket);
+          const dependentsPacket = O.getOrThrow(dependents.run.retrievalPacket);
 
-        expect(O.getOrThrow(dependencies.run.answer)).toContain("src/util.ts");
-        expect(O.getOrThrow(dependencies.run.answer)).toContain("src/types.ts");
-        expect(dependencies.run.citations.length).toBeGreaterThan(0);
-        expect(dependenciesPacket.summary).toContain("resolved file dependencies");
-        expect(dependenciesPacket.notes).toContain("dependencyCount=2");
-        expect(dependenciesPacket.notes).toContain("unresolvedImportCount=0");
-        assertCitationAlignment({ events: dependencies.events, run: dependencies.run });
+          expect(O.getOrThrow(dependencies.run.answer)).toContain("src/util.ts");
+          expect(O.getOrThrow(dependencies.run.answer)).toContain("src/types.ts");
+          expect(dependencies.run.citations.length).toBeGreaterThan(0);
+          expect(dependenciesPacket.summary).toContain("resolved file dependencies");
+          expect(dependenciesPacket.notes).toContain("dependencyCount=2");
+          expect(dependenciesPacket.notes).toContain("unresolvedImportCount=0");
+          assertCitationAlignment({ events: dependencies.events, run: dependencies.run });
 
-        expect(O.getOrThrow(dependents.run.answer)).toContain("src/index.ts");
-        expect(dependents.run.citations.length).toBeGreaterThan(0);
-        expect(dependentsPacket.summary).toContain("files depending on");
-        expect(dependentsPacket.notes).toContain("dependentCount=1");
-        assertCitationAlignment({ events: dependents.events, run: dependents.run });
-      })
-    )
+          expect(O.getOrThrow(dependents.run.answer)).toContain("src/index.ts");
+          expect(dependents.run.citations.length).toBeGreaterThan(0);
+          expect(dependentsPacket.summary).toContain("files depending on");
+          expect(dependentsPacket.notes).toContain("dependentCount=1");
+          assertCitationAlignment({ events: dependents.events, run: dependents.run });
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
-  it.effect("deduplicates overloaded symbols and mixed value/type imports before snapshot persistence", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const snapshotStore = yield* RepoSnapshotStore;
-        const symbolStore = yield* RepoSymbolStore;
-        const { registration } = yield* indexCollisionFixtureRepo;
-        const latestSnapshot = yield* snapshotStore.latestSourceSnapshot(registration.id);
-        const snapshotId = O.getOrThrow(latestSnapshot).id;
-        const symbols = yield* symbolStore.listSymbolRecords(registration.id, snapshotId);
-        const importEdges = yield* symbolStore.listImportEdges(registration.id, snapshotId);
-        const makeFooSymbols = pipe(
-          symbols,
-          A.filter((symbol) => symbol.symbolName === "makeFoo")
-        );
-        const fooImportEdges = pipe(
-          importEdges,
-          A.filter((edge) => edge.moduleSpecifier === "./dep" && pipe(edge.importedName, O.getOrUndefined) === "Foo")
-        );
+  it.effect(
+    "deduplicates overloaded symbols and mixed value/type imports before snapshot persistence",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const snapshotStore = yield* RepoSnapshotStore;
+          const symbolStore = yield* RepoSymbolStore;
+          const { registration } = yield* indexCollisionFixtureRepo;
+          const latestSnapshot = yield* snapshotStore.latestSourceSnapshot(registration.id);
+          const snapshotId = O.getOrThrow(latestSnapshot).id;
+          const symbols = yield* symbolStore.listSymbolRecords(registration.id, snapshotId);
+          const importEdges = yield* symbolStore.listImportEdges(registration.id, snapshotId);
+          const makeFooSymbols = pipe(
+            symbols,
+            A.filter((symbol) => symbol.symbolName === "makeFoo")
+          );
+          const fooImportEdges = pipe(
+            importEdges,
+            A.filter((edge) => edge.moduleSpecifier === "./dep" && pipe(edge.importedName, O.getOrUndefined) === "Foo")
+          );
 
-        expect(makeFooSymbols).toHaveLength(1);
-        expect(makeFooSymbols[0]?.declarationText).toContain("count = 1");
-        expect(fooImportEdges).toHaveLength(1);
-      })
-    )
+          expect(makeFooSymbols).toHaveLength(1);
+          expect(makeFooSymbols[0]?.declarationText).toContain("count = 1");
+          expect(fooImportEdges).toHaveLength(1);
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
-  it.effect("answers locate, describe, export, and keyword queries with stable grounded citations", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexFixtureRepo;
-        const locate = yield* runQuery({
-          repoId: registration.id,
-          question: "where is `greet`?",
-          runLabel: "locate-greet",
-        });
-        const describeAnswer = yield* runQuery({
-          repoId: registration.id,
-          question: "describe `answer`",
-          runLabel: "describe-answer",
-        });
-        const exportsForIndex = yield* runQuery({
-          repoId: registration.id,
-          question: "what does `src/index.ts` export?",
-          runLabel: "exports-index",
-        });
-        const keyword = yield* runQuery({
-          repoId: registration.id,
-          question: "search `helper`",
-          runLabel: "keyword-helper",
-        });
+  it.effect(
+    "answers locate, describe, export, and keyword queries with stable grounded citations",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const locate = yield* runQuery({
+            repoId: registration.id,
+            question: "where is `greet`?",
+            runLabel: "locate-greet",
+          });
+          const describeAnswer = yield* runQuery({
+            repoId: registration.id,
+            question: "describe `answer`",
+            runLabel: "describe-answer",
+          });
+          const exportsForIndex = yield* runQuery({
+            repoId: registration.id,
+            question: "what does `src/index.ts` export?",
+            runLabel: "exports-index",
+          });
+          const keyword = yield* runQuery({
+            repoId: registration.id,
+            question: "search `helper`",
+            runLabel: "keyword-helper",
+          });
 
-        if (
-          locate.run.kind !== "query" ||
-          describeAnswer.run.kind !== "query" ||
-          exportsForIndex.run.kind !== "query" ||
-          keyword.run.kind !== "query"
-        ) {
-          return yield* Effect.die("Expected query run projections.");
-        }
+          if (
+            locate.run.kind !== "query" ||
+            describeAnswer.run.kind !== "query" ||
+            exportsForIndex.run.kind !== "query" ||
+            keyword.run.kind !== "query"
+          ) {
+            return yield* Effect.die("Expected query run projections.");
+          }
 
-        expect(O.getOrThrow(locate.run.answer)).toContain("src/index.ts");
-        expect(locate.run.citations.length).toBeGreaterThan(0);
-        expect(packetNlpNotes(locate.run)).toEqual([]);
-        assertCitationAlignment({ events: locate.events, run: locate.run });
+          expect(O.getOrThrow(locate.run.answer)).toContain("src/index.ts");
+          expect(locate.run.citations.length).toBeGreaterThan(0);
+          expect(packetNlpNotes(locate.run)).toEqual([]);
+          assertCitationAlignment({ events: locate.events, run: locate.run });
 
-        expect(O.getOrThrow(describeAnswer.run.answer)).toContain("Signature:");
-        expect(O.getOrThrow(describeAnswer.run.answer)).toContain("answer");
-        expect(describeAnswer.run.citations.length).toBeGreaterThan(0);
-        assertCitationAlignment({ events: describeAnswer.events, run: describeAnswer.run });
+          expect(O.getOrThrow(describeAnswer.run.answer)).toContain("Signature:");
+          expect(O.getOrThrow(describeAnswer.run.answer)).toContain("answer");
+          expect(describeAnswer.run.citations.length).toBeGreaterThan(0);
+          assertCitationAlignment({ events: describeAnswer.events, run: describeAnswer.run });
 
-        expect(O.getOrThrow(exportsForIndex.run.answer)).toContain("answer (const)");
-        expect(O.getOrThrow(exportsForIndex.run.answer)).toContain("greet (function)");
-        expect(exportsForIndex.run.citations.length).toBeGreaterThan(0);
-        assertCitationAlignment({ events: exportsForIndex.events, run: exportsForIndex.run });
+          expect(O.getOrThrow(exportsForIndex.run.answer)).toContain("answer (const)");
+          expect(O.getOrThrow(exportsForIndex.run.answer)).toContain("greet (function)");
+          expect(exportsForIndex.run.citations.length).toBeGreaterThan(0);
+          assertCitationAlignment({ events: exportsForIndex.events, run: exportsForIndex.run });
 
-        expect(O.getOrThrow(keyword.run.answer)).toContain("helper (const) in");
-        expect(O.getOrThrow(keyword.run.answer)).toContain("src/util.ts");
-        expect(keyword.run.citations.length).toBeGreaterThan(0);
-        assertCitationAlignment({ events: keyword.events, run: keyword.run });
-      })
-    )
+          expect(O.getOrThrow(keyword.run.answer)).toContain("helper (const) in");
+          expect(O.getOrThrow(keyword.run.answer)).toContain("src/util.ts");
+          expect(keyword.run.citations.length).toBeGreaterThan(0);
+          assertCitationAlignment({ events: keyword.events, run: keyword.run });
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
-  it.effect("keeps ambiguous file dependency queries bounded instead of guessing", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexCollisionFixtureRepo;
-        const result = yield* runQuery({
-          repoId: registration.id,
-          question: "dependencies of index",
-          runLabel: "ambiguous-index",
-        });
+  it.effect(
+    "keeps ambiguous file dependency queries bounded instead of guessing",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexCollisionFixtureRepo;
+          const result = yield* runQuery({
+            repoId: registration.id,
+            question: "dependencies of index",
+            runLabel: "ambiguous-index",
+          });
 
-        if (result.run.kind !== "query") {
-          return yield* Effect.die("Expected a query run.");
-        }
+          if (result.run.kind !== "query") {
+            return yield* Effect.die("Expected a query run.");
+          }
 
-        const packet = O.getOrThrow(result.run.retrievalPacket);
-        expect(O.getOrThrow(result.run.answer)).toContain('Ambiguous file query "index"');
-        expect(O.getOrThrow(result.run.answer)).toContain("src/index.ts");
-        expect(O.getOrThrow(result.run.answer)).toContain("src/feature/index.ts");
-        expect(result.run.citations.length).toBe(2);
-        assertCitationAlignment({ events: result.events, run: result.run });
-        expect(packet.summary).toContain("matched multiple indexed files");
-        expect(packet.notes).toContain("candidateCount=2");
-        expect(packetNlpNotes(result.run)).toContain("nlp:match-strategy=file-suffix");
-      })
-    )
+          const packet = O.getOrThrow(result.run.retrievalPacket);
+          expect(O.getOrThrow(result.run.answer)).toContain('Ambiguous file query "index"');
+          expect(O.getOrThrow(result.run.answer)).toContain("src/index.ts");
+          expect(O.getOrThrow(result.run.answer)).toContain("src/feature/index.ts");
+          expect(result.run.citations.length).toBe(2);
+          assertCitationAlignment({ events: result.events, run: result.run });
+          expect(packet.summary).toContain("matched multiple indexed files");
+          expect(packet.notes).toContain("candidateCount=2");
+          expect(packetNlpNotes(result.run)).toContain("nlp:match-strategy=file-suffix");
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 
-  it.effect("keeps unsupported queries explicit and bounded", () =>
-    withRuntime(
-      Effect.gen(function* () {
-        const { registration } = yield* indexFixtureRepo;
-        const result = yield* runQuery({
-          repoId: registration.id,
-          question: "what architecture patterns does this repo prefer?",
-          runLabel: "unsupported",
-        });
+  it.effect(
+    "keeps unsupported queries explicit and bounded",
+    () =>
+      withRuntime(
+        Effect.gen(function* () {
+          const { registration } = yield* indexFixtureRepo;
+          const result = yield* runQuery({
+            repoId: registration.id,
+            question: "what architecture patterns does this repo prefer?",
+            runLabel: "unsupported",
+          });
 
-        if (result.run.kind !== "query") {
-          return yield* Effect.die("Expected a query run.");
-        }
+          if (result.run.kind !== "query") {
+            return yield* Effect.die("Expected a query run.");
+          }
 
-        const packet = O.getOrThrow(result.run.retrievalPacket);
-        expect(O.getOrThrow(result.run.answer)).toContain("Unsupported query shape.");
-        expect(result.run.citations).toEqual([]);
-        expect(packet.summary).toContain("did not match one of the supported deterministic query shapes");
-        expect(O.isSome(packet.sourceSnapshotId)).toBe(true);
-      })
-    )
+          const packet = O.getOrThrow(result.run.retrievalPacket);
+          expect(O.getOrThrow(result.run.answer)).toContain("Unsupported query shape.");
+          expect(result.run.citations).toEqual([]);
+          expect(packet.summary).toContain("did not match one of the supported deterministic query shapes");
+          expect(O.isSome(packet.sourceSnapshotId)).toBe(true);
+        })
+      ),
+    GroundedRetrievalIntegrationTimeout
   );
 });
