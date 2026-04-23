@@ -5,10 +5,9 @@
  * @module
  */
 
-import { Chunk } from "effect";
+import { Chunk, Number as Num } from "effect";
 import * as A from "effect/Array";
 import { dual, identity } from "effect/Function";
-import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -639,11 +638,7 @@ export const applyPatch: PatternDual<PatternPatch> = dual(
  * @category Combinators
  */
 export const composePatches = (...patches: ReadonlyArray<PatternPatch>): PatternPatch =>
-  A.reduce(
-    patches,
-    identity satisfies PatternPatch,
-    (acc, patch) => (pattern) => patch(acc(pattern))
-  );
+  A.reduce(patches, identity satisfies PatternPatch, (acc, patch) => (pattern) => patch(acc(pattern)));
 
 /**
  * Replace a literal element at a given index.
