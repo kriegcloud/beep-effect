@@ -21,6 +21,7 @@
     "beep:test": "bunx --bun vitest run",
     "beep:lint": "biome check src/ .storybook/",
     "beep:lint:fix": "biome check src/ .storybook/ --write",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "audit": "bun run --if-present beep:audit"
   },
   "dependencies": {

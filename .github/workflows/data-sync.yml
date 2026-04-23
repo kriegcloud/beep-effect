@@ -32,12 +32,22 @@ jobs:
       - name: Sync official datasets
         run: bun run beep sync-data-to-ts --all
 
-      - name: Run focused Turbo verification
-        run: |
-          bun run check -- --filter=@beep/repo-cli --filter=@beep/data --summarize
-          node scripts/append-turbo-summary.mjs
-          bun run test -- --unit --filter=@beep/repo-cli --filter=@beep/data --summarize
-          node scripts/append-turbo-summary.mjs
+      - name: Run focused check verification
+        id: focused-check
+        run: bun run check -- --filter=@beep/repo-cli --filter=@beep/data --summarize
+
+      - name: Append Turbo summary (check)
+        if: always() && steps.focused-check.outcome != 'skipped'
+        run: node scripts/append-turbo-summary.mjs
+
+      - name: Run focused unit verification
+        id: focused-test
+        if: steps.focused-check.outcome == 'success'
+        run: bun run test -- --unit --filter=@beep/repo-cli --filter=@beep/data --summarize
+
+      - name: Append Turbo summary (test)
+        if: always() && steps.focused-test.outcome != 'skipped'
+        run: node scripts/append-turbo-summary.mjs
 
       - name: Create or update pull request
         uses: peter-evans/create-pull-request@v8

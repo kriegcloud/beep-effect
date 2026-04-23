@@ -531,20 +531,16 @@ const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
 
   return [
     ...optionalQualityTaskStep({
-      enabled: lanes.unit && lanes.types,
-      step: () => turboStep(repoRoot, "test:unit+types", ["test", "check:types"], unitArgs),
+      enabled: lanes.unit,
+      step: () => turboStep(repoRoot, "test:unit", ["test"], unitArgs),
     }),
     ...optionalQualityTaskStep({
-      enabled: lanes.unit && !lanes.types,
-      step: () => turboStep(repoRoot, "test:unit", ["test"], unitArgs),
+      enabled: lanes.types,
+      step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
     }),
     ...optionalQualityTaskStep({
       enabled: lanes.integration,
       step: () => turboStep(repoRoot, "test:integration", ["test:integration"], ["--concurrency=1", ...lanes.args]),
-    }),
-    ...optionalQualityTaskStep({
-      enabled: lanes.types && !lanes.unit,
-      step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
     }),
   ];
 };

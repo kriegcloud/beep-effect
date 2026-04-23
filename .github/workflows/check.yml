@@ -104,11 +104,13 @@ jobs:
         run: |
           set -euo pipefail
           should_run=true
+          docgen_mode=none
 
           if [[ "${{ matrix.id }}" == "docgen" && "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            docgen_mode=affected
             base_ref="origin/${GITHUB_BASE_REF:-main}"
             if ! git rev-parse --verify "$base_ref" >/dev/null 2>&1; then
-              git fetch origin "${GITHUB_BASE_REF:-main}":"$base_ref" --quiet
+              git fetch --no-tags origin "${GITHUB_BASE_REF:-main}" --quiet
             fi
 
             changed_files="$(git diff --name-only "${base_ref}...HEAD")"
@@ -117,10 +119,13 @@ jobs:
               should_run=false
             elif ! printf "%s\n" "$changed_files" | grep -Eq '(^apps/|^packages/|^infra/|^tooling/docgen/|^tooling/cli/src/commands/Docgen/|^docs/|/docgen\.json$|\.(ts|tsx|mts|cts|md)$)'; then
               should_run=false
+            elif printf "%s\n" "$changed_files" | grep -Eq '(^tooling/docgen/|^tooling/cli/src/commands/Docgen/)'; then
+              docgen_mode=full
             fi
           fi
 
           echo "should_run=$should_run" >> "$GITHUB_OUTPUT"
+          echo "docgen_mode=$docgen_mode" >> "$GITHUB_OUTPUT"
 
       - name: Setup monorepo CI
         if: steps.lane-gate.outputs.should_run == 'true'
@@ -169,9 +174,13 @@ jobs:
               ;;
             docgen)
               if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
-                bunx turbo run docgen --affected --summarize
-                node scripts/append-turbo-summary.mjs
-                bun run docs:aggregate
+                if [[ "${{ steps.lane-gate.outputs.docgen_mode }}" == "full" ]]; then
+                  bun run docgen
+                else
+                  bunx turbo run docgen --affected --summarize
+                  node scripts/append-turbo-summary.mjs
+                  bun run docs:aggregate
+                fi
               else
                 bun run docgen
               fi

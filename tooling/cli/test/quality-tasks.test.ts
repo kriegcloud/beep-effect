@@ -130,21 +130,20 @@ describe("quality task adapter", () => {
     });
   });
 
-  it("collapses unit+types into one turbo invocation", () => {
+  it("runs unit and types as separate turbo invocations", () => {
     const steps = rootQualityStepsForTesting(
       "/repo",
       getInvocation(["test", "--unit", "--types", "--filter=@beep/schema", "--summarize"])
     );
 
-    expect(steps).toHaveLength(1);
+    expect(steps).toHaveLength(2);
     expect(steps[0]).toMatchObject({
-      label: "test:unit+types",
+      label: "test:unit",
       command: "bunx",
       args: [
         "turbo",
         "run",
         "test",
-        "check:types",
         "--cache=local:rw",
         "--filter=!@beep/repo-memory-runtime",
         "--filter=!@beep/repo-memory-sqlite",
@@ -152,6 +151,11 @@ describe("quality task adapter", () => {
         "--filter=@beep/schema",
         "--summarize",
       ],
+    });
+    expect(steps[1]).toMatchObject({
+      label: "test:types",
+      command: "bunx",
+      args: ["turbo", "run", "check:types", "--cache=local:rw", "--filter=@beep/schema", "--summarize"],
     });
   });
 

@@ -28,6 +28,7 @@
     "beep:test": "bunx --bun vitest run --passWithNoTests",
     "beep:lint": "biome check src/ test/ dtslint/",
     "beep:lint:fix": "biome check src/ test/ dtslint/ --write",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
     "audit": "bun run --if-present beep:audit"
   },
   "dependencies": {

@@ -657,13 +657,7 @@ describe("Docgen operations", () => {
             })
           );
 
-          yield* runDocgenCommand([
-            "generate",
-            "--package",
-            "packages/common/schema",
-            "--filter",
-            "@beep/schema",
-          ]);
+          yield* runDocgenCommand(["generate", "--package", "packages/common/schema", "--filter", "@beep/schema"]);
 
           const errorLines = yield* TestConsole.errorLines;
 
