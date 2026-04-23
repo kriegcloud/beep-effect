@@ -320,10 +320,11 @@ export const renderInlineCode = (text: string): string => {
   }
 
   const backticks = pipe("`", Str.repeat(maxBackticks(text) + 1));
-  const frontPadding = Str.startsWith("`")(text) ? " " : "";
-  const backPadding = Str.endsWith("`")(text) ? " " : "";
+  const needsPadding =
+    Str.startsWith("`")(text) || Str.endsWith("`")(text) || Str.startsWith(" ")(text) || Str.endsWith(" ")(text);
+  const padding = needsPadding ? " " : "";
 
-  return `${backticks}${frontPadding}${text}${backPadding}${backticks}`;
+  return `${backticks}${padding}${text}${padding}${backticks}`;
 };
 
 /**

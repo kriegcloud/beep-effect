@@ -451,6 +451,9 @@ ${Md.h3("Inside")}
     expect(maxBackticks("`one` and ```three```")).toBe(3);
     expect(renderInlineCode("plain")).toBe("`plain`");
     expect(renderInlineCode("`edge`")).toBe("`` `edge` ``");
+    expect(renderInlineCode(" foo ")).toBe("`  foo  `");
+    expect(renderInlineCode(" foo")).toBe("`  foo `");
+    expect(renderInlineCode("foo ")).toBe("` foo  `");
     expect(renderInlineCode("")).toBe("<code></code>");
     expect(renderInlineCode("<x>\n")).toBe("<code>&lt;x&gt;\n</code>");
     expect(renderFencedCode("```", "ts")).toBe("````ts\n```\n````");
