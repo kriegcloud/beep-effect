@@ -17,9 +17,9 @@ non-slice families are `foundation`, `drivers`, `tooling`, and `agents`.
 ## Artifact Kind
 
 The canonical role inside an artifact family. Every non-slice artifact belongs
-to exactly one family. Kinds remain required for intentionally kinded families
-such as `foundation`, `tooling`, and `agents`; `drivers` is the flat-family
-exception.
+to exactly one family. Kinds remain required for families that intentionally
+declare a kind segment, such as `foundation`, `tooling`, and `agents`;
+`drivers` is the flat-family exception.
 
 ## Adapter
 
