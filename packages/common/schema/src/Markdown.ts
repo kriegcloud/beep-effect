@@ -50,7 +50,7 @@ const getMarkdownHtmlRender = (): O.Option<MarkdownHtmlRender> => {
   const markdown = P.isObject(bunRuntime) ? Reflect.get(bunRuntime, "markdown") : undefined;
   const html = P.isObject(markdown) ? Reflect.get(markdown, "html") : undefined;
   if (P.isFunction(html)) {
-    const renderMarkdownHtml: MarkdownHtmlRender = flow(html);
+    const renderMarkdownHtml: MarkdownHtmlRender = (content, options) => html(content, options);
     return O.some(renderMarkdownHtml);
   }
   return O.none();
@@ -78,7 +78,9 @@ const makeRenderMarkdownHtml = (options?: undefined | MarkdownRenderOptions) =>
   });
 
 const parseMarkdownText = (content: string): MarkdownParseResult =>
-  makeParseMarkdownForSchema(getGlobalMarkdownRuntime(), loadMarkdownModule, loadMarkdownGfmModule)(content);
+  makeParseMarkdownForSchema(getGlobalMarkdownRuntime(), loadMarkdownModule, {
+    loadMarkdownGfm: loadMarkdownGfmModule,
+  })(content);
 
 const decodeMarkdownParseResult = (content: string) =>
   Match.type<MarkdownParseResult>().pipe(

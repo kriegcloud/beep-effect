@@ -451,11 +451,6 @@ const handleControlPlaneInternalErrors = <A, E, R>(
   effect: Effect.Effect<A, E, R>
 ) =>
   observeHttpRequest(
-    {
-      method,
-      route,
-      successStatus,
-    },
     Effect.annotateCurrentSpan({
       session_id: sessionId,
       http_method: method,
@@ -481,7 +476,12 @@ const handleControlPlaneInternalErrors = <A, E, R>(
           Effect.andThen(Effect.fail(payload))
         );
       })
-    )
+    ),
+    {
+      method,
+      route,
+      successStatus,
+    }
   );
 
 const handleControlPlaneErrors = <A, E, R>(
@@ -492,11 +492,6 @@ const handleControlPlaneErrors = <A, E, R>(
   effect: Effect.Effect<A, E, R>
 ) =>
   observeHttpRequest(
-    {
-      method,
-      route,
-      successStatus,
-    },
     Effect.annotateCurrentSpan({
       session_id: sessionId,
       http_method: method,
@@ -519,7 +514,12 @@ const handleControlPlaneErrors = <A, E, R>(
           Effect.andThen(Effect.fail(payload))
         );
       })
-    )
+    ),
+    {
+      method,
+      route,
+      successStatus,
+    }
   );
 
 const toPublicAddress = (config: SidecarRuntimeConfig, address: HttpServer.Address) => {
@@ -921,7 +921,7 @@ export const sidecarLayer = (config: SidecarRuntimeConfig) =>
  * @category domain model
  */
 export const launchSidecar = (config: SidecarRuntimeConfig): Effect.Effect<void, SidecarRuntimeError> =>
-  provideSidecarObservability(config, Layer.launch(Layer.fresh(sidecarLayer(config)))).pipe(
+  provideSidecarObservability(Layer.launch(Layer.fresh(sidecarLayer(config))), config).pipe(
     SidecarRuntimeError.mapError("Failed to launch sidecar runtime.", 500)
   );
 

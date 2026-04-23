@@ -11,15 +11,15 @@
 
 import type { TUnsafe } from "@beep/types";
 import {
-  Effect,
-  Function as Fn,
-  SchemaGetter as Getter,
-  Pipeable,
-  Struct as Struct_,
-  SchemaTransformation as Transformation,
+    Effect,
+    SchemaGetter as Getter,
+    Pipeable,
+    Struct as Struct_,
+    SchemaTransformation as Transformation
 } from "effect";
 import * as A from "effect/Array";
 import type { Brand } from "effect/Brand";
+import * as Fn from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -609,37 +609,36 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
 export const Overridable: {
   <S extends S.Top & S.WithoutConstructorDefault>(
     schema: S
-  ): (
-    options: {
-      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
-    }
-  ) => Overridable<S>;
+  ): (options: { readonly defaultValue: Effect.Effect<S["~type.make.in"]> }) => Overridable<S>;
   <S extends S.Top & S.WithoutConstructorDefault>(
     schema: S,
     options: {
       readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
     }
   ): Overridable<S>;
-} = Fn.dual(2, <S extends S.Top & S.WithoutConstructorDefault>(
-  schema: S,
-  options: {
-    readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
-  }
-): Overridable<S> =>
-  schema.pipe(
-    S.decodeTo(
-      S.toType(schema).pipe(S.brand("Override"), S.optional),
-      Transformation.make({
-        decode: Getter.passthrough(),
-        encode: new Getter.Getter((o) => {
-          if (O.isSome(o) && o.value !== undefined) {
-            return Effect.succeed(o);
-          }
-          return Effect.asSome(options.defaultValue);
-        }),
-      })
-    )
-  ) as TUnsafe.Any);
+} = Fn.dual(
+  2,
+  <S extends S.Top & S.WithoutConstructorDefault>(
+    schema: S,
+    options: {
+      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
+    }
+  ): Overridable<S> =>
+    schema.pipe(
+      S.decodeTo(
+        S.toType(schema).pipe(S.brand("Override"), S.optional),
+        Transformation.make({
+          decode: Getter.passthrough(),
+          encode: new Getter.Getter((o) => {
+            if (O.isSome(o) && o.value !== undefined) {
+              return Effect.succeed(o);
+            }
+            return Effect.asSome(options.defaultValue);
+          }),
+        })
+      )
+    ) as TUnsafe.Any
+);
 
 const Struct = <const A extends Field.Fields>(fields: A): Struct<A> => {
   return {

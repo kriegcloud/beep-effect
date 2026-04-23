@@ -55,9 +55,10 @@ config/src/
   TestLayer.ts
 ```
 
-Client packages may import public/browser-safe config contracts and client-safe
-config Layers. They must not import server config, secret config, or live
-server-only Layers.
+Client packages may import public/browser-safe slice or shared config contracts
+and client-safe config Layers. They must not import server config, secret config,
+shared secret helpers that expose secret contracts, live server-only Layers, or
+test `ConfigProvider` utilities.
 
 Secrets must use redacted values. Secret config belongs in explicit secret or
 server-only modules, never in package roots that browser code can casually

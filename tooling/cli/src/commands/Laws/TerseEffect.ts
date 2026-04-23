@@ -490,6 +490,7 @@ const isExplicitDualOverloadCandidate = (functionDeclaration: FunctionDeclaratio
   const dataLastParameterCounts = pipe(
     overloads,
     A.filter(hasFunctionReturnType),
+    A.filter((overload) => overload.getParameters().length > 0),
     A.map((overload) => overload.getParameters().length)
   );
 

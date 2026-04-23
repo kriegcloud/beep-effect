@@ -5,6 +5,7 @@
  */
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as YamlPackage from "yaml";
@@ -69,43 +70,53 @@ export const getGlobalYamlRuntime = (): YamlRuntime =>
     O.getOrElse(() => ({}))
   );
 
-export const makeParseYaml =
+export const makeParseYaml: {
+  (runtime: YamlRuntime, loadYaml: YamlModuleLoader): (input: string) => unknown;
+  (loadYaml: YamlModuleLoader): (runtime: YamlRuntime) => (input: string) => unknown;
+} = dual(
+  2,
   (runtime: YamlRuntime, loadYaml: YamlModuleLoader) =>
-  (input: string): unknown =>
-    pipe(
-      getBunRuntime(runtime),
-      O.match({
-        onNone: () => loadYaml().parse(input),
-        onSome: ({ YAML }) => YAML.parse(input),
-      })
-    );
+    (input: string): unknown =>
+      pipe(
+        getBunRuntime(runtime),
+        O.match({
+          onNone: () => loadYaml().parse(input),
+          onSome: ({ YAML }) => YAML.parse(input),
+        })
+      )
+);
 
-export const makeParseYamlForSchema =
+export const makeParseYamlForSchema: {
+  (runtime: YamlRuntime, loadYaml: YamlModuleLoader): (input: string) => YamlParseResult;
+  (loadYaml: YamlModuleLoader): (runtime: YamlRuntime) => (input: string) => YamlParseResult;
+} = dual(
+  2,
   (runtime: YamlRuntime, loadYaml: YamlModuleLoader) =>
-  (input: string): YamlParseResult =>
-    pipe(
-      getBunRuntime(runtime),
-      O.match({
-        onNone: () => {
-          const document = loadYaml().parseDocument(input);
+    (input: string): YamlParseResult =>
+      pipe(
+        getBunRuntime(runtime),
+        O.match({
+          onNone: () => {
+            const document = loadYaml().parseDocument(input);
 
-          return A.match(document.errors, {
-            onEmpty: () =>
-              ({
-                _tag: "success",
-                value: document.toJSON(),
-              }) satisfies YamlParseResult,
-            onNonEmpty: (errors) =>
-              ({
-                _tag: "failure",
-                messages: A.map(errors, ({ message }) => message),
-              }) satisfies YamlParseResult,
-          });
-        },
-        onSome: ({ YAML }) =>
-          ({
-            _tag: "success",
-            value: YAML.parse(input),
-          }) satisfies YamlParseResult,
-      })
-    );
+            return A.match(document.errors, {
+              onEmpty: () =>
+                ({
+                  _tag: "success",
+                  value: document.toJSON(),
+                }) satisfies YamlParseResult,
+              onNonEmpty: (errors) =>
+                ({
+                  _tag: "failure",
+                  messages: A.map(errors, ({ message }) => message),
+                }) satisfies YamlParseResult,
+            });
+          },
+          onSome: ({ YAML }) =>
+            ({
+              _tag: "success",
+              value: YAML.parse(input),
+            }) satisfies YamlParseResult,
+        })
+      )
+);

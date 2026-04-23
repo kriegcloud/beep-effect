@@ -9,6 +9,7 @@ import { $ChalkId } from "@beep/identity/packages";
 import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -317,7 +318,15 @@ const renderMonochromeAnsi256 = (red: number): number =>
  * @category utilities
  * @since 0.0.0
  */
-export const rgbToAnsi256 = (red: number, green: number, blue: number): number => {
+type BlueChannelOptions = {
+  readonly blue: number;
+};
+
+export const rgbToAnsi256: {
+  (red: number, green: number, options: BlueChannelOptions): number;
+  (green: number, options: BlueChannelOptions): (red: number) => number;
+} = dual(3, (red: number, green: number, options: BlueChannelOptions): number => {
+  const blue = options.blue;
   return pipe(
     red === green && green === blue,
     Bool.match({
@@ -326,7 +335,7 @@ export const rgbToAnsi256 = (red: number, green: number, blue: number): number =
       onTrue: () => renderMonochromeAnsi256(red),
     })
   );
-};
+});
 
 /**
  * Convert a hexadecimal color string to an RGB tuple.
@@ -434,8 +443,12 @@ export const ansi256ToAnsi = (code: number): number =>
  * @category utilities
  * @since 0.0.0
  */
-export const rgbToAnsi = (red: number, green: number, blue: number): number =>
-  ansi256ToAnsi(rgbToAnsi256(red, green, blue));
+export const rgbToAnsi: {
+  (red: number, green: number, options: BlueChannelOptions): number;
+  (green: number, options: BlueChannelOptions): (red: number) => number;
+} = dual(3, (red: number, green: number, options: BlueChannelOptions): number =>
+  ansi256ToAnsi(rgbToAnsi256(red, green, options))
+);
 
 /**
  * Convert a hexadecimal color string to an ANSI 256 color index.
@@ -451,7 +464,10 @@ export const rgbToAnsi = (red: number, green: number, blue: number): number =>
  * @category utilities
  * @since 0.0.0
  */
-export const hexToAnsi256 = (hex: string): number => rgbToAnsi256(...hexToRgb(hex));
+export const hexToAnsi256 = (hex: string): number => {
+  const [red, green, blue] = hexToRgb(hex);
+  return rgbToAnsi256(red, green, { blue });
+};
 
 /**
  * Convert a hexadecimal color string to a basic ANSI color code.
@@ -478,8 +494,10 @@ const renderRgbModel = (
 
   return Match.type<"ansi" | "ansi256" | "ansi16m">().pipe(
     Match.when("ansi16m", () => ansiStyles[type].ansi16m(Number(red), Number(green), Number(blue))),
-    Match.when("ansi256", () => ansiStyles[type].ansi256(rgbToAnsi256(Number(red), Number(green), Number(blue)))),
-    Match.orElse(() => ansiStyles[type].ansi(rgbToAnsi(Number(red), Number(green), Number(blue))))
+    Match.when("ansi256", () =>
+      ansiStyles[type].ansi256(rgbToAnsi256(Number(red), Number(green), { blue: Number(blue) }))
+    ),
+    Match.orElse(() => ansiStyles[type].ansi(rgbToAnsi(Number(red), Number(green), { blue: Number(blue) })))
   )(level);
 };
 

@@ -33,6 +33,7 @@ import {
 } from "@beep/schema";
 import { ErrorReporter } from "effect";
 import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("HttpError");
@@ -49,19 +50,19 @@ const serverStatusAttributes = <Status extends number>(status: Status) =>
     status_class: "5xx",
   }) as const;
 
+type StatusErrorPipeableCause = Error | object | number | boolean | bigint | symbol | null | undefined;
+
+type StatusErrorConstructor<ErrorValue> = {
+  (message: string, cause?: unknown): ErrorValue;
+  (cause: StatusErrorPipeableCause): (message: string) => ErrorValue;
+};
+
+const isStatusErrorDataFirst = (args: IArguments): boolean => args.length >= 2 || P.isString(args[0]);
+
 const makeStatusConstructor =
   <Input extends StatusCauseInput, Error>(ctor: new (value: Input) => Error, status: number) =>
-  {
-    const makeError = dual(2, (cause: unknown, message: string): Error =>
-      makeStatusCauseError(ctor)(message, status, cause)
-    );
-
-    return function (message: string, cause?: unknown): Error {
-      return arguments.length === 1
-        ? makeStatusCauseError(ctor)(message, status, undefined)
-        : makeError(cause, message);
-    };
-  };
+  (message: string, cause?: unknown): Error =>
+    makeStatusCauseError(ctor)({ message, status, cause });
 
 const statusFields = <Status extends S.Top>(status: Status) =>
   ({
@@ -439,7 +440,10 @@ export class GatewayTimeoutError extends TaggedErrorClass<GatewayTimeoutError>($
  * @since 0.0.0
  * @category error handling
  */
-export const makeBadRequestError = makeStatusConstructor(BadRequestError, HttpStatus.BadRequest.literal);
+export const makeBadRequestError: StatusErrorConstructor<BadRequestError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(BadRequestError, HttpStatus.BadRequest.literal)
+);
 
 /**
  * Helper constructor for {@link UnauthorizedError} (401).
@@ -455,7 +459,10 @@ export const makeBadRequestError = makeStatusConstructor(BadRequestError, HttpSt
  * @since 0.0.0
  * @category error handling
  */
-export const makeUnauthorizedError = makeStatusConstructor(UnauthorizedError, HttpStatus.Unauthorized.literal);
+export const makeUnauthorizedError: StatusErrorConstructor<UnauthorizedError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(UnauthorizedError, HttpStatus.Unauthorized.literal)
+);
 
 /**
  * Helper constructor for {@link ForbiddenError} (403).
@@ -471,7 +478,10 @@ export const makeUnauthorizedError = makeStatusConstructor(UnauthorizedError, Ht
  * @since 0.0.0
  * @category error handling
  */
-export const makeForbiddenError = makeStatusConstructor(ForbiddenError, HttpStatus.Forbidden.literal);
+export const makeForbiddenError: StatusErrorConstructor<ForbiddenError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(ForbiddenError, HttpStatus.Forbidden.literal)
+);
 
 /**
  * Helper constructor for {@link NotFoundError} (404).
@@ -487,7 +497,10 @@ export const makeForbiddenError = makeStatusConstructor(ForbiddenError, HttpStat
  * @since 0.0.0
  * @category error handling
  */
-export const makeNotFoundError = makeStatusConstructor(NotFoundError, HttpStatus.NotFound.literal);
+export const makeNotFoundError: StatusErrorConstructor<NotFoundError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(NotFoundError, HttpStatus.NotFound.literal)
+);
 
 /**
  * Helper constructor for {@link ConflictError} (409).
@@ -503,7 +516,10 @@ export const makeNotFoundError = makeStatusConstructor(NotFoundError, HttpStatus
  * @since 0.0.0
  * @category error handling
  */
-export const makeConflictError = makeStatusConstructor(ConflictError, HttpStatus.Conflict.literal);
+export const makeConflictError: StatusErrorConstructor<ConflictError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(ConflictError, HttpStatus.Conflict.literal)
+);
 
 /**
  * Helper constructor for {@link UnprocessableEntityError} (422).
@@ -519,9 +535,9 @@ export const makeConflictError = makeStatusConstructor(ConflictError, HttpStatus
  * @since 0.0.0
  * @category error handling
  */
-export const makeUnprocessableEntityError = makeStatusConstructor(
-  UnprocessableEntityError,
-  HttpStatus.UnprocessableEntity.literal
+export const makeUnprocessableEntityError: StatusErrorConstructor<UnprocessableEntityError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(UnprocessableEntityError, HttpStatus.UnprocessableEntity.literal)
 );
 
 /**
@@ -538,7 +554,10 @@ export const makeUnprocessableEntityError = makeStatusConstructor(
  * @since 0.0.0
  * @category error handling
  */
-export const makeTooManyRequestsError = makeStatusConstructor(TooManyRequestsError, HttpStatus.TooManyRequests.literal);
+export const makeTooManyRequestsError: StatusErrorConstructor<TooManyRequestsError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(TooManyRequestsError, HttpStatus.TooManyRequests.literal)
+);
 
 /**
  * Helper constructor for {@link InternalServerErrorError} (500).
@@ -554,9 +573,9 @@ export const makeTooManyRequestsError = makeStatusConstructor(TooManyRequestsErr
  * @since 0.0.0
  * @category error handling
  */
-export const makeInternalServerError = makeStatusConstructor(
-  InternalServerErrorError,
-  HttpStatus.InternalServerError.literal
+export const makeInternalServerError: StatusErrorConstructor<InternalServerErrorError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(InternalServerErrorError, HttpStatus.InternalServerError.literal)
 );
 
 /**
@@ -573,7 +592,10 @@ export const makeInternalServerError = makeStatusConstructor(
  * @since 0.0.0
  * @category error handling
  */
-export const makeBadGatewayError = makeStatusConstructor(BadGatewayError, HttpStatus.BadGateway.literal);
+export const makeBadGatewayError: StatusErrorConstructor<BadGatewayError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(BadGatewayError, HttpStatus.BadGateway.literal)
+);
 
 /**
  * Helper constructor for {@link ServiceUnavailableError} (503).
@@ -589,9 +611,9 @@ export const makeBadGatewayError = makeStatusConstructor(BadGatewayError, HttpSt
  * @since 0.0.0
  * @category error handling
  */
-export const makeServiceUnavailableError = makeStatusConstructor(
-  ServiceUnavailableError,
-  HttpStatus.ServiceUnavailable.literal
+export const makeServiceUnavailableError: StatusErrorConstructor<ServiceUnavailableError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(ServiceUnavailableError, HttpStatus.ServiceUnavailable.literal)
 );
 
 /**
@@ -608,4 +630,7 @@ export const makeServiceUnavailableError = makeStatusConstructor(
  * @since 0.0.0
  * @category error handling
  */
-export const makeGatewayTimeoutError = makeStatusConstructor(GatewayTimeoutError, HttpStatus.GatewayTimeout.literal);
+export const makeGatewayTimeoutError: StatusErrorConstructor<GatewayTimeoutError> = dual(
+  isStatusErrorDataFirst,
+  makeStatusConstructor(GatewayTimeoutError, HttpStatus.GatewayTimeout.literal)
+);

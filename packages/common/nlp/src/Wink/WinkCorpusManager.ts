@@ -11,6 +11,7 @@ import { TaggedErrorClass } from "@beep/schema";
 import { Chunk, Clock, Context, Effect, HashMap, HashSet, Layer, pipe, Ref } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -227,12 +228,14 @@ const readNormalizedTokensFromWink = (
 ): Effect.Effect<ReadonlyArray<string>, CorpusManagerError> =>
   Effect.gen(function* () {
     const its = yield* engine.its.pipe(
-      Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to access wink helpers", corpusId))
+      Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId }))
     );
     const winkDoc = yield* engine
       .getWinkDoc(document.text)
       .pipe(
-        Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to tokenize document text", corpusId))
+        Effect.mapError((cause) =>
+          CorpusManagerError.fromCause(cause, "Failed to tokenize document text", { corpusId })
+        )
       );
     return yield* decodeStringArray(winkDoc.tokens().out(its.normal), "normalized token output", corpusId);
   });
@@ -274,15 +277,21 @@ export class CorpusManagerError extends TaggedErrorClass<CorpusManagerError>($I`
    *
    * @param cause - The underlying failure or defect.
    * @param message - The human-readable corpus-manager error message.
-   * @param corpusId - The affected corpus identifier, when known.
+   * @param options - Additional corpus-manager error detail.
    * @returns A typed corpus-manager error value.
    */
-  static readonly fromCause = (cause: unknown, message: string, corpusId?: string): CorpusManagerError =>
-    new CorpusManagerError({
-      cause,
-      corpusId: toCorpusIdOption(corpusId),
-      message,
-    });
+  static readonly fromCause: {
+    (cause: unknown, message: string, options: { readonly corpusId?: string | undefined }): CorpusManagerError;
+    (message: string, options: { readonly corpusId?: string | undefined }): (cause: unknown) => CorpusManagerError;
+  } = dual(
+    3,
+    (cause: unknown, message: string, options: { readonly corpusId?: string | undefined }): CorpusManagerError =>
+      new CorpusManagerError({
+        cause,
+        corpusId: toCorpusIdOption(options.corpusId),
+        message,
+      })
+  );
 
   /**
    * Create a corpus-manager error without an external cause.
@@ -305,7 +314,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
   const similarity = yield* WinkSimilarity;
   const bm25 = yield* Effect.try({
     try: loadBM25Vectorizer,
-    catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to initialize BM25 vectorizer"),
+    catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to initialize BM25 vectorizer", {}),
   });
   const sessionsRef = yield* Ref.make(HashMap.empty<string, CorpusSessionState>());
   const idCounterRef = yield* Ref.make(0);
@@ -341,7 +350,9 @@ const makeWinkCorpusManager = Effect.gen(function* () {
   const compileState = (state: CorpusSessionState): Effect.Effect<CompiledCorpus, CorpusManagerError> =>
     Effect.gen(function* () {
       const its = yield* engine.its.pipe(
-        Effect.mapError((cause) => CorpusManagerError.fromCause(cause, "Failed to access wink helpers", state.corpusId))
+        Effect.mapError((cause) =>
+          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: state.corpusId })
+        )
       );
       const vectorizer = bm25(state.config);
 
@@ -352,19 +363,23 @@ const makeWinkCorpusManager = Effect.gen(function* () {
             vectorizer.learn(A.fromIterable(tokens));
           },
           catch: (cause) =>
-            CorpusManagerError.fromCause(cause, "Failed to learn a document into the compiled corpus", state.corpusId),
+            CorpusManagerError.fromCause(cause, "Failed to learn a document into the compiled corpus", {
+              corpusId: state.corpusId,
+            }),
         });
       }
 
       const terms = yield* Effect.try({
         try: () => vectorizer.out(its.terms),
-        catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to compute corpus terms", state.corpusId),
+        catch: (cause) =>
+          CorpusManagerError.fromCause(cause, "Failed to compute corpus terms", { corpusId: state.corpusId }),
       }).pipe(Effect.flatMap((raw) => decodeStringArray(raw, "corpus term output", state.corpusId)));
 
       const documentVectors = yield* Effect.forEach(state.documents, (_document, index) =>
         Effect.try({
           try: () => vectorizer.doc(index).out(its.vector),
-          catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to compute document vector", state.corpusId),
+          catch: (cause) =>
+            CorpusManagerError.fromCause(cause, "Failed to compute document vector", { corpusId: state.corpusId }),
         }).pipe(Effect.flatMap((raw) => decodeNumberArray(raw, "document vector output", state.corpusId)))
       );
 
@@ -463,7 +478,7 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
       const its = yield* engine.its.pipe(
         Effect.mapError((cause) =>
-          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", request.corpusId)
+          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: request.corpusId })
         )
       );
 
@@ -473,7 +488,9 @@ const makeWinkCorpusManager = Effect.gen(function* () {
           const raw = yield* Effect.try({
             try: () => compiled.vectorizer.out(its.idf),
             catch: (cause) =>
-              CorpusManagerError.fromCause(cause, "Failed to compute corpus idf values", request.corpusId),
+              CorpusManagerError.fromCause(cause, "Failed to compute corpus idf values", {
+                corpusId: request.corpusId,
+              }),
           });
           const decoded = yield* decodeTermScorePairs(raw, "corpus idf output", request.corpusId);
           return pipe(
@@ -496,7 +513,8 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         onTrue: Effect.fn("Nlp.Wink.WinkCorpusManager.getStats.documentTermMatrix")(function* () {
           const raw = yield* Effect.try({
             try: () => compiled.vectorizer.out(its.docTermMatrix),
-            catch: (cause) => CorpusManagerError.fromCause(cause, "Failed to compute corpus matrix", request.corpusId),
+            catch: (cause) =>
+              CorpusManagerError.fromCause(cause, "Failed to compute corpus matrix", { corpusId: request.corpusId }),
           });
 
           if (!A.isArray(raw)) {
@@ -597,14 +615,14 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
       const its = yield* engine.its.pipe(
         Effect.mapError((cause) =>
-          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", request.corpusId)
+          CorpusManagerError.fromCause(cause, "Failed to access wink helpers", { corpusId: request.corpusId })
         )
       );
       const queryDoc = yield* engine
         .getWinkDoc(request.query)
         .pipe(
           Effect.mapError((cause) =>
-            CorpusManagerError.fromCause(cause, "Failed to tokenize query text", request.corpusId)
+            CorpusManagerError.fromCause(cause, "Failed to tokenize query text", { corpusId: request.corpusId })
           )
         );
       const queryTokens = yield* decodeStringArray(
@@ -626,13 +644,13 @@ const makeWinkCorpusManager = Effect.gen(function* () {
             terms: compiled.terms,
             vector: compiled.documentVectors[index] ?? [],
           });
-          const score = yield* similarity
-            .vectorCosine(queryVector, candidateVector)
-            .pipe(
-              Effect.mapError((cause) =>
-                CorpusManagerError.fromCause(cause, "Failed to compute query similarity", request.corpusId)
-              )
-            );
+          const score = yield* similarity.vectorCosine(queryVector, candidateVector).pipe(
+            Effect.mapError((cause) =>
+              CorpusManagerError.fromCause(cause, "Failed to compute query similarity", {
+                corpusId: request.corpusId,
+              })
+            )
+          );
 
           return yield* Bool.match(request.includeText ?? false, {
             onFalse: () =>

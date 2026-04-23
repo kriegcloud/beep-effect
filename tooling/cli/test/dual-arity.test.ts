@@ -276,6 +276,42 @@ layer(testLayer)("dual arity laws", (it) => {
     )
   );
 
+  it.effect("accepts predicate dual when public overloads prove both call shapes", () =>
+    withTempWorkingDirectory(
+      Effect.gen(function* () {
+        yield* writeProjectScaffold;
+        yield* writeProjectFile(
+          "packages/demo/src/index.ts",
+          [
+            'import { dual } from "effect/Function";',
+            "",
+            "export const ok: {",
+            "  (self: string, label: string): string",
+            "  (label: string): (self: string) => string",
+            "} = dual(",
+            "  (args) => args.length === 2,",
+            "  (self: string, label: string): string => `${self}:${label}`",
+            ");",
+            "",
+            "export const missingShape: (self: string, label: string) => string = dual(",
+            "  (args) => args.length === 2,",
+            "  (self: string, label: string): string => `${self}:${label}`",
+            ");",
+            "",
+          ].join("\n")
+        );
+
+        const summary = yield* runLaw();
+        const diagnostics = summary.diagnostics.join("\n");
+
+        expect(summary.liveEntries).toBe(1);
+        expect(diagnostics).not.toContain("ok");
+        expect(diagnostics).toContain("missingShape");
+        expect(diagnostics).toContain("invalid-dual-arity");
+      })
+    )
+  );
+
   it.effect("requires explicit data-first and data-last public signatures", () =>
     withTempWorkingDirectory(
       Effect.gen(function* () {

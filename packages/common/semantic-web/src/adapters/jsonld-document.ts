@@ -229,7 +229,7 @@ const literalFromValue = (value: JsonLdLiteralValue, context: ContextOption, bas
     ? resolveJsonLdIdentifier(value["@type"].value, context, base)
     : datatypeFromScalar(scalar);
   const language = O.isSome(value["@language"]) ? value["@language"].value : undefined;
-  return makeLiteral(literalLexicalForm(scalar), datatype, language);
+  return makeLiteral(literalLexicalForm(scalar), datatype, { language });
 };
 
 const compactLiteralValue = (value: JsonLdLiteralValue, context: ContextOption): JsonLdLiteralValue =>

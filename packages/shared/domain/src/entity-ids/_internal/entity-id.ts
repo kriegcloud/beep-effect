@@ -10,6 +10,7 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import { SchemaUtils } from "@beep/schema";
 import type { TString } from "@beep/types";
 import { flow } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("EntityId");
@@ -219,32 +220,49 @@ export declare namespace EntityId {
  * @since 0.0.0
  * @category domain model
  */
-export const make =
-  <
-    const TSlice extends TString.NonEmpty,
-    const TTag extends TString.NonEmpty,
-    const TTableName extends TString.NonEmpty,
-  >(
+type EntityIdFactory<TSlice extends TString.NonEmpty> = <
+  const TTag extends TString.NonEmpty,
+  const TTableName extends TString.NonEmpty,
+>(
+  _tag: SegmentValue<TTag>,
+  opts: EntityId.Options<TTableName>
+) => EntityId.Instance<TTag, TTableName, TSlice>;
+
+export const make: {
+  <const TSlice extends TString.NonEmpty>(
     slice: TSlice,
     identity: IdentityComposer<`@beep/shared-domain/entity-ids/${TSlice}`>
-  ) =>
-  (_tag: SegmentValue<TTag>, opts: EntityId.Options<TTableName>): EntityId.Instance<TTag, TTableName, TSlice> => {
-    const instance = EntityIdValue.pipe(
-      S.brand(_tag),
-      S.annotate(
-        identity.annote(_tag, {
-          description: `The entity ID for ${opts.tableName} in the ${slice}`,
-        })
-      ),
-      SchemaUtils.withStatics(() => ({
-        _tag,
-        tableName: opts.tableName,
-        slice,
-      }))
-    );
-    EntityIdDefinition.assert(instance);
-    return instance;
-  };
+  ): EntityIdFactory<TSlice>;
+  <const TSlice extends TString.NonEmpty>(
+    identity: IdentityComposer<`@beep/shared-domain/entity-ids/${TSlice}`>
+  ): (slice: TSlice) => EntityIdFactory<TSlice>;
+} = dual(
+  2,
+  <const TSlice extends TString.NonEmpty>(
+    slice: TSlice,
+    identity: IdentityComposer<`@beep/shared-domain/entity-ids/${TSlice}`>
+  ): EntityIdFactory<TSlice> =>
+    <const TTag extends TString.NonEmpty, const TTableName extends TString.NonEmpty>(
+      _tag: SegmentValue<TTag>,
+      opts: EntityId.Options<TTableName>
+    ): EntityId.Instance<TTag, TTableName, TSlice> => {
+      const instance = EntityIdValue.pipe(
+        S.brand(_tag),
+        S.annotate(
+          identity.annote(_tag, {
+            description: `The entity ID for ${opts.tableName} in the ${slice}`,
+          })
+        ),
+        SchemaUtils.withStatics(() => ({
+          _tag,
+          tableName: opts.tableName,
+          slice,
+        }))
+      );
+      EntityIdDefinition.assert(instance);
+      return instance;
+    }
+);
 
 /**
  * Type alias for a decoded entity-id value.

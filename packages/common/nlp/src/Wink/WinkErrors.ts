@@ -8,12 +8,18 @@
 import { $NlpId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
 import { Inspectable } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $NlpId.create("Wink/WinkErrors");
 
 const renderCause = (cause: unknown): string => Inspectable.toStringUnknown(cause);
+const getTextOption = (options: { readonly text?: string | undefined } | string): O.Option<string> =>
+  O.fromNullishOr(P.isString(options) ? options : options.text);
+const getEntityNameOption = (options: { readonly entityName?: string | undefined } | string): O.Option<string> =>
+  O.fromNullishOr(P.isString(options) ? options : options.entityName);
 
 /**
  * Failure raised while creating or accessing the wink runtime.
@@ -46,13 +52,18 @@ export class WinkEngineError extends TaggedErrorClass<WinkEngineError>($I`WinkEn
    * @param operation - The wink runtime operation that failed.
    * @returns A typed wink runtime error value.
    */
-  static fromCause(cause: unknown, operation: string): WinkEngineError {
-    return new WinkEngineError({
-      cause,
-      message: `Wink runtime ${operation} failed: ${renderCause(cause)}`,
-      operation,
-    });
-  }
+  static readonly fromCause: {
+    (cause: unknown, operation: string): WinkEngineError;
+    (operation: string): (cause: unknown) => WinkEngineError;
+  } = dual(
+    2,
+    (cause: unknown, operation: string): WinkEngineError =>
+      new WinkEngineError({
+        cause,
+        message: `Wink runtime ${operation} failed: ${renderCause(cause)}`,
+        operation,
+      })
+  );
 }
 
 /**
@@ -85,17 +96,23 @@ export class WinkTokenizationError extends TaggedErrorClass<WinkTokenizationErro
    *
    * @param cause - The underlying failure or defect.
    * @param operation - The wink tokenization operation that failed.
-   * @param text - The source text involved in the failure, when available.
+   * @param options - Additional tokenization failure detail.
    * @returns A typed wink tokenization error value.
    */
-  static fromCause(cause: unknown, operation: string, text?: string): WinkTokenizationError {
-    return new WinkTokenizationError({
-      cause,
-      message: `Wink tokenization ${operation} failed: ${renderCause(cause)}`,
-      operation,
-      text: O.fromNullishOr(text),
-    });
-  }
+  static readonly fromCause: {
+    (cause: unknown, operation: string, options: { readonly text?: string | undefined }): WinkTokenizationError;
+    (operation: string, options: { readonly text?: string | undefined }): (cause: unknown) => WinkTokenizationError;
+    (cause: unknown, operation: string, text: string): WinkTokenizationError;
+  } = dual(
+    3,
+    (cause: unknown, operation: string, options: { readonly text?: string | undefined }): WinkTokenizationError =>
+      new WinkTokenizationError({
+        cause,
+        message: `Wink tokenization ${operation} failed: ${renderCause(cause)}`,
+        operation,
+        text: getTextOption(options),
+      })
+  );
 }
 
 /**
@@ -128,17 +145,23 @@ export class WinkEntityError extends TaggedErrorClass<WinkEntityError>($I`WinkEn
    *
    * @param cause - The underlying failure or defect.
    * @param operation - The wink entity operation that failed.
-   * @param entityName - The entity or group name involved in the failure, when available.
+   * @param options - Additional entity failure detail.
    * @returns A typed wink entity error value.
    */
-  static fromCause(cause: unknown, operation: string, entityName?: string): WinkEntityError {
-    return new WinkEntityError({
-      cause,
-      entityName: O.fromNullishOr(entityName),
-      message: `Wink entity ${operation} failed: ${renderCause(cause)}`,
-      operation,
-    });
-  }
+  static readonly fromCause: {
+    (cause: unknown, operation: string, options: { readonly entityName?: string | undefined }): WinkEntityError;
+    (operation: string, options: { readonly entityName?: string | undefined }): (cause: unknown) => WinkEntityError;
+    (cause: unknown, operation: string, entityName: string): WinkEntityError;
+  } = dual(
+    3,
+    (cause: unknown, operation: string, options: { readonly entityName?: string | undefined }): WinkEntityError =>
+      new WinkEntityError({
+        cause,
+        entityName: getEntityNameOption(options),
+        message: `Wink entity ${operation} failed: ${renderCause(cause)}`,
+        operation,
+      })
+  );
 }
 
 /**

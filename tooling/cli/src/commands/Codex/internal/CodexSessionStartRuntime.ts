@@ -8,8 +8,9 @@
 import { SessionStartCommandInput } from "@beep/codex/Domain/Hooks/SessionStart.ts";
 import { $RepoCliId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
-import { Console, Effect, Function as Fn, pipe } from "effect";
+import { Console, Effect, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
 const $I = $RepoCliId.create("commands/Codex/internal/CodexSessionStartRuntime");
@@ -128,7 +129,7 @@ export const readHookInput: Effect.Effect<Record<string, unknown> | undefined, C
 export const buildCodexSessionStartContext: {
   (source: string, cwd: string | undefined): string;
   (cwd: string | undefined): (source: string) => string;
-} = Fn.dual(2, (source: string, cwd: string | undefined): string =>
+} = dual(2, (source: string, cwd: string | undefined): string =>
   pipe(
     A.make(
       `Session source: ${source}.`,

@@ -147,6 +147,9 @@ const getStepRatio = (event: Partial<ModifierKeyState>): number =>
 const isAtLeastMinimumStepFactor = (minimumStepFactor: number): P.Predicate<number> =>
   P.not((stepFactor) => stepFactor < minimumStepFactor);
 
+const precisionFromOptions = (options: { readonly precision: number }): number =>
+  P.isNumber(options) ? options : options.precision;
+
 const getNodeEnv = (): string | undefined => {
   const runtimeProcess = Reflect.get(globalThis, "process");
 
@@ -327,8 +330,8 @@ export const numberToString: {
  * ```typescript
  * import { getStepFactor } from "@beep/ui/hooks/useNumberInput"
  *
- * const coarse = getStepFactor({ shiftKey: true }, 2, 0)
- * const fine = getStepFactor({ ctrlKey: true }, 2, 2)
+ * const coarse = getStepFactor({ shiftKey: true }, 2, { precision: 0 })
+ * const fine = getStepFactor({ ctrlKey: true }, 2, { precision: 2 })
  *
  * console.log(coarse) // 20
  * console.log(fine) // 0.2
@@ -339,7 +342,7 @@ export const numberToString: {
  * import { pipe } from "effect"
  * import { getStepFactor } from "@beep/ui/hooks/useNumberInput"
  *
- * const factor = pipe({ metaKey: true }, getStepFactor(5, 2))
+ * const factor = pipe({ metaKey: true }, getStepFactor(5, { precision: 2 }))
  *
  * console.log(factor) // 0.5
  * ```
@@ -347,15 +350,16 @@ export const numberToString: {
  * @category Utility
  * @param event - Modifier-key state captured from the current gesture.
  * @param step - Base step configured for the number input.
- * @param precision - Decimal precision enforced by the number input.
+ * @param options - Decimal precision enforced by the number input.
  * @returns The effective step value for the current gesture.
  * @since 0.0.0
  */
 export const getStepFactor: {
-  (step: number, precision: number): (event: Partial<ModifierKeyState>) => number;
-  (event: Partial<ModifierKeyState>, step: number, precision: number): number;
-} = dual(3, (event: Partial<ModifierKeyState>, step: number, precision: number): number => {
+  (step: number, options: { readonly precision: number }): (event: Partial<ModifierKeyState>) => number;
+  (event: Partial<ModifierKeyState>, step: number, options: { readonly precision: number }): number;
+} = dual(3, (event: Partial<ModifierKeyState>, step: number, options: { readonly precision: number }): number => {
   const stepFactor = getStepRatio(event) * step;
+  const precision = precisionFromOptions(options);
 
   return pipe(
     stepFactor,
@@ -632,7 +636,7 @@ function NumberInput() {
 
       event.preventDefault();
 
-      const stepFactor = getStepFactor(event, step, precision);
+      const stepFactor = getStepFactor(event, step, { precision });
       const direction = Math.sign(event.deltaY);
 
       if (direction === -1) {
@@ -670,7 +674,7 @@ function NumberInput() {
 
   const spinUp = (event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
-    spinner.up({ step: getStepFactor(event, step, precision) });
+    spinner.up({ step: getStepFactor(event, step, { precision }) });
 
     if (focusInputOnChange) {
       inputRef.current?.focus();
@@ -679,7 +683,7 @@ function NumberInput() {
 
   const spinDown = (event: React.MouseEvent | React.TouchEvent) => {
     event.preventDefault();
-    spinner.down({ step: getStepFactor(event, step, precision) });
+    spinner.down({ step: getStepFactor(event, step, { precision }) });
 
     if (focusInputOnChange) {
       inputRef.current?.focus();
@@ -687,7 +691,7 @@ function NumberInput() {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
-    const stepFactor = getStepFactor(event, step, precision);
+    const stepFactor = getStepFactor(event, step, { precision });
     const keyMap: EventKeyMap = {
       ArrowUp: () => increment({ step: stepFactor }),
       ArrowDown: () => decrement({ step: stepFactor }),

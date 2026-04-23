@@ -156,7 +156,7 @@ const executePreparedQuery = (
 ) =>
   Effect.tryPromise({
     try: async () => await preparedQuery.execute(placeholderValues),
-    catch: (cause) => effectDrizzleQueryErrorFromUnknown(queryText, params, cause),
+    catch: (cause) => effectDrizzleQueryErrorFromUnknown(cause, queryText, { params }),
   });
 
 const executePreparedQueryWithCache = (
@@ -186,7 +186,7 @@ const executePreparedQueryWithCache = (
               },
           normalizeCacheConfig(state.cache, state.cacheConfig)
         ),
-      catch: (cause) => effectDrizzleQueryErrorFromUnknown(query.sql, params, cause),
+      catch: (cause) => effectDrizzleQueryErrorFromUnknown(cause, query.sql, { params }),
     });
 
     if (cacheStrategy.type === "skip") {
@@ -223,7 +223,7 @@ const executePreparedQueryWithCache = (
     }
 
     return result;
-  }).pipe(Effect.mapError((cause) => effectDrizzleQueryErrorFromUnknown(query.sql, params, cause)));
+  }).pipe(Effect.mapError((cause) => effectDrizzleQueryErrorFromUnknown(cause, query.sql, { params })));
 };
 
 const isPreparedQueryFactory = (
@@ -245,7 +245,7 @@ const installQueryPromisePatch = (): void => {
 
       return Effect.tryPromise({
         try: () => this.execute(),
-        catch: (cause) => effectDrizzleQueryErrorFromUnknown("unknown query", [], cause),
+        catch: (cause) => effectDrizzleQueryErrorFromUnknown(cause, "unknown query", { params: [] }),
       });
     },
     writable: true,

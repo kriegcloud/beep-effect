@@ -24,8 +24,44 @@
  * @since 0.0.0
  */
 
-import { P } from "@beep/utils";
 import { Clock, Duration, Effect, Exit, Metric, pipe } from "effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
+
+interface TrackDurationOptions {
+  readonly attributes?: Record<string, string> | undefined;
+}
+
+interface ObserveWorkflowOptions {
+  readonly attributes?: Record<string, string> | undefined;
+  readonly completed?: Metric.Counter<number> | undefined;
+  readonly duration?: Metric.Metric<Duration.Duration, unknown> | undefined;
+  readonly failed?: Metric.Counter<number> | undefined;
+  readonly interrupted?: Metric.Counter<number> | undefined;
+  readonly name: string;
+  readonly started?: Metric.Counter<number> | undefined;
+}
+
+interface ObserveHttpRequestOptions {
+  readonly method: string;
+  readonly requestDuration: Metric.Metric<Duration.Duration, unknown>;
+  readonly requestsTotal: Metric.Counter<number>;
+  readonly route: string;
+  readonly successStatus: number;
+}
+
+const defaultTrackDurationOptions: TrackDurationOptions = { attributes: undefined };
+
+const isTrackDurationOptions = (
+  options: TrackDurationOptions | Record<string, string>
+): options is TrackDurationOptions => P.hasProperty(options, "attributes");
+
+const normalizeTrackDurationOptions = (options: TrackDurationOptions | Record<string, string>): TrackDurationOptions =>
+  isTrackDurationOptions(options) ? options : { attributes: options };
+
+const isTrackDurationDataFirst = (args: IArguments): boolean => Effect.isEffect(args[0]) || Effect.isEffect(args[1]);
+
+const isEffectPairDataFirst = (args: IArguments): boolean => args.length >= 2 || Effect.isEffect(args[0]);
 
 const withMetricAttributes = <Input, State>(
   metric: Metric.Metric<Input, State>,
@@ -126,19 +162,59 @@ export const measureElapsedMillis = <A, E, R>(
  * @since 0.0.0
  * @category observability
  */
-export const trackDuration = <A, E, R>(
-  metric: Metric.Metric<Duration.Duration, unknown>,
+const trackDurationImpl = <A, E, R>(
   effect: Effect.Effect<A, E, R>,
-  attributes?: Record<string, string>
+  metric: Metric.Metric<Duration.Duration, unknown>,
+  options: TrackDurationOptions
 ): Effect.Effect<A, E, R> =>
   measureElapsedMillis(effect).pipe(
     Effect.tap(([_, elapsedMs]) =>
-      Metric.update(withMetricAttributes(metric, attributes), Duration.millis(elapsedMs)).pipe(
+      Metric.update(withMetricAttributes(metric, options.attributes), Duration.millis(elapsedMs)).pipe(
         Effect.andThen(Effect.annotateCurrentSpan("duration_ms", elapsedMs))
       )
     ),
     Effect.map(([value]) => value)
   );
+
+export const trackDuration: {
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R>,
+    metric: Metric.Metric<Duration.Duration, unknown>,
+    options: TrackDurationOptions
+  ): Effect.Effect<A, E, R>;
+  <A, E, R>(effect: Effect.Effect<A, E, R>, metric: Metric.Metric<Duration.Duration, unknown>): Effect.Effect<A, E, R>;
+  (
+    metric: Metric.Metric<Duration.Duration, unknown>,
+    options: TrackDurationOptions
+  ): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  (
+    metric: Metric.Metric<Duration.Duration, unknown>
+  ): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  <A, E, R>(
+    metric: Metric.Metric<Duration.Duration, unknown>,
+    effect: Effect.Effect<A, E, R>,
+    attributes?: Record<string, string>
+  ): Effect.Effect<A, E, R>;
+} = dual(
+  isTrackDurationDataFirst,
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R> | Metric.Metric<Duration.Duration, unknown>,
+    metric: Metric.Metric<Duration.Duration, unknown> | Effect.Effect<A, E, R>,
+    options: TrackDurationOptions | Record<string, string> = defaultTrackDurationOptions
+  ): Effect.Effect<A, E, R> => {
+    const normalizedOptions = normalizeTrackDurationOptions(options);
+
+    if (Effect.isEffect(effect) && !Effect.isEffect(metric)) {
+      return trackDurationImpl(effect, metric, normalizedOptions);
+    }
+
+    if (Effect.isEffect(metric) && !Effect.isEffect(effect)) {
+      return trackDurationImpl(metric, effect, normalizedOptions);
+    }
+
+    return Effect.die("Invalid trackDuration arguments");
+  }
+);
 
 /**
  * Observe one workflow with start, terminal outcome, and duration metrics.
@@ -178,17 +254,9 @@ export const trackDuration = <A, E, R>(
  * @since 0.0.0
  * @category observability
  */
-export const observeWorkflow = <A, E, R>(
-  options: {
-    readonly name: string;
-    readonly started?: Metric.Counter<number> | undefined;
-    readonly completed?: Metric.Counter<number> | undefined;
-    readonly failed?: Metric.Counter<number> | undefined;
-    readonly interrupted?: Metric.Counter<number> | undefined;
-    readonly duration?: Metric.Metric<Duration.Duration, unknown> | undefined;
-    readonly attributes?: Record<string, string> | undefined;
-  },
-  effect: Effect.Effect<A, E, R>
+const observeWorkflowImpl = <A, E, R>(
+  effect: Effect.Effect<A, E, R>,
+  options: ObserveWorkflowOptions
 ): Effect.Effect<A, E, R> =>
   Clock.currentTimeMillis.pipe(
     Effect.flatMap((startedAt) =>
@@ -225,6 +293,28 @@ export const observeWorkflow = <A, E, R>(
     )
   );
 
+export const observeWorkflow: {
+  <A, E, R>(effect: Effect.Effect<A, E, R>, options: ObserveWorkflowOptions): Effect.Effect<A, E, R>;
+  <A, E, R>(options: ObserveWorkflowOptions, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
+  (options: ObserveWorkflowOptions): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+} = dual(
+  isEffectPairDataFirst,
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R> | ObserveWorkflowOptions,
+    options: ObserveWorkflowOptions | Effect.Effect<A, E, R> | undefined
+  ): Effect.Effect<A, E, R> => {
+    if (Effect.isEffect(effect) && P.isNotUndefined(options) && !Effect.isEffect(options)) {
+      return observeWorkflowImpl(effect, options);
+    }
+
+    if (!Effect.isEffect(effect) && Effect.isEffect(options)) {
+      return observeWorkflowImpl(options, effect);
+    }
+
+    return Effect.die("Invalid observeWorkflow arguments");
+  }
+);
+
 /**
  * Observe one HTTP request with success and failure metrics.
  *
@@ -260,15 +350,9 @@ export const observeWorkflow = <A, E, R>(
  * @since 0.0.0
  * @category observability
  */
-export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
-  options: {
-    readonly method: string;
-    readonly route: string;
-    readonly successStatus: number;
-    readonly requestsTotal: Metric.Counter<number>;
-    readonly requestDuration: Metric.Metric<Duration.Duration, unknown>;
-  },
-  effect: Effect.Effect<A, E, R>
+const observeHttpRequestImpl = <A, E extends { readonly status: number }, R>(
+  effect: Effect.Effect<A, E, R>,
+  options: ObserveHttpRequestOptions
 ): Effect.Effect<A, E, R> =>
   Clock.currentTimeMillis.pipe(
     Effect.flatMap((startedAt) =>
@@ -330,3 +414,33 @@ export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
       )
     )
   );
+
+export const observeHttpRequest: {
+  <A, E extends { readonly status: number }, R>(
+    effect: Effect.Effect<A, E, R>,
+    options: ObserveHttpRequestOptions
+  ): Effect.Effect<A, E, R>;
+  <A, E extends { readonly status: number }, R>(
+    options: ObserveHttpRequestOptions,
+    effect: Effect.Effect<A, E, R>
+  ): Effect.Effect<A, E, R>;
+  (
+    options: ObserveHttpRequestOptions
+  ): <A, E extends { readonly status: number }, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+} = dual(
+  isEffectPairDataFirst,
+  <A, E extends { readonly status: number }, R>(
+    effect: Effect.Effect<A, E, R> | ObserveHttpRequestOptions,
+    options: ObserveHttpRequestOptions | Effect.Effect<A, E, R> | undefined
+  ): Effect.Effect<A, E, R> => {
+    if (Effect.isEffect(effect) && P.isNotUndefined(options) && !Effect.isEffect(options)) {
+      return observeHttpRequestImpl(effect, options);
+    }
+
+    if (!Effect.isEffect(effect) && Effect.isEffect(options)) {
+      return observeHttpRequestImpl(options, effect);
+    }
+
+    return Effect.die("Invalid observeHttpRequest arguments");
+  }
+);

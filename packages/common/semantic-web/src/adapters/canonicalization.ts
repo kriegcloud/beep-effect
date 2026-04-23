@@ -7,6 +7,7 @@
  */
 
 import { Sha256Hex } from "@beep/schema";
+import { Str } from "@beep/utils";
 import { Effect, Layer, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -49,7 +50,7 @@ const hashCanonicalText = (canonicalText: string): Effect.Effect<typeof Sha256He
       const digest = await crypto.subtle.digest("SHA-256", bytes);
       const hex = pipe(
         A.fromIterable(new Uint8Array(digest)),
-        A.map((value) => value.toString(16).padStart(2, "0")),
+        A.map((value) => Str.padStart(2, "0")(value.toString(16))),
         A.join("")
       );
 
@@ -134,7 +135,7 @@ const fromCanonizeObject = (object: CanonizeObject): ObjectTerm => {
     return makeBlankNode(object.value);
   }
 
-  return makeLiteral(object.value, object.datatype.value, object.language);
+  return makeLiteral(object.value, object.datatype.value, { language: object.language });
 };
 
 const fromCanonizeGraph = (graph: CanonizeGraph): GraphTerm =>
@@ -145,12 +146,10 @@ const fromCanonizeGraph = (graph: CanonizeGraph): GraphTerm =>
       : DefaultGraph.make({ termType: "DefaultGraph", value: "" });
 
 const fromCanonizeQuad = (quad: CanonizeQuad): Quad =>
-  makeQuad(
-    fromCanonizeSubject(quad.subject),
-    makeNamedNode(quad.predicate.value),
-    fromCanonizeObject(quad.object),
-    fromCanonizeGraph(quad.graph)
-  );
+  makeQuad(fromCanonizeSubject(quad.subject), makeNamedNode(quad.predicate.value), {
+    object: fromCanonizeObject(quad.object),
+    graph: fromCanonizeGraph(quad.graph),
+  });
 
 const mapCanonizeFailure = (error: unknown): CanonicalizationError =>
   new CanonicalizationError({

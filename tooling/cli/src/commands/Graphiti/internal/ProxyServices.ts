@@ -23,6 +23,7 @@ import {
   type Scope,
 } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -217,15 +218,20 @@ const isAllowedEndpointPath = (allowedPath: string, inboundPath: string): boolea
 
 const isAbsoluteRequestTarget = (value: string): boolean => O.isSome(Str.match(absoluteRequestTargetPattern)(value));
 
+type ProxyErrorResponseOptions = {
+  readonly headers?: Headers.Input | undefined;
+  readonly status: number;
+};
+
 const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): HttpServerResponse.HttpServerResponse =>
   Match.value(error.reason._tag).pipe(
-    Match.when("TransportError", () => proxyErrorResponse("upstream_failure", error.message, 502)),
-    Match.when("EncodeError", () => proxyErrorResponse("upstream_failure", error.message, 502)),
-    Match.when("InvalidUrlError", () => proxyErrorResponse("upstream_failure", error.message, 500)),
-    Match.when("StatusCodeError", () => proxyErrorResponse("upstream_failure", error.message, 502)),
-    Match.when("DecodeError", () => proxyErrorResponse("upstream_failure", error.message, 502)),
-    Match.when("EmptyBodyError", () => proxyErrorResponse("upstream_failure", error.message, 502)),
-    Match.orElse(() => proxyErrorResponse("upstream_failure", error.message, 502))
+    Match.when("TransportError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
+    Match.when("EncodeError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
+    Match.when("InvalidUrlError", () => proxyErrorResponse("upstream_failure", error.message, { status: 500 })),
+    Match.when("StatusCodeError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
+    Match.when("DecodeError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
+    Match.when("EmptyBodyError", () => proxyErrorResponse("upstream_failure", error.message, { status: 502 })),
+    Match.orElse(() => proxyErrorResponse("upstream_failure", error.message, { status: 502 }))
   );
 
 /**
@@ -233,8 +239,7 @@ const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): H
  *
  * @param error - Structured proxy error kind.
  * @param message - Human-readable error message.
- * @param status - HTTP response status code.
- * @param headers - Optional response headers.
+ * @param options - HTTP response options.
  * @returns Http server response with JSON error body.
  * @example
  * ```ts
@@ -243,22 +248,34 @@ const mapHttpClientErrorToResponse = (error: HttpClientError.HttpClientError): H
  * @category models
  * @since 0.0.0
  */
-export const proxyErrorResponse = (
-  error: S.Schema.Type<typeof ProxyErrorKind>,
-  message: string,
-  status: number,
-  headers?: Headers.Input
-): HttpServerResponse.HttpServerResponse =>
-  HttpServerResponse.jsonUnsafe(
-    new ProxyErrorPayload({
-      error,
-      message,
-    }),
-    {
-      status,
-      headers,
-    }
-  );
+export const proxyErrorResponse: {
+  (
+    error: S.Schema.Type<typeof ProxyErrorKind>,
+    message: string,
+    options: ProxyErrorResponseOptions
+  ): HttpServerResponse.HttpServerResponse;
+  (
+    message: string,
+    options: ProxyErrorResponseOptions
+  ): (error: S.Schema.Type<typeof ProxyErrorKind>) => HttpServerResponse.HttpServerResponse;
+} = dual(
+  3,
+  (
+    error: S.Schema.Type<typeof ProxyErrorKind>,
+    message: string,
+    options: ProxyErrorResponseOptions
+  ): HttpServerResponse.HttpServerResponse =>
+    HttpServerResponse.jsonUnsafe(
+      new ProxyErrorPayload({
+        error,
+        message,
+      }),
+      {
+        status: options.status,
+        headers: options.headers,
+      }
+    )
+);
 
 /**
  * Build a structured proxy health HTTP response.
@@ -273,10 +290,14 @@ export const proxyErrorResponse = (
  * @category models
  * @since 0.0.0
  */
-export const proxyHealthResponse = (
-  payload: ProxyHealthPayload,
-  status: number
-): HttpServerResponse.HttpServerResponse => HttpServerResponse.jsonUnsafe(payload, { status });
+export const proxyHealthResponse: {
+  (payload: ProxyHealthPayload, status: number): HttpServerResponse.HttpServerResponse;
+  (status: number): (payload: ProxyHealthPayload) => HttpServerResponse.HttpServerResponse;
+} = dual(
+  2,
+  (payload: ProxyHealthPayload, status: number): HttpServerResponse.HttpServerResponse =>
+    HttpServerResponse.jsonUnsafe(payload, { status })
+);
 
 type GraphitiDependencyHealthServiceShape = {
   readonly snapshot: Effect.Effect<DependencyHealthSnapshot>;
@@ -461,13 +482,17 @@ export const makeGraphitiProxyForwarderService = (
   ): Effect.Effect<HttpServerResponse.HttpServerResponse, never, HttpClient.HttpClient> =>
     Effect.gen(function* () {
       if (isAbsoluteRequestTarget(request.url)) {
-        return proxyErrorResponse("upstream_failure", "Graphiti proxy rejects absolute-form request targets.", 400);
+        return proxyErrorResponse("upstream_failure", "Graphiti proxy rejects absolute-form request targets.", {
+          status: 400,
+        });
       }
 
       const inboundUrl = new URL(request.url, "http://graphiti-proxy.local");
       const inboundPath = normalizeEndpointPath(inboundUrl.pathname);
       if (!isAllowedEndpointPath(allowedEndpointPath, inboundPath)) {
-        return proxyErrorResponse("upstream_failure", `Graphiti proxy only forwards ${allowedEndpointPath}.`, 404);
+        return proxyErrorResponse("upstream_failure", `Graphiti proxy only forwards ${allowedEndpointPath}.`, {
+          status: 404,
+        });
       }
 
       const destination = new URL(upstreamBase.href);
@@ -492,7 +517,9 @@ export const makeGraphitiProxyForwarderService = (
       if (hasBody) {
         const requestBodyResult = yield* request.arrayBuffer.pipe(Effect.result);
         if (Result.isFailure(requestBodyResult)) {
-          return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(requestBodyResult.failure, 0), 400);
+          return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(requestBodyResult.failure, 0), {
+            status: 400,
+          });
         }
         const bodyBytes = new Uint8Array(requestBodyResult.success);
         const contentTypeOption = Headers.get(headers, "content-type");
@@ -514,7 +541,7 @@ export const makeGraphitiProxyForwarderService = (
           Effect.succeed(
             HttpClientError.isHttpClientError(error)
               ? mapHttpClientErrorToResponse(error)
-              : proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(error, 0), 502)
+              : proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(error, 0), { status: 502 })
           ),
         onSuccess: (responseOption) =>
           pipe(
@@ -533,7 +560,7 @@ export const makeGraphitiProxyForwarderService = (
                 proxyErrorResponse(
                   "upstream_timeout",
                   `Upstream request timed out after ${config.requestTimeoutMs}ms`,
-                  504
+                  { status: 504 }
                 )
               )
             )
@@ -559,131 +586,150 @@ export const makeGraphitiProxyForwarderService = (
  * @category models
  * @since 0.0.0
  */
-export const makeGraphitiProxyQueueService = (
-  config: GraphitiProxyConfig,
-  forwarderService: GraphitiProxyForwarderService["Service"]
-): Effect.Effect<GraphitiProxyQueueService["Service"], never, HttpClient.HttpClient | Scope.Scope> =>
-  Effect.gen(function* () {
-    const queue = yield* Queue.dropping<{
-      readonly request: HttpServerRequest.HttpServerRequest;
-      readonly responseDeferred: Deferred.Deferred<HttpServerResponse.HttpServerResponse>;
-    }>(config.maxQueue);
+export const makeGraphitiProxyQueueService: {
+  (
+    config: GraphitiProxyConfig,
+    forwarderService: GraphitiProxyForwarderService["Service"]
+  ): Effect.Effect<GraphitiProxyQueueService["Service"], never, HttpClient.HttpClient | Scope.Scope>;
+  (
+    forwarderService: GraphitiProxyForwarderService["Service"]
+  ): (
+    config: GraphitiProxyConfig
+  ) => Effect.Effect<GraphitiProxyQueueService["Service"], never, HttpClient.HttpClient | Scope.Scope>;
+} = dual(
+  2,
+  (
+    config: GraphitiProxyConfig,
+    forwarderService: GraphitiProxyForwarderService["Service"]
+  ): Effect.Effect<GraphitiProxyQueueService["Service"], never, HttpClient.HttpClient | Scope.Scope> =>
+    Effect.gen(function* () {
+      const queue = yield* Queue.dropping<{
+        readonly request: HttpServerRequest.HttpServerRequest;
+        readonly responseDeferred: Deferred.Deferred<HttpServerResponse.HttpServerResponse>;
+      }>(config.maxQueue);
 
-    const acceptingRef = yield* Ref.make(true);
-    const activeRef = yield* Ref.make(0);
-    const peakQueueDepthRef = yield* Ref.make(0);
-    const processedRef = yield* Ref.make(0);
-    const failedRef = yield* Ref.make(0);
-    const rejectedRef = yield* Ref.make(0);
-    const drainDeferred = yield* Deferred.make<void>();
+      const acceptingRef = yield* Ref.make(true);
+      const activeRef = yield* Ref.make(0);
+      const peakQueueDepthRef = yield* Ref.make(0);
+      const processedRef = yield* Ref.make(0);
+      const failedRef = yield* Ref.make(0);
+      const rejectedRef = yield* Ref.make(0);
+      const drainDeferred = yield* Deferred.make<void>();
 
-    const checkDrain = Effect.gen(function* () {
-      const accepting = yield* Ref.get(acceptingRef);
-      if (accepting) {
-        return;
-      }
+      const checkDrain = Effect.gen(function* () {
+        const accepting = yield* Ref.get(acceptingRef);
+        if (accepting) {
+          return;
+        }
 
-      const active = yield* Ref.get(activeRef);
-      const queued = yield* Queue.size(queue);
-      if (active === 0 && queued === 0) {
-        yield* Deferred.succeed(drainDeferred, undefined).pipe(Effect.ignore);
-      }
-    });
+        const active = yield* Ref.get(activeRef);
+        const queued = yield* Queue.size(queue);
+        if (active === 0 && queued === 0) {
+          yield* Deferred.succeed(drainDeferred, undefined).pipe(Effect.ignore);
+        }
+      });
 
-    const worker = Effect.forever(
-      Effect.gen(function* () {
-        const job = yield* Queue.take(queue);
-        yield* Ref.update(activeRef, (active) => active + 1);
+      const worker = Effect.forever(
+        Effect.gen(function* () {
+          const job = yield* Queue.take(queue);
+          yield* Ref.update(activeRef, (active) => active + 1);
 
-        const response = yield* forwarderService.forward(job.request).pipe(
-          Effect.catchDefect((cause) =>
-            Effect.gen(function* () {
-              yield* Ref.update(failedRef, (failed) => failed + 1);
-              return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(cause, 0), 502);
-            })
+          const response = yield* forwarderService.forward(job.request).pipe(
+            Effect.catchDefect((cause) =>
+              Effect.gen(function* () {
+                yield* Ref.update(failedRef, (failed) => failed + 1);
+                return proxyErrorResponse("upstream_failure", Inspectable.toStringUnknown(cause, 0), { status: 502 });
+              })
+            )
+          );
+
+          const queued = yield* Queue.size(queue);
+          const active = yield* Ref.get(activeRef);
+
+          const responseWithHeaders = pipe(
+            response,
+            HttpServerResponse.setHeader("x-graphiti-proxy-queued", `${queued}`),
+            HttpServerResponse.setHeader("x-graphiti-proxy-active", `${active}`)
+          );
+
+          yield* Deferred.succeed(job.responseDeferred, responseWithHeaders).pipe(Effect.ignore);
+          yield* Ref.update(processedRef, (processed) => processed + 1);
+        }).pipe(
+          Effect.ensuring(
+            Ref.update(activeRef, (active) => (active > 0 ? active - 1 : 0)).pipe(Effect.andThen(checkDrain))
           )
-        );
+        )
+      ).pipe(Effect.catchDefect(() => Effect.void));
 
+      const workerSlots = A.range(1, config.concurrency);
+      yield* Effect.forEach(workerSlots, () => worker.pipe(Effect.forkScoped), {
+        concurrency: "unbounded",
+      });
+
+      const enqueue = (
+        request: HttpServerRequest.HttpServerRequest
+      ): Effect.Effect<HttpServerResponse.HttpServerResponse> =>
+        Effect.gen(function* () {
+          const accepting = yield* Ref.get(acceptingRef);
+          if (!accepting) {
+            return proxyErrorResponse("shutting_down", "Graphiti proxy is shutting down.", {
+              status: 503,
+              headers: {
+                "retry-after": "1",
+              },
+            });
+          }
+
+          const responseDeferred = yield* Deferred.make<HttpServerResponse.HttpServerResponse>();
+          const offered = yield* Queue.offer(queue, { request, responseDeferred });
+
+          if (!offered) {
+            yield* Ref.update(rejectedRef, (rejected) => rejected + 1);
+            return proxyErrorResponse("queue_full", `Graphiti proxy queue full (max ${config.maxQueue})`, {
+              status: 503,
+              headers: {
+                "retry-after": "1",
+              },
+            });
+          }
+
+          const queued = yield* Queue.size(queue);
+          yield* Ref.update(peakQueueDepthRef, (peak) => (queued > peak ? queued : peak));
+
+          return yield* Deferred.await(responseDeferred);
+        });
+
+      const snapshot = Effect.gen(function* () {
         const queued = yield* Queue.size(queue);
         const active = yield* Ref.get(activeRef);
+        const peakQueueDepth = yield* Ref.get(peakQueueDepthRef);
+        const processed = yield* Ref.get(processedRef);
+        const failed = yield* Ref.get(failedRef);
+        const rejected = yield* Ref.get(rejectedRef);
 
-        const responseWithHeaders = pipe(
-          response,
-          HttpServerResponse.setHeader("x-graphiti-proxy-queued", `${queued}`),
-          HttpServerResponse.setHeader("x-graphiti-proxy-active", `${active}`)
-        );
-
-        yield* Deferred.succeed(job.responseDeferred, responseWithHeaders).pipe(Effect.ignore);
-        yield* Ref.update(processedRef, (processed) => processed + 1);
-      }).pipe(
-        Effect.ensuring(
-          Ref.update(activeRef, (active) => (active > 0 ? active - 1 : 0)).pipe(Effect.andThen(checkDrain))
-        )
-      )
-    ).pipe(Effect.catchDefect(() => Effect.void));
-
-    const workerSlots = A.range(1, config.concurrency);
-    yield* Effect.forEach(workerSlots, () => worker.pipe(Effect.forkScoped), {
-      concurrency: "unbounded",
-    });
-
-    const enqueue = (
-      request: HttpServerRequest.HttpServerRequest
-    ): Effect.Effect<HttpServerResponse.HttpServerResponse> =>
-      Effect.gen(function* () {
-        const accepting = yield* Ref.get(acceptingRef);
-        if (!accepting) {
-          return proxyErrorResponse("shutting_down", "Graphiti proxy is shutting down.", 503, {
-            "retry-after": "1",
-          });
-        }
-
-        const responseDeferred = yield* Deferred.make<HttpServerResponse.HttpServerResponse>();
-        const offered = yield* Queue.offer(queue, { request, responseDeferred });
-
-        if (!offered) {
-          yield* Ref.update(rejectedRef, (rejected) => rejected + 1);
-          return proxyErrorResponse("queue_full", `Graphiti proxy queue full (max ${config.maxQueue})`, 503, {
-            "retry-after": "1",
-          });
-        }
-
-        const queued = yield* Queue.size(queue);
-        yield* Ref.update(peakQueueDepthRef, (peak) => (queued > peak ? queued : peak));
-
-        return yield* Deferred.await(responseDeferred);
+        return new ProxyQueueStats({
+          active,
+          queued,
+          peakQueueDepth,
+          processed,
+          failed,
+          rejected,
+          concurrency: config.concurrency,
+          maxQueue: config.maxQueue,
+          upstream: config.upstream,
+        });
       });
 
-    const snapshot = Effect.gen(function* () {
-      const queued = yield* Queue.size(queue);
-      const active = yield* Ref.get(activeRef);
-      const peakQueueDepth = yield* Ref.get(peakQueueDepthRef);
-      const processed = yield* Ref.get(processedRef);
-      const failed = yield* Ref.get(failedRef);
-      const rejected = yield* Ref.get(rejectedRef);
+      const beginShutdown = Ref.set(acceptingRef, false).pipe(Effect.andThen(checkDrain));
 
-      return new ProxyQueueStats({
-        active,
-        queued,
-        peakQueueDepth,
-        processed,
-        failed,
-        rejected,
-        concurrency: config.concurrency,
-        maxQueue: config.maxQueue,
-        upstream: config.upstream,
+      const awaitDrain = (timeoutMs: number): Effect.Effect<boolean> =>
+        Deferred.await(drainDeferred).pipe(Effect.timeoutOption(Duration.millis(timeoutMs)), Effect.map(O.isSome));
+
+      return GraphitiProxyQueueService.of({
+        enqueue,
+        snapshot,
+        beginShutdown,
+        awaitDrain,
       });
-    });
-
-    const beginShutdown = Ref.set(acceptingRef, false).pipe(Effect.andThen(checkDrain));
-
-    const awaitDrain = (timeoutMs: number): Effect.Effect<boolean> =>
-      Deferred.await(drainDeferred).pipe(Effect.timeoutOption(Duration.millis(timeoutMs)), Effect.map(O.isSome));
-
-    return GraphitiProxyQueueService.of({
-      enqueue,
-      snapshot,
-      beginShutdown,
-      awaitDrain,
-    });
-  });
+    })
+);

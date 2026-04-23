@@ -132,7 +132,7 @@ const applyStyle = (builder: ChalkFunction, text: string): string => {
 
   if (rendered.includes("\u001B")) {
     do {
-      rendered = stringReplaceAll(rendered, currentStyler.close, currentStyler.open);
+      rendered = stringReplaceAll(rendered, currentStyler.close, { replacer: currentStyler.open });
       currentStyler = currentStyler.parent;
     } while (currentStyler !== undefined);
   }
@@ -140,7 +140,10 @@ const applyStyle = (builder: ChalkFunction, text: string): string => {
   const lineFeedIndex = rendered.indexOf("\n");
 
   if (lineFeedIndex !== -1) {
-    rendered = stringEncaseCRLFWithFirstIndex(rendered, styler.closeAll, styler.openAll, lineFeedIndex);
+    rendered = stringEncaseCRLFWithFirstIndex(rendered, styler.closeAll, {
+      postfix: styler.openAll,
+      index: lineFeedIndex,
+    });
   }
 
   return styler.openAll + rendered + styler.closeAll;

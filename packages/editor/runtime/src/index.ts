@@ -262,7 +262,7 @@ const makeEditorWorkspaceStore = Effect.fn("EditorRuntime.makeWorkspaceStore")(f
     savedAt: DateTime.Utc,
     reason: string
   ) {
-    const revision = makeRevisionRecord(page, savedAt, reason);
+    const revision = makeRevisionRecord(page, savedAt, { reason });
     yield* fs
       .writeFileString(path.resolve(revisionsDirectory, `${revision.id}.json`), encodeRevisionRecordJson(revision))
       .pipe(EditorRuntimeError.mapError(`Failed to persist revision for "${page.slug}".`, 500));

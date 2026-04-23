@@ -12,6 +12,7 @@ import { NonNegativeInt } from "@beep/schema";
 import * as BunHttpClient from "@effect/platform-bun/BunHttpClient";
 import { Duration, Effect, Layer, Metric, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Otlp from "effect/unstable/observability/Otlp";
@@ -64,6 +65,12 @@ const controlPlaneHttpMetrics = {
   requestDuration: httpRequestDuration,
 };
 
+type ObserveSidecarHttpRequestOptions = {
+  readonly method: string;
+  readonly route: string;
+  readonly successStatus: number;
+};
+
 const runsStartedTotal = Metric.counter("beep_repo_memory_runs_started_total", {
   description: "Total runs started at the handler/service layer (outside workflow scope).",
   incremental: true,
@@ -110,10 +117,11 @@ const shouldPublishDevToolsSpan = (name: string): boolean =>
  * import { Effect } from "effect"
  * import { observeHttpRequest } from "@beep/runtime-server/internal/SidecarObservability"
  *
- * const observed = observeHttpRequest(
- *   { method: "GET", route: "/health", successStatus: 200 },
- *   Effect.succeed("ok")
- * )
+ * const observed = observeHttpRequest(Effect.succeed("ok"), {
+ *   method: "GET",
+ *   route: "/health",
+ *   successStatus: 200
+ * })
  *
  * void observed
  * ```
@@ -121,33 +129,37 @@ const shouldPublishDevToolsSpan = (name: string): boolean =>
  * @since 0.0.0
  * @category cross cutting
  */
-export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
-  options: {
-    readonly method: string;
-    readonly route: string;
-    readonly successStatus: number;
-  },
-  effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> =>
-  observeHttpApiHandler(
-    new HttpApiTelemetryDescriptor({
-      apiName: "repo-memory-control-plane",
-      groupName: "control-plane",
-      endpointName: `${options.method} ${options.route}`,
-      method: options.method,
-      route: options.route,
-      successStatus: decodeNonNegativeInt(options.successStatus),
-    }),
-    controlPlaneHttpMetrics,
-    observeSharedHttpRequest(
-      {
+export const observeHttpRequest: {
+  (
+    options: ObserveSidecarHttpRequestOptions
+  ): <A, E extends { readonly status: number }, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  <A, E extends { readonly status: number }, R>(
+    effect: Effect.Effect<A, E, R>,
+    options: ObserveSidecarHttpRequestOptions
+  ): Effect.Effect<A, E, R>;
+} = dual(
+  2,
+  <A, E extends { readonly status: number }, R>(
+    effect: Effect.Effect<A, E, R>,
+    options: ObserveSidecarHttpRequestOptions
+  ): Effect.Effect<A, E, R> =>
+    observeHttpApiHandler(
+      new HttpApiTelemetryDescriptor({
+        apiName: "repo-memory-control-plane",
+        groupName: "control-plane",
+        endpointName: `${options.method} ${options.route}`,
+        method: options.method,
+        route: options.route,
+        successStatus: decodeNonNegativeInt(options.successStatus),
+      }),
+      controlPlaneHttpMetrics,
+      observeSharedHttpRequest(effect, {
         ...options,
         requestsTotal: httpRequestsTotal,
         requestDuration: httpRequestDuration,
-      },
-      effect
+      })
     )
-  );
+);
 
 /**
  * Provide OTLP, runtime metrics, and filtered devtools support to the sidecar.
@@ -156,7 +168,7 @@ export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
  * ```ts
  * import { provideSidecarObservability } from "@beep/runtime-server/internal/SidecarObservability"
  *
- * const provide = provideSidecarObservability
+ * const provide = provideSidecarObservability(config)
  *
  * void provide
  * ```
@@ -164,35 +176,38 @@ export const observeHttpRequest = <A, E extends { readonly status: number }, R>(
  * @since 0.0.0
  * @category cross cutting
  */
-export const provideSidecarObservability = <A, E, R>(
-  config: SidecarObservabilityConfig,
-  effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> =>
-  Effect.scoped(
-    Layer.build(
-      Layer.mergeAll(
-        Metric.enableRuntimeMetricsLayer,
-        config.otlpEnabled
-          ? Otlp.layerProtobuf({
-              baseUrl: config.otlpBaseUrl,
-              resource: makeOtlpResource(config),
-              loggerExportInterval: Duration.seconds(1),
-              loggerMergeWithExisting: true,
-              metricsExportInterval: Duration.seconds(10),
-              metricsTemporality: "cumulative",
-              tracerExportInterval: Duration.seconds(5),
-              shutdownTimeout: Duration.seconds(3),
-            }).pipe(Layer.provide(BunHttpClient.layer))
-          : Layer.empty,
-        config.devtoolsEnabled
-          ? layerFilteredDevTools({
-              url: config.devtoolsUrl,
-              shouldPublish: shouldPublishDevToolsSpan,
-            })
-          : Layer.empty
-      )
-    ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
-  );
+export const provideSidecarObservability: {
+  (config: SidecarObservabilityConfig): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  <A, E, R>(effect: Effect.Effect<A, E, R>, config: SidecarObservabilityConfig): Effect.Effect<A, E, R>;
+} = dual(
+  2,
+  <A, E, R>(effect: Effect.Effect<A, E, R>, config: SidecarObservabilityConfig): Effect.Effect<A, E, R> =>
+    Effect.scoped(
+      Layer.build(
+        Layer.mergeAll(
+          Metric.enableRuntimeMetricsLayer,
+          config.otlpEnabled
+            ? Otlp.layerProtobuf({
+                baseUrl: config.otlpBaseUrl,
+                resource: makeOtlpResource(config),
+                loggerExportInterval: Duration.seconds(1),
+                loggerMergeWithExisting: true,
+                metricsExportInterval: Duration.seconds(10),
+                metricsTemporality: "cumulative",
+                tracerExportInterval: Duration.seconds(5),
+                shutdownTimeout: Duration.seconds(3),
+              }).pipe(Layer.provide(BunHttpClient.layer))
+            : Layer.empty,
+          config.devtoolsEnabled
+            ? layerFilteredDevTools({
+                url: config.devtoolsUrl,
+                shouldPublish: shouldPublishDevToolsSpan,
+              })
+            : Layer.empty
+        )
+      ).pipe(Effect.flatMap((context) => effect.pipe(Effect.provide(context))))
+    )
+);
 
 /**
  * Observe a run lifecycle at the handler/service layer (outside workflow
@@ -206,10 +221,9 @@ export const provideSidecarObservability = <A, E, R>(
  * import { Effect } from "effect"
  * import { observeRunLifecycle } from "@beep/runtime-server/internal/SidecarObservability"
  *
- * const observed = observeRunLifecycle(
- *   { run_kind: "index" },
- *   Effect.succeed("completed")
- * )
+ * const observed = observeRunLifecycle(Effect.succeed("completed"), {
+ *   run_kind: "index"
+ * })
  *
  * void observed
  * ```
@@ -217,12 +231,15 @@ export const provideSidecarObservability = <A, E, R>(
  * @since 0.0.0
  * @category cross cutting
  */
-export const observeRunLifecycle = <A, E, R>(
-  attributes: Record<string, string>,
-  effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> =>
-  Metric.update(Metric.withAttributes(runsStartedTotal, attributes), 1).pipe(
-    Effect.andThen(effect),
-    Effect.tap(() => Metric.update(Metric.withAttributes(runsCompletedTotal, attributes), 1)),
-    Effect.tapError(() => Metric.update(Metric.withAttributes(runsFailedTotal, attributes), 1))
-  );
+export const observeRunLifecycle: {
+  (attributes: Record<string, string>): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  <A, E, R>(effect: Effect.Effect<A, E, R>, attributes: Record<string, string>): Effect.Effect<A, E, R>;
+} = dual(
+  2,
+  <A, E, R>(effect: Effect.Effect<A, E, R>, attributes: Record<string, string>): Effect.Effect<A, E, R> =>
+    Metric.update(Metric.withAttributes(runsStartedTotal, attributes), 1).pipe(
+      Effect.andThen(effect),
+      Effect.tap(() => Metric.update(Metric.withAttributes(runsCompletedTotal, attributes), 1)),
+      Effect.tapError(() => Metric.update(Metric.withAttributes(runsFailedTotal, attributes), 1))
+    )
+);

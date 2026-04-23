@@ -16,6 +16,9 @@ import * as S from "effect/Schema";
 const $I = $SharedServerId.create("factories/effect-drizzle/Errors");
 
 const getErrorMessage = (cause: unknown, fallback: string): string => (P.isError(cause) ? cause.message : fallback);
+type EffectDrizzleQueryErrorOptions = {
+  readonly params: ReadonlyArray<unknown>;
+};
 
 /**
  * Generic infrastructure failure raised by the Effect Drizzle integration.
@@ -267,11 +270,9 @@ export const effectDrizzleErrorFromUnknown: {
  * ```ts
  * import { effectDrizzleQueryErrorFromUnknown } from "@beep/shared-server/factories/effect-drizzle"
  *
- * const error = effectDrizzleQueryErrorFromUnknown(
- *   "select 1",
- *   [],
- *   "query failed"
- * )
+ * const error = effectDrizzleQueryErrorFromUnknown("query failed", "select 1", {
+ *   params: []
+ * })
  *
  * void error
  * ```
@@ -279,11 +280,10 @@ export const effectDrizzleErrorFromUnknown: {
  * @since 0.0.0
  * @category constructors
  */
-export const effectDrizzleQueryErrorFromUnknown = (
-  query: string,
-  params: ReadonlyArray<unknown>,
-  cause: unknown
-): EffectDrizzleQueryError => {
+export const effectDrizzleQueryErrorFromUnknown: {
+  (query: string, options: EffectDrizzleQueryErrorOptions): (cause: unknown) => EffectDrizzleQueryError;
+  (cause: unknown, query: string, options: EffectDrizzleQueryErrorOptions): EffectDrizzleQueryError;
+} = dual(3, (cause: unknown, query: string, options: EffectDrizzleQueryErrorOptions): EffectDrizzleQueryError => {
   if (isEffectDrizzleQueryError(cause)) {
     return cause;
   }
@@ -298,10 +298,10 @@ export const effectDrizzleQueryErrorFromUnknown = (
 
   return new EffectDrizzleQueryError({
     query,
-    params: A.fromIterable(params),
+    params: A.fromIterable(options.params),
     cause,
   });
-};
+});
 
 /**
  * Normalize any thrown value into a typed migrator init failure.
@@ -357,5 +357,7 @@ export const isEffectTransactionRollbackError = isRollbackError;
  * @since 0.0.0
  * @category helpers
  */
-export const getQueryFailureMessage = (cause: unknown, query: string): string =>
-  getErrorMessage(cause, `Failed to execute query: ${query}`);
+export const getQueryFailureMessage: {
+  (query: string): (cause: unknown) => string;
+  (cause: unknown, query: string): string;
+} = dual(2, (cause: unknown, query: string): string => getErrorMessage(cause, `Failed to execute query: ${query}`));

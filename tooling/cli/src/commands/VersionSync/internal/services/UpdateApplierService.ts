@@ -7,9 +7,8 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
-import { Context, Effect, type FileSystem, Layer, Match, MutableHashMap, Path, pipe } from "effect";
+import { Context, Effect, type FileSystem, Layer, Match, MutableHashMap, Number as Num, Path, pipe } from "effect";
 import * as A from "effect/Array";
-import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -129,7 +128,9 @@ const applyDockerUpdates = Effect.fn(function* (repoRoot: string, report: Versio
       continue;
     }
 
-    const changed = yield* updateYamlValue(composePath, ["services", serviceName.value, "image"], item.expected);
+    const changed = yield* updateYamlValue(composePath, ["services", serviceName.value, "image"], {
+      value: item.expected,
+    });
     filesChanged = countChangedFile(filesChanged, changed);
   }
 
@@ -170,7 +171,9 @@ const applyEffectUpdates = Effect.fn(function* (repoRoot: string, report: Versio
       continue;
     }
 
-    const changed = yield* updateCatalogEntry(packageJsonPath, dependencyName, item.expected);
+    const changed = yield* updateCatalogEntry(packageJsonPath, dependencyName, {
+      versionSpecifier: item.expected,
+    });
     filesChanged = countChangedFile(filesChanged, changed);
   }
 

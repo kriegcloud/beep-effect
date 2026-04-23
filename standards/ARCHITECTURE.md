@@ -64,7 +64,19 @@ validation, and pure behavior. Domain behavior may return Effect values for
 typed validation and domain failure, but it must not perform infrastructure side
 effects.
 
-### 5. Topology Is Compressed Context
+### 5. Schemas Are Executable Contracts
+
+For pure data models, `Schema` is the source of truth. Rich annotations, codecs,
+constructors, defaults, guards, equivalence, documentation metadata, and runtime
+decoders should come from the same schema value. Plain `type` aliases and
+`interface` declarations may describe compile-time intent, but they cannot prove
+unknown runtime data is valid.
+
+Service contracts and type-level-only utility surfaces may stay as TypeScript
+types. Domain payloads, wire payloads, persisted rows, and config payloads
+should be schema-first whenever `Schema` can represent the shape.
+
+### 6. Topology Is Compressed Context
 
 Humans get the map from mirrored package paths. Agents get instruction from role
 suffixes. This is why the repo uses concept-qualified role module names such as
@@ -90,8 +102,8 @@ flowchart TD
   server["@beep/<slice>-server"]
   domain["@beep/<slice>-domain"]
   tables["@beep/<slice>-tables"]
-  providers["@beep/<slice>-providers/*"]
-  sharedCore["@beep/shared-*<br/>shared/common primitives"]
+  providers["@beep/<slice>-<provider>"]
+  sharedCore["shared/common domain primitives<br/>(excludes @beep/shared-config)"]
   sharedConfig["@beep/shared-config"]
 
   ui --> client
@@ -148,6 +160,9 @@ Client/UI dependency caveats:
   Layer implementations.
 - `client` may import `config` only through public/browser-safe exports. It must
   not import server config, secret config, or live server-only config Layers.
+- `client` may import `@beep/shared-config` only through public/browser-safe
+  exports. It must not import shared server config, secret helpers that expose
+  secret contracts, live server Layers, or test `ConfigProvider` utilities.
 - `use-cases` may import `config` contracts or services for application tunables.
   Live config resolution belongs in server, client, or app/runtime composition.
 - `ui` may import `domain` only for provider-neutral schemas, value objects,
@@ -187,12 +202,15 @@ The package names follow the public package convention:
 @beep/<slice>-client
 @beep/<slice>-tables
 @beep/<slice>-ui
-@beep/<slice>-providers-<provider>
+@beep/<slice>-<provider>
+@beep/<provider>
 ```
 
-Provider package naming may vary by package manager constraints, but the
-architecture role does not vary: providers expose technical capability, not
-business behavior.
+Slice-local provider packages use `@beep/<slice>-<provider>`, for example
+`@beep/iam-drizzle`. Shared providers promoted out of a slice use
+`@beep/<provider>`, for example `@beep/firecrawl`. Provider package naming may
+vary when package manager constraints require it, but the architecture role does
+not vary: providers expose technical capability, not business behavior.
 
 `config` is canonical but optional. Create it only when a slice has meaningful
 configuration contracts. The canonical shared package name is
@@ -376,13 +394,13 @@ concept only owns the role files that its behavior actually needs.
 
 Domain package folders classify the kind of domain concept:
 
-| Folder | Meaning |
-|---|---|
-| `aggregates/` | Aggregate roots and consistency boundaries. Use when lifecycle and invariants span multiple child entities or values. |
-| `entities/` | Identity-bearing concepts that are not aggregate roots, or simple aggregate-like concepts whose boundary is only themselves. |
-| `values/` | Value objects with no identity. Prefer local concept values first; promote to `values/` only when reused. |
-| `policies/` | Escape hatch for slice-wide or cross-concept pure policies. Not the default. |
-| `services/` | Rare pure DDD domain services. Not application services, not Effect service ports. |
+| Folder        | Meaning                                                                                                                      |
+|---------------|------------------------------------------------------------------------------------------------------------------------------|
+| `aggregates/` | Aggregate roots and consistency boundaries. Use when lifecycle and invariants span multiple child entities or values.        |
+| `entities/`   | Identity-bearing concepts that are not aggregate roots, or simple aggregate-like concepts whose boundary is only themselves. |
+| `values/`     | Value objects with no identity. Prefer local concept values first; promote to `values/` only when reused.                    |
+| `policies/`   | Escape hatch for slice-wide or cross-concept pure policies. Not the default.                                                 |
+| `services/`   | Rare pure DDD domain services. Not application services, not Effect service ports.                                           |
 
 Aggregates are first-class. Do not hide aggregate roots in `entities/` when the
 concept is really a consistency boundary.
@@ -432,21 +450,21 @@ TestLayer.ts
 
 ### Domain Role Vocabulary
 
-| Role | Meaning |
-|---|---|
-| `.model.ts` | Schema-first model, identity, constructors, simple rich methods. |
-| `.values.ts` | Concept-local value objects. |
-| `.errors.ts` | Actionable domain failures callers may branch on. |
-| `.behavior.ts` | Pure behavior too large or visible for the model file. |
-| `.policy.ts` | Pure domain decision law. |
-| `.access.ts` | Pure permission/action/resource vocabulary. |
-| `.contracts.ts` | Provider-neutral DTOs shared by protocols and use-cases. |
-| `.events.ts` | Domain events and event groups. |
-| `.machine.ts` | Pure lifecycle state machine. |
-| `.http.ts` | Provider-neutral HttpApi endpoint/group declarations. |
-| `.rpc.ts` | Provider-neutral Rpc/RpcGroup declarations. |
-| `.tools.ts` | Provider-neutral AI tool/toolkit declarations. |
-| `.cluster.ts` | Provider-neutral cluster entity protocol definitions. |
+| Role            | Meaning                                                          |
+|-----------------|------------------------------------------------------------------|
+| `.model.ts`     | Schema-first model, identity, constructors, simple rich methods. |
+| `.values.ts`    | Concept-local value objects.                                     |
+| `.errors.ts`    | Actionable domain failures callers may branch on.                |
+| `.behavior.ts`  | Pure behavior too large or visible for the model file.           |
+| `.policy.ts`    | Pure domain decision law.                                        |
+| `.access.ts`    | Pure permission/action/resource vocabulary.                      |
+| `.contracts.ts` | Provider-neutral DTOs shared by protocols and use-cases.         |
+| `.events.ts`    | Domain events and event groups.                                  |
+| `.machine.ts`   | Pure lifecycle state machine.                                    |
+| `.http.ts`      | Provider-neutral HttpApi endpoint/group declarations.            |
+| `.rpc.ts`       | Provider-neutral Rpc/RpcGroup declarations.                      |
+| `.tools.ts`     | Provider-neutral AI tool/toolkit declarations.                   |
+| `.cluster.ts`   | Provider-neutral cluster entity protocol definitions.            |
 
 Domain protocol role files declare boundary language only. They may define
 HttpApi, Rpc, AI tool, or cluster protocol contracts, but they must not define
@@ -454,63 +472,63 @@ handlers, clients, transports, runtimes, persistence, or provider access.
 
 ### Use-Case Role Vocabulary
 
-| Role | Meaning |
-|---|---|
-| `.commands.ts` | Application command envelopes and command language. |
-| `.queries.ts` | Application query envelopes and query language. |
-| `.access.ts` | Effectful authorization over domain access vocabulary. |
-| `.ports.ts` | Product ports needed by use-cases. |
-| `.service.ts` | Application service contract/orchestration facade. |
-| `.errors.ts` | Actionable application failures. |
-| `.workflows.ts` | Durable workflow declarations or application workflow contracts. |
+| Role            | Meaning                                                                             |
+|-----------------|-------------------------------------------------------------------------------------|
+| `.commands.ts`  | Application command envelopes and command language.                                 |
+| `.queries.ts`   | Application query envelopes and query language.                                     |
+| `.access.ts`    | Effectful authorization over domain access vocabulary.                              |
+| `.ports.ts`     | Product ports needed by use-cases.                                                  |
+| `.service.ts`   | Application service contract/orchestration facade.                                  |
+| `.errors.ts`    | Actionable application failures.                                                    |
+| `.workflows.ts` | Durable workflow declarations or application workflow contracts.                    |
 | `.processes.ts` | Process managers/sagas coordinating multiple commands, events, ports, or workflows. |
 
 ### Config Role Vocabulary
 
-| Role | Meaning |
-|---|---|
-| `.config.ts` | Concept-owned Effect `Config` declarations, typed config models, and config vocabulary. |
-| `Config.ts` | Package-level config composer for shared slice config contracts. |
-| `PublicConfig.ts` | Browser-safe config contracts and services that client packages may import. |
-| `ServerConfig.ts` | Server-only config contracts and services. |
-| `Secrets.ts` | Secret config declarations using redacted values. |
-| `Layer.ts` | Live config Layer reading from the ambient `ConfigProvider`. |
-| `TestLayer.ts` | Static/test config Layers and fixtures tied to config declarations. |
+| Role              | Meaning                                                                                 |
+|-------------------|-----------------------------------------------------------------------------------------|
+| `.config.ts`      | Concept-owned Effect `Config` declarations, typed config models, and config vocabulary. |
+| `Config.ts`       | Package-level config composer for shared slice config contracts.                        |
+| `PublicConfig.ts` | Browser-safe config contracts and services that client packages may import.             |
+| `ServerConfig.ts` | Server-only config contracts and services.                                              |
+| `Secrets.ts`      | Secret config declarations using redacted values.                                       |
+| `Layer.ts`        | Live config Layer reading from the ambient `ConfigProvider`.                            |
+| `TestLayer.ts`    | Static/test config Layers and fixtures tied to config declarations.                     |
 
 ### Server Role Vocabulary
 
-| Role | Meaning |
-|---|---|
-| `.repo.ts` | Product repository port implementation. |
-| `.<port-name>.ts` | Product port implementation named after the port, such as `.mailer.ts` or `.token-signer.ts`. |
-| `.http-handlers.ts` | HttpApi handlers. |
-| `.rpc-handlers.ts` | Rpc server handlers. |
-| `.tool-handlers.ts` | AI tool handlers. |
-| `.event-handlers.ts` | Side-effectful domain event reactions. |
-| `.cluster-handlers.ts` | Cluster entity runtime handlers. |
-| `.workflow-handlers.ts` | Workflow runtime handlers. |
-| `.projections.ts` | Projection/read-model writers. |
-| `.layer.ts` | Concept-level server Layer composition. |
+| Role                    | Meaning                                                                                       |
+|-------------------------|-----------------------------------------------------------------------------------------------|
+| `.repo.ts`              | Product repository port implementation.                                                       |
+| `.<port-name>.ts`       | Product port implementation named after the port, such as `.mailer.ts` or `.token-signer.ts`. |
+| `.http-handlers.ts`     | HttpApi handlers.                                                                             |
+| `.rpc-handlers.ts`      | Rpc server handlers.                                                                          |
+| `.tool-handlers.ts`     | AI tool handlers.                                                                             |
+| `.event-handlers.ts`    | Side-effectful domain event reactions.                                                        |
+| `.cluster-handlers.ts`  | Cluster entity runtime handlers.                                                              |
+| `.workflow-handlers.ts` | Workflow runtime handlers.                                                                    |
+| `.projections.ts`       | Projection/read-model writers.                                                                |
+| `.layer.ts`             | Concept-level server Layer composition.                                                       |
 
 ### Client Role Vocabulary
 
-| Role | Meaning |
-|---|---|
-| `.command-client.ts` | Remote command adapter. |
-| `.query-client.ts` | Remote query adapter. |
-| `.service.ts` | Ergonomic client-facing `Context.Service` facade. |
-| `.atoms.ts` | Effect Reactivity atoms, refs, and client state. |
-| `.form-model.ts` | Form schemas, metadata, and client validation model. |
-| `.machine.ts` | Browser/client interaction state machine. |
-| `.layer.ts` | Concept-level client Layer composition. |
+| Role                 | Meaning                                              |
+|----------------------|------------------------------------------------------|
+| `.command-client.ts` | Remote command adapter.                              |
+| `.query-client.ts`   | Remote query adapter.                                |
+| `.service.ts`        | Ergonomic client-facing `Context.Service` facade.    |
+| `.atoms.ts`          | Effect Reactivity atoms, refs, and client state.     |
+| `.form-model.ts`     | Form schemas, metadata, and client validation model. |
+| `.machine.ts`        | Browser/client interaction state machine.            |
+| `.layer.ts`          | Concept-level client Layer composition.              |
 
 ### Tables, UI, And Provider Role Vocabulary
 
-| Package | Roles |
-|---|---|
-| `tables` | `.table.ts`, `.read-model-table.ts`, `Tables.ts`, `ReadModels.ts` |
-| `ui` | `.form.tsx`, `.fields.tsx`, `.table.tsx`, `.list.tsx`, `.detail.tsx`, `.admin.tsx` |
-| `providers/*` | `.service.ts`, `.layer.ts`, `.errors.ts`, `.config.ts`, `.test-layer.ts` |
+| Package       | Roles                                                                              |
+|---------------|------------------------------------------------------------------------------------|
+| `tables`      | `.table.ts`, `.read-model-table.ts`, `Tables.ts`, `ReadModels.ts`                  |
+| `ui`          | `.form.tsx`, `.fields.tsx`, `.table.tsx`, `.list.tsx`, `.detail.tsx`, `.admin.tsx` |
+| `providers/*` | `.service.ts`, `.layer.ts`, `.errors.ts`, `.config.ts`, `.test-layer.ts`           |
 
 ## Responsibility Boundaries
 
@@ -587,6 +605,12 @@ Providers own technical engines and dev-safe wrappers:
 
 Provider packages do not define product/business ports by default.
 
+Slice-local provider packages use `@beep/<slice>-<provider>`. Promote a provider
+to `@beep/<provider>` only when the provider contract is genuinely product-neutral
+and stable across multiple slices. If the shared provider name would be too
+generic or misleading, choose a more capability-specific provider name instead of
+adding product vocabulary.
+
 Provider `.config.ts` files own technical provider knobs. Slice `config` owns
 application-facing configuration contracts. Server or app Layers may compose
 slice config with provider config at adapter boundaries, but slice config should
@@ -653,12 +677,12 @@ TwoFactor enrollment can be disabled or whether recovery codes may be rotated.
 
 Errors are split by actionability:
 
-| Error kind | Location |
-|---|---|
-| Actionable domain failure | `domain/<Concept>.errors.ts` |
-| Actionable application failure | `use-cases/<Concept>.errors.ts` |
-| Technical/internal provider failure | `providers/<Provider>.errors.ts` |
-| Boundary translation failure | server handlers translate to protocol response shape |
+| Error kind                          | Location                                             |
+|-------------------------------------|------------------------------------------------------|
+| Actionable domain failure           | `domain/<Concept>.errors.ts`                         |
+| Actionable application failure      | `use-cases/<Concept>.errors.ts`                      |
+| Technical/internal provider failure | `providers/<Provider>.errors.ts`                     |
+| Boundary translation failure        | server handlers translate to protocol response shape |
 
 Do not create `*.errors.ts` files just to wrap every possible failure. Create
 them when callers can make product decisions from the error tag.
@@ -695,13 +719,13 @@ Provider services use Effect v4 `Context.Service` and expose technical
 capability, not product verbs:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamDrizzleId } from "@beep/identity/packages"
 import { TaggedErrorClass } from "@beep/schema"
 import { Context, Effect, Layer } from "effect"
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
 
-const $I = $RootId.create("iam/providers/drizzle/src/Drizzle.service.ts")
+const $I = $IamDrizzleId.create("Drizzle.service")
 
 export class DrizzleError extends TaggedErrorClass<DrizzleError>(
   $I`DrizzleError`,
@@ -757,14 +781,14 @@ Product ports use product language. Actionable port failures live in
 technical/provider failures inline:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, type Effect } from "effect"
 import type * as O from "effect/Option"
 import type { TwoFactor } from "@beep/iam-domain/entities/TwoFactor"
 import type { AccountId } from "@beep/iam-domain/entities/Account"
 import type { TwoFactorRepositoryError } from "./TwoFactor.errors.js"
 
-const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.ports.ts")
+const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.ports")
 
 export class TwoFactorRepository extends Context.Service<
   TwoFactorRepository,
@@ -786,7 +810,7 @@ import { Effect, Layer } from "effect"
 import * as A from "effect/Array"
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
-import { Drizzle } from "@beep/iam-providers-drizzle"
+import { Drizzle } from "@beep/iam-drizzle"
 import {
   TwoFactorRepository,
   toTwoFactorRepositoryError,
@@ -929,12 +953,12 @@ sequenceDiagram
 
 State machine placement:
 
-| Machine | Location |
-|---|---|
-| Pure lifecycle transition law | `domain/<Concept>.machine.ts` |
-| Process manager / saga | `use-cases/<Concept>.processes.ts` |
+| Machine                          | Location                               |
+|----------------------------------|----------------------------------------|
+| Pure lifecycle transition law    | `domain/<Concept>.machine.ts`          |
+| Process manager / saga           | `use-cases/<Concept>.processes.ts`     |
 | Cluster runtime mailbox behavior | `server/<Concept>.cluster-handlers.ts` |
-| Client interaction state | `client/<Concept>.machine.ts` |
+| Client interaction state         | `client/<Concept>.machine.ts`          |
 
 ## Layer Composition Without God Layers
 
@@ -977,10 +1001,10 @@ are welded together.
 Domain errors are actionable, and domain model behavior is pure:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamDomainId } from "@beep/identity/packages"
 import { TaggedErrorClass } from "@beep/schema"
 
-const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.errors.ts")
+const $I = $IamDomainId.create("entities/TwoFactor/TwoFactor.errors")
 
 export class NoRecoveryCodesRemaining extends TaggedErrorClass<NoRecoveryCodesRemaining>(
   $I`NoRecoveryCodesRemaining`,
@@ -994,14 +1018,14 @@ export class NoRecoveryCodesRemaining extends TaggedErrorClass<NoRecoveryCodesRe
 ```
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamDomainId } from "@beep/identity/packages"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { AccountId } from "@beep/iam-domain/entities/Account"
 import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
 
-const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.model.ts")
+const $I = $IamDomainId.create("entities/TwoFactor/TwoFactor.model")
 
 export const TwoFactorId = S.String.pipe(
   S.brand("TwoFactorId"),
@@ -1032,10 +1056,7 @@ export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
       recoveryCodesRemaining: this.recoveryCodesRemaining,
     })
 
-  readonly useRecoveryCode = (): Effect.Effect<
-    TwoFactor,
-    NoRecoveryCodesRemaining
-  > =>
+  readonly useRecoveryCode = Effect.fn("TwoFactor.useRecoveryCode")(() =>
     this.recoveryCodesRemaining > 0
       ? Effect.succeed(
           TwoFactor.make({
@@ -1045,14 +1066,15 @@ export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
             recoveryCodesRemaining: this.recoveryCodesRemaining - 1,
           }),
         )
-      : Effect.fail(new NoRecoveryCodesRemaining())
+      : Effect.fail(new NoRecoveryCodesRemaining()),
+  )
 }
 ```
 
 Use-case service orchestrates ports and domain behavior:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, Effect, Layer } from "effect"
 import * as O from "effect/Option"
 import { TwoFactorAccess } from "./TwoFactor.access.js"
@@ -1064,7 +1086,7 @@ import {
 } from "./TwoFactor.errors.js"
 import { TwoFactorRepository } from "./TwoFactor.ports.js"
 
-const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.service.ts")
+const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.service")
 
 export class TwoFactorService extends Context.Service<
   TwoFactorService,

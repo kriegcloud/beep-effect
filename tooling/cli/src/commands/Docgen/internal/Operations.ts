@@ -16,8 +16,9 @@ import {
 } from "@beep/repo-utils";
 import { LiteralKit } from "@beep/schema";
 import { thunk0, thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { DateTime, Effect, FileSystem, flow, Function as Fn, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
+import { DateTime, Effect, FileSystem, flow, HashMap, MutableHashSet, Order, Path, pipe, Stream } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -31,6 +32,7 @@ import {
   CanonicalDocgenConfigInput,
   collectDocgenWorkspaceDependencyNames,
   createCanonicalDocgenConfig,
+  type DocgenAliasSource,
   toCanonicalDocgenConfigJson,
 } from "../../Shared/DocgenConfig.js";
 
@@ -39,6 +41,14 @@ const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
 const DOCS_MODULES_SEGMENTS = ["docs", "modules"] as const;
 const DOCGEN_REQUIRED_TAGS = ["@example", "@since"] as const;
+
+type ResolveDocgenWorkspacePackageOptions = {
+  readonly rootDir?: string | undefined;
+};
+
+const isResolveDocgenWorkspacePackageDataFirst = (args: IArguments): boolean =>
+  (args.length === 1 && P.isString(args[0])) || args.length === 2;
+
 const parseJsonText = S.decodeUnknownSync(S.UnknownFromJsonString);
 const byRelativePathAscending: Order.Order<DocgenWorkspacePackage> = Order.mapInput(
   Order.String,
@@ -350,7 +360,7 @@ const loadWorkspaceDocgenAliasSources = Effect.fn("DocgenOperations.loadWorkspac
 ) {
   const path = yield* Path.Path;
   const workspaceDirs = yield* resolveWorkspaceDirs(rootDir);
-  const aliasSources = A.empty<ReturnType<typeof buildDocgenAliasSource>>();
+  const aliasSources = A.empty<DocgenAliasSource>();
 
   for (const [packageName, absolutePath] of workspaceDirs) {
     const packageJson = yield* readPackageJson(absolutePath);
@@ -919,7 +929,7 @@ export const createDocgenConfigDocument: {
   ): (
     targetPackage: DocgenWorkspacePackage
   ) => Effect.Effect<DocgenConfigDocument, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils>;
-} = Fn.dual(
+} = dual(
   2,
   Effect.fn("DocgenOperations.createDocgenConfigDocument")(function* (targetPackage, rootDir) {
     const packageJson = yield* readPackageJson(targetPackage.absolutePath);
@@ -990,7 +1000,7 @@ export const discoverDocgenWorkspacePackages: (
  * Resolve a workspace package by package name, repo-relative path, absolute path, or current docs output path.
  *
  * @param selector - Package selector supplied by the CLI.
- * @param rootDir - Optional repo root override.
+ * @param options - Optional repo root override.
  * @returns Resolved workspace package descriptor.
  * @category DomainModel
  * @since 0.0.0
@@ -998,12 +1008,25 @@ export const discoverDocgenWorkspacePackages: (
 export const resolveDocgenWorkspacePackage: {
   (
     selector: string,
-    rootDir?: string
+    options?: ResolveDocgenWorkspacePackageOptions
   ): Effect.Effect<DocgenWorkspacePackage, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils>;
-  (selector: string): Effect.Effect<DocgenWorkspacePackage, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils>;
-} = Effect.fn("DocgenOperations.resolveDocgenWorkspacePackage")(function* (selector: string, rootDir?: string) {
+  (
+    options: ResolveDocgenWorkspacePackageOptions
+  ): (
+    selector: string
+  ) => Effect.Effect<
+    DocgenWorkspacePackage,
+    DomainError | NoSuchFileError,
+    FileSystem.FileSystem | Path.Path | FsUtils
+  >;
+} = dual(
+  isResolveDocgenWorkspacePackageDataFirst,
+  Effect.fn("DocgenOperations.resolveDocgenWorkspacePackage")(function* (
+    selector: string,
+    options?: ResolveDocgenWorkspacePackageOptions
+  ) {
     const path = yield* Path.Path;
-    const repoRoot = rootDir ?? (yield* findRepoRoot());
+    const repoRoot = options?.rootDir ?? (yield* findRepoRoot());
     const normalizedSelector = normalizeSlashes(selector);
     const absoluteSelector = path.isAbsolute(selector) ? path.normalize(selector) : path.resolve(repoRoot, selector);
     const packages = yield* discoverDocgenWorkspacePackages(repoRoot);
@@ -1023,7 +1046,8 @@ export const resolveDocgenWorkspacePackage: {
         }),
       onSome: Effect.succeed,
     });
-  });
+  })
+);
 
 /**
  * Analyze a package for missing docgen-required JSDoc.
@@ -1080,7 +1104,7 @@ export const analyzePackageDocumentation: (
 export const generateAnalysisReport: {
   (analysis: DocgenPackageAnalysis, fixMode: boolean): string;
   (fixMode: boolean): (analysis: DocgenPackageAnalysis) => string;
-} = Fn.dual(2, (analysis: DocgenPackageAnalysis, fixMode: boolean): string => {
+} = dual(2, (analysis: DocgenPackageAnalysis, fixMode: boolean): string => {
   const issues = A.filter(analysis.exports, (entry) => A.isReadonlyArrayNonEmpty(entry.missingTags));
   const high = A.filter(issues, (entry) => entry.priority === "high");
   const medium = A.filter(issues, (entry) => entry.priority === "medium");
@@ -1216,7 +1240,7 @@ export const aggregateGeneratedDocs = (options?: {
     const docsRoot = path.join(repoRoot, "docs");
     const selectedPackage = P.isUndefined(options?.package)
       ? undefined
-      : yield* resolveDocgenWorkspacePackage(options.package, repoRoot);
+      : yield* resolveDocgenWorkspacePackage(options.package, { rootDir: repoRoot });
     const packages = P.isUndefined(selectedPackage)
       ? A.filter(yield* discoverDocgenWorkspacePackages(repoRoot), (pkg) => pkg.hasGeneratedDocs)
       : selectedPackage.hasGeneratedDocs

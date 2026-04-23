@@ -8,9 +8,9 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError, findRepoRoot, resolveWorkspaceDirs } from "@beep/repo-utils";
 import { normalizePath } from "@beep/schema";
-import { Console, Effect, FileSystem, Function as Fn, MutableHashSet, Path } from "effect";
+import { Console, Effect, FileSystem, MutableHashSet, Number as Num, Path } from "effect";
 import * as A from "effect/Array";
-import * as Num from "effect/Number";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
@@ -200,7 +200,7 @@ export const purgeAtRoot: {
   (
     removeLock: boolean
   ): (rootDir: string) => Effect.Effect<PurgeSummary, DomainError, FileSystem.FileSystem | Path.Path>;
-} = Fn.dual(
+} = dual(
   2,
   Effect.fn(function* (rootDir: string, removeLock: boolean) {
     const fs = yield* FileSystem.FileSystem;

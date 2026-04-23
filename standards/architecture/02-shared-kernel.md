@@ -61,3 +61,7 @@ Domain packages may depend on shared/common domain primitives, but not shared
 config contracts or helpers. `@beep/shared-config` is for config, use-case,
 adapter, runtime, and test composition code; it is not an escape hatch for
 domain code to read configuration.
+
+Client packages may import `@beep/shared-config` only through public/browser-safe
+exports. Shared server config, secret helpers that expose secret contracts, live
+server Layers, and test `ConfigProvider` utilities stay out of browser bundles.

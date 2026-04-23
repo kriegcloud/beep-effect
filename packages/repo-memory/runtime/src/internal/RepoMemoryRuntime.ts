@@ -203,8 +203,6 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         yield* repoRunLifecycleController.suspendIfRunInterrupted(runId);
 
         const indexedArtifacts = yield* profileRunPhase(
-          "index",
-          "indexing",
           typeScriptIndex
             .indexRepo(
               new TypeScriptIndexRequest({
@@ -213,7 +211,8 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
                 runId,
               })
             )
-            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status))),
+          { runKind: "index", phase: "indexing" }
         );
 
         const completedAt = yield* DateTime.now;
@@ -318,11 +317,10 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
           percent: 25,
         });
         const grounding = yield* profileRunPhase(
-          "query",
-          "grounding",
           groundedRetrieval
             .ground(payload)
-            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status))),
+          { runKind: "query", phase: "grounding" }
         );
 
         runningRun = yield* repoRunEventLog.appendQueryStageProgress(runningRun, {
@@ -333,11 +331,10 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         yield* repoRunLifecycleController.suspendIfRunInterrupted(runId);
 
         const retrievedEvidence = yield* profileRunPhase(
-          "query",
-          "retrieval",
           groundedRetrieval
             .retrieve(grounding)
-            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status))),
+          { runKind: "query", phase: "retrieval" }
         );
 
         runningRun = yield* repoRunEventLog.appendQueryStageProgress(runningRun, {
@@ -348,11 +345,10 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         yield* repoRunLifecycleController.suspendIfRunInterrupted(runId);
 
         const retrievalPacket = yield* profileRunPhase(
-          "query",
-          "packet",
           groundedRetrieval
             .materializePacket(retrievedEvidence)
-            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status))),
+          { runKind: "query", phase: "packet" }
         );
 
         runningRun = yield* repoRunEventLog.appendQueryStageProgress(runningRun, {
@@ -363,11 +359,10 @@ const makeRepoRunService = Effect.fn("RepoRunService.make")(function* () {
         yield* repoRunLifecycleController.suspendIfRunInterrupted(runId);
 
         const groundedAnswer = yield* profileRunPhase(
-          "query",
-          "answer",
           groundedRetrieval
             .draftAnswer(retrievalPacket)
-            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status)))
+            .pipe(Effect.mapError((error) => RepoRunServiceError.new(error.cause, error.message, error.status))),
+          { runKind: "query", phase: "answer" }
         );
 
         runningRun = yield* repoRunEventLog.ensureProjectedQueryRun(

@@ -2,12 +2,11 @@
  * @module
  * @since 0.0.0
  */
-import { Function } from "effect";
+import { cast, dual } from "effect/Function";
 import * as Str from "effect/String";
 import type * as TF from "type-fest";
 import * as A from "./Array.ts";
 
-const { dual, cast } = Function;
 /**
  * Prepends `prefix` to a string, preserving template-literal types.
  *

@@ -51,7 +51,9 @@ const decodeJsonText = S.decodeUnknownEffect(S.UnknownFromJsonString);
 const decodeXmlText = S.decodeUnknownEffect(XmlTextToUnknown);
 const defaultCsvParserOptions = ParserOptions.new();
 
-type ParsedCsvRecords = Array<Record<string, string>> & {
+type ParsedCsvRecord = Readonly<Record<string, string>>;
+
+type ParsedCsvRecords = Array<ParsedCsvRecord> & {
   readonly columns: ReadonlyArray<string>;
 };
 
@@ -61,10 +63,7 @@ type SyncDataTargetSelection = {
   readonly all: boolean;
 };
 
-const attachCsvColumns = (
-  rows: ReadonlyArray<Record<string, string>>,
-  columns: ReadonlyArray<string>
-): ParsedCsvRecords => {
+const attachCsvColumns = (rows: ReadonlyArray<ParsedCsvRecord>, columns: ReadonlyArray<string>): ParsedCsvRecords => {
   const records = A.fromIterable(rows);
 
   Reflect.defineProperty(records, "columns", {
@@ -74,7 +73,7 @@ const attachCsvColumns = (
     writable: false,
   });
 
-  return cast<Array<Record<string, string>>, ParsedCsvRecords>(records);
+  return cast<Array<ParsedCsvRecord>, ParsedCsvRecords>(records);
 };
 
 const makeRunModeFlags = (check: boolean, dryRun: boolean): SyncDataRunModeFlags => [check, dryRun];
@@ -201,16 +200,15 @@ const decodeCsvText = Effect.fn("SyncDataToTs.decodeCsvText")(function* (content
   return yield* A.match(rawRows, {
     onEmpty: () => Effect.succeed(attachCsvColumns([], [])),
     onNonEmpty: ([headerRow]) => {
-      const rowSchema = S.Struct(
-        pipe(
-          headerRow,
-          A.map((header) => [header, S.String] as const),
-          R.fromEntries
-        )
+      const rowFields: Record<string, typeof S.String> = pipe(
+        headerRow,
+        A.map((header) => [header, S.String] as const),
+        R.fromEntries
       );
+      const rowSchema = S.Struct(rowFields);
 
       return S.decodeUnknownEffect(CSV({})(rowSchema))(content).pipe(
-        Effect.map((rows) => attachCsvColumns(rows, headerRow))
+        Effect.map((rows) => attachCsvColumns(rows as ReadonlyArray<ParsedCsvRecord>, headerRow))
       );
     },
   });

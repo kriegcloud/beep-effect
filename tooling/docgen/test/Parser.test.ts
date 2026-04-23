@@ -929,15 +929,25 @@ Since v1.0.0`
       expect(actual).toEqual([
         Domain.Export.new(
           "b",
-          Domain.Doc.new(undefined, ["1.0.0"], [], [], [], [], [], {
+          Domain.Doc.new(undefined, {
             since: ["1.0.0"],
+            deprecated: [],
+            examples: [],
+            category: [],
+            throws: [],
+            sees: [],
+            tags: {
+              since: ["1.0.0"],
+            },
           }),
-          "declare const b: 1",
           {
-            column: 11,
-            line: 7,
-          },
-          false
+            signature: "declare const b: 1",
+            position: {
+              column: 11,
+              line: 7,
+            },
+            isNamespaceExport: false,
+          }
         ),
       ]);
     });
@@ -960,15 +970,25 @@ Since v1.0.0`
       expect(actual).toEqual([
         Domain.Export.new(
           "'./example'",
-          Domain.Doc.new("Re-exports all named exports from the './example' module.", ["1.0.0"], [], [], [], [], [], {
+          Domain.Doc.new("Re-exports all named exports from the './example' module.", {
             since: ["1.0.0"],
+            deprecated: [],
+            examples: [],
+            category: [],
+            throws: [],
+            sees: [],
+            tags: {
+              since: ["1.0.0"],
+            },
           }),
-          "export * from './example'",
           {
-            column: 10,
-            line: 5,
-          },
-          true
+            signature: "export * from './example'",
+            position: {
+              column: 10,
+              line: 5,
+            },
+            isNamespaceExport: true,
+          }
         ),
       ]);
     });
@@ -991,24 +1011,25 @@ Since v1.0.0`
       expect(actual).toEqual([
         Domain.Export.new(
           "example",
-          Domain.Doc.new(
-            "Re-exports all named exports from the './example' module as `example`.",
-            ["1.0.0"],
-            [],
-            [],
-            [],
-            [],
-            [],
-            {
+          Domain.Doc.new("Re-exports all named exports from the './example' module as `example`.", {
+            since: ["1.0.0"],
+            deprecated: [],
+            examples: [],
+            category: [],
+            throws: [],
+            sees: [],
+            tags: {
               since: ["1.0.0"],
-            }
-          ),
-          "export * as example from './example'",
+            },
+          }),
           {
-            column: 11,
-            line: 5,
-          },
-          true
+            signature: "export * as example from './example'",
+            position: {
+              column: 11,
+              line: 5,
+            },
+            isNamespaceExport: true,
+          }
         ),
       ]);
     });

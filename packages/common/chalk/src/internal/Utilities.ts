@@ -7,6 +7,7 @@
 
 import { pipe } from "effect";
 import * as Bool from "effect/Boolean";
+import { dual } from "effect/Function";
 import * as Str from "effect/String";
 
 const replaceAllLoop = (text: string, substring: string, replacer: string): string => {
@@ -52,16 +53,23 @@ const renderLineBreakSliceEnd = (nextIndex: number, gotCR: boolean): number =>
  * @category utilities
  * @since 0.0.0
  */
-export const stringReplaceAll = (text: string, substring: string, replacer: string): string => {
+type StringReplaceAllOptions = {
+  readonly replacer: string;
+};
+
+export const stringReplaceAll: {
+  (text: string, substring: string, options: StringReplaceAllOptions): string;
+  (substring: string, options: StringReplaceAllOptions): (text: string) => string;
+} = dual(3, (text: string, substring: string, options: StringReplaceAllOptions): string => {
   return pipe(
     text,
     Str.includes(substring),
     Bool.match({
       onFalse: () => text,
-      onTrue: () => replaceAllLoop(text, substring, replacer),
+      onTrue: () => replaceAllLoop(text, substring, options.replacer),
     })
   );
-};
+});
 
 /**
  * Encase each line break with close and reopen ANSI sequences.
@@ -77,21 +85,27 @@ export const stringReplaceAll = (text: string, substring: string, replacer: stri
  * @category utilities
  * @since 0.0.0
  */
-export const stringEncaseCRLFWithFirstIndex = (
-  text: string,
-  prefix: string,
-  postfix: string,
-  index: number
-): string => {
+type StringEncaseCrlfOptions = {
+  readonly postfix: string;
+  readonly index: number;
+};
+
+export const stringEncaseCRLFWithFirstIndex: {
+  (text: string, prefix: string, options: StringEncaseCrlfOptions): string;
+  (prefix: string, options: StringEncaseCrlfOptions): (text: string) => string;
+} = dual(3, (text: string, prefix: string, options: StringEncaseCrlfOptions): string => {
   let endIndex = 0;
   let result = "";
-  let nextIndex = index;
+  let nextIndex = options.index;
 
   do {
     const gotCR = text[nextIndex - 1] === "\r";
 
     result +=
-      text.slice(endIndex, renderLineBreakSliceEnd(nextIndex, gotCR)) + prefix + renderLineBreak(gotCR) + postfix;
+      text.slice(endIndex, renderLineBreakSliceEnd(nextIndex, gotCR)) +
+      prefix +
+      renderLineBreak(gotCR) +
+      options.postfix;
     endIndex = nextIndex + 1;
     nextIndex = text.indexOf("\n", endIndex);
   } while (nextIndex !== -1);
@@ -99,4 +113,4 @@ export const stringEncaseCRLFWithFirstIndex = (
   result += text.slice(endIndex);
 
   return result;
-};
+});

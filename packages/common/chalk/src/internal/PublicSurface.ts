@@ -5,6 +5,7 @@
  * @since 0.0.0
  */
 
+import { dual } from "effect/Function";
 import type { ColorSupportLevel } from "./ChalkSchema.ts";
 
 /**
@@ -142,12 +143,15 @@ export type ChalkCreator = (options?: ChalkConstructorOptions) => object;
  * @category constructors
  * @since 0.0.0
  */
-export const makeChalkConstructor = <Base extends ChalkConstructorBase>(
-  ConstructorBase: Base,
-  create: ChalkCreator
-): Base =>
-  new Proxy(ConstructorBase, {
-    construct(_target, [options]: ReadonlyArray<ChalkConstructorOptions | undefined>) {
-      return create(options);
-    },
-  });
+export const makeChalkConstructor: {
+  <Base extends ChalkConstructorBase>(ConstructorBase: Base, create: ChalkCreator): Base;
+  (create: ChalkCreator): <Base extends ChalkConstructorBase>(ConstructorBase: Base) => Base;
+} = dual(
+  2,
+  <Base extends ChalkConstructorBase>(ConstructorBase: Base, create: ChalkCreator): Base =>
+    new Proxy(ConstructorBase, {
+      construct(_target, [options]: ReadonlyArray<ChalkConstructorOptions | undefined>) {
+        return create(options);
+      },
+    })
+);

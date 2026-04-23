@@ -5,10 +5,14 @@
  * @since 0.0.0
  */
 import { Effect } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import type * as Tracer from "effect/Tracer";
 import * as Headers from "effect/unstable/http/Headers";
 import * as HttpTraceContext from "effect/unstable/http/HttpTraceContext";
+
+const isTraceContextDataFirst = (args: IArguments): boolean => args.length >= 2 || Effect.isEffect(args[0]);
 
 /**
  * Extract an incoming parent span from trace headers.
@@ -65,9 +69,9 @@ export const injectTraceContextHeaders = (headers?: Headers.Input): Effect.Effec
  * @since 0.0.0
  * @category observability
  */
-export const withIncomingTraceContext = <A, E, R>(
-  headers: Headers.Input | undefined,
-  effect: Effect.Effect<A, E, R>
+const withIncomingTraceContextImpl = <A, E, R>(
+  effect: Effect.Effect<A, E, R>,
+  headers: Headers.Input | undefined
 ): Effect.Effect<A, E, R> =>
   extractTraceContextHeaders(headers).pipe(
     O.match({
@@ -75,3 +79,29 @@ export const withIncomingTraceContext = <A, E, R>(
       onSome: (span) => Effect.withParentSpan(effect, span, { captureStackTrace: false }),
     })
   );
+
+export const withIncomingTraceContext: {
+  <A, E, R>(effect: Effect.Effect<A, E, R>, headers: Headers.Input | undefined): Effect.Effect<A, E, R>;
+  <A, E, R>(headers: Headers.Input | undefined, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
+  (headers: Headers.Input | undefined): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+} = dual(
+  isTraceContextDataFirst,
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R> | Headers.Input | undefined,
+    headers: Headers.Input | Effect.Effect<A, E, R> | undefined
+  ): Effect.Effect<A, E, R> => {
+    if (Effect.isEffect(effect) && !Effect.isEffect(headers)) {
+      return withIncomingTraceContextImpl(effect, headers);
+    }
+
+    if (P.isNotUndefined(effect) && !Effect.isEffect(effect) && Effect.isEffect(headers)) {
+      return withIncomingTraceContextImpl(headers, effect);
+    }
+
+    if (P.isUndefined(effect) && Effect.isEffect(headers)) {
+      return withIncomingTraceContextImpl(headers, undefined);
+    }
+
+    return Effect.die("Invalid withIncomingTraceContext arguments");
+  }
+);

@@ -79,6 +79,9 @@ function assertStructHasStringEntries<T>(
   );
 }
 
+const pathFromOptions = (options: { readonly path: PathInput }): PathInput =>
+  P.isObject(options) && P.hasProperty(options, "path") ? cast(options.path) : cast(options);
+
 /**
  * Result of a runtime struct path lookup.
  *
@@ -192,9 +195,9 @@ export const dotGetOption: {
  * tuple paths resolve via `type-fest` `Get`.
  *
  * Supports a dual API:
- * - Data-last: `pipe(self, Struct.mapPath(renderName, "profile.name"))`
- * - Data-first: `Struct.mapPath(self, renderName, "profile.name")`
- * - Tuple paths: `Struct.mapPath(self, renderName, ["profile", "name"] as const)`
+ * - Data-last: `pipe(self, Struct.mapPath(renderName, { path: "profile.name" }))`
+ * - Data-first: `Struct.mapPath(self, renderName, { path: "profile.name" })`
+ * - Tuple paths: `Struct.mapPath(self, renderName, { path: ["profile", "name"] as const })`
  *
  * If the runtime value does not actually satisfy the statically-declared path,
  * `undefined` is forwarded to `f`, matching {@link dotGet}.
@@ -207,7 +210,7 @@ export const dotGetOption: {
  * const user = { profile: { name: "alice" } }
  *
  * // Data-first
- * const upper = Struct.mapPath(user, (s: string) => s.toUpperCase(), "profile.name")
+ * const upper = Struct.mapPath(user, (s: string) => s.toUpperCase(), { path: "profile.name" })
  * // "ALICE"
  *
  * void upper
@@ -219,43 +222,44 @@ export const dotGetOption: {
 export const mapPath: {
   <A, B, const P extends string>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => B;
   <A, B, const P extends ReadonlyArray<string>>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: Get<S, P> extends A ? S : never) => B;
   <S extends object, A, B, const P extends string & Paths<S>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): B;
   <S extends object, A, B, const P extends ReadonlyArray<string>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): B;
 } = dual(
   3,
-  <S extends object, B>(self: S, f: (a: unknown) => B, path: PathInput): B => f(unsafeDotGet(self, path))
+  <S extends object, B>(self: S, f: (a: unknown) => B, options: { readonly path: PathInput }): B =>
+    f(unsafeDotGet(self, pathFromOptions(options)))
 ) as {
   <A, B, const P extends string>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => B;
   <A, B, const P extends ReadonlyArray<string>>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: Get<S, P> extends A ? S : never) => B;
   <S extends object, A, B, const P extends string & Paths<S>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): B;
   <S extends object, A, B, const P extends ReadonlyArray<string>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): B;
 };
 
@@ -267,9 +271,9 @@ export const mapPath: {
  * application until the returned zero-argument function is invoked.
  *
  * Supports a dual API:
- * - Data-last: `pipe(self, Struct.mapPathLazy(renderName, "profile.name"))()`
- * - Data-first: `Struct.mapPathLazy(self, renderName, "profile.name")()`
- * - Tuple paths: `Struct.mapPathLazy(self, renderName, ["profile", "name"] as const)()`
+ * - Data-last: `pipe(self, Struct.mapPathLazy(renderName, { path: "profile.name" }))()`
+ * - Data-first: `Struct.mapPathLazy(self, renderName, { path: "profile.name" })()`
+ * - Tuple paths: `Struct.mapPathLazy(self, renderName, { path: ["profile", "name"] as const })()`
  *
  * If the runtime value does not actually satisfy the statically-declared path,
  * `undefined` is forwarded to `f`, matching {@link dotGet}.
@@ -280,7 +284,7 @@ export const mapPath: {
  *
  * const user = { profile: { name: "alice" } }
  *
- * const lazy = Struct.mapPathLazy(user, (s: string) => s.toUpperCase(), "profile.name")
+ * const lazy = Struct.mapPathLazy(user, (s: string) => s.toUpperCase(), { path: "profile.name" })
  * const value = lazy()
  * // "ALICE"
  *
@@ -293,45 +297,45 @@ export const mapPath: {
 export const mapPathLazy: {
   <A, B, const P extends string>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => () => B;
   <A, B, const P extends ReadonlyArray<string>>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: Get<S, P> extends A ? S : never) => () => B;
   <S extends object, A, B, const P extends string & Paths<S>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): () => B;
   <S extends object, A, B, const P extends ReadonlyArray<string>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): () => B;
 } = dual(
   3,
-  <S extends object, B>(self: S, f: (a: unknown) => B, path: PathInput): (() => B) =>
+  <S extends object, B>(self: S, f: (a: unknown) => B, options: { readonly path: PathInput }): (() => B) =>
     () =>
-      f(unsafeDotGet(self, path))
+      f(unsafeDotGet(self, pathFromOptions(options)))
 ) as {
   <A, B, const P extends string>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: P extends Paths<S> ? (Get<S, P> extends A ? S : never) : never) => () => B;
   <A, B, const P extends ReadonlyArray<string>>(
     f: (a: A) => B,
-    path: P
+    options: { readonly path: P }
   ): <S extends object>(self: Get<S, P> extends A ? S : never) => () => B;
   <S extends object, A, B, const P extends string & Paths<S>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): () => B;
   <S extends object, A, B, const P extends ReadonlyArray<string>>(
     self: S,
     f: Get<S, P> extends A ? (a: A) => B : never,
-    path: P
+    options: { readonly path: P }
   ): () => B;
 };
 
@@ -704,6 +708,6 @@ export const reverse: {
       A.map((key) => [self[key], key] as const)
     );
 
-  return cast(fromEntries(A.appendAll(stringEntries, symbolEntries)));
+    return cast(fromEntries(A.appendAll(stringEntries, symbolEntries)));
   }
 );

@@ -517,7 +517,7 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
     docstring,
     summary: makeSummary(docstring),
     decorators: readDecorators(declaration),
-    keywords: makeKeywords(declarationName.value.name, qualifiedName, declarationName.value.kind),
+    keywords: makeKeywords(declarationName.value.name, qualifiedName, { kind: declarationName.value.kind }),
     parentId: O.map(parentSymbol, (parent) => parent.id),
     startLine: decodeLineNumber(declaration.getStartLineNumber(true)),
     endLine: decodeLineNumber(declaration.getEndLineNumber()),

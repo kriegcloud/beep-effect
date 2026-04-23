@@ -10,11 +10,14 @@ import { NonNegativeInt } from "@beep/schema";
 import { Brand, Chunk } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Token, TokenIndex } from "./Token.ts";
 
 const $I = $NlpId.create("Core/Sentence");
+const getRangeEnd = (options: { readonly end: number } | number): number =>
+  P.isNumber(options) ? options : options.end;
 
 /**
  * Branded index for sentences in ordered collections.
@@ -116,17 +119,19 @@ export class Sentence extends S.Class<Sentence>($I`Sentence`)(
   /**
    * Get tokens between two inclusive document token offsets.
    */
-  static readonly getTokensInRange = dual(
-    3,
-    (sentence: Sentence, startIdx: number, endIdx: number): Chunk.Chunk<Token> =>
-      Chunk.filter(sentence.tokens, (token) => token.index >= startIdx && token.index <= endIdx)
-  );
+  static readonly getTokensInRange: {
+    (sentence: Sentence, startIdx: number, options: { readonly end: number }): Chunk.Chunk<Token>;
+    (startIdx: number, options: { readonly end: number }): (sentence: Sentence) => Chunk.Chunk<Token>;
+  } = dual(3, (sentence: Sentence, startIdx: number, options: { readonly end: number }): Chunk.Chunk<Token> => {
+    const endIdx = getRangeEnd(options);
+    return Chunk.filter(sentence.tokens, (token) => token.index >= startIdx && token.index <= endIdx);
+  });
 
   /**
    * Safely get a token by zero-based index.
    */
-  static readonly getToken = dual(
-    2,
-    (sentence: Sentence, index: number): O.Option<Token> => Chunk.get(sentence.tokens, index)
-  );
+  static readonly getToken: {
+    (sentence: Sentence, index: number): O.Option<Token>;
+    (index: number): (sentence: Sentence) => O.Option<Token>;
+  } = dual(2, (sentence: Sentence, index: number): O.Option<Token> => Chunk.get(sentence.tokens, index));
 }

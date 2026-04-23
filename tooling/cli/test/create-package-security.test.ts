@@ -1,4 +1,8 @@
-import { checkConfigNeedsUpdate, updateTsconfigPackages } from "@beep/repo-cli/commands/CreatePackage/ConfigUpdater";
+import {
+  checkConfigNeedsUpdate,
+  ConfigUpdateTarget,
+  updateTsconfigPackages,
+} from "@beep/repo-cli/commands/CreatePackage/ConfigUpdater";
 import {
   createFileGenerationPlanService,
   FileGenerationPlan,
@@ -99,7 +103,13 @@ describe("create-package security", () => {
         Effect.gen(function* () {
           yield* writeRootConfigFiles(tmpDir);
 
-          const result = yield* checkConfigNeedsUpdate(tmpDir, "identity", "packages/common/identity");
+          const result = yield* checkConfigNeedsUpdate(
+            tmpDir,
+            new ConfigUpdateTarget({
+              packageName: "identity",
+              packagePath: "packages/common/identity",
+            })
+          );
 
           expect(result.tsconfigPackages).toBe(false);
           expect(result.tsconfigPaths).toBe(false);

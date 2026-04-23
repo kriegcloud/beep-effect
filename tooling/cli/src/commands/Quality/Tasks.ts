@@ -681,7 +681,7 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
   };
 
   return A.match(argv, {
-    onEmpty: () => O.none(),
+    onEmpty: O.none,
     onNonEmpty: parseCommand,
   });
 };

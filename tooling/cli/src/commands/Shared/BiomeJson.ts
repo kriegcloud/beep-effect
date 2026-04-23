@@ -9,7 +9,8 @@ import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 import { DomainError, findRepoRoot } from "@beep/repo-utils";
 import { Str, thunkEmptyStr } from "@beep/utils";
-import { Effect, Function as Fn, Path, Stream } from "effect";
+import { Effect, Path, Stream } from "effect";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 import { ChildProcess } from "effect/unstable/process";
 
@@ -41,7 +42,7 @@ const collectText = <E>(stream: Stream.Stream<Uint8Array, E>) =>
 export const renderBiomeJson: {
   (filePath: string, value: unknown): Effect.Effect<string, DomainError, Path.Path>;
   (value: unknown): (filePath: string) => Effect.Effect<string, DomainError, Path.Path>;
-} = Fn.dual(
+} = dual(
   2,
   Effect.fn(function* (filePath: string, value: unknown) {
     const path = yield* Path.Path;

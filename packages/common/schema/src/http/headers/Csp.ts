@@ -7,6 +7,7 @@ import { $SchemaId } from "@beep/identity";
 import { Struct } from "@beep/utils";
 import { Effect, pipe, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -100,15 +101,33 @@ export const getProperHeaderName = (reportOnly = false): ContentSecurityPolicyHe
  * @param arrayWrapper - Wrapper used to normalize singular and array values.
  * @returns A serialized directive string.
  */
-export const createDirectiveValue = <const T extends string>(
-  directiveName: string,
-  value: T | readonly T[],
-  arrayWrapper: <T>(value: ReadonlyArray<T> | T) => readonly T[] = wrapArray
-): `${string} ${string}` => {
-  const values = arrayWrapper(value);
-
-  return `${directiveName} ${A.join(" ")(values)}` as const;
+type DirectiveValueOptions = {
+  readonly arrayWrapper?: <T>(value: ReadonlyArray<T> | T) => readonly T[];
 };
+
+export const createDirectiveValue: {
+  <const T extends string>(directiveName: string, value: T | readonly T[]): `${string} ${string}`;
+  <const T extends string>(
+    directiveName: string,
+    value: T | readonly T[],
+    options: DirectiveValueOptions
+  ): `${string} ${string}`;
+  <const T extends string>(
+    value: T | readonly T[],
+    options: DirectiveValueOptions
+  ): (directiveName: string) => `${string} ${string}`;
+} = dual(
+  (args) => args.length >= 2,
+  <const T extends string>(
+    directiveName: string,
+    value: T | readonly T[],
+    options: DirectiveValueOptions = {}
+  ): `${string} ${string}` => {
+    const values = (options.arrayWrapper ?? wrapArray)(value);
+
+    return `${directiveName} ${A.join(" ")(values)}` as const;
+  }
+);
 
 /**
  * @since 0.0.0

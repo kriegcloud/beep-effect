@@ -24,6 +24,10 @@ import {
 
 type NonEmptyChoices<A> = readonly [A, ...A[]];
 type LiteralReplacer = (values: ReadonlyArray<string>, index: number) => PatternElement;
+type PatternDual<Arg, Output = Pattern> = {
+  (pattern: Pattern, arg: Arg): Output;
+  (arg: Arg): (pattern: Pattern) => Output;
+};
 type MakeDualArgs =
   | readonly [id: string, elements: ReadonlyArray<PatternElement>]
   | readonly [elements: ReadonlyArray<PatternElement>, id: string];
@@ -72,6 +76,8 @@ const rebuildPattern = (pattern: Pattern, changes: Partial<Pick<Pattern, "elemen
     mark: changes.mark ?? (P.isUndefined(changes.elements) ? pattern.mark : O.none()),
   });
 
+const getCombineId = (options: { readonly id: string } | string): string =>
+  P.isString(options) ? options : options.id;
 const isLiteralElement = (element: PatternElement): element is LiteralPatternElement =>
   P.isTagged(element, "LiteralPatternElement");
 const isMakeDataFirstArgs = (
@@ -263,7 +269,7 @@ export const make: {
  * @since 0.0.0
  * @category Combinators
  */
-export const withMark = dual(
+export const withMark: PatternDual<MarkRange> = dual(
   2,
   (pattern: Pattern, mark: MarkRange): Pattern => rebuildPattern(pattern, { mark: O.some(mark) })
 );
@@ -302,7 +308,7 @@ export const withoutMark: {
  * @since 0.0.0
  * @category Combinators
  */
-export const addElements = dual(
+export const addElements: PatternDual<ReadonlyArray<PatternElement>> = dual(
   2,
   (pattern: Pattern, extraElements: ReadonlyArray<PatternElement>): Pattern =>
     rebuildPattern(pattern, {
@@ -323,7 +329,7 @@ export const addElements = dual(
  * @since 0.0.0
  * @category Combinators
  */
-export const prependElements = dual(
+export const prependElements: PatternDual<ReadonlyArray<PatternElement>> = dual(
   2,
   (pattern: Pattern, leadingElements: ReadonlyArray<PatternElement>): Pattern =>
     rebuildPattern(pattern, {
@@ -344,7 +350,7 @@ export const prependElements = dual(
  * @since 0.0.0
  * @category Combinators
  */
-export const withId = dual(
+export const withId: PatternDual<string> = dual(
   2,
   (pattern: Pattern, id: string): Pattern => rebuildPattern(pattern, { id: Pattern.Id(id) })
 );
@@ -492,7 +498,7 @@ export const last = (pattern: Pattern): PatternElement | undefined => elementAt(
  * @since 0.0.0
  * @category Combinators
  */
-export const mapElements = dual(
+export const mapElements: PatternDual<(element: PatternElement, index: number) => PatternElement> = dual(
   2,
   (pattern: Pattern, f: (element: PatternElement, index: number) => PatternElement): Pattern =>
     rebuildPattern(pattern, {
@@ -513,7 +519,7 @@ export const mapElements = dual(
  * @since 0.0.0
  * @category Combinators
  */
-export const filterElements = dual(
+export const filterElements: PatternDual<(element: PatternElement, index: number) => boolean> = dual(
   2,
   (pattern: Pattern, predicate: (element: PatternElement, index: number) => boolean): Pattern =>
     rebuildPattern(pattern, {
@@ -534,7 +540,7 @@ export const filterElements = dual(
  * @since 0.0.0
  * @category Combinators
  */
-export const take = dual(
+export const take: PatternDual<number> = dual(
   2,
   (pattern: Pattern, count: number): Pattern =>
     rebuildPattern(pattern, {
@@ -555,7 +561,7 @@ export const take = dual(
  * @since 0.0.0
  * @category Combinators
  */
-export const drop = dual(
+export const drop: PatternDual<number> = dual(
   2,
   (pattern: Pattern, count: number): Pattern =>
     rebuildPattern(pattern, {
@@ -577,11 +583,12 @@ export const drop = dual(
  * @category Combinators
  */
 export const combine: {
-  (left: Pattern, right: Pattern, id: string): Pattern;
-  (right: Pattern, id: string): (left: Pattern) => Pattern;
+  (left: Pattern, right: Pattern, options: { readonly id: string }): Pattern;
+  (right: Pattern, options: { readonly id: string }): (left: Pattern) => Pattern;
 } = dual(
   3,
-  (left: Pattern, right: Pattern, id: string): Pattern => makePattern(id, [...toElements(left), ...toElements(right)])
+  (left: Pattern, right: Pattern, options: { readonly id: string }): Pattern =>
+    makePattern(getCombineId(options), [...toElements(left), ...toElements(right)])
 );
 
 /**
@@ -612,7 +619,10 @@ export type PatternPatch = (pattern: Pattern) => Pattern;
  * @since 0.0.0
  * @category Combinators
  */
-export const applyPatch = dual(2, (pattern: Pattern, patch: PatternPatch): Pattern => patch(pattern));
+export const applyPatch: PatternDual<PatternPatch> = dual(
+  2,
+  (pattern: Pattern, patch: PatternPatch): Pattern => patch(pattern)
+);
 
 /**
  * Compose multiple patches from left to right.

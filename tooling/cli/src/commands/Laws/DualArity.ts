@@ -637,6 +637,10 @@ const collectCandidateDiagnostics = (
     dualCall,
     O.flatMap((info) => info.arity)
   );
+  const hasPredicateDualWithPublicDualShape =
+    O.isSome(dualCall) && O.isNone(dualArity) && hasDualSignatures(candidate.callableType, candidate.parameterCount);
+  const hasMatchingDualArity =
+    O.exists(dualArity, (arity) => arity === candidate.parameterCount) || hasPredicateDualWithPublicDualShape;
 
   if (candidate.parameterCount > 3) {
     diagnostics = A.append(diagnostics, "too-many-positional-params");
@@ -649,13 +653,12 @@ const collectCandidateDiagnostics = (
       if (!dualCall.value.validSource) {
         diagnostics = A.append(diagnostics, "invalid-dual-source");
       }
-      if (O.isNone(dualCall.value.arity) || dualCall.value.arity.value !== candidate.parameterCount) {
+      if (!hasMatchingDualArity) {
         diagnostics = A.append(diagnostics, "invalid-dual-arity");
       }
       if (
         dualCall.value.validSource &&
-        O.isSome(dualArity) &&
-        dualArity.value === candidate.parameterCount &&
+        hasMatchingDualArity &&
         !hasDualSignatures(candidate.callableType, candidate.parameterCount)
       ) {
         diagnostics = A.append(diagnostics, "missing-dual-signatures");

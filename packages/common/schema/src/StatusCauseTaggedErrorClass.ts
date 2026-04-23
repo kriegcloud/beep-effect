@@ -286,7 +286,7 @@ const statusCauseTaggedErrorInput = <Fields extends StatusCauseTaggedErrorFields
 ): StatusCauseTaggedErrorNewInput<Fields> =>
   ({
     ...extras,
-    ...statusCauseInput(message, status, cause),
+    ...statusCauseInput(message, { status, cause }),
   }) as StatusCauseTaggedErrorNewInput<Fields>;
 
 const makeStatusCauseTaggedErrorNew = <Error, Fields extends StatusCauseTaggedErrorFields>(

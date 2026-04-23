@@ -598,57 +598,55 @@ export const checkConfigNeedsUpdateForTargets: {
 /**
  * Orchestrate all root config updates for a newly created package.
  *
- * Backward-compatible single-target wrapper around {@link updateRootConfigsForTargets}.
+ * Single-target wrapper around {@link updateRootConfigsForTargets}.
  *
  * @param repoRoot - Absolute path to the repository root directory.
- * @param packageName - Unscoped package name (e.g. `"my-utils"`).
- * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @param target - Package target to register in root config files.
  * @returns A {@link ConfigUpdateResult} indicating which config files were modified.
  * @depends FileSystem, Path
  * @category Utility
  * @since 0.0.0
  */
-export const updateRootConfigs: (
-  repoRoot: string,
-  packageName: string,
-  packagePath: string
-) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, packageName, packagePath) {
-    const target = new ConfigUpdateTarget({
-      packageName,
-      packagePath,
-      ...defaultAliasTargetsForPackage(packagePath),
-    });
+export const updateRootConfigs: {
+  (
+    repoRoot: string,
+    target: ConfigUpdateTarget
+  ): Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    target: ConfigUpdateTarget
+  ): (repoRoot: string) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, target) {
     const batchResult = yield* updateRootConfigsForTargets(repoRoot, [target]);
     return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
-  }
+  })
 );
 
 /**
  * Check whether config entries already exist (for dry-run output).
  *
- * Backward-compatible single-target wrapper around {@link checkConfigNeedsUpdateForTargets}.
+ * Single-target wrapper around {@link checkConfigNeedsUpdateForTargets}.
  *
  * @param repoRoot - Absolute path to the repository root directory.
- * @param packageName - Unscoped package name (e.g. `"my-utils"`).
- * @param packagePath - Relative path from the repo root to the new package (e.g. `"tooling/my-utils"`).
+ * @param target - Package target to check in root config files.
  * @returns A {@link ConfigUpdateResult} where `true` means the file still needs updating.
  * @depends FileSystem, Path
  * @category Utility
  * @since 0.0.0
  */
-export const checkConfigNeedsUpdate: (
-  repoRoot: string,
-  packageName: string,
-  packagePath: string
-) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path> = Effect.fn(
-  function* (repoRoot, packageName, packagePath) {
-    const target = new ConfigUpdateTarget({
-      packageName,
-      packagePath,
-      ...defaultAliasTargetsForPackage(packagePath),
-    });
+export const checkConfigNeedsUpdate: {
+  (
+    repoRoot: string,
+    target: ConfigUpdateTarget
+  ): Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+  (
+    target: ConfigUpdateTarget
+  ): (repoRoot: string) => Effect.Effect<ConfigUpdateResult, DomainError, FileSystem.FileSystem | Path.Path>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot, target) {
     const batchResult = yield* checkConfigNeedsUpdateForTargets(repoRoot, [target]);
     return batchResult.targets[0]?.result ?? new ConfigUpdateResult({});
-  }
+  })
 );

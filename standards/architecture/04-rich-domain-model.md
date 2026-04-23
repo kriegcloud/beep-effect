@@ -20,6 +20,32 @@ A rich domain model owns:
 - pure decision rules
 - actionable domain failures
 
+## Why Schema-First
+
+A schema is not a fancier interface. It is executable domain evidence.
+
+Type aliases and interfaces disappear at runtime. They can describe what we hope
+is true, but they cannot decode unknown input, reject invalid data, normalize a
+boundary value, produce documentation metadata, or explain a failure. Types can
+lie; schemas have to check.
+
+Rich annotated schemas pay back that ceremony because the same definition can:
+
+- create fast backpressure at API, config, persistence, and UI boundaries
+- derive TypeScript types instead of duplicating parallel shape definitions
+- provide constructors, defaults, normalization, JSON codecs, and boundary
+  decoders
+- derive guards and equivalence instead of hand-written predicate helpers
+- feed generated docs, validation messages, and agent context with the same
+  domain descriptions humans read
+- keep runtime guarantees attached to the domain language instead of scattered
+  through handlers and adapters
+
+For pure data models, define the schema value first and derive the TypeScript
+type from it. Plain `interface` and object type aliases remain appropriate for
+service contracts, complex type-level transforms, utility types, and overload
+surfaces that `Schema` cannot represent cleanly.
+
 ## Hybrid Style
 
 Rich behavior does not mean every function must be an instance method.
@@ -63,14 +89,14 @@ explicit values from callers rather than reading `Config`, `ConfigProvider`,
 `TwoFactor.model.ts` can own simple behavior:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamDomainId } from "@beep/identity/packages"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { AccountId } from "@beep/iam-domain/entities/Account"
 import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
 
-const $I = $RootId.create("iam/domain/src/entities/TwoFactor/TwoFactor.model.ts")
+const $I = $IamDomainId.create("entities/TwoFactor/TwoFactor.model")
 
 export const TwoFactorId = S.String.pipe(
   S.brand("TwoFactorId"),
@@ -93,10 +119,7 @@ export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
 ) {
   readonly canDisable = (): boolean => this.enabled
 
-  readonly useRecoveryCode = (): Effect.Effect<
-    TwoFactor,
-    NoRecoveryCodesRemaining
-  > =>
+  readonly useRecoveryCode = Effect.fn("TwoFactor.useRecoveryCode")(() =>
     this.recoveryCodesRemaining > 0
       ? Effect.succeed(
           TwoFactor.make({
@@ -106,7 +129,8 @@ export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
             recoveryCodesRemaining: this.recoveryCodesRemaining - 1,
           }),
         )
-      : Effect.fail(new NoRecoveryCodesRemaining())
+      : Effect.fail(new NoRecoveryCodesRemaining()),
+  )
 }
 ```
 
@@ -127,17 +151,19 @@ import { RecoveryCodeRotationRejected } from "./TwoFactor.errors.js"
 import { canRotateRecoveryCodes } from "./TwoFactor.policy.js"
 import { TwoFactor } from "./TwoFactor.model.js"
 
-export const rotateRecoveryCodes = (model: TwoFactor) =>
-  canRotateRecoveryCodes(model)
-    ? Effect.succeed(
-        TwoFactor.make({
-          id: model.id,
-          accountId: model.accountId,
-          enabled: model.enabled,
-          recoveryCodesRemaining: 10,
-        }),
-      )
-    : Effect.fail(new RecoveryCodeRotationRejected())
+export const rotateRecoveryCodes = Effect.fn("TwoFactor.rotateRecoveryCodes")(
+  (model: TwoFactor) =>
+    canRotateRecoveryCodes(model)
+      ? Effect.succeed(
+          TwoFactor.make({
+            id: model.id,
+            accountId: model.accountId,
+            enabled: model.enabled,
+            recoveryCodesRemaining: 10,
+          }),
+        )
+      : Effect.fail(new RecoveryCodeRotationRejected()),
+)
 ```
 
 The use-case service then orchestrates loading, authorization, persistence, and

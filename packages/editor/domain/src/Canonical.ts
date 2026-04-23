@@ -467,12 +467,14 @@ export const makeParagraphBlock = (text: string): ParagraphBlock =>
 export const makeHeadingBlock: {
   (text: string, level: HeadingLevel): HeadingBlock;
   (level: HeadingLevel): (text: string) => HeadingBlock;
-} = dual(2, (text: string, level: HeadingLevel): HeadingBlock =>
-  new HeadingBlock({
-    id: BlockId.make(crypto.randomUUID()),
-    level,
-    text,
-  })
+} = dual(
+  2,
+  (text: string, level: HeadingLevel): HeadingBlock =>
+    new HeadingBlock({
+      id: BlockId.make(crypto.randomUUID()),
+      level,
+      text,
+    })
 );
 
 /**
@@ -564,14 +566,16 @@ export const exportPageMimeType = (format: ExportFormat): "application/json" | "
 export const pageToExport: {
   (page: PageDocument, format: ExportFormat): PageExport;
   (format: ExportFormat): (page: PageDocument) => PageExport;
-} = dual(2, (page: PageDocument, format: ExportFormat): PageExport =>
-  new PageExport({
-    pageId: page.id,
-    slug: page.slug,
-    format,
-    fileName: `${page.slug}.${exportFormatExtension(format)}`,
-    content: exportFormatContent(page, format),
-  })
+} = dual(
+  2,
+  (page: PageDocument, format: ExportFormat): PageExport =>
+    new PageExport({
+      pageId: page.id,
+      slug: page.slug,
+      format,
+      fileName: `${page.slug}.${exportFormatExtension(format)}`,
+      content: exportFormatContent(page, format),
+    })
 );
 
 /**
@@ -613,16 +617,18 @@ export const createPageDocument = (input: {
 export const makePageSummary: {
   (page: PageDocument, backlinkCount: number): PageSummary;
   (backlinkCount: number): (page: PageDocument) => PageSummary;
-} = dual(2, (page: PageDocument, backlinkCount: number): PageSummary =>
-  new PageSummary({
-    id: page.id,
-    slug: page.slug,
-    title: page.title,
-    excerpt: pipe(pageToPlainText(page), Str.slice(0, 160)),
-    updatedAt: page.updatedAt,
-    outboundLinkCount: NonNegativeInt.make(page.outboundLinks?.length ?? 0),
-    backlinkCount: NonNegativeInt.make(backlinkCount),
-  })
+} = dual(
+  2,
+  (page: PageDocument, backlinkCount: number): PageSummary =>
+    new PageSummary({
+      id: page.id,
+      slug: page.slug,
+      title: page.title,
+      excerpt: pipe(pageToPlainText(page), Str.slice(0, 160)),
+      updatedAt: page.updatedAt,
+      outboundLinkCount: NonNegativeInt.make(page.outboundLinks?.length ?? 0),
+      backlinkCount: NonNegativeInt.make(backlinkCount),
+    })
 );
 
 /**
@@ -645,14 +651,12 @@ export const refreshPageDocument: {
       readonly now: DateTime.Utc;
     }
   ): PageDocument;
-  (
-    input: {
-      readonly title: NonEmptyTrimmedStr;
-      readonly slug: Slug;
-      readonly blocks: ReadonlyArray<DocumentBlock>;
-      readonly now: DateTime.Utc;
-    }
-  ): (page: PageDocument) => PageDocument;
+  (input: {
+    readonly title: NonEmptyTrimmedStr;
+    readonly slug: Slug;
+    readonly blocks: ReadonlyArray<DocumentBlock>;
+    readonly now: DateTime.Utc;
+  }): (page: PageDocument) => PageDocument;
 } = dual(
   2,
   (
@@ -678,29 +682,54 @@ export const refreshPageDocument: {
 );
 
 /**
- * Create an immutable revision record from a page save.
+ * Options for creating an immutable revision record from a page save.
  *
- * @param page - The saved page document snapshot.
- * @param savedAt - The timestamp when the save completed.
- * @param reason - The save reason captured with the revision.
- * @returns The immutable revision record.
+ * @example
+ * ```ts
+ * import type { MakeRevisionRecordOptions } from "@beep/editor-domain/Canonical"
+ *
+ * const options: MakeRevisionRecordOptions = { reason: "manual save" }
+ * void options
+ * ```
  *
  * @since 0.0.0
  * @category Helpers
  */
-export const makeRevisionRecord: {
-  (page: PageDocument, savedAt: DateTime.Utc, reason: string): RevisionRecord;
-  (savedAt: DateTime.Utc, reason: string): (page: PageDocument) => RevisionRecord;
-} = dual(3, (page: PageDocument, savedAt: DateTime.Utc, reason: string): RevisionRecord =>
-  new RevisionRecord({
+export type MakeRevisionRecordOptions = {
+  readonly reason: string;
+};
+
+const makeRevisionRecordInternal = (
+  page: PageDocument,
+  savedAt: DateTime.Utc,
+  options: MakeRevisionRecordOptions | string
+): RevisionRecord => {
+  const reason = P.isString(options) ? options : options.reason;
+  return new RevisionRecord({
     id: createRevisionId(),
     pageId: page.id,
     pageSlug: page.slug,
     savedAt,
     reason,
     page,
-  })
-);
+  });
+};
+
+/**
+ * Create an immutable revision record from a page save.
+ *
+ * @param page - The saved page document snapshot.
+ * @param savedAt - The timestamp when the save completed.
+ * @param options - Revision metadata captured with the save.
+ * @returns The immutable revision record.
+ *
+ * @since 0.0.0
+ * @category Helpers
+ */
+export const makeRevisionRecord: {
+  (page: PageDocument, savedAt: DateTime.Utc, options: MakeRevisionRecordOptions): RevisionRecord;
+  (savedAt: DateTime.Utc, options: MakeRevisionRecordOptions): (page: PageDocument) => RevisionRecord;
+} = dual(3, makeRevisionRecordInternal);
 
 /**
  * Create a new workspace manifest.

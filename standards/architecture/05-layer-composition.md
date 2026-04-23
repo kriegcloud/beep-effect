@@ -51,7 +51,7 @@ provide.
 Services should be explicit, small, and composed at the boundary:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, type Effect } from "effect"
 import {
   TwoFactorAccessDenied,
@@ -60,7 +60,7 @@ import {
 } from "./TwoFactor.errors.js"
 import type { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
 
-const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.service.ts")
+const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.service")
 
 export class TwoFactorService extends Context.Service<
   TwoFactorService,

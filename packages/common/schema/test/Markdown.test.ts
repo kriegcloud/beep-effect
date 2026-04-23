@@ -43,7 +43,9 @@ describe("Markdown", () => {
   );
 
   it("falls back to micromark with GFM extensions when Bun is unavailable", () => {
-    const parseWithoutBun = makeParseMarkdownForSchema({}, loadMarkdownModule, loadMarkdownGfmModule);
+    const parseWithoutBun = makeParseMarkdownForSchema({}, loadMarkdownModule, {
+      loadMarkdownGfm: loadMarkdownGfmModule,
+    });
     const result = parseWithoutBun("| a | b |\n| - | - |\n| 1 | 2 |");
 
     expect(result._tag).toBe("success");

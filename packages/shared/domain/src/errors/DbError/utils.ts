@@ -10,6 +10,7 @@ import { LiteralKit } from "@beep/schema";
 import { Str as CommonStr, Text, thunk0, thunkEmptyStr, thunkNull, thunkUndefined } from "@beep/utils";
 import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -370,7 +371,10 @@ export const highlightSql = (sql: string): string => {
  * @since 0.0.0
  * @category utility
  */
-export const formatParam = (value: unknown, index: number): string => {
+export const formatParam: {
+  (value: unknown, index: number): string;
+  (index: number): (value: unknown) => string;
+} = dual(2, (value: unknown, index: number): string => {
   const paramLabel = bc.yellow(bc.bold(`$${index + 1}`));
   const sep = bc.dim("=");
   return pipe(
@@ -404,7 +408,7 @@ export const formatParam = (value: unknown, index: number): string => {
     ),
     Match.orElse((unknownValue) => `${paramLabel}${sep}${bc.gray(String(unknownValue))}`)
   );
-};
+});
 
 /**
  * Removes terminal ANSI color sequences from a string.
@@ -455,7 +459,10 @@ export const visualLength = (str: string): number => pipe(str, stripAnsi, Str.le
  * @since 0.0.0
  * @category utility
  */
-export const padEnd = (str: string, targetLen: number): string => {
+export const padEnd: {
+  (str: string, targetLen: number): string;
+  (targetLen: number): (str: string) => string;
+} = dual(2, (str: string, targetLen: number): string => {
   const currentLen = visualLength(str);
   return pipe(
     currentLen >= targetLen,
@@ -463,7 +470,7 @@ export const padEnd = (str: string, targetLen: number): string => {
     Match.when(true, () => str),
     Match.orElse(() => `${str}${CommonStr.repeat(" ", targetLen - currentLen)}`)
   );
-};
+});
 
 /**
  * Formats query parameters as either a compact inline block or a 3-column grid.
@@ -480,7 +487,10 @@ export const padEnd = (str: string, targetLen: number): string => {
  * @since 0.0.0
  * @category utility
  */
-export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: string) => string): string => {
+export const formatParamsBlock: {
+  (params: ReadonlyArray<unknown>, boxColor: (s: string) => string): string;
+  (boxColor: (s: string) => string): (params: ReadonlyArray<unknown>) => string;
+} = dual(2, (params: ReadonlyArray<unknown>, boxColor: (s: string) => string): string => {
   const formattedParams = pipe(
     params,
     A.map((p, i) => formatParam(p, i))
@@ -528,7 +538,7 @@ export const formatParamsBlock = (params: ReadonlyArray<unknown>, boxColor: (s: 
       return Text.joinLines(rows);
     })
   );
-};
+});
 
 /**
  * Runtime schema for raw PostgreSQL protocol errors.
@@ -727,10 +737,18 @@ export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtrac
  *
  * const error = new Error("Query failed");
  *
- * formatDbError(error, "select * from users where id = $1", [42]);
+ * formatDbError(error, { query: "select * from users where id = $1", params: [42] });
  * ```
  */
-export const formatDbError = (error: unknown, query?: string, params?: ReadonlyArray<unknown>): string => {
+export type FormatDbErrorOptions = {
+  readonly query?: string;
+  readonly params?: ReadonlyArray<unknown>;
+};
+
+export const formatDbError: {
+  (error: unknown, options: FormatDbErrorOptions): string;
+  (options: FormatDbErrorOptions): (error: unknown) => string;
+} = dual(2, (error: unknown, options: FormatDbErrorOptions): string => {
   let lines = A.empty<string>();
   const appendLine = (line: string): void => {
     lines = pipe(lines, A.append(line));
@@ -746,8 +764,8 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
   const displayError = pgError ?? error;
 
   // Try to extract query from Drizzle wrapper if not provided.
-  let displayQuery = query;
-  let displayParams = params;
+  let displayQuery = options.query;
+  let displayParams = options.params;
   if (P.isUndefined(displayQuery) && S.is(RawError)(error)) {
     const extracted = extractQueryFromDrizzleError(error);
     displayQuery = extracted.query ?? undefined;
@@ -865,4 +883,4 @@ export const formatDbError = (error: unknown, query?: string, params?: ReadonlyA
   appendLine(`${boxColor(BOX.bottomLeft + BOX.horizontal)}`);
 
   return Text.joinLines(lines);
-};
+});

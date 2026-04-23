@@ -7,9 +7,10 @@
 
 import { $RepoCliId } from "@beep/identity/packages";
 import type { PackageJson } from "@beep/repo-utils";
-import { Effect, Function as Fn, HashMap, HashSet, Order, Path, pipe } from "effect";
+import { Effect, HashMap, HashSet, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -36,7 +37,7 @@ const uniqueSortedStringValues = (values: ReadonlyArray<string>): ReadonlyArray<
 const withRootRelativePrefix: {
   (rootRelativePrefix: string, targetPath: string): string;
   (rootRelativePrefix: string): (targetPath: string) => string;
-} = Fn.dual(
+} = dual(
   2,
   (rootRelativePrefix: string, targetPath: string): string =>
     `${rootRelativePrefix}${Str.replace(/^\.\//, Str.empty)(targetPath)}`
@@ -282,11 +283,10 @@ export const collectDocgenWorkspaceDependencyNames = (packageJson: PackageJson.T
  * @category models
  * @since 0.0.0
  */
-export const buildDocgenAliasSource = (
-  packageName: string,
-  packageRelativePath: string,
-  packageJson: PackageJson.Type
-): DocgenAliasSource => {
+export const buildDocgenAliasSource: {
+  (packageName: string, packageRelativePath: string, packageJson: PackageJson.Type): DocgenAliasSource;
+  (packageRelativePath: string, packageJson: PackageJson.Type): (packageName: string) => DocgenAliasSource;
+} = dual(3, (packageName: string, packageRelativePath: string, packageJson: PackageJson.Type): DocgenAliasSource => {
   const exportsField = O.getOrUndefined(packageJson.exports);
   const rootExportTarget = pipe(
     exportsField,
@@ -294,14 +294,17 @@ export const buildDocgenAliasSource = (
     O.getOrElse(() => "./src/index.ts")
   );
   const wildcardExportTarget = pipe(exportsField, resolveWildcardExportTarget, O.getOrUndefined);
-  const aliasTargets = buildDocgenAliasTargets(packageRelativePath, rootExportTarget, wildcardExportTarget);
+  const aliasTargets = buildDocgenAliasTargets(packageRelativePath, {
+    rootExportTarget,
+    wildcardExportTarget,
+  });
 
   return new DocgenAliasSource({
     packageName,
     rootAliasTarget: aliasTargets.rootAliasTarget,
     wildcardAliasTarget: aliasTargets.wildcardAliasTarget,
   });
-};
+});
 
 const buildDocgenAliasIndex = (sources: ReadonlyArray<DocgenAliasSource>): HashMap.HashMap<string, DocgenAliasSource> =>
   HashMap.fromIterable(A.map(sources, (source) => [source.packageName, source] as const));
@@ -410,37 +413,40 @@ export const createCanonicalDocgenConfig = Effect.fn("createCanonicalDocgenConfi
  * @category models
  * @since 0.0.0
  */
-export const mergeManagedDocgenConfig = (
-  existing: Readonly<Record<string, unknown>>,
-  canonical: CanonicalDocgenConfig
-): Record<string, unknown> => {
-  const canonicalJson = toCanonicalDocgenConfigJson(canonical);
-  const existingExamplesCompilerOptions = pipe(
-    existing,
-    R.get("examplesCompilerOptions"),
-    O.filter(isReadonlyUnknownRecord)
-  );
-  const mergedExamplesCompilerOptions = pipe(
-    existingExamplesCompilerOptions,
-    O.map((options) => ({
-      ...options,
-      ...canonicalJson.examplesCompilerOptions,
-      ...pipe(
-        options,
-        R.get("types"),
-        O.filter(A.isArray),
-        O.map((types) => ({ types })),
-        O.getOrElse(() => ({}))
-      ),
-    })),
-    O.getOrElse(() => canonicalJson.examplesCompilerOptions)
-  );
-  const merged = {
-    ...existing,
-    $schema: canonicalJson.$schema,
-    srcLink: canonicalJson.srcLink,
-    examplesCompilerOptions: mergedExamplesCompilerOptions,
-  };
+export const mergeManagedDocgenConfig: {
+  (existing: Readonly<Record<string, unknown>>, canonical: CanonicalDocgenConfig): Record<string, unknown>;
+  (canonical: CanonicalDocgenConfig): (existing: Readonly<Record<string, unknown>>) => Record<string, unknown>;
+} = dual(
+  2,
+  (existing: Readonly<Record<string, unknown>>, canonical: CanonicalDocgenConfig): Record<string, unknown> => {
+    const canonicalJson = toCanonicalDocgenConfigJson(canonical);
+    const existingExamplesCompilerOptions = pipe(
+      existing,
+      R.get("examplesCompilerOptions"),
+      O.filter(isReadonlyUnknownRecord)
+    );
+    const mergedExamplesCompilerOptions = pipe(
+      existingExamplesCompilerOptions,
+      O.map((options) => ({
+        ...options,
+        ...canonicalJson.examplesCompilerOptions,
+        ...pipe(
+          options,
+          R.get("types"),
+          O.filter(A.isArray),
+          O.map((types) => ({ types })),
+          O.getOrElse(() => ({}))
+        ),
+      })),
+      O.getOrElse(() => canonicalJson.examplesCompilerOptions)
+    );
+    const merged = {
+      ...existing,
+      $schema: canonicalJson.$schema,
+      srcLink: canonicalJson.srcLink,
+      examplesCompilerOptions: mergedExamplesCompilerOptions,
+    };
 
-  return R.has(existing, "exclude") ? merged : { ...merged, exclude: [...canonicalJson.exclude] };
-};
+    return R.has(existing, "exclude") ? merged : { ...merged, exclude: [...canonicalJson.exclude] };
+  }
+);

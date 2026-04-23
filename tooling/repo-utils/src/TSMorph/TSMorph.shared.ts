@@ -211,10 +211,12 @@ export const makeSummary = (docstring: O.Option<string>): O.Option<string> => do
  * @since 0.0.0
  */
 export const makeKeywords: {
-  (qualifiedName: string, kind: SymbolKind): (name: string) => ReadonlyArray<string>;
-  (name: string, qualifiedName: string, kind: SymbolKind): ReadonlyArray<string>;
-} = dual(3, (name: string, qualifiedName: string, kind: SymbolKind): ReadonlyArray<string> =>
-  A.make(name, qualifiedName, kind, symbolCategoryFromKind(kind))
+  (qualifiedName: string, options: { readonly kind: SymbolKind }): (name: string) => ReadonlyArray<string>;
+  (name: string, qualifiedName: string, options: { readonly kind: SymbolKind }): ReadonlyArray<string>;
+} = dual(
+  3,
+  (name: string, qualifiedName: string, options: { readonly kind: SymbolKind }): ReadonlyArray<string> =>
+    A.make(name, qualifiedName, options.kind, symbolCategoryFromKind(options.kind))
 );
 
 /**

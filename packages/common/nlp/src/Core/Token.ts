@@ -185,10 +185,10 @@ export class Token extends S.Class<Token>($I`Token`)(
   /**
    * Whether a character position falls inside the token range.
    */
-  static readonly containsPosition = dual(
-    2,
-    (token: Token, pos: number): boolean => pos >= token.start && pos < token.end
-  );
+  static readonly containsPosition: {
+    (token: Token, pos: number): boolean;
+    (pos: number): (token: Token) => boolean;
+  } = dual(2, (token: Token, pos: number): boolean => pos >= token.start && pos < token.end);
 
   /**
    * Whether the token represents punctuation.
@@ -216,26 +216,32 @@ export class Token extends S.Class<Token>($I`Token`)(
   /**
    * Return a copy of the token with new text.
    */
-  static readonly withText = dual(2, (token: Token, text: string): Token => Token.make({ ...token, text }));
+  static readonly withText: {
+    (token: Token, text: string): Token;
+    (text: string): (token: Token) => Token;
+  } = dual(2, (token: Token, text: string): Token => Token.make({ ...token, text }));
 
   /**
    * Return a copy of the token with a new part-of-speech tag.
    */
-  static readonly withPos = dual(2, (token: Token, pos: string): Token => Token.make({ ...token, pos: O.some(pos) }));
+  static readonly withPos: {
+    (token: Token, pos: string): Token;
+    (pos: string): (token: Token) => Token;
+  } = dual(2, (token: Token, pos: string): Token => Token.make({ ...token, pos: O.some(pos) }));
 
   /**
    * Return a copy of the token with a new lemma.
    */
-  static readonly withLemma = dual(
-    2,
-    (token: Token, lemma: string): Token => Token.make({ ...token, lemma: O.some(lemma) })
-  );
+  static readonly withLemma: {
+    (token: Token, lemma: string): Token;
+    (lemma: string): (token: Token) => Token;
+  } = dual(2, (token: Token, lemma: string): Token => Token.make({ ...token, lemma: O.some(lemma) }));
 
   /**
    * Return a copy of the token with an updated stop-word flag.
    */
-  static readonly withStopWordFlag = dual(
-    2,
-    (token: Token, flag: boolean): Token => Token.make({ ...token, stopWordFlag: O.some(flag) })
-  );
+  static readonly withStopWordFlag: {
+    (token: Token, flag: boolean): Token;
+    (flag: boolean): (token: Token) => Token;
+  } = dual(2, (token: Token, flag: boolean): Token => Token.make({ ...token, stopWordFlag: O.some(flag) }));
 }

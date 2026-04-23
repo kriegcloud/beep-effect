@@ -9,11 +9,12 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { thunkFalse } from "@beep/utils";
 import { Match } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { ErrorCodeFromKey } from "./ErrorEnum.js";
-import { extractPgError, formatDbError, RawPgError } from "./utils.js";
+import { extractPgError, type FormatDbErrorOptions, formatDbError, RawPgError } from "./utils.js";
 
 const $I = $SharedDomainId.create("errors/DbError/DbError");
 
@@ -85,7 +86,10 @@ export class DbError extends TaggedErrorClass<DbError>($I`DbError`)("DbError", {
     });
   };
 
-  static readonly format = formatDbError;
+  static readonly format: {
+    (error: unknown, options: FormatDbErrorOptions): string;
+    (options: FormatDbErrorOptions): (error: unknown) => string;
+  } = dual(2, (error: unknown, options: FormatDbErrorOptions): string => formatDbError(error, options));
 }
 
 /**

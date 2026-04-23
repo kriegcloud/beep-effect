@@ -6,12 +6,10 @@
  */
 
 import type { TUnsafe } from "@beep/types";
-import { Function } from "effect";
 import * as A from "effect/Array";
+import { dual, flow } from "effect/Function";
 import * as S from "effect/Schema";
 import { thunkFalse, thunkTrue } from "./thunk.ts";
-
-const { dual, flow } = Function;
 
 /**
  * Returns `true` when the array is non-empty, `false` otherwise.

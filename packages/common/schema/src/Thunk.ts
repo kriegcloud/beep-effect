@@ -5,13 +5,13 @@
  * @module
  */
 import { $SchemaId } from "@beep/identity";
-import { Brand, Function } from "effect";
+import { Brand } from "effect";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as SchemaUtils from "./SchemaUtils/index.ts";
 
 const $I = $SchemaId.create("Thunk");
-const { dual } = Function;
 
 /**
  * Unique brand identifier tag for {@link ThunkUnknown} values.

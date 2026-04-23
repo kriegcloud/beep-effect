@@ -9,17 +9,14 @@ import { $RepoCliId } from "@beep/identity/packages";
 import { DomainError } from "@beep/repo-utils";
 import { LiteralKit, normalizePath, SchemaUtils } from "@beep/schema";
 import { thunkFalse, thunkTrue } from "@beep/utils";
-import { Context, Effect, FileSystem, flow, Order, Path, pipe, Ref } from "effect";
+import { Context, Effect, FileSystem, flow, Number as Num, Order, Path, pipe, Ref, Struct } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
-import * as Num from "effect/Number";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import * as Struct from "effect/Struct";
-
 const $I = $RepoCliId.create("commands/CreatePackage/FileGenerationPlanService");
 const relativePlanPathSegments = flow(normalizePath, Str.split("/"), A.filter(Str.isNonEmpty));
 const isTraversalPathSegment = P.or(Eq.equals("."), Eq.equals(".."));
@@ -320,7 +317,7 @@ const parentDirectoriesForEntries = <
 const failDomainMessage = (message: string): Effect.Effect<never, DomainError> =>
   Effect.fail(DomainError.newMessage(message));
 
-const mapFsError = (message: string) => Effect.mapError((cause: unknown) => DomainError.newCause(message, cause));
+const mapFsError = (message: string) => Effect.mapError((cause: unknown) => DomainError.newCause(cause, message));
 
 const failWhen: {
   (condition: boolean, effect: Effect.Effect<never, DomainError>): Effect.Effect<void, DomainError>;
@@ -579,7 +576,7 @@ export const createFileGenerationPlanService = (): FileGenerationPlanServiceShap
         .writeFileString(absolutePath, content)
         .pipe(mapFsError(`Failed to write file "${absolutePath}"`), Effect.tap(countWrittenFile));
 
-  const writeFileIfChanged = (absolutePath: string, content: string) =>
+    const writeFileIfChanged = (absolutePath: string, content: string) =>
       ensureDirectoryFor(absolutePath).pipe(
         Effect.andThen(() => readIfExists(absolutePath)),
         Effect.andThen(

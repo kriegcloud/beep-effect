@@ -25,10 +25,24 @@
 import { $ObservabilityId } from "@beep/identity/packages";
 import { LiteralKit, NonNegativeInt } from "@beep/schema";
 import { Clock, Duration, Effect, Exit, Match, Metric } from "effect";
+import { dual } from "effect/Function";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $ObservabilityId.create("PhaseProfiler");
 const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+
+interface ProfilePhaseOptions {
+  readonly attributes?: Record<string, string> | undefined;
+  readonly completed?: Metric.Counter<number> | undefined;
+  readonly duration?: Metric.Metric<Duration.Duration, unknown> | undefined;
+  readonly failed?: Metric.Counter<number> | undefined;
+  readonly interrupted?: Metric.Counter<number> | undefined;
+  readonly phase: string;
+  readonly started?: Metric.Counter<number> | undefined;
+}
+
+const isProfilePhaseDataFirst = (args: IArguments): boolean => args.length >= 2 || Effect.isEffect(args[0]);
 
 /**
  * Terminal outcomes for profiled phases: `"completed"`, `"failed"`, or `"interrupted"`.
@@ -181,17 +195,9 @@ const logPhaseProfile = (profile: PhaseProfile): Effect.Effect<void> =>
  * @since 0.0.0
  * @category observability
  */
-export const profilePhase = <A, E, R>(
-  options: {
-    readonly phase: string;
-    readonly attributes?: Record<string, string> | undefined;
-    readonly started?: Metric.Counter<number> | undefined;
-    readonly completed?: Metric.Counter<number> | undefined;
-    readonly failed?: Metric.Counter<number> | undefined;
-    readonly interrupted?: Metric.Counter<number> | undefined;
-    readonly duration?: Metric.Metric<Duration.Duration, unknown> | undefined;
-  },
-  effect: Effect.Effect<A, E, R>
+const profilePhaseImpl = <A, E, R>(
+  effect: Effect.Effect<A, E, R>,
+  options: ProfilePhaseOptions
 ): Effect.Effect<A, E, R> =>
   Clock.currentTimeMillis.pipe(
     Effect.flatMap((startedAt) => {
@@ -247,3 +253,25 @@ export const profilePhase = <A, E, R>(
       );
     })
   );
+
+export const profilePhase: {
+  <A, E, R>(effect: Effect.Effect<A, E, R>, options: ProfilePhaseOptions): Effect.Effect<A, E, R>;
+  <A, E, R>(options: ProfilePhaseOptions, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
+  (options: ProfilePhaseOptions): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+} = dual(
+  isProfilePhaseDataFirst,
+  <A, E, R>(
+    effect: Effect.Effect<A, E, R> | ProfilePhaseOptions,
+    options: ProfilePhaseOptions | Effect.Effect<A, E, R> | undefined
+  ): Effect.Effect<A, E, R> => {
+    if (Effect.isEffect(effect) && P.isNotUndefined(options) && !Effect.isEffect(options)) {
+      return profilePhaseImpl(effect, options);
+    }
+
+    if (!Effect.isEffect(effect) && Effect.isEffect(options)) {
+      return profilePhaseImpl(options, effect);
+    }
+
+    return Effect.die("Invalid profilePhase arguments");
+  }
+);

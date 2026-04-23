@@ -6,13 +6,15 @@
  * @module
  */
 
-import { $SemanticWebId } from "@beep/identity/packages";
-import { Order, pipe } from "effect";
+import {$SemanticWebId} from "@beep/identity/packages";
+import {Order, pipe} from "effect";
 import * as A from "effect/Array";
+import {dual} from "effect/Function";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { IRI } from "./iri.ts";
-import { makeSemanticSchemaMetadata } from "./semantic-schema-metadata.ts";
+import {IRI} from "./iri.ts";
+import {makeSemanticSchemaMetadata} from "./semantic-schema-metadata.ts";
 
 const $I = $SemanticWebId.create("rdf");
 
@@ -23,7 +25,12 @@ const curieMetadata = makeSemanticSchemaMetadata({
   canonicalName: "Curie",
   overview: "Compact URI expression used with RDF namespace bindings.",
   status: "stable",
-  specifications: [{ name: "CURIE Syntax 1.0", disposition: "informative" }],
+  specifications: [
+    {
+      name: "CURIE Syntax 1.0",
+      disposition: "informative",
+    },
+  ],
   equivalenceBasis: "String equality after explicit prefix expansion.",
 });
 
@@ -32,7 +39,13 @@ const namespaceBindingMetadata = makeSemanticSchemaMetadata({
   canonicalName: "NamespaceBinding",
   overview: "Prefix-to-IRI binding used for RDF compaction and expansion.",
   status: "stable",
-  specifications: [{ name: "RDF 1.1 Concepts", section: "6", disposition: "informative" }],
+  specifications: [
+    {
+      name: "RDF 1.1 Concepts",
+      section: "6",
+      disposition: "informative",
+    },
+  ],
   equivalenceBasis: "String equality over prefix and namespace pairs.",
 });
 
@@ -41,10 +54,22 @@ const namedNodeMetadata = makeSemanticSchemaMetadata({
   canonicalName: "NamedNode",
   overview: "RDF named node aligned with the RDF/JS data-model surface.",
   status: "stable",
-  specifications: [{ name: "RDF/JS Data Model", section: "NamedNode", disposition: "normative" }],
+  specifications: [
+    {
+      name: "RDF/JS Data Model",
+      section: "NamedNode",
+      disposition: "normative",
+    },
+  ],
   canonicalizationRequired: true,
   equivalenceBasis: "IRI equality after identifier-level normalization when callers request normalization.",
-  representations: [{ kind: "RDF/JS" }, { kind: "JSON-LD", note: "Used for compacted and expanded identifiers." }],
+  representations: [
+    {kind: "RDF/JS"},
+    {
+      kind: "JSON-LD",
+      note: "Used for compacted and expanded identifiers.",
+    },
+  ],
 });
 
 const literalMetadata = makeSemanticSchemaMetadata({
@@ -52,9 +77,18 @@ const literalMetadata = makeSemanticSchemaMetadata({
   canonicalName: "Literal",
   overview: "RDF literal value with explicit lexical form, datatype, and optional language tag.",
   status: "stable",
-  specifications: [{ name: "RDF/JS Data Model", section: "Literal", disposition: "normative" }],
+  specifications: [
+    {
+      name: "RDF/JS Data Model",
+      section: "Literal",
+      disposition: "normative",
+    },
+  ],
   equivalenceBasis: "Lexical form, datatype, and optional language-tag equality.",
-  representations: [{ kind: "RDF/JS" }, { kind: "JSON-LD" }],
+  representations: [
+    {kind: "RDF/JS"},
+    {kind: "JSON-LD"},
+  ],
 });
 
 const quadMetadata = makeSemanticSchemaMetadata({
@@ -62,10 +96,22 @@ const quadMetadata = makeSemanticSchemaMetadata({
   canonicalName: "Quad",
   overview: "RDF statement value aligned with the RDF/JS quad surface.",
   status: "stable",
-  specifications: [{ name: "RDF/JS Data Model", section: "Quad", disposition: "normative" }],
+  specifications: [
+    {
+      name: "RDF/JS Data Model",
+      section: "Quad",
+      disposition: "normative",
+    },
+  ],
   equivalenceBasis: "Subject, predicate, object, and graph equality by RDF term serialization.",
   canonicalizationRequired: true,
-  representations: [{ kind: "RDF/JS" }, { kind: "JSON-LD", note: "Produced by JSON-LD bridging." }],
+  representations: [
+    {kind: "RDF/JS"},
+    {
+      kind: "JSON-LD",
+      note: "Produced by JSON-LD bridging.",
+    },
+  ],
 });
 
 const datasetMetadata = makeSemanticSchemaMetadata({
@@ -73,58 +119,75 @@ const datasetMetadata = makeSemanticSchemaMetadata({
   canonicalName: "Dataset",
   overview: "Collection of RDF quads used as the package's RDF interoperability layer.",
   status: "stable",
-  specifications: [{ name: "RDF/JS DatasetCore", disposition: "informative" }],
+  specifications: [
+    {
+      name: "RDF/JS DatasetCore",
+      disposition: "informative",
+    },
+  ],
   equivalenceBasis: "Sorted quad serialization equality.",
   canonicalizationRequired: true,
-  representations: [{ kind: "RDF/JS" }, { kind: "TriG" }],
+  representations: [
+    {kind: "RDF/JS"},
+    {kind: "TriG"},
+  ],
 });
 
 const PrefixLabelChecks = S.makeFilterGroup(
   [
-    S.isPattern(/^[A-Za-z][A-Za-z0-9._-]*$/, {
-      identifier: $I`PrefixLabelPatternCheck`,
-      title: "Prefix Label Pattern",
-      description: "A prefixed-name label used in RDF namespace bindings.",
-      message: "Prefix labels must begin with an ASCII letter and then use letters, digits, dot, underscore, or hyphen",
-    }),
+    S.isPattern(
+      /^[A-Za-z][A-Za-z0-9._-]*$/,
+      {
+        identifier: $I`PrefixLabelPatternCheck`,
+        title: "Prefix Label Pattern",
+        description: "A prefixed-name label used in RDF namespace bindings.",
+        message: "Prefix labels must begin with an ASCII letter and then use letters, digits, dot, underscore, or hyphen",
+      },
+    ),
   ],
   {
     identifier: $I`PrefixLabelChecks`,
     title: "Prefix Label",
     description: "Checks for RDF prefix labels.",
-  }
+  },
 );
 
 const CurieChecks = S.makeFilterGroup(
   [
-    S.isPattern(/^[A-Za-z][A-Za-z0-9._-]*:[^\\s]+$/, {
-      identifier: $I`CuriePatternCheck`,
-      title: "CURIE Pattern",
-      description: "A compact URI expression using a prefix label and a local part.",
-      message: "CURIE values must be of the form prefix:suffix without whitespace",
-    }),
+    S.isPattern(
+      /^[A-Za-z][A-Za-z0-9._-]*:[^\\s]+$/,
+      {
+        identifier: $I`CuriePatternCheck`,
+        title: "CURIE Pattern",
+        description: "A compact URI expression using a prefix label and a local part.",
+        message: "CURIE values must be of the form prefix:suffix without whitespace",
+      },
+    ),
   ],
   {
     identifier: $I`CurieChecks`,
     title: "CURIE",
     description: "Checks for CURIE syntax.",
-  }
+  },
 );
 
 const LanguageTagChecks = S.makeFilterGroup(
   [
-    S.isPattern(/^[A-Za-z]+(?:-[A-Za-z0-9]+)*$/, {
-      identifier: $I`LanguageTagPatternCheck`,
-      title: "Language Tag Pattern",
-      description: "A simple BCP 47-style language tag.",
-      message: "Language tags must use alphanumeric subtags separated by hyphens",
-    }),
+    S.isPattern(
+      /^[A-Za-z]+(?:-[A-Za-z0-9]+)*$/,
+      {
+        identifier: $I`LanguageTagPatternCheck`,
+        title: "Language Tag Pattern",
+        description: "A simple BCP 47-style language tag.",
+        message: "Language tags must use alphanumeric subtags separated by hyphens",
+      },
+    ),
   ],
   {
     identifier: $I`LanguageTagChecks`,
     title: "Language Tag",
     description: "Checks for RDF literal language tags.",
-  }
+  },
 );
 
 const BlankNodeLabelChecks = S.makeFilterGroup(
@@ -146,7 +209,7 @@ const BlankNodeLabelChecks = S.makeFilterGroup(
     identifier: $I`BlankNodeLabelChecks`,
     title: "Blank Node Label",
     description: "Checks for blank node labels.",
-  }
+  },
 );
 
 /**
@@ -164,22 +227,29 @@ const BlankNodeLabelChecks = S.makeFilterGroup(
  * @since 0.0.0
  * @category models
  */
-export const PrefixLabel = S.String.check(PrefixLabelChecks).pipe(
-  S.brand("PrefixLabel"),
-  S.annotate(
-    $I.annote("PrefixLabel", {
-      description: "Prefix label used by RDF namespace bindings.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "identifier",
-        canonicalName: "PrefixLabel",
-        overview: "Prefix label used by RDF namespace bindings.",
-        status: "stable",
-        specifications: [{ name: "RDF 1.1 Concepts", disposition: "informative" }],
-        equivalenceBasis: "Exact string equality.",
-      }),
-    })
-  )
-);
+export const PrefixLabel = S.String.check(PrefixLabelChecks)
+  .pipe(
+    S.brand("PrefixLabel"),
+    S.annotate($I.annote(
+      "PrefixLabel",
+      {
+        description: "Prefix label used by RDF namespace bindings.",
+        semanticSchemaMetadata: makeSemanticSchemaMetadata({
+          kind: "identifier",
+          canonicalName: "PrefixLabel",
+          overview: "Prefix label used by RDF namespace bindings.",
+          status: "stable",
+          specifications: [
+            {
+              name: "RDF 1.1 Concepts",
+              disposition: "informative",
+            },
+          ],
+          equivalenceBasis: "Exact string equality.",
+        }),
+      },
+    )),
+  );
 
 /**
  * Type for {@link PrefixLabel}.
@@ -210,15 +280,17 @@ export type PrefixLabel = typeof PrefixLabel.Type;
  * @since 0.0.0
  * @category models
  */
-export const Curie = S.String.check(CurieChecks).pipe(
-  S.brand("Curie"),
-  S.annotate(
-    $I.annote("Curie", {
-      description: "CURIE-style compact IRI expression.",
-      semanticSchemaMetadata: curieMetadata,
-    })
-  )
-);
+export const Curie = S.String.check(CurieChecks)
+  .pipe(
+    S.brand("Curie"),
+    S.annotate($I.annote(
+      "Curie",
+      {
+        description: "CURIE-style compact IRI expression.",
+        semanticSchemaMetadata: curieMetadata,
+      },
+    )),
+  );
 
 /**
  * Type for {@link Curie}.
@@ -249,22 +321,30 @@ export type Curie = typeof Curie.Type;
  * @since 0.0.0
  * @category models
  */
-export const LanguageTag = S.String.check(LanguageTagChecks).pipe(
-  S.brand("LanguageTag"),
-  S.annotate(
-    $I.annote("LanguageTag", {
-      description: "RDF literal language tag.",
-      semanticSchemaMetadata: makeSemanticSchemaMetadata({
-        kind: "rdfConstruct",
-        canonicalName: "LanguageTag",
-        overview: "Language tag attached to RDF literals.",
-        status: "stable",
-        specifications: [{ name: "RDF 1.1 Concepts", section: "Language-Tagged Strings", disposition: "normative" }],
-        equivalenceBasis: "Lower-cased language-tag equality.",
-      }),
-    })
-  )
-);
+export const LanguageTag = S.String.check(LanguageTagChecks)
+  .pipe(
+    S.brand("LanguageTag"),
+    S.annotate($I.annote(
+      "LanguageTag",
+      {
+        description: "RDF literal language tag.",
+        semanticSchemaMetadata: makeSemanticSchemaMetadata({
+          kind: "rdfConstruct",
+          canonicalName: "LanguageTag",
+          overview: "Language tag attached to RDF literals.",
+          status: "stable",
+          specifications: [
+            {
+              name: "RDF 1.1 Concepts",
+              section: "Language-Tagged Strings",
+              disposition: "normative",
+            },
+          ],
+          equivalenceBasis: "Lower-cased language-tag equality.",
+        }),
+      },
+    )),
+  );
 
 /**
  * Type for {@link LanguageTag}.
@@ -297,14 +377,18 @@ export type LanguageTag = typeof LanguageTag.Type;
  */
 export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
   {
-    termType: S.Literal("NamedNode"),
+    termType: S.tag("NamedNode"),
     value: IRI,
   },
-  $I.annote("NamedNode", {
-    description: "RDF named node value aligned with RDF/JS.",
-    semanticSchemaMetadata: namedNodeMetadata,
-  })
-) {}
+  $I.annote(
+    "NamedNode",
+    {
+      description: "RDF named node value aligned with RDF/JS.",
+      semanticSchemaMetadata: namedNodeMetadata,
+    },
+  ),
+) {
+}
 
 /**
  * RDF blank node value.
@@ -321,23 +405,36 @@ export class NamedNode extends S.Class<NamedNode>($I`NamedNode`)(
  */
 export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
   {
-    termType: S.Literal("BlankNode"),
+    termType: S.tag("BlankNode"),
     value: S.String.check(BlankNodeLabelChecks),
   },
-  $I.annote("BlankNode", {
-    description: "RDF blank node value aligned with RDF/JS.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "rdfConstruct",
-      canonicalName: "BlankNode",
-      overview: "RDF blank node value aligned with the RDF/JS data-model surface.",
-      status: "stable",
-      specifications: [{ name: "RDF/JS Data Model", section: "BlankNode", disposition: "normative" }],
-      equivalenceBasis: "Blank-node label equality within a bounded dataset.",
-      canonicalizationRequired: true,
-      representations: [{ kind: "RDF/JS" }, { kind: "TriG" }],
-    }),
-  })
-) {}
+  $I.annote(
+    "BlankNode",
+    {
+      description: "RDF blank node value aligned with RDF/JS.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "rdfConstruct",
+        canonicalName: "BlankNode",
+        overview: "RDF blank node value aligned with the RDF/JS data-model surface.",
+        status: "stable",
+        specifications: [
+          {
+            name: "RDF/JS Data Model",
+            section: "BlankNode",
+            disposition: "normative",
+          },
+        ],
+        equivalenceBasis: "Blank-node label equality within a bounded dataset.",
+        canonicalizationRequired: true,
+        representations: [
+          {kind: "RDF/JS"},
+          {kind: "TriG"},
+        ],
+      }),
+    },
+  ),
+) {
+}
 
 /**
  * RDF literal value.
@@ -354,16 +451,20 @@ export class BlankNode extends S.Class<BlankNode>($I`BlankNode`)(
  */
 export class Literal extends S.Class<Literal>($I`Literal`)(
   {
-    termType: S.Literal("Literal"),
+    termType: S.tag("Literal"),
     value: S.String,
     language: S.OptionFromOptionalKey(LanguageTag),
     datatype: NamedNode,
   },
-  $I.annote("Literal", {
-    description: "RDF literal value aligned with RDF/JS.",
-    semanticSchemaMetadata: literalMetadata,
-  })
-) {}
+  $I.annote(
+    "Literal",
+    {
+      description: "RDF literal value aligned with RDF/JS.",
+      semanticSchemaMetadata: literalMetadata,
+    },
+  ),
+) {
+}
 
 /**
  * RDF default graph term.
@@ -380,21 +481,31 @@ export class Literal extends S.Class<Literal>($I`Literal`)(
  */
 export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
   {
-    termType: S.Literal("DefaultGraph"),
+    termType: S.tag("DefaultGraph"),
     value: S.Literal(""),
   },
-  $I.annote("DefaultGraph", {
-    description: "RDF default graph term aligned with RDF/JS.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "rdfConstruct",
-      canonicalName: "DefaultGraph",
-      overview: "Default graph term aligned with the RDF/JS data-model surface.",
-      status: "stable",
-      specifications: [{ name: "RDF/JS Data Model", section: "DefaultGraph", disposition: "normative" }],
-      equivalenceBasis: "Exact empty-string value equality.",
-    }),
-  })
-) {}
+  $I.annote(
+    "DefaultGraph",
+    {
+      description: "RDF default graph term aligned with RDF/JS.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "rdfConstruct",
+        canonicalName: "DefaultGraph",
+        overview: "Default graph term aligned with the RDF/JS data-model surface.",
+        status: "stable",
+        specifications: [
+          {
+            name: "RDF/JS Data Model",
+            section: "DefaultGraph",
+            disposition: "normative",
+          },
+        ],
+        equivalenceBasis: "Exact empty-string value equality.",
+      }),
+    },
+  ),
+) {
+}
 
 /**
  * RDF term union.
@@ -409,21 +520,37 @@ export class DefaultGraph extends S.Class<DefaultGraph>($I`DefaultGraph`)(
  * @since 0.0.0
  * @category models
  */
-export const Term = S.Union([NamedNode, BlankNode, Literal, DefaultGraph]).annotate(
-  $I.annote("Term", {
-    description: "RDF term union aligned with RDF/JS.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "rdfConstruct",
-      canonicalName: "Term",
-      overview: "RDF term union aligned with the RDF/JS data-model surface.",
-      status: "stable",
-      specifications: [{ name: "RDF/JS Data Model", section: "Term", disposition: "normative" }],
-      equivalenceBasis: "Term-type aware serialized equality.",
-      canonicalizationRequired: true,
-      representations: [{ kind: "RDF/JS" }, { kind: "JSON-LD" }],
-    }),
-  })
-);
+export const Term = S.Union([
+  NamedNode,
+  BlankNode,
+  Literal,
+  DefaultGraph,
+])
+  .annotate($I.annote(
+    "Term",
+    {
+      description: "RDF term union aligned with RDF/JS.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "rdfConstruct",
+        canonicalName: "Term",
+        overview: "RDF term union aligned with the RDF/JS data-model surface.",
+        status: "stable",
+        specifications: [
+          {
+            name: "RDF/JS Data Model",
+            section: "Term",
+            disposition: "normative",
+          },
+        ],
+        equivalenceBasis: "Term-type aware serialized equality.",
+        canonicalizationRequired: true,
+        representations: [
+          {kind: "RDF/JS"},
+          {kind: "JSON-LD"},
+        ],
+      }),
+    },
+  ));
 
 /**
  * Type for {@link Term}.
@@ -454,11 +581,19 @@ export type Term = typeof Term.Type;
  * @since 0.0.0
  * @category models
  */
-export const Subject = S.Union([NamedNode, BlankNode]).annotate(
-  $I.annote("Subject", {
-    description: "RDF subject term union.",
-  })
-);
+export const Subject = S.Union([
+  NamedNode,
+  BlankNode,
+])
+  .pipe(
+    S.toTaggedUnion("termType"),
+    $I.annoteSchema(
+      "Subject",
+      {
+        description: "RDF subject term union.",
+      },
+    ),
+  );
 
 /**
  * Type for {@link Subject}.
@@ -489,11 +624,19 @@ export type Subject = typeof Subject.Type;
  * @since 0.0.0
  * @category models
  */
-export const ObjectTerm = S.Union([NamedNode, BlankNode, Literal]).annotate(
-  $I.annote("ObjectTerm", {
-    description: "RDF object term union.",
-  })
-);
+export const ObjectTerm = S.Union([
+  NamedNode,
+  BlankNode,
+  Literal,
+])
+  .pipe(
+    S.toTaggedUnion("termType"),
+    $I.annoteSchema(
+    "ObjectTerm",
+    {
+      description: "RDF object term union.",
+    },
+  ));
 
 /**
  * Type for {@link ObjectTerm}.
@@ -524,11 +667,19 @@ export type ObjectTerm = typeof ObjectTerm.Type;
  * @since 0.0.0
  * @category models
  */
-export const GraphTerm = S.Union([NamedNode, BlankNode, DefaultGraph]).annotate(
-  $I.annote("GraphTerm", {
-    description: "RDF graph term union.",
-  })
-);
+export const GraphTerm = S.Union([
+  NamedNode,
+  BlankNode,
+  DefaultGraph,
+])
+  .pipe(
+    S.toTaggedUnion("termType"),
+    $I.annoteSchema(
+    "GraphTerm",
+    {
+      description: "RDF graph term union.",
+    },
+  ));
 
 /**
  * Type for {@link GraphTerm}.
@@ -566,11 +717,15 @@ export class Quad extends S.Class<Quad>($I`Quad`)(
     object: ObjectTerm,
     graph: GraphTerm,
   },
-  $I.annote("Quad", {
-    description: "RDF quad value aligned with RDF/JS.",
-    semanticSchemaMetadata: quadMetadata,
-  })
-) {}
+  $I.annote(
+    "Quad",
+    {
+      description: "RDF quad value aligned with RDF/JS.",
+      semanticSchemaMetadata: quadMetadata,
+    },
+  ),
+) {
+}
 
 /**
  * Dataset wrapper for RDF quads.
@@ -589,11 +744,15 @@ export class Dataset extends S.Class<Dataset>($I`Dataset`)(
   {
     quads: S.Array(Quad),
   },
-  $I.annote("Dataset", {
-    description: "Dataset wrapper for RDF quads.",
-    semanticSchemaMetadata: datasetMetadata,
-  })
-) {}
+  $I.annote(
+    "Dataset",
+    {
+      description: "Dataset wrapper for RDF quads.",
+      semanticSchemaMetadata: datasetMetadata,
+    },
+  ),
+) {
+}
 
 /**
  * Prefix-to-namespace binding for RDF compaction and expansion.
@@ -613,11 +772,15 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
     prefix: PrefixLabel,
     namespace: IRI,
   },
-  $I.annote("NamespaceBinding", {
-    description: "Prefix-to-namespace binding for RDF compaction and expansion.",
-    semanticSchemaMetadata: namespaceBindingMetadata,
-  })
-) {}
+  $I.annote(
+    "NamespaceBinding",
+    {
+      description: "Prefix-to-namespace binding for RDF compaction and expansion.",
+      semanticSchemaMetadata: namespaceBindingMetadata,
+    },
+  ),
+) {
+}
 
 /**
  * Prefix map keyed by {@link PrefixLabel}.
@@ -632,19 +795,30 @@ export class NamespaceBinding extends S.Class<NamespaceBinding>($I`NamespaceBind
  * @since 0.0.0
  * @category models
  */
-export const PrefixMap = S.Record(PrefixLabel, IRI).annotate(
-  $I.annote("PrefixMap", {
-    description: "Prefix map keyed by RDF prefix labels.",
-    semanticSchemaMetadata: makeSemanticSchemaMetadata({
-      kind: "rdfConstruct",
-      canonicalName: "PrefixMap",
-      overview: "Prefix-to-namespace bindings used for RDF compaction and expansion.",
-      status: "stable",
-      specifications: [{ name: "RDF 1.1 Concepts", section: "6", disposition: "informative" }],
-      equivalenceBasis: "Prefix and namespace string equality.",
-    }),
-  })
-);
+export const PrefixMap = S.Record(
+  PrefixLabel,
+  IRI,
+)
+  .annotate($I.annote(
+    "PrefixMap",
+    {
+      description: "Prefix map keyed by RDF prefix labels.",
+      semanticSchemaMetadata: makeSemanticSchemaMetadata({
+        kind: "rdfConstruct",
+        canonicalName: "PrefixMap",
+        overview: "Prefix-to-namespace bindings used for RDF compaction and expansion.",
+        status: "stable",
+        specifications: [
+          {
+            name: "RDF 1.1 Concepts",
+            section: "6",
+            disposition: "informative",
+          },
+        ],
+        equivalenceBasis: "Prefix and namespace string equality.",
+      }),
+    },
+  ));
 
 /**
  * Type for {@link PrefixMap}.
@@ -682,7 +856,10 @@ const decodeLiteral = S.decodeUnknownSync(Literal);
  * @since 0.0.0
  * @category utilities
  */
-export const makeNamedNode = (value: string): NamedNode => decodeNamedNode({ termType: "NamedNode", value });
+export const makeNamedNode = (value: string): NamedNode => decodeNamedNode({
+  termType: "NamedNode",
+  value,
+});
 
 /**
  * Build a blank node from a non-empty label.
@@ -701,8 +878,47 @@ export const makeNamedNode = (value: string): NamedNode => decodeNamedNode({ ter
  * @since 0.0.0
  * @category utilities
  */
-export const makeBlankNode = (value: string): BlankNode =>
-  BlankNode.make({ termType: "BlankNode", value: decodeBlankNode(value) });
+export const makeBlankNode = (value: string): BlankNode => BlankNode.make({
+  termType: "BlankNode",
+  value: decodeBlankNode(value),
+});
+
+/**
+ * Optional language settings for {@link makeLiteral}.
+ *
+ * @example
+ * ```ts
+ * import type { MakeLiteralOptions } from "@beep/semantic-web/rdf"
+ *
+ * const options: MakeLiteralOptions = { language: "en" }
+ * void options
+ * ```
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
+export type MakeLiteralOptions = {
+  readonly language?: string | undefined;
+};
+
+const isMakeLiteralDataFirst = (args: IArguments): boolean => args.length >= 2 && P.isString(args[1]);
+
+const makeLiteralInternal = (
+  value: string,
+  datatype: string,
+  options: MakeLiteralOptions | string = {},
+): Literal => {
+  const language = P.isString(options)
+    ? options
+    : options.language;
+  return decodeLiteral({
+    termType: "Literal",
+    value,
+    datatype: makeNamedNode(datatype), ...(language === undefined
+      ? {}
+      : {language}),
+  });
+};
 
 /**
  * Build an RDF literal.
@@ -711,25 +927,56 @@ export const makeBlankNode = (value: string): BlankNode =>
  * ```typescript
  * import { makeLiteral } from "@beep/semantic-web/rdf"
  *
- * const lit = makeLiteral("42", "http://www.w3.org/2001/XMLSchema#integer")
+ * const lit = makeLiteral("hello", "http://www.w3.org/2001/XMLSchema#string", { language: "en" })
  * console.log(lit.termType) // "Literal"
- * console.log(lit.value) // "42"
+ * console.log(lit.value) // "hello"
  * ```
  *
  * @param value - Lexical form.
  * @param datatype - Datatype IRI.
- * @param language - Optional language tag.
+ * @param options - Optional literal settings.
  * @returns Decoded RDF literal.
  * @since 0.0.0
  * @category utilities
  */
-export const makeLiteral = (value: string, datatype: string, language?: string): Literal =>
-  decodeLiteral({
-    termType: "Literal",
-    value,
-    datatype: makeNamedNode(datatype),
-    ...(language === undefined ? {} : { language }),
-  });
+export const makeLiteral: {
+  (value: string, datatype: string): Literal;
+  (value: string, datatype: string, options: MakeLiteralOptions): Literal;
+  (datatype: string): (value: string) => Literal;
+  (datatype: string, options: MakeLiteralOptions): (value: string) => Literal;
+} = dual(
+  isMakeLiteralDataFirst,
+  makeLiteralInternal,
+);
+
+/**
+ * Object and optional graph settings for {@link makeQuad}.
+ *
+ * @example
+ * ```ts
+ * import type { MakeQuadOptions } from "@beep/semantic-web/rdf"
+ *
+ * const acceptOptions = (options: MakeQuadOptions) => options
+ * void acceptOptions
+ * ```
+ *
+ * @since 0.0.0
+ * @category utilities
+ */
+export type MakeQuadOptions = {
+  readonly object: ObjectTerm;
+  readonly graph?: GraphTerm | undefined;
+};
+
+const isMakeQuadOptions = (input: ObjectTerm | MakeQuadOptions): input is MakeQuadOptions => P.hasProperty(
+  input,
+  "object",
+);
+
+const makeDefaultGraph = (): DefaultGraph => DefaultGraph.make({
+  termType: "DefaultGraph",
+  value: "",
+});
 
 /**
  * Build an RDF quad.
@@ -747,19 +994,34 @@ export const makeLiteral = (value: string, datatype: string, language?: string):
  *
  * @param subject - Subject term.
  * @param predicate - Predicate term.
- * @param object - Object term.
- * @param graph - Optional graph term.
+ * @param options - Object term or object/graph settings.
  * @returns Decoded quad.
  * @since 0.0.0
  * @category utilities
  */
-export const makeQuad = (subject: Subject, predicate: NamedNode, object: ObjectTerm, graph?: GraphTerm): Quad =>
-  Quad.make({
-    subject,
-    predicate,
-    object,
-    graph: graph ?? DefaultGraph.make({ termType: "DefaultGraph", value: "" }),
-  });
+export const makeQuad: {
+  (subject: Subject, predicate: NamedNode, object: ObjectTerm): Quad;
+  (subject: Subject, predicate: NamedNode, options: MakeQuadOptions): Quad;
+  (predicate: NamedNode, object: ObjectTerm): (subject: Subject) => Quad;
+  (predicate: NamedNode, options: MakeQuadOptions): (subject: Subject) => Quad;
+} = dual(
+  3,
+  (
+    subject: Subject,
+    predicate: NamedNode,
+    input: ObjectTerm | MakeQuadOptions,
+  ): Quad => {
+    const options = isMakeQuadOptions(input)
+      ? input
+      : {object: input};
+    return Quad.make({
+      subject,
+      predicate,
+      object: options.object,
+      graph: options.graph ?? makeDefaultGraph(),
+    });
+  },
+);
 
 /**
  * Build a dataset from quads.
@@ -782,7 +1044,7 @@ export const makeQuad = (subject: Subject, predicate: NamedNode, object: ObjectT
  * @since 0.0.0
  * @category utilities
  */
-export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({ quads: A.fromIterable(quads) });
+export const makeDataset = (quads: ReadonlyArray<Quad>): Dataset => Dataset.make({quads: A.fromIterable(quads)});
 
 /**
  * Serialize an RDF term to a deterministic lexical form.
@@ -836,10 +1098,12 @@ export const serializeTerm = (term: Term): string => {
  * @since 0.0.0
  * @category utilities
  */
-export const serializeQuad = (quad: Quad): string =>
-  `${serializeTerm(quad.subject)} ${serializeTerm(quad.predicate)} ${serializeTerm(quad.object)} ${serializeTerm(quad.graph)} .`;
+export const serializeQuad = (quad: Quad): string => `${serializeTerm(quad.subject)} ${serializeTerm(quad.predicate)} ${serializeTerm(quad.object)} ${serializeTerm(quad.graph)} .`;
 
-const byQuadLexicalAscending: Order.Order<Quad> = Order.mapInput(Order.String, serializeQuad);
+const byQuadLexicalAscending: Order.Order<Quad> = Order.mapInput(
+  Order.String,
+  serializeQuad,
+);
 
 /**
  * Sort dataset quads by deterministic quad serialization.
@@ -858,8 +1122,10 @@ const byQuadLexicalAscending: Order.Order<Quad> = Order.mapInput(Order.String, s
  * @since 0.0.0
  * @category utilities
  */
-export const sortDatasetQuads = (dataset: Dataset): ReadonlyArray<Quad> =>
-  A.sort(dataset.quads, byQuadLexicalAscending);
+export const sortDatasetQuads = (dataset: Dataset): ReadonlyArray<Quad> => A.sort(
+  dataset.quads,
+  byQuadLexicalAscending,
+);
 
 /**
  * Compare datasets by sorted quad serialization.
@@ -879,6 +1145,18 @@ export const sortDatasetQuads = (dataset: Dataset): ReadonlyArray<Quad> =>
  * @since 0.0.0
  * @category utilities
  */
-export const areDatasetsEquivalent = (left: Dataset, right: Dataset): boolean =>
-  pipe(sortDatasetQuads(left), A.map(serializeQuad), A.join("\n")) ===
-  pipe(sortDatasetQuads(right), A.map(serializeQuad), A.join("\n"));
+export const areDatasetsEquivalent: {
+  (right: Dataset): (left: Dataset) => boolean;
+  (left: Dataset, right: Dataset): boolean;
+} = dual(
+  2,
+  (left: Dataset, right: Dataset): boolean => pipe(
+    sortDatasetQuads(left),
+    A.map(serializeQuad),
+    A.join("\n"),
+  ) === pipe(
+    sortDatasetQuads(right),
+    A.map(serializeQuad),
+    A.join("\n"),
+  ),
+);

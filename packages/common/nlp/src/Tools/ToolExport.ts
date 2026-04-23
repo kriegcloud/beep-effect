@@ -98,18 +98,18 @@ export class ExportedToolError extends TaggedErrorClass<ExportedToolError>($I`Ex
    *
    * @param cause - The underlying failure or defect.
    * @param toolName - The tool name associated with the failure.
-   * @param message - The rendered error message for the caller.
+   * @param options - Additional rendered error detail for the caller.
    * @returns A typed export-adapter error value.
    */
   static readonly fromCause: {
-    (cause: unknown, toolName: string, message: string): ExportedToolError;
-    (toolName: string, message: string): (cause: unknown) => ExportedToolError;
+    (cause: unknown, toolName: string, options: { readonly message: string }): ExportedToolError;
+    (toolName: string, options: { readonly message: string }): (cause: unknown) => ExportedToolError;
   } = dual(
     3,
-    (cause: unknown, toolName: string, message: string): ExportedToolError =>
+    (cause: unknown, toolName: string, options: { readonly message: string }): ExportedToolError =>
       new ExportedToolError({
         cause,
-        message,
+        message: options.message,
         toolName,
       })
   );
@@ -192,36 +192,48 @@ const buildExportedTool: {
         const params = yield* Effect.try({
           try: () => decodeToolParameters(tool, parameterNames, args),
           catch: (cause) =>
-            ExportedToolError.fromCause(cause, tool.name, `Invalid parameters for ${tool.name}: ${renderError(cause)}`),
+            ExportedToolError.fromCause(cause, tool.name, {
+              message: `Invalid parameters for ${tool.name}: ${renderError(cause)}`,
+            }),
         });
         const stream = yield* handleTool(toolkit, tool, params).pipe(
           Effect.mapError((cause) =>
-            ExportedToolError.fromCause(cause, tool.name, `Failed to start ${tool.name}: ${renderError(cause)}`)
+            ExportedToolError.fromCause(cause, tool.name, {
+              message: `Failed to start ${tool.name}: ${renderError(cause)}`,
+            })
           )
         );
         const last = yield* Stream.runLast(stream).pipe(
           Effect.mapError((cause) =>
-            ExportedToolError.fromCause(cause, tool.name, `Tool ${tool.name} failed: ${renderError(cause)}`)
+            ExportedToolError.fromCause(cause, tool.name, {
+              message: `Tool ${tool.name} failed: ${renderError(cause)}`,
+            })
           )
         );
 
         return yield* O.match(last, {
           onNone: () =>
-            Effect.fail(ExportedToolError.fromCause(undefined, tool.name, `Tool ${tool.name} returned no result`)),
+            Effect.fail(
+              ExportedToolError.fromCause(undefined, tool.name, {
+                message: `Tool ${tool.name} returned no result`,
+              })
+            ),
           onSome: (result) =>
             result.isFailure
               ? Effect.fail(
-                  ExportedToolError.fromCause(
-                    result.result,
-                    tool.name,
-                    `Tool ${tool.name} failed: ${renderError(result.result)}`
-                  )
+                  ExportedToolError.fromCause(result.result, tool.name, {
+                    message: `Tool ${tool.name} failed: ${renderError(result.result)}`,
+                  })
                 )
               : Effect.succeed(result.encodedResult),
         });
       },
       Effect.catchCause((cause) =>
-        Effect.fail(ExportedToolError.fromCause(cause, tool.name, `Tool ${tool.name} failed: ${Cause.pretty(cause)}`))
+        Effect.fail(
+          ExportedToolError.fromCause(cause, tool.name, {
+            message: `Tool ${tool.name} failed: ${Cause.pretty(cause)}`,
+          })
+        )
       )
     ),
     name: tool.name,
@@ -248,7 +260,9 @@ const exportToolsEffect: Effect.Effect<
   return exportedTools;
 }).pipe(
   Effect.mapError((cause) =>
-    ExportedToolError.fromCause(cause, "__init__", `Failed to export NLP tools: ${renderError(cause)}`)
+    ExportedToolError.fromCause(cause, "__init__", {
+      message: `Failed to export NLP tools: ${renderError(cause)}`,
+    })
   )
 );
 /**

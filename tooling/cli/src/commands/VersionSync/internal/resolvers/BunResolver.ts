@@ -14,6 +14,7 @@ import { A as CommonArray } from "@beep/utils";
 import { Effect, FileSystem, Inspectable, identity, Path } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -276,60 +277,73 @@ export class BunVersionState extends S.Class<BunVersionState>($I`BunVersionState
  * @category Utility
  * @since 0.0.0
  */
-export const resolveBunVersions = Effect.fn(function* (
-  repoRoot: string,
-  skipNetwork: boolean
-): Effect.fn.Return<BunVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient> {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+export const resolveBunVersions: {
+  (
+    repoRoot: string,
+    skipNetwork: boolean
+  ): Effect.Effect<BunVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient>;
+  (
+    skipNetwork: boolean
+  ): (
+    repoRoot: string
+  ) => Effect.Effect<BunVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient>;
+} = dual(
+  2,
+  Effect.fn(function* (
+    repoRoot: string,
+    skipNetwork: boolean
+  ): Effect.fn.Return<BunVersionState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient> {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
 
-  // Read .bun-version
-  const bunVersionPath = path.join(repoRoot, ".bun-version");
-  const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
-    Effect.map(Str.trim),
-    Effect.mapError(
-      (e) =>
-        new VersionSyncError({
-          message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: ".bun-version",
-        })
-    )
-  );
+    // Read .bun-version
+    const bunVersionPath = path.join(repoRoot, ".bun-version");
+    const bunVersionFile = yield* fs.readFileString(bunVersionPath).pipe(
+      Effect.map(Str.trim),
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read .bun-version: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: ".bun-version",
+          })
+      )
+    );
 
-  // Read package.json packageManager field
-  const pkgJsonPath = path.join(repoRoot, "package.json");
-  const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
-    Effect.mapError(
-      (e) =>
-        new VersionSyncError({
-          message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
-          file: "package.json",
-        })
-    )
-  );
+    // Read package.json packageManager field
+    const pkgJsonPath = path.join(repoRoot, "package.json");
+    const pkgJsonContent = yield* fs.readFileString(pkgJsonPath).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to read package.json: ${Inspectable.toStringUnknown(e, 0)}`,
+            file: "package.json",
+          })
+      )
+    );
 
-  const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
-    Effect.mapError(
-      (e) =>
-        new VersionSyncError({
-          message: `Failed to parse package.json: ${e.message}`,
-          file: "package.json",
-        })
-    )
-  );
-  const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager);
+    const pkgJson = yield* decodeJsoncTextAs(BunPackageJsonDocument)(pkgJsonContent).pipe(
+      Effect.mapError(
+        (e) =>
+          new VersionSyncError({
+            message: `Failed to parse package.json: ${e.message}`,
+            file: "package.json",
+          })
+      )
+    );
+    const packageManagerField = extractPackageManagerVersion(pkgJson.packageManager);
 
-  const latest = yield* Bool.match(skipNetwork, {
-    onTrue: () => Effect.succeed(O.none<string>()),
-    onFalse: () => fetchLatestBunVersion().pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>)),
-  });
+    const latest = yield* Bool.match(skipNetwork, {
+      onTrue: () => Effect.succeed(O.none<string>()),
+      onFalse: () => fetchLatestBunVersion().pipe(Effect.map(O.some), Effect.orElseSucceed(O.none<string>)),
+    });
 
-  return new BunVersionState({
-    bunVersionFile,
-    packageManagerField,
-    latest,
-  });
-});
+    return new BunVersionState({
+      bunVersionFile,
+      packageManagerField,
+      latest,
+    });
+  })
+);
 
 /**
  * Fetch the latest stable Bun release version from GitHub.

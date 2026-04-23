@@ -24,6 +24,7 @@ import {
 } from "effect";
 import * as A from "effect/Array";
 import * as Bool from "effect/Boolean";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -321,11 +322,19 @@ const findLatestSemver = (tags: ReadonlyArray<string>): O.Option<string> => {
  * @category Utility
  * @since 0.0.0
  */
-export const resolveDockerImages: (
-  repoRoot: string,
-  skipNetwork: boolean
-) => Effect.Effect<DockerImageState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient> =
-  Effect.fn(function* (repoRoot, skipNetwork) {
+export const resolveDockerImages: {
+  (
+    repoRoot: string,
+    skipNetwork: boolean
+  ): Effect.Effect<DockerImageState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient>;
+  (
+    skipNetwork: boolean
+  ): (
+    repoRoot: string
+  ) => Effect.Effect<DockerImageState, VersionSyncError, FileSystem.FileSystem | Path.Path | HttpClient.HttpClient>;
+} = dual(
+  2,
+  Effect.fn(function* (repoRoot: string, skipNetwork: boolean) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
@@ -380,7 +389,8 @@ export const resolveDockerImages: (
     }
 
     return new DockerImageState({ images });
-  });
+  })
+);
 
 /**
  * Fetch the latest appropriate tag for a Docker image from Docker Hub.

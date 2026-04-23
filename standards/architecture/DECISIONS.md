@@ -204,3 +204,17 @@ Rationale:
 Moving Drizzle, Postgres, EventLog, queue, or workflow-engine settings into a
 slice config package would make the package a provider registry. Keeping
 technical config provider-local preserves the provider boundary.
+
+## 2026-04-23: Provider Packages Use Short Capability Names
+
+Decision:
+
+Slice-local provider packages use `@beep/<slice>-<provider>`. Shared providers
+promoted out of a slice use `@beep/<provider>`.
+
+Rationale:
+
+`@beep/<slice>-providers-<provider>` repeats the provider role without adding
+ownership clarity. Keeping the slice in local provider names preserves ownership
+while avoiding noisy package names. Reserving `@beep/<provider>` for shared
+providers keeps global capability names intentional instead of accidental.

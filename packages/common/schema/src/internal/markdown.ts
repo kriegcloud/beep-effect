@@ -3,10 +3,11 @@
  *
  * @since 0.0.0
  */
-import { pipe } from "effect";
+import { thunkEmptyRecord } from "@beep/utils";
+import { pipe, Result } from "effect";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
-import * as Result from "effect/Result";
 import * as MarkdownPackage from "micromark";
 import * as MarkdownGfmPackage from "micromark-extension-gfm";
 
@@ -27,6 +28,9 @@ type MarkdownGfmModule = typeof MarkdownGfmPackage;
 
 type MarkdownModuleLoader = () => MarkdownModule;
 type MarkdownGfmModuleLoader = () => MarkdownGfmModule;
+type MarkdownParserOptions = {
+  readonly loadMarkdownGfm: MarkdownGfmModuleLoader;
+};
 
 export type MarkdownParseResult =
   | {
@@ -100,27 +104,39 @@ export const getGlobalMarkdownRuntime = (): MarkdownRuntime =>
         },
       },
     })),
-    O.getOrElse(() => ({}))
+    O.getOrElse(thunkEmptyRecord)
   );
 
-export const makeParseMarkdownForSchema =
-  (runtime: MarkdownRuntime, loadMarkdown: MarkdownModuleLoader, loadMarkdownGfm: MarkdownGfmModuleLoader) =>
-  (input: string): MarkdownParseResult =>
-    pipe(
-      getBunRuntime(runtime),
-      O.match({
-        onNone: () =>
-          toMarkdownParseResult(
-            Result.try(() => {
-              const markdown = loadMarkdown();
-              const markdownGfm = loadMarkdownGfm();
+export const makeParseMarkdownForSchema: {
+  (
+    runtime: MarkdownRuntime,
+    loadMarkdown: MarkdownModuleLoader,
+    options: MarkdownParserOptions
+  ): (input: string) => MarkdownParseResult;
+  (
+    loadMarkdown: MarkdownModuleLoader,
+    options: MarkdownParserOptions
+  ): (runtime: MarkdownRuntime) => (input: string) => MarkdownParseResult;
+} = dual(
+  3,
+  (runtime: MarkdownRuntime, loadMarkdown: MarkdownModuleLoader, options: MarkdownParserOptions) =>
+    (input: string): MarkdownParseResult =>
+      pipe(
+        getBunRuntime(runtime),
+        O.match({
+          onNone: () =>
+            toMarkdownParseResult(
+              Result.try(() => {
+                const markdown = loadMarkdown();
+                const markdownGfm = options.loadMarkdownGfm();
 
-              return markdown.micromark(input, {
-                extensions: [markdownGfm.gfm()],
-                htmlExtensions: [markdownGfm.gfmHtml()],
-              });
-            })
-          ),
-        onSome: ({ markdown }) => toMarkdownParseResult(Result.try(() => markdown.html(input))),
-      })
-    );
+                return markdown.micromark(input, {
+                  extensions: [markdownGfm.gfm()],
+                  htmlExtensions: [markdownGfm.gfmHtml()],
+                });
+              })
+            ),
+          onSome: ({ markdown }) => toMarkdownParseResult(Result.try(() => markdown.html(input))),
+        })
+      )
+);

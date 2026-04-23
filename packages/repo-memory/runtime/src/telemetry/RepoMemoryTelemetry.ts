@@ -9,6 +9,7 @@ import { $RepoMemoryRuntimeId } from "@beep/identity";
 import { measureElapsedMillis as measureElapsedMillisShared, profilePhase } from "@beep/observability";
 import { LiteralKit } from "@beep/schema";
 import { Duration, Effect, Metric } from "effect";
+import { dual } from "effect/Function";
 
 const $I = $RepoMemoryRuntimeId.create("telemetry/RepoMemoryTelemetry");
 /**
@@ -219,6 +220,11 @@ const phaseDuration = Metric.timer("beep_repo_memory_phase_duration_ms", {
 
 const metricAttributes = (attributes: Record<string, string>) => attributes;
 
+type ProfileRunPhaseOptions = {
+  readonly runKind: RepoRunKindMetric;
+  readonly phase: string;
+};
+
 /**
  * Record that one repo-memory run started.
  *
@@ -418,28 +424,30 @@ export const measureElapsedMillis = <A, E, R>(
  * import { profileRunPhase } from "@beep/repo-memory-runtime"
  * import { Effect } from "effect"
  *
- * const profiled = profileRunPhase("index", "indexing", Effect.succeed("ok"))
+ * const profiled = profileRunPhase(Effect.succeed("ok"), {
+ *   runKind: "index",
+ *   phase: "indexing"
+ * })
  * ```
  *
  * @since 0.0.0
  * @category cross cutting
  */
-export const profileRunPhase = <A, E, R>(
-  runKind: RepoRunKindMetric,
-  phase: string,
-  effect: Effect.Effect<A, E, R>
-): Effect.Effect<A, E, R> =>
-  profilePhase(
-    {
-      phase,
+export const profileRunPhase: {
+  (options: ProfileRunPhaseOptions): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
+  <A, E, R>(effect: Effect.Effect<A, E, R>, options: ProfileRunPhaseOptions): Effect.Effect<A, E, R>;
+} = dual(
+  2,
+  <A, E, R>(effect: Effect.Effect<A, E, R>, options: ProfileRunPhaseOptions): Effect.Effect<A, E, R> =>
+    profilePhase(effect, {
+      phase: options.phase,
       attributes: metricAttributes({
-        run_kind: runKind,
+        run_kind: options.runKind,
       }),
       started: phasesStartedTotal,
       completed: phasesCompletedTotal,
       failed: phasesFailedTotal,
       interrupted: phasesInterruptedTotal,
       duration: phaseDuration,
-    },
-    effect
-  );
+    })
+);

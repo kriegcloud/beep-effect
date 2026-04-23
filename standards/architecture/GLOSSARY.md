@@ -133,6 +133,8 @@ or infrastructure concerns such as Drizzle, Postgres, SQLite, EventLog,
 workflow engines, queues, sharding, transactions, retries, and provider-local
 configuration. Providers may be slice-local by default and promoted to shared
 only when the technical contract is product-neutral and stable across slices.
+Slice-local provider package names use `@beep/<slice>-<provider>`; shared
+provider package names use `@beep/<provider>`.
 
 ## Public Config
 
@@ -163,6 +165,13 @@ model tables use `.read-model-table.ts` and are composed by `ReadModels.ts`.
 A domain model that owns shape, validation, and pure behavior. Rich behavior may
 be instance methods, exported pure functions, `*.behavior.ts`, or pure
 `*.policy.ts` modules.
+
+## Schema-First Model
+
+A pure data model whose `Schema` value is the source of truth. TypeScript types,
+constructors, decoders, encoders, guards, equivalence, defaults, validation
+messages, and documentation metadata derive from that schema instead of living
+beside it as parallel definitions.
 
 ## Role Suffix
 

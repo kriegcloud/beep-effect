@@ -6,15 +6,14 @@
  */
 
 import { findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
-import { Console, Effect, type FileSystem, Layer, type Path } from "effect";
+import { Console, Effect, type FileSystem, Layer, Number as Num, type Path } from "effect";
 import * as A from "effect/Array";
-import * as Num from "effect/Number";
 import type { HttpClient } from "effect/unstable/http";
 import {
-  VersionSyncDriftError,
-  type VersionSyncError,
-  VersionSyncModeMatch,
-  type VersionSyncOptions,
+    VersionSyncDriftError,
+    type VersionSyncError,
+    VersionSyncModeMatch,
+    type VersionSyncOptions,
 } from "./Models.js";
 import { CategorySelectionServiceLive } from "./services/CategorySelectionService.js";
 import { ReportRendererService, ReportRendererServiceLive } from "./services/ReportRendererService.js";

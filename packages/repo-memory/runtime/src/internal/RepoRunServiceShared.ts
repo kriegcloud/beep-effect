@@ -54,6 +54,9 @@ export type RepoRuntimeStoreShape = RepoRegistryStoreShape &
   RepoSymbolStoreShape;
 
 type RepoRunStatusCauseError = StatusCauseInput;
+type RunServiceErrorOptions = {
+  readonly status: number;
+};
 
 /**
  * Typed orchestration error emitted by the repo run service.
@@ -82,19 +85,19 @@ export class RepoRunServiceError extends StatusCauseTaggedErrorClass<RepoRunServ
  * ```ts
  * import { toRunServiceError } from "../../src/internal/RepoRunServiceShared.js"
  *
- * const error = toRunServiceError("sqlite", "Store failed.", 500)
+ * const error = toRunServiceError("sqlite", "Store failed.", { status: 500 })
  * ```
  *
  * @since 0.0.0
  * @category domain logic
  */
 export const toRunServiceError: {
-  (cause: unknown, message: string, status: number): RepoRunServiceError;
-  (message: string, status: number): (cause: unknown) => RepoRunServiceError;
+  (message: string, options: RunServiceErrorOptions): (cause: unknown) => RepoRunServiceError;
+  (cause: unknown, message: string, options: RunServiceErrorOptions): RepoRunServiceError;
 } = dual(
   3,
-  (cause: unknown, message: string, status: number): RepoRunServiceError =>
-    RepoRunServiceError.new(cause, message, status)
+  (cause: unknown, message: string, options: RunServiceErrorOptions): RepoRunServiceError =>
+    RepoRunServiceError.new(cause, message, options.status)
 );
 
 /**

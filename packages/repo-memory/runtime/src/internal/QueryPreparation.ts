@@ -19,6 +19,7 @@ import type { RepoSnapshotStoreShape, RepoStoreError, RepoSymbolStoreShape } fro
 import * as Str from "@beep/utils/Str";
 import { Effect, Order, pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -841,11 +842,19 @@ export const selectSingleMatch = <A>(selection: MatchSelection<A>): SingleMatchS
  * @since 0.0.0
  * @category domain logic
  */
-export const findSymbolMatches = (
-  store: QueryPreparationStoreShape,
-  repoId: RepoId,
-  sourceSnapshotId: SourceSnapshotId
-) =>
+export const findSymbolMatches: {
+  (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId
+  ): (
+    store: QueryPreparationStoreShape
+  ) => (symbolName: string) => Effect.Effect<MatchSelection<RepoSymbolRecord>, RepoStoreError>;
+  (
+    store: QueryPreparationStoreShape,
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId
+  ): (symbolName: string) => Effect.Effect<MatchSelection<RepoSymbolRecord>, RepoStoreError>;
+} = dual(3, (store: QueryPreparationStoreShape, repoId: RepoId, sourceSnapshotId: SourceSnapshotId) =>
   Effect.fn("QueryPreparation.findSymbolMatches")(function* (
     symbolName: string
   ): Effect.fn.Return<MatchSelection<RepoSymbolRecord>, RepoStoreError> {
@@ -934,7 +943,8 @@ export const findSymbolMatches = (
               strategy: "symbol-search-variant",
             }),
     };
-  });
+  })
+);
 
 /**
  * Resolve a file query into bounded deterministic candidate matches.
@@ -1022,10 +1032,10 @@ export const resolveFileCandidates = (store: QueryPreparationStoreShape) =>
  * @since 0.0.0
  * @category domain logic
  */
-export const selectImporterEdges = (
-  moduleQuery: string,
-  importEdges: ReadonlyArray<RepoImportEdge>
-): MatchSelection<RepoImportEdge> => {
+export const selectImporterEdges: {
+  (importEdges: ReadonlyArray<RepoImportEdge>): (moduleQuery: string) => MatchSelection<RepoImportEdge>;
+  (moduleQuery: string, importEdges: ReadonlyArray<RepoImportEdge>): MatchSelection<RepoImportEdge>;
+} = dual(2, (moduleQuery: string, importEdges: ReadonlyArray<RepoImportEdge>): MatchSelection<RepoImportEdge> => {
   const variants = PathText.moduleSpecifierVariants(moduleQuery);
   const rawVariant = PathText.normalizePathPhrase(moduleQuery);
   let rankedHits = A.empty<RankedImporterHit>();
@@ -1082,7 +1092,7 @@ export const selectImporterEdges = (
             strategy: bestMatch.strategy,
           }),
   };
-};
+});
 
 /**
  * Search keyword candidates with bounded variant expansion and stable ranking.
@@ -1097,11 +1107,19 @@ export const selectImporterEdges = (
  * @since 0.0.0
  * @category domain logic
  */
-export const searchKeywordMatches = (
-  store: QueryPreparationStoreShape,
-  repoId: RepoId,
-  sourceSnapshotId: SourceSnapshotId
-) =>
+export const searchKeywordMatches: {
+  (
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId
+  ): (
+    store: QueryPreparationStoreShape
+  ) => (query: string) => Effect.Effect<MatchSelection<RepoSymbolRecord>, RepoStoreError>;
+  (
+    store: QueryPreparationStoreShape,
+    repoId: RepoId,
+    sourceSnapshotId: SourceSnapshotId
+  ): (query: string) => Effect.Effect<MatchSelection<RepoSymbolRecord>, RepoStoreError>;
+} = dual(3, (store: QueryPreparationStoreShape, repoId: RepoId, sourceSnapshotId: SourceSnapshotId) =>
   Effect.fn("QueryPreparation.searchKeywordMatches")(function* (
     query: string
   ): Effect.fn.Return<MatchSelection<RepoSymbolRecord>, RepoStoreError> {
@@ -1155,4 +1173,5 @@ export const searchKeywordMatches = (
               strategy: "keyword-variant",
             }),
     };
-  });
+  })
+);

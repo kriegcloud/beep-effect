@@ -187,6 +187,8 @@
     "cytoscape": "^3.33.2",
     "sql-formatter": "^15.7.3",
     "markdownlint-cli2": "^0.22.1",
+    "micromark": "^4.0.2",
+    "micromark-extension-gfm": "^3.0.0",
     "@effect/ai-anthropic": "4.0.0-beta.56",
     "@effect/ai-openai": "4.0.0-beta.56",
     "@effect/ai-openai-compat": "4.0.0-beta.56",

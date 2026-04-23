@@ -13,6 +13,10 @@ import { JSDocTagDefinition } from "./models/index.js";
 
 const $I = $RepoUtilsId.create("JSDoc/JSDocTagDb");
 
+type JSDocTagMember<Tag extends string> = typeof JSDocTagDefinition.JSDocTagDefinition.Type & {
+  readonly _tag: Tag;
+};
+
 /**
  * JSDoc tag metadata export.
  *
@@ -25,7 +29,7 @@ const $I = $RepoUtilsId.create("JSDoc/JSDocTagDb");
  * @category models
  * @since 0.0.0
  */
-export class JSDocParam extends S.Opaque<JSDocParam>()(
+export class JSDocParam extends S.Opaque<JSDocParam & JSDocTagMember<"param">>()(
   JSDocTagDefinition.make("param", {
     synonyms: ["arg", "argument"],
     overview: "Document the parameter to a function. Names, types, optionality, and defaults are all in the AST.",
@@ -65,7 +69,7 @@ export class JSDocParam extends S.Opaque<JSDocParam>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocReturns extends S.Opaque<JSDocReturns>()(
+export class JSDocReturns extends S.Opaque<JSDocReturns & JSDocTagMember<"returns">>()(
   JSDocTagDefinition.make("returns", {
     synonyms: ["return"],
     overview: "Document the return value of a function. Return type is in the AST; description is human-authored.",
@@ -103,7 +107,7 @@ export class JSDocReturns extends S.Opaque<JSDocReturns>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocThrows extends S.Opaque<JSDocThrows>()(
+export class JSDocThrows extends S.Opaque<JSDocThrows & JSDocTagMember<"throws">>()(
   JSDocTagDefinition.make("throws", {
     synonyms: ["exception"],
     overview:
@@ -138,7 +142,7 @@ export class JSDocThrows extends S.Opaque<JSDocThrows>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocTemplate extends S.Opaque<JSDocTemplate>()(
+export class JSDocTemplate extends S.Opaque<JSDocTemplate & JSDocTagMember<"template">>()(
   JSDocTagDefinition.make("template", {
     synonyms: [],
     overview:
@@ -173,7 +177,7 @@ export class JSDocTemplate extends S.Opaque<JSDocTemplate>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocTypeParam extends S.Opaque<JSDocTypeParam>()(
+export class JSDocTypeParam extends S.Opaque<JSDocTypeParam & JSDocTagMember<"typeParam">>()(
   JSDocTagDefinition.make("typeParam", {
     synonyms: [],
     overview: "TSDoc equivalent of @template. Documents a generic type parameter.",
@@ -206,7 +210,7 @@ export class JSDocTypeParam extends S.Opaque<JSDocTypeParam>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocType extends S.Opaque<JSDocType>()(
+export class JSDocType extends S.Opaque<JSDocType & JSDocTagMember<"type">>()(
   JSDocTagDefinition.make("type", {
     synonyms: [],
     overview: "Document the type of an object/variable. Fully derivable from type annotations or inference.",
@@ -235,7 +239,7 @@ export class JSDocType extends S.Opaque<JSDocType>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocTypeDef extends S.Opaque<JSDocTypeDef>()(
+export class JSDocTypeDef extends S.Opaque<JSDocTypeDef & JSDocTagMember<"typedef">>()(
   JSDocTagDefinition.make("typedef", {
     synonyms: [],
     overview: "Document a custom type. In .ts-morph files, replaced by type aliases and interfaces.",
@@ -264,7 +268,7 @@ export class JSDocTypeDef extends S.Opaque<JSDocTypeDef>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocCallback extends S.Opaque<JSDocCallback>()(
+export class JSDocCallback extends S.Opaque<JSDocCallback & JSDocTagMember<"callback">>()(
   JSDocTagDefinition.make("callback", {
     synonyms: [],
     overview: "Document a callback function type. In .ts-morph files, replaced by function type aliases.",
@@ -293,7 +297,7 @@ export class JSDocCallback extends S.Opaque<JSDocCallback>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocAugments extends S.Opaque<JSDocAugments>()(
+export class JSDocAugments extends S.Opaque<JSDocAugments & JSDocTagMember<"augments">>()(
   JSDocTagDefinition.make("augments", {
     synonyms: ["extends"],
     overview: "Indicate that a symbol inherits from a parent symbol. Heritage clauses are in the AST.",
@@ -322,7 +326,7 @@ export class JSDocAugments extends S.Opaque<JSDocAugments>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocImplements extends S.Opaque<JSDocImplements>()(
+export class JSDocImplements extends S.Opaque<JSDocImplements & JSDocTagMember<"implements">>()(
   JSDocTagDefinition.make("implements", {
     synonyms: [],
     overview: "This symbol implements an interface. Fully in AST heritage clauses.",
@@ -355,7 +359,7 @@ export class JSDocImplements extends S.Opaque<JSDocImplements>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocClass extends S.Opaque<JSDocClass>()(
+export class JSDocClass extends S.Opaque<JSDocClass & JSDocTagMember<"class">>()(
   JSDocTagDefinition.make("class", {
     synonyms: ["constructor"],
     overview:
@@ -385,7 +389,7 @@ export class JSDocClass extends S.Opaque<JSDocClass>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocEnum extends S.Opaque<JSDocEnum>()(
+export class JSDocEnum extends S.Opaque<JSDocEnum & JSDocTagMember<"enum">>()(
   JSDocTagDefinition.make("enum", {
     synonyms: [],
     overview: "Document a collection of related properties (JSDoc-style enum). Not the same as TypeScript enum.",
@@ -413,7 +417,7 @@ export class JSDocEnum extends S.Opaque<JSDocEnum>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocAsync extends S.Opaque<JSDocAsync>()(
+export class JSDocAsync extends S.Opaque<JSDocAsync & JSDocTagMember<"async">>()(
   JSDocTagDefinition.make("async", {
     synonyms: [],
     overview: "Indicate that a function is asynchronous. Detectable from the async modifier flag.",
@@ -441,7 +445,7 @@ export class JSDocAsync extends S.Opaque<JSDocAsync>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocGenerator extends S.Opaque<JSDocGenerator>()(
+export class JSDocGenerator extends S.Opaque<JSDocGenerator & JSDocTagMember<"generator">>()(
   JSDocTagDefinition.make("generator", {
     synonyms: [],
     overview: "Indicate that a function is a generator function. Detectable from the asterisk token.",
@@ -469,7 +473,7 @@ export class JSDocGenerator extends S.Opaque<JSDocGenerator>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocYields extends S.Opaque<JSDocYields>()(
+export class JSDocYields extends S.Opaque<JSDocYields & JSDocTagMember<"yields">>()(
   JSDocTagDefinition.make("yields", {
     synonyms: ["yield"],
     overview: "Document the value yielded by a generator function. Yield type is in the return type signature.",
@@ -610,7 +614,7 @@ export const matchStructuralJSDoc = (value: StructuralJSDoc.Type) => {
  * @category models
  * @since 0.0.0
  */
-export class JSDocAccess extends S.Opaque<JSDocAccess>()(
+export class JSDocAccess extends S.Opaque<JSDocAccess & JSDocTagMember<"access">>()(
   JSDocTagDefinition.make("access", {
     synonyms: [],
     overview: "Specify the access level of this member. Shorthand tags @public/@private/@protected are preferred.",
@@ -644,7 +648,7 @@ export class JSDocAccess extends S.Opaque<JSDocAccess>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPublic extends S.Opaque<JSDocPublic>()(
+export class JSDocPublic extends S.Opaque<JSDocPublic & JSDocTagMember<"public">>()(
   JSDocTagDefinition.make("public", {
     synonyms: [],
     overview: "This symbol is meant to be public.",
@@ -673,7 +677,7 @@ export class JSDocPublic extends S.Opaque<JSDocPublic>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPrivate extends S.Opaque<JSDocPrivate>()(
+export class JSDocPrivate extends S.Opaque<JSDocPrivate & JSDocTagMember<"private">>()(
   JSDocTagDefinition.make("private", {
     synonyms: [],
     overview: "This symbol is meant to be private.",
@@ -701,7 +705,7 @@ export class JSDocPrivate extends S.Opaque<JSDocPrivate>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocProtected extends S.Opaque<JSDocProtected>()(
+export class JSDocProtected extends S.Opaque<JSDocProtected & JSDocTagMember<"protected">>()(
   JSDocTagDefinition.make("protected", {
     synonyms: [],
     overview: "This symbol is meant to be protected.",
@@ -729,7 +733,7 @@ export class JSDocProtected extends S.Opaque<JSDocProtected>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPackage extends S.Opaque<JSDocPackage>()(
+export class JSDocPackage extends S.Opaque<JSDocPackage & JSDocTagMember<"package">>()(
   JSDocTagDefinition.make("package", {
     synonyms: [],
     overview: "This symbol is meant to be package-private (JSDoc concept, no direct TS equivalent).",
@@ -757,7 +761,7 @@ export class JSDocPackage extends S.Opaque<JSDocPackage>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocReadonly extends S.Opaque<JSDocReadonly>()(
+export class JSDocReadonly extends S.Opaque<JSDocReadonly & JSDocTagMember<"readonly">>()(
   JSDocTagDefinition.make("readonly", {
     synonyms: [],
     overview: "This symbol is meant to be read-only.",
@@ -786,7 +790,7 @@ export class JSDocReadonly extends S.Opaque<JSDocReadonly>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocAbstract extends S.Opaque<JSDocAbstract>()(
+export class JSDocAbstract extends S.Opaque<JSDocAbstract & JSDocTagMember<"abstract">>()(
   JSDocTagDefinition.make("abstract", {
     synonyms: [],
     overview: "This member must be implemented (or overridden) by the inheritor.",
@@ -814,7 +818,7 @@ export class JSDocAbstract extends S.Opaque<JSDocAbstract>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocFinal extends S.Opaque<JSDocFinal>()(
+export class JSDocFinal extends S.Opaque<JSDocFinal & JSDocTagMember<"final">>()(
   JSDocTagDefinition.make("final", {
     synonyms: [],
     overview: "Closure: marks a class or member as final and not intended for override/extension.",
@@ -842,7 +846,7 @@ export class JSDocFinal extends S.Opaque<JSDocFinal>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocOverride extends S.Opaque<JSDocOverride>()(
+export class JSDocOverride extends S.Opaque<JSDocOverride & JSDocTagMember<"override">>()(
   JSDocTagDefinition.make("override", {
     synonyms: [],
     overview: "Indicate that a symbol overrides its parent. TypeScript 4.3+ has native override keyword.",
@@ -871,7 +875,7 @@ export class JSDocOverride extends S.Opaque<JSDocOverride>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocStatic extends S.Opaque<JSDocStatic>()(
+export class JSDocStatic extends S.Opaque<JSDocStatic & JSDocTagMember<"static">>()(
   JSDocTagDefinition.make("static", {
     synonyms: [],
     overview: "Document a static member.",
@@ -899,7 +903,7 @@ export class JSDocStatic extends S.Opaque<JSDocStatic>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocConstant extends S.Opaque<JSDocConstant>()(
+export class JSDocConstant extends S.Opaque<JSDocConstant & JSDocTagMember<"constant">>()(
   JSDocTagDefinition.make("constant", {
     synonyms: ["const"],
     overview: "Document an object as a constant.",
@@ -928,7 +932,7 @@ export class JSDocConstant extends S.Opaque<JSDocConstant>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocDefault extends S.Opaque<JSDocDefault>()(
+export class JSDocDefault extends S.Opaque<JSDocDefault & JSDocTagMember<"default">>()(
   JSDocTagDefinition.make("default", {
     synonyms: ["defaultvalue"],
     overview: "Document the default value of a symbol.",
@@ -956,7 +960,7 @@ export class JSDocDefault extends S.Opaque<JSDocDefault>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocDefaultValue extends S.Opaque<JSDocDefaultValue>()(
+export class JSDocDefaultValue extends S.Opaque<JSDocDefaultValue & JSDocTagMember<"defaultValue">>()(
   JSDocTagDefinition.make("defaultValue", {
     synonyms: [],
     overview: "TSDoc equivalent of @default. Documents the default value of a property or parameter.",
@@ -985,7 +989,7 @@ export class JSDocDefaultValue extends S.Opaque<JSDocDefaultValue>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocExports extends S.Opaque<JSDocExports>()(
+export class JSDocExports extends S.Opaque<JSDocExports & JSDocTagMember<"exports">>()(
   JSDocTagDefinition.make("exports", {
     synonyms: [],
     overview: "Identify the member that is exported by a JavaScript module.",
@@ -1014,7 +1018,7 @@ export class JSDocExports extends S.Opaque<JSDocExports>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocExport extends S.Opaque<JSDocExport>()(
+export class JSDocExport extends S.Opaque<JSDocExport & JSDocTagMember<"export">>()(
   JSDocTagDefinition.make("export", {
     synonyms: [],
     overview: "Closure: preserve a symbol/property name in compiled output for external use.",
@@ -1042,7 +1046,7 @@ export class JSDocExport extends S.Opaque<JSDocExport>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocSatisfies extends S.Opaque<JSDocSatisfies>()(
+export class JSDocSatisfies extends S.Opaque<JSDocSatisfies & JSDocTagMember<"satisfies">>()(
   JSDocTagDefinition.make("satisfies", {
     synonyms: [],
     overview: "TypeScript 4.9+ satisfies operator in JSDoc form. Validates a type without widening.",
@@ -1070,7 +1074,7 @@ export class JSDocSatisfies extends S.Opaque<JSDocSatisfies>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocImport extends S.Opaque<JSDocImport>()(
+export class JSDocImport extends S.Opaque<JSDocImport & JSDocTagMember<"import">>()(
   JSDocTagDefinition.make("import", {
     synonyms: [],
     overview: "TypeScript-specific: import type declarations in JSDoc for .js files.",
@@ -1103,7 +1107,7 @@ export class JSDocImport extends S.Opaque<JSDocImport>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocThis extends S.Opaque<JSDocThis>()(
+export class JSDocThis extends S.Opaque<JSDocThis & JSDocTagMember<"this">>()(
   JSDocTagDefinition.make("this", {
     synonyms: [],
     overview: "What does the 'this' keyword refer to here?",
@@ -1195,7 +1199,7 @@ export declare namespace AccessModifierJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocDescription extends S.Opaque<JSDocDescription>()(
+export class JSDocDescription extends S.Opaque<JSDocDescription & JSDocTagMember<"description">>()(
   JSDocTagDefinition.make("description", {
     synonyms: ["desc"],
     overview: "Describe a symbol. This is the primary human-authored content and the main target for LLM enrichment.",
@@ -1229,7 +1233,7 @@ export class JSDocDescription extends S.Opaque<JSDocDescription>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocSummary extends S.Opaque<JSDocSummary>()(
+export class JSDocSummary extends S.Opaque<JSDocSummary & JSDocTagMember<"summary">>()(
   JSDocTagDefinition.make("summary", {
     synonyms: [],
     overview: "A shorter version of the full description.",
@@ -1262,7 +1266,7 @@ export class JSDocSummary extends S.Opaque<JSDocSummary>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocRemarks extends S.Opaque<JSDocRemarks>()(
+export class JSDocRemarks extends S.Opaque<JSDocRemarks & JSDocTagMember<"remarks">>()(
   JSDocTagDefinition.make("remarks", {
     synonyms: [],
     overview: "TSDoc block for extended discussion. Separates the brief summary from detailed documentation.",
@@ -1295,7 +1299,7 @@ export class JSDocRemarks extends S.Opaque<JSDocRemarks>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocExample extends S.Opaque<JSDocExample>()(
+export class JSDocExample extends S.Opaque<JSDocExample & JSDocTagMember<"example">>()(
   JSDocTagDefinition.make("example", {
     synonyms: [],
     overview: "Provide an example of how to use a documented item.",
@@ -1329,7 +1333,7 @@ export class JSDocExample extends S.Opaque<JSDocExample>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocDeprecated extends S.Opaque<JSDocDeprecated>()(
+export class JSDocDeprecated extends S.Opaque<JSDocDeprecated & JSDocTagMember<"deprecated">>()(
   JSDocTagDefinition.make("deprecated", {
     synonyms: [],
     overview: "Document that this is no longer the preferred way. Semantic meaning beyond just the flag.",
@@ -1363,7 +1367,7 @@ export class JSDocDeprecated extends S.Opaque<JSDocDeprecated>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocSee extends S.Opaque<JSDocSee>()(
+export class JSDocSee extends S.Opaque<JSDocSee & JSDocTagMember<"see">>()(
   JSDocTagDefinition.make("see", {
     synonyms: [],
     overview: "Refer to some other documentation for more information.",
@@ -1396,7 +1400,7 @@ export class JSDocSee extends S.Opaque<JSDocSee>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocSince extends S.Opaque<JSDocSince>()(
+export class JSDocSince extends S.Opaque<JSDocSince & JSDocTagMember<"since">>()(
   JSDocTagDefinition.make("since", {
     synonyms: [],
     overview: "When was this feature added? Useful for versioned APIs.",
@@ -1430,7 +1434,7 @@ export class JSDocSince extends S.Opaque<JSDocSince>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocVersion extends S.Opaque<JSDocVersion>()(
+export class JSDocVersion extends S.Opaque<JSDocVersion & JSDocTagMember<"version">>()(
   JSDocTagDefinition.make("version", {
     synonyms: [],
     overview: "Documents the version number of an item.",
@@ -1463,7 +1467,7 @@ export class JSDocVersion extends S.Opaque<JSDocVersion>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocAuthor extends S.Opaque<JSDocAuthor>()(
+export class JSDocAuthor extends S.Opaque<JSDocAuthor & JSDocTagMember<"author">>()(
   JSDocTagDefinition.make("author", {
     synonyms: [],
     overview: "Identify the author of an item.",
@@ -1496,7 +1500,7 @@ export class JSDocAuthor extends S.Opaque<JSDocAuthor>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocTodo extends S.Opaque<JSDocTodo>()(
+export class JSDocTodo extends S.Opaque<JSDocTodo & JSDocTagMember<"todo">>()(
   JSDocTagDefinition.make("todo", {
     synonyms: [],
     overview: "Document tasks to be completed.",
@@ -1585,7 +1589,7 @@ export declare namespace DocumentationContentJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocAlpha extends S.Opaque<JSDocAlpha>()(
+export class JSDocAlpha extends S.Opaque<JSDocAlpha & JSDocTagMember<"alpha">>()(
   JSDocTagDefinition.make("alpha", {
     synonyms: [],
     overview: "API Extractor: indicates an API item is in early development (alpha release stage).",
@@ -1618,7 +1622,7 @@ export class JSDocAlpha extends S.Opaque<JSDocAlpha>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocBeta extends S.Opaque<JSDocBeta>()(
+export class JSDocBeta extends S.Opaque<JSDocBeta & JSDocTagMember<"beta">>()(
   JSDocTagDefinition.make("beta", {
     synonyms: [],
     overview: "API Extractor: indicates an API item is in preview/experimental stage.",
@@ -1651,7 +1655,7 @@ export class JSDocBeta extends S.Opaque<JSDocBeta>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocExperimental extends S.Opaque<JSDocExperimental>()(
+export class JSDocExperimental extends S.Opaque<JSDocExperimental & JSDocTagMember<"experimental">>()(
   JSDocTagDefinition.make("experimental", {
     synonyms: [],
     overview: "TSDoc: indicates that an API item is not yet stable.",
@@ -1684,7 +1688,7 @@ export class JSDocExperimental extends S.Opaque<JSDocExperimental>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocInternal extends S.Opaque<JSDocInternal>()(
+export class JSDocInternal extends S.Opaque<JSDocInternal & JSDocTagMember<"internal">>()(
   JSDocTagDefinition.make("internal", {
     synonyms: [],
     overview: "Indicates that an API item is meant only for internal usage. Should be prefixed with underscore.",
@@ -1718,7 +1722,7 @@ export class JSDocInternal extends S.Opaque<JSDocInternal>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocSealed extends S.Opaque<JSDocSealed>()(
+export class JSDocSealed extends S.Opaque<JSDocSealed & JSDocTagMember<"sealed">>()(
   JSDocTagDefinition.make("sealed", {
     synonyms: [],
     overview:
@@ -1752,7 +1756,7 @@ export class JSDocSealed extends S.Opaque<JSDocSealed>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocVirtual extends S.Opaque<JSDocVirtual>()(
+export class JSDocVirtual extends S.Opaque<JSDocVirtual & JSDocTagMember<"virtual">>()(
   JSDocTagDefinition.make("virtual", {
     synonyms: [],
     overview: "TSDoc: explicitly indicates that subclasses may override this member.",
@@ -1785,7 +1789,7 @@ export class JSDocVirtual extends S.Opaque<JSDocVirtual>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPrivateRemarks extends S.Opaque<JSDocPrivateRemarks>()(
+export class JSDocPrivateRemarks extends S.Opaque<JSDocPrivateRemarks & JSDocTagMember<"privateRemarks">>()(
   JSDocTagDefinition.make("privateRemarks", {
     synonyms: [],
     overview: "TSDoc: documentation content that should be omitted from public-facing documentation.",
@@ -1818,7 +1822,7 @@ export class JSDocPrivateRemarks extends S.Opaque<JSDocPrivateRemarks>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPackageDocumentation extends S.Opaque<JSDocPackageDocumentation>()(
+export class JSDocPackageDocumentation extends S.Opaque<JSDocPackageDocumentation & JSDocTagMember<"packageDocumentation">>()(
   JSDocTagDefinition.make("packageDocumentation", {
     synonyms: [],
     overview: "TSDoc: indicates that a doc comment describes an entire package (placed in the entry point file).",
@@ -1851,7 +1855,7 @@ export class JSDocPackageDocumentation extends S.Opaque<JSDocPackageDocumentatio
  * @category models
  * @since 0.0.0
  */
-export class JSDocLabel extends S.Opaque<JSDocLabel>()(
+export class JSDocLabel extends S.Opaque<JSDocLabel & JSDocTagMember<"label">>()(
   JSDocTagDefinition.make("label", {
     synonyms: [],
     overview: "TSDoc: defines a label that can be referenced by {@link} tags using the selector syntax.",
@@ -1884,7 +1888,7 @@ export class JSDocLabel extends S.Opaque<JSDocLabel>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocDecorator extends S.Opaque<JSDocDecorator>()(
+export class JSDocDecorator extends S.Opaque<JSDocDecorator & JSDocTagMember<"decorator">>()(
   JSDocTagDefinition.make("decorator", {
     synonyms: [],
     overview: "TSDoc: documents an ECMAScript decorator expression.",
@@ -1918,7 +1922,7 @@ export class JSDocDecorator extends S.Opaque<JSDocDecorator>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocEventProperty extends S.Opaque<JSDocEventProperty>()(
+export class JSDocEventProperty extends S.Opaque<JSDocEventProperty & JSDocTagMember<"eventProperty">>()(
   JSDocTagDefinition.make("eventProperty", {
     synonyms: [],
     overview: "TSDoc: indicates that a property returns an event object that event handlers can be attached to.",
@@ -2008,7 +2012,7 @@ export declare namespace TSDocSpecificJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocLink extends S.Opaque<JSDocLink>()(
+export class JSDocLink extends S.Opaque<JSDocLink & JSDocTagMember<"link">>()(
   JSDocTagDefinition.make("link", {
     synonyms: ["linkcode", "linkplain"],
     overview:
@@ -2042,7 +2046,7 @@ export class JSDocLink extends S.Opaque<JSDocLink>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocInheritDoc extends S.Opaque<JSDocInheritDoc>()(
+export class JSDocInheritDoc extends S.Opaque<JSDocInheritDoc & JSDocTagMember<"inheritDoc">>()(
   JSDocTagDefinition.make("inheritDoc", {
     synonyms: ["inheritdoc"],
     overview: "Indicate that a symbol should inherit its parent's documentation. TSDoc uses inline form {@inheritDoc}.",
@@ -2124,7 +2128,7 @@ export declare namespace InlineJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocModule extends S.Opaque<JSDocModule>()(
+export class JSDocModule extends S.Opaque<JSDocModule & JSDocTagMember<"module">>()(
   JSDocTagDefinition.make("module", {
     synonyms: [],
     overview: "Document a JavaScript module.",
@@ -2158,7 +2162,7 @@ export class JSDocModule extends S.Opaque<JSDocModule>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocNamespace extends S.Opaque<JSDocNamespace>()(
+export class JSDocNamespace extends S.Opaque<JSDocNamespace & JSDocTagMember<"namespace">>()(
   JSDocTagDefinition.make("namespace", {
     synonyms: [],
     overview: "Document a namespace object.",
@@ -2192,7 +2196,7 @@ export class JSDocNamespace extends S.Opaque<JSDocNamespace>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocMemberOf extends S.Opaque<JSDocMemberOf>()(
+export class JSDocMemberOf extends S.Opaque<JSDocMemberOf & JSDocTagMember<"memberof">>()(
   JSDocTagDefinition.make("memberof", {
     synonyms: [],
     overview: "This symbol belongs to a parent symbol. Establishes containment hierarchy.",
@@ -2226,7 +2230,7 @@ export class JSDocMemberOf extends S.Opaque<JSDocMemberOf>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocMember extends S.Opaque<JSDocMember>()(
+export class JSDocMember extends S.Opaque<JSDocMember & JSDocTagMember<"member">>()(
   JSDocTagDefinition.make("member", {
     synonyms: ["var"],
     overview: "Document a member (property or variable).",
@@ -2259,7 +2263,7 @@ export class JSDocMember extends S.Opaque<JSDocMember>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocProperty extends S.Opaque<JSDocProperty>()(
+export class JSDocProperty extends S.Opaque<JSDocProperty & JSDocTagMember<"property">>()(
   JSDocTagDefinition.make("property", {
     synonyms: ["prop"],
     overview: "Document a property of an object (commonly used with @typedef).",
@@ -2293,7 +2297,7 @@ export class JSDocProperty extends S.Opaque<JSDocProperty>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocInterface extends S.Opaque<JSDocInterface>()(
+export class JSDocInterface extends S.Opaque<JSDocInterface & JSDocTagMember<"interface">>()(
   JSDocTagDefinition.make("interface", {
     synonyms: [],
     overview: "This symbol is an interface that others can implement.",
@@ -2326,7 +2330,7 @@ export class JSDocInterface extends S.Opaque<JSDocInterface>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocFunction extends S.Opaque<JSDocFunction>()(
+export class JSDocFunction extends S.Opaque<JSDocFunction & JSDocTagMember<"function">>()(
   JSDocTagDefinition.make("function", {
     synonyms: ["func", "method"],
     overview: "Describe a function or method.",
@@ -2413,7 +2417,7 @@ export declare namespace OrganizationalJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocFires extends S.Opaque<JSDocFires>()(
+export class JSDocFires extends S.Opaque<JSDocFires & JSDocTagMember<"fires">>()(
   JSDocTagDefinition.make("fires", {
     synonyms: ["emits"],
     overview: "Describe the events this method may fire.",
@@ -2446,7 +2450,7 @@ export class JSDocFires extends S.Opaque<JSDocFires>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocListens extends S.Opaque<JSDocListens>()(
+export class JSDocListens extends S.Opaque<JSDocListens & JSDocTagMember<"listens">>()(
   JSDocTagDefinition.make("listens", {
     synonyms: [],
     overview: "List the events that a symbol listens for.",
@@ -2479,7 +2483,7 @@ export class JSDocListens extends S.Opaque<JSDocListens>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocEvent extends S.Opaque<JSDocEvent>()(
+export class JSDocEvent extends S.Opaque<JSDocEvent & JSDocTagMember<"event">>()(
   JSDocTagDefinition.make("event", {
     synonyms: [],
     overview: "Document an event.",
@@ -2513,7 +2517,7 @@ export class JSDocEvent extends S.Opaque<JSDocEvent>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocRequires extends S.Opaque<JSDocRequires>()(
+export class JSDocRequires extends S.Opaque<JSDocRequires & JSDocTagMember<"requires">>()(
   JSDocTagDefinition.make("requires", {
     synonyms: [],
     overview: "This file requires a JavaScript module.",
@@ -2595,7 +2599,7 @@ export declare namespace EventDependencyJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocAlias extends S.Opaque<JSDocAlias>()(
+export class JSDocAlias extends S.Opaque<JSDocAlias & JSDocTagMember<"alias">>()(
   JSDocTagDefinition.make("alias", {
     synonyms: [],
     overview: "Treat a member as if it had a different name.",
@@ -2628,7 +2632,7 @@ export class JSDocAlias extends S.Opaque<JSDocAlias>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocBorrows extends S.Opaque<JSDocBorrows>()(
+export class JSDocBorrows extends S.Opaque<JSDocBorrows & JSDocTagMember<"borrows">>()(
   JSDocTagDefinition.make("borrows", {
     synonyms: [],
     overview: "This object uses something from another object.",
@@ -2661,7 +2665,7 @@ export class JSDocBorrows extends S.Opaque<JSDocBorrows>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocClassDesc extends S.Opaque<JSDocClassDesc>()(
+export class JSDocClassDesc extends S.Opaque<JSDocClassDesc & JSDocTagMember<"classdesc">>()(
   JSDocTagDefinition.make("classdesc", {
     synonyms: [],
     overview: "Use the following text to describe the entire class.",
@@ -2694,7 +2698,7 @@ export class JSDocClassDesc extends S.Opaque<JSDocClassDesc>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocConstructs extends S.Opaque<JSDocConstructs>()(
+export class JSDocConstructs extends S.Opaque<JSDocConstructs & JSDocTagMember<"constructs">>()(
   JSDocTagDefinition.make("constructs", {
     synonyms: [],
     overview: "This function member will be the constructor for the previous class (used with @lends).",
@@ -2727,7 +2731,7 @@ export class JSDocConstructs extends S.Opaque<JSDocConstructs>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocCopyright extends S.Opaque<JSDocCopyright>()(
+export class JSDocCopyright extends S.Opaque<JSDocCopyright & JSDocTagMember<"copyright">>()(
   JSDocTagDefinition.make("copyright", {
     synonyms: [],
     overview: "Document some copyright information.",
@@ -2760,7 +2764,7 @@ export class JSDocCopyright extends S.Opaque<JSDocCopyright>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocLicense extends S.Opaque<JSDocLicense>()(
+export class JSDocLicense extends S.Opaque<JSDocLicense & JSDocTagMember<"license">>()(
   JSDocTagDefinition.make("license", {
     synonyms: [],
     overview: "Identify the license that applies to this code.",
@@ -2793,7 +2797,7 @@ export class JSDocLicense extends S.Opaque<JSDocLicense>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocExternal extends S.Opaque<JSDocExternal>()(
+export class JSDocExternal extends S.Opaque<JSDocExternal & JSDocTagMember<"external">>()(
   JSDocTagDefinition.make("external", {
     synonyms: ["host"],
     overview: "Identifies an external class, namespace, or module not in the current codebase.",
@@ -2826,7 +2830,7 @@ export class JSDocExternal extends S.Opaque<JSDocExternal>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocFile extends S.Opaque<JSDocFile>()(
+export class JSDocFile extends S.Opaque<JSDocFile & JSDocTagMember<"file">>()(
   JSDocTagDefinition.make("file", {
     synonyms: ["fileoverview", "overview"],
     overview: "Describe a file. Placed at the top of the file.",
@@ -2859,7 +2863,7 @@ export class JSDocFile extends S.Opaque<JSDocFile>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocGlobal extends S.Opaque<JSDocGlobal>()(
+export class JSDocGlobal extends S.Opaque<JSDocGlobal & JSDocTagMember<"global">>()(
   JSDocTagDefinition.make("global", {
     synonyms: [],
     overview: "Document a global object.",
@@ -2892,7 +2896,7 @@ export class JSDocGlobal extends S.Opaque<JSDocGlobal>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocHideConstructor extends S.Opaque<JSDocHideConstructor>()(
+export class JSDocHideConstructor extends S.Opaque<JSDocHideConstructor & JSDocTagMember<"hideconstructor">>()(
   JSDocTagDefinition.make("hideconstructor", {
     synonyms: [],
     overview: "Indicate that the constructor should not be displayed in documentation.",
@@ -2925,7 +2929,7 @@ export class JSDocHideConstructor extends S.Opaque<JSDocHideConstructor>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocIgnore extends S.Opaque<JSDocIgnore>()(
+export class JSDocIgnore extends S.Opaque<JSDocIgnore & JSDocTagMember<"ignore">>()(
   JSDocTagDefinition.make("ignore", {
     synonyms: [],
     overview: "Omit a symbol from the documentation.",
@@ -2958,7 +2962,7 @@ export class JSDocIgnore extends S.Opaque<JSDocIgnore>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocInner extends S.Opaque<JSDocInner>()(
+export class JSDocInner extends S.Opaque<JSDocInner & JSDocTagMember<"inner">>()(
   JSDocTagDefinition.make("inner", {
     synonyms: [],
     overview: "Document an inner object (contained within another, not on its prototype).",
@@ -2992,7 +2996,7 @@ export class JSDocInner extends S.Opaque<JSDocInner>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocInstance extends S.Opaque<JSDocInstance>()(
+export class JSDocInstance extends S.Opaque<JSDocInstance & JSDocTagMember<"instance">>()(
   JSDocTagDefinition.make("instance", {
     synonyms: [],
     overview: "Document an instance member (as opposed to static).",
@@ -3025,7 +3029,7 @@ export class JSDocInstance extends S.Opaque<JSDocInstance>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocKind extends S.Opaque<JSDocKind>()(
+export class JSDocKind extends S.Opaque<JSDocKind & JSDocTagMember<"kind">>()(
   JSDocTagDefinition.make("kind", {
     synonyms: [],
     overview: "What kind of symbol is this? (class, function, module, etc.)",
@@ -3072,7 +3076,7 @@ export class JSDocKind extends S.Opaque<JSDocKind>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocLends extends S.Opaque<JSDocLends>()(
+export class JSDocLends extends S.Opaque<JSDocLends & JSDocTagMember<"lends">>()(
   JSDocTagDefinition.make("lends", {
     synonyms: [],
     overview: "Document properties on an object literal as if they belonged to a symbol with a given name.",
@@ -3105,7 +3109,7 @@ export class JSDocLends extends S.Opaque<JSDocLends>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocMixin extends S.Opaque<JSDocMixin>()(
+export class JSDocMixin extends S.Opaque<JSDocMixin & JSDocTagMember<"mixin">>()(
   JSDocTagDefinition.make("mixin", {
     synonyms: [],
     overview: "Document a mixin object.",
@@ -3139,7 +3143,7 @@ export class JSDocMixin extends S.Opaque<JSDocMixin>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocMixes extends S.Opaque<JSDocMixes>()(
+export class JSDocMixes extends S.Opaque<JSDocMixes & JSDocTagMember<"mixes">>()(
   JSDocTagDefinition.make("mixes", {
     synonyms: [],
     overview: "This object mixes in all the members from another object.",
@@ -3172,7 +3176,7 @@ export class JSDocMixes extends S.Opaque<JSDocMixes>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocName extends S.Opaque<JSDocName>()(
+export class JSDocName extends S.Opaque<JSDocName & JSDocTagMember<"name">>()(
   JSDocTagDefinition.make("name", {
     synonyms: [],
     overview: "Document the name of an object. Overrides the auto-detected name.",
@@ -3205,7 +3209,7 @@ export class JSDocName extends S.Opaque<JSDocName>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocVariation extends S.Opaque<JSDocVariation>()(
+export class JSDocVariation extends S.Opaque<JSDocVariation & JSDocTagMember<"variation">>()(
   JSDocTagDefinition.make("variation", {
     synonyms: [],
     overview: "Distinguish different objects with the same name (e.g., overloads).",
@@ -3238,7 +3242,7 @@ export class JSDocVariation extends S.Opaque<JSDocVariation>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocTutorial extends S.Opaque<JSDocTutorial>()(
+export class JSDocTutorial extends S.Opaque<JSDocTutorial & JSDocTagMember<"tutorial">>()(
   JSDocTagDefinition.make("tutorial", {
     synonyms: [],
     overview: "Insert a link to an included tutorial file. Also exists as inline tag.",
@@ -3337,7 +3341,7 @@ export declare namespace RemainingJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocDefine extends S.Opaque<JSDocDefine>()(
+export class JSDocDefine extends S.Opaque<JSDocDefine & JSDocTagMember<"define">>()(
   JSDocTagDefinition.make("define", {
     synonyms: [],
     overview: "Closure: compile-time constant controlled by compiler defines.",
@@ -3370,7 +3374,7 @@ export class JSDocDefine extends S.Opaque<JSDocDefine>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocDict extends S.Opaque<JSDocDict>()(
+export class JSDocDict extends S.Opaque<JSDocDict & JSDocTagMember<"dict">>()(
   JSDocTagDefinition.make("dict", {
     synonyms: [],
     overview: "Closure: marks an object/class as dictionary-like (bracket access semantics).",
@@ -3403,7 +3407,7 @@ export class JSDocDict extends S.Opaque<JSDocDict>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocImplicitCast extends S.Opaque<JSDocImplicitCast>()(
+export class JSDocImplicitCast extends S.Opaque<JSDocImplicitCast & JSDocTagMember<"implicitCast">>()(
   JSDocTagDefinition.make("implicitCast", {
     synonyms: [],
     overview: "Closure: allows assignment with implicit type coercion for selected extern-style properties.",
@@ -3436,7 +3440,7 @@ export class JSDocImplicitCast extends S.Opaque<JSDocImplicitCast>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocStruct extends S.Opaque<JSDocStruct>()(
+export class JSDocStruct extends S.Opaque<JSDocStruct & JSDocTagMember<"struct">>()(
   JSDocTagDefinition.make("struct", {
     synonyms: [],
     overview: "Closure: marks an object/class as fixed-structure (dot-access-only semantics).",
@@ -3469,7 +3473,7 @@ export class JSDocStruct extends S.Opaque<JSDocStruct>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocUnrestricted extends S.Opaque<JSDocUnrestricted>()(
+export class JSDocUnrestricted extends S.Opaque<JSDocUnrestricted & JSDocTagMember<"unrestricted">>()(
   JSDocTagDefinition.make("unrestricted", {
     synonyms: [],
     overview: "Closure: explicitly marks a class as neither @struct nor @dict.",
@@ -3502,7 +3506,7 @@ export class JSDocUnrestricted extends S.Opaque<JSDocUnrestricted>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocSuppress extends S.Opaque<JSDocSuppress>()(
+export class JSDocSuppress extends S.Opaque<JSDocSuppress & JSDocTagMember<"suppress">>()(
   JSDocTagDefinition.make("suppress", {
     synonyms: [],
     overview: "Closure: suppress selected compiler warning groups.",
@@ -3535,7 +3539,7 @@ export class JSDocSuppress extends S.Opaque<JSDocSuppress>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocExterns extends S.Opaque<JSDocExterns>()(
+export class JSDocExterns extends S.Opaque<JSDocExterns & JSDocTagMember<"externs">>()(
   JSDocTagDefinition.make("externs", {
     synonyms: [],
     overview: "Closure: indicates an externs file definition boundary.",
@@ -3568,7 +3572,7 @@ export class JSDocExterns extends S.Opaque<JSDocExterns>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocNoAlias extends S.Opaque<JSDocNoAlias>()(
+export class JSDocNoAlias extends S.Opaque<JSDocNoAlias & JSDocTagMember<"noalias">>()(
   JSDocTagDefinition.make("noalias", {
     synonyms: [],
     overview: "Closure: disable aliasing transformations for a file.",
@@ -3601,7 +3605,7 @@ export class JSDocNoAlias extends S.Opaque<JSDocNoAlias>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocNoCompile extends S.Opaque<JSDocNoCompile>()(
+export class JSDocNoCompile extends S.Opaque<JSDocNoCompile & JSDocTagMember<"nocompile">>()(
   JSDocTagDefinition.make("nocompile", {
     synonyms: [],
     overview: "Closure: parse a file but do not compile it.",
@@ -3634,7 +3638,7 @@ export class JSDocNoCompile extends S.Opaque<JSDocNoCompile>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocNoSideEffects extends S.Opaque<JSDocNoSideEffects>()(
+export class JSDocNoSideEffects extends S.Opaque<JSDocNoSideEffects & JSDocTagMember<"nosideeffects">>()(
   JSDocTagDefinition.make("nosideeffects", {
     synonyms: [],
     overview: "Closure: indicates calls are free of observable side effects for optimization.",
@@ -3667,7 +3671,7 @@ export class JSDocNoSideEffects extends S.Opaque<JSDocNoSideEffects>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPolymer extends S.Opaque<JSDocPolymer>()(
+export class JSDocPolymer extends S.Opaque<JSDocPolymer & JSDocTagMember<"polymer">>()(
   JSDocTagDefinition.make("polymer", {
     synonyms: [],
     overview: "Closure: marks Polymer element declarations.",
@@ -3700,7 +3704,7 @@ export class JSDocPolymer extends S.Opaque<JSDocPolymer>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPolymerBehavior extends S.Opaque<JSDocPolymerBehavior>()(
+export class JSDocPolymerBehavior extends S.Opaque<JSDocPolymerBehavior & JSDocTagMember<"polymerBehavior">>()(
   JSDocTagDefinition.make("polymerBehavior", {
     synonyms: [],
     overview: "Closure: marks Polymer behavior objects.",
@@ -3733,7 +3737,7 @@ export class JSDocPolymerBehavior extends S.Opaque<JSDocPolymerBehavior>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocRecord extends S.Opaque<JSDocRecord>()(
+export class JSDocRecord extends S.Opaque<JSDocRecord & JSDocTagMember<"record">>()(
   JSDocTagDefinition.make("record", {
     synonyms: [],
     overview: "Closure: structural interface-like contract annotation.",
@@ -3766,7 +3770,7 @@ export class JSDocRecord extends S.Opaque<JSDocRecord>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocNoCollapse extends S.Opaque<JSDocNoCollapse>()(
+export class JSDocNoCollapse extends S.Opaque<JSDocNoCollapse & JSDocTagMember<"nocollapse">>()(
   JSDocTagDefinition.make("nocollapse", {
     synonyms: [],
     overview: "Closure: prevents property collapsing during advanced optimization.",
@@ -3799,7 +3803,7 @@ export class JSDocNoCollapse extends S.Opaque<JSDocNoCollapse>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocNoInline extends S.Opaque<JSDocNoInline>()(
+export class JSDocNoInline extends S.Opaque<JSDocNoInline & JSDocTagMember<"noinline">>()(
   JSDocTagDefinition.make("noinline", {
     synonyms: [],
     overview: "Closure: prevent inlining of the annotated function.",
@@ -3893,7 +3897,7 @@ export declare namespace ClosureSpecificJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocCategory extends S.Opaque<JSDocCategory>()(
+export class JSDocCategory extends S.Opaque<JSDocCategory & JSDocTagMember<"category">>()(
   JSDocTagDefinition.make("category", {
     synonyms: [],
     overview: "TypeDoc: assigns an API item to a documentation category.",
@@ -3926,7 +3930,7 @@ export class JSDocCategory extends S.Opaque<JSDocCategory>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocDocument extends S.Opaque<JSDocDocument>()(
+export class JSDocDocument extends S.Opaque<JSDocDocument & JSDocTagMember<"document">>()(
   JSDocTagDefinition.make("document", {
     synonyms: [],
     overview: "TypeDoc: emits a symbol as a standalone documentation page.",
@@ -3959,7 +3963,7 @@ export class JSDocDocument extends S.Opaque<JSDocDocument>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocGroup extends S.Opaque<JSDocGroup>()(
+export class JSDocGroup extends S.Opaque<JSDocGroup & JSDocTagMember<"group">>()(
   JSDocTagDefinition.make("group", {
     synonyms: [],
     overview: "TypeDoc: groups related items within generated docs.",
@@ -3992,7 +3996,7 @@ export class JSDocGroup extends S.Opaque<JSDocGroup>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocHidden extends S.Opaque<JSDocHidden>()(
+export class JSDocHidden extends S.Opaque<JSDocHidden & JSDocTagMember<"hidden">>()(
   JSDocTagDefinition.make("hidden", {
     synonyms: [],
     overview: "TypeDoc: hides a declaration from generated docs.",
@@ -4025,7 +4029,7 @@ export class JSDocHidden extends S.Opaque<JSDocHidden>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocExpand extends S.Opaque<JSDocExpand>()(
+export class JSDocExpand extends S.Opaque<JSDocExpand & JSDocTagMember<"expand">>()(
   JSDocTagDefinition.make("expand", {
     synonyms: [],
     overview: "TypeDoc: expands referenced type information in rendered output.",
@@ -4058,7 +4062,7 @@ export class JSDocExpand extends S.Opaque<JSDocExpand>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocInline extends S.Opaque<JSDocInline>()(
+export class JSDocInline extends S.Opaque<JSDocInline & JSDocTagMember<"inline">>()(
   JSDocTagDefinition.make("inline", {
     synonyms: [],
     overview: "TypeDoc: inlines target type information in rendered docs.",
@@ -4091,7 +4095,7 @@ export class JSDocInline extends S.Opaque<JSDocInline>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocMergeModuleWith extends S.Opaque<JSDocMergeModuleWith>()(
+export class JSDocMergeModuleWith extends S.Opaque<JSDocMergeModuleWith & JSDocTagMember<"mergeModuleWith">>()(
   JSDocTagDefinition.make("mergeModuleWith", {
     synonyms: [],
     overview: "TypeDoc: merge declarations into a named module reflection in generated docs.",
@@ -4124,7 +4128,7 @@ export class JSDocMergeModuleWith extends S.Opaque<JSDocMergeModuleWith>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocPrimaryExport extends S.Opaque<JSDocPrimaryExport>()(
+export class JSDocPrimaryExport extends S.Opaque<JSDocPrimaryExport & JSDocTagMember<"primaryExport">>()(
   JSDocTagDefinition.make("primaryExport", {
     synonyms: [],
     overview: "TypeDoc: mark a declaration as the primary export in module documentation.",
@@ -4157,7 +4161,7 @@ export class JSDocPrimaryExport extends S.Opaque<JSDocPrimaryExport>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocSortStrategy extends S.Opaque<JSDocSortStrategy>()(
+export class JSDocSortStrategy extends S.Opaque<JSDocSortStrategy & JSDocTagMember<"sortStrategy">>()(
   JSDocTagDefinition.make("sortStrategy", {
     synonyms: [],
     overview: "TypeDoc: override reflection sort strategy for a declaration subtree.",
@@ -4190,7 +4194,7 @@ export class JSDocSortStrategy extends S.Opaque<JSDocSortStrategy>()(
  * @category models
  * @since 0.0.0
  */
-export class JSDocUseDeclaredType extends S.Opaque<JSDocUseDeclaredType>()(
+export class JSDocUseDeclaredType extends S.Opaque<JSDocUseDeclaredType & JSDocTagMember<"useDeclaredType">>()(
   JSDocTagDefinition.make("useDeclaredType", {
     synonyms: [],
     overview: "TypeDoc: prefers declared type for rendering over inferred expansion.",
@@ -4279,7 +4283,7 @@ export declare namespace TypeDocSpecificJSDoc {
  * @category models
  * @since 0.0.0
  */
-export class JSDocOverload extends S.Opaque<JSDocOverload>()(
+export class JSDocOverload extends S.Opaque<JSDocOverload & JSDocTagMember<"overload">>()(
   JSDocTagDefinition.make("overload", {
     synonyms: [],
     overview: "TypeScript 5.0+: allows documenting individual overload signatures in JSDoc.",

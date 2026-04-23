@@ -28,14 +28,14 @@ provider name.
 Use-cases define what the application needs:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, type Effect } from "effect"
 import type * as O from "effect/Option"
 import type { TwoFactor } from "@beep/iam-domain/entities/TwoFactor"
 import type { AccountId } from "@beep/iam-domain/entities/Account"
 import type { TwoFactorRepositoryError } from "./TwoFactor.errors.js"
 
-const $I = $RootId.create("iam/use-cases/src/entities/TwoFactor/TwoFactor.ports.ts")
+const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.ports")
 
 export class TwoFactorRepository extends Context.Service<
   TwoFactorRepository,
@@ -53,13 +53,13 @@ export class TwoFactorRepository extends Context.Service<
 Providers define safe technical capability:
 
 ```ts
-import { $I as $RootId } from "@beep/identity/packages"
+import { $IamDrizzleId } from "@beep/identity/packages"
 import { TaggedErrorClass } from "@beep/schema"
 import { Context, Effect, Layer } from "effect"
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
 
-const $I = $RootId.create("iam/providers/drizzle/src/Drizzle.service.ts")
+const $I = $IamDrizzleId.create("Drizzle.service")
 
 export class DrizzleError extends TaggedErrorClass<DrizzleError>(
   $I`DrizzleError`,
@@ -132,6 +132,21 @@ A dev-safe provider wrapper should:
 
 Provider wrappers are allowed to be useful. They are not allowed to become the
 business application layer.
+
+## Provider Package Names
+
+Provider folders stay under `providers/` in the slice topology, but public
+package names should stay short:
+
+```txt
+packages/<slice>/providers/<provider> -> @beep/<slice>-<provider>
+packages/shared/providers/<provider> -> @beep/<provider>
+```
+
+Default to the slice-local form. Promote to `@beep/<provider>` only when the
+provider contract is product-neutral, stable across multiple slices, and worth
+coupling those slices to the same technical capability. If the shared provider
+name would be too generic or misleading, choose a more capability-specific name.
 
 ## Provider Config Versus Slice Config
 

@@ -13,6 +13,7 @@ import { PROV_ACTIVITY, PROV_ENTITY, PROV_WAS_GENERATED_BY } from "@beep/semanti
 import { RDF_TYPE } from "@beep/semantic-web/vocab/rdf";
 import { XSD_STRING } from "@beep/semantic-web/vocab/xsd";
 import { describe, expect, it } from "@effect/vitest";
+import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const decodePrefixMap = S.decodeUnknownSync(PrefixMap);
@@ -28,6 +29,16 @@ describe("RDF", () => {
     expect(serializeQuad(quad)).toBe(
       '<https://example.com/people/alice> <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> "Alice"^^<http://www.w3.org/2001/XMLSchema#string> default .'
     );
+  });
+
+  it("supports data-last helper forms for literals, quads, and dataset equivalence", () => {
+    const subject = makeNamedNode("https://example.com/people/alice");
+    const object = makeLiteral(XSD_STRING.value, { language: "en" })("Alice");
+    const quad = makeQuad(RDF_TYPE, object)(subject);
+    const equivalent = areDatasetsEquivalent(makeDataset([quad]));
+
+    expect(object.language).toEqual(O.some("en"));
+    expect(equivalent(makeDataset([quad]))).toBe(true);
   });
 
   it("sorts datasets and compares them independent of quad order", () => {

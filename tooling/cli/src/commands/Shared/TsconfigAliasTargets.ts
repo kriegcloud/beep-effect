@@ -8,6 +8,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { pipe } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -16,6 +17,11 @@ import * as Str from "effect/String";
 
 const $I = $RepoCliId.create("commands/Shared/TsconfigAliasTargets");
 const EXPORT_CONDITION_PRIORITY = ["types", "import", "default", "require", "node", "bun", "browser"] as const;
+
+type BuildDocgenAliasTargetsOptions = {
+  readonly rootExportTarget: string;
+  readonly wildcardExportTarget?: string | undefined;
+};
 
 /**
  * Canonical alias targets derived for a package root export.
@@ -107,13 +113,16 @@ export const resolveRootExportTarget = (exportsField: unknown): O.Option<string>
  * @category models
  * @since 0.0.0
  */
-export const resolveSubpathExportTarget = (exportsField: unknown, subpath: string): O.Option<string> => {
+export const resolveSubpathExportTarget: {
+  (exportsField: unknown, subpath: string): O.Option<string>;
+  (subpath: string): (exportsField: unknown) => O.Option<string>;
+} = dual(2, (exportsField: unknown, subpath: string): O.Option<string> => {
   if (isReadonlyUnknownRecord(exportsField)) {
     return pipe(exportsField, R.get(subpath), O.flatMap(firstRelativeDotPath));
   }
 
   return O.none();
-};
+});
 
 /**
  * Resolve the wildcard export target from a package `exports` field.
@@ -143,7 +152,10 @@ export const resolveWildcardExportTarget = (exportsField: unknown): O.Option<str
  * @category models
  * @since 0.0.0
  */
-export const buildCanonicalAliasTargets = (packagePath: string, rootExportTarget: string): CanonicalAliasTargets => {
+export const buildCanonicalAliasTargets: {
+  (packagePath: string, rootExportTarget: string): CanonicalAliasTargets;
+  (rootExportTarget: string): (packagePath: string) => CanonicalAliasTargets;
+} = dual(2, (packagePath: string, rootExportTarget: string): CanonicalAliasTargets => {
   const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
   const rootAliasTarget = `./${packagePath}/${normalizedRootExportTarget}`;
   const lastSlash = pipe(
@@ -156,7 +168,7 @@ export const buildCanonicalAliasTargets = (packagePath: string, rootExportTarget
     rootAliasTarget,
     wildcardAliasTarget: lastSlash < 0 ? `./${packagePath}/*` : `${pipe(rootAliasTarget, Str.slice(0, lastSlash))}/*`,
   });
-};
+});
 
 const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
   const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
@@ -181,8 +193,7 @@ const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
  * so example imports resolve to concrete `*.ts` files.
  *
  * @param packagePath - Workspace-relative package path used in alias targets.
- * @param rootExportTarget - Canonical root export target resolved from package `exports`.
- * @param wildcardExportTarget - Optional explicit wildcard export target from package `exports`.
+ * @param options - Canonical root target plus optional wildcard target resolved from package `exports`.
  * @returns Source alias targets suitable for docgen `examplesCompilerOptions.paths`.
  * @example
  * ```ts
@@ -191,19 +202,18 @@ const deriveDocgenWildcardTarget = (rootExportTarget: string): string => {
  * @category models
  * @since 0.0.0
  */
-export const buildDocgenAliasTargets = (
-  packagePath: string,
-  rootExportTarget: string,
-  wildcardExportTarget?: string
-): CanonicalAliasTargets => {
-  const normalizedRootExportTarget = Str.replace(/^\.\//, "")(rootExportTarget);
+export const buildDocgenAliasTargets: {
+  (packagePath: string, options: BuildDocgenAliasTargetsOptions): CanonicalAliasTargets;
+  (options: BuildDocgenAliasTargetsOptions): (packagePath: string) => CanonicalAliasTargets;
+} = dual(2, (packagePath: string, options: BuildDocgenAliasTargetsOptions): CanonicalAliasTargets => {
+  const normalizedRootExportTarget = Str.replace(/^\.\//, "")(options.rootExportTarget);
   const normalizedWildcardExportTarget = Str.replace(
     /^\.\//,
     ""
-  )(wildcardExportTarget ?? deriveDocgenWildcardTarget(rootExportTarget));
+  )(options.wildcardExportTarget ?? deriveDocgenWildcardTarget(options.rootExportTarget));
 
   return new CanonicalAliasTargets({
     rootAliasTarget: `./${packagePath}/${normalizedRootExportTarget}`,
     wildcardAliasTarget: `./${packagePath}/${normalizedWildcardExportTarget}`,
   });
-};
+});

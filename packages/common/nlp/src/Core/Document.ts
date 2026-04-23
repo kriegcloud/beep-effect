@@ -11,12 +11,15 @@ import { Brand, Chunk, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import type * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Sentence, type SentenceIndex } from "./Sentence.ts";
 import { Token, type TokenIndex } from "./Token.ts";
 
 const $I = $NlpId.create("Core/Document");
+const getRangeEnd = (options: { readonly end: number } | number): number =>
+  P.isNumber(options) ? options : options.end;
 
 /**
  * Branded identifier for NLP documents.
@@ -193,24 +196,29 @@ export class Document extends S.Class<Document>($I`Document`)(
   /**
    * Get tokens overlapping a character range.
    */
-  static readonly getTokensInRange = dual(
-    3,
-    (document: Document, start: number, end: number): Chunk.Chunk<Token> =>
-      Chunk.filter(document.tokens, (token) => token.start < end && token.end > start)
-  );
+  static readonly getTokensInRange: {
+    (document: Document, start: number, options: { readonly end: number }): Chunk.Chunk<Token>;
+    (start: number, options: { readonly end: number }): (document: Document) => Chunk.Chunk<Token>;
+  } = dual(3, (document: Document, start: number, options: { readonly end: number }): Chunk.Chunk<Token> => {
+    const end = getRangeEnd(options);
+    return Chunk.filter(document.tokens, (token) => token.start < end && token.end > start);
+  });
 
   /**
    * Safely get a token by zero-based index.
    */
-  static readonly getToken = dual(
-    2,
-    (document: Document, index: number): O.Option<Token> => Chunk.get(document.tokens, index)
-  );
+  static readonly getToken: {
+    (document: Document, index: number): O.Option<Token>;
+    (index: number): (document: Document) => O.Option<Token>;
+  } = dual(2, (document: Document, index: number): O.Option<Token> => Chunk.get(document.tokens, index));
 
   /**
    * Safely get a token by branded token index.
    */
-  static readonly getTokenByIndex = dual(
+  static readonly getTokenByIndex: {
+    (document: Document, index: TokenIndex): O.Option<Token>;
+    (index: TokenIndex): (document: Document) => O.Option<Token>;
+  } = dual(
     2,
     (document: Document, index: TokenIndex): O.Option<Token> =>
       A.findFirst(Chunk.toReadonlyArray(document.tokens), (token) => token.index === index)
@@ -219,15 +227,18 @@ export class Document extends S.Class<Document>($I`Document`)(
   /**
    * Safely get a sentence by zero-based index.
    */
-  static readonly getSentence = dual(
-    2,
-    (document: Document, index: number): O.Option<Sentence> => Chunk.get(document.sentences, index)
-  );
+  static readonly getSentence: {
+    (document: Document, index: number): O.Option<Sentence>;
+    (index: number): (document: Document) => O.Option<Sentence>;
+  } = dual(2, (document: Document, index: number): O.Option<Sentence> => Chunk.get(document.sentences, index));
 
   /**
    * Safely get a sentence by branded sentence index.
    */
-  static readonly getSentenceByIndex = dual(
+  static readonly getSentenceByIndex: {
+    (document: Document, index: SentenceIndex): O.Option<Sentence>;
+    (index: SentenceIndex): (document: Document) => O.Option<Sentence>;
+  } = dual(
     2,
     (document: Document, index: SentenceIndex): O.Option<Sentence> =>
       A.findFirst(Chunk.toReadonlyArray(document.sentences), (sentence) => sentence.index === index)
@@ -236,7 +247,10 @@ export class Document extends S.Class<Document>($I`Document`)(
   /**
    * Filter the token collection.
    */
-  static readonly filterTokens = dual(2, filterDocument);
+  static readonly filterTokens: {
+    (document: Document, predicate: (token: Token) => boolean): Document;
+    (predicate: (token: Token) => boolean): (document: Document) => Document;
+  } = dual(2, filterDocument);
 
   /**
    * Extract token texts in order.

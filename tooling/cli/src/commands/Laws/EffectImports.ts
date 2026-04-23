@@ -104,8 +104,11 @@ const INCLUDED_GLOBS = [
   "infra/**/*.ts",
   ".claude/hooks/**/*.ts",
 ] as const;
+const ROOT_IMPORT_EXCLUDED_STABLE_SUBMODULES = ["effect/Function"] as const;
 const toStableName = Str.slice("effect/".length);
 const isStableSubmodule = P.and(Str.startsWith("effect/"), P.not(Str.startsWith("effect/unstable/")));
+const isRootImportExcludedStableSubmodule = (moduleName: string): boolean =>
+  A.contains(moduleName)(ROOT_IMPORT_EXCLUDED_STABLE_SUBMODULES);
 
 /**
  * Run effect import style migration/check logic.
@@ -257,6 +260,10 @@ export const runEffectImportRules = Effect.fn(function* (options: EffectImportRu
 
       const stableName = toStableName(moduleName);
       if (P.or(Str.isEmpty, Str.includes("/"))(stableName)) {
+        continue;
+      }
+
+      if (isRootImportExcludedStableSubmodule(moduleName)) {
         continue;
       }
 

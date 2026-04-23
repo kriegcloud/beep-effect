@@ -40,6 +40,7 @@ The architecture protects:
 
 - domain language from provider leakage
 - domain behavior from hidden config/runtime reads
+- domain shape from type-only drift and duplicate runtime validation
 - application intent from server adapter concerns
 - providers from product-specific business concepts
 - config contracts from becoming env access or constants dumps

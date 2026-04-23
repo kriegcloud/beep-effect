@@ -389,11 +389,14 @@ export const printModule = (module: Domain.Module) =>
 export const printFrontMatter: {
   (module: Domain.Module, navOrder: number): string;
   (navOrder: number): (module: Domain.Module) => string;
-} = dual(2, (module: Domain.Module, navOrder: number): string => `---
+} = dual(
+  2,
+  (module: Domain.Module, navOrder: number): string => `---
 title: ${module.name}
 nav_order: ${navOrder}
 parent: Modules
----`);
+---`
+);
 
 /**
  * `prettier` is optional in this repo-local port; returning the markdown

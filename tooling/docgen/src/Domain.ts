@@ -20,6 +20,50 @@ const StringArray = S.Array(S.String);
 const OptionalString = S.UndefinedOr(S.String);
 const OptionalStringArray = S.UndefinedOr(StringArray);
 
+type DocNewOptions = {
+  readonly since: ReadonlyArray<string>;
+  readonly deprecated: ReadonlyArray<string>;
+  readonly examples: ReadonlyArray<string>;
+  readonly category: ReadonlyArray<string>;
+  readonly throws: ReadonlyArray<string>;
+  readonly sees: ReadonlyArray<string>;
+  readonly tags: Record<string, ReadonlyArray<string> | undefined>;
+};
+
+type SignaturePositionOptions = {
+  readonly signature: string;
+  readonly position: Position;
+};
+
+type ClassNewOptions = SignaturePositionOptions & {
+  readonly methods: ReadonlyArray<DocEntry>;
+  readonly staticMethods: ReadonlyArray<DocEntry>;
+  readonly properties: ReadonlyArray<DocEntry>;
+};
+
+type ExportNewOptions = SignaturePositionOptions & {
+  readonly isNamespaceExport: boolean;
+};
+
+type NamespaceNewOptions = {
+  readonly position: Position;
+  readonly interfaces: ReadonlyArray<Interface>;
+  readonly typeAliases: ReadonlyArray<TypeAlias>;
+  readonly namespaces: ReadonlyArray<Namespace>;
+};
+
+type ModuleNewOptions = {
+  readonly doc: Doc;
+  readonly path: ReadonlyArray<string>;
+  readonly classes: ReadonlyArray<Class>;
+  readonly interfaces: ReadonlyArray<Interface>;
+  readonly functions: ReadonlyArray<Function>;
+  readonly typeAliases: ReadonlyArray<TypeAlias>;
+  readonly constants: ReadonlyArray<Constant>;
+  readonly exports: ReadonlyArray<Export>;
+  readonly namespaces: ReadonlyArray<Namespace>;
+};
+
 /**
  * Represents a one-based source location in a parsed file.
  *
@@ -55,7 +99,15 @@ export class Position extends S.Class<Position>($I`Position`)({
  * @example
  * ```ts
  * import { Doc } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
  * void doc
  * ```
  * @category model
@@ -75,36 +127,24 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
    * Creates a normalized documentation record.
    *
    * @param description - Main description text when present.
-   * @param since - `@since` tag values.
-   * @param deprecated - `@deprecated` tag values.
-   * @param examples - `@example` tag values.
-   * @param category - `@category` tag values.
-   * @param throws - `@throws` tag values.
-   * @param sees - `@see` tag values.
-   * @param tags - Raw grouped tag values.
+   * @param options - Normalized JSDoc tag values.
    * @returns Doc model with array fields normalized.
    */
-  static new(
-    description: string | undefined,
-    since: ReadonlyArray<string>,
-    deprecated: ReadonlyArray<string>,
-    examples: ReadonlyArray<string>,
-    category: ReadonlyArray<string>,
-    throws: ReadonlyArray<string>,
-    sees: ReadonlyArray<string>,
-    tags: Record<string, ReadonlyArray<string> | undefined>
-  ): Doc {
+  static readonly new: {
+    (description: string | undefined, options: DocNewOptions): Doc;
+    (options: DocNewOptions): (description: string | undefined) => Doc;
+  } = dual(2, (description: string | undefined, options: DocNewOptions): Doc => {
     return new Doc({
       description,
-      since: A.fromIterable(since),
-      deprecated: A.fromIterable(deprecated),
-      examples: A.fromIterable(examples),
-      category: A.fromIterable(category),
-      throws: A.fromIterable(throws),
-      sees: A.fromIterable(sees),
-      tags,
+      since: A.fromIterable(options.since),
+      deprecated: A.fromIterable(options.deprecated),
+      examples: A.fromIterable(options.examples),
+      category: A.fromIterable(options.category),
+      throws: A.fromIterable(options.throws),
+      sees: A.fromIterable(options.sees),
+      tags: options.tags,
     });
-  }
+  });
 
   /**
    * Returns a copy of the doc with a different description.
@@ -113,16 +153,15 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
    * @returns Doc instance with the updated description.
    */
   modifyDescription(description: string | undefined): Doc {
-    return Doc.new(
-      description,
-      this.since,
-      this.deprecated,
-      this.examples,
-      this.category,
-      this.throws,
-      this.sees,
-      this.tags
-    );
+    return Doc.new(description, {
+      since: this.since,
+      deprecated: this.deprecated,
+      examples: this.examples,
+      category: this.category,
+      throws: this.throws,
+      sees: this.sees,
+      tags: this.tags,
+    });
   }
 }
 
@@ -132,8 +171,19 @@ export class Doc extends S.Class<Doc>($I`Doc`)({
  * @example
  * ```ts
  * import { Doc, DocEntry, Position } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const entry = DocEntry.new("Example", doc, "declare const Example: string", Position.new(1, 1))
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const entry = DocEntry.new("Example", doc, {
+ *   signature: "declare const Example: string",
+ *   position: Position.new(1, 1)
+ * })
  * void entry
  * ```
  * @category model
@@ -150,13 +200,15 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
    *
    * @param name - Exported member name.
    * @param doc - Parsed documentation metadata.
-   * @param signature - Printable signature for the member.
-   * @param position - Source position for the member.
+   * @param options - Printable signature and source position for the member.
    * @returns Doc entry instance.
    */
-  static new(name: string, doc: Doc, signature: string, position: Position): DocEntry {
-    return new DocEntry({ name, doc, signature, position });
-  }
+  static readonly new: {
+    (name: string, doc: Doc, options: SignaturePositionOptions): DocEntry;
+    (doc: Doc, options: SignaturePositionOptions): (name: string) => DocEntry;
+  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): DocEntry => {
+    return new DocEntry({ name, doc, signature: options.signature, position: options.position });
+  });
 }
 
 /**
@@ -165,8 +217,22 @@ export class DocEntry extends S.Class<DocEntry>($I`DocEntry`)({
  * @example
  * ```ts
  * import { Class, Doc, Position } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const model = Class.new("Example", doc, "declare class Example", Position.new(1, 1), [], [], [])
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = Class.new("Example", doc, {
+ *   signature: "declare class Example",
+ *   position: Position.new(1, 1),
+ *   methods: [],
+ *   staticMethods: [],
+ *   properties: []
+ * })
  * void model
  * ```
  * @category model
@@ -187,32 +253,23 @@ export class Class extends S.Class<Class>($I`Class`)({
    *
    * @param name - Identifier shown in generated docs for the class.
    * @param doc - Parsed class documentation.
-   * @param signature - Printable class signature.
-   * @param position - Source position for the class.
-   * @param methods - Instance methods.
-   * @param staticMethods - Static members collected from the class declaration.
-   * @param properties - Documented properties.
+   * @param options - Printable signature, source position, and member entries.
    * @returns Class model instance.
    */
-  static new(
-    name: string,
-    doc: Doc,
-    signature: string,
-    position: Position,
-    methods: ReadonlyArray<DocEntry>,
-    staticMethods: ReadonlyArray<DocEntry>,
-    properties: ReadonlyArray<DocEntry>
-  ): Class {
+  static readonly new: {
+    (name: string, doc: Doc, options: ClassNewOptions): Class;
+    (doc: Doc, options: ClassNewOptions): (name: string) => Class;
+  } = dual(3, (name: string, doc: Doc, options: ClassNewOptions): Class => {
     return new Class({
       name,
       doc,
-      signature,
-      position,
-      methods: A.fromIterable(methods),
-      staticMethods: A.fromIterable(staticMethods),
-      properties: A.fromIterable(properties),
+      signature: options.signature,
+      position: options.position,
+      methods: A.fromIterable(options.methods),
+      staticMethods: A.fromIterable(options.staticMethods),
+      properties: A.fromIterable(options.properties),
     });
-  }
+  });
 }
 
 /**
@@ -221,8 +278,19 @@ export class Class extends S.Class<Class>($I`Class`)({
  * @example
  * ```ts
  * import { Doc, Interface, Position } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const model = Interface.new("Example", doc, "interface Example {}", Position.new(1, 1))
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = Interface.new("Example", doc, {
+ *   signature: "interface Example {}",
+ *   position: Position.new(1, 1)
+ * })
  * void model
  * ```
  * @category model
@@ -240,13 +308,15 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
    *
    * @param name - Identifier shown in generated docs for the interface.
    * @param doc - Parsed interface documentation.
-   * @param signature - Printable interface signature.
-   * @param position - Source position for the interface.
+   * @param options - Printable signature and source position for the interface.
    * @returns Interface model instance.
    */
-  static new(name: string, doc: Doc, signature: string, position: Position): Interface {
-    return new Interface({ name, doc, signature, position });
-  }
+  static readonly new: {
+    (name: string, doc: Doc, options: SignaturePositionOptions): Interface;
+    (doc: Doc, options: SignaturePositionOptions): (name: string) => Interface;
+  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): Interface => {
+    return new Interface({ name, doc, signature: options.signature, position: options.position });
+  });
 }
 
 /**
@@ -255,8 +325,19 @@ export class Interface extends S.Class<Interface>($I`Interface`)({
  * @example
  * ```ts
  * import { Doc, Function, Position } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const model = Function.new("example", doc, "declare const example: () => void", Position.new(1, 1))
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = Function.new("example", doc, {
+ *   signature: "declare const example: () => void",
+ *   position: Position.new(1, 1)
+ * })
  * void model
  * ```
  * @category model
@@ -274,13 +355,15 @@ export class Function extends S.Class<Function>($I`Function`)({
    *
    * @param name - Identifier shown in generated docs for the function.
    * @param doc - Parsed function documentation.
-   * @param signature - Printable function signature.
-   * @param position - Source position for the function.
+   * @param options - Printable signature and source position for the function.
    * @returns Function model instance.
    */
-  static new(name: string, doc: Doc, signature: string, position: Position): Function {
-    return new Function({ name, doc, signature, position });
-  }
+  static readonly new: {
+    (name: string, doc: Doc, options: SignaturePositionOptions): Function;
+    (doc: Doc, options: SignaturePositionOptions): (name: string) => Function;
+  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): Function => {
+    return new Function({ name, doc, signature: options.signature, position: options.position });
+  });
 }
 
 /**
@@ -289,8 +372,19 @@ export class Function extends S.Class<Function>($I`Function`)({
  * @example
  * ```ts
  * import { Doc, Position, TypeAlias } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const model = TypeAlias.new("Example", doc, "type Example = string", Position.new(1, 1))
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = TypeAlias.new("Example", doc, {
+ *   signature: "type Example = string",
+ *   position: Position.new(1, 1)
+ * })
  * void model
  * ```
  * @category model
@@ -308,13 +402,15 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
    *
    * @param name - Identifier shown in generated docs for the type alias.
    * @param doc - Parsed type alias documentation.
-   * @param signature - Printable type alias signature.
-   * @param position - Source position for the type alias.
+   * @param options - Printable signature and source position for the type alias.
    * @returns Type alias model instance.
    */
-  static new(name: string, doc: Doc, signature: string, position: Position): TypeAlias {
-    return new TypeAlias({ name, doc, signature, position });
-  }
+  static readonly new: {
+    (name: string, doc: Doc, options: SignaturePositionOptions): TypeAlias;
+    (doc: Doc, options: SignaturePositionOptions): (name: string) => TypeAlias;
+  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): TypeAlias => {
+    return new TypeAlias({ name, doc, signature: options.signature, position: options.position });
+  });
 }
 
 /**
@@ -323,8 +419,19 @@ export class TypeAlias extends S.Class<TypeAlias>($I`TypeAlias`)({
  * @example
  * ```ts
  * import { Constant, Doc, Position } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const model = Constant.new("example", doc, "declare const example: string", Position.new(1, 1))
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = Constant.new("example", doc, {
+ *   signature: "declare const example: string",
+ *   position: Position.new(1, 1)
+ * })
  * void model
  * ```
  * @category model
@@ -342,13 +449,15 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
    *
    * @param name - Identifier shown in generated docs for the constant.
    * @param doc - Parsed constant documentation.
-   * @param signature - Printable constant signature.
-   * @param position - Source position for the constant.
+   * @param options - Printable signature and source position for the constant.
    * @returns Constant model instance.
    */
-  static new(name: string, doc: Doc, signature: string, position: Position): Constant {
-    return new Constant({ name, doc, signature, position });
-  }
+  static readonly new: {
+    (name: string, doc: Doc, options: SignaturePositionOptions): Constant;
+    (doc: Doc, options: SignaturePositionOptions): (name: string) => Constant;
+  } = dual(3, (name: string, doc: Doc, options: SignaturePositionOptions): Constant => {
+    return new Constant({ name, doc, signature: options.signature, position: options.position });
+  });
 }
 
 /**
@@ -365,8 +474,20 @@ export class Constant extends S.Class<Constant>($I`Constant`)({
  * @example
  * ```ts
  * import { Doc, Export, Position } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const model = Export.new("Example", doc, "export { Example }", Position.new(1, 1), false)
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = Export.new("Example", doc, {
+ *   signature: "export { Example }",
+ *   position: Position.new(1, 1),
+ *   isNamespaceExport: false
+ * })
  * void model
  * ```
  * @category model
@@ -385,14 +506,21 @@ export class Export extends S.Class<Export>($I`Export`)({
    *
    * @param name - Exported name.
    * @param doc - Parsed export documentation.
-   * @param signature - Printable export signature.
-   * @param position - Source position for the export.
-   * @param isNamespaceExport - Whether the export re-exports a namespace.
+   * @param options - Printable signature, source position, and namespace export flag.
    * @returns Export model instance.
    */
-  static new(name: string, doc: Doc, signature: string, position: Position, isNamespaceExport: boolean): Export {
-    return new Export({ name, doc, signature, position, isNamespaceExport });
-  }
+  static readonly new: {
+    (name: string, doc: Doc, options: ExportNewOptions): Export;
+    (doc: Doc, options: ExportNewOptions): (name: string) => Export;
+  } = dual(3, (name: string, doc: Doc, options: ExportNewOptions): Export => {
+    return new Export({
+      name,
+      doc,
+      signature: options.signature,
+      position: options.position,
+      isNamespaceExport: options.isNamespaceExport,
+    });
+  });
 }
 
 /**
@@ -401,8 +529,21 @@ export class Export extends S.Class<Export>($I`Export`)({
  * @example
  * ```ts
  * import { Doc, Namespace, Position } from "@beep/docgen/Domain"
- * const doc = Doc.new("Description.", ["0.0.0"], [], [], ["model"], [], [], {})
- * const model = Namespace.new("Example", doc, Position.new(1, 1), [], [], [])
+ * const doc = Doc.new("Description.", {
+ *   since: ["0.0.0"],
+ *   deprecated: [],
+ *   examples: [],
+ *   category: ["model"],
+ *   throws: [],
+ *   sees: [],
+ *   tags: {}
+ * })
+ * const model = Namespace.new("Example", doc, {
+ *   position: Position.new(1, 1),
+ *   interfaces: [],
+ *   typeAliases: [],
+ *   namespaces: []
+ * })
  * void model
  * ```
  * @category model
@@ -424,29 +565,22 @@ export class Namespace extends S.Class<Namespace>($I`Namespace`)({
    *
    * @param name - Identifier shown in generated docs for the namespace.
    * @param doc - Parsed namespace documentation.
-   * @param position - Source position for the namespace.
-   * @param interfaces - Nested interfaces.
-   * @param typeAliases - Nested type aliases.
-   * @param namespaces - Nested namespaces.
+   * @param options - Source position and nested namespace member collections.
    * @returns Namespace model instance.
    */
-  static new(
-    name: string,
-    doc: Doc,
-    position: Position,
-    interfaces: ReadonlyArray<Interface>,
-    typeAliases: ReadonlyArray<TypeAlias>,
-    namespaces: ReadonlyArray<Namespace>
-  ): Namespace {
+  static readonly new: {
+    (name: string, doc: Doc, options: NamespaceNewOptions): Namespace;
+    (doc: Doc, options: NamespaceNewOptions): (name: string) => Namespace;
+  } = dual(3, (name: string, doc: Doc, options: NamespaceNewOptions): Namespace => {
     return new Namespace({
       name,
       doc,
-      position,
-      interfaces: A.fromIterable(interfaces),
-      typeAliases: A.fromIterable(typeAliases),
-      namespaces: A.fromIterable(namespaces),
+      position: options.position,
+      interfaces: A.fromIterable(options.interfaces),
+      typeAliases: A.fromIterable(options.typeAliases),
+      namespaces: A.fromIterable(options.namespaces),
     });
-  }
+  });
 }
 
 /**
@@ -480,44 +614,27 @@ export class Module extends S.Class<Module>($I`Module`)({
    *
    * @param source - Parsed source metadata.
    * @param name - Module display name.
-   * @param doc - Parsed module documentation.
-   * @param path - Path segments for the module.
-   * @param classes - Documented classes.
-   * @param interfaces - Documented interfaces.
-   * @param functions - Documented functions.
-   * @param typeAliases - Documented type aliases.
-   * @param constants - Documented constants.
-   * @param exports - Documented manual exports.
-   * @param namespaces - Documented namespaces.
+   * @param options - Parsed documentation, path segments, and documented module members.
    * @returns Module model instance.
    */
-  static new(
-    source: Parser.SourceShape,
-    name: string,
-    doc: Doc,
-    path: ReadonlyArray<string>,
-    classes: ReadonlyArray<Class>,
-    interfaces: ReadonlyArray<Interface>,
-    functions: ReadonlyArray<Function>,
-    typeAliases: ReadonlyArray<TypeAlias>,
-    constants: ReadonlyArray<Constant>,
-    exports: ReadonlyArray<Export>,
-    namespaces: ReadonlyArray<Namespace>
-  ): Module {
+  static readonly new: {
+    (source: Parser.SourceShape, name: string, options: ModuleNewOptions): Module;
+    (name: string, options: ModuleNewOptions): (source: Parser.SourceShape) => Module;
+  } = dual(3, (source: Parser.SourceShape, name: string, options: ModuleNewOptions): Module => {
     return new Module({
       source,
       name,
-      doc,
-      path: A.fromIterable(path),
-      classes: A.fromIterable(classes),
-      interfaces: A.fromIterable(interfaces),
-      functions: A.fromIterable(functions),
-      typeAliases: A.fromIterable(typeAliases),
-      constants: A.fromIterable(constants),
-      exports: A.fromIterable(exports),
-      namespaces: A.fromIterable(namespaces),
+      doc: options.doc,
+      path: A.fromIterable(options.path),
+      classes: A.fromIterable(options.classes),
+      interfaces: A.fromIterable(options.interfaces),
+      functions: A.fromIterable(options.functions),
+      typeAliases: A.fromIterable(options.typeAliases),
+      constants: A.fromIterable(options.constants),
+      exports: A.fromIterable(options.exports),
+      namespaces: A.fromIterable(options.namespaces),
     });
-  }
+  });
 }
 
 /**

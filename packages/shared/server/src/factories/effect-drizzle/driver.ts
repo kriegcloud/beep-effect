@@ -313,7 +313,7 @@ const makeEffectOperations = <TSchema extends Record<string, unknown>, TRelation
 
       return Effect.try({
         try: () => db.all<T>(statement),
-        catch: (cause) => effectDrizzleQueryErrorFromUnknown(staticQuery.sql, staticQuery.params, cause),
+        catch: (cause) => effectDrizzleQueryErrorFromUnknown(cause, staticQuery.sql, { params: staticQuery.params }),
       });
     },
     depth,
@@ -324,7 +324,7 @@ const makeEffectOperations = <TSchema extends Record<string, unknown>, TRelation
 
       return Effect.try({
         try: () => db.get<T>(statement),
-        catch: (cause) => effectDrizzleQueryErrorFromUnknown(staticQuery.sql, staticQuery.params, cause),
+        catch: (cause) => effectDrizzleQueryErrorFromUnknown(cause, staticQuery.sql, { params: staticQuery.params }),
       });
     },
     rollback: () => Effect.fail(new EffectTransactionRollbackError({})),
@@ -335,7 +335,7 @@ const makeEffectOperations = <TSchema extends Record<string, unknown>, TRelation
 
       return Effect.try({
         try: () => db.run(statement),
-        catch: (cause) => effectDrizzleQueryErrorFromUnknown(staticQuery.sql, staticQuery.params, cause),
+        catch: (cause) => effectDrizzleQueryErrorFromUnknown(cause, staticQuery.sql, { params: staticQuery.params }),
       });
     },
     transaction,
@@ -346,7 +346,7 @@ const makeEffectOperations = <TSchema extends Record<string, unknown>, TRelation
 
       return Effect.try({
         try: () => db.values<T>(statement),
-        catch: (cause) => effectDrizzleQueryErrorFromUnknown(staticQuery.sql, staticQuery.params, cause),
+        catch: (cause) => effectDrizzleQueryErrorFromUnknown(cause, staticQuery.sql, { params: staticQuery.params }),
       });
     },
   };
