@@ -8,6 +8,7 @@
 import { $ChalkId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
 import { P } from "@beep/utils";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { ansiStyles, getModelAnsi, getStyleEntry, type StyleName } from "./AnsiStyles.ts";
 import {
@@ -17,6 +18,7 @@ import {
   foregroundColorNameValues,
   modifierNameValues,
 } from "./ChalkSchema.ts";
+import { type ChalkConstructorOptions, ColorSupportLevelInput } from "./PublicSurface.ts";
 import { stringEncaseCRLFWithFirstIndex, stringReplaceAll } from "./Utilities.ts";
 
 const $I = $ChalkId.create("Domain");
@@ -51,19 +53,6 @@ const styleNameValues: ReadonlyArray<StyleName> = [
   ...backgroundColorNameValues,
 ];
 
-const ColorSupportLevelInput = S.Number.check(
-  S.makeFilter((level: number) => Number.isInteger(level) && level >= 0 && level <= 3, {
-    identifier: $I`ColorSupportLevelInputCheck`,
-    title: "Chalk Color Support Level",
-    description: "A Chalk color support level from 0 through 3.",
-    message: "The `level` option should be an integer from 0 to 3",
-  })
-).pipe(
-  $I.annoteSchema("ColorSupportLevelInput", {
-    description: "A numeric Chalk color support level accepted by the runtime constructor and `level` setter.",
-  })
-);
-
 const decodeColorSupportLevel = S.decodeUnknownSync(ColorSupportLevel);
 const decodeColorSupportLevelInput = S.decodeUnknownSync(ColorSupportLevelInput);
 
@@ -94,8 +83,22 @@ const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
   return meta;
 };
 
+const isTemplateStringsArray = (value: unknown): value is TemplateStringsArray =>
+  A.isArray(value) && P.hasProperty(value, "raw") && A.isArray(value.raw);
+
+const renderTemplateArguments = (strings: TemplateStringsArray, substitutions: ReadonlyArray<unknown>): string =>
+  A.reduce(
+    strings,
+    "",
+    (rendered, text, index) => rendered + text + (index < substitutions.length ? `${substitutions[index]}` : "")
+  );
+
 const renderArguments = (arguments_: ReadonlyArray<unknown>): string => {
   const [first] = arguments_;
+
+  if (isTemplateStringsArray(first)) {
+    return renderTemplateArguments(first, A.drop(arguments_, 1));
+  }
 
   return arguments_.length === 1 ? `${first}` : arguments_.join(" ");
 };
@@ -261,9 +264,7 @@ const createBuilder = (
 export const makeCreateChalk = (defaultColorInfo: ColorInfo) => {
   const defaultLevel = defaultColorInfo === false ? 0 : defaultColorInfo.level;
 
-  return (
-    options?: undefined | { readonly level?: S.Schema.Type<typeof ColorSupportLevel> | number | undefined }
-  ): ChalkFunction =>
+  return (options?: ChalkConstructorOptions): ChalkFunction =>
     createBuilder(
       {
         level: P.isUndefined(options?.level) ? defaultLevel : normalizeColorSupportLevel(options.level),

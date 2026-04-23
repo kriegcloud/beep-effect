@@ -151,7 +151,11 @@ const program = Effect.gen(function* () {
         ),
         pipe(
           sh`mise tasks --json`,
-          Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
+          Effect.flatMap(
+            Effect.fnUntraced(function* (json: string) {
+              return yield* S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(json);
+            })
+          ),
           Effect.map(formatMiseTasks),
           Effect.catch(() => Effect.succeed(""))
         ),

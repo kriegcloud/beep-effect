@@ -11,10 +11,11 @@ bun add @beep/chalk
 ## Usage
 
 ```ts
-import chalk, { Chalk, supportsColor } from "@beep/chalk"
+import chalk, { Chalk, type ChalkConstructorOptions, supportsColor } from "@beep/chalk"
 
 const warning = chalk.hex("#FFA500").bold("warning")
-const plain = new Chalk({ level: 0 })
+const options: ChalkConstructorOptions = { level: 0 }
+const plain = new Chalk(options)
 
 console.log(warning)
 console.log(plain.red("offline"))

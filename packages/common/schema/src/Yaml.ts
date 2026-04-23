@@ -140,7 +140,10 @@ export const YamlTextToUnknown = S.String.pipe(
  */
 export const decodeYamlTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeYamlUnknownText = S.decodeUnknownEffect(YamlTextToUnknown);
-  const decodeTarget = S.decodeUnknownEffect(schema);
+  const decodeTargetSchema = S.decodeUnknownEffect(schema);
+  const decodeTarget = Effect.fnUntraced(function* (input: Parameters<typeof decodeTargetSchema>[0]) {
+    return yield* decodeTargetSchema(input);
+  });
 
   return flow(decodeYamlUnknownText, Effect.flatMap(decodeTarget));
 };

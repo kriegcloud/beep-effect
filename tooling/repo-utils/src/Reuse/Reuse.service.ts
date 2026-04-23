@@ -697,19 +697,21 @@ const getCachedOrCompute = <A, E, R>(
   compute: Effect.Effect<A, E, R>
 ): Effect.Effect<A, E, R> =>
   Effect.sync(() => MutableHashMap.get(cache, key)).pipe(
-    Effect.flatMap((cached) => {
-      if (O.isSome(cached)) {
-        return Effect.succeed(cached.value);
-      }
+    Effect.flatMap(
+      Effect.fnUntraced(function* (cached) {
+        if (O.isSome(cached)) {
+          return yield* Effect.succeed(cached.value);
+        }
 
-      return compute.pipe(
-        Effect.tap((value) =>
-          Effect.sync(() => {
-            MutableHashMap.set(cache, key, value);
-          })
-        )
-      );
-    })
+        return yield* compute.pipe(
+          Effect.tap((value) =>
+            Effect.sync(() => {
+              MutableHashMap.set(cache, key, value);
+            })
+          )
+        );
+      })
+    )
   );
 
 const discoverWorkspaceScopes = (analysisContext: ReuseAnalysisContextShape, scopeSelector: O.Option<string>) =>

@@ -178,16 +178,7 @@ const logPhaseProfile = (profile: PhaseProfile): Effect.Effect<void> =>
  *
  * const migrate = Effect.log("running migrations")
  *
- * const profiled = profilePhase(
- *
- *
- *
- *
- *
- *
- *
- *
- * )
+ * const profiled = profilePhase()
  *
  * void Effect.runPromise(profiled)
  * ```
@@ -195,64 +186,69 @@ const logPhaseProfile = (profile: PhaseProfile): Effect.Effect<void> =>
  * @since 0.0.0
  * @category observability
  */
-const profilePhaseImpl = <A, E, R>(
+const profilePhaseImpl = Effect.fn("profilePhaseImpl")(function* <A, E, R>(
   effect: Effect.Effect<A, E, R>,
   options: ProfilePhaseOptions
-): Effect.Effect<A, E, R> =>
-  Clock.currentTimeMillis.pipe(
-    Effect.flatMap((startedAt) => {
-      const baseAttributes = {
-        phase: options.phase,
-        ...options.attributes,
-      };
+): Effect.fn.Return<A, E, R> {
+  return yield* Clock.currentTimeMillis.pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (startedAt) {
+        const baseAttributes = {
+          phase: options.phase,
+          ...options.attributes,
+        };
 
-      return Effect.annotateCurrentSpan(baseAttributes).pipe(
-        Effect.andThen(incrementMetric(options.started, baseAttributes)),
-        Effect.andThen(effect),
-        Effect.onExit((exit) =>
-          Clock.currentTimeMillis.pipe(
-            Effect.flatMap((endedAt) => {
-              const durationMs = Math.max(0, endedAt - startedAt);
-              const outcome = toPhaseOutcome(exit);
-              const profile = new PhaseProfile({
-                phase: options.phase,
-                outcome,
-                durationMs: decodeNonNegativeInt(durationMs),
-                attributes: baseAttributes,
-              });
-              const outcomeAttributes = {
-                ...baseAttributes,
-                outcome,
-              };
-              const durationEffect =
-                options.duration === undefined
-                  ? Effect.void
-                  : Metric.update(
-                      metricWithAttributes(options.duration, outcomeAttributes),
-                      Duration.millis(durationMs)
-                    );
-              const outcomeEffect = Match.value(outcome).pipe(
-                Match.when("completed", () => incrementMetric(options.completed, outcomeAttributes)),
-                Match.when("failed", () => incrementMetric(options.failed, outcomeAttributes)),
-                Match.when("interrupted", () => incrementMetric(options.interrupted, outcomeAttributes)),
-                Match.exhaustive
-              );
+        return yield* Effect.annotateCurrentSpan(baseAttributes).pipe(
+          Effect.andThen(incrementMetric(options.started, baseAttributes)),
+          Effect.andThen(effect),
+          Effect.onExit((exit) =>
+            Clock.currentTimeMillis.pipe(
+              Effect.flatMap(
+                Effect.fnUntraced(function* (endedAt) {
+                  const durationMs = Math.max(0, endedAt - startedAt);
+                  const outcome = toPhaseOutcome(exit);
+                  const profile = new PhaseProfile({
+                    phase: options.phase,
+                    outcome,
+                    durationMs: decodeNonNegativeInt(durationMs),
+                    attributes: baseAttributes,
+                  });
+                  const outcomeAttributes = {
+                    ...baseAttributes,
+                    outcome,
+                  };
+                  const durationEffect =
+                    options.duration === undefined
+                      ? Effect.void
+                      : Metric.update(
+                          metricWithAttributes(options.duration, outcomeAttributes),
+                          Duration.millis(durationMs)
+                        );
+                  const outcomeEffect = Match.value(outcome).pipe(
+                    Match.when("completed", () => incrementMetric(options.completed, outcomeAttributes)),
+                    Match.when("failed", () => incrementMetric(options.failed, outcomeAttributes)),
+                    Match.when("interrupted", () => incrementMetric(options.interrupted, outcomeAttributes)),
+                    Match.exhaustive
+                  );
 
-              return Effect.annotateCurrentSpan({
-                phase: options.phase,
-                phase_outcome: outcome,
-                phase_duration_ms: durationMs,
-              }).pipe(
-                Effect.andThen(durationEffect),
-                Effect.andThen(outcomeEffect),
-                Effect.andThen(logPhaseProfile(profile))
-              );
-            })
+                  return yield* Effect.annotateCurrentSpan({
+                    phase: options.phase,
+                    phase_outcome: outcome,
+                    phase_duration_ms: durationMs,
+                  }).pipe(
+                    Effect.andThen(durationEffect),
+                    Effect.andThen(outcomeEffect),
+                    Effect.andThen(logPhaseProfile(profile))
+                  );
+                })
+              )
+            )
           )
-        )
-      );
-    })
+        );
+      })
+    )
   );
+});
 
 /**
  * Profiles an Effect phase and records its duration and outcome.
@@ -266,18 +262,18 @@ export const profilePhase: {
   (options: ProfilePhaseOptions): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
 } = dual(
   isProfilePhaseDataFirst,
-  <A, E, R>(
+  Effect.fn("profilePhase")(function* <A, E, R>(
     effect: Effect.Effect<A, E, R> | ProfilePhaseOptions,
     options: ProfilePhaseOptions | Effect.Effect<A, E, R> | undefined
-  ): Effect.Effect<A, E, R> => {
+  ): Effect.fn.Return<A, E, R> {
     if (Effect.isEffect(effect) && P.isNotUndefined(options) && !Effect.isEffect(options)) {
-      return profilePhaseImpl(effect, options);
+      return yield* profilePhaseImpl(effect, options);
     }
 
     if (!Effect.isEffect(effect) && Effect.isEffect(options)) {
-      return profilePhaseImpl(options, effect);
+      return yield* profilePhaseImpl(options, effect);
     }
 
-    return Effect.die("Invalid profilePhase arguments");
-  }
+    return yield* Effect.die("Invalid profilePhase arguments");
+  })
 );

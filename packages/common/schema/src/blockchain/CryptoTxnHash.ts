@@ -8,8 +8,9 @@
  */
 
 import { $SchemaId } from "@beep/identity/packages";
+import { P } from "@beep/utils";
 import { base58 } from "@scure/base";
-import { flow, Redacted } from "effect";
+import { flow, Redacted, Result } from "effect";
 import * as S from "effect/Schema";
 import * as SchemaUtils from "../SchemaUtils/index.ts";
 
@@ -18,20 +19,17 @@ const $I = $SchemaId.create("blockchain/CryptoTxnHash");
 const evmCryptoTxnHashPattern = /^0x[0-9a-f]{64}$/;
 const bitcoinCryptoTxnHashPattern = /^[0-9a-f]{64}$/;
 
-const decodeCanonicalBase58 = (input: string): Uint8Array | null => {
-  try {
+const decodeCanonicalBase58 = (input: string): Uint8Array | null =>
+  Result.try(() => {
     const decoded = base58.decode(input);
 
     return base58.encode(decoded) === input ? decoded : null;
-  } catch {
-    return null;
-  }
-};
+  }).pipe(Result.getOrNull);
 
 const isCanonicalSolanaSignature = (input: string): boolean => {
   const decoded = decodeCanonicalBase58(input);
 
-  return decoded !== null && decoded.length === 64;
+  return P.isNotNull(decoded) && decoded.length === 64;
 };
 
 const isCanonicalCryptoTxnHash = (input: string): boolean =>

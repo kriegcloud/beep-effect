@@ -53,7 +53,11 @@ const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, 
  * @since 0.0.0
  */
 const commandProgram = runQualityTaskIfRequested(process.argv.slice(2)).pipe(
-  Effect.flatMap((handled) => (handled ? Effect.void : Command.run(rootCommand, { version: "0.0.0" }))),
+  Effect.flatMap(
+    Effect.fnUntraced(function* (handled) {
+      return yield* handled ? Effect.void : Command.run(rootCommand, { version: "0.0.0" });
+    })
+  ),
   Effect.catchCause((cause) =>
     Effect.sync(() => {
       process.exitCode = 1;
@@ -63,7 +67,13 @@ const commandProgram = runQualityTaskIfRequested(process.argv.slice(2)).pipe(
 );
 
 const program = Effect.scoped(
-  Layer.build(DerivedLayers).pipe(Effect.flatMap((context) => commandProgram.pipe(Effect.provide(context))))
+  Layer.build(DerivedLayers).pipe(
+    Effect.flatMap(
+      Effect.fnUntraced(function* (context) {
+        return yield* commandProgram.pipe(Effect.provide(context));
+      })
+    )
+  )
 );
 
 BunRuntime.runMain(program);

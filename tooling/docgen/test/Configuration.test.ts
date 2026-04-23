@@ -70,29 +70,31 @@ describe("Configuration", () => {
   layer(makeTestLayer())((it) =>
     it.effect("uses defaults when no docgen.json is present", () =>
       Configuration.load(makeLoadArgs()).pipe(
-        Effect.flatMap((config) =>
-          expectConfig(config, {
-            projectName: "name",
-            projectHomepage: "homepage",
-            srcLink: "homepage/blob/main/src/",
-            srcDir: "src",
-            outDir: "docs",
-            theme: "mikearnaldi/just-the-docs",
-            enableSearch: true,
-            enforceDescriptions: false,
-            enforceExamples: false,
-            enforceVersion: true,
-            runExamples: false,
-            tscExecutable: "tsc",
-            exclude: [],
-            parseCompilerOptions: Configuration.defaultCompilerOptions,
-            examplesCompilerOptions: {
-              ...Configuration.defaultCompilerOptions,
-              allowImportingTsExtensions: true,
-              noUnusedLocals: false,
-              noUnusedParameters: false,
-              types: ["node", "bun"],
-            },
+        Effect.flatMap(
+          Effect.fnUntraced(function* (config) {
+            return yield* expectConfig(config, {
+              projectName: "name",
+              projectHomepage: "homepage",
+              srcLink: "homepage/blob/main/src/",
+              srcDir: "src",
+              outDir: "docs",
+              theme: "mikearnaldi/just-the-docs",
+              enableSearch: true,
+              enforceDescriptions: false,
+              enforceExamples: false,
+              enforceVersion: true,
+              runExamples: false,
+              tscExecutable: "tsc",
+              exclude: [],
+              parseCompilerOptions: Configuration.defaultCompilerOptions,
+              examplesCompilerOptions: {
+                ...Configuration.defaultCompilerOptions,
+                allowImportingTsExtensions: true,
+                noUnusedLocals: false,
+                noUnusedParameters: false,
+                types: ["node", "bun"],
+              },
+            });
           })
         )
       )
@@ -116,37 +118,39 @@ describe("Configuration", () => {
   )((it) =>
     it.effect("uses configuration from docgen.json when present", () =>
       Configuration.load(makeLoadArgs()).pipe(
-        Effect.flatMap((config) =>
-          expectConfig(config, {
-            projectName: "name",
-            projectHomepage: "myproject",
-            srcLink: "mygithub",
-            srcDir: "src",
-            outDir: "docs",
-            theme: "mikearnaldi/just-the-docs",
-            enableSearch: true,
-            enforceDescriptions: false,
-            enforceExamples: false,
-            enforceVersion: true,
-            runExamples: false,
-            tscExecutable: "tsc",
-            exclude: [],
-            parseCompilerOptions: {
-              noEmit: true,
-              strict: true,
-              skipLibCheck: true,
-              exactOptionalPropertyTypes: true,
-              moduleResolution: "bundler",
-              target: "es2022",
-              lib: ["ES2022", "DOM"],
-            },
-            examplesCompilerOptions: {
-              ...Configuration.defaultCompilerOptions,
-              allowImportingTsExtensions: true,
-              noUnusedLocals: false,
-              noUnusedParameters: false,
-              types: ["node", "bun"],
-            },
+        Effect.flatMap(
+          Effect.fnUntraced(function* (config) {
+            return yield* expectConfig(config, {
+              projectName: "name",
+              projectHomepage: "myproject",
+              srcLink: "mygithub",
+              srcDir: "src",
+              outDir: "docs",
+              theme: "mikearnaldi/just-the-docs",
+              enableSearch: true,
+              enforceDescriptions: false,
+              enforceExamples: false,
+              enforceVersion: true,
+              runExamples: false,
+              tscExecutable: "tsc",
+              exclude: [],
+              parseCompilerOptions: {
+                noEmit: true,
+                strict: true,
+                skipLibCheck: true,
+                exactOptionalPropertyTypes: true,
+                moduleResolution: "bundler",
+                target: "es2022",
+                lib: ["ES2022", "DOM"],
+              },
+              examplesCompilerOptions: {
+                ...Configuration.defaultCompilerOptions,
+                allowImportingTsExtensions: true,
+                noUnusedLocals: false,
+                noUnusedParameters: false,
+                types: ["node", "bun"],
+              },
+            });
           })
         )
       )

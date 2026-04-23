@@ -456,15 +456,17 @@ const handleControlPlaneInternalErrors = <A, E, R>(
       http_method: method,
       http_route: route,
     }).pipe(
-      Effect.flatMap(() =>
-        effect.pipe(
-          Effect.annotateLogs({
-            session_id: sessionId,
-            http_method: method,
-            http_route: route,
-          }),
-          Effect.withLogSpan(`${method} ${route}`)
-        )
+      Effect.flatMap(
+        Effect.fnUntraced(function* () {
+          return yield* effect.pipe(
+            Effect.annotateLogs({
+              session_id: sessionId,
+              http_method: method,
+              http_route: route,
+            }),
+            Effect.withLogSpan(`${method} ${route}`)
+          );
+        })
       ),
       Effect.catchCause((cause) => {
         const payload = new SidecarInternalErrorPayload({
@@ -473,7 +475,11 @@ const handleControlPlaneInternalErrors = <A, E, R>(
         });
 
         return logRuntimeBoundaryFailure(method, route, sessionId, payload, cause).pipe(
-          Effect.andThen(Effect.fail(payload))
+          Effect.andThen(
+            Effect.fnUntraced(function* (_: unknown): Effect.fn.Return<never, typeof payload> {
+              return yield* Effect.fail(payload);
+            })
+          )
         );
       })
     ),
@@ -497,21 +503,27 @@ const handleControlPlaneErrors = <A, E, R>(
       http_method: method,
       http_route: route,
     }).pipe(
-      Effect.flatMap(() =>
-        effect.pipe(
-          Effect.annotateLogs({
-            session_id: sessionId,
-            http_method: method,
-            http_route: route,
-          }),
-          Effect.withLogSpan(`${method} ${route}`)
-        )
+      Effect.flatMap(
+        Effect.fnUntraced(function* () {
+          return yield* effect.pipe(
+            Effect.annotateLogs({
+              session_id: sessionId,
+              http_method: method,
+              http_route: route,
+            }),
+            Effect.withLogSpan(`${method} ${route}`)
+          );
+        })
       ),
       Effect.catchCause((cause) => {
         const payload = toControlPlaneErrorPayload(cause);
 
         return logRuntimeBoundaryFailure(method, route, sessionId, payload, cause).pipe(
-          Effect.andThen(Effect.fail(payload))
+          Effect.andThen(
+            Effect.fnUntraced(function* (_: unknown): Effect.fn.Return<never, typeof payload> {
+              return yield* Effect.fail(payload);
+            })
+          )
         );
       })
     ),

@@ -217,7 +217,11 @@ export const resolveSidecarVersion = Effect.fn("SidecarRuntime.resolveVersion")(
   const PackageJsonVersionJson = S.fromJsonString(PackageJsonVersion);
 
   return yield* fs.readFileString(packageJsonPath).pipe(
-    Effect.flatMap(S.decodeUnknownEffect(PackageJsonVersionJson)),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (input: unknown) {
+        return yield* S.decodeUnknownEffect(PackageJsonVersionJson)(input);
+      })
+    ),
     Effect.map((pkg) => pkg.version),
     Effect.orElseSucceed(() => defaultVersion)
   );

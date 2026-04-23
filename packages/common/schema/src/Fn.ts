@@ -247,7 +247,12 @@ const makeNoArgStatics = <Input extends NoArgInputSchema, Output extends S.Top, 
   "implement" | "implementEffect" | "implementSync" | "inputSchema" | "outputSchema" | "errorSchema"
 > => {
   const implement: FnSchemaNoArg<Input, Output, Error>["implement"] = (handler) => () =>
-    Effect.flatMap(Effect.sync(handler), (output) => validateOutputEffect(outputSchema, output));
+    Effect.flatMap(
+      Effect.sync(handler),
+      Effect.fnUntraced(function* (output) {
+        return yield* validateOutputEffect(outputSchema, output);
+      })
+    );
 
   const implementEffect = isNeverKeyword(errorSchema.ast)
     ? <HandlerError, R>(
@@ -263,7 +268,13 @@ const makeNoArgStatics = <Input extends NoArgInputSchema, Output extends S.Top, 
       ): FnEffectWrapperNoArg<Output, Error["Type"] | SchemaIssue.Issue, R> =>
         () =>
           Effect.matchCauseEffect(handler(), {
-            onFailure: (cause) => Effect.flatMap(validateErrorCauseEffect(errorSchema, cause), Effect.failCause),
+            onFailure: (cause) =>
+              Effect.flatMap(
+                validateErrorCauseEffect(errorSchema, cause),
+                Effect.fnUntraced(function* (validatedCause) {
+                  return yield* Effect.failCause(validatedCause);
+                })
+              ),
             onSuccess: (output) => validateOutputEffect(outputSchema, output),
           });
 
@@ -289,11 +300,16 @@ const makeUnaryStatics = <Input extends S.Top, Output extends S.Top, Error exten
   "implement" | "implementEffect" | "implementSync" | "inputSchema" | "outputSchema" | "errorSchema"
 > => {
   const implement: FnSchemaUnary<Input, Output, Error>["implement"] = (handler) => (input) =>
-    Effect.flatMap(SchemaParser.decodeUnknownEffect(inputSchema)(input), (decodedInput) =>
-      Effect.flatMap(
-        Effect.sync(() => handler(decodedInput)),
-        (output) => validateOutputEffect(outputSchema, output)
-      )
+    Effect.flatMap(
+      SchemaParser.decodeUnknownEffect(inputSchema)(input),
+      Effect.fnUntraced(function* (decodedInput) {
+        return yield* Effect.flatMap(
+          Effect.sync(() => handler(decodedInput)),
+          Effect.fnUntraced(function* (output) {
+            return yield* validateOutputEffect(outputSchema, output);
+          })
+        );
+      })
     );
 
   const implementEffect = isNeverKeyword(errorSchema.ast)
@@ -301,20 +317,32 @@ const makeUnaryStatics = <Input extends S.Top, Output extends S.Top, Error exten
         handler: FnType<Input["Type"], Effect.Effect<Output["Type"], HandlerError, R>>
       ): FnEffectWrapperUnary<Output, HandlerError | SchemaIssue.Issue, Input["DecodingServices"] | R> =>
         (input: unknown) =>
-          Effect.flatMap(SchemaParser.decodeUnknownEffect(inputSchema)(input), (decodedInput) =>
-            Effect.matchCauseEffect(handler(decodedInput), {
-              onFailure: (cause) => Effect.failCause(cause),
-              onSuccess: (output) => validateOutputEffect(outputSchema, output),
+          Effect.flatMap(
+            SchemaParser.decodeUnknownEffect(inputSchema)(input),
+            Effect.fnUntraced(function* (decodedInput) {
+              return yield* Effect.matchCauseEffect(handler(decodedInput), {
+                onFailure: (cause) => Effect.failCause(cause),
+                onSuccess: (output) => validateOutputEffect(outputSchema, output),
+              });
             })
           )
     : <R>(
         handler: FnType<Input["Type"], Effect.Effect<Output["Type"], Error["Type"], R>>
       ): FnEffectWrapperUnary<Output, Error["Type"] | SchemaIssue.Issue, Input["DecodingServices"] | R> =>
         (input: unknown) =>
-          Effect.flatMap(SchemaParser.decodeUnknownEffect(inputSchema)(input), (decodedInput) =>
-            Effect.matchCauseEffect(handler(decodedInput), {
-              onFailure: (cause) => Effect.flatMap(validateErrorCauseEffect(errorSchema, cause), Effect.failCause),
-              onSuccess: (output) => validateOutputEffect(outputSchema, output),
+          Effect.flatMap(
+            SchemaParser.decodeUnknownEffect(inputSchema)(input),
+            Effect.fnUntraced(function* (decodedInput) {
+              return yield* Effect.matchCauseEffect(handler(decodedInput), {
+                onFailure: (cause) =>
+                  Effect.flatMap(
+                    validateErrorCauseEffect(errorSchema, cause),
+                    Effect.fnUntraced(function* (validatedCause) {
+                      return yield* Effect.failCause(validatedCause);
+                    })
+                  ),
+                onSuccess: (output) => validateOutputEffect(outputSchema, output),
+              });
             })
           );
 

@@ -27,22 +27,24 @@
 
 import { makeCreateChalk } from "./internal/ChalkRuntime.ts";
 import {
-  BackgroundColorName as BackgroundColorNameSchema,
+  BackgroundColorName as BackgroundColorNameDefinition,
   backgroundColorNameValues,
-  ChalkOptions as ChalkOptionsSchema,
-  ColorInfo as ColorInfoSchema,
-  ColorName as ColorNameSchema,
-  ColorSupportLevel as ColorSupportLevelSchema,
-  ColorSupport as ColorSupportSchema,
+  ChalkOptions as ChalkOptionsDefinition,
+  ColorInfo as ColorInfoDefinition,
+  ColorName as ColorNameDefinition,
+  ColorSupport as ColorSupportDefinition,
+  ColorSupportLevel as ColorSupportLevelDefinition,
   colorNameValues,
-  ForegroundColorName as ForegroundColorNameSchema,
+  ForegroundColorName as ForegroundColorNameDefinition,
   foregroundColorNameValues,
-  ModifierName as ModifierNameSchema,
+  ModifierName as ModifierNameDefinition,
   modifierNameValues,
 } from "./internal/ChalkSchema.ts";
 import {
-  type ChalkConstructorOptions,
+  ChalkConstructorOptions as ChalkConstructorOptionsDefinition,
+  type ChalkConstructorOptions as ChalkConstructorOptionsType,
   type ChalkInstanceSurface,
+  ColorSupportLevelInput as ColorSupportLevelInputDefinition,
   makeChalkConstructor,
 } from "./internal/PublicSurface.ts";
 import { detectedSupportsColor } from "./internal/SupportsColor.ts";
@@ -91,7 +93,7 @@ export interface ChalkInstance extends ChalkInstanceSurface {
  * @category models
  */
 class ChalkValue {
-  constructor(_options?: ChalkConstructorOptions) {}
+  constructor(_options?: ChalkConstructorOptionsType) {}
 }
 
 interface ChalkValue extends ChalkInstance {}
@@ -161,7 +163,7 @@ export const Chalk = makeChalkConstructor(ChalkValue, createChalk);
  * @since 0.0.0
  * @category schemas
  */
-export const BackgroundColorName = BackgroundColorNameSchema;
+export const BackgroundColorName = BackgroundColorNameDefinition;
 
 /**
  * A supported Chalk background color name literal.
@@ -176,7 +178,46 @@ export const BackgroundColorName = BackgroundColorNameSchema;
  * @since 0.0.0
  * @category models
  */
-export type BackgroundColorName = typeof BackgroundColorNameSchema.Type;
+export type BackgroundColorName = typeof BackgroundColorNameDefinition.Type;
+
+/**
+ * Schema for constructor options accepted by {@link Chalk}.
+ *
+ * This schema keeps constructor input plain-object compatible while validating
+ * that `level`, when provided, is an integer from `0` through `3`.
+ *
+ * @example
+ * ```ts
+ * import { ChalkConstructorOptions } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ChalkConstructorOptions)
+ * console.log(decode({ level: 3 }))
+ * ```
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const ChalkConstructorOptions = ChalkConstructorOptionsDefinition;
+
+/**
+ * Constructor options accepted by {@link Chalk}.
+ *
+ * Derived from the encoded side of {@link ChalkConstructorOptions}, so object
+ * literals and broad numeric inputs remain compatible with `new Chalk(...)`.
+ *
+ * @example
+ * ```ts
+ * import { Chalk, type ChalkConstructorOptions } from "@beep/chalk"
+ *
+ * const options: ChalkConstructorOptions = { level: 3 }
+ * console.log(new Chalk(options).level)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ChalkConstructorOptions = ChalkConstructorOptionsType;
 
 /**
  * Schema for constructor options accepted by {@link Chalk}.
@@ -196,7 +237,7 @@ export type BackgroundColorName = typeof BackgroundColorNameSchema.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const ChalkOptions = ChalkOptionsSchema;
+export const ChalkOptions = ChalkOptionsDefinition;
 
 /**
  * Constructor options for creating an isolated Chalk instance.
@@ -211,7 +252,7 @@ export const ChalkOptions = ChalkOptionsSchema;
  * @since 0.0.0
  * @category models
  */
-export type ChalkOptions = typeof ChalkOptionsSchema.Type;
+export type ChalkOptions = typeof ChalkOptionsDefinition.Type;
 
 /**
  * Schema for detected color support information.
@@ -233,7 +274,7 @@ export type ChalkOptions = typeof ChalkOptionsSchema.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const ColorInfo = ColorInfoSchema;
+export const ColorInfo = ColorInfoDefinition;
 
 /**
  * Detected color support information, or `false` when color output is disabled.
@@ -248,7 +289,7 @@ export const ColorInfo = ColorInfoSchema;
  * @since 0.0.0
  * @category models
  */
-export type ColorInfo = typeof ColorInfoSchema.Type;
+export type ColorInfo = typeof ColorInfoDefinition.Type;
 
 /**
  * Schema for all supported Chalk color names (foreground and background).
@@ -268,7 +309,7 @@ export type ColorInfo = typeof ColorInfoSchema.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const ColorName = ColorNameSchema;
+export const ColorName = ColorNameDefinition;
 
 /**
  * A supported Chalk color name literal (foreground or background).
@@ -283,7 +324,7 @@ export const ColorName = ColorNameSchema;
  * @since 0.0.0
  * @category models
  */
-export type ColorName = typeof ColorNameSchema.Type;
+export type ColorName = typeof ColorNameDefinition.Type;
 
 /**
  * Schema for terminal color support metadata.
@@ -308,7 +349,7 @@ export type ColorName = typeof ColorNameSchema.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const ColorSupport = ColorSupportSchema;
+export const ColorSupport = ColorSupportDefinition;
 
 /**
  * Detected terminal color support capabilities for an output stream.
@@ -323,7 +364,7 @@ export const ColorSupport = ColorSupportSchema;
  * @since 0.0.0
  * @category models
  */
-export type ColorSupport = typeof ColorSupportSchema.Type;
+export type ColorSupport = typeof ColorSupportDefinition.Type;
 
 /**
  * Schema for Chalk color support levels.
@@ -342,7 +383,7 @@ export type ColorSupport = typeof ColorSupportSchema.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const ColorSupportLevel = ColorSupportLevelSchema;
+export const ColorSupportLevel = ColorSupportLevelDefinition;
 
 /**
  * A Chalk color support level: `0` | `1` | `2` | `3`.
@@ -357,7 +398,42 @@ export const ColorSupportLevel = ColorSupportLevelSchema;
  * @since 0.0.0
  * @category models
  */
-export type ColorSupportLevel = typeof ColorSupportLevelSchema.Type;
+export type ColorSupportLevel = typeof ColorSupportLevelDefinition.Type;
+
+/**
+ * Schema for broad numeric color support level input at constructor boundaries.
+ *
+ * This accepts `number` at the type level and validates that runtime values are
+ * integer levels from `0` through `3`.
+ *
+ * @example
+ * ```ts
+ * import { ColorSupportLevelInput } from "@beep/chalk"
+ * import * as S from "effect/Schema"
+ *
+ * const decode = S.decodeUnknownSync(ColorSupportLevelInput)
+ * console.log(decode(2))
+ * ```
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const ColorSupportLevelInput = ColorSupportLevelInputDefinition;
+
+/**
+ * Broad numeric color support level input accepted by constructor boundaries.
+ *
+ * @example
+ * ```ts
+ * import type { ColorSupportLevelInput } from "@beep/chalk"
+ *
+ * const level: ColorSupportLevelInput = 3
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ColorSupportLevelInput = typeof ColorSupportLevelInputDefinition.Type;
 
 /**
  * Schema for supported Chalk foreground color names.
@@ -377,7 +453,7 @@ export type ColorSupportLevel = typeof ColorSupportLevelSchema.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const ForegroundColorName = ForegroundColorNameSchema;
+export const ForegroundColorName = ForegroundColorNameDefinition;
 
 /**
  * A supported Chalk foreground color name literal.
@@ -392,7 +468,7 @@ export const ForegroundColorName = ForegroundColorNameSchema;
  * @since 0.0.0
  * @category models
  */
-export type ForegroundColorName = typeof ForegroundColorNameSchema.Type;
+export type ForegroundColorName = typeof ForegroundColorNameDefinition.Type;
 
 /**
  * Schema for supported Chalk text modifier names.
@@ -412,7 +488,7 @@ export type ForegroundColorName = typeof ForegroundColorNameSchema.Type;
  * @since 0.0.0
  * @category schemas
  */
-export const ModifierName = ModifierNameSchema;
+export const ModifierName = ModifierNameDefinition;
 
 /**
  * A supported Chalk text modifier name literal.
@@ -427,7 +503,7 @@ export const ModifierName = ModifierNameSchema;
  * @since 0.0.0
  * @category models
  */
-export type ModifierName = typeof ModifierNameSchema.Type;
+export type ModifierName = typeof ModifierNameDefinition.Type;
 
 /**
  * Readonly tuple of all supported modifier name strings.
@@ -599,7 +675,7 @@ export const supportsColor = detectedSupportsColor.stdout;
 export const supportsColorStderr = detectedSupportsColor.stderr;
 
 class ChalkStderrValue {
-  constructor(_options?: ChalkConstructorOptions) {}
+  constructor(_options?: ChalkConstructorOptionsType) {}
 }
 
 interface ChalkStderrValue extends ChalkInstance {}

@@ -621,17 +621,23 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       )
     );
 
-  const packetRowToModel = (row: PacketRow): Effect.Effect<RetrievalPacket, RepoStoreError> =>
-    decodePacketJson(row.packet_json).pipe(
-      Effect.mapError((cause) =>
-        toDriverError(`Failed to decode retrieval packet for run "${row.run_id}".`, 500, cause)
-      )
-    );
+  const packetRowToModel: (row: PacketRow) => Effect.Effect<RetrievalPacket, RepoStoreError> = Effect.fnUntraced(
+    function* (row: PacketRow) {
+      return yield* decodePacketJson(row.packet_json).pipe(
+        Effect.mapError((cause) =>
+          toDriverError(`Failed to decode retrieval packet for run "${row.run_id}".`, 500, cause)
+        )
+      );
+    }
+  );
 
-  const runRowToModel = (row: RunRow): Effect.Effect<RepoRun, RepoStoreError> =>
-    decodeRunJson(row.run_json).pipe(
+  const runRowToModel: (row: RunRow) => Effect.Effect<RepoRun, RepoStoreError> = Effect.fnUntraced(function* (
+    row: RunRow
+  ) {
+    return yield* decodeRunJson(row.run_json).pipe(
       Effect.mapError((cause) => toDriverError(`Failed to decode run projection for "${row.run_id}".`, 500, cause))
     );
+  });
 
   const decodeSymbolDocumentation = (
     row: SymbolRow
@@ -650,15 +656,89 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       })
     );
 
-  const decodeSymbolModel = (row: SymbolRow): Effect.Effect<RepoSymbolRecord, RepoStoreError> =>
-    decodeSymbolRow(row).pipe(
-      Effect.mapError((cause) => toDriverError(`Failed to decode symbol row for repo "${row.repo_id}".`, 500, cause)),
-      Effect.flatMap((decodedRow) =>
-        decodeSymbolDocumentation(decodedRow).pipe(
-          Effect.map((documentation) => symbolRowToModel(decodedRow, documentation))
+  const repoRowsToRegistrations: (
+    rows: ReadonlyArray<RepoRow>
+  ) => Effect.Effect<ReadonlyArray<RepoRegistration>, RepoStoreError> = Effect.fnUntraced(function* (
+    rows: ReadonlyArray<RepoRow>
+  ) {
+    return yield* Effect.forEach(
+      rows,
+      Effect.fnUntraced(function* (row: RepoRow) {
+        const decodedRow = yield* decodeRepoRow(row).pipe(
+          Effect.mapError((cause) => toDriverError(`Failed to decode repository row for repo "${row.id}".`, 500, cause))
+        );
+
+        return repoRowToRegistration(decodedRow);
+      })
+    );
+  });
+
+  const runRowsToModels: (rows: ReadonlyArray<RunRow>) => Effect.Effect<ReadonlyArray<RepoRun>, RepoStoreError> =
+    Effect.fnUntraced(function* (rows: ReadonlyArray<RunRow>) {
+      return yield* Effect.forEach(
+        rows,
+        Effect.fnUntraced(function* (row: RunRow) {
+          const decodedRow = yield* decodeRunRow(row).pipe(
+            Effect.mapError((cause) => toDriverError(`Failed to decode run row for "${row.run_id}".`, 500, cause))
+          );
+
+          return yield* runRowToModel(decodedRow);
+        })
+      );
+    });
+
+  const decodeSymbolModel: (row: SymbolRow) => Effect.Effect<RepoSymbolRecord, RepoStoreError> = Effect.fnUntraced(
+    function* (row: SymbolRow) {
+      const decodedRow = yield* decodeSymbolRow(row).pipe(
+        Effect.mapError((cause) => toDriverError(`Failed to decode symbol row for repo "${row.repo_id}".`, 500, cause))
+      );
+      const documentation = yield* decodeSymbolDocumentation(decodedRow);
+
+      return symbolRowToModel(decodedRow, documentation);
+    }
+  );
+
+  const runRowToOption: (row: RunRow) => Effect.Effect<O.Option<RepoRun>, RepoStoreError> = Effect.fnUntraced(
+    function* (row: RunRow) {
+      const decodedRow = yield* decodeRunRow(row).pipe(
+        Effect.mapError((cause) => toDriverError(`Failed to decode run row "${row.run_id}".`, 500, cause))
+      );
+      const run = yield* runRowToModel(decodedRow);
+
+      return O.some(run);
+    }
+  );
+
+  const packetRowToOption: (row: PacketRow) => Effect.Effect<O.Option<RetrievalPacket>, RepoStoreError> =
+    Effect.fnUntraced(function* (row: PacketRow) {
+      const decodedRow = yield* decodePacketRow(row).pipe(
+        Effect.mapError((cause) =>
+          toDriverError(`Failed to decode retrieval packet row for run "${row.run_id}".`, 500, cause)
         )
+      );
+      const packet = yield* packetRowToModel(decodedRow);
+
+      return O.some(packet);
+    });
+
+  const semanticArtifactsRowToOption: (
+    row: SemanticArtifactsRow
+  ) => Effect.Effect<O.Option<RepoSemanticArtifacts>, RepoStoreError> = Effect.fnUntraced(function* (
+    row: SemanticArtifactsRow
+  ) {
+    const decodedRow = yield* decodeSemanticArtifactsRow(row).pipe(
+      Effect.mapError((cause) =>
+        toDriverError(`Failed to decode semantic artifacts row for repo "${row.repo_id}".`, 500, cause)
       )
     );
+    const artifacts = yield* decodeSemanticArtifactsJson(decodedRow.artifacts_json).pipe(
+      Effect.mapError((cause) =>
+        toDriverError(`Failed to decode semantic artifacts payload for repo "${row.repo_id}".`, 500, cause)
+      )
+    );
+
+    return O.some(artifacts);
+  });
 
   const repoIdFromPath = Effect.fn("RepoMemorySql.repoIdFromPath")(function* (
     normalizedRepoPath: string
@@ -732,7 +812,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
     FROM ${reposTable}
     ORDER BY registered_at ASC
   `.pipe(
-    Effect.flatMap((rows) => Effect.forEach(rows, (row) => decodeRepoRow(row).pipe(Effect.map(repoRowToRegistration)))),
+    Effect.flatMap(repoRowsToRegistrations),
     Effect.mapError((cause) => toDriverError("Failed to list registered repositories.", 500, cause)),
     Effect.withSpan("RepoMemorySql.listRepos"),
     Effect.annotateLogs({ component: "repo-memory-driver" })
@@ -743,7 +823,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
     FROM ${runsTable}
     ORDER BY updated_at DESC
   `.pipe(
-    Effect.flatMap((rows) => Effect.forEach(rows, (row) => decodeRunRow(row).pipe(Effect.flatMap(runRowToModel)))),
+    Effect.flatMap(runRowsToModels),
     Effect.mapError((cause) => toDriverError("Failed to list run projections.", 500, cause)),
     Effect.withSpan("RepoMemorySql.listRuns"),
     Effect.annotateLogs({ component: "repo-memory-driver" })
@@ -794,9 +874,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       O.match({
         onNone: thunkEffectSucceedNone<RepoRun>,
         onSome: (row) =>
-          decodeRunRow(row).pipe(
-            Effect.flatMap(runRowToModel),
-            Effect.map(O.some),
+          runRowToOption(row).pipe(
             Effect.mapError((cause) => toDriverError(`Failed to decode run row "${runId}".`, 500, cause))
           ),
       })
@@ -1021,10 +1099,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       O.match({
         onNone: thunkEffectSucceedNone<RepoSemanticArtifacts>,
         onSome: (row) =>
-          decodeSemanticArtifactsRow(row).pipe(
-            Effect.flatMap((decodedRow) =>
-              decodeSemanticArtifactsJson(decodedRow.artifacts_json).pipe(Effect.map(O.some))
-            ),
+          semanticArtifactsRowToOption(row).pipe(
             Effect.mapError((cause) =>
               toDriverError(`Failed to decode latest semantic artifacts for repo "${repoId}".`, 500, cause)
             )
@@ -1632,9 +1707,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
         O.match({
           onNone: thunkEffectSucceedNone<RetrievalPacket>,
           onSome: (row) =>
-            decodePacketRow(row).pipe(
-              Effect.flatMap(packetRowToModel),
-              Effect.map(O.some),
+            packetRowToOption(row).pipe(
               Effect.mapError((cause) =>
                 toDriverError(`Failed to decode retrieval packet row for run "${runId}".`, 500, cause)
               )
@@ -1671,10 +1744,7 @@ const makeRepoMemorySql = Effect.fn("RepoMemorySql.make")(function* (config: Rep
       O.match({
         onNone: thunkEffectSucceedNone<RepoSemanticArtifacts>,
         onSome: (row) =>
-          decodeSemanticArtifactsRow(row).pipe(
-            Effect.flatMap((decodedRow) =>
-              decodeSemanticArtifactsJson(decodedRow.artifacts_json).pipe(Effect.map(O.some))
-            ),
+          semanticArtifactsRowToOption(row).pipe(
             Effect.mapError((cause) =>
               toDriverError(
                 `Failed to decode semantic artifacts for repo "${repoId}" and snapshot "${sourceSnapshotId}".`,

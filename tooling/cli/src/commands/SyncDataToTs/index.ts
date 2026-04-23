@@ -171,7 +171,11 @@ const fetchSourceText = Effect.fn("fetchSourceText")(function* (
           targetId: target.id,
         })
     ),
-    Effect.flatMap(HttpClientResponse.filterStatusOk),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (response) {
+        return yield* HttpClientResponse.filterStatusOk(response);
+      })
+    ),
     Effect.mapError(
       (cause) =>
         new SyncDataToTsError({

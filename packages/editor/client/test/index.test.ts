@@ -24,7 +24,15 @@ describe("@beep/editor-client", () => {
     });
 
     await expect(
-      Effect.runPromise(makeEditorClient(config).pipe(Effect.flatMap((client) => client.getPage("Not A Valid Slug"))))
+      Effect.runPromise(
+        makeEditorClient(config).pipe(
+          Effect.flatMap(
+            Effect.fnUntraced(function* (client) {
+              return yield* client.getPage("Not A Valid Slug");
+            })
+          )
+        )
+      )
     ).rejects.toMatchObject({
       message: 'Invalid page slug "Not A Valid Slug".',
       status: 400,

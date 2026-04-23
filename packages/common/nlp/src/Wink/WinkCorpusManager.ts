@@ -321,16 +321,22 @@ const makeWinkCorpusManager = Effect.gen(function* () {
 
   const makeGeneratedId = pipe(
     Ref.updateAndGet(idCounterRef, (current) => current + 1),
-    Effect.flatMap((counter) => Effect.map(Clock.currentTimeMillis, (nowMs) => `corpus-${nowMs}-${counter}`))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (counter) {
+        return yield* Effect.map(Clock.currentTimeMillis, (nowMs) => `corpus-${nowMs}-${counter}`);
+      })
+    )
   );
 
   const getState = (corpusId: string): Effect.Effect<CorpusSessionState, CorpusManagerError> =>
     pipe(
       Ref.get(sessionsRef),
-      Effect.flatMap((sessions) =>
-        O.match(HashMap.get(sessions, corpusId), {
-          onNone: () => Effect.fail(CorpusManagerError.fromMessage(`Corpus "${corpusId}" does not exist`, corpusId)),
-          onSome: Effect.succeed,
+      Effect.flatMap(
+        Effect.fnUntraced(function* (sessions) {
+          return yield* O.match(HashMap.get(sessions, corpusId), {
+            onNone: () => Effect.fail(CorpusManagerError.fromMessage(`Corpus "${corpusId}" does not exist`, corpusId)),
+            onSome: Effect.succeed,
+          });
         })
       )
     );
@@ -373,14 +379,26 @@ const makeWinkCorpusManager = Effect.gen(function* () {
         try: () => vectorizer.out(its.terms),
         catch: (cause) =>
           CorpusManagerError.fromCause(cause, "Failed to compute corpus terms", { corpusId: state.corpusId }),
-      }).pipe(Effect.flatMap((raw) => decodeStringArray(raw, "corpus term output", state.corpusId)));
+      }).pipe(
+        Effect.flatMap(
+          Effect.fnUntraced(function* (raw) {
+            return yield* decodeStringArray(raw, "corpus term output", state.corpusId);
+          })
+        )
+      );
 
       const documentVectors = yield* Effect.forEach(state.documents, (_document, index) =>
         Effect.try({
           try: () => vectorizer.doc(index).out(its.vector),
           catch: (cause) =>
             CorpusManagerError.fromCause(cause, "Failed to compute document vector", { corpusId: state.corpusId }),
-        }).pipe(Effect.flatMap((raw) => decodeNumberArray(raw, "document vector output", state.corpusId)))
+        }).pipe(
+          Effect.flatMap(
+            Effect.fnUntraced(function* (raw) {
+              return yield* decodeNumberArray(raw, "document vector output", state.corpusId);
+            })
+          )
+        )
       );
 
       return {
@@ -402,20 +420,22 @@ const makeWinkCorpusManager = Effect.gen(function* () {
     O.match(state.compiled, {
       onNone: () =>
         compileState(state).pipe(
-          Effect.flatMap((compiled) =>
-            Effect.map(
-              setState({
-                ...state,
-                compiled: O.some(compiled),
-              }),
-              () => ({
-                compiled,
-                state: {
+          Effect.flatMap(
+            Effect.fnUntraced(function* (compiled) {
+              return yield* Effect.map(
+                setState({
                   ...state,
                   compiled: O.some(compiled),
-                },
-              })
-            )
+                }),
+                () => ({
+                  compiled,
+                  state: {
+                    ...state,
+                    compiled: O.some(compiled),
+                  },
+                })
+              );
+            })
           )
         ),
       onSome: (compiled) => Effect.succeed({ compiled, state }),

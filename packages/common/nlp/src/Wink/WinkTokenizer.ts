@@ -284,7 +284,11 @@ const makeWinkTokenization = Effect.gen(function* () {
   const documentIdCounterRef = yield* Ref.make(0);
 
   const allocateDocumentId = Ref.updateAndGet(documentIdCounterRef, (current) => current + 1).pipe(
-    Effect.flatMap((counter) => Clock.currentTimeMillis.pipe(Effect.map((nowMs) => `doc-${nowMs}-${counter}`)))
+    Effect.flatMap(
+      Effect.fnUntraced(function* (counter) {
+        return yield* Clock.currentTimeMillis.pipe(Effect.map((nowMs) => `doc-${nowMs}-${counter}`));
+      })
+    )
   );
 
   return Tokenization.of({

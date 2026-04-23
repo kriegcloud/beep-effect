@@ -257,26 +257,28 @@ export function checkExports(models: ReadonlyArray<Domain.Export>) {
 export function checkModule(module: Domain.Module) {
   return Effect.scoped(
     Layer.build(Parser.Source.layer(module.source)).pipe(
-      Effect.flatMap((context) =>
-        Effect.gen(function* () {
-          const functionsErrors = yield* checkFunctions(module.functions);
-          const classesErrors = yield* checkClasses(module.classes);
-          const constantsErrors = yield* checkConstants(module.constants);
-          const interfacesErrors = yield* checkInterfaces(module.interfaces);
-          const typeAliasesErrors = yield* checkTypeAliases(module.typeAliases);
-          const namespacesErrors = yield* checkNamespaces(module.namespaces);
-          const exportsErrors = yield* checkExports(module.exports);
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* Effect.gen(function* () {
+            const functionsErrors = yield* checkFunctions(module.functions);
+            const classesErrors = yield* checkClasses(module.classes);
+            const constantsErrors = yield* checkConstants(module.constants);
+            const interfacesErrors = yield* checkInterfaces(module.interfaces);
+            const typeAliasesErrors = yield* checkTypeAliases(module.typeAliases);
+            const namespacesErrors = yield* checkNamespaces(module.namespaces);
+            const exportsErrors = yield* checkExports(module.exports);
 
-          return A.flatten([
-            functionsErrors,
-            classesErrors,
-            constantsErrors,
-            interfacesErrors,
-            typeAliasesErrors,
-            namespacesErrors,
-            exportsErrors,
-          ]);
-        }).pipe(Effect.provide(context))
+            return A.flatten([
+              functionsErrors,
+              classesErrors,
+              constantsErrors,
+              interfacesErrors,
+              typeAliasesErrors,
+              namespacesErrors,
+              exportsErrors,
+            ]);
+          }).pipe(Effect.provide(context));
+        })
       )
     )
   );

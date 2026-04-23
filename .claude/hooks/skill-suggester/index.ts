@@ -182,7 +182,11 @@ const fetchMiseTasks = Effect.fn("fetchMiseTasks")(function* (cwd: string) {
       const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
       return yield* spawner.string(ChildProcess.make({ cwd })`mise tasks --json`);
     }),
-    Effect.flatMap(S.decodeUnknownEffect(S.fromJsonString(MiseTasks))),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (json: string) {
+        return yield* S.decodeUnknownEffect(S.fromJsonString(MiseTasks))(json);
+      })
+    ),
     Effect.map(formatMiseTasks),
     Effect.catch(() => Effect.succeed(""))
   );

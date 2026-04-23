@@ -976,16 +976,18 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
             cause,
           })
       ),
-      Effect.flatMap((parsed) =>
-        decodePackageJsonEffect(parsed).pipe(
-          Effect.mapError(
-            (cause) =>
-              new DomainError({
-                message: `Failed to decode package.json at "${packageJsonPath}"`,
-                cause,
-              })
-          )
-        )
+      Effect.flatMap(
+        Effect.fnUntraced(function* (parsed) {
+          return yield* decodePackageJsonEffect(parsed).pipe(
+            Effect.mapError(
+              (cause) =>
+                new DomainError({
+                  message: `Failed to decode package.json at "${packageJsonPath}"`,
+                  cause,
+                })
+            )
+          );
+        })
       )
     );
     const hasDocgenConfig = yield* fs

@@ -46,25 +46,26 @@ export const observeDriverOperation: {
   2,
   <A, E, R>(operation: string, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
     currentTimeMillis.pipe(
-      Effect.flatMap((startedAt) =>
-        effect.pipe(
-          Effect.matchEffect({
-            onFailure: (error) =>
-              currentTimeMillis.pipe(
-                Effect.flatMap((endedAt) =>
-                  recordDriverOperationDuration(operation, "failure", endedAt - startedAt).pipe(
-                    Effect.andThen(Effect.fail(error))
-                  )
-                )
-              ),
-            onSuccess: (value) =>
-              currentTimeMillis.pipe(
-                Effect.flatMap((endedAt) =>
-                  recordDriverOperationDuration(operation, "success", endedAt - startedAt).pipe(Effect.as(value))
-                )
-              ),
-          })
-        )
+      Effect.flatMap(
+        Effect.fnUntraced(function* (startedAt) {
+          return yield* effect.pipe(
+            Effect.matchEffect({
+              onFailure: Effect.fnUntraced(function* (error) {
+                const endedAt = yield* currentTimeMillis;
+
+                yield* recordDriverOperationDuration(operation, "failure", endedAt - startedAt);
+                return yield* Effect.fail(error);
+              }),
+              onSuccess: Effect.fnUntraced(function* (value) {
+                const endedAt = yield* currentTimeMillis;
+
+                return yield* recordDriverOperationDuration(operation, "success", endedAt - startedAt).pipe(
+                  Effect.as(value)
+                );
+              }),
+            })
+          );
+        })
       )
     )
 );

@@ -122,7 +122,10 @@ export const TomlTextToUnknown = S.String.pipe(
  */
 export const decodeTomlTextAs = <Schema extends S.Top>(schema: Schema) => {
   const decodeTomlUnknownText = S.decodeUnknownEffect(TomlTextToUnknown);
-  const decodeTarget = S.decodeUnknownEffect(schema);
+  const decodeTargetSchema = S.decodeUnknownEffect(schema);
+  const decodeTarget = Effect.fnUntraced(function* (input: Parameters<typeof decodeTargetSchema>[0]) {
+    return yield* decodeTargetSchema(input);
+  });
 
   return flow(decodeTomlUnknownText, Effect.flatMap(decodeTarget));
 };

@@ -8,6 +8,7 @@ import { $ObservabilityId } from "@beep/identity/packages";
 import { NonNegativeInt } from "@beep/schema";
 import { Cause, Clock, Duration, Effect, Exit, Layer, Metric, SchemaAST } from "effect";
 import * as A from "effect/Array";
+import * as Eq from "effect/Equal";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -39,14 +40,7 @@ const decodeStatusField = S.decodeUnknownOption(HttpApiStatusField);
  * import { HttpApiTelemetryDescriptor } from "@beep/observability/server"
  *
  * const successStatus = S.decodeUnknownSync(NonNegativeInt)(201)
- * const descriptor = new HttpApiTelemetryDescriptor({
- *
- *
- *
- *
- *
- *
- * })
+ * const descriptor = new HttpApiTelemetryDescriptor({})
  * ```
  *
  * @since 0.0.0
@@ -116,7 +110,13 @@ const isHttpServerResponseEffect = <E, R>(
   value: unknown
 ): value is Effect.Effect<HttpServerResponse.HttpServerResponse, E, R> => Effect.isEffect(value);
 
-const isHttpApiHandlerEffect = <A, E extends { readonly status: number }, R>(
+const isHttpApiHandlerEffect = <
+  A,
+  E extends {
+    readonly status: number;
+  },
+  R,
+>(
   value: unknown
 ): value is Effect.Effect<A, E, R> => Effect.isEffect(value);
 
@@ -147,7 +147,7 @@ const endpointSuccessSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): Readonl
 
 const endpointErrorSchemas = (endpoint: HttpApiEndpoint.AnyWithProps): ReadonlyArray<S.Top> => {
   let schemas = A.fromIterable(endpoint.error);
-  const containsSchema = A.containsWith<S.Top>((left, right) => left === right);
+  const containsSchema = A.containsWith<S.Top>(Eq.equals);
 
   for (const middleware of endpoint.middlewares) {
     const service = middleware as unknown as HttpApiMiddleware.AnyService;
@@ -213,19 +213,19 @@ const updateHttpApiMetrics = (
   );
 };
 
-const annotateHttpApiOutcome = (
+const annotateHttpApiOutcome = Effect.fn("annotateHttpApiOutcome")(function* (
   descriptor: HttpApiTelemetryDescriptor,
   options: {
     readonly durationMs: number;
     readonly failureKind?: "failure" | "defect" | "interrupted" | undefined;
     readonly status?: number | undefined;
   }
-): Effect.Effect<void> => {
-  const statusLabel = options.status === undefined ? "unknown" : statusClass(options.status);
-  return Effect.annotateCurrentSpan({
+): Effect.fn.Return<void> {
+  const statusLabel = P.isUndefined(options.status) ? "unknown" : statusClass(options.status);
+  return yield* Effect.annotateCurrentSpan({
     ...descriptorAnnotations(descriptor),
-    ...(options.failureKind === undefined ? {} : { http_failure_kind: options.failureKind }),
-    ...(options.status === undefined
+    ...(P.isUndefined(options.failureKind) ? {} : { http_failure_kind: options.failureKind }),
+    ...(P.isUndefined(options.status)
       ? {
           http_status_class: statusLabel,
         }
@@ -235,7 +235,7 @@ const annotateHttpApiOutcome = (
         }),
     http_request_duration_ms: options.durationMs,
   });
-};
+});
 
 /**
  * Create a telemetry descriptor directly from Effect HttpApi metadata.
@@ -344,56 +344,65 @@ const observeHttpApiEffectImpl = <E, R>(
   options: ObserveHttpApiEffectOptions
 ): Effect.Effect<HttpServerResponse.HttpServerResponse, E, R> =>
   Clock.currentTimeMillis.pipe(
-    Effect.flatMap((startedAt) =>
-      Effect.annotateCurrentSpan({
-        ...descriptorAnnotations(options.descriptor),
-        http_success_status: decodeNonNegativeInt(options.descriptor.successStatus),
-      }).pipe(
-        Effect.andThen(effect.pipe(Effect.annotateLogs(descriptorAnnotations(options.descriptor)))),
-        Effect.exit,
-        Effect.flatMap((exit) =>
-          Clock.currentTimeMillis.pipe(
-            Effect.flatMap((endedAt) => {
-              const durationMs = Math.max(0, endedAt - startedAt);
+    Effect.flatMap(
+      Effect.fnUntraced(function* (startedAt) {
+        return yield* Effect.annotateCurrentSpan({
+          ...descriptorAnnotations(options.descriptor),
+          http_success_status: decodeNonNegativeInt(options.descriptor.successStatus),
+        }).pipe(
+          Effect.andThen(effect.pipe(Effect.annotateLogs(descriptorAnnotations(options.descriptor)))),
+          Effect.exit,
+          Effect.flatMap(
+            Effect.fnUntraced(function* (exit) {
+              return yield* Clock.currentTimeMillis.pipe(
+                Effect.flatMap(
+                  Effect.fnUntraced(function* (endedAt) {
+                    const durationMs = Math.max(0, endedAt - startedAt);
+                    if (Exit.isSuccess(exit)) {
+                      return yield* annotateHttpApiOutcome(options.descriptor, {
+                        durationMs,
+                        status: exit.value.status,
+                      }).pipe(
+                        Effect.andThen(
+                          updateHttpApiMetrics(
+                            options.descriptor,
+                            options.metrics,
+                            statusClass(exit.value.status),
+                            durationMs
+                          )
+                        ),
+                        Effect.as(exit.value)
+                      );
+                    }
 
-              if (Exit.isSuccess(exit)) {
-                return annotateHttpApiOutcome(options.descriptor, {
-                  durationMs,
-                  status: exit.value.status,
-                }).pipe(
-                  Effect.andThen(
-                    updateHttpApiMetrics(
-                      options.descriptor,
-                      options.metrics,
-                      statusClass(exit.value.status),
-                      durationMs
-                    )
-                  ),
-                  Effect.as(exit.value)
-                );
-              }
+                    const failure = Cause.findErrorOption(exit.cause);
+                    const status = O.isSome(failure)
+                      ? httpApiFailureStatus(options.endpoint, failure.value)
+                      : undefined;
+                    const failureKind = Cause.hasInterruptsOnly(exit.cause)
+                      ? "interrupted"
+                      : O.isSome(failure)
+                        ? "failure"
+                        : "defect";
+                    const statusLabel = P.isUndefined(status) ? "unknown" : statusClass(status);
 
-              const failure = Cause.findErrorOption(exit.cause);
-              const status = O.isSome(failure) ? httpApiFailureStatus(options.endpoint, failure.value) : undefined;
-              const failureKind = Cause.hasInterruptsOnly(exit.cause)
-                ? "interrupted"
-                : O.isSome(failure)
-                  ? "failure"
-                  : "defect";
-              const statusLabel = status === undefined ? "unknown" : statusClass(status);
-
-              return annotateHttpApiOutcome(options.descriptor, {
-                durationMs,
-                failureKind,
-                status,
-              }).pipe(
-                Effect.andThen(updateHttpApiMetrics(options.descriptor, options.metrics, statusLabel, durationMs)),
-                Effect.andThen(Effect.failCause(exit.cause))
+                    return yield* annotateHttpApiOutcome(options.descriptor, {
+                      durationMs,
+                      failureKind,
+                      status,
+                    }).pipe(
+                      Effect.andThen(
+                        updateHttpApiMetrics(options.descriptor, options.metrics, statusLabel, durationMs)
+                      ),
+                      Effect.andThen(Effect.failCause(exit.cause))
+                    );
+                  })
+                )
               );
             })
           )
-        )
-      )
+        );
+      })
     )
   );
 
@@ -413,36 +422,35 @@ export const observeHttpApiEffect: {
   ): <E, R>(
     effect: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>
   ) => Effect.Effect<HttpServerResponse.HttpServerResponse, E, R>;
-} = dual(isObserveHttpApiEffectDataFirst, function <
-  E,
-  R,
->(effect: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R> | HttpApiTelemetryDescriptor, options: ObserveHttpApiEffectOptions | HttpApiEndpoint.AnyWithProps): Effect.Effect<
-  HttpServerResponse.HttpServerResponse,
-  E,
-  R
-> {
-  if (Effect.isEffect(effect) && isObserveHttpApiEffectOptions(options)) {
-    return observeHttpApiEffectImpl(effect, options);
-  }
+} = dual(
+  isObserveHttpApiEffectDataFirst,
+  Effect.fnUntraced(function* <E, R>(
+    effect: Effect.Effect<HttpServerResponse.HttpServerResponse, E, R> | HttpApiTelemetryDescriptor,
+    options: ObserveHttpApiEffectOptions | HttpApiEndpoint.AnyWithProps
+  ): Effect.fn.Return<HttpServerResponse.HttpServerResponse, E, R> {
+    if (Effect.isEffect(effect) && isObserveHttpApiEffectOptions(options)) {
+      return yield* observeHttpApiEffectImpl(effect, options);
+    }
 
-  const legacyMetrics: unknown = arguments[2];
-  const legacyEffect: unknown = arguments[3];
+    const legacyMetrics: unknown = arguments[2];
+    const legacyEffect: unknown = arguments[3];
 
-  if (
-    !Effect.isEffect(effect) &&
-    !isObserveHttpApiEffectOptions(options) &&
-    isHttpApiMetricSet(legacyMetrics) &&
-    isHttpServerResponseEffect<E, R>(legacyEffect)
-  ) {
-    return observeHttpApiEffectImpl(legacyEffect, {
-      descriptor: effect,
-      endpoint: options,
-      metrics: legacyMetrics,
-    });
-  }
+    if (
+      !Effect.isEffect(effect) &&
+      !isObserveHttpApiEffectOptions(options) &&
+      isHttpApiMetricSet(legacyMetrics) &&
+      isHttpServerResponseEffect<E, R>(legacyEffect)
+    ) {
+      return yield* observeHttpApiEffectImpl(legacyEffect, {
+        descriptor: effect,
+        endpoint: options,
+        metrics: legacyMetrics,
+      });
+    }
 
-  return Effect.die("Invalid observeHttpApiEffect arguments");
-});
+    return yield* Effect.die("Invalid observeHttpApiEffect arguments");
+  })
+);
 
 /**
  * Shared server-side HttpApi middleware service for request metrics, span
@@ -483,11 +491,18 @@ export class HttpApiTelemetryMiddleware extends HttpApiMiddleware.Service<HttpAp
 export const layerHttpApiTelemetryMiddleware = (
   options: HttpApiTelemetryMiddlewareOptions
 ): Layer.Layer<HttpApiTelemetryMiddleware> =>
-  Layer.succeed(HttpApiTelemetryMiddleware, (httpEffect, middlewareOptions) =>
-    observeHttpApiEffect(httpEffect, {
-      descriptor: makeHttpApiTelemetryDescriptor(options.apiName, middlewareOptions.group, middlewareOptions.endpoint),
-      endpoint: middlewareOptions.endpoint,
-      metrics: options.metrics,
+  Layer.succeed(
+    HttpApiTelemetryMiddleware,
+    Effect.fnUntraced(function* (httpEffect, middlewareOptions) {
+      return yield* observeHttpApiEffect(httpEffect, {
+        descriptor: makeHttpApiTelemetryDescriptor(
+          options.apiName,
+          middlewareOptions.group,
+          middlewareOptions.endpoint
+        ),
+        endpoint: middlewareOptions.endpoint,
+        metrics: options.metrics,
+      });
     })
   );
 
@@ -512,11 +527,14 @@ export const layerHttpApiTelemetryMiddleware = (
  * @since 0.0.0
  * @category observability
  */
-const observeHttpApiHandlerImpl = <A, E extends { readonly status: number }, R>(
-  effect: Effect.Effect<A, E, R>,
-  options: ObserveHttpApiHandlerOptions
-): Effect.Effect<A, E, R> =>
-  observeHttpRequest(
+const observeHttpApiHandlerImpl = Effect.fn("observeHttpApiHandlerImpl")(function* <
+  A,
+  E extends {
+    readonly status: number;
+  },
+  R,
+>(effect: Effect.Effect<A, E, R>, options: ObserveHttpApiHandlerOptions): Effect.fn.Return<A, E, R> {
+  return yield* observeHttpRequest(
     Effect.annotateCurrentSpan({
       http_api: options.descriptor.apiName,
       http_group: options.descriptor.groupName,
@@ -545,6 +563,7 @@ const observeHttpApiHandlerImpl = <A, E extends { readonly status: number }, R>(
       requestDuration: options.metrics.requestDuration,
     }
   );
+});
 
 /**
  * Observes an HTTP API handler Effect and records request metrics.
@@ -553,43 +572,67 @@ const observeHttpApiHandlerImpl = <A, E extends { readonly status: number }, R>(
  * @since 0.0.0
  */
 export const observeHttpApiHandler: {
-  <A, E extends { readonly status: number }, R>(
+  <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
     effect: Effect.Effect<A, E, R>,
     options: ObserveHttpApiHandlerOptions
   ): Effect.Effect<A, E, R>;
   (
     options: ObserveHttpApiHandlerOptions
-  ): <A, E extends { readonly status: number }, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
-  <A, E extends { readonly status: number }, R>(
+  ): <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
+    effect: Effect.Effect<A, E, R>
+  ) => Effect.Effect<A, E, R>;
+  <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
     descriptor: HttpApiTelemetryDescriptor,
     metrics: HttpApiMetricSet,
     effect: Effect.Effect<A, E, R>
   ): Effect.Effect<A, E, R>;
-} = dual(isObserveHttpApiHandlerDataFirst, function <
-  A,
-  E extends { readonly status: number },
-  R,
->(effect: Effect.Effect<A, E, R> | HttpApiTelemetryDescriptor, options: ObserveHttpApiHandlerOptions | HttpApiMetricSet): Effect.Effect<
-  A,
-  E,
-  R
-> {
-  if (Effect.isEffect(effect) && isObserveHttpApiHandlerOptions(options)) {
-    return observeHttpApiHandlerImpl(effect, options);
-  }
+} = dual(
+  isObserveHttpApiHandlerDataFirst,
+  Effect.fn(function* <
+    A,
+    E extends {
+      readonly status: number;
+    },
+    R,
+  >(
+    effect: Effect.Effect<A, E, R> | HttpApiTelemetryDescriptor,
+    options: ObserveHttpApiHandlerOptions | HttpApiMetricSet
+  ): Effect.fn.Return<A, E, R> {
+    if (Effect.isEffect(effect) && isObserveHttpApiHandlerOptions(options)) {
+      return yield* observeHttpApiHandlerImpl(effect, options);
+    }
 
-  const legacyEffect: unknown = arguments[2];
+    const legacyEffect: unknown = arguments[2];
 
-  if (
-    !Effect.isEffect(effect) &&
-    !isObserveHttpApiHandlerOptions(options) &&
-    isHttpApiHandlerEffect<A, E, R>(legacyEffect)
-  ) {
-    return observeHttpApiHandlerImpl(legacyEffect, {
-      descriptor: effect,
-      metrics: options,
-    });
-  }
+    if (
+      !Effect.isEffect(effect) &&
+      !isObserveHttpApiHandlerOptions(options) &&
+      isHttpApiHandlerEffect<A, E, R>(legacyEffect)
+    ) {
+      return yield* observeHttpApiHandlerImpl(legacyEffect, {
+        descriptor: effect,
+        metrics: options,
+      });
+    }
 
-  return Effect.die("Invalid observeHttpApiHandler arguments");
-});
+    return yield* Effect.die("Invalid observeHttpApiHandler arguments");
+  })
+);

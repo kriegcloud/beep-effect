@@ -63,8 +63,16 @@ const failureTest = <A>(
   layer(makeTestLayer(sourceText, config))((it) =>
     it.effect(name, () =>
       parser.pipe(
-        Effect.flatMap(checker),
-        Effect.flatMap((actual) => expectEqual(actual, failure))
+        Effect.flatMap(
+          Effect.fnUntraced(function* (value) {
+            return yield* checker(value);
+          })
+        ),
+        Effect.flatMap(
+          Effect.fnUntraced(function* (actual) {
+            return yield* expectEqual(actual, failure);
+          })
+        )
       )
     )
   );

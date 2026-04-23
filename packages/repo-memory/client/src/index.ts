@@ -292,7 +292,11 @@ export const makeRepoMemoryHttpClient = (options: RepoMemoryHttpClientOptions) =
 export const makeRepoMemoryHttpClientDefault = (options: RepoMemoryHttpClientOptions) =>
   Effect.scoped(
     Layer.build(FetchHttpClient.layer).pipe(
-      Effect.flatMap((context) => makeRepoMemoryHttpClient(options).pipe(Effect.provide(context)))
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* makeRepoMemoryHttpClient(options).pipe(Effect.provide(context));
+        })
+      )
     )
   );
 
@@ -357,7 +361,11 @@ export const repoMemoryRpcLayer = (options: RepoMemoryRpcClientOptions) =>
 export const makeRepoMemoryRpcClient = (options: RepoMemoryRpcClientOptions) =>
   Effect.scoped(
     Layer.build(repoMemoryRpcLayer(options)).pipe(
-      Effect.flatMap((context) => RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context)))
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context));
+        })
+      )
     )
   );
 
@@ -411,7 +419,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
       Effect.scoped(
         makeRepoMemoryHttpClientDefault({
           baseUrl: config.baseUrl,
-        }).pipe(Effect.flatMap((controlPlane) => controlPlane.health()))
+        }).pipe(
+          Effect.flatMap(
+            Effect.fnUntraced(function* (controlPlane) {
+              return yield* controlPlane.health();
+            })
+          )
+        )
       )
     ),
     getRun: (runId) =>
@@ -421,11 +435,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
           makeRepoMemoryHttpClientDefault({
             baseUrl: config.baseUrl,
           }).pipe(
-            Effect.flatMap((controlPlane) =>
-              controlPlane.getRun({
-                params: {
-                  runId,
-                },
+            Effect.flatMap(
+              Effect.fnUntraced(function* (controlPlane) {
+                return yield* controlPlane.getRun({
+                  params: {
+                    runId,
+                  },
+                });
               })
             )
           )
@@ -437,7 +453,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
         Effect.scoped(
           makeRepoMemoryRpcClient({
             baseUrl: config.baseUrl,
-          }).pipe(Effect.flatMap((rpc) => rpc.InterruptRepoRun(request)))
+          }).pipe(
+            Effect.flatMap(
+              Effect.fnUntraced(function* (rpc) {
+                return yield* rpc.InterruptRepoRun(request);
+              })
+            )
+          )
         )
       ),
     listRepos: mapClientError(
@@ -445,7 +467,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
       Effect.scoped(
         makeRepoMemoryHttpClientDefault({
           baseUrl: config.baseUrl,
-        }).pipe(Effect.flatMap((controlPlane) => controlPlane.listRepos()))
+        }).pipe(
+          Effect.flatMap(
+            Effect.fnUntraced(function* (controlPlane) {
+              return yield* controlPlane.listRepos();
+            })
+          )
+        )
       )
     ),
     listRuns: mapClientError(
@@ -453,7 +481,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
       Effect.scoped(
         makeRepoMemoryHttpClientDefault({
           baseUrl: config.baseUrl,
-        }).pipe(Effect.flatMap((controlPlane) => controlPlane.listRuns()))
+        }).pipe(
+          Effect.flatMap(
+            Effect.fnUntraced(function* (controlPlane) {
+              return yield* controlPlane.listRuns();
+            })
+          )
+        )
       )
     ),
     registerRepo: (input) =>
@@ -463,9 +497,11 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
           makeRepoMemoryHttpClientDefault({
             baseUrl: config.baseUrl,
           }).pipe(
-            Effect.flatMap((controlPlane) =>
-              controlPlane.registerRepo({
-                payload: input,
+            Effect.flatMap(
+              Effect.fnUntraced(function* (controlPlane) {
+                return yield* controlPlane.registerRepo({
+                  payload: input,
+                });
               })
             )
           )
@@ -477,7 +513,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
         Effect.scoped(
           makeRepoMemoryRpcClient({
             baseUrl: config.baseUrl,
-          }).pipe(Effect.flatMap((rpc) => rpc.ResumeRepoRun(request)))
+          }).pipe(
+            Effect.flatMap(
+              Effect.fnUntraced(function* (rpc) {
+                return yield* rpc.ResumeRepoRun(request);
+              })
+            )
+          )
         )
       ),
     startIndexRun: (payload) =>
@@ -486,7 +528,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
         Effect.scoped(
           makeRepoMemoryRpcClient({
             baseUrl: config.baseUrl,
-          }).pipe(Effect.flatMap((rpc) => rpc.StartIndexRepoRun(payload)))
+          }).pipe(
+            Effect.flatMap(
+              Effect.fnUntraced(function* (rpc) {
+                return yield* rpc.StartIndexRepoRun(payload);
+              })
+            )
+          )
         )
       ),
     startQueryRun: (payload) =>
@@ -495,7 +543,13 @@ export const makeRepoMemoryClient = Effect.fn("RepoMemoryClient.make")((config: 
         Effect.scoped(
           makeRepoMemoryRpcClient({
             baseUrl: config.baseUrl,
-          }).pipe(Effect.flatMap((rpc) => rpc.StartQueryRepoRun(payload)))
+          }).pipe(
+            Effect.flatMap(
+              Effect.fnUntraced(function* (rpc) {
+                return yield* rpc.StartQueryRepoRun(payload);
+              })
+            )
+          )
         )
       ),
     streamRunEvents: (request) =>

@@ -1,5 +1,14 @@
 import { describe, expect, it } from "tstyche";
-import colors, { type Colors, createColors, type Formatter, isColorSupported, supportsColor } from "../src/index.ts";
+import browserColors, { type Formatter as BrowserFormatter } from "../src/Colors.browser.ts";
+import colors, {
+  type Colors,
+  createColors,
+  type Formatter,
+  isColorSupported,
+  type ProcessLike,
+  type ProcessLikeStdout,
+  supportsColor,
+} from "../src/index.ts";
 
 describe("@beep/colors", () => {
   it("exposes a shared Colors instance and typed constructors", () => {
@@ -12,9 +21,15 @@ describe("@beep/colors", () => {
 
   it("keeps formatter functions unary over string, number, and undefined", () => {
     expect(colors.red).type.toBe<Formatter>();
+    expect(browserColors.red).type.toBe<BrowserFormatter>();
     expect(createColors(true).bold("beep")).type.toBe<string>();
     expect(createColors(true).bold(42)).type.toBe<string>();
     expect(createColors(true).bold(undefined)).type.toBe<string>();
+  });
+
+  it("exposes schema-backed process-like detection input types", () => {
+    expect<ProcessLike["env"]>().type.toBe<Readonly<Record<string, string | undefined>> | undefined>();
+    expect<ProcessLikeStdout["isTTY"]>().type.toBe<boolean | undefined>();
   });
 
   it("rejects invalid process-like shapes", () => {

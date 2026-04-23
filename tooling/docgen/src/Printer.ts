@@ -344,30 +344,32 @@ const sortByName: <A extends { name: string }>(self: Iterable<A>) => Array<A> = 
 export const printModule = (module: Domain.Module) =>
   Effect.scoped(
     Layer.build(Parser.Source.layer(module.source)).pipe(
-      Effect.flatMap((context) =>
-        Effect.gen(function* () {
-          const description = yield* printModel(module.name, module.doc, { postfix: "overview" });
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* Effect.gen(function* () {
+            const description = yield* printModel(module.name, module.doc, { postfix: "overview" });
 
-          const grouped = A.groupBy(sortByName(getPrintables(module)), (printable) =>
-            printable.doc.category.length === 0 ? DEFAULT_CATEGORY : A.join(", ")(printable.doc.category)
-          );
-          const printables = A.sort(byCategory)(R.toEntries(grouped) as Array<[string, Array<Printable>]>);
+            const grouped = A.groupBy(sortByName(getPrintables(module)), (printable) =>
+              printable.doc.category.length === 0 ? DEFAULT_CATEGORY : A.join(", ")(printable.doc.category)
+            );
+            const printables = A.sort(byCategory)(R.toEntries(grouped) as Array<[string, Array<Printable>]>);
 
-          const strings = yield* Effect.forEach(printables, ([category, categoryPrintables]) =>
-            Effect.gen(function* () {
-              const values = yield* Effect.forEach(sortByName(categoryPrintables), print);
-              return `\n\n# ${category}${pipe(
-                values,
-                A.map((value) => `\n\n${value}`),
-                A.join("")
-              )}`;
-            })
-          );
+            const strings = yield* Effect.forEach(printables, ([category, categoryPrintables]) =>
+              Effect.gen(function* () {
+                const values = yield* Effect.forEach(sortByName(categoryPrintables), print);
+                return `\n\n# ${category}${pipe(
+                  values,
+                  A.map((value) => `\n\n${value}`),
+                  A.join("")
+                )}`;
+              })
+            );
 
-          return `${description}
+            return `${description}
 
 <!-- toc -->${A.join("")(strings)}`;
-        }).pipe(Effect.provide(context))
+          }).pipe(Effect.provide(context));
+        })
       )
     )
   );

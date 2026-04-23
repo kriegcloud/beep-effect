@@ -541,14 +541,17 @@ export const EdgeFromSelf = <Data extends S.Top>(data: Data): EdgeFromSelf<Data>
           return Effect.fail(new SchemaIssue.InvalidType(ast, Option.some(input)));
         }
 
-        return Effect.flatMap(SchemaParser.decodeUnknownEffect(encoded)(toRawEdgeEncoded(input), options), (edge) =>
-          Effect.succeed(
-            new Graph_.Edge({
-              source: edge.source,
-              target: edge.target,
-              data: edge.data,
-            })
-          )
+        return Effect.flatMap(
+          SchemaParser.decodeUnknownEffect(encoded)(toRawEdgeEncoded(input), options),
+          Effect.fnUntraced(function* (edge) {
+            return yield* Effect.succeed(
+              new Graph_.Edge({
+                source: edge.source,
+                target: edge.target,
+                data: edge.data,
+              })
+            );
+          })
         );
       };
     },
@@ -825,7 +828,9 @@ const makeImmutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
 
         return Effect.flatMap(
           SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
-          (graph) => rebuildImmutableGraph(graph, input, expectedType)
+          Effect.fnUntraced(function* (graph) {
+            return yield* rebuildImmutableGraph(graph, input, expectedType);
+          })
         );
       };
     },
@@ -877,7 +882,9 @@ const makeMutableGraphFromSelf = <Node extends S.Top, Edge extends S.Top>(
 
         return Effect.flatMap(
           SchemaParser.decodeUnknownEffect(encoded)(toRawGraphEncoded(input), parseOptions),
-          (graph) => rebuildMutableGraph(graph, input, expectedType)
+          Effect.fnUntraced(function* (graph) {
+            return yield* rebuildMutableGraph(graph, input, expectedType);
+          })
         );
       };
     },

@@ -46,11 +46,14 @@ export const extractTraceContextHeaders = (headers?: Headers.Input): O.Option<Tr
  * @since 0.0.0
  * @category observability
  */
-export const injectTraceContextHeaders = (headers?: Headers.Input): Effect.Effect<Headers.Headers> =>
-  Effect.currentSpan.pipe(
+export const injectTraceContextHeaders = Effect.fn("injectTraceContextHeaders")(function* (
+  headers?: Headers.Input
+): Effect.fn.Return<Headers.Headers> {
+  return yield* Effect.currentSpan.pipe(
     Effect.map((span) => Headers.setAll(Headers.fromInput(headers), HttpTraceContext.toHeaders(span))),
     Effect.catch(() => Effect.succeed(Headers.fromInput(headers)))
   );
+});
 
 /**
  * Apply an incoming parent span, if present, to one effect.
@@ -69,16 +72,17 @@ export const injectTraceContextHeaders = (headers?: Headers.Input): Effect.Effec
  * @since 0.0.0
  * @category observability
  */
-const withIncomingTraceContextImpl = <A, E, R>(
+const withIncomingTraceContextImpl = Effect.fn("withIncomingTraceContextImpl")(function* <A, E, R>(
   effect: Effect.Effect<A, E, R>,
   headers: Headers.Input | undefined
-): Effect.Effect<A, E, R> =>
-  extractTraceContextHeaders(headers).pipe(
+): Effect.fn.Return<A, E, R> {
+  return yield* extractTraceContextHeaders(headers).pipe(
     O.match({
       onNone: () => effect,
       onSome: (span) => Effect.withParentSpan(effect, span, { captureStackTrace: false }),
     })
   );
+});
 
 /**
  * Runs an Effect with trace context extracted from incoming headers.
@@ -92,22 +96,22 @@ export const withIncomingTraceContext: {
   (headers: Headers.Input | undefined): <A, E, R>(effect: Effect.Effect<A, E, R>) => Effect.Effect<A, E, R>;
 } = dual(
   isTraceContextDataFirst,
-  <A, E, R>(
+  Effect.fn("withIncomingTraceContext")(function* <A, E, R>(
     effect: Effect.Effect<A, E, R> | Headers.Input | undefined,
     headers: Headers.Input | Effect.Effect<A, E, R> | undefined
-  ): Effect.Effect<A, E, R> => {
+  ): Effect.fn.Return<A, E, R> {
     if (Effect.isEffect(effect) && !Effect.isEffect(headers)) {
-      return withIncomingTraceContextImpl(effect, headers);
+      return yield* withIncomingTraceContextImpl(effect, headers);
     }
 
     if (P.isNotUndefined(effect) && !Effect.isEffect(effect) && Effect.isEffect(headers)) {
-      return withIncomingTraceContextImpl(headers, effect);
+      return yield* withIncomingTraceContextImpl(headers, effect);
     }
 
     if (P.isUndefined(effect) && Effect.isEffect(headers)) {
-      return withIncomingTraceContextImpl(headers, undefined);
+      return yield* withIncomingTraceContextImpl(headers, undefined);
     }
 
-    return Effect.die("Invalid withIncomingTraceContext arguments");
-  }
+    return yield* Effect.die("Invalid withIncomingTraceContext arguments");
+  })
 );

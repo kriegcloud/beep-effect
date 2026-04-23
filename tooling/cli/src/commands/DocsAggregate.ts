@@ -83,7 +83,11 @@ export const docsAggregateCommand = Command.make(
   },
   ({ package: packageSelector, filter: filterSelector, clean }) =>
     resolveAggregateSelector(packageSelector, filterSelector).pipe(
-      Effect.flatMap((selector) => aggregateDocs(selector, clean)),
+      Effect.flatMap(
+        Effect.fnUntraced(function* (selector) {
+          return yield* aggregateDocs(selector, clean);
+        })
+      ),
       Effect.catchTag(
         "DomainError",
         Effect.fn(function* (error) {

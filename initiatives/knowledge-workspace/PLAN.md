@@ -131,12 +131,6 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 
 | File | Owner | Purpose |
 |------|-------|---------|
-| `packages/common/knowledge-graph/src/events.ts` | Codex | `EventGroup` definition with six event tags (`NodeCreated`, `EdgeCreated`, etc.) |
-| `packages/common/knowledge-graph/src/schema.ts` | Codex | `EventLog.schema(KnowledgeGraphEvents)` configuration |
-| `packages/common/knowledge-graph/src/handlers.ts` | Codex | `EventLog.Handlers` implementations for graph projection |
-| `packages/common/knowledge-graph/src/facade.ts` | Codex | `KnowledgeGraph` thin facade over `EventLog.write` |
-| `packages/common/knowledge-graph/src/models.ts` | Codex | `Model.Class` definitions for `KnowledgeNode`, `KnowledgeEdge` |
-| `packages/common/knowledge-graph/src/query.ts` | Codex | Query layer over materialized graph index |
 | `packages/common/ui/.../codegraph/CytoscapeCanvas.tsx` | Claude Code + Chrome | React wrapper with `CytoscapeService` as `Context.Service` |
 | `apps/desktop/src/components/WorkspaceLayout.tsx` | Claude Code + Chrome | Three-zone layout shell (nav, canvas, detail) |
 | `apps/desktop/src/components/GraphCanvas.tsx` | Claude Code + Chrome | Cytoscape instance management, zoom, pan, selection |
@@ -276,7 +270,6 @@ Each skill must produce a scratchpad file that type-checks against the repo's `t
 | `packages/editor/lexical/src/plugins/BacklinkDisplayPlugin.tsx` | Claude Code + Chrome | Collapsible backlinks pane below editor |
 | `packages/editor/lexical/src/transformers/wikiLinkTransformer.ts` | Codex | Markdown import/export for `[[...]]` syntax |
 | `packages/editor/domain/src/VaultPersistence.ts` | Codex | Markdown + YAML frontmatter + optional Lexical JSON sidecar |
-| `packages/common/knowledge-graph/src/models/Page.ts` | Codex | `Model.Class` for Page entity with multi-variant schemas |
 
 ### Schema-First Patterns
 
@@ -509,14 +502,11 @@ The event-sourced architecture makes this extension natural: new domains define 
 |-------|------|--------|
 | 0 | `.agents/skills/` (new) | Four specialist skills + rules wrapper |
 | 0 | `scratchpad/skill-validation/` | Type-checking validation files |
-| 1 | `packages/common/knowledge-graph/` (new) | `EventGroup`, `EventLog.schema`, handlers, facade, `Model.Class` entities |
 | 1 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Extend with document node styles, certainty-based edge opacity, wiki_link edge type |
 | 1 | `apps/desktop/src/RepoMemoryDesktop.tsx` | Decompose 1831-line monolith into `WorkspaceLayout`, `GraphCanvas`, `DetailPanel`, `QueryBar` |
 | 2 | `packages/editor/domain/src/Canonical.ts` | Basic `[[wiki_link]]` extraction via `extractBlockLinks` (no `[[code:...]]` prefix -- deferred to Phase 3) |
 | 2 | `packages/editor/lexical/src/EditorSurface.tsx` | Register `WikiLinkNode` at line 65, mount `WikiLinkTypeaheadPlugin` and `BacklinkDisplayPlugin` |
-| 2 | `packages/common/knowledge-graph/src/models/Page.ts` (new) | `Model.Class` for Page entity |
 | 2 | `packages/common/semantic-web/src/prov.ts` | Reuse `ProvBundle` for event provenance (no changes needed, reference only) |
-| 3 | `packages/common/knowledge-graph/src/replay.ts` (new) | Temporal projection engine querying `effect_event_journal` |
 | 3 | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | Add temporal replay animation styles, cross-domain edge styles |
 
 ---

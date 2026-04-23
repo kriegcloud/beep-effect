@@ -8,53 +8,117 @@
 import os from "node:os";
 import process from "node:process";
 import tty from "node:tty";
+import { $ChalkId } from "@beep/identity/packages";
 import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { type ColorInfo, ColorSupport, type ColorSupportLevel } from "./ChalkSchema.ts";
+import {
+  type ColorInfo,
+  ColorSupport,
+  ColorSupportLevel,
+  type ColorSupportLevel as ColorSupportLevelType,
+} from "./ChalkSchema.ts";
 
-type StreamLike = {
-  readonly isTTY?: boolean | undefined;
-};
+const $I = $ChalkId.create("Domain");
 
-type SupportsColorOptions = {
-  readonly sniffFlags?: boolean | undefined;
-};
+class StreamLikeModel extends S.Class<StreamLikeModel>($I`StreamLike`)(
+  {
+    isTTY: S.optionalKey(S.Boolean),
+  },
+  $I.annote("StreamLike", {
+    description: "Minimal output stream metadata used by Chalk color support detection.",
+  })
+) {}
 
-type RuntimeProcessLike = {
-  readonly argv?: ReadonlyArray<string> | undefined;
-  readonly env?: Readonly<Record<string, string | undefined>> | undefined;
-  readonly osRelease?: string | undefined;
-  readonly platform?: string | undefined;
-};
+type StreamLike = typeof StreamLikeModel.Encoded;
 
-type SupportsColorDecisionInput = {
-  readonly argv: ReadonlyArray<string>;
-  readonly env: Readonly<Record<string, string | undefined>>;
-  readonly isTTY?: boolean | undefined;
-  readonly osRelease?: string | undefined;
-  readonly platform?: string | undefined;
-  readonly sniffFlags?: boolean | undefined;
-};
+class SupportsColorOptionsModel extends S.Class<SupportsColorOptionsModel>($I`SupportsColorOptions`)(
+  {
+    sniffFlags: S.optionalKey(S.Boolean),
+  },
+  $I.annote("SupportsColorOptions", {
+    description: "Options that tune Chalk color support detection.",
+  })
+) {}
 
-type ColorHeuristicInput = SupportsColorDecisionInput & {
-  readonly forceColor: O.Option<ColorSupportLevel>;
-  readonly minimumLevel: ColorSupportLevel;
-};
+type SupportsColorOptions = typeof SupportsColorOptionsModel.Encoded;
+
+class RuntimeProcessLikeModel extends S.Class<RuntimeProcessLikeModel>($I`RuntimeProcessLike`)(
+  {
+    argv: S.String.pipe(S.Array, S.optionalKey),
+    env: S.Record(S.String, S.UndefinedOr(S.String)).pipe(S.optionalKey),
+    osRelease: S.optionalKey(S.String),
+    platform: S.optionalKey(S.String),
+  },
+  $I.annote("RuntimeProcessLike", {
+    description: "Minimal process metadata used by Chalk color support detection.",
+  })
+) {}
+
+type RuntimeProcessLike = typeof RuntimeProcessLikeModel.Encoded;
+
+class SupportsColorDecisionInputModel extends S.Class<SupportsColorDecisionInputModel>($I`SupportsColorDecisionInput`)(
+  {
+    argv: S.Array(S.String),
+    env: S.Record(S.String, S.UndefinedOr(S.String)),
+    isTTY: S.optionalKey(S.Boolean),
+    osRelease: S.optionalKey(S.String),
+    platform: S.optionalKey(S.String),
+    sniffFlags: S.optionalKey(S.Boolean),
+  },
+  $I.annote("SupportsColorDecisionInput", {
+    description: "Normalized decision input for Chalk color support heuristics.",
+  })
+) {}
+
+type SupportsColorDecisionInput = typeof SupportsColorDecisionInputModel.Encoded;
+
+class ColorHeuristicInputModel extends S.Class<ColorHeuristicInputModel>($I`ColorHeuristicInput`)(
+  {
+    argv: S.Array(S.String),
+    env: S.Record(S.String, S.UndefinedOr(S.String)),
+    forceColor: S.Option(ColorSupportLevel),
+    isTTY: S.optionalKey(S.Boolean),
+    minimumLevel: ColorSupportLevel,
+    osRelease: S.optionalKey(S.String),
+    platform: S.optionalKey(S.String),
+    sniffFlags: S.optionalKey(S.Boolean),
+  },
+  $I.annote("ColorHeuristicInput", {
+    description: "Prepared inputs shared by Chalk color support heuristics.",
+  })
+) {}
+
+type ColorHeuristicInput = typeof ColorHeuristicInputModel.Encoded;
 
 type ColorLevelHeuristic = (input: ColorHeuristicInput) => O.Option<ColorSupportLevel>;
 
-type WindowsRelease = {
-  readonly build: number;
-  readonly major: number;
-};
+class WindowsReleaseModel extends S.Class<WindowsReleaseModel>($I`WindowsRelease`)(
+  {
+    build: S.Number,
+    major: S.Number,
+  },
+  $I.annote("WindowsRelease", {
+    description: "Parsed Windows release metadata used to infer terminal color support.",
+  })
+) {}
 
-type TermProgramInfo = {
-  readonly majorVersion: number;
-  readonly program: string;
-};
+type WindowsRelease = typeof WindowsReleaseModel.Encoded;
+
+class TermProgramInfoModel extends S.Class<TermProgramInfoModel>($I`TermProgramInfo`)(
+  {
+    majorVersion: S.Number,
+    program: S.String,
+  },
+  $I.annote("TermProgramInfo", {
+    description: "Terminal program metadata used to infer color support.",
+  })
+) {}
+
+type TermProgramInfo = typeof TermProgramInfoModel.Encoded;
 
 const disabledColorFlags = ["no-color", "no-colors", "color=false", "color=never"] as const;
 
@@ -70,13 +134,37 @@ const basicColorCiEnvironmentKeys = ["TRAVIS", "APPVEYOR", "GITLAB_CI", "BUILDKI
 
 const trueColorTerminals: ReadonlyArray<string> = ["xterm-kitty", "xterm-ghostty", "wezterm"];
 
-const level0: ColorSupportLevel = 0;
+const decodeStreamLike = S.decodeUnknownOption(StreamLikeModel);
 
-const level1: ColorSupportLevel = 1;
+const decodeSupportsColorOptions = S.decodeUnknownOption(SupportsColorOptionsModel);
 
-const level2: ColorSupportLevel = 2;
+const decodeRuntimeProcessLike = S.decodeUnknownOption(RuntimeProcessLikeModel);
 
-const level3: ColorSupportLevel = 3;
+const normalizeStreamLike = (stream: StreamLike): StreamLikeModel =>
+  pipe(
+    decodeStreamLike(stream),
+    O.getOrElse(() => new StreamLikeModel({}))
+  );
+
+const normalizeSupportsColorOptions = (options: SupportsColorOptions): SupportsColorOptionsModel =>
+  pipe(
+    decodeSupportsColorOptions(options),
+    O.getOrElse(() => new SupportsColorOptionsModel({}))
+  );
+
+const normalizeRuntimeProcessLike = (runtimeProcessLike: RuntimeProcessLike): RuntimeProcessLikeModel =>
+  pipe(
+    decodeRuntimeProcessLike(runtimeProcessLike),
+    O.getOrElse(() => new RuntimeProcessLikeModel({}))
+  );
+
+const level0: ColorSupportLevelType = 0;
+
+const level1: ColorSupportLevelType = 1;
+
+const level2: ColorSupportLevelType = 2;
+
+const level3: ColorSupportLevelType = 3;
 
 const flagPrefix = Match.type<string>().pipe(
   Match.when(Str.startsWith("-"), () => ""),
@@ -97,6 +185,8 @@ const normalizeParsedForceColorLevel: (level: number) => ColorSupportLevel = Mat
   Match.orElse(() => level3)
 );
 
+const forceColorIntegerPattern = /^-?\d+$/;
+
 const literalForceColorLevel: (value: string) => O.Option<ColorSupportLevel> = Match.type<string>().pipe(
   Match.when("true", () => O.some(level1)),
   Match.when("false", () => O.some(level0)),
@@ -109,6 +199,9 @@ const colorLevelWhen = (level: ColorSupportLevel) => flow(O.liftPredicate(P.isTr
 const matchesPattern = (pattern: RegExp) => flow(Str.match(pattern), O.isSome);
 
 const isDisabledColorLevel = (level: ColorSupportLevel): level is 0 => level === 0;
+
+const hasNoColorEnvironment = (env: Readonly<Record<string, string | undefined>>): boolean =>
+  P.isNotUndefined(env.NO_COLOR);
 
 const equalsArgument =
   (expected: string) =>
@@ -178,6 +271,14 @@ const detectFlagForceColor = (argv: ReadonlyArray<string>): O.Option<ColorSuppor
     O.firstSomeOf
   );
 
+const parseNumericForceColorLevel = (value: string): O.Option<ColorSupportLevel> =>
+  pipe(
+    value,
+    Str.trim,
+    O.liftPredicate(matchesPattern(forceColorIntegerPattern)),
+    O.map((level) => normalizeParsedForceColorLevel(Number.parseInt(level, 10)))
+  );
+
 const envForceColor = (env: Readonly<Record<string, string | undefined>>): O.Option<ColorSupportLevel> =>
   pipe(
     env.FORCE_COLOR,
@@ -185,7 +286,7 @@ const envForceColor = (env: Readonly<Record<string, string | undefined>>): O.Opt
     O.flatMap((value) =>
       pipe(
         literalForceColorLevel(value),
-        O.orElse(() => O.some(normalizeParsedForceColorLevel(Math.min(Number.parseInt(value, 10), 3))))
+        O.orElse(() => parseNumericForceColorLevel(value))
       )
     )
   );
@@ -217,6 +318,9 @@ const resolveForceColor = (input: SupportsColorDecisionInput): O.Option<ColorSup
 
 const detectForcedOffColorLevel: ColorLevelHeuristic = ({ forceColor }) =>
   pipe(forceColor, O.filter(isDisabledColorLevel));
+
+const detectNoColorEnvironmentLevel: ColorLevelHeuristic = ({ env, forceColor }) =>
+  colorLevelWhen(level0)(hasNoColorEnvironment(env) && O.isNone(forceColor));
 
 const detectSniffFlagColorLevel: ColorLevelHeuristic = ({ argv, sniffFlags }) =>
   pipe(
@@ -355,6 +459,22 @@ const detectTerminalPatternColorLevel: ColorLevelHeuristic = ({ env }) => {
   );
 };
 
+const makeSupportsColorDecisionInput = (
+  argv: SupportsColorDecisionInput["argv"],
+  env: SupportsColorDecisionInput["env"],
+  isTTY: SupportsColorDecisionInput["isTTY"],
+  osRelease: SupportsColorDecisionInput["osRelease"],
+  platform: SupportsColorDecisionInput["platform"],
+  sniffFlags: SupportsColorDecisionInput["sniffFlags"]
+): SupportsColorDecisionInput => ({
+  argv,
+  env,
+  ...(P.isNotUndefined(isTTY) ? { isTTY } : {}),
+  ...(P.isNotUndefined(osRelease) ? { osRelease } : {}),
+  ...(P.isNotUndefined(platform) ? { platform } : {}),
+  ...(P.isNotUndefined(sniffFlags) ? { sniffFlags } : {}),
+});
+
 const supportsColorLevel = ({
   argv,
   env,
@@ -363,24 +483,21 @@ const supportsColorLevel = ({
   platform,
   sniffFlags,
 }: SupportsColorDecisionInput): ColorSupportLevel => {
-  const forceColor = resolveForceColor({ argv, env, isTTY, osRelease, platform, sniffFlags });
+  const decisionInput = makeSupportsColorDecisionInput(argv, env, isTTY, osRelease, platform, sniffFlags);
+  const forceColor = resolveForceColor(decisionInput);
   const heuristicInput: ColorHeuristicInput = {
-    argv,
-    env,
+    ...decisionInput,
     forceColor,
-    isTTY,
     minimumLevel: pipe(
       forceColor,
       O.getOrElse(() => level0)
     ),
-    osRelease,
-    platform,
-    sniffFlags,
   };
 
   return pipe(
     [
       detectForcedOffColorLevel(heuristicInput),
+      detectNoColorEnvironmentLevel(heuristicInput),
       detectSniffFlagColorLevel(heuristicInput),
       detectAzurePipelinesColorLevel(heuristicInput),
       detectNonTtyColorLevel(heuristicInput),
@@ -402,7 +519,7 @@ const supportsColorLevel = ({
  *
  * @example
  * ```ts
- * import { createSupportsColor } from "@beep/chalk/Chalk"
+ * import { createSupportsColor } from "./SupportsColor.ts"
  *
  * const support = createSupportsColor({ isTTY: true }, {}, { argv: [], env: { FORCE_COLOR: "1" } })
  * console.log(support)
@@ -415,24 +532,31 @@ export const createSupportsColor = (
   stream: StreamLike = {},
   options: SupportsColorOptions = {},
   runtimeProcessLike: RuntimeProcessLike = currentRuntimeProcessLike
-): ColorInfo =>
-  translateLevel(
-    supportsColorLevel({
-      argv: runtimeProcessLike.argv ?? [],
-      env: runtimeProcessLike.env ?? {},
-      isTTY: stream.isTTY,
-      osRelease: runtimeProcessLike.osRelease,
-      platform: runtimeProcessLike.platform,
-      sniffFlags: options.sniffFlags,
-    })
+): ColorInfo => {
+  const normalizedStream = normalizeStreamLike(stream);
+  const normalizedOptions = normalizeSupportsColorOptions(options);
+  const normalizedRuntimeProcessLike = normalizeRuntimeProcessLike(runtimeProcessLike);
+
+  return translateLevel(
+    supportsColorLevel(
+      makeSupportsColorDecisionInput(
+        normalizedRuntimeProcessLike.argv ?? [],
+        normalizedRuntimeProcessLike.env ?? {},
+        normalizedStream.isTTY,
+        normalizedRuntimeProcessLike.osRelease,
+        normalizedRuntimeProcessLike.platform,
+        normalizedOptions.sniffFlags
+      )
+    )
   );
+};
 
 /**
  * Color support detected for the current Node.js stdout and stderr streams.
  *
  * @example
  * ```ts
- * import { detectedSupportsColor } from "@beep/chalk/Chalk"
+ * import { detectedSupportsColor } from "./SupportsColor.ts"
  *
  * console.log(detectedSupportsColor.stdout)
  * ```

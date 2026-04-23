@@ -101,7 +101,11 @@ const requestJson = Effect.fn("SidecarRuntimeTest.requestJson")(
         catch: (cause) => toTestError(`Failed to read response text from ${url}.`, cause),
       });
       const body = yield* S.decodeUnknownEffect(S.UnknownFromJsonString)(bodyText).pipe(
-        Effect.flatMap(S.decodeUnknownEffect(schema)),
+        Effect.flatMap(
+          Effect.fnUntraced(function* (input: unknown) {
+            return yield* S.decodeUnknownEffect(schema)(input);
+          })
+        ),
         Effect.mapError((cause) =>
           toTestError(
             `Expected JSON matching schema from ${url} with status ${response.status}, received: ${bodyText}`,
@@ -350,14 +354,22 @@ const renderChildOutput = Effect.fn("SidecarRuntimeTest.renderChildOutput")(func
 
 const waitForHealthyBootstrap = (sidecar: SpawnedSidecar) =>
   requestJson(SidecarBootstrap, `${sidecar.baseUrl}/health`).pipe(
-    Effect.flatMap(({ body, status }) =>
-      status === 200 ? Effect.succeed(body) : Effect.fail(toTestError(`Unexpected health status ${status}.`))
+    Effect.flatMap(
+      Effect.fnUntraced(function* ({ body, status }) {
+        return yield* status === 200
+          ? Effect.succeed(body)
+          : Effect.fail(toTestError(`Unexpected health status ${status}.`));
+      })
     ),
     Effect.retry(Schedule.spaced(Duration.millis(100)).pipe(Schedule.both(Schedule.recurs(80)))),
     Effect.catch((error) =>
       renderChildOutput(sidecar).pipe(
-        Effect.flatMap((output) =>
-          Effect.fail(toTestError(`Sidecar did not become healthy on ${sidecar.baseUrl}/health.\n\n${output}`, error))
+        Effect.flatMap(
+          Effect.fnUntraced(function* (output) {
+            return yield* Effect.fail(
+              toTestError(`Sidecar did not become healthy on ${sidecar.baseUrl}/health.\n\n${output}`, error)
+            );
+          })
         )
       )
     )
@@ -394,20 +406,26 @@ const expectQueryRun = (run: RepoRun) => {
 
 const waitForRunStatus = (sidecar: SpawnedSidecar, runId: RunId, expectedStatus: RepoRun["status"]) =>
   requestJson(RepoRun, `${sidecar.baseUrl}/runs/${encodeURIComponent(runId)}`).pipe(
-    Effect.flatMap(({ body, status }) =>
-      status === 200 && body.status === expectedStatus
-        ? Effect.succeed(body)
-        : Effect.fail(
-            toTestError(
-              `Expected run "${runId}" to reach status "${expectedStatus}", received HTTP ${status} with status "${status === 200 ? body.status : "unknown"}".`
-            )
-          )
+    Effect.flatMap(
+      Effect.fnUntraced(function* ({ body, status }) {
+        return yield* status === 200 && body.status === expectedStatus
+          ? Effect.succeed(body)
+          : Effect.fail(
+              toTestError(
+                `Expected run "${runId}" to reach status "${expectedStatus}", received HTTP ${status} with status "${status === 200 ? body.status : "unknown"}".`
+              )
+            );
+      })
     ),
     Effect.retry(Schedule.spaced(Duration.millis(200)).pipe(Schedule.both(Schedule.recurs(150)))),
     Effect.catch((error) =>
       renderChildOutput(sidecar).pipe(
-        Effect.flatMap((output) =>
-          Effect.fail(toTestError(`Run "${runId}" did not reach status "${expectedStatus}".\n\n${output}`, error))
+        Effect.flatMap(
+          Effect.fnUntraced(function* (output) {
+            return yield* Effect.fail(
+              toTestError(`Run "${runId}" did not reach status "${expectedStatus}".\n\n${output}`, error)
+            );
+          })
         )
       )
     )
@@ -419,25 +437,29 @@ const waitForRunningCheckpoint = (
   minimumSequence: RunEventSequence = decodeRunEventSequence(3)
 ) =>
   requestJson(RepoRun, `${sidecar.baseUrl}/runs/${encodeURIComponent(runId)}`).pipe(
-    Effect.flatMap(({ body, status }) =>
-      status === 200 && body.status === "running" && body.lastEventSequence >= minimumSequence
-        ? Effect.succeed(body)
-        : Effect.fail(
-            toTestError(
-              `Expected run "${runId}" to reach running checkpoint sequence "${minimumSequence}", received HTTP ${status} with status "${status === 200 ? body.status : "unknown"}" and sequence "${status === 200 ? body.lastEventSequence : "unknown"}".`
-            )
-          )
+    Effect.flatMap(
+      Effect.fnUntraced(function* ({ body, status }) {
+        return yield* status === 200 && body.status === "running" && body.lastEventSequence >= minimumSequence
+          ? Effect.succeed(body)
+          : Effect.fail(
+              toTestError(
+                `Expected run "${runId}" to reach running checkpoint sequence "${minimumSequence}", received HTTP ${status} with status "${status === 200 ? body.status : "unknown"}" and sequence "${status === 200 ? body.lastEventSequence : "unknown"}".`
+              )
+            );
+      })
     ),
     Effect.retry(Schedule.spaced(Duration.millis(200)).pipe(Schedule.both(Schedule.recurs(150)))),
     Effect.catch((error) =>
       renderChildOutput(sidecar).pipe(
-        Effect.flatMap((output) =>
-          Effect.fail(
-            toTestError(
-              `Run "${runId}" did not reach running checkpoint sequence "${minimumSequence}".\n\n${output}`,
-              error
-            )
-          )
+        Effect.flatMap(
+          Effect.fnUntraced(function* (output) {
+            return yield* Effect.fail(
+              toTestError(
+                `Run "${runId}" did not reach running checkpoint sequence "${minimumSequence}".\n\n${output}`,
+                error
+              )
+            );
+          })
         )
       )
     )

@@ -65,7 +65,11 @@ export const renderAllowlistSnapshotModule = (
 ): Effect.Effect<string, SchemaIssue.Issue> =>
   pipe(
     Effect.succeed(encodeAllowlistSnapshot(snapshot)),
-    Effect.flatMap((encodedSnapshot) => stringifyJsonPretty.run(O.some(encodedSnapshot), {})),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (encodedSnapshot) {
+        return yield* stringifyJsonPretty.run(O.some(encodedSnapshot), {});
+      })
+    ),
     Effect.map(O.getOrElse(thunkEmptyStr)),
     Effect.map((serializedSnapshot) =>
       Text.joinLines([
@@ -88,4 +92,11 @@ export const renderAllowlistSnapshotModule = (
 export const buildAllowlistSnapshotModuleFromJsoncText = (
   allowlistText: string
 ): Effect.Effect<string, SchemaIssue.Issue> =>
-  pipe(buildAllowlistSnapshotFromJsoncText(allowlistText), Effect.flatMap(renderAllowlistSnapshotModule));
+  pipe(
+    buildAllowlistSnapshotFromJsoncText(allowlistText),
+    Effect.flatMap(
+      Effect.fnUntraced(function* (snapshot) {
+        return yield* renderAllowlistSnapshotModule(snapshot);
+      })
+    )
+  );
