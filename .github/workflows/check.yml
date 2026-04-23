@@ -115,6 +115,7 @@ jobs:
           turbo_args=()
 
           if [[ "$GITHUB_EVENT_NAME" == "pull_request" ]]; then
+            export TURBO_SCM_BASE="origin/${GITHUB_BASE_REF:-main}"
             turbo_args+=(--affected)
           fi
 

@@ -47,13 +47,7 @@ export type NullableString = typeof NullableString.Type;
  * @since 0.0.0
  * @category DomainModel
  */
-export const PermissionMode = LiteralKit([
-  "default",
-  "acceptEdits",
-  "plan",
-  "dontAsk",
-  "bypassPermissions",
-]).annotate(
+export const PermissionMode = LiteralKit(["default", "acceptEdits", "plan", "dontAsk", "bypassPermissions"]).annotate(
   $I.annote("PermissionMode", {
     description: "Permission mode value carried on Codex hook command inputs.",
   })

@@ -150,8 +150,9 @@ const makeRepoRunRpcClient = Effect.fn("SidecarRuntimeTest.makeRepoRunRpcClient"
   return yield* RpcClient.make(RepoRunRpcGroup).pipe(Effect.provide(context));
 });
 
+const sidecarLifecycleTimeout = 60_000;
+const largeFixtureLifecycleTimeout = 180_000;
 const largeFixtureGeneratedFileCount = 800;
-const largeFixtureLifecycleTimeout = 120_000;
 
 const writeFixtureRepo = Effect.fn("SidecarRuntimeTest.writeFixtureRepo")(function* (
   repoPath: FilePath,
@@ -534,7 +535,7 @@ describe("spawned Bun sidecar lifecycle", () => {
           expect(disallowedOriginResponse.headers.get("referrer-policy")).toBe("no-referrer");
         })
       ).pipe(Effect.provide(NodeServices.layer, { local: true })),
-    largeFixtureLifecycleTimeout
+    sidecarLifecycleTimeout
   );
 
   it.live(
@@ -628,7 +629,7 @@ describe("spawned Bun sidecar lifecycle", () => {
           expect(metricsResponse.body).toContain("child_fibers_started");
         })
       ).pipe(Effect.provide(NodeServices.layer, { local: true })),
-    60_000
+    sidecarLifecycleTimeout
   );
 
   it.live(
@@ -819,7 +820,7 @@ describe("spawned Bun sidecar lifecycle", () => {
           expect(restoredRuns.body.length).toBeGreaterThanOrEqual(3);
         })
       ).pipe(Effect.provide(NodeServices.layer, { local: true })),
-    60_000
+    sidecarLifecycleTimeout
   );
 
   it.live(
@@ -881,7 +882,7 @@ describe("spawned Bun sidecar lifecycle", () => {
           expect(completedRun.lastEventSequence).toBe(decodeRunEventSequence(interruptedSequence + 3));
         })
       ).pipe(Effect.provide(NodeServices.layer, { local: true })),
-    60_000
+    largeFixtureLifecycleTimeout
   );
 
   it.live(

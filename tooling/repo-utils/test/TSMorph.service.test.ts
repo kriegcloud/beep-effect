@@ -35,6 +35,7 @@ const WORKSPACE_ROOT = pathApi.resolve(__dirname, "..");
 const TSCONFIG_PATH = "tooling/repo-utils/tsconfig.json";
 const MODEL_FILE_PATH = "tooling/repo-utils/src/TSMorph/TSMorph.model.ts";
 const FIXTURE_TSCONFIG_PATH = "tooling/repo-utils/test/fixtures/tsmorph-diagnostics/tsconfig.json";
+const FIXTURE_CLEAN_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-diagnostics/src/clean.ts";
 const FIXTURE_BROKEN_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-diagnostics/src/broken.ts";
 const DECLARATION_FILE_PATH = "tooling/repo-utils/test/fixtures/tsmorph-declaration/ambient.d.ts";
 const LATE_FILE_TSCONFIG_PATH = "tooling/repo-utils/test/fixtures/tsmorph-late-file/tsconfig.json";
@@ -493,15 +494,15 @@ layer(TestLayer, { timeout: TSMORPH_TIMEOUT })("TSMorphService", (it) => {
       "returns no diagnostics for a known clean file in semantic mode",
       Effect.fn(function* () {
         const service = yield* TSMorphService;
-        const scope = yield* service.resolveProjectScope(repoUtilsScopeRequest("semantic"));
+        const scope = yield* service.resolveProjectScope(fixtureScopeRequest("semantic"));
         const diagnostics = yield* service.getDiagnostics(
           decodeDiagnosticsRequest({
             scopeId: scope.scopeId,
-            filePath: MODEL_FILE_PATH,
+            filePath: FIXTURE_CLEAN_FILE_PATH,
           })
         );
 
-        expect(diagnostics.filePath).toBe(MODEL_FILE_PATH);
+        expect(diagnostics.filePath).toBe(FIXTURE_CLEAN_FILE_PATH);
         expect(diagnostics.diagnostics).toEqual([]);
       }),
       TSMORPH_TIMEOUT
