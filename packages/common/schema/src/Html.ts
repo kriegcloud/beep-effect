@@ -16,12 +16,14 @@ const $I = $SchemaId.create("Html");
  * Use this for rendered snippets such as Markdown or rich-text projections that
  * are valid to embed inside an existing HTML document body.
  *
+ * This is a nominal trust brand only. Decoding this schema does not sanitize or
+ * validate HTML payload safety.
+ *
  * @example
  * ```ts
- * import * as S from "effect/Schema"
  * import { HtmlFragment } from "@beep/schema/Html"
  *
- * const fragment = S.decodeUnknownSync(HtmlFragment)("<p>Hello</p>")
+ * const fragment = HtmlFragment.make("<p>Hello</p>")
  * console.log(fragment) // "<p>Hello</p>"
  * ```
  *
@@ -31,7 +33,8 @@ const $I = $SchemaId.create("Html");
 export const HtmlFragment = S.String.pipe(
   S.brand("HtmlFragment"),
   $I.annoteSchema("HtmlFragment", {
-    description: "Trusted HTML fragment text that can be embedded inside a larger HTML document.",
+    description:
+      "Trusted HTML fragment text that can be embedded inside a larger HTML document. This is a nominal trust brand and does not perform HTML sanitization.",
   })
 );
 

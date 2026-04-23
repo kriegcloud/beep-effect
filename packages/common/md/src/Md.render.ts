@@ -139,6 +139,10 @@ const renderHtmlTaskItem = (item: TaskItem): string => {
   return `<li><input type="checkbox" disabled${checked} /> ${renderHtmlInlines(item.children)}</li>`;
 };
 
+// Built-in adapters keep `rawHtml` escaped by default; trusted passthrough is a custom-adapter concern.
+const renderEscapedRawHtmlAsMarkdown = ({ value }: { readonly value: string }): string => escapeMarkdownText(value);
+const renderEscapedRawHtmlAsHtml = ({ value }: { readonly value: string }): string => Html.escapeHtml(value);
+
 const renderMarkdownHeading = (block: HeadingBlock): string =>
   `${pipe("#", Str.repeat(headingMarkerCount[block._tag]))} ${renderMarkdownInlines(block.children)}`;
 
@@ -220,7 +224,7 @@ const renderMarkdownInlineMatcher = Match.type<Inline>().pipe(
   Match.tagsExhaustive({
     text: ({ value }) => escapeMarkdownText(value),
     rawMarkdown: ({ value }) => value,
-    rawHtml: ({ value }) => escapeMarkdownText(value),
+    rawHtml: renderEscapedRawHtmlAsMarkdown,
     strong: ({ children }) => `**${renderMarkdownInlines(children)}**`,
     em: ({ children }) => `*${renderMarkdownInlines(children)}*`,
     del: ({ children }) => `~~${renderMarkdownInlines(children)}~~`,
@@ -235,7 +239,7 @@ const renderMarkdownInlineForLinkLabelMatcher = Match.type<Inline>().pipe(
   Match.tagsExhaustive({
     text: ({ value }) => escapeMarkdownText(value),
     rawMarkdown: ({ value }) => escapeMarkdownText(value),
-    rawHtml: ({ value }) => escapeMarkdownText(value),
+    rawHtml: renderEscapedRawHtmlAsMarkdown,
     strong: ({ children }) => `**${renderMarkdownLinkLabelInlines(children)}**`,
     em: ({ children }) => `*${renderMarkdownLinkLabelInlines(children)}*`,
     del: ({ children }) => `~~${renderMarkdownLinkLabelInlines(children)}~~`,
@@ -286,7 +290,7 @@ const renderHtmlInlineMatcher = Match.type<Inline>().pipe(
   Match.tagsExhaustive({
     text: ({ value }) => Html.escapeHtml(value),
     rawMarkdown: ({ value }) => Html.escapeHtml(value),
-    rawHtml: ({ value }) => Html.escapeHtml(value),
+    rawHtml: renderEscapedRawHtmlAsHtml,
     strong: ({ children }) => `<strong>${renderHtmlInlines(children)}</strong>`,
     em: ({ children }) => `<em>${renderHtmlInlines(children)}</em>`,
     del: ({ children }) => `<del>${renderHtmlInlines(children)}</del>`,

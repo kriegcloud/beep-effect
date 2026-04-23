@@ -17,6 +17,8 @@ import * as S from "effect/Schema";
 
 const $I = $MdId.create("Md.utils");
 const trimBlock = Str.replace(/^\n+|\n+$/g, "");
+// Only active script protocols are blocked by default.
+// file:, blob:, and filesystem: are intentionally not treated as execution sinks in this boundary.
 const unsafeUrlProtocolPattern = /^(?:javascript|vbscript|data):/i;
 const urlProtocolDetectionIgnoredPattern = /[\u0000-\u001f\u007f\s]+/g;
 const htmlCharacterReferencePattern = /&(?:#(\d+);?|#x([\da-f]+);?|(colon|tab|newline);?)/gi;
@@ -203,6 +205,7 @@ export const sanitizeUrlDestination = (destination: string): string => {
   const decodedHtmlAndPercent = decodePercentEncodedBytes(decodedHtml);
   const candidates = [destination, decodedHtml, decodedPercent, decodedHtmlAndPercent];
 
+  // Evaluate normalized/decoded candidates, but preserve the original destination when safe.
   return pipe(candidates, A.map(normalizeUrlProtocolCandidate), A.some(isUnsafeUrlProtocolDestination))
     ? "#"
     : destination;

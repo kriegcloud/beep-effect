@@ -433,38 +433,7 @@ export type Br = typeof Br.Type;
  * @category models
  * @since 0.0.0
  */
-export const Inline: S.Codec<Inline> = S.TaggedUnion({
-  text: {
-    value: S.String,
-  },
-  rawMarkdown: {
-    value: S.String,
-  },
-  rawHtml: {
-    value: S.String,
-  },
-  strong: {
-    children: InlineChildren,
-  },
-  em: {
-    children: InlineChildren,
-  },
-  del: {
-    children: InlineChildren,
-  },
-  code: {
-    value: S.String,
-  },
-  a: {
-    href: S.String,
-    children: InlineChildren,
-  },
-  img: {
-    src: S.String,
-    alt: S.String,
-  },
-  br: {},
-}).pipe(
+export const Inline: S.Codec<Inline> = S.Union([Text, RawMarkdown, RawHtml, Strong, Em, Del, Code, A, Img, Br]).pipe(
   $I.annoteSchema("Inline", {
     description: "Discriminated union of inline Markdown AST nodes.",
   })
@@ -530,11 +499,7 @@ export type P = {
 const makeHeadingSchema = <const Tag extends "h1" | "h2" | "h3" | "h4" | "h5" | "h6">(tag: Tag) =>
   S.TaggedStruct(tag, {
     children: InlineChildren,
-  }).pipe(
-    $I.annoteSchema("HeadingSchema", {
-      description: "Reusable heading block schema building block.",
-    })
-  );
+  });
 
 /**
  * Level-one heading block.
@@ -1116,49 +1081,22 @@ export type Hr = typeof Hr.Type;
  * @category models
  * @since 0.0.0
  */
-export const Block: S.Codec<Block> = S.TaggedUnion({
-  h1: {
-    children: InlineChildren,
-  },
-  h2: {
-    children: InlineChildren,
-  },
-  h3: {
-    children: InlineChildren,
-  },
-  h4: {
-    children: InlineChildren,
-  },
-  h5: {
-    children: InlineChildren,
-  },
-  h6: {
-    children: InlineChildren,
-  },
-  p: {
-    children: InlineChildren,
-  },
-  blockquote: {
-    children: BlockChildren,
-  },
-  pre: {
-    value: S.String,
-    language: S.Option(S.String),
-  },
-  ul: {
-    children: ListItemChildren,
-  },
-  ol: {
-    children: ListItemChildren,
-  },
-  li: {
-    children: InlineChildren,
-  },
-  taskList: {
-    children: S.Array(TaskItem),
-  },
-  hr: {},
-}).pipe(
+export const Block: S.Codec<Block> = S.Union([
+  H1,
+  H2,
+  H3,
+  H4,
+  H5,
+  H6,
+  P,
+  BlockQuote,
+  Pre,
+  Ul,
+  Ol,
+  Li,
+  TaskList,
+  Hr,
+]).pipe(
   $I.annoteSchema("Block", {
     description: "Discriminated union of block Markdown AST nodes.",
   })
