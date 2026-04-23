@@ -40,7 +40,7 @@ The canonical non-slice families are:
 - `agents`: repo-local AI steering bundles
 
 Every non-slice artifact declares one canonical family. Kind remains required
-only for intentionally kinded families.
+only for families that intentionally declare a kind segment.
 
 ```txt
 packages/foundation/<kind>/<name>
@@ -48,6 +48,9 @@ packages/drivers/<name>
 packages/tooling/<kind>/<name>
 agents/<kind>/<name>
 ```
+
+`agents/` is intentionally a top-level repo directory rather than a
+`packages/` subfolder.
 
 The path is the first layer of context compression. The manifest metadata is the
 second. Humans should infer role from the path. Tooling should enforce the same

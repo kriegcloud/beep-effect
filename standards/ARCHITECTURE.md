@@ -99,13 +99,14 @@ required for every concept.
 Non-slice artifacts are never `misc`.
 
 - `foundation` owns domain-agnostic reusable substrate
+- `drivers` owns flat repo-level technical boundary wrappers
 - `tooling` owns developer-operational code packages
 - `agents` owns repo-local AI steering bundles
 
 Every non-slice artifact declares exactly one family so humans, agents, and
 tooling can infer the intended boundary before opening the first file. `kind` is
-required only for intentionally kinded families; `drivers` remains the flat
-family exception.
+required only for families that intentionally declare a kind segment;
+`drivers` remains the flat family exception.
 
 ## Package Dependency Graph
 

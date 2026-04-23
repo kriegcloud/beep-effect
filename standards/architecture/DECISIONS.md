@@ -242,7 +242,7 @@ without adding clarity.
 
 Decision:
 
-Non-slice architecture uses three canonical families:
+Non-slice architecture uses four canonical families:
 
 - `foundation` for domain-agnostic reusable substrate
 - `drivers` for flat repo-level external boundary wrappers
@@ -263,7 +263,7 @@ families explicitly prevents generic buckets from becoming junk drawers.
 Decision:
 
 Every non-slice artifact declares exactly one canonical family. Kind remains
-required only for intentionally kinded families.
+required only for families that intentionally declare a kind segment.
 
 - `foundation`: `primitive`, `modeling`, `capability`, `ui-system`
 - `drivers`: flat family with no extra kind segment
@@ -280,15 +280,16 @@ agents/<kind>/<name>
 ```
 
 Code packages record `family` and `kind` in `package.json` under a top-level
-`beep` object when that family is intentionally kinded. `drivers` record
-`family` only. Agent bundles record the same metadata in `beep.json`.
+`beep` object when that family intentionally declares a kind segment.
+`drivers` record `family` only. Agent bundles record the same metadata in
+`beep.json`.
 
 Rationale:
 
-Family-only taxonomy is too vague for kinded families. Family plus kind makes
-dependency rules, file-role conventions, and browsing expectations visible from
-the path and machine-readable in metadata, while `drivers` remains the explicit
-flat-family exception.
+Family-only taxonomy is too vague for families that use a kind segment. Family
+plus kind makes dependency rules, file-role conventions, and browsing
+expectations visible from the path and machine-readable in metadata, while
+`drivers` remains the explicit flat-family exception.
 
 ## 2026-04-23: Allow `shared/use-cases` As A High-Bar Shared-Kernel Exception
 

@@ -249,7 +249,7 @@ export const NonSliceFamilyKind = LiteralKit([
   .pipe($I.annoteSchema(
     "NonSliceFamilyKind",
     {
-      description: "A literal string for Repo-owned domain-agnostic reusable" + " substrate.",
+      description: "Canonical non-slice package families in the repository.",
     },
   ))
 
@@ -264,13 +264,13 @@ export type NonSliceFamilyKind = typeof NonSliceFamilyKind.Type;
 export const FoundationCanonicalKind = LiteralKit([
   "primitive",
   "modeling",
-  "capabillity",
+  "capability",
   "ui-system",
 ])
   .pipe($I.annoteSchema(
     "FoundationCanonicalKind",
     {
-      description: "FoundationCanonicalKind - ",
+      description: "Canonical kinds used across foundation packages.",
     },
   ));
 
@@ -284,31 +284,31 @@ export type FoundationCanonicalKind = typeof FoundationCanonicalKind.Type;
 
 
 /**
- * DriverCanonicalKind -
+ * ToolingCanonicalKind -
  *
  * @category Configuration
  * @since 0.0.0
  */
-export const DriverCanonicalKind = LiteralKit([
+export const ToolingCanonicalKind = LiteralKit([
   "library",
   "tool",
   "policy-pack",
   "test-kit",
 ])
   .pipe($I.annoteSchema(
-    "DriverCanonicalKind",
+    "ToolingCanonicalKind",
     {
-      description: "DriverCanonicalKind -",
+      description: "Canonical kinds used by tooling packages.",
     },
   ));
 
 /**
- * Type of {@link DriverCanonicalKind} {@inheritDoc DriverCanonicalKind}
+ * Type of {@link ToolingCanonicalKind} {@inheritDoc ToolingCanonicalKind}
  *
  * @category Configuration
  * @since 0.0.0
  */
-export type DriverCanonicalKind = typeof DriverCanonicalKind.Type;
+export type ToolingCanonicalKind = typeof ToolingCanonicalKind.Type;
 
 /**
  * AgentCanonicalKind
@@ -324,7 +324,7 @@ export const AgentCanonicalKind = LiteralKit([
   .pipe($I.annoteSchema(
     "AgentCanonicalKind",
     {
-      description: "AgentCanonicalKind",
+      description: "Canonical kinds used by repo-local agent bundles.",
     },
   ));
 
@@ -339,6 +339,12 @@ export type AgentCanonicalKind = typeof AgentCanonicalKind.Type;
 export const FoundationPrimitiveAnchor = LiteralKit([
   "browser",
 ])
+  .pipe($I.annoteSchema(
+    "FoundationPrimitiveAnchor",
+    {
+      description: "Anchor vocabulary used by foundation primitive packages.",
+    },
+  ))
 
 export type FoundationPrimitiveAnchor = typeof FoundationPrimitiveAnchor.Type;
 
@@ -356,7 +362,7 @@ export const FoundationModelingAnchor = LiteralKit([
   .pipe($I.annoteSchema(
     "FoundationModelingAnchor",
     {
-      description: "FoundationModelingAnchor -",
+      description: "Anchor vocabulary used by foundation modeling packages.",
     },
   ));
 
@@ -384,7 +390,7 @@ export const FoundationCapabilityAnchor = LiteralKit([
   .pipe($I.annoteSchema(
     "FoundationCapabilityAnchor",
     {
-      description: "FoundationCapabilityAnchor",
+      description: "Anchor vocabulary used by foundation capability packages.",
     },
   ));
 
@@ -413,7 +419,7 @@ export const DriverAnchor = LiteralKit([
   .pipe($I.annoteSchema(
     "DriverAnchor",
     {
-      description: "DriverAnchor",
+      description: "Anchor vocabulary used by flat repo-level driver packages.",
     },
   ));
 
@@ -439,7 +445,7 @@ export const ToolingAnchor = LiteralKit([
   .pipe($I.annoteSchema(
     "ToolingAnchor",
     {
-      description: "ToolingAnchor",
+      description: "Anchor vocabulary shared across tooling packages.",
     },
   ));
 
@@ -463,7 +469,7 @@ export const ToolingPolicyPackAnchor = LiteralKit([
   .pipe($I.annoteSchema(
     "ToolingPolicyPackAnchor",
     {
-      description: "ToolingPolicyPackAnchor",
+      description: "Anchor vocabulary for tooling policy-pack packages.",
     },
   ));
 
@@ -487,7 +493,7 @@ export const ToolingTestkitAnchor = LiteralKit([
   .pipe($I.annoteSchema(
     "ToolingTestkitAnchor",
     {
-      description: "ToolingTestkitAnchor",
+      description: "Anchor vocabulary for tooling test-kit packages.",
     },
   ));
 
@@ -500,13 +506,13 @@ export const ToolingTestkitAnchor = LiteralKit([
 export type ToolingTestkitAnchor = typeof ToolingTestkitAnchor.Type;
 
 
-export const RolePostfix = KebabCaseStr.check(S.isLowercased())
+export const RolePostfix = KebabCaseStr
   .pipe(S.brand("RolePostfix"))
 
 export type RolePostfix = typeof RolePostfix.Type;
 
 export declare namespace RolePostfix {
-  export type Encoded = typeof RolePostfix.Type
+  export type Encoded = typeof RolePostfix.Encoded
 }
 
 export class UseCaseRoleDefinition extends S.Class<UseCaseRoleDefinition>($I`UseCaseRoleDefinition`)(
@@ -534,12 +540,12 @@ export class UseCaseRoleDefinition extends S.Class<UseCaseRoleDefinition>($I`Use
         S.decodeResult(UseCaseRoleDefinition),
         Result.getOrThrowWith(MetadataError.new("Invalid UseCaseRoleDefinition")),
       );
-      const capitalizedValue = Str.capitalize(value)
-      return S.Literal(value)
+      const capitalizedValue = Str.capitalize(normalized.value)
+      return S.Literal(normalized.value)
         .annotate({
           identifier: `${$I.identifier}/${capitalizedValue}UseCaseRole`,
           title: `${capitalizedValue} UseCase Role`,
-          description,
+          description: normalized.description,
           useCaseRoleMetadata: normalized,
         })
     },

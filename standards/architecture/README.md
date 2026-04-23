@@ -29,10 +29,17 @@ repo names while migrating; do not treat legacy roots, package-root exports, or
 | `protocol` | `use-cases/public` when client-safe; otherwise `use-cases/server` |
 | `runtime` | `server` or `client`; use `drivers` only when wrapping an external engine; treat top-level app assembly as an entrypoint concern, not a canonical package family |
 | `common` | `foundation` by default; use `shared/*` or a concrete slice when the code carries product semantics |
+| `core` | `foundation` for runtime-neutral substrate; otherwise `shared/*` or a concrete slice when the code carries product semantics |
+| `utils` | `foundation` for domain-agnostic helpers; otherwise route to `shared/*` or the owning slice |
+| `lib` | `foundation` by default; route to `shared/*`, `drivers`, or a concrete slice when the code has a clearer boundary |
 
 Boundary-sensitive packages use explicit subpaths as the canonical contract.
 Package roots and `./*` exports may still exist during migration, but they are
 compatibility leftovers rather than the intended architecture.
+Legacy names such as `common`, `core`, `utils`, and `lib` should be treated the
+same way: compatibility leftovers to be routed into `foundation`, `shared/*`,
+`drivers`, or a concrete slice rather than preserved as target-era package
+roots.
 
 ## Document Index
 
