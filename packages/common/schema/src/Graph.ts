@@ -471,11 +471,11 @@ export const isGraph = <Node, Edge>(
  * @category Validation
  */
 export const EdgeEncoded = <Data extends S.Top>(data: Data): EdgeEncodedSchema<Data> => {
-  const schema = S.Struct({
+  const schema = S.Class<EdgeEncoded<Data["Type"]>>($I`EdgeEncoded`)({
     source: NodeIndex,
     target: NodeIndex,
     data,
-  });
+  }).mapFields((fields) => fields);
 
   return S.make<EdgeEncodedSchema<Data>>(schema.ast, { data }).pipe(
     $I.annoteSchema("EdgeEncoded", {
@@ -677,12 +677,12 @@ export const GraphEncoded: {
     type: GraphKind,
     nodes: S.Array(S.Tuple([NodeIndex, node])),
     edges: S.Array(
-      S.Struct({
+      S.Class<GraphEncoded<Node["Type"], Edge["Type"]>["edges"][number]>($I`GraphEncodedEdge`)({
         index: EdgeIndex,
         source: NodeIndex,
         target: NodeIndex,
         data: edge,
-      })
+      }).mapFields((fields) => fields)
     ),
   });
 

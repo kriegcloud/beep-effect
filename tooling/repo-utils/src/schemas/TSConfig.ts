@@ -1546,15 +1546,6 @@ const TSConfigShape = S.Struct(tsConfigFields);
 
 type TSConfigShapeType = S.Schema.Type<typeof TSConfigShape>;
 
-const tsConfigSemanticFields = {
-  ...tsConfigFields,
-  compilerOptions: nullableOptionalField(
-    TSConfigCompilerOptions,
-    "TSConfigCompilerOptionsField",
-    compilerOptionsDescription
-  ),
-} as const;
-
 const getCompilerTarget = (config: TSConfigShapeType): (typeof TARGET_VALUES)[number] =>
   pipe(
     toOptionalValue(config.compilerOptions),
@@ -1590,13 +1581,11 @@ const TSConfigSemanticChecks = S.makeFilterGroup(
   }
 );
 
-const TSConfigSemantic = S.Struct(tsConfigSemanticFields)
-  .check(TSConfigSemanticChecks)
-  .annotate(
-    $I.annote("TSConfigSemantic", {
-      description: "Strict tsconfig shape with cross-field semantic checks used by the decode helpers.",
-    })
-  );
+const TSConfigSemantic = TSConfigShape.check(TSConfigSemanticChecks).annotate(
+  $I.annote("TSConfigSemantic", {
+    description: "Strict tsconfig shape with cross-field semantic checks used by the decode helpers.",
+  })
+);
 
 /**
  * Strict TypeScript tsconfig document schema.

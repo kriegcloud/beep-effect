@@ -811,9 +811,14 @@ export const makeBlankNode = (value: string): BlankNode =>
  * @since 0.0.0
  * @category utilities
  */
-export type MakeLiteralOptions = {
-  readonly language?: string | undefined;
-};
+export class MakeLiteralOptions extends S.Class<MakeLiteralOptions>($I`MakeLiteralOptions`)(
+  {
+    language: S.optional(S.String),
+  },
+  $I.annote("MakeLiteralOptions", {
+    description: "Optional language settings for makeLiteral.",
+  })
+) {}
 
 const isMakeLiteralDataFirst = (args: IArguments): boolean => args.length >= 2 && P.isString(args[1]);
 
@@ -867,10 +872,15 @@ export const makeLiteral: {
  * @since 0.0.0
  * @category utilities
  */
-export type MakeQuadOptions = {
-  readonly object: ObjectTerm;
-  readonly graph?: GraphTerm | undefined;
-};
+export class MakeQuadOptions extends S.Class<MakeQuadOptions>($I`MakeQuadOptions`)(
+  {
+    object: ObjectTerm,
+    graph: S.optional(GraphTerm),
+  },
+  $I.annote("MakeQuadOptions", {
+    description: "Object and optional graph settings for makeQuad.",
+  })
+) {}
 
 const isMakeQuadOptions = (input: ObjectTerm | MakeQuadOptions): input is MakeQuadOptions =>
   P.hasProperty(input, "object");
