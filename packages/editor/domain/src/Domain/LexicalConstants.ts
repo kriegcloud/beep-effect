@@ -701,66 +701,54 @@ export type LTRRegex = typeof LTRRegex.Type;
 /**
  * @since 0.0.0
  */
-export const TextTypeToFormat = S.Struct({
-  bold: IsBold,
-  capitalize: IsCapitalize,
-  code: IsCode,
-  highlight: IsHighlight,
-  italic: IsItalic,
-  lowercase: IsLowercase,
-  strikethrough: IsStrikethrough,
-  subscript: IsSubscript,
-  superscript: IsSuperscript,
-  underline: IsUnderline,
-  uppercase: IsUppercase,
-}).pipe(
-  $I.annoteSchema("TextTypeToFormat", {
+export class TextTypeToFormat extends S.Class<TextTypeToFormat>($I`TextTypeToFormat`)(
+  {
+    bold: IsBold,
+    capitalize: IsCapitalize,
+    code: IsCode,
+    highlight: IsHighlight,
+    italic: IsItalic,
+    lowercase: IsLowercase,
+    strikethrough: IsStrikethrough,
+    subscript: IsSubscript,
+    superscript: IsSuperscript,
+    underline: IsUnderline,
+    uppercase: IsUppercase,
+  },
+  $I.annote("TextTypeToFormat", {
     description: "Schema for the Lexical text-format lookup table.",
   })
-);
+) {}
 
 /**
  * @since 0.0.0
  */
-export type TextTypeToFormat = typeof TextTypeToFormat.Type;
-
-/**
- * @since 0.0.0
- */
-export const DetailTypeToDetail = S.Struct({
-  directionless: IsDirectionless,
-  unmergeable: IsUnmergeable,
-}).pipe(
-  $I.annoteSchema("DetailTypeToDetail", {
+export class DetailTypeToDetail extends S.Class<DetailTypeToDetail>($I`DetailTypeToDetail`)(
+  {
+    directionless: IsDirectionless,
+    unmergeable: IsUnmergeable,
+  },
+  $I.annote("DetailTypeToDetail", {
     description: "Schema for the Lexical text-detail lookup table.",
   })
-);
+) {}
 
 /**
  * @since 0.0.0
  */
-export type DetailTypeToDetail = typeof DetailTypeToDetail.Type;
-
-/**
- * @since 0.0.0
- */
-export const ElementTypeToFormat = S.Struct({
-  center: IsAlignCenter,
-  end: IsAlignEnd,
-  justify: IsAlignJustify,
-  left: IsAlignLeft,
-  right: IsAlignRight,
-  start: IsAlignStart,
-}).pipe(
-  $I.annoteSchema("ElementTypeToFormat", {
+export class ElementTypeToFormat extends S.Class<ElementTypeToFormat>($I`ElementTypeToFormat`)(
+  {
+    center: IsAlignCenter,
+    end: IsAlignEnd,
+    justify: IsAlignJustify,
+    left: IsAlignLeft,
+    right: IsAlignRight,
+    start: IsAlignStart,
+  },
+  $I.annote("ElementTypeToFormat", {
     description: "Schema for the Lexical element-format lookup table.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type ElementTypeToFormat = typeof ElementTypeToFormat.Type;
+) {}
 
 /**
  * @since 0.0.0
@@ -786,20 +774,16 @@ export type ElementFormatToType = typeof ElementFormatToType.Type;
 /**
  * @since 0.0.0
  */
-export const TextModeToType = S.Struct({
-  normal: IsNormal,
-  segmented: IsSegmented,
-  token: IsToken,
-}).pipe(
-  $I.annoteSchema("TextModeToType", {
+export class TextModeToType extends S.Class<TextModeToType>($I`TextModeToType`)(
+  {
+    normal: IsNormal,
+    segmented: IsSegmented,
+    token: IsToken,
+  },
+  $I.annote("TextModeToType", {
     description: "Schema for the Lexical text-mode lookup table.",
   })
-);
-
-/**
- * @since 0.0.0
- */
-export type TextModeToType = typeof TextModeToType.Type;
+) {}
 
 /**
  * @since 0.0.0

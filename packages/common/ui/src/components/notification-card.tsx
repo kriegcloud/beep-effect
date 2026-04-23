@@ -3,7 +3,7 @@
 import { $UiId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { ArrowRightIcon, CheckIcon, ClockIcon, SpinnerGapIcon, WarningCircleIcon } from "@phosphor-icons/react";
-import { DateTime, pipe, Tuple } from "effect";
+import { DateTime, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import { cn } from "../lib/index.ts";
@@ -33,18 +33,19 @@ export const ActionStyle = LiteralKit(["primary", "danger", "default"]).pipe(
 );
 export type ActionStyle = typeof ActionStyle.Type;
 
-export const NotificationAction = ActionType.mapMembers((members) => {
-  const make = <T extends ActionType>(literal: S.Literal<T>) =>
-    S.Struct({
-      type: S.tag(literal.literal),
-      executed: S.OptionFromOptionalKey(S.Boolean),
-      id: S.String,
-      label: S.String,
-      style: S.OptionFromOptionalKey(ActionStyle),
-    });
-  return pipe(members, Tuple.evolve([make, make, make, make]));
+const NotificationActionFields = {
+  executed: S.OptionFromOptionalKey(S.Boolean),
+  id: S.String,
+  label: S.String,
+  style: S.OptionFromOptionalKey(ActionStyle),
+};
+
+export const NotificationAction = ActionType.toTaggedUnion("type")({
+  redirect: NotificationActionFields,
+  api_call: NotificationActionFields,
+  workflow: NotificationActionFields,
+  modal: NotificationActionFields,
 }).pipe(
-  S.toTaggedUnion("type"),
   $I.annoteSchema("NotificationAction", {
     description: "An action to perform on a notification",
   })

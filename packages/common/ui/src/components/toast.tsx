@@ -1,11 +1,16 @@
 "use client";
 
 import { Toast as ToastPrimitive } from "@base-ui/react/toast";
+import { $UiId } from "@beep/identity";
+import { LiteralKit } from "@beep/schema";
 import { XIcon } from "@phosphor-icons/react";
 import type { VariantProps } from "class-variance-authority";
 import { cva } from "class-variance-authority";
+import * as S from "effect/Schema";
 import * as React from "react";
 import { cn } from "../lib/index.ts";
+
+const $I = $UiId.create("components/toast");
 
 const ToastProvider = ToastPrimitive.Provider;
 
@@ -42,9 +47,22 @@ interface ToastRootProps extends Omit<ToastPrimitive.Root.Props, "toast">, Varia
   toast: ToastPrimitive.Root.ToastObject<ToastData>;
 }
 
-interface ToastData {
-  variant?: "default" | "destructive";
-}
+export const ToastVariant = LiteralKit(["default", "destructive"] as const).pipe(
+  $I.annoteSchema("ToastVariant", {
+    description: "Visual variants supported by toast notifications.",
+  })
+);
+
+export type ToastVariant = typeof ToastVariant.Type;
+
+export class ToastData extends S.Class<ToastData>($I`ToastData`)(
+  {
+    variant: S.optionalKey(ToastVariant),
+  },
+  $I.annote("ToastData", {
+    description: "Data carried by toast notifications.",
+  })
+) {}
 
 const Toast = React.forwardRef<HTMLDivElement, ToastRootProps>(({ className, variant, toast, ...props }, ref) => {
   const resolvedVariant = variant ?? toast.data?.variant ?? "default";
@@ -113,7 +131,6 @@ export {
   ToastAction,
   type ToastActionElement,
   ToastClose,
-  type ToastData,
   ToastDescription,
   ToastPrimitive,
   type ToastProps,

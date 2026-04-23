@@ -693,9 +693,14 @@ export const refreshPageDocument: {
  * @since 0.0.0
  * @category Helpers
  */
-export type MakeRevisionRecordOptions = {
-  readonly reason: string;
-};
+export class MakeRevisionRecordOptions extends S.Class<MakeRevisionRecordOptions>($I`MakeRevisionRecordOptions`)(
+  {
+    reason: S.String,
+  },
+  $I.annote("MakeRevisionRecordOptions", {
+    description: "Revision metadata captured when creating an immutable page revision record.",
+  })
+) {}
 
 const makeRevisionRecordInternal = (
   page: PageDocument,

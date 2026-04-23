@@ -426,15 +426,33 @@ export declare namespace ColumnDataType {
 }
 
 /**
+ * Schema-backed data extracted from a SQL column type string.
+ *
  * @since 0.0.0
  * @category DomainModel
  */
-export interface ColumnTypeData<
-  TType extends ColumnDataType = ColumnDataType,
-  TConstraint extends ColumnDataConstraint | undefined = ColumnDataConstraint | undefined,
-> {
-  constraint: TConstraint;
-  type: TType;
+export class ColumnTypeData extends S.Class<ColumnTypeData>($I`ColumnTypeData`)(
+  {
+    constraint: S.UndefinedOr(ColumnDataConstraint),
+    type: ColumnDataType,
+  },
+  $I.annote("ColumnTypeData", {
+    description: "Data extracted from a SQL column type string.",
+  })
+) {}
+
+/**
+ * @since 0.0.0
+ * @category DomainModel
+ */
+export declare namespace ColumnTypeData {
+  /**
+   * @since 0.0.0
+   */
+  export type Narrow<
+    TType extends ColumnDataType = ColumnDataType,
+    TConstraint extends ColumnDataConstraint | undefined = ColumnDataConstraint | undefined,
+  > = ColumnTypeData & Readonly<Record<"constraint", TConstraint> & Record<"type", TType>>;
 }
 
 /**
@@ -449,8 +467,8 @@ export type Assume<T, U> = T extends U ? T : U;
  */
 export type ExtractColumnTypeData<T extends ColumnType> =
   T extends `${infer Type extends ColumnDataType} ${infer Constraint extends ColumnDataConstraint}`
-    ? ColumnTypeData<Type, Constraint>
-    : ColumnTypeData<Assume<T, ColumnDataType>, undefined>;
+    ? ColumnTypeData.Narrow<Type, Constraint>
+    : ColumnTypeData.Narrow<Assume<T, ColumnDataType>, undefined>;
 
 /**
  * @since 0.0.0
