@@ -80,8 +80,8 @@ should be schema-first whenever `Schema` can represent the shape.
 
 Humans get the map from mirrored package paths. Agents get instruction from role
 suffixes. This is why the repo uses concept-qualified role module names such as
-`TwoFactor.policy.ts`, `TwoFactor.event-handlers.ts`, and
-`TwoFactor.command-client.ts`.
+`Membership.policy.ts`, `Membership.event-handlers.ts`, and
+`Membership.command-client.ts`.
 
 Role suffixes are canonical when the role exists. The full vocabulary is not
 required for every concept.
@@ -276,21 +276,21 @@ packages/iam/
         Enrollment.events.ts
         Enrollment.policy.ts
     entities/
-      TwoFactor/
+      Membership/
         index.ts
-        TwoFactor.model.ts
-        TwoFactor.values.ts
-        TwoFactor.errors.ts
-        TwoFactor.behavior.ts
-        TwoFactor.policy.ts
-        TwoFactor.access.ts
-        TwoFactor.contracts.ts
-        TwoFactor.events.ts
-        TwoFactor.machine.ts
-        TwoFactor.http.ts
-        TwoFactor.rpc.ts
-        TwoFactor.tools.ts
-        TwoFactor.cluster.ts
+        Membership.model.ts
+        Membership.values.ts
+        Membership.errors.ts
+        Membership.behavior.ts
+        Membership.policy.ts
+        Membership.access.ts
+        Membership.contracts.ts
+        Membership.events.ts
+        Membership.machine.ts
+        Membership.http.ts
+        Membership.rpc.ts
+        Membership.tools.ts
+        Membership.cluster.ts
     values/
       LocalDate/
         LocalDate.model.ts
@@ -303,20 +303,20 @@ packages/iam/
 
   use-cases/src/
     entities/
-      TwoFactor/
-        TwoFactor.commands.ts
-        TwoFactor.queries.ts
-        TwoFactor.access.ts
-        TwoFactor.ports.ts
-        TwoFactor.service.ts
-        TwoFactor.errors.ts
-        TwoFactor.workflows.ts
-        TwoFactor.processes.ts
+      Membership/
+        Membership.commands.ts
+        Membership.queries.ts
+        Membership.access.ts
+        Membership.ports.ts
+        Membership.service.ts
+        Membership.errors.ts
+        Membership.workflows.ts
+        Membership.processes.ts
 
   config/src/
     entities/
-      TwoFactor/
-        TwoFactor.config.ts
+      Membership/
+        Membership.config.ts
     Config.ts
     PublicConfig.ts
     ServerConfig.ts
@@ -326,16 +326,16 @@ packages/iam/
 
   server/src/
     entities/
-      TwoFactor/
-        TwoFactor.repo.ts
-        TwoFactor.http-handlers.ts
-        TwoFactor.rpc-handlers.ts
-        TwoFactor.tool-handlers.ts
-        TwoFactor.event-handlers.ts
-        TwoFactor.cluster-handlers.ts
-        TwoFactor.workflow-handlers.ts
-        TwoFactor.projections.ts
-        TwoFactor.layer.ts
+      Membership/
+        Membership.repo.ts
+        Membership.http-handlers.ts
+        Membership.rpc-handlers.ts
+        Membership.tool-handlers.ts
+        Membership.event-handlers.ts
+        Membership.cluster-handlers.ts
+        Membership.workflow-handlers.ts
+        Membership.projections.ts
+        Membership.layer.ts
     Api.ts
     Rpc.ts
     Tools.ts
@@ -345,32 +345,32 @@ packages/iam/
 
   tables/src/
     entities/
-      TwoFactor/
-        TwoFactor.table.ts
-        TwoFactor.read-model-table.ts
+      Membership/
+        Membership.table.ts
+        Membership.read-model-table.ts
     Tables.ts
     ReadModels.ts
 
   client/src/
     entities/
-      TwoFactor/
-        TwoFactor.command-client.ts
-        TwoFactor.query-client.ts
-        TwoFactor.service.ts
-        TwoFactor.atoms.ts
-        TwoFactor.form-model.ts
-        TwoFactor.machine.ts
-        TwoFactor.layer.ts
+      Membership/
+        Membership.command-client.ts
+        Membership.query-client.ts
+        Membership.service.ts
+        Membership.atoms.ts
+        Membership.form-model.ts
+        Membership.machine.ts
+        Membership.layer.ts
 
   ui/src/
     entities/
-      TwoFactor/
-        TwoFactor.form.tsx
-        TwoFactor.fields.tsx
-        TwoFactor.table.tsx
-        TwoFactor.list.tsx
-        TwoFactor.detail.tsx
-        TwoFactor.admin.tsx
+      Membership/
+        Membership.form.tsx
+        Membership.fields.tsx
+        Membership.table.tsx
+        Membership.list.tsx
+        Membership.detail.tsx
+        Membership.admin.tsx
 
   providers/
     postgres/src/
@@ -425,9 +425,9 @@ For React UI files:
 Multi-word roles use hyphenated suffixes:
 
 ```txt
-TwoFactor.event-handlers.ts
-TwoFactor.command-client.ts
-TwoFactor.read-model-table.ts
+Membership.event-handlers.ts
+Membership.command-client.ts
+Membership.read-model-table.ts
 ```
 
 Package-level composers use PascalCase:
@@ -673,7 +673,7 @@ may consult product ports such as grants, org membership, ownership lookup, or
 feature flags.
 
 Domain `*.policy.ts` defines pure domain decision law, such as whether a
-TwoFactor enrollment can be disabled or whether recovery codes may be rotated.
+membership may be revoked or whether a membership role may be changed.
 
 Errors are split by actionability:
 
@@ -697,9 +697,9 @@ implementation relationship.
 
 ```mermaid
 flowchart LR
-  usecases["use-cases\nTwoFactor.ports.ts\nTwoFactorRepository"]
-  server["server\nTwoFactor.repo.ts"]
-  tables["tables\nTwoFactor.table.ts"]
+  usecases["use-cases\nMembership.ports.ts\nMembershipRepository"]
+  server["server\nMembership.repo.ts"]
+  tables["tables\nMembership.table.ts"]
   drizzle["providers/drizzle\nDrizzle.service.ts"]
   postgres["providers/postgres\nPostgres.service.ts"]
   db[("Postgres")]
@@ -711,7 +711,7 @@ flowchart LR
   postgres --> db
 ```
 
-In this shape, a use-case can ask for `TwoFactorRepository` without knowing
+In this shape, a use-case can ask for `MembershipRepository` without knowing
 whether the implementation uses Drizzle, Postgres, SQLite, a test store, or an
 event-sourced projection.
 
@@ -777,30 +777,32 @@ export const makeDrizzleLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
 ```
 
 Product ports use product language. Actionable port failures live in
-`TwoFactor.errors.ts`; the port file imports those errors instead of defining
+`Membership.errors.ts`; the port file imports those errors instead of defining
 technical/provider failures inline:
 
 ```ts
 import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, type Effect } from "effect"
 import type * as O from "effect/Option"
-import type { TwoFactor } from "@beep/iam-domain/entities/TwoFactor"
-import type { AccountId } from "@beep/iam-domain/entities/Account"
-import type { TwoFactorRepositoryError } from "./TwoFactor.errors.js"
+import type {
+  Membership,
+  MembershipId,
+} from "@beep/iam-domain/entities/Membership"
+import type { MembershipRepositoryError } from "./Membership.errors.js"
 
-const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.ports")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.ports")
 
-export class TwoFactorRepository extends Context.Service<
-  TwoFactorRepository,
+export class MembershipRepository extends Context.Service<
+  MembershipRepository,
   {
     readonly save: (
-      model: TwoFactor,
-    ) => Effect.Effect<void, TwoFactorRepositoryError>
-    readonly findByAccountId: (
-      accountId: AccountId,
-    ) => Effect.Effect<O.Option<TwoFactor>, TwoFactorRepositoryError>
+      model: Membership,
+    ) => Effect.Effect<void, MembershipRepositoryError>
+    readonly findById: (
+      id: MembershipId,
+    ) => Effect.Effect<O.Option<Membership>, MembershipRepositoryError>
   }
->()($I`TwoFactorRepository`) {}
+>()($I`MembershipRepository`) {}
 ```
 
 The implementation belongs in server:
@@ -812,37 +814,37 @@ import * as O from "effect/Option"
 import * as S from "effect/Schema"
 import { Drizzle } from "@beep/iam-drizzle"
 import {
-  TwoFactorRepository,
-  toTwoFactorRepositoryError,
-} from "@beep/iam-use-cases/entities/TwoFactor"
+  MembershipRepository,
+  toMembershipRepositoryError,
+} from "@beep/iam-use-cases/entities/Membership"
 import {
-  TwoFactorRow,
-  TwoFactorTable,
-} from "@beep/iam-tables/entities/TwoFactor"
+  MembershipRow,
+  MembershipTable,
+} from "@beep/iam-tables/entities/Membership"
 
-export const TwoFactorRepositoryLive = Layer.effect(
-  TwoFactorRepository,
+export const MembershipRepositoryLive = Layer.effect(
+  MembershipRepository,
   Effect.gen(function* () {
     const drizzle = yield* Drizzle
 
     return {
-      save: Effect.fn("TwoFactorRepository.save")((model) =>
+      save: Effect.fn("MembershipRepository.save")((model) =>
         drizzle
-          .execute(`upsert into ${TwoFactorTable.name}`, [
-            TwoFactorTable.toRow(model),
+          .execute(`upsert into ${MembershipTable.name}`, [
+            MembershipTable.toRow(model),
           ])
           .pipe(
             Effect.asVoid,
             Effect.mapError((error) =>
-              toTwoFactorRepositoryError("save", error),
+              toMembershipRepositoryError("save", error),
             ),
           )),
-      findByAccountId: Effect.fn("TwoFactorRepository.findByAccountId")(
-        (accountId) =>
+      findById: Effect.fn("MembershipRepository.findById")(
+        (id) =>
           drizzle
             .execute(
-              `select * from ${TwoFactorTable.name} where account_id = $1 limit 1`,
-              [accountId],
+              `select * from ${MembershipTable.name} where id = $1 limit 1`,
+              [id],
             )
             .pipe(
               Effect.flatMap((rows) =>
@@ -850,15 +852,15 @@ export const TwoFactorRepositoryLive = Layer.effect(
                   O.match({
                     onNone: () => Effect.succeed(O.none()),
                     onSome: (row) =>
-                      S.decodeUnknownEffect(TwoFactorRow)(row).pipe(
-                        Effect.map(TwoFactorTable.fromRow),
+                      S.decodeUnknownEffect(MembershipRow)(row).pipe(
+                        Effect.map(MembershipTable.fromRow),
                         Effect.map(O.some),
                       ),
                   }),
                 ),
               ),
               Effect.mapError((error) =>
-                toTwoFactorRepositoryError("findByAccountId", error),
+                toMembershipRepositoryError("findById", error),
               ),
             ),
       ),
@@ -876,12 +878,12 @@ implementation relationship.
 
 ```mermaid
 flowchart TD
-  command["TwoFactor.commands.ts\nEnableTwoFactorCommand"]
-  service["TwoFactor.service.ts\napplication service"]
-  policy["TwoFactor.policy.ts\npure decision law"]
-  repo["TwoFactor.ports.ts\nTwoFactorRepository"]
-  impl["server/TwoFactor.repo.ts"]
-  table["tables/TwoFactor.table.ts"]
+  command["Membership.commands.ts\nRevokeMembershipCommand"]
+  service["Membership.service.ts\napplication service"]
+  policy["Membership.policy.ts\npure decision law"]
+  repo["Membership.ports.ts\nMembershipRepository"]
+  impl["server/Membership.repo.ts"]
+  table["tables/Membership.table.ts"]
   provider["providers/drizzle"]
 
   command --> service
@@ -895,28 +897,28 @@ flowchart TD
 Domain owns events and pure lifecycle machines:
 
 ```txt
-domain/src/entities/TwoFactor/TwoFactor.events.ts
-domain/src/entities/TwoFactor/TwoFactor.machine.ts
+domain/src/entities/Membership/Membership.events.ts
+domain/src/entities/Membership/Membership.machine.ts
 domain/src/Events.ts
 ```
 
 Use-cases own commands, queries, workflows, process managers, and product ports:
 
 ```txt
-use-cases/src/entities/TwoFactor/TwoFactor.commands.ts
-use-cases/src/entities/TwoFactor/TwoFactor.queries.ts
-use-cases/src/entities/TwoFactor/TwoFactor.workflows.ts
-use-cases/src/entities/TwoFactor/TwoFactor.processes.ts
-use-cases/src/entities/TwoFactor/TwoFactor.ports.ts
+use-cases/src/entities/Membership/Membership.commands.ts
+use-cases/src/entities/Membership/Membership.queries.ts
+use-cases/src/entities/Membership/Membership.workflows.ts
+use-cases/src/entities/Membership/Membership.processes.ts
+use-cases/src/entities/Membership/Membership.ports.ts
 ```
 
 Server owns handlers, projections, and runtime layers:
 
 ```txt
-server/src/entities/TwoFactor/TwoFactor.event-handlers.ts
-server/src/entities/TwoFactor/TwoFactor.projections.ts
-server/src/entities/TwoFactor/TwoFactor.cluster-handlers.ts
-server/src/entities/TwoFactor/TwoFactor.workflow-handlers.ts
+server/src/entities/Membership/Membership.event-handlers.ts
+server/src/entities/Membership/Membership.projections.ts
+server/src/entities/Membership/Membership.cluster-handlers.ts
+server/src/entities/Membership/Membership.workflow-handlers.ts
 ```
 
 Providers own technical engines:
@@ -932,8 +934,8 @@ Event and projection flow:
 
 ```mermaid
 sequenceDiagram
-  participant Command as TwoFactor command handler
-  participant Domain as TwoFactor domain behavior
+  participant Command as Membership command handler
+  participant Domain as Membership domain behavior
   participant Port as use-cases event port
   participant Adapter as server event adapter
   participant EventLog as providers/eventlog
@@ -996,7 +998,7 @@ Package-level Layer composers are still useful. The rule is that they should
 compose a slice or adapter boundary, not become the place where unrelated slices
 are welded together.
 
-## Worked `iam/TwoFactor` Example
+## Worked `iam/Membership` Example
 
 Domain errors are actionable, and domain model behavior is pure:
 
@@ -1004,69 +1006,83 @@ Domain errors are actionable, and domain model behavior is pure:
 import { $IamDomainId } from "@beep/identity/packages"
 import { TaggedErrorClass } from "@beep/schema"
 
-const $I = $IamDomainId.create("entities/TwoFactor/TwoFactor.errors")
+const $I = $IamDomainId.create("entities/Membership/Membership.errors")
 
-export class NoRecoveryCodesRemaining extends TaggedErrorClass<NoRecoveryCodesRemaining>(
-  $I`NoRecoveryCodesRemaining`,
+export class MembershipAlreadyRevoked extends TaggedErrorClass<MembershipAlreadyRevoked>(
+  $I`MembershipAlreadyRevoked`,
 )(
-  "NoRecoveryCodesRemaining",
+  "MembershipAlreadyRevoked",
   {},
-  $I.annote("NoRecoveryCodesRemaining", {
-    description: "Recovery-code use failed because no recovery codes remain.",
+  $I.annote("MembershipAlreadyRevoked", {
+    description: "Membership revocation failed because it is already revoked.",
   }),
 ) {}
 ```
 
 ```ts
 import { $IamDomainId } from "@beep/identity/packages"
+import { LiteralKit } from "@beep/schema"
 import * as Model from "@beep/schema/Model"
 import { Effect } from "effect"
 import * as S from "effect/Schema"
 import { AccountId } from "@beep/iam-domain/entities/Account"
-import { NoRecoveryCodesRemaining } from "./TwoFactor.errors.js"
+import { OrganizationId } from "@beep/iam-domain/entities/Organization"
+import { MembershipAlreadyRevoked } from "./Membership.errors.js"
 
-const $I = $IamDomainId.create("entities/TwoFactor/TwoFactor.model")
+const $I = $IamDomainId.create("entities/Membership/Membership.model")
 
-export const TwoFactorId = S.String.pipe(
-  S.brand("TwoFactorId"),
-  $I.annoteSchema("TwoFactorId", {
-    description: "Unique identifier for a two-factor authentication configuration",
+export const MembershipId = S.String.pipe(
+  S.brand("MembershipId"),
+  $I.annoteSchema("MembershipId", {
+    description: "Unique identifier for an organization membership.",
   }),
 )
-export type TwoFactorId = typeof TwoFactorId.Type
+export type MembershipId = typeof MembershipId.Type
 
-export class TwoFactor extends Model.Class<TwoFactor>($I`TwoFactor`)(
+export const MembershipRole = LiteralKit(["owner", "admin", "member"]).pipe(
+  $I.annoteSchema("MembershipRole", {
+    description: "Role granted by an organization membership.",
+  }),
+)
+export type MembershipRole = typeof MembershipRole.Type
+
+export const MembershipStatus = LiteralKit([
+  "active",
+  "invited",
+  "revoked",
+]).pipe(
+  $I.annoteSchema("MembershipStatus", {
+    description: "Lifecycle status of an organization membership.",
+  }),
+)
+export type MembershipStatus = typeof MembershipStatus.Type
+
+export class Membership extends Model.Class<Membership>($I`Membership`)(
   {
-    id: TwoFactorId,
+    id: MembershipId,
+    organizationId: OrganizationId,
     accountId: AccountId,
-    enabled: S.Boolean,
-    recoveryCodesRemaining: S.Number,
+    role: MembershipRole,
+    status: MembershipStatus,
   },
-  $I.annote("TwoFactor", {
-    description: "Two-factor authentication configuration for an account",
+  $I.annote("Membership", {
+    description: "Account participation in an organization.",
   }),
 ) {
-  readonly canDisable = (): boolean => this.enabled
+  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status)
 
-  readonly disable = (): TwoFactor =>
-    TwoFactor.make({
-      id: this.id,
-      accountId: this.accountId,
-      enabled: false,
-      recoveryCodesRemaining: this.recoveryCodesRemaining,
-    })
-
-  readonly useRecoveryCode = Effect.fn("TwoFactor.useRecoveryCode")(() =>
-    this.recoveryCodesRemaining > 0
+  readonly revoke = Effect.fn("Membership.revoke")(() =>
+    this.canRevoke()
       ? Effect.succeed(
-          TwoFactor.make({
+          Membership.make({
             id: this.id,
+            organizationId: this.organizationId,
             accountId: this.accountId,
-            enabled: this.enabled,
-            recoveryCodesRemaining: this.recoveryCodesRemaining - 1,
+            role: this.role,
+            status: MembershipStatus.Enum.revoked,
           }),
         )
-      : Effect.fail(new NoRecoveryCodesRemaining()),
+      : Effect.fail(new MembershipAlreadyRevoked()),
   )
 }
 ```
@@ -1077,52 +1093,54 @@ Use-case service orchestrates ports and domain behavior:
 import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, Effect, Layer } from "effect"
 import * as O from "effect/Option"
-import { TwoFactorAccess } from "./TwoFactor.access.js"
-import type { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
+import type { MembershipAlreadyRevoked } from "@beep/iam-domain/entities/Membership"
+import { MembershipAccess } from "./Membership.access.js"
+import type { RevokeMembershipCommand } from "./Membership.commands.js"
 import {
-  TwoFactorAccessDenied,
-  TwoFactorNotFound,
-  TwoFactorRepositoryError,
-} from "./TwoFactor.errors.js"
-import { TwoFactorRepository } from "./TwoFactor.ports.js"
+  MembershipAccessDenied,
+  MembershipNotFound,
+  MembershipRepositoryError,
+} from "./Membership.errors.js"
+import { MembershipRepository } from "./Membership.ports.js"
 
-const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.service")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.service")
 
-export class TwoFactorService extends Context.Service<
-  TwoFactorService,
+export class MembershipService extends Context.Service<
+  MembershipService,
   {
-    readonly disable: (
-      command: DisableTwoFactorCommand,
+    readonly revoke: (
+      command: RevokeMembershipCommand,
     ) => Effect.Effect<
       void,
-      TwoFactorAccessDenied | TwoFactorNotFound | TwoFactorRepositoryError
+      | MembershipAccessDenied
+      | MembershipAlreadyRevoked
+      | MembershipNotFound
+      | MembershipRepositoryError
     >
   }
->()($I`TwoFactorService`) {}
+>()($I`MembershipService`) {}
 
-export const TwoFactorServiceLive = Layer.effect(
-  TwoFactorService,
+export const MembershipServiceLive = Layer.effect(
+  MembershipService,
   Effect.gen(function* () {
-    const access = yield* TwoFactorAccess
-    const repo = yield* TwoFactorRepository
+    const access = yield* MembershipAccess
+    const repo = yield* MembershipRepository
 
     return {
-      disable: Effect.fn("TwoFactorService.disable")(function* (
-        command: DisableTwoFactorCommand,
+      revoke: Effect.fn("MembershipService.revoke")(function* (
+        command: RevokeMembershipCommand,
       ) {
-        yield* access.assertCanDisable(command)
-        const model = yield* repo.findByAccountId(command.accountId).pipe(
+        yield* access.assertCanRevoke(command)
+        const model = yield* repo.findById(command.membershipId).pipe(
           Effect.flatMap(
             O.match({
-              onNone: () => Effect.fail(new TwoFactorNotFound()),
+              onNone: () => Effect.fail(new MembershipNotFound()),
               onSome: Effect.succeed,
             }),
           ),
         )
 
-        if (model.canDisable()) {
-          yield* repo.save(model.disable())
-        }
+        yield* model.revoke().pipe(Effect.flatMap(repo.save))
       }),
     }
   }),
@@ -1133,13 +1151,13 @@ Server handlers consume use-case services:
 
 ```ts
 import { Effect } from "effect"
-import type { DisableTwoFactorCommand } from "@beep/iam-use-cases/entities/TwoFactor"
-import { TwoFactorService } from "@beep/iam-use-cases/entities/TwoFactor"
+import type { RevokeMembershipCommand } from "@beep/iam-use-cases/entities/Membership"
+import { MembershipService } from "@beep/iam-use-cases/entities/Membership"
 
-export const disableTwoFactorHandler = Effect.fn("disableTwoFactorHandler")(
-  function* (command: DisableTwoFactorCommand) {
-    const twoFactor = yield* TwoFactorService
-    return yield* twoFactor.disable(command)
+export const revokeMembershipHandler = Effect.fn("revokeMembershipHandler")(
+  function* (command: RevokeMembershipCommand) {
+    const membership = yield* MembershipService
+    return yield* membership.revoke(command)
   },
 )
 ```

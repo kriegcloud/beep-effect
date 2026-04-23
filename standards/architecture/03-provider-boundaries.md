@@ -19,7 +19,7 @@ It is tempting to put a repository implementation inside
 library, not locality by product language.
 
 The problem is that the provider package becomes product-aware. It starts to
-know about `TwoFactor`, `Account`, `Organization`, and business errors. At that
+know about `Membership`, `Account`, `Organization`, and business errors. At that
 point it is no longer a Drizzle provider. It is a product adapter wearing a
 provider name.
 
@@ -31,23 +31,25 @@ Use-cases define what the application needs:
 import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, type Effect } from "effect"
 import type * as O from "effect/Option"
-import type { TwoFactor } from "@beep/iam-domain/entities/TwoFactor"
-import type { AccountId } from "@beep/iam-domain/entities/Account"
-import type { TwoFactorRepositoryError } from "./TwoFactor.errors.js"
+import type {
+  Membership,
+  MembershipId,
+} from "@beep/iam-domain/entities/Membership"
+import type { MembershipRepositoryError } from "./Membership.errors.js"
 
-const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.ports")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.ports")
 
-export class TwoFactorRepository extends Context.Service<
-  TwoFactorRepository,
+export class MembershipRepository extends Context.Service<
+  MembershipRepository,
   {
     readonly save: (
-      model: TwoFactor,
-    ) => Effect.Effect<void, TwoFactorRepositoryError>
-    readonly findByAccountId: (
-      accountId: AccountId,
-    ) => Effect.Effect<O.Option<TwoFactor>, TwoFactorRepositoryError>
+      model: Membership,
+    ) => Effect.Effect<void, MembershipRepositoryError>
+    readonly findById: (
+      id: MembershipId,
+    ) => Effect.Effect<O.Option<Membership>, MembershipRepositoryError>
   }
->()($I`TwoFactorRepository`) {}
+>()($I`MembershipRepository`) {}
 ```
 
 Providers define safe technical capability:
@@ -113,10 +115,10 @@ export const makeDrizzleLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
 Server connects them:
 
 ```txt
-server/TwoFactor.repo.ts
-  uses TwoFactor.table.ts
+server/Membership.repo.ts
+  uses Membership.table.ts
   uses Drizzle.service.ts
-  implements TwoFactorRepository
+  implements MembershipRepository
 ```
 
 ## What "Dev-Safe" Means
@@ -169,4 +171,4 @@ implementations into provider config files.
 same thing as generic provider capability.
 
 `providers/drizzle` can offer safe Drizzle helpers. `tables` declares the
-`TwoFactor` table. `server` uses both to implement the product repository.
+`Membership` table. `server` uses both to implement the product repository.

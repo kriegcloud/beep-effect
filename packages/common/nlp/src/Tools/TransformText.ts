@@ -21,7 +21,7 @@ const TransformOperationKit = LiteralKit([
   "removeSpecialChars",
   "retainAlphaNums",
   "removeElisions",
-] as const);
+]);
 const TransformOperation = TransformOperationKit.pipe(
   $I.annoteSchema("TransformOperation", {
     description: "Supported text transformation operation.",
@@ -31,10 +31,12 @@ const TransformOperation = TransformOperationKit.pipe(
 
 class TransformTextParameters extends S.Class<TransformTextParameters>($I`TransformTextParameters`)(
   {
+    /** Ordered list of transformations to apply */
     operations: S.Array(TransformOperation).annotateKey({
       description: "Ordered list of transformations to apply",
       examples: [["removeHtml", "lowercase", "trim"]],
     }),
+    /** The text to transform */
     text: S.String.annotateKey({
       description: "The text to transform",
       examples: ["<b>Hello</b>  WORLD!! "],
@@ -47,9 +49,11 @@ class TransformTextParameters extends S.Class<TransformTextParameters>($I`Transf
 
 class TransformTextSuccess extends S.Class<TransformTextSuccess>($I`TransformTextSuccess`)(
   {
+    /** List of operations that were applied */
     operationsApplied: S.Array(S.String).annotateKey({
       description: "List of operations that were applied",
     }),
+    /** The transformed text */
     result: S.String.annotateKey({
       description: "The transformed text",
     }),

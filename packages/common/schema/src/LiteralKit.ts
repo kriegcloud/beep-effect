@@ -671,7 +671,7 @@ export interface LiteralKit<L extends Literals, M extends EnumMappings<L> | unde
  * });
  * void result;
  *
- * const EventKind = LiteralKit(["created", "deleted"] as const);
+ * const EventKind = LiteralKit(["created", "deleted"]);
  *
  * const Event = EventKind.toTaggedUnion("kind")({
  *

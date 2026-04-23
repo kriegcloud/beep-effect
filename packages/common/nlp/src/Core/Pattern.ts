@@ -41,7 +41,7 @@ const WinkPOSTagKit = LiteralKit([
   "VERB",
   "X",
   "SPACE",
-] as const);
+]);
 const WinkEntityTypeKit = LiteralKit([
   "DATE",
   "ORDINAL",
@@ -56,7 +56,7 @@ const WinkEntityTypeKit = LiteralKit([
   "EMAIL",
   "URL",
   "MENTION",
-] as const);
+]);
 
 const renderBracketString = (values: ReadonlyArray<string>): string => `[${A.join(values, "|")}]`;
 

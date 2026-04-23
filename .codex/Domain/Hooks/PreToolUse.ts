@@ -46,7 +46,7 @@ export class PreToolUseToolInput extends S.Class<PreToolUseToolInput>($I`PreTool
  * @since 0.0.0
  * @category DomainModel
  */
-export const PreToolUsePermissionDecision = LiteralKit(["allow", "deny", "ask"] as const).annotate(
+export const PreToolUsePermissionDecision = LiteralKit(["allow", "deny", "ask"]).annotate(
   $I.annote("PreToolUsePermissionDecision", {
     description: "Permission decision values accepted in PreToolUse hook-specific output.",
   })
@@ -66,7 +66,7 @@ export type PreToolUsePermissionDecision = typeof PreToolUsePermissionDecision.T
  * @since 0.0.0
  * @category DomainModel
  */
-export const PreToolUseDecision = LiteralKit(["approve", "block"] as const).annotate(
+export const PreToolUseDecision = LiteralKit(["approve", "block"]).annotate(
   $I.annote("PreToolUseDecision", {
     description: "Legacy decision values accepted by PreToolUse command output.",
   })

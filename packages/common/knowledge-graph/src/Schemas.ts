@@ -6,15 +6,7 @@
  *
  * @example
  * ```typescript
- * import {
- *
- *
- *
- *
- *
- *
- *
- * } from "@beep/knowledge-graph/Schemas"
+ * import {} from "@beep/knowledge-graph/Schemas"
  *
  * KnowledgeNodeKind.Enum.page // "page"
  * KnowledgeEdgeKind.is["wiki_link"]("wiki_link") // true
@@ -86,13 +78,7 @@ export type KnowledgeNodeKind = typeof KnowledgeNodeKind.Type;
  * ```typescript
  * import { KnowledgeEdgeKind } from "@beep/knowledge-graph/Schemas"
  *
- * KnowledgeEdgeKind.$match("wiki_link", {
- *
- *
- *
- *
- *
- * })
+ * KnowledgeEdgeKind.$match("wiki_link", {})
  * ```
  *
  * @category models

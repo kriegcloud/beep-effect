@@ -24,32 +24,19 @@
  */
 import { $SharedDomainId } from "@beep/identity/packages";
 import type { NonEmptyTrimmedStr } from "@beep/schema";
+import { A, P } from "@beep/utils";
 import { Context, Effect, Stream } from "effect";
-import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as EventJournal from "effect/unstable/eventlog/EventJournal";
 import * as EventLog from "effect/unstable/eventlog/EventLog";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
 import type { SqlError } from "effect/unstable/sql/SqlError";
 import type { Fragment } from "effect/unstable/sql/Statement";
-
-import {
-  type EdgeCreatedPayload,
-  EdgeRemovedPayload,
-  KnowledgeGraphSchema,
-  type NodeCreatedPayload,
-  NodeRemovedPayload,
-  type NodeUpdatedPayload,
-  SnapshotResetPayload,
-} from "./Events.ts";
+import type { EdgeCreatedPayload, NodeCreatedPayload, NodeUpdatedPayload } from "./Events.ts";
+import { EdgeRemovedPayload, KnowledgeGraphSchema, NodeRemovedPayload, SnapshotResetPayload } from "./Events.ts";
 import type { GraphEdge, GraphNode } from "./Models.ts";
-import {
-  KnowledgeDomain,
-  type KnowledgeEdgeId,
-  KnowledgeEdgeKind,
-  KnowledgeNodeId,
-  KnowledgeNodeKind,
-} from "./Schemas.ts";
+import type { KnowledgeEdgeId } from "./Schemas.ts";
+import { KnowledgeDomain, KnowledgeEdgeKind, KnowledgeNodeId, KnowledgeNodeKind } from "./Schemas.ts";
 
 const $I = $SharedDomainId.create("knowledge-graph/KnowledgeGraph");
 
@@ -159,19 +146,7 @@ type KnowledgeGraphShape = {
  * import { KnowledgeGraph } from "@beep/knowledge-graph/KnowledgeGraph"
  * import { NodeMetadata } from "@beep/knowledge-graph/Schemas"
  *
- * const program = Effect.gen(function* () {
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- *
- * })
+ * const program = Effect.gen(function* () {})
  * ```
  *
  * @category services
@@ -211,7 +186,13 @@ export const makeKnowledgeGraph = Effect.gen(function* () {
   );
 
   const removeNode: KnowledgeGraphShape["removeNode"] = Effect.fn("KnowledgeGraph.removeNode")((nodeId, reason) =>
-    write("NodeRemoved", new NodeRemovedPayload({ nodeId, reason }))
+    write(
+      "NodeRemoved",
+      new NodeRemovedPayload({
+        nodeId,
+        reason,
+      })
+    )
   );
 
   const addEdge: KnowledgeGraphShape["addEdge"] = Effect.fn("KnowledgeGraph.addEdge")((payload) =>
@@ -219,32 +200,50 @@ export const makeKnowledgeGraph = Effect.gen(function* () {
   );
 
   const removeEdge: KnowledgeGraphShape["removeEdge"] = Effect.fn("KnowledgeGraph.removeEdge")((edgeId, reason) =>
-    write("EdgeRemoved", new EdgeRemovedPayload({ edgeId, reason }))
+    write(
+      "EdgeRemoved",
+      new EdgeRemovedPayload({
+        edgeId,
+        reason,
+      })
+    )
   );
 
   const resetSource: KnowledgeGraphShape["resetSource"] = Effect.fn("KnowledgeGraph.resetSource")((source, reason) =>
-    write("SnapshotReset", new SnapshotResetPayload({ source, reason }))
+    write(
+      "SnapshotReset",
+      new SnapshotResetPayload({
+        source,
+        reason,
+      })
+    )
   );
 
   const queryNodes: KnowledgeGraphShape["queryNodes"] = Effect.fn("KnowledgeGraph.queryNodes")((filter) => {
     const conditions = A.empty<Fragment>();
-    if (filter?.kind !== undefined) conditions.push(sql`kind = ${filter.kind}`);
-    if (filter?.domain !== undefined) conditions.push(sql`domain = ${filter.domain}`);
+    if (P.isNotUndefined(filter?.kind)) conditions.push(sql`kind = ${filter.kind}`);
+    if (P.isNotUndefined(filter?.domain)) conditions.push(sql`domain = ${filter.domain}`);
 
     return conditions.length === 0
-      ? sql<GraphNode>`SELECT * FROM ${graphNodesTable}`
-      : sql<GraphNode>`SELECT * FROM ${graphNodesTable} WHERE ${sql.and(conditions)}`;
+      ? sql<GraphNode>`SELECT *
+                         FROM ${graphNodesTable}`
+      : sql<GraphNode>`SELECT *
+                         FROM ${graphNodesTable}
+                         WHERE ${sql.and(conditions)}`;
   });
 
   const queryEdges: KnowledgeGraphShape["queryEdges"] = Effect.fn("KnowledgeGraph.queryEdges")((filter) => {
-    const conditions: Array<Fragment> = [];
-    if (filter?.kind !== undefined) conditions.push(sql`kind = ${filter.kind}`);
-    if (filter?.sourceNodeId !== undefined) conditions.push(sql`source_node_id = ${filter.sourceNodeId}`);
-    if (filter?.targetNodeId !== undefined) conditions.push(sql`target_node_id = ${filter.targetNodeId}`);
+    const conditions = A.empty<Fragment>();
+    if (P.isNotUndefined(filter?.kind)) conditions.push(sql`kind = ${filter.kind}`);
+    if (P.isNotUndefined(filter?.sourceNodeId)) conditions.push(sql`source_node_id = ${filter.sourceNodeId}`);
+    if (P.isNotUndefined(filter?.targetNodeId)) conditions.push(sql`target_node_id = ${filter.targetNodeId}`);
 
     return conditions.length === 0
-      ? sql<GraphEdge>`SELECT * FROM ${graphEdgesTable}`
-      : sql<GraphEdge>`SELECT * FROM ${graphEdgesTable} WHERE ${sql.and(conditions)}`;
+      ? sql<GraphEdge>`SELECT *
+                         FROM ${graphEdgesTable}`
+      : sql<GraphEdge>`SELECT *
+                         FROM ${graphEdgesTable}
+                         WHERE ${sql.and(conditions)}`;
   });
 
   return KnowledgeGraph.of({

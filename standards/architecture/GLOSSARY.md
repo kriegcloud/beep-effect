@@ -42,8 +42,8 @@ workflow handlers are not.
 
 ## Concept
 
-A named domain idea such as `TwoFactor`, `Account`, `Enrollment`, or
-`RecoveryCode`. Concepts are mirrored across packages by folder path and
+A named domain idea such as `Membership`, `Account`, `Enrollment`, or
+`Invitation`. Concepts are mirrored across packages by folder path and
 distinguished by role suffix.
 
 ## Concept-Qualified Role Module Naming
@@ -57,10 +57,10 @@ The naming convention:
 Examples:
 
 ```txt
-TwoFactor.policy.ts
-TwoFactor.commands.ts
-TwoFactor.event-handlers.ts
-TwoFactor.command-client.ts
+Membership.policy.ts
+Membership.commands.ts
+Membership.event-handlers.ts
+Membership.command-client.ts
 ```
 
 ## Config Contract
@@ -123,8 +123,8 @@ A product-language capability required by use-cases. Ports live in
 ## Product Port Implementation
 
 A server-side implementation of a use-case port. Example:
-`server/src/entities/TwoFactor/TwoFactor.repo.ts` implements
-`TwoFactorRepository` using tables and providers.
+`server/src/entities/Membership/Membership.repo.ts` implements
+`MembershipRepository` using tables and providers.
 
 ## Provider
 
