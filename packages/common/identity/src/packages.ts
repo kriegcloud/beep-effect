@@ -56,6 +56,7 @@ const composers = $I.compose(
   "data",
   "identity",
   "knoledge-graph",
+  "md",
   "messages",
   "nlp",
   "observability",
@@ -100,7 +101,7 @@ const composers = $I.compose(
   "editor-protocol",
   "editor-runtime",
 
-  "firecrawl", "md"
+  "firecrawl"
 );
 
 // --- common ---
