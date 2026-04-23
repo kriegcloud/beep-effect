@@ -309,6 +309,12 @@
       ],
       "@beep/firecrawl/*": [
         "./packages/shared/providers/firecrawl/src/*"
+      ],
+      "@beep/md": [
+        "./packages/common/md/src/index.ts"
+      ],
+      "@beep/md/*": [
+        "./packages/common/md/src/*"
       ]
     }
   }

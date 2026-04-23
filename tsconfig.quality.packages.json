@@ -37,6 +37,9 @@
       "path": "packages/common/knowledge-graph"
     },
     {
+      "path": "packages/common/md"
+    },
+    {
       "path": "packages/common/messages"
     },
     {
