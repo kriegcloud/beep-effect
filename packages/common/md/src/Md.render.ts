@@ -582,6 +582,9 @@ export const MarkdownAdapter: PureRenderAdapter<Markdown> = {
 /**
  * Built-in HTML fragment render adapter.
  *
+ * Note: this adapter escapes `rawHtml` inline nodes by default. Treat trusted
+ * HTML pass-through as an explicit custom-adapter boundary.
+ *
  * @example
  * ```ts
  * import { Md } from "@beep/md"

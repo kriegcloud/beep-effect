@@ -20,12 +20,14 @@ const trimBlock = Str.replace(/^\n+|\n+$/g, "");
 const unsafeUrlProtocolPattern = /^(?:javascript|vbscript|data):/i;
 const urlProtocolDetectionIgnoredPattern = /[\u0000-\u001f\u007f\s]+/g;
 const htmlCharacterReferencePattern = /&(?:#(\d+);?|#x([\da-f]+);?|(colon|tab|newline);?)/gi;
+const percentEncodedBytePattern = /%([0-9a-f]{2})/gi;
 const percentEncodedOctetPattern = /%25([0-9a-f]{2})/gi;
 const invalidSurrogatePattern = /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g;
 const codeFenceLanguagePattern = /^[A-Za-z0-9][A-Za-z0-9_+.-]*$/;
 const lineSeparatorPattern = /\r\n?|\n/;
 const lineBreakPattern = /[\r\n]/;
 const maxUnicodeCodePoint = 0x10ffff;
+const maxUrlDecodePasses = 4;
 
 const StringArray = S.Array(S.String).pipe(
   $I.annoteSchema("StringArray", {
@@ -91,6 +93,31 @@ const decodeHtmlCharacterReferences = (value: string): string =>
       return isValidCodePoint(codePoint) ? codePointToString(codePoint) : _match;
     }
   );
+
+const decodePercentEncodedByte = (value: string): string =>
+  value.replace(percentEncodedBytePattern, (_match, hex: string) => codePointToString(parseCodePoint(hex, 16)));
+
+const decodePercentEncodedBytes = (value: string): string => {
+  let decoded = value;
+
+  for (let pass = 0; pass < maxUrlDecodePasses; pass++) {
+    const next = decodePercentEncodedByte(decoded);
+
+    if (next === decoded) {
+      return next;
+    }
+
+    decoded = next;
+  }
+
+  return decoded;
+};
+
+const normalizeUrlProtocolCandidate = flow(
+  Str.trim,
+  Str.replace(urlProtocolDetectionIgnoredPattern, ""),
+  Str.toLowerCase
+);
 
 const encodeUrlDestination = flow(
   Str.replace(invalidSurrogatePattern, "\uFFFD"),
@@ -171,16 +198,14 @@ export const escapeMarkdownText = Str.replace(/([\\`*_{}[\]()#+\-.|<>~])/g, "\\$
  * @since 0.0.0
  */
 export const sanitizeUrlDestination = (destination: string): string => {
-  const normalized = pipe(destination, Str.trim, Str.replace(urlProtocolDetectionIgnoredPattern, ""), Str.toLowerCase);
-  const decoded = pipe(
-    destination,
-    decodeHtmlCharacterReferences,
-    Str.trim,
-    Str.replace(urlProtocolDetectionIgnoredPattern, ""),
-    Str.toLowerCase
-  );
+  const decodedHtml = decodeHtmlCharacterReferences(destination);
+  const decodedPercent = decodePercentEncodedBytes(destination);
+  const decodedHtmlAndPercent = decodePercentEncodedBytes(decodedHtml);
+  const candidates = [destination, decodedHtml, decodedPercent, decodedHtmlAndPercent];
 
-  return isUnsafeUrlProtocolDestination(normalized) || isUnsafeUrlProtocolDestination(decoded) ? "#" : destination;
+  return pipe(candidates, A.map(normalizeUrlProtocolCandidate), A.some(isUnsafeUrlProtocolDestination))
+    ? "#"
+    : destination;
 };
 
 /**
@@ -282,11 +307,15 @@ export const maxBackticks = (text: string): number => {
  * console.log(code) // "`` `single` ``"
  * ```
  *
+ * Empty and multiline payloads fall back to raw `<code>` HTML because Markdown
+ * code spans normalize whitespace and cannot preserve those payloads exactly.
+ *
  * @category utilities
  * @since 0.0.0
  */
 export const renderInlineCode = (text: string): string => {
   if (text === "" || lineBreakPattern.test(text)) {
+    // Preserve exact payload for empty/multiline spans instead of lossy Markdown normalization.
     return `<code>${Html.escapeHtml(text)}</code>`;
   }
 

@@ -112,6 +112,11 @@ console.log("beep")
     expect(renderMarkdownInline(Md.a("javascript&colon;alert(1)", "Example"))).toBe("[Example](#)");
     expect(renderMarkdownInline(Md.a("java&Tab;script:alert(1)", "Example"))).toBe("[Example](#)");
     expect(renderMarkdownInline(Md.a("java&NewLine;script:alert(1)", "Example"))).toBe("[Example](#)");
+    expect(renderMarkdownInline(Md.a("%6a%61%76%61%73%63%72%69%70%74:alert(1)", "Example"))).toBe("[Example](#)");
+    expect(renderMarkdownInline(Md.a("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574:alert(1)", "Example"))).toBe(
+      "[Example](#)"
+    );
+    expect(renderMarkdownInline(Md.a("jav&#x61;%73cript:alert(1)", "Example"))).toBe("[Example](#)");
     expect(() => renderMarkdownInline(Md.a("jav&#99999999999;ascript:alert(1)", "Example"))).not.toThrow();
     expect(renderMarkdownInline(Md.a("https://example.com", Md.rawMarkdown("](javascript:alert(1))")))).toBe(
       String.raw`[\]\(javascript:alert\(1\)\)](https://example.com)`
@@ -155,6 +160,13 @@ console.log("beep")
     expect(renderHtmlInline(Md.a("jav&#x61script:alert(1)", "Example"))).toBe('<a href="#">Example</a>');
     expect(renderHtmlInline(Md.a("java&#10script:alert(1)", "Example"))).toBe('<a href="#">Example</a>');
     expect(renderHtmlInline(Md.a("java&#x0ascript:alert(1)", "Example"))).toBe('<a href="#">Example</a>');
+    expect(renderHtmlInline(Md.a("%6a%61%76%61%73%63%72%69%70%74:alert(1)", "Example"))).toBe(
+      '<a href="#">Example</a>'
+    );
+    expect(renderHtmlInline(Md.a("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574:alert(1)", "Example"))).toBe(
+      '<a href="#">Example</a>'
+    );
+    expect(renderHtmlInline(Md.a("jav&#x61;%73cript:alert(1)", "Example"))).toBe('<a href="#">Example</a>');
     expect(renderHtmlInline(Md.a("a%20b", "Example"))).toBe('<a href="a%20b">Example</a>');
     expect(renderHtmlInline(Md.img("/logo.png"))).toBe('<img src="/logo.png" alt="" />');
     expect(renderHtmlInline(Md.img("/logo.png", '"Logo"'))).toBe('<img src="/logo.png" alt="&quot;Logo&quot;" />');
@@ -428,7 +440,11 @@ ${Md.h3("Inside")}
     expect(escapeMarkdownText("a*b")).toBe("a\\*b");
     expect(escapeHtmlUrlAttribute("a&b")).toBe("a&amp;b");
     expect(escapeHtmlUrlAttribute("javascript&#58alert(1)")).toBe("#");
+    expect(escapeHtmlUrlAttribute("%6a%61%76%61%73%63%72%69%70%74:alert(1)")).toBe("#");
+    expect(escapeHtmlUrlAttribute("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574:alert(1)")).toBe("#");
     expect(escapeMarkdownDestination("\\()")).toBe("%5C\\(\\)");
+    expect(escapeMarkdownDestination("%6a%61%76%61%73%63%72%69%70%74:alert(1)")).toBe("#");
+    expect(escapeMarkdownDestination("%256a%2561%2576%2561%2573%2563%2572%2569%2570%2574:alert(1)")).toBe("#");
     expect(escapeMarkdownDestination("java\tscript:alert(1)")).toBe("#");
     expect(escapeMarkdownDestination("\uD800")).toBe("%EF%BF%BD");
     expect(escapeMarkdownDestination("a\uD800b")).toBe("a%EF%BF%BDb");

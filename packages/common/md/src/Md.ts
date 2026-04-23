@@ -383,6 +383,8 @@ export const rawMarkdown = (value: string): RawMarkdown => RawMarkdown.make({ va
 /**
  * Creates raw HTML inline content for adapters that opt into trusted HTML rendering.
  *
+ * The built-in {@link HtmlFragmentAdapter} escapes this value by default.
+ *
  * @example
  * ```ts
  * import { Md } from "@beep/md"

@@ -100,6 +100,8 @@ export type RawMarkdown = typeof RawMarkdown.Type;
 /**
  * Raw HTML inline content for adapters that opt into trusted HTML rendering.
  *
+ * The built-in HTML adapter escapes this value by default.
+ *
  * @example
  * ```ts
  * import { RawHtml } from "@beep/md/Md.model"
@@ -115,7 +117,8 @@ export const RawHtml = S.TaggedStruct("rawHtml", {
   value: S.String,
 }).pipe(
   $I.annoteSchema("RawHtml", {
-    description: "Raw HTML inline content for adapters that opt into trusted HTML rendering.",
+    description:
+      "Raw HTML inline content for adapters that opt into trusted HTML rendering. The built-in HTML adapter escapes this value by default.",
   })
 );
 
