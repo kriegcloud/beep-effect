@@ -141,7 +141,7 @@ const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function
   );
 });
 
-const resolveAggregateSelector = Effect.fn("Docgen.resolveAggregateSelector")(function* (
+const resolvePackageSelector = Effect.fn("Docgen.resolvePackageSelector")(function* (
   packageSelector: O.Option<string>,
   filterSelector: O.Option<string>
 ) {
@@ -282,13 +282,15 @@ const docgenGenerateCommand = Command.make(
   "generate",
   {
     package: packageFlag,
+    filter: filterFlag,
     validateExamples: validateExamplesFlag,
     parallel: parallelFlag,
     json: jsonFlag,
   },
-  ({ package: selector, validateExamples, parallel, json }) =>
+  ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, json }) =>
     Effect.gen(function* () {
       void validateExamples;
+      const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const targets = yield* resolveGenerateTargets(selector);
 
       if (targets.length === 0) {
@@ -329,6 +331,64 @@ const docgenGenerateCommand = Command.make(
   Command.withDescription("Run the repo-local @beep/docgen implementation for one package or every configured package")
 );
 
+const docgenRunCommand = Command.make(
+  "run",
+  {
+    package: packageFlag,
+    filter: filterFlag,
+    validateExamples: validateExamplesFlag,
+    parallel: parallelFlag,
+    clean: cleanFlag,
+  },
+  ({ package: packageSelector, filter: filterSelector, validateExamples, parallel, clean }) =>
+    Effect.gen(function* () {
+      void validateExamples;
+      const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
+      const targets = yield* resolveGenerateTargets(selector);
+
+      if (targets.length === 0) {
+        yield* Console.log("docgen: no configured packages found");
+        return;
+      }
+
+      const generationResults = yield* Effect.forEach(targets, (target) => runDocgenForPackage(target), {
+        concurrency: Math.max(1, parallel),
+      });
+
+      yield* logGenerationResults(generationResults);
+
+      if (generationResults.some((result) => !result.success)) {
+        yield* Console.log("docgen: skipping aggregation because generation failed for one or more package(s)");
+        return;
+      }
+
+      const aggregateResults = yield* aggregateGeneratedDocs({
+        clean,
+        ...R.getSomes({ package: selector }),
+      });
+      yield* logAggregateResults(aggregateResults);
+    }).pipe(
+      Effect.catchTag(
+        "DomainError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      ),
+      Effect.catchTag(
+        "NoSuchFileError",
+        Effect.fn(function* (error) {
+          process.exitCode = 1;
+          yield* Console.error(`docgen: ${error.message}`);
+        })
+      )
+    )
+).pipe(
+  Command.withDescription(
+    "Run generation and aggregation together using a single package selector so both phases stay in scope"
+  )
+);
+
 const docgenAggregateCommand = Command.make(
   "aggregate",
   {
@@ -338,7 +398,7 @@ const docgenAggregateCommand = Command.make(
   },
   ({ package: packageSelector, filter: filterSelector, clean }) =>
     Effect.gen(function* () {
-      const selector = yield* resolveAggregateSelector(packageSelector, filterSelector);
+      const selector = yield* resolvePackageSelector(packageSelector, filterSelector);
       const results = yield* aggregateGeneratedDocs({
         clean,
         ...R.getSomes({ package: selector }),
@@ -541,6 +601,7 @@ export const docgenCommand = Command.make("docgen", {}, printDocgenIndex).pipe(
     docgenStatusCommand,
     docgenInitCommand,
     docgenGenerateCommand,
+    docgenRunCommand,
     docgenAggregateCommand,
     docgenAnalyzeCommand,
     docgenCheckCommand,

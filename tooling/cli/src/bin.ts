@@ -11,8 +11,9 @@
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
 import { Cause, Effect, Layer } from "effect";
+import * as O from "effect/Option";
 import { Command } from "effect/unstable/cli";
-import { runQualityTaskIfRequested } from "./commands/Quality/Tasks.js";
+import { parseQualityTaskInvocation, runQualityTask } from "./commands/Quality/Tasks.js";
 import { rootCommand } from "./commands/Root.js";
 
 /**
@@ -26,6 +27,17 @@ import { rootCommand } from "./commands/Root.js";
  * @since 0.0.0
  */
 const BaseLayers = Layer.mergeAll(BunServices.layer, BunHttpClient.layer);
+
+/**
+ * Minimal runtime required for quality-task fast path.
+ *
+ * Keeps startup lean when dispatching build/check/test/lint/audit adapters.
+ *
+ * @internal
+ * @category Configuration
+ * @since 0.0.0
+ */
+const QualityLayers = Layer.mergeAll(BunChildProcessSpawner.layer).pipe(Layer.provideMerge(BaseLayers));
 
 /**
  * Fully assembled runtime layer that merges higher-level services
@@ -42,6 +54,9 @@ const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, 
   Layer.provideMerge(BaseLayers)
 );
 
+const argv = process.argv.slice(2);
+const qualityTaskInvocation = parseQualityTaskInvocation(argv);
+
 /**
  * Top-level CLI program effect produced by running the root command tree
  * with the fully-resolved {@link DerivedLayers}.
@@ -52,29 +67,41 @@ const DerivedLayers = Layer.mergeAll(BunChildProcessSpawner.layer, FsUtilsLive, 
  * @category UseCase
  * @since 0.0.0
  */
-const commandProgram = runQualityTaskIfRequested(process.argv.slice(2)).pipe(
-  Effect.flatMap(
-    Effect.fnUntraced(function* (handled) {
-      return yield* handled ? Effect.void : Command.run(rootCommand, { version: "0.0.0" });
-    })
-  ),
-  Effect.catchCause((cause) =>
-    Effect.sync(() => {
-      process.exitCode = 1;
-      console.error(Cause.pretty(cause));
-    })
-  )
-);
-
-const program = Effect.scoped(
-  Layer.build(DerivedLayers).pipe(
-    Effect.flatMap(
-      Effect.fnUntraced(function* (context) {
-        return yield* commandProgram.pipe(Effect.provide(context));
+if (O.isSome(qualityTaskInvocation)) {
+  const qualityProgram = Effect.scoped(
+    Layer.build(QualityLayers).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* runQualityTask(qualityTaskInvocation.value).pipe(Effect.provide(context));
+        })
+      )
+    )
+  ).pipe(
+    Effect.catchCause((cause) =>
+      Effect.sync(() => {
+        process.exitCode = 1;
+        console.error(Cause.pretty(cause));
       })
     )
-  )
-);
-
-BunRuntime.runMain(program);
+  );
+  BunRuntime.runMain(qualityProgram);
+} else {
+  const commandProgram = Effect.scoped(
+    Layer.build(DerivedLayers).pipe(
+      Effect.flatMap(
+        Effect.fnUntraced(function* (context) {
+          return yield* Command.run(rootCommand, { version: "0.0.0" }).pipe(Effect.provide(context));
+        })
+      )
+    )
+  ).pipe(
+    Effect.catchCause((cause) =>
+      Effect.sync(() => {
+        process.exitCode = 1;
+        console.error(Cause.pretty(cause));
+      })
+    )
+  );
+  BunRuntime.runMain(commandProgram);
+}
 // bench
