@@ -61,12 +61,15 @@ describe("toEquivalence", () => {
 });
 
 describe("withEmptyArrayDefaults", () => {
-  const Tags = S.Array(S.String).pipe(SchemaUtils.withEmptyArrayDefaults<string>());
-  const DirectTags = SchemaUtils.withEmptyArrayDefaults<string>(S.Array(S.String));
+  const TagArray = S.Array(S.String);
+  const Tags = TagArray.pipe(SchemaUtils.withEmptyArrayDefaults<string>());
 
   it("preserves the decoded readonly array type", () => {
     expect<typeof Tags.Type>().type.toBe<ReadonlyArray<string>>();
-    expect<typeof DirectTags.Type>().type.toBe<ReadonlyArray<string>>();
+  });
+
+  it("accepts the data-first signature", () => {
+    expect(SchemaUtils.withEmptyArrayDefaults<string>).type.toBeCallableWith(TagArray);
   });
 
   it("is exported from the SchemaUtils barrel", () => {

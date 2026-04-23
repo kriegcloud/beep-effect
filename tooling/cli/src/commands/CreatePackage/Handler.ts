@@ -669,6 +669,7 @@ const generatePackageJson: (
   packagePath: string
 ) => Effect.Effect<string, DomainError | S.SchemaError> = Effect.fn(function* (name, type, description, packagePath) {
   const rootRelative = toRootRelative(packagePath);
+  const babelScript = "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps";
   const dependencies: Record<string, string> = {
     effect: "catalog:",
   };
@@ -709,14 +710,20 @@ const generatePackageJson: (
       },
     },
     scripts: {
-      build: "tsc -b tsconfig.json && bun run babel",
-      babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-      check: "tsgo -b tsconfig.json",
-      lint: "biome check .",
-      "lint:fix": "biome check . --write",
-      test: "bunx --bun vitest run",
+      audit: "beep-cli audit",
+      build: "beep-cli build",
+      babel: babelScript,
+      check: "beep-cli check",
       coverage: "bunx --bun vitest --coverage",
       docgen: `bun run ${rootRelative}tooling/docgen/src/bin.ts`,
+      lint: "beep-cli lint",
+      "lint:fix": "beep-cli lint --fix",
+      test: "beep-cli test",
+      "beep:build": "tsc -b tsconfig.json && bun run babel",
+      "beep:check": "tsgo -b tsconfig.json",
+      "beep:test": "bunx --bun vitest run",
+      "beep:lint": "biome check .",
+      "beep:lint:fix": "biome check . --write",
     },
     dependencies,
     devDependencies: {
