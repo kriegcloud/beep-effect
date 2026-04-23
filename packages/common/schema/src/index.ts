@@ -104,6 +104,11 @@ export * from "./Graph.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./Html.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Int.ts";
 /**
  * @since 0.0.0

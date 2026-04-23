@@ -5,7 +5,14 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
-      // Package-specific overrides
+      coverage: {
+        thresholds: {
+          branches: 100,
+          functions: 100,
+          lines: 100,
+          statements: 100,
+        },
+      },
     },
   })
 );
