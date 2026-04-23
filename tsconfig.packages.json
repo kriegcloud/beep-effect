@@ -37,6 +37,9 @@
       "path": "packages/common/identity"
     },
     {
+      "path": "packages/common/md"
+    },
+    {
       "path": "packages/common/messages"
     },
     {

@@ -1,0 +1,68 @@
+{
+  "name": "@beep/md",
+  "version": "0.0.0",
+  "description": "An Effect native markdown library",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/md",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/common/md"
+  },
+  "scripts": {
+    "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
+    "build": "tsc -b tsconfig.json && bun run babel",
+    "check": "tsgo -b tsconfig.json",
+    "coverage": "bunx --bun vitest --coverage",
+    "dtslint": "bunx tstyche dtslint/Md.tst.ts",
+    "dtslint:exports": "bunx tstyche --tsconfig dtslint/tsconfig.exports.json dtslint/exports.tst.ts",
+    "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
+    "lint": "biome check .",
+    "lint:fix": "biome check . --write",
+    "test": "bunx --bun vitest run",
+    "type-test": "bun run dtslint && bun run dtslint:exports"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./Md": "./src/Md.ts",
+    "./Md.model": "./src/Md.model.ts",
+    "./Md.render": "./src/Md.render.ts",
+    "./Md.utils": "./src/Md.utils.ts",
+    "./internal/*": null,
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": "./dist/index.js",
+      "./Md": "./dist/Md.js",
+      "./Md.model": "./dist/Md.model.js",
+      "./Md.render": "./dist/Md.render.js",
+      "./Md.utils": "./dist/Md.utils.js",
+      "./internal/*": null,
+      "./package.json": "./package.json"
+    }
+  },
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@beep/types": "workspace:^",
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}
