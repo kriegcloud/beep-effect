@@ -40,7 +40,6 @@ packages/iam/
   client/
   tables/
   ui/
-  providers/
 ```
 
 `config/` is canonical vocabulary, not mandatory scaffolding. Create it when the
@@ -54,11 +53,12 @@ domain <- client <- ui
 use-cases <- client (client-safe exports only)
 config <- client (public exports only)
 
-use-cases product ports <- server implementations <- providers
+use-cases product ports <- server implementations <- drivers
 ```
 
 Arrows point from outer importer toward inner imported package. `config` may
-reuse domain vocabulary, but domain imports only shared/common domain primitives.
+reuse domain vocabulary, but domain imports only shared-kernel language plus
+allowed `foundation/primitive` and `foundation/modeling` packages.
 
 The result is local ownership without infrastructure leakage.
 

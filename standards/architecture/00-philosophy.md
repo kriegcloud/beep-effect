@@ -38,11 +38,11 @@ right idea in the wrong layer.
 
 The architecture protects:
 
-- domain language from provider leakage
+- domain language from driver leakage
 - domain behavior from hidden config/runtime reads
 - domain shape from type-only drift and duplicate runtime validation
 - application intent from server adapter concerns
-- providers from product-specific business concepts
+- drivers from product-specific business concepts
 - config contracts from becoming env access or constants dumps
 - shared from becoming a junk drawer
 - UI from becoming the real application layer
@@ -54,9 +54,9 @@ without dragging the whole repo with it.
 
 ## The Shape Of A Good Slice
 
-A good slice has a small rich domain, explicit use-cases, typed config contracts
-when needed, boring adapters, and provider wrappers that are technical rather
-than product-aware.
+A good slice has a small rich domain, explicit use-cases, typed config
+contracts when needed, boring adapters, and driver APIs that stay technical
+rather than product-aware.
 
 The slice should answer:
 
@@ -65,7 +65,7 @@ The slice should answer:
 - Which runtime/application configuration contracts are needed?
 - What ports does the application need?
 - Which adapters implement those ports?
-- Which providers make those adapters safe?
+- Which drivers make those adapters safe?
 - Which UI/client surfaces expose the behavior?
 
 When those answers are visible in topology, the repo becomes easier to work in

@@ -235,6 +235,11 @@ export * from "./Json.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * from "./KebabStr.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./LocalDate.ts";
 /**
  * @since 0.0.0
@@ -251,6 +256,11 @@ export * as Model from "./Model.ts";
  * @category Validation
  */
 export * from "./Options.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./PascalStr.ts";
 /**
  * @since 0.0.0
  * @category Validation
@@ -291,6 +301,11 @@ export * from "./Sha256.ts";
  * @category Validation
  */
 export * from "./Slug.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
+export * from "./SnakeStr.ts";
 /**
  * @since 0.0.0
  * @category Validation

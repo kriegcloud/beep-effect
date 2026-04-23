@@ -11,9 +11,35 @@ those rules exist, records the vocabulary, and preserves the decision trail.
 
 beep-effect should be easy to experiment in without becoming easy to damage.
 The architecture therefore treats topology as durable product infrastructure:
-package boundaries, domain-kind folders, role suffixes, and provider boundaries
-are not cosmetic. Configuration boundaries now carry the same weight. They are
-how the repo keeps domain experiments modular, composable, and reusable.
+package boundaries, domain-kind folders, role suffixes, driver boundaries, and
+shared-kernel boundaries are not cosmetic. Configuration boundaries and
+non-slice family/kind boundaries now carry the same weight. They are how the
+repo keeps domain experiments modular, composable, and reusable.
+
+## Transition Note
+
+This packet stays target-only. Use the routing table below to translate current
+repo names while migrating; do not treat legacy roots, package-root exports, or
+`./*` wildcard exports as the normative target shape.
+
+| Current label | Route to target |
+|---|---|
+| `providers` | `drivers` |
+| `env` | `config` |
+| `protocol` | `use-cases/public` when client-safe; otherwise `use-cases/server` |
+| `runtime` | `server` or `client`; use `drivers` only when wrapping an external engine; treat top-level app assembly as an entrypoint concern, not a canonical package family |
+| `common` | `foundation` by default; use `shared/*` or a concrete slice when the code carries product semantics |
+| `core` | `foundation` for runtime-neutral substrate; otherwise `shared/*` or a concrete slice when the code carries product semantics |
+| `utils` | `foundation` for domain-agnostic helpers; otherwise route to `shared/*` or the owning slice |
+| `lib` | `foundation` by default; route to `shared/*`, `drivers`, or a concrete slice when the code has a clearer boundary |
+
+Boundary-sensitive packages use explicit subpaths as the canonical contract.
+Package roots and `./*` exports may still exist during migration, but they are
+compatibility leftovers rather than the intended architecture.
+Legacy names such as `common`, `core`, `utils`, and `lib` should be treated the
+same way: compatibility leftovers to be routed into `foundation`, `shared/*`,
+`drivers`, or a concrete slice rather than preserved as target-era package
+roots.
 
 ## Document Index
 
@@ -24,10 +50,11 @@ how the repo keeps domain experiments modular, composable, and reusable.
 | [`00-philosophy.md`](00-philosophy.md) | North star and grounding principles. |
 | [`01-hexagonal-vertical-slices.md`](01-hexagonal-vertical-slices.md) | Why slices combine hexagonal ports with vertical package topology. |
 | [`02-shared-kernel.md`](02-shared-kernel.md) | Why `shared` is a DDD shared kernel, not a dump. |
-| [`03-provider-boundaries.md`](03-provider-boundaries.md) | Why providers expose technical capability while server implements product ports. |
+| [`03-driver-boundaries.md`](03-driver-boundaries.md) | Why drivers expose technical capability while server implements product ports. |
 | [`04-rich-domain-model.md`](04-rich-domain-model.md) | Why the repo prefers hybrid rich domain models over anemic data bags. |
 | [`05-layer-composition.md`](05-layer-composition.md) | Why slice-local Layer composition replaces runtime God Layers. |
 | [`06-configuration-boundaries.md`](06-configuration-boundaries.md) | Why config is a typed contract package, not env access or a constants dump. |
+| [`07-non-slice-families.md`](07-non-slice-families.md) | Why foundation, drivers, tooling, and agents need explicit topology grammar. |
 
 ## Relationship To Standards
 
