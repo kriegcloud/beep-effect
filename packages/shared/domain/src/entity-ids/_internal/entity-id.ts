@@ -228,6 +228,12 @@ type EntityIdFactory<TSlice extends TString.NonEmpty> = <
   opts: EntityId.Options<TTableName>
 ) => EntityId.Instance<TTag, TTableName, TSlice>;
 
+/**
+ * Creates an entity-id factory for a shared-domain identity slice.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const make: {
   <const TSlice extends TString.NonEmpty>(
     slice: TSlice,

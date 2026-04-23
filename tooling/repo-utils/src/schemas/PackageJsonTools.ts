@@ -8,7 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings } from "@beep/schema";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { Effect, identity, type JsonPatch, JsonPointer, Order, pipe, SchemaIssue, Tuple } from "effect";
+import { Effect, flow, identity, type JsonPatch, JsonPointer, Order, pipe, SchemaIssue, Tuple } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -210,14 +210,7 @@ const toPointer = (path: ReadonlyArray<string>): string =>
   A.isReadonlyArrayEmpty(path) ? "" : `/${pipe(path, A.map(JsonPointer.escapeToken), A.join("/"))}`;
 
 const renderIssuePath = (path: StandardSchemaV1.Issue["path"]): ReadonlyArray<string> =>
-  pipe(
-    O.fromNullishOr(path),
-    O.map(
-      (segments: ReadonlyArray<IssuePathSegment>): ReadonlyArray<string> =>
-        pipe(segments, A.map(renderIssuePathSegment))
-    ),
-    O.getOrElse(A.empty<string>)
-  );
+  pipe(O.fromNullishOr(path), O.map(flow(A.map(renderIssuePathSegment))), O.getOrElse(A.empty<string>));
 
 /**
  * Structured package.json validation issue.
@@ -337,11 +330,14 @@ export const encodePackageJsonCanonicalPrettyEffect: (
 export const diffPackageJsonEffect: {
   (after: unknown): (before: unknown) => Effect.Effect<JsonPatch.JsonPatch, S.SchemaError>;
   (before: unknown, after: unknown): Effect.Effect<JsonPatch.JsonPatch, S.SchemaError>;
-} = dual(2, Effect.fn("RepoUtils.PackageJsonTools.diffPackageJson")(function* (before, after) {
-  const decodedBefore = yield* decodePackageJsonEffect(before);
-  const decodedAfter = yield* decodePackageJsonEffect(after);
-  return packageJsonDiffer.diff(decodedBefore, decodedAfter);
-}));
+} = dual(
+  2,
+  Effect.fn("RepoUtils.PackageJsonTools.diffPackageJson")(function* (before, after) {
+    const decodedBefore = yield* decodePackageJsonEffect(before);
+    const decodedAfter = yield* decodePackageJsonEffect(after);
+    return packageJsonDiffer.diff(decodedBefore, decodedAfter);
+  })
+);
 
 /**
  * Apply a typed JSON Patch document to a package.json value.
@@ -361,13 +357,16 @@ export const diffPackageJsonEffect: {
 export const applyPackageJsonPatchEffect: {
   (patch: JsonPatch.JsonPatch): (base: unknown) => Effect.Effect<PackageJson.Type, S.SchemaError | DomainError>;
   (base: unknown, patch: JsonPatch.JsonPatch): Effect.Effect<PackageJson.Type, S.SchemaError | DomainError>;
-} = dual(2, Effect.fn("RepoUtils.PackageJsonTools.applyPackageJsonPatch")(function* (base, patch) {
-  const decodedBase = yield* decodePackageJsonEffect(base);
-  return yield* Effect.try({
-    try: () => packageJsonDiffer.patch(decodedBase, patch),
-    catch: (cause) => new DomainError({ cause, message: "Failed to apply package.json JSON Patch" }),
-  });
-}));
+} = dual(
+  2,
+  Effect.fn("RepoUtils.PackageJsonTools.applyPackageJsonPatch")(function* (base, patch) {
+    const decodedBase = yield* decodePackageJsonEffect(base);
+    return yield* Effect.try({
+      try: () => packageJsonDiffer.patch(decodedBase, patch),
+      catch: (cause) => new DomainError({ cause, message: "Failed to apply package.json JSON Patch" }),
+    });
+  })
+);
 
 /**
  * Format a SchemaError into package.json validation issues with JSON Pointers.

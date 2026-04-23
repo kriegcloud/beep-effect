@@ -1,6 +1,6 @@
 import {
-  checkConfigNeedsUpdate,
   ConfigUpdateTarget,
+  checkConfigNeedsUpdate,
   updateTsconfigPackages,
 } from "@beep/repo-cli/commands/CreatePackage/ConfigUpdater";
 import {

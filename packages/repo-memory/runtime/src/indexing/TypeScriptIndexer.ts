@@ -283,14 +283,12 @@ const normalizedTagComment = (value: string | undefined): O.Option<string> =>
 const jsDocsForNode = (node: OutlineNode): ReadonlyArray<import("ts-morph").JSDoc> =>
   Node.isJSDocable(node) ? node.getJsDocs() : A.empty();
 
-const joinedDocComments = (docs: ReadonlyArray<import("ts-morph").JSDoc>): O.Option<string> =>
-  pipe(
-    docs,
-    A.map((doc) => pipe(doc.getCommentText(), normalizedText, O.getOrElse(thunkEmptyStr))),
-    A.filter(Str.isNonEmpty),
-    A.join("\n\n"),
-    normalizedText
-  );
+const joinedDocComments: (docs: ReadonlyArray<import("ts-morph").JSDoc>) => O.Option<string> = flow(
+  A.map((doc: import("ts-morph").JSDoc) => pipe(doc.getCommentText(), normalizedText, O.getOrElse(thunkEmptyStr))),
+  A.filter(Str.isNonEmpty),
+  A.join("\n\n"),
+  normalizedText
+);
 
 const firstTagText = (docs: ReadonlyArray<import("ts-morph").JSDoc>, tagName: string): O.Option<string> =>
   pipe(
@@ -344,72 +342,68 @@ const documentationSpan = (options: {
     )
   );
 
-const documentationSummary = (documentation: O.Option<RepoSymbolDocumentation>): O.Option<string> =>
-  pipe(
-    documentation,
-    O.flatMap((value) =>
-      pipe(
-        value.summary,
-        O.orElse(() => value.description)
-      )
+const documentationSummary: (documentation: O.Option<RepoSymbolDocumentation>) => O.Option<string> = flow(
+  O.flatMap((value: RepoSymbolDocumentation) =>
+    pipe(
+      value.summary,
+      O.orElse(() => value.description)
     )
-  );
+  )
+);
 
-const documentationSearchText = (documentation: O.Option<RepoSymbolDocumentation>): string =>
-  pipe(
-    documentation,
-    O.match({
-      onNone: thunkEmptyStr,
-      onSome: (value) =>
-        pipe(
-          A.make(
-            pipe(value.description, O.getOrElse(thunkEmptyStr)),
-            pipe(value.summary, O.getOrElse(thunkEmptyStr)),
-            pipe(value.remarks, O.getOrElse(thunkEmptyStr)),
-            pipe(value.deprecationNote, O.getOrElse(thunkEmptyStr))
-          ),
-          A.appendAll(
-            pipe(
-              value.params,
-              A.flatMap((param) =>
-                A.make(
-                  param.name,
-                  pipe(param.type, O.getOrElse(thunkEmptyStr)),
-                  pipe(param.description, O.getOrElse(thunkEmptyStr))
-                )
-              )
-            )
-          ),
-          A.appendAll(
-            pipe(
-              value.returns,
-              O.map((result) =>
-                A.make(
-                  pipe(result.type, O.getOrElse(thunkEmptyStr)),
-                  pipe(result.description, O.getOrElse(thunkEmptyStr))
-                )
-              ),
-              O.getOrElse(A.empty<string>)
-            )
-          ),
-          A.appendAll(
-            pipe(
-              value.throws,
-              A.flatMap((errorDoc) =>
-                A.make(
-                  pipe(errorDoc.type, O.getOrElse(thunkEmptyStr)),
-                  pipe(errorDoc.description, O.getOrElse(thunkEmptyStr))
-                )
-              )
-            )
-          ),
-          A.appendAll(value.see),
-          A.map(Str.trim),
-          A.filter(Str.isNonEmpty),
-          A.join(" ")
+const documentationSearchText: (documentation: O.Option<RepoSymbolDocumentation>) => string = flow(
+  O.match({
+    onNone: thunkEmptyStr,
+    onSome: (value: RepoSymbolDocumentation) =>
+      pipe(
+        A.make(
+          pipe(value.description, O.getOrElse(thunkEmptyStr)),
+          pipe(value.summary, O.getOrElse(thunkEmptyStr)),
+          pipe(value.remarks, O.getOrElse(thunkEmptyStr)),
+          pipe(value.deprecationNote, O.getOrElse(thunkEmptyStr))
         ),
-    })
-  );
+        A.appendAll(
+          pipe(
+            value.params,
+            A.flatMap((param) =>
+              A.make(
+                param.name,
+                pipe(param.type, O.getOrElse(thunkEmptyStr)),
+                pipe(param.description, O.getOrElse(thunkEmptyStr))
+              )
+            )
+          )
+        ),
+        A.appendAll(
+          pipe(
+            value.returns,
+            O.map((result) =>
+              A.make(
+                pipe(result.type, O.getOrElse(thunkEmptyStr)),
+                pipe(result.description, O.getOrElse(thunkEmptyStr))
+              )
+            ),
+            O.getOrElse(A.empty<string>)
+          )
+        ),
+        A.appendAll(
+          pipe(
+            value.throws,
+            A.flatMap((errorDoc) =>
+              A.make(
+                pipe(errorDoc.type, O.getOrElse(thunkEmptyStr)),
+                pipe(errorDoc.description, O.getOrElse(thunkEmptyStr))
+              )
+            )
+          )
+        ),
+        A.appendAll(value.see),
+        A.map(Str.trim),
+        A.filter(Str.isNonEmpty),
+        A.join(" ")
+      ),
+  })
+);
 
 const extractSymbolDocumentation = (options: {
   readonly documentationNode: OutlineNode;

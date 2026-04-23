@@ -45,3 +45,10 @@ vaul
 vitest
 wezterm
 rxvt
+cytoscape
+exifr
+fflate
+piexifjs
+rustls
+serde
+starlette

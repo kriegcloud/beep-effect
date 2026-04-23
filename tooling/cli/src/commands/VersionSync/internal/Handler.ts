@@ -10,10 +10,10 @@ import { Console, Effect, type FileSystem, Layer, Number as Num, type Path } fro
 import * as A from "effect/Array";
 import type { HttpClient } from "effect/unstable/http";
 import {
-    VersionSyncDriftError,
-    type VersionSyncError,
-    VersionSyncModeMatch,
-    type VersionSyncOptions,
+  VersionSyncDriftError,
+  type VersionSyncError,
+  VersionSyncModeMatch,
+  type VersionSyncOptions,
 } from "./Models.js";
 import { CategorySelectionServiceLive } from "./services/CategorySelectionService.js";
 import { ReportRendererService, ReportRendererServiceLive } from "./services/ReportRendererService.js";

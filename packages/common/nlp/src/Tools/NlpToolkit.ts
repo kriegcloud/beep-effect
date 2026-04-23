@@ -148,11 +148,18 @@ const tokenToAi = (token: Token) => ({
   text: token.text,
 });
 
-const uniqueNormalizedTerms = (tokens: ReadonlyArray<Token>): ReadonlyArray<string> =>
-  pipe(tokens, A.map(normalizeTerm), A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
+const uniqueNormalizedTerms: (tokens: ReadonlyArray<Token>) => ReadonlyArray<string> = flow(
+  A.map(normalizeTerm),
+  A.filter(Str.isNonEmpty),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
-const sortStrings = (values: ReadonlyArray<string>): ReadonlyArray<string> =>
-  pipe(values, A.filter(Str.isNonEmpty), A.dedupe, A.sort(Order.String));
+const sortStrings: (values: ReadonlyArray<string>) => ReadonlyArray<string> = flow(
+  A.filter(Str.isNonEmpty),
+  A.dedupe,
+  A.sort(Order.String)
+);
 
 const setJaccard = (leftValues: ReadonlyArray<string>, rightValues: ReadonlyArray<string>): number => {
   const left = pipe(leftValues, A.dedupe);
@@ -707,13 +714,11 @@ export const NlpToolkitLive: Layer.Layer<
             Match.when("phonetize", () => utils.phonetize(tokens)),
             Match.exhaustive
           )(resolvedAlgorithm);
-        const toCandidateTokens = (tokens: ReadonlyArray<Token>) =>
-          pipe(
-            tokens,
-            A.filter(isWordLikeToken),
-            A.map((token) => pipe(normalizedTokenText(token), Str.trim, Str.toLowerCase)),
-            A.filter((token) => Str.length(token) >= minimumLength)
-          );
+        const toCandidateTokens = flow(
+          A.filter(isWordLikeToken),
+          A.map((token) => pipe(normalizedTokenText(token), Str.trim, Str.toLowerCase)),
+          A.filter((token) => Str.length(token) >= minimumLength)
+        );
 
         const [leftTokens, rightTokens] = yield* Effect.all([
           tokenization.tokenize(text1),

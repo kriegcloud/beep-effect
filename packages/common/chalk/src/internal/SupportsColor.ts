@@ -8,7 +8,7 @@
 import os from "node:os";
 import process from "node:process";
 import tty from "node:tty";
-import { Match, pipe } from "effect";
+import { flow, Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -104,15 +104,9 @@ const literalForceColorLevel: (value: string) => O.Option<ColorSupportLevel> = M
   Match.orElse(O.none<ColorSupportLevel>)
 );
 
-const colorLevelWhen =
-  (level: ColorSupportLevel) =>
-  (condition: boolean): O.Option<ColorSupportLevel> =>
-    pipe(condition, O.liftPredicate(P.isTruthy), O.as(level));
+const colorLevelWhen = (level: ColorSupportLevel) => flow(O.liftPredicate(P.isTruthy), O.as(level));
 
-const matchesPattern =
-  (pattern: RegExp) =>
-  (value: string): boolean =>
-    pipe(value, Str.match(pattern), O.isSome);
+const matchesPattern = (pattern: RegExp) => flow(Str.match(pattern), O.isSome);
 
 const isDisabledColorLevel = (level: ColorSupportLevel): level is 0 => level === 0;
 

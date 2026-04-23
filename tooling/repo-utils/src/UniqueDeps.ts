@@ -9,7 +9,7 @@
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";
-import { Effect, MutableHashSet, Order, pipe, Struct } from "effect";
+import { Effect, flow, MutableHashSet, Order, Struct } from "effect";
 import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import { buildRepoDependencyIndex } from "./DependencyIndex.js";
@@ -99,5 +99,8 @@ export const collectUniqueNpmDependencies: (
   });
 });
 
-const sortHashSet = (set: MutableHashSet.MutableHashSet<string>) => pipe(set, A.fromIterable, A.sort(Order.String));
+const sortHashSet: (set: MutableHashSet.MutableHashSet<string>) => ReadonlyArray<string> = flow(
+  A.fromIterable,
+  A.sort(Order.String)
+);
 // bench

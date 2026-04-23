@@ -80,6 +80,12 @@ const withIncomingTraceContextImpl = <A, E, R>(
     })
   );
 
+/**
+ * Runs an Effect with trace context extracted from incoming headers.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
 export const withIncomingTraceContext: {
   <A, E, R>(effect: Effect.Effect<A, E, R>, headers: Headers.Input | undefined): Effect.Effect<A, E, R>;
   <A, E, R>(headers: Headers.Input | undefined, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;

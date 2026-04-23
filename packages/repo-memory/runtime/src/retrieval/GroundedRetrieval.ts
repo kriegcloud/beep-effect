@@ -63,7 +63,7 @@ import {
 } from "@beep/repo-memory-store";
 import { type FilePath, NonNegativeInt, PosInt, StatusCauseTaggedErrorClass } from "@beep/schema";
 import * as Str from "@beep/utils/Str";
-import { Context, DateTime, Effect, HashSet, Layer, Order, pipe } from "effect";
+import { Context, DateTime, Effect, flow, HashSet, Layer, Order, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -307,18 +307,14 @@ const documentationCitations = (
     )
   );
 
-const normalizeCitations = (citations: ReadonlyArray<Citation>): ReadonlyArray<Citation> =>
-  pipe(
-    citations,
-    A.sort(citationOrder),
-    A.dedupeWith((left, right) => left.id === right.id)
-  );
+const normalizeCitations: (citations: ReadonlyArray<Citation>) => ReadonlyArray<Citation> = flow(
+  A.sort(citationOrder),
+  A.dedupeWith((left: Citation, right: Citation) => left.id === right.id)
+);
 
-const citationIds = (citations: ReadonlyArray<Citation>): ReadonlyArray<string> =>
-  pipe(
-    citations,
-    A.map((citation) => citation.id)
-  );
+const citationIds: (citations: ReadonlyArray<Citation>) => ReadonlyArray<string> = flow(
+  A.map((citation: Citation) => citation.id)
+);
 
 const issueMatchKind = (nlpNotes: ReadonlyArray<string>): "exact" | "normalized" | "fuzzy" =>
   A.isReadonlyArrayNonEmpty(nlpNotes) ? "normalized" : "exact";

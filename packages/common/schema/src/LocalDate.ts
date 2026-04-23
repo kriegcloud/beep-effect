@@ -9,7 +9,18 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";
-import { DateTime, Duration, Effect, Equal, Hash, Order as Order_, pipe, SchemaGetter, SchemaIssue } from "effect";
+import {
+  DateTime,
+  Duration,
+  Effect,
+  Equal,
+  flow,
+  Hash,
+  Order as Order_,
+  pipe,
+  SchemaGetter,
+  SchemaIssue,
+} from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -227,14 +238,13 @@ export const fromString = (dateString: string): Effect.Effect<LocalDate, S.Schem
  * @since 0.0.0
  * @category constructors
  */
-export const fromDate = (date: Date): LocalDate =>
-  pipe(date, DateTime.fromDateUnsafe, DateTime.toPartsUtc, (parts) =>
-    LocalDate.make({
-      year: parts.year,
-      month: parts.month,
-      day: parts.day,
-    })
-  );
+export const fromDate: (date: Date) => LocalDate = flow(DateTime.fromDateUnsafe, DateTime.toPartsUtc, (parts) =>
+  LocalDate.make({
+    year: parts.year,
+    month: parts.month,
+    day: parts.day,
+  })
+);
 
 /**
  * Get today's date in UTC.

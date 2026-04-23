@@ -1,4 +1,4 @@
-import { pipe } from "effect";
+import { flow } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 
@@ -8,8 +8,10 @@ import * as O from "effect/Option";
  * @since 0.0.0
  * @category Utility
  */
-export const firstSome = <A>(options: ReadonlyArray<O.Option<A>>): O.Option<A> =>
-  pipe(options, A.findFirst(O.isSome), O.flatten);
+export const firstSome: <A>(options: ReadonlyArray<O.Option<A>>) => O.Option<A> = flow(
+  A.findFirst(O.isSome),
+  O.flatten
+);
 
 /**
  * Convert an Option into a readonly array of length 0 or 1.

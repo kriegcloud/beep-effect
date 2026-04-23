@@ -424,20 +424,18 @@ const extractBlockLinks = (text: string): ReadonlyArray<PageLinkRef> => {
  * @since 0.0.0
  * @category Helpers
  */
-export const normalizePageSlug = (input: string): Slug =>
-  pipe(
-    input,
-    Str.trim,
-    Str.toLowerCase,
-    Str.replace(/[^a-z0-9]+/g, "-"),
-    Str.replace(/^-+/g, ""),
-    Str.replace(/-+$/g, ""),
-    Str.replace(/-{2,}/g, "-"),
-    flow(
-      Slug.makeOption,
-      O.getOrElse(() => untitledSlug)
-    )
-  );
+export const normalizePageSlug: (input: string) => Slug = flow(
+  Str.trim,
+  Str.toLowerCase,
+  Str.replace(/[^a-z0-9]+/g, "-"),
+  Str.replace(/^-+/g, ""),
+  Str.replace(/-+$/g, ""),
+  Str.replace(/-{2,}/g, "-"),
+  flow(
+    Slug.makeOption,
+    O.getOrElse(() => untitledSlug)
+  )
+);
 
 /**
  * Construct a stable paragraph block.

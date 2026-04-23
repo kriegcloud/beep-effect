@@ -5,7 +5,7 @@
  * @module
  */
 import * as Str from "@beep/utils/Str";
-import { pipe } from "effect";
+import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 
@@ -26,7 +26,7 @@ const firstCapture = (pattern: RegExp, input: string): O.Option<string> =>
  * @since 0.0.0
  * @category normalization
  */
-export const normalizeQuestion = (input: string): string => pipe(input, Str.trim, Str.replace(/\s+/g, " "));
+export const normalizeQuestion: (input: string) => string = flow(Str.trim, Str.replace(/\s+/g, " "));
 
 /**
  * Normalize a short extracted phrase by trimming boundary punctuation and
@@ -43,15 +43,13 @@ export const normalizeQuestion = (input: string): string => pipe(input, Str.trim
  * @since 0.0.0
  * @category normalization
  */
-export const normalizePhrase = (input: string): string =>
-  pipe(
-    input,
-    normalizeQuestion,
-    Str.replace(/^[`"'([{]+/g, ""),
-    Str.replace(/[!?.,;:'"`)\]}]+$/g, ""),
-    Str.replace(/\s*([/._-])\s*/g, "$1"),
-    normalizeQuestion
-  );
+export const normalizePhrase: (input: string) => string = flow(
+  normalizeQuestion,
+  Str.replace(/^[`"'([{]+/g, ""),
+  Str.replace(/[!?.,;:'"`)\]}]+$/g, ""),
+  Str.replace(/\s*([/._-])\s*/g, "$1"),
+  normalizeQuestion
+);
 
 /**
  * Extract the first value enclosed in backticks from a user question.

@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { pipe } from "effect";
+import { flow, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -13,6 +13,7 @@ import type {
   RetrievalAmbiguousIssue,
   RetrievalCandidate,
   RetrievalCountPayload,
+  RetrievalDeclarationFacet,
   RetrievalDeprecationFacet,
   RetrievalDocumentationFacet,
   RetrievalFacet,
@@ -99,48 +100,44 @@ const renderItem = (item: RetrievalItem): string => {
   );
 };
 
-const renderCandidates = (candidates: ReadonlyArray<RetrievalCandidate>): string =>
-  pipe(
-    candidates,
-    A.map((candidate) => renderSubjectLabel(candidate.subject)),
-    A.join(", ")
-  );
+const renderCandidates: (candidates: ReadonlyArray<RetrievalCandidate>) => string = flow(
+  A.map<ReadonlyArray<RetrievalCandidate>, string>((candidate) => renderSubjectLabel(candidate.subject)),
+  A.join(", ")
+);
 
-const findLocationFacet = (facets: ReadonlyArray<RetrievalFacet>) =>
-  pipe(
-    facets,
-    A.findFirst((facet): facet is RetrievalLocationFacet => facet.kind === "location")
-  );
+const findLocationFacet: (facets: ReadonlyArray<RetrievalFacet>) => O.Option<RetrievalLocationFacet> = flow(
+  A.findFirst<RetrievalFacet, RetrievalLocationFacet>(
+    (facet): facet is RetrievalLocationFacet => facet.kind === "location"
+  )
+);
 
-const findDeclarationFacet = (facets: ReadonlyArray<RetrievalFacet>) =>
-  pipe(
-    facets,
-    A.findFirst((facet) => facet.kind === "declaration")
-  );
+const findDeclarationFacet: (facets: ReadonlyArray<RetrievalFacet>) => O.Option<RetrievalDeclarationFacet> = flow(
+  A.findFirst<RetrievalFacet, RetrievalDeclarationFacet>(
+    (facet): facet is RetrievalDeclarationFacet => facet.kind === "declaration"
+  )
+);
 
-const findDocumentationFacet = (facets: ReadonlyArray<RetrievalFacet>) =>
-  pipe(
-    facets,
-    A.findFirst((facet): facet is RetrievalDocumentationFacet => facet.kind === "documentation")
-  );
+const findDocumentationFacet: (facets: ReadonlyArray<RetrievalFacet>) => O.Option<RetrievalDocumentationFacet> = flow(
+  A.findFirst<RetrievalFacet, RetrievalDocumentationFacet>(
+    (facet): facet is RetrievalDocumentationFacet => facet.kind === "documentation"
+  )
+);
 
-const findReturnsFacet = (facets: ReadonlyArray<RetrievalFacet>) =>
-  pipe(
-    facets,
-    A.findFirst((facet): facet is RetrievalReturnsFacet => facet.kind === "returns")
-  );
+const findReturnsFacet: (facets: ReadonlyArray<RetrievalFacet>) => O.Option<RetrievalReturnsFacet> = flow(
+  A.findFirst<RetrievalFacet, RetrievalReturnsFacet>(
+    (facet): facet is RetrievalReturnsFacet => facet.kind === "returns"
+  )
+);
 
-const findThrowsFacet = (facets: ReadonlyArray<RetrievalFacet>) =>
-  pipe(
-    facets,
-    A.findFirst((facet): facet is RetrievalThrowsFacet => facet.kind === "throws")
-  );
+const findThrowsFacet: (facets: ReadonlyArray<RetrievalFacet>) => O.Option<RetrievalThrowsFacet> = flow(
+  A.findFirst<RetrievalFacet, RetrievalThrowsFacet>((facet): facet is RetrievalThrowsFacet => facet.kind === "throws")
+);
 
-const findDeprecationFacet = (facets: ReadonlyArray<RetrievalFacet>) =>
-  pipe(
-    facets,
-    A.findFirst((facet): facet is RetrievalDeprecationFacet => facet.kind === "deprecation")
-  );
+const findDeprecationFacet: (facets: ReadonlyArray<RetrievalFacet>) => O.Option<RetrievalDeprecationFacet> = flow(
+  A.findFirst<RetrievalFacet, RetrievalDeprecationFacet>(
+    (facet): facet is RetrievalDeprecationFacet => facet.kind === "deprecation"
+  )
+);
 
 const renderCountPayload = (packet: RetrievalPacket, payload: RetrievalCountPayload): string =>
   payload.target === "files"

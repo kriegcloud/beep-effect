@@ -119,6 +119,12 @@ const formatCsvDataRowEffect = (
     return A.join(encodedFields, options.delimiter);
   });
 
+/**
+ * Format a CSV data row.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const formatCsvDataRow: {
   (fields: ReadonlyArray<string>, options: CsvCodecOptions): Effect.Effect<string, CsvError>;
   (options: CsvCodecOptions): (fields: ReadonlyArray<string>) => Effect.Effect<string, CsvError>;
@@ -141,6 +147,12 @@ const formatCsvDocumentEffect = (
     return pipe([header, ...dataRows], A.join(rowDelimiter));
   });
 
+/**
+ * Format a whole CSV document.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const formatCsvDocument: {
   (
     headers: ReadonlyArray<string>,

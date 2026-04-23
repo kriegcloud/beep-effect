@@ -4,7 +4,7 @@
  * @packageDocumentation
  * @since 0.0.0
  */
-import { Effect, Layer, pipe } from "effect";
+import { Effect, flow, Layer } from "effect";
 import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as Str from "effect/String";
@@ -26,8 +26,11 @@ import * as PrometheusMetrics from "effect/unstable/observability/PrometheusMetr
  * @since 0.0.0
  * @category observability
  */
-export const sanitizePrometheusMetrics = (text: string): string =>
-  pipe(text, Str.split("\n"), A.filter(P.not(Str.includes('le="Infinity"'))), A.join("\n"));
+export const sanitizePrometheusMetrics: (text: string) => string = flow(
+  Str.split("\n"),
+  A.filter(P.not(Str.includes('le="Infinity"'))),
+  A.join("\n")
+);
 
 /**
  * Create a sanitized Prometheus metrics route.

@@ -254,6 +254,12 @@ const profilePhaseImpl = <A, E, R>(
     })
   );
 
+/**
+ * Profiles an Effect phase and records its duration and outcome.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
 export const profilePhase: {
   <A, E, R>(effect: Effect.Effect<A, E, R>, options: ProfilePhaseOptions): Effect.Effect<A, E, R>;
   <A, E, R>(options: ProfilePhaseOptions, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;

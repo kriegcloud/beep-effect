@@ -105,6 +105,12 @@ type DirectiveValueOptions = {
   readonly arrayWrapper?: <T>(value: ReadonlyArray<T> | T) => readonly T[];
 };
 
+/**
+ * Creates a serialized directive value from a directive name and value list.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const createDirectiveValue: {
   <const T extends string>(directiveName: string, value: T | readonly T[]): `${string} ${string}`;
   <const T extends string>(

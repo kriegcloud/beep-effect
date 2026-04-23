@@ -4,7 +4,7 @@
  * @since 0.0.0
  */
 import { thunkEmptyRecord } from "@beep/utils";
-import { pipe, Result } from "effect";
+import { flow, pipe, Result } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -72,27 +72,25 @@ const getBunMarkdownHtml = (input: unknown): O.Option<MarkdownHtmlRender> =>
     )
   );
 
-const toMarkdownParseResult = (result: Result.Result<unknown, unknown>): MarkdownParseResult =>
-  pipe(
-    result,
-    Result.match({
-      onFailure: (cause) =>
-        ({
-          _tag: "failure",
-          message: renderMarkdownIssueMessage(cause),
-        }) satisfies MarkdownParseResult,
-      onSuccess: (html) =>
-        P.isString(html)
-          ? ({
-              _tag: "success",
-              html,
-            } satisfies MarkdownParseResult)
-          : ({
-              _tag: "failure",
-              message: invalidMarkdownOutput,
-            } satisfies MarkdownParseResult),
-    })
-  );
+const toMarkdownParseResult: (result: Result.Result<unknown, unknown>) => MarkdownParseResult = flow(
+  Result.match({
+    onFailure: (cause) =>
+      ({
+        _tag: "failure",
+        message: renderMarkdownIssueMessage(cause),
+      }) satisfies MarkdownParseResult,
+    onSuccess: (html) =>
+      P.isString(html)
+        ? ({
+            _tag: "success",
+            html,
+          } satisfies MarkdownParseResult)
+        : ({
+            _tag: "failure",
+            message: invalidMarkdownOutput,
+          } satisfies MarkdownParseResult),
+  })
+);
 
 export const getGlobalMarkdownRuntime = (): MarkdownRuntime =>
   pipe(

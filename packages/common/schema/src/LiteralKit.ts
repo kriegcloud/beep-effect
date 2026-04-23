@@ -222,22 +222,16 @@ export const matchLiteral = <L extends SchemaAST.LiteralValue>(literal: L): Lite
   ) as LiteralToKey<L>;
 
 const makeDefaultEnum = <L extends Literals>(literals: L): DefaultEnumType<L> =>
-  pipe(
-    literals,
-    A.reduce({} as DefaultEnumType<L>, (acc, literal) => ({
-      ...acc,
-      [matchLiteral(literal)]: literal,
-    }))
-  );
+  A.reduce({} as DefaultEnumType<L>, (acc, literal) => ({
+    ...acc,
+    [matchLiteral(literal)]: literal,
+  }))(literals);
 
 const makeMappedEnum = <M extends EnumMappings>(mapping: M): MappedEnumType<M> =>
-  pipe(
-    mapping,
-    A.reduce({} as MappedEnumType<M>, (acc, [literal, mappedKey]) => ({
-      ...acc,
-      [mappedKey]: literal,
-    }))
-  );
+  A.reduce({} as MappedEnumType<M>, (acc, [literal, mappedKey]) => ({
+    ...acc,
+    [mappedKey]: literal,
+  }))(mapping);
 
 const helperKey = (literal: SchemaAST.LiteralValue, mapping: ReadonlyArray<EnumMappingEntry> | undefined): string =>
   mapping === undefined

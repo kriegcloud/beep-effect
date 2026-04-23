@@ -8,6 +8,7 @@
 import { $SchemaId } from "@beep/identity/packages";
 import {
   Effect,
+  flow,
   Graph as Graph_,
   Number as Num,
   Option,
@@ -17,8 +18,8 @@ import {
   SchemaParser,
   SchemaTransformation,
 } from "effect";
-import { dual } from "effect/Function";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { isNonNegative } from "./Number.ts";
@@ -62,15 +63,14 @@ const makeGraphConstructionIssue = (
 const sortRawNodeEntries = <Node>(
   nodes: RawGraphEncoded<Node, never>["nodes"]
 ): RawGraphEncoded<Node, never>["nodes"] =>
-  pipe(
-    nodes,
+  flow(
     A.map(([index, node]): readonly [number, Node] => [index, node]),
     A.sort(nodeEntryOrder)
-  );
+  )(nodes);
 
 const sortRawEdgeEntries = <Edge>(
   edges: RawGraphEncoded<never, Edge>["edges"]
-): RawGraphEncoded<never, Edge>["edges"] => pipe(edges, A.sort(edgeEntryOrder));
+): RawGraphEncoded<never, Edge>["edges"] => A.sort(edgeEntryOrder)(edges);
 
 const toRawEdgeEncoded = <Data>(edge: Graph_.Edge<Data>): RawEdgeEncoded<Data> => ({
   source: edge.source,

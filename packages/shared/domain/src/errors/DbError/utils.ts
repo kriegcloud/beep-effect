@@ -236,7 +236,7 @@ export const matchQueryType = Match.type<string>().pipe(
  * @since 0.0.0
  * @category domain logic
  */
-export const getQueryType = (query: string) => pipe(query, Str.trim, Str.toLowerCase, matchQueryType);
+export const getQueryType = flow(Str.trim, Str.toLowerCase, matchQueryType);
 
 /**
  * Maps a query category to terminal styling tokens used by the formatter.
@@ -425,7 +425,7 @@ export const formatParam: {
  * @since 0.0.0
  * @category utility
  */
-export const stripAnsi = (str: string): string => pipe(str, Str.replace(ansiEscapeRegex, Str.empty));
+export const stripAnsi: (str: string) => string = flow(Str.replace(ansiEscapeRegex, Str.empty));
 
 /**
  * Computes display width by stripping ANSI escapes before measuring length.
@@ -442,7 +442,7 @@ export const stripAnsi = (str: string): string => pipe(str, Str.replace(ansiEsca
  * @since 0.0.0
  * @category utility
  */
-export const visualLength = (str: string): number => pipe(str, stripAnsi, Str.length);
+export const visualLength: (str: string) => number = flow(stripAnsi, Str.length);
 
 /**
  * Pads a string to a target visual width while preserving ANSI styling.
@@ -582,8 +582,8 @@ const readStringProperty = (value: unknown, key: string): string | undefined => 
   );
 };
 
-const extractPgErrorOption = (error: unknown): O.Option<PgDatabaseError> =>
-  pipe(
+function extractPgErrorOption(error: unknown): O.Option<PgDatabaseError> {
+  return pipe(
     error,
     Match.value,
     Match.when(
@@ -600,62 +600,57 @@ const extractPgErrorOption = (error: unknown): O.Option<PgDatabaseError> =>
     ),
     Match.orElse(O.none<PgDatabaseError>)
   );
+}
 
-const extractSourceLocationFromLine = (line: string): O.Option<string> =>
-  pipe(
-    line,
-    Str.match(stackFramePattern),
-    O.flatMap((match) => {
-      const filePath = match[1];
-      const lineNum = match[2];
-      const colNum = match[3];
-      const isValidPath = (path: string): boolean =>
-        pipe(path, Str.startsWith("/")) &&
-        !Str.includes("node_modules")(path) &&
-        !Str.includes("shared/server/src/internal")(path);
+const extractSourceLocationFromLine: (line: string) => O.Option<string> = flow(
+  Str.match(stackFramePattern),
+  O.flatMap((match) => {
+    const filePath = match[1];
+    const lineNum = match[2];
+    const colNum = match[3];
+    const isValidPath = (path: string): boolean =>
+      pipe(path, Str.startsWith("/")) &&
+      !Str.includes("node_modules")(path) &&
+      !Str.includes("shared/server/src/internal")(path);
 
-      return pipe(
-        O.all({
-          filePath: pipe(filePath, O.liftPredicate(P.isString)),
-          lineNum: pipe(lineNum, O.liftPredicate(P.isString)),
-          colNum: pipe(colNum, O.liftPredicate(P.isString)),
-        }),
-        O.filter(({ filePath }) => isValidPath(filePath)),
-        O.map(({ filePath, lineNum, colNum }) => `${filePath}:${lineNum}:${colNum}`)
-      );
-    })
-  );
+    return pipe(
+      O.all({
+        filePath: pipe(filePath, O.liftPredicate(P.isString)),
+        lineNum: pipe(lineNum, O.liftPredicate(P.isString)),
+        colNum: pipe(colNum, O.liftPredicate(P.isString)),
+      }),
+      O.filter(({ filePath }) => isValidPath(filePath)),
+      O.map(({ filePath, lineNum, colNum }) => `${filePath}:${lineNum}:${colNum}`)
+    );
+  })
+);
 
-const findSourceLocationInStack = (stack: string): O.Option<string> =>
-  pipe(
-    stack,
-    Str.split("\n"),
-    A.reduce(O.none<string>(), (found, line) =>
-      pipe(
-        found,
-        O.orElse(() => extractSourceLocationFromLine(line))
-      )
+const findSourceLocationInStack: (stack: string) => O.Option<string> = flow(
+  Str.split("\n"),
+  A.reduce(O.none<string>(), (found, line) =>
+    pipe(
+      found,
+      O.orElse(() => extractSourceLocationFromLine(line))
     )
-  );
+  )
+);
 
-const extractQueryFromMessage = (message: string): DrizzleQueryExtraction =>
-  pipe(
-    message,
-    Str.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s),
-    O.map((failedQueryMatch): DrizzleQueryExtraction => {
-      const query = pipe(failedQueryMatch[1], O.fromNullishOr, O.map(Str.trim), O.getOrNull);
-      const params = pipe(
-        failedQueryMatch[2],
-        O.fromNullishOr,
-        O.map(Str.trim),
-        O.filter((value) => Str.length(value) > 0),
-        O.map(flow(Str.split(","), A.map(Str.trim))),
-        O.getOrElse(A.empty<string>)
-      );
-      return { query, params };
-    }),
-    O.getOrElse(() => emptyDrizzleQueryExtraction)
-  );
+const extractQueryFromMessage: (message: string) => DrizzleQueryExtraction = flow(
+  Str.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s),
+  O.map((failedQueryMatch): DrizzleQueryExtraction => {
+    const query = pipe(failedQueryMatch[1], O.fromNullishOr, O.map(Str.trim), O.getOrNull);
+    const params = pipe(
+      failedQueryMatch[2],
+      O.fromNullishOr,
+      O.map(Str.trim),
+      O.filter((value) => Str.length(value) > 0),
+      O.map(flow(Str.split(","), A.map(Str.trim))),
+      O.getOrElse(A.empty<string>)
+    );
+    return { query, params };
+  }),
+  O.getOrElse(() => emptyDrizzleQueryExtraction)
+);
 
 /**
  * Recursively unwraps wrapped errors to locate the originating `pg` protocol error.
@@ -672,8 +667,7 @@ const extractQueryFromMessage = (message: string): DrizzleQueryExtraction =>
  * @since 0.0.0
  * @category utility
  */
-export const extractPgError = (error: unknown): PgDatabaseError | null =>
-  pipe(error, extractPgErrorOption, O.getOrNull);
+export const extractPgError: (error: unknown) => PgDatabaseError | null = flow(extractPgErrorOption, O.getOrNull);
 
 /**
  * Extracts the first non-internal filesystem location from an error stack.
@@ -690,15 +684,13 @@ export const extractPgError = (error: unknown): PgDatabaseError | null =>
  * @since 0.0.0
  * @category utility
  */
-export const extractSourceLocation = (error: unknown): string | null =>
-  pipe(
-    error,
-    Match.value,
-    Match.when(S.is(RawError), (typedError) =>
-      pipe(typedError.stack, O.fromNullishOr, O.flatMap(findSourceLocationInStack), O.getOrNull)
-    ),
-    Match.orElse(thunkNull)
-  );
+export const extractSourceLocation: (error: unknown) => string | null = flow(
+  Match.value,
+  Match.when(S.is(RawError), (typedError) =>
+    pipe(typedError.stack, O.fromNullishOr, O.flatMap(findSourceLocationInStack), O.getOrNull)
+  ),
+  Match.orElse(thunkNull)
+);
 
 /**
  * Pulls query text and params from Drizzle's "Failed query" wrapper error message.
@@ -717,13 +709,11 @@ export const extractSourceLocation = (error: unknown): string | null =>
  * @since 0.0.0
  * @category utility
  */
-export const extractQueryFromDrizzleError = (error: unknown): DrizzleQueryExtraction =>
-  pipe(
-    error,
-    Match.value,
-    Match.when(S.is(RawError), (typedError) => extractQueryFromMessage(typedError.message)),
-    Match.orElse(() => emptyDrizzleQueryExtraction)
-  );
+export const extractQueryFromDrizzleError: (error: unknown) => DrizzleQueryExtraction = flow(
+  Match.value,
+  Match.when(S.is(RawError), (typedError) => extractQueryFromMessage(typedError.message)),
+  Match.orElse(() => emptyDrizzleQueryExtraction)
+);
 
 /**
  * Builds a rich, terminal-friendly database error report.
@@ -745,6 +735,12 @@ export type FormatDbErrorOptions = {
   readonly params?: ReadonlyArray<unknown>;
 };
 
+/**
+ * Formats unknown database errors with optional query context.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const formatDbError: {
   (error: unknown, options: FormatDbErrorOptions): string;
   (options: FormatDbErrorOptions): (error: unknown) => string;

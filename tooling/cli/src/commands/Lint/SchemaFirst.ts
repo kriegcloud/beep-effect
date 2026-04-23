@@ -157,9 +157,8 @@ const byWorkspacePathLengthDescending: Order.Order<readonly [string, string]> = 
   (entry) => -entry[1].length
 );
 
-const sortEntries: (
-  entries: ReadonlyArray<SchemaFirstInventoryEntry>
-) => ReadonlyArray<SchemaFirstInventoryEntry> = flow(A.sort(byEntryKeyAscending));
+const sortEntries: (entries: ReadonlyArray<SchemaFirstInventoryEntry>) => ReadonlyArray<SchemaFirstInventoryEntry> =
+  flow(A.sort(byEntryKeyAscending));
 
 const isEnforcedFile = (filePath: string): boolean =>
   ENFORCED_ROOTS.some((root) => filePath === root || Str.startsWith(`${root}/`)(filePath));

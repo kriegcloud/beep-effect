@@ -5,8 +5,8 @@
  * @since 0.0.0
  */
 
-import * as O from "effect/Option";
 import { dual } from "effect/Function";
+import * as O from "effect/Option";
 import type { Get, Paths } from "type-fest";
 import type { PathInput } from "./internal/StructPath.ts";
 import { unsafeDotGet } from "./internal/StructPath.ts";

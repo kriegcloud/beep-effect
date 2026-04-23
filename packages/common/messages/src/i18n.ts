@@ -224,6 +224,13 @@ const logIssuesImpl = getLogIssues({
       })
     ),
 });
+
+/**
+ * Logs schema validation issues for i18n payloads.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const logIssues: {
   <S extends S.Codec<unknown, unknown>>(schema: S, input: unknown): void;
   <S extends S.Codec<unknown, unknown>>(schema: S): (input: unknown) => void;

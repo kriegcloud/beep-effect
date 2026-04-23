@@ -176,6 +176,12 @@ const trackDurationImpl = <A, E, R>(
     Effect.map(([value]) => value)
   );
 
+/**
+ * Tracks the elapsed duration of an Effect with a metric.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
 export const trackDuration: {
   <A, E, R>(
     effect: Effect.Effect<A, E, R>,
@@ -293,6 +299,12 @@ const observeWorkflowImpl = <A, E, R>(
     )
   );
 
+/**
+ * Observes workflow duration and outcome metrics for an Effect.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
 export const observeWorkflow: {
   <A, E, R>(effect: Effect.Effect<A, E, R>, options: ObserveWorkflowOptions): Effect.Effect<A, E, R>;
   <A, E, R>(options: ObserveWorkflowOptions, effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R>;
@@ -415,6 +427,12 @@ const observeHttpRequestImpl = <A, E extends { readonly status: number }, R>(
     )
   );
 
+/**
+ * Observes HTTP request duration and status metrics for an Effect.
+ *
+ * @category observability
+ * @since 0.0.0
+ */
 export const observeHttpRequest: {
   <A, E extends { readonly status: number }, R>(
     effect: Effect.Effect<A, E, R>,

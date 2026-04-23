@@ -7,9 +7,9 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings, LiteralKit, SchemaUtils } from "@beep/schema";
-import { Order, pipe, SchemaAST } from "effect";
-import { dual } from "effect/Function";
+import { flow, Order, pipe, SchemaAST } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -1190,14 +1190,12 @@ const clampConfidence = (confidence: number): number =>
  * @category utilities
  * @since 0.0.0
  */
-const combineSignalConfidences = (confidences: ReadonlyArray<number>): number =>
-  pipe(
-    confidences,
-    A.reduce(0, (combined, confidence) => {
-      const clamped = clampConfidence(confidence);
-      return 1 - (1 - combined) * (1 - clamped);
-    })
-  );
+const combineSignalConfidences: (confidences: ReadonlyArray<number>) => number = flow(
+  A.reduce(0, (combined, confidence) => {
+    const clamped = clampConfidence(confidence);
+    return 1 - (1 - combined) * (1 - clamped);
+  })
+);
 
 /**
  * Get deterministic conflict precedence rank for a category tag.
