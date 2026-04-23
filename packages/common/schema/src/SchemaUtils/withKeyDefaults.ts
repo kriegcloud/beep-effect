@@ -6,7 +6,7 @@
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";
-import { Effect, flow, pipe } from "effect";
+import { Effect, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -72,11 +72,15 @@ const applyEmptyArrayDefaults = <
   const TSchema extends S.$Array<S.Schema<TValue>> & S.WithoutConstructorDefault,
 >(
   self: TSchema
-): S.withDecodingDefaultType<S.withConstructorDefault<TSchema>> =>
-  flow(
-    S.withConstructorDefault(Effect.succeed(A.empty<TValue>())),
-    S.withDecodingDefaultType(Effect.succeed(A.empty<TValue>()))
-  )(self);
+): S.withDecodingDefaultType<S.withConstructorDefault<TSchema>> => {
+  const defaultValue = A.empty<TValue>();
+  const withConstructorDefault = S.withConstructorDefault(Effect.succeed(defaultValue))(
+    self
+  ) as S.withConstructorDefault<TSchema>;
+  return S.withDecodingDefaultType(Effect.succeed(defaultValue))(withConstructorDefault) as S.withDecodingDefaultType<
+    S.withConstructorDefault<TSchema>
+  >;
+};
 
 /**
  * Apply empty readonly-array defaults for constructor creation and missing

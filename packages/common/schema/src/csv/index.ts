@@ -37,6 +37,9 @@ type CsvDocument<RowSchema extends RowSchemaWithFields> = S.decodeTo<S.toType<S.
 
 const decodeCsvCodecOptions = S.decodeUnknownEffect(CsvCodecOptions);
 
+const isRowSchemaWithFields = (value: unknown): value is RowSchemaWithFields =>
+  P.isObjectKeyword(value) && P.hasProperty(value, "fields");
+
 const toSchemaIssue = (input: unknown, error: CsvError | S.SchemaError): SchemaIssue.Issue =>
   new SchemaIssue.InvalidValue(O.some(input), {
     message: error.message,
@@ -272,12 +275,12 @@ export const CSV: {
     options: CsvCodecOptionsArgs
   ): (rowSchema: RowSchema) => CsvDocument<RowSchema>;
 } = dual(
-  (args) => args.length === 1 && !S.isSchema(args[0]),
+  (args) => isRowSchemaWithFields(args[0]),
   <RowSchema extends RowSchemaWithFields>(
     rowSchema: RowSchema | CsvCodecOptionsArgs,
     options?: CsvCodecOptionsArgs
   ): CsvDocument<RowSchema> | ((schema: RowSchema) => CsvDocument<RowSchema>) => {
-    if (S.isSchema(rowSchema)) {
+    if (isRowSchemaWithFields(rowSchema)) {
       return CSVEffect(rowSchema, options);
     }
 

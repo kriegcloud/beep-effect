@@ -60,38 +60,6 @@
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "apps/desktop/scripts/build-sidecar.ts",
-      "kind": "object-method",
-      "reason": "The desktop Bun build entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
-      "owner": "@beep/desktop",
-      "issue": "DESKTOP-BUILD-EXIT-CODE-ANNOTATION"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "apps/desktop/scripts/dev-with-portless.ts",
-      "kind": "object-method",
-      "reason": "The desktop Bun dev entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
-      "owner": "@beep/desktop",
-      "issue": "DESKTOP-DEV-EXIT-CODE-ANNOTATION"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "apps/editor-app/scripts/build-sidecar.ts",
-      "kind": "object-method",
-      "reason": "The editor Bun build entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
-      "owner": "@beep/editor-app",
-      "issue": "EDITOR-BUILD-EXIT-CODE-ANNOTATION"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
-      "file": "apps/editor-app/scripts/dev-with-portless.ts",
-      "kind": "object-method",
-      "reason": "The editor Bun dev entrypoint mutates tagged error instances with Runtime.errorExitCode so BunRuntime.runMain preserves the intended process exit code at this imperative script boundary.",
-      "owner": "@beep/editor-app",
-      "issue": "EDITOR-DEV-EXIT-CODE-ANNOTATION"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/common/observability/src/experimental/server/OtlpPacketLab.ts",
       "kind": "date-static",
       "reason": "OTLP serialization hooks are synchronous body factories, so packet capture timestamps must be recorded at that immediate runtime boundary without introducing Effect execution into the serializer contract.",

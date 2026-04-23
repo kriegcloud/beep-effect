@@ -36,7 +36,9 @@ class ManagedChildExitError extends TaggedErrorClass<ManagedChildExitError>($Edi
   $EditorDevId.annote("ManagedChildExitError", {
     description: "Raised when a managed dev child exits and should determine the parent process exit code.",
   })
-) {}
+) {
+  override readonly [Runtime.errorExitCode] = this.exitCode;
+}
 
 const sidecarHost = "editor-sidecar.localhost";
 const frontendRouteName = "editor";
@@ -70,18 +72,12 @@ const PortlessRoutes = S.Array(PortlessRoute).annotate(
 const decodePortlessRoutes = S.decodeUnknownEffect(S.fromJsonString(PortlessRoutes));
 const decodeNumberFromString = S.decodeUnknownEffect(S.NumberFromString);
 
-const withExitCode = <E extends object>(error: E, exitCode: number): E & { readonly [Runtime.errorExitCode]: number } =>
-  Object.assign(error, { [Runtime.errorExitCode]: exitCode });
-
 const makeManagedChildExitError = (child: string, message: string, exitCode: number) =>
-  withExitCode(
-    new ManagedChildExitError({
-      child,
-      message,
-      exitCode,
-    }),
-    exitCode
-  );
+  new ManagedChildExitError({
+    child,
+    message,
+    exitCode,
+  });
 
 const mapManagedChildPlatformError = (child: string, error: PlatformError.PlatformError) =>
   makeManagedChildExitError(

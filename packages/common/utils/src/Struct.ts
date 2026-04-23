@@ -604,10 +604,10 @@ export const fromEntries = <const E extends readonly [PropertyKey, unknown]>(
 
   for (const [key, value] of entries) {
     Reflect.defineProperty(out, key, {
-      configurable: false,
-      enumerable: false,
+      configurable: true,
+      enumerable: true,
       value,
-      writable: false,
+      writable: true,
     });
   }
 

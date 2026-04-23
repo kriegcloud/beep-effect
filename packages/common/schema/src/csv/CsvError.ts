@@ -44,21 +44,12 @@ export const csvError: {
   (offset: number): (message: string) => CsvError;
   (message: string, offset: number): CsvError;
 } = dual(
-  (args) => args.length === 1 && P.isNumber(args[0]),
-  (message: string | number, offset?: number): CsvError | ((message: string) => CsvError) => {
-    if (P.isNumber(message)) {
-      return (actualMessage: string) =>
-        new CsvError({
-          message: actualMessage,
-          offset: message,
-        });
-    }
-
-    return P.isNumber(offset)
+  (args) => args.length === 2 || P.isString(args[0]),
+  (message: string, offset?: number): CsvError =>
+    P.isNumber(offset)
       ? new CsvError({
           message,
           offset,
         })
-      : new CsvError({ message });
-  }
+      : new CsvError({ message })
 );

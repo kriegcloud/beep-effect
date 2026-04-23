@@ -112,7 +112,9 @@ layer(NodeServices.layer)("VersionSync Effect Catalog", (it) => {
           })}\n`
         );
 
-        const changed = yield* updateCatalogEntry(packageJsonPath, "@effect/opentelemetry", "^4.0.0-beta.28");
+        const changed = yield* updateCatalogEntry(packageJsonPath, "@effect/opentelemetry", {
+          versionSpecifier: "^4.0.0-beta.28",
+        });
         const updated = yield* fs.readFileString(packageJsonPath);
         const decodedUpdated = S.decodeUnknownSync(S.UnknownFromJsonString)(updated) as {
           readonly catalog: Record<string, string>;
