@@ -4,4 +4,7 @@
  * @category domain model
  * @since 0.0.0
  */
+
+export * from "./EntityId/index.ts";
+export * as Mem from "./Mem.ts";
 export * as Shared from "./Shared.js";

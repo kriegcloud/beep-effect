@@ -6,10 +6,14 @@
 
 /**
  * @since 0.0.0
+ * @category constructors
+ */
+export * from "./entity-ids/index.ts";
+/**
+ * @since 0.0.0
  * @category domain model
  */
 export * as Errors from "./errors/index.js";
-
 /**
  * @since 0.0.0
  */

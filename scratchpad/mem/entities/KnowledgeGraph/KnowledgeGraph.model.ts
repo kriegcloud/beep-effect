@@ -9,18 +9,20 @@ import * as S from "effect/Schema";
 import {SchemaUtils} from "@beep/schema";
 import * as M from "effect/unstable/schema/Model";
 import {Mem} from "@beep/shared-domain";
+import * as Edge from "../Edge/index.ts";
+import * as Node from "../Node/index.ts";
 
 const $I = $ScratchId.create("mem/Edge/Edge.model");
 
 export class Model extends M.Class<Model>($I`Model`)(
   {
-    _tag: Mem.EdgeId.Public,
-    id: M.Generated(Mem.EdgeId),
-    sourceNodeId: Mem.NodeId,
-    targetNodeId: Mem.NodeId,
-    relationshipName: S.String,
+    _tag: Mem.KnowledgeGraphId.Public,
+    id: M.Generated(Mem.KnowledgeGraphId),
+    nodes: S.HashSet(Node.Model),
+    edges: S.HashSet(Edge.Model),
   }) {
-  static readonly newOption = (params: typeof Model["Encoded"]) => S.decodeOption(Model)(params)
+  static readonly newOption = (params: typeof Model["Encoded"]) => S.decodeOption(Model)(
+    params)
 
   static readonly newUnsafe = (params: typeof Model["Encoded"]) => S.decodeSync(Model)(
     params)

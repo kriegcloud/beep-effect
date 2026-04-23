@@ -6,7 +6,7 @@
  */
 
 import { $SharedDomainId } from "@beep/identity";
-import { EntityId } from "./_internal/index.js";
+import { EntityId } from "./EntityId/index.ts";
 
 const $I = $SharedDomainId.create("entity-ids/Shared");
 const make = EntityId.factory("shared", $I);
