@@ -4,7 +4,7 @@
 
 The name is deliberate. `config` names the typed runtime contract the slice
 understands. `env` names only one possible source for those values. Effect
-`Config` can be backed by environment variables, static test providers, files,
+`Config` can be backed by environment variables, static test fixtures, files,
 secret stores, platform config, or app/runtime composition.
 
 ## What Config Owns
@@ -56,9 +56,19 @@ config/src/
 ```
 
 Client packages may import public/browser-safe slice or shared config contracts
-and client-safe config Layers. They must not import server config, secret config,
-shared secret helpers that expose secret contracts, live server-only Layers, or
-test `ConfigProvider` utilities.
+and client-safe config Layers only through required export subpaths:
+
+```txt
+@beep/<slice>-config/public
+@beep/<slice>-config/server
+@beep/<slice>-config/secrets
+@beep/<slice>-config/layer
+@beep/<slice>-config/test
+```
+
+`@beep/shared-config` uses the same subpath contract. Browser code imports only
+`/public`. Server-only config, secrets, live Layers, and test utilities stay
+behind `/server`, `/secrets`, `/layer`, and `/test`.
 
 Secrets must use redacted values. Secret config belongs in explicit secret or
 server-only modules, never in package roots that browser code can casually
@@ -75,25 +85,28 @@ Keep other constants near the concept that gives them meaning:
 
 - business invariants belong in `domain`
 - application behavior belongs in `use-cases`
-- provider defaults belong in `providers/*`
+- driver defaults belong in `drivers/*`
 - presentation constants belong in `client` or `ui`
 
 ## Dependency Direction
 
-Config may depend inward on `domain` and `shared` for provider-neutral schemas,
-brands, value objects, and validation. That dependency is one-way. Domain may
-import shared/common domain primitives, but it must never import slice config,
-`@beep/shared-config`, `Config`, `ConfigProvider`, secret helpers, or test config
-utilities.
+Config may depend inward on `domain` and `shared` for driver-neutral schemas,
+brands, value objects, and validation. Foundation packages may provide generic
+schema, identity, or capability helpers beside that shared language. That
+dependency is one-way. Domain may import shared-kernel language plus allowed
+`foundation/primitive` and `foundation/modeling` packages, but it must never
+import slice config, `@beep/shared-config`, `Config`, `ConfigProvider`, secret
+helpers, or test config utilities.
 
 Use-cases may import config contracts or services for application tunables.
 Server, client, and app/runtime packages compose the live config Layers that
-resolve those contracts from a `ConfigProvider`.
+resolve those contracts from a `ConfigProvider`. Use-cases own contracts and
+facades, not live Layers.
 
-Providers keep technical provider config in provider `.config.ts` files. Slice
-config can expose application-facing settings that influence provider wiring,
-but it should not own Drizzle, Postgres, EventLog, queue, or workflow-engine
-internals.
+Config must not import drivers. Drivers keep technical driver config in driver
+`.config.ts` files. Slice config can expose application-facing settings that
+influence driver wiring, but it should not own Drizzle, Postgres, EventLog,
+queue, or workflow-engine internals.
 
 ## Shared Config
 

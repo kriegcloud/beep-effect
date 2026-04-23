@@ -67,7 +67,7 @@ the rule clearer.
 Pure means:
 
 - no repositories
-- no provider services
+- no driver services
 - no HTTP
 - no database
 - no filesystem
@@ -79,7 +79,7 @@ Pure means:
 An Effect that only models domain success/failure can still be pure in the
 architectural sense.
 
-Domain may define provider-neutral schemas and value objects that config
+Domain may define driver-neutral schemas and value objects that config
 packages reuse when resolving typed settings. Domain behavior must still receive
 explicit values from callers rather than reading `Config`, `ConfigProvider`,
 `@beep/shared-config`, environment variables, secrets, files, or process state.

@@ -11,9 +11,10 @@ those rules exist, records the vocabulary, and preserves the decision trail.
 
 beep-effect should be easy to experiment in without becoming easy to damage.
 The architecture therefore treats topology as durable product infrastructure:
-package boundaries, domain-kind folders, role suffixes, and provider boundaries
-are not cosmetic. Configuration boundaries now carry the same weight. They are
-how the repo keeps domain experiments modular, composable, and reusable.
+package boundaries, domain-kind folders, role suffixes, driver boundaries, and
+shared-kernel boundaries are not cosmetic. Configuration boundaries and
+non-slice family/kind boundaries now carry the same weight. They are how the
+repo keeps domain experiments modular, composable, and reusable.
 
 ## Document Index
 
@@ -24,10 +25,11 @@ how the repo keeps domain experiments modular, composable, and reusable.
 | [`00-philosophy.md`](00-philosophy.md) | North star and grounding principles. |
 | [`01-hexagonal-vertical-slices.md`](01-hexagonal-vertical-slices.md) | Why slices combine hexagonal ports with vertical package topology. |
 | [`02-shared-kernel.md`](02-shared-kernel.md) | Why `shared` is a DDD shared kernel, not a dump. |
-| [`03-provider-boundaries.md`](03-provider-boundaries.md) | Why providers expose technical capability while server implements product ports. |
+| [`03-driver-boundaries.md`](03-driver-boundaries.md) | Why drivers expose technical capability while server implements product ports. |
 | [`04-rich-domain-model.md`](04-rich-domain-model.md) | Why the repo prefers hybrid rich domain models over anemic data bags. |
 | [`05-layer-composition.md`](05-layer-composition.md) | Why slice-local Layer composition replaces runtime God Layers. |
 | [`06-configuration-boundaries.md`](06-configuration-boundaries.md) | Why config is a typed contract package, not env access or a constants dump. |
+| [`07-non-slice-families.md`](07-non-slice-families.md) | Why foundation, drivers, tooling, and agents need explicit topology grammar. |
 
 ## Relationship To Standards
 

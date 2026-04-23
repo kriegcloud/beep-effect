@@ -37,11 +37,11 @@ packages/iam/server/src/Layer.ts
   composes iam config when present
   composes iam product port implementations
   composes iam tables
-  composes iam providers
+  composes repo drivers
 ```
 
 The app/runtime boundary can still import `iam/server/Layer.ts`, but it should
-not need to know every concept-level repository and provider inside the slice.
+not need to know every concept-level repository and driver inside the slice.
 Config Layers fit this same local shape: the config package owns live/test
 config services, and server/client/app composition decides which Layers to
 provide.
