@@ -198,29 +198,29 @@ const decodePackageJsonDocument = S.decodeUnknownEffect(S.fromJsonString(Package
 
 type QualityTaskEnvironment = FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner;
 
-type TestLaneSelection = {
+type OptionalQualityTaskStep = {
+  readonly enabled: boolean;
+  readonly step: () => QualityTaskStep;
+};
+
+type ParsedFixArgsState = {
+  readonly fix: boolean;
+  readonly args: ReadonlyArray<string>;
+};
+
+type TestLaneSelectionState = {
   readonly unit: boolean;
   readonly integration: boolean;
   readonly types: boolean;
   readonly args: ReadonlyArray<string>;
 };
 
-type ParsedFixArgs = {
-  readonly fix: boolean;
-  readonly args: ReadonlyArray<string>;
-};
-
-type OptionalQualityTaskStep = {
-  readonly enabled: boolean;
-  readonly step: () => QualityTaskStep;
-};
-
-const emptyParsedFixArgs: ParsedFixArgs = {
+const emptyParsedFixArgs: ParsedFixArgsState = {
   fix: false,
   args: A.empty<string>(),
 };
 
-const emptyTestLaneSelection: TestLaneSelection = {
+const emptyTestLaneSelection: TestLaneSelectionState = {
   unit: false,
   integration: false,
   types: false,
@@ -252,18 +252,18 @@ const stripPassthroughDelimiter = (args: ReadonlyArray<string>): ReadonlyArray<s
     O.getOrElse(() => args)
   );
 
-const parseFixArgs = (args: ReadonlyArray<string>): ParsedFixArgs =>
+const parseFixArgs = (args: ReadonlyArray<string>): ParsedFixArgsState =>
   A.reduce(stripPassthroughDelimiter(args), emptyParsedFixArgs, (parsed, arg) =>
-    arg === "--fix" ? { ...parsed, fix: true } : { ...parsed, args: A.append(parsed.args, arg) }
+    arg === "--fix" ? { ...parsed, fix: true } : { ...parsed, args: pipe(parsed.args, A.append(arg)) }
   );
 
-const parseTestLaneSelection = (args: ReadonlyArray<string>): TestLaneSelection => {
+const parseTestLaneSelection = (args: ReadonlyArray<string>): TestLaneSelectionState => {
   const selected = A.reduce(stripPassthroughDelimiter(args), emptyTestLaneSelection, (lanes, arg) =>
     Match.type<string>().pipe(
       Match.when("--unit", () => ({ ...lanes, unit: true })),
       Match.when("--integration", () => ({ ...lanes, integration: true })),
       Match.when("--types", () => ({ ...lanes, types: true })),
-      Match.orElse(() => ({ ...lanes, args: A.append(lanes.args, arg) }))
+      Match.orElse(() => ({ ...lanes, args: pipe(lanes.args, A.append(arg)) }))
     )(arg)
   );
   const hasLane = selected.unit || selected.integration || selected.types;
@@ -565,15 +565,22 @@ const rootAuditSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   ];
 };
 
+const invocationArgs = (invocation: QualityTaskInvocation): ReadonlyArray<string> => invocation.args ?? A.empty<string>();
+const invocationFix = (invocation: QualityTaskInvocation): boolean => invocation.fix ?? false;
+
 const rootStepsFor = (repoRoot: string, invocation: QualityTaskInvocation): ReadonlyArray<QualityTaskStep> =>
-  Match.type<QualityTaskName>().pipe(
-    Match.when("build", () => rootBuildSteps(repoRoot, invocation.args)),
-    Match.when("check", () => rootCheckSteps(repoRoot, invocation.args)),
-    Match.when("test", () => rootTestSteps(repoRoot, invocation.args)),
-    Match.when("lint", () => rootLintSteps(repoRoot, invocation.args, invocation.fix)),
-    Match.when("audit", () => rootAuditSteps(repoRoot, invocation.args)),
-    Match.exhaustive
-  )(invocation.task);
+  pipe(
+    invocation,
+    (current) =>
+      Match.type<QualityTaskName>().pipe(
+        Match.when("build", () => rootBuildSteps(repoRoot, invocationArgs(current))),
+        Match.when("check", () => rootCheckSteps(repoRoot, invocationArgs(current))),
+        Match.when("test", () => rootTestSteps(repoRoot, invocationArgs(current))),
+        Match.when("lint", () => rootLintSteps(repoRoot, invocationArgs(current), invocationFix(current))),
+        Match.when("audit", () => rootAuditSteps(repoRoot, invocationArgs(current))),
+        Match.exhaustive
+      )(current.task)
+  );
 
 const readPackageJson = Effect.fn("QualityTasks.readPackageJson")(function* (packageDir: string) {
   const path = yield* Path.Path;
@@ -587,15 +594,17 @@ const runPackageTask = Effect.fn("QualityTasks.runPackageTask")(function* (
   const packageJson = yield* readPackageJson(packageDir);
   const scripts = packageJson.scripts ?? {};
   const profile = profileByTask[invocation.task];
+  const fix = invocationFix(invocation);
+  const args = invocationArgs(invocation);
   const script = pipe(
     O.fromUndefinedOr(profile.fixScript),
-    O.filter(() => invocation.fix),
+    O.filter(() => fix),
     O.getOrElse(() => profile.script)
   );
   const packageName = packageJson.name ?? packageDir;
 
   if (pipe(scripts, R.get(script), O.isNone)) {
-    yield* Console.log(`[beep-cli] ${packageName} ${invocation.task}${invocation.fix ? ":fix" : ""}: no-op`);
+    yield* Console.log(`[beep-cli] ${packageName} ${invocation.task}${fix ? ":fix" : ""}: no-op`);
     return;
   }
 
@@ -603,7 +612,7 @@ const runPackageTask = Effect.fn("QualityTasks.runPackageTask")(function* (
     new QualityTaskStep({
       label: `${packageName} ${script}`,
       command: "bun",
-      args: ["run", script, ...invocation.args],
+      args: ["run", script, ...args],
       cwd: packageDir,
     })
   );

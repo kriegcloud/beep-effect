@@ -58,7 +58,7 @@ const ExpectedGeneratedQualityScripts = {
   "beep:test": "bunx --bun vitest run --passWithNoTests",
   build: "beep-cli build",
   check: "beep-cli check",
-  coverage: "bunx --bun vitest --coverage --passWithNoTests",
+  coverage: "bunx --bun vitest run --coverage --passWithNoTests",
   lint: "beep-cli lint",
   "lint:fix": "beep-cli lint --fix",
   test: "beep-cli test",

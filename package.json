@@ -73,7 +73,7 @@
     "storybook": "bunx turbo run storybook --filter=@beep/ui",
     "build-storybook": "bunx turbo run build-storybook --filter=@beep/ui",
     "test:storybook": "bunx turbo run test:storybook --filter=@beep/ui",
-    "docgen": "beep-cli docgen generate && beep-cli docgen aggregate",
+    "docgen": "beep-cli docgen run",
     "docgen:affected": "bunx turbo run docgen --affected && beep-cli docgen aggregate",
     "docs:aggregate": "beep-cli docgen aggregate",
     "ui-add": "bunx --bun shadcn@latest add --cwd packages/common/ui",

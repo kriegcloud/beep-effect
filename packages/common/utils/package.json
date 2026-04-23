@@ -17,7 +17,7 @@
     "babel": "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
     "check": "beep-cli check",
     "test": "beep-cli test",
-    "coverage": "bunx --bun vitest --coverage",
+    "coverage": "bunx --bun vitest run --coverage",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "beep-cli lint",
     "lint:fix": "beep-cli lint --fix",

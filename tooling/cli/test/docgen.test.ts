@@ -602,6 +602,80 @@ describe("Docgen operations", () => {
     );
   });
 
+  it("accepts --filter for generate and resolves it like --package", async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+
+          yield* runDocgenCommand(["generate", "--filter", "packages/common/schema"]);
+
+          const errorLines = yield* TestConsole.errorLines;
+
+          expect(errorLines).toEqual([
+            'docgen: packages/common/schema is missing docgen.json. Run "bun run beep docgen init -p packages/common/schema" first.',
+          ]);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("rejects conflicting selector flags for generate", async () => {
+    await Effect.runPromise(
+      withTempRepoCommand(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/*/*"],
+            })
+          );
+
+          yield* runDocgenCommand([
+            "generate",
+            "--package",
+            "packages/common/schema",
+            "--filter",
+            "@beep/schema",
+          ]);
+
+          const errorLines = yield* TestConsole.errorLines;
+
+          expect(errorLines).toEqual([
+            "docgen: Received conflicting selectors --package=packages/common/schema and --filter=@beep/schema.",
+          ]);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
   it("writes lint-clean docgen.json during init", async () => {
     await Effect.runPromise(
       withTempRepoCommand(

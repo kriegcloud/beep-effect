@@ -16,7 +16,7 @@
     "build": "beep-cli build",
     "check": "beep-cli check",
     "codegen": "echo 'no codegen needed'",
-    "coverage": "bunx --bun vitest --coverage",
+    "coverage": "bunx --bun vitest run --coverage",
     "dev": "bun src/main.ts",
     "docgen": "bun run ../../../tooling/docgen/src/bin.ts",
     "lint": "beep-cli lint",
