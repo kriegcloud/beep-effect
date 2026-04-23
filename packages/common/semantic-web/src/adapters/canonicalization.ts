@@ -45,9 +45,12 @@ const decodeSha256Hex = S.decodeUnknownSync(Sha256Hex);
 const SemanticCanonicalizationMaxWorkFactor = 1;
 const SemanticCanonicalizationTimeout = Duration.seconds(1);
 const SemanticCanonicalizationTimeoutMs = Duration.toMillis(SemanticCanonicalizationTimeout);
+const semanticCanonicalizationBudgetFailureNames = ["AbortError", "TimeoutError"] as const;
 const semanticCanonicalizationBudgetFailureFragments = [
   "Maximum deep iterations exceeded",
   "Abort signal received",
+  "signal timed out",
+  "aborted due to timeout",
 ] as const;
 const semanticCanonicalizationBudgetMessage = `Semantic canonicalization exceeded the configured resource budget (maxWorkFactor=${SemanticCanonicalizationMaxWorkFactor}, timeout=${SemanticCanonicalizationTimeoutMs}ms).`;
 
@@ -158,13 +161,16 @@ const fromCanonizeQuad = (quad: CanonizeQuad): Quad =>
     graph: fromCanonizeGraph(quad.graph),
   });
 
+const hasSemanticCanonicalizationBudgetFailureName = (error: unknown): boolean =>
+  error instanceof Error && A.some(semanticCanonicalizationBudgetFailureNames, (name) => error.name === name);
+
 const isSemanticCanonicalizationBudgetFailure = (message: string): boolean =>
   A.some(semanticCanonicalizationBudgetFailureFragments, (fragment) => pipe(message, Str.includes(fragment)));
 
 const mapCanonizeFailure = (error: unknown): CanonicalizationError => {
   const message = error instanceof Error ? error.message : "RDF dataset canonicalization failed.";
 
-  return isSemanticCanonicalizationBudgetFailure(message)
+  return hasSemanticCanonicalizationBudgetFailureName(error) || isSemanticCanonicalizationBudgetFailure(message)
     ? new CanonicalizationError({
         reason: "workLimitExceeded",
         message: semanticCanonicalizationBudgetMessage,
@@ -182,7 +188,7 @@ const canonicalizeSemantically = (
   CanonicalizationError
 > =>
   Effect.gen(function* () {
-    const canonicalText = yield* Effect.tryPromise({
+    const canonicalText = yield* Effect.tryPromise<string, CanonicalizationError>({
       try: () =>
         // Keep the semantic path on an explicit CPU budget instead of relying on upstream defaults.
         canonize(toCanonizeDataset(quads), {

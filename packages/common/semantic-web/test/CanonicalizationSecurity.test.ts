@@ -35,6 +35,27 @@ const dataset = makeDataset([
 const runCanonicalization = <A>(effect: Effect.Effect<A, unknown, CanonicalizationService>) =>
   Effect.runPromise(effect.pipe(Effect.provide(CanonicalizationServiceLive)));
 
+const expectSemanticBudgetFailure = (error: Error) => {
+  canonizeMock.mockRejectedValueOnce(error);
+
+  return expect(
+    runCanonicalization(
+      Effect.gen(function* () {
+        const service = yield* CanonicalizationService;
+        return yield* service.canonicalize(
+          decodeUnknownSync(CanonicalizeDatasetRequest)({
+            dataset: S.encodeSync(Dataset)(dataset),
+            algorithm: "rdfc-1.0",
+          })
+        );
+      })
+    )
+  ).rejects.toMatchObject({
+    reason: "workLimitExceeded",
+    message: expect.stringContaining("configured resource budget"),
+  });
+};
+
 afterEach(() => {
   canonizeMock.mockReset();
 });
@@ -72,23 +93,17 @@ describe("Canonicalization security hardening", () => {
   });
 
   it("maps semantic resource-budget failures to work-limit errors", async () => {
-    canonizeMock.mockRejectedValueOnce(new Error("Maximum deep iterations exceeded (8)."));
+    await expectSemanticBudgetFailure(new Error("Maximum deep iterations exceeded (8)."));
+  });
 
-    await expect(
-      runCanonicalization(
-        Effect.gen(function* () {
-          const service = yield* CanonicalizationService;
-          return yield* service.canonicalize(
-            decodeUnknownSync(CanonicalizeDatasetRequest)({
-              dataset: S.encodeSync(Dataset)(dataset),
-              algorithm: "rdfc-1.0",
-            })
-          );
-        })
-      )
-    ).rejects.toMatchObject({
-      reason: "workLimitExceeded",
-      message: expect.stringContaining("configured resource budget"),
-    });
+  it("maps abort-signal budget failures to work-limit errors", async () => {
+    await expectSemanticBudgetFailure(new Error("Abort signal received"));
+  });
+
+  it("maps timeout-style budget failures to work-limit errors", async () => {
+    const timeoutError = new Error("signal timed out");
+    timeoutError.name = "TimeoutError";
+
+    await expectSemanticBudgetFailure(timeoutError);
   });
 });
