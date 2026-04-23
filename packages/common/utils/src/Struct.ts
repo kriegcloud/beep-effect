@@ -106,7 +106,7 @@ export type PathLookup = InternalPathLookup;
  * Supports a dual API:
  * - Data-last: `dotGet("attributes.name")(self)`
  * - Data-first: `dotGet(self, "attributes.name")`
- * - Tuple paths: `dotGet(["attributes", "name"] as const)(self)`
+ * - Tuple paths: `dotGet(["attributes", "name"](self)`
  *
  * @example
  * ```ts

@@ -47,14 +47,7 @@ const $I = $SharedDomainId.create("knowledge-graph/Events");
  * import * as S from "effect/Schema"
  * import { NodeCreatedPayload } from "@beep/knowledge-graph/Events"
  *
- * const payload = S.decodeUnknownSync(NodeCreatedPayload)({
- *
- *
- *
- *
- *
- *
- * })
+ * const payload = S.decodeUnknownSync(NodeCreatedPayload)({})
  * ```
  *
  * @category events
@@ -85,11 +78,7 @@ export class NodeCreatedPayload extends S.TaggedClass<NodeCreatedPayload>($I`Nod
  * import * as S from "effect/Schema"
  * import { NodeUpdatedPayload } from "@beep/knowledge-graph/Events"
  *
- * const payload = S.decodeUnknownSync(NodeUpdatedPayload)({
- *
- *
- *
- * })
+ * const payload = S.decodeUnknownSync(NodeUpdatedPayload)({})
  * ```
  *
  * @category events
@@ -116,11 +105,7 @@ export class NodeUpdatedPayload extends S.TaggedClass<NodeUpdatedPayload>($I`Nod
  * import * as S from "effect/Schema"
  * import { NodeRemovedPayload } from "@beep/knowledge-graph/Events"
  *
- * const payload = S.decodeUnknownSync(NodeRemovedPayload)({
- *
- *
- *
- * })
+ * const payload = S.decodeUnknownSync(NodeRemovedPayload)({})
  * ```
  *
  * @category events
@@ -145,14 +130,7 @@ export class NodeRemovedPayload extends S.TaggedClass<NodeRemovedPayload>($I`Nod
  * import * as S from "effect/Schema"
  * import { EdgeCreatedPayload } from "@beep/knowledge-graph/Events"
  *
- * const payload = S.decodeUnknownSync(EdgeCreatedPayload)({
- *
- *
- *
- *
- *
- *
- * })
+ * const payload = S.decodeUnknownSync(EdgeCreatedPayload)({})
  * ```
  *
  * @category events
@@ -180,11 +158,7 @@ export class EdgeCreatedPayload extends S.TaggedClass<EdgeCreatedPayload>($I`Edg
  * import * as S from "effect/Schema"
  * import { EdgeRemovedPayload } from "@beep/knowledge-graph/Events"
  *
- * const payload = S.decodeUnknownSync(EdgeRemovedPayload)({
- *
- *
- *
- * })
+ * const payload = S.decodeUnknownSync(EdgeRemovedPayload)({})
  * ```
  *
  * @category events
@@ -209,11 +183,7 @@ export class EdgeRemovedPayload extends S.TaggedClass<EdgeRemovedPayload>($I`Edg
  * import * as S from "effect/Schema"
  * import { SnapshotResetPayload } from "@beep/knowledge-graph/Events"
  *
- * const payload = S.decodeUnknownSync(SnapshotResetPayload)({
- *
- *
- *
- * })
+ * const payload = S.decodeUnknownSync(SnapshotResetPayload)({})
  * ```
  *
  * @category events

@@ -350,7 +350,7 @@ const packetPayloadLines = (packet: RetrievalPacket): ReadonlyArray<string> =>
   pipe(
     packet.payload,
     O.match({
-      onNone: () => [],
+      onNone: A.empty,
       onSome: (payload) => {
         if (payload.family === "count") {
           return [`target: ${payload.target}`, `count: ${payload.count}`];
@@ -390,7 +390,7 @@ const packetIssueLines = (packet: RetrievalPacket): ReadonlyArray<string> =>
   pipe(
     packet.issue,
     O.match({
-      onNone: () => [],
+      onNone: A.empty,
       onSome: (issue) => {
         if (issue.kind === "no-match") {
           return [`requested: ${issue.requested.value}`, `note: ${issue.note}`];
@@ -432,7 +432,7 @@ const citationsFromRun = (run: QueryRun, events: ReadonlyArray<RunStreamEvent>):
     : pipe(
         findLatestAnswerEvent(events),
         O.map((event) => event.citations),
-        O.getOrElse(() => [] as const)
+        O.getOrElse(A.empty)
       );
 
 const retrievalPacketFromRun = (run: QueryRun, events: ReadonlyArray<RunStreamEvent>): O.Option<RetrievalPacket> =>

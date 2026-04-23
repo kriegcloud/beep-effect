@@ -20,7 +20,7 @@ high modularity + consistent topology > low ceremony + improvised structure
 ```
 
 The structure is not there to slow work down. It is there to make experiments
-portable. A `TwoFactor` concept should feel the same across domain, use-cases,
+portable. A `Membership` concept should feel the same across domain, use-cases,
 config when meaningful config contracts exist, server, client, tables, and UI.
 Once you know the slice grammar, you can move quickly without hunting.
 
@@ -29,8 +29,8 @@ Once you know the slice grammar, you can move quickly without hunting.
 Agents do not just read code. They infer intent from nearby files. If topology
 is vague, agents improvise. If topology is explicit, agents follow the map.
 
-This is why role suffixes matter. `TwoFactor.events.ts` and
-`TwoFactor.event-handlers.ts` are slightly more verbose than one generic
+This is why role suffixes matter. `Membership.events.ts` and
+`Membership.event-handlers.ts` are slightly more verbose than one generic
 `events.ts`, but they prevent the most expensive class of mistake: writing the
 right idea in the wrong layer.
 

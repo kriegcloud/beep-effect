@@ -9,6 +9,7 @@
  */
 
 import { $ColorsId } from "@beep/identity";
+import { thunkFalse } from "@beep/utils";
 import * as S from "effect/Schema";
 import {
   ColorsFields,
@@ -75,7 +76,7 @@ export const isColorSupported = false;
  * @returns Always `false` in browser-safe builds.
  * @since 0.0.0
  */
-export const supportsColor = (): boolean => false;
+export const supportsColor = thunkFalse;
 
 /**
  * Create a browser-safe formatter set that never emits ANSI escape sequences.

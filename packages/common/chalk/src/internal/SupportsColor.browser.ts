@@ -4,7 +4,7 @@
  * @module
  * @since 0.0.0
  */
-
+import { P } from "@beep/utils";
 import { type ColorInfo, ColorSupport } from "./ChalkSchema.ts";
 
 type BrowserNavigator = Navigator & {
@@ -50,7 +50,7 @@ const browserColorSupportFromNavigator = (browserNavigator: BrowserNavigator): C
 const browserColorSupport = (): ColorInfo => {
   const browserNavigator = getBrowserNavigator();
 
-  if (browserNavigator === undefined) {
+  if (P.isUndefined(browserNavigator)) {
     return false;
   }
 

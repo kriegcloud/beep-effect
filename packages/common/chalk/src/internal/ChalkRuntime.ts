@@ -7,6 +7,7 @@
 
 import { $ChalkId } from "@beep/identity/packages";
 import { TaggedErrorClass } from "@beep/schema";
+import { P } from "@beep/utils";
 import * as S from "effect/Schema";
 import { ansiStyles, getModelAnsi, getStyleEntry, type StyleName } from "./AnsiStyles.ts";
 import {
@@ -84,7 +85,7 @@ const normalizeColorSupportLevel = (level: unknown): S.Schema.Type<typeof ColorS
 const getBuilderMeta = (builder: ChalkFunction): BuilderMeta => {
   const meta = builderMetaMap.get(builder);
 
-  if (meta === undefined) {
+  if (P.isUndefined(meta)) {
     throw new MissingBuilderMetadataError({
       message: "Missing Chalk builder metadata.",
     });
@@ -100,7 +101,7 @@ const renderArguments = (arguments_: ReadonlyArray<unknown>): string => {
 };
 
 const createStyler = (open: string, close: string, parent: Styler | undefined): Styler =>
-  parent === undefined
+  P.isUndefined(parent)
     ? {
         close,
         closeAll: close,
@@ -134,7 +135,7 @@ const applyStyle = (builder: ChalkFunction, text: string): string => {
     do {
       rendered = stringReplaceAll(rendered, currentStyler.close, { replacer: currentStyler.open });
       currentStyler = currentStyler.parent;
-    } while (currentStyler !== undefined);
+    } while (P.isNotUndefined(currentStyler));
   }
 
   const lineFeedIndex = rendered.indexOf("\n");
@@ -260,10 +261,12 @@ const createBuilder = (
 export const makeCreateChalk = (defaultColorInfo: ColorInfo) => {
   const defaultLevel = defaultColorInfo === false ? 0 : defaultColorInfo.level;
 
-  return (options?: { readonly level?: S.Schema.Type<typeof ColorSupportLevel> | number | undefined }): ChalkFunction =>
+  return (
+    options?: undefined | { readonly level?: S.Schema.Type<typeof ColorSupportLevel> | number | undefined }
+  ): ChalkFunction =>
     createBuilder(
       {
-        level: options?.level === undefined ? defaultLevel : normalizeColorSupportLevel(options.level),
+        level: P.isUndefined(options?.level) ? defaultLevel : normalizeColorSupportLevel(options.level),
       },
       undefined,
       false,

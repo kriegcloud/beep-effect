@@ -255,12 +255,12 @@ const isForegroundStyleName = (styleName: StyleName): styleName is ForegroundSty
  * @category getters
  * @since 0.0.0
  */
-export const getStyleEntry = (styleName: StyleName): StylerEntry =>
-  Match.type<StyleName>().pipe(
-    Match.when(isModifierStyleName, (value) => modifierStyles[value]),
-    Match.when(isForegroundStyleName, (value) => foregroundStyles[value]),
-    Match.orElse((value) => backgroundStyles[value])
-  )(styleName);
+export const getStyleEntry = Match.type<StyleName>().pipe(
+  Match.withReturnType<StylerEntry>(),
+  Match.when(isModifierStyleName, (value) => modifierStyles[value]),
+  Match.when(isForegroundStyleName, (value) => foregroundStyles[value]),
+  Match.orElse((value) => backgroundStyles[value])
+);
 
 const parseHexMatch = (hex: string): O.Option<string> =>
   pipe(
@@ -368,7 +368,7 @@ const renderAnsiCodeBrightness = (value: number, result: number): number =>
       onTrue: () => result + 60,
     })
   );
-
+const thunk30 = () => 30;
 const ansi256ToAnsiGray = (code: number): number => {
   const gray = ((code - 232) * 10 + 8) / 255;
   const value = gray * 2;
@@ -378,7 +378,7 @@ const ansi256ToAnsiGray = (code: number): number => {
     value === 0,
     Bool.match({
       onFalse: () => renderAnsiCodeBrightness(value, result),
-      onTrue: () => 30,
+      onTrue: thunk30,
     })
   );
 };
@@ -396,7 +396,7 @@ const ansi256ToAnsiColorCube = (code: number): number => {
     value === 0,
     Bool.match({
       onFalse: () => renderAnsiCodeBrightness(value, result),
-      onTrue: () => 30,
+      onTrue: thunk30,
     })
   );
 };

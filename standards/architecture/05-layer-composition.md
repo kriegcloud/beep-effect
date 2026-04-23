@@ -53,26 +53,30 @@ Services should be explicit, small, and composed at the boundary:
 ```ts
 import { $IamUseCasesId } from "@beep/identity/packages"
 import { Context, type Effect } from "effect"
+import type { MembershipAlreadyRevoked } from "@beep/iam-domain/entities/Membership"
 import {
-  TwoFactorAccessDenied,
-  TwoFactorNotFound,
-  TwoFactorRepositoryError,
-} from "./TwoFactor.errors.js"
-import type { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
+  MembershipAccessDenied,
+  MembershipNotFound,
+  MembershipRepositoryError,
+} from "./Membership.errors.js"
+import type { RevokeMembershipCommand } from "./Membership.commands.js"
 
-const $I = $IamUseCasesId.create("entities/TwoFactor/TwoFactor.service")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.service")
 
-export class TwoFactorService extends Context.Service<
-  TwoFactorService,
+export class MembershipService extends Context.Service<
+  MembershipService,
   {
-    readonly disable: (
-      command: DisableTwoFactorCommand,
+    readonly revoke: (
+      command: RevokeMembershipCommand,
     ) => Effect.Effect<
       void,
-      TwoFactorAccessDenied | TwoFactorNotFound | TwoFactorRepositoryError
+      | MembershipAccessDenied
+      | MembershipAlreadyRevoked
+      | MembershipNotFound
+      | MembershipRepositoryError
     >
   }
->()($I`TwoFactorService`) {}
+>()($I`MembershipService`) {}
 ```
 
 Layers should provide the service from its dependencies:
@@ -80,32 +84,32 @@ Layers should provide the service from its dependencies:
 ```ts
 import { Effect, Layer } from "effect"
 import * as O from "effect/Option"
-import { TwoFactorAccess } from "./TwoFactor.access.js"
-import type { DisableTwoFactorCommand } from "./TwoFactor.commands.js"
-import { TwoFactorNotFound } from "./TwoFactor.errors.js"
-import { TwoFactorRepository } from "./TwoFactor.ports.js"
-import { TwoFactorService } from "./TwoFactor.service.js"
+import { MembershipAccess } from "./Membership.access.js"
+import type { RevokeMembershipCommand } from "./Membership.commands.js"
+import { MembershipNotFound } from "./Membership.errors.js"
+import { MembershipRepository } from "./Membership.ports.js"
+import { MembershipService } from "./Membership.service.js"
 
 export const layer = Layer.effect(
-  TwoFactorService,
+  MembershipService,
   Effect.gen(function* () {
-    const access = yield* TwoFactorAccess
-    const repo = yield* TwoFactorRepository
+    const access = yield* MembershipAccess
+    const repo = yield* MembershipRepository
 
     return {
-      disable: Effect.fn("TwoFactorService.disable")(function* (
-        command: DisableTwoFactorCommand,
+      revoke: Effect.fn("MembershipService.revoke")(function* (
+        command: RevokeMembershipCommand,
       ) {
-        yield* access.assertCanDisable(command)
-        const model = yield* repo.findByAccountId(command.accountId).pipe(
+        yield* access.assertCanRevoke(command)
+        const model = yield* repo.findById(command.membershipId).pipe(
           Effect.flatMap(
             O.match({
-              onNone: () => Effect.fail(new TwoFactorNotFound()),
+              onNone: () => Effect.fail(new MembershipNotFound()),
               onSome: Effect.succeed,
             }),
           ),
         )
-        yield* repo.save(model.disable())
+        yield* model.revoke().pipe(Effect.flatMap(repo.save))
       }),
     }
   }),
