@@ -238,8 +238,6 @@
       "name": "@beep/identity",
       "version": "0.0.0",
       "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1247,6 +1245,7 @@
     "@beep/infra": ["@beep/infra@workspace:infra"],
 
     "@beep/md": ["@beep/md@workspace:packages/common/md"],
+
     "@beep/messages": ["@beep/messages@workspace:packages/common/messages"],
 
     "@beep/nlp": ["@beep/nlp@workspace:packages/common/nlp"],
