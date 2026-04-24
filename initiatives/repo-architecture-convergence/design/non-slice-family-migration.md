@@ -10,6 +10,10 @@ architecture:
 - `packages/tooling/<kind>/<name>`
 - `agents/<kind>/<name>`
 
+This packet informs `P2` enablement and `P3` non-slice extraction. Live
+compatibility and amendment governance remains in `../ops`, not in this design
+folder.
+
 ## Why This Must Happen Before Slice Cutovers
 
 The repo still bakes old roots into:
@@ -23,14 +27,16 @@ The repo still bakes old roots into:
 - `create-package` scaffolding
 - the package identity registry used by `@beep/identity/packages`
 - app-sidecar launch scripts and docs
+- root agent descriptors, lint allowlists, and worktree guidance that still
+  encode `.agents`, `.aiassistant`, `.claude`, or `.codex` as canonical homes
 
 If those surfaces stay old while slices move, the repo will keep validating and
 emitting the pre-standard topology.
 
 ## Pre-Slice Enablement Gate
 
-Before `repo-memory` or `editor` moves, the program must land an explicit
-enablement batch covering all of the following:
+Before `P4` `repo-memory` or `P5` `editor` moves, the program must land an
+explicit enablement batch covering all of the following:
 
 1. canonical family/kind map for every non-slice workspace
 2. workspace-glob rewrite for new roots
@@ -38,8 +44,13 @@ enablement batch covering all of the following:
 4. `docgen` path and schema rewrites
 5. `create-package` template and target-root rewrites
 6. identity-registry migration rules and scaffolder coupling fixes
-7. repo-check rules that reject newly introduced legacy roots
-8. app-sidecar path rewrites that currently point at
+7. repo-check rules, root allowlists, and runtime descriptors that stop
+   treating `.agents`, `.aiassistant`, `.claude`, and `.codex` as canonical
+   survivors and reject newly introduced legacy roots
+8. exact baseline audit proof for canonical subpaths/exports, temporary
+   compatibility surfaces, and non-slice metadata state so later phases can
+   measure drift against a real `P0`/`P2` floor
+9. app-sidecar path rewrites that currently point at
    `packages/runtime/server/src/main.ts` and
    `packages/editor/runtime/src/main.ts`
 
@@ -57,8 +68,12 @@ The non-slice migration packet must produce:
 5. the path-alias and `docgen` rewrite plan
 6. the scaffolder rules needed so `create-package` emits target-era roots
 7. the identity-registry migration contract
-8. the link from each temporary alias to the compatibility ledger
-9. the link from each unresolved exception to the amendment register
+8. the required legacy-root audit set covering `packages/common/*`, top-level
+   `tooling/*`, `packages/shared/providers/*`, `packages/runtime/*`, `.agents`,
+   `.aiassistant`, `.claude`, and `.codex`
+9. the link from each temporary alias to `../ops/compatibility-ledger.md`
+10. the link from each unresolved exception to
+   `../ops/architecture-amendment-register.md`
 
 ## Identity Registry And Scaffolder Contract
 
@@ -115,11 +130,11 @@ Executable logic stays out of `agents/` entirely.
 Temporary compatibility aliases are allowed only when all of the following are
 true:
 
-1. the alias is recorded in `design/compatibility-ledger.md`
+1. the alias is recorded in `../ops/compatibility-ledger.md`
 2. the alias has a named consumer set and deletion gate
 3. new code is forbidden from choosing the old path
-4. the final cutover deletes the alias unless an architecture amendment is
-   approved explicitly
+4. the final cutover deletes the alias unless a matching entry in
+   `../ops/architecture-amendment-register.md` is approved explicitly
 
 ## Exit Condition
 

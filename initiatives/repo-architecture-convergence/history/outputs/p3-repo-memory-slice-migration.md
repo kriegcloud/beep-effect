@@ -1,60 +1,14 @@
-# P3 Repo-Memory Slice Migration
+# Historical Alias: P3 Repo-Memory Slice Migration
 
-## Phase Status
+This path belonged to an earlier phase-numbering scheme. Keep it only so older
+loop reviews and remediation notes still resolve.
 
-Scaffolded - execution not started
+## Current Canonical Artifact
 
-## Objective
+- [p4-repo-memory-migration-and-validation.md](./p4-repo-memory-migration-and-validation.md)
 
-Execute and validate the `repo-memory` slice migration, including package
-moves, boundary exports, consumer rewires, and temporary-shim tracking.
+## Historical Note
 
-## Review Inputs
-
-- Active handoff: [ops/handoffs/HANDOFF_P3.md](../../ops/handoffs/HANDOFF_P3.md)
-- Review loop: [../reviews/README.md](../reviews/README.md)
-- Remediation register:
-  [../reviews/loop2-remediation-register.md](../reviews/loop2-remediation-register.md)
-- Re-review gate:
-  [../reviews/loop2-rereview-gate.md](../reviews/loop2-rereview-gate.md)
-- Governance ledgers:
-  [../ledgers/compatibility-ledger.md](../ledgers/compatibility-ledger.md) and
-  [../ledgers/amendment-register.md](../ledgers/amendment-register.md)
-
-## Execution Record
-
-### Changed Surfaces
-
-- Pending execution.
-
-### Commands And Search Audits
-
-| Command or query | Scope | Result | Evidence or notes |
-| --- | --- | --- | --- |
-| Pending execution | n/a | Not run | Replace with exact commands, filters, and outcome. |
-
-### Implementation Evidence
-
-- Pending execution. Capture package creation or moves, import rewrites,
-  consumer updates, app-entrypoint impact, and validation evidence.
-
-### Deviations And Temporary Exceptions
-
-- Pending execution. Record blockers, temporary holds, compatibility shims, and
-  any linked `effect-laws.allowlist.jsonc` entry.
-
-### Follow-Ups
-
-- Pending execution. Record unresolved work with owner and target phase.
-
-## Cutover State
-
-- Legacy surfaces remaining: Pending execution
-- Temporary compatibility surfaces: Pending execution
-- Consumer or app validation: Pending execution
-
-## Closeout
-
-- Manifest updated: Pending execution
-- Reflection log updated: Pending execution
-- Graphiti recall and writeback recorded: Pending execution
+- The live phase model moved `repo-memory` migration to `P4` after the new
+  `P3` shared-kernel and non-slice extraction gate.
+- Do not record live phase execution, review, or governance state here.

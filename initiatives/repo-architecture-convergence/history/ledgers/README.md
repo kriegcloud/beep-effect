@@ -1,16 +1,20 @@
 # History Ledgers
 
-This directory is the authoritative live ledger location for
-`repo-architecture-convergence` history work.
+This directory is a retained historical reference, not the live ledger plane
+for `repo-architecture-convergence`.
 
-Use these files to track current compatibility shims, temporary aliases, and
-architecture or repo-law amendment candidates that are actually in force.
-Design and ops references elsewhere in the packet may still discuss the same
-topics, but the live history state belongs here until the wider packet is
-fully converged on the same paths.
+The only live governance files are:
 
-## Ledgers
+- [../../ops/compatibility-ledger.md](../../ops/compatibility-ledger.md)
+- [../../ops/architecture-amendment-register.md](../../ops/architecture-amendment-register.md)
 
-- [compatibility-ledger.md](./compatibility-ledger.md): live compatibility and
-  bridge surfaces
-- [amendment-register.md](./amendment-register.md): live amendment candidates
+Keep the files here only as seed templates and historical breadcrumbs that
+explain earlier history-side guidance. Do not record current compatibility,
+amendment, or closeout state in this directory.
+
+## Historical Files
+
+- [compatibility-ledger.md](./compatibility-ledger.md): superseded history-side
+  compatibility ledger template
+- [amendment-register.md](./amendment-register.md): superseded history-side
+  amendment register template

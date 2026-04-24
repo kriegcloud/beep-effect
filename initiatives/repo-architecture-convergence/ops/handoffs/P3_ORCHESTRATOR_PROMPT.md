@@ -1,7 +1,11 @@
 # P3 Orchestrator Prompt
 
-Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
-[../prompt-assets/README.md](../prompt-assets/README.md) first.
+Follow the exact worker-read order and source-of-truth order from
+[../../README.md](../../README.md), [../../SPEC.md](../../SPEC.md), and
+[../manifest.json](../manifest.json). This prompt adds no new authority and
+must not be loaded ahead of that contract. For `P3`, read the three governing
+standards before edits or gate interpretation, and use the active manifest
+record for exact inputs, commands, search audits, and blocker ids.
 
 ## Phase Packet
 
@@ -18,7 +22,8 @@ Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
 1. Land the extraction work into `foundation` and `drivers`.
 2. Contract `shared/*` to deliberate shared-kernel language only.
 3. Rewire importers and govern any still-temporary retained surfaces.
-4. Attach counts, search audits, and ledger deltas for the moved batch.
+4. Attach counts, the manifest-listed search-audit set for `P3`, and ledger
+   deltas for the moved batch.
 
 ## Required Commands
 
@@ -28,6 +33,8 @@ Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
 - `bun run lint`
 - `bun run test`
 - `bun run docgen`
+- `bun run audit:full` when the batch touches tooling, config, routing, or
+  generators, or record an explicit out-of-scope reason
 
 ## Completion Standard
 

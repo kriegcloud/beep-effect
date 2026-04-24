@@ -115,9 +115,10 @@ Those consumers must move to the split targets:
 
 The cutover order is:
 
-1. finish the pre-slice enablement gate so workspaces, path aliases,
-   `create-package`, identity registry, and app launch surfaces no longer treat
-   `packages/runtime/*` as canonical
+1. finish the `P2` enablement gate and `P3` shared-kernel/non-slice extraction
+   so workspaces, path aliases, `create-package`, identity registry, and app
+   launch surfaces no longer treat `packages/runtime/*` or illegal shared
+   families as canonical
 2. create `packages/shared/use-cases` only for the narrow sidecar control-plane
    subset and create `packages/repo-memory/use-cases` for repo-memory-specific
    contracts
@@ -126,8 +127,8 @@ The cutover order is:
 4. rewrite `packages/repo-memory/client`, `apps/desktop`, and
    `packages/editor/protocol` to the new import surfaces
 5. if a batch cannot cut over atomically, record temporary `@beep/runtime-*`
-   aliases or wrapper entrypoints in the compatibility ledger with a deletion
-   gate
+   aliases or wrapper entrypoints in `../ops/compatibility-ledger.md` with a
+   deletion gate
 6. delete `@beep/runtime-protocol`, `@beep/runtime-server`, and any old sidecar
    entrypoint wrappers once import and launch-surface usage reaches zero
 

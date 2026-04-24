@@ -7,7 +7,7 @@ Scaffolded - execution not started
 ## Role In Phase Model
 
 This is a required companion artifact for
-[p0-repo-census-and-routing-canon.md](./p0-repo-census-and-routing-canon.md).
+[p0-baseline-census-routing-canon-and-compliance-baseline.md](./p0-baseline-census-routing-canon-and-compliance-baseline.md).
 P0 is not complete until both the primary execution record and this census are
 updated from real repo evidence.
 
@@ -18,7 +18,7 @@ updated from real repo evidence.
 - Cite exact search audits, dependency queries, or command evidence for every
   non-empty consumer set.
 - Link temporary holds, compatibility shims, or unresolved routing tensions to
-  the live history ledgers.
+  the live `ops/*` ledgers.
 
 ## Package Family And Legacy Root Census
 
@@ -30,6 +30,7 @@ updated from real repo evidence.
 | `.agents/**` | Pending execution | Pending execution | Pending execution | Pending execution | Scaffolded | Include direct path consumers and planned rewrite shape. |
 | `.claude/**` | Pending execution | Pending execution | Pending execution | Pending execution | Scaffolded | Capture skill-tree and prompt-asset consumers. |
 | `.codex/**` | Pending execution | Pending execution | Pending execution | Pending execution | Scaffolded | Capture agent descriptors, prompts, and test consumers. |
+| `.aiassistant/**` | Pending execution | Pending execution | Pending execution | Pending execution | Scaffolded | Capture rules, skills, and direct path consumers that still require routing. |
 
 ## Importer And Consumer Hotspots
 
@@ -39,6 +40,7 @@ updated from real repo evidence.
 | App entrypoints | Pending execution | Pending execution | Scaffolded | List app shells, CLIs, and boot files that anchor migration order. |
 | Root scripts and configs | Pending execution | Pending execution | Scaffolded | Include workspace globs, build config, docgen, and repo checks. |
 | Legacy filesystem paths | Pending execution | Pending execution | Scaffolded | Record direct path-coupling audits and follow-up phases. |
+| Agent rules, evals, assets, and nested descriptors | Pending execution | Pending execution | Scaffolded | Include policy files, `rules/*`, `evals/*`, nested `agents/*` descriptors, helper assets, and stray VCS state that requires migrate-or-delete classification. |
 
 ## Follow-Ups
 

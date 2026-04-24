@@ -8,7 +8,7 @@
     "created": "2026-04-23",
     "updated": "2026-04-23",
     "currentTargetPhase": "P0",
-    "currentSourceOfTruth": "SPEC.md",
+    "packetAnchorDocument": "SPEC.md",
     "executionReadiness": "ready-for-p0-baseline-execution"
   },
   "sourceOfTruthOrder": [
@@ -16,13 +16,61 @@
     "standards/architecture/*",
     "standards/effect-laws-v1.md",
     "standards/effect-first-development.md",
-    "current repo reality",
+    "standards/effect-laws.allowlist.jsonc for governed repo-law exceptions",
+    "current repo reality when deciding migration order and compatibility containment",
     "SPEC.md",
     "PLAN.md",
-    "design/*",
-    "ops/*",
-    "history/outputs/*"
+    "ops/manifest.json",
+    "active handoff packet",
+    "design docs, prompts, and history outputs"
   ],
+  "pathResolution": {
+    "baseDirectory": "initiatives/repo-architecture-convergence",
+    "baseLabel": "initiative root",
+    "rule": "Resolve manifest paths from the initiative root unless a field explicitly documents a different base.",
+    "examples": {
+      "initiativeRootRelative": "README.md",
+      "repoRootRelativeViaInitiativeRoot": "../../standards/ARCHITECTURE.md"
+    }
+  },
+  "workerReadContract": {
+    "everyPhase": [
+      "README.md",
+      "SPEC.md",
+      "PLAN.md",
+      "ops/README.md",
+      "ops/manifest.json",
+      "ops/handoffs/README.md",
+      "active handoff in ops/handoffs/",
+      "matching orchestrator prompt in ops/handoffs/",
+      "history/quick-start.md",
+      "ops/prompts/agent-prompts.md",
+      "ops/prompt-assets/README.md",
+      "ops/prompt-assets/required-outputs.md",
+      "ops/prompt-assets/verification-checks.md",
+      "ops/prompt-assets/blocker-protocol.md",
+      "ops/prompt-assets/review-loop.md",
+      "ops/prompt-assets/manifest-and-evidence.md"
+    ],
+    "p0BaselineArchitectureRepoLawReads": [
+      "../../standards/ARCHITECTURE.md",
+      "../../standards/effect-laws-v1.md",
+      "../../standards/effect-first-development.md"
+    ],
+    "codeMovingOrReviewPhasesP2ToP7": [
+      "../../standards/ARCHITECTURE.md",
+      "../../standards/effect-laws-v1.md",
+      "../../standards/effect-first-development.md"
+    ],
+    "p7FinalVerificationReread": [
+      "../../standards/ARCHITECTURE.md",
+      "../../standards/effect-laws-v1.md",
+      "../../standards/effect-first-development.md",
+      "ops/compatibility-ledger.md",
+      "ops/architecture-amendment-register.md"
+    ],
+    "liveGovernanceRule": "Only ops/compatibility-ledger.md and ops/architecture-amendment-register.md are live governance ledgers. History or design ledger copies are historical or planning context only."
+  },
   "opsIndex": {
     "readme": "ops/README.md",
     "manifest": "ops/manifest.json",
@@ -187,16 +235,34 @@
       "id": "audit-full",
       "command": "bun run audit:full",
       "appliesTo": [
-        "P0",
-        "P1",
         "P2",
         "P6",
         "P7"
       ],
+      "conditionallyAppliesTo": [
+        "P3",
+        "P4",
+        "P5"
+      ],
+      "conditionalWhen": "phase touches tooling, config, routing, or generators",
+      "outOfScopeRecording": "If audit-full is not required for a P3 to P5 batch, record an explicit out-of-scope reason in the evidence pack and manifest.",
       "timing": "phase exit",
-      "blocksClosureWhen": "command fails"
+      "blocksClosureWhen": "command fails when the gate is required"
     }
   ],
+  "searchAuditContract": {
+    "catalogIds": [
+      "legacy-topology-references",
+      "consumer-importer-counts",
+      "hard-coded-entrypoints",
+      "canonical-subpaths-and-exports",
+      "compatibility-aliases-and-shims",
+      "family-and-kind-metadata",
+      "repo-law-boundaries"
+    ],
+    "blockingAuthority": "Only phases[].requiredSearchAuditIds are blocking for phase closure. At the current manifest version, every phase record lists all seven catalog ids.",
+    "outOfScopeHandling": "Record the exact zero-hit or no-scope command when it is needed to explain a manifest-listed audit result or any extra contextual audit you choose to include."
+  },
   "searchAuditFamilies": [
     {
       "id": "legacy-topology-references",
@@ -221,6 +287,10 @@
     {
       "id": "family-and-kind-metadata",
       "purpose": "prove touched packages still satisfy family and kind metadata rules"
+    },
+    {
+      "id": "repo-law-boundaries",
+      "purpose": "prove touched repo-law boundary surfaces remain lawful, including type-safety, typed-error, schema/decode, and runtime-execution checks"
     }
   ],
   "blockerTaxonomy": [
@@ -247,6 +317,10 @@
     {
       "id": "required-command-failed",
       "description": "A mandatory command gate failed."
+    },
+    {
+      "id": "worker-read-acknowledgment-missing",
+      "description": "The evidence pack does not name the exact required worker-read or reread inputs for the batch."
     },
     {
       "id": "required-search-audit-missing",
@@ -334,7 +408,7 @@
       "path": "ops/compatibility-ledger.md",
       "ownerPhase": "P1",
       "status": "templated",
-      "purpose": "Authoritative ledger for temporary aliases, shims, and route exceptions."
+      "purpose": "Authoritative ledger for temporary aliases, shims, route exceptions, canonical replacements, affected consumers, deletion gates, validation queries, and allowlist-linked bridge surfaces."
     },
     {
       "id": "architecture-amendment-register",
@@ -367,17 +441,40 @@
       "review-loop",
       "manifest-and-evidence"
     ],
+    "searchAuditOutOfScopeRule": "Record the exact zero-hit or no-scope command for any untouched family instead of omitting it.",
+    "universalBlockerIds": [
+      "required-command-failed",
+      "worker-read-acknowledgment-missing",
+      "required-search-audit-missing",
+      "graphiti-obligation-unmet",
+      "stale-evidence",
+      "narrative-only-output"
+    ],
+    "conditionalCommandRules": [
+      {
+        "id": "audit-full",
+        "phases": [
+          "P3",
+          "P4",
+          "P5"
+        ],
+        "when": "phase touches tooling, config, routing, or generators",
+        "otherwise": "record an explicit out-of-scope reason"
+      }
+    ],
     "requiredReviewLoop": [
       "critique",
       "remediation",
       "re-review"
     ],
     "requiredEvidencePackSections": [
+      "worker-read acknowledgment naming the exact root-contract files, phase-specific manifest inputs, and required rereads for the batch",
+      "required standards rereads, including P0 baseline architecture/repo-law rereads and the immediate P7 reread before scoring or closure when applicable",
       "changed repo surfaces",
       "commands with timestamps and exits",
-      "exact search audits",
+      "exact search audits for the phase's requiredSearchAuditIds in this manifest",
       "consumer/importer counts",
-      "ledger and allowlist delta",
+      "live-ledger and allowlist delta",
       "blockers and reopened phases",
       "Graphiti bootstrap and writeback status",
       "readiness statement naming the next allowed phase"
@@ -414,12 +511,32 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P0.md",
+        "ops/handoffs/P0_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
+        "../../standards/ARCHITECTURE.md",
+        "../../standards/effect-laws-v1.md",
+        "../../standards/effect-first-development.md",
         "design/current-state-routing-canon.md",
-        "design/non-slice-family-migration.md",
-        "ops/manifest.json"
+        "design/legacy-path-coupling-inventory.md",
+        "design/agent-runtime-decomposition-matrix.md",
+        "design/non-slice-family-migration.md"
       ],
+      "requiresStandardsReadBeforeAction": true,
+      "requiresLiveLedgerRereadBeforeScoring": false,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
@@ -450,19 +567,22 @@
       "mustLand": [
         "repo-wide workspace and package census",
         "consumer/importer census with counts and owners",
-        "route canon for every legacy surface",
+        "route canon for every legacy surface and routed agent-root file class",
         "baseline architecture and repo-law status",
         "downstream dependency and ownership map"
       ],
       "requiredCommandIds": [
         "graphiti-bootstrap",
-        "config-sync",
-        "audit-full"
+        "config-sync"
       ],
       "requiredSearchAuditIds": [
         "legacy-topology-references",
         "consumer-importer-counts",
-        "hard-coded-entrypoints"
+        "hard-coded-entrypoints",
+        "canonical-subpaths-and-exports",
+        "compatibility-aliases-and-shims",
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [],
       "blockerIds": [
@@ -470,12 +590,18 @@
         "missing-route-or-owner",
         "unowned-consumer-importer",
         "architecture-invalid-route",
-        "required-search-audit-missing"
+        "required-command-failed",
+        "worker-read-acknowledgment-missing",
+        "required-search-audit-missing",
+        "graphiti-obligation-unmet",
+        "stale-evidence",
+        "narrative-only-output"
       ],
       "exitRequires": [
         "no active legacy surface lacks an owner, destination, or migration batch",
         "consumer/importer counts are explicit rather than inferred",
-        "baseline search audits are attached with exact commands and counts"
+        "baseline search audits are attached with exact commands and counts",
+        "baseline architecture and repo-law status is recorded only after rereading the governing standards"
       ],
       "reviewLoop": {
         "currentStage": "not-started",
@@ -511,12 +637,27 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P1.md",
+        "ops/handoffs/P1_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
         "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
-        "history/outputs/p0-consumer-importer-census.md",
-        "ops/manifest.json"
+        "history/outputs/p0-consumer-importer-census.md"
       ],
+      "requiresStandardsReadBeforeAction": false,
+      "requiresLiveLedgerRereadBeforeScoring": false,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p1-program-controls-ledgers-and-gate-templates.md",
@@ -550,7 +691,7 @@
         }
       },
       "mustLand": [
-        "authoritative compatibility ledger",
+        "authoritative compatibility ledger with shim kind, canonical replacement, affected consumers, deletion gate, validation query, and allowlist linkage fields",
         "authoritative architecture-amendment register",
         "phase evidence-pack and gate template contract",
         "manifest expectations for blockers, evidence freshness, and review state",
@@ -558,13 +699,16 @@
       ],
       "requiredCommandIds": [
         "graphiti-bootstrap",
-        "config-sync",
-        "audit-full"
+        "config-sync"
       ],
       "requiredSearchAuditIds": [
+        "legacy-topology-references",
+        "consumer-importer-counts",
         "compatibility-aliases-and-shims",
         "hard-coded-entrypoints",
-        "family-and-kind-metadata"
+        "canonical-subpaths-and-exports",
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [
         "compatibility-ledger",
@@ -572,10 +716,15 @@
       ],
       "blockerIds": [
         "missing-source-artifact",
+        "unowned-consumer-importer",
         "architecture-invalid-route",
         "ungoverned-temporary-exception",
+        "required-command-failed",
+        "worker-read-acknowledgment-missing",
         "required-search-audit-missing",
-        "graphiti-obligation-unmet"
+        "graphiti-obligation-unmet",
+        "stale-evidence",
+        "narrative-only-output"
       ],
       "exitRequires": [
         "every known temporary alias, repo-law exception, and constitution conflict is governed in a durable register",
@@ -601,7 +750,7 @@
       "id": "P2",
       "sequence": 2,
       "name": "Enablement and Wiring Cutover",
-      "objective": "Land the workspace, alias, generator, tooling, script, and app-entrypoint rewrites that stop the repo from regenerating the legacy topology.",
+      "objective": "Land the workspace, alias, generator, tooling, script, app-entrypoint, and root config rewrites that stop the repo from regenerating the legacy topology or treating legacy agent roots as canonical.",
       "dependsOn": [
         "P0",
         "P1"
@@ -617,17 +766,36 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P2.md",
+        "ops/handoffs/P2_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
+        "../../standards/ARCHITECTURE.md",
+        "../../standards/effect-laws-v1.md",
+        "../../standards/effect-first-development.md",
         "design/current-state-routing-canon.md",
         "design/non-slice-family-migration.md",
         "design/tooling-and-agent-cutover.md",
+        "design/agent-runtime-decomposition-matrix.md",
         "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
         "history/outputs/p1-program-controls-ledgers-and-gate-templates.md",
         "ops/compatibility-ledger.md",
-        "ops/architecture-amendment-register.md",
-        "ops/manifest.json"
+        "ops/architecture-amendment-register.md"
       ],
+      "requiresStandardsReadBeforeAction": true,
+      "requiresLiveLedgerRereadBeforeScoring": false,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p2-enablement-and-wiring-cutover.md",
@@ -653,7 +821,7 @@
         "workspace-glob and workspace-package updates",
         "alias, path-map, config-sync, scaffolder, and generator rewrites",
         "docgen, repo-check, tooling-emitter, and script-target rewrites",
-        "hard-coded package-path and app-entrypoint rewrites",
+        "hard-coded package-path, app-entrypoint, and root config/task/watch rewrites, including legacy agent roots such as .agents, .aiassistant, .claude, and .codex where they are still treated as canonical, plus any agent-root instruction or config cleanup needed to stay aligned with the authoritative lightweight/pathless .aiassistant rule",
         "compatibility deletions or governed temporary bridges"
       ],
       "requiredCommandIds": [
@@ -667,9 +835,12 @@
       ],
       "requiredSearchAuditIds": [
         "legacy-topology-references",
+        "consumer-importer-counts",
         "hard-coded-entrypoints",
+        "canonical-subpaths-and-exports",
         "compatibility-aliases-and-shims",
-        "family-and-kind-metadata"
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [
         "compatibility-ledger",
@@ -677,14 +848,18 @@
       ],
       "blockerIds": [
         "missing-route-or-owner",
+        "unowned-consumer-importer",
         "architecture-invalid-route",
         "ungoverned-temporary-exception",
         "required-command-failed",
+        "worker-read-acknowledgment-missing",
         "required-search-audit-missing",
+        "graphiti-obligation-unmet",
+        "stale-evidence",
         "narrative-only-output"
       ],
       "exitRequires": [
-        "the repo no longer generates or reintroduces the legacy topology through workspaces, scaffolders, scripts, docgen, repo checks, or app assembly",
+        "the repo no longer generates or reintroduces the legacy topology through workspaces, scaffolders, scripts, docgen, repo checks, app assembly, or root config surfaces that still treat .agents, .aiassistant, .claude, or .codex as canonical homes or violate the authoritative lightweight/pathless agent-root rule",
         "enablement command gates are green",
         "exact search audits prove the old roots are no longer the source of truth"
       ],
@@ -724,17 +899,35 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P3.md",
+        "ops/handoffs/P3_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
+        "../../standards/ARCHITECTURE.md",
+        "../../standards/effect-laws-v1.md",
+        "../../standards/effect-first-development.md",
         "design/shared-kernel-contraction.md",
         "design/current-state-routing-canon.md",
         "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
         "history/outputs/p1-program-controls-ledgers-and-gate-templates.md",
         "history/outputs/p2-enablement-and-wiring-cutover.md",
         "ops/compatibility-ledger.md",
-        "ops/architecture-amendment-register.md",
-        "ops/manifest.json"
+        "ops/architecture-amendment-register.md"
       ],
+      "requiresStandardsReadBeforeAction": true,
+      "requiresLiveLedgerRereadBeforeScoring": false,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p3-shared-kernel-and-non-slice-extraction.md",
@@ -771,12 +964,21 @@
         "test",
         "docgen"
       ],
+      "conditionalCommandIds": [
+        {
+          "id": "audit-full",
+          "when": "phase touches tooling, config, routing, or generators",
+          "otherwise": "record an explicit out-of-scope reason"
+        }
+      ],
       "requiredSearchAuditIds": [
         "legacy-topology-references",
         "consumer-importer-counts",
+        "hard-coded-entrypoints",
         "canonical-subpaths-and-exports",
         "compatibility-aliases-and-shims",
-        "family-and-kind-metadata"
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [
         "compatibility-ledger",
@@ -788,6 +990,10 @@
         "architecture-invalid-route",
         "ungoverned-temporary-exception",
         "required-command-failed",
+        "worker-read-acknowledgment-missing",
+        "required-search-audit-missing",
+        "graphiti-obligation-unmet",
+        "stale-evidence",
         "narrative-only-output"
       ],
       "exitRequires": [
@@ -832,8 +1038,25 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P4.md",
+        "ops/handoffs/P4_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
+        "../../standards/ARCHITECTURE.md",
+        "../../standards/effect-laws-v1.md",
+        "../../standards/effect-first-development.md",
         "design/repo-memory-migration.md",
         "design/current-state-routing-canon.md",
         "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
@@ -841,9 +1064,10 @@
         "history/outputs/p2-enablement-and-wiring-cutover.md",
         "history/outputs/p3-shared-kernel-and-non-slice-extraction.md",
         "ops/compatibility-ledger.md",
-        "ops/architecture-amendment-register.md",
-        "ops/manifest.json"
+        "ops/architecture-amendment-register.md"
       ],
+      "requiresStandardsReadBeforeAction": true,
+      "requiresLiveLedgerRereadBeforeScoring": false,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p4-repo-memory-migration-and-validation.md",
@@ -880,12 +1104,21 @@
         "test",
         "docgen"
       ],
+      "conditionalCommandIds": [
+        {
+          "id": "audit-full",
+          "when": "phase touches tooling, config, routing, or generators",
+          "otherwise": "record an explicit out-of-scope reason"
+        }
+      ],
       "requiredSearchAuditIds": [
         "legacy-topology-references",
         "consumer-importer-counts",
         "hard-coded-entrypoints",
         "canonical-subpaths-and-exports",
-        "compatibility-aliases-and-shims"
+        "compatibility-aliases-and-shims",
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [
         "compatibility-ledger",
@@ -897,6 +1130,10 @@
         "architecture-invalid-route",
         "ungoverned-temporary-exception",
         "required-command-failed",
+        "worker-read-acknowledgment-missing",
+        "required-search-audit-missing",
+        "graphiti-obligation-unmet",
+        "stale-evidence",
         "narrative-only-output"
       ],
       "exitRequires": [
@@ -942,8 +1179,25 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P5.md",
+        "ops/handoffs/P5_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
+        "../../standards/ARCHITECTURE.md",
+        "../../standards/effect-laws-v1.md",
+        "../../standards/effect-first-development.md",
         "design/editor-migration.md",
         "design/current-state-routing-canon.md",
         "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
@@ -952,9 +1206,10 @@
         "history/outputs/p3-shared-kernel-and-non-slice-extraction.md",
         "history/outputs/p4-repo-memory-migration-and-validation.md",
         "ops/compatibility-ledger.md",
-        "ops/architecture-amendment-register.md",
-        "ops/manifest.json"
+        "ops/architecture-amendment-register.md"
       ],
+      "requiresStandardsReadBeforeAction": true,
+      "requiresLiveLedgerRereadBeforeScoring": false,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p5-editor-migration-and-validation.md",
@@ -991,12 +1246,21 @@
         "test",
         "docgen"
       ],
+      "conditionalCommandIds": [
+        {
+          "id": "audit-full",
+          "when": "phase touches tooling, config, routing, or generators",
+          "otherwise": "record an explicit out-of-scope reason"
+        }
+      ],
       "requiredSearchAuditIds": [
         "legacy-topology-references",
         "consumer-importer-counts",
         "hard-coded-entrypoints",
         "canonical-subpaths-and-exports",
-        "compatibility-aliases-and-shims"
+        "compatibility-aliases-and-shims",
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [
         "compatibility-ledger",
@@ -1008,6 +1272,10 @@
         "architecture-invalid-route",
         "ungoverned-temporary-exception",
         "required-command-failed",
+        "worker-read-acknowledgment-missing",
+        "required-search-audit-missing",
+        "graphiti-obligation-unmet",
+        "stale-evidence",
         "narrative-only-output"
       ],
       "exitRequires": [
@@ -1054,20 +1322,39 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P6.md",
+        "ops/handoffs/P6_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
+        "../../standards/ARCHITECTURE.md",
+        "../../standards/effect-laws-v1.md",
+        "../../standards/effect-first-development.md",
         "design/non-slice-family-migration.md",
         "design/tooling-and-agent-cutover.md",
         "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
+        "history/outputs/p0-consumer-importer-census.md",
         "history/outputs/p1-program-controls-ledgers-and-gate-templates.md",
         "history/outputs/p2-enablement-and-wiring-cutover.md",
         "history/outputs/p3-shared-kernel-and-non-slice-extraction.md",
         "history/outputs/p4-repo-memory-migration-and-validation.md",
         "history/outputs/p5-editor-migration-and-validation.md",
         "ops/compatibility-ledger.md",
-        "ops/architecture-amendment-register.md",
-        "ops/manifest.json"
+        "ops/architecture-amendment-register.md"
       ],
+      "requiresStandardsReadBeforeAction": true,
+      "requiresLiveLedgerRereadBeforeScoring": false,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p6-operational-app-agent-cutovers-and-compatibility-deletion.md",
@@ -1091,7 +1378,7 @@
       },
       "mustLand": [
         "remaining operational package moves that depend on slice evidence",
-        "agent bundle relocation into agents/<kind>/<name>",
+        "agent bundle relocation from .agents, .aiassistant, .claude, and .codex into the canonical agent destinations defined by the live routing packet or tooling-owned destinations, while keeping agent-instruction text lightweight and pathless where the authoritative .aiassistant rule requires it",
         "runtime-adapter cleanup so adapters are declarative and executable logic lives in tooling packages",
         "final app-consumer rewires and canonical subpath completion",
         "compatibility deletions for the remaining bridges"
@@ -1107,26 +1394,33 @@
       ],
       "requiredSearchAuditIds": [
         "legacy-topology-references",
+        "consumer-importer-counts",
         "hard-coded-entrypoints",
         "canonical-subpaths-and-exports",
         "compatibility-aliases-and-shims",
-        "family-and-kind-metadata"
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [
         "compatibility-ledger",
         "architecture-amendment-register"
       ],
       "blockerIds": [
+        "unowned-consumer-importer",
         "architecture-invalid-route",
         "ungoverned-temporary-exception",
         "required-command-failed",
+        "worker-read-acknowledgment-missing",
         "required-search-audit-missing",
+        "graphiti-obligation-unmet",
+        "stale-evidence",
         "narrative-only-output"
       ],
       "exitRequires": [
         "no live app, agent, or tooling path depends on the legacy topology",
         "the compatibility ledger is empty or contains only an explicitly blocking issue being resolved in the same phase",
-        "runtime adapters contain configuration rather than executable migration logic"
+        "runtime adapters contain configuration rather than executable migration logic",
+        "agent-instruction text stays aligned with the authoritative lightweight/pathless .aiassistant rule"
       ],
       "reviewLoop": {
         "currentStage": "not-started",
@@ -1168,15 +1462,40 @@
         "manifest-and-evidence"
       ],
       "inputs": [
+        "README.md",
         "SPEC.md",
         "PLAN.md",
+        "ops/README.md",
+        "ops/manifest.json",
+        "ops/handoffs/README.md",
+        "ops/handoffs/HANDOFF_P7.md",
+        "ops/handoffs/P7_ORCHESTRATOR_PROMPT.md",
+        "history/quick-start.md",
+        "ops/prompts/agent-prompts.md",
+        "ops/prompt-assets/README.md",
+        "ops/prompt-assets/required-outputs.md",
+        "ops/prompt-assets/verification-checks.md",
+        "ops/prompt-assets/blocker-protocol.md",
+        "ops/prompt-assets/review-loop.md",
+        "ops/prompt-assets/manifest-and-evidence.md",
+        "../../standards/ARCHITECTURE.md",
+        "../../standards/effect-laws-v1.md",
+        "../../standards/effect-first-development.md",
         "design/verification-and-cutover.md",
-        "history/outputs/*",
+        "history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md",
+        "history/outputs/p0-consumer-importer-census.md",
+        "history/outputs/p1-program-controls-ledgers-and-gate-templates.md",
+        "history/outputs/p2-enablement-and-wiring-cutover.md",
+        "history/outputs/p3-shared-kernel-and-non-slice-extraction.md",
+        "history/outputs/p4-repo-memory-migration-and-validation.md",
+        "history/outputs/p5-editor-migration-and-validation.md",
+        "history/outputs/p6-operational-app-agent-cutovers-and-compatibility-deletion.md",
         "ops/compatibility-ledger.md",
         "ops/architecture-amendment-register.md",
-        "../../standards/effect-laws.allowlist.jsonc",
-        "ops/manifest.json"
+        "../../standards/effect-laws.allowlist.jsonc"
       ],
+      "requiresStandardsReadBeforeAction": true,
+      "requiresLiveLedgerRereadBeforeScoring": true,
       "artifacts": {
         "evidencePack": {
           "path": "history/outputs/p7-final-architecture-and-repo-law-verification.md",
@@ -1212,7 +1531,7 @@
       "mustLand": [
         "final architecture compliance matrix with proof for every row",
         "final repo-law compliance matrix with proof for every row",
-        "final command-suite evidence and final search-audit evidence",
+        "final command-suite evidence, final search-audit evidence, and final repo-law boundary proof",
         "closure of the compatibility ledger and architecture-amendment register",
         "reopened earlier phases for any implementation defect found during verification"
       ],
@@ -1231,16 +1550,21 @@
         "hard-coded-entrypoints",
         "canonical-subpaths-and-exports",
         "compatibility-aliases-and-shims",
-        "family-and-kind-metadata"
+        "family-and-kind-metadata",
+        "repo-law-boundaries"
       ],
       "requiredLedgerIds": [
         "compatibility-ledger",
         "architecture-amendment-register"
       ],
       "blockerIds": [
+        "unowned-consumer-importer",
+        "architecture-invalid-route",
         "ungoverned-temporary-exception",
         "required-command-failed",
+        "worker-read-acknowledgment-missing",
         "required-search-audit-missing",
+        "graphiti-obligation-unmet",
         "stale-evidence",
         "narrative-only-output"
       ],
@@ -1248,6 +1572,7 @@
         "every architecture row is compliant or resolved through an approved amendment already landed in the standards",
         "every repo-law row is compliant",
         "all required commands are green and no temporary exception remains",
+        "the immediate reread of the three governing standards plus the two live ops ledgers is recorded before scoring or closure",
         "P7 routes any implementation defect back to the owning earlier phase instead of absorbing it here"
       ],
       "reviewLoop": {

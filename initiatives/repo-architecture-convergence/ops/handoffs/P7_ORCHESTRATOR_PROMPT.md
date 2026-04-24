@@ -1,7 +1,13 @@
 # P7 Orchestrator Prompt
 
-Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
-[../prompt-assets/README.md](../prompt-assets/README.md) first.
+Follow the exact worker-read order and source-of-truth order from
+[../../README.md](../../README.md), [../../SPEC.md](../../SPEC.md), and
+[../manifest.json](../manifest.json). This prompt adds no new authority and
+must not be loaded ahead of that contract. For `P7`, use the exact phase
+`inputs` from the manifest, including the enumerated prior phase outputs, and
+immediately before matrix scoring or closure claims reread the three governing
+standards plus `ops/compatibility-ledger.md` and
+`ops/architecture-amendment-register.md`.
 
 ## Phase Packet
 
@@ -18,7 +24,8 @@ Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
 ## Required Outcomes
 
 1. Land the final architecture compliance matrix and repo-law compliance matrix.
-2. Land the final command-suite and search-audit proof bundle.
+2. Land the final command-suite and the final manifest-listed search-audit
+   proof bundle for `P7`, including the required repo-law boundary audits.
 3. Close the compatibility ledger and amendment register.
 4. Reopen the owning earlier phase for any implementation defect found here.
 

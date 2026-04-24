@@ -1,31 +1,43 @@
 # Review Surface
 
-This directory is the canonical adversarial review surface for
-`repo-architecture-convergence`.
+This directory contains the initiative's two review namespaces:
+
+- `loop*-*.md`: initiative-wide critique history and cross-phase evidence
+- `pX-critique.md`, `pX-remediation.md`, and `pX-rereview.md`: phase-scoped
+  execution review loop required by `ops/*`
 
 ## Required Loop
 
-1. `Review`
-   - add one or more `loopN-<topic>.md` critiques with evidence, verdict, and
-     required remediations
-2. `Remediation`
-   - update `loopN-remediation-register.md` with every blocking finding, the
-     remediation surface, status, and evidence links
-3. `Re-review`
-   - update `loopN-rereview-gate.md` after the remediation lands
-
-Packet or phase closure is blocked until the active loop has both a populated
-remediation register and a re-review decision.
+1. `Phase Execution Review`
+   - add or update the active phase critique in `pX-critique.md`
+   - track required fixes in `pX-remediation.md`
+   - record the final gate decision in `pX-rereview.md`
+2. `Initiative-Wide Critique`
+   - add `loopN-<topic>.md` critiques when the finding spans multiple phases,
+     packet surfaces, or control-plane assumptions
+   - update `loopN-remediation-register.md` and `loopN-rereview-gate.md` when
+     those broader findings are being worked
+3. `Closure`
+   - phase closure is blocked until the active `pX-remediation.md` and
+     `pX-rereview.md` are populated
+   - packet-level closure is also blocked by any still-open loop-wide finding
+     that has not been explicitly cleared or held
 
 ## Naming Contract
 
-- `loopN-<topic>.md`
-- `loopN-remediation-register.md`
-- `loopN-rereview-gate.md`
+- phase-scoped review loop:
+  - `pX-critique.md`
+  - `pX-remediation.md`
+  - `pX-rereview.md`
+- initiative-wide review loop:
+  - `loopN-<topic>.md`
+  - `loopN-remediation-register.md`
+  - `loopN-rereview-gate.md`
 
-Inside `history/reviews/`, the canonical namespace is loop-scoped, not
-phase-scoped. Do not create `pX-*` review files here. Phase outputs should
-reference the active loop register and re-review gate for the packet.
+The canonical review namespace is now dual, not exclusive. Do not use
+`loop*-*.md` files as a substitute for missing `pX-*` phase review artifacts,
+and do not treat `pX-*` files as a replacement for broader loop-wide critique
+history.
 
 ## Severity Contract
 
@@ -35,6 +47,12 @@ reference the active loop register and re-review gate for the packet.
 - `Medium` and `Low` findings remain actionable, but they do not block closure
   unless the active loop register or re-review gate says they are held as
   blockers.
+
+## Phase Review Index
+
+Phase-scoped execution review files exist for `P0` through `P7` alongside this
+README. Use the set that matches the active handoff and evidence pack named in
+`ops/manifest.json`.
 
 ## Loop 1 Index
 
@@ -59,7 +77,7 @@ reference the active loop register and re-review gate for the packet.
 
 - `Critical` and `High` findings remain blocking until the remediation register
   says they are closed or explicitly held with owner, rationale, and next gate.
-- Phase outputs must cite the review inputs they addressed and the evidence they
-  produced.
+- Phase outputs must cite the phase review inputs they addressed, plus any
+  loop-wide critique artifacts that still governed the batch.
 - Re-review must check the updated history surfaces, not only the author's
   summary.

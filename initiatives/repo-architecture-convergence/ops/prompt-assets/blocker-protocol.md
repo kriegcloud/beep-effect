@@ -11,6 +11,7 @@ review loop and manifest.
 | `architecture-invalid-route` | a route conflicts with `standards/ARCHITECTURE.md` | the route is fixed or governed in `ops/architecture-amendment-register.md` |
 | `ungoverned-temporary-exception` | an alias, shim, allowlist entry, or route exception lacks owner, issue, or deletion phase | governance data is complete in the authoritative ledger |
 | `required-command-failed` | any mandatory command gate fails | the command passes or the phase is explicitly blocked |
+| `worker-read-acknowledgment-missing` | the evidence pack omits the exact worker-read or reread inputs required for the batch | the evidence pack records the exact required inputs and rereads |
 | `required-search-audit-missing` | search proof is missing, imprecise, or stale | exact search commands and counts are recorded |
 | `graphiti-obligation-unmet` | Graphiti bootstrap or writeback was required but neither succeeded nor was explicitly skipped | bootstrap and writeback status is recorded |
 | `stale-evidence` | the evidence pack predates the last material repo change | fresh proof is rerun and recorded |

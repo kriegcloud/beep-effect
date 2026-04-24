@@ -5,14 +5,42 @@ convergence initiative.
 
 ## Required Usage Order
 
-1. Read [../manifest.json](../manifest.json) for active phase, dependency
-   graph, authoritative artifact paths, gate stack, and blocker state.
-2. Read [../prompts/agent-prompts.md](../prompts/agent-prompts.md).
-3. Read [../prompt-assets/README.md](../prompt-assets/README.md).
-4. Read the active handoff and the matching orchestrator prompt.
-5. Land the repo changes owned by the phase and update every required artifact
+This directory does not create a lower or alternate startup contract. Follow
+the exact worker-read order and source-of-truth order from the root packet and
+`ops/manifest.json`; the list below mirrors that contract for handoff use.
+
+1. Read [../../README.md](../../README.md), [../../SPEC.md](../../SPEC.md),
+   [../../PLAN.md](../../PLAN.md), and [../README.md](../README.md).
+2. Read [../manifest.json](../manifest.json) for active phase, dependency
+   graph, authoritative artifact paths, gate stack, blocker state, and path
+   base.
+3. Read this [README.md](./README.md), the active handoff, and the matching
+   orchestrator prompt.
+4. Read [../../history/quick-start.md](../../history/quick-start.md) and
+   [../prompts/agent-prompts.md](../prompts/agent-prompts.md).
+5. Read [../prompt-assets/README.md](../prompt-assets/README.md),
+   [../prompt-assets/required-outputs.md](../prompt-assets/required-outputs.md),
+   [../prompt-assets/verification-checks.md](../prompt-assets/verification-checks.md),
+   [../prompt-assets/blocker-protocol.md](../prompt-assets/blocker-protocol.md),
+   [../prompt-assets/review-loop.md](../prompt-assets/review-loop.md), and
+   [../prompt-assets/manifest-and-evidence.md](../prompt-assets/manifest-and-evidence.md).
+6. Read the phase-specific design docs, prior evidence packs, live ledgers,
+   and review artifacts named in the active handoff and manifest.
+7. For any `P0` batch that records baseline architecture or repo-law status,
+   reread `standards/ARCHITECTURE.md`, `standards/effect-laws-v1.md`, and
+   `standards/effect-first-development.md` before that baseline is recorded.
+   For `P2` through `P7` code-moving or code-review work, also read those
+   three standards before edits or gate interpretation begin. For `P7` final
+   verification, immediately before scoring or closure, reread those three
+   standards plus `ops/compatibility-ledger.md` and
+   `ops/architecture-amendment-register.md`.
+8. Land the repo changes owned by the phase and update every required artifact
    in `../../history/` and `../`.
-6. Update the manifest before handing the phase off.
+9. Update the manifest before handing the phase off.
+
+Only `ops/compatibility-ledger.md` and
+`ops/architecture-amendment-register.md` are live governance ledgers. Treat
+history or design ledger mentions as historical context only.
 
 ## Cross-Phase Packet
 
@@ -59,4 +87,7 @@ Every phase owns all of the following:
 - manifest updates for status, evidence, blockers, and next action
 
 No phase is complete until the artifact bundle, required commands, search
-audits, Graphiti note, and review loop all agree.
+audits, Graphiti note, and review loop all agree. The blocking search-audit
+set is the active phase's `requiredSearchAuditIds` record in
+`ops/manifest.json`. At the current manifest version, every phase record lists
+all seven catalog families.

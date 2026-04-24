@@ -8,22 +8,53 @@ completion is never enough.
 
 ## Shared Operating Rules
 
-1. `standards/ARCHITECTURE.md`, `standards/architecture/*`,
+1. When instructions disagree, resolve them in this order:
+   `standards/ARCHITECTURE.md`, `standards/architecture/*`,
    `standards/effect-laws-v1.md`, `standards/effect-first-development.md`,
-   `SPEC.md`, and `PLAN.md` are binding in that order.
-2. The authoritative ledger paths are
-   `ops/compatibility-ledger.md` and
-   `ops/architecture-amendment-register.md`.
+   `standards/effect-laws.allowlist.jsonc` for governed repo-law exceptions,
+   current repo reality when deciding migration order and compatibility
+   containment, `SPEC.md`, `PLAN.md`, `ops/manifest.json`, the active handoff
+   packet, then design docs, prompts, and history outputs.
+2. The only live governance ledgers are `ops/compatibility-ledger.md` and
+   `ops/architecture-amendment-register.md`. Treat any history or design
+   ledger copies as historical context only.
 3. Every phase owns an evidence pack, a review loop, manifest updates, and any
    extra durable artifacts assigned to that phase.
 4. Graphiti bootstrap and writeback must be recorded for every phase when the
    environment exposes Graphiti, or explicitly skipped when unavailable.
-5. Any required command failure, stale evidence, unowned consumer/importer, or
-   ungoverned temporary exception blocks closure.
+5. Any `required-command-failed`, `worker-read-acknowledgment-missing`,
+   `required-search-audit-missing`, `graphiti-obligation-unmet`,
+   `stale-evidence`, `unowned-consumer-importer`,
+   `ungoverned-temporary-exception`, or `narrative-only-output` blocks
+   closure.
 6. Later phases close only on landed repo changes plus proof. They do not
    author future-work packets in place of execution.
 7. P7 is verification and closeout only. Any implementation defect found there
    reopens the owning earlier phase.
+
+## Shared Worker-Read Contract
+
+- Every phase must read `README.md`, `SPEC.md`, `PLAN.md`, `ops/README.md`,
+  `ops/manifest.json`, `ops/handoffs/README.md`, the active handoff, the
+  matching orchestrator prompt, `history/quick-start.md`,
+  `ops/prompts/agent-prompts.md`, and `ops/prompt-assets/README.md` before
+  action.
+- Every phase must also read `ops/prompt-assets/required-outputs.md`,
+  `ops/prompt-assets/verification-checks.md`,
+  `ops/prompt-assets/blocker-protocol.md`,
+  `ops/prompt-assets/review-loop.md`, and
+  `ops/prompt-assets/manifest-and-evidence.md`.
+- `P0` baseline architecture or repo-law scoring must also reread
+  `standards/ARCHITECTURE.md`, `standards/effect-laws-v1.md`, and
+  `standards/effect-first-development.md` before that baseline is recorded.
+- `P2` through `P7` code-moving or code-review work must also read
+  `standards/ARCHITECTURE.md`, `standards/effect-laws-v1.md`, and
+  `standards/effect-first-development.md` before edits or gate interpretation
+  begin.
+- `P7` final verification and closeout re-checks must reread those three
+  standards plus `ops/compatibility-ledger.md` and
+  `ops/architecture-amendment-register.md` immediately before matrix scoring
+  or closure claims.
 
 ## Phase Order And Dependencies
 
@@ -45,9 +76,15 @@ completion is never enough.
 - Lint and allowlist integrity: `bun run lint`
 - Tests: `bun run test`
 - JSDoc and docgen: `bun run docgen`
-- Repo audit: `bun run audit:full`
+- Repo audit: `bun run audit:full` always on `P2`, `P6`, and `P7`, plus any
+  `P3` to `P5` batch that touches tooling, config, routing, or generators
 
-## Shared Search-Audit Families
+## Shared Search-Audit Authority
+
+The seven families below are the reusable catalog from `ops/manifest.json`.
+Only the ids listed in the active phase's `requiredSearchAuditIds` record are
+blocking. At the current manifest version, every phase record lists all seven
+catalog families.
 
 - legacy topology references
 - consumer/importer counts before and after the batch
@@ -55,6 +92,8 @@ completion is never enough.
 - canonical subpath and export usage
 - compatibility aliases and temporary shims
 - touched package metadata for family and kind compliance
+- repo-law boundary surfaces touched by the batch, including type-safety,
+  typed-error, schema/decode, and runtime-execution checks
 
 ## Durable Artifact Ownership
 

@@ -1,22 +1,17 @@
-# Compatibility Ledger
+# Historical Compatibility Ledger
 
-This is the authoritative live compatibility ledger for the history surface.
+This file is a superseded history-side ledger template retained for audit
+trail purposes only.
 
-This ledger records temporary compatibility shims, aliases, and bridge surfaces
-introduced during convergence work. Do not use it for permanent architecture.
+The live compatibility authority moved to
+[../../ops/compatibility-ledger.md](../../ops/compatibility-ledger.md). Do not
+record current shims, aliases, or bridge surfaces here.
 
-## Entry Rules
+## Historical Status At Retirement
 
-- Add an entry only when the shim or alias actually exists in repo state.
-- Every entry must include an owner, creation phase, deletion phase, validation
-  query or command, and current status.
-- If the shim also requires a code-law exception, reference the governing
-  `effect-laws.allowlist.jsonc` entry from the notes column.
+No executed compatibility surfaces were recorded in this history mirror before
+the authoritative ledger moved to `ops/*`.
 
-## Current Entries
-
-No executed compatibility surfaces have been recorded yet.
-
-| ID | Surface | Created in phase | Owner | Consumers | Deletion phase | Validation evidence | Status | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| None | None recorded | n/a | n/a | n/a | n/a | n/a | Clear | Populate when an actual compatibility surface lands. |
+| Historical state | Notes |
+| --- | --- |
+| Empty template retained | Older history docs once pointed here. Current phase work must update `ops/compatibility-ledger.md` instead. |

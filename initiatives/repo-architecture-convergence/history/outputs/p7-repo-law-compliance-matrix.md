@@ -7,9 +7,17 @@ Scaffolded - execution not started
 ## Role In Phase Model
 
 This is a required companion artifact for
-[p7-export-cutover-and-architecture-verification.md](./p7-export-cutover-and-architecture-verification.md).
+[p7-final-architecture-and-repo-law-verification.md](./p7-final-architecture-and-repo-law-verification.md).
 P7 is not complete until this matrix and the architecture matrix are both
 updated from executed repo evidence.
+
+Before scoring any row in this matrix, immediately reread
+`../../standards/ARCHITECTURE.md`,
+`../../standards/effect-laws-v1.md`,
+`../../standards/effect-first-development.md`,
+`../../ops/compatibility-ledger.md`, and
+`../../ops/architecture-amendment-register.md`. Any status entered before that
+same-batch reread is stale and cannot support closure.
 
 ## Matrix
 
@@ -19,10 +27,10 @@ updated from executed repo evidence.
 | Effect-first service and boundary rules | Pending execution | Pending execution | Scaffolded | Capture the service-boundary proof relevant to moved code. |
 | Typed errors, tagged unions, and decode boundaries | Pending execution | Pending execution | Scaffolded | Record the enforcement evidence used in the final review. |
 | Documentation, annotations, and docgen obligations | Pending execution | Pending execution | Scaffolded | Include docgen-proof and any annotation-specific audits. |
-| Temporary exceptions are closed or governed through the live ledgers | Pending execution | Pending execution | Scaffolded | Cross-check amendment and compatibility state before final signoff. |
+| Temporary exceptions are closed or governed through the live ledgers | Pending execution | Pending execution | Scaffolded | Cross-check `../../ops/compatibility-ledger.md` and `../../ops/architecture-amendment-register.md` before final signoff. |
 | Final repo-law signoff is reproducible from history evidence | Pending execution | Pending execution | Scaffolded | Ensure reviewers can replay the proof from cited artifacts. |
 
 ## Exceptions And Holds
 
 - Pending execution. Record any approved repo-law hold with the governing
-  ledger entry, owner, and next gate.
+  `ops/*` ledger entry, owner, and next gate.

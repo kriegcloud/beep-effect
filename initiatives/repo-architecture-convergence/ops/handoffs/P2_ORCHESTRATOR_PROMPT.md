@@ -1,7 +1,11 @@
 # P2 Orchestrator Prompt
 
-Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
-[../prompt-assets/README.md](../prompt-assets/README.md) first.
+Follow the exact worker-read order and source-of-truth order from
+[../../README.md](../../README.md), [../../SPEC.md](../../SPEC.md), and
+[../manifest.json](../manifest.json). This prompt adds no new authority and
+must not be loaded ahead of that contract. For `P2`, read the three governing
+standards before edits or gate interpretation, and use the active manifest
+record for exact inputs, commands, search audits, and blocker ids.
 
 ## Phase Packet
 
@@ -16,11 +20,13 @@ Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
 
 1. Land the enablement and wiring changes that make the target topology the
    repo's only source of truth.
-2. Rewire workspaces, aliases, scripts, scaffolders, docgen, repo checks, and
-   app entrypoints.
+2. Rewire workspaces, aliases, scripts, scaffolders, docgen, repo checks, app
+   entrypoints, and root config/task/watch surfaces that still treat `.agents`,
+   `.aiassistant`, `.claude`, or `.codex` as canonical or that violate the
+   authoritative lightweight/pathless `.aiassistant` rule.
 3. Delete or govern any remaining compatibility bridge.
-4. Attach the exact commands and search audits that prove the legacy topology
-   is no longer emitted.
+4. Attach the exact commands and the manifest-listed search-audit set for `P2`
+   that prove the legacy topology is no longer emitted.
 
 ## Required Commands
 

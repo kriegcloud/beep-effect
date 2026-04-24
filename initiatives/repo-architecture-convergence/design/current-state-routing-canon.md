@@ -15,7 +15,8 @@ This canon is target-accurate:
 ## Observed Legacy Seams
 
 The current repo still exposes all of the transition-note roots called out by
-the architecture packet:
+the architecture packet, plus one additional live assistant root that the
+current repo now carries:
 
 - `packages/common/*`
 - top-level `tooling/*`
@@ -23,11 +24,30 @@ the architecture packet:
 - `packages/runtime/*`
 - slice-local `protocol`, `runtime`, `model`, `store`, and `sqlite` package
   names
-- repo-local agent roots: `.agents`, `.claude`, `.codex`
+- repo-local agent roots: `.agents`, `.aiassistant`, `.claude`, `.codex`
 
 The repo also still hard-codes those roots into workspaces, path aliases,
 docgen mappings, app sidecar entrypoints, and the identity/scaffolder layer.
 Routing therefore stays incomplete until the enablement rewrites land.
+
+## `P0` Baseline Inputs And Audit Set
+
+This routing canon is not a standalone baseline. Any `P0` evidence pack that
+claims current-state routing or architecture/repo-law status must pair this
+document with:
+
+1. `design/legacy-path-coupling-inventory.md`
+2. `design/agent-runtime-decomposition-matrix.md`
+
+The minimum required baseline audit set is:
+
+1. every legacy-root family named in `Observed Legacy Seams`, including the
+   four repo-local agent roots `.agents`, `.aiassistant`, `.claude`, and
+   `.codex`
+2. canonical subpath/export usage for boundary-sensitive packages
+3. live compatibility surfaces that may need rows in
+   `../ops/compatibility-ledger.md`
+4. `beep.family`, `beep.kind`, and agent `beep.json` metadata state
 
 ## Foundation Routing Canon
 
@@ -144,37 +164,67 @@ the current Lexical package is already a concrete product UI surface.
 
 ## Agent Routing Canon
 
-Agent routing is by subtree and file kind, not by moving `.claude` or `.codex`
-as monoliths. The committed matrix lives in
+Agent routing is by subtree and file kind across `.agents`, `.aiassistant`,
+`.claude`, and `.codex`, not by moving any of those roots as monoliths. The
+committed file-class matrix lives in
 `design/agent-runtime-decomposition-matrix.md`.
 
 The canonical destinations are:
 
-| Source artifact kind | Committed destination |
-|---|---|
-| portable skill content | `agents/skill-pack/*` |
-| declarative rules, patterns, and steering packets | `agents/policy-pack/*` |
-| runtime-specific declarative config/templates/mappings | `agents/runtime-adapter/claude` or `agents/runtime-adapter/codex` |
-| executable hooks, runtime helpers, scripts, tests, package shells, and stateful support code | `packages/tooling/tool/claude-runtime` or `packages/tooling/tool/codex-runtime` |
+| Source artifact kind | Committed destination | Normalization rule |
+|---|---|---|
+| portable skill content such as `.claude/skills/**/SKILL.md`, runtime-agnostic `references/**`, and `assets/**` | `agents/skill-pack/*` | keep only runtime-agnostic skill guidance |
+| extra skill-side prose or helper docs such as `.claude/skills/**/README.md`, `TASKS.md`, `Article.md`, `cli.md`, `customization.md`, `mcp.md`, or `command/**` | `agents/skill-pack/*/references/**` or delete/archive | do not leave non-canonical docs loose at a skill-pack root |
+| declarative steering packets such as `.agents/policies/**/*.json`, `.claude/rules/**/*.md`, `.claude/patterns/**/*.md`, `.claude/skills/**/rules/**/*.md`, `.aiassistant/rules/**/*.md`, and `.aiassistant/patterns/**/*.md` | `agents/policy-pack/*` | policy content stays declarative and path-light |
+| shared cross-skill authoring packets such as `.agents/skills/CONVENTIONS.md`, `.agents/skills/_shared/**`, `.claude/skills/CONVENTIONS.md`, or `.claude/skills/_shared/**` | `agents/policy-pack/*` | shared agent law needs an explicit owner rather than an unowned root subtree |
+| runtime-specific descriptors, templates, mappings, or nested `.claude/skills/**/agents/*.yml`, `.claude/skills/**/agents/*.yaml`, and similar `skills/**/agents/*` files | `agents/runtime-adapter/<runtime>` | split by runtime name and rewrite raw legacy-root path references to canonical skill ids, policy selectors, or tooling-owned wrapper entrypoints before cutover proof can pass |
+| executable hooks, runtime helpers, shell entrypoints, tests, sync logic, and package shells | `packages/tooling/tool/*` | executable logic never stays in `agents/*` |
+| eval fixtures or scorecards such as `.claude/skills/**/evals/**` or other `evals/**` bundles | `packages/tooling/tool/*/test/fixtures` or delete/archive | keep only when an owned executable harness consumes them |
+| vendored VCS state such as nested `.git/**` | delete from the migrated asset pack or govern as an external submodule outside the canonical agent package tree | VCS metadata is never canonical agent content |
 
 `agents/runtime-adapter` remains declarative only. Executable hook programs,
 sync logic, runtime state handling, and lifecycle orchestration do not stay
 inside `agents/`.
+
+Descriptor relocation is not enough on its own. Any runtime-adapter packet,
+runtime config, or declarative agent doc that still points at raw `.agents`,
+`.aiassistant`, `.claude`, or `.codex` filesystem roots keeps the old topology
+canonical by content. `P2` and `P6` proof therefore requires content
+normalization to canonical skill ids, policy selectors, or tooling-owned
+wrapper entrypoints before the legacy roots can delete.
+
+This coverage is intentionally explicit because the current `.claude` skill
+tree already contains support docs, shared conventions, nested runtime
+descriptors, eval fixtures, skill-local rules, and article/reference packets
+that must not be left unrouted during `P0` or `P6`.
+
+The live repo therefore has four legacy agent roots to retire: shared
+`.agents` content, assistant-specific `.aiassistant` steering and skills, and
+runtime-rooted `.claude` and `.codex` assemblies.
 
 ## Enablement And Closure Gates
 
 The following routing-adjacent work must close before slice cutovers begin:
 
 1. root workspaces, `tsconfig` paths, `turbo` filters, and package metadata
-   stop treating legacy roots as canonical
+   stop treating any legacy root in the required audit set as canonical:
+   `packages/common/*`, top-level `tooling/*`,
+   `packages/shared/providers/*`, `packages/runtime/*`, `.agents`,
+   `.aiassistant`, `.claude`, and `.codex`
 2. app sidecar launch surfaces stop hard-coding
    `packages/runtime/server/src/main.ts` and
    `packages/editor/runtime/src/main.ts`
 3. the identity registry at `@beep/identity/packages` and the `create-package`
    scaffolder stop encoding legacy package names and locations
-4. every temporary alias or wrapper is entered in the compatibility ledger
-5. any proposal to keep a non-canonical exception is entered in the amendment
-   register instead of being silently grandfathered
+4. runtime-adapter descriptors, runtime configs, and declarative agent docs stop
+   hard-coding `.agents`, `.aiassistant`, `.claude`, or `.codex` filesystem
+   roots and instead reference canonical skill ids, policy selectors, or
+   tooling-owned wrapper entrypoints
+5. every temporary alias or wrapper is entered in
+   `../ops/compatibility-ledger.md`
+6. any proposal to keep a non-canonical exception is entered in
+   `../ops/architecture-amendment-register.md` instead of being silently
+   grandfathered
 
 The remaining post-slice confirmation gate is narrow: decide whether the shared
 control-plane subset of `shared/use-cases` still needs to exist after

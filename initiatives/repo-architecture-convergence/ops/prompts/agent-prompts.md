@@ -5,24 +5,38 @@ repo architecture convergence initiative.
 
 ## Required Startup
 
-1. Read `ops/manifest.json` to confirm the active phase, dependency graph,
-   artifact bundle, command gates, and current blockers.
-2. Run `bun run graphiti:proxy:ensure` when Graphiti is available in the
+1. Follow the exact worker-read order and source-of-truth order from
+   `README.md`, `SPEC.md`, and `ops/manifest.json`. This file adds no new
+   authority and must not be read ahead of that contract.
+2. For any `P0` batch that records baseline architecture or repo-law status,
+   reread `standards/ARCHITECTURE.md`, `standards/effect-laws-v1.md`, and
+   `standards/effect-first-development.md` before that baseline is recorded.
+   For `P2` through `P7` code-moving or code-review work, read those same
+   three standards before edits or gate interpretation begin.
+3. For `P7` final verification or any closeout re-check, immediately before
+   matrix scoring or closure claims, reread those three standards plus
+   `ops/compatibility-ledger.md` and
+   `ops/architecture-amendment-register.md`.
+4. Run `bun run graphiti:proxy:ensure` when Graphiti is available in the
    environment. If it is unavailable, record an explicit skipped reason in the
    evidence pack and manifest.
-3. Read the active phase handoff and matching orchestrator prompt.
-4. Load the reusable assets in `ops/prompt-assets/`.
-5. Read the required design docs, prior evidence packs, durable ledgers, and
-   review artifacts before touching phase-owned surfaces.
+5. Read the phase-specific design docs, prior evidence packs, durable ledgers,
+   and review artifacts named in the manifest and active handoff before
+   touching phase-owned surfaces.
 
 ## Core Duties
 
-- Treat `SPEC.md`, `PLAN.md`, and the architecture standards as binding.
+- Treat the exact `SPEC.md` source-of-truth order as binding. Do not compress
+  or restate it as a shorter precedence ladder here.
 - Execute the current phase as landed repo change plus proof, not as packet
   authoring.
 - Maintain the full phase artifact bundle:
   evidence pack, phase-owned durable artifacts, critique, remediation,
   re-review, and manifest updates.
+- Use only `ops/compatibility-ledger.md` and
+  `ops/architecture-amendment-register.md` as live governance ledgers. Treat
+  any ledger copies or discussions outside `ops/` as historical or planning
+  context only.
 - Record the exact commands, timestamps, exits, and search audits needed to
   replay the proof.
 - Update authoritative ledger paths when temporary exceptions or amendment
@@ -44,7 +58,8 @@ repo architecture convergence initiative.
 
 Every phase must maintain all of the following:
 
-1. The phase evidence pack in `history/outputs/`.
+1. The phase evidence pack in `history/outputs/`, including the worker-read
+   acknowledgment for the batch.
 2. Every extra durable artifact owned by that phase.
 3. A critique artifact that records findings with severity and exact evidence.
 4. A remediation artifact that maps each finding to a disposition.
@@ -55,8 +70,12 @@ Every phase must maintain all of the following:
 ## Verification Contract
 
 - Run the exact command gates named in the manifest and active handoff.
-- Record concrete proof: command lines, timestamps, exit codes, `rg` commands,
-  counts, ledger deltas, and changed repo surfaces.
+- Record concrete proof: the worker-read acknowledgment, required standards
+  rereads, command lines, timestamps, exit codes, and the active phase's
+  manifest-listed search-audit ids. At the current manifest version, every
+  phase record lists all seven catalog families. Include repo-law boundary
+  audits, ledger deltas, and changed repo surfaces wherever the batch touches
+  them.
 - Do not mark a phase `completed` while any blocking finding is still open.
 - Evidence produced before the last material repo change is stale and cannot
   close a phase.

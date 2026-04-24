@@ -1,6 +1,8 @@
 # Prompt Assets
 
 These reusable assets support every phase handoff and orchestrator prompt.
+This `README` is only the index. The canonical startup read set also requires
+loading each named asset below, not just this directory overview.
 
 - [required-outputs.md](./required-outputs.md) - multi-artifact phase bundle
   and authoritative output paths

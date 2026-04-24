@@ -91,17 +91,29 @@ Disagreement is resolved in this order:
 
 ## Execution-Led Worker Contract
 
-Every worker session must load the initiative packet before acting:
+Every worker session must load the initiative packet and ops control-plane
+startup surfaces before acting. This ordered read set is the canonical startup
+contract for the packet:
 
 - `README.md`
 - this `SPEC.md`
 - `PLAN.md`
+- `ops/README.md`
 - `ops/manifest.json`
-- the active handoff in `ops/handoffs/`
+- `ops/handoffs/README.md`
+- the active handoff in `ops/handoffs/` and the matching orchestrator prompt
 - `history/quick-start.md`
+- `ops/prompts/agent-prompts.md`
+- `ops/prompt-assets/README.md`, plus the reusable prompt assets named by the
+  active handoff or prompt layer
 
 Additional required reads by work type:
 
+- P0 batches that record baseline architecture or repo-law status must reread
+  [`standards/ARCHITECTURE.md`](../../standards/ARCHITECTURE.md),
+  [`standards/effect-laws-v1.md`](../../standards/effect-laws-v1.md), and
+  [`standards/effect-first-development.md`](../../standards/effect-first-development.md)
+  before recording baseline matrix or compliance state.
 - P2 through P7 code-moving, code-review, and remediation work must also read
   [`standards/ARCHITECTURE.md`](../../standards/ARCHITECTURE.md),
   [`standards/effect-laws-v1.md`](../../standards/effect-laws-v1.md), and
@@ -112,8 +124,14 @@ Additional required reads by work type:
   `ops/architecture-amendment-register.md` immediately before scoring the
   matrices or claiming initiative closure.
 
-When those inputs disagree, the source-of-truth order above wins. Evidence
-packs must record that the worker-read contract was satisfied for the batch.
+When those inputs disagree, the source-of-truth order above wins. Required
+startup aids in `ops/README.md`, `ops/prompts/`, and `ops/prompt-assets/` do
+not outrank that ordered authority list. Evidence packs must record that the
+worker-read contract was satisfied for the batch. Downstream ops entrypoints,
+handoffs, prompts, and prompt assets may add phase-local inputs, but they may
+not omit, compress, or reorder this startup contract or the source-of-truth
+order above. Any weaker restatement is stale and non-authoritative; workers
+must fall back to this section and `ops/manifest.json`.
 
 ## Required Durable Work Products
 
@@ -176,19 +194,23 @@ amendment state.
   - alias, path-map, and config-sync changes
   - scaffolder and generator updates
   - docgen, repo-check, and tooling-emitter updates
-  - script target, hard-coded package path, and filter updates
+  - script target, hard-coded package path, filter, and root config/task/watch
+    updates, including legacy agent roots such as `.agents`, `.aiassistant`,
+    `.claude`, and `.codex` where they are still treated as canonical
   - top-level app entrypoint and Layer-composition rewrites that still encode
     legacy package homes
 - Exit requires:
   - the repo no longer generates or reintroduces the legacy topology through
-    workspaces, scaffolders, scripts, docgen, repo checks, or app assembly
+    workspaces, scaffolders, scripts, docgen, repo checks, app assembly, or
+    root config surfaces that still treat `.agents`, `.aiassistant`,
+    `.claude`, or `.codex` as canonical homes
   - enablement command gates are green
   - exact search audits prove the old roots are no longer the source of truth
 - Blocks next phase when:
   - any emitter, generator, script, or entrypoint still points at
     `packages/common`, top-level `tooling`, `packages/runtime`,
-    `packages/shared/providers`, `.agents`, `.claude`, or `.codex` as a
-    canonical home
+    `packages/shared/providers`, `.agents`, `.aiassistant`, `.claude`, or
+    `.codex` as a canonical home
   - the app entrypoints still assemble legacy global Layer topology
 
 ### P3 - Shared-Kernel and Non-Slice Extraction
@@ -286,6 +308,15 @@ amendment state.
 
 ## Gate Model and Evidence Requirements
 
+The authoritative gate model is machine-readable in
+`ops/manifest.json`. Use `commandGates` for command applicability,
+`searchAuditFamilies` for the controlled audit-family catalog,
+`blockerTaxonomy` for blocker ids, and each `phases[]` record's
+`requiredCommandIds`, `requiredSearchAuditIds`, `requiredLedgerIds`, and
+`blockerIds` for closure. Handoffs, orchestrator prompts, shared prompts, and
+prompt assets may explain this model for operators, but they may not narrow,
+replace, or reorder it.
+
 Every phase close must attach a phase evidence pack. A phase evidence pack must
 include all of the following:
 
@@ -304,7 +335,22 @@ include all of the following:
   the environment does not provide Graphiti
 - a readiness statement naming the next allowed phase
 
+### Phase-Specific Search-Audit Contract
+
+- The seven search-audit families in `ops/manifest.json` are the reusable
+  audit catalog.
+- A phase closes only against the audit-family ids listed in its own
+  `phases[].requiredSearchAuditIds` entry. Extra audits are allowed, but only
+  missing manifest-required ids are blocking.
+- At the current manifest version, every phase record lists all seven catalog
+  families. That all-seven requirement is current manifest state expressed by
+  the phase records themselves, not a separate universal rule.
+
 ### Mandatory Command Gates
+
+This table is a human-readable summary of the current
+`ops/manifest.json` `commandGates` phase applicability. If the manifest is
+updated, the manifest wins.
 
 | Gate | Exact command or proof | Applies to | Blocks closure when |
 |---|---|---|---|
@@ -315,7 +361,7 @@ include all of the following:
 | Lint and allowlist integrity | `bun run lint` | P2 through P7 | command fails or new allowlist debt is undocumented |
 | Test suite | `bun run test` | P2 through P7 | command fails |
 | JSDoc and docgen | `bun run docgen` | P2 through P7 | command fails |
-| Full repo audit | `bun run audit:full` | P2, P6, P7, and any phase touching tooling, config, routing, or generators | command fails |
+| Full repo audit | `bun run audit:full` | P2, P6, and P7 | command fails |
 
 ### Blocking Rules
 
@@ -328,8 +374,10 @@ include all of the following:
   blocks closure.
 - Treating design docs or history outputs as the live compatibility or
   amendment ledger blocks closure.
-- Missing the required standards reread for code-moving or final-verification
-  work blocks closure.
+- A weaker downstream restatement of the startup contract, source-of-truth
+  order, or manifest-derived phase gate does not change closure requirements.
+- Missing the required standards reread for P0 baseline scoring, code-moving,
+  or final-verification work blocks closure.
 - Any evidence pack that was produced before the last material code change is
   stale and blocks closure.
 - Any phase that reports narrative intent without executed repo diffs is

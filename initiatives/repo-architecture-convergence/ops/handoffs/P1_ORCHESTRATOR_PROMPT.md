@@ -1,7 +1,10 @@
 # P1 Orchestrator Prompt
 
-Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
-[../prompt-assets/README.md](../prompt-assets/README.md) first.
+Follow the exact worker-read order and source-of-truth order from
+[../../README.md](../../README.md), [../../SPEC.md](../../SPEC.md), and
+[../manifest.json](../manifest.json). This prompt adds no new authority and
+must not be loaded ahead of that contract. Use the active `P1` manifest record
+for exact inputs, commands, search audits, and blocker ids.
 
 ## Phase Packet
 
@@ -17,8 +20,11 @@ Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
 
 ## Required Outcomes
 
-1. Land the authoritative ledger paths and template them for active execution.
-2. Lock the exact gate stack, search-audit rules, and evidence-pack contract.
+1. Land the authoritative ledger paths and template the compatibility ledger
+   with the live closeout fields needed for canonical replacement, consumer,
+   deletion-gate, validation-query, and allowlist proof.
+2. Lock the exact gate stack, manifest-anchored search-audit contract, and
+   evidence-pack expectations.
 3. Lock manifest expectations for blockers, freshness, and review state.
 4. Make later phases fail closed when they try to rely on narrative-only
    output.
@@ -27,7 +33,6 @@ Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
 
 - `bun run graphiti:proxy:ensure` when available
 - `bun run config-sync:check`
-- `bun run audit:full`
 
 ## Completion Standard
 

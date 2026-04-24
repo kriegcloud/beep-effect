@@ -1,7 +1,11 @@
 # P6 Orchestrator Prompt
 
-Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
-[../prompt-assets/README.md](../prompt-assets/README.md) first.
+Follow the exact worker-read order and source-of-truth order from
+[../../README.md](../../README.md), [../../SPEC.md](../../SPEC.md), and
+[../manifest.json](../manifest.json). This prompt adds no new authority and
+must not be loaded ahead of that contract. For `P6`, read the three governing
+standards before edits or gate interpretation, and use the active manifest
+record for exact inputs, commands, search audits, and blocker ids.
 
 ## Phase Packet
 
@@ -16,10 +20,15 @@ Load [../prompts/agent-prompts.md](../prompts/agent-prompts.md) and
 ## Required Outcomes
 
 1. Land the remaining operational, app, and agent cutovers.
-2. Move agent bundles into `agents/<kind>/<name>`.
+2. Move agent bundles out of `.agents`, `.aiassistant`, `.claude`, and
+   `.codex` into the canonical agent destinations defined by the live routing
+   packet or tooling-owned destinations, while keeping agent-instruction text
+   lightweight and pathless where the authoritative `.aiassistant` rule
+   requires it.
 3. Leave runtime adapters declarative and move executable logic into tooling
    packages.
-4. Delete or govern the final compatibility surfaces and attach proof.
+4. Delete or govern the final compatibility surfaces and attach the
+   manifest-listed search-audit set for `P6` plus command proof.
 
 ## Required Commands
 

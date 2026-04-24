@@ -104,9 +104,10 @@ block the editor cutover batch.
 
 The cutover order is:
 
-1. inherit the pre-slice enablement gate so app scripts, path aliases,
-   `components.json`, and root tooling no longer treat legacy editor runtime
-   paths as canonical
+1. inherit the completed `P2` enablement gate and `P3` shared-kernel/non-slice
+   extraction so app scripts, path aliases, `components.json`, and root
+   tooling no longer treat legacy editor runtime paths or illegal shared
+   families as canonical
 2. create `packages/editor/use-cases`, `packages/editor/config`,
    `packages/editor/server`, and `packages/editor/ui`
 3. move the current `editor/protocol` and `editor/runtime` responsibilities to
@@ -114,7 +115,8 @@ The cutover order is:
    shared control-plane subset
 4. rewrite `apps/editor-app` imports and sidecar entrypoints
 5. if temporary `@beep/editor-lexical` or runtime-entrypoint wrappers are
-   needed, record them in the compatibility ledger with a named deletion gate
+   needed, record them in `../ops/compatibility-ledger.md` with a named
+   deletion gate
 6. delete those wrappers once imports and launch scripts no longer reference
    them
 

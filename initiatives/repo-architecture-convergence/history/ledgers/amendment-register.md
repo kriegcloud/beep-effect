@@ -1,24 +1,17 @@
-# Amendment Register
+# Historical Amendment Register
 
-This is the authoritative live amendment ledger for the history surface.
+This file is a superseded history-side amendment register retained for audit
+trail purposes only.
 
-This register records architecture or repo-law amendment candidates surfaced by
-initiative execution. It is not a substitute for the governing standards docs;
-it is the evidence hook that says where tension was found and how it was
-resolved.
+The live amendment authority moved to
+[../../ops/architecture-amendment-register.md](../../ops/architecture-amendment-register.md).
+Do not record current constitution conflicts or closeout state here.
 
-## Entry Rules
+## Historical Status At Retirement
 
-- Add an entry when a phase discovers a real standards tension that cannot be
-  resolved locally.
-- Record the triggering evidence, owner, target decision point, temporary hold,
-  and final resolution evidence.
-- Keep the status current until the candidate is resolved or withdrawn.
+No amendment candidates were recorded in this history mirror before the
+authoritative register moved to `ops/*`.
 
-## Current Entries
-
-No amendment candidates have been recorded yet.
-
-| ID | Source phase or review | Candidate | Why local remediation is insufficient | Owner | Decision target | Resolution evidence | Status | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| None | None recorded | n/a | n/a | n/a | n/a | n/a | Clear | Populate when execution surfaces a real amendment candidate. |
+| Historical state | Notes |
+| --- | --- |
+| Empty template retained | Older history docs once pointed here. Current phase work must update `ops/architecture-amendment-register.md` instead. |

@@ -3,6 +3,10 @@
 This is the authoritative register for unresolved conflicts between execution
 reality and `standards/ARCHITECTURE.md` during repo architecture convergence.
 
+If an amendment register appears anywhere outside `ops/`, treat it as
+historical or planning context only. This file is the only live amendment
+register for active execution.
+
 ## Entry Rules
 
 - Add an entry when a phase discovers a real standards conflict that cannot be

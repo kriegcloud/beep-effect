@@ -12,18 +12,21 @@ Final verification starts only after all of the following are true:
 
 1. the enablement gate has rewritten root workspaces, aliases, app launch
    surfaces, scaffolder rules, and identity-registry coupling
-2. `repo-memory` has cut over to canonical slice packages
-3. `editor` has cut over to canonical slice packages
-4. tooling and executable agent runtime code have moved to canonical non-slice
+2. shared-kernel and non-slice extraction has reduced `shared/*`,
+   `foundation`, and `drivers` to architecture-legal roles only
+3. `repo-memory` has cut over to canonical slice packages
+4. `editor` has cut over to canonical slice packages
+5. tooling and executable agent runtime code have moved to canonical non-slice
    families
 
 ## Required Verification Surfaces
 
 The final phase must prove all of the following:
 
-1. no active canonical workspace still lives under a legacy root such as
-   `packages/common`, top-level `tooling`, `packages/runtime`, or
-   `packages/shared/providers`
+1. no active canonical workspace or agent bundle still lives under a legacy
+   root such as `packages/common`, top-level `tooling`,
+   `packages/shared/providers`, `packages/runtime`, `.agents`,
+   `.aiassistant`, `.claude`, or `.codex`
 2. all non-slice packages declare `beep.family` and, when required,
    `beep.kind`
 3. all agent bundles declare canonical `beep.json` metadata
@@ -31,9 +34,10 @@ The final phase must prove all of the following:
 5. repo imports use those canonical subpaths instead of relying on package-root
    ambiguity
 6. dependency directions remain architecture-legal after package moves
-7. the compatibility ledger contains no `planned` or `active` row without an
-   approved extension window
-8. the amendment register contains no unresolved candidate
+7. `../ops/compatibility-ledger.md` contains no live row without an approved
+   extension window
+8. `../ops/architecture-amendment-register.md` contains no unresolved
+   candidate
 9. repo quality commands still pass after the cutover
 
 ## Compatibility Deletion Rule
@@ -49,12 +53,13 @@ Every compatibility layer therefore needs:
 - an explicit validation query
 - a final verification step proving it was removed
 
-Rows that remain open at final verification block closure unless the
-architecture has been amended explicitly.
+Rows that remain open in `../ops/compatibility-ledger.md` at final verification
+block closure unless the architecture has been amended explicitly.
 
 ## Amendment Closure Rule
 
-The amendment register is not a parking lot for unresolved discomfort.
+The live amendment register at `../ops/architecture-amendment-register.md` is
+not a parking lot for unresolved discomfort.
 
 Every candidate must close as one of:
 
@@ -73,8 +78,8 @@ Final cutover must produce a repo-wide verification and cleanup packet covering:
 - import rewrite completion
 - family/kind metadata validation
 - architecture-audit checks
-- compatibility-ledger closeout
-- amendment-register closeout
+- closeout of `../ops/compatibility-ledger.md`
+- closeout of `../ops/architecture-amendment-register.md`
 - remaining exception count
 - final deletion checklist for any legacy shim package or wrapper entrypoint
 

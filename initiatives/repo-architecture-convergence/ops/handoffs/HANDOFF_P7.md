@@ -10,18 +10,47 @@ closure of the compatibility ledger and architecture-amendment register.
 
 - P0 through P6 artifact bundles must exist and be trustworthy
 - shared prompt layer: [../prompts/agent-prompts.md](../prompts/agent-prompts.md)
-- prompt assets: [../prompt-assets/README.md](../prompt-assets/README.md)
+- prompt assets: [../prompt-assets/README.md](../prompt-assets/README.md) plus
+  the named asset files listed in the worker-read contract below
 
-## Required Inputs
+## Mandatory Worker-Read Contract
 
-- [SPEC.md](../../SPEC.md)
-- [PLAN.md](../../PLAN.md)
+- Follow the exact worker-read order and source-of-truth order from
+  `../../README.md`, `../../SPEC.md`, and `../manifest.json`. This handoff may
+  add phase-local inputs, but it may not narrow or reorder that contract.
+
+- Read `README.md`, `SPEC.md`, `PLAN.md`, `ops/README.md`,
+  `ops/manifest.json`, `ops/handoffs/README.md`, this handoff,
+  `ops/handoffs/P7_ORCHESTRATOR_PROMPT.md`, `history/quick-start.md`, and
+  `ops/prompts/agent-prompts.md` before action.
+- Read `ops/prompt-assets/README.md`,
+  `ops/prompt-assets/required-outputs.md`,
+  `ops/prompt-assets/verification-checks.md`,
+  `ops/prompt-assets/blocker-protocol.md`,
+  `ops/prompt-assets/review-loop.md`, and
+  `ops/prompt-assets/manifest-and-evidence.md`.
+- Read `standards/ARCHITECTURE.md`, `standards/effect-laws-v1.md`, and
+  `standards/effect-first-development.md` before edits or gate interpretation
+  begin.
+- Immediately before matrix scoring or closure claims, reread those three
+  standards plus `ops/compatibility-ledger.md` and
+  `ops/architecture-amendment-register.md`, and record that immediate reread
+  in the evidence pack before scoring proceeds.
+
+## Phase-Specific Supporting Inputs
+
 - [design/verification-and-cutover.md](../../design/verification-and-cutover.md)
-- all prior phase outputs under [../../history/outputs/](../../history/outputs)
+- [../../history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md](../../history/outputs/p0-baseline-census-routing-canon-and-compliance-baseline.md)
+- [../../history/outputs/p0-consumer-importer-census.md](../../history/outputs/p0-consumer-importer-census.md)
+- [../../history/outputs/p1-program-controls-ledgers-and-gate-templates.md](../../history/outputs/p1-program-controls-ledgers-and-gate-templates.md)
+- [../../history/outputs/p2-enablement-and-wiring-cutover.md](../../history/outputs/p2-enablement-and-wiring-cutover.md)
+- [../../history/outputs/p3-shared-kernel-and-non-slice-extraction.md](../../history/outputs/p3-shared-kernel-and-non-slice-extraction.md)
+- [../../history/outputs/p4-repo-memory-migration-and-validation.md](../../history/outputs/p4-repo-memory-migration-and-validation.md)
+- [../../history/outputs/p5-editor-migration-and-validation.md](../../history/outputs/p5-editor-migration-and-validation.md)
+- [../../history/outputs/p6-operational-app-agent-cutovers-and-compatibility-deletion.md](../../history/outputs/p6-operational-app-agent-cutovers-and-compatibility-deletion.md)
 - [../compatibility-ledger.md](../compatibility-ledger.md)
 - [../architecture-amendment-register.md](../architecture-amendment-register.md)
-- [../../standards/effect-laws.allowlist.jsonc](../../standards/effect-laws.allowlist.jsonc)
-- [../manifest.json](../manifest.json)
+- [../../../../standards/effect-laws.allowlist.jsonc](../../../../standards/effect-laws.allowlist.jsonc)
 
 ## Required Artifact Bundle
 
@@ -58,18 +87,27 @@ closure of the compatibility ledger and architecture-amendment register.
 
 ## Required Search Audits
 
+`ops/manifest.json` is authoritative for blocking search audits. The active
+`P7` record currently lists all seven catalog families, so record:
+
 - legacy topology references
-- consumer/importer counts
+- consumer/importer counts before and after the batch
 - hard-coded app and script entrypoints
 - canonical subpath and export usage
 - compatibility aliases and temporary shims
 - touched package metadata for family and kind compliance
+- repo-law boundary surfaces touched by the batch, including type-safety,
+  typed-error, schema/decode, and runtime-execution checks
 
 ## Blocking Conditions
 
+- `unowned-consumer-importer`
+- `architecture-invalid-route`
 - `ungoverned-temporary-exception`
 - `required-command-failed`
+- `worker-read-acknowledgment-missing`
 - `required-search-audit-missing`
+- `graphiti-obligation-unmet`
 - `stale-evidence`
 - `narrative-only-output`
 
@@ -78,4 +116,5 @@ closure of the compatibility ledger and architecture-amendment register.
 P7 is complete only when every architecture-matrix row is `Compliant` or
 resolved through an approved amendment already landed in the standards, every
 repo-law row is `Compliant`, all required commands are green, no temporary
-exception remains, and the review loop clears the final proof bundle.
+exception remains, the immediate reread is recorded before scoring, and the
+review loop clears the final proof bundle.
