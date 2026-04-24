@@ -2,10 +2,11 @@
  * @module
  * @since 0.0.0
  */
-import { cast, dual } from "effect/Function";
+import {cast, dual, flow} from "effect/Function";
 import * as Str from "effect/String";
 import type * as TF from "type-fest";
 import * as A from "./Array.ts";
+
 
 /**
  * Prepends `prefix` to a string, preserving template-literal types.
@@ -34,10 +35,16 @@ import * as A from "./Array.ts";
  */
 export const prefix: {
   <const Pre extends string>(prefix: Pre): <S extends string>(str: S) => `${Pre}${S}`;
-  <const Pre extends string, const S extends string>(str: S, prefix: Pre): `${Pre}${S}`;
+  <const Pre extends string, const S extends string>(
+    str: S,
+    prefix: Pre,
+  ): `${Pre}${S}`;
 } = dual(
   2,
-  <const Pre extends string, const S extends string>(str: S, prefix: Pre): `${Pre}${S}` => `${prefix}${str}` as const
+  <const Pre extends string, const S extends string>(
+    str: S,
+    prefix: Pre,
+  ): `${Pre}${S}` => `${prefix}${str}` as const,
 );
 
 /**
@@ -70,13 +77,14 @@ export const prefix: {
  */
 export const prefixThunk: {
   <const Pre extends string>(prefix: Pre): <S extends string>(str: S) => () => `${Pre}${S}`;
-  <const Pre extends string, const S extends string>(str: S, prefix: Pre): () => `${Pre}${S}`;
-} = dual(
-  2,
-  <const Pre extends string, const S extends string>(str: S, prefix: Pre): (() => `${Pre}${S}`) =>
-    () =>
-      `${prefix}${str}` as const
-);
+  <const Pre extends string, const S extends string>(
+    str: S,
+    prefix: Pre,
+  ): () => `${Pre}${S}`;
+} = dual(2, <const Pre extends string, const S extends string>(
+  str: S,
+  prefix: Pre,
+): (() => `${Pre}${S}`) => () => `${prefix}${str}` as const);
 
 /**
  * Appends `postfix` to a string, preserving template-literal types.
@@ -105,11 +113,16 @@ export const prefixThunk: {
  */
 export const postfix: {
   <const Post extends string>(postfix: Post): <S extends string>(str: S) => `${S}${Post}`;
-  <const Post extends string, const S extends string>(str: S, postfix: Post): `${S}${Post}`;
+  <const Post extends string, const S extends string>(
+    str: S,
+    postfix: Post,
+  ): `${S}${Post}`;
 } = dual(
   2,
-  <const Post extends string, const S extends string>(str: S, postfix: Post): `${S}${Post}` =>
-    `${str}${postfix}` as const
+  <const Post extends string, const S extends string>(
+    str: S,
+    postfix: Post,
+  ): `${S}${Post}` => `${str}${postfix}` as const,
 );
 
 /**
@@ -142,13 +155,14 @@ export const postfix: {
  */
 export const postfixThunk: {
   <const Post extends string>(postfix: Post): <S extends string>(str: S) => () => `${S}${Post}`;
-  <const Post extends string, const S extends string>(str: S, postfix: Post): () => `${S}${Post}`;
-} = dual(
-  2,
-  <const Post extends string, const S extends string>(str: S, postfix: Post): (() => `${S}${Post}`) =>
-    () =>
-      `${str}${postfix}` as const
-);
+  <const Post extends string, const S extends string>(
+    str: S,
+    postfix: Post,
+  ): () => `${S}${Post}`;
+} = dual(2, <const Post extends string, const S extends string>(
+  str: S,
+  postfix: Post,
+): (() => `${S}${Post}`) => () => `${str}${postfix}` as const);
 
 /**
  * Maps a non-empty string array by prepending each element with `prefix`.
@@ -178,22 +192,20 @@ export const postfixThunk: {
  * @since 0.0.0
  */
 export const mapPrefix: {
-  <const Pre extends string>(
-    prefix: Pre
-  ): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`>;
+  <const Pre extends string>(prefix: Pre): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`>;
   <const Pre extends string, Arr extends A.NonEmptyReadonlyArray<string>>(
     prefix: Pre,
-    arr: Arr
+    arr: Arr,
   ): A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`>;
 } = dual(
   2,
   <const Pre extends string, Arr extends A.NonEmptyReadonlyArray<string>>(
     pre: Pre,
-    arr: Arr
+    arr: Arr,
   ): A.NonEmptyReadonlyArray<`${Pre}${Arr[number]}`> => {
     const prefixEl = prefix(pre);
     return A.mapNonEmptyReadonly(arr, prefixEl);
-  }
+  },
 );
 
 /**
@@ -224,22 +236,20 @@ export const mapPrefix: {
  * @since 0.0.0
  */
 export const mapPostfix: {
-  <const Post extends string>(
-    postfix: Post
-  ): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`>;
+  <const Post extends string>(postfix: Post): <Arr extends A.NonEmptyReadonlyArray<string>>(arr: Arr) => A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`>;
   <const Post extends string, Arr extends A.NonEmptyReadonlyArray<string>>(
     postfix: Post,
-    arr: Arr
+    arr: Arr,
   ): A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`>;
 } = dual(
   2,
   <const Post extends string, Arr extends A.NonEmptyReadonlyArray<string>>(
     post: Post,
-    arr: Arr
+    arr: Arr,
   ): A.NonEmptyReadonlyArray<`${Arr[number]}${Post}`> => {
     const postfixEl = postfix(post);
     return A.mapNonEmptyReadonly(arr, postfixEl);
-  }
+  },
 );
 
 /**
@@ -257,7 +267,8 @@ export const mapPostfix: {
  * @category combinators
  * @since 0.0.0
  */
-export const camelCase = <TStr extends string>(str: TStr): TF.CamelCase<TStr> => cast(Str.camelCase(str));
+export const camelCase = <TStr extends string>(str: TStr): TF.CamelCase<TStr> => cast(
+  Str.camelCase(str));
 
 /**
  * Converts a string to `snake_case` with a type-level `SnakeCase` return.
@@ -274,7 +285,8 @@ export const camelCase = <TStr extends string>(str: TStr): TF.CamelCase<TStr> =>
  * @category combinators
  * @since 0.0.0
  */
-export const snakeCase = <const TStr extends string>(str: TStr): TF.SnakeCase<TStr> => cast(Str.snakeCase(str));
+export const snakeCase = <const TStr extends string>(str: TStr): TF.SnakeCase<TStr> => cast(
+  Str.snakeCase(str));
 
 /**
  * Converts a string to `kebab-case` with a type-level `KebabCase` return.
@@ -291,7 +303,8 @@ export const snakeCase = <const TStr extends string>(str: TStr): TF.SnakeCase<TS
  * @category combinators
  * @since 0.0.0
  */
-export const kebabCase = <const TStr extends string>(str: TStr): TF.KebabCase<TStr> => cast(Str.kebabCase(str));
+export const kebabCase = <const TStr extends string>(str: TStr): TF.KebabCase<TStr> => cast(
+  Str.kebabCase(str));
 
 /**
  * Converts a string to `SCREAMING_SNAKE_CASE` with a type-level
@@ -309,8 +322,8 @@ export const kebabCase = <const TStr extends string>(str: TStr): TF.KebabCase<TS
  * @category combinators
  * @since 0.0.0
  */
-export const screamingSnake = <const TStr extends string>(str: TStr): TF.ScreamingSnakeCase<TStr> =>
-  cast(Str.constantCase(str));
+export const screamingSnake = <const TStr extends string>(str: TStr): TF.ScreamingSnakeCase<TStr> => cast(
+  Str.constantCase(str));
 
 /**
  * Converts a string to `PascalCase` with a type-level `PascalCase` return.
@@ -327,7 +340,8 @@ export const screamingSnake = <const TStr extends string>(str: TStr): TF.Screami
  * @category combinators
  * @since 0.0.0
  */
-export const pascalCase = <const TStr extends string>(str: TStr): TF.PascalCase<TStr> => cast(Str.pascalCase(str));
+export const pascalCase = <const TStr extends string>(str: TStr): TF.PascalCase<TStr> => cast(
+  Str.pascalCase(str));
 
 /**
  * Converts a `PascalCase` string to `snake_case` at both type and value level.
@@ -344,8 +358,8 @@ export const pascalCase = <const TStr extends string>(str: TStr): TF.PascalCase<
  * @category combinators
  * @since 0.0.0
  */
-export const pascalToSnake = <const TStr extends string>(str: TF.PascalCase<TStr>): TF.SnakeCase<TStr> =>
-  cast(Str.pascalToSnake(str));
+export const pascalToSnake = <const TStr extends string>(str: TF.PascalCase<TStr>): TF.SnakeCase<TStr> => cast(
+  Str.pascalToSnake(str));
 
 /**
  * Converts a `snake_case` string to `camelCase` at both type and value level.
@@ -362,8 +376,8 @@ export const pascalToSnake = <const TStr extends string>(str: TF.PascalCase<TStr
  * @category combinators
  * @since 0.0.0
  */
-export const snakeToCamel = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.CamelCase<TStr> =>
-  cast(Str.snakeToCamel(str));
+export const snakeToCamel = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.CamelCase<TStr> => cast(
+  Str.snakeToCamel(str));
 
 /**
  * Converts a `snake_case` string to `kebab-case` at both type and value level.
@@ -380,8 +394,8 @@ export const snakeToCamel = <const TStr extends string>(str: TF.SnakeCase<TStr>)
  * @category combinators
  * @since 0.0.0
  */
-export const snakeToKebab = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.KebabCase<TStr> =>
-  cast(Str.snakeToKebab(str));
+export const snakeToKebab = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.KebabCase<TStr> => cast(
+  Str.snakeToKebab(str));
 
 /**
  * Converts a `camelCase` string to `snake_case` at both type and value level.
@@ -398,8 +412,8 @@ export const snakeToKebab = <const TStr extends string>(str: TF.SnakeCase<TStr>)
  * @category combinators
  * @since 0.0.0
  */
-export const camelToSnake = <const TStr extends string>(str: TF.CamelCase<TStr>): TF.SnakeCase<TStr> =>
-  cast(Str.camelToSnake(str));
+export const camelToSnake = <const TStr extends string>(str: TF.CamelCase<TStr>): TF.SnakeCase<TStr> => cast(
+  Str.camelToSnake(str));
 
 /**
  * Converts a `snake_case` string to `PascalCase` at both type and value level.
@@ -416,8 +430,8 @@ export const camelToSnake = <const TStr extends string>(str: TF.CamelCase<TStr>)
  * @category combinators
  * @since 0.0.0
  */
-export const snakeToPascal = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.PascalCase<TStr> =>
-  cast(Str.snakeToPascal(str));
+export const snakeToPascal = <const TStr extends string>(str: TF.SnakeCase<TStr>): TF.PascalCase<TStr> => cast(
+  Str.snakeToPascal(str));
 
 /**
  * Converts a `kebab-case` string to `snake_case` at both type and value level.
@@ -434,92 +448,11 @@ export const snakeToPascal = <const TStr extends string>(str: TF.SnakeCase<TStr>
  * @category combinators
  * @since 0.0.0
  */
-export const kebabToSnake = <const TStr extends string>(str: TF.KebabCase<TStr>): TF.SnakeCase<TStr> =>
-  cast(Str.kebabToSnake(str));
+export const kebabToSnake = <const TStr extends string>(str: TF.KebabCase<TStr>): TF.SnakeCase<TStr> => cast(
+  Str.kebabToSnake(str));
 
-/**
- * Type-narrowing predicate that checks whether a string starts with `searchString`.
- *
- * Narrows the type to a string that starts with the searched prefix on success.
- * Supports both data-first and data-last calling conventions.
- *
- * @example
- * ```ts
- * import { pipe } from "effect"
- * import { Str } from "@beep/utils"
- *
- * // Data-first
- * const result = Str.startsWith("hello world", "hello")
- * // true
- *
- * // Data-last (pipeable)
- * const piped = pipe("hello world", Str.startsWith("hello"))
- * // true
- *
- * void result
- * void piped
- * ```
- *
- * @category predicates
- * @since 0.0.0
- */
-export const startsWith: {
-  <const SearchString extends string>(
-    searchString: SearchString
-  ): <const TStr extends string>(str: TStr) => str is TStr & `${SearchString}${string}`;
-  <const TStr extends string, const SearchString extends string>(
-    str: TStr,
-    searchString: SearchString
-  ): str is TStr & `${SearchString}${string}`;
-} = dual(
-  2,
-  <const TStr extends string, const SearchString extends string>(
-    str: TStr,
-    searchString: SearchString
-  ): str is TStr & `${SearchString}${string}` => Str.startsWith(searchString)(str)
-);
 
-/**
- * Type-narrowing predicate that checks whether a string ends with `searchString`.
- *
- * Narrows the type to a string that ends with the searched suffix on success.
- * Supports both data-first and data-last calling conventions.
- *
- * @example
- * ```ts
- * import { pipe } from "effect"
- * import { Str } from "@beep/utils"
- *
- * // Data-first
- * const result = Str.endsWith("main.ts", ".ts")
- * // true
- *
- * // Data-last (pipeable)
- * const piped = pipe("main.ts", Str.endsWith(".ts"))
- * // true
- *
- * void result
- * void piped
- * ```
- *
- * @category predicates
- * @since 0.0.0
- */
-export const endsWith: {
-  <const SearchString extends string>(
-    searchString: SearchString
-  ): <const TStr extends string>(str: TStr) => str is TStr & `${string}${SearchString}`;
-  <const TStr extends string, const SearchString extends string>(
-    str: TStr,
-    searchString: SearchString
-  ): str is TStr & `${string}${SearchString}`;
-} = dual(
-  2,
-  <const TStr extends string, const SearchString extends string>(
-    str: TStr,
-    searchString: SearchString
-  ): str is TStr & `${string}${SearchString}` => Str.endsWith(searchString)(str)
-);
+
 
 /**
  * Type-narrowing predicate that checks whether a string contains `searchString`.
@@ -548,19 +481,19 @@ export const endsWith: {
  * @since 0.0.0
  */
 export const contains: {
-  <const SearchString extends string>(
-    searchString: SearchString
-  ): <const TStr extends string>(str: TStr) => str is TStr & `${string}${SearchString}${string}`;
+  <const SearchString extends string>(searchString: SearchString): <const TStr extends string>(str: TStr) => str is TStr & `${string}${SearchString}${string}`;
   <const TStr extends string, const SearchString extends string>(
     str: TStr,
-    searchString: SearchString
+    searchString: SearchString,
   ): str is TStr & `${string}${SearchString}${string}`;
 } = dual(
   2,
   <const TStr extends string, const SearchString extends string>(
     str: TStr,
-    searchString: SearchString
-  ): str is TStr & `${string}${SearchString}${string}` => Str.includes(searchString)(str)
+    searchString: SearchString,
+  ): str is TStr & `${string}${SearchString}${string}` => Str.includes(
+    searchString)(
+    str),
 );
 
 /**
@@ -589,14 +522,17 @@ export const contains: {
  * @since 0.0.0
  */
 export const repeat: {
-  <const Count extends number>(
-    count: Count
-  ): <const Input extends string>(self: Input) => TF.StringRepeat<Input, Count>;
-  <const Input extends string, const Count extends number>(self: Input, count: Count): TF.StringRepeat<Input, Count>;
+  <const Count extends number>(count: Count): <const Input extends string>(self: Input) => TF.StringRepeat<Input, Count>;
+  <const Input extends string, const Count extends number>(
+    self: Input,
+    count: Count,
+  ): TF.StringRepeat<Input, Count>;
 } = dual(
   2,
-  <const Input extends string, const Count extends number>(self: Input, count: Count): TF.StringRepeat<Input, Count> =>
-    cast(Str.repeat(count)(self))
+  <const Input extends string, const Count extends number>(
+    self: Input,
+    count: Count,
+  ): TF.StringRepeat<Input, Count> => cast(Str.repeat(count)(self)),
 );
 /**
  * Re-export of all helpers from `effect/String`.
@@ -643,3 +579,12 @@ export const trimThunk = (s: string) => () => Str.trim(s);
  * @returns The number as a string literal type.
  */
 export const fromNumber = <const T extends number>(num: T): `${T}` => `${num}` as const;
+
+
+export const toSlug = flow(
+  Str.toLowerCase,
+  Str.replace(/[^a-z0-9\s-]/g, ""),
+  Str.replace(/\s+/g, "-"),
+  Str.replace(/-+/g, "-"),
+  Str.replace(/^-|-$/g, ""),
+)

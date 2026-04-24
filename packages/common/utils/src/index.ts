@@ -108,3 +108,11 @@ export * as Text from "./Text.ts";
  * @since 0.0.0
  */
 export * from "./thunk.ts";
+
+/**
+ *
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./Random.ts";

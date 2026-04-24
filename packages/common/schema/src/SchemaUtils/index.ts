@@ -40,3 +40,8 @@ export * from "./withLiteralKitStatics.ts";
  * @category Utility
  */
 export * from "./withStatics.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
+export * from "./optionalKeyWithDefaults.ts";

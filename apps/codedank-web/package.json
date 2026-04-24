@@ -1,0 +1,77 @@
+{
+  "name": "@beep/codedank-web",
+  "version": "0.0.0",
+  "description": "Next.js canary app wired to shared @beep/ui styling and portless dev URLs",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/apps/codedank-web",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "apps/codedank-web"
+  },
+  "scripts": {
+    "audit": "bun run --if-present beep:audit",
+    "codegen": "echo 'no codegen needed'",
+    "dev": "PORTLESS_HTTPS=1 NEXT_DISABLE_PWA=1 portless codedank-web next dev --turbopack",
+    "dev:raw": "NEXT_DISABLE_PWA=1 next dev --turbopack",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run type-test && bun run beep:test && bun run beep:lint",
+    "beep:build": "NEXT_DISABLE_PWA=1 next build --turbopack",
+    "build:pwa": "NEXT_DISABLE_PWA=0 next build --webpack",
+    "start": "next start",
+    "beep:check": "tsgo -b tsconfig.json",
+    "dtslint": "bunx tstyche dtslint/codedank-web.tst.ts",
+    "type-test": "bun run dtslint",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:test": "bunx --bun vitest run",
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "coverage": "bunx --bun vitest run --coverage",
+    "docgen": "bun run ../../tooling/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts"
+  },
+  "files": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "src/**/*.css"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "dependencies": {
+    "@beep/identity": "workspace:^",
+    "@beep/schema": "workspace:^",
+    "@beep/ui": "workspace:^",
+    "@beep/utils": "workspace:^",
+    "@mdx-js/react": "catalog:",
+    "next": "catalog:",
+    "react": "catalog:",
+    "react-dom": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@mdx-js/loader": "catalog:",
+    "@next/bundle-analyzer": "catalog:",
+    "@next/mdx": "catalog:",
+    "@tailwindcss/postcss": "catalog:",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/mdx": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "babel-plugin-react-compiler": "catalog:",
+    "jsdom": "catalog:",
+    "next-pwa": "catalog:",
+    "tailwindcss": "catalog:",
+    "typescript": "catalog:"
+  }
+}

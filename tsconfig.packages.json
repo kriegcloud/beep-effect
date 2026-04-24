@@ -13,6 +13,9 @@
       "path": ".codex"
     },
     {
+      "path": "apps/codedank-web"
+    },
+    {
       "path": "apps/desktop"
     },
     {

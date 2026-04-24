@@ -146,7 +146,15 @@
       "@beep/firecrawl": ["./packages/shared/providers/firecrawl/src/index.ts"],
       "@beep/firecrawl/*": ["./packages/shared/providers/firecrawl/src/*"],
       "@beep/md": ["./packages/common/md/src/index.ts"],
-      "@beep/md/*": ["./packages/common/md/src/*"]
+      "@beep/md/*": [
+        "./packages/common/md/src/*"
+      ],
+      "@beep/codedank-web": [
+        "./apps/codedank-web/src/index.ts"
+      ],
+      "@beep/codedank-web/*": [
+        "./apps/codedank-web/src/*"
+      ]
     }
   }
 }

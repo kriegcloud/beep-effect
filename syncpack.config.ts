@@ -34,6 +34,7 @@ const config = {
     "packages/editor/client/package.json",
     "packages/editor/runtime/package.json",
     "packages/shared/providers/firecrawl/package.json",
+    "apps/codedank-web/package.json",
   ],
   customTypes: {
     catalog: {

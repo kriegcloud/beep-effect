@@ -100,7 +100,8 @@ const composers = $I.compose(
   "editor-protocol",
   "editor-runtime",
 
-  "firecrawl"
+  "firecrawl",
+  "codedank-web"
 );
 
 // --- common ---
@@ -739,3 +740,10 @@ export const RepoPkgs = composers;
  * @type {Identity.IdentityComposer<"@beep/md">}
  */
 export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/codedank-web">}
+ */
+export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = composers.$CodedankWebId;
