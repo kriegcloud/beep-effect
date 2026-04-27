@@ -18,8 +18,10 @@ import * as S from "effect/Schema";
 import * as Uuid from "uuid";
 import * as VariantSchema from "./VariantSchema.ts";
 
-const { Class, Field, FieldExcept, ClassFactory, FieldOnly, Struct, Union, extract, fieldEvolve } = VariantSchema.make({
-  variants: ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"],
+const modelVariants = ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"] as const;
+
+const { Class, Field, FieldExcept, FieldOnly, Struct, Union, extract, fieldEvolve } = VariantSchema.make({
+  variants: modelVariants,
   defaultVariant: "select",
 });
 
@@ -98,28 +100,8 @@ export {
    * }
    * void GroupJson
    * ```
-   */
+  */
   Class,
-  /**
-   * Create a Model class constructor with shared default fields merged into every model.
-   *
-   * @example
-   * ```ts
-   * import * as Schema from "effect/Schema"
-   * import * as Model from "@beep/schema/Model"
-   *
-   * const BaseModel = Model.ClassFactory({
-   *
-   *
-   * })
-   *
-   * void BaseModel
-   * ```
-   *
-   * @since 0.0.0
-   * @category constructors
-   */
-  ClassFactory,
   /**
    * Extract the schema for a specific variant from a variant struct.
    *
@@ -306,6 +288,71 @@ export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A
  * @category overridable
  */
 export const Override: <A>(value: A) => A & Brand<"Override"> = VariantSchema.Override;
+
+/**
+ * Schema whose decoded type is optional with a default value injected during encoding.
+ *
+ * @since 0.0.0
+ * @category overridable
+ */
+export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
+  extends S.Bottom<
+    (S["Type"] & Brand<"Override">) | undefined,
+    S["Encoded"],
+    S["DecodingServices"],
+    S["EncodingServices"],
+    S["ast"],
+    Overridable<S>,
+    S["~type.make.in"],
+    (S["Type"] & Brand<"Override">) | undefined,
+    S["~type.parameters"],
+    (S["Type"] & Brand<"Override">) | undefined,
+    S["~type.mutability"],
+    "optional",
+    "with-default",
+    S["~encoded.mutability"],
+    S["~encoded.optionality"]
+  > {}
+
+/**
+ * Build an `Overridable` schema that falls back to `defaultValue` when no override is provided.
+ *
+ * @since 0.0.0
+ * @category overridable
+ */
+export function Overridable<S extends S.Top & S.WithoutConstructorDefault>(
+  schema: S
+): (options: { readonly defaultValue: Effect.Effect<S["~type.make.in"]> }) => Overridable<S>;
+export function Overridable<S extends S.Top & S.WithoutConstructorDefault>(
+  schema: S,
+  options: {
+    readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
+  }
+): Overridable<S>;
+export function Overridable<S extends S.Top & S.WithoutConstructorDefault>(
+  schema: S,
+  options?: {
+    readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
+  }
+): Overridable<S> | ((options: { readonly defaultValue: Effect.Effect<S["~type.make.in"]> }) => Overridable<S>) {
+  if (options === undefined) {
+    return (options) => Overridable(schema, options);
+  }
+  return schema.pipe(
+    S.decodeTo(
+      S.toType(schema).pipe(S.brand("Override"), S.optional),
+      Transformation.make({
+        decode: Getter.passthrough(),
+        encode: new Getter.Getter((o) => {
+          if (O.isSome(o) && o.value !== undefined) {
+            return Effect.succeed(o);
+          }
+          return Effect.asSome(options.defaultValue);
+        }),
+      })
+    )
+  ) as TUnsafe.Any;
+}
 
 /**
  * Interface for a database-generated field present in `select`, `update`, and `json` variants.
@@ -648,7 +695,7 @@ export const Date: Date = S.String.pipe(
  * @since 0.0.0
  * @category date & time
  */
-export const DateWithNow = VariantSchema.Overridable(Date, {
+export const DateWithNow = Overridable(Date, {
   defaultValue: Effect.map(DateTime.now, DateTime.removeTime),
 });
 
@@ -665,7 +712,7 @@ export const DateWithNow = VariantSchema.Overridable(Date, {
  * @since 0.0.0
  * @category date & time
  */
-export const DateTimeWithNow = VariantSchema.Overridable(S.DateTimeUtcFromString, {
+export const DateTimeWithNow = Overridable(S.DateTimeUtcFromString, {
   defaultValue: DateTime.now,
 });
 
@@ -682,7 +729,7 @@ export const DateTimeWithNow = VariantSchema.Overridable(S.DateTimeUtcFromString
  * @since 0.0.0
  * @category date & time
  */
-export const DateTimeFromDateWithNow = VariantSchema.Overridable(S.DateTimeUtcFromDate, {
+export const DateTimeFromDateWithNow = Overridable(S.DateTimeUtcFromDate, {
   defaultValue: DateTime.now,
 });
 
@@ -699,7 +746,7 @@ export const DateTimeFromDateWithNow = VariantSchema.Overridable(S.DateTimeUtcFr
  * @since 0.0.0
  * @category date & time
  */
-export const DateTimeFromNumberWithNow = VariantSchema.Overridable(S.DateTimeUtcFromMillis, {
+export const DateTimeFromNumberWithNow = Overridable(S.DateTimeUtcFromMillis, {
   defaultValue: DateTime.now,
 });
 
@@ -720,7 +767,7 @@ export const DateTimeFromNumberWithNow = VariantSchema.Overridable(S.DateTimeUtc
 export interface DateTimeInsert
   extends VariantSchema.Field<{
     readonly select: S.DateTimeUtcFromString;
-    readonly insert: VariantSchema.Overridable<S.DateTimeUtcFromString>;
+    readonly insert: Overridable<S.DateTimeUtcFromString>;
     readonly json: S.DateTimeUtcFromString;
   }> {}
 
@@ -769,7 +816,7 @@ export const DateTimeInsert: DateTimeInsert = Field({
 export interface DateTimeInsertFromDate
   extends VariantSchema.Field<{
     readonly select: S.DateTimeUtcFromDate;
-    readonly insert: VariantSchema.Overridable<S.DateTimeUtcFromDate>;
+    readonly insert: Overridable<S.DateTimeUtcFromDate>;
     readonly json: S.DateTimeUtcFromString;
   }> {}
 
@@ -818,7 +865,7 @@ export const DateTimeInsertFromDate: DateTimeInsertFromDate = Field({
 export interface DateTimeInsertFromNumber
   extends VariantSchema.Field<{
     readonly select: S.DateTimeUtcFromMillis;
-    readonly insert: VariantSchema.Overridable<S.DateTimeUtcFromMillis>;
+    readonly insert: Overridable<S.DateTimeUtcFromMillis>;
     readonly json: S.DateTimeUtcFromMillis;
   }> {}
 
@@ -867,8 +914,8 @@ export const DateTimeInsertFromNumber: DateTimeInsertFromNumber = Field({
 export interface DateTimeUpdate
   extends VariantSchema.Field<{
     readonly select: S.DateTimeUtcFromString;
-    readonly insert: VariantSchema.Overridable<S.DateTimeUtcFromString>;
-    readonly update: VariantSchema.Overridable<S.DateTimeUtcFromString>;
+    readonly insert: Overridable<S.DateTimeUtcFromString>;
+    readonly update: Overridable<S.DateTimeUtcFromString>;
     readonly json: S.DateTimeUtcFromString;
   }> {}
 
@@ -919,8 +966,8 @@ export const DateTimeUpdate: DateTimeUpdate = Field({
 export interface DateTimeUpdateFromDate
   extends VariantSchema.Field<{
     readonly select: S.DateTimeUtcFromDate;
-    readonly insert: VariantSchema.Overridable<S.DateTimeUtcFromDate>;
-    readonly update: VariantSchema.Overridable<S.DateTimeUtcFromDate>;
+    readonly insert: Overridable<S.DateTimeUtcFromDate>;
+    readonly update: Overridable<S.DateTimeUtcFromDate>;
     readonly json: S.DateTimeUtcFromString;
   }> {}
 
@@ -971,8 +1018,8 @@ export const DateTimeUpdateFromDate: DateTimeUpdateFromDate = Field({
 export interface DateTimeUpdateFromNumber
   extends VariantSchema.Field<{
     readonly select: S.DateTimeUtcFromMillis;
-    readonly insert: VariantSchema.Overridable<S.DateTimeUtcFromMillis>;
-    readonly update: VariantSchema.Overridable<S.DateTimeUtcFromMillis>;
+    readonly insert: Overridable<S.DateTimeUtcFromMillis>;
+    readonly update: Overridable<S.DateTimeUtcFromMillis>;
     readonly json: S.DateTimeUtcFromMillis;
   }> {}
 
@@ -1085,7 +1132,7 @@ export const JsonFromString = <S extends S.Top>(schema: S): JsonFromString<S> =>
 export interface UuidV4Insert<B extends string>
   extends VariantSchema.Field<{
     readonly select: S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>;
-    readonly insert: VariantSchema.Overridable<S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>>;
+    readonly insert: Overridable<S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>>;
     readonly update: S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>;
     readonly json: S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>;
   }> {}
@@ -1126,8 +1173,8 @@ export const Uint8Array: S.instanceOf<Uint8Array<ArrayBuffer>> = S.Uint8Array as
  */
 export const UuidV4WithGenerate = <B extends string>(
   schema: S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>
-): VariantSchema.Overridable<S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>> =>
-  VariantSchema.Overridable(schema, {
+): Overridable<S.brand<S.instanceOf<Uint8Array<ArrayBuffer>>, B>> =>
+  Overridable(schema, {
     defaultValue: Effect.sync(() => Uuid.v4({}, new globalThis.Uint8Array(16))),
   });
 

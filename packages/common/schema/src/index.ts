@@ -255,6 +255,11 @@ export * as Model from "./Model.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * as DomainModel from "./DomainModel.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Options.ts";
 /**
  * @since 0.0.0

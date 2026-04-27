@@ -4,7 +4,7 @@ import * as VariantSchema from "@beep/schema/VariantSchema";
 import { describe, expect, it } from "@effect/vitest";
 import * as S from "effect/Schema";
 
-const { Class, ClassFactory } = VariantSchema.make({
+const { Class } = VariantSchema.make({
   variants: ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"],
   defaultVariant: "select",
 });
@@ -18,7 +18,7 @@ export const defaultFields = {
   version: Model.Generated(NonNegativeInt),
   source: S.NonEmptyString,
 } as const;
-const ClassWithDefaults = ClassFactory(defaultFields);
+const ClassWithDefaults = Model.ClassFactory(defaultFields);
 
 const mergedFields = {
   ...defaultFields,
@@ -42,7 +42,7 @@ const variantSchemas = [
   [FactoryModel.jsonUpdate, DirectModel.jsonUpdate],
 ] as const;
 
-describe("VariantSchema.ClassFactory", () => {
+describe("Model.ClassFactory", () => {
   it("merges default fields and lets explicit fields win", () => {
     const rawFields = FactoryModel[VariantSchema.TypeId];
 

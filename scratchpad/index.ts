@@ -1,9 +1,8 @@
 import {$ScratchId} from "@beep/identity";
 import {Effect, Layer, pipe, Tuple} from "effect";
 import {BunRuntime, BunServices} from "@effect/platform-bun";
-import {TaggedErrorClass,LiteralKit, CauseTaggedError} from "@beep/schema";
-import * as S from "effect/Schema";
-import {dual} from "effect/Function";
+import {LiteralKit, CauseTaggedError} from "@beep/schema";
+
 
 const $I = $ScratchId.create("index");
 

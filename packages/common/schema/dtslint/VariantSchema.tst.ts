@@ -4,7 +4,7 @@ import * as VariantSchema from "@beep/schema/VariantSchema";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
-const { Class, ClassFactory } = VariantSchema.make({
+const { Class } = VariantSchema.make({
   variants: ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"],
   defaultVariant: "select",
 });
@@ -18,7 +18,7 @@ export const defaultFields = {
   version: Model.Generated(NonNegativeInt),
   source: S.NonEmptyString,
 } as const;
-const ClassWithDefaults = ClassFactory(defaultFields);
+const ClassWithDefaults = Model.ClassFactory(defaultFields);
 
 class FactoryModel extends ClassWithDefaults<FactoryModel>("FactoryModel")({
   createdAt: S.String,
@@ -31,7 +31,7 @@ class DirectModel extends Class<DirectModel>("DirectModel")({
   extraField: S.String,
 }) {}
 
-describe("VariantSchema.ClassFactory", () => {
+describe("Model.ClassFactory", () => {
   it("preserves the same static variant schema shape as Class", () => {
     expect<S.Schema.Type<typeof FactoryModel.select>>().type.toBe<S.Schema.Type<typeof DirectModel.select>>();
     expect<S.Schema.Type<typeof FactoryModel.insert>>().type.toBe<S.Schema.Type<typeof DirectModel.insert>>();
