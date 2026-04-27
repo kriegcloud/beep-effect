@@ -36,7 +36,8 @@
     "packages/editor/client",
     "packages/editor/runtime",
     "packages/shared/providers/firecrawl",
-    "apps/codedank-web"
+    "apps/codedank-web",
+    "packages/shared/use-cases"
   ],
   "repository": {
     "type": "git",

@@ -16,12 +16,6 @@
       "path": "apps/codedank-web"
     },
     {
-      "path": "apps/desktop"
-    },
-    {
-      "path": "apps/editor-app"
-    },
-    {
       "path": "infra"
     },
     {
@@ -61,25 +55,7 @@
       "path": "packages/common/types"
     },
     {
-      "path": "packages/common/ui"
-    },
-    {
       "path": "packages/common/utils"
-    },
-    {
-      "path": "packages/editor/client"
-    },
-    {
-      "path": "packages/editor/domain"
-    },
-    {
-      "path": "packages/editor/lexical"
-    },
-    {
-      "path": "packages/editor/protocol"
-    },
-    {
-      "path": "packages/editor/runtime"
     },
     {
       "path": "packages/fixture-lab/specimen/client"
@@ -103,37 +79,10 @@
       "path": "packages/fixture-lab/specimen/use-cases"
     },
     {
-      "path": "packages/repo-memory/client"
-    },
-    {
-      "path": "packages/repo-memory/model"
-    },
-    {
-      "path": "packages/repo-memory/runtime"
-    },
-    {
-      "path": "packages/repo-memory/sqlite"
-    },
-    {
-      "path": "packages/repo-memory/store"
-    },
-    {
-      "path": "packages/runtime/protocol"
-    },
-    {
-      "path": "packages/runtime/server"
-    },
-    {
       "path": "packages/shared/client"
     },
     {
-      "path": "packages/shared/config"
-    },
-    {
       "path": "packages/shared/domain"
-    },
-    {
-      "path": "packages/shared/providers/firecrawl"
     },
     {
       "path": "packages/shared/server"
@@ -143,6 +92,9 @@
     },
     {
       "path": "packages/shared/ui"
+    },
+    {
+      "path": "packages/shared/use-cases"
     },
     {
       "path": "tooling/cli"
