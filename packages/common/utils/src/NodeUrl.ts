@@ -105,3 +105,6 @@ export const toFileUrl = (path: string): Effect.Effect<URL, PlatformError.BadArg
         description: "Path must be a valid filesystem path",
       }),
   });
+
+
+export const fileURLToPath = NodeUrl.fileURLToPath;
