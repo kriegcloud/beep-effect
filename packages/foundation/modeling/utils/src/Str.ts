@@ -655,3 +655,41 @@ export const toSlug = flow(
   Str.replace(/-+/g, "-"),
   Str.replace(/^-|-$/g, "")
 );
+
+/**
+ * Trim text and truncate it to the requested visible character count.
+ *
+ * When the trimmed text is longer than `maxLength`, the result keeps the first
+ * `maxLength` characters and appends `...`.
+ *
+ * @example
+ * ```ts
+ * import { pipe } from "effect"
+ * import { Str } from "@beep/utils"
+ *
+ * const direct = Str.truncate("  hello world  ", 5)
+ * // "hello..."
+ *
+ * const piped = pipe("  beep effect  ", Str.truncate(4))
+ * // "beep..."
+ *
+ * void direct
+ * void piped
+ * ```
+ *
+ * @param text - The text to trim and truncate.
+ * @param maxLength - The number of characters to keep before appending `...`.
+ * @returns The trimmed text, or the truncated text with an ellipsis suffix.
+ * @category combinators
+ * @since 0.0.0
+ */
+export const truncate: {
+  (text: string, maxLength: number): string;
+  (maxLength: number): (text: string) => string;
+} = dual(2, (text: string, maxLength: number): string => {
+  const trimmed = Str.trim(text);
+  if (Str.length(trimmed) <= maxLength) {
+    return trimmed;
+  }
+  return `${Str.slice(0, maxLength)(trimmed)}...`;
+});

@@ -18,7 +18,7 @@ import { Effect, PlatformError } from "effect";
  *
  * @example
  * ```ts
- * import * as Effect from "effect/Effect"
+ * import { Effect } from "effect"
  * import { fromFileUrl } from "@beep/utils/NodeUrl"
  *
  * const program = Effect.gen(function* () {
@@ -31,7 +31,7 @@ import { Effect, PlatformError } from "effect";
  *
  * @example
  * ```ts
- * import * as Effect from "effect/Effect"
+ * import { Effect } from "effect"
  * import { fromFileUrl } from "@beep/utils/NodeUrl"
  *
  * const invalid = fromFileUrl(new URL("https://example.com/file.txt"))
@@ -43,9 +43,9 @@ import { Effect, PlatformError } from "effect";
  * void recovered
  * ```
  *
- * @category utilities
  * @param url - The `file:` URL to convert.
  * @returns An effect that succeeds with the platform path string.
+ * @category utilities
  * @since 0.0.0
  */
 export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadArgument> =>
@@ -67,7 +67,7 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  *
  * @example
  * ```ts
- * import * as Effect from "effect/Effect"
+ * import { Effect } from "effect"
  * import { toFileUrl } from "@beep/utils/NodeUrl"
  *
  * const program = Effect.gen(function* () {
@@ -80,7 +80,7 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  *
  * @example
  * ```ts
- * import * as Effect from "effect/Effect"
+ * import { Effect } from "effect"
  * import { toFileUrl } from "@beep/utils/NodeUrl"
  *
  * const recovered = Effect.catchTag(toFileUrl(""), "BadArgument", () =>
@@ -90,9 +90,9 @@ export const fromFileUrl = (url: URL): Effect.Effect<string, PlatformError.BadAr
  * void recovered
  * ```
  *
- * @category utilities
  * @param path - The platform path string to convert.
  * @returns An effect that succeeds with a `file:` URL.
+ * @category utilities
  * @since 0.0.0
  */
 export const toFileUrl = (path: string): Effect.Effect<URL, PlatformError.BadArgument> =>

@@ -20,10 +20,8 @@ import * as S from "effect/Schema";
  * - Data-last: `pipe(stream, streamFilterJson(schema))`
  * - Data-first: `streamFilterJson(stream, schema)`
  *
- * @since 0.0.0
- * @category utility
  * @example
- * ```typescript
+ * ```ts
  * import { Effect, Stream } from "effect"
  * import * as S from "effect/Schema"
  * import { streamFilterJson } from "@beep/utils/Stream"
@@ -35,6 +33,12 @@ import * as S from "effect/Schema";
  *
  * void Effect.runPromise(program)
  * ```
+ *
+ * @param self - The stream of JSON lines to decode.
+ * @param schema - The schema used to decode each JSON line.
+ * @returns A stream that emits only successfully decoded values.
+ * @category utilities
+ * @since 0.0.0
  */
 export const streamFilterJson: {
   <const TSchema extends S.Top>(
