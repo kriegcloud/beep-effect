@@ -6,9 +6,9 @@
  */
 
 import { $SharedDomainId } from "@beep/identity";
+import { DomainModel } from "@beep/schema/DomainModel";
 import * as M from "@beep/schema/Model";
 import { Shared } from "../../entity-ids/index.ts";
-import { DomainModel } from "../../factories/index.ts";
 
 const $I = $SharedDomainId.create("entities/Organization/Organization.model");
 
@@ -27,7 +27,7 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.model");
  * @since 0.0.0
  * @category domain model
  */
-export class Model extends DomainModel.make<Model>($I`OrganizationModel`)(
+export class Model extends DomainModel.extend<Model, typeof DomainModel>($I`OrganizationModel`)(
   {
     id: M.Generated(Shared.OrganizationId),
   },

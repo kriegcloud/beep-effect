@@ -11,6 +11,9 @@
 export * as Errors from "./errors/index.js";
 
 /**
+ * Shared domain entity schemas.
+ *
  * @since 0.0.0
+ * @category domain model
  */
-export * from "./factories/index.ts";
+export * as Entities from "./entities/index.ts";
