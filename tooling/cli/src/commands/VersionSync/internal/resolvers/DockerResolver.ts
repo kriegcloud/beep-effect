@@ -4,7 +4,7 @@
  * Parses `docker-compose.yml` for `image:` fields and optionally resolves
  * latest tags from Docker Hub.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

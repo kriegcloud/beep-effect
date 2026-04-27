@@ -5,7 +5,7 @@
  * Source: https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml
  * Published: 2026-01-01
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

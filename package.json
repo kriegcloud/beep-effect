@@ -25,7 +25,7 @@
     "packages/shared/use-cases",
     "packages/shared/config",
     "packages/drivers/drizzle",
-    "packages/drivers/pglite"
+    "packages/drivers/postgres"
   ],
   "repository": {
     "type": "git",
@@ -68,6 +68,7 @@
     "test:storybook": "bunx turbo run test:storybook --filter=@beep/ui",
     "docgen": "bunx turbo run docgen && bun run docs:aggregate",
     "docgen:affected": "bunx turbo run docgen --affected && bun run docs:aggregate",
+    "jsdoc:inventory": "bun run scripts/generate-jsdoc-documentation-inventory.mjs",
     "docs:aggregate": "beep-cli docgen aggregate",
     "ui-add": "bunx --bun shadcn@latest add --cwd packages/common/ui",
     "release": "bun run build && bun run test && bun run lint && bun run audit:full && changeset publish",
@@ -246,7 +247,7 @@
     "wink-nlp": "^2.4.0",
     "wink-nlp-utils": "^2.1.0",
     "picomatch": "^4.0.4",
-    "@typescript-eslint/parser": "^8.59.0",
+    "@typescript-eslint/parser": "^8.59.1",
     "@typescript/native-preview": "^7.0.0-dev.20260427.1",
     "@vitest/browser": "^4.1.5",
     "@vitest/coverage-istanbul": "^4.1.5",

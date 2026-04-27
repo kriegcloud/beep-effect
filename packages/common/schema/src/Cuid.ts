@@ -2,7 +2,7 @@
  * CUID schema and deterministic seed services.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 // import { sha512 } from "./_sha.js";

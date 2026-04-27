@@ -1,7 +1,7 @@
 /**
  * Checked-in sync target registry.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

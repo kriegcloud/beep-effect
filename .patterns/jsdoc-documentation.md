@@ -818,7 +818,7 @@ For TypeDoc rendering, mirror the registration in `typedoc.json`:
 // ❌ WRONG — JSDoc-era tag names
 /**
  * @template A   ← use @typeParam
- * @module       ← use @packageDocumentation
+ * @packageDocumentation       ← use @packageDocumentation
  */
 
 // ❌ WRONG — hyphen on @returns

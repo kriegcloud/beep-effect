@@ -19,9 +19,9 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.values");
  *
  * @example
  * ```ts
- * import { LicenseTier } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { Organization } from "@beep/shared-domain/entities"
  *
- * const isEnterprise = LicenseTier.is.enterprise("enterprise")
+ * const isEnterprise = Organization.LicenseTier.is.enterprise("enterprise")
  * console.log(isEnterprise)
  * ```
  *
@@ -39,9 +39,10 @@ export const LicenseTier = LiteralKit(["free", "team", "enterprise"]).annotate(
  *
  * @example
  * ```ts
- * import type { LicenseTier } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import type { Organization } from
+ * "@beep/shared-domain/entities"
  *
- * const tier: LicenseTier = "team"
+ * const tier: Organization.LicenseTier = "team" as const
  * console.log(tier)
  * ```
  *
@@ -55,10 +56,11 @@ export type LicenseTier = typeof LicenseTier.Type;
  *
  * @example
  * ```ts
- * import { Settings } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { Organization } from
+ * "@beep/shared-domain/entities"
  * import * as S from "effect/Schema"
  *
- * const settings = S.decodeUnknownSync(Settings)({
+ * const settings = S.decodeUnknownSync(Organization.Settings)({
  *   allowAgentActions: true,
  *   defaultRetentionDays: 90,
  * })
@@ -83,9 +85,10 @@ export class Settings extends S.Class<Settings>($I`Settings`)(
  *
  * @example
  * ```ts
- * import { ProfileMixin } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { Organization } from
+ * "@beep/shared-domain/entities"
  *
- * console.log(ProfileMixin.fieldMap.slug.columnName)
+ * console.log(Organization.ProfileMixin.fieldMap.slug.columnName)
  * ```
  *
  * @category models
@@ -158,9 +161,10 @@ export const ProfileMixin = EntityMixin.make($I`ProfileMixin`)(
  *
  * @example
  * ```ts
- * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { Organization } from
+ * "@beep/shared-domain/entities"
  *
- * console.log(ProfilePack.fieldMap.licenseTier.storageKind)
+ * console.log(Organization.ProfilePack.fieldMap.licenseTier.storageKind)
  * ```
  *
  * @category models

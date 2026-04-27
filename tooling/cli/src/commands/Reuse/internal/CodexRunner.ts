@@ -1,7 +1,7 @@
 /**
  * Codex SDK smoke helpers for the reuse command suite.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

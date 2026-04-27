@@ -1,7 +1,7 @@
 /**
  * Shared Markdown and HTML rendering utilities.
  *
- * @module \@beep/md/Md.utils
+ * @packageDocumentation \@beep/md/Md.utils
  * @since 0.0.0
  */
 

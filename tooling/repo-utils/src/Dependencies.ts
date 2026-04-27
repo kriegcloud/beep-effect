@@ -5,7 +5,7 @@
  * a workspace-internal dependency (the package name exists in the monorepo)
  * or an external NPM dependency.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { HashSet } from "effect";

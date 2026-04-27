@@ -1,7 +1,7 @@
 /**
  * MIME type literal schemas derived from bundled MIME metadata.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

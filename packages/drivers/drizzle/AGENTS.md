@@ -1,12 +1,16 @@
 # @beep/drizzle Agent Guide
 
 ## Purpose & Fit
-- 
+- Product-neutral Drizzle execution capability for server-side adapters.
+- Owns technical Drizzle failures and transaction boundaries, not product repositories.
 
 ## Surface Map
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | VERSION | package entry point |
+| entry module | Drizzle, DrizzleError | package entry point |
+| Drizzle.errors | DrizzleError | single public technical driver error with optional query context |
+| Drizzle.service | Drizzle, DrizzleClient, DrizzleShape | product-neutral execution Layer |
+| interop | installDrizzleEffectYieldables, native EffectLogger/EffectCache types | exact upstream Drizzle Effect interop |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -17,7 +21,8 @@
 
 ## Quick Recipes
 ```ts
-import { VERSION } from "@beep/drizzle"
+import { Drizzle, DrizzleError } from "@beep/drizzle"
+import { installDrizzleEffectYieldables } from "@beep/drizzle/interop"
 ```
 
 ## Verifications

@@ -1,7 +1,7 @@
 /**
  * Shared domain model base with audit and bookkeeping fields.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

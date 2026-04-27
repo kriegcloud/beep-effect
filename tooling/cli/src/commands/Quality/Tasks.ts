@@ -1,7 +1,7 @@
 /**
  * Canonical quality task adapter for repo root and workspace package scripts.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

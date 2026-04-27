@@ -1,7 +1,7 @@
 /**
  * A module containing a schema utility which provides a default value
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";

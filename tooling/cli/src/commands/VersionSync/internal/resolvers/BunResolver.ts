@@ -4,7 +4,7 @@
  * Reads current Bun version from `.bun-version` and `package.json` `packageManager`,
  * and optionally fetches the latest stable release from GitHub.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

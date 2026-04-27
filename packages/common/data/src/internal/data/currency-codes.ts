@@ -1,7 +1,7 @@
 /**
  * Internal bridge to the machine-generated ISO 4217 dataset.
  *
- * @module
+ * @packageDocumentation
  * @internal
  * @since 0.0.0
  */

@@ -4,7 +4,7 @@
  * Compares the `$schema` URL version in `biome.jsonc` against the installed
  * `@biomejs/biome` version from the root `package.json` catalog.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

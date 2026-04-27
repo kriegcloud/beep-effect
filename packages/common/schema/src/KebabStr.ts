@@ -1,7 +1,7 @@
 /**
  * A module containing effect schemas for kebab-case strings.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

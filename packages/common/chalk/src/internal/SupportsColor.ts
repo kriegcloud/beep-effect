@@ -1,7 +1,7 @@
 /**
  * Node.js color support detection for Chalk.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

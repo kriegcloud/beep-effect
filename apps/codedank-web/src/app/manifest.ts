@@ -2,7 +2,7 @@
  * Web app manifest for the codedank web app shell.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import type { MetadataRoute } from "next";

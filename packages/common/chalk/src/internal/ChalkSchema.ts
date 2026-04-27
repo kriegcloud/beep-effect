@@ -1,7 +1,7 @@
 /**
  * Internal schema definitions and literal domains for Chalk.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

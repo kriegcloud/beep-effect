@@ -1,7 +1,7 @@
 /**
  * The theme provider module.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 "use client";

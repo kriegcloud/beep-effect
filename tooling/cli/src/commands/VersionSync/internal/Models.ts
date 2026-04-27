@@ -1,7 +1,7 @@
 /**
  * Data types and tagged errors for the version-sync command.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

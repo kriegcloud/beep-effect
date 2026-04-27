@@ -408,23 +408,53 @@ single `package.json` full of scripts.
 
 Decision:
 
-Legacy generic database surfaces such as `Db.make`, `DbClient.make`, and a
-shared `DatabaseError` are not ported into `shared/server`. Future database
-runtime capability lives in driver packages with specific public names:
+Production database capability is composed from specific driver packages, not a
+generic shared-server database bucket:
 
 - `packages/drivers/postgres` publishes `@beep/postgres` with
   `PostgresClient.makeLayer` and `PostgresError`;
 - `packages/drivers/drizzle` publishes `@beep/drizzle` with
   `Drizzle.makeLayer` and `DrizzleError`.
 
-Driver errors stay technical. Server-side product repositories translate driver
-errors into product repository or application errors. Transaction APIs should
-prefer explicit `withTransaction`-style callbacks over ambient transaction
-context.
+`@beep/drizzle` exposes its root driver API directly, for example
+`import { Drizzle, DrizzleError } from "@beep/drizzle"`. `DrizzleError` is the
+only public Drizzle driver error. It is technical and operation-scoped, carrying
+`operation` and optional `cause`. The drifted `DrizzleProviderError`,
+`ProviderError`, `ORMError`, and `QueryError` surfaces are rejected.
 
-`DbRepo.make` is deferred until one real repository proves repeated boilerplate.
-It may become a tiny helper or generator template, but it is not a
-shared-server runtime abstraction by default.
+The future `PostgresError` follows the same technical, operation-scoped rule and
+may include SQLSTATE, constraint, and other database diagnostics when known.
+Those diagnostics support logging and translation; they are not product
+application errors.
+
+`Drizzle.makeLayer(client)` accepts a narrow product-neutral Drizzle adapter.
+Runtime composition decides whether that adapter is backed by Postgres or some
+other database runtime. Transaction APIs use explicit Effect-native
+`withTransaction` callbacks and do not use ambient transaction context.
+
+Server-side product repositories translate driver errors into product-named
+repository or application errors. Use-case ports never expose Drizzle or
+Postgres driver errors directly.
+
+The following legacy/shared abstractions are rejected for this architecture
+slice:
+
+- `Db.make`
+- `DbClient.make`
+- shared-domain `DatabaseError`
+- shared-server `DbRepo.make`
+- `DrizzleProviderError`
+- `ProviderError`
+- `ORMError`
+- `QueryError`
+
+`DbRepo.make` is not ported. A successor is deferred until at least two real
+repositories prove repeated boilerplate. Prefer a tooling generator or template
+over a runtime factory unless live code proves that a runtime helper is simpler.
+
+`@beep/pglite` remains outside this decision. This lock does not promote it to
+first-class production database doctrine and does not require changes to the
+existing package.
 
 Rationale:
 
@@ -432,7 +462,7 @@ The architecture already treats drivers as repo-level technical capability and
 server packages as product adapter owners. A generic `Db` facade would blur that
 boundary and make shared/server look like an infrastructure runtime. Specific
 driver names keep imports honest, make error translation explicit, and let the
-first real repository drive any helper extraction with evidence.
+first real repositories drive any helper extraction with evidence.
 
 ## 2026-04-27: Keep Shared Entity Metadata In The Shared Kernel
 

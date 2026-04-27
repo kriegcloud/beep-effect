@@ -2,7 +2,7 @@
  * Schema for the `Strict-Transport-Security` header.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import { $SchemaId } from "@beep/identity";
 import { Effect, pipe, SchemaTransformation } from "effect";

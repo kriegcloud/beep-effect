@@ -1,7 +1,7 @@
 /**
  * JSONL parsing and schema transforms.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

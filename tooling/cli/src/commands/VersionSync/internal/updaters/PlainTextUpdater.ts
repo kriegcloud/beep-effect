@@ -1,7 +1,7 @@
 /**
  * Plain text file updater for `.bun-version` and similar single-value files.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

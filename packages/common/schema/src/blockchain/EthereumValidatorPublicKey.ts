@@ -4,7 +4,7 @@
  * Accepts lowercase `0x`-prefixed compressed BLS12-381 public keys.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SchemaId } from "@beep/identity/packages";

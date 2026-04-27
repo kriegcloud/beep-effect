@@ -1,7 +1,7 @@
 /**
  * The \@beep/schema/csv parser options configuration.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

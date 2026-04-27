@@ -1,7 +1,7 @@
 /**
  * Reattach LiteralKit statics after a schema transformation or annotation.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

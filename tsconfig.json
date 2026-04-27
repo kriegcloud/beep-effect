@@ -239,11 +239,11 @@
       "@beep/drizzle/*": [
         "./packages/drivers/drizzle/src/*"
       ],
-      "@beep/pglite": [
-        "./packages/drivers/pglite/src/index.ts"
+      "@beep/postgres": [
+        "./packages/drivers/postgres/src/index.ts"
       ],
-      "@beep/pglite/*": [
-        "./packages/drivers/pglite/src/*"
+      "@beep/postgres/*": [
+        "./packages/drivers/postgres/src/*"
       ]
     }
   }

@@ -1,6 +1,6 @@
 /**
- * @module
- * @description TypeScript category taxonomy schemas, fibration metadata, and classifier utilities.
+ * TypeScript category taxonomy schemas, fibration metadata, and classifier utilities.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */

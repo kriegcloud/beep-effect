@@ -4,7 +4,7 @@
  * Provides a typed constant array of all commonly used IANA timezone
  * identifiers (e.g. `"America/New_York"`, `"Europe/London"`, `"UTC"`).
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

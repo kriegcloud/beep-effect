@@ -1,7 +1,7 @@
 /**
  * Template rendering service for package generation.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

@@ -1,6 +1,7 @@
 /**
- * @module
- * @description Shared TypeScript syntax kind model definitions.
+ * Shared TypeScript syntax kind model definitions.
+ *
+ * @packageDocumentation
  * @since 0.0.0
  */
 

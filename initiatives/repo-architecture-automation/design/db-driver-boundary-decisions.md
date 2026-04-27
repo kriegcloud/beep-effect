@@ -1,24 +1,35 @@
 # DB Driver Boundary Decisions
 
-This note records the database-driver decisions used by the shared-kernel
-Organization proof. It is intentionally docs-only; no driver package is created
-in this phase.
+This note records the locked database-driver boundary decisions used by the
+shared-kernel Organization proof and the current `@beep/drizzle` cleanup.
+Production database capability is `@beep/postgres` plus `@beep/drizzle`;
+`@beep/shared-server` does not become a database runtime bucket.
 
 ## Decisions
 
-- Do not port legacy `DbClient.make` into `packages/shared/server`.
-- Do not introduce a generic `Db.make` facade or shared `DatabaseError`.
-- Put the future Postgres client runtime in `packages/drivers/postgres` as
-  `@beep/postgres`.
-- Put future Drizzle execution helpers in `packages/drivers/drizzle` as
-  `@beep/drizzle`.
-- Prefer specific public names over a generic `Db` facade:
-  `PostgresClient.makeLayer`, `PostgresError`, `Drizzle.makeLayer`, and
-  `DrizzleError`.
+- Do not port legacy `Db.make`, `DbClient.make`, shared-domain
+  `DatabaseError`, or shared-server `DbRepo.make`.
+- Keep runtime capability in `packages/drivers/postgres` as `@beep/postgres`
+  and `packages/drivers/drizzle` as `@beep/drizzle`.
+- Expose root driver APIs by default, for example
+  `import { Drizzle, DrizzleError } from "@beep/drizzle"`.
+- Use one public `DrizzleError` tagged error with `operation` and optional
+  `cause`.
+- Delete or reject the drifted public Drizzle error surfaces:
+  `DrizzleProviderError`, `ProviderError`, `ORMError`, and `QueryError`.
+- Keep the future `PostgresError` technical and operation-scoped, with optional
+  SQLSTATE, constraint, and other database diagnostics when known.
 - Keep driver errors technical. Product server repositories translate them into
-  product repository or application errors.
-- Prefer explicit `withTransaction` callbacks over ambient transaction context.
-- Defer `DbRepo.make` until one real repository proves repeated boilerplate.
+  product-named repository or application errors before crossing use-case ports.
+- Make `Drizzle.makeLayer(client)` accept a narrow product-neutral Drizzle
+  adapter. Composition decides whether that adapter came from Postgres.
+- Prefer explicit Effect-native `withTransaction` callbacks over ambient
+  transaction context.
+- Defer any `DbRepo.make` successor until two real repositories prove repeated
+  boilerplate; prefer a generator/template over a runtime factory unless the
+  code proves otherwise.
+- Leave `@beep/pglite` unchanged in this slice. It is not promoted to
+  first-class production database doctrine by this decision.
 
 ## Transaction Shape
 
@@ -33,16 +44,30 @@ Drizzle.withTransaction((transaction) =>
 )
 ```
 
-Do not model transaction state through ambient fiber context in the driver API.
+The callback returns an Effect and receives an explicit transaction handle. Do
+not model transaction state through ambient fiber context in the driver API.
+
+## Rejected Symbols
+
+Do not reintroduce these symbols without a new architecture decision:
+
+- `Db.make`
+- `DbClient.make`
+- `DatabaseError`
+- `DbRepo.make`
+- `DrizzleProviderError`
+- `ProviderError`
+- `ORMError`
+- `QueryError`
 
 ## Implication For The Organization Proof
 
-The Organization slice proves schema, table metadata, and UI contracts only.
-It does not add live database execution, repository helpers, shared server
-runtime code, fixtures, or driver implementations.
+The Organization slice proves schema, table metadata, and UI contracts only. It
+does not add live database execution, repository helpers, shared server runtime
+code, fixtures, or product repository implementations.
 
 ## Follow-Up Trigger
 
-Revisit `DbRepo.make` only after a real server repository repeats enough
-Drizzle boilerplate that a tiny helper or generator template is simpler than
-leaving the code local.
+Revisit a `DbRepo.make` successor only after two real server repositories repeat
+enough Drizzle boilerplate that a tiny helper or generator template is simpler
+than leaving the code local.

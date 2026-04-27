@@ -1,7 +1,7 @@
 /**
  * Reuse-catalog domain models and request/response schemas.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";

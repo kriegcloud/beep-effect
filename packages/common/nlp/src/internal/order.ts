@@ -2,7 +2,7 @@
  * Shared order helpers for NLP ranking and sorting.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { Order } from "effect";

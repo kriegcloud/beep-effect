@@ -1,7 +1,7 @@
 /**
  * Canonicalization, artifact export, diff/patch, and diagnostics helpers for package.json schemas.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

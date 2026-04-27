@@ -1,7 +1,7 @@
 /**
  * Shared runtime utilities for beep.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

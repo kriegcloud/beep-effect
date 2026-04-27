@@ -4,7 +4,7 @@
  * Restores the old subtree command surface in current repo style while
  * intentionally excluding AI or agent capabilities.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -21,6 +21,7 @@ import { renderBiomeJson } from "../Shared/BiomeJson.js";
 import {
   aggregateGeneratedDocs,
   analyzePackageDocumentation,
+  assertNoOrphanDocgenConfigPaths,
   createDocgenConfigDocument,
   type DocgenAggregateResult,
   type DocgenGenerationResult,
@@ -116,6 +117,8 @@ const logAggregateResults = Effect.fn(function* (results: ReadonlyArray<DocgenAg
 });
 
 const resolveGenerateTargets = Effect.fn("Docgen.resolveGenerateTargets")(function* (selector: O.Option<string>) {
+  yield* assertNoOrphanDocgenConfigPaths();
+
   if (O.isSome(selector)) {
     const target = yield* resolveDocgenWorkspacePackage(selector.value);
     if (!target.hasDocgenConfig) {
@@ -132,6 +135,8 @@ const resolveGenerateTargets = Effect.fn("Docgen.resolveGenerateTargets")(functi
 });
 
 const resolveAnalyzeTargets = Effect.fn("Docgen.resolveAnalyzeTargets")(function* (selector: O.Option<string>) {
+  yield* assertNoOrphanDocgenConfigPaths();
+
   if (O.isSome(selector)) {
     return [yield* resolveDocgenWorkspacePackage(selector.value)] as const;
   }

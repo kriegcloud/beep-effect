@@ -1,7 +1,7 @@
 /**
  * Derive a dual-call equivalence function from an Effect schema.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { dual } from "effect/Function";

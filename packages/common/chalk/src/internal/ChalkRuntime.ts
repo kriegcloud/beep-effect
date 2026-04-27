@@ -1,7 +1,7 @@
 /**
  * Internal Chalk builder runtime.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

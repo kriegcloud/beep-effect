@@ -2,7 +2,7 @@
  * Pattern inspection utilities.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import * as A from "effect/Array";

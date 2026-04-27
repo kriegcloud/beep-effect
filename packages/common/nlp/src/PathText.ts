@@ -2,7 +2,7 @@
  * Deterministic path and module-specifier normalization helpers.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import * as Str from "@beep/utils/Str";
 import { flow } from "effect";

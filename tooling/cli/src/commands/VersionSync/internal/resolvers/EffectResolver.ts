@@ -4,7 +4,7 @@
  * Keeps the lockstep Effect v4 package family in the root `package.json`
  * `catalog` aligned with the canonical `effect` entry.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

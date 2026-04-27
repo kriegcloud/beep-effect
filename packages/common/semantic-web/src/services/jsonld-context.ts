@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";

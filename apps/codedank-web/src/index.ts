@@ -2,7 +2,7 @@
  * Public entry points for the codedank web app package.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 /**

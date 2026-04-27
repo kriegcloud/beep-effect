@@ -4,7 +4,7 @@
  * This module provides repository-named wrappers around Effect's option schema
  * helpers when the local codebase benefits from a more explicit boundary name.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

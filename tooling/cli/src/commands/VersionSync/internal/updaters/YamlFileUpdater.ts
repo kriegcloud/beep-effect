@@ -1,7 +1,7 @@
 /**
  * Comment-preserving YAML file updater via eemeli/yaml Document API.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

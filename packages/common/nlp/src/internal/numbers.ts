@@ -2,7 +2,7 @@
  * Shared numeric schemas used across NLP domains and tool boundaries.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $NlpId } from "@beep/identity";

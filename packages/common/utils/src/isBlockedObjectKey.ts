@@ -3,7 +3,7 @@
  * blocked prototype keys
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import { HashSet } from "effect";
 

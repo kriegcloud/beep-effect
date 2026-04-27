@@ -15,6 +15,18 @@
     { "tagName": "@provides", "syntaxKind": "block", "allowMultiple": true },
     { "tagName": "@depends", "syntaxKind": "block", "allowMultiple": true },
     { "tagName": "@errors", "syntaxKind": "block", "allowMultiple": true },
+    { "tagName": "@effects", "syntaxKind": "block", "allowMultiple": true },
+    {
+      "tagName": "@precondition",
+      "syntaxKind": "block",
+      "allowMultiple": true
+    },
+    {
+      "tagName": "@postcondition",
+      "syntaxKind": "block",
+      "allowMultiple": true
+    },
+    { "tagName": "@invariant", "syntaxKind": "block", "allowMultiple": true },
     { "tagName": "@ignore", "syntaxKind": "modifier", "allowMultiple": false }
   ],
   "supportForTags": {
@@ -57,6 +69,10 @@
     "@provides": true,
     "@depends": true,
     "@errors": true,
+    "@effects": true,
+    "@precondition": true,
+    "@postcondition": true,
+    "@invariant": true,
     "@ignore": true
   }
 }

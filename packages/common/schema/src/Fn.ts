@@ -7,7 +7,7 @@
  * invocation time using the provided input, output, and error schemas.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SchemaId } from "@beep/identity/packages";

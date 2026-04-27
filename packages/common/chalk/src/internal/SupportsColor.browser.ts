@@ -1,7 +1,7 @@
 /**
  * Browser color support detection for Chalk.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $ChalkId } from "@beep/identity/packages";

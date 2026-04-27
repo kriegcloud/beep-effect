@@ -1,7 +1,7 @@
 /**
  * A module containing effect schemas for snake_case strings.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

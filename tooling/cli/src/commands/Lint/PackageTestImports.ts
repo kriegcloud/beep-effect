@@ -1,7 +1,7 @@
 /**
  * Package test import policy command.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

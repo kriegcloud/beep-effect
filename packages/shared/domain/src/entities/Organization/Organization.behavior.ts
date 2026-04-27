@@ -38,10 +38,10 @@ export const isTenantRoot = (organization: Pick<Model, "id" | "orgId">): boolean
  *
  * @example
  * ```ts
- * import { hasParentOrganization } from "@beep/shared-domain/entities/Organization/Organization.behavior"
+ * import { Organization } from "@beep/shared-domain/entities"
  * import * as O from "effect/Option"
  *
- * console.log(hasParentOrganization({ parentOrgId: O.none() }))
+ * console.log(Organization.hasParentOrganization({ parentOrgId: O.none() }))
  * ```
  *
  * @category predicates
@@ -61,14 +61,14 @@ export const hasParentOrganization = (organization: Pick<Model, "parentOrgId">):
  *
  * @example
  * ```ts
- * import { hasValidTenantPlacement } from "@beep/shared-domain/entities/Organization/Organization.behavior"
+ * import { Organization } from "@beep/shared-domain/entities"
  * import * as Shared from "@beep/shared-domain/identity/Shared"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
  * const decodeOrganizationId = S.decodeUnknownSync(S.make<S.Decoder<typeof Shared.OrganizationId.Type>>(Shared.OrganizationId.ast))
  * const id = decodeOrganizationId(1)
- * console.log(hasValidTenantPlacement({ id, orgId: id, parentOrgId: O.none() }))
+ * console.log(Organization.hasValidTenantPlacement({ id, orgId: id, parentOrgId: O.none() }))
  * ```
  *
  * @category predicates

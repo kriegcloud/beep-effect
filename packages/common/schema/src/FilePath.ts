@@ -2,7 +2,7 @@
  * Reusable schema constructors for filesystem path strings.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SchemaId } from "@beep/identity/packages";

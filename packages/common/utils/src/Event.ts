@@ -1,7 +1,7 @@
 /**
  * Helpers for schema-backed server-sent event envelopes.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

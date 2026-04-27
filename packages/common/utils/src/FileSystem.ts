@@ -1,7 +1,7 @@
 /**
  * A module containing utilities for interacting with the file system.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

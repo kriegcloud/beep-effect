@@ -4,7 +4,7 @@
  * Dependencies are split into workspace-internal dependencies (packages
  * that live within the monorepo) and external NPM dependencies.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";

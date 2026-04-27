@@ -2,7 +2,7 @@
  * Utility functions for the UI component library.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";

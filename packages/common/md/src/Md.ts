@@ -1,7 +1,7 @@
 /**
  * Public Markdown AST builder DSL.
  *
- * @module \@beep/md/Md
+ * @packageDocumentation \@beep/md/Md
  * @since 0.0.0
  */
 

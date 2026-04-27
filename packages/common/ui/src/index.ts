@@ -10,7 +10,7 @@
  * - `@beep/ui/styles/globals.css` — Theme tokens
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 /**

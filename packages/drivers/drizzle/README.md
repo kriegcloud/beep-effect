@@ -11,7 +11,12 @@ bun add @beep/drizzle
 ## Usage
 
 ```ts
-import { VERSION } from "@beep/drizzle"
+import { Drizzle, DrizzleError } from "@beep/drizzle"
+import { installDrizzleEffectYieldables } from "@beep/drizzle/interop"
+
+void Drizzle
+void DrizzleError
+void installDrizzleEffectYieldables
 ```
 
 ## Development

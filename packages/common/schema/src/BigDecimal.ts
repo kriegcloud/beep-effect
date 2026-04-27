@@ -2,7 +2,7 @@
  * Reusable schemas for decoding Effect `BigDecimal` values.
  *
  * @see {@link https://github.com/Effect-TS/effect-smol/blob/main/packages/effect/src/BigDecimal.ts | effect/BigDecimal}
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

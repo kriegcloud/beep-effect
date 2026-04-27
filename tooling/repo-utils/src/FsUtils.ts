@@ -4,7 +4,7 @@
  * Provides effectful wrappers around glob matching, JSON file I/O,
  * path existence checks, and file/directory type queries.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";

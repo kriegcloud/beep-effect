@@ -19,7 +19,7 @@
  * void Effect.runPromise(program)
  * ```
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

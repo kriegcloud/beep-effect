@@ -1,7 +1,7 @@
 /**
  * Reuse-catalog discovery, partitioning, and inventory services.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 // cspell:words tsmorph stringifier

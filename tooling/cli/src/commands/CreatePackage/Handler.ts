@@ -6,7 +6,7 @@
  * - FileGenerationPlanService for deterministic plan/execute
  * - Shared repo config synchronization after scaffolding
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

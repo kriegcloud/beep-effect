@@ -1,7 +1,7 @@
 /**
  * Schemas for normalizing valid Effect `DateTime.Input` values into `DateTime.Utc`.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

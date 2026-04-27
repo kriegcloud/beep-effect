@@ -2,7 +2,7 @@
  * Ordered string-variant helpers.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import * as Str from "@beep/utils/Str";
 import { flow, Order } from "effect";

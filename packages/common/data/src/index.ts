@@ -5,7 +5,7 @@
  * constants, ISO 4217 currency codes, IANA timezone identifiers, and other
  * shared data constants used across packages.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

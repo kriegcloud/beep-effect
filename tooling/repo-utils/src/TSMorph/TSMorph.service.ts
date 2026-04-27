@@ -1,7 +1,7 @@
 /**
  * TSMorph project loading and source-inspection service.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";

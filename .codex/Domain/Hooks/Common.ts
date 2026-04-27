@@ -1,7 +1,7 @@
 /**
  * Internal shared Codex hook wire schemas.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $CodexId } from "@beep/identity";

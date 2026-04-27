@@ -1,7 +1,7 @@
 /**
  * Reuse-discovery command suite.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

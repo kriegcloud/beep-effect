@@ -2,7 +2,7 @@
  * Positional export adapter for NLP tools.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $NlpId } from "@beep/identity";

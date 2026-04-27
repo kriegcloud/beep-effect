@@ -1,7 +1,7 @@
 /**
  * A module for effect schema driven CSV parsing
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

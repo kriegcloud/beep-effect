@@ -4,7 +4,7 @@
  * Scans each workspace (and the root) for `tsconfig*.json` files and
  * returns a mapping of package names to their tsconfig file paths.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { Effect, HashMap } from "effect";

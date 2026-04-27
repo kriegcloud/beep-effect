@@ -1,7 +1,7 @@
 /**
  * Contains blockchain related constant data.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

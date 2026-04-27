@@ -1,7 +1,7 @@
 /**
  * TSMorph request, result, and branded identifier models.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import {$RepoUtilsId} from "@beep/identity/packages";

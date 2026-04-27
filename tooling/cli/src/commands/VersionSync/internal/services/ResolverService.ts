@@ -1,7 +1,7 @@
 /**
  * Resolver orchestration service for version-sync.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

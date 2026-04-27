@@ -1,7 +1,7 @@
 /**
  * tsconfig-sync command - synchronize workspace tsconfig references and root aliases.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

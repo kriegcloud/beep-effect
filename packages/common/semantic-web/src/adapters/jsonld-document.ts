@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { Effect, flow, Layer, Match, Order, pipe } from "effect";

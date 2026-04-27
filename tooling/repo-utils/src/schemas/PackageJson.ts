@@ -5,7 +5,7 @@
  * intentionally support from SchemaStore and npm docs. `PackageJson` extends it
  * with repo-local top-level fields used in this monorepo.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

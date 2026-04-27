@@ -1,7 +1,7 @@
 /**
  * Whole-text CSV formatting helpers.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

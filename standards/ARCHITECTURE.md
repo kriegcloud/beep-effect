@@ -1107,13 +1107,13 @@ Driver services use Effect v4 `Context.Service` and expose technical
 capability, not product verbs:
 
 ```ts
-import { $BeepDriversId } from "@beep/identity/packages"
+import { $DrizzleId } from "@beep/identity"
 import { TaggedErrorClass } from "@beep/schema"
 import { Context, Effect, Layer } from "effect"
 import * as O from "effect/Option"
 import * as S from "effect/Schema"
 
-const $I = $BeepDriversId.create("drizzle/Drizzle.service")
+const $I = $DrizzleId.create("Drizzle.service")
 
 export class DrizzleError extends TaggedErrorClass<DrizzleError>(
   $I`DrizzleError`,
@@ -1121,7 +1121,7 @@ export class DrizzleError extends TaggedErrorClass<DrizzleError>(
   "DrizzleError",
   {
     operation: S.String,
-    cause: S.OptionFromOptionalKey(S.Defect),
+    cause: S.OptionFromOptionalKey(S.DefectWithStack),
   },
   $I.annote("DrizzleError", {
     description: "Technical Drizzle driver failure.",
@@ -1138,43 +1138,37 @@ export interface DrizzleClient {
   readonly execute: (
     statement: string,
     parameters: ReadonlyArray<unknown>,
-  ) => Promise<ReadonlyArray<unknown>>
-  readonly withTransaction: <A>(
-    use: (transaction: DrizzleClient) => Promise<A>,
-  ) => Promise<A>
+  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
+  readonly withTransaction: <A, R>(
+    use: (transaction: DrizzleClient) => Effect.Effect<A, DrizzleError, R>,
+  ) => Effect.Effect<A, DrizzleError, R>
 }
 
-export class Drizzle extends Context.Service<
-  Drizzle,
-  {
-	    readonly execute: (
-	      statement: string,
-	      parameters: ReadonlyArray<unknown>,
-	    ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
-    readonly withTransaction: <A>(
-      use: (transaction: DrizzleClient) => Promise<A>,
-    ) => Effect.Effect<A, DrizzleError>
-	  }
-	>()($I`Drizzle`) {}
+export interface DrizzleShape {
+  readonly execute: (
+    statement: string,
+    parameters: ReadonlyArray<unknown>,
+  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
+  readonly withTransaction: <A, R>(
+    use: (transaction: DrizzleShape) => Effect.Effect<A, DrizzleError, R>,
+  ) => Effect.Effect<A, DrizzleError, R>
+}
+
+const makeService = (client: DrizzleClient): DrizzleShape => ({
+  execute: client.execute,
+  withTransaction: (use) =>
+    client.withTransaction((transaction) => use(makeService(transaction))),
+})
+
+export class Drizzle extends Context.Service<Drizzle, DrizzleShape>()($I`Drizzle`) {}
 
 export namespace Drizzle {
   export const makeLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
-    Layer.effect(
+    Layer.succeed(
       Drizzle,
-      Effect.succeed({
-	        execute: (statement, parameters) =>
-	          Effect.tryPromise({
-	            try: () => client.execute(statement, parameters),
-	            catch: (cause) => toDrizzleError("execute", cause),
-	          }),
-        withTransaction: (use) =>
-          Effect.tryPromise({
-            try: () => client.withTransaction(use),
-            catch: (cause) => toDrizzleError("withTransaction", cause),
-          }),
-	      }),
-	    )
-	}
+      Drizzle.of(makeService(client)),
+    )
+}
 ```
 
 Product ports use product language. Actionable port failures live in

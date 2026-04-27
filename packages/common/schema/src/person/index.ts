@@ -1,7 +1,7 @@
 /**
  * Module for attributes related to people.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

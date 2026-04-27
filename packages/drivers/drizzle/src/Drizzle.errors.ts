@@ -1,91 +1,160 @@
 /**
- * Drizzle ORM Error schemas
+ * Technical errors raised by the Drizzle driver boundary.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
+
 import { $DrizzleId } from "@beep/identity";
-import { SchemaUtils, TaggedErrorClass } from "@beep/schema";
-import { O } from "@beep/utils";
-import * as Driz from "drizzle-orm";
-import { pipe } from "effect";
+import { TaggedErrorClass } from "@beep/schema";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
 const $I = $DrizzleId.create("Drizzle.errors");
 
-export const DrizzleError = S.instanceOf(Driz.DrizzleError).pipe(
-  $I.annoteSchema("DrizzleError", {
-    description: "Base error schema for Drizzle ORM errors",
-  }),
-  SchemaUtils.withStatics((schema) => ({
-    optionFromUnknown: (u: unknown) =>
-      pipe(
-        u,
-        O.liftPredicate((u): u is DrizzleError => S.is(schema)(u))
-      ),
-  }))
-);
+type DrizzleErrorContext = {
+  readonly params?: ReadonlyArray<unknown> | undefined;
+  readonly query?: string | undefined;
+};
 
-export type DrizzleError = typeof DrizzleError.Type;
+const readString = (value: unknown, key: string): O.Option<string> => {
+  if (!P.isObject(value)) {
+    return O.none();
+  }
 
-export const DrizzleQueryError = S.instanceOf(Driz.DrizzleQueryError).pipe(
-  $I.annoteSchema("DrizzleQueryError", {
-    description: "Base error schema for Drizzle ORM query errors",
-  }),
-  SchemaUtils.withStatics((schema) => ({
-    optionFromUnknown: (u: unknown) =>
-      pipe(
-        u,
-        O.liftPredicate((u): u is DrizzleQueryError => S.is(schema)(u))
-      ),
-  }))
-);
+  const candidate = Reflect.get(value, key);
+  return P.isString(candidate) ? O.some(candidate) : O.none();
+};
 
-export type DrizzleQueryError = typeof DrizzleQueryError.Type;
+const readArray = (value: unknown, key: string): O.Option<ReadonlyArray<unknown>> => {
+  if (!P.isObject(value)) {
+    return O.none();
+  }
 
-export class QueryError extends TaggedErrorClass<QueryError>($I`QueryError`)(
-  "QueryError",
+  const candidate = Reflect.get(value, key);
+  return A.isArray(candidate) ? O.some(candidate) : O.none();
+};
+
+const readCause = (value: unknown): O.Option<unknown> => {
+  if (!P.isObject(value)) {
+    return O.none();
+  }
+
+  const cause = Reflect.get(value, "cause");
+  return O.fromUndefinedOr(cause);
+};
+
+const parseDrizzleMessage = (cause: unknown): DrizzleErrorContext => {
+  if (!(cause instanceof Error)) {
+    return {};
+  }
+
+  const match = cause.message.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s);
+  if (match === null) {
+    return {};
+  }
+
+  const paramsText = match[2]?.trim();
+  return {
+    query: match[1]?.trim(),
+    params:
+      paramsText === undefined || paramsText.length === 0
+        ? undefined
+        : A.map(paramsText.split(","), (item) => item.trim()),
+  };
+};
+
+const extractNativeQueryContext = (cause: unknown, seen: ReadonlySet<unknown> = new Set()): DrizzleErrorContext => {
+  if (!P.isObject(cause) || seen.has(cause)) {
+    return parseDrizzleMessage(cause);
+  }
+
+  if (Reflect.get(cause, "_tag") === "EffectDrizzleQueryError") {
+    return {
+      query: O.getOrUndefined(readString(cause, "query")),
+      params: O.getOrUndefined(readArray(cause, "params")),
+    };
+  }
+
+  const messageContext = parseDrizzleMessage(cause);
+  if (messageContext.query !== undefined) {
+    return messageContext;
+  }
+
+  const nextSeen = new Set(seen);
+  nextSeen.add(cause);
+
+  return O.match(readCause(cause), {
+    onNone: () => ({}),
+    onSome: (nestedCause) => extractNativeQueryContext(nestedCause, nextSeen),
+  });
+};
+
+/**
+ * Technical failure raised by the `@beep/drizzle` driver boundary.
+ *
+ * `operation` identifies the driver operation that failed. Optional query
+ * context is captured when Drizzle's native Effect query error exposes it.
+ *
+ * @example
+ * ```ts
+ * import { DrizzleError } from "@beep/drizzle"
+ * import * as O from "effect/Option"
+ *
+ * const error = new DrizzleError({
+ *   operation: "execute",
+ *   cause: O.none()
+ * })
+ *
+ * void error
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError`)(
+  "DrizzleError",
   {
-    drizzleQueryError: S.Option(DrizzleQueryError),
-    cause: S.DefectWithStack,
+    operation: S.String,
+    cause: S.OptionFromOptionalKey(S.DefectWithStack),
+    query: S.OptionFromOptionalKey(S.String),
+    params: S.OptionFromOptionalKey(S.Unknown.pipe(S.Array)),
   },
-  $I.annote("QueryError", {
-    description: "Base error class for Drizzle ORM query errors",
+  $I.annote("DrizzleError", {
+    description: "Technical Drizzle driver failure scoped to a driver operation.",
   })
 ) {
-  static readonly fromUnknown = (u: unknown) => {
-    const drizzleQueryErrorOpt = DrizzleQueryError.optionFromUnknown(u);
-    return new QueryError({
-      drizzleQueryError: drizzleQueryErrorOpt,
-      cause: u,
+  /**
+   * Normalize an unknown driver failure into a {@link DrizzleError}.
+   *
+   * @example
+   * ```ts
+   * import { DrizzleError } from "@beep/drizzle"
+   *
+   * const error = DrizzleError.fromUnknown("execute", new Error("boom"), {
+   *   query: "select 1",
+   *   params: []
+   * })
+   *
+   * void error
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
+  static readonly fromUnknown = (
+    operation: string,
+    cause?: unknown,
+    context: DrizzleErrorContext = {}
+  ): DrizzleError => {
+    const nativeContext = extractNativeQueryContext(cause);
+    return new DrizzleError({
+      operation,
+      cause: O.fromUndefinedOr(cause),
+      query: O.fromUndefinedOr(context.query ?? nativeContext.query),
+      params: O.fromUndefinedOr(context.params ?? nativeContext.params),
     });
   };
 }
-
-export class ORMError extends TaggedErrorClass<ORMError>($I`ORMError`)(
-  "ORMError",
-  {
-    drizzleError: S.Option(DrizzleError),
-    cause: S.DefectWithStack,
-  },
-  $I.annote("ORMError", {
-    description: "Base error class for Drizzle ORM errors",
-  })
-) {
-  static readonly fromUnknown = (u: unknown) => {
-    const drizzleErrorOpt = DrizzleError.optionFromUnknown(u);
-    return new ORMError({
-      drizzleError: drizzleErrorOpt,
-      cause: u,
-    });
-  };
-}
-
-export const DrizzleProviderError = S.Union([ORMError, QueryError]).pipe(
-  S.toTaggedUnion("_tag"),
-  $I.annoteSchema("DrizzleProviderError", {
-    description: "Union schema for Drizzle ORM provider errors",
-  })
-);
-
-export type ProviderError = typeof DrizzleProviderError.Type;

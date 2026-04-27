@@ -2,7 +2,7 @@
  * Branded color domains and transformation schemas for hex, RGB, and OKLCH.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SchemaId } from "@beep/identity/packages";

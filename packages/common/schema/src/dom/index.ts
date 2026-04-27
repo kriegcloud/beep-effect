@@ -1,7 +1,7 @@
 /**
  * Schemas for DOM types.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

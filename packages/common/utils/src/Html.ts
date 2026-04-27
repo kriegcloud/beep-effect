@@ -1,7 +1,7 @@
 /**
  * A module containing utilities for escaping HTML text.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

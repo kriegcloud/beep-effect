@@ -8,7 +8,7 @@
  *
  * This module requires a runtime that exposes `globalThis.Float16Array`.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity";

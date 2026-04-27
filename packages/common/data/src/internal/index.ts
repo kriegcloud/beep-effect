@@ -1,7 +1,7 @@
 /**
  * Internal data namespace re-exports.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

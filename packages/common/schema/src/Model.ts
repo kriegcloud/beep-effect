@@ -5,7 +5,7 @@
  * variant-aware schemas for `select`, `insert`, `update`, `json`,
  * `jsonCreate`, and `jsonUpdate` use cases from a single field definition.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

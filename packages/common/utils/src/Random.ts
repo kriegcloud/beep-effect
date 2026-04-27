@@ -2,7 +2,7 @@
  * Random byte generation services and helpers.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $RepoUtilsId } from "@beep/identity";

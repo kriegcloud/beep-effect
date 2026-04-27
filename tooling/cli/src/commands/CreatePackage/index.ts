@@ -1,7 +1,7 @@
 /**
  * Package creation command - scaffold new packages following Effect v4 conventions.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

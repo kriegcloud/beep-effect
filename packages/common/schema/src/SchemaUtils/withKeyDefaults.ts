@@ -2,7 +2,7 @@
  * Attach the same default value for constructor creation and missing-key
  * decoding.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";

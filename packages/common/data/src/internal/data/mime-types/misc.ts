@@ -5,7 +5,7 @@
  * Contains entries that don't warrant their own dedicated module file, sourced
  * from IANA and Apache registries.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

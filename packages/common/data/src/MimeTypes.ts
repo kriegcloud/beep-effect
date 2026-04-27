@@ -5,7 +5,7 @@
  * Node-only APIs like `path.extname` so the module runs in edge runtimes
  * (Cloudflare Workers, Deno Deploy, Vercel Edge, etc.).
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

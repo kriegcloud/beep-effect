@@ -8,7 +8,7 @@
  *
  * Uses HTML-like syntax for all context enhancements.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

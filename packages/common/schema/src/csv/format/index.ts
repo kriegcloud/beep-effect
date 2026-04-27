@@ -1,7 +1,7 @@
 /**
  * A module for effect schema driven CSV formatting.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

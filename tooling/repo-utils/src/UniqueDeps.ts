@@ -5,7 +5,7 @@
  * package and the root, deduplicates them, and returns sorted arrays of
  * unique dependency names.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $RepoUtilsId } from "@beep/identity/packages";

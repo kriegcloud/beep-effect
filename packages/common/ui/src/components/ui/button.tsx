@@ -2,7 +2,7 @@
  * Button component built on Base UI primitives with variant support.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 "use client";
 

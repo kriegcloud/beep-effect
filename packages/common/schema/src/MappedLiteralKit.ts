@@ -2,7 +2,7 @@
  * Schema-backed mapped literal toolkit helpers for reversible literal pairs.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SchemaId } from "@beep/identity/packages";

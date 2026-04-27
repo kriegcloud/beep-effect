@@ -2,7 +2,7 @@
  * URL sanitization helpers for UI navigation.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import * as P from "effect/Predicate";

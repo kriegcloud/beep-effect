@@ -1,7 +1,7 @@
 /**
  * A module containing utilities which return thunks of data
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { Effect } from "effect";

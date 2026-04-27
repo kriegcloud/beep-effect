@@ -1,7 +1,7 @@
 /**
  * Report rendering service for version-sync output.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

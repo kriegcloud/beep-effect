@@ -1,7 +1,7 @@
 /**
  * Internal ANSI style tables and color model conversion helpers.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

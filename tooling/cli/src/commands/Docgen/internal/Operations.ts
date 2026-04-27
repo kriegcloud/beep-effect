@@ -1,7 +1,7 @@
 /**
  * Human-first docgen operations shared by `beep docgen` and `beep docs aggregate`.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -9,7 +9,7 @@ import { $RepoCliId } from "@beep/identity/packages";
 import {
   DomainError,
   decodePackageJsonEffect,
-  type FsUtils,
+  FsUtils,
   findRepoRoot,
   type NoSuchFileError,
   resolveWorkspaceDirs,
@@ -41,6 +41,23 @@ const $I = $RepoCliId.create("commands/Docgen/internal/Operations");
 const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
 const DOCS_MODULES_SEGMENTS = ["docs", "modules"] as const;
 const DOCGEN_REQUIRED_TAGS = ["@example", "@since"] as const;
+const DOCGEN_CONFIG_SCAN_GLOBS = [
+  "apps/**/docgen.json",
+  "packages/**/docgen.json",
+  "tooling/**/docgen.json",
+  "infra/docgen.json",
+  ".claude/docgen.json",
+  ".codex/docgen.json",
+] as const;
+const DOCGEN_CONFIG_SCAN_IGNORES = [
+  "**/.git/**",
+  "**/.turbo/**",
+  "**/build/**",
+  "**/coverage/**",
+  "**/dist/**",
+  "**/docs/**",
+  "**/node_modules/**",
+] as const;
 
 type ResolveDocgenWorkspacePackageOptions = {
   readonly rootDir?: string | undefined;
@@ -370,6 +387,96 @@ const loadWorkspaceDocgenAliasSources = Effect.fn("DocgenOperations.loadWorkspac
   }
 
   return aliasSources;
+});
+
+const formatOrphanDocgenConfigMessage = (paths: ReadonlyArray<string>): string =>
+  `Found docgen.json file(s) outside current workspaces: ${A.join(paths, ", ")}. Remove stale package dirs or add them back to root workspaces before running docgen.`;
+
+/**
+ * Discover package-local docgen configs that do not belong to a current workspace.
+ *
+ * @param rootDir - Optional repo root override.
+ * @returns Repo-relative orphaned `docgen.json` paths sorted for stable diagnostics.
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { discoverOrphanDocgenConfigPaths } from "@beep/repo-cli/commands/Docgen/internal/Operations"
+ *
+ * const program = discoverOrphanDocgenConfigPaths().pipe(
+ *   Effect.map((paths) => paths.length)
+ * )
+ *
+ * void program
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const discoverOrphanDocgenConfigPaths: (
+  rootDir?: string
+) => Effect.Effect<ReadonlyArray<string>, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> =
+  Effect.fn("DocgenOperations.discoverOrphanDocgenConfigPaths")(function* (rootDir?: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const fsUtils = yield* FsUtils;
+    const path = yield* Path.Path;
+    const repoRoot = rootDir ?? (yield* findRepoRoot());
+    const workspaceDirs = yield* resolveWorkspaceDirs(repoRoot);
+    const canonicalWorkspaceDirs = MutableHashSet.empty<string>();
+
+    for (const [, absolutePath] of workspaceDirs) {
+      MutableHashSet.add(canonicalWorkspaceDirs, normalizeSlashes(absolutePath));
+    }
+
+    const configPaths = yield* fsUtils.globFiles(DOCGEN_CONFIG_SCAN_GLOBS, {
+      cwd: repoRoot,
+      absolute: true,
+      ignore: DOCGEN_CONFIG_SCAN_IGNORES,
+    });
+    const orphanedPaths = A.empty<string>();
+
+    for (const configPath of configPaths) {
+      const configDir = path.dirname(configPath);
+      const canonicalConfigDir = yield* fs
+        .realPath(configDir)
+        .pipe(Effect.mapError(DomainError.newCause(`Failed to resolve docgen config directory "${configDir}"`)));
+
+      if (MutableHashSet.has(canonicalWorkspaceDirs, normalizeSlashes(canonicalConfigDir))) {
+        continue;
+      }
+
+      orphanedPaths.push(normalizeSlashes(path.relative(repoRoot, configPath)));
+    }
+
+    return A.sort(orphanedPaths, Order.String);
+  });
+
+/**
+ * Fail when stale package-local docgen configs exist outside current workspaces.
+ *
+ * @param rootDir - Optional repo root override.
+ * @returns Void when every discovered `docgen.json` belongs to a current workspace.
+ * @example
+ * ```ts
+ * import { assertNoOrphanDocgenConfigPaths } from "@beep/repo-cli/commands/Docgen/internal/Operations"
+ *
+ * const program = assertNoOrphanDocgenConfigPaths()
+ *
+ * void program
+ * ```
+ * @category utilities
+ * @since 0.0.0
+ */
+export const assertNoOrphanDocgenConfigPaths: (
+  rootDir?: string
+) => Effect.Effect<void, DomainError | NoSuchFileError, FileSystem.FileSystem | Path.Path | FsUtils> = Effect.fn(
+  "DocgenOperations.assertNoOrphanDocgenConfigPaths"
+)(function* (rootDir?: string) {
+  const orphanedPaths = yield* discoverOrphanDocgenConfigPaths(rootDir);
+
+  if (A.isReadonlyArrayNonEmpty(orphanedPaths)) {
+    return yield* new DomainError({
+      message: formatOrphanDocgenConfigMessage(orphanedPaths),
+    });
+  }
 });
 
 const packageHasDocgenConfig = Effect.fn("DocgenOperations.packageHasDocgenConfig")(function* (
@@ -1266,6 +1373,8 @@ export const aggregateGeneratedDocs = (options?: {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const repoRoot = yield* findRepoRoot();
+    yield* assertNoOrphanDocgenConfigPaths(repoRoot);
+
     const docsRoot = path.join(repoRoot, "docs");
     const selectedPackage = P.isUndefined(options?.package)
       ? undefined

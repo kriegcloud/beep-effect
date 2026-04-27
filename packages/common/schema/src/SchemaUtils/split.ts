@@ -5,7 +5,7 @@
  * that string into a decoded `ReadonlyArray<string>` by splitting on the
  * provided separator.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { SchemaTransformation } from "effect";

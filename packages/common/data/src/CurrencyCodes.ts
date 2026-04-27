@@ -5,7 +5,7 @@
  * including their three-letter code, numeric code, decimal digit count,
  * currency name, and the countries where each currency is used.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

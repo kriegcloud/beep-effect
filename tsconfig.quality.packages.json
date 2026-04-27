@@ -82,7 +82,7 @@
       "path": "packages/drivers/drizzle"
     },
     {
-      "path": "packages/drivers/pglite"
+      "path": "packages/drivers/postgres"
     },
     {
       "path": "packages/shared/client"

@@ -6,7 +6,7 @@
  * package dependency data) and the indexed `Graph.DirectedGraph` structure
  * that the Effect algorithms operate on.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { Effect, Graph as G, HashMap, HashSet, MutableHashMap, MutableHashSet, pipe } from "effect";

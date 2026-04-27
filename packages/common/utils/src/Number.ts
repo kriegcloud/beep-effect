@@ -1,7 +1,7 @@
 /**
  * Module for number utilities.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { Number as Num } from "effect";

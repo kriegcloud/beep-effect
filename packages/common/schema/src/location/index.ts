@@ -1,7 +1,7 @@
 /**
  * Module for schemas related to physical locations.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

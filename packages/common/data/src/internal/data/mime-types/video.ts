@@ -4,7 +4,7 @@
  * Contains entries sourced from IANA, Apache, and Nginx registries mapping
  * video MIME types to their file extensions.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

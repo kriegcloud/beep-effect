@@ -1,6 +1,6 @@
 /**
- * @module
- * @description Architectural layer taxonomy model definitions.
+ * Architectural layer taxonomy model definitions.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */

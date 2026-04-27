@@ -1,7 +1,7 @@
 /**
  * Attach static methods to a schema.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SchemaId } from "@beep/identity/packages";

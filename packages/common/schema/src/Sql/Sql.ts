@@ -1,7 +1,7 @@
 /**
  * SQL dialect and schema definition helpers.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

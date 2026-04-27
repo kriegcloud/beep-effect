@@ -2,7 +2,7 @@
  * The repositories i18n configuration.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import { O } from "@beep/utils";
 import { Exit, Match, pipe, SchemaIssue } from "effect";

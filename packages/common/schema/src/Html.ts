@@ -1,7 +1,7 @@
 /**
  * HTML text schemas.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

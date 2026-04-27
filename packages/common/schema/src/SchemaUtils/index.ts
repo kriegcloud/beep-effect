@@ -1,7 +1,7 @@
 /**
  * Schema utilities.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

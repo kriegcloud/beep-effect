@@ -16,7 +16,7 @@
  * decodeFileName("archive.tar.gz");
  * ```
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

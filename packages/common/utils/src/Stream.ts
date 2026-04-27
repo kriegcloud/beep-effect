@@ -1,7 +1,7 @@
 /**
  * A module containing utilities for working with `effect/Stream`.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

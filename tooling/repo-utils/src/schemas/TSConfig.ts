@@ -5,7 +5,7 @@
  * intentionally support from SchemaStore, including JSONC-aware decode helpers
  * for comments and trailing commas.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

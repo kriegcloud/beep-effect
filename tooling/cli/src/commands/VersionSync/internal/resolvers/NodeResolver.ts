@@ -4,7 +4,7 @@
  * Reads `.nvmrc` as the source of truth and scans GitHub workflow YAML files
  * for `node-version:` fields that should match.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

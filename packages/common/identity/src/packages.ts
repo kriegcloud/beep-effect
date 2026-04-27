@@ -16,7 +16,7 @@
  * ```
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import * as Identity from "./Id.ts";
 // import { Struct, pipe } from "effect";
@@ -106,7 +106,7 @@ const composers = $I.compose(
   "firecrawl",
   "codedank-web",
   "drizzle",
-  "pglite",
+  "postgres"
 );
 
 // --- common ---
@@ -744,7 +744,8 @@ export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = compos
  * @since 0.0.0
  * @category configuration
  */
-export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab-specimen"> = composers.$FixtureLabSpecimenId;
+export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab-specimen"> =
+  composers.$FixtureLabSpecimenId;
 
 /**
  * RepoPkgs - export object containing all package IdentityComposer's
@@ -769,13 +770,11 @@ export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = c
 /**
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/drizzle">}
  */
 export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.$DrizzleId;
 
 /**
  * @since 0.0.0
  * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/pglite">}
  */
-export const $PgliteId: Identity.IdentityComposer<"@beep/pglite"> = composers.$PgliteId;
+export const $PostgresId: Identity.IdentityComposer<"@beep/postgres"> = composers.$PostgresId;

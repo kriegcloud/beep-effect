@@ -21,7 +21,7 @@
  * void sym // Symbol.for("@beep/my-pkg")
  * ```
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

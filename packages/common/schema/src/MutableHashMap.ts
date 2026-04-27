@@ -2,7 +2,7 @@
  * Schemas for Effect `MutableHashMap` values.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SchemaId } from "@beep/identity/packages";

@@ -2,7 +2,7 @@
  * Core token model for NLP runtime services.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $NlpId } from "@beep/identity";

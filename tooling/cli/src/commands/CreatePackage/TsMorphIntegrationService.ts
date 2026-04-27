@@ -1,7 +1,7 @@
 /**
  * AST integration contract for create-package style workflows.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

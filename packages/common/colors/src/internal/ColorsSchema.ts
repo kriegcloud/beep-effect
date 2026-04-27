@@ -1,7 +1,7 @@
 /**
  * Internal schemas for ANSI color formatter objects.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

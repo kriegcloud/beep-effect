@@ -3,7 +3,7 @@
  * optional and has defaults.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import { Effect, SchemaGetter } from "effect";
 import { dual } from "effect/Function";

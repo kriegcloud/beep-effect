@@ -1,7 +1,7 @@
 /**
  * A module for CSV schema definitions.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

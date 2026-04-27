@@ -2,7 +2,7 @@
  * Thunk-oriented schema helpers.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import { $SchemaId } from "@beep/identity";
 import { Brand } from "effect";

@@ -1,7 +1,7 @@
 /**
  * Schema-first Markdown document AST models.
  *
- * @module \@beep/md/Md.model
+ * @packageDocumentation \@beep/md/Md.model
  * @since 0.0.0
  */
 

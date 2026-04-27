@@ -1,7 +1,7 @@
 /**
  * High-level CSV codec options for text decode/encode flows.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

@@ -1,7 +1,7 @@
 /**
  * Log level and log severity literal kits.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

@@ -1,7 +1,7 @@
 /**
  * Data types and tagged errors for sync-data-to-ts.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

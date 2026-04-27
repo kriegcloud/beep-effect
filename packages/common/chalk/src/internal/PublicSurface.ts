@@ -1,7 +1,7 @@
 /**
  * Public-facing Chalk constructor and instance surface contracts.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

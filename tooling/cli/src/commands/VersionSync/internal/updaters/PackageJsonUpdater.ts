@@ -1,7 +1,7 @@
 /**
  * Comment-preserving `package.json` `packageManager` updater via `jsonc-parser`.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

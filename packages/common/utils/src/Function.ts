@@ -1,7 +1,7 @@
 /**
  * Extended Function utilities built on `effect/Function`.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import type { TUnsafe } from "@beep/types";

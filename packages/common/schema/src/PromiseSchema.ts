@@ -6,7 +6,7 @@
  * `then`, `catch`, and `finally` methods alongside the built-in promise
  * object tag to reject plain thenable objects.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

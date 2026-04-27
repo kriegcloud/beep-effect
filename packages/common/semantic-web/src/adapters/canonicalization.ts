@@ -3,7 +3,7 @@
  *
  * @packageDocumentation
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { Sha256Hex } from "@beep/schema";

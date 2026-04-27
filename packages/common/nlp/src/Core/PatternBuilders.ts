@@ -2,7 +2,7 @@
  * Pattern builders and patch helpers.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { Chunk, Number as Num } from "effect";

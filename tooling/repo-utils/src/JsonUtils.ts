@@ -4,7 +4,7 @@
  * Provides effectful JSON serialization through the Schema ecosystem,
  * avoiding direct `JSON.parse` / `JSON.stringify` calls.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

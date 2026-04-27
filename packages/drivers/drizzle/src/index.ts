@@ -1,11 +1,22 @@
 /**
- * @beep/drizzle
+ * `@beep/drizzle` driver-level capability wrapper for product-neutral database execution.
  *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
+ * Public Drizzle driver error exports.
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category exports
  */
-export const VERSION = "0.0.0" as const;
+export * from "./Drizzle.errors.ts";
+
+/**
+ * Public Drizzle driver service exports.
+ *
+ * @since 0.0.0
+ * @category exports
+ */
+export * from "./Drizzle.service.ts";

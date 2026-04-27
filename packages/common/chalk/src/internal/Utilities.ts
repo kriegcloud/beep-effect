@@ -1,7 +1,7 @@
 /**
  * Internal string helpers used by the Chalk renderer.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

@@ -1,7 +1,7 @@
 /**
  * Markdown AST render adapters.
  *
- * @module \@beep/md/Md.render
+ * @packageDocumentation \@beep/md/Md.render
  * @since 0.0.0
  */
 

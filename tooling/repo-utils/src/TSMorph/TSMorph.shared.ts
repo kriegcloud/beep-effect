@@ -1,7 +1,7 @@
 /**
  * Shared TSMorph normalization helpers.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { Text, thunkEmptyStr } from "@beep/utils";

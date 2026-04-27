@@ -1,7 +1,7 @@
 /**
  * Official ISO 4217 target definition.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -153,7 +153,7 @@ const renderIso4217Module = (published: string, values: ReadonlyArray<Iso4217Cur
  * Source: ${ISO4217_SOURCE_URL}
  * Published: ${published}
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

@@ -7,6 +7,7 @@ import {
   DocgenExportAnalysis,
   DocgenPackageAnalysis,
   discoverDocgenWorkspacePackages,
+  discoverOrphanDocgenConfigPaths,
   generateAnalysisReport,
   loadDocgenConfigDocument,
 } from "@beep/repo-cli/commands/Docgen/internal/Operations";
@@ -482,6 +483,46 @@ describe("Docgen operations", () => {
 
           expect(Exit.isFailure(exit)).toBe(true);
           expect(aggregatedExists).toBe(false);
+        })
+      )
+    );
+  });
+
+  it("rejects stale docgen configs outside current workspaces during aggregation", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const tmpDir = process.cwd();
+          yield* fs.writeFileString(
+            path.join(tmpDir, "package.json"),
+            encodeJson({
+              name: "@beep/test-root",
+              private: true,
+              workspaces: ["packages/common/*"],
+            })
+          );
+
+          const packageDir = path.join(tmpDir, "packages", "common", "schema");
+          yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "package.json"),
+            encodeJson({
+              name: "@beep/schema",
+              version: "0.0.0",
+            })
+          );
+
+          const staleDocgenPath = path.join(tmpDir, "packages", "repo-memory", "runtime", "docgen.json");
+          yield* fs.makeDirectory(path.dirname(staleDocgenPath), { recursive: true });
+          yield* fs.writeFileString(staleDocgenPath, encodeJson({ srcDir: "src" }));
+
+          const orphaned = yield* discoverOrphanDocgenConfigPaths(tmpDir);
+          const error = yield* aggregateGeneratedDocs().pipe(Effect.flip);
+
+          expect(orphaned).toEqual(["packages/repo-memory/runtime/docgen.json"]);
+          expect(error.message).toContain("packages/repo-memory/runtime/docgen.json");
         })
       )
     );

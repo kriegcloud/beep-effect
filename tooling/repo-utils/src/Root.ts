@@ -4,7 +4,7 @@
  * Walks upward from a starting directory looking for repository markers
  * (`.git` directory or `bun.lock` file) to locate the monorepo root.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { thunkFalse } from "@beep/utils";

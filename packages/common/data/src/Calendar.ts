@@ -6,7 +6,7 @@
  * month codes. Each array is `as const` so members can be used as literal
  * union types.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

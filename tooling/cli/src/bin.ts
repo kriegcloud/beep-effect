@@ -3,8 +3,8 @@
 /**
  * CLI entry point - assembles runtime layers and executes the root command.
  *
- * @module
  * @internal
+ * @packageDocumentation
  * @since 0.0.0
  */
 

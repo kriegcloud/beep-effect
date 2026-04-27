@@ -1,6 +1,6 @@
 /**
- * @module
- * @description AST signal taxonomy model definitions.
+ * AST signal taxonomy model definitions.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */

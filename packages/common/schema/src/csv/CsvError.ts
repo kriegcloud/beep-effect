@@ -1,7 +1,7 @@
 /**
  * Shared CSV domain errors.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

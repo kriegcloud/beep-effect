@@ -2,7 +2,7 @@
  * Branded schemas and transformation codecs for lowercase SHA-256 hex digests.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { $SchemaId } from "@beep/identity/packages";

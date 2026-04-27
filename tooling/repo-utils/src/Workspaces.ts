@@ -4,7 +4,7 @@
  * Expands glob patterns from the root `package.json` `workspaces` field
  * into a mapping of package names to their absolute directory paths.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { normalizePath } from "@beep/schema";

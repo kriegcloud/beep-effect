@@ -2,7 +2,7 @@
  * MDX component bindings for codedank web.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import type { MDXComponents } from "mdx/types";

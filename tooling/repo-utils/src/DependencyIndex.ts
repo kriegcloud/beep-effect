@@ -4,7 +4,7 @@
  * Builds a complete mapping of every workspace package (plus the root)
  * to its classified dependencies (workspace vs NPM).
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

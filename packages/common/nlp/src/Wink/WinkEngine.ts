@@ -2,7 +2,7 @@
  * Wink runtime engine service.
  *
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 
 import { createRequire } from "node:module";

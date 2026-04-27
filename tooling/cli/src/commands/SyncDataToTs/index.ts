@@ -1,7 +1,7 @@
 /**
  * Sync checked-in official datasets into deterministic TypeScript modules.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

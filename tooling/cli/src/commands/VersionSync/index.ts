@@ -1,7 +1,7 @@
 /**
  * Version synchronization CLI command.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

@@ -1,6 +1,6 @@
 /**
- * @module
- * @description Dependency profile and fan value model definitions.
+ * Dependency profile and fan value model definitions.
+ *
  * @packageDocumentation
  * @since 0.0.0
  */

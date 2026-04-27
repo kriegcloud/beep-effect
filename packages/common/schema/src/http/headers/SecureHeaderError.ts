@@ -1,7 +1,7 @@
 /**
  * CSP header schema & constructor's
  * @since 0.0.0
- * @module
+ * @packageDocumentation
  */
 import { $SchemaId } from "@beep/identity";
 import { Tuple } from "effect";
