@@ -79,6 +79,27 @@
       "path": "packages/editor/runtime"
     },
     {
+      "path": "packages/fixture-lab/specimen/client"
+    },
+    {
+      "path": "packages/fixture-lab/specimen/config"
+    },
+    {
+      "path": "packages/fixture-lab/specimen/domain"
+    },
+    {
+      "path": "packages/fixture-lab/specimen/server"
+    },
+    {
+      "path": "packages/fixture-lab/specimen/tables"
+    },
+    {
+      "path": "packages/fixture-lab/specimen/ui"
+    },
+    {
+      "path": "packages/fixture-lab/specimen/use-cases"
+    },
+    {
       "path": "packages/repo-memory/client"
     },
     {

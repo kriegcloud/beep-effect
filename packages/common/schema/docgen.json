@@ -35,6 +35,9 @@
       "@beep/data/*": ["../../../packages/common/data/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/messages": ["../../../packages/common/messages/src/index.ts"],
       "@beep/messages/*": ["../../../packages/common/messages/src/*.ts"],
       "@beep/types": ["../../../packages/common/types/src/index.ts"],

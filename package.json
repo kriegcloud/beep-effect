@@ -11,6 +11,7 @@
     "infra",
     "packages/_internal/*",
     "packages/common/*",
+    "packages/fixture-lab/specimen/*",
     "packages/repo-memory/client",
     "packages/repo-memory/model",
     "packages/repo-memory/runtime",

@@ -1,0 +1,64 @@
+{
+  "$schema": "https://beep.dev/schemas/repo-architecture-registry.v1.json",
+  "schemaVersion": "1.0.0",
+  "slice": {
+    "boundedContext": "fixture-lab",
+    "concept": "Specimen",
+    "domainKind": "entities",
+    "conceptPath": "entities/Specimen",
+    "slug": "specimen",
+    "description": "Synthetic specimen used to prove generated repo topology.",
+    "identityComposer": "$FixtureLabSpecimenId"
+  },
+  "roles": [
+    {
+      "kind": "domain",
+      "packageName": "@beep/fixture-lab-specimen-domain",
+      "path": "packages/fixture-lab/specimen/domain",
+      "exports": [".", "./entities/Specimen"]
+    },
+    {
+      "kind": "use-cases",
+      "packageName": "@beep/fixture-lab-specimen-use-cases",
+      "path": "packages/fixture-lab/specimen/use-cases",
+      "rootBoundary": "public",
+      "exports": [".", "./public", "./server", "./test"]
+    },
+    {
+      "kind": "config",
+      "packageName": "@beep/fixture-lab-specimen-config",
+      "path": "packages/fixture-lab/specimen/config",
+      "rootBoundary": "public",
+      "exports": [".", "./public", "./server", "./secrets", "./layer", "./test"]
+    },
+    {
+      "kind": "tables",
+      "packageName": "@beep/fixture-lab-specimen-tables",
+      "path": "packages/fixture-lab/specimen/tables",
+      "exports": [".", "./tables", "./read-models"]
+    },
+    {
+      "kind": "server",
+      "packageName": "@beep/fixture-lab-specimen-server",
+      "path": "packages/fixture-lab/specimen/server",
+      "exports": [".", "./layer"]
+    },
+    {
+      "kind": "client",
+      "packageName": "@beep/fixture-lab-specimen-client",
+      "path": "packages/fixture-lab/specimen/client",
+      "exports": [".", "./entities/Specimen"]
+    },
+    {
+      "kind": "ui",
+      "packageName": "@beep/fixture-lab-specimen-ui",
+      "path": "packages/fixture-lab/specimen/ui",
+      "exports": [".", "./entities/Specimen"]
+    }
+  ],
+  "behavior": {
+    "statusValues": ["draft", "observed", "retired"],
+    "commands": ["observeSpecimen", "retireSpecimen"],
+    "queries": ["getSpecimen"]
+  }
+}

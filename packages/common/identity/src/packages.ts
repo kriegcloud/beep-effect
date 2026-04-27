@@ -65,6 +65,9 @@ const composers = $I.compose(
   "ui",
   "utils",
 
+  // Synthetic architecture automation fixture packages
+  "fixture-lab-specimen",
+
   // Repository Tooling Packages
   "repo-cli",
   "repo-configs",
@@ -725,6 +728,22 @@ export const $InfraId: Identity.IdentityComposer<"@beep/infra"> = composers.$Inf
  * @category Configuration
  */
 export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = composers.$FirecrawlId;
+
+/**
+ * Identity composer for the synthetic `@beep/fixture-lab-specimen-*` packages.
+ *
+ * @example
+ * ```typescript
+ * import { $FixtureLabSpecimenId } from "@beep/identity"
+ *
+ * const id = $FixtureLabSpecimenId.make("Specimen")
+ * ```
+ *
+ * @since 0.0.0
+ * @category configuration
+ */
+export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab-specimen"> =
+  composers.$FixtureLabSpecimenId;
 
 /**
  * RepoPkgs - export object containing all package IdentityComposer's

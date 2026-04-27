@@ -37,8 +37,12 @@
       "@beep/chalk/*": ["../../packages/common/chalk/src/*.ts"],
       "@beep/docgen": ["../../tooling/docgen/src/index.ts"],
       "@beep/docgen/*": ["../../tooling/docgen/src/*.ts"],
+      "@beep/docgen/schema.json": ["../../tooling/docgen/schema.json"],
       "@beep/identity": ["../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/repo-configs": ["../../tooling/configs/src/index.ts"],
       "@beep/repo-configs/*": ["../../tooling/configs/src/*.ts"],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],

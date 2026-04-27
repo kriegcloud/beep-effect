@@ -1,0 +1,53 @@
+{
+  "name": "@beep/fixture-lab-specimen-client",
+  "version": "0.0.0",
+  "description": "Synthetic client package for the Specimen architecture automation slice.",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/fixture-lab/specimen/client",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/fixture-lab/specimen/client"
+  },
+  "scripts": {
+    "build": "bun run beep:build",
+    "check": "bun run beep:check",
+    "codegen": "echo 'no codegen needed'",
+    "coverage": "bunx --bun vitest run --coverage",
+    "docgen": "bun run ../../../../tooling/docgen/src/bin.ts",
+    "lint": "bun run beep:lint",
+    "lint:fix": "bun run beep:lint:fix",
+    "test": "bun run beep:test",
+    "beep:build": "tsc -b tsconfig.json",
+    "beep:check": "tsgo -b tsconfig.json",
+    "beep:test": "bunx --bun vitest run",
+    "beep:lint": "biome check .",
+    "beep:lint:fix": "biome check . --write",
+    "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+    "audit": "bun run --if-present beep:audit"
+  },
+  "exports": {
+    "./package.json": "./package.json",
+    ".": "./src/index.ts",
+    "./entities/Specimen": "./src/entities/Specimen/index.ts"
+  },
+  "files": [
+    "src/**/*.ts",
+    "dist/**/*.js",
+    "dist/**/*.js.map",
+    "dist/**/*.d.ts",
+    "dist/**/*.d.ts.map"
+  ],
+  "sideEffects": [],
+  "dependencies": {
+    "@beep/fixture-lab-specimen-domain": "workspace:^",
+    "@beep/fixture-lab-specimen-use-cases": "workspace:^",
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "@effect/vitest": "catalog:",
+    "@types/node": "catalog:"
+  }
+}

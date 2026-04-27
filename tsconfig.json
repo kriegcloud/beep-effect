@@ -54,11 +54,8 @@
       // These will be populated as packages are created
       "@beep/repo-cli": ["./tooling/cli/src/index.ts"],
       "@beep/repo-cli/*": ["./tooling/cli/src/*"],
-      "@beep/repo-cli/commands/*": ["./tooling/cli/src/commands/*"],
-      "@beep/repo-cli/test/*": ["./tooling/cli/test/*.ts"],
       "@beep/repo-utils": ["./tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["./tooling/repo-utils/src/*"],
-      "@beep/repo-utils/test/*": ["./tooling/utils/test/*.ts"],
       "@beep/types": ["./packages/common/types/src/index.ts"],
       "@beep/types/*": ["./packages/common/types/src/*"],
       "@beep/utils": ["./packages/common/utils/src/index.ts"],
@@ -67,7 +64,6 @@
       "@beep/identity/*": ["./packages/common/identity/src/*"],
       "@beep/schema": ["./packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["./packages/common/schema/src/*"],
-      "@beep/schema/test/*": ["./packages/common/schema/test/*"],
       "@beep/messages": ["./packages/common/messages/src/index.ts"],
       "@beep/messages/*": ["./packages/common/messages/src/*"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
@@ -89,17 +85,11 @@
       "@beep/runtime-protocol": ["./packages/runtime/protocol/src/index.ts"],
       "@beep/runtime-protocol/*": ["./packages/runtime/protocol/src/*"],
       "@beep/runtime-server": ["./packages/runtime/server/src/index.ts"],
-      "@beep/runtime-server/internal/*": [
-        "./packages/runtime/server/src/internal/*.ts"
-      ],
       "@beep/runtime-server/*": ["./packages/runtime/server/src/*"],
       "@beep/repo-memory-model": ["./packages/repo-memory/model/src/index.ts"],
       "@beep/repo-memory-model/*": ["./packages/repo-memory/model/src/*"],
       "@beep/repo-memory-runtime": [
         "./packages/repo-memory/runtime/src/index.ts"
-      ],
-      "@beep/repo-memory-runtime/internal/*": [
-        "./packages/repo-memory/runtime/src/internal/*.ts"
       ],
       "@beep/repo-memory-runtime/*": ["./packages/repo-memory/runtime/src/*"],
       "@beep/repo-memory-client": [
@@ -114,7 +104,6 @@
       "@beep/repo-memory-sqlite/*": ["./packages/repo-memory/sqlite/src/*"],
       "@beep/repo-configs": ["./tooling/configs/src/index.ts"],
       "@beep/repo-configs/*": ["./tooling/configs/src/*"],
-      "@beep/repo-configs/internal/*": ["./tooling/configs/src/internal/*"],
       "@beep/test-utils": ["./tooling/test-utils/src/index.ts"],
       "@beep/test-utils/*": ["./tooling/test-utils/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
@@ -146,15 +135,132 @@
       "@beep/firecrawl": ["./packages/shared/providers/firecrawl/src/index.ts"],
       "@beep/firecrawl/*": ["./packages/shared/providers/firecrawl/src/*"],
       "@beep/md": ["./packages/common/md/src/index.ts"],
-      "@beep/md/*": [
-        "./packages/common/md/src/*"
+      "@beep/md/*": ["./packages/common/md/src/*"],
+      "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
+      "@beep/codedank-web/*": ["./apps/codedank-web/src/*"],
+      "@beep/docgen/schema.json": ["./tooling/docgen/schema.json"],
+      "@beep/fixture-lab-specimen-client": [
+        "./packages/fixture-lab/specimen/client/src/index.ts"
       ],
-      "@beep/codedank-web": [
-        "./apps/codedank-web/src/index.ts"
+      "@beep/fixture-lab-specimen-client/*": [
+        "./packages/fixture-lab/specimen/client/src/*"
       ],
-      "@beep/codedank-web/*": [
-        "./apps/codedank-web/src/*"
-      ]
+      "@beep/fixture-lab-specimen-client/entities/Specimen": [
+        "./packages/fixture-lab/specimen/client/src/entities/Specimen/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-config": [
+        "./packages/fixture-lab/specimen/config/src/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/*": [
+        "./packages/fixture-lab/specimen/config/src/*"
+      ],
+      "@beep/fixture-lab-specimen-config/layer": [
+        "./packages/fixture-lab/specimen/config/src/Layer.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/public": [
+        "./packages/fixture-lab/specimen/config/src/PublicConfig.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/secrets": [
+        "./packages/fixture-lab/specimen/config/src/Secrets.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/server": [
+        "./packages/fixture-lab/specimen/config/src/ServerConfig.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/test": [
+        "./packages/fixture-lab/specimen/config/src/TestLayer.ts"
+      ],
+      "@beep/fixture-lab-specimen-domain": [
+        "./packages/fixture-lab/specimen/domain/src/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-domain/*": [
+        "./packages/fixture-lab/specimen/domain/src/*"
+      ],
+      "@beep/fixture-lab-specimen-domain/entities/Specimen": [
+        "./packages/fixture-lab/specimen/domain/src/entities/Specimen/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-server": [
+        "./packages/fixture-lab/specimen/server/src/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-server/*": [
+        "./packages/fixture-lab/specimen/server/src/*"
+      ],
+      "@beep/fixture-lab-specimen-server/layer": [
+        "./packages/fixture-lab/specimen/server/src/Layer.ts"
+      ],
+      "@beep/fixture-lab-specimen-tables": [
+        "./packages/fixture-lab/specimen/tables/src/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-tables/*": [
+        "./packages/fixture-lab/specimen/tables/src/*"
+      ],
+      "@beep/fixture-lab-specimen-tables/read-models": [
+        "./packages/fixture-lab/specimen/tables/src/ReadModels.ts"
+      ],
+      "@beep/fixture-lab-specimen-tables/tables": [
+        "./packages/fixture-lab/specimen/tables/src/Tables.ts"
+      ],
+      "@beep/fixture-lab-specimen-ui": [
+        "./packages/fixture-lab/specimen/ui/src/index.tsx"
+      ],
+      "@beep/fixture-lab-specimen-ui/*": [
+        "./packages/fixture-lab/specimen/ui/src/*"
+      ],
+      "@beep/fixture-lab-specimen-ui/entities/Specimen": [
+        "./packages/fixture-lab/specimen/ui/src/entities/Specimen/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-use-cases": [
+        "./packages/fixture-lab/specimen/use-cases/src/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-use-cases/*": [
+        "./packages/fixture-lab/specimen/use-cases/src/*"
+      ],
+      "@beep/fixture-lab-specimen-use-cases/public": [
+        "./packages/fixture-lab/specimen/use-cases/src/public.ts"
+      ],
+      "@beep/fixture-lab-specimen-use-cases/server": [
+        "./packages/fixture-lab/specimen/use-cases/src/server.ts"
+      ],
+      "@beep/fixture-lab-specimen-use-cases/test": [
+        "./packages/fixture-lab/specimen/use-cases/src/test.ts"
+      ],
+      "@beep/identity/packages": ["./packages/common/identity/src/packages.ts"],
+      "@beep/md/Md": ["./packages/common/md/src/Md.ts"],
+      "@beep/md/Md.model": ["./packages/common/md/src/Md.model.ts"],
+      "@beep/md/Md.render": ["./packages/common/md/src/Md.render.ts"],
+      "@beep/md/Md.utils": ["./packages/common/md/src/Md.utils.ts"],
+      "@beep/nlp/Core": ["./packages/common/nlp/src/Core/index.ts"],
+      "@beep/nlp/IdentifierText": [
+        "./packages/common/nlp/src/IdentifierText.ts"
+      ],
+      "@beep/nlp/Layers": ["./packages/common/nlp/src/Layers/index.ts"],
+      "@beep/nlp/PathText": ["./packages/common/nlp/src/PathText.ts"],
+      "@beep/nlp/QueryText": ["./packages/common/nlp/src/QueryText.ts"],
+      "@beep/nlp/Tools": ["./packages/common/nlp/src/Tools/index.ts"],
+      "@beep/nlp/VariantText": ["./packages/common/nlp/src/VariantText.ts"],
+      "@beep/nlp/Wink": ["./packages/common/nlp/src/Wink/index.ts"],
+      "@beep/observability/experimental/server": [
+        "./packages/common/observability/src/experimental/server/index.ts"
+      ],
+      "@beep/observability/server": [
+        "./packages/common/observability/src/server/index.ts"
+      ],
+      "@beep/observability/web": [
+        "./packages/common/observability/src/web/index.ts"
+      ],
+      "@beep/ui/components/blocks/editor-00/editor": [
+        "./packages/common/ui/src/components/blocks/editor-00/editor.tsx"
+      ],
+      "@beep/ui/components/editor/editor-ui/content-editable": [
+        "./packages/common/ui/src/components/editor/editor-ui/content-editable.tsx"
+      ],
+      "@beep/ui/components/editor/themes/editor-theme": [
+        "./packages/common/ui/src/components/editor/themes/editor-theme.ts"
+      ],
+      "@beep/ui/postcss.config": ["./packages/common/ui/postcss.config.mjs"],
+      "@beep/ui/styles/globals.css": [
+        "./packages/common/ui/src/styles/globals.css"
+      ],
+      "@beep/ui/themes": ["./packages/common/ui/src/themes/index.ts"]
     }
   }
 }

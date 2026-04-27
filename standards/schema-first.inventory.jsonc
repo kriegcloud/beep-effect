@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "generatedOn": "2026-04-23",
+  "generatedOn": "2026-04-27",
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
@@ -184,22 +184,6 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.ts",
-      "symbol": "BlockContentBuilder",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
-    },
-    {
-      "file": "packages/common/md/src/Md.ts",
-      "symbol": "InlineContentBuilder",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/md",
-      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
-    },
-    {
       "file": "packages/common/md/src/Md.render.ts",
       "symbol": "EffectRenderAdapter",
       "kind": "exported-interface",
@@ -214,6 +198,22 @@
       "status": "exception",
       "owner": "@beep/md",
       "reason": "Generic render adapter interface contains function members and stays tracked as a runtime-boundary exception."
+    },
+    {
+      "file": "packages/common/md/src/Md.ts",
+      "symbol": "BlockContentBuilder",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
+    },
+    {
+      "file": "packages/common/md/src/Md.ts",
+      "symbol": "InlineContentBuilder",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/md",
+      "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
     },
     {
       "file": "packages/common/nlp/src/Tools/ToolExport.ts",
@@ -254,6 +254,14 @@
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Cuid.ts",
+      "symbol": "CuidSeed",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
       "file": "packages/common/schema/src/Fn.ts",
@@ -506,6 +514,14 @@
     {
       "file": "packages/common/schema/src/Model.ts",
       "symbol": "JsonFromString",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/common/schema/src/Model.ts",
+      "symbol": "Overridable",
       "kind": "exported-interface",
       "status": "exception",
       "owner": "@beep/schema",
@@ -816,6 +832,86 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
+      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.command-client.ts",
+      "symbol": "SpecimenCommandClient",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.command-client.ts",
+      "symbol": "SpecimenCommandTransport",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.query-client.ts",
+      "symbol": "SpecimenQueryClient",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.query-client.ts",
+      "symbol": "SpecimenQueryTransport",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.service.ts",
+      "symbol": "SpecimenClient",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-client",
+      "reason": "Derived interface with extends clauses is tracked as an exception."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/client/src/entities/Specimen/Specimen.service.ts",
+      "symbol": "SpecimenClientTransport",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-client",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/config/src/Config.ts",
+      "symbol": "SpecimenConfigShape",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/fixture-lab-specimen-config",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/ui/src/entities/Specimen/Specimen.detail.tsx",
+      "symbol": "SpecimenDetailProps",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/fixture-lab-specimen-ui",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/use-cases/src/entities/Specimen/Specimen.ports.ts",
+      "symbol": "SpecimenRepository",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/fixture-lab/specimen/use-cases/src/entities/Specimen/Specimen.service.ts",
+      "symbol": "SpecimenUseCases",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/fixture-lab-specimen-use-cases",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/repo-memory/client/src/index.ts",
       "symbol": "RepoMemoryClientShape",
       "kind": "exported-interface",
@@ -918,6 +1014,14 @@
       "status": "exception",
       "owner": "@beep/repo-memory-store",
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/shared/domain/src/entity-ids/_internal/entity-id.ts",
+      "symbol": "anonymous@133",
+      "kind": "object-struct-schema",
+      "status": "exception",
+      "owner": "@beep/shared-domain",
+      "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
       "file": "packages/shared/server/src/factories/effect-drizzle/Logger.ts",

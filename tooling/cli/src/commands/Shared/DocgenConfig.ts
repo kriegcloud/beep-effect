@@ -19,6 +19,7 @@ import * as Str from "effect/String";
 import {
   buildDocgenAliasTargets,
   resolveRootExportTarget,
+  resolveSubpathExportTarget,
   resolveWildcardExportTarget,
 } from "./TsconfigAliasTargets.js";
 
@@ -73,6 +74,7 @@ export class DocgenAliasSource extends S.Class<DocgenAliasSource>($I`DocgenAlias
     packageName: S.String,
     rootAliasTarget: S.String,
     wildcardAliasTarget: S.String,
+    subpathAliasTargets: S.Record(S.String, S.String).pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("DocgenAliasSource", {
     description: "Workspace alias metadata used to build docgen example path mappings.",
@@ -301,13 +303,50 @@ export const buildDocgenAliasSource: {
     rootExportTarget,
     wildcardExportTarget,
   });
+  const subpathAliasTargets = buildDocgenSubpathAliasTargets(packageName, packageRelativePath, exportsField);
 
   return new DocgenAliasSource({
     packageName,
     rootAliasTarget: aliasTargets.rootAliasTarget,
     wildcardAliasTarget: aliasTargets.wildcardAliasTarget,
+    subpathAliasTargets,
   });
 });
+
+const isConcretePackageSubpathExport = (exportKey: string): boolean =>
+  Str.startsWith("./")(exportKey) && exportKey !== "./package.json" && !Str.includes("*")(exportKey);
+
+const packageSubpathAlias = (packageName: string, exportKey: string): string =>
+  `${packageName}/${Str.replace(/^\.\//, Str.empty)(exportKey)}`;
+
+const sourceAliasTarget = (packageRelativePath: string, exportTarget: string): string =>
+  `./${packageRelativePath}/${Str.replace(/^\.\//, Str.empty)(exportTarget)}`;
+
+const buildDocgenSubpathAliasTargets = (
+  packageName: string,
+  packageRelativePath: string,
+  exportsField: unknown
+): Readonly<Record<string, string>> => {
+  if (!isReadonlyUnknownRecord(exportsField)) {
+    return EMPTY_STRING_RECORD;
+  }
+
+  return pipe(
+    exportsField,
+    R.keys,
+    A.filter(isConcretePackageSubpathExport),
+    A.flatMap((exportKey) =>
+      pipe(
+        resolveSubpathExportTarget(exportsField, exportKey),
+        O.map((exportTarget) => [
+          [packageSubpathAlias(packageName, exportKey), sourceAliasTarget(packageRelativePath, exportTarget)] as const,
+        ]),
+        O.getOrElse(() => [])
+      )
+    ),
+    R.fromEntries
+  );
+};
 
 const buildDocgenAliasIndex = (sources: ReadonlyArray<DocgenAliasSource>): HashMap.HashMap<string, DocgenAliasSource> =>
   HashMap.fromIterable(A.map(sources, (source) => [source.packageName, source] as const));
@@ -318,6 +357,11 @@ const docgenAliasPathEntries = (
 ): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => [
   [aliasSource.packageName, [withRootRelativePrefix(rootRelativePrefix, aliasSource.rootAliasTarget)]],
   [`${aliasSource.packageName}/*`, [withRootRelativePrefix(rootRelativePrefix, aliasSource.wildcardAliasTarget)]],
+  ...pipe(
+    aliasSource.subpathAliasTargets ?? EMPTY_STRING_RECORD,
+    R.toEntries,
+    A.map(([alias, target]) => [alias, [withRootRelativePrefix(rootRelativePrefix, target)]] as const)
+  ),
 ];
 
 const buildDocgenExamplesPaths = (

@@ -31,6 +31,9 @@
     "paths": {
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/types": ["../../../packages/common/types/src/index.ts"],
       "@beep/types/*": ["../../../packages/common/types/src/*.ts"]
     }

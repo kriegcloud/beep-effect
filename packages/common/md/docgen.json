@@ -31,8 +31,15 @@
     "paths": {
       "@beep/md": ["../../../packages/common/md/src/index.ts"],
       "@beep/md/*": ["../../../packages/common/md/src/*.ts"],
+      "@beep/md/Md": ["../../../packages/common/md/src/Md.ts"],
+      "@beep/md/Md.model": ["../../../packages/common/md/src/Md.model.ts"],
+      "@beep/md/Md.render": ["../../../packages/common/md/src/Md.render.ts"],
+      "@beep/md/Md.utils": ["../../../packages/common/md/src/Md.utils.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
       "@beep/types": ["../../../packages/common/types/src/index.ts"],

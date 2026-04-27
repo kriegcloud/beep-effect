@@ -36,6 +36,9 @@
       ],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/runtime-protocol": [
         "../../../packages/runtime/protocol/src/index.ts"
       ],

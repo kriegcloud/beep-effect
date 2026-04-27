@@ -47,13 +47,37 @@
       ],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/nlp": ["../../../packages/common/nlp/src/index.ts"],
       "@beep/nlp/*": ["../../../packages/common/nlp/src/*.ts"],
+      "@beep/nlp/Core": ["../../../packages/common/nlp/src/Core/index.ts"],
+      "@beep/nlp/IdentifierText": [
+        "../../../packages/common/nlp/src/IdentifierText.ts"
+      ],
+      "@beep/nlp/Layers": ["../../../packages/common/nlp/src/Layers/index.ts"],
+      "@beep/nlp/PathText": ["../../../packages/common/nlp/src/PathText.ts"],
+      "@beep/nlp/QueryText": ["../../../packages/common/nlp/src/QueryText.ts"],
+      "@beep/nlp/Tools": ["../../../packages/common/nlp/src/Tools/index.ts"],
+      "@beep/nlp/VariantText": [
+        "../../../packages/common/nlp/src/VariantText.ts"
+      ],
+      "@beep/nlp/Wink": ["../../../packages/common/nlp/src/Wink/index.ts"],
       "@beep/observability": [
         "../../../packages/common/observability/src/index.ts"
       ],
       "@beep/observability/*": [
         "../../../packages/common/observability/src/*.ts"
+      ],
+      "@beep/observability/experimental/server": [
+        "../../../packages/common/observability/src/experimental/server/index.ts"
+      ],
+      "@beep/observability/server": [
+        "../../../packages/common/observability/src/server/index.ts"
+      ],
+      "@beep/observability/web": [
+        "../../../packages/common/observability/src/web/index.ts"
       ],
       "@beep/repo-memory-model": [
         "../../../packages/repo-memory/model/src/index.ts"

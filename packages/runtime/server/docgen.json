@@ -32,11 +32,23 @@
       "@beep/runtime-server/*": ["../../../packages/runtime/server/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/observability": [
         "../../../packages/common/observability/src/index.ts"
       ],
       "@beep/observability/*": [
         "../../../packages/common/observability/src/*.ts"
+      ],
+      "@beep/observability/experimental/server": [
+        "../../../packages/common/observability/src/experimental/server/index.ts"
+      ],
+      "@beep/observability/server": [
+        "../../../packages/common/observability/src/server/index.ts"
+      ],
+      "@beep/observability/web": [
+        "../../../packages/common/observability/src/web/index.ts"
       ],
       "@beep/repo-memory-model": [
         "../../../packages/repo-memory/model/src/index.ts"

@@ -33,12 +33,31 @@
       "@beep/codedank-web/*": ["../../apps/codedank-web/src/*.ts"],
       "@beep/identity": ["../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],
       "@beep/schema": ["../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../packages/common/schema/src/*.ts"],
       "@beep/ui": ["../../packages/common/ui/src/index.ts"],
       "@beep/ui/*": ["../../packages/common/ui/src/*.ts"],
+      "@beep/ui/themes": ["../../packages/common/ui/src/themes/index.ts"],
+      "@beep/ui/styles/globals.css": [
+        "../../packages/common/ui/src/styles/globals.css"
+      ],
+      "@beep/ui/postcss.config": [
+        "../../packages/common/ui/postcss.config.mjs"
+      ],
+      "@beep/ui/components/blocks/editor-00/editor": [
+        "../../packages/common/ui/src/components/blocks/editor-00/editor.tsx"
+      ],
+      "@beep/ui/components/editor/editor-ui/content-editable": [
+        "../../packages/common/ui/src/components/editor/editor-ui/content-editable.tsx"
+      ],
+      "@beep/ui/components/editor/themes/editor-theme": [
+        "../../packages/common/ui/src/components/editor/themes/editor-theme.ts"
+      ],
       "@beep/utils": ["../../packages/common/utils/src/index.ts"],
       "@beep/utils/*": ["../../packages/common/utils/src/*.ts"]
     }

@@ -10,6 +10,7 @@ const config = {
     "infra/package.json",
     "packages/_internal/*/package.json",
     "packages/common/*/package.json",
+    "packages/fixture-lab/specimen/*/package.json",
     "packages/repo-memory/client/package.json",
     "packages/repo-memory/model/package.json",
     "packages/repo-memory/runtime/package.json",

@@ -43,7 +43,11 @@ import {
   DocgenAliasSource,
   mergeManagedDocgenConfig,
 } from "./Shared/DocgenConfig.js";
-import { buildCanonicalAliasTargets, resolveRootExportTarget } from "./Shared/TsconfigAliasTargets.js";
+import {
+  buildCanonicalAliasTargets,
+  resolveRootExportTarget,
+  resolveSubpathExportTarget,
+} from "./Shared/TsconfigAliasTargets.js";
 
 export {
   /**
@@ -94,11 +98,12 @@ const RootDepIndexKey = S.Literal(ROOT_DEP_INDEX_KEY).annotate(
  * Matches exactly:
  * - `@beep/<name>`
  * - `@beep/<name>/*`
+ * - `@beep/<name>/<subpath>`
  *
  * @category Configuration
  * @since 0.0.0
  */
-const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/\*)?$/;
+const CANONICAL_ALIAS_KEY_PATTERN = /^@beep\/[^/*]+(?:\/(?!\*)[^*]+)*(?:\/\*)?$/;
 
 const CanonicalAliasKey = S.String.check(S.isPattern(CANONICAL_ALIAS_KEY_PATTERN)).pipe(
   S.brand("CanonicalAliasKey"),
@@ -625,8 +630,10 @@ export class WorkspaceDescriptor extends S.Class<WorkspaceDescriptor>($I`Workspa
     directWorkspaceDependencies: S.Array(S.String),
     rootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     wildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    subpathAliasTargets: S.Record(S.String, S.String).pipe(S.UndefinedOr, S.optionalKey),
     docgenRootAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
     docgenWildcardAliasTarget: S.String.pipe(S.UndefinedOr, S.optionalKey),
+    docgenSubpathAliasTargets: S.Record(S.String, S.String).pipe(S.UndefinedOr, S.optionalKey),
   },
   $I.annote("WorkspaceDescriptor", {
     description: "A workspace package descriptor with metadata for tsconfig synchronization.",
@@ -999,16 +1006,21 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
       O.flatMap(resolveRootExportTarget),
       O.map((rootExportTarget) => buildCanonicalAliasTargets(relativeDir, rootExportTarget))
     );
-    const aliasTargetFields = R.getSomes({
-      rootAliasTarget: pipe(
-        aliasTargets,
-        O.map(({ rootAliasTarget }) => rootAliasTarget)
-      ),
-      wildcardAliasTarget: pipe(
-        aliasTargets,
-        O.map(({ wildcardAliasTarget }) => wildcardAliasTarget)
-      ),
-    });
+    const subpathAliasTargets = buildPackageSubpathAliasTargets(
+      packageName,
+      relativeDir,
+      O.getOrUndefined(packageJson.exports)
+    );
+    const rootAliasTargets = O.getOrUndefined(aliasTargets);
+    const aliasTargetFields = {
+      ...(P.isNotUndefined(rootAliasTargets)
+        ? {
+            rootAliasTarget: rootAliasTargets.rootAliasTarget,
+            wildcardAliasTarget: rootAliasTargets.wildcardAliasTarget,
+          }
+        : {}),
+      ...(!R.isEmptyReadonlyRecord(subpathAliasTargets) ? { subpathAliasTargets } : {}),
+    };
     const docgenAliasSource = buildDocgenAliasSource(packageName, relativeDir, packageJson);
 
     descriptors.push(
@@ -1023,6 +1035,7 @@ const buildWorkspaceDescriptors = Effect.fn(function* (rootDir: string) {
         ...aliasTargetFields,
         docgenRootAliasTarget: docgenAliasSource.rootAliasTarget,
         docgenWildcardAliasTarget: docgenAliasSource.wildcardAliasTarget,
+        docgenSubpathAliasTargets: docgenAliasSource.subpathAliasTargets,
       })
     );
   }
@@ -1151,6 +1164,44 @@ const planRootQualityReferenceSync = Effect.fn(function* (
   );
 });
 
+const isReadonlyUnknownRecord = (value: unknown): value is Readonly<Record<string, unknown>> =>
+  P.isObject(value) && !A.isArray(value);
+
+const isConcretePackageSubpathExport = (exportKey: string): boolean =>
+  Str.startsWith("./")(exportKey) && exportKey !== "./package.json" && !Str.includes("*")(exportKey);
+
+const packageSubpathAlias = (packageName: string, exportKey: string): string =>
+  `${packageName}/${Str.replace(/^\.\//, Str.empty)(exportKey)}`;
+
+const sourceAliasTarget = (packageRelativePath: string, exportTarget: string): string =>
+  `./${packageRelativePath}/${Str.replace(/^\.\//, Str.empty)(exportTarget)}`;
+
+const buildPackageSubpathAliasTargets = (
+  packageName: string,
+  packageRelativePath: string,
+  exportsField: unknown
+): Readonly<Record<string, string>> => {
+  if (!isReadonlyUnknownRecord(exportsField)) {
+    return R.empty();
+  }
+
+  return pipe(
+    exportsField,
+    R.keys,
+    A.filter(isConcretePackageSubpathExport),
+    A.flatMap((exportKey) =>
+      pipe(
+        resolveSubpathExportTarget(exportsField, exportKey),
+        O.map((exportTarget) => [
+          [packageSubpathAlias(packageName, exportKey), sourceAliasTarget(packageRelativePath, exportTarget)] as const,
+        ]),
+        O.getOrElse(() => [])
+      )
+    ),
+    R.fromEntries
+  );
+};
+
 const canonicalAliasEntriesForWorkspace = (
   workspace: WorkspaceDescriptor
 ): ReadonlyArray<readonly [string, ReadonlyArray<string>]> => {
@@ -1165,6 +1216,11 @@ const canonicalAliasEntriesForWorkspace = (
   return [
     [workspace.packageName, [workspace.rootAliasTarget]],
     [`${workspace.packageName}/*`, [workspace.wildcardAliasTarget]],
+    ...pipe(
+      O.getOrUndefined(O.fromUndefinedOr(workspace.subpathAliasTargets)) ?? R.empty(),
+      R.toEntries,
+      A.map(([aliasKey, aliasTarget]) => [aliasKey, [aliasTarget]] as const)
+    ),
   ] as const;
 };
 
@@ -1521,6 +1577,7 @@ const planPackageDocgenSync = Effect.fn(function* (
         packageName: workspace.packageName,
         rootAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenRootAliasTarget)) ?? "",
         wildcardAliasTarget: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenWildcardAliasTarget)) ?? "",
+        subpathAliasTargets: O.getOrUndefined(O.fromUndefinedOr(workspace.docgenSubpathAliasTargets)) ?? R.empty(),
       })
   );
   const plannedChanges = A.empty<PlannedFileChange>();

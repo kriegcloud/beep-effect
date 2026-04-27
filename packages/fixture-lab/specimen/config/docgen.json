@@ -1,0 +1,60 @@
+{
+  "$schema": "../../../../tooling/docgen/schema.json",
+  "exclude": ["src/internal/**/*.ts", "src/index.ts"],
+  "examplesCompilerOptions": {
+    "types": ["node"],
+    "noEmit": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "rewriteRelativeImportExtensions": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "erasableSyntaxOnly": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "exactOptionalPropertyTypes": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "stripInternal": false,
+    "noErrorTruncation": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@beep/fixture-lab-specimen-config": [
+        "../../../../packages/fixture-lab/specimen/config/src/index.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/*": [
+        "../../../../packages/fixture-lab/specimen/config/src/*.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/public": [
+        "../../../../packages/fixture-lab/specimen/config/src/PublicConfig.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/server": [
+        "../../../../packages/fixture-lab/specimen/config/src/ServerConfig.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/secrets": [
+        "../../../../packages/fixture-lab/specimen/config/src/Secrets.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/layer": [
+        "../../../../packages/fixture-lab/specimen/config/src/Layer.ts"
+      ],
+      "@beep/fixture-lab-specimen-config/test": [
+        "../../../../packages/fixture-lab/specimen/config/src/TestLayer.ts"
+      ],
+      "@beep/identity": ["../../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../../packages/common/identity/src/packages.ts"
+      ]
+    }
+  },
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/fixture-lab/specimen/config/src/"
+}

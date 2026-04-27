@@ -1,0 +1,127 @@
+{
+  "schemaVersion": "1.0.0",
+  "initiative": {
+    "id": "repo-architecture-automation",
+    "title": "Repo Architecture Automation",
+    "status": "active",
+    "created": "2026-04-27",
+    "updated": "2026-04-27",
+    "packetAnchorDocument": "SPEC.md"
+  },
+  "branches": {
+    "archive": "archive/pre-repo-architecture-automation-2026-04-27",
+    "feature": "chore/repo-architecture-automation"
+  },
+  "deletedActiveSurfaces": [
+    "apps/editor-app",
+    "apps/desktop",
+    "packages/editor",
+    "packages/runtime",
+    "packages/repo-memory",
+    "packages/shared",
+    "initiatives/repo-expert-memory-local-first-v0",
+    "initiatives/expert-memory-big-picture",
+    "initiatives/repo-architecture-convergence"
+  ],
+  "retainedActiveSurfaces": [
+    "apps/codedank-web",
+    "packages/common/*",
+    "packages/fixture-lab/specimen/*",
+    "packages/_internal/*",
+    "infra",
+    "tooling/*",
+    ".claude",
+    ".codex",
+    "standards/*"
+  ],
+  "goldenFixture": {
+    "architectureStandard": "../../standards/ARCHITECTURE.md",
+    "registry": "../../tooling/cli/test/fixtures/repo-architecture-automation/registry/fixture-lab.specimen.json",
+    "workspaceRoot": "../../packages/fixture-lab/specimen",
+    "boundedContext": "fixture-lab",
+    "concept": "Specimen",
+    "domainKind": "entities",
+    "conceptPath": "entities/Specimen",
+    "roles": [
+      "domain",
+      "use-cases",
+      "config",
+      "tables",
+      "server",
+      "client",
+      "ui"
+    ],
+    "exportBoundaries": {
+      "domain": [".", "./entities/Specimen"],
+      "use-cases": [".", "./public", "./server", "./test"],
+      "config": [".", "./public", "./server", "./secrets", "./layer", "./test"],
+      "tables": [".", "./tables", "./read-models"],
+      "server": [".", "./layer"],
+      "client": [".", "./entities/Specimen"],
+      "ui": [".", "./entities/Specimen"]
+    }
+  },
+  "generatorDirection": {
+    "owner": "tooling/cli",
+    "entrypoint": "bun run beep architecture generate",
+    "registry": "schema-backed",
+    "templateEngine": "handlebars",
+    "structuredWriters": [
+      "json",
+      "jsonc",
+      "package-json",
+      "docgen",
+      "manifest"
+    ],
+    "typescriptWriter": "ts-morph",
+    "turboGen": "later thin wrapper only"
+  },
+  "commandGates": [
+    {
+      "id": "config-sync",
+      "command": "bun run config-sync:check"
+    },
+    {
+      "id": "fixture-contract",
+      "command": "bunx --bun vitest run tooling/cli/test/repo-architecture-automation-fixture.test.ts"
+    },
+    {
+      "id": "check",
+      "command": "bun run check"
+    },
+    {
+      "id": "lint",
+      "command": "bun run lint"
+    },
+    {
+      "id": "test",
+      "command": "bun run test"
+    },
+    {
+      "id": "docgen",
+      "command": "bun run docgen"
+    },
+    {
+      "id": "audit-full",
+      "command": "bun run audit:full"
+    }
+  ],
+  "searchAudits": [
+    {
+      "id": "deleted-live-paths",
+      "description": "Deleted live package and app paths are absent from active config surfaces."
+    },
+    {
+      "id": "superseded-initiatives",
+      "description": "Superseded initiative packets are absent except for the retained digest."
+    },
+    {
+      "id": "deleted-package-imports",
+      "description": "Deleted @beep package imports do not remain in active source."
+    },
+    {
+      "id": "fixture-is-synthetic",
+      "description": "Golden fixture uses fixture-lab/Specimen and is not imported by product code."
+    }
+  ]
+}

@@ -35,10 +35,22 @@
       "@beep/observability/*": [
         "../../../packages/common/observability/src/*.ts"
       ],
+      "@beep/observability/experimental/server": [
+        "../../../packages/common/observability/src/experimental/server/index.ts"
+      ],
+      "@beep/observability/server": [
+        "../../../packages/common/observability/src/server/index.ts"
+      ],
+      "@beep/observability/web": [
+        "../../../packages/common/observability/src/web/index.ts"
+      ],
       "@beep/colors": ["../../../packages/common/colors/src/index.ts"],
       "@beep/colors/*": ["../../../packages/common/colors/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
     }
