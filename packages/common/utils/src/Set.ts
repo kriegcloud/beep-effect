@@ -5,13 +5,13 @@
  * @since 0.0.0
  */
 
+import { Result } from "effect";
 import * as A from "effect/Array";
 import type * as Equivalence from "effect/Equivalence";
 import { dual, identity } from "effect/Function";
 import * as O from "effect/Option";
 import type * as Order from "effect/Order";
 import type * as P from "effect/Predicate";
-import * as Result from "effect/Result";
 
 /**
  * Mutable Set alias used when a helper intentionally returns a writable copy.
@@ -49,13 +49,83 @@ export type MutableSet<A> = globalThis.Set<A>;
 export type Set<A> = ReadonlySet<A>;
 
 /**
- * Shared empty readonly Set value.
+ * Equivalence options used by Set helpers that need custom equality.
+ *
+ * @example
+ * ```ts
+ * import * as Equivalence from "effect/Equivalence"
+ * import { Set } from "@beep/utils"
+ *
+ * const options: Set.EquivalenceOptions<number> = {
+ *   equivalence: Equivalence.strictEqual<number>(),
+ * }
+ *
+ * void options
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface EquivalenceOptions<A> {
+  readonly equivalence: Equivalence.Equivalence<A>;
+}
+
+/**
+ * Equivalence options used when splitting `Result` values.
+ *
+ * @example
+ * ```ts
+ * import * as Equivalence from "effect/Equivalence"
+ * import { Set } from "@beep/utils"
+ *
+ * const options: Set.ResultEquivalenceOptions<string, number> = {
+ *   failureEquivalence: Equivalence.strictEqual<string>(),
+ *   successEquivalence: Equivalence.strictEqual<number>(),
+ * }
+ *
+ * void options
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface ResultEquivalenceOptions<E, A> {
+  readonly failureEquivalence: Equivalence.Equivalence<E>;
+  readonly successEquivalence: Equivalence.Equivalence<A>;
+}
+
+/**
+ * Options for reducing Set values in deterministic order.
+ *
+ * @example
+ * ```ts
+ * import * as Order from "effect/Order"
+ * import { Set } from "@beep/utils"
+ *
+ * const options: Set.ReduceOptions<number, string> = {
+ *   f: (out, value) => `${out}${value}`,
+ *   order: Order.Number,
+ * }
+ *
+ * void options
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export interface ReduceOptions<A, B> {
+  readonly f: (accumulator: B, value: A) => B;
+  readonly order: Order.Order<A>;
+}
+
+/**
+ * Create a fresh empty readonly Set.
  *
  * @example
  * ```ts
  * import { Set } from "@beep/utils"
  *
- * const size = Set.empty.size
+ * const size = Set.empty().size
  *
  * void size
  * ```
@@ -63,7 +133,9 @@ export type Set<A> = ReadonlySet<A>;
  * @category constructors
  * @since 0.0.0
  */
-export const empty: Set<never> = new globalThis.Set<never>();
+export function empty(): Set<never> {
+  return new globalThis.Set<never>();
+}
 
 /**
  * Clone a mutable Set into a readonly Set.
@@ -136,8 +208,9 @@ export function singleton<A>(value: A): Set<A> {
  * import * as Equivalence from "effect/Equivalence"
  * import { Set } from "@beep/utils"
  *
- * const dataFirst = Set.fromArray([1, 1, 2], Equivalence.strictEqual<number>())
- * const dataLast = pipe([1, 2, 2], Set.fromArray(Equivalence.strictEqual<number>()))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.fromArray([1, 1, 2], options)
+ * const dataLast = pipe([1, 2, 2], Set.fromArray(options))
  *
  * void dataFirst
  * void dataLast
@@ -147,9 +220,12 @@ export function singleton<A>(value: A): Set<A> {
  * @since 0.0.0
  */
 export const fromArray: {
-  <A>(equivalence: Equivalence.Equivalence<A>): (self: ReadonlyArray<A>) => Set<A>;
-  <A>(self: ReadonlyArray<A>, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(2, fromArray_);
+  <A>(options: EquivalenceOptions<A>): (self: ReadonlyArray<A>) => Set<A>;
+  <A>(self: ReadonlyArray<A>, options: EquivalenceOptions<A>): Set<A>;
+} = dual(
+  2,
+  <A>(self: ReadonlyArray<A>, options: EquivalenceOptions<A>): Set<A> => fromArray_(self, options.equivalence)
+);
 
 /**
  * Convert a Set to a sorted readonly array.
@@ -257,7 +333,15 @@ export const findFirstMap: {
 export const some: {
   <A>(predicate: P.Predicate<A>): (self: Set<A>) => boolean;
   <A>(self: Set<A>, predicate: P.Predicate<A>): boolean;
-} = dual(2, <A>(self: Set<A>, predicate: P.Predicate<A>): boolean => A.some(A.fromIterable(self), predicate));
+} = dual(2, <A>(self: Set<A>, predicate: P.Predicate<A>): boolean => {
+  for (const value of self) {
+    if (predicate(value)) {
+      return true;
+    }
+  }
+
+  return false;
+});
 
 /**
  * Test whether every Set value satisfies a predicate.
@@ -283,7 +367,15 @@ export const some: {
 export const every: {
   <A>(predicate: P.Predicate<A>): (self: Set<A>) => boolean;
   <A>(self: Set<A>, predicate: P.Predicate<A>): boolean;
-} = dual(2, <A>(self: Set<A>, predicate: P.Predicate<A>): boolean => A.every(A.fromIterable(self), predicate));
+} = dual(2, <A>(self: Set<A>, predicate: P.Predicate<A>): boolean => {
+  for (const value of self) {
+    if (!predicate(value)) {
+      return false;
+    }
+  }
+
+  return true;
+});
 
 /**
  * Test whether a value is equivalent to an element in the Set.
@@ -297,9 +389,9 @@ export const every: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set(["a", "b"])
- * const eq = Equivalence.strictEqual<string>()
- * const dataFirst = Set.elem(values, "a", eq)
- * const dataLast = pipe(values, Set.elem("c", eq))
+ * const options = { equivalence: Equivalence.strictEqual<string>() }
+ * const dataFirst = Set.elem(values, "a", options)
+ * const dataLast = pipe(values, Set.elem("c", options))
  *
  * void dataFirst
  * void dataLast
@@ -309,9 +401,11 @@ export const every: {
  * @since 0.0.0
  */
 export const elem: {
-  <A>(value: NoInfer<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => boolean;
-  <A>(self: Set<A>, value: A, equivalence: Equivalence.Equivalence<A>): boolean;
-} = dual(3, elem_);
+  <A>(value: NoInfer<A>, options: EquivalenceOptions<A>): (self: Set<A>) => boolean;
+  <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): boolean;
+} = dual(3, <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): boolean =>
+  elem_(self, value, options.equivalence)
+);
 
 /**
  * Test whether every value in one Set is present in another Set.
@@ -326,9 +420,9 @@ export const elem: {
  *
  * const left = new globalThis.Set([1, 2])
  * const right = new globalThis.Set([1, 2, 3])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.isSubset(left, right, eq)
- * const dataLast = pipe(left, Set.isSubset(right, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.isSubset(left, right, options)
+ * const dataLast = pipe(left, Set.isSubset(right, options))
  *
  * void dataFirst
  * void dataLast
@@ -338,9 +432,11 @@ export const elem: {
  * @since 0.0.0
  */
 export const isSubset: {
-  <A>(that: Set<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => boolean;
-  <A>(self: Set<A>, that: Set<A>, equivalence: Equivalence.Equivalence<A>): boolean;
-} = dual(3, isSubset_);
+  <A>(that: Set<A>, options: EquivalenceOptions<A>): (self: Set<A>) => boolean;
+  <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): boolean;
+} = dual(3, <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): boolean =>
+  isSubset_(self, that, options.equivalence)
+);
 
 /**
  * Keep values that satisfy a predicate or refinement.
@@ -410,9 +506,9 @@ export const partition: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set(["a", "bb", "cc"])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.map(values, (value) => value.length, eq)
- * const dataLast = pipe(values, Set.map((value) => value.length + 1, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.map(values, (value) => value.length, options)
+ * const dataLast = pipe(values, Set.map((value) => value.length + 1, options))
  *
  * void dataFirst
  * void dataLast
@@ -422,9 +518,12 @@ export const partition: {
  * @since 0.0.0
  */
 export const map: {
-  <A, B>(f: (value: A) => B, equivalence: Equivalence.Equivalence<B>): (self: Set<A>) => Set<B>;
-  <A, B>(self: Set<A>, f: (value: A) => B, equivalence: Equivalence.Equivalence<B>): Set<B>;
-} = dual(3, map_);
+  <A, B>(f: (value: A) => B, options: EquivalenceOptions<B>): (self: Set<A>) => Set<B>;
+  <A, B>(self: Set<A>, f: (value: A) => B, options: EquivalenceOptions<B>): Set<B>;
+} = dual(
+  3,
+  <A, B>(self: Set<A>, f: (value: A) => B, options: EquivalenceOptions<B>): Set<B> => map_(self, f, options.equivalence)
+);
 
 /**
  * Flat-map Set values while deduplicating flattened values with an equivalence.
@@ -438,9 +537,9 @@ export const map: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([1, 2])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.chain(values, (value) => new globalThis.Set([value, value + 1]), eq)
- * const dataLast = pipe(values, Set.chain((value) => new globalThis.Set([value * 2]), eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.chain(values, (value) => new globalThis.Set([value, value + 1]), options)
+ * const dataLast = pipe(values, Set.chain((value) => new globalThis.Set([value * 2]), options))
  *
  * void dataFirst
  * void dataLast
@@ -450,9 +549,13 @@ export const map: {
  * @since 0.0.0
  */
 export const chain: {
-  <A, B>(f: (value: A) => Set<B>, equivalence: Equivalence.Equivalence<B>): (self: Set<A>) => Set<B>;
-  <A, B>(self: Set<A>, f: (value: A) => Set<B>, equivalence: Equivalence.Equivalence<B>): Set<B>;
-} = dual(3, chain_);
+  <A, B>(f: (value: A) => Set<B>, options: EquivalenceOptions<B>): (self: Set<A>) => Set<B>;
+  <A, B>(self: Set<A>, f: (value: A) => Set<B>, options: EquivalenceOptions<B>): Set<B>;
+} = dual(
+  3,
+  <A, B>(self: Set<A>, f: (value: A) => Set<B>, options: EquivalenceOptions<B>): Set<B> =>
+    chain_(self, f, options.equivalence)
+);
 
 /**
  * Map Set values to `Option` and keep the present mapped values.
@@ -467,9 +570,9 @@ export const chain: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([1, 2, 3])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.filterMap(values, (value) => value > 1 ? O.some(value * 2) : O.none(), eq)
- * const dataLast = pipe(values, Set.filterMap((value) => value > 2 ? O.some(value) : O.none(), eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.filterMap(values, (value) => value > 1 ? O.some(value * 2) : O.none(), options)
+ * const dataLast = pipe(values, Set.filterMap((value) => value > 2 ? O.some(value) : O.none(), options))
  *
  * void dataFirst
  * void dataLast
@@ -479,9 +582,13 @@ export const chain: {
  * @since 0.0.0
  */
 export const filterMap: {
-  <A, B>(f: (value: A) => O.Option<B>, equivalence: Equivalence.Equivalence<B>): (self: Set<A>) => Set<B>;
-  <A, B>(self: Set<A>, f: (value: A) => O.Option<B>, equivalence: Equivalence.Equivalence<B>): Set<B>;
-} = dual(3, filterMap_);
+  <A, B>(f: (value: A) => O.Option<B>, options: EquivalenceOptions<B>): (self: Set<A>) => Set<B>;
+  <A, B>(self: Set<A>, f: (value: A) => O.Option<B>, options: EquivalenceOptions<B>): Set<B>;
+} = dual(
+  3,
+  <A, B>(self: Set<A>, f: (value: A) => O.Option<B>, options: EquivalenceOptions<B>): Set<B> =>
+    filterMap_(self, f, options.equivalence)
+);
 
 /**
  * Remove `Option.none` values and unwrap present values.
@@ -496,9 +603,9 @@ export const filterMap: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([O.some(1), O.none(), O.some(1)])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.compact(values, eq)
- * const dataLast = pipe(values, Set.compact(eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.compact(values, options)
+ * const dataLast = pipe(values, Set.compact(options))
  *
  * void dataFirst
  * void dataLast
@@ -508,9 +615,9 @@ export const filterMap: {
  * @since 0.0.0
  */
 export const compact: {
-  <A>(equivalence: Equivalence.Equivalence<A>): (self: Set<O.Option<A>>) => Set<A>;
-  <A>(self: Set<O.Option<A>>, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(2, compact_);
+  <A>(options: EquivalenceOptions<A>): (self: Set<O.Option<A>>) => Set<A>;
+  <A>(self: Set<O.Option<A>>, options: EquivalenceOptions<A>): Set<A>;
+} = dual(2, <A>(self: Set<O.Option<A>>, options: EquivalenceOptions<A>): Set<A> => compact_(self, options.equivalence));
 
 /**
  * Split `Result` values into failures and successes.
@@ -525,8 +632,12 @@ export const compact: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([Result.fail("missing"), Result.succeed(1)])
- * const dataFirst = Set.separate(values, Equivalence.strictEqual<string>(), Equivalence.strictEqual<number>())
- * const dataLast = pipe(values, Set.separate(Equivalence.strictEqual<string>(), Equivalence.strictEqual<number>()))
+ * const options = {
+ *   failureEquivalence: Equivalence.strictEqual<string>(),
+ *   successEquivalence: Equivalence.strictEqual<number>(),
+ * }
+ * const dataFirst = Set.separate(values, options)
+ * const dataLast = pipe(values, Set.separate(options))
  *
  * void dataFirst
  * void dataLast
@@ -536,16 +647,13 @@ export const compact: {
  * @since 0.0.0
  */
 export const separate: {
-  <E, A>(
-    failureEquivalence: Equivalence.Equivalence<E>,
-    successEquivalence: Equivalence.Equivalence<A>
-  ): (self: Set<Result.Result<A, E>>) => readonly [Set<E>, Set<A>];
-  <E, A>(
-    self: Set<Result.Result<A, E>>,
-    failureEquivalence: Equivalence.Equivalence<E>,
-    successEquivalence: Equivalence.Equivalence<A>
-  ): readonly [Set<E>, Set<A>];
-} = dual(3, separate_);
+  <E, A>(options: ResultEquivalenceOptions<E, A>): (self: Set<Result.Result<A, E>>) => readonly [Set<E>, Set<A>];
+  <E, A>(self: Set<Result.Result<A, E>>, options: ResultEquivalenceOptions<E, A>): readonly [Set<E>, Set<A>];
+} = dual(
+  2,
+  <E, A>(self: Set<Result.Result<A, E>>, options: ResultEquivalenceOptions<E, A>): readonly [Set<E>, Set<A>] =>
+    separate_(self, options.failureEquivalence, options.successEquivalence)
+);
 
 /**
  * Partition values with a function returning `Result`.
@@ -561,8 +669,12 @@ export const separate: {
  *
  * const values = new globalThis.Set([1, 2, 3])
  * const split = (value: number) => value % 2 === 0 ? Result.succeed(value) : Result.fail(`${value}`)
- * const dataFirst = Set.partitionMap(values, split, Equivalence.strictEqual<string>(), Equivalence.strictEqual<number>())
- * const dataLast = pipe(values, Set.partitionMap(split, Equivalence.strictEqual<string>(), Equivalence.strictEqual<number>()))
+ * const options = {
+ *   failureEquivalence: Equivalence.strictEqual<string>(),
+ *   successEquivalence: Equivalence.strictEqual<number>(),
+ * }
+ * const dataFirst = Set.partitionMap(values, split, options)
+ * const dataLast = pipe(values, Set.partitionMap(split, options))
  *
  * void dataFirst
  * void dataLast
@@ -574,16 +686,21 @@ export const separate: {
 export const partitionMap: {
   <A, E, B>(
     f: (value: A) => Result.Result<B, E>,
-    failureEquivalence: Equivalence.Equivalence<E>,
-    successEquivalence: Equivalence.Equivalence<B>
+    options: ResultEquivalenceOptions<E, B>
   ): (self: Set<A>) => readonly [Set<E>, Set<B>];
   <A, E, B>(
     self: Set<A>,
     f: (value: A) => Result.Result<B, E>,
-    failureEquivalence: Equivalence.Equivalence<E>,
-    successEquivalence: Equivalence.Equivalence<B>
+    options: ResultEquivalenceOptions<E, B>
   ): readonly [Set<E>, Set<B>];
-} = dual(4, partitionMap_);
+} = dual(
+  3,
+  <A, E, B>(
+    self: Set<A>,
+    f: (value: A) => Result.Result<B, E>,
+    options: ResultEquivalenceOptions<E, B>
+  ): readonly [Set<E>, Set<B>] => partitionMap_(self, f, options.failureEquivalence, options.successEquivalence)
+);
 
 /**
  * Keep values that are present in both Sets.
@@ -598,9 +715,9 @@ export const partitionMap: {
  *
  * const left = new globalThis.Set([1, 2])
  * const right = new globalThis.Set([2, 3])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.intersection(left, right, eq)
- * const dataLast = pipe(left, Set.intersection(right, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.intersection(left, right, options)
+ * const dataLast = pipe(left, Set.intersection(right, options))
  *
  * void dataFirst
  * void dataLast
@@ -610,9 +727,13 @@ export const partitionMap: {
  * @since 0.0.0
  */
 export const intersection: {
-  <A>(that: Set<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => Set<A>;
-  <A>(self: Set<A>, that: Set<A>, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(3, intersection_);
+  <A>(that: Set<A>, options: EquivalenceOptions<A>): (self: Set<A>) => Set<A>;
+  <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): Set<A>;
+} = dual(
+  3,
+  <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): Set<A> =>
+    intersection_(self, that, options.equivalence)
+);
 
 /**
  * Keep values from the first Set that are absent from the second Set.
@@ -627,9 +748,9 @@ export const intersection: {
  *
  * const left = new globalThis.Set([1, 2, 3])
  * const right = new globalThis.Set([2])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.difference(left, right, eq)
- * const dataLast = pipe(left, Set.difference(right, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.difference(left, right, options)
+ * const dataLast = pipe(left, Set.difference(right, options))
  *
  * void dataFirst
  * void dataLast
@@ -639,9 +760,13 @@ export const intersection: {
  * @since 0.0.0
  */
 export const difference: {
-  <A>(that: Set<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => Set<A>;
-  <A>(self: Set<A>, that: Set<A>, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(3, difference_);
+  <A>(that: Set<A>, options: EquivalenceOptions<A>): (self: Set<A>) => Set<A>;
+  <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): Set<A>;
+} = dual(
+  3,
+  <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): Set<A> =>
+    difference_(self, that, options.equivalence)
+);
 
 /**
  * Combine two Sets while deduplicating with an equivalence.
@@ -656,9 +781,9 @@ export const difference: {
  *
  * const left = new globalThis.Set([1, 2])
  * const right = new globalThis.Set([2, 3])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.union(left, right, eq)
- * const dataLast = pipe(left, Set.union(right, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.union(left, right, options)
+ * const dataLast = pipe(left, Set.union(right, options))
  *
  * void dataFirst
  * void dataLast
@@ -668,9 +793,12 @@ export const difference: {
  * @since 0.0.0
  */
 export const union: {
-  <A>(that: Set<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => Set<A>;
-  <A>(self: Set<A>, that: Set<A>, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(3, union_);
+  <A>(that: Set<A>, options: EquivalenceOptions<A>): (self: Set<A>) => Set<A>;
+  <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): Set<A>;
+} = dual(
+  3,
+  <A>(self: Set<A>, that: Set<A>, options: EquivalenceOptions<A>): Set<A> => union_(self, that, options.equivalence)
+);
 
 /**
  * Insert a value when an equivalent value is not already present.
@@ -684,9 +812,9 @@ export const union: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([1, 2])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.insert(values, 3, eq)
- * const dataLast = pipe(values, Set.insert(4, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.insert(values, 3, options)
+ * const dataLast = pipe(values, Set.insert(4, options))
  *
  * void dataFirst
  * void dataLast
@@ -696,9 +824,12 @@ export const union: {
  * @since 0.0.0
  */
 export const insert: {
-  <A>(value: NoInfer<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => Set<A>;
-  <A>(self: Set<A>, value: A, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(3, insert_);
+  <A>(value: NoInfer<A>, options: EquivalenceOptions<A>): (self: Set<A>) => Set<A>;
+  <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): Set<A>;
+} = dual(
+  3,
+  <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): Set<A> => insert_(self, value, options.equivalence)
+);
 
 /**
  * Remove values equivalent to the provided value.
@@ -712,9 +843,9 @@ export const insert: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([1, 2, 3])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.remove(values, 2, eq)
- * const dataLast = pipe(values, Set.remove(3, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.remove(values, 2, options)
+ * const dataLast = pipe(values, Set.remove(3, options))
  *
  * void dataFirst
  * void dataLast
@@ -724,9 +855,12 @@ export const insert: {
  * @since 0.0.0
  */
 export const remove: {
-  <A>(value: NoInfer<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => Set<A>;
-  <A>(self: Set<A>, value: A, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(3, remove_);
+  <A>(value: NoInfer<A>, options: EquivalenceOptions<A>): (self: Set<A>) => Set<A>;
+  <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): Set<A>;
+} = dual(
+  3,
+  <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): Set<A> => remove_(self, value, options.equivalence)
+);
 
 /**
  * Remove a present value or insert an absent value.
@@ -740,9 +874,9 @@ export const remove: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([1, 2])
- * const eq = Equivalence.strictEqual<number>()
- * const dataFirst = Set.toggle(values, 2, eq)
- * const dataLast = pipe(values, Set.toggle(3, eq))
+ * const options = { equivalence: Equivalence.strictEqual<number>() }
+ * const dataFirst = Set.toggle(values, 2, options)
+ * const dataLast = pipe(values, Set.toggle(3, options))
  *
  * void dataFirst
  * void dataLast
@@ -752,9 +886,12 @@ export const remove: {
  * @since 0.0.0
  */
 export const toggle: {
-  <A>(value: NoInfer<A>, equivalence: Equivalence.Equivalence<A>): (self: Set<A>) => Set<A>;
-  <A>(self: Set<A>, value: A, equivalence: Equivalence.Equivalence<A>): Set<A>;
-} = dual(3, toggle_);
+  <A>(value: NoInfer<A>, options: EquivalenceOptions<A>): (self: Set<A>) => Set<A>;
+  <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): Set<A>;
+} = dual(
+  3,
+  <A>(self: Set<A>, value: A, options: EquivalenceOptions<A>): Set<A> => toggle_(self, value, options.equivalence)
+);
 
 /**
  * Reduce Set values in sorted order.
@@ -768,8 +905,9 @@ export const toggle: {
  * import { Set } from "@beep/utils"
  *
  * const values = new globalThis.Set([3, 1, 2])
- * const dataFirst = Set.reduce(values, "", (out, value) => `${out}${value}`, Order.Number)
- * const dataLast = pipe(values, Set.reduce("", (out, value) => `${out}${value}`, Order.Number))
+ * const options = { f: (out: string, value: number) => `${out}${value}`, order: Order.Number }
+ * const dataFirst = Set.reduce(values, "", options)
+ * const dataLast = pipe(values, Set.reduce("", options))
  *
  * void dataFirst
  * void dataLast
@@ -779,9 +917,12 @@ export const toggle: {
  * @since 0.0.0
  */
 export const reduce: {
-  <A, B>(initial: B, f: (accumulator: B, value: A) => B, order: Order.Order<A>): (self: Set<A>) => B;
-  <A, B>(self: Set<A>, initial: B, f: (accumulator: B, value: A) => B, order: Order.Order<A>): B;
-} = dual(4, reduce_);
+  <A, B>(initial: B, options: ReduceOptions<A, B>): (self: Set<A>) => B;
+  <A, B>(self: Set<A>, initial: B, options: ReduceOptions<A, B>): B;
+} = dual(
+  3,
+  <A, B>(self: Set<A>, initial: B, options: ReduceOptions<A, B>): B => reduce_(self, initial, options.f, options.order)
+);
 
 /**
  * Bound Set helpers for one ordered/equivalent value domain.
@@ -801,7 +942,11 @@ export const reduce: {
  * @category models
  * @since 0.0.0
  */
-export interface SetSchemaExtensions<A> {
+export interface BoundSetHelpers<A> {
+  readonly chain: {
+    (f: (value: A) => Set<A>): (self: Set<A>) => Set<A>;
+    (self: Set<A>, f: (value: A) => Set<A>): Set<A>;
+  };
   readonly concat: {
     (values: Iterable<A>): (self: Set<A>) => Set<A>;
     (self: Set<A>, values: Iterable<A>): Set<A>;
@@ -887,20 +1032,11 @@ export interface SetSchemaExtensions<A> {
  * @category constructors
  * @since 0.0.0
  */
-export const make: <A>(order: Order.Order<A>, equivalence?: Equivalence.Equivalence<A>) => SetSchemaExtensions<A> =
-  make_;
+export const make: <A>(order: Order.Order<A>, equivalence?: Equivalence.Equivalence<A>) => BoundSetHelpers<A> = make_;
 
 /** @internal */
 function fromArray_<A>(self: ReadonlyArray<A>, equivalence: Equivalence.Equivalence<A>): Set<A> {
-  const out = new globalThis.Set<A>();
-
-  for (const value of self) {
-    if (!elem_(out, value, equivalence)) {
-      out.add(value);
-    }
-  }
-
-  return out;
+  return new globalThis.Set(A.dedupeWith(self, equivalence));
 }
 
 /** @internal */
@@ -917,7 +1053,15 @@ function findFirst_<A>(self: Set<A>, predicate: P.Predicate<A>): O.Option<A> {
 
 /** @internal */
 function findFirstMap_<A, B>(self: Set<A>, f: (value: A) => O.Option<B>): O.Option<B> {
-  return A.findFirst(self, f);
+  for (const value of self) {
+    const mapped = f(value);
+
+    if (O.isSome(mapped)) {
+      return mapped;
+    }
+  }
+
+  return O.none();
 }
 
 /** @internal */
@@ -1004,14 +1148,11 @@ function filterMap_<A, B>(self: Set<A>, f: (value: A) => O.Option<B>, equivalenc
   const out = new globalThis.Set<B>();
 
   for (const value of self) {
-    O.match(f(value), {
-      onNone: () => undefined,
-      onSome: (mapped) => {
-        if (!elem_(out, mapped, equivalence)) {
-          out.add(mapped);
-        }
-      },
-    });
+    const mapped = f(value);
+
+    if (O.isSome(mapped) && !elem_(out, mapped.value, equivalence)) {
+      out.add(mapped.value);
+    }
   }
 
   return out;
@@ -1119,7 +1260,7 @@ function replace_<A>(self: Set<A>, value: A, equivalence: Equivalence.Equivalenc
 }
 
 /** @internal */
-function make_<A>(order: Order.Order<A>, equivalence?: Equivalence.Equivalence<A>): SetSchemaExtensions<A> {
+function make_<A>(order: Order.Order<A>, equivalence?: Equivalence.Equivalence<A>): BoundSetHelpers<A> {
   const eq: Equivalence.Equivalence<A> = equivalence ?? ((self, that) => order(self, that) === 0);
 
   return {
@@ -1137,6 +1278,7 @@ function make_<A>(order: Order.Order<A>, equivalence?: Equivalence.Equivalence<A
     union: dual(2, (self: Set<A>, that: Set<A>): Set<A> => union_(self, that, eq)),
     intersection: dual(2, (self: Set<A>, that: Set<A>): Set<A> => intersection_(self, that, eq)),
     difference: dual(2, (self: Set<A>, that: Set<A>): Set<A> => difference_(self, that, eq)),
+    chain: dual(2, (self: Set<A>, f: (value: A) => Set<A>): Set<A> => chain_(self, f, eq)),
     map: dual(2, (self: Set<A>, f: (value: A) => A): Set<A> => map_(self, f, eq)),
     filter: dual(2, filter_),
     filterMap: dual(2, (self: Set<A>, f: (value: A) => O.Option<A>): Set<A> => filterMap_(self, f, eq)),
