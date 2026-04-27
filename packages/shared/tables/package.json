@@ -1,7 +1,7 @@
 {
-  "name": "@beep/tables",
+  "name": "@beep/shared-tables",
   "version": "0.0.0",
-  "description": "",
+  "description": "Shared-kernel persistence boundary for cross-slice table and read-model shapes tied to shared product language.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -53,6 +53,8 @@
     }
   },
   "dependencies": {
+    "@beep/shared-domain": "workspace:^",
+    "drizzle-orm": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {

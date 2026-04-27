@@ -7,7 +7,7 @@
 
 import { $SchemaId } from "@beep/identity";
 import * as S from "effect/Schema";
-import { isNegative, isNonNegative, isNonPositive, isPositive } from "./Number.ts";
+import { isNegative, isNonNegative, isNonPositive, isPositive, isPostgresSerialInt } from "./Number.ts";
 
 const $I = $SchemaId.create("Int");
 
@@ -96,6 +96,45 @@ export const PosInt = Int.pipe(S.brand("PosInt"))
  * @category DomainModel
  */
 export type PosInt = typeof PosInt.Type;
+
+/**
+ * Branded schema for PostgreSQL `serial` column values.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { PostgresSerialInt } from "@beep/schema/Int"
+ *
+ * const id = S.decodeUnknownSync(PostgresSerialInt)(1)
+ * console.log(id)
+ * ```
+ *
+ * @since 0.0.0
+ * @category schemas
+ */
+export const PostgresSerialInt = Int.pipe(S.brand("PostgresSerialInt"))
+  .check(isPostgresSerialInt)
+  .annotate(
+    $I.annote("PostgresSerialInt", {
+      description: "A positive integer in the PostgreSQL serial int4 range.",
+    })
+  );
+
+/**
+ * Type for {@link PostgresSerialInt}.
+ *
+ * @example
+ * ```ts
+ * import type { PostgresSerialInt } from "@beep/schema/Int"
+ *
+ * const id = 1 as PostgresSerialInt
+ * console.log(id)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type PostgresSerialInt = typeof PostgresSerialInt.Type;
 
 /**
  * Branded schema for negative integers (less than zero).

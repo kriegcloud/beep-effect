@@ -173,9 +173,12 @@ worktrees
 xhigh
 keccak
 ACMR
+bytea
+Bytea
 cdylib
 ctype
 Deque
+getenv
 isinstance
 isready
 journalctl
@@ -190,3 +193,4 @@ scim
 tolower
 Unfailable
 uvicorn
+venv

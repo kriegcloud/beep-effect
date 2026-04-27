@@ -29,8 +29,17 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/domain": ["../../../packages/shared/domain/src/index.ts"],
-      "@beep/domain/*": ["../../../packages/shared/domain/src/*.ts"]
+      "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
+      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
+      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
+      "@beep/identity/packages": [
+        "../../../packages/common/identity/src/packages.ts"
+      ],
+      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/utils": ["../../../packages/common/utils/src/index.ts"],
+      "@beep/utils/*": ["../../../packages/common/utils/src/*.ts"]
     }
   }
 }

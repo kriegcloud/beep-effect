@@ -1,33 +1,38 @@
 # @beep/tables
 
+Shared-kernel persistence boundary for cross-slice table and read-model shapes
+tied to shared product language.
 
+This package is currently scaffolded. Its public surface exports `VERSION` from
+`src/index.ts`; future exports should represent shared product persistence
+shape, not generic database capability.
 
-## Installation
+## Belongs Here
 
-```bash
-bun add @beep/tables
-```
+- Shared persistence/read-model shapes that multiple slices deliberately agree
+  on.
+- Mappings tied directly to shared domain language.
+- Cross-slice table vocabulary when it is product-semantic and durable.
 
-## Usage
+## Does Not Belong Here
 
-```ts
-import { VERSION } from "@beep/tables"
-```
+- Generic Drizzle, SQL, migration, or database helper libraries.
+- Driver wrappers or external infrastructure capability.
+- Slice-private persistence shapes.
+- Domain behavior or application orchestration.
+
+## Exports
+
+- `@beep/tables`
+- `@beep/tables/*`
+- `VERSION`
 
 ## Development
 
 ```bash
-# Build
-bun run build
-
-# Type check
 bun run check
-
-# Test
 bun run test
-
-# Lint
-bun run lint:fix
+bun run lint
 ```
 
 ## License

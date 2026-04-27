@@ -29,8 +29,10 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/tables": ["../../../packages/shared/tables/src/index.ts"],
-      "@beep/tables/*": ["../../../packages/shared/tables/src/*.ts"]
+      "@beep/shared-tables": ["../../../packages/shared/tables/src/index.ts"],
+      "@beep/shared-tables/*": ["../../../packages/shared/tables/src/*.ts"],
+      "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"]
     }
   }
 }

@@ -55,6 +55,9 @@
       "path": "packages/common/types"
     },
     {
+      "path": "packages/common/ui"
+    },
+    {
       "path": "packages/common/utils"
     },
     {
@@ -80,6 +83,9 @@
     },
     {
       "path": "packages/shared/client"
+    },
+    {
+      "path": "packages/shared/config"
     },
     {
       "path": "packages/shared/domain"

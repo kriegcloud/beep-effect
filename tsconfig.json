@@ -67,15 +67,9 @@
       "@beep/messages": ["./packages/common/messages/src/index.ts"],
       "@beep/messages/*": ["./packages/common/messages/src/*"],
       "@beep/data": ["./packages/common/data/src/index.ts"],
-      "@beep/data/*": [
-        "./packages/common/data/src/*"
-      ],
-      "@beep/ui": [
-        "./packages/shared/ui/src/index.ts"
-      ],
-      "@beep/ui/*": [
-        "./packages/shared/ui/src/*"
-      ],
+      "@beep/data/*": ["./packages/common/data/src/*"],
+      "@beep/ui": ["./packages/common/ui/src/index.ts"],
+      "@beep/ui/*": ["./packages/common/ui/src/*"],
       "@beep/repo-configs": ["./tooling/configs/src/index.ts"],
       "@beep/repo-configs/*": ["./tooling/configs/src/*"],
       "@beep/test-utils": ["./tooling/test-utils/src/index.ts"],
@@ -85,9 +79,7 @@
       "@beep/semantic-web": ["./packages/common/semantic-web/src/index.ts"],
       "@beep/semantic-web/*": ["./packages/common/semantic-web/src/*"],
       "@beep/nlp": ["./packages/common/nlp/src/index.ts"],
-      "@beep/nlp/*": [
-        "./packages/common/nlp/src/*"
-      ],
+      "@beep/nlp/*": ["./packages/common/nlp/src/*"],
       "@beep/observability": ["./packages/common/observability/src/index.ts"],
       "@beep/observability/*": ["./packages/common/observability/src/*"],
       "@beep/colors": ["./packages/common/colors/src/index.ts"],
@@ -95,13 +87,9 @@
       "@beep/chalk": ["./packages/common/chalk/src/index.ts"],
       "@beep/chalk/*": ["./packages/common/chalk/src/*"],
       "@beep/docgen": ["./tooling/docgen/src/index.ts"],
-      "@beep/docgen/*": [
-        "./tooling/docgen/src/*"
-      ],
+      "@beep/docgen/*": ["./tooling/docgen/src/*"],
       "@beep/infra": ["./infra/src/index.ts"],
-      "@beep/infra/*": [
-        "./infra/src/*"
-      ],
+      "@beep/infra/*": ["./infra/src/*"],
       "@beep/md": ["./packages/common/md/src/index.ts"],
       "@beep/md/*": ["./packages/common/md/src/*"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
@@ -215,36 +203,34 @@
       "@beep/observability/web": [
         "./packages/common/observability/src/web/index.ts"
       ],
-      "@beep/domain": [
-        "./packages/shared/domain/src/index.ts"
+      "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
+      "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
+      "@beep/shared-tables": ["./packages/shared/tables/src/index.ts"],
+      "@beep/shared-tables/*": ["./packages/shared/tables/src/*"],
+      "@beep/shared-use-cases": ["./packages/shared/use-cases/src/index.ts"],
+      "@beep/shared-use-cases/*": ["./packages/shared/use-cases/src/*"],
+      "@beep/shared-server": ["./packages/shared/server/src/index.ts"],
+      "@beep/shared-server/*": ["./packages/shared/server/src/*"],
+      "@beep/shared-client": ["./packages/shared/client/src/index.ts"],
+      "@beep/shared-client/*": ["./packages/shared/client/src/*"],
+      "@beep/shared-config": ["./packages/shared/config/src/index.ts"],
+      "@beep/shared-config/*": ["./packages/shared/config/src/*"],
+      "@beep/shared-ui": ["./packages/shared/ui/src/index.ts"],
+      "@beep/shared-ui/*": ["./packages/shared/ui/src/*"],
+      "@beep/ui/components/blocks/editor-00/editor": [
+        "./packages/common/ui/src/components/blocks/editor-00/editor.tsx"
       ],
-      "@beep/domain/*": [
-        "./packages/shared/domain/src/*"
+      "@beep/ui/components/editor/editor-ui/content-editable": [
+        "./packages/common/ui/src/components/editor/editor-ui/content-editable.tsx"
       ],
-      "@beep/tables": [
-        "./packages/shared/tables/src/index.ts"
+      "@beep/ui/components/editor/themes/editor-theme": [
+        "./packages/common/ui/src/components/editor/themes/editor-theme.ts"
       ],
-      "@beep/tables/*": [
-        "./packages/shared/tables/src/*"
+      "@beep/ui/postcss.config": ["./packages/common/ui/postcss.config.mjs"],
+      "@beep/ui/styles/globals.css": [
+        "./packages/common/ui/src/styles/globals.css"
       ],
-      "@beep/use-cases": [
-        "./packages/shared/use-cases/src/index.ts"
-      ],
-      "@beep/use-cases/*": [
-        "./packages/shared/use-cases/src/*"
-      ],
-      "@beep/server": [
-        "./packages/shared/server/src/index.ts"
-      ],
-      "@beep/server/*": [
-        "./packages/shared/server/src/*"
-      ],
-      "@beep/client": [
-        "./packages/shared/client/src/index.ts"
-      ],
-      "@beep/client/*": [
-        "./packages/shared/client/src/*"
-      ]
+      "@beep/ui/themes": ["./packages/common/ui/src/themes/index.ts"]
     }
   }
 }

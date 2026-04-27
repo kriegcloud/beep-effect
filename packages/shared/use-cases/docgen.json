@@ -29,8 +29,12 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/use-cases": ["../../../packages/shared/use-cases/src/index.ts"],
-      "@beep/use-cases/*": ["../../../packages/shared/use-cases/src/*.ts"]
+      "@beep/shared-use-cases": [
+        "../../../packages/shared/use-cases/src/index.ts"
+      ],
+      "@beep/shared-use-cases/*": [
+        "../../../packages/shared/use-cases/src/*.ts"
+      ]
     }
   }
 }

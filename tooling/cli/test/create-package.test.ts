@@ -240,6 +240,7 @@ describe.sequential("create-package", () => {
             expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
             expect(generatedPackage.scripts.docgen).toBe("bun run ../../tooling/docgen/src/bin.ts");
             expect(generatedPackage.scripts.codegen).toBeUndefined();
+            expect(yield* fs.exists(path.join(rootDir, "packages", "example-domain", "ai-context.md"))).toBe(false);
 
             const rootTsconfig = decodeTsconfigPaths(yield* readJsoncFile(path.join(rootDir, "tsconfig.json")));
             expect(rootTsconfig.compilerOptions.paths).toMatchObject({

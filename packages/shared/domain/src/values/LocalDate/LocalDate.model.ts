@@ -9,9 +9,8 @@
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity";
-import * as DateTime from "effect/DateTime";
-import * as Equal from "effect/Equal";
-import * as Hash from "effect/Hash";
+import { DateTime, Hash } from "effect";
+import * as Eq from "effect/Equal";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
@@ -26,7 +25,7 @@ const $I = $SharedDomainId.create("values/LocalDate/LocalDate.model");
  *
  * @example
  * ```ts
- * import { Model } from "@beep/domain/values/LocalDate/index"
+ * import { Model } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = Model.make({ year: 2024, month: 6, day: 15 })
  *
@@ -52,7 +51,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    *
    * @example
    * ```ts
-   * import { Model } from "@beep/domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
    *
    * const date = Model.make({ year: 99, month: 2, day: 5 })
    *
@@ -75,7 +74,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    *
    * @example
    * ```ts
-   * import { Model } from "@beep/domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    *
@@ -94,7 +93,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @example
    * ```ts
    * import { Equal } from "effect"
-   * import { Model } from "@beep/domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
    *
    * const left = Model.make({ year: 2024, month: 6, day: 15 })
    * const right = Model.make({ year: 2024, month: 6, day: 15 })
@@ -107,7 +106,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @returns `true` when both dates have the same year, month, and day.
    * @since 0.0.0
    */
-  [Equal.symbol](that: Equal.Equal): boolean {
+  [Eq.symbol](that: Eq.Equal): boolean {
     return S.is(Model)(that) && this.year === that.year && this.month === that.month && this.day === that.day;
   }
 
@@ -117,7 +116,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @example
    * ```ts
    * import { Hash } from "effect"
-   * import { Model } from "@beep/domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    *
@@ -138,7 +137,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    * @example
    * ```ts
    * import * as DateTime from "effect/DateTime"
-   * import { Model } from "@beep/domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    * const parts = DateTime.toPartsUtc(date.toDateTime())
@@ -163,7 +162,7 @@ export class Model extends S.Class<Model>($I`LocalDateModel`)(
    *
    * @example
    * ```ts
-   * import { Model } from "@beep/domain/values/LocalDate/index"
+   * import { Model } from "@beep/shared-domain/values/LocalDate/index"
    *
    * const date = Model.make({ year: 2024, month: 6, day: 15 })
    *

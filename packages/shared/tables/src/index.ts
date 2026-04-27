@@ -1,11 +1,14 @@
 /**
- * @beep/tables
+ * Shared tables role package.
  *
+ * @packageDocumentation
  * @since 0.0.0
  */
 
 /**
+ * Shared-kernel table constructor namespace.
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category constructors
  */
-export const VERSION = "0.0.0" as const
+export * as Table from "./table/Table.ts";

@@ -1,7 +1,7 @@
 {
-  "name": "@beep/server",
+  "name": "@beep/shared-server",
   "version": "0.0.0",
-  "description": "",
+  "description": "Shared-kernel server boundary for cross-slice product-port implementations and local Layer composition.",
   "license": "MIT",
   "private": true,
   "type": "module",

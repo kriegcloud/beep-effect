@@ -43,16 +43,16 @@
       "path": "../../packages/common/schema/tsconfig.json"
     },
     {
-      "path": "../../packages/common/utils/tsconfig.json"
+      "path": "../../packages/common/ui/tsconfig.json"
     },
     {
-      "path": "../../packages/shared/ui/tsconfig.json"
+      "path": "../../packages/common/utils/tsconfig.json"
     },
     {
       "path": "../../tooling/repo-utils/tsconfig.json"
     },
     {
-      "path": "../../packages/common/ui/tsconfig.json"
+      "path": "../../packages/shared/ui/tsconfig.json"
     }
   ]
 }

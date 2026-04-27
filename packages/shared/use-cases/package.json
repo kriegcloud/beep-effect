@@ -1,7 +1,7 @@
 {
-  "name": "@beep/use-cases",
+  "name": "@beep/shared-use-cases",
   "version": "0.0.0",
-  "description": "",
+  "description": "Contract-only shared-kernel application surface for cross-slice commands, queries, DTOs, ports, and errors.",
   "license": "MIT",
   "private": true,
   "type": "module",

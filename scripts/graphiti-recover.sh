@@ -214,7 +214,7 @@ def enable_mcp_path_aliases() -> None:
     text = text.replace(marker, f\"{insertion}\\n{marker}\", 1)
     changed = True
 
-if 'enable_mcp_path_aliases()' not in text:
+if '\n        enable_mcp_path_aliases()\n' not in text:
     old = \"        logger.info('For MCP clients, connect to the /mcp/ endpoint above')\\n\\n        # Configure uvicorn logging to match our format\\n\"
     new = \"        logger.info('For MCP clients, connect to the /mcp endpoint above')\\n\\n        enable_mcp_path_aliases()\\n\\n        # Configure uvicorn logging to match our format\\n\"
     if old not in text:
@@ -232,6 +232,59 @@ else:
 PY"
 
   log "Restarting ${GRAPHITI_CONTAINER} after MCP path hotfix"
+  docker restart "$GRAPHITI_CONTAINER" >/dev/null
+  wait_healthy
+}
+
+apply_falkor_query_timeout_hotfix() {
+  log "Applying FalkorDB query timeout hotfix in ${GRAPHITI_CONTAINER}"
+
+  docker exec "$GRAPHITI_CONTAINER" sh -lc "python - <<'PY'
+from pathlib import Path
+
+path = Path('/app/mcp/.venv/lib/python3.11/site-packages/graphiti_core/driver/falkordb_driver.py')
+text = path.read_text()
+changed = False
+
+if 'FALKORDB_QUERY_TIMEOUT_MS' not in text:
+    text = text.replace(
+        'import logging\\n',
+        '''import logging
+import os
+
+
+def _falkordb_query_timeout_ms() -> int:
+    try:
+        return max(1, int(os.getenv('FALKORDB_QUERY_TIMEOUT_MS', '30000')))
+    except ValueError:
+        return 30000
+
+
+FALKORDB_QUERY_TIMEOUT_MS = _falkordb_query_timeout_ms()
+''',
+        1,
+    )
+    changed = True
+
+replacements = {
+    'await self.graph.query(str(cypher), params)  #': 'await self.graph.query(str(cypher), params, timeout=FALKORDB_QUERY_TIMEOUT_MS)  #',
+    'await self.graph.query(str(query), params)  #': 'await self.graph.query(str(query), params, timeout=FALKORDB_QUERY_TIMEOUT_MS)  #',
+    'await graph.query(cypher_query_, params)  #': 'await graph.query(cypher_query_, params, timeout=FALKORDB_QUERY_TIMEOUT_MS)  #',
+}
+
+for old, new in replacements.items():
+    if old in text:
+        text = text.replace(old, new)
+        changed = True
+
+if changed:
+    path.write_text(text)
+    print('patched')
+else:
+    print('already-patched')
+PY"
+
+  log "Restarting ${GRAPHITI_CONTAINER} after FalkorDB query timeout hotfix"
   docker restart "$GRAPHITI_CONTAINER" >/dev/null
   wait_healthy
 }
@@ -314,6 +367,7 @@ docker restart "$FALKOR_CONTAINER" "$GRAPHITI_CONTAINER" >/dev/null
 wait_healthy
 
 ensure_mcp_path_compat
+apply_falkor_query_timeout_hotfix
 
 log "Running MCP smoke checks"
 SESSION_ID="$(init_session)"

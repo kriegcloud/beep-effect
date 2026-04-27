@@ -10,12 +10,9 @@
  */
 
 import { $SharedDomainId } from "@beep/identity";
-import { Effect, Match, pipe, SchemaGetter, SchemaIssue } from "effect";
-import * as DateTime from "effect/DateTime";
-import * as Duration from "effect/Duration";
+import { DateTime, Duration, Effect, Match, Order as Ord, pipe, SchemaGetter, SchemaIssue } from "effect";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
-import * as Ord from "effect/Order";
 import * as S from "effect/Schema";
 import type * as AST from "effect/SchemaAST";
 import * as Str from "effect/String";
@@ -34,7 +31,7 @@ type CalendarParts = {
  *
  * @example
  * ```ts
- * import { make } from "@beep/domain/values/LocalDate/index"
+ * import { make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 6, day: 15 })
  *
@@ -46,7 +43,7 @@ type CalendarParts = {
  * @returns Constructed LocalDate model.
  * @since 0.0.0
  */
-export const make: typeof LocalDate.Model.make = LocalDate.Model.make.bind(LocalDate.Model);
+export const make = (input: CalendarParts): LocalDate.Model => LocalDate.Model.make(input);
 
 /**
  * Optional constructor for a `LocalDate` model.
@@ -56,7 +53,7 @@ export const make: typeof LocalDate.Model.make = LocalDate.Model.make.bind(Local
  * @example
  * ```ts
  * import * as O from "effect/Option"
- * import { makeOption } from "@beep/domain/values/LocalDate/index"
+ * import { makeOption } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = makeOption({ year: 2024, month: 6, day: 15 })
  *
@@ -68,7 +65,7 @@ export const make: typeof LocalDate.Model.make = LocalDate.Model.make.bind(Local
  * @returns Optional LocalDate model when the payload is valid.
  * @since 0.0.0
  */
-export const makeOption: typeof LocalDate.Model.makeOption = LocalDate.Model.makeOption.bind(LocalDate.Model);
+export const makeOption = (input: CalendarParts): O.Option<LocalDate.Model> => LocalDate.Model.makeOption(input);
 
 /**
  * Effectful constructor for a `LocalDate` model.
@@ -78,7 +75,7 @@ export const makeOption: typeof LocalDate.Model.makeOption = LocalDate.Model.mak
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { makeEffect } from "@beep/domain/values/LocalDate/index"
+ * import { makeEffect } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const program = Effect.gen(function* () {
  *   const date = yield* makeEffect({ year: 2024, month: 6, day: 15 })
@@ -91,14 +88,15 @@ export const makeOption: typeof LocalDate.Model.makeOption = LocalDate.Model.mak
  * @returns Effect that succeeds with a LocalDate model.
  * @since 0.0.0
  */
-export const makeEffect: typeof LocalDate.Model.makeEffect = LocalDate.Model.makeEffect.bind(LocalDate.Model);
+export const makeEffect = (input: CalendarParts): Effect.Effect<LocalDate.Model, S.SchemaError> =>
+  LocalDate.Model.makeEffect(input);
 
 /**
  * Type guard for `LocalDate` model instances.
  *
  * @example
  * ```ts
- * import { isLocalDate, make } from "@beep/domain/values/LocalDate/index"
+ * import { isLocalDate, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 6, day: 15 })
  *
@@ -193,7 +191,7 @@ const encodeLocalDateFromString = (localDate: CalendarParts): string => formatCa
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { fromString } from "@beep/domain/values/LocalDate/index"
+ * import { fromString } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const program = Effect.gen(function* () {
  *   const date = yield* fromString("2024-06-15")
@@ -225,7 +223,7 @@ export const fromString = (dateString: string): Effect.Effect<LocalDate.Model, S
  * @example
  * ```ts
  * import * as DateTime from "effect/DateTime"
- * import { fromDate } from "@beep/domain/values/LocalDate/index"
+ * import { fromDate } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = fromDate(DateTime.toDateUtc(DateTime.makeUnsafe("2024-06-15T12:00:00.000Z")))
  *
@@ -244,7 +242,7 @@ export const fromDate = (date: Date): LocalDate.Model => fromDateTime(DateTime.f
  *
  * @example
  * ```ts
- * import { today } from "@beep/domain/values/LocalDate/index"
+ * import { today } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = today()
  *
@@ -266,7 +264,7 @@ export const today = (): LocalDate.Model => fromDateTime(DateTime.nowUnsafe());
  * @example
  * ```ts
  * import { Effect } from "effect"
- * import { todayEffect } from "@beep/domain/values/LocalDate/index"
+ * import { todayEffect } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const program = Effect.gen(function* () {
  *   const date = yield* todayEffect
@@ -289,7 +287,7 @@ export const todayEffect = pipe(
  * @example
  * ```ts
  * import * as DateTime from "effect/DateTime"
- * import { fromDateTime } from "@beep/domain/values/LocalDate/index"
+ * import { fromDateTime } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = fromDateTime(DateTime.makeUnsafe("2024-06-15T12:00:00.000Z"))
  *
@@ -317,7 +315,7 @@ const toOrderTuple = (date: LocalDate.Model): readonly [number, number, number] 
  *
  * @example
  * ```ts
- * import { Order, make } from "@beep/domain/values/LocalDate/index"
+ * import { Order, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const left = make({ year: 2024, month: 6, day: 15 })
  * const right = make({ year: 2024, month: 6, day: 16 })
@@ -341,7 +339,7 @@ export const Order: Ord.Order<LocalDate.Model> = Ord.mapInput(
  *
  * @example
  * ```ts
- * import { isBefore, make } from "@beep/domain/values/LocalDate/index"
+ * import { isBefore, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const left = make({ year: 2024, month: 6, day: 15 })
  * const right = make({ year: 2024, month: 6, day: 16 })
@@ -365,7 +363,7 @@ export const isBefore: {
  *
  * @example
  * ```ts
- * import { isAfter, make } from "@beep/domain/values/LocalDate/index"
+ * import { isAfter, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const left = make({ year: 2024, month: 6, day: 16 })
  * const right = make({ year: 2024, month: 6, day: 15 })
@@ -389,7 +387,7 @@ export const isAfter: {
  *
  * @example
  * ```ts
- * import { equals, make } from "@beep/domain/values/LocalDate/index"
+ * import { equals, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const left = make({ year: 2024, month: 6, day: 15 })
  * const right = make({ year: 2024, month: 6, day: 15 })
@@ -417,7 +415,7 @@ export const equals: {
  *
  * @example
  * ```ts
- * import { addDays, make } from "@beep/domain/values/LocalDate/index"
+ * import { addDays, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 6, day: 30 })
  * const next = addDays(date, 1)
@@ -445,7 +443,7 @@ export const addDays: {
  *
  * @example
  * ```ts
- * import { addMonths, make } from "@beep/domain/values/LocalDate/index"
+ * import { addMonths, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 11, day: 15 })
  * const next = addMonths(date, 3)
@@ -473,7 +471,7 @@ export const addMonths: {
  *
  * @example
  * ```ts
- * import { addYears, make } from "@beep/domain/values/LocalDate/index"
+ * import { addYears, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 6, day: 15 })
  * const next = addYears(date, 2)
@@ -504,7 +502,7 @@ export const addYears: {
  *
  * @example
  * ```ts
- * import { diffInDays, make } from "@beep/domain/values/LocalDate/index"
+ * import { diffInDays, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const left = make({ year: 2024, month: 6, day: 20 })
  * const right = make({ year: 2024, month: 6, day: 15 })
@@ -533,7 +531,7 @@ export const diffInDays: {
  *
  * @example
  * ```ts
- * import { make, startOfMonth } from "@beep/domain/values/LocalDate/index"
+ * import { make, startOfMonth } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 6, day: 15 })
  *
@@ -557,7 +555,7 @@ export const startOfMonth = (date: LocalDate.Model): LocalDate.Model =>
  *
  * @example
  * ```ts
- * import { endOfMonth, make } from "@beep/domain/values/LocalDate/index"
+ * import { endOfMonth, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 2, day: 15 })
  *
@@ -581,7 +579,7 @@ export const endOfMonth = (date: LocalDate.Model): LocalDate.Model =>
  *
  * @example
  * ```ts
- * import { make, startOfYear } from "@beep/domain/values/LocalDate/index"
+ * import { make, startOfYear } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 6, day: 15 })
  *
@@ -605,7 +603,7 @@ export const startOfYear = (date: LocalDate.Model): LocalDate.Model =>
  *
  * @example
  * ```ts
- * import { endOfYear, make } from "@beep/domain/values/LocalDate/index"
+ * import { endOfYear, make } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date = make({ year: 2024, month: 6, day: 15 })
  *
@@ -629,7 +627,7 @@ export const endOfYear = (date: LocalDate.Model): LocalDate.Model =>
  *
  * @example
  * ```ts
- * import { isLeapYear } from "@beep/domain/values/LocalDate/index"
+ * import { isLeapYear } from "@beep/shared-domain/values/LocalDate/index"
  *
  * console.log(isLeapYear(2024)) // true
  * console.log(isLeapYear(1900)) // false
@@ -649,7 +647,7 @@ export const isLeapYear = (year: number): boolean => isLeapYearInternal(year);
  *
  * @example
  * ```ts
- * import { daysInMonth } from "@beep/domain/values/LocalDate/index"
+ * import { daysInMonth } from "@beep/shared-domain/values/LocalDate/index"
  *
  * console.log(daysInMonth(2024, 2)) // 29
  * console.log(daysInMonth(2023, 2)) // 28
@@ -675,7 +673,7 @@ export const daysInMonth: {
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { LocalDateFromString } from "@beep/domain/values/LocalDate/index"
+ * import { LocalDateFromString } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const decodeLocalDate = S.decodeUnknownSync(LocalDateFromString)
  * const encodeLocalDate = S.encodeSync(LocalDateFromString)
@@ -701,11 +699,11 @@ export const LocalDateFromString = S.String.pipe(
 );
 
 /**
- * Type for {@link LocalDateFromString}. {@inheritDoc LocalDateFromString}
+ * Type for {@link LocalDateFromString}.
  *
  * @example
  * ```ts
- * import { Model, type LocalDateFromString } from "@beep/domain/values/LocalDate/index"
+ * import { Model, type LocalDateFromString } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const date: LocalDateFromString = Model.make({ year: 2024, month: 6, day: 15 })
  *
@@ -722,7 +720,7 @@ export type LocalDateFromString = typeof LocalDateFromString.Type;
  *
  * @example
  * ```ts
- * import type { LocalDateFromString } from "@beep/domain/values/LocalDate/index"
+ * import type { LocalDateFromString } from "@beep/shared-domain/values/LocalDate/index"
  *
  * const encoded: LocalDateFromString.Encoded = "2024-06-15"
  *
@@ -738,7 +736,7 @@ export declare namespace LocalDateFromString {
    *
    * @example
    * ```ts
-   * import type { LocalDateFromString } from "@beep/domain/values/LocalDate/index"
+   * import type { LocalDateFromString } from "@beep/shared-domain/values/LocalDate/index"
    *
    * const encoded: LocalDateFromString.Encoded = "2024-06-15"
    *

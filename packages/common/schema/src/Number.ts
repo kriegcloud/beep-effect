@@ -29,6 +29,50 @@ const $I = $SchemaId.create("NumberChecks");
 export const isPositive = S.isGreaterThan(0);
 
 /**
+ * Refinement that accepts integers in PostgreSQL `serial` column range.
+ *
+ * @example
+ * ```ts
+ * import * as S from "effect/Schema"
+ * import { isPostgresSerialInt } from "@beep/schema/Number"
+ *
+ * const Serial = S.Int.check(isPostgresSerialInt)
+ * const id = S.decodeUnknownSync(Serial)(1)
+ * console.log(id)
+ * ```
+ *
+ * @since 0.0.0
+ * @category validation
+ */
+export const isPostgresSerialInt = S.makeFilterGroup(
+  [
+    S.isInt({
+      identifier: $I`PostgresSerialIntIntegerCheck`,
+      title: "Postgres Serial Integer",
+      description: "A PostgreSQL serial value must be an integer.",
+      message: "Expected a PostgreSQL serial integer",
+    }),
+    S.isGreaterThan(0, {
+      identifier: $I`PostgresSerialIntPositiveCheck`,
+      title: "Postgres Serial Positive",
+      description: "A PostgreSQL serial value starts at one.",
+      message: "Expected a PostgreSQL serial integer greater than zero",
+    }),
+    S.isLessThanOrEqualTo(2_147_483_647, {
+      identifier: $I`PostgresSerialIntMaxCheck`,
+      title: "Postgres Serial Max",
+      description: "A PostgreSQL serial value must fit in the signed int4 range.",
+      message: "Expected a PostgreSQL serial integer less than or equal to 2147483647",
+    }),
+  ],
+  {
+    identifier: $I`PostgresSerialIntChecks`,
+    title: "Postgres Serial Int",
+    description: "Checks for positive signed int4 values produced by PostgreSQL serial columns.",
+  }
+);
+
+/**
  * Refinement that accepts non-negative numbers (zero or greater).
  *
  * @example

@@ -1,33 +1,37 @@
 # @beep/ui
 
+Shared-kernel UI boundary for deliberate cross-slice product concepts, separate
+from foundation UI primitives.
 
+This package is currently scaffolded. Its public surface exports `VERSION` from
+`src/index.ts`; future exports should be UI for shared product language, not a
+generic component library.
 
-## Installation
+## Belongs Here
 
-```bash
-bun add @beep/ui
-```
+- Cross-slice product UI concepts tied to shared domain language.
+- Form/display contracts, view helpers, and small components that encode shared
+  product semantics.
+- UI validation or display models backed by shared driver-neutral schemas.
 
-## Usage
+## Does Not Belong Here
 
-```ts
-import { VERSION } from "@beep/ui"
-```
+- Product-agnostic primitives, themes, tokens, or shadcn base components.
+- Slice-private screens and workflows.
+- Direct use-case orchestration, server-only config, secrets, or drivers.
+
+## Exports
+
+- `@beep/ui`
+- `@beep/ui/*`
+- `VERSION`
 
 ## Development
 
 ```bash
-# Build
-bun run build
-
-# Type check
 bun run check
-
-# Test
 bun run test
-
-# Lint
-bun run lint:fix
+bun run lint
 ```
 
 ## License

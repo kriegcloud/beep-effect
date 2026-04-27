@@ -104,7 +104,7 @@ const composers = $I.compose(
   "editor-runtime",
 
   "firecrawl",
-  "codedank-web", "domain", "tables", "use-cases", "server", "client"
+  "codedank-web"
 );
 
 // --- common ---
@@ -764,38 +764,3 @@ export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;
  * @category Configuration
  */
 export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = composers.$CodedankWebId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/domain">}
- */
-export const $DomainId: Identity.IdentityComposer<"@beep/domain"> = composers.$DomainId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/tables">}
- */
-export const $TablesId: Identity.IdentityComposer<"@beep/tables"> = composers.$TablesId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/use-cases">}
- */
-export const $UseCasesId: Identity.IdentityComposer<"@beep/use-cases"> = composers.$UseCasesId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/server">}
- */
-export const $ServerId: Identity.IdentityComposer<"@beep/server"> = composers.$ServerId;
-
-/**
- * @since 0.0.0
- * @category Configuration
- * @type {Identity.IdentityComposer<"@beep/client">}
- */
-export const $ClientId: Identity.IdentityComposer<"@beep/client"> = composers.$ClientId;

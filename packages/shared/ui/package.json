@@ -1,7 +1,7 @@
 {
-  "name": "@beep/ui",
+  "name": "@beep/shared-ui",
   "version": "0.0.0",
-  "description": "",
+  "description": "Shared-kernel UI boundary for deliberate cross-slice product concepts, separate from foundation UI primitives.",
   "license": "MIT",
   "private": true,
   "type": "module",

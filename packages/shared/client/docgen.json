@@ -29,8 +29,8 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/client": ["../../../packages/shared/client/src/index.ts"],
-      "@beep/client/*": ["../../../packages/shared/client/src/*.ts"]
+      "@beep/shared-client": ["../../../packages/shared/client/src/index.ts"],
+      "@beep/shared-client/*": ["../../../packages/shared/client/src/*.ts"]
     }
   }
 }

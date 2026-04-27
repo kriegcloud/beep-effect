@@ -1,7 +1,7 @@
 {
-  "name": "@beep/client",
+  "name": "@beep/shared-client",
   "version": "0.0.0",
-  "description": "",
+  "description": "Shared-kernel client boundary for browser-safe adapters, state, and service contracts shared across slices.",
   "license": "MIT",
   "private": true,
   "type": "module",
