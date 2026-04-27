@@ -403,3 +403,32 @@ Rationale:
 If a package matters enough to be named in the architecture, it should have a
 real role contract that humans and agents can infer from structure instead of a
 single `package.json` full of scripts.
+
+## 2026-04-27: Split Postgres And Drizzle Drivers From Product Repositories
+
+Decision:
+
+Legacy `DbClient.make` is not ported into `shared/server`. Future database
+runtime capability lives in driver packages with specific public names:
+
+- `packages/drivers/postgres` publishes `@beep/postgres` with
+  `PostgresClient.makeLayer` and `PostgresError`;
+- `packages/drivers/drizzle` publishes `@beep/drizzle` with
+  `Drizzle.makeLayer` and `DrizzleError`.
+
+Driver errors stay technical. Server-side product repositories translate driver
+errors into product repository or application errors. Transaction APIs should
+prefer explicit `withTransaction`-style callbacks over ambient transaction
+context.
+
+`DbRepo.make` is deferred until one real repository proves repeated boilerplate.
+It may become a tiny helper or generator template, but it is not a
+shared-server runtime abstraction by default.
+
+Rationale:
+
+The architecture already treats drivers as repo-level technical capability and
+server packages as product adapter owners. A generic `Db` facade would blur that
+boundary and make shared/server look like an infrastructure runtime. Specific
+driver names keep imports honest, make error translation explicit, and let the
+first real repository drive any helper extraction with evidence.

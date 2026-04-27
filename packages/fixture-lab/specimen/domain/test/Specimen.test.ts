@@ -1,5 +1,5 @@
+import { observeSpecimen, retireSpecimen, Specimen, SpecimenStatus } from "@beep/fixture-lab-specimen-domain";
 import { describe, expect, it } from "@effect/vitest";
-import { observeSpecimen, retireSpecimen, Specimen, SpecimenStatus } from "../src/index.js";
 
 describe("Specimen domain fixture", () => {
   it("moves through the minimal lifecycle", () => {

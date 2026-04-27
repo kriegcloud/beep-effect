@@ -1,11 +1,3 @@
-import { describe, expect, it } from "@effect/vitest";
-import { Effect, Equal, Exit } from "effect";
-import * as DateTime from "effect/DateTime";
-import * as Duration from "effect/Duration";
-import * as Hash from "effect/Hash";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
-import { TestClock } from "effect/testing";
 import {
   addDays,
   addMonths,
@@ -32,7 +24,15 @@ import {
   startOfYear,
   today,
   todayEffect,
-} from "../src/values/LocalDate/index.ts";
+} from "@beep/shared-domain/values/LocalDate/index";
+import { describe, expect, it } from "@effect/vitest";
+import { Effect, Equal, Exit } from "effect";
+import * as DateTime from "effect/DateTime";
+import * as Duration from "effect/Duration";
+import * as Hash from "effect/Hash";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { TestClock } from "effect/testing";
 
 const juneFifteenth = () => make({ year: 2024, month: 6, day: 15 });
 

@@ -21,8 +21,10 @@ lefthook
 markdownlint
 ONNX
 oxlint
+Pglite
 pgvector
 phosphor
+pglite
 playwright
 postcss
 publint

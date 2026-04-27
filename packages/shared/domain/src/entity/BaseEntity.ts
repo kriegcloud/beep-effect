@@ -11,7 +11,6 @@ import * as Model from "@beep/schema/Model";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import * as VariantSchema from "@beep/schema/VariantSchema";
 import * as Struct from "@beep/utils/Struct";
-import { Struct as EffectStruct } from "effect";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -23,9 +22,44 @@ import { SourceKind } from "./SourceKind.js";
 
 const $I = $SharedDomainId.create("entity/BaseEntity");
 
-type StructInput = VariantSchema.Struct.Fields | VariantSchema.Struct<VariantSchema.Struct.Fields>;
 type FieldInput = S.Top | VariantSchema.Field.Any | VariantSchema.Struct.Any;
-type ModelClass<Self> = Extract<ReturnType<ReturnType<typeof Model.Class<Self>>>, object>;
+type FieldOverrideInput = EntityMixin.FieldOverride<unknown>;
+type FieldMapInput = {
+  readonly [key: string]: FieldInput | FieldOverrideInput | undefined;
+};
+type StructInput = FieldMapInput | VariantSchema.Struct.Any;
+type Simplify<T> = { readonly [K in keyof T]: T[K] } & {};
+type ModelClassFor<Self, Fields extends VariantSchema.Struct.Fields> = Model.ClassShape<Self, Fields>;
+type MergeFields<Left extends object, Right extends object> = Simplify<Omit<Left, keyof Right> & Right>;
+type StructFieldsOf<Fields extends object> = {
+  readonly [K in keyof Fields]: Extract<Fields[K], FieldInput>;
+};
+type DefinedField<Field> = Exclude<Field, undefined>;
+type NormalizeField<Field> = Field extends EntityMixin.FieldOverride<infer Inner> ? Inner : Field;
+type FieldsFromStructInput<Fields extends StructInput> =
+  Fields extends VariantSchema.Struct<infer StructFields>
+    ? StructFields
+    : Fields extends FieldMapInput
+      ? {
+          readonly [K in keyof Fields as [DefinedField<Fields[K]>] extends [never] ? never : K]: NormalizeField<
+            DefinedField<Fields[K]>
+          >;
+        }
+      : never;
+type EntityFields<Entity extends EntityId.Any> = {
+  readonly entityType: Model.GeneratedByApp<S.Literal<Entity["entityType"]>>;
+  readonly id: Model.Generated<Entity>;
+};
+type MergedModelFields<
+  Entity extends EntityId.Any,
+  Mixins extends EntityMixin.Pack,
+  Fields extends StructInput,
+> = StructFieldsOf<
+  MergeFields<
+    MergeFields<MergeFields<EntityFields<Entity>, typeof fields>, Mixins["fields"]>,
+    FieldsFromStructInput<Fields>
+  >
+>;
 
 /**
  * Descriptor map contributed by the entity id constructor itself.
@@ -183,13 +217,17 @@ export interface ExtendBuilder<Self> {
     entityId: Entity,
     fields: Fields,
     annotations?: unknown
-  ): ModelClass<Self> & { readonly definition: Definition<Entity, EntityMixin.EmptyPack> };
+  ): ModelClassFor<Self, MergedModelFields<Entity, EntityMixin.EmptyPack, Fields>> & {
+    readonly definition: Definition<Entity, EntityMixin.EmptyPack>;
+  };
   <const Entity extends EntityId.Any, const Mixins extends EntityMixin.Pack, const Fields extends StructInput>(
     entityId: Entity,
     mixins: Mixins,
     fields: Fields,
     annotations?: unknown
-  ): ModelClass<Self> & { readonly definition: Definition<Entity, Mixins> };
+  ): ModelClassFor<Self, MergedModelFields<Entity, Mixins, Fields>> & {
+    readonly definition: Definition<Entity, Mixins>;
+  };
 }
 
 class BaseEntityBaseClass extends Model.Class<BaseEntityBaseClass>($I`BaseEntity`)(
@@ -252,8 +290,16 @@ const entityFieldMap = <const Entity extends EntityId.Any>(entityId: Entity): En
     },
   }) satisfies EntityFieldMap<Entity>;
 
-const normalizeFields = (input: StructInput): Record<string, FieldInput> =>
-  R.filter(VariantSchema.isStruct(input) ? VariantSchema.fields(input) : input, P.isNotUndefined);
+const fieldMapInputFromRuntime = (input: unknown): Record<string, FieldInput | FieldOverrideInput | undefined> =>
+  input as Record<string, FieldInput | FieldOverrideInput | undefined>;
+
+const normalizeFields = (input: StructInput): Record<string, FieldInput | FieldOverrideInput> =>
+  R.filter(
+    fieldMapInputFromRuntime(VariantSchema.isStruct(input) ? VariantSchema.fields(input) : input),
+    P.isNotUndefined
+  );
+
+const fieldInputFromRuntime = (field: unknown): FieldInput => field as FieldInput;
 
 /**
  * Error thrown when two entity field contributors define the same field
@@ -292,13 +338,13 @@ export class FieldCollisionError extends S.TaggedErrorClass<FieldCollisionError>
 const setField = (
   target: Record<string, FieldInput>,
   key: string,
-  field: FieldInput | EntityMixin.FieldOverride<FieldInput>,
+  field: FieldInput | FieldOverrideInput,
   sourceName: string
 ): void => {
   if (key in target && !EntityMixin.isOverride(field)) {
     throw new FieldCollisionError({ fieldKey: key, sourceName });
   }
-  target[key] = EntityMixin.isOverride(field) ? field.field : field;
+  target[key] = fieldInputFromRuntime(EntityMixin.isOverride(field) ? field.field : field);
 };
 
 const mergeFields = (
@@ -329,7 +375,12 @@ const modelClassFromRuntime = <Self>(
   identifier: string,
   fields: Record<string, FieldInput>,
   annotations: unknown
-): ModelClass<Self> => Model.Class<Self>(identifier)(fields, annotations as never) as ModelClass<Self>;
+): object => Model.Class<Self>(identifier)(fields, annotations as never) as object;
+
+const assignStatics = <Target extends object, Statics extends object>(
+  target: Target,
+  statics: Statics
+): Target & Statics => globalThis.Object.assign(target, statics);
 
 const extendBuilderFromRuntime = <Self>(
   builder: (
@@ -371,27 +422,29 @@ export function fieldMapFor(entityId: EntityId.Any, mixins: EntityMixin.Pack = E
 }
 
 const extend = <Self = never>(identifier: string): ExtendBuilder<Self> =>
-  extendBuilderFromRuntime<Self>((
-    entityId: EntityId.Any,
-    mixinsOrFields: EntityMixin.Pack | StructInput,
-    fieldsOrAnnotations?: StructInput | unknown,
-    annotations?: unknown
-  ) => {
-    const hasMixins = EntityMixin.isPack(mixinsOrFields);
-    const mixins = hasMixins ? mixinsOrFields : EntityMixin.pack();
-    const entitySpecificFields = hasMixins ? structInputFromOverload(fieldsOrAnnotations) : mixinsOrFields;
-    const entityAnnotations = hasMixins ? annotations : fieldsOrAnnotations;
-    const mergedFields = mergeFields(entityId, mixins, entitySpecificFields);
-    const modelClass = modelClassFromRuntime<Self>(identifier, mergedFields, entityAnnotations);
+  extendBuilderFromRuntime<Self>(
+    (
+      entityId: EntityId.Any,
+      mixinsOrFields: EntityMixin.Pack | StructInput,
+      fieldsOrAnnotations?: StructInput | unknown,
+      annotations?: unknown
+    ) => {
+      const hasMixins = EntityMixin.isPack(mixinsOrFields);
+      const mixins = hasMixins ? mixinsOrFields : EntityMixin.pack();
+      const entitySpecificFields = hasMixins ? structInputFromOverload(fieldsOrAnnotations) : mixinsOrFields;
+      const entityAnnotations = hasMixins ? annotations : fieldsOrAnnotations;
+      const mergedFields = mergeFields(entityId, mixins, entitySpecificFields);
+      const modelClass = modelClassFromRuntime<Self>(identifier, mergedFields, entityAnnotations);
 
-    return EffectStruct.assign(modelClass, {
-      definition: {
-        entityId,
-        fieldMap: fieldMapFor(entityId, mixins),
-        mixins,
-      },
-    });
-  });
+      return assignStatics(modelClass, {
+        definition: {
+          entityId,
+          fieldMap: fieldMapFor(entityId, mixins),
+          mixins,
+        },
+      });
+    }
+  );
 
 /**
  * Product-facing persisted entity base.
@@ -413,7 +466,7 @@ const extend = <Self = never>(identifier: string): ExtendBuilder<Self> =>
  * @since 0.0.0
  * @category constructors
  */
-const BaseEntityWithDefinition = EffectStruct.assign(BaseEntityBaseClass, {
+const BaseEntityWithDefinition = assignStatics(BaseEntityBaseClass, {
   definition: {
     fieldMap,
   },
@@ -427,6 +480,26 @@ globalThis.Object.defineProperty(BaseEntityWithDefinition, "extend", {
 const constructorFromRuntime = (constructor: typeof BaseEntityWithDefinition): Constructor =>
   constructor as unknown as Constructor;
 
+/**
+ * Product-facing persisted entity base.
+ *
+ * @example
+ * ```ts
+ * import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
+ *
+ * class Organization extends BaseEntity.extend<Organization>("Organization")(
+ *   OrganizationId,
+ *   { name: S.String }
+ * ) {}
+ *
+ * console.log(Organization.definition.entityId.tableName)
+ * ```
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
 export const BaseEntity = constructorFromRuntime(BaseEntityWithDefinition);
 
 /**

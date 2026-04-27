@@ -1,12 +1,4 @@
-import type * as S from "effect/Schema";
-import { describe, expect, it } from "tstyche";
-import browserChalk, {
-  Chalk as BrowserChalk,
-  type ChalkInstance as BrowserChalkInstance,
-  type Chalk as BrowserChalkType,
-  chalkStderr as browserChalkStderr,
-} from "../src/Chalk.browser.ts";
-import type { ChalkInstance } from "../src/index.ts";
+import type { ChalkInstance } from "@beep/chalk";
 import chalk, {
   type BackgroundColorName,
   type backgroundColorNames,
@@ -28,7 +20,15 @@ import chalk, {
   type modifierNames,
   supportsColor,
   supportsColorStderr,
-} from "../src/index.ts";
+} from "@beep/chalk";
+import browserChalk, {
+  Chalk as BrowserChalk,
+  type ChalkInstance as BrowserChalkInstance,
+  type Chalk as BrowserChalkType,
+  chalkStderr as browserChalkStderr,
+} from "@beep/chalk/Chalk.browser";
+import type * as S from "effect/Schema";
+import { describe, expect, it } from "tstyche";
 
 describe("@beep/chalk", () => {
   it("exposes the shared builder and constructor types", () => {

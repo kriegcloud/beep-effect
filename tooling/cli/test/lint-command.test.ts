@@ -36,6 +36,21 @@ const withTempWorkingDirectory = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       })
   );
 
+const writePackage = Effect.fn(function* (packageDir: string, packageName: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  yield* fs.makeDirectory(path.join(packageDir, "src"), { recursive: true });
+  yield* fs.writeFileString(
+    path.join(packageDir, "package.json"),
+    `${JSON.stringify({
+      name: packageName,
+      version: "0.0.0",
+      type: "module",
+    })}\n`
+  );
+});
+
 describe("lint command file discovery", () => {
   it("ignores symlinked directories that point outside the repo root", async () => {
     await Effect.runPromise(
@@ -85,6 +100,127 @@ describe("lint command file discovery", () => {
           expect(logLines).toEqual(["[check-tooling-tagged-errors] OK: no native Error usage found in tooling/*/src."]);
           expect(errorLines).toEqual([]);
           expect(process.exitCode).toBeUndefined();
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  }, 5_000);
+});
+
+describe.sequential("package test import lint command", () => {
+  it("reports same-package relative imports into src", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const packageDir = path.join("packages", "common", "example");
+
+          yield* writePackage(packageDir, "@beep/example");
+          yield* fs.makeDirectory(path.join(packageDir, "test"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "test", "Example.test.ts"),
+            `import { example } from "../src/index.ts";\nvoid example;\n`
+          );
+
+          yield* runLintCommand(["package-test-imports"]);
+
+          const errorLines = yield* TestConsole.errorLines;
+          expect(errorLines).toContain(
+            "[check-package-test-imports] relative imports from package test/dtslint files into workspace src are not allowed. Use @beep/* package aliases."
+          );
+          expect(errorLines).toContain(
+            "packages/common/example/test/Example.test.ts:1 ../src/index.ts -> @beep/example"
+          );
+          expect(process.exitCode).toBe(1);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  }, 5_000);
+
+  it("reports cross-package relative imports into src", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const producerDir = path.join("packages", "common", "producer");
+          const consumerDir = path.join("packages", "common", "consumer");
+
+          yield* writePackage(producerDir, "@beep/producer");
+          yield* writePackage(consumerDir, "@beep/consumer");
+          yield* fs.makeDirectory(path.join(consumerDir, "dtslint"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(consumerDir, "dtslint", "Consumer.tst.ts"),
+            `import type { Producer } from "../../producer/src/Producer.ts";\ntype _ = Producer;\n`
+          );
+
+          yield* runLintCommand(["package-test-imports"]);
+
+          const errorLines = yield* TestConsole.errorLines;
+          expect(errorLines).toContain(
+            "packages/common/consumer/dtslint/Consumer.tst.ts:1 ../../producer/src/Producer.ts -> @beep/producer/Producer"
+          );
+          expect(process.exitCode).toBe(1);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  }, 5_000);
+
+  it("allows relative imports to local test fixtures", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const packageDir = path.join("packages", "common", "example");
+
+          yield* writePackage(packageDir, "@beep/example");
+          yield* fs.makeDirectory(path.join(packageDir, "test", "fixtures"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "test", "fixtures", "src-helper.ts"),
+            "export const helper = 1;\n"
+          );
+          yield* fs.writeFileString(
+            path.join(packageDir, "test", "Example.test.ts"),
+            `import { helper } from "./fixtures/src-helper.ts";\nvoid helper;\n`
+          );
+
+          yield* runLintCommand(["package-test-imports"]);
+
+          const logLines = yield* TestConsole.logLines;
+          const errorLines = yield* TestConsole.errorLines;
+          expect(logLines).toEqual([
+            "[check-package-test-imports] OK: package test/dtslint imports use package aliases.",
+          ]);
+          expect(errorLines).toEqual([]);
+        })
+      ).pipe(Effect.provide(testLayer))
+    );
+  }, 5_000);
+
+  it("allows internal package alias imports", async () => {
+    await Effect.runPromise(
+      withTempWorkingDirectory(
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const packageDir = path.join("packages", "common", "example");
+
+          yield* writePackage(packageDir, "@beep/example");
+          yield* fs.makeDirectory(path.join(packageDir, "test"), { recursive: true });
+          yield* fs.writeFileString(
+            path.join(packageDir, "test", "Example.test.ts"),
+            `import { Hidden } from "@beep/example/internal/Hidden";\nvoid Hidden;\n`
+          );
+
+          yield* runLintCommand(["package-test-imports"]);
+
+          const logLines = yield* TestConsole.logLines;
+          const errorLines = yield* TestConsole.errorLines;
+          expect(logLines).toEqual([
+            "[check-package-test-imports] OK: package test/dtslint imports use package aliases.",
+          ]);
+          expect(errorLines).toEqual([]);
         })
       ).pipe(Effect.provide(testLayer))
     );

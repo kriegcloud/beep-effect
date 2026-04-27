@@ -1,7 +1,7 @@
+import { Specimen } from "@beep/fixture-lab-specimen-domain";
+import { makeSpecimenUseCases, ObserveSpecimen } from "@beep/fixture-lab-specimen-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { Specimen } from "../../domain/src/index.js";
-import { makeSpecimenUseCases, ObserveSpecimen } from "../src/server.js";
 
 describe("Specimen use-case fixture", () => {
   it("observes a specimen through the command facade", async () => {

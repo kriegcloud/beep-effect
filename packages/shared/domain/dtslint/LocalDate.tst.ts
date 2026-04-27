@@ -1,9 +1,3 @@
-import type { Effect } from "effect";
-import type * as DateTime from "effect/DateTime";
-import type * as O from "effect/Option";
-import type * as Ord from "effect/Order";
-import * as S from "effect/Schema";
-import { describe, expect, it } from "tstyche";
 import {
   addDays,
   addMonths,
@@ -24,7 +18,13 @@ import {
   Order,
   today,
   todayEffect,
-} from "../src/values/LocalDate/index.ts";
+} from "@beep/shared-domain/values/LocalDate/index";
+import type { Effect } from "effect";
+import type * as DateTime from "effect/DateTime";
+import type * as O from "effect/Option";
+import type * as Ord from "effect/Order";
+import * as S from "effect/Schema";
+import { describe, expect, it } from "tstyche";
 
 describe("LocalDate", () => {
   const date = make({ year: 2024, month: 6, day: 15 });

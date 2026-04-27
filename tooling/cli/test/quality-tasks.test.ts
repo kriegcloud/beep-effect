@@ -1,18 +1,27 @@
 import {
   parseQualityTaskInvocation,
+  QualityTaskFailed,
   type QualityTaskInvocation,
   rootQualityStepsForTesting,
   runQualityTask,
+  runSqlIntegrationTestLaneForTesting,
+  sqlIntegrationStepForTesting,
 } from "@beep/repo-cli/commands/Quality/Tasks";
+import { NodeChildProcessSpawner } from "@effect/platform-node";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
-import { Effect, FileSystem, Layer, Path } from "effect";
+import { Cause, Effect, Exit, FileSystem, Layer, Path } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as TestConsole from "effect/testing/TestConsole";
 import { describe, expect, it } from "vitest";
 
-const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer, TestConsole.layer);
+const FileSystemLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
+const PlatformLayer = Layer.mergeAll(
+  FileSystemLayer,
+  NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(FileSystemLayer)),
+  TestConsole.layer
+);
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
@@ -148,9 +157,100 @@ describe("quality task adapter", () => {
     });
   });
 
+  it("builds the integration lane command with shared SQL environment", () => {
+    const step = sqlIntegrationStepForTesting(
+      "/repo",
+      ["--filter=@beep/test-utils", "--summarize"],
+      "postgres://postgres:postgres@127.0.0.1:5432/postgres"
+    );
+
+    expect(step).toMatchObject({
+      label: "test:integration",
+      command: "bunx",
+      args: expectedTurboArgs("test:integration", ["--concurrency=1", "--filter=@beep/test-utils", "--summarize"]),
+      cwd: "/repo",
+      env: {
+        BEEP_TEST_DATABASE_DRIVER: "pg-external",
+        BEEP_TEST_DATABASE_ISOLATION: "schema",
+        BEEP_TEST_DATABASE_URL: "postgres://postgres:postgres@127.0.0.1:5432/postgres",
+      },
+    });
+  });
+
+  it("forwards shared SQL env vars to the integration child process", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        runSqlIntegrationTestLaneForTesting({
+          acquireResource: Effect.acquireRelease(
+            Effect.succeed({
+              connectionUri: "postgres://postgres:postgres@127.0.0.1:5432/postgres",
+            }),
+            () => Effect.void
+          ),
+          args: [],
+          childCommand: {
+            command: "bun",
+            args: [
+              "-e",
+              "process.exit(process.env.BEEP_TEST_DATABASE_URL === 'postgres://postgres:postgres@127.0.0.1:5432/postgres' && process.env.BEEP_TEST_DATABASE_DRIVER === 'pg-external' ? 0 : 42)",
+            ],
+          },
+          repoRoot: process.cwd(),
+        })
+      )
+    );
+  });
+
+  it("fails nonzero integration children and releases the shared SQL resource", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          let released = false;
+          const exit = yield* Effect.exit(
+            runSqlIntegrationTestLaneForTesting({
+              acquireResource: Effect.acquireRelease(
+                Effect.succeed({
+                  connectionUri: "postgres://postgres:postgres@127.0.0.1:5432/postgres",
+                }),
+                () =>
+                  Effect.sync(() => {
+                    released = true;
+                  })
+              ),
+              args: [],
+              childCommand: {
+                command: "bun",
+                args: ["-e", "process.exit(7)"],
+              },
+              repoRoot: process.cwd(),
+            })
+          );
+
+          expect(released).toBe(true);
+          expect(Exit.isFailure(exit)).toBe(true);
+          if (Exit.isFailure(exit)) {
+            const failure = Cause.squash(exit.cause);
+            expect(failure).toBeInstanceOf(QualityTaskFailed);
+            if (failure instanceof QualityTaskFailed) {
+              expect(failure.exitCode).toBe(7);
+            }
+          }
+        })
+      )
+    );
+  });
+
   it("leaves lint policy subcommands on the existing command tree", () => {
     expect(O.isNone(parseQualityTaskInvocation(["lint", "circular"]))).toBe(true);
+    expect(O.isNone(parseQualityTaskInvocation(["lint", "package-test-imports"]))).toBe(true);
     expect(O.isNone(parseQualityTaskInvocation(["lint", "schema-first"]))).toBe(true);
+  });
+
+  it("includes package test import policy in the root lint lane", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["lint", "--summarize"]));
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]?.args).toContain("lint:package-test-imports");
   });
 
   it("treats unsupported package tasks as explicit no-ops", async () => {

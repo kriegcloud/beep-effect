@@ -1,6 +1,3 @@
-import { describe, expect, it } from "@effect/vitest";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
 import {
   Activity,
   Association,
@@ -24,7 +21,10 @@ import {
   SoftwareAgent,
   Start,
   Usage,
-} from "../../semantic-web/src/prov.ts";
+} from "@beep/semantic-web/prov";
+import { describe, expect, it } from "@effect/vitest";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 const decodeUnknownSync = <Schema extends S.Decoder<unknown, never>>(schema: Schema) => S.decodeUnknownSync(schema);
 

@@ -1,7 +1,7 @@
 import type { SpecimenStatus } from "@beep/fixture-lab-specimen-domain";
+import { SpecimenReadModel, specimenReadModelColumns, specimenTableName } from "@beep/fixture-lab-specimen-tables";
 import * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
-import { SpecimenReadModel, specimenReadModelColumns, specimenTableName } from "../src/index.ts";
 
 describe("@beep/fixture-lab-specimen-tables", () => {
   it("types the read model and table metadata", () => {

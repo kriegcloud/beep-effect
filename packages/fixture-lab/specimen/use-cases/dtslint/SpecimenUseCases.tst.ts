@@ -1,8 +1,13 @@
 import { Specimen } from "@beep/fixture-lab-specimen-domain";
+import {
+  GetSpecimen,
+  ObserveSpecimen,
+  type SpecimenNotFound,
+  type SpecimenUseCases,
+} from "@beep/fixture-lab-specimen-use-cases/public";
+import { makeSpecimenUseCases, type SpecimenRepository } from "@beep/fixture-lab-specimen-use-cases/server";
 import { Effect } from "effect";
 import { describe, expect, it } from "tstyche";
-import { GetSpecimen, ObserveSpecimen, type SpecimenNotFound, type SpecimenUseCases } from "../src/public.ts";
-import { makeSpecimenUseCases, type SpecimenRepository } from "../src/server.ts";
 
 describe("@beep/fixture-lab-specimen-use-cases", () => {
   it("types the command facade and repository boundary", () => {

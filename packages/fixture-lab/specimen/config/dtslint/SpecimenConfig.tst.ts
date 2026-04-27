@@ -1,7 +1,7 @@
+import { loadSpecimenConfig, SpecimenConfig } from "@beep/fixture-lab-specimen-config/layer";
+import type { SpecimenPublicConfig } from "@beep/fixture-lab-specimen-config/public";
+import type { SpecimenSecretConfig } from "@beep/fixture-lab-specimen-config/secrets";
 import { describe, expect, it } from "tstyche";
-import { loadSpecimenConfig, SpecimenConfig } from "../src/Layer.ts";
-import type { SpecimenPublicConfig } from "../src/PublicConfig.ts";
-import type { SpecimenSecretConfig } from "../src/Secrets.ts";
 
 describe("@beep/fixture-lab-specimen-config", () => {
   it("types the resolved config service", () => {

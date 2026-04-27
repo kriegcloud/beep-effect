@@ -230,7 +230,21 @@
       "@beep/ui/styles/globals.css": [
         "./packages/common/ui/src/styles/globals.css"
       ],
-      "@beep/ui/themes": ["./packages/common/ui/src/themes/index.ts"]
+      "@beep/ui/themes": [
+        "./packages/common/ui/src/themes/index.ts"
+      ],
+      "@beep/drizzle": [
+        "./packages/providers/drizzle/src/index.ts"
+      ],
+      "@beep/drizzle/*": [
+        "./packages/providers/drizzle/src/*"
+      ],
+      "@beep/pglite": [
+        "./packages/providers/pglite/src/index.ts"
+      ],
+      "@beep/pglite/*": [
+        "./packages/providers/pglite/src/*"
+      ]
     }
   }
 }

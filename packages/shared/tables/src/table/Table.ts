@@ -169,9 +169,10 @@ const columnWithNullability = <const Descriptor extends FieldDescriptor, Builder
   descriptor: Descriptor,
   column: Builder
 ): ColumnBuilderWithNullability<Descriptor, Builder> =>
-  (descriptor.key === "id" || descriptor.nullable
-    ? column
-    : notNullColumn(column)) as ColumnBuilderWithNullability<Descriptor, Builder>;
+  (descriptor.key === "id" || descriptor.nullable ? column : notNullColumn(column)) as ColumnBuilderWithNullability<
+    Descriptor,
+    Builder
+  >;
 
 function entityIdColumn<const Descriptor extends EntityIdDescriptor>(
   descriptor: Descriptor
@@ -217,8 +218,9 @@ function columnFor(descriptor: FieldDescriptor): ColumnBuilderFor<FieldDescripto
   );
 }
 
-const descriptorRecord = <const FieldMap extends object>(fieldMap: FieldMap): Record<string, EntityMixin.FieldDescriptor> =>
-  fieldMap as Record<string, EntityMixin.FieldDescriptor>;
+const descriptorRecord = <const FieldMap extends object>(
+  fieldMap: FieldMap
+): Record<string, EntityMixin.FieldDescriptor> => fieldMap as Record<string, EntityMixin.FieldDescriptor>;
 
 const columnsFor = <const FieldMap extends object>(fieldMap: FieldMap): ColumnBuilderMapFor<FieldMap> =>
   R.map(descriptorRecord(fieldMap), columnFor) as ColumnBuilderMapFor<FieldMap>;
@@ -297,10 +299,23 @@ const tableFromRuntime = <const Entity extends EntityId.Any, const Mixins extend
 const mixinsFromOptional = <const Mixins extends EntityMixin.Pack>(mixins: Mixins | undefined): Mixins =>
   (mixins ?? EntityMixin.pack()) as Mixins;
 
-export const make = <
-  const Entity extends EntityId.Any,
-  const Mixins extends EntityMixin.Pack = EntityMixin.EmptyPack,
->(
+/**
+ * Build a PGLite-compatible Postgres Drizzle table from canonical shared-kernel
+ * entity metadata.
+ *
+ * @example
+ * ```ts
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ * import * as Table from "@beep/shared-tables/table/Table"
+ *
+ * const OrganizationTable = Table.make(OrganizationId)
+ * console.log(OrganizationTable.definition.tableName)
+ * ```
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const make = <const Entity extends EntityId.Any, const Mixins extends EntityMixin.Pack = EntityMixin.EmptyPack>(
   entityId: Entity,
   mixins?: Mixins
 ): TableFor<Entity, Mixins> => {

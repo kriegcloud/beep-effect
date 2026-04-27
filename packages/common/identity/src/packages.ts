@@ -104,7 +104,9 @@ const composers = $I.compose(
   "editor-runtime",
 
   "firecrawl",
-  "codedank-web"
+  "codedank-web",
+  "drizzle",
+  "pglite",
 );
 
 // --- common ---
@@ -742,8 +744,7 @@ export const $FirecrawlId: Identity.IdentityComposer<"@beep/firecrawl"> = compos
  * @since 0.0.0
  * @category configuration
  */
-export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab-specimen"> =
-  composers.$FixtureLabSpecimenId;
+export const $FixtureLabSpecimenId: Identity.IdentityComposer<"@beep/fixture-lab-specimen"> = composers.$FixtureLabSpecimenId;
 
 /**
  * RepoPkgs - export object containing all package IdentityComposer's
@@ -764,3 +765,17 @@ export const $MdId: Identity.IdentityComposer<"@beep/md"> = composers.$MdId;
  * @category Configuration
  */
 export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = composers.$CodedankWebId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/drizzle">}
+ */
+export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.$DrizzleId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ * @type {Identity.IdentityComposer<"@beep/pglite">}
+ */
+export const $PgliteId: Identity.IdentityComposer<"@beep/pglite"> = composers.$PgliteId;

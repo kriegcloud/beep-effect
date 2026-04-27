@@ -1,10 +1,5 @@
-import { HtmlFragment, Markdown } from "@beep/schema";
-import { describe, expect, it } from "@effect/vitest";
-import { Cause, Effect, Exit, Result } from "effect";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
-import { Md } from "../src/index.ts";
-import { Block, Document, Inline, Pre, Text } from "../src/Md.model.ts";
+import { Md } from "@beep/md";
+import { Block, Document, Inline, Pre, Text } from "@beep/md/Md.model";
 import {
   DocumentToHtmlFragment,
   DocumentToMarkdown,
@@ -25,7 +20,7 @@ import {
   renderUnsafe,
   renderWith,
   renderWithUnsafe,
-} from "../src/Md.render.ts";
+} from "@beep/md/Md.render";
 import {
   escapeHtmlUrlAttribute,
   escapeMarkdownDestination,
@@ -36,7 +31,12 @@ import {
   prefixLines,
   renderFencedCode,
   renderInlineCode,
-} from "../src/Md.utils.ts";
+} from "@beep/md/Md.utils";
+import { HtmlFragment, Markdown } from "@beep/schema";
+import { describe, expect, it } from "@effect/vitest";
+import { Cause, Effect, Exit, Result } from "effect";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 describe("@beep/md", () => {
   it("renders the intended lowercase block-constructor document shape", () => {

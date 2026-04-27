@@ -69,12 +69,12 @@
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "test": {
-      "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "test:integration": {
-      "cache": true,
+      "cache": false,
       "dependsOn": ["^build"],
+      "env": ["BEEP_TEST_*"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
     "type-test": {
@@ -299,6 +299,16 @@
         "$TURBO_ROOT$/tooling/configs/test/**/*.ts",
         "$TURBO_ROOT$/tooling/cli/src/**/*.ts",
         "$TURBO_ROOT$/tooling/cli/test/**/*.ts"
+      ]
+    },
+    "@beep/repo-checks#lint:package-test-imports": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/packages/**/package.json",
+        "$TURBO_ROOT$/packages/**/test/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/packages/**/dtslint/**/*.{ts,tsx}",
+        "$TURBO_ROOT$/tooling/cli/src/commands/Lint/PackageTestImports.ts",
+        "$TURBO_ROOT$/tooling/cli/src/commands/Lint/index.ts"
       ]
     },
     "@beep/repo-checks#lint:effect-imports:fix": {

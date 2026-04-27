@@ -25,6 +25,9 @@
     },
     {
       "path": "../repo-utils/tsconfig.json"
+    },
+    {
+      "path": "../test-utils/tsconfig.json"
     }
   ]
 }

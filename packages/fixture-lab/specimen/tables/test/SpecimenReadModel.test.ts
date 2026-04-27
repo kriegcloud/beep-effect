@@ -1,6 +1,6 @@
+import { SpecimenReadModel, specimenReadModelColumns, specimenTableName } from "@beep/fixture-lab-specimen-tables";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
-import { SpecimenReadModel, specimenReadModelColumns, specimenTableName } from "../src/index.js";
 
 describe("Specimen read-model fixture", () => {
   it("declares the table contract", () => {

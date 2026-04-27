@@ -77,6 +77,7 @@ const FORMATTING_OPTIONS: jsonc.FormattingOptions = {
   insertSpaces: true,
 };
 const DOCGEN_CONFIG_FILENAME = "docgen.json" as const;
+const ROOT_TSTYCHE_TSCONFIG = "./tsconfig.dtslint.json" as const;
 
 /**
  * Synthetic root key in repo-utils dependency maps.
@@ -865,44 +866,52 @@ const readStringArray = (value: unknown): ReadonlyArray<string> =>
 const readTstycheTestFileMatch = (parsed: Record<string, unknown>): ReadonlyArray<string> =>
   readStringArray(parsed.testFileMatch);
 
+const readTstycheTsconfig = (parsed: Record<string, unknown>): string | undefined =>
+  P.isString(parsed.tsconfig) ? parsed.tsconfig : undefined;
+
 const isManagedTstycheWorkspace = (relativeDir: string): boolean =>
   Str.startsWith("packages/")(relativeDir) ||
   Str.startsWith("tooling/")(relativeDir) ||
   Str.startsWith("apps/")(relativeDir);
 
-const isCoveredByTopLevelTstychePattern = (relativeDir: string): boolean => {
-  const segments = pathSegments(relativeDir);
-  return (
-    A.length(segments) === 2 &&
-    A.some(["packages", "tooling", "apps"], (prefix) => stringEquivalence(segments[0] ?? "", prefix))
-  );
+const workspacePatternCoversPath = (workspacePattern: string, relativeDir: string): boolean => {
+  const patternSegments = pathSegments(workspacePattern);
+  const pathParts = pathSegments(relativeDir);
+
+  if (A.length(patternSegments) !== A.length(pathParts)) {
+    return false;
+  }
+
+  for (const [index, segment] of patternSegments.entries()) {
+    if (segment !== "*" && !stringEquivalence(segment, pathParts[index] ?? "")) {
+      return false;
+    }
+  }
+
+  return true;
 };
 
-const buildCanonicalTstycheTestFileMatch = (workspaces: ReadonlyArray<WorkspaceDescriptor>): ReadonlyArray<string> => {
-  const topLevelPatterns = uniqueInInputOrder(
-    [
-      A.some(workspaces, (workspace) => Str.startsWith("packages/")(workspace.relativeDir))
-        ? "packages/*/dtslint/**/*.tst.*"
-        : undefined,
-      A.some(workspaces, (workspace) => Str.startsWith("tooling/")(workspace.relativeDir))
-        ? "tooling/*/dtslint/**/*.tst.*"
-        : undefined,
-      A.some(workspaces, (workspace) => Str.startsWith("apps/")(workspace.relativeDir))
-        ? "apps/*/dtslint/**/*.tst.*"
-        : undefined,
-    ].filter(P.isString)
+const buildCanonicalTstycheTestFileMatch = (
+  workspaces: ReadonlyArray<WorkspaceDescriptor>,
+  workspacePatterns: ReadonlyArray<string>
+): ReadonlyArray<string> => {
+  const managedWorkspacePatterns = A.filter(workspacePatterns, isManagedTstycheWorkspace);
+  const workspacePatternEntries = pipe(
+    managedWorkspacePatterns,
+    A.map((pattern) => `${pattern}/dtslint/**/*.tst.*`)
   );
-
   const explicitWorkspacePatterns = pipe(
     workspaces,
     A.map((workspace) => workspace.relativeDir),
     A.filter(isManagedTstycheWorkspace),
-    A.filter((relativeDir) => !isCoveredByTopLevelTstychePattern(relativeDir)),
+    A.filter(
+      (relativeDir) => !A.some(managedWorkspacePatterns, (pattern) => workspacePatternCoversPath(pattern, relativeDir))
+    ),
     A.map((relativeDir) => `${relativeDir}/dtslint/**/*.tst.*`),
     A.sort(byStringAscending)
   );
 
-  return uniqueInInputOrder([...topLevelPatterns, ...explicitWorkspacePatterns]);
+  return uniqueInInputOrder([...workspacePatternEntries, ...explicitWorkspacePatterns]);
 };
 
 const SYNCPACK_SOURCE_ARRAY_PATTERN = /source:\s*\[(?<body>[\s\S]*?)\],/m;
@@ -1298,18 +1307,22 @@ const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: Re
   const path = yield* Path.Path;
   const filePath = path.join(rootDir, "tstyche.json");
 
+  const { packageJson } = yield* readRootPackageJson(rootDir);
+  const workspacePatterns = workspacePatternsFromPackageJson(packageJson.workspaces);
   const original = yield* readFileString(filePath);
   const parsed = yield* parseJsonObject(original, filePath);
   const current = readTstycheTestFileMatch(parsed);
-  const expected = buildCanonicalTstycheTestFileMatch(workspaces);
+  const currentTsconfig = readTstycheTsconfig(parsed);
+  const expected = buildCanonicalTstycheTestFileMatch(workspaces, workspacePatterns);
 
-  if (arraysEqual(current, expected)) {
+  if (arraysEqual(current, expected) && currentTsconfig === ROOT_TSTYCHE_TSCONFIG) {
     return O.none<PlannedFileChange>();
   }
 
   const nextContent = renderJson({
     ...parsed,
     testFileMatch: expected,
+    tsconfig: ROOT_TSTYCHE_TSCONFIG,
   });
 
   return O.some(

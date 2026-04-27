@@ -1,14 +1,14 @@
+import { BowCosineSimilarity } from "@beep/nlp/Tools/BowCosineSimilarity";
+import { ChunkBySentences } from "@beep/nlp/Tools/ChunkBySentences";
+import { CreateCorpus } from "@beep/nlp/Tools/CreateCorpus";
+import { ExtractKeywords } from "@beep/nlp/Tools/ExtractKeywords";
+import { TextSimilarity } from "@beep/nlp/Tools/TextSimilarity";
+import { TverskySimilarity } from "@beep/nlp/Tools/TverskySimilarity";
+import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/WinkEngine";
+import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "@beep/nlp/Wink/WinkPattern";
 import { Cause, Effect, Exit, Schema } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
-import { BowCosineSimilarity } from "../src/Tools/BowCosineSimilarity.ts";
-import { ChunkBySentences } from "../src/Tools/ChunkBySentences.ts";
-import { CreateCorpus } from "../src/Tools/CreateCorpus.ts";
-import { ExtractKeywords } from "../src/Tools/ExtractKeywords.ts";
-import { TextSimilarity } from "../src/Tools/TextSimilarity.ts";
-import { TverskySimilarity } from "../src/Tools/TverskySimilarity.ts";
-import { WinkEngine, WinkEngineLive } from "../src/Wink/WinkEngine.ts";
-import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "../src/Wink/WinkPattern.ts";
 
 describe("Tool validation", () => {
   it("rejects fractional keyword limits at the schema boundary", () => {

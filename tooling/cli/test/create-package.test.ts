@@ -37,6 +37,7 @@ const TsconfigPaths = S.Struct({
 });
 const TstycheConfig = S.Struct({
   testFileMatch: S.Array(S.String),
+  tsconfig: S.String,
 });
 const PackageScripts = S.Struct({
   scripts: S.Record(S.String, S.String),
@@ -50,18 +51,21 @@ const decodePackageScripts = S.decodeUnknownSync(PackageScripts);
 const ExpectedGeneratedQualityScripts = {
   audit: "bun run --if-present beep:audit",
   babel: "babel dist --plugins annotate-pure-calls --out-dir dist --source-maps",
-  "beep:audit": "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:lint",
+  "beep:audit":
+    "bun run beep:build && bun run beep:check && bun run beep:test && bun run beep:test:integration && bun run beep:lint",
   "beep:build": "tsc -b tsconfig.json && bun run babel",
   "beep:check": "tsgo -b tsconfig.json",
   "beep:lint": "biome check .",
   "beep:lint:fix": "biome check . --write",
-  "beep:test": "bunx --bun vitest run --passWithNoTests",
+  "beep:test": "bunx --bun vitest run --passWithNoTests --exclude=test/integration/**",
+  "beep:test:integration": "bunx --bun vitest run test/integration --passWithNoTests",
   build: "bun run beep:build",
   check: "bun run beep:check",
-  coverage: "bunx --bun vitest run --coverage --passWithNoTests",
+  coverage: "bunx --bun vitest run --coverage --passWithNoTests --exclude=test/integration/**",
   lint: "bun run beep:lint",
   "lint:fix": "bun run beep:lint:fix",
   test: "bun run beep:test",
+  "test:integration": "bun run beep:test:integration",
 } as const;
 
 const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
@@ -195,7 +199,7 @@ const bootstrapRootConfig = Effect.fn(function* (
   });
   yield* writeJsonFile(path.join(rootDir, "tstyche.json"), {
     testFileMatch: options.testFileMatch,
-    tsconfig: "findup",
+    tsconfig: "./tsconfig.dtslint.json",
   });
   yield* writeSyncpackConfig(path.join(rootDir, "syncpack.config.ts"), options.syncpackSources);
 });
@@ -268,10 +272,13 @@ describe.sequential("create-package", () => {
 
             const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
             expect(tstycheConfig.testFileMatch).toEqual([
-              "packages/*/dtslint/**/*.tst.*",
-              "packages/common/identity/dtslint/**/*.tst.*",
+              "packages/common/*/dtslint/**/*.tst.*",
+              "packages/example-domain/dtslint/**/*.tst.*",
             ]);
-            expect(tstycheConfig.testFileMatch).not.toContain("packages/example-domain/dtslint/**/*.tst.*");
+            expect(tstycheConfig.tsconfig).toBe("./tsconfig.dtslint.json");
+            expect(yield* fs.exists(path.join(rootDir, "packages", "example-domain", "dtslint", "tsconfig.json"))).toBe(
+              false
+            );
 
             const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
             expect(syncpackConfig).toContain(`"packages/example-domain/package.json"`);
@@ -289,7 +296,70 @@ describe.sequential("create-package", () => {
   );
 
   it(
-    "keeps covered parent workspaces untouched while still syncing nested package registration",
+    "adds tstyche coverage for uncovered nested package paths",
+    async () => {
+      await Effect.runPromise(
+        withTempRepoCommand(
+          Effect.gen(function* () {
+            const fs = yield* FileSystem.FileSystem;
+            const path = yield* Path.Path;
+            const rootDir = process.cwd();
+
+            yield* bootstrapRootConfig(rootDir, {
+              workspaces: ["packages/common/identity"],
+              references: ["packages/common/identity"],
+              paths: {
+                "@beep/identity": ["./packages/common/identity/src/index.ts"],
+                "@beep/identity/*": ["./packages/common/identity/src/*"],
+              },
+              testFileMatch: ["packages/common/identity/dtslint/**/*.tst.*"],
+              syncpackSources: ["package.json", "packages/common/identity/package.json"],
+            });
+            yield* bootstrapIdentityWorkspace(rootDir);
+
+            yield* runCreatePackageCommand([
+              "telemetry",
+              "--parent-dir",
+              "packages/common",
+              "--description",
+              "A telemetry package",
+            ]);
+
+            const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
+            expect(rootPackage.workspaces).toEqual(["packages/common/identity", "packages/common/telemetry"]);
+
+            const packageRefs = decodeTsconfigReferences(
+              yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json"))
+            );
+            expect(A.map(packageRefs.references, (entry) => entry.path)).toEqual([
+              "packages/common/identity",
+              "packages/common/telemetry",
+            ]);
+
+            const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
+            expect(tstycheConfig.testFileMatch).toContain("packages/common/telemetry/dtslint/**/*.tst.*");
+            expect(tstycheConfig.tsconfig).toBe("./tsconfig.dtslint.json");
+            expect(
+              yield* fs.exists(path.join(rootDir, "packages", "common", "telemetry", "dtslint", "tsconfig.json"))
+            ).toBe(false);
+
+            const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
+            expect(syncpackConfig).toContain(`"packages/common/telemetry/package.json"`);
+
+            const identityPackages = yield* fs.readFileString(
+              path.join(rootDir, "packages", "common", "identity", "src", "packages.ts")
+            );
+            expect(identityPackages).toContain(`"telemetry"`);
+            expect(identityPackages).toContain(`export const $TelemetryId`);
+          })
+        )
+      );
+    },
+    CreatePackageTestTimeoutMs
+  );
+
+  it(
+    "does not duplicate tstyche entries when a covered parent dtslint glob already exists",
     async () => {
       await Effect.runPromise(
         withTempRepoCommand(
@@ -305,41 +375,25 @@ describe.sequential("create-package", () => {
                 "@beep/identity": ["./packages/common/identity/src/index.ts"],
                 "@beep/identity/*": ["./packages/common/identity/src/*"],
               },
-              testFileMatch: ["packages/*/dtslint/**/*.tst.*", "packages/common/identity/dtslint/**/*.tst.*"],
+              testFileMatch: ["packages/common/*/dtslint/**/*.tst.*", "packages/common/identity/dtslint/**/*.tst.*"],
               syncpackSources: ["package.json", "packages/common/*/package.json"],
             });
             yield* bootstrapIdentityWorkspace(rootDir);
 
             yield* runCreatePackageCommand([
-              "telemetry",
+              "audit-log",
               "--parent-dir",
               "packages/common",
               "--description",
-              "A telemetry package",
-            ]);
-
-            const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
-            expect(rootPackage.workspaces).toEqual(["packages/common/*"]);
-
-            const packageRefs = decodeTsconfigReferences(
-              yield* readJsoncFile(path.join(rootDir, "tsconfig.packages.json"))
-            );
-            expect(A.map(packageRefs.references, (entry) => entry.path)).toEqual([
-              "packages/common/identity",
-              "packages/common/telemetry",
+              "An audit log package",
             ]);
 
             const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
-            expect(tstycheConfig.testFileMatch).toContain("packages/common/telemetry/dtslint/**/*.tst.*");
-
-            const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
-            expect(syncpackConfig).not.toContain(`"packages/common/telemetry/package.json"`);
-
-            const identityPackages = yield* fs.readFileString(
-              path.join(rootDir, "packages", "common", "identity", "src", "packages.ts")
-            );
-            expect(identityPackages).toContain(`"telemetry"`);
-            expect(identityPackages).toContain(`export const $TelemetryId`);
+            expect(tstycheConfig.testFileMatch).toEqual(["packages/common/*/dtslint/**/*.tst.*"]);
+            expect(tstycheConfig.testFileMatch).not.toContain("packages/common/audit-log/dtslint/**/*.tst.*");
+            expect(
+              yield* fs.exists(path.join(rootDir, "packages", "common", "audit-log", "dtslint", "tsconfig.json"))
+            ).toBe(false);
           })
         )
       );

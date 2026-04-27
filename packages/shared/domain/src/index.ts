@@ -12,13 +12,19 @@
 export const VERSION = "0.0.0" as const;
 
 /**
+ * Shared-kernel entity concepts.
+ *
+ * @since 0.0.0
+ * @category entities
+ */
+export * as Entities from "./entities/index.ts";
+/**
  * Product-facing persisted entity base constructor.
  *
  * @since 0.0.0
  * @category entity constructors
  */
 export * as BaseEntity from "./entity/BaseEntity.ts";
-
 /**
  * Entity identifier constructor namespace.
  *
@@ -26,7 +32,6 @@ export * as BaseEntity from "./entity/BaseEntity.ts";
  * @category entity constructors
  */
 export * as EntityId from "./entity/EntityId.ts";
-
 /**
  * Entity mixin constructor namespace.
  *
@@ -34,7 +39,6 @@ export * as EntityId from "./entity/EntityId.ts";
  * @category entity constructors
  */
 export * as EntityMixin from "./entity/EntityMixin.ts";
-
 /**
  * Polymorphic entity reference namespace.
  *
@@ -42,7 +46,6 @@ export * as EntityMixin from "./entity/EntityMixin.ts";
  * @category entity references
  */
 export * as EntityRef from "./entity/EntityRef.ts";
-
 /**
  * Canonical actor principal namespace.
  *
@@ -50,7 +53,6 @@ export * as EntityRef from "./entity/EntityRef.ts";
  * @category actor references
  */
 export * as Principal from "./entity/Principal.ts";
-
 /**
  * Canonical source-kind namespace.
  *
@@ -58,7 +60,6 @@ export * as Principal from "./entity/Principal.ts";
  * @category entity fields
  */
 export * as SourceKind from "./entity/SourceKind.ts";
-
 /**
  * Entity-id registry namespace.
  *

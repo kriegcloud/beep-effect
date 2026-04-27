@@ -508,6 +508,28 @@
         "@types/node": "catalog:",
       },
     },
+    "packages/providers/drizzle": {
+      "name": "@beep/drizzle",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/providers/pglite": {
+      "name": "@beep/pglite",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/shared/client": {
       "name": "@beep/shared-client",
       "version": "0.0.0",
@@ -573,6 +595,9 @@
       "name": "@beep/shared-ui",
       "version": "0.0.0",
       "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/shared-domain": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -604,6 +629,7 @@
         "@beep/repo-configs": "workspace:^",
         "@beep/repo-utils": "workspace:^",
         "@beep/schema": "workspace:^",
+        "@beep/test-utils": "workspace:^",
         "@effect/markdown-toc": "catalog:",
         "@effect/platform-node": "catalog:",
         "@openai/codex-sdk": "catalog:",
@@ -1226,6 +1252,8 @@
 
     "@beep/docgen": ["@beep/docgen@workspace:tooling/docgen"],
 
+    "@beep/drizzle": ["@beep/drizzle@workspace:packages/providers/drizzle"],
+
     "@beep/fixture-lab-specimen-client": ["@beep/fixture-lab-specimen-client@workspace:packages/fixture-lab/specimen/client"],
 
     "@beep/fixture-lab-specimen-config": ["@beep/fixture-lab-specimen-config@workspace:packages/fixture-lab/specimen/config"],
@@ -1251,6 +1279,8 @@
     "@beep/nlp": ["@beep/nlp@workspace:packages/common/nlp"],
 
     "@beep/observability": ["@beep/observability@workspace:packages/common/observability"],
+
+    "@beep/pglite": ["@beep/pglite@workspace:packages/providers/pglite"],
 
     "@beep/repo-checks": ["@beep/repo-checks@workspace:tooling/repo-checks"],
 

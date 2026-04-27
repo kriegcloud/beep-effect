@@ -11,6 +11,7 @@ Build and maintain features with effect first development.
 - Prefer effect modules over native helpers.
 - Prefer tersest equivalent helper forms when behavior is unchanged: direct helper refs over trivial lambdas, `flow(...)` for passthrough `pipe(...)` callbacks, and shared thunk helpers when already in scope.
 - Prefer named schema building blocks, derived `S.is(...)` guards, and `LiteralKit` internal domains over ad-hoc predicate helpers.
+- In `packages/**/{test,dtslint}/**/*.{ts,tsx}`, import package source through `@beep/*` package aliases instead of relative paths into any workspace `src/`; keep relatives only for local helpers, fixtures, snapshots, and other non-`src` test files.
 - Keep service boundaries explicit.
 - Keep repo quality commands green.
 - `graphiti-memory` is the primary durable repository knowledge base for this repo.

@@ -1,10 +1,10 @@
 import { $ScratchId } from "@beep/identity";
+import { makeParseYaml, makeParseYamlForSchema } from "@beep/schema/internal/yaml";
 import { decodeYamlTextAs, parseYaml, YamlTextToUnknown } from "@beep/schema/Yaml";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as S from "effect/Schema";
 import * as yaml from "yaml";
-import { makeParseYaml, makeParseYamlForSchema } from "../src/internal/yaml.ts";
 
 const $I = $ScratchId.create("yaml_test");
 

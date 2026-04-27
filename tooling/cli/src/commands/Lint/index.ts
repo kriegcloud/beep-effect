@@ -16,6 +16,7 @@ import * as Str from "effect/String";
 import { Command } from "effect/unstable/cli";
 import madge from "madge";
 import { isExcludedTypeScriptSourcePath } from "../Shared/TypeScriptSourceExclusions.ts";
+import { lintPackageTestImportsCommand } from "./PackageTestImports.js";
 import { lintSchemaFirstCommand } from "./SchemaFirst.ts";
 
 const $I = $RepoCliId.create("commands/Lint");
@@ -607,6 +608,7 @@ export const lintCommand = Command.make(
   Effect.fn(function* () {
     yield* Console.log("Lint commands:");
     yield* Console.log("- bun run beep lint circular");
+    yield* Console.log("- bun run beep lint package-test-imports");
     yield* Console.log("- bun run beep lint schema-first");
     yield* Console.log("- bun run beep lint tooling-tagged-errors");
     yield* Console.log("- bun run beep lint tooling-schema-first");
@@ -615,6 +617,7 @@ export const lintCommand = Command.make(
   Command.withDescription("Repository lint policy checks"),
   Command.withSubcommands([
     lintCircularCommand,
+    lintPackageTestImportsCommand,
     lintSchemaFirstCommand,
     lintToolingTaggedErrorsCommand,
     lintToolingSchemaFirstCommand,

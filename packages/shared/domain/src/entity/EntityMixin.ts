@@ -12,7 +12,6 @@ import type { TUtils } from "@beep/types";
 import * as Struct from "@beep/utils/Struct";
 import * as A from "effect/Array";
 import { dual, pipe } from "effect/Function";
-import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -488,6 +487,19 @@ const attachFieldDescriptorStatics = <Schema extends S.Decoder<FieldDescriptor>>
     Struct.pick(FieldDescriptorStorageBase, ["cases", "guards", "isAnyOf", "match"])
   ) as Schema & FieldDescriptorStatics;
 
+/**
+ * Storage-neutral schema for materialized field descriptors.
+ *
+ * @example
+ * ```ts
+ * import { FieldDescriptor } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * void FieldDescriptor
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const FieldDescriptor: S.Decoder<FieldDescriptor> & FieldDescriptorStatics = attachFieldDescriptorStatics(
   FieldDescriptorBase.pipe(
     $I.annoteSchema("FieldDescriptor", {
@@ -541,6 +553,19 @@ const attachFieldDescriptorInputStatics = <Schema extends S.Decoder<FieldDescrip
     Struct.pick(FieldDescriptorInputStorageBase, ["cases", "guards", "isAnyOf", "match"])
   ) as Schema & FieldDescriptorInputStatics;
 
+/**
+ * Storage-neutral schema for field descriptor inputs.
+ *
+ * @example
+ * ```ts
+ * import { FieldDescriptorInput } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * void FieldDescriptorInput
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const FieldDescriptorInput: S.Decoder<FieldDescriptorInput> & FieldDescriptorInputStatics =
   attachFieldDescriptorInputStatics(
     FieldDescriptorInputBase.pipe(
@@ -602,7 +627,7 @@ export type FieldDescriptorFromInput<
  * @since 0.0.0
  * @category models
  */
-export type FieldDescriptorMap<Fields extends VariantSchema.Struct.Fields = VariantSchema.Struct.Fields> = {
+export type FieldDescriptorMap<Fields extends object = VariantSchema.Struct.Fields> = {
   readonly [K in keyof Fields & string]: FieldDescriptor;
 };
 
@@ -612,7 +637,7 @@ export type FieldDescriptorMap<Fields extends VariantSchema.Struct.Fields = Vari
  * @since 0.0.0
  * @category models
  */
-export type FieldDescriptorInputMap<Fields extends VariantSchema.Struct.Fields = VariantSchema.Struct.Fields> = {
+export type FieldDescriptorInputMap<Fields extends object = VariantSchema.Struct.Fields> = {
   readonly [K in keyof Fields & string]: FieldDescriptorInputShape;
 };
 
@@ -622,10 +647,7 @@ export type FieldDescriptorInputMap<Fields extends VariantSchema.Struct.Fields =
  * @since 0.0.0
  * @category models
  */
-export type FieldDescriptorMapFromDefinition<
-  Fields extends VariantSchema.Struct.Fields,
-  Def extends Definition<Fields>,
-> = {
+export type FieldDescriptorMapFromDefinition<Fields extends object, Def extends Definition<Fields>> = {
   readonly [K in keyof Fields & keyof Def["fields"] & string]: FieldDescriptorFromInput<K, Def["fields"][K]>;
 };
 
@@ -644,7 +666,7 @@ export type AnyFieldDescriptorMap = object;
  * @category models
  */
 export type Definition<
-  Fields extends VariantSchema.Struct.Fields = VariantSchema.Struct.Fields,
+  Fields extends object = VariantSchema.Struct.Fields,
   FieldDefinitions extends FieldDescriptorInputMap<Fields> = FieldDescriptorInputMap<Fields>,
 > = {
   readonly description: string;
@@ -663,6 +685,16 @@ export type FieldOverride<Field> = {
   readonly reason: string;
 };
 
+type FieldValue = VariantSchema.Struct.Fields[string];
+type FieldInputMap = {
+  readonly [key: string]: FieldOverride<FieldValue> | FieldValue | undefined;
+};
+
+type UnwrapField<Field> = Field extends FieldOverride<infer Inner> ? Inner : Field;
+type UnwrapFieldOverrides<Fields extends object> = {
+  readonly [K in keyof Fields]: UnwrapField<Fields[K]>;
+};
+
 /**
  * Entity mixin contract object.
  *
@@ -670,7 +702,7 @@ export type FieldOverride<Field> = {
  * @category models
  */
 export type EntityMixin<
-  Fields extends VariantSchema.Struct.Fields = VariantSchema.Struct.Fields,
+  Fields extends FieldInputMap = FieldInputMap,
   Def extends Definition<Fields> = Definition<Fields>,
 > = {
   readonly [TypeId]: typeof TypeId;
@@ -682,13 +714,27 @@ export type EntityMixin<
   readonly name: string;
 };
 
-type MixinFields<Mixins extends ReadonlyArray<EntityMixin>> = [Mixins[number]] extends [never]
-  ? {}
-  : TUtils.Simplify<TUtils.UnionToIntersection<Mixins[number]["fields"]>>;
+type MergeObjects<Left extends object, Right extends object> = TUtils.Simplify<Omit<Left, keyof Right> & Right>;
+type ObjectIntersection<Union> =
+  TUtils.UnionToIntersection<Union> extends infer Intersection extends object ? Intersection : {};
 
-type MixinFieldMap<Mixins extends ReadonlyArray<EntityMixin>> = [Mixins[number]] extends [never]
-  ? {}
-  : TUtils.Simplify<TUtils.UnionToIntersection<Mixins[number]["fieldMap"]>>;
+type MixinFields<Mixins extends ReadonlyArray<EntityMixin>, Acc extends object = {}> = Mixins extends readonly [
+  infer Head extends EntityMixin,
+  ...infer Tail extends ReadonlyArray<EntityMixin>,
+]
+  ? MixinFields<Tail, MergeObjects<Acc, UnwrapFieldOverrides<Head["fields"]>>>
+  : [Mixins[number]] extends [never]
+    ? Acc
+    : MergeObjects<Acc, ObjectIntersection<UnwrapFieldOverrides<Mixins[number]["fields"]>>>;
+
+type MixinFieldMap<Mixins extends ReadonlyArray<EntityMixin>, Acc extends object = {}> = Mixins extends readonly [
+  infer Head extends EntityMixin,
+  ...infer Tail extends ReadonlyArray<EntityMixin>,
+]
+  ? MixinFieldMap<Tail, MergeObjects<Acc, Head["fieldMap"]>>
+  : [Mixins[number]] extends [never]
+    ? Acc
+    : MergeObjects<Acc, ObjectIntersection<Mixins[number]["fieldMap"]>>;
 
 /**
  * Packed entity mixins ready for BaseEntity and Table.make.
@@ -715,7 +761,7 @@ export type Pack<
  * @category models
  */
 export type PackFromMixins<Mixins extends ReadonlyArray<EntityMixin>> = Pack<
-  MixinFields<Mixins> & VariantSchema.Struct.Fields,
+  MixinFields<Mixins>,
   MixinFieldMap<Mixins>,
   Mixins
 >;
@@ -821,7 +867,7 @@ const failCollision = (key: string): never => {
 };
 
 const decodeFieldDescriptor = <
-  Fields extends VariantSchema.Struct.Fields,
+  Fields extends FieldInputMap,
   Def extends Definition<Fields>,
   const Key extends keyof Fields & string,
 >(
@@ -839,12 +885,12 @@ const decodeFieldDescriptor = <
   >;
 };
 
-const fieldMapFromRuntime = <Fields extends VariantSchema.Struct.Fields, Def extends Definition<Fields>>(
+const fieldMapFromRuntime = <Fields extends FieldInputMap, Def extends Definition<Fields>>(
   entries: Iterable<readonly [keyof Fields & string, unknown]>
 ): FieldDescriptorMapFromDefinition<Fields, Def> =>
   Struct.fromEntries(entries) as FieldDescriptorMapFromDefinition<Fields, Def>;
 
-const makeFieldMap = <Fields extends VariantSchema.Struct.Fields, Def extends Definition<Fields>>(
+const makeFieldMap = <Fields extends FieldInputMap, Def extends Definition<Fields>>(
   fields: Fields,
   definition: Def
 ): FieldDescriptorMapFromDefinition<Fields, Def> =>
@@ -855,13 +901,7 @@ const makeFieldMap = <Fields extends VariantSchema.Struct.Fields, Def extends De
     )
   );
 
-const nameFromIdentifier = (identifier: string): string =>
-  pipe(
-    identifier,
-    Str.split("/"),
-    A.last,
-    O.getOrElse(() => identifier)
-  );
+const nameFromIdentifier = (identifier: string): string => pipe(identifier, Str.split("/"), A.lastNonEmpty);
 
 const packFromRuntime = <const Mixins extends ReadonlyArray<EntityMixin>>(
   runtimePack: Pack<VariantSchema.Struct.Fields, Record<string, FieldDescriptor>, Mixins>
@@ -901,7 +941,7 @@ const packFromRuntime = <const Mixins extends ReadonlyArray<EntityMixin>>(
 export const make =
   (identifier: string) =>
   <
-    const Fields extends VariantSchema.Struct.Fields,
+    const Fields extends FieldInputMap,
     const FieldDefinitions extends FieldDescriptorInputMap<Fields>,
     const Def extends Definition<Fields, FieldDefinitions>,
   >(

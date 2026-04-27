@@ -32,6 +32,7 @@ const TsconfigPaths = S.Struct({
 });
 const TstycheConfig = S.Struct({
   testFileMatch: S.Array(S.String),
+  tsconfig: S.String,
 });
 
 const decodeTsconfigReferences = S.decodeUnknownSync(TsconfigReferences);
@@ -137,7 +138,7 @@ const bootstrapRootConfig = Effect.fn(function* (
   });
   yield* writeJsonFile(path.join(rootDir, "tstyche.json"), {
     testFileMatch: options.testFileMatch,
-    tsconfig: "findup",
+    tsconfig: "./tsconfig.dtslint.json",
   });
   yield* writeSyncpackConfig(path.join(rootDir, "syncpack.config.ts"), options.syncpackSources);
 });
@@ -202,7 +203,6 @@ describe("tsconfig-sync", () => {
               "@beep/identity/*": ["./packages/common/identity/src/*"],
             },
             testFileMatch: [
-              "packages/*/dtslint/**/*.tst.*",
               "packages/common/identity/dtslint/**/*.tst.*",
               "packages/example-domain/dtslint/**/*.tst.*",
             ],
@@ -255,12 +255,57 @@ describe("tsconfig-sync", () => {
 
           const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
           expect(tstycheConfig.testFileMatch).toEqual([
-            "packages/*/dtslint/**/*.tst.*",
-            "packages/common/identity/dtslint/**/*.tst.*",
+            "packages/common/*/dtslint/**/*.tst.*",
+            "packages/example-domain/dtslint/**/*.tst.*",
           ]);
+          expect(tstycheConfig.tsconfig).toBe("./tsconfig.dtslint.json");
 
           const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
           expect(syncpackConfig).toContain(`"packages/example-domain/package.json"`);
+        })
+      )
+    );
+  });
+
+  it("repairs stale root tstyche tsconfig drift", async () => {
+    await Effect.runPromise(
+      withTempRepo(
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const rootDir = process.cwd();
+
+          yield* bootstrapRootConfig(rootDir, {
+            workspaces: ["packages/common/*"],
+            references: ["packages/common/identity"],
+            paths: {
+              "@beep/identity": ["./packages/common/identity/src/index.ts"],
+              "@beep/identity/*": ["./packages/common/identity/src/*"],
+            },
+            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
+            syncpackSources: ["package.json", "packages/common/*/package.json"],
+          });
+          yield* writeJsonFile(path.join(rootDir, "tstyche.json"), {
+            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
+            tsconfig: "./tsconfig.json",
+          });
+          yield* bootstrapWorkspace(rootDir, {
+            relativeDir: "packages/common/identity",
+            packageName: "@beep/identity",
+          });
+
+          const result = yield* syncTsconfigAtRoot(rootDir, {
+            mode: "sync",
+            filter: undefined,
+            verbose: false,
+          });
+
+          expect(A.map(result.changes, (change) => change.section)).toEqual(["root-tstyche"]);
+
+          const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
+          expect(tstycheConfig).toEqual({
+            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
+            tsconfig: "./tsconfig.dtslint.json",
+          });
         })
       )
     );
@@ -282,11 +327,7 @@ describe("tsconfig-sync", () => {
               "@beep/schema": ["./packages/common/schema/src/index.ts"],
               "@beep/schema/*": ["./packages/common/schema/src/*"],
             },
-            testFileMatch: [
-              "packages/*/dtslint/**/*.tst.*",
-              "packages/common/identity/dtslint/**/*.tst.*",
-              "packages/common/schema/dtslint/**/*.tst.*",
-            ],
+            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
             syncpackSources: ["package.json", "packages/common/*/package.json"],
           });
 
@@ -388,11 +429,7 @@ describe("tsconfig-sync", () => {
               "@beep/example-protocol": ["./packages/example/protocol/src/index.ts"],
               "@beep/example-protocol/*": ["./packages/example/protocol/src/*"],
             },
-            testFileMatch: [
-              "packages/*/dtslint/**/*.tst.*",
-              "packages/common/schema/dtslint/**/*.tst.*",
-              "packages/example/protocol/dtslint/**/*.tst.*",
-            ],
+            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*", "packages/example/*/dtslint/**/*.tst.*"],
             syncpackSources: ["package.json", "packages/common/*/package.json", "packages/example/*/package.json"],
           });
 
@@ -525,7 +562,7 @@ describe("tsconfig-sync", () => {
               "@beep/messages": ["./packages/common/messages/src/index.ts"],
               "@beep/messages/*": ["./packages/common/messages/src/*"],
             },
-            testFileMatch: ["packages/*/dtslint/**/*.tst.*", "packages/common/messages/dtslint/**/*.tst.*"],
+            testFileMatch: ["packages/common/*/dtslint/**/*.tst.*"],
             syncpackSources: ["package.json", "packages/common/*/package.json"],
           });
 

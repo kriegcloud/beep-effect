@@ -1,10 +1,10 @@
+import { Document, DocumentId } from "@beep/nlp/Core/Document";
+import { Sentence, SentenceIndex } from "@beep/nlp/Core/Sentence";
+import { CharPosition, Token, TokenIndex } from "@beep/nlp/Core/Token";
 import { Chunk, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
-import { Document, DocumentId } from "../src/Core/Document.ts";
-import { Sentence, SentenceIndex } from "../src/Core/Sentence.ts";
-import { CharPosition, Token, TokenIndex } from "../src/Core/Token.ts";
 
 const makeToken = (index: number, text: string, start: number, end: number): Token =>
   Token.make({

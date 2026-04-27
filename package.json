@@ -23,7 +23,9 @@
     "tooling/docgen",
     "apps/codedank-web",
     "packages/shared/use-cases",
-    "packages/shared/config"
+    "packages/shared/config",
+    "packages/providers/drizzle",
+    "packages/providers/pglite"
   ],
   "repository": {
     "type": "git",

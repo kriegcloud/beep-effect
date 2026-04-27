@@ -9,6 +9,7 @@ import { $SharedDomainId, type IdentityComposer } from "@beep/identity";
 import { SchemaUtils } from "@beep/schema";
 import { PostgresSerialInt } from "@beep/schema/Int";
 import * as Str from "@beep/utils/Str";
+import type * as BrandNS from "effect/Brand";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
@@ -43,6 +44,14 @@ export const EntityIdValue = PostgresSerialInt.pipe(
  * @category models
  */
 export type EntityIdValue = typeof EntityIdValue.Type;
+
+/**
+ * Entity id value branded with the concrete entity-id brand.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EntityIdValueFor<TBrand extends string> = BrandNS.Branded<EntityIdValue, TBrand>;
 
 /**
  * Constrained metadata overrides accepted by {@link factory}.
@@ -243,7 +252,7 @@ export type EntityId<
   TEntityType extends string = EntityType<Slice, Name>,
   TBrand extends string = Brand<Slice, Name>,
 > = S.Top & {
-  readonly Type: EntityIdValue;
+  readonly Type: EntityIdValueFor<TBrand>;
 } & EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
 
 type EntityIdStatics<
@@ -257,10 +266,15 @@ type EntityIdStatics<
   readonly brand: TBrand;
   readonly definition: DefinitionFor<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
   readonly entityType: TEntityType;
+  readonly equivalence: EntityIdEquivalence<TBrand>;
   readonly resource: TResource;
   readonly slice: Slice;
   readonly tableName: TTableName;
 };
+
+type EntityIdEquivalence<TBrand extends string> = {
+  bivarianceHack(self: EntityIdValueFor<TBrand>, that: EntityIdValueFor<TBrand>): boolean;
+}["bivarianceHack"];
 
 /**
  * Any entity id schema produced by {@link factory}.
@@ -411,13 +425,17 @@ export const factory: Factory = dual(
         })
       );
 
-      return attachEntityIdStatics(schema, {
-        brand: definition.brand,
-        definition,
-        entityType: definition.entityType,
-        resource: definition.resource,
-        slice,
-        tableName: definition.tableName,
-      });
+      return attachEntityIdStatics(
+        schema as S.Top & { readonly Type: EntityIdValueFor<ResolvedBrand<Slice, Name, Overrides>> },
+        {
+          brand: definition.brand,
+          definition,
+          entityType: definition.entityType,
+          equivalence: S.toEquivalence(schema) as EntityIdEquivalence<ResolvedBrand<Slice, Name, Overrides>>,
+          resource: definition.resource,
+          slice,
+          tableName: definition.tableName,
+        }
+      );
     }
 );

@@ -31,7 +31,7 @@ export type UnionToIntersection<Union> = (Union extends unknown ? (value: Union)
   : never;
 
 /**
- * Rematerializes an object type into a readable readonly property map.
+ * Expands an object type into a readable readonly property map.
  *
  * @example
  * ```ts
@@ -45,7 +45,7 @@ export type UnionToIntersection<Union> = (Union extends unknown ? (value: Union)
  * console.log(entity)
  * ```
  *
- * @typeParam T - Property-bearing type to rematerialize.
+ * @typeParam T - Property-bearing type to expand.
  * @category utilities
  * @since 0.0.0
  */

@@ -1,8 +1,8 @@
+import { tokenCount } from "@beep/nlp/Core/Tokenization";
+import { NLPAppLive } from "@beep/nlp/Layers/index";
+import { WinkEngine } from "@beep/nlp/Wink/WinkEngine";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { tokenCount } from "../src/Core/Tokenization.ts";
-import { NLPAppLive } from "../src/Layers/index.ts";
-import { WinkEngine } from "../src/Wink/WinkEngine.ts";
 
 describe("Layers", () => {
   it("provides the legacy NLP app bundle with engine and tokenization access", async () => {

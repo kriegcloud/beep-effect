@@ -1,5 +1,3 @@
-import { Chunk, Effect, Schema } from "effect";
-import { describe, expect, it } from "vitest";
 import {
   addElements,
   applyPatch,
@@ -37,7 +35,9 @@ import {
   take,
   withId,
   withMark,
-} from "../src/Core/index.ts";
+} from "@beep/nlp/Core/index";
+import { Chunk, Effect, Schema } from "effect";
+import { describe, expect, it } from "vitest";
 
 describe("Core Pattern", () => {
   it("creates element builders with optional values", () => {

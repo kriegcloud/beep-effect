@@ -1,11 +1,7 @@
 /**
- * The shared domain entities module.
+ * Shared-kernel organization concept namespace.
  *
- * @module
  * @since 0.0.0
+ * @category entities
  */
-
-/**
- * @since 0.0.0
- */
-export {};
+export * as Organization from "./Organization/index.js";

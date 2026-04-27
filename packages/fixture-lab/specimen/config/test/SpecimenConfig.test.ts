@@ -1,8 +1,8 @@
+import { SpecimenConfig } from "@beep/fixture-lab-specimen-config/layer";
+import { specimenPublicConfig } from "@beep/fixture-lab-specimen-config/public";
+import { SpecimenConfigTestLayer } from "@beep/fixture-lab-specimen-config/test";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { SpecimenConfig } from "../src/Layer.js";
-import { specimenPublicConfig } from "../src/PublicConfig.js";
-import { SpecimenConfigTestLayer } from "../src/TestLayer.js";
 
 describe("Specimen config fixture", () => {
   it.effect("provides a default public label prefix", () =>

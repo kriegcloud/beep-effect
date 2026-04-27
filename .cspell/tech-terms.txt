@@ -101,6 +101,10 @@ Perlin
 phonetize
 phonetization
 pkgjson
+PGDATABASE
+PGPASSWORD
+PGPORT
+PGUSER
 plpgsql
 PLPGSQL
 pooler
@@ -119,6 +123,7 @@ rlib
 roundrectangle
 rrggbb
 rtrim
+RYUK
 rustc
 sameorigin
 SAVEPOINT

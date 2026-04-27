@@ -1,7 +1,7 @@
+import { makeSpecimenClient } from "@beep/fixture-lab-specimen-client";
+import { Specimen } from "@beep/fixture-lab-specimen-domain";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { Specimen } from "../../domain/src/index.js";
-import { makeSpecimenClient } from "../src/index.js";
 
 describe("Specimen client fixture", () => {
   it("wraps transport calls", async () => {

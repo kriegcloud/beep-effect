@@ -1,7 +1,7 @@
+import { sentences, tokenCount, tokenize, tokenizeToDocument } from "@beep/nlp/Core/Tokenization";
+import { WinkTokenizationLive } from "@beep/nlp/Wink/index";
 import { Effect } from "effect";
 import { describe, expect, it } from "vitest";
-import { sentences, tokenCount, tokenize, tokenizeToDocument } from "../src/Core/Tokenization.ts";
-import { WinkTokenizationLive } from "../src/Wink/index.ts";
 
 const provideWink = Effect.provide(WinkTokenizationLive);
 

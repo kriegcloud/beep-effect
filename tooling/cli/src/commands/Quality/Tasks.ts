@@ -8,8 +8,9 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { type DomainError, findRepoRoot, type NoSuchFileError } from "@beep/repo-utils";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { makePgliteTestcontainerResource, type PgliteTestcontainerResource } from "@beep/test-utils";
 import { thunkEmptyStr, thunkFalse } from "@beep/utils";
-import { Cause, Console, Effect, FileSystem, Match, Path, pipe, Stream } from "effect";
+import { Cause, Console, Effect, FileSystem, Match, Path, pipe, type Scope, Stream } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -21,7 +22,13 @@ import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process"
 const $I = $RepoCliId.create("commands/Quality/Tasks");
 
 const QUALITY_TASK_NAMES = ["build", "check", "test", "lint", "audit"] as const;
-const LINT_POLICY_SUBCOMMANDS = ["circular", "schema-first", "tooling-tagged-errors", "tooling-schema-first"] as const;
+const LINT_POLICY_SUBCOMMANDS = [
+  "circular",
+  "package-test-imports",
+  "schema-first",
+  "tooling-tagged-errors",
+  "tooling-schema-first",
+] as const;
 const AUDIT_MODE_NAMES = ["packages", "github"] as const;
 const GITHUB_CHECK_MODES = ["quality", "repo-sanity", "secrets", "security", "sast", "nix", "pre-push"] as const;
 
@@ -103,6 +110,7 @@ export class QualityTaskStep extends S.Class<QualityTaskStep>($I`QualityTaskStep
     command: S.String,
     args: S.Array(S.String),
     cwd: S.String,
+    env: S.optionalKey(S.Record(S.String, S.Union([S.String, S.Undefined]))),
     useLocalEnv: S.optionalKey(S.Boolean),
   },
   $I.annote("QualityTaskStep", {
@@ -468,7 +476,10 @@ const runStep = Effect.fn("QualityTasks.runStep")(function* (step: QualityTaskSt
     Effect.gen(function* () {
       const handle = yield* ChildProcess.make(resolved.command, [...resolved.args], {
         cwd: resolved.cwd,
-        env: turboEnvOverrides(resolved.command, resolved.args),
+        env: {
+          ...turboEnvOverrides(resolved.command, resolved.args),
+          ...(resolved.env ?? {}),
+        },
         extendEnv: true,
         stdin: "inherit",
         stdout: "inherit",
@@ -503,6 +514,114 @@ const turboStep = (cwd: string, label: string, tasks: ReadonlyArray<string>, arg
     args: turboRunArgs(tasks, args),
     cwd,
   });
+
+type SqlIntegrationChildCommand = {
+  readonly args: ReadonlyArray<string>;
+  readonly command: string;
+};
+
+type SqlIntegrationLaneResource = Pick<PgliteTestcontainerResource, "connectionUri">;
+
+type SqlIntegrationLaneOptions = {
+  readonly acquireResource: Effect.Effect<SqlIntegrationLaneResource, QualityTaskConfigurationError, Scope.Scope>;
+  readonly args: ReadonlyArray<string>;
+  readonly childCommand?: SqlIntegrationChildCommand;
+  readonly repoRoot: string;
+};
+
+const sqlIntegrationEnv = (connectionUri: string): Record<string, string> => ({
+  BEEP_TEST_DATABASE_CONNECT_TIMEOUT_MS: "5000",
+  BEEP_TEST_DATABASE_DRIVER: "pg-external",
+  BEEP_TEST_DATABASE_ISOLATION: "schema",
+  BEEP_TEST_DATABASE_MAX_CONNECTIONS: "1",
+  BEEP_TEST_DATABASE_SCHEMA_PREFIX: "beep_test",
+  BEEP_TEST_DATABASE_SSL: "false",
+  BEEP_TEST_DATABASE_URL: connectionUri,
+});
+
+const sqlIntegrationChildCommand = (args: ReadonlyArray<string>): SqlIntegrationChildCommand => ({
+  command: "bunx",
+  args: turboRunArgs(["test:integration"], ["--concurrency=1", ...args]),
+});
+
+const withRyukDisabledDuringAcquire = <A, E, R>(effect: Effect.Effect<A, E, R>): Effect.Effect<A, E, R> =>
+  Effect.acquireUseRelease(
+    Effect.sync(() => {
+      const previous = process.env.TESTCONTAINERS_RYUK_DISABLED;
+      if (previous === undefined) {
+        process.env.TESTCONTAINERS_RYUK_DISABLED = "true";
+      }
+      return previous;
+    }),
+    () => effect,
+    (previous) =>
+      Effect.sync(() => {
+        if (previous === undefined) {
+          delete process.env.TESTCONTAINERS_RYUK_DISABLED;
+        } else {
+          process.env.TESTCONTAINERS_RYUK_DISABLED = previous;
+        }
+      })
+  );
+
+const sqlIntegrationStep = (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  resource: SqlIntegrationLaneResource,
+  childCommand: SqlIntegrationChildCommand = sqlIntegrationChildCommand(args)
+) =>
+  new QualityTaskStep({
+    label: "test:integration",
+    command: childCommand.command,
+    args: childCommand.args,
+    cwd: repoRoot,
+    env: sqlIntegrationEnv(resource.connectionUri),
+  });
+
+const acquireDefaultSqlIntegrationResource = withRyukDisabledDuringAcquire(makePgliteTestcontainerResource()).pipe(
+  Effect.mapError(
+    (error) =>
+      new QualityTaskConfigurationError({
+        message: `Failed to start shared PGLite SQL integration database: ${error.message}`,
+      })
+  )
+);
+
+const runSqlIntegrationTestLane = Effect.fn("QualityTasks.runSqlIntegrationTestLane")(function* (
+  options: SqlIntegrationLaneOptions
+) {
+  yield* Effect.scoped(
+    Effect.gen(function* () {
+      const resource = yield* options.acquireResource;
+      yield* runStep(sqlIntegrationStep(options.repoRoot, options.args, resource, options.childCommand));
+    })
+  );
+});
+
+/**
+ * Build the SQL integration test subprocess step. Exposed for focused unit tests.
+ *
+ * @param repoRoot - Repository root directory.
+ * @param args - Turbo passthrough arguments.
+ * @param connectionUri - Shared PostgreSQL-compatible test database URI.
+ * @returns Planned SQL integration subprocess step.
+ * @category Utility
+ * @since 0.0.0
+ */
+export const sqlIntegrationStepForTesting = (
+  repoRoot: string,
+  args: ReadonlyArray<string>,
+  connectionUri: string
+): QualityTaskStep => sqlIntegrationStep(repoRoot, args, { connectionUri });
+
+/**
+ * Run the SQL integration lane with an injected resource and child command.
+ * Exposed for lifecycle-focused unit tests.
+ *
+ * @category Utility
+ * @since 0.0.0
+ */
+export const runSqlIntegrationTestLaneForTesting = runSqlIntegrationTestLane;
 
 const optionalQualityTaskStep = ({ enabled, step }: OptionalQualityTaskStep): ReadonlyArray<QualityTaskStep> =>
   enabled ? A.of(step()) : A.empty();
@@ -558,6 +677,7 @@ const rootLintSteps = (repoRoot: string, args: ReadonlyArray<string>, fix: boole
             "lint:native-runtime",
             "lint:dual-arity",
             "lint:allowlist",
+            "lint:package-test-imports",
             "lint:jsdoc",
             "lint:docgen",
             "lint:spell",
@@ -667,10 +787,41 @@ const runPackageTask = Effect.fn("QualityTasks.runPackageTask")(function* (
   );
 });
 
+const runRootTestTask = Effect.fn("QualityTasks.runRootTestTask")(function* (
+  repoRoot: string,
+  args: ReadonlyArray<string>
+) {
+  const lanes = parseTestLaneSelection(args);
+  const unitAndTypeSteps = [
+    ...optionalQualityTaskStep({
+      enabled: lanes.unit,
+      step: () => turboStep(repoRoot, "test:unit", ["test"], lanes.args),
+    }),
+    ...optionalQualityTaskStep({
+      enabled: lanes.types,
+      step: () => turboStep(repoRoot, "test:types", ["check:types"], lanes.args),
+    }),
+  ];
+
+  yield* runSteps(unitAndTypeSteps);
+  if (lanes.integration) {
+    yield* runSqlIntegrationTestLane({
+      acquireResource: acquireDefaultSqlIntegrationResource,
+      args: lanes.args,
+      repoRoot,
+    });
+  }
+});
+
 const runRootTask = Effect.fn("QualityTasks.runRootTask")(function* (
   repoRoot: string,
   invocation: QualityTaskInvocation
 ) {
+  if (invocation.task === "test") {
+    yield* runRootTestTask(repoRoot, invocationArgs(invocation));
+    return;
+  }
+
   yield* runSteps(rootStepsFor(repoRoot, invocation));
 });
 

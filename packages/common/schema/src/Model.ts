@@ -57,6 +57,52 @@ export type VariantsDatabase = "select" | "insert" | "update";
  */
 export type VariantsJson = "json" | "jsonCreate" | "jsonUpdate";
 
+/**
+ * Union of all model variant keys.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type Variant = (typeof modelVariants)[number];
+
+/**
+ * Default model variant used as the class schema.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type DefaultVariant = "select";
+
+type ModelClassCore<Self, Fields extends VariantSchema.Struct.Fields, Inherited> = VariantSchema.Class<
+  Self,
+  Fields,
+  S.Struct<VariantSchema.ExtractFields<DefaultVariant, Fields, true>>,
+  Variant,
+  DefaultVariant,
+  Inherited
+> & {
+  readonly [V in Variant]: VariantSchema.Extract<
+    V,
+    VariantSchema.Struct<Fields>,
+    V extends DefaultVariant ? true : false
+  >;
+};
+
+type InheritStaticMembers<C, Static> = C & Pick<Static, Exclude<keyof Static, keyof C>>;
+
+/**
+ * Materialized class constructor shape produced by {@link Class}.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type ClassShape<
+  Self,
+  Fields extends VariantSchema.Struct.Fields,
+  Static = {},
+  Inherited = {},
+> = InheritStaticMembers<ModelClassCore<Self, Fields, Inherited>, Static>;
+
 export {
   /**
    * A base class used for creating domain model schemas.

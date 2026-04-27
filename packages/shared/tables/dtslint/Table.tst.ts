@@ -11,10 +11,10 @@ import {
   VectorClock,
 } from "@beep/shared-domain/entity/primitives";
 import * as Shared from "@beep/shared-domain/identity/Shared";
+import * as Table from "@beep/shared-tables/table/Table";
 import { bigint, boolean, bytea, integer, jsonb, pgTable, serial, text } from "drizzle-orm/pg-core";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
-import * as Table from "../src/table/Table.ts";
 
 const $I = $SharedDomainId.create("tables/dtslint/Table");
 
@@ -237,6 +237,7 @@ class FullEntity extends BaseEntity.BaseEntity.extend<FullEntity>($I`FullEntity`
 ) {}
 
 const DerivedTable = Table.make(Shared.OrganizationId, EveryMixin);
+const NoMixinTable = Table.make(Shared.UserId);
 
 const ManualColumnBuilders = {
   archivedAt: bigint("archived_at", { mode: "number" }),
@@ -269,6 +270,18 @@ const ManualColumnBuilders = {
 };
 
 const ManualTable = pgTable("shared_organization", ManualColumnBuilders);
+const ManualNoMixinTable = pgTable("shared_user", {
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  createdByPrincipal: jsonb("created_by_principal").notNull(),
+  entityType: text("entity_type").notNull(),
+  id: serial("id").primaryKey(),
+  orgId: integer("org_id").notNull(),
+  rowVersion: integer("row_version").notNull(),
+  schemaVersion: text("schema_version").notNull(),
+  source: text("source").notNull(),
+  updatedAt: bigint("updated_at", { mode: "number" }).notNull(),
+  updatedByPrincipal: jsonb("updated_by_principal").notNull(),
+});
 
 type DerivedColumnBuilders = Table.ColumnBuilderMapFor<typeof FullFieldMap>;
 type AnyEntityIdDescriptor = Extract<
@@ -300,6 +313,9 @@ describe("Table.make", () => {
     expect<typeof DerivedTable.definition.tableName>().type.toBe<"shared_organization">();
     expect<typeof DerivedTable.definition.entityId.entityType>().type.toBe<"SharedOrganization">();
     expect<typeof DerivedTable.definition.fieldMap.vectorClock.storageKind>().type.toBe<"vectorClock">();
+    expect<typeof NoMixinTable.definition.tableName>().type.toBe<"shared_user">();
+    expect<typeof NoMixinTable.definition.entityId.entityType>().type.toBe<"SharedUser">();
+    expect<typeof NoMixinTable.definition.fieldMap.id.valueStrategy>().type.toBe<"generatedOnInsert">();
   });
 
   it("derives the same pre-table Drizzle column builder types as manual builders", () => {
@@ -337,6 +353,8 @@ describe("Table.make", () => {
   it("derives the same select and insert models as a manual Drizzle table", () => {
     expect<typeof DerivedTable.$inferSelect>().type.toBe<typeof ManualTable.$inferSelect>();
     expect<typeof DerivedTable.$inferInsert>().type.toBe<typeof ManualTable.$inferInsert>();
+    expect<typeof NoMixinTable.$inferSelect>().type.toBe<typeof ManualNoMixinTable.$inferSelect>();
+    expect<typeof NoMixinTable.$inferInsert>().type.toBe<typeof ManualNoMixinTable.$inferInsert>();
   });
 
   it("derives the same BaseEntity Drizzle column types as a manual table", () => {

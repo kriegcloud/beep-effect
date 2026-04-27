@@ -1,10 +1,10 @@
-import { describe, expect, it } from "tstyche";
 import {
   observeSpecimen,
   Specimen,
   type SpecimenStatus,
   type SpecimenStatus as SpecimenStatusType,
-} from "../src/index.ts";
+} from "@beep/fixture-lab-specimen-domain";
+import { describe, expect, it } from "tstyche";
 
 describe("@beep/fixture-lab-specimen-domain", () => {
   it("exposes schema-backed lifecycle types", () => {

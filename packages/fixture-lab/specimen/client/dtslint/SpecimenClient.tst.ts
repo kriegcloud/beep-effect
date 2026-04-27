@@ -1,8 +1,12 @@
+import {
+  makeSpecimenClient,
+  type SpecimenClient,
+  type SpecimenClientTransport,
+} from "@beep/fixture-lab-specimen-client";
 import { Specimen } from "@beep/fixture-lab-specimen-domain";
 import type { SpecimenNotFound } from "@beep/fixture-lab-specimen-use-cases/public";
 import { Effect } from "effect";
 import { describe, expect, it } from "tstyche";
-import { makeSpecimenClient, type SpecimenClient, type SpecimenClientTransport } from "../src/index.ts";
 
 describe("@beep/fixture-lab-specimen-client", () => {
   it("types the client facade over a transport boundary", () => {

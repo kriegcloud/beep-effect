@@ -1,9 +1,9 @@
+import { loadMarkdownGfmModule, loadMarkdownModule, makeParseMarkdownForSchema } from "@beep/schema/internal/markdown";
 import { decodeMarkdownTextAs, Markdown, MarkdownTextToHtml } from "@beep/schema/Markdown";
 import { describe, expect, it } from "@effect/vitest";
 import { Cause, Effect, Exit } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { loadMarkdownGfmModule, loadMarkdownModule, makeParseMarkdownForSchema } from "../src/internal/markdown.ts";
 
 const replaceGlobalBunMarkdownHtml = (html: (content: string) => unknown) =>
   Effect.sync(() => {

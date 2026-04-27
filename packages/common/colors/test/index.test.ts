@@ -1,12 +1,12 @@
-import { describe, expect, it } from "@effect/vitest";
-import * as O from "effect/Option";
-import * as S from "effect/Schema";
+import colors, { Colors, createColors, isColorSupported, ProcessLike, supportsColor } from "@beep/colors";
 import browserColors, {
   supportsColor as browserSupportsColor,
   createColors as createBrowserColors,
   isColorSupported as isBrowserColorSupported,
-} from "../src/Colors.browser.ts";
-import colors, { Colors, createColors, isColorSupported, ProcessLike, supportsColor } from "../src/index.ts";
+} from "@beep/colors/Colors.browser";
+import { describe, expect, it } from "@effect/vitest";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
 
 describe("supportsColor", () => {
   it("enables colors for TTY terminals with a non-dumb TERM", () => {

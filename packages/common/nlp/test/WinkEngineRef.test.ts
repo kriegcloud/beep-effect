@@ -1,9 +1,9 @@
+import { WinkEngine, WinkEngineLive } from "@beep/nlp/Wink/WinkEngine";
+import { WinkEngineRef, WinkEngineRefLive } from "@beep/nlp/Wink/WinkEngineRef";
+import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "@beep/nlp/Wink/WinkPattern";
 import { Effect, Layer, Ref } from "effect";
 import * as O from "effect/Option";
 import { describe, expect, it } from "vitest";
-import { WinkEngine, WinkEngineLive } from "../src/Wink/WinkEngine.ts";
-import { WinkEngineRef, WinkEngineRefLive } from "../src/Wink/WinkEngineRef.ts";
-import { CustomEntityExample, EntityGroupName, WinkEngineCustomEntities } from "../src/Wink/WinkPattern.ts";
 
 const WinkEngineRefBundleLive = WinkEngineRefLive.pipe(Layer.provideMerge(WinkEngineLive));
 

@@ -1,8 +1,8 @@
+import { SpecimenConfigTestLayer } from "@beep/fixture-lab-specimen-config/test";
+import { makeSpecimenServer } from "@beep/fixture-lab-specimen-server";
+import { ObserveSpecimen } from "@beep/fixture-lab-specimen-use-cases/public";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
-import { SpecimenConfigTestLayer } from "../../config/src/TestLayer.js";
-import { ObserveSpecimen } from "../../use-cases/src/public.js";
-import { makeSpecimenServer } from "../src/index.js";
 
 describe("Specimen server fixture", () => {
   it.effect("wires use-cases to an implementation", () =>
