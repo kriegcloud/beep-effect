@@ -7,25 +7,15 @@
 
 import { $PostgresId } from "@beep/identity";
 import type * as Pg from "@effect/sql-pg/PgClient";
-import type { EffectDrizzleQueryError, MigratorInitError } from "drizzle-orm/effect-core/errors";
-import * as PgDrizzle from "drizzle-orm/effect-postgres";
-import { migrate as nativeMigrate } from "drizzle-orm/effect-postgres/migrator";
+import type * as PgDrizzle from "drizzle-orm/effect-postgres";
 import type { MigrationConfig } from "drizzle-orm/migrator";
+import type { AnyRelations, EmptyRelations } from "drizzle-orm/relations";
 import { Context, Effect, Layer } from "effect";
-import type { SqlError } from "effect/unstable/sql/SqlError";
+import { dual } from "effect/Function";
+import { loadNativePgDrizzle, loadNativePgDrizzleMigrator, type NativeMigrationError } from "./interop.ts";
 import { PostgresError } from "./Postgres.errors.ts";
 
 const $I = $PostgresId.create("Postgres.drizzle");
-
-type NativeMigrationError = EffectDrizzleQueryError | MigratorInitError | SqlError;
-
-const runNativeMigrate = nativeMigrate as <
-  TSchema extends Record<string, unknown>,
-  TRelations extends PgDrizzle.EffectDrizzleConfig<TSchema>["relations"],
->(
-  db: PostgresDrizzleDatabase<TSchema, TRelations>,
-  config: MigrationConfig
-) => Effect.Effect<undefined, NativeMigrationError>;
 
 /**
  * Native Drizzle Effect Postgres database value.
@@ -43,8 +33,7 @@ const runNativeMigrate = nativeMigrate as <
  */
 export type PostgresDrizzleDatabase<
   TSchema extends Record<string, unknown> = Record<string, never>,
-  TRelations extends
-    PgDrizzle.EffectDrizzleConfig<TSchema>["relations"] = PgDrizzle.EffectDrizzleConfig<TSchema>["relations"],
+  TRelations extends AnyRelations = EmptyRelations,
 > = PgDrizzle.EffectPgDatabase<TSchema, NonNullable<TRelations>> & {
   readonly $client: Pg.PgClient;
 };
@@ -65,8 +54,7 @@ export type PostgresDrizzleDatabase<
  */
 export type PostgresDrizzleConfig<
   TSchema extends Record<string, unknown> = Record<string, never>,
-  TRelations extends
-    PgDrizzle.EffectDrizzleConfig<TSchema>["relations"] = PgDrizzle.EffectDrizzleConfig<TSchema>["relations"],
+  TRelations extends AnyRelations = EmptyRelations,
 > = PgDrizzle.EffectDrizzleConfig<TSchema, NonNullable<TRelations>>;
 
 /**
@@ -101,13 +89,17 @@ export class PostgresDrizzle extends Context.Service<PostgresDrizzle, PostgresDr
  */
 export const makeDrizzle = <
   TSchema extends Record<string, unknown> = Record<string, never>,
-  TRelations extends
-    PgDrizzle.EffectDrizzleConfig<TSchema>["relations"] = PgDrizzle.EffectDrizzleConfig<TSchema>["relations"],
+  TRelations extends AnyRelations = EmptyRelations,
 >(
   config: PostgresDrizzleConfig<TSchema, TRelations> = {} as PostgresDrizzleConfig<TSchema, TRelations>
-) =>
-  PgDrizzle.makeWithDefaults<TSchema, NonNullable<TRelations>>(config).pipe(
-    Effect.mapError((cause) => PostgresError.fromUnknown("makeDrizzle", cause))
+): Effect.Effect<PostgresDrizzleDatabase<TSchema, TRelations>, PostgresError, Pg.PgClient> =>
+  loadNativePgDrizzle.pipe(
+    Effect.flatMap((pgDrizzle) =>
+      pgDrizzle.makeWithDefaults<TSchema, NonNullable<TRelations>>(config).pipe(
+        Effect.map((database) => database as PostgresDrizzleDatabase<TSchema, TRelations>),
+        Effect.mapError((cause) => PostgresError.fromUnknown("makeDrizzle", cause))
+      )
+    )
   );
 
 /**
@@ -138,17 +130,38 @@ export const makeDrizzleLayer = (
  *
  * declare const db: PostgresDrizzleDatabase
  * const effect = migrate(db, { migrationsFolder: "./drizzle" })
+ * const piped = db.pipe(migrate({ migrationsFolder: "./drizzle" }))
  * void effect
+ * void piped
  * ```
  *
  * @category constructors
  * @since 0.0.0
  */
-export const migrate = <
-  TSchema extends Record<string, unknown>,
-  TRelations extends PgDrizzle.EffectDrizzleConfig<TSchema>["relations"],
->(
-  db: PostgresDrizzleDatabase<TSchema, TRelations>,
-  config: MigrationConfig
-): Effect.Effect<undefined, PostgresError> =>
-  runNativeMigrate(db, config).pipe(Effect.mapError((cause) => PostgresError.fromUnknown("migrate", cause)));
+export const migrate: {
+  <TSchema extends Record<string, unknown>, TRelations extends AnyRelations>(
+    db: PostgresDrizzleDatabase<TSchema, TRelations>,
+    config: MigrationConfig
+  ): Effect.Effect<undefined, PostgresError>;
+  (
+    config: MigrationConfig
+  ): <TSchema extends Record<string, unknown>, TRelations extends AnyRelations>(
+    db: PostgresDrizzleDatabase<TSchema, TRelations>
+  ) => Effect.Effect<undefined, PostgresError>;
+} = dual(
+  2,
+  <TSchema extends Record<string, unknown>, TRelations extends AnyRelations>(
+    db: PostgresDrizzleDatabase<TSchema, TRelations>,
+    config: MigrationConfig
+  ): Effect.Effect<undefined, PostgresError> =>
+    loadNativePgDrizzleMigrator.pipe(
+      Effect.flatMap((migrator) =>
+        (
+          migrator.migrate as <Schema extends Record<string, unknown>, Relations extends AnyRelations>(
+            database: PostgresDrizzleDatabase<Schema, Relations>,
+            migrationConfig: MigrationConfig
+          ) => Effect.Effect<undefined, NativeMigrationError>
+        )(db, config).pipe(Effect.mapError((cause) => PostgresError.fromUnknown("migrate", cause)))
+      )
+    )
+);

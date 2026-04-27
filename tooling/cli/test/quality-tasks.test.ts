@@ -119,6 +119,27 @@ describe("quality task adapter", () => {
     });
   });
 
+  it("includes repo-level tsgo diagnostics for package tests in the root check lane", () => {
+    const steps = rootQualityStepsForTesting("/repo", getInvocation(["check", "--summarize"]));
+
+    expect(steps).toHaveLength(1);
+    expect(steps[0]).toMatchObject({
+      label: "check",
+      command: "bunx",
+      cwd: "/repo",
+    });
+    expect(steps[0]?.args).toEqual([
+      "turbo",
+      "run",
+      "check",
+      "check:dtslint:tsgo",
+      "check:tsgo:tests",
+      "check:tsgo:smoke",
+      ...(process.env.CI === "true" ? [] : ["--cache=local:rw"]),
+      "--summarize",
+    ]);
+  });
+
   it("keeps scope args in both lint --fix steps", () => {
     const steps = rootQualityStepsForTesting(
       "/repo",
@@ -158,11 +179,9 @@ describe("quality task adapter", () => {
   });
 
   it("builds the integration lane command with shared SQL environment", () => {
-    const step = sqlIntegrationStepForTesting(
-      "/repo",
-      ["--filter=@beep/test-utils", "--summarize"],
-      "postgres://postgres:postgres@127.0.0.1:5432/postgres"
-    );
+    const step = sqlIntegrationStepForTesting("/repo", ["--filter=@beep/test-utils", "--summarize"], {
+      connectionUri: "postgres://postgres:postgres@127.0.0.1:5432/postgres",
+    });
 
     expect(step).toMatchObject({
       label: "test:integration",

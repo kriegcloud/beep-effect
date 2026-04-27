@@ -7,6 +7,7 @@
 
 import { $DrizzleId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { Str, thunkEmptyRecord } from "@beep/utils";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -60,14 +61,12 @@ const parseDrizzleMessage = (cause: unknown): DrizzleErrorContext => {
   return {
     query: match[1]?.trim(),
     params:
-      paramsText === undefined || paramsText.length === 0
-        ? undefined
-        : A.map(paramsText.split(","), (item) => item.trim()),
+      paramsText === undefined || paramsText.length === 0 ? undefined : A.map(Str.split(",")(paramsText), Str.trim),
   };
 };
 
-const extractNativeQueryContext = (cause: unknown, seen: ReadonlySet<unknown> = new Set()): DrizzleErrorContext => {
-  if (!P.isObject(cause) || seen.has(cause)) {
+const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> = []): DrizzleErrorContext => {
+  if (!P.isObject(cause) || A.contains(seen, cause)) {
     return parseDrizzleMessage(cause);
   }
 
@@ -83,11 +82,10 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlySet<unknown> = 
     return messageContext;
   }
 
-  const nextSeen = new Set(seen);
-  nextSeen.add(cause);
+  const nextSeen = A.append(seen, cause);
 
   return O.match(readCause(cause), {
-    onNone: () => ({}),
+    onNone: thunkEmptyRecord,
     onSome: (nestedCause) => extractNativeQueryContext(nestedCause, nextSeen),
   });
 };
@@ -105,7 +103,9 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlySet<unknown> = 
  *
  * const error = new DrizzleError({
  *   operation: "execute",
- *   cause: O.none()
+ *   cause: O.none(),
+ *   query: O.none(),
+ *   params: O.none()
  * })
  *
  * void error

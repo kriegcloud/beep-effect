@@ -19,7 +19,7 @@
     "packages/shared/use-cases/dtslint/**/*.tst.*",
     "packages/shared/config/dtslint/**/*.tst.*",
     "packages/drivers/drizzle/dtslint/**/*.tst.*",
-    "packages/drivers/pglite/dtslint/**/*.tst.*"
+    "packages/drivers/postgres/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

@@ -12,11 +12,13 @@ bun add @beep/postgres
 
 ```ts
 import { PostgresClient, PostgresError, formatSql, makeDrizzle } from "@beep/postgres"
+import { loadNativePgDrizzle } from "@beep/postgres/interop"
 
 void PostgresClient
 void PostgresError
 void formatSql
 void makeDrizzle
+void loadNativePgDrizzle
 ```
 
 ## Development

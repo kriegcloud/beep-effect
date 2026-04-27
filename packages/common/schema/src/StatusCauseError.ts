@@ -59,10 +59,15 @@ export const StatusCauseFields = {
  * @category utilities
  * @since 0.0.0
  */
-type StatusCauseInputOptions = {
-  readonly status: number;
-  readonly cause?: unknown;
-};
+export class StatusCauseInputOptions extends S.Class<StatusCauseInputOptions>($I`StatusCauseInputOptions`)(
+  {
+    status: S.Number,
+    cause: S.DefectWithStack,
+  },
+  $I.annote("StatusCauseInputOptions", {
+    description: "Normalized status/cause input options.",
+  })
+) {}
 
 /**
  * Input payload shape produced by {@link statusCauseInput}.
@@ -117,6 +122,7 @@ export const statusCauseInput: {
 );
 
 type StatusCauseErrorCtor<Input extends StatusCauseInput, Error> = new (value: Input) => Error;
+
 type StatusCauseContext = {
   readonly message: string;
   readonly status: number;

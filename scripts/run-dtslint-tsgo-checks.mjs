@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(scriptDir, "..");
-const searchRoots = ["packages"];
+const searchRoots = ["apps", "packages", "tooling"];
 const tsgoPath = path.join(rootDir, "node_modules", ".bin", "tsgo");
 const extraArgs = process.argv.slice(2);
 

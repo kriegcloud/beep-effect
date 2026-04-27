@@ -1,5 +1,4 @@
-import { Drizzle, type DrizzleClient, DrizzleError } from "@beep/drizzle";
-import { EffectDrizzleQueryError } from "@beep/drizzle/interop";
+import { Drizzle, type DrizzleClient, DrizzleError, type DrizzleShape } from "@beep/drizzle";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect, pipe } from "effect";
 import * as O from "effect/Option";
@@ -14,11 +13,19 @@ const makeClient = (execute: DrizzleClient["execute"]): DrizzleClient => {
   return client;
 };
 
+const makeService = (client: DrizzleClient): DrizzleShape =>
+  Drizzle.of({
+    execute: client.execute,
+    withTransaction: (use) => client.withTransaction((transaction) => use(makeService(transaction))),
+  });
+
 describe("DrizzleError", () => {
   it("constructs the single public tagged driver error", () => {
     const error = new DrizzleError({
       operation: "execute",
       cause: O.none(),
+      query: O.none(),
+      params: O.none(),
     });
 
     expect(error).toBeInstanceOf(DrizzleError);
@@ -49,11 +56,12 @@ describe("DrizzleError", () => {
   });
 
   it("captures native Drizzle Effect query context", () => {
-    const cause = new EffectDrizzleQueryError({
+    const cause = {
+      _tag: "EffectDrizzleQueryError",
       query: "select 1",
       params: [],
       cause: new Error("driver failed"),
-    });
+    };
     const error = DrizzleError.fromUnknown("execute", cause);
 
     expect(O.getOrThrow(error.query)).toBe("select 1");
@@ -74,15 +82,16 @@ describe("DrizzleError", () => {
 });
 
 describe("Drizzle", () => {
-  it.effect("exposes adapter execute failures as DrizzleError", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "exposes adapter execute failures as DrizzleError",
+    Effect.fnUntraced(function* () {
       const cause = new Error("execute failed");
       const client = makeClient(() => Effect.fail(DrizzleError.fromUnknown("execute", cause)));
       const program = Effect.gen(function* () {
         const drizzle = yield* Drizzle;
         return yield* drizzle.execute("select 1", []);
       });
-      const error = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)), Effect.flip);
+      const error = yield* pipe(program, Effect.provideService(Drizzle, makeService(client)), Effect.flip);
 
       expect(error).toBeInstanceOf(DrizzleError);
       expect(error.operation).toBe("execute");
@@ -90,14 +99,15 @@ describe("Drizzle", () => {
     })
   );
 
-  it.effect("uses explicit Effect-native transaction callbacks", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "uses explicit Effect-native transaction callbacks",
+    Effect.fnUntraced(function* () {
       const client = makeClient((statement) => Effect.succeed([statement]));
       const program = Effect.gen(function* () {
         const drizzle = yield* Drizzle;
         return yield* drizzle.withTransaction((transaction) => transaction.execute("select 1", []));
       });
-      const rows = yield* pipe(program, Effect.provide(Drizzle.makeLayer(client)));
+      const rows = yield* pipe(program, Effect.provideService(Drizzle, makeService(client)));
 
       expect(rows).toEqual(["select 1"]);
     })

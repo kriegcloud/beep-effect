@@ -9,6 +9,7 @@
     "build": "echo 'repo-checks: no build output'",
     "check": "echo 'repo-checks: aggregate checks run through named tasks'",
     "check:dtslint:tsgo": "cd ../.. && bun run scripts/run-dtslint-tsgo-checks.mjs",
+    "check:tsgo:tests": "cd ../.. && bun run scripts/run-test-tsgo-checks.mjs",
     "check:tsgo:smoke": "cd ../.. && bun run scripts/check-tsgo-smoke.mjs",
     "check:types": "cd ../.. && bunx tstyche",
     "lint": "echo 'repo-checks: aggregate lint runs through named tasks'",

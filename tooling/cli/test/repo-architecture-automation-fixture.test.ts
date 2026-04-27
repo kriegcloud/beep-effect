@@ -17,7 +17,6 @@ const commonRequiredFiles = [
   "vitest.config.ts",
   "docgen.json",
   "tsconfig.json",
-  "dtslint/tsconfig.json",
 ] as const;
 
 const roleRequiredFiles = {

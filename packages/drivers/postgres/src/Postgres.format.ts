@@ -112,9 +112,6 @@ const SqlFunctionValues = [
   "substring",
 ];
 
-const keywordSet = new Set(SqlKeywordValues);
-const functionSet = new Set(SqlFunctionValues);
-
 const stripAnsi = (text: string): string => text.replace(/\x1b\[[0-9;]*m/g, "");
 const visualLength = (text: string): number => Str.length(stripAnsi(text));
 
@@ -128,10 +125,10 @@ const highlightLine = (line: string, palette: Colors): string =>
     .replace(/\$\d+/g, (placeholder) => palette.yellow(palette.bold(placeholder)))
     .replace(/\b([a-zA-Z_][a-zA-Z0-9_]*)\b/g, (word) => {
       const lower = Str.toLowerCase(word);
-      if (keywordSet.has(lower)) {
+      if (A.contains(SqlKeywordValues, lower)) {
         return palette.magenta(palette.bold(word));
       }
-      if (functionSet.has(lower)) {
+      if (A.contains(SqlFunctionValues, lower)) {
         return palette.blue(word);
       }
       return word;

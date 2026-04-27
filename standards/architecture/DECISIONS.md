@@ -412,20 +412,25 @@ Production database capability is composed from specific driver packages, not a
 generic shared-server database bucket:
 
 - `packages/drivers/postgres` publishes `@beep/postgres` with
-  `PostgresClient.makeLayer` and `PostgresError`;
+  `PostgresClient.makeLayer`, `PostgresError`, SQLSTATE diagnostics, SQL
+  formatting, Drizzle Effect Postgres composition, and migrations;
 - `packages/drivers/drizzle` publishes `@beep/drizzle` with
   `Drizzle.makeLayer` and `DrizzleError`.
+- The old placeholder `@beep/pglite` driver package is deleted. PGLite remains
+  only as a test-harness implementation in `@beep/test-utils`, not as a
+  first-class production driver package.
 
 `@beep/drizzle` exposes its root driver API directly, for example
 `import { Drizzle, DrizzleError } from "@beep/drizzle"`. `DrizzleError` is the
 only public Drizzle driver error. It is technical and operation-scoped, carrying
-`operation` and optional `cause`. The drifted `DrizzleProviderError`,
-`ProviderError`, `ORMError`, and `QueryError` surfaces are rejected.
+`operation`, optional `cause`, and optional query context when native Drizzle
+errors expose it. The drifted `DrizzleProviderError`, `ProviderError`,
+`ORMError`, and `QueryError` surfaces are rejected.
 
-The future `PostgresError` follows the same technical, operation-scoped rule and
-may include SQLSTATE, constraint, and other database diagnostics when known.
-Those diagnostics support logging and translation; they are not product
-application errors.
+`PostgresError` follows the same technical, operation-scoped rule and may
+include SQLSTATE, constraint, source-location, and formatted-query diagnostics
+when known. Those diagnostics support logging and translation; they are not
+product application errors.
 
 `Drizzle.makeLayer(client)` accepts a narrow product-neutral Drizzle adapter.
 Runtime composition decides whether that adapter is backed by Postgres or some
@@ -443,6 +448,7 @@ slice:
 - `DbClient.make`
 - shared-domain `DatabaseError`
 - shared-server `DbRepo.make`
+- `@beep/pglite` as a production driver package
 - `DrizzleProviderError`
 - `ProviderError`
 - `ORMError`
@@ -452,9 +458,9 @@ slice:
 repositories prove repeated boilerplate. Prefer a tooling generator or template
 over a runtime factory unless live code proves that a runtime helper is simpler.
 
-`@beep/pglite` remains outside this decision. This lock does not promote it to
-first-class production database doctrine and does not require changes to the
-existing package.
+PGLite-specific tooling may stay in the test utility harness while it remains
+useful for integration tests. That test harness does not imply a production
+`@beep/pglite` package or a second database-driver doctrine.
 
 Rationale:
 

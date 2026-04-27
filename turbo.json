@@ -134,6 +134,19 @@
         "$TURBO_ROOT$/tsconfig*.json"
       ]
     },
+    "@beep/repo-checks#check:tsgo:tests": {
+      "cache": true,
+      "inputs": [
+        "$TURBO_ROOT$/apps/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/packages/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/tooling/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/infra/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/.claude/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/.codex/**/*.{ts,tsx,cts,mts,json}",
+        "$TURBO_ROOT$/scripts/run-test-tsgo-checks.mjs",
+        "$TURBO_ROOT$/tsconfig*.json"
+      ]
+    },
     "@beep/repo-checks#check:tsgo:smoke": {
       "cache": true,
       "inputs": [

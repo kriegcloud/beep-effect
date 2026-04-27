@@ -1,5 +1,6 @@
 import {
   makePgliteSqlTestLayer,
+  makePgliteTestcontainerResource,
   makeSqlTestLayer,
   PgExternalTestDriver,
   PgliteTestcontainersTestDriver,
@@ -377,13 +378,16 @@ describe.sequential("PGLite Testcontainers SQL test driver", () => {
       Effect.gen(function* () {
         yield* skipTestcontainersWhenUnavailable(ctx);
 
-        const scope = yield* Scope.make();
-        const services = yield* Layer.buildWithScope(makeContainerLayer(), scope);
-        const info = Context.get(services, TestDatabaseInfo);
-        const containerId = yield* Effect.fromOption(info.containerId).pipe(Effect.orDie);
+        const containerId = yield* Effect.scoped(
+          Effect.gen(function* () {
+            const resource = yield* makePgliteTestcontainerResource();
+            const id = resource.container.getId();
 
-        expect(yield* isContainerInspectable(containerId)).toBe(true);
-        yield* Scope.close(scope, Exit.void);
+            expect(yield* isContainerInspectable(id)).toBe(true);
+            return id;
+          })
+        );
+
         expect(yield* isContainerInspectable(containerId)).toBe(false);
       }),
     120_000

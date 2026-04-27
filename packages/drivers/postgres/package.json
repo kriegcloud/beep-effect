@@ -64,9 +64,9 @@
     "@beep/schema": "workspace:^",
     "@effect/sql-pg": "catalog:",
     "drizzle-orm": "catalog:",
+    "effect": "catalog:",
     "pg-protocol": "catalog:",
-    "sql-formatter": "catalog:",
-    "effect": "catalog:"
+    "sql-formatter": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

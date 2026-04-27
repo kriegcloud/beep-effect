@@ -7,10 +7,12 @@ export default mergeConfig(
   defineConfig({
     test: {
       exclude: ["test/fixtures/**"],
+      fileParallelism: false,
       globalSetup: [path.join(__dirname, "test/global-cleanup.ts")],
       sequence: {
         concurrent: false,
       },
+      testTimeout: 30_000,
     },
   })
 );

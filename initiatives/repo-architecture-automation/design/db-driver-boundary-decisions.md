@@ -11,14 +11,16 @@ Production database capability is `@beep/postgres` plus `@beep/drizzle`;
   `DatabaseError`, or shared-server `DbRepo.make`.
 - Keep runtime capability in `packages/drivers/postgres` as `@beep/postgres`
   and `packages/drivers/drizzle` as `@beep/drizzle`.
+- Delete the old placeholder `@beep/pglite` driver package. PGLite remains only
+  as a test-harness implementation in `@beep/test-utils`.
 - Expose root driver APIs by default, for example
   `import { Drizzle, DrizzleError } from "@beep/drizzle"`.
 - Use one public `DrizzleError` tagged error with `operation` and optional
-  `cause`.
+  `cause`; capture optional query context when native Drizzle errors expose it.
 - Delete or reject the drifted public Drizzle error surfaces:
   `DrizzleProviderError`, `ProviderError`, `ORMError`, and `QueryError`.
-- Keep the future `PostgresError` technical and operation-scoped, with optional
-  SQLSTATE, constraint, and other database diagnostics when known.
+- Keep `PostgresError` technical and operation-scoped, with optional SQLSTATE,
+  constraint, source-location, and formatted-query diagnostics when known.
 - Keep driver errors technical. Product server repositories translate them into
   product-named repository or application errors before crossing use-case ports.
 - Make `Drizzle.makeLayer(client)` accept a narrow product-neutral Drizzle
@@ -28,8 +30,6 @@ Production database capability is `@beep/postgres` plus `@beep/drizzle`;
 - Defer any `DbRepo.make` successor until two real repositories prove repeated
   boilerplate; prefer a generator/template over a runtime factory unless the
   code proves otherwise.
-- Leave `@beep/pglite` unchanged in this slice. It is not promoted to
-  first-class production database doctrine by this decision.
 
 ## Transaction Shape
 
@@ -55,6 +55,7 @@ Do not reintroduce these symbols without a new architecture decision:
 - `DbClient.make`
 - `DatabaseError`
 - `DbRepo.make`
+- `@beep/pglite` as a production driver package
 - `DrizzleProviderError`
 - `ProviderError`
 - `ORMError`

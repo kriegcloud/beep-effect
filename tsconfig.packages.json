@@ -61,6 +61,12 @@
       "path": "packages/common/utils"
     },
     {
+      "path": "packages/drivers/drizzle"
+    },
+    {
+      "path": "packages/drivers/postgres"
+    },
+    {
       "path": "packages/fixture-lab/specimen/client"
     },
     {
@@ -80,12 +86,6 @@
     },
     {
       "path": "packages/fixture-lab/specimen/use-cases"
-    },
-    {
-      "path": "packages/drivers/drizzle"
-    },
-    {
-      "path": "packages/drivers/postgres"
     },
     {
       "path": "packages/shared/client"

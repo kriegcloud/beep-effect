@@ -10,6 +10,7 @@ basecolumn
 bbox
 bech
 BIGSERIAL
+bivariance
 BM25
 bunfig
 caddyfile

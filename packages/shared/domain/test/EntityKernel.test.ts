@@ -11,6 +11,7 @@ import * as primitives from "@beep/shared-domain/entity/primitives";
 import * as SourceKind from "@beep/shared-domain/entity/SourceKind";
 import * as Shared from "@beep/shared-domain/identity/Shared";
 import { describe, expect, it } from "@effect/vitest";
+import { cast } from "effect/Function";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
@@ -106,8 +107,8 @@ describe("EntityId", () => {
     expect(DocumentId.entityType).toBe("SharedDocument");
     expect(DocumentId.brand).toBe("SharedDocumentId");
     expect(DocumentId.definition.description).toBe("SharedDocument entity identifier.");
-    expect(DocumentId.equivalence(1 as EntityId.EntityIdValue, 1 as EntityId.EntityIdValue)).toBe(true);
-    expect(DocumentId.equivalence(1 as EntityId.EntityIdValue, 2 as EntityId.EntityIdValue)).toBe(false);
+    expect(DocumentId.equivalence(cast(1), cast(1))).toBe(true);
+    expect(DocumentId.equivalence(cast(1), cast(2))).toBe(false);
     expect(decodeSync(DocumentId)(1)).toBe(1);
   });
 
@@ -337,7 +338,7 @@ describe("BaseEntity", () => {
 describe("EntityRef and shared entity primitives", () => {
   it("builds entity references and validates primitive schemas", () => {
     const id = S.decodeUnknownSync(EntityId.EntityIdValue)(1);
-    const ref = EntityRef.make(DocumentId, id);
+    const ref = EntityRef.make(DocumentId, cast(id));
     const dataLastRef = EntityRef.make(id)(DocumentId);
 
     expect(ref.entityType).toBe("SharedDocument");

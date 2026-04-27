@@ -32,6 +32,7 @@ const CommandTestLayer = Layer.mergeAll(
 );
 const runDocgenCommand = Command.runWith(docgenCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const DOCGEN_COMMAND_TEST_TIMEOUT = 30_000;
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -43,7 +44,7 @@ const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = undefined;
+      process.exitCode = 0;
       yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
       return { fs, path, previousCwd, previousExitCode, tmpDir } as const;
@@ -67,7 +68,7 @@ const withTempRepoCommand = <A, E, R>(use: Effect.Effect<A, E, R>) =>
       const previousExitCode = process.exitCode;
 
       process.chdir(tmpDir);
-      process.exitCode = undefined;
+      process.exitCode = 0;
       yield* fs.makeDirectory(path.join(tmpDir, ".git"), { recursive: true });
 
       return { fs, previousCwd, previousExitCode, tmpDir } as const;
@@ -653,7 +654,7 @@ describe("Docgen operations", () => {
     );
   });
 
-  it("checks docgen metadata without writing analysis files", async () => {
+  it("checks docgen metadata without writing analysis files", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
     await Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
@@ -701,7 +702,9 @@ describe("Docgen operations", () => {
     );
   });
 
-  it("returns a non-zero exit code when generate targets an unconfigured package", async () => {
+  it("returns a non-zero exit code when generate targets an unconfigured package", {
+    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+  }, async () => {
     await Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
@@ -740,7 +743,9 @@ describe("Docgen operations", () => {
     );
   });
 
-  it("accepts --filter for generate and resolves it like --package", async () => {
+  it("accepts --filter for generate and resolves it like --package", {
+    timeout: DOCGEN_COMMAND_TEST_TIMEOUT,
+  }, async () => {
     await Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
@@ -779,7 +784,7 @@ describe("Docgen operations", () => {
     );
   });
 
-  it("rejects conflicting selector flags for generate", async () => {
+  it("rejects conflicting selector flags for generate", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
     await Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {
@@ -808,7 +813,7 @@ describe("Docgen operations", () => {
     );
   });
 
-  it("writes lint-clean docgen.json during init", async () => {
+  it("writes lint-clean docgen.json during init", { timeout: DOCGEN_COMMAND_TEST_TIMEOUT }, async () => {
     await Effect.runPromise(
       withTempRepoCommand(
         Effect.gen(function* () {

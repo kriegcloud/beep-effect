@@ -75,7 +75,7 @@ const readOptionalPackageName = Effect.fn("PackageTestImports.readOptionalPackag
       })
     ),
     Effect.map((document) => O.some(document.name)),
-    Effect.orElseSucceed(() => O.none())
+    Effect.orElseSucceed(O.none)
   );
 });
 
@@ -109,7 +109,7 @@ const collectPackageSourceRoots = Effect.fn("PackageTestImports.collectPackageSo
       });
     }
 
-    const entries = yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(() => A.empty<string>()));
+    const entries = yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(A.empty<string>));
 
     for (const entry of entries) {
       const childPath = path.join(currentPath, entry);
@@ -156,7 +156,7 @@ const collectPackageTestFiles = Effect.fn("PackageTestImports.collectPackageTest
       return A.empty<string>();
     }
 
-    const entries = yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(() => A.empty<string>()));
+    const entries = yield* fs.readDirectory(currentPath).pipe(Effect.orElseSucceed(A.empty<string>));
     let files = A.empty<string>();
 
     for (const entry of entries) {

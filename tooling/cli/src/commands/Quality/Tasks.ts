@@ -623,21 +623,26 @@ const runSqlIntegrationTestLane = Effect.fn("QualityTasks.runSqlIntegrationTestL
   );
 });
 
+type SqlIntegrationStepForTestingOptions = {
+  readonly connectionUri: string;
+};
+
 /**
  * Build the SQL integration test subprocess step. Exposed for focused unit tests.
  *
  * @param repoRoot - Repository root directory.
  * @param args - Turbo passthrough arguments.
- * @param connectionUri - Shared PostgreSQL-compatible test database URI.
+ * @param options - Shared PostgreSQL-compatible test database options.
  * @returns Planned SQL integration subprocess step.
  * @category Utility
  * @since 0.0.0
  */
-export const sqlIntegrationStepForTesting = (
-  repoRoot: string,
-  args: ReadonlyArray<string>,
-  connectionUri: string
-): QualityTaskStep => sqlIntegrationStep(repoRoot, args, { connectionUri });
+export const sqlIntegrationStepForTesting: {
+  (repoRoot: string, args: ReadonlyArray<string>, options: SqlIntegrationStepForTestingOptions): QualityTaskStep;
+  (args: ReadonlyArray<string>, options: SqlIntegrationStepForTestingOptions): (repoRoot: string) => QualityTaskStep;
+} = dual(3, (repoRoot: string, args: ReadonlyArray<string>, options: SqlIntegrationStepForTestingOptions) =>
+  sqlIntegrationStep(repoRoot, args, options)
+);
 
 /**
  * Run the SQL integration lane with an injected resource and child command.
@@ -662,7 +667,7 @@ const rootBuildSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
 ];
 
 const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
-  turboStep(repoRoot, "check", ["check", "check:dtslint:tsgo", "check:tsgo:smoke"], args),
+  turboStep(repoRoot, "check", ["check", "check:dtslint:tsgo", "check:tsgo:tests", "check:tsgo:smoke"], args),
 ];
 
 const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {

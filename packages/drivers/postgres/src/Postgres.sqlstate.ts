@@ -9,6 +9,7 @@ import { $PostgresId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import type * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $PostgresId.create("Postgres.sqlstate");
@@ -874,7 +875,7 @@ export type PgErrorCode = (typeof PostgresErrorCodeByName)[PgErrorName];
  * @category models
  * @since 0.0.0
  */
-export const pgErrorEntries = Object.entries(PostgresErrorCodeByName) as unknown as A.NonEmptyReadonlyArray<
+export const pgErrorEntries = R.toEntries(PostgresErrorCodeByName) as unknown as A.NonEmptyReadonlyArray<
   readonly [PgErrorName, PgErrorCode]
 >;
 

@@ -1,13 +1,15 @@
 /**
- * Native Drizzle Effect interop exports.
+ * Native Drizzle Effect interop helpers.
  *
  * @packageDocumentation
  * @since 0.0.0
  */
 
-import { applyEffectWrapper } from "drizzle-orm/effect-core/query-effect";
+import type { Effect } from "effect";
+import { Effectable } from "effect";
+import * as A from "effect/Array";
 
-const installed = new WeakSet<DrizzleEffectYieldableBase>();
+let installed: ReadonlyArray<DrizzleEffectYieldableBase> = [];
 
 /**
  * Constructor-like base accepted by {@link installDrizzleEffectYieldables}.
@@ -27,6 +29,20 @@ export type DrizzleEffectYieldableBase = {
   readonly prototype: object;
 };
 
+type DrizzleExecutable = {
+  readonly execute: () => Effect.Effect<unknown>;
+};
+
+const executeAsEffect = (self: object): Effect.Effect<unknown> =>
+  Reflect.apply(Reflect.get(self, "execute") as DrizzleExecutable["execute"], self, []) as Effect.Effect<unknown>;
+
+const queryEffectPrototype = Effectable.Prototype<Effect.Effect<unknown>>({
+  label: "DrizzleQueryEffect",
+  evaluate() {
+    return executeAsEffect(this);
+  },
+});
+
 /**
  * Idempotently install Drizzle's native Effect yieldability on a query base class.
  *
@@ -42,46 +58,50 @@ export type DrizzleEffectYieldableBase = {
  * @since 0.0.0
  */
 export const installDrizzleEffectYieldables = (baseClass: DrizzleEffectYieldableBase): void => {
-  if (installed.has(baseClass)) {
+  if (A.contains(installed, baseClass)) {
     return;
   }
 
-  applyEffectWrapper(baseClass);
-  installed.add(baseClass);
+  Object.defineProperties(baseClass.prototype, Object.getOwnPropertyDescriptors(queryEffectPrototype));
+  Object.defineProperty(baseClass.prototype, "commit", {
+    configurable: true,
+    value(this: object) {
+      return executeAsEffect(this);
+    },
+  });
+  installed = A.append(installed, baseClass);
 };
 
 /**
- * Native Drizzle Effect cache exports.
+ * Native Drizzle Effect cache types.
  *
  * @since 0.0.0
  * @category exports
  */
-export * from "drizzle-orm/cache/core/cache-effect";
+export type { EffectCache } from "drizzle-orm/cache/core/cache-effect";
 /**
- * Native Drizzle Effect core exports.
+ * Native Drizzle Effect error types.
  *
  * @since 0.0.0
  * @category exports
  */
-export * from "drizzle-orm/effect-core";
+export type {
+  EffectDrizzleError,
+  EffectDrizzleQueryError,
+  EffectTransactionRollbackError,
+  MigratorInitError,
+} from "drizzle-orm/effect-core/errors";
 /**
- * Native Drizzle Effect error exports.
+ * Native Drizzle Effect logger types.
  *
  * @since 0.0.0
  * @category exports
  */
-export * from "drizzle-orm/effect-core/errors";
+export type { EffectLogger } from "drizzle-orm/effect-core/logger";
 /**
- * Native Drizzle Effect logger exports.
+ * Native Drizzle Effect query types.
  *
  * @since 0.0.0
  * @category exports
  */
-export * from "drizzle-orm/effect-core/logger";
-/**
- * Native Drizzle Effect query exports.
- *
- * @since 0.0.0
- * @category exports
- */
-export * from "drizzle-orm/effect-core/query-effect";
+export type { QueryEffectHKTBase, QueryEffectKind } from "drizzle-orm/effect-core/query-effect";

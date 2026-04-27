@@ -17,13 +17,14 @@ import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as Reactivity from "effect/unstable/reactivity/Reactivity";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
-import type { StartedTestContainer } from "testcontainers";
+import type { GenericContainer, StartedTestContainer } from "testcontainers";
 
 const $I = $TestUtilsId.create("SqlTest");
 const PgliteImageName = "beep/pglite-testcontainers:0.4.5";
 const PgliteDockerContextUrl = new URL("../docker/pglite", import.meta.url);
 const PgliteHealthCheckCommand =
   "node -e \"const { Client } = require('pg'); const client = new Client({ host: '127.0.0.1', port: Number(process.env.PGPORT || '5432'), database: process.env.PGDATABASE, user: process.env.PGUSER, password: process.env.PGPASSWORD, ssl: false }); client.connect().then(() => client.query('select 1')).then(() => client.end()).catch((cause) => { console.error(cause); process.exit(1); });\"";
+let pgliteImageBuild = O.none<Promise<GenericContainer>>();
 
 const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"]).annotate(
   $I.annote("SqlTestHarnessPhase", {
@@ -580,19 +581,30 @@ const resolvePgliteDockerContext = Effect.fn("SqlTest.PgliteTestcontainers.resol
     );
 });
 
+const getPgliteImageBuild = (Testcontainers: typeof import("testcontainers"), dockerContext: string) =>
+  pipe(
+    pgliteImageBuild,
+    O.getOrElse(() => {
+      const build = Testcontainers.GenericContainer.fromDockerfile(dockerContext).build(PgliteImageName, {
+        deleteOnExit: false,
+      });
+
+      pgliteImageBuild = O.some(build);
+      return build;
+    })
+  );
+
 const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function* (
   dockerContext: string,
   config: PgliteTestcontainersTestDriverConfig
 ) {
   const Testcontainers = yield* loadTestcontainersModule;
-  const image = yield* Effect.tryPromise({
-    try: () =>
-      Testcontainers.GenericContainer.fromDockerfile(dockerContext).build(PgliteImageName, {
-        deleteOnExit: false,
-      }),
+  yield* Effect.tryPromise({
+    try: () => getPgliteImageBuild(Testcontainers, dockerContext),
     catch: (cause) =>
       toHarnessError("pglite-testcontainers", "provision", "Failed to build the PGLite Testcontainers image.", cause),
   });
+  const image = new Testcontainers.GenericContainer(PgliteImageName);
 
   return yield* Effect.acquireRelease(
     Effect.tryPromise({

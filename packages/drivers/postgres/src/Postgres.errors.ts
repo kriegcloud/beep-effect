@@ -79,13 +79,12 @@ const extractSourceLocation = (value: unknown): O.Option<string> => {
   return O.none();
 };
 
-const extractPgLikeError = (value: unknown, seen: ReadonlySet<unknown> = new Set()): O.Option<object> => {
-  if (!P.isObject(value) || seen.has(value)) {
+const extractPgLikeError = (value: unknown, seen: ReadonlyArray<object> = []): O.Option<object> => {
+  if (!P.isObject(value) || A.contains(seen, value)) {
     return O.none();
   }
 
-  const nextSeen = new Set(seen);
-  nextSeen.add(value);
+  const nextSeen = A.append(seen, value);
 
   if (O.isSome(readString(value, "code"))) {
     return O.some(value);
@@ -117,9 +116,9 @@ const parseDrizzleMessage = (value: unknown): ErrorContext => {
 
 const extractDrizzleQueryContext = (
   value: unknown,
-  seen: ReadonlySet<unknown> = new Set()
+  seen: ReadonlyArray<object> = []
 ): Pick<ErrorContext, "params" | "query"> => {
-  if (!P.isObject(value) || seen.has(value)) {
+  if (!P.isObject(value) || A.contains(seen, value)) {
     return parseDrizzleMessage(value);
   }
 
@@ -136,8 +135,7 @@ const extractDrizzleQueryContext = (
     return messageContext;
   }
 
-  const nextSeen = new Set(seen);
-  nextSeen.add(value);
+  const nextSeen = A.append(seen, value);
 
   return O.match(readCause(value), {
     onNone: () => ({}),

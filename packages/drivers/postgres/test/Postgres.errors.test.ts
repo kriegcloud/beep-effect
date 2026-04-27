@@ -8,6 +8,7 @@ import {
   PgErrorCanonicalNameByCode,
   PostgresError,
 } from "@beep/postgres";
+import { loadNativePgDrizzle, loadNativePgDrizzleMigrator, NativePgClient } from "@beep/postgres/interop";
 import { describe, expect, it } from "@effect/vitest";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
@@ -75,5 +76,13 @@ describe("Postgres formatting", () => {
     expect(rendered).toContain("POSTGRES ERROR");
     expect(rendered).toContain("23505");
     expect(rendered).toContain("UNIQUE_VIOLATION");
+  });
+});
+
+describe("Postgres interop", () => {
+  it("keeps native Drizzle imports lazy at module load", () => {
+    expect(NativePgClient.PgClient).toBeDefined();
+    expect(loadNativePgDrizzle).toBeDefined();
+    expect(loadNativePgDrizzleMigrator).toBeDefined();
   });
 });

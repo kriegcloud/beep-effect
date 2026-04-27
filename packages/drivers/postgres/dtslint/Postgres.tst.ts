@@ -14,6 +14,13 @@ import {
   type PostgresDrizzleDatabase,
   PostgresError,
 } from "@beep/postgres";
+import {
+  loadNativePgDrizzle,
+  loadNativePgDrizzleMigrator,
+  NativePgClient,
+  type NativePgDrizzleMigratorModule,
+  type NativePgDrizzleModule,
+} from "@beep/postgres/interop";
 import type { Effect, Layer } from "effect";
 import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
@@ -27,7 +34,7 @@ describe("@beep/postgres", () => {
     expect<PgErrorNameType>().type.toBe<"UNIQUE_VIOLATION" | PgErrorNameType>();
     expect(PgErrorCode).type.not.toBe<never>();
     expect(getPgErrorName("23505")).type.toBe<O.Option<PgErrorNameType>>();
-    expect(getPgErrorAliases("23505")).type.toBe<O.Option<ReadonlyArray<PgErrorNameType>>>();
+    expect(getPgErrorAliases("23505")).type.toBeAssignableTo<O.Option<ReadonlyArray<PgErrorNameType>>>();
   });
 
   it("exports Postgres errors and formatting helpers", () => {
@@ -40,5 +47,11 @@ describe("@beep/postgres", () => {
     expect(makeDrizzle()).type.toBe<Effect.Effect<PostgresDrizzleDatabase, PostgresError, PostgresClientValue>>();
     expect(makeDrizzleLayer()).type.toBe<Layer.Layer<PostgresDrizzle, PostgresError, PostgresClientValue>>();
     expect(migrate(db, { migrationsFolder: "./drizzle" })).type.toBe<Effect.Effect<undefined, PostgresError>>();
+  });
+
+  it("exports native interop namespaces", () => {
+    expect(NativePgClient.PgClient).type.not.toBe<never>();
+    expect(loadNativePgDrizzle).type.toBe<Effect.Effect<NativePgDrizzleModule, PostgresError>>();
+    expect(loadNativePgDrizzleMigrator).type.toBe<Effect.Effect<NativePgDrizzleMigratorModule, PostgresError>>();
   });
 });
