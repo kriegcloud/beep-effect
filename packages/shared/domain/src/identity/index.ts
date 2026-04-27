@@ -1,7 +1,7 @@
 /**
  * The shared domain identity module - Contains modules for slice entity ids.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

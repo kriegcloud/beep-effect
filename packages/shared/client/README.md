@@ -1,4 +1,4 @@
-# @beep/client
+# @beep/shared-client
 
 Shared-kernel client boundary for browser-safe adapters, state, and service
 contracts shared across slices.
@@ -23,8 +23,8 @@ semantics.
 
 ## Exports
 
-- `@beep/client`
-- `@beep/client/*`
+- `@beep/shared-client`
+- `@beep/shared-client/*`
 - `VERSION`
 
 ## Development

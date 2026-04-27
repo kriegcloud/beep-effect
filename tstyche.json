@@ -18,8 +18,8 @@
     "apps/codedank-web/dtslint/**/*.tst.*",
     "packages/shared/use-cases/dtslint/**/*.tst.*",
     "packages/shared/config/dtslint/**/*.tst.*",
-    "packages/providers/drizzle/dtslint/**/*.tst.*",
-    "packages/providers/pglite/dtslint/**/*.tst.*"
+    "packages/drivers/drizzle/dtslint/**/*.tst.*",
+    "packages/drivers/pglite/dtslint/**/*.tst.*"
   ],
   "tsconfig": "./tsconfig.dtslint.json"
 }

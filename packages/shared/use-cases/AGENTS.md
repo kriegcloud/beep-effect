@@ -1,4 +1,4 @@
-# @beep/use-cases Agent Guide
+# @beep/shared-use-cases Agent Guide
 
 ## Purpose & Fit
 
@@ -35,6 +35,6 @@
 
 ## Verifications
 
-- `bunx turbo run check --filter=@beep/use-cases`
-- `bunx turbo run test --filter=@beep/use-cases`
-- `bunx turbo run lint --filter=@beep/use-cases`
+- `bunx turbo run check --filter=@beep/shared-use-cases`
+- `bunx turbo run test --filter=@beep/shared-use-cases`
+- `bunx turbo run lint --filter=@beep/shared-use-cases`

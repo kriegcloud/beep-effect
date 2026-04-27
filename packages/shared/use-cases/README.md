@@ -1,4 +1,4 @@
-# @beep/use-cases
+# @beep/shared-use-cases
 
 Contract-only shared-kernel application surface for cross-slice commands,
 queries, DTOs, ports, facades, protocols, and actionable application errors.
@@ -22,8 +22,8 @@ This package is currently scaffolded. Its public surface exports `VERSION` from
 
 ## Exports
 
-- `@beep/use-cases`
-- `@beep/use-cases/*`
+- `@beep/shared-use-cases`
+- `@beep/shared-use-cases/*`
 - `VERSION`
 
 When boundary surfaces are added, prefer canonical subpaths such as `/public`,

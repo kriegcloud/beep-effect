@@ -48,10 +48,16 @@ describe("OrganizationTable", () => {
   it("builds slug uniqueness and license-tier lookup indexes", () => {
     const slugUnique = indexConfigNamed("shared_organization_slug_unique_idx");
     const licenseTierLookup = indexConfigNamed("shared_organization_license_tier_lookup_idx");
+    const entityTypeLookup = indexConfigNamed("shared_organization_entity_type_lookup_idx");
+    const orgIdLookup = indexConfigNamed("shared_organization_org_id_lookup_idx");
+    const sourceLookup = indexConfigNamed("shared_organization_source_lookup_idx");
 
     expect(O.getOrThrow(slugUnique).config.unique).toBe(true);
     expect(O.getOrThrow(slugUnique).config.columns[0]?.name).toBe("slug");
     expect(O.getOrThrow(licenseTierLookup).config.method).toBe("btree");
     expect(O.getOrThrow(licenseTierLookup).config.columns[0]?.name).toBe("license_tier");
+    expect(O.isNone(entityTypeLookup)).toBe(true);
+    expect(O.isNone(orgIdLookup)).toBe(true);
+    expect(O.isNone(sourceLookup)).toBe(true);
   });
 });

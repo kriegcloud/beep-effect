@@ -40,4 +40,45 @@ describe("Organization UI contracts", () => {
 
     expect(Organization.primaryLabel(display)).toBe("Acme");
   });
+
+  it("encodes optional parent organization ids for browser payloads", () => {
+    const withoutParent = S.decodeUnknownSync(Organization.Display)(displayInput);
+    const withParent = S.decodeUnknownSync(Organization.Display)({
+      ...displayInput,
+      parentOrgId: 1,
+    });
+
+    expect("parentOrgId" in S.encodeSync(Organization.Display)(withoutParent)).toBe(false);
+    expect(S.encodeSync(Organization.Display)(withParent).parentOrgId).toBe(1);
+  });
+
+  it("rejects invalid browser-safe organization payload fields", () => {
+    expect(() =>
+      S.decodeUnknownSync(Organization.Display)({
+        ...displayInput,
+        licenseTier: "custom",
+      })
+    ).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(Organization.Display)({
+        ...displayInput,
+        name: "",
+      })
+    ).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(Organization.Display)({
+        ...displayInput,
+        settings: {
+          ...displayInput.settings,
+          defaultRetentionDays: 0,
+        },
+      })
+    ).toThrow();
+    expect(() =>
+      S.decodeUnknownSync(Organization.Display)({
+        ...displayInput,
+        slug: "Invalid Slug",
+      })
+    ).toThrow();
+  });
 });

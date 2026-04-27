@@ -6,7 +6,16 @@
  */
 
 /**
+ * Shared client package version.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/shared-client"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const VERSION = "0.0.0" as const;

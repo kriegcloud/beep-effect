@@ -14,21 +14,17 @@ import {
   TsMorphSymbolSearchRequest,
   TsMorphSymbolSourceRequest,
   TsMorphUnsupportedFileError,
-} from "@beep/repo-utils/TSMorph/index";
+} from "@beep/repo-utils";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import { describe, expect, layer } from "@effect/vitest";
-import { Array as A, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
+import { Array as A, Context, Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 
 const PlatformLayer = Layer.mergeAll(NodeFileSystem.layer, NodePath.layer);
 const TestLayer = TSMorphServiceLive.pipe(Layer.provideMerge(PlatformLayer));
-const pathApi = Effect.runSync(
-  Effect.gen(function* () {
-    return yield* Path.Path;
-  }).pipe(Effect.provide(NodePath.layer))
-);
+const pathApi = Effect.runSync(Effect.scoped(Layer.build(NodePath.layer).pipe(Effect.map(Context.get(Path.Path)))));
 
 const REPO_ROOT = pathApi.resolve(__dirname, "..", "..", "..");
 const WORKSPACE_ROOT = pathApi.resolve(__dirname, "..");

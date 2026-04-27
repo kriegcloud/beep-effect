@@ -1,7 +1,7 @@
 /**
  * The shared domain aggregates module.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

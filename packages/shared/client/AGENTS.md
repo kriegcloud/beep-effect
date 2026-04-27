@@ -1,4 +1,4 @@
-# @beep/client Agent Guide
+# @beep/shared-client Agent Guide
 
 ## Purpose & Fit
 
@@ -35,6 +35,6 @@
 
 ## Verifications
 
-- `bunx turbo run check --filter=@beep/client`
-- `bunx turbo run test --filter=@beep/client`
-- `bunx turbo run lint --filter=@beep/client`
+- `bunx turbo run check --filter=@beep/shared-client`
+- `bunx turbo run test --filter=@beep/shared-client`
+- `bunx turbo run lint --filter=@beep/shared-client`

@@ -234,16 +234,16 @@
         "./packages/common/ui/src/themes/index.ts"
       ],
       "@beep/drizzle": [
-        "./packages/providers/drizzle/src/index.ts"
+        "./packages/drivers/drizzle/src/index.ts"
       ],
       "@beep/drizzle/*": [
-        "./packages/providers/drizzle/src/*"
+        "./packages/drivers/drizzle/src/*"
       ],
       "@beep/pglite": [
-        "./packages/providers/pglite/src/index.ts"
+        "./packages/drivers/pglite/src/index.ts"
       ],
       "@beep/pglite/*": [
-        "./packages/providers/pglite/src/*"
+        "./packages/drivers/pglite/src/*"
       ]
     }
   }

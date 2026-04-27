@@ -1,4 +1,4 @@
-# @beep/config
+# @beep/shared-config
 
 Shared-kernel typed config contracts and vocabulary deliberately agreed on
 across slices.
@@ -23,8 +23,8 @@ configuration contracts, not environment-variable access or global settings.
 
 ## Exports
 
-- `@beep/config`
-- `@beep/config/*`
+- `@beep/shared-config`
+- `@beep/shared-config/*`
 - `VERSION`
 
 When boundary surfaces are added, prefer canonical subpaths such as `/public`,

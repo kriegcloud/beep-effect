@@ -79,10 +79,10 @@
       "path": "packages/fixture-lab/specimen/use-cases"
     },
     {
-      "path": "packages/providers/drizzle"
+      "path": "packages/drivers/drizzle"
     },
     {
-      "path": "packages/providers/pglite"
+      "path": "packages/drivers/pglite"
     },
     {
       "path": "packages/shared/client"

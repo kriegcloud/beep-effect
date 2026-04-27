@@ -7,6 +7,7 @@ in this phase.
 ## Decisions
 
 - Do not port legacy `DbClient.make` into `packages/shared/server`.
+- Do not introduce a generic `Db.make` facade or shared `DatabaseError`.
 - Put the future Postgres client runtime in `packages/drivers/postgres` as
   `@beep/postgres`.
 - Put future Drizzle execution helpers in `packages/drivers/drizzle` as
@@ -18,6 +19,21 @@ in this phase.
   product repository or application errors.
 - Prefer explicit `withTransaction` callbacks over ambient transaction context.
 - Defer `DbRepo.make` until one real repository proves repeated boilerplate.
+
+## Transaction Shape
+
+Driver services expose transaction boundaries as explicit callbacks:
+
+```ts
+PostgresClient.makeLayer(client)
+Drizzle.makeLayer(client)
+
+Drizzle.withTransaction((transaction) =>
+  transaction.execute(statement, parameters)
+)
+```
+
+Do not model transaction state through ambient fiber context in the driver API.
 
 ## Implication For The Organization Proof
 

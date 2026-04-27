@@ -5,7 +5,7 @@
  * boundary codecs for {@link Model}. Runtime validation that depends on the
  * relationship between year, month, and day lives here.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

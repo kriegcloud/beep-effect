@@ -408,7 +408,8 @@ single `package.json` full of scripts.
 
 Decision:
 
-Legacy `DbClient.make` is not ported into `shared/server`. Future database
+Legacy generic database surfaces such as `Db.make`, `DbClient.make`, and a
+shared `DatabaseError` are not ported into `shared/server`. Future database
 runtime capability lives in driver packages with specific public names:
 
 - `packages/drivers/postgres` publishes `@beep/postgres` with
@@ -432,3 +433,31 @@ server packages as product adapter owners. A generic `Db` facade would blur that
 boundary and make shared/server look like an infrastructure runtime. Specific
 driver names keep imports honest, make error translation explicit, and let the
 first real repository drive any helper extraction with evidence.
+
+## 2026-04-27: Keep Shared Entity Metadata In The Shared Kernel
+
+Decision:
+
+The shared entity metadata kernel (`EntityId`, `BaseEntity`, `EntityMixin`,
+`EntityRef`, `Principal`, and source-kind vocabulary) remains in
+`@beep/shared-domain` while it encodes shared product semantics: tenant
+organization scoping, actor provenance, source facets, and storage-neutral field
+descriptors used by shared-kernel table metadata.
+
+`@beep/shared-tables/table/Table.make` is approved as a metadata-only table
+constructor for shared entity descriptors. It may build Drizzle table metadata
+for shared product tables, but it does not own live database execution,
+transactions, repository helpers, migrations, or driver runtime capability.
+
+Rationale:
+
+The Organization proof needs one deliberately shared entity concept whose
+`orgId` tenant field, actor fields, entity-id metadata, and table metadata stay
+consistent across shared-domain, shared-tables, and shared-ui. Keeping the
+constructor vocabulary together makes the shared-kernel contract testable while
+the driver decision keeps live database work in `packages/drivers/*` and product
+repositories in server packages.
+
+If this entity metadata kernel becomes useful without shared product semantics,
+extract the generic portion into foundation/modeling with tests proving the
+shared-domain exports remain product-language wrappers.

@@ -1,7 +1,17 @@
 import { CrossOriginEmbedderPolicyHeader } from "@beep/schema/http/headers/CrossOriginEmbedderPolicy";
 import { CrossOriginOpenerPolicyHeader } from "@beep/schema/http/headers/CrossOriginOpenerPolicy";
 import { CrossOriginResourcePolicyHeader } from "@beep/schema/http/headers/CrossOriginResourcePolicy";
-import { ContentSecurityPolicyHeader, type ContentSecurityPolicyOption } from "@beep/schema/http/headers/Csp";
+import {
+  ContentSecurityPolicyHeader,
+  type ContentSecurityPolicyOption,
+  createContentSecurityPolicyOptionHeaderValue,
+  createDirectiveValue,
+  DocumentDirective,
+  FetchDirective,
+  getProperHeaderName,
+  NavigationDirective,
+  ReportingDirective,
+} from "@beep/schema/http/headers/Csp";
 import { ExpectCTHeader } from "@beep/schema/http/headers/ExpectCT";
 import { ForceHttpsRedirectHeader } from "@beep/schema/http/headers/ForceHttpsRedirect";
 import { FrameGuardHeader } from "@beep/schema/http/headers/FrameGuard";
@@ -123,6 +133,20 @@ describe("Secure header schemas", () => {
     );
   });
 
+  it("handles Expect-CT disabled and default-enabled forms", async () => {
+    expectHeader(S.decodeUnknownSync(ExpectCTHeader)(undefined), "Expect-CT", undefined);
+    expectHeader(S.decodeUnknownSync(ExpectCTHeader)(false), "Expect-CT", undefined);
+    expectHeader(S.decodeUnknownSync(ExpectCTHeader)(true), "Expect-CT", "max-age=86400");
+    expectHeader(S.decodeUnknownSync(ExpectCTHeader)([true, {}]), "Expect-CT", "max-age=86400");
+    expectHeader(S.decodeUnknownSync(ExpectCTHeader)([true, { enforce: false }]), "Expect-CT", "max-age=86400");
+
+    await expect(run(ExpectCTHeader.createValue())).resolves.toEqual(O.none());
+    await expect(run(ExpectCTHeader.createValue(false))).resolves.toEqual(O.none());
+    await expect(run(ExpectCTHeader.createValue(true))).resolves.toEqual(O.some("max-age=86400"));
+    expect(O.isNone(await run(ExpectCTHeader.create(false)))).toBe(true);
+    expect(Exit.isFailure(runExit(ExpectCTHeader.createValue([true, { reportURI: "not-a-url" }] as const)))).toBe(true);
+  });
+
   it("formats HSTS defaults and tuple options", async () => {
     expectHeader(
       S.decodeUnknownSync(ForceHttpsRedirectHeader)(undefined),
@@ -133,6 +157,25 @@ describe("Secure header schemas", () => {
       run(ForceHttpsRedirectHeader.createValue([true, { maxAge: 120, includeSubDomains: true, preload: true }]))
     ).resolves.toEqual(O.some("max-age=120; includeSubDomains; preload"));
     await expect(run(ForceHttpsRedirectHeader.createValue(false))).resolves.toEqual(O.none());
+  });
+
+  it("handles HSTS direct, disabled, and sparse tuple forms", async () => {
+    expectHeader(S.decodeUnknownSync(ForceHttpsRedirectHeader)(false), "Strict-Transport-Security", undefined);
+    expectHeader(S.decodeUnknownSync(ForceHttpsRedirectHeader)(true), "Strict-Transport-Security", "max-age=63072000");
+    expectHeader(
+      S.decodeUnknownSync(ForceHttpsRedirectHeader)([true, {}]),
+      "Strict-Transport-Security",
+      "max-age=63072000"
+    );
+    expectHeader(
+      S.decodeUnknownSync(ForceHttpsRedirectHeader)([true, { maxAge: 120 }]),
+      "Strict-Transport-Security",
+      "max-age=120"
+    );
+
+    await expect(run(ForceHttpsRedirectHeader.createValue())).resolves.toEqual(O.some("max-age=63072000"));
+    await expect(run(ForceHttpsRedirectHeader.createValue(true))).resolves.toEqual(O.some("max-age=63072000"));
+    expect(O.isNone(await run(ForceHttpsRedirectHeader.create(false)))).toBe(true);
   });
 
   it("formats Frame-Guard allow-from values", async () => {
@@ -148,6 +191,21 @@ describe("Secure header schemas", () => {
     );
   });
 
+  it("handles Frame-Guard default, direct, disabled, and invalid allow-from forms", async () => {
+    expectHeader(S.decodeUnknownSync(FrameGuardHeader)(undefined), "X-Frame-Options", "deny");
+    expectHeader(S.decodeUnknownSync(FrameGuardHeader)(false), "X-Frame-Options", undefined);
+    expectHeader(S.decodeUnknownSync(FrameGuardHeader)("deny"), "X-Frame-Options", "deny");
+    expectHeader(S.decodeUnknownSync(FrameGuardHeader)("sameorigin"), "X-Frame-Options", "sameorigin");
+
+    await expect(run(FrameGuardHeader.createValue())).resolves.toEqual(O.some("deny"));
+    await expect(run(FrameGuardHeader.createValue(false))).resolves.toEqual(O.none());
+    await expect(run(FrameGuardHeader.createValue("sameorigin"))).resolves.toEqual(O.some("sameorigin"));
+    expect(O.isNone(await run(FrameGuardHeader.create(false)))).toBe(true);
+    expect(Exit.isFailure(runExit(FrameGuardHeader.createValue(["allow-from", { uri: "not-a-url" }] as never)))).toBe(
+      true
+    );
+  });
+
   it("uses secure defaults for NoOpen, NoSniff, and permitted cross-domain policies", async () => {
     expectHeader(S.decodeUnknownSync(NoOpenHeader)(undefined), "X-Download-Options", "noopen");
     expectHeader(S.decodeUnknownSync(NoSniffHeader)(undefined), "X-Content-Type-Options", "nosniff");
@@ -160,6 +218,35 @@ describe("Secure header schemas", () => {
     await expect(run(NoOpenHeader.createValue())).resolves.toEqual(O.some("noopen"));
     await expect(run(NoSniffHeader.createValue())).resolves.toEqual(O.some("nosniff"));
     await expect(run(PermittedCrossDomainPoliciesHeader.createValue())).resolves.toEqual(O.some("none"));
+  });
+
+  it("disables and validates one-value security headers", async () => {
+    expectHeader(S.decodeUnknownSync(NoOpenHeader)(false), "X-Download-Options", undefined);
+    expectHeader(S.decodeUnknownSync(NoSniffHeader)(false), "X-Content-Type-Options", undefined);
+    expectHeader(
+      S.decodeUnknownSync(PermittedCrossDomainPoliciesHeader)(false),
+      "X-Permitted-Cross-Domain-Policies",
+      undefined
+    );
+    expectHeader(S.decodeUnknownSync(NoOpenHeader)("noopen"), "X-Download-Options", "noopen");
+    expectHeader(S.decodeUnknownSync(NoSniffHeader)("nosniff"), "X-Content-Type-Options", "nosniff");
+    expectHeader(
+      S.decodeUnknownSync(PermittedCrossDomainPoliciesHeader)("master-only"),
+      "X-Permitted-Cross-Domain-Policies",
+      "master-only"
+    );
+
+    await expect(run(NoOpenHeader.createValue(false))).resolves.toEqual(O.none());
+    await expect(run(NoSniffHeader.createValue(false))).resolves.toEqual(O.none());
+    await expect(run(PermittedCrossDomainPoliciesHeader.createValue(false))).resolves.toEqual(O.none());
+    expect(O.isNone(await run(NoOpenHeader.create(false)))).toBe(true);
+    expect(O.isNone(await run(NoSniffHeader.create(false)))).toBe(true);
+    expect(O.isNone(await run(PermittedCrossDomainPoliciesHeader.create(false)))).toBe(true);
+    await expect(run(PermittedCrossDomainPoliciesHeader.createValue("all"))).resolves.toEqual(O.some("all"));
+
+    expect(Exit.isFailure(runExit(NoOpenHeader.createValue("invalid" as never)))).toBe(true);
+    expect(Exit.isFailure(runExit(NoSniffHeader.createValue("invalid" as never)))).toBe(true);
+    expect(Exit.isFailure(runExit(PermittedCrossDomainPoliciesHeader.createValue("invalid" as never)))).toBe(true);
   });
 
   it("formats permissions policy directives and rejects invalid directive names", async () => {
@@ -190,6 +277,33 @@ describe("Secure header schemas", () => {
         )
       )
     ).toBe(true);
+  });
+
+  it("handles permissions policy disabled, empty, wildcard, and origin-list values", async () => {
+    const option = {
+      directives: {
+        autoplay: "*",
+        fullscreen: ["self", '"https://example.com"'],
+        payment: '"https://pay.example"',
+      },
+    } as const;
+
+    expectHeader(S.decodeUnknownSync(PermissionsPolicyHeader)(undefined), "Permissions-Policy", undefined);
+    expectHeader(S.decodeUnknownSync(PermissionsPolicyHeader)(false), "Permissions-Policy", undefined);
+    expectHeader(S.decodeUnknownSync(PermissionsPolicyHeader)({ directives: {} }), "Permissions-Policy", undefined);
+    expectHeader(
+      S.decodeUnknownSync(PermissionsPolicyHeader)(option),
+      "Permissions-Policy",
+      'autoplay=*, fullscreen=(self "https://example.com"), payment=("https://pay.example")'
+    );
+
+    await expect(run(PermissionsPolicyHeader.createValue())).resolves.toEqual(O.none());
+    await expect(run(PermissionsPolicyHeader.createValue(false))).resolves.toEqual(O.none());
+    await expect(run(PermissionsPolicyHeader.createValue({ directives: {} }))).resolves.toEqual(O.none());
+    await expect(run(PermissionsPolicyHeader.createValue(option))).resolves.toEqual(
+      O.some('autoplay=*, fullscreen=(self "https://example.com"), payment=("https://pay.example")')
+    );
+    expect(O.isNone(await run(PermissionsPolicyHeader.create({ directives: {} })))).toBe(true);
   });
 
   it("joins multiple referrer-policy values and rejects unsafe-url", async () => {
@@ -245,6 +359,62 @@ describe("Secure header schemas", () => {
       "Content-Security-Policy-Report-Only",
       "script-src 'self'; report-uri https://example.com/csp"
     );
+  });
+
+  it("renders CSP directive helpers across fetch, document, navigation, and reporting directives", () => {
+    expect(getProperHeaderName()).toBe("Content-Security-Policy");
+    expect(getProperHeaderName(true)).toBe("Content-Security-Policy-Report-Only");
+    expect(createDirectiveValue("script-src", ["'self'", "https:"])).toBe("script-src 'self' https:");
+    expect(createDirectiveValue(["'self'"])("style-src")).toBe("style-src 'self'");
+    expect(FetchDirective.convertToString()).toBe("");
+    expect(DocumentDirective.convertToString()).toBe("");
+    expect(NavigationDirective.convertToString()).toBe("");
+    expect(ReportingDirective.convertToString()).toBe("");
+
+    expect(
+      FetchDirective.convertToString({
+        defaultSrc: O.some("'self'"),
+        "img-src": ["https:"],
+        scriptSrc: undefined,
+        unknown: "'none'",
+      } as never)
+    ).toBe("default-src 'self'; img-src https:");
+    expect(
+      DocumentDirective.convertToString({
+        "base-uri": "'self'",
+        "plugin-types": ["application/pdf"],
+        sandbox: true,
+      })
+    ).toBe("base-uri 'self'; plugin-types application/pdf; sandbox");
+    expect(DocumentDirective.convertToString({ sandbox: "allow-scripts" })).toBe("sandbox allow-scripts");
+    expect(
+      NavigationDirective.convertToString({
+        "form-action": "'self'",
+        frameAncestors: ["'none'"],
+        "navigate-to": "https://example.com",
+      })
+    ).toBe("form-action 'self'; frame-ancestors 'none'; navigate-to https://example.com");
+    expect(
+      ReportingDirective.convertToString({
+        "report-uri": [new URL("https://example.com/csp"), "https://example.com/local-report"],
+        reportTo: "default-endpoint",
+      })
+    ).toBe("report-uri https://example.com/csp https://example.com/local-report; report-to default-endpoint");
+  });
+
+  it("handles disabled and empty CSP options", async () => {
+    expect(createContentSecurityPolicyOptionHeaderValue()).toBeUndefined();
+    expect(createContentSecurityPolicyOptionHeaderValue(false)).toBeUndefined();
+    expect(createContentSecurityPolicyOptionHeaderValue({ directives: { sandbox: true } })).toBe("sandbox");
+    expectHeader(S.decodeUnknownSync(ContentSecurityPolicyHeader)(undefined), "Content-Security-Policy", undefined);
+    expectHeader(S.decodeUnknownSync(ContentSecurityPolicyHeader)(false), "Content-Security-Policy", undefined);
+    await expect(run(ContentSecurityPolicyHeader.createValue())).resolves.toEqual(O.none());
+    await expect(run(ContentSecurityPolicyHeader.createValue(false))).resolves.toEqual(O.none());
+    expect(O.isNone(await run(ContentSecurityPolicyHeader.create()))).toBe(true);
+    expect(O.isNone(await run(ContentSecurityPolicyHeader.create(false)))).toBe(true);
+
+    const emptyDecode = runExit(S.decodeUnknownEffect(ContentSecurityPolicyHeader)({ directives: {} }));
+    expect(Exit.isFailure(emptyDecode)).toBe(true);
   });
 });
 
@@ -305,6 +475,26 @@ describe("Secure header aggregates", () => {
     expect(plain).toContainEqual({
       key: "X-Permitted-Cross-Domain-Policies",
       value: "none",
+    });
+  });
+
+  it("creates default secure headers in key/value form", async () => {
+    const result = await run(createSecureHeaders());
+    const plain = pipe(
+      result,
+      A.map((header) => ({
+        key: header.key,
+        value: header.value,
+      }))
+    );
+
+    expect(plain).toContainEqual({
+      key: "Strict-Transport-Security",
+      value: "max-age=63072000",
+    });
+    expect(plain).toContainEqual({
+      key: "X-Frame-Options",
+      value: "deny",
     });
   });
 });

@@ -1,15 +1,18 @@
 {
   "name": "@beep/pglite",
   "version": "0.0.0",
-  "description": "",
+  "description": "Driver-level PGLite capability wrapper for product-neutral local database execution.",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/providers/pglite",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/pglite",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/providers/pglite"
+    "directory": "packages/drivers/pglite"
+  },
+  "beep": {
+    "family": "drivers"
   },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
@@ -48,7 +51,7 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"

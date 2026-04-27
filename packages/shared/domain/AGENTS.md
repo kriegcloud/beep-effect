@@ -1,25 +1,27 @@
-# @beep/domain Agent Guide
+# @beep/shared-domain Agent Guide
 
 ## Purpose & Fit
 
 - Shared-kernel domain language for cross-slice product concepts, values,
   schemas, and pure behavior.
-- This package is currently scaffolded around `VERSION` plus domain-kind modules
-  for aggregates, entities, identity, values, and `values/LocalDate`. New
-  exports must meet the shared-kernel promotion bar.
+- This package contains shared entity constructors, shared identity vocabulary,
+  the Organization proof, and shared value-object modules. New exports must meet
+  the shared-kernel promotion bar.
 
 ## Surface Map
 
 | Surface                                      | Key exports   | Notes                                                    |
 |----------------------------------------------|---------------|----------------------------------------------------------|
-| entry module                                 | `VERSION`     | Current package entry point.                             |
+| entry module                                 | `VERSION`, `Entities`, `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Identity`, `Values` | Current package entry point. |
 | `src/aggregates/index.ts`                    | empty module  | Future shared aggregate roots and aggregate vocabulary.  |
-| `src/entities/index.ts`                      | empty module  | Future shared identity-bearing concepts.                 |
-| `src/identity/index.ts`                      | empty module  | Future shared entity-id modules and identity vocabulary. |
-| `src/values/index.ts`                        | empty module  | Future shared value-object barrel.                       |
-| `src/values/LocalDate/index.ts`              | empty module  | Future shared `LocalDate` value-object barrel.           |
-| `src/values/LocalDate/LocalDate.model.ts`    | module header | Future shared `LocalDate` schema/model.                  |
-| `src/values/LocalDate/LocalDate.behavior.ts` | empty file    | Future pure `LocalDate` behavior.                        |
+| `src/entities/index.ts`                      | `Organization` | Shared identity-bearing concepts.                       |
+| `src/entities/Organization/`                 | `Model`, value schemas, behavior helpers | Shared Organization concept. |
+| `src/entity/index.ts`                        | entity constructor namespaces | Shared entity kernel constructors and metadata. |
+| `src/identity/index.ts`                      | `Shared`      | Shared entity-id modules and identity vocabulary.        |
+| `src/values/index.ts`                        | `LocalDate`   | Shared value-object barrel.                              |
+| `src/values/LocalDate/index.ts`              | `LocalDate` exports | Shared `LocalDate` value-object barrel.              |
+| `src/values/LocalDate/LocalDate.model.ts`    | `Model`       | Shared `LocalDate` schema/model.                         |
+| `src/values/LocalDate/LocalDate.behavior.ts` | behavior helpers | Pure `LocalDate` behavior.                            |
 
 ## Add Here
 
@@ -42,6 +44,6 @@
 
 ## Verifications
 
-- `bunx turbo run check --filter=@beep/domain`
-- `bunx turbo run test --filter=@beep/domain`
-- `bunx turbo run lint --filter=@beep/domain`
+- `bunx turbo run check --filter=@beep/shared-domain`
+- `bunx turbo run test --filter=@beep/shared-domain`
+- `bunx turbo run lint --filter=@beep/shared-domain`

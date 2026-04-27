@@ -53,6 +53,13 @@ describe("Organization", () => {
     expect(() => decodeSettings({ allowAgentActions: true, defaultRetentionDays: 0 })).toThrow();
   });
 
+  it("decodes nullable parent organization ids to Option values", () => {
+    expect(O.isNone(decodeOrganization(organizationInput).parentOrgId)).toBe(true);
+    expect(O.isNone(decodeOrganization({ ...organizationInput, parentOrgId: null }).parentOrgId)).toBe(true);
+    expect(O.getOrThrow(decodeOrganization({ ...organizationInput, parentOrgId: 1 }).parentOrgId)).toBe(1);
+    expect(() => decodeOrganization({ ...organizationInput, parentOrgId: 0 })).toThrow();
+  });
+
   it("materializes profile mixin descriptors for the entity and table layers", () => {
     expect(Organization.ProfileMixin.fieldKeys).toEqual([
       "legalName",
@@ -98,5 +105,21 @@ describe("Organization", () => {
     expect(Organization.isTenantRoot({ id: rootId, orgId: parentId })).toBe(false);
     expect(Organization.hasParentOrganization({ parentOrgId: O.none() })).toBe(false);
     expect(Organization.hasParentOrganization(child)).toBe(true);
+    expect(Organization.hasValidTenantPlacement({ id: rootId, orgId: rootId, parentOrgId: O.none() })).toBe(true);
+    expect(Organization.hasValidTenantPlacement(child)).toBe(true);
+    expect(
+      Organization.hasValidTenantPlacement({
+        id: rootId,
+        orgId: rootId,
+        parentOrgId: O.some(parentId),
+      })
+    ).toBe(false);
+    expect(
+      Organization.hasValidTenantPlacement({
+        id: rootId,
+        orgId: parentId,
+        parentOrgId: O.none(),
+      })
+    ).toBe(false);
   });
 });

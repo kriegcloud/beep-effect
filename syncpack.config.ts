@@ -23,8 +23,8 @@ const config = {
     "apps/codedank-web/package.json",
     "packages/shared/use-cases/package.json",
     "packages/shared/config/package.json",
-    "packages/providers/drizzle/package.json",
-    "packages/providers/pglite/package.json",
+    "packages/drivers/drizzle/package.json",
+    "packages/drivers/pglite/package.json",
   ],
   customTypes: {
     catalog: {

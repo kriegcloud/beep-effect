@@ -1,11 +1,11 @@
-# @beep/tables
+# @beep/shared-tables
 
 Shared-kernel persistence boundary for cross-slice table and read-model shapes
 tied to shared product language.
 
-This package is currently scaffolded. Its public surface exports `VERSION` from
-`src/index.ts`; future exports should represent shared product persistence
-shape, not generic database capability.
+This package currently proves the shared Organization table metadata and the
+shared entity-metadata table constructor used by that proof. It represents
+shared product persistence shape, not generic database execution capability.
 
 ## Belongs Here
 
@@ -13,6 +13,8 @@ shape, not generic database capability.
   on.
 - Mappings tied directly to shared domain language.
 - Cross-slice table vocabulary when it is product-semantic and durable.
+- Metadata-only table constructors tied to shared entity metadata. Live
+  execution belongs in driver and server packages.
 
 ## Does Not Belong Here
 
@@ -23,9 +25,10 @@ shape, not generic database capability.
 
 ## Exports
 
-- `@beep/tables`
-- `@beep/tables/*`
-- `VERSION`
+- `@beep/shared-tables`
+- `@beep/shared-tables/*`
+- `Entities.Organization`
+- `Table.make`
 
 ## Development
 

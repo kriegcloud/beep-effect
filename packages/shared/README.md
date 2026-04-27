@@ -15,13 +15,13 @@ docs describe the boundary each package is allowed to grow into.
 
 | Path | Package | Role |
 | --- | --- | --- |
-| `domain/` | `@beep/domain` | Cross-slice domain concepts, values, schemas, domain events, and pure behavior. |
-| `config/` | `@beep/config` | Cross-slice typed config contracts and config vocabulary. |
-| `use-cases/` | `@beep/use-cases` | Contract-only commands, queries, DTOs, protocols, product ports, and actionable application errors. |
-| `client/` | `@beep/client` | Browser-safe shared client boundary for cross-slice product semantics. |
-| `server/` | `@beep/server` | Server-only shared-kernel boundary for cross-slice product semantics that must stay driver-neutral. |
-| `tables/` | `@beep/tables` | Shared persistence/read-model shapes only when they encode shared product language. |
-| `ui/` | `@beep/ui` | Shared-kernel UI boundary for cross-slice product concepts, not product-agnostic primitives. |
+| `domain/` | `@beep/shared-domain` | Cross-slice domain concepts, values, schemas, domain events, and pure behavior. |
+| `config/` | `@beep/shared-config` | Cross-slice typed config contracts and config vocabulary. |
+| `use-cases/` | `@beep/shared-use-cases` | Contract-only commands, queries, DTOs, protocols, product ports, and actionable application errors. |
+| `client/` | `@beep/shared-client` | Browser-safe shared client boundary for cross-slice product semantics. |
+| `server/` | `@beep/shared-server` | Server-only shared-kernel boundary for cross-slice product semantics that must stay driver-neutral. |
+| `tables/` | `@beep/shared-tables` | Shared persistence/read-model shapes only when they encode shared product language. |
+| `ui/` | `@beep/shared-ui` | Shared-kernel UI boundary for cross-slice product concepts, not product-agnostic primitives. |
 
 ## Promotion Bar
 
@@ -71,7 +71,7 @@ bun run lint
 Or run targeted Turbo checks from the repo root:
 
 ```bash
-bunx turbo run check --filter=@beep/domain
-bunx turbo run test --filter=@beep/domain
-bunx turbo run lint --filter=@beep/domain
+bunx turbo run check --filter=@beep/shared-domain
+bunx turbo run test --filter=@beep/shared-domain
+bunx turbo run lint --filter=@beep/shared-domain
 ```

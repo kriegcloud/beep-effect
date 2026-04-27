@@ -10,7 +10,7 @@
 
 import { FsUtilsLive, TSMorphServiceLive } from "@beep/repo-utils";
 import { BunChildProcessSpawner, BunHttpClient, BunRuntime, BunServices } from "@effect/platform-bun";
-import { Cause, Effect, Layer } from "effect";
+import { Effect, Layer } from "effect";
 import * as O from "effect/Option";
 import { Command } from "effect/unstable/cli";
 import { parseQualityTaskInvocation, runQualityTask } from "./commands/Quality/Tasks.js";
@@ -76,13 +76,6 @@ if (O.isSome(qualityTaskInvocation)) {
         })
       )
     )
-  ).pipe(
-    Effect.catchCause((cause) =>
-      Effect.sync(() => {
-        process.exitCode = 1;
-        console.error(Cause.pretty(cause));
-      })
-    )
   );
   BunRuntime.runMain(qualityProgram);
 } else {
@@ -93,13 +86,6 @@ if (O.isSome(qualityTaskInvocation)) {
           return yield* Command.run(rootCommand, { version: "0.0.0" }).pipe(Effect.provide(context));
         })
       )
-    )
-  ).pipe(
-    Effect.catchCause((cause) =>
-      Effect.sync(() => {
-        process.exitCode = 1;
-        console.error(Cause.pretty(cause));
-      })
     )
   );
   BunRuntime.runMain(commandProgram);

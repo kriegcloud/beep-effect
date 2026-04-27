@@ -29,6 +29,16 @@ class OptionalUserRow extends S.Class<OptionalUserRow>($I`OptionalUserRow`)(
   })
 ) {}
 
+class NullableUserRow extends S.Class<NullableUserRow>($I`NullableUserRow`)(
+  {
+    id: S.NumberFromString,
+    nickname: S.NullOr(S.String),
+  },
+  $I.annote("NullableUserRow", {
+    description: "CSV user row with a nullable encoded field.",
+  })
+) {}
+
 class InvalidNumberRow extends S.Class<InvalidNumberRow>($I`InvalidNumberRow`)(
   {
     id: S.Number,
@@ -88,6 +98,22 @@ describe("CSV", () => {
     })
   );
 
+  it.effect("supports curried options, empty documents, and short non-strict rows", () =>
+    Effect.gen(function* () {
+      const csv = CSV({ trim: true })(OptionalUserRow);
+
+      expect(yield* S.decodeUnknownEffect(csv)("")).toEqual([]);
+
+      const rows = yield* S.decodeUnknownEffect(csv)("id, first_name, nickname\n1, Ada");
+
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toBeInstanceOf(OptionalUserRow);
+      expect(rows[0].id).toBe(1);
+      expect(rows[0].first_name).toBe("Ada");
+      expect(rows[0].nickname).toBe("");
+    })
+  );
+
   it.effect("encodes rows back to branded CSV text in schema field order", () =>
     Effect.gen(function* () {
       const csv = CSV(UserRow);
@@ -126,6 +152,22 @@ describe("CSV", () => {
     })
   );
 
+  it.effect("renders nullable encoded fields as empty cells", () =>
+    Effect.gen(function* () {
+      const csv = CSV(NullableUserRow);
+      const rows = [
+        new NullableUserRow({
+          id: 1,
+          nickname: null,
+        }),
+      ];
+
+      const encoded = yield* S.encodeEffect(csv)(rows);
+
+      expect(encoded).toBe("id,nickname\n1,");
+    })
+  );
+
   it.effect("rejects duplicate headers", () =>
     Effect.gen(function* () {
       const result = yield* Effect.exit(
@@ -156,6 +198,31 @@ describe("CSV", () => {
     })
   );
 
+  it.effect("reports missing-only and unexpected-only header mismatches", () =>
+    Effect.gen(function* () {
+      const missingOnly = yield* Effect.exit(
+        S.decodeUnknownEffect(CSV(UserRow))("id,first_name,last_name\n1,Ada,Lovelace")
+      );
+      const unexpectedOnly = yield* Effect.exit(
+        S.decodeUnknownEffect(CSV(UserRow))("id,first_name,last_name,address,unexpected\n1,Ada,Lovelace,London,nope")
+      );
+
+      expect(Exit.isFailure(missingOnly)).toBe(true);
+      if (Exit.isFailure(missingOnly)) {
+        const rendered = Cause.pretty(missingOnly.cause);
+        expect(rendered).toContain("CSV header mismatch");
+        expect(rendered).toContain("missing: address");
+      }
+
+      expect(Exit.isFailure(unexpectedOnly)).toBe(true);
+      if (Exit.isFailure(unexpectedOnly)) {
+        const rendered = Cause.pretty(unexpectedOnly.cause);
+        expect(rendered).toContain("CSV header mismatch");
+        expect(rendered).toContain("unexpected: unexpected");
+      }
+    })
+  );
+
   it.effect("rejects row length mismatches when strict column handling is enabled", () =>
     Effect.gen(function* () {
       const result = yield* Effect.exit(
@@ -168,6 +235,20 @@ describe("CSV", () => {
       if (Exit.isFailure(result)) {
         const rendered = Cause.pretty(result.cause);
         expect(rendered).toContain("Column header mismatch expected: 4 columns got: 3");
+      }
+    })
+  );
+
+  it.effect("rejects extra row cells even without strict column handling", () =>
+    Effect.gen(function* () {
+      const result = yield* Effect.exit(
+        S.decodeUnknownEffect(CSV(UserRow))("id,first_name,last_name,address\n1,Ada,Lovelace,London,extra")
+      );
+
+      expect(Exit.isFailure(result)).toBe(true);
+      if (Exit.isFailure(result)) {
+        const rendered = Cause.pretty(result.cause);
+        expect(rendered).toContain("Column header mismatch expected: 4 columns got: 5");
       }
     })
   );

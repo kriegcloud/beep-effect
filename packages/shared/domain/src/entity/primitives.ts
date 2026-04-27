@@ -1,7 +1,7 @@
 /**
  * Shared-domain primitive schemas used by BaseEntity and entity mixins.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

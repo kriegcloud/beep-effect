@@ -24,13 +24,13 @@ standard. Shared code is cross-slice product language, not a convenience bucket.
 
 | Package | Add only when the content is |
 | --- | --- |
-| `@beep/domain` | Driver-neutral shared product concepts, values, schemas, domain events, and pure behavior. |
-| `@beep/config` | Shared typed config contracts, config vocabulary, redacted-secret contracts, and test config utilities. |
-| `@beep/use-cases` | Contract-only commands, queries, DTOs, protocols, product ports, facades, and actionable application errors. |
-| `@beep/client` | Browser-safe shared client adapters, state, services, and command/query clients tied to shared product semantics. |
-| `@beep/server` | Server-only shared product boundary helpers that remain driver-neutral and do not aggregate slices. |
-| `@beep/tables` | Shared persistence/read-model shapes tied to shared product language. |
-| `@beep/ui` | Cross-slice product UI concepts, forms, and display contracts tied to shared domain language. |
+| `@beep/shared-domain` | Driver-neutral shared product concepts, values, schemas, domain events, and pure behavior. |
+| `@beep/shared-config` | Shared typed config contracts, config vocabulary, redacted-secret contracts, and test config utilities. |
+| `@beep/shared-use-cases` | Contract-only commands, queries, DTOs, protocols, product ports, facades, and actionable application errors. |
+| `@beep/shared-client` | Browser-safe shared client adapters, state, services, and command/query clients tied to shared product semantics. |
+| `@beep/shared-server` | Server-only shared product boundary helpers that remain driver-neutral and do not aggregate slices. |
+| `@beep/shared-tables` | Shared persistence/read-model shapes tied to shared product language. |
+| `@beep/shared-ui` | Cross-slice product UI concepts, forms, and display contracts tied to shared domain language. |
 
 ## Rules
 
@@ -62,9 +62,9 @@ bun run lint
 For repo-root targeted checks, use Turbo filters:
 
 ```bash
-bunx turbo run check --filter=@beep/domain
-bunx turbo run test --filter=@beep/domain
-bunx turbo run lint --filter=@beep/domain
+bunx turbo run check --filter=@beep/shared-domain
+bunx turbo run test --filter=@beep/shared-domain
+bunx turbo run lint --filter=@beep/shared-domain
 ```
 
-Replace `@beep/domain` with the touched shared package.
+Replace `@beep/shared-domain` with the touched shared package.

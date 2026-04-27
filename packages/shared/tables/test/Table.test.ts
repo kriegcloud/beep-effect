@@ -139,6 +139,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       jsonValue: {
         columnName: "json_value",
         description: "JSON value.",
+        indexHints: [EntityMixin.IndexHint.gin],
         nullable: false,
         storageKind: "json",
         valueStrategy: "provided",
@@ -287,7 +288,8 @@ describe("Table.make", () => {
   it("builds configured indexes and unique indexes from descriptor hints", () => {
     const table = Table.make(DocumentId, StoragePack);
     const btreeIndex = indexConfigNamed("shared_document_literal_value_btree_idx")(table);
-    const ginIndex = indexConfigNamed("shared_document_literal_value_gin_idx")(table);
+    const ginIndex = indexConfigNamed("shared_document_json_value_gin_idx")(table);
+    const unsupportedGinIndex = indexConfigNamed("shared_document_literal_value_gin_idx")(table);
     const hashIndex = indexConfigNamed("shared_document_literal_value_hash_idx")(table);
     const lookupIndex = indexConfigNamed("shared_document_literal_value_lookup_idx")(table);
     const uniqueIndex = indexConfigNamed("shared_document_literal_value_unique_idx")(table);
@@ -295,7 +297,8 @@ describe("Table.make", () => {
     expect(O.getOrThrow(btreeIndex).config.method).toBe("btree");
     expect(O.getOrThrow(ginIndex).config.method).toBe("gin");
     expect(O.getOrThrow(hashIndex).config.method).toBe("hash");
-    expect(O.getOrThrow(lookupIndex).config.method).toBe("btree");
+    expect(O.isNone(unsupportedGinIndex)).toBe(true);
+    expect(O.isNone(lookupIndex)).toBe(true);
     expect(O.getOrThrow(uniqueIndex).config.unique).toBe(true);
     expect(O.getOrThrow(uniqueIndex).config.columns[0]?.name).toBe("literal_value");
   });

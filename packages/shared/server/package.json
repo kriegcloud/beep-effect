@@ -1,7 +1,7 @@
 {
   "name": "@beep/shared-server",
   "version": "0.0.0",
-  "description": "Shared-kernel server boundary for cross-slice product-port implementations and local Layer composition.",
+  "description": "Driver-neutral shared-kernel server boundary helpers for deliberate cross-slice product semantics.",
   "license": "MIT",
   "private": true,
   "type": "module",
@@ -46,7 +46,7 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"

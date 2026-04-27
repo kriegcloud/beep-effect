@@ -1,7 +1,7 @@
 {
   "$schema": "../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/providers/drizzle/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/drizzle/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,8 +29,8 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/drizzle": ["../../../packages/providers/drizzle/src/index.ts"],
-      "@beep/drizzle/*": ["../../../packages/providers/drizzle/src/*.ts"]
+      "@beep/drizzle": ["../../../packages/drivers/drizzle/src/index.ts"],
+      "@beep/drizzle/*": ["../../../packages/drivers/drizzle/src/*.ts"]
     }
   }
 }

@@ -1,13 +1,13 @@
 /**
  * Shared-kernel entity identifier constructor.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
 import { $SharedDomainId, type IdentityComposer } from "@beep/identity";
 import { SchemaUtils } from "@beep/schema";
-import { PostgresSerialInt } from "@beep/schema/Int";
+import { PosInt } from "@beep/schema/Int";
 import * as Str from "@beep/utils/Str";
 import type * as BrandNS from "effect/Brand";
 import { dual } from "effect/Function";
@@ -16,7 +16,7 @@ import * as S from "effect/Schema";
 const $I = $SharedDomainId.create("entity/EntityId");
 
 /**
- * PostgreSQL serial integer used by every v1 persisted entity id.
+ * Storage-neutral positive integer used by every v1 persisted entity id.
  *
  * @example
  * ```ts
@@ -30,10 +30,21 @@ const $I = $SharedDomainId.create("entity/EntityId");
  * @since 0.0.0
  * @category schemas
  */
-export const EntityIdValue = PostgresSerialInt.pipe(
+export const EntityIdValue = PosInt.check(
+  S.isBetween(
+    {
+      minimum: 1,
+      maximum: 2_147_483_647,
+    },
+    {
+      description: "A positive generated entity id in the v1 integer id range.",
+      title: "Generated Entity Id Range",
+    }
+  )
+).pipe(
   S.brand("EntityIdValue"),
   $I.annoteSchema("EntityIdValue", {
-    description: "PostgreSQL serial integer used by shared-kernel persisted entity ids.",
+    description: "Storage-neutral positive integer used by shared-kernel persisted entity ids.",
   })
 );
 

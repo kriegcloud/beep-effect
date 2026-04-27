@@ -6,7 +6,16 @@
  */
 
 /**
+ * Shared use-cases package version.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/shared-use-cases"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const VERSION = "0.0.0" as const;

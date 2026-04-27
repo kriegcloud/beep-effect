@@ -196,6 +196,31 @@ export class QualityTaskConfigurationError extends TaggedErrorClass<QualityTaskC
   })
 ) {}
 
+/**
+ * Error raised when an unexpected quality task cause reaches the command boundary.
+ *
+ * @example
+ * ```ts
+ * import { UnexpectedQualityTaskFailure } from "@beep/repo-cli/commands/Quality/Tasks"
+ * const error = new UnexpectedQualityTaskFailure({
+ *   message: "Unexpected quality task failure"
+ * })
+ * ```
+ * @category error handling
+ * @since 0.0.0
+ */
+export class UnexpectedQualityTaskFailure extends TaggedErrorClass<UnexpectedQualityTaskFailure>(
+  $I`UnexpectedQualityTaskFailure`
+)(
+  "UnexpectedQualityTaskFailure",
+  {
+    message: S.String,
+  },
+  $I.annote("UnexpectedQualityTaskFailure", {
+    description: "Unexpected quality task failure preserved for the process runtime boundary.",
+  })
+) {}
+
 class PackageJsonDocument extends S.Class<PackageJsonDocument>($I`PackageJsonDocument`)(
   {
     name: S.optionalKey(S.String),
@@ -846,10 +871,11 @@ const handleQualityTaskError = Effect.catchTags({
   }),
 });
 
-const handleUnexpectedQualityTaskCause = Effect.catchCause(
-  Effect.fn("QualityTasks.handleUnexpectedCause")(function* (cause) {
-    process.exitCode = 1;
-    yield* Console.error(`[beep-cli] unexpected failure\n${Cause.pretty(cause)}`);
+const mapUnexpectedQualityTaskCause = Effect.catchCause(
+  Effect.fn("QualityTasks.mapUnexpectedCause")(function* (cause) {
+    return yield* new UnexpectedQualityTaskFailure({
+      message: `Unexpected quality task failure\n${Cause.pretty(cause)}`,
+    });
   })
 );
 
@@ -913,23 +939,26 @@ export const parseQualityTaskInvocation = (argv: ReadonlyArray<string>): O.Optio
  * @category UseCase
  * @since 0.0.0
  */
-export const runQualityTask: (invocation: QualityTaskInvocation) => Effect.Effect<void, never, QualityTaskEnvironment> =
-  Effect.fn("QualityTasks.runQualityTask")(
-    function* (invocation: QualityTaskInvocation) {
-      const path = yield* Path.Path;
-      const cwd = path.resolve(process.cwd());
-      const repoRoot = yield* findRepoRoot(cwd);
-      const packageDir = yield* resolvePackageDir(repoRoot, cwd);
+export const runQualityTask: (
+  invocation: QualityTaskInvocation
+) => Effect.Effect<void, UnexpectedQualityTaskFailure, QualityTaskEnvironment> = Effect.fn(
+  "QualityTasks.runQualityTask"
+)(
+  function* (invocation: QualityTaskInvocation) {
+    const path = yield* Path.Path;
+    const cwd = path.resolve(process.cwd());
+    const repoRoot = yield* findRepoRoot(cwd);
+    const packageDir = yield* resolvePackageDir(repoRoot, cwd);
 
-      yield* pipe(
-        packageDir,
-        O.map((dir) => runPackageTask(dir, invocation)),
-        O.getOrElse(() => runRootTask(repoRoot, invocation))
-      );
-    },
-    handleQualityTaskError,
-    handleUnexpectedQualityTaskCause
-  );
+    yield* pipe(
+      packageDir,
+      O.map((dir) => runPackageTask(dir, invocation)),
+      O.getOrElse(() => runRootTask(repoRoot, invocation))
+    );
+  },
+  handleQualityTaskError,
+  mapUnexpectedQualityTaskCause
+);
 
 /**
  * Run a quality task directly from a raw argv vector.
@@ -946,15 +975,15 @@ export const runQualityTask: (invocation: QualityTaskInvocation) => Effect.Effec
  */
 export const runQualityTaskIfRequested: (
   argv: ReadonlyArray<string>
-) => Effect.Effect<boolean, never, QualityTaskEnvironment> = Effect.fn("QualityTasks.runQualityTaskIfRequested")(
-  function* (argv: ReadonlyArray<string>) {
-    return yield* pipe(
-      parseQualityTaskInvocation(argv),
-      O.map((invocation) => runQualityTask(invocation).pipe(Effect.as(true))),
-      O.getOrElse(() => Effect.succeed(false))
-    );
-  }
-);
+) => Effect.Effect<boolean, UnexpectedQualityTaskFailure, QualityTaskEnvironment> = Effect.fn(
+  "QualityTasks.runQualityTaskIfRequested"
+)(function* (argv: ReadonlyArray<string>) {
+  return yield* pipe(
+    parseQualityTaskInvocation(argv),
+    O.map((invocation) => runQualityTask(invocation).pipe(Effect.as(true))),
+    O.getOrElse(() => Effect.succeed(false))
+  );
+});
 
 /**
  * Run a subprocess and capture all output. Exposed for focused unit tests.

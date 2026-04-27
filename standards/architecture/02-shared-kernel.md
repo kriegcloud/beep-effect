@@ -13,6 +13,9 @@ Shared may contain:
   language
 - `shared/domain` driver-neutral primitives that multiple slices deliberately
   share
+- `shared/domain` entity metadata constructors when they encode shared product
+  semantics such as tenant organization scoping, actor provenance, and
+  source-kind vocabulary rather than reusable domain-agnostic schema substrate
 - `shared/config` contracts and config vocabulary that multiple slices
   deliberately agree on
 - high-bar `shared/use-cases` application contracts when multiple slices
@@ -40,6 +43,11 @@ Shared should not contain:
 - product-agnostic UI primitive libraries
 - technical wrappers or external drivers
 - repo tooling, agent policy packs, or runtime-specific agent wiring
+
+`shared/tables` may use a metadata-only table constructor for shared entity
+descriptors when the resulting tables encode shared product language. It must
+not grow live database execution, transaction management, migration tooling, or
+repository helpers; those belong in drivers and server packages.
 
 If a concept belongs to `iam`, keep it in `iam`. Promote only when the concept is
 truly shared and the owning teams/slices accept the coupling.

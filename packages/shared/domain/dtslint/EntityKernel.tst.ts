@@ -58,11 +58,16 @@ const OverrideMixin = EntityMixin.make($I`OverrideMixin`)(
 
 const NotePack = EntityMixin.pack(NoteMixin);
 const OverridePack = EntityMixin.pack(NoteMixin, OverrideMixin);
-const documentFields = {
+const documentFields = {};
+const directDocumentFields = {
   title: Model.GeneratedByApp(S.String),
 };
+declare const documentIdValue: typeof DocumentId.Type;
 
 class Document extends BaseEntity.BaseEntity.extend<Document>($I`Document`)(DocumentId, NotePack, documentFields) {}
+
+// @ts-expect-error!
+BaseEntity.BaseEntity.extend($I`DirectDocument`)(DocumentId, NotePack, directDocumentFields);
 
 describe("shared entity kernel types", () => {
   it("preserves EntityId literals and statics", () => {
@@ -82,10 +87,10 @@ describe("shared entity kernel types", () => {
   });
 
   it("preserves EntityRef and BaseEntity field map types", () => {
-    const ref = EntityRef.make(DocumentId, 1 as EntityId.EntityIdValue);
+    const ref = EntityRef.make(DocumentId, documentIdValue);
     const fieldMap = BaseEntity.fieldMapFor(DocumentId, NotePack);
 
-    expect(ref).type.toBe<EntityRef.EntityRef>();
+    expect(ref).type.toBeAssignableTo<EntityRef.EntityRef>();
     expect<typeof fieldMap.id.storageKind>().type.toBe<"entityId">();
     expect<typeof fieldMap.entityType.storageKind>().type.toBe<"literal">();
     expect<typeof fieldMap.note.columnName>().type.toBe<"note">();
@@ -93,6 +98,7 @@ describe("shared entity kernel types", () => {
     expect<typeof Document.definition.entityId.tableName>().type.toBe<"shared_document">();
     expect<typeof Document.definition.fieldMap.note.storageKind>().type.toBe<"text">();
     expect<(typeof Document.definition.mixins.fieldKeys)[number]>().type.toBe<"note">();
+    expect<EntityRef.EntityRefFor<typeof DocumentId>["id"]>().type.toBe<typeof DocumentId.Type>();
   });
 
   it("preserves mixin field maps and override typing", () => {

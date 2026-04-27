@@ -19,23 +19,18 @@ const $I = $SharedUiId.create("entities/Organization/Organization.display");
  * @example
  * ```ts
  * import { Display } from "@beep/shared-ui/entities/Organization/Organization.display"
- * import type { Slug } from "@beep/schema"
- * import type { PosInt } from "@beep/schema/Int"
- * import * as Organization from "@beep/shared-domain/entities/Organization/Organization.values"
- * import type * as Shared from "@beep/shared-domain/identity/Shared"
- * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * const display = new Display({
- *   id: 1 as Shared.OrganizationId,
+ * const display = S.decodeUnknownSync(Display)({
+ *   id: 1,
  *   legalName: "Acme Legal LLC",
  *   licenseTier: "team",
  *   name: "Acme",
- *   parentOrgId: O.none(),
- *   settings: new Organization.Settings({
+ *   settings: {
  *     allowAgentActions: true,
- *     defaultRetentionDays: 90 as PosInt,
- *   }),
- *   slug: "acme" as Slug,
+ *     defaultRetentionDays: 90,
+ *   },
+ *   slug: "acme",
  * })
  * console.log(display.name)
  * ```
@@ -64,21 +59,17 @@ export class Display extends S.Class<Display>($I`Display`)(
  * @example
  * ```ts
  * import { Form } from "@beep/shared-ui/entities/Organization/Organization.display"
- * import type { Slug } from "@beep/schema"
- * import type { PosInt } from "@beep/schema/Int"
- * import * as Organization from "@beep/shared-domain/entities/Organization/Organization.values"
- * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * const form = new Form({
+ * const form = S.decodeUnknownSync(Form)({
  *   legalName: "Acme Legal LLC",
  *   licenseTier: "team",
  *   name: "Acme",
- *   parentOrgId: O.none(),
- *   settings: new Organization.Settings({
+ *   settings: {
  *     allowAgentActions: true,
- *     defaultRetentionDays: 90 as PosInt,
- *   }),
- *   slug: "acme" as Slug,
+ *     defaultRetentionDays: 90,
+ *   },
+ *   slug: "acme",
  * })
  * console.log(form.slug)
  * ```
@@ -109,23 +100,18 @@ export class Form extends S.Class<Form>($I`Form`)(
  *   Display,
  *   primaryLabel,
  * } from "@beep/shared-ui/entities/Organization/Organization.display"
- * import type { Slug } from "@beep/schema"
- * import type { PosInt } from "@beep/schema/Int"
- * import * as Organization from "@beep/shared-domain/entities/Organization/Organization.values"
- * import type * as Shared from "@beep/shared-domain/identity/Shared"
- * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
  *
- * const display = new Display({
- *   id: 1 as Shared.OrganizationId,
+ * const display = S.decodeUnknownSync(Display)({
+ *   id: 1,
  *   legalName: "Acme Legal LLC",
  *   licenseTier: "team",
  *   name: "Acme",
- *   parentOrgId: O.none(),
- *   settings: new Organization.Settings({
+ *   settings: {
  *     allowAgentActions: true,
- *     defaultRetentionDays: 90 as PosInt,
- *   }),
- *   slug: "acme" as Slug,
+ *     defaultRetentionDays: 90,
+ *   },
+ *   slug: "acme",
  * })
  * console.log(primaryLabel(display))
  * ```

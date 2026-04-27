@@ -412,6 +412,28 @@
         "type-fest": "catalog:",
       },
     },
+    "packages/drivers/drizzle": {
+      "name": "@beep/drizzle",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/drivers/pglite": {
+      "name": "@beep/pglite",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
     "packages/fixture-lab/specimen/client": {
       "name": "@beep/fixture-lab-specimen-client",
       "version": "0.0.0",
@@ -501,28 +523,6 @@
         "@beep/fixture-lab-specimen-domain": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/providers/drizzle": {
-      "name": "@beep/drizzle",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/providers/pglite": {
-      "name": "@beep/pglite",
-      "version": "0.0.0",
-      "dependencies": {
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1252,7 +1252,7 @@
 
     "@beep/docgen": ["@beep/docgen@workspace:tooling/docgen"],
 
-    "@beep/drizzle": ["@beep/drizzle@workspace:packages/providers/drizzle"],
+    "@beep/drizzle": ["@beep/drizzle@workspace:packages/drivers/drizzle"],
 
     "@beep/fixture-lab-specimen-client": ["@beep/fixture-lab-specimen-client@workspace:packages/fixture-lab/specimen/client"],
 
@@ -1280,7 +1280,7 @@
 
     "@beep/observability": ["@beep/observability@workspace:packages/common/observability"],
 
-    "@beep/pglite": ["@beep/pglite@workspace:packages/providers/pglite"],
+    "@beep/pglite": ["@beep/pglite@workspace:packages/drivers/pglite"],
 
     "@beep/repo-checks": ["@beep/repo-checks@workspace:tooling/repo-checks"],
 

@@ -5,7 +5,7 @@ import { Cause, Effect, Exit } from "effect";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 
-const replaceGlobalBunMarkdownHtml = (html: (content: string) => unknown) =>
+const replaceGlobalBunMarkdownHtml = (html: unknown) =>
   Effect.sync(() => {
     const bunRuntime = Reflect.get(globalThis, "Bun");
     const markdown = P.isObject(bunRuntime) ? Reflect.get(bunRuntime, "markdown") : undefined;
@@ -67,6 +67,56 @@ describe("Markdown", () => {
         const rendered = Cause.pretty(result.cause);
 
         expect(rendered).toContain("Invalid Markdown input (Expected HTML string output).");
+      }
+    })
+  );
+
+  it.effect("fails Markdown-to-HTML decoding when the Bun renderer is unavailable", () =>
+    Effect.gen(function* () {
+      const result = yield* Effect.acquireUseRelease(
+        replaceGlobalBunMarkdownHtml(undefined),
+        () => Effect.exit(S.decodeUnknownEffect(MarkdownTextToHtml())("# Hello")),
+        restoreGlobalBunMarkdownHtml
+      );
+
+      expect(Exit.isFailure(result)).toBe(true);
+      if (Exit.isFailure(result)) {
+        const rendered = Cause.pretty(result.cause);
+
+        expect(rendered).toContain("Bun.markdown.html is unavailable in the current runtime.");
+      }
+    })
+  );
+
+  it.effect("maps renderer exceptions into markdown parse failures", () =>
+    Effect.gen(function* () {
+      const errorResult = yield* Effect.acquireUseRelease(
+        replaceGlobalBunMarkdownHtml(() => {
+          throw new Error("renderer failed");
+        }),
+        () => Effect.exit(S.decodeUnknownEffect(MarkdownTextToHtml())("# Hello")),
+        restoreGlobalBunMarkdownHtml
+      );
+      const unknownResult = yield* Effect.acquireUseRelease(
+        replaceGlobalBunMarkdownHtml(() => {
+          throw "renderer failed";
+        }),
+        () => Effect.exit(S.decodeUnknownEffect(MarkdownTextToHtml())("# Hello")),
+        restoreGlobalBunMarkdownHtml
+      );
+
+      expect(Exit.isFailure(errorResult)).toBe(true);
+      if (Exit.isFailure(errorResult)) {
+        const rendered = Cause.pretty(errorResult.cause);
+
+        expect(rendered).toContain("Invalid Markdown input (renderer failed).");
+      }
+
+      expect(Exit.isFailure(unknownResult)).toBe(true);
+      if (Exit.isFailure(unknownResult)) {
+        const rendered = Cause.pretty(unknownResult.cause);
+
+        expect(rendered).toContain("Invalid Markdown input.");
       }
     })
   );

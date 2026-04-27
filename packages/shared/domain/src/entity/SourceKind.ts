@@ -1,7 +1,7 @@
 /**
  * Canonical source-kind vocabulary for persisted entities.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

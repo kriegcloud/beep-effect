@@ -1,7 +1,7 @@
 /**
  * Shared-kernel entity-id registry.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

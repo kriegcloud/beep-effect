@@ -42,6 +42,9 @@ describe("Organization types", () => {
     expect<typeof Organization.isTenantRoot>().type.toBe<
       (organization: Pick<Organization.Model, "id" | "orgId">) => boolean
     >();
+    expect<typeof Organization.hasValidTenantPlacement>().type.toBe<
+      (organization: Pick<Organization.Model, "id" | "orgId" | "parentOrgId">) => boolean
+    >();
     expect<{ readonly org: Organization.Model }>().type.toBeAssignableTo<{ readonly org: Organization.Model }>();
   });
 });

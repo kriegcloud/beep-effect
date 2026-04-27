@@ -5,7 +5,7 @@
  * LocalDate stores only UTC calendar fields and deliberately carries no time
  * zone or clock-time component.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 import { $SharedDomainId } from "@beep/identity";

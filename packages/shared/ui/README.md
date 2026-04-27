@@ -1,10 +1,10 @@
-# @beep/ui
+# @beep/shared-ui
 
 Shared-kernel UI boundary for deliberate cross-slice product concepts, separate
 from foundation UI primitives.
 
-This package is currently scaffolded. Its public surface exports `VERSION` from
-`src/index.ts`; future exports should be UI for shared product language, not a
+This package currently proves browser-safe Organization display and form
+contracts. Future exports should be UI for shared product language, not a
 generic component library.
 
 ## Belongs Here
@@ -22,9 +22,10 @@ generic component library.
 
 ## Exports
 
-- `@beep/ui`
-- `@beep/ui/*`
+- `@beep/shared-ui`
+- `@beep/shared-ui/*`
 - `VERSION`
+- `Entities.Organization`
 
 ## Development
 

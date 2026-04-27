@@ -1,7 +1,7 @@
 /**
  * Product-facing persisted entity base constructor.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -11,6 +11,7 @@ import * as Model from "@beep/schema/Model";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
 import * as VariantSchema from "@beep/schema/VariantSchema";
 import * as Struct from "@beep/utils/Struct";
+import * as A from "effect/Array";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -27,7 +28,11 @@ type FieldOverrideInput = EntityMixin.FieldOverride<unknown>;
 type FieldMapInput = {
   readonly [key: string]: FieldInput | FieldOverrideInput | undefined;
 };
+type EmptyFieldMapInput = {
+  readonly [key: string]: never;
+};
 type StructInput = FieldMapInput | VariantSchema.Struct.Any;
+type EmptyStructInput = EmptyFieldMapInput | VariantSchema.Struct<EmptyFieldMapInput>;
 type Simplify<T> = { readonly [K in keyof T]: T[K] } & {};
 type ModelClassFor<Self, Fields extends VariantSchema.Struct.Fields> = Model.ClassShape<Self, Fields>;
 type MergeFields<Left extends object, Right extends object> = Simplify<Omit<Left, keyof Right> & Right>;
@@ -213,14 +218,14 @@ export type Definition<
  * @category constructors
  */
 export interface ExtendBuilder<Self> {
-  <const Entity extends EntityId.Any, const Fields extends StructInput>(
+  <const Entity extends EntityId.Any, const Fields extends EmptyStructInput>(
     entityId: Entity,
     fields: Fields,
     annotations?: unknown
   ): ModelClassFor<Self, MergedModelFields<Entity, EntityMixin.EmptyPack, Fields>> & {
     readonly definition: Definition<Entity, EntityMixin.EmptyPack>;
   };
-  <const Entity extends EntityId.Any, const Mixins extends EntityMixin.Pack, const Fields extends StructInput>(
+  <const Entity extends EntityId.Any, const Mixins extends EntityMixin.Pack, const Fields extends EmptyStructInput>(
     entityId: Entity,
     mixins: Mixins,
     fields: Fields,
@@ -335,6 +340,40 @@ export class FieldCollisionError extends S.TaggedErrorClass<FieldCollisionError>
   }
 }
 
+/**
+ * Error thrown when BaseEntity receives entity-local fields without storage
+ * descriptors.
+ *
+ * @example
+ * ```ts
+ * import { EntitySpecificFieldsUnsupportedError } from "@beep/shared-domain/entity/BaseEntity"
+ *
+ * const error = new EntitySpecificFieldsUnsupportedError({
+ *   fieldKeys: ["title"],
+ * })
+ *
+ * console.log(error.message)
+ * ```
+ *
+ * @since 0.0.0
+ * @category errors
+ */
+export class EntitySpecificFieldsUnsupportedError extends S.TaggedErrorClass<EntitySpecificFieldsUnsupportedError>(
+  $I`EntitySpecificFieldsUnsupportedError`
+)(
+  "EntitySpecificFieldsUnsupportedError",
+  {
+    fieldKeys: S.Array(S.String),
+  },
+  $I.annote("EntitySpecificFieldsUnsupportedError", {
+    description: "Raised when BaseEntity receives entity-local fields without EntityMixin descriptor metadata.",
+  })
+) {
+  override get message() {
+    return `BaseEntity entity-specific fields are not persisted without EntityMixin descriptors: ${A.join(this.fieldKeys, ", ")}. Define persisted fields through EntityMixin.make(...).`;
+  }
+}
+
 const setField = (
   target: Record<string, FieldInput>,
   key: string,
@@ -352,6 +391,13 @@ const mergeFields = (
   mixins: EntityMixin.Pack,
   entitySpecificFields: StructInput
 ): Record<string, FieldInput> => {
+  const normalizedEntitySpecificFields = normalizeFields(entitySpecificFields);
+  if (!R.isEmptyRecord(normalizedEntitySpecificFields)) {
+    throw new EntitySpecificFieldsUnsupportedError({
+      fieldKeys: Struct.keys(normalizedEntitySpecificFields),
+    });
+  }
+
   const merged: Record<string, FieldInput> = {};
   const idFields = entityFields(entityId);
   for (const [key, field] of Struct.entries(idFields)) {
@@ -363,7 +409,7 @@ const mergeFields = (
   for (const [key, field] of Struct.entries(normalizeFields(mixins.fields))) {
     setField(merged, key, field, "EntityMixin fields");
   }
-  for (const [key, field] of Struct.entries(normalizeFields(entitySpecificFields))) {
+  for (const [key, field] of Struct.entries(normalizedEntitySpecificFields)) {
     setField(merged, key, field, "entity-specific fields");
   }
   return merged;
@@ -453,11 +499,10 @@ const extend = <Self = never>(identifier: string): ExtendBuilder<Self> =>
  * ```ts
  * import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
  * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
- * import * as S from "effect/Schema"
  *
  * class Organization extends BaseEntity.extend<Organization>("Organization")(
  *   OrganizationId,
- *   { name: S.String }
+ *   {}
  * ) {}
  *
  * console.log(Organization.definition.entityId.tableName)
@@ -487,11 +532,10 @@ const constructorFromRuntime = (constructor: typeof BaseEntityWithDefinition): C
  * ```ts
  * import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity"
  * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
- * import * as S from "effect/Schema"
  *
  * class Organization extends BaseEntity.extend<Organization>("Organization")(
  *   OrganizationId,
- *   { name: S.String }
+ *   {}
  * ) {}
  *
  * console.log(Organization.definition.entityId.tableName)

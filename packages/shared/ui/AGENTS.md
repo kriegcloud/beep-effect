@@ -1,18 +1,19 @@
-# @beep/ui Agent Guide
+# @beep/shared-ui Agent Guide
 
 ## Purpose & Fit
 
 - Shared-kernel UI boundary for deliberate cross-slice product concepts,
   separate from foundation UI primitives.
-- This package is currently scaffolded around `VERSION`; new exports must encode
-  shared product semantics, not generic component-library behavior.
+- This package currently proves browser-safe Organization display and form
+  contracts. New exports must encode shared product semantics, not generic
+  component-library behavior.
 
 ## Surface Map
 
 | Surface | Key exports | Notes |
 | --- | --- | --- |
-| entry module | `VERSION` | Current package entry point. |
-| future UI modules | forms, display contracts, product-semantic components | Must be tied to shared domain language. |
+| entry module | `VERSION`, `Entities` | Current package entry point. |
+| `src/entities/Organization/` | `Display`, `Form`, `primaryLabel` | Browser-safe Organization contracts and helpers. |
 
 ## Add Here
 
@@ -34,6 +35,6 @@
 
 ## Verifications
 
-- `bunx turbo run check --filter=@beep/ui`
-- `bunx turbo run test --filter=@beep/ui`
-- `bunx turbo run lint --filter=@beep/ui`
+- `bunx turbo run check --filter=@beep/shared-ui`
+- `bunx turbo run test --filter=@beep/shared-ui`
+- `bunx turbo run lint --filter=@beep/shared-ui`

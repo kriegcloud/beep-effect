@@ -228,9 +228,7 @@ const FullFieldMap = BaseEntity.fieldMapFor(Shared.OrganizationId, EveryMixin);
 class FullEntity extends BaseEntity.BaseEntity.extend<FullEntity>($I`FullEntity`)(
   Shared.OrganizationId,
   EveryMixin,
-  {
-    displayName: S.String,
-  },
+  {},
   $I.annote("FullEntity", {
     description: "BaseEntity type-test model that consumes every v1 mixin category.",
   })

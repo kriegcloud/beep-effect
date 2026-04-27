@@ -245,6 +245,56 @@ const indexFor = (
     })
   );
 
+const isJsonbIndexableStorageKind = (storageKind: EntityMixin.StorageKind): boolean =>
+  EntityMixin.StorageKind.is.entityRef(storageKind) ||
+  EntityMixin.StorageKind.is.json(storageKind) ||
+  EntityMixin.StorageKind.is.principal(storageKind) ||
+  EntityMixin.StorageKind.is.vectorClock(storageKind);
+
+const isScalarIndexableStorageKind = (storageKind: EntityMixin.StorageKind): boolean =>
+  EntityMixin.StorageKind.is.bool(storageKind) ||
+  EntityMixin.StorageKind.is.encryptionKeyId(storageKind) ||
+  EntityMixin.StorageKind.is.entityId(storageKind) ||
+  EntityMixin.StorageKind.is.hybridLogicalClock(storageKind) ||
+  EntityMixin.StorageKind.is.int(storageKind) ||
+  EntityMixin.StorageKind.is.literal(storageKind) ||
+  EntityMixin.StorageKind.is.semanticVersion(storageKind) ||
+  EntityMixin.StorageKind.is.sha256(storageKind) ||
+  EntityMixin.StorageKind.is.signature(storageKind) ||
+  EntityMixin.StorageKind.is.text(storageKind) ||
+  EntityMixin.StorageKind.is.timestampMillis(storageKind);
+
+const supportsIndexHint = (descriptor: EntityMixin.FieldDescriptor, hint: EntityMixin.IndexHint): boolean =>
+  Match.value(hint).pipe(
+    Match.withReturnType<boolean>(),
+    Match.discriminatorsExhaustive("kind")({
+      btree: () => isScalarIndexableStorageKind(descriptor.storageKind),
+      gin: () => isJsonbIndexableStorageKind(descriptor.storageKind),
+      hash: () => isScalarIndexableStorageKind(descriptor.storageKind),
+      lookup: () => isScalarIndexableStorageKind(descriptor.storageKind),
+      unique: () => isScalarIndexableStorageKind(descriptor.storageKind),
+    })
+  );
+
+const hasHintKind = (hints: ReadonlyArray<EntityMixin.IndexHint>, kind: EntityMixin.IndexHintKind): boolean =>
+  pipe(
+    hints,
+    A.some((hint) => hint.kind === kind)
+  );
+
+const indexHintsForDescriptor = (descriptor: EntityMixin.FieldDescriptor): ReadonlyArray<EntityMixin.IndexHint> =>
+  pipe(
+    O.fromNullishOr(descriptor.indexHints),
+    O.map((hints) =>
+      pipe(
+        hints,
+        A.filter((hint) => supportsIndexHint(descriptor, hint)),
+        A.filter((hint) => hint.kind !== "lookup" || !hasHintKind(hints, "btree"))
+      )
+    ),
+    O.getOrElse(A.empty<EntityMixin.IndexHint>)
+  );
+
 const indexesForDescriptor = (
   tableName: string,
   columns: ExtraConfigColumnMap,
@@ -254,9 +304,8 @@ const indexesForDescriptor = (
     R.get(columns, descriptor.key),
     O.map((column) =>
       pipe(
-        O.fromNullishOr(descriptor.indexHints),
-        O.map(A.map((hint) => indexFor(tableName, descriptor, column, hint))),
-        O.getOrElse(A.empty<PgTableExtraConfigValue>)
+        indexHintsForDescriptor(descriptor),
+        A.map((hint) => indexFor(tableName, descriptor, column, hint))
       )
     ),
     O.getOrElse(A.empty<PgTableExtraConfigValue>)

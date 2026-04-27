@@ -1,15 +1,18 @@
 {
   "name": "@beep/drizzle",
   "version": "0.0.0",
-  "description": "",
+  "description": "Driver-level Drizzle capability wrapper for product-neutral database execution.",
   "license": "MIT",
   "private": true,
   "type": "module",
-  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/providers/drizzle",
+  "homepage": "https://github.com/kriegcloud/beep-effect/tree/main/packages/drivers/drizzle",
   "repository": {
     "type": "git",
     "url": "git@github.com:kriegcloud/beep-effect.git",
-    "directory": "packages/providers/drizzle"
+    "directory": "packages/drivers/drizzle"
+  },
+  "beep": {
+    "family": "drivers"
   },
   "scripts": {
     "audit": "bun run --if-present beep:audit",
@@ -48,7 +51,7 @@
     "access": "public",
     "provenance": true,
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
       "./package.json": "./package.json"

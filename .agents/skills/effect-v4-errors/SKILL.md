@@ -14,6 +14,7 @@ status: active
 - Use `Effect.catchTag` for tagged typed errors.
 - Prefer `Effect.try` / `Effect.tryPromise` for exception boundaries.
 - At outer recovery boundaries, prefer `Effect.catchCause` / `Effect.matchCauseEffect`.
+- At Bun/Node process entrypoints, do not use `catchCause` to set `process.exitCode` and return success. Let `BunRuntime.runMain` / `NodeRuntime.runMain` observe the failing root effect; customize terminal output through `runMain(..., { teardown })` and call `Runtime.defaultTeardown`.
 
 2. Error modeling:
 - Prefer `TaggedErrorClass` from `@beep/schema` for public error channels.

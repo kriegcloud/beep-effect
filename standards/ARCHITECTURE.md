@@ -693,11 +693,11 @@ packages/iam/
 
 packages/drivers/
   postgres/src/
-    Postgres.service.ts
-    Postgres.layer.ts
+    PostgresClient.service.ts
+    PostgresClient.layer.ts
     Postgres.errors.ts
     Postgres.config.ts
-    Postgres.test-layer.ts
+    PostgresClient.test-layer.ts
   drizzle/src/
     Drizzle.service.ts
     Drizzle.layer.ts
@@ -1089,7 +1089,7 @@ flowchart LR
   server["server\nMembership.repo.ts"]
   tables["tables\nMembership.table.ts"]
   drizzle["drivers/drizzle\nDrizzle.service.ts"]
-  postgres["drivers/postgres\nPostgres.service.ts"]
+  postgres["drivers/postgres\nPostgresClient.service.ts"]
   db[("Postgres")]
 
   server -. "implements" .-> usecases
@@ -1139,29 +1139,42 @@ export interface DrizzleClient {
     statement: string,
     parameters: ReadonlyArray<unknown>,
   ) => Promise<ReadonlyArray<unknown>>
+  readonly withTransaction: <A>(
+    use: (transaction: DrizzleClient) => Promise<A>,
+  ) => Promise<A>
 }
 
 export class Drizzle extends Context.Service<
   Drizzle,
   {
-    readonly execute: (
-      statement: string,
-      parameters: ReadonlyArray<unknown>,
-    ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
-  }
->()($I`Drizzle`) {}
+	    readonly execute: (
+	      statement: string,
+	      parameters: ReadonlyArray<unknown>,
+	    ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
+    readonly withTransaction: <A>(
+      use: (transaction: DrizzleClient) => Promise<A>,
+    ) => Effect.Effect<A, DrizzleError>
+	  }
+	>()($I`Drizzle`) {}
 
-export const makeDrizzleLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
-  Layer.effect(
-    Drizzle,
-    Effect.succeed({
-      execute: (statement, parameters) =>
-        Effect.tryPromise({
-          try: () => client.execute(statement, parameters),
-          catch: (cause) => toDrizzleError("execute", cause),
-        }),
-    }),
-)
+export namespace Drizzle {
+  export const makeLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
+    Layer.effect(
+      Drizzle,
+      Effect.succeed({
+	        execute: (statement, parameters) =>
+	          Effect.tryPromise({
+	            try: () => client.execute(statement, parameters),
+	            catch: (cause) => toDrizzleError("execute", cause),
+	          }),
+        withTransaction: (use) =>
+          Effect.tryPromise({
+            try: () => client.withTransaction(use),
+            catch: (cause) => toDrizzleError("withTransaction", cause),
+          }),
+	      }),
+	    )
+	}
 ```
 
 Product ports use product language. Actionable port failures live in

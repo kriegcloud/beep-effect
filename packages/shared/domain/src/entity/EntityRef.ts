@@ -1,7 +1,7 @@
 /**
  * Storage-neutral polymorphic entity reference.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
@@ -63,6 +63,25 @@ export class EntityRef extends S.Class<EntityRef>($I`EntityRef`)(
 ) {}
 
 /**
+ * Entity reference narrowed to a known entity-id schema.
+ *
+ * @example
+ * ```ts
+ * import type { EntityRefFor } from "@beep/shared-domain/entity/EntityRef"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ *
+ * type OrganizationRef = EntityRefFor<typeof OrganizationId>
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type EntityRefFor<Entity extends EntityId.Any> = Omit<EntityRef, "entityType" | "id"> & {
+  readonly entityType: Entity["entityType"] & EntityType;
+  readonly id: Entity["Type"];
+};
+
+/**
  * Build a polymorphic reference for a known entity id schema.
  *
  * @example
@@ -80,13 +99,13 @@ export class EntityRef extends S.Class<EntityRef>($I`EntityRef`)(
  * @category constructors
  */
 export const make: {
-  (entityId: EntityId.Any, id: EntityId.EntityIdValue): EntityRef;
-  (id: EntityId.EntityIdValue): (entityId: EntityId.Any) => EntityRef;
+  <const Entity extends EntityId.Any>(entityId: Entity, id: Entity["Type"]): EntityRefFor<Entity>;
+  <const Entity extends EntityId.Any>(id: Entity["Type"]): (entityId: Entity) => EntityRefFor<Entity>;
 } = dual(
   2,
-  (entityId: EntityId.Any, id: EntityId.EntityIdValue): EntityRef =>
+  <const Entity extends EntityId.Any>(entityId: Entity, id: Entity["Type"]): EntityRefFor<Entity> =>
     new EntityRef({
       entityType: S.decodeUnknownSync(EntityType)(entityId.entityType),
       id,
-    })
+    }) as EntityRefFor<Entity>
 );

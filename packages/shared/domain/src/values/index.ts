@@ -1,7 +1,7 @@
 /**
  * The shared domain values module - Contains modules for shared value objects.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 

@@ -20,8 +20,9 @@ import type { Model } from "./Organization.model.js";
  * ```ts
  * import { isTenantRoot } from "@beep/shared-domain/entities/Organization/Organization.behavior"
  * import * as Shared from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as Shared.OrganizationId
+ * const id = S.decodeUnknownSync(Shared.OrganizationId)(1)
  * console.log(isTenantRoot({ id, orgId: id }))
  * ```
  *
@@ -47,3 +48,29 @@ export const isTenantRoot = (organization: Pick<Model, "id" | "orgId">): boolean
  */
 export const hasParentOrganization = (organization: Pick<Model, "parentOrgId">): boolean =>
   O.isSome(organization.parentOrgId);
+
+/**
+ * Test whether Organization tenant placement fields form a valid root or child
+ * relationship.
+ *
+ * @remarks
+ * Root rows satisfy `id === orgId` and must not have a parent organization.
+ * Child rows use a different tenant root id and must name a parent
+ * organization.
+ *
+ * @example
+ * ```ts
+ * import { hasValidTenantPlacement } from "@beep/shared-domain/entities/Organization/Organization.behavior"
+ * import * as Shared from "@beep/shared-domain/identity/Shared"
+ * import * as O from "effect/Option"
+ * import * as S from "effect/Schema"
+ *
+ * const id = S.decodeUnknownSync(Shared.OrganizationId)(1)
+ * console.log(hasValidTenantPlacement({ id, orgId: id, parentOrgId: O.none() }))
+ * ```
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
+export const hasValidTenantPlacement = (organization: Pick<Model, "id" | "orgId" | "parentOrgId">): boolean =>
+  isTenantRoot(organization) !== hasParentOrganization(organization);

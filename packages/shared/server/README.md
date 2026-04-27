@@ -1,4 +1,4 @@
-# @beep/server
+# @beep/shared-server
 
 Shared-kernel server boundary for cross-slice product semantics that must remain
 server-only and driver-neutral.
@@ -25,8 +25,8 @@ or adapter bucket.
 
 ## Exports
 
-- `@beep/server`
-- `@beep/server/*`
+- `@beep/shared-server`
+- `@beep/shared-server/*`
 - `VERSION`
 
 ## Development

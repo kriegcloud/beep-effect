@@ -24,8 +24,8 @@
     "apps/codedank-web",
     "packages/shared/use-cases",
     "packages/shared/config",
-    "packages/providers/drizzle",
-    "packages/providers/pglite"
+    "packages/drivers/drizzle",
+    "packages/drivers/pglite"
   ],
   "repository": {
     "type": "git",

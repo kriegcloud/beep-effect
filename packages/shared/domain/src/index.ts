@@ -6,10 +6,27 @@
  */
 
 /**
+ * Shared domain package version.
+ *
+ * @example
+ * ```ts
+ * import { VERSION } from "@beep/shared-domain"
+ *
+ * console.log(VERSION)
+ * ```
+ *
  * @since 0.0.0
- * @category Configuration
+ * @category configuration
  */
 export const VERSION = "0.0.0" as const;
+
+/**
+ * Shared-kernel aggregate concepts.
+ *
+ * @since 0.0.0
+ * @category aggregates
+ */
+export * as Aggregates from "./aggregates/index.ts";
 
 /**
  * Shared-kernel entity concepts.
@@ -67,3 +84,10 @@ export * as SourceKind from "./entity/SourceKind.ts";
  * @category entity ids
  */
 export * as Identity from "./identity/index.ts";
+/**
+ * Shared-kernel value objects.
+ *
+ * @since 0.0.0
+ * @category values
+ */
+export * as Values from "./values/index.ts";

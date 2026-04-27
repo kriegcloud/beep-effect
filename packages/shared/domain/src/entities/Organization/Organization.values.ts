@@ -6,7 +6,7 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
-import { LiteralKit, Slug } from "@beep/schema";
+import { LiteralKit, OptionFromOptionalNullishKey, Slug } from "@beep/schema";
 import { PosInt } from "@beep/schema/Int";
 import * as S from "effect/Schema";
 import * as EntityMixin from "../../entity/EntityMixin.js";
@@ -56,11 +56,11 @@ export type LicenseTier = typeof LicenseTier.Type;
  * @example
  * ```ts
  * import { Settings } from "@beep/shared-domain/entities/Organization/Organization.values"
- * import type { PosInt } from "@beep/schema/Int"
+ * import * as S from "effect/Schema"
  *
- * const settings = new Settings({
+ * const settings = S.decodeUnknownSync(Settings)({
  *   allowAgentActions: true,
- *   defaultRetentionDays: 90 as PosInt,
+ *   defaultRetentionDays: 90,
  * })
  * console.log(settings.allowAgentActions)
  * ```
@@ -96,7 +96,9 @@ export const ProfileMixin = EntityMixin.make($I`ProfileMixin`)(
     legalName: S.NonEmptyString,
     licenseTier: LicenseTier,
     name: S.NonEmptyString,
-    parentOrgId: S.OptionFromOptionalKey(Shared.OrganizationId),
+    parentOrgId: OptionFromOptionalNullishKey(Shared.OrganizationId, {
+      onNoneEncoding: null,
+    }),
     settings: Settings,
     slug: Slug,
   },

@@ -101,7 +101,9 @@ const label = Match.type<number>().pipe(
 
 ## Boundary Recovery With Cause
 
-At app, HTTP, worker, and process boundaries, recover with `Effect.catchCause` or `Effect.matchCauseEffect`, then render/log the cause with `Cause.pretty(...)` or `Cause.prettyErrors(...)`.
+At HTTP, worker, request, and adapter recovery boundaries, recover with `Effect.catchCause` or `Effect.matchCauseEffect`, then render/log the cause with `Cause.pretty(...)` or `Cause.prettyErrors(...)`.
+
+At Bun/Node process entrypoints, do not recover the root cause just to set `process.exitCode` and print `Cause.pretty(...)`. Pass the root effect directly to `BunRuntime.runMain` / `NodeRuntime.runMain`; if custom terminal rendering is required, use `runMain(..., { teardown })` and delegate final status calculation to `Runtime.defaultTeardown`.
 
 ```ts
 import { Cause, Effect, Match } from "effect"
@@ -128,6 +130,21 @@ const handleBoundary = <A>(effect: Effect.Effect<A, DomainError>) =>
   )
 ```
 
+```ts
+import { BunRuntime } from "@effect/platform-bun"
+import { Cause, Exit, Runtime } from "effect"
+
+BunRuntime.runMain(program, {
+  disableErrorReporting: true,
+  teardown: (exit, onExit) => {
+    if (Exit.isFailure(exit)) {
+      console.error(Cause.pretty(exit.cause))
+    }
+    Runtime.defaultTeardown(exit, onExit)
+  }
+})
+```
+
 ## Verify
 
 1. No `try`/`catch` blocks in your code — grep for `catch (` to confirm.
@@ -136,4 +153,5 @@ const handleBoundary = <A>(effect: Effect.Effect<A, DomainError>) =>
 4. Every error class extends `TaggedErrorClass` from `@beep/schema` with Identity-based key and annotations.
 5. No manual `_tag` guards — use `P.isTagged(...)`.
 6. Boundary recovery paths use `Effect.catchCause` / `Effect.matchCauseEffect` plus `Cause.pretty(...)` or `Cause.prettyErrors(...)`.
-7. Direct-return or reusable matchers use `Match.type<T>().pipe(...)` / `Match.tags(...)`, not `Match.value(...)`.
+7. Process entrypoints do not wrap the root effect in `catchCause` just to set `process.exitCode`; use `BunRuntime.runMain` / `NodeRuntime.runMain` teardown.
+8. Direct-return or reusable matchers use `Match.type<T>().pipe(...)` / `Match.tags(...)`, not `Match.value(...)`.

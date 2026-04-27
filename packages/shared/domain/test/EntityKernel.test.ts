@@ -9,6 +9,7 @@ import * as EntityBarrel from "@beep/shared-domain/entity/index";
 import * as Principal from "@beep/shared-domain/entity/Principal";
 import * as primitives from "@beep/shared-domain/entity/primitives";
 import * as SourceKind from "@beep/shared-domain/entity/SourceKind";
+import * as Shared from "@beep/shared-domain/identity/Shared";
 import { describe, expect, it } from "@effect/vitest";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -88,7 +89,7 @@ const ReplacementNoteMixin = EntityMixin.make($I`ReplacementNoteMixin`)(
 const NotePack = EntityMixin.pack(NoteMixin, OptionalMixin);
 
 describe("EntityId", () => {
-  it("decodes PostgreSQL serial ids and rejects invalid ids", () => {
+  it("decodes generated entity ids and rejects invalid ids", () => {
     const decode = S.decodeUnknownSync(EntityId.EntityIdValue);
 
     expect(decode(1)).toBe(1);
@@ -242,9 +243,7 @@ describe("BaseEntity", () => {
   it("extends without mixins and exposes generated variant statics", () => {
     const Document = BaseEntity.BaseEntity.extend<Document>($I`Document`)(
       DocumentId,
-      {
-        title: S.String,
-      },
+      {},
       $I.annote("Document", {
         description: "Document entity.",
       })
@@ -254,14 +253,11 @@ describe("BaseEntity", () => {
     expect(Document.definition.mixins.fieldKeys).toEqual([]);
     expect(Document.definition.fieldMap.id.description).toBe("Primary key for SharedDocument.");
     expect(Document.fields.id).toBe(DocumentId);
-    expect(Document.fields.title).toBe(S.String);
     expect(Document.fields.entityType).toBeDefined();
   });
 
-  it("extends with mixins, variant structs, and explicit overrides", () => {
-    const struct = VariantStruct({
-      title: Model.GeneratedByApp(S.String),
-    });
+  it("extends with mixins and empty variant structs", () => {
+    const struct = VariantStruct({});
 
     const Document = BaseEntity.BaseEntity.extend<Document>($I`DocumentWithMixins`)(
       DocumentId,
@@ -275,33 +271,54 @@ describe("BaseEntity", () => {
     expect(Document.definition.mixins).toBe(NotePack);
     expect(Document.definition.fieldMap.note.columnName).toBe("note");
     expect(Document.fields.note).toBe(S.String);
-    expect(Document.fields.title).toBe(S.String);
   });
 
-  it("extends with explicit entity-field overrides", () => {
-    const Document = BaseEntity.BaseEntity.extend<Document>($I`DocumentWithOverrides`)(
-      DocumentId,
-      NotePack,
+  it("rejects entity-specific fields without EntityMixin descriptor metadata", () => {
+    const extendWithDirectFields = () =>
+      BaseEntity.BaseEntity.extend<Document>($I`DocumentWithDirectFields`)(
+        DocumentId,
+        NotePack,
+        {
+          title: Model.GeneratedByApp(S.String),
+        },
+        $I.annote("DocumentWithDirectFields", {
+          description: "Document entity with direct fields.",
+        })
+      );
+
+    expect(extendWithDirectFields).toThrow(BaseEntity.EntitySpecificFieldsUnsupportedError);
+
+    try {
+      extendWithDirectFields();
+    } catch (error) {
+      if (S.is(BaseEntity.EntitySpecificFieldsUnsupportedError)(error)) {
+        expect(error.message).toBe(
+          "BaseEntity entity-specific fields are not persisted without EntityMixin descriptors: title. Define persisted fields through EntityMixin.make(...)."
+        );
+      }
+    }
+  });
+
+  it("fails on mixin field collisions without explicit overrides", () => {
+    const OrgIdMixin = EntityMixin.make($I`OrgIdMixin`)(
       {
-        note: EntityMixin.Override(S.Boolean, "Entity owns the note field."),
-        title: Model.GeneratedByApp(S.String),
+        orgId: Shared.OrganizationId,
       },
-      $I.annote("DocumentWithOverrides", {
-        description: "Document entity with explicit field overrides.",
-      })
+      {
+        description: "Conflicts with BaseEntity org id.",
+        fields: {
+          orgId: {
+            columnName: "org_id_override",
+            description: "Conflicting organization id.",
+            nullable: false,
+            storageKind: "entityId",
+            valueStrategy: "provided",
+          },
+        },
+      }
     );
-
-    expect(Document.definition.mixins).toBe(NotePack);
-    expect(Document.definition.fieldMap.note.columnName).toBe("note");
-    expect(Document.fields.note).toBe(S.Boolean);
-    expect(Document.fields.title).toBe(S.String);
-  });
-
-  it("fails on entity field collisions without explicit overrides", () => {
     const collide = () =>
-      BaseEntity.BaseEntity.extend($I`DocumentCollision`)(DocumentId, NotePack, {
-        note: S.String,
-      });
+      BaseEntity.BaseEntity.extend($I`DocumentCollision`)(DocumentId, EntityMixin.pack(OrgIdMixin), {});
 
     expect(collide).toThrow(BaseEntity.FieldCollisionError);
 
@@ -310,7 +327,7 @@ describe("BaseEntity", () => {
     } catch (error) {
       if (S.is(BaseEntity.FieldCollisionError)(error)) {
         expect(error.message).toBe(
-          'BaseEntity field collision for "note" while merging entity-specific fields. Use EntityMixin.Override to make it explicit.'
+          'BaseEntity field collision for "orgId" while merging EntityMixin fields. Use EntityMixin.Override to make it explicit.'
         );
       }
     }
