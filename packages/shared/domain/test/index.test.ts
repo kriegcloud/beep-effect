@@ -1,24 +1,28 @@
-import { Model } from "@beep/schema";
-import { DomainModel, Errors } from "@beep/shared-domain";
+import { Entities, Errors } from "@beep/shared-domain";
 import { describe, expect, it } from "vitest";
 
 describe("@beep/shared-domain", () => {
-  it("exports the canonical domain model default fields", () => {
-    expect(Object.keys(DomainModel.defaultFields)).toEqual([
+  it("exports Organization with inherited domain model variants", () => {
+    expect(Object.keys(Entities.Organization.Model.select.fields).sort()).toEqual([
       "createdAt",
-      "updatedAt",
-      "deletedAt",
       "createdBy",
-      "updatedBy",
+      "deletedAt",
       "deletedBy",
-      "version",
+      "id",
       "source",
+      "updatedAt",
+      "updatedBy",
+      "version",
     ]);
-  });
-
-  it("uses millis-backed date fields for the shared model defaults", () => {
-    expect(DomainModel.defaultFields.createdAt).toBe(Model.DateTimeInsertFromNumber);
-    expect(DomainModel.defaultFields.updatedAt).toBe(Model.DateTimeUpdateFromNumber);
+    expect(Object.keys(Entities.Organization.Model.insert.fields).sort()).toEqual([
+      "createdAt",
+      "createdBy",
+      "deletedAt",
+      "deletedBy",
+      "source",
+      "updatedAt",
+      "updatedBy",
+    ]);
   });
 
   it("exports canonical postgres error-code lookups", () => {
