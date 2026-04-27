@@ -34,6 +34,7 @@ actually lives here.
 - `knowledge-workspace`
 - `law-kg-prd`
 - `repo-codegraph-jsdoc`
+- `repo-architecture-convergence`
 - `repo-expert-memory-local-first-v0`
 - `trustgraph-doc-ontology`
 - `trustgraph-port`
