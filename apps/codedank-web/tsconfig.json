@@ -47,6 +47,9 @@
     },
     {
       "path": "../../packages/common/utils/tsconfig.json"
+    },
+    {
+      "path": "../../tooling/repo-utils/tsconfig.json"
     }
   ]
 }

@@ -106,5 +106,18 @@ export const toFileUrl = (path: string): Effect.Effect<URL, PlatformError.BadArg
       }),
   });
 
-
+/**
+ * Converts a `file:` URL back into a platform path string.
+ *
+ * @example
+ * ```ts
+ * import { fileURLToPath } from "@beep/utils/NodeUrl"
+ *
+ * const path = fileURLToPath(new URL("file:///tmp/beep.txt"))
+ * void path
+ * ```
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
 export const fileURLToPath = NodeUrl.fileURLToPath;

@@ -1,6 +1,19 @@
+/**
+ * Home page for the codedank web app.
+ *
+ * @since 0.0.0
+ * @module
+ */
+
 import { Button } from "@beep/ui/components/ui/button";
 import Image from "next/image";
 
+/**
+ * Renders the starter landing page for codedank web.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export default function Home() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">

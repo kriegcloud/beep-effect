@@ -1,5 +1,18 @@
+/**
+ * Web app manifest for the codedank web app shell.
+ *
+ * @since 0.0.0
+ * @module
+ */
+
 import type { MetadataRoute } from "next";
 
+/**
+ * Returns the static web manifest for codedank web.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "codedank-web",

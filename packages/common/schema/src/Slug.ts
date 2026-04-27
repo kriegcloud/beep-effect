@@ -18,7 +18,7 @@
 import { $SchemaId } from "@beep/identity/packages";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import { Str } from "@beep/utils";
+import * as Str from "effect/String";
 
 const $I = $SchemaId.create("Slug");
 const slugAllowedCharactersPattern = /^[a-z0-9-]+$/;
@@ -95,5 +95,10 @@ export const Slug = S.NonEmptyString.check(SlugChecks).pipe(
  */
 export type Slug = typeof Slug.Type;
 
-
-export const SlugFromStr = S.NonEmptyString
+/**
+ * Non-empty string schema used as the source input for {@link Slug}.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const SlugFromStr = S.NonEmptyString;

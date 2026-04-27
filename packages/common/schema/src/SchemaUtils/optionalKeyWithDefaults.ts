@@ -1,7 +1,8 @@
 /**
- * Contains a helper schama to create a S.Struct.Field property which is
- * optional and has defaults
+ * Contains a helper schema to create an `S.Struct.Field` property that is
+ * optional and has defaults.
  *
+ * @since 0.0.0
  * @module
  */
 import { Effect, SchemaGetter } from "effect";
@@ -14,7 +15,7 @@ import * as S from "effect/Schema";
  * Replaces `S.optionalWith(schema, { exact: true, default: () => val })` in v4.
  *
  * @since 0.0.0
- * @category Utilities
+ * @category utilities
  */
 export const optionalKeyWithDefault: {
   <S extends S.Top>(schema: S, defaultValue: S["Type"]): S.decodeTo<S.toType<S>, S.optionalKey<S>>;

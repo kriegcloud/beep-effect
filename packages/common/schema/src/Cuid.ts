@@ -1,11 +1,23 @@
-// import { sha512 } from "./_sha.js";
-import {RandomValues} from "@beep/utils";
-import {DateTimes} from "@beep/utils/DateTime";
-import {Context, Effect, Layer, Schema} from "effect";
+/**
+ * CUID schema and deterministic seed services.
+ *
+ * @since 0.0.0
+ * @module
+ */
 
-export const sha512 = (data: BufferSource) => Effect.promise(() => crypto.subtle.digest("SHA-512",
-  data,
-).then((buffer) => new Uint8Array(buffer)));
+// import { sha512 } from "./_sha.js";
+import { RandomValues } from "@beep/utils";
+import { DateTimes } from "@beep/utils/DateTime";
+import { Context, Effect, Layer, Schema } from "effect";
+
+/**
+ * Produces a SHA-512 digest for the provided buffer source.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const sha512 = (data: BufferSource) =>
+  Effect.promise(() => crypto.subtle.digest("SHA-512", data).then((buffer) => new Uint8Array(buffer)));
 
 // Constants
 const DEFAULT_LENGTH = 24;
@@ -13,16 +25,40 @@ const BIG_LENGTH = 32;
 const INITIAL_COUNT_MAX = 476782367;
 
 // Schema
+/**
+ * Branded schema for canonical CUID strings.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
 export const Cuid = Schema.String.pipe(
-  Schema.check(Schema.isPattern(
-    /^[a-z][0-9a-z]+$/)),
-  Schema.brand("@typed/id/CUID"),
+  Schema.check(Schema.isPattern(/^[a-z][0-9a-z]+$/)),
+  Schema.brand("@typed/id/CUID")
 );
+
+/**
+ * Type for {@link Cuid}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type Cuid = Schema.Schema.Type<typeof Cuid>;
 
+/**
+ * Type guard for {@link Cuid}.
+ *
+ * @category predicates
+ * @since 0.0.0
+ */
 export const isCuid: (value: string) => value is Cuid = Schema.is(Cuid);
 
 // Types
+/**
+ * Seed data used to produce a deterministic CUID value.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export type CuidSeed = {
   readonly timestamp: number;
   readonly counter: number;
@@ -30,50 +66,57 @@ export type CuidSeed = {
   readonly fingerprint: string;
 };
 
-export class CuidState extends Context.Service<CuidState>()("@typed/id/CuidState",
-  {
-    make: Effect.fn("CuidState.make")(function* (envData: string) {
-      const {now} = yield* DateTimes;
-      const getRandomValues = yield* RandomValues;
-      const initialBytes = yield* getRandomValues(4);
-      const initialValue = Math.abs((initialBytes[0] << 24) | (initialBytes[1] << 16) | (initialBytes[2] << 8) | initialBytes[3]) % INITIAL_COUNT_MAX;
+/**
+ * Service that produces deterministic CUID seeds.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/CuidState", {
+  make: Effect.fn("CuidState.make")(function* (envData: string) {
+    const { now } = yield* DateTimes;
+    const getRandomValues = yield* RandomValues;
+    const initialBytes = yield* getRandomValues(4);
+    const initialValue =
+      Math.abs((initialBytes[0] << 24) | (initialBytes[1] << 16) | (initialBytes[2] << 8) | initialBytes[3]) %
+      INITIAL_COUNT_MAX;
 
-      // Create fingerprint from environment data
-      const fingerprint = (yield* hash(envData)).substring(0, BIG_LENGTH);
+    // Create fingerprint from environment data
+    const fingerprint = (yield* hash(envData)).substring(0, BIG_LENGTH);
 
-      let counter = initialValue;
+    let counter = initialValue;
 
-      return Effect.gen(function* () {
-        const timestamp = yield* now;
-        const random = yield* getRandomValues(32);
-        return {
-          timestamp,
-          counter: counter++,
-          random,
-          fingerprint,
-        } satisfies CuidSeed;
-      });
-    }),
-  },
-) {
+    const nextSeed = Effect.gen(function* () {
+      const timestamp = yield* now;
+      const random = yield* getRandomValues(32);
+      return {
+        timestamp,
+        counter: counter++,
+        random,
+        fingerprint,
+      } satisfies CuidSeed;
+    });
+
+    return yield* Effect.succeed(nextSeed);
+  }),
+}) {
   static readonly next = Effect.flatten(CuidState.asEffect());
 
-  static readonly Default = Layer.effect(CuidState, CuidState.make("node"))
-    .pipe(Layer.provideMerge([
-      DateTimes.Default,
-      RandomValues.Default,
-    ]));
+  static readonly Default = Layer.effect(CuidState, CuidState.make("node")).pipe(
+    Layer.provideMerge([DateTimes.Default, RandomValues.Default])
+  );
 }
 
-export const cuid: Effect.Effect<Cuid, never, CuidState> = Effect.flatMap(CuidState.next,
-  cuidFromSeed,
-);
+/**
+ * Effect that generates a branded {@link Cuid}.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const cuid: Effect.Effect<Cuid, never, CuidState> = Effect.flatMap(CuidState.next, cuidFromSeed);
 
 // Utilities
-const ALPHABET = Array.from(
-  {length: 26},
-  (_, i) => String.fromCharCode(i + 97),
-);
+const ALPHABET = Array.from({ length: 26 }, (_, i) => String.fromCharCode(i + 97));
 const encoder = new TextEncoder();
 
 function createEntropy(length: number, random: Uint8Array): string {
@@ -101,12 +144,7 @@ function hash(input: string): Effect.Effect<string> {
   });
 }
 
-function cuidFromSeed({
-  counter,
-  fingerprint,
-  random,
-  timestamp,
-}: CuidSeed): Effect.Effect<Cuid> {
+function cuidFromSeed({ counter, fingerprint, random, timestamp }: CuidSeed): Effect.Effect<Cuid> {
   return Effect.gen(function* () {
     // First letter is always a random lowercase letter from the seed
     const firstLetter = ALPHABET[random[0] % ALPHABET.length];

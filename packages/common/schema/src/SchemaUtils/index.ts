@@ -9,6 +9,11 @@
  * @since 0.0.0
  * @category Utility
  */
+export * from "./optionalKeyWithDefaults.ts";
+/**
+ * @since 0.0.0
+ * @category Utility
+ */
 export * from "./pluck.ts";
 /**
  * @since 0.0.0
@@ -40,8 +45,3 @@ export * from "./withLiteralKitStatics.ts";
  * @category Utility
  */
 export * from "./withStatics.ts";
-/**
- * @since 0.0.0
- * @category Utility
- */
-export * from "./optionalKeyWithDefaults.ts";

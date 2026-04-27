@@ -4,37 +4,32 @@
  * @since 0.0.0
  * @module
  */
-import {$SchemaId} from "@beep/identity";
-import {Effect, SchemaIssue, SchemaTransformation} from "effect";
+import { $SchemaId } from "@beep/identity";
+import { Effect, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
-import {LiteralKit} from "../../LiteralKit.ts";
+import { LiteralKit } from "../../LiteralKit.ts";
 import * as SchemaUtils from "../../SchemaUtils/index.ts";
 import * as internal from "./_internal/index.ts";
-import {
-  type SecureHeaderError,
-  XssProtectionError,
-} from "./SecureHeaderError.ts";
+import { type SecureHeaderError, XssProtectionError } from "./SecureHeaderError.ts";
 
 const $I = $SchemaId.create("http/headers/XSSProtection");
 
 const headerName = "X-XSS-Protection" as const;
 
-const XSSProtectionModeBase = LiteralKit([
-  "sanitize",
-  "block-rendering",
-]);
+const XSSProtectionModeBase = LiteralKit(["sanitize", "block-rendering"]);
 
 /**
  * @since 0.0.0
  */
-export const XSSProtectionMode = XSSProtectionModeBase.pipe($I.annoteSchema("XSSProtectionMode",
-  {
+export const XSSProtectionMode = XSSProtectionModeBase.pipe(
+  $I.annoteSchema("XSSProtectionMode", {
     description: "The direct `X-XSS-Protection` policy modes.",
-  },
-), SchemaUtils.withLiteralKitStatics(XSSProtectionModeBase));
+  }),
+  SchemaUtils.withLiteralKitStatics(XSSProtectionModeBase)
+);
 
 /**
  * @since 0.0.0
@@ -44,26 +39,23 @@ export type XSSProtectionMode = typeof XSSProtectionMode.Type;
 /**
  * @since 0.0.0
  */
-export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig>(
-  $I`XSSProtectionReportConfig`)(
+export class XSSProtectionReportConfig extends S.Class<XSSProtectionReportConfig>($I`XSSProtectionReportConfig`)(
   {
     uri: internal.StringOrUrl,
   },
   $I.annote("XSSProtectionReportConfig", {
     description: "Configuration for the `X-XSS-Protection` report mode.",
-  }),
-) {
-}
+  })
+) {}
 
 /**
  * @since 0.0.0
  */
-export const XSSProtectionReport = S.Tuple([
-  S.Literal("report"),
-  XSSProtectionReportConfig,
-]).pipe($I.annoteSchema("XSSProtectionReport", {
-  description: "Tuple form used to configure `X-XSS-Protection` report mode.",
-}));
+export const XSSProtectionReport = S.Tuple([S.Literal("report"), XSSProtectionReportConfig]).pipe(
+  $I.annoteSchema("XSSProtectionReport", {
+    description: "Tuple form used to configure `X-XSS-Protection` report mode.",
+  })
+);
 
 /**
  * @since 0.0.0
@@ -73,13 +65,11 @@ export type XSSProtectionReport = typeof XSSProtectionReport.Type;
 /**
  * @since 0.0.0
  */
-export const XSSProtectionOption = S.Union([
-  S.Literal(false),
-  XSSProtectionMode,
-  XSSProtectionReport,
-]).pipe($I.annoteSchema("XSSProtectionOption", {
-  description: "The supported `X-XSS-Protection` option values.",
-}));
+export const XSSProtectionOption = S.Union([S.Literal(false), XSSProtectionMode, XSSProtectionReport]).pipe(
+  $I.annoteSchema("XSSProtectionOption", {
+    description: "The supported `X-XSS-Protection` option values.",
+  })
+);
 
 /**
  * @since 0.0.0
@@ -89,31 +79,30 @@ export type XSSProtectionOption = typeof XSSProtectionOption.Type;
 /**
  * @since 0.0.0
  */
-export class XSSProtectionResponseHeader extends S.Class<XSSProtectionResponseHeader>(
-  $I`XSSProtectionResponseHeader`)(
+export class XSSProtectionResponseHeader extends S.Class<XSSProtectionResponseHeader>($I`XSSProtectionResponseHeader`)(
   {
     name: S.tag(headerName),
     value: S.OptionFromUndefinedOr(S.String),
   },
   $I.annote("XSSProtectionResponseHeader", {
     description: "The `X-XSS-Protection` response header.",
-  }),
-) {
-}
+  })
+) {}
 
 type XSSProtectionResponseHeaderEncoded = typeof XSSProtectionResponseHeader.Encoded;
 
-const encodeReportUri = (value: internal.StringOrUrl): Effect.Effect<string, XssProtectionError> => Effect.try(
-  {
+const encodeReportUri = (value: internal.StringOrUrl): Effect.Effect<string, XssProtectionError> =>
+  Effect.try({
     try: () => internal.encodeStrictURI(value),
-    catch: () => new XssProtectionError({
-      message: `Invalid value for ${headerName}: ${String(value)}`,
-      cause: O.none(),
-    }),
+    catch: () =>
+      new XssProtectionError({
+        message: `Invalid value for ${headerName}: ${String(value)}`,
+        cause: O.none(),
+      }),
   });
 
-const formatXSSProtectionValue = (option: undefined | XSSProtectionOption): Effect.Effect<string, XssProtectionError> => Effect.gen(
-  function* () {
+const formatXSSProtectionValue = (option: undefined | XSSProtectionOption): Effect.Effect<string, XssProtectionError> =>
+  Effect.gen(function* () {
     if (P.isUndefined(option) || option === "sanitize") {
       return "1";
     }
@@ -141,39 +130,40 @@ const formatXSSProtectionValue = (option: undefined | XSSProtectionOption): Effe
 /**
  * @since 0.0.0
  */
-export const XSSProtectionHeader = S.Union([
-  XSSProtectionOption,
-  S.Undefined,
-])
-  .pipe(S.decodeTo(
+export const XSSProtectionHeader = S.Union([XSSProtectionOption, S.Undefined]).pipe(
+  S.decodeTo(
     XSSProtectionResponseHeader,
     SchemaTransformation.transformOrFail({
-      decode: Effect.fnUntraced(function* (input): Effect.fn.Return<XSSProtectionResponseHeaderEncoded, SchemaIssue.Issue> {
-        return yield* formatXSSProtectionValue(input)
-          .pipe(
-            Effect.map((value) => ({
-              name: headerName,
-              value,
-            })),
-            Effect.mapError((error) => new SchemaIssue.InvalidValue(
-              O.some(error),
-              {message: error.message},
-            )),
-          )
+      decode: Effect.fnUntraced(function* (input): Effect.fn.Return<
+        XSSProtectionResponseHeaderEncoded,
+        SchemaIssue.Issue
+      > {
+        return yield* formatXSSProtectionValue(input).pipe(
+          Effect.map((value) => ({
+            name: headerName,
+            value,
+          })),
+          Effect.mapError((error) => new SchemaIssue.InvalidValue(O.some(error), { message: error.message }))
+        );
       }),
       encode: internal.makeHeaderEncodeForbidden("XSSProtectionHeader"),
-    }),
-  ), $I.annoteSchema("XSSProtectionHeader", {
+    })
+  ),
+  $I.annoteSchema("XSSProtectionHeader", {
     description: "A one-way schema that decodes `X-XSS-Protection` options into the response header.",
-  }), SchemaUtils.withStatics(() => {
-    const createValue: (option?: undefined | XSSProtectionOption) => Effect.Effect<O.Option<string>, SecureHeaderError> = Effect.fnUntraced(
-      function* (option?: undefined | XSSProtectionOption) {
-        return O.some(yield* formatXSSProtectionValue(option));
-      });
+  }),
+  SchemaUtils.withStatics(() => {
+    const createValue: (
+      option?: undefined | XSSProtectionOption
+    ) => Effect.Effect<O.Option<string>, SecureHeaderError> = Effect.fnUntraced(function* (
+      option?: undefined | XSSProtectionOption
+    ) {
+      return O.some(yield* formatXSSProtectionValue(option));
+    });
 
     const create = Effect.fnUntraced(function* (
       option?: undefined | XSSProtectionOption,
-      headerValueCreator: typeof createValue = createValue,
+      headerValueCreator: typeof createValue = createValue
     ): Effect.fn.Return<O.Option<internal.ResponseHeader>, SecureHeaderError> {
       const value = yield* headerValueCreator(option);
 
@@ -184,7 +174,8 @@ export const XSSProtectionHeader = S.Union([
       createValue,
       create,
     };
-  }));
+  })
+);
 
 /**
  * @since 0.0.0

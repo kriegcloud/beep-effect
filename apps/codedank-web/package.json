@@ -57,12 +57,12 @@
     "react-dom": "catalog:"
   },
   "devDependencies": {
+    "@beep/repo-utils": "workspace:^",
     "@effect/vitest": "catalog:",
     "@mdx-js/loader": "catalog:",
     "@next/bundle-analyzer": "catalog:",
     "@next/mdx": "catalog:",
     "@tailwindcss/postcss": "catalog:",
-    "@beep/repo-utils": "workspace:^",
     "@testing-library/dom": "catalog:",
     "@testing-library/react": "catalog:",
     "@types/mdx": "catalog:",

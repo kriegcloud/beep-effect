@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 
-import { DateTime } from "effect";
+import { Clock, Context, DateTime, Effect, Layer } from "effect";
 
 /**
  * Constructs a `DateTime.Utc` from any supported `DateTime` input.
@@ -34,12 +34,20 @@ export const makeUnsafeUtc = <A extends Parameters<typeof DateTime.make>[0]>(inp
  */
 export * from "effect/DateTime";
 
-import * as Clock from "effect/Clock";
-import * as Effect from "effect/Effect";
-import * as Layer from "effect/Layer";
-import * as Context from "effect/Context";
-
-export class DateTimes extends Context.Service<DateTimes>()("@typed/id/DateTimes", {
+/**
+ * Time service with live and fixed clock-backed helpers.
+ *
+ * @example
+ * ```ts
+ * import { DateTimes } from "@beep/utils/DateTime"
+ *
+ * void DateTimes.Default
+ * ```
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export class DateTimes extends Context.Service<DateTimes>()("@beep/utils/DateTime/DateTimes", {
   make: Effect.succeed({
     now: Effect.sync(() => Date.now()),
     date: Effect.sync(() => new Date()),
@@ -61,12 +69,12 @@ export class DateTimes extends Context.Service<DateTimes>()("@typed/id/DateTimes
         const now = clock.currentTimeMillis.pipe(
           Effect.map((millis) =>
             // Use BigInt to avoid floating point precision issues which can break deterministic testing
-            Number(baseN + BigInt(millis) - BigInt(startMillis)),
-          ),
+            Number(baseN + BigInt(millis) - BigInt(startMillis))
+          )
         );
         const date = now.pipe(Effect.map((millis) => new Date(millis)));
 
         return DateTimes.of({ now, date });
-      }),
+      })
     );
 }

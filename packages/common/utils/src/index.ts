@@ -74,6 +74,13 @@ export * as O from "./Option.ts";
  */
 export * as P from "./Predicate.ts";
 /**
+ *
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export * from "./Random.ts";
+/**
  * String utilities extending `effect/String` with typed case conversions.
  *
  * @category utilities
@@ -108,11 +115,3 @@ export * as Text from "./Text.ts";
  * @since 0.0.0
  */
 export * from "./thunk.ts";
-
-/**
- *
- *
- * @category utilities
- * @since 0.0.0
- */
-export * from "./Random.ts";
