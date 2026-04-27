@@ -155,7 +155,7 @@ model has a validator.
   contract everywhere.
 
 - Split P2 into named batches before kickoff. Suggested lanes:
-  workspace/path/metadata, identity/scaffolder, docgen/repo-checks,
+  workspace/path/metadata, identity/generator, docgen/repo-checks,
   app-entrypoint prep, config-sync/root tooling, agent-root routing, and
   Layer-composition prep.
 

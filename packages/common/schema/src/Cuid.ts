@@ -116,7 +116,8 @@ export class CuidState extends Context.Service<CuidState>()("@beep/schema/Cuid/C
 export const cuid: Effect.Effect<Cuid, never, CuidState> = Effect.flatMap(CuidState.next, cuidFromSeed);
 
 // Utilities
-const ALPHABET = Array.from({ length: 26 }, (_, i) => String.fromCharCode(i + 97));
+const ALPHABET_LENGTH = 26;
+const ALPHABET_START_CODE = 97;
 const encoder = new TextEncoder();
 
 function createEntropy(length: number, random: Uint8Array): string {
@@ -147,7 +148,7 @@ function hash(input: string): Effect.Effect<string> {
 function cuidFromSeed({ counter, fingerprint, random, timestamp }: CuidSeed): Effect.Effect<Cuid> {
   return Effect.gen(function* () {
     // First letter is always a random lowercase letter from the seed
-    const firstLetter = ALPHABET[random[0] % ALPHABET.length];
+    const firstLetter = String.fromCharCode((random[0] % ALPHABET_LENGTH) + ALPHABET_START_CODE);
 
     // Convert components to base36
     const time = timestamp.toString(36);

@@ -5,6 +5,8 @@
  * @module
  */
 
+import * as P from "effect/Predicate";
+
 const unsafeHrefProtocolPattern = /^(?:javascript|vbscript|data):/i;
 const ignoredProtocolCharactersPattern = /[\u0000-\u001f\u007f\s]+/g;
 const htmlCharacterReferencePattern = /&(?:#(\d+);?|#x([\da-f]+);?|(colon|tab|newline);?)/gi;
@@ -21,18 +23,18 @@ const decodeHtmlCharacterReferences = (value: string): string =>
   value.replace(
     htmlCharacterReferencePattern,
     (match: string, decimal: string | undefined, hexadecimal: string | undefined, named: string | undefined) => {
-      if (typeof named === "string") {
+      if (P.isString(named)) {
         const normalizedNamed = named.toLowerCase();
         const namedCodePoint = normalizedNamed === "tab" ? 9 : normalizedNamed === "newline" ? 10 : 58;
         return toCodePointString(namedCodePoint);
       }
 
-      const numericValue = typeof hexadecimal === "string" ? hexadecimal : decimal;
-      if (typeof numericValue !== "string") {
+      const numericValue = P.isString(hexadecimal) ? hexadecimal : decimal;
+      if (!P.isString(numericValue)) {
         return match;
       }
 
-      const radix = typeof hexadecimal === "string" ? 16 : 10;
+      const radix = P.isString(hexadecimal) ? 16 : 10;
       const codePoint = globalThis.Number.parseInt(numericValue, radix);
 
       return isValidCodePoint(codePoint) ? globalThis.String.fromCodePoint(codePoint) : match;

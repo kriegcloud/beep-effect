@@ -5,7 +5,7 @@
  * @since 0.0.0
  */
 import { $ChalkId } from "@beep/identity/packages";
-import { Number as N, pipe } from "effect";
+import { flow, Number as N, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -56,18 +56,16 @@ const disabledBrowserSupport = false as const;
 
 const chromeUserAgentPattern = /\b(Chrome|Chromium)\//;
 
-const findChromiumBrand = (browserNavigator: Navigator): O.Option<BrowserBrand> =>
-  pipe(
-    browserNavigator,
-    O.liftPredicate(hasUserAgentData),
-    O.flatMap((navigatorWithUserAgentData) =>
-      pipe(
-        navigatorWithUserAgentData.userAgentData?.brands,
-        O.fromNullishOr,
-        O.flatMap(A.findFirst(({ brand }) => brand === "Chromium"))
-      )
+const findChromiumBrand: (browserNavigator: Navigator) => O.Option<BrowserBrand> = flow(
+  O.liftPredicate(hasUserAgentData),
+  O.flatMap((navigatorWithUserAgentData) =>
+    pipe(
+      navigatorWithUserAgentData.userAgentData?.brands,
+      O.fromNullishOr,
+      O.flatMap(A.findFirst(({ brand }) => brand === "Chromium"))
     )
-  );
+  )
+);
 
 const isSupportedChromiumBrand = (browserBrand: BrowserBrand): boolean =>
   pipe(browserBrand.version, N.parse, O.exists(N.isGreaterThan(93)));

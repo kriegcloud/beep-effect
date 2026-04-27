@@ -48,9 +48,12 @@ export * from "effect/DateTime";
  * @since 0.0.0
  */
 export class DateTimes extends Context.Service<DateTimes>()("@beep/utils/DateTime/DateTimes", {
-  make: Effect.succeed({
-    now: Effect.sync(() => Date.now()),
-    date: Effect.sync(() => new Date()),
+  make: Effect.clockWith((clock) => {
+    const now = clock.currentTimeMillis;
+    const dateTime = now.pipe(Effect.map(DateTime.makeUnsafe));
+    const date = dateTime.pipe(Effect.map(DateTime.toDateUtc));
+
+    return Effect.succeed({ now, date });
   }),
 }) {
   static readonly now = Effect.flatMap(DateTimes.asEffect(), ({ now }) => now);
@@ -63,8 +66,7 @@ export class DateTimes extends Context.Service<DateTimes>()("@beep/utils/DateTim
       DateTimes,
       Effect.gen(function* () {
         const clock = yield* Clock.Clock;
-        const base = new Date(baseDate);
-        const baseN = BigInt(base.getTime());
+        const baseN = BigInt(makeUnsafeUtc(baseDate).pipe(DateTime.toEpochMillis));
         const startMillis = yield* clock.currentTimeMillis;
         const now = clock.currentTimeMillis.pipe(
           Effect.map((millis) =>
@@ -72,7 +74,7 @@ export class DateTimes extends Context.Service<DateTimes>()("@beep/utils/DateTim
             Number(baseN + BigInt(millis) - BigInt(startMillis))
           )
         );
-        const date = now.pipe(Effect.map((millis) => new Date(millis)));
+        const date = now.pipe(Effect.map((millis) => DateTime.makeUnsafe(millis).pipe(DateTime.toDateUtc)));
 
         return DateTimes.of({ now, date });
       })

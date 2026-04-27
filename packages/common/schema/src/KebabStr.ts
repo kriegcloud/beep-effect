@@ -38,7 +38,7 @@ export const KebabCaseStr = NonEmptyTrimmedStr.pipe(
 );
 
 /**
- * Type for {@link KebabCaseStr}. {@inheritDoc KebabCaseStr}
+ * Type for {@link KebabCaseStr}.
  *
  * @example
  * ```ts

@@ -39,7 +39,7 @@ export const HtmlFragment = S.String.pipe(
 );
 
 /**
- * Type for {@link HtmlFragment}. {@inheritDoc HtmlFragment}
+ * Type for {@link HtmlFragment}.
  *
  * @example
  * ```ts

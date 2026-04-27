@@ -271,13 +271,11 @@ const detectFlagForceColor = (argv: ReadonlyArray<string>): O.Option<ColorSuppor
     O.firstSomeOf
   );
 
-const parseNumericForceColorLevel = (value: string): O.Option<ColorSupportLevel> =>
-  pipe(
-    value,
-    Str.trim,
-    O.liftPredicate(matchesPattern(forceColorIntegerPattern)),
-    O.map((level) => normalizeParsedForceColorLevel(Number.parseInt(level, 10)))
-  );
+const parseNumericForceColorLevel: (value: string) => O.Option<ColorSupportLevel> = flow(
+  Str.trim,
+  O.liftPredicate(matchesPattern(forceColorIntegerPattern)),
+  O.map((level) => normalizeParsedForceColorLevel(Number.parseInt(level, 10)))
+);
 
 const envForceColor = (env: Readonly<Record<string, string | undefined>>): O.Option<ColorSupportLevel> =>
   pipe(

@@ -1,7 +1,7 @@
 /**
  * Effect Schema driven Markdown AST builder.
  *
- * @module @beep/md
+ * @module \@beep/md
  * @since 0.0.0
  */
 

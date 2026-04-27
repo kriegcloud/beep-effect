@@ -1,7 +1,7 @@
 /**
  * Markdown AST render adapters.
  *
- * @module @beep/md/Md.render
+ * @module \@beep/md/Md.render
  * @since 0.0.0
  */
 
@@ -713,7 +713,7 @@ export const DocumentToMarkdown = DocumentSchema.pipe(
 );
 
 /**
- * Type for {@link DocumentToMarkdown}. {@inheritDoc DocumentToMarkdown}
+ * Type for {@link DocumentToMarkdown}.
  *
  * @example
  * ```ts
@@ -755,7 +755,7 @@ export const DocumentToHtmlFragment = DocumentSchema.pipe(
 );
 
 /**
- * Type for {@link DocumentToHtmlFragment}. {@inheritDoc DocumentToHtmlFragment}
+ * Type for {@link DocumentToHtmlFragment}.
  *
  * @example
  * ```ts

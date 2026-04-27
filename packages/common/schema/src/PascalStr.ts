@@ -38,7 +38,7 @@ export const PascalCaseStr = NonEmptyTrimmedStr.pipe(
 );
 
 /**
- * Type for {@link PascalCaseStr}. {@inheritDoc PascalCaseStr}
+ * Type for {@link PascalCaseStr}.
  *
  * @example
  * ```ts

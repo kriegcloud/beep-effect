@@ -1,7 +1,7 @@
 /**
  * Schema-first Markdown document AST models.
  *
- * @module @beep/md/Md.model
+ * @module \@beep/md/Md.model
  * @since 0.0.0
  */
 
@@ -44,7 +44,7 @@ export const Text = S.TaggedStruct("text", {
 );
 
 /**
- * Type for {@link Text}. {@inheritDoc Text}
+ * Type for {@link Text}.
  *
  * @example
  * ```ts
@@ -82,7 +82,7 @@ export const RawMarkdown = S.TaggedStruct("rawMarkdown", {
 );
 
 /**
- * Type for {@link RawMarkdown}. {@inheritDoc RawMarkdown}
+ * Type for {@link RawMarkdown}.
  *
  * @example
  * ```ts
@@ -123,7 +123,7 @@ export const RawHtml = S.TaggedStruct("rawHtml", {
 );
 
 /**
- * Type for {@link RawHtml}. {@inheritDoc RawHtml}
+ * Type for {@link RawHtml}.
  *
  * @example
  * ```ts
@@ -161,7 +161,7 @@ export const Strong: S.Codec<Strong> = S.TaggedStruct("strong", {
 );
 
 /**
- * Type for {@link Strong}. {@inheritDoc Strong}
+ * Type for {@link Strong}.
  *
  * @example
  * ```ts
@@ -202,7 +202,7 @@ export const Em: S.Codec<Em> = S.TaggedStruct("em", {
 );
 
 /**
- * Type for {@link Em}. {@inheritDoc Em}
+ * Type for {@link Em}.
  *
  * @example
  * ```ts
@@ -243,7 +243,7 @@ export const Del: S.Codec<Del> = S.TaggedStruct("del", {
 );
 
 /**
- * Type for {@link Del}. {@inheritDoc Del}
+ * Type for {@link Del}.
  *
  * @example
  * ```ts
@@ -284,7 +284,7 @@ export const Code = S.TaggedStruct("code", {
 );
 
 /**
- * Type for {@link Code}. {@inheritDoc Code}
+ * Type for {@link Code}.
  *
  * @example
  * ```ts
@@ -323,7 +323,7 @@ export const A: S.Codec<A> = S.TaggedStruct("a", {
 );
 
 /**
- * Type for {@link A}. {@inheritDoc A}
+ * Type for {@link A}.
  *
  * @example
  * ```ts
@@ -366,7 +366,7 @@ export const Img = S.TaggedStruct("img", {
 );
 
 /**
- * Type for {@link Img}. {@inheritDoc Img}
+ * Type for {@link Img}.
  *
  * @example
  * ```ts
@@ -402,7 +402,7 @@ export const Br = S.TaggedStruct("br", {}).pipe(
 );
 
 /**
- * Type for {@link Br}. {@inheritDoc Br}
+ * Type for {@link Br}.
  *
  * @example
  * ```ts
@@ -440,7 +440,7 @@ export const Inline: S.Codec<Inline> = S.Union([Text, RawMarkdown, RawHtml, Stro
 );
 
 /**
- * Type for {@link Inline}. {@inheritDoc Inline}
+ * Type for {@link Inline}.
  *
  * @example
  * ```ts
@@ -478,7 +478,7 @@ export const P: S.Codec<P> = S.TaggedStruct("p", {
 );
 
 /**
- * Type for {@link P}. {@inheritDoc P}
+ * Type for {@link P}.
  *
  * @example
  * ```ts
@@ -522,7 +522,7 @@ export const H1: S.Codec<H1> = makeHeadingSchema("h1").pipe(
 );
 
 /**
- * Type for {@link H1}. {@inheritDoc H1}
+ * Type for {@link H1}.
  *
  * @example
  * ```ts
@@ -561,7 +561,7 @@ export const H2: S.Codec<H2> = makeHeadingSchema("h2").pipe(
 );
 
 /**
- * Type for {@link H2}. {@inheritDoc H2}
+ * Type for {@link H2}.
  *
  * @example
  * ```ts
@@ -600,7 +600,7 @@ export const H3: S.Codec<H3> = makeHeadingSchema("h3").pipe(
 );
 
 /**
- * Type for {@link H3}. {@inheritDoc H3}
+ * Type for {@link H3}.
  *
  * @example
  * ```ts
@@ -639,7 +639,7 @@ export const H4: S.Codec<H4> = makeHeadingSchema("h4").pipe(
 );
 
 /**
- * Type for {@link H4}. {@inheritDoc H4}
+ * Type for {@link H4}.
  *
  * @example
  * ```ts
@@ -678,7 +678,7 @@ export const H5: S.Codec<H5> = makeHeadingSchema("h5").pipe(
 );
 
 /**
- * Type for {@link H5}. {@inheritDoc H5}
+ * Type for {@link H5}.
  *
  * @example
  * ```ts
@@ -717,7 +717,7 @@ export const H6: S.Codec<H6> = makeHeadingSchema("h6").pipe(
 );
 
 /**
- * Type for {@link H6}. {@inheritDoc H6}
+ * Type for {@link H6}.
  *
  * @example
  * ```ts
@@ -758,7 +758,7 @@ export const Li: S.Codec<Li> = S.TaggedStruct("li", {
 );
 
 /**
- * Type for {@link Li}. {@inheritDoc Li}
+ * Type for {@link Li}.
  *
  * @example
  * ```ts
@@ -805,7 +805,7 @@ export const Ul: S.Codec<Ul> = S.TaggedStruct("ul", {
 );
 
 /**
- * Type for {@link Ul}. {@inheritDoc Ul}
+ * Type for {@link Ul}.
  *
  * @example
  * ```ts
@@ -846,7 +846,7 @@ export const Ol: S.Codec<Ol> = S.TaggedStruct("ol", {
 );
 
 /**
- * Type for {@link Ol}. {@inheritDoc Ol}
+ * Type for {@link Ol}.
  *
  * @example
  * ```ts
@@ -888,7 +888,7 @@ export const TaskItem: S.Codec<TaskItem> = S.TaggedStruct("taskItem", {
 );
 
 /**
- * Type for {@link TaskItem}. {@inheritDoc TaskItem}
+ * Type for {@link TaskItem}.
  *
  * @example
  * ```ts
@@ -930,7 +930,7 @@ export const TaskList: S.Codec<TaskList> = S.TaggedStruct("taskList", {
 );
 
 /**
- * Type for {@link TaskList}. {@inheritDoc TaskList}
+ * Type for {@link TaskList}.
  *
  * @example
  * ```ts
@@ -971,7 +971,7 @@ export const BlockQuote: S.Codec<BlockQuote> = S.TaggedStruct("blockquote", {
 );
 
 /**
- * Type for {@link BlockQuote}. {@inheritDoc BlockQuote}
+ * Type for {@link BlockQuote}.
  *
  * @example
  * ```ts
@@ -1014,7 +1014,7 @@ export const Pre = S.TaggedStruct("pre", {
 );
 
 /**
- * Type for {@link Pre}. {@inheritDoc Pre}
+ * Type for {@link Pre}.
  *
  * @example
  * ```ts
@@ -1050,7 +1050,7 @@ export const Hr = S.TaggedStruct("hr", {}).pipe(
 );
 
 /**
- * Type for {@link Hr}. {@inheritDoc Hr}
+ * Type for {@link Hr}.
  *
  * @example
  * ```ts
@@ -1103,7 +1103,7 @@ export const Block: S.Codec<Block> = S.Union([
 );
 
 /**
- * Type for {@link Block}. {@inheritDoc Block}
+ * Type for {@link Block}.
  *
  * @example
  * ```ts
@@ -1141,7 +1141,7 @@ export const Document: S.Codec<Document> = S.TaggedStruct("document", {
 );
 
 /**
- * Type for {@link Document}. {@inheritDoc Document}
+ * Type for {@link Document}.
  *
  * @example
  * ```ts

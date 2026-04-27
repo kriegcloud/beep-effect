@@ -12,6 +12,7 @@
 import type { TUnsafe } from "@beep/types";
 import { DateTime, Effect, SchemaGetter as Getter, SchemaTransformation as Transformation } from "effect";
 import type { Brand } from "effect/Brand";
+import { dual } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
@@ -71,12 +72,7 @@ export {
    *
    * export const GroupId = Schema.Number.pipe(Schema.brand("GroupId"))
    *
-   * export class Group extends Model.Class<Group>("Group")({
-   *
-   *
-   *
-   *
-   * }) {}
+   * export class Group extends Model.Class<Group>("Group")({}) {}
    *
    * // schema used for selects
    * Group
@@ -93,11 +89,7 @@ export {
    * Group.jsonUpdate
    *
    * // you can also turn them into classes
-   * class GroupJson extends Schema.Class<GroupJson>("GroupJson")(Group.json) {
-   *
-   *
-   *
-   * }
+   * class GroupJson extends Schema.Class<GroupJson>("GroupJson")(Group.json) {}
    * void GroupJson
    * ```
    */
@@ -110,10 +102,7 @@ export {
    * import * as Schema from "effect/Schema"
    * import * as Model from "@beep/schema/Model"
    *
-   * const fields = Model.Struct({
-   *
-   *
-   * })
+   * const fields = Model.Struct({})
    *
    * const InsertSchema = Model.extract(fields, "insert")
    * void InsertSchema
@@ -131,11 +120,7 @@ export {
    * import * as Schema from "effect/Schema"
    * import * as Model from "@beep/schema/Model"
    *
-   * const status = Model.Field({
-   *
-   *
-   *
-   * })
+   * const status = Model.Field({})
    *
    * void status
    * ```
@@ -184,14 +169,7 @@ export {
    * import * as Schema from "effect/Schema"
    * import * as Model from "@beep/schema/Model"
    *
-   * const makeOptional = Model.fieldEvolve({
-   *
-   *
-   *
-   *
-   *
-   *
-   * })
+   * const makeOptional = Model.fieldEvolve({})
    *
    * void makeOptional
    * ```
@@ -208,10 +186,7 @@ export {
    * import * as Schema from "effect/Schema"
    * import * as Model from "@beep/schema/Model"
    *
-   * const groupFields = Model.Struct({
-   *
-   *
-   * })
+   * const groupFields = Model.Struct({})
    *
    * void groupFields
    * ```
@@ -249,10 +224,7 @@ export {
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * const s = Model.Struct({
- *
- *
- * })
+ * const s = Model.Struct({})
  *
  * const raw = Model.fields(s)
  * void raw
@@ -274,12 +246,7 @@ export const fields: <A extends VariantSchema.Struct<TUnsafe.Any>>(self: A) => A
  *
  * const GroupId = S.Number.pipe(S.brand("GroupId"))
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -320,39 +287,39 @@ export interface Overridable<S extends S.Top & S.WithoutConstructorDefault>
  * @since 0.0.0
  * @category overridable
  */
-export function Overridable<S extends S.Top & S.WithoutConstructorDefault>(
-  schema: S
-): (options: { readonly defaultValue: Effect.Effect<S["~type.make.in"]> }) => Overridable<S>;
-export function Overridable<S extends S.Top & S.WithoutConstructorDefault>(
-  schema: S,
-  options: {
+export const Overridable: {
+  <S extends S.Top & S.WithoutConstructorDefault>(options: {
     readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
-  }
-): Overridable<S>;
-export function Overridable<S extends S.Top & S.WithoutConstructorDefault>(
-  schema: S,
-  options?: {
-    readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
-  }
-): Overridable<S> | ((options: { readonly defaultValue: Effect.Effect<S["~type.make.in"]> }) => Overridable<S>) {
-  if (options === undefined) {
-    return (options) => Overridable(schema, options);
-  }
-  return schema.pipe(
-    S.decodeTo(
-      S.toType(schema).pipe(S.brand("Override"), S.optional),
-      Transformation.make({
-        decode: Getter.passthrough(),
-        encode: new Getter.Getter((o) => {
-          if (O.isSome(o) && o.value !== undefined) {
-            return Effect.succeed(o);
-          }
-          return Effect.asSome(options.defaultValue);
-        }),
-      })
-    )
-  ) as TUnsafe.Any;
-}
+  }): (schema: S) => Overridable<S>;
+  <S extends S.Top & S.WithoutConstructorDefault>(
+    schema: S,
+    options: {
+      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
+    }
+  ): Overridable<S>;
+} = dual(
+  2,
+  <S extends S.Top & S.WithoutConstructorDefault>(
+    schema: S,
+    options: {
+      readonly defaultValue: Effect.Effect<S["~type.make.in"]>;
+    }
+  ): Overridable<S> =>
+    schema.pipe(
+      S.decodeTo(
+        S.toType(schema).pipe(S.brand("Override"), S.optional),
+        Transformation.make({
+          decode: Getter.passthrough(),
+          encode: new Getter.Getter((o) => {
+            if (O.isSome(o) && o.value !== undefined) {
+              return Effect.succeed(o);
+            }
+            return Effect.asSome(options.defaultValue);
+          }),
+        })
+      )
+    ) as TUnsafe.Any
+);
 
 /**
  * Interface for a database-generated field present in `select`, `update`, and `json` variants.
@@ -379,10 +346,7 @@ export interface Generated<S extends S.Top>
  *
  * const GroupId = S.Number.pipe(S.brand("GroupId"))
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -451,11 +415,7 @@ export interface Sensitive<S extends S.Top>
  * import * as S from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class User extends Model.Class<User>("User")({
- *
- *
- *
- * }) {}
+ * class User extends Model.Class<User>("User")({}) {}
  *
  * void User
  * ```
@@ -619,10 +579,7 @@ export interface BooleanSqlite
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Task extends Model.Class<Task>("Task")({
- *
- *
- * }) {}
+ * class Task extends Model.Class<Task>("Task")({}) {}
  *
  * void Task
  * ```
@@ -664,10 +621,7 @@ export interface Date extends S.decodeTo<S.instanceOf<DateTime.Utc>, S.String> {
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Event extends Model.Class<Event>("Event")({
- *
- *
- * }) {}
+ * class Event extends Model.Class<Event>("Event")({}) {}
  *
  * void Event
  * ```
@@ -782,10 +736,7 @@ export interface DateTimeInsert
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -831,10 +782,7 @@ export interface DateTimeInsertFromDate
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -880,10 +828,7 @@ export interface DateTimeInsertFromNumber
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -931,10 +876,7 @@ export interface DateTimeUpdate
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -983,10 +925,7 @@ export interface DateTimeUpdateFromDate
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -1035,10 +974,7 @@ export interface DateTimeUpdateFromNumber
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Group extends Model.Class<Group>("Group")({
- *
- *
- * }) {}
+ * class Group extends Model.Class<Group>("Group")({}) {}
  *
  * void Group
  * ```
@@ -1089,10 +1025,7 @@ export interface JsonFromString<S extends S.Top>
  * import * as Schema from "effect/Schema"
  * import * as Model from "@beep/schema/Model"
  *
- * class Record extends Model.Class<Record>("Record")({
- *
- *
- * }) {}
+ * class Record extends Model.Class<Record>("Record")({}) {}
  *
  * void Record
  * ```
@@ -1188,10 +1121,7 @@ export const UuidV4WithGenerate = <B extends string>(
  *
  * const BlobId = Model.Uint8Array.pipe(Schema.brand("BlobId"))
  *
- * class Blob extends Model.Class<Blob>("Blob")({
- *
- *
- * }) {}
+ * class Blob extends Model.Class<Blob>("Blob")({}) {}
  *
  * void Blob
  * ```

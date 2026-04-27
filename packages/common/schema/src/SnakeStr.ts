@@ -38,7 +38,7 @@ export const SnakeCaseStr = NonEmptyTrimmedStr.pipe(
 );
 
 /**
- * Type for {@link SnakeCaseStr}. {@inheritDoc SnakeCaseStr}
+ * Type for {@link SnakeCaseStr}.
  *
  * @example
  * ```ts

@@ -136,11 +136,11 @@ describe("VariantSchema.Class", () => {
   });
 
   it("exposes override helpers", () => {
-    const overrideable = VariantSchema.Overrideable(S.String, {
+    const overridable = VariantSchema.Overridable(S.String, {
       defaultValue: Effect.succeed("generated"),
     });
 
     expect(VariantSchema.Override("manual")).toBe("manual");
-    expect(S.isSchema(overrideable)).toBe(true);
+    expect(S.isSchema(overridable)).toBe(true);
   });
 });
