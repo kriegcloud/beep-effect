@@ -210,6 +210,11 @@ export * from "./DateTimeUtcFromValid.ts";
  * @since 0.0.0
  * @category Validation
  */
+export * as DomainModel from "./DomainModel.ts";
+/**
+ * @since 0.0.0
+ * @category Validation
+ */
 export * from "./Duration.ts";
 /**
  * @since 0.0.0
@@ -251,11 +256,6 @@ export * from "./location/index.ts";
  * @category Validation
  */
 export * as Model from "./Model.ts";
-/**
- * @since 0.0.0
- * @category Validation
- */
-export * as DomainModel from "./DomainModel.ts";
 /**
  * @since 0.0.0
  * @category Validation

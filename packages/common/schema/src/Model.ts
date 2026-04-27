@@ -100,7 +100,7 @@ export {
    * }
    * void GroupJson
    * ```
-  */
+   */
   Class,
   /**
    * Extract the schema for a specific variant from a variant struct.

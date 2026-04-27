@@ -1,56 +1,99 @@
-import { NonNegativeInt } from "@beep/schema";
+import { DomainModel } from "@beep/schema/DomainModel";
 import * as Model from "@beep/schema/Model";
 import * as VariantSchema from "@beep/schema/VariantSchema";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
-const { Class } = VariantSchema.make({
+const { Class, Field, Struct } = VariantSchema.make({
   variants: ["select", "insert", "update", "json", "jsonCreate", "jsonUpdate"],
   defaultVariant: "select",
 });
-export const defaultFields = {
-  createdAt: Model.DateTimeInsert,
-  updatedAt: Model.DateTimeUpdate,
-  deletedAt: Model.FieldOption(S.DateTimeUtcFromString),
-  createdBy: S.String,
-  updatedBy: S.String,
-  deletedBy: Model.FieldOption(S.String),
-  version: Model.Generated(NonNegativeInt),
-  source: S.NonEmptyString,
+
+const baseFields = {
+  id: Field({
+    select: S.Number,
+    json: S.Number,
+  }),
+  name: S.String,
 } as const;
-const ClassWithDefaults = Model.ClassFactory(defaultFields);
 
-class FactoryModel extends ClassWithDefaults<FactoryModel>("FactoryModel")({
-  createdAt: S.String,
-  extraField: S.String,
+class BaseModel extends Class<BaseModel>("BaseModel")(baseFields) {
+  static readonly customStatic = "custom-static";
+}
+
+class RawChild extends BaseModel.extend<RawChild, typeof BaseModel>("RawChild")({
+  childOnly: S.Boolean,
 }) {}
 
-class DirectModel extends Class<DirectModel>("DirectModel")({
-  ...defaultFields,
-  createdAt: S.String,
-  extraField: S.String,
+class StructChild extends BaseModel.extend<StructChild, typeof BaseModel>("StructChild")(
+  Struct({
+    childOnly: Field({
+      select: S.Boolean,
+      json: S.Boolean,
+    }),
+  })
+) {}
+
+const mappedFields = BaseModel.mapFields((fields) => ({
+  ...fields,
+  mappedOnly: S.Boolean,
+}));
+
+class FromMapped extends Class<FromMapped>("FromMapped")(mappedFields) {}
+class ExtendedFromMapped extends BaseModel.extend<ExtendedFromMapped, typeof BaseModel>("ExtendedFromMapped")(
+  mappedFields
+) {}
+
+const EntityId = S.String.pipe(S.brand("EntityId"));
+class Entity extends DomainModel.extend<Entity, typeof DomainModel>("Entity")({
+  id: Model.Generated(EntityId),
 }) {}
 
-describe("Model.ClassFactory", () => {
-  it("preserves the same static variant schema shape as Class", () => {
-    expect<S.Schema.Type<typeof FactoryModel.select>>().type.toBe<S.Schema.Type<typeof DirectModel.select>>();
-    expect<S.Schema.Type<typeof FactoryModel.insert>>().type.toBe<S.Schema.Type<typeof DirectModel.insert>>();
-    expect<S.Schema.Type<typeof FactoryModel.update>>().type.toBe<S.Schema.Type<typeof DirectModel.update>>();
-    expect<S.Schema.Type<typeof FactoryModel.json>>().type.toBe<S.Schema.Type<typeof DirectModel.json>>();
-    expect<S.Schema.Type<typeof FactoryModel.jsonCreate>>().type.toBe<S.Schema.Type<typeof DirectModel.jsonCreate>>();
-    expect<S.Schema.Type<typeof FactoryModel.jsonUpdate>>().type.toBe<S.Schema.Type<typeof DirectModel.jsonUpdate>>();
+describe("VariantSchema.Class", () => {
+  it("types variant statics on derived classes", () => {
+    expect<S.Schema.Type<typeof RawChild.select>>().type.toBe<{
+      readonly id: number;
+      readonly name: string;
+      readonly childOnly: boolean;
+    }>();
+    expect<S.Schema.Type<typeof StructChild.insert>>().type.toBe<{
+      readonly name: string;
+    }>();
+    expect<S.Schema.Type<typeof StructChild.json>>().type.toBe<{
+      readonly id: number;
+      readonly name: string;
+      readonly childOnly: boolean;
+    }>();
   });
 
-  it("merges default fields and lets explicit fields override them in variant types", () => {
-    expect<S.Schema.Type<typeof FactoryModel.select>["source"]>().type.toBe<string>();
-    expect<S.Schema.Type<typeof FactoryModel.insert>["extraField"]>().type.toBe<string>();
-    expect<S.Schema.Type<typeof FactoryModel.update>["createdAt"]>().type.toBe<string>();
-    expect<S.Schema.Type<typeof FactoryModel.jsonCreate>["source"]>().type.toBe<string>();
-    expect<S.Schema.Type<typeof FactoryModel.jsonUpdate>["extraField"]>().type.toBe<string>();
+  it("preserves inherited custom static members when Static is supplied", () => {
+    expect(RawChild.customStatic).type.toBe<"custom-static">();
+    expect(StructChild.customStatic).type.toBe<"custom-static">();
+  });
+
+  it("types mapFields as a variant struct accepted by Class and extend", () => {
+    expect(mappedFields).type.toBe<
+      VariantSchema.Struct<{
+        readonly id: VariantSchema.Field<{
+          readonly select: typeof S.Number;
+          readonly json: typeof S.Number;
+        }>;
+        readonly name: typeof S.String;
+        readonly mappedOnly: typeof S.Boolean;
+      }>
+    >();
+    expect<S.Schema.Type<typeof FromMapped.select>["mappedOnly"]>().type.toBe<boolean>();
+    expect<S.Schema.Type<typeof ExtendedFromMapped.select>["mappedOnly"]>().type.toBe<boolean>();
+  });
+
+  it("types the new DomainModel base as an extendable model without id", () => {
+    expect<"id">().type.not.toBeAssignableTo<keyof S.Schema.Type<typeof DomainModel.select>>();
+    expect<S.Schema.Type<typeof Entity.select>["id"]>().type.toBe<typeof EntityId.Type>();
+    expect<"id">().type.not.toBeAssignableTo<keyof S.Schema.Type<typeof Entity.insert>>();
   });
 
   it("keeps the missing Self guidance unchanged", () => {
-    const MissingSelf = ClassWithDefaults("MissingSelf")({
+    const MissingSelf = Class("MissingSelf")({
       extraField: S.String,
     });
 

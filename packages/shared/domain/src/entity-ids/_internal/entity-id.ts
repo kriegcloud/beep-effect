@@ -97,6 +97,12 @@ export const EntityIdValue = S.Int.check(isEntityIdValueRange).pipe(
  */
 export type EntityIdValue = typeof EntityIdValue.Type;
 
+const EntityIdDefinitionFields = {
+  _tag: S.NonEmptyString,
+  tableName: S.NonEmptyString,
+  slice: S.NonEmptyString,
+} as const;
+
 /**
  * Schema class describing an entity-id schema definition.
  *
@@ -106,10 +112,8 @@ export type EntityIdValue = typeof EntityIdValue.Type;
  *
  * const definition = new EntityIdDefinition({
  *   _tag: "UserId",
- *   brand: "UserId",
  *   tableName: "user",
- *   context: "shared",
- *   description: "User entity id."
+ *   slice: "shared"
  * })
  *
  * void definition
@@ -119,20 +123,14 @@ export type EntityIdValue = typeof EntityIdValue.Type;
  * @category domain model
  */
 export class EntityIdDefinition extends S.Class<EntityIdDefinition>($I`EntityIdDefinition`)(
-  {
-    _tag: S.NonEmptyString,
-    brand: S.NonEmptyString,
-    tableName: S.NonEmptyString,
-    context: S.String,
-    description: S.String,
-  },
+  EntityIdDefinitionFields,
   $I.annote("EntityIdDefinition", {
     description: "A branded schema definition for a storage-neutral integer entity id.",
   })
 ) {
   static readonly assert: (i: unknown) => asserts i is S.Schema.Type<EntityId.Any> = (
     i: unknown
-  ): asserts i is S.Schema.Type<EntityId.Any> => S.asserts(EntityIdDefinition)(i);
+  ): asserts i is S.Schema.Type<EntityId.Any> => S.asserts(S.Struct(EntityIdDefinitionFields))(i);
 }
 
 /**

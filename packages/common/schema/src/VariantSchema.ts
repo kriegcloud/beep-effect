@@ -1,5 +1,5 @@
 /**
- * @since 4.0.0
+ * @since 0.0.0
  */
 import type { Brand } from "effect/Brand";
 import * as Effect from "effect/Effect";
@@ -11,7 +11,7 @@ import type * as AST from "effect/SchemaAST";
 import * as Struct_ from "effect/Struct";
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category Type IDs
  */
 export const TypeId = "~effect/schema/VariantSchema";
@@ -19,7 +19,7 @@ export const TypeId = "~effect/schema/VariantSchema";
 const cacheSymbol = Symbol.for(`${TypeId}/cache`);
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category models
  */
 export interface Struct<in out A extends Field.Fields> extends Pipeable {
@@ -29,24 +29,24 @@ export interface Struct<in out A extends Field.Fields> extends Pipeable {
 }
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category guards
  */
 export const isStruct = (u: unknown): u is Struct<any> => Predicate.hasProperty(u, TypeId);
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category models
  */
 export declare namespace Struct {
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type Any = { readonly [TypeId]: any };
 
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type Fields = {
@@ -54,7 +54,7 @@ export declare namespace Struct {
   };
 
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type Validate<A, Variant extends string> = {
@@ -71,33 +71,33 @@ export declare namespace Struct {
 const FieldTypeId = "~effect/schema/VariantSchema/Field";
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category models
  */
 export interface Field<in out A extends Field.Config> extends Pipeable {
-  readonly [FieldTypeId]: typeof FieldTypeId;
   readonly schemas: A;
+  readonly [FieldTypeId]: typeof FieldTypeId;
 }
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category guards
  */
 export const isField = (u: unknown): u is Field<any> => Predicate.hasProperty(u, FieldTypeId);
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category models
  */
 export declare namespace Field {
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type Any = { readonly [FieldTypeId]: typeof FieldTypeId };
 
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type Config = {
@@ -105,7 +105,7 @@ export declare namespace Field {
   };
 
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type ConfigWithKeys<K extends string> = {
@@ -113,7 +113,7 @@ export declare namespace Field {
   };
 
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type Fields = {
@@ -122,7 +122,7 @@ export declare namespace Field {
 }
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category extractors
  */
 export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefault = false> = {
@@ -142,7 +142,7 @@ export type ExtractFields<V extends string, Fields extends Struct.Fields, IsDefa
 };
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category extractors
  */
 export type Extract<V extends string, A extends Struct<any>, IsDefault = false> = [A] extends [Struct<infer Fields>]
@@ -204,12 +204,12 @@ const extract: {
 
 /**
  * @category accessors
- * @since 4.0.0
+ * @since 0.0.0
  */
 export const fields = <A extends Struct<any>>(self: A): A[typeof TypeId] => self[TypeId];
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category models
  */
 export interface Class<
@@ -220,7 +220,7 @@ export interface Class<
   },
   Variants extends string = string,
   Default extends Variants = Variants,
-  Brand = {},
+  Inherited = {},
 > extends Schema.Bottom<
       Self,
       S["Encoded"],
@@ -239,29 +239,7 @@ export interface Class<
       S["~encoded.optionality"]
     >,
     Struct<Struct_.Simplify<Fields>> {
-  new (
-    props: S["~type.make.in"],
-    options?:
-      | {
-          readonly disableChecks?: boolean;
-        }
-      | undefined
-  ): S["Type"];
-
-  make<Args extends Array<any>, X>(this: { new (...args: Args): X }, ...args: Args): X;
-
-  readonly fields: S["fields"];
-
-  mapFields<To extends Struct.Fields>(
-    f: (fields: Struct_.Simplify<Fields>) => To,
-    options?:
-      | {
-          readonly unsafePreserveChecks?: boolean | undefined;
-        }
-      | undefined
-  ): Struct<Struct_.Simplify<Readonly<To>>>;
-
-  extend<Extended = never, Static = {}, Brand = {}>(
+  extend<Extended = never, Static = {}, InheritedBrand = {}>(
     identifier: string
   ): <const NewFields extends StructInput>(
     fields: StructArgument<NewFields, Variants>,
@@ -272,8 +250,29 @@ export interface Class<
     Default,
     MergeFields<Fields, StructInputFields<NewFields>>,
     Static,
-    Self & Brand
+    Self & InheritedBrand
   >;
+
+  readonly fields: S["fields"];
+
+  make<Args extends Array<any>, X>(this: { new (...args: Args): X }, ...args: Args): X;
+
+  mapFields<To extends Struct.Fields>(
+    f: (fields: Struct_.Simplify<Fields>) => To,
+    options?:
+      | {
+          readonly unsafePreserveChecks?: boolean | undefined;
+        }
+      | undefined
+  ): Struct<Struct_.Simplify<Readonly<To>>>;
+  new (
+    props: S["~type.make.in"],
+    options?:
+      | {
+          readonly disableChecks?: boolean;
+        }
+      | undefined
+  ): S["Type"] & Inherited;
 }
 
 type MissingSelfGeneric<Params extends string = ""> =
@@ -281,15 +280,11 @@ type MissingSelfGeneric<Params extends string = ""> =
 
 type StructInput = Struct.Fields | Struct<any>;
 
-type StructInputFields<A extends StructInput> = A extends Struct<infer Fields>
-  ? Fields
-  : A extends Struct.Fields
-    ? A
-    : never;
+type StructInputFields<A extends StructInput> =
+  A extends Struct<infer Fields> ? Fields : A extends Struct.Fields ? A : never;
 
-type StructArgument<A extends StructInput, Variants extends string> = A extends Struct<any>
-  ? A
-  : A & Struct.Validate<A, Variants>;
+type StructArgument<A extends StructInput, Variants extends string> =
+  A extends Struct<any> ? A : A & Struct.Validate<A, Variants>;
 
 type MergeFields<Defaults extends Struct.Fields, Fields extends Struct.Fields> = Struct_.Simplify<
   Omit<Defaults, keyof Fields> & Fields
@@ -312,17 +307,17 @@ type ClassShape<
   Default extends Variants,
   Fields extends Struct.Fields,
   Static = {},
-  Brand = {},
+  Inherited = {},
 > = [Self] extends [never]
   ? MissingSelfGeneric
   : InheritStaticMembers<
-      Class<Self, Fields, Schema.Struct<ExtractFields<Default, Fields, true>>, Variants, Default, Brand> &
+      Class<Self, Fields, Schema.Struct<ExtractFields<Default, Fields, true>>, Variants, Default, Inherited> &
         ClassVariantStatics<Variants, Default, Fields>,
       Static
     >;
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category models
  */
 export interface Union<Members extends ReadonlyArray<Struct<any>>>
@@ -331,12 +326,12 @@ export interface Union<Members extends ReadonlyArray<Struct<any>>>
   }> {}
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category models
  */
 export declare namespace Union {
   /**
-   * @since 4.0.0
+   * @since 0.0.0
    * @category models
    */
   export type Variants<Members extends ReadonlyArray<Struct<any>>, Variants extends string> = {
@@ -347,7 +342,7 @@ export declare namespace Union {
 }
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category constructors
  */
 export const make = <const Variants extends ReadonlyArray<string>, const Default extends Variants[number]>(options: {
@@ -453,24 +448,29 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
       configurable: true,
     });
     Object.defineProperty(base, "mapFields", {
-      value: (
+      value: function (
+        this: Struct<any>,
         f: (fields: Struct.Fields) => Struct.Fields,
         _options?:
           | {
               readonly unsafePreserveChecks?: boolean | undefined;
             }
           | undefined
-      ) => Struct(f(variantStruct[TypeId])),
+      ) {
+        return Struct(f(this[TypeId]));
+      },
       configurable: true,
     });
     Object.defineProperty(base, "extend", {
-      value: (childIdentifier: string) => (fields: StructInput, annotations?: any) => {
-        const childStruct = mergeVariantStructs(variantStruct, fields);
-        const schema = extract(childStruct, options.defaultVariant, {
-          isDefault: true,
-        });
-        const child = baseExtend.call(base, childIdentifier)(schema.fields, annotations);
-        return attachClass(child, childIdentifier, childStruct, child.extend);
+      value: function (this: Struct<any>, childIdentifier: string) {
+        return (fields: StructInput, annotations?: any) => {
+          const childStruct = mergeVariantStructs(Struct(this[TypeId]), fields);
+          const schema = extract(childStruct, options.defaultVariant, {
+            isDefault: true,
+          });
+          const child = baseExtend.call(this, childIdentifier)(schema.fields, annotations);
+          return attachClass(child, childIdentifier, childStruct, child.extend);
+        };
       },
       configurable: true,
     });
@@ -486,7 +486,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
     return base;
   };
   function Class<Self>(identifier: string) {
-    return function (fields: StructInput, annotations?: ClassAnnotations<Self, Default, StructInputFields<typeof fields>>) {
+    return (fields: StructInput, annotations?: ClassAnnotations<Self, Default, StructInputFields<typeof fields>>) => {
       const variantStruct = normalizeStruct(fields);
       const schema = extract(variantStruct, options.defaultVariant, {
         isDefault: true,
@@ -496,7 +496,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
     };
   }
   function FieldOnly<const Keys extends ReadonlyArray<Variants[number]>>(keys: Keys) {
-    return function <S extends Schema.Top>(schema: S) {
+    return <S extends Schema.Top>(schema: S) => {
       const obj: Record<string, S> = {};
       for (const key of keys) {
         obj[key] = schema;
@@ -505,7 +505,7 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
     };
   }
   function FieldExcept<const Keys extends ReadonlyArray<Variants[number]>>(keys: Keys) {
-    return function <S extends Schema.Top>(schema: S) {
+    return <S extends Schema.Top>(schema: S) => {
       const obj: Record<string, S> = {};
       for (const variant of options.variants) {
         if (!keys.includes(variant)) {
@@ -546,13 +546,13 @@ export const make = <const Variants extends ReadonlyArray<string>, const Default
 };
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category overrideable
  */
 export const Override = <A>(value: A): A & Brand<"Override"> => value as any;
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category overrideable
  */
 export interface Overrideable<S extends Schema.Top & Schema.WithoutConstructorDefault>
@@ -575,7 +575,7 @@ export interface Overrideable<S extends Schema.Top & Schema.WithoutConstructorDe
   > {}
 
 /**
- * @since 4.0.0
+ * @since 0.0.0
  * @category overrideable
  */
 export const Overrideable = <S extends Schema.Top & Schema.WithoutConstructorDefault>(
