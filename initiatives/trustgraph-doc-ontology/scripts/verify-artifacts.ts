@@ -1,15 +1,15 @@
 import { fileURLToPath } from "node:url";
 import { Effect } from "effect";
 import * as S from "effect/Schema";
-import { BoundedShaclValidationServiceLive } from "../../../../packages/common/semantic-web/src/adapters/shacl-engine.ts";
-import { BoundedEvidenceProjection } from "../../../../packages/common/semantic-web/src/evidence.ts";
-import { ProvBundle } from "../../../../packages/common/semantic-web/src/prov.ts";
-import { Dataset } from "../../../../packages/common/semantic-web/src/rdf.ts";
+import { BoundedShaclValidationServiceLive } from "../../../packages/common/semantic-web/src/adapters/shacl-engine.ts";
+import { BoundedEvidenceProjection } from "../../../packages/common/semantic-web/src/evidence.ts";
+import { ProvBundle } from "../../../packages/common/semantic-web/src/prov.ts";
+import { Dataset } from "../../../packages/common/semantic-web/src/rdf.ts";
 import {
   ShaclNodeShape,
   ShaclValidationRequest,
   ShaclValidationService,
-} from "../../../../packages/common/semantic-web/src/services/shacl-validation.ts";
+} from "../../../packages/common/semantic-web/src/services/shacl-validation.ts";
 
 const outputsUrl = new URL("../history/outputs/", import.meta.url);
 const readJson = async (fileName: string) => Bun.file(new URL(fileName, outputsUrl)).json();

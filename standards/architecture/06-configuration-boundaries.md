@@ -25,7 +25,7 @@ The public package convention is:
 
 ```txt
 @beep/<slice>-config
-@beep/shared-config
+@beep/<kernel>-config
 ```
 
 `packages/<slice>/config` is canonical but not mandatory. Create it when the
@@ -39,8 +39,8 @@ Effect `Config` and `ConfigProvider`, not by direct `process.env` access inside
 slice code.
 
 Existing `env` package naming is legacy vocabulary. Migrate package names such
-as `@beep/shared-env` and paths such as `packages/shared/env` to
-`@beep/shared-config` and `packages/shared/config`.
+as `@beep/<kernel>-env` and paths such as `packages/<kernel>/config` to
+`@beep/<kernel>-config` and `packages/<kernel>/config`.
 
 ## Public, Server, And Secret Boundaries
 
@@ -66,7 +66,7 @@ Config packages publish an explicit export contract:
 @beep/<slice>-config/test
 ```
 
-`@beep/shared-config` uses the same subpath contract.
+`@beep/<kernel>-config` uses the same subpath contract.
 
 - Browser/client code imports only `/public`.
 - `/server`, `/secrets`, and `/test` are server/test-only.
@@ -103,7 +103,7 @@ brands, value objects, and validation. Foundation packages may provide generic
 schema, identity, or capability helpers beside that shared language. That
 dependency is one-way. Domain may import shared-kernel language plus allowed
 `foundation/primitive` and `foundation/modeling` packages, but it must never
-import slice config, `@beep/shared-config`, `Config`, `ConfigProvider`, secret
+import slice config, `@beep/<kernel>-config`, `Config`, `ConfigProvider`, secret
 helpers, or test config utilities.
 
 Use-cases may import config contracts or services for application tunables.
@@ -119,7 +119,7 @@ queue, or workflow-engine internals.
 
 ## Shared Config
 
-`@beep/shared-config` is part of the shared kernel. It may hold cross-slice
+`@beep/<kernel>-config` is part of the shared kernel. It may hold cross-slice
 config primitives, shared config contracts, redacted-secret helpers, and test
 `ConfigProvider` utilities that multiple slices deliberately agree on.
 

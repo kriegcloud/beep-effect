@@ -61,7 +61,7 @@ doc:docgen-entity-kind a owl:Class ;
 
 doc:repo-symbol-kind a owl:Class ;
   rdfs:label "repo symbol kind"@en ;
-  rdfs:comment "Deterministic repository symbol kind used by repo-memory indexing." ;
+  rdfs:comment "Deterministic TypeScript symbol kind surfaced by repo-utils indexing." ;
   rdfs:subClassOf doc:documentation-concept .
 
 doc:ast-derivability-level a owl:Class ;

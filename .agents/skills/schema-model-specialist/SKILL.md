@@ -90,8 +90,9 @@ export type TaskName = typeof TaskName.Type
 
 ### How $I works internally
 
-- `$I\`SchemaName\`` (template literal call) produces an identity string:
-  `"@beep/shared-domain/entities/Task/Task.model/SchemaName"`.
+- `$I\`SchemaName\`` (template literal call) produces an identity string such as
+  `"@beep/fixture-lab-specimen-domain/domain/Specimen/SchemaName"` in the
+  golden fixture.
 - `$I.annote("Name", extras)` returns an annotation record containing
   `schemaId` (an interned `Symbol` via `Symbol.for`), `identifier`, `title`,
   and any caller-supplied extras (e.g. `description`).
@@ -103,25 +104,24 @@ export type TaskName = typeof TaskName.Type
 
 ## Model.Class (variant-aware domain models)
 
-For any entity persisted to SQLite, use the `DomainModel.make` factory from
-`@beep/shared-domain`. This factory is built on `@beep/schema/Model` which
-itself wraps `VariantSchema`. It pre-merges the standard audit columns so
-every model automatically gets `createdAt`, `updatedAt`, `deletedAt`,
-`createdBy`, `updatedBy`, `deletedBy`, `version`, and `source`.
+For variant-aware entities, use `@beep/schema/Model` directly. The old shared
+domain factory was removed with the lean slate; the topology generator will
+reintroduce any slice-local factory only after the golden fixture proves the
+shape.
 
 ### Canonical pattern
 
 ```ts
-import { $SharedDomainId } from "@beep/identity/packages"
+import { $FixtureLabSpecimenId } from "@beep/identity/packages"
 import * as M from "@beep/schema/Model"
-import { Shared } from "@beep/shared-domain/entity-ids"
-import { DomainModel } from "@beep/shared-domain/factories"
+import * as S from "effect/Schema"
 
-const $I = $SharedDomainId.create("entities/Task/Task.model")
+const $I = $FixtureLabSpecimenId.create("domain/Task")
+const TaskId = S.String.pipe(S.brand("TaskId"))
 
-export class Task extends DomainModel.make<Task>($I`TaskModel`)(
+export class Task extends M.Class<Task>($I`TaskModel`)(
   {
-    id: M.Generated(Shared.TaskId),
+    id: M.GeneratedByApp(TaskId),
     name: S.NonEmptyTrimmedString,
     status: TaskStatus,
   },
@@ -144,25 +144,11 @@ A Model class produces six variant schemas:
 
 Each variant has a `.make()` constructor.
 
-### DomainModel.make default fields
+### Audit fields
 
-The `DomainModel` factory merges these default audit fields into every model:
-
-```ts
-// From packages/shared/domain/src/factories/DomainModel.ts
-{
-  createdAt: M.DateTimeInsertFromNumber,  // DateTimeUtc from millis, auto-set on insert
-  updatedAt: M.DateTimeUpdateFromNumber,  // DateTimeUtc from millis, auto-set on insert+update
-  deletedAt: M.FieldOption(S.DateTimeUtcFromMillis),  // optional nullable
-  createdBy: M.FieldOption(S.String),     // optional actor string
-  updatedBy: M.FieldOption(S.String),
-  deletedBy: M.FieldOption(S.String),
-  version:   M.Generated(NonNegativeInt), // auto-incrementing, db-generated
-  source:    M.FieldOption(S.String),     // optional provenance
-}
-```
-
-You only define the entity-specific fields (e.g. `id`, `name`, `status`).
+Until the topology factory extracts a slice-local model helper, define audit
+fields explicitly with `@beep/schema/Model` field helpers when a persisted
+model needs them. Do not import a removed shared factory.
 
 ### Model field helpers
 
@@ -181,25 +167,26 @@ You only define the entity-specific fields (e.g. `id`, `name`, `status`).
 
 ## EntityId
 
-Entity ids are branded positive integers created via a per-slice factory.
+Entity ids are branded values created in the slice that owns the persisted
+concept. The lean slate no longer has a shared entity-id factory.
 
 ### Defining entity ids
 
 ```ts
-import { $SharedDomainId } from "@beep/identity/packages"
-import { EntityId } from "@beep/shared-domain/entity-ids/_internal"
+import { $FixtureLabSpecimenId } from "@beep/identity/packages"
+import * as S from "effect/Schema"
 
-const $I = $SharedDomainId.create("entity-ids/MySlice")
-const make = EntityId.factory("my_slice", $I)
-
-export const TaskId = make("TaskId", { tableName: "task" })
+const $I = $FixtureLabSpecimenId.create("entity-ids/MySlice")
+export const TaskId = S.String.pipe(
+  S.brand("TaskId"),
+  $I.annoteSchema("TaskId", { description: "Task identifier." })
+)
 export type TaskId = typeof TaskId.Type
 ```
 
 The resulting schema:
-- Validates: safe integer, >= 1, <= `Number.MAX_SAFE_INTEGER`
-- Branded with the tag string (e.g. `"TaskId"`)
-- Carries `_tag`, `tableName`, and `slice` statics for table factory consumption
+- validates the chosen persisted id representation
+- carries the slice-local identity annotation
 
 ### Using entity ids in models
 
@@ -374,40 +361,27 @@ const status = S.optionalKey(TaskStatus).pipe(SchemaUtils.withKeyDefaults("draft
 `S.withDecodingDefaultKey` using the same value. The default value must be
 valid for both the schema's `Type` and `Encoded` representations.
 
-## Table.make (drizzle)
+## Table/read models
 
-Drizzle table definitions use the `Table.make` factory from
-`@beep/shared-tables`. It auto-injects the canonical audit columns so you only
-define entity-specific columns.
+The lean slate does not keep a shared table factory. Put read models and table
+metadata in the generated slice table package and mirror the golden fixture
+until the generator extracts a reusable helper.
 
 ```ts
-import { Shared } from "@beep/shared-domain/entity-ids"
-import * as sqlite from "drizzle-orm/sqlite-core"
-import { Table } from "@beep/shared-tables"
+import type { SpecimenStatus } from "@beep/fixture-lab-specimen-domain"
 
-export const tasks = Table.make(Shared.TaskId)({
-  name:   sqlite.text("name").notNull(),
-  status: sqlite.text("status").notNull(),
-}, (t) => [
-  sqlite.index("task_status_idx").on(t.status),
-])
+export type SpecimenReadModel = {
+  readonly id: string
+  readonly label: string
+  readonly status: SpecimenStatus
+  readonly observedAt: Date | null
+}
+
+export const specimenTableName = "fixture_lab_specimen"
 ```
 
-### Auto-injected columns
-
-`Table.make` merges these via `makeGlobalColumns()`:
-
-| Column       | Drizzle definition                                          |
-|--------------|-------------------------------------------------------------|
-| `id`         | `integer("id").primaryKey({ autoIncrement: true })`         |
-| `createdAt`  | `integer("created_at").notNull().default(sqlNowMillis)`     |
-| `updatedAt`  | `integer("updated_at").notNull().default(sqlNowMillis).$onUpdate(...)` |
-| `deletedAt`  | `integer("deleted_at")`                                     |
-| `createdBy`  | `text("created_by").default("app")`                         |
-| `updatedBy`  | `text("updated_by").default("app")`                         |
-| `deletedBy`  | `text("deleted_by")`                                        |
-| `version`    | `integer("version").notNull().default(1).$onUpdate(v+1)`    |
-| `source`     | `text("source")`                                            |
+The fixture source is
+`tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/SpecimenReadModel.ts`.
 
 Never define these columns manually. Never create drizzle tables without
 `Table.make`.
@@ -467,12 +441,8 @@ These rules are non-negotiable and override any conflicting guidance.
 - `packages/common/schema/src/LiteralKit.ts` (LiteralKit constructor and types)
 - `packages/common/schema/src/SchemaUtils/withKeyDefaults.ts` (withKeyDefaults dual)
 - `packages/common/schema/src/TaggedErrorClass.ts` (TaggedErrorClass constructor)
-- `packages/shared/domain/src/factories/DomainModel.ts` (DomainModel.make factory)
-- `packages/shared/domain/src/entity-ids/_internal/entity-id.ts` (EntityId.factory)
-- `packages/shared/domain/src/entity-ids/Shared.ts` (canonical EntityId examples)
-- `packages/shared/domain/src/entities/Organization/Organization.model.ts` (canonical model)
-- `packages/shared/tables/src/table/Table.ts` (Table.make)
-- `packages/shared/tables/src/common.ts` (audit column definitions)
+- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/domain/src/Specimen.ts` (golden slice domain model)
+- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/SpecimenReadModel.ts` (golden slice read model)
 - `.repos/effect-v4/packages/effect/src/Schema.ts` (TemplateLiteral, toTaggedUnion)
 - `.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts` (upstream Model)
 
@@ -531,14 +501,11 @@ rg -n "S\.toTaggedUnion" packages --glob "*.ts"
 rg -n "P\.hasProperty.*_tag|_tag.*===|typeof.*_tag" packages --glob "*.ts"
 ```
 
-### Table compliance
+### Table/read-model compliance
 
 ```sh
-# No manual drizzle table definitions
-rg -n "sqliteTable\(" packages --glob "*.ts" | grep -v "Table\.make\|shared-tables"
-
-# All tables use Table.make
-rg -n "Table\.make" packages --glob "*.ts"
+# Generated topology should keep table/read-model files in the owning slice.
+rg -n "ReadModel|TableName|sqliteTable" packages tooling/cli/test/fixtures --glob "*.ts"
 ```
 
 ### withKeyDefaults usage

@@ -16,7 +16,7 @@
     },
     {
       "hadPrimarySource": [
-        "file:///home/elpresidank/YeeBois/projects/beep-effect/tooling/repo-utils/src/JSDoc/JSDoc.ts"
+        "file:///home/elpresidank/YeeBois/projects/beep-effect2/tooling/repo-utils/src/JSDoc/JSDoc.ts"
       ],
       "id": "urn:beep-effect:doc-seed:source:typed-jsdoc-models",
       "provType": "Entity",
@@ -24,7 +24,7 @@
     },
     {
       "hadPrimarySource": [
-        "file:///home/elpresidank/YeeBois/projects/beep-effect/.patterns/jsdoc-documentation.md"
+        "file:///home/elpresidank/YeeBois/projects/beep-effect2/.patterns/jsdoc-documentation.md"
       ],
       "id": "urn:beep-effect:doc-seed:source:repo-policy-pattern",
       "provType": "Entity",
@@ -32,7 +32,7 @@
     },
     {
       "hadPrimarySource": [
-        "file:///home/elpresidank/YeeBois/projects/beep-effect/tooling/cli/src/commands/Docgen/internal/Operations.ts"
+        "file:///home/elpresidank/YeeBois/projects/beep-effect2/tooling/cli/src/commands/Docgen/internal/Operations.ts"
       ],
       "id": "urn:beep-effect:doc-seed:source:docgen-analysis",
       "provType": "Entity",
@@ -49,7 +49,9 @@
         "urn:beep-effect:doc-seed:source:docgen-analysis",
         "urn:beep-effect:doc-seed:plan:trustgraph-doc-ontology"
       ],
-      "wasAssociatedWith": ["urn:beep-effect:doc-seed:agent:codex-cli"]
+      "wasAssociatedWith": [
+        "urn:beep-effect:doc-seed:agent:codex-cli"
+      ]
     },
     {
       "activity": "urn:beep-effect:doc-seed:activity:build-artifacts",

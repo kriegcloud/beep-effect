@@ -241,7 +241,7 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/common/*", "packages/runtime/*"],
+              workspaces: ["packages/common/*", "packages/example/*"],
             })
           );
 
@@ -259,12 +259,12 @@ describe("Docgen operations", () => {
             })
           );
 
-          const runtimeDir = path.join(tmpDir, "packages", "runtime", "server");
+          const runtimeDir = path.join(tmpDir, "packages", "example", "server");
           yield* fs.makeDirectory(path.join(runtimeDir, "src", "internal"), { recursive: true });
           yield* fs.writeFileString(
             path.join(runtimeDir, "package.json"),
             encodeJson({
-              name: "@beep/runtime-server",
+              name: "@beep/example-server",
               version: "0.0.0",
               dependencies: {
                 "@beep/schema": "workspace:*",
@@ -277,7 +277,7 @@ describe("Docgen operations", () => {
           );
 
           const packages = yield* discoverDocgenWorkspacePackages(tmpDir);
-          const target = packages.find((pkg) => pkg.name === "@beep/runtime-server");
+          const target = packages.find((pkg) => pkg.name === "@beep/example-server");
 
           expect(target).toBeDefined();
 
@@ -285,8 +285,8 @@ describe("Docgen operations", () => {
 
           expect(config.examplesCompilerOptions).toMatchObject({
             paths: {
-              "@beep/runtime-server": ["../../../packages/runtime/server/src/internal/index.ts"],
-              "@beep/runtime-server/*": ["../../../packages/runtime/server/src/internal/*.ts"],
+              "@beep/example-server": ["../../../packages/example/server/src/internal/index.ts"],
+              "@beep/example-server/*": ["../../../packages/example/server/src/internal/*.ts"],
               "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
               "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
             },
@@ -503,13 +503,13 @@ describe("Docgen operations", () => {
             })
           );
 
-          const packageDir = path.join(tmpDir, "packages", "repo-memory", "store");
+          const packageDir = path.join(tmpDir, "packages", "example", "store");
           const docsModulesDir = path.join(packageDir, "docs", "modules");
           yield* fs.makeDirectory(docsModulesDir, { recursive: true });
           yield* fs.writeFileString(
             path.join(packageDir, "package.json"),
             encodeJson({
-              name: "@beep/repo-memory-store",
+              name: "@beep/example-store",
               version: "0.0.0",
             })
           );
@@ -520,15 +520,15 @@ describe("Docgen operations", () => {
           );
 
           yield* fs.makeDirectory(path.join(tmpDir, "docs"), { recursive: true });
-          yield* fs.writeFileString(path.join(tmpDir, "docs", "repo-memory"), "stale-path-conflict");
+          yield* fs.writeFileString(path.join(tmpDir, "docs", "example"), "stale-path-conflict");
 
           const results = yield* aggregateGeneratedDocs({ clean: true });
-          const aggregatedPath = path.join(tmpDir, "docs", "repo-memory", "store", "Store.md");
+          const aggregatedPath = path.join(tmpDir, "docs", "example", "store", "Store.md");
           const aggregated = yield* fs.readFileString(aggregatedPath);
 
           expect(results).toHaveLength(1);
-          expect(results[0]?.docsOutputPath).toBe("repo-memory/store");
-          expect(aggregated).toContain('parent: "@beep/repo-memory-store"');
+          expect(results[0]?.docsOutputPath).toBe("example/store");
+          expect(aggregated).toContain('parent: "@beep/example-store"');
         })
       )
     );

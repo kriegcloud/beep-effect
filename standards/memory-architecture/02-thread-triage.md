@@ -15,8 +15,8 @@ Definitions:
 
 ## 1. repo-memory v0
 
-**Location:** `initiatives/repo-expert-memory-local-first-v0/`,
-`packages/repo-memory/`
+**Location:** archived pre-automation repo-memory packet and packages on
+`archive/pre-repo-architecture-automation-2026-04-27`
 
 **Status:** Substantially built. Tauri v2 desktop app, Effect runtime on
 `effect/unstable/cluster`, ts-morph deterministic indexing, 15+ query classes,
@@ -40,7 +40,8 @@ opportunity cost against an asset no competitor can replicate with embeddings.
 
 ## 2. Expert Memory Big Picture
 
-**Location:** `initiatives/expert-memory-big-picture/` (14 documents)
+**Location:** archived pre-automation expert-memory packet on
+`archive/pre-repo-architecture-automation-2026-04-27`
 
 **Status:** Thorough architectural thesis across kernel, control plane,
 claims/evidence, representation layers, ontology, temporal modeling, domain

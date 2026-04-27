@@ -36,48 +36,6 @@
       "path": "../packages/common/utils/tsconfig.json"
     },
     {
-      "path": "../packages/editor/domain/tsconfig.json"
-    },
-    {
-      "path": "../packages/repo-memory/client/tsconfig.json"
-    },
-    {
-      "path": "../packages/repo-memory/model/tsconfig.json"
-    },
-    {
-      "path": "../packages/repo-memory/runtime/tsconfig.json"
-    },
-    {
-      "path": "../packages/repo-memory/sqlite/tsconfig.json"
-    },
-    {
-      "path": "../packages/repo-memory/store/tsconfig.json"
-    },
-    {
-      "path": "../packages/runtime/protocol/tsconfig.json"
-    },
-    {
-      "path": "../packages/runtime/server/tsconfig.json"
-    },
-    {
-      "path": "../packages/shared/client/tsconfig.json"
-    },
-    {
-      "path": "../packages/shared/domain/tsconfig.json"
-    },
-    {
-      "path": "../packages/shared/config/tsconfig.json"
-    },
-    {
-      "path": "../packages/shared/server/tsconfig.json"
-    },
-    {
-      "path": "../packages/shared/tables/tsconfig.json"
-    },
-    {
-      "path": "../packages/shared/ui/tsconfig.json"
-    },
-    {
       "path": "../tooling/cli/tsconfig.json"
     },
     {

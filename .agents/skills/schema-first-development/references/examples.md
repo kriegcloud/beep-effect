@@ -6,23 +6,23 @@ These examples are the best starting points for matching repo style.
 
 File:
 
-- `packages/runtime/protocol/src/index.ts`
+- `tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
 
 Use this file when you need:
 
 - `LiteralKit` for a public literal domain
 - `S.Class` payloads with strong annotations
-- schemas fed directly into HTTP or RPC surfaces
+- schemas fed directly into CLI and file-generation boundaries
 
 What to copy:
 
-- `SidecarHealthStatus` for annotated literal-kit usage
-- `SidecarBootstrap` for a clean `S.Class` object model
-- `RunIdPathParams` for a small boundary schema that still gets full annotation
+- `RelativePlanPath` for annotated schema filters
+- `PlannedFile` for a clean `S.Class` object model
+- `GenerationActionKind` for annotated literal-kit usage
 
 Why it matters:
 
-- it keeps the schema value reusable across runtime validation and transport
+- it keeps the schema value reusable across runtime validation and command
   declarations
 - it demonstrates that even small protocol payloads stay schema-first
 
@@ -56,25 +56,24 @@ Why it matters:
 
 File:
 
-- `apps/desktop/src/native.ts`
+- `tooling/cli/src/commands/Docgen/internal/Operations.ts`
 
 Use this file when you need:
 
 - `OptionFromOptionalKey`
 - boundary decoding with typed errors
-- a local nullable helper schema
+- report-oriented schema classes
 
 What to copy:
 
-- `ManagedSidecarState` for `OptionFromOptionalKey(...)`
-- `DesktopNativeError` for `TaggedErrorClass`
-- `NullableString` and the `invokeNative(...)` boundary for schema-driven decode
-  use
+- `DocgenConfigDocument` for optional config fields
+- `DocgenWorkspacePackage` for boundary data decoded from package metadata
+- `DomainError` mapping around filesystem/process boundaries
 
 Why it matters:
 
 - optional transport fields become `Option` immediately
-- typed errors remain schema-backed and serializable
+- typed errors remain explicit at the command boundary
 - decode functions are passed directly into the boundary helper instead of
   creating a parallel shape model
 
@@ -130,11 +129,11 @@ Why it matters:
 ## Quick Selection Map
 
 - Need a `S.Class` domain payload:
-  Start with `packages/runtime/protocol/src/index.ts`
+  Start with `tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
 - Need schema-driven defaults and transforms:
   Start with `tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts`
 - Need `Option` boundary fields or schema-backed errors:
-  Start with `apps/desktop/src/native.ts`
+  Start with `tooling/cli/src/commands/Docgen/internal/Operations.ts`
 - Need a `kind` or `type` tagged union:
   Start with `tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
   or `packages/ai/sdk/src/core/Schema/Mcp.ts`

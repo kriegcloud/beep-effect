@@ -6,6 +6,7 @@ export default mergeConfig(
   shared,
   defineConfig({
     test: {
+      exclude: ["test/fixtures/**"],
       globalSetup: [path.join(__dirname, "test/global-cleanup.ts")],
       sequence: {
         concurrent: false,

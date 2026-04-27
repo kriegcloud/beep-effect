@@ -5,7 +5,8 @@ Date: 2026-04-26
 Scope reviewed:
 
 - Core architecture standards under `standards/ARCHITECTURE.md` and `standards/architecture/`
-- Migration packet under `initiatives/repo-architecture-convergence/`
+- Superseded migration packet archived by
+  `initiatives/repo-architecture-automation/design/prior-convergence-digest.md`
 - Design, ops, handoff, prompt, manifest, history, and review-loop surfaces
 
 This is an architecture and migration-plan critique. I am not treating the

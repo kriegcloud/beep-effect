@@ -224,7 +224,7 @@ describe.sequential("create-package", () => {
             yield* bootstrapIdentityWorkspace(rootDir);
 
             yield* runCreatePackageCommand([
-              "editor-domain",
+              "example-domain",
               "--parent-dir",
               "packages",
               "--description",
@@ -232,10 +232,10 @@ describe.sequential("create-package", () => {
             ]);
 
             const rootPackage = decodeRootPackage(yield* readJsonFile(path.join(rootDir, "package.json")));
-            expect(rootPackage.workspaces).toEqual(["packages/common/*", "packages/editor-domain"]);
+            expect(rootPackage.workspaces).toEqual(["packages/common/*", "packages/example-domain"]);
 
             const generatedPackage = decodePackageScripts(
-              yield* readJsonFile(path.join(rootDir, "packages", "editor-domain", "package.json"))
+              yield* readJsonFile(path.join(rootDir, "packages", "example-domain", "package.json"))
             );
             expect(generatedPackage.scripts).toMatchObject(ExpectedGeneratedQualityScripts);
             expect(generatedPackage.scripts.docgen).toBe("bun run ../../tooling/docgen/src/bin.ts");
@@ -245,8 +245,8 @@ describe.sequential("create-package", () => {
             expect(rootTsconfig.compilerOptions.paths).toMatchObject({
               "@beep/identity": ["./packages/common/identity/src/index.ts"],
               "@beep/identity/*": ["./packages/common/identity/src/*"],
-              "@beep/editor-domain": ["./packages/editor-domain/src/index.ts"],
-              "@beep/editor-domain/*": ["./packages/editor-domain/src/*"],
+              "@beep/example-domain": ["./packages/example-domain/src/index.ts"],
+              "@beep/example-domain/*": ["./packages/example-domain/src/*"],
             });
 
             const packageRefs = decodeTsconfigReferences(
@@ -254,7 +254,7 @@ describe.sequential("create-package", () => {
             );
             expect(A.map(packageRefs.references, (entry) => entry.path)).toEqual([
               "packages/common/identity",
-              "packages/editor-domain",
+              "packages/example-domain",
             ]);
 
             const qualityRefs = decodeTsconfigReferences(
@@ -262,7 +262,7 @@ describe.sequential("create-package", () => {
             );
             expect(A.map(qualityRefs.references, (entry) => entry.path)).toEqual([
               "packages/common/identity",
-              "packages/editor-domain",
+              "packages/example-domain",
             ]);
 
             const tstycheConfig = decodeTstycheConfig(yield* readJsonFile(path.join(rootDir, "tstyche.json")));
@@ -270,16 +270,16 @@ describe.sequential("create-package", () => {
               "packages/*/dtslint/**/*.tst.*",
               "packages/common/identity/dtslint/**/*.tst.*",
             ]);
-            expect(tstycheConfig.testFileMatch).not.toContain("packages/editor-domain/dtslint/**/*.tst.*");
+            expect(tstycheConfig.testFileMatch).not.toContain("packages/example-domain/dtslint/**/*.tst.*");
 
             const syncpackConfig = yield* fs.readFileString(path.join(rootDir, "syncpack.config.ts"));
-            expect(syncpackConfig).toContain(`"packages/editor-domain/package.json"`);
+            expect(syncpackConfig).toContain(`"packages/example-domain/package.json"`);
 
             const identityPackages = yield* fs.readFileString(
               path.join(rootDir, "packages", "common", "identity", "src", "packages.ts")
             );
-            expect(identityPackages).toContain(`"editor-domain"`);
-            expect(identityPackages).toContain(`export const $EditorDomainId`);
+            expect(identityPackages).toContain(`"example-domain"`);
+            expect(identityPackages).toContain(`export const $ExampleDomainId`);
           })
         )
       );

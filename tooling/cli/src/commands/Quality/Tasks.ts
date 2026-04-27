@@ -523,12 +523,7 @@ const rootCheckSteps = (repoRoot: string, args: ReadonlyArray<string>) => [
 
 const rootTestSteps = (repoRoot: string, args: ReadonlyArray<string>) => {
   const lanes = parseTestLaneSelection(args);
-  const unitArgs = [
-    "--filter=!@beep/repo-memory-runtime",
-    "--filter=!@beep/repo-memory-sqlite",
-    "--filter=!@beep/shared-server",
-    ...lanes.args,
-  ];
+  const unitArgs = lanes.args;
 
   return [
     ...optionalQualityTaskStep({

@@ -63,7 +63,7 @@ describe("CodexSessionStartRuntime", () => {
     expect(context).toContain("Durable repo memory is Graphiti-first now");
     expect(context).toContain('group_ids: ["beep_dev"]');
     expect(context).toContain("bun run codex:hook:session-start");
-    expect(context).toContain("legacy repo-memory tooling");
+    expect(context).toContain("legacy local-memory tooling");
     expect(context).toContain(
       "before `O.match(...)`, check `O.map(...)`, `O.flatMap(...)`, `O.liftPredicate(...)`, and `O.getOrElse(...)`."
     );

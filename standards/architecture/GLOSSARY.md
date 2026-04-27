@@ -264,7 +264,7 @@ bundles.
 
 ## Shared Kernel
 
-The DDD meaning of `packages/shared`: deliberately shared cross-cutting
+The DDD meaning of `generated shared-kernel package family`: deliberately shared cross-cutting
 language, value objects, schemas, config contracts, and a small number of
 high-bar cross-slice adapters. `shared/domain` and `shared/config` are the
 normal homes. `shared/use-cases`, `shared/client`, `shared/server`,

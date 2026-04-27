@@ -27,15 +27,18 @@ actually lives here.
 ## Current Initiatives
 
 - `agent-governance-control-plane`
-- `agent-memory`
-- `editor-app`
-- `expert-memory-big-picture`
 - `ip-law-knowledge-graph`
-- `knowledge-workspace`
 - `law-kg-prd`
 - `repo-codegraph-jsdoc`
-- `repo-architecture-convergence`
-- `repo-expert-memory-local-first-v0`
+- `repo-architecture-automation`
 - `trustgraph-doc-ontology`
-- `trustgraph-port`
 - `turborepo-audit`
+
+## Needs Refresh After Lean Slate
+
+- `knowledge-workspace`
+- `trustgraph-port`
+
+These packets still describe pre-automation app and repo-memory surfaces. Treat
+them as paused design context until they are rewritten against the generated
+topology from `repo-architecture-automation`.

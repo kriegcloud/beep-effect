@@ -1,7 +1,0 @@
-{
-  "$schema": "../gen/schemas/editor-app-schema.json",
-  "identifier": "default",
-  "description": "enables the default editor app permissions",
-  "windows": ["main"],
-  "permissions": ["core:default"]
-}

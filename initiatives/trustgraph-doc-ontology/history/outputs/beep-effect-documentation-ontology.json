@@ -132,7 +132,7 @@
       "uri": "urn:beep-effect:doc-ontology#documentation-tag"
     },
     "repo-symbol-kind": {
-      "rdfs:comment": "Deterministic repository symbol kind used by repo-memory indexing.",
+      "rdfs:comment": "Deterministic TypeScript symbol kind surfaced by repo-utils indexing.",
       "rdfs:label": [
         {
           "lang": "en",

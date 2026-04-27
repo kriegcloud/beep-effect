@@ -54,14 +54,6 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/shared/domain/src/errors/DbError/utils.ts",
-      "kind": "native-error",
-      "reason": "Database error formatting captures the formatter call-site stack as a last-resort source-location fallback when the original error lacks stack metadata.",
-      "owner": "@beep/shared-domain",
-      "issue": "DB-ERROR-CALLSITE-STACK-FALLBACK"
-    },
-    {
-      "rule": "beep-laws/no-native-runtime",
       "file": "packages/common/observability/src/experimental/server/OtlpPacketLab.ts",
       "kind": "date-static",
       "reason": "OTLP serialization hooks are synchronous body factories, so packet capture timestamps must be recorded at that immediate runtime boundary without introducing Effect execution into the serializer contract.",

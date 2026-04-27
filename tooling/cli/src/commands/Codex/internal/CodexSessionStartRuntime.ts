@@ -134,7 +134,7 @@ export const buildCodexSessionStartContext: {
     A.make(
       `Session source: ${source}.`,
       cwd === undefined ? undefined : `Working directory: ${cwd}.`,
-      "Durable repo memory is Graphiti-first now; do not assume any legacy repo-memory tooling exists in this clone.",
+      "Durable repo memory is Graphiti-first now; do not assume any legacy local-memory tooling exists in this clone.",
       'When the `graphiti-memory` MCP is available, query it first for cross-session recall with `group_ids: ["beep_dev"]`; if a wrapper only accepts strings, pass the JSON literal `"[\\"beep_dev\\"]"`.',
       "High-signal commands: `bun run codex:hook:session-start`, `bun run graphiti:proxy`, `bun run graphiti:proxy:ensure`, `bun run lint:effect-governance`, `bun run check`, `bun run test`, and `bun run lint`.",
       "If Graphiti memory is unavailable, fall back to repo-local exploration plus the checked-in `.codex` and `.claude` guidance.",

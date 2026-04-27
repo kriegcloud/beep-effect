@@ -21,7 +21,7 @@ leaking inward.
 
 Decision:
 
-`packages/shared` is cross-cutting shared kernel language, not a dumping ground.
+`generated shared-kernel package family` is cross-cutting shared kernel language, not a dumping ground.
 
 Rationale:
 
@@ -173,7 +173,7 @@ owning the runtime side effects that execute that language.
 Decision:
 
 `config` is the canonical optional package kind for typed slice configuration.
-Package names use `@beep/<slice>-config` and `@beep/shared-config`.
+Package names use `@beep/<slice>-config` and `@beep/<kernel>-config`.
 
 Rationale:
 
@@ -187,8 +187,8 @@ leaking runtime reads into domain code.
 Decision:
 
 `env` is source vocabulary, not architecture topology. Existing package names
-such as `@beep/shared-env` and paths such as `packages/shared/env` should migrate
-to `@beep/shared-config` and `packages/shared/config`.
+such as `@beep/<kernel>-env` and paths such as `packages/<kernel>/config` should migrate
+to `@beep/<kernel>-config` and `packages/<kernel>/config`.
 
 Rationale:
 
@@ -230,7 +230,7 @@ and keep `shared` focused on cross-slice product semantics.
 Decision:
 
 Driver packages use short public names such as `@beep/drizzle`,
-`@beep/postgres`, and `@beep/firecrawl`.
+`@beep/postgres`, and `@beep/<driver>`.
 
 Rationale:
 

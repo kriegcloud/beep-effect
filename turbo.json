@@ -72,6 +72,11 @@
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
     },
+    "test:integration": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["$TURBO_DEFAULT$", "!.beep/**"]
+    },
     "type-test": {
       "cache": true,
       "dependsOn": ["^type-test"],
@@ -96,11 +101,6 @@
       "outputs": ["docs/**", "dtslint/**"]
     },
     "dev": {
-      "persistent": true,
-      "cache": false,
-      "dependsOn": ["^build"]
-    },
-    "dev:desktop": {
       "persistent": true,
       "cache": false,
       "dependsOn": ["^build"]
@@ -365,51 +365,6 @@
         "$TURBO_ROOT$/tooling/cli/src/**/*.ts"
       ],
       "outputs": ["$TURBO_ROOT$/docs/**"]
-    },
-    "@beep/repo-memory-runtime#test:integration": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
-      "env": [
-        "DATABASE_URL",
-        "DATABASE_URL_UNPOOLED",
-        "EMAIL_*",
-        "AUTH_*",
-        "BETTER_AUTH_*",
-        "SECURITY_*",
-        "LIVEBLOCKS_*",
-        "RESEND_*"
-      ]
-    },
-    "@beep/repo-memory-sqlite#test:integration": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
-      "env": [
-        "DATABASE_URL",
-        "DATABASE_URL_UNPOOLED",
-        "EMAIL_*",
-        "AUTH_*",
-        "BETTER_AUTH_*",
-        "SECURITY_*",
-        "LIVEBLOCKS_*",
-        "RESEND_*"
-      ]
-    },
-    "@beep/shared-server#test:integration": {
-      "cache": true,
-      "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/.env*", "!.beep/**"],
-      "env": [
-        "DATABASE_URL",
-        "DATABASE_URL_UNPOOLED",
-        "EMAIL_*",
-        "AUTH_*",
-        "BETTER_AUTH_*",
-        "SECURITY_*",
-        "LIVEBLOCKS_*",
-        "RESEND_*"
-      ]
     }
   }
 }

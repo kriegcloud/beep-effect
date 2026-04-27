@@ -60,7 +60,7 @@ libraries.
 
 ### 3. Shared Is A Shared Kernel
 
-`packages/shared` is the DDD shared kernel. It contains cross-cutting language
+`generated shared-kernel package family` is the DDD shared kernel. It contains cross-cutting language
 that multiple slices deliberately share. It is not a dumping ground for code
 that did not fit elsewhere. Domain-agnostic reusable substrate belongs in
 `packages/foundation`, not in `shared`.
@@ -129,9 +129,9 @@ flowchart TD
   domain["@beep/<slice>-domain"]
   tables["@beep/<slice>-tables"]
   drivers["@beep/<driver>"]
-  sharedDomain["@beep/shared-domain"]
-  sharedUseCases["@beep/shared-use-cases"]
-  sharedConfig["@beep/shared-config"]
+  sharedDomain["@beep/<kernel>-domain"]
+  sharedUseCases["@beep/<kernel>-use-cases"]
+  sharedConfig["@beep/<kernel>-config"]
   foundation["foundation primitive/modeling"]
 
   ui --> client
@@ -178,7 +178,7 @@ Forbidden by default:
 
 - `domain` depending on anything except shared-kernel language and
   `foundation/primitive` or `foundation/modeling` packages. This excludes slice
-  `config`, `@beep/shared-config`, `foundation/capability`,
+  `config`, `@beep/<kernel>-config`, `foundation/capability`,
   `foundation/ui-system`, `Config`, `ConfigProvider`, server, client, tables,
   UI, drivers, and use-cases.
 - `use-cases` depending on `server`, `client`, `ui`, `tables`, or concrete
@@ -197,13 +197,13 @@ Client/UI dependency caveats:
   value objects; domain must never import config or read runtime configuration.
 - `client` may import `use-cases` only through required client-safe contract
   subpaths such as `@beep/<slice>-use-cases/public` and
-  `@beep/shared-use-cases/public`. Those exports may include command/query
+  `@beep/<kernel>-use-cases/public`. Those exports may include command/query
   language, driver-neutral boundary contracts, driver-neutral DTOs, actionable
   application errors, and client-safe facade contracts. They must not include
   product ports, server-only service/facade contracts, workflows, process
   managers, schedulers, or live Layer values.
 - `client` may import config only through `@beep/<slice>-config/public` and
-  `@beep/shared-config/public`. It must not import `/server`, `/secrets`,
+  `@beep/<kernel>-config/public`. It must not import `/server`, `/secrets`,
   `/layer`, or `/test`.
 - `client` may import drivers only through the required browser-safe subpath
   `@beep/<driver>/browser`. Driver package roots are never browser-safe by
@@ -249,15 +249,15 @@ The package names follow the public package convention:
 
 `config` is canonical but optional. Create it only when a slice has meaningful
 configuration contracts. The canonical shared package names are
-`@beep/shared-domain`, `@beep/shared-config`, and high-bar
-`@beep/shared-use-cases` when that package exists. `env` package naming is
+`@beep/<kernel>-domain`, `@beep/<kernel>-config`, and high-bar
+`@beep/<kernel>-use-cases` when that package exists. `env` package naming is
 legacy source-specific vocabulary, not a slice package kind. Environment
 variables are one possible `ConfigProvider` source for config declarations.
 
 `shared` is the canonical cross-slice slice with a reduced spine:
 
 ```txt
-packages/shared/
+packages/<kernel>/
   domain/
   config/
   use-cases/ # high bar only
@@ -299,7 +299,7 @@ package guidance.
 @beep/<slice>-use-cases/test
 ```
 
-When it exists, `@beep/shared-use-cases` follows the same contract.
+When it exists, `@beep/<kernel>-use-cases` follows the same contract.
 
 - `/public` is client-safe: commands, queries, driver-neutral DTOs, boundary
   contracts, actionable application errors, and client-safe facade interfaces.
@@ -318,7 +318,7 @@ When it exists, `@beep/shared-use-cases` follows the same contract.
 @beep/<slice>-config/test
 ```
 
-`@beep/shared-config` follows the same contract.
+`@beep/<kernel>-config` follows the same contract.
 
 - `/public` is the only browser/client-safe config surface.
 - `/server`, `/secrets`, and `/test` are server/test-only.
@@ -348,7 +348,7 @@ The canonical non-slice families are:
 | `tooling`    | `library`, `tool`, `policy-pack`, `test-kit`            | Developer-operational code packages.              |
 | `agents`     | `skill-pack`, `policy-pack`, `runtime-adapter`          | Repo-local AI steering bundles.                   |
 
-`packages/shared` is not part of this table. `shared` remains the DDD shared
+`generated shared-kernel package family` is not part of this table. `shared` remains the DDD shared
 kernel and canonical cross-slice slice. `foundation` is not a rename of the
 shared kernel. `drivers` are not candidates for `shared`.
 
@@ -364,7 +364,7 @@ agents/<kind>/<name>
 ```
 
 These roots sit beside slice roots such as `packages/iam/*` and the shared
-cross-slice root `packages/shared/*`.
+cross-slice root `packages/<kernel>/*`.
 
 Public package names follow the family role:
 
@@ -844,7 +844,7 @@ These roles map to explicit export subpaths:
   helpers
 - `@beep/<slice>-config/test` for test helpers and fixtures
 
-`@beep/shared-config` follows the same contract. Required subpaths are required
+`@beep/<kernel>-config` follows the same contract. Required subpaths are required
 names when that role exists. Package roots and `./*` exports may remain during
 migration, but they are not the canonical boundary contract.
 
@@ -936,7 +936,7 @@ Config owns typed runtime/application configuration contracts:
 
 Config may depend inward on `domain` and `shared` for driver-neutral schemas,
 brands, value objects, and validation. That dependency is one-way: domain must
-not import config, `@beep/shared-config`, `Config`, `ConfigProvider`, or any
+not import config, `@beep/<kernel>-config`, `Config`, `ConfigProvider`, or any
 runtime configuration helper. Config must not import use-cases, server, client,
 UI, tables, or concrete drivers.
 
@@ -1023,8 +1023,8 @@ Layer composition:
 - atoms, form models, optimistic state, and client state machines
 
 Client may depend on `@beep/<slice>-use-cases/public`,
-`@beep/shared-use-cases/public` when that package exists,
-`@beep/<slice>-config/public`, `@beep/shared-config/public`, and browser-safe
+`@beep/<kernel>-use-cases/public` when that package exists,
+`@beep/<slice>-config/public`, `@beep/<kernel>-config/public`, and browser-safe
 driver entrypoints exposed from `@beep/<driver>/browser`. It must not import
 server config, secret config, config `/layer`, server-only live Layers, driver
 package roots, or non-browser driver surfaces.

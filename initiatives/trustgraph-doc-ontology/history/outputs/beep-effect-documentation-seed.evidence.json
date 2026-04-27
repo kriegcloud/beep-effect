@@ -8,7 +8,7 @@
           "exact": "FORBIDDEN: Using `@throws` to document `Effect<A, E, R>` error channels",
           "kind": "text-quote"
         },
-        "source": "file:///home/elpresidank/YeeBois/projects/beep-effect/.patterns/jsdoc-documentation.md"
+        "source": "file:///home/elpresidank/YeeBois/projects/beep-effect2/.patterns/jsdoc-documentation.md"
       }
     },
     {
@@ -19,7 +19,7 @@
           "exact": "JSDocTagDefinition.make(\"param\", {",
           "kind": "text-quote"
         },
-        "source": "file:///home/elpresidank/YeeBois/projects/beep-effect/tooling/repo-utils/src/JSDoc/JSDoc.ts"
+        "source": "file:///home/elpresidank/YeeBois/projects/beep-effect2/tooling/repo-utils/src/JSDoc/JSDoc.ts"
       }
     },
     {
@@ -30,7 +30,7 @@
           "exact": "const REQUIRED_TAGS = [\"@category\", \"@example\", \"@since\"] as const;",
           "kind": "text-quote"
         },
-        "source": "file:///home/elpresidank/YeeBois/projects/beep-effect/tooling/cli/src/commands/Docgen/internal/Operations.ts"
+        "source": "file:///home/elpresidank/YeeBois/projects/beep-effect2/tooling/cli/src/commands/Docgen/internal/Operations.ts"
       }
     }
   ],

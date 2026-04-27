@@ -30,7 +30,7 @@ Before writing EventLog or graph code, verify:
 9. Am I building the top-level EventLog? Use `EventLog.layer(schema, handlerLayers)` or `EventLog.layerEventLog`.
 10. Am I defining a facade service? Keep it thin. Writes delegate to EventLog client. Reads hit materialized SQL tables.
 11. Am I handling conflicts? Every handler MUST acknowledge the `conflicts` parameter explicitly.
-12. Am I creating materialized view tables? Use `Table.make(EntityId)(columns)` from `@beep/shared-tables`.
+12. Am I creating materialized view tables? Keep them in the generated slice table package and mirror the golden fixture table shape until the topology factory extracts the helper.
 13. Am I inside the graph style layer? Extend `graph-styles.tsx` for new node/edge types.
 
 ## Module Inventory
@@ -592,8 +592,8 @@ These tables are created automatically by `SqlEventJournal.layer()`. Never creat
 
 | Table | Owner | Purpose |
 |-------|-------|---------|
-| `graph_nodes` | `Table.make(KnowledgeNodeId)(...)` | Projected node state |
-| `graph_edges` | `Table.make(KnowledgeEdgeId)(...)` | Projected edge state |
+| `graph_nodes` | Generated slice table package | Projected node state |
+| `graph_edges` | Generated slice table package | Projected edge state |
 | `graph_build_state` | Application | Projection checkpoint key-value |
 
 The materialized view tables are ALWAYS rebuildable: drop them, then replay all events from the journal through handlers.
@@ -601,22 +601,24 @@ The materialized view tables are ALWAYS rebuildable: drop them, then replay all 
 ### Materialized View Table Definitions
 
 ```ts
-import { Table } from "@beep/shared-tables"
+import * as sqlite from "drizzle-orm/sqlite-core"
 
-export const graphNodes = Table.make(KnowledgeNodeId)({
-  kind: text("kind").notNull(),
-  label: text("label").notNull(),
-  content: text("content"),
-  createdAt: integer("created_at").notNull(),
-  updatedAt: integer("updated_at"),
+export const graphNodes = sqlite.sqliteTable("graph_nodes", {
+  id: sqlite.text("id").primaryKey(),
+  kind: sqlite.text("kind").notNull(),
+  label: sqlite.text("label").notNull(),
+  content: sqlite.text("content"),
+  createdAt: sqlite.integer("created_at").notNull(),
+  updatedAt: sqlite.integer("updated_at"),
 })
 
-export const graphEdges = Table.make(KnowledgeEdgeId)({
-  sourceId: text("source_id").notNull().references(() => graphNodes.id),
-  targetId: text("target_id").notNull().references(() => graphNodes.id),
-  relation: text("relation").notNull(),
-  weight: real("weight"),
-  createdAt: integer("created_at").notNull(),
+export const graphEdges = sqlite.sqliteTable("graph_edges", {
+  id: sqlite.text("id").primaryKey(),
+  sourceId: sqlite.text("source_id").notNull().references(() => graphNodes.id),
+  targetId: sqlite.text("target_id").notNull().references(() => graphNodes.id),
+  relation: sqlite.text("relation").notNull(),
+  weight: sqlite.real("weight"),
+  createdAt: sqlite.integer("created_at").notNull(),
 })
 ```
 
@@ -668,25 +670,17 @@ To extend for the knowledge graph:
 
 ## Existing Codebase Patterns
 
-### RepoRunEventLog Pattern
+### Golden Slice Table Pattern
 
-`packages/repo-memory/runtime/src/internal/RepoRunEventLog.ts` demonstrates:
-- Direct `EventJournal.EventJournal` usage for write + subscribe
-- Msgpack encoding/decoding of event payloads
-- Materialization via a projection function called in the `write.effect` callback
-- Live streaming via `journal.changes` (`PubSub.Subscription`) to `Stream.fromSubscription`
-- Reactivity invalidation via `Reactivity.invalidate(keys)`
+The checked automation fixture demonstrates where generated materialized-view
+tables should live:
 
-Key pattern from this file: the `journal.write({ event, primaryKey, payload, effect })` call runs the effect BEFORE committing the entry. If the effect fails, the entry is not persisted.
+- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/Specimen.table.ts`
+- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/server/src/SpecimenServer.ts`
 
-### RepoMemorySql Pattern
-
-`packages/repo-memory/sqlite/src/internal/RepoMemorySql.ts` demonstrates:
-- `S.Class` for row schemas with `$I` annotations
-- `S.decodeUnknownEffect` / `S.encodeUnknownEffect` for all SQL row parsing
-- `S.fromJsonString(Schema)` for JSON column encoding
-- Explicit error mapping with typed errors (`RepoStoreError`)
-- Config class for service configuration
+Use that fixture as the current topology reference: table/read-model code stays
+inside the slice table/server packages, and the eventual generator should
+produce the same structure idempotently.
 
 ## Enforcement Rules
 
@@ -697,7 +691,7 @@ Key pattern from this file: the `journal.write({ event, primaryKey, payload, eff
 5. **MUST** use `EventLog.makeClient(schema)` for typed event writing.
 6. **KnowledgeGraph** service is a thin facade -- delegates writes to EventLog client, reads to materialized SQL index.
 7. **Single database**: `.beep/graph/graph.db` -- Effect journal tables and application materialized views coexist.
-8. **Materialized view tables** use `Table.make(entityId)(columns)` from `@beep/shared-tables`.
+8. **Materialized view tables** live in the generated slice table package and follow the golden fixture shape.
 9. **Conflict handling** must be explicit in every handler -- acknowledge the `conflicts` parameter.
 10. **Live streaming** uses `EventJournal.changes` (yields a `PubSub.Subscription`) -- never build custom NDJSON streams or polling.
 11. **Event payloads** are msgpack-encoded internally -- use Effect Schema types, never raw JSON.
@@ -723,10 +717,8 @@ Key pattern from this file: the `journal.write({ event, primaryKey, payload, eff
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/SqlEventLogServerUnencrypted.ts` -- SQL unencrypted server storage
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/SqlEventLogServerEncrypted.ts` -- SQL encrypted server storage
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/internal/identityRootSecretDerivation.ts` -- Key derivation
-- `packages/repo-memory/runtime/src/internal/RepoRunEventLog.ts` -- Existing event log usage pattern
-- `packages/repo-memory/sqlite/src/internal/RepoMemorySql.ts` -- SQLite service pattern
 - `packages/common/ui/src/components/codegraph/styles/graph-styles.tsx` -- Cytoscape graph styles
-- `packages/shared/tables/src/table/Table.ts` -- Table.make for materialized views
+- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/Specimen.table.ts` -- Golden fixture table package shape
 - `packages/common/semantic-web/src/prov.ts` -- ProvBundle for provenance tracking
 
 ## Verification Checklist

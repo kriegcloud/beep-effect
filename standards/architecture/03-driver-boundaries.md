@@ -30,7 +30,7 @@ The target layout fixes that by making drivers flat and repo-level:
 ```txt
 packages/drivers/drizzle   -> @beep/drizzle
 packages/drivers/postgres  -> @beep/postgres
-packages/drivers/firecrawl -> @beep/firecrawl
+packages/drivers/<driver> -> @beep/<driver>
 ```
 
 If a package needs slice language to make sense, it does not belong in

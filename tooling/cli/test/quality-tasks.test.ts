@@ -139,13 +139,7 @@ describe("quality task adapter", () => {
     expect(steps[0]).toMatchObject({
       label: "test:unit",
       command: "bunx",
-      args: expectedTurboArgs("test", [
-        "--filter=!@beep/repo-memory-runtime",
-        "--filter=!@beep/repo-memory-sqlite",
-        "--filter=!@beep/shared-server",
-        "--filter=@beep/schema",
-        "--summarize",
-      ]),
+      args: expectedTurboArgs("test", ["--filter=@beep/schema", "--summarize"]),
     });
     expect(steps[1]).toMatchObject({
       label: "test:types",

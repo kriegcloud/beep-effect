@@ -82,7 +82,7 @@ architectural sense.
 Domain may define driver-neutral schemas and value objects that config
 packages reuse when resolving typed settings. Domain behavior must still receive
 explicit values from callers rather than reading `Config`, `ConfigProvider`,
-`@beep/shared-config`, environment variables, secrets, files, or process state.
+`@beep/<kernel>-config`, environment variables, secrets, files, or process state.
 
 ## Example Shape
 

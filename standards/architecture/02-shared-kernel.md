@@ -1,6 +1,6 @@
 # Shared Kernel
 
-`packages/shared` is a DDD shared kernel.
+`generated shared-kernel package family` is a DDD shared kernel.
 
 That phrase is doing real work. It means shared code is a deliberate contract
 between slices, not a place to put whatever happens to be reusable today.
@@ -50,7 +50,7 @@ truly shared and the owning teams/slices accept the coupling.
 slice with a deliberately reduced spine:
 
 ```txt
-packages/shared/
+packages/<kernel>/
   domain/
   config/
   use-cases/ # high bar only
@@ -94,7 +94,7 @@ coupling.
 
 Examples:
 
-- `packages/shared/domain` may hold a value object that several slices treat as
+- `packages/<kernel>/domain` may hold a value object that several slices treat as
   the same product concept.
 - `packages/foundation/modeling/schema` may hold generic schema helpers that do
   not encode any product semantics.
@@ -126,7 +126,7 @@ By contrast, generic date/time parsing helpers, schema brands, and technical
 formatting helpers belong in `foundation`, not `shared`, because they do not
 create shared product semantics.
 
-`@beep/shared-config` follows the same rule. It may hold shared config
+`@beep/<kernel>-config` follows the same rule. It may hold shared config
 building blocks, browser-safe shared config contracts, server config contracts,
 redacted secret helpers, and test `ConfigProvider` utilities when multiple
 slices intentionally share that language. It must not become the place where all
@@ -134,14 +134,14 @@ slice config is gathered into one global object or Layer.
 
 Domain packages may depend on shared-kernel language plus allowed
 `foundation/primitive` and `foundation/modeling` packages, but not shared config
-contracts or helpers. `@beep/shared-config` is for config, use-case, adapter,
+contracts or helpers. `@beep/<kernel>-config` is for config, use-case, adapter,
 runtime, and test composition code; it is not an escape hatch for domain code
 to read configuration.
 
 Generic config helper libraries that do not encode shared product language
-belong in `foundation/capability`, not `@beep/shared-config`.
+belong in `foundation/capability`, not `@beep/<kernel>-config`.
 
-Client packages may import `@beep/shared-config/public` only. Shared server
+Client packages may import `@beep/<kernel>-config/public` only. Shared server
 config, secret helpers that expose secret contracts, live server Layers, and
 test `ConfigProvider` utilities stay behind `/server`, `/secrets`, `/layer`, and
 `/test`.

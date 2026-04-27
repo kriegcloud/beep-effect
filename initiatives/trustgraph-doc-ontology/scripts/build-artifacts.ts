@@ -1,8 +1,8 @@
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import * as S from "effect/Schema";
-import { BoundedEvidenceProjection } from "../../../../packages/common/semantic-web/src/evidence.ts";
-import { ProvBundle } from "../../../../packages/common/semantic-web/src/prov.ts";
+import { BoundedEvidenceProjection } from "../../../packages/common/semantic-web/src/evidence.ts";
+import { ProvBundle } from "../../../packages/common/semantic-web/src/prov.ts";
 import {
   Dataset,
   makeDataset,
@@ -11,11 +11,11 @@ import {
   makeQuad,
   serializeQuad,
   sortDatasetQuads,
-} from "../../../../packages/common/semantic-web/src/rdf.ts";
-import { ShaclNodeShape } from "../../../../packages/common/semantic-web/src/services/shacl-validation.ts";
-import { RDF_TYPE } from "../../../../packages/common/semantic-web/src/vocab/rdf.ts";
-import { RDFS_COMMENT, RDFS_LABEL } from "../../../../packages/common/semantic-web/src/vocab/rdfs.ts";
-import { XSD_BOOLEAN, XSD_STRING } from "../../../../packages/common/semantic-web/src/vocab/xsd.ts";
+} from "../../../packages/common/semantic-web/src/rdf.ts";
+import { ShaclNodeShape } from "../../../packages/common/semantic-web/src/services/shacl-validation.ts";
+import { RDF_TYPE } from "../../../packages/common/semantic-web/src/vocab/rdf.ts";
+import { RDFS_COMMENT, RDFS_LABEL } from "../../../packages/common/semantic-web/src/vocab/rdfs.ts";
+import { XSD_BOOLEAN, XSD_STRING } from "../../../packages/common/semantic-web/src/vocab/xsd.ts";
 
 const generatedAt = new Date().toISOString();
 const createdDate = "2026-04-04";
@@ -23,14 +23,18 @@ const tboxNamespace = "urn:beep-effect:doc-ontology#";
 const seedNamespace = "urn:beep-effect:doc-seed:";
 const probeOntologyKey = "beep-effect-doc-ontology-probe-2026-04-04";
 
-const repoRootUrl = new URL("../../../../", import.meta.url);
+const repoRootUrl = new URL("../../../", import.meta.url);
 const specRootUrl = new URL("../", import.meta.url);
 const outputsUrl = new URL("../history/outputs/", import.meta.url);
+const opsUrl = new URL("../ops/", import.meta.url);
 
 const readText = async (relativePath: string) => Bun.file(new URL(relativePath, repoRootUrl)).text();
 
 const writeJson = async (fileName: string, value: unknown) =>
   Bun.write(new URL(fileName, outputsUrl), `${stableStringify(value)}\n`);
+
+const writeOpsJson = async (fileName: string, value: unknown) =>
+  Bun.write(new URL(fileName, opsUrl), `${stableStringify(value)}\n`);
 
 const writeText = async (fileName: string, value: string) => Bun.write(new URL(fileName, outputsUrl), `${value}\n`);
 
@@ -64,11 +68,21 @@ const extractLiteralKitValues = (text: string, symbolName: string): Array<string
   return Array.from(match[1].matchAll(/"([^"]+)"/g), (entry) => entry[1]);
 };
 
+const extractPickedOptions = (text: string, symbolName: string): Array<string> => {
+  const match = text.match(new RegExp(`const ${symbolName} = TSSyntaxKind\\.pickOptions\\(\\[(.*?)\\]\\s*as const\\)`, "s"));
+
+  if (!match) {
+    throw new Error(`Unable to find TSSyntaxKind options for ${symbolName}.`);
+  }
+
+  return Array.from(match[1].matchAll(/"([^"]+)"/g), (entry) => entry[1]);
+};
+
 const extractTagNames = (text: string): Array<string> =>
   Array.from(text.matchAll(/JSDocTagDefinition\.make\("([^"]+)"/g), (entry) => entry[1]);
 
 const extractRequiredTags = (text: string): Array<string> => {
-  const match = text.match(/const REQUIRED_TAGS = \[(.*?)\] as const;/s);
+  const match = text.match(/const [A-Z_]*REQUIRED_TAGS = \[(.*?)\] as const;/s);
 
   if (!match) {
     throw new Error("Unable to find REQUIRED_TAGS in docgen operations.");
@@ -291,7 +305,7 @@ const ontology = {
       uri: tbox("repo-symbol-kind"),
       type: "owl:Class",
       "rdfs:subClassOf": "documentation-concept",
-      "rdfs:comment": "Deterministic repository symbol kind used by repo-memory indexing.",
+      "rdfs:comment": "Deterministic TypeScript symbol kind surfaced by repo-utils indexing.",
       "rdfs:label": [{ value: "repo symbol kind", lang: "en" }],
     },
     "ast-derivability-level": {
@@ -671,9 +685,9 @@ const sourceAuthorities = [
   },
   {
     id: "source-authority:repo-symbol-index",
-    label: "Repo symbol index",
-    location: "packages/repo-memory/model/src/internal/domain.ts",
-    notes: "Primary source for deterministic repo symbol kinds used by grounded retrieval and symbol memory.",
+    label: "Repo utils symbol model",
+    location: "tooling/repo-utils/src/TSMorph/TSMorph.model.ts",
+    notes: "Primary source for deterministic TypeScript symbol kinds used by repo indexing and documentation grounding.",
   },
 ] as const;
 
@@ -899,7 +913,7 @@ const run = async () => {
   const tagKindModel = await readText("tooling/repo-utils/src/JSDoc/models/TagKind.model.ts");
   const jsDocDatabase = await readText("tooling/repo-utils/src/JSDoc/JSDoc.ts");
   const docgenOperations = await readText("tooling/cli/src/commands/Docgen/internal/Operations.ts");
-  const repoSymbolDomain = await readText("packages/repo-memory/model/src/internal/domain.ts");
+  const repoUtilsSymbolModel = await readText("tooling/repo-utils/src/TSMorph/TSMorph.model.ts");
 
   const documentationStandards = extractLiteralKitValues(specificationModel, "Specification");
   const applicableKinds = extractLiteralKitValues(applicableToModel, "ApplicableTo");
@@ -907,7 +921,7 @@ const run = async () => {
   const tagKinds = extractLiteralKitValues(tagKindModel, "TagKind");
   const jsDocTagNames = extractTagNames(jsDocDatabase);
   const docgenKinds = extractLiteralKitValues(docgenOperations, "DocgenExportKind");
-  const repoSymbolKinds = extractLiteralKitValues(repoSymbolDomain, "RepoSymbolKind");
+  const repoSymbolKinds = extractPickedOptions(repoUtilsSymbolModel, "symbolKindOptions");
   const requiredPublicExportTags = extractRequiredTags(docgenOperations);
 
   const documentationSymbolKinds = [
@@ -973,13 +987,15 @@ const run = async () => {
   ];
 
   const repoSymbolNormalizationBridge = [
-    { source: "function", target: "function" },
-    { source: "class", target: "class" },
-    { source: "interface", target: "interface" },
-    { source: "typeAlias", target: "type-alias" },
-    { source: "const", target: "value" },
-    { source: "enum", target: "enum" },
-    { source: "namespace", target: "namespace" },
+    { source: "FunctionDeclaration", target: "function" },
+    { source: "ClassDeclaration", target: "class" },
+    { source: "MethodDeclaration", target: "method" },
+    { source: "Constructor", target: "constructor" },
+    { source: "GetAccessor", target: "accessor" },
+    { source: "SetAccessor", target: "accessor" },
+    { source: "InterfaceDeclaration", target: "interface" },
+    { source: "TypeAliasDeclaration", target: "type-alias" },
+    { source: "EnumDeclaration", target: "enum" },
   ];
 
   const scaffold = {
@@ -1012,7 +1028,7 @@ const run = async () => {
       jsDocDatabase: "tooling/repo-utils/src/JSDoc/JSDoc.ts",
       docgenDomain: "tooling/docgen/src/Domain.ts",
       docgenAnalysis: "tooling/cli/src/commands/Docgen/internal/Operations.ts",
-      repoSymbolDomain: "packages/repo-memory/model/src/internal/domain.ts",
+      repoUtilsSymbolModel: "tooling/repo-utils/src/TSMorph/TSMorph.model.ts",
       policyPattern: ".patterns/jsdoc-documentation.md",
     },
     counts: {
@@ -1350,7 +1366,7 @@ const run = async () => {
     "| Docgen checker | Current runtime validator | missing description, example presence, missing @since | semantic rules like Effect @throws prohibition | `tooling/docgen/src/Checker.ts` |",
     "| Docgen analysis operations | Current report/enforcement surface | required public-export tags such as @category, @example, @since | semantic interpretation of function contracts | `tooling/cli/src/commands/Docgen/internal/Operations.ts` |",
     "| Docgen domain models | Artifact vocabulary source | docgen entities, doc records, module/fileoverview surfaces | policy semantics and rule precedence | `tooling/docgen/src/Domain.ts` |",
-    "| Repo symbol index | Retrieval bridge source | deterministic repo symbol kinds for retrieval and grounding | documentation-specific rule semantics | `packages/repo-memory/model/src/internal/domain.ts` |",
+    "| Repo utils symbol model | Retrieval bridge source | deterministic TypeScript symbol kinds for retrieval and grounding | documentation-specific rule semantics | `tooling/repo-utils/src/TSMorph/TSMorph.model.ts` |",
     "",
     "The seed layer uses split authority intentionally: structural tag facts come from the typed JSDoc models, normative rules come from the repo policy document, and current enforcement claims only come from the existing docgen toolchain.",
   ].join("\n");
@@ -1413,7 +1429,7 @@ const run = async () => {
   await writeJson("beep-effect-documentation-shapes.json", encodedShapes);
   await writeText("beep-effect-documentation-capability-audit.md", capabilityAudit);
   await writeText("source-authority-matrix.md", sourceAuthorityMatrix);
-  await writeJson("manifest.json", manifest);
+  await writeOpsJson("manifest.json", manifest);
 
   console.log(
     [

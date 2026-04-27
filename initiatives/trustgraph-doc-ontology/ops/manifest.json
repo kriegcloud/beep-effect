@@ -7,11 +7,11 @@
     "documentationSymbolKinds": 13,
     "governingRules": 9,
     "jsDocTags": 113,
-    "repoSymbolKinds": 7
+    "repoSymbolKinds": 9
   },
   "created": "2026-04-04",
   "currentSourceOfTruth": "SPEC.md",
-  "generatedAt": "2026-04-05T03:14:49.850Z",
+  "generatedAt": "2026-04-27T06:50:15.813Z",
   "keyDecisions": [
     "Use TrustGraph native ontology JSON for the TBox artifact.",
     "Use repo-scoped URNs for ontology and seed identifiers.",

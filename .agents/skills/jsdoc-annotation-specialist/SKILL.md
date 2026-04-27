@@ -257,5 +257,5 @@ rg ': any' --type ts
 
 - `.patterns/jsdoc-documentation.md` -- primary JSDoc standard
 - `packages/common/schema/src/SemanticVersion.ts` -- TemplateLiteral + annoteSchema
-- `packages/shared/server/src/factories/effect-drizzle/Errors.ts` -- TaggedErrorClass + annote
+- `tooling/cli/src/commands/Quality/Tasks.ts` -- TaggedErrorClass + annote
 - `packages/common/schema/src/Duration.ts` -- S.Class + annote + LiteralKit + annotate
