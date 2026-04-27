@@ -1,5 +1,5 @@
 /**
- * Shared-kernel Drizzle table constructor.
+ * Shared-kernel PGLite-compatible Drizzle table constructor.
  *
  * @packageDocumentation
  * @since 0.0.0
@@ -162,13 +162,16 @@ export type WithDefinition<
   readonly definition: Definition<Entity, Mixins>;
 };
 
-const nullable = <const Descriptor extends FieldDescriptor, Builder extends AnyPgColumnBuilder>(
+const notNullColumn = <Builder extends AnyPgColumnBuilder>(column: Builder): SetNotNull<Builder> =>
+  (column as NotNullColumnBuilder<Builder>).notNull();
+
+const columnWithNullability = <const Descriptor extends FieldDescriptor, Builder extends AnyPgColumnBuilder>(
   descriptor: Descriptor,
   column: Builder
 ): ColumnBuilderWithNullability<Descriptor, Builder> =>
   (descriptor.key === "id" || descriptor.nullable
     ? column
-    : (column as NotNullColumnBuilder<Builder>).notNull()) as ColumnBuilderWithNullability<Descriptor, Builder>;
+    : notNullColumn(column)) as ColumnBuilderWithNullability<Descriptor, Builder>;
 
 function entityIdColumn<const Descriptor extends EntityIdDescriptor>(
   descriptor: Descriptor
@@ -194,28 +197,31 @@ function columnFor(descriptor: FieldDescriptor): ColumnBuilderFor<FieldDescripto
   return Match.value(descriptor).pipe(
     Match.withReturnType<ColumnBuilderFor<FieldDescriptor>>(),
     Match.discriminatorsExhaustive("storageKind")({
-      blob: (self) => nullable(self, bytea(self.columnName)),
-      bool: (self) => nullable(self, boolean(self.columnName)),
-      encryptionKeyId: (self) => nullable(self, text(self.columnName)),
-      entityId: (self) => nullable(self, entityIdColumn(self)),
-      entityRef: (self) => nullable(self, jsonb(self.columnName)),
-      hybridLogicalClock: (self) => nullable(self, text(self.columnName)),
-      int: (self) => nullable(self, integer(self.columnName)),
-      json: (self) => nullable(self, jsonb(self.columnName)),
-      literal: (self) => nullable(self, text(self.columnName)),
-      principal: (self) => nullable(self, jsonb(self.columnName)),
-      semanticVersion: (self) => nullable(self, text(self.columnName)),
-      sha256: (self) => nullable(self, text(self.columnName)),
-      signature: (self) => nullable(self, text(self.columnName)),
-      text: (self) => nullable(self, text(self.columnName)),
-      timestampMillis: (self) => nullable(self, bigint(self.columnName, { mode: "number" })),
-      vectorClock: (self) => nullable(self, jsonb(self.columnName)),
+      blob: (self) => columnWithNullability(self, bytea(self.columnName)),
+      bool: (self) => columnWithNullability(self, boolean(self.columnName)),
+      encryptionKeyId: (self) => columnWithNullability(self, text(self.columnName)),
+      entityId: (self) => columnWithNullability(self, entityIdColumn(self)),
+      entityRef: (self) => columnWithNullability(self, jsonb(self.columnName)),
+      hybridLogicalClock: (self) => columnWithNullability(self, text(self.columnName)),
+      int: (self) => columnWithNullability(self, integer(self.columnName)),
+      json: (self) => columnWithNullability(self, jsonb(self.columnName)),
+      literal: (self) => columnWithNullability(self, text(self.columnName)),
+      principal: (self) => columnWithNullability(self, jsonb(self.columnName)),
+      semanticVersion: (self) => columnWithNullability(self, text(self.columnName)),
+      sha256: (self) => columnWithNullability(self, text(self.columnName)),
+      signature: (self) => columnWithNullability(self, text(self.columnName)),
+      text: (self) => columnWithNullability(self, text(self.columnName)),
+      timestampMillis: (self) => columnWithNullability(self, bigint(self.columnName, { mode: "number" })),
+      vectorClock: (self) => columnWithNullability(self, jsonb(self.columnName)),
     })
   );
 }
 
+const descriptorRecord = <const FieldMap extends object>(fieldMap: FieldMap): Record<string, EntityMixin.FieldDescriptor> =>
+  fieldMap as Record<string, EntityMixin.FieldDescriptor>;
+
 const columnsFor = <const FieldMap extends object>(fieldMap: FieldMap): ColumnBuilderMapFor<FieldMap> =>
-  R.map(fieldMap as Record<string, EntityMixin.FieldDescriptor>, columnFor) as ColumnBuilderMapFor<FieldMap>;
+  R.map(descriptorRecord(fieldMap), columnFor) as ColumnBuilderMapFor<FieldMap>;
 
 const indexName = (tableName: string, descriptor: EntityMixin.FieldDescriptor, hint: EntityMixin.IndexHint): string =>
   `${tableName}_${descriptor.columnName}_${hint.kind}_idx`;
@@ -265,7 +271,8 @@ const indexesFor = (
   );
 
 /**
- * Build a Postgres Drizzle table from canonical shared-kernel entity metadata.
+ * Build a PGLite-compatible Postgres Drizzle table from canonical shared-kernel
+ * entity metadata.
  *
  * @example
  * ```ts
@@ -279,22 +286,34 @@ const indexesFor = (
  * @since 0.0.0
  * @category constructors
  */
-export const make = <const Entity extends EntityId.Any, const Mixins extends EntityMixin.Pack = EntityMixin.EmptyPack>(
+const tableFromRuntime = <const Entity extends EntityId.Any, const Mixins extends EntityMixin.Pack>(
+  table: object,
+  definition: Definition<Entity, Mixins>
+): TableFor<Entity, Mixins> =>
+  Struct.assign(table, {
+    definition,
+  }) as TableFor<Entity, Mixins>;
+
+const mixinsFromOptional = <const Mixins extends EntityMixin.Pack>(mixins: Mixins | undefined): Mixins =>
+  (mixins ?? EntityMixin.pack()) as Mixins;
+
+export const make = <
+  const Entity extends EntityId.Any,
+  const Mixins extends EntityMixin.Pack = EntityMixin.EmptyPack,
+>(
   entityId: Entity,
   mixins?: Mixins
 ): TableFor<Entity, Mixins> => {
-  const resolvedMixins = (mixins ?? EntityMixin.pack()) as Mixins;
+  const resolvedMixins = mixinsFromOptional(mixins);
   const fieldMap = BaseEntity.fieldMapFor(entityId, resolvedMixins);
   const table = pgTable(
     entityId.tableName,
     () => columnsFor(fieldMap),
     (columns) => indexesFor(entityId.tableName, fieldMap, columns)
   );
-  return Struct.assign(table, {
-    definition: {
-      entityId,
-      fieldMap,
-      tableName: entityId.tableName,
-    },
-  }) as TableFor<Entity, Mixins>;
+  return tableFromRuntime(table, {
+    entityId,
+    fieldMap,
+    tableName: entityId.tableName,
+  });
 };

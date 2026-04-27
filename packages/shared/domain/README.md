@@ -30,15 +30,15 @@ the same driver-neutral product meaning.
 
 ## Source Map
 
-| Path | Intended role |
-| --- | --- |
-| `src/aggregates/index.ts` | Shared aggregate roots and aggregate-level vocabulary. |
-| `src/entities/index.ts` | Shared identity-bearing concepts. |
-| `src/identity/index.ts` | Shared entity-id modules and identity vocabulary. |
-| `src/values/index.ts` | Shared value objects. |
-| `src/values/LocalDate/index.ts` | Future shared `LocalDate` value-object barrel. |
-| `src/values/LocalDate/LocalDate.model.ts` | Future shared `LocalDate` schema/model. |
-| `src/values/LocalDate/LocalDate.behavior.ts` | Future pure `LocalDate` behavior. |
+| Path                                         | Intended role                                          |
+|----------------------------------------------|--------------------------------------------------------|
+| `src/aggregates/index.ts`                    | Shared aggregate roots and aggregate-level vocabulary. |
+| `src/entities/index.ts`                      | Shared identity-bearing concepts.                      |
+| `src/identity/index.ts`                      | Shared entity-id modules and identity vocabulary.      |
+| `src/values/index.ts`                        | Shared value objects.                                  |
+| `src/values/LocalDate/index.ts`              | Future shared `LocalDate` value-object barrel.         |
+| `src/values/LocalDate/LocalDate.model.ts`    | Future shared `LocalDate` schema/model.                |
+| `src/values/LocalDate/LocalDate.behavior.ts` | Future pure `LocalDate` behavior.                      |
 
 ## Development
 

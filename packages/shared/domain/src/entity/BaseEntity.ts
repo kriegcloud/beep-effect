@@ -250,7 +250,7 @@ const entityFieldMap = <const Entity extends EntityId.Any>(entityId: Entity): En
       storageKind: "entityId",
       valueStrategy: "generatedOnInsert",
     },
-  }) as EntityFieldMap<Entity>;
+  }) satisfies EntityFieldMap<Entity>;
 
 const normalizeFields = (input: StructInput): Record<string, FieldInput> =>
   R.filter(VariantSchema.isStruct(input) ? VariantSchema.fields(input) : input, P.isNotUndefined);
@@ -323,6 +323,23 @@ const mergeFields = (
   return merged;
 };
 
+const structInputFromOverload = (input: unknown): StructInput => input as StructInput;
+
+const modelClassFromRuntime = <Self>(
+  identifier: string,
+  fields: Record<string, FieldInput>,
+  annotations: unknown
+): ModelClass<Self> => Model.Class<Self>(identifier)(fields, annotations as never) as ModelClass<Self>;
+
+const extendBuilderFromRuntime = <Self>(
+  builder: (
+    entityId: EntityId.Any,
+    mixinsOrFields: EntityMixin.Pack | StructInput,
+    fieldsOrAnnotations?: StructInput | unknown,
+    annotations?: unknown
+  ) => object
+): ExtendBuilder<Self> => builder as ExtendBuilder<Self>;
+
 /**
  * Build the complete storage-neutral field descriptor map for an entity.
  *
@@ -354,7 +371,7 @@ export function fieldMapFor(entityId: EntityId.Any, mixins: EntityMixin.Pack = E
 }
 
 const extend = <Self = never>(identifier: string): ExtendBuilder<Self> =>
-  ((
+  extendBuilderFromRuntime<Self>((
     entityId: EntityId.Any,
     mixinsOrFields: EntityMixin.Pack | StructInput,
     fieldsOrAnnotations?: StructInput | unknown,
@@ -362,10 +379,10 @@ const extend = <Self = never>(identifier: string): ExtendBuilder<Self> =>
   ) => {
     const hasMixins = EntityMixin.isPack(mixinsOrFields);
     const mixins = hasMixins ? mixinsOrFields : EntityMixin.pack();
-    const entitySpecificFields = hasMixins ? (fieldsOrAnnotations as StructInput) : mixinsOrFields;
+    const entitySpecificFields = hasMixins ? structInputFromOverload(fieldsOrAnnotations) : mixinsOrFields;
     const entityAnnotations = hasMixins ? annotations : fieldsOrAnnotations;
     const mergedFields = mergeFields(entityId, mixins, entitySpecificFields);
-    const modelClass = Model.Class<Self>(identifier)(mergedFields, entityAnnotations as never) as ModelClass<Self>;
+    const modelClass = modelClassFromRuntime<Self>(identifier, mergedFields, entityAnnotations);
 
     return EffectStruct.assign(modelClass, {
       definition: {
@@ -374,7 +391,7 @@ const extend = <Self = never>(identifier: string): ExtendBuilder<Self> =>
         mixins,
       },
     });
-  }) as ExtendBuilder<Self>;
+  });
 
 /**
  * Product-facing persisted entity base.
@@ -396,16 +413,21 @@ const extend = <Self = never>(identifier: string): ExtendBuilder<Self> =>
  * @since 0.0.0
  * @category constructors
  */
-export const BaseEntity = EffectStruct.assign(BaseEntityBaseClass, {
+const BaseEntityWithDefinition = EffectStruct.assign(BaseEntityBaseClass, {
   definition: {
     fieldMap,
   },
-}) as unknown as Constructor;
+});
 
-globalThis.Object.defineProperty(BaseEntity, "extend", {
+globalThis.Object.defineProperty(BaseEntityWithDefinition, "extend", {
   value: extend,
   configurable: true,
 });
+
+const constructorFromRuntime = (constructor: typeof BaseEntityWithDefinition): Constructor =>
+  constructor as unknown as Constructor;
+
+export const BaseEntity = constructorFromRuntime(BaseEntityWithDefinition);
 
 /**
  * Runtime type for {@link BaseEntity}.

@@ -45,9 +45,11 @@
     "@beep/schema": "workspace:^",
     "@effect/platform-bun": "catalog:",
     "@effect/platform-node": "catalog:",
+    "@effect/sql-pg": "catalog:",
     "@effect/sql-sqlite-bun": "catalog:",
     "@effect/sql-sqlite-node": "catalog:",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "testcontainers": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "catalog:",

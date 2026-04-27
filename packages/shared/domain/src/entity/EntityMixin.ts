@@ -1,16 +1,17 @@
 /**
  * First-class storage-neutral entity mixin contracts.
  *
- * @module
+ * @packageDocumentation
  * @since 0.0.0
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
-import { LiteralKit, TaggedErrorClass } from "@beep/schema";
+import { LiteralKit, SchemaUtils, TaggedErrorClass } from "@beep/schema";
 import type * as VariantSchema from "@beep/schema/VariantSchema";
-import { Struct } from "effect";
+import type { TUtils } from "@beep/types";
+import * as Struct from "@beep/utils/Struct";
 import * as A from "effect/Array";
-import { cast, dual, pipe } from "effect/Function";
+import { dual, pipe } from "effect/Function";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
@@ -265,10 +266,21 @@ export type IndexHint = typeof IndexHint.Type;
  * @since 0.0.0
  * @category models
  */
+const IndexHints = S.Array(IndexHint).pipe(S.optionalKey);
+
+class IndexHintField extends S.Class<IndexHintField>($I`IndexHintField`)(
+  {
+    indexHints: IndexHints,
+  },
+  $I.annote("IndexHintField", {
+    description: "Optional index hints shared by storage-neutral entity field descriptor shapes.",
+  })
+) {}
+
 const FieldDescriptorFields = {
   columnName: S.String,
   description: S.String,
-  indexHints: S.Array(IndexHint).pipe(S.optionalKey),
+  indexHints: IndexHints,
   key: S.String,
   nullable: S.Boolean,
 } as const;
@@ -276,13 +288,9 @@ const FieldDescriptorFields = {
 const FieldDescriptorInputFields = {
   columnName: S.String,
   description: S.String,
-  indexHints: S.Array(IndexHint).pipe(S.optionalKey),
+  indexHints: IndexHints,
   nullable: S.Boolean,
 } as const;
-
-type IndexHintField = {
-  readonly indexHints?: ReadonlyArray<IndexHint>;
-};
 
 type FieldDescriptorShape<
   Kind extends StorageKind = StorageKind,
@@ -326,16 +334,29 @@ export type FieldDescriptor = {
 /**
  * Literal-preserving descriptor input shape used by {@link make}.
  *
+ * @example
+ * ```ts
+ * import { FieldDescriptorInputShape } from "@beep/shared-domain/entity/EntityMixin"
+ *
+ * void FieldDescriptorInputShape
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
-export type FieldDescriptorInputShape = IndexHintField & {
-  readonly columnName: string;
-  readonly description: string;
-  readonly nullable: boolean;
-  readonly storageKind: StorageKind;
-  readonly valueStrategy: ValueStrategy;
-};
+export class FieldDescriptorInputShape extends S.Class<FieldDescriptorInputShape>($I`FieldDescriptorInputShape`)(
+  {
+    columnName: S.String,
+    description: S.String,
+    indexHints: IndexHints,
+    nullable: S.Boolean,
+    storageKind: StorageKind,
+    valueStrategy: ValueStrategy,
+  },
+  $I.annote("FieldDescriptorInputShape", {
+    description: "Literal-preserving descriptor input shape used to define entity mixin fields.",
+  })
+) {}
 
 /**
  * Runtime type for {@link FieldDescriptorInput}.
@@ -460,14 +481,20 @@ const FieldDescriptorBase = S.Union([
  * @category schemas
  * @since 0.0.0
  */
-export const FieldDescriptor: S.Decoder<FieldDescriptor> & FieldDescriptorStatics = Struct.assign(
+const attachFieldDescriptorStatics = <Schema extends S.Decoder<FieldDescriptor>>(
+  schema: Schema
+): Schema & FieldDescriptorStatics =>
+  SchemaUtils.withStatics(schema, () =>
+    Struct.pick(FieldDescriptorStorageBase, ["cases", "guards", "isAnyOf", "match"])
+  ) as Schema & FieldDescriptorStatics;
+
+export const FieldDescriptor: S.Decoder<FieldDescriptor> & FieldDescriptorStatics = attachFieldDescriptorStatics(
   FieldDescriptorBase.pipe(
     $I.annoteSchema("FieldDescriptor", {
       description: "Storage-neutral tagged descriptor for one entity field.",
     })
-  ),
-  Struct.pick(FieldDescriptorStorageBase, ["cases", "guards", "isAnyOf", "match"])
-) as S.Decoder<FieldDescriptor> & FieldDescriptorStatics;
+  )
+);
 
 const FieldDescriptorInputStorageBase = StorageKind.toTaggedUnion("storageKind")(FieldDescriptorInputCases);
 type FieldDescriptorInputStatics = Pick<
@@ -507,14 +534,21 @@ const FieldDescriptorInputBase = S.Union([
  * @category schemas
  * @since 0.0.0
  */
-export const FieldDescriptorInput: S.Decoder<FieldDescriptorInput> & FieldDescriptorInputStatics = Struct.assign(
-  FieldDescriptorInputBase.pipe(
-    $I.annoteSchema("FieldDescriptorInput", {
-      description: "Storage-neutral tagged descriptor input keyed externally by an entity field name.",
-    })
-  ),
-  Struct.pick(FieldDescriptorInputStorageBase, ["cases", "guards", "isAnyOf", "match"])
-) as S.Decoder<FieldDescriptorInput> & FieldDescriptorInputStatics;
+const attachFieldDescriptorInputStatics = <Schema extends S.Decoder<FieldDescriptorInput>>(
+  schema: Schema
+): Schema & FieldDescriptorInputStatics =>
+  SchemaUtils.withStatics(schema, () =>
+    Struct.pick(FieldDescriptorInputStorageBase, ["cases", "guards", "isAnyOf", "match"])
+  ) as Schema & FieldDescriptorInputStatics;
+
+export const FieldDescriptorInput: S.Decoder<FieldDescriptorInput> & FieldDescriptorInputStatics =
+  attachFieldDescriptorInputStatics(
+    FieldDescriptorInputBase.pipe(
+      $I.annoteSchema("FieldDescriptorInput", {
+        description: "Storage-neutral tagged descriptor input keyed externally by an entity field name.",
+      })
+    )
+  );
 
 /**
  * Descriptor refinement that materializes `valueStrategy` as a discriminated
@@ -648,21 +682,13 @@ export type EntityMixin<
   readonly name: string;
 };
 
-type UnionToIntersection<Union> = (Union extends unknown ? (value: Union) => void : never) extends (
-  value: infer Intersection
-) => void
-  ? Intersection
-  : never;
-
-type Simplify<T> = { readonly [K in keyof T]: T[K] } & {};
-
 type MixinFields<Mixins extends ReadonlyArray<EntityMixin>> = [Mixins[number]] extends [never]
   ? {}
-  : Simplify<UnionToIntersection<Mixins[number]["fields"]>>;
+  : TUtils.Simplify<TUtils.UnionToIntersection<Mixins[number]["fields"]>>;
 
 type MixinFieldMap<Mixins extends ReadonlyArray<EntityMixin>> = [Mixins[number]] extends [never]
   ? {}
-  : Simplify<UnionToIntersection<Mixins[number]["fieldMap"]>>;
+  : TUtils.Simplify<TUtils.UnionToIntersection<Mixins[number]["fieldMap"]>>;
 
 /**
  * Packed entity mixins ready for BaseEntity and Table.make.
@@ -794,59 +820,40 @@ const failCollision = (key: string): never => {
   throw new EntityMixinFieldCollisionError({ key });
 };
 
-const descriptorFor =
-  <Fields extends VariantSchema.Struct.Fields, Def extends Definition<Fields>, const Key extends keyof Fields & string>(
-    definition: Def,
-    key: Key
-  ) =>
-  (_field: Fields[Key]): FieldDescriptor => {
-    const descriptor = definition.fields[key];
-    if (descriptor === undefined) {
-      throw new EntityMixinDescriptorMissingError({ key });
-    }
-    return S.decodeUnknownSync(FieldDescriptor)(Struct.assign(descriptor, { key }));
-  };
-
-type FieldDescriptorEvolver<Fields extends VariantSchema.Struct.Fields> = {
-  readonly [K in keyof Fields]?: (field: Fields[K]) => FieldDescriptor;
-};
-
-const fieldDescriptorEvolverEntry = <
+const decodeFieldDescriptor = <
   Fields extends VariantSchema.Struct.Fields,
   Def extends Definition<Fields>,
   const Key extends keyof Fields & string,
 >(
   definition: Def,
-  key: Key
-): { readonly [K in Key]: (field: Fields[K]) => FieldDescriptor } =>
-  cast<
-    { readonly [x: string]: (field: Fields[Key]) => FieldDescriptor },
-    { readonly [K in Key]: (field: Fields[K]) => FieldDescriptor }
-  >({
-    [key]: descriptorFor(definition, key),
-  });
+  key: Key,
+  _field: Fields[Key]
+): FieldDescriptorFromInput<Key, Def["fields"][Key]> => {
+  const descriptor = definition.fields[key];
+  if (descriptor === undefined) {
+    throw new EntityMixinDescriptorMissingError({ key });
+  }
+  return S.decodeUnknownSync(FieldDescriptor)(Struct.assign(descriptor, { key })) as FieldDescriptorFromInput<
+    Key,
+    Def["fields"][Key]
+  >;
+};
 
-const makeFieldDescriptorEvolver = <Fields extends VariantSchema.Struct.Fields, Def extends Definition<Fields>>(
-  fields: Fields,
-  definition: Def
-): FieldDescriptorEvolver<Fields> =>
-  pipe(
-    Struct.keys(fields) as ReadonlyArray<keyof Fields & string>,
-    A.reduce(
-      {} as FieldDescriptorEvolver<Fields>,
-      (evolver, key) =>
-        pipe(evolver, Struct.assign(fieldDescriptorEvolverEntry(definition, key))) as FieldDescriptorEvolver<Fields>
-    )
-  );
+const fieldMapFromRuntime = <Fields extends VariantSchema.Struct.Fields, Def extends Definition<Fields>>(
+  entries: Iterable<readonly [keyof Fields & string, unknown]>
+): FieldDescriptorMapFromDefinition<Fields, Def> =>
+  Struct.fromEntries(entries) as FieldDescriptorMapFromDefinition<Fields, Def>;
 
 const makeFieldMap = <Fields extends VariantSchema.Struct.Fields, Def extends Definition<Fields>>(
   fields: Fields,
   definition: Def
 ): FieldDescriptorMapFromDefinition<Fields, Def> =>
-  Struct.evolve(fields, makeFieldDescriptorEvolver(fields, definition)) as FieldDescriptorMapFromDefinition<
-    Fields,
-    Def
-  >;
+  fieldMapFromRuntime(
+    pipe(
+      Struct.entries(fields),
+      A.map(([key, field]) => [key, decodeFieldDescriptor(definition, key, field)] as const)
+    )
+  );
 
 const nameFromIdentifier = (identifier: string): string =>
   pipe(
@@ -855,6 +862,10 @@ const nameFromIdentifier = (identifier: string): string =>
     A.last,
     O.getOrElse(() => identifier)
   );
+
+const packFromRuntime = <const Mixins extends ReadonlyArray<EntityMixin>>(
+  runtimePack: Pack<VariantSchema.Struct.Fields, Record<string, FieldDescriptor>, Mixins>
+): PackFromMixins<Mixins> => runtimePack as PackFromMixins<Mixins>;
 
 /**
  * Build a first-class entity mixin contract.
@@ -900,7 +911,7 @@ export const make =
   ): EntityMixin<Fields, Def> => ({
     [TypeId]: TypeId,
     definition,
-    fieldKeys: Struct.keys(fields) as ReadonlyArray<keyof Fields & string>,
+    fieldKeys: Struct.keys(fields),
     fieldMap: makeFieldMap(fields, definition),
     fields,
     identifier,
@@ -914,7 +925,7 @@ export const make =
  * @category constructors
  */
 export const pack = <const Mixins extends ReadonlyArray<EntityMixin>>(...mixins: Mixins): PackFromMixins<Mixins> => {
-  let fields = R.empty<string, unknown>();
+  let fields = R.empty<string, VariantSchema.Struct.Fields[string]>();
   let fieldMap = R.empty<string, FieldDescriptor>();
   let fieldKeys: ReadonlyArray<string> = A.empty<string>();
 
@@ -932,11 +943,11 @@ export const pack = <const Mixins extends ReadonlyArray<EntityMixin>>(...mixins:
     }
   }
 
-  return {
+  return packFromRuntime({
     [PackTypeId]: PackTypeId,
     fieldKeys,
     fieldMap,
-    fields: fields as VariantSchema.Struct.Fields,
+    fields,
     mixins,
-  } as PackFromMixins<Mixins>;
+  });
 };

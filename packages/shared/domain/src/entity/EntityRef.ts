@@ -86,7 +86,7 @@ export const make: {
   2,
   (entityId: EntityId.Any, id: EntityId.EntityIdValue): EntityRef =>
     new EntityRef({
-      entityType: entityId.entityType as EntityType,
+      entityType: S.decodeUnknownSync(EntityType)(entityId.entityType),
       id,
     })
 );

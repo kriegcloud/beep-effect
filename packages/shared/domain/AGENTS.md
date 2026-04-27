@@ -10,16 +10,16 @@
 
 ## Surface Map
 
-| Surface | Key exports | Notes |
-| --- | --- | --- |
-| entry module | `VERSION` | Current package entry point. |
-| `src/aggregates/index.ts` | empty module | Future shared aggregate roots and aggregate vocabulary. |
-| `src/entities/index.ts` | empty module | Future shared identity-bearing concepts. |
-| `src/identity/index.ts` | empty module | Future shared entity-id modules and identity vocabulary. |
-| `src/values/index.ts` | empty module | Future shared value-object barrel. |
-| `src/values/LocalDate/index.ts` | empty module | Future shared `LocalDate` value-object barrel. |
-| `src/values/LocalDate/LocalDate.model.ts` | module header | Future shared `LocalDate` schema/model. |
-| `src/values/LocalDate/LocalDate.behavior.ts` | empty file | Future pure `LocalDate` behavior. |
+| Surface                                      | Key exports   | Notes                                                    |
+|----------------------------------------------|---------------|----------------------------------------------------------|
+| entry module                                 | `VERSION`     | Current package entry point.                             |
+| `src/aggregates/index.ts`                    | empty module  | Future shared aggregate roots and aggregate vocabulary.  |
+| `src/entities/index.ts`                      | empty module  | Future shared identity-bearing concepts.                 |
+| `src/identity/index.ts`                      | empty module  | Future shared entity-id modules and identity vocabulary. |
+| `src/values/index.ts`                        | empty module  | Future shared value-object barrel.                       |
+| `src/values/LocalDate/index.ts`              | empty module  | Future shared `LocalDate` value-object barrel.           |
+| `src/values/LocalDate/LocalDate.model.ts`    | module header | Future shared `LocalDate` schema/model.                  |
+| `src/values/LocalDate/LocalDate.behavior.ts` | empty file    | Future pure `LocalDate` behavior.                        |
 
 ## Add Here
 

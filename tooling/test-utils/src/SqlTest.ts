@@ -1,20 +1,26 @@
 /**
  * SQL integration-test harness helpers.
- *
  * @module
  * @since 0.0.0
  */
+
 import { $TestUtilsId } from "@beep/identity/packages";
 import { LiteralKit, TaggedErrorClass } from "@beep/schema";
 import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
+import { PgClient } from "@effect/sql-pg";
 import { SqliteClient as NodeSqliteClient } from "@effect/sql-sqlite-node";
-import { Context, Effect, FileSystem, Layer, Path } from "effect";
+import { Context, Duration, Effect, FileSystem, Layer, Path, Redacted } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as SqlClient from "effect/unstable/sql/SqlClient";
+import type { StartedTestContainer } from "testcontainers";
 
 const $I = $TestUtilsId.create("SqlTest");
+const PgliteImageName = "beep/pglite-testcontainers:0.4.5";
+const PgliteDockerContextUrl = new URL("../docker/pglite", import.meta.url);
+const PgliteHealthCheckCommand =
+  "node -e \"const { Client } = require('pg'); const client = new Client({ host: '127.0.0.1', port: Number(process.env.PGPORT || '5432'), database: process.env.PGDATABASE, user: process.env.PGUSER, password: process.env.PGPASSWORD, ssl: false }); client.connect().then(() => client.query('select 1')).then(() => client.end()).catch((cause) => { console.error(cause); process.exit(1); });\"";
 
 const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardown"]).annotate(
   $I.annote("SqlTestHarnessPhase", {
@@ -22,7 +28,7 @@ const SqlTestHarnessPhase = LiteralKit(["provision", "migrate", "seed", "teardow
   })
 );
 
-const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
+const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite", "pglite-testcontainers"]).annotate(
   $I.annote("TestDatabaseDriver", {
     description: "Driver identifier for reusable SQL integration-test harnesses.",
   })
@@ -34,10 +40,17 @@ const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
  * @example
  * ```ts
  * import { TestDatabaseInfoShape } from "@beep/test-utils"
+ * import * as O from "effect/Option"
  * const info = new TestDatabaseInfoShape({
- *   databasePath: "/tmp/test.db",
+ *   connectionUri: O.none(),
+ *   containerId: O.none(),
+ *   database: O.none(),
+ *   databasePath: O.some("/tmp/test.db"),
  *   driver: "node-sqlite",
- *   tempDir: "/tmp"
+ *   host: O.none(),
+ *   port: O.none(),
+ *   tempDir: O.some("/tmp"),
+ *   username: O.none()
  * })
  * void info.databasePath
  * ```
@@ -46,14 +59,76 @@ const TestDatabaseDriver = LiteralKit(["bun-sqlite", "node-sqlite"]).annotate(
  */
 export class TestDatabaseInfoShape extends S.Class<TestDatabaseInfoShape>($I`TestDatabaseInfoShape`)(
   {
-    databasePath: S.String,
+    connectionUri: S.Option(S.String),
+    containerId: S.Option(S.String),
+    database: S.Option(S.String),
+    databasePath: S.Option(S.String),
     driver: TestDatabaseDriver,
-    tempDir: S.String,
+    host: S.Option(S.String),
+    port: S.Option(S.Number),
+    tempDir: S.Option(S.String),
+    username: S.Option(S.String),
   },
   $I.annote("TestDatabaseInfoShape", {
     description: "Runtime metadata for an ephemeral integration-test database instance.",
   })
 ) {}
+
+/**
+ * Runtime configuration for the PGLite Testcontainers SQL test driver.
+ *
+ * @example
+ * ```ts
+ * import { PgliteTestcontainersTestDriverConfig } from "@beep/test-utils"
+ * const config = new PgliteTestcontainersTestDriverConfig({})
+ * void config.maxConnections
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class PgliteTestcontainersTestDriverConfig extends S.Class<PgliteTestcontainersTestDriverConfig>(
+  $I`PgliteTestcontainersTestDriverConfig`
+)(
+  {
+    database: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("postgres")),
+      S.withDecodingDefaultKey(Effect.succeed("postgres"))
+    ),
+    internalPort: S.Int.pipe(
+      S.withConstructorDefault(Effect.succeed(5432)),
+      S.withDecodingDefaultKey(Effect.succeed(5432))
+    ),
+    maxConnections: S.Int.pipe(
+      S.withConstructorDefault(Effect.succeed(1)),
+      S.withDecodingDefaultKey(Effect.succeed(1))
+    ),
+    password: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("postgres")),
+      S.withDecodingDefaultKey(Effect.succeed("postgres"))
+    ),
+    startupTimeoutMs: S.Int.pipe(
+      S.withConstructorDefault(Effect.succeed(60_000)),
+      S.withDecodingDefaultKey(Effect.succeed(60_000))
+    ),
+    username: S.String.pipe(
+      S.withConstructorDefault(Effect.succeed("postgres")),
+      S.withDecodingDefaultKey(Effect.succeed("postgres"))
+    ),
+  },
+  $I.annote("PgliteTestcontainersTestDriverConfig", {
+    description: "Runtime configuration for the PGLite Testcontainers SQL test driver.",
+  })
+) {}
+
+/**
+ * Constructor input accepted by the PGLite Testcontainers SQL test driver.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type PgliteTestcontainersTestDriverConfigInput =
+  | Partial<typeof PgliteTestcontainersTestDriverConfig.Type>
+  | undefined;
 /**
  * Runtime metadata for an ephemeral integration-test database instance.
  *
@@ -151,6 +226,65 @@ const toHarnessError = (
     phase,
   });
 
+const makeNoNetworkInfo = (
+  driver: Extract<typeof TestDatabaseDriver.Type, "bun-sqlite" | "node-sqlite">,
+  databasePath: string,
+  tempDir: string
+): TestDatabaseInfoShape => ({
+  connectionUri: O.none(),
+  containerId: O.none(),
+  database: O.none(),
+  databasePath: O.some(databasePath),
+  driver,
+  host: O.none(),
+  port: O.none(),
+  tempDir: O.some(tempDir),
+  username: O.none(),
+});
+
+const makePgliteConnectionUri = (host: string, port: number, config: PgliteTestcontainersTestDriverConfig): string => {
+  const url = new URL("postgres://localhost");
+  url.hostname = host;
+  url.port = `${port}`;
+  url.pathname = config.database;
+  url.username = config.username;
+  url.password = config.password;
+  return url.href;
+};
+
+const makePgliteInfo = (
+  container: StartedTestContainer,
+  host: string,
+  port: number,
+  config: PgliteTestcontainersTestDriverConfig
+): TestDatabaseInfoShape => ({
+  connectionUri: O.some(makePgliteConnectionUri(host, port, config)),
+  containerId: O.some(container.getId()),
+  database: O.some(config.database),
+  databasePath: O.none(),
+  driver: "pglite-testcontainers",
+  host: O.some(host),
+  port: O.some(port),
+  tempDir: O.none(),
+  username: O.some(config.username),
+});
+
+const releasePgliteContainer = Effect.fn("SqlTest.releasePgliteContainer")(function* (container: StartedTestContainer) {
+  yield* Effect.tryPromise({
+    try: () => container.stop({ remove: true, removeVolumes: true }),
+    catch: (cause) =>
+      toHarnessError(
+        "pglite-testcontainers",
+        "teardown",
+        "Failed to stop the PGLite Testcontainers SQL test driver.",
+        cause
+      ),
+  }).pipe(
+    Effect.catch(() => Effect.logWarning("Failed to stop PGLite SQL test container; ignoring teardown failure.")),
+    Effect.asVoid
+  );
+});
+
 const runHook = <Services, SqlService extends Services, HookError>(
   driver: typeof TestDatabaseDriver.Type,
   phase: Extract<typeof SqlTestHarnessPhase.Type, "migrate" | "seed">,
@@ -217,6 +351,136 @@ export const makeSqlTestLayer = <
     )
   );
 
+const loadTestcontainersModule = Effect.tryPromise({
+  try: () => import("testcontainers"),
+  catch: (cause) =>
+    toHarnessError(
+      "pglite-testcontainers",
+      "provision",
+      "Failed to load Testcontainers support for PGLite SQL tests.",
+      cause
+    ),
+}).pipe(Effect.withSpan("SqlTest.PgliteTestcontainers.loadTestcontainers"));
+
+const loadPgClientModule = Effect.tryPromise({
+  try: () => import("@effect/sql-pg"),
+  catch: (cause) =>
+    toHarnessError(
+      "pglite-testcontainers",
+      "provision",
+      "Failed to load PostgreSQL client support for PGLite SQL tests.",
+      cause
+    ),
+}).pipe(Effect.withSpan("SqlTest.PgliteTestcontainers.loadPgClient"));
+
+const startPgliteContainer = Effect.fn("SqlTest.startPgliteContainer")(function* (
+  dockerContext: string,
+  config: PgliteTestcontainersTestDriverConfig
+) {
+  const Testcontainers = yield* loadTestcontainersModule;
+  const image = yield* Effect.tryPromise({
+    try: () =>
+      Testcontainers.GenericContainer.fromDockerfile(dockerContext).build(PgliteImageName, {
+        deleteOnExit: false,
+      }),
+    catch: (cause) =>
+      toHarnessError("pglite-testcontainers", "provision", "Failed to build the PGLite Testcontainers image.", cause),
+  });
+
+  return yield* Effect.acquireRelease(
+    Effect.tryPromise({
+      try: () =>
+        image
+          .withEnvironment({
+            PGDATABASE: config.database,
+            PGPASSWORD: config.password,
+            PGPORT: `${config.internalPort}`,
+            PGUSER: config.username,
+          })
+          .withExposedPorts(config.internalPort)
+          .withHealthCheck({
+            test: ["CMD-SHELL", PgliteHealthCheckCommand],
+            interval: 250,
+            timeout: 1_000,
+            retries: 1_000,
+          })
+          .withStartupTimeout(config.startupTimeoutMs)
+          .withWaitStrategy(
+            Testcontainers.Wait.forAll([Testcontainers.Wait.forHealthCheck(), Testcontainers.Wait.forListeningPorts()])
+          )
+          .start(),
+      catch: (cause) =>
+        toHarnessError(
+          "pglite-testcontainers",
+          "provision",
+          "Failed to start the PGLite Testcontainers SQL test driver.",
+          cause
+        ),
+    }),
+    releasePgliteContainer
+  );
+});
+
+const buildPgliteTestcontainersLayer = Effect.fn("SqlTest.PgliteTestcontainersTestDriver.build")(
+  function* (configInput: PgliteTestcontainersTestDriverConfigInput) {
+    const config = new PgliteTestcontainersTestDriverConfig(configInput === undefined ? {} : configInput);
+    const pathContext = yield* Layer.build(NodePath.layer);
+    const path = Context.get(pathContext, Path.Path);
+    const dockerContext = yield* path
+      .fromFileUrl(PgliteDockerContextUrl)
+      .pipe(
+        Effect.mapError((cause) =>
+          toHarnessError(
+            "pglite-testcontainers",
+            "provision",
+            "Failed to resolve the PGLite Docker build context.",
+            cause
+          )
+        )
+      );
+    const Pg = yield* loadPgClientModule;
+    const container = yield* startPgliteContainer(dockerContext, config);
+    const host = container.getHost();
+    const port = container.getMappedPort(config.internalPort);
+
+    return Layer.mergeAll(
+      Pg.PgClient.layerFrom(
+        Pg.PgClient.make({
+          connectTimeout: Duration.seconds(5),
+          database: config.database,
+          host,
+          maxConnections: config.maxConnections,
+          password: Redacted.make(config.password),
+          port,
+          ssl: false,
+          username: config.username,
+        }).pipe(
+          Effect.mapError((cause) =>
+            toHarnessError(
+              "pglite-testcontainers",
+              "provision",
+              "Failed to connect the Effect PostgreSQL client to the PGLite Testcontainers server.",
+              cause
+            )
+          )
+        )
+      ),
+      Layer.succeed(TestDatabaseInfo, makePgliteInfo(container, host, port, config))
+    );
+  },
+  Effect.mapError((cause) =>
+    S.is(SqlTestHarnessError)(cause)
+      ? cause
+      : toHarnessError(
+          "pglite-testcontainers",
+          "provision",
+          "Failed to provision the PGLite Testcontainers SQL test driver.",
+          cause
+        )
+  ),
+  Effect.withSpan("SqlTest.PgliteTestcontainersTestDriver.build")
+);
+
 const buildBunSqliteLayer = Effect.gen(function* () {
   const BunFileSystem = yield* Effect.tryPromise({
     try: () => import("@effect/platform-bun/BunFileSystem"),
@@ -249,11 +513,7 @@ const buildBunSqliteLayer = Effect.gen(function* () {
     BunFileSystem.layer,
     BunPath.layer,
     BunSqliteClient.SqliteClient.layer({ filename: databasePath }),
-    Layer.succeed(TestDatabaseInfo, {
-      databasePath,
-      driver: "bun-sqlite",
-      tempDir,
-    } satisfies TestDatabaseInfoShape)
+    Layer.succeed(TestDatabaseInfo, makeNoNetworkInfo("bun-sqlite", databasePath, tempDir))
   );
 }).pipe(
   Effect.mapError((cause) =>
@@ -287,8 +547,9 @@ export const BunSqliteTestDriver: SqlTestDriver<
 };
 
 const buildNodeSqliteLayer = Effect.gen(function* () {
-  const fs = yield* FileSystem.FileSystem;
-  const path = yield* Path.Path;
+  const context = yield* Layer.build(Layer.mergeAll(NodeFileSystem.layer, NodePath.layer));
+  const fs = Context.get(context, FileSystem.FileSystem);
+  const path = Context.get(context, Path.Path);
   const tempDir = yield* fs
     .makeTempDirectoryScoped({ prefix: "beep-sql-test-" })
     .pipe(
@@ -302,11 +563,7 @@ const buildNodeSqliteLayer = Effect.gen(function* () {
     NodeFileSystem.layer,
     NodePath.layer,
     NodeSqliteClient.layer({ filename: databasePath }),
-    Layer.succeed(TestDatabaseInfo, {
-      databasePath,
-      driver: "node-sqlite",
-      tempDir,
-    } satisfies TestDatabaseInfoShape)
+    Layer.succeed(TestDatabaseInfo, makeNoNetworkInfo("node-sqlite", databasePath, tempDir))
   );
 }).pipe(
   Effect.mapError((cause) =>
@@ -314,7 +571,6 @@ const buildNodeSqliteLayer = Effect.gen(function* () {
       ? cause
       : toHarnessError("node-sqlite", "provision", "Failed to provision the Node SQLite test driver.", cause)
   ),
-  Effect.provide([NodeFileSystem.layer, NodePath.layer]),
   Effect.withSpan("SqlTest.NodeSqliteTestDriver.build")
 );
 
@@ -338,4 +594,26 @@ export const NodeSqliteTestDriver: SqlTestDriver<
   makeLayer: () => Layer.unwrap(buildNodeSqliteLayer),
   name: "node-sqlite",
   sqlClient: SqlClient.SqlClient,
+};
+
+/**
+ * Fresh PGLite integration-test driver backed by a scoped Testcontainers PostgreSQL wire-protocol server.
+ *
+ * @example
+ * ```ts
+ * import { PgliteTestcontainersTestDriver } from "@beep/test-utils"
+ * const driverName = PgliteTestcontainersTestDriver.name
+ * void driverName
+ * ```
+ * @category testing
+ * @since 0.0.0
+ */
+export const PgliteTestcontainersTestDriver: SqlTestDriver<
+  PgliteTestcontainersTestDriverConfigInput,
+  PgClient.PgClient | SqlClient.SqlClient | TestDatabaseInfo,
+  PgClient.PgClient
+> = {
+  makeLayer: (config) => Layer.unwrap(buildPgliteTestcontainersLayer(config)),
+  name: "pglite-testcontainers",
+  sqlClient: PgClient.PgClient,
 };

@@ -6,9 +6,9 @@
  */
 
 import { $SharedDomainId, type IdentityComposer } from "@beep/identity";
+import { SchemaUtils } from "@beep/schema";
 import { PostgresSerialInt } from "@beep/schema/Int";
 import * as Str from "@beep/utils/Str";
-import { Struct } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
 
@@ -244,6 +244,16 @@ export type EntityId<
   TBrand extends string = Brand<Slice, Name>,
 > = S.Top & {
   readonly Type: EntityIdValue;
+} & EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
+
+type EntityIdStatics<
+  Slice extends string,
+  Name extends string,
+  TTableName extends string,
+  TResource extends string,
+  TEntityType extends string,
+  TBrand extends string,
+> = {
   readonly brand: TBrand;
   readonly definition: DefinitionFor<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
   readonly entityType: TEntityType;
@@ -280,6 +290,53 @@ type Factory = {
   (identity: IdentityComposer<string>): <const Slice extends string>(slice: Slice) => Maker<Slice>;
 };
 
+const defaultResource = <const Slice extends string, const Name extends string>(
+  slice: Slice,
+  name: Name
+): Resource<Slice, Name> => `${slice}.${name}`;
+
+const defaultTableName = <const Slice extends string, const Name extends string>(
+  slice: Slice,
+  name: Name
+): TableName<Slice, Name> => `${slice}_${name}`;
+
+const literalDefinition = <
+  const Slice extends string,
+  const Name extends string,
+  const Overrides extends OptionsInput | undefined,
+>(
+  definition: Definition
+): DefinitionFor<
+  Slice,
+  Name,
+  ResolvedTableName<Slice, Name, Overrides>,
+  ResolvedResource<Slice, Name, Overrides>,
+  ResolvedEntityType<Slice, Name, Overrides>,
+  ResolvedBrand<Slice, Name, Overrides>
+> =>
+  definition as DefinitionFor<
+    Slice,
+    Name,
+    ResolvedTableName<Slice, Name, Overrides>,
+    ResolvedResource<Slice, Name, Overrides>,
+    ResolvedEntityType<Slice, Name, Overrides>,
+    ResolvedBrand<Slice, Name, Overrides>
+  >;
+
+const attachEntityIdStatics = <
+  const Slice extends string,
+  const Name extends string,
+  const TTableName extends string,
+  const TResource extends string,
+  const TEntityType extends string,
+  const TBrand extends string,
+  const Schema extends S.Top & { readonly Type: EntityIdValue },
+>(
+  schema: Schema,
+  statics: EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>
+): Schema & EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand> =>
+  SchemaUtils.withStatics(schema, () => statics);
+
 const buildDefinition = <
   const Slice extends string,
   const Name extends string,
@@ -300,23 +357,18 @@ const buildDefinition = <
   const defaultEntityType = Str.prefix(Str.snakeToPascal(Str.snakeCase(name)), Str.snakeToPascal(Str.snakeCase(slice)));
   const entityType = overrides.entityType ?? defaultEntityType;
   const brand = overrides.brand ?? Str.postfix(entityType, "Id");
-  return new Definition({
-    brand,
-    description: overrides.description ?? `${entityType} entity identifier.`,
-    entityType,
-    name,
-    overrides,
-    resource: overrides.resource ?? (`${slice}.${name}` as const),
-    slice,
-    tableName: overrides.tableName ?? (`${slice}_${name}` as const),
-  }) as DefinitionFor<
-    Slice,
-    Name,
-    ResolvedTableName<Slice, Name, Overrides>,
-    ResolvedResource<Slice, Name, Overrides>,
-    ResolvedEntityType<Slice, Name, Overrides>,
-    ResolvedBrand<Slice, Name, Overrides>
-  >;
+  return literalDefinition<Slice, Name, Overrides>(
+    new Definition({
+      brand,
+      description: overrides.description ?? `${entityType} entity identifier.`,
+      entityType,
+      name,
+      overrides,
+      resource: overrides.resource ?? defaultResource(slice, name),
+      slice,
+      tableName: overrides.tableName ?? defaultTableName(slice, name),
+    })
+  );
 };
 
 /**
@@ -359,20 +411,13 @@ export const factory: Factory = dual(
         })
       );
 
-      return Struct.assign(schema, {
+      return attachEntityIdStatics(schema, {
         brand: definition.brand,
         definition,
         entityType: definition.entityType,
         resource: definition.resource,
         slice,
         tableName: definition.tableName,
-      }) as EntityId<
-        Slice,
-        Name,
-        ResolvedTableName<Slice, Name, Overrides>,
-        ResolvedResource<Slice, Name, Overrides>,
-        ResolvedEntityType<Slice, Name, Overrides>,
-        ResolvedBrand<Slice, Name, Overrides>
-      >;
+      });
     }
-) as Factory;
+);

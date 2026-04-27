@@ -15,6 +15,9 @@
       "path": "../../common/schema/tsconfig.json"
     },
     {
+      "path": "../../common/types/tsconfig.json"
+    },
+    {
       "path": "../../common/utils/tsconfig.json"
     }
   ]
