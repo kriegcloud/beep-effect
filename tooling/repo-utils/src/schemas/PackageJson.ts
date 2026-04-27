@@ -129,6 +129,56 @@ const NonEmptyStringRecord = S.Record(NonEmptyStringValue, NonEmptyStringValue).
   })
 );
 
+const BeepFoundationKind = S.Literals(["primitive", "modeling", "capability", "ui-system"] as const).annotate(
+  $I.annote("BeepFoundationKind", {
+    title: "Beep Foundation Kind",
+    description: "Canonical foundation package kind metadata from the repo architecture.",
+  })
+);
+
+const BeepToolingKind = S.Literals(["library", "tool", "policy-pack", "test-kit"] as const).annotate(
+  $I.annote("BeepToolingKind", {
+    title: "Beep Tooling Kind",
+    description: "Canonical tooling package kind metadata from the repo architecture.",
+  })
+);
+
+const BeepFoundationMetadata = S.Struct({
+  family: S.Literal("foundation"),
+  kind: BeepFoundationKind,
+}).annotate(
+  $I.annote("BeepFoundationMetadata", {
+    title: "Beep Foundation Metadata",
+    description: "Repo-local package metadata for foundation packages.",
+  })
+);
+
+const BeepDriverMetadata = S.Struct({
+  family: S.Literal("drivers"),
+}).annotate(
+  $I.annote("BeepDriverMetadata", {
+    title: "Beep Driver Metadata",
+    description: "Repo-local package metadata for flat driver packages.",
+  })
+);
+
+const BeepToolingMetadata = S.Struct({
+  family: S.Literal("tooling"),
+  kind: BeepToolingKind,
+}).annotate(
+  $I.annote("BeepToolingMetadata", {
+    title: "Beep Tooling Metadata",
+    description: "Repo-local package metadata for tooling packages.",
+  })
+);
+
+const BeepPackageMetadata = S.Union([BeepFoundationMetadata, BeepDriverMetadata, BeepToolingMetadata]).annotate(
+  $I.annote("BeepPackageMetadata", {
+    title: "Beep Package Metadata",
+    description: "Machine-readable repo architecture metadata for non-slice code packages.",
+  })
+);
+
 const PackageTypeField = S.String.check(S.isPattern(packageTypePattern)).annotate(
   $I.annote("PackageTypeField", {
     title: "Package Type Field",
@@ -881,6 +931,7 @@ const packageJsonFields = {
   peerDependencies: S.OptionFromOptionalKey(RepoDependencyRecord),
   optionalDependencies: S.OptionFromOptionalKey(RepoDependencyRecord),
   catalog: S.OptionFromOptionalKey(RepoDependencyRecord),
+  beep: S.OptionFromOptionalKey(BeepPackageMetadata),
   "resolutions#": S.OptionFromOptionalKey(NonEmptyStringRecord),
 } as const;
 

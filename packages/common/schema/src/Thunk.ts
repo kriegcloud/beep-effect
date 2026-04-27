@@ -119,7 +119,7 @@ export const isThunkUnknown = S.is(ThunkUnknown);
  * import { make } from "@beep/schema/Thunk"
  *
  * const isStringThunk = (u: unknown): u is () => string =>
- *
+ *   P.isFunction(u) && P.isString(u())
  *
  * const StringThunk = make(isStringThunk, S.String)
  * void StringThunk

@@ -62,6 +62,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       boolValue: {
         columnName: "bool_value",
         description: "Boolean value.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "bool",
         valueStrategy: "provided",
@@ -97,6 +98,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       encryptedBy: {
         columnName: "encrypted_by",
         description: "Encryption key.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "encryptionKeyId",
         valueStrategy: "provided",
@@ -104,6 +106,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       entityRefValue: {
         columnName: "entity_ref_value",
         description: "Entity reference.",
+        indexHints: [EntityMixin.IndexHint.gin],
         nullable: false,
         storageKind: "entityRef",
         valueStrategy: "provided",
@@ -111,6 +114,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       hashValue: {
         columnName: "hash_value",
         description: "Content hash.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "sha256",
         valueStrategy: "computedByService",
@@ -118,6 +122,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       hlcValue: {
         columnName: "hlc_value",
         description: "Hybrid logical clock.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "hybridLogicalClock",
         valueStrategy: "updatedOnWrite",
@@ -132,6 +137,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       intValue: {
         columnName: "int_value",
         description: "Integer value.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "int",
         valueStrategy: "provided",
@@ -161,6 +167,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       principalValue: {
         columnName: "principal_value",
         description: "Principal value.",
+        indexHints: [EntityMixin.IndexHint.gin],
         nullable: false,
         storageKind: "principal",
         valueStrategy: "providedByContext",
@@ -168,6 +175,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       providedEntityId: {
         columnName: "provided_entity_id",
         description: "Provided entity id.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: true,
         storageKind: "entityId",
         valueStrategy: "provided",
@@ -175,6 +183,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       semanticVersionValue: {
         columnName: "semantic_version_value",
         description: "Semantic version.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "semanticVersion",
         valueStrategy: "provided",
@@ -182,6 +191,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       signatureValue: {
         columnName: "signature_value",
         description: "Signature value.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "signature",
         valueStrategy: "computedByService",
@@ -189,6 +199,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       textValue: {
         columnName: "text_value",
         description: "Text value.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "text",
         valueStrategy: "provided",
@@ -196,6 +207,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       timestampValue: {
         columnName: "timestamp_value",
         description: "Timestamp value.",
+        indexHints: [EntityMixin.IndexHint.btree],
         nullable: false,
         storageKind: "timestampMillis",
         valueStrategy: "updatedOnWrite",
@@ -210,6 +222,7 @@ const StorageMixin = EntityMixin.make($I`StorageMixin`)(
       vectorClockValue: {
         columnName: "vector_clock_value",
         description: "Vector clock.",
+        indexHints: [EntityMixin.IndexHint.gin],
         nullable: false,
         storageKind: "vectorClock",
         valueStrategy: "updatedOnWrite",
@@ -287,6 +300,7 @@ describe("Table.make", () => {
 
   it("builds configured indexes and unique indexes from descriptor hints", () => {
     const table = Table.make(DocumentId, StoragePack);
+    const boolBtreeIndex = indexConfigNamed("shared_document_bool_value_btree_idx")(table);
     const btreeIndex = indexConfigNamed("shared_document_literal_value_btree_idx")(table);
     const ginIndex = indexConfigNamed("shared_document_json_value_gin_idx")(table);
     const unsupportedGinIndex = indexConfigNamed("shared_document_literal_value_gin_idx")(table);
@@ -294,6 +308,7 @@ describe("Table.make", () => {
     const lookupIndex = indexConfigNamed("shared_document_literal_value_lookup_idx")(table);
     const uniqueIndex = indexConfigNamed("shared_document_literal_value_unique_idx")(table);
 
+    expect(O.getOrThrow(boolBtreeIndex).config.method).toBe("btree");
     expect(O.getOrThrow(btreeIndex).config.method).toBe("btree");
     expect(O.getOrThrow(ginIndex).config.method).toBe("gin");
     expect(O.getOrThrow(hashIndex).config.method).toBe("hash");

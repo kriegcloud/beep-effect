@@ -503,7 +503,7 @@ const encodeDateTimeInput = (value: DateTime.Utc): Effect.Effect<DateTimeInput, 
  * const encoded = encode(utc)
  *
  * console.log(DateTime.formatIso(utc))
- * console.log(encoded._tag)
+ * console.log(encoded)
  * ```
  *
  * @since 0.0.0

@@ -46,7 +46,7 @@ const computeSha256Hex = (input: Uint8Array): Effect.Effect<string, SchemaIssue.
  * import { Sha256Hex } from "@beep/schema/Sha256"
  *
  * const digest = S.decodeUnknownSync(Sha256Hex)(
- *
+ *   "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
  * )
  * console.log(digest)
  * ```

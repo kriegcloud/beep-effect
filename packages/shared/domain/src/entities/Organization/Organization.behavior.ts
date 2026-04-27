@@ -22,7 +22,8 @@ import type { Model } from "./Organization.model.js";
  * import * as Shared from "@beep/shared-domain/identity/Shared"
  * import * as S from "effect/Schema"
  *
- * const id = S.decodeUnknownSync(Shared.OrganizationId)(1)
+ * const decodeOrganizationId = S.decodeUnknownSync(S.make<S.Decoder<typeof Shared.OrganizationId.Type>>(Shared.OrganizationId.ast))
+ * const id = decodeOrganizationId(1)
  * console.log(isTenantRoot({ id, orgId: id }))
  * ```
  *
@@ -65,7 +66,8 @@ export const hasParentOrganization = (organization: Pick<Model, "parentOrgId">):
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"
  *
- * const id = S.decodeUnknownSync(Shared.OrganizationId)(1)
+ * const decodeOrganizationId = S.decodeUnknownSync(S.make<S.Decoder<typeof Shared.OrganizationId.Type>>(Shared.OrganizationId.ast))
+ * const id = decodeOrganizationId(1)
  * console.log(hasValidTenantPlacement({ id, orgId: id, parentOrgId: O.none() }))
  * ```
  *

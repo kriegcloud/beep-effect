@@ -18,6 +18,7 @@ const $I = $SchemaId.create("StatusCauseError");
  *
  * @example
  * ```ts
+ * import * as O from "effect/Option"
  * import { TaggedErrorClass } from "@beep/schema"
  * import { StatusCauseFields } from "@beep/schema/StatusCauseError"
  *
@@ -25,7 +26,8 @@ const $I = $SchemaId.create("StatusCauseError");
  *
  * const error = new AppError({
  *   message: "not found",
- *   status: 404
+ *   status: 404,
+ *   cause: O.none()
  * })
  *
  * void error
@@ -169,7 +171,11 @@ const buildStatusCauseErrorBuilder = <Input extends StatusCauseInput, Error>(
  * class AppError extends TaggedErrorClass<AppError>()("AppError", StatusCauseFields) {}
  *
  * const build = makeStatusCauseError(AppError)
- * const err = build("not found", 404, new Error("missing"))
+ * const err = build({
+ *   message: "not found",
+ *   status: 404,
+ *   cause: new Error("missing")
+ * })
  *
  * void err
  *

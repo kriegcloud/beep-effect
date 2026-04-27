@@ -264,6 +264,35 @@ describe("PackageJson schema", () => {
       );
     });
 
+    it("decodes repo-local beep package metadata", () => {
+      const driverResult = decodePackageJson({
+        name: "@beep/drizzle",
+        beep: {
+          family: "drivers",
+        },
+      });
+
+      const foundationResult = decodePackageJson({
+        name: "@beep/schema",
+        beep: {
+          family: "foundation",
+          kind: "modeling",
+        },
+      });
+
+      const toolingResult = decodePackageJson({
+        name: "@beep/repo-utils",
+        beep: {
+          family: "tooling",
+          kind: "library",
+        },
+      });
+
+      expect(driverResult.beep).toEqual(O.some({ family: "drivers" }));
+      expect(foundationResult.beep).toEqual(O.some({ family: "foundation", kind: "modeling" }));
+      expect(toolingResult.beep).toEqual(O.some({ family: "tooling", kind: "library" }));
+    });
+
     it("keeps npm-only schema separate from repo-only extensions", () => {
       const decodeNpmPackageJson = S.decodeUnknownExit(NpmPackageJson);
       const exit = decodeNpmPackageJson(
@@ -277,6 +306,18 @@ describe("PackageJson schema", () => {
       );
 
       expect(Exit.isFailure(exit)).toBe(true);
+
+      const beepExit = decodeNpmPackageJson(
+        {
+          name: "pkg",
+          beep: {
+            family: "drivers",
+          },
+        },
+        { onExcessProperty: "error" }
+      );
+
+      expect(Exit.isFailure(beepExit)).toBe(true);
     });
   });
 
@@ -407,6 +448,42 @@ describe("PackageJson schema", () => {
             name: "pkg",
             dependencies: {
               effect: "",
+            },
+          })
+        )
+      ).toBe(true);
+    });
+
+    it("rejects invalid repo-local beep package metadata", () => {
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            beep: {
+              family: "shared",
+            },
+          })
+        )
+      ).toBe(true);
+
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            beep: {
+              family: "drivers",
+              kind: "modeling",
+            },
+          })
+        )
+      ).toBe(true);
+
+      expect(
+        Exit.isFailure(
+          decodePackageJsonExit({
+            name: "pkg",
+            beep: {
+              family: "foundation",
             },
           })
         )

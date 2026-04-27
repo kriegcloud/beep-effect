@@ -374,16 +374,11 @@ export class EntitySpecificFieldsUnsupportedError extends S.TaggedErrorClass<Ent
   }
 }
 
-const setField = (
-  target: Record<string, FieldInput>,
-  key: string,
-  field: FieldInput | FieldOverrideInput,
-  sourceName: string
-): void => {
-  if (key in target && !EntityMixin.isOverride(field)) {
+const setField = (target: Record<string, FieldInput>, key: string, field: FieldInput, sourceName: string): void => {
+  if (key in target) {
     throw new FieldCollisionError({ fieldKey: key, sourceName });
   }
-  target[key] = fieldInputFromRuntime(EntityMixin.isOverride(field) ? field.field : field);
+  target[key] = fieldInputFromRuntime(field);
 };
 
 const mergeFields = (
@@ -407,10 +402,7 @@ const mergeFields = (
     setField(merged, key, field, "BaseEntity fields");
   }
   for (const [key, field] of Struct.entries(normalizeFields(mixins.fields))) {
-    setField(merged, key, field, "EntityMixin fields");
-  }
-  for (const [key, field] of Struct.entries(normalizedEntitySpecificFields)) {
-    setField(merged, key, field, "entity-specific fields");
+    setField(merged, key, fieldInputFromRuntime(field), "EntityMixin fields");
   }
   return merged;
 };

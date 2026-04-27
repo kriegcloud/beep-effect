@@ -87,11 +87,11 @@ export type EntityRefFor<Entity extends EntityId.Any> = Omit<EntityRef, "entityT
  * @example
  * ```ts
  * import * as S from "effect/Schema"
- * import { EntityIdValue } from "@beep/shared-domain/entity/EntityId"
  * import { make } from "@beep/shared-domain/entity/EntityRef"
  * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
  *
- * const ref = make(OrganizationId, S.decodeUnknownSync(EntityIdValue)(1))
+ * const decodeOrganizationId = S.decodeUnknownSync(S.make<S.Decoder<typeof OrganizationId.Type>>(OrganizationId.ast))
+ * const ref = make(OrganizationId, decodeOrganizationId(1))
  * console.log(ref.entityType)
  * ```
  *

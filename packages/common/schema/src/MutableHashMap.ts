@@ -244,8 +244,8 @@ export const MutableHashMapFromSelf = <Key extends S.Top, Value extends S.Top>(o
  * import { MutableHashMap } from "@beep/schema/MutableHashMap"
  *
  * const StringNumberMap = MutableHashMap({
- *
- *
+ *   key: S.String,
+ *   value: S.NumberFromString
  * })
  *
  * const decoded = S.decodeUnknownSync(StringNumberMap)([["a", "1"]])

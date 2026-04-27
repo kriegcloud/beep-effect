@@ -485,7 +485,7 @@ export const Sensitive = <S extends S.Top>(schema: S): Sensitive<S> =>
  * import * as Model from "@beep/schema/Model"
  *
  * const field: Model.optionalOption<typeof Schema.String> =
- *
+ *   Model.optionalOption(Schema.String)
  *
  * void field
  * ```
@@ -535,7 +535,7 @@ export const optionalOption = <S extends S.Top>(schema: S): optionalOption<S> =>
  * import * as Model from "@beep/schema/Model"
  *
  * const opt: Model.FieldOption<typeof Schema.String> =
- *
+ *   Model.FieldOption(Schema.String)
  *
  * void opt
  * ```

@@ -21,7 +21,8 @@ const $I = $SharedUiId.create("entities/Organization/Organization.display");
  * import { Display } from "@beep/shared-ui/entities/Organization/Organization.display"
  * import * as S from "effect/Schema"
  *
- * const display = S.decodeUnknownSync(Display)({
+ * const decodeDisplay = S.decodeUnknownSync(S.make<S.Decoder<Display>>(Display.ast))
+ * const display = decodeDisplay({
  *   id: 1,
  *   legalName: "Acme Legal LLC",
  *   licenseTier: "team",
@@ -61,7 +62,8 @@ export class Display extends S.Class<Display>($I`Display`)(
  * import { Form } from "@beep/shared-ui/entities/Organization/Organization.display"
  * import * as S from "effect/Schema"
  *
- * const form = S.decodeUnknownSync(Form)({
+ * const decodeForm = S.decodeUnknownSync(S.make<S.Decoder<Form>>(Form.ast))
+ * const form = decodeForm({
  *   legalName: "Acme Legal LLC",
  *   licenseTier: "team",
  *   name: "Acme",
@@ -102,7 +104,8 @@ export class Form extends S.Class<Form>($I`Form`)(
  * } from "@beep/shared-ui/entities/Organization/Organization.display"
  * import * as S from "effect/Schema"
  *
- * const display = S.decodeUnknownSync(Display)({
+ * const decodeDisplay = S.decodeUnknownSync(S.make<S.Decoder<Display>>(Display.ast))
+ * const display = decodeDisplay({
  *   id: 1,
  *   legalName: "Acme Legal LLC",
  *   licenseTier: "team",

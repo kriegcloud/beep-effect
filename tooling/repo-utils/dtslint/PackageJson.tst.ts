@@ -48,6 +48,16 @@ describe("PackageJson", () => {
       expect<PackageJson["catalog"]>().type.toBe<O.Option<{ readonly [x: string]: string }>>();
     });
 
+    it("Type has repo-local beep metadata field", () => {
+      expect<PackageJson["beep"]>().type.toBe<
+        O.Option<
+          | { readonly family: "foundation"; readonly kind: "primitive" | "modeling" | "capability" | "ui-system" }
+          | { readonly family: "drivers" }
+          | { readonly family: "tooling"; readonly kind: "library" | "tool" | "policy-pack" | "test-kit" }
+        >
+      >();
+    });
+
     it("NpmPackageJson keeps packageManager but not repo-only fields", () => {
       expect<NpmPackageJson["packageManager"]>().type.toBe<O.Option<string>>();
     });

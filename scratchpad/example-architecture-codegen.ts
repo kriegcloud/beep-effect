@@ -28,7 +28,7 @@ const program = Effect.gen(function* () {
   const repoRoot = yield* findRepoRoot();
   const workspaceDirs = yield* resolveWorkspaceDirs(repoRoot)
 
-
+  yield* Effect.logInfo(workspaceDirs);
   const SharedDomainDir = yield* HashMap.get("@beep/shared-domain")(workspaceDirs)
 
   yield* Effect.log(SharedDomainDir)
