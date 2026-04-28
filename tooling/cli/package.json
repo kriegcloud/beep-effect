@@ -80,6 +80,7 @@
     "effect": "catalog:",
     "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
+    "image-size": "catalog:",
     "ts-morph": "catalog:",
     "yaml": "catalog:"
   },

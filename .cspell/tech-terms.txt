@@ -34,6 +34,9 @@ falsey
 fanout
 finalizers
 flac
+Exif
+Ffprobe
+ffprobe
 fract
 fullrepo
 geohash

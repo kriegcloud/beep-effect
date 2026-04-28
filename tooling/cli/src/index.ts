@@ -103,6 +103,19 @@ export {
   docsCommand,
 } from "./commands/Docs.js";
 /**
+ * Dataset file curation command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Dataset file curation command group.
+   *
+   * @since 0.0.0
+   */
+  filesCommand,
+} from "./commands/Files/index.js";
+/**
  * Graphiti operational command group.
  *
  * @since 0.0.0

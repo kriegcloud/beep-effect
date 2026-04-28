@@ -19,7 +19,7 @@ import {
   today,
   todayEffect,
 } from "@beep/shared-domain/values/LocalDate/index";
-import type { Effect } from "effect";
+import { type Effect, pipe } from "effect";
 import type * as DateTime from "effect/DateTime";
 import type * as O from "effect/Option";
 import type * as Ord from "effect/Order";
@@ -40,7 +40,7 @@ describe("LocalDate", () => {
   it("preserves conversion helper types", () => {
     expect(fromString("2024-06-15")).type.toBe<Effect.Effect<Model, S.SchemaError, never>>();
     expect(fromDate(new Date("2024-06-15T00:00:00.000Z"))).type.toBe<Model>();
-    expect(fromDateTime(date.toDateTime())).type.toBe<Model>();
+    expect(pipe(date.toDateTime(), fromDateTime)).type.toBe<Model>();
     expect(date.toDateTime()).type.toBe<DateTime.Utc>();
     expect(date.toDate()).type.toBe<Date>();
   });

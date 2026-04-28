@@ -14,6 +14,7 @@ import { codexCommand } from "./Codex/index.js";
 import { createPackageCommand } from "./CreatePackage/index.js";
 import { docgenCommand } from "./Docgen/index.js";
 import { docsCommand } from "./Docs.js";
+import { filesCommand } from "./Files/index.js";
 import { graphitiCommand } from "./Graphiti/index.js";
 import { lawsCommand } from "./Laws/index.js";
 import { lintCommand } from "./Lint/index.js";
@@ -43,6 +44,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
     topoSortCommand,
     docgenCommand,
     docsCommand,
+    filesCommand,
     agentsCommand,
     lintCommand,
     lawsCommand,
