@@ -6,7 +6,7 @@
  */
 
 import { $SharedUiId } from "@beep/identity/packages";
-import { Slug } from "@beep/schema";
+import { OptionFromOptionalNullishKey, Slug } from "@beep/schema";
 import * as Organization from "@beep/shared-domain/entities/Organization/Organization.values";
 import * as Shared from "@beep/shared-domain/identity/Shared";
 import * as S from "effect/Schema";
@@ -45,7 +45,9 @@ export class Display extends S.Class<Display>($I`Display`)(
     legalName: S.NonEmptyString,
     licenseTier: Organization.LicenseTier,
     name: S.NonEmptyString,
-    parentOrgId: S.OptionFromOptionalKey(Shared.OrganizationId),
+    parentOrgId: OptionFromOptionalNullishKey(Shared.OrganizationId, {
+      onNoneEncoding: null,
+    }),
     settings: Organization.Settings,
     slug: Slug,
   },
@@ -84,7 +86,9 @@ export class Form extends S.Class<Form>($I`Form`)(
     legalName: S.NonEmptyString,
     licenseTier: Organization.LicenseTier,
     name: S.NonEmptyString,
-    parentOrgId: S.OptionFromOptionalKey(Shared.OrganizationId),
+    parentOrgId: OptionFromOptionalNullishKey(Shared.OrganizationId, {
+      onNoneEncoding: null,
+    }),
     settings: Organization.Settings,
     slug: Slug,
   },

@@ -16,9 +16,6 @@
     },
     {
       "path": "../../common/schema/tsconfig.json"
-    },
-    {
-      "path": "../drizzle/tsconfig.json"
     }
   ]
 }

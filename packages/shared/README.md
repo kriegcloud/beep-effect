@@ -5,23 +5,24 @@ It holds product language that multiple slices deliberately agree to share.
 It is not a home for generic helpers, technical wrappers, or slice-local code
 that has not found its owner yet.
 
-The shared kernel is intentionally small. The current packages are mostly
-scaffolded: the non-domain leaves currently expose `VERSION` from `src/index.ts`,
-while `domain/` also contains scaffolded role folders for shared aggregates,
-entities, identity, values, and a future `LocalDate` value object. The package
-docs describe the boundary each package is allowed to grow into.
+The shared kernel is intentionally small. The active leaves are `domain/`,
+`tables/`, and `ui/`: they currently prove the shared entity kernel, the
+Organization domain/table/UI contracts, and the `LocalDate` value object.
+`config/`, `use-cases/`, `client/`, and `server/` are still scaffolded leaves;
+their docs describe the boundary they may grow into, not a large live surface
+that already exists.
 
 ## Package Map
 
-| Path | Package | Role |
-| --- | --- | --- |
-| `domain/` | `@beep/shared-domain` | Cross-slice domain concepts, values, schemas, domain events, and pure behavior. |
-| `config/` | `@beep/shared-config` | Cross-slice typed config contracts and config vocabulary. |
-| `use-cases/` | `@beep/shared-use-cases` | Contract-only commands, queries, DTOs, protocols, product ports, and actionable application errors. |
-| `client/` | `@beep/shared-client` | Browser-safe shared client boundary for cross-slice product semantics. |
-| `server/` | `@beep/shared-server` | Server-only shared-kernel boundary for cross-slice product semantics that must stay driver-neutral. |
-| `tables/` | `@beep/shared-tables` | Shared persistence/read-model shapes only when they encode shared product language. |
-| `ui/` | `@beep/shared-ui` | Shared-kernel UI boundary for cross-slice product concepts, not product-agnostic primitives. |
+| Path | Package | Status | Role |
+| --- | --- | --- | --- |
+| `domain/` | `@beep/shared-domain` | Active | Cross-slice domain concepts, values, schemas, domain events, and pure behavior. |
+| `config/` | `@beep/shared-config` | Scaffolded | Cross-slice typed config contracts and config vocabulary. |
+| `use-cases/` | `@beep/shared-use-cases` | Scaffolded | Contract-only commands, queries, DTOs, protocols, product ports, and actionable application errors. |
+| `client/` | `@beep/shared-client` | Scaffolded | Browser-safe shared client boundary for cross-slice product semantics. |
+| `server/` | `@beep/shared-server` | Scaffolded | Server-only shared-kernel boundary for cross-slice product semantics that must stay driver-neutral. |
+| `tables/` | `@beep/shared-tables` | Active | Shared persistence/read-model metadata only when it encodes shared product language. |
+| `ui/` | `@beep/shared-ui` | Active | Shared-kernel UI boundary for cross-slice product concepts, not product-agnostic primitives. |
 
 ## Promotion Bar
 
@@ -42,6 +43,10 @@ foundation family. If it belongs to one product area, keep it in that slice.
   `shared/ui` are exceptional and need a clear cross-slice product contract.
 - `shared/use-cases` is contract-only. Do not add workflows, handlers, concrete
   adapters, driver imports, persistence, clients, transports, or live Layers.
+- `shared/tables` has one narrow Drizzle exception: it may build metadata-only
+  `pgTable` definitions and indexes from shared-domain descriptors. It must not
+  open connections, execute queries, own migrations, expose repositories, or
+  become a live database package.
 - `shared/*` packages do not import product slices, drivers, tooling packages,
   or agent bundles.
 - Product-agnostic UI primitives belong in the foundation UI-system package, not
@@ -65,6 +70,7 @@ Run commands from the leaf package directory when working in one package:
 ```bash
 bun run check
 bun run test
+bun run docgen
 bun run lint
 ```
 
@@ -73,5 +79,6 @@ Or run targeted Turbo checks from the repo root:
 ```bash
 bunx turbo run check --filter=@beep/shared-domain
 bunx turbo run test --filter=@beep/shared-domain
+bunx turbo run docgen --filter=@beep/shared-domain
 bunx turbo run lint --filter=@beep/shared-domain
 ```

@@ -13,10 +13,13 @@ BIGSERIAL
 bivariance
 BM25
 bunfig
+BYOC
+BYOS
 caddyfile
 callees
 callsites
 catchable
+CCPA
 CCONJ
 Checkpointing
 codegen
@@ -25,6 +28,8 @@ Coep
 COEP
 combinators
 credentialless
+CRDT
+CUSIP
 cutover
 Decoratable
 docgen
@@ -69,6 +74,7 @@ macaddr
 mdns
 Mdns
 maxclients
+Merkle
 metas
 milli
 Millis
@@ -120,6 +126,7 @@ RDFS
 redeployments
 replayable
 recompiles
+reconstructibility
 rlib
 roundrectangle
 rrggbb

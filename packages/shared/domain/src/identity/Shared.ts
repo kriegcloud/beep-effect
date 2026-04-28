@@ -26,9 +26,13 @@ export const OrganizationId = make("organization", {
  *
  * @example
  * ```ts
- * import type { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as OrganizationId
+ * const decodeOrganizationId = S.decodeUnknownSync(
+ *   S.make<S.Decoder<typeof OrganizationId.Type>>(OrganizationId.ast)
+ * )
+ * const id = decodeOrganizationId(1)
  * console.log(id)
  * ```
  *
@@ -52,9 +56,11 @@ export const UserId = make("user", {
  *
  * @example
  * ```ts
- * import type { UserId } from "@beep/shared-domain/identity/Shared"
+ * import { UserId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as UserId
+ * const decodeUserId = S.decodeUnknownSync(S.make<S.Decoder<typeof UserId.Type>>(UserId.ast))
+ * const id = decodeUserId(1)
  * console.log(id)
  * ```
  *
@@ -78,9 +84,11 @@ export const TeamId = make("team", {
  *
  * @example
  * ```ts
- * import type { TeamId } from "@beep/shared-domain/identity/Shared"
+ * import { TeamId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as TeamId
+ * const decodeTeamId = S.decodeUnknownSync(S.make<S.Decoder<typeof TeamId.Type>>(TeamId.ast))
+ * const id = decodeTeamId(1)
  * console.log(id)
  * ```
  *
@@ -104,9 +112,13 @@ export const ServiceAccountId = make("service_account", {
  *
  * @example
  * ```ts
- * import type { ServiceAccountId } from "@beep/shared-domain/identity/Shared"
+ * import { ServiceAccountId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as ServiceAccountId
+ * const decodeServiceAccountId = S.decodeUnknownSync(
+ *   S.make<S.Decoder<typeof ServiceAccountId.Type>>(ServiceAccountId.ast)
+ * )
+ * const id = decodeServiceAccountId(1)
  * console.log(id)
  * ```
  *
@@ -130,9 +142,11 @@ export const AgentId = make("agent", {
  *
  * @example
  * ```ts
- * import type { AgentId } from "@beep/shared-domain/identity/Shared"
+ * import { AgentId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as AgentId
+ * const decodeAgentId = S.decodeUnknownSync(S.make<S.Decoder<typeof AgentId.Type>>(AgentId.ast))
+ * const id = decodeAgentId(1)
  * console.log(id)
  * ```
  *
@@ -156,9 +170,13 @@ export const AgentVersionId = make("agent_version", {
  *
  * @example
  * ```ts
- * import type { AgentVersionId } from "@beep/shared-domain/identity/Shared"
+ * import { AgentVersionId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as AgentVersionId
+ * const decodeAgentVersionId = S.decodeUnknownSync(
+ *   S.make<S.Decoder<typeof AgentVersionId.Type>>(AgentVersionId.ast)
+ * )
+ * const id = decodeAgentVersionId(1)
  * console.log(id)
  * ```
  *
@@ -182,9 +200,13 @@ export const ConnectorAccountId = make("connector_account", {
  *
  * @example
  * ```ts
- * import type { ConnectorAccountId } from "@beep/shared-domain/identity/Shared"
+ * import { ConnectorAccountId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as ConnectorAccountId
+ * const decodeConnectorAccountId = S.decodeUnknownSync(
+ *   S.make<S.Decoder<typeof ConnectorAccountId.Type>>(ConnectorAccountId.ast)
+ * )
+ * const id = decodeConnectorAccountId(1)
  * console.log(id)
  * ```
  *
@@ -208,9 +230,11 @@ export const ActivityId = make("activity", {
  *
  * @example
  * ```ts
- * import type { ActivityId } from "@beep/shared-domain/identity/Shared"
+ * import { ActivityId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as ActivityId
+ * const decodeActivityId = S.decodeUnknownSync(S.make<S.Decoder<typeof ActivityId.Type>>(ActivityId.ast))
+ * const id = decodeActivityId(1)
  * console.log(id)
  * ```
  *
@@ -234,9 +258,13 @@ export const LocalMachineId = make("local_machine", {
  *
  * @example
  * ```ts
- * import type { LocalMachineId } from "@beep/shared-domain/identity/Shared"
+ * import { LocalMachineId } from "@beep/shared-domain/identity/Shared"
+ * import * as S from "effect/Schema"
  *
- * const id = 1 as LocalMachineId
+ * const decodeLocalMachineId = S.decodeUnknownSync(
+ *   S.make<S.Decoder<typeof LocalMachineId.Type>>(LocalMachineId.ast)
+ * )
+ * const id = decodeLocalMachineId(1)
  * console.log(id)
  * ```
  *

@@ -37,4 +37,5 @@
 
 - `bunx turbo run check --filter=@beep/shared-use-cases`
 - `bunx turbo run test --filter=@beep/shared-use-cases`
+- `bunx turbo run docgen --filter=@beep/shared-use-cases`
 - `bunx turbo run lint --filter=@beep/shared-use-cases`

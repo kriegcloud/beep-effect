@@ -37,4 +37,5 @@
 
 - `bunx turbo run check --filter=@beep/shared-client`
 - `bunx turbo run test --filter=@beep/shared-client`
+- `bunx turbo run docgen --filter=@beep/shared-client`
 - `bunx turbo run lint --filter=@beep/shared-client`

@@ -9,9 +9,13 @@ kriegcloud
 lancedb
 neondatabase
 nomic
+Ollama
 onepassword
+Practifi
 pulumi
 pulumiverse
 singlestore
 Solana
 zepai
+Zock
+Zocks

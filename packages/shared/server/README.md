@@ -34,6 +34,7 @@ or adapter bucket.
 ```bash
 bun run check
 bun run test
+bun run docgen
 bun run lint
 ```
 

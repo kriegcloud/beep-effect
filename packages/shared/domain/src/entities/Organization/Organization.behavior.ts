@@ -38,7 +38,7 @@ export const isTenantRoot = (organization: Pick<Model, "id" | "orgId">): boolean
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities"
+ * import { Organization } from "@beep/shared-domain/entities/index"
  * import * as O from "effect/Option"
  *
  * console.log(Organization.hasParentOrganization({ parentOrgId: O.none() }))
@@ -61,7 +61,7 @@ export const hasParentOrganization = (organization: Pick<Model, "parentOrgId">):
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities"
+ * import { Organization } from "@beep/shared-domain/entities/index"
  * import * as Shared from "@beep/shared-domain/identity/Shared"
  * import * as O from "effect/Option"
  * import * as S from "effect/Schema"

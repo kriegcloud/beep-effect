@@ -11,7 +11,7 @@ import type * as VariantSchema from "@beep/schema/VariantSchema";
 import type { TUtils } from "@beep/types";
 import * as Struct from "@beep/utils/Struct";
 import * as A from "effect/Array";
-import { dual, pipe } from "effect/Function";
+import { dual, flow, pipe } from "effect/Function";
 import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import * as S from "effect/Schema";
@@ -901,7 +901,7 @@ const makeFieldMap = <Fields extends FieldInputMap, Def extends Definition<Field
     )
   );
 
-const nameFromIdentifier = (identifier: string): string => pipe(identifier, Str.split("/"), A.lastNonEmpty);
+const nameFromIdentifier = flow(Str.split("/"), A.lastNonEmpty);
 
 const packFromRuntime = <const Mixins extends ReadonlyArray<EntityMixin>>(
   runtimePack: Pack<VariantSchema.Struct.Fields, Record<string, FieldDescriptor>, Mixins>

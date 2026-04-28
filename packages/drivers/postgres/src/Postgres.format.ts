@@ -6,7 +6,7 @@
  */
 
 import colors, { type Colors } from "@beep/colors";
-import { Console, type Effect, pipe } from "effect";
+import { Cause, Console, type Effect, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -135,6 +135,43 @@ const highlightLine = (line: string, palette: Colors): string =>
     })
     .replace(/([=<>!]+|::|->|@>|<@|\?\||\?&)/g, (operator) => palette.cyan(operator));
 
+const safeBoolean = (evaluate: () => boolean): boolean =>
+  pipe(
+    Result.try(evaluate),
+    Result.getOrElse(() => false)
+  );
+
+const isObject = (value: unknown): value is object => safeBoolean(() => P.isObject(value));
+
+const isDate = (value: unknown): value is Date => safeBoolean(() => value instanceof Date);
+
+const isCause = (value: unknown): value is Cause.Cause<unknown> => safeBoolean(() => Cause.isCause(value));
+
+const isPostgresError = (value: unknown): value is PostgresError => safeBoolean(() => S.is(PostgresError)(value));
+
+const readCauseReasons = (cause: Cause.Cause<unknown>): ReadonlyArray<Cause.Reason<unknown>> =>
+  pipe(
+    Result.try(() => cause.reasons),
+    Result.getOrElse(A.empty<Cause.Reason<unknown>>)
+  );
+
+const unprintable = "<unprintable>";
+
+const formatDate = (value: Date): string =>
+  pipe(
+    Result.try(() => {
+      const iso: unknown = value.toJSON();
+      return P.isString(iso) ? iso : value.toString();
+    }),
+    Result.getOrElse(() => unprintable)
+  );
+
+const previewValue = (value: unknown): string =>
+  pipe(
+    Result.try(() => String(value)),
+    Result.getOrElse(() => unprintable)
+  );
+
 const formatParam = (value: unknown, index: number, palette: Colors): string => {
   const label = palette.yellow(palette.bold(`$${index + 1}`));
   const separator = palette.dim("=");
@@ -155,21 +192,21 @@ const formatParam = (value: unknown, index: number, palette: Colors): string => 
   if (P.isBoolean(value)) {
     return `${label}${separator}${palette.blue(`${value}`)}`;
   }
-  if (value instanceof Date) {
-    return `${label}${separator}${palette.magenta(value.toISOString())}`;
+  if (isDate(value)) {
+    return `${label}${separator}${palette.magenta(formatDate(value))}`;
   }
   if (A.isArray(value)) {
     const preview =
       A.length(value) > 3
-        ? `[${pipe(value, A.take(3), A.map(String), A.join(", "))}, ...]`
-        : `[${pipe(value, A.map(String), A.join(", "))}]`;
+        ? `[${pipe(value, A.take(3), A.map(previewValue), A.join(", "))}, ...]`
+        : `[${pipe(value, A.map(previewValue), A.join(", "))}]`;
     return `${label}${separator}${palette.cyan(preview)}`;
   }
-  if (P.isObject(value)) {
+  if (isObject(value)) {
     return `${label}${separator}${palette.gray("[Object]")}`;
   }
 
-  return `${label}${separator}${palette.gray(String(value))}`;
+  return `${label}${separator}${palette.gray(previewValue(value))}`;
 };
 
 const formatParams = (parameters: ReadonlyArray<unknown>, palette: Colors): string => {
@@ -215,6 +252,51 @@ const queryType = (query: string): string => {
   return Str.toUpperCase(first);
 };
 
+const formatStatement = (statement: string): string => {
+  try {
+    return format(statement, {
+      language: "postgresql",
+      tabWidth: 2,
+      keywordCase: "lower",
+      linesBetweenQueries: 1,
+    });
+  } catch {
+    return statement;
+  }
+};
+
+const postgresErrorFromReason = (reason: Cause.Reason<unknown>): O.Option<PostgresError> =>
+  pipe(
+    Result.try((): O.Option<PostgresError> => {
+      if (Cause.isFailReason(reason)) {
+        return isPostgresError(reason.error) ? O.some(reason.error) : O.none();
+      }
+      if (Cause.isDieReason(reason)) {
+        return isPostgresError(reason.defect) ? O.some(reason.defect) : O.none();
+      }
+      return O.none();
+    }),
+    Result.getOrElse(O.none)
+  );
+
+const postgresErrorFromCause = (cause: Cause.Cause<unknown>): O.Option<PostgresError> =>
+  pipe(readCauseReasons(cause), A.findFirst(postgresErrorFromReason));
+
+const normalizePostgresError = (error: unknown): PostgresError => {
+  if (isPostgresError(error)) {
+    return error;
+  }
+
+  if (isCause(error)) {
+    return pipe(
+      postgresErrorFromCause(error),
+      O.getOrElse(() => PostgresError.fromUnknown("format", error))
+    );
+  }
+
+  return PostgresError.fromUnknown("format", error);
+};
+
 /**
  * Format and highlight PostgreSQL SQL for terminal output.
  *
@@ -234,12 +316,7 @@ export const formatSql = (
   parameters: ReadonlyArray<unknown> = [],
   palette: Colors = colors
 ): string => {
-  const formatted = format(statement, {
-    language: "postgresql",
-    tabWidth: 2,
-    keywordCase: "lower",
-    linesBetweenQueries: 1,
-  });
+  const formatted = formatStatement(statement);
   const highlighted = pipe(
     formatted,
     Str.split("\n"),
@@ -266,7 +343,7 @@ export const formatSql = (
  * @since 0.0.0
  */
 export const formatPostgresError = (error: unknown, palette: Colors = colors): string => {
-  const normalized = S.is(PostgresError)(error) ? error : PostgresError.fromUnknown("format", error);
+  const normalized = normalizePostgresError(error);
   const lines = [palette.red(palette.bold("POSTGRES ERROR")), `${palette.dim("operation")} ${normalized.operation}`];
 
   O.map(normalized.message, (message) => lines.push(`${palette.dim("message")}   ${message}`));

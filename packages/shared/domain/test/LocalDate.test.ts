@@ -25,7 +25,7 @@ import {
   today,
   todayEffect,
 } from "@beep/shared-domain/values/LocalDate/index";
-import { describe, expect, it } from "@effect/vitest";
+import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Equal, Exit } from "effect";
 import * as DateTime from "effect/DateTime";
 import * as Duration from "effect/Duration";
@@ -39,7 +39,7 @@ const juneFifteenth = () => make({ year: 2024, month: 6, day: 15 });
 const expectFailure = <A, E>(effect: Effect.Effect<A, E, never>) =>
   Effect.gen(function* () {
     const exit = yield* Effect.exit(effect);
-    expect(Exit.isFailure(exit)).toBe(true);
+    assert.strictEqual(Exit.isFailure(exit), true);
   });
 
 describe("LocalDate.Model", () => {
@@ -74,8 +74,8 @@ describe("LocalDate.Model", () => {
       const decoded = yield* S.decodeUnknownEffect(Model)({ year: 2024, month: 6, day: 15 });
       const encoded = yield* S.encodeEffect(Model)(decoded);
 
-      expect(decoded.toISOString()).toBe("2024-06-15");
-      expect(encoded).toEqual({ year: 2024, month: 6, day: 15 });
+      assert.strictEqual(decoded.toISOString(), "2024-06-15");
+      assert.deepEqual(encoded, { year: 2024, month: 6, day: 15 });
     })
   );
 });
@@ -105,7 +105,7 @@ describe("constructors", () => {
     Effect.gen(function* () {
       const date = yield* fromString("2024-06-15");
 
-      expect(date.toISOString()).toBe("2024-06-15");
+      assert.strictEqual(date.toISOString(), "2024-06-15");
       yield* expectFailure(fromString("2024/06/15"));
       yield* expectFailure(fromString("2024-00-15"));
       yield* expectFailure(fromString("2024-13-15"));
@@ -126,10 +126,12 @@ describe("constructors", () => {
   it.effect("constructs today's date from TestClock", () =>
     Effect.gen(function* () {
       yield* TestClock.setTime(DateTime.toEpochMillis(DateTime.makeUnsafe("2024-06-15T12:00:00.000Z")));
-      expect((yield* todayEffect).toISOString()).toBe("2024-06-15");
+      const today = yield* todayEffect;
+      assert.strictEqual(today.toISOString(), "2024-06-15");
 
       yield* TestClock.adjust(Duration.days(1));
-      expect((yield* todayEffect).toISOString()).toBe("2024-06-16");
+      const tomorrow = yield* todayEffect;
+      assert.strictEqual(tomorrow.toISOString(), "2024-06-16");
     })
   );
 });
@@ -226,10 +228,10 @@ describe("LocalDateFromString", () => {
       const encoded = yield* encode(date);
       const padded = yield* encode(make({ year: 99, month: 2, day: 5 }));
 
-      expect(date).toBeInstanceOf(Model);
-      expect(date.toISOString()).toBe("2024-06-15");
-      expect(encoded).toBe("2024-06-15");
-      expect(padded).toBe("0099-02-05");
+      assert.instanceOf(date, Model);
+      assert.strictEqual(date.toISOString(), "2024-06-15");
+      assert.strictEqual(encoded, "2024-06-15");
+      assert.strictEqual(padded, "0099-02-05");
     })
   );
 
@@ -262,9 +264,9 @@ describe("LocalDateFromString", () => {
       });
       const encoded = yield* S.encodeEffect(Params)(decoded);
 
-      expect(decoded.startDate.toISOString()).toBe("2024-01-01");
-      expect(decoded.endDate.toISOString()).toBe("2024-12-31");
-      expect(encoded).toEqual({
+      assert.strictEqual(decoded.startDate.toISOString(), "2024-01-01");
+      assert.strictEqual(decoded.endDate.toISOString(), "2024-12-31");
+      assert.deepEqual(encoded, {
         startDate: "2024-01-01",
         endDate: "2024-12-31",
       });

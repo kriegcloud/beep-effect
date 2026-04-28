@@ -4,9 +4,9 @@
 
 - Shared-kernel UI boundary for deliberate cross-slice product concepts,
   separate from foundation UI primitives.
-- This package currently proves browser-safe Organization display and form
-  contracts. New exports must encode shared product semantics, not generic
-  component-library behavior.
+- This package currently proves browser-safe Organization `Display` and `Form`
+  contracts plus the `primaryLabel` helper. New exports must encode shared
+  product semantics, not generic component-library behavior.
 
 ## Surface Map
 
@@ -37,4 +37,5 @@
 
 - `bunx turbo run check --filter=@beep/shared-ui`
 - `bunx turbo run test --filter=@beep/shared-ui`
+- `bunx turbo run docgen --filter=@beep/shared-ui`
 - `bunx turbo run lint --filter=@beep/shared-ui`
