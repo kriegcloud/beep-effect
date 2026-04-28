@@ -12,11 +12,12 @@
 
 | Surface                                      | Key exports   | Notes                                                    |
 |----------------------------------------------|---------------|----------------------------------------------------------|
-| entry module                                 | `VERSION`, `Entities`, `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Identity`, `Values` | Current package entry point. |
+| entry module                                 | `VERSION`, `Aggregates`, `Entities`, `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Principal`, `SourceKind`, `Identity`, `Values` | Current package root. |
 | `src/aggregates/index.ts`                    | empty module  | Future shared aggregate roots and aggregate vocabulary.  |
 | `src/entities/index.ts`                      | `Organization` | Shared identity-bearing concepts.                       |
 | `src/entities/Organization/`                 | `Model`, value schemas, behavior helpers | Shared Organization concept. |
-| `src/entity/index.ts`                        | entity constructor namespaces | Shared entity kernel constructors and metadata. |
+| `src/entity/index.ts`                        | `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Principal`, `primitives`, `SourceKind` | Shared entity kernel constructor barrel. |
+| `src/entity/primitives.ts`                   | `Sha256`, `Ed25519Signature`, `EncryptionKeyId`, `HybridLogicalClock`, `VectorClock` | Shared driver-neutral entity primitive schemas. |
 | `src/identity/index.ts`                      | `Shared`      | Shared entity-id modules and identity vocabulary.        |
 | `src/values/index.ts`                        | `LocalDate`   | Shared value-object barrel.                              |
 | `src/values/LocalDate/index.ts`              | `LocalDate` exports | Shared `LocalDate` value-object barrel.              |
@@ -46,4 +47,5 @@
 
 - `bunx turbo run check --filter=@beep/shared-domain`
 - `bunx turbo run test --filter=@beep/shared-domain`
+- `bunx turbo run docgen --filter=@beep/shared-domain`
 - `bunx turbo run lint --filter=@beep/shared-domain`

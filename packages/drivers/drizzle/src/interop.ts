@@ -18,7 +18,9 @@ let installed: ReadonlyArray<DrizzleEffectYieldableBase> = [];
  * ```ts
  * import type { DrizzleEffectYieldableBase } from "@beep/drizzle/interop"
  *
- * declare const base: DrizzleEffectYieldableBase
+ * class QueryBase {}
+ *
+ * const base: DrizzleEffectYieldableBase = QueryBase
  * void base.prototype
  * ```
  *
@@ -43,6 +45,9 @@ const queryEffectPrototype = Effectable.Prototype<Effect.Effect<unknown>>({
   },
 });
 
+const isInstalled = (baseClass: DrizzleEffectYieldableBase): boolean =>
+  A.some(installed, (candidate) => candidate === baseClass);
+
 /**
  * Idempotently install Drizzle's native Effect yieldability on a query base class.
  *
@@ -58,22 +63,37 @@ const queryEffectPrototype = Effectable.Prototype<Effect.Effect<unknown>>({
  * @since 0.0.0
  */
 export const installDrizzleEffectYieldables = (baseClass: DrizzleEffectYieldableBase): void => {
-  if (A.contains(installed, baseClass)) {
+  if (isInstalled(baseClass)) {
     return;
   }
 
+  const hasExistingCommit = Reflect.has(baseClass.prototype, "commit");
+
   Object.defineProperties(baseClass.prototype, Object.getOwnPropertyDescriptors(queryEffectPrototype));
-  Object.defineProperty(baseClass.prototype, "commit", {
-    configurable: true,
-    value(this: object) {
-      return executeAsEffect(this);
-    },
-  });
+  if (!hasExistingCommit) {
+    Object.defineProperty(baseClass.prototype, "commit", {
+      configurable: true,
+      value(this: object) {
+        return executeAsEffect(this);
+      },
+    });
+  }
   installed = A.append(installed, baseClass);
 };
 
 /**
  * Native Drizzle Effect cache types.
+ *
+ * @example
+ * ```ts
+ * import type { EffectCache } from "@beep/drizzle/interop"
+ * import type { Layer } from "effect"
+ *
+ * type CacheLayer = Layer.Layer<EffectCache>
+ *
+ * const useCacheLayer = (_layer: CacheLayer) => undefined
+ * void useCacheLayer
+ * ```
  *
  * @since 0.0.0
  * @category exports
@@ -81,6 +101,25 @@ export const installDrizzleEffectYieldables = (baseClass: DrizzleEffectYieldable
 export type { EffectCache } from "drizzle-orm/cache/core/cache-effect";
 /**
  * Native Drizzle Effect error types.
+ *
+ * @example
+ * ```ts
+ * import type {
+ *   EffectDrizzleError,
+ *   EffectDrizzleQueryError,
+ *   EffectTransactionRollbackError,
+ *   MigratorInitError
+ * } from "@beep/drizzle/interop"
+ *
+ * const handleNativeErrors = (
+ *   _drizzleError: EffectDrizzleError,
+ *   _queryError: EffectDrizzleQueryError,
+ *   _rollbackError: EffectTransactionRollbackError,
+ *   _migratorError: MigratorInitError
+ * ) => undefined
+ *
+ * void handleNativeErrors
+ * ```
  *
  * @since 0.0.0
  * @category exports
@@ -94,12 +133,33 @@ export type {
 /**
  * Native Drizzle Effect logger types.
  *
+ * @example
+ * ```ts
+ * import type { EffectLogger } from "@beep/drizzle/interop"
+ * import type { Layer } from "effect"
+ *
+ * type LoggerLayer = Layer.Layer<EffectLogger>
+ *
+ * const useLoggerLayer = (_layer: LoggerLayer) => undefined
+ * void useLoggerLayer
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
 export type { EffectLogger } from "drizzle-orm/effect-core/logger";
 /**
  * Native Drizzle Effect query types.
+ *
+ * @example
+ * ```ts
+ * import type { QueryEffectHKTBase, QueryEffectKind } from "@beep/drizzle/interop"
+ *
+ * type QueryEffect<A> = QueryEffectKind<QueryEffectHKTBase, A>
+ *
+ * const useQueryEffect = <A>(_effect: QueryEffect<A>) => undefined
+ * void useQueryEffect
+ * ```
  *
  * @since 0.0.0
  * @category exports

@@ -3,9 +3,9 @@
 Shared-kernel UI boundary for deliberate cross-slice product concepts, separate
 from foundation UI primitives.
 
-This package currently proves browser-safe Organization display and form
-contracts. Future exports should be UI for shared product language, not a
-generic component library.
+This package currently proves browser-safe Organization `Display` and `Form`
+contracts plus the `primaryLabel` helper. Future exports should be UI for
+shared product language, not a generic component library.
 
 ## Belongs Here
 
@@ -26,12 +26,16 @@ generic component library.
 - `@beep/shared-ui/*`
 - `VERSION`
 - `Entities.Organization`
+- `Entities.Organization.Display`
+- `Entities.Organization.Form`
+- `Entities.Organization.primaryLabel`
 
 ## Development
 
 ```bash
 bun run check
 bun run test
+bun run docgen
 bun run lint
 ```
 

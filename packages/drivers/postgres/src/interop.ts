@@ -17,8 +17,8 @@ import { PostgresError } from "./Postgres.errors.ts";
  * ```ts
  * import type { NativeMigrationError } from "@beep/postgres/interop"
  *
- * declare const error: NativeMigrationError
- * void error
+ * const describeMigrationError = (_error: NativeMigrationError) => "migration failed"
+ * void describeMigrationError
  * ```
  *
  * @since 0.0.0
@@ -33,8 +33,8 @@ export type NativeMigrationError = EffectDrizzleQueryError | MigratorInitError |
  * ```ts
  * import type { NativePgDrizzleModule } from "@beep/postgres/interop"
  *
- * declare const module: NativePgDrizzleModule
- * void module.makeWithDefaults
+ * const getDefaultFactory = (module: NativePgDrizzleModule) => module.makeWithDefaults
+ * void getDefaultFactory
  * ```
  *
  * @since 0.0.0
@@ -49,8 +49,8 @@ export type NativePgDrizzleModule = typeof import("drizzle-orm/effect-postgres")
  * ```ts
  * import type { NativePgDrizzleMigratorModule } from "@beep/postgres/interop"
  *
- * declare const module: NativePgDrizzleMigratorModule
- * void module.migrate
+ * const getMigrator = (module: NativePgDrizzleMigratorModule) => module.migrate
+ * void getMigrator
  * ```
  *
  * @since 0.0.0
@@ -98,6 +98,14 @@ export const loadNativePgDrizzleMigrator: Effect.Effect<NativePgDrizzleMigratorM
 /**
  * Native Effect Postgres client namespace.
  *
+ * @example
+ * ```ts
+ * import { NativePgClient } from "@beep/postgres/interop"
+ *
+ * const pgClientTag = NativePgClient.PgClient
+ * void pgClientTag
+ * ```
+ *
  * @since 0.0.0
  * @category exports
  */
@@ -105,6 +113,17 @@ export * as NativePgClient from "@effect/sql-pg/PgClient";
 
 /**
  * Native Drizzle Effect Postgres database types.
+ *
+ * @example
+ * ```ts
+ * import type { EffectDrizzleConfig, EffectLogger, EffectPgDatabase } from "@beep/postgres/interop"
+ *
+ * const config: EffectDrizzleConfig = {}
+ * const useDatabase = (_database: EffectPgDatabase) => config
+ * const useLogger = (_logger: EffectLogger) => config
+ * void useDatabase
+ * void useLogger
+ * ```
  *
  * @since 0.0.0
  * @category exports

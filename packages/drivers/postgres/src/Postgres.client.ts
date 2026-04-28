@@ -40,8 +40,8 @@ export type PostgresPoolConfig = Pg.PgPoolConfig;
  * ```ts
  * import type { PostgresClientValue } from "@beep/postgres"
  *
- * declare const client: PostgresClientValue
- * void client.config
+ * const readConfig = (client: PostgresClientValue) => client.config
+ * void readConfig
  * ```
  *
  * @category models
@@ -112,9 +112,8 @@ export class PostgresClient extends Context.Service<PostgresClient, PostgresClie
    * import { PostgresClient } from "@beep/postgres"
    * import type { PostgresClientValue } from "@beep/postgres"
    *
-   * declare const client: PostgresClientValue
-   * const layer = PostgresClient.fromPgClient(client)
-   * void layer
+   * const makeLayer = (client: PostgresClientValue) => PostgresClient.fromPgClient(client)
+   * void makeLayer
    * ```
    *
    * @category layers

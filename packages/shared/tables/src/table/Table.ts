@@ -82,6 +82,20 @@ type ColumnBuilderWithNullability<
 /**
  * Drizzle column builder type derived from one storage-neutral descriptor.
  *
+ * @example
+ * ```ts
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ * import type { ColumnBuilderFor } from "@beep/shared-tables/table/Table"
+ * import * as Table from "@beep/shared-tables/table/Table"
+ * import { text } from "drizzle-orm/pg-core"
+ *
+ * const fieldMap = Table.make(OrganizationId, ProfilePack).definition.fieldMap
+ * const slugColumn = text("slug").notNull() satisfies ColumnBuilderFor<typeof fieldMap.slug>
+ *
+ * console.log(slugColumn)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -91,6 +105,24 @@ export type ColumnBuilderFor<Descriptor extends FieldDescriptor> = Descriptor ex
 
 /**
  * Drizzle column builder map derived from a storage-neutral descriptor map.
+ *
+ * @example
+ * ```ts
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ * import type { ColumnBuilderMapFor } from "@beep/shared-tables/table/Table"
+ * import * as Table from "@beep/shared-tables/table/Table"
+ * import { text } from "drizzle-orm/pg-core"
+ *
+ * const fieldMap = Table.make(OrganizationId, ProfilePack).definition.fieldMap
+ * type OrganizationColumnBuilders = ColumnBuilderMapFor<typeof fieldMap>
+ *
+ * const columns = {
+ *   slug: text("slug").notNull(),
+ * } satisfies Pick<OrganizationColumnBuilders, "slug">
+ *
+ * console.log(columns.slug)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -103,6 +135,21 @@ export type ColumnBuilderMapFor<FieldMap extends object> = {
 
 /**
  * Drizzle table type derived from shared-kernel entity metadata.
+ *
+ * @example
+ * ```ts
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ * import type { TableFor } from "@beep/shared-tables/table/Table"
+ * import * as Table from "@beep/shared-tables/table/Table"
+ *
+ * const OrganizationTable: TableFor<typeof OrganizationId, typeof ProfilePack> = Table.make(
+ *   OrganizationId,
+ *   ProfilePack,
+ * )
+ *
+ * console.log(OrganizationTable.definition.tableName)
+ * ```
  *
  * @since 0.0.0
  * @category models
@@ -123,10 +170,15 @@ export type TableFor<
  *
  * @example
  * ```ts
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
  * import type { Definition } from "@beep/shared-tables/table/Table"
+ * import * as Table from "@beep/shared-tables/table/Table"
  *
- * const tableName: Definition["tableName"] = "shared_organization"
- * console.log(tableName)
+ * const OrganizationTable = Table.make(OrganizationId, ProfilePack)
+ * const definition: Definition<typeof OrganizationId, typeof ProfilePack> = OrganizationTable.definition
+ *
+ * console.log(definition.tableName)
  * ```
  *
  * @since 0.0.0
@@ -146,9 +198,14 @@ export type Definition<
  *
  * @example
  * ```ts
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
  * import type { WithDefinition } from "@beep/shared-tables/table/Table"
+ * import * as Table from "@beep/shared-tables/table/Table"
  *
- * declare const table: WithDefinition
+ * const OrganizationTable = Table.make(OrganizationId, ProfilePack)
+ * const table: WithDefinition<typeof OrganizationId, typeof ProfilePack> = OrganizationTable
+ *
  * console.log(table.definition.tableName)
  * ```
  *
@@ -327,10 +384,11 @@ const indexesFor = (
  *
  * @example
  * ```ts
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
  * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
  * import * as Table from "@beep/shared-tables/table/Table"
  *
- * const OrganizationTable = Table.make(OrganizationId)
+ * const OrganizationTable = Table.make(OrganizationId, ProfilePack)
  * console.log(OrganizationTable.definition.tableName)
  * ```
  *
@@ -354,10 +412,11 @@ const mixinsFromOptional = <const Mixins extends EntityMixin.Pack>(mixins: Mixin
  *
  * @example
  * ```ts
+ * import { ProfilePack } from "@beep/shared-domain/entities/Organization/Organization.values"
  * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
  * import * as Table from "@beep/shared-tables/table/Table"
  *
- * const OrganizationTable = Table.make(OrganizationId)
+ * const OrganizationTable = Table.make(OrganizationId, ProfilePack)
  * console.log(OrganizationTable.definition.tableName)
  * ```
  *

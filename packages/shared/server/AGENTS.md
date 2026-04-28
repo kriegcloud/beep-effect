@@ -36,4 +36,5 @@
 
 - `bunx turbo run check --filter=@beep/shared-server`
 - `bunx turbo run test --filter=@beep/shared-server`
+- `bunx turbo run docgen --filter=@beep/shared-server`
 - `bunx turbo run lint --filter=@beep/shared-server`

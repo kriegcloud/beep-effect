@@ -34,6 +34,7 @@ When boundary surfaces are added, prefer canonical subpaths such as `/public`,
 ```bash
 bun run check
 bun run test
+bun run docgen
 bun run lint
 ```
 

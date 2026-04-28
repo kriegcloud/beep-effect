@@ -19,10 +19,12 @@ const $I = $SharedDomainId.create("entities/Organization/Organization.values");
  *
  * @example
  * ```ts
- * import { Organization } from "@beep/shared-domain/entities"
+ * import { Organization } from "@beep/shared-domain/entities/index"
+ * import * as S from "effect/Schema"
  *
- * const isEnterprise = Organization.LicenseTier.is.enterprise("enterprise")
- * console.log(isEnterprise)
+ * const decodeLicenseTier = S.decodeUnknownSync(Organization.LicenseTier)
+ * const tier = decodeLicenseTier("enterprise")
+ * console.log(Organization.LicenseTier.is.enterprise(tier))
  * ```
  *
  * @category schemas
@@ -40,9 +42,12 @@ export const LicenseTier = LiteralKit(["free", "team", "enterprise"]).annotate(
  * @example
  * ```ts
  * import type { Organization } from
- * "@beep/shared-domain/entities"
+ * "@beep/shared-domain/entities/index"
+ * import { Organization as OrganizationSchemas } from
+ * "@beep/shared-domain/entities/index"
+ * import * as S from "effect/Schema"
  *
- * const tier: Organization.LicenseTier = "team" as const
+ * const tier: Organization.LicenseTier = S.decodeUnknownSync(OrganizationSchemas.LicenseTier)("team")
  * console.log(tier)
  * ```
  *
@@ -57,7 +62,7 @@ export type LicenseTier = typeof LicenseTier.Type;
  * @example
  * ```ts
  * import { Organization } from
- * "@beep/shared-domain/entities"
+ * "@beep/shared-domain/entities/index"
  * import * as S from "effect/Schema"
  *
  * const settings = S.decodeUnknownSync(Organization.Settings)({
@@ -86,7 +91,7 @@ export class Settings extends S.Class<Settings>($I`Settings`)(
  * @example
  * ```ts
  * import { Organization } from
- * "@beep/shared-domain/entities"
+ * "@beep/shared-domain/entities/index"
  *
  * console.log(Organization.ProfileMixin.fieldMap.slug.columnName)
  * ```
@@ -162,7 +167,7 @@ export const ProfileMixin = EntityMixin.make($I`ProfileMixin`)(
  * @example
  * ```ts
  * import { Organization } from
- * "@beep/shared-domain/entities"
+ * "@beep/shared-domain/entities/index"
  *
  * console.log(Organization.ProfilePack.fieldMap.licenseTier.storageKind)
  * ```

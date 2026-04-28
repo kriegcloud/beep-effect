@@ -39,4 +39,5 @@
 
 - `bunx turbo run check --filter=@beep/shared-config`
 - `bunx turbo run test --filter=@beep/shared-config`
+- `bunx turbo run docgen --filter=@beep/shared-config`
 - `bunx turbo run lint --filter=@beep/shared-config`

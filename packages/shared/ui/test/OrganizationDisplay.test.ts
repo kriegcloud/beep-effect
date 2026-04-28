@@ -15,6 +15,17 @@ const displayInput = {
   slug: "acme",
 } as const;
 
+const formInput = {
+  legalName: "Acme Legal LLC",
+  licenseTier: "team",
+  name: "Acme",
+  settings: {
+    allowAgentActions: true,
+    defaultRetentionDays: 90,
+  },
+  slug: "acme",
+} as const;
+
 describe("Organization UI contracts", () => {
   it("decodes browser-safe display payloads", () => {
     const display = S.decodeUnknownSync(Organization.Display)(displayInput);
@@ -27,12 +38,26 @@ describe("Organization UI contracts", () => {
 
   it("decodes browser-safe form payloads with parent organizations", () => {
     const form = S.decodeUnknownSync(Organization.Form)({
-      ...displayInput,
+      ...formInput,
       parentOrgId: 1,
     });
 
     expect(form.slug).toBe("acme");
     expect(O.getOrThrow(form.parentOrgId)).toBe(1);
+  });
+
+  it("decodes null parent organization ids as None", () => {
+    const display = S.decodeUnknownSync(Organization.Display)({
+      ...displayInput,
+      parentOrgId: null,
+    });
+    const form = S.decodeUnknownSync(Organization.Form)({
+      ...formInput,
+      parentOrgId: null,
+    });
+
+    expect(display.parentOrgId).toEqual(O.none());
+    expect(form.parentOrgId).toEqual(O.none());
   });
 
   it("derives the primary display label from the organization name", () => {
@@ -41,15 +66,17 @@ describe("Organization UI contracts", () => {
     expect(Organization.primaryLabel(display)).toBe("Acme");
   });
 
-  it("encodes optional parent organization ids for browser payloads", () => {
+  it("encodes nullish parent organization ids for browser payloads", () => {
     const withoutParent = S.decodeUnknownSync(Organization.Display)(displayInput);
     const withParent = S.decodeUnknownSync(Organization.Display)({
       ...displayInput,
       parentOrgId: 1,
     });
+    const formWithoutParent = S.decodeUnknownSync(Organization.Form)(formInput);
 
-    expect("parentOrgId" in S.encodeSync(Organization.Display)(withoutParent)).toBe(false);
+    expect(S.encodeSync(Organization.Display)(withoutParent).parentOrgId).toBeNull();
     expect(S.encodeSync(Organization.Display)(withParent).parentOrgId).toBe(1);
+    expect(S.encodeSync(Organization.Form)(formWithoutParent).parentOrgId).toBeNull();
   });
 
   it("rejects invalid browser-safe organization payload fields", () => {

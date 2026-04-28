@@ -26,13 +26,18 @@ product meaning.
 - `@beep/shared-domain`
 - `@beep/shared-domain/*`
 - `VERSION`
+- `Aggregates`
 - `Entities.Organization`
+- `Values.LocalDate`
+- `Identity.Shared`
 - `BaseEntity`
 - `EntityId`
 - `EntityMixin`
 - `EntityRef`
-- `Identity.Shared`
-- `Values.LocalDate`
+- `Principal`
+- `SourceKind`
+- `@beep/shared-domain/entity/index`
+- `@beep/shared-domain/entity/primitives`
 
 ## Source Map
 
@@ -41,7 +46,8 @@ product meaning.
 | `src/aggregates/index.ts`                    | Shared aggregate roots and aggregate-level vocabulary. |
 | `src/entities/index.ts`                      | Shared identity-bearing concepts, including `Organization`. |
 | `src/entities/Organization/`                 | Organization model, value vocabulary, and pure behavior. |
-| `src/entity/`                                | Shared entity-id, base-entity, mixin, principal, and reference constructors. |
+| `src/entity/index.ts`                        | Entity constructor barrel: `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Principal`, `primitives`, and `SourceKind`. |
+| `src/entity/primitives.ts`                   | Shared driver-neutral entity primitive schemas.        |
 | `src/identity/index.ts`                      | Shared entity-id modules and identity vocabulary.      |
 | `src/values/index.ts`                        | Shared value objects.                                  |
 | `src/values/LocalDate/index.ts`              | Shared `LocalDate` value-object barrel.                |
@@ -53,6 +59,7 @@ product meaning.
 ```bash
 bun run check
 bun run test
+bun run docgen
 bun run lint
 ```
 

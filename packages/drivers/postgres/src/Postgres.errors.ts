@@ -7,6 +7,7 @@
 
 import { $PostgresId } from "@beep/identity";
 import { TaggedErrorClass } from "@beep/schema";
+import { Cause, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -33,33 +34,97 @@ type ErrorContext = {
   readonly where?: string | undefined;
 };
 
+const readProperty = <A>(value: object, key: string, guard: (candidate: unknown) => candidate is A): O.Option<A> =>
+  pipe(
+    Result.try(() => Reflect.get(value, key) as unknown),
+    Result.getOrUndefined,
+    O.fromUndefinedOr,
+    O.filter(guard)
+  );
+
+const safeBoolean = (evaluate: () => boolean): boolean =>
+  pipe(
+    Result.try(evaluate),
+    Result.getOrElse(() => false)
+  );
+
+const isObject = (value: unknown): value is object => safeBoolean(() => P.isObject(value));
+
+const isError = (value: unknown): value is Error => safeBoolean(() => value instanceof Error);
+
+const isCause = (value: unknown): value is Cause.Cause<unknown> => safeBoolean(() => Cause.isCause(value));
+
+const isPostgresError = (value: unknown): value is PostgresError => safeBoolean(() => S.is(PostgresError)(value));
+
+const hasSeen = (seen: ReadonlyArray<object>, value: object): boolean =>
+  pipe(
+    seen,
+    A.some((seenValue) => seenValue === value)
+  );
+
+const readCauseReasons = (cause: Cause.Cause<unknown>): ReadonlyArray<Cause.Reason<unknown>> =>
+  pipe(
+    Result.try(() => cause.reasons),
+    Result.getOrElse(A.empty<Cause.Reason<unknown>>)
+  );
+
 const readString = (value: unknown, key: string): O.Option<string> =>
-  P.isObject(value) ? pipeProperty(value, key, P.isString) : O.none();
+  isObject(value) ? readProperty(value, key, P.isString) : O.none();
 
 const readArray = (value: unknown, key: string): O.Option<ReadonlyArray<unknown>> =>
-  P.isObject(value)
-    ? pipeProperty(value, key, (candidate): candidate is ReadonlyArray<unknown> => A.isArray(candidate))
+  isObject(value)
+    ? readProperty(value, key, (candidate): candidate is ReadonlyArray<unknown> => A.isArray(candidate))
     : O.none();
 
-const pipeProperty = <A>(value: object, key: string, guard: (candidate: unknown) => candidate is A): O.Option<A> => {
-  const candidate = Reflect.get(value, key);
-  return guard(candidate) ? O.some(candidate) : O.none();
-};
+const readUnknown = (value: unknown, key: string): O.Option<unknown> =>
+  isObject(value) ? readProperty(value, key, P.isUnknown) : O.none();
 
 const getErrorMessage = (value: unknown): O.Option<string> =>
-  value instanceof Error ? O.some(value.message) : readString(value, "message");
+  isError(value) ? readProperty(value, "message", P.isString) : readString(value, "message");
 
 const readCause = (value: unknown): O.Option<unknown> =>
-  P.isObject(value)
-    ? O.firstSomeOf([pipeProperty(value, "cause", P.isUnknown), pipeProperty(value, "reason", P.isUnknown)])
-    : O.none();
+  isObject(value) ? O.firstSomeOf([readUnknown(value, "cause"), readUnknown(value, "reason")]) : O.none();
+
+const firstMapped = <Input, Output>(
+  values: ReadonlyArray<Input>,
+  map: (value: Input) => O.Option<Output>
+): O.Option<Output> =>
+  A.reduce(values, O.none<Output>(), (current, value) => (O.isSome(current) ? current : map(value)));
+
+const reasonValue = (reason: Cause.Reason<unknown>): O.Option<unknown> => {
+  return pipe(
+    Result.try((): O.Option<unknown> => {
+      if (Cause.isFailReason(reason)) {
+        return O.some(reason.error);
+      }
+      if (Cause.isDieReason(reason)) {
+        return O.some(reason.defect);
+      }
+      return O.none();
+    }),
+    Result.getOrElse(O.none)
+  );
+};
+
+const findInCause = <A>(
+  cause: Cause.Cause<unknown>,
+  seen: ReadonlyArray<object>,
+  extract: (value: unknown, seen: ReadonlyArray<object>) => O.Option<A>
+): O.Option<A> =>
+  firstMapped(readCauseReasons(cause), (reason) =>
+    pipe(
+      reasonValue(reason),
+      O.flatMap((value) => extract(value, seen))
+    )
+  );
 
 const extractSourceLocation = (value: unknown): O.Option<string> => {
-  if (!(value instanceof Error) || value.stack === undefined) {
+  const stack = isError(value) ? O.getOrUndefined(readString(value, "stack")) : undefined;
+  if (stack === undefined) {
     return O.none();
   }
 
-  for (const line of Str.split(value.stack, "\n")) {
+  for (const line of Str.split(stack, "\n")) {
     const match = line.match(/at\s+(?:.*?\s+)?\(?([^()]+):(\d+):(\d+)\)?/);
     const filePath = match?.[1];
     const lineNumber = match?.[2];
@@ -80,18 +145,22 @@ const extractSourceLocation = (value: unknown): O.Option<string> => {
 };
 
 const extractPgLikeError = (value: unknown, seen: ReadonlyArray<object> = []): O.Option<object> => {
-  if (!P.isObject(value) || A.contains(seen, value)) {
+  if (!isObject(value) || hasSeen(seen, value)) {
     return O.none();
   }
 
   const nextSeen = A.append(seen, value);
 
+  if (isCause(value)) {
+    return findInCause(value, nextSeen, extractPgLikeError);
+  }
+
   if (O.isSome(readString(value, "code"))) {
     return O.some(value);
   }
 
-  return pipeProperty(value, "cause", P.isUnknown).pipe(
-    O.orElse(() => pipeProperty(value, "reason", P.isUnknown)),
+  return pipe(
+    readCause(value),
     O.flatMap((cause) => extractPgLikeError(cause, nextSeen))
   );
 };
@@ -107,10 +176,7 @@ const parseDrizzleMessage = (value: unknown): ErrorContext => {
   const paramsText = match[2]?.trim();
   return {
     query: match[1]?.trim(),
-    params:
-      paramsText === undefined || paramsText.length === 0
-        ? undefined
-        : A.map(Str.split(paramsText, ","), (item) => item.trim()),
+    params: paramsText === undefined || paramsText.length === 0 ? undefined : A.of(paramsText),
   };
 };
 
@@ -118,11 +184,26 @@ const extractDrizzleQueryContext = (
   value: unknown,
   seen: ReadonlyArray<object> = []
 ): Pick<ErrorContext, "params" | "query"> => {
-  if (!P.isObject(value) || A.contains(seen, value)) {
+  if (!isObject(value) || hasSeen(seen, value)) {
     return parseDrizzleMessage(value);
   }
 
-  const tag = Reflect.get(value, "_tag");
+  const nextSeen = A.append(seen, value);
+
+  if (isCause(value)) {
+    return pipe(
+      firstMapped(readCauseReasons(value), (reason) =>
+        pipe(
+          reasonValue(reason),
+          O.map((reasonCause) => extractDrizzleQueryContext(reasonCause, nextSeen)),
+          O.filter((context) => context.query !== undefined || context.params !== undefined)
+        )
+      ),
+      O.getOrElse(() => ({}))
+    );
+  }
+
+  const tag = O.getOrUndefined(readUnknown(value, "_tag"));
   if (tag === "EffectDrizzleQueryError") {
     return {
       query: O.getOrUndefined(readString(value, "query")),
@@ -135,15 +216,36 @@ const extractDrizzleQueryContext = (
     return messageContext;
   }
 
-  const nextSeen = A.append(seen, value);
-
   return O.match(readCause(value), {
     onNone: () => ({}),
     onSome: (cause) => extractDrizzleQueryContext(cause, nextSeen),
   });
 };
 
+const extractPostgresError = (value: unknown, seen: ReadonlyArray<object> = []): O.Option<PostgresError> => {
+  if (isPostgresError(value)) {
+    return O.some(value);
+  }
+  if (!isObject(value) || hasSeen(seen, value)) {
+    return O.none();
+  }
+
+  const nextSeen = A.append(seen, value);
+
+  if (isCause(value)) {
+    return findInCause(value, nextSeen, extractPostgresError);
+  }
+
+  return pipe(
+    readCause(value),
+    O.flatMap((cause) => extractPostgresError(cause, nextSeen))
+  );
+};
+
 const optionFrom = <A>(value: A | undefined): O.Option<A> => O.fromUndefinedOr(value);
+
+const optionFromSafeDefect = (value: unknown): O.Option<unknown> =>
+  !isCause(value) && safeBoolean(() => S.is(S.DefectWithStack)(value)) ? optionFrom(value) : O.none();
 
 /**
  * Technical failure raised by the `@beep/postgres` driver boundary.
@@ -198,6 +300,11 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
    * @since 0.0.0
    */
   static readonly fromUnknown = (operation: string, cause?: unknown, context: ErrorContext = {}): PostgresError => {
+    const existingError = O.getOrUndefined(extractPostgresError(cause));
+    if (existingError !== undefined) {
+      return existingError;
+    }
+
     const pgError = O.getOrUndefined(extractPgLikeError(cause));
     const drizzleContext = extractDrizzleQueryContext(cause);
     const sqlState = context.sqlState ?? O.getOrUndefined(readString(pgError, "code"));
@@ -206,7 +313,7 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
 
     return new PostgresError({
       operation,
-      cause: optionFrom(cause),
+      cause: optionFromSafeDefect(cause),
       message: optionFrom(
         context.message ?? O.getOrUndefined(getErrorMessage(pgError)) ?? O.getOrUndefined(getErrorMessage(cause))
       ),

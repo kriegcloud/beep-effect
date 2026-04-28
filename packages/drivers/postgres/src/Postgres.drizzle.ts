@@ -24,8 +24,8 @@ const $I = $PostgresId.create("Postgres.drizzle");
  * ```ts
  * import type { PostgresDrizzleDatabase } from "@beep/postgres"
  *
- * declare const db: PostgresDrizzleDatabase
- * void db.$client
+ * const readClient = (db: PostgresDrizzleDatabase) => db.$client
+ * void readClient
  * ```
  *
  * @category models
@@ -128,11 +128,12 @@ export const makeDrizzleLayer = (
  * import { migrate } from "@beep/postgres"
  * import type { PostgresDrizzleDatabase } from "@beep/postgres"
  *
- * declare const db: PostgresDrizzleDatabase
- * const effect = migrate(db, { migrationsFolder: "./drizzle" })
- * const piped = db.pipe(migrate({ migrationsFolder: "./drizzle" }))
- * void effect
- * void piped
+ * const runMigration = (db: PostgresDrizzleDatabase) => {
+ *   const effect = migrate(db, { migrationsFolder: "./drizzle" })
+ *   const deferred = migrate({ migrationsFolder: "./drizzle" })(db)
+ *   return { deferred, effect }
+ * }
+ * void runMigration
  * ```
  *
  * @category constructors
