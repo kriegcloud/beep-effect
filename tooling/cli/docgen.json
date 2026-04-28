@@ -38,10 +38,25 @@
       "@beep/docgen": ["../../tooling/docgen/src/index.ts"],
       "@beep/docgen/*": ["../../tooling/docgen/src/*.ts"],
       "@beep/docgen/schema.json": ["../../tooling/docgen/schema.json"],
+      "@beep/ffmpeg": ["../../packages/drivers/ffmpeg/src/index.ts"],
+      "@beep/ffmpeg/*": ["../../packages/drivers/ffmpeg/src/*.ts"],
       "@beep/identity": ["../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
       "@beep/identity/packages": [
         "../../packages/common/identity/src/packages.ts"
+      ],
+      "@beep/observability": [
+        "../../packages/common/observability/src/index.ts"
+      ],
+      "@beep/observability/*": ["../../packages/common/observability/src/*.ts"],
+      "@beep/observability/experimental/server": [
+        "../../packages/common/observability/src/experimental/server/index.ts"
+      ],
+      "@beep/observability/server": [
+        "../../packages/common/observability/src/server/index.ts"
+      ],
+      "@beep/observability/web": [
+        "../../packages/common/observability/src/web/index.ts"
       ],
       "@beep/repo-configs": ["../../tooling/configs/src/index.ts"],
       "@beep/repo-configs/*": ["../../tooling/configs/src/*.ts"],

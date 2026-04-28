@@ -1,7 +1,13 @@
 import { filesCommand } from "@beep/repo-cli";
+import {
+  ArchivePoorCandidatesManifest,
+  DetectBordersReport,
+  NormalizeManifest,
+} from "@beep/repo-cli/commands/Files/index";
 import { NodeChildProcessSpawner, NodeServices } from "@effect/platform-node";
 import { Effect, FileSystem, Layer, Order, Path, pipe } from "effect";
 import * as A from "effect/Array";
+import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
@@ -14,6 +20,9 @@ const testLayer = Layer.mergeAll(
   NodeChildProcessSpawner.layer.pipe(Layer.provideMerge(NodeServices.layer))
 );
 const runFilesCommand = Command.runWith(filesCommand, { version: "0.0.0" });
+const decodeArchivePoorCandidatesManifest = S.decodeUnknownSync(S.fromJsonString(ArchivePoorCandidatesManifest));
+const decodeDetectBordersReport = S.decodeUnknownSync(S.fromJsonString(DetectBordersReport));
+const decodeNormalizeManifest = S.decodeUnknownSync(S.fromJsonString(NormalizeManifest));
 
 const withTempDirectory = <A, E, R>(use: (tmpDir: string) => Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
@@ -90,11 +99,182 @@ const writeJpegWithExif = Effect.fn("FilesTest.writeJpegWithExif")(function* (
   }).pipe(Effect.asVoid);
 });
 
+const writeJpegWithOrientationExif = Effect.fn("FilesTest.writeJpegWithOrientationExif")(function* (
+  filePath: string,
+  width: number,
+  height: number,
+  orientation: number
+) {
+  yield* Effect.tryPromise({
+    try: () =>
+      sharp({
+        create: {
+          background: { alpha: 1, b: 32, g: 64, r: 96 },
+          channels: 3,
+          height,
+          width,
+        },
+      })
+        .jpeg()
+        .withMetadata({ orientation })
+        .withExif({
+          IFD0: {
+            ImageDescription: "oriented-source",
+          },
+        })
+        .toFile(filePath),
+    catch: (cause) => cause,
+  }).pipe(Effect.asVoid);
+});
+
 const readImageMetadata = Effect.fn("FilesTest.readImageMetadata")(function* (filePath: string) {
   return yield* Effect.tryPromise({
     try: () => sharp(filePath).metadata(),
     catch: (cause) => cause,
   });
+});
+
+const readNormalizeManifest = Effect.fn("FilesTest.readNormalizeManifest")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath);
+  return decodeNormalizeManifest(content);
+});
+
+const readArchivePoorCandidatesManifest = Effect.fn("FilesTest.readArchivePoorCandidatesManifest")(function* (
+  filePath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const content = yield* fs.readFileString(filePath);
+  return decodeArchivePoorCandidatesManifest(content);
+});
+
+const readDetectBordersJsonLog = Effect.fn("FilesTest.readDetectBordersJsonLog")(function* () {
+  const lines = yield* TestConsole.logLines;
+  return decodeDetectBordersReport(A.join("\n")(lines));
+});
+
+const writeInsetCanvasImage = Effect.fn("FilesTest.writeInsetCanvasImage")(function* (
+  filePath: string,
+  width: number,
+  height: number,
+  inset: { readonly bottom: number; readonly left: number; readonly right: number; readonly top: number },
+  background: { readonly b: number; readonly g: number; readonly r: number },
+  content: { readonly b: number; readonly g: number; readonly r: number }
+) {
+  yield* Effect.tryPromise({
+    try: () =>
+      sharp({
+        create: {
+          background,
+          channels: 3,
+          height,
+          width,
+        },
+      })
+        .composite([
+          {
+            input: {
+              create: {
+                background: content,
+                channels: 3,
+                height: height - inset.top - inset.bottom,
+                width: width - inset.left - inset.right,
+              },
+            },
+            left: inset.left,
+            top: inset.top,
+          },
+        ])
+        .png()
+        .toFile(filePath),
+    catch: (cause) => cause,
+  }).pipe(Effect.asVoid);
+});
+
+const writePatternImage = Effect.fn("FilesTest.writePatternImage")(function* (
+  filePath: string,
+  width: number,
+  height: number
+) {
+  const data = Buffer.alloc(width * height * 3);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 3;
+      data[offset] = (x * 17 + y * 31) % 256;
+      data[offset + 1] = (x * 47 + y * 13) % 256;
+      data[offset + 2] = (x * 7 + y * 71) % 256;
+    }
+  }
+
+  yield* Effect.tryPromise({
+    try: () =>
+      sharp(data, { raw: { channels: 3, height, width } })
+        .png()
+        .toFile(filePath),
+    catch: (cause) => cause,
+  }).pipe(Effect.asVoid);
+});
+
+const writeLeftCanvasPatternImage = Effect.fn("FilesTest.writeLeftCanvasPatternImage")(function* (
+  filePath: string,
+  width: number,
+  height: number,
+  leftWidth: number
+) {
+  const data = Buffer.alloc(width * height * 3);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 3;
+      if (x < leftWidth) {
+        data[offset] = 255;
+        data[offset + 1] = 255;
+        data[offset + 2] = 255;
+        continue;
+      }
+
+      data[offset] = (x * 17 + y * 31) % 256;
+      data[offset + 1] = (x * 47 + y * 13) % 256;
+      data[offset + 2] = (x * 7 + y * 71) % 256;
+    }
+  }
+
+  yield* Effect.tryPromise({
+    try: () =>
+      sharp(data, { raw: { channels: 3, height, width } })
+        .png()
+        .toFile(filePath),
+    catch: (cause) => cause,
+  }).pipe(Effect.asVoid);
+});
+
+const writeNearSolidJpegBorder = Effect.fn("FilesTest.writeNearSolidJpegBorder")(function* (
+  filePath: string,
+  width: number,
+  height: number,
+  borderWidth: number
+) {
+  const data = Buffer.alloc(width * height * 3);
+
+  for (let y = 0; y < height; y += 1) {
+    for (let x = 0; x < width; x += 1) {
+      const offset = (y * width + x) * 3;
+      const inBorder = x < borderWidth || x >= width - borderWidth;
+      const value = inBorder ? (x + y) % 7 : 140;
+      data[offset] = value;
+      data[offset + 1] = inBorder ? value : 90;
+      data[offset + 2] = inBorder ? value : 40;
+    }
+  }
+
+  yield* Effect.tryPromise({
+    try: () =>
+      sharp(data, { raw: { channels: 3, height, width } })
+        .jpeg({ quality: 85 })
+        .toFile(filePath),
+    catch: (cause) => cause,
+  }).pipe(Effect.asVoid);
 });
 
 const withPathPrefix = <A, E, R>(pathPrefix: string, use: Effect.Effect<A, E, R>) =>
@@ -171,6 +351,256 @@ const fileSize = Effect.fn("FilesTest.fileSize")(function* (filePath: string) {
 });
 
 describe.sequential("files command", () => {
+  it("detects black pillarbox borders", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeInsetCanvasImage(
+            path.join(datasetDir, "pillar.png"),
+            100,
+            80,
+            { bottom: 0, left: 20, right: 20, top: 0 },
+            { b: 0, g: 0, r: 0 },
+            { b: 64, g: 96, r: 160 }
+          );
+
+          yield* runFilesCommand(["detect-borders", "--dir", datasetDir, "--json"]);
+
+          const report = yield* readDetectBordersJsonLog();
+          const entry = report.entries[0];
+
+          expect(report.summary.borderedCount).toBe(1);
+          expect(entry?.classification).toBe("pillarbox");
+          expect(entry?.sides.find((side) => side.side === "left")?.widthPx).toBe(20);
+          expect(entry?.sides.find((side) => side.side === "right")?.widthPx).toBe(20);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("detects one-sided white canvas edges", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeLeftCanvasPatternImage(path.join(datasetDir, "canvas.png"), 80, 80, 10);
+
+          yield* runFilesCommand(["detect-borders", "--dir", datasetDir, "--json"]);
+
+          const report = yield* readDetectBordersJsonLog();
+          const entry = report.entries[0];
+
+          expect(report.summary.borderedCount).toBe(1);
+          expect(entry?.classification).toBe("canvas-edge");
+          expect(entry?.sides.find((side) => side.side === "left")?.colorHex).toBe("#ffffff");
+          expect(entry?.sides.find((side) => side.side === "left")?.widthPx).toBe(10);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not report clean patterned images as bordered", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writePatternImage(path.join(datasetDir, "clean.png"), 64, 64);
+
+          yield* runFilesCommand(["detect-borders", "--dir", datasetDir]);
+
+          expect(yield* TestConsole.logLines).toContain(
+            `files detect-borders: 0 bordered image(s) found in "${datasetDir}" (1 analyzed, 0 skipped).`
+          );
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("detects near-solid jpeg-compressed borders with tolerance", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeNearSolidJpegBorder(path.join(datasetDir, "near-solid.jpg"), 90, 72, 12);
+
+          yield* runFilesCommand(["detect-borders", "--dir", datasetDir, "--json", "--tolerance", "24"]);
+
+          const report = yield* readDetectBordersJsonLog();
+          const entry = report.entries[0];
+
+          expect(entry?.classification).toBe("pillarbox");
+          expect(entry?.sides.find((side) => side.side === "left")?.widthPx).toBeGreaterThanOrEqual(8);
+          expect(entry?.sides.find((side) => side.side === "right")?.widthPx).toBeGreaterThanOrEqual(8);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("skips unsupported and unreadable sources during border detection", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeInsetCanvasImage(
+            path.join(datasetDir, "bordered.png"),
+            40,
+            40,
+            { bottom: 0, left: 5, right: 5, top: 0 },
+            { b: 0, g: 0, r: 0 },
+            { b: 120, g: 120, r: 120 }
+          );
+          yield* writeSizedFile(path.join(datasetDir, "broken.jpg"), 1, "x");
+          yield* writeSvgFile(path.join(datasetDir, "vector.svg"), 2, 2);
+          yield* fs.writeFileString(path.join(datasetDir, "caption.txt"), "caption");
+          yield* fs.writeFileString(path.join(datasetDir, "clip.mp4"), "video");
+          yield* fs.writeFileString(path.join(datasetDir, "extensionless"), "notes");
+          yield* fs.makeDirectory(path.join(datasetDir, "nested"));
+
+          yield* runFilesCommand(["detect-borders", "--dir", datasetDir, "--json"]);
+
+          const report = yield* readDetectBordersJsonLog();
+
+          expect(report.summary.analyzedCount).toBe(1);
+          expect(report.summary.borderedCount).toBe(1);
+          expect(A.map(report.skipped, (entry) => entry.reason)).toEqual([
+            "unreadable-image",
+            "non-media",
+            "video",
+            "extensionless",
+            "directory",
+            "unsupported-image",
+          ]);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("validates border detection threshold relationships", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writePatternImage(path.join(datasetDir, "clean.png"), 32, 32);
+
+          yield* runFilesCommand([
+            "detect-borders",
+            "--dir",
+            datasetDir,
+            "--min-width-pct",
+            "40",
+            "--max-scan-pct",
+            "10",
+          ]);
+
+          expect(yield* TestConsole.errorLines).toEqual([
+            "[files] Expected --min-width-pct (40) to be less than or equal to --max-scan-pct (10).",
+          ]);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("crops detected pillarbox borders in place", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const imagePath = path.join(datasetDir, "pillar.png");
+
+          yield* writeInsetCanvasImage(
+            imagePath,
+            100,
+            80,
+            { bottom: 0, left: 20, right: 20, top: 0 },
+            { b: 0, g: 0, r: 0 },
+            { b: 64, g: 96, r: 160 }
+          );
+
+          yield* runFilesCommand(["crop-borders", "--dir", datasetDir]);
+
+          const metadata = yield* readImageMetadata(imagePath);
+
+          expect(metadata.width).toBe(60);
+          expect(metadata.height).toBe(80);
+          expect(yield* TestConsole.logLines).toContain("files crop-borders: cropped 1 image file(s).");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("preserves bordered images during crop-borders dry-run", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const imagePath = path.join(datasetDir, "canvas.png");
+
+          yield* writeLeftCanvasPatternImage(imagePath, 80, 80, 10);
+
+          yield* runFilesCommand(["crop-borders", "--dir", datasetDir, "--dry-run"]);
+
+          const metadata = yield* readImageMetadata(imagePath);
+
+          expect(metadata.width).toBe(80);
+          expect(metadata.height).toBe(80);
+          expect(yield* TestConsole.logLines).toContain("files crop-borders: dry run; no files rewritten.");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("validates border crop threshold relationships", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writePatternImage(path.join(datasetDir, "clean.png"), 32, 32);
+
+          yield* runFilesCommand([
+            "crop-borders",
+            "--dir",
+            datasetDir,
+            "--min-width-pct",
+            "40",
+            "--max-scan-pct",
+            "10",
+          ]);
+
+          expect(yield* TestConsole.errorLines).toEqual([
+            "[files] Expected --min-width-pct (40) to be less than or equal to --max-scan-pct (10).",
+          ]);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
   it("sorts direct files by size and renames with generated indexes", async () => {
     await Effect.runPromise(
       withTempDirectory((tmpDir) =>
@@ -474,6 +904,705 @@ describe.sequential("files command", () => {
           yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-dimensions"]);
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["broken.png", "valid.svg"]);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("normalizes images into an output directory with orientation, metadata stripping, resizing, and a manifest", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "dataset", "images");
+          const sourcePath = path.join(rawDir, "portrait.jpg");
+          const outputPath = path.join(outDir, "portrait.png");
+          const manifestPath = path.join(outDir, "normalize-manifest.json");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithOrientationExif(sourcePath, 3, 5, 6);
+          expect((yield* readImageMetadata(sourcePath)).exif).toBeDefined();
+
+          yield* runFilesCommand([
+            "normalize",
+            "--dir",
+            rawDir,
+            "--out-dir",
+            outDir,
+            "--format",
+            "png",
+            "--max-long-edge",
+            "4",
+          ]);
+
+          const outputMetadata = yield* readImageMetadata(outputPath);
+          const sourceMetadata = yield* readImageMetadata(sourcePath);
+          const manifest = yield* readNormalizeManifest(manifestPath);
+
+          expect(outputMetadata.format).toBe("png");
+          expect(outputMetadata.exif).toBeUndefined();
+          expect(outputMetadata.width).toBe(4);
+          expect(outputMetadata.height).toBe(2);
+          expect(sourceMetadata.exif).toBeDefined();
+          expect(yield* sortedDirectoryEntries(rawDir)).toEqual(["portrait.jpg"]);
+          expect(yield* sortedDirectoryEntries(outDir)).toEqual(["normalize-manifest.json", "portrait.png"]);
+          expect(manifest.schemaVersion).toBe("beep.files.normalize.v1");
+          expect(manifest.sourceDirectory).toBe(rawDir);
+          expect(manifest.outputDirectory).toBe(outDir);
+          expect(manifest.summary).toEqual({
+            duplicateCount: 0,
+            movedDuplicateCount: 0,
+            normalizedCount: 1,
+            plannedCount: 1,
+            resizedCount: 1,
+            skippedCount: 0,
+          });
+          expect(manifest.entries[0]?.sourceRelativePath).toBe("portrait.jpg");
+          expect(manifest.entries[0]?.outputRelativePath).toBe("portrait.png");
+          expect(manifest.entries[0]?.inputDimensions).toEqual({ width: 5, height: 3 });
+          expect(manifest.entries[0]?.outputDimensions).toEqual({ width: 4, height: 2 });
+          expect(manifest.entries[0]?.resized).toBe(true);
+          expect(manifest.entries[0]?.outputSizeBytes).toBeDefined();
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not upscale images during normalization", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "out");
+          const sourcePath = path.join(rawDir, "small.jpg");
+          const outputPath = path.join(outDir, "small.webp");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithExif(sourcePath, 3, 2);
+
+          yield* runFilesCommand([
+            "normalize",
+            "--dir",
+            rawDir,
+            "--out-dir",
+            outDir,
+            "--format",
+            "webp",
+            "--max-long-edge",
+            "20",
+          ]);
+
+          const outputMetadata = yield* readImageMetadata(outputPath);
+          const manifest = yield* readNormalizeManifest(path.join(outDir, "normalize-manifest.json"));
+
+          expect(outputMetadata.format).toBe("webp");
+          expect(outputMetadata.width).toBe(3);
+          expect(outputMetadata.height).toBe(2);
+          expect(manifest.entries[0]?.resized).toBe(false);
+          expect(manifest.summary.resizedCount).toBe(0);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("skips exact duplicate normalized outputs when normalize dedupe is enabled", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "out");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeInsetCanvasImage(
+            path.join(rawDir, "alpha.png"),
+            4,
+            4,
+            { bottom: 0, left: 0, right: 0, top: 0 },
+            { b: 48, g: 32, r: 16 },
+            { b: 48, g: 32, r: 16 }
+          );
+          yield* writeInsetCanvasImage(
+            path.join(rawDir, "copy.png"),
+            4,
+            4,
+            { bottom: 0, left: 0, right: 0, top: 0 },
+            { b: 48, g: 32, r: 16 },
+            { b: 48, g: 32, r: 16 }
+          );
+
+          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir, "--dedupe"]);
+
+          const manifest = yield* readNormalizeManifest(path.join(outDir, "normalize-manifest.json"));
+          const outputHash = manifest.entries[0]?.outputHash;
+          const duplicate = manifest.skipped[0];
+
+          expect(yield* sortedDirectoryEntries(outDir)).toEqual(["alpha.png", "normalize-manifest.json"]);
+          expect(manifest.summary).toEqual({
+            duplicateCount: 1,
+            movedDuplicateCount: 0,
+            normalizedCount: 1,
+            plannedCount: 2,
+            resizedCount: 0,
+            skippedCount: 1,
+          });
+          expect(outputHash).toMatch(/^sha256:[a-f0-9]{64}$/);
+          expect(duplicate?.reason).toBe("duplicate");
+          expect(duplicate?.sourceName).toBe("copy.png");
+          expect(duplicate?.duplicateOfOutputRelativePath).toBe("alpha.png");
+          expect(duplicate?.duplicateOfSourceRelativePath).toBe("alpha.png");
+          expect(duplicate?.outputHash).toBe(outputHash);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("moves exact duplicate source files when normalize move-duplicates-to is provided", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "out");
+          const duplicatesDir = path.join(tmpDir, "duplicates");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeInsetCanvasImage(
+            path.join(rawDir, "alpha.png"),
+            4,
+            4,
+            { bottom: 0, left: 0, right: 0, top: 0 },
+            { b: 48, g: 32, r: 16 },
+            { b: 48, g: 32, r: 16 }
+          );
+          yield* writeInsetCanvasImage(
+            path.join(rawDir, "copy.png"),
+            4,
+            4,
+            { bottom: 0, left: 0, right: 0, top: 0 },
+            { b: 48, g: 32, r: 16 },
+            { b: 48, g: 32, r: 16 }
+          );
+
+          yield* runFilesCommand([
+            "normalize",
+            "--dir",
+            rawDir,
+            "--out-dir",
+            outDir,
+            "--move-duplicates-to",
+            duplicatesDir,
+          ]);
+
+          const manifest = yield* readNormalizeManifest(path.join(outDir, "normalize-manifest.json"));
+          const duplicate = manifest.skipped[0];
+
+          expect(yield* sortedDirectoryEntries(rawDir)).toEqual(["alpha.png"]);
+          expect(yield* sortedDirectoryEntries(outDir)).toEqual(["alpha.png", "normalize-manifest.json"]);
+          expect(yield* sortedDirectoryEntries(duplicatesDir)).toEqual(["copy.png"]);
+          expect(manifest.options.dedupe).toBe(true);
+          expect(manifest.options.moveDuplicatesTo).toBe(duplicatesDir);
+          expect(manifest.summary).toEqual({
+            duplicateCount: 1,
+            movedDuplicateCount: 1,
+            normalizedCount: 1,
+            plannedCount: 2,
+            resizedCount: 0,
+            skippedCount: 1,
+          });
+          expect(duplicate?.reason).toBe("duplicate");
+          expect(duplicate?.sourceName).toBe("copy.png");
+          expect(duplicate?.duplicateMovedPath).toBe(path.join(duplicatesDir, "copy.png"));
+          expect(duplicate?.duplicateMovedRelativePath).toBe("copy.png");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("preserves stems, resolves same-run output collisions, and records skipped sources", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "out");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "foo.jpg"), 2, 2);
+          yield* writeJpegWithExif(path.join(rawDir, "foo.png"), 2, 2);
+          yield* fs.writeFileString(path.join(rawDir, "notes.txt"), "caption");
+          yield* fs.writeFileString(path.join(rawDir, "clip.mp4"), "video");
+          yield* fs.writeFileString(path.join(rawDir, "extensionless"), "notes");
+          yield* fs.makeDirectory(path.join(rawDir, "nested.jpg"));
+          yield* writeSvgFile(path.join(rawDir, "vector.svg"), 2, 2);
+
+          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir]);
+
+          const manifest = yield* readNormalizeManifest(path.join(outDir, "normalize-manifest.json"));
+
+          expect(yield* sortedDirectoryEntries(outDir)).toEqual(["foo.png", "foo_01.png", "normalize-manifest.json"]);
+          expect(A.map(manifest.entries, (entry) => entry.outputName)).toEqual(["foo.png", "foo_01.png"]);
+          expect(A.map(manifest.skipped, (entry) => entry.reason)).toEqual([
+            "video",
+            "extensionless",
+            "directory",
+            "non-media",
+            "unsupported-image",
+          ]);
+          expect(manifest.summary).toEqual({
+            duplicateCount: 0,
+            movedDuplicateCount: 0,
+            normalizedCount: 2,
+            plannedCount: 2,
+            resizedCount: 0,
+            skippedCount: 5,
+          });
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not create outputs or directories during normalize dry-run", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "missing-out");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "photo.jpg"), 2, 2);
+
+          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir, "--dry-run"]);
+
+          expect(yield* fs.exists(outDir)).toBe(false);
+          expect(yield* TestConsole.logLines).toContain("files normalize: dry run; no files written.");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("refuses existing normalize output files unless overwrite is enabled", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "out");
+          const outputPath = path.join(outDir, "photo.png");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* fs.makeDirectory(outDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "photo.jpg"), 2, 2);
+          yield* fs.writeFileString(outputPath, "existing");
+
+          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir]);
+
+          expect(yield* fs.readFileString(outputPath)).toBe("existing");
+          expect(yield* fs.exists(path.join(outDir, "normalize-manifest.json"))).toBe(false);
+          expect(process.exitCode).toBe(1);
+
+          process.exitCode = 0;
+          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir, "--overwrite"]);
+
+          expect((yield* readImageMetadata(outputPath)).format).toBe("png");
+          expect(yield* fs.exists(path.join(outDir, "normalize-manifest.json"))).toBe(true);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("refuses an existing normalize manifest unless overwrite is enabled", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "raw");
+          const outDir = path.join(tmpDir, "out");
+          const manifestPath = path.join(outDir, "normalize-manifest.json");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* fs.makeDirectory(outDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "photo.jpg"), 2, 2);
+          yield* fs.writeFileString(manifestPath, "existing manifest");
+
+          yield* runFilesCommand(["normalize", "--dir", rawDir, "--out-dir", outDir]);
+
+          expect(yield* fs.readFileString(manifestPath)).toBe("existing manifest");
+          expect(yield* fs.exists(path.join(outDir, "photo.png"))).toBe(false);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("creates missing same-stem caption sidecars for image files", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeJpegWithExif(path.join(datasetDir, "alpha.jpg"), 4, 4);
+          yield* writeJpegWithExif(path.join(datasetDir, "beta.png"), 4, 4);
+          yield* fs.writeFileString(path.join(datasetDir, "beta.txt"), "existing caption");
+          yield* fs.writeFileString(path.join(datasetDir, "clip.mp4"), "video");
+          yield* fs.writeFileString(path.join(datasetDir, "notes.md"), "notes");
+
+          yield* runFilesCommand(["create-captions", "--dir", datasetDir, "--caption", "trigger token"]);
+
+          expect(yield* sortedDirectoryEntries(datasetDir)).toEqual([
+            "alpha.jpg",
+            "alpha.txt",
+            "beta.png",
+            "beta.txt",
+            "clip.mp4",
+            "notes.md",
+          ]);
+          expect(yield* fs.readFileString(path.join(datasetDir, "alpha.txt"))).toBe("trigger token");
+          expect(yield* fs.readFileString(path.join(datasetDir, "beta.txt"))).toBe("existing caption");
+          expect(yield* TestConsole.logLines).toContain(
+            `files create-captions: created 1 caption sidecar file(s); overwritten 0 existing caption file(s).`
+          );
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not create caption sidecars during create-captions dry-run", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeJpegWithExif(path.join(datasetDir, "alpha.jpg"), 4, 4);
+
+          yield* runFilesCommand(["create-captions", "--dir", datasetDir, "--caption", "caption", "--dry-run"]);
+
+          expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["alpha.jpg"]);
+          expect(yield* fs.exists(path.join(datasetDir, "alpha.txt"))).toBe(false);
+          expect(yield* TestConsole.logLines).toContain("files create-captions: dry run; no caption files written.");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("overwrites existing caption sidecars only when requested", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const captionPath = path.join(datasetDir, "alpha.txt");
+
+          yield* writeJpegWithExif(path.join(datasetDir, "alpha.jpg"), 4, 4);
+          yield* fs.writeFileString(captionPath, "keep me");
+
+          yield* runFilesCommand(["create-captions", "--dir", datasetDir, "--caption", "new caption"]);
+
+          expect(yield* fs.readFileString(captionPath)).toBe("keep me");
+
+          yield* runFilesCommand(["create-captions", "--dir", datasetDir, "--caption", "new caption", "--overwrite"]);
+
+          expect(yield* fs.readFileString(captionPath)).toBe("new caption");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("skips duplicate caption targets during create-captions planning", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeJpegWithExif(path.join(datasetDir, "same.jpg"), 4, 4);
+          yield* writeJpegWithExif(path.join(datasetDir, "same.png"), 4, 4);
+
+          yield* runFilesCommand(["create-captions", "--dir", datasetDir]);
+
+          expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["same.jpg", "same.png", "same.txt"]);
+          expect(yield* fs.readFileString(path.join(datasetDir, "same.txt"))).toBe("");
+          expect(yield* TestConsole.logLines).toContain(
+            `same.png [caption-target-collision] Another image in this run already targets "same.txt".`
+          );
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("archives poor image candidates with same-stem txt sidecars by default", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "images");
+          const archiveDir = path.join(tmpDir, "rejected");
+          const tinyPath = path.join(rawDir, "tiny.jpg");
+          const goodPath = path.join(rawDir, "good.jpg");
+          const manifestPath = path.join(archiveDir, "archive-poor-candidates-manifest.json");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithExif(tinyPath, 20, 80);
+          yield* writeJpegWithExif(goodPath, 64, 64);
+          yield* fs.writeFileString(path.join(rawDir, "tiny.txt"), "tiny caption");
+
+          yield* runFilesCommand([
+            "archive-poor-candidates",
+            "--dir",
+            rawDir,
+            "--archive-dir",
+            archiveDir,
+            "--target-resolution",
+            "64",
+            "--min-short-edge",
+            "32",
+            "--max-aspect",
+            "3",
+            "--max-upscale",
+            "1.5",
+          ]);
+
+          const manifest = yield* readArchivePoorCandidatesManifest(manifestPath);
+
+          expect(yield* sortedDirectoryEntries(rawDir)).toEqual(["good.jpg"]);
+          expect(yield* sortedDirectoryEntries(archiveDir)).toEqual([
+            "archive-poor-candidates-manifest.json",
+            "tiny.jpg",
+            "tiny.txt",
+          ]);
+          expect(yield* fs.readFileString(path.join(archiveDir, "tiny.txt"))).toBe("tiny caption");
+          expect(manifest.schemaVersion).toBe("beep.files.archive-poor-candidates.v1");
+          expect(manifest.summary).toEqual({
+            archivedCount: 1,
+            assessedCount: 2,
+            keptCount: 1,
+            movedSidecarCount: 1,
+            skippedCount: 0,
+          });
+          expect(manifest.entries.find((entry) => entry.sourceName === "tiny.jpg")?.decision).toBe("archive");
+          expect(manifest.entries.find((entry) => entry.sourceName === "tiny.jpg")?.reasons).toEqual([
+            "short-edge-too-small",
+            "extreme-aspect-ratio",
+            "upscale-too-large",
+          ]);
+          expect(manifest.entries.find((entry) => entry.sourceName === "good.jpg")?.decision).toBe("keep");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("does not create archives or directories during archive-poor-candidates dry-run", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "images");
+          const archiveDir = path.join(tmpDir, "missing-rejected");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "tiny.jpg"), 20, 80);
+          yield* fs.writeFileString(path.join(rawDir, "tiny.txt"), "tiny caption");
+
+          yield* runFilesCommand([
+            "archive-poor-candidates",
+            "--dir",
+            rawDir,
+            "--archive-dir",
+            archiveDir,
+            "--target-resolution",
+            "64",
+            "--min-short-edge",
+            "32",
+            "--dry-run",
+          ]);
+
+          expect(yield* sortedDirectoryEntries(rawDir)).toEqual(["tiny.jpg", "tiny.txt"]);
+          expect(yield* fs.exists(archiveDir)).toBe(false);
+          expect(yield* TestConsole.logLines).toContain("files archive-poor-candidates: dry run; no files moved.");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("leaves captions in place when archive-poor-candidates sidecars are disabled", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "images");
+          const archiveDir = path.join(tmpDir, "rejected");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "tiny.jpg"), 20, 80);
+          yield* fs.writeFileString(path.join(rawDir, "tiny.txt"), "tiny caption");
+
+          yield* runFilesCommand([
+            "archive-poor-candidates",
+            "--dir",
+            rawDir,
+            "--archive-dir",
+            archiveDir,
+            "--target-resolution",
+            "64",
+            "--min-short-edge",
+            "32",
+            "--sidecars",
+            "none",
+          ]);
+
+          expect(yield* sortedDirectoryEntries(rawDir)).toEqual(["tiny.txt"]);
+          expect(yield* sortedDirectoryEntries(archiveDir)).toEqual([
+            "archive-poor-candidates-manifest.json",
+            "tiny.jpg",
+          ]);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("refuses existing archive targets unless overwrite is enabled", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "images");
+          const archiveDir = path.join(tmpDir, "rejected");
+          const archivePath = path.join(archiveDir, "tiny.jpg");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* fs.makeDirectory(archiveDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "tiny.jpg"), 20, 80);
+          yield* fs.writeFileString(archivePath, "existing");
+
+          yield* runFilesCommand([
+            "archive-poor-candidates",
+            "--dir",
+            rawDir,
+            "--archive-dir",
+            archiveDir,
+            "--target-resolution",
+            "64",
+            "--min-short-edge",
+            "32",
+          ]);
+
+          expect(yield* fs.readFileString(archivePath)).toBe("existing");
+          expect(yield* fs.exists(path.join(rawDir, "tiny.jpg"))).toBe(true);
+          expect(process.exitCode).toBe(1);
+
+          process.exitCode = 0;
+          yield* runFilesCommand([
+            "archive-poor-candidates",
+            "--dir",
+            rawDir,
+            "--archive-dir",
+            archiveDir,
+            "--target-resolution",
+            "64",
+            "--min-short-edge",
+            "32",
+            "--overwrite",
+          ]);
+
+          expect((yield* readImageMetadata(archivePath)).format).toBe("jpeg");
+          expect(yield* fs.exists(path.join(rawDir, "tiny.jpg"))).toBe(false);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("records skipped sources while archiving poor candidates", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "images");
+          const archiveDir = path.join(tmpDir, "rejected");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeSizedFile(path.join(rawDir, "broken.jpg"), 1, "x");
+          yield* fs.writeFileString(path.join(rawDir, "caption.txt"), "caption");
+          yield* fs.writeFileString(path.join(rawDir, "clip.mp4"), "video");
+          yield* fs.writeFileString(path.join(rawDir, "extensionless"), "notes");
+          yield* fs.makeDirectory(path.join(rawDir, "nested.jpg"));
+          yield* writeSvgFile(path.join(rawDir, "vector.svg"), 2, 2);
+
+          yield* runFilesCommand(["archive-poor-candidates", "--dir", rawDir, "--archive-dir", archiveDir]);
+
+          const manifest = yield* readArchivePoorCandidatesManifest(
+            path.join(archiveDir, "archive-poor-candidates-manifest.json")
+          );
+
+          expect(manifest.entries).toEqual([]);
+          expect(A.map(manifest.skipped, (entry) => entry.reason)).toEqual([
+            "unreadable-image",
+            "non-media",
+            "video",
+            "extensionless",
+            "directory",
+            "unsupported-image",
+          ]);
+          expect(manifest.summary.skippedCount).toBe(6);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("refuses to archive poor candidates into the source directory", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const rawDir = path.join(tmpDir, "images");
+
+          yield* fs.makeDirectory(rawDir, { recursive: true });
+          yield* writeJpegWithExif(path.join(rawDir, "tiny.jpg"), 20, 80);
+
+          yield* runFilesCommand(["archive-poor-candidates", "--dir", rawDir, "--archive-dir", rawDir]);
+
+          expect(yield* TestConsole.errorLines).toEqual([
+            `[files] Refusing to archive into the source directory: "${rawDir}"`,
+          ]);
           expect(process.exitCode).toBe(1);
         })
       )

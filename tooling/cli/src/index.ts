@@ -129,6 +129,19 @@ export {
   graphitiCommand,
 } from "./commands/Graphiti/index.js";
 /**
+ * Image and video curation command group.
+ *
+ * @since 0.0.0
+ */
+export {
+  /**
+   * Image and video curation command group.
+   *
+   * @since 0.0.0
+   */
+  imageCommand,
+} from "./commands/Image/index.js";
+/**
  * Effect laws command group.
  *
  * @since 0.0.0

@@ -1,0 +1,79 @@
+/**
+ * Typed errors for dataset file curation commands.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $RepoCliId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
+import { Effect } from "effect";
+import { dual } from "effect/Function";
+import * as S from "effect/Schema";
+
+const $I = $RepoCliId.create("commands/Files/Files.errors");
+
+interface PlatformErrorOptions {
+  readonly cause: unknown;
+}
+
+/**
+ * Error raised by file curation commands.
+ *
+ * @example
+ * ```ts
+ * import { FilesCommandError } from "@beep/repo-cli/commands/Files/index"
+ *
+ * const error = new FilesCommandError({ message: "Invalid directory" })
+ * void error.message
+ * ```
+ * @category error handling
+ * @since 0.0.0
+ */
+export class FilesCommandError extends TaggedErrorClass<FilesCommandError>($I`FilesCommandError`)(
+  "FilesCommandError",
+  {
+    message: S.String,
+    cause: S.optionalKey(S.DefectWithStack),
+  },
+  $I.annote("FilesCommandError", {
+    description: "A failure raised while preparing or applying a file curation operation.",
+  })
+) {}
+
+/**
+ * Convert a platform failure into a file command error.
+ *
+ * @param operation - Operation being attempted.
+ * @param filePath - Path involved in the failed operation.
+ * @param options - Wrapped platform failure details.
+ * @returns File command error with operation context.
+ * @category error handling
+ * @since 0.0.0
+ */
+export const formatPlatformError: {
+  (filePath: string, options: PlatformErrorOptions): (operation: string) => FilesCommandError;
+  (operation: string, filePath: string, options: PlatformErrorOptions): FilesCommandError;
+} = dual(
+  3,
+  (operation: string, filePath: string, options: PlatformErrorOptions): FilesCommandError =>
+    new FilesCommandError({
+      message: `${operation}: "${filePath}"`,
+      cause: options.cause,
+    })
+);
+
+/**
+ * Fail when a rename operation selects an extensionless file.
+ *
+ * @param filePath - Path rejected because it has no suffix to preserve.
+ * @returns Failed effect with a file command error.
+ * @category error handling
+ * @since 0.0.0
+ */
+export const failOnExtensionlessFile = (filePath: string): Effect.Effect<never, FilesCommandError> =>
+  Effect.fail(
+    new FilesCommandError({
+      message: `Cannot rename extensionless file: "${filePath}"`,
+    })
+  );

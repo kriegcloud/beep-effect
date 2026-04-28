@@ -24,6 +24,7 @@ const config = {
     "packages/shared/use-cases/package.json",
     "packages/shared/config/package.json",
     "packages/drivers/drizzle/package.json",
+    "packages/drivers/ffmpeg/package.json",
     "packages/drivers/postgres/package.json",
   ],
   customTypes: {

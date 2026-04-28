@@ -106,6 +106,7 @@ const composers = $I.compose(
   "firecrawl",
   "codedank-web",
   "drizzle",
+  "ffmpeg",
   "postgres"
 );
 
@@ -772,6 +773,12 @@ export const $CodedankWebId: Identity.IdentityComposer<"@beep/codedank-web"> = c
  * @category Configuration
  */
 export const $DrizzleId: Identity.IdentityComposer<"@beep/drizzle"> = composers.$DrizzleId;
+
+/**
+ * @since 0.0.0
+ * @category Configuration
+ */
+export const $FfmpegId: Identity.IdentityComposer<"@beep/ffmpeg"> = composers.$FfmpegId;
 
 /**
  * @since 0.0.0

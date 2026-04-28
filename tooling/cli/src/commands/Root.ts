@@ -16,6 +16,7 @@ import { docgenCommand } from "./Docgen/index.js";
 import { docsCommand } from "./Docs.js";
 import { filesCommand } from "./Files/index.js";
 import { graphitiCommand } from "./Graphiti/index.js";
+import { imageCommand } from "./Image/index.js";
 import { lawsCommand } from "./Laws/index.js";
 import { lintCommand } from "./Lint/index.js";
 import { purgeCommand } from "./Purge.js";
@@ -45,6 +46,7 @@ export const rootCommand = Command.make("beep-cli").pipe(
     docgenCommand,
     docsCommand,
     filesCommand,
+    imageCommand,
     agentsCommand,
     lintCommand,
     lawsCommand,

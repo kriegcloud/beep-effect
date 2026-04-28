@@ -64,6 +64,9 @@
       "path": "packages/drivers/drizzle"
     },
     {
+      "path": "packages/drivers/ffmpeg"
+    },
+    {
       "path": "packages/drivers/postgres"
     },
     {

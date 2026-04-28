@@ -15,7 +15,13 @@
       "path": "../../packages/common/identity/tsconfig.json"
     },
     {
+      "path": "../../packages/common/observability/tsconfig.json"
+    },
+    {
       "path": "../../packages/common/schema/tsconfig.json"
+    },
+    {
+      "path": "../../packages/drivers/ffmpeg/tsconfig.json"
     },
     {
       "path": "../configs/tsconfig.json"

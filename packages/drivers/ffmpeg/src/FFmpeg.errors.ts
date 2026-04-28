@@ -1,0 +1,103 @@
+/**
+ * Typed errors raised by the native FFmpeg driver.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+
+import { $FfmpegId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+
+const $I = $FfmpegId.create("FFmpeg.errors");
+
+/**
+ * Additional process context captured for an FFmpeg failure.
+ *
+ * @example
+ * ```ts
+ * import { FFmpegErrorContext } from "@beep/ffmpeg"
+ *
+ * const context = new FFmpegErrorContext({ command: "ffmpeg", exitCode: 1 })
+ * void context
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class FFmpegErrorContext extends S.Class<FFmpegErrorContext>($I`FFmpegErrorContext`)(
+  {
+    command: S.optionalKey(S.String),
+    exitCode: S.optionalKey(S.Number),
+    stderr: S.optionalKey(S.String),
+    stdout: S.optionalKey(S.String),
+  },
+  $I.annote("FFmpegErrorContext", {
+    description: "Additional process context captured for an FFmpeg failure.",
+  })
+) {}
+
+const causeFromUnknown = (cause: unknown): unknown | undefined => (S.is(S.DefectWithStack)(cause) ? cause : undefined);
+
+const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
+  S.is(FFmpegError)(cause) ? O.some(cause) : O.none();
+
+/**
+ * Technical failure raised by the `@beep/ffmpeg` driver boundary.
+ *
+ * @example
+ * ```ts
+ * import { FFmpegError } from "@beep/ffmpeg"
+ *
+ * const error = new FFmpegError({ message: "ffmpeg failed", operation: "extractFrames" })
+ * void error.message
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class FFmpegError extends TaggedErrorClass<FFmpegError>($I`FFmpegError`)(
+  "FFmpegError",
+  {
+    command: S.optionalKey(S.String),
+    cause: S.optionalKey(S.DefectWithStack),
+    exitCode: S.optionalKey(S.Number),
+    message: S.String,
+    operation: S.String,
+    stderr: S.optionalKey(S.String),
+    stdout: S.optionalKey(S.String),
+  },
+  $I.annote("FFmpegError", {
+    description: "Technical FFmpeg driver failure scoped to a driver operation.",
+  })
+) {
+  /**
+   * Normalize an unknown process or platform failure into a {@link FFmpegError}.
+   *
+   * @example
+   * ```ts
+   * import { FFmpegError } from "@beep/ffmpeg"
+   *
+   * const error = FFmpegError.fromUnknown("probeVideo", "ffprobe failed", new Error("boom"))
+   * void error
+   * ```
+   *
+   * @category errors
+   * @since 0.0.0
+   */
+  static readonly fromUnknown = (
+    operation: string,
+    message: string,
+    cause?: unknown,
+    context: FFmpegErrorContext = {}
+  ): FFmpegError =>
+    O.getOrElse(existingFfmpegError(cause), () => {
+      return new FFmpegError({
+        ...context,
+        cause: causeFromUnknown(cause),
+        message,
+        operation,
+      });
+    });
+}

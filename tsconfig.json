@@ -239,6 +239,12 @@
       "@beep/drizzle/*": [
         "./packages/drivers/drizzle/src/*"
       ],
+      "@beep/ffmpeg": [
+        "./packages/drivers/ffmpeg/src/index.ts"
+      ],
+      "@beep/ffmpeg/*": [
+        "./packages/drivers/ffmpeg/src/*"
+      ],
       "@beep/postgres": [
         "./packages/drivers/postgres/src/index.ts"
       ],
