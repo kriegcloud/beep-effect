@@ -5,6 +5,7 @@ import * as A from "effect/Array";
 import * as Str from "effect/String";
 import * as TestConsole from "effect/testing/TestConsole";
 import { Command } from "effect/unstable/cli";
+import sharp from "sharp";
 import { describe, expect, it } from "vitest";
 
 const testLayer = Layer.mergeAll(
@@ -62,6 +63,40 @@ const writeSvgFile = Effect.fn("FilesTest.writeSvgFile")(function* (
   );
 });
 
+const writeJpegWithExif = Effect.fn("FilesTest.writeJpegWithExif")(function* (
+  filePath: string,
+  width: number,
+  height: number
+) {
+  yield* Effect.tryPromise({
+    try: () =>
+      sharp({
+        create: {
+          background: { alpha: 1, b: 48, g: 32, r: 16 },
+          channels: 3,
+          height,
+          width,
+        },
+      })
+        .jpeg()
+        .withExif({
+          IFD0: {
+            Copyright: "beep-secret",
+            ImageDescription: "dataset-source",
+          },
+        })
+        .toFile(filePath),
+    catch: (cause) => cause,
+  }).pipe(Effect.asVoid);
+});
+
+const readImageMetadata = Effect.fn("FilesTest.readImageMetadata")(function* (filePath: string) {
+  return yield* Effect.tryPromise({
+    try: () => sharp(filePath).metadata(),
+    catch: (cause) => cause,
+  });
+});
+
 const withPathPrefix = <A, E, R>(pathPrefix: string, use: Effect.Effect<A, E, R>) =>
   Effect.acquireUseRelease(
     Effect.sync(() => {
@@ -89,6 +124,37 @@ const writeFfprobeShim = Effect.fn("FilesTest.writeFfprobeShim")(function* (
   yield* fs.writeFileString(
     shimPath,
     `#!/usr/bin/env sh\nprintf '%s\\n' '{"streams":[{"width":${width},"height":${height},"side_data_list":[{"rotation":${rotation}}]}]}'\n`
+  );
+  yield* fs.chmod(shimPath, 0o755);
+});
+
+const writeFfmpegShim = Effect.fn("FilesTest.writeFfmpegShim")(function* (
+  binDir: string,
+  argsPath: string,
+  outputText = "clean video"
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const shimPath = path.join(binDir, "ffmpeg");
+  yield* fs.makeDirectory(binDir, { recursive: true });
+  yield* fs.writeFileString(
+    shimPath,
+    `#!/usr/bin/env sh\nprintf '%s\\n' "$@" > '${argsPath}'\nlast=''\nfor arg do last="$arg"; done\nprintf '%s\\n' '${outputText}' > "$last"\n`
+  );
+  yield* fs.chmod(shimPath, 0o755);
+});
+
+const writeFailingFfmpegShim = Effect.fn("FilesTest.writeFailingFfmpegShim")(function* (
+  binDir: string,
+  argsPath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const shimPath = path.join(binDir, "ffmpeg");
+  yield* fs.makeDirectory(binDir, { recursive: true });
+  yield* fs.writeFileString(
+    shimPath,
+    `#!/usr/bin/env sh\nprintf '%s\\n' "$@" > '${argsPath}'\nprintf '%s\\n' 'ffmpeg boom' >&2\nexit 7\n`
   );
   yield* fs.chmod(shimPath, 0o755);
 });
@@ -408,6 +474,165 @@ describe.sequential("files command", () => {
           yield* runFilesCommand(["sort-and-rename", "--prefix", "image", "--dir", datasetDir, "--with-dimensions"]);
 
           expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["broken.png", "valid.svg"]);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("strips image metadata by normalizing selected image files", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const imagePath = path.join(datasetDir, "photo.jpg");
+
+          yield* writeJpegWithExif(imagePath, 4, 3);
+          expect((yield* readImageMetadata(imagePath)).exif).toBeDefined();
+
+          yield* runFilesCommand(["strip-metadata", "--dir", datasetDir]);
+
+          const metadata = yield* readImageMetadata(imagePath);
+          expect(metadata.exif).toBeUndefined();
+          expect(metadata.width).toBe(4);
+          expect(metadata.height).toBe(3);
+          expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["photo.jpg"]);
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("preserves files during strip-metadata dry-run without decoding media", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+
+          yield* writeSizedFile(path.join(datasetDir, "broken.jpg"), 1, "x");
+          yield* writeSizedFile(path.join(datasetDir, "clip.mp4"), 1, "v");
+
+          yield* runFilesCommand(["strip-metadata", "--dir", datasetDir, "--dry-run"]);
+
+          expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["broken.jpg", "clip.mp4"]);
+          expect(yield* TestConsole.logLines).toContain("files strip-metadata: dry run; no files rewritten.");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("skips non-media files and unsupported image formats", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const imagePath = path.join(datasetDir, "photo.jpg");
+
+          yield* writeJpegWithExif(imagePath, 2, 2);
+          yield* writeSvgFile(path.join(datasetDir, "vector.svg"), 1, 1);
+          yield* fs.writeFileString(path.join(datasetDir, "caption.txt"), "caption");
+
+          yield* runFilesCommand(["strip-metadata", "--dir", datasetDir]);
+
+          expect((yield* readImageMetadata(imagePath)).exif).toBeUndefined();
+          expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["caption.txt", "photo.jpg", "vector.svg"]);
+          expect(yield* TestConsole.logLines).toContain(
+            "files strip-metadata: skipped 2 unsupported or non-media file(s)."
+          );
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("uses ffmpeg stream copy flags for selected video files", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const binDir = path.join(tmpDir, "bin");
+          const argsPath = path.join(tmpDir, "ffmpeg-args.txt");
+          const clipPath = path.join(datasetDir, "clip.mp4");
+
+          yield* writeFfmpegShim(binDir, argsPath);
+          yield* writeSizedFile(clipPath, 4, "v");
+
+          yield* withPathPrefix(binDir, runFilesCommand(["strip-metadata", "--dir", datasetDir]));
+
+          const args = pipe(yield* fs.readFileString(argsPath), Str.split("\n"));
+          expect(args.slice(0, -2)).toEqual([
+            "-hide_banner",
+            "-nostdin",
+            "-y",
+            "-i",
+            clipPath,
+            "-map",
+            "0",
+            "-c",
+            "copy",
+            "-map_metadata",
+            "-1",
+            "-map_metadata:s",
+            "-1",
+            "-map_metadata:c",
+            "-1",
+            "-map_chapters",
+            "-1",
+          ]);
+          expect(args.at(-2)).toContain(".beep-files-strip-metadata-");
+          expect(yield* fs.readFileString(clipPath)).toBe("clean video\n");
+          expect(process.exitCode ?? 0).toBe(0);
+        })
+      )
+    );
+  });
+
+  it("leaves originals untouched when strip-metadata transform fails", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const validPath = path.join(datasetDir, "valid.jpg");
+
+          yield* writeJpegWithExif(validPath, 3, 3);
+          yield* writeSizedFile(path.join(datasetDir, "broken.png"), 1, "x");
+
+          yield* runFilesCommand(["strip-metadata", "--dir", datasetDir]);
+
+          expect((yield* readImageMetadata(validPath)).exif).toBeDefined();
+          expect(yield* sortedDirectoryEntries(datasetDir)).toEqual(["broken.png", "valid.jpg"]);
+          expect(process.exitCode).toBe(1);
+        })
+      )
+    );
+  });
+
+  it("leaves video originals untouched when ffmpeg fails", async () => {
+    await Effect.runPromise(
+      withTempDirectory((tmpDir) =>
+        Effect.gen(function* () {
+          const fs = yield* FileSystem.FileSystem;
+          const path = yield* Path.Path;
+          const datasetDir = yield* makeDatasetDir(tmpDir);
+          const binDir = path.join(tmpDir, "bin");
+          const argsPath = path.join(tmpDir, "ffmpeg-args.txt");
+          const clipPath = path.join(datasetDir, "clip.mp4");
+
+          yield* writeFailingFfmpegShim(binDir, argsPath);
+          yield* writeSizedFile(clipPath, 4, "v");
+
+          yield* withPathPrefix(binDir, runFilesCommand(["strip-metadata", "--dir", datasetDir]));
+
+          expect(yield* fs.readFileString(clipPath)).toBe("vvvv");
+          expect(yield* fs.exists(argsPath)).toBe(true);
           expect(process.exitCode).toBe(1);
         })
       )

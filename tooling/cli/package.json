@@ -81,6 +81,7 @@
     "fast-xml-parser": "catalog:",
     "handlebars": "catalog:",
     "image-size": "catalog:",
+    "sharp": "catalog:",
     "ts-morph": "catalog:",
     "yaml": "catalog:"
   },

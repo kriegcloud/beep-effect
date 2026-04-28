@@ -17,6 +17,7 @@ import * as Str from "effect/String";
 import { Command, Flag } from "effect/unstable/cli";
 import { ChildProcess, type ChildProcessSpawner } from "effect/unstable/process";
 import { imageSizeFromFile } from "image-size/fromFile";
+import sharp from "sharp";
 
 const $I = $RepoCliId.create("commands/Files");
 const stringEquivalence = S.toEquivalence(S.String);
@@ -52,6 +53,14 @@ const MediaKind = LiteralKit(["image", "video"] as const).pipe(
 );
 
 type MediaKind = typeof MediaKind.Type;
+
+const SupportedMetadataImageExtension = LiteralKit(["avif", "jpeg", "jpg", "png", "tif", "tiff", "webp"] as const).pipe(
+  $I.annoteSchema("SupportedMetadataImageExtension", {
+    description: "Image file extensions that the metadata-strip command normalizes through sharp.",
+  })
+);
+
+const isSupportedMetadataImageExtension = S.is(SupportedMetadataImageExtension);
 
 class ImageSizeMetadata extends S.Class<ImageSizeMetadata>($I`ImageSizeMetadata`)(
   {
@@ -251,6 +260,59 @@ export class SortAndRenameSummary extends S.Class<SortAndRenameSummary>($I`SortA
 ) {}
 
 /**
+ * Planned metadata strip for a selected image or video file.
+ *
+ * @example
+ * ```ts
+ * import { StripMetadataPlanEntry } from "@beep/repo-cli/commands/Files/index"
+ *
+ * const entry = new StripMetadataPlanEntry({
+ *   extension: ".jpg",
+ *   mediaKind: "image",
+ *   size: 10n,
+ *   sourceName: "photo.jpg",
+ *   sourcePath: "/tmp/dataset/photo.jpg"
+ * })
+ * void entry.mediaKind
+ * ```
+ * @category models
+ * @since 0.0.0
+ */
+export class StripMetadataPlanEntry extends S.Class<StripMetadataPlanEntry>($I`StripMetadataPlanEntry`)(
+  {
+    extension: S.String,
+    mediaKind: MediaKind,
+    size: S.BigInt,
+    sourceName: S.String,
+    sourcePath: S.String,
+  },
+  $I.annote("StripMetadataPlanEntry", {
+    description: "A direct media file selected for metadata stripping.",
+  })
+) {}
+
+/**
+ * Summary returned by `stripMetadataFiles`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class StripMetadataSummary extends S.Class<StripMetadataSummary>($I`StripMetadataSummary`)(
+  {
+    directory: S.String,
+    dryRun: S.Boolean,
+    imageCount: S.Number,
+    plannedCount: S.Number,
+    skippedCount: S.Number,
+    strippedCount: S.Number,
+    videoCount: S.Number,
+  },
+  $I.annote("StripMetadataSummary", {
+    description: "Summary counts for an image and video metadata stripping run.",
+  })
+) {}
+
+/**
  * Width and height discovered for an image or video file.
  *
  * @example
@@ -290,6 +352,18 @@ class RenamePlan extends S.Class<RenamePlan>($I`RenamePlan`)(
   },
   $I.annote("RenamePlan", {
     description: "Planned rename entries plus direct regular files skipped before planning.",
+  })
+) {}
+
+class StripMetadataPlan extends S.Class<StripMetadataPlan>($I`StripMetadataPlan`)(
+  {
+    entries: S.Array(StripMetadataPlanEntry),
+    imageCount: S.Number,
+    skippedCount: S.Number,
+    videoCount: S.Number,
+  },
+  $I.annote("StripMetadataPlan", {
+    description: "Planned metadata stripping entries plus direct media files skipped before processing.",
   })
 ) {}
 
@@ -753,10 +827,206 @@ const applyRenamePlan = Effect.fn("Files.applyRenamePlan")(function* (
     );
 });
 
+const isSupportedMetadataImageFile = (file: SortableFile): boolean =>
+  isSupportedMetadataImageExtension(normalizeBareExtension(file.extension));
+
+const buildStripMetadataPlan = Effect.fn("Files.buildStripMetadataPlan")(function* (
+  dir: string
+): Effect.fn.Return<StripMetadataPlan, FilesCommandError, FileSystem.FileSystem | Path.Path> {
+  const collection = yield* collectSortableFiles(dir, true);
+  let entries = A.empty<StripMetadataPlanEntry>();
+  let imageCount = 0;
+  let skippedCount = collection.skippedCount;
+  let videoCount = 0;
+
+  for (const file of collection.files) {
+    if (O.isNone(file.mediaKind)) {
+      skippedCount += 1;
+      continue;
+    }
+
+    const mediaKind = file.mediaKind.value;
+    if (mediaKind === "image" && !isSupportedMetadataImageFile(file)) {
+      skippedCount += 1;
+      continue;
+    }
+
+    entries = A.append(
+      entries,
+      new StripMetadataPlanEntry({
+        extension: file.extension,
+        mediaKind,
+        size: file.size,
+        sourceName: file.name,
+        sourcePath: file.sourcePath,
+      })
+    );
+
+    if (mediaKind === "image") {
+      imageCount += 1;
+    } else {
+      videoCount += 1;
+    }
+  }
+
+  return new StripMetadataPlan({
+    entries,
+    imageCount,
+    skippedCount,
+    videoCount,
+  });
+});
+
+const stripImageMetadataToTemp = Effect.fn("Files.stripImageMetadataToTemp")(function* (
+  entry: StripMetadataPlanEntry,
+  tempPath: string
+): Effect.fn.Return<void, FilesCommandError> {
+  yield* Effect.tryPromise({
+    try: () => sharp(entry.sourcePath).rotate().toFile(tempPath),
+    catch: (cause) =>
+      new FilesCommandError({
+        message: `Failed to normalize image metadata for "${entry.sourcePath}"`,
+        cause,
+      }),
+  }).pipe(Effect.asVoid);
+});
+
+const runFfmpegStripMetadata = Effect.fn("Files.runFfmpegStripMetadata")(function* (
+  entry: StripMetadataPlanEntry,
+  tempPath: string
+): Effect.fn.Return<string, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+  const path = yield* Path.Path;
+  const command = ChildProcess.make(
+    "ffmpeg",
+    [
+      "-hide_banner",
+      "-nostdin",
+      "-y",
+      "-i",
+      entry.sourcePath,
+      "-map",
+      "0",
+      "-c",
+      "copy",
+      "-map_metadata",
+      "-1",
+      "-map_metadata:s",
+      "-1",
+      "-map_metadata:c",
+      "-1",
+      "-map_chapters",
+      "-1",
+      tempPath,
+    ],
+    {
+      cwd: path.dirname(entry.sourcePath),
+      stderr: "pipe",
+      stdout: "pipe",
+    }
+  );
+  const result = yield* Effect.scoped(
+    Effect.gen(function* () {
+      const handle = yield* command;
+      const [stdout, stderr, exitCode] = yield* Effect.all(
+        [collectText(handle.stdout), collectText(handle.stderr), handle.exitCode],
+        { concurrency: "unbounded" }
+      );
+      return { exitCode, stderr, stdout };
+    })
+  ).pipe(
+    Effect.mapError(
+      (cause) =>
+        new FilesCommandError({
+          message: `Failed to run ffmpeg for "${entry.sourcePath}". Install ffmpeg or remove videos from the selection.`,
+          cause,
+        })
+    )
+  );
+
+  if (result.exitCode !== 0) {
+    const detail = stringEquivalence(result.stderr, "") ? result.stdout : result.stderr;
+    return yield* new FilesCommandError({
+      message: `ffmpeg could not strip video metadata for "${entry.sourcePath}": ${detail}`,
+    });
+  }
+
+  return result.stdout;
+});
+
+const stripVideoMetadataToTemp = Effect.fn("Files.stripVideoMetadataToTemp")(function* (
+  entry: StripMetadataPlanEntry,
+  tempPath: string
+): Effect.fn.Return<void, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+  yield* runFfmpegStripMetadata(entry, tempPath);
+});
+
+const stripMetadataToTemp = Effect.fn("Files.stripMetadataToTemp")(function* (
+  entry: StripMetadataPlanEntry,
+  tempPath: string
+): Effect.fn.Return<void, FilesCommandError, Path.Path | ChildProcessSpawner.ChildProcessSpawner> {
+  if (entry.mediaKind === "image") {
+    yield* stripImageMetadataToTemp(entry, tempPath);
+    return;
+  }
+
+  yield* stripVideoMetadataToTemp(entry, tempPath);
+});
+
+const makeStripMetadataTempEntries = (tempDir: string, plan: ReadonlyArray<StripMetadataPlanEntry>, path: Path.Path) =>
+  A.map(plan, (entry, index) => ({
+    entry,
+    tempPath: path.join(tempDir, `${formatIndex(index, Str.length(`${A.length(plan)}`) + 1)}-${entry.sourceName}`),
+  }));
+
+const applyStripMetadataPlan = Effect.fn("Files.applyStripMetadataPlan")(function* (
+  directory: string,
+  plan: ReadonlyArray<StripMetadataPlanEntry>
+): Effect.fn.Return<
+  void,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  yield* Effect.acquireUseRelease(
+    fs
+      .makeTempDirectory({ directory, prefix: ".beep-files-strip-metadata-" })
+      .pipe(
+        Effect.mapError((cause) => formatPlatformError("Failed to create temporary strip directory", directory, cause))
+      ),
+    (tempDir) =>
+      Effect.gen(function* () {
+        const tempEntries = makeStripMetadataTempEntries(tempDir, plan, path);
+
+        for (const { entry, tempPath } of tempEntries) {
+          yield* stripMetadataToTemp(entry, tempPath);
+        }
+
+        for (const { entry, tempPath } of tempEntries) {
+          yield* renameOrFail(tempPath, entry.sourcePath, tempDir);
+        }
+      }),
+    (tempDir) => fs.remove(tempDir, { recursive: true, force: true }).pipe(Effect.ignore)
+  );
+});
+
+const renderStripMetadataPlanEntry = (entry: StripMetadataPlanEntry): string =>
+  `${entry.sourceName} [${entry.mediaKind}]`;
+
+const logStripMetadataPlan = Effect.fn("Files.logStripMetadataPlan")(function* (
+  plan: ReadonlyArray<StripMetadataPlanEntry>
+) {
+  yield* Effect.forEach(plan, (entry) => Console.log(renderStripMetadataPlanEntry(entry)), {
+    discard: true,
+  });
+});
+
 const printFilesIndex = Effect.fn("Files.printFilesIndex")(function* () {
   yield* Console.log("Files commands:");
   yield* Console.log("- bun run files sort-and-rename --prefix image --dir ./tmp");
   yield* Console.log("- bun run files sort-and-rename --prefix image --dir ./tmp --with-dimensions");
+  yield* Console.log("- bun run files strip-metadata --dir ./tmp");
 });
 
 /**
@@ -832,6 +1102,87 @@ export const sortAndRenameFiles = Effect.fn("Files.sortAndRenameFiles")(function
   });
 });
 
+/**
+ * Strip user-authored metadata from direct image and video files in a directory.
+ * Unless `dryRun` is true, selected files are rewritten in place.
+ *
+ * @param dir - Directory whose direct media files should be stripped.
+ * @param dryRun - Whether to print the plan without applying it.
+ * @returns Summary counts for the operation.
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import { stripMetadataFiles } from "@beep/repo-cli/commands/Files/index"
+ *
+ * const program = stripMetadataFiles("./tmp", true)
+ * Effect.runFork(program)
+ * ```
+ * @category UseCase
+ * @since 0.0.0
+ */
+export const stripMetadataFiles = Effect.fn("Files.stripMetadataFiles")(function* (
+  dir: string,
+  dryRun: boolean
+): Effect.fn.Return<
+  StripMetadataSummary,
+  FilesCommandError,
+  FileSystem.FileSystem | Path.Path | ChildProcessSpawner.ChildProcessSpawner
+> {
+  const { directory } = yield* validateDirectory(dir);
+  const plan = yield* buildStripMetadataPlan(directory);
+  const entries = plan.entries;
+
+  if (!A.isReadonlyArrayNonEmpty(entries)) {
+    yield* Console.log(`files strip-metadata: 0 media file(s) in "${directory}"; nothing to strip.`);
+    if (hasSkippedFiles(plan.skippedCount)) {
+      yield* Console.log(`files strip-metadata: skipped ${plan.skippedCount} unsupported or non-media file(s).`);
+    }
+    return new StripMetadataSummary({
+      directory,
+      dryRun,
+      imageCount: plan.imageCount,
+      plannedCount: 0,
+      skippedCount: plan.skippedCount,
+      strippedCount: 0,
+      videoCount: plan.videoCount,
+    });
+  }
+
+  yield* Console.log(`files strip-metadata: ${A.length(entries)} media file(s) planned in "${directory}".`);
+  if (hasSkippedFiles(plan.skippedCount)) {
+    yield* Console.log(`files strip-metadata: skipped ${plan.skippedCount} unsupported or non-media file(s).`);
+  }
+  yield* logStripMetadataPlan(entries);
+
+  if (dryRun) {
+    yield* Console.log("files strip-metadata: dry run; no files rewritten.");
+    return new StripMetadataSummary({
+      directory,
+      dryRun,
+      imageCount: plan.imageCount,
+      plannedCount: A.length(entries),
+      skippedCount: plan.skippedCount,
+      strippedCount: 0,
+      videoCount: plan.videoCount,
+    });
+  }
+
+  yield* applyStripMetadataPlan(directory, entries);
+  yield* Console.log(
+    `files strip-metadata: stripped ${A.length(entries)} media file(s) (${plan.imageCount} image, ${plan.videoCount} video).`
+  );
+
+  return new StripMetadataSummary({
+    directory,
+    dryRun,
+    imageCount: plan.imageCount,
+    plannedCount: A.length(entries),
+    skippedCount: plan.skippedCount,
+    strippedCount: A.length(entries),
+    videoCount: plan.videoCount,
+  });
+});
+
 const runFilesProgram = <A>(
   effect: Effect.Effect<
     A,
@@ -876,6 +1227,17 @@ const filesSortAndRenameCommand = Command.make(
   })
 ).pipe(Command.withDescription("Sort direct files by size and rename them with a generated prefix"));
 
+const filesStripMetadataCommand = Command.make(
+  "strip-metadata",
+  {
+    dir: dirFlag,
+    dryRun: dryRunFlag,
+  },
+  Effect.fn(function* ({ dir, dryRun }) {
+    yield* runFilesProgram(stripMetadataFiles(dir, dryRun));
+  })
+).pipe(Command.withDescription("Strip metadata from direct image and video files"));
+
 /**
  * File curation command group.
  *
@@ -884,5 +1246,5 @@ const filesSortAndRenameCommand = Command.make(
  */
 export const filesCommand = Command.make("files", {}, printFilesIndex).pipe(
   Command.withDescription("Dataset file curation commands"),
-  Command.withSubcommands([filesSortAndRenameCommand])
+  Command.withSubcommands([filesSortAndRenameCommand, filesStripMetadataCommand])
 );

@@ -35,6 +35,8 @@ fanout
 finalizers
 flac
 Exif
+Ffmpeg
+ffmpeg
 Ffprobe
 ffprobe
 fract
@@ -43,6 +45,7 @@ geohash
 geopoint
 geoshape
 Geospatial
+nostdin
 Geotime
 glsl
 groupby
