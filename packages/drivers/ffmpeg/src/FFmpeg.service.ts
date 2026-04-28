@@ -6,9 +6,8 @@
  */
 
 import { $FfmpegId } from "@beep/identity/packages";
-import { Context, Effect, FileSystem, Layer, Order, Path, pipe, Ref, Stream } from "effect";
+import { Context, Effect, FileSystem, Layer, Number as N, Order, Path, pipe, Ref, Stream } from "effect";
 import * as A from "effect/Array";
-import * as N from "effect/Number";
 import * as O from "effect/Option";
 import type * as PlatformError from "effect/PlatformError";
 import * as S from "effect/Schema";
