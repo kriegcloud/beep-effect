@@ -181,7 +181,7 @@ layer(testLayer)("dual arity laws", (it) => {
             'import * as S from "effect/Schema";',
             "",
             "export const decodeName = S.decodeUnknownOption(S.String);",
-            "export const encodeName = S.encodeUnknownSync(S.String);",
+            "export const encodeName = S.encodeUnknownResult(S.String);",
             "export const NameEquivalence = S.toEquivalence(S.String);",
             "export const ByName: Order.Order<{ readonly name: string }> = Order.mapInput(",
             "  Order.String,",

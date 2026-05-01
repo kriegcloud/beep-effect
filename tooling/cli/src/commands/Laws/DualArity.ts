@@ -445,7 +445,7 @@ const isFunctionExportInitializer = (
 };
 
 const SCHEMA_CALLABLE_VALUE_FACTORY_PATTERN =
-  /^(?:S|Schema)\.(?:decodeUnknownEffect|decodeUnknownOption|decodeUnknownSync|encodeEffect|encodeOption|encodeSync|encodeUnknownEffect|encodeUnknownOption|encodeUnknownSync|toEquivalence)$/u;
+  /^(?:S|Schema)\.(?:decodeEffect|decodeOption|decodeResult|decodeUnknownEffect|decodeUnknownOption|decodeUnknownResult|encodeEffect|encodeOption|encodeResult|encodeUnknownEffect|encodeUnknownOption|encodeUnknownResult|toEquivalence)$/u;
 
 const isOrderValueType = (type: Type): boolean => {
   const typeText = type.getText();

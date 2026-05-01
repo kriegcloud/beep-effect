@@ -5,7 +5,7 @@ Generated during the Phase 1 inventory pass for replacing sync schema codecs wit
 ## Raw Inventory
 
 - Raw exact hit list: `scratchpad/schema-codec-migration/sync-codec.raw.txt`
-- Raw rows captured after the implementation pass: 687
+- Raw rows captured after the foundation-topology implementation pass: 567
 - Active source rows after excluding comments, tests, docs, dtslint, generated docs, and guidance text: 0
 
 ## Classification
@@ -17,7 +17,8 @@ Generated during the Phase 1 inventory pass for replacing sync schema codecs wit
 ## Phase 2 Work Slices
 
 - Tooling: `tooling/docgen`, `tooling/configs`, `tooling/cli`, and `tooling/repo-utils`.
-- Common runtime packages: `packages/common/semantic-web`, `packages/common/schema/src/csv/parse`, `packages/common/nlp/src/Tools`, and `packages/drivers/ffmpeg`.
+- Foundation modeling: `packages/foundation/modeling/schema`, `packages/foundation/modeling/identity`, and `packages/foundation/modeling/utils`.
+- Foundation capability/UI: `packages/foundation/capability/*` and `packages/foundation/ui-system/ui`.
 - Shared packages: `packages/shared/domain` and `packages/shared/ui`.
 - Agent guidance: `.claude`, `.codex`, `.agents`, and `standards/effect-first-development.md`.
 
@@ -27,6 +28,7 @@ When migrating to `S.decodeUnknownEffect`, `S.decodeEffect`, `S.encodeUnknownEff
 
 ## Current Hotspots
 
-- Highest-volume test/JSDoc clusters: `packages/common/schema/test/HttpHeaders.test.ts`, `tooling/repo-utils/test/TSMorph.model.test.ts`, `packages/common/schema/test/Graph.test.ts`, `packages/common/schema/test/ProvO.test.ts`, `packages/common/semantic-web/test/JsonLd.test.ts`.
-- Highest-risk runtime clusters: `tooling/repo-utils/src/TSMorph`, `packages/common/semantic-web/src/adapters`, `tooling/cli/src/commands`, `tooling/docgen/src`, and shared entity constructors.
+- Highest-volume test/JSDoc clusters: `packages/foundation/modeling/schema/test/HttpHeaders.test.ts`, `tooling/repo-utils/test/TSMorph.model.test.ts`, `packages/foundation/modeling/schema/test/Graph.test.ts`, `packages/foundation/modeling/schema/test/Color.test.ts`, and `packages/foundation/modeling/schema/test/FilePath.test.ts`.
+- Highest-risk runtime clusters already migrated: `tooling/repo-utils/src/TSMorph`, `packages/foundation/capability/semantic-web/src/adapters`, `tooling/cli/src/commands`, `tooling/docgen/src`, and shared entity constructors.
 - Guidance pass: repo-local Effect/schema skills now steer agents toward Effect codecs, explicit `Effect.mapError(...)` at boundaries, and `Result.getOrThrowWith(...)` only when preserving a legacy throwing sync wrapper.
+- Tooling guidance cleanup: the dual-arity law now recognizes Effect/Result/Option codec factories instead of sync codec factories, and the JSDoc tag-value docs advertise `S.decodeUnknownResult(...)` instead of `S.decodeSync(...)`.

@@ -124,7 +124,16 @@ const PackageFamily = LiteralKit(VALID_FAMILIES).annotate(
 );
 type PackageFamily = typeof PackageFamily.Type;
 const isPackageFamily = S.is(PackageFamily);
-const decodePackageFamily = S.decodeUnknownSync(PackageFamily);
+const decodePackageFamilyEffect = (input: unknown) =>
+  S.decodeUnknownEffect(PackageFamily)(input).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Invalid package family "${input}". Must be one of: ${A.join(VALID_FAMILIES, ", ")}`,
+          cause,
+        })
+    )
+  );
 const packageFamilyEquivalence = S.toEquivalence(PackageFamily);
 
 const FoundationKind = LiteralKit(VALID_FOUNDATION_KINDS).annotate(
@@ -134,7 +143,16 @@ const FoundationKind = LiteralKit(VALID_FOUNDATION_KINDS).annotate(
 );
 type FoundationKind = typeof FoundationKind.Type;
 const isFoundationKind = S.is(FoundationKind);
-const decodeFoundationKind = S.decodeUnknownSync(FoundationKind);
+const decodeFoundationKindEffect = (input: unknown) =>
+  S.decodeUnknownEffect(FoundationKind)(input).pipe(
+    Effect.mapError(
+      (cause) =>
+        new DomainError({
+          message: `Invalid foundation kind "${input}". Must be one of: ${A.join(VALID_FOUNDATION_KINDS, ", ")}`,
+          cause,
+        })
+    )
+  );
 
 const ParentDir = S.String.check(S.isPattern(PARENT_DIR_PATTERN)).pipe(
   S.brand("ParentDir"),
@@ -551,7 +569,9 @@ export const createPackageCommand = Command.make(
         message: `Invalid package family "${familyOption}". Must be one of: ${A.join(VALID_FAMILIES, ", ")}`,
       });
     }
-    const packageFamily = Str.isNonEmpty(familyOption) ? O.some(decodePackageFamily(familyOption)) : O.none();
+    const packageFamily = Str.isNonEmpty(familyOption)
+      ? O.some(yield* decodePackageFamilyEffect(familyOption))
+      : O.none();
 
     if (O.isNone(packageFamily) && Str.isNonEmpty(kindOption)) {
       return yield* new DomainError({
@@ -570,7 +590,7 @@ export const createPackageCommand = Command.make(
     }
     const foundationKind =
       O.isSome(packageFamily) && packageFamilyEquivalence(packageFamily.value, "foundation")
-        ? O.some(decodeFoundationKind(kindOption))
+        ? O.some(yield* decodeFoundationKindEffect(kindOption))
         : O.none<FoundationKind>();
 
     // ── Validate package name ─────────────────────────────────────────
