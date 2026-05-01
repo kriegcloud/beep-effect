@@ -6,14 +6,29 @@
  */
 
 import { $SharedDomainId } from "@beep/identity/packages";
-import { dual } from "effect/Function";
+import { dual, pipe } from "effect/Function";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
+import type * as SchemaIssue from "effect/SchemaIssue";
 import * as EntityId from "./EntityId.js";
 
 const $I = $SharedDomainId.create("entity/EntityRef");
 
 /**
  * Entity type grammar used by polymorphic references.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as S from "effect/Schema"
+ * import { EntityType } from "@beep/shared-domain/entity/EntityRef"
+ *
+ * const program = Effect.gen(function* () {
+ *   const entityType = yield* S.decodeUnknownEffect(EntityType)("SharedOrganization")
+ *   return entityType
+ * })
+ * void program
+ * ```
  *
  * @since 0.0.0
  * @category schemas
@@ -28,6 +43,14 @@ export const EntityType = S.NonEmptyString.pipe(
 /**
  * Runtime type for {@link EntityType}.
  *
+ * @example
+ * ```ts
+ * import type { EntityType } from "@beep/shared-domain/entity/EntityRef"
+ *
+ * const entityType: EntityType = "SharedOrganization" as EntityType
+ * console.log(entityType)
+ * ```
+ *
  * @since 0.0.0
  * @category models
  */
@@ -38,15 +61,19 @@ export type EntityType = typeof EntityType.Type;
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { EntityIdValue } from "@beep/shared-domain/entity/EntityId"
  * import { EntityRef, EntityType } from "@beep/shared-domain/entity/EntityRef"
  *
- * const ref = new EntityRef({
- *   entityType: S.decodeUnknownSync(EntityType)("SharedOrganization"),
- *   id: S.decodeUnknownSync(EntityIdValue)(1),
+ * const program = Effect.gen(function* () {
+ *   const ref = new EntityRef({
+ *     entityType: yield* S.decodeUnknownEffect(EntityType)("SharedOrganization"),
+ *     id: yield* S.decodeUnknownEffect(EntityIdValue)(1),
+ *   })
+ *   return ref.entityType
  * })
- * console.log(ref.entityType)
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -81,18 +108,72 @@ export type EntityRefFor<Entity extends EntityId.Any> = Omit<EntityRef, "entityT
   readonly id: Entity["Type"];
 };
 
+const decodeEntityTypeResult = S.decodeUnknownResult(EntityType);
+
+/**
+ * Build a polymorphic reference result for a known entity id schema.
+ *
+ * @example
+ * ```ts
+ * import { Effect } from "effect"
+ * import * as Result from "effect/Result"
+ * import * as S from "effect/Schema"
+ * import { makeResult } from "@beep/shared-domain/entity/EntityRef"
+ * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
+ *
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(OrganizationId)(1)
+ *   const ref = makeResult(OrganizationId, id)
+ *   return Result.isSuccess(ref)
+ * })
+ * void program
+ * ```
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const makeResult: {
+  <const Entity extends EntityId.Any>(
+    entityId: Entity,
+    id: Entity["Type"]
+  ): Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue>;
+  <const Entity extends EntityId.Any>(
+    id: Entity["Type"]
+  ): (entityId: Entity) => Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue>;
+} = dual(
+  2,
+  <const Entity extends EntityId.Any>(
+    entityId: Entity,
+    id: Entity["Type"]
+  ): Result.Result<EntityRefFor<Entity>, SchemaIssue.Issue> =>
+    pipe(
+      decodeEntityTypeResult(entityId.entityType),
+      Result.map(
+        (entityType) =>
+          new EntityRef({
+            entityType,
+            id,
+          }) as EntityRefFor<Entity>
+      )
+    )
+);
+
 /**
  * Build a polymorphic reference for a known entity id schema.
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import * as S from "effect/Schema"
  * import { make } from "@beep/shared-domain/entity/EntityRef"
  * import { OrganizationId } from "@beep/shared-domain/identity/Shared"
  *
- * const decodeOrganizationId = S.decodeUnknownSync(S.make<S.Decoder<typeof OrganizationId.Type>>(OrganizationId.ast))
- * const ref = make(OrganizationId, decodeOrganizationId(1))
- * console.log(ref.entityType)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(OrganizationId)(1)
+ *   const ref = make(OrganizationId, id)
+ *   return ref.entityType
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0
@@ -104,8 +185,5 @@ export const make: {
 } = dual(
   2,
   <const Entity extends EntityId.Any>(entityId: Entity, id: Entity["Type"]): EntityRefFor<Entity> =>
-    new EntityRef({
-      entityType: S.decodeUnknownSync(EntityType)(entityId.entityType),
-      id,
-    }) as EntityRefFor<Entity>
+    Result.getOrThrow(makeResult(entityId, id))
 );

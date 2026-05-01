@@ -11,7 +11,7 @@
 
 import { $RepoUtilsId } from "@beep/identity/packages";
 import type { Exit } from "effect";
-import { Effect } from "effect";
+import { Effect, Result } from "effect";
 import * as S from "effect/Schema";
 import type { DomainError } from "../errors/index.js";
 import { jsonStringifyPretty } from "../JsonUtils.js";
@@ -1313,7 +1313,7 @@ export type Workspaces = (typeof Workspaces)["Type"];
  */
 export type PublishConfig = (typeof PublishConfig)["Type"];
 
-const decodePackageJsonUnknownSync = S.decodeUnknownSync(PackageJson);
+const decodePackageJsonUnknownResult = S.decodeUnknownResult(PackageJson);
 const decodePackageJsonUnknownExit = S.decodeUnknownExit(PackageJson);
 const decodePackageJsonUnknownEffect = S.decodeUnknownEffect(PackageJson);
 const encodePackageJsonUnknownEffect = S.encodeUnknownEffect(PackageJson);
@@ -1335,7 +1335,7 @@ const encodePackageJsonJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString
  * @since 0.0.0
  */
 export const decodePackageJson = (input: unknown): PackageJson.Type =>
-  decodePackageJsonUnknownSync(input, strictDecodeOptions);
+  Result.getOrThrow(decodePackageJsonUnknownResult(input, strictDecodeOptions));
 
 /**
  * Synchronously decode an unknown value into a strict `PackageJson`,

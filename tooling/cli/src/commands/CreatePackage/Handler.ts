@@ -111,7 +111,6 @@ const PackageType = LiteralKit(VALID_TYPES).annotate(
 );
 type PackageType = typeof PackageType.Type;
 const isPackageType = S.is(PackageType);
-const decodePackageType = S.decodeUnknownSync(PackageType);
 const packageTypeEquivalence = S.toEquivalence(PackageType);
 const stringEquivalence = S.toEquivalence(S.String);
 
@@ -480,12 +479,12 @@ export const createPackageCommand = Command.make(
     const { name, type, parentDir: parentDirOverride, dirName: dirNameOverride, description, dryRun } = config;
 
     // ── Validate type ──────────────────────────────────────────────────
-    if (P.not(isPackageType)(type)) {
+    if (!isPackageType(type)) {
       return yield* new DomainError({
         message: `Invalid package type "${type}". Must be one of: ${A.join(VALID_TYPES, ", ")}`,
       });
     }
-    const packageType = decodePackageType(type);
+    const packageType = type;
 
     // ── Validate package name ─────────────────────────────────────────
     if (!isPackageName(name)) {

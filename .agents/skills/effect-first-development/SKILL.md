@@ -33,8 +33,8 @@ Before writing code, run this checklist:
 14. Am I expressing durations/time windows? Use `effect/Duration`.
 15. Am I mapping nullable/nullish schema values to `Option` or building objects from `Option` fields? Use `S.OptionFrom*` at schema boundaries, `R.getSomes({...})` when `None` should omit keys, and `O.all({...})` when the whole object is all-or-nothing.
 16. Am I creating an exported helper API? Prefer dual data-first/data-last with `dual`.
-17. Am I parsing/stringifying JSON? Use schema JSON codecs, never `JSON.parse` / `JSON.stringify`.
-18. Am I in test code? The same JSON rule still applies there; test fixtures and request bodies should use schema codecs too.
+17. Am I parsing/stringifying JSON? Use schema JSON codecs with Effect variants by default, never `JSON.parse` / `JSON.stringify`; this applies to tests and fixtures too.
+18. Am I decoding or encoding with Schema? Prefer `S.decodeUnknownEffect` / `S.decodeEffect` and `S.encodeUnknownEffect` / `S.encodeEffect`; map schema errors with `Effect.mapError(...)` when they cross a local boundary. Use Result/Option codecs only for intentional non-throwing sync helpers.
 19. Am I executing an effect? Keep `Effect.run*` calls at app/test runtime boundaries only.
 20. Am I wiring a Bun/Node process entrypoint? Pass the root effect to `BunRuntime.runMain` / `NodeRuntime.runMain` and let `runMain` own signal handling, error reporting, and exit codes.
 21. Am I wrapping Promise-based APIs at boundaries with `Effect.tryPromise`?
@@ -98,8 +98,8 @@ Before writing code, run this checklist:
 19. Durations and time windows should use `effect/Duration`, not ad-hoc number literals.
 20. For nullable/nullish/optional schema-to-`Option` conversions, use `S.OptionFromNullOr`, `S.OptionFromNullishOr`, `S.OptionFromOptionalKey`, or `S.OptionFromOptional`. For runtime `Option` object fields, use `R.getSomes({...})` when `None` should omit keys and `O.all({...})` when the whole object is all-or-nothing.
 21. Exported helper utilities should expose dual data-first/data-last forms via `dual` from `effect/Function`.
-22. Never use `JSON.parse` / `JSON.stringify` in Effect-first code; use `S.UnknownFromJsonString` / `S.fromJsonString` + `S.decodeUnknown*` / `S.encode*`.
-23. This JSON rule applies in tests and fixtures too; do not introduce native JSON helpers just because the file is under `test/`.
+22. Never use `JSON.parse` / `JSON.stringify` in Effect-first code, tests, or fixtures; use `S.UnknownFromJsonString` / `S.fromJsonString` + `S.decodeUnknownEffect` / `S.encodeUnknownEffect` or explicit Result/Option codecs for non-throwing sync helpers.
+23. Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or `S.encodeUnknownSync` by default. Prefer Effect codecs, and map schema errors with `Effect.mapError(...)` before returning them across module, service, CLI, HTTP, or test-helper boundaries.
 24. Prefer `S.Class` over `S.Struct` for domain object schemas; use `S.Struct` only when a concrete boundary exception is required.
 25. Only runtime boundaries (app entrypoints/tests) may call `Effect.runSync` / `Effect.runPromise` / `Effect.runFork`; libraries return `Effect`.
 26. Process entrypoints must not recover the root cause merely to set `process.exitCode` and print `Cause.pretty(...)`. Pass the failing root effect directly to `BunRuntime.runMain` / `NodeRuntime.runMain`; use `runMain(..., { teardown })` plus `Runtime.defaultTeardown` for custom terminal rendering.
@@ -589,9 +589,19 @@ const dataLast = pipe("hello", prefixTag("info"))
 
 ```ts
 import { $PackageNameId } from "@beep/identity/packages"
+import { TaggedErrorClass } from "@beep/schema"
+import { Effect } from "effect"
 import * as S from "effect/Schema"
 
 const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
+
+class UserJsonCodecError extends TaggedErrorClass<UserJsonCodecError>($I`UserJsonCodecError`)(
+  "UserJsonCodecError",
+  { message: S.String },
+  $I.annote("UserJsonCodecError", {
+    description: "Failed to decode or encode a user JSON payload."
+  })
+) {}
 
 export class User extends S.Class<User>($I`User`)({
   id: S.String,
@@ -605,6 +615,11 @@ const encodeUserJson = S.encodeUnknownEffect(UserJson)
 
 const decodeUnknownJson = S.decodeUnknownEffect(S.UnknownFromJsonString)
 const encodeUnknownJson = S.encodeUnknownEffect(S.UnknownFromJsonString)
+
+const decodeUserJsonAtBoundary = (input: unknown) =>
+  decodeUserJson(input).pipe(
+    Effect.mapError((error) => new UserJsonCodecError({ message: error.message }))
+  )
 ```
 
 ### 15) Runtime boundary for running effects

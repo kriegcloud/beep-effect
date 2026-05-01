@@ -12,7 +12,7 @@
 import { $RepoCliId } from "@beep/identity/packages";
 import { FsUtils } from "@beep/repo-utils";
 import { Text, thunkFalse, thunkUndefined } from "@beep/utils";
-import { Console, Effect, FileSystem, Order, Path, pipe, SchemaTransformation } from "effect";
+import { Console, Effect, FileSystem, Order, Path, pipe, Result, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -50,7 +50,7 @@ const TypeScriptSourceFileName = S.String.check(S.isPattern(TYPE_SCRIPT_SOURCE_F
     })
   )
 );
-const decodeTypeScriptSourceFileName = S.decodeUnknownSync(TypeScriptSourceFileName);
+const decodeTypeScriptSourceFileNameResult = S.decodeUnknownResult(TypeScriptSourceFileName);
 
 const TypeScriptTestFileName = S.String.check(S.isPattern(TYPE_SCRIPT_TEST_FILE_PATTERN)).pipe(
   S.brand("TypeScriptTestFileName"),
@@ -80,7 +80,10 @@ const TypeScriptSourceToJSImportPath = TypeScriptSourceFileName.pipe(
           O.map((ext) => `./${Str.slice(0, -ext.length)(fileName)}.js`),
           O.getOrElse(() => `./${fileName}`)
         ),
-      encode: (importPath) => decodeTypeScriptSourceFileName(pipe(importPath, Str.replace(/^\.\/(.*)\.js$/, "$1.ts"))),
+      encode: (importPath) =>
+        Result.getOrThrow(
+          decodeTypeScriptSourceFileNameResult(pipe(importPath, Str.replace(/^\.\/(.*)\.js$/, "$1.ts")))
+        ),
     })
   ),
   S.annotate(
@@ -107,7 +110,7 @@ const isTypeScriptTestFileName = S.is(TypeScriptTestFileName);
 const isInternalDirectoryName = S.is(InternalDirectoryName);
 const isRootIndexFileName = S.is(RootIndexFileName);
 const stringEquivalence = S.toEquivalence(S.String);
-const decodeJSImportPath = S.decodeUnknownSync(TypeScriptSourceToJSImportPath);
+const decodeJSImportPathResult = S.decodeUnknownResult(TypeScriptSourceToJSImportPath);
 
 /**
  * Convert a TypeScript filename to its corresponding `.js` import specifier.
@@ -128,7 +131,7 @@ const toImportPath = (name: string): string => {
   if (!isTypeScriptSourceFileName(name)) {
     return `./${name}`;
   }
-  return decodeJSImportPath(name);
+  return Result.getOrThrow(decodeJSImportPathResult(name));
 };
 
 /**

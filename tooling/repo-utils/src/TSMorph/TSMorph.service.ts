@@ -84,26 +84,26 @@ const DEFAULT_REFERENCE_POLICY = TsMorphReferencePolicy.Enum.workspaceOnly;
 const DEFAULT_TSCONFIG_FILE_NAME = "tsconfig.json";
 const utf8Encoder = new TextEncoder();
 
-const decodeByteLength = S.decodeUnknownSync(ByteLength);
-const decodeByteOffset = S.decodeUnknownSync(ByteOffset);
-const decodeColumnNumber = S.decodeUnknownSync(ColumnNumber);
+const decodeByteLength = S.decodeUnknownEffect(ByteLength);
+const decodeByteOffset = S.decodeUnknownEffect(ByteOffset);
+const decodeColumnNumber = S.decodeUnknownEffect(ColumnNumber);
 const decodeContentHashFromSourceText = S.decodeUnknownEffect(ContentHashFromSourceText);
-const decodeLineNumber = S.decodeUnknownSync(LineNumber);
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
-const decodeProjectScopeIdParts = S.decodeUnknownSync(ProjectScopeIdParts);
-const decodeRepoRootPath = S.decodeUnknownSync(RepoRootPath);
-const decodeSourceText = S.decodeUnknownSync(SourceText);
-const decodeSymbolFilePath = S.decodeUnknownSync(SymbolFilePath);
-const decodeSymbolNameSegment = S.decodeUnknownSync(SymbolNameSegment);
-const decodeSymbolQualifiedName = S.decodeUnknownSync(SymbolQualifiedName);
-const decodeTsMorphDiagnostic = S.decodeUnknownSync(TsMorphDiagnostic);
-const decodeTsConfigFilePath = S.decodeUnknownSync(TsConfigFilePath);
-const decodeTypeScriptFilePath = S.decodeUnknownSync(TypeScriptFilePath);
-const decodeTypeScriptImplementationFilePath = S.decodeUnknownSync(TypeScriptImplementationFilePath);
-const decodeTypeScriptImplementationToSymbolFilePath = S.decodeUnknownSync(
+const decodeLineNumber = S.decodeUnknownEffect(LineNumber);
+const decodeNonNegativeInt = S.decodeUnknownEffect(NonNegativeInt);
+const decodeProjectScopeIdParts = S.decodeUnknownEffect(ProjectScopeIdParts);
+const decodeRepoRootPath = S.decodeUnknownEffect(RepoRootPath);
+const decodeSourceText = S.decodeUnknownEffect(SourceText);
+const decodeSymbolFilePath = S.decodeUnknownEffect(SymbolFilePath);
+const decodeSymbolNameSegment = S.decodeUnknownEffect(SymbolNameSegment);
+const decodeSymbolQualifiedName = S.decodeUnknownEffect(SymbolQualifiedName);
+const decodeTsMorphDiagnostic = S.decodeUnknownEffect(TsMorphDiagnostic);
+const decodeTsConfigFilePath = S.decodeUnknownEffect(TsConfigFilePath);
+const decodeTypeScriptFilePath = S.decodeUnknownEffect(TypeScriptFilePath);
+const decodeTypeScriptImplementationFilePath = S.decodeUnknownEffect(TypeScriptImplementationFilePath);
+const decodeTypeScriptImplementationToSymbolFilePath = S.decodeUnknownEffect(
   TypeScriptImplementationFilePathToSymbolFilePath
 );
-const decodeWorkspaceDirectoryPath = S.decodeUnknownSync(WorkspaceDirectoryPath);
+const decodeWorkspaceDirectoryPath = S.decodeUnknownEffect(WorkspaceDirectoryPath);
 const decodeTypeScriptImplementationFilePathOption = S.decodeOption(TypeScriptImplementationFilePath);
 
 const isSymbolNameSegment = S.is(SymbolNameSegment);
@@ -377,14 +377,11 @@ const schemaMessage = (cause: unknown): string =>
   P.isError(cause) ? cause.message : Inspectable.toStringUnknown(cause, 0);
 
 const decodeOrFail = <A, E extends TSMorphServiceError>(
-  decode: (value: unknown) => A,
+  decode: (value: unknown) => Effect.Effect<A, S.SchemaError>,
   value: unknown,
   makeError: (message: string) => E
 ): Effect.Effect<A, E> =>
-  Effect.try({
-    try: () => decode(value),
-    catch: flow(schemaMessage, makeError),
-  });
+  decode(value).pipe(Effect.mapError(flow(schemaMessage, makeError)));
 
 const resolveAbsolutePath = (pathApi: Path.Path, repoRootPath: RepoRootPath, inputPath: string): string =>
   pathApi.normalize(pathApi.isAbsolute(inputPath) ? inputPath : pathApi.resolve(repoRootPath, inputPath));
@@ -513,9 +510,36 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
   const byteSpan = utf8Encoder.encode(symbolText);
   const docstring = readDocstring(declaration);
   const symbol = makeSymbol({
-    filePath: decodeSymbolFilePath(symbolFilePath),
-    name: decodeSymbolNameSegment(declarationName.value.name),
-    qualifiedName: decodeSymbolQualifiedName(qualifiedName),
+    filePath: yield* decodeOrFail(
+      decodeSymbolFilePath,
+      symbolFilePath,
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode symbol file path for "${qualifiedName}": ${message}`,
+        })
+    ),
+    name: yield* decodeOrFail(
+      decodeSymbolNameSegment,
+      declarationName.value.name,
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode symbol name for "${qualifiedName}": ${message}`,
+        })
+    ),
+    qualifiedName: yield* decodeOrFail(
+      decodeSymbolQualifiedName,
+      qualifiedName,
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode qualified name "${qualifiedName}": ${message}`,
+        })
+    ),
     kind: declarationName.value.kind,
     signature: readSignature(declaration),
     docstring,
@@ -523,10 +547,46 @@ const normalizeOutlineSymbol = Effect.fn("normalizeOutlineSymbol")(function* (
     decorators: readDecorators(declaration),
     keywords: makeKeywords(declarationName.value.name, qualifiedName, { kind: declarationName.value.kind }),
     parentId: O.map(parentSymbol, (parent) => parent.id),
-    startLine: decodeLineNumber(declaration.getStartLineNumber(true)),
-    endLine: decodeLineNumber(declaration.getEndLineNumber()),
-    byteOffset: decodeByteOffset(bytePrefix.length),
-    byteLength: decodeByteLength(byteSpan.length),
+    startLine: yield* decodeOrFail(
+      decodeLineNumber,
+      declaration.getStartLineNumber(true),
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode start line for "${qualifiedName}": ${message}`,
+        })
+    ),
+    endLine: yield* decodeOrFail(
+      decodeLineNumber,
+      declaration.getEndLineNumber(),
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode end line for "${qualifiedName}": ${message}`,
+        })
+    ),
+    byteOffset: yield* decodeOrFail(
+      decodeByteOffset,
+      bytePrefix.length,
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode byte offset for "${qualifiedName}": ${message}`,
+        })
+    ),
+    byteLength: yield* decodeOrFail(
+      decodeByteLength,
+      byteSpan.length,
+      (message) =>
+        new TsMorphSourceFileError({
+          scopeId: O.none(),
+          filePath: S.decodeOption(TypeScriptFilePath)(symbolFilePath),
+          message: `Failed to decode byte length for "${qualifiedName}": ${message}`,
+        })
+    ),
     contentHash,
   });
 
@@ -1097,7 +1157,16 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
         A.take(filteredEntries, request.limit),
         A.map((entry) => entry.symbol)
       ),
-      total: decodeNonNegativeInt(A.length(filteredEntries)),
+      total: yield* decodeOrFail(
+        decodeNonNegativeInt,
+        A.length(filteredEntries),
+        (message) =>
+          new TsMorphSourceFileError({
+            scopeId: O.some(scope.scopeId),
+            filePath: O.none(),
+            message: `Failed to decode symbol search total: ${message}`,
+          })
+      ),
     });
   });
 
@@ -1127,30 +1196,47 @@ export const createTSMorphService = Effect.fn("createTSMorphService")(function* 
           pathApi.normalize(diagnosticSourceFile.getFilePath()) === normalizedLoadedSourceFilePath
         );
       }),
-      Effect.forEach((diagnostic) => {
+      Effect.forEach(
+        Effect.fnUntraced(function* (diagnostic) {
         const start = diagnostic.getStart() ?? 0;
         const length = diagnostic.getLength() ?? 0;
         const end = start + length;
         const startPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(start);
         const endPosition = loadedSourceFile.sourceFile.getLineAndColumnAtPos(end);
         const source = diagnostic.getSource();
+        const filePathOption = S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath);
+        const decodeDiagnosticField = <A>(
+          decode: (value: unknown) => Effect.Effect<A, S.SchemaError>,
+          value: unknown,
+          label: string
+        ) =>
+          decodeOrFail(
+            decode,
+            value,
+            (message) =>
+              new TsMorphSourceFileError({
+                scopeId: O.some(scope.scopeId),
+                filePath: filePathOption,
+                message: `Failed to normalize diagnostic ${label} for "${loadedSourceFile.filePath}": ${message}`,
+              })
+          );
 
-        return decodeOrFail(
+        return yield* decodeOrFail(
           decodeTsMorphDiagnostic,
           {
             category: normalizeDiagnosticCategory(diagnostic.getCategory()),
-            code: decodeNonNegativeInt(diagnostic.getCode()),
+            code: yield* decodeDiagnosticField(decodeNonNegativeInt, diagnostic.getCode(), "code"),
             message: flattenDiagnosticMessageText(diagnostic.getMessageText()),
             source: source ?? null,
-            startLine: decodeLineNumber(startPosition.line),
-            startColumn: decodeColumnNumber(startPosition.column),
-            endLine: decodeLineNumber(endPosition.line),
-            endColumn: decodeColumnNumber(endPosition.column),
+            startLine: yield* decodeDiagnosticField(decodeLineNumber, startPosition.line, "start line"),
+            startColumn: yield* decodeDiagnosticField(decodeColumnNumber, startPosition.column, "start column"),
+            endLine: yield* decodeDiagnosticField(decodeLineNumber, endPosition.line, "end line"),
+            endColumn: yield* decodeDiagnosticField(decodeColumnNumber, endPosition.column, "end column"),
           },
           (message) =>
             new TsMorphSourceFileError({
               scopeId: O.some(scope.scopeId),
-              filePath: S.decodeOption(TypeScriptFilePath)(loadedSourceFile.filePath),
+              filePath: filePathOption,
               message: `Failed to normalize diagnostic for "${loadedSourceFile.filePath}": ${message}`,
             })
         );

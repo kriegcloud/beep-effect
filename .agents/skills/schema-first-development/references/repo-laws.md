@@ -137,11 +137,18 @@ Use:
 
 - `S.UnknownFromJsonString`
 - `S.fromJsonString(...)`
-- `S.decodeUnknown*`
-- `S.encode*`
+- `S.decodeUnknownEffect` / `S.decodeEffect`
+- `S.encodeUnknownEffect` / `S.encodeEffect`
+- `S.decodeUnknownResult` / `S.decodeResult` or `S.decodeUnknownOption` only
+  for deliberate non-throwing synchronous helpers
 
 Fix lint or review findings by moving parsing and encoding into schemas rather
 than wrapping native JSON helpers with `try/catch`.
+
+Do not use `S.decodeSync`, `S.decodeUnknownSync`, `S.encodeSync`, or
+`S.encodeUnknownSync` by default. If schema errors cross a local module,
+service, CLI, or HTTP boundary, map the schema error into that boundary's typed
+error with `Effect.mapError(...)`.
 
 ## 7. Guards and Comparisons Derive from the Schema
 

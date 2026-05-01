@@ -36,7 +36,7 @@ const PackageNameDocument = S.Struct({
   name: S.String,
 });
 
-const decodePackageNameDocument = S.decodeUnknownSync(S.fromJsonString(PackageNameDocument));
+const decodePackageNameDocument = S.decodeUnknownEffect(S.fromJsonString(PackageNameDocument));
 const moduleExtensionPattern = /\.(?:[cm]?[tj]sx?)$/;
 const packageTestFilePattern = /^packages\/.+\/(?:test|dtslint)\/.+\.(?:ts|tsx)$/;
 const stripKnownModuleExtension = Str.replace(moduleExtensionPattern, Str.empty);
@@ -68,13 +68,8 @@ const readOptionalPackageName = Effect.fn("PackageTestImports.readOptionalPackag
   }
 
   return yield* fs.readFileString(packageJsonPath).pipe(
-    Effect.flatMap((content) =>
-      Effect.try({
-        try: () => decodePackageNameDocument(content),
-        catch: () => undefined,
-      })
-    ),
-    Effect.map((document) => O.some(document.name)),
+    Effect.flatMap((content) => decodePackageNameDocument(content).pipe(Effect.option)),
+    Effect.map(O.map((document) => document.name)),
     Effect.orElseSucceed(O.none)
   );
 });

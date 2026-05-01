@@ -102,8 +102,9 @@ const UnknownToTemplateHelperString = S.Unknown.pipe(
   )
 );
 
-const decodeTemplateHelperString = S.decodeUnknownSync(UnknownToTemplateHelperString);
-const toHelperValue = (value: unknown): string => decodeTemplateHelperString(value);
+const decodeTemplateHelperString = S.decodeUnknownOption(UnknownToTemplateHelperString);
+const toHelperValue = (value: unknown): string =>
+  pipe(decodeTemplateHelperString(value), O.getOrElse(thunkEmptyStr));
 
 const createHandlebarsEnvironment = () => {
   const hbs = Handlebars.create();

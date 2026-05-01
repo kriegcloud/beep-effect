@@ -148,12 +148,12 @@ export class ReuseCandidateNotFoundError extends TaggedErrorClass<ReuseCandidate
   })
 ) {}
 
-const decodeJsonString = S.decodeUnknownSync(S.UnknownFromJsonString);
-const decodeWorkspacePackageManifest = S.decodeUnknownSync(WorkspacePackageManifest);
-const decodeFileOutlineRequest = S.decodeUnknownSync(TsMorphFileOutlineRequest);
-const decodeProjectScopeRequest = S.decodeUnknownSync(TsMorphProjectScopeRequest);
-const decodeSymbolLookupRequest = S.decodeUnknownSync(TsMorphSymbolLookupRequest);
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const decodeJsonString = S.decodeUnknownEffect(S.UnknownFromJsonString);
+const decodeWorkspacePackageManifest = S.decodeUnknownEffect(WorkspacePackageManifest);
+const decodeFileOutlineRequest = S.decodeUnknownEffect(TsMorphFileOutlineRequest);
+const decodeProjectScopeRequest = S.decodeUnknownEffect(TsMorphProjectScopeRequest);
+const decodeSymbolLookupRequest = S.decodeUnknownEffect(TsMorphSymbolLookupRequest);
+const decodeNonNegativeInt = S.decodeUnknownEffect(NonNegativeInt);
 
 const PRODUCTION_FILE_IGNORE_PATTERNS = [
   "**/*.d.ts",
@@ -566,7 +566,12 @@ const buildCatalogEntry = (scope: WorkspaceScope, symbol: TsMorphSymbol): ReuseC
     applicability: lowerKeywordsFromParts([scope.packageName, scope.packagePath, symbol.kind]),
   });
 
-const resolveScopeRequest = (repoRoot: string, tsConfigPath: string) =>
+const resolveScopeRequest = (
+  repoRoot: string,
+  tsConfigPath: string,
+  operation: string,
+  packagePath: string
+): Effect.Effect<TsMorphProjectScopeRequest, ReuseAnalysisError> =>
   decodeProjectScopeRequest({
     entrypoint: {
       _tag: "tsconfig",
@@ -575,7 +580,11 @@ const resolveScopeRequest = (repoRoot: string, tsConfigPath: string) =>
     mode: "syntax",
     referencePolicy: "workspaceOnly",
     repoRootPath: repoRoot,
-  });
+  }).pipe(
+    Effect.mapError(
+      mapAnalysisError(operation, `Failed to build ts-morph scope request for ${packagePath}`)
+    )
+  );
 
 const scanPatternsInFile = (
   filePath: string,
@@ -735,10 +744,12 @@ const discoverWorkspaceScopes = (analysisContext: ReuseAnalysisContextShape, sco
         const content = yield* runtime.fs
           .readFileString(absolutePackageJsonPath)
           .pipe(Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to read ${packageJsonPath}`)));
-        const manifest = yield* Effect.try({
-          try: () => decodeWorkspacePackageManifest(decodeJsonString(content)),
-          catch: mapAnalysisError("discoverWorkspaceScopes", `Failed to decode ${packageJsonPath}`),
-        });
+        const parsedManifest = yield* decodeJsonString(content).pipe(
+          Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to parse ${packageJsonPath}`))
+        );
+        const manifest = yield* decodeWorkspacePackageManifest(parsedManifest).pipe(
+          Effect.mapError(mapAnalysisError("discoverWorkspaceScopes", `Failed to decode ${packageJsonPath}`))
+        );
 
         const packagePath = normalizeRelativePath(runtime.path.dirname(packageJsonPath));
         const srcPath = normalizeRelativePath(runtime.path.join(packagePath, "src"));
@@ -796,8 +807,14 @@ const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShap
     Effect.gen(function* () {
       const runtime = analysisContext.runtime;
       const files = yield* collectScopeFiles(analysisContext, scope);
+      const projectScopeRequest = yield* resolveScopeRequest(
+        runtime.repoRoot,
+        scope.tsConfigPath,
+        "collectCatalogEntriesForScope",
+        scope.packagePath
+      );
       const projectScope = yield* runtime.tsmorph
-        .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath))
+        .resolveProjectScope(projectScopeRequest)
         .pipe(
           Effect.mapError(
             mapAnalysisError(
@@ -809,13 +826,16 @@ const collectCatalogEntriesForScope = (analysisContext: ReuseAnalysisContextShap
       const entries: ReuseCatalogEntry[] = [];
 
       for (const filePath of files) {
-        const outlineOption = yield* runtime.tsmorph
-          .getFileOutline(
-            decodeFileOutlineRequest({
-              scopeId: projectScope.scopeId,
-              filePath,
-            })
+        const fileOutlineRequest = yield* decodeFileOutlineRequest({
+          scopeId: projectScope.scopeId,
+          filePath,
+        }).pipe(
+          Effect.mapError(
+            mapAnalysisError("collectCatalogEntriesForScope", `Failed to build file outline request for ${filePath}`)
           )
+        );
+        const outlineOption = yield* runtime.tsmorph
+          .getFileOutline(fileOutlineRequest)
           .pipe(Effect.option);
 
         if (O.isNone(outlineOption)) {
@@ -839,8 +859,14 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
     Effect.gen(function* () {
       const runtime = analysisContext.runtime;
       const files = yield* collectScopeFiles(analysisContext, scope);
+      const projectScopeRequest = yield* resolveScopeRequest(
+        runtime.repoRoot,
+        scope.tsConfigPath,
+        "collectPatternOccurrencesForScope",
+        scope.packagePath
+      );
       const projectScope = yield* runtime.tsmorph
-        .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, scope.tsConfigPath))
+        .resolveProjectScope(projectScopeRequest)
         .pipe(
           Effect.mapError(
             mapAnalysisError(
@@ -855,13 +881,19 @@ const collectPatternOccurrencesForScope = (analysisContext: ReuseAnalysisContext
         const sourceTextOption = yield* runtime.fs
           .readFileString(runtime.path.join(runtime.repoRoot, filePath))
           .pipe(Effect.option);
-        const outlineOption = yield* runtime.tsmorph
-          .getFileOutline(
-            decodeFileOutlineRequest({
-              scopeId: projectScope.scopeId,
-              filePath,
-            })
+        const fileOutlineRequest = yield* decodeFileOutlineRequest({
+          scopeId: projectScope.scopeId,
+          filePath,
+        }).pipe(
+          Effect.mapError(
+            mapAnalysisError(
+              "collectPatternOccurrencesForScope",
+              `Failed to build file outline request for ${filePath}`
+            )
           )
+        );
+        const outlineOption = yield* runtime.tsmorph
+          .getFileOutline(fileOutlineRequest)
           .pipe(Effect.option);
 
         if (O.isNone(sourceTextOption)) {
@@ -1191,7 +1223,11 @@ export const ReusePartitionPlannerServiceLive = Layer.effect(
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
         scoutUnits,
         specialistUnits,
-        catalogEntryCount: decodeNonNegativeInt(catalogEntries.length),
+        catalogEntryCount: yield* decodeNonNegativeInt(catalogEntries.length).pipe(
+          Effect.mapError(
+            mapAnalysisError("buildPartitions", "Failed to normalize reuse catalog entry count")
+          )
+        ),
       });
     });
 
@@ -1306,20 +1342,29 @@ export const ReuseDiscoveryServiceLive = Layer.effect(
       }
 
       if (O.isSome(symbolId)) {
+        const projectScopeRequest = yield* resolveScopeRequest(
+          runtime.repoRoot,
+          owningScope.tsConfigPath,
+          "findReuseOptions",
+          owningScope.packagePath
+        );
         const projectScope = yield* runtime.tsmorph
-          .resolveProjectScope(resolveScopeRequest(runtime.repoRoot, owningScope.tsConfigPath))
+          .resolveProjectScope(projectScopeRequest)
           .pipe(
             Effect.mapError(
               mapAnalysisError("findReuseOptions", `Failed to resolve ts-morph scope for ${owningScope.packagePath}`)
             )
           );
-        const lookup = yield* runtime.tsmorph
-          .getSymbolById(
-            decodeSymbolLookupRequest({
-              scopeId: projectScope.scopeId,
-              symbolId: symbolId.value,
-            })
+        const symbolLookupRequest = yield* decodeSymbolLookupRequest({
+          scopeId: projectScope.scopeId,
+          symbolId: symbolId.value,
+        }).pipe(
+          Effect.mapError(
+            mapAnalysisError("findReuseOptions", `Failed to build symbol lookup request for ${symbolId.value}`)
           )
+        );
+        const lookup = yield* runtime.tsmorph
+          .getSymbolById(symbolLookupRequest)
           .pipe(Effect.mapError(mapAnalysisError("findReuseOptions", `Failed to lookup symbol ${symbolId.value}`)));
 
         queryKeywords.push(
@@ -1386,8 +1431,12 @@ export const ReuseInventoryServiceLive = Layer.effect(
       return new ReuseInventory({
         scopeSelector: scopeSelectorLabel(scopeSelector, scopes),
         generatedAt,
-        catalogEntryCount: decodeNonNegativeInt(catalogEntries.length),
-        candidateCount: decodeNonNegativeInt(candidates.length),
+        catalogEntryCount: yield* decodeNonNegativeInt(catalogEntries.length).pipe(
+          Effect.mapError(mapAnalysisError("buildInventory", "Failed to normalize reuse catalog entry count"))
+        ),
+        candidateCount: yield* decodeNonNegativeInt(candidates.length).pipe(
+          Effect.mapError(mapAnalysisError("buildInventory", "Failed to normalize reuse candidate count"))
+        ),
         candidates,
       });
     });

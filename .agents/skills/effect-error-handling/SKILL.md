@@ -15,9 +15,14 @@ Choose based on what throws:
 
 | Situation | Use | Why |
 |-----------|-----|-----|
-| Sync code that throws | `Effect.try(() => JSON.parse(raw))` | Wraps sync exceptions |
+| Sync code that throws | `Effect.try({ try: () => new URL(raw), catch: (e) => new MyError({ cause: e }) })` | Wraps sync exceptions |
 | Promise that rejects | `Effect.tryPromise({ try: (signal) => fetch(url, { signal }), catch: (e) => new MyError({ cause: e }) })` | Wraps promise rejection with typed error |
 | Pure computation | `Result.try(() => parseInt(s))` | No Effect overhead, returns `Result<A, E>` |
+
+For schema decoding/encoding, prefer `S.decodeUnknownEffect` / `S.decodeEffect`
+and `S.encodeUnknownEffect` / `S.encodeEffect`. When schema failures cross a
+local boundary, translate them with `Effect.mapError(...)`; reserve
+Result/Option schema codecs for deliberate non-throwing synchronous helpers.
 
 ### Worked Example: Wrapping a Throwable API
 
@@ -31,25 +36,25 @@ const $I = $PackageNameId.create("relative/path/to/file/from/package/src")
 
 // Step 1: Define a tagged error with Schema annotations.
 // WHY: TaggedErrorClass gives you a _tag discriminant for catchTag + Schema encode/decode.
-class JsonParseError extends TaggedErrorClass<JsonParseError>($I`JsonParseError`)(
-  "JsonParseError",
+class UrlParseError extends TaggedErrorClass<UrlParseError>($I`UrlParseError`)(
+  "UrlParseError",
   { input: S.String, message: S.String },
   // WHY: Annotations make errors self-documenting and inspectable.
-  $I.annote("JsonParseError", { title: "JSON Parse Error", description: "Failed to parse JSON string" })
+  $I.annote("UrlParseError", { title: "URL Parse Error", description: "Failed to parse URL input" })
 ) {}
 
 // Step 2: Wrap the throwable call.
 // WHY: Effect.try captures the exception and maps it to your tagged error.
-const parseJson = Effect.fn("parseJson")(function*(raw: string) {
+const parseUrl = Effect.fn("parseUrl")(function*(raw: string) {
   return yield* Effect.try({
-    try: () => JSON.parse(raw) as unknown,
-    catch: (e) => new JsonParseError({ input: raw, message: String(e) })
+    try: () => new URL(raw),
+    catch: (e) => new UrlParseError({ input: raw, message: String(e) })
   })
 })
 
 // Step 3: Handle by tag downstream.
-const safe = parseJson("bad").pipe(
-  Effect.catchTag("JsonParseError", (e) => Effect.succeed({ fallback: true }))
+const safe = parseUrl("bad").pipe(
+  Effect.catchTag("UrlParseError", (e) => Effect.succeed({ fallback: true }))
 )
 ```
 

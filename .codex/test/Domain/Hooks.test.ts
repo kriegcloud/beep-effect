@@ -1,4 +1,5 @@
 import { expect, test } from "@effect/vitest";
+import { Effect } from "effect";
 import * as S from "effect/Schema";
 import {
   PostToolUseCommandInput,
@@ -13,8 +14,13 @@ import {
   UserPromptSubmitCommandOutput,
 } from "../../Domain/Hooks/index.ts";
 
+const decodeUnknown =
+  <SchemaType extends S.Top>(schema: SchemaType) =>
+  (input: unknown): SchemaType["Type"] =>
+    Effect.runSync(S.decodeUnknownEffect(schema as unknown as S.Decoder<SchemaType["Type"], never>)(input));
+
 test("PreToolUse input decodes the generated Bash wire shape", () => {
-  const decode = S.decodeUnknownSync(PreToolUseCommandInput);
+  const decode = decodeUnknown(PreToolUseCommandInput);
   const decoded = decode({
     cwd: "/workspace",
     hook_event_name: "PreToolUse",
@@ -36,7 +42,7 @@ test("PreToolUse input decodes the generated Bash wire shape", () => {
 });
 
 test("PreToolUse input rejects unknown keys", () => {
-  const decode = S.decodeUnknownSync(PreToolUseCommandInput);
+  const decode = decodeUnknown(PreToolUseCommandInput);
 
   expect(() =>
     decode({
@@ -58,7 +64,7 @@ test("PreToolUse input rejects unknown keys", () => {
 });
 
 test("PreToolUse output accepts legacy decision shape and rejects null optional fields", () => {
-  const decode = S.decodeUnknownSync(PreToolUseCommandOutput);
+  const decode = decodeUnknown(PreToolUseCommandOutput);
   const decoded = decode({
     decision: "block",
     reason: "Do not run that command.",
@@ -69,7 +75,7 @@ test("PreToolUse output accepts legacy decision shape and rejects null optional 
 });
 
 test("PostToolUse input accepts arbitrary JSON tool responses", () => {
-  const decode = S.decodeUnknownSync(PostToolUseCommandInput);
+  const decode = decodeUnknown(PostToolUseCommandInput);
   const decoded = decode({
     cwd: "/workspace",
     hook_event_name: "PostToolUse",
@@ -96,7 +102,7 @@ test("PostToolUse input accepts arbitrary JSON tool responses", () => {
 });
 
 test("PostToolUse output supports hook-specific additional context", () => {
-  const decode = S.decodeUnknownSync(PostToolUseCommandOutput);
+  const decode = decodeUnknown(PostToolUseCommandOutput);
   const decoded = decode({
     decision: "block",
     hookSpecificOutput: {
@@ -110,7 +116,7 @@ test("PostToolUse output supports hook-specific additional context", () => {
 });
 
 test("SessionStart input accepts clear as a generated-schema source value", () => {
-  const decode = S.decodeUnknownSync(SessionStartCommandInput);
+  const decode = decodeUnknown(SessionStartCommandInput);
   const decoded = decode({
     cwd: "/workspace",
     hook_event_name: "SessionStart",
@@ -125,7 +131,7 @@ test("SessionStart input accepts clear as a generated-schema source value", () =
 });
 
 test("SessionStart hook-specific output mirrors the generated hook event-name union", () => {
-  const decode = S.decodeUnknownSync(SessionStartHookSpecificOutput);
+  const decode = decodeUnknown(SessionStartHookSpecificOutput);
   const decoded = decode({
     hookEventName: "Stop",
   });
@@ -134,7 +140,7 @@ test("SessionStart hook-specific output mirrors the generated hook event-name un
 });
 
 test("Stop input accepts a nullable last assistant message", () => {
-  const decode = S.decodeUnknownSync(StopCommandInput);
+  const decode = decodeUnknown(StopCommandInput);
   const decoded = decode({
     cwd: "/workspace",
     hook_event_name: "Stop",
@@ -151,13 +157,13 @@ test("Stop input accepts a nullable last assistant message", () => {
 });
 
 test("Stop output rejects explicit null for optional fields", () => {
-  const decode = S.decodeUnknownSync(StopCommandOutput);
+  const decode = decodeUnknown(StopCommandOutput);
 
   expect(() => decode({ decision: "block", reason: null })).toThrow();
 });
 
 test("UserPromptSubmit input decodes the generated turn-scoped wire shape", () => {
-  const decode = S.decodeUnknownSync(UserPromptSubmitCommandInput);
+  const decode = decodeUnknown(UserPromptSubmitCommandInput);
   const decoded = decode({
     cwd: "/workspace",
     hook_event_name: "UserPromptSubmit",
@@ -173,7 +179,7 @@ test("UserPromptSubmit input decodes the generated turn-scoped wire shape", () =
 });
 
 test("UserPromptSubmit output permits blocking with hook-specific context", () => {
-  const decode = S.decodeUnknownSync(UserPromptSubmitCommandOutput);
+  const decode = decodeUnknown(UserPromptSubmitCommandOutput);
   const decoded = decode({
     decision: "block",
     hookSpecificOutput: {

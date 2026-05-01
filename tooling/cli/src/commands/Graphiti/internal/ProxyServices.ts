@@ -204,7 +204,7 @@ const urlSearchParamsSchema = S.instanceOf(URLSearchParams).pipe(
   )
 );
 
-const decodeUrlSearchParams = S.decodeUnknownSync(urlSearchParamsSchema);
+const decodeUrlSearchParams = S.decodeUnknownEffect(urlSearchParamsSchema);
 const decodeContainerHealthState = S.decodeUnknownOption(ContainerHealthState);
 const unknownContainerHealthState: S.Schema.Type<typeof ContainerHealthState> = "unknown";
 const absoluteRequestTargetPattern = /^(?:[a-zA-Z][a-zA-Z\d+.-]*:|\/\/)/;
@@ -499,7 +499,15 @@ export const makeGraphitiProxyForwarderService = (
       const destination = new URL(upstreamBase.href);
       destination.pathname = inboundPath;
       destination.search = "";
-      const urlParams = decodeUrlSearchParams(inboundUrl.searchParams);
+      const urlParamsResult = yield* decodeUrlSearchParams(inboundUrl.searchParams).pipe(Effect.result);
+      if (Result.isFailure(urlParamsResult)) {
+        return proxyErrorResponse(
+          "upstream_failure",
+          `Graphiti proxy failed to decode request query parameters: ${urlParamsResult.failure.message}`,
+          { status: 400 }
+        );
+      }
+      const urlParams = urlParamsResult.success;
       const headers = pipe(
         request.headers,
         Headers.remove("host"),

@@ -12,7 +12,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { LiteralKit, Model } from "@beep/schema";
 import { JsoncTextToUnknown } from "@beep/schema/Jsonc";
-import { Cause, Effect, Exit, pipe, SchemaGetter, SchemaIssue, Struct } from "effect";
+import { Cause, Effect, Exit, pipe, Result, SchemaGetter, SchemaIssue, Struct } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
@@ -1651,7 +1651,7 @@ const decodeJsoncUnknownText = (input: string): Effect.Effect<unknown, S.SchemaE
   const failure = Cause.findErrorOption(exit.cause);
   return O.isSome(failure) ? Effect.fail(failure.value) : Effect.die(Cause.squash(exit.cause));
 };
-const decodeTSConfigSemanticUnknownSync = S.decodeUnknownSync(TSConfigSemantic);
+const decodeTSConfigSemanticUnknownResult = S.decodeUnknownResult(TSConfigSemantic);
 const decodeTSConfigSemanticUnknownExit = S.decodeUnknownExit(TSConfigSemantic);
 const decodeTSConfigSemanticUnknownEffect = S.decodeUnknownEffect(TSConfigSemantic);
 const encodeTSConfigUnknownEffect = S.encodeUnknownEffect(TSConfig);
@@ -1673,7 +1673,7 @@ const encodeTSConfigJsonStringEffect = S.encodeUnknownEffect(S.fromJsonString(TS
  * @since 0.0.0
  */
 export const decodeTSConfig = (input: unknown): TSConfig.Type =>
-  new TSConfig(decodeTSConfigSemanticUnknownSync(input, strictDecodeOptions));
+  new TSConfig(Result.getOrThrow(decodeTSConfigSemanticUnknownResult(input, strictDecodeOptions)));
 
 /**
  * Synchronously decode an unknown value into a strict `TSConfig`,

@@ -8,7 +8,7 @@
 import { $RepoUtilsId } from "@beep/identity/packages";
 import { ArrayOfStrings } from "@beep/schema";
 import type { StandardSchemaV1 } from "@standard-schema/spec";
-import { Effect, flow, identity, type JsonPatch, JsonPointer, Order, pipe, SchemaIssue, Tuple } from "effect";
+import { Effect, flow, identity, type JsonPatch, JsonPointer, Order, pipe, Result, SchemaIssue, Tuple } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -40,12 +40,12 @@ const isStringRecord = (value: unknown): value is Readonly<Record<string, unknow
 
 type IssuePathSegment = NonNullable<StandardSchemaV1.Issue["path"]>[number];
 
-const decodeBrowser = S.decodeUnknownSync(Browser);
-const decodePackageExports = S.decodeUnknownSync(PackageExports);
-const decodePackageImports = S.decodeUnknownSync(PackageImports);
-const decodePeerDependenciesMeta = S.decodeUnknownSync(PeerDependenciesMeta);
-const decodePublishConfig = S.decodeUnknownSync(PublishConfig);
-const decodeTypesVersions = S.decodeUnknownSync(TypesVersions);
+const decodeBrowserResult = S.decodeUnknownResult(Browser);
+const decodePackageExportsResult = S.decodeUnknownResult(PackageExports);
+const decodePackageImportsResult = S.decodeUnknownResult(PackageImports);
+const decodePeerDependenciesMetaResult = S.decodeUnknownResult(PeerDependenciesMeta);
+const decodePublishConfigResult = S.decodeUnknownResult(PublishConfig);
+const decodeTypesVersionsResult = S.decodeUnknownResult(TypesVersions);
 
 const isIssuePathSegmentObject = (value: IssuePathSegment): value is StandardSchemaV1.PathSegment =>
   P.isObject(value) &&
@@ -125,7 +125,7 @@ const canonicalizePublishConfig = (
     out = R.set(out, key, canonicalizeUnknownValue(entryValue));
   }
 
-  return decodePublishConfig(out);
+  return Result.getOrThrow(decodePublishConfigResult(out));
 };
 
 const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJson.Encoded => {
@@ -153,16 +153,16 @@ const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJs
     ...(encoded.typings === undefined ? {} : { typings: encoded.typings }),
     ...(encoded.exports === undefined
       ? {}
-      : { exports: decodePackageExports(canonicalizeUnknownValue(encoded.exports)) }),
+      : { exports: Result.getOrThrow(decodePackageExportsResult(canonicalizeUnknownValue(encoded.exports))) }),
     ...(encoded.imports === undefined
       ? {}
-      : { imports: decodePackageImports(canonicalizeUnknownValue(encoded.imports)) }),
+      : { imports: Result.getOrThrow(decodePackageImportsResult(canonicalizeUnknownValue(encoded.imports))) }),
     ...(encoded.browser === undefined
       ? {}
       : {
           browser: P.isString(encoded.browser)
             ? encoded.browser
-            : decodeBrowser(canonicalizeUnknownValue(encoded.browser)),
+            : Result.getOrThrow(decodeBrowserResult(canonicalizeUnknownValue(encoded.browser))),
         }),
     ...(encoded.bin === undefined ? {} : { bin: encoded.bin }),
     ...(encoded.man === undefined ? {} : { man: encoded.man }),
@@ -180,7 +180,11 @@ const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJs
       : { peerDependencies: sortStringRecord(encoded.peerDependencies, identity) }),
     ...(encoded.peerDependenciesMeta === undefined
       ? {}
-      : { peerDependenciesMeta: decodePeerDependenciesMeta(canonicalizeUnknownValue(encoded.peerDependenciesMeta)) }),
+      : {
+          peerDependenciesMeta: Result.getOrThrow(
+            decodePeerDependenciesMetaResult(canonicalizeUnknownValue(encoded.peerDependenciesMeta))
+          ),
+        }),
     ...(encoded.optionalDependencies === undefined
       ? {}
       : { optionalDependencies: sortStringRecord(encoded.optionalDependencies, identity) }),
@@ -202,7 +206,7 @@ const canonicalizePackageJsonEncoded = (encoded: PackageJson.Encoded): PackageJs
     ...(encoded.readme === undefined ? {} : { readme: encoded.readme }),
     ...(encoded.typesVersions === undefined
       ? {}
-      : { typesVersions: decodeTypesVersions(canonicalizeUnknownValue(encoded.typesVersions)) }),
+      : { typesVersions: Result.getOrThrow(decodeTypesVersionsResult(canonicalizeUnknownValue(encoded.typesVersions))) }),
   };
 };
 

@@ -7,7 +7,7 @@
  */
 
 import { $SemanticWebId } from "@beep/identity/packages";
-import { Order, pipe } from "effect";
+import { Order, Result, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as O from "effect/Option";
@@ -18,7 +18,7 @@ import { makeSemanticSchemaMetadata } from "./semantic-schema-metadata.ts";
 
 const $I = $SemanticWebId.create("rdf");
 
-const decodeBlankNode = S.decodeUnknownSync(S.NonEmptyString);
+const decodeBlankNodeResult = S.decodeUnknownResult(S.NonEmptyString);
 
 const curieMetadata = makeSemanticSchemaMetadata({
   kind: "identifier",
@@ -748,8 +748,8 @@ export const PrefixMap = S.Record(PrefixLabel, IRI).annotate(
  */
 export type PrefixMap = typeof PrefixMap.Type;
 
-const decodeNamedNode = S.decodeUnknownSync(NamedNode);
-const decodeLiteral = S.decodeUnknownSync(Literal);
+const decodeNamedNodeResult = S.decodeUnknownResult(NamedNode);
+const decodeLiteralResult = S.decodeUnknownResult(Literal);
 
 /**
  * Build a named node from an IRI string.
@@ -769,10 +769,13 @@ const decodeLiteral = S.decodeUnknownSync(Literal);
  * @category utilities
  */
 export const makeNamedNode = (value: string): NamedNode =>
-  decodeNamedNode({
-    termType: "NamedNode",
-    value,
-  });
+  pipe(
+    decodeNamedNodeResult({
+      termType: "NamedNode",
+      value,
+    }),
+    Result.getOrThrow
+  );
 
 /**
  * Build a blank node from a non-empty label.
@@ -794,7 +797,7 @@ export const makeNamedNode = (value: string): NamedNode =>
 export const makeBlankNode = (value: string): BlankNode =>
   BlankNode.make({
     termType: "BlankNode",
-    value: decodeBlankNode(value),
+    value: pipe(decodeBlankNodeResult(value), Result.getOrThrow),
   });
 
 /**
@@ -824,12 +827,15 @@ const isMakeLiteralDataFirst = (args: IArguments): boolean => args.length >= 2 &
 
 const makeLiteralInternal = (value: string, datatype: string, options: MakeLiteralOptions | string = {}): Literal => {
   const language = P.isString(options) ? options : options.language;
-  return decodeLiteral({
-    termType: "Literal",
-    value,
-    datatype: makeNamedNode(datatype),
-    ...(language === undefined ? {} : { language }),
-  });
+  return pipe(
+    decodeLiteralResult({
+      termType: "Literal",
+      value,
+      datatype: makeNamedNode(datatype),
+      ...(language === undefined ? {} : { language }),
+    }),
+    Result.getOrThrow
+  );
 };
 
 /**

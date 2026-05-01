@@ -753,12 +753,14 @@ const parseJsonObject = Effect.fn(function* (content: string, filePath: string) 
   );
 });
 
-const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-const renderJson = (value: unknown): string => {
-  const encoded = encodeJson(value);
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+const renderJson: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(function* (value) {
+  const encoded = yield* encodeJson(value).pipe(
+    Effect.mapError((cause) => new DomainError({ message: "Failed to encode tsconfig-sync JSON output.", cause }))
+  );
   const edits = jsonc.format(encoded, undefined, FORMATTING_OPTIONS);
   return `${jsonc.applyEdits(encoded, edits)}\n`;
-};
+});
 
 const readRootPackageJson = Effect.fn(function* (rootDir: string) {
   const path = yield* Path.Path;
@@ -1319,7 +1321,7 @@ const planRootTstycheSync = Effect.fn(function* (rootDir: string, workspaces: Re
     return O.none<PlannedFileChange>();
   }
 
-  const nextContent = renderJson({
+  const nextContent = yield* renderJson({
     ...parsed,
     testFileMatch: expected,
     tsconfig: ROOT_TSTYCHE_TSCONFIG,

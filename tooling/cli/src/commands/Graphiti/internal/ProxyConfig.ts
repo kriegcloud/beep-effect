@@ -188,7 +188,7 @@ export class GraphitiProxyConfigLoadError extends TaggedErrorClass<GraphitiProxy
   })
 ) {}
 
-const decodeGraphitiProxyConfig = S.decodeUnknownSync(GraphitiProxyConfig);
+const decodeGraphitiProxyConfig = S.decodeUnknownEffect(GraphitiProxyConfig);
 
 /**
  * Load graphiti proxy config from Effect Config environment values.
@@ -231,12 +231,13 @@ export const loadGraphitiProxyConfig = Effect.gen(function* () {
     })
   );
 
-  return yield* Effect.try({
-    try: () => decodeGraphitiProxyConfig(raw),
-    catch: (cause) =>
+  return yield* decodeGraphitiProxyConfig(raw).pipe(
+    Effect.mapError(
+      (cause) =>
       new GraphitiProxyConfigLoadError({
         message: "Failed to decode graphiti proxy config.",
         cause,
-      }),
-  });
+        })
+    )
+  );
 });

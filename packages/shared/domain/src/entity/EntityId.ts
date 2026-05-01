@@ -20,11 +20,15 @@ const $I = $SharedDomainId.create("entity/EntityId");
  *
  * @example
  * ```ts
+ * import { Effect } from "effect"
  * import { EntityIdValue } from "@beep/shared-domain/entity/EntityId"
  * import * as S from "effect/Schema"
  *
- * const id = S.decodeUnknownSync(EntityIdValue)(1)
- * console.log(id)
+ * const program = Effect.gen(function* () {
+ *   const id = yield* S.decodeUnknownEffect(EntityIdValue)(1)
+ *   return id
+ * })
+ * void program
  * ```
  *
  * @since 0.0.0

@@ -20,8 +20,20 @@ import {
   type JsonLdStreamSerializeServiceShape,
 } from "../services/jsonld-stream-serialize.ts";
 
-const encodeJsonLdDocumentToJson = S.encodeSync(S.fromJsonString(JsonLdDocument));
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+const encodeJsonLdDocumentToJson = S.encodeEffect(S.fromJsonString(JsonLdDocument));
+
+const decodeNonNegativeInt = (
+  value: number
+): Effect.Effect<typeof NonNegativeInt.Type, JsonLdStreamSerializeError> =>
+  S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
+    Effect.mapError(
+      (cause) =>
+        new JsonLdStreamSerializeError({
+          reason: "serializeFailure",
+          message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
+        })
+    )
+  );
 
 const chunkText = (value: string, maxChunkCharacters: O.Option<number>): ReadonlyArray<string> => {
   if (O.isNone(maxChunkCharacters)) {
@@ -86,10 +98,16 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
           Effect.mapError(mapDocumentErrorToSerializeError)
         );
 
-        const chunks = pipe(
-          chunkText(encodeJsonLdDocumentToJson(document.document), maxChunkCharacters),
-          A.fromIterable
+        const documentText = yield* encodeJsonLdDocumentToJson(document.document).pipe(
+          Effect.mapError(
+            (cause) =>
+              new JsonLdStreamSerializeError({
+                reason: "serializeFailure",
+                message: `Unable to encode bounded JSON-LD document output: ${String(cause)}`,
+              })
+          )
         );
+        const chunks = pipe(chunkText(documentText, maxChunkCharacters), A.fromIterable);
         const nonEmptyChunks = pipe(
           chunks,
           A.filter((chunk) => chunk.length > 0)
@@ -106,13 +124,13 @@ export const JsonLdStreamSerializeServiceLive = Layer.effect(
                 })
               ),
             onNonEmpty: ([firstChunk, ...restChunks]) =>
-              Effect.succeed(
-                JsonLdStreamSerializeResult.make({
+              Effect.gen(function* () {
+                return JsonLdStreamSerializeResult.make({
                   chunks: [firstChunk, ...restChunks],
                   mode: "buffered-fallback",
-                  chunkCount: decodeNonNegativeInt(nonEmptyChunks.length),
-                })
-              ),
+                  chunkCount: yield* decodeNonNegativeInt(nonEmptyChunks.length),
+                });
+              }),
           })
         );
       }),

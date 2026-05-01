@@ -36,7 +36,7 @@ const CONFIG_FILE_NAME = "docgen.json";
 
 const CompilerOptionsShape = S.toEncoded(TSConfigCompilerOptions);
 const CompilerOptionsSchema = S.Union([S.String, CompilerOptionsShape]);
-const encodeCompilerOptions = S.encodeSync(TSConfigCompilerOptions);
+const encodeCompilerOptions = S.encodeEffect(TSConfigCompilerOptions);
 const isStringArray = (value: unknown): value is ReadonlyArray<string> =>
   A.isArray(value) && A.every(value, P.isString);
 
@@ -279,10 +279,18 @@ const readTSConfig = (
           })
       )
     );
-    return O.match(tsconfig.compilerOptions, {
-      onNone: () => defaultCompilerOptions,
-      onSome: encodeCompilerOptions,
-    });
+    if (O.isNone(tsconfig.compilerOptions)) {
+      return defaultCompilerOptions;
+    }
+
+    return yield* encodeCompilerOptions(tsconfig.compilerOptions.value).pipe(
+      Effect.mapError(
+        (cause) =>
+          new Domain.DocgenError({
+            message: `[Configuration.readTSConfig] Failed to encode compiler options from '${resolved}'\n${cause.message}`,
+          })
+      )
+    );
   });
 
 const resolveCompilerOptions = (

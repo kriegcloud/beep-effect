@@ -71,15 +71,17 @@ const parallelFlag = Flag.integer("parallel").pipe(
   Flag.withDescription("Maximum number of packages to process concurrently")
 );
 
-const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
-const renderJson = (value: unknown): string => {
-  const encoded = encodeJson(value);
+const encodeJson = S.encodeUnknownEffect(S.UnknownFromJsonString);
+const renderJson: (value: unknown) => Effect.Effect<string, DomainError> = Effect.fn(function* (value) {
+  const encoded = yield* encodeJson(value).pipe(
+    Effect.mapError((cause) => new DomainError({ message: "Failed to encode docgen JSON output.", cause }))
+  );
   const edits = jsonc.format(encoded, undefined, {
     tabSize: 2,
     insertSpaces: true,
   });
   return `${jsonc.applyEdits(encoded, edits)}\n`;
-};
+});
 
 const defaultAnalysisPath = (packagePath: string, json: boolean, path: Path.Path): string =>
   path.join(packagePath, json ? "JSDOC_ANALYSIS.json" : "JSDOC_ANALYSIS.md");
@@ -226,7 +228,7 @@ const docgenStatusCommand = Command.make(
 
       if (json) {
         yield* Console.log(
-          renderJson({
+          yield* renderJson({
             packages,
             summary: {
               total: packages.length,
@@ -308,7 +310,7 @@ const docgenGenerateCommand = Command.make(
       });
 
       if (json) {
-        yield* Console.log(renderJson(results));
+        yield* Console.log(yield* renderJson(results));
         if (results.some((result) => !result.success)) {
           process.exitCode = 1;
         }
@@ -458,13 +460,13 @@ const docgenAnalyzeCommand = Command.make(
 
       if (json) {
         if (O.isSome(output)) {
-          const content = analyses.length === 1 ? generateAnalysisJson(analyses[0]!) : renderJson(analyses);
+          const content = analyses.length === 1 ? generateAnalysisJson(analyses[0]!) : yield* renderJson(analyses);
           yield* fs.writeFileString(output.value, content);
           yield* Console.log(`docgen: wrote ${output.value}`);
           return;
         }
 
-        yield* Console.log(analyses.length === 1 ? generateAnalysisJson(analyses[0]!) : renderJson(analyses));
+        yield* Console.log(analyses.length === 1 ? generateAnalysisJson(analyses[0]!) : yield* renderJson(analyses));
         return;
       }
 
@@ -533,7 +535,7 @@ const docgenCheckCommand = Command.make(
 
       if (json) {
         yield* Console.log(
-          renderJson({
+          yield* renderJson({
             analyses,
             summary: {
               packages: analyses.length,

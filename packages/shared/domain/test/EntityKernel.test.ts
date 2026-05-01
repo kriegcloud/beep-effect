@@ -10,9 +10,11 @@ import * as Principal from "@beep/shared-domain/entity/Principal";
 import * as primitives from "@beep/shared-domain/entity/primitives";
 import * as SourceKind from "@beep/shared-domain/entity/SourceKind";
 import * as Shared from "@beep/shared-domain/identity/Shared";
-import { describe, expect, it } from "@effect/vitest";
+import { assert, describe, expect, it } from "@effect/vitest";
+import { Effect, Exit } from "effect";
 import { cast } from "effect/Function";
 import * as O from "effect/Option";
+import * as Result from "effect/Result";
 import * as S from "effect/Schema";
 
 const $I = $SharedDomainId.create("entity/test/EntityKernel");
@@ -30,7 +32,11 @@ const CustomDocumentId = makeSharedId("document", {
   tableName: "custom_document",
 });
 
-const decodeSync = <A>(schema: S.Top & { readonly Type: A }) => S.decodeUnknownSync(S.make<S.Decoder<A>>(schema.ast));
+const decodeEffect = <A>(schema: S.Top & { readonly Type: A }) => S.decodeUnknownEffect(S.make<S.Decoder<A>>(schema.ast));
+const expectFailure = Effect.fn("expectFailure")(function* <A, E>(effect: Effect.Effect<A, E, never>) {
+  const exit = yield* Effect.exit(effect);
+  assert.strictEqual(Exit.isFailure(exit), true);
+});
 
 const NoteMixin = EntityMixin.make($I`NoteMixin`)(
   {
@@ -90,17 +96,20 @@ const ReplacementNoteMixin = EntityMixin.make($I`ReplacementNoteMixin`)(
 const NotePack = EntityMixin.pack(NoteMixin, OptionalMixin);
 
 describe("EntityId", () => {
-  it("decodes generated entity ids and rejects invalid ids", () => {
-    const decode = S.decodeUnknownSync(EntityId.EntityIdValue);
+  it.effect("decodes generated entity ids and rejects invalid ids", () =>
+    Effect.gen(function* () {
+      const decode = S.decodeUnknownEffect(EntityId.EntityIdValue);
 
-    expect(decode(1)).toBe(1);
-    expect(decode(2_147_483_647)).toBe(2_147_483_647);
-    expect(() => decode(0)).toThrow();
-    expect(() => decode(2_147_483_648)).toThrow();
-    expect(() => decode(1.5)).toThrow();
-  });
+      expect(yield* decode(1)).toBe(1);
+      expect(yield* decode(2_147_483_647)).toBe(2_147_483_647);
+      yield* expectFailure(decode(0));
+      yield* expectFailure(decode(2_147_483_648));
+      yield* expectFailure(decode(1.5));
+    })
+  );
 
-  it("derives default metadata and schema statics", () => {
+  it.effect("derives default metadata and schema statics", () =>
+    Effect.gen(function* () {
     expect(DocumentId.slice).toBe("shared");
     expect(DocumentId.tableName).toBe("shared_document");
     expect(DocumentId.resource).toBe("shared.document");
@@ -109,8 +118,9 @@ describe("EntityId", () => {
     expect(DocumentId.definition.description).toBe("SharedDocument entity identifier.");
     expect(DocumentId.equivalence(cast(1), cast(1))).toBe(true);
     expect(DocumentId.equivalence(cast(1), cast(2))).toBe(false);
-    expect(decodeSync(DocumentId)(1)).toBe(1);
-  });
+      expect(yield* decodeEffect(DocumentId)(1)).toBe(1);
+    })
+  );
 
   it("preserves explicit metadata overrides", () => {
     expect(CustomDocumentId.tableName).toBe("custom_document");
@@ -130,8 +140,9 @@ describe("EntityId", () => {
 });
 
 describe("EntityMixin", () => {
-  it("exports literal vocabularies and descriptor statics", () => {
-    const descriptor = S.decodeUnknownSync(EntityMixin.FieldDescriptor)({
+  it.effect("exports literal vocabularies and descriptor statics", () =>
+    Effect.gen(function* () {
+      const descriptor = yield* S.decodeUnknownEffect(EntityMixin.FieldDescriptor)({
       columnName: "document_id",
       description: "Document id.",
       key: "documentId",
@@ -139,7 +150,7 @@ describe("EntityMixin", () => {
       storageKind: "entityId",
       valueStrategy: "provided",
     });
-    const descriptorInput = S.decodeUnknownSync(EntityMixin.FieldDescriptorInput)({
+      const descriptorInput = yield* S.decodeUnknownEffect(EntityMixin.FieldDescriptorInput)({
       columnName: "document_id",
       description: "Document id.",
       nullable: false,
@@ -153,7 +164,8 @@ describe("EntityMixin", () => {
     expect(EntityMixin.FieldDescriptor.guards.entityId(descriptor)).toBe(true);
     expect(EntityMixin.FieldDescriptorInput.guards.entityId(descriptorInput)).toBe(true);
     expect(EntityMixin.FieldDescriptor.isAnyOf(["entityId"])(descriptor)).toBe(true);
-  });
+    })
+  );
 
   it("materializes mixins, packs them in order, and supports guards", () => {
     const PlainNameMixin = EntityMixin.make("")(
@@ -196,7 +208,7 @@ describe("EntityMixin", () => {
     expect(overridden.fieldMap.note.columnName).toBe("note_score");
   });
 
-  it("fails on field collisions and missing descriptors", () => {
+  it("fails on field collisions, missing descriptors, and invalid descriptors", () => {
     const DuplicateNoteMixin = EntityMixin.make($I`DuplicateNoteMixin`)(
       {
         note: S.String,
@@ -224,9 +236,28 @@ describe("EntityMixin", () => {
           fields: {},
         } as EntityMixin.Definition<{ readonly missing: typeof S.String }>
       );
+    const makeInvalidDescriptorMixin = () =>
+      EntityMixin.make($I`InvalidDescriptorMixin`)(
+        {
+          invalid: S.String,
+        },
+        {
+          description: "Invalid descriptor.",
+          fields: {
+            invalid: {
+              columnName: "invalid",
+              description: "Invalid descriptor.",
+              nullable: false,
+              storageKind: "notAStorageKind",
+              valueStrategy: "provided",
+            },
+          },
+        } as unknown as EntityMixin.Definition<{ readonly invalid: typeof S.String }>
+      );
 
     expect(() => EntityMixin.pack(NoteMixin, DuplicateNoteMixin)).toThrow(EntityMixin.EntityMixinFieldCollisionError);
     expect(makeBrokenMixin).toThrow(EntityMixin.EntityMixinDescriptorMissingError);
+    expect(makeInvalidDescriptorMixin).toThrow(EntityMixin.EntityMixinDescriptorInvalidError);
   });
 });
 
@@ -336,45 +367,53 @@ describe("BaseEntity", () => {
 });
 
 describe("EntityRef and shared entity primitives", () => {
-  it("builds entity references and validates primitive schemas", () => {
-    const id = S.decodeUnknownSync(EntityId.EntityIdValue)(1);
-    const ref = EntityRef.make(DocumentId, cast(id));
+  it.effect("builds entity references and validates primitive schemas", () =>
+    Effect.gen(function* () {
+      const id = yield* S.decodeUnknownEffect(DocumentId)(1);
+      const ref = EntityRef.make(DocumentId, id);
     const dataLastRef = EntityRef.make(id)(DocumentId);
+      const resultRef = EntityRef.makeResult(DocumentId, id);
 
     expect(ref.entityType).toBe("SharedDocument");
     expect(dataLastRef.id).toBe(1);
-    expect(S.decodeUnknownSync(EntityRef.EntityType)("SharedDocument")).toBe("SharedDocument");
-    expect(S.decodeUnknownSync(primitives.Sha256)("a".repeat(64))).toBe("a".repeat(64));
-    expect(S.decodeUnknownSync(primitives.Ed25519Signature)("signature")).toBe("signature");
-    expect(S.decodeUnknownSync(primitives.EncryptionKeyId)("key")).toBe("key");
-    expect(S.decodeUnknownSync(primitives.HybridLogicalClock)("clock")).toBe("clock");
-    expect(S.decodeUnknownSync(primitives.VectorClock)({ replica: 1 })).toEqual({ replica: 1 });
-  });
+      expect(Result.isSuccess(resultRef)).toBe(true);
+      if (Result.isSuccess(resultRef)) {
+        expect(resultRef.success.id).toBe(1);
+      }
+      expect(yield* S.decodeUnknownEffect(EntityRef.EntityType)("SharedDocument")).toBe("SharedDocument");
+      expect(yield* S.decodeUnknownEffect(primitives.Sha256)("a".repeat(64))).toBe("a".repeat(64));
+      expect(yield* S.decodeUnknownEffect(primitives.Ed25519Signature)("signature")).toBe("signature");
+      expect(yield* S.decodeUnknownEffect(primitives.EncryptionKeyId)("key")).toBe("key");
+      expect(yield* S.decodeUnknownEffect(primitives.HybridLogicalClock)("clock")).toBe("clock");
+      expect(yield* S.decodeUnknownEffect(primitives.VectorClock)({ replica: 1 })).toEqual({ replica: 1 });
+    })
+  );
 
-  it("decodes principals, source kinds, and barrel exports", () => {
-    const user = decodeSync(Principal.UserPrincipal)({
+  it.effect("decodes principals, source kinds, and barrel exports", () =>
+    Effect.gen(function* () {
+      const user = yield* decodeEffect(Principal.UserPrincipal)({
       kind: "User",
       userId: 1,
     });
-    const serviceAccount = decodeSync(Principal.ServiceAccountPrincipal)({
+      const serviceAccount = yield* decodeEffect(Principal.ServiceAccountPrincipal)({
       kind: "ServiceAccount",
       serviceAccountId: 1,
     });
-    const agent = decodeSync(Principal.AgentPrincipal)({
+      const agent = yield* decodeEffect(Principal.AgentPrincipal)({
       agentId: 1,
       agentVersionId: 1,
       kind: "Agent",
       onBehalfOfUserId: 1,
     });
-    const connector = decodeSync(Principal.ConnectorAccountPrincipal)({
+      const connector = yield* decodeEffect(Principal.ConnectorAccountPrincipal)({
       connectorAccountId: 1,
       kind: "ConnectorAccount",
     });
-    const system = decodeSync(Principal.SystemPrincipal)({
+      const system = yield* decodeEffect(Principal.SystemPrincipal)({
       component: "Runtime",
       kind: "System",
     });
-    const principal = decodeSync(Principal.Principal)({
+      const principal = yield* decodeEffect(Principal.Principal)({
       component: "Runtime",
       kind: "System",
     });
@@ -393,5 +432,6 @@ describe("EntityRef and shared entity primitives", () => {
     expect(EntityBarrel.Principal.Principal).toBe(Principal.Principal);
     expect(EntityBarrel.primitives.VectorClock).toBe(primitives.VectorClock);
     expect(EntityBarrel.SourceKind.SourceKind).toBe(SourceKind.SourceKind);
-  });
+    })
+  );
 });

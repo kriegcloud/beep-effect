@@ -1,4 +1,4 @@
-import { Effect, flow, Inspectable, pipe, SchemaIssue, SchemaTransformation } from "effect";
+import { Effect, flow, Inspectable, pipe, Result, SchemaIssue, SchemaTransformation } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
@@ -104,8 +104,13 @@ export const decodeAllowlistDocumentFromJsoncText = S.decodeUnknownEffect(
 );
 
 export const decodeAllowlistCheckInput = S.decodeUnknownOption(EffectLawsAllowlistCheckInput);
-export const decodeAllowlistSnapshot = S.decodeUnknownSync(EffectLawsAllowlistSnapshot);
-export const encodeAllowlistSnapshot = S.encodeUnknownSync(EffectLawsAllowlistSnapshot);
+const decodeAllowlistSnapshotResult = S.decodeUnknownResult(EffectLawsAllowlistSnapshot);
+const encodeAllowlistSnapshotResult = S.encodeUnknownResult(EffectLawsAllowlistSnapshot);
+export const decodeAllowlistSnapshot = (input: unknown): EffectLawsAllowlistSnapshot =>
+  Result.getOrThrow(decodeAllowlistSnapshotResult(input));
+export const encodeAllowlistSnapshot = (
+  input: EffectLawsAllowlistSnapshot
+): (typeof EffectLawsAllowlistSnapshot)["Encoded"] => Result.getOrThrow(encodeAllowlistSnapshotResult(input));
 export const areLookupKeysEquivalent = S.toEquivalence(EffectLawsAllowlistLookupKey);
 
 export const normalizeAllowlistEntries: (

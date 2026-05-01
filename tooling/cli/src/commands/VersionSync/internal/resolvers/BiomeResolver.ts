@@ -110,7 +110,9 @@ const VersionSpecifierToExactVersion = S.String.pipe(
  */
 const buildSchemaUrl = (version: string): string => `${BIOME_SCHEMA_PREFIX}${version}${BIOME_SCHEMA_SUFFIX}`;
 const decodeSchemaVersion = S.decodeUnknownOption(BiomeSchemaUrlToVersion);
-const decodeExactVersion = S.decodeUnknownSync(VersionSpecifierToExactVersion);
+const decodeExactVersion = S.decodeUnknownOption(VersionSpecifierToExactVersion);
+const exactVersionFromSpecifier = (value: unknown): string =>
+  O.getOrElse(decodeExactVersion(value), () => `${value}`);
 
 class BiomeJsoncDocument extends S.Class<BiomeJsoncDocument>($I`BiomeJsoncDocument`)(
   {
@@ -223,7 +225,7 @@ export const resolveBiomeSchema = Effect.fn(function* (
     thunkEmptyStr
   );
 
-  const installedVersion = decodeExactVersion(rawVersion);
+  const installedVersion = exactVersionFromSpecifier(rawVersion);
 
   return new BiomeSchemaState({
     schemaUrl,

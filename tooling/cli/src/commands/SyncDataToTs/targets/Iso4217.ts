@@ -6,7 +6,7 @@
  */
 
 import { $RepoCliId } from "@beep/identity/packages";
-import { Effect, flow, MutableHashMap, Order, pipe } from "effect";
+import { Effect, flow, MutableHashMap, Order, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as Eq from "effect/Equal";
 import * as O from "effect/Option";
@@ -105,10 +105,10 @@ class Iso4217CurrencyEntry extends S.Class<Iso4217CurrencyEntry>($I`Iso4217Curre
 type Iso4217CurrencyEntryType = typeof Iso4217CurrencyEntry.Type;
 const isIso4217CurrencyNameWithMetadata = S.is(Iso4217CurrencyNameWithMetadata);
 
-const encodeUnknownJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const encodeUnknownJsonResult = S.encodeUnknownResult(S.UnknownFromJsonString);
 
 const formatTsLiteral = (value: unknown): string => {
-  const encoded = encodeUnknownJson(value);
+  const encoded = Result.getOrThrow(encodeUnknownJsonResult(value));
   const edits = jsonc.format(encoded, undefined, {
     tabSize: 2,
     insertSpaces: true,

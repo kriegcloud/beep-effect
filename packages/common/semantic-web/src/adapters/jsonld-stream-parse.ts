@@ -26,7 +26,17 @@ import {
 } from "../services/jsonld-stream-parse.ts";
 
 const decodeJsonLdDocumentFromJson = S.decodeUnknownEffect(S.fromJsonString(JsonLdDocument));
-const decodeNonNegativeInt = S.decodeUnknownSync(NonNegativeInt);
+
+const decodeNonNegativeInt = (value: number): Effect.Effect<typeof NonNegativeInt.Type, JsonLdStreamParseError> =>
+  S.decodeUnknownEffect(NonNegativeInt)(value).pipe(
+    Effect.mapError(
+      (cause) =>
+        new JsonLdStreamParseError({
+          reason: "parseFailure",
+          message: `Failed to decode JSON-LD stream chunk count: ${String(cause)}`,
+        })
+    )
+  );
 
 const decodeUtf8Chunks = (chunks: ReadonlyArray<Uint8Array>): string => {
   const decoder = new TextDecoder("utf-8");
@@ -135,10 +145,12 @@ export const JsonLdStreamParseServiceLive = Layer.effect(
           Effect.mapError(mapDocumentErrorToParseError)
         );
 
+        const chunkCount = yield* decodeNonNegativeInt(request.input.chunks.length);
+
         return JsonLdStreamParseResult.make({
           dataset: dataset.dataset,
           mode: "buffered-fallback",
-          chunkCount: decodeNonNegativeInt(request.input.chunks.length),
+          chunkCount,
         });
       }),
     } satisfies JsonLdStreamParseServiceShape);

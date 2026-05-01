@@ -8,6 +8,7 @@
 
 import { $SemanticWebId } from "@beep/identity/packages";
 import { LiteralKit } from "@beep/schema";
+import { Result, pipe } from "effect";
 import * as A from "effect/Array";
 import { dual } from "effect/Function";
 import * as P from "effect/Predicate";
@@ -285,7 +286,7 @@ declare module "effect/Schema" {
   }
 }
 
-const decodeSemanticSchemaMetadata = S.decodeUnknownSync(SemanticSchemaMetadata);
+const decodeSemanticSchemaMetadataResult = S.decodeUnknownResult(SemanticSchemaMetadata);
 
 /**
  * Validate a metadata payload before attaching it to a public schema.
@@ -312,7 +313,7 @@ const decodeSemanticSchemaMetadata = S.decodeUnknownSync(SemanticSchemaMetadata)
  */
 export const makeSemanticSchemaMetadata = (
   metadata: typeof SemanticSchemaMetadata.Encoded
-): SemanticSchemaMetadataAnnotationPayload => decodeSemanticSchemaMetadata(metadata);
+): SemanticSchemaMetadataAnnotationPayload => pipe(decodeSemanticSchemaMetadataResult(metadata), Result.getOrThrow);
 
 /**
  * Attach validated semantic metadata to any Effect schema.

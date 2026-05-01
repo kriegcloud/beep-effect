@@ -23,6 +23,8 @@ Required behaviors:
 - prefer S.Class for object models unless a boundary exception is justified
 - replace exported pure-data interfaces or type literals with schemas when repo law requires it
 - use LiteralKit, S.toTaggedUnion, OptionFrom* helpers, schema defaults, and schema JSON codecs where appropriate
+- prefer S.decodeUnknownEffect/S.decodeEffect and S.encodeUnknownEffect/S.encodeEffect for schema codecs, with Effect.mapError(...) when schema errors cross local boundaries
+- use Result/Option schema codecs only for deliberate non-throwing synchronous helpers
 - annotate reusable schemas with $I.annote(...)
 - keep runtime type aliases aligned with repo law
 - stay inside the assigned write scope and assume a shared worktree unless the
@@ -37,6 +39,7 @@ Do not:
 - widen scope beyond the assigned write set
 - invent separate abstractions when a repo primitive already fits
 - use any, type assertions, JSON.parse or JSON.stringify, throw, new Error, or ad-hoc predicate helpers where schema patterns should exist
+- use S.decodeSync, S.decodeUnknownSync, S.encodeSync, or S.encodeUnknownSync as the default schema-codec pattern
 - redesign service topology, persistence strategy, or phase ownership unless the
   prompt explicitly makes that your task
 - spawn or delegate to another sub-agent

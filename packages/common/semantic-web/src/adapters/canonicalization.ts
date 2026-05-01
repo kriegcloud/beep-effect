@@ -41,7 +41,6 @@ import {
   DatasetFingerprint,
 } from "../services/canonicalization.ts";
 
-const decodeSha256Hex = S.decodeUnknownSync(Sha256Hex);
 const SemanticCanonicalizationMaxWorkFactor = 1;
 const SemanticCanonicalizationTimeout = Duration.seconds(1);
 const SemanticCanonicalizationTimeoutMs = Duration.toMillis(SemanticCanonicalizationTimeout);
@@ -55,23 +54,33 @@ const semanticCanonicalizationBudgetFailureFragments = [
 const semanticCanonicalizationBudgetMessage = `Semantic canonicalization exceeded the configured resource budget (maxWorkFactor=${SemanticCanonicalizationMaxWorkFactor}, timeout=${SemanticCanonicalizationTimeoutMs}ms).`;
 
 const hashCanonicalText = (canonicalText: string): Effect.Effect<typeof Sha256Hex.Type, CanonicalizationError> =>
-  Effect.tryPromise({
-    try: async () => {
+  Effect.gen(function* () {
+    const hex = yield* Effect.tryPromise({
+      try: async () => {
       const bytes = new TextEncoder().encode(canonicalText);
       const digest = await crypto.subtle.digest("SHA-256", bytes);
-      const hex = pipe(
+      return pipe(
         A.fromIterable(new Uint8Array(digest)),
         A.map((value) => Str.padStart(2, "0")(value.toString(16))),
         A.join("")
       );
+      },
+      catch: () =>
+        new CanonicalizationError({
+          reason: "fingerprintFailure",
+          message: "Failed to hash canonical dataset text.",
+        }),
+    });
 
-      return decodeSha256Hex(hex);
-    },
-    catch: () =>
-      new CanonicalizationError({
-        reason: "fingerprintFailure",
-        message: "Failed to hash canonical dataset text.",
-      }),
+    return yield* S.decodeUnknownEffect(Sha256Hex)(hex).pipe(
+      Effect.mapError(
+        () =>
+          new CanonicalizationError({
+            reason: "fingerprintFailure",
+            message: "Failed to decode SHA-256 dataset fingerprint.",
+          })
+      )
+    );
   });
 
 const enforceWorkLimit = (

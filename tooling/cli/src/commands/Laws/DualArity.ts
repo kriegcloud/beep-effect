@@ -243,9 +243,9 @@ type PublicApiCandidate = {
   readonly callableType: Type;
 };
 
-const decodeInventoryDocument = S.decodeUnknownSync(DualArityInventoryDocument);
-const encodeInventoryDocument = S.encodeUnknownSync(DualArityInventoryDocument);
-const decodeProjectInspectionRequest = S.decodeUnknownSync(TsMorphProjectInspectionRequest);
+const decodeInventoryDocument = S.decodeUnknownEffect(DualArityInventoryDocument);
+const encodeInventoryDocument = S.encodeUnknownEffect(DualArityInventoryDocument);
+const decodeProjectInspectionRequest = S.decodeUnknownEffect(TsMorphProjectInspectionRequest);
 
 const makeEntryKey = (entry: DualArityInventoryEntry): string => `${entry.file}::${entry.qualifiedName}::${entry.kind}`;
 
@@ -1032,15 +1032,7 @@ const readInventoryDocument = Effect.fn(function* () {
   }
 
   const content = yield* fs.readFileString(absolutePath);
-  return yield* Effect.try({
-    try: () => decodeInventoryDocument(parse(content)),
-    catch: thunkUndefined,
-  }).pipe(
-    Effect.match({
-      onFailure: O.none,
-      onSuccess: O.some,
-    })
-  );
+  return yield* decodeInventoryDocument(parse(content)).pipe(Effect.option);
 });
 
 const writeInventoryDocument = Effect.fn("DualArity.writeInventoryDocument")(function* (
@@ -1049,7 +1041,7 @@ const writeInventoryDocument = Effect.fn("DualArity.writeInventoryDocument")(fun
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const absolutePath = path.resolve(process.cwd(), INVENTORY_PATH);
-  const encodedDocument = encodeInventoryDocument(document);
+  const encodedDocument = yield* encodeInventoryDocument(document);
   const serialized = yield* renderBiomeJson(absolutePath, encodedDocument);
   yield* fs.makeDirectory(path.dirname(absolutePath), { recursive: true });
   yield* fs.writeFileString(absolutePath, serialized);
@@ -1066,8 +1058,7 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
     MutableHashSet.add(excludePaths, toPosixPath(excludePath));
   }
 
-  const entries = yield* service.inspectProject(
-    decodeProjectInspectionRequest({
+  const request = yield* decodeProjectInspectionRequest({
       entrypoint: {
         _tag: "tsconfig",
         tsConfigPath: "tsconfig.json",
@@ -1077,7 +1068,9 @@ const scanDualArityInventory = Effect.fn("DualArity.scanDualArityInventory")(fun
       referencePolicy: "workspaceOnly",
       filePaths: A.empty(),
       sourceFileGlobs: A.fromIterable(INCLUDED_GLOBS),
-    }),
+    });
+  const entries = yield* service.inspectProject(
+    request,
     ({ scope, sourceFiles }) => {
       let liveEntries = A.empty<DualArityInventoryEntry>();
 
