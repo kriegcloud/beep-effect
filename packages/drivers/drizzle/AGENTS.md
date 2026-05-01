@@ -10,7 +10,6 @@
 | entry module | Drizzle, DrizzleError | package entry point |
 | Drizzle.errors | DrizzleError | single public technical driver error with optional query context |
 | Drizzle.service | Drizzle, DrizzleClient, DrizzleShape | product-neutral execution Layer |
-| interop | installDrizzleEffectYieldables, native cache/logger/error/query-effect types | exact upstream Drizzle Effect interop |
 
 ## Laws
 - Follow repository laws through command discovery.
@@ -22,12 +21,10 @@
 ## Quick Recipes
 ```ts
 import { Drizzle, DrizzleError } from "@beep/drizzle"
-import { installDrizzleEffectYieldables } from "@beep/drizzle/interop"
 ```
 
 ## Verifications
 - `bunx turbo run test --filter=@beep/drizzle`
-- `bunx turbo run test:integration --filter=@beep/drizzle`
 - `bunx turbo run docgen --filter=@beep/drizzle`
 - `bunx turbo run lint --filter=@beep/drizzle`
 - `bunx turbo run check --filter=@beep/drizzle`

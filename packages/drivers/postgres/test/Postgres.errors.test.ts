@@ -5,12 +5,15 @@ import {
   formatSql,
   getPgErrorAliases,
   getPgErrorName,
+  migrate,
   PgErrorCanonicalNameByCode,
   PostgresClient,
   type PostgresClientValue,
+  type PostgresDrizzleDatabase,
   PostgresError,
+  PostgresErrorContext,
 } from "@beep/postgres";
-import { loadNativePgDrizzle, loadNativePgDrizzleMigrator, NativePgClient } from "@beep/postgres/interop";
+import { NativePgClient } from "@beep/postgres/interop";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Cause, Effect } from "effect";
 import * as A from "effect/Array";
@@ -86,10 +89,14 @@ describe("PostgresError", () => {
       severity: "ERROR",
       table: "users",
     };
-    const error = PostgresError.fromUnknown("query", cause, {
-      query: "select * from users where email = $1",
-      params: ["a@example.com"],
-    });
+    const error = PostgresError.fromUnknown(
+      "query",
+      cause,
+      new PostgresErrorContext({
+        query: "select * from users where email = $1",
+        params: ["a@example.com"],
+      })
+    );
 
     expect(error._tag).toBe("PostgresError");
     expect(error.operation).toBe("query");
@@ -115,6 +122,16 @@ describe("PostgresError", () => {
 
     expect(O.getOrThrow(diagnostics.query)).toBe("select 1 where id = $1");
     expect(O.getOrThrow(diagnostics.params)).toEqual(["1"]);
+  });
+
+  it("constructs schema-owned diagnostic context", () => {
+    const context = new PostgresErrorContext({
+      query: "select 1",
+      sqlStateName: "UNIQUE_VIOLATION",
+    });
+
+    expect(context.query).toBe("select 1");
+    expect(context.sqlStateName).toBe("UNIQUE_VIOLATION");
   });
 
   it("keeps fallback Drizzle message params opaque when they contain commas", () => {
@@ -419,11 +436,23 @@ describe("Postgres formatting", () => {
 });
 
 describe("Postgres interop", () => {
-  it("keeps native Drizzle imports lazy at module load", () => {
+  it("exports native PgClient interop", () => {
     expect(NativePgClient.PgClient).toBeDefined();
-    expect(loadNativePgDrizzle).toBeDefined();
-    expect(loadNativePgDrizzleMigrator).toBeDefined();
   });
+});
+
+describe("Postgres Drizzle migrations", () => {
+  it.effect("normalizes synchronous native migrator setup failures", () =>
+    Effect.gen(function* () {
+      const error = yield* migrate({} as PostgresDrizzleDatabase, {
+        migrationsFolder: "/tmp/beep-effect2-postgres-missing-migrations-folder/child",
+      }).pipe(Effect.flip);
+
+      expect(error).toBeInstanceOf(PostgresError);
+      expect(error.operation).toBe("migrate");
+      expect(O.getOrThrow(error.message)).toContain("ENOENT");
+    })
+  );
 });
 
 describe("Postgres client", () => {

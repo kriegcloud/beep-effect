@@ -1,7 +1,15 @@
-import { Drizzle, type DrizzleClient, DrizzleError, type DrizzleRows, type DrizzleShape } from "@beep/drizzle";
-import { installDrizzleEffectYieldables, type QueryEffectHKTBase } from "@beep/drizzle/interop";
+import {
+  Drizzle,
+  type DrizzleClient,
+  DrizzleError,
+  DrizzleErrorContext,
+  DrizzleRows,
+  type DrizzleRows as DrizzleRowsType,
+  type DrizzleShape,
+} from "@beep/drizzle";
 import type { Effect, Layer } from "effect";
 import * as O from "effect/Option";
+import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";
 
 declare const client: DrizzleClient;
@@ -12,8 +20,10 @@ describe("@beep/drizzle", () => {
     expect(
       new DrizzleError({ operation: "execute", cause: O.none(), query: O.none(), params: O.none() })
     ).type.toBe<DrizzleError>();
+    expect(new DrizzleErrorContext({ query: "select 1", params: [] })).type.toBe<DrizzleErrorContext>();
     expect(DrizzleError.fromUnknown("execute")).type.toBe<DrizzleError>();
     expect(DrizzleError.fromUnknown("execute", new Error("boom"))).type.toBe<DrizzleError>();
+    expect(DrizzleError.fromUnknown("execute", new Error("boom"), new DrizzleErrorContext())).type.toBe<DrizzleError>();
     expect<DrizzleError["_tag"]>().type.toBe<"DrizzleError">();
     expect<DrizzleError["operation"]>().type.toBe<string>();
     expect<DrizzleError["cause"]>().type.toBe<O.Option<unknown>>();
@@ -28,20 +38,12 @@ describe("@beep/drizzle", () => {
   });
 
   it("exports the product-neutral service and adapter types", () => {
+    expect(S.decodeUnknownSync(DrizzleRows)([])).type.toBe<DrizzleRowsType>();
+    expect<typeof DrizzleRows.Type>().type.toBe<DrizzleRowsType>();
     expect(Drizzle.makeLayer(client)).type.toBe<Layer.Layer<Drizzle>>();
-    expect(service.execute("select 1", [])).type.toBe<Effect.Effect<DrizzleRows, DrizzleError>>();
+    expect(service.execute("select 1", [])).type.toBe<Effect.Effect<DrizzleRowsType, DrizzleError>>();
     expect(service.withTransaction((transaction) => transaction.execute("select 1", []))).type.toBe<
-      Effect.Effect<DrizzleRows, DrizzleError>
+      Effect.Effect<DrizzleRowsType, DrizzleError>
     >();
-  });
-
-  it("exports native Drizzle interop types", () => {
-    class QueryBase {
-      prototype!: object;
-    }
-
-    expect(installDrizzleEffectYieldables).type.toBe<(baseClass: { readonly prototype: object }) => void>();
-    expect<QueryEffectHKTBase["$brand"]>().type.toBe<"QueryEffectHKT">();
-    installDrizzleEffectYieldables(QueryBase);
   });
 });

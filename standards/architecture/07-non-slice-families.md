@@ -30,6 +30,35 @@ That is exactly the ambiguity the architecture is trying to remove.
 When translating legacy `common`, default to `foundation`. Route to `shared/*`
 or the owning slice instead when the code carries durable product semantics.
 
+## Specific Homes Before Capability
+
+`foundation/capability` is the last generic destination, not the default home
+for reusable technical code.
+
+Route in this order:
+
+1. Product semantics go to the owning slice or `shared/*`.
+2. External engines, SDKs, services, frameworks, and browser platform wrappers
+   go to `drivers`.
+3. Repo operations, generators, policy packs, and automation go to `tooling`.
+4. Product-agnostic UI primitives, themes, tokens, hooks, and composition
+   helpers go to `foundation/ui-system`.
+5. Only remaining repo-owned, domain-agnostic technical services may go to
+   `foundation/capability`.
+
+`foundation/capability` must pass a negative gate plus proof:
+
+- no product semantics
+- no external-engine, third-party SDK, service, framework, or browser platform
+  wrapping
+- no repo-operational/tooling purpose
+- no UI primitive, design-system role, or React ergonomics layer
+- multiple real consumers or an explicit platform-capability rationale
+
+Reusable shape alone is not proof. A `Context.Service` or Layer can belong in
+the owning slice, `drivers`, `tooling`, or `foundation/ui-system` depending on
+what it wraps and who owns the meaning.
+
 ## The Family And Kind Grammar
 
 The canonical non-slice families are:
@@ -113,6 +142,20 @@ This keeps the mental model clean:
 `ui-system` is a side branch of foundation. It may depend on
 `foundation/primitive` and `foundation/modeling`, but it does not depend on
 `foundation/capability` by default.
+
+Browser/runtime helpers follow platform-first routing:
+
+- low-level browser platform wrappers belong in `drivers` and expose their
+  browser-safe surface through `@beep/<driver>/browser`
+- thin product-agnostic React hooks or components belong in
+  `foundation/ui-system`
+- product-specific browser state and behavior belong in slice `client` or `ui`
+- rare runtime-neutral technical services may belong in
+  `foundation/capability` only after the capability gate
+
+Driver package roots are not browser-safe by default. Foundation package roots
+must be runtime-neutral or browser-safe by contract; environment-specific
+foundation surfaces need explicit environment entrypoints.
 
 ## Why Tooling Uses A Small Kind Catalog
 

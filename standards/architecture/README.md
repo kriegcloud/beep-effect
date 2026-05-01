@@ -18,9 +18,13 @@ repo keeps domain experiments modular, composable, and reusable.
 
 ## Transition Note
 
-This packet stays target-only. Use the routing table below to translate current
-repo names while migrating; do not treat legacy roots, package-root exports, or
-`./*` wildcard exports as the normative target shape.
+This packet stays target-only. Start with
+[`ARCHITECTURE.md#how-to-use-this-standard`](../ARCHITECTURE.md#how-to-use-this-standard)
+for the task-routing quick start, then use this packet for rationale.
+
+Use the routing table below to translate current repo names while migrating; do
+not treat legacy roots, package-root exports, or `./*` wildcard exports as the
+normative target shape.
 
 | Current label | Route to target |
 |---|---|
@@ -40,6 +44,12 @@ Legacy names such as `common`, `core`, `utils`, and `lib` should be treated the
 same way: compatibility leftovers to be routed into `foundation`, `shared/*`,
 `drivers`, or a concrete slice rather than preserved as target-era package
 roots.
+
+The binding standard separates migration state into five buckets: `Target
+Doctrine`, `Transitional Compatibility`, `Cleanup-On-Touch`, `Forbidden In New
+Work`, and `Pending Automation/Generator Support`. Cleanup-on-touch is scoped
+to the boundary being edited; it is not a default instruction to sweep whole
+package families.
 
 ## Document Index
 

@@ -30,7 +30,6 @@ import { PostgresClient, PostgresError, formatSql, makeDrizzle } from "@beep/pos
 
 ## Verifications
 - `bunx turbo run test --filter=@beep/postgres`
-- `bunx turbo run test:integration --filter=@beep/postgres`
 - `bunx turbo run lint --filter=@beep/postgres`
 - `bunx turbo run check --filter=@beep/postgres`
 - `bunx turbo run docgen --filter=@beep/postgres`

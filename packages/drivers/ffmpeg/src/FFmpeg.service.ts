@@ -117,42 +117,105 @@ export interface FFmpegShape {
   readonly probeVideo: (request: ProbeVideoRequest) => Effect.Effect<VideoProbe, FFmpegError>;
 }
 
-type ProcessResult = {
-  readonly exitCode: number;
-  readonly stderr: string;
-  readonly stdout: string;
-};
+class ProcessResult extends S.Class<ProcessResult>($I`ProcessResult`)(
+  {
+    exitCode: S.Number,
+    stderr: S.String,
+    stdout: S.String,
+  },
+  $I.annote("ProcessResult", {
+    description: "Result of a process execution.",
+  })
+) {}
 
-type ExtractContext = {
-  readonly expectedFrameCount: number;
-  readonly fpsText: string;
-  readonly manifestPath: string;
-  readonly outDir: string;
-  readonly padding: number;
-  readonly prefix: string;
-  readonly probe: VideoProbe;
-  readonly request: ExtractFramesRequest;
-  readonly videoPath: string;
-};
+class ExtractContext extends S.Class<ExtractContext>($I`ExtractContext`)(
+  {
+    expectedFrameCount: S.Number,
+    fpsText: S.String,
+    manifestPath: S.String,
+    outDir: S.String,
+    padding: S.Number,
+    prefix: S.String,
+    probe: VideoProbe,
+    request: ExtractFramesRequest,
+    videoPath: S.String,
+  },
+  $I.annote("ExtractContext", {
+    description: "Context for extracting frames from a video.",
+  })
+) {}
 
-type TempFrame = {
-  readonly index: number;
-  readonly path: string;
-};
+class TempFrame extends S.Class<TempFrame>($I`TempFrame`)(
+  {
+    index: S.Number,
+    path: S.String,
+  },
+  $I.annote("TempFrame", {
+    description: "Temporary frame information.",
+  })
+) {}
 
-type PlannedFrameCommit = {
-  readonly fileName: string;
-  readonly index: number;
-  readonly relativePath: string;
-  readonly sourcePath: string;
-  readonly targetPath: string;
-};
+/**
+ * Planned file-system move for a staged extracted frame.
+ *
+ * @example
+ * ```ts
+ * import { PlannedFrameCommit } from "@beep/ffmpeg"
+ *
+ * const commit = new PlannedFrameCommit({
+ *   fileName: "frame-000001.png",
+ *   index: 1,
+ *   relativePath: "frame-000001.png",
+ *   sourcePath: "/tmp/ffmpeg/frame-000001.png",
+ *   targetPath: "./frames/frame-000001.png"
+ * })
+ * void commit
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PlannedFrameCommit extends S.Class<PlannedFrameCommit>($I`PlannedFrameCommit`)(
+  {
+    fileName: S.String,
+    index: S.Number,
+    relativePath: S.String,
+    sourcePath: S.String,
+    targetPath: S.String,
+  },
+  $I.annote("PlannedFrameCommit", {
+    description: "Planned frame commit information.",
+  })
+) {}
 
-type ProgressState = {
-  readonly block: Readonly<Record<string, string>>;
-  readonly buffer: string;
-  readonly stdout: string;
-};
+/**
+ * Buffered ffmpeg progress output accumulated while parsing progress blocks.
+ *
+ * @example
+ * ```ts
+ * import { ProgressState } from "@beep/ffmpeg"
+ *
+ * const state = new ProgressState({
+ *   block: { frame: "1", progress: "continue" },
+ *   buffer: "",
+ *   stdout: "frame=1\nprogress=continue\n"
+ * })
+ * void state
+ * ```
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ProgressState extends S.Class<ProgressState>($I`ProgressState`)(
+  {
+    block: S.Record(S.String, S.String),
+    buffer: S.String,
+    stdout: S.String,
+  },
+  $I.annote("ProgressState", {
+    description: "Progress state information during frame extraction.",
+  })
+) {}
 
 const defaultConfig = (input?: FFmpegConfigInput | undefined): FFmpegConfig =>
   new FFmpegConfig({

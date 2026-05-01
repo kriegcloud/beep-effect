@@ -47,16 +47,35 @@ const existingFfmpegError = (cause: unknown): O.Option<FFmpegError> =>
 /**
  * Options used when normalizing unknown FFmpeg boundary failures.
  *
- * @since 0.0.0
+ * @example
+ * ```ts
+ * import { FFmpegErrorFromUnknownOptions } from "@beep/ffmpeg"
+ *
+ * const options = new FFmpegErrorFromUnknownOptions({
+ *   command: "ffmpeg",
+ *   exitCode: 1,
+ *   stderr: "invalid input"
+ * })
+ * void options
+ * ```
+ *
  * @category errors
+ * @since 0.0.0
  */
-export interface FFmpegErrorFromUnknownOptions {
-  readonly cause?: unknown;
-  readonly command?: string;
-  readonly exitCode?: number;
-  readonly stderr?: string;
-  readonly stdout?: string;
-}
+export class FFmpegErrorFromUnknownOptions extends S.Class<FFmpegErrorFromUnknownOptions>(
+  $I`FFmpegErrorFromUnknownOptions`
+)(
+  {
+    cause: S.optionalKey(S.DefectWithStack),
+    command: S.optionalKey(S.String),
+    exitCode: S.optionalKey(S.Number),
+    stderr: S.optionalKey(S.String),
+    stdout: S.optionalKey(S.String),
+  },
+  $I.annote("FFmpegErrorFromUnknownOptions", {
+    description: "Options used when normalizing unknown FFmpeg boundary failures.",
+  })
+) {}
 
 /**
  * Technical failure raised by the `@beep/ffmpeg` driver boundary.

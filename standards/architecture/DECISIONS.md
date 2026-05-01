@@ -21,7 +21,8 @@ leaking inward.
 
 Decision:
 
-`generated shared-kernel package family` is cross-cutting shared kernel language, not a dumping ground.
+The `shared` package family is cross-cutting shared-kernel language, not a
+dumping ground.
 
 Rationale:
 
@@ -497,3 +498,52 @@ repositories in server packages.
 If this entity metadata kernel becomes useful without shared product semantics,
 extract the generic portion into foundation/modeling with tests proving the
 shared-domain exports remain product-language wrappers.
+
+## 2026-05-01: Add Enforcement Lanes And Rough-Edge Refinements
+
+Decision:
+
+The architecture standard now classifies high-risk rules with four enforcement
+lanes:
+
+- `Doctrine`
+- `Generated Default`
+- `Review Gate`
+- `Hard Check`
+
+This is a docs-only refinement. It does not implement generators, lint rules,
+import-boundary checks, package metadata checks, or code migrations.
+
+The refinement also locks the following doctrine:
+
+- `foundation/capability` remains canonical but must pass specific-home-first
+  routing plus a negative gate and proof.
+- Meaningful high-bar `shared/*` exports require promotion records in the
+  affected package README.
+- `shared/use-cases` remains strict contract-only and does not own workflows,
+  process managers, schedulers, handlers, concrete adapters, driver imports, or
+  live Layers.
+- New slices grow by incremental spine. New packages require a concrete role
+  plus meaningful exported behavior, contract, adapter, config surface, or test
+  fixture.
+- App-level Layer composition may use app-local helpers such as
+  `apps/<app>/src/runtime/Layer.ts`, but only for composition over public
+  slice/package boundaries.
+- The God Layer rejection test is Boundary + Ownership: app/runtime composition
+  must not reach into private slice internals or own cross-slice policy,
+  handlers, repositories, schedules, workflows, or orchestration.
+- Migration language uses five buckets: `Target Doctrine`, `Transitional
+  Compatibility`, `Cleanup-On-Touch`, `Forbidden In New Work`, and `Pending
+  Automation/Generator Support`.
+- Browser capability routing is platform-first: browser platform wrappers go to
+  drivers with explicit `/browser` entrypoints, product-agnostic React
+  ergonomics go to `foundation/ui-system`, and product-specific behavior stays
+  in slice `client` or `ui`.
+
+Rationale:
+
+The architecture had strong direction but several social constraints were too
+soft: "high bar", "avoid God Layers", target-first migration, and
+`foundation/capability` all needed operational tests. The refinement preserves
+the target doctrine while naming what belongs in future generators, future hard
+checks, and present-day review gates.

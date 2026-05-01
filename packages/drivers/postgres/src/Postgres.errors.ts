@@ -11,28 +11,52 @@ import { Cause, pipe, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
-import { getPgErrorName, type PgErrorName } from "./Postgres.sqlstate.ts";
+import { getPgErrorName, PgErrorName } from "./Postgres.sqlstate.ts";
 
 const $I = $PostgresId.create("Postgres.errors");
 
-type ErrorContext = {
-  readonly columnName?: string | undefined;
-  readonly constraintName?: string | undefined;
-  readonly detail?: string | undefined;
-  readonly hint?: string | undefined;
-  readonly message?: string | undefined;
-  readonly params?: ReadonlyArray<unknown> | undefined;
-  readonly query?: string | undefined;
-  readonly schemaName?: string | undefined;
-  readonly severity?: string | undefined;
-  readonly sourceLocation?: string | undefined;
-  readonly sqlState?: string | undefined;
-  readonly sqlStateName?: PgErrorName | undefined;
-  readonly tableName?: string | undefined;
-  readonly where?: string | undefined;
-};
+/**
+ * Optional diagnostic context captured while normalizing Postgres-adjacent failures.
+ *
+ * @example
+ * ```ts
+ * import { PostgresErrorContext } from "@beep/postgres"
+ *
+ * const context = new PostgresErrorContext({
+ *   query: "select 1",
+ *   sqlStateName: "UNIQUE_VIOLATION"
+ * })
+ *
+ * void context
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class PostgresErrorContext extends S.Class<PostgresErrorContext>($I`PostgresErrorContext`)(
+  {
+    columnName: S.optionalKey(S.String),
+    constraintName: S.optionalKey(S.String),
+    detail: S.optionalKey(S.String),
+    hint: S.optionalKey(S.String),
+    message: S.optionalKey(S.String),
+    params: S.optionalKey(S.Unknown.pipe(S.Array)),
+    query: S.optionalKey(S.String),
+    schemaName: S.optionalKey(S.String),
+    severity: S.optionalKey(S.String),
+    sourceLocation: S.optionalKey(S.String),
+    sqlState: S.optionalKey(S.String),
+    sqlStateName: S.optionalKey(PgErrorName),
+    tableName: S.optionalKey(S.String),
+    where: S.optionalKey(S.String),
+  },
+  $I.annote("PostgresErrorContext", {
+    description: "Optional diagnostic context captured while normalizing Postgres-adjacent failures.",
+  })
+) {}
 
 const readProperty = <A>(value: object, key: string, guard: (candidate: unknown) => candidate is A): O.Option<A> =>
   pipe(
@@ -165,7 +189,15 @@ const extractPgLikeError = (value: unknown, seen: ReadonlyArray<object> = []): O
   );
 };
 
-const parseDrizzleMessage = (value: unknown): ErrorContext => {
+const makeQueryContext = (
+  query: string | undefined,
+  params: ReadonlyArray<unknown> | undefined
+): Pick<PostgresErrorContext, "params" | "query"> => ({
+  ...R.getSomes({ query: O.fromUndefinedOr(query) }),
+  ...R.getSomes({ params: O.fromUndefinedOr(params) }),
+});
+
+const parseDrizzleMessage = (value: unknown): PostgresErrorContext => {
   const message = O.getOrUndefined(getErrorMessage(value));
   const match = message?.match(/^Failed query:\s*(.+?)(?:\nparams:\s*(.*))?$/s);
 
@@ -174,16 +206,16 @@ const parseDrizzleMessage = (value: unknown): ErrorContext => {
   }
 
   const paramsText = match[2]?.trim();
-  return {
-    query: match[1]?.trim(),
-    params: paramsText === undefined || paramsText.length === 0 ? undefined : A.of(paramsText),
-  };
+  return makeQueryContext(
+    match[1]?.trim(),
+    paramsText === undefined || paramsText.length === 0 ? undefined : A.of(paramsText)
+  );
 };
 
 const extractDrizzleQueryContext = (
   value: unknown,
   seen: ReadonlyArray<object> = []
-): Pick<ErrorContext, "params" | "query"> => {
+): Pick<PostgresErrorContext, "params" | "query"> => {
   if (!isObject(value) || hasSeen(seen, value)) {
     return parseDrizzleMessage(value);
   }
@@ -205,10 +237,7 @@ const extractDrizzleQueryContext = (
 
   const tag = O.getOrUndefined(readUnknown(value, "_tag"));
   if (tag === "EffectDrizzleQueryError") {
-    return {
-      query: O.getOrUndefined(readString(value, "query")),
-      params: O.getOrUndefined(readArray(value, "params")),
-    };
+    return makeQueryContext(O.getOrUndefined(readString(value, "query")), O.getOrUndefined(readArray(value, "params")));
   }
 
   const messageContext = parseDrizzleMessage(value);
@@ -299,7 +328,11 @@ export class PostgresError extends TaggedErrorClass<PostgresError>($I`PostgresEr
    * @category errors
    * @since 0.0.0
    */
-  static readonly fromUnknown = (operation: string, cause?: unknown, context: ErrorContext = {}): PostgresError => {
+  static readonly fromUnknown = (
+    operation: string,
+    cause?: unknown,
+    context: PostgresErrorContext = {}
+  ): PostgresError => {
     const existingError = O.getOrUndefined(extractPostgresError(cause));
     if (existingError !== undefined) {
       return existingError;
