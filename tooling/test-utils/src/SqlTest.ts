@@ -11,7 +11,7 @@ import * as NodeFileSystem from "@effect/platform-node/NodeFileSystem";
 import * as NodePath from "@effect/platform-node/NodePath";
 import type * as PgClient from "@effect/sql-pg/PgClient";
 import { SqliteClient as NodeSqliteClient } from "@effect/sql-sqlite-node";
-import { Context, Duration, Effect, FileSystem, Layer, Path, pipe, Random, Redacted } from "effect";
+import { Context, Duration, Effect, FileSystem, Layer, Path, pipe, Random, Redacted, Schedule } from "effect";
 import * as O from "effect/Option";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
@@ -547,6 +547,8 @@ const loadPgClientModule = (driver: Extract<typeof TestDatabaseDriver.Type, "pgl
       toHarnessError(driver, "provision", "Failed to load PostgreSQL client support for SQL tests.", cause),
   }).pipe(Effect.withSpan(`SqlTest.${driver}.loadPgClient`));
 
+const PgConnectRetryPolicy = Schedule.both(Schedule.spaced(Duration.millis(250)), Schedule.recurs(20));
+
 const decodePgliteTestcontainersTestDriverConfig = S.decodeUnknownEffect(PgliteTestcontainersTestDriverConfig);
 const decodePgExternalTestDriverConfig = S.decodeUnknownEffect(PgExternalTestDriverConfig);
 
@@ -794,6 +796,7 @@ const buildPgliteTestcontainersLayer = Effect.fn("SqlTest.PgliteTestcontainersTe
           ssl: false,
           username: resource.config.username,
         }).pipe(
+          Effect.retry(PgConnectRetryPolicy),
           Effect.mapError((cause) =>
             toHarnessError(
               "pglite-testcontainers",
@@ -836,6 +839,7 @@ const buildPgExternalLayer = Effect.fn("SqlTest.PgExternalTestDriver.build")(
           ssl: config.ssl,
           url: Redacted.make(config.connectionUri),
         }).pipe(
+          Effect.retry(PgConnectRetryPolicy),
           Effect.provideService(Reactivity.Reactivity, reactivity),
           Effect.mapError((cause) =>
             toHarnessError(

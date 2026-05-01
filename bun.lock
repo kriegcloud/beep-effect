@@ -160,258 +160,8 @@
         "effect": "catalog:",
       },
       "devDependencies": {
-        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
-      },
-    },
-    "packages/common/chalk": {
-      "name": "@beep/chalk",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/test-utils": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/colors": {
-      "name": "@beep/colors",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/data": {
-      "name": "@beep/data",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/identity": {
-      "name": "@beep/identity",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "type-fest": "catalog:",
-      },
-    },
-    "packages/common/md": {
-      "name": "@beep/md",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/messages": {
-      "name": "@beep/messages",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-        "i18next": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/nlp": {
-      "name": "@beep/nlp",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-        "wink-eng-lite-web-model": "catalog:",
-        "wink-nlp": "catalog:",
-        "wink-nlp-utils": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/bun": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/observability": {
-      "name": "@beep/observability",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/colors": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@effect/opentelemetry": "catalog:",
-        "@opentelemetry/exporter-logs-otlp-http": "0.215.0",
-        "@opentelemetry/exporter-metrics-otlp-http": "0.215.0",
-        "@opentelemetry/exporter-trace-otlp-http": "0.215.0",
-        "@opentelemetry/resources": "^2.6.1",
-        "@opentelemetry/sdk-logs": "^0.211.0",
-        "@opentelemetry/sdk-metrics": "^2.5.0",
-        "@opentelemetry/sdk-trace-base": "^2.5.0",
-        "@opentelemetry/sdk-trace-node": "^2.2.0",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/schema": {
-      "name": "@beep/schema",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/data": "workspace:^",
-        "@beep/identity": "workspace:^",
-        "@beep/messages": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "@noble/hashes": "catalog:",
-        "@scure/base": "catalog:",
-        "effect": "catalog:",
-        "fast-xml-parser": "catalog:",
-        "jsonc-parser": "catalog:",
-        "micromark": "catalog:",
-        "micromark-extension-gfm": "catalog:",
-        "uuid": "catalog:",
-        "yaml": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/semantic-web": {
-      "name": "@beep/semantic-web",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-        "jsonld": "catalog:",
-        "jsonld-streaming-parser": "catalog:",
-        "jsonld-streaming-serializer": "catalog:",
-        "rdf-canonize": "catalog:",
-        "shacl-engine": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/types": {
-      "name": "@beep/types",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/ui": {
-      "name": "@beep/ui",
-      "version": "0.0.0",
-      "dependencies": {
-        "@base-ui/react": "catalog:",
-        "@effect/atom-react": "catalog:",
-        "@emotion/cache": "catalog:",
-        "@emotion/react": "catalog:",
-        "@emotion/styled": "catalog:",
-        "@lexical/react": "catalog:",
-        "@lexical/rich-text": "catalog:",
-        "@mui/material": "catalog:",
-        "@mui/material-pigment-css": "catalog:",
-        "@mui/x-charts": "catalog:",
-        "@mui/x-data-grid": "catalog:",
-        "@mui/x-date-pickers": "catalog:",
-        "@mui/x-date-pickers-pro": "catalog:",
-        "@mui/x-tree-view": "catalog:",
-        "@phosphor-icons/react": "catalog:",
-        "@pigment-css/react": "catalog:",
-        "@react-three/drei": "catalog:",
-        "@react-three/fiber": "catalog:",
-        "@tailwindcss/typography": "catalog:",
-        "ai": "catalog:",
-        "class-variance-authority": "catalog:",
-        "clsx": "catalog:",
-        "d3": "catalog:",
-        "lexical": "catalog:",
-        "react-day-picker": "catalog:",
-        "react-resizable-panels": "catalog:",
-        "tailwind-merge": "catalog:",
-        "tailwindcss-jun-layout": "catalog:",
-        "tw-animate-css": "catalog:",
-        "use-stick-to-bottom": "catalog:",
-      },
-      "devDependencies": {
-        "@storybook/addon-a11y": "catalog:",
-        "@storybook/addon-docs": "catalog:",
-        "@storybook/addon-themes": "catalog:",
-        "@storybook/addon-vitest": "catalog:",
-        "@storybook/react-vite": "catalog:",
-        "@tailwindcss/postcss": "catalog:",
-        "@types/d3": "catalog:",
-        "@types/react": "catalog:",
-        "@types/react-dom": "catalog:",
-        "@vitest/browser": "catalog:",
-        "@vitest/browser-playwright": "catalog:",
-        "playwright": "catalog:",
-        "shadcn": "catalog:",
-        "storybook": "catalog:",
-        "tailwindcss": "catalog:",
-        "tw-animate-css": "catalog:",
-      },
-      "peerDependencies": {
-        "react": "^19",
-        "react-dom": "^19",
-      },
-    },
-    "packages/common/utils": {
-      "name": "@beep/utils",
-      "version": "0.0.0",
-      "dependencies": {
-        "@effect/platform-node-shared": "catalog:",
-        "effect": "catalog:",
-        "picomatch": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-        "@types/picomatch": "catalog:",
-        "type-fest": "catalog:",
       },
     },
     "packages/drivers/drizzle": {
@@ -424,6 +174,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -455,6 +206,7 @@
         "sql-formatter": "catalog:",
       },
       "devDependencies": {
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -553,6 +305,255 @@
       "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/chalk": {
+      "name": "@beep/chalk",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/colors": {
+      "name": "@beep/colors",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/md": {
+      "name": "@beep/md",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/nlp": {
+      "name": "@beep/nlp",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "effect": "catalog:",
+        "wink-eng-lite-web-model": "catalog:",
+        "wink-nlp": "catalog:",
+        "wink-nlp-utils": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/bun": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/observability": {
+      "name": "@beep/observability",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/colors": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@effect/opentelemetry": "catalog:",
+        "@opentelemetry/exporter-logs-otlp-http": "0.215.0",
+        "@opentelemetry/exporter-metrics-otlp-http": "0.215.0",
+        "@opentelemetry/exporter-trace-otlp-http": "0.215.0",
+        "@opentelemetry/resources": "^2.6.1",
+        "@opentelemetry/sdk-logs": "^0.211.0",
+        "@opentelemetry/sdk-metrics": "^2.5.0",
+        "@opentelemetry/sdk-trace-base": "^2.5.0",
+        "@opentelemetry/sdk-trace-node": "^2.2.0",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/semantic-web": {
+      "name": "@beep/semantic-web",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+        "jsonld": "catalog:",
+        "jsonld-streaming-parser": "catalog:",
+        "jsonld-streaming-serializer": "catalog:",
+        "rdf-canonize": "catalog:",
+        "shacl-engine": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/identity": {
+      "name": "@beep/identity",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "type-fest": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/messages": {
+      "name": "@beep/messages",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+        "i18next": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/schema": {
+      "name": "@beep/schema",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/data": "workspace:^",
+        "@beep/identity": "workspace:^",
+        "@beep/messages": "workspace:^",
+        "@beep/utils": "workspace:^",
+        "@noble/hashes": "catalog:",
+        "@scure/base": "catalog:",
+        "effect": "catalog:",
+        "fast-xml-parser": "catalog:",
+        "jsonc-parser": "catalog:",
+        "micromark": "catalog:",
+        "micromark-extension-gfm": "catalog:",
+        "uuid": "catalog:",
+        "yaml": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/utils": {
+      "name": "@beep/utils",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@effect/platform-node-shared": "catalog:",
+        "effect": "catalog:",
+        "picomatch": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+        "@types/picomatch": "catalog:",
+        "type-fest": "catalog:",
+      },
+    },
+    "packages/foundation/primitive/data": {
+      "name": "@beep/data",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/primitive/types": {
+      "name": "@beep/types",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/ui-system/ui": {
+      "name": "@beep/ui",
+      "version": "0.0.0",
+      "dependencies": {
+        "@base-ui/react": "catalog:",
+        "@effect/atom-react": "catalog:",
+        "@emotion/cache": "catalog:",
+        "@emotion/react": "catalog:",
+        "@emotion/styled": "catalog:",
+        "@lexical/react": "catalog:",
+        "@lexical/rich-text": "catalog:",
+        "@mui/material": "catalog:",
+        "@mui/material-pigment-css": "catalog:",
+        "@mui/x-charts": "catalog:",
+        "@mui/x-data-grid": "catalog:",
+        "@mui/x-date-pickers": "catalog:",
+        "@mui/x-date-pickers-pro": "catalog:",
+        "@mui/x-tree-view": "catalog:",
+        "@phosphor-icons/react": "catalog:",
+        "@pigment-css/react": "catalog:",
+        "@react-three/drei": "catalog:",
+        "@react-three/fiber": "catalog:",
+        "@tailwindcss/typography": "catalog:",
+        "ai": "catalog:",
+        "class-variance-authority": "catalog:",
+        "clsx": "catalog:",
+        "d3": "catalog:",
+        "lexical": "catalog:",
+        "react-day-picker": "catalog:",
+        "react-resizable-panels": "catalog:",
+        "tailwind-merge": "catalog:",
+        "tailwindcss-jun-layout": "catalog:",
+        "tw-animate-css": "catalog:",
+        "use-stick-to-bottom": "catalog:",
+      },
+      "devDependencies": {
+        "@storybook/addon-a11y": "catalog:",
+        "@storybook/addon-docs": "catalog:",
+        "@storybook/addon-themes": "catalog:",
+        "@storybook/addon-vitest": "catalog:",
+        "@storybook/react-vite": "catalog:",
+        "@tailwindcss/postcss": "catalog:",
+        "@types/d3": "catalog:",
+        "@types/react": "catalog:",
+        "@types/react-dom": "catalog:",
+        "@vitest/browser": "catalog:",
+        "@vitest/browser-playwright": "catalog:",
+        "playwright": "catalog:",
+        "shadcn": "catalog:",
+        "storybook": "catalog:",
+        "tailwindcss": "catalog:",
+        "tw-animate-css": "catalog:",
+      },
+      "peerDependencies": {
+        "react": "^19",
+        "react-dom": "^19",
       },
     },
     "packages/shared/client": {
@@ -1267,7 +1268,7 @@
 
     "@bcoe/v8-coverage": ["@bcoe/v8-coverage@1.0.2", "", {}, "sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA=="],
 
-    "@beep/chalk": ["@beep/chalk@workspace:packages/common/chalk"],
+    "@beep/chalk": ["@beep/chalk@workspace:packages/foundation/capability/chalk"],
 
     "@beep/claude": ["@beep/claude@workspace:.claude"],
 
@@ -1275,9 +1276,9 @@
 
     "@beep/codex": ["@beep/codex@workspace:.codex"],
 
-    "@beep/colors": ["@beep/colors@workspace:packages/common/colors"],
+    "@beep/colors": ["@beep/colors@workspace:packages/foundation/capability/colors"],
 
-    "@beep/data": ["@beep/data@workspace:packages/common/data"],
+    "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
 
     "@beep/db-admin": ["@beep/db-admin@workspace:packages/_internal/db-admin"],
 
@@ -1301,17 +1302,17 @@
 
     "@beep/fixture-lab-specimen-use-cases": ["@beep/fixture-lab-specimen-use-cases@workspace:packages/fixture-lab/specimen/use-cases"],
 
-    "@beep/identity": ["@beep/identity@workspace:packages/common/identity"],
+    "@beep/identity": ["@beep/identity@workspace:packages/foundation/modeling/identity"],
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
 
-    "@beep/md": ["@beep/md@workspace:packages/common/md"],
+    "@beep/md": ["@beep/md@workspace:packages/foundation/capability/md"],
 
-    "@beep/messages": ["@beep/messages@workspace:packages/common/messages"],
+    "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
 
-    "@beep/nlp": ["@beep/nlp@workspace:packages/common/nlp"],
+    "@beep/nlp": ["@beep/nlp@workspace:packages/foundation/capability/nlp"],
 
-    "@beep/observability": ["@beep/observability@workspace:packages/common/observability"],
+    "@beep/observability": ["@beep/observability@workspace:packages/foundation/capability/observability"],
 
     "@beep/postgres": ["@beep/postgres@workspace:packages/drivers/postgres"],
 
@@ -1323,9 +1324,9 @@
 
     "@beep/repo-utils": ["@beep/repo-utils@workspace:tooling/repo-utils"],
 
-    "@beep/schema": ["@beep/schema@workspace:packages/common/schema"],
+    "@beep/schema": ["@beep/schema@workspace:packages/foundation/modeling/schema"],
 
-    "@beep/semantic-web": ["@beep/semantic-web@workspace:packages/common/semantic-web"],
+    "@beep/semantic-web": ["@beep/semantic-web@workspace:packages/foundation/capability/semantic-web"],
 
     "@beep/shared-client": ["@beep/shared-client@workspace:packages/shared/client"],
 
@@ -1343,11 +1344,11 @@
 
     "@beep/test-utils": ["@beep/test-utils@workspace:tooling/test-utils"],
 
-    "@beep/types": ["@beep/types@workspace:packages/common/types"],
+    "@beep/types": ["@beep/types@workspace:packages/foundation/primitive/types"],
 
-    "@beep/ui": ["@beep/ui@workspace:packages/common/ui"],
+    "@beep/ui": ["@beep/ui@workspace:packages/foundation/ui-system/ui"],
 
-    "@beep/utils": ["@beep/utils@workspace:packages/common/utils"],
+    "@beep/utils": ["@beep/utils@workspace:packages/foundation/modeling/utils"],
 
     "@bergos/jsonparse": ["@bergos/jsonparse@1.4.2", "", { "dependencies": { "buffer": "^6.0.3" } }, "sha512-qUt0QNJjvg4s1zk+AuLM6s/zcsQ8MvGn7+1f0vPuxvpCYa08YtTryuDInngbEyW5fNGGYe2znKt61RMGd5HnXg=="],
 

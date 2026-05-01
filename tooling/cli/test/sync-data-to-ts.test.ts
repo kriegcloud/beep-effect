@@ -12,8 +12,8 @@ import { describe, expect, it } from "vitest";
 
 const runSyncDataToTsCommand = Command.runWith(syncDataToTsCommand, { version: "0.0.0" });
 const CommandTestLayer = Layer.mergeAll(NodeServices.layer, TestConsole.layer);
-const generatedOutputPath = "packages/common/data/src/generated/iso4217.ts" as const;
-const csvGeneratedOutputPath = "packages/common/data/src/generated/test-csv.ts" as const;
+const generatedOutputPath = "packages/foundation/primitive/data/src/generated/iso4217.ts" as const;
+const csvGeneratedOutputPath = "packages/foundation/primitive/data/src/generated/test-csv.ts" as const;
 const csvFixtureSourceUrl = "https://example.com/test.csv" as const;
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
 
@@ -211,7 +211,7 @@ describe("sync-data-to-ts", () => {
             expect(content).toContain(`"United States Of America (The)"`);
             expect(content).not.toContain("No universal currency");
             expect(logs).toContain(
-              "sync-data-to-ts: updated iso4217 -> packages/common/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
+              "sync-data-to-ts: updated iso4217 -> packages/foundation/primitive/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
             );
             expect(process.exitCode ?? 0).toBe(0);
           })
@@ -232,7 +232,7 @@ describe("sync-data-to-ts", () => {
 
             expect(exists).toBe(false);
             expect(logs).toContain(
-              "sync-data-to-ts: would update iso4217 -> packages/common/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
+              "sync-data-to-ts: would update iso4217 -> packages/foundation/primitive/data/src/generated/iso4217.ts (3 currency entries published 2026-01-01)"
             );
             expect(process.exitCode ?? 0).toBe(0);
           })

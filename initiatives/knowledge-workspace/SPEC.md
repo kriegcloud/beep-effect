@@ -53,16 +53,16 @@ Eleven architectural questions were resolved during spec development. These deci
 |-------|----------|--------------|
 | wiki_link extraction | `packages/editor/domain/src/Canonical.ts:389` | `extractBlockLinks` regex, `PageLinkRef`, `withDerivedOutboundLinks` |
 | Lexical editor | `packages/editor/lexical/src/EditorSurface.tsx` | 4 node types currently (Heading, Paragraph, Quote, Text) |
-| Cytoscape styles | `packages/common/ui/.../codegraph/styles/graph-styles.tsx` | 948 lines, 17 node types, 9 edge types, performance variants |
-| D3 knowledge graph | `packages/common/ui/src/components/knowledge-graph.tsx` | Existing force-directed SVG graph |
-| PROV model | `packages/common/semantic-web/src/prov.ts` | 782 lines, 19 PROV record variants, `ProvBundle` |
+| Cytoscape styles | `packages/foundation/ui-system/ui/.../codegraph/styles/graph-styles.tsx` | 948 lines, 17 node types, 9 edge types, performance variants |
+| D3 knowledge graph | `packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx` | Existing force-directed SVG graph |
+| PROV model | `packages/foundation/capability/semantic-web/src/prov.ts` | 782 lines, 19 PROV record variants, `ProvBundle` |
 | EventJournal pattern | `packages/repo-memory/runtime/src/internal/RepoRunEventLog.ts` | `EventJournal` + Reactivity + monotonic sequences |
 | Desktop app | `apps/desktop/src/RepoMemoryDesktop.tsx` | 1831-line monolith to decompose |
-| UI primitives | `packages/common/ui/src/components/` | resizable, sidebar, command, hover-card, breadcrumb |
+| UI primitives | `packages/foundation/ui-system/ui/src/components/` | resizable, sidebar, command, hover-card, breadcrumb |
 | Event sourcing primitives | `.repos/effect-v4/packages/effect/src/unstable/eventlog/` | `EventLog`, `EventJournal`, `EventGroup`, `Event`, `SqlEventJournal` |
 | Atom + Reactivity | `.repos/effect-v4/packages/effect/src/unstable/reactivity/` | `Atom`, `Reactivity`, `AtomRegistry`, `AtomRef`, `AsyncResult` |
 | Model.Class | `.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts` | Multi-variant domain model schemas |
-| LiteralKit | `packages/common/schema/src/LiteralKit.ts` | Schema-backed literal toolkit with `Enum`, `is`, `$match`, `toTaggedUnion` |
+| LiteralKit | `packages/foundation/modeling/schema/src/LiteralKit.ts` | Schema-backed literal toolkit with `Enum`, `is`, `$match`, `toTaggedUnion` |
 | Atom reactivity specialist | `.agents/skills/atom-reactivity-specialist/` | Frontend state skill (Phase 0 deliverable) |
 | Schema model specialist | `.agents/skills/schema-model-specialist/` | Schema modeling skill (Phase 0 deliverable) |
 | EventLog graph specialist | `.agents/skills/eventlog-graph-specialist/` | EventLog + graph skill (Phase 0 deliverable) |

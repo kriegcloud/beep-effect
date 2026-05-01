@@ -37,13 +37,21 @@
       "@beep/fixture-lab-specimen-domain/entities/Specimen": [
         "../../../../packages/fixture-lab/specimen/domain/src/entities/Specimen/index.ts"
       ],
-      "@beep/identity": ["../../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../../packages/common/identity/src/*.ts"],
-      "@beep/identity/packages": [
-        "../../../../packages/common/identity/src/packages.ts"
+      "@beep/identity": [
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],
-      "@beep/schema": ["../../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../../packages/common/schema/src/*.ts"]
+      "@beep/identity/*": [
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
+      ]
     }
   },
   "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/fixture-lab/specimen/domain/src/"

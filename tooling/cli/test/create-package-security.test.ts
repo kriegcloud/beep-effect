@@ -45,7 +45,7 @@ const writeRootConfigFiles = Effect.fn(function* (rootDir: string) {
     path.join(rootDir, "tsconfig.packages.json"),
     `{
   "references": [
-    { "path": "packages/common/identity" }
+    { "path": "packages/foundation/modeling/identity" }
   ]
 }
 `
@@ -55,8 +55,8 @@ const writeRootConfigFiles = Effect.fn(function* (rootDir: string) {
     `{
   "compilerOptions": {
     "paths": {
-      "@beep/identity": ["./packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["./packages/common/identity/src/*"]
+      "@beep/identity": ["./packages/foundation/modeling/identity/src/index.ts"],
+      "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"]
     }
   }
 }
@@ -66,7 +66,7 @@ const writeRootConfigFiles = Effect.fn(function* (rootDir: string) {
     path.join(rootDir, "tstyche.json"),
     `{
   "testFileMatch": [
-    "packages/common/identity/dtslint/**/*.tst.*"
+    "packages/foundation/modeling/identity/dtslint/**/*.tst.*"
   ]
 }
 `
@@ -84,14 +84,14 @@ describe("create-package security", () => {
 
           yield* writeRootConfigFiles(tmpDir);
 
-          const changed = yield* updateTsconfigPackages(tmpDir, "packages/common/identity");
+          const changed = yield* updateTsconfigPackages(tmpDir, "packages/foundation/modeling/identity");
           const parsed = jsonc.parse(yield* fs.readFileString(filePath), undefined, {
             allowTrailingComma: true,
             disallowComments: false,
           });
 
           expect(changed).toBe(false);
-          expect(parsed.references).toEqual([{ path: "packages/common/identity" }]);
+          expect(parsed.references).toEqual([{ path: "packages/foundation/modeling/identity" }]);
         })
       ).pipe(Effect.provide(testLayer))
     );
@@ -107,7 +107,7 @@ describe("create-package security", () => {
             tmpDir,
             new ConfigUpdateTarget({
               packageName: "identity",
-              packagePath: "packages/common/identity",
+              packagePath: "packages/foundation/modeling/identity",
             })
           );
 

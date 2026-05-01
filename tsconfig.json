@@ -56,42 +56,54 @@
       "@beep/repo-cli/*": ["./tooling/cli/src/*"],
       "@beep/repo-utils": ["./tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["./tooling/repo-utils/src/*"],
-      "@beep/types": ["./packages/common/types/src/index.ts"],
-      "@beep/types/*": ["./packages/common/types/src/*"],
-      "@beep/utils": ["./packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["./packages/common/utils/src/*"],
-      "@beep/identity": ["./packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["./packages/common/identity/src/*"],
-      "@beep/schema": ["./packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["./packages/common/schema/src/*"],
-      "@beep/messages": ["./packages/common/messages/src/index.ts"],
-      "@beep/messages/*": ["./packages/common/messages/src/*"],
-      "@beep/data": ["./packages/common/data/src/index.ts"],
-      "@beep/data/*": ["./packages/common/data/src/*"],
-      "@beep/ui": ["./packages/common/ui/src/index.ts"],
-      "@beep/ui/*": ["./packages/common/ui/src/*"],
+      "@beep/types": ["./packages/foundation/primitive/types/src/index.ts"],
+      "@beep/types/*": ["./packages/foundation/primitive/types/src/*"],
+      "@beep/utils": ["./packages/foundation/modeling/utils/src/index.ts"],
+      "@beep/utils/*": ["./packages/foundation/modeling/utils/src/*"],
+      "@beep/identity": [
+        "./packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": ["./packages/foundation/modeling/identity/src/*"],
+      "@beep/schema": ["./packages/foundation/modeling/schema/src/index.ts"],
+      "@beep/schema/*": ["./packages/foundation/modeling/schema/src/*"],
+      "@beep/messages": [
+        "./packages/foundation/modeling/messages/src/index.ts"
+      ],
+      "@beep/messages/*": ["./packages/foundation/modeling/messages/src/*"],
+      "@beep/data": ["./packages/foundation/primitive/data/src/index.ts"],
+      "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
+      "@beep/ui": ["./packages/foundation/ui-system/ui/src/index.ts"],
+      "@beep/ui/*": ["./packages/foundation/ui-system/ui/src/*"],
       "@beep/repo-configs": ["./tooling/configs/src/index.ts"],
       "@beep/repo-configs/*": ["./tooling/configs/src/*"],
       "@beep/test-utils": ["./tooling/test-utils/src/index.ts"],
       "@beep/test-utils/*": ["./tooling/test-utils/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
       "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
-      "@beep/semantic-web": ["./packages/common/semantic-web/src/index.ts"],
-      "@beep/semantic-web/*": ["./packages/common/semantic-web/src/*"],
-      "@beep/nlp": ["./packages/common/nlp/src/index.ts"],
-      "@beep/nlp/*": ["./packages/common/nlp/src/*"],
-      "@beep/observability": ["./packages/common/observability/src/index.ts"],
-      "@beep/observability/*": ["./packages/common/observability/src/*"],
-      "@beep/colors": ["./packages/common/colors/src/index.ts"],
-      "@beep/colors/*": ["./packages/common/colors/src/*"],
-      "@beep/chalk": ["./packages/common/chalk/src/index.ts"],
-      "@beep/chalk/*": ["./packages/common/chalk/src/*"],
+      "@beep/semantic-web": [
+        "./packages/foundation/capability/semantic-web/src/index.ts"
+      ],
+      "@beep/semantic-web/*": [
+        "./packages/foundation/capability/semantic-web/src/*"
+      ],
+      "@beep/nlp": ["./packages/foundation/capability/nlp/src/index.ts"],
+      "@beep/nlp/*": ["./packages/foundation/capability/nlp/src/*"],
+      "@beep/observability": [
+        "./packages/foundation/capability/observability/src/index.ts"
+      ],
+      "@beep/observability/*": [
+        "./packages/foundation/capability/observability/src/*"
+      ],
+      "@beep/colors": ["./packages/foundation/capability/colors/src/index.ts"],
+      "@beep/colors/*": ["./packages/foundation/capability/colors/src/*"],
+      "@beep/chalk": ["./packages/foundation/capability/chalk/src/index.ts"],
+      "@beep/chalk/*": ["./packages/foundation/capability/chalk/src/*"],
       "@beep/docgen": ["./tooling/docgen/src/index.ts"],
       "@beep/docgen/*": ["./tooling/docgen/src/*"],
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/infra/*": ["./infra/src/*"],
-      "@beep/md": ["./packages/common/md/src/index.ts"],
-      "@beep/md/*": ["./packages/common/md/src/*"],
+      "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
+      "@beep/md/*": ["./packages/foundation/capability/md/src/*"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
       "@beep/codedank-web/*": ["./apps/codedank-web/src/*"],
       "@beep/docgen/schema.json": ["./tooling/docgen/schema.json"],
@@ -179,29 +191,51 @@
       "@beep/fixture-lab-specimen-use-cases/test": [
         "./packages/fixture-lab/specimen/use-cases/src/test.ts"
       ],
-      "@beep/identity/packages": ["./packages/common/identity/src/packages.ts"],
-      "@beep/md/Md": ["./packages/common/md/src/Md.ts"],
-      "@beep/md/Md.model": ["./packages/common/md/src/Md.model.ts"],
-      "@beep/md/Md.render": ["./packages/common/md/src/Md.render.ts"],
-      "@beep/md/Md.utils": ["./packages/common/md/src/Md.utils.ts"],
-      "@beep/nlp/Core": ["./packages/common/nlp/src/Core/index.ts"],
-      "@beep/nlp/IdentifierText": [
-        "./packages/common/nlp/src/IdentifierText.ts"
+      "@beep/identity/packages": [
+        "./packages/foundation/modeling/identity/src/packages.ts"
       ],
-      "@beep/nlp/Layers": ["./packages/common/nlp/src/Layers/index.ts"],
-      "@beep/nlp/PathText": ["./packages/common/nlp/src/PathText.ts"],
-      "@beep/nlp/QueryText": ["./packages/common/nlp/src/QueryText.ts"],
-      "@beep/nlp/Tools": ["./packages/common/nlp/src/Tools/index.ts"],
-      "@beep/nlp/VariantText": ["./packages/common/nlp/src/VariantText.ts"],
-      "@beep/nlp/Wink": ["./packages/common/nlp/src/Wink/index.ts"],
+      "@beep/md/Md": ["./packages/foundation/capability/md/src/Md.ts"],
+      "@beep/md/Md.model": [
+        "./packages/foundation/capability/md/src/Md.model.ts"
+      ],
+      "@beep/md/Md.render": [
+        "./packages/foundation/capability/md/src/Md.render.ts"
+      ],
+      "@beep/md/Md.utils": [
+        "./packages/foundation/capability/md/src/Md.utils.ts"
+      ],
+      "@beep/nlp/Core": [
+        "./packages/foundation/capability/nlp/src/Core/index.ts"
+      ],
+      "@beep/nlp/IdentifierText": [
+        "./packages/foundation/capability/nlp/src/IdentifierText.ts"
+      ],
+      "@beep/nlp/Layers": [
+        "./packages/foundation/capability/nlp/src/Layers/index.ts"
+      ],
+      "@beep/nlp/PathText": [
+        "./packages/foundation/capability/nlp/src/PathText.ts"
+      ],
+      "@beep/nlp/QueryText": [
+        "./packages/foundation/capability/nlp/src/QueryText.ts"
+      ],
+      "@beep/nlp/Tools": [
+        "./packages/foundation/capability/nlp/src/Tools/index.ts"
+      ],
+      "@beep/nlp/VariantText": [
+        "./packages/foundation/capability/nlp/src/VariantText.ts"
+      ],
+      "@beep/nlp/Wink": [
+        "./packages/foundation/capability/nlp/src/Wink/index.ts"
+      ],
       "@beep/observability/experimental/server": [
-        "./packages/common/observability/src/experimental/server/index.ts"
+        "./packages/foundation/capability/observability/src/experimental/server/index.ts"
       ],
       "@beep/observability/server": [
-        "./packages/common/observability/src/server/index.ts"
+        "./packages/foundation/capability/observability/src/server/index.ts"
       ],
       "@beep/observability/web": [
-        "./packages/common/observability/src/web/index.ts"
+        "./packages/foundation/capability/observability/src/web/index.ts"
       ],
       "@beep/shared-domain": ["./packages/shared/domain/src/index.ts"],
       "@beep/shared-domain/*": ["./packages/shared/domain/src/*"],
@@ -218,39 +252,29 @@
       "@beep/shared-ui": ["./packages/shared/ui/src/index.ts"],
       "@beep/shared-ui/*": ["./packages/shared/ui/src/*"],
       "@beep/ui/components/blocks/editor-00/editor": [
-        "./packages/common/ui/src/components/blocks/editor-00/editor.tsx"
+        "./packages/foundation/ui-system/ui/src/components/blocks/editor-00/editor.tsx"
       ],
       "@beep/ui/components/editor/editor-ui/content-editable": [
-        "./packages/common/ui/src/components/editor/editor-ui/content-editable.tsx"
+        "./packages/foundation/ui-system/ui/src/components/editor/editor-ui/content-editable.tsx"
       ],
       "@beep/ui/components/editor/themes/editor-theme": [
-        "./packages/common/ui/src/components/editor/themes/editor-theme.ts"
+        "./packages/foundation/ui-system/ui/src/components/editor/themes/editor-theme.ts"
       ],
-      "@beep/ui/postcss.config": ["./packages/common/ui/postcss.config.mjs"],
+      "@beep/ui/postcss.config": [
+        "./packages/foundation/ui-system/ui/postcss.config.mjs"
+      ],
       "@beep/ui/styles/globals.css": [
-        "./packages/common/ui/src/styles/globals.css"
+        "./packages/foundation/ui-system/ui/src/styles/globals.css"
       ],
       "@beep/ui/themes": [
-        "./packages/common/ui/src/themes/index.ts"
+        "./packages/foundation/ui-system/ui/src/themes/index.ts"
       ],
-      "@beep/drizzle": [
-        "./packages/drivers/drizzle/src/index.ts"
-      ],
-      "@beep/drizzle/*": [
-        "./packages/drivers/drizzle/src/*"
-      ],
-      "@beep/ffmpeg": [
-        "./packages/drivers/ffmpeg/src/index.ts"
-      ],
-      "@beep/ffmpeg/*": [
-        "./packages/drivers/ffmpeg/src/*"
-      ],
-      "@beep/postgres": [
-        "./packages/drivers/postgres/src/index.ts"
-      ],
-      "@beep/postgres/*": [
-        "./packages/drivers/postgres/src/*"
-      ]
+      "@beep/drizzle": ["./packages/drivers/drizzle/src/index.ts"],
+      "@beep/drizzle/*": ["./packages/drivers/drizzle/src/*"],
+      "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
+      "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
+      "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
+      "@beep/postgres/*": ["./packages/drivers/postgres/src/*"]
     }
   }
 }

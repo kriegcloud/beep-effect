@@ -97,7 +97,7 @@ describe("native runtime laws", () => {
         Effect.gen(function* () {
           yield* writeTsconfig;
           yield* writeProjectFile(
-            "packages/common/chalk/src/internal/ChalkRuntime.ts",
+            "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
             "export const cache = new WeakMap<object, string>();\n"
           );
 

@@ -32,21 +32,29 @@
       "@beep/docgen": ["../../tooling/docgen/src/index.ts"],
       "@beep/docgen/*": ["../../tooling/docgen/src/*.ts"],
       "@beep/docgen/schema.json": ["../../tooling/docgen/schema.json"],
-      "@beep/chalk": ["../../packages/common/chalk/src/index.ts"],
-      "@beep/chalk/*": ["../../packages/common/chalk/src/*.ts"],
-      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/chalk": [
+        "../../packages/foundation/capability/chalk/src/index.ts"
+      ],
+      "@beep/chalk/*": ["../../packages/foundation/capability/chalk/src/*.ts"],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
       "@beep/identity/packages": [
-        "../../packages/common/identity/src/packages.ts"
+        "../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],
-      "@beep/schema": ["../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../packages/common/schema/src/*.ts"],
-      "@beep/types": ["../../packages/common/types/src/index.ts"],
-      "@beep/types/*": ["../../packages/common/types/src/*.ts"],
-      "@beep/utils": ["../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*.ts"]
+      "@beep/schema": [
+        "../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
+      "@beep/types": ["../../packages/foundation/primitive/types/src/index.ts"],
+      "@beep/types/*": ["../../packages/foundation/primitive/types/src/*.ts"],
+      "@beep/utils": ["../../packages/foundation/modeling/utils/src/index.ts"],
+      "@beep/utils/*": ["../../packages/foundation/modeling/utils/src/*.ts"]
     }
   }
 }

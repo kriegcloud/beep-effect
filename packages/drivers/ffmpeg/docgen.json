@@ -31,13 +31,21 @@
     "paths": {
       "@beep/ffmpeg": ["../../../packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["../../../packages/drivers/ffmpeg/src/*.ts"],
-      "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
-      "@beep/identity/packages": [
-        "../../../packages/common/identity/src/packages.ts"
+      "@beep/identity": [
+        "../../../packages/foundation/modeling/identity/src/index.ts"
       ],
-      "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
+      "@beep/identity/*": [
+        "../../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/schema": [
+        "../../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": [
+        "../../../packages/foundation/modeling/schema/src/*.ts"
+      ]
     }
   }
 }

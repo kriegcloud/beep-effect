@@ -19,45 +19,6 @@
       "path": "packages/_internal/db-admin"
     },
     {
-      "path": "packages/common/chalk"
-    },
-    {
-      "path": "packages/common/colors"
-    },
-    {
-      "path": "packages/common/data"
-    },
-    {
-      "path": "packages/common/identity"
-    },
-    {
-      "path": "packages/common/md"
-    },
-    {
-      "path": "packages/common/messages"
-    },
-    {
-      "path": "packages/common/nlp"
-    },
-    {
-      "path": "packages/common/observability"
-    },
-    {
-      "path": "packages/common/schema"
-    },
-    {
-      "path": "packages/common/semantic-web"
-    },
-    {
-      "path": "packages/common/types"
-    },
-    {
-      "path": "packages/common/ui"
-    },
-    {
-      "path": "packages/common/utils"
-    },
-    {
       "path": "packages/drivers/drizzle"
     },
     {
@@ -86,6 +47,45 @@
     },
     {
       "path": "packages/fixture-lab/specimen/use-cases"
+    },
+    {
+      "path": "packages/foundation/capability/chalk"
+    },
+    {
+      "path": "packages/foundation/capability/colors"
+    },
+    {
+      "path": "packages/foundation/capability/md"
+    },
+    {
+      "path": "packages/foundation/capability/nlp"
+    },
+    {
+      "path": "packages/foundation/capability/observability"
+    },
+    {
+      "path": "packages/foundation/capability/semantic-web"
+    },
+    {
+      "path": "packages/foundation/modeling/identity"
+    },
+    {
+      "path": "packages/foundation/modeling/messages"
+    },
+    {
+      "path": "packages/foundation/modeling/schema"
+    },
+    {
+      "path": "packages/foundation/modeling/utils"
+    },
+    {
+      "path": "packages/foundation/primitive/data"
+    },
+    {
+      "path": "packages/foundation/primitive/types"
+    },
+    {
+      "path": "packages/foundation/ui-system/ui"
     },
     {
       "path": "packages/shared/client"

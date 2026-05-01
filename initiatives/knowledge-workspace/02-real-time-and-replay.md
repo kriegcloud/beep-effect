@@ -555,7 +555,7 @@ When the user is in replay mode and clicks an event marker in the timeline:
 Entry: NodeCreated (IMPORTS)
   Actor:      indexer:repo-memory
   Source:     packages/auth/src/Login.tsx:14
-  Target:     packages/common/ui/src/Button.tsx
+  Target:     packages/foundation/ui-system/ui/src/Button.tsx
   Certainty:  1.0 (deterministic)
   Provenance:
     |-- Activity: ts-morph AST parse

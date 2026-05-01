@@ -41,13 +41,13 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 | Order | Package | Path | Status | Modules | Exports | Open Modules | Open Exports |
 |---:|---|---|---|---:|---:|---:|---:|
-| 1 | `@beep/types` | `packages/common/types` | needs-remediation | 5 | 10 | 0 | 3 |
-| 2 | `@beep/utils` | `packages/common/utils` | needs-remediation | 20 | 129 | 2 | 35 |
-| 3 | `@beep/identity` | `packages/common/identity` | needs-remediation | 3 | 70 | 0 | 10 |
-| 4 | `@beep/data` | `packages/common/data` | clean | 7 | 39 | 0 | 0 |
-| 5 | `@beep/messages` | `packages/common/messages` | needs-remediation | 2 | 6 | 0 | 1 |
-| 6 | `@beep/schema` | `packages/common/schema` | needs-remediation | 130 | 1212 | 7 | 1117 |
-| 7 | `@beep/chalk` | `packages/common/chalk` | clean | 1 | 35 | 0 | 0 |
+| 1 | `@beep/types` | `packages/foundation/primitive/types` | needs-remediation | 5 | 10 | 0 | 3 |
+| 2 | `@beep/utils` | `packages/foundation/modeling/utils` | needs-remediation | 20 | 129 | 2 | 35 |
+| 3 | `@beep/identity` | `packages/foundation/modeling/identity` | needs-remediation | 3 | 70 | 0 | 10 |
+| 4 | `@beep/data` | `packages/foundation/primitive/data` | clean | 7 | 39 | 0 | 0 |
+| 5 | `@beep/messages` | `packages/foundation/modeling/messages` | needs-remediation | 2 | 6 | 0 | 1 |
+| 6 | `@beep/schema` | `packages/foundation/modeling/schema` | needs-remediation | 130 | 1212 | 7 | 1117 |
+| 7 | `@beep/chalk` | `packages/foundation/capability/chalk` | clean | 1 | 35 | 0 | 0 |
 | 8 | `@beep/repo-utils` | `tooling/repo-utils` | needs-remediation | 58 | 613 | 4 | 191 |
 | 9 | `@beep/fixture-lab-specimen-domain` | `packages/fixture-lab/specimen/domain` | needs-remediation | 2 | 5 | 0 | 1 |
 | 10 | `@beep/docgen` | `tooling/docgen` | needs-remediation | 8 | 66 | 0 | 21 |
@@ -56,9 +56,9 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 13 | `@beep/fixture-lab-specimen-config` | `packages/fixture-lab/specimen/config` | needs-remediation | 6 | 15 | 0 | 9 |
 | 14 | `@beep/fixture-lab-specimen-use-cases` | `packages/fixture-lab/specimen/use-cases` | needs-remediation | 5 | 7 | 0 | 1 |
 | 15 | `@beep/shared-domain` | `packages/shared/domain` | needs-remediation | 20 | 171 | 0 | 98 |
-| 16 | `@beep/ui` | `packages/common/ui` | needs-remediation | 118 | 506 | 109 | 506 |
+| 16 | `@beep/ui` | `packages/foundation/ui-system/ui` | needs-remediation | 118 | 506 | 109 | 506 |
 | 17 | `@beep/repo-cli` | `tooling/cli` | needs-remediation | 60 | 285 | 0 | 201 |
-| 18 | `@beep/colors` | `packages/common/colors` | clean | 1 | 9 | 0 | 0 |
+| 18 | `@beep/colors` | `packages/foundation/capability/colors` | clean | 1 | 9 | 0 | 0 |
 | 19 | `@beep/root` | `.` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 20 | `@beep/fixture-lab-specimen-tables` | `packages/fixture-lab/specimen/tables` | clean | 2 | 6 | 0 | 0 |
 | 21 | `@beep/db-admin` | `packages/_internal/db-admin` | clean | 1 | 1 | 0 | 0 |
@@ -68,17 +68,17 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 | 25 | `@beep/shared-use-cases` | `packages/shared/use-cases` | clean | 1 | 1 | 0 | 0 |
 | 26 | `@beep/fixture-lab-specimen-server` | `packages/fixture-lab/specimen/server` | clean | 3 | 5 | 0 | 0 |
 | 27 | `@beep/shared-tables` | `packages/shared/tables` | needs-remediation | 6 | 12 | 0 | 9 |
-| 28 | `@beep/md` | `packages/common/md` | clean | 5 | 131 | 0 | 0 |
-| 29 | `@beep/semantic-web` | `packages/common/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
+| 28 | `@beep/md` | `packages/foundation/capability/md` | clean | 5 | 131 | 0 | 0 |
+| 29 | `@beep/semantic-web` | `packages/foundation/capability/semantic-web` | needs-remediation | 29 | 256 | 0 | 9 |
 | 30 | `@beep/drizzle` | `packages/drivers/drizzle` | needs-remediation | 3 | 7 | 0 | 2 |
 | 31 | `@beep/codex` | `.codex` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 32 | `@beep/fixture-lab-specimen-ui` | `packages/fixture-lab/specimen/ui` | needs-remediation | 1 | 2 | 0 | 1 |
-| 33 | `@beep/nlp` | `packages/common/nlp` | needs-remediation | 49 | 278 | 0 | 203 |
+| 33 | `@beep/nlp` | `packages/foundation/capability/nlp` | needs-remediation | 49 | 278 | 0 | 203 |
 | 34 | `@beep/infra` | `infra` | clean | 1 | 1 | 0 | 0 |
 | 35 | `@beep/codedank-web` | `apps/codedank-web` | needs-remediation | 5 | 6 | 0 | 5 |
 | 36 | `@beep/fixture-lab-specimen-client` | `packages/fixture-lab/specimen/client` | needs-remediation | 3 | 15 | 0 | 11 |
 | 37 | `@beep/repo-checks` | `tooling/repo-checks` | no-public-src-surface | 0 | 0 | 0 | 0 |
-| 38 | `@beep/observability` | `packages/common/observability` | needs-remediation | 23 | 131 | 3 | 33 |
+| 38 | `@beep/observability` | `packages/foundation/capability/observability` | needs-remediation | 23 | 131 | 3 | 33 |
 | 39 | `@beep/shared-client` | `packages/shared/client` | clean | 1 | 1 | 0 | 0 |
 | 40 | `@beep/claude` | `.claude` | no-public-src-surface | 0 | 0 | 0 | 0 |
 | 41 | `@beep/shared-ui` | `packages/shared/ui` | needs-remediation | 4 | 7 | 0 | 3 |
@@ -87,7 +87,7 @@ The package universe is the current `bun run topo-sort` output. This inventory c
 
 ### @beep/types
 
-Path: `packages/common/types`
+Path: `packages/foundation/primitive/types`
 
 Export findings:
 - `src/TArray.types.ts:29` `Elem` (type) - forbidden @template; 1 unsafe example violation(s)
@@ -96,7 +96,7 @@ Export findings:
 
 ### @beep/utils
 
-Path: `packages/common/utils`
+Path: `packages/foundation/modeling/utils`
 
 Module findings:
 - `src/Predicate.ts:1` (packageDocumentation) - missing summary
@@ -141,7 +141,7 @@ Export findings:
 
 ### @beep/identity
 
-Path: `packages/common/identity`
+Path: `packages/foundation/modeling/identity`
 
 Export findings:
 - `src/Id.ts:87` `IdentityInterpolationError` (class) - 1 schema annotation/type-alias gap(s)
@@ -157,14 +157,14 @@ Export findings:
 
 ### @beep/messages
 
-Path: `packages/common/messages`
+Path: `packages/foundation/modeling/messages`
 
 Export findings:
 - `src/i18n.ts:195` `logIssues` (const) - missing @example
 
 ### @beep/schema
 
-Path: `packages/common/schema`
+Path: `packages/foundation/modeling/schema`
 
 Module findings:
 - `src/Sql/Constants.ts:1` (jsdoc) - missing summary; 1 category casing violation(s)
@@ -1891,7 +1891,7 @@ Export findings:
 
 ### @beep/ui
 
-Path: `packages/common/ui`
+Path: `packages/foundation/ui-system/ui`
 
 Module findings:
 - `src/components/accordion.tsx:1` (none) - missing summary; missing @since
@@ -2877,7 +2877,7 @@ Export findings:
 
 ### @beep/semantic-web
 
-Path: `packages/common/semantic-web`
+Path: `packages/foundation/capability/semantic-web`
 
 Export findings:
 - `src/index.ts:29` `export * from "./iri.ts";` (re-export) - missing @example
@@ -2907,7 +2907,7 @@ Export findings:
 
 ### @beep/nlp
 
-Path: `packages/common/nlp`
+Path: `packages/foundation/capability/nlp`
 
 Export findings:
 - `src/Core/Document.ts:42` `DocumentId` (const) - resolved
@@ -3144,7 +3144,7 @@ Export findings:
 
 ### @beep/observability
 
-Path: `packages/common/observability`
+Path: `packages/foundation/capability/observability`
 
 Module findings:
 - `src/experimental/server/index.ts:1` (jsdoc) - missing summary

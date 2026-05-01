@@ -16,7 +16,7 @@
   ],
   "entries": [
     {
-      "file": "packages/common/chalk/src/Chalk.browser.ts",
+      "file": "packages/foundation/capability/chalk/src/Chalk.browser.ts",
       "symbol": "ChalkInstance",
       "kind": "exported-interface",
       "status": "exception",
@@ -24,7 +24,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/chalk/src/Chalk.ts",
+      "file": "packages/foundation/capability/chalk/src/Chalk.ts",
       "symbol": "ChalkInstance",
       "kind": "exported-interface",
       "status": "exception",
@@ -32,7 +32,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/identity/src/Id.ts",
+      "file": "packages/foundation/modeling/identity/src/Id.ts",
       "symbol": "IdentityComposer",
       "kind": "exported-interface",
       "status": "exception",
@@ -40,7 +40,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "A",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -48,7 +48,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "BlockQuote",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -56,7 +56,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "Del",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -64,7 +64,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "Document",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -72,7 +72,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "Em",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -80,7 +80,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "H1",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -88,7 +88,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "H2",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -96,7 +96,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "H3",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -104,7 +104,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "H4",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -112,7 +112,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "H5",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -120,7 +120,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "H6",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -128,7 +128,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "Li",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -136,7 +136,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "Ol",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -144,7 +144,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "P",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -152,7 +152,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "Strong",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -160,7 +160,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "TaskItem",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -168,7 +168,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "TaskList",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -176,7 +176,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.model.ts",
+      "file": "packages/foundation/capability/md/src/Md.model.ts",
       "symbol": "Ul",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -184,7 +184,7 @@
       "reason": "Recursive schema-derived alias backs an annotated schema and requires manual modeling to avoid circular type inference."
     },
     {
-      "file": "packages/common/md/src/Md.render.ts",
+      "file": "packages/foundation/capability/md/src/Md.render.ts",
       "symbol": "EffectRenderAdapter",
       "kind": "exported-interface",
       "status": "exception",
@@ -192,7 +192,7 @@
       "reason": "Generic render adapter interface contains function members and stays tracked as a runtime-boundary exception."
     },
     {
-      "file": "packages/common/md/src/Md.render.ts",
+      "file": "packages/foundation/capability/md/src/Md.render.ts",
       "symbol": "PureRenderAdapter",
       "kind": "exported-interface",
       "status": "exception",
@@ -200,7 +200,7 @@
       "reason": "Generic render adapter interface contains function members and stays tracked as a runtime-boundary exception."
     },
     {
-      "file": "packages/common/md/src/Md.ts",
+      "file": "packages/foundation/capability/md/src/Md.ts",
       "symbol": "BlockContentBuilder",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -208,7 +208,7 @@
       "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
     },
     {
-      "file": "packages/common/md/src/Md.ts",
+      "file": "packages/foundation/capability/md/src/Md.ts",
       "symbol": "InlineContentBuilder",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -216,7 +216,7 @@
       "reason": "Generic public constructor overload helper contains function signatures and stays tracked as an API-boundary exception."
     },
     {
-      "file": "packages/common/nlp/src/Tools/ToolExport.ts",
+      "file": "packages/foundation/capability/nlp/src/Tools/ToolExport.ts",
       "symbol": "ExportedTool",
       "kind": "exported-interface",
       "status": "exception",
@@ -224,7 +224,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/nlp/src/Wink/WinkEngine.ts",
+      "file": "packages/foundation/capability/nlp/src/Wink/WinkEngine.ts",
       "symbol": "WinkEngineRuntimeState",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -232,7 +232,7 @@
       "reason": "Type alias contains a live wink runtime handle and stays tracked as a runtime-boundary exception."
     },
     {
-      "file": "packages/common/nlp/src/Wink/WinkVectorizer.ts",
+      "file": "packages/foundation/capability/nlp/src/Wink/WinkVectorizer.ts",
       "symbol": "ScopedVectorizer",
       "kind": "exported-interface",
       "status": "exception",
@@ -240,7 +240,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/schema/src/CauseTaggedError.ts",
+      "file": "packages/foundation/modeling/schema/src/CauseTaggedError.ts",
       "symbol": "CauseTaggedErrorFactory",
       "kind": "exported-interface",
       "status": "exception",
@@ -248,7 +248,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/CauseTaggedError.ts",
+      "file": "packages/foundation/modeling/schema/src/CauseTaggedError.ts",
       "symbol": "isExtras",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -256,7 +256,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Cuid.ts",
+      "file": "packages/foundation/modeling/schema/src/Cuid.ts",
       "symbol": "CuidSeed",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -264,7 +264,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/schema/src/Fn.ts",
+      "file": "packages/foundation/modeling/schema/src/Fn.ts",
       "symbol": "FnSchemaNoArg",
       "kind": "exported-interface",
       "status": "exception",
@@ -272,7 +272,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Fn.ts",
+      "file": "packages/foundation/modeling/schema/src/Fn.ts",
       "symbol": "FnSchemaUnary",
       "kind": "exported-interface",
       "status": "exception",
@@ -280,7 +280,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "DirectedGraph",
       "kind": "exported-interface",
       "status": "exception",
@@ -288,7 +288,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "DirectedGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -296,7 +296,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "Edge",
       "kind": "exported-interface",
       "status": "exception",
@@ -304,7 +304,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "EdgeEncodedSchema",
       "kind": "exported-interface",
       "status": "exception",
@@ -312,7 +312,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "EdgeFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -320,7 +320,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "EdgeTransform",
       "kind": "exported-interface",
       "status": "exception",
@@ -328,7 +328,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "GraphEncodedSchema",
       "kind": "exported-interface",
       "status": "exception",
@@ -336,7 +336,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "GraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -344,7 +344,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "MutableDirectedGraph",
       "kind": "exported-interface",
       "status": "exception",
@@ -352,7 +352,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "MutableDirectedGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -360,7 +360,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "MutableGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -368,7 +368,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "MutableUndirectedGraph",
       "kind": "exported-interface",
       "status": "exception",
@@ -376,7 +376,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "MutableUndirectedGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -384,7 +384,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "UndirectedGraph",
       "kind": "exported-interface",
       "status": "exception",
@@ -392,7 +392,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Graph.ts",
+      "file": "packages/foundation/modeling/schema/src/Graph.ts",
       "symbol": "UndirectedGraphFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -400,7 +400,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/LiteralKit.ts",
+      "file": "packages/foundation/modeling/schema/src/LiteralKit.ts",
       "symbol": "LiteralKit",
       "kind": "exported-interface",
       "status": "exception",
@@ -408,7 +408,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/LiteralKit.ts",
+      "file": "packages/foundation/modeling/schema/src/LiteralKit.ts",
       "symbol": "union",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -416,7 +416,7 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/MappedLiteralKit.ts",
+      "file": "packages/foundation/modeling/schema/src/MappedLiteralKit.ts",
       "symbol": "MappedLiteralKit",
       "kind": "exported-interface",
       "status": "exception",
@@ -424,7 +424,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "BooleanSqlite",
       "kind": "exported-interface",
       "status": "exception",
@@ -432,7 +432,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "Date",
       "kind": "exported-interface",
       "status": "exception",
@@ -440,7 +440,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "DateTimeInsert",
       "kind": "exported-interface",
       "status": "exception",
@@ -448,7 +448,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "DateTimeInsertFromDate",
       "kind": "exported-interface",
       "status": "exception",
@@ -456,7 +456,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "DateTimeInsertFromNumber",
       "kind": "exported-interface",
       "status": "exception",
@@ -464,7 +464,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "DateTimeUpdate",
       "kind": "exported-interface",
       "status": "exception",
@@ -472,7 +472,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "DateTimeUpdateFromDate",
       "kind": "exported-interface",
       "status": "exception",
@@ -480,7 +480,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "DateTimeUpdateFromNumber",
       "kind": "exported-interface",
       "status": "exception",
@@ -488,7 +488,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "FieldOption",
       "kind": "exported-interface",
       "status": "exception",
@@ -496,7 +496,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "Generated",
       "kind": "exported-interface",
       "status": "exception",
@@ -504,7 +504,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "GeneratedByApp",
       "kind": "exported-interface",
       "status": "exception",
@@ -512,7 +512,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "JsonFromString",
       "kind": "exported-interface",
       "status": "exception",
@@ -520,7 +520,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "Overridable",
       "kind": "exported-interface",
       "status": "exception",
@@ -528,7 +528,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "Sensitive",
       "kind": "exported-interface",
       "status": "exception",
@@ -536,7 +536,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "UuidV4Insert",
       "kind": "exported-interface",
       "status": "exception",
@@ -544,7 +544,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Model.ts",
+      "file": "packages/foundation/modeling/schema/src/Model.ts",
       "symbol": "optionalOption",
       "kind": "exported-interface",
       "status": "exception",
@@ -552,7 +552,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/MutableHashMap.ts",
+      "file": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
       "symbol": "MutableHashMap",
       "kind": "exported-interface",
       "status": "exception",
@@ -560,7 +560,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/MutableHashMap.ts",
+      "file": "packages/foundation/modeling/schema/src/MutableHashMap.ts",
       "symbol": "MutableHashMapFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -568,7 +568,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/MutableHashSet.ts",
+      "file": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
       "symbol": "MutableHashSet",
       "kind": "exported-interface",
       "status": "exception",
@@ -576,7 +576,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/MutableHashSet.ts",
+      "file": "packages/foundation/modeling/schema/src/MutableHashSet.ts",
       "symbol": "MutableHashSetFromSelf",
       "kind": "exported-interface",
       "status": "exception",
@@ -584,7 +584,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/SchemaUtils/toEquivalence.ts",
+      "file": "packages/foundation/modeling/schema/src/SchemaUtils/toEquivalence.ts",
       "symbol": "DualEquivalence",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -592,7 +592,7 @@
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Sql/Sql.ts",
+      "file": "packages/foundation/modeling/schema/src/Sql/Sql.ts",
       "symbol": "MakeOptions",
       "kind": "exported-interface",
       "status": "exception",
@@ -600,7 +600,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/Sql/Sql.ts",
+      "file": "packages/foundation/modeling/schema/src/Sql/Sql.ts",
       "symbol": "MakeReturn",
       "kind": "exported-interface",
       "status": "exception",
@@ -608,7 +608,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/StatusCauseTaggedErrorClass.ts",
+      "file": "packages/foundation/modeling/schema/src/StatusCauseTaggedErrorClass.ts",
       "symbol": "StatusCauseTaggedErrorClassFactory",
       "kind": "exported-interface",
       "status": "exception",
@@ -616,7 +616,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/TaggedErrorClass.ts",
+      "file": "packages/foundation/modeling/schema/src/TaggedErrorClass.ts",
       "symbol": "TaggedErrorClassFactory",
       "kind": "exported-interface",
       "status": "exception",
@@ -624,7 +624,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
       "symbol": "Class",
       "kind": "exported-interface",
       "status": "exception",
@@ -632,7 +632,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
       "symbol": "Field",
       "kind": "exported-interface",
       "status": "exception",
@@ -640,7 +640,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
       "symbol": "Overridable",
       "kind": "exported-interface",
       "status": "exception",
@@ -648,7 +648,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
       "symbol": "Struct",
       "kind": "exported-interface",
       "status": "exception",
@@ -656,7 +656,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
       "symbol": "Union",
       "kind": "exported-interface",
       "status": "exception",
@@ -664,7 +664,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/VariantSchema.ts",
+      "file": "packages/foundation/modeling/schema/src/VariantSchema.ts",
       "symbol": "extract",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -672,7 +672,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "packages/common/schema/src/http/headers/Csp.ts",
+      "file": "packages/foundation/modeling/schema/src/http/headers/Csp.ts",
       "symbol": "CspDirectives",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -680,7 +680,7 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "packages/common/semantic-web/src/services/canonicalization.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/canonicalization.ts",
       "symbol": "CanonicalizationServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -688,7 +688,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/semantic-web/src/services/jsonld-context.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/jsonld-context.ts",
       "symbol": "JsonLdContextServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -696,7 +696,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/semantic-web/src/services/jsonld-document.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/jsonld-document.ts",
       "symbol": "JsonLdDocumentServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -704,7 +704,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/semantic-web/src/services/jsonld-stream-parse.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/jsonld-stream-parse.ts",
       "symbol": "JsonLdStreamParseServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -712,7 +712,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/semantic-web/src/services/jsonld-stream-serialize.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/jsonld-stream-serialize.ts",
       "symbol": "JsonLdStreamSerializeServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -720,7 +720,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/semantic-web/src/services/provenance.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/provenance.ts",
       "symbol": "ProvenanceServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -728,7 +728,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/semantic-web/src/services/shacl-validation.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/shacl-validation.ts",
       "symbol": "ShaclValidationServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -736,7 +736,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/semantic-web/src/services/sparql-query.ts",
+      "file": "packages/foundation/capability/semantic-web/src/services/sparql-query.ts",
       "symbol": "SparqlQueryServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -744,7 +744,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/ui/src/components/knowledge-graph.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
       "symbol": "GraphLink",
       "kind": "exported-interface",
       "status": "exception",
@@ -752,7 +752,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/ui/src/components/knowledge-graph.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
       "symbol": "GraphNode",
       "kind": "exported-interface",
       "status": "exception",
@@ -760,7 +760,7 @@
       "reason": "Derived interface with extends clauses is tracked as an exception."
     },
     {
-      "file": "packages/common/ui/src/components/knowledge-graph.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/knowledge-graph.tsx",
       "symbol": "KnowledgeGraphHandle",
       "kind": "exported-interface",
       "status": "exception",
@@ -768,7 +768,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "packages/common/ui/src/components/tour.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/tour.tsx",
       "symbol": "Step",
       "kind": "exported-interface",
       "status": "exception",
@@ -776,7 +776,7 @@
       "reason": "React tour step configuration carries ReactNode values and component prop slices, so it is a render contract rather than a pure schema model."
     },
     {
-      "file": "packages/common/ui/src/components/tour.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/tour.tsx",
       "symbol": "Tour",
       "kind": "exported-interface",
       "status": "exception",
@@ -784,7 +784,7 @@
       "reason": "React tour configuration is coupled to Step render contracts containing ReactNode values, so it stays tracked as a UI boundary exception."
     },
     {
-      "file": "packages/common/utils/src/Event.ts",
+      "file": "packages/foundation/modeling/utils/src/Event.ts",
       "symbol": "makeEventSchema",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -792,7 +792,7 @@
       "reason": "S.Struct with non-identifier or spread keys stays tracked as an exception."
     },
     {
-      "file": "packages/common/utils/src/Glob.ts",
+      "file": "packages/foundation/modeling/utils/src/Glob.ts",
       "symbol": "Glob",
       "kind": "exported-interface",
       "status": "exception",

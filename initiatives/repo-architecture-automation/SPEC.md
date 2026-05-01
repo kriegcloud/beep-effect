@@ -58,7 +58,7 @@ The feature branch removes these active surfaces:
 The lean slate keeps these families unless a later packet changes the target:
 
 - `apps/codedank-web`
-- `packages/common/*`
+- `packages/foundation/*/*`
 - `packages/fixture-lab/specimen/*` as temporary private golden fixture
   workspaces
 - `packages/_internal/*`

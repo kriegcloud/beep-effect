@@ -1179,7 +1179,7 @@ export const resolveDocgenWorkspacePackage: {
     return yield* O.match(match, {
       onNone: () =>
         new DomainError({
-          message: `Could not resolve workspace package "${selector}". Use a package name like "@beep/schema" or a repo-relative path like "packages/common/schema".`,
+          message: `Could not resolve workspace package "${selector}". Use a package name like "@beep/schema" or a repo-relative path like "packages/foundation/modeling/schema".`,
         }),
       onSome: Effect.succeed,
     });

@@ -1,8 +1,8 @@
 import { mkdir } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import * as S from "effect/Schema";
-import { BoundedEvidenceProjection } from "../../../packages/common/semantic-web/src/evidence.ts";
-import { ProvBundle } from "../../../packages/common/semantic-web/src/prov.ts";
+import { BoundedEvidenceProjection } from "../../../packages/foundation/capability/semantic-web/src/evidence.ts";
+import { ProvBundle } from "../../../packages/foundation/capability/semantic-web/src/prov.ts";
 import {
   Dataset,
   makeDataset,
@@ -11,11 +11,11 @@ import {
   makeQuad,
   serializeQuad,
   sortDatasetQuads,
-} from "../../../packages/common/semantic-web/src/rdf.ts";
-import { ShaclNodeShape } from "../../../packages/common/semantic-web/src/services/shacl-validation.ts";
-import { RDF_TYPE } from "../../../packages/common/semantic-web/src/vocab/rdf.ts";
-import { RDFS_COMMENT, RDFS_LABEL } from "../../../packages/common/semantic-web/src/vocab/rdfs.ts";
-import { XSD_BOOLEAN, XSD_STRING } from "../../../packages/common/semantic-web/src/vocab/xsd.ts";
+} from "../../../packages/foundation/capability/semantic-web/src/rdf.ts";
+import { ShaclNodeShape } from "../../../packages/foundation/capability/semantic-web/src/services/shacl-validation.ts";
+import { RDF_TYPE } from "../../../packages/foundation/capability/semantic-web/src/vocab/rdf.ts";
+import { RDFS_COMMENT, RDFS_LABEL } from "../../../packages/foundation/capability/semantic-web/src/vocab/rdfs.ts";
+import { XSD_BOOLEAN, XSD_STRING } from "../../../packages/foundation/capability/semantic-web/src/vocab/xsd.ts";
 
 const generatedAt = new Date().toISOString();
 const createdDate = "2026-04-04";
@@ -69,7 +69,9 @@ const extractLiteralKitValues = (text: string, symbolName: string): Array<string
 };
 
 const extractPickedOptions = (text: string, symbolName: string): Array<string> => {
-  const match = text.match(new RegExp(`const ${symbolName} = TSSyntaxKind\\.pickOptions\\(\\[(.*?)\\]\\s*as const\\)`, "s"));
+  const match = text.match(
+    new RegExp(`const ${symbolName} = TSSyntaxKind\\.pickOptions\\(\\[(.*?)\\]\\s*as const\\)`, "s")
+  );
 
   if (!match) {
     throw new Error(`Unable to find TSSyntaxKind options for ${symbolName}.`);
@@ -687,7 +689,8 @@ const sourceAuthorities = [
     id: "source-authority:repo-symbol-index",
     label: "Repo utils symbol model",
     location: "tooling/repo-utils/src/TSMorph/TSMorph.model.ts",
-    notes: "Primary source for deterministic TypeScript symbol kinds used by repo indexing and documentation grounding.",
+    notes:
+      "Primary source for deterministic TypeScript symbol kinds used by repo indexing and documentation grounding.",
   },
 ] as const;
 

@@ -224,7 +224,7 @@ describe("PackageJson schema", () => {
           url: "git@github.com:kriegcloud/beep-effect.git",
           directory: ".",
         },
-        workspaces: [".claude", "packages/common/*", "tooling/repo-utils"],
+        workspaces: [".claude", "packages/foundation/*/*", "tooling/repo-utils"],
         catalog: {
           effect: "^4.0.0-beta.27",
           typescript: "^5.9.3",
@@ -685,6 +685,37 @@ describe("PackageJson schema", () => {
   "catalog": {
     "effect": "^4.0.0-beta.28",
     "zod": "^4.3.6"
+  }
+}`);
+      })
+    );
+
+    it.effect(
+      "preserves repo-local beep metadata in canonical output",
+      Effect.fn(function* () {
+        const json = yield* encodePackageJsonCanonicalPrettyEffect({
+          name: "@beep/schema",
+          repository: {
+            type: "git",
+            url: "git@github.com:kriegcloud/beep-effect.git",
+            directory: "packages/foundation/modeling/schema",
+          },
+          beep: {
+            family: "foundation",
+            kind: "modeling",
+          },
+        });
+
+        expect(json).toBe(`{
+  "name": "@beep/schema",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:kriegcloud/beep-effect.git",
+    "directory": "packages/foundation/modeling/schema"
+  },
+  "beep": {
+    "family": "foundation",
+    "kind": "modeling"
   }
 }`);
       })

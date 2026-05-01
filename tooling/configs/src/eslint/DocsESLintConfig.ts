@@ -18,21 +18,21 @@ const beepJsdoc = {
   },
 };
 
-// Keep this list aligned with packages/common/ui/tsconfig.json excludes so
+// Keep this list aligned with packages/foundation/ui-system/ui/tsconfig.json excludes so
 // type-aware lint does not parse files the UI project service excludes.
 const uiTsconfigExcludedTypeAwareFiles = [
-  "packages/common/ui/src/components/calendar.tsx",
-  "packages/common/ui/src/components/carousel.tsx",
-  "packages/common/ui/src/components/command.tsx",
-  "packages/common/ui/src/components/drawer.tsx",
-  "packages/common/ui/src/components/field.tsx",
-  "packages/common/ui/src/components/input-otp.tsx",
-  "packages/common/ui/src/components/orb.tsx",
-  "packages/common/ui/src/components/resizable.tsx",
-  "packages/common/ui/src/components/sonner.tsx",
-  "packages/common/ui/src/components/speech-input.tsx",
-  "packages/common/ui/src/components/toaster.tsx",
-  "packages/common/ui/src/components/tour.tsx",
+  "packages/foundation/ui-system/ui/src/components/calendar.tsx",
+  "packages/foundation/ui-system/ui/src/components/carousel.tsx",
+  "packages/foundation/ui-system/ui/src/components/command.tsx",
+  "packages/foundation/ui-system/ui/src/components/drawer.tsx",
+  "packages/foundation/ui-system/ui/src/components/field.tsx",
+  "packages/foundation/ui-system/ui/src/components/input-otp.tsx",
+  "packages/foundation/ui-system/ui/src/components/orb.tsx",
+  "packages/foundation/ui-system/ui/src/components/resizable.tsx",
+  "packages/foundation/ui-system/ui/src/components/sonner.tsx",
+  "packages/foundation/ui-system/ui/src/components/speech-input.tsx",
+  "packages/foundation/ui-system/ui/src/components/toaster.tsx",
+  "packages/foundation/ui-system/ui/src/components/tour.tsx",
 ] as const;
 
 const repoRootDirectory = fileURLToPath(new URL("../../../../", import.meta.url));

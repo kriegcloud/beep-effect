@@ -31,15 +31,19 @@
     "paths": {
       "@beep/repo-configs": ["../../tooling/configs/src/index.ts"],
       "@beep/repo-configs/*": ["../../tooling/configs/src/*.ts"],
-      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
-      "@beep/identity/packages": [
-        "../../packages/common/identity/src/packages.ts"
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
       ],
-      "@beep/types": ["../../packages/common/types/src/index.ts"],
-      "@beep/types/*": ["../../packages/common/types/src/*.ts"],
-      "@beep/utils": ["../../packages/common/utils/src/index.ts"],
-      "@beep/utils/*": ["../../packages/common/utils/src/*.ts"]
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
+      "@beep/identity/packages": [
+        "../../packages/foundation/modeling/identity/src/packages.ts"
+      ],
+      "@beep/types": ["../../packages/foundation/primitive/types/src/index.ts"],
+      "@beep/types/*": ["../../packages/foundation/primitive/types/src/*.ts"],
+      "@beep/utils": ["../../packages/foundation/modeling/utils/src/index.ts"],
+      "@beep/utils/*": ["../../packages/foundation/modeling/utils/src/*.ts"]
     }
   }
 }

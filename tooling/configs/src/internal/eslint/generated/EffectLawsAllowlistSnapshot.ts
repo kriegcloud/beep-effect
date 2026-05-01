@@ -6,7 +6,7 @@ export const ALLOWLIST_SNAPSHOT = {
   "entries": [
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/chalk/src/internal/ChalkRuntime.ts",
+      "file": "packages/foundation/capability/chalk/src/internal/ChalkRuntime.ts",
       "kind": "new-map-set",
       "reason": "Chalk memoizes builder metadata by function identity and needs weak-key semantics to avoid retaining builders.",
       "owner": "@beep/chalk",
@@ -14,7 +14,7 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/semantic-web/src/semantic-schema-metadata.ts",
+      "file": "packages/foundation/capability/semantic-web/src/semantic-schema-metadata.ts",
       "kind": "new-map-set",
       "reason": "Recursive schema AST metadata traversal needs weak-reference cycle tracking without retaining visited nodes beyond the walk.",
       "owner": "@beep/semantic-web",
@@ -22,7 +22,7 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/ui/src/components/sidebar.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/sidebar.tsx",
       "kind": "native-error",
       "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
       "owner": "@beep/ui",
@@ -30,7 +30,7 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/ui/src/components/carousel.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/carousel.tsx",
       "kind": "native-error",
       "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
       "owner": "@beep/ui",
@@ -38,7 +38,7 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/ui/src/components/speech-input.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/speech-input.tsx",
       "kind": "native-error",
       "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
       "owner": "@beep/ui",
@@ -46,7 +46,7 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/ui/src/components/tour.tsx",
+      "file": "packages/foundation/ui-system/ui/src/components/tour.tsx",
       "kind": "native-error",
       "reason": "React context hook invariants surface immediate consumer misuse before the provider tree is mounted.",
       "owner": "@beep/ui",
@@ -54,7 +54,7 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/observability/src/experimental/server/OtlpPacketLab.ts",
+      "file": "packages/foundation/capability/observability/src/experimental/server/OtlpPacketLab.ts",
       "kind": "date-static",
       "reason": "OTLP serialization hooks are synchronous body factories, so packet capture timestamps must be recorded at that immediate runtime boundary without introducing Effect execution into the serializer contract.",
       "owner": "@beep/observability",
@@ -62,7 +62,7 @@ export const ALLOWLIST_SNAPSHOT = {
     },
     {
       "rule": "beep-laws/no-native-runtime",
-      "file": "packages/common/nlp/src/Wink/WinkSimilarity.ts",
+      "file": "packages/foundation/capability/nlp/src/Wink/WinkSimilarity.ts",
       "kind": "new-map-set",
       "reason": "wink-nlp similarity.set.tversky requires native Set inputs because it reads Set size and membership directly as part of its third-party API contract.",
       "owner": "@beep/nlp",

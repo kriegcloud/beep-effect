@@ -2,7 +2,7 @@
 
 ## Executive summary
 
-You already have the beginnings of a consistent, “Effect-first” NLP foundation in `packages/common/nlp`, but it is currently limited to deterministic normalization/variant helpers (query strings, identifiers, paths). fileciteturn14file0L1-L1 fileciteturn15file0L1-L1 fileciteturn16file0L1-L1 fileciteturn17file0L1-L1 fileciteturn18file0L1-L1 This is an excellent seed: legal/IP chunking benefits disproportionately from deterministic normalization (headers, clause numbering, citation tokens, “defined terms,” etc.), and the repo already demonstrates how to implement this style with Effect/Schema and strong unit tests. fileciteturn19file0L1-L1
+You already have the beginnings of a consistent, “Effect-first” NLP foundation in `packages/foundation/capability/nlp`, but it is currently limited to deterministic normalization/variant helpers (query strings, identifiers, paths). fileciteturn14file0L1-L1 fileciteturn15file0L1-L1 fileciteturn16file0L1-L1 fileciteturn17file0L1-L1 fileciteturn18file0L1-L1 This is an excellent seed: legal/IP chunking benefits disproportionately from deterministic normalization (headers, clause numbering, citation tokens, “defined terms,” etc.), and the repo already demonstrates how to implement this style with Effect/Schema and strong unit tests. fileciteturn19file0L1-L1
 
 The repository contains two especially relevant “north star” references you can align with immediately:
 
@@ -16,9 +16,9 @@ This report proposes: (a) a robust chunking subsystem specialized for IP-law doc
 
 ## Findings from the `kriegcloud/beep-effect` repository
 
-### Current `packages/common/nlp` package scope and patterns
+### Current `packages/foundation/capability/nlp` package scope and patterns
 
-`packages/common/nlp` is already packaged as an Effect/TypeScript module with documentation generation and tests wired in. fileciteturn8file0L1-L1 fileciteturn9file0L1-L1 The public exports are currently:
+`packages/foundation/capability/nlp` is already packaged as an Effect/TypeScript module with documentation generation and tests wired in. fileciteturn8file0L1-L1 fileciteturn9file0L1-L1 The public exports are currently:
 
 - `QueryText`: deterministic whitespace/punctuation normalization and backtick capture extraction. fileciteturn14file0L1-L1 fileciteturn16file0L1-L1  
 - `IdentifierText`: tokenization + variant generation across camelCase/snake_case/kebab-case/spaced forms. fileciteturn15file0L1-L1  
@@ -405,7 +405,7 @@ Minimum controls to design in from day one:
 - **Provenance for audits:** record parser/OCR versions, chunking config, and hashes; PROV-O provides a standard vocabulary for provenance exchange. citeturn2search0  
 - **Prompt/LLM hygiene:** if you use LLMs, treat prompts and outputs as sensitive derived data; store prompt templates by hash; restrict retention.
 
-### `packages/common/nlp` API and code patterns
+### `packages/foundation/capability/nlp` API and code patterns
 
 The repo’s existing style suggests:
 

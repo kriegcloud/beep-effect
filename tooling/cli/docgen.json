@@ -33,37 +33,47 @@
     "paths": {
       "@beep/repo-cli": ["../../tooling/cli/src/index.ts"],
       "@beep/repo-cli/*": ["../../tooling/cli/src/*.ts"],
-      "@beep/chalk": ["../../packages/common/chalk/src/index.ts"],
-      "@beep/chalk/*": ["../../packages/common/chalk/src/*.ts"],
+      "@beep/chalk": [
+        "../../packages/foundation/capability/chalk/src/index.ts"
+      ],
+      "@beep/chalk/*": ["../../packages/foundation/capability/chalk/src/*.ts"],
       "@beep/docgen": ["../../tooling/docgen/src/index.ts"],
       "@beep/docgen/*": ["../../tooling/docgen/src/*.ts"],
       "@beep/docgen/schema.json": ["../../tooling/docgen/schema.json"],
       "@beep/ffmpeg": ["../../packages/drivers/ffmpeg/src/index.ts"],
       "@beep/ffmpeg/*": ["../../packages/drivers/ffmpeg/src/*.ts"],
-      "@beep/identity": ["../../packages/common/identity/src/index.ts"],
-      "@beep/identity/*": ["../../packages/common/identity/src/*.ts"],
+      "@beep/identity": [
+        "../../packages/foundation/modeling/identity/src/index.ts"
+      ],
+      "@beep/identity/*": [
+        "../../packages/foundation/modeling/identity/src/*.ts"
+      ],
       "@beep/identity/packages": [
-        "../../packages/common/identity/src/packages.ts"
+        "../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/observability": [
-        "../../packages/common/observability/src/index.ts"
+        "../../packages/foundation/capability/observability/src/index.ts"
       ],
-      "@beep/observability/*": ["../../packages/common/observability/src/*.ts"],
+      "@beep/observability/*": [
+        "../../packages/foundation/capability/observability/src/*.ts"
+      ],
       "@beep/observability/experimental/server": [
-        "../../packages/common/observability/src/experimental/server/index.ts"
+        "../../packages/foundation/capability/observability/src/experimental/server/index.ts"
       ],
       "@beep/observability/server": [
-        "../../packages/common/observability/src/server/index.ts"
+        "../../packages/foundation/capability/observability/src/server/index.ts"
       ],
       "@beep/observability/web": [
-        "../../packages/common/observability/src/web/index.ts"
+        "../../packages/foundation/capability/observability/src/web/index.ts"
       ],
       "@beep/repo-configs": ["../../tooling/configs/src/index.ts"],
       "@beep/repo-configs/*": ["../../tooling/configs/src/*.ts"],
       "@beep/repo-utils": ["../../tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["../../tooling/repo-utils/src/*.ts"],
-      "@beep/schema": ["../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../packages/common/schema/src/*.ts"],
+      "@beep/schema": [
+        "../../packages/foundation/modeling/schema/src/index.ts"
+      ],
+      "@beep/schema/*": ["../../packages/foundation/modeling/schema/src/*.ts"],
       "@beep/test-utils": ["../../tooling/test-utils/src/index.ts"],
       "@beep/test-utils/*": ["../../tooling/test-utils/src/*.ts"]
     }

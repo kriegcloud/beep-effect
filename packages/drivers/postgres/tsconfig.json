@@ -9,13 +9,13 @@
   },
   "references": [
     {
-      "path": "../../common/colors/tsconfig.json"
+      "path": "../../foundation/capability/colors/tsconfig.json"
     },
     {
-      "path": "../../common/identity/tsconfig.json"
+      "path": "../../foundation/modeling/identity/tsconfig.json"
     },
     {
-      "path": "../../common/schema/tsconfig.json"
+      "path": "../../foundation/modeling/schema/tsconfig.json"
     },
     {
       "path": "../../../tooling/test-utils/tsconfig.json"

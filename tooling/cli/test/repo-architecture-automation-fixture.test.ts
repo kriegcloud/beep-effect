@@ -285,7 +285,7 @@ describe("repo architecture automation golden fixture", () => {
   });
 
   it("keeps fixture packages synthetic and out of product code", () => {
-    const searchedRoots = ["apps", "packages/_internal", "packages/common", "tooling"] as const;
+    const searchedRoots = ["apps", "packages/_internal", "packages/foundation", "tooling"] as const;
     const files = searchedRoots.flatMap((root) => sourceFilesUnder(root));
     const violations = files.flatMap((filePath) => {
       const relativePath = relative(repoRoot, filePath);

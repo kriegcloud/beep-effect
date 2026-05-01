@@ -9,19 +9,19 @@
   },
   "references": [
     {
-      "path": "../../packages/common/chalk/tsconfig.json"
-    },
-    {
-      "path": "../../packages/common/identity/tsconfig.json"
-    },
-    {
-      "path": "../../packages/common/observability/tsconfig.json"
-    },
-    {
-      "path": "../../packages/common/schema/tsconfig.json"
-    },
-    {
       "path": "../../packages/drivers/ffmpeg/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/capability/chalk/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/capability/observability/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/identity/tsconfig.json"
+    },
+    {
+      "path": "../../packages/foundation/modeling/schema/tsconfig.json"
     },
     {
       "path": "../configs/tsconfig.json"
