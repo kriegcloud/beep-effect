@@ -16,7 +16,7 @@
       "path": "../packages/common/identity/tsconfig.json"
     },
     {
-      "path": "../packages/common/types/tsconfig.json"
+      "path": "../packages/foundation/primitive/types/tsconfig.json"
     },
     {
       "path": "../packages/common/schema/tsconfig.json"

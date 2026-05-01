@@ -20,9 +20,6 @@
     },
     {
       "path": "../packages/common/utils/tsconfig.json"
-    },
-    {
-      "path": "../packages/common/types/tsconfig.json"
     }
   ]
 }

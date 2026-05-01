@@ -15,10 +15,10 @@
       "path": "../schema/tsconfig.json"
     },
     {
-      "path": "../types/tsconfig.json"
+      "path": "../utils/tsconfig.json"
     },
     {
-      "path": "../utils/tsconfig.json"
+      "path": "../../foundation/primitive/types/tsconfig.json"
     }
   ]
 }

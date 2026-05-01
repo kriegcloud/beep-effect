@@ -56,8 +56,8 @@
       "@beep/repo-cli/*": ["./tooling/cli/src/*"],
       "@beep/repo-utils": ["./tooling/repo-utils/src/index.ts"],
       "@beep/repo-utils/*": ["./tooling/repo-utils/src/*"],
-      "@beep/types": ["./packages/common/types/src/index.ts"],
-      "@beep/types/*": ["./packages/common/types/src/*"],
+      "@beep/types": ["./packages/foundation/primitive/types/src/index.ts"],
+      "@beep/types/*": ["./packages/foundation/primitive/types/src/*"],
       "@beep/utils": ["./packages/common/utils/src/index.ts"],
       "@beep/utils/*": ["./packages/common/utils/src/*"],
       "@beep/identity": ["./packages/common/identity/src/index.ts"],
@@ -230,27 +230,13 @@
       "@beep/ui/styles/globals.css": [
         "./packages/common/ui/src/styles/globals.css"
       ],
-      "@beep/ui/themes": [
-        "./packages/common/ui/src/themes/index.ts"
-      ],
-      "@beep/drizzle": [
-        "./packages/drivers/drizzle/src/index.ts"
-      ],
-      "@beep/drizzle/*": [
-        "./packages/drivers/drizzle/src/*"
-      ],
-      "@beep/ffmpeg": [
-        "./packages/drivers/ffmpeg/src/index.ts"
-      ],
-      "@beep/ffmpeg/*": [
-        "./packages/drivers/ffmpeg/src/*"
-      ],
-      "@beep/postgres": [
-        "./packages/drivers/postgres/src/index.ts"
-      ],
-      "@beep/postgres/*": [
-        "./packages/drivers/postgres/src/*"
-      ]
+      "@beep/ui/themes": ["./packages/common/ui/src/themes/index.ts"],
+      "@beep/drizzle": ["./packages/drivers/drizzle/src/index.ts"],
+      "@beep/drizzle/*": ["./packages/drivers/drizzle/src/*"],
+      "@beep/ffmpeg": ["./packages/drivers/ffmpeg/src/index.ts"],
+      "@beep/ffmpeg/*": ["./packages/drivers/ffmpeg/src/*"],
+      "@beep/postgres": ["./packages/drivers/postgres/src/index.ts"],
+      "@beep/postgres/*": ["./packages/drivers/postgres/src/*"]
     }
   }
 }
