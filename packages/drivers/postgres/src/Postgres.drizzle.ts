@@ -7,12 +7,13 @@
 
 import { $PostgresId } from "@beep/identity";
 import type * as Pg from "@effect/sql-pg/PgClient";
-import type * as PgDrizzle from "drizzle-orm/effect-postgres";
+import * as PgDrizzle from "drizzle-orm/effect-postgres";
+import * as PgDrizzleMigrator from "drizzle-orm/effect-postgres/migrator";
 import type { MigrationConfig } from "drizzle-orm/migrator";
 import type { AnyRelations, EmptyRelations } from "drizzle-orm/relations";
 import { Context, Effect, Layer } from "effect";
 import { dual } from "effect/Function";
-import { loadNativePgDrizzle, loadNativePgDrizzleMigrator, type NativeMigrationError } from "./interop.ts";
+import type { NativeMigrationError } from "./interop.ts";
 import { PostgresError } from "./Postgres.errors.ts";
 
 const $I = $PostgresId.create("Postgres.drizzle");
@@ -100,13 +101,9 @@ export const makeDrizzle = <
 >(
   config: PostgresDrizzleConfig<TSchema, TRelations> = {} as PostgresDrizzleConfig<TSchema, TRelations>
 ): Effect.Effect<PostgresDrizzleDatabase<TSchema, TRelations>, PostgresError, Pg.PgClient> =>
-  loadNativePgDrizzle.pipe(
-    Effect.flatMap((pgDrizzle) =>
-      pgDrizzle.makeWithDefaults<NonNullable<TRelations>>(config).pipe(
-        Effect.map((database) => database as PostgresDrizzleDatabase<TSchema, TRelations>),
-        Effect.mapError((cause) => PostgresError.fromUnknown("makeDrizzle", cause))
-      )
-    )
+  PgDrizzle.makeWithDefaults<NonNullable<TRelations>>(config).pipe(
+    Effect.map((database) => database as PostgresDrizzleDatabase<TSchema, TRelations>),
+    Effect.mapError((cause) => PostgresError.fromUnknown("makeDrizzle", cause))
   );
 
 /**
@@ -162,14 +159,18 @@ export const migrate: {
     db: PostgresDrizzleDatabase<TSchema, TRelations>,
     config: MigrationConfig
   ): Effect.Effect<undefined, PostgresError> =>
-    loadNativePgDrizzleMigrator.pipe(
-      Effect.flatMap((migrator) =>
+    Effect.try({
+      try: () =>
         (
-          migrator.migrate as <Schema extends Record<string, unknown>, Relations extends AnyRelations>(
+          PgDrizzleMigrator.migrate as <Schema extends Record<string, unknown>, Relations extends AnyRelations>(
             database: PostgresDrizzleDatabase<Schema, Relations>,
             migrationConfig: MigrationConfig
           ) => Effect.Effect<undefined, NativeMigrationError>
-        )(db, config).pipe(Effect.mapError((cause) => PostgresError.fromUnknown("migrate", cause)))
+        )(db, config),
+      catch: (cause) => PostgresError.fromUnknown("migrate", cause),
+    }).pipe(
+      Effect.flatMap((migration) =>
+        migration.pipe(Effect.mapError((cause) => PostgresError.fromUnknown("migrate", cause)))
       )
     )
 );

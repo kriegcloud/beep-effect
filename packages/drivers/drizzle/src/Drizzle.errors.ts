@@ -11,16 +11,45 @@ import { Cause, Result } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 
 const $I = $DrizzleId.create("Drizzle.errors");
 
-type DrizzleErrorContext = {
-  readonly params?: ReadonlyArray<unknown> | undefined;
-  readonly query?: string | undefined;
-};
+/**
+ * Optional query context captured while normalizing Drizzle driver failures.
+ *
+ * @example
+ * ```ts
+ * import { DrizzleErrorContext } from "@beep/drizzle"
+ *
+ * const context = new DrizzleErrorContext({
+ *   query: "select 1",
+ *   params: []
+ * })
+ *
+ * void context
+ * ```
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class DrizzleErrorContext extends S.Class<DrizzleErrorContext>($I`DrizzleErrorContext`)(
+  {
+    params: S.optionalKey(S.Unknown.pipe(S.Array)),
+    query: S.optionalKey(S.String),
+  },
+  $I.annote("DrizzleErrorContext", {
+    description: "Optional query context captured while normalizing Drizzle driver failures.",
+  })
+) {}
 
 const emptyContext = (): DrizzleErrorContext => ({});
+
+const makeContext = (query: string | undefined, params: ReadonlyArray<unknown> | undefined): DrizzleErrorContext => ({
+  ...R.getSomes({ query: O.fromUndefinedOr(query) }),
+  ...R.getSomes({ params: O.fromUndefinedOr(params) }),
+});
 
 const readProperty = (value: unknown, key: PropertyKey): O.Option<unknown> => {
   if (!P.isObject(value)) {
@@ -69,10 +98,10 @@ const parseDrizzleMessage = (cause: unknown): DrizzleErrorContext => {
       }
 
       const paramsText = match[2]?.trim();
-      return {
-        query: match[1]?.trim(),
-        params: paramsText === undefined || paramsText.length === 0 ? undefined : A.of(paramsText),
-      };
+      return makeContext(
+        match[1]?.trim(),
+        paramsText === undefined || paramsText.length === 0 ? undefined : A.of(paramsText)
+      );
     },
   });
 };
@@ -82,10 +111,8 @@ const hasQueryContext = (context: DrizzleErrorContext): boolean => context.query
 const hasSeenReference = (seen: ReadonlyArray<object>, value: object): boolean =>
   A.some(seen, (seenValue) => seenValue === value);
 
-const contextFromDrizzleError = (error: DrizzleError): DrizzleErrorContext => ({
-  query: O.getOrUndefined(error.query),
-  params: O.getOrUndefined(error.params),
-});
+const contextFromDrizzleError = (error: DrizzleError): DrizzleErrorContext =>
+  makeContext(O.getOrUndefined(error.query), O.getOrUndefined(error.params));
 
 const existingDrizzleError = (value: unknown): O.Option<DrizzleError> =>
   isExistingDrizzleError(value) ? O.some(value) : O.none();
@@ -153,10 +180,7 @@ const extractNativeQueryContext = (cause: unknown, seen: ReadonlyArray<object> =
   }
 
   if (O.exists(readString(cause, "_tag"), (tag) => tag === "EffectDrizzleQueryError")) {
-    return {
-      query: O.getOrUndefined(readString(cause, "query")),
-      params: O.getOrUndefined(readArray(cause, "params")),
-    };
+    return makeContext(O.getOrUndefined(readString(cause, "query")), O.getOrUndefined(readArray(cause, "params")));
   }
 
   const messageContext = parseDrizzleMessage(cause);

@@ -7,12 +7,34 @@
 
 import { $DrizzleId } from "@beep/identity";
 import { Context, type Effect, Layer } from "effect";
+import * as S from "effect/Schema";
 import type { DrizzleError } from "./Drizzle.errors.ts";
 
 const $I = $DrizzleId.create("Drizzle.service");
 
 /**
- * Result rows returned by a product-neutral Drizzle adapter.
+ * Schema for rows returned by a product-neutral Drizzle adapter.
+ *
+ * @example
+ * ```ts
+ * import { DrizzleRows } from "@beep/drizzle"
+ * import * as S from "effect/Schema"
+ *
+ * const rows = S.decodeUnknownSync(DrizzleRows)([])
+ * void rows
+ * ```
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const DrizzleRows = S.Array(S.Unknown).pipe(
+  $I.annoteSchema("DrizzleRows", {
+    description: "Rows returned by a product-neutral Drizzle adapter.",
+  })
+);
+
+/**
+ * Type for {@link DrizzleRows}.
  *
  * @example
  * ```ts
@@ -25,7 +47,7 @@ const $I = $DrizzleId.create("Drizzle.service");
  * @category models
  * @since 0.0.0
  */
-export type DrizzleRows = ReadonlyArray<unknown>;
+export type DrizzleRows = typeof DrizzleRows.Type;
 
 /**
  * Narrow adapter accepted by {@link Drizzle.makeLayer}.

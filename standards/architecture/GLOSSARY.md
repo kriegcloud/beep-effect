@@ -39,6 +39,14 @@ until translated.
 A domain model that only describes data shape and maybe validation. An anemic
 model does not own meaningful behavior.
 
+## App Layer Helper
+
+An app-local Layer composition module, usually
+`apps/<app>/src/runtime/Layer.ts`, that composes public slice/package Layers for
+one application. It is not a monorepo package family and must not own product
+policy, handlers, repositories, schedules, workflows, or cross-slice
+orchestration.
+
 ## Client Package
 
 The slice package that owns browser/client adapters, remote command/query
@@ -99,6 +107,12 @@ exports may remain during migration, but they are transitional rather than the
 canonical boundary contract. A config package is canonical but optional, and it
 is not a broad constants package.
 
+## Cleanup-On-Touch
+
+A migration bucket for legacy or transitional shapes that do not require an
+immediate sweep, but must be corrected when their boundary is edited. The
+cleanup scope is the touched boundary, not the whole package family.
+
 ## Domain-Kind Folder
 
 A folder that classifies the kind of domain concept. The canonical domain-kind
@@ -139,11 +153,35 @@ An identity-bearing concept. Use `entities/` for identity-bearing concepts that
 are not aggregate roots, or simple concepts whose consistency boundary is only
 themselves.
 
+## Enforcement Lane
+
+The way an architecture rule becomes real. Canonical lanes are `Doctrine`,
+`Generated Default`, `Review Gate`, and `Hard Check`.
+
+## Foundation Capability
+
+A `foundation/capability` package: repo-owned, domain-agnostic technical
+substrate that does not carry product semantics, does not wrap an external
+engine or browser platform API, is not tooling, and is not UI-system ergonomics.
+It needs multiple real consumers or explicit platform-capability rationale.
+
 ## God Layer
 
 A central runtime Layer that merges many unrelated slices and drivers into one
 global dependency graph. God Layers hide ownership, create cross-slice coupling,
 and make experiments expensive to remove.
+
+## Generated Default
+
+An enforcement lane for architecture rules that future generators or scaffolds
+should make the default. A generated default is still downstream from the
+architecture standard; it does not make the standard a generator design.
+
+## Hard Check
+
+An enforcement lane for rules that should be mechanically enforced by lint,
+package metadata, import-boundary checks, fixture checks, repo-cli commands, or
+similar automation.
 
 ## Hexagonal Vertical Slice
 
@@ -175,6 +213,12 @@ A product-language capability required by use-cases. Ports live in
 A server-side implementation of a use-case port. Example:
 `server/src/entities/Membership/Membership.repo.ts` implements
 `MembershipRepository` using tables and drivers.
+
+## Promotion Record
+
+A package README entry that proves a high-bar shared export earned its home. It
+records shared product semantics, consumers or cross-slice rationale, exported
+surface, rejected homes, runtime/driver/Layer limits, and review evidence.
 
 ## Required Subpath
 
@@ -218,6 +262,11 @@ model tables use `.read-model-table.ts` and are composed by `ReadModels.ts`.
 A domain model that owns shape, validation, and pure behavior. Rich behavior may
 be instance methods, exported pure functions, `*.behavior.ts`, or pure
 `*.policy.ts` modules.
+
+## Review Gate
+
+An enforcement lane for contextual or exception-based rules that need explicit
+human or agent review evidence instead of purely mechanical checking.
 
 ## Portable Agent Bundle
 
@@ -264,8 +313,8 @@ bundles.
 
 ## Shared Kernel
 
-The DDD meaning of `generated shared-kernel package family`: deliberately shared cross-cutting
-language, value objects, schemas, config contracts, and a small number of
+The DDD meaning of the `shared` package family: deliberately shared
+cross-cutting language, value objects, schemas, config contracts, and a small number of
 high-bar cross-slice adapters. `shared/domain` and `shared/config` are the
 normal homes. `shared/use-cases`, `shared/client`, `shared/server`,
 `shared/tables`, and `shared/ui` are exceptional. `shared/use-cases` is

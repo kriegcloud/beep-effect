@@ -12,13 +12,13 @@ bun add @beep/postgres
 
 ```ts
 import { PostgresClient, PostgresError, formatSql, makeDrizzle } from "@beep/postgres"
-import { loadNativePgDrizzle } from "@beep/postgres/interop"
+import { NativePgClient } from "@beep/postgres/interop"
 
 void PostgresClient
 void PostgresError
 void formatSql
 void makeDrizzle
-void loadNativePgDrizzle
+void NativePgClient
 ```
 
 ## Development
@@ -30,7 +30,7 @@ bun run docgen
 bun run lint
 ```
 
-Unit tests stay outside `test/integration`; package integration tests live under `test/integration` and use `bun run test:integration`. Tests and dtslint files import package source through `@beep/postgres` or other `@beep/*` aliases. Use relative imports only for local helpers, fixtures, and snapshots.
+`bun run test` runs both unit tests and integration tests. Integration tests live under `test/integration` and self-skip unless `BEEP_TEST_DATABASE_URL` or `BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers` is set. Tests and dtslint files import package source through `@beep/postgres` or other `@beep/*` aliases. Use relative imports only for local helpers, fixtures, and snapshots.
 
 ## License
 

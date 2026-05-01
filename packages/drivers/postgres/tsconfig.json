@@ -16,6 +16,9 @@
     },
     {
       "path": "../../common/schema/tsconfig.json"
+    },
+    {
+      "path": "../../../tooling/test-utils/tsconfig.json"
     }
   ]
 }

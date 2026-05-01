@@ -1,7 +1,7 @@
 # @beep/drizzle
 
 Product-neutral Drizzle execution capability for Effect services. The package owns driver-level execution,
-transaction boundaries, native Drizzle Effect interop, and technical error normalization.
+transaction boundaries, and technical error normalization.
 
 ## Installation
 
@@ -41,38 +41,6 @@ const runnable = program.pipe(Effect.provide(Drizzle.makeLayer(client)))
 `DrizzleClient` is intentionally narrow. Runtime adapters can wrap Postgres, SQLite, PGLite, or another
 Drizzle-backed boundary as long as they expose `execute` and `withTransaction` through Effects.
 
-## Native Drizzle Interop
-
-```ts
-import { installDrizzleEffectYieldables } from "@beep/drizzle/interop"
-import { Effect, type Effect as EffectType } from "effect"
-
-class QueryBase {
-  constructor(private readonly result: string) {}
-
-  execute() {
-    return Effect.succeed(this.result)
-  }
-}
-
-interface QueryBase extends EffectType.Effect<string> {
-  readonly commit: () => EffectType.Effect<string>
-}
-
-installDrizzleEffectYieldables(QueryBase)
-
-const program = Effect.gen(function* () {
-  const query = new QueryBase("ok")
-  const yielded = yield* query
-  const committed = yield* query.commit()
-
-  return { yielded, committed }
-})
-```
-
-`installDrizzleEffectYieldables` is idempotent and preserves an existing `commit` method. When a query
-base does not already define `commit`, the installed fallback delegates to `execute`.
-
 ## Error Normalization
 
 ```ts
@@ -102,9 +70,10 @@ bun run docgen
 bun run lint
 ```
 
-Unit tests stay outside `test/integration`; package integration tests live under `test/integration` and use
-`bun run test:integration`. Tests and dtslint files import package source through `@beep/drizzle` or other
-`@beep/*` aliases. Use relative imports only for local helpers, fixtures, and snapshots.
+`bun run test` runs both unit tests and integration tests. Integration tests live under `test/integration` and
+self-skip unless `BEEP_TEST_DATABASE_URL` or `BEEP_TEST_DATABASE_DRIVER=pglite-testcontainers` is set. Tests and dtslint
+files import package source through `@beep/drizzle` or other `@beep/*` aliases. Use relative imports only for local
+helpers, fixtures, and snapshots.
 
 ## License
 

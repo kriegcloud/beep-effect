@@ -253,16 +253,17 @@ const queryType = (query: string): string => {
 };
 
 const formatStatement = (statement: string): string => {
-  try {
-    return format(statement, {
-      language: "postgresql",
-      tabWidth: 2,
-      keywordCase: "lower",
-      linesBetweenQueries: 1,
-    });
-  } catch {
-    return statement;
-  }
+  return pipe(
+    Result.try(() =>
+      format(statement, {
+        language: "postgresql",
+        tabWidth: 2,
+        keywordCase: "lower",
+        linesBetweenQueries: 1,
+      })
+    ),
+    Result.getOrElse(() => statement)
+  );
 };
 
 const postgresErrorFromReason = (reason: Cause.Reason<unknown>): O.Option<PostgresError> =>

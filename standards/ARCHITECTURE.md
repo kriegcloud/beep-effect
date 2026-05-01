@@ -38,6 +38,27 @@ The architecture optimizes for four things:
 4. Agent-readable topology where file paths and role suffixes carry enough
    context to keep work consistent.
 
+## How To Use This Standard
+
+Start with the smallest boundary that owns the meaning:
+
+| Task | Default home |
+|------|--------------|
+| Product behavior or product language | The owning slice. |
+| Product language deliberately shared by multiple slices | `shared/*`, after the shared-kernel promotion gate. |
+| External engines, SDKs, services, frameworks, or browser platform wrappers | `drivers/*`. |
+| Domain-agnostic reusable substrate owned by this repo | `foundation/*`, after the specific-home-first routing test. |
+| Typed application/runtime configuration contracts | The slice or shared `config` package. |
+| Product-agnostic UI primitives, themes, tokens, hooks, or composition helpers | `foundation/ui-system`. |
+| Browser/client product state, adapters, or interaction behavior | The slice `client` or `ui` package. |
+| App runtime wiring | The app entrypoint or an app-local `src/runtime/Layer.ts` helper. |
+
+The core vocabulary is deliberately small at the entry point: slice, domain,
+use-cases, adapter, driver, shared kernel, foundation, config contract, Layer,
+and required subpath. More specialized terms remain canonical, but use the
+[glossary](architecture/GLOSSARY.md) when they first matter instead of loading
+the whole vocabulary at once.
+
 ## Core Principles
 
 ### 1. Slice First
@@ -60,9 +81,9 @@ libraries.
 
 ### 3. Shared Is A Shared Kernel
 
-`generated shared-kernel package family` is the DDD shared kernel. It contains cross-cutting language
-that multiple slices deliberately share. It is not a dumping ground for code
-that did not fit elsewhere. Domain-agnostic reusable substrate belongs in
+The `shared` package family is the DDD shared kernel. It contains cross-cutting
+language that multiple slices deliberately share. It is not a dumping ground for
+code that did not fit elsewhere. Domain-agnostic reusable substrate belongs in
 `packages/foundation`, not in `shared`.
 
 ### 4. Rich Domain, Pure Behavior
@@ -247,6 +268,17 @@ The package names follow the public package convention:
 @beep/<slice>-ui
 ```
 
+The canonical spine is vocabulary, not a scaffold mandate. Create the smallest
+real package set that carries current behavior. A new package needs both:
+
+- a concrete architecture role
+- meaningful exported behavior, contract, adapter, config surface, or test
+  fixture
+
+Do not create packages only for symmetry. Future generators should default to
+minimal packages and add optional packages only through explicit flags or
+prompts.
+
 `config` is canonical but optional. Create it only when a slice has meaningful
 configuration contracts. The canonical shared package names are
 `@beep/<kernel>-domain`, `@beep/<kernel>-config`, and high-bar
@@ -275,6 +307,20 @@ client-safe application errors, facade interfaces, and product ports are
 allowed. It never owns workflows, process managers, schedulers, handlers,
 concrete adapters, driver imports, or live Layer values. `shared` never owns
 drivers or generic substrate.
+
+Meaningful exports in high-bar `shared/*` packages require a promotion record in
+that package's README before or alongside the export. The record must include:
+
+- the shared product semantics being accepted
+- the current consumers or explicit cross-slice rationale
+- the exported surface being promoted
+- rejected homes, especially the owning slice and `foundation`
+- runtime, adapter, driver, and Layer limits
+- contract-only proof for `shared/use-cases`
+- review evidence for the deliberate coupling
+
+`standards/architecture/DECISIONS.md` records architecture-wide policy changes.
+It does not replace package-level promotion records.
 
 Technical wrappers live in the flat repo-level drivers family:
 
@@ -348,9 +394,45 @@ The canonical non-slice families are:
 | `tooling`    | `library`, `tool`, `policy-pack`, `test-kit`            | Developer-operational code packages.              |
 | `agents`     | `skill-pack`, `policy-pack`, `runtime-adapter`          | Repo-local AI steering bundles.                   |
 
-`generated shared-kernel package family` is not part of this table. `shared` remains the DDD shared
-kernel and canonical cross-slice slice. `foundation` is not a rename of the
-shared kernel. `drivers` are not candidates for `shared`.
+The `shared` package family is not part of this table. `shared` remains the DDD
+shared kernel and canonical cross-slice slice. `foundation` is not a rename of
+the shared kernel. `drivers` are not candidates for `shared`.
+
+Route specific homes before reaching for `foundation/capability`:
+
+1. Product semantics go to the owning slice or `shared/*`.
+2. External engines, SDKs, services, frameworks, and browser platform wrappers
+   go to `drivers`.
+3. Repo operations, generators, policy packs, and automation go to `tooling`.
+4. Product-agnostic UI primitives, themes, tokens, hooks, and composition
+   helpers go to `foundation/ui-system`.
+5. Only remaining repo-owned, domain-agnostic technical services may go to
+   `foundation/capability`.
+
+`foundation/capability` is accepted only after a negative gate plus proof:
+
+- it carries no product semantics
+- it does not wrap an external engine, third-party SDK, service, framework, or
+  browser platform API
+- it is not repo-operational tooling
+- it is not a UI primitive, design-system role, or React ergonomics layer
+- it has multiple real consumers or an explicit platform-capability rationale
+
+Reusable shape alone is not enough. A service or Layer does not belong in
+`foundation/capability` merely because it is technical.
+
+Browser/runtime capability routing is platform-first:
+
+| Concern | Home |
+|---------|------|
+| Low-level browser platform wrapper | `drivers/*` with `@beep/<driver>/browser` |
+| Product-agnostic React hook or component over a browser capability | `foundation/ui-system` |
+| Product-specific browser behavior or state | Slice `client` or `ui` |
+| Rare runtime-neutral repo-owned technical service | `foundation/capability`, only after the capability gate |
+
+Driver package roots are not browser-safe by default. Foundation package roots
+must be runtime-neutral or browser-safe by contract; any environment-specific
+foundation surface needs an explicit environment entrypoint.
 
 ### Canonical Roots And Names
 
@@ -1399,6 +1481,28 @@ Package-level Layer composers are still useful. The rule is that they should
 compose a slice or adapter boundary, not become the place where unrelated slices
 are welded together.
 
+App-level composition is also allowed when it stays app-local and boring. Use an
+entrypoint or an app-local helper such as:
+
+```txt
+apps/<app>/src/runtime/Layer.ts
+```
+
+That helper may import public slice/package Layers, runtime providers required
+by the app boundary, and config/driver boundaries through approved public
+subpaths. It may export only app-specific live Layers and app-specific test
+Layers or fixtures.
+
+The God Layer rejection test is Boundary + Ownership. An app Layer helper is
+forbidden when it:
+
+- reaches into private concept-level slice internals
+- re-exports slice Layers as a convenience barrel
+- owns product policy, handlers, repositories, schedules, workflows, or
+  cross-slice orchestration
+- aggregates unrelated slice internals into a shared runtime package
+- hides server-only config or driver roots behind a browser/client-safe surface
+
 ## Worked `iam/Membership` Example
 
 Domain errors are actionable, and domain model behavior is pure:
@@ -1587,11 +1691,50 @@ domain model behavior
   <- protocol/entrypoint adapter
 ```
 
-## Enforcement Later
+## Enforcement And Migration Posture
 
 This document defines the architecture. Repo checks, lint rules, package
-constraints, codemods, and repo-cli commands may later enforce it, but they are
-downstream mechanisms.
+constraints, codemods, repo-cli commands, and generators are downstream
+mechanisms that must obey it.
 
-Do not treat this standard as a generator design. Treat it as the map that
-generators, lint rules, reviewers, and agents must obey.
+Architecture rules use four enforcement lanes:
+
+| Lane | Meaning |
+|------|---------|
+| `Doctrine` | Binding architecture rule or concept. |
+| `Generated Default` | Future generators/scaffolds should make this the default. |
+| `Review Gate` | Requires human or agent review evidence because the rule is contextual or exception-based. |
+| `Hard Check` | Should be enforced by lint, package metadata, import-boundary checks, fixture checks, or similar automation. |
+
+High-risk rules get an explicit lane and current status:
+
+| Rule area | Target lane | Current status | Future automation target |
+|-----------|-------------|----------------|--------------------------|
+| Shared promotion records | `Review Gate` | Docs-only package README requirement | Promotion metadata or README template checks |
+| `foundation/capability` routing | `Doctrine` + `Review Gate` | Docs-only negative gate and proof | Package metadata and dependency-boundary checks |
+| Package creation gates | `Doctrine` + `Generated Default` | Docs-only rule | Generator prompts and package metadata checks |
+| Required subpaths and browser roots | `Hard Check` | Target doctrine with transitional roots allowed | Export-map and import-boundary checks |
+| App Layer boundaries | `Doctrine` + `Review Gate` | Docs-only ownership test | No private reach-through imports from app runtime helpers |
+| Migration posture | `Doctrine` | Docs-only taxonomy | Repo-check reporting by bucket |
+| Browser capability routing | `Doctrine` + future `Hard Check` | Docs-only routing table | Browser-root and driver-root import checks |
+
+The migration posture has five buckets:
+
+| Bucket | Meaning |
+|--------|---------|
+| `Target Doctrine` | The architecture shape new work should follow. |
+| `Transitional Compatibility` | Existing shapes tolerated only to keep migration moving. |
+| `Cleanup-On-Touch` | Shapes that need not trigger a sweep, but must be cleaned when their boundary is edited. |
+| `Forbidden In New Work` | Shapes architecture-sensitive new work must not introduce. |
+| `Pending Automation/Generator Support` | Target shapes that should not trigger broad manual sweeps until tooling makes them repeatable. |
+
+New architecture-sensitive work must not introduce legacy labels as homes,
+package-root or `./*` wildcard exports as the canonical boundary contract,
+global runtime/config aggregation, direct env reads in slice code, or
+symmetry-only packages.
+
+Cleanup-on-touch is triggered by boundary edits: package manifests, exports,
+boundary-sensitive imports, ownership docs, config/shared/Layer surfaces, and
+architecture examples. Clean the touched boundary and adjacent docs/tests needed
+to keep that boundary honest; do not require whole-package or whole-family
+migration by default.

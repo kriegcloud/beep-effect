@@ -1,4 +1,4 @@
-import { Drizzle, type DrizzleClient, DrizzleError } from "@beep/drizzle";
+import { Drizzle, type DrizzleClient, DrizzleError, DrizzleErrorContext, DrizzleRows } from "@beep/drizzle";
 import { describe, expect, it } from "@effect/vitest";
 import * as assert from "@effect/vitest/utils";
 import { Effect, pipe } from "effect";
@@ -43,10 +43,14 @@ describe("DrizzleError", () => {
   });
 
   it("captures explicit query context", () => {
-    const error = DrizzleError.fromUnknown("execute", new Error("driver failed"), {
-      query: "select * from users where id = $1",
-      params: [1],
-    });
+    const error = DrizzleError.fromUnknown(
+      "execute",
+      new Error("driver failed"),
+      new DrizzleErrorContext({
+        query: "select * from users where id = $1",
+        params: [1],
+      })
+    );
 
     expect(O.getOrThrow(error.query)).toBe("select * from users where id = $1");
     expect(O.getOrThrow(error.params)).toEqual([1]);
@@ -260,6 +264,12 @@ describe("DrizzleError", () => {
     expect(O.isNone(error.cause)).toBe(true);
     expect(O.isNone(error.query)).toBe(true);
     expect(O.isNone(error.params)).toBe(true);
+  });
+
+  it("decodes product-neutral row arrays from the schema value", () => {
+    const rows = S.decodeUnknownSync(DrizzleRows)([{ id: 1 }]);
+
+    expect(rows).toEqual([{ id: 1 }]);
   });
 });
 

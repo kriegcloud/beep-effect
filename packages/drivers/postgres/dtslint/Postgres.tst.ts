@@ -13,14 +13,9 @@ import {
   type PostgresDrizzle,
   type PostgresDrizzleDatabase,
   PostgresError,
+  PostgresErrorContext,
 } from "@beep/postgres";
-import {
-  loadNativePgDrizzle,
-  loadNativePgDrizzleMigrator,
-  NativePgClient,
-  type NativePgDrizzleMigratorModule,
-  type NativePgDrizzleModule,
-} from "@beep/postgres/interop";
+import { type EffectDrizzlePgConfig, type EffectPgDatabase, NativePgClient } from "@beep/postgres/interop";
 import type { Effect, Layer } from "effect";
 import type * as O from "effect/Option";
 import { describe, expect, it } from "tstyche";
@@ -38,8 +33,21 @@ describe("@beep/postgres", () => {
   });
 
   it("exports Postgres errors and formatting helpers", () => {
+    expect(
+      new PostgresErrorContext({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
+    ).type.toBe<PostgresErrorContext>();
     expect(PostgresError.fromUnknown("query", new Error("boom"))).type.toBe<PostgresError>();
+    expect(
+      PostgresError.fromUnknown(
+        "query",
+        new Error("boom"),
+        new PostgresErrorContext({ query: "select 1", sqlStateName: "UNIQUE_VIOLATION" })
+      )
+    ).type.toBe<PostgresError>();
     expect(formatSql("select 1")).type.toBe<string>();
+
+    // @ts-expect-error!
+    PostgresError.fromUnknown("query", new Error("boom"), { sqlStateName: "NOT_A_SQLSTATE_NAME" });
   });
 
   it("exports client and Drizzle layer helpers", () => {
@@ -51,7 +59,7 @@ describe("@beep/postgres", () => {
 
   it("exports native interop namespaces", () => {
     expect(NativePgClient.PgClient).type.not.toBe<never>();
-    expect(loadNativePgDrizzle).type.toBe<Effect.Effect<NativePgDrizzleModule, PostgresError>>();
-    expect(loadNativePgDrizzleMigrator).type.toBe<Effect.Effect<NativePgDrizzleMigratorModule, PostgresError>>();
+    expect<EffectDrizzlePgConfig>().type.not.toBe<never>();
+    expect<EffectPgDatabase>().type.not.toBe<never>();
   });
 });

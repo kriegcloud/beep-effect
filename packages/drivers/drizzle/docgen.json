@@ -37,7 +37,9 @@
         "../../../packages/common/identity/src/packages.ts"
       ],
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
-      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"]
+      "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
+      "@beep/test-utils": ["../../../tooling/test-utils/src/index.ts"],
+      "@beep/test-utils/*": ["../../../tooling/test-utils/src/*.ts"]
     }
   }
 }

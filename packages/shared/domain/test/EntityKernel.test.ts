@@ -311,6 +311,7 @@ describe("BaseEntity", () => {
         DocumentId,
         NotePack,
         {
+          // @ts-expect-error Direct entity fields are rejected by BaseEntity.extend.
           title: Model.GeneratedByApp(S.String),
         },
         $I.annote("DocumentWithDirectFields", {

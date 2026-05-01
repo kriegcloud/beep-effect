@@ -42,6 +42,12 @@ Existing `env` package naming is legacy vocabulary. Migrate package names such
 as `@beep/<kernel>-env` and paths such as `packages/<kernel>/config` to
 `@beep/<kernel>-config` and `packages/<kernel>/config`.
 
+Do not introduce new `env` packages or direct environment reads in
+architecture-sensitive slice work. Existing env-shaped code is transitional
+compatibility; when a config boundary is touched, clean that boundary toward
+typed config contracts, explicit subpaths, and server/runtime-only `/layer`
+resolution.
+
 ## Public, Server, And Secret Boundaries
 
 Config packages must make browser safety visible in exports and topology:

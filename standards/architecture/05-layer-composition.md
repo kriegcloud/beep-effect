@@ -139,6 +139,27 @@ Higher-level app composition is still necessary. The rule is scope:
 - slice-level Layers compose one slice
 - app-level Layers compose slices
 
-The smell is a runtime Layer that reaches through slice boundaries and wires the
-private details of many slices at once. A global config Layer that aggregates
-every slice's private config is the same smell in configuration form.
+App-level composition may live directly in an executable entrypoint or in an
+app-local helper:
+
+```txt
+apps/<app>/src/runtime/Layer.ts
+```
+
+That helper is still app code, not a new monorepo package family. It imports
+public slice/package Layers, runtime providers required by the app boundary,
+and config/driver boundaries through approved public subpaths. It exports only
+app-specific live Layers and app-specific test Layers or fixtures.
+
+The God Layer rejection test is Boundary + Ownership. The smell is a runtime
+Layer that reaches through slice boundaries and wires the private details of
+many slices at once. A global config Layer that aggregates every slice's private
+config is the same smell in configuration form.
+
+Forbidden app composition shapes include:
+
+- importing private concept-level slice internals
+- re-exporting slice Layers through a convenience app barrel
+- owning product policy, handlers, repositories, schedules, workflows, or
+  cross-slice orchestration
+- moving unrelated slice internals into a shared runtime package

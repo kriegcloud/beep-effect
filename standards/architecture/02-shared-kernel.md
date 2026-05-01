@@ -1,6 +1,6 @@
 # Shared Kernel
 
-`generated shared-kernel package family` is a DDD shared kernel.
+The `shared` package family is a DDD shared kernel.
 
 That phrase is doing real work. It means shared code is a deliberate contract
 between slices, not a place to put whatever happens to be reusable today.
@@ -86,6 +86,28 @@ helpers and fixtures.
 
 This is what keeps `shared` small. The reduced spine is a rule, not a
 suggestion.
+
+## Promotion Records
+
+Meaningful exports in high-bar `shared/*` packages require a promotion record
+in the affected package README before or alongside the export. This applies to
+`shared/use-cases`, `shared/client`, `shared/server`, `shared/tables`, and
+`shared/ui`. It also applies when a normal shared package adds a new durable
+product concept whose coupling is not already obvious from existing README
+policy.
+
+The record must state:
+
+- the shared product semantics being accepted
+- the current consumers or explicit cross-slice rationale
+- the exported surface being promoted
+- rejected homes, especially the owning slice and `foundation`
+- runtime, adapter, driver, and Layer limits
+- contract-only proof for `shared/use-cases`
+- review evidence for the deliberate coupling
+
+`standards/architecture/DECISIONS.md` records architecture-wide policy changes.
+It does not replace package-level promotion records.
 
 ## Shared Is Not Foundation
 
