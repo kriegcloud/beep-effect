@@ -25,9 +25,6 @@
       "path": "packages/common/observability"
     },
     {
-      "path": "packages/common/semantic-web"
-    },
-    {
       "path": "packages/common/ui"
     },
     {
@@ -68,6 +65,9 @@
     },
     {
       "path": "packages/foundation/capability/md"
+    },
+    {
+      "path": "packages/foundation/capability/semantic-web"
     },
     {
       "path": "packages/foundation/modeling/identity"

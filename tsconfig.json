@@ -80,8 +80,12 @@
       "@beep/test-utils/*": ["./tooling/test-utils/src/*"],
       "@beep/db-admin": ["./packages/_internal/db-admin/src/index.ts"],
       "@beep/db-admin/*": ["./packages/_internal/db-admin/src/*"],
-      "@beep/semantic-web": ["./packages/common/semantic-web/src/index.ts"],
-      "@beep/semantic-web/*": ["./packages/common/semantic-web/src/*"],
+      "@beep/semantic-web": [
+        "./packages/foundation/capability/semantic-web/src/index.ts"
+      ],
+      "@beep/semantic-web/*": [
+        "./packages/foundation/capability/semantic-web/src/*"
+      ],
       "@beep/nlp": ["./packages/common/nlp/src/index.ts"],
       "@beep/nlp/*": ["./packages/common/nlp/src/*"],
       "@beep/observability": ["./packages/common/observability/src/index.ts"],

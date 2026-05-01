@@ -1,7 +1,7 @@
 {
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/semantic-web/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/capability/semantic-web/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -30,30 +30,32 @@
     "jsx": "react-jsx",
     "paths": {
       "@beep/semantic-web": [
-        "../../../packages/common/semantic-web/src/index.ts"
+        "../../../../packages/foundation/capability/semantic-web/src/index.ts"
       ],
       "@beep/semantic-web/*": [
-        "../../../packages/common/semantic-web/src/*.ts"
+        "../../../../packages/foundation/capability/semantic-web/src/*.ts"
       ],
       "@beep/identity": [
-        "../../../packages/foundation/modeling/identity/src/index.ts"
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],
       "@beep/identity/*": [
-        "../../../packages/foundation/modeling/identity/src/*.ts"
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
       ],
       "@beep/identity/packages": [
-        "../../../packages/foundation/modeling/identity/src/packages.ts"
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/schema": [
-        "../../../packages/foundation/modeling/schema/src/index.ts"
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": [
-        "../../../packages/foundation/modeling/schema/src/*.ts"
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
       ],
       "@beep/types": [
-        "../../../packages/foundation/primitive/types/src/index.ts"
+        "../../../../packages/foundation/primitive/types/src/index.ts"
       ],
-      "@beep/types/*": ["../../../packages/foundation/primitive/types/src/*.ts"]
+      "@beep/types/*": [
+        "../../../../packages/foundation/primitive/types/src/*.ts"
+      ]
     }
   }
 }
