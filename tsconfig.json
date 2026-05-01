@@ -64,8 +64,10 @@
       "@beep/identity/*": ["./packages/common/identity/src/*"],
       "@beep/schema": ["./packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["./packages/common/schema/src/*"],
-      "@beep/messages": ["./packages/common/messages/src/index.ts"],
-      "@beep/messages/*": ["./packages/common/messages/src/*"],
+      "@beep/messages": [
+        "./packages/foundation/modeling/messages/src/index.ts"
+      ],
+      "@beep/messages/*": ["./packages/foundation/modeling/messages/src/*"],
       "@beep/data": ["./packages/foundation/primitive/data/src/index.ts"],
       "@beep/data/*": ["./packages/foundation/primitive/data/src/*"],
       "@beep/ui": ["./packages/common/ui/src/index.ts"],

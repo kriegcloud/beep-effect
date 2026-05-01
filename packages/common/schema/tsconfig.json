@@ -12,10 +12,10 @@
       "path": "../identity/tsconfig.json"
     },
     {
-      "path": "../messages/tsconfig.json"
+      "path": "../utils/tsconfig.json"
     },
     {
-      "path": "../utils/tsconfig.json"
+      "path": "../../foundation/modeling/messages/tsconfig.json"
     },
     {
       "path": "../../foundation/primitive/data/tsconfig.json"

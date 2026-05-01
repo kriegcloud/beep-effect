@@ -34,9 +34,6 @@
       "path": "packages/common/md"
     },
     {
-      "path": "packages/common/messages"
-    },
-    {
       "path": "packages/common/nlp"
     },
     {
@@ -83,6 +80,9 @@
     },
     {
       "path": "packages/fixture-lab/specimen/use-cases"
+    },
+    {
+      "path": "packages/foundation/modeling/messages"
     },
     {
       "path": "packages/foundation/primitive/data"

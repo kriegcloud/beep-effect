@@ -219,18 +219,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/messages": {
-      "name": "@beep/messages",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-        "i18next": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/nlp": {
       "name": "@beep/nlp",
       "version": "0.0.0",
@@ -527,6 +515,18 @@
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
         "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/modeling/messages": {
+      "name": "@beep/messages",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+        "i18next": "catalog:",
       },
       "devDependencies": {
         "@effect/vitest": "catalog:",
@@ -1307,7 +1307,7 @@
 
     "@beep/md": ["@beep/md@workspace:packages/common/md"],
 
-    "@beep/messages": ["@beep/messages@workspace:packages/common/messages"],
+    "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
 
     "@beep/nlp": ["@beep/nlp@workspace:packages/common/nlp"],
 
