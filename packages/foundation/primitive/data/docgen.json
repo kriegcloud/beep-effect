@@ -1,7 +1,7 @@
 {
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/data/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/primitive/data/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,8 +29,12 @@
     "types": [],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/data": ["../../../packages/common/data/src/index.ts"],
-      "@beep/data/*": ["../../../packages/common/data/src/*.ts"]
+      "@beep/data": [
+        "../../../../packages/foundation/primitive/data/src/index.ts"
+      ],
+      "@beep/data/*": [
+        "../../../../packages/foundation/primitive/data/src/*.ts"
+      ]
     }
   }
 }

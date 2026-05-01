@@ -28,9 +28,6 @@
       "path": "packages/common/colors"
     },
     {
-      "path": "packages/common/data"
-    },
-    {
       "path": "packages/common/identity"
     },
     {
@@ -86,6 +83,9 @@
     },
     {
       "path": "packages/fixture-lab/specimen/use-cases"
+    },
+    {
+      "path": "packages/foundation/primitive/data"
     },
     {
       "path": "packages/foundation/primitive/types"

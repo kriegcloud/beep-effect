@@ -160,7 +160,6 @@
         "effect": "catalog:",
       },
       "devDependencies": {
-        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -174,7 +173,6 @@
         "effect": "catalog:",
       },
       "devDependencies": {
-        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -189,17 +187,6 @@
       },
       "devDependencies": {
         "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
-    "packages/common/data": {
-      "name": "@beep/data",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -329,17 +316,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/types": {
-      "name": "@beep/types",
-      "version": "0.0.0",
-      "dependencies": {
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/ui": {
       "name": "@beep/ui",
       "version": "0.0.0",
@@ -424,6 +400,7 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -455,6 +432,7 @@
         "sql-formatter": "catalog:",
       },
       "devDependencies": {
+        "@beep/test-utils": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -548,6 +526,28 @@
         "@beep/fixture-lab-specimen-domain": "workspace:^",
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/primitive/data": {
+      "name": "@beep/data",
+      "version": "0.0.0",
+      "dependencies": {
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/primitive/types": {
+      "name": "@beep/types",
+      "version": "0.0.0",
+      "dependencies": {
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1277,7 +1277,7 @@
 
     "@beep/colors": ["@beep/colors@workspace:packages/common/colors"],
 
-    "@beep/data": ["@beep/data@workspace:packages/common/data"],
+    "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
 
     "@beep/db-admin": ["@beep/db-admin@workspace:packages/_internal/db-admin"],
 
@@ -1343,7 +1343,7 @@
 
     "@beep/test-utils": ["@beep/test-utils@workspace:tooling/test-utils"],
 
-    "@beep/types": ["@beep/types@workspace:packages/common/types"],
+    "@beep/types": ["@beep/types@workspace:packages/foundation/primitive/types"],
 
     "@beep/ui": ["@beep/ui@workspace:packages/common/ui"],
 

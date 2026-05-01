@@ -31,8 +31,10 @@
     "paths": {
       "@beep/schema": ["../../../packages/common/schema/src/index.ts"],
       "@beep/schema/*": ["../../../packages/common/schema/src/*.ts"],
-      "@beep/data": ["../../../packages/common/data/src/index.ts"],
-      "@beep/data/*": ["../../../packages/common/data/src/*.ts"],
+      "@beep/data": [
+        "../../../packages/foundation/primitive/data/src/index.ts"
+      ],
+      "@beep/data/*": ["../../../packages/foundation/primitive/data/src/*.ts"],
       "@beep/identity": ["../../../packages/common/identity/src/index.ts"],
       "@beep/identity/*": ["../../../packages/common/identity/src/*.ts"],
       "@beep/identity/packages": [
