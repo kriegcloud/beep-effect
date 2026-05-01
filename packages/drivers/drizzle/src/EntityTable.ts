@@ -40,6 +40,7 @@ import {
 import { Match, pipe } from "effect";
 import * as A from "effect/Array";
 import * as O from "effect/Option";
+import * as P from "effect/Predicate";
 import * as R from "effect/Record";
 import type * as S from "effect/Schema";
 
@@ -139,8 +140,18 @@ export type TableFor<Entity extends EntitySchema.EntityClass.Any> = PgTableWithC
   readonly entitySchema: Entity;
 };
 
-const columnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): ColumnMethods<Builder> =>
-  column as ColumnMethods<Builder>;
+const hasCallableProperty = (self: object, key: PropertyKey): boolean =>
+  P.hasProperty(self, key) && P.isFunction(Reflect.get(self, key));
+
+const hasColumnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): column is ColumnMethods<Builder> =>
+  hasCallableProperty(column, "$type") && hasCallableProperty(column, "notNull") && hasCallableProperty(column, "primaryKey");
+
+const columnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): ColumnMethods<Builder> => {
+  if (hasColumnMethods(column)) {
+    return column;
+  }
+  throw new TypeError("Drizzle column builder is missing the expected fluent column methods.");
+};
 
 const typedColumn = <Encoded, Builder extends AnyPgColumnBuilder>(column: Builder): Set$Type<Builder, Encoded> =>
   columnMethods(column).$type<Encoded>();
@@ -355,8 +366,21 @@ const attachTableMetadata = <const Entity extends EntitySchema.EntityClass.Any>(
     enumerable: true,
     value: entitySchema,
   });
-  return table as TableFor<Entity>;
+  if (hasAttachedTableMetadata(table, definition, entitySchema)) {
+    return table;
+  }
+  throw new TypeError(`Failed to attach EntitySchema metadata to table '${definition.tableName}'.`);
 };
+
+const hasAttachedTableMetadata = <const Entity extends EntitySchema.EntityClass.Any>(
+  table: object,
+  definition: EntitySchema.EntityClass.DefinitionOf<Entity>,
+  entitySchema: Entity
+): table is TableFor<Entity> =>
+  P.hasProperty(table, "definition") &&
+  Reflect.get(table, "definition") === definition &&
+  P.hasProperty(table, "entitySchema") &&
+  Reflect.get(table, "entitySchema") === entitySchema;
 
 /**
  * Project a schema-first entity class into a typed Postgres Drizzle table.

@@ -50,7 +50,7 @@ class CandidateDraft extends BaseEntity.Class<CandidateDraft>($I`CandidateDraft`
       fixtureKey: S.String,
       lifecycle: CandidateLifecycle,
       snapshot: S.Record(S.String, S.Unknown),
-      parentId: EntitySchema.entityId(Workspace.WorkspaceId).pipe(S.OptionFromNullOr),
+      parentId: Workspace.WorkspaceId.pipe(S.OptionFromNullOr),
     },
     persisted: {
       fixtureKey: EntitySchema.persist.text(),

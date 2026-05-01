@@ -11,7 +11,7 @@ type EntityInput<FieldMap extends EntitySchema.Fields, Persisted extends EntityS
 >;
 
 type EntityIdentityFields<Entity extends EntitySchema.EntityIdLike> = {
-  readonly id: EntitySchema.EntityIdSchema<Entity>;
+  readonly id: Entity;
   readonly entityType: S.Literal<Entity["entityType"]>;
 };
 
@@ -52,7 +52,7 @@ const BaseEntityCore = EntitySchema.ClassFactory($I`BaseEntity`)(
 const BaseEntityCoreClass = BaseEntityCore.Class;
 
 const identityFields = <const Entity extends EntitySchema.EntityIdLike>(entityId: Entity): EntityIdentityFields<Entity> => ({
-  id: EntitySchema.generatedId(entityId),
+  id: entityId,
   entityType: EntitySchema.literal(entityId.entityType),
 });
 

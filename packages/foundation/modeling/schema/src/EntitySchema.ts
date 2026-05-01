@@ -395,19 +395,11 @@ export type PersistDescriptorByValueStrategy<Descriptor extends PersistDescripto
  * @since 0.0.0
  * @category models
  */
-export type EntityIdLike = S.Top & {
+export type EntityIdLike = S.Codec<unknown, number> & {
   readonly Type: unknown;
   readonly entityType: string;
   readonly tableName: string;
 };
-
-/**
- * Numeric encoded entity-id schema.
- *
- * @since 0.0.0
- * @category models
- */
-export type EntityIdSchema<Entity extends EntityIdLike> = S.Codec<Entity["Type"], number> & Entity;
 
 type NonNullish<A> = Exclude<A, null | undefined>;
 type JsonContainer = object;
@@ -738,7 +730,7 @@ export type AssignPersisted<BasePersisted extends PersistedMap, ExtensionPersist
  * @since 0.0.0
  * @category models
  */
-type AssignedEntityParts<
+export type AssignedEntityParts<
   BaseFields extends EntityFieldInputs,
   BasePersisted extends PersistedFor<BaseFields>,
   ExtensionFields extends EntityFieldInputs,
@@ -771,7 +763,7 @@ export type AssignedPersisted<
  * @since 0.0.0
  * @category constructors
  */
-const assignEntityParts = <
+export const assignEntityParts = <
   const BaseFields extends EntityFieldInputs,
   const BasePersisted extends PersistedFor<BaseFields>,
   const ExtensionFields extends EntityFieldInputs,
@@ -876,23 +868,6 @@ export const DateTimeFromMillis = S.DateTimeUtcFromMillis;
 export const int = S.Int;
 
 /**
- * Treat an entity id schema as a numeric encoded entity id.
- *
- * @since 0.0.0
- * @category constructors
- */
-export const entityId = <const Entity extends EntityIdLike>(schema: Entity): EntityIdSchema<Entity> =>
-  schema as EntityIdSchema<Entity>;
-
-/**
- * Alias for generated entity id fields.
- *
- * @since 0.0.0
- * @category constructors
- */
-export const generatedId = entityId;
-
-/**
  * Literal schema helper for persisted discriminators.
  *
  * @since 0.0.0
@@ -991,22 +966,26 @@ const combineAstAbsence = (left: AstAbsence, right: AstAbsence): AstAbsence => (
   isAmbiguous: left.isAmbiguous || right.isAmbiguous,
 });
 
+type TypeConstructorAnnotation = {
+  readonly _tag: string;
+};
+
+const isTypeConstructorAnnotation = (value: unknown): value is TypeConstructorAnnotation =>
+  P.isObject(value) && P.hasProperty(value, "_tag") && P.isString(value._tag);
+
+const typeConstructorTag = (ast: AST.Declaration): string | undefined => {
+  const annotation = ast.annotations?.typeConstructor;
+  return isTypeConstructorAnnotation(annotation) ? annotation._tag : undefined;
+};
+
 const isJsonDeclaration = (ast: AST.Declaration): boolean => {
-  const typeConstructor = ast.annotations?.typeConstructor as
-    | {
-        readonly _tag?: string;
-      }
-    | undefined;
-  return typeConstructor?._tag === "effect/Json" || typeConstructor?._tag === "effect/MutableJson";
+  const tag = typeConstructorTag(ast);
+  return tag === "effect/Json" || tag === "effect/MutableJson";
 };
 
 const isKnownRequiredDeclaration = (ast: AST.Declaration): boolean => {
-  const typeConstructor = ast.annotations?.typeConstructor as
-    | {
-        readonly _tag?: string;
-      }
-    | undefined;
-  return typeConstructor?._tag === "Date" || typeConstructor?._tag === "Uint8Array";
+  const tag = typeConstructorTag(ast);
+  return tag === "Date" || tag === "Uint8Array";
 };
 
 const astAbsence: (input: AST.AST) => AstAbsence = Match.type<AST.AST>().pipe(
@@ -1163,7 +1142,7 @@ const failEntityFieldInput = (field: string, message: string): never => {
   throw new EntityFieldInputError({ field, message });
 };
 
-const modelVariantKeys: ReadonlySet<Model.Variant> = new Set<Model.Variant>([
+const modelVariantKeys: ReadonlySet<string> = new Set<Model.Variant>([
   "select",
   "insert",
   "update",
@@ -1172,12 +1151,16 @@ const modelVariantKeys: ReadonlySet<Model.Variant> = new Set<Model.Variant>([
   "jsonUpdate",
 ]);
 
-const isModelVariantKey = (key: string): key is Model.Variant => modelVariantKeys.has(key as Model.Variant);
+const isModelVariantKey = (key: string): key is Model.Variant => modelVariantKeys.has(key);
 
 const hasVariant = (field: EntityVariantFieldInput, variant: Model.Variant): boolean =>
   S.isSchema(field.schemas[variant]);
 
-const assertModelVariantField = (key: string, field: EntityVariantFieldInput): void => {
+const assertEntityVariantFieldInput = (key: string, field: unknown): asserts field is EntityVariantFieldInput => {
+  if (!VariantSchema.isField(field)) {
+    failEntityFieldInput(key, `Entity field '${key}' must be a Model variant field.`);
+  }
+
   for (const variant of Struct.keys(field.schemas)) {
     if (!isModelVariantKey(variant)) {
       failEntityFieldInput(key, `Entity field '${key}' uses unsupported model variant '${variant}'.`);
@@ -1187,22 +1170,22 @@ const assertModelVariantField = (key: string, field: EntityVariantFieldInput): v
       failEntityFieldInput(key, `Entity field '${key}' variant '${variant}' must be a Schema.`);
     }
   }
-  if (!hasVariant(field, "select")) {
+  if (!S.isSchema(field.schemas.select)) {
     failEntityFieldInput(key, `Persisted entity field '${key}' must define a select variant.`);
   }
 };
 
-const selectedFieldFor = <const Field extends EntityFieldInput>(key: string, field: Field): SelectedFieldOf<Field> => {
+function selectedFieldFor<const Field extends EntityFieldInput>(key: string, field: Field): SelectedFieldOf<Field>;
+function selectedFieldFor(key: string, field: EntityFieldInput): S.Top {
   if (VariantSchema.isField(field)) {
-    const variantField = field as EntityVariantFieldInput;
-    assertModelVariantField(key, variantField);
-    return variantField.schemas.select as SelectedFieldOf<Field>;
+    assertEntityVariantFieldInput(key, field);
+    return field.schemas.select;
   }
   if (!S.isSchema(field)) {
     failEntityFieldInput(key, `Entity field '${key}' must be a Schema or a Model variant field.`);
   }
-  return field as SelectedFieldOf<Field>;
-};
+  return field;
+}
 
 const selectedFieldsFor = <const FieldMap extends EntityFieldInputs>(fields: FieldMap): SelectedFieldsOf<FieldMap> => {
   const output = R.empty<string, S.Top>();
@@ -1216,10 +1199,10 @@ const selectedFieldsFor = <const FieldMap extends EntityFieldInputs>(fields: Fie
 
 const assertExplicitVariantCompatible = (
   key: string,
-  field: EntityVariantFieldInput,
+  field: unknown,
   descriptor: PersistDescriptor.Any
-): void => {
-  assertModelVariantField(key, field);
+): asserts field is EntityVariantFieldInput => {
+  assertEntityVariantFieldInput(key, field);
 
   const insert = hasVariant(field, "insert");
   const update = hasVariant(field, "update");
@@ -1378,17 +1361,22 @@ const variantFieldFor = <const Field extends S.Top, const Descriptor extends Per
     Match.orElse(() => field)
   ) as VariantFieldFor<Field, Descriptor>;
 
-const variantFieldForInput = <const Field extends EntityFieldInput, const Descriptor extends PersistDescriptor.Any>(
+function variantFieldForInput<const Field extends EntityFieldInput, const Descriptor extends PersistDescriptor.Any>(
   key: string,
   field: Field,
   descriptor: Descriptor
-): VariantFieldForInput<Field, Descriptor> => {
+): VariantFieldForInput<Field, Descriptor>;
+function variantFieldForInput(
+  key: string,
+  field: EntityFieldInput,
+  descriptor: PersistDescriptor.Any
+): EntityFieldInput {
   if (VariantSchema.isField(field)) {
-    assertExplicitVariantCompatible(key, field as EntityVariantFieldInput, descriptor);
-    return field as VariantFieldForInput<Field, Descriptor>;
+    assertExplicitVariantCompatible(key, field, descriptor);
+    return field;
   }
-  return variantFieldFor(selectedFieldFor(key, field) as S.Top, descriptor) as VariantFieldForInput<Field, Descriptor>;
-};
+  return variantFieldFor(selectedFieldFor(key, field), descriptor);
+}
 
 const variantFieldsFor = <const FieldMap extends EntityFieldInputs, const Persisted extends PersistedMap>(
   fields: FieldMap,

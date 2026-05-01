@@ -25,7 +25,7 @@ const Fixture = EntitySchema.ClassFactory($I`Fixture`)(
   {
     entityId: FixtureId,
     fields: {
-      id: EntitySchema.generatedId(FixtureId),
+      id: FixtureId,
       isActive: S.Boolean,
       name: S.String,
       optionalName: S.String.pipe(S.OptionFromNullOr),

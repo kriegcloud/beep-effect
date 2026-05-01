@@ -80,13 +80,7 @@ export * as P from "./Predicate.ts";
  * @since 0.0.0
  */
 export * from "./Random.ts";
-/**
- * Readonly Set utilities with custom equivalence support.
- *
- * @category utilities
- * @since 0.0.0
- */
-export * as Set from "./Set.ts";
+
 /**
  * String utilities extending `effect/String` with typed case conversions.
  *

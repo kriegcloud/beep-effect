@@ -10,7 +10,7 @@ import {
 } from "../proof.ts";
 import * as EntitySchema from "../entity-schema.ts";
 
-type EntityIdEncoded<Entity extends EntitySchema.EntityIdLike> = S.Codec.Encoded<EntitySchema.EntityIdSchema<Entity>>;
+type EntityIdEncoded<Entity extends EntitySchema.EntityIdLike> = S.Codec.Encoded<Entity>;
 type CandidateDraftIdEncoded = EntityIdEncoded<typeof Workspace.CandidateDraftId>;
 type CandidateProjectIdEncoded = EntityIdEncoded<typeof Workspace.CandidateProjectId>;
 type WorkspaceIdEncoded = EntityIdEncoded<typeof Workspace.WorkspaceId>;
@@ -177,7 +177,7 @@ describe("schema-to-drizzle projection scratchpad", () => {
 
     assertDescriptorCompatibility({
       fields: {
-        id: EntitySchema.entityId(Workspace.CandidateDraftId),
+        id: Workspace.CandidateDraftId,
       },
       persisted: {
         // @ts-expect-error!

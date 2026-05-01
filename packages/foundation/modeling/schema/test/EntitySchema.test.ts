@@ -44,7 +44,7 @@ const Fixture = EntitySchema.ClassFactory($I`Fixture`)(
   {
     entityId: FixtureId,
     fields: {
-      id: EntitySchema.generatedId(FixtureId),
+      id: FixtureId,
       name: S.String,
       optionalName: S.String.pipe(S.OptionFromNullOr),
       payload: S.Record(S.String, S.Unknown),
@@ -260,6 +260,19 @@ describe("EntitySchema", () => {
         },
       } as never)
     ).toThrow("must define a select variant");
+  });
+
+  it("rejects optional JSON helper schemas as persisted selected-row fields", () => {
+    expect(() =>
+      EntitySchema.ClassFactory($I`OptionalOptionSelectedRow`)({
+        fields: {
+          parentId: Model.optionalOption(FixtureId),
+        },
+        persisted: {
+          parentId: EntitySchema.persist.entityId(),
+        },
+      } as never)
+    ).toThrow("must encode SQL absence as null");
   });
 
   it("rejects helper and persistence strategy contradictions", () => {

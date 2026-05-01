@@ -8,6 +8,7 @@
 import { $SharedDomainId } from "@beep/identity/packages";
 import { Slug } from "@beep/schema";
 import * as EntitySchema from "@beep/schema/EntitySchema";
+import * as M from "@beep/schema/Model";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as S from "effect/Schema";
 import * as Shared from "../../identity/Shared.js";
@@ -35,7 +36,7 @@ export class Model extends BaseEntity.Class<Model>($I`Model`)(
       legalName: S.NonEmptyString,
       licenseTier: LicenseTier,
       name: S.NonEmptyString,
-      parentOrgId: EntitySchema.entityId(Shared.OrganizationId).pipe(S.OptionFromNullOr),
+      parentOrgId: M.FieldOption(Shared.OrganizationId),
       settings: Settings,
       slug: Slug,
     },

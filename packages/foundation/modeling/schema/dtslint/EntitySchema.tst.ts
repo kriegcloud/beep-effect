@@ -23,7 +23,7 @@ const FixtureId = Object.assign(FixtureIdSchema, {
 };
 
 const fields = {
-  id: EntitySchema.generatedId(FixtureId),
+  id: FixtureId,
   name: S.String,
   optionalName: S.String.pipe(S.OptionFromNullOr),
   payload: S.Record(S.String, S.Unknown),
@@ -54,6 +54,15 @@ const optionalKeyFields = {
 const optionalKeyPersisted: EntitySchema.PersistedFor<typeof optionalKeyFields> = {
   // @ts-expect-error!
   maybe: EntitySchema.persist.text(),
+};
+
+const optionalOptionFields = {
+  parentId: Model.optionalOption(FixtureId),
+} as const;
+
+const optionalOptionPersisted: EntitySchema.PersistedFor<typeof optionalOptionFields> = {
+  // @ts-expect-error!
+  parentId: EntitySchema.persist.entityId(),
 };
 
 declare const servicefulField: S.Codec<string, string, "Service", never>;
@@ -235,6 +244,7 @@ describe("EntitySchema types", () => {
 });
 
 void optionalKeyPersisted;
+void optionalOptionPersisted;
 void servicefulPersisted;
 void jsonTextPersisted;
 void (null as unknown as MissingSelectPersisted);

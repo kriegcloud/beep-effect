@@ -1,5 +1,0 @@
-[     383ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://dankserver.tailc7c348.ts.net/debug:0
-[     383ms] [VERBOSE] [DOM] Password field is not contained in a form: (More info: https://goo.gl/9p2vKq) %o @ https://dankserver.tailc7c348.ts.net/debug:0
-[     386ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dankserver.tailc7c348.ts.net/__openclaw/control-ui-config.json:0
-[    1825ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dankserver.tailc7c348.ts.net/__openclaw/control-ui-config.json:0
-[    1826ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dankserver.tailc7c348.ts.net/avatar/codex-chat?meta=1:0

@@ -9,7 +9,7 @@ type Expect<T extends true> = T;
 
 type IsFalse<T extends false> = T;
 
-type EntityIdEncoded<Entity extends EntitySchema.EntityIdLike> = S.Codec.Encoded<EntitySchema.EntityIdSchema<Entity>>;
+type EntityIdEncoded<Entity extends EntitySchema.EntityIdLike> = S.Codec.Encoded<Entity>;
 type CandidateDraftIdEncoded = EntityIdEncoded<typeof Workspace.CandidateDraftId>;
 type CandidateProjectIdEncoded = EntityIdEncoded<typeof Workspace.CandidateProjectId>;
 type WorkspaceIdEncoded = EntityIdEncoded<typeof Workspace.WorkspaceId>;
@@ -189,7 +189,7 @@ assertDescriptorCompatibility({
 
 assertDescriptorCompatibility({
   fields: {
-    id: EntitySchema.entityId(Workspace.CandidateDraftId),
+    id: Workspace.CandidateDraftId,
   },
   persisted: {
     // @ts-expect-error Number-encoded entity ids cannot be projected as text storage.

@@ -23,7 +23,7 @@ export class CandidateDraft extends BaseEntity.Class<CandidateDraft>($I`Candidat
       fixtureKey: S.String,
       lifecycle: CandidateLifecycle,
       snapshot: S.Record(S.String, S.Json),
-      parentId: EntitySchema.entityId(Workspace.WorkspaceId).pipe(S.OptionFromNullOr),
+      parentId: Workspace.WorkspaceId.pipe(S.OptionFromNullOr),
     },
     persisted: {
       fixtureKey: EntitySchema.persist.text(),
@@ -45,7 +45,7 @@ export class CandidateProject extends BaseEntity.Class<CandidateProject>($I`Cand
     fields: {
       title: S.String,
       status: CandidateProjectStatus,
-      sourceDraftId: EntitySchema.entityId(Workspace.CandidateDraftId).pipe(S.OptionFromNullOr),
+      sourceDraftId: Workspace.CandidateDraftId.pipe(S.OptionFromNullOr),
       snapshot: S.Record(S.String, S.Json),
     },
     persisted: {

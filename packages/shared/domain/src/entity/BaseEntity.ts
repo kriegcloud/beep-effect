@@ -9,7 +9,6 @@ import { $SharedDomainId } from "@beep/identity/packages";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { PosInt } from "@beep/schema/Int";
 import { SemanticVersion } from "@beep/schema/SemanticVersion";
-import * as Struct from "@beep/utils/Struct";
 import type * as S from "effect/Schema";
 import * as Shared from "../identity/Shared.js";
 import { Principal } from "./Principal.js";
@@ -24,7 +23,7 @@ type EntityInput<
 
 type EntityIdentityFields<Entity extends EntitySchema.EntityIdLike> = {
   readonly entityType: S.Literal<Entity["entityType"]>;
-  readonly id: EntitySchema.EntityIdSchema<Entity>;
+  readonly id: Entity;
 };
 
 type EntityIdentityPersisted = {
@@ -41,10 +40,11 @@ type EntityPersistedFor<
   Entity extends EntitySchema.EntityIdLike,
   ChildFields extends EntitySchema.EntityFieldInputs,
   ChildPersisted extends EntitySchema.PersistedFor<ChildFields>,
-> = EntitySchema.CheckedPersistedFor<
-  EntityFieldsFor<Entity, ChildFields>,
-  EntitySchema.AssignPersisted<ChildPersisted, EntityIdentityPersisted> &
-    EntitySchema.PersistedFor<EntityFieldsFor<Entity, ChildFields>>
+> = EntitySchema.AssignedPersisted<
+  ChildFields,
+  ChildPersisted,
+  EntityIdentityFields<Entity>,
+  EntityIdentityPersisted
 >;
 
 /**
@@ -64,7 +64,7 @@ type EntityPersistedFor<
 export const fields = {
   createdAt: EntitySchema.DateTimeFromMillis,
   createdByPrincipal: Principal,
-  orgId: EntitySchema.entityId(Shared.OrganizationId),
+  orgId: Shared.OrganizationId,
   rowVersion: PosInt,
   schemaVersion: SemanticVersion,
   source: SourceKind,
@@ -130,7 +130,7 @@ const identityFields = <const Entity extends EntitySchema.EntityIdLike>(
   entityId: Entity
 ): EntityIdentityFields<Entity> => ({
   entityType: EntitySchema.literal(entityId.entityType),
-  id: EntitySchema.generatedId(entityId),
+  id: entityId,
 });
 
 const identityPersisted = {
@@ -154,13 +154,7 @@ const entityPartsFor = <
   readonly fields: EntityFieldsFor<Entity, ChildFields>;
   readonly persisted: EntityPersistedFor<Entity, ChildFields, ChildPersisted>;
 } =>
-  ({
-    fields: Struct.assign(input.fields, identityFields(entityId)),
-    persisted: Struct.assign(input.persisted, identityPersisted),
-  }) as {
-    readonly fields: EntityFieldsFor<Entity, ChildFields>;
-    readonly persisted: EntityPersistedFor<Entity, ChildFields, ChildPersisted>;
-  };
+  EntitySchema.assignEntityParts(input.fields, input.persisted, identityFields(entityId), identityPersisted);
 
 const Class =
   <Child = never>(identifier: string) =>

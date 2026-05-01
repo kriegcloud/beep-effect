@@ -264,7 +264,6 @@ Export findings:
 - `src/EntitySchema.ts:297` `PersistDescriptor` (const) - missing @example
 - `src/EntitySchema.ts:312` `PersistDescriptorByValueStrategy` (type) - missing @example
 - `src/EntitySchema.ts:330` `EntityIdLike` (type) - missing @example
-- `src/EntitySchema.ts:342` `EntityIdSchema` (type) - missing @example
 - `src/EntitySchema.ts:368` `PersistDescriptorFor` (type) - missing @example
 - `src/EntitySchema.ts:378` `PersistedFor` (type) - missing @example
 - `src/EntitySchema.ts:388` `PersistedMap` (type) - missing @example
@@ -286,8 +285,6 @@ Export findings:
 - `src/EntitySchema.ts:652` `persist` (const) - missing @example
 - `src/EntitySchema.ts:669` `DateTimeFromMillis` (const) - missing @example
 - `src/EntitySchema.ts:677` `int` (const) - missing @example
-- `src/EntitySchema.ts:685` `entityId` (const) - missing @example
-- `src/EntitySchema.ts:694` `generatedId` (const) - missing @example
 - `src/EntitySchema.ts:702` `literal` (const) - missing @example; 2 schema annotation/type-alias gap(s)
 - `src/EntitySchema.ts:714` `tableNameFromIdentifier` (const) - missing @example
 - `src/EntitySchema.ts:725` `columnNameFor` (const) - missing @example
@@ -3548,4 +3545,3 @@ Export findings:
 - `src/index.ts:30` `export * from "./Postgres.errors.ts";` (re-export) - missing @example
 - `src/index.ts:38` `export * from "./Postgres.format.ts";` (re-export) - missing @example
 - `src/index.ts:46` `export * from "./Postgres.sqlstate.ts";` (re-export) - missing @example
-

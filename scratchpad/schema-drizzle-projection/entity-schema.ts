@@ -144,13 +144,11 @@ export type PersistDescriptorByValueStrategy<
     }[Descriptor["storageKind"]]
   : never;
 
-export type EntityIdLike = S.Top & {
+export type EntityIdLike = S.Codec<unknown, number> & {
   readonly Type: unknown;
   readonly entityType: string;
   readonly tableName: string;
 };
-
-export type EntityIdSchema<Entity extends EntityIdLike> = S.Codec<Entity["Type"], number> & Entity;
 
 type NonNullish<A> = Exclude<A, null | undefined>;
 type JsonContainer = S.JsonArray | S.JsonObject;
@@ -300,11 +298,6 @@ export const persist = {
 export const DateTimeFromMillis = S.DateTimeUtcFromMillis;
 
 export const int = S.Int;
-
-export const entityId = <const Entity extends EntityIdLike>(schema: Entity): EntityIdSchema<Entity> =>
-  schema as EntityIdSchema<Entity>;
-
-export const generatedId = entityId;
 
 export const literal = <const Value extends string | number | boolean | bigint>(
   value: Value
