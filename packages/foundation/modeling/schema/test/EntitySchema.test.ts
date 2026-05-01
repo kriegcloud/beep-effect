@@ -86,11 +86,11 @@ describe("EntitySchema", () => {
 
   it("derives encoded absence from Effect Schema AST", () => {
     expect(EntitySchema.encodedFieldShape(S.String).absenceKind).toBe("required");
-    expect(EntitySchema.encodedFieldShape(S.NullOr(S.String)).absenceKind).toBe("nullable");
-    expect(EntitySchema.encodedFieldShape(S.UndefinedOr(S.String)).absenceKind).toBe("undefined");
+    expect(EntitySchema.encodedFieldShape(S.String.pipe(S.NullOr)).absenceKind).toBe("nullable");
+    expect(EntitySchema.encodedFieldShape(S.String.pipe(S.UndefinedOr)).absenceKind).toBe("undefined");
     expect(EntitySchema.encodedFieldShape(S.String.pipe(S.OptionFromNullOr)).absenceKind).toBe("nullable");
-    expect(EntitySchema.encodedFieldShape(S.optionalKey(S.String)).absenceKind).toBe("optionalKey");
-    expect(() => EntitySchema.selectedRowFieldShape("optionalKey", S.optionalKey(S.String))).toThrow(
+    expect(EntitySchema.encodedFieldShape(S.String.pipe(S.optionalKey)).absenceKind).toBe("optionalKey");
+    expect(() => EntitySchema.selectedRowFieldShape("optionalKey", S.String.pipe(S.optionalKey))).toThrow(
       "must encode SQL absence as null"
     );
   });

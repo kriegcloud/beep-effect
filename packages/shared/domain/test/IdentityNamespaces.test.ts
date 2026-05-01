@@ -324,8 +324,9 @@ describe("P3 identity namespaces", () => {
     }
   });
 
-  it.effect("decode positive integer ids and reject invalid ids", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decode positive integer ids and reject invalid ids",
+    Effect.fnUntraced(function* () {
       for (const spec of specs) {
         const decode = S.decodeUnknownEffect(spec.schema);
 

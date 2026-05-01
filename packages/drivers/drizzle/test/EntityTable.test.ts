@@ -1,5 +1,5 @@
-import { $SchemaId } from "@beep/identity";
 import { EntityTable } from "@beep/drizzle";
+import { $SchemaId } from "@beep/identity";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import { describe, expect, it } from "@effect/vitest";
 import { getTableConfig } from "drizzle-orm/pg-core";
@@ -100,10 +100,10 @@ describe("EntityTable", () => {
     const payloadGin = indexConfigNamed("fixture_payload_gin_idx");
 
     expect(O.getOrThrow(activeBtree).config.method).toBe("btree");
-    expect(O.getOrThrow(activeBtree).config.columns[0]?.name).toBe("is_active");
+    expect(O.getOrThrow(activeBtree).config.columns[0]).toMatchObject({ name: "is_active" });
     expect(O.getOrThrow(nameUnique).config.unique).toBe(true);
-    expect(O.getOrThrow(nameUnique).config.columns[0]?.name).toBe("name");
+    expect(O.getOrThrow(nameUnique).config.columns[0]).toMatchObject({ name: "name" });
     expect(O.getOrThrow(payloadGin).config.method).toBe("gin");
-    expect(O.getOrThrow(payloadGin).config.columns[0]?.name).toBe("payload");
+    expect(O.getOrThrow(payloadGin).config.columns[0]).toMatchObject({ name: "payload" });
   });
 });

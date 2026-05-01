@@ -30,9 +30,9 @@ describe("@beep/law-practice-domain", () => {
     expect(Matter.definition.entityId).type.toBe<typeof LawPractice.MatterId>();
     expect<typeof Matter.definition.entityId.tableName>().type.toBe<"law_practice_matter">();
     expect<typeof Matter.definition.entityId.entityType>().type.toBe<"LawPracticeMatter">();
-    expect<typeof Matter.definition.fieldMap.matterType.storageKind>().type.toBe<"literal">();
+    expect<typeof Matter.definition.persisted.matterType.storageKind>().type.toBe<"literal">();
     expect<
-      typeof Matter.definition.fieldMap.legalClientFixtureKey.columnName
+      typeof Matter.definition.persisted.legalClientFixtureKey.columnName
     >().type.toBe<"legal_client_fixture_key">();
     expect<typeof Matter.fields.matterType.Type>().type.toBe<MatterTypeType>();
   });

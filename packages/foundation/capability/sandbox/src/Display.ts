@@ -1,12 +1,21 @@
+/**
+ * Display services for sandbox runs.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
 import { A, Struct, Text } from "@beep/utils";
 import * as clack from "@clack/prompts";
 import { Clock, Context, DateTime, Effect, Exit, FileSystem, Layer, Path, pipe, Ref } from "effect";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
+import { redactSensitiveText } from "./Sandbox.observability.ts";
 
 const $I = $SandboxId.create("Display");
+const sanitizeDisplayText = redactSensitiveText;
 
 /**
  * Severity - The severity of the display message.
@@ -14,8 +23,8 @@ const $I = $SandboxId.create("Display");
  * @category schemas
  * @since 0.0.0
  */
-export const Severity = LiteralKit(["Info", "Success", "Warn", "Error"]).pipe(
-  $I.annoteSchema("Severity", {
+export const Severity = LiteralKit(["Info", "Success", "Warn", "Error"]).annotate(
+  $I.annote("Severity", {
     description: "Severity - The severity of the display message.",
   })
 );
@@ -159,10 +168,10 @@ export const DisplayEntry = S.Union([
   DisplayEntryText,
   DisplayEntryToolCall,
 ]).pipe(
-  S.toTaggedUnion("_tag"),
   $I.annoteSchema("DisplayEntry", {
     description: "DisplayEntry - Represents a display entry.",
-  })
+  }),
+  S.toTaggedUnion("_tag")
 );
 
 /**
@@ -206,6 +215,16 @@ export interface DisplayServiceShape {
  */
 export class Display extends Context.Service<Display, DisplayServiceShape>()($I`Display`) {}
 
+const sanitizeSummaryRows = (rows: Record<string, string>): Record<string, string> => {
+  const sanitized = R.empty<string, string>();
+
+  for (const [key, value] of Struct.entries(rows)) {
+    sanitized[sanitizeDisplayText(key)] = sanitizeDisplayText(value);
+  }
+
+  return sanitized;
+};
+
 /**
  * Display implementation that records entries in a `Ref`.
  *
@@ -220,7 +239,7 @@ export const SilentDisplay = {
           ref,
           A.append(
             new DisplayEntryIntro({
-              title,
+              title: sanitizeDisplayText(title),
             })
           )
         );
@@ -230,7 +249,7 @@ export const SilentDisplay = {
           ref,
           A.append(
             new DisplayEntryStatus({
-              message,
+              message: sanitizeDisplayText(message),
               severity,
             })
           )
@@ -242,7 +261,7 @@ export const SilentDisplay = {
           ref,
           A.append(
             new DisplayEntrySpinner({
-              message,
+              message: sanitizeDisplayText(message),
             })
           )
         );
@@ -255,8 +274,8 @@ export const SilentDisplay = {
           ref,
           A.append(
             new DisplayEntrySummary({
-              title,
-              rows,
+              title: sanitizeDisplayText(title),
+              rows: sanitizeSummaryRows(rows),
             })
           )
         );
@@ -268,7 +287,7 @@ export const SilentDisplay = {
       ) {
         let messages = A.empty<string>();
         const collectMessage = (message: string): void => {
-          messages = A.append(messages, message);
+          messages = A.append(messages, sanitizeDisplayText(message));
         };
 
         const result = yield* effect(collectMessage);
@@ -278,7 +297,7 @@ export const SilentDisplay = {
             ref,
             A.append(
               new DisplayEntryTaskLog({
-                title,
+                title: sanitizeDisplayText(title),
                 messages,
               })
             )
@@ -291,7 +310,7 @@ export const SilentDisplay = {
           ref,
           A.append(
             new DisplayEntryText({
-              message,
+              message: sanitizeDisplayText(message),
             })
           )
         );
@@ -301,8 +320,8 @@ export const SilentDisplay = {
           ref,
           A.append(
             new DisplayEntryToolCall({
-              name,
-              formattedArgs,
+              formattedArgs: sanitizeDisplayText(formattedArgs),
+              name: sanitizeDisplayText(name),
             })
           )
         );
@@ -316,7 +335,7 @@ const stripStatusPrefix = Str.replace(/^\[[^\]]+\] /, "");
 
 const renderSummaryRows = (rows: Record<string, string>): string =>
   pipe(
-    rows,
+    sanitizeSummaryRows(rows),
     Struct.entries,
     A.map(([key, value]) => `  ${key}: ${value}`),
     Text.joinLines
@@ -324,6 +343,75 @@ const renderSummaryRows = (rows: Record<string, string>): string =>
 
 const formatElapsedSeconds = (startMillis: number, endMillis: number): string =>
   `${((endMillis - startMillis) / 1000).toFixed(1)}s`;
+
+const makeFileDisplayService = Effect.fn("FileDisplay.make")(function* (filePath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  yield* fs.makeDirectory(path.dirname(filePath), { recursive: true }).pipe(Effect.orDie);
+
+  const startedAt = yield* DateTime.now;
+  const delimiter = `\n--- Run started: ${DateTime.formatIso(startedAt)} ---\n`;
+  yield* fs.writeFileString(filePath, delimiter, appendFlag).pipe(Effect.orDie);
+
+  const appendToLog = (line: string): Effect.Effect<void> =>
+    fs.writeFileString(filePath, `${sanitizeDisplayText(line)}\n`, appendFlag).pipe(Effect.ignore);
+
+  return Display.of({
+    intro: Effect.fn("FileDisplay.intro")(function* () {
+      return yield* Effect.void;
+    }),
+
+    status: Effect.fn("FileDisplay.status")(function* (message: string, _severity: Severity) {
+      yield* appendToLog(stripStatusPrefix(message));
+    }),
+
+    spinner: Effect.fn("FileDisplay.spinner")(function* <A, E, R>(message: string, effect: Effect.Effect<A, E, R>) {
+      const safeMessage = sanitizeDisplayText(message);
+
+      yield* appendToLog(`${safeMessage}...`);
+      const start = yield* Clock.currentTimeMillis;
+      const result = yield* effect;
+      const end = yield* Clock.currentTimeMillis;
+
+      yield* appendToLog(`${safeMessage} done (${formatElapsedSeconds(start, end)})`);
+
+      return result;
+    }),
+
+    summary: Effect.fn("FileDisplay.summary")(function* (title: string, rows: Record<string, string>) {
+      yield* appendToLog(`${title}\n${renderSummaryRows(rows)}`);
+    }),
+
+    taskLog: Effect.fn("FileDisplay.taskLog")(function* <A, E, R>(
+      title: string,
+      effect: (message: (msg: string) => void) => Effect.Effect<A, E, R>
+    ) {
+      yield* appendToLog(title);
+      const start = yield* Clock.currentTimeMillis;
+      let messages = A.empty<string>();
+      const collectMessage = (message: string): void => {
+        messages = A.append(messages, sanitizeDisplayText(message));
+      };
+
+      const result = yield* effect(collectMessage);
+      const end = yield* Clock.currentTimeMillis;
+
+      yield* Effect.forEach(messages, (message) => appendToLog(`  ${message}`), { discard: true });
+      yield* appendToLog(`${title} done (${formatElapsedSeconds(start, end)})`);
+
+      return result;
+    }),
+
+    text: Effect.fn("FileDisplay.text")(function* (message: string) {
+      yield* appendToLog(message);
+    }),
+
+    toolCall: Effect.fn("FileDisplay.toolCall")(function* (name: string, formattedArgs: string) {
+      yield* appendToLog(`${sanitizeDisplayText(name)}(${sanitizeDisplayText(formattedArgs)})`);
+    }),
+  });
+});
 
 /**
  * File-backed display implementation that appends display output to a log file.
@@ -333,78 +421,7 @@ const formatElapsedSeconds = (startMillis: number, endMillis: number): string =>
  */
 export const FileDisplay = {
   layer: (filePath: string): Layer.Layer<Display, never, FileSystem.FileSystem | Path.Path> =>
-    Layer.effect(
-      Display,
-      Effect.gen(function* () {
-        const fs = yield* FileSystem.FileSystem;
-        const path = yield* Path.Path;
-
-        yield* fs.makeDirectory(path.dirname(filePath), { recursive: true }).pipe(Effect.orDie);
-
-        const startedAt = yield* DateTime.now;
-        const delimiter = `\n--- Run started: ${DateTime.formatIso(startedAt)} ---\n`;
-        yield* fs.writeFileString(filePath, delimiter, appendFlag).pipe(Effect.orDie);
-
-        const appendToLog = (line: string): Effect.Effect<void> =>
-          fs.writeFileString(filePath, `${line}\n`, appendFlag).pipe(Effect.ignore);
-
-        return Display.of({
-          intro: Effect.fn("FileDisplay.intro")(function* () {
-            return yield* Effect.void;
-          }),
-
-          status: Effect.fn("FileDisplay.status")(function* (message: string, _severity: Severity) {
-            yield* appendToLog(stripStatusPrefix(message));
-          }),
-
-          spinner: Effect.fn("FileDisplay.spinner")(function* <A, E, R>(
-            message: string,
-            effect: Effect.Effect<A, E, R>
-          ) {
-            yield* appendToLog(`${message}...`);
-            const start = yield* Clock.currentTimeMillis;
-            const result = yield* effect;
-            const end = yield* Clock.currentTimeMillis;
-
-            yield* appendToLog(`${message} done (${formatElapsedSeconds(start, end)})`);
-
-            return result;
-          }),
-
-          summary: Effect.fn("FileDisplay.summary")(function* (title: string, rows: Record<string, string>) {
-            yield* appendToLog(`${title}\n${renderSummaryRows(rows)}`);
-          }),
-
-          taskLog: Effect.fn("FileDisplay.taskLog")(function* <A, E, R>(
-            title: string,
-            effect: (message: (msg: string) => void) => Effect.Effect<A, E, R>
-          ) {
-            yield* appendToLog(title);
-            const start = yield* Clock.currentTimeMillis;
-            let messages = A.empty<string>();
-            const collectMessage = (message: string): void => {
-              messages = A.append(messages, message);
-            };
-
-            const result = yield* effect(collectMessage);
-            const end = yield* Clock.currentTimeMillis;
-
-            yield* Effect.forEach(messages, (message) => appendToLog(`  ${message}`), { discard: true });
-            yield* appendToLog(`${title} done (${formatElapsedSeconds(start, end)})`);
-
-            return result;
-          }),
-
-          text: Effect.fn("FileDisplay.text")(function* (message: string) {
-            yield* appendToLog(message);
-          }),
-
-          toolCall: Effect.fn("FileDisplay.toolCall")(function* (name: string, formattedArgs: string) {
-            yield* appendToLog(`${name}(${formattedArgs})`);
-          }),
-        });
-      })
-    ),
+    Layer.effect(Display, makeFileDisplayService(filePath)),
 };
 
 const terminalAnsi = {
@@ -429,14 +446,15 @@ const severityToClack: Record<Severity, (message: string) => void> = {
 /**
  * Terminal text styles used by {@link ClackDisplay}.
  *
- * @category rendering
+ * @category utilities
  * @since 0.0.0
  */
 export const terminalStyle = {
-  status: (message: string): string => styleText("bold", message),
-  summaryTitle: (title: string): string => styleText("bold", title),
-  summaryRow: (key: string, value: string): string => `${styleText("bold", key)}: ${styleText("dim", value)}`,
-  toolCall: (text: string): string => styleText("dim", text),
+  status: (message: string): string => styleText("bold", sanitizeDisplayText(message)),
+  summaryTitle: (title: string): string => styleText("bold", sanitizeDisplayText(title)),
+  summaryRow: (key: string, value: string): string =>
+    `${styleText("bold", sanitizeDisplayText(key))}: ${styleText("dim", sanitizeDisplayText(value))}`,
+  toolCall: (text: string): string => styleText("dim", sanitizeDisplayText(text)),
 };
 
 /**
@@ -450,7 +468,7 @@ export const ClackDisplay = {
     Display,
     Display.of({
       intro: Effect.fn("ClackDisplay.intro")(function* (title: string) {
-        yield* Effect.sync(() => clack.intro(styleText("inverse", ` ${title} `)));
+        yield* Effect.sync(() => clack.intro(styleText("inverse", ` ${sanitizeDisplayText(title)} `)));
       }),
 
       status: Effect.fn("ClackDisplay.status")(function* (message: string, severity: Severity) {
@@ -458,10 +476,12 @@ export const ClackDisplay = {
       }),
 
       spinner: Effect.fn("ClackDisplay.spinner")(function* <A, E, R>(message: string, effect: Effect.Effect<A, E, R>) {
+        const safeMessage = sanitizeDisplayText(message);
+
         return yield* Effect.acquireUseRelease(
           Effect.sync(() => {
             const spinner = clack.spinner();
-            spinner.start(message);
+            spinner.start(safeMessage);
 
             return spinner;
           }),
@@ -469,9 +489,9 @@ export const ClackDisplay = {
           (spinner, exit) =>
             Effect.sync(() => {
               if (Exit.isSuccess(exit)) {
-                spinner.stop(message);
+                spinner.stop(safeMessage);
               } else {
-                spinner.stop(`${message} (failed)`);
+                spinner.stop(`${safeMessage} (failed)`);
               }
             })
         );
@@ -495,21 +515,23 @@ export const ClackDisplay = {
         effect: (message: (msg: string) => void) => Effect.Effect<A, E, R>
       ) {
         return yield* Effect.acquireUseRelease(
-          Effect.sync(() => clack.taskLog({ title })),
-          (log) => effect((message) => log.message(message)),
+          Effect.sync(() => clack.taskLog({ title: sanitizeDisplayText(title) })),
+          (log) => effect((message) => log.message(sanitizeDisplayText(message))),
           (log, exit) =>
             Effect.sync(() => {
+              const safeTitle = sanitizeDisplayText(title);
+
               if (Exit.isSuccess(exit)) {
-                log.success(title, { showLog: true });
+                log.success(safeTitle, { showLog: true });
               } else {
-                log.error(title, { showLog: true });
+                log.error(safeTitle, { showLog: true });
               }
             })
         );
       }),
 
       text: Effect.fn("ClackDisplay.text")(function* (message: string) {
-        yield* Effect.sync(() => clack.log.message(message));
+        yield* Effect.sync(() => clack.log.message(sanitizeDisplayText(message)));
       }),
 
       toolCall: Effect.fn("ClackDisplay.toolCall")(function* (name: string, formattedArgs: string) {

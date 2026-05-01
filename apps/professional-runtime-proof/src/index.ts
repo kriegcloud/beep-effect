@@ -290,17 +290,14 @@ const decodeSeedModels = (seed: SeedFixture, email: EmailFixture, body: string):
     })
   );
   seed.principals.forEach((principal, index) => {
-    const optionalAgent = principal.agentId === undefined ? {} : { agentFixtureKey: principal.agentId };
-    const optionalUser = principal.userId === undefined ? {} : { userFixtureKey: principal.userId };
-
     decodePrincipal({
       ...entityAuditFields,
-      ...optionalAgent,
-      ...optionalUser,
+      agentFixtureKey: principal.agentId ?? null,
       entityType: entityTypeOf(Principal),
       fixtureKey: principal.principalId,
       id: index + 20,
       kind: principal.kind,
+      userFixtureKey: principal.userId ?? null,
     });
   });
   decodeWorkspace({

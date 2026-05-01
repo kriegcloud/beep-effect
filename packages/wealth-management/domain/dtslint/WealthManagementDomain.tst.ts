@@ -30,8 +30,8 @@ describe("@beep/wealth-management-domain", () => {
     expect(Account.definition.entityId).type.toBe<typeof WealthManagement.AccountId>();
     expect<typeof Account.definition.entityId.tableName>().type.toBe<"wealth_management_account">();
     expect<typeof Account.definition.entityId.entityType>().type.toBe<"WealthManagementAccount">();
-    expect<typeof Account.definition.fieldMap.accountType.storageKind>().type.toBe<"literal">();
-    expect<typeof Account.definition.fieldMap.householdFixtureKey.columnName>().type.toBe<"household_fixture_key">();
+    expect<typeof Account.definition.persisted.accountType.storageKind>().type.toBe<"literal">();
+    expect<typeof Account.definition.persisted.householdFixtureKey.columnName>().type.toBe<"household_fixture_key">();
     expect<typeof Account.fields.accountType.Type>().type.toBe<AccountTypeType>();
   });
 

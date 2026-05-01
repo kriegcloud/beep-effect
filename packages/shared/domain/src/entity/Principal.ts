@@ -195,10 +195,10 @@ export const Principal = S.Union([
   ConnectorAccountPrincipal,
   SystemPrincipal,
 ]).pipe(
-  S.toTaggedUnion("kind"),
   $I.annoteSchema("Principal", {
     description: "Principal actor reference used by shared-kernel persisted entity fields.",
-  })
+  }),
+  S.toTaggedUnion("kind")
 );
 
 /**

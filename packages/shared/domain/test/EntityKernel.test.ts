@@ -8,7 +8,6 @@ import * as EntityRef from "@beep/shared-domain/entity/EntityRef";
 import * as Principal from "@beep/shared-domain/entity/Principal";
 import * as primitives from "@beep/shared-domain/entity/primitives";
 import * as SourceKind from "@beep/shared-domain/entity/SourceKind";
-import * as Shared from "@beep/shared-domain/identity/Shared";
 import { assert, describe, expect, it } from "@effect/vitest";
 import { Effect, Exit } from "effect";
 import { cast } from "effect/Function";
@@ -81,8 +80,9 @@ const documentInput = {
 } as const;
 
 describe("EntityId", () => {
-  it.effect("decodes generated entity ids and rejects invalid ids", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes generated entity ids and rejects invalid ids",
+    Effect.fnUntraced(function* () {
       const decode = S.decodeUnknownEffect(EntityId.EntityIdValue);
 
       expect(yield* decode(1)).toBe(1);
@@ -93,8 +93,9 @@ describe("EntityId", () => {
     })
   );
 
-  it.effect("derives default metadata and schema statics", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "derives default metadata and schema statics",
+    Effect.fnUntraced(function* () {
       expect(DocumentId.slice).toBe("shared");
       expect(DocumentId.tableName).toBe("shared_document");
       expect(DocumentId.resource).toBe("shared.document");
@@ -136,8 +137,9 @@ describe("BaseEntity", () => {
     expect(BaseEntity.BaseEntity.definition.fields.source).toBe(SourceKind.SourceKind);
   });
 
-  it.effect("extends with entity-specific schema fields and attached persistence metadata", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "extends with entity-specific schema fields and attached persistence metadata",
+    Effect.fnUntraced(function* () {
       const document = yield* decodeEffect(Document)(documentInput);
 
       expect(EntitySchema.getDefinition(Document)).toBe(Document.definition);
@@ -167,8 +169,9 @@ describe("BaseEntity", () => {
 });
 
 describe("EntityRef and shared entity primitives", () => {
-  it.effect("builds entity references and validates primitive schemas", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "builds entity references and validates primitive schemas",
+    Effect.fnUntraced(function* () {
       const id = yield* S.decodeUnknownEffect(DocumentId)(1);
       const ref = EntityRef.make(DocumentId, id);
       const dataLastRef = EntityRef.make(id)(DocumentId);
@@ -189,8 +192,9 @@ describe("EntityRef and shared entity primitives", () => {
     })
   );
 
-  it.effect("decodes principals, source kinds, and barrel exports", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes principals, source kinds, and barrel exports",
+    Effect.fnUntraced(function* () {
       const user = yield* decodeEffect(Principal.UserPrincipal)({
         kind: "User",
         userId: 1,

@@ -338,6 +338,174 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
+      "file": "packages/foundation/capability/sandbox/src/Agent.provider.ts",
+      "symbol": "AgentProvider",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/AgentStreamEmitter.ts",
+      "symbol": "AgentStreamEmitterShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Display.ts",
+      "symbol": "DisplayServiceShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Orchestrator.ts",
+      "symbol": "OrchestrateOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Run.ts",
+      "symbol": "RunOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.process.ts",
+      "symbol": "SandboxProcessShape",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "BindMountSandboxHandle",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "BindMountSandboxProvider",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "BindMountSandboxProviderConfig",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "InteractiveExecOptions",
+      "kind": "exported-interface",
+      "status": "candidate",
+      "owner": "@beep/sandbox",
+      "reason": "Exported pure-data interface should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "IsolatedSandboxHandle",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "IsolatedSandboxProvider",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "IsolatedSandboxProviderConfig",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "NoSandboxHandle",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "NoSandboxProvider",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Sandbox.provider.ts",
+      "symbol": "SandboxHandle",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/Session.ts",
+      "symbol": "SessionStore",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/createSandbox.ts",
+      "symbol": "CreateSandboxOptions",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/createWorktree.ts",
+      "symbol": "Worktree",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Generic interface requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/terminalCleanup.ts",
+      "symbol": "TerminalCleanupStdin",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/capability/sandbox/src/terminalCleanup.ts",
+      "symbol": "TerminalCleanupStdout",
+      "kind": "exported-interface",
+      "status": "exception",
+      "owner": "@beep/sandbox",
+      "reason": "Interface contains non-schema signals such as function members or runtime handles."
+    },
+    {
       "file": "packages/foundation/capability/semantic-web/src/services/canonicalization.ts",
       "symbol": "CanonicalizationServiceShape",
       "kind": "exported-interface",
@@ -432,6 +600,30 @@
       "status": "exception",
       "owner": "@beep/schema",
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "symbol": "ClassInput",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "symbol": "EncodedFieldShape",
+      "kind": "exported-type-literal",
+      "status": "candidate",
+      "owner": "@beep/schema",
+      "reason": "Exported pure-data type alias should be modeled as an annotated schema."
+    },
+    {
+      "file": "packages/foundation/modeling/schema/src/EntitySchema.ts",
+      "symbol": "PersistOptions",
+      "kind": "exported-type-literal",
+      "status": "exception",
+      "owner": "@beep/schema",
+      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
       "file": "packages/foundation/modeling/schema/src/Fn.ts",
@@ -904,78 +1096,6 @@
       "status": "exception",
       "owner": "@beep/ui",
       "reason": "React tour configuration is coupled to Step render contracts containing ReactNode values, so it stays tracked as a UI boundary exception."
-    },
-    {
-      "file": "packages/shared/domain/src/entity/BaseEntity.ts",
-      "symbol": "Definition",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-domain",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/domain/src/entity/BaseEntity.ts",
-      "symbol": "EntityFieldMap",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-domain",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/domain/src/entity/BaseEntity.ts",
-      "symbol": "ExtendBuilder",
-      "kind": "exported-interface",
-      "status": "exception",
-      "owner": "@beep/shared-domain",
-      "reason": "Generic interface requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/domain/src/entity/EntityMixin.ts",
-      "symbol": "Definition",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-domain",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/domain/src/entity/EntityMixin.ts",
-      "symbol": "EntityMixin",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-domain",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/domain/src/entity/EntityMixin.ts",
-      "symbol": "FieldOverride",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-domain",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/domain/src/entity/EntityMixin.ts",
-      "symbol": "Pack",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-domain",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/tables/src/table/Table.ts",
-      "symbol": "Definition",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-tables",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
-    },
-    {
-      "file": "packages/shared/tables/src/table/Table.ts",
-      "symbol": "WithDefinition",
-      "kind": "exported-type-literal",
-      "status": "exception",
-      "owner": "@beep/shared-tables",
-      "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
       "file": "packages/tooling/library/repo-utils/src/FsUtils.ts",

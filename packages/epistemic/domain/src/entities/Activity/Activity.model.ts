@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 import { $EpistemicDomainId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
-import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
 
 const $I = $EpistemicDomainId.create("entities/Activity/Activity.model");

@@ -1,5 +1,5 @@
-import { $SchemaId } from "@beep/identity";
 import { EntityTable } from "@beep/drizzle";
+import { $SchemaId } from "@beep/identity";
 import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
 import { describe, expect, it } from "tstyche";

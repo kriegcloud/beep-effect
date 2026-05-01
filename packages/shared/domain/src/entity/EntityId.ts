@@ -306,9 +306,8 @@ export type EntityId<
   TResource extends string = Resource<Slice, Name>,
   TEntityType extends string = EntityType<Slice, Name>,
   TBrand extends string = Brand<Slice, Name>,
-> = S.Top & {
-  readonly Type: EntityIdValueFor<TBrand>;
-} & EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
+> = S.Codec<EntityIdValueFor<TBrand>, number> &
+  EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>;
 
 type EntityIdStatics<
   Slice extends string,
@@ -407,7 +406,7 @@ const attachEntityIdStatics = <
   const TResource extends string,
   const TEntityType extends string,
   const TBrand extends string,
-  const Schema extends S.Top & { readonly Type: EntityIdValue },
+  const Schema extends S.Codec<EntityIdValue, number, never, never>,
 >(
   schema: Schema,
   statics: EntityIdStatics<Slice, Name, TTableName, TResource, TEntityType, TBrand>
@@ -488,17 +487,14 @@ export const factory: Factory = dual(
         })
       );
 
-      return attachEntityIdStatics(
-        schema as S.Top & { readonly Type: EntityIdValueFor<ResolvedBrand<Slice, Name, Overrides>> },
-        {
-          brand: definition.brand,
-          definition,
-          entityType: definition.entityType,
-          equivalence: S.toEquivalence(schema) as EntityIdEquivalence<ResolvedBrand<Slice, Name, Overrides>>,
-          resource: definition.resource,
-          slice,
-          tableName: definition.tableName,
-        }
-      );
+      return attachEntityIdStatics(schema as S.Codec<EntityIdValueFor<ResolvedBrand<Slice, Name, Overrides>>, number>, {
+        brand: definition.brand,
+        definition,
+        entityType: definition.entityType,
+        equivalence: S.toEquivalence(schema) as EntityIdEquivalence<ResolvedBrand<Slice, Name, Overrides>>,
+        resource: definition.resource,
+        slice,
+        tableName: definition.tableName,
+      });
     }
 );

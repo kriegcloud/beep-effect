@@ -7,6 +7,7 @@
 
 import { $SandboxId } from "@beep/identity";
 import { Effect, type FileSystem, type Path } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import { MergeProviderEnvOptions, mergeProviderEnv, resolveEnv } from "./Env.ts";
 import type { SandboxError } from "./Sandbox.errors.ts";
@@ -56,39 +57,40 @@ export class CreateSandboxResult extends S.Class<CreateSandboxResult>($I`CreateS
  * @category constructors
  * @since 0.0.0
  */
-export const createSandbox = <R>(
+export const createSandbox: <R>(
   options: CreateSandboxOptions<R>
-): Effect.Effect<SandboxHandle<R>, SandboxError, R | FileSystem.FileSystem | Path.Path> =>
-  Effect.gen(function* () {
-    const resolvedEnv = yield* resolveEnv(options.cwd);
-    const env = yield* mergeProviderEnv(
-      new MergeProviderEnvOptions({
-        agentProviderEnv: {},
-        resolvedEnv,
-        sandboxProviderEnv: {
-          ...options.sandbox.env,
-          ...(options.env ?? {}),
-        },
+) => Effect.Effect<SandboxHandle<R>, SandboxError, R | FileSystem.FileSystem | Path.Path> = Effect.fn(
+  "createSandbox.createSandbox"
+)(function* <R>(options: CreateSandboxOptions<R>) {
+  const resolvedEnv = yield* resolveEnv(options.cwd);
+  const env = yield* mergeProviderEnv(
+    new MergeProviderEnvOptions({
+      agentProviderEnv: {},
+      resolvedEnv,
+      sandboxProviderEnv: {
+        ...options.sandbox.env,
+        ...(options.env ?? {}),
+      },
+    })
+  );
+
+  if (P.isTagged(options.sandbox, "BindMount")) {
+    return yield* options.sandbox.create(
+      new BindMountCreateOptions({
+        env,
+        hostRepoPath: options.cwd,
+        mounts: [...(options.mounts ?? [])],
+        worktreePath: options.worktreePath,
       })
     );
+  }
 
-    if (options.sandbox._tag === "BindMount") {
-      return yield* options.sandbox.create(
-        new BindMountCreateOptions({
-          env,
-          hostRepoPath: options.cwd,
-          mounts: [...(options.mounts ?? [])],
-          worktreePath: options.worktreePath,
-        })
-      );
-    }
+  if (P.isTagged(options.sandbox, "Isolated")) {
+    return yield* options.sandbox.create(new IsolatedCreateOptions({ env }));
+  }
 
-    if (options.sandbox._tag === "Isolated") {
-      return yield* options.sandbox.create(new IsolatedCreateOptions({ env }));
-    }
-
-    return yield* options.sandbox.create({
-      env,
-      worktreePath: options.worktreePath,
-    });
+  return yield* options.sandbox.create({
+    env,
+    worktreePath: options.worktreePath,
   });
+});

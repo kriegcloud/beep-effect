@@ -279,6 +279,22 @@ export class SyncInTimeoutError extends CauseTaggedError<SyncInTimeoutError>($I`
 ) {}
 
 /**
+ * SyncOutTimeoutError - Git sync-out for isolated providers timed out.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class SyncOutTimeoutError extends CauseTaggedError<SyncOutTimeoutError>($I`SyncOutTimeoutError`)(
+  "SyncOutTimeoutError",
+  {
+    timeoutMs: S.DurationFromMillis,
+  },
+  $I.annote("SyncOutTimeoutError", {
+    description: "Git sync-out for isolated providers timed out.",
+  })
+) {}
+
+/**
  * HookTimeoutError - onSandboxReady hook command timed out.
  *
  * @category errors
@@ -423,6 +439,7 @@ export const SandboxError = S.Union([
   CopyToWorktreeTimeoutError,
   CopyToWorktreeError,
   SyncInTimeoutError,
+  SyncOutTimeoutError,
   HookTimeoutError,
   GitSetupTimeoutError,
   PromptExpansionTimeoutError,
@@ -434,7 +451,6 @@ export const SandboxError = S.Union([
   $I.annoteSchema("SandboxError", {
     description: "Errors related to the sandbox capability.",
   }),
-  S.toTaggedUnion("_tag"),
   SchemaUtils.withStatics(() => {
     const withTimeout: {
       <E, A, E2, R>(

@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 import { $LawPracticeDomainId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as LawPractice from "@beep/shared-domain/identity/LawPractice";
-import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
 import { LegalClientStatus } from "./LegalClient.values.js";
 

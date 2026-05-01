@@ -7,15 +7,18 @@
 
 import { $SandboxId } from "@beep/identity";
 import { A, O } from "@beep/utils";
-import { DateTime, Effect, pipe } from "effect";
+import { Clock, DateTime, Duration, Effect, pipe } from "effect";
+import * as P from "effect/Predicate";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import type { AgentProvider } from "./Agent.provider.ts";
 import { IterationUsage } from "./Agent.provider.ts";
-import { AgentStreamEmitter } from "./AgentStreamEmitter.ts";
+import { AgentStreamEmitter, AgentStreamEvent } from "./AgentStreamEmitter.ts";
 import { Display } from "./Display.ts";
-import { AgentError, type SandboxError } from "./Sandbox.errors.ts";
-import type { SandboxHandle } from "./Sandbox.provider.ts";
+import { ExpandPromptShellExpressionsOptions, expandPromptShellExpressions } from "./Prompt.ts";
+import { AgentError, AgentIdleTimeoutError, type SandboxError } from "./Sandbox.errors.ts";
+import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
+import type { ExecResult, SandboxHandle } from "./Sandbox.provider.ts";
 import { SandboxExecOptions } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Orchestrator");
@@ -82,16 +85,18 @@ export class OrchestrateResult extends S.Class<OrchestrateResult>($I`Orchestrate
 export interface OrchestrateOptions<R = never> {
   readonly branch: string;
   readonly completionSignal?: string | ReadonlyArray<string>;
+  readonly idleTimeoutMs?: Duration.Duration;
   readonly iterations: number;
   readonly name?: string;
   readonly prompt: string;
+  readonly promptExpansionTimeoutMs?: Duration.Duration;
   readonly provider: AgentProvider;
   readonly sandbox: SandboxHandle<R>;
   readonly sandboxRepoDir: string;
 }
 
 const completionSignals = (input: string | ReadonlyArray<string> | undefined): ReadonlyArray<string> =>
-  input === undefined ? [DEFAULT_COMPLETION_SIGNAL] : typeof input === "string" ? [input] : input;
+  P.isUndefined(input) ? [DEFAULT_COMPLETION_SIGNAL] : P.isString(input) ? [input] : input;
 
 const firstMatchedSignal = (output: string, signals: ReadonlyArray<string>): string | undefined =>
   pipe(
@@ -99,6 +104,70 @@ const firstMatchedSignal = (output: string, signals: ReadonlyArray<string>): str
     A.findFirst((signal) => Str.includes(signal)(output)),
     (option) => (O.isSome(option) ? option.value : undefined)
   );
+
+const runAgentIteration: <R>(
+  options: OrchestrateOptions<R>,
+  index: number
+) => Effect.Effect<ExecResult, SandboxError, R | Display> = Effect.fn("Orchestrator.runAgentIteration")(function* <R>(
+  options: OrchestrateOptions<R>,
+  index: number
+) {
+  const display = yield* Display;
+  const label = (message: string): string => (P.isUndefined(options.name) ? message : `[${options.name}] ${message}`);
+
+  yield* display.status(label(`Iteration ${index}/${options.iterations}`), "Info");
+  const prompt = yield* expandPromptShellExpressions(
+    options.sandbox,
+    new ExpandPromptShellExpressionsOptions({
+      cwd: options.sandboxRepoDir,
+      prompt: options.prompt,
+      ...(P.isUndefined(options.promptExpansionTimeoutMs) ? {} : { timeoutMs: options.promptExpansionTimeoutMs }),
+    })
+  );
+  const command = options.provider.buildPrintCommand({
+    dangerouslySkipPermissions: true,
+    prompt,
+  });
+  const clock = yield* Clock.Clock;
+  let lastOutputAtMs = clock.currentTimeMillisUnsafe();
+  const onLine = (): void => {
+    lastOutputAtMs = clock.currentTimeMillisUnsafe();
+  };
+  const exec = options.sandbox.exec(
+    command.command,
+    new SandboxExecOptions({
+      cwd: options.sandboxRepoDir,
+      onLine,
+      ...(P.isUndefined(command.stdin) ? {} : { stdin: command.stdin }),
+    })
+  );
+
+  const idleTimeoutMs = options.idleTimeoutMs;
+
+  if (P.isUndefined(idleTimeoutMs)) {
+    return yield* exec;
+  }
+
+  const idleTimeoutMillis = Duration.toMillis(idleTimeoutMs);
+  const failWhenIdle = Effect.fn("Orchestrator.failWhenIdle")(function* () {
+    while (true) {
+      yield* Effect.sleep(idleTimeoutMs);
+      const nowMs = yield* Clock.currentTimeMillis;
+      if (nowMs - lastOutputAtMs >= idleTimeoutMillis) {
+        return yield* AgentIdleTimeoutError.new(
+          "agent idle timeout",
+          `${options.provider.name} produced no output for ${idleTimeoutMillis.toString()}ms.`,
+          {
+            preservedWorktreePath: options.sandbox.worktreePath,
+            timeoutMs: idleTimeoutMs,
+          }
+        );
+      }
+    }
+  });
+
+  return yield* Effect.raceFirst(exec, failWhenIdle());
+});
 
 /**
  * Run an agent provider for the requested number of iterations.
@@ -114,29 +183,30 @@ export const orchestrate: <R>(
   const display = yield* Display;
   const streamEmitter = yield* AgentStreamEmitter;
   const signals = completionSignals(options.completionSignal);
-  const label = (message: string): string => (options.name === undefined ? message : `[${options.name}] ${message}`);
-  const iterations: Array<IterationResult> = [];
+  const iterations = A.empty<IterationResult>();
   let stdout = "";
   let completionSignal: string | undefined;
 
   for (let index = 1; index <= options.iterations; index++) {
-    yield* display.status(label(`Iteration ${index}/${options.iterations}`), "Info");
-    const command = options.provider.buildPrintCommand({
-      dangerouslySkipPermissions: true,
-      prompt: options.prompt,
-    });
-    const result = yield* options.sandbox.exec(
-      command.command,
-      new SandboxExecOptions({
-        cwd: options.sandboxRepoDir,
-        ...(command.stdin === undefined ? {} : { stdin: command.stdin }),
+    const result = yield* runAgentIteration(options, index).pipe(
+      profileSandboxPhase({
+        attributes: {
+          iteration: index.toString(),
+          provider: options.provider.name,
+          sandboxRepoDir: options.sandboxRepoDir,
+        },
+        phase: "sandbox.agent.iteration",
       })
     );
 
     if (result.exitCode !== 0) {
+      const errorDetail = redactSensitiveText(
+        result.stderr || result.stdout || `${options.provider.name} produced no error output`
+      );
+
       return yield* AgentError.new(
-        result.stderr || result.stdout,
-        `${options.provider.name} exited with code ${result.exitCode}`,
+        errorDetail,
+        `${options.provider.name} exited with code ${result.exitCode}: ${errorDetail}`,
         {}
       );
     }
@@ -146,26 +216,28 @@ export const orchestrate: <R>(
 
     for (const line of Str.split("\n")(result.stdout)) {
       for (const event of options.provider.parseStreamLine(line)) {
-        if (event._tag === "Text") {
+        if (P.isTagged(event, "Text")) {
           const timestamp = yield* DateTime.now;
           yield* display.text(event.text);
-          yield* streamEmitter.emit({
-            _tag: "Text",
-            iteration: index,
-            message: event.text,
-            timestamp,
-          });
-        } else if (event._tag === "ToolCall") {
+          yield* streamEmitter.emit(
+            AgentStreamEvent.cases.Text.make({
+              iteration: index,
+              message: event.text,
+              timestamp,
+            })
+          );
+        } else if (P.isTagged(event, "ToolCall")) {
           const timestamp = yield* DateTime.now;
           yield* display.toolCall(event.name, event.args);
-          yield* streamEmitter.emit({
-            _tag: "ToolCall",
-            formattedArgs: event.args,
-            iteration: index,
-            name: event.name,
-            timestamp,
-          });
-        } else if (event._tag === "SessionId") {
+          yield* streamEmitter.emit(
+            AgentStreamEvent.cases.ToolCall.make({
+              formattedArgs: event.args,
+              iteration: index,
+              name: event.name,
+              timestamp,
+            })
+          );
+        } else if (P.isTagged(event, "SessionId")) {
           sessionId = event.sessionId;
         }
       }
@@ -173,7 +245,7 @@ export const orchestrate: <R>(
 
     iterations.push(new IterationResult({ ...(sessionId === undefined ? {} : { sessionId }) }));
     completionSignal = firstMatchedSignal(stdout, signals);
-    if (completionSignal !== undefined) {
+    if (P.isNotUndefined(completionSignal)) {
       break;
     }
   }
@@ -181,7 +253,7 @@ export const orchestrate: <R>(
   return new OrchestrateResult({
     branch: options.branch,
     commits: [],
-    ...(completionSignal === undefined ? {} : { completionSignal }),
+    ...(P.isUndefined(completionSignal) ? {} : { completionSignal }),
     iterations,
     stdout,
   });

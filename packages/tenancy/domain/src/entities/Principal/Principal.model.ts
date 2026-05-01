@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 import { $TenancyDomainId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Tenancy from "@beep/shared-domain/identity/Tenancy";
-import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
 import { PrincipalKind } from "./Principal.values.js";
 

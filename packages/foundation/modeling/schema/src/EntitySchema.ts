@@ -8,11 +8,11 @@
 import { $SchemaId } from "@beep/identity";
 import * as Str from "@beep/utils/Str";
 import * as Struct from "@beep/utils/Struct";
-import { Match } from "effect";
+import { SchemaAST as AST, Match } from "effect";
 import * as A from "effect/Array";
+import { dual } from "effect/Function";
 import * as S from "effect/Schema";
-import * as AST from "effect/SchemaAST";
-import type { Simplify } from "effect/Struct";
+import type { Simplify, Assign as StructAssign } from "effect/Struct";
 import { LiteralKit } from "./LiteralKit.ts";
 import * as Model from "./Model.ts";
 import * as SchemaUtils from "./SchemaUtils/index.ts";
@@ -211,10 +211,20 @@ type PersistDescriptorShape<
 > = {
   readonly storageKind: TStorageKind;
   readonly valueStrategy: TValueStrategy;
-} & (TColumnName extends string ? { readonly columnName: TColumnName } : { readonly columnName?: never }) &
+} & (TColumnName extends string
+  ? {
+      readonly columnName: TColumnName;
+    }
+  : {
+      readonly columnName?: never;
+    }) &
   (TIndexHints extends ReadonlyArray<IndexHint>
-    ? { readonly indexHints: TIndexHints }
-    : { readonly indexHints?: never });
+    ? {
+        readonly indexHints: TIndexHints;
+      }
+    : {
+        readonly indexHints?: never;
+      });
 
 /**
  * Descriptor for one persisted entity field.
@@ -233,6 +243,20 @@ export type PersistDescriptor<
     : never
   : never;
 
+/**
+ * Companion types for {@link PersistDescriptor}.
+ *
+ * @example
+ * ```ts
+ * import type { PersistDescriptor } from "@beep/schema/EntitySchema"
+ *
+ * declare const descriptor: PersistDescriptor.Any
+ * console.log(descriptor.storageKind)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export namespace PersistDescriptor {
   /**
    * Any persistence descriptor value.
@@ -354,7 +378,11 @@ type PersistDescriptorForEncoded<Encoded> = undefined extends Encoded
  */
 export type PersistDescriptorFor<Schema extends S.Top> = Schema["~encoded.optionality"] extends "optional"
   ? never
-  : PersistDescriptorForEncoded<S.Codec.Encoded<Schema>>;
+  : [S.Codec.DecodingServices<Schema>] extends [never]
+    ? [S.Codec.EncodingServices<Schema>] extends [never]
+      ? PersistDescriptorForEncoded<S.Codec.Encoded<Schema>>
+      : never
+    : never;
 
 /**
  * Exact persisted descriptor map permitted for a field map.
@@ -379,9 +407,18 @@ type ExtraPersistedKeys<FieldMap extends Fields, Persisted extends PersistedMap>
   keyof FieldMap
 >;
 
-type ExactPersistedFor<FieldMap extends Fields, Persisted extends PersistedMap> = PersistedFor<FieldMap> & {
+type NoExtraPersistedKeys<FieldMap extends Fields, Persisted extends PersistedMap> = {
   readonly [K in ExtraPersistedKeys<FieldMap, Persisted>]: never;
 };
+
+/**
+ * Persisted map that matches a field map and rejects keys outside that field map.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type CheckedPersistedFor<FieldMap extends Fields, Persisted extends PersistedFor<FieldMap>> = Persisted &
+  NoExtraPersistedKeys<FieldMap, Persisted>;
 
 /**
  * Entity metadata attached to entity schema classes.
@@ -398,7 +435,13 @@ export type Definition<
   readonly fields: FieldMap;
   readonly persisted: Persisted;
   readonly tableName: TableName;
-} & (EntityId extends EntityIdLike ? { readonly entityId: EntityId } : { readonly entityId?: never });
+} & (EntityId extends EntityIdLike
+  ? {
+      readonly entityId: EntityId;
+    }
+  : {
+      readonly entityId?: never;
+    });
 
 /**
  * Encoded persistence row shape for a field map.
@@ -474,15 +517,30 @@ export type ColumnNameFor<Key extends string, Descriptor extends PersistDescript
  */
 export type ClassInput<
   FieldMap extends Fields,
-  Persisted extends PersistedMap,
+  Persisted extends PersistedFor<FieldMap>,
   TableName extends string = string,
   EntityId extends EntityIdLike | undefined = undefined,
 > = {
   readonly entityId?: EntityId;
   readonly fields: FieldMap;
-  readonly persisted: Persisted & ExactPersistedFor<FieldMap, Persisted>;
+  readonly persisted: CheckedPersistedFor<FieldMap, Persisted>;
   readonly tableName?: TableName;
 };
+
+/**
+ * Preserve a checked class input while letting callers keep `const` inference.
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+export const defineClassInput = <
+  const FieldMap extends Fields,
+  const Persisted extends PersistedFor<FieldMap>,
+  const TableName extends string = string,
+  const EntityId extends EntityIdLike | undefined = undefined,
+>(
+  input: ClassInput<FieldMap, Persisted, TableName, EntityId>
+): ClassInput<FieldMap, Persisted, TableName, EntityId> => input;
 
 type VariantFieldFor<
   Field extends S.Top,
@@ -516,14 +574,29 @@ type VariantFieldsFor<FieldMap extends Fields, Persisted extends PersistedMap> =
 export type EntityClass<
   Self,
   FieldMap extends Fields,
-  Persisted extends PersistedMap,
+  Persisted extends PersistedFor<FieldMap>,
   Inherited = {},
   TableName extends string = string,
   EntityId extends EntityIdLike | undefined = EntityIdLike | undefined,
-> = Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>, {}, Inherited> & {
-  readonly definition: Definition<FieldMap, Persisted, TableName, EntityId>;
-};
+> = S.Codec<Self, EncodedShape<FieldMap>, never, never> &
+  Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>, {}, Inherited> & {
+    readonly definition: Definition<FieldMap, Persisted, TableName, EntityId>;
+  };
 
+/**
+ * Companion types for {@link EntityClass}.
+ *
+ * @example
+ * ```ts
+ * import type { EntityClass } from "@beep/schema/EntitySchema"
+ *
+ * declare const entity: EntityClass.Any
+ * console.log(entity.definition.tableName)
+ * ```
+ *
+ * @since 0.0.0
+ * @category models
+ */
 export namespace EntityClass {
   /**
    * Any entity schema class.
@@ -550,7 +623,7 @@ export namespace EntityClass {
  * @since 0.0.0
  * @category models
  */
-export type Assign<Base extends Fields, Extension extends Fields> = Simplify<Omit<Base, keyof Extension> & Extension>;
+export type Assign<Base extends Fields, Extension extends Fields> = Simplify<StructAssign<Base, Extension>>;
 
 /**
  * Assign persisted maps with right-hand override.
@@ -559,8 +632,64 @@ export type Assign<Base extends Fields, Extension extends Fields> = Simplify<Omi
  * @category models
  */
 export type AssignPersisted<BasePersisted extends PersistedMap, ExtensionPersisted extends PersistedMap> = Simplify<
-  Omit<BasePersisted, keyof ExtensionPersisted> & ExtensionPersisted
+  StructAssign<BasePersisted, ExtensionPersisted>
 >;
+
+/**
+ * Field and persistence maps produced by composing an inherited entity shape
+ * with a child entity shape.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+type AssignedEntityParts<
+  BaseFields extends Fields,
+  BasePersisted extends PersistedFor<BaseFields>,
+  ExtensionFields extends Fields,
+  ExtensionPersisted extends PersistedFor<ExtensionFields>,
+> = {
+  readonly fields: Assign<BaseFields, ExtensionFields>;
+  readonly persisted: AssignedPersisted<BaseFields, BasePersisted, ExtensionFields, ExtensionPersisted>;
+};
+
+/**
+ * Persisted map produced by composing inherited and child entity parts.
+ *
+ * @since 0.0.0
+ * @category models
+ */
+export type AssignedPersisted<
+  BaseFields extends Fields,
+  BasePersisted extends PersistedFor<BaseFields>,
+  ExtensionFields extends Fields,
+  ExtensionPersisted extends PersistedFor<ExtensionFields>,
+> = CheckedPersistedFor<
+  Assign<BaseFields, ExtensionFields>,
+  AssignPersisted<BasePersisted, ExtensionPersisted> & PersistedFor<Assign<BaseFields, ExtensionFields>>
+>;
+
+/**
+ * Compose field and persistence maps together so their correlation is checked
+ * at the call site and preserved for downstream class factories.
+ *
+ * @since 0.0.0
+ * @category constructors
+ */
+const assignEntityParts = <
+  const BaseFields extends Fields,
+  const BasePersisted extends PersistedFor<BaseFields>,
+  const ExtensionFields extends Fields,
+  const ExtensionPersisted extends PersistedFor<ExtensionFields>,
+>(
+  baseFields: BaseFields,
+  basePersisted: BasePersisted,
+  extensionFields: ExtensionFields,
+  extensionPersisted: ExtensionPersisted
+): AssignedEntityParts<BaseFields, BasePersisted, ExtensionFields, ExtensionPersisted> =>
+  ({
+    fields: Struct.assign(baseFields, extensionFields),
+    persisted: Struct.assign(basePersisted, extensionPersisted),
+  }) as AssignedEntityParts<BaseFields, BasePersisted, ExtensionFields, ExtensionPersisted>;
 
 /**
  * Class factory with inherited invariant fields.
@@ -571,7 +700,7 @@ export type AssignPersisted<BasePersisted extends PersistedMap, ExtensionPersist
 export type ClassFactory<
   Self,
   FieldMap extends Fields,
-  Persisted extends PersistedMap,
+  Persisted extends PersistedFor<FieldMap>,
   TableName extends string = string,
   EntityId extends EntityIdLike | undefined = EntityIdLike | undefined,
 > = EntityClass<Self, FieldMap, Persisted, {}, TableName, EntityId> & {
@@ -590,7 +719,7 @@ export type ClassFactory<
     : EntityClass<
         Child,
         Assign<FieldMap, ChildFields>,
-        AssignPersisted<Persisted, ChildPersisted>,
+        AssignedPersisted<FieldMap, Persisted, ChildFields, ChildPersisted>,
         Self,
         ChildTableName,
         ChildEntityId
@@ -695,16 +824,33 @@ export const tableNameFromIdentifier = <const Identifier extends string>(
  * @since 0.0.0
  * @category naming
  */
-export const columnNameFor = <const Key extends string, const Descriptor extends PersistDescriptor>(
-  key: Key,
-  descriptor: Descriptor
-): ColumnNameFor<Key, Descriptor> => (descriptor.columnName ?? Str.snakeCase(key)) as ColumnNameFor<Key, Descriptor>;
+export const columnNameFor: {
+  <const Key extends string, const Descriptor extends PersistDescriptor>(
+    key: Key,
+    descriptor: Descriptor
+  ): ColumnNameFor<Key, Descriptor>;
+  <const Descriptor extends PersistDescriptor>(
+    descriptor: Descriptor
+  ): <const Key extends string>(key: Key) => ColumnNameFor<Key, Descriptor>;
+} = dual(
+  2,
+  <const Key extends string, const Descriptor extends PersistDescriptor>(
+    key: Key,
+    descriptor: Descriptor
+  ): ColumnNameFor<Key, Descriptor> => (descriptor.columnName ?? Str.snakeCase(key)) as ColumnNameFor<Key, Descriptor>
+);
 
-type AstAbsence = {
-  readonly allowsNull: boolean;
-  readonly allowsUndefined: boolean;
-  readonly isAmbiguous: boolean;
-};
+class AstAbsence extends S.Class<AstAbsence>($I`AstAbsence`)(
+  {
+    allowsNull: S.Boolean,
+    allowsUndefined: S.Boolean,
+    isAmbiguous: S.Boolean,
+  },
+  $I.annote("AstAbsence", {
+    description:
+      "Represents the absence of a value in an AST declaration, with options for null, undefined, and ambiguity.",
+  })
+) {}
 
 const knownAstAbsence = (allowsNull: boolean, allowsUndefined: boolean, isAmbiguous = false): AstAbsence => ({
   allowsNull,
@@ -719,7 +865,11 @@ const combineAstAbsence = (left: AstAbsence, right: AstAbsence): AstAbsence => (
 });
 
 const isJsonDeclaration = (ast: AST.Declaration): boolean => {
-  const typeConstructor = ast.annotations?.typeConstructor as { readonly _tag?: string } | undefined;
+  const typeConstructor = ast.annotations?.typeConstructor as
+    | {
+        readonly _tag?: string;
+      }
+    | undefined;
   return typeConstructor?._tag === "effect/Json" || typeConstructor?._tag === "effect/MutableJson";
 };
 
@@ -822,7 +972,10 @@ export const encodedFieldShape = (field: S.Top): EncodedFieldShape => {
  * @since 0.0.0
  * @category ast
  */
-export const selectedRowFieldShape = (key: string, field: S.Top): EncodedFieldShape => {
+export const selectedRowFieldShape: {
+  (key: string, field: S.Top): EncodedFieldShape;
+  (field: S.Top): (key: string) => EncodedFieldShape;
+} = dual(2, (key: string, field: S.Top): EncodedFieldShape => {
   const shape = encodedFieldShape(field);
   if (shape.isAmbiguous || shape.isOptional || shape.allowsUndefined) {
     throw new Error(
@@ -830,7 +983,7 @@ export const selectedRowFieldShape = (key: string, field: S.Top): EncodedFieldSh
     );
   }
   return shape;
-};
+});
 
 /**
  * True when a field's encoded side allows null.
@@ -850,7 +1003,7 @@ export const isEncodedOptional = (field: S.Top): boolean => encodedFieldShape(fi
 
 const withDefinitionAnnotation = <
   FieldMap extends Fields,
-  Persisted extends PersistedMap,
+  Persisted extends PersistedFor<FieldMap>,
   TableName extends string,
   EntityId extends EntityIdLike | undefined,
 >(
@@ -860,7 +1013,7 @@ const withDefinitionAnnotation = <
 
 const normalizeDefinition = <
   const FieldMap extends Fields,
-  const Persisted extends PersistedMap,
+  const Persisted extends PersistedFor<FieldMap>,
   const TableName extends string,
   const EntityId extends EntityIdLike | undefined,
 >(
@@ -877,20 +1030,37 @@ const normalizeDefinition = <
 const attachDefinition = <
   Class extends object,
   FieldMap extends Fields,
-  Persisted extends PersistedMap,
+  Persisted extends PersistedFor<FieldMap>,
   TableName extends string,
   EntityId extends EntityIdLike | undefined,
 >(
   entityClass: Class,
   definition: Definition<FieldMap, Persisted, TableName, EntityId>
-): Class & { readonly definition: Definition<FieldMap, Persisted, TableName, EntityId> } => {
+): Class & {
+  readonly definition: Definition<FieldMap, Persisted, TableName, EntityId>;
+} => {
   Reflect.defineProperty(entityClass, "definition", {
     configurable: false,
     enumerable: true,
     value: definition,
   });
-  return entityClass as Class & { readonly definition: Definition<FieldMap, Persisted, TableName, EntityId> };
+  return entityClass as Class & {
+    readonly definition: Definition<FieldMap, Persisted, TableName, EntityId>;
+  };
 };
+
+const attachEntityClassDefinition = <
+  Self,
+  const FieldMap extends Fields,
+  const Persisted extends PersistedFor<FieldMap>,
+  Inherited,
+  const TableName extends string,
+  const EntityId extends EntityIdLike | undefined,
+>(
+  entityClass: Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>, {}, Inherited>,
+  definition: Definition<FieldMap, Persisted, TableName, EntityId>
+): EntityClass<Self, FieldMap, Persisted, Inherited, TableName, EntityId> =>
+  attachDefinition(entityClass, definition) as EntityClass<Self, FieldMap, Persisted, Inherited, TableName, EntityId>;
 
 const variantFieldFor = <const Field extends S.Top, const Descriptor extends PersistDescriptor.Any>(
   field: Field,
@@ -933,6 +1103,53 @@ const variantFieldsFor = <const FieldMap extends Fields, const Persisted extends
   return output as VariantFieldsFor<FieldMap, Persisted>;
 };
 
+const makeEntityModelClass = <Self, const FieldMap extends Fields, const Persisted extends PersistedFor<FieldMap>>(
+  identifier: string,
+  fields: VariantFieldsFor<FieldMap, Persisted>,
+  annotations?: SchemaAnnotations
+): Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>> => {
+  const makeClass = Model.Class<Self>(identifier) as unknown as (
+    fields: VariantFieldsFor<FieldMap, Persisted>,
+    annotations?: SchemaAnnotations
+  ) => Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>>;
+  return makeClass(fields, annotations);
+};
+
+const extendEntityModelClass = <
+  Self,
+  Child,
+  const FieldMap extends Fields,
+  const Persisted extends PersistedFor<FieldMap>,
+  const ChildFields extends Fields,
+  const ChildPersisted extends PersistedFor<ChildFields>,
+  const TableName extends string,
+  const EntityId extends EntityIdLike | undefined,
+>(
+  baseClass: EntityClass<Self, FieldMap, Persisted, {}, TableName, EntityId>,
+  identifier: string,
+  fields: VariantFieldsFor<ChildFields, ChildPersisted>,
+  annotations?: SchemaAnnotations
+): Model.ClassShape<
+  Child,
+  VariantFieldsFor<Assign<FieldMap, ChildFields>, AssignedPersisted<FieldMap, Persisted, ChildFields, ChildPersisted>>,
+  {},
+  Self
+> => {
+  const extend = baseClass.extend<Child>(identifier) as unknown as (
+    fields: VariantFieldsFor<ChildFields, ChildPersisted>,
+    annotations?: SchemaAnnotations
+  ) => Model.ClassShape<
+    Child,
+    VariantFieldsFor<
+      Assign<FieldMap, ChildFields>,
+      AssignedPersisted<FieldMap, Persisted, ChildFields, ChildPersisted>
+    >,
+    {},
+    Self
+  >;
+  return extend(fields, annotations);
+};
+
 const createClass = <
   Self,
   const FieldMap extends Fields,
@@ -945,21 +1162,18 @@ const createClass = <
   annotations?: SchemaAnnotations
 ): EntityClass<Self, FieldMap, Persisted, {}, TableName, EntityId> => {
   const definition = normalizeDefinition(identifier, input);
-  const makeClass = Model.Class<Self>(identifier) as unknown as (
-    fields: VariantFieldsFor<FieldMap, Persisted>,
-    annotations?: SchemaAnnotations
-  ) => Model.ClassShape<Self, VariantFieldsFor<FieldMap, Persisted>>;
-  const entityClass = makeClass(
+  const entityClass = makeEntityModelClass<Self, FieldMap, Persisted>(
+    identifier,
     variantFieldsFor(definition.fields, definition.persisted),
     withDefinitionAnnotation(definition, annotations)
   );
-  return attachDefinition(entityClass, definition) as EntityClass<Self, FieldMap, Persisted, {}, TableName, EntityId>;
+  return attachEntityClassDefinition(entityClass, definition);
 };
 
 const withClassFactory = <
   Self,
   const FieldMap extends Fields,
-  const Persisted extends PersistedMap,
+  const Persisted extends PersistedFor<FieldMap>,
   const TableName extends string,
   const EntityId extends EntityIdLike | undefined,
 >(
@@ -976,31 +1190,35 @@ const withClassFactory = <
       input: ClassInput<ChildFields, ChildPersisted, ChildTableName, ChildEntityId>,
       annotations?: SchemaAnnotations
     ) => {
-      const childDefinition = normalizeDefinition(identifier, {
+      const childParts = assignEntityParts(
+        baseClass.definition.fields,
+        baseClass.definition.persisted,
+        input.fields,
+        input.persisted
+      );
+      const childInput = defineClassInput({
         ...(input.entityId === undefined ? {} : { entityId: input.entityId }),
-        fields: Struct.assign(baseClass.definition.fields, input.fields),
-        persisted: Struct.assign(baseClass.definition.persisted, input.persisted),
-        tableName: input.tableName,
-      } as unknown as ClassInput<
-        Assign<FieldMap, ChildFields>,
-        AssignPersisted<Persisted, ChildPersisted>,
-        ChildTableName,
-        ChildEntityId
-      >);
-      const extend = baseClass.extend<Child>(identifier) as unknown as (
-        fields: VariantFieldsFor<ChildFields, ChildPersisted>,
-        annotations?: SchemaAnnotations
-      ) => Model.ClassShape<
+        fields: childParts.fields,
+        persisted: childParts.persisted,
+        ...(input.tableName === undefined ? {} : { tableName: input.tableName }),
+      });
+      const childDefinition = normalizeDefinition(identifier, childInput);
+      const childClass = extendEntityModelClass<
+        Self,
         Child,
-        VariantFieldsFor<Assign<FieldMap, ChildFields>, AssignPersisted<Persisted, ChildPersisted>>,
-        {},
-        Self
-      >;
-      const childClass = extend(
-        variantFieldsFor(input.fields, input.persisted as ChildPersisted),
+        FieldMap,
+        Persisted,
+        ChildFields,
+        ChildPersisted,
+        TableName,
+        EntityId
+      >(
+        baseClass,
+        identifier,
+        variantFieldsFor<ChildFields, ChildPersisted>(input.fields, input.persisted),
         withDefinitionAnnotation(childDefinition, annotations)
       );
-      return attachDefinition(childClass, childDefinition);
+      return attachEntityClassDefinition(childClass, childDefinition);
     };
 
   Reflect.defineProperty(baseClass, "Class", {

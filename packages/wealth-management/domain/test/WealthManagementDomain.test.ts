@@ -30,8 +30,8 @@ describe("@beep/wealth-management-domain", () => {
     expect(Account.definition.entityId).toBe(WealthManagement.AccountId);
     expect(Account.definition.entityId.tableName).toBe("wealth_management_account");
     expect(Account.definition.entityId.entityType).toBe("WealthManagementAccount");
-    expect(Account.definition.fieldMap.id.storageKind).toBe("entityId");
-    expect(Account.definition.fieldMap.accountType.storageKind).toBe("literal");
+    expect(Account.definition.persisted.id.storageKind).toBe("entityId");
+    expect(Account.definition.persisted.accountType.storageKind).toBe("literal");
   });
 
   it("decodes and constructs an Account row", () => {

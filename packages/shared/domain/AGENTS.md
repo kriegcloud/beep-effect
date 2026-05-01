@@ -12,11 +12,11 @@
 
 | Surface                                      | Key exports   | Notes                                                    |
 |----------------------------------------------|---------------|----------------------------------------------------------|
-| entry module                                 | `VERSION`, `Aggregates`, `Entities`, `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Principal`, `SourceKind`, `Identity`, `Values` | Current package root. |
+| entry module                                 | `VERSION`, `Aggregates`, `Entities`, `BaseEntity`, `EntityId`, `EntityRef`, `Principal`, `SourceKind`, `Identity`, `Values` | Current package root. |
 | `src/aggregates/index.ts`                    | empty module  | Future shared aggregate roots and aggregate vocabulary.  |
 | `src/entities/index.ts`                      | `Organization` | Shared identity-bearing concepts.                       |
 | `src/entities/Organization/`                 | `Model`, value schemas, behavior helpers | Shared Organization concept. |
-| `src/entity/index.ts`                        | `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Principal`, `primitives`, `SourceKind` | Shared entity kernel constructor barrel. |
+| `src/entity/index.ts`                        | `BaseEntity`, `EntityId`, `EntityRef`, `Principal`, `primitives`, `SourceKind` | Shared entity constructor barrel. |
 | `src/entity/primitives.ts`                   | `Sha256`, `Ed25519Signature`, `EncryptionKeyId`, `HybridLogicalClock`, `VectorClock` | Shared driver-neutral entity primitive schemas. |
 | `src/identity/index.ts`                      | `Shared`      | Shared entity-id modules and identity vocabulary.        |
 | `src/values/index.ts`                        | `LocalDate`   | Shared value-object barrel.                              |
@@ -40,6 +40,10 @@
 - Domain stays pure and driver-neutral.
 - Domain may depend only on allowed shared-kernel language and foundation
   primitive/modeling packages.
+- Persisted entity models use `BaseEntity.Class` from
+  `@beep/shared-domain/entity/BaseEntity` for shared product
+  invariants and `@beep/schema/EntitySchema` persisted descriptors for
+  storage-neutral persistence metadata.
 - New exported models need schema annotations, JSDoc, tests, and docgen-clean
   examples when behavior is added.
 

@@ -37,6 +37,7 @@
       "@beep/shared-tables/entities/Organization": [
         "../../../packages/shared/tables/src/entities/Organization/index.ts"
       ],
+      "@beep/drizzle": ["../../../packages/drivers/drizzle/src/index.ts"],
       "@beep/shared-domain": ["../../../packages/shared/domain/src/index.ts"],
       "@beep/shared-domain/*": ["../../../packages/shared/domain/src/*.ts"],
       "@beep/shared-domain/aggregates": [
@@ -56,9 +57,6 @@
       ],
       "@beep/shared-domain/entity/EntityId": [
         "../../../packages/shared/domain/src/entity/EntityId.ts"
-      ],
-      "@beep/shared-domain/entity/EntityMixin": [
-        "../../../packages/shared/domain/src/entity/EntityMixin.ts"
       ],
       "@beep/shared-domain/entity/EntityRef": [
         "../../../packages/shared/domain/src/entity/EntityRef.ts"

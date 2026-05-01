@@ -6,7 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { Effect, type FileSystem, type Path } from "effect";
+import { Effect, type FileSystem, type Path, Ref, type Scope } from "effect";
 import * as S from "effect/Schema";
 import type { AgentProvider } from "./Agent.provider.ts";
 import type { AgentStreamEmitter } from "./AgentStreamEmitter.ts";
@@ -14,23 +14,28 @@ import type { Display } from "./Display.ts";
 import { type RunOptions, type RunResult, run } from "./Run.ts";
 import type { SandboxError } from "./Sandbox.errors.ts";
 import type { SandboxProcess } from "./Sandbox.process.ts";
-import { NamedBranchStrategy, type SandboxProvider } from "./Sandbox.provider.ts";
-import { CreateWorktreeInfoOptions, createWorktreeInfo, type WorktreeInfo } from "./Worktree.ts";
+import { HeadBranchStrategy, type SandboxProvider } from "./Sandbox.provider.ts";
+import { CreateWorktreeInfoOptions, createWorktreeInfo, removeWorktree, type WorktreeInfo } from "./Worktree.ts";
 
 const $I = $SandboxId.create("createWorktree");
 
 /**
  * Options for creating a managed worktree.
  *
- * @category services
+ * @category models
  * @since 0.0.0
  */
-export interface CreateWorktreeOptions {
-  readonly baseBranch?: string;
-  readonly branch?: string;
-  readonly name?: string;
-  readonly repoDir: string;
-}
+export class CreateWorktreeOptions extends S.Class<CreateWorktreeOptions>($I`CreateWorktreeOptions`)(
+  {
+    baseBranch: S.optionalKey(S.String),
+    branch: S.optionalKey(S.String),
+    name: S.optionalKey(S.String),
+    repoDir: S.String,
+  },
+  $I.annote("CreateWorktreeOptions", {
+    description: "Options for creating a managed worktree.",
+  })
+) {}
 
 /**
  * Programmatic worktree wrapper.
@@ -40,16 +45,17 @@ export interface CreateWorktreeOptions {
  */
 export interface Worktree<R = never> {
   readonly branch: string;
+  readonly close: () => Effect.Effect<void, SandboxError, Path.Path | SandboxProcess>;
   readonly path: string;
-  readonly run: (
-    options: Omit<RunOptions<R>, "agent" | "branchStrategy" | "sandbox"> & {
+  readonly run: <RunEnv = R>(
+    options: Omit<RunOptions<RunEnv>, "agent" | "branchStrategy" | "sandbox"> & {
       readonly agent: AgentProvider;
-      readonly sandbox: SandboxProvider<R>;
+      readonly sandbox: SandboxProvider<RunEnv>;
     }
   ) => Effect.Effect<
     RunResult,
     SandboxError,
-    R | SandboxProcess | FileSystem.FileSystem | Path.Path | Display | AgentStreamEmitter
+    RunEnv | SandboxProcess | FileSystem.FileSystem | Path.Path | Display | AgentStreamEmitter
   >;
 }
 
@@ -75,26 +81,49 @@ export class CreateWorktreeResult extends S.Class<CreateWorktreeResult>($I`Creat
  * @category constructors
  * @since 0.0.0
  */
-export const createWorktree = <R>(
+export const createWorktree = Effect.fn("createWorktree.createWorktree")(function* <R = never>(
   options: CreateWorktreeOptions
-): Effect.Effect<Worktree<R>, SandboxError, Path.Path | SandboxProcess> =>
-  Effect.gen(function* () {
-    const info: WorktreeInfo = yield* createWorktreeInfo(
-      new CreateWorktreeInfoOptions({
-        ...(options.baseBranch === undefined ? {} : { baseBranch: options.baseBranch }),
-        ...(options.branch === undefined ? {} : { branch: options.branch }),
-        ...(options.name === undefined ? {} : { name: options.name }),
-        repoDir: options.repoDir,
-      })
-    );
+): Effect.fn.Return<Worktree<R>, SandboxError, Path.Path | SandboxProcess> {
+  const info: WorktreeInfo = yield* createWorktreeInfo(
+    new CreateWorktreeInfoOptions({
+      ...(options.baseBranch === undefined ? {} : { baseBranch: options.baseBranch }),
+      ...(options.branch === undefined ? {} : { branch: options.branch }),
+      ...(options.name === undefined ? {} : { name: options.name }),
+      repoDir: options.repoDir,
+    })
+  );
+  const closedRef = yield* Ref.make(false);
+  const close = Effect.fn("createWorktree.close")(function* () {
+    const alreadyClosed = yield* Ref.getAndSet(closedRef, true);
 
-    return {
-      branch: info.branch,
-      path: info.path,
-      run: (runOptions) =>
-        run({
-          ...runOptions,
-          branchStrategy: new NamedBranchStrategy({ branch: info.branch }),
-        }),
-    };
+    if (alreadyClosed) {
+      return;
+    }
+
+    yield* removeWorktree(info.path);
   });
+
+  return {
+    branch: info.branch,
+    close,
+    path: info.path,
+    run: (runOptions) =>
+      run({
+        ...runOptions,
+        branchStrategy: new HeadBranchStrategy({}),
+        cwd: info.path,
+      }),
+  };
+});
+
+/**
+ * Create a managed worktree whose lifetime is bound to the current Effect scope.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const createWorktreeScoped = Effect.fn("createWorktree.createWorktreeScoped")(function* <R = never>(
+  options: CreateWorktreeOptions
+): Effect.fn.Return<Worktree<R>, SandboxError, Path.Path | SandboxProcess | Scope.Scope> {
+  return yield* Effect.acquireRelease(createWorktree<R>(options), (worktree) => worktree.close().pipe(Effect.orDie));
+});

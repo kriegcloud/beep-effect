@@ -12,7 +12,7 @@
  * ```ts
  * import { BaseEntity } from "@beep/shared-domain/entity"
  *
- * console.log(BaseEntity.BaseEntity.definition.fieldMap.createdAt.columnName)
+ * console.log(BaseEntity.BaseEntity.definition.persisted.createdAt.columnName)
  * ```
  *
  * @since 0.0.0

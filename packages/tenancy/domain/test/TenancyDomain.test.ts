@@ -44,8 +44,8 @@ describe("@beep/tenancy-domain", () => {
     expect(Organization.definition.entityId).toBe(Tenancy.OrganizationId);
     expect(Organization.definition.entityId.tableName).toBe("tenancy_organization");
     expect(Organization.definition.entityId.entityType).toBe("TenancyOrganization");
-    expect(Organization.definition.fieldMap.id.storageKind).toBe("entityId");
-    expect(Organization.definition.fieldMap.kind.storageKind).toBe("literal");
+    expect(Organization.definition.persisted.id.storageKind).toBe("entityId");
+    expect(Organization.definition.persisted.kind.storageKind).toBe("literal");
   });
 
   it("decodes and constructs an Organization row", () => {

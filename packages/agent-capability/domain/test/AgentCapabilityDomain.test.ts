@@ -27,8 +27,8 @@ describe("@beep/agent-capability-domain", () => {
     expect(Agent.definition.entityId).toBe(AgentCapability.AgentId);
     expect(Agent.definition.entityId.tableName).toBe("agent_capability_agent");
     expect(Agent.definition.entityId.entityType).toBe("AgentCapabilityAgent");
-    expect(Agent.definition.fieldMap.id.storageKind).toBe("entityId");
-    expect(Agent.definition.fieldMap.mode.storageKind).toBe("literal");
+    expect(Agent.definition.persisted.id.storageKind).toBe("entityId");
+    expect(Agent.definition.persisted.mode.storageKind).toBe("literal");
   });
 
   it("decodes and constructs an Agent row", () => {

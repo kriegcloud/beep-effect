@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 import { $AgentCapabilityDomainId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as AgentCapability from "@beep/shared-domain/identity/AgentCapability";
-import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
 
 const $I = $AgentCapabilityDomainId.create("entities/Skill/Skill.model");

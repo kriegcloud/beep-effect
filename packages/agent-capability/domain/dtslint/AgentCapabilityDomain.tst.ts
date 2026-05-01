@@ -14,8 +14,8 @@ describe("@beep/agent-capability-domain", () => {
     expect(Agent.definition.entityId).type.toBe<typeof AgentCapability.AgentId>();
     expect<typeof Agent.definition.entityId.tableName>().type.toBe<"agent_capability_agent">();
     expect<typeof Agent.definition.entityId.entityType>().type.toBe<"AgentCapabilityAgent">();
-    expect<typeof Agent.definition.fieldMap.mode.storageKind>().type.toBe<"literal">();
-    expect<typeof Agent.definition.fieldMap.skillFixtureKey.columnName>().type.toBe<"skill_fixture_key">();
+    expect<typeof Agent.definition.persisted.mode.storageKind>().type.toBe<"literal">();
+    expect<typeof Agent.definition.persisted.skillFixtureKey.columnName>().type.toBe<"skill_fixture_key">();
     expect<typeof Agent.fields.mode.Type>().type.toBe<AgentModeType>();
   });
 

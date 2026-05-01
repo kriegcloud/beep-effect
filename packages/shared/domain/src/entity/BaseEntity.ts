@@ -17,7 +17,7 @@ import { SourceKind } from "./SourceKind.js";
 
 const $I = $SharedDomainId.create("entity/BaseEntity");
 
-type EntityInput<FieldMap extends EntitySchema.Fields, Persisted extends EntitySchema.PersistedMap> = Omit<
+type EntityInput<FieldMap extends EntitySchema.Fields, Persisted extends EntitySchema.PersistedFor<FieldMap>> = Omit<
   EntitySchema.ClassInput<FieldMap, Persisted>,
   "entityId" | "tableName"
 >;
@@ -41,8 +41,11 @@ type EntityPersistedFor<
   Entity extends EntitySchema.EntityIdLike,
   ChildFields extends EntitySchema.Fields,
   ChildPersisted extends EntitySchema.PersistedFor<ChildFields>,
-> = EntitySchema.AssignPersisted<ChildPersisted, EntityIdentityPersisted> &
-  EntitySchema.PersistedFor<EntityFieldsFor<Entity, ChildFields>>;
+> = EntitySchema.CheckedPersistedFor<
+  EntityFieldsFor<Entity, ChildFields>,
+  EntitySchema.AssignPersisted<ChildPersisted, EntityIdentityPersisted> &
+    EntitySchema.PersistedFor<EntityFieldsFor<Entity, ChildFields>>
+>;
 
 /**
  * BaseEntity fields shared by every persisted product entity except the
@@ -140,6 +143,25 @@ const identityPersisted = {
   }),
 } as const satisfies EntityIdentityPersisted;
 
+const entityPartsFor = <
+  const Entity extends EntitySchema.EntityIdLike,
+  const ChildFields extends EntitySchema.Fields,
+  const ChildPersisted extends EntitySchema.PersistedFor<ChildFields>,
+>(
+  entityId: Entity,
+  input: EntityInput<ChildFields, ChildPersisted>
+): {
+  readonly fields: EntityFieldsFor<Entity, ChildFields>;
+  readonly persisted: EntityPersistedFor<Entity, ChildFields, ChildPersisted>;
+} =>
+  ({
+    fields: Struct.assign(input.fields, identityFields(entityId)),
+    persisted: Struct.assign(input.persisted, identityPersisted),
+  }) as {
+    readonly fields: EntityFieldsFor<Entity, ChildFields>;
+    readonly persisted: EntityPersistedFor<Entity, ChildFields, ChildPersisted>;
+  };
+
 const Class =
   <Child = never>(identifier: string) =>
   <
@@ -151,21 +173,18 @@ const Class =
     input: EntityInput<ChildFields, ChildPersisted>,
     annotations?: EntitySchema.SchemaAnnotations
   ) => {
-    const classInput = {
-      entityId,
-      fields: Struct.assign(input.fields, identityFields(entityId)) as EntityFieldsFor<Entity, ChildFields>,
-      persisted: Struct.assign(input.persisted, identityPersisted) as unknown as EntityPersistedFor<
-        Entity,
-        ChildFields,
-        ChildPersisted
-      >,
-      tableName: entityId.tableName,
-    } as unknown as EntitySchema.ClassInput<
+    const entityParts = entityPartsFor(entityId, input);
+    const classInput = EntitySchema.defineClassInput<
       EntityFieldsFor<Entity, ChildFields>,
       EntityPersistedFor<Entity, ChildFields, ChildPersisted>,
       Entity["tableName"],
       Entity
-    >;
+    >({
+      entityId,
+      fields: entityParts.fields,
+      persisted: entityParts.persisted,
+      tableName: entityId.tableName,
+    });
 
     return BaseEntityCoreClass<Child>(identifier)<
       EntityFieldsFor<Entity, ChildFields>,
@@ -174,6 +193,14 @@ const Class =
       Entity
     >(classInput, annotations);
   };
+
+const replaceClass = <Base extends object>(base: Base): Omit<Base, "Class"> & { readonly Class: typeof Class } => {
+  Reflect.defineProperty(base, "Class", {
+    configurable: true,
+    value: Class,
+  });
+  return base as Omit<Base, "Class"> & { readonly Class: typeof Class };
+};
 
 /**
  * Product-facing persisted entity base.
@@ -188,14 +215,7 @@ const Class =
  * @since 0.0.0
  * @category constructors
  */
-export const BaseEntity = BaseEntityCore as unknown as Omit<typeof BaseEntityCore, "Class"> & {
-  readonly Class: typeof Class;
-};
-
-Reflect.defineProperty(BaseEntity, "Class", {
-  configurable: true,
-  value: Class,
-});
+export const BaseEntity = replaceClass(BaseEntityCore);
 
 /**
  * Runtime type for {@link BaseEntity}.

@@ -108,6 +108,29 @@ Service contracts and type-level-only utility surfaces may stay as TypeScript
 types. Domain payloads, wire payloads, persisted rows, and config payloads
 should be schema-first whenever `Schema` can represent the shape.
 
+Persisted entities follow the same law. `@beep/schema/EntitySchema` is the
+generic source-of-truth kernel: entity models are schema classes, their decoded
+side is domain language, and their encoded side is the persistence row shape.
+Entity fields use normal Effect Schema optional/nullish codecs
+(`S.OptionFromNullOr`, `S.OptionFromOptionalKey`, `S.optionalKey`, and related
+variants) instead of bespoke nullable wrappers. Table projection code reads the
+Schema AST and rejects persisted selected-row fields whose encoded absence is
+optional, `undefined`, or ambiguous; SQL row absence must encode as `null`.
+
+Product entity invariants belong in class factories. Shared product entities
+use the `BaseEntity.Class` export from
+`@beep/shared-domain/entity/BaseEntity` to compose
+invariant fields such as entity identity, organization scope, provenance, schema
+version, and row version into the schema class. Entity-specific `.model.ts`
+files inline their own rich fields plus `persisted` descriptors next to the
+schema so domain shape and persistence shape drift together at compile time.
+
+Drizzle tables are projected, not hand-mapped. `@beep/drizzle/EntityTable`
+owns the generic Drizzle projection and exposes `pgTableFrom(entity)`.
+Slice/shared `tables` packages may own concrete table metadata for their product
+language, but they do not own a second SQL DSL, live database execution,
+transactions, repositories, or migrations.
+
 ### 6. Topology Is Compressed Context
 
 Readers get the map from mirrored package paths and role suffixes. This is why
@@ -241,6 +264,10 @@ Client/UI dependency caveats:
 - `shared/domain` and `shared/config` follow the same inward rules as slice
   `domain` and `config`. High-bar `shared/use-cases`, `shared/client`,
   `shared/server`, `shared/tables`, and `shared/ui` packages never own drivers.
+- `shared/tables` may import `@beep/drizzle` only for metadata-only table
+  projection from shared-kernel entity schemas. This exception does not permit
+  live driver capability, query execution, migrations, repositories, seeders, or
+  database transactions in shared packages.
 
 ## Slice Package Topology
 

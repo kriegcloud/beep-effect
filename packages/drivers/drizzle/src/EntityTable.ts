@@ -55,33 +55,32 @@ type FieldDescriptor = EntitySchema.PersistDescriptorByValueStrategy<EntitySchem
 type EntityIdDescriptor = Extract<FieldDescriptor, { readonly storageKind: "entityId" }>;
 type ExtraConfigColumnMap = Record<string, ExtraConfigColumn>;
 
-type EntityIdColumnBuilderFor<Descriptor extends FieldDescriptor, Encoded> = Descriptor extends unknown
-  ? Descriptor["valueStrategy"] extends "generatedOnInsert"
-    ? TypedBuilder<PgSerialBuilder, Encoded>
-    : TypedBuilder<PgIntegerBuilder, Encoded>
-  : never;
-
-type EntityIdColumnBuilderBaseFor<Descriptor extends FieldDescriptor> = Descriptor extends unknown
+type EntityIdColumnBuilderRuntimeBaseFor<Descriptor extends FieldDescriptor> = Descriptor extends unknown
   ? Descriptor["valueStrategy"] extends "generatedOnInsert"
     ? PgSerialBuilder
     : PgIntegerBuilder
   : never;
 
-type ColumnBuilderBaseFor<Descriptor extends FieldDescriptor, Encoded> = Descriptor extends unknown
+type ColumnBuilderRuntimeBaseFor<Descriptor extends FieldDescriptor> = Descriptor extends unknown
   ? Descriptor["storageKind"] extends "blob"
-    ? TypedBuilder<PgByteaBuilder, Encoded>
+    ? PgByteaBuilder
     : Descriptor["storageKind"] extends "bool"
-      ? TypedBuilder<PgBooleanBuilder, Encoded>
+      ? PgBooleanBuilder
       : Descriptor["storageKind"] extends "entityId"
-        ? EntityIdColumnBuilderFor<Descriptor, Encoded>
+        ? EntityIdColumnBuilderRuntimeBaseFor<Descriptor>
         : Descriptor["storageKind"] extends "int"
-          ? TypedBuilder<PgIntegerBuilder, Encoded>
+          ? PgIntegerBuilder
           : Descriptor["storageKind"] extends "jsonb"
-            ? TypedBuilder<PgJsonbBuilder, Encoded>
+            ? PgJsonbBuilder
             : Descriptor["storageKind"] extends "timestampMillis"
-              ? TypedBuilder<PgBigInt53Builder, Encoded>
-              : TypedBuilder<PgTextBuilder, Encoded>
+              ? PgBigInt53Builder
+              : PgTextBuilder
   : never;
+
+type ColumnBuilderBaseFor<Descriptor extends FieldDescriptor, Encoded> = TypedBuilder<
+  ColumnBuilderRuntimeBaseFor<Descriptor>,
+  Encoded
+>;
 
 type ColumnBuilderWithNullability<
   Descriptor extends FieldDescriptor,
@@ -136,8 +135,22 @@ export type TableFor<Entity extends EntitySchema.EntityClass.Any> = PgTableWithC
   readonly entitySchema: Entity;
 };
 
+const columnMethods = <Builder extends AnyPgColumnBuilder>(column: Builder): ColumnMethods<Builder> =>
+  column as ColumnMethods<Builder>;
+
+const typedColumn = <Encoded, Builder extends AnyPgColumnBuilder>(column: Builder): Set$Type<Builder, Encoded> =>
+  columnMethods(column).$type<Encoded>();
+
 const notNullColumn = <Builder extends AnyPgColumnBuilder>(column: Builder): SetNotNull<Builder> =>
-  (column as ColumnMethods<Builder>).notNull();
+  columnMethods(column).notNull();
+
+const primaryKeyColumn = <Builder extends AnyPgColumnBuilder>(column: Builder): SetIsPrimaryKey<Builder> =>
+  columnMethods(column).primaryKey();
+
+const drizzleColumnBoundary = <const Descriptor extends FieldDescriptor, Encoded, Builder extends AnyPgColumnBuilder>(
+  column: Builder | SetIsPrimaryKey<Builder> | SetNotNull<Builder>
+): ColumnBuilderWithNullability<Descriptor, Encoded, Builder> =>
+  column as ColumnBuilderWithNullability<Descriptor, Encoded, Builder>;
 
 const columnWithNullability = <
   const Field extends S.Top,
@@ -150,25 +163,24 @@ const columnWithNullability = <
   column: Builder
 ): ColumnBuilderWithNullability<Descriptor, S.Codec.Encoded<Field>, Builder> => {
   if (descriptor.valueStrategy === "generatedOnInsert") {
-    return (column as ColumnMethods<Builder>).primaryKey() as ColumnBuilderWithNullability<
-      Descriptor,
-      S.Codec.Encoded<Field>,
-      Builder
-    >;
+    return drizzleColumnBoundary<Descriptor, S.Codec.Encoded<Field>, Builder>(primaryKeyColumn(column));
   }
-  return (
+  return drizzleColumnBoundary<Descriptor, S.Codec.Encoded<Field>, Builder>(
     EntitySchema.selectedRowFieldShape(key, field).allowsNull ? column : notNullColumn(column)
-  ) as ColumnBuilderWithNullability<Descriptor, S.Codec.Encoded<Field>, Builder>;
+  );
 };
 
 function entityIdColumn<const Descriptor extends EntityIdDescriptor>(
   key: string,
   descriptor: Descriptor
-): EntityIdColumnBuilderBaseFor<Descriptor>;
-function entityIdColumn(key: string, descriptor: EntityIdDescriptor): EntityIdColumnBuilderBaseFor<EntityIdDescriptor> {
+): EntityIdColumnBuilderRuntimeBaseFor<Descriptor>;
+function entityIdColumn(
+  key: string,
+  descriptor: EntityIdDescriptor
+): EntityIdColumnBuilderRuntimeBaseFor<EntityIdDescriptor> {
   const columnName = EntitySchema.columnNameFor(key, descriptor);
   return Match.value(descriptor).pipe(
-    Match.withReturnType<EntityIdColumnBuilderBaseFor<EntityIdDescriptor>>(),
+    Match.withReturnType<EntityIdColumnBuilderRuntimeBaseFor<EntityIdDescriptor>>(),
     Match.discriminatorsExhaustive("valueStrategy")({
       computedByService: () => integer(columnName),
       defaultedOnInsert: () => integer(columnName),
@@ -182,9 +194,13 @@ function entityIdColumn(key: string, descriptor: EntityIdDescriptor): EntityIdCo
   );
 }
 
-const baseColumnFor = (key: string, descriptor: FieldDescriptor): AnyPgColumnBuilder => {
+const baseColumnFor = <const Descriptor extends FieldDescriptor>(
+  key: string,
+  descriptor: Descriptor
+): ColumnBuilderRuntimeBaseFor<Descriptor> => {
   const columnName = EntitySchema.columnNameFor(key, descriptor);
-  return Match.value(descriptor).pipe(
+  const descriptorForMatch: FieldDescriptor = descriptor;
+  const column = Match.value(descriptorForMatch).pipe(
     Match.withReturnType<AnyPgColumnBuilder>(),
     Match.discriminatorsExhaustive("storageKind")({
       blob: () => bytea(columnName),
@@ -197,6 +213,7 @@ const baseColumnFor = (key: string, descriptor: FieldDescriptor): AnyPgColumnBui
       timestampMillis: () => bigint(columnName, { mode: "number" }),
     })
   );
+  return column as ColumnBuilderRuntimeBaseFor<Descriptor>;
 };
 
 const typedColumnFor = <const Field extends S.Top, const Descriptor extends FieldDescriptor>(
@@ -204,8 +221,10 @@ const typedColumnFor = <const Field extends S.Top, const Descriptor extends Fiel
   field: Field,
   descriptor: Descriptor
 ): ColumnBuilderFor<Descriptor, S.Codec.Encoded<Field>> => {
-  const column = (baseColumnFor(key, descriptor) as ColumnMethods<AnyPgColumnBuilder>).$type<S.Codec.Encoded<Field>>();
-  return columnWithNullability(key, field, descriptor, column) as ColumnBuilderFor<Descriptor, S.Codec.Encoded<Field>>;
+  const column = typedColumn<S.Codec.Encoded<Field>, ColumnBuilderRuntimeBaseFor<Descriptor>>(
+    baseColumnFor(key, descriptor)
+  );
+  return columnWithNullability(key, field, descriptor, column);
 };
 
 const columnsFor = <const Definition extends EntitySchema.Definition>(
@@ -218,13 +237,13 @@ const columnsFor = <const Definition extends EntitySchema.Definition>(
   return columns as ColumnBuilderMapFor<Definition>;
 };
 
-const columnNameForAny = (key: string, descriptor: EntitySchema.PersistDescriptor.Any): string =>
-  descriptor.columnName ?? EntitySchema.columnNameFor(key, descriptor as EntitySchema.PersistDescriptor);
+const columnNameForAny = (key: string, descriptor: EntitySchema.PersistDescriptor): string =>
+  descriptor.columnName ?? EntitySchema.columnNameFor(key, descriptor);
 
 const indexName = (
   tableName: string,
   key: string,
-  descriptor: EntitySchema.PersistDescriptor.Any,
+  descriptor: EntitySchema.PersistDescriptor,
   hint: EntitySchema.IndexHint
 ): string => `${tableName}_${columnNameForAny(key, descriptor)}_${hint.kind}_idx`;
 
@@ -239,7 +258,7 @@ const isScalarIndexableStorageKind = (storageKind: EntitySchema.StorageKind): bo
   EntitySchema.StorageKind.is.text(storageKind) ||
   EntitySchema.StorageKind.is.timestampMillis(storageKind);
 
-const supportsIndexHint = (descriptor: EntitySchema.PersistDescriptor.Any, hint: EntitySchema.IndexHint): boolean =>
+const supportsIndexHint = (descriptor: EntitySchema.PersistDescriptor, hint: EntitySchema.IndexHint): boolean =>
   Match.value(hint).pipe(
     Match.withReturnType<boolean>(),
     Match.discriminatorsExhaustive("kind")({
@@ -257,9 +276,7 @@ const hasHintKind = (hints: ReadonlyArray<EntitySchema.IndexHint>, kind: EntityS
     A.some((hint) => hint.kind === kind)
   );
 
-const indexHintsForDescriptor = (
-  descriptor: EntitySchema.PersistDescriptor.Any
-): ReadonlyArray<EntitySchema.IndexHint> =>
+const indexHintsForDescriptor = (descriptor: EntitySchema.PersistDescriptor): ReadonlyArray<EntitySchema.IndexHint> =>
   pipe(
     O.fromNullishOr(descriptor.indexHints),
     O.map((hints) =>
@@ -275,7 +292,7 @@ const indexHintsForDescriptor = (
 const indexFor = (
   tableName: string,
   key: string,
-  descriptor: EntitySchema.PersistDescriptor.Any,
+  descriptor: EntitySchema.PersistDescriptor,
   column: ExtraConfigColumn,
   hint: EntitySchema.IndexHint
 ): PgTableExtraConfigValue =>
@@ -294,7 +311,7 @@ const indexesForDescriptor = (
   tableName: string,
   columns: ExtraConfigColumnMap,
   key: string,
-  descriptor: EntitySchema.PersistDescriptor.Any
+  descriptor: EntitySchema.PersistDescriptor
 ): Array<PgTableExtraConfigValue> =>
   pipe(
     R.get(columns, key),

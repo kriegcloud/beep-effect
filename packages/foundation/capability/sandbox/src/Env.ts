@@ -7,8 +7,9 @@
 
 import { $SandboxId } from "@beep/identity";
 import { A, Struct } from "@beep/utils";
-import { Effect, FileSystem, Path, pipe } from "effect";
+import { Effect, FileSystem, HashSet, Path, pipe } from "effect";
 import * as O from "effect/Option";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { InitError } from "./Sandbox.errors.ts";
@@ -57,7 +58,7 @@ const parseEnvLine = (line: string): O.Option<readonly [string, string]> => {
 };
 
 const parseEnvFile = (content: string): Record<string, string> => {
-  const entries: Array<readonly [string, string]> = [];
+  const entries = A.empty<readonly [string, string]>();
 
   for (const line of Str.split("\n")(content)) {
     const parsed = parseEnvLine(line);
@@ -86,7 +87,7 @@ export const resolveEnv = Effect.fn("Env.resolveEnv")(function* (
     Effect.map(parseEnvFile),
     Effect.catch(() => Effect.succeed(emptyEnv))
   );
-  const resolved: Record<string, string> = {};
+  const resolved = R.empty<string, string>();
 
   for (const [key, value] of Struct.entries(declared)) {
     const fallback = runtimeEnv[key];
@@ -107,10 +108,10 @@ export const resolveEnv = Effect.fn("Env.resolveEnv")(function* (
  * @since 0.0.0
  */
 export const mergeProviderEnv = Effect.fn("Env.mergeProviderEnv")(function* (options: MergeProviderEnvOptions) {
-  const sandboxKeys = new Set(Struct.keys(options.sandboxProviderEnv));
+  const sandboxKeys = HashSet.fromIterable(Struct.keys(options.sandboxProviderEnv));
   const overlapping = pipe(
     Struct.keys(options.agentProviderEnv),
-    A.filter((key) => sandboxKeys.has(key))
+    A.filter((key) => HashSet.has(sandboxKeys, key))
   );
 
   if (overlapping.length > 0) {

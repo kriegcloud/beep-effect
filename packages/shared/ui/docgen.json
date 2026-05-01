@@ -72,9 +72,6 @@
       "@beep/shared-domain/entity/EntityId": [
         "../../../packages/shared/domain/src/entity/EntityId.ts"
       ],
-      "@beep/shared-domain/entity/EntityMixin": [
-        "../../../packages/shared/domain/src/entity/EntityMixin.ts"
-      ],
       "@beep/shared-domain/entity/EntityRef": [
         "../../../packages/shared/domain/src/entity/EntityRef.ts"
       ],

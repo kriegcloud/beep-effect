@@ -1,9 +1,13 @@
 /**
+ * Agent stream event emitter service.
  *
+ * @packageDocumentation
+ * @since 0.0.0
  */
 import { $SandboxId } from "@beep/identity";
-import { Context, Effect, Layer, Result } from "effect";
+import { Context, Effect, Layer } from "effect";
 import * as S from "effect/Schema";
+import { redactSensitiveText } from "./Sandbox.observability.ts";
 
 const $I = $SandboxId.create("AgentStreamEmitter");
 
@@ -108,15 +112,23 @@ export const callbackAgentStreamEmitterLayer = (
 ): Layer.Layer<AgentStreamEmitter> =>
   Layer.succeed(AgentStreamEmitter, {
     emit: Effect.fn("AgentStreamEmitter.emit")(function* (event) {
-      return yield* Effect.sync(() =>
-        Result.try({
-          try: Effect.fnUntraced(function* () {
-            void onEvent(event);
+      const safeEvent =
+        event._tag === "Text"
+          ? {
+              ...event,
+              message: redactSensitiveText(event.message),
+            }
+          : {
+              ...event,
+              formattedArgs: redactSensitiveText(event.formattedArgs),
+            };
 
-            return yield* Effect.void;
-          }),
-          catch: () => Effect.succeed,
-        })
+      yield* Effect.sync(() => onEvent(safeEvent)).pipe(
+        Effect.catchCause(() =>
+          Effect.logWarning({
+            message: "agent stream callback failed",
+          })
+        )
       );
     }),
   });

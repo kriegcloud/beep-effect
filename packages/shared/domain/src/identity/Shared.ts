@@ -278,7 +278,7 @@ export const ConnectorAccountId = make("connector_account", {
 export type ConnectorAccountId = typeof ConnectorAccountId.Type;
 
 /**
- * Activity entity identifier used by provenance and lifecycle mixins.
+ * Activity entity identifier used by provenance and lifecycle entity fields.
  *
  * @example
  * ```ts

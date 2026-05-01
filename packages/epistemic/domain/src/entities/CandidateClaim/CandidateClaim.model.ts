@@ -4,12 +4,13 @@
  * @packageDocumentation
  * @since 0.0.0
  */
+
+import { ClaimLifecycle } from "@beep/epistemic-domain/values";
 import { $EpistemicDomainId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as Epistemic from "@beep/shared-domain/identity/Epistemic";
-import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
-import { ClaimLifecycle } from "@beep/epistemic-domain/values";
 
 const $I = $EpistemicDomainId.create("entities/CandidateClaim/CandidateClaim.model");
 

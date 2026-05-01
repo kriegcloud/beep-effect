@@ -30,8 +30,8 @@ describe("@beep/law-practice-domain", () => {
     expect(Matter.definition.entityId).toBe(LawPractice.MatterId);
     expect(Matter.definition.entityId.tableName).toBe("law_practice_matter");
     expect(Matter.definition.entityId.entityType).toBe("LawPracticeMatter");
-    expect(Matter.definition.fieldMap.id.storageKind).toBe("entityId");
-    expect(Matter.definition.fieldMap.matterType.storageKind).toBe("literal");
+    expect(Matter.definition.persisted.id.storageKind).toBe("entityId");
+    expect(Matter.definition.persisted.matterType.storageKind).toBe("literal");
   });
 
   it("decodes and constructs a Matter row", () => {

@@ -19,6 +19,7 @@ Kuzu
 kysely
 lefthook
 markdownlint
+mariozechner
 ONNX
 oxlint
 Pglite

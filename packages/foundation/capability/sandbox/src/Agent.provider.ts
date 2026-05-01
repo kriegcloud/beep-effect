@@ -10,14 +10,11 @@ import { LiteralKit } from "@beep/schema";
 import { A, O } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as P from "effect/Predicate";
+import * as R from "effect/Record";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 
 const $I = $SandboxId.create("Agent.provider");
-const UnknownArray = S.Array(S.Unknown);
-const isUnknownArray = S.is(UnknownArray);
-
-const decodeJsonLine = S.decodeUnknownOption(S.UnknownFromJsonString);
 
 const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
 
@@ -28,32 +25,304 @@ const TOOL_ARG_FIELDS: Readonly<Record<string, string>> = {
   WebSearch: "query",
 };
 
-const asObject = (value: unknown): O.Option<object> => O.liftPredicate(P.isObject)(value);
+const ClaudeContentBlockType = LiteralKit(["text", "tool_use"]).annotate(
+  $I.annote("ClaudeContentBlockType", {
+    description: "Claude stream content block discriminator.",
+  })
+);
 
-const property = (value: object, key: string): unknown => Reflect.get(value, key);
+const ClaudeContentBlock = ClaudeContentBlockType.toTaggedUnion("type")({
+  text: {
+    text: S.String,
+  },
+  tool_use: {
+    input: S.Record(S.String, S.Unknown),
+    name: S.String,
+  },
+}).pipe(
+  $I.annoteSchema("ClaudeContentBlock", {
+    description: "Claude assistant content block decoded from a JSON stream line.",
+  })
+);
 
-const stringProperty = (value: object, key: string): O.Option<string> =>
-  pipe(property(value, key), O.liftPredicate(P.isString));
+type ClaudeContentBlock = typeof ClaudeContentBlock.Type;
+type ClaudeToolUseBlock = Extract<
+  ClaudeContentBlock,
+  {
+    readonly type: "tool_use";
+  }
+>;
 
-const numberProperty = (value: object, key: string): O.Option<number> =>
-  pipe(property(value, key), O.liftPredicate(P.isNumber));
+class ClaudeUsage extends S.Class<ClaudeUsage>($I`ClaudeUsage`)(
+  {
+    cache_creation_input_tokens: S.Number,
+    cache_read_input_tokens: S.Number,
+    input_tokens: S.Number,
+    output_tokens: S.Number,
+  },
+  $I.annote("ClaudeUsage", {
+    description: "Claude token usage payload decoded from a JSON stream line.",
+  })
+) {}
 
-const objectProperty = (value: object, key: string): O.Option<object> => pipe(property(value, key), asObject);
+class ClaudeMessage extends S.Class<ClaudeMessage>($I`ClaudeMessage`)(
+  {
+    content: S.Array(ClaudeContentBlock),
+    usage: S.optionalKey(ClaudeUsage),
+  },
+  $I.annote("ClaudeMessage", {
+    description: "Claude assistant message payload decoded from a JSON stream line.",
+  })
+) {}
 
-const arrayProperty = (value: object, key: string): O.Option<ReadonlyArray<unknown>> =>
-  pipe(property(value, key), O.liftPredicate(isUnknownArray));
+const ClaudeStreamLineType = LiteralKit(["assistant", "result", "system"]).annotate(
+  $I.annote("ClaudeStreamLineType", {
+    description: "Claude stream line discriminator.",
+  })
+);
 
-const extractErrorMessage = (value: object): O.Option<string> =>
+const ClaudeStreamLine = ClaudeStreamLineType.toTaggedUnion("type")({
+  assistant: {
+    message: ClaudeMessage,
+  },
+  result: {
+    result: S.String,
+  },
+  system: {
+    session_id: S.optionalKey(S.String),
+    subtype: S.optionalKey(S.String),
+  },
+}).pipe(
+  $I.annoteSchema("ClaudeStreamLine", {
+    description: "Claude JSON stream line schema.",
+  })
+);
+
+type ClaudeStreamLine = typeof ClaudeStreamLine.Type;
+type ClaudeAssistantStreamLine = Extract<
+  ClaudeStreamLine,
+  {
+    readonly type: "assistant";
+  }
+>;
+
+const CodexItemType = LiteralKit(["agent_message", "command_execution"]).annotate(
+  $I.annote("CodexItemType", {
+    description: "Codex stream item discriminator.",
+  })
+);
+
+const CodexItem = CodexItemType.toTaggedUnion("type")({
+  agent_message: {
+    text: S.String,
+  },
+  command_execution: {
+    command: S.String,
+  },
+}).pipe(
+  $I.annoteSchema("CodexItem", {
+    description: "Codex stream item decoded from a JSON stream line.",
+  })
+);
+
+class CodexErrorMessagePayload extends S.Class<CodexErrorMessagePayload>($I`CodexErrorMessagePayload`)(
+  {
+    message: S.String,
+  },
+  $I.annote("CodexErrorMessagePayload", {
+    description: "Codex object-shaped error payload decoded from a JSON stream line.",
+  })
+) {}
+
+const CodexErrorPayload = S.Union([S.String, CodexErrorMessagePayload]).pipe(
+  $I.annoteSchema("CodexErrorPayload", {
+    description: "Codex error payload decoded from a JSON stream line.",
+  })
+);
+
+type CodexErrorPayload = typeof CodexErrorPayload.Type;
+
+const CodexStreamLineType = LiteralKit(["item.completed", "item.started", "error"]).annotate(
+  $I.annote("CodexStreamLineType", {
+    description: "Codex stream line discriminator.",
+  })
+);
+
+const CodexStreamLine = CodexStreamLineType.toTaggedUnion("type")({
+  "item.completed": {
+    item: CodexItem,
+  },
+  "item.started": {
+    item: CodexItem,
+  },
+  error: {
+    error: S.optionalKey(CodexErrorPayload),
+    message: S.optionalKey(S.String),
+  },
+}).pipe(
+  $I.annoteSchema("CodexStreamLine", {
+    description: "Codex JSON stream line schema.",
+  })
+);
+
+type CodexStreamLine = typeof CodexStreamLine.Type;
+type CodexErrorStreamLine = Extract<
+  CodexStreamLine,
+  {
+    readonly type: "error";
+  }
+>;
+
+const PiAssistantMessageEventType = LiteralKit(["text_delta"]).annotate(
+  $I.annote("PiAssistantMessageEventType", {
+    description: "Pi assistant message event discriminator.",
+  })
+);
+
+class PiAssistantMessageEvent extends S.Class<PiAssistantMessageEvent>($I`PiAssistantMessageEvent`)(
+  {
+    delta: S.optionalKey(S.String),
+    type: PiAssistantMessageEventType,
+  },
+  $I.annote("PiAssistantMessageEvent", {
+    description: "Pi assistant message update event decoded from a JSON stream line.",
+  })
+) {}
+
+class PiMessageContentBlock extends S.Class<PiMessageContentBlock>($I`PiMessageContentBlock`)(
+  {
+    text: S.optionalKey(S.String),
+    type: S.String,
+  },
+  $I.annote("PiMessageContentBlock", {
+    description: "Pi final message content block decoded from a JSON stream line.",
+  })
+) {}
+
+class PiAgentEndMessage extends S.Class<PiAgentEndMessage>($I`PiAgentEndMessage`)(
+  {
+    content: S.Array(PiMessageContentBlock),
+    role: S.String,
+  },
+  $I.annote("PiAgentEndMessage", {
+    description: "Pi final agent-end message decoded from a JSON stream line.",
+  })
+) {}
+
+const PiStreamLineType = LiteralKit([
+  "agent_end",
+  "agent_error",
+  "error",
+  "message_update",
+  "tool_execution_start",
+]).annotate(
+  $I.annote("PiStreamLineType", {
+    description: "Pi stream line discriminator.",
+  })
+);
+
+const PiStreamLine = PiStreamLineType.toTaggedUnion("type")({
+  agent_end: {
+    messages: S.Array(PiAgentEndMessage),
+  },
+  agent_error: {
+    error: S.optionalKey(CodexErrorPayload),
+    message: S.optionalKey(S.String),
+  },
+  error: {
+    error: S.optionalKey(CodexErrorPayload),
+    message: S.optionalKey(S.String),
+  },
+  message_update: {
+    assistantMessageEvent: PiAssistantMessageEvent,
+  },
+  tool_execution_start: {
+    args: S.optionalKey(S.Record(S.String, S.Unknown)),
+    toolName: S.String,
+  },
+}).pipe(
+  $I.annoteSchema("PiStreamLine", {
+    description: "Pi JSON stream line schema.",
+  })
+);
+
+type PiStreamLine = typeof PiStreamLine.Type;
+type PiErrorStreamLine = Extract<
+  PiStreamLine,
+  {
+    readonly type: "agent_error" | "error";
+  }
+>;
+type PiToolExecutionStartStreamLine = Extract<
+  PiStreamLine,
+  {
+    readonly type: "tool_execution_start";
+  }
+>;
+
+const decodeClaudeJsonLine = S.decodeUnknownOption(S.fromJsonString(ClaudeStreamLine));
+const decodeCodexJsonLine = S.decodeUnknownOption(S.fromJsonString(CodexStreamLine));
+const decodePiJsonLine = S.decodeUnknownOption(S.fromJsonString(PiStreamLine));
+
+const claudeUsageToIterationUsage = (usage: ClaudeUsage): IterationUsage =>
+  new IterationUsage({
+    cacheCreationInputTokens: usage.cache_creation_input_tokens,
+    cacheReadInputTokens: usage.cache_read_input_tokens,
+    inputTokens: usage.input_tokens,
+    outputTokens: usage.output_tokens,
+  });
+
+const codexErrorPayloadMessage = (payload: CodexErrorPayload): string =>
+  P.isString(payload) ? payload : payload.message;
+
+const streamErrorMessage = (line: CodexErrorStreamLine | PiErrorStreamLine): O.Option<string> =>
   pipe(
-    stringProperty(value, "error"),
-    O.orElse(() =>
-      pipe(
-        objectProperty(value, "error"),
-        O.flatMap((error) => stringProperty(error, "message"))
-      )
-    ),
-    O.orElse(() => stringProperty(value, "message"))
+    O.fromUndefinedOr(line.error),
+    O.map(codexErrorPayloadMessage),
+    O.orElse(() => O.fromUndefinedOr(line.message))
   );
+
+const claudeToolCallEvent = (block: ClaudeToolUseBlock): O.Option<ParsedStreamEvent> => {
+  const argField = TOOL_ARG_FIELDS[block.name];
+
+  if (argField === undefined) {
+    return O.none();
+  }
+
+  return pipe(
+    block.input,
+    R.get(argField),
+    O.filter(P.isString),
+    O.map(
+      (args): ParsedStreamEvent => ({
+        _tag: "ToolCall",
+        args,
+        name: block.name,
+      })
+    )
+  );
+};
+
+const piToolCallEvent = (line: PiToolExecutionStartStreamLine): O.Option<ParsedStreamEvent> => {
+  const argField = TOOL_ARG_FIELDS[line.toolName];
+
+  if (argField === undefined || line.args === undefined) {
+    return O.none();
+  }
+
+  return pipe(
+    line.args,
+    R.get(argField),
+    O.filter(P.isString),
+    O.map(
+      (args): ParsedStreamEvent => ({
+        _tag: "ToolCall",
+        args,
+        name: line.toolName,
+      })
+    )
+  );
+};
 
 /**
  * Parsed event emitted by an agent stream line.
@@ -95,8 +364,8 @@ export type ParsedStreamEvent = typeof ParsedStreamEvent.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const CodexEffort = LiteralKit(["low", "medium", "high", "xhigh"]).pipe(
-  $I.annoteSchema("CodexEffort", {
+export const CodexEffort = LiteralKit(["low", "medium", "high", "xhigh"]).annotate(
+  $I.annote("CodexEffort", {
     description: "Reasoning effort accepted by the Codex provider.",
   })
 );
@@ -115,8 +384,8 @@ export type CodexEffort = typeof CodexEffort.Type;
  * @category schemas
  * @since 0.0.0
  */
-export const ClaudeEffort = LiteralKit(["low", "medium", "high", "max"]).pipe(
-  $I.annoteSchema("ClaudeEffort", {
+export const ClaudeEffort = LiteralKit(["low", "medium", "high", "max"]).annotate(
+  $I.annote("ClaudeEffort", {
     description: "Reasoning effort accepted by the Claude Code provider.",
   })
 );
@@ -197,6 +466,36 @@ export class CodexOptions extends S.Class<CodexOptions>($I`CodexOptions`)(
 ) {}
 
 /**
+ * Options for the Pi provider.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class PiOptions extends S.Class<PiOptions>($I`PiOptions`)(
+  {
+    env: S.Record(S.String, S.String).pipe(S.withConstructorDefault(Effect.succeed({}))),
+  },
+  $I.annote("PiOptions", {
+    description: "Options for the Pi provider.",
+  })
+) {}
+
+/**
+ * Options for the OpenCode provider.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class OpenCodeOptions extends S.Class<OpenCodeOptions>($I`OpenCodeOptions`)(
+  {
+    env: S.Record(S.String, S.String).pipe(S.withConstructorDefault(Effect.succeed({}))),
+  },
+  $I.annote("OpenCodeOptions", {
+    description: "Options for the OpenCode provider.",
+  })
+) {}
+
+/**
  * Options for the Claude Code provider.
  *
  * @category models
@@ -220,156 +519,217 @@ export class ClaudeCodeOptions extends S.Class<ClaudeCodeOptions>($I`ClaudeCodeO
  * @since 0.0.0
  */
 export interface AgentProvider {
-  readonly buildInteractiveArgs?: (options: AgentCommandOptions) => ReadonlyArray<string>;
+  readonly buildInteractiveArgs?: undefined | ((options: AgentCommandOptions) => ReadonlyArray<string>);
   readonly buildPrintCommand: (options: AgentCommandOptions) => PrintCommand;
   readonly captureSessions: boolean;
   readonly env: Readonly<Record<string, string>>;
   readonly name: string;
-  readonly parseSessionUsage?: (content: string) => O.Option<IterationUsage>;
+  readonly parseSessionUsage?: undefined | ((content: string) => O.Option<IterationUsage>);
   readonly parseStreamLine: (line: string) => ReadonlyArray<ParsedStreamEvent>;
 }
 
 /**
  * Default Claude model used by the source Sandcastle implementation.
  *
- * @category configuration
+ * @category utilities
  * @since 0.0.0
  */
 export const DEFAULT_CLAUDE_MODEL = "claude-opus-4-6" as const;
 
 const parseClaudeStreamLine = (line: string): ReadonlyArray<ParsedStreamEvent> => {
+  const empty = A.empty<ParsedStreamEvent>();
   if (!Str.startsWith("{")(line)) {
-    return [];
+    return empty;
   }
 
-  const parsed = pipe(decodeJsonLine(line), O.flatMap(asObject));
+  const parsed = decodeClaudeJsonLine(line);
   if (O.isNone(parsed)) {
-    return [];
+    return empty;
   }
 
-  const value = parsed.value;
-  const type = stringProperty(value, "type");
-  if (O.isSome(type) && type.value === "assistant") {
-    const content = pipe(
-      objectProperty(value, "message"),
-      O.flatMap((message) => arrayProperty(message, "content"))
-    );
-    if (O.isNone(content)) {
-      return [];
-    }
+  if (parsed.value.type === "assistant") {
+    const events = A.empty<ParsedStreamEvent>();
+    const texts = A.empty<string>();
 
-    const events: Array<ParsedStreamEvent> = [];
-    const texts: Array<string> = [];
-
-    for (const blockValue of content.value) {
-      const block = asObject(blockValue);
-      if (O.isNone(block)) {
+    for (const block of parsed.value.message.content) {
+      if (block.type === "text") {
+        texts.push(block.text);
         continue;
       }
-      const blockType = stringProperty(block.value, "type");
-      if (O.isSome(blockType) && blockType.value === "text") {
-        const text = stringProperty(block.value, "text");
-        if (O.isSome(text)) {
-          texts.push(text.value);
-        }
-        continue;
-      }
-      if (O.isSome(blockType) && blockType.value === "tool_use") {
-        const name = stringProperty(block.value, "name");
-        const input = objectProperty(block.value, "input");
-        if (O.isNone(name) || O.isNone(input)) {
-          continue;
-        }
-        const argField = TOOL_ARG_FIELDS[name.value];
-        if (argField === undefined) {
-          continue;
-        }
-        const argValue = stringProperty(input.value, argField);
-        if (O.isNone(argValue)) {
-          continue;
-        }
+
+      const toolCall = claudeToolCallEvent(block);
+      if (O.isSome(toolCall)) {
         if (texts.length > 0) {
-          events.push({ _tag: "Text", text: texts.join("") });
+          events.push(
+            ParsedStreamEvent.cases.Text.make({
+              text: texts.join(""),
+            })
+          );
           texts.length = 0;
         }
-        events.push({ _tag: "ToolCall", args: argValue.value, name: name.value });
+        events.push(toolCall.value);
       }
     }
 
     if (texts.length > 0) {
-      events.push({ _tag: "Text", text: texts.join("") });
+      events.push(
+        ParsedStreamEvent.cases.Text.make({
+          text: texts.join(""),
+        })
+      );
     }
 
     return events;
   }
 
-  if (O.isSome(type) && type.value === "result") {
-    return pipe(
-      stringProperty(value, "result"),
-      O.map((result): ReadonlyArray<ParsedStreamEvent> => [{ _tag: "Result", result }]),
-      O.getOrElse((): ReadonlyArray<ParsedStreamEvent> => [])
-    );
+  if (parsed.value.type === "result") {
+    return [
+      ParsedStreamEvent.cases.Result.make({
+        result: parsed.value.result,
+      }),
+    ];
   }
 
-  if (O.isSome(type) && type.value === "system") {
-    const subtype = stringProperty(value, "subtype");
-    const sessionId = stringProperty(value, "session_id");
-
-    if (O.isSome(subtype) && subtype.value === "init" && O.isSome(sessionId)) {
-      return [{ _tag: "SessionId", sessionId: sessionId.value }];
+  if (parsed.value.type === "system") {
+    if (parsed.value.subtype === "init" && parsed.value.session_id !== undefined) {
+      return [
+        ParsedStreamEvent.cases.SessionId.make({
+          sessionId: parsed.value.session_id,
+        }),
+      ];
     }
   }
 
-  return [];
+  return empty;
 };
 
 const parseCodexStreamLine = (line: string): ReadonlyArray<ParsedStreamEvent> => {
+  const empty = A.empty<ParsedStreamEvent>();
   if (!Str.startsWith("{")(line)) {
-    return [];
+    return empty;
   }
 
-  const parsed = pipe(decodeJsonLine(line), O.flatMap(asObject));
+  const parsed = decodeCodexJsonLine(line);
   if (O.isNone(parsed)) {
-    return [];
+    return empty;
   }
 
-  const value = parsed.value;
-  const type = stringProperty(value, "type");
-
-  if (O.isSome(type) && type.value === "item.completed") {
-    const item = objectProperty(value, "item");
-    if (O.isSome(item)) {
-      const itemType = stringProperty(item.value, "type");
-      const text = stringProperty(item.value, "text");
-      if (O.isSome(itemType) && itemType.value === "agent_message" && O.isSome(text)) {
-        return [
-          { _tag: "Text", text: text.value },
-          { _tag: "Result", result: text.value },
-        ];
-      }
+  if (parsed.value.type === "item.completed") {
+    if (parsed.value.item.type === "agent_message") {
+      return [
+        ParsedStreamEvent.cases.Text.make({
+          text: parsed.value.item.text,
+        }),
+        ParsedStreamEvent.cases.Result.make({
+          result: parsed.value.item.text,
+        }),
+      ];
     }
   }
 
-  if (O.isSome(type) && type.value === "item.started") {
-    const item = objectProperty(value, "item");
-    if (O.isSome(item)) {
-      const itemType = stringProperty(item.value, "type");
-      const command = stringProperty(item.value, "command");
-      if (O.isSome(itemType) && itemType.value === "command_execution" && O.isSome(command)) {
-        return [{ _tag: "ToolCall", args: command.value, name: "Bash" }];
-      }
+  if (parsed.value.type === "item.started") {
+    if (parsed.value.item.type === "command_execution") {
+      return [
+        ParsedStreamEvent.cases.ToolCall.make({
+          args: parsed.value.item.command,
+          name: "Bash",
+        }),
+      ];
     }
   }
 
-  if (O.isSome(type) && type.value === "error") {
+  if (parsed.value.type === "error") {
     return pipe(
-      extractErrorMessage(value),
-      O.map((result): ReadonlyArray<ParsedStreamEvent> => [{ _tag: "Result", result }]),
-      O.getOrElse((): ReadonlyArray<ParsedStreamEvent> => [])
+      streamErrorMessage(parsed.value),
+      O.map(
+        (result): ReadonlyArray<ParsedStreamEvent> => [
+          ParsedStreamEvent.cases.Result.make({
+            result,
+          }),
+        ]
+      ),
+      O.getOrElse(A.empty<ParsedStreamEvent>)
     );
   }
 
-  return [];
+  return A.empty<ParsedStreamEvent>();
+};
+
+const parsePiStreamLine = (line: string): ReadonlyArray<ParsedStreamEvent> => {
+  const empty = A.empty<ParsedStreamEvent>();
+  if (!Str.startsWith("{")(line)) {
+    return empty;
+  }
+
+  const parsed = decodePiJsonLine(line);
+  if (O.isNone(parsed)) {
+    return empty;
+  }
+
+  if (parsed.value.type === "message_update") {
+    return pipe(
+      O.fromUndefinedOr(parsed.value.assistantMessageEvent.delta),
+      O.map(
+        (text): ReadonlyArray<ParsedStreamEvent> => [
+          ParsedStreamEvent.cases.Text.make({
+            text,
+          }),
+        ]
+      ),
+      O.getOrElse(A.empty<ParsedStreamEvent>)
+    );
+  }
+
+  if (parsed.value.type === "tool_execution_start") {
+    return pipe(
+      piToolCallEvent(parsed.value),
+      O.map((event): ReadonlyArray<ParsedStreamEvent> => [event]),
+      O.getOrElse(A.empty<ParsedStreamEvent>)
+    );
+  }
+
+  if (parsed.value.type === "agent_error" || parsed.value.type === "error") {
+    return pipe(
+      streamErrorMessage(parsed.value),
+      O.map(
+        (result): ReadonlyArray<ParsedStreamEvent> => [
+          ParsedStreamEvent.cases.Result.make({
+            result,
+          }),
+        ]
+      ),
+      O.getOrElse(A.empty<ParsedStreamEvent>)
+    );
+  }
+
+  if (parsed.value.type === "agent_end") {
+    const finalAssistantMessage = pipe(
+      parsed.value.messages,
+      A.reverse,
+      A.findFirst((message) => message.role === "assistant")
+    );
+
+    if (O.isNone(finalAssistantMessage)) {
+      return empty;
+    }
+
+    const texts = pipe(
+      finalAssistantMessage.value.content,
+      A.flatMap(
+        (block): ReadonlyArray<string> => (block.type === "text" && block.text !== undefined ? [block.text] : [])
+      )
+    );
+
+    return texts.length > 0
+      ? [
+          ParsedStreamEvent.cases.Result.make({
+            result: texts.join(""),
+          }),
+        ]
+      : empty;
+  }
+
+  return empty;
 };
 
 const parseClaudeSessionUsage = (content: string): O.Option<IterationUsage> =>
@@ -377,34 +737,17 @@ const parseClaudeSessionUsage = (content: string): O.Option<IterationUsage> =>
     Str.split("\n")(content),
     A.filter(Str.startsWith("{")),
     A.reverse,
-    A.findFirst((line) => {
-      const parsed = pipe(decodeJsonLine(line), O.flatMap(asObject));
-      if (O.isNone(parsed)) {
-        return false;
-      }
-      const type = stringProperty(parsed.value, "type");
-      const message = objectProperty(parsed.value, "message");
-      return (
-        O.isSome(type) &&
-        type.value === "assistant" &&
-        O.isSome(message) &&
-        O.isSome(objectProperty(message.value, "usage"))
-      );
-    }),
-    O.flatMap((line) => pipe(decodeJsonLine(line), O.flatMap(asObject))),
-    O.flatMap((value) => objectProperty(value, "message")),
-    O.flatMap((message) => objectProperty(message, "usage")),
-    O.flatMap((usage) =>
+    A.map((line) =>
       pipe(
-        O.all({
-          cacheCreationInputTokens: numberProperty(usage, "cache_creation_input_tokens"),
-          cacheReadInputTokens: numberProperty(usage, "cache_read_input_tokens"),
-          inputTokens: numberProperty(usage, "input_tokens"),
-          outputTokens: numberProperty(usage, "output_tokens"),
-        }),
-        O.map((values) => new IterationUsage(values))
+        decodeClaudeJsonLine(line),
+        O.filter((event): event is ClaudeAssistantStreamLine => event.type === "assistant"),
+        O.flatMap((event) => O.fromUndefinedOr(event.message.usage)),
+        O.map(claudeUsageToIterationUsage)
       )
-    )
+    ),
+    A.filter(O.isSome),
+    A.map((option) => option.value),
+    A.head
   );
 
 /**
@@ -432,6 +775,45 @@ export const codex = (model: string, options: CodexOptions = new CodexOptions({}
 });
 
 /**
+ * Create a Pi agent provider.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const pi = (model: string, options: PiOptions = new PiOptions({})): AgentProvider => ({
+  buildInteractiveArgs: ({ prompt }) =>
+    prompt.length > 0 ? ["pi", "--model", model, prompt] : ["pi", "--model", model],
+  buildPrintCommand: ({ prompt }) =>
+    new PrintCommand({
+      command: `pi -p --mode json --no-session --model ${shellEscape(model)}`,
+      stdin: prompt,
+    }),
+  captureSessions: false,
+  env: options.env,
+  name: "pi",
+  parseStreamLine: parsePiStreamLine,
+});
+
+/**
+ * Create an OpenCode agent provider.
+ *
+ * @category constructors
+ * @since 0.0.0
+ */
+export const opencode = (model: string, options: OpenCodeOptions = new OpenCodeOptions({})): AgentProvider => ({
+  buildInteractiveArgs: ({ prompt }) =>
+    prompt.length > 0 ? ["opencode", "--model", model, "-p", prompt] : ["opencode", "--model", model],
+  buildPrintCommand: ({ prompt }) =>
+    new PrintCommand({
+      command: `opencode run --model ${shellEscape(model)} ${shellEscape(prompt)}`,
+    }),
+  captureSessions: false,
+  env: options.env,
+  name: "opencode",
+  parseStreamLine: A.empty<ParsedStreamEvent>,
+});
+
+/**
  * Create a Claude Code agent provider.
  *
  * @category constructors
@@ -455,7 +837,9 @@ export const claudeCode = (
     const resumeFlag = resumeSession === undefined ? "" : ` --resume ${shellEscape(resumeSession)}`;
 
     return new PrintCommand({
-      command: `claude --print --verbose${skipPermissions} --output-format stream-json --model ${shellEscape(model)}${effortFlag}${resumeFlag} -p -`,
+      command: `claude --print --verbose${skipPermissions} --output-format stream-json --model ${shellEscape(
+        model
+      )}${effortFlag}${resumeFlag} -p -`,
       stdin: prompt,
     });
   },

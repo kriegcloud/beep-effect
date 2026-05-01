@@ -38,8 +38,8 @@ describe("@beep/tenancy-domain", () => {
     expect(Organization.definition.entityId).type.toBe<typeof Tenancy.OrganizationId>();
     expect<typeof Organization.definition.entityId.tableName>().type.toBe<"tenancy_organization">();
     expect<typeof Organization.definition.entityId.entityType>().type.toBe<"TenancyOrganization">();
-    expect<typeof Organization.definition.fieldMap.kind.storageKind>().type.toBe<"literal">();
-    expect<typeof Organization.definition.fieldMap.name.columnName>().type.toBe<"name">();
+    expect<typeof Organization.definition.persisted.kind.storageKind>().type.toBe<"literal">();
+    expect<typeof Organization.definition.persisted.name.columnName>().type.toBe<"name">();
     expect<typeof Organization.fields.kind.Type>().type.toBe<OrganizationKindType>();
   });
 

@@ -7,11 +7,13 @@
 
 import { $SandboxId } from "@beep/identity";
 import { LiteralKit } from "@beep/schema";
-import { Effect, FileSystem } from "effect";
+import { Duration, Effect, FileSystem, HashSet } from "effect";
+import * as A from "effect/Array";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { Display } from "./Display.ts";
-import { PromptError } from "./Sandbox.errors.ts";
+import { PromptError, PromptExpansionTimeoutError, type SandboxError } from "./Sandbox.errors.ts";
+import { SandboxExecOptions, type SandboxHandle } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Prompt");
 
@@ -21,18 +23,49 @@ const SHELL_BLOCK_PATTERN = /!`([^`]+)`/gu;
 /**
  * Marker inserted before literal shell blocks in prompt templates.
  *
- * @category configuration
+ * @category utilities
  * @since 0.0.0
  */
 export const SHELL_BLOCK_MARKER = "\u0000BEEP_SANDBOX_SHELL_BLOCK\u0000" as const;
 
+const MARKED_SHELL_BLOCK_PATTERN = new RegExp(`!${SHELL_BLOCK_MARKER}\`([^\`]+)\``, "gu");
+const DEFAULT_PROMPT_EXPANSION_TIMEOUT = Duration.millis(30_000);
+
 /**
  * Built-in prompt argument keys injected by run orchestration.
  *
- * @category configuration
+ * @category utilities
  * @since 0.0.0
  */
 export const BUILT_IN_PROMPT_ARG_KEYS = ["SOURCE_BRANCH", "TARGET_BRANCH"] as const;
+
+/**
+ * Built-in prompt argument keys as a `HashSet` for membership checks.
+ *
+ * @category utilities
+ * @since 0.0.0
+ */
+export const BUILT_IN_PROMPT_ARG_KEY_SET: HashSet.HashSet<string> = HashSet.fromIterable(BUILT_IN_PROMPT_ARG_KEYS);
+
+/**
+ * Built-in prompt argument key domain.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const BuiltInPromptArgKey = LiteralKit(BUILT_IN_PROMPT_ARG_KEYS).annotate(
+  $I.annote("BuiltInPromptArgKey", {
+    description: "Built-in prompt argument key domain.",
+  })
+);
+
+/**
+ * Runtime type for {@link BuiltInPromptArgKey}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type BuiltInPromptArgKey = typeof BuiltInPromptArgKey.Type;
 
 /**
  * Primitive prompt argument value.
@@ -74,14 +107,16 @@ export const PromptArgs = S.Record(S.String, PromptArgValue).pipe(
  */
 export type PromptArgs = typeof PromptArgs.Type;
 
+const promptArgValueToText = (value: PromptArgValue): string => value.toString();
+
 /**
  * Prompt source discriminator.
  *
  * @category schemas
  * @since 0.0.0
  */
-export const PromptSource = LiteralKit(["Inline", "Template"]).pipe(
-  $I.annoteSchema("PromptSource", {
+export const PromptSource = LiteralKit(["Inline", "Template"]).annotate(
+  $I.annote("PromptSource", {
     description: "Prompt source discriminator.",
   })
 );
@@ -123,6 +158,25 @@ export class ResolvedPrompt extends S.Class<ResolvedPrompt>($I`ResolvedPrompt`)(
   },
   $I.annote("ResolvedPrompt", {
     description: "Resolved prompt text and source.",
+  })
+) {}
+
+/**
+ * Options for expanding prompt shell expressions.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export class ExpandPromptShellExpressionsOptions extends S.Class<ExpandPromptShellExpressionsOptions>(
+  $I`ExpandPromptShellExpressionsOptions`
+)(
+  {
+    cwd: S.String,
+    prompt: S.String,
+    timeoutMs: S.DurationFromMillis.pipe(S.withConstructorDefault(Effect.succeed(DEFAULT_PROMPT_EXPANSION_TIMEOUT))),
+  },
+  $I.annote("ExpandPromptShellExpressionsOptions", {
+    description: "Options for expanding prompt shell expressions.",
   })
 ) {}
 
@@ -199,16 +253,16 @@ export const validateNoBuiltInArgOverride = Effect.fn("Prompt.validateNoBuiltInA
  */
 export const findMissingPromptArgKeys = (prompt: string, providedArgs: PromptArgs): ReadonlyArray<string> => {
   const matches = [...prompt.matchAll(PLACEHOLDER_PATTERN)];
-  const seen = new Set<string>();
-  const missing: Array<string> = [];
+  let seen = HashSet.empty<string>();
+  const missing = A.empty<string>();
 
   for (const match of matches) {
     const key = match[1];
-    if (key === undefined || seen.has(key)) {
+    if (key === undefined || HashSet.has(seen, key)) {
       continue;
     }
-    seen.add(key);
-    if (BUILT_IN_PROMPT_ARG_KEYS.includes(key as (typeof BUILT_IN_PROMPT_ARG_KEYS)[number])) {
+    seen = HashSet.add(seen, key);
+    if (BuiltInPromptArgKey.is.SOURCE_BRANCH(key) || BuiltInPromptArgKey.is.TARGET_BRANCH(key)) {
       continue;
     }
     if (Object.hasOwn(providedArgs, key)) {
@@ -229,7 +283,7 @@ export const findMissingPromptArgKeys = (prompt: string, providedArgs: PromptArg
 export const substitutePromptArgs = Effect.fn("Prompt.substitutePromptArgs")(function* (
   prompt: string,
   args: PromptArgs,
-  silentKeys: ReadonlySet<string> = new Set()
+  silentKeys: HashSet.HashSet<string> = HashSet.empty()
 ) {
   const display = yield* Display;
   const markedPrompt = Str.replace(
@@ -245,18 +299,131 @@ export const substitutePromptArgs = Effect.fn("Prompt.substitutePromptArgs")(fun
     );
   }
 
-  const referenced = new Set<string>();
+  let referenced = HashSet.empty<string>();
   for (const match of matches) {
     if (match[1] !== undefined) {
-      referenced.add(match[1]);
+      referenced = HashSet.add(referenced, match[1]);
     }
   }
 
   for (const key of Object.keys(args)) {
-    if (!referenced.has(key) && !silentKeys.has(key)) {
+    if (!HashSet.has(referenced, key) && !HashSet.has(silentKeys, key)) {
       yield* display.status(`Prompt argument "${key}" was provided but not referenced in the prompt`, "Warn");
     }
   }
 
-  return markedPrompt.replace(PLACEHOLDER_PATTERN, (_match, key: string) => String(args[key]));
+  return markedPrompt.replace(PLACEHOLDER_PATTERN, (_match: string, key: string): string => {
+    const value = args[key];
+
+    return value === undefined ? "" : promptArgValueToText(value);
+  });
+});
+
+const replaceMarkedShellBlocks = (
+  prompt: string,
+  matches: ReadonlyArray<RegExpMatchArray>,
+  results: ReadonlyArray<string>
+): string => {
+  let result = prompt;
+
+  for (let index = matches.length - 1; index >= 0; index--) {
+    const match = matches[index];
+    const start = match?.index;
+    const replacement = results[index];
+
+    if (match === undefined || start === undefined || replacement === undefined) {
+      continue;
+    }
+
+    result = `${result.slice(0, start)}${replacement}${result.slice(start + match[0].length)}`;
+  }
+
+  return Str.replaceAll(SHELL_BLOCK_MARKER, "")(result);
+};
+
+const expandShellExpression = Effect.fn("Prompt.expandShellExpression")(function* <R>(
+  sandbox: SandboxHandle<R>,
+  cwd: string,
+  command: string,
+  timeout: Duration.Duration
+) {
+  const result = yield* sandbox
+    .exec(
+      command,
+      new SandboxExecOptions({
+        cwd,
+      })
+    )
+    .pipe(
+      Effect.timeoutOrElse({
+        duration: timeout,
+        orElse: () =>
+          Effect.fail(
+            PromptExpansionTimeoutError.new(
+              "prompt expansion timeout",
+              `Shell expression \`${command}\` timed out after ${Duration.toMillis(timeout)}ms`,
+              {
+                expression: command,
+                timeoutMs: timeout,
+              }
+            )
+          ),
+      })
+    );
+
+  if (result.exitCode !== 0) {
+    return yield* PromptError.new(
+      result.stderr || result.stdout,
+      `Command \`${command}\` exited with code ${result.exitCode}: ${result.stderr || result.stdout}`
+    );
+  }
+
+  return Str.trimEnd(result.stdout);
+});
+
+/**
+ * Expand marked shell prompt expressions inside a sandbox.
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const expandPromptShellExpressions: <R>(
+  sandbox: SandboxHandle<R>,
+  options: ExpandPromptShellExpressionsOptions
+) => Effect.Effect<string, SandboxError, R | Display> = Effect.fn("Prompt.expandPromptShellExpressions")(function* <R>(
+  sandbox: SandboxHandle<R>,
+  options: ExpandPromptShellExpressionsOptions
+) {
+  const matches = [...options.prompt.matchAll(MARKED_SHELL_BLOCK_PATTERN)];
+
+  if (matches.length === 0) {
+    return Str.replaceAll(SHELL_BLOCK_MARKER, "")(options.prompt);
+  }
+
+  const display = yield* Display;
+
+  return yield* display.taskLog(
+    "Expanding shell expressions",
+    Effect.fn("Prompt.expandPromptShellExpressions.task")(function* (message) {
+      const results = yield* Effect.forEach(
+        matches,
+        (match) => {
+          const command = match[1] ?? "";
+
+          return expandShellExpression(sandbox, options.cwd, command, options.timeoutMs);
+        },
+        { concurrency: "unbounded" }
+      );
+
+      for (let index = 0; index < matches.length; index++) {
+        const command = matches[index]?.[1] ?? "";
+        const result = results[index] ?? "";
+        const tokens = Math.ceil(result.length / 4);
+
+        message(`${command} => ~${tokens} tokens`);
+      }
+
+      return replaceMarkedShellBlocks(options.prompt, matches, results);
+    })
+  );
 });

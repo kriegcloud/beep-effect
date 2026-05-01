@@ -6,9 +6,9 @@
  */
 
 import { $WealthManagementDomainId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as WealthManagement from "@beep/shared-domain/identity/WealthManagement";
-import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
 import { PartyType } from "./Party.values.js";
 

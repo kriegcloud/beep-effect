@@ -51,25 +51,33 @@
     "dist/**/*.d.ts.map"
   ],
   "sideEffects": [],
+  "bin": {
+    "beep-sandbox": "./src/bin.ts"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true,
+    "bin": {
+      "beep-sandbox": "./dist/bin.js"
+    },
     "exports": {
-      ".": "./dist/index.ts",
+      ".": "./dist/index.js",
       "./*": "./dist/*.js",
       "./internal/*": null,
+      "./bin": null,
       "./package.json": "./package.json"
     }
   },
   "dependencies": {
     "@beep/identity": "workspace:^",
+    "@beep/observability": "workspace:^",
     "@beep/schema": "workspace:^",
     "@beep/utils": "workspace:^",
     "@clack/prompts": "catalog:",
+    "@effect/platform-node": "catalog:",
     "effect": "catalog:"
   },
   "devDependencies": {
-    "@effect/platform-node": "catalog:",
     "@effect/vitest": "catalog:",
     "@types/node": "catalog:"
   }

@@ -10,6 +10,7 @@ import { A, Struct } from "@beep/utils";
 import { Effect, pipe } from "effect";
 import * as S from "effect/Schema";
 import { CopyError, DockerError, PodmanError } from "./Sandbox.errors.ts";
+import { profileSandboxPhase, redactSensitiveText } from "./Sandbox.observability.ts";
 import { ProcessCommand, type ProcessResult, SandboxProcess } from "./Sandbox.process.ts";
 import type {
   BindMountSandboxHandle,
@@ -36,8 +37,19 @@ const toExecResult = (result: ProcessResult): ExecResult =>
     stdout: result.stdout,
   });
 
+const processResultOutput = (result: ProcessResult): string => redactSensitiveText(result.stderr || result.stdout);
+
 const commandErrorMessage = (runtime: string, action: string, result: ProcessResult): string =>
-  `${runtime} ${action} failed with exit code ${result.exitCode}: ${result.stderr || result.stdout}`;
+  `${runtime} ${action} failed with exit code ${result.exitCode}: ${processResultOutput(result)}`;
+
+const profileProviderAction = (provider: string, action: string) =>
+  profileSandboxPhase({
+    attributes: {
+      action,
+      provider,
+    },
+    phase: `sandbox.provider.${action.replaceAll(" ", ".")}`,
+  });
 
 /**
  * Options for the no-sandbox provider.
@@ -81,7 +93,7 @@ const processResultOrDockerError = (
     ? Effect.succeed(result)
     : Effect.fail(
         new DockerError({
-          cause: result.stderr || result.stdout,
+          cause: processResultOutput(result),
           message: commandErrorMessage("Docker", action, result),
         })
       );
@@ -94,7 +106,7 @@ const processResultOrPodmanError = (
     ? Effect.succeed(result)
     : Effect.fail(
         new PodmanError({
-          cause: result.stderr || result.stdout,
+          cause: processResultOutput(result),
           message: commandErrorMessage("Podman", action, result),
         })
       );
@@ -104,8 +116,8 @@ const processResultOrCopyError = (action: string, result: ProcessResult): Effect
     ? Effect.void
     : Effect.fail(
         new CopyError({
-          cause: result.stderr || result.stdout,
-          message: `${action} failed with exit code ${result.exitCode}: ${result.stderr || result.stdout}`,
+          cause: processResultOutput(result),
+          message: `${action} failed with exit code ${result.exitCode}: ${processResultOutput(result)}`,
         })
       );
 
@@ -116,13 +128,13 @@ const containerEnvArgs = (env: Readonly<Record<string, string>>): ReadonlyArray<
     A.flatMap(([key, value]) => ["-e", `${key}=${value}`])
   );
 
-const containerMountArgs = (options: BindMountCreateOptions): ReadonlyArray<string> =>
+const containerMountArgs = (options: BindMountCreateOptions, sandboxWorkdir: string): ReadonlyArray<string> =>
   pipe(
     [
       {
         hostPath: options.worktreePath,
         readonly: false,
-        sandboxPath: "/home/agent/workspace",
+        sandboxPath: sandboxWorkdir,
       },
       ...options.mounts,
     ],
@@ -151,12 +163,14 @@ const makeContainerHandle = (
   Effect.succeed({
     close: Effect.fn("ContainerHandle.close")(function* () {
       const process = yield* SandboxProcess;
-      const result = yield* process.run(
-        new ProcessCommand({
-          args: ["rm", "-f", containerName],
-          command: runtime,
-        })
-      );
+      const result = yield* process
+        .run(
+          new ProcessCommand({
+            args: ["rm", "-f", containerName],
+            command: runtime,
+          })
+        )
+        .pipe(profileProviderAction(runtime, "container removal"));
 
       if (runtime === "docker") {
         yield* processResultOrDockerError("container removal", result);
@@ -166,23 +180,27 @@ const makeContainerHandle = (
     }),
     copyFileIn: Effect.fn("ContainerHandle.copyFileIn")(function* (hostPath: string, sandboxPath: string) {
       const process = yield* SandboxProcess;
-      const result = yield* process.run(
-        new ProcessCommand({
-          args: ["cp", hostPath, `${containerName}:${sandboxPath}`],
-          command: runtime,
-        })
-      );
+      const result = yield* process
+        .run(
+          new ProcessCommand({
+            args: ["cp", hostPath, `${containerName}:${sandboxPath}`],
+            command: runtime,
+          })
+        )
+        .pipe(profileProviderAction(runtime, "copy in"));
 
       yield* processResultOrCopyError(`${runtime} copy in`, result);
     }),
     copyFileOut: Effect.fn("ContainerHandle.copyFileOut")(function* (sandboxPath: string, hostPath: string) {
       const process = yield* SandboxProcess;
-      const result = yield* process.run(
-        new ProcessCommand({
-          args: ["cp", `${containerName}:${sandboxPath}`, hostPath],
-          command: runtime,
-        })
-      );
+      const result = yield* process
+        .run(
+          new ProcessCommand({
+            args: ["cp", `${containerName}:${sandboxPath}`, hostPath],
+            command: runtime,
+          })
+        )
+        .pipe(profileProviderAction(runtime, "copy out"));
 
       yield* processResultOrCopyError(`${runtime} copy out`, result);
     }),
@@ -191,20 +209,23 @@ const makeContainerHandle = (
       const processCommand = new ProcessCommand({
         args: [...containerExecArgs(containerName, command, options)],
         command: runtime,
+        ...(options?.onLine === undefined ? {} : { onLine: options.onLine }),
         ...(options?.stdin === undefined ? {} : { stdin: options.stdin }),
       });
-      const result = yield* process.run(processCommand);
+      const result = yield* process.run(processCommand).pipe(profileProviderAction(runtime, "exec"));
 
       return toExecResult(result);
     }),
     interactiveExec: Effect.fn("ContainerHandle.interactiveExec")(function* (args: ReadonlyArray<string>) {
       const process = yield* SandboxProcess;
-      const result = yield* process.run(
-        new ProcessCommand({
-          args: ["exec", "-it", containerName, ...args],
-          command: runtime,
-        })
-      );
+      const result = yield* process
+        .run(
+          new ProcessCommand({
+            args: ["exec", "-it", containerName, ...args],
+            command: runtime,
+          })
+        )
+        .pipe(profileProviderAction(runtime, "interactive exec"));
 
       return new InteractiveExecResult({ exitCode: result.exitCode });
     }),
@@ -231,13 +252,15 @@ const createContainerProvider = (
         "-w",
         options.workdir,
         ...containerEnvArgs(env),
-        ...containerMountArgs(createOptions),
+        ...containerMountArgs(createOptions, options.workdir),
         options.imageName,
         "tail",
         "-f",
         "/dev/null",
       ];
-      const result = yield* process.run(new ProcessCommand({ args: runArgs, command: runtime }));
+      const result = yield* process
+        .run(new ProcessCommand({ args: runArgs, command: runtime }))
+        .pipe(profileProviderAction(runtime, "container start"));
 
       if (runtime === "docker") {
         yield* processResultOrDockerError("container start", result);
@@ -245,7 +268,7 @@ const createContainerProvider = (
         yield* processResultOrPodmanError("container start", result);
       }
 
-      return yield* makeContainerHandle(runtime, containerName, createOptions.worktreePath);
+      return yield* makeContainerHandle(runtime, containerName, options.workdir);
     }),
     env: options.env,
     name: runtime,
@@ -260,46 +283,51 @@ const createContainerProvider = (
  */
 export const noSandbox = (options: NoSandboxOptions = new NoSandboxOptions({})): NoSandboxProvider<SandboxProcess> => ({
   _tag: "None",
-  create: ({ env, worktreePath }) =>
-    Effect.succeed({
-      close: () => Effect.void,
+  create: Effect.fn("NoSandboxProvider.create")(function* ({ env, worktreePath }) {
+    return {
+      close: Effect.fn("NoSandboxHandle.close")(() => Effect.void),
       copyFileOut: Effect.fn("NoSandboxHandle.copyFileOut")(function* (sandboxPath: string, hostPath: string) {
         const process = yield* SandboxProcess;
-        const result = yield* process.runShell(`cp -R ${shellEscape(sandboxPath)} ${shellEscape(hostPath)}`);
+        const result = yield* process
+          .runShell(`cp -R ${shellEscape(sandboxPath)} ${shellEscape(hostPath)}`)
+          .pipe(profileProviderAction("host", "copy out"));
 
         yield* processResultOrCopyError("host copy out", result);
       }),
       exec: Effect.fn("NoSandboxHandle.exec")(function* (command: string, execOptions?: SandboxExecOptions) {
         const process = yield* SandboxProcess;
-        const result = yield* process.runShell(
-          execOptions?.sudo === true ? `sudo sh -lc ${shellEscape(command)}` : command,
-          {
+        const result = yield* process
+          .runShell(execOptions?.sudo === true ? `sudo sh -lc ${shellEscape(command)}` : command, {
             cwd: execOptions?.cwd ?? worktreePath,
             env: {
               ...env,
               ...options.env,
             },
+            ...(execOptions?.onLine === undefined ? {} : { onLine: execOptions.onLine }),
             ...(execOptions?.stdin === undefined ? {} : { stdin: execOptions.stdin }),
-          }
-        );
+          })
+          .pipe(profileProviderAction("host", "exec"));
 
         return toExecResult(result);
       }),
       interactiveExec: Effect.fn("NoSandboxHandle.interactiveExec")(function* (args: ReadonlyArray<string>) {
         const process = yield* SandboxProcess;
         const command = pipe(args, A.map(shellEscape), (parts) => parts.join(" "));
-        const result = yield* process.runShell(command, {
-          cwd: worktreePath,
-          env: {
-            ...env,
-            ...options.env,
-          },
-        });
+        const result = yield* process
+          .runShell(command, {
+            cwd: worktreePath,
+            env: {
+              ...env,
+              ...options.env,
+            },
+          })
+          .pipe(profileProviderAction("host", "interactive exec"));
 
         return new InteractiveExecResult({ exitCode: result.exitCode });
       }),
       worktreePath,
-    } satisfies NoSandboxHandle<SandboxProcess>),
+    } satisfies NoSandboxHandle<SandboxProcess>;
+  }),
   env: options.env,
   name: "none",
 });

@@ -4,10 +4,10 @@ Shared-kernel persistence boundary for cross-slice table and read-model shapes
 tied to shared product language.
 
 This package currently proves the shared Organization table metadata and the
-shared entity-metadata table constructor used by that proof. It is the narrow
-shared-kernel Drizzle exception: metadata-only `pgTable` definitions and index
-metadata may live here when they encode shared product language, but live
-database access remains banned.
+schema-first table projection used by that proof. It is the narrow shared-kernel
+Drizzle exception: metadata-only `pgTable` definitions and index metadata may
+live here when they encode shared product language, but live database access
+remains banned.
 
 ## Belongs Here
 
@@ -15,7 +15,7 @@ database access remains banned.
   on.
 - Mappings tied directly to shared domain language.
 - Cross-slice table vocabulary when it is product-semantic and durable.
-- Metadata-only Drizzle table constructors tied to shared entity metadata.
+- Metadata-only Drizzle table definitions projected from shared entity schemas.
   Live execution belongs in driver and server packages.
 
 ## Does Not Belong Here
@@ -30,15 +30,14 @@ database access remains banned.
 
 | Export | Role |
 | --- | --- |
-| `@beep/shared-tables` | Entry point exposing `Entities` and `Table` namespaces. |
+| `@beep/shared-tables` | Entry point exposing shared concrete table namespaces. |
 | `@beep/shared-tables/*` | Package subpath access for public source modules. |
-| `Entities.Organization` | Shared Organization table metadata. |
-| `Table.make` | Metadata-only table constructor from shared entity descriptors. |
-| `Table.ColumnBuilderFor` | Type alias for one descriptor-derived Drizzle column builder. |
-| `Table.ColumnBuilderMapFor` | Type alias for a descriptor-map-derived column builder map. |
-| `Table.TableFor` | Type alias for the Drizzle table returned by `Table.make`. |
-| `Table.Definition` | Metadata attached to generated tables: entity id, field map, and table name. |
-| `Table.WithDefinition` | Type alias for Drizzle tables carrying shared-kernel metadata. |
+| `Entities.Organization` | Shared Organization table metadata projected with `EntityTable.pgTableFrom(Organization.Model)`. |
+| `@beep/shared-tables/table/Table` | Compatibility subpath re-exporting `@beep/drizzle` `EntityTable` type helpers. |
+
+Generic table projection lives in `@beep/drizzle/EntityTable`. Shared table
+packages publish concrete shared product table metadata; they do not own a
+separate SQL DSL or a domain-to-persistence mapping layer.
 
 ## Development
 

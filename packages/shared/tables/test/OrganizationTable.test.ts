@@ -53,9 +53,9 @@ describe("OrganizationTable", () => {
     const sourceLookup = indexConfigNamed("shared_organization_source_lookup_idx");
 
     expect(O.getOrThrow(slugUnique).config.unique).toBe(true);
-    expect(O.getOrThrow(slugUnique).config.columns[0]?.name).toBe("slug");
+    expect(O.getOrThrow(slugUnique).config.columns[0]).toMatchObject({ name: "slug" });
     expect(O.getOrThrow(licenseTierLookup).config.method).toBe("btree");
-    expect(O.getOrThrow(licenseTierLookup).config.columns[0]?.name).toBe("license_tier");
+    expect(O.getOrThrow(licenseTierLookup).config.columns[0]).toMatchObject({ name: "license_tier" });
     expect(O.isNone(entityTypeLookup)).toBe(true);
     expect(O.isNone(orgIdLookup)).toBe(true);
     expect(O.isNone(sourceLookup)).toBe(true);

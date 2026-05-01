@@ -28,8 +28,10 @@ describe("@beep/workspace-domain", () => {
     expect(WorkspaceEntity.definition.entityId).toBe(WorkspaceIdentity.WorkspaceId);
     expect(WorkspaceEntity.definition.entityId.tableName).toBe("workspace_workspace");
     expect(WorkspaceEntity.definition.entityId.entityType).toBe("WorkspaceWorkspace");
-    expect(WorkspaceEntity.definition.fieldMap.id.storageKind).toBe("entityId");
-    expect(WorkspaceEntity.definition.fieldMap.ownerPrincipalFixtureKey.columnName).toBe("owner_principal_fixture_key");
+    expect(WorkspaceEntity.definition.persisted.id.storageKind).toBe("entityId");
+    expect(WorkspaceEntity.definition.persisted.ownerPrincipalFixtureKey.columnName).toBe(
+      "owner_principal_fixture_key"
+    );
   });
 
   it("decodes and constructs a Workspace row", () => {

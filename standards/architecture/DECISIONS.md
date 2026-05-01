@@ -535,29 +535,40 @@ first real repositories drive any helper extraction with evidence.
 
 Decision:
 
-The shared entity metadata kernel (`EntityId`, `BaseEntity`, `EntityMixin`,
+The product-facing shared entity vocabulary (`BaseEntity`, `EntityId`,
 `EntityRef`, `Principal`, and source-kind vocabulary) remains in
 `@beep/shared-domain` while it encodes shared product semantics: tenant
-organization scoping, actor provenance, source facets, and storage-neutral field
-descriptors used by shared-kernel table metadata.
+organization scoping, actor provenance, source facets, schema versioning, and
+row versioning.
 
-`@beep/shared-tables/table/Table.make` is approved as a metadata-only table
-constructor for shared entity descriptors. It may build Drizzle table metadata
-for shared product tables, but it does not own live database execution,
-transactions, repository helpers, migrations, or driver runtime capability.
+The generic persistence kernel belongs in `@beep/schema/EntitySchema`.
+Persisted entities are schema classes whose decoded side is domain language and
+whose encoded side is the persistence row shape. Entity-specific `.model.ts`
+files inline rich `fields` and storage-neutral `persisted` descriptors together
+so the domain shape, encoded shape, and persistence metadata drift at compile
+time instead of through parallel mapping files.
+
+`BaseEntity.Class` is the approved shared product class factory for invariant
+entity fields. It composes shared product invariants into concrete entity
+schemas, but it does not own the generic SQL projection.
+
+`@beep/drizzle/EntityTable.pgTableFrom` is the approved generic table
+projection for schema-first entity classes. Shared table packages may use it to
+publish metadata-only Drizzle table definitions for shared product tables, but
+they do not own live database execution, transactions, repository helpers,
+migrations, seeders, or driver runtime capability.
+
+The old `EntityMixin` and `@beep/shared-tables/table/Table.make` APIs are
+retired and should be deleted/replaced instead of migrated forward.
 
 Rationale:
 
 The Organization proof needs one deliberately shared entity concept whose
-`orgId` tenant field, actor fields, entity-id metadata, and table metadata stay
-consistent across shared-domain, shared-tables, and shared-ui. Keeping the
-constructor vocabulary together makes the shared-kernel contract testable while
-the driver decision keeps live database work in `packages/drivers/*` and product
-repositories in server packages.
-
-If this entity metadata kernel becomes useful without shared product semantics,
-extract the generic portion into foundation/modeling with tests proving the
-shared-domain exports remain product-language wrappers.
+`orgId` tenant field, actor fields, entity-id metadata, schema metadata, and
+table metadata stay consistent across shared-domain, shared-tables, and shared
+UI. Splitting the generic kernel into foundation modeling and the Drizzle
+projection into the driver package keeps product language pure while avoiding a
+parallel domain-to-table mapping layer.
 
 ## 2026-05-01: Add Enforcement Lanes And Rough-Edge Refinements
 

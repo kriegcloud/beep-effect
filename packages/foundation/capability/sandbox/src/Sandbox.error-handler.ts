@@ -1,5 +1,12 @@
-import { Match } from "effect";
+/**
+ * Error formatting helpers for sandbox failures.
+ *
+ * @packageDocumentation
+ * @since 0.0.0
+ */
+import { Match, pipe } from "effect";
 import type { SandboxError } from "./Sandbox.errors.ts";
+import { redactSensitiveText } from "./Sandbox.observability.ts";
 
 /**
  * Formats a tagged SandboxError into a user-friendly message with
@@ -8,7 +15,7 @@ import type { SandboxError } from "./Sandbox.errors.ts";
  * @category error handling
  * @since 0.0.0
  */
-export const formatErrorMessage = Match.type<SandboxError>().pipe(
+const formatErrorMessageUnsafe = Match.type<SandboxError>().pipe(
   Match.tag(
     "AgentIdleTimeoutError",
     "WorktreeTimeoutError",
@@ -16,6 +23,7 @@ export const formatErrorMessage = Match.type<SandboxError>().pipe(
     "CopyToWorktreeTimeoutError",
     "CopyToWorktreeError",
     "SyncInTimeoutError",
+    "SyncOutTimeoutError",
     "HookTimeoutError",
     "GitSetupTimeoutError",
     "PromptExpansionTimeoutError",
@@ -39,3 +47,12 @@ export const formatErrorMessage = Match.type<SandboxError>().pipe(
     InitError: (error) => `${error.message}`,
   })
 );
+
+/**
+ * Format a sandbox error with secret-shaped text redacted.
+ *
+ * @category error handling
+ * @since 0.0.0
+ */
+export const formatErrorMessage = (error: SandboxError): string =>
+  pipe(error, formatErrorMessageUnsafe, redactSensitiveText);

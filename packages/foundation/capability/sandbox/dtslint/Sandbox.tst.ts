@@ -9,6 +9,10 @@ import {
   HeadBranchStrategy,
   NoSandboxOptions,
   noSandbox,
+  OpenCodeOptions,
+  opencode,
+  PiOptions,
+  pi,
   podman,
   type RunResult,
   run,
@@ -23,6 +27,8 @@ describe("@beep/sandbox types", () => {
   it("keeps provider constructors and run typed", () => {
     const agent = claudeCode();
     const codexAgent = codex("gpt-5.4");
+    const piAgent = pi("sonnet-4.5", new PiOptions({ env: { PI_API_KEY: "test" } }));
+    const opencodeAgent = opencode("qwen/qwen3-coder", new OpenCodeOptions({ env: { OPEN_CODE: "1" } }));
     const sandbox = noSandbox(new NoSandboxOptions({}));
     const dockerProvider = docker(new ContainerProviderOptions({ imageName: "sandbox:latest" }));
     const podmanProvider = podman(new ContainerProviderOptions({ imageName: "sandbox:latest" }));
@@ -40,6 +46,10 @@ describe("@beep/sandbox types", () => {
       readonly command: string;
     }>();
     expect(dockerProvider.name).type.toBe<string>();
+    expect(piAgent.parseStreamLine("{}")).type.toBeAssignableTo<ReadonlyArray<{ readonly _tag: string }>>();
+    expect(opencodeAgent.buildInteractiveArgs).type.toBeAssignableTo<
+      undefined | ((options: AgentCommandOptions) => ReadonlyArray<string>)
+    >();
     expect(podmanProvider.name).type.toBe<string>();
     expect(program).type.toBeAssignableTo<
       Effect.Effect<

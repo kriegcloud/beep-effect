@@ -54,6 +54,28 @@ const optionalKeyPersisted: EntitySchema.PersistedFor<typeof optionalKeyFields> 
   maybe: EntitySchema.persist.text(),
 };
 
+declare const servicefulField: S.Codec<string, string, "Service", never>;
+
+const servicefulFields = {
+  value: servicefulField,
+} as const;
+
+const servicefulPersisted: EntitySchema.PersistedFor<typeof servicefulFields> = {
+  // @ts-expect-error!
+  value: EntitySchema.persist.text(),
+};
+
+EntitySchema.defineClassInput({
+  fields: {
+    name: S.String,
+  },
+  persisted: {
+    name: EntitySchema.persist.text(),
+    // @ts-expect-error!
+    extra: EntitySchema.persist.text(),
+  },
+});
+
 const Fixture = EntitySchema.ClassFactory($I`Fixture`)(
   {
     entityId: FixtureId,
@@ -97,3 +119,4 @@ describe("EntitySchema types", () => {
 });
 
 void optionalKeyPersisted;
+void servicefulPersisted;

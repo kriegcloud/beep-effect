@@ -68,8 +68,9 @@ describe("LocalDate.Model", () => {
     expect(date.toDate().toISOString()).toBe("2024-06-15T00:00:00.000Z");
   });
 
-  it.effect("decodes and encodes the schema class", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes and encodes the schema class",
+    Effect.fnUntraced(function* () {
       const decoded = yield* S.decodeUnknownEffect(Model)({ year: 2024, month: 6, day: 15 });
       const encoded = yield* S.encodeEffect(Model)(decoded);
 
@@ -100,8 +101,9 @@ describe("constructors", () => {
     expect(isLocalDate(null)).toBe(false);
   });
 
-  it.effect("parses ISO date strings and rejects invalid fromString inputs", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "parses ISO date strings and rejects invalid fromString inputs",
+    Effect.fnUntraced(function* () {
       const date = yield* fromString("2024-06-15");
 
       assert.strictEqual(date.toISOString(), "2024-06-15");
@@ -122,8 +124,9 @@ describe("constructors", () => {
     expect(isLocalDate(today())).toBe(true);
   });
 
-  it.effect("constructs today's date from TestClock", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "constructs today's date from TestClock",
+    Effect.fnUntraced(function* () {
       yield* TestClock.setTime(DateTime.toEpochMillis(DateTime.makeUnsafe("2024-06-15T12:00:00.000Z")));
       const today = yield* todayEffect;
       assert.strictEqual(today.toISOString(), "2024-06-15");
@@ -221,8 +224,9 @@ describe("LocalDateFromString", () => {
   const decode = S.decodeUnknownEffect(LocalDateFromString);
   const encode = S.encodeEffect(LocalDateFromString);
 
-  it.effect("decodes and encodes ISO local-date strings", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "decodes and encodes ISO local-date strings",
+    Effect.fnUntraced(function* () {
       const date = yield* decode("2024-06-15");
       const encoded = yield* encode(date);
       const padded = yield* encode(make({ year: 99, month: 2, day: 5 }));
@@ -234,8 +238,9 @@ describe("LocalDateFromString", () => {
     })
   );
 
-  it.effect("rejects malformed and impossible ISO local-date strings", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "rejects malformed and impossible ISO local-date strings",
+    Effect.fnUntraced(function* () {
       yield* expectFailure(decode("2024/06/15"));
       yield* expectFailure(decode("invalid"));
       yield* expectFailure(decode(""));
@@ -250,8 +255,9 @@ describe("LocalDateFromString", () => {
     })
   );
 
-  it.effect("round-trips through structs with encoded date fields", () =>
-    Effect.gen(function* () {
+  it.effect(
+    "round-trips through structs with encoded date fields",
+    Effect.fnUntraced(function* () {
       const Params = S.Struct({
         startDate: LocalDateFromString,
         endDate: LocalDateFromString,

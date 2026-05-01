@@ -22,9 +22,9 @@ describe("@beep/workspace-domain", () => {
     expect(WorkspaceEntity.definition.entityId).type.toBe<typeof WorkspaceIdentity.WorkspaceId>();
     expect<typeof WorkspaceEntity.definition.entityId.tableName>().type.toBe<"workspace_workspace">();
     expect<typeof WorkspaceEntity.definition.entityId.entityType>().type.toBe<"WorkspaceWorkspace">();
-    expect<typeof WorkspaceEntity.definition.fieldMap.ownerPrincipalFixtureKey.storageKind>().type.toBe<"text">();
+    expect<typeof WorkspaceEntity.definition.persisted.ownerPrincipalFixtureKey.storageKind>().type.toBe<"text">();
     expect<
-      typeof WorkspaceEntity.definition.fieldMap.organizationFixtureKey.columnName
+      typeof WorkspaceEntity.definition.persisted.organizationFixtureKey.columnName
     >().type.toBe<"organization_fixture_key">();
   });
 

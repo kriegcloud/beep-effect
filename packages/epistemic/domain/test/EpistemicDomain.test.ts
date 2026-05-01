@@ -27,8 +27,8 @@ describe("@beep/epistemic-domain", () => {
     expect(CandidateClaim.definition.entityId).toBe(Epistemic.CandidateClaimId);
     expect(CandidateClaim.definition.entityId.tableName).toBe("epistemic_candidate_claim");
     expect(CandidateClaim.definition.entityId.entityType).toBe("EpistemicCandidateClaim");
-    expect(CandidateClaim.definition.fieldMap.id.storageKind).toBe("entityId");
-    expect(CandidateClaim.definition.fieldMap.snapshot.storageKind).toBe("json");
+    expect(CandidateClaim.definition.persisted.id.storageKind).toBe("entityId");
+    expect(CandidateClaim.definition.persisted.snapshot.storageKind).toBe("jsonb");
   });
 
   it("decodes and constructs a CandidateClaim row", () => {

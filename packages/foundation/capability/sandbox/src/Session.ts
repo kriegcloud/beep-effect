@@ -13,17 +13,49 @@ import type { BindMountSandboxHandle } from "./Sandbox.provider.ts";
 import { SandboxExecOptions } from "./Sandbox.provider.ts";
 
 const $I = $SandboxId.create("Session");
+const SESSION_ID_PATTERN = /^[A-Za-z0-9_-]+$/u;
+
+const shellEscape = (value: string): string => `'${value.replaceAll("'", "'\\''")}'`;
 
 /**
  * Session path service shape.
  *
- * @category services
+ * @category models
  * @since 0.0.0
  */
-export interface SessionPathsShape {
-  readonly hostProjectsDir: string;
-  readonly sandboxProjectsDir: string;
-}
+export class SessionPathsShape extends S.Class<SessionPathsShape>($I`SessionPathsShape`)(
+  {
+    hostProjectsDir: S.String,
+    sandboxProjectsDir: S.String,
+  },
+  $I.annote("SessionPathsShape", {
+    description: "Session path service shape.",
+  })
+) {}
+
+/**
+ * Filename-safe agent session identifier.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const SessionId = S.String.check(
+  S.isPattern(SESSION_ID_PATTERN, {
+    message: "Session IDs may only contain letters, numbers, underscores, and dashes.",
+  })
+).pipe(
+  $I.annoteSchema("SessionId", {
+    description: "Filename-safe agent session identifier.",
+  })
+);
+
+/**
+ * Runtime type for {@link SessionId}.
+ *
+ * @category models
+ * @since 0.0.0
+ */
+export type SessionId = typeof SessionId.Type;
 
 /**
  * Session path service.
@@ -73,6 +105,24 @@ export const defaultSessionPathsLayer: Layer.Layer<SessionPaths> = sessionPathsL
   sandboxProjectsDir: ".claude/projects",
 });
 
+const decodeSessionId = S.decodeUnknownEffect(SessionId);
+
+const validateSessionId = Effect.fn("Session.validateSessionId")(function* (sessionId: string) {
+  return yield* decodeSessionId(sessionId).pipe(
+    Effect.mapError(
+      (cause) =>
+        new SessionCaptureError({
+          cause,
+          message: `Invalid session id: ${sessionId}`,
+          sessionId,
+        })
+    )
+  );
+});
+
+const sessionFilePath = (repoDir: string, projectsDir: string, sessionId: string): string =>
+  `${repoDir}/${projectsDir}/${sessionId}.jsonl`;
+
 /**
  * Session transfer summary.
  *
@@ -101,7 +151,8 @@ export const hostSessionStore = (
   read: Effect.fn("Session.hostSessionStore.read")(function* (sessionId: string) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const file = path.join(repoDir, projectsDir, `${sessionId}.jsonl`);
+    const safeSessionId = yield* validateSessionId(sessionId);
+    const file = path.join(repoDir, projectsDir, `${safeSessionId}.jsonl`);
 
     return yield* fs.readFileString(file).pipe(
       SessionCaptureError.mapError(`Failed to read session ${sessionId}`, {
@@ -109,11 +160,12 @@ export const hostSessionStore = (
       })
     );
   }),
-  sessionFilePath: (sessionId) => `${repoDir}/${projectsDir}/${sessionId}.jsonl`,
+  sessionFilePath: (sessionId) => sessionFilePath(repoDir, projectsDir, sessionId),
   write: Effect.fn("Session.hostSessionStore.write")(function* (sessionId: string, content: string) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const file = path.join(repoDir, projectsDir, `${sessionId}.jsonl`);
+    const safeSessionId = yield* validateSessionId(sessionId);
+    const file = path.join(repoDir, projectsDir, `${safeSessionId}.jsonl`);
     yield* fs.makeDirectory(path.dirname(file), { recursive: true }).pipe(
       SessionCaptureError.mapError(`Failed to create session directory for ${sessionId}`, {
         sessionId,
@@ -138,21 +190,25 @@ export const sandboxSessionStore = (
   handle: BindMountSandboxHandle,
   projectsDir = ".claude/projects"
 ): SessionStore => ({
-  read: (sessionId) =>
-    handle.exec(`cat ${repoDir}/${projectsDir}/${sessionId}.jsonl`).pipe(
+  read: Effect.fn("Session.sandboxSessionStore.read")(function* (sessionId: string) {
+    const safeSessionId = yield* validateSessionId(sessionId);
+    const file = shellEscape(sessionFilePath(repoDir, projectsDir, safeSessionId));
+
+    return yield* handle.exec(`cat ${file}`).pipe(
       Effect.map((result) => result.stdout),
       SessionCaptureError.mapError(`Failed to read sandbox session ${sessionId}`, { sessionId })
-    ),
-  sessionFilePath: (sessionId) => `${repoDir}/${projectsDir}/${sessionId}.jsonl`,
-  write: (sessionId, content) =>
-    handle
-      .exec(
-        `mkdir -p ${repoDir}/${projectsDir} && cat > ${repoDir}/${projectsDir}/${sessionId}.jsonl`,
-        new SandboxExecOptions({
-          stdin: content,
-        })
-      )
-      .pipe(Effect.asVoid, SessionCaptureError.mapError(`Failed to write sandbox session ${sessionId}`, { sessionId })),
+    );
+  }),
+  sessionFilePath: (sessionId) => sessionFilePath(repoDir, projectsDir, sessionId),
+  write: Effect.fn("Session.sandboxSessionStore.write")(function* (sessionId: string, content: string) {
+    const safeSessionId = yield* validateSessionId(sessionId);
+    const dir = shellEscape(`${repoDir}/${projectsDir}`);
+    const file = shellEscape(sessionFilePath(repoDir, projectsDir, safeSessionId));
+
+    yield* handle
+      .exec(`mkdir -p ${dir} && cat > ${file}`, new SandboxExecOptions({ stdin: content }))
+      .pipe(Effect.asVoid, SessionCaptureError.mapError(`Failed to write sandbox session ${sessionId}`, { sessionId }));
+  }),
 });
 
 /**

@@ -6,7 +6,7 @@
  */
 
 import { $SandboxId } from "@beep/identity";
-import { LiteralKit } from "@beep/schema";
+import { Fn, LiteralKit } from "@beep/schema";
 import { Effect } from "effect";
 import { dual } from "effect/Function";
 import * as S from "effect/Schema";
@@ -20,8 +20,8 @@ const $I = $SandboxId.create("Sandbox.provider");
  * @category schemas
  * @since 0.0.0
  */
-export const SandboxProviderKind = LiteralKit(["BindMount", "Isolated", "None"]).pipe(
-  $I.annoteSchema("SandboxProviderKind", {
+export const SandboxProviderKind = LiteralKit(["BindMount", "Isolated", "None"]).annotate(
+  $I.annote("SandboxProviderKind", {
     description: "Sandbox provider kind.",
   })
 );
@@ -60,6 +60,7 @@ export class ExecResult extends S.Class<ExecResult>($I`ExecResult`)(
 export class SandboxExecOptions extends S.Class<SandboxExecOptions>($I`SandboxExecOptions`)(
   {
     cwd: S.optionalKey(S.String),
+    onLine: S.optionalKey(Fn({ input: S.String, output: S.Void })),
     stdin: S.optionalKey(S.String),
     sudo: S.Boolean.pipe(S.withConstructorDefault(Effect.succeed(false))),
   },
@@ -198,7 +199,6 @@ export class NamedBranchStrategy extends S.TaggedClass<NamedBranchStrategy>($I`N
  * @since 0.0.0
  */
 export const BranchStrategy = S.Union([HeadBranchStrategy, MergeToHeadBranchStrategy, NamedBranchStrategy]).pipe(
-  S.toTaggedUnion("_tag"),
   $I.annoteSchema("BranchStrategy", {
     description: "Branch strategy for a sandbox run.",
   })
@@ -384,7 +384,7 @@ type PromiseIsolatedProviderConfig = Omit<IsolatedSandboxProviderConfig, "create
 export const fromPromiseBindMountSandboxProvider = (config: PromiseBindMountProviderConfig): BindMountSandboxProvider =>
   createBindMountSandboxProvider({
     ...config,
-    create: (options) =>
+    create: Effect.fn("SandboxProvider.fromPromiseBindMount.create")((options) =>
       Effect.tryPromise({
         try: () => config.create(options),
         catch: (cause) =>
@@ -392,7 +392,8 @@ export const fromPromiseBindMountSandboxProvider = (config: PromiseBindMountProv
             cause,
             message: `Failed to create bind-mount sandbox provider "${config.name}".`,
           }),
-      }),
+      })
+    ),
   });
 
 /**
@@ -404,7 +405,7 @@ export const fromPromiseBindMountSandboxProvider = (config: PromiseBindMountProv
 export const fromPromiseIsolatedSandboxProvider = (config: PromiseIsolatedProviderConfig): IsolatedSandboxProvider =>
   createIsolatedSandboxProvider({
     ...config,
-    create: (options) =>
+    create: Effect.fn("SandboxProvider.fromPromiseIsolated.create")((options) =>
       Effect.tryPromise({
         try: () => config.create(options),
         catch: (cause) =>
@@ -412,7 +413,8 @@ export const fromPromiseIsolatedSandboxProvider = (config: PromiseIsolatedProvid
             cause,
             message: `Failed to create isolated sandbox provider "${config.name}".`,
           }),
-      }),
+      })
+    ),
   });
 
 /**

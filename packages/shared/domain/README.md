@@ -32,12 +32,17 @@ product meaning.
 - `Identity.Shared`
 - `BaseEntity`
 - `EntityId`
-- `EntityMixin`
 - `EntityRef`
 - `Principal`
 - `SourceKind`
 - `@beep/shared-domain/entity`
 - `@beep/shared-domain/entity/primitives`
+
+Persisted shared entities use `BaseEntity.Class` from
+`@beep/shared-domain/entity/BaseEntity` for shared product invariants and
+`@beep/schema/EntitySchema` descriptors for storage-neutral persistence
+metadata. Domain models remain schema-first; the decoded side is domain
+language and the encoded side is the persistence row shape.
 
 ## Source Map
 
@@ -46,7 +51,7 @@ product meaning.
 | `src/aggregates/index.ts`                    | Shared aggregate roots and aggregate-level vocabulary. |
 | `src/entities/index.ts`                      | Shared identity-bearing concepts, including `Organization`. |
 | `src/entities/Organization/`                 | Organization model, value vocabulary, and pure behavior. |
-| `src/entity/index.ts`                        | Entity constructor barrel: `BaseEntity`, `EntityId`, `EntityMixin`, `EntityRef`, `Principal`, `primitives`, and `SourceKind`. |
+| `src/entity/index.ts`                        | Entity constructor barrel: `BaseEntity`, `EntityId`, `EntityRef`, `Principal`, `primitives`, and `SourceKind`. |
 | `src/entity/primitives.ts`                   | Shared driver-neutral entity primitive schemas.        |
 | `src/identity/index.ts`                      | Shared entity-id modules and identity vocabulary.      |
 | `src/values/index.ts`                        | Shared value objects.                                  |

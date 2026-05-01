@@ -11,6 +11,7 @@ import { Duration, Effect, Path, pipe } from "effect";
 import * as S from "effect/Schema";
 import * as Str from "effect/String";
 import { WorktreeError, WorktreeTimeoutError } from "./Sandbox.errors.ts";
+import { profileSandboxPhase } from "./Sandbox.observability.ts";
 import { ProcessCommand, SandboxProcess } from "./Sandbox.process.ts";
 
 const $I = $SandboxId.create("Worktree");
@@ -78,25 +79,35 @@ export const generateTempBranchName = (name?: string, date: Date = new Date()): 
   return name === undefined ? `sandcastle/${timestamp}` : `sandcastle/${sanitizeName(name)}/${timestamp}`;
 };
 
+const runGitRaw = Effect.fn("Worktree.runGit")(function* (args: ReadonlyArray<string>, cwd: string) {
+  const process = yield* SandboxProcess;
+  const result = yield* process
+    .run(
+      new ProcessCommand({
+        args: [...args],
+        command: "git",
+        cwd,
+      })
+    )
+    .pipe(WorktreeError.mapError("Failed to run git command"));
+
+  if (result.exitCode !== 0) {
+    return yield* WorktreeError.new(result.stderr || result.stdout, `Git command failed: git ${args.join(" ")}`);
+  }
+
+  return result.stdout;
+});
+
 const runGit = (args: ReadonlyArray<string>, cwd: string): Effect.Effect<string, WorktreeError, SandboxProcess> =>
-  Effect.gen(function* () {
-    const process = yield* SandboxProcess;
-    const result = yield* process
-      .run(
-        new ProcessCommand({
-          args: [...args],
-          command: "git",
-          cwd,
-        })
-      )
-      .pipe(WorktreeError.mapError("Failed to run git command"));
-
-    if (result.exitCode !== 0) {
-      return yield* WorktreeError.new(result.stderr || result.stdout, `Git command failed: git ${args.join(" ")}`);
-    }
-
-    return result.stdout;
-  });
+  runGitRaw(args, cwd).pipe(
+    profileSandboxPhase({
+      attributes: {
+        command: "git",
+        cwd,
+      },
+      phase: "sandbox.git",
+    })
+  );
 
 /**
  * Return the current branch for a repository.
@@ -131,44 +142,35 @@ export const hasUncommittedChanges = Effect.fn("Worktree.hasUncommittedChanges")
 export const createWorktreeInfo = Effect.fn("Worktree.createWorktreeInfo")(function* (
   options: CreateWorktreeInfoOptions
 ) {
-  return yield* Effect.gen(function* () {
-    const path = yield* Path.Path;
-    const worktreesDir = path.join(options.repoDir, ".sandcastle", "worktrees");
-    const timestamp = formatTimestamp(new Date());
-    const branch =
-      options.branch ??
-      (options.name === undefined
-        ? `sandcastle/${timestamp}`
-        : `sandcastle/${sanitizeName(options.name)}/${timestamp}`);
-    const worktreeName =
-      options.branch === undefined
-        ? options.name === undefined
-          ? `sandcastle-${timestamp}`
-          : `sandcastle-${sanitizeName(options.name)}-${timestamp}`
-        : Str.replaceAll("/", "-")(options.branch);
-    const worktreePath = path.join(worktreesDir, worktreeName);
-    const addArgs =
-      options.branch === undefined
-        ? [...NO_CONFIG_LOCK_FLAGS, "worktree", "add", "-b", branch, worktreePath, "HEAD"]
-        : [...NO_CONFIG_LOCK_FLAGS, "worktree", "add", worktreePath, branch];
+  const path = yield* Path.Path;
+  const worktreesDir = path.join(options.repoDir, ".sandcastle", "worktrees");
+  const timestamp = formatTimestamp(new Date());
+  const branch =
+    options.branch ??
+    (options.name === undefined ? `sandcastle/${timestamp}` : `sandcastle/${sanitizeName(options.name)}/${timestamp}`);
+  const worktreeName =
+    options.branch === undefined
+      ? options.name === undefined
+        ? `sandcastle-${timestamp}`
+        : `sandcastle-${sanitizeName(options.name)}-${timestamp}`
+      : Str.replaceAll("/", "-")(options.branch);
+  const worktreePath = path.join(worktreesDir, worktreeName);
+  const addArgs =
+    options.branch === undefined
+      ? [...NO_CONFIG_LOCK_FLAGS, "worktree", "add", "-b", branch, worktreePath, "HEAD"]
+      : [...NO_CONFIG_LOCK_FLAGS, "worktree", "add", worktreePath, branch];
 
-    const output = yield* runGit(addArgs, options.repoDir).pipe(
-      Effect.catch((error) => {
-        if (options.branch !== undefined && Str.includes("invalid reference")(error.message)) {
-          return runGit(
-            [...NO_CONFIG_LOCK_FLAGS, "worktree", "add", "-b", branch, worktreePath, options.baseBranch ?? "HEAD"],
-            options.repoDir
-          );
-        }
+  const output = yield* runGit(addArgs, options.repoDir).pipe(
+    Effect.catch((error) => {
+      if (options.branch !== undefined && Str.includes("invalid reference")(error.message)) {
+        return runGit(
+          [...NO_CONFIG_LOCK_FLAGS, "worktree", "add", "-b", branch, worktreePath, options.baseBranch ?? "HEAD"],
+          options.repoDir
+        );
+      }
 
-        return Effect.fail(error);
-      })
-    );
-
-    void output;
-
-    return new WorktreeInfo({ branch, path: worktreePath });
-  }).pipe(
+      return Effect.fail(error);
+    }),
     Effect.timeoutOrElse({
       duration: Duration.millis(WORKTREE_TIMEOUT_MS),
       orElse: () =>
@@ -185,6 +187,10 @@ export const createWorktreeInfo = Effect.fn("Worktree.createWorktreeInfo")(funct
         ),
     })
   );
+
+  void output;
+
+  return new WorktreeInfo({ branch, path: worktreePath });
 });
 
 /**

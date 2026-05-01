@@ -5,9 +5,9 @@
  * @since 0.0.0
  */
 import { $FixtureLabSpecimenId } from "@beep/identity/packages";
+import * as EntitySchema from "@beep/schema/EntitySchema";
 import { BaseEntity } from "@beep/shared-domain/entity/BaseEntity";
 import * as FixtureLabSpecimen from "@beep/shared-domain/identity/FixtureLabSpecimen";
-import * as EntitySchema from "@beep/schema/EntitySchema";
 import * as S from "effect/Schema";
 import { SpecimenStatus } from "./Specimen.values.js";
 
