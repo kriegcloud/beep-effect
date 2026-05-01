@@ -4,15 +4,15 @@
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
-    "tooling/**/*.{ts,tsx}",
+    "packages/tooling/**/*.{ts,tsx}",
     "infra/**/*.ts",
     ".claude/hooks/**/*.ts"
   ],
   "enforcedRoots": [
-    "tooling/cli/src",
-    "tooling/repo-utils/src/FsUtils.ts",
-    "tooling/repo-utils/src/UniqueDeps.ts",
-    "tooling/repo-utils/src/schemas/WorkspaceDeps.ts"
+    "packages/tooling/tool/cli/src",
+    "packages/tooling/library/repo-utils/src/FsUtils.ts",
+    "packages/tooling/library/repo-utils/src/UniqueDeps.ts",
+    "packages/tooling/library/repo-utils/src/schemas/WorkspaceDeps.ts"
   ],
   "entries": [
     {
@@ -976,7 +976,7 @@
       "reason": "Generic type alias requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts",
       "symbol": "FileGenerationPlanServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -984,7 +984,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/CreatePackage/TemplateService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/CreatePackage/TemplateService.ts",
       "symbol": "TemplateServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -992,7 +992,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts",
       "symbol": "TsMorphIntegrationServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1000,7 +1000,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/CreatePackage/TsMorphIntegrationService.ts",
       "symbol": "TsMorphMutationAdapter",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1008,7 +1008,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/Files/Files.service.ts",
+      "file": "packages/tooling/tool/cli/src/commands/Files/Files.service.ts",
       "symbol": "FilesCommandServiceShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -1016,7 +1016,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/SyncDataToTs/index.ts",
+      "file": "packages/tooling/tool/cli/src/commands/SyncDataToTs/index.ts",
       "symbol": "rowSchema",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1024,7 +1024,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/CategorySelectionService.ts",
       "symbol": "CategorySelectionServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1032,7 +1032,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ReportRendererService.ts",
       "symbol": "ReportRendererServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1040,7 +1040,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/VersionSync/internal/services/ResolverService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/ResolverService.ts",
       "symbol": "ResolverServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1048,7 +1048,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/cli/src/commands/VersionSync/internal/services/UpdateApplierService.ts",
+      "file": "packages/tooling/tool/cli/src/commands/VersionSync/internal/services/UpdateApplierService.ts",
       "symbol": "UpdateApplierServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1056,7 +1056,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/repo-utils/src/FsUtils.ts",
+      "file": "packages/tooling/library/repo-utils/src/FsUtils.ts",
       "symbol": "FsUtilsShape",
       "kind": "exported-interface",
       "status": "exception",
@@ -1064,7 +1064,7 @@
       "reason": "Interface contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/repo-utils/src/TSMorph/TSMorph.service.ts",
+      "file": "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.service.ts",
       "symbol": "TSMorphServiceShape",
       "kind": "exported-type-literal",
       "status": "exception",
@@ -1072,7 +1072,7 @@
       "reason": "Type alias contains non-schema signals such as function members or runtime handles."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "BeepDriverMetadata",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -1080,7 +1080,7 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "BeepFoundationMetadata",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -1088,7 +1088,7 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "BeepToolingMetadata",
       "kind": "object-struct-schema",
       "status": "candidate",
@@ -1096,7 +1096,7 @@
       "reason": "Object schema should prefer an annotated S.Class over S.Struct."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "NpmPackageJsonShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1104,7 +1104,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "PackageJsonShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1112,7 +1112,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "PeerDependencyMetaEntry",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1120,7 +1120,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/PackageJson.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/PackageJson.ts",
       "symbol": "PublishConfigBase",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1128,7 +1128,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "TSConfigBuildOptionsShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1136,7 +1136,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "TSConfigCompilerOptionsShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1144,7 +1144,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "TSConfigShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1152,7 +1152,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "TSConfigTypeAcquisitionShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1160,7 +1160,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "TSConfigWatchOptionsShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1168,7 +1168,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "TSNodeConfigShape",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1176,7 +1176,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "makeEncodedStruct",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1184,7 +1184,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "makeTypeStruct",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1192,7 +1192,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/repo-utils/src/schemas/TSConfig.ts",
+      "file": "packages/tooling/library/repo-utils/src/schemas/TSConfig.ts",
       "symbol": "strict",
       "kind": "object-struct-schema",
       "status": "exception",
@@ -1200,7 +1200,7 @@
       "reason": "S.Struct usage without a plain object literal stays tracked as an exception."
     },
     {
-      "file": "tooling/test-utils/src/SqlTest.ts",
+      "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
       "symbol": "PgliteSqlTestLayerOptions",
       "kind": "exported-interface",
       "status": "exception",
@@ -1208,7 +1208,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "tooling/test-utils/src/SqlTest.ts",
+      "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
       "symbol": "PgliteTestcontainerResource",
       "kind": "exported-interface",
       "status": "candidate",
@@ -1216,7 +1216,7 @@
       "reason": "Exported pure-data interface should be modeled as an annotated schema."
     },
     {
-      "file": "tooling/test-utils/src/SqlTest.ts",
+      "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
       "symbol": "SqlTestDriver",
       "kind": "exported-interface",
       "status": "exception",
@@ -1224,7 +1224,7 @@
       "reason": "Generic interface requires manual modeling and is tracked as an exception."
     },
     {
-      "file": "tooling/test-utils/src/SqlTest.ts",
+      "file": "packages/tooling/test-kit/test-utils/src/SqlTest.ts",
       "symbol": "SqlTestHooks",
       "kind": "exported-interface",
       "status": "exception",

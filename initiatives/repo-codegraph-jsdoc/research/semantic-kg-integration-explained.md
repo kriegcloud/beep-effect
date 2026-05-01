@@ -11,7 +11,7 @@ Major claims:
 
 Source trail:
 - `initiatives/repo-codegraph-jsdoc/SPEC.md`
-- `tooling/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts`
+- `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts`
 - `.repos/beep-effect/packages/knowledge/server/src/Reasoning/ReasonerService.ts`
 - `.repos/beep-effect/packages/knowledge/server/src/Validation/ShaclService.ts`
 
@@ -111,8 +111,8 @@ Anchor 3: codegraph core
 - `Specified (Current Architecture)`: reasoning and contradiction handling are first-class design targets for next spec.
 
 Source trail:
-- `tooling/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts`
-- `tooling/repo-utils/src/JSDoc/models/JSDocTagAnnotation.model.ts`
+- `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts`
+- `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagAnnotation.model.ts`
 - `initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md`
 - `initiatives/repo-codegraph-jsdoc/history/outputs/Building a code-aware NLP service in TypeScript.md`
 - `initiatives/repo-codegraph-jsdoc/SPEC.md`
@@ -700,7 +700,7 @@ Expected outcome:
 - high-confidence acceptance with direct AST proof.
 
 Source trail:
-- `tooling/repo-utils/src/JSDoc/models/tag-values/StructuralTagValues.ts`
+- `packages/tooling/library/repo-utils/src/JSDoc/models/tag-values/StructuralTagValues.ts`
 - `initiatives/repo-codegraph-jsdoc/history/outputs/Building a code-aware NLP service in TypeScript.md`
 
 ### Scenario 2: Entity alias canonicalization without sameAs explosion
@@ -783,7 +783,7 @@ Compact source appendix:
   - `initiatives/repo-codegraph-jsdoc/SPEC.md`
   - `initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md`
   - `initiatives/repo-codegraph-jsdoc/history/outputs/Building a code-aware NLP service in TypeScript.md`
-  - `tooling/repo-utils/src/JSDoc/**`
+  - `packages/tooling/library/repo-utils/src/JSDoc/**`
 - Legacy runtime verification
   - `.repos/beep-effect/packages/knowledge/server/src/Extraction/**`
   - `.repos/beep-effect/packages/knowledge/server/src/Reasoning/**`

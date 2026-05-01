@@ -51,6 +51,11 @@ Work`, and `Pending Automation/Generator Support`. Cleanup-on-touch is scoped
 to the boundary being edited; it is not a default instruction to sweep whole
 package families.
 
+Compile-ready proof lives in `packages/fixture-lab/specimen`. The numbered
+docs may use short membership sketches to explain the rule, but the fixture is
+the canonical executable example for package shape, boundary subpaths, and
+port-to-action error translation.
+
 ## Start here
 
 New to this architecture? Read
@@ -78,7 +83,7 @@ back here for the rationale once the shape clicks.
 | [`10-cross-slice-coordination.md`](./10-cross-slice-coordination.md) | Workflow / saga / process-manager governance; event contracts in `shared/use-cases`; God Process Manager anti-pattern. |
 | [`11-evolution-and-deprecation.md`](./11-evolution-and-deprecation.md) | Slice retirement, `shared/use-cases` versioning, port deprecation, feature-flag lifetime. |
 | [`12-observability.md`](./12-observability.md)                       | Span naming, attribute conventions, logging vs tracing vs Console; slice boundaries as span boundaries. |
-| [`13-onboarding-the-minimum-viable-slice.md`](./13-onboarding-the-minimum-viable-slice.md) | Minimum-viable-slice walkthrough, first cross-slice promotion, slice-path reading guide. |
+| [`13-onboarding-the-minimum-viable-slice.md`](./13-onboarding-the-minimum-viable-slice.md) | Scratchpad lane, minimum-viable-slice walkthrough, first cross-slice promotion, slice-path reading guide. |
 
 ## Known Unknowns
 

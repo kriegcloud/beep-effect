@@ -7,7 +7,7 @@
 import { observeSpecimen, retireSpecimen, type Specimen } from "@beep/fixture-lab-specimen-domain";
 import { Effect } from "effect";
 import type { ObserveSpecimen, RetireSpecimen } from "./Specimen.commands.js";
-import type { SpecimenNotFound } from "./Specimen.errors.js";
+import { type SpecimenNotFound, toSpecimenActionError } from "./Specimen.errors.js";
 import type { SpecimenRepository } from "./Specimen.ports.js";
 import type { GetSpecimen } from "./Specimen.queries.js";
 
@@ -22,6 +22,11 @@ export interface SpecimenUseCases {
   readonly observeSpecimen: (command: ObserveSpecimen) => Effect.Effect<Specimen, SpecimenNotFound>;
   readonly retireSpecimen: (command: RetireSpecimen) => Effect.Effect<Specimen, SpecimenNotFound>;
 }
+
+const getSpecimenFromRepository = (
+  repository: SpecimenRepository,
+  id: string
+): Effect.Effect<Specimen, SpecimenNotFound> => repository.get(id).pipe(Effect.mapError(toSpecimenActionError));
 
 /**
  * Create the specimen command/query facade over a repository boundary.
@@ -45,11 +50,17 @@ export interface SpecimenUseCases {
  * @since 0.0.0
  */
 export const makeSpecimenUseCases = (repository: SpecimenRepository): SpecimenUseCases => ({
-  getSpecimen: Effect.fn("SpecimenUseCases.getSpecimen")((query: GetSpecimen) => repository.get(query.id)),
+  getSpecimen: Effect.fn("SpecimenUseCases.getSpecimen")((query: GetSpecimen) =>
+    getSpecimenFromRepository(repository, query.id)
+  ),
   observeSpecimen: Effect.fn("SpecimenUseCases.observeSpecimen")((command: ObserveSpecimen) =>
-    Effect.flatMap(repository.get(command.id), (specimen) => repository.save(observeSpecimen(specimen)))
+    Effect.flatMap(getSpecimenFromRepository(repository, command.id), (specimen) =>
+      repository.save(observeSpecimen(specimen))
+    )
   ),
   retireSpecimen: Effect.fn("SpecimenUseCases.retireSpecimen")((command: RetireSpecimen) =>
-    Effect.flatMap(repository.get(command.id), (specimen) => repository.save(retireSpecimen(specimen)))
+    Effect.flatMap(getSpecimenFromRepository(repository, command.id), (specimen) =>
+      repository.save(retireSpecimen(specimen))
+    )
   ),
 });

@@ -17,7 +17,7 @@ Reader contract:
 
 ## 2. Source Corpus and Confidence Model
 ### State Split
-- `Implemented`: In-repo source files and current `tooling/repo-utils/src/JSDoc` implementation are directly verifiable.
+- `Implemented`: In-repo source files and current `packages/tooling/library/repo-utils/src/JSDoc` implementation are directly verifiable.
 - `Specified`: Pending architecture docs and orchestration plans are high-confidence design intent.
 - `Conceptual (Greenfield)`: User-provided Reasoning Service code snippet is treated as a trusted design input but not a repo-locked implementation.
 
@@ -26,7 +26,7 @@ Reader contract:
 |---|---|---|---|
 | Canonical architecture + gates | Historical `repo-codegraph-canonical` packet (archived, not checked in) | High | Historical defaults and phase contracts carried forward into this synthesis |
 | JSDoc fibration architecture | `initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md` | High | Core schema strategy and agent pipeline |
-| JSDoc implementation state | `tooling/repo-utils/src/JSDoc/**` | High | Actual code currently present |
+| JSDoc implementation state | `packages/tooling/library/repo-utils/src/JSDoc/**` | High | Actual code currently present |
 | JSDoc implementation plan notes | `initiatives/repo-codegraph-jsdoc/ops/prompts/bootstrap.md` | Medium-High | Detailed migration strategy; may drift from code |
 | NLP subsystem design | `initiatives/repo-codegraph-jsdoc/history/outputs/Building a code-aware NLP service in TypeScript.md` | Medium-High | Design and algorithm choices |
 | Research corpus | `initiatives/repo-codegraph-jsdoc/history/outputs/compiled_sources/**` | Medium | Evidence and patterns; not direct implementation |
@@ -41,14 +41,14 @@ Reader contract:
 
 ## 3. Current Reality Snapshot
 ### State Split
-- `Implemented`: `tooling/repo-utils/src/JSDoc` contains a large canonical tag definition surface and model exports including annotation and tag-value layers.
+- `Implemented`: `packages/tooling/library/repo-utils/src/JSDoc` contains a large canonical tag definition surface and model exports including annotation and tag-value layers.
 - `Specified`: Exhaustiveness audits and taxonomy/routing artifacts exist under pending outputs.
 - `Conceptual (Greenfield)`: Full operational taxonomy/routing runtime and reasoning-backed validation loops are not yet implemented end-to-end.
 
 ### What Exists Today
-- `tooling/repo-utils/src/JSDoc/JSDoc.ts` contains extensive canonical tag declarations and unions.
-- `tooling/repo-utils/src/JSDoc/models/index.ts` exports `JSDocTagAnnotation` and `TagValue` along with `ApplicableTo`, `ASTDerivability`, `TSCategory`, and related schemas.
-- `tooling/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts` uses `annotate({ jsDocTagMetadata: def })` in `make`, aligning with fibrational metadata strategy.
+- `packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts` contains extensive canonical tag declarations and unions.
+- `packages/tooling/library/repo-utils/src/JSDoc/models/index.ts` exports `JSDocTagAnnotation` and `TagValue` along with `ApplicableTo`, `ASTDerivability`, `TSCategory`, and related schemas.
+- `packages/tooling/library/repo-utils/src/JSDoc/models/JSDocTagDefinition.model.ts` uses `annotate({ jsDocTagMetadata: def })` in `make`, aligning with fibrational metadata strategy.
 
 ### What Is Documented but Not Fully Operationalized
 - Full `TSCategory` taxonomy instantiation, precedence, and routing utility layer described in pending audit artifacts.
@@ -571,7 +571,7 @@ export interface ConflictReport {
 |---|---|
 | Canonical lock docs | Historical `repo-codegraph-canonical` packet notes carried forward in this document |
 | JSDoc architecture docs | `initiatives/repo-codegraph-jsdoc/history/outputs/JSDOC_FIBRATION_ARCHITECTURE.md`, `initiatives/repo-codegraph-jsdoc/ops/prompts/bootstrap.md` |
-| JSDoc implementation | `tooling/repo-utils/src/JSDoc/JSDoc.ts`, `tooling/repo-utils/src/JSDoc/models/**` |
+| JSDoc implementation | `packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts`, `packages/tooling/library/repo-utils/src/JSDoc/models/**` |
 | NLP architecture doc | `initiatives/repo-codegraph-jsdoc/history/outputs/Building a code-aware NLP service in TypeScript.md` |
 | Research corpus | `initiatives/repo-codegraph-jsdoc/history/outputs/compiled_sources/**` |
 | Reasoning input | User-provided conceptual `Reasoning/*` snippet (ForwardChainer/OwlRules/RdfsRules/ReasonerService) |

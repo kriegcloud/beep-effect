@@ -1,23 +1,28 @@
 # 09 — Errors across boundaries
 
-Each hexagonal boundary translates errors. Driver errors die in the adapter; port errors die in the use-case service; application errors die in the protocol handler. The only failures crossing a boundary are the ones declared in that boundary's signature.
+Each hexagonal boundary translates errors. Driver/internal errors die in the adapter; port errors die in the use-case service; public action errors die in the protocol handler. The only failures crossing a boundary are the ones declared in that boundary's signature.
+
+The executable proof target for this rule is `packages/fixture-lab/specimen`: `SpecimenRepositoryNotFound` is server-only, `SpecimenNotFound` is public, and `SpecimenUseCases` translates between them.
 
 ## 1. Taxonomy
 
-Four kinds of failure live in the slice. Each has a fixed home and a fixed translator.
+Five kinds of failure live in the slice. Each has a fixed home and a fixed translator.
 
-- **Actionable domain failures.** Defined in `domain/<concept>/<Concept>.errors.ts` as `S.TaggedErrorClass`. The use-case caller is expected to branch on them. Membership: `MembershipNotFound`, `MembershipAlreadyRevoked`, `UnauthorizedRevoker`.
-- **Actionable application failures.** Defined in `use-cases/<Concept>/<Concept>.errors.ts` as `S.TaggedErrorClass`. The protocol caller (HTTP handler, RPC handler, UI atom) is expected to branch on them. Membership: `MembershipRevocationFailed`, `MembershipRevocationDenied`. Often a 1:1 with domain failures, but may compose multiple.
+- **Actionable domain failures.** Defined in `domain/<concept>/<Concept>.errors.ts` as `TaggedErrorClass`. Use-cases may branch on them while enforcing domain behavior. Membership: `MembershipAlreadyRevoked`, `UnauthorizedRevoker`.
+- **Port failures.** Defined in `use-cases/<Concept>/<Concept>.errors.ts` as server-only `TaggedErrorClass` values and exported only from the use-case package's `/server` subpath. Use-cases branch on them; protocol callers do not. Membership repository: `MembershipRepositoryNotFound`, `MembershipRepositoryUnavailable`.
+- **Public action failures.** Defined in `use-cases/<Concept>/<Concept>.errors.ts` as client-safe `TaggedErrorClass` values and exported from `/public`. Protocol callers (HTTP handlers, RPC handlers, UI atoms) branch on them. Membership revoke: `MembershipNotFound`, `MembershipRevocationFailed`, `MembershipRevocationDenied`.
 - **Internal failures.** Driver errors, network errors, deserialization errors, anything technical. These die at the boundary; they MUST NOT reach use-case callers as themselves.
-- **Boundary protocol failures.** HTTP/RPC translation: actionable application failures map to `400`/`403`/`404`/`409` problem-detail bodies; internals map to `500` with a correlation ID and structured log.
+- **Boundary protocol failures.** HTTP/RPC translation: public action failures map to `400`/`403`/`404`/`409` problem-detail bodies; internals map to `500` with a correlation ID and structured log.
 
-```
-domain          actionable domain errors        (in domain/.errors.ts)
-   ↓ caller branches
-use-cases       actionable application errors   (in use-cases/.errors.ts)
-   ↓ caller branches
+````
+domain          domain failures                 (domain/.errors.ts)
+   v translated/consumed by use-cases
+ports           port failures                   (use-cases server surface)
+   v translated/consumed by use-cases
+use-cases       public action failures          (use-cases public surface)
+   v translated/consumed by protocol handlers
 boundary        protocol shape (400/403/500 + body)
-```
+````
 
 The arrow is always a translation, never a passthrough. A failure that escapes its declaration as itself is a doctrine violation (see section 6).
 
@@ -25,9 +30,9 @@ The arrow is always a translation, never a passthrough. A failure that escapes i
 
 Three rules, one per boundary.
 
-- **Server adapters translate driver errors -> port-declared errors.** A `MembershipRepository.findById` port declares `MembershipNotFound | RepositoryUnavailable` failures. The Drizzle adapter implementing it catches `PostgresError` and returns one of those declared errors. Driver errors do not escape the adapter.
-- **Use-case services translate port errors -> actionable application errors.** `MembershipService.revoke` catches the port's `MembershipNotFound` and rethrows as `MembershipRevocationDenied` — an application-level meaning the protocol caller can branch on.
-- **HTTP/RPC handlers translate actionable application errors -> protocol shape.** `Membership.http-handlers.ts` matches on the application errors and returns `403` for denials, `404` for not-found, etc. Anything not branched on hits a default `500` branch with a correlation ID.
+- **Server adapters translate driver errors -> port-declared errors.** A `MembershipRepository.findById` port declares `MembershipRepositoryNotFound | MembershipRepositoryUnavailable` failures. The Drizzle adapter implementing it catches `PostgresError` and returns one of those declared errors. Driver errors do not escape the adapter.
+- **Use-case services translate port errors -> public action errors.** `MembershipService.revoke` catches the port's `MembershipRepositoryNotFound` and rethrows as `MembershipNotFound` — an action-level meaning the protocol caller can branch on.
+- **HTTP/RPC handlers translate public action errors -> protocol shape.** `Membership.http-handlers.ts` matches on the action errors and returns `403` for denials, `404` for not-found, etc. Anything not branched on hits a default `500` branch with a correlation ID.
 
 A handler must never branch on a port error. A use-case must never branch on a driver error. If you need to, you have skipped a translator.
 
@@ -39,11 +44,11 @@ A handler must never branch on a port error. A use-case must never branch on a d
 
 The presence of an `error-translation.ts` file is a signal that the translation has interesting policy. Inline translation is a signal that it does not.
 
-## 4. Ports declare only actionable errors
+## 4. Ports declare only port failures
 
-A port's signature is `Effect.Effect<Result, Failures, never>`. `Failures` is a union of `S.TaggedErrorClass` types declared in the port file alongside the port. Internal/technical errors are NOT in this union. They die in the adapter.
+A port's signature is `Effect.Effect<Result, Failures, never>`. `Failures` is a union of `TaggedErrorClass` types declared for that port boundary and exported only from the server-side use-case surface. Internal/technical errors are NOT in this union. They die in the adapter.
 
-This rule is what lets use-cases write `Effect.catchTags` exhaustively against a fixed set of failures — the union is closed and authored at the port. If a new technical mode appears in the adapter, it must either be translated to an existing port-declared error or motivate a new port-declared error and an explicit handler update.
+This rule is what lets use-cases write `Effect.catchTags` exhaustively against a fixed set of port failures — the union is closed and authored at the port. If a new technical mode appears in the adapter, it must either be translated to an existing port-declared error or motivate a new port-declared error and an explicit use-case translator update.
 
 `R` stays `never` at the port boundary. Live requirements (FileSystem, PostgresClient, etc.) are introduced when the adapter Layer is composed, not declared in the port type.
 
@@ -53,142 +58,185 @@ The full chain. Each block is one boundary.
 
 ### a) Driver-level error (no translation yet)
 
-```ts
+````ts
 // packages/drivers/postgres/src/Postgres.errors.ts (excerpt)
-import * as S from "effect/Schema"
-import { TaggedErrorClass } from "@beep/schema"
+import { $PostgresId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import * as S from "effect/Schema";
 
+const $I = $PostgresId.create("Postgres.errors");
+
+/**
+ * Technical Postgres driver failure scoped to a driver operation.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class PostgresError extends TaggedErrorClass<PostgresError>(
-  "@beep/postgres/Postgres.errors/PostgresError"
+  $I`PostgresError`
 )(
   "PostgresError",
   {
     operation: S.String,
-    message: S.OptionFromOptionalKey(S.String),
     sqlState: S.OptionFromOptionalKey(S.String),
-    query: S.OptionFromOptionalKey(S.String)
+    query: S.OptionFromOptionalKey(S.String),
+    cause: S.OptionFromOptionalKey(S.DefectWithStack),
   },
-  {
-    title: "Postgres Error",
-    description: "Technical Postgres driver failure scoped to a driver operation."
-  }
+  $I.annote("PostgresError", {
+    description: "Technical Postgres driver failure scoped to a driver operation.",
+  })
 ) {}
-```
+````
 
 This error is technical. It lives in the driver package and is invisible to anyone above the adapter.
 
 ### b) Port-declared errors (in use-cases)
 
-```ts
+````ts
 // packages/iam/use-cases/src/Membership/Membership.errors.ts
-import * as S from "effect/Schema"
-import { MembershipId } from "@beep/iam-domain/Membership"
+import { $IamUseCasesId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import * as S from "effect/Schema";
+import { MembershipId } from "@beep/iam-domain/Membership";
 
-export class MembershipNotFound extends S.TaggedErrorClass<MembershipNotFound>(
-  "@beep/iam-use-cases/Membership/MembershipNotFound"
+const $I = $IamUseCasesId.create("Membership.errors");
+
+/**
+ * Port-declared failure when the requested membership cannot be found.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class MembershipRepositoryNotFound extends TaggedErrorClass<MembershipRepositoryNotFound>(
+  $I`MembershipRepositoryNotFound`
 )(
-  "MembershipNotFound",
+  "MembershipRepositoryNotFound",
   { membershipId: MembershipId },
-  {
-    title: "Membership Not Found",
-    description: "The requested membership does not exist."
-  }
+  $I.annote("MembershipRepositoryNotFound", {
+    description: "The requested membership does not exist.",
+  })
 ) {}
 
-export class RepositoryUnavailable extends S.TaggedErrorClass<RepositoryUnavailable>(
-  "@beep/iam-use-cases/Membership/RepositoryUnavailable"
+/**
+ * Port-declared failure when the membership repository is temporarily unreachable.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class MembershipRepositoryUnavailable extends TaggedErrorClass<MembershipRepositoryUnavailable>(
+  $I`MembershipRepositoryUnavailable`
 )(
-  "RepositoryUnavailable",
+  "MembershipRepositoryUnavailable",
   { reason: S.String },
-  {
-    title: "Repository Unavailable",
-    description: "The membership repository is temporarily unreachable."
-  }
+  $I.annote("MembershipRepositoryUnavailable", {
+    description: "The membership repository is temporarily unreachable.",
+  })
 ) {}
-```
+````
 
-The port's `findById` then declares `Effect.Effect<Membership, MembershipNotFound | RepositoryUnavailable>`. That union is the closed contract every adapter must honor.
+The port's `findById` then declares `Effect.Effect<Membership, MembershipRepositoryNotFound | MembershipRepositoryUnavailable>`. That union is the closed contract every adapter must honor.
 
 ### c) Adapter translation (server-side)
 
-```ts
+````ts
 // packages/iam/server/src/Membership/Membership.repo.ts
-import { Effect, pipe } from "effect"
-import { PostgresError } from "@beep/postgres"
-import { MembershipNotFound, RepositoryUnavailable } from "@beep/iam-use-cases/Membership"
+import { Effect, pipe } from "effect";
+import * as O from "effect/Option";
+import type { Membership, MembershipId } from "@beep/iam-domain/Membership";
+import {
+  MembershipRepositoryNotFound,
+  MembershipRepositoryUnavailable,
+} from "@beep/iam-use-cases/Membership";
 
-const findById = (id: MembershipId): Effect.Effect<Membership, MembershipNotFound | RepositoryUnavailable> =>
+const findById = (
+  id: MembershipId
+): Effect.Effect<Membership, MembershipRepositoryNotFound | MembershipRepositoryUnavailable> =>
   pipe(
     runDrizzleQuery(id), // returns Effect.Effect<Membership, PostgresError>
     Effect.catchTag("PostgresError", (e) =>
-      e.sqlStateName._tag === "Some" && e.sqlStateName.value === "NO_DATA"
-        ? Effect.fail(new MembershipNotFound({ membershipId: id }))
-        : Effect.fail(new RepositoryUnavailable({ reason: e.operation }))
+      pipe(
+        e.sqlState,
+        O.filter((state) => state === "NO_DATA"),
+        O.match({
+          onNone: (): Effect.Effect<never, MembershipRepositoryNotFound | MembershipRepositoryUnavailable> =>
+            Effect.fail(new MembershipRepositoryUnavailable({ reason: e.operation })),
+          onSome: () => Effect.fail(new MembershipRepositoryNotFound({ membershipId: id })),
+        })
+      )
     )
-  )
-```
+  );
+````
 
 `PostgresError` is consumed inside the adapter and never re-emitted. The compiler now refuses to let `PostgresError` reach the use-case.
 
-### d) Application-level translation (use-case)
+### d) Public action translation (use-case)
 
-```ts
+````ts
 // packages/iam/use-cases/src/Membership/Membership.service.ts
-import { Effect } from "effect"
+import { Effect } from "effect";
+import * as Match from "effect/Match";
 import {
-  MembershipRevocationDenied,
-  MembershipRevocationFailed
-} from "@beep/iam-use-cases/Membership"
+  MembershipNotFound,
+  MembershipRevocationFailed,
+} from "@beep/iam-use-cases/Membership";
 
 const revoke = Effect.fn("Membership.revoke")(function* (cmd: RevokeMembership) {
   const m = yield* repo.findById(cmd.membershipId).pipe(
-    Effect.catchTag("MembershipNotFound", (e) =>
-      Effect.fail(
-        new MembershipRevocationDenied({ reason: "not_found", membershipId: e.membershipId })
-      )
-    ),
-    Effect.catchTag("RepositoryUnavailable", () =>
-      Effect.fail(new MembershipRevocationFailed({ reason: "infrastructure" }))
+    Effect.mapError(
+      Match.valueTags({
+        MembershipRepositoryNotFound: (e) =>
+          new MembershipNotFound({
+            membershipId: e.membershipId,
+          }),
+        MembershipRepositoryUnavailable: () =>
+          new MembershipRevocationFailed({ reason: "infrastructure" }),
+      })
     )
-  )
+  );
   // ... rest of the use-case: invariant checks, state transition, persist, emit event
-  return m
-})
-```
+  return m;
+});
+````
 
-The use-case never names a port error in its return type. The application-level union (`MembershipRevocationDenied | MembershipRevocationFailed | ...`) is what the handler will see.
+The use-case never names a port error in its return type. The public action union (`MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed | ...`) is what the handler will see.
 
 ### e) Protocol translation (HTTP handler)
 
-```ts
+````ts
 // packages/iam/server/src/Membership/Membership.http-handlers.ts
-import { Effect } from "effect"
-import { problemDetail } from "@beep/http-problem-detail"
+import { Effect } from "effect";
+import { problemDetail } from "@beep/http-problem-detail";
 
-const handler = (cmd: RevokeMembership, correlationId: string) =>
-  service.revoke(cmd).pipe(
-    Effect.catchTags({
-      MembershipRevocationDenied: (e) =>
-        Effect.succeed(
-          problemDetail({
-            status: 403,
-            type: "membership/denied",
-            detail: e.reason,
-            correlationId
-          })
-        ),
-      MembershipRevocationFailed: (e) =>
-        Effect.zipRight(
-          Effect.logError("membership.revoke failed", { reason: e.reason, correlationId }),
+const handler = Effect.fn("http.POST /v1/iam/memberships/:id/revoke")(
+  function* (cmd: RevokeMembership, correlationId: string) {
+    return yield* service.revoke(cmd).pipe(
+      Effect.catchTags({
+        MembershipRevocationDenied: (e) =>
           Effect.succeed(
-            problemDetail({ status: 500, type: "internal", correlationId })
-          )
-        )
-    })
-  )
-```
+            problemDetail({
+              status: 403,
+              type: "membership/denied",
+              detail: e.reason,
+              correlationId,
+            })
+          ),
+        MembershipRevocationFailed: (e) =>
+          Effect.andThen(
+            Effect.logError("membership.revoke failed", {
+              reason: e.reason,
+              correlationId,
+            }),
+            Effect.succeed(
+              problemDetail({ status: 500, type: "internal", correlationId })
+            )
+          ),
+      })
+    );
+  }
+);
+````
 
-`Effect.catchTags` is exhaustive against the application-error union. The handler's return type is the protocol response — no application error escapes.
+`Effect.catchTags` is exhaustive against the public action-error union. The handler's return type is the protocol response — no action error escapes.
 
 The exact transport helper (`problemDetail`, JSON shape, status mapping table) is defined once per protocol stack and reused. It is not invented per handler.
 
@@ -197,8 +245,8 @@ The exact transport helper (`problemDetail`, JSON shape, status mapping table) i
 A failure that escapes its boundary as itself is a doctrine violation. Concretely:
 
 - A `PostgresError` returned by a port: violation. The adapter must translate.
-- A `MembershipNotFound` (port-level) returned by a use-case service: violation. The service must translate to an application error.
-- A `RepositoryUnavailable` reaching an HTTP body: violation. The handler must convert to `500` with a correlation ID and log the original via `Effect.logError`.
+- A `MembershipRepositoryNotFound` returned by a use-case service: violation. The service must translate to a public action error such as `MembershipNotFound`.
+- A `MembershipRepositoryUnavailable` reaching an HTTP body: violation. The use-case must translate it to a public action error; the handler then converts that action error to `500` with a correlation ID and logs the original technical detail at the boundary where it died.
 
 Two corollaries follow.
 
@@ -210,5 +258,5 @@ The only failures crossing each boundary are the ones declared in that boundary'
 ## See also
 
 - `03-driver-boundaries.md` — where adapter translation lives (driver vs. server vs. tables responsibilities).
-- `04-rich-domain-model.md` — the "Forbidden Effect dependencies" subsection: domain errors are `S.TaggedErrorClass`, not raw `Error`, and never carry transport details.
+- `04-rich-domain-model.md` — the "Forbidden Effect dependencies" subsection: domain errors are `TaggedErrorClass`, not raw `Error`, and never carry transport details.
 - `08-testing.md` — testing error paths: each translator has a test that asserts the source error becomes the expected target error.

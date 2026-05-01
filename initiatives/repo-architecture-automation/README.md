@@ -32,7 +32,7 @@ Active destructive work happens only on:
   `fixture-lab/Specimen`.
 - `standards/ARCHITECTURE.md` is binding for the fixture topology and export
   boundaries.
-- Generator implementation stays repo-owned in `tooling/cli` and delegates from
+- Generator implementation stays repo-owned in `packages/tooling/tool/cli` and delegates from
   `bun run beep ...`; `@turbo/gen` can become a later wrapper only.
 
 ## Reading Order
@@ -52,7 +52,7 @@ Active destructive work happens only on:
 
 The checked fixture registry root is:
 
-`tooling/cli/test/fixtures/repo-architecture-automation`
+`packages/tooling/tool/cli/test/fixtures/repo-architecture-automation`
 
 It contains the registry input for `fixture-lab/Specimen`. The corresponding
 golden output is temporarily promoted into live private workspaces under:

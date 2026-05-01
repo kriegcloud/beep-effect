@@ -6,7 +6,7 @@
  */
 import type { Specimen } from "@beep/fixture-lab-specimen-domain";
 import type { Effect } from "effect";
-import type { SpecimenNotFound } from "./Specimen.errors.js";
+import type { SpecimenRepositoryNotFound } from "./Specimen.errors.js";
 
 /**
  * Repository boundary required by the specimen use-case facade.
@@ -29,6 +29,6 @@ import type { SpecimenNotFound } from "./Specimen.errors.js";
  * @since 0.0.0
  */
 export interface SpecimenRepository {
-  readonly get: (id: string) => Effect.Effect<Specimen, SpecimenNotFound>;
+  readonly get: (id: string) => Effect.Effect<Specimen, SpecimenRepositoryNotFound>;
   readonly save: (specimen: Specimen) => Effect.Effect<Specimen>;
 }

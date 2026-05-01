@@ -7,7 +7,7 @@
 
 import { SpecimenConfig, type SpecimenConfigShape } from "@beep/fixture-lab-specimen-config/layer";
 import { Specimen } from "@beep/fixture-lab-specimen-domain";
-import { SpecimenNotFound, type SpecimenRepository } from "@beep/fixture-lab-specimen-use-cases/server";
+import { type SpecimenRepository, SpecimenRepositoryNotFound } from "@beep/fixture-lab-specimen-use-cases/server";
 import { Effect, Ref } from "effect";
 
 const makeInitialSpecimen = (config: SpecimenConfigShape): Specimen =>
@@ -17,10 +17,10 @@ const makeInitialSpecimen = (config: SpecimenConfigShape): Specimen =>
     status: "draft",
   });
 
-const getStoredSpecimen = (store: Ref.Ref<Specimen>, id: string): Effect.Effect<Specimen, SpecimenNotFound> =>
+const getStoredSpecimen = (store: Ref.Ref<Specimen>, id: string): Effect.Effect<Specimen, SpecimenRepositoryNotFound> =>
   Ref.get(store).pipe(
     Effect.flatMap((specimen) =>
-      specimen.id === id ? Effect.succeed(specimen) : Effect.fail(new SpecimenNotFound({ id }))
+      specimen.id === id ? Effect.succeed(specimen) : Effect.fail(new SpecimenRepositoryNotFound({ id }))
     )
   );
 

@@ -161,7 +161,7 @@
       }
     },
     {
-      "package": "tooling/cli",
+      "package": "packages/tooling/tool/cli",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -170,7 +170,7 @@
       }
     },
     {
-      "package": "tooling/configs",
+      "package": "packages/tooling/policy-pack/repo-configs",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -179,7 +179,7 @@
       }
     },
     {
-      "package": "tooling/docgen",
+      "package": "packages/tooling/tool/docgen",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -188,7 +188,7 @@
       }
     },
     {
-      "package": "tooling/repo-utils",
+      "package": "packages/tooling/library/repo-utils",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,
@@ -197,7 +197,7 @@
       }
     },
     {
-      "package": "tooling/test-utils",
+      "package": "packages/tooling/test-kit/test-utils",
       "findings": [],
       "counts": {
         "effectFnOpportunity": 0,

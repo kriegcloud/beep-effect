@@ -109,19 +109,19 @@
       "path": "packages/shared/use-cases"
     },
     {
-      "path": "tooling/cli"
+      "path": "packages/tooling/library/repo-utils"
     },
     {
-      "path": "tooling/configs"
+      "path": "packages/tooling/policy-pack/repo-configs"
     },
     {
-      "path": "tooling/docgen"
+      "path": "packages/tooling/test-kit/test-utils"
     },
     {
-      "path": "tooling/repo-utils"
+      "path": "packages/tooling/tool/cli"
     },
     {
-      "path": "tooling/test-utils"
+      "path": "packages/tooling/tool/docgen"
     }
   ]
 }

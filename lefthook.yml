@@ -7,9 +7,9 @@ pre-commit:
       run: bunx biome check --write --files-ignore-unknown=true --no-errors-on-unmatched {staged_files}
       stage_fixed: true
     jsdoc:
-      glob: "tooling/*/src/**/*.ts"
-      exclude: "tooling/*/src/internal/**|tooling/_test-*/src/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
-      run: bunx eslint --no-warn-ignored --config eslint.config.mjs --ignore-pattern 'tooling/_test-*/**' {staged_files}
+      glob: "packages/tooling/*/*/src/**/*.ts"
+      exclude: "packages/tooling/*/*/src/internal/**|**/*.test.ts|**/*.spec.ts|**/*.d.ts"
+      run: bunx eslint --no-warn-ignored --config eslint.config.mjs {staged_files}
     gitleaks:
       run: gitleaks protect --staged --verbose
     typos:

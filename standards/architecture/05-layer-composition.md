@@ -57,62 +57,72 @@ contracts) or through emitted events.
 
 Services should be explicit, small, and composed at the boundary:
 
-```ts
-import { $IamUseCasesId } from "@beep/identity/packages"
-import { Context, type Effect } from "effect"
-import type { MembershipAlreadyRevoked } from "@beep/iam-domain/entities/Membership"
+````ts
+import { $IamUseCasesId } from "@beep/identity";
+import { Context, type Effect } from "effect";
 import {
-  MembershipAccessDenied,
   MembershipNotFound,
-  MembershipRepositoryError,
-} from "./Membership.errors.js"
-import type { RevokeMembershipCommand } from "./Membership.commands.js"
+  MembershipRevocationDenied,
+  MembershipRevocationFailed,
+} from "./Membership.errors.js";
+import type { RevokeMembershipCommand } from "./Membership.commands.js";
 
-const $I = $IamUseCasesId.create("entities/Membership/Membership.service")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.service");
 
+/**
+ * Service contract for membership lifecycle operations.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export class MembershipService extends Context.Service<
   MembershipService,
   {
     readonly revoke: (
       command: RevokeMembershipCommand,
-    ) => Effect.Effect<
-      void,
-      | MembershipAccessDenied
-      | MembershipAlreadyRevoked
-      | MembershipNotFound
-      | MembershipRepositoryError
-    >
+    ) => Effect.Effect<void, MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed>;
   }
 >()($I`MembershipService`) {}
-```
+````
 
 Use-case packages stop at the contract. A server layer provides the live
 implementation from its dependencies:
 
-```ts
-import { Effect, Layer } from "effect"
-import * as O from "effect/Option"
+````ts
+import { Effect, Layer } from "effect";
+import * as O from "effect/Option";
 import {
   MembershipNotFound,
   type RevokeMembershipCommand,
-} from "@beep/iam-use-cases/public"
+} from "@beep/iam-use-cases/public";
 import {
   MembershipAccess,
   MembershipRepository,
   MembershipService,
-} from "@beep/iam-use-cases/server"
+} from "@beep/iam-use-cases/server";
 
+/**
+ * Live `MembershipService` Layer composed from its slice-local dependencies.
+ *
+ * @remarks
+ * Composition is intentionally local: the Layer reads `MembershipAccess` and
+ * `MembershipRepository` from context and stops at the use-case contract.
+ * Higher-level layers wire dependencies in, not out.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
 export const MembershipServerLayer = Layer.effect(
   MembershipService,
   Effect.gen(function* () {
-    const access = yield* MembershipAccess
-    const repo = yield* MembershipRepository
+    const access = yield* MembershipAccess;
+    const repo = yield* MembershipRepository;
 
     return {
       revoke: Effect.fn("MembershipService.revoke")(function* (
         command: RevokeMembershipCommand,
       ) {
-        yield* access.assertCanRevoke(command)
+        yield* access.assertCanRevoke(command);
         const model = yield* repo.findById(command.membershipId).pipe(
           Effect.flatMap(
             O.match({
@@ -120,15 +130,19 @@ export const MembershipServerLayer = Layer.effect(
               onSome: Effect.succeed,
             }),
           ),
-        )
-        yield* model.revoke().pipe(Effect.flatMap(repo.save))
+        );
+        yield* model.revoke().pipe(Effect.flatMap(repo.save));
       }),
-    }
+    };
   }),
-)
-```
+);
+````
 
 The dependencies are explicit, but local. That is the key distinction.
+Any port or domain failures raised inside the implementation are translated to
+the public action-error union declared by the service contract before they cross
+the use-case boundary; see `09-errors-across-boundaries.md` for the strict
+translation rule.
 
 Drivers may export boundary-local layer constructors, and config packages may
 expose server/runtime-only `/layer` helpers, but package-local application
@@ -179,20 +193,20 @@ Forbidden app composition shapes include:
 
 #### Bad — God Layer reaching past canonical subpaths
 
-```ts
+````ts
 // apps/web/src/runtime/Layer.ts
-import { MembershipRepositoryLive } from "@beep/iam-server/internal/MembershipRepository"
-import { SubscriptionRepositoryLive } from "@beep/billing-server/internal/SubscriptionRepository"
-import { OrgPolicyServiceLive } from "@beep/iam-server/internal/OrgPolicyService"
-import { Layer } from "effect"
+import { MembershipRepositoryLive } from "@beep/iam-server/internal/MembershipRepository";
+import { SubscriptionRepositoryLive } from "@beep/billing-server/internal/SubscriptionRepository";
+import { OrgPolicyServiceLive } from "@beep/iam-server/internal/OrgPolicyService";
+import { Layer } from "effect";
 
 export const AppLayer = Layer.mergeAll(
   MembershipRepositoryLive,
   SubscriptionRepositoryLive,
   OrgPolicyServiceLive,
   // ...repeats for every slice the app uses
-)
-```
+);
+````
 
 The app reaches into each slice's internal module structure, hand-wires
 individual repositories and services, and becomes the runtime registry for
@@ -201,14 +215,24 @@ file.
 
 #### Good — App composes published slice Layers
 
-```ts
+````ts
 // apps/web/src/runtime/Layer.ts
-import { IamLive } from "@beep/iam-server/layer"
-import { BillingLive } from "@beep/billing-server/layer"
-import { Layer } from "effect"
+import { IamLive } from "@beep/iam-server/layer";
+import { BillingLive } from "@beep/billing-server/layer";
+import { Layer } from "effect";
 
-export const AppLayer = Layer.mergeAll(IamLive, BillingLive)
-```
+/**
+ * Application Layer composed from each slice's published `/layer` subpath.
+ *
+ * @remarks
+ * The app composes slices, not concepts. Renaming a slice's internal
+ * repository changes nothing here.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
+export const AppLayer = Layer.mergeAll(IamLive, BillingLive);
+````
 
 Each slice publishes a single live Layer from its `/layer` canonical subpath.
 The slice owns its own composition; the app composes slices, not concepts.

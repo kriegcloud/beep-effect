@@ -2,7 +2,23 @@
 
 The fastest way into the architecture: the smallest legal slice, the smallest legal cross-slice promotion, and a 60-second guide to reading any slice path.
 
-## 1. The smallest legal slice
+## 1. Before a legal slice: the scratchpad lane
+
+Not every idea deserves slice packages on day one. Experiments may start in
+`scratchpad/` or, for repo-local internal tooling trials, under an explicitly
+temporary `packages/_internal/*` package.
+
+The scratchpad lane is not product architecture:
+
+- no product slice may import from `scratchpad/`
+- no public package export may point at `scratchpad/`
+- experiments carry a promotion/removal note before they become durable
+- promoted experiments must re-enter through the smallest legal slice shape
+  below, not by keeping scratchpad topology
+
+Use the scratchpad lane to learn. Use slice packages to commit.
+
+## 2. The smallest legal slice
 
 A legal slice can be three packages and ~15 files. The example below is a `notes` slice with a single `Note` aggregate. No `client`, no `tables`, no `config`, no `ui` — those are added when there is a real reason, never pre-emptively.
 
@@ -49,7 +65,7 @@ What each file owns, in one or two sentences:
 
 The slice's tests run with the slice's `Layer` only — no app-wide composition, no driver indirection. That is the whole point of slice-local Layers (see `05-layer-composition.md`).
 
-## 2. Adding the first cross-slice export
+## 3. Adding the first cross-slice export
 
 A second slice (`tasks`) needs to attach tasks to notes. It needs `NoteId` to reference a note and a `NoteCreated` event to react to new notes. The `notes` slice owner promotes both into `shared/use-cases`. One PR. One promotion record per export. No new package boundary invented.
 
@@ -102,7 +118,7 @@ The promotion record (one per export) is appended to the `shared/use-cases` pack
 
 That is the entire ceremony: one PR, two records, one canonical subpath.
 
-## 3. Reading a slice path: a 60-second guide
+## 4. Reading a slice path: a 60-second guide
 
 Decode this path piece-by-piece:
 
@@ -132,10 +148,10 @@ From the path alone you know: this file is HTTP wiring for membership operations
 | `.http-handlers.ts` | HTTP handler implementations (server side).                                 |
 | `.event-handlers.ts`| event handler implementations (server side).                                |
 
-If a path doesn't match any of these suffixes, it's either a non-canonical helper or a violation of the role topology. The lint rules listed in `07-non-slice-families.md` (planned) catch these at PR time.
+If a path doesn't match any of these suffixes, it's either a non-canonical helper or a violation of the role topology. The hard-check lane in `07-non-slice-families.md` is where repo tooling enforces these rules.
 
 ## Next reading
 
 - `01-hexagonal-vertical-slices.md` — the architectural rationale for slice-shaped packages with hexagonal boundaries.
-- `08-testing.md` (planned) — the testing story for slice-local Layers and cross-slice contracts.
+- `08-testing.md` — the testing story for slice-local Layers and cross-slice contracts.
 - `02-shared-kernel.md` — the full promotion record schema and what does and does not belong in `shared`.

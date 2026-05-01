@@ -29,5 +29,5 @@ description: "Use for lsmcp symbol and index workflows plus troubleshooting star
 - Launch args should be:
   `bunx -y @mizchi/lsmcp -p typescript`
 - Do not include `--bun` in MCP config args.
-- Use scoped roots for reliability (for example `tooling/configs` or a package path) instead of the repo root.
+- Use scoped roots for reliability (for example `packages/tooling/policy-pack/repo-configs` or a package path) instead of the repo root.
 - Start with low-cost calls, then narrow scope (`file`, `paths`, `limit`).

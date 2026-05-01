@@ -6,7 +6,7 @@ These examples are the best starting points for matching repo style.
 
 File:
 
-- `tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
+- `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
 
 Use this file when you need:
 
@@ -30,7 +30,7 @@ Why it matters:
 
 File:
 
-- `tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts`
+- `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts`
 
 Use this file when you need:
 
@@ -56,7 +56,7 @@ Why it matters:
 
 File:
 
-- `tooling/cli/src/commands/Docgen/internal/Operations.ts`
+- `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts`
 
 Use this file when you need:
 
@@ -81,7 +81,7 @@ Why it matters:
 
 File:
 
-- `tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
+- `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
 
 Use this file when you need:
 
@@ -129,11 +129,11 @@ Why it matters:
 ## Quick Selection Map
 
 - Need a `S.Class` domain payload:
-  Start with `tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
+  Start with `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
 - Need schema-driven defaults and transforms:
-  Start with `tooling/cli/src/commands/Graphiti/internal/ProxyConfig.ts`
+  Start with `packages/tooling/tool/cli/src/commands/Graphiti/internal/ProxyConfig.ts`
 - Need `Option` boundary fields or schema-backed errors:
-  Start with `tooling/cli/src/commands/Docgen/internal/Operations.ts`
+  Start with `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts`
 - Need a `kind` or `type` tagged union:
-  Start with `tooling/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
+  Start with `packages/tooling/tool/cli/src/commands/CreatePackage/FileGenerationPlanService.ts`
   or `packages/ai/sdk/src/core/Schema/Mcp.ts`

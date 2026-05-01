@@ -1,5 +1,6 @@
 import { Specimen } from "@beep/fixture-lab-specimen-domain";
-import { makeSpecimenUseCases, ObserveSpecimen } from "@beep/fixture-lab-specimen-use-cases/server";
+import { GetSpecimen, ObserveSpecimen, SpecimenNotFound } from "@beep/fixture-lab-specimen-use-cases/public";
+import { makeSpecimenUseCases, SpecimenRepositoryNotFound } from "@beep/fixture-lab-specimen-use-cases/server";
 import { describe, expect, it } from "@effect/vitest";
 import { Effect } from "effect";
 
@@ -18,5 +19,17 @@ describe("Specimen use-case fixture", () => {
     const observed = await Effect.runPromise(useCases.observeSpecimen(new ObserveSpecimen({ id: current.id })));
 
     expect(observed.status).toBe("observed");
+  });
+
+  it("translates repository errors into public action errors", async () => {
+    const useCases = makeSpecimenUseCases({
+      get: (id) => Effect.fail(new SpecimenRepositoryNotFound({ id })),
+      save: Effect.succeed,
+    });
+
+    const error = await Effect.runPromise(Effect.flip(useCases.getSpecimen(new GetSpecimen({ id: "missing" }))));
+
+    expect(error).toBeInstanceOf(SpecimenNotFound);
+    expect(error).toMatchObject({ _tag: "SpecimenNotFound", id: "missing" });
   });
 });

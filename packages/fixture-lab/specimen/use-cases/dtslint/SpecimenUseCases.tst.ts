@@ -5,7 +5,11 @@ import {
   type SpecimenNotFound,
   type SpecimenUseCases,
 } from "@beep/fixture-lab-specimen-use-cases/public";
-import { makeSpecimenUseCases, type SpecimenRepository } from "@beep/fixture-lab-specimen-use-cases/server";
+import {
+  makeSpecimenUseCases,
+  type SpecimenRepository,
+  type SpecimenRepositoryNotFound,
+} from "@beep/fixture-lab-specimen-use-cases/server";
 import { Effect } from "effect";
 import { describe, expect, it } from "tstyche";
 
@@ -19,6 +23,7 @@ describe("@beep/fixture-lab-specimen-use-cases", () => {
     const useCases = makeSpecimenUseCases(repository);
 
     expect(useCases).type.toBe<SpecimenUseCases>();
+    expect(repository.get("specimen-1")).type.toBe<Effect.Effect<Specimen, SpecimenRepositoryNotFound>>();
     expect(useCases.getSpecimen(new GetSpecimen({ id: "specimen-1" }))).type.toBe<
       Effect.Effect<Specimen, SpecimenNotFound>
     >();

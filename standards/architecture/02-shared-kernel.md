@@ -20,8 +20,9 @@ Shared may contain:
   deliberately agree on
 - `shared/use-cases` application contracts when multiple slices deliberately
   share commands, queries, driver-neutral DTOs, driver-neutral boundary
-  contracts, client-safe application errors, facade interfaces, or product
-  ports — each export subject to a promotion record per the appendix below
+  contracts, client-safe application errors, facade interfaces, or
+  ultra-high-bar product ports — each export subject to a promotion record per
+  the appendix below
 - `shared/client`, `shared/server`, `shared/tables`, or `shared/ui` packages
   only when they encode deliberate cross-slice product semantics, and only
   with a promotion record per the appendix below
@@ -75,15 +76,17 @@ exceptional and require a deliberate cross-slice product contract.
 
 `shared/use-cases` is contract-only. It may hold cross-slice commands, queries,
 driver-neutral DTOs, driver-neutral boundary contracts, client-safe application
-errors, facade interfaces, and product ports. It does not hold workflows,
+errors, facade interfaces, and ultra-high-bar product ports. Product ports are
+exceptional even inside this exception: the promotion record must prove why a
+shared command/query/facade contract is insufficient. It does not hold workflows,
 process managers, schedulers, handlers, concrete adapters, driver imports, or
 live Layer values.
 
 When `shared/use-cases` exists, it follows the same explicit export contract as
 slice `use-cases`: `/public`, `/server`, and `/test`. `/public` stays
 client-safe. `/server` is limited to server-only shared application contracts
-such as product ports and server-only facade interfaces. `/test` is for test
-helpers and fixtures.
+such as server-only facade interfaces and ultra-high-bar product ports. `/test`
+is for test helpers and fixtures.
 
 This is what keeps `shared` small. The reduced spine is a rule, not a
 suggestion.

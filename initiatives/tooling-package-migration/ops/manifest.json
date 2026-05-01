@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "name": "tooling-package-migration",
+  "retirements": [
+    {
+      "package": "@beep/repo-checks",
+      "from": "tooling/repo-checks",
+      "strategy": "absorb-into-repo-cli"
+    }
+  ],
+  "moves": [
+    {
+      "package": "@beep/repo-utils",
+      "from": "tooling/repo-utils",
+      "to": "packages/tooling/library/repo-utils",
+      "family": "tooling",
+      "kind": "library"
+    },
+    {
+      "package": "@beep/repo-configs",
+      "from": "tooling/configs",
+      "to": "packages/tooling/policy-pack/repo-configs",
+      "family": "tooling",
+      "kind": "policy-pack"
+    },
+    {
+      "package": "@beep/test-utils",
+      "from": "tooling/test-utils",
+      "to": "packages/tooling/test-kit/test-utils",
+      "family": "tooling",
+      "kind": "test-kit"
+    },
+    {
+      "package": "@beep/repo-docgen",
+      "previousPackage": "@beep/docgen",
+      "from": "tooling/docgen",
+      "to": "packages/tooling/tool/docgen",
+      "family": "tooling",
+      "kind": "tool"
+    },
+    {
+      "package": "@beep/repo-cli",
+      "from": "tooling/cli",
+      "to": "packages/tooling/tool/cli",
+      "family": "tooling",
+      "kind": "tool"
+    }
+  ]
+}
+

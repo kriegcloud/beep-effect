@@ -608,6 +608,42 @@ soft: "high bar", "avoid God Layers", target-first migration, and
 the target doctrine while naming what belongs in future generators, future hard
 checks, and present-day review gates.
 
+## 2026-05-01: Lock Strict Action Errors And Fixture-First Proof
+
+- **Status:** Active
+
+Decision:
+
+The architecture now treats public use-case errors as action-level failures
+only. Driver/internal failures die in adapters, port failures die in use-case
+orchestration, and public action failures die in protocol handlers. Port errors
+may be declared in use-case packages, but they are server-only and do not cross
+the public use-case API.
+
+The executable proof target is `packages/fixture-lab/specimen`. It must remain
+the first place we prove boundary subpaths, package shape, and port-to-action
+error translation before broad repo automation or generator work expands the
+pattern.
+
+The refinement also locks:
+
+- `shared/use-cases` product ports are ultra-high-bar exceptions, even inside
+  the high-bar shared-use-cases exception.
+- Scratchpad and explicitly temporary `_internal` package experiments are valid
+  learning lanes, but product packages must not import them and promotion must
+  re-enter through the smallest legal slice shape.
+- Protocol spans may be request trace roots; use-case spans are architectural
+  roots inside them. Observability attributes must stay bounded and avoid PII,
+  secrets, raw input, and large payloads.
+
+Rationale:
+
+The previous doctrine had the right direction, but "application errors" and
+"port errors" were too easy to blur. A strict action-error boundary makes
+client, handler, and use-case signatures easier to reason about and gives tests
+one precise thing to prove. Keeping the proof fixture-first avoids turning
+architecture prose into a wish list.
+
 ## Known Unknowns
 
 Areas the doctrine does not yet cover and which the authors expect to revise as the architecture is load-tested:
@@ -616,7 +652,7 @@ Areas the doctrine does not yet cover and which the authors expect to revise as 
 - **Cross-slice coordination.** Doc `10-cross-slice-coordination.md` codifies workflow / saga / process-manager governance, event contracts in `shared/use-cases`, and the God Process Manager anti-pattern. The open question is how the rules hold up the first time a real workflow needs to span three or more slices with partial-failure semantics.
 - **Evolution and deprecation.** Doc `11-evolution-and-deprecation.md` codifies slice retirement, `shared/use-cases` versioning, port deprecation, and feature-flag lifetime. The deprecation-window durations and the five-step retirement procedure are unproven; the first real slice retirement will tell us whether the windows are realistic and whether the DECISIONS-entry requirement creates useful pressure or just paperwork.
 - **Observability conventions.** Doc `12-observability.md` codifies span naming, attribute conventions, the logging-vs-tracing-vs-Console split, and slice boundaries as span boundaries. The open question is whether the span/attribute namespacing survives contact with a real distributed trace across three or more slices, and whether the conventions need adjustment once a tracer backend is wired up end-to-end.
-- **Error translation across boundaries.** Doc `09-errors-across-boundaries.md` codifies who translates, where translation lives, and the canonical translator function shape. The doctrine has not been exercised against a real driver-to-server-to-domain error path yet; the first non-trivial adapter will tell us whether the translator placement rules are precise enough or need a worked example per boundary kind.
+- **Error translation across boundaries.** Doc `09-errors-across-boundaries.md` codifies who translates, where translation lives, and the canonical translator function shape. The fixture proves port-to-action translation; the doctrine has not yet been exercised against a real driver-to-port adapter path. The first non-trivial adapter will tell us whether the translator placement rules are precise enough or need a worked example per boundary kind.
 - **Promotion record enforcement.** Records are required by doctrine; lint enforcement (`lint:promotion-records`) is planned but not yet implemented.
 
 Pull requests revising these areas should append entries here documenting the decision and removing the corresponding "planned" line.

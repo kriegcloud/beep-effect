@@ -83,26 +83,51 @@ Setup:
 
 New file: `packages/shared/use-cases/src/iam/events/MembershipRevoked.ts`. The event contract is defined here using the v4 EventLog `Event.make` constructor (see `effect/unstable/eventlog/Event`), with a payload schema annotated per the repo's schema-annotation rules:
 
-```ts
+````ts
+import { $SharedUseCasesId } from "@beep/identity"
 import * as Event from "effect/unstable/eventlog/Event"
 import * as S from "effect/Schema"
 
-const Payload = S.Struct({
-  membershipId: S.String,
-  revokedAt: S.DateTimeUtc,
-  reason: S.optionalKey(S.String)
-}).annotate({
-  identifier: "@beep/shared-use-cases/iam/events/MembershipRevoked/Payload",
-  title: "Membership Revoked Payload",
-  description: "Emitted when an iam Membership transitions to revoked."
-})
+const $I = $SharedUseCasesId.create("iam.events.MembershipRevoked")
 
+/**
+ * Cross-slice event contract emitted when an iam `Membership` transitions to
+ * revoked. Lives under `shared/use-cases` so consuming slices (e.g. billing)
+ * can import the contract without breaching the iam slice boundary.
+ *
+ * @category schemas
+ * @since 0.0.0
+ *
+ * @remarks
+ * Promotion-record governed: ownership stays with the producing slice (iam),
+ * but the contract surface and its consumers are tracked by the shared
+ * promotion record per `02-shared-kernel.md` Appendix.
+ */
+export class MembershipRevokedPayload extends S.Class<MembershipRevokedPayload>($I`Payload`)(
+  {
+    membershipId: S.String,
+    revokedAt: S.DateTimeUtc,
+    reason: S.optionalKey(S.String)
+  },
+  $I.annote("Payload", {
+    description: "Emitted when an iam Membership transitions to revoked."
+  })
+) {}
+
+/**
+ * EventLog contract bound to {@link MembershipRevokedPayload}. The owning
+ * slice (`iam/server`) registers this on its `EventGroup`; consumers
+ * (`billing/server`) subscribe via the same exported value.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const MembershipRevoked = Event.make({
   tag: "iam.MembershipRevoked",
   primaryKey: (p) => p.membershipId,
-  payload: Payload
+  payload: MembershipRevokedPayload
 })
-```
+````
 
 Add a promotion record to `packages/shared/use-cases/README.md` listing `iam` as the producer and `billing` as a known consumer, per `02-shared-kernel.md` Appendix.
 
@@ -114,7 +139,7 @@ The `RevokeMembership` command handler in `iam/server` writes `MembershipRevoked
 
 **3. `billing/server` subscribes via a thin handler.**
 
-New file: `packages/billing/server/src/Subscription/Subscription.event-handlers.ts`. It imports `MembershipRevoked` from `@beep/shared-use-cases/public`, registers a handler that decodes the payload, and calls billing's own internal `cancelInvoicesFor` use-case. The handler returns an `Effect.Effect<A, E, R>` and is built with `Effect.fn` per repo convention; failures decode into a `S.TaggedErrorClass` defined in `billing/use-cases`.
+New file: `packages/billing/server/src/Subscription/Subscription.event-handlers.ts`. It imports `MembershipRevoked` from `@beep/shared-use-cases/public`, registers a handler that decodes the payload, and calls billing's own internal `cancelInvoicesFor` use-case. The handler returns an `Effect.Effect<A, E, R>` and is built with `Effect.fn` per repo convention; failures decode into a `TaggedErrorClass` (from `@beep/schema`) defined in `billing/use-cases`.
 
 Result:
 

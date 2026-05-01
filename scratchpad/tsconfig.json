@@ -36,16 +36,16 @@
       "path": "../packages/foundation/modeling/utils/tsconfig.json"
     },
     {
-      "path": "../tooling/cli/tsconfig.json"
+      "path": "../packages/tooling/tool/cli/tsconfig.json"
     },
     {
-      "path": "../tooling/configs/tsconfig.json"
+      "path": "../packages/tooling/policy-pack/repo-configs/tsconfig.json"
     },
     {
-      "path": "../tooling/repo-utils/tsconfig.json"
+      "path": "../packages/tooling/library/repo-utils/tsconfig.json"
     },
     {
-      "path": "../tooling/test-utils/tsconfig.json"
+      "path": "../packages/tooling/test-kit/test-utils/tsconfig.json"
     },
     {
       "path": "../.claude/tsconfig.json"

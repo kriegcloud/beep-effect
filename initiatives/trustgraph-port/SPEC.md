@@ -22,7 +22,7 @@ The first adopted workflow surface remains `repo-memory retrieval`, but it sits 
 
 ### Source-grounded facts
 
-- Local TrustGraph integration in [TrustGraphRuntime.ts](/home/elpresidank/YeeBois/projects/beep-effect/tooling/cli/src/commands/TrustGraph/internal/TrustGraphRuntime.ts) already depends on TrustGraph-style capabilities such as `get_documents`, `load_document`, `get_processing`, `add_processing`, `document-rag`, and `graph_rag`.
+- Local TrustGraph integration in [TrustGraphRuntime.ts](/home/elpresidank/YeeBois/projects/beep-effect/packages/tooling/tool/cli/src/commands/TrustGraph/internal/TrustGraphRuntime.ts) already depends on TrustGraph-style capabilities such as `get_documents`, `load_document`, `get_processing`, `add_processing`, `document-rag`, and `graph_rag`.
 - Existing `beep-effect` repo-memory code already proves packet-first grounded retrieval, deterministic query classification, line-backed citations, typed run lifecycle, and SQLite-backed durability in [GroundedRetrieval.ts](/home/elpresidank/YeeBois/projects/beep-effect/packages/repo-memory/runtime/src/retrieval/GroundedRetrieval.ts), [RepoMemoryRuntime.ts](/home/elpresidank/YeeBois/projects/beep-effect/packages/repo-memory/runtime/src/internal/RepoMemoryRuntime.ts), [RunStateMachine.ts](/home/elpresidank/YeeBois/projects/beep-effect/packages/repo-memory/runtime/src/run/RunStateMachine.ts), and [RepoMemorySqlLive.ts](/home/elpresidank/YeeBois/projects/beep-effect/packages/repo-memory/sqlite/src/RepoMemorySqlLive.ts).
 - Existing repo-memory package topology already follows an explicit `model` / `store` / `sqlite` / `runtime` split, with store contracts exported from [index.ts](/home/elpresidank/YeeBois/projects/beep-effect/packages/repo-memory/store/src/index.ts).
 - The expert-memory control-plane docs explicitly treat identity, workflow state, progress, budgets, partial results, and auditability as architectural concerns in [expert-memory-control-plane.md](/home/elpresidank/YeeBois/projects/beep-effect/initiatives/expert-memory-big-picture/expert-memory-control-plane.md).
@@ -123,7 +123,7 @@ This is a selective kernel port because `beep-effect` already has stronger repo-
 | `packages/repo-memory/store` | Add explicit store contracts for curated-document durability and curated-processing durability. |
 | `packages/repo-memory/sqlite` | Implement curated-document and curated-processing tables inside the existing repo-memory SQLite service and transaction boundary. |
 | `packages/repo-memory/runtime` | Add the internal curated-document library, processing, corpus revision, and mixed-corpus retrieval orchestration services. Extend existing query preparation and packet assembly. |
-| `tooling/cli` | Keep explicit maintenance triggers and repo-local operational helpers. |
+| `packages/tooling/tool/cli` | Keep explicit maintenance triggers and repo-local operational helpers. |
 | MCP edge at runtime or tooling boundary | Expose one narrow read tool backed by the internal runtime services. This edge should wrap the same internal services and must not widen into a workflow API. |
 
 ### Proposed internal store boundaries

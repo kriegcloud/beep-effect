@@ -49,7 +49,7 @@
       "path": "../../packages/foundation/ui-system/ui/tsconfig.json"
     },
     {
-      "path": "../../tooling/repo-utils/tsconfig.json"
+      "path": "../../packages/tooling/library/repo-utils/tsconfig.json"
     },
     {
       "path": "../../packages/shared/ui/tsconfig.json"

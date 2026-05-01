@@ -18,7 +18,7 @@ Primary sources:
 - .patterns/jsdoc-documentation.md
 - standards/effect-first-development.md
 - standards/schema-first.inventory.jsonc
-- tooling/configs/src/eslint/SchemaFirstRule.ts
+- packages/tooling/policy-pack/repo-configs/src/eslint/SchemaFirstRule.ts
 
 Required behaviors:
 - stay read-only

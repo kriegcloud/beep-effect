@@ -36,7 +36,7 @@ Required startup:
    - `initiatives/expert-memory-big-picture/research-lanes-and-open-questions.md`
    - `initiatives/repo-codegraph-jsdoc/SPEC.md`
    - `initiatives/repo-codegraph-jsdoc/research/semantic-kg-integration-explained.md`
-   - `tooling/cli/src/commands/TrustGraph/internal/TrustGraphRuntime.ts`
+   - `packages/tooling/tool/cli/src/commands/TrustGraph/internal/TrustGraphRuntime.ts`
    - `packages/repo-memory/runtime/src/retrieval/GroundedRetrieval.ts`
    - inspect `packages/foundation/capability/semantic-web`, `packages/foundation/capability/nlp`, `packages/foundation/capability/observability`, and `packages/repo-memory`
 4. Inspect the local TrustGraph clone only enough to map required capabilities from currently relevant workflow surfaces.

@@ -4,14 +4,14 @@
   "scope": [
     "apps/**/*.{ts,tsx}",
     "packages/**/*.{ts,tsx}",
-    "tooling/**/*.{ts,tsx}",
+    "packages/tooling/**/*.{ts,tsx}",
     "infra/**/*.ts",
     ".claude/hooks/**/*.ts"
   ],
   "enforcedRoots": [
-    "tooling/cli/src/commands/Laws/DualArity.ts",
-    "tooling/repo-utils/src/TSMorph/TSMorph.model.ts",
-    "tooling/repo-utils/src/TSMorph/TSMorph.service.ts"
+    "packages/tooling/tool/cli/src/commands/Laws/DualArity.ts",
+    "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
+    "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.service.ts"
   ],
   "entries": [
     {

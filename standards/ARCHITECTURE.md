@@ -12,6 +12,10 @@ The companion rationale packet lives in
 explains why these rules exist. This file states the rules and teaches the
 default way to apply them.
 
+Canonical executable examples live in `packages/fixture-lab/specimen` and are
+covered by tests. Longer membership snippets in this document are architectural
+sketches unless they explicitly reference the fixture package.
+
 ## North Star
 
 beep-effect uses a hexagonal vertical slice architecture for product code.
@@ -209,7 +213,7 @@ Forbidden by default:
 - `drivers/*` depending on product concepts from any slice or `shared/*`.
 - `ui`, `tables`, or `drivers/*` importing slice `config` directly.
 - `shared/*` depending on product slices or drivers.
-- slice packages importing `tooling/*` packages or `agents/*` bundles.
+- slice packages importing `packages/tooling/*/*` packages or `agents/*` bundles.
 - Runtime packages merging all slice layers into one global dependency object.
 
 Client/UI dependency caveats:
@@ -303,10 +307,11 @@ packages/<kernel>/
 `shared/client`, `shared/server`, `shared/tables`, and `shared/ui` are high-bar
 exceptions. `shared/use-cases` is contract-only: deliberate cross-slice
 commands, queries, driver-neutral DTOs, driver-neutral boundary contracts,
-client-safe application errors, facade interfaces, and product ports are
-allowed. It never owns workflows, process managers, schedulers, handlers,
-concrete adapters, driver imports, or live Layer values. `shared` never owns
-drivers or generic substrate.
+client-safe application errors, facade interfaces, and ultra-high-bar product
+ports are allowed. A shared product port must prove why a shared command,
+query, event, or facade contract is insufficient. It never owns workflows,
+process managers, schedulers, handlers, concrete adapters, driver imports, or
+live Layer values. `shared` never owns drivers or generic substrate.
 
 Meaningful exports in high-bar `shared/*` packages require a promotion record in
 that package's README before or alongside the export. The record must include:
@@ -348,7 +353,7 @@ package guidance.
 When it exists, `@beep/<kernel>-use-cases` follows the same contract.
 
 - `/public` is client-safe: commands, queries, driver-neutral DTOs, boundary
-  contracts, actionable application errors, and client-safe facade interfaces.
+  contracts, public action errors, and client-safe facade interfaces.
 - `/server` is the server-only application contract surface, including product
   ports, server-only service or facade contracts, and slice-local
   workflow/process/scheduler contracts when that slice uses them.
@@ -540,7 +545,7 @@ directory names alone.
   `foundation/capability`
 - drivers may depend on other drivers when the dependency stays acyclic and the
   boundary remains product-neutral
-- drivers do not depend on `shared/*`, product slices, `tooling/*`, or `agents/*`
+- drivers do not depend on `shared/*`, product slices, `packages/tooling/*/*`, or `agents/*`
 - if the repo increasingly owns the implementation as reusable substrate, move
   it to `foundation` instead of keeping it in `drivers`
 
@@ -591,7 +596,7 @@ appropriate ways:
   Cross-slice integration goes through `shared/use-cases` (commands, queries,
   events, contracts) or through emitted events. This is the same family of
   acyclic ceiling that drivers respect among themselves, applied to slices.
-- Product slices and shared-kernel packages do not depend on `tooling/*` or
+- Product slices and shared-kernel packages do not depend on `packages/tooling/*/*` or
   `agents/*`.
 - `foundation`, `drivers`, `tooling`, and `agents` do not depend on product
   slices or the shared kernel.
@@ -906,9 +911,11 @@ migration, but they are not the canonical boundary contract.
 The high-bar `shared/use-cases` exception follows the same `/public`, `/server`,
 and `/test` contract. It is narrower than slice `use-cases`: only commands,
 queries, driver-neutral DTOs, driver-neutral boundary contracts, client-safe
-application errors, facade interfaces, and product ports are allowed. It never
-owns workflows, process managers, schedulers, handlers, concrete adapters,
-driver imports, or live Layer values.
+application errors, facade interfaces, and ultra-high-bar product ports are
+allowed. Product ports require proof that a command/query/event/facade contract
+would not preserve the intended boundary. It never owns workflows, process
+managers, schedulers, handlers, concrete adapters, driver imports, or live
+Layer values.
 
 ### Config Role Vocabulary
 
@@ -1000,7 +1007,11 @@ needs in product language. Protocol declarations also live here by default.
 Slice `use-cases` may also declare workflow/process/scheduler contracts. High-
 bar `shared/use-cases` does not: it is contract-only and limited to deliberate
 cross-slice commands, queries, driver-neutral DTOs, driver-neutral boundary
-contracts, client-safe application errors, facade interfaces, and product ports.
+contracts, client-safe application errors, facade interfaces, and
+ultra-high-bar product ports.
+Product ports in `shared/use-cases` are exceptional even inside the high-bar
+exception and require explicit proof that a less coupled shared contract is
+insufficient.
 
 Use-cases may import config contracts and services, but neither slice
 `use-cases` nor `shared/use-cases` own live Layers that read the runtime
@@ -1060,9 +1071,10 @@ High-bar exceptions are:
 
 `shared/use-cases` is contract-only. It may own cross-slice commands, queries,
 driver-neutral DTOs, driver-neutral boundary contracts, client-safe application
-errors, facade interfaces, and product ports. It never owns workflows, process
-managers, schedulers, handlers, concrete adapters, driver imports, or live
-Layer values.
+errors, facade interfaces, and ultra-high-bar product ports. Product ports must
+prove why a command/query/event/facade contract is insufficient. It never owns
+workflows, process managers, schedulers, handlers, concrete adapters, driver
+imports, or live Layer values.
 
 Shared packages encode deliberate cross-slice product semantics. They do not
 own generic substrate, technical wrappers, or drivers.
@@ -1193,163 +1205,169 @@ event-sourced projection.
 Driver services use Effect v4 `Context.Service` and expose technical
 capability, not product verbs:
 
-```ts
-import { $DrizzleId } from "@beep/identity"
-import { TaggedErrorClass } from "@beep/schema"
-import { Context, Effect, Layer } from "effect"
-import * as O from "effect/Option"
-import * as S from "effect/Schema"
+````ts
+import { $DrizzleId } from "@beep/identity";
+import { TaggedErrorClass } from "@beep/schema";
+import { Context, type Effect, Layer } from "effect";
+import * as S from "effect/Schema";
 
-const $I = $DrizzleId.create("Drizzle.service")
+const $I = $DrizzleId.create("Drizzle.service");
 
-export class DrizzleError extends TaggedErrorClass<DrizzleError>(
-  $I`DrizzleError`,
-)(
+/**
+ * Technical Drizzle driver failure scoped to a driver operation.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
+export class DrizzleError extends TaggedErrorClass<DrizzleError>($I`DrizzleError`)(
   "DrizzleError",
   {
     operation: S.String,
     cause: S.OptionFromOptionalKey(S.DefectWithStack),
   },
   $I.annote("DrizzleError", {
-    description: "Technical Drizzle driver failure.",
-  }),
+    description: "Technical Drizzle driver failure scoped to a driver operation.",
+  })
 ) {}
 
-const toDrizzleError = (operation: string, cause?: unknown): DrizzleError =>
-  new DrizzleError({
-    operation,
-    cause: O.fromUndefinedOr(cause),
-  })
-
+/**
+ * Narrow product-neutral Drizzle adapter consumed by `Drizzle.makeLayer`.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export interface DrizzleClient {
   readonly execute: (
     statement: string,
-    parameters: ReadonlyArray<unknown>,
-  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
+    parameters: ReadonlyArray<unknown>
+  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>;
   readonly withTransaction: <A, R>(
-    use: (transaction: DrizzleClient) => Effect.Effect<A, DrizzleError, R>,
-  ) => Effect.Effect<A, DrizzleError, R>
+    use: (transaction: DrizzleClient) => Effect.Effect<A, DrizzleError, R>
+  ) => Effect.Effect<A, DrizzleError, R>;
 }
 
+/**
+ * Runtime shape exposed by the {@link Drizzle} service.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export interface DrizzleShape {
   readonly execute: (
     statement: string,
-    parameters: ReadonlyArray<unknown>,
-  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>
+    parameters: ReadonlyArray<unknown>
+  ) => Effect.Effect<ReadonlyArray<unknown>, DrizzleError>;
   readonly withTransaction: <A, R>(
-    use: (transaction: DrizzleShape) => Effect.Effect<A, DrizzleError, R>,
-  ) => Effect.Effect<A, DrizzleError, R>
+    use: (transaction: DrizzleShape) => Effect.Effect<A, DrizzleError, R>
+  ) => Effect.Effect<A, DrizzleError, R>;
 }
 
 const makeService = (client: DrizzleClient): DrizzleShape => ({
   execute: client.execute,
-  withTransaction: (use) =>
-    client.withTransaction((transaction) => use(makeService(transaction))),
-})
+  withTransaction: (use) => client.withTransaction((transaction) => use(makeService(transaction))),
+});
 
-export class Drizzle extends Context.Service<Drizzle, DrizzleShape>()($I`Drizzle`) {}
-
-export namespace Drizzle {
-  export const makeLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
-    Layer.succeed(
-      Drizzle,
-      Drizzle.of(makeService(client)),
-    )
+/**
+ * Effect service for product-neutral Drizzle execution.
+ *
+ * @category services
+ * @since 0.0.0
+ */
+export class Drizzle extends Context.Service<Drizzle, DrizzleShape>()($I`Drizzle`) {
+  /**
+   * Build a Layer from a narrow product-neutral Drizzle adapter.
+   *
+   * @category layers
+   * @since 0.0.0
+   */
+  static readonly makeLayer = (client: DrizzleClient): Layer.Layer<Drizzle> =>
+    Layer.succeed(Drizzle, Drizzle.of(makeService(client)));
 }
-```
+````
 
-Product ports use product language. Actionable port failures live in
+Product ports use product language. Server-only port failures live in
 `Membership.errors.ts`; the port file imports those errors instead of defining
-technical/driver failures inline:
+technical/driver failures inline or leaking them through the public use-case
+API:
 
-```ts
-import { $IamUseCasesId } from "@beep/identity/packages"
-import { Context, type Effect } from "effect"
-import type * as O from "effect/Option"
-import type {
-  Membership,
-  MembershipId,
-} from "@beep/iam-domain/entities/Membership"
-import type { MembershipRepositoryError } from "./Membership.errors.js"
+````ts
+import { $IamUseCasesId } from "@beep/identity/packages";
+import { Context, type Effect } from "effect";
+import type * as O from "effect/Option";
+import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
+import type { MembershipRepositoryUnavailable } from "./Membership.errors.js";
 
-const $I = $IamUseCasesId.create("entities/Membership/Membership.ports")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.ports");
 
+/**
+ * Port describing the persistence surface required by Membership use cases.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export class MembershipRepository extends Context.Service<
   MembershipRepository,
   {
-    readonly save: (
-      model: Membership,
-    ) => Effect.Effect<void, MembershipRepositoryError>
-    readonly findById: (
-      id: MembershipId,
-    ) => Effect.Effect<O.Option<Membership>, MembershipRepositoryError>
+    readonly save: (model: Membership) => Effect.Effect<void, MembershipRepositoryUnavailable>;
+    readonly findById: (id: MembershipId) => Effect.Effect<O.Option<Membership>, MembershipRepositoryUnavailable>;
   }
 >()($I`MembershipRepository`) {}
-```
+````
 
 The implementation belongs in server:
 
-```ts
-import { Effect, Layer } from "effect"
-import * as A from "effect/Array"
-import * as O from "effect/Option"
-import * as S from "effect/Schema"
-import { Drizzle } from "@beep/drizzle"
-import {
-  MembershipRepository,
-  toMembershipRepositoryError,
-} from "@beep/iam-use-cases/server"
-import {
-  MembershipRow,
-  MembershipTable,
-} from "@beep/iam-tables/entities/Membership"
+````ts
+import { Effect, Layer } from "effect";
+import * as A from "effect/Array";
+import * as O from "effect/Option";
+import * as S from "effect/Schema";
+import { Drizzle } from "@beep/drizzle";
+import { MembershipRepository } from "@beep/iam-use-cases/server";
+import { toMembershipRepositoryUnavailable } from "@beep/iam-use-cases/server/Membership.errors";
+import { MembershipRow, MembershipTable } from "@beep/iam-tables/entities/Membership";
+import type { Membership, MembershipId } from "@beep/iam-domain/entities/Membership";
 
+/**
+ * Server-side Drizzle adapter implementing the Membership repository port.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
 export const MembershipRepositoryLive = Layer.effect(
   MembershipRepository,
   Effect.gen(function* () {
-    const drizzle = yield* Drizzle
+    const drizzle = yield* Drizzle;
 
     return {
-      save: Effect.fn("MembershipRepository.save")((model) =>
-        drizzle
-          .execute(`upsert into ${MembershipTable.name}`, [
-            MembershipTable.toRow(model),
-          ])
+      save: Effect.fn("MembershipRepository.save")(function* (model: Membership) {
+        yield* drizzle
+          .execute(`upsert into ${MembershipTable.name}`, [MembershipTable.toRow(model)])
           .pipe(
             Effect.asVoid,
-            Effect.mapError((error) =>
-              toMembershipRepositoryError("save", error),
+            Effect.mapError((error) => toMembershipRepositoryUnavailable("save", error))
+          );
+      }),
+      findById: Effect.fn("MembershipRepository.findById")(function* (id: MembershipId) {
+        return yield* drizzle
+          .execute(`select * from ${MembershipTable.name} where id = $1 limit 1`, [id])
+          .pipe(
+            Effect.flatMap((rows) =>
+              O.match(A.head(rows), {
+                onNone: () => Effect.succeed(O.none<Membership>()),
+                onSome: (row) =>
+                  S.decodeUnknownEffect(MembershipRow)(row).pipe(
+                    Effect.map(MembershipTable.fromRow),
+                    Effect.map(O.some)
+                  ),
+              })
             ),
-          )),
-      findById: Effect.fn("MembershipRepository.findById")(
-        (id) =>
-          drizzle
-            .execute(
-              `select * from ${MembershipTable.name} where id = $1 limit 1`,
-              [id],
-            )
-            .pipe(
-              Effect.flatMap((rows) =>
-                A.head(rows).pipe(
-                  O.match({
-                    onNone: () => Effect.succeed(O.none()),
-                    onSome: (row) =>
-                      S.decodeUnknownEffect(MembershipRow)(row).pipe(
-                        Effect.map(MembershipTable.fromRow),
-                        Effect.map(O.some),
-                      ),
-                  }),
-                ),
-              ),
-              Effect.mapError((error) =>
-                toMembershipRepositoryError("findById", error),
-              ),
-            ),
-      ),
-    }
-  }),
-)
-```
+            Effect.mapError((error) => toMembershipRepositoryUnavailable("findById", error))
+          );
+      }),
+    };
+  })
+);
+````
 
 ## CQRS, Events, Workflows, Cluster, And Read Models
 
@@ -1512,61 +1530,99 @@ forbidden when it:
 
 Domain errors are actionable, and domain model behavior is pure:
 
-```ts
-import { $IamDomainId } from "@beep/identity/packages"
-import { TaggedErrorClass } from "@beep/schema"
+````ts
+import { $IamDomainId } from "@beep/identity/packages";
+import { TaggedErrorClass } from "@beep/schema";
 
-const $I = $IamDomainId.create("entities/Membership/Membership.errors")
+const $I = $IamDomainId.create("entities/Membership/Membership.errors");
 
+/**
+ * Domain failure raised when revoking a Membership that is already revoked.
+ *
+ * @category errors
+ * @since 0.0.0
+ */
 export class MembershipAlreadyRevoked extends TaggedErrorClass<MembershipAlreadyRevoked>(
-  $I`MembershipAlreadyRevoked`,
+  $I`MembershipAlreadyRevoked`
 )(
   "MembershipAlreadyRevoked",
   {},
   $I.annote("MembershipAlreadyRevoked", {
     description: "Membership revocation failed because it is already revoked.",
-  }),
+  })
 ) {}
-```
+````
 
-```ts
-import { $IamDomainId } from "@beep/identity/packages"
-import { LiteralKit } from "@beep/schema"
-import * as Model from "@beep/schema/Model"
-import { Effect } from "effect"
-import * as S from "effect/Schema"
-import { AccountId } from "@beep/iam-domain/entities/Account"
-import { OrganizationId } from "@beep/iam-domain/entities/Organization"
-import { MembershipAlreadyRevoked } from "./Membership.errors.js"
+````ts
+import { $IamDomainId } from "@beep/identity/packages";
+import { LiteralKit } from "@beep/schema";
+import * as Model from "@beep/schema/Model";
+import { Effect } from "effect";
+import * as S from "effect/Schema";
+import { AccountId } from "@beep/iam-domain/entities/Account";
+import { OrganizationId } from "@beep/iam-domain/entities/Organization";
+import { MembershipAlreadyRevoked } from "./Membership.errors.js";
 
-const $I = $IamDomainId.create("entities/Membership/Membership.model")
+const $I = $IamDomainId.create("entities/Membership/Membership.model");
 
+/**
+ * Branded identifier for an organization membership.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const MembershipId = S.String.pipe(
   S.brand("MembershipId"),
   $I.annoteSchema("MembershipId", {
     description: "Unique identifier for an organization membership.",
-  }),
-)
-export type MembershipId = typeof MembershipId.Type
+  })
+);
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export type MembershipId = typeof MembershipId.Type;
 
+/**
+ * Role granted by an organization membership.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
 export const MembershipRole = LiteralKit(["owner", "admin", "member"]).pipe(
   $I.annoteSchema("MembershipRole", {
     description: "Role granted by an organization membership.",
-  }),
-)
-export type MembershipRole = typeof MembershipRole.Type
+  })
+);
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export type MembershipRole = typeof MembershipRole.Type;
 
-export const MembershipStatus = LiteralKit([
-  "active",
-  "invited",
-  "revoked",
-]).pipe(
+/**
+ * Lifecycle status of an organization membership.
+ *
+ * @category schemas
+ * @since 0.0.0
+ */
+export const MembershipStatus = LiteralKit(["active", "invited", "revoked"]).pipe(
   $I.annoteSchema("MembershipStatus", {
     description: "Lifecycle status of an organization membership.",
-  }),
-)
-export type MembershipStatus = typeof MembershipStatus.Type
+  })
+);
+/**
+ * @category schemas
+ * @since 0.0.0
+ */
+export type MembershipStatus = typeof MembershipStatus.Type;
 
+/**
+ * Account participation in an organization with pure lifecycle behavior.
+ *
+ * @category models
+ * @since 0.0.0
+ */
 export class Membership extends Model.Class<Membership>($I`Membership`)(
   {
     id: MembershipId,
@@ -1577,11 +1633,11 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
   },
   $I.annote("Membership", {
     description: "Account participation in an organization.",
-  }),
+  })
 ) {
-  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status)
+  readonly canRevoke = (): boolean => !MembershipStatus.is.revoked(this.status);
 
-  readonly revoke = Effect.fn("Membership.revoke")(() =>
+  readonly revoke = (): Effect.Effect<Membership, MembershipAlreadyRevoked> =>
     this.canRevoke()
       ? Effect.succeed(
           Membership.make({
@@ -1590,101 +1646,106 @@ export class Membership extends Model.Class<Membership>($I`Membership`)(
             accountId: this.accountId,
             role: this.role,
             status: MembershipStatus.Enum.revoked,
-          }),
+          })
         )
-      : Effect.fail(new MembershipAlreadyRevoked()),
-  )
+      : Effect.fail(new MembershipAlreadyRevoked());
 }
-```
+````
 
 Use-case service defines the contract in product language:
 
-```ts
-import { $IamUseCasesId } from "@beep/identity/packages"
-import { Context, type Effect } from "effect"
-import type { MembershipAlreadyRevoked } from "@beep/iam-domain/entities/Membership"
-import type { RevokeMembershipCommand } from "./Membership.commands.js"
-import {
-  MembershipAccessDenied,
+````ts
+import { $IamUseCasesId } from "@beep/identity/packages";
+import { Context, type Effect } from "effect";
+import type { RevokeMembershipCommand } from "./Membership.commands.js";
+import type {
   MembershipNotFound,
-  MembershipRepositoryError,
-} from "./Membership.errors.js"
-import { MembershipRepository } from "./Membership.ports.js"
+  MembershipRevocationDenied,
+  MembershipRevocationFailed,
+} from "./Membership.errors.js";
 
-const $I = $IamUseCasesId.create("entities/Membership/Membership.service")
+const $I = $IamUseCasesId.create("entities/Membership/Membership.service");
 
+/**
+ * Use-case service that defines the Membership product contract.
+ *
+ * @category services
+ * @since 0.0.0
+ */
 export class MembershipService extends Context.Service<
   MembershipService,
   {
     readonly revoke: (
-      command: RevokeMembershipCommand,
-    ) => Effect.Effect<
-      void,
-      | MembershipAccessDenied
-      | MembershipAlreadyRevoked
-      | MembershipNotFound
-      | MembershipRepositoryError
-    >
+      command: RevokeMembershipCommand
+    ) => Effect.Effect<void, MembershipNotFound | MembershipRevocationDenied | MembershipRevocationFailed>;
   }
 >()($I`MembershipService`) {}
-```
+````
 
 Server layer wires that contract to the runtime boundary:
 
-```ts
-import { Effect, Layer } from "effect"
-import * as O from "effect/Option"
-import {
-  MembershipNotFound,
-  type RevokeMembershipCommand,
-} from "@beep/iam-use-cases/public"
-import {
-  MembershipAccess,
-  MembershipRepository,
-  MembershipService,
-} from "@beep/iam-use-cases/server"
+````ts
+import { Effect, Layer } from "effect";
+import * as O from "effect/Option";
+import { MembershipNotFound, type RevokeMembershipCommand } from "@beep/iam-use-cases/public";
+import { MembershipAccess, MembershipRepository, MembershipService } from "@beep/iam-use-cases/server";
 
+/**
+ * Live composition wiring the Membership service to its ports.
+ *
+ * @category layers
+ * @since 0.0.0
+ */
 export const MembershipLayer = Layer.effect(
   MembershipService,
   Effect.gen(function* () {
-    const access = yield* MembershipAccess
-    const repo = yield* MembershipRepository
+    const access = yield* MembershipAccess;
+    const repo = yield* MembershipRepository;
 
     return {
-      revoke: Effect.fn("MembershipLayer.revoke")(function* (
-        command: RevokeMembershipCommand,
-      ) {
-        yield* access.assertCanRevoke(command)
+      revoke: Effect.fn("MembershipLayer.revoke")(function* (command: RevokeMembershipCommand) {
+        yield* access.assertCanRevoke(command);
         const model = yield* repo.findById(command.membershipId).pipe(
           Effect.flatMap(
             O.match({
               onNone: () => Effect.fail(new MembershipNotFound()),
               onSome: Effect.succeed,
-            }),
-          ),
-        )
+            })
+          )
+        );
 
-        yield* model.revoke().pipe(Effect.flatMap(repo.save))
+        yield* model.revoke().pipe(Effect.flatMap(repo.save));
       }),
-    }
-  }),
-)
-```
+    };
+  })
+);
+````
+
+The service contract exposes public action failures only. Repository, driver,
+and domain failures are translated before the use-case returns; the
+compile-ready `fixture-lab/Specimen` slice is the executable proof for that
+boundary rule.
 
 Server handlers consume use-case services:
 
-```ts
-import { Effect } from "effect"
-import type { RevokeMembershipCommand } from "@beep/iam-use-cases/public"
-import { MembershipService } from "@beep/iam-use-cases/server"
+````ts
+import { Effect } from "effect";
+import type { RevokeMembershipCommand } from "@beep/iam-use-cases/public";
+import { MembershipService } from "@beep/iam-use-cases/server";
 
-export const revokeMembershipHandler = Effect.fn("revokeMembershipHandler")(
-  function* (command: RevokeMembershipCommand) {
-    const membership = yield* MembershipService
-    return yield* membership.revoke(command)
-  },
-)
-```
+/**
+ * HTTP handler that delegates revoke commands to the Membership use-case service.
+ *
+ * @category combinators
+ * @since 0.0.0
+ */
+export const revokeMembershipHandler = Effect.fn("revokeMembershipHandler")(function* (
+  command: RevokeMembershipCommand
+) {
+  const membership = yield* MembershipService;
+  return yield* membership.revoke(command);
+});
+````
 
 The important part is not the exact method names. The important part is the
 dependency direction:

@@ -15,7 +15,7 @@
       "path": "../../foundation/modeling/schema/tsconfig.json"
     },
     {
-      "path": "../../../tooling/test-utils/tsconfig.json"
+      "path": "../../tooling/test-kit/test-utils/tsconfig.json"
     }
   ]
 }

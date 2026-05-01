@@ -10,9 +10,9 @@ export default defineConfig({
     projects: [
       "packages/*/vitest.config.ts",
       "packages/*/*/vitest.config.ts",
+      "packages/tooling/*/*/vitest.config.ts",
       ".claude/vitest.config.ts",
       ".codex/vitest.config.ts",
-      "tooling/*/vitest.config.ts",
       "apps/*/vitest.config.ts",
       ...(isBun
         ? [

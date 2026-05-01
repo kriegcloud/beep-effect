@@ -16,7 +16,7 @@ Primary sources:
 - .agents/skills/effect-v4-imports/SKILL.md
 - standards/effect-first-development.md
 - standards/schema-first.inventory.jsonc
-- tooling/configs/src/eslint/SchemaFirstRule.ts
+- packages/tooling/policy-pack/repo-configs/src/eslint/SchemaFirstRule.ts
 - .patterns/jsdoc-documentation.md
 
 Required behaviors:

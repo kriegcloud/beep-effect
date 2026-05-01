@@ -96,7 +96,7 @@ Slice retirements affecting `shared/use-cases` exports require notice to the own
 
 - Track cross-slice deprecations in a single coordinating issue or PR, with checkboxes for each consumer migration.
 - The DECISIONS entry for the retirement records who was notified, who migrated, and any consumers who could not migrate (with their reasons).
-- A consumer that cannot migrate within the sunset window blocks the retirement. The producing slice may extend the window, narrow the change, or re-scope the retirement; it may not ship the removal over an unmigrated consumer.
+- A consumer that cannot migrate within the sunset window blocks the retirement. The producing slice may extend the window, narrow the change, or re-scope the retirement; it may not ship the removal over a consumer that has not migrated.
 
 Cross-slice events have the same coordination requirement: removing an event a downstream slice subscribes to is a breaking change to that slice, even though no import path connects them.
 

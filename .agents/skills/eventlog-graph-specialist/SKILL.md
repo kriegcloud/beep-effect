@@ -675,8 +675,8 @@ To extend for the knowledge graph:
 The checked automation fixture demonstrates where generated materialized-view
 tables should live:
 
-- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/Specimen.table.ts`
-- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/server/src/SpecimenServer.ts`
+- `packages/tooling/tool/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/Specimen.table.ts`
+- `packages/tooling/tool/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/server/src/SpecimenServer.ts`
 
 Use that fixture as the current topology reference: table/read-model code stays
 inside the slice table/server packages, and the eventual generator should
@@ -718,7 +718,7 @@ produce the same structure idempotently.
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/SqlEventLogServerEncrypted.ts` -- SQL encrypted server storage
 - `.repos/effect-v4/packages/effect/src/unstable/eventlog/internal/identityRootSecretDerivation.ts` -- Key derivation
 - `packages/common/ui/src/components/codegraph/styles/graph-styles.tsx` -- Cytoscape graph styles
-- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/Specimen.table.ts` -- Golden fixture table package shape
+- `packages/tooling/tool/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/Specimen.table.ts` -- Golden fixture table package shape
 - `packages/common/semantic-web/src/prov.ts` -- ProvBundle for provenance tracking
 
 ## Verification Checklist

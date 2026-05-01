@@ -12,4 +12,4 @@ Generated from `standards/dual-arity.inventory.jsonc` on 2026-04-23.
 
 All previously tracked dual-arity candidates have been remediated or removed from scope by the refined scanner.
 
-The current inventory has no entries, so `bun run tooling/cli/src/bin.ts -- laws dual-arity --check` reports zero live, missing, stale, enforced, or invalid-exception entries.
+The current inventory has no entries, so `bun run packages/tooling/tool/cli/src/bin.ts -- laws dual-arity --check` reports zero live, missing, stale, enforced, or invalid-exception entries.

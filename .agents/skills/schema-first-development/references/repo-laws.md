@@ -12,7 +12,7 @@ Use `Schema` for pure data models.
 - Service contracts may stay interfaces, but wire payloads, persisted rows,
   config payloads, and domain object models should be schema-first.
 
-The repo enforces this with `tooling/configs/src/eslint/SchemaFirstRule.ts`.
+The repo enforces this with `packages/tooling/policy-pack/repo-configs/src/eslint/SchemaFirstRule.ts`.
 
 ## 2. Object Models Prefer `S.Class`
 

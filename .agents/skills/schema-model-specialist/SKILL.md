@@ -381,7 +381,7 @@ export const specimenTableName = "fixture_lab_specimen"
 ```
 
 The fixture source is
-`tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/SpecimenReadModel.ts`.
+`packages/tooling/tool/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/SpecimenReadModel.ts`.
 
 Never define these columns manually. Never create drizzle tables without
 `Table.make`.
@@ -441,8 +441,8 @@ These rules are non-negotiable and override any conflicting guidance.
 - `packages/common/schema/src/LiteralKit.ts` (LiteralKit constructor and types)
 - `packages/common/schema/src/SchemaUtils/withKeyDefaults.ts` (withKeyDefaults dual)
 - `packages/common/schema/src/TaggedErrorClass.ts` (TaggedErrorClass constructor)
-- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/domain/src/Specimen.ts` (golden slice domain model)
-- `tooling/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/SpecimenReadModel.ts` (golden slice read model)
+- `packages/tooling/tool/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/domain/src/Specimen.ts` (golden slice domain model)
+- `packages/tooling/tool/cli/test/fixtures/repo-architecture-automation/expected/fixture-lab/Specimen/packages/tables/src/SpecimenReadModel.ts` (golden slice read model)
 - `.repos/effect-v4/packages/effect/src/Schema.ts` (TemplateLiteral, toTaggedUnion)
 - `.repos/effect-v4/packages/effect/src/unstable/schema/Model.ts` (upstream Model)
 
@@ -505,7 +505,7 @@ rg -n "P\.hasProperty.*_tag|_tag.*===|typeof.*_tag" packages --glob "*.ts"
 
 ```sh
 # Generated topology should keep table/read-model files in the owning slice.
-rg -n "ReadModel|TableName|sqliteTable" packages tooling/cli/test/fixtures --glob "*.ts"
+rg -n "ReadModel|TableName|sqliteTable" packages packages/tooling/tool/cli/test/fixtures --glob "*.ts"
 ```
 
 ### withKeyDefaults usage

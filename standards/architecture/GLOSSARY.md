@@ -34,6 +34,13 @@ denied, conflict, stale version, not found, invalid transition, and idempotency
 violation are actionable. Driver connection failures are usually internal
 until translated.
 
+## Action Error
+
+A public use-case failure exported from a use-case package's `/public` subpath.
+Protocol handlers, clients, and UI code may branch on action errors. Port,
+driver, and domain failures must be translated before they become action
+errors.
+
 ## Anemic Domain Model
 
 A domain model that only describes data shape and maybe validation. An anemic
@@ -208,6 +215,12 @@ without taking product-domain dependencies.
 A product-language capability required by use-cases. Ports live in
 `use-cases` by default and are implemented by adapters, usually in `server`.
 
+## Port Error
+
+A server-only failure declared by a use-case port and exported from the use-case
+package's `/server` subpath. Adapters translate driver/internal failures into
+port errors; use-case services translate port errors into public action errors.
+
 ## Private (in app-layer composition)
 
 Anything not exported through a canonical subpath (`/public`, `/server`, `/secrets`, `/layer`, `/test`) of a package's public root. App-level composition (e.g., `apps/<app>/src/runtime/Layer.ts`) may import only from canonical subpaths; reaching past them into a package's internal module structure is the boundary violation. The same rule applies to any consumer outside the owning package: only canonical subpaths are public.
@@ -324,8 +337,9 @@ normal homes. `shared/use-cases`, `shared/client`, `shared/server`,
 `shared/tables`, and `shared/ui` are exceptional. `shared/use-cases` is
 contract-only: it may hold cross-slice commands, queries, driver-neutral DTOs,
 driver-neutral boundary contracts, client-safe application errors, facade
-interfaces, and product ports, but not workflows, process managers,
-schedulers, handlers, concrete adapters, driver imports, or live Layers.
+interfaces, and ultra-high-bar product ports, but not workflows, process
+managers, schedulers, handlers, concrete adapters, driver imports, or live
+Layers.
 Shared packages consume shared-kernel language from shared and may consume
 appropriate `foundation` packages beside it; they do not own drivers. Shared
 is not a synonym for `common` or `foundation`, and it is not a place for
@@ -338,6 +352,13 @@ miscellaneous leftovers from product slices.
 A bounded product/domain package family such as `iam`. A slice owns its domain,
 use-cases, config contracts when present, server adapters, client adapters,
 tables, and UI. Drivers stay repo-level instead of being slice package kinds.
+
+## Scratchpad Lane
+
+A temporary experiment home under `scratchpad/` or explicitly temporary
+`packages/_internal/*` packages. Scratchpad code may prove an idea, but product
+slices and public package exports must not import it. Promotion re-enters
+through the smallest legal slice shape.
 
 ## Tables Package
 
@@ -356,7 +377,7 @@ operations; product/runtime code does not depend on them.
 The slice package that owns application intent: commands, queries,
 driver-neutral boundary/protocol contracts, authorization, ports,
 service/facade contracts, slice-local workflow/process/scheduler contracts, and
-actionable application errors. Canonical export surfaces are `/public`,
+public action errors. Canonical export surfaces are `/public`,
 `/server`, and `/test`.
 `/public` is client-safe application contract surface. `/server` is server-only
 application contract surface. Package roots and `./*` exports may remain during

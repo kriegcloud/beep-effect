@@ -33,7 +33,7 @@ repeatable repo generation:
   root config references as live guidance.
 - The old convergence packet is not moved wholesale. Only a compact digest is
   retained.
-- `tooling/cli` owns the generator core. `@turbo/gen` is out of scope until a
+- `packages/tooling/tool/cli` owns the generator core. `@turbo/gen` is out of scope until a
   future wrapper delegates to `bun run beep ...`.
 - The golden fixture must be synthetic and must use `fixture-lab/Specimen`.
 - `standards/ARCHITECTURE.md` is binding for golden fixture topology, role
@@ -63,7 +63,7 @@ The lean slate keeps these families unless a later packet changes the target:
   workspaces
 - `packages/_internal/*`
 - `infra`
-- `tooling/*`
+- `packages/tooling/*/*`
 - `.claude`
 - `.codex`
 - repo standards, policies, and agent guidance after stale references are

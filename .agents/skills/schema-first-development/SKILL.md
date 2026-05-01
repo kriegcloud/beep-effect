@@ -16,7 +16,7 @@ Treat schema-first rules as enforced repository law, not style preference.
 The primary sources are:
 
 - `standards/effect-first-development.md`
-- `tooling/configs/src/eslint/SchemaFirstRule.ts`
+- `packages/tooling/policy-pack/repo-configs/src/eslint/SchemaFirstRule.ts`
 - `standards/schema-first.inventory.jsonc`
 
 Keep `Schema` as the source of truth for pure data models.

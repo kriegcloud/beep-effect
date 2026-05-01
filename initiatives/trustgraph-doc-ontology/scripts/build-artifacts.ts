@@ -655,7 +655,7 @@ const sourceAuthorities = [
   {
     id: "source-authority:typed-jsdoc-models",
     label: "Typed JSDoc models",
-    location: "tooling/repo-utils/src/JSDoc/",
+    location: "packages/tooling/library/repo-utils/src/JSDoc/",
     notes:
       "Primary structural source for canonical tag metadata, specifications, AST applicability, derivability, and parameter shapes.",
   },
@@ -669,26 +669,26 @@ const sourceAuthorities = [
   {
     id: "source-authority:docgen-checker",
     label: "Docgen checker",
-    location: "tooling/docgen/src/Checker.ts",
+    location: "packages/tooling/tool/docgen/src/Checker.ts",
     notes: "Current enforcement surface for missing description, examples, and @since in docgen runtime validation.",
   },
   {
     id: "source-authority:docgen-analysis",
     label: "Docgen analysis operations",
-    location: "tooling/cli/src/commands/Docgen/internal/Operations.ts",
+    location: "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
     notes:
       "Current enforcement and reporting surface for public-export tag requirements such as @category, @example, and @since.",
   },
   {
     id: "source-authority:docgen-domain",
     label: "Docgen domain models",
-    location: "tooling/docgen/src/Domain.ts",
+    location: "packages/tooling/tool/docgen/src/Domain.ts",
     notes: "Primary source for docgen entities, emitted artifact kinds, and documentation record structure.",
   },
   {
     id: "source-authority:repo-symbol-index",
     label: "Repo utils symbol model",
-    location: "tooling/repo-utils/src/TSMorph/TSMorph.model.ts",
+    location: "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
     notes:
       "Primary source for deterministic TypeScript symbol kinds used by repo indexing and documentation grounding.",
   },
@@ -698,12 +698,12 @@ const validationTools = [
   {
     id: "validation-tool:docgen-checker",
     label: "docgen checker",
-    notes: "Runtime checker in tooling/docgen/src/Checker.ts.",
+    notes: "Runtime checker in packages/tooling/tool/docgen/src/Checker.ts.",
   },
   {
     id: "validation-tool:docgen-analysis",
     label: "docgen analysis",
-    notes: "Static export analysis in tooling/cli/src/commands/Docgen/internal/Operations.ts.",
+    notes: "Static export analysis in packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts.",
   },
   {
     id: "validation-tool:docgen-cli",
@@ -910,13 +910,13 @@ const fileUrl = (relativePath: string) => new URL(relativePath, repoRootUrl).hre
 const run = async () => {
   await mkdir(fileURLToPath(outputsUrl), { recursive: true });
 
-  const applicableToModel = await readText("tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts");
-  const astDerivabilityModel = await readText("tooling/repo-utils/src/JSDoc/models/ASTDerivability.model.ts");
-  const specificationModel = await readText("tooling/repo-utils/src/JSDoc/models/Specification.model.ts");
-  const tagKindModel = await readText("tooling/repo-utils/src/JSDoc/models/TagKind.model.ts");
-  const jsDocDatabase = await readText("tooling/repo-utils/src/JSDoc/JSDoc.ts");
-  const docgenOperations = await readText("tooling/cli/src/commands/Docgen/internal/Operations.ts");
-  const repoUtilsSymbolModel = await readText("tooling/repo-utils/src/TSMorph/TSMorph.model.ts");
+  const applicableToModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/ApplicableTo.model.ts");
+  const astDerivabilityModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/ASTDerivability.model.ts");
+  const specificationModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/Specification.model.ts");
+  const tagKindModel = await readText("packages/tooling/library/repo-utils/src/JSDoc/models/TagKind.model.ts");
+  const jsDocDatabase = await readText("packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts");
+  const docgenOperations = await readText("packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts");
+  const repoUtilsSymbolModel = await readText("packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts");
 
   const documentationStandards = extractLiteralKitValues(specificationModel, "Specification");
   const applicableKinds = extractLiteralKitValues(applicableToModel, "ApplicableTo");
@@ -1025,13 +1025,13 @@ const run = async () => {
       repoSymbolNormalizationBridge,
     },
     sourceFiles: {
-      specificationModel: "tooling/repo-utils/src/JSDoc/models/Specification.model.ts",
-      applicableToModel: "tooling/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
-      astDerivabilityModel: "tooling/repo-utils/src/JSDoc/models/ASTDerivability.model.ts",
-      jsDocDatabase: "tooling/repo-utils/src/JSDoc/JSDoc.ts",
-      docgenDomain: "tooling/docgen/src/Domain.ts",
-      docgenAnalysis: "tooling/cli/src/commands/Docgen/internal/Operations.ts",
-      repoUtilsSymbolModel: "tooling/repo-utils/src/TSMorph/TSMorph.model.ts",
+      specificationModel: "packages/tooling/library/repo-utils/src/JSDoc/models/Specification.model.ts",
+      applicableToModel: "packages/tooling/library/repo-utils/src/JSDoc/models/ApplicableTo.model.ts",
+      astDerivabilityModel: "packages/tooling/library/repo-utils/src/JSDoc/models/ASTDerivability.model.ts",
+      jsDocDatabase: "packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts",
+      docgenDomain: "packages/tooling/tool/docgen/src/Domain.ts",
+      docgenAnalysis: "packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts",
+      repoUtilsSymbolModel: "packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts",
       policyPattern: ".patterns/jsdoc-documentation.md",
     },
     counts: {
@@ -1236,7 +1236,7 @@ const run = async () => {
       {
         provType: "Entity",
         id: seed("source:typed-jsdoc-models"),
-        hadPrimarySource: [fileUrl("tooling/repo-utils/src/JSDoc/JSDoc.ts")],
+        hadPrimarySource: [fileUrl("packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts")],
         value: "Typed JSDoc tag database and associated LiteralKit models.",
       },
       {
@@ -1248,7 +1248,7 @@ const run = async () => {
       {
         provType: "Entity",
         id: seed("source:docgen-analysis"),
-        hadPrimarySource: [fileUrl("tooling/cli/src/commands/Docgen/internal/Operations.ts")],
+        hadPrimarySource: [fileUrl("packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts")],
         value: "Docgen analysis and public-export requirement source.",
       },
       {
@@ -1308,7 +1308,7 @@ const run = async () => {
       {
         id: seed("evidence:typed-jsdoc-param"),
         target: {
-          source: fileUrl("tooling/repo-utils/src/JSDoc/JSDoc.ts"),
+          source: fileUrl("packages/tooling/library/repo-utils/src/JSDoc/JSDoc.ts"),
           selector: {
             kind: "text-quote",
             exact: 'JSDocTagDefinition.make("param", {',
@@ -1319,7 +1319,7 @@ const run = async () => {
       {
         id: seed("evidence:docgen-required-tags"),
         target: {
-          source: fileUrl("tooling/cli/src/commands/Docgen/internal/Operations.ts"),
+          source: fileUrl("packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts"),
           selector: {
             kind: "text-quote",
             exact: 'const REQUIRED_TAGS = ["@category", "@example", "@since"] as const;',
@@ -1364,12 +1364,12 @@ const run = async () => {
     "",
     "| Source authority | Role | Authoritative for | Not authoritative for | Evidence path |",
     "| --- | --- | --- | --- | --- |",
-    "| Typed JSDoc models | Structural source | tag catalog, standards, AST applicability, derivability, parameter shape metadata | repo policy semantics and runtime enforcement | `tooling/repo-utils/src/JSDoc/` |",
+    "| Typed JSDoc models | Structural source | tag catalog, standards, AST applicability, derivability, parameter shape metadata | repo policy semantics and runtime enforcement | `packages/tooling/library/repo-utils/src/JSDoc/` |",
     "| Repo JSDoc policy pattern | Normative policy source | documentation requirements, prohibitions, Effect-specific guidance, example compilation expectations | raw mechanical tag inventory | `.patterns/jsdoc-documentation.md` |",
-    "| Docgen checker | Current runtime validator | missing description, example presence, missing @since | semantic rules like Effect @throws prohibition | `tooling/docgen/src/Checker.ts` |",
-    "| Docgen analysis operations | Current report/enforcement surface | required public-export tags such as @category, @example, @since | semantic interpretation of function contracts | `tooling/cli/src/commands/Docgen/internal/Operations.ts` |",
-    "| Docgen domain models | Artifact vocabulary source | docgen entities, doc records, module/fileoverview surfaces | policy semantics and rule precedence | `tooling/docgen/src/Domain.ts` |",
-    "| Repo utils symbol model | Retrieval bridge source | deterministic TypeScript symbol kinds for retrieval and grounding | documentation-specific rule semantics | `tooling/repo-utils/src/TSMorph/TSMorph.model.ts` |",
+    "| Docgen checker | Current runtime validator | missing description, example presence, missing @since | semantic rules like Effect @throws prohibition | `packages/tooling/tool/docgen/src/Checker.ts` |",
+    "| Docgen analysis operations | Current report/enforcement surface | required public-export tags such as @category, @example, @since | semantic interpretation of function contracts | `packages/tooling/tool/cli/src/commands/Docgen/internal/Operations.ts` |",
+    "| Docgen domain models | Artifact vocabulary source | docgen entities, doc records, module/fileoverview surfaces | policy semantics and rule precedence | `packages/tooling/tool/docgen/src/Domain.ts` |",
+    "| Repo utils symbol model | Retrieval bridge source | deterministic TypeScript symbol kinds for retrieval and grounding | documentation-specific rule semantics | `packages/tooling/library/repo-utils/src/TSMorph/TSMorph.model.ts` |",
     "",
     "The seed layer uses split authority intentionally: structural tag facts come from the typed JSDoc models, normative rules come from the repo policy document, and current enforcement claims only come from the existing docgen toolchain.",
   ].join("\n");

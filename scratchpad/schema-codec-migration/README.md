@@ -16,7 +16,7 @@ Generated during the Phase 1 inventory pass for replacing sync schema codecs wit
 
 ## Phase 2 Work Slices
 
-- Tooling: `tooling/docgen`, `tooling/configs`, `tooling/cli`, and `tooling/repo-utils`.
+- Tooling: `packages/tooling/tool/docgen`, `packages/tooling/policy-pack/repo-configs`, `packages/tooling/tool/cli`, and `packages/tooling/library/repo-utils`.
 - Foundation modeling: `packages/foundation/modeling/schema`, `packages/foundation/modeling/identity`, and `packages/foundation/modeling/utils`.
 - Foundation capability/UI: `packages/foundation/capability/*` and `packages/foundation/ui-system/ui`.
 - Shared packages: `packages/shared/domain` and `packages/shared/ui`.
@@ -28,7 +28,7 @@ When migrating to `S.decodeUnknownEffect`, `S.decodeEffect`, `S.encodeUnknownEff
 
 ## Current Hotspots
 
-- Highest-volume test/JSDoc clusters: `packages/foundation/modeling/schema/test/HttpHeaders.test.ts`, `tooling/repo-utils/test/TSMorph.model.test.ts`, `packages/foundation/modeling/schema/test/Graph.test.ts`, `packages/foundation/modeling/schema/test/Color.test.ts`, and `packages/foundation/modeling/schema/test/FilePath.test.ts`.
-- Highest-risk runtime clusters already migrated: `tooling/repo-utils/src/TSMorph`, `packages/foundation/capability/semantic-web/src/adapters`, `tooling/cli/src/commands`, `tooling/docgen/src`, and shared entity constructors.
+- Highest-volume test/JSDoc clusters: `packages/foundation/modeling/schema/test/HttpHeaders.test.ts`, `packages/tooling/library/repo-utils/test/TSMorph.model.test.ts`, `packages/foundation/modeling/schema/test/Graph.test.ts`, `packages/foundation/modeling/schema/test/Color.test.ts`, and `packages/foundation/modeling/schema/test/FilePath.test.ts`.
+- Highest-risk runtime clusters already migrated: `packages/tooling/library/repo-utils/src/TSMorph`, `packages/foundation/capability/semantic-web/src/adapters`, `packages/tooling/tool/cli/src/commands`, `packages/tooling/tool/docgen/src`, and shared entity constructors.
 - Guidance pass: repo-local Effect/schema skills now steer agents toward Effect codecs, explicit `Effect.mapError(...)` at boundaries, and `Result.getOrThrowWith(...)` only when preserving a legacy throwing sync wrapper.
 - Tooling guidance cleanup: the dual-arity law now recognizes Effect/Result/Option codec factories instead of sync codec factories, and the JSDoc tag-value docs advertise `S.decodeUnknownResult(...)` instead of `S.decodeSync(...)`.

@@ -6,9 +6,7 @@
     "./apps/**/dtslint/**/*.ts",
     "./apps/**/dtslint/**/*.tsx",
     "./packages/**/dtslint/**/*.ts",
-    "./packages/**/dtslint/**/*.tsx",
-    "./tooling/**/dtslint/**/*.ts",
-    "./tooling/**/dtslint/**/*.tsx"
+    "./packages/**/dtslint/**/*.tsx"
   ],
   "exclude": [
     "**/node_modules/**",

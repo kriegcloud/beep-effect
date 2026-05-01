@@ -22,7 +22,7 @@ Compact, enforceable laws for this codebase. Keep agent-facing files terse; keep
 11. Use `Bool.match` for boolean branching in domain/runtime orchestration code.
 12. Prefer schema defaults and transformations (`S.withDecodingDefault*`, `S.decodeTo`, `SchemaTransformation`) over ad-hoc parsing/fallback logic.
 13. HTTP boundaries must be expressed with Effect HTTP modules (`HttpClientRequest`, `HttpClientResponse`, `Headers`, `UrlParams`, `HttpMethod`, `HttpBody`).
-14. JSDoc is required for exported APIs in `packages/*/src` and `tooling/*/src`; examples must pass docgen.
+14. JSDoc is required for exported APIs in `packages/*/src` and `packages/tooling/*/*/src`; examples must pass docgen.
 15. Do not finish work with failing `check`, `lint`, `test`, or `docgen`.
 16. Named or reused domain constraints are modeled as schemas first; prefer built-in schema constructors/checks before `S.makeFilter`, and derive guards with `S.is(...)`.
 17. Reusable `S.makeFilter`, `S.makeFilterGroup`, and reusable built-in check blocks must include `identifier`, `title`, and `description`; `message` stays user-facing.
@@ -53,7 +53,7 @@ Wave 1 enforcement scope:
 
 - `apps/**`
 - `packages/**`
-- `tooling/**`
+- `packages/tooling/**`
 - `infra/**`
 - `.claude/hooks/**`
 

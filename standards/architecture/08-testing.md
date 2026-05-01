@@ -2,7 +2,13 @@
 
 A slice's tests must run with only that slice's Layers, plus shared test-kit and driver test Layers. Anything more couples slices and breaks the optionality the architecture exists to preserve.
 
-The test runner is `npx vitest run`. Never `bun test` — Bun's runner breaks `@effect/vitest`.
+The test runner is Vitest through the repo/package scripts: use `bun run test`
+from a package/root script, or `bunx --bun vitest run ...` for a targeted local
+lane. Never `bun test` — Bun's runner breaks `@effect/vitest`.
+
+The executable proof target for the architecture is `packages/fixture-lab/specimen`.
+It carries focused runtime and type tests for boundary subpaths, package shape,
+and strict port-to-action error translation.
 
 ## Domain In Isolation
 
@@ -20,39 +26,49 @@ Test pattern:
 `Effect.fn` that returns `MembershipAlreadyRevoked` when the lifecycle rule
 rejects the transition. Both can be tested without booting any Layer.
 
-```ts
-import { describe, expect, it } from "@effect/vitest"
-import { Effect, Exit } from "effect"
-import { Membership, MembershipStatus } from "@beep/iam-domain/entities/Membership"
-import { MembershipAlreadyRevoked } from "@beep/iam-domain/entities/Membership"
-import { activeMembership, revokedMembership } from "@beep/iam-domain/test"
+````ts
+import { describe, expect, it } from "@effect/vitest";
+import { Cause, Effect, Exit } from "effect";
+import * as O from "effect/Option";
+import {
+  MembershipAlreadyRevoked,
+  MembershipStatus,
+} from "@beep/iam-domain/entities/Membership";
+import { activeMembership, revokedMembership } from "@beep/iam-domain/test";
 
 describe("Membership", () => {
   it("canRevoke returns true for an active membership", () => {
-    expect(activeMembership.canRevoke()).toBe(true)
-  })
+    expect(activeMembership.canRevoke()).toBe(true);
+  });
 
   it("canRevoke returns false for a revoked membership", () => {
-    expect(revokedMembership.canRevoke()).toBe(false)
-  })
+    expect(revokedMembership.canRevoke()).toBe(false);
+  });
 
-  it.effect("revoke succeeds for an active membership", () =>
-    Effect.gen(function* () {
-      const next = yield* activeMembership.revoke()
-      expect(next.status).toBe(MembershipStatus.Enum.revoked)
-    }))
+  it.effect(
+    "revoke succeeds for an active membership",
+    Effect.fnUntraced(function* () {
+      const next = yield* activeMembership.revoke();
+      expect(next.status).toBe(MembershipStatus.Enum.revoked);
+    })
+  );
 
-  it.effect("revoke fails with MembershipAlreadyRevoked when already revoked", () =>
-    Effect.gen(function* () {
-      const exit = yield* Effect.exit(revokedMembership.revoke())
-      expect(Exit.isFailure(exit)).toBe(true)
+  it.effect(
+    "revoke fails with MembershipAlreadyRevoked when already revoked",
+    Effect.fnUntraced(function* () {
+      const exit = yield* Effect.exit(revokedMembership.revoke());
+      expect(Exit.isFailure(exit)).toBe(true);
       if (Exit.isFailure(exit)) {
-        const error = exit.cause.failures[0]
-        expect(error).toBeInstanceOf(MembershipAlreadyRevoked)
+        const error = Cause.findErrorOption(exit.cause);
+        expect(O.isSome(error)).toBe(true);
+        if (O.isSome(error)) {
+          expect(error.value).toBeInstanceOf(MembershipAlreadyRevoked);
+        }
       }
-    }))
-})
-```
+    })
+  );
+});
+````
 
 The fixtures `activeMembership` and `revokedMembership` are owned by
 `@beep/iam-domain/test` (see Fixture Ownership below). Domain tests never
@@ -76,53 +92,67 @@ Two stubbing styles are available:
 `Layer.mock` is the right tool for narrow port stubs. If the test needs to
 control more than two methods, prefer `Layer.succeed` for clarity.
 
+Use-case tests must cover the boundary translator as well as the happy path: a
+stubbed port failure such as `MembershipRepositoryNotFound` should become the
+public action error promised by the use-case contract, such as
+`MembershipNotFound`. The `fixture-lab/Specimen` use-case test is the canonical
+compile-ready example.
+
 `MembershipService.revoke` depends on `MembershipAccess` (authorization port)
 and `MembershipRepository` (persistence port). The revoke test stubs both:
 
-```ts
-import { describe, expect, it, layer } from "@effect/vitest"
-import { Effect, Exit, Layer } from "effect"
-import * as O from "effect/Option"
+````ts
+import { expect, layer } from "@effect/vitest";
+import { Cause, Effect, Exit, Layer } from "effect";
+import * as O from "effect/Option";
 import {
   MembershipAccess,
+  MembershipNotFound,
   MembershipRepository,
   MembershipService,
-  MembershipNotFound,
-} from "@beep/iam-use-cases/server"
-import { MembershipServerLayer } from "@beep/iam-server/layer"
-import { activeMembership, revokeMembershipCommand } from "@beep/iam-use-cases/test"
+} from "@beep/iam-use-cases/server";
+import { MembershipServerLayer } from "@beep/iam-server/layer";
+import { activeMembership, revokeMembershipCommand } from "@beep/iam-use-cases/test";
 
 const MembershipAccessAllow = Layer.mock(MembershipAccess)({
   assertCanRevoke: () => Effect.void,
-})
+});
 
 const MembershipRepositoryStub = Layer.succeed(MembershipRepository, {
   findById: () => Effect.succeed(O.some(activeMembership)),
   save: () => Effect.void,
-})
+});
 
 const TestLayer = MembershipServerLayer.pipe(
-  Layer.provide(Layer.mergeAll(MembershipAccessAllow, MembershipRepositoryStub)),
-)
+  Layer.provide(Layer.mergeAll(MembershipAccessAllow, MembershipRepositoryStub))
+);
 
 layer(TestLayer)("MembershipService.revoke", (it) => {
-  it.effect("revokes an active membership", () =>
-    Effect.gen(function* () {
-      const service = yield* MembershipService
-      yield* service.revoke(revokeMembershipCommand)
-    }))
+  it.effect(
+    "revokes an active membership",
+    Effect.fnUntraced(function* () {
+      const service = yield* MembershipService;
+      yield* service.revoke(revokeMembershipCommand);
+    })
+  );
 
-  it.effect("fails with MembershipNotFound when the repository returns none", () =>
-    Effect.gen(function* () {
-      const service = yield* MembershipService
-      const exit = yield* Effect.exit(service.revoke(revokeMembershipCommand))
-      expect(Exit.isFailure(exit)).toBe(true)
+  it.effect(
+    "fails with MembershipNotFound when the repository returns none",
+    Effect.fnUntraced(function* () {
+      const service = yield* MembershipService;
+      const exit = yield* Effect.exit(service.revoke(revokeMembershipCommand));
+      expect(Exit.isFailure(exit)).toBe(true);
       if (Exit.isFailure(exit)) {
-        expect(exit.cause.failures[0]).toBeInstanceOf(MembershipNotFound)
+        const error = Cause.findErrorOption(exit.cause);
+        expect(O.isSome(error)).toBe(true);
+        if (O.isSome(error)) {
+          expect(error.value).toBeInstanceOf(MembershipNotFound);
+        }
       }
-    }))
-})
-```
+    })
+  );
+});
+````
 
 The test composes only `MembershipServerLayer` (the slice's use-case
 implementation) plus stubs for the two ports it needs. No driver Layer, no app
@@ -134,16 +164,16 @@ Each slice's `/test` subpath publishes shared fixtures: test data, common stubs,
 test-only Layers. A slice's tests import its own `/test` through the package
 alias, never through a relative path into another package's `src/`:
 
-```ts
-import { activeMembership } from "@beep/iam-domain/test"
-import { revokeMembershipCommand } from "@beep/iam-use-cases/test"
-```
+````ts
+import { activeMembership } from "@beep/iam-domain/test";
+import { revokeMembershipCommand } from "@beep/iam-use-cases/test";
+````
 
 Cross-slice tests never import another slice's `/test` directly. If a fixture
 is genuinely cross-slice, promote it to `shared/use-cases/test`. Promotion
 requires a record per `02-shared-kernel.md`.
 
-Foundation `test-kit` packages (under `tooling/test-kit/`) provide
+Foundation `test-kit` packages (under `packages/tooling/test-kit/`) provide
 infrastructure that any slice may import without promotion: deterministic clock
 helpers, seeded random, in-memory drivers, and `ConfigProvider` test fixtures.
 These are not product-coupled and need no promotion record.
@@ -164,51 +194,69 @@ slice provides:
   test driver Layer)
 - a test that runs the suite against the in-memory implementation
 
-```ts
+````ts
 // packages/iam/use-cases/test/MembershipRepository.contract.ts
-import { expect, it, layer } from "@effect/vitest"
-import { Effect, Layer } from "effect"
-import * as O from "effect/Option"
-import { MembershipRepository } from "@beep/iam-use-cases/server"
-import { activeMembership } from "@beep/iam-use-cases/test"
+import { expect, layer } from "@effect/vitest";
+import { Effect, type Layer } from "effect";
+import * as O from "effect/Option";
+import { MembershipRepository } from "@beep/iam-use-cases/server";
+import { activeMembership } from "@beep/iam-use-cases/test";
 
+/**
+ * Contract suite shared between every `MembershipRepository` implementation.
+ *
+ * Pass any `Layer` producing the port to assert it satisfies the use-case
+ * contract; both the live driver-backed adapter and the in-memory adapter
+ * must pass identical cases.
+ *
+ * @category testing
+ * @since 0.0.0
+ *
+ * @remarks
+ * Drift between implementations indicates a port-or-adapter regression, not
+ * a flaky test.
+ */
 export const MembershipRepositoryContract = (
   RepoLayer: Layer.Layer<MembershipRepository>,
-  label: string,
+  label: string
 ) =>
   layer(RepoLayer)(`MembershipRepository contract — ${label}`, (it) => {
-    it.effect("save then findById returns the saved membership", () =>
-      Effect.gen(function* () {
-        const repo = yield* MembershipRepository
-        yield* repo.save(activeMembership)
-        const found = yield* repo.findById(activeMembership.id)
-        expect(O.isSome(found)).toBe(true)
-      }))
+    it.effect(
+      "save then findById returns the saved membership",
+      Effect.fnUntraced(function* () {
+        const repo = yield* MembershipRepository;
+        yield* repo.save(activeMembership);
+        const found = yield* repo.findById(activeMembership.id);
+        expect(O.isSome(found)).toBe(true);
+      })
+    );
 
-    it.effect("findById returns none for an unknown id", () =>
-      Effect.gen(function* () {
-        const repo = yield* MembershipRepository
-        const found = yield* repo.findById(activeMembership.id)
-        expect(O.isNone(found)).toBe(true)
-      }))
-  })
-```
+    it.effect(
+      "findById returns none for an unknown id",
+      Effect.fnUntraced(function* () {
+        const repo = yield* MembershipRepository;
+        const found = yield* repo.findById(activeMembership.id);
+        expect(O.isNone(found)).toBe(true);
+      })
+    );
+  });
+````
 
-```ts
+````ts
 // packages/iam/server/test/MembershipRepositoryLive.contract.test.ts
-import { MembershipRepositoryContract } from "@beep/iam-use-cases/test"
-import { MembershipRepositoryLive } from "@beep/iam-server/test"
+import { MembershipRepositoryContract } from "@beep/iam-use-cases/test";
+import { MembershipRepositoryLive } from "@beep/iam-server/test";
 
-MembershipRepositoryContract(MembershipRepositoryLive, "live (drizzle test db)")
-```
+MembershipRepositoryContract(MembershipRepositoryLive, "live (drizzle test db)");
+````
 
-```ts
+````ts
 // packages/iam/use-cases/test/MembershipRepositoryInMemory.contract.test.ts
-import { MembershipRepositoryContract } from "@beep/iam-use-cases/test"
-import { MembershipRepositoryInMemory } from "@beep/iam-use-cases/test"
+import { MembershipRepositoryContract } from "@beep/iam-use-cases/test";
+import { MembershipRepositoryInMemory } from "@beep/iam-use-cases/test";
 
-MembershipRepositoryContract(MembershipRepositoryInMemory, "in-memory")
-```
+MembershipRepositoryContract(MembershipRepositoryInMemory, "in-memory");
+````
 
 Both files run the same suite. Any case that passes on one implementation and
 fails on the other is a contract drift, not a flaky test.
@@ -237,16 +285,16 @@ optionality promise made by `01-hexagonal-vertical-slices.md` and
 
 ## Anti-Patterns
 
-| Smell | Diagnostic |
-|---|---|
-| Test imports `@beep/<other-slice>-server` | Cross-slice coupling. Refactor to stub the boundary; if the dependency is real, promote a contract to `shared/use-cases`. |
-| Test imports `apps/web/src/runtime/Layer.ts` | The test is testing the app, not the slice. Move it under `apps/web`. |
-| Test mocks `Effect` itself or `effect/Schema` | Testing the framework, not your code. Remove. |
-| Test reads `process.env` directly | Test should provide a `ConfigProvider` test Layer from `tooling/test-kit/` or `@beep/<kernel>-config/test`. |
-| Test depends on wall-clock time without `TestClock` | Flake. Use `TestClock` from `effect/testing`. |
-| Test uses `bun test` instead of `npx vitest run` | Breaks `@effect/vitest`. Use `npx vitest run`. |
-| Test imports a relative path into another package's `src/` | Boundary violation. Use the `@beep/*` alias and the package's canonical `/test` subpath. |
-| Test composes >=2 slice `Layer.ts` values | Slice-isolation breach. Each slice test composes only its own slice. |
+| Smell                                                      | Diagnostic                                                                                                                |
+|------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|
+| Test imports `@beep/<other-slice>-server`                  | Cross-slice coupling. Refactor to stub the boundary; if the dependency is real, promote a contract to `shared/use-cases`. |
+| Test imports `apps/web/src/runtime/Layer.ts`               | The test is testing the app, not the slice. Move it under `apps/web`.                                                     |
+| Test mocks `Effect` itself or `effect/Schema`              | Testing the framework, not your code. Remove.                                                                             |
+| Test reads `process.env` directly                          | Test should provide a `ConfigProvider` test Layer from `tooling/test-kit/` or `@beep/<kernel>-config/test`.               |
+| Test depends on wall-clock time without `TestClock`        | Flake. Use `TestClock` from `effect/testing`.                                                                             |
+| Test uses `bun test`                                      | Breaks `@effect/vitest`. Use the repo/package `test` script or `bunx --bun vitest run ...`.                              |
+| Test imports a relative path into another package's `src/` | Boundary violation. Use the `@beep/*` alias and the package's canonical `/test` subpath.                                  |
+| Test composes >=2 slice `Layer.ts` values                  | Slice-isolation breach. Each slice test composes only its own slice.                                                      |
 
 ## See Also
 

@@ -29,14 +29,14 @@
     "packages/fixture-lab/specimen/*",
     "packages/_internal/*",
     "infra",
-    "tooling/*",
+    "packages/tooling/*/*",
     ".claude",
     ".codex",
     "standards/*"
   ],
   "goldenFixture": {
     "architectureStandard": "../../standards/ARCHITECTURE.md",
-    "registry": "../../tooling/cli/test/fixtures/repo-architecture-automation/registry/fixture-lab.specimen.json",
+    "registry": "../../packages/tooling/tool/cli/test/fixtures/repo-architecture-automation/registry/fixture-lab.specimen.json",
     "workspaceRoot": "../../packages/fixture-lab/specimen",
     "boundedContext": "fixture-lab",
     "concept": "Specimen",
@@ -62,7 +62,7 @@
     }
   },
   "generatorDirection": {
-    "owner": "tooling/cli",
+    "owner": "packages/tooling/tool/cli",
     "entrypoint": "bun run beep architecture generate",
     "registry": "schema-backed",
     "templateEngine": "handlebars",
@@ -87,7 +87,7 @@
     },
     {
       "id": "fixture-contract",
-      "command": "bunx --bun vitest run tooling/cli/test/repo-architecture-automation-fixture.test.ts"
+      "command": "bunx --bun vitest run packages/tooling/tool/cli/test/repo-architecture-automation-fixture.test.ts"
     },
     {
       "id": "check",
