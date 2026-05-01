@@ -25,7 +25,14 @@ describe("foundation package topology", () => {
       readonly workspaces?: ReadonlyArray<string>;
     };
 
-    expect(rootPackage.workspaces).toContain("packages/foundation/*/*");
+    expect(rootPackage.workspaces).toEqual(
+      expect.arrayContaining([
+        "packages/foundation/capability/*",
+        "packages/foundation/modeling/*",
+        "packages/foundation/primitive/*",
+        "packages/foundation/ui-system/*",
+      ])
+    );
     expect(rootPackage.workspaces).not.toContain("packages/common/*");
     expect(existsSync(join(repoRoot, "packages", "common"))).toBe(false);
 

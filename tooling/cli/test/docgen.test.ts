@@ -32,6 +32,7 @@ const CommandTestLayer = Layer.mergeAll(
 );
 const runDocgenCommand = Command.runWith(docgenCommand, { version: "0.0.0" });
 const encodeJson = S.encodeUnknownSync(S.UnknownFromJsonString);
+const decodeUnknownJson = S.decodeUnknownSync(S.fromJsonString(S.Unknown));
 const DOCGEN_COMMAND_TEST_TIMEOUT = 30_000;
 
 const withTempRepo = <A, E, R>(use: Effect.Effect<A, E, R>) =>
@@ -145,7 +146,7 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/example/*"],
+              workspaces: ["packages/foundation/*/*"],
             })
           );
 
@@ -541,7 +542,7 @@ describe("Docgen operations", () => {
             encodeJson({
               name: "@beep/test-root",
               private: true,
-              workspaces: ["packages/foundation/*/*"],
+              workspaces: ["packages/example/*"],
             })
           );
 
@@ -854,7 +855,7 @@ describe("Docgen operations", () => {
           yield* runDocgenCommand(["init", "-p", "packages/foundation/modeling/schema"]);
 
           const docgenText = yield* fs.readFileString(docgenPath);
-          const docgenConfig = JSON.parse(docgenText) as {
+          const docgenConfig = decodeUnknownJson(docgenText) as {
             readonly examplesCompilerOptions?: {
               readonly paths?: Record<string, ReadonlyArray<string>>;
             };

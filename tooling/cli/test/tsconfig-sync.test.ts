@@ -650,7 +650,7 @@ describe("tsconfig-sync", () => {
           expect(syncResult.changes[0]?.section).toBe("package-docgen");
 
           const syncedText = yield* fs.readFileString(docgenPath);
-          const syncedDocgen = JSON.parse(syncedText) as {
+          const syncedDocgen = decodeUnknownJson(syncedText) as {
             readonly examplesCompilerOptions?: {
               readonly paths?: Record<string, ReadonlyArray<string>>;
             };
