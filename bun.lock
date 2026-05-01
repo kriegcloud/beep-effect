@@ -164,21 +164,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/md": {
-      "name": "@beep/md",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "@beep/utils": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/nlp": {
       "name": "@beep/nlp",
       "version": "0.0.0",
@@ -460,6 +445,21 @@
       "dependencies": {
         "@beep/identity": "workspace:^",
         "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/md": {
+      "name": "@beep/md",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "@beep/utils": "workspace:^",
         "effect": "catalog:",
       },
       "devDependencies": {
@@ -1306,7 +1306,7 @@
 
     "@beep/infra": ["@beep/infra@workspace:infra"],
 
-    "@beep/md": ["@beep/md@workspace:packages/common/md"],
+    "@beep/md": ["@beep/md@workspace:packages/foundation/capability/md"],
 
     "@beep/messages": ["@beep/messages@workspace:packages/foundation/modeling/messages"],
 

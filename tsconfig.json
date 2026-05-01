@@ -94,8 +94,8 @@
       "@beep/docgen/*": ["./tooling/docgen/src/*"],
       "@beep/infra": ["./infra/src/index.ts"],
       "@beep/infra/*": ["./infra/src/*"],
-      "@beep/md": ["./packages/common/md/src/index.ts"],
-      "@beep/md/*": ["./packages/common/md/src/*"],
+      "@beep/md": ["./packages/foundation/capability/md/src/index.ts"],
+      "@beep/md/*": ["./packages/foundation/capability/md/src/*"],
       "@beep/codedank-web": ["./apps/codedank-web/src/index.ts"],
       "@beep/codedank-web/*": ["./apps/codedank-web/src/*"],
       "@beep/docgen/schema.json": ["./tooling/docgen/schema.json"],
@@ -186,10 +186,16 @@
       "@beep/identity/packages": [
         "./packages/foundation/modeling/identity/src/packages.ts"
       ],
-      "@beep/md/Md": ["./packages/common/md/src/Md.ts"],
-      "@beep/md/Md.model": ["./packages/common/md/src/Md.model.ts"],
-      "@beep/md/Md.render": ["./packages/common/md/src/Md.render.ts"],
-      "@beep/md/Md.utils": ["./packages/common/md/src/Md.utils.ts"],
+      "@beep/md/Md": ["./packages/foundation/capability/md/src/Md.ts"],
+      "@beep/md/Md.model": [
+        "./packages/foundation/capability/md/src/Md.model.ts"
+      ],
+      "@beep/md/Md.render": [
+        "./packages/foundation/capability/md/src/Md.render.ts"
+      ],
+      "@beep/md/Md.utils": [
+        "./packages/foundation/capability/md/src/Md.utils.ts"
+      ],
       "@beep/nlp/Core": ["./packages/common/nlp/src/Core/index.ts"],
       "@beep/nlp/IdentifierText": [
         "./packages/common/nlp/src/IdentifierText.ts"

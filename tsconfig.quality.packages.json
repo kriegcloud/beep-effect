@@ -19,9 +19,6 @@
       "path": "packages/_internal/db-admin"
     },
     {
-      "path": "packages/common/md"
-    },
-    {
       "path": "packages/common/nlp"
     },
     {
@@ -68,6 +65,9 @@
     },
     {
       "path": "packages/foundation/capability/colors"
+    },
+    {
+      "path": "packages/foundation/capability/md"
     },
     {
       "path": "packages/foundation/modeling/identity"
