@@ -9,7 +9,7 @@
   },
   "references": [
     {
-      "path": "../../common/colors/tsconfig.json"
+      "path": "../../foundation/capability/colors/tsconfig.json"
     },
     {
       "path": "../../foundation/modeling/identity/tsconfig.json"

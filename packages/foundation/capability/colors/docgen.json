@@ -1,7 +1,7 @@
 {
-  "$schema": "../../../tooling/docgen/schema.json",
+  "$schema": "../../../../tooling/docgen/schema.json",
   "exclude": ["src/internal/**/*.ts", "src/Colors.browser.ts", "src/index.ts"],
-  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/common/colors/src/",
+  "srcLink": "https://github.com/kriegcloud/beep-effect/tree/main/packages/foundation/capability/colors/src/",
   "examplesCompilerOptions": {
     "noEmit": true,
     "strict": true,
@@ -29,27 +29,33 @@
     "types": ["node"],
     "jsx": "react-jsx",
     "paths": {
-      "@beep/colors": ["../../../packages/common/colors/src/index.ts"],
-      "@beep/colors/*": ["../../../packages/common/colors/src/*.ts"],
+      "@beep/colors": [
+        "../../../../packages/foundation/capability/colors/src/index.ts"
+      ],
+      "@beep/colors/*": [
+        "../../../../packages/foundation/capability/colors/src/*.ts"
+      ],
       "@beep/identity": [
-        "../../../packages/foundation/modeling/identity/src/index.ts"
+        "../../../../packages/foundation/modeling/identity/src/index.ts"
       ],
       "@beep/identity/*": [
-        "../../../packages/foundation/modeling/identity/src/*.ts"
+        "../../../../packages/foundation/modeling/identity/src/*.ts"
       ],
       "@beep/identity/packages": [
-        "../../../packages/foundation/modeling/identity/src/packages.ts"
+        "../../../../packages/foundation/modeling/identity/src/packages.ts"
       ],
       "@beep/schema": [
-        "../../../packages/foundation/modeling/schema/src/index.ts"
+        "../../../../packages/foundation/modeling/schema/src/index.ts"
       ],
       "@beep/schema/*": [
-        "../../../packages/foundation/modeling/schema/src/*.ts"
+        "../../../../packages/foundation/modeling/schema/src/*.ts"
       ],
       "@beep/types": [
-        "../../../packages/foundation/primitive/types/src/index.ts"
+        "../../../../packages/foundation/primitive/types/src/index.ts"
       ],
-      "@beep/types/*": ["../../../packages/foundation/primitive/types/src/*.ts"]
+      "@beep/types/*": [
+        "../../../../packages/foundation/primitive/types/src/*.ts"
+      ]
     }
   }
 }

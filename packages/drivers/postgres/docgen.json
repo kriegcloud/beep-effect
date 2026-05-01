@@ -31,8 +31,12 @@
     "paths": {
       "@beep/postgres": ["../../../packages/drivers/postgres/src/index.ts"],
       "@beep/postgres/*": ["../../../packages/drivers/postgres/src/*.ts"],
-      "@beep/colors": ["../../../packages/common/colors/src/index.ts"],
-      "@beep/colors/*": ["../../../packages/common/colors/src/*.ts"],
+      "@beep/colors": [
+        "../../../packages/foundation/capability/colors/src/index.ts"
+      ],
+      "@beep/colors/*": [
+        "../../../packages/foundation/capability/colors/src/*.ts"
+      ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

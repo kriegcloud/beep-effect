@@ -22,9 +22,6 @@
       "path": "packages/common/chalk"
     },
     {
-      "path": "packages/common/colors"
-    },
-    {
       "path": "packages/common/md"
     },
     {
@@ -68,6 +65,9 @@
     },
     {
       "path": "packages/fixture-lab/specimen/use-cases"
+    },
+    {
+      "path": "packages/foundation/capability/colors"
     },
     {
       "path": "packages/foundation/modeling/identity"

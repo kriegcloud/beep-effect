@@ -44,8 +44,12 @@
       "@beep/observability/web": [
         "../../../packages/common/observability/src/web/index.ts"
       ],
-      "@beep/colors": ["../../../packages/common/colors/src/index.ts"],
-      "@beep/colors/*": ["../../../packages/common/colors/src/*.ts"],
+      "@beep/colors": [
+        "../../../packages/foundation/capability/colors/src/index.ts"
+      ],
+      "@beep/colors/*": [
+        "../../../packages/foundation/capability/colors/src/*.ts"
+      ],
       "@beep/identity": [
         "../../../packages/foundation/modeling/identity/src/index.ts"
       ],

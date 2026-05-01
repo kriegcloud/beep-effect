@@ -177,20 +177,6 @@
         "@types/node": "catalog:",
       },
     },
-    "packages/common/colors": {
-      "name": "@beep/colors",
-      "version": "0.0.0",
-      "dependencies": {
-        "@beep/identity": "workspace:^",
-        "@beep/schema": "workspace:^",
-        "effect": "catalog:",
-      },
-      "devDependencies": {
-        "@beep/types": "workspace:^",
-        "@effect/vitest": "catalog:",
-        "@types/node": "catalog:",
-      },
-    },
     "packages/common/md": {
       "name": "@beep/md",
       "version": "0.0.0",
@@ -464,6 +450,20 @@
         "effect": "catalog:",
       },
       "devDependencies": {
+        "@effect/vitest": "catalog:",
+        "@types/node": "catalog:",
+      },
+    },
+    "packages/foundation/capability/colors": {
+      "name": "@beep/colors",
+      "version": "0.0.0",
+      "dependencies": {
+        "@beep/identity": "workspace:^",
+        "@beep/schema": "workspace:^",
+        "effect": "catalog:",
+      },
+      "devDependencies": {
+        "@beep/types": "workspace:^",
         "@effect/vitest": "catalog:",
         "@types/node": "catalog:",
       },
@@ -1276,7 +1276,7 @@
 
     "@beep/codex": ["@beep/codex@workspace:.codex"],
 
-    "@beep/colors": ["@beep/colors@workspace:packages/common/colors"],
+    "@beep/colors": ["@beep/colors@workspace:packages/foundation/capability/colors"],
 
     "@beep/data": ["@beep/data@workspace:packages/foundation/primitive/data"],
 
